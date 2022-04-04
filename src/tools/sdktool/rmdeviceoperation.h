@@ -41,7 +41,7 @@ public:
     int execute() const;
 
 #ifdef WITH_TESTS
-    bool test() const;
+    static void unittest();
 #endif
 
     static QVariantMap rmDevice(const QVariantMap &map, const QString &id);

@@ -15,6 +15,7 @@ Project {
         "qtc-askpass/qtc-askpass.qbs",
         "qtpromaker/qtpromaker.qbs",
         "sdktool/sdktool.qbs",
+        "sdktool/sdktoollib.qbs",
         "valgrindfake/valgrindfake.qbs",
         "iostool/iostool.qbs",
     ].concat(project.additionalTools)

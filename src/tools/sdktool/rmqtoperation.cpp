@@ -34,6 +34,14 @@
 
 #include <iostream>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(rmqtlog, "qtc.sdktool.operations.rmqt", QtWarningMsg)
+
 // ToolChain file stuff:
 const char PREFIX[] = "QtVersion.";
 
@@ -63,7 +71,7 @@ bool RmQtOperation::setArguments(const QStringList &args)
 
         if (current == QLatin1String("--id")) {
             if (next.isNull()) {
-                std::cerr << "No parameter for --id given." << std::endl << std::endl;
+                qCCritical(rmqtlog) << "No parameter for --id given.";
                 return false;
             }
             ++i; // skip next;
@@ -73,7 +81,7 @@ bool RmQtOperation::setArguments(const QStringList &args)
     }
 
     if (m_id.isEmpty())
-        std::cerr << "No id given." << std::endl << std::endl;
+        qCCritical(rmqtlog) << "No id given.";
 
     return !m_id.isEmpty();
 }
@@ -92,42 +100,46 @@ int RmQtOperation::execute() const
 }
 
 #ifdef WITH_TESTS
-bool RmQtOperation::test() const
+void RmQtOperation::unittest()
 {
     // Add toolchain:
     QVariantMap map = AddQtData::initializeQtVersions();
 
     QVariantMap result = rmQt(QVariantMap(), QLatin1String("nonexistant"));
-    if (result != map)
-        return false;
+    QCOMPARE(result, map);
 
-    map = AddQtData{"testId", "name", "type", "/tmp/test", {},
-                  {{QLatin1String("ExtraKey"), QVariant(QLatin1String("ExtraValue"))}}}
-            .addQt(map);
+    AddQtData addData;
+    addData.m_id = "testId";
+    addData.m_displayName = "name";
+    addData.m_type = "type";
+    addData.m_qmake = "/tmp/test";
+    addData.m_extra = {{QLatin1String("ExtraKey"), QVariant(QLatin1String("ExtraValue"))}};
 
-    map = AddQtData{"testId2", "other name", "type", "/tmp/test2", {}, {}}.addQt(map);
+    map = addData.addQt(map);
+
+    addData.m_id = "testId2";
+    addData.m_displayName = "other name";
+    addData.m_type = "type";
+    addData.m_qmake = "/tmp/test2";
+    addData.m_extra = {};
+
+    map = addData.addQt(map);
 
     result = rmQt(map, QLatin1String("nonexistant"));
-    if (result != map)
-        return false;
+    QCOMPARE(result, map);
 
     result = rmQt(map, QLatin1String("testId2"));
-    if (result == map
-            || !result.contains(QLatin1String("QtVersion.0"))
-            || result.value(QLatin1String("QtVersion.0")) != map.value(QLatin1String("QtVersion.0")))
-        return false;
+    QVERIFY(result != map);
+    QVERIFY(result.contains(QLatin1String("QtVersion.0")));
+    QCOMPARE(result.value(QLatin1String("QtVersion.0")), map.value(QLatin1String("QtVersion.0")));
 
     result = rmQt(map, QLatin1String("testId"));
-    if (result == map
-            || !result.contains(QLatin1String("QtVersion.0"))
-            || result.value(QLatin1String("QtVersion.0")) != map.value(QLatin1String("QtVersion.1")))
-        return false;
+    QVERIFY(result != map);
+    QVERIFY(result.contains(QLatin1String("QtVersion.0")));
+    QCOMPARE(result.value(QLatin1String("QtVersion.0")), map.value(QLatin1String("QtVersion.1")));
 
     result = rmQt(result, QLatin1String("testId2"));
-    if (result == map)
-        return false;
-
-    return true;
+    QVERIFY(result != map);
 }
 #endif
 
@@ -153,4 +165,3 @@ QVariantMap RmQtOperation::rmQt(const QVariantMap &map, const QString &id)
 
     return newMap;
 }
-

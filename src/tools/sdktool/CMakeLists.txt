@@ -33,12 +33,12 @@ set(UtilsSourcesDir "../../libs/utils")
 
 file(RELATIVE_PATH DATA_PATH "/${IDE_LIBEXEC_PATH}" "/${IDE_DATA_PATH}")
 
-add_qtc_executable(sdktool
-  ${DESTINATION}
+add_qtc_library(sdktoolLib
+  STATIC
   DEFINES DATA_PATH=\"${DATA_PATH}\"
-  DEPENDS Qt5::Core
+  PUBLIC_DEPENDS Qt5::Core
+  PUBLIC_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} "${UtilsSourcesDir}/../"
   INCLUDES
-    "${UtilsSourcesDir}/../"
     ${CMAKE_CURRENT_BINARY_DIR}
   SOURCES
     addabiflavor.cpp addabiflavor.h
@@ -53,7 +53,6 @@ add_qtc_executable(sdktool
     findkeyoperation.cpp findkeyoperation.h
     findvalueoperation.cpp findvalueoperation.h
     getoperation.cpp getoperation.h
-    main.cpp
     operation.cpp operation.h
     rmcmakeoperation.cpp rmcmakeoperation.h
     rmdebuggeroperation.cpp rmdebuggeroperation.h
@@ -65,15 +64,7 @@ add_qtc_executable(sdktool
     settings.cpp settings.h
 )
 
-if (MSVC AND TARGET sdktool)
-  # find out if Qt is static and set /MT if so
-  get_target_property(_input_type Qt5::Core TYPE)
-  if (${_input_type} STREQUAL "STATIC_LIBRARY")
-    set_property(TARGET sdktool PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-  endif()
-endif()
-
-extend_qtc_executable(sdktool
+extend_qtc_library(sdktoolLib
   SOURCES_PREFIX "${UtilsSourcesDir}"
   DEFINES QTCREATOR_UTILS_STATIC_LIB
   SOURCES
@@ -92,18 +83,37 @@ extend_qtc_executable(sdktool
     stringutils.cpp stringutils.h
 )
 
-extend_qtc_executable(sdktool CONDITION APPLE
+extend_qtc_library(sdktoolLib CONDITION APPLE
   SOURCES_PREFIX "${UtilsSourcesDir}"
   SOURCES
     fileutils_mac.mm fileutils_mac.h
-  DEPENDS
+  PUBLIC_DEPENDS
     ${FWFoundation}
 )
 
-extend_qtc_executable(sdktool CONDITION WIN32
-  DEPENDS
+extend_qtc_library(sdktoolLib CONDITION WIN32
+  PUBLIC_DEPENDS
     user32 iphlpapi ws2_32 shell32
   DEFINES
     _UNICODE UNICODE
     _CRT_SECURE_NO_WARNINGS _SCL_SECURE_NO_WARNINGS
 )
+
+add_qtc_executable(sdktool
+  ${DESTINATION}
+  DEFINES DATA_PATH=\"${DATA_PATH}\"
+  DEPENDS sdktoolLib
+  INCLUDES
+    ${CMAKE_CURRENT_BINARY_DIR}
+  SOURCES
+    main.cpp
+)
+
+if (MSVC AND TARGET sdktool)
+  # find out if Qt is static and set /MT if so
+  get_target_property(_input_type Qt5::Core TYPE)
+  if (${_input_type} STREQUAL "STATIC_LIBRARY")
+    set_property(TARGET sdktool PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+  endif()
+endif()
+

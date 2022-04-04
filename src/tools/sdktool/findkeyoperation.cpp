@@ -27,6 +27,15 @@
 
 #include <iostream>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(findkeylog, "qtc.sdktool.operations.findkey", QtWarningMsg)
+
+
 QString FindKeyOperation::name() const
 {
     return QLatin1String("findKey");
@@ -57,9 +66,9 @@ bool FindKeyOperation::setArguments(const QStringList &args)
     }
 
     if (m_file.isEmpty())
-        std::cerr << "No file given." << std::endl << std::endl;
+        qCCritical(findkeylog) << "No file given.";
     if (m_keys.isEmpty())
-        std::cerr << "No keys given." << std::endl << std::endl;
+        qCCritical(findkeylog) << "No keys given.";
 
     return (!m_file.isEmpty() && !m_keys.isEmpty());
 }
@@ -69,17 +78,18 @@ int FindKeyOperation::execute() const
     Q_ASSERT(!m_keys.isEmpty());
     QVariantMap map = load(m_file);
 
-    foreach (const QString &k, m_keys) {
+    for (const auto &k : m_keys) {
         const QStringList result = findKey(map, k);
-        foreach (const QString &r, result)
+        for (const auto &r: result) {
             std::cout << qPrintable(r) << std::endl;
+        }
     }
 
     return 0;
 }
 
 #ifdef WITH_TESTS
-bool FindKeyOperation::test() const
+void FindKeyOperation::unittest()
 {
     QVariantMap testMap;
     QVariantMap subKeys;
@@ -108,26 +118,20 @@ bool FindKeyOperation::test() const
 
     QStringList result;
     result = findKey(testMap, QLatin1String("missing"));
-    if (!result.isEmpty())
-        return false;
+    QVERIFY(result.isEmpty());
 
     result = findKey(testMap, QLatin1String("testint"));
-    if (result.count() != 2
-            || !result.contains(QLatin1String("testint"))
-            || !result.contains(QLatin1String("subkeys/subsubkeys/testint")))
-        return false;
+    QCOMPARE(result.count(), 2);
+    QVERIFY(result.contains(QLatin1String("testint")));
+    QVERIFY(result.contains(QLatin1String("subkeys/subsubkeys/testint")));
 
     result = findKey(testMap, QLatin1String("testbool"));
-    if (result.count() != 2
-            || !result.contains(QLatin1String("testbool")))
-        return false;
+    QCOMPARE(result.count(), 2);
+    QVERIFY(result.contains(QLatin1String("testbool")));
 
     result = findKey(testMap, QLatin1String("findMe"));
-    if (result.count() != 1
-            || !result.contains(QLatin1String("aList[2][1]/findMe")))
-        return false;
-
-    return true;
+    QCOMPARE(result.count(), 1);
+    QVERIFY(result.contains(QLatin1String("aList[2][1]/findMe")));
 }
 #endif
 

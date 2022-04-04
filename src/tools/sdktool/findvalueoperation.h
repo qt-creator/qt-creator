@@ -39,7 +39,7 @@ public:
     int execute() const final;
 
 #ifdef WITH_TESTS
-    bool test() const final;
+    static void unittest();
 #endif
 
     static QStringList findValue(const QVariant &in, const QVariant &value,

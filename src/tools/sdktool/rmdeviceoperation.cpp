@@ -32,6 +32,15 @@
 
 #include <iostream>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(rmdevicelog, "qtc.sdktool.operations.rmdevice", QtWarningMsg)
+
+
 QString RmDeviceOperation::name() const
 {
     return QLatin1String("rmDev");
@@ -57,7 +66,7 @@ bool RmDeviceOperation::setArguments(const QStringList &args)
     m_id = args.at(1);
 
     if (m_id.isEmpty())
-        std::cerr << "No id given." << std::endl << std::endl;
+        qCCritical(rmdevicelog) << "No id given.";
 
     return !m_id.isEmpty();
 }
@@ -77,9 +86,9 @@ int RmDeviceOperation::execute() const
 }
 
 #ifdef WITH_TESTS
-bool RmDeviceOperation::test() const
+void RmDeviceOperation::unittest()
 {
-    return true;
+
 }
 #endif
 
@@ -107,8 +116,10 @@ QVariantMap RmDeviceOperation::rmDevice(const QVariantMap &map, const QString &i
     dmMap.insert(QLatin1String(DEVICE_LIST_ID), devList);
     result.insert(QLatin1String(DEVICEMANAGER_ID), dmMap);
 
-    if (!found)
-        std::cerr << "Device " << qPrintable(id) << " not found." << std::endl;
+    if (!found){
+        qCCritical(rmdevicelog) << "Device " << qPrintable(id) << " not found.";
+
+    }
     return result;
 }
 

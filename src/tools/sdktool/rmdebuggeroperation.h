@@ -41,11 +41,10 @@ public:
     int execute() const;
 
 #ifdef WITH_TESTS
-    bool test() const;
+    static void unittest();
 #endif
 
     static QVariantMap rmDebugger(const QVariantMap &map, const QString &id);
-
 private:
     QString m_id;
 };

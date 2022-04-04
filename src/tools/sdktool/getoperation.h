@@ -39,11 +39,10 @@ public:
     int execute() const final;
 
 #ifdef WITH_TESTS
-    bool test() const final;
+    static void unittest();
 #endif
 
     static QVariant get(const QVariantMap &map, const QString &key);
-
 private:
     QStringList m_keys;
     QString m_file;

@@ -55,6 +55,8 @@ private:
     int execute() const final;
 
 #ifdef WITH_TESTS
-    bool test() const final;
+public:
+    static void unittest();
+     // TODO: Remove
 #endif
 };

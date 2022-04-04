@@ -33,7 +33,13 @@
 
 #include "settings.h"
 
-#include <iostream>
+#include <QLoggingCategory>
+
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
+Q_LOGGING_CATEGORY(addDeviceLog, "qtc.sdktool.operations.adddevice", QtWarningMsg)
 
 const char DEVICEMANAGER_ID[] = "DeviceManager";
 const char DEFAULT_DEVICES_ID[] = "DefaultDevices";
@@ -261,9 +267,9 @@ bool AddDeviceOperation::setArguments(const QStringList &args)
     }
 
     if (m_id.isEmpty())
-        std::cerr << "No id given for device." << std::endl << std::endl;
+        qCCritical(addDeviceLog) << "No id given for device.";
     if (m_displayName.isEmpty())
-        std::cerr << "No name given for device." << std::endl << std::endl;
+        qCCritical(addDeviceLog) << "No name given for device.";
 
     return !m_id.isEmpty() && !m_displayName.isEmpty() && m_type >= 0;
 }
@@ -283,7 +289,7 @@ int AddDeviceOperation::execute() const
 }
 
 #ifdef WITH_TESTS
-bool AddDeviceOperation::test() const
+void AddDeviceOperation::unittest()
 {
     QVariantMap map = initializeDevices();
 
@@ -305,57 +311,37 @@ bool AddDeviceOperation::test() const
     devData.m_timeout = 5;
     devData.m_uname = "uname";
     devData.m_version = 6;
+    devData.m_dockerMappedPaths = QStringList{"/opt", "/data"};
     devData.m_dockerRepo = "repo";
     devData.m_dockerTag = "tag";
-    devData.m_dockerMappedPaths = QStringList{"/opt", "/data"};
+
 
     QVariantMap result = devData.addDevice(map);
     QVariantMap data = result.value(QLatin1String(DEVICEMANAGER_ID)).toMap();
     QVariantList devList = data.value(QLatin1String(DEVICE_LIST_ID)).toList();
-    if (devList.count() != 1)
-        return false;
+    QCOMPARE(devList.count(), 1);
     QVariantMap dev = devList.at(0).toMap();
-    if (dev.count() != 20)
-        return false;
-    if (dev.value(QLatin1String("Authentication")).toInt() != 2)
-        return false;
-    if (dev.value(QLatin1String("DebugServerKey")).toString() != QLatin1String("debugServer"))
-        return false;
-    if (dev.value(QLatin1String("FreePortsSpec")).toString() != QLatin1String("ports"))
-        return false;
-    if (dev.value(QLatin1String("Host")).toString() != QLatin1String("host"))
-        return false;
-    if (dev.value(QLatin1String("InternalId")).toString() != QLatin1String("test id"))
-        return false;
-    if (dev.value(QLatin1String("KeyFile")).toString() != QLatin1String("keyfile"))
-        return false;
-    if (dev.value(QLatin1String("Name")).toString() != QLatin1String("test name"))
-        return false;
-    if (dev.value(QLatin1String("Origin")).toInt() != 3)
-        return false;
-    if (dev.value(QLatin1String("OsType")).toString() != QLatin1String("ostype"))
-        return false;
-    if (dev.value(QLatin1String("Password")).toString() != QLatin1String("passwd"))
-        return false;
-    if (dev.value(QLatin1String("SshPort")).toInt() != 4)
-        return false;
-    if (dev.value(QLatin1String("Timeout")).toInt() != 5)
-        return false;
-    if (dev.value(QLatin1String("Type")).toInt() != 1)
-        return false;
-    if (dev.value(QLatin1String("Uname")).toString() != QLatin1String("uname"))
-        return false;
-    if (dev.value(QLatin1String("Version")).toInt() != 6)
-        return false;
-    if (dev.value(QLatin1String("DockerDeviceDataRepo")).toString() != "repo")
-        return false;
-    if (dev.value(QLatin1String("DockerDeviceDataTag")).toString() != "tag")
-        return false;
-    const QStringList paths = dev.value(QLatin1String("DockerDeviceMappedPaths")).toStringList();
-    if (paths != QStringList({"/opt", "/data"}))
-        return false;
+    QCOMPARE(dev.count(), 20);
+    QCOMPARE(dev.value(QLatin1String("Authentication")).toInt(), 2);
+    QCOMPARE(dev.value(QLatin1String("DebugServerKey")).toString(), QLatin1String("debugServer"));
+    QCOMPARE(dev.value(QLatin1String("FreePortsSpec")).toString(), QLatin1String("ports"));
+    QCOMPARE(dev.value(QLatin1String("Host")).toString(), QLatin1String("host"));
+    QCOMPARE(dev.value(QLatin1String("InternalId")).toString(), QLatin1String("test id"));
+    QCOMPARE(dev.value(QLatin1String("KeyFile")).toString(), QLatin1String("keyfile"));
+    QCOMPARE(dev.value(QLatin1String("Name")).toString(), QLatin1String("test name"));
+    QCOMPARE(dev.value(QLatin1String("Origin")).toInt(), 3);
+    QCOMPARE(dev.value(QLatin1String("OsType")).toString(), QLatin1String("ostype"));
+    QCOMPARE(dev.value(QLatin1String("Password")).toString(), QLatin1String("passwd"));
+    QCOMPARE(dev.value(QLatin1String("SshPort")).toInt(), 4);
+    QCOMPARE(dev.value(QLatin1String("Timeout")).toInt(), 5);
+    QCOMPARE(dev.value(QLatin1String("Type")).toInt(), 1);
+    QCOMPARE(dev.value(QLatin1String("Uname")).toString(), QLatin1String("uname"));
+    QCOMPARE(dev.value(QLatin1String("Version")).toInt(), 6);
+    QCOMPARE(dev.value(QLatin1String("DockerDeviceDataRepo")).toString(), "repo");
+    QCOMPARE(dev.value(QLatin1String("DockerDeviceDataTag")).toString(), "tag");
 
-    return true;
+    const QStringList paths = dev.value(QLatin1String("DockerDeviceMappedPaths")).toStringList();
+    QCOMPARE(paths, QStringList({"/opt", "/data"}));
 }
 #endif
 
@@ -363,7 +349,7 @@ QVariantMap AddDeviceData::addDevice(const QVariantMap &map) const
 {
     QVariantMap result = map;
     if (exists(map, m_id)) {
-        std::cerr << "Device " << qPrintable(m_id) << " already exists!" << std::endl;
+        qCCritical(addDeviceLog) << "Device " << qPrintable(m_id) << " already exists!";
         return result;
     }
 

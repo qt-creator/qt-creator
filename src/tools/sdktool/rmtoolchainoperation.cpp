@@ -34,6 +34,14 @@
 
 #include <iostream>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(rmtoolchainlog, "qtc.sdktool.operations.rmtoolchain", QtWarningMsg)
+
 // ToolChain file stuff:
 const char COUNT[] = "ToolChain.Count";
 const char PREFIX[] = "ToolChain.";
@@ -64,7 +72,7 @@ bool RmToolChainOperation::setArguments(const QStringList &args)
 
         if (current == "--id") {
             if (next.isNull()) {
-                std::cerr << "No parameter for --id given." << std::endl << std::endl;
+                qCCritical(rmtoolchainlog) << "No parameter for --id given.";
                 return false;
             }
             ++i; // skip next;
@@ -74,7 +82,7 @@ bool RmToolChainOperation::setArguments(const QStringList &args)
     }
 
     if (m_id.isEmpty())
-        std::cerr << "No id given." << std::endl << std::endl;
+        qCCritical(rmtoolchainlog) << "No id given.";
 
     return !m_id.isEmpty();
 }
@@ -93,60 +101,72 @@ int RmToolChainOperation::execute() const
 }
 
 #ifdef WITH_TESTS
-bool RmToolChainOperation::test() const
+void RmToolChainOperation::unittest()
 {
     // Add toolchain:
     QVariantMap map = AddToolChainOperation::initializeToolChains();
-    map = AddToolChainData{"testId", "langId", "name", "/tmp/test", "test-abi",
-                           "test-abi,test-abi2", {{"ExtraKey", QVariant("ExtraValue")}}}
-            .addToolChain(map);
 
-    map = AddToolChainData{"testId2", "langId", "other name", "/tmp/test2", "test-abi",
-                                              "test-abi,test-abi2", {}}
-            .addToolChain(map);
+    AddToolChainData d;
+    d.m_id = "testId";
+    d.m_languageId = "langId";
+    d.m_displayName = "name";
+    d.m_path = "/tmp/test";
+    d.m_targetAbi = "test-abi";
+    d.m_supportedAbis = "test-abi,test-abi2";
+    d.m_extra = {{"ExtraKey", QVariant("ExtraValue")}};
 
+    map = d.addToolChain(map);
+
+    d.m_id = "testId2";
+    d.m_languageId = "langId";
+    d.m_displayName = "other name";
+    d.m_path = "/tmp/test2";
+    d.m_targetAbi = "test-abi";
+    d.m_supportedAbis = "test-abi,test-abi2";
+    d.m_extra = {};
+    map = d.addToolChain(map);
+
+    QTest::ignoreMessage(QtCriticalMsg, "Error: Count found in toolchains file seems wrong.");
     QVariantMap result = rmToolChain(QVariantMap(), "nonexistent");
-    if (!result.isEmpty())
-        return false;
+    QVERIFY(result.isEmpty());
 
     result = rmToolChain(map, "nonexistent");
-    if (result != map)
-        return false;
+    QCOMPARE(result, map);
 
     result = rmToolChain(map, "testId2");
-    if (result == map
-            || result.value(COUNT, 0).toInt() != 1
-            || !result.contains("ToolChain.0") || result.value("ToolChain.0") != map.value("ToolChain.0"))
-        return false;
+    QVERIFY(result != map);
+    QCOMPARE(result.value(COUNT, 0).toInt(), 1);
+    QVERIFY(result.contains("ToolChain.0"));
+    QCOMPARE(result.value("ToolChain.0"), map.value("ToolChain.0"));
 
     result = rmToolChain(map, "testId");
-    if (result == map
-            || result.value(COUNT, 0).toInt() != 1
-            || !result.contains("ToolChain.0") || result.value("ToolChain.0") != map.value("ToolChain.1"))
-        return false;
+    QVERIFY(result != map);
+    QCOMPARE(result.value(COUNT, 0).toInt(), 1);
+    QVERIFY(result.contains("ToolChain.0"));
+    QCOMPARE(result.value("ToolChain.0"), map.value("ToolChain.1"));
 
     result = rmToolChain(result, "testId2");
-    if (result == map
-            || result.value(COUNT, 0).toInt() != 0)
-        return false;
+    QVERIFY(result != map);
 
-    return true;
+    QCOMPARE(result.value(COUNT, 0).toInt(), 0);
 }
 #endif
 
 QVariantMap RmToolChainOperation::rmToolChain(const QVariantMap &map, const QString &id)
 {
+
     // Find count of tool chains:
     bool ok;
     int count = GetOperation::get(map, COUNT).toInt(&ok);
     if (!ok || count < 0) {
-        std::cerr << "Error: Count found in toolchains file seems wrong." << std::endl;
+        qCCritical(rmtoolchainlog) << "Error: Count found in toolchains file seems wrong.";
         return map;
     }
 
     QVariantList tcList;
     for (int i = 0; i < count; ++i) {
-        QVariantMap tcData = GetOperation::get(map, QString::fromLatin1(PREFIX) + QString::number(i)).toMap();
+        QVariantMap tcData
+            = GetOperation::get(map, QString::fromLatin1(PREFIX) + QString::number(i)).toMap();
         if (tcData.value(ID).toString() != id)
             tcList.append(tcData);
     }
@@ -158,4 +178,3 @@ QVariantMap RmToolChainOperation::rmToolChain(const QVariantMap &map, const QStr
 
     return newMap;
 }
-

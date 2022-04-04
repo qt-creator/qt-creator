@@ -27,6 +27,14 @@
 
 #include <iostream>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(rmkeyslog, "qtc.sdktool.operations.rmkeys", QtWarningMsg)
+
 QString RmKeysOperation::name() const
 {
     return QLatin1String("rmKeys");
@@ -52,9 +60,9 @@ bool RmKeysOperation::setArguments(const QStringList &args)
     m_file = m_keys.takeFirst();
 
     if (m_file.isEmpty())
-        std::cerr << "No file given." << std::endl << std::endl;
+        qCCritical(rmkeyslog) << "No file given.";
     if (m_keys.isEmpty())
-        std::cerr << "No keys given." << std::endl << std::endl;
+        qCCritical(rmkeyslog) << "No keys given.";
 
     return !m_file.isEmpty() && !m_keys.isEmpty();
 }
@@ -73,7 +81,7 @@ int RmKeysOperation::execute() const
 }
 
 #ifdef WITH_TESTS
-bool RmKeysOperation::test() const
+void RmKeysOperation::unittest()
 {
     QVariantMap testMap;
     QVariantMap subKeys;
@@ -90,77 +98,72 @@ bool RmKeysOperation::test() const
 
     QVariantMap result = rmKeys(testMap, data);
 
-    if (result != testMap)
-        return false;
+    QVERIFY(result == testMap);
 
     data.append(QLatin1String("testint"));
     result = rmKeys(testMap, data);
 
-    if (result.count() != 2
-            || !result.contains(QLatin1String("subkeys"))
-            || !result.contains(QLatin1String("subkeys2")))
-        return false;
+    QCOMPARE(result.count(), 2);
+    QVERIFY(result.contains(QLatin1String("subkeys")));
+    QVERIFY(result.contains(QLatin1String("subkeys2")));
+
     cur = result.value(QLatin1String("subkeys")).toMap();
-    if (cur.count() != 2
-            || !cur.contains(QLatin1String("subsubkeys"))
-            || !cur.contains(QLatin1String("testbool")))
-        return false;
+    QCOMPARE(cur.count(), 2);
+    QVERIFY(cur.contains(QLatin1String("subsubkeys")));
+    QVERIFY(cur.contains(QLatin1String("testbool")));
 
     cur = cur.value(QLatin1String("subsubkeys")).toMap();
-    if (cur.count() != 1
-            || !cur.contains(QLatin1String("testint2")))
-        return false;
+    QCOMPARE(cur.count(), 1);
+    QVERIFY(cur.contains(QLatin1String("testint2")));
 
     cur = result.value(QLatin1String("subkeys2")).toMap();
-    if (cur.count() != 0)
-        return false;
+    QVERIFY(cur.isEmpty());
 
     data.clear();
     data.append(QLatin1String("subkeys/subsubkeys"));
     result = rmKeys(testMap, data);
 
-    if (result.count() != 3
-            || !result.contains(QLatin1String("subkeys"))
-            || !result.contains(QLatin1String("subkeys2"))
-            || !result.contains(QLatin1String("testint")))
-        return false;
+    QCOMPARE(result.count(), 3);
+    QVERIFY(result.contains(QLatin1String("subkeys")));
+    QVERIFY(result.contains(QLatin1String("subkeys2")));
+    QVERIFY(result.contains(QLatin1String("testint")));
+
     cur = result.value(QLatin1String("subkeys")).toMap();
-    if (cur.count() != 1
-            || !cur.contains(QLatin1String("testbool")))
-        return false;
+    QCOMPARE(cur.count(), 1);
+    QVERIFY(cur.contains(QLatin1String("testbool")));
 
     cur = result.value(QLatin1String("subkeys2")).toMap();
-    if (cur.count() != 0)
-        return false;
+    QVERIFY(cur.isEmpty());
 
     data.clear();
     data.append(QLatin1String("subkeys/testbool"));
     result = rmKeys(testMap, data);
 
-    if (result.count() != 3
-            || !result.contains(QLatin1String("subkeys"))
-            || !result.contains(QLatin1String("subkeys2"))
-            || !result.contains(QLatin1String("testint")))
-        return false;
+    QCOMPARE(result.count(), 3);
+    QVERIFY(result.contains(QLatin1String("subkeys")));
+    QVERIFY(result.contains(QLatin1String("subkeys2")));
+    QVERIFY(result.contains(QLatin1String("testint")));
+
     cur = result.value(QLatin1String("subkeys")).toMap();
-    if (cur.count() != 1
-            || !cur.contains(QLatin1String("subsubkeys")))
-        return false;
+    QCOMPARE(cur.count(), 1);
+    QVERIFY(cur.contains(QLatin1String("subsubkeys")));
 
     cur = cur.value(QLatin1String("subsubkeys")).toMap();
-    if (cur.count() != 1
-            || !cur.contains(QLatin1String("testint2")))
-        return false;
+    QCOMPARE(cur.count(), 1);
+    QVERIFY(cur.contains(QLatin1String("testint2")));
 
     cur = result.value(QLatin1String("subkeys2")).toMap();
-    if (cur.count() != 0)
-        return false;
+    QVERIFY(cur.isEmpty());
 
     cur = result.value(QLatin1String("subkeys2")).toMap();
-    if (cur.count() != 0)
-        return false;
+    QVERIFY(cur.isEmpty());
 
-    return true;
+    // Test removing of non-existent key ...
+    testMap = rmKeys(testMap, data);
+
+    QTest::ignoreMessage(QtWarningMsg,
+                         QRegularExpression("Key .* not found."));
+    testMap = rmKeys(testMap, data);
 }
 #endif
 
@@ -180,7 +183,7 @@ QVariantMap RmKeysOperation::rmKeys(const QVariantMap &map, const QStringList &r
             if (stack.last().contains(keys.at(i))) {
                 subMap = stack.last().value(keys.at(i)).toMap();
             } else {
-                std::cerr << "Warning: Key " << qPrintable(r) << " not found." << std::endl;
+                qCWarning(rmkeyslog) << "Key" << qPrintable(r) << "not found.";
                 continue;
             }
             stack.append(subMap);
@@ -189,7 +192,7 @@ QVariantMap RmKeysOperation::rmKeys(const QVariantMap &map, const QStringList &r
         // remove
         Q_ASSERT(stack.count() == keys.count());
         if (!stack.last().contains(keys.last())) {
-            std::cerr << "Warning: Key " << qPrintable(r) << " not found." << std::endl;
+            qCWarning(rmkeyslog) << "Key" << qPrintable(r) << "not found.";
             continue;
         }
         stack.last().remove(keys.last());

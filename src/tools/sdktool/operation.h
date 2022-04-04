@@ -59,10 +59,6 @@ public:
 
     virtual int execute() const = 0;
 
-#ifdef WITH_TESTS
-    virtual bool test() const = 0;
-#endif
-
     static QVariantMap load(const QString &file);
     bool save(const QVariantMap &map, const QString &file) const;
 };

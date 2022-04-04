@@ -27,6 +27,14 @@
 
 #include <iostream>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(getlog, "qtc.sdktool.operations.get", QtWarningMsg)
+
 QString GetOperation::name() const
 {
     return QLatin1String("get");
@@ -52,9 +60,9 @@ bool GetOperation::setArguments(const QStringList &args)
     m_file = m_keys.takeFirst();
 
     if (m_file.isEmpty())
-        std::cerr << "No file given." << std::endl << std::endl;
+        qCCritical(getlog) << "No file given.";
     if (m_keys.isEmpty())
-        std::cerr << "No keys given." << std::endl << std::endl;
+        qCCritical(getlog) << "No keys given.";
 
     return !m_file.isEmpty() && !m_keys.isEmpty();
 }
@@ -112,7 +120,7 @@ int GetOperation::execute() const
 }
 
 #ifdef WITH_TESTS
-bool GetOperation::test() const
+void GetOperation::unittest()
 {
     QVariantMap testMap;
     QVariantMap subKeys;
@@ -127,22 +135,16 @@ bool GetOperation::test() const
 
     QVariant result;
     result = get(testMap, QLatin1String("testint"));
-    if (result.toString() != QLatin1String("23"))
-        return false;
+    QCOMPARE(result.toString(), QLatin1String("23"));
 
     result = get(testMap, QLatin1String("subkeys/testbool"));
-    if (result.toString() != QLatin1String("true"))
-        return false;
+    QCOMPARE(result.toString(), QLatin1String("true"));
 
     result = get(testMap, QLatin1String("subkeys/subsubkeys"));
-    if (result.type() != QVariant::Map)
-        return false;
+    QCOMPARE(result.type(), QVariant::Map);
 
     result = get(testMap, QLatin1String("nonexistant"));
-    if (result.isValid())
-        return false;
-
-    return true;
+    QVERIFY(!result.isValid());
 }
 #endif
 

@@ -33,6 +33,14 @@
 #include <iomanip>
 #include <iostream>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(addvaluelog, "qtc.sdktool.operations.addvalue", QtWarningMsg)
+
 namespace {
 constexpr auto SUCCESS = 0;
 constexpr auto FAILURE = !SUCCESS;
@@ -111,7 +119,7 @@ int AddValueOperation::execute() const
 }
 
 #ifdef WITH_TESTS
-bool AddValueOperation::test() const
+void AddValueOperation::unittest()
 {
     QVariantList testDataList;
     testDataList.append(QLatin1String("Some String"));
@@ -127,40 +135,44 @@ bool AddValueOperation::test() const
     QVariantMap testMap;
 
     // add to empty map
-    bool result = AddValueData{"some key", valueList}.appendListToMap(testMap);
+    AddValueData d;
+    d.m_key = "some key";
+    d.m_values = valueList;
 
-    if (result)
-        return false;
+    QTest::ignoreMessage(QtCriticalMsg,
+                         QRegularExpression("Error: Could not retrieve value for key .*."));
+
+    QVERIFY(!d.appendListToMap(testMap));
 
     testMap.insert(QLatin1String("someEmptyThing"), QVariantMap());
     testMap.insert(QLatin1String("aKey"), "withAString");
 
     // append to a value
-    result = AddValueData{"aKey", valueList}.appendListToMap(testMap);
+    d.m_key = "aKey";
 
-    if (result)
-        return false;
+    QTest::ignoreMessage(QtCriticalMsg,
+                         QRegularExpression("Error: Data stored in .* is not a QVariantList."));
+
+    QVERIFY(!d.appendListToMap(testMap));
 
     testMap = AddKeysData{testKvpList}.addKeys(testMap);
 
     // quick sanity check
-    if (testMap.count() != 3 && testDataList.count() != 2 && testKvpList.count() != 3)
-        return false;
+    QCOMPARE(testMap.count(), 3);
+    QCOMPARE(testDataList.count(), 2);
+    QCOMPARE(testKvpList.count(), 3);
 
     // successful adding of values
-    result = AddValueData{"test/bar", valueList}.appendListToMap(testMap);
-    if (!result)
-        return false;
+    d.m_key = "test/bar";
+    QVERIFY(d.appendListToMap(testMap));
 
     const auto newList = qvariant_cast<QVariantList>(GetOperation::get(testMap, "test/bar"));
-    if (newList.count() != (testDataList.count() + valueList.count()))
-        return false;
+    QCOMPARE(newList.count(), (testDataList.count() + valueList.count()));
 
-    if (!newList.contains(1860) || !newList.contains(QString("Some String"))
-        || !newList.contains("ELIL") || !newList.contains(-1))
-        return false;
-
-    return true;
+    QVERIFY(newList.contains(1860));
+    QVERIFY(newList.contains(QString("Some String")));
+    QVERIFY(newList.contains("ELIL"));
+    QVERIFY(newList.contains(-1));
 }
 #endif
 
@@ -169,14 +181,14 @@ bool AddValueData::appendListToMap(QVariantMap &map) const
     const QVariant data = GetOperation::get(map, m_key);
 
     if (!data.isValid() || data.isNull()) {
-        std::cerr << "Error: Could not retrieve value for key " << std::quoted(m_key.toStdString())
-                  << std::endl;
+        qCCritical(addvaluelog) << "Error: Could not retrieve value for key"
+                                << m_key;
         return false;
     }
 
     if (data.type() != QVariant::List) {
-        std::cerr << "Error: Data stored in " << std::quoted(m_key.toStdString())
-                  << " is not a QVariantList." << std::endl;
+        qCCritical(addvaluelog) << "Error: Data stored in" << m_key
+                                << "is not a QVariantList.";
         return false;
     }
 

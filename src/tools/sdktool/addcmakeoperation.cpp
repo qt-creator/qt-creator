@@ -33,7 +33,13 @@
 
 #include "settings.h"
 
-#include <iostream>
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(addCMakeOperationLog, "qtc.sdktool.operations.addcmake", QtWarningMsg)
 
 // CMakeTools file stuff:
 const char COUNT[] = "CMakeTools.Count";
@@ -72,7 +78,7 @@ bool AddCMakeOperation::setArguments(const QStringList &args)
         const QString next = ((i + 1) < args.count()) ? args.at(i + 1) : QString();
 
         if (next.isNull() && current.startsWith("--")) {
-            std::cerr << "No parameter for option '" << qPrintable(current) << "' given." << std::endl << std::endl;
+            qCCritical(addCMakeOperationLog) << "No parameter for option '" << qPrintable(current) << "' given.";
             return false;
         }
 
@@ -94,24 +100,24 @@ bool AddCMakeOperation::setArguments(const QStringList &args)
             continue;
         }
         if (next.isNull()) {
-            std::cerr << "No value given for key '" << qPrintable(current) << "'.";
+            qCCritical(addCMakeOperationLog) << "No value given for key '" << qPrintable(current) << "'.";
             return false;
         }
         ++i; // skip next;
         KeyValuePair pair(current, next);
         if (!pair.value.isValid()) {
-            std::cerr << "Value for key '" << qPrintable(current) << "' is not valid.";
+            qCCritical(addCMakeOperationLog) << "Value for key '" << qPrintable(current) << "' is not valid.";
             return false;
         }
         m_extra << pair;
     }
 
     if (m_id.isEmpty())
-        std::cerr << "No id given for cmake tool." << std::endl;
+        qCCritical(addCMakeOperationLog) << "No id given for cmake tool.";
     if (m_displayName.isEmpty())
-        std::cerr << "No name given for cmake tool." << std::endl;
+        qCCritical(addCMakeOperationLog) << "No name given for cmake tool.";
     if (m_path.isEmpty())
-        std::cerr << "No path given for cmake tool." << std::endl;
+        qCCritical(addCMakeOperationLog) << "No path given for cmake tool.";
 
     return !m_id.isEmpty() && !m_displayName.isEmpty() && !m_path.isEmpty();
 }
@@ -130,55 +136,69 @@ int AddCMakeOperation::execute() const
 }
 
 #ifdef WITH_TESTS
-bool AddCMakeOperation::test() const
+void AddCMakeOperation::unittest()
 {
     QVariantMap map = initializeCMake();
 
     // Add toolchain:
-    map = AddCMakeData{"testId", "name", "/tmp/test", {{"ExtraKey", QVariant("ExtraValue")}}}.addCMake(map);
-    if (map.value(COUNT).toInt() != 1
-            || !map.contains(QString::fromLatin1(PREFIX) + '0'))
-        return false;
+    AddCMakeData d;
+    d.m_id = "testId";
+    d.m_displayName = "name";
+    d.m_path = "/tmp/test";
+    d.m_extra = {{"ExtraKey", QVariant("ExtraValue")}};
+    map = d.addCMake(map);
+
+    QCOMPARE(map.value(COUNT).toInt(), 1);
+    QVERIFY(map.contains(QString::fromLatin1(PREFIX) + '0'));
+
     QVariantMap cmData = map.value(QString::fromLatin1(PREFIX) + '0').toMap();
-    if (cmData.count() != 5
-            || cmData.value(ID_KEY).toString() != "testId"
-            || cmData.value(DISPLAYNAME_KEY).toString() != "name"
-            || cmData.value(AUTODETECTED_KEY).toBool() != true
-            || cmData.value(PATH_KEY).toString() != "/tmp/test"
-            || cmData.value("ExtraKey").toString() != "ExtraValue")
-        return false;
+    QCOMPARE(cmData.count(), 5);
+    QCOMPARE(cmData.value(ID_KEY).toString(), "testId");
+    QCOMPARE(cmData.value(DISPLAYNAME_KEY).toString(), "name");
+    QCOMPARE(cmData.value(AUTODETECTED_KEY).toBool(), true);
+    QCOMPARE(cmData.value(PATH_KEY).toString(), "/tmp/test");
+    QCOMPARE(cmData.value("ExtraKey").toString(), "ExtraValue");
 
     // Ignore same Id:
-    QVariantMap unchanged = AddCMakeData{"testId", "name2", "/tmp/test2", {{"ExtraKey", QVariant("ExtraValue2")}}}
-            .addCMake(map);
-    if (!unchanged.isEmpty())
-        return false;
+    QTest::ignoreMessage(QtCriticalMsg,
+                         QRegularExpression("Error: Id .* already defined for tool chains."));
+
+    AddCMakeData ud;
+    ud.m_id = "testId";
+    ud.m_displayName = "name2";
+    ud.m_path = "/tmp/test2";
+    ud.m_extra = {{"ExtraKey", QVariant("ExtraValue2")}};
+
+    QVariantMap unchanged = ud.addCMake(map);
+    QVERIFY(unchanged.isEmpty());
 
     // add 2nd cmake
-    map = AddCMakeData{"{some-cm-id}", "name", "/tmp/test", {{"ExtraKey", QVariant("ExtraValue")}}}
-        .addCMake(map);
-    if (map.value(COUNT).toInt() != 2
-            || !map.contains(QString::fromLatin1(PREFIX) + '0')
-            || !map.contains(QString::fromLatin1(PREFIX) + '1'))
-        return false;
-    cmData = map.value(QString::fromLatin1(PREFIX) + '0').toMap();
-    if (cmData.count() != 5
-            || cmData.value(ID_KEY).toString() != "testId"
-            || cmData.value(DISPLAYNAME_KEY).toString() != "name"
-            || cmData.value(AUTODETECTED_KEY).toBool() != true
-            || cmData.value(PATH_KEY).toString() != "/tmp/test"
-            || cmData.value("ExtraKey").toString() != "ExtraValue")
-        return false;
-    cmData = map.value(QString::fromLatin1(PREFIX) + '1').toMap();
-        if (cmData.count() != 5
-                || cmData.value(ID_KEY).toString() != "{some-cm-id}"
-                || cmData.value(DISPLAYNAME_KEY).toString() != "name"
-                || cmData.value(AUTODETECTED_KEY).toBool() != true
-                || cmData.value(PATH_KEY).toString() != "/tmp/test"
-                || cmData.value("ExtraKey").toString() != "ExtraValue")
-            return false;
+    AddCMakeData d2;
+    d2.m_id = "{some-cm-id}",
+    d2.m_displayName = "name";
+    d2.m_path = "/tmp/test";
+    d2.m_extra = {{"ExtraKey", QVariant("ExtraValue")}};
+    map = d2.addCMake(map);
 
-    return true;
+    QCOMPARE(map.value(COUNT).toInt(), 2);
+    QVERIFY(map.contains(QString::fromLatin1(PREFIX) + '0'));
+    QVERIFY(map.contains(QString::fromLatin1(PREFIX) + '1'));
+
+    cmData = map.value(QString::fromLatin1(PREFIX) + '0').toMap();
+    QCOMPARE(cmData.count(), 5);
+    QCOMPARE(cmData.value(ID_KEY).toString(), "testId");
+    QCOMPARE(cmData.value(DISPLAYNAME_KEY).toString(), "name");
+    QVERIFY(cmData.value(AUTODETECTED_KEY).toBool());
+    QCOMPARE(cmData.value(PATH_KEY).toString(), "/tmp/test");
+    QCOMPARE(cmData.value("ExtraKey").toString(), "ExtraValue");
+
+    cmData = map.value(QString::fromLatin1(PREFIX) + '1').toMap();
+    QCOMPARE(cmData.count(), 5);
+    QCOMPARE(cmData.value(ID_KEY).toString(), "{some-cm-id}");
+    QCOMPARE(cmData.value(DISPLAYNAME_KEY).toString(), "name");
+    QVERIFY(cmData.value(AUTODETECTED_KEY).toBool());
+    QCOMPARE(cmData.value(PATH_KEY).toString(), "/tmp/test");
+    QCOMPARE(cmData.value("ExtraKey").toString(), "ExtraValue");
 }
 #endif
 
@@ -186,7 +206,7 @@ QVariantMap AddCMakeData::addCMake(const QVariantMap &map) const
 {
     // Sanity check: Does the Id already exist?
     if (exists(map, m_id)) {
-        std::cerr << "Error: Id " << qPrintable(m_id) << " already defined for tool chains." << std::endl;
+        qCCritical(addCMakeOperationLog) << "Error: Id" << qPrintable(m_id) << "already defined for tool chains.";
         return QVariantMap();
     }
 
@@ -194,7 +214,7 @@ QVariantMap AddCMakeData::addCMake(const QVariantMap &map) const
     bool ok;
     int count = GetOperation::get(map, COUNT).toInt(&ok);
     if (!ok || count < 0) {
-        std::cerr << "Error: Count found in toolchains file seems wrong." << std::endl;
+        qCCritical(addCMakeOperationLog) << "Error: Count found in toolchains file seems wrong.";
         return QVariantMap();
     }
 

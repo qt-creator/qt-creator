@@ -41,7 +41,8 @@ public:
     int execute() const final;
 
 #ifdef WITH_TESTS
-    bool test() const final;
+    static void unittest();
+
 #endif
 
     static QVariantMap rmToolChain(const QVariantMap &map, const QString &id);

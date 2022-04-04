@@ -25,11 +25,11 @@
 
 #include "rmkitoperation.h"
 
-#include "addkeysoperation.h"
-#include "addtoolchainoperation.h"
 #include "adddeviceoperation.h"
-#include "addqtoperation.h"
+#include "addkeysoperation.h"
 #include "addkitoperation.h"
+#include "addqtoperation.h"
+#include "addtoolchainoperation.h"
 #include "findkeyoperation.h"
 #include "findvalueoperation.h"
 #include "getoperation.h"
@@ -38,6 +38,14 @@
 #include "settings.h"
 
 #include <iostream>
+
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(rmkitlog, "qtc.sdktool.operations.rmkit", QtWarningMsg)
 
 // Qt version file stuff:
 const char PREFIX[] = "Profile.";
@@ -75,7 +83,7 @@ bool RmKitOperation::setArguments(const QStringList &args)
     m_id = args.at(1);
 
     if (m_id.isEmpty())
-        std::cerr << "No id given." << std::endl << std::endl;
+        qCCritical(rmkitlog) << "No id given.";
 
     return !m_id.isEmpty();
 }
@@ -95,15 +103,28 @@ int RmKitOperation::execute() const
 }
 
 #ifdef WITH_TESTS
-bool RmKitOperation::test() const
+void RmKitOperation::unittest()
 {
     QVariantMap tcMap = AddToolChainOperation::initializeToolChains();
-    tcMap = AddToolChainData{"{tc-id}", "langId", "TC", "/usr/bin/gcc",
-                             "x86-linux-generic-elf-32bit", "x86-linux-generic-elf-32bit", {}}
-        .addToolChain(tcMap);
+    AddToolChainData d;
+    d.m_id = "{tc-id}";
+    d.m_languageId = "langId";
+    d.m_displayName = "TC";
+    d.m_path = "/usr/bin/gcc";
+    d.m_targetAbi = "x86-linux-generic-elf-32bit";
+    d.m_supportedAbis = "x86-linux-generic-elf-32bit";
+    d.m_extra = {};
+
+    tcMap = d.addToolChain(tcMap);
 
     QVariantMap qtMap = AddQtData::initializeQtVersions();
-    qtMap = AddQtData{"{qt-id}", "Qt", "desktop-qt", "/usr/bin/qmake", {}, {}}.addQt(qtMap);
+    AddQtData qtd;
+    qtd.m_id = "{qt-id}";
+    qtd.m_displayName = "Qt";
+    qtd.m_type = "desktop-qt";
+    qtd.m_qmake = "/usr/bin/qmake";
+
+    qtMap = qtd.addQt(qtMap);
 
     QVariantMap devMap = AddDeviceOperation::initializeDevices();
     AddDeviceData devData;
@@ -134,52 +155,57 @@ bool RmKitOperation::test() const
     kitData.m_displayName = "Test Qt Version";
     kitData.m_icon = "/tmp/icon.png";
     kitData.m_debuggerEngine = 1;
-    kitData.m_debugger =  "/usr/bin/gdb-test";
+    kitData.m_debugger = "/usr/bin/gdb-test";
     kitData.m_deviceType = "Desktop";
     kitData.m_tcs = tcs;
     kitData.m_qt = "{qt-id}";
     kitData.m_mkspec = "unsupported/mkspec";
-    kitData.m_extra =  {{"PE.Profile.Data/extraData", QVariant("extraValue")}};
+    kitData.m_extra = {{"PE.Profile.Data/extraData", QVariant("extraValue")}};
 
     QVariantMap map = kitData.addKit(AddKitData::initializeKits(), tcMap, qtMap, devMap, {});
-
 
     kitData.m_id = "testId2";
     kitData.m_icon = "/tmp/icon2.png";
     kitData.m_icon = "/usr/bin/gdb-test2";
     kitData.m_mkspec = "unsupported/mkspec2";
-    kitData.m_extra =  {{"PE.Profile.Data/extraData", QVariant("extraValue2")}};
+    kitData.m_extra = {{"PE.Profile.Data/extraData", QVariant("extraValue2")}};
 
     map = kitData.addKit(map, tcMap, qtMap, devMap, {});
 
+    QTest::ignoreMessage(QtCriticalMsg, "Error: Could not find the default kit.");
     QVariantMap result = rmKit(map, "testId");
-    if (result.count() != 4
-            || !result.contains("Profile.0")
-            || !result.contains(COUNT) || result.value(COUNT).toInt() != 1
-            || !result.contains(DEFAULT) || result.value(DEFAULT).toInt() != 0
-            || !result.contains(VERSION) || result.value(VERSION).toInt() != 1)
-        return false;
+    QCOMPARE(result.count(), 4);
+    QVERIFY(result.contains("Profile.0"));
+    QVERIFY(result.contains(COUNT));
+    QCOMPARE(result.value(COUNT).toInt(), 1);
+    QVERIFY(result.contains(DEFAULT));
+    QCOMPARE(result.value(DEFAULT).toInt(), 0);
+    QVERIFY(result.contains(VERSION));
+    QCOMPARE(result.value(VERSION).toInt(), 1);
 
+    QTest::ignoreMessage(QtCriticalMsg, "Error: Id was not found.");
     result = rmKit(map, "unknown");
-    if (result != map)
-        return false;
+    QCOMPARE(result, map);
 
+    QTest::ignoreMessage(QtCriticalMsg, "Error: Could not find the default kit.");
     result = rmKit(map, "testId2");
-    if (result.count() != 4
-            || !result.contains("Profile.0")
-            || !result.contains(COUNT) || result.value(COUNT).toInt() != 1
-            || !result.contains(DEFAULT) || result.value(DEFAULT).toInt() != 0
-            || !result.contains(VERSION) || result.value(VERSION).toInt() != 1)
-        return false;
+    QCOMPARE(result.count(), 4);
+    QVERIFY(result.contains("Profile.0"));
+    QVERIFY(result.contains(COUNT));
+    QCOMPARE(result.value(COUNT).toInt(), 1);
+    QVERIFY(result.contains(DEFAULT));
+    QCOMPARE(result.value(DEFAULT).toInt(), 0);
+    QVERIFY(result.contains(VERSION));
+    QCOMPARE(result.value(VERSION).toInt(), 1);
 
     result = rmKit(result, QLatin1String("testId"));
-    if (result.count() != 3
-            || !result.contains(COUNT) || result.value(COUNT).toInt() != 0
-            || !result.contains(DEFAULT) || result.value(DEFAULT).toInt() != -1
-            || !result.contains(VERSION) || result.value(VERSION).toInt() != 1)
-        return false;
-
-    return true;
+    QCOMPARE(result.count(), 3);
+    QVERIFY(result.contains(COUNT));
+    QCOMPARE(result.value(COUNT).toInt(), 0);
+    QVERIFY(result.contains(DEFAULT));
+    QCOMPARE(result.value(DEFAULT).toInt(), -1);
+    QVERIFY(result.contains(VERSION));
+    QCOMPARE(result.value(VERSION).toInt(), 1);
 }
 #endif
 
@@ -191,7 +217,7 @@ QVariantMap RmKitOperation::rmKit(const QVariantMap &map, const QString &id)
     bool ok;
     int count = GetOperation::get(map, COUNT).toInt(&ok);
     if (!ok) {
-        std::cerr << "Error: The count found in map is not an integer." << std::endl;
+        qCCritical(rmkitlog) << "Error: The count found in map is not an integer.";
         return map;
     }
 
@@ -206,13 +232,13 @@ QVariantMap RmKitOperation::rmKit(const QVariantMap &map, const QString &id)
         profileList << profile;
     }
     if (profileList.count() == map.count() - 3) {
-        std::cerr << "Error: Id was not found." << std::endl;
+        qCCritical(rmkitlog) << "Error: Id was not found.";
         return map;
     }
 
     int defaultKit = GetOperation::get(map, DEFAULT).toInt(&ok);
     if (!ok) {
-        std::cerr << "Error: Could not find the default kit." << std::endl;
+        qCCritical(rmkitlog) << "Error: Could not find the default kit.";
         defaultKit = -1;
     }
 
@@ -228,8 +254,7 @@ QVariantMap RmKitOperation::rmKit(const QVariantMap &map, const QString &id)
     data << KeyValuePair(COUNT, QVariant(count - 1));
 
     for (int i = 0; i < profileList.count(); ++i)
-        data << KeyValuePair(QString::fromLatin1(PREFIX) + QString::number(i),
-                             profileList.at(i));
+        data << KeyValuePair(QString::fromLatin1(PREFIX) + QString::number(i), profileList.at(i));
 
     return AddKeysData{data}.addKeys(result);
 }

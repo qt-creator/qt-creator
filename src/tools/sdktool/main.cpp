@@ -214,21 +214,6 @@ int main(int argc, char *argv[])
     operations.emplace_back(std::make_unique<FindKeyOperation>());
     operations.emplace_back(std::make_unique<FindValueOperation>());
 
-#ifdef WITH_TESTS
-    if (argc == 2 && !strcmp(argv[1], "-test")) {
-        std::cerr << std::endl << std::endl << "Starting tests..." << std::endl;
-        int res = 0;
-        for (const std::unique_ptr<Operation> &o : operations) {
-            if (!o->test()) {
-                std::cerr << "!!!! Test failed for: " << qPrintable(o->name()) << " !!!!" << std::endl;
-                ++res;
-            }
-        }
-        std::cerr << "Tests done." << std::endl << std::endl;
-        return res;
-    }
-#endif
-
     int result = parseArguments(a.arguments(), &settings, operations);
     return settings.operation ? settings.operation->execute() : result;
 }

@@ -39,7 +39,7 @@ public:
     int execute() const;
 
 #ifdef WITH_TESTS
-    bool test() const;
+    static void unittest();
 #endif
 
     static QVariantMap rmKeys(const QVariantMap &map, const QStringList &removals);

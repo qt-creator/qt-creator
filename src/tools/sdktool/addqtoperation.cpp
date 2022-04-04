@@ -35,7 +35,13 @@
 
 #include <utils/filepath.h>
 
-#include <iostream>
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(log, "qtc.sdktool.operations.addqt", QtWarningMsg)
 
 using namespace Utils;
 
@@ -87,7 +93,7 @@ bool AddQtOperation::setArguments(const QStringList &args)
 
         if (current == QLatin1String("--id")) {
             if (next.isNull()) {
-                std::cerr << "Error parsing after --id." << std::endl << std::endl;
+                qCCritical(log) << "Error parsing after --id.";
                 return false;
             }
             ++i; // skip next;
@@ -97,7 +103,7 @@ bool AddQtOperation::setArguments(const QStringList &args)
 
         if (current == QLatin1String("--name")) {
             if (next.isNull()) {
-                std::cerr << "Error parsing after --name." << std::endl << std::endl;
+                qCCritical(log) << "Error parsing after --name.";
                 return false;
             }
             ++i; // skip next;
@@ -107,7 +113,7 @@ bool AddQtOperation::setArguments(const QStringList &args)
 
         if (current == QLatin1String("--qmake")) {
             if (next.isNull()) {
-                std::cerr << "Error parsing after --qmake." << std::endl << std::endl;
+                qCCritical(log) << "Error parsing after --qmake.";
                 return false;
             }
             ++i; // skip next;
@@ -117,7 +123,7 @@ bool AddQtOperation::setArguments(const QStringList &args)
 
         if (current == QLatin1String("--type")) {
             if (next.isNull()) {
-                std::cerr << "Error parsing after --type." << std::endl << std::endl;
+                qCCritical(log) << "Error parsing after --type.";
                 return false;
             }
             ++i; // skip next;
@@ -127,7 +133,7 @@ bool AddQtOperation::setArguments(const QStringList &args)
 
         if (current == "--abis") {
             if (next.isNull()) {
-                std::cerr << "Error parsing after --abis." << std::endl << std::endl;
+                qCCritical(log) << "Error parsing after --abis.";
                 return false;
             }
             ++i; // skip next;
@@ -136,29 +142,29 @@ bool AddQtOperation::setArguments(const QStringList &args)
         }
 
         if (next.isNull()) {
-            std::cerr << "Unknown parameter: " << qPrintable(current) << std::endl << std::endl;
+            qCCritical(log) << "Unknown parameter: " << qPrintable(current);
             return false;
         }
         ++i; // skip next;
         KeyValuePair pair(current, next);
         if (!pair.value.isValid()) {
-            std::cerr << "Error parsing: " << qPrintable(current) << " " << qPrintable(next) << std::endl << std::endl;
+            qCCritical(log) << "Error parsing: " << qPrintable(current) << " " << qPrintable(next);
             return false;
         }
         m_extra << pair;
     }
 
     if (m_id.isEmpty())
-        std::cerr << "Error no id was passed." << std::endl << std::endl;
+        qCCritical(log) << "Error no id was passed.";
 
     if (m_displayName.isEmpty())
-        std::cerr << "Error no display name was passed." << std::endl << std::endl;
+        qCCritical(log) << "Error no display name was passed.";
 
     if (m_qmake.isEmpty())
-        std::cerr << "Error no qmake was passed." << std::endl << std::endl;
+        qCCritical(log) << "Error no qmake was passed.";
 
     if (m_type.isEmpty())
-        std::cerr << "Error no type was passed." << std::endl << std::endl;
+        qCCritical(log) << "Error no type was passed.";
 
     return !m_id.isEmpty() && !m_displayName.isEmpty() && !m_qmake.isEmpty() && !m_type.isEmpty();
 }
@@ -178,93 +184,98 @@ int AddQtOperation::execute() const
 }
 
 #ifdef WITH_TESTS
-bool AddQtOperation::test() const
+void AddQtOperation::unittest()
 {
-    AddQtData qtData;
     QVariantMap map = initializeQtVersions();
 
-    if (map.count() != 1
-            || !map.contains(QLatin1String(VERSION))
-            || map.value(QLatin1String(VERSION)).toInt() != 1)
-        return false;
+    QCOMPARE(map.count(), 1);
+    QVERIFY(map.contains(QLatin1String(VERSION)));
+    QCOMPARE(map.value(QLatin1String(VERSION)).toInt(), 1);
 
-#if defined Q_OS_WIN
-    qtData = {"{some-qt-id}", "Test Qt Version", "testType", "/tmp//../tmp/test\\qmake", {},
-             {{QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))}}};
-#else
-    qtData = {"{some-qt-id}", "Test Qt Version", "testType", "/tmp//../tmp/test/qmake", {},
-             {{QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))}}};
-#endif
+    AddQtData qtData;
+    qtData.m_id = "{some-qt-id}";
+    qtData.m_displayName = "Test Qt Version";
+    qtData.m_type = "testType";
+    qtData.m_qmake = "/tmp//../tmp/test/qmake";
+    qtData.m_abis = {};
+    qtData.m_extra = {{QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))}};
+
     map = qtData.addQt(map);
 
-    if (map.count() != 2
-            || !map.contains(QLatin1String(VERSION))
-            || map.value(QLatin1String(VERSION)).toInt() != 1
-            || !map.contains(QLatin1String("QtVersion.0")))
-        return false;
+    QCOMPARE(map.count(), 2);
+    QVERIFY(map.contains(QLatin1String(VERSION)));
+    QVERIFY(map.contains(QLatin1String("QtVersion.0")));
+    QCOMPARE(map.value(QLatin1String(VERSION)).toInt(),1);
 
     QVariantMap version0 = map.value(QLatin1String("QtVersion.0")).toMap();
-    if (version0.count() != 8
-            || !version0.contains(QLatin1String(ID))
-            || version0.value(QLatin1String(ID)).toInt() != -1
-            || !version0.contains(QLatin1String(DISPLAYNAME))
-            || version0.value(QLatin1String(DISPLAYNAME)).toString() != QLatin1String("Test Qt Version")
-            || !version0.contains(QLatin1String(AUTODETECTED))
-            || version0.value(QLatin1String(AUTODETECTED)).toBool() != true
-            || !version0.contains(QLatin1String(AUTODETECTION_SOURCE))
-            || version0.value(QLatin1String(AUTODETECTION_SOURCE)).toString() != QLatin1String("SDK.{some-qt-id}")
-            || !version0.contains(QLatin1String(TYPE))
-            || version0.value(QLatin1String(TYPE)).toString() != QLatin1String("testType")
-            || !version0.contains(QLatin1String(ABIS))
-            || version0.value(QLatin1String(ABIS)).toStringList() != QStringList()
-            || !version0.contains(QLatin1String(QMAKE))
-            || version0.value(QLatin1String(QMAKE)).toString() != QLatin1String("/tmp/test/qmake")
-            || !version0.contains(QLatin1String("extraData"))
-            || version0.value(QLatin1String("extraData")).toString() != QLatin1String("extraValue"))
-        return false;
+    QCOMPARE(version0.count(), 8);
+    QVERIFY(version0.contains(QLatin1String(ID)));
+    QCOMPARE(version0.value(QLatin1String(ID)).toInt(), -1);
+    QVERIFY(version0.contains(QLatin1String(DISPLAYNAME)));
+    QCOMPARE(version0.value(QLatin1String(DISPLAYNAME)).toString(), QLatin1String("Test Qt Version"));
+    QVERIFY(version0.contains(QLatin1String(AUTODETECTED)));
+    QCOMPARE(version0.value(QLatin1String(AUTODETECTED)).toBool(), true);
+    QVERIFY(version0.contains(QLatin1String(AUTODETECTION_SOURCE)));
+    QCOMPARE(version0.value(QLatin1String(AUTODETECTION_SOURCE)).toString(), QLatin1String("SDK.{some-qt-id}"));
+    QVERIFY(version0.contains(QLatin1String(TYPE)));
+    QCOMPARE(version0.value(QLatin1String(TYPE)).toString(), QLatin1String("testType"));
+    QVERIFY(version0.contains(QLatin1String(ABIS)));
+    QCOMPARE(version0.value(QLatin1String(ABIS)).toStringList(), QStringList());
+    QVERIFY(version0.contains(QLatin1String(QMAKE)));
+    QCOMPARE(version0.value(QLatin1String(QMAKE)).toString(), QLatin1String("/tmp/test/qmake"));
+    QVERIFY(version0.contains(QLatin1String("extraData")));
+    QCOMPARE(version0.value(QLatin1String("extraData")).toString(), QLatin1String("extraValue"));
 
     // Ignore existing ids:
-    qtData = {"{some-qt-id}", "Test Qt Version2", "testType2", "/tmp/test/qmake2", {},
-              {{QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))}}};
+    qtData.m_id = "{some-qt-id}";
+    qtData.m_displayName = "Test Qt Version2";
+    qtData.m_type = "testType2";
+    qtData.m_qmake = "/tmp/test/qmake2";
+    qtData.m_abis = {};
+    qtData.m_extra = {{QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))}};
+
+    QTest::ignoreMessage(QtCriticalMsg,
+                         QRegularExpression("Error: Id .* already defined as Qt versions."));
+
     QVariantMap result = qtData.addQt(map);
-    if (!result.isEmpty())
-        return false;
+    QVERIFY(result.isEmpty());
 
     // add 2nd Qt version:
-    qtData = {"testId2", "Test Qt Version", "testType3", "/tmp/test/qmake2", {},
-              {{QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))}}};
-    map = qtData.addQt(map);
-    if (map.count() != 3
-            || !map.contains(QLatin1String(VERSION))
-            || map.value(QLatin1String(VERSION)).toInt() != 1
-            || !map.contains(QLatin1String("QtVersion.0"))
-            || !map.contains(QLatin1String("QtVersion.1")))
-        return false;
+    qtData.m_id = "testId2";
+    qtData.m_displayName = "Test Qt Version";
+    qtData.m_type = "testType3";
+    qtData.m_qmake = "/tmp/test/qmake2";
+    qtData.m_abis = {};
+    qtData.m_extra = {{QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))}};
 
-    if (map.value(QLatin1String("QtVersion.0")) != version0)
-        return false;
+    map = qtData.addQt(map);
+
+    QCOMPARE(map.count(), 3);
+    QVERIFY(map.contains(QLatin1String(VERSION)));
+    QCOMPARE(map.value(QLatin1String(VERSION)).toInt(), 1);
+    QVERIFY(map.contains(QLatin1String("QtVersion.0")));
+    QVERIFY(map.contains(QLatin1String("QtVersion.1")));
+
+    QCOMPARE(map.value(QLatin1String("QtVersion.0")), version0);
 
     QVariantMap version1 = map.value(QLatin1String("QtVersion.1")).toMap();
-    if (version1.count() != 8
-            || !version1.contains(QLatin1String(ID))
-            || version1.value(QLatin1String(ID)).toInt() != -1
-            || !version1.contains(QLatin1String(DISPLAYNAME))
-            || version1.value(QLatin1String(DISPLAYNAME)).toString() != QLatin1String("Test Qt Version")
-            || !version1.contains(QLatin1String(AUTODETECTED))
-            || version1.value(QLatin1String(AUTODETECTED)).toBool() != true
-            || !version1.contains(QLatin1String(AUTODETECTION_SOURCE))
-            || version1.value(QLatin1String(AUTODETECTION_SOURCE)).toString() != QLatin1String("SDK.testId2")
-            || !version1.contains(QLatin1String(TYPE))
-            || version1.value(QLatin1String(TYPE)).toString() != QLatin1String("testType3")
-            || !version1.contains(QLatin1String(ABIS))
-            || version1.value(QLatin1String(ABIS)).toStringList() != QStringList()
-            || !version1.contains(QLatin1String(QMAKE))
-            || version1.value(QLatin1String(QMAKE)).toString() != QLatin1String("/tmp/test/qmake2")
-            || !version1.contains(QLatin1String("extraData"))
-            || version1.value(QLatin1String("extraData")).toString() != QLatin1String("extraValue"))
-        return false;
-
-    return true;
+    QCOMPARE(version1.count(), 8);
+    QVERIFY(version1.contains(QLatin1String(ID)));
+    QCOMPARE(version1.value(QLatin1String(ID)).toInt(), -1);
+    QVERIFY(version1.contains(QLatin1String(DISPLAYNAME)));
+    QCOMPARE(version1.value(QLatin1String(DISPLAYNAME)).toString(), QLatin1String("Test Qt Version"));
+    QVERIFY(version1.contains(QLatin1String(AUTODETECTED)));
+    QCOMPARE(version1.value(QLatin1String(AUTODETECTED)).toBool(), true);
+    QVERIFY(version1.contains(QLatin1String(AUTODETECTION_SOURCE)));
+    QCOMPARE(version1.value(QLatin1String(AUTODETECTION_SOURCE)).toString(), QLatin1String("SDK.testId2"));
+    QVERIFY(version1.contains(QLatin1String(TYPE)));
+    QCOMPARE(version1.value(QLatin1String(TYPE)).toString(), QLatin1String("testType3"));
+    QVERIFY(version1.contains(QLatin1String(ABIS)));
+    QCOMPARE(version1.value(QLatin1String(ABIS)).toStringList(), QStringList());
+    QVERIFY(version1.contains(QLatin1String(QMAKE)));
+    QCOMPARE(version1.value(QLatin1String(QMAKE)).toString(), QLatin1String("/tmp/test/qmake2"));
+    QVERIFY(version1.contains(QLatin1String("extraData")));
+    QCOMPARE(version1.value(QLatin1String("extraData")).toString(), QLatin1String("extraValue"));
 }
 #endif
 
@@ -274,7 +285,7 @@ QVariantMap AddQtData::addQt(const QVariantMap &map) const
 
     // Sanity check: Make sure autodetection source is not in use already:
     if (exists(map, sdkId)) {
-        std::cerr << "Error: Id " << qPrintable(m_id) << " already defined as Qt versions." << std::endl;
+        qCCritical(log) << "Error: Id" << qPrintable(m_id) << "already defined as Qt versions.";
         return QVariantMap();
     }
 

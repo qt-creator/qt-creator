@@ -33,9 +33,13 @@
 
 #include "settings.h"
 
+#include <QLoggingCategory>
+
 #ifdef WITH_TESTS
 #include <QtTest>
 #endif
+
+Q_LOGGING_CATEGORY(addAbiFlavorLog, "qtc.sdktool.operations.addabiflavor", QtWarningMsg)
 
 #include <iostream>
 
@@ -66,7 +70,7 @@ bool AddAbiFlavor::setArguments(const QStringList &args)
         const QString next = ((i + 1) < args.count()) ? args.at(i + 1) : QString();
 
         if (next.isNull() && current.startsWith("--")) {
-            std::cerr << "No parameter for option '" << qPrintable(current) << "' given." << std::endl << std::endl;
+            qCCritical(addAbiFlavorLog) << "No parameter for option '" << qPrintable(current) << "' given.";
             return false;
         }
 
@@ -82,15 +86,15 @@ bool AddAbiFlavor::setArguments(const QStringList &args)
             continue;
         }
 
-        std::cerr << "Unknown parameter: " << qPrintable(current) << std::endl << std::endl;
+        qCCritical(addAbiFlavorLog) << "Unknown parameter: " << qPrintable(current);
         return false;
     }
 
     if (m_flavor.isEmpty())
-        std::cerr << "Error no flavor was passed." << std::endl << std::endl;
+        qCCritical(addAbiFlavorLog) << "Error no flavor was passed.";
 
     if (m_oses.isEmpty())
-        std::cerr << "Error no OSes name was passed." << std::endl << std::endl;
+        qCCritical(addAbiFlavorLog) << "Error no OSes name was passed.";
 
     return !m_flavor.isEmpty() && !m_oses.isEmpty();
 }
@@ -110,38 +114,31 @@ int AddAbiFlavor::execute() const
 }
 
 #ifdef WITH_TESTS
-bool AddAbiFlavor::test() const
+void AddAbiFlavor::unittest()
 {
     QVariantMap map = initializeAbiFlavors();
-    if (map.count() != 1)
-        return false;
-    if (!map.contains(QLatin1String(VERSION)))
-        return false;
+    QCOMPARE(map.count(), 1);
+    QVERIFY(map.contains(QLatin1String(VERSION)));
 
-    map = AddAbiFlavorData{{"linux", "windows"}, "foo"}.addAbiFlavor(map);
+    AddAbiFlavorData d;
+    d.m_oses = {"linux", "windows"};
+    d.m_flavor = "foo";
+    map = d.addAbiFlavor(map);
 
-    if (map.count() != 2)
-        return false;
-    if (!map.contains(QLatin1String(VERSION)))
-        return false;
-    if (!map.contains(QLatin1String(FLAVORS)))
-        return false;
+    QCOMPARE(map.count(), 2);
+    QVERIFY(map.contains(QLatin1String(VERSION)));
+    QVERIFY(map.contains(QLatin1String(FLAVORS)));
 
     const QVariantMap flavorMap = map.value(QLatin1String(FLAVORS)).toMap();
-    if (flavorMap.count() != 1)
-        return false;
-    if (flavorMap.value("foo").toStringList() != QStringList({"linux", "windows"}))
-        return false;
+    QCOMPARE(flavorMap.count(), 1);
+    QCOMPARE(flavorMap.value("foo").toStringList(), QStringList({"linux", "windows"}));
 
     // Ignore known flavors:
-    QTest::ignoreMessage(QtWarningMsg,
+    QTest::ignoreMessage(QtCriticalMsg,
                          QRegularExpression("Error: flavor .* already defined as extra ABI flavor."));
     const QVariantMap result = AddAbiFlavorData({{"linux"}, "foo"}).addAbiFlavor(map);
 
-    if (map != result)
-        return false;
-
-    return true;
+    QCOMPARE(map, result);
 }
 #endif
 
@@ -149,7 +146,7 @@ QVariantMap AddAbiFlavorData::addAbiFlavor(const QVariantMap &map) const
 {
     // Sanity check: Is flavor already set in abi file?
     if (exists(map, m_flavor)) {
-        std::cerr << "Error: flavor " << qPrintable(m_flavor) << " already defined as extra ABI flavor." << std::endl;
+        qCCritical(addAbiFlavorLog) << "Error: flavor" << qPrintable(m_flavor) << "already defined as extra ABI flavor.";
         return map;
     }
 

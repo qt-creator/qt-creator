@@ -80,6 +80,6 @@ public:
     int execute() const final;
 
 #ifdef WITH_TESTS
-    bool test() const final;
+    static void unittest();
 #endif
 };

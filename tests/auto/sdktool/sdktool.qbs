@@ -3,6 +3,8 @@ import qbs.FileInfo
 QtcAutotest {
     name: "sdktool autotest"
 
+    Depends { name: "sdktoolLib" }
+
     Group {
         name: "Test sources"
         files: "tst_sdktool.cpp"
