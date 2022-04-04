@@ -724,11 +724,13 @@ void ItemLibraryAssetImportDialog::setCloseButtonState(bool importing)
 
 void ItemLibraryAssetImportDialog::addError(const QString &error, const QString &srcPath)
 {
+    m_closeOnFinish = false;
     addFormattedMessage(m_outputFormatter, error, srcPath, Utils::StdErrFormat);
 }
 
 void ItemLibraryAssetImportDialog::addWarning(const QString &warning, const QString &srcPath)
 {
+    m_closeOnFinish = false;
     addFormattedMessage(m_outputFormatter, warning, srcPath, Utils::StdOutFormat);
 }
 
@@ -777,6 +779,10 @@ void ItemLibraryAssetImportDialog::onImportFinished()
         QString doneStr = tr("Import done.");
         addInfo(doneStr);
         setImportProgress(100, doneStr);
+        if (m_closeOnFinish) {
+            // Add small delay to allow user to visually confirm import finishing
+            QTimer::singleShot(1000, this, &ItemLibraryAssetImportDialog::onClose);
+        }
     }
 }
 
@@ -785,7 +791,7 @@ void ItemLibraryAssetImportDialog::onClose()
     if (m_importer.isImporting()) {
         addInfo(tr("Canceling import."));
         m_importer.cancelImport();
-    } else {
+    } else if (isVisible()) {
         if (ui->progressBar->value() == 100) // import done successfully
             accept();
         else

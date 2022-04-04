@@ -91,5 +91,6 @@ private:
     int m_optionsHeight = 0;
     int m_optionsRows = 0;
     QSet<QString> m_preselectedFilesForOverwrite;
+    bool m_closeOnFinish = true;
 };
 }
