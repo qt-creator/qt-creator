@@ -40,6 +40,7 @@
 #endif
 
 #include <QLoggingCategory>
+#include <QRegularExpression>
 
 Q_LOGGING_CATEGORY(log, "qtc.sdktool.operations.addqt", QtWarningMsg)
 
@@ -197,7 +198,7 @@ void AddQtOperation::unittest()
     qtData.m_displayName = "Test Qt Version";
     qtData.m_type = "testType";
     qtData.m_qmake = "/tmp//../tmp/test/qmake";
-    qtData.m_abis = {};
+    qtData.m_abis = QStringList{};
     qtData.m_extra = {{QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))}};
 
     map = qtData.addQt(map);
@@ -231,7 +232,7 @@ void AddQtOperation::unittest()
     qtData.m_displayName = "Test Qt Version2";
     qtData.m_type = "testType2";
     qtData.m_qmake = "/tmp/test/qmake2";
-    qtData.m_abis = {};
+    qtData.m_abis = QStringList{};
     qtData.m_extra = {{QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))}};
 
     QTest::ignoreMessage(QtCriticalMsg,
@@ -245,7 +246,7 @@ void AddQtOperation::unittest()
     qtData.m_displayName = "Test Qt Version";
     qtData.m_type = "testType3";
     qtData.m_qmake = "/tmp/test/qmake2";
-    qtData.m_abis = {};
+    qtData.m_abis = QStringList{};
     qtData.m_extra = {{QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))}};
 
     map = qtData.addQt(map);

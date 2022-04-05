@@ -40,6 +40,7 @@
 #endif
 
 #include <QLoggingCategory>
+#include <QRegularExpression>
 
 Q_LOGGING_CATEGORY(addtoolchainlog, "qtc.sdktool.operations.addtoolchain", QtWarningMsg)
 

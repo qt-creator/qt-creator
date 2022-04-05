@@ -353,7 +353,7 @@ void AddKitOperation::unittest()
     aqtd.m_displayName = "Qt";
     aqtd.m_type = "desktop-qt";
     aqtd.m_qmake = "/usr/bin/qmake";
-    aqtd.m_abis = {};
+    aqtd.m_abis = QStringList{};
     aqtd.m_extra = {};
 
     qtMap = aqtd.addQt(qtMap);

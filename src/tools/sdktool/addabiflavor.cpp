@@ -121,7 +121,7 @@ void AddAbiFlavor::unittest()
     QVERIFY(map.contains(QLatin1String(VERSION)));
 
     AddAbiFlavorData d;
-    d.m_oses = {"linux", "windows"};
+    d.m_oses = QStringList{"linux", "windows"};
     d.m_flavor = "foo";
     map = d.addAbiFlavor(map);
 

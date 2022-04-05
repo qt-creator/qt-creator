@@ -28,6 +28,7 @@
 #include <iostream>
 
 #include <QLoggingCategory>
+#include <QRegularExpression>
 
 #ifdef WITH_TESTS
 #include <QTest>

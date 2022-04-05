@@ -38,6 +38,7 @@
 #endif
 
 #include <QLoggingCategory>
+#include <QRegularExpression>
 
 Q_LOGGING_CATEGORY(addDebuggerOperationLog, "qtc.sdktool.operations.adddebugger", QtWarningMsg)
 
@@ -172,7 +173,7 @@ void AddDebuggerOperation::unittest()
     d.m_id = "testId";
     d.m_displayName = "name";
     d.m_binary = "/tmp/bin/gdb";
-    d.m_abis = {"aarch64", "x86_64"};
+    d.m_abis = QStringList{"aarch64", "x86_64"};
     d.m_extra = {{"ExtraKey", QVariant("ExtraValue")}};
     map = d.addDebugger(map);
 
@@ -197,7 +198,7 @@ void AddDebuggerOperation::unittest()
     d2.m_id = "testId";
     d2.m_displayName = "name2";
     d2.m_binary = "/tmp/bin/gdb";
-    d2.m_abis = {};
+    d2.m_abis = QStringList{};
     d2.m_extra = {{"ExtraKey", QVariant("ExtraValue2")}};
     QVariantMap unchanged = d2.addDebugger(map);
     QVERIFY(unchanged.isEmpty());

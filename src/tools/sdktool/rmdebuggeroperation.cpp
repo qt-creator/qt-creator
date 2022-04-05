@@ -41,6 +41,7 @@
 #endif
 
 #include <QLoggingCategory>
+#include <QRegularExpression>
 
 Q_LOGGING_CATEGORY(rmdebuggerlog, "qtc.sdktool.operations.rmdebugger", QtWarningMsg)
 
@@ -108,13 +109,13 @@ void RmDebuggerOperation::unittest()
     d.m_displayName = "Name1";
     d.m_engine = 2;
     d.m_binary = "/tmp/debugger1";
-    d.m_abis = {"test11", "test12"};
+    d.m_abis = QStringList{"test11", "test12"};
 
     QVariantMap map = d.addDebugger(AddDebuggerOperation::initializeDebuggers());
     d.m_id = "id2";
     d.m_displayName = "Name2";
     d.m_binary = "/tmp/debugger2";
-    d.m_abis = {"test21", "test22"};
+    d.m_abis = QStringList{"test21", "test22"};
     map = d.addDebugger(map);
 
     QVariantMap result = rmDebugger(map, QLatin1String("id2"));

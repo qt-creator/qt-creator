@@ -32,6 +32,7 @@
 #endif
 
 #include <QLoggingCategory>
+#include <QRegularExpression>
 
 Q_LOGGING_CATEGORY(rmkeyslog, "qtc.sdktool.operations.rmkeys", QtWarningMsg)
 
