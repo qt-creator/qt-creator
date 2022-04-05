@@ -114,11 +114,11 @@ SftpTransfer::SftpTransfer(const FilesToTransfer &files, Internal::FileTransferT
     d->transferType = type;
     d->errorHandlingMode = errorHandlingMode;
     d->connectionArgs = connectionArgs;
-    connect(&d->sftpProc, &QtcProcess::errorOccurred, [this](QProcess::ProcessError error) {
-        if (error == QProcess::FailedToStart)
+    connect(&d->sftpProc, &QtcProcess::done, [this] {
+        if (d->sftpProc.error() == QProcess::FailedToStart) {
             emitError(tr("sftp failed to start: %1").arg(d->sftpProc.errorString()));
-    });
-    connect(&d->sftpProc, &QtcProcess::finished, [this] {
+            return;
+        }
         if (d->sftpProc.exitStatus() != QProcess::NormalExit) {
             emitError(tr("sftp crashed."));
             return;

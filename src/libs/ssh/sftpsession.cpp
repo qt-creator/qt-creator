@@ -118,25 +118,20 @@ SftpSession::SftpSession(const QStringList &connectionArgs) : d(new SftpSessionP
         qCDebug(sshLog) << "sftp process started";
         d->sftpProc.write("\n"); // Force initial prompt.
     });
-    connect(&d->sftpProc, &QtcProcess::errorOccurred, [this](QProcess::ProcessError error) {
-        if (error == QProcess::FailedToStart) {
-            d->state = State::Inactive;
-            emit done(tr("sftp failed to start: %1").arg(d->sftpProc.errorString()));
-        }
-    });
-    connect(&d->sftpProc, &QtcProcess::finished, [this] {
+    connect(&d->sftpProc, &QtcProcess::done, [this] {
         qCDebug(sshLog) << "sftp process finished";
 
         d->state = State::Inactive;
-        if (d->sftpProc.exitStatus() != QProcess::NormalExit) {
-            emit done(tr("sftp crashed."));
-            return;
-        }
-        if (d->sftpProc.exitCode() != 0) {
-            emit done(QString::fromLocal8Bit(d->sftpProc.readAllStandardError()));
-            return;
-        }
-        emit done(QString());
+        const QString processMessage = [this] {
+            if (d->sftpProc.error() == QProcess::FailedToStart)
+                return tr("sftp failed to start: %1").arg(d->sftpProc.errorString());
+            if (d->sftpProc.exitStatus() != QProcess::NormalExit)
+                return tr("sftp crashed.");
+            if (d->sftpProc.exitCode() != 0)
+                return QString::fromLocal8Bit(d->sftpProc.readAllStandardError());
+            return QString();
+        }();
+        emit done(processMessage);
     });
     connect(&d->sftpProc, &QtcProcess::readyReadStandardOutput, this, &SftpSession::handleStdout);
 }
