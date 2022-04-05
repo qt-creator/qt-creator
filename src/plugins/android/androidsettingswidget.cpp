@@ -320,7 +320,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     m_androidSummary = new SummaryWidget(androidValidationPoints, tr("Android settings are OK."),
                                          tr("Android settings have errors."),
                                          m_ui.androidDetailsWidget);
-    m_androidProgress = new Utils::ProgressIndicator(ProgressIndicatorSize::Medium, this);
+    m_androidProgress = new ProgressIndicator(ProgressIndicatorSize::Medium, this);
     m_androidProgress->attachToWidget(m_ui.androidDetailsWidget);
     m_androidProgress->hide();
 
@@ -612,22 +612,21 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
         openButton->deleteLater();
     };
 
-    connect(gitCloner, &QtcProcess::finished, this, [=] {
-                openSslProgressDialog->close();
-                validateOpenSsl();
-                m_ui.openSslPathChooser->triggerChanged(); // After cloning, the path exists
-
-                if (!openSslProgressDialog->wasCanceled()
-                    || gitCloner->result() == ProcessResult::FinishedWithError) {
-                    failDialog();
-                }
-            });
-
-    connect(gitCloner, &QtcProcess::errorOccurred, this, [=](QProcess::ProcessError error) {
+    connect(gitCloner, &QtcProcess::done, this, [=] {
         openSslProgressDialog->close();
-        if (error == QProcess::FailedToStart) {
-            failDialog(tr("The Git tool might not be installed properly on your system."));
-        } else {
+        if (gitCloner->error() != QProcess::UnknownError) {
+            if (gitCloner->error() == QProcess::FailedToStart) {
+                failDialog(tr("The Git tool might not be installed properly on your system."));
+                return;
+            } else {
+                failDialog();
+            }
+        }
+        validateOpenSsl();
+        m_ui.openSslPathChooser->triggerChanged(); // After cloning, the path exists
+
+        if (!openSslProgressDialog->wasCanceled()
+                || gitCloner->result() == ProcessResult::FinishedWithError) {
             failDialog();
         }
     });
