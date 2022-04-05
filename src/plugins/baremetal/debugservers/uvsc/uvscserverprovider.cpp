@@ -388,15 +388,11 @@ UvscServerProviderRunner::UvscServerProviderRunner(ProjectExplorer::RunControl *
         reportStarted();
     });
     connect(&m_process, &QtcProcess::finished, this, [this] {
-        appendMessage(m_process.exitMessage(), NormalMessageFormat);
-        reportStopped();
-    });
-    connect(&m_process, &QtcProcess::errorOccurred, this, [this] (QProcess::ProcessError error) {
-        if (error == QProcess::Timedout)
-            return; // No actual change on the process side.
-        const QString msg = userMessageForProcessError(
-                    error, m_process.commandLine().executable());
-        appendMessage(msg, Utils::NormalMessageFormat);
+        const QProcess::ProcessError error = m_process.error();
+        const QString message = (error == QProcess::UnknownError)
+                ? m_process.exitMessage()
+                : userMessageForProcessError(error, m_process.commandLine().executable());
+        appendMessage(message, Utils::NormalMessageFormat);
         reportStopped();
     });
 }
