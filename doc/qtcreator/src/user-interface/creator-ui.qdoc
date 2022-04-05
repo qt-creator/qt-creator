@@ -274,13 +274,8 @@
         \li On \macos, the files are located in \c {~/.config/QtProject} and
             \c {~/Library/Application Support/QtProject/Qt Creator}.
 
-        \li On Windows XP, the files are located in
-            \c {%SystemDrive%\Documents and Settings\%USERNAME%\Application Data\QtProject} and
-            \c {%SystemDrive%\Documents and Settings\%USERNAME%\Local Settings\Application Data\QtProject}.
-
-        \li On Windows 7, the files are located in
-            \c {%SystemDrive%\Users\%USERNAME%\AppData\Roaming\QtProject} and
-            \c {%SystemDrive%\Users\%USERNAME%\AppData\Local\QtProject}.
+        \li On Windows, the files are located in
+            \c {%appdata%\QtProject} and \c {%localappdata%\QtProject}.
 
     \endlist
     \endif
