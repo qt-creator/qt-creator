@@ -44,23 +44,28 @@ AndroidSignalOperation::AndroidSignalOperation()
 
 AndroidSignalOperation::~AndroidSignalOperation() = default;
 
+bool AndroidSignalOperation::handleCrashMessage()
+{
+    if (m_adbProcess->exitStatus() == QProcess::NormalExit)
+        return false;
+    m_errorMessage = QLatin1String(" adb process exit code: ") + QString::number(m_adbProcess->exitCode());
+    const QString adbError = m_adbProcess->errorString();
+    if (!adbError.isEmpty())
+        m_errorMessage += QLatin1String(" adb process error: ") + adbError;
+    return true;
+}
+
 void AndroidSignalOperation::adbFindRunAsFinished()
 {
     QTC_ASSERT(m_state == RunAs, return);
     m_timeout->stop();
 
-    QString runAs = QString::fromLatin1(m_adbProcess->readAllStandardOutput());
-    if (m_adbProcess->exitStatus() != QProcess::NormalExit) {
-        m_errorMessage = QLatin1String(" adb Exit code: ") + QString::number(m_adbProcess->exitCode());
-        QString adbError = m_adbProcess->errorString();
-        if (!adbError.isEmpty())
-            m_errorMessage += QLatin1String(" adb process error: ") + adbError;
-    }
+    handleCrashMessage();
+    const QString runAs = QString::fromLatin1(m_adbProcess->readAllStandardOutput());
     m_adbProcess.release()->deleteLater();
     if (runAs.isEmpty() || !m_errorMessage.isEmpty()) {
-        m_errorMessage = QLatin1String("Cannot find User for process: ")
-                + QString::number(m_pid)
-                + m_errorMessage;
+        m_errorMessage.prepend(QLatin1String("Cannot find User for process: ")
+                               + QString::number(m_pid));
         m_state = Idle;
         emit finished(m_errorMessage);
     } else {
@@ -75,19 +80,11 @@ void AndroidSignalOperation::adbKillFinished()
     QTC_ASSERT(m_state == Kill, return);
     m_timeout->stop();
 
-    if (m_adbProcess->exitStatus() != QProcess::NormalExit) {
-        m_errorMessage = QLatin1String(" adb process exit code: ") + QString::number(m_adbProcess->exitCode());
-        QString adbError = m_adbProcess->errorString();
-        if (!adbError.isEmpty())
-            m_errorMessage += QLatin1String(" adb process error: ") + adbError;
-    } else {
+    if (!handleCrashMessage())
         m_errorMessage = QString::fromLatin1(m_adbProcess->readAllStandardError());
-    }
     m_adbProcess.release()->deleteLater();
-    if (!m_errorMessage.isEmpty()) {
-        m_errorMessage = QLatin1String("Cannot kill process: ") + QString::number(m_pid)
-                + m_errorMessage;
-    }
+    if (!m_errorMessage.isEmpty())
+        m_errorMessage.prepend(QLatin1String("Cannot kill process: ") + QString::number(m_pid));
     m_state = Idle;
     emit finished(m_errorMessage);
 }
@@ -116,7 +113,7 @@ void AndroidSignalOperation::startAdbProcess(State state, const Utils::CommandLi
     m_state = state;
     m_timeout->start();
     m_adbProcess.reset(new QtcProcess);
-    connect(m_adbProcess.get(), &QtcProcess::finished, this, handler);
+    connect(m_adbProcess.get(), &QtcProcess::done, this, handler);
     m_adbProcess->setCommand(commandLine);
     m_adbProcess->start();
 }

@@ -55,6 +55,7 @@ private:
 
     using FinishHandler = std::function<void()>;
 
+    bool handleCrashMessage();
     void adbFindRunAsFinished();
     void adbKillFinished();
     void handleTimeout();
