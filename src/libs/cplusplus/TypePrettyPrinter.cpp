@@ -531,7 +531,10 @@ void TypePrettyPrinter::visit(Function *type)
 
         // add exception specifier
         if (const StringLiteral *spec = type->exceptionSpecification()) {
-            appendSpace();
+            if (type->refQualifier() != Function::NoRefQualifier)
+                _text.append(' ');
+            else
+                appendSpace();
             _text += QLatin1String(spec->chars());
         }
     }

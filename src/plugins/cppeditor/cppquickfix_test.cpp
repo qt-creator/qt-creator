@@ -6137,7 +6137,7 @@ struct Derived : public Base {
     original = "#include \"file.h\"\n";
     expected = R"DELIM(#include "file.h"
 
-auto Derived::func() const &&noexcept -> void {}
+auto Derived::func() const && noexcept -> void {}
 )DELIM";
     testDocuments << CppTestDocument::create("file.cpp", original, expected);
 
