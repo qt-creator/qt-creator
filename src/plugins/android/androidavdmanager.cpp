@@ -166,18 +166,6 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
     return result;
 }
 
-static void avdProcessFinished(int exitCode, QtcProcess *p)
-{
-    QTC_ASSERT(p, return);
-    if (exitCode) {
-        QString title = QCoreApplication::translate("Android::Internal::AndroidAvdManager",
-                                                    "AVD Start Error");
-        QMessageBox::critical(Core::ICore::dialogParent(), title,
-                              QString::fromLatin1(p->readAllStandardOutput()));
-    }
-    p->deleteLater();
-}
-
 AndroidAvdManager::AndroidAvdManager(const AndroidConfig &config)
     : m_config(config)
 {
@@ -286,10 +274,22 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
                               .arg(m_config.emulatorToolPath().toString()));
         return false;
     }
-    auto avdProcess = new QtcProcess;
+
+    // TODO: Here we are potentially leaking QtcProcess instance in case when shutdown happens
+    // after the avdProcess has started and before it has finished. Giving a parent object here
+    // should solve the issue. However, AndroidAvdManager is not a QObject, so no clue what parent
+    // would be the most appropriate. Preferably some object taken form android plugin...
+    QtcProcess *avdProcess = new QtcProcess;
     avdProcess->setProcessChannelMode(QProcess::MergedChannels);
-    QObject::connect(avdProcess, &QtcProcess::finished, avdProcess,
-                     [avdProcess] { avdProcessFinished(avdProcess->exitCode(), avdProcess); });
+    QObject::connect(avdProcess, &QtcProcess::done, avdProcess, [avdProcess] {
+        if (avdProcess->exitCode()) {
+            const QString title = QCoreApplication::translate("Android::Internal::AndroidAvdManager",
+                                                              "AVD Start Error");
+            QMessageBox::critical(Core::ICore::dialogParent(), title,
+                                  QString::fromLatin1(avdProcess->readAllStandardOutput()));
+        }
+        avdProcess->deleteLater();
+    });
 
     // start the emulator
     QStringList arguments;
@@ -301,11 +301,7 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
                            << CommandLine(m_config.emulatorToolPath(), arguments).toUserOutput();
     avdProcess->setCommand({m_config.emulatorToolPath(), arguments});
     avdProcess->start();
-    if (!avdProcess->waitForStarted(-1)) {
-        delete avdProcess;
-        return false;
-    }
-    return true;
+    return avdProcess->waitForStarted(-1);
 }
 
 QString AndroidAvdManager::findAvd(const QString &avdName) const
