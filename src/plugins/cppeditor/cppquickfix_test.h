@@ -115,6 +115,7 @@ private slots:
     void testGenerateGetterSetterOnlySetter();
     void testGenerateGetterSetterInlineInHeaderFile();
     void testGenerateGetterSetterOnlySetterHeaderFileWithIncludeGuard();
+    void testGenerateGetterFunctionAsTemplateArg();
     void testGenerateGettersSetters_data();
     void testGenerateGettersSetters();
 
