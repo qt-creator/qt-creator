@@ -1315,7 +1315,7 @@ QString QtcProcess::locateBinary(const QString &binary)
     as this will cause event loop problems.
 */
 
-QString QtcProcess::exitMessage()
+QString QtcProcess::exitMessage() const
 {
     const QString fullCmd = commandLine().toUserOutput();
     switch (result()) {

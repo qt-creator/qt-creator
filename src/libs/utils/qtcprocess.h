@@ -182,7 +182,7 @@ public:
 
     QByteArray rawStdOut() const;
 
-    QString exitMessage();
+    QString exitMessage() const;
 
     QString toStandaloneCommandLine() const;
 
