@@ -42,6 +42,7 @@
 #include <qtsupport/qtversionmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/filepath.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -49,6 +50,8 @@
 
 #include <algorithm>
 #include <memory>
+
+using namespace Utils;
 
 namespace QtSupport {
 namespace Internal {
@@ -101,11 +104,20 @@ ExampleSetModel::ExampleSetModel()
                 qWarning() << "Manifest path " << set.manifestPath << "is not a readable directory, ignoring";
             continue;
         }
-        m_extraExampleSets.append(set);
         if (debugExamples()) {
             qWarning() << "Adding examples set displayName=" << set.displayName
                        << ", manifestPath=" << set.manifestPath
                        << ", examplesPath=" << set.examplesPath;
+        }
+        if (!Utils::anyOf(m_extraExampleSets, [&set](const ExtraExampleSet &s) {
+                return FilePath::fromString(s.examplesPath).cleanPath()
+                           == FilePath::fromString(set.examplesPath).cleanPath()
+                       && FilePath::fromString(s.manifestPath).cleanPath()
+                              == FilePath::fromString(set.manifestPath).cleanPath();
+            })) {
+            m_extraExampleSets.append(set);
+        } else if (debugExamples()) {
+            qWarning() << "Not adding, because example set with same directories exists";
         }
     }
     m_extraExampleSets += pluginRegisteredExampleSets();
