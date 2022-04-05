@@ -25,6 +25,7 @@
 
 #include "curveeditor.h"
 #include "curveeditormodel.h"
+#include "curveeditortoolbar.h"
 #include "detail/curveitem.h"
 #include "detail/graphicsview.h"
 #include "detail/treeview.h"
@@ -40,9 +41,17 @@ namespace QmlDesigner {
 
 CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
     : QWidget(parent)
+    , m_infoText(nullptr)
+    , m_toolbar(new CurveEditorToolBar(model, this))
     , m_tree(new TreeView(model, this))
     , m_view(new GraphicsView(model, this))
 {
+    const QString labelText = tr(
+        "This file does not contain a timeline. <br><br>"
+        "To create an animation, add a timeline by clicking the + button in the \"Timeline\" view."
+    );
+    m_infoText = new QLabel(labelText);
+
     auto *splitter = new QSplitter;
     splitter->addWidget(m_tree);
     splitter->addWidget(m_view);
@@ -53,17 +62,63 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
     area->setWidgetResizable(true);
 
     auto *box = new QVBoxLayout;
-    box->addWidget(createToolBar(model));
+    box->addWidget(m_infoText);
+    box->addWidget(m_toolbar);
     box->addWidget(area);
     setLayout(box);
+
+    connect(m_toolbar, &CurveEditorToolBar::defaultClicked, [this]() {
+        m_view->setDefaultInterpolation();
+    });
+
+    connect(m_toolbar, &CurveEditorToolBar::unifyClicked, [this]() {
+        m_view->toggleUnified();
+    });
+
+    connect(m_toolbar, &CurveEditorToolBar::interpolationClicked, [this](Keyframe::Interpolation ipol) {
+        m_view->setInterpolation(ipol);
+    });
+
+    connect(m_toolbar, &CurveEditorToolBar::startFrameChanged, [this, model](int frame) {
+        model->setMinimumTime(frame);
+        m_view->viewport()->update();
+    });
+
+    connect(m_toolbar, &CurveEditorToolBar::endFrameChanged, [this, model](int frame) {
+        model->setMaximumTime(frame);
+        m_view->viewport()->update();
+    });
+
+    connect(
+        m_toolbar, &CurveEditorToolBar::currentFrameChanged,
+        model, &CurveEditorModel::commitCurrentFrame);
+
+    connect(
+        m_view, &GraphicsView::currentFrameChanged,
+        m_toolbar, &CurveEditorToolBar::setCurrentFrame);
 
     connect(m_tree, &TreeView::treeItemLocked, model, &CurveEditorModel::setLocked);
     connect(m_tree, &TreeView::treeItemPinned, model, &CurveEditorModel::setPinned);
 
-    connect(m_tree->selectionModel(),
-            &SelectionModel::curvesSelected,
-            m_view,
-            &GraphicsView::updateSelection);
+    connect(
+        m_tree->selectionModel(), &SelectionModel::curvesSelected,
+        m_view, &GraphicsView::updateSelection);
+
+    auto updateTimeline = [this, model](bool validTimeline) {
+        if (validTimeline) {
+            m_toolbar->updateBoundsSilent(model->minimumTime(), model->maximumTime());
+            m_toolbar->show();
+            m_tree->show();
+            m_view->show();
+            m_infoText->hide();
+        } else {
+            m_toolbar->hide();
+            m_tree->hide();
+            m_view->hide();
+            m_infoText->show();
+        }
+    };
+    connect(model, &CurveEditorModel::timelineChanged, this, updateTimeline);
 }
 
 bool CurveEditor::dragging() const
@@ -96,106 +151,6 @@ void CurveEditor::hideEvent(QHideEvent *event)
 {
     emit viewEnabledChanged(false);
     QWidget::hideEvent(event);
-}
-
-QToolBar *CurveEditor::createToolBar(CurveEditorModel *model)
-{
-    auto *bar = new QToolBar;
-    bar->setFloatable(false);
-
-    QAction *tangentLinearAction = bar->addAction(
-        QIcon(":/curveeditor/images/tangetToolsLinearIcon.png"), "Linear");
-    QAction *tangentStepAction = bar->addAction(QIcon(
-                                                    ":/curveeditor/images/tangetToolsStepIcon.png"),
-                                                "Step");
-    QAction *tangentSplineAction = bar->addAction(
-        QIcon(":/curveeditor/images/tangetToolsSplineIcon.png"), "Spline");
-
-    QAction *tangentDefaultAction = bar->addAction(tr("Set Default"));
-    QAction *tangentUnifyAction = bar->addAction(tr("Unify"));
-
-    auto setLinearInterpolation = [this]() {
-        m_view->setInterpolation(Keyframe::Interpolation::Linear);
-    };
-    auto setStepInterpolation = [this]() {
-        m_view->setInterpolation(Keyframe::Interpolation::Step);
-    };
-    auto setSplineInterpolation = [this]() {
-        m_view->setInterpolation(Keyframe::Interpolation::Bezier);
-    };
-
-    auto toggleUnifyKeyframe = [this]() { m_view->toggleUnified(); };
-
-    connect(tangentLinearAction, &QAction::triggered, setLinearInterpolation);
-    connect(tangentStepAction, &QAction::triggered, setStepInterpolation);
-    connect(tangentSplineAction, &QAction::triggered, setSplineInterpolation);
-    connect(tangentUnifyAction, &QAction::triggered, toggleUnifyKeyframe);
-
-    Q_UNUSED(tangentLinearAction);
-    Q_UNUSED(tangentSplineAction);
-    Q_UNUSED(tangentStepAction);
-    Q_UNUSED(tangentDefaultAction);
-
-    auto *durationBox = new QHBoxLayout;
-    auto *startSpin = new QSpinBox;
-    auto *endSpin = new QSpinBox;
-
-    startSpin->setRange(std::numeric_limits<int>::lowest(), std::numeric_limits<int>::max());
-    startSpin->setValue(model->minimumTime());
-
-    auto updateStartFrame = [this, model](int frame) {
-        model->setMinimumTime(frame);
-        m_view->viewport()->update();
-    };
-    connect(startSpin, QOverload<int>::of(&QSpinBox::valueChanged), updateStartFrame);
-
-    endSpin->setRange(std::numeric_limits<int>::lowest(), std::numeric_limits<int>::max());
-    endSpin->setValue(model->maximumTime());
-
-    auto updateEndFrame = [this, model](int frame) {
-        model->setMaximumTime(frame);
-        m_view->viewport()->update();
-    };
-    connect(endSpin, QOverload<int>::of(&QSpinBox::valueChanged), updateEndFrame);
-
-    auto setStartSlot = [startSpin](int frame) { startSpin->setValue(frame); };
-    connect(model, &CurveEditorModel::commitStartFrame, setStartSlot);
-
-    auto setEndSlot = [endSpin](int frame) { endSpin->setValue(frame); };
-    connect(model, &CurveEditorModel::commitEndFrame, setEndSlot);
-
-    durationBox->addWidget(new QLabel(tr("Start Frame")));
-    durationBox->addWidget(startSpin);
-    durationBox->addWidget(new QLabel(tr("End Frame")));
-    durationBox->addWidget(endSpin);
-
-    auto *durationWidget = new QWidget;
-    durationWidget->setLayout(durationBox);
-    bar->addWidget(durationWidget);
-
-    auto *cfspin = new QSpinBox;
-    cfspin->setMinimum(0);
-    cfspin->setMaximum(std::numeric_limits<int>::max());
-
-    auto intSignal = static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged);
-    connect(cfspin, intSignal, [model](int val) { emit model->commitCurrentFrame(val); });
-    connect(m_view, &GraphicsView::currentFrameChanged, [cfspin](int val, bool notify) {
-        if (notify) {
-            cfspin->setValue(val);
-        } else {
-            const QSignalBlocker blocker(cfspin);
-            cfspin->setValue(val);
-        }
-    });
-
-    auto *positionBox = new QHBoxLayout;
-    positionBox->addWidget(new QLabel(tr("Current Frame")));
-    positionBox->addWidget(cfspin);
-    auto *positionWidget = new QWidget;
-    positionWidget->setLayout(positionBox);
-    bar->addWidget(positionWidget);
-
-    return bar;
 }
 
 } // End namespace QmlDesigner.

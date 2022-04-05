@@ -334,6 +334,18 @@ void GraphicsView::setInterpolation(Keyframe::Interpolation interpol)
     viewport()->update();
 }
 
+void GraphicsView::setDefaultInterpolation()
+{
+    const auto selectedCurves = m_scene->selectedCurves();
+    for (auto *curve : selectedCurves)
+        curve->setDefaultInterpolation();
+
+    m_scene->setDirty(true);
+
+    applyZoom(m_zoomX, m_zoomY);
+    viewport()->update();
+}
+
 void GraphicsView::toggleUnified()
 {
     const auto selectedCurves = m_scene->selectedCurves();

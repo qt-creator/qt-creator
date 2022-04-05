@@ -828,6 +828,8 @@ Project {
                 "curveeditor/curveeditor.qrc",
                 "curveeditor/curveeditormodel.cpp",
                 "curveeditor/curveeditormodel.h",
+                "curveeditor/curveeditortoolbar.cpp",
+                "curveeditor/curveeditortoolbar.h",
                 "curveeditor/curveeditorstyle.h",
                 "curveeditor/curvesegment.cpp",
                 "curveeditor/curvesegment.h",

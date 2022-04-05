@@ -396,11 +396,7 @@ void CurveEditorView::commitEndFrame(int frame)
 
 void CurveEditorView::init()
 {
-    QmlTimeline timeline = activeTimeline();
-    if (timeline.isValid()) {
-        m_model->setTimeline(timeline);
-    }
-
+    m_model->setTimeline(activeTimeline());
 }
 
 } // namespace QmlDesigner

@@ -112,6 +112,8 @@ public:
 
     void setInterpolation(Keyframe::Interpolation interpol);
 
+    void setDefaultInterpolation();
+
     void toggleUnified();
 
 protected:

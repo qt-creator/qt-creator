@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Tooling
@@ -25,47 +25,57 @@
 
 #pragma once
 
+#include <QSpinBox>
 #include <QToolBar>
+#include <QValidator>
 #include <QWidget>
-#include <QLabel>
+
+#include "keyframe.h"
 
 namespace QmlDesigner {
 
 class CurveEditorModel;
-class CurveEditorToolBar;
-class GraphicsView;
-class TreeView;
 
-class CurveEditor : public QWidget
+class ValidatableSpinBox : public QSpinBox
+{
+    Q_OBJECT
+public:
+    ValidatableSpinBox(std::function<bool(int)> validator, QWidget* parent=nullptr);
+protected:
+    QValidator::State validate(QString &text, int &pos) const override;
+private:
+    std::function<bool(int)> m_validator;
+};
+
+
+class CurveEditorToolBar : public QToolBar
 {
     Q_OBJECT
 
-public:
-    CurveEditor(CurveEditorModel *model, QWidget *parent = nullptr);
-
-    bool dragging() const;
-
-    void zoomX(double zoom);
-
-    void zoomY(double zoom);
-
-    void clearCanvas();
-
 signals:
-    void viewEnabledChanged(const bool);
+    void defaultClicked();
 
-protected:
-    void showEvent(QShowEvent *event) override;
-    void hideEvent(QHideEvent *event) override;
+    void unifyClicked();
+
+    void interpolationClicked(Keyframe::Interpolation interpol);
+
+    void startFrameChanged(int start);
+
+    void endFrameChanged(int end);
+
+    void currentFrameChanged(int current);
+
+public:
+    CurveEditorToolBar(CurveEditorModel *model, QWidget* parent = nullptr);
+
+    void setCurrentFrame(int current, bool notify);
+
+    void updateBoundsSilent(int start, int end);
 
 private:
-    QLabel *m_infoText;
-
-    CurveEditorToolBar *m_toolbar;
-
-    TreeView *m_tree;
-
-    GraphicsView *m_view;
+    ValidatableSpinBox *m_startSpin;
+    ValidatableSpinBox *m_endSpin;
+    QSpinBox *m_currentSpin;
 };
 
 } // End namespace QmlDesigner.

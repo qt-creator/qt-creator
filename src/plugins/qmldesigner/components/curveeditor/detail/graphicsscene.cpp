@@ -208,6 +208,11 @@ SelectableItem *GraphicsScene::intersect(const QPointF &pos) const
     return nullptr;
 }
 
+void GraphicsScene::setDirty(bool dirty)
+{
+    m_dirty = dirty;
+}
+
 void GraphicsScene::reset()
 {
     m_curves.clear();

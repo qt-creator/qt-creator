@@ -54,6 +54,8 @@ signals:
 
     void commitEndFrame(int frame);
 
+    void timelineChanged(bool valid);
+
     void curveChanged(TreeItem *item);
 
 public:
@@ -91,6 +93,8 @@ private:
     AnimationCurve createAnimationCurve(const QmlDesigner::QmlTimelineKeyframeGroup &group);
 
     AnimationCurve createDoubleCurve(const QmlDesigner::QmlTimelineKeyframeGroup &group);
+
+    bool m_hasTimeline = false;
 
     double m_minTime = 0.;
 
