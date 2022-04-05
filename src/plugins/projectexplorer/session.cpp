@@ -637,7 +637,7 @@ QString SessionManagerPrivate::locationInProject(const QString &filePath) {
 
 QString SessionManagerPrivate::windowTitleAddition(const QString &filePath)
 {
-    return locationInProject(filePath);
+    return filePath.isEmpty() ? QString() : locationInProject(filePath);
 }
 
 QStringList SessionManagerPrivate::dependenciesOrder() const
