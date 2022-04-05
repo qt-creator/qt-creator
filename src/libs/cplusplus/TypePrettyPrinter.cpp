@@ -435,11 +435,17 @@ void TypePrettyPrinter::visit(Function *type)
     retAndArgOverview.showTemplateParameters = true;
 
     if (_overview->showReturnTypes) {
-        const QString returnType = retAndArgOverview.prettyType(type->returnType());
-        if (!returnType.isEmpty()) {
-            if (!endsWithPtrOrRef(returnType) || !(_overview->starBindFlags & Overview::BindToIdentifier))
-                _text.prepend(QLatin1Char(' '));
-            _text.prepend(returnType);
+        if (_overview->trailingReturnType) {
+            _text.prepend("auto ");
+        } else {
+            const QString returnType = retAndArgOverview.prettyType(type->returnType());
+            if (!returnType.isEmpty()) {
+                if (!endsWithPtrOrRef(returnType)
+                        || !(_overview->starBindFlags & Overview::BindToIdentifier)) {
+                    _text.prepend(QLatin1Char(' '));
+                }
+                _text.prepend(returnType);
+            }
         }
     }
 
@@ -528,6 +534,12 @@ void TypePrettyPrinter::visit(Function *type)
             appendSpace();
             _text += QLatin1String(spec->chars());
         }
+    }
+
+    if (_overview->showReturnTypes && _overview->trailingReturnType) {
+        const QString returnType = retAndArgOverview.prettyType(type->returnType());
+        if (!returnType.isEmpty())
+            _text.append(" -> ").append(returnType);
     }
 }
 
