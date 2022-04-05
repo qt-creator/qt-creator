@@ -71,11 +71,15 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         "It will be automatically re-evaluated next time access is needed."));
 
     m_daemonState = new QLabel;
+
+    connect(DockerApi::instance(), &DockerApi::dockerDaemonAvailableChanged, this, [this]{
+        updateDaemonStateTexts();
+    });
+
     updateDaemonStateTexts();
 
-    connect(m_daemonReset, &QToolButton::clicked, this, [this, dockerDevice] {
-        DockerPlugin::setGlobalDaemonState(Utils::nullopt);
-        updateDaemonStateTexts();
+    connect(m_daemonReset, &QToolButton::clicked, this, [] {
+        DockerApi::recheckDockerDaemon();
     });
 
     m_runAsOutsideUser = new QCheckBox(tr("Run as outside user"));
@@ -150,7 +154,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
 
         m_kitItemDetector.autoDetect(dockerDevice->id().toString(), searchPaths());
 
-        if (DockerPlugin::isDaemonRunning().value_or(false) == false)
+        if (DockerApi::instance()->dockerDaemonAvailable().value_or(false) == false)
             logView->append(tr("Docker daemon appears to be not running."));
         else
             logView->append(tr("Docker daemon appears to be running."));
@@ -208,7 +212,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
 
 void DockerDeviceWidget::updateDaemonStateTexts()
 {
-    Utils::optional<bool> daemonState = DockerPlugin::isDaemonRunning();
+    Utils::optional<bool> daemonState = DockerApi::instance()->dockerDaemonAvailable();
     if (!daemonState.has_value()) {
         m_daemonReset->setIcon(Icons::INFO.icon());
         m_daemonState->setText(tr("Daemon state not evaluated."));

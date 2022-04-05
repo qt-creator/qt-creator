@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,66 +23,46 @@
 **
 ****************************************************************************/
 
-#include "dockerplugin.h"
+#pragma once
 
-#include "dockerconstants.h"
+#include <QMutex>
+#include <QObject>
 
-#include "dockerapi.h"
-#include "dockerbuildstep.h"
-#include "dockerdevice.h"
-#include "dockersettings.h"
-
-#include <projectexplorer/projectexplorerconstants.h>
-
-using namespace Core;
-using namespace ProjectExplorer;
-using namespace Utils;
+#include <utils/filepath.h>
+#include <utils/guard.h>
+#include <utils/optional.h>
 
 namespace Docker {
 namespace Internal {
 
-class DockerPluginPrivate
+class DockerApi : public QObject
 {
+    Q_OBJECT
+
 public:
-    // DockerSettings settings;
-    // DockerOptionsPage optionsPage{&settings};
+    DockerApi();
 
-    DockerDeviceFactory deviceFactory;
+    static DockerApi *instance();
 
-    // DockerBuildStepFactory buildStepFactory;
-    Utils::optional<bool> daemonRunning;
+    bool canConnect();
+    void checkCanConnect();
+    static void recheckDockerDaemon();
 
-    DockerApi dockerApi;
+signals:
+    void dockerDaemonAvailableChanged();
+
+public:
+    Utils::optional<bool> dockerDaemonAvailable();
+    static Utils::optional<bool> isDockerDaemonAvailable();
+
+private:
+    Utils::FilePath findDockerClient();
+
+private:
+    Utils::FilePath m_dockerExecutable;
+    Utils::optional<bool> m_dockerDaemonAvailable;
+    QMutex m_daemonCheckGuard;
 };
-
-static DockerPlugin *s_instance = nullptr;
-
-DockerPlugin::DockerPlugin()
-{
-    s_instance = this;
-}
-
-DockerApi *DockerPlugin::dockerApi()
-{
-    QTC_ASSERT(s_instance, return nullptr);
-    return &s_instance->d->dockerApi;
-}
-
-DockerPlugin::~DockerPlugin()
-{
-    s_instance = nullptr;
-    delete d;
-}
-
-bool DockerPlugin::initialize(const QStringList &arguments, QString *errorString)
-{
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
-    d = new DockerPluginPrivate;
-
-    return true;
-}
 
 } // namespace Internal
 } // namespace Docker

@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "dockerapi.h"
+
 #include <extensionsystem/iplugin.h>
 
 #include <utils/optional.h>
@@ -36,11 +38,11 @@ class DockerPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Docker.json")
+
 public:
     DockerPlugin();
 
-    static Utils::optional<bool> isDaemonRunning();
-    static void setGlobalDaemonState(Utils::optional<bool> state);
+    static DockerApi *dockerApi();
 
 private:
     ~DockerPlugin() final;
