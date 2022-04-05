@@ -114,6 +114,7 @@ if (MSVC AND TARGET sdktool)
   get_target_property(_input_type Qt5::Core TYPE)
   if (${_input_type} STREQUAL "STATIC_LIBRARY")
     set_property(TARGET sdktool PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    set_property(TARGET sdktoolLib PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
   endif()
 endif()
 
