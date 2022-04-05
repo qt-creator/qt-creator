@@ -186,12 +186,11 @@ void Archive::unarchive()
     QObject::connect(m_process.get(), &QtcProcess::readyReadStandardOutput, this, [this] {
         emit outputReceived(QString::fromUtf8(m_process->readAllStandardOutput()));
     });
-    QObject::connect(m_process.get(), &QtcProcess::finished, this, [this] {
-        emit finished(m_process->result() == ProcessResult::FinishedWithSuccess);
-    });
-    QObject::connect(m_process.get(), &QtcProcess::errorOccurred, this, [this] {
-        emit outputReceived(tr("Command failed."));
-        emit finished(false);
+    QObject::connect(m_process.get(), &QtcProcess::done, this, [this] {
+        const bool successfulFinish = m_process->result() == ProcessResult::FinishedWithSuccess;
+        if (!successfulFinish)
+            emit outputReceived(tr("Command failed."));
+        emit finished(successfulFinish);
     });
 
     emit outputReceived(tr("Running %1\nin \"%2\".\n\n", "Running <cmd> in <workingdirectory>")
