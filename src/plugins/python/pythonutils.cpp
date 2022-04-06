@@ -113,17 +113,16 @@ void openPythonRepl(QObject *parent, const FilePath &file, ReplType type)
     process->setCommand({pythonCommand, args});
     process->setWorkingDirectory(workingDir(file));
     const QString commandLine = process->commandLine().toUserOutput();
-    QObject::connect(process,
-                     &QtcProcess::errorOccurred,
-                     process,
-                     [process, commandLine] {
-                         Core::MessageManager::writeDisrupting(
-                             QCoreApplication::translate("Python",
-                                                         "Failed to run Python (%1): \"%2\".")
-                                 .arg(commandLine, process->errorString()));
-                         process->deleteLater();
-                     });
-    QObject::connect(process, &QtcProcess::finished, process, &QObject::deleteLater);
+    QObject::connect(process, &QtcProcess::done, process, [process, commandLine] {
+        if (process->error() != QProcess::UnknownError) {
+            Core::MessageManager::writeDisrupting(QCoreApplication::translate("Python",
+                  (process->error() == QProcess::FailedToStart)
+                      ? "Failed to run Python (%1): \"%2\"."
+                      : "Error while running Python (%1): \"%2\".")
+                  .arg(commandLine, process->errorString()));
+        }
+        process->deleteLater();
+    });
     process->start();
 }
 
