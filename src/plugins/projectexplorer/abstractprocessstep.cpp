@@ -208,7 +208,6 @@ void AbstractProcessStep::doRun()
                                        CommandLine::Raw);
     if (!effectiveCommand.executable().isExecutableFile()) {
         processStartupFailed();
-        finish(false);
         return;
     }
 
@@ -233,14 +232,12 @@ void AbstractProcessStep::doRun()
             this, &AbstractProcessStep::processReadyReadStdOutput);
     connect(d->m_process.get(), &QtcProcess::readyReadStandardError,
             this, &AbstractProcessStep::processReadyReadStdError);
-    connect(d->m_process.get(), &QtcProcess::finished,
+    connect(d->m_process.get(), &QtcProcess::done,
             this, &AbstractProcessStep::slotProcessFinished);
 
     d->m_process->start();
     if (!d->m_process->waitForStarted()) {
-        processStartupFailed();
         d->m_process.reset();
-        finish(false);
         return;
     }
     processStarted();
@@ -281,15 +278,13 @@ void AbstractProcessStep::setupProcessParameters(ProcessParameters *params) cons
 
 void AbstractProcessStep::Private::cleanUp(int exitCode, QProcess::ExitStatus status)
 {
-    // The process has finished, leftover data is read in processFinished
+    // The process has finished, leftover data was read in slotProcessFinished
     q->processFinished(exitCode, status);
-    const bool returnValue = q->processSucceeded(exitCode, status)
-                                || m_ignoreReturnValue;
+    const bool returnValue = q->processSucceeded(exitCode, status) || m_ignoreReturnValue;
 
     if (m_process)
         m_process.release()->deleteLater();
 
-    // Report result
     q->finish(returnValue);
 }
 
@@ -316,7 +311,7 @@ void AbstractProcessStep::processStarted()
 
 void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus status)
 {
-    QString command = d->m_param.effectiveCommand().toUserOutput();
+    const QString command = d->m_param.effectiveCommand().toUserOutput();
     if (status == QProcess::NormalExit && exitCode == 0) {
         emit addOutput(tr("The process \"%1\" exited normally.").arg(command),
                        BuildStep::OutputFormat::NormalMessage);
@@ -345,6 +340,7 @@ void AbstractProcessStep::processStartupFailed()
     QString err = d->m_process ? d->m_process->errorString() : QString();
     if (!err.isEmpty())
         emit addOutput(err, OutputFormat::ErrorMessage);
+    finish(false);
 }
 
 /*!
@@ -401,6 +397,10 @@ void AbstractProcessStep::finish(bool success)
 void AbstractProcessStep::slotProcessFinished()
 {
     QTC_ASSERT(d->m_process.get(), return);
+    if (d->m_process->error() == QProcess::FailedToStart) {
+        processStartupFailed();
+        return;
+    }
     stdError(d->stderrStream->toUnicode(d->m_process->readAllStandardError()));
     stdOutput(d->stdoutStream->toUnicode(d->m_process->readAllStandardOutput()));
     d->cleanUp(d->m_process->exitCode(), d->m_process->exitStatus());
