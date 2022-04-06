@@ -248,7 +248,7 @@ protected:
                                                 Storage::PropertyDeclarationTraits::IsPointer},
                   Storage::ParameterDeclaration{"arg3", "string"}}}},
             {Storage::SignalDeclaration{"execute", {Storage::ParameterDeclaration{"arg", ""}}},
-             Storage::SignalDeclaration{"value0s",
+             Storage::SignalDeclaration{"values",
                                         {Storage::ParameterDeclaration{"arg1", "int"},
                                          Storage::ParameterDeclaration{
                                              "arg2", "QObject", Storage::PropertyDeclarationTraits::IsPointer},
@@ -1742,6 +1742,65 @@ TEST_F(ProjectStorage, SynchronizeTypesAddSignalDeclaration)
                                 UnorderedElementsAre(Eq(package.types[0].signalDeclarations[0]),
                                                      Eq(package.types[0].signalDeclarations[1]),
                                                      Eq(package.types[0].signalDeclarations[2]))))));
+}
+
+TEST_F(ProjectStorage, SynchronizeTypesAddSignalDeclarationsWithOverloads)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].signalDeclarations.push_back(Storage::SignalDeclaration{"execute", {}});
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].signalDeclarations[0]),
+                                                     Eq(package.types[0].signalDeclarations[1]),
+                                                     Eq(package.types[0].signalDeclarations[2]))))));
+}
+
+TEST_F(ProjectStorage, SynchronizeTypesSignalDeclarationsAddingOverload)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].signalDeclarations.push_back(Storage::SignalDeclaration{"execute", {}});
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].signalDeclarations[0]),
+                                                     Eq(package.types[0].signalDeclarations[1]),
+                                                     Eq(package.types[0].signalDeclarations[2]))))));
+}
+
+TEST_F(ProjectStorage, SynchronizeTypesSignalDeclarationsRemovingOverload)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].signalDeclarations.push_back(Storage::SignalDeclaration{"execute", {}});
+    storage.synchronize(package);
+    package.types[0].signalDeclarations.pop_back();
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].signalDeclarations[0]),
+                                                     Eq(package.types[0].signalDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesAddEnumerationDeclarations)

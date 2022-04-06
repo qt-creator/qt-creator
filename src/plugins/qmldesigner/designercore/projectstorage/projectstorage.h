@@ -1491,7 +1491,16 @@ private:
     void synchronizeSignalDeclarations(TypeId typeId, Storage::SignalDeclarations &signalDeclarations)
     {
         std::sort(signalDeclarations.begin(), signalDeclarations.end(), [](auto &&first, auto &&second) {
-            return Sqlite::compare(first.name, second.name) < 0;
+            auto compare = Sqlite::compare(first.name, second.name);
+
+            if (compare == 0) {
+                Utils::PathString firstSignature{createJson(first.parameters)};
+                Utils::PathString secondSignature{createJson(second.parameters)};
+
+                return Sqlite::compare(firstSignature, secondSignature) < 0;
+            }
+
+            return compare < 0;
         });
 
         auto range = selectSignalDeclarationsForTypeIdStatement
@@ -1499,7 +1508,13 @@ private:
 
         auto compareKey = [](const Storage::SignalDeclarationView &view,
                              const Storage::SignalDeclaration &value) {
-            return Sqlite::compare(view.name, value.name);
+            auto nameKey = Sqlite::compare(view.name, value.name);
+            if (nameKey != 0)
+                return nameKey;
+
+            Utils::PathString valueSignature{createJson(value.parameters)};
+
+            return Sqlite::compare(view.signature, valueSignature);
         };
 
         auto insert = [&](const Storage::SignalDeclaration &value) {
@@ -1510,14 +1525,7 @@ private:
 
         auto update = [&](const Storage::SignalDeclarationView &view,
                           const Storage::SignalDeclaration &value) {
-            Utils::PathString signature{createJson(value.parameters)};
-
-            if (signature == view.signature)
-                return Sqlite::UpdateChange::No;
-
-            updateSignalDeclarationStatement.write(&view.id, signature);
-
-            return Sqlite::UpdateChange::Update;
+            return Sqlite::UpdateChange::No;
         };
 
         auto remove = [&](const Storage::SignalDeclarationView &view) {
@@ -2465,7 +2473,7 @@ public:
         "DELETE FROM functionDeclarations WHERE functionDeclarationId=?", database};
     mutable ReadStatement<3, 1> selectSignalDeclarationsForTypeIdStatement{
         "SELECT name, signature, signalDeclarationId FROM signalDeclarations WHERE typeId=? ORDER "
-        "BY name",
+        "BY name, signature",
         database};
     mutable ReadStatement<2, 1> selectSignalDeclarationsForTypeIdWithoutSignatureStatement{
         "SELECT name, signalDeclarationId FROM signalDeclarations WHERE typeId=? ORDER BY name",
