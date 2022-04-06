@@ -273,13 +273,12 @@ DockerDevice::DockerDevice(const DockerDeviceData &data)
             return;
         }
 
-        QtcProcess *proc = new QtcProcess;
+        QtcProcess *proc = new QtcProcess(d);
         proc->setTerminalMode(TerminalMode::On);
 
-        QObject::connect(proc, &QtcProcess::finished, proc, &QObject::deleteLater);
-
-        QObject::connect(proc, &QtcProcess::errorOccurred, [proc] {
-            MessageManager::writeDisrupting(tr("Error starting remote shell."));
+        QObject::connect(proc, &QtcProcess::done, [proc] {
+            if (proc->error() != QProcess::UnknownError && MessageManager::instance())
+                MessageManager::writeDisrupting(tr("Error starting remote shell."));
             proc->deleteLater();
         });
 
