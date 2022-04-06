@@ -77,18 +77,17 @@ public:
     void handleStandardError();
 
     // Local
-    void localProcessError(QProcess::ProcessError error);
+    void handleLocalDone();
     void cannotRetrieveLocalDebugOutput();
     void checkLocalDebugOutput(qint64 pid, const QString &message);
     qint64 applicationPID() const;
     bool isRunning() const;
 
     // Remote
+    void handleRemoteDone();
     void doReportError(const QString &message,
                        QProcess::ProcessError error = QProcess::FailedToStart);
-    void handleApplicationFinished();
     void setFinished();
-    void handleApplicationError(QProcess::ProcessError error);
 
 public:
     ApplicationLauncher *q;
@@ -244,8 +243,16 @@ QProcess::ProcessError ApplicationLauncher::error() const
     return d->m_remoteError;
 }
 
-void ApplicationLauncherPrivate::localProcessError(QProcess::ProcessError error)
+void ApplicationLauncherPrivate::handleLocalDone()
 {
+    const QProcess::ProcessError error = m_process->error();
+    if (error == QProcess::UnknownError) {
+        m_exitCode = m_process->exitCode();
+        m_exitStatus = m_process->exitStatus();
+        m_listeningPid = 0;
+        emit q->finished();
+        return;
+    }
     // TODO: why below handlings are different?
     if (m_useTerminal) {
         emit q->appendMessage(m_process->errorString(), ErrorMessageFormat);
@@ -255,19 +262,19 @@ void ApplicationLauncherPrivate::localProcessError(QProcess::ProcessError error)
             emit q->finished();
         }
     } else {
-        QString error;
+        QString errorString;
         switch (m_process->error()) {
         case QProcess::FailedToStart:
-            error = ApplicationLauncher::tr("Failed to start program. Path or permissions wrong?");
+            errorString = ApplicationLauncher::tr("Failed to start program. Path or permissions wrong?");
             break;
         case QProcess::Crashed:
             m_exitStatus = QProcess::CrashExit;
             break;
         default:
-            error = ApplicationLauncher::tr("Some error has occurred while running the program.");
+            errorString = ApplicationLauncher::tr("Some error has occurred while running the program.");
         }
-        if (!error.isEmpty())
-            emit q->appendMessage(error, ErrorMessageFormat);
+        if (!errorString.isEmpty())
+            emit q->appendMessage(errorString, ErrorMessageFormat);
         if (m_processRunning && !isRunning()) {
             m_processRunning = false;
             m_exitCode = -1;
@@ -337,14 +344,8 @@ void ApplicationLauncherPrivate::start()
     if (m_isLocal) {
         m_process.reset(new QtcProcess(this));
 
-        connect(m_process.get(), &QtcProcess::finished, this, [this] {
-            m_exitCode = m_process->exitCode();
-            m_exitStatus = m_process->exitStatus();
-            m_listeningPid = 0;
-            emit q->finished();
-        });
-        connect(m_process.get(), &QtcProcess::errorOccurred,
-                this, &ApplicationLauncherPrivate::localProcessError);
+        connect(m_process.get(), &QtcProcess::done,
+                this, &ApplicationLauncherPrivate::handleLocalDone);
 
         // Work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch' ...)
         const FilePath fixedPath = m_runnable.workingDirectory.normalizedPathName();
@@ -397,10 +398,8 @@ void ApplicationLauncherPrivate::start()
         m_stopRequested = false;
 
         m_process.reset(m_runnable.device->createProcess(this));
-        connect(m_process.get(), &QtcProcess::errorOccurred,
-                this, &ApplicationLauncherPrivate::handleApplicationError);
-        connect(m_process.get(), &QtcProcess::finished,
-                this, &ApplicationLauncherPrivate::handleApplicationFinished);
+        connect(m_process.get(), &QtcProcess::done,
+                this, &ApplicationLauncherPrivate::handleRemoteDone);
         m_process->setCommand(m_runnable.command);
         m_process->setWorkingDirectory(m_runnable.workingDirectory);
         m_process->setRemoteEnvironment(m_runnable.environment);
@@ -433,15 +432,6 @@ void ApplicationLauncherPrivate::start()
     m_process->start();
 }
 
-void ApplicationLauncherPrivate::handleApplicationError(QProcess::ProcessError error)
-{
-    if (error == QProcess::FailedToStart) {
-        doReportError(ApplicationLauncher::tr("Application failed to start: %1")
-                         .arg(m_process->errorString()));
-        setFinished();
-    }
-}
-
 void ApplicationLauncherPrivate::setFinished()
 {
     if (m_state == Inactive)
@@ -453,12 +443,15 @@ void ApplicationLauncherPrivate::setFinished()
     emit q->finished();
 }
 
-void ApplicationLauncherPrivate::handleApplicationFinished()
+void ApplicationLauncherPrivate::handleRemoteDone()
 {
     QTC_ASSERT(m_state == Run, return);
-
-    if (m_process->exitStatus() == QProcess::CrashExit)
+    if (m_process->error() == QProcess::FailedToStart) {
+        doReportError(ApplicationLauncher::tr("Application failed to start: %1")
+                      .arg(m_process->errorString()));
+    } else if (m_process->exitStatus() == QProcess::CrashExit) {
         doReportError(m_process->errorString(), QProcess::Crashed);
+    }
     setFinished();
 }
 
