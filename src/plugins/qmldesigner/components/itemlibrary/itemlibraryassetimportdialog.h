@@ -31,6 +31,10 @@
 #include <QJsonObject>
 #include <QSet>
 
+QT_BEGIN_NAMESPACE
+class QGridLayout;
+QT_END_NAMESPACE
+
 namespace Utils {
 class OutputFormatter;
 }
@@ -76,21 +80,37 @@ private:
     void onImportNearlyFinished();
     void onImportFinished();
     void onClose();
+    void toggleAdvanced();
 
     void createTab(const QString &tabLabel, int optionsIndex, const QJsonObject &groups);
+    QGridLayout *createOptionsGrid(QWidget *contentWidget, bool advanced, int optionsIndex,
+                                   const QJsonObject &groups);
     void updateUi();
+
+    bool isSimpleGroup(const QString &id);
+    bool isSimpleOption(const QString &id);
 
     Ui::ItemLibraryAssetImportDialog *ui = nullptr;
     Utils::OutputFormatter *m_outputFormatter = nullptr;
+
+    struct OptionsData
+    {
+        int optionsRows = 0;
+        int optionsHeight = 0;
+        QList<QWidget *> contentWidgets; // Tab content widgets
+    };
 
     QStringList m_quick3DFiles;
     QString m_quick3DImportPath;
     ItemLibraryAssetImporter m_importer;
     QVector<QJsonObject> m_importOptions;
     QHash<QString, int> m_extToImportOptionsMap;
-    int m_optionsHeight = 0;
-    int m_optionsRows = 0;
     QSet<QString> m_preselectedFilesForOverwrite;
     bool m_closeOnFinish = true;
+    QList<QHash<QString, QWidget *>> m_labelToControlWidgetMaps;
+    OptionsData m_simpleData;
+    OptionsData m_advancedData;
+    bool m_advancedMode = false;
+    int m_dialogHeight = 350;
 };
 }

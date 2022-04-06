@@ -55,6 +55,7 @@
 #include <QScrollArea>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QVBoxLayout>
 
 namespace QmlDesigner {
 
@@ -73,7 +74,11 @@ static void addFormattedMessage(Utils::OutputFormatter *formatter, const QString
                 formatter->plainTextEdit()->verticalScrollBar()->maximum());
 }
 
-static const int rowHeight = 26;
+static const int rowHeight = 28;
+static const int checkBoxColWidth = 18;
+static const int labelMinWidth = 130;
+static const int controlMinWidth = 65;
+static const int columnSpacing = 16;
 
 }
 
@@ -119,6 +124,12 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
             this, &ItemLibraryAssetImportDialog::onImport);
 
     ui->buttonBox->button(QDialogButtonBox::Close)->setDefault(true);
+
+    ui->advancedSettingsButton->setStyleSheet(
+                "QPushButton#advancedSettingsButton {background-color: transparent}");
+    ui->advancedSettingsButton->setStyleSheet(
+                QString("QPushButton { border: none; color :%1 }").arg(
+                    Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_HighlightColor).name()));
 
     QStringList importPaths;
     auto doc = QmlDesignerPlugin::instance()->currentDesignDocument();
@@ -196,6 +207,10 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
             ++optIndex;
         }
 
+        m_simpleData.contentWidgets.resize(optIndex);
+        m_advancedData.contentWidgets.resize(optIndex);
+        m_labelToControlWidgetMaps.resize(optIndex);
+
         // Create tab for each supported extension group that also has files included in the import
         QMap<QString, int> tabMap; // QMap used for alphabetical order
         for (const auto &file : qAsConst(m_quick3DFiles)) {
@@ -214,22 +229,21 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
         auto tabIt = tabMap.constBegin();
         while (tabIt != tabMap.constEnd()) {
             createTab(tabIt.key(), tabIt.value(), groups[tabIt.value()]);
-            ++tabIt;
-        }
 
-        // Pad all tabs to same height
-        for (int i = 0; i < ui->tabWidget->count(); ++i) {
-            auto optionsArea = qobject_cast<QScrollArea *>(ui->tabWidget->widget(i));
-            if (optionsArea && optionsArea->widget()) {
-                auto grid = qobject_cast<QGridLayout *>(optionsArea->widget()->layout());
+            auto padGrid = [](QWidget *widget, int optionRows) {
+                auto grid = qobject_cast<QGridLayout *>(widget->layout());
                 if (grid) {
                     int rows = grid->rowCount();
-                    for (int j = rows; j < m_optionsRows; ++j) {
-                        grid->addWidget(new QWidget(optionsArea->widget()), j, 0);
-                        grid->setRowMinimumHeight(j, rowHeight);
+                    for (int i = rows; i <optionRows; ++i) {
+                        grid->addWidget(new QWidget(widget), i, 0);
+                        grid->setRowMinimumHeight(i, rowHeight);
                     }
                 }
-            }
+            };
+            padGrid(m_simpleData.contentWidgets[tabIt.value()], m_simpleData.optionsRows);
+            padGrid(m_advancedData.contentWidgets[tabIt.value()], m_advancedData.optionsRows);
+
+            ++tabIt;
         }
 
         ui->tabWidget->setCurrentIndex(0);
@@ -257,8 +271,10 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
     for (const auto &file : qAsConst(m_quick3DFiles))
         addInfo(file);
 
-    QTimer::singleShot(0, [this]() {
-        ui->tabWidget->setMaximumHeight(m_optionsHeight + ui->tabWidget->tabBar()->height() + 10);
+    connect(ui->advancedSettingsButton, &QPushButton::clicked,
+            this, &ItemLibraryAssetImportDialog::toggleAdvanced);
+
+    QTimer::singleShot(0, this, [this]() {
         updateUi();
     });
 }
@@ -390,28 +406,45 @@ void ItemLibraryAssetImportDialog::updateImport(const ModelNode &updateNode,
 void ItemLibraryAssetImportDialog::createTab(const QString &tabLabel, int optionsIndex,
                                              const QJsonObject &groups)
 {
-    const int checkBoxColWidth = 18;
-    const int labelMinWidth = 130;
-    const int controlMinWidth = 65;
-    const int columnSpacing = 16;
-    int rowIndex[2] = {0, 0};
-
-    QJsonObject &options = m_importOptions[optionsIndex];
-
-    // First index has ungrouped widgets, rest are groups
-    // First item in each real group is group label
-    QVector<QVector<QPair<QWidget *, QWidget *>>> widgets;
-    QHash<QString, int> groupIndexMap;
-    QHash<QString, QPair<QWidget *, QWidget *>> optionToWidgetsMap;
-    QHash<QString, QJsonArray> conditionMap;
-    QHash<QWidget *, QWidget *> conditionalWidgetMap;
-    QHash<QString, QString> optionToGroupMap;
-
     auto optionsArea = new QScrollArea(ui->tabWidget);
     optionsArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     auto optionsAreaContents = new QWidget(optionsArea);
+    m_simpleData.contentWidgets[optionsIndex] = new QWidget(optionsAreaContents);
+    m_advancedData.contentWidgets[optionsIndex] = new QWidget(optionsAreaContents);
 
-    auto layout = new QGridLayout(optionsAreaContents);
+    // Advanced widgets need to be set up first, as simple widgets will connect to those
+    QGridLayout *advancedLayout = createOptionsGrid(m_advancedData.contentWidgets[optionsIndex], true,
+                                                    optionsIndex, groups);
+    QGridLayout *simpleLayout = createOptionsGrid(m_simpleData.contentWidgets[optionsIndex], false,
+                                                  optionsIndex, groups);
+
+    m_advancedData.contentWidgets[optionsIndex]->setLayout(advancedLayout);
+    m_simpleData.contentWidgets[optionsIndex]->setLayout(simpleLayout);
+
+    m_advancedData.contentWidgets[optionsIndex]->setVisible(false);
+
+    auto layout = new QVBoxLayout(optionsAreaContents);
+    layout->addWidget(m_simpleData.contentWidgets[optionsIndex]);
+    layout->addWidget(m_advancedData.contentWidgets[optionsIndex]);
+
+    optionsAreaContents->setContentsMargins(0, 0, 0, 0);
+    optionsAreaContents->setLayout(layout);
+    optionsAreaContents->setMinimumWidth(
+                (checkBoxColWidth + labelMinWidth + controlMinWidth) * 2  + columnSpacing);
+    optionsAreaContents->setObjectName("optionsAreaContents"); // For stylesheet
+
+    optionsArea->setWidget(optionsAreaContents);
+    optionsArea->setStyleSheet("QScrollArea {background-color: transparent}");
+    optionsAreaContents->setStyleSheet(
+                "QWidget#optionsAreaContents {background-color: transparent}");
+
+    ui->tabWidget->addTab(optionsArea, tr("%1 options").arg(tabLabel));
+}
+
+QGridLayout *ItemLibraryAssetImportDialog::createOptionsGrid(
+        QWidget *contentWidget, bool advanced, int optionsIndex, const QJsonObject &groups)
+{
+    auto layout = new QGridLayout();
     layout->setColumnMinimumWidth(0, checkBoxColWidth);
     layout->setColumnMinimumWidth(1, labelMinWidth);
     layout->setColumnMinimumWidth(2, controlMinWidth);
@@ -427,14 +460,29 @@ void ItemLibraryAssetImportDialog::createTab(const QString &tabLabel, int option
     layout->setColumnStretch(5, 4);
     layout->setColumnStretch(6, 2);
 
+    // First index has ungrouped widgets, rest are groups
+    // First item in each real group is group label
+    QVector<QVector<QPair<QWidget *, QWidget *>>> widgets;
+    QHash<QString, int> groupIndexMap;
+    QHash<QString, QPair<QWidget *, QWidget *>> optionToWidgetsMap;
+    QHash<QString, QJsonArray> conditionMap;
+    QHash<QWidget *, QWidget *> conditionalWidgetMap;
+    QHash<QString, QString> optionToGroupMap;
+
+    int rowIndex[2] = {0, 0};
+
     widgets.append(QVector<QPair<QWidget *, QWidget *>>());
 
-    for (const auto &group : groups) {
+    const QStringList &groupIds = groups.keys();
+    for (const QString &groupId : groupIds) {
+        if (!advanced && !isSimpleGroup(groupId))
+            continue;
+        const auto &group = groups.value(groupId);
         const QString name = group.toObject().value("name").toString();
         const QJsonArray items = group.toObject().value("items").toArray();
         for (const auto &item : items)
             optionToGroupMap.insert(item.toString(), name);
-        auto groupLabel = new QLabel(name, optionsAreaContents);
+        auto groupLabel = new QLabel(name, contentWidget);
         QFont labelFont = groupLabel->font();
         labelFont.setBold(true);
         groupLabel->setFont(labelFont);
@@ -442,8 +490,11 @@ void ItemLibraryAssetImportDialog::createTab(const QString &tabLabel, int option
         groupIndexMap.insert(name, widgets.size() - 1);
     }
 
+    QJsonObject &options = m_importOptions[optionsIndex];
     const auto optKeys = options.keys();
     for (const auto &optKey : optKeys) {
+        if (!advanced && !isSimpleOption(optKey))
+            continue;
         QJsonObject optObj = options.value(optKey).toObject();
         const QString optName = optObj.value("name").toString();
         const QString optDesc = optObj.value("description").toString();
@@ -452,24 +503,41 @@ void ItemLibraryAssetImportDialog::createTab(const QString &tabLabel, int option
         QJsonValue optValue = optObj.value("value");
         QJsonArray conditions = optObj.value("conditions").toArray();
 
-        auto *optLabel = new QLabel(optionsAreaContents);
+        auto *optLabel = new QLabel(contentWidget);
         optLabel->setText(optName);
         optLabel->setToolTip(optDesc);
 
         QWidget *optControl = nullptr;
         if (optType == "Boolean") {
-            auto *optCheck = new QCheckBox(optionsAreaContents);
+            auto *optCheck = new QCheckBox(contentWidget);
             optCheck->setChecked(optValue.toBool());
             optControl = optCheck;
-            QObject::connect(optCheck, &QCheckBox::toggled,
-                             [this, optCheck, optKey, optionsIndex]() {
-                QJsonObject optObj = m_importOptions[optionsIndex].value(optKey).toObject();
-                QJsonValue value(optCheck->isChecked());
-                optObj.insert("value", value);
-                m_importOptions[optionsIndex].insert(optKey, optObj);
-            });
+            if (advanced) {
+                QObject::connect(optCheck, &QCheckBox::toggled, this,
+                                 [this, optCheck, optKey, optionsIndex]() {
+                    QJsonObject optObj = m_importOptions[optionsIndex].value(optKey).toObject();
+                    QJsonValue value(optCheck->isChecked());
+                    optObj.insert("value", value);
+                    m_importOptions[optionsIndex].insert(optKey, optObj);
+                });
+            } else {
+                // Simple options also exist in advanced, so don't connect simple controls directly
+                // to import options. Connect them instead to corresponding advanced controls.
+                auto *advCheck = qobject_cast<QCheckBox *>(
+                            m_labelToControlWidgetMaps[optionsIndex].value(optKey));
+                if (advCheck) {
+                    QObject::connect(optCheck, &QCheckBox::toggled, this, [optCheck, advCheck]() {
+                        if (advCheck->isChecked() != optCheck->isChecked())
+                            advCheck->setChecked(optCheck->isChecked());
+                    });
+                    QObject::connect(advCheck, &QCheckBox::toggled, this, [optCheck, advCheck]() {
+                        if (advCheck->isChecked() != optCheck->isChecked())
+                            optCheck->setChecked(advCheck->isChecked());
+                    });
+                }
+            }
         } else if (optType == "Real") {
-            auto *optSpin = new QDoubleSpinBox(optionsAreaContents);
+            auto *optSpin = new QDoubleSpinBox(contentWidget);
             double min = -999999999.;
             double max = 999999999.;
             double step = 1.;
@@ -493,13 +561,31 @@ void ItemLibraryAssetImportDialog::createTab(const QString &tabLabel, int option
             optSpin->setSingleStep(step);
             optSpin->setMinimumWidth(controlMinWidth);
             optControl = optSpin;
-            QObject::connect(optSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-                             [this, optSpin, optKey, optionsIndex]() {
-                QJsonObject optObj = m_importOptions[optionsIndex].value(optKey).toObject();
-                QJsonValue value(optSpin->value());
-                optObj.insert("value", value);
-                m_importOptions[optionsIndex].insert(optKey, optObj);
-            });
+            if (advanced) {
+                QObject::connect(optSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+                                 [this, optSpin, optKey, optionsIndex]() {
+                    QJsonObject optObj = m_importOptions[optionsIndex].value(optKey).toObject();
+                    QJsonValue value(optSpin->value());
+                    optObj.insert("value", value);
+                    m_importOptions[optionsIndex].insert(optKey, optObj);
+                });
+            } else {
+                auto *advSpin = qobject_cast<QDoubleSpinBox *>(
+                            m_labelToControlWidgetMaps[optionsIndex].value(optKey));
+                if (advSpin) {
+                    // Connect corresponding advanced control
+                    QObject::connect(optSpin, &QDoubleSpinBox::valueChanged, this,
+                                     [optSpin, advSpin]() {
+                        if (advSpin->value() != optSpin->value())
+                            advSpin->setValue(optSpin->value());
+                    });
+                    QObject::connect(advSpin, &QDoubleSpinBox::valueChanged, this,
+                                     [optSpin, advSpin]() {
+                        if (advSpin->value() != optSpin->value())
+                            optSpin->setValue(advSpin->value());
+                    });
+                }
+            }
         } else {
             qWarning() << __FUNCTION__ << "Unsupported option type:" << optType;
             continue;
@@ -515,6 +601,8 @@ void ItemLibraryAssetImportDialog::createTab(const QString &tabLabel, int option
         else
             widgets[0].append({optLabel, optControl});
         optionToWidgetsMap.insert(optKey, {optLabel, optControl});
+        if (advanced)
+            m_labelToControlWidgetMaps[optionsIndex].insert(optKey, optControl);
     }
 
     // Handle conditions
@@ -562,7 +650,7 @@ void ItemLibraryAssetImportDialog::createTab(const QString &tabLabel, int option
                     else
                         conditionalWidgetMap.insert(optCb, conControl);
                     QObject::connect(
-                                optCb, &QCheckBox::toggled,
+                                optCb, &QCheckBox::toggled, optCb,
                                 [optCb, conLabel, conControl, mode, enableConditionally]() {
                         enableConditionally(optCb, conLabel, conControl, mode);
                     });
@@ -586,7 +674,7 @@ void ItemLibraryAssetImportDialog::createTab(const QString &tabLabel, int option
                     enableConditionally(optSpin, conLabel, conControl, mode);
                     QObject::connect(
                                 optSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-                                [optSpin, conLabel, conControl, mode, enableConditionally]() {
+                                optSpin, [optSpin, conLabel, conControl, mode, enableConditionally]() {
                         enableConditionally(optSpin, conLabel, conControl, mode);
                     });
                 }
@@ -646,8 +734,13 @@ void ItemLibraryAssetImportDialog::createTab(const QString &tabLabel, int option
     };
 
     if (widgets.size() == 1 && widgets[0].isEmpty()) {
-        layout->addWidget(new QLabel(tr("No options available for this type."),
-                                     optionsAreaContents), 0, 0, 2, 7, Qt::AlignCenter);
+        if (advanced) {
+            layout->addWidget(new QLabel(tr("No options available for this type."),
+                                         contentWidget), 0, 0, 2, 7, Qt::AlignCenter);
+        } else {
+            layout->addWidget(new QLabel(tr("No simple options available for this type."),
+                                         contentWidget), 0, 0, 2, 7, Qt::AlignCenter);
+        }
         incrementColIndex(0);
         incrementColIndex(0);
     }
@@ -663,7 +756,7 @@ void ItemLibraryAssetImportDialog::createTab(const QString &tabLabel, int option
             for (int j = 1; j < groupWidgets.size(); ++j)
                 insertOptionToLayout(col, groupWidgets[j]);
             // Add a separator line after each group
-            auto *separator = new QFrame(optionsAreaContents);
+            auto *separator = new QFrame(contentWidget);
             separator->setMaximumHeight(1);
             separator->setFrameShape(QFrame::HLine);
             separator->setFrameShadow(QFrame::Sunken);
@@ -681,38 +774,56 @@ void ItemLibraryAssetImportDialog::createTab(const QString &tabLabel, int option
     }
 
     int optionRows = qMax(rowIndex[0], rowIndex[1]);
-    m_optionsRows = qMax(m_optionsRows, optionRows);
-    m_optionsHeight = qMax(rowHeight * optionRows + 16, m_optionsHeight);
-    layout->setContentsMargins(8, 8, 8, 8);
-    optionsAreaContents->setContentsMargins(0, 0, 0, 0);
-    optionsAreaContents->setLayout(layout);
-    optionsAreaContents->setMinimumWidth(
-                (checkBoxColWidth + labelMinWidth + controlMinWidth) * 2  + columnSpacing);
-    optionsAreaContents->setObjectName("optionsAreaContents"); // For stylesheet
+    int &globalOptionRows = advanced ? m_advancedData.optionsRows : m_simpleData.optionsRows;
+    int &globalOptionsHeight = advanced ? m_advancedData.optionsHeight : m_simpleData.optionsHeight;
+    globalOptionRows = qMax(globalOptionRows, optionRows);
+    globalOptionsHeight = qMax(rowHeight * optionRows + 20, globalOptionsHeight);
+    layout->setContentsMargins(8, 8, 8, 0);
 
-    optionsArea->setWidget(optionsAreaContents);
-    optionsArea->setStyleSheet("QScrollArea {background-color: transparent}");
-    optionsAreaContents->setStyleSheet(
-                "QWidget#optionsAreaContents {background-color: transparent}");
-
-    ui->tabWidget->addTab(optionsArea, tr("%1 options").arg(tabLabel));
+    return layout;
 }
 
 void ItemLibraryAssetImportDialog::updateUi()
 {
     auto optionsArea = qobject_cast<QScrollArea *>(ui->tabWidget->currentWidget());
     if (optionsArea) {
+        int optionsHeight = m_advancedMode ? m_advancedData.optionsHeight
+                                           : m_simpleData.optionsHeight;
+
+        ui->tabWidget->setMaximumHeight(optionsHeight + ui->tabWidget->tabBar()->height() + 10);
         auto optionsAreaContents = optionsArea->widget();
         int scrollBarWidth = optionsArea->verticalScrollBar()->isVisible()
                 ? optionsArea->verticalScrollBar()->width() : 0;
-        optionsAreaContents->resize(optionsArea->contentsRect().width()
-                                    - scrollBarWidth - 8, m_optionsHeight);
+
+        optionsAreaContents->resize(optionsArea->contentsRect().width() - scrollBarWidth - 8,
+                                    optionsHeight);
+
+        resize(width(), m_dialogHeight);
     }
+}
+
+bool ItemLibraryAssetImportDialog::isSimpleGroup(const QString &id)
+{
+    static QStringList simpleGroups {
+        "globalScale"
+    };
+
+    return simpleGroups.contains(id);
+}
+
+bool ItemLibraryAssetImportDialog::isSimpleOption(const QString &id)
+{
+    static QStringList simpleOptions {
+        "globalScale",
+        "globalScaleValue"
+    };
+
+    return simpleOptions.contains(id);
 }
 
 void ItemLibraryAssetImportDialog::resizeEvent(QResizeEvent *event)
 {
-    Q_UNUSED(event)
+    m_dialogHeight = event->size().height();
     updateUi();
 }
 
@@ -799,6 +910,29 @@ void ItemLibraryAssetImportDialog::onClose()
         close();
         deleteLater();
     }
+}
+
+void ItemLibraryAssetImportDialog::toggleAdvanced()
+{
+    m_advancedMode = !m_advancedMode;
+    for (const auto &widget : qAsConst(m_simpleData.contentWidgets)) {
+        if (widget)
+            widget->setVisible(!m_advancedMode);
+    }
+    for (const auto &widget : qAsConst(m_advancedData.contentWidgets)) {
+        if (widget)
+            widget->setVisible(m_advancedMode);
+    }
+
+    if (m_advancedMode)
+        ui->advancedSettingsButton->setText(tr("Hide Advanced Options"));
+    else
+        ui->advancedSettingsButton->setText(tr("Show All Options"));
+
+    int diff = qMin(300, m_advancedData.optionsHeight - m_simpleData.optionsHeight);
+    m_dialogHeight = qMax(350, m_dialogHeight + (m_advancedMode ? diff : -diff));
+
+    updateUi();
 }
 
 }
