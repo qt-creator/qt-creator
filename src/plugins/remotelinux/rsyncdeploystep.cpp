@@ -128,24 +128,19 @@ void RsyncDeployService::deployFiles()
     connect(&m_rsync, &QtcProcess::readyReadStandardError, this, [this] {
         emit warningMessage(QString::fromLocal8Bit(m_rsync.readAllStandardError()));
     });
-    connect(&m_rsync, &QtcProcess::errorOccurred, this, [this] {
-        if (m_rsync.error() == QProcess::FailedToStart) {
-            emit errorMessage(tr("rsync failed to start: %1").arg(m_rsync.errorString()));
+    connect(&m_rsync, &QtcProcess::done, this, [this] {
+        auto notifyError = [this](const QString &message) {
+            emit errorMessage(message);
             setFinished();
-        }
-    });
-    connect(&m_rsync, &QtcProcess::finished, this, [this] {
-        if (m_rsync.exitStatus() == QProcess::CrashExit) {
-            emit errorMessage(tr("rsync crashed."));
-            setFinished();
-            return;
-        }
-        if (m_rsync.exitCode() != 0) {
-            emit errorMessage(tr("rsync failed with exit code %1.").arg(m_rsync.exitCode()));
-            setFinished();
-            return;
-        }
-        deployNextFile();
+        };
+        if (m_rsync.error() == QProcess::FailedToStart)
+            notifyError(tr("rsync failed to start: %1").arg(m_rsync.errorString()));
+        else if (m_rsync.exitStatus() == QProcess::CrashExit)
+            notifyError(tr("rsync crashed."));
+        else if (m_rsync.exitCode() != 0)
+            notifyError(tr("rsync failed with exit code %1.").arg(m_rsync.exitCode()));
+        else
+            deployNextFile();
     });
     deployNextFile();
 }
