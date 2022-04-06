@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 ############################################################################
 #
@@ -102,7 +102,7 @@ def bash_setup(shell):
 
 def main():
     # create temporary file to be sourced into bash that deletes itself
-    with NamedTemporaryFile(delete=False) as shell_script:
+    with NamedTemporaryFile(mode='wt', delete=False) as shell_script:
         shell = os.environ.get('SHELL')
         shell, system_login_script, login_script, non_interactive_shell, interactive_shell = (
             zsh_setup(shell) if shell is not None and shell.endswith('/zsh')
