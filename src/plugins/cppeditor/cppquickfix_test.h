@@ -113,6 +113,7 @@ private slots:
     void testGenerateGetterSetterGeneralTests();
     void testGenerateGetterSetterOnlyGetter();
     void testGenerateGetterSetterOnlySetter();
+    void testGenerateGetterSetterAnonymousClass();
     void testGenerateGetterSetterInlineInHeaderFile();
     void testGenerateGetterSetterOnlySetterHeaderFileWithIncludeGuard();
     void testGenerateGetterFunctionAsTemplateArg();
