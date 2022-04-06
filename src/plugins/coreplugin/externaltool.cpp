@@ -647,8 +647,7 @@ void ExternalToolRunner::run()
         }
     }
     m_process = new QtcProcess(this);
-    connect(m_process, &QtcProcess::finished, this, &ExternalToolRunner::finished);
-    connect(m_process, &QtcProcess::errorOccurred, this, &ExternalToolRunner::error);
+    connect(m_process, &QtcProcess::done, this, &ExternalToolRunner::done);
     connect(m_process, &QtcProcess::readyReadStandardOutput,
             this, &ExternalToolRunner::readStandardOutput);
     connect(m_process, &QtcProcess::readyReadStandardError,
@@ -667,28 +666,23 @@ void ExternalToolRunner::run()
     m_process->start();
 }
 
-void ExternalToolRunner::finished()
+void ExternalToolRunner::done()
 {
     if (m_process->result() == ProcessResult::FinishedWithSuccess
-            &&  (m_tool->outputHandling() == ExternalTool::ReplaceSelection
-                 || m_tool->errorHandling() == ExternalTool::ReplaceSelection)) {
+            && (m_tool->outputHandling() == ExternalTool::ReplaceSelection
+                || m_tool->errorHandling() == ExternalTool::ReplaceSelection)) {
         ExternalToolManager::emitReplaceSelectionRequested(m_processOutput);
     }
+    const QString message = (m_process->result() == ProcessResult::FinishedWithSuccess)
+            ? tr("\"%1\" finished").arg(m_resolvedExecutable.toUserOutput())
+            : tr("\"%1\" finished with error").arg(m_resolvedExecutable.toUserOutput());
+
     if (m_tool->modifiesCurrentDocument())
         DocumentManager::unexpectFileChange(m_expectedFilePath);
     const auto write = m_tool->outputHandling() == ExternalTool::ShowInPane
                            ? QOverload<const QString &>::of(MessageManager::writeFlashing)
                            : QOverload<const QString &>::of(MessageManager::writeSilently);
-    write(tr("\"%1\" finished").arg(m_resolvedExecutable.toUserOutput()));
-    deleteLater();
-}
-
-void ExternalToolRunner::error(QProcess::ProcessError error)
-{
-    if (m_tool->modifiesCurrentDocument())
-        DocumentManager::unexpectFileChange(m_expectedFilePath);
-    // TODO inform about errors
-    Q_UNUSED(error)
+    write(message);
     deleteLater();
 }
 
