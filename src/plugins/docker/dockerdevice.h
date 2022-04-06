@@ -129,25 +129,6 @@ private:
     friend class DockerDeviceWidget;
 };
 
-class KitDetector : public QObject
-{
-    Q_OBJECT
-
-public:
-    explicit KitDetector(const ProjectExplorer::IDevice::ConstPtr &device);
-    ~KitDetector() override;
-
-    void autoDetect(const QString &sharedId, const Utils::FilePaths &selectedPaths) const;
-    void undoAutoDetect(const QString &sharedId) const;
-    void listAutoDetected(const QString &sharedId) const;
-
-signals:
-    void logOutput(const QString &msg);
-
-private:
-    class KitDetectorPrivate *d = nullptr;
-};
-
 class DockerDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
 public:
