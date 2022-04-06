@@ -33,6 +33,7 @@
 #include <QCheckBox>
 #include <QEvent>
 #include <QKeyEvent>
+#include <QScreen>
 #include <QVBoxLayout>
 
 using namespace Utils;
@@ -64,7 +65,8 @@ OptionsPopup::OptionsPopup(QWidget *parent, const QVector<Id> &commands)
         layout->addWidget(checkBox);
     }
     const QPoint globalPos = parent->mapToGlobal(QPoint(0, -sizeHint().height()));
-    move(globalPos.x(), std::max(globalPos.y(), 0));
+    const QRect screenGeometry = parent->screen()->availableGeometry();
+    move(globalPos.x(), std::max(globalPos.y(), screenGeometry.y()));
 }
 
 bool OptionsPopup::event(QEvent *ev)
