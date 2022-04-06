@@ -100,6 +100,16 @@ namespace QmlDesigner {
 
 namespace Internal {
 
+QString normalizeIdentifier(const QString &string)
+{
+    if (string.isEmpty())
+        return {};
+    QString ret = string;
+    ret.remove(' ');
+    ret[0] = ret.at(0).toLower();
+    return ret;
+}
+
 class QtQuickDesignerFactory : public QmlJSEditor::QmlJSEditorFactory
 {
 public:
@@ -318,7 +328,7 @@ bool QmlDesignerPlugin::delayedInitialize()
         emitUsageStatistics("StandaloneMode");
         if (QmlProjectManager::QmlProject::isQtDesignStudioStartedFromQtC())
             emitUsageStatistics("QDSlaunchedFromQtC");
-        emitUsageStatistics("QDSstartupCount");
+        emitUsageStatistics("qdsStartupCount");
 
         FoundLicense license = checkLicense();
         if (license == FoundLicense::enterprise)
@@ -353,7 +363,7 @@ void QmlDesignerPlugin::extensionsInitialized()
 ExtensionSystem::IPlugin::ShutdownFlag QmlDesignerPlugin::aboutToShutdown()
 {
     if (QmlProjectManager::QmlProject::isQtDesignStudio())
-        emitUsageStatistics("QDSstartupCount");
+        emitUsageStatistics("qdsShutdownCount");
 
     return SynchronousShutdown;
 }
@@ -642,7 +652,8 @@ double QmlDesignerPlugin::formEditorDevicePixelRatio()
 void QmlDesignerPlugin::emitUsageStatistics(const QString &identifier)
 {
     QTC_ASSERT(instance(), return);
-    emit instance()->usageStatisticsNotifier(identifier);
+    emit instance()->usageStatisticsNotifier(normalizeIdentifier(identifier));
+    qDebug() << normalizeIdentifier(identifier);
 }
 
 void QmlDesignerPlugin::emitUsageStatisticsContextAction(const QString &identifier)
@@ -667,7 +678,9 @@ void QmlDesignerPlugin::registerPreviewImageProvider(QQmlEngine *engine)
 
 void QmlDesignerPlugin::emitUsageStatisticsTime(const QString &identifier, int elapsed)
 {
-    emit instance()->usageStatisticsUsageTimer(identifier, elapsed);
+    QTC_ASSERT(instance(), return);
+    emit instance()->usageStatisticsUsageTimer(normalizeIdentifier(identifier), elapsed);
+    qDebug() << normalizeIdentifier(identifier);
 }
 
 QmlDesignerPlugin *QmlDesignerPlugin::instance()
