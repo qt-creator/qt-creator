@@ -57,7 +57,7 @@ void ElidingLabel::setElideMode(const Qt::TextElideMode &elideMode)
 {
     m_elideMode = elideMode;
     if (elideMode == Qt::ElideNone)
-        setToolTip({});
+        updateToolTip({});
 
     setSizePolicy(QSizePolicy(
                       m_elideMode == Qt::ElideNone ? QSizePolicy::Preferred : QSizePolicy::Ignored,
@@ -66,10 +66,21 @@ void ElidingLabel::setElideMode(const Qt::TextElideMode &elideMode)
     update();
 }
 
+QString ElidingLabel::additionalToolTip()
+{
+    return m_additionalToolTip;
+}
+
+void ElidingLabel::setAdditionalToolTip(const QString &additionalToolTip)
+{
+    m_additionalToolTip = additionalToolTip;
+}
+
 void ElidingLabel::paintEvent(QPaintEvent *)
 {
     if (m_elideMode == Qt::ElideNone) {
         QLabel::paintEvent(nullptr);
+        updateToolTip({});
         return;
     }
 
@@ -78,16 +89,41 @@ void ElidingLabel::paintEvent(QPaintEvent *)
     QFontMetrics fm = fontMetrics();
     QString txt = text();
     if (txt.length() > 4 && fm.horizontalAdvance(txt) > contents.width()) {
-        setToolTip(txt);
+        updateToolTip(txt);
         txt = fm.elidedText(txt, m_elideMode, contents.width());
     } else {
-        setToolTip(QString());
+        updateToolTip(QString());
     }
     int flags = QStyle::visualAlignment(layoutDirection(), alignment()) | Qt::TextSingleLine;
 
     QPainter painter(this);
     drawFrame(&painter);
     painter.drawText(contents, flags, txt);
+}
+
+void ElidingLabel::updateToolTip(const QString &elidedText)
+{
+    if (m_additionalToolTip.isEmpty()) {
+        setToolTip(elidedText);
+        return;
+    }
+
+    if (elidedText.isEmpty()) {
+        setToolTip(m_additionalToolTip);
+        return;
+    }
+
+    setToolTip(elidedText + m_additionalToolTipSeparator + m_additionalToolTip);
+}
+
+QString ElidingLabel::additionalToolTipSeparator() const
+{
+    return m_additionalToolTipSeparator;
+}
+
+void ElidingLabel::setAdditionalToolTipSeparator(const QString &newAdditionalToolTipSeparator)
+{
+    m_additionalToolTipSeparator = newAdditionalToolTipSeparator;
 }
 
 } // namespace Utils
