@@ -201,6 +201,7 @@ void SshDeviceProcess::handleConnected()
                 this, &SshDeviceProcess::handleProcessStarted);
         connect(d->remoteProcess.get(), &QtcProcess::done, this, [this] {
                 handleProcessFinished(d->remoteProcess->errorString());
+                emit done();
         });
         connect(d->remoteProcess.get(), &QtcProcess::readyReadStandardOutput,
                 this, &QtcProcess::readyReadStandardOutput);
@@ -227,10 +228,12 @@ void SshDeviceProcess::handleDisconnected()
     case SshDeviceProcessPrivate::Connecting:
     case SshDeviceProcessPrivate::Connected:
         emit errorOccurred(QProcess::FailedToStart);
+        emit done();
         break;
     case SshDeviceProcessPrivate::ProcessRunning:
         d->exitStatus = QProcess::CrashExit;
         emit finished();
+        emit done();
     default:
         break;
     }
@@ -263,6 +266,7 @@ void SshDeviceProcess::handleKillOperationFinished(const QString &errorMessage)
     d->errorMessage = tr("Failed to kill remote process: %1").arg(errorMessage);
     d->setState(SshDeviceProcessPrivate::Inactive);
     emit finished();
+    emit done();
 }
 
 void SshDeviceProcess::handleKillOperationTimeout()
@@ -271,6 +275,7 @@ void SshDeviceProcess::handleKillOperationTimeout()
     d->errorMessage = tr("Timeout waiting for remote process to finish.");
     d->setState(SshDeviceProcessPrivate::Inactive);
     emit finished();
+    emit done();
 }
 
 QString SshDeviceProcess::fullCommandLine() const
@@ -290,6 +295,7 @@ void SshDeviceProcess::SshDeviceProcessPrivate::doSignal(Signal signal)
         errorMessage = tr("Terminated by request.");
         setState(SshDeviceProcessPrivate::Inactive);
         emit q->errorOccurred(QProcess::FailedToStart);
+        emit q->done();
         break;
     case SshDeviceProcessPrivate::Connected:
     case SshDeviceProcessPrivate::ProcessRunning:
