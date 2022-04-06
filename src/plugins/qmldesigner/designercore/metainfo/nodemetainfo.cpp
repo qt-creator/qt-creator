@@ -98,7 +98,6 @@ static TypeName resolveTypeName(const ASTPropertyReference *ref, const ContextPt
             type = componentObjectValue->className().toUtf8();
             dotProperties = getObjectTypes(componentObjectValue, context);
         }  else if (const ObjectValue * objectValue = value->asObjectValue()) {
-            type = objectValue->className().toUtf8();
             dotProperties = getObjectTypes(objectValue, context);
         }
 
