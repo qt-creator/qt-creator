@@ -211,8 +211,11 @@ Toolchains ToolChainSettingsAccessor::restoreToolChains(QWidget *parent) const
     const ToolChainOperations ops = mergeToolChainLists(systemFileTcs, userFileTcs, autodetectedTcs);
 
     // Process ops:
-    for (ToolChain *tc : ops.toDemote)
-        tc->setDetection(ToolChain::ManualDetection);
+    for (ToolChain *tc : ops.toDemote) {
+        // FIXME: We currently only demote local toolchains, as they are not redetected.
+        if (tc->detectionSource().isEmpty())
+            tc->setDetection(ToolChain::ManualDetection);
+    }
 
     qDeleteAll(ops.toDelete);
 

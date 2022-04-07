@@ -63,10 +63,10 @@ public:
     static void updateDocumentation();
 
 public slots:
-    void autoDetectCMakeForDevice(const Utils::FilePaths &searchPaths,
+    QList<Utils::Id> autoDetectCMakeForDevice(const Utils::FilePaths &searchPaths,
                                   const QString &detectionSource,
                                   QString *logMessage);
-    void registerCMakeByPath(const Utils::FilePath &cmakePath,
+    Utils::Id registerCMakeByPath(const Utils::FilePath &cmakePath,
                              const QString &detectionSource);
     void removeDetectedCMake(const QString &detectionSource, QString *logMessage);
     void listDetectedCMake(const QString &detectionSource, QString *logMessage);

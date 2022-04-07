@@ -590,6 +590,9 @@ IosToolChainFactory::IosToolChainFactory()
 
 Toolchains IosToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
+    if (detector.device)
+        return {};
+
     QList<ClangToolChain *> existingClangToolChains = clangToolChains(detector.alreadyKnown);
     const QList<XcodePlatform> platforms = XcodeProbe::detectPlatforms().values();
     Toolchains toolChains;

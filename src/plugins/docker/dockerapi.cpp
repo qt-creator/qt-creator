@@ -74,21 +74,31 @@ bool DockerApi::canConnect()
     return result;
 }
 
-void DockerApi::checkCanConnect()
+void DockerApi::checkCanConnect(bool async)
 {
-    std::unique_lock lk(m_daemonCheckGuard, std::try_to_lock);
-    if (!lk.owns_lock())
-        return;
+    if (async) {
+        std::unique_lock lk(m_daemonCheckGuard, std::try_to_lock);
+        if (!lk.owns_lock())
+            return;
 
-    m_dockerDaemonAvailable = nullopt;
-    dockerDaemonAvailableChanged();
-
-    auto future = Utils::runAsync([lk = std::move(lk), this] {
-        m_dockerDaemonAvailable = canConnect();
+        m_dockerDaemonAvailable = nullopt;
         dockerDaemonAvailableChanged();
-    });
 
-    Core::ProgressManager::addTask(future, tr("Checking docker daemon"), "DockerPlugin");
+        auto future = Utils::runAsync([lk = std::move(lk), this] {
+            m_dockerDaemonAvailable = canConnect();
+            dockerDaemonAvailableChanged();
+        });
+
+        Core::ProgressManager::addTask(future, tr("Checking docker daemon"), "DockerPlugin");
+        return;
+    }
+
+    std::unique_lock lk(m_daemonCheckGuard);
+    bool isAvailable = canConnect();
+    if (!m_dockerDaemonAvailable.has_value() || isAvailable != m_dockerDaemonAvailable) {
+        m_dockerDaemonAvailable = isAvailable;
+        dockerDaemonAvailableChanged();
+    }
 }
 
 void DockerApi::recheckDockerDaemon()
@@ -97,17 +107,17 @@ void DockerApi::recheckDockerDaemon()
     s_instance->checkCanConnect();
 }
 
-Utils::optional<bool> DockerApi::dockerDaemonAvailable()
+Utils::optional<bool> DockerApi::dockerDaemonAvailable(bool async)
 {
     if (!m_dockerDaemonAvailable.has_value())
-        checkCanConnect();
+        checkCanConnect(async);
     return m_dockerDaemonAvailable;
 }
 
-Utils::optional<bool> DockerApi::isDockerDaemonAvailable()
+Utils::optional<bool> DockerApi::isDockerDaemonAvailable(bool async)
 {
     QTC_ASSERT(s_instance, return nullopt);
-    return s_instance->dockerDaemonAvailable();
+    return s_instance->dockerDaemonAvailable(async);
 }
 
 FilePath DockerApi::findDockerClient()

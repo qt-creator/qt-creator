@@ -317,7 +317,7 @@ void DockerDevice::updateContainerAccess() const
 
 void DockerDevicePrivate::stopCurrentContainer()
 {
-    if (m_container.isEmpty() || !DockerApi::isDockerDaemonAvailable().value_or(false))
+    if (m_container.isEmpty() || !DockerApi::isDockerDaemonAvailable(false).value_or(false))
         return;
 
     if (m_shell) {
@@ -439,7 +439,7 @@ void DockerDevicePrivate::updateContainerAccess()
     if (!m_container.isEmpty())
         return;
 
-    if (DockerApi::isDockerDaemonAvailable().value_or(true) == false)
+    if (DockerApi::isDockerDaemonAvailable(false).value_or(false) == false)
         return;
 
     if (m_shell)
@@ -897,7 +897,7 @@ bool DockerDevice::writeFileContents(const FilePath &filePath, const QByteArray 
 void DockerDevice::runProcess(QtcProcess &process) const
 {
     updateContainerAccess();
-    if (!DockerApi::isDockerDaemonAvailable().value_or(false))
+    if (!DockerApi::isDockerDaemonAvailable(false).value_or(false))
         return;
     if (d->m_container.isEmpty()) {
         LOG("No container set to run " << process.commandLine().toUserOutput());
@@ -977,7 +977,7 @@ void DockerDevicePrivate::fetchSystemEnviroment()
 
 bool DockerDevicePrivate::runInContainer(const CommandLine &cmd) const
 {
-    if (!DockerApi::isDockerDaemonAvailable().value_or(false))
+    if (!DockerApi::isDockerDaemonAvailable(false).value_or(false))
         return false;
     CommandLine dcmd{"docker", {"exec", m_container}};
     dcmd.addCommandLineAsArgs(cmd);
@@ -995,7 +995,7 @@ bool DockerDevicePrivate::runInContainer(const CommandLine &cmd) const
 
 bool DockerDevicePrivate::runInShell(const CommandLine &cmd) const
 {
-    if (!QTC_GUARD(DockerApi::isDockerDaemonAvailable().value_or(false))) {
+    if (!QTC_GUARD(DockerApi::isDockerDaemonAvailable(false).value_or(false))) {
         LOG("No daemon. Could not run " << cmd.toUserOutput());
         return false;
     }
@@ -1021,7 +1021,7 @@ static QByteArray randomHex()
 
 QByteArray DockerDevicePrivate::outputForRunInShell(const CommandLine &cmd) const
 {
-    if (!DockerApi::isDockerDaemonAvailable().value_or(false))
+    if (!DockerApi::isDockerDaemonAvailable(false).value_or(false))
         return {};
     QTC_ASSERT(m_shell && m_shell->isRunning(), return {});
     QMutexLocker l(&m_shellMutex);

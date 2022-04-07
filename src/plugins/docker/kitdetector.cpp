@@ -27,6 +27,8 @@
 
 #include "dockerconstants.h"
 
+#include <cmakeprojectmanager/cmakeprojectconstants.h>
+
 #include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/toolchain.h>
@@ -39,6 +41,7 @@
 
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
+#include <utils/algorithm.h>
 
 #include <QApplication>
 
@@ -69,7 +72,7 @@ public:
 private:
     QtVersions autoDetectQtVersions() const;
     QList<ToolChain *> autoDetectToolChains();
-    void autoDetectCMake();
+    QList<Id> autoDetectCMake();
     void autoDetectDebugger();
 
     KitDetector *q;
@@ -213,12 +216,21 @@ QtVersions KitDetectorPrivate::autoDetectQtVersions() const
 
     const auto handleQmake = [this, &qtVersions, &error](const FilePath &qmake) {
         if (QtVersion *qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake,
-                                                                                  false,
-                                                                                  m_sharedId,
-                                                                                  &error)) {
-            qtVersions.append(qtVersion);
-            QtVersionManager::addVersion(qtVersion);
-            emit q->logOutput(tr("Found \"%1\"").arg(qtVersion->qmakeFilePath().toUserOutput()));
+                                                                            false,
+                                                                            m_sharedId,
+                                                                            &error)) {
+            if (qtVersion->isValid()) {
+                if (!Utils::anyOf(qtVersions,
+                                 [qtVersion](QtVersion* other) {
+                                     return qtVersion->mkspecPath() == other->mkspecPath();
+                                 })) {
+
+                    qtVersions.append(qtVersion);
+                    QtVersionManager::addVersion(qtVersion);
+                    emit q->logOutput(
+                        tr("Found \"%1\"").arg(qtVersion->qmakeFilePath().toUserOutput()));
+                }
+            }
         }
         return true;
     };
@@ -265,20 +277,24 @@ Toolchains KitDetectorPrivate::autoDetectToolChains()
     return allNewToolChains;
 }
 
-void KitDetectorPrivate::autoDetectCMake()
+QList<Id> KitDetectorPrivate::autoDetectCMake()
 {
+    QList<Id> result;
     QObject *cmakeManager = ExtensionSystem::PluginManager::getObjectByName("CMakeToolManager");
     if (!cmakeManager)
-        return;
+        return {};
 
     QString logMessage;
     const bool res = QMetaObject::invokeMethod(cmakeManager,
                                                "autoDetectCMakeForDevice",
+                                               Q_RETURN_ARG(QList<Utils::Id>, result),
                                                Q_ARG(Utils::FilePaths, m_searchPaths),
                                                Q_ARG(QString, m_sharedId),
                                                Q_ARG(QString *, &logMessage));
     QTC_CHECK(res);
     emit q->logOutput('\n' + logMessage);
+
+    return result;
 }
 
 void KitDetectorPrivate::autoDetectDebugger()
@@ -308,16 +324,21 @@ void KitDetectorPrivate::autoDetect()
     const Toolchains toolchains = autoDetectToolChains();
     const QtVersions qtVersions = autoDetectQtVersions();
 
-    autoDetectCMake();
+    const QList<Id> cmakeIds = autoDetectCMake();
+    const Id cmakeId = cmakeIds.empty() ? Id() : cmakeIds.first();
     autoDetectDebugger();
 
-    const auto initializeKit = [this, toolchains, qtVersions](Kit *k) {
+    const auto initializeKit = [this, toolchains, qtVersions, cmakeId](Kit *k) {
         k->setAutoDetected(false);
         k->setAutoDetectionSource(m_sharedId);
         k->setUnexpandedDisplayName("%{Device:Name}");
 
+        if (cmakeId.isValid())
+            k->setValue(CMakeProjectManager::Constants::TOOL_ID, cmakeId.toSetting());
+
         DeviceTypeKitAspect::setDeviceTypeId(k, Constants::DOCKER_DEVICE_TYPE);
         DeviceKitAspect::setDevice(k, m_device);
+        BuildDeviceKitAspect::setDevice(k, m_device);
 
         QtVersion *qt = nullptr;
         if (!qtVersions.isEmpty()) {
@@ -332,10 +353,14 @@ void KitDetectorPrivate::autoDetect()
         for (ToolChain *toolChain : toolchainsToSet)
             ToolChainKitAspect::setToolChain(k, toolChain);
 
+        if (cmakeId.isValid())
+            k->setSticky(CMakeProjectManager::Constants::TOOL_ID, true);
+
         k->setSticky(ToolChainKitAspect::id(), true);
         k->setSticky(QtSupport::QtKitAspect::id(), true);
         k->setSticky(DeviceKitAspect::id(), true);
         k->setSticky(DeviceTypeKitAspect::id(), true);
+        k->setSticky(BuildDeviceKitAspect::id(), true);
     };
 
     Kit *kit = KitManager::registerKit(initializeKit);

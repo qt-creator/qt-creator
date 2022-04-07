@@ -87,8 +87,6 @@ static Id defaultCMakeToolId()
     return defaultTool ? defaultTool->id() : Id();
 }
 
-const char TOOL_ID[] = "CMakeProjectManager.CMakeKitInformation";
-
 class CMakeKitAspectWidget final : public KitAspectWidget
 {
     Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeKitAspect)
@@ -218,7 +216,7 @@ private:
 CMakeKitAspect::CMakeKitAspect()
 {
     setObjectName(QLatin1String("CMakeKitAspect"));
-    setId(TOOL_ID);
+    setId(Constants::TOOL_ID);
     setDisplayName(tr("CMake Tool"));
     setDescription(tr("The CMake Tool to use when building a project with CMake.<br>"
                       "This setting is ignored when using other build systems."));
@@ -235,14 +233,14 @@ CMakeKitAspect::CMakeKitAspect()
 
 Id CMakeKitAspect::id()
 {
-    return TOOL_ID;
+    return Constants::TOOL_ID;
 }
 
 Id CMakeKitAspect::cmakeToolId(const Kit *k)
 {
     if (!k)
         return {};
-    return Id::fromSetting(k->value(TOOL_ID));
+    return Id::fromSetting(k->value(Constants::TOOL_ID));
 }
 
 CMakeTool *CMakeKitAspect::cmakeTool(const Kit *k)
@@ -255,7 +253,7 @@ void CMakeKitAspect::setCMakeTool(Kit *k, const Id id)
     const Id toSet = id.isValid() ? id : defaultCMakeToolId();
     QTC_ASSERT(!id.isValid() || CMakeToolManager::findById(toSet), return);
     if (k)
-        k->setValue(TOOL_ID, toSet.toSetting());
+        k->setValue(Constants::TOOL_ID, toSet.toSetting());
 }
 
 Tasks CMakeKitAspect::validate(const Kit *k) const

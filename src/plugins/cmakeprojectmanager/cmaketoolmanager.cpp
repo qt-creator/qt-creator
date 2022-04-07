@@ -180,36 +180,44 @@ void CMakeToolManager::updateDocumentation()
     Core::HelpManager::registerDocumentation(docs);
 }
 
-void CMakeToolManager::autoDetectCMakeForDevice(const FilePaths &searchPaths,
+QList<Id> CMakeToolManager::autoDetectCMakeForDevice(const FilePaths &searchPaths,
                                                 const QString &detectionSource,
                                                 QString *logMessage)
 {
+    QList<Id> result;
     QStringList messages{tr("Searching CMake binaries...")};
     for (const FilePath &path : searchPaths) {
         const FilePath cmake = path.pathAppended("cmake").withExecutableSuffix();
         if (cmake.isExecutableFile()) {
-            registerCMakeByPath(cmake, detectionSource);
+            const Id currentId = registerCMakeByPath(cmake, detectionSource);
+            if (currentId.isValid())
+                result.push_back(currentId);
             messages.append(tr("Found \"%1\"").arg(cmake.toUserOutput()));
         }
     }
     if (logMessage)
         *logMessage = messages.join('\n');
+
+    return result;
 }
 
 
-void CMakeToolManager::registerCMakeByPath(const FilePath &cmakePath, const QString &detectionSource)
+Id CMakeToolManager::registerCMakeByPath(const FilePath &cmakePath, const QString &detectionSource)
 {
-    const Id id = Id::fromString(cmakePath.toUserOutput());
+    Id id = Id::fromString(cmakePath.toUserOutput());
 
     CMakeTool *cmakeTool = findById(id);
     if (cmakeTool)
-        return;
+        return cmakeTool->id();
 
     auto newTool = std::make_unique<CMakeTool>(CMakeTool::ManualDetection, id);
     newTool->setFilePath(cmakePath);
     newTool->setDetectionSource(detectionSource);
     newTool->setDisplayName(cmakePath.toUserOutput());
+    id = newTool->id();
     registerCMakeTool(std::move(newTool));
+
+    return id;
 }
 
 void CMakeToolManager::removeDetectedCMake(const QString &detectionSource, QString *logMessage)

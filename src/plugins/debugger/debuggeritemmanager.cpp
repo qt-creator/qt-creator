@@ -796,9 +796,7 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePaths &s
         DebuggerItem item;
         item.createId();
         item.setDetectionSource(detectionSource);
-        // Intentionally set items with non-empty source as manual for now to
-        // give the user a chance to remove them. FIXME: Think of a better way.
-        item.setAutoDetected(detectionSource.isEmpty());
+        item.setAutoDetected(true);
         item.setCommand(command);
         item.reinitializeFromFile();
         if (item.engineType() == NoEngineType)
@@ -937,7 +935,8 @@ void DebuggerItemManagerPrivate::readDebuggers(const FilePath &fileName, bool is
                                   .arg(item.command().toUserOutput(), item.id().toString(), fileName.toUserOutput());
                     continue;
                 }
-                if (!item.command().isExecutableFile()) {
+                // FIXME: During startup, devices are not yet available, so we cannot check if the file still exists.
+                if (!item.command().needsDevice() && !item.command().isExecutableFile()) {
                     qWarning() << QString("DebuggerItem \"%1\" (%2) read from \"%3\" dropped since the command is not executable.")
                                   .arg(item.command().toUserOutput(), item.id().toString(), fileName.toUserOutput());
                     continue;

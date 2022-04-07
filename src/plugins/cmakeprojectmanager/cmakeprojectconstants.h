@@ -65,5 +65,9 @@ const char CMAKE_BUILD_STEP_ID[] = "CMakeProjectManager.MakeStep";
 // Features
 const char CMAKE_FEATURE_ID[] = "CMakeProjectManager.Wizard.FeatureCMake";
 
+// Tool
+const char TOOL_ID[] = "CMakeProjectManager.CMakeKitInformation";
+
+
 } // namespace Constants
 } // namespace CMakeProjectManager

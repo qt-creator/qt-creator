@@ -45,15 +45,15 @@ public:
     static DockerApi *instance();
 
     bool canConnect();
-    void checkCanConnect();
+    void checkCanConnect(bool async = true);
     static void recheckDockerDaemon();
 
 signals:
     void dockerDaemonAvailableChanged();
 
 public:
-    Utils::optional<bool> dockerDaemonAvailable();
-    static Utils::optional<bool> isDockerDaemonAvailable();
+    Utils::optional<bool> dockerDaemonAvailable(bool async = true);
+    static Utils::optional<bool> isDockerDaemonAvailable(bool async = true);
 
 private:
     Utils::FilePath findDockerClient();

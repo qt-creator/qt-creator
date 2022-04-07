@@ -37,6 +37,7 @@
 #include <QDir>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QSet>
 #include <QUuid>
@@ -46,6 +47,9 @@
 using namespace Utils;
 
 namespace CMakeProjectManager {
+
+static Q_LOGGING_CATEGORY(cmakeToolLog, "qtc.cmake.tool", QtWarningMsg);
+
 
 const char CMAKE_INFORMATION_ID[] = "Id";
 const char CMAKE_INFORMATION_COMMAND[] = "Binary";
@@ -521,6 +525,7 @@ void CMakeTool::fetchFromCapabilities() const
         m_introspection->m_didRun = true;
         parseFromCapabilities(cmake.stdOut());
     } else {
+        qCCritical(cmakeToolLog) << "Fetching capabilities failed: " << cmake.allOutput() << cmake.error();
         m_introspection->m_didRun = false;
     }
 }
