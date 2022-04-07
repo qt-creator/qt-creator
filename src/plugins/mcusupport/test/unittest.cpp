@@ -416,7 +416,7 @@ void McuSupportTest::test_createFreeRtosPackageWithCorrectSetting()
     QFETCH(QString, freeRtosEnvVar);
     QFETCH(QString, expectedSettingsKey);
 
-    auto *package{Sdk::createFreeRTOSSourcesPackage(freeRtosEnvVar, FilePath{}, QString{})};
+    auto *package{Sdk::createFreeRTOSSourcesPackage(freeRtosEnvVar, FilePath{}, FilePath{})};
     QVERIFY(package != nullptr);
 
     QCOMPARE(package->settingsKey(), expectedSettingsKey);

@@ -125,7 +125,7 @@ McuAbstractPackage *createBoardSdkPackage(const McuTargetDescription &desc)
             return FilePath::fromUserInput(qEnvironmentVariable(envVar));
         if (!desc.boardSdk.defaultPath.isEmpty()) {
             FilePath defaultPath = FilePath::fromUserInput(QDir::rootPath()
-                                                           + desc.boardSdk.defaultPath);
+                                                           + desc.boardSdk.defaultPath.toString());
             if (defaultPath.exists())
                 return defaultPath;
         }
@@ -146,7 +146,7 @@ McuAbstractPackage *createBoardSdkPackage(const McuTargetDescription &desc)
 
 McuAbstractPackage *createFreeRTOSSourcesPackage(const QString &envVar,
                                                  const FilePath &boardSdkDir,
-                                                 const QString &freeRTOSBoardSdkSubDir)
+                                                 const FilePath &freeRTOSBoardSdkSubDir)
 {
     const QString envVarPrefix = removeRtosSuffix(envVar);
 
@@ -154,7 +154,7 @@ McuAbstractPackage *createFreeRTOSSourcesPackage(const QString &envVar,
     if (qEnvironmentVariableIsSet(envVar.toLatin1()))
         defaultPath = FilePath::fromUserInput(qEnvironmentVariable(envVar.toLatin1()));
     else if (!boardSdkDir.isEmpty() && !freeRTOSBoardSdkSubDir.isEmpty())
-        defaultPath = boardSdkDir / freeRTOSBoardSdkSubDir;
+        defaultPath = boardSdkDir / freeRTOSBoardSdkSubDir.toString();
 
     return new McuPackage(QString::fromLatin1("FreeRTOS Sources (%1)").arg(envVarPrefix),
                           defaultPath,
@@ -542,14 +542,14 @@ McuTargetDescription parseDescriptionJson(const QByteArray &data)
             {toolchain.value("id").toString(), toolchainVersionsList, toolchainEntries},
             {
                 boardSdk.value("name").toString(),
-                boardSdk.value("defaultPath").toString(),
+                FilePath::fromString(boardSdk.value("defaultPath").toString()),
                 boardSdk.value("envVar").toString(),
                 boardSdkVersionsList,
                 boardSDKEntries,
             },
             {
                 freeRTOS.value("envVar").toString(),
-                freeRTOS.value("boardSdkSubDir").toString(),
+                FilePath::fromString(freeRTOS.value("boardSdkSubDir").toString()),
                 freeRtosEntries,
             }};
 }

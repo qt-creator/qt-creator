@@ -70,7 +70,7 @@ McuToolChainPackage *createGhsArmToolchainPackage();
 McuAbstractPackage *createBoardSdkPackage(const McuTargetDescription &desc);
 McuAbstractPackage *createFreeRTOSSourcesPackage(const QString &envVar,
                                                  const Utils::FilePath &boardSdkDir,
-                                                 const QString &freeRTOSBoardSdkSubDir);
+                                                 const Utils::FilePath &freeRTOSBoardSdkSubDir);
 
 } // namespace Sdk
 } // namespace McuSupport::Internal

@@ -69,7 +69,7 @@ struct McuTargetDescription
     struct BoardSdk
     {
         QString name;
-        QString defaultPath;
+        Utils::FilePath defaultPath;
         QString envVar;
         QStringList versions;
         QList<PackageDescription> packages;
@@ -77,7 +77,7 @@ struct McuTargetDescription
     struct FreeRTOS
     {
         QString envVar;
-        QString boardSdkSubDir;
+        Utils::FilePath boardSdkSubDir;
         QList<PackageDescription> packages;
     } freeRTOS;
 };
