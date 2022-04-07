@@ -81,19 +81,17 @@
 
     \section2 Previewing on Boot2Qt Devices
 
-    You can preview UIs on Boot2Qt devices that are supported by
-    \l{Qt for Device Creation}. For a list of supported devices, see
-    \l{https://doc.qt.io/QtForDeviceCreation/qtdc-supported-platforms.html}
-    {Reference Target Devices and Development Hosts}.
+    You can preview UIs on Boot2Qt devices. For a list of supported devices, see
+    \l{https://doc.qt.io/Boot2Qt/qtdc-supported-platforms.html}
+    {Boot2Qt: Supported Target Devices and Development Hosts}.
 
     You must configure the device as instructed in the
-    \l{https://doc.qt.io/QtForDeviceCreation/b2qt-installation-guides.html}
-    {Installation Guides}.
+    \l{https://doc.qt.io/Boot2Qt/b2qt-installation-guides.html}
+    {Boot2Qt: Installation Guides}.
 
     \note At the time of this writing, \macos is not supported as a development
-    host for Qt for Device Creation. This means that you cannot preview UIs on
-    devices if you are using \QC on \macos. For more information about
-    supported development hosts, see
-    \l {https://doc.qt.io/QtForDeviceCreation/qtdc-supported-platforms.html#supported-development-hosts}
-    {Supported Development Hosts}.
+    host for Boot2Qt. This means that you cannot preview UIs on
+    devices if you are using \QC on \macos. For more information, see
+    \l {https://doc.qt.io/Boot2Qt/qtdc-supported-platforms.html#supported-development-hosts}
+    {Boot2Qt: Supported Development Hosts}.
 */

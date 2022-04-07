@@ -452,11 +452,10 @@
     The Performance Analyzer can read Perf data files generated in either frame
     pointer or dwarf mode. However, to generate the files correctly, numerous
     preconditions have to be met. All system images for the
-    \l{http://doc.qt.io/QtForDeviceCreation/qtee-supported-platforms.html}
-    {Qt for Device Creation reference devices}, except for Freescale iMX53 Quick
-    Start Board and SILICA Architect Tibidabo, are correctly set up for
-    profiling in the dwarf mode. For other devices, check whether Perf can read
-    back its own data in a sensible way by checking the output of
+    \l{https://doc.qt.io/Boot2Qt/qtdc-supported-platforms.html}
+    {Boot2Qt:Supported Target Devices and Development Hosts} are correctly set
+    up for profiling in the dwarf mode. For other devices, check whether Perf
+    can read back its own data in a sensible way by checking the output of
     \c {perf report} or \c {perf script} for the recorded Perf data files.
 
     \section1 Loading and Saving Trace Files

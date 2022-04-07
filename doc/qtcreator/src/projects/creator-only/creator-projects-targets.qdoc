@@ -49,7 +49,7 @@
     \list
         \li \l{Connecting Android Devices}{Android Device}
         \li \l{Connecting Bare Metal Devices}{Bare Metal Device}
-        \li \l{https://doc.qt.io/QtForDeviceCreation/b2qt-installation-guides.html}
+        \li \l{https://doc.qt.io/Boot2Qt/b2qt-installation-guides.html}
             {Boot2Qt Device} (commercial only)
         \li \l{Emulator}{Boot2Qt Emulator Device} (commercial only)
         \li \l{Connecting Generic Remote Linux Devices}{Generic Remote Linux Device}

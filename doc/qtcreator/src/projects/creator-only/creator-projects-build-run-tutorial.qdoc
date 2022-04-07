@@ -44,12 +44,10 @@
     \l{Connecting Android Devices} and \l{Connecting iOS Devices}.
 
     To run an example application on a Boot2Qt device, you must set up
-    Qt for Device Creation on the development host and create connections
+    Boot2Qt on the development host and create connections
     between the host and devices. For more information, see
-    \l{https://doc.qt.io/QtForDeviceCreation/b2qt-installation-guides.html}
-    {Installation Guides} in the
-    \l{http://doc.qt.io/QtForDeviceCreation/index.html}{Qt for Device Creation}
-    documentation.
+    \l{https://doc.qt.io/Boot2Qt/b2qt-installation-guides.html}
+    {Boot2Qt: Installation Guides}
 
     If you have \l{Qt Design Studio Manual}{\QDS} installed, you can open
     \QDS examples from \QC in \QDS.

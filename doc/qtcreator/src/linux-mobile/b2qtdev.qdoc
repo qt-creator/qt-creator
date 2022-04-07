@@ -63,8 +63,8 @@
     \note On Ubuntu Linux, the development user account must have access to
     plugged in devices. To allow the development user access to the device
     via USB, create a new \c udev rule, as described in
-    \l{https://doc.qt.io/QtForDeviceCreation/b2qt-requirements-x11.html#setting-up-usb-access-to-embedded-devices}
-    {Setting Up USB Access to Embedded Devices}.
+    \l{https://doc.qt.io/Boot2Qt/b2qt-requirements-x11.html#setting-up-usb-access-to-embedded-devices}
+    {Boot2Qt: Setting Up USB Access to Embedded Devices}.
 
     You can edit the settings later in \uicontrol Tools > \uicontrol Options >
     \uicontrol Devices > \uicontrol Devices.
