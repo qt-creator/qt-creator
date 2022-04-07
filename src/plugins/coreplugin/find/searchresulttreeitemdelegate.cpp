@@ -216,8 +216,8 @@ void SearchResultTreeItemDelegate::drawText(QPainter *painter,
     const QString textBefore = text.left(searchTermStart).replace(QLatin1Char('\t'), m_tabString);
     const QString textHighlight = text.mid(searchTermStart, searchTermLength).replace(QLatin1Char('\t'), m_tabString);
     const QString textAfter = text.mid(searchTermStart + searchTermLength).replace(QLatin1Char('\t'), m_tabString);
-    int searchTermStartPixels = painter->fontMetrics().horizontalAdvance(textBefore);
-    int searchTermLengthPixels = painter->fontMetrics().horizontalAdvance(textHighlight);
+    int searchTermStartPixels = option.fontMetrics.horizontalAdvance(textBefore);
+    int searchTermLengthPixels = option.fontMetrics.horizontalAdvance(textHighlight);
 
     // rects
     QRect beforeHighlightRect(rect);
