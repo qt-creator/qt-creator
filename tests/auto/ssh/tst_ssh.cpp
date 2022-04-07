@@ -23,7 +23,6 @@
 **
 ****************************************************************************/
 
-#include <ssh/sftpsession.h>
 #include <ssh/sftptransfer.h>
 #include <ssh/sshconnection.h>
 #include <ssh/sshremoteprocessrunner.h>
@@ -150,7 +149,6 @@ void tst_Ssh::pristineConnectionObject()
     QTest::ignoreMessage(QtDebugMsg, assertToIgnore);
     QVERIFY(!connection.createRemoteProcess(""));
     QTest::ignoreMessage(QtDebugMsg, assertToIgnore);
-    QVERIFY(!connection.createSftpSession());
 }
 
 void tst_Ssh::remoteProcess_data()
@@ -332,10 +330,6 @@ void tst_Ssh::sftp()
     static const auto getRemoteFilePath = [](const QString &localFileName) {
         return QString("/tmp/").append(localFileName).append(".upload");
     };
-    const auto getDownloadFilePath = [](const QTemporaryDir &dirForFilesToDownload,
-            const QString &localFileName) {
-        return QString(dirForFilesToDownload.path()).append('/').append(localFileName);
-    };
     FilesToTransfer filesToUpload;
     std::srand(QDateTime::currentDateTime().toSecsSinceEpoch());
     for (int i = 0; i < 100; ++i) {
@@ -384,193 +378,6 @@ void tst_Ssh::sftp()
     QVERIFY(timer.isActive());
     timer.stop();
     QVERIFY2(jobError.isEmpty(), qPrintable(jobError));
-
-    // Establish interactive SFTP session
-    SftpSessionPtr sftpChannel = connection.createSftpSession();
-    QList<SftpJobId> jobs;
-    bool invalidFinishedSignal = false;
-    connect(sftpChannel.get(), &SftpSession::started, &loop, &QEventLoop::quit);
-    connect(sftpChannel.get(), &SftpSession::done, &loop, &QEventLoop::quit);
-    connect(sftpChannel.get(), &SftpSession::commandFinished,
-            [&loop, &jobs, &invalidFinishedSignal, &jobError](SftpJobId job, const QString &error) {
-        if (!jobs.removeOne(job)) {
-            invalidFinishedSignal = true;
-            loop.quit();
-            return;
-        }
-        if (!error.isEmpty()) {
-            jobError = error;
-            loop.quit();
-            return;
-        }
-        if (jobs.empty())
-            loop.quit();
-    });
-    timer.start();
-    sftpChannel->start();
-    loop.exec();
-    QVERIFY(timer.isActive());
-    timer.stop();
-    QVERIFY(!invalidFinishedSignal);
-    QCOMPARE(sftpChannel->state(), SftpSession::State::Running);
-
-    // Download the uploaded files to a different location
-    const QStringList allUploadedFileNames
-            = QDir(dirForFilesToUpload.path()).entryList(QDir::Files);
-    QCOMPARE(allUploadedFileNames.size(), 101);
-    for (const QString &fileName : allUploadedFileNames) {
-        const QString localFilePath = dirForFilesToUpload.path() + '/' + fileName;
-        const QString remoteFilePath = getRemoteFilePath(fileName);
-        const QString downloadFilePath = getDownloadFilePath(dirForFilesToDownload, fileName);
-        const SftpJobId downloadJob = sftpChannel->downloadFile(remoteFilePath, downloadFilePath);
-        QVERIFY(downloadJob != SftpInvalidJob);
-        jobs << downloadJob;
-    }
-    QCOMPARE(jobs.size(), 101);
-    loop.exec();
-    QVERIFY(!invalidFinishedSignal);
-    QVERIFY2(jobError.isEmpty(), qPrintable(jobError));
-    QCOMPARE(sftpChannel->state(), SftpSession::State::Running);
-    QVERIFY(jobs.empty());
-
-    // Compare contents of uploaded and downloaded files
-    bool success;
-    const auto compareFiles = [&](const QTemporaryDir &downloadDir) {
-        success = false;
-        for (const QString &fileName : allUploadedFileNames) {
-            QFile originalFile(dirForFilesToUpload.path() + '/' + fileName);
-            QVERIFY2(originalFile.open(QIODevice::ReadOnly), qPrintable(originalFile.errorString()));
-            QFile downloadedFile(getDownloadFilePath(downloadDir, fileName));
-            QVERIFY2(downloadedFile.open(QIODevice::ReadOnly),
-                     qPrintable(downloadedFile.errorString()));
-            QVERIFY(originalFile.fileName() != downloadedFile.fileName());
-            QCOMPARE(originalFile.size(), downloadedFile.size());
-            qint64 bytesLeft = originalFile.size();
-            while (bytesLeft > 0) {
-                const qint64 bytesToRead = qMin(bytesLeft, Q_INT64_C(1024 * 1024));
-                const QByteArray origBlock = originalFile.read(bytesToRead);
-                const QByteArray copyBlock = downloadedFile.read(bytesToRead);
-                QCOMPARE(origBlock.size(), bytesToRead);
-                QCOMPARE(origBlock, copyBlock);
-                bytesLeft -= bytesToRead;
-            }
-        }
-        success = true;
-    };
-    compareFiles(dirForFilesToDownload);
-    QVERIFY(success);
-
-    // The same again, with a non-interactive download.
-    const FilesToTransfer filesToDownload = transform(filesToUpload, [&](const FileToTransfer &fileToUpload) {
-        return FileToTransfer(fileToUpload.targetFile,
-                              getDownloadFilePath(dir2ForFilesToDownload,
-                                                  QFileInfo(fileToUpload.sourceFile).fileName()));
-    });
-    const SftpTransferPtr download = connection.createDownload(filesToDownload,
-                                                               FileTransferErrorHandling::Abort);
-    connect(download.get(), &SftpTransfer::done, [&jobError, &loop](const QString &error) {
-        jobError = error;
-        loop.quit();
-    });
-    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-    timer.setSingleShot(true);
-    timer.setInterval(30 * 1000);
-    timer.start();
-    download->start();
-    loop.exec();
-    QVERIFY(timer.isActive());
-    timer.stop();
-    QVERIFY2(jobError.isEmpty(), qPrintable(jobError));
-    compareFiles(dir2ForFilesToDownload);
-    QVERIFY(success);
-
-    // Remove the uploaded files on the remote system
-    timer.setInterval((params.timeout + 5) * 1000);
-    for (const QString &fileName : allUploadedFileNames) {
-        const QString remoteFilePath = getRemoteFilePath(fileName);
-        const SftpJobId removeJob = sftpChannel->removeFile(remoteFilePath);
-        QVERIFY(removeJob != SftpInvalidJob);
-        jobs << removeJob;
-    }
-    loop.exec();
-    QVERIFY(!invalidFinishedSignal);
-    QVERIFY2(jobError.isEmpty(), qPrintable(jobError));
-    QCOMPARE(sftpChannel->state(), SftpSession::State::Running);
-    QVERIFY(jobs.empty());
-
-    // Create a directory on the remote system
-    const QString remoteDirPath = "/tmp/sftptest-" + QDateTime::currentDateTime().toString();
-    const SftpJobId mkdirJob = sftpChannel->createDirectory(remoteDirPath);
-    QVERIFY(mkdirJob != SftpInvalidJob);
-    jobs << mkdirJob;
-    loop.exec();
-    QVERIFY(!invalidFinishedSignal);
-    QVERIFY2(jobError.isEmpty(), qPrintable(jobError));
-    QCOMPARE(sftpChannel->state(), SftpSession::State::Running);
-    QVERIFY(jobs.empty());
-
-    // Retrieve and check the attributes of the remote directory
-    QList<SftpFileInfo> remoteFileInfo;
-    const auto fileInfoHandler
-            = [&remoteFileInfo](SftpJobId, const QList<SftpFileInfo> &fileInfoList) {
-        remoteFileInfo << fileInfoList;
-    };
-    connect(sftpChannel.get(), &SftpSession::fileInfoAvailable, fileInfoHandler);
-    const SftpJobId statDirJob = sftpChannel->ls(remoteDirPath + "/..");
-    QVERIFY(statDirJob != SftpInvalidJob);
-    jobs << statDirJob;
-    loop.exec();
-    QVERIFY(!invalidFinishedSignal);
-    QVERIFY2(jobError.isEmpty(), qPrintable(jobError));
-    QCOMPARE(sftpChannel->state(), SftpSession::State::Running);
-    QVERIFY(jobs.empty());
-    QVERIFY(!remoteFileInfo.empty());
-    SftpFileInfo remoteDirInfo;
-    for (const SftpFileInfo &fi : qAsConst(remoteFileInfo)) {
-        if (fi.name == QFileInfo(remoteDirPath).fileName()) {
-            remoteDirInfo = fi;
-            break;
-        }
-    }
-    QCOMPARE(remoteDirInfo.type, FileTypeDirectory);
-    QCOMPARE(remoteDirInfo.name, QFileInfo(remoteDirPath).fileName());
-
-    // Retrieve and check the contents of the remote directory
-    remoteFileInfo.clear();
-    const SftpJobId lsDirJob = sftpChannel->ls(remoteDirPath);
-    QVERIFY(lsDirJob != SftpInvalidJob);
-    jobs << lsDirJob;
-    loop.exec();
-    QVERIFY(!invalidFinishedSignal);
-    QVERIFY2(jobError.isEmpty(), qPrintable(jobError));
-    QCOMPARE(sftpChannel->state(), SftpSession::State::Running);
-    QVERIFY(jobs.empty());
-    QCOMPARE(remoteFileInfo.size(), 0);
-
-    // Remove the remote directory.
-    const SftpJobId rmDirJob = sftpChannel->removeDirectory(remoteDirPath);
-    QVERIFY(rmDirJob != SftpInvalidJob);
-    jobs << rmDirJob;
-    loop.exec();
-    QVERIFY(!invalidFinishedSignal);
-    QVERIFY2(jobError.isEmpty(), qPrintable(jobError));
-    QCOMPARE(sftpChannel->state(), SftpSession::State::Running);
-    QVERIFY(jobs.empty());
-
-    // Closing down
-    sftpChannel->quit();
-    QCOMPARE(sftpChannel->state(), SftpSession::State::Closing);
-    loop.exec();
-    QVERIFY(!invalidFinishedSignal);
-    QVERIFY2(jobError.isEmpty(), qPrintable(jobError));
-    QCOMPARE(sftpChannel->state(), SftpSession::State::Inactive);
-    connect(&connection, &SshConnection::disconnected, &loop, &QEventLoop::quit);
-    timer.start();
-    connection.disconnectFromHost();
-    loop.exec();
-    QVERIFY(timer.isActive());
-    QCOMPARE(connection.state(), SshConnection::Unconnected);
-    QVERIFY2(connection.errorString().isEmpty(), qPrintable(connection.errorString()));
 }
 
 void tst_Ssh::cleanupTestCase()

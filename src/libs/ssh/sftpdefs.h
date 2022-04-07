@@ -37,8 +37,6 @@ namespace QSsh {
 
 class SftpTransfer;
 using SftpTransferPtr = std::unique_ptr<SftpTransfer>;
-class SftpSession;
-using SftpSessionPtr = std::unique_ptr<SftpSession>;
 
 enum class FileTransferErrorHandling { Abort, Ignore };
 

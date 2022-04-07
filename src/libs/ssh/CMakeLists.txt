@@ -2,7 +2,6 @@ add_qtc_library(QtcSsh
   DEPENDS Qt5::Core Qt5::Network Qt5::Widgets Utils
   SOURCES
     sftpdefs.cpp sftpdefs.h
-    sftpsession.cpp sftpsession.h
     sftptransfer.cpp sftptransfer.h
     ssh.qrc
     ssh_global.h

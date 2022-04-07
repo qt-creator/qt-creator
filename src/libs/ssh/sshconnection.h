@@ -120,7 +120,6 @@ public:
                                  FileTransferErrorHandling errorHandlingMode);
     SftpTransferPtr createDownload(const FilesToTransfer &files,
                                    FileTransferErrorHandling errorHandlingMode);
-    SftpSessionPtr createSftpSession();
 
 signals:
     void connected();

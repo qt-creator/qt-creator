@@ -25,7 +25,6 @@
 
 #include "sshconnection.h"
 
-#include "sftpsession.h"
 #include "sftptransfer.h"
 #include "sshlogging_p.h"
 #include "sshremoteprocess.h"
@@ -322,12 +321,6 @@ SftpTransferPtr SshConnection::createDownload(const FilesToTransfer &files,
                                               FileTransferErrorHandling errorHandlingMode)
 {
     return setupTransfer(files, Internal::FileTransferType::Download, errorHandlingMode);
-}
-
-SftpSessionPtr SshConnection::createSftpSession()
-{
-    QTC_ASSERT(state() == Connected, return SftpSessionPtr());
-    return SftpSessionPtr(new SftpSession(d->connectionArgs(SshSettings::sftpFilePath())));
 }
 
 void SshConnection::doConnectToHost()
