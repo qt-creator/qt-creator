@@ -459,66 +459,70 @@ int AndroidManager::defaultMinimumSDK(const QtSupport::QtVersion *qtVersion)
 QString AndroidManager::androidNameForApiLevel(int x)
 {
     switch (x) {
+    case 2:
+        return QLatin1String("Android 1.1");
+    case 3:
+        return QLatin1String("Android 1.5 (Cupcake)");
     case 4:
-        return QLatin1String("Android 1.6");
+        return QLatin1String("Android 1.6 (Donut)");
     case 5:
-        return QLatin1String("Android 2.0");
+        return QLatin1String("Android 2.0 (Eclair)");
     case 6:
-        return QLatin1String("Android 2.0.1");
+        return QLatin1String("Android 2.0.1 (Eclair)");
     case 7:
-        return QLatin1String("Android 2.1.x");
+        return QLatin1String("Android 2.1 (Eclair)");
     case 8:
-        return QLatin1String("Android 2.2.x");
+        return QLatin1String("Android 2.2 (Froyo)");
     case 9:
-        return QLatin1String("Android 2.3, 2.3.1, 2.3.2");
+        return QLatin1String("Android 2.3 (Gingerbread)");
     case 10:
-        return QLatin1String("Android 2.3.3, 2.3.4");
+        return QLatin1String("Android 2.3.3 (Gingerbread)");
     case 11:
-        return QLatin1String("Android 3.0.x");
+        return QLatin1String("Android 3.0 (Honeycomb)");
     case 12:
-        return QLatin1String("Android 3.1.x");
+        return QLatin1String("Android 3.1 (Honeycomb)");
     case 13:
-        return QLatin1String("Android 3.2");
+        return QLatin1String("Android 3.2 (Honeycomb)");
     case 14:
-        return QLatin1String("Android 4.0, 4.0.1, 4.0.2");
+        return QLatin1String("Android 4.0 (IceCreamSandwich)");
     case 15:
-        return QLatin1String("Android 4.0.3, 4.0.4");
+        return QLatin1String("Android 4.0.3 (IceCreamSandwich)");
     case 16:
-        return QLatin1String("Android 4.1, 4.1.1");
+        return QLatin1String("Android 4.1 (Jelly Bean)");
     case 17:
-        return QLatin1String("Android 4.2, 4.2.2");
+        return QLatin1String("Android 4.2 (Jelly Bean)");
     case 18:
-        return QLatin1String("Android 4.3");
+        return QLatin1String("Android 4.3 (Jelly Bean)");
     case 19:
-        return QLatin1String("Android 4.4");
+        return QLatin1String("Android 4.4 (KitKat)");
     case 20:
-        return QLatin1String("Android 4.4W");
+        return QLatin1String("Android 4.4W (KitKat Wear)");
     case 21:
-        return QLatin1String("Android 5.0");
+        return QLatin1String("Android 5.0 (Lollipop)");
     case 22:
-        return QLatin1String("Android 5.1");
+        return QLatin1String("Android 5.1 (Lollipop)");
     case 23:
-        return QLatin1String("Android 6.0");
+        return QLatin1String("Android 6.0 (Marshmallow)");
     case 24:
-        return QLatin1String("Android 7.0");
+        return QLatin1String("Android 7.0 (Nougat)");
     case 25:
-        return QLatin1String("Android 7.1");
+        return QLatin1String("Android 7.1.1 (Nougat)");
     case 26:
-        return QLatin1String("Android 8.0");
+        return QLatin1String("Android 8.0 (Oreo)");
     case 27:
-        return QLatin1String("Android 8.1");
+        return QLatin1String("Android 8.1 (Oreo)");
     case 28:
-        return QLatin1String("Android 9");
+        return QLatin1String("Android 9.0 (Pie)");
     case 29:
-        return QLatin1String("Android 10");
+        return QLatin1String("Android 10.0 (Q)");
     case 30:
-        return QLatin1String("Android 11");
+        return QLatin1String("Android 11.0 (R)");
     case 31:
-        return QLatin1String("Android 12");
+        return QLatin1String("Android 12.0 (S)");
     case 32:
-        return QLatin1String("Android 12L");
+        return QLatin1String("Android 12L (API 32)");
     case 33:
-        return QLatin1String("Android 13");
+        return QLatin1String("Android Tiramisu");
     default:
         return tr("Unknown Android version. API Level: %1").arg(x);
     }
