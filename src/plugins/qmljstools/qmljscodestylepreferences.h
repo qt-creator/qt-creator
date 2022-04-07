@@ -26,6 +26,7 @@
 #pragma once
 
 #include "qmljstools_global.h"
+
 #include "qmljscodestylesettings.h"
 
 #include <texteditor/icodestylepreferences.h>

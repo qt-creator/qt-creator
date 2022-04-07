@@ -24,22 +24,23 @@
 ****************************************************************************/
 
 #include "qmljscodestylesettingspage.h"
-#include "ui_qmljscodestylesettingspage.h"
-#include "qmljstoolsconstants.h"
-#include "qmljstoolssettings.h"
+
+#include "qmljscodestylepreferences.h"
 #include "qmljsindenter.h"
 #include "qmljsqtstylecodeformatter.h"
-#include "qmljscodestylepreferences.h"
+#include "qmljstoolsconstants.h"
+#include "qmljstoolssettings.h"
+#include "ui_qmljscodestylesettingspage.h"
 
+#include <coreplugin/icore.h>
+#include <extensionsystem/pluginmanager.h>
+#include <qmljseditor/qmljseditorconstants.h>
+#include <texteditor/codestyleeditor.h>
+#include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/tabsettings.h>
-#include <texteditor/displaysettings.h>
 #include <texteditor/texteditorsettings.h>
-#include <texteditor/codestyleeditor.h>
-#include <extensionsystem/pluginmanager.h>
-#include <qmljseditor/qmljseditorconstants.h>
-#include <coreplugin/icore.h>
 
 #include <QTextStream>
 

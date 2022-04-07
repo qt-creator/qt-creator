@@ -24,8 +24,9 @@
 ****************************************************************************/
 
 #include "qmljscodestylesettingswidget.h"
-#include "ui_qmljscodestylesettingswidget.h"
+
 #include "qmljscodestylesettings.h"
+#include "ui_qmljscodestylesettingswidget.h"
 
 #include <QTextStream>
 

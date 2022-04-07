@@ -80,7 +80,7 @@ Rectangle {
   <customwidget>
    <class>QmlJSTools::QmlJSCodeStylePreferencesWidget</class>
    <extends>QWidget</extends>
-   <header location="global">qmljscodestylepreferenceswidget.h</header>
+   <header location="global">qmljstools/qmljscodestylepreferenceswidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

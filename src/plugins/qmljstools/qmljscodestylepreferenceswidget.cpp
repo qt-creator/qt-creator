@@ -24,12 +24,13 @@
 ****************************************************************************/
 
 #include "qmljscodestylepreferenceswidget.h"
-#include "qmljscodestylepreferences.h"
-#include "qmljscodestylesettingswidget.h"
-#include "qmljscodestylesettings.h"
 
-#include <QVBoxLayout>
+#include "qmljscodestylepreferences.h"
+#include "qmljscodestylesettings.h"
+#include "qmljscodestylesettingswidget.h"
+
 #include <QLabel>
+#include <QVBoxLayout>
 
 namespace QmlJSTools {
 

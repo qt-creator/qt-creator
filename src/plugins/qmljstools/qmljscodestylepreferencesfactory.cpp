@@ -24,11 +24,12 @@
 ****************************************************************************/
 
 #include "qmljscodestylepreferencesfactory.h"
-#include "qmljscodestylesettingspage.h"
-#include "qmljstoolsconstants.h"
-#include "qmljsindenter.h"
 
-#include <qmljscodestylepreferences.h>
+#include "qmljscodestylepreferences.h"
+#include "qmljscodestylesettingspage.h"
+#include "qmljsindenter.h"
+#include "qmljstoolsconstants.h"
+
 
 #include <qmljseditor/qmljseditorconstants.h>
 

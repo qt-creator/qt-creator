@@ -38,8 +38,6 @@ class QmlJSCodeStyleSettings;
 class QmlJSCodeStyleSettingsWidget;
 class QmlJSCodeStylePreferences;
 
-namespace Ui { class TabPreferencesWidget; }
-
 class QMLJSTOOLS_EXPORT QmlJSCodeStylePreferencesWidget : public QWidget
 {
     Q_OBJECT
