@@ -27,9 +27,9 @@
 
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/qtcprocess.h>
+#include <utils/runextensions.h>
 
 #include <QLoggingCategory>
-#include <QtConcurrent>
 
 #include <thread>
 
@@ -83,7 +83,7 @@ void DockerApi::checkCanConnect()
     m_dockerDaemonAvailable = nullopt;
     dockerDaemonAvailableChanged();
 
-    auto future = QtConcurrent::run(QThreadPool::globalInstance(), [lk = std::move(lk), this] {
+    auto future = Utils::runAsync([lk = std::move(lk), this] {
         m_dockerDaemonAvailable = canConnect();
         dockerDaemonAvailableChanged();
     });
