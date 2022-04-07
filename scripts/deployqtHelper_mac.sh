@@ -174,3 +174,19 @@ if [ ! -d "$app_path/Contents/Frameworks/QtCore.framework" ]; then
         "$clangbackendArgument" || exit 1
 
 fi
+
+# clean up after macdeployqt
+# it deploys some plugins (and libs for these) that interfere with what we want
+echo "Cleaning up after macdeployqt..."
+toRemove=(\
+    "Contents/PlugIns/tls/libqopensslbackend.dylib" \
+    "Contents/PlugIns/sqldrivers/libqsqlpsql.dylib" \
+    "Contents/PlugIns/sqldrivers/libqsqlodbc.dylib" \
+    "Contents/Frameworks/libpq.*dylib" \
+    "Contents/Frameworks/libssl.*dylib" \
+    "Contents/Frameworks/libcrypto.*dylib" \
+)
+for f in "${toRemove[@]}"; do
+    echo "- removing \"$app_path/$f\""
+    rm "$app_path"/$f 2> /dev/null; done
+exit 0
