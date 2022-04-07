@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "kitdetector.h"
+
 #include "dockerconstants.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -54,7 +55,8 @@ class KitDetectorPrivate
 
 public:
     KitDetectorPrivate(KitDetector *parent, const IDevice::ConstPtr &device)
-        : q(parent), m_device(device)
+        : q(parent)
+        , m_device(device)
     {}
 
     void autoDetect();
@@ -133,7 +135,7 @@ void KitDetectorPrivate::undoAutoDetect() const
         }
     };
 
-    if (QObject *cmakeManager = ExtensionSystem::PluginManager::getObjectByName("CMakeToolManager")) {
+    if (auto cmakeManager = ExtensionSystem::PluginManager::getObjectByName("CMakeToolManager")) {
         QString logMessage;
         const bool res = QMetaObject::invokeMethod(cmakeManager,
                                                    "removeDetectedCMake",
@@ -143,7 +145,7 @@ void KitDetectorPrivate::undoAutoDetect() const
         emit q->logOutput('\n' + logMessage);
     }
 
-    if (QObject *debuggerPlugin = ExtensionSystem::PluginManager::getObjectByName("DebuggerPlugin")) {
+    if (auto debuggerPlugin = ExtensionSystem::PluginManager::getObjectByName("DebuggerPlugin")) {
         QString logMessage;
         const bool res = QMetaObject::invokeMethod(debuggerPlugin,
                                                    "removeDetectedDebuggers",
@@ -164,21 +166,22 @@ void KitDetectorPrivate::listAutoDetected() const
     for (Kit *kit : KitManager::kits()) {
         if (kit->autoDetectionSource() == m_sharedId)
             emit q->logOutput(kit->displayName());
-    };
+    }
 
     emit q->logOutput('\n' + tr("Qt versions:"));
     for (QtVersion *qtVersion : QtVersionManager::versions()) {
         if (qtVersion->detectionSource() == m_sharedId)
             emit q->logOutput(qtVersion->displayName());
-    };
+    }
 
     emit q->logOutput('\n' + tr("Toolchains:"));
     for (ToolChain *toolChain : ToolChainManager::toolchains()) {
         if (toolChain->detectionSource() == m_sharedId)
             emit q->logOutput(toolChain->displayName());
-    };
+    }
 
-    if (QObject *cmakeManager = ExtensionSystem::PluginManager::getObjectByName("CMakeToolManager")) {
+    if (QObject *cmakeManager = ExtensionSystem::PluginManager::getObjectByName(
+            "CMakeToolManager")) {
         QString logMessage;
         const bool res = QMetaObject::invokeMethod(cmakeManager,
                                                    "listDetectedCMake",
@@ -188,7 +191,8 @@ void KitDetectorPrivate::listAutoDetected() const
         emit q->logOutput('\n' + logMessage);
     }
 
-    if (QObject *debuggerPlugin = ExtensionSystem::PluginManager::getObjectByName("DebuggerPlugin")) {
+    if (QObject *debuggerPlugin = ExtensionSystem::PluginManager::getObjectByName(
+            "DebuggerPlugin")) {
         QString logMessage;
         const bool res = QMetaObject::invokeMethod(debuggerPlugin,
                                                    "listDetectedDebuggers",
@@ -208,7 +212,10 @@ QtVersions KitDetectorPrivate::autoDetectQtVersions() const
     QString error;
 
     const auto handleQmake = [this, &qtVersions, &error](const FilePath &qmake) {
-        if (QtVersion *qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake, false, m_sharedId, &error)) {
+        if (QtVersion *qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake,
+                                                                                  false,
+                                                                                  m_sharedId,
+                                                                                  &error)) {
             qtVersions.append(qtVersion);
             QtVersionManager::addVersion(qtVersion);
             emit q->logOutput(tr("Found \"%1\"").arg(qtVersion->qmakeFilePath().toUserOutput()));
@@ -220,8 +227,10 @@ QtVersions KitDetectorPrivate::autoDetectQtVersions() const
 
     const QStringList candidates = {"qmake-qt6", "qmake-qt5", "qmake"};
     for (const FilePath &searchPath : m_searchPaths) {
-        searchPath.iterateDirectory(handleQmake, {candidates, QDir::Files | QDir::Executable,
-                                                  QDirIterator::Subdirectories});
+        searchPath.iterateDirectory(handleQmake,
+                                    {candidates,
+                                     QDir::Files | QDir::Executable,
+                                     QDirIterator::Subdirectories});
     }
 
     if (!error.isEmpty())
@@ -316,9 +325,9 @@ void KitDetectorPrivate::autoDetect()
             QtSupport::QtKitAspect::setQtVersion(k, qt);
         }
         Toolchains toolchainsToSet;
-        toolchainsToSet = ToolChainManager::toolchains([qt, this](const ToolChain *tc){
-             return tc->detectionSource() == m_sharedId
-                    && (!qt || qt->qtAbis().contains(tc->targetAbi()));
+        toolchainsToSet = ToolChainManager::toolchains([qt, this](const ToolChain *tc) {
+            return tc->detectionSource() == m_sharedId
+                   && (!qt || qt->qtAbis().contains(tc->targetAbi()));
         });
         for (ToolChain *toolChain : toolchainsToSet)
             ToolChainKitAspect::setToolChain(k, toolChain);
@@ -335,5 +344,5 @@ void KitDetectorPrivate::autoDetect()
     QApplication::restoreOverrideCursor();
 }
 
-} // Internal
-} // Docker
+} // namespace Internal
+} // namespace Docker

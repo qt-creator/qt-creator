@@ -92,20 +92,18 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         data.useLocalUidGid = on;
     });
 
-    m_pathsListLabel = new InfoLabel(tr("Paths to mount:"));
-    // FIXME: 8.0: use
-    //m_pathsListLabel->setToolTip(tr("Source directory list should not be empty"));
+    auto pathListLabel = new InfoLabel(tr("Paths to mount:"));
+    pathListLabel->setAdditionalToolTip(tr("Source directory list should not be empty."));
 
     m_pathsListEdit = new PathListEditor;
-    // FIXME: 8.0: use
-    //m_pathsListEdit->setPlaceholderText(tr("Host directories to mount into the container"));
+    m_pathsListEdit->setPlaceholderText(tr("Host directories to mount into the container"));
     m_pathsListEdit->setToolTip(tr("Maps paths in this list one-to-one to the "
                                    "docker container."));
     m_pathsListEdit->setPathList(data.mounts);
 
-    auto markupMounts = [this] {
+    auto markupMounts = [this, pathListLabel] {
         const bool isEmpty = m_pathsListEdit->pathList().isEmpty();
-        m_pathsListLabel->setType(isEmpty ? InfoLabel::Warning : InfoLabel::None);
+        pathListLabel->setType(isEmpty ? InfoLabel::Warning : InfoLabel::None);
     };
     markupMounts();
 
@@ -127,8 +125,8 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     searchDirsComboBox->addItem(tr("Search in Selected Directories"));
 
     auto searchDirsLineEdit = new FancyLineEdit;
-    // FIXME: 8.0: use
-    //searchDirsLineEdit->setPlaceholderText(tr("Semicolon-separated list of directories"));
+
+    searchDirsLineEdit->setPlaceholderText(tr("Semicolon-separated list of directories"));
     searchDirsLineEdit->setToolTip(
         tr("Select the paths in the docker image that should be scanned for kit entries."));
     searchDirsLineEdit->setHistoryCompleter("DockerMounts", true);
@@ -180,7 +178,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         daemonStateLabel, m_daemonReset, m_daemonState, Break(),
         m_runAsOutsideUser, Break(),
         Column {
-            m_pathsListLabel,
+            pathListLabel,
             m_pathsListEdit,
         }, Break(),
         Column {
