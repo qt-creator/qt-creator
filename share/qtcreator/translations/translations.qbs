@@ -3,6 +3,8 @@ import qbs 1.0
 Product {
     name: "Translations"
     type: "qm"
+    builtByDefault: false
+
     Depends { name: "Qt.core" }
     Depends { name: "qtc" }
 

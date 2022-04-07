@@ -69,6 +69,7 @@ public:
     bool showTemplateParameters: 1;
     bool showEnclosingTemplate: 1;
     bool includeWhiteSpaceInOperatorName: 1; /// "operator =()" vs "operator=()"
+    bool trailingReturnType: 1;
 
     int markedArgument;
     int markedArgumentBegin;

@@ -192,6 +192,7 @@ private slots:
     void testMoveFuncDefOutsideUnnamedTemplate();
     void testMoveFuncDefOutsideMemberFuncToCppStatic();
     void testMoveFuncDefOutsideMemberFuncToCppWithInlinePartOfName();
+    void testMoveFuncDefOutsideMixedQualifiers();
 
     void testMoveAllFuncDefOutsideMemberFuncToCpp();
     void testMoveAllFuncDefOutsideMemberFuncOutside();

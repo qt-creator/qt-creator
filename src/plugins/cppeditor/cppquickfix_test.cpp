@@ -6110,6 +6110,41 @@ void QuickfixTest::testMoveFuncDefOutsideMemberFuncToCppWithInlinePartOfName()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
+void QuickfixTest::testMoveFuncDefOutsideMixedQualifiers()
+{
+    QList<TestDocumentPtr> testDocuments;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = R"(
+struct Base {
+    virtual auto func() const && noexcept -> void = 0;
+};
+struct Derived : public Base {
+    auto @func() const && noexcept -> void override {}
+};)";
+    expected = R"(
+struct Base {
+    virtual auto func() const && noexcept -> void = 0;
+};
+struct Derived : public Base {
+    auto func() const && noexcept -> void override;
+};)";
+    testDocuments << CppTestDocument::create("file.h", original, expected);
+
+    // Source File
+    original = "#include \"file.h\"\n";
+    expected = R"DELIM(#include "file.h"
+
+auto Derived::func() const && noexcept -> void {}
+)DELIM";
+    testDocuments << CppTestDocument::create("file.cpp", original, expected);
+
+    MoveFuncDefOutside factory;
+    QuickFixOperationTest(testDocuments, &factory);
+}
+
 void QuickfixTest::testMoveFuncDefOutsideMemberFuncToCppInsideNS()
 {
     QList<TestDocumentPtr> testDocuments;

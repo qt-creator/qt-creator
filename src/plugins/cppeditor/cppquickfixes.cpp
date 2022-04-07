@@ -6234,6 +6234,13 @@ QString definitionSignature(const CppQuickFixInterface *assist,
     oo.showArgumentNames = true;
     oo.showEnclosingTemplate = true;
     oo.showTemplateParameters = true;
+    oo.trailingReturnType = functionDefinitionAST->declarator
+            && functionDefinitionAST->declarator->postfix_declarator_list
+            && functionDefinitionAST->declarator->postfix_declarator_list->value
+            && functionDefinitionAST->declarator->postfix_declarator_list
+                    ->value->asFunctionDeclarator()
+            && functionDefinitionAST->declarator->postfix_declarator_list
+                    ->value->asFunctionDeclarator()->trailing_return_type;
     const Name *name = func->name();
     if (name && nameIncludesOperatorName(name)) {
         CoreDeclaratorAST *coreDeclarator = functionDefinitionAST->declarator->core_declarator;

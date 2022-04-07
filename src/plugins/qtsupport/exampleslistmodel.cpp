@@ -555,6 +555,9 @@ void ExampleSetModel::updateQtVersionList()
             newQtVersion = findHighestQtVersion(versions);
         currentIndex = indexForQtVersion(newQtVersion);
     } // nothing to do for extra example sets
+    // Make sure to select something even if the above failed
+    if (currentIndex < 0 && rowCount() > 0)
+        currentIndex = 0; // simply select first
     selectExampleSet(currentIndex);
     emit selectedExampleSetChanged(currentIndex);
 }

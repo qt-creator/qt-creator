@@ -204,7 +204,7 @@ bool ListModelFilter::filterAcceptsRow(int sourceRow, const QModelIndex &sourceP
 
     if (!m_filterTags.isEmpty()) {
         return Utils::allOf(m_filterTags, [&item](const QString &filterTag) {
-            return item->tags.contains(filterTag);
+            return item->tags.contains(filterTag, Qt::CaseInsensitive);
         });
     }
 
@@ -214,7 +214,9 @@ bool ListModelFilter::filterAcceptsRow(int sourceRow, const QModelIndex &sourceP
             wordMatch |= bool(item->name.contains(subString, Qt::CaseInsensitive));
             if (wordMatch)
                 continue;
-            const auto subMatch = [&subString](const QString &elem) { return elem.contains(subString); };
+            const auto subMatch = [&subString](const QString &elem) {
+                return elem.contains(subString, Qt::CaseInsensitive);
+            };
             wordMatch |= Utils::contains(item->tags, subMatch);
             if (wordMatch)
                 continue;
