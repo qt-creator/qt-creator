@@ -14,7 +14,6 @@ Project {
         "proparser/testreader.qbs",
         "shootout/shootout.qbs",
         "ssh/shell/shell.qbs",
-        "ssh/sftpfsmodel/sftpfsmodel.qbs",
         "widgets/widgets.qbs",
     ]
 }
