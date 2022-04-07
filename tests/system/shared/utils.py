@@ -238,41 +238,29 @@ def selectFromFileDialog(fileName, waitForFile=False, ignoreFinalSnooze=False):
             test.log("Closing active popup widget")
             QApplication.activePopupWidget().close()
 
-    if platform.system() == "Darwin":
+    fName = os.path.basename(os.path.abspath(fileName))
+    pName = os.path.dirname(os.path.abspath(fileName)) + os.sep
+    try:
+        waitForObject("{name='QFileDialog' type='QFileDialog' visible='1'}", 5000)
+        pathLine = waitForObject("{name='fileNameEdit' type='QLineEdit' visible='1'}")
+        replaceEditorContent(pathLine, pName)
         snooze(1)
-        nativeType("<Command+Shift+g>")
+        clickButton(waitForObject("{text='Open' type='QPushButton'}"))
+        waitFor("str(pathLine.text)==''")
+        replaceEditorContent(pathLine, fName)
         snooze(1)
-        nativeType(fileName)
-        snooze(2)
-        nativeType("<Return>")
-        snooze(3)
+        __closePopupIfNecessary__()
+        clickButton(waitForObject("{text='Open' type='QPushButton'}"))
+    except:
+        nativeType("<Ctrl+a>")
+        nativeType("<Delete>")
+        nativeType(pName + fName)
+        seconds = len(pName + fName) / 20
+        test.log("Using snooze(%d) [problems with event processing of nativeType()]" % seconds)
+        snooze(seconds)
         nativeType("<Return>")
         if not ignoreFinalSnooze:
-            snooze(1)
-    else:
-        fName = os.path.basename(os.path.abspath(fileName))
-        pName = os.path.dirname(os.path.abspath(fileName)) + os.sep
-        try:
-            waitForObject("{name='QFileDialog' type='QFileDialog' visible='1'}", 5000)
-            pathLine = waitForObject("{name='fileNameEdit' type='QLineEdit' visible='1'}")
-            replaceEditorContent(pathLine, pName)
-            snooze(1)
-            clickButton(waitForObject("{text='Open' type='QPushButton'}"))
-            waitFor("str(pathLine.text)==''")
-            replaceEditorContent(pathLine, fName)
-            snooze(1)
-            __closePopupIfNecessary__()
-            clickButton(waitForObject("{text='Open' type='QPushButton'}"))
-        except:
-            nativeType("<Ctrl+a>")
-            nativeType("<Delete>")
-            nativeType(pName + fName)
-            seconds = len(pName + fName) / 20
-            test.log("Using snooze(%d) [problems with event processing of nativeType()]" % seconds)
-            snooze(seconds)
-            nativeType("<Return>")
-            if not ignoreFinalSnooze:
-                snooze(3)
+            snooze(3)
     if waitForFile:
         fileCombo = waitForObject(":Qt Creator_FilenameQComboBox")
         if not waitFor("str(fileCombo.currentText) in fileName", 5000):
