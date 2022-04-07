@@ -239,21 +239,33 @@
 
     \include creator-python-project.qdocinc python project wizards
 
-    \section1 Displaying Additional File Types in Projects View
+    \section1 Specifying Project Contents
+
+    A project can contain files that should be:
+
+    \list
+        \li Compiled or otherwise handled by the build
+        \li Installed
+        \li Not installed, but included in a source package created with
+            \c {make dist}
+        \li Not installed, nor be part of a source package, but still be known
+            to \QC
+    \endlist
 
     \QC displays all files that are declared to be part of the project by the
     project files in the \l Projects view. The files are sorted into categories
     by file type (.cpp, .h, .qrc, and so on). To display additional files, edit
-    the project file.
+    the project file. Alternatively, you can see all the files in a project
+    directory in the \l {File System} view.
 
-    Alternatively, you can see all the files in a project in the
-    \l {File System} view.
+    Declaring files as a part of the project also makes them visible to the
+    \l{Searching with the Locator}{locator} and \l{Advanced Search}
+    {project-wide search}.
 
     \section2 CMake Projects
 
-    When using CMake, you can specify additional files to display in the
-    \uicontrol Projects view by either adding them as sources or installing
-    them.
+    When using CMake, you can specify additional files for a project by either
+    adding them as sources or installing them.
 
     In the CMakeLists.txt file, define the files as values of the
     \l{CMake: target_sources command}{target_sources} command using
@@ -273,11 +285,17 @@
 
     \section2 qmake Projects
 
-    When using qmake, add filenames as values of the \c {DISTFILES} variable
-    in the .pro file. You can also use wildcards.
+    Use the following variables in the .pro file:
 
-    For example, the following value specifies that text files are part of the
-    project:
+    \list
+        \li \c SOURCES and \c HEADERS for files to compile
+        \li \c INSTALLS for files to install
+        \li \c DISTFILES for files to include in a source package
+        \li \c OTHER_FILES for files to manage with \QC without
+            installing them or including them in source packages
+    \endlist
+
+    For example, the following value includes text files in the source package:
 
     \badcode
 
