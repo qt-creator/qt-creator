@@ -34,6 +34,8 @@
 namespace Python {
 namespace Internal {
 
+class PipPackageInfo;
+
 class PipPackage
 {
 public:
@@ -47,6 +49,26 @@ public:
     QString packageName;
     QString displayName;
     QString version;
+
+    PipPackageInfo info(const Utils::FilePath &python) const;
+};
+
+class PipPackageInfo
+{
+public:
+    QString name;
+    QString version;
+    QString summary;
+    QUrl homePage;
+    QString author;
+    QString authorEmail;
+    QString license;
+    Utils::FilePath location;
+    QStringList requiresPackage;
+    QStringList requiredByPackage;
+    Utils::FilePaths files;
+
+    void parseField(const QString &field, const QStringList &value);
 };
 
 class PipInstallTask : public QObject

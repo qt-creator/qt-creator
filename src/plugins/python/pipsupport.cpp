@@ -127,5 +127,67 @@ void PipInstallTask::handleError()
         Core::MessageManager::writeSilently(stdErr);
 }
 
+PipPackageInfo PipPackage::info(const Utils::FilePath &python) const
+{
+    PipPackageInfo result;
+
+    QtcProcess pip;
+    pip.setCommand(CommandLine(python, {"-m", "pip", "show", "-f", packageName}));
+    pip.runBlocking();
+    QString fieldName;
+    QStringList data;
+    const QString pipOutput = pip.allOutput();
+    for (const QString &line : pipOutput.split('\n')) {
+        if (line.isEmpty())
+            continue;
+        if (line.front().isSpace()) {
+            data.append(line.trimmed());
+        } else {
+            result.parseField(fieldName, data);
+            if (auto colonPos = line.indexOf(':'); colonPos >= 0) {
+                fieldName = line.left(colonPos);
+                data = QStringList(line.mid(colonPos + 1).trimmed());
+            } else {
+                fieldName.clear();
+                data.clear();
+            }
+        }
+    }
+    result.parseField(fieldName, data);
+    return result;
+}
+
+void PipPackageInfo::parseField(const QString &field, const QStringList &data)
+{
+    if (field.isEmpty())
+        return;
+    if (field == "Name") {
+        name = data.value(0);
+    } else if (field == "Version") {
+        version = data.value(0);
+    } else if (field == "Summary") {
+        summary = data.value(0);
+    } else if (field == "Home-page") {
+        homePage = QUrl(data.value(0));
+    } else if (field == "Author") {
+        author = data.value(0);
+    } else if (field == "Author-email") {
+        authorEmail = data.value(0);
+    } else if (field == "License") {
+        license = data.value(0);
+    } else if (field == "Location") {
+        location = FilePath::fromUserInput(data.value(0)).normalizedPathName();
+    } else if (field == "Requires") {
+        requiresPackage = data.value(0).split(',', Qt::SkipEmptyParts);
+    } else if (field == "Required-by") {
+        requiredByPackage = data.value(0).split(',', Qt::SkipEmptyParts);
+    } else if (field == "Files") {
+        for (const QString &fileName : data) {
+            if (!fileName.isEmpty())
+                files.append(FilePath::fromUserInput(fileName.trimmed()));
+        }
+    }
+}
+
 } // namespace Internal
 } // namespace Python
