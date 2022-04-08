@@ -2735,7 +2735,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                 // The callable is never displayed as an output parameter.
                 // TODO: A good argument can be made to display objects on which a non-const
                 //       operator or function is called as output parameters.
-                if (children.at(1).range() == range)
+                if (children.at(1).range().contains(range))
                     return false;
 
                 QList<AstNode> firstChildTree{children.first()};

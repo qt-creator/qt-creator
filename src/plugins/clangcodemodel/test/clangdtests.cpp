@@ -1321,6 +1321,8 @@ void ClangdTestHighlighting::test_data()
                                                   << QList<int>{C_FIELD} << 0;
     QTest::newRow("member call on dependent (3)") << 999 << 9 << 999 << 12
                                                   << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("member access via operator->") << 1009 << 7 << 1009 << 21
+                                                  << QList<int>{C_FIELD} << 0;
 }
 
 void ClangdTestHighlighting::test()

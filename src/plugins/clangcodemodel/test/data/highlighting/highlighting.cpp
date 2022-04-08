@@ -999,3 +999,12 @@ public:
         ptr->bar();
     }
 };
+
+namespace std { template<typename T> struct optional { T* operator->(); }; }
+struct structWithData { int value; };
+struct structWithOptional { std::optional<structWithData> opt_my_struct1; };
+
+void foo(structWithOptional & s)
+{
+    s.opt_my_struct1->value = 5;
+}
