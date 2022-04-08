@@ -33,6 +33,7 @@
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
+#include "sanitizerparser.h"
 #include "target.h"
 
 #include <utils/algorithm.h>
@@ -283,6 +284,7 @@ void BuildStep::setupOutputFormatter(OutputFormatter *formatter)
                 formatter->addLineParser(parser);
         }
 
+        formatter->addLineParser(new Internal::SanitizerParser);
         formatter->setForwardStdOutToStdError(buildConfiguration()->parseStdOut());
     }
     Utils::FileInProjectFinder fileFinder;

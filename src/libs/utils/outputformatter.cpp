@@ -185,6 +185,15 @@ void OutputLineParser::addLinkSpecForAbsoluteFilePath(OutputLineParser::LinkSpec
                                    match.capturedLength(capName));
 }
 
+bool Utils::OutputLineParser::fileExists(const FilePath &fp) const
+{
+#ifdef WITH_TESTS
+    if (d->skipFileExistsCheck)
+        return !fp.isEmpty();
+#endif
+    return fp.exists();
+}
+
 QString OutputLineParser::rightTrimmed(const QString &in)
 {
     int pos = in.length();

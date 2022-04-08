@@ -154,6 +154,7 @@ add_qtc_plugin(ProjectExplorer
     runconfigurationaspects.cpp runconfigurationaspects.h
     runcontrol.cpp runcontrol.h
     runsettingspropertiespage.cpp runsettingspropertiespage.h
+    sanitizerparser.cpp sanitizerparser.h
     selectablefilesmodel.cpp selectablefilesmodel.h
     session.cpp session.h
     sessiondialog.cpp sessiondialog.h sessiondialog.ui

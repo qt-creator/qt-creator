@@ -132,6 +132,7 @@ Project {
                 "runcontrol.cpp", "runcontrol.h",
                 "runconfigurationaspects.cpp", "runconfigurationaspects.h",
                 "runsettingspropertiespage.cpp", "runsettingspropertiespage.h",
+                "sanitizerparser.cpp", "sanitizerparser.h",
                 "selectablefilesmodel.cpp", "selectablefilesmodel.h",
                 "session.cpp", "session.h",
                 "sessionmodel.cpp", "sessionmodel.h",

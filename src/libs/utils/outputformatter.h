@@ -115,6 +115,7 @@ protected:
     static void addLinkSpecForAbsoluteFilePath(LinkSpecs &linkSpecs, const FilePath &filePath,
                                                int lineNo, const QRegularExpressionMatch &match,
                                                const QString &capName);
+    bool fileExists(const Utils::FilePath &fp) const;
 
 signals:
     void newSearchDirFound(const Utils::FilePath &dir);

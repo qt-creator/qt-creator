@@ -60,6 +60,8 @@ void OutputParserTester::testParsing(const QString &lines,
                                      const QString &childStdErrLines,
                                      const QString &outputLines)
 {
+    for (Utils::OutputLineParser * const parser : lineParsers())
+        parser->skipFileExistsCheck();
     const auto terminator = new TestTerminator(this);
     if (!lineParsers().isEmpty())
         terminator->setRedirectionDetector(lineParsers().constLast());

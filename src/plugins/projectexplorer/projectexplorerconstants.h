@@ -131,6 +131,7 @@ const char TASK_CATEGORY_COMPILE[] = "Task.Category.Compile";
 const char TASK_CATEGORY_BUILDSYSTEM[] = "Task.Category.Buildsystem";
 const char TASK_CATEGORY_DEPLOYMENT[] = "Task.Category.Deploy";
 const char TASK_CATEGORY_AUTOTEST[] = "Task.Category.Autotest";
+const char TASK_CATEGORY_SANITIZER[] = "Task.Category.Analyzer";
 
 // Wizard categories
 const char QT_PROJECT_WIZARD_CATEGORY[] = "H.Project";

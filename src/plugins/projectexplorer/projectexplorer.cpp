@@ -87,6 +87,7 @@
 #include "removetaskhandler.h"
 #include "runconfigurationaspects.h"
 #include "runsettingspropertiespage.h"
+#include "sanitizerparser.h"
 #include "selectablefilesmodel.h"
 #include "session.h"
 #include "sessiondialog.h"
@@ -736,6 +737,7 @@ public:
          cmakeRunConfigFactory.runConfigurationId()}
     };
 
+    SanitizerOutputFormatterFactory sanitizerFormatterFactory;
 };
 
 static ProjectExplorerPlugin *m_instance = nullptr;
@@ -2246,6 +2248,8 @@ void ProjectExplorerPlugin::extensionsInitialized()
     dd->m_projectFilterString = filterStrings.join(filterSeparator);
 
     BuildManager::extensionsInitialized();
+    TaskHub::addCategory(Constants::TASK_CATEGORY_SANITIZER,
+                         tr("Sanitizer", "Category for sanitizer issues listed under 'Issues'"));
 
     QSsh::SshSettings::loadSettings(Core::ICore::settings());
     const auto searchPathRetriever = [] {
@@ -2316,6 +2320,11 @@ ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
     dd->m_outputPane.closeTabs(AppOutputPane::CloseTabNoPrompt /* No prompt any more */);
     dd->m_shutdownWatchDogId = dd->startTimer(10 * 1000); // Make sure we shutdown *somehow*
     return AsynchronousShutdown;
+}
+
+QVector<QObject *> ProjectExplorerPlugin::createTestObjects() const
+{
+    return SanitizerParser::createTestObjects();
 }
 
 void ProjectExplorerPlugin::showSessionManager()
