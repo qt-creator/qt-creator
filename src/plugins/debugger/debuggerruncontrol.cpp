@@ -574,10 +574,8 @@ void DebuggerRunTool::start()
     ++d->engineStopsNeeded;
 
     connect(m_engine, &DebuggerEngine::attachToCoreRequested, this, [this](const QString &coreFile) {
-        auto runConfig = runControl()->runConfiguration();
-        QTC_ASSERT(runConfig, return);
         auto rc = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-        rc->setRunConfiguration(runConfig);
+        rc->copyFromRunControl(runControl());
         auto name = QString(tr("%1 - Snapshot %2").arg(runControl()->displayName()).arg(++d->snapshotCounter));
         auto debugger = new DebuggerRunTool(rc);
         debugger->setStartMode(AttachToCore);

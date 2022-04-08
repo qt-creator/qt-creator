@@ -275,10 +275,12 @@ QMap<Utils::Id, QVariantMap> RunConfiguration::settingsData() const
     return data;
 }
 
-void RunConfiguration::storeAspectData(AspectContainerData *storage) const
+AspectContainerData RunConfiguration::aspectData() const
 {
+    AspectContainerData data;
     for (BaseAspect *aspect : m_aspects)
-        storage->append(aspect->extractData(&m_expander));
+        data.append(aspect->extractData(&m_expander));
+    return data;
 }
 
 BuildSystem *RunConfiguration::activeBuildSystem() const

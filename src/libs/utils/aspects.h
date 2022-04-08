@@ -150,19 +150,38 @@ public:
 
         Utils::Id id() const { return m_id; }
         ClassId classId() const { return m_classId; }
+        Data *clone() const { return m_cloner(this); }
 
         QVariant value;
+
+        class Ptr {
+        public:
+            Ptr() = default;
+            explicit Ptr(const Data *data) : m_data(data) {}
+            Ptr(const Ptr &other) { m_data = other.m_data->clone(); }
+            ~Ptr() { delete m_data; }
+
+            void operator=(const Ptr &other);
+            void assign(const Data *other) { delete m_data; m_data = other; }
+
+            const Data *get() const { return m_data; }
+
+        private:
+            const Data *m_data = nullptr;
+        };
 
     protected:
         friend class BaseAspect;
         Utils::Id m_id;
         ClassId m_classId = 0;
+        std::function<Data *(const Data *)> m_cloner;
     };
 
     using DataCreator = std::function<Data *()>;
+    using DataCloner = std::function<Data *(const Data *)>;
     using DataExtractor = std::function<void(Data *data, const MacroExpander *expander)>;
 
-    Data *extractData(const MacroExpander *expander) const;
+    Data::Ptr extractData(const MacroExpander *expander) const;
 
 signals:
     void changed();
@@ -174,13 +193,19 @@ protected:
     void addLabeledItem(LayoutBuilder &builder, QWidget *widget);
 
     void setDataCreatorHelper(const DataCreator &creator) const;
+    void setDataClonerHelper(const DataCloner &cloner) const;
     void addDataExtractorHelper(const DataExtractor &extractor) const;
 
     template <typename AspectClass, typename DataClass, typename Type>
     void addDataExtractor(AspectClass *aspect,
                           Type(AspectClass::*p)() const,
                           Type DataClass::*q) {
-        setDataCreatorHelper([] { return new DataClass; });
+        setDataCreatorHelper([] {
+            return new DataClass;
+        });
+        setDataClonerHelper([](const Data *data) {
+            return new DataClass(*static_cast<const DataClass *>(data));
+        });
         addDataExtractorHelper([aspect, p, q](Data *data, const MacroExpander *) {
             static_cast<DataClass *>(data)->*q = (aspect->*p)();
         });
@@ -190,7 +215,12 @@ protected:
     void addDataExtractor(AspectClass *aspect,
                           Type(AspectClass::*p)(const MacroExpander *) const,
                           Type DataClass::*q) {
-        setDataCreatorHelper([] { return new DataClass; });
+        setDataCreatorHelper([] {
+            return new DataClass;
+        });
+        setDataClonerHelper([](const Data *data) {
+            return new DataClass(*static_cast<const DataClass *>(data));
+        });
         addDataExtractorHelper([aspect, p, q](Data *data, const MacroExpander *expander) {
             static_cast<DataClass *>(data)->*q = (aspect->*p)(expander);
         });
@@ -563,23 +593,19 @@ class QTCREATOR_UTILS_EXPORT AspectContainerData
 {
 public:
     AspectContainerData() = default;
-    ~AspectContainerData() { qDeleteAll(m_data); }
 
     const BaseAspect::Data *aspect(Utils::Id instanceId) const;
     const BaseAspect::Data *aspect(Utils::BaseAspect::Data::ClassId classId) const;
+
+    void append(const BaseAspect::Data::Ptr &data);
 
     template <typename T> const typename T::Data *aspect() const
     {
         return static_cast<const typename T::Data *>(aspect(&T::staticMetaObject));
     }
 
-    void append(BaseAspect::Data *data) { m_data.append(data); }
-
 private:
-    AspectContainerData(const AspectContainerData &) = delete;
-    void operator=(const AspectContainerData &) = delete;
-
-    QList<BaseAspect::Data *> m_data;
+    QList<BaseAspect::Data::Ptr> m_data; // Owned.
 };
 
 class QTCREATOR_UTILS_EXPORT AspectContainer : public QObject

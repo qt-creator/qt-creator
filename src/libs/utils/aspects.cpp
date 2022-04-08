@@ -84,6 +84,7 @@ public:
     QList<QPointer<QWidget>> m_subWidgets;
 
     BaseAspect::DataCreator m_dataCreator;
+    BaseAspect::DataCloner m_dataCloner;
     QList<BaseAspect::DataExtractor> m_dataExtractors;
 };
 
@@ -2390,15 +2391,16 @@ void AspectContainer::forEachAspect(const std::function<void(BaseAspect *)> &run
     }
 }
 
-BaseAspect::Data *BaseAspect::extractData(const MacroExpander *expander) const
+BaseAspect::Data::Ptr BaseAspect::extractData(const MacroExpander *expander) const
 {
-    QTC_ASSERT(d->m_dataCreator, return nullptr);
+    QTC_ASSERT(d->m_dataCreator, return {});
     Data *data = d->m_dataCreator();
     data->m_classId = metaObject();
     data->m_id = id();
+    data->m_cloner = d->m_dataCloner;
     for (const DataExtractor &extractor : d->m_dataExtractors)
         extractor(data, expander);
-    return data;
+    return Data::Ptr(data);
 }
 
 void BaseAspect::addDataExtractorHelper(const DataExtractor &extractor) const
@@ -2411,22 +2413,40 @@ void BaseAspect::setDataCreatorHelper(const DataCreator &creator) const
     d->m_dataCreator = creator;
 }
 
+void BaseAspect::setDataClonerHelper(const DataCloner &cloner) const
+{
+    d->m_dataCloner = cloner;
+}
+
 const BaseAspect::Data *AspectContainerData::aspect(Id instanceId) const
 {
-    for (const BaseAspect::Data *data : m_data) {
-        if (data->id() == instanceId)
-            return data;
+    for (const BaseAspect::Data::Ptr &data : m_data) {
+        if (data.get()->id() == instanceId)
+            return data.get();
     }
     return nullptr;
 }
 
 const BaseAspect::Data *AspectContainerData::aspect(BaseAspect::Data::ClassId classId) const
 {
-    for (const BaseAspect::Data *data : m_data) {
-        if (data->classId() == classId)
-            return data;
+    for (const BaseAspect::Data::Ptr &data : m_data) {
+        if (data.get()->classId() == classId)
+            return data.get();
     }
     return nullptr;
+}
+
+void AspectContainerData::append(const BaseAspect::Data::Ptr &data)
+{
+    m_data.append(data);
+}
+
+void BaseAspect::Data::Ptr::operator=(const Ptr &other)
+{
+    if (this == &other)
+        return;
+    delete m_data;
+    m_data = other.m_data->clone();
 }
 
 } // namespace Utils

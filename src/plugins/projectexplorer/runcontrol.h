@@ -197,6 +197,8 @@ public:
     void setTarget(Target *target);
     void setKit(Kit *kit);
 
+    void copyFromRunControl(RunControl *runControl);
+
     void initiateStart();
     void initiateReStart();
     void initiateStop();

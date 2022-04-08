@@ -169,7 +169,7 @@ public:
     }
 
     QMap<Utils::Id, QVariantMap> settingsData() const; // FIXME: Merge into aspectData?
-    void storeAspectData(Utils::AspectContainerData *storage) const;
+    Utils::AspectContainerData aspectData() const;
 
     void update();
 
