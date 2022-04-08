@@ -24,6 +24,7 @@ Project {
         "toolchaincache/toolchaincache.qbs",
         "tracing/tracing.qbs",
         "treeviewfind/treeviewfind.qbs",
+        "updateinfo/updateinfo.qbs",
         "utils/utils.qbs",
         "valgrind/valgrind.qbs",
     ].concat(project.additionalAutotests)
