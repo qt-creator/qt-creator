@@ -41,7 +41,6 @@ public:
 private:
     bool formatCodeInsteadOfIndent() const override;
     bool formatWhileTyping() const override;
-    clang::format::FormatStyle styleForFile() const override;
     int lastSaveRevision() const override;
 };
 

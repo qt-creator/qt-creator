@@ -52,7 +52,7 @@ public:
     ClangFormatExtendedTestIndenter(QTextDocument *doc) : ClangFormatTestIndenter(doc) {}
 
 private:
-    bool formatWhileTyping() const override { return true; }
+    bool formatCodeInsteadOfIndent() const override { return true; }
 };
 
 ClangFormatTest::ClangFormatTest()

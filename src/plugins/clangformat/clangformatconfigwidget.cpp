@@ -113,11 +113,8 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
     m_ui->setupUi(this);
     setEnabled(!codeStyle->isReadOnly());
 
-    Utils::FilePath filePath = Core::ICore::userResourcePath();
-    filePath = filePath / "clang-format/"
-               / Utils::FileUtils::fileSystemFriendlyName(codeStyle->displayName())
-               / QLatin1String(Constants::SETTINGS_FILE_NAME);
-    m_config = std::make_unique<ClangFormatFile>(filePath, codeStyle->isReadOnly());
+    m_config = std::make_unique<ClangFormatFile>(filePathToCurrentSettings(codeStyle),
+                                                 codeStyle->isReadOnly());
 
     initChecksAndPreview();
     showCombobox();

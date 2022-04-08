@@ -68,8 +68,9 @@ public:
 
     Utils::optional<int> margin() const override;
 
+    clang::format::FormatStyle styleForFile() const;
+
 protected:
-    virtual clang::format::FormatStyle styleForFile() const;
     virtual bool formatCodeInsteadOfIndent() const { return false; }
     virtual bool formatWhileTyping() const { return false; }
     virtual int lastSaveRevision() const { return 0; }

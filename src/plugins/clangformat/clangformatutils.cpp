@@ -30,7 +30,9 @@
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cppcodestylesettings.h>
+#include <texteditor/icodestylepreferences.h>
 #include <texteditor/tabsettings.h>
+#include <texteditor/texteditorsettings.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
@@ -208,6 +210,7 @@ void saveStyleToFile(clang::format::FormatStyle style, Utils::FilePath filePath)
     const int pos = styleStr.find("# BasedOnStyle");
     if (pos != int(std::string::npos))
         styleStr.erase(pos, 2);
+    styleStr.append("\n");
     filePath.writeFileContents(QByteArray::fromStdString(styleStr));
 }
 
@@ -380,6 +383,13 @@ void addQtcStatementMacros(clang::format::FormatStyle &style)
             == style.StatementMacros.end())
             style.StatementMacros.emplace_back(macro);
     }
+}
+
+Utils::FilePath filePathToCurrentSettings(const TextEditor::ICodeStylePreferences *codeStyle)
+{
+    return Core::ICore::userResourcePath() / "clang-format/"
+           / Utils::FileUtils::fileSystemFriendlyName(codeStyle->displayName())
+           / QLatin1String(Constants::SETTINGS_FILE_NAME);
 }
 
 std::string readFile(const QString &path)

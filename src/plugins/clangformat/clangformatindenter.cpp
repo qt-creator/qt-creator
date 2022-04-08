@@ -40,11 +40,6 @@ ClangFormatIndenter::ClangFormatIndenter(QTextDocument *doc)
     : ClangFormatBaseIndenter(doc)
 {}
 
-FormatStyle ClangFormatIndenter::styleForFile() const
-{
-    return ClangFormat::styleForFile(m_fileName);
-}
-
 bool ClangFormatIndenter::formatCodeInsteadOfIndent() const
 {
     return ClangFormatSettings::instance().formatCodeInsteadOfIndent();

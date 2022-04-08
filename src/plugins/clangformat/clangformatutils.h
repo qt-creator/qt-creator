@@ -34,6 +34,7 @@
 
 #include <fstream>
 
+namespace TextEditor { class ICodeStylePreferences; }
 namespace ClangFormat {
 
 // Creates the style for the current project or the global style if needed.
@@ -55,4 +56,6 @@ void saveStyleToFile(clang::format::FormatStyle style, Utils::FilePath filePath)
 
 void addQtcStatementMacros(clang::format::FormatStyle &style);
 clang::format::FormatStyle qtcStyle();
+
+Utils::FilePath filePathToCurrentSettings(const TextEditor::ICodeStylePreferences *codeStyle);
 }

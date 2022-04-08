@@ -24,7 +24,11 @@
 ****************************************************************************/
 
 #include "clangformatbaseindenter.h"
+#include "clangformatconstants.h"
 #include "clangformatutils.h"
+#include <coreplugin/icore.h>
+#include <texteditor/texteditorsettings.h>
+#include <texteditor/icodestylepreferences.h>
 
 #include <clang/Tooling/Core/Replacement.h>
 
@@ -728,8 +732,22 @@ void ClangFormatBaseIndenter::autoIndent(const QTextCursor &cursor,
 clang::format::FormatStyle ClangFormatBaseIndenter::styleForFile() const
 {
     llvm::Expected<clang::format::FormatStyle> style
-        = clang::format::getStyle("file", m_fileName.toString().toStdString(), "none");
+        = clang::format::getStyle("file", m_fileName.path().toStdString(), "none");
+
     if (style) {
+        if (*style == clang::format::getNoStyle()) {
+            Utils::FilePath filePath = filePathToCurrentSettings(
+                TextEditor::TextEditorSettings::codeStyle("Cpp")->currentPreferences());
+
+            clang::format::FormatStyle style;
+            style.Language = clang::format::FormatStyle::LK_Cpp;
+            const std::error_code error
+                = clang::format::parseConfiguration(filePath.fileContents().toStdString(), &style);
+            QTC_ASSERT(error.value() == static_cast<int>(clang::format::ParseError::Success),
+                       return qtcStyle());
+
+            return style;
+        }
         addQtcStatementMacros(*style);
         return *style;
     }
