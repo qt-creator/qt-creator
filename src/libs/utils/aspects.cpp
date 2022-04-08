@@ -82,6 +82,9 @@ public:
     int m_spanY = 1;
     BaseAspect::ConfigWidgetCreator m_configWidgetCreator;
     QList<QPointer<QWidget>> m_subWidgets;
+
+    BaseAspect::DataCreator m_dataCreator;
+    QList<BaseAspect::DataExtractor> m_dataExtractors;
 };
 
 } // Internal
@@ -110,7 +113,9 @@ public:
 */
 BaseAspect::BaseAspect()
     : d(new Internal::BaseAspectPrivate)
-{}
+{
+    addDataExtractor(this, &BaseAspect::value, &Data::value);
+}
 
 /*!
     Destructs a BaseAspect.
@@ -772,6 +777,9 @@ StringAspect::StringAspect()
 {
     setDefaultValue(QString());
     setSpan(2, 1); // Default: Label + something
+
+    addDataExtractor(this, &StringAspect::value, &Data::value);
+    addDataExtractor(this, &StringAspect::filePath, &Data::filePath);
 }
 
 /*!
@@ -1293,6 +1301,8 @@ BoolAspect::BoolAspect(const QString &settingsKey)
     setDefaultValue(false);
     setSettingsKey(settingsKey);
     setSpan(2, 1);
+
+    addDataExtractor(this, &BoolAspect::value, &Data::value);
 }
 
 /*!
@@ -1747,6 +1757,8 @@ IntegerAspect::IntegerAspect()
 {
     setDefaultValue(qint64(0));
     setSpan(2, 1);
+
+    addDataExtractor(this, &IntegerAspect::value, &Data::value);
 }
 
 /*!
@@ -2376,6 +2388,45 @@ void AspectContainer::forEachAspect(const std::function<void(BaseAspect *)> &run
         else
             run(aspect);
     }
+}
+
+BaseAspect::Data *BaseAspect::extractData(const MacroExpander *expander) const
+{
+    QTC_ASSERT(d->m_dataCreator, return nullptr);
+    Data *data = d->m_dataCreator();
+    data->m_classId = metaObject();
+    data->m_id = id();
+    for (const DataExtractor &extractor : d->m_dataExtractors)
+        extractor(data, expander);
+    return data;
+}
+
+void BaseAspect::addDataExtractorHelper(const DataExtractor &extractor) const
+{
+    d->m_dataExtractors.append(extractor);
+}
+
+void BaseAspect::setDataCreatorHelper(const DataCreator &creator) const
+{
+    d->m_dataCreator = creator;
+}
+
+const BaseAspect::Data *AspectContainerData::aspect(Id instanceId) const
+{
+    for (const BaseAspect::Data *data : m_data) {
+        if (data->id() == instanceId)
+            return data;
+    }
+    return nullptr;
+}
+
+const BaseAspect::Data *AspectContainerData::aspect(BaseAspect::Data::ClassId classId) const
+{
+    for (const BaseAspect::Data *data : m_data) {
+        if (data->classId() == classId)
+            return data;
+    }
+    return nullptr;
 }
 
 } // namespace Utils

@@ -89,6 +89,8 @@ WebBrowserSelectionAspect::WebBrowserSelectionAspect(ProjectExplorer::Target *ta
     setDisplayName(tr("Web Browser"));
     setId("WebBrowserAspect");
     setSettingsKey("RunConfiguration.WebBrowser");
+
+    addDataExtractor(this, &WebBrowserSelectionAspect::currentBrowser, &Data::currentBrowser);
 }
 
 void WebBrowserSelectionAspect::addToLayout(LayoutBuilder &builder)

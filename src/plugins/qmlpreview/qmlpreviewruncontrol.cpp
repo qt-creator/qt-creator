@@ -134,8 +134,8 @@ LocalQmlPreviewSupport::LocalQmlPreviewSupport(ProjectExplorer::RunControl *runC
         const auto *qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(currentTarget->buildSystem());
 
         if (const auto aspect = runControl->aspect<QmlProjectManager::QmlMainFileAspect>()) {
-            const QString mainScript = aspect->mainScript();
-            const QString currentFile = aspect->currentFile();
+            const QString mainScript = aspect->mainScript;
+            const QString currentFile = aspect->currentFile;
 
             const QString mainScriptFromProject = qmlBuildSystem->targetFile(
                 Utils::FilePath::fromString(mainScript)).toString();

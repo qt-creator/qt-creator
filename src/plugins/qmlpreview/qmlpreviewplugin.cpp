@@ -449,7 +449,8 @@ void QmlPreviewPluginPrivate::setDirty()
 void QmlPreviewPluginPrivate::addPreview(ProjectExplorer::RunControl *preview)
 {
     m_runningPreviews.append(preview);
-    if (auto multiLanguageAspect = preview->aspect<QmlProjectManager::QmlMultiLanguageAspect>()) {
+    if (auto multiLanguageAspect =
+            preview->runConfiguration()->aspect<QmlProjectManager::QmlMultiLanguageAspect>()) {
         connect(multiLanguageAspect, &QmlProjectManager::QmlMultiLanguageAspect::changed,
                 preview, &ProjectExplorer::RunControl::initiateStop);
     }

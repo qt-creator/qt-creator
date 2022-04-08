@@ -55,6 +55,12 @@ public:
 
     bool isUserSet() const;
 
+    struct Data : BaseAspect::Data
+    {
+        bool useTerminal;
+        bool isUserSet;
+    };
+
 private:
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
@@ -114,6 +120,11 @@ public:
     void setLabelText(const QString &labelText);
     void setResetter(const std::function<QString()> &resetter);
     void resetArguments();
+
+    struct Data : BaseAspect::Data
+    {
+        QString arguments;
+    };
 
 private:
     void fromMap(const QVariantMap &map) override;
@@ -177,6 +188,11 @@ public:
     void setExpectedKind(const Utils::PathChooser::Kind expectedKind);
     void setEnvironmentChange(const Utils::EnvironmentChange &change);
     void setDisplayStyle(Utils::StringAspect::DisplayStyle style);
+
+    struct Data : BaseAspect::Data
+    {
+        Utils::FilePath executable;
+    };
 
 protected:
     void fromMap(const QVariantMap &map) override;

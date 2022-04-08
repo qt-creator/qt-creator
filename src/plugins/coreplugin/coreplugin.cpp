@@ -95,6 +95,7 @@ CorePlugin::CorePlugin()
     qRegisterMetaType<Core::Search::TextPosition>();
     qRegisterMetaType<Utils::CommandLine>();
     qRegisterMetaType<Utils::FilePath>();
+    qRegisterMetaType<Utils::Environment>();
     m_instance = this;
     setupSystemEnvironment();
 }

@@ -65,6 +65,8 @@ TerminalAspect::TerminalAspect()
     setDisplayName(tr("Terminal"));
     setId("TerminalAspect");
     setSettingsKey("RunConfiguration.UseTerminal");
+    addDataExtractor(this, &TerminalAspect::useTerminal, &Data::useTerminal);
+    addDataExtractor(this, &TerminalAspect::isUserSet, &Data::isUserSet);
     calculateUseTerminal();
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
             this, &TerminalAspect::calculateUseTerminal);
@@ -320,6 +322,9 @@ ArgumentsAspect::ArgumentsAspect()
     setDisplayName(tr("Arguments"));
     setId("ArgumentsAspect");
     setSettingsKey("RunConfiguration.Arguments");
+
+    addDataExtractor(this, &ArgumentsAspect::arguments, &Data::arguments);
+
     m_labelText = tr("Command line arguments:");
 }
 
@@ -514,6 +519,9 @@ ExecutableAspect::ExecutableAspect()
     setDisplayName(tr("Executable"));
     setId("ExecutableAspect");
     setExecutablePathStyle(HostOsInfo::hostOs());
+
+    addDataExtractor(this, &ExecutableAspect::executable, &Data::executable);
+
     m_executable.setPlaceHolderText(tr("<unknown>"));
     m_executable.setLabelText(tr("Executable:"));
     m_executable.setDisplayStyle(StringAspect::LabelDisplay);

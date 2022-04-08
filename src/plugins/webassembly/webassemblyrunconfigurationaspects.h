@@ -49,6 +49,11 @@ public:
 
     QString currentBrowser() const;
 
+    struct Data : BaseAspect::Data
+    {
+        QString currentBrowser;
+    };
+
 private:
     QComboBox *m_webBrowserComboBox = nullptr;
     QString m_currentBrowser;

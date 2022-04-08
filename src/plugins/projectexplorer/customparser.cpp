@@ -182,6 +182,7 @@ CustomParsersAspect::CustomParsersAspect(Target *target)
     setId("CustomOutputParsers");
     setSettingsKey("CustomOutputParsers");
     setDisplayName(tr("Custom Output Parsers"));
+    addDataExtractor(this, &CustomParsersAspect::parsers, &Data::parsers);
     setConfigWidgetCreator([this] {
         const auto widget = new Internal::CustomParsersSelectionWidget;
         widget->setSelectedParsers(m_parsers);

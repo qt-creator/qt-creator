@@ -47,6 +47,7 @@ class QmlBuildSystem;
 class QMLPROJECTMANAGER_EXPORT QmlMainFileAspect : public Utils::BaseAspect
 {
     Q_OBJECT
+
 public:
     explicit QmlMainFileAspect(ProjectExplorer::Target *target);
     ~QmlMainFileAspect() override;
@@ -55,6 +56,12 @@ public:
         FileInEditor,
         FileInProjectFile,
         FileInSettings
+    };
+
+    struct Data : BaseAspect::Data
+    {
+        QString mainScript;
+        QString currentFile;
     };
 
     void addToLayout(Utils::LayoutBuilder &builder) final;
@@ -74,7 +81,6 @@ public:
     QmlBuildSystem *qmlBuildSystem() const;
 
 public:
-
     ProjectExplorer::Target *m_target = nullptr;
     QPointer<QComboBox> m_fileListCombo;
     QStandardItemModel m_fileListModel;

@@ -194,7 +194,7 @@ bool UvscServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMess
     const auto exeAspect = runControl->aspect<ExecutableAspect>();
     QTC_ASSERT(exeAspect, return false);
 
-    const FilePath bin = exeAspect->executable();
+    const FilePath bin = exeAspect->executable;
     if (bin.isEmpty()) {
         errorMessage = BareMetalDebugSupport::tr("Cannot debug: Local executable is not set.");
         return false;

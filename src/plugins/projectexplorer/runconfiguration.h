@@ -105,6 +105,11 @@ public:
     ISettingsAspect *globalSettings() const { return m_globalSettings; }
     ISettingsAspect *currentSettings() const;
 
+    struct Data : Utils::BaseAspect::Data
+    {
+        ISettingsAspect *currentSettings = nullptr;
+    };
+
 protected:
     friend class RunConfiguration;
     void fromMap(const QVariantMap &map) override;
@@ -163,7 +168,8 @@ public:
         addAspectFactory([](Target *target) { return new T(target); });
     }
 
-    QMap<Utils::Id, QVariantMap> aspectData() const;
+    QMap<Utils::Id, QVariantMap> settingsData() const; // FIXME: Merge into aspectData?
+    void storeAspectData(Utils::AspectContainerData *storage) const;
 
     void update();
 
@@ -276,3 +282,5 @@ private:
 };
 
 } // namespace ProjectExplorer
+
+Q_DECLARE_METATYPE(ProjectExplorer::ISettingsAspect *);

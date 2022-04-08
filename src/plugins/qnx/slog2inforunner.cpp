@@ -45,7 +45,7 @@ Slog2InfoRunner::Slog2InfoRunner(RunControl *runControl)
     : RunWorker(runControl)
 {
     setId("Slog2InfoRunner");
-    m_applicationId = runControl->aspect<ExecutableAspect>()->executable().fileName();
+    m_applicationId = runControl->aspect<ExecutableAspect>()->executable.fileName();
 
     // See QTCREATORBUG-10712 for details.
     // We need to limit length of ApplicationId to 63 otherwise it would not match one in slog2info.

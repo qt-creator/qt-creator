@@ -100,7 +100,12 @@ public:
     CustomParsersAspect(Target *target);
 
     void setParsers(const QList<Utils::Id> &parsers) { m_parsers = parsers; }
-    const QList<Utils::Id> parsers() const { return m_parsers; }
+    QList<Utils::Id> parsers() const { return m_parsers; }
+
+    struct Data : BaseAspect::Data
+    {
+        QList<Utils::Id> parsers;
+    };
 
 private:
     void fromMap(const QVariantMap &map) override;

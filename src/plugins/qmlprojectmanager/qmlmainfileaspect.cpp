@@ -37,14 +37,14 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 
+#include <utils/layoutbuilder.h>
 #include <utils/mimeutils.h>
 
 #include <QComboBox>
 
-#include <utils/layoutbuilder.h>
-
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace QmlProjectManager {
 
@@ -60,6 +60,9 @@ QmlMainFileAspect::QmlMainFileAspect(Target *target)
     : m_target(target)
     , m_scriptFile(M_CURRENT_FILE)
 {
+    addDataExtractor(this, &QmlMainFileAspect::mainScript, &Data::mainScript);
+    addDataExtractor(this, &QmlMainFileAspect::currentFile, &Data::currentFile);
+
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, &QmlMainFileAspect::changeCurrentFile);
     connect(EditorManager::instance(), &EditorManager::currentDocumentStateChanged,

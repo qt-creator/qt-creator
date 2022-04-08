@@ -92,7 +92,7 @@ public:
             const Target *target = runControl->target();
             Runnable r;
             r.command = {cmakeFilePath(target),
-                         runControl->runConfiguration()->aspect<StringAspect>()->value(),
+                         runControl->aspect<StringAspect>()->value,
                          CommandLine::Raw};
             r.workingDirectory = target->activeBuildConfiguration()->buildDirectory();
             r.environment = target->activeBuildConfiguration()->environment();

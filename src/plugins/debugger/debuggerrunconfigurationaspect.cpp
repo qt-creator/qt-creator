@@ -182,6 +182,11 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
         return builder.emerge(false);
     });
 
+    addDataExtractor(this, &DebuggerRunConfigurationAspect::useCppDebugger, &Data::useCppDebugger);
+    addDataExtractor(this, &DebuggerRunConfigurationAspect::useQmlDebugger, &Data::useQmlDebugger);
+    addDataExtractor(this, &DebuggerRunConfigurationAspect::useMultiProcess, &Data::useMultiProcess);
+    addDataExtractor(this, &DebuggerRunConfigurationAspect::overrideStartup, &Data::overrideStartup);
+
     m_cppAspect = new DebuggerLanguageAspect;
     m_cppAspect->setLabel(tr("Enable C++"));
     m_cppAspect->setSettingsKey("RunConfiguration.UseCppDebugger");

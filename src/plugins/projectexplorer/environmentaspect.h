@@ -70,6 +70,11 @@ public:
 
     bool isLocal() const { return m_isLocal; }
 
+    struct Data : BaseAspect::Data
+    {
+        Utils::Environment environment;
+    };
+
 signals:
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged(const Utils::EnvironmentItems &diff);

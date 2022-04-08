@@ -868,11 +868,11 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     m_runParameters.displayName = runControl->displayName();
 
     if (auto symbolsAspect = runControl->aspect<SymbolFileAspect>())
-        m_runParameters.symbolFile = symbolsAspect->filePath();
+        m_runParameters.symbolFile = symbolsAspect->filePath;
     if (auto terminalAspect = runControl->aspect<TerminalAspect>())
-        m_runParameters.useTerminal = terminalAspect->useTerminal();
+        m_runParameters.useTerminal = terminalAspect->useTerminal;
     if (auto runAsRootAspect = runControl->aspect<RunAsRootAspect>())
-        m_runParameters.runAsRoot = runAsRootAspect->value();
+        m_runParameters.runAsRoot = runAsRootAspect->value;
 
     Kit *kit = runControl->kit();
     QTC_ASSERT(kit, return);
@@ -886,13 +886,13 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
         m_runParameters.qtPackageSourceLocation = qtVersion->qtPackageSourcePath().toString();
 
     if (auto aspect = runControl->aspect<DebuggerRunConfigurationAspect>()) {
-        if (!aspect->useCppDebugger())
+        if (!aspect->useCppDebugger)
             m_runParameters.cppEngineType = NoEngineType;
-        m_runParameters.isQmlDebugging = aspect->useQmlDebugger();
-        m_runParameters.multiProcess = aspect->useMultiProcess();
-        m_runParameters.additionalStartupCommands = aspect->overrideStartup();
+        m_runParameters.isQmlDebugging = aspect->useQmlDebugger;
+        m_runParameters.multiProcess = aspect->useMultiProcess;
+        m_runParameters.additionalStartupCommands = aspect->overrideStartup;
 
-        if (aspect->useCppDebugger()) {
+        if (aspect->useCppDebugger) {
             if (DebuggerKitAspect::debugger(kit)) {
                 const Tasks tasks = DebuggerKitAspect::validateDebugger(kit);
                 for (const Task &t : tasks) {

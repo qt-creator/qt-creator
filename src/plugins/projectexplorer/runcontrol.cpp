@@ -351,6 +351,7 @@ public:
     Utils::Icon icon;
     const MacroExpander *macroExpander = nullptr;
     QPointer<RunConfiguration> runConfiguration; // Not owned. Avoid use.
+    AspectContainerData aspectData;
     QString buildKey;
     QMap<Utils::Id, QVariantMap> settingsData;
     Utils::Id runConfigId;
@@ -390,7 +391,9 @@ void RunControl::setRunConfiguration(RunConfiguration *runConfig)
     d->runnable = runConfig->runnable();
     d->displayName = runConfig->expandedDisplayName();
     d->buildKey = runConfig->buildKey();
-    d->settingsData = runConfig->aspectData();
+    d->settingsData = runConfig->settingsData();
+
+    runConfig->storeAspectData(&d->aspectData);
 
     setTarget(runConfig->target());
 
@@ -857,9 +860,8 @@ void RunControlPrivate::showError(const QString &msg)
 void RunControl::setupFormatter(OutputFormatter *formatter) const
 {
     QList<Utils::OutputLineParser *> parsers = OutputFormatterFactory::createFormatters(target());
-    if (const auto customParsersAspect
-            = (runConfiguration() ? runConfiguration()->aspect<CustomParsersAspect>() : nullptr)) {
-        for (const Utils::Id id : customParsersAspect->parsers()) {
+    if (const auto customParsersAspect = aspect<CustomParsersAspect>()) {
+        for (const Id id : qAsConst(customParsersAspect->parsers)) {
             if (CustomParser * const parser = CustomParser::createFromId(id))
                 parsers << parser;
         }
@@ -938,12 +940,17 @@ const MacroExpander *RunControl::macroExpander() const
     return d->macroExpander;
 }
 
-BaseAspect *RunControl::aspect(Utils::Id id) const
+const BaseAspect::Data *RunControl::aspect(Id instanceId) const
 {
-    return d->runConfiguration ? d->runConfiguration->aspect(id) : nullptr;
+    return d->aspectData.aspect(instanceId);
 }
 
-QVariantMap RunControl::settingsData(Utils::Id id) const
+const BaseAspect::Data *RunControl::aspect(BaseAspect::Data::ClassId classId) const
+{
+    return d->aspectData.aspect(classId);
+}
+
+QVariantMap RunControl::settingsData(Id id) const
 {
     return d->settingsData.value(id);
 }
@@ -1181,9 +1188,9 @@ SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
 {
     setId("SimpleTargetRunner");
     if (auto terminalAspect = runControl->aspect<TerminalAspect>())
-        m_useTerminal = terminalAspect->useTerminal();
+        m_useTerminal = terminalAspect->useTerminal;
     if (auto runAsRootAspect = runControl->aspect<RunAsRootAspect>())
-        m_runAsRoot = runAsRootAspect->value();
+        m_runAsRoot = runAsRootAspect->value;
 }
 
 void SimpleTargetRunner::start()

@@ -93,7 +93,10 @@ void ISettingsAspect::setConfigWidgetCreator(const ConfigWidgetCreator &configWi
 //
 ///////////////////////////////////////////////////////////////////////
 
-GlobalOrProjectAspect::GlobalOrProjectAspect() = default;
+GlobalOrProjectAspect::GlobalOrProjectAspect()
+{
+    addDataExtractor(this, &GlobalOrProjectAspect::currentSettings, &Data::currentSettings);
+}
 
 GlobalOrProjectAspect::~GlobalOrProjectAspect()
 {
@@ -264,12 +267,18 @@ void RunConfiguration::addAspectFactory(const AspectFactory &aspectFactory)
     theAspectFactories.push_back(aspectFactory);
 }
 
-QMap<Utils::Id, QVariantMap> RunConfiguration::aspectData() const
+QMap<Utils::Id, QVariantMap> RunConfiguration::settingsData() const
 {
     QMap<Utils::Id, QVariantMap> data;
-    for (BaseAspect *aspect : qAsConst(m_aspects))
+    for (BaseAspect *aspect : m_aspects)
         aspect->toActiveMap(data[aspect->id()]);
     return data;
+}
+
+void RunConfiguration::storeAspectData(AspectContainerData *storage) const
+{
+    for (BaseAspect *aspect : m_aspects)
+        storage->append(aspect->extractData(&m_expander));
 }
 
 BuildSystem *RunConfiguration::activeBuildSystem() const

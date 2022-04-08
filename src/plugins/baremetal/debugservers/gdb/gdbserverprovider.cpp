@@ -166,7 +166,7 @@ bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool,
     const auto exeAspect = runControl->aspect<ExecutableAspect>();
     QTC_ASSERT(exeAspect, return false);
 
-    const FilePath bin = exeAspect->executable();
+    const FilePath bin = exeAspect->executable;
     if (bin.isEmpty()) {
         errorMessage = BareMetalDebugSupport::tr(
                     "Cannot debug: Local executable is not set.");
@@ -184,7 +184,7 @@ bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool,
     inferior.extraData.insert(Debugger::Constants::kPeripheralDescriptionFile,
                               m_peripheralDescriptionFile.toVariant());
     if (const auto argAspect = runControl->aspect<ArgumentsAspect>())
-        inferior.command.setArguments(argAspect->arguments(runControl->macroExpander()));
+        inferior.command.setArguments(argAspect->arguments);
     runTool->setInferior(inferior);
     runTool->setSymbolFile(bin);
     runTool->setStartMode(AttachToRemoteServer);

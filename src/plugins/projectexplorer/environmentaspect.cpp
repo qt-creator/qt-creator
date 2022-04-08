@@ -46,6 +46,7 @@ EnvironmentAspect::EnvironmentAspect()
     setDisplayName(tr("Environment"));
     setId("EnvironmentAspect");
     setConfigWidgetCreator([this] { return new EnvironmentAspectWidget(this); });
+    addDataExtractor(this, &EnvironmentAspect::environment, &Data::environment);
 }
 
 int EnvironmentAspect::baseEnvironmentBase() const

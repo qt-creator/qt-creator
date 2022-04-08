@@ -120,7 +120,7 @@ public:
         setStarter([this, runControl, portsGatherer] {
             Runnable r;
             const QString browserId =
-                    runControl->aspect<WebBrowserSelectionAspect>()->currentBrowser();
+                    runControl->aspect<WebBrowserSelectionAspect>()->currentBrowser;
             r.command = emrunCommand(runControl->runConfiguration(),
                                      browserId,
                                      QString::number(portsGatherer->findEndPoint().port()));

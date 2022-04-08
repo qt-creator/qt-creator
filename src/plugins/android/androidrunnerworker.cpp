@@ -242,8 +242,8 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     auto aspect = runControl->aspect<Debugger::DebuggerRunConfigurationAspect>();
     Utils::Id runMode = runControl->runMode();
     const bool debuggingMode = runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE;
-    m_useCppDebugger = debuggingMode && aspect->useCppDebugger();
-    if (debuggingMode && aspect->useQmlDebugger())
+    m_useCppDebugger = debuggingMode && aspect->useCppDebugger;
+    if (debuggingMode && aspect->useQmlDebugger)
         m_qmlDebugServices = QmlDebug::QmlDebuggerServices;
     else if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
         m_qmlDebugServices = QmlDebug::QmlProfilerServices;
@@ -270,7 +270,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     m_deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
     m_apiLevel = AndroidManager::deviceApiLevel(target);
 
-    m_extraEnvVars = runControl->aspect<EnvironmentAspect>()->environment();
+    m_extraEnvVars = runControl->aspect<EnvironmentAspect>()->environment;
     qCDebug(androidRunWorkerLog) << "Environment variables for the app"
                                  << m_extraEnvVars.toStringList();
 
@@ -279,14 +279,14 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     }
 
     if (auto aspect = runControl->aspect(Constants::ANDROID_AM_START_ARGS)) {
-        QTC_CHECK(aspect->value().type() == QVariant::String);
-        const QString startArgs = aspect->value().toString();
+        QTC_CHECK(aspect->value.type() == QVariant::String);
+        const QString startArgs = aspect->value.toString();
         m_amStartExtraArgs = ProcessArgs::splitArgs(startArgs, OsTypeOtherUnix);
     }
 
     if (auto aspect = runControl->aspect(Constants::ANDROID_PRESTARTSHELLCMDLIST)) {
-        QTC_CHECK(aspect->value().type() == QVariant::String);
-        const QStringList commands = aspect->value().toString().split('\n', Qt::SkipEmptyParts);
+        QTC_CHECK(aspect->value.type() == QVariant::String);
+        const QStringList commands = aspect->value.toString().split('\n', Qt::SkipEmptyParts);
         for (const QString &shellCmd : commands)
             m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
@@ -295,8 +295,8 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
         m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
 
     if (auto aspect = runControl->aspect(Constants::ANDROID_POSTFINISHSHELLCMDLIST)) {
-        QTC_CHECK(aspect->value().type() == QVariant::String);
-        const QStringList commands = aspect->value().toString().split('\n', Qt::SkipEmptyParts);
+        QTC_CHECK(aspect->value.type() == QVariant::String);
+        const QStringList commands = aspect->value.toString().split('\n', Qt::SkipEmptyParts);
         for (const QString &shellCmd : commands)
             m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
     }

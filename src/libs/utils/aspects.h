@@ -140,6 +140,30 @@ public:
     bool isDirty() const;
     bool hasAction() const;
 
+    class QTCREATOR_UTILS_EXPORT Data
+    {
+    public:
+        // The (unique) address of the "owning" aspect's meta object is used as identifier.
+        using ClassId = const void *;
+
+        virtual ~Data() = default;
+
+        Utils::Id id() const { return m_id; }
+        ClassId classId() const { return m_classId; }
+
+        QVariant value;
+
+    protected:
+        friend class BaseAspect;
+        Utils::Id m_id;
+        ClassId m_classId = 0;
+    };
+
+    using DataCreator = std::function<Data *()>;
+    using DataExtractor = std::function<void(Data *data, const MacroExpander *expander)>;
+
+    Data *extractData(const MacroExpander *expander) const;
+
 signals:
     void changed();
     void labelLinkActivated(const QString &link);
@@ -148,6 +172,29 @@ protected:
     QLabel *label() const;
     void setupLabel();
     void addLabeledItem(LayoutBuilder &builder, QWidget *widget);
+
+    void setDataCreatorHelper(const DataCreator &creator) const;
+    void addDataExtractorHelper(const DataExtractor &extractor) const;
+
+    template <typename AspectClass, typename DataClass, typename Type>
+    void addDataExtractor(AspectClass *aspect,
+                          Type(AspectClass::*p)() const,
+                          Type DataClass::*q) {
+        setDataCreatorHelper([] { return new DataClass; });
+        addDataExtractorHelper([aspect, p, q](Data *data, const MacroExpander *) {
+            static_cast<DataClass *>(data)->*q = (aspect->*p)();
+        });
+    }
+
+    template <typename AspectClass, typename DataClass, typename Type>
+    void addDataExtractor(AspectClass *aspect,
+                          Type(AspectClass::*p)(const MacroExpander *) const,
+                          Type DataClass::*q) {
+        setDataCreatorHelper([] { return new DataClass; });
+        addDataExtractorHelper([aspect, p, q](Data *data, const MacroExpander *expander) {
+            static_cast<DataClass *>(data)->*q = (aspect->*p)(expander);
+        });
+    }
 
     template <class Widget, typename ...Args>
     Widget *createSubWidget(Args && ...args) {
@@ -171,6 +218,11 @@ class QTCREATOR_UTILS_EXPORT BoolAspect : public BaseAspect
 public:
     explicit BoolAspect(const QString &settingsKey = QString());
     ~BoolAspect() override;
+
+    struct Data : BaseAspect::Data
+    {
+        bool value;
+    };
 
     void addToLayout(LayoutBuilder &builder) override;
 
@@ -280,6 +332,12 @@ public:
     StringAspect();
     ~StringAspect() override;
 
+    struct Data : BaseAspect::Data
+    {
+        QString value;
+        Utils::FilePath filePath;
+    };
+
     void addToLayout(LayoutBuilder &builder) override;
 
     QVariant volatileValue() const override;
@@ -372,6 +430,8 @@ public:
     void setDisplayScaleFactor(qint64 factor);
     void setSpecialValueText(const QString &specialText);
     void setSingleStep(qint64 step);
+
+    struct Data : BaseAspect::Data { qint64 value = 0; };
 
 private:
     std::unique_ptr<Internal::IntegerAspectPrivate> d;
@@ -497,6 +557,29 @@ public:
 
 private:
     std::unique_ptr<Internal::TextDisplayPrivate> d;
+};
+
+class QTCREATOR_UTILS_EXPORT AspectContainerData
+{
+public:
+    AspectContainerData() = default;
+    ~AspectContainerData() { qDeleteAll(m_data); }
+
+    const BaseAspect::Data *aspect(Utils::Id instanceId) const;
+    const BaseAspect::Data *aspect(Utils::BaseAspect::Data::ClassId classId) const;
+
+    template <typename T> const typename T::Data *aspect() const
+    {
+        return static_cast<const typename T::Data *>(aspect(&T::staticMetaObject));
+    }
+
+    void append(BaseAspect::Data *data) { m_data.append(data); }
+
+private:
+    AspectContainerData(const AspectContainerData &) = delete;
+    void operator=(const AspectContainerData &) = delete;
+
+    QList<BaseAspect::Data *> m_data;
 };
 
 class QTCREATOR_UTILS_EXPORT AspectContainer : public QObject

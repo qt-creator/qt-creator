@@ -56,6 +56,14 @@ public:
 
     int portsUsedByDebugger() const;
 
+    struct Data : BaseAspect::Data
+    {
+        bool useCppDebugger;
+        bool useQmlDebugger;
+        bool useMultiProcess;
+        QString overrideStartup;
+    };
+
 private:
     Internal::DebuggerLanguageAspect *m_cppAspect;
     Internal::DebuggerLanguageAspect *m_qmlAspect;

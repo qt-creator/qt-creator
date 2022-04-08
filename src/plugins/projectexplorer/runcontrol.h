@@ -229,9 +229,11 @@ public:
     Project *project() const;
     Kit *kit() const;
     const Utils::MacroExpander *macroExpander() const;
-    Utils::BaseAspect *aspect(Utils::Id id) const;
-    template <typename T> T *aspect() const {
-        return runConfiguration() ? runConfiguration()->aspect<T>() : nullptr;
+
+    const Utils::BaseAspect::Data *aspect(Utils::Id instanceId) const;
+    const Utils::BaseAspect::Data *aspect(Utils::BaseAspect::Data::ClassId classId) const;
+    template <typename T> const typename T::Data *aspect() const {
+        return dynamic_cast<const typename T::Data *>(aspect(&T::staticMetaObject));
     }
 
     QString buildKey() const;

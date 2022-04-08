@@ -425,7 +425,7 @@ bool AndroidQmlPreviewWorker::startPreviewApp()
     const QDir destDir(apkInfo()->uploadDir);
     const QString qmlrcPath = destDir.filePath(m_uploadInfo.uploadPackage.baseName()
                                                + packageSuffix);
-    const QStringList envVars = m_rc->aspect<EnvironmentAspect>()->environment().toStringList();
+    const QStringList envVars = m_rc->aspect<EnvironmentAspect>()->environment.toStringList();
 
     const QStringList command {
         "am", "start",
