@@ -577,13 +577,13 @@ QGridLayout *ItemLibraryAssetImportDialog::createOptionsGrid(
                             m_labelToControlWidgetMaps[optionsIndex].value(optKey));
                 if (advSpin) {
                     // Connect corresponding advanced control
-                    QObject::connect(optSpin, &QDoubleSpinBox::valueChanged, this,
-                                     [optSpin, advSpin]() {
+                    QObject::connect(optSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+                                     this, [optSpin, advSpin]() {
                         if (advSpin->value() != optSpin->value())
                             advSpin->setValue(optSpin->value());
                     });
-                    QObject::connect(advSpin, &QDoubleSpinBox::valueChanged, this,
-                                     [optSpin, advSpin]() {
+                    QObject::connect(advSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+                                     this, [optSpin, advSpin]() {
                         if (advSpin->value() != optSpin->value())
                             optSpin->setValue(advSpin->value());
                     });
