@@ -32,6 +32,7 @@
 #include <ssh/sshconnectionmanager.h>
 #include <ssh/sshremoteprocess.h>
 #include <utils/environment.h>
+#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -155,20 +156,14 @@ QProcess::ProcessState SshDeviceProcess::state() const
     }
 }
 
-QProcess::ExitStatus SshDeviceProcess::exitStatus() const
+ProcessResultData SshDeviceProcess::resultData() const
 {
-    return d->exitStatus == QProcess::NormalExit && exitCode() != 255
-            ? QProcess::NormalExit : QProcess::CrashExit;
-}
-
-int SshDeviceProcess::exitCode() const
-{
-    return usesTerminal() ? QtcProcess::exitCode() : d->remoteProcess->exitCode();
-}
-
-QString SshDeviceProcess::errorString() const
-{
-    return d->errorMessage;
+    const ProcessResultData result = QtcProcess::resultData();
+    return { usesTerminal() ? result.m_exitCode : d->remoteProcess->exitCode(),
+             d->exitStatus == QProcess::NormalExit && result.m_exitCode != 255
+                            ? QProcess::NormalExit : QProcess::CrashExit,
+             result.m_error,
+             d->errorMessage };
 }
 
 QByteArray SshDeviceProcess::readAllStandardOutput()

@@ -48,9 +48,7 @@ public:
     void kill() override;
 
     QProcess::ProcessState state() const override;
-    QProcess::ExitStatus exitStatus() const override;
-    int exitCode() const override;
-    QString errorString() const override;
+    Utils::ProcessResultData resultData() const override;
 
     QByteArray readAllStandardOutput() override;
     QByteArray readAllStandardError() override;

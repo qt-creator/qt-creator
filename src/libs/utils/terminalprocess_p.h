@@ -39,7 +39,7 @@ class FilePath;
 
 namespace Internal {
 
-class TerminalImpl : public ProcessInterface
+class TerminalImpl final : public ProcessInterface
 {
 public:
     TerminalImpl();
@@ -60,15 +60,11 @@ public:
     // intentionally no-op without an assert
     bool waitForFinished(int) final { return false; }
 
-    QProcess::ProcessError error() const final;
-    QString errorString() const final;
-
     void start() final;
 
     QProcess::ProcessState state() const final;
     qint64 processId() const final;
-    int exitCode() const final;
-    QProcess::ExitStatus exitStatus() const final;
+    ProcessResultData resultData() const final;
 
     void kickoffProcess() final; // only debugger terminal, only non-windows
     void interrupt() final; // only debugger terminal, only non-windows

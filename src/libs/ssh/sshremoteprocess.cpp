@@ -29,6 +29,7 @@
 #include "sshsettings.h"
 
 #include <utils/commandline.h>
+#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 
 #include <QTimer>
@@ -80,11 +81,12 @@ void SshRemoteProcess::start()
     QtcProcess::start();
 }
 
-QString SshRemoteProcess::errorString() const
+ProcessResultData SshRemoteProcess::resultData() const
 {
+    ProcessResultData result = QtcProcess::resultData();
     if (!m_errorString.isEmpty())
-        return m_errorString;
-    return QtcProcess::errorString();
+        result.m_errorString = m_errorString;
+    return result;
 }
 
 void SshRemoteProcess::requestX11Forwarding(const QString &displayName)

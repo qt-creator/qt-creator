@@ -215,7 +215,7 @@ public:
 class DefaultImpl : public ProcessInterface
 {
 public:
-    virtual void start() { defaultStart(); }
+    virtual void start() final { defaultStart(); }
 
 protected:
     void defaultStart();
@@ -325,7 +325,7 @@ bool DefaultImpl::ensureProgramExists(const QString &program)
     return false;
 }
 
-class QProcessImpl : public DefaultImpl
+class QProcessImpl final : public DefaultImpl
 {
 public:
     QProcessImpl() : m_process(new ProcessHelper(this))
@@ -341,49 +341,32 @@ public:
         connect(m_process, &QProcess::readyReadStandardError,
                 this, &ProcessInterface::readyReadStandardError);
     }
-    ~QProcessImpl() override
-    {
-        ProcessReaper::reap(m_process);
-    }
+    ~QProcessImpl() final { ProcessReaper::reap(m_process); }
 
-    QByteArray readAllStandardOutput() override { return m_process->readAllStandardOutput(); }
-    QByteArray readAllStandardError() override { return m_process->readAllStandardError(); }
+    QByteArray readAllStandardOutput() final { return m_process->readAllStandardOutput(); }
+    QByteArray readAllStandardError() final { return m_process->readAllStandardError(); }
 
-    void interrupt() override
-    { ProcessHelper::interruptProcess(m_process); }
-    void terminate() override
-    { ProcessHelper::terminateProcess(m_process); }
-    void kill() override
-    { m_process->kill(); }
-    void close() override
-    { m_process->close(); }
-    qint64 write(const QByteArray &data) override
-    { return m_process->write(data); }
+    void interrupt() final { ProcessHelper::interruptProcess(m_process); }
+    void terminate() final { ProcessHelper::terminateProcess(m_process); }
+    void kill() final { m_process->kill(); }
+    void close() final { m_process->close(); }
+    qint64 write(const QByteArray &data) final { return m_process->write(data); }
 
-    QProcess::ProcessError error() const override
-    { return m_process->error(); }
-    QProcess::ProcessState state() const override
-    { return m_process->state(); }
-    qint64 processId() const override
-    { return m_process->processId(); }
-    int exitCode() const override
-    { return m_process->exitCode(); }
-    QProcess::ExitStatus exitStatus() const override
-    { return m_process->exitStatus(); }
-    QString errorString() const override
-    { return m_process->errorString(); }
-    void setErrorString(const QString &str) override
-    { m_process->setErrorString(str); }
+    ProcessResultData resultData() const final {
+        return { m_process->exitCode(), m_process->exitStatus(),
+                 m_process->error(), m_process->errorString() };
+    };
+    void setErrorString(const QString &str) final { m_process->setErrorString(str); }
 
-    bool waitForStarted(int msecs) override
-    { return m_process->waitForStarted(msecs); }
-    bool waitForReadyRead(int msecs) override
-    { return m_process->waitForReadyRead(msecs); }
-    bool waitForFinished(int msecs) override
-    { return m_process->waitForFinished(msecs); }
+    QProcess::ProcessState state() const final { return m_process->state(); }
+    qint64 processId() const final { return m_process->processId(); }
+
+    bool waitForStarted(int msecs) final { return m_process->waitForStarted(msecs); }
+    bool waitForReadyRead(int msecs) final { return m_process->waitForReadyRead(msecs); }
+    bool waitForFinished(int msecs) final { return m_process->waitForFinished(msecs); }
 
 private:
-    void doDefaultStart(const QString &program, const QStringList &arguments) override
+    void doDefaultStart(const QString &program, const QStringList &arguments) final
     {
         ProcessStartHandler *handler = m_process->processStartHandler();
         handler->setProcessMode(m_setup->m_processMode);
@@ -418,7 +401,7 @@ static uint uniqueToken()
     return ++globalUniqueToken;
 }
 
-class ProcessLauncherImpl : public DefaultImpl
+class ProcessLauncherImpl final : public DefaultImpl
 {
     Q_OBJECT
 public:
@@ -437,40 +420,38 @@ public:
         connect(m_handle, &CallerHandle::readyReadStandardError,
                 this, &ProcessInterface::readyReadStandardError);
     }
-    ~ProcessLauncherImpl() override
+    ~ProcessLauncherImpl() final
     {
         cancel();
         LauncherInterface::unregisterHandle(token());
         m_handle = nullptr;
     }
 
-    QByteArray readAllStandardOutput() override { return m_handle->readAllStandardOutput(); }
-    QByteArray readAllStandardError() override { return m_handle->readAllStandardError(); }
+    QByteArray readAllStandardOutput() final { return m_handle->readAllStandardOutput(); }
+    QByteArray readAllStandardError() final { return m_handle->readAllStandardError(); }
 
-    void interrupt() override
+    void interrupt() final
     {
         if (m_setup->m_useCtrlCStub) // bypass launcher and interrupt directly
             ProcessHelper::interruptPid(processId());
     }
-    void terminate() override { cancel(); } // TODO: what are differences among terminate, kill and close?
-    void kill() override { cancel(); } // TODO: see above
-    void close() override { cancel(); } // TODO: see above
-    qint64 write(const QByteArray &data) override { return m_handle->write(data); }
+    void terminate() final { cancel(); } // TODO: what are differences among terminate, kill and close?
+    void kill() final { cancel(); } // TODO: see above
+    void close() final { cancel(); } // TODO: see above
+    qint64 write(const QByteArray &data) final { return m_handle->write(data); }
 
-    QProcess::ProcessError error() const override { return m_handle->error(); }
-    QProcess::ProcessState state() const override { return m_handle->state(); }
-    qint64 processId() const override { return m_handle->processId(); }
-    int exitCode() const override { return m_handle->exitCode(); }
-    QProcess::ExitStatus exitStatus() const override { return m_handle->exitStatus(); }
-    QString errorString() const override { return m_handle->errorString(); }
-    void setErrorString(const QString &str) override { m_handle->setErrorString(str); }
+    ProcessResultData resultData() const final { return m_handle->resultData(); };
+    void setErrorString(const QString &str) final { m_handle->setErrorString(str); }
 
-    bool waitForStarted(int msecs) override { return m_handle->waitForStarted(msecs); }
-    bool waitForReadyRead(int msecs) override { return m_handle->waitForReadyRead(msecs); }
-    bool waitForFinished(int msecs) override { return m_handle->waitForFinished(msecs); }
+    QProcess::ProcessState state() const final { return m_handle->state(); }
+    qint64 processId() const final { return m_handle->processId(); }
+
+    bool waitForStarted(int msecs) final { return m_handle->waitForStarted(msecs); }
+    bool waitForReadyRead(int msecs) final { return m_handle->waitForReadyRead(msecs); }
+    bool waitForFinished(int msecs) final { return m_handle->waitForFinished(msecs); }
 
 private:
-    void doDefaultStart(const QString &program, const QStringList &arguments) override
+    void doDefaultStart(const QString &program, const QStringList &arguments) final
     {
         m_handle->start(program, arguments);
     }
@@ -1052,15 +1033,35 @@ void QtcProcess::setResult(const ProcessResult &result)
     d->m_result = result;
 }
 
-int QtcProcess::exitCode() const
+ProcessResultData QtcProcess::resultData() const
 {
+    const ProcessResultData result = d->m_process ? d->m_process->resultData()
+                                                  : ProcessResultData();
+    // This code (255) is being returned by QProcess when FailedToStart error occurred
     if (d->m_startFailure == QtcProcessPrivate::WrongCommandFailure)
-        return 255; // This code is being returned by QProcess when FailedToStart error occurred
-    if (d->m_process)
-        return d->m_process->exitCode();
-    return 0;
+        return { 255, result.m_exitStatus, QProcess::FailedToStart, result.m_errorString };
+    return result;
 }
 
+int QtcProcess::exitCode() const
+{
+    return resultData().m_exitCode;
+}
+
+QProcess::ExitStatus QtcProcess::exitStatus() const
+{
+    return resultData().m_exitStatus;
+}
+
+QProcess::ProcessError QtcProcess::error() const
+{
+    return resultData().m_error;
+}
+
+QString QtcProcess::errorString() const
+{
+    return resultData().m_errorString;
+}
 
 // Path utilities
 
@@ -1169,15 +1170,6 @@ void QtcProcess::setProcessChannelMode(QProcess::ProcessChannelMode mode)
     d->m_setup.m_processChannelMode = mode;
 }
 
-QProcess::ProcessError QtcProcess::error() const
-{
-    if (d->m_startFailure == QtcProcessPrivate::WrongCommandFailure)
-        return QProcess::FailedToStart;
-    if (d->m_process)
-        return d->m_process->error();
-    return QProcess::UnknownError;
-}
-
 QProcess::ProcessState QtcProcess::state() const
 {
     if (d->m_process)
@@ -1188,13 +1180,6 @@ QProcess::ProcessState QtcProcess::state() const
 bool QtcProcess::isRunning() const
 {
     return state() == QProcess::Running;
-}
-
-QString QtcProcess::errorString() const
-{
-    if (d->m_process)
-        return d->m_process->errorString();
-    return {};
 }
 
 qint64 QtcProcess::processId() const
@@ -1234,13 +1219,6 @@ QByteArray QtcProcess::readAllStandardError()
     QByteArray buf = d->m_stdErr.rawData;
     d->m_stdErr.rawData.clear();
     return buf;
-}
-
-QProcess::ExitStatus QtcProcess::exitStatus() const
-{
-    if (d->m_process)
-        return d->m_process->exitStatus();
-    return QProcess::NormalExit;
 }
 
 void QtcProcess::kill()
@@ -1621,7 +1599,7 @@ void QtcProcessPrivate::slotTimeout()
 
 void QtcProcessPrivate::slotFinished()
 {
-    handleFinished(m_process->exitCode(), m_process->exitStatus());
+    handleFinished(m_process->resultData().m_exitCode, m_process->resultData().m_exitStatus);
     emitFinished();
 }
 

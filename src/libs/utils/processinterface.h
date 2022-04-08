@@ -63,6 +63,15 @@ public:
     bool m_belowNormalPriority = false; // internal, dependent on other fields and specific code path
 };
 
+class QTCREATOR_UTILS_EXPORT ProcessResultData
+{
+public:
+    int m_exitCode = 0;
+    QProcess::ExitStatus m_exitStatus = QProcess::NormalExit;
+    QProcess::ProcessError m_error = QProcess::UnknownError;
+    QString m_errorString;
+};
+
 class QTCREATOR_UTILS_EXPORT ProcessInterface : public QObject
 {
     Q_OBJECT
@@ -83,11 +92,8 @@ public:
 
     virtual qint64 processId() const = 0;
     virtual QProcess::ProcessState state() const = 0;
-    virtual int exitCode() const = 0;
-    virtual QProcess::ExitStatus exitStatus() const = 0;
 
-    virtual QProcess::ProcessError error() const = 0;
-    virtual QString errorString() const = 0;
+    virtual ProcessResultData resultData() const = 0;
 
     virtual bool waitForStarted(int msecs) = 0;
     virtual bool waitForReadyRead(int msecs) = 0;
@@ -140,11 +146,8 @@ public:
 
     qint64 processId() const override { return m_target->processId(); }
     QProcess::ProcessState state() const override { return m_target->state(); }
-    int exitCode() const override { return m_target->exitCode(); }
-    QProcess::ExitStatus exitStatus() const override { return m_target->exitStatus(); }
 
-    QProcess::ProcessError error() const override { return m_target->error(); }
-    QString errorString() const override { return m_target->errorString(); }
+    ProcessResultData resultData() const override { return m_target->resultData(); };
 
     bool waitForStarted(int msecs) override { return m_target->waitForStarted(msecs); }
     bool waitForReadyRead(int msecs) override { return m_target->waitForReadyRead(msecs); }

@@ -127,13 +127,10 @@ public:
         : m_process(parent) {}
 
     qint64 m_processId = 0;
-    int m_exitCode = 0;
-    QProcess::ExitStatus m_appStatus = QProcess::NormalExit;
+    ProcessResultData m_result;
     QLocalServer m_stubServer;
     QLocalSocket *m_stubSocket = nullptr;
     QTemporaryFile *m_tempFile = nullptr;
-    QProcess::ProcessError m_error = QProcess::UnknownError;
-    QString m_errorString;
 
     // Used on Unix only
     QtcProcess m_process;
@@ -178,8 +175,7 @@ void TerminalImpl::start()
     if (isRunning())
         return;
 
-    d->m_errorString.clear();
-    d->m_error = QProcess::UnknownError;
+    d->m_result = {};
 
 #ifdef Q_OS_WIN
 
@@ -449,8 +445,8 @@ void TerminalImpl::cleanupAfterStartFailure(const QString &errorMessage)
 void TerminalImpl::finish(int exitCode, QProcess::ExitStatus exitStatus)
 {
     d->m_processId = 0;
-    d->m_exitCode = exitCode;
-    d->m_appStatus = exitStatus;
+    d->m_result.m_exitCode = exitCode;
+    d->m_result.m_exitStatus = exitStatus;
     emit finished();
 }
 
@@ -745,30 +741,15 @@ qint64 TerminalImpl::processId() const
     return d->m_processId;
 }
 
-int TerminalImpl::exitCode() const
+ProcessResultData TerminalImpl::resultData() const
 {
-    return d->m_exitCode;
-} // This will be the signal number if exitStatus == CrashExit
-
-QProcess::ExitStatus TerminalImpl::exitStatus() const
-{
-    return d->m_appStatus;
-}
-
-QProcess::ProcessError TerminalImpl::error() const
-{
-    return d->m_error;
-}
-
-QString TerminalImpl::errorString() const
-{
-    return d->m_errorString;
+    return d->m_result;
 }
 
 void TerminalImpl::emitError(QProcess::ProcessError err, const QString &errorString)
 {
-    d->m_error = err;
-    d->m_errorString = errorString;
+    d->m_result.m_error = err;
+    d->m_result.m_errorString = errorString;
     emit errorOccurred(err);
 }
 

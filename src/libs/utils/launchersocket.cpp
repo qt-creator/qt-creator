@@ -204,12 +204,12 @@ void CallerHandle::handleError(const ErrorSignal *launcherSignal)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
     m_processState = QProcess::NotRunning;
-    m_error = launcherSignal->error();
+    m_result.m_error = launcherSignal->error();
     if (!launcherSignal->errorString().isEmpty())
-        m_errorString = launcherSignal->errorString();
-    if (m_error == QProcess::FailedToStart)
-        m_exitCode = 255; // This code is being returned by QProcess when FailedToStart error occurred
-    emit errorOccurred(m_error);
+        m_result.m_errorString = launcherSignal->errorString();
+    if (m_result.m_error == QProcess::FailedToStart)
+        m_result.m_exitCode = 255; // This code is being returned by QProcess when FailedToStart error occurred
+    emit errorOccurred(m_result.m_error);
 }
 
 void CallerHandle::handleStarted(const StartedSignal *launcherSignal)
@@ -252,8 +252,8 @@ void CallerHandle::handleFinished(const FinishedSignal *launcherSignal)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
     m_processState = QProcess::NotRunning;
-    m_exitStatus = launcherSignal->exitStatus();
-    m_exitCode = launcherSignal->exitCode();
+    m_result.m_exitStatus = launcherSignal->exitStatus();
+    m_result.m_exitCode = launcherSignal->exitCode();
     emit finished();
 }
 
@@ -315,13 +315,13 @@ void CallerHandle::cancel()
     case QProcess::NotRunning:
         break;
     case QProcess::Starting:
-        m_errorString = QCoreApplication::translate("Utils::LauncherHandle",
+        m_result.m_errorString = QCoreApplication::translate("Utils::LauncherHandle",
                                  "Process was canceled before it was started.");
-        m_error = QProcess::FailedToStart;
+        m_result.m_error = QProcess::FailedToStart;
         if (LauncherInterface::isReady()) // TODO: race condition with m_processState???
             sendPacket(StopProcessPacket(m_token));
         else
-            emit errorOccurred(m_error);
+            emit errorOccurred(m_result.m_error);
         break;
     case QProcess::Running:
         sendPacket(StopProcessPacket(m_token));
@@ -347,30 +347,24 @@ qint64 CallerHandle::processId() const
     return m_processId;
 }
 
-int CallerHandle::exitCode() const
-{
-    QTC_ASSERT(isCalledFromCallersThread(), return -1);
-    return m_exitCode;
-}
-
-QString CallerHandle::errorString() const
+ProcessResultData CallerHandle::resultData() const
 {
     QTC_ASSERT(isCalledFromCallersThread(), return {});
-    return m_errorString;
+    return m_result;
 }
 
 void CallerHandle::setErrorString(const QString &str)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
-    m_errorString = str;
+    m_result.m_errorString = str;
 }
 
 void CallerHandle::start(const QString &program, const QStringList &arguments)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
     if (!m_launcherHandle || m_launcherHandle->isSocketError()) {
-        m_error = QProcess::FailedToStart;
-        emit errorOccurred(m_error);
+        m_result.m_error = QProcess::FailedToStart;
+        emit errorOccurred(m_result.m_error);
         return;
     }
 
@@ -444,12 +438,6 @@ qint64 CallerHandle::write(const QByteArray &data)
     return data.size();
 }
 
-QProcess::ProcessError CallerHandle::error() const
-{
-    QTC_ASSERT(isCalledFromCallersThread(), return QProcess::UnknownError);
-    return m_error;
-}
-
 QString CallerHandle::program() const
 {
     QMutexLocker locker(&m_mutex);
@@ -466,12 +454,6 @@ void CallerHandle::setProcessSetupData(const ProcessSetupData::Ptr &setup)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
     m_setup = setup;
-}
-
-QProcess::ExitStatus CallerHandle::exitStatus() const
-{
-    QTC_ASSERT(isCalledFromCallersThread(), return QProcess::CrashExit);
-    return m_exitStatus;
 }
 
 bool CallerHandle::waitForSignal(int msecs, SignalType newSignal)

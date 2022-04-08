@@ -96,8 +96,8 @@ public:
     QByteArray readAllStandardError();
 
     qint64 processId() const;
-    int exitCode() const;
-    QString errorString() const;
+    ProcessResultData resultData() const;
+
     void setErrorString(const QString &str);
 
     void start(const QString &program, const QStringList &arguments);
@@ -106,13 +106,11 @@ public:
 
     qint64 write(const QByteArray &data);
 
-    QProcess::ProcessError error() const;
     // Called from caller's or launcher's thread.
     QString program() const;
     // Called from caller's or launcher's thread.
     QStringList arguments() const;
     void setProcessSetupData(const ProcessSetupData::Ptr &setup);
-    QProcess::ExitStatus exitStatus() const;
 
 signals:
     void errorOccurred(QProcess::ProcessError error);
@@ -159,12 +157,9 @@ private:
     std::atomic<QProcess::ProcessState> m_processState = QProcess::NotRunning;
     std::unique_ptr<StartProcessPacket> m_startPacket;
     int m_processId = 0;
-    int m_exitCode = 0;
-    QProcess::ExitStatus m_exitStatus = QProcess::ExitStatus::NormalExit;
     QByteArray m_stdout;
     QByteArray m_stderr;
-    QProcess::ProcessError m_error = QProcess::UnknownError;
-    QString m_errorString;
+    ProcessResultData m_result;
 
     QString m_command;
     QStringList m_arguments;

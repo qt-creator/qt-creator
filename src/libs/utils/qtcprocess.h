@@ -47,6 +47,7 @@ namespace Internal { class QtcProcessPrivate; }
 
 class DeviceProcessHooks;
 class ProcessInterface;
+class ProcessResultData;
 
 class QTCREATOR_UTILS_EXPORT QtcProcess : public QObject
 {
@@ -70,11 +71,13 @@ public:
 
     virtual qint64 processId() const;
     virtual QProcess::ProcessState state() const;
-    virtual int exitCode() const;
-    virtual QProcess::ExitStatus exitStatus() const;
+    virtual ProcessResultData resultData() const;
+
+    int exitCode() const;
+    QProcess::ExitStatus exitStatus() const;
 
     QProcess::ProcessError error() const;
-    virtual QString errorString() const;
+    QString errorString() const;
 
     bool waitForStarted(int msecs = 30000);
     bool waitForReadyRead(int msecs = 30000);

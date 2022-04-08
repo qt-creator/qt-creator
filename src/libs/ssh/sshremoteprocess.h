@@ -42,7 +42,7 @@ public:
 
     void requestX11Forwarding(const QString &displayName);
     void start() override;
-    QString errorString() const override;
+    Utils::ProcessResultData resultData() const override;
 
     Utils::CommandLine fullLocalCommandLine(bool inTerminal = false) const;
 
