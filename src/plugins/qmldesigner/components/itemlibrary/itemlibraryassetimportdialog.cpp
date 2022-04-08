@@ -207,9 +207,12 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
             ++optIndex;
         }
 
-        m_simpleData.contentWidgets.resize(optIndex);
-        m_advancedData.contentWidgets.resize(optIndex);
-        m_labelToControlWidgetMaps.resize(optIndex);
+        // Resize lists in loop for Qt5 compatibility
+        for (int i = 0; i < optIndex; ++i) {
+            m_simpleData.contentWidgets.append({});
+            m_advancedData.contentWidgets.append({});
+            m_labelToControlWidgetMaps.append(QHash<QString, QWidget *>());
+        }
 
         // Create tab for each supported extension group that also has files included in the import
         QMap<QString, int> tabMap; // QMap used for alphabetical order
