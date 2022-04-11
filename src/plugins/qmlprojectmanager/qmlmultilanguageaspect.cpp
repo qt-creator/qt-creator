@@ -30,6 +30,7 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
@@ -81,6 +82,16 @@ QmlMultiLanguageAspect::QmlMultiLanguageAspect(ProjectExplorer::Target *target)
     setDefaultValue(!databaseFilePath().isEmpty());
     QVariantMap getDefaultValues;
     fromMap(getDefaultValues);
+
+    addDataExtractor(this, &QmlMultiLanguageAspect::origin, &Data::origin);
+
+    connect(this, &BoolAspect::changed, this, [this, target] {
+        for (ProjectExplorer::RunControl *runControl :
+                ProjectExplorer::ProjectExplorerPlugin::allRunControls()) {
+            if (runControl->aspect<QmlMultiLanguageAspect>()->origin == this)
+                runControl->initiateStop();
+        }
+    });
 }
 
 QmlMultiLanguageAspect::~QmlMultiLanguageAspect()

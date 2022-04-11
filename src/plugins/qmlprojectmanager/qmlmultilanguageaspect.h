@@ -50,10 +50,17 @@ public:
     static QmlMultiLanguageAspect *current(ProjectExplorer::Project *project);
     static QmlMultiLanguageAspect *current(ProjectExplorer::Target *target);
 
+    struct Data : BaseAspect::Data
+    {
+        const void *origin = nullptr;
+    };
+
 signals:
     void currentLocaleChanged(const QString &locale);
 
 private:
+    const void *origin() const { return this; }
+
     ProjectExplorer::Target *m_target = nullptr;
     mutable Utils::FilePath m_databaseFilePath;
     QString m_currentLocale;
