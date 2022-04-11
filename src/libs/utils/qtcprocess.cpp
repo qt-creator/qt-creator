@@ -56,6 +56,7 @@
 #include <atomic>
 #include <chrono>
 #include <functional>
+#include <iostream>
 #include <limits>
 #include <memory>
 
@@ -337,15 +338,14 @@ public:
                 this, &QProcessImpl::handleFinished);
         connect(m_process, &QProcess::errorOccurred,
                 this, &QProcessImpl::handleError);
-        connect(m_process, &QProcess::readyReadStandardOutput,
-                this, &ProcessInterface::readyReadStandardOutput);
-        connect(m_process, &QProcess::readyReadStandardError,
-                this, &ProcessInterface::readyReadStandardError);
+        connect(m_process, &QProcess::readyReadStandardOutput, this, [this] {
+            emit readyRead(m_process->readAllStandardOutput(), {});
+        });
+        connect(m_process, &QProcess::readyReadStandardError, this, [this] {
+            emit readyRead({}, m_process->readAllStandardError());
+        });
     }
     ~QProcessImpl() final { ProcessReaper::reap(m_process); }
-
-    QByteArray readAllStandardOutput() final { return m_process->readAllStandardOutput(); }
-    QByteArray readAllStandardError() final { return m_process->readAllStandardError(); }
 
     void interrupt() final { ProcessHelper::interruptProcess(m_process); }
     void terminate() final { ProcessHelper::terminateProcess(m_process); }
@@ -372,7 +372,6 @@ private:
         m_process->setProcessEnvironment(m_setup->m_environment.toProcessEnvironment());
         m_process->setWorkingDirectory(m_setup->m_workingDirectory.path());
         m_process->setStandardInputFile(m_setup->m_standardInputFile);
-        m_process->setProcessChannelMode(m_setup->m_processChannelMode);
         if (m_setup->m_lowPriority)
             m_process->setLowPriority();
         if (m_setup->m_unixTerminalDisabled)
@@ -423,12 +422,10 @@ public:
         m_handle->setProcessSetupData(m_setup);
         connect(m_handle, &CallerHandle::started,
                 this, &ProcessInterface::started);
+        connect(m_handle, &CallerHandle::readyRead,
+                this, &ProcessInterface::readyRead);
         connect(m_handle, &CallerHandle::done,
                 this, &ProcessInterface::done);
-        connect(m_handle, &CallerHandle::readyReadStandardOutput,
-                this, &ProcessInterface::readyReadStandardOutput);
-        connect(m_handle, &CallerHandle::readyReadStandardError,
-                this, &ProcessInterface::readyReadStandardError);
     }
     ~ProcessLauncherImpl() final
     {
@@ -436,9 +433,6 @@ public:
         LauncherInterface::unregisterHandle(token());
         m_handle = nullptr;
     }
-
-    QByteArray readAllStandardOutput() final { return m_handle->readAllStandardOutput(); }
-    QByteArray readAllStandardError() final { return m_handle->readAllStandardError(); }
 
     void interrupt() final
     {
@@ -504,26 +498,10 @@ public:
 
         connect(m_process.get(), &ProcessInterface::started,
                 this, &QtcProcessPrivate::emitStarted);
+        connect(m_process.get(), &ProcessInterface::readyRead,
+                this, &QtcProcessPrivate::handleReadyRead);
         connect(m_process.get(), &ProcessInterface::done,
                 this, &QtcProcessPrivate::handleDone);
-        connect(m_process.get(), &ProcessInterface::readyReadStandardOutput,
-                this, &QtcProcessPrivate::handleReadyReadStandardOutput);
-        connect(m_process.get(), &ProcessInterface::readyReadStandardError,
-                this, &QtcProcessPrivate::handleReadyReadStandardError);
-    }
-
-    void handleReadyReadStandardOutput()
-    {
-        m_stdOut.append(m_process->readAllStandardOutput());
-        m_hangTimerCount = 0;
-        emitReadyReadStandardOutput();
-    }
-
-    void handleReadyReadStandardError()
-    {
-        m_stdErr.append(m_process->readAllStandardError());
-        m_hangTimerCount = 0;
-        emitReadyReadStandardError();
     }
 
     CommandLine fullCommandLine() const
@@ -558,6 +536,7 @@ public:
     ProcessSetupData m_setup;
 
     void slotTimeout();
+    void handleReadyRead(const QByteArray &outputData, const QByteArray &errorData);
     void handleDone(const ProcessResultData &data);
     void handleError();
     void clearForRun();
@@ -570,6 +549,7 @@ public:
 
     ProcessResult interpretExitCode(int exitCode);
 
+    QProcess::ProcessChannelMode m_processChannelMode = QProcess::SeparateChannels;
     ProcessResultData m_resultData;
 
     QTextCodec *m_codec = QTextCodec::codecForLocale();
@@ -1154,7 +1134,8 @@ qint64 QtcProcess::applicationMainThreadID() const
 
 void QtcProcess::setProcessChannelMode(QProcess::ProcessChannelMode mode)
 {
-    d->m_setup.m_processChannelMode = mode;
+    QTC_CHECK(state() == QProcess::NotRunning);
+    d->m_processChannelMode = mode;
 }
 
 QProcess::ProcessState QtcProcess::state() const
@@ -1489,11 +1470,6 @@ void QtcProcess::runBlocking(EventLoopMode eventLoopMode)
             d->m_eventLoop = &eventLoop;
             eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
             d->m_eventLoop = nullptr;
-            d->m_stdOut.append(d->m_process->readAllStandardOutput());
-            d->m_stdErr.append(d->m_process->readAllStandardError());
-            d->m_stdOut.handleRest();
-            d->m_stdErr.handleRest();
-
             timer.stop();
 #ifdef QT_GUI_LIB
             if (isGuiThread())
@@ -1512,10 +1488,6 @@ void QtcProcess::runBlocking(EventLoopMode eventLoopMode)
                 kill();
                 waitForFinished(1000);
             }
-            d->m_stdOut.append(d->m_process->readAllStandardOutput());
-            d->m_stdErr.append(d->m_process->readAllStandardError());
-            d->m_stdOut.handleRest();
-            d->m_stdErr.handleRest();
         }
     }
 }
@@ -1564,6 +1536,37 @@ void QtcProcessPrivate::slotTimeout()
     } else {
         if (debug)
             qDebug() << Q_FUNC_INFO << m_hangTimerCount;
+    }
+}
+
+void QtcProcessPrivate::handleReadyRead(const QByteArray &outputData, const QByteArray &errorData)
+{
+    // TODO: check why we need this timer?
+    m_hangTimerCount = 0;
+    // TODO: store a copy of m_processChannelMode on start()? Currently we assert that state
+    // is NotRunning when setting the process channel mode.
+    if (m_processChannelMode == QProcess::MergedChannels) {
+        m_stdOut.append(outputData);
+        m_stdOut.append(errorData);
+        if (!outputData.isEmpty() || !errorData.isEmpty())
+            emitReadyReadStandardOutput();
+    } else {
+        if (m_processChannelMode == QProcess::ForwardedOutputChannel
+                || m_processChannelMode == QProcess::ForwardedChannels) {
+            std::cout << outputData.constData() << std::flush;
+        } else {
+            m_stdOut.append(outputData);
+            if (!outputData.isEmpty())
+                emitReadyReadStandardOutput();
+        }
+        if (m_processChannelMode == QProcess::ForwardedErrorChannel
+                || m_processChannelMode == QProcess::ForwardedChannels) {
+            std::cerr << errorData.constData() << std::flush;
+        } else {
+            m_stdErr.append(errorData);
+            if (!errorData.isEmpty())
+                emitReadyReadStandardError();
+        }
     }
 }
 
@@ -1616,9 +1619,6 @@ void QtcProcessPrivate::handleError()
     // Was hang detected before and killed?
     if (m_result != ProcessResult::Hang)
         m_result = ProcessResult::StartFailed;
-    if (m_eventLoop)
-        m_eventLoop->quit();
-
     emitErrorOccurred(m_resultData.m_error);
 }
 

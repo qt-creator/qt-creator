@@ -93,9 +93,6 @@ public:
     void terminate();
     void kill();
 
-    QByteArray readAllStandardOutput();
-    QByteArray readAllStandardError();
-
     qint64 processId() const;
 
     void start(const QString &program, const QStringList &arguments);
@@ -113,8 +110,7 @@ public:
 signals:
     void started();
     void done(const Utils::ProcessResultData &resultData);
-    void readyReadStandardOutput();
-    void readyReadStandardError();
+    void readyRead(const QByteArray &outputData, const QByteArray &errorData);
 
 private:
     bool waitForSignal(int msecs, SignalType newSignal);
@@ -153,8 +149,6 @@ private:
     std::atomic<QProcess::ProcessState> m_processState = QProcess::NotRunning;
     std::unique_ptr<StartProcessPacket> m_startPacket;
     int m_processId = 0;
-    QByteArray m_stdout;
-    QByteArray m_stderr;
 
     QString m_command;
     QStringList m_arguments;

@@ -49,7 +49,6 @@ public:
     Environment m_environment;
     Environment m_remoteEnvironment;
     QByteArray m_writeData;
-    QProcess::ProcessChannelMode m_processChannelMode = QProcess::SeparateChannels;
     QVariantHash m_extraData;
     QString m_standardInputFile;
     QString m_nativeArguments; // internal, dependent on specific code path
@@ -86,8 +85,6 @@ public:
     virtual void kill() = 0;
     virtual void close() = 0;
 
-    virtual QByteArray readAllStandardOutput() = 0;
-    virtual QByteArray readAllStandardError() = 0;
     virtual qint64 write(const QByteArray &data) = 0;
 
     virtual qint64 processId() const = 0;
@@ -102,9 +99,8 @@ public:
 
 signals:
     void started();
+    void readyRead(const QByteArray &outputData, const QByteArray &errorData);
     void done(const Utils::ProcessResultData &resultData);
-    void readyReadStandardOutput();
-    void readyReadStandardError();
 
 protected:
     ProcessSetupData::Ptr m_setup;
@@ -123,11 +119,8 @@ public:
     {
         m_target->setParent(this);
         connect(m_target, &ProcessInterface::started, this, &ProcessInterface::started);
+        connect(m_target, &ProcessInterface::readyRead, this, &ProcessInterface::readyRead);
         connect(m_target, &ProcessInterface::done, this, &ProcessInterface::done);
-        connect(m_target, &ProcessInterface::readyReadStandardOutput,
-                this, &ProcessInterface::readyReadStandardOutput);
-        connect(m_target, &ProcessInterface::readyReadStandardError,
-                this, &ProcessInterface::readyReadStandardError);
     }
 
     void start() override { m_target->start(); }
@@ -136,8 +129,6 @@ public:
     void kill() override { m_target->kill(); }
     void close() override { m_target->close(); }
 
-    QByteArray readAllStandardOutput() override { return m_target->readAllStandardOutput(); }
-    QByteArray readAllStandardError() override { return m_target->readAllStandardError(); }
     qint64 write(const QByteArray &data) override { return m_target->write(data); }
 
     qint64 processId() const override { return m_target->processId(); }

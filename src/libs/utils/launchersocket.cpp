@@ -33,8 +33,6 @@
 #include <QLocalSocket>
 #include <QMutexLocker>
 
-#include <iostream>
-
 namespace Utils {
 namespace Internal {
 
@@ -184,29 +182,7 @@ void CallerHandle::handleStarted(const StartedSignal *launcherSignal)
 void CallerHandle::handleReadyRead(const ReadyReadSignal *launcherSignal)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
-    if (m_setup->m_processChannelMode == QProcess::MergedChannels) {
-        m_stdout += launcherSignal->stdOut();
-        m_stdout += launcherSignal->stdErr();
-        if (!m_stdout.isEmpty())
-            emit readyReadStandardOutput();
-    } else {
-        if (m_setup->m_processChannelMode == QProcess::ForwardedOutputChannel
-                || m_setup->m_processChannelMode == QProcess::ForwardedChannels) {
-            std::cout << launcherSignal->stdOut().constData() << std::flush;
-        } else {
-            m_stdout += launcherSignal->stdOut();
-            if (!m_stdout.isEmpty())
-                emit readyReadStandardOutput();
-        }
-        if (m_setup->m_processChannelMode == QProcess::ForwardedErrorChannel
-                || m_setup->m_processChannelMode == QProcess::ForwardedChannels) {
-            std::cerr << launcherSignal->stdErr().constData() << std::flush;
-        } else {
-            m_stderr += launcherSignal->stdErr();
-            if (!m_stderr.isEmpty())
-                emit readyReadStandardError();
-        }
-    }
+    emit readyRead(launcherSignal->stdOut(), launcherSignal->stdErr());
 }
 
 void CallerHandle::handleDone(const DoneSignal *launcherSignal)
@@ -295,18 +271,6 @@ void CallerHandle::kill()
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
     sendStopPacket(StopProcessPacket::SignalType::Kill);
-}
-
-QByteArray CallerHandle::readAllStandardOutput()
-{
-    QTC_ASSERT(isCalledFromCallersThread(), return {});
-    return readAndClear(m_stdout);
-}
-
-QByteArray CallerHandle::readAllStandardError()
-{
-    QTC_ASSERT(isCalledFromCallersThread(), return {});
-    return readAndClear(m_stderr);
 }
 
 qint64 CallerHandle::processId() const

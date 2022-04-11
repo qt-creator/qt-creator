@@ -45,9 +45,6 @@ public:
     TerminalImpl();
     ~TerminalImpl() final;
 
-    QByteArray readAllStandardOutput() final { QTC_CHECK(false); return {}; }
-    QByteArray readAllStandardError() final { QTC_CHECK(false); return {}; }
-
     qint64 write(const QByteArray &) final { QTC_CHECK(false); return -1; }
 
     void terminate() final { stopProcess(); }
