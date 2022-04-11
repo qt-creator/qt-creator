@@ -84,57 +84,46 @@ class QTCREATOR_UTILS_EXPORT ProcessInterface : public QObject
 
 public:
     ProcessInterface(QObject *parent = nullptr) : QObject(parent), m_setup(new ProcessSetupData) {}
-    ProcessInterface(ProcessSetupData::Ptr setup) : m_setup(setup) {}
-
-    virtual void start() = 0;
-    virtual qint64 write(const QByteArray &data) = 0;
-    virtual void sendControlSignal(ControlSignal controlSignal) = 0;
-
-    virtual QProcess::ProcessState state() const = 0;
-
-    virtual bool waitForStarted(int msecs) = 0;
-    virtual bool waitForReadyRead(int msecs) = 0;
-    virtual bool waitForFinished(int msecs) = 0;
 
 signals:
+    // This should be emitted when being in Starting state only.
+    // After emitting this signal the process enters Running state.
     void started(qint64 processId, qint64 applicationMainThreadId = 0);
+
+    // This should be emitted when being in Running state only.
     void readyRead(const QByteArray &outputData, const QByteArray &errorData);
+
+    // This should be emitted when being in Starting or Running state.
+    // When being in Starting state, the resultData should set error to FailedToStart.
+    // After emitting this signal the process enters NotRunning state.
     void done(const Utils::ProcessResultData &resultData);
 
 protected:
     ProcessSetupData::Ptr m_setup;
-    friend class ProcessProxyInterface;
+
+private:
+    // It's being called only in Starting state. Just before this method is being called,
+    // the process transitions from NotRunning into Starting state.
+    virtual void start() = 0;
+
+    // It's being called only in Running state.
+    virtual qint64 write(const QByteArray &data) = 0;
+
+    // It's being called in Starting or Running state.
+    virtual void sendControlSignal(ControlSignal controlSignal) = 0;
+
+    virtual QProcess::ProcessState state() const = 0;
+
+    // It's being called only in Starting state.
+    virtual bool waitForStarted(int msecs) = 0;
+
+    // It's being called in Starting or Running state.
+    virtual bool waitForReadyRead(int msecs) = 0;
+
+    // It's being called in Starting or Running state.
+    virtual bool waitForFinished(int msecs) = 0;
+
     friend class QtcProcess;
 };
-
-class QTCREATOR_UTILS_EXPORT ProcessProxyInterface : public ProcessInterface
-{
-    Q_OBJECT
-
-public:
-    ProcessProxyInterface(ProcessInterface *target)
-        : ProcessInterface(target->m_setup)
-        , m_target(target)
-    {
-        m_target->setParent(this);
-        connect(m_target, &ProcessInterface::started, this, &ProcessInterface::started);
-        connect(m_target, &ProcessInterface::readyRead, this, &ProcessInterface::readyRead);
-        connect(m_target, &ProcessInterface::done, this, &ProcessInterface::done);
-    }
-
-    void start() override { m_target->start(); }
-
-    qint64 write(const QByteArray &data) override { return m_target->write(data); }
-
-    QProcess::ProcessState state() const override { return m_target->state(); }
-
-    bool waitForStarted(int msecs) override { return m_target->waitForStarted(msecs); }
-    bool waitForReadyRead(int msecs) override { return m_target->waitForReadyRead(msecs); }
-    bool waitForFinished(int msecs) override { return m_target->waitForFinished(msecs); }
-
-protected:
-    ProcessInterface *m_target;
-};
-
 
 } // namespace Utils

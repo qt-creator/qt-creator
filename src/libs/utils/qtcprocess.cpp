@@ -215,13 +215,8 @@ public:
 
 class DefaultImpl : public ProcessInterface
 {
-public:
-    virtual void start() final { defaultStart(); }
-
-protected:
-    void defaultStart();
-
 private:
+    virtual void start() final;
     virtual void doDefaultStart(const QString &program, const QStringList &arguments) = 0;
     bool dissolveCommand(QString *program, QStringList *arguments);
     bool ensureProgramExists(const QString &program);
@@ -236,7 +231,7 @@ static QString blockingMessage(const QVariant &variant)
     return "blocking without event loop";
 }
 
-void DefaultImpl::defaultStart()
+void DefaultImpl::start()
 {
     if (processLog().isDebugEnabled()) {
         using namespace std::chrono;
@@ -347,6 +342,7 @@ public:
     }
     ~QProcessImpl() final { ProcessReaper::reap(m_process); }
 
+private:
     qint64 write(const QByteArray &data) final { return m_process->write(data); }
     void sendControlSignal(ControlSignal controlSignal) final {
         switch (controlSignal) {
@@ -371,7 +367,6 @@ public:
     bool waitForReadyRead(int msecs) final { return m_process->waitForReadyRead(msecs); }
     bool waitForFinished(int msecs) final { return m_process->waitForFinished(msecs); }
 
-private:
     void doDefaultStart(const QString &program, const QStringList &arguments) final
     {
         ProcessStartHandler *handler = m_process->processStartHandler();
@@ -445,6 +440,7 @@ public:
         m_handle = nullptr;
     }
 
+private:
     qint64 write(const QByteArray &data) final { return m_handle->write(data); }
     void sendControlSignal(ControlSignal controlSignal) final {
         switch (controlSignal) {
@@ -470,7 +466,6 @@ public:
     bool waitForReadyRead(int msecs) final { return m_handle->waitForReadyRead(msecs); }
     bool waitForFinished(int msecs) final { return m_handle->waitForFinished(msecs); }
 
-private:
     void doDefaultStart(const QString &program, const QStringList &arguments) final
     {
         m_handle->start(program, arguments);
@@ -688,13 +683,6 @@ void QtcProcess::emitFinished()
     emit finished();
 }
 
-void QtcProcess::setProcessInterface(ProcessInterface *interface)
-{
-    d->setProcessInterface(interface);
-    // Make a copy, don't share, until we get rid of fullCommandLine() and fullEnvironment()
-    *d->m_process->m_setup = d->m_setup;
-}
-
 void QtcProcess::setProcessImpl(ProcessImpl processImpl)
 {
     d->m_setup.m_processImpl = processImpl;
@@ -810,7 +798,8 @@ void QtcProcess::start()
     }
     QTC_ASSERT(processImpl, return);
     d->clearForRun();
-    setProcessInterface(processImpl);
+    d->setProcessInterface(processImpl);
+    *d->m_process->m_setup = d->m_setup;
     d->m_process->m_setup->m_commandLine = d->fullCommandLine();
     d->m_process->m_setup->m_environment = d->fullEnvironment();
     if (processLog().isDebugEnabled()) {

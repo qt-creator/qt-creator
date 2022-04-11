@@ -205,8 +205,6 @@ protected:
     virtual void emitFinished();
 
 private:
-    void setProcessInterface(ProcessInterface *interface);
-
     friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const QtcProcess &r);
 
     friend class Internal::QtcProcessPrivate;
