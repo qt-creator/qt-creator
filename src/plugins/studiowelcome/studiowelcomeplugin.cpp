@@ -243,6 +243,9 @@ public:
                                  const QString &formFile,
                                  const QString &explicitQmlproject)
     {
+        QmlDesigner::QmlDesignerPlugin::emitUsageStatistics("exampleOpened:"
+                                                            + exampleName);
+
         const QString exampleFolder = examplePath + "/" + exampleName + "/";
 
         QString projectFile = exampleFolder + exampleName + ".qmlproject";

@@ -41,6 +41,8 @@
 
 #include <projectexplorer/projectexplorer.h>
 
+#include <qmldesigner/qmldesignerplugin.h>
+
 #include <QDialog>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -83,6 +85,7 @@ FileDownloader::~FileDownloader()
 
 void FileDownloader::start()
 {
+    QmlDesigner::QmlDesignerPlugin::emitUsageStatistics("exampleDownload:" + name());
     m_tempFile.setFileName(QDir::tempPath() + "/" + name() + ".XXXXXX" + ".zip");
     m_tempFile.open(QIODevice::WriteOnly);
 
