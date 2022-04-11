@@ -96,10 +96,11 @@ IosRunner::IosRunner(RunControl *runControl)
 {
     setId("IosRunner");
     stopRunningRunControl(runControl);
-    auto runConfig = qobject_cast<IosRunConfiguration *>(runControl->runConfiguration());
-    m_bundleDir = runConfig->bundleDirectory().toString();
+    const IosDeviceTypeAspect::Data *data = runControl->aspect<IosDeviceTypeAspect>();
+    QTC_ASSERT(data, return);
+    m_bundleDir = data->bundleDirectory.toString();
     m_device = DeviceKitAspect::device(runControl->kit());
-    m_deviceType = runConfig->deviceType();
+    m_deviceType = data->deviceType;
 }
 
 IosRunner::~IosRunner()
@@ -456,8 +457,10 @@ void IosDebugSupport::start()
         setIosPlatform("ios-simulator");
     }
 
-    auto iosRunConfig = qobject_cast<IosRunConfiguration *>(runControl()->runConfiguration());
-    setRunControlName(iosRunConfig->applicationName());
+    const IosDeviceTypeAspect::Data *data = runControl()->aspect<IosDeviceTypeAspect>();
+    QTC_ASSERT(data, reportFailure("Broken IosDeviceTypeAspect setup."); return);
+
+    setRunControlName(data->applicationName);
     setContinueAfterAttach(true);
 
     Utils::Port gdbServerPort = m_runner->gdbServerPort();
@@ -467,14 +470,14 @@ void IosDebugSupport::start()
     const bool cppDebug = isCppDebugging();
     const bool qmlDebug = isQmlDebugging();
     if (cppDebug) {
-        setInferiorExecutable(iosRunConfig->localExecutable());
+        setInferiorExecutable(data->localExecutable);
         setRemoteChannel("connect://localhost:" + gdbServerPort.toString());
 
-        QString bundlePath = iosRunConfig->bundleDirectory().toString();
+        QString bundlePath = data->bundleDirectory.toString();
         bundlePath.chop(4);
         FilePath dsymPath = FilePath::fromString(bundlePath.append(".dSYM"));
         if (dsymPath.exists()
-                && dsymPath.lastModified() < iosRunConfig->localExecutable().lastModified()) {
+                && dsymPath.lastModified() < data->localExecutable.lastModified()) {
             TaskHub::addTask(DeploymentTask(Task::Warning,
                      tr("The dSYM %1 seems to be outdated, it might confuse the debugger.")
                              .arg(dsymPath.toUserOutput())));

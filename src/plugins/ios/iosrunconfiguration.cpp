@@ -53,7 +53,6 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QList>
-#include <QStandardItemModel>
 #include <QVariant>
 #include <QWidget>
 
@@ -77,31 +76,6 @@ static IosDeviceType toIosDeviceType(const SimulatorInfo &device)
                                 displayName(device));
     return iosDeviceType;
 }
-
-class IosDeviceTypeAspect : public BaseAspect
-{
-public:
-    IosDeviceTypeAspect(IosRunConfiguration *runConfiguration);
-
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
-    void addToLayout(LayoutBuilder &builder) override;
-
-    IosDeviceType deviceType() const;
-    void setDeviceType(const IosDeviceType &deviceType);
-
-    void updateValues();
-    void setDeviceTypeIndex(int devIndex);
-    void deviceChanges();
-    void updateDeviceType();
-
-public:
-    IosDeviceType m_deviceType;
-    IosRunConfiguration *m_runConfiguration = nullptr;
-    QStandardItemModel m_deviceTypeModel;
-    QLabel *m_deviceTypeLabel = nullptr;
-    QComboBox *m_deviceTypeComboBox = nullptr;
-};
 
 IosRunConfiguration::IosRunConfiguration(Target *target, Utils::Id id)
     : RunConfiguration(target, id)
@@ -361,6 +335,11 @@ void IosDeviceTypeAspect::setDeviceType(const IosDeviceType &deviceType)
 IosDeviceTypeAspect::IosDeviceTypeAspect(IosRunConfiguration *runConfiguration)
     : m_runConfiguration(runConfiguration)
 {
+    addDataExtractor(this, &IosDeviceTypeAspect::deviceType, &Data::deviceType);
+    addDataExtractor(this, &IosDeviceTypeAspect::bundleDirectory, &Data::bundleDirectory);
+    addDataExtractor(this, &IosDeviceTypeAspect::applicationName, &Data::applicationName);
+    addDataExtractor(this, &IosDeviceTypeAspect::localExecutable, &Data::localExecutable);
+
     connect(DeviceManager::instance(), &DeviceManager::updated,
             this, &IosDeviceTypeAspect::deviceChanges);
     connect(KitManager::instance(), &KitManager::kitsChanged,
@@ -427,6 +406,20 @@ void IosDeviceTypeAspect::updateValues()
     }
 }
 
+FilePath IosDeviceTypeAspect::bundleDirectory() const
+{
+    return m_runConfiguration->bundleDirectory();
+}
+
+QString IosDeviceTypeAspect::applicationName() const
+{
+    return m_runConfiguration->applicationName();
+}
+
+FilePath IosDeviceTypeAspect::localExecutable() const
+{
+    return m_runConfiguration->localExecutable();
+}
 
 // IosRunConfigurationFactory
 
