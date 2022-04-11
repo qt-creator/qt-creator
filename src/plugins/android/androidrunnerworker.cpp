@@ -290,8 +290,8 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
         for (const QString &shellCmd : commands)
             m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
-    const auto data = runner->recordedData(Constants::ANDROID_PRESTARTSHELLCMDLIST).toStringList();
-    for (const QString &shellCmd : data)
+    const auto preStartCmdList = runner->recordedData(Constants::ANDROID_PRESTARTSHELLCMDLIST);
+    for (const QString &shellCmd : preStartCmdList.toStringList())
         m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
 
     if (auto aspect = runControl->aspect(Constants::ANDROID_POSTFINISHSHELLCMDLIST)) {
@@ -300,8 +300,8 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
         for (const QString &shellCmd : commands)
             m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
-    const auto data2 = runner->recordedData(Constants::ANDROID_POSTFINISHSHELLCMDLIST).toStringList();
-    for (const QString &shellCmd : data)
+    const auto postFinishCmdList = runner->recordedData(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
+    for (const QString &shellCmd : postFinishCmdList.toStringList())
         m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
 
     m_debugServerPath = debugServer(m_useLldb, target).toString();
