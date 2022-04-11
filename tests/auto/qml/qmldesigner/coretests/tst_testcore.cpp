@@ -8704,7 +8704,7 @@ void tst_TestCore::writeAnnotations()
     QVERIFY(rootModelNode.isValid());
 
     rootModelNode.setAuxiliaryData("x", 10);
-    for (const auto child : rootModelNode.allSubModelNodes()) {
+    for (const auto &child : rootModelNode.allSubModelNodes()) {
         child.setAuxiliaryData("x", 10);
         child.setAuxiliaryData("test", true);
         child.setAuxiliaryData("test2", "string");
