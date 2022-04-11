@@ -71,6 +71,13 @@ public:
     QString m_errorString;
 };
 
+enum class ControlSignal {
+    Terminate,
+    Kill,
+    Interrupt,
+    KickOff
+};
+
 class QTCREATOR_UTILS_EXPORT ProcessInterface : public QObject
 {
     Q_OBJECT
@@ -80,19 +87,14 @@ public:
     ProcessInterface(ProcessSetupData::Ptr setup) : m_setup(setup) {}
 
     virtual void start() = 0;
-    virtual void interrupt() = 0;
-    virtual void terminate() = 0;
-    virtual void kill() = 0;
-
     virtual qint64 write(const QByteArray &data) = 0;
+    virtual void sendControlSignal(ControlSignal controlSignal) = 0;
 
     virtual QProcess::ProcessState state() const = 0;
 
     virtual bool waitForStarted(int msecs) = 0;
     virtual bool waitForReadyRead(int msecs) = 0;
     virtual bool waitForFinished(int msecs) = 0;
-
-    virtual void kickoffProcess();
 
 signals:
     void started(qint64 processId, qint64 applicationMainThreadId = 0);
@@ -121,9 +123,6 @@ public:
     }
 
     void start() override { m_target->start(); }
-    void interrupt() override { m_target->interrupt(); }
-    void terminate() override { m_target->terminate(); }
-    void kill() override { m_target->kill(); }
 
     qint64 write(const QByteArray &data) override { return m_target->write(data); }
 
@@ -132,8 +131,6 @@ public:
     bool waitForStarted(int msecs) override { return m_target->waitForStarted(msecs); }
     bool waitForReadyRead(int msecs) override { return m_target->waitForReadyRead(msecs); }
     bool waitForFinished(int msecs) override { return m_target->waitForFinished(msecs); }
-
-    void kickoffProcess() override { m_target->kickoffProcess(); }
 
 protected:
     ProcessInterface *m_target;

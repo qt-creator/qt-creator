@@ -347,10 +347,23 @@ public:
     }
     ~QProcessImpl() final { ProcessReaper::reap(m_process); }
 
-    void interrupt() final { ProcessHelper::interruptProcess(m_process); }
-    void terminate() final { ProcessHelper::terminateProcess(m_process); }
-    void kill() final { m_process->kill(); }
     qint64 write(const QByteArray &data) final { return m_process->write(data); }
+    void sendControlSignal(ControlSignal controlSignal) final {
+        switch (controlSignal) {
+        case ControlSignal::Terminate:
+            ProcessHelper::terminateProcess(m_process);
+            break;
+        case ControlSignal::Kill:
+            m_process->kill();
+            break;
+        case ControlSignal::Interrupt:
+            ProcessHelper::interruptProcess(m_process);
+            break;
+        case ControlSignal::KickOff:
+            QTC_CHECK(false);
+            break;
+        }
+    }
 
     QProcess::ProcessState state() const final { return m_process->state(); }
 
@@ -432,14 +445,24 @@ public:
         m_handle = nullptr;
     }
 
-    void interrupt() final
-    {
-        if (m_setup->m_useCtrlCStub) // bypass launcher and interrupt directly
-            ProcessHelper::interruptPid(m_handle->processId());
-    }
-    void terminate() final { m_handle->terminate(); }
-    void kill() final { m_handle->kill(); }
     qint64 write(const QByteArray &data) final { return m_handle->write(data); }
+    void sendControlSignal(ControlSignal controlSignal) final {
+        switch (controlSignal) {
+        case ControlSignal::Terminate:
+            m_handle->terminate();
+            break;
+        case ControlSignal::Kill:
+            m_handle->kill();
+            break;
+        case ControlSignal::Interrupt:
+            if (m_setup->m_useCtrlCStub) // bypass launcher and interrupt directly
+                ProcessHelper::interruptPid(m_handle->processId());
+            break;
+        case ControlSignal::KickOff:
+            QTC_CHECK(false);
+            break;
+        }
+    }
 
     QProcess::ProcessState state() const final { return m_handle->state(); }
 
@@ -598,11 +621,6 @@ ProcessResult QtcProcessPrivate::interpretExitCode(int exitCode)
 }
 
 } // Internal
-
-void ProcessInterface::kickoffProcess()
-{
-    QTC_CHECK(false);
-}
 
 /*!
     \class Utils::QtcProcess
@@ -805,13 +823,25 @@ void QtcProcess::start()
 void QtcProcess::terminate()
 {
     if (d->m_process)
-        d->m_process->terminate();
+        d->m_process->sendControlSignal(ControlSignal::Terminate);
+}
+
+void QtcProcess::kill()
+{
+    if (d->m_process)
+        d->m_process->sendControlSignal(ControlSignal::Kill);
 }
 
 void QtcProcess::interrupt()
 {
     if (d->m_process)
-        d->m_process->interrupt();
+        d->m_process->sendControlSignal(ControlSignal::Interrupt);
+}
+
+void QtcProcess::kickoffProcess()
+{
+    if (d->m_process)
+        d->m_process->sendControlSignal(ControlSignal::KickOff);
 }
 
 bool QtcProcess::startDetached(const CommandLine &cmd, const FilePath &workingDirectory, qint64 *pid)
@@ -1115,12 +1145,6 @@ Environment QtcProcess::systemEnvironmentForBinary(const FilePath &filePath)
     return Environment::systemEnvironment();
 }
 
-void QtcProcess::kickoffProcess()
-{
-    if (d->m_process)
-        d->m_process->kickoffProcess();
-}
-
 qint64 QtcProcess::applicationMainThreadId() const
 {
     return d->m_applicationMainThreadId;
@@ -1179,12 +1203,6 @@ QByteArray QtcProcess::readAllStandardError()
     QByteArray buf = d->m_stdErr.rawData;
     d->m_stdErr.rawData.clear();
     return buf;
-}
-
-void QtcProcess::kill()
-{
-    if (d->m_process)
-        d->m_process->kill();
 }
 
 qint64 QtcProcess::write(const QByteArray &input)

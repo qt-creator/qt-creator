@@ -45,10 +45,9 @@ public:
     TerminalImpl();
     ~TerminalImpl() final;
 
+    void start() final;
     qint64 write(const QByteArray &) final { QTC_CHECK(false); return -1; }
-
-    void terminate() final { stopProcess(); }
-    void kill() final { stopProcess(); }
+    void sendControlSignal(ControlSignal controlSignal) final;
 
     // intentionally no-op without an assert
     bool waitForStarted(int) final { return false; }
@@ -56,12 +55,7 @@ public:
     // intentionally no-op without an assert
     bool waitForFinished(int) final { return false; }
 
-    void start() final;
-
     QProcess::ProcessState state() const final;
-
-    void kickoffProcess() final; // only debugger terminal, only non-windows
-    void interrupt() final; // only debugger terminal, only non-windows
 
 private:
     // OK, however, impl looks a bit different (!= NotRunning vs == Running).
@@ -81,6 +75,7 @@ private:
     void stubServerShutdown();
     void cleanupStub();
     void cleanupInferior();
+    void sendCommand(char c);
 
     class TerminalProcessPrivate *d;
 };

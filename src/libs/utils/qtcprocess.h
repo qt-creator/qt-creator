@@ -60,9 +60,11 @@ public:
     // ProcessInterface related
 
     virtual void start();
-    virtual void interrupt();
+
     virtual void terminate();
     virtual void kill();
+    virtual void interrupt();
+    void kickoffProcess();
     void close();
 
     virtual QByteArray readAllStandardOutput();
@@ -70,6 +72,8 @@ public:
     virtual qint64 write(const QByteArray &input);
 
     virtual qint64 processId() const;
+    qint64 applicationMainThreadId() const;
+
     virtual QProcess::ProcessState state() const;
     virtual ProcessResultData resultData() const;
 
@@ -82,9 +86,6 @@ public:
     bool waitForStarted(int msecs = 30000);
     bool waitForReadyRead(int msecs = 30000);
     bool waitForFinished(int msecs = 30000);
-
-    void kickoffProcess();
-    qint64 applicationMainThreadId() const;
 
     // ProcessSetupData related
 

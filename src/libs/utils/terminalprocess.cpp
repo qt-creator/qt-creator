@@ -435,25 +435,29 @@ void TerminalImpl::cleanupAfterStartFailure(const QString &errorMessage)
     d->m_tempFile = nullptr;
 }
 
-void TerminalImpl::kickoffProcess()
+void TerminalImpl::sendControlSignal(ControlSignal controlSignal)
 {
-#ifdef Q_OS_WIN
-    // Not used.
-#else
-    if (d->m_stubSocket && d->m_stubSocket->isWritable()) {
-        d->m_stubSocket->write("c", 1);
-        d->m_stubSocket->flush();
+    switch (controlSignal) {
+    case Utils::ControlSignal::Terminate:
+    case Utils::ControlSignal::Kill:
+        stopProcess();
+        break;
+    case Utils::ControlSignal::Interrupt:
+        sendCommand('i');
+        break;
+    case Utils::ControlSignal::KickOff:
+        sendCommand('c');
+        break;
     }
-#endif
 }
 
-void TerminalImpl::interrupt()
+void TerminalImpl::sendCommand(char c)
 {
 #ifdef Q_OS_WIN
-    // Not used.
+    Q_UNUSED(c)
 #else
     if (d->m_stubSocket && d->m_stubSocket->isWritable()) {
-        d->m_stubSocket->write("i", 1);
+        d->m_stubSocket->write(&c, 1);
         d->m_stubSocket->flush();
     }
 #endif
@@ -467,10 +471,7 @@ void TerminalImpl::killProcess()
         cleanupInferior();
     }
 #else
-    if (d->m_stubSocket && d->m_stubSocket->isWritable()) {
-        d->m_stubSocket->write("k", 1);
-        d->m_stubSocket->flush();
-    }
+    sendCommand('k');
 #endif
     d->m_processId = 0;
 }
@@ -484,10 +485,7 @@ void TerminalImpl::killStub()
         cleanupStub();
     }
 #else
-    if (d->m_stubSocket && d->m_stubSocket->isWritable()) {
-        d->m_stubSocket->write("s", 1);
-        d->m_stubSocket->flush();
-    }
+    sendCommand('s');
     stubServerShutdown();
 #endif
 }
