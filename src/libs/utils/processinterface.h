@@ -93,8 +93,6 @@ public:
     virtual qint64 processId() const = 0;
     virtual QProcess::ProcessState state() const = 0;
 
-    virtual ProcessResultData resultData() const = 0;
-
     virtual bool waitForStarted(int msecs) = 0;
     virtual bool waitForReadyRead(int msecs) = 0;
     virtual bool waitForFinished(int msecs) = 0;
@@ -104,8 +102,7 @@ public:
 
 signals:
     void started();
-    void finished();
-    void errorOccurred(QProcess::ProcessError error);
+    void done(const Utils::ProcessResultData &resultData);
     void readyReadStandardOutput();
     void readyReadStandardError();
 
@@ -126,8 +123,7 @@ public:
     {
         m_target->setParent(this);
         connect(m_target, &ProcessInterface::started, this, &ProcessInterface::started);
-        connect(m_target, &ProcessInterface::finished, this, &ProcessInterface::finished);
-        connect(m_target, &ProcessInterface::errorOccurred, this, &ProcessInterface::errorOccurred);
+        connect(m_target, &ProcessInterface::done, this, &ProcessInterface::done);
         connect(m_target, &ProcessInterface::readyReadStandardOutput,
                 this, &ProcessInterface::readyReadStandardOutput);
         connect(m_target, &ProcessInterface::readyReadStandardError,
@@ -146,8 +142,6 @@ public:
 
     qint64 processId() const override { return m_target->processId(); }
     QProcess::ProcessState state() const override { return m_target->state(); }
-
-    ProcessResultData resultData() const override { return m_target->resultData(); };
 
     bool waitForStarted(int msecs) override { return m_target->waitForStarted(msecs); }
     bool waitForReadyRead(int msecs) override { return m_target->waitForReadyRead(msecs); }

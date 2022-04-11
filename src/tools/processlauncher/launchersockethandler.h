@@ -52,11 +52,12 @@ private:
     void handleSocketData();
     void handleSocketError();
     void handleSocketClosed();
-    void handleProcessError();
-    void handleProcessStarted();
-    void handleReadyReadStandardOutput();
-    void handleReadyReadStandardError();
-    void handleProcessFinished();
+
+    void handleProcessStarted(Process *process);
+    void handleProcessError(Process *process);
+    void handleProcessFinished(Process *process);
+    void handleReadyReadStandardOutput(Process *process);
+    void handleReadyReadStandardError(Process *process);
 
     void handleStartPacket();
     void handleWritePacket();
@@ -67,7 +68,6 @@ private:
 
     Process *setupProcess(quintptr token);
     void removeProcess(quintptr token);
-    Process *senderProcess() const;
 
     const QString m_serverPath;
     QLocalSocket * const m_socket;

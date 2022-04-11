@@ -221,7 +221,6 @@ protected:
     void defaultStart();
 
 private:
-    virtual void setErrorString(const QString &str) = 0;
     virtual void doDefaultStart(const QString &program, const QStringList &arguments) = 0;
     bool dissolveCommand(QString *program, QStringList *arguments);
     bool ensureProgramExists(const QString &program);
@@ -290,9 +289,9 @@ bool DefaultImpl::dissolveCommand(QString *program, QStringList *arguments)
         *arguments = QStringList();
     } else {
         if (!success) {
-            setErrorString(tr("Error in command line."));
-            // TODO: in fact it's WrongArgumentsFailure
-            emit errorOccurred(QProcess::FailedToStart);
+            const ProcessResultData result = { 0, QProcess::NormalExit, QProcess::FailedToStart,
+                                               tr("Error in command line.") };
+            emit done(result);
             return false;
         }
         *arguments = processArgs.toUnixArgs();
@@ -319,9 +318,11 @@ bool DefaultImpl::ensureProgramExists(const QString &program)
     if (programFilePath.exists() && programFilePath.isExecutableFile())
         return true;
 
-    setErrorString(QLatin1String("The program \"%1\" does not exist or is not executable.")
-                   .arg(program));
-    emit errorOccurred(QProcess::FailedToStart);
+    const QString errorString = tr("The program \"%1\" does not exist or is not executable.")
+                                .arg(program);
+    const ProcessResultData result = { 0, QProcess::NormalExit, QProcess::FailedToStart,
+                                       errorString };
+    emit done(result);
     return false;
 }
 
@@ -333,9 +334,9 @@ public:
         connect(m_process, &QProcess::started,
                 this, &QProcessImpl::handleStarted);
         connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                this, &ProcessInterface::finished);
+                this, &QProcessImpl::handleFinished);
         connect(m_process, &QProcess::errorOccurred,
-                this, &ProcessInterface::errorOccurred);
+                this, &QProcessImpl::handleError);
         connect(m_process, &QProcess::readyReadStandardOutput,
                 this, &ProcessInterface::readyReadStandardOutput);
         connect(m_process, &QProcess::readyReadStandardError,
@@ -351,12 +352,6 @@ public:
     void kill() final { m_process->kill(); }
     void close() final { m_process->close(); }
     qint64 write(const QByteArray &data) final { return m_process->write(data); }
-
-    ProcessResultData resultData() const final {
-        return { m_process->exitCode(), m_process->exitStatus(),
-                 m_process->error(), m_process->errorString() };
-    };
-    void setErrorString(const QString &str) final { m_process->setErrorString(str); }
 
     QProcess::ProcessState state() const final { return m_process->state(); }
     qint64 processId() const final { return m_process->processId(); }
@@ -392,6 +387,23 @@ private:
         m_process->processStartHandler()->handleProcessStarted();
         emit started();
     }
+
+    void handleError(QProcess::ProcessError error)
+    {
+        if (error != QProcess::FailedToStart)
+            return;
+        const ProcessResultData result = { m_process->exitCode(), m_process->exitStatus(),
+                                           error, m_process->errorString() };
+        emit done(result);
+    }
+
+    void handleFinished(int exitCode, QProcess::ExitStatus exitStatus)
+    {
+        const ProcessResultData result = { exitCode, exitStatus,
+                                           m_process->error(), m_process->errorString() };
+        emit done(result);
+    }
+
     ProcessHelper *m_process;
 };
 
@@ -409,12 +421,10 @@ public:
     {
         m_handle = LauncherInterface::registerHandle(this, token());
         m_handle->setProcessSetupData(m_setup);
-        connect(m_handle, &CallerHandle::errorOccurred,
-                this, &ProcessInterface::errorOccurred);
         connect(m_handle, &CallerHandle::started,
                 this, &ProcessInterface::started);
-        connect(m_handle, &CallerHandle::finished,
-                this, &ProcessInterface::finished);
+        connect(m_handle, &CallerHandle::done,
+                this, &ProcessInterface::done);
         connect(m_handle, &CallerHandle::readyReadStandardOutput,
                 this, &ProcessInterface::readyReadStandardOutput);
         connect(m_handle, &CallerHandle::readyReadStandardError,
@@ -439,9 +449,6 @@ public:
     void kill() final { m_handle->kill(); }
     void close() final { m_handle->kill(); } // TODO: is it more like terminate or kill?
     qint64 write(const QByteArray &data) final { return m_handle->write(data); }
-
-    ProcessResultData resultData() const final { return m_handle->resultData(); };
-    void setErrorString(const QString &str) final { m_handle->setErrorString(str); }
 
     QProcess::ProcessState state() const final { return m_handle->state(); }
     qint64 processId() const final { return m_handle->processId(); }
@@ -473,12 +480,6 @@ static ProcessImpl defaultProcessImpl()
 class QtcProcessPrivate : public QObject
 {
 public:
-    enum StartFailure {
-        NoFailure,
-        WrongCommandFailure,
-        OtherFailure
-    };
-
     explicit QtcProcessPrivate(QtcProcess *parent)
         : QObject(parent)
         , q(parent)
@@ -503,10 +504,8 @@ public:
 
         connect(m_process.get(), &ProcessInterface::started,
                 this, &QtcProcessPrivate::emitStarted);
-        connect(m_process.get(), &ProcessInterface::finished,
-                this, &QtcProcessPrivate::slotFinished);
-        connect(m_process.get(), &ProcessInterface::errorOccurred,
-                this, &QtcProcessPrivate::handleError);
+        connect(m_process.get(), &ProcessInterface::done,
+                this, &QtcProcessPrivate::handleDone);
         connect(m_process.get(), &ProcessInterface::readyReadStandardOutput,
                 this, &QtcProcessPrivate::handleReadyReadStandardOutput);
         connect(m_process.get(), &ProcessInterface::readyReadStandardError,
@@ -559,9 +558,8 @@ public:
     ProcessSetupData m_setup;
 
     void slotTimeout();
-    void slotFinished();
-    void handleFinished(int exitCode, QProcess::ExitStatus status);
-    void handleError(QProcess::ProcessError error);
+    void handleDone(const ProcessResultData &data);
+    void handleError();
     void clearForRun();
 
     void emitStarted();
@@ -572,6 +570,8 @@ public:
 
     ProcessResult interpretExitCode(int exitCode);
 
+    ProcessResultData m_resultData;
+
     QTextCodec *m_codec = QTextCodec::codecForLocale();
     QEventLoop *m_eventLoop = nullptr;
     ProcessResult m_result = ProcessResult::StartFailed;
@@ -581,7 +581,6 @@ public:
 
     int m_hangTimerCount = 0;
     int m_maxHangTimerCount = defaultMaxHangTimerCount;
-    StartFailure m_startFailure = NoFailure;
     bool m_timeOutMessageBoxEnabled = false;
     bool m_waitingForUser = false;
 
@@ -605,7 +604,7 @@ void QtcProcessPrivate::clearForRun()
     m_stdErr.clearForRun();
     m_stdErr.codec = m_codec;
     m_result = ProcessResult::StartFailed;
-    m_startFailure = NoFailure;
+    m_resultData = {};
 }
 
 ProcessResult QtcProcessPrivate::interpretExitCode(int exitCode)
@@ -1028,12 +1027,7 @@ void QtcProcess::setResult(const ProcessResult &result)
 
 ProcessResultData QtcProcess::resultData() const
 {
-    const ProcessResultData result = d->m_process ? d->m_process->resultData()
-                                                  : ProcessResultData();
-    // This code (255) is being returned by QProcess when FailedToStart error occurred
-    if (d->m_startFailure == QtcProcessPrivate::WrongCommandFailure)
-        return { 255, result.m_exitStatus, QProcess::FailedToStart, result.m_errorString };
-    return result;
+    return d->m_resultData;
 }
 
 int QtcProcess::exitCode() const
@@ -1478,10 +1472,10 @@ void QtcProcess::runBlocking(EventLoopMode eventLoopMode)
         setProperty(QTC_PROCESS_BLOCKING_TYPE, QVariant());
     }
     if (eventLoopMode == EventLoopMode::On) {
-        // On Windows, start failure is triggered immediately if the
-        // executable cannot be found in the path. Do not start the
-        // event loop in that case.
-        if (d->m_startFailure == QtcProcessPrivate::NoFailure) {
+        // Start failure is triggered immediately if the executable cannot be found in the path.
+        // In this case the process is left in NotRunning state.
+        // Do not start the event loop in that case.
+        if (state() == QProcess::Starting) {
             QTimer timer(this);
             connect(&timer, &QTimer::timeout, d, &QtcProcessPrivate::slotTimeout);
             timer.setInterval(1000);
@@ -1573,21 +1567,28 @@ void QtcProcessPrivate::slotTimeout()
     }
 }
 
-void QtcProcessPrivate::slotFinished()
+void QtcProcessPrivate::handleDone(const ProcessResultData &data)
 {
-    handleFinished(m_process->resultData().m_exitCode, m_process->resultData().m_exitStatus);
-    emitFinished();
-}
+    m_resultData = data;
 
-void QtcProcessPrivate::handleFinished(int exitCode, QProcess::ExitStatus status)
-{
+    // This code (255) is being returned by QProcess when FailedToStart error occurred
+    if (m_resultData.m_error == QProcess::FailedToStart)
+        m_resultData.m_exitCode = 0xFF;
+
+    // HACK: See QIODevice::errorString() implementation.
+    if (m_resultData.m_error == QProcess::UnknownError)
+        m_resultData.m_errorString.clear();
+
+    if (m_resultData.m_error != QProcess::UnknownError)
+        handleError();
+
     if (debug)
-        qDebug() << Q_FUNC_INFO << exitCode << status;
+        qDebug() << Q_FUNC_INFO << m_resultData.m_exitCode << m_resultData.m_exitStatus;
     m_hangTimerCount = 0;
 
-    switch (status) {
+    switch (m_resultData.m_exitStatus) {
     case QProcess::NormalExit:
-        m_result = interpretExitCode(exitCode);
+        m_result = interpretExitCode(m_resultData.m_exitCode);
         break;
     case QProcess::CrashExit:
         // Was hang detected before and killed?
@@ -1600,21 +1601,25 @@ void QtcProcessPrivate::handleFinished(int exitCode, QProcess::ExitStatus status
 
     m_stdOut.handleRest();
     m_stdErr.handleRest();
+
+    if (m_resultData.m_error != QProcess::FailedToStart)
+        emitFinished();
+
+    emit q->done();
 }
 
-void QtcProcessPrivate::handleError(QProcess::ProcessError error)
+void QtcProcessPrivate::handleError()
 {
     m_hangTimerCount = 0;
     if (debug)
-        qDebug() << Q_FUNC_INFO << error;
+        qDebug() << Q_FUNC_INFO << m_resultData.m_error;
     // Was hang detected before and killed?
     if (m_result != ProcessResult::Hang)
         m_result = ProcessResult::StartFailed;
-    m_startFailure = (error == QProcess::FailedToStart) ? WrongCommandFailure : OtherFailure;
     if (m_eventLoop)
         m_eventLoop->quit();
 
-    emitErrorOccurred(error);
+    emitErrorOccurred(m_resultData.m_error);
 }
 
 void QtcProcessPrivate::emitStarted()
@@ -1627,15 +1632,12 @@ void QtcProcessPrivate::emitFinished()
 {
     CALL_STACK_GUARD();
     q->emitFinished();
-    emit q->done();
 }
 
 void QtcProcessPrivate::emitErrorOccurred(QProcess::ProcessError error)
 {
     CALL_STACK_GUARD();
     emit q->errorOccurred(error);
-    if (error == QProcess::FailedToStart)
-        emit q->done();
 }
 
 void QtcProcessPrivate::emitReadyReadStandardOutput()

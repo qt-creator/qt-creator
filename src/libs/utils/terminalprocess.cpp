@@ -442,14 +442,6 @@ void TerminalImpl::cleanupAfterStartFailure(const QString &errorMessage)
     d->m_tempFile = nullptr;
 }
 
-void TerminalImpl::finish(int exitCode, QProcess::ExitStatus exitStatus)
-{
-    d->m_processId = 0;
-    d->m_result.m_exitCode = exitCode;
-    d->m_result.m_exitStatus = exitStatus;
-    emit finished();
-}
-
 void TerminalImpl::kickoffProcess()
 {
 #ifdef Q_OS_WIN
@@ -652,7 +644,7 @@ void TerminalImpl::readStubOutput()
                 emitError(QProcess::UnknownError, tr("Cannot obtain exit status from inferior: %1")
                           .arg(winErrorMessage(GetLastError())));
                 cleanupInferior();
-                finish(chldStatus, QProcess::NormalExit);
+                emitFinished(chldStatus, QProcess::NormalExit);
             });
 
             emit started();
@@ -676,9 +668,9 @@ void TerminalImpl::readStubOutput()
             d->m_processId = out.mid(4).toInt();
             emit started();
         } else if (out.startsWith("exit ")) {
-            finish(out.mid(5).toInt(), QProcess::NormalExit);
+            emitFinished(out.mid(5).toInt(), QProcess::NormalExit);
         } else if (out.startsWith("crash ")) {
-            finish(out.mid(6).toInt(), QProcess::CrashExit);
+            emitFinished(out.mid(6).toInt(), QProcess::CrashExit);
         } else {
             emitError(QProcess::UnknownError, msgUnexpectedOutput(out));
             d->m_process.terminate();
@@ -700,14 +692,14 @@ void TerminalImpl::stubExited()
     if (d->m_hInferior != NULL) {
         TerminateProcess(d->m_hInferior, (unsigned)-1);
         cleanupInferior();
-        finish(-1, QProcess::CrashExit);
+        emitFinished(-1, QProcess::CrashExit);
     }
 #else
     stubServerShutdown();
     delete d->m_tempFile;
     d->m_tempFile = nullptr;
     if (d->m_processId)
-        finish(-1, QProcess::CrashExit);
+        emitFinished(-1, QProcess::CrashExit);
 #endif
 }
 
@@ -741,17 +733,22 @@ qint64 TerminalImpl::processId() const
     return d->m_processId;
 }
 
-ProcessResultData TerminalImpl::resultData() const
+void TerminalImpl::emitError(QProcess::ProcessError error, const QString &errorString)
 {
-    return d->m_result;
+    d->m_result.m_error = error;
+    d->m_result.m_errorString = errorString;
+    if (error == QProcess::FailedToStart)
+        emit done(d->m_result);
 }
 
-void TerminalImpl::emitError(QProcess::ProcessError err, const QString &errorString)
+void TerminalImpl::emitFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    d->m_result.m_error = err;
-    d->m_result.m_errorString = errorString;
-    emit errorOccurred(err);
+    d->m_processId = 0;
+    d->m_result.m_exitCode = exitCode;
+    d->m_result.m_exitStatus = exitStatus;
+    emit done(d->m_result);
 }
+
 
 } // Internal
 } // Utils

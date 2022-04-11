@@ -45,11 +45,10 @@ enum class LauncherPacketType {
     WriteIntoProcess,
     StopProcess,
     // launcher -> client packets:
-    ProcessError,
     ProcessStarted,
     ReadyReadStandardOutput,
     ReadyReadStandardError,
-    ProcessFinished
+    ProcessDone
 };
 
 class PacketParser
@@ -176,19 +175,6 @@ private:
     void doDeserialize(QDataStream &stream) override;
 };
 
-class ProcessErrorPacket : public LauncherPacket
-{
-public:
-    ProcessErrorPacket(quintptr token);
-
-    QProcess::ProcessError error = QProcess::UnknownError;
-    QString errorString;
-
-private:
-    void doSerialize(QDataStream &stream) const override;
-    void doDeserialize(QDataStream &stream) override;
-};
-
 class ReadyReadPacket : public LauncherPacket
 {
 public:
@@ -216,17 +202,18 @@ public:
         : ReadyReadPacket(LauncherPacketType::ReadyReadStandardError, token) { }
 };
 
-class ProcessFinishedPacket : public LauncherPacket
+class ProcessDonePacket : public LauncherPacket
 {
 public:
-    ProcessFinishedPacket(quintptr token);
+    ProcessDonePacket(quintptr token);
 
-    QString errorString;
     QByteArray stdOut;
     QByteArray stdErr;
+
+    int exitCode = 0;
     QProcess::ExitStatus exitStatus = QProcess::NormalExit;
     QProcess::ProcessError error = QProcess::UnknownError;
-    int exitCode = 0;
+    QString errorString;
 
 private:
     void doSerialize(QDataStream &stream) const override;

@@ -74,12 +74,12 @@ void StartProcessPacket::doSerialize(QDataStream &stream) const
 
 void StartProcessPacket::doDeserialize(QDataStream &stream)
 {
-    int pm;
+    int processModeInt;
     stream >> command
            >> arguments
            >> workingDir
            >> env
-           >> pm
+           >> processModeInt
            >> writeData
            >> standardInputFile
            >> belowNormalPriority
@@ -87,7 +87,7 @@ void StartProcessPacket::doDeserialize(QDataStream &stream)
            >> lowPriority
            >> unixTerminalDisabled
            >> useCtrlCStub;
-    processMode = Utils::ProcessMode(pm);
+    processMode = Utils::ProcessMode(processModeInt);
 }
 
 
@@ -119,9 +119,9 @@ void StopProcessPacket::doSerialize(QDataStream &stream) const
 
 void StopProcessPacket::doDeserialize(QDataStream &stream)
 {
-    int sig;
-    stream >> sig;
-    signalType = SignalType(sig);
+    int signalTypeInt;
+    stream >> signalTypeInt;
+    signalType = SignalType(signalTypeInt);
 }
 
 void WritePacket::doSerialize(QDataStream &stream) const
@@ -134,25 +134,6 @@ void WritePacket::doDeserialize(QDataStream &stream)
     stream >> inputData;
 }
 
-ProcessErrorPacket::ProcessErrorPacket(quintptr token)
-    : LauncherPacket(LauncherPacketType::ProcessError, token)
-{
-}
-
-void ProcessErrorPacket::doSerialize(QDataStream &stream) const
-{
-    stream << static_cast<quint8>(error) << errorString;
-}
-
-void ProcessErrorPacket::doDeserialize(QDataStream &stream)
-{
-    quint8 e;
-    stream >> e;
-    error = static_cast<QProcess::ProcessError>(e);
-    stream >> errorString;
-}
-
-
 void ReadyReadPacket::doSerialize(QDataStream &stream) const
 {
     stream << standardChannel;
@@ -164,27 +145,32 @@ void ReadyReadPacket::doDeserialize(QDataStream &stream)
 }
 
 
-ProcessFinishedPacket::ProcessFinishedPacket(quintptr token)
-    : LauncherPacket(LauncherPacketType::ProcessFinished, token)
+ProcessDonePacket::ProcessDonePacket(quintptr token)
+    : LauncherPacket(LauncherPacketType::ProcessDone, token)
 {
 }
 
-void ProcessFinishedPacket::doSerialize(QDataStream &stream) const
+void ProcessDonePacket::doSerialize(QDataStream &stream) const
 {
-    stream << errorString << stdOut << stdErr
-           << static_cast<quint8>(exitStatus) << static_cast<quint8>(error)
-           << exitCode;
+    stream << exitCode
+           << int(exitStatus)
+           << int(error)
+           << errorString
+           << stdOut
+           << stdErr;
 }
 
-void ProcessFinishedPacket::doDeserialize(QDataStream &stream)
+void ProcessDonePacket::doDeserialize(QDataStream &stream)
 {
-    stream >> errorString >> stdOut >> stdErr;
-    quint8 val;
-    stream >> val;
-    exitStatus = static_cast<QProcess::ExitStatus>(val);
-    stream >> val;
-    error = static_cast<QProcess::ProcessError>(val);
-    stream >> exitCode;
+    int exitStatusInt, errorInt;
+    stream >> exitCode
+           >> exitStatusInt
+           >> errorInt
+           >> errorString
+           >> stdOut
+           >> stdErr;
+    exitStatus = QProcess::ExitStatus(exitStatusInt);
+    error = QProcess::ProcessError(errorInt);
 }
 
 ShutdownPacket::ShutdownPacket() : LauncherPacket(LauncherPacketType::Shutdown, 0) { }

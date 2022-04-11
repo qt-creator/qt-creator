@@ -64,7 +64,6 @@ public:
 
     QProcess::ProcessState state() const final;
     qint64 processId() const final;
-    ProcessResultData resultData() const final;
 
     void kickoffProcess() final; // only debugger terminal, only non-windows
     void interrupt() final; // only debugger terminal, only non-windows
@@ -80,10 +79,10 @@ private:
     void readStubOutput();
     void stubExited();
     void cleanupAfterStartFailure(const QString &errorMessage);
-    void finish(int exitCode, QProcess::ExitStatus exitStatus);
     void killProcess();
     void killStub();
-    void emitError(QProcess::ProcessError err, const QString &errorString);
+    void emitError(QProcess::ProcessError error, const QString &errorString);
+    void emitFinished(int exitCode, QProcess::ExitStatus exitStatus);
     QString stubServerListen();
     void stubServerShutdown();
     void cleanupStub();
