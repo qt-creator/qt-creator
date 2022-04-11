@@ -87,7 +87,6 @@ public:
 
     virtual qint64 write(const QByteArray &data) = 0;
 
-    virtual qint64 processId() const = 0;
     virtual QProcess::ProcessState state() const = 0;
 
     virtual bool waitForStarted(int msecs) = 0;
@@ -95,10 +94,9 @@ public:
     virtual bool waitForFinished(int msecs) = 0;
 
     virtual void kickoffProcess();
-    virtual qint64 applicationMainThreadID() const;
 
 signals:
-    void started();
+    void started(qint64 processId, qint64 applicationMainThreadId = 0);
     void readyRead(const QByteArray &outputData, const QByteArray &errorData);
     void done(const Utils::ProcessResultData &resultData);
 
@@ -131,7 +129,6 @@ public:
 
     qint64 write(const QByteArray &data) override { return m_target->write(data); }
 
-    qint64 processId() const override { return m_target->processId(); }
     QProcess::ProcessState state() const override { return m_target->state(); }
 
     bool waitForStarted(int msecs) override { return m_target->waitForStarted(msecs); }
@@ -139,7 +136,6 @@ public:
     bool waitForFinished(int msecs) override { return m_target->waitForFinished(msecs); }
 
     void kickoffProcess() override { m_target->kickoffProcess(); }
-    qint64 applicationMainThreadID() const override { return m_target->applicationMainThreadID(); }
 
 protected:
     ProcessInterface *m_target;

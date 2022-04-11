@@ -176,7 +176,7 @@ void CallerHandle::handleStarted(const StartedSignal *launcherSignal)
     QTC_ASSERT(isCalledFromCallersThread(), return);
     m_processState = QProcess::Running;
     m_processId = launcherSignal->processId();
-    emit started();
+    emit started(m_processId);
 }
 
 void CallerHandle::handleReadyRead(const ReadyReadSignal *launcherSignal)
@@ -190,6 +190,7 @@ void CallerHandle::handleDone(const DoneSignal *launcherSignal)
     QTC_ASSERT(isCalledFromCallersThread(), return);
     m_processState = QProcess::NotRunning;
     emit done(launcherSignal->resultData());
+    m_processId = 0;
 }
 
 // Called from launcher's thread exclusively.

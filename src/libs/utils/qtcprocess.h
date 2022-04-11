@@ -84,7 +84,7 @@ public:
     bool waitForFinished(int msecs = 30000);
 
     void kickoffProcess();
-    qint64 applicationMainThreadID() const;
+    qint64 applicationMainThreadId() const;
 
     // ProcessSetupData related
 

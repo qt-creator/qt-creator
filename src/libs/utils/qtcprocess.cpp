@@ -354,7 +354,6 @@ public:
     qint64 write(const QByteArray &data) final { return m_process->write(data); }
 
     QProcess::ProcessState state() const final { return m_process->state(); }
-    qint64 processId() const final { return m_process->processId(); }
 
     bool waitForStarted(int msecs) final { return m_process->waitForStarted(msecs); }
     bool waitForReadyRead(int msecs) final { return m_process->waitForReadyRead(msecs); }
@@ -384,7 +383,7 @@ private:
     void handleStarted()
     {
         m_process->processStartHandler()->handleProcessStarted();
-        emit started();
+        emit started(m_process->processId());
     }
 
     void handleError(QProcess::ProcessError error)
@@ -437,7 +436,7 @@ public:
     void interrupt() final
     {
         if (m_setup->m_useCtrlCStub) // bypass launcher and interrupt directly
-            ProcessHelper::interruptPid(processId());
+            ProcessHelper::interruptPid(m_handle->processId());
     }
     void terminate() final { m_handle->terminate(); }
     void kill() final { m_handle->kill(); }
@@ -445,7 +444,6 @@ public:
     qint64 write(const QByteArray &data) final { return m_handle->write(data); }
 
     QProcess::ProcessState state() const final { return m_handle->state(); }
-    qint64 processId() const final { return m_handle->processId(); }
 
     bool waitForStarted(int msecs) final { return m_handle->waitForStarted(msecs); }
     bool waitForReadyRead(int msecs) final { return m_handle->waitForReadyRead(msecs); }
@@ -497,7 +495,7 @@ public:
         m_process->setParent(this);
 
         connect(m_process.get(), &ProcessInterface::started,
-                this, &QtcProcessPrivate::emitStarted);
+                this, &QtcProcessPrivate::handleStarted);
         connect(m_process.get(), &ProcessInterface::readyRead,
                 this, &QtcProcessPrivate::handleReadyRead);
         connect(m_process.get(), &ProcessInterface::done,
@@ -536,6 +534,7 @@ public:
     ProcessSetupData m_setup;
 
     void slotTimeout();
+    void handleStarted(qint64 processId, qint64 applicationMainThreadId);
     void handleReadyRead(const QByteArray &outputData, const QByteArray &errorData);
     void handleDone(const ProcessResultData &data);
     void handleError();
@@ -550,6 +549,8 @@ public:
     ProcessResult interpretExitCode(int exitCode);
 
     QProcess::ProcessChannelMode m_processChannelMode = QProcess::SeparateChannels;
+    qint64 m_processId = 0;
+    qint64 m_applicationMainThreadId = 0;
     ProcessResultData m_resultData;
 
     QTextCodec *m_codec = QTextCodec::codecForLocale();
@@ -584,6 +585,8 @@ void QtcProcessPrivate::clearForRun()
     m_stdErr.clearForRun();
     m_stdErr.codec = m_codec;
     m_result = ProcessResult::StartFailed;
+    m_processId = 0;
+    m_applicationMainThreadId = 0;
     m_resultData = {};
 }
 
@@ -601,11 +604,6 @@ ProcessResult QtcProcessPrivate::interpretExitCode(int exitCode)
 void ProcessInterface::kickoffProcess()
 {
     QTC_CHECK(false);
-}
-
-qint64 ProcessInterface::applicationMainThreadID() const
-{
-    QTC_CHECK(false); return -1;
 }
 
 /*!
@@ -1125,11 +1123,9 @@ void QtcProcess::kickoffProcess()
         d->m_process->kickoffProcess();
 }
 
-qint64 QtcProcess::applicationMainThreadID() const
+qint64 QtcProcess::applicationMainThreadId() const
 {
-    if (d->m_process)
-        return d->m_process->applicationMainThreadID();
-    return -1;
+    return d->m_applicationMainThreadId;
 }
 
 void QtcProcess::setProcessChannelMode(QProcess::ProcessChannelMode mode)
@@ -1152,9 +1148,7 @@ bool QtcProcess::isRunning() const
 
 qint64 QtcProcess::processId() const
 {
-    if (d->m_process)
-        return d->m_process->processId();
-    return 0;
+    return d->m_processId;
 }
 
 bool QtcProcess::waitForStarted(int msecs)
@@ -1539,6 +1533,13 @@ void QtcProcessPrivate::slotTimeout()
     }
 }
 
+void QtcProcessPrivate::handleStarted(qint64 processId, qint64 applicationMainThreadId)
+{
+    m_processId = processId;
+    m_applicationMainThreadId = applicationMainThreadId;
+    emitStarted();
+}
+
 void QtcProcessPrivate::handleReadyRead(const QByteArray &outputData, const QByteArray &errorData)
 {
     // TODO: check why we need this timer?
@@ -1609,6 +1610,8 @@ void QtcProcessPrivate::handleDone(const ProcessResultData &data)
         emitFinished();
 
     emit q->done();
+    m_processId = 0;
+    m_applicationMainThreadId = 0;
 }
 
 void QtcProcessPrivate::handleError()

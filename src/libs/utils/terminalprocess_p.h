@@ -60,11 +60,9 @@ public:
     void start() final;
 
     QProcess::ProcessState state() const final;
-    qint64 processId() const final;
 
     void kickoffProcess() final; // only debugger terminal, only non-windows
     void interrupt() final; // only debugger terminal, only non-windows
-    qint64 applicationMainThreadID() const final; // only debugger terminal, only windows (-1 otherwise)
 
 private:
     // OK, however, impl looks a bit different (!= NotRunning vs == Running).

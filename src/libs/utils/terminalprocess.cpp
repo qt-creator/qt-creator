@@ -163,13 +163,6 @@ TerminalImpl::~TerminalImpl()
     delete d;
 }
 
-qint64 TerminalImpl::applicationMainThreadID() const
-{
-    if (HostOsInfo::isWindowsHost())
-        return d->m_appMainThreadId;
-    return -1;
-}
-
 void TerminalImpl::start()
 {
     if (isRunning())
@@ -620,6 +613,7 @@ void TerminalImpl::readStubOutput()
             emitError(QProcess::FailedToStart,
                       msgCannotExecute(m_setup->m_commandLine.executable().toUserOutput(), winErrorMessage(out.mid(9).toInt())));
         } else if (out.startsWith("thread ")) { // Windows only
+            // TODO: ensure that it comes before "pid " comes
             d->m_appMainThreadId = out.mid(7).toLongLong();
         } else if (out.startsWith("pid ")) {
             // Will not need it any more
@@ -647,7 +641,7 @@ void TerminalImpl::readStubOutput()
                 emitFinished(chldStatus, QProcess::NormalExit);
             });
 
-            emit started();
+            emit started(d->m_processId, d->m_appMainThreadId);
         } else {
             emitError(QProcess::UnknownError, msgUnexpectedOutput(out));
             TerminateProcess(d->m_pid->hProcess, (unsigned)-1);
@@ -666,7 +660,7 @@ void TerminalImpl::readStubOutput()
             d->m_tempFile = nullptr;
         } else if (out.startsWith("pid ")) {
             d->m_processId = out.mid(4).toInt();
-            emit started();
+            emit started(d->m_processId);
         } else if (out.startsWith("exit ")) {
             emitFinished(out.mid(5).toInt(), QProcess::NormalExit);
         } else if (out.startsWith("crash ")) {
@@ -726,11 +720,6 @@ void TerminalImpl::cleanupStub()
     delete d->m_tempFile;
     d->m_tempFile = nullptr;
 #endif
-}
-
-qint64 TerminalImpl::processId() const
-{
-    return d->m_processId;
 }
 
 void TerminalImpl::emitError(QProcess::ProcessError error, const QString &errorString)

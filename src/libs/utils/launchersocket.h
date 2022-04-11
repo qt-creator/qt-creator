@@ -108,9 +108,9 @@ public:
     void setProcessSetupData(const ProcessSetupData::Ptr &setup);
 
 signals:
-    void started();
-    void done(const Utils::ProcessResultData &resultData);
+    void started(qint64 processId, qint64 applicationMainThreadId = 0);
     void readyRead(const QByteArray &outputData, const QByteArray &errorData);
+    void done(const Utils::ProcessResultData &resultData);
 
 private:
     bool waitForSignal(int msecs, SignalType newSignal);
