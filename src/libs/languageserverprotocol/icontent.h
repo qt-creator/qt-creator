@@ -94,12 +94,12 @@ private:
 struct ResponseHandler
 {
     MessageId id;
-    using Callback = std::function<void(const QByteArray &, QTextCodec *)>;
+    using Callback = std::function<void(const IContent &)>;
     Callback callback;
 };
 
-using ResponseHandlers = std::function<void(const MessageId &, const QByteArray &, QTextCodec *)>;
-using MethodHandler = std::function<void(const QString &, const MessageId &, const IContent *)>;
+using ResponseHandlers = std::function<void(const MessageId &, const IContent &)>;
+using MethodHandler = std::function<void(const QString &, const MessageId &, const IContent &)>;
 
 template <typename Error>
 inline QDebug operator<<(QDebug stream, const LanguageServerProtocol::MessageId &id)

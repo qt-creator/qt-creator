@@ -229,10 +229,11 @@ protected:
 
 private:
     void sendMessage(const LanguageServerProtocol::BaseMessage &message);
-    void handleResponse(const LanguageServerProtocol::MessageId &id, const QByteArray &content,
-                        QTextCodec *codec);
-    void handleMethod(const QString &method, const LanguageServerProtocol::MessageId &id,
-                      const LanguageServerProtocol::IContent *content);
+    void handleResponse(const LanguageServerProtocol::MessageId &id,
+                        const LanguageServerProtocol::IContent &content);
+    void handleMethod(const QString &method,
+                      const LanguageServerProtocol::MessageId &id,
+                      const LanguageServerProtocol::IContent &content);
 
     void initializeCallback(const LanguageServerProtocol::InitializeRequest::Response &initResponse);
     void shutDownCallback(const LanguageServerProtocol::ShutdownRequest::Response &shutdownResponse);

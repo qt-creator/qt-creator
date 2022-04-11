@@ -54,6 +54,7 @@ public:
     QByteArray mimeType() const final;
     bool isValid(QString *errorMessage) const override;
 
+    const QJsonObject &toJsonObject() const;
 protected:
     QJsonObject m_jsonObject;
 
@@ -66,23 +67,11 @@ class LANGUAGESERVERPROTOCOL_EXPORT JsonRpcMessageHandler
     Q_DECLARE_TR_FUNCTIONS(JsonRpcMessageHandler)
 
 public:
-    using MessageProvider = std::function<IContent *(const QJsonObject &)>;
-    static void registerMessageProvider(const QString &method, MessageProvider provider);
-    template<typename T>
-    static void registerMessageProvider()
-    {
-        registerMessageProvider(T::methodName, [](const QJsonObject &object){
-            return new T(object);
-        });
-    }
     static QByteArray jsonRpcMimeType();
     static void parseContent(const QByteArray &content, QTextCodec *codec, QString &errorMessage,
                              const ResponseHandlers &responseHandlers,
                              const MethodHandler &methodHandler);
     static QJsonObject toJsonObject(const QByteArray &content, QTextCodec *codec, QString &parseError);
-
-private:
-    static QHash<QString, MessageProvider> m_messageProvider;
 };
 
 template <typename Params>
@@ -322,21 +311,12 @@ public:
         QElapsedTimer timer;
         timer.start();
         auto callback = [callback = m_callBack, method = this->method(), t = std::move(timer)]
-                (const QByteArray &content, QTextCodec *codec) {
+                (const IContent &content) {
             if (!callback)
                 return;
             logElapsedTime(method, t);
-            QString parseError;
-            const QJsonObject &object = JsonRpcMessageHandler::toJsonObject(content,
-                                                                            codec,
-                                                                            parseError);
-            Response response(object);
-            if (object.isEmpty()) {
-                ResponseError<ErrorDataType> error;
-                error.setMessage(parseError);
-                response.setError(error);
-            }
-            callback(Response(object));
+
+            callback(Response(static_cast<const JsonRpcMessage &>(content).toJsonObject()));
         };
         return Utils::make_optional(ResponseHandler{id(), callback});
     }

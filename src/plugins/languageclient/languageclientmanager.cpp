@@ -61,17 +61,6 @@ LanguageClientManager::LanguageClientManager(QObject *parent)
 {
     using namespace Core;
     using namespace ProjectExplorer;
-    JsonRpcMessageHandler::registerMessageProvider<PublishDiagnosticsNotification>();
-    JsonRpcMessageHandler::registerMessageProvider<ApplyWorkspaceEditRequest>();
-    JsonRpcMessageHandler::registerMessageProvider<LogMessageNotification>();
-    JsonRpcMessageHandler::registerMessageProvider<ShowMessageRequest>();
-    JsonRpcMessageHandler::registerMessageProvider<ShowMessageNotification>();
-    JsonRpcMessageHandler::registerMessageProvider<WorkSpaceFolderRequest>();
-    JsonRpcMessageHandler::registerMessageProvider<RegisterCapabilityRequest>();
-    JsonRpcMessageHandler::registerMessageProvider<UnregisterCapabilityRequest>();
-    JsonRpcMessageHandler::registerMessageProvider<WorkDoneProgressCreateRequest>();
-    JsonRpcMessageHandler::registerMessageProvider<ProgressNotification>();
-    JsonRpcMessageHandler::registerMessageProvider<SemanticTokensRefreshRequest>();
     connect(EditorManager::instance(), &EditorManager::editorOpened,
             this, &LanguageClientManager::editorOpened);
     connect(EditorManager::instance(), &EditorManager::documentOpened,

@@ -40,8 +40,6 @@ Q_LOGGING_CATEGORY(timingLog, "qtc.languageserverprotocol.timing", QtWarningMsg)
 
 constexpr const char CancelRequest::methodName[];
 
-QHash<QString, JsonRpcMessageHandler::MessageProvider> JsonRpcMessageHandler::m_messageProvider;
-
 QByteArray JsonRpcMessage::toRawData() const
 {
     return QJsonDocument(m_jsonObject).toJson(QJsonDocument::Compact);
@@ -55,6 +53,11 @@ QByteArray JsonRpcMessage::mimeType() const
 bool JsonRpcMessage::isValid(QString * /*errorMessage*/) const
 {
     return m_jsonObject[jsonRpcVersionKey] == "2.0";
+}
+
+const QJsonObject &JsonRpcMessage::toJsonObject() const
+{
+    return m_jsonObject;
 }
 
 JsonRpcMessage::JsonRpcMessage()
@@ -76,12 +79,6 @@ QByteArray JsonRpcMessageHandler::jsonRpcMimeType()
     return "application/vscode-jsonrpc";
 }
 
-void JsonRpcMessageHandler::registerMessageProvider(
-        const QString &method, JsonRpcMessageHandler::MessageProvider provider)
-{
-    m_messageProvider.insert(method, provider);
-}
-
 void JsonRpcMessageHandler::parseContent(const QByteArray &content,
                                          QTextCodec *codec,
                                          QString &parseError,
@@ -94,14 +91,11 @@ void JsonRpcMessageHandler::parseContent(const QByteArray &content,
 
     const MessageId id(jsonObject.value(idKey));
     const QString &method = jsonObject.value(methodKey).toString();
-    if (!method.isEmpty()) {
-        if (auto provider = m_messageProvider[method]) {
-            methodHandler(method, id, provider(jsonObject));
-            return;
-        }
-    }
-
-    responseHandlers(id, content, codec);
+    const JsonRpcMessage jsonContent(jsonObject);
+    if (method.isEmpty())
+        responseHandlers(id, jsonContent);
+    else
+        methodHandler(method, id, jsonContent);
 }
 
 constexpr int utf8mib = 106;
