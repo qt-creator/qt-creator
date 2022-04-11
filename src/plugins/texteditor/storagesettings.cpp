@@ -72,7 +72,7 @@ QVariantMap StorageSettings::toMap() const
         {addFinalNewLineKey, m_addFinalNewLine},
         {cleanIndentationKey, m_cleanIndentation},
         {skipTrailingWhitespaceKey, m_skipTrailingWhitespace},
-        {ignoreFileTypesKey, m_ignoreFileTypes.toLatin1().data()}
+        {ignoreFileTypesKey, m_ignoreFileTypes}
     };
 }
 
