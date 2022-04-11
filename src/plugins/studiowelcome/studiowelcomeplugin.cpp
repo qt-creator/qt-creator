@@ -134,11 +134,13 @@ class UsageStatisticPluginModel : public QObject
 
     Q_PROPERTY(bool usageStatisticEnabled MEMBER m_usageStatisticEnabled NOTIFY usageStatisticChanged)
     Q_PROPERTY(bool crashReporterEnabled MEMBER m_crashReporterEnabled NOTIFY crashReporterEnabledChanged)
+    Q_PROPERTY(QString version MEMBER m_versionString CONSTANT)
 
 public:
     explicit UsageStatisticPluginModel(QObject *parent = nullptr)
         : QObject(parent)
     {
+        m_versionString = Core::Constants::IDE_VERSION_DISPLAY;
         setupModel();
     }
 
@@ -191,6 +193,7 @@ signals:
 private:
     bool m_usageStatisticEnabled = false;
     bool m_crashReporterEnabled = false;
+    QString m_versionString;
 };
 
 class ProjectModel : public QAbstractListModel
@@ -619,17 +622,6 @@ bool StudioWelcomePlugin::delayedInitialize()
         return false;
 
     QTC_ASSERT(s_view->rootObject(), return true);
-
-#ifdef ENABLE_CRASHPAD
-    const bool crashReportingEnabled = true;
-    const bool crashReportingOn = Core::ICore::settings()->value(CRASH_REPORTER_SETTING, false).toBool();
-#else
-    const bool crashReportingEnabled = false;
-    const bool crashReportingOn = false;
-#endif
-
-    QMetaObject::invokeMethod(s_view->rootObject(), "onPluginInitialized",
-            Q_ARG(bool, crashReportingEnabled), Q_ARG(bool, crashReportingOn));
 
     return false;
 }

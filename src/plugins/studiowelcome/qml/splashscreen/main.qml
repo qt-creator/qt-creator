@@ -27,8 +27,8 @@ import QtQuick 2.0
 
 Item {
     id: root
-    width: 800
-    height: 480
+    width: 720
+    height: 720
 
     signal closeClicked
     signal checkBoxToggled

@@ -27,4 +27,5 @@ import QtQuick 2.0
 
 QtObject {
     property bool usageStatisticEnabled: false
+    property string version: "3.3.0"
 }
