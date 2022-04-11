@@ -656,6 +656,7 @@ public:
 
     void update();
     void finalize();
+    void resetData(bool resetFollowSymbolData);
 
 private:
     IAssistProposal *perform(const AssistInterface *) override
@@ -667,8 +668,6 @@ private:
     {
         return createProposal(false);
     }
-
-    void resetData();
 
     IAssistProposal *immediateProposalImpl() const;
     IAssistProposal *createProposal(bool final) const;
@@ -705,7 +704,7 @@ public:
     {
         closeTempDocuments();
         if (virtualFuncAssistProcessor)
-            virtualFuncAssistProcessor->cancel();
+            virtualFuncAssistProcessor->resetData(false);
         for (const MessageId &id : qAsConst(pendingSymbolInfoRequests))
             q->cancelRequest(id);
         for (const MessageId &id : qAsConst(pendingGotoImplRequests))
@@ -2982,7 +2981,7 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
 
 void ClangdClient::VirtualFunctionAssistProcessor::cancel()
 {
-    resetData();
+    resetData(true);
 }
 
 void ClangdClient::VirtualFunctionAssistProcessor::update()
@@ -3004,15 +3003,16 @@ void ClangdClient::VirtualFunctionAssistProcessor::finalize()
     } else {
         setAsyncProposalAvailable(proposal);
     }
-    resetData();
+    resetData(true);
 }
 
-void ClangdClient::VirtualFunctionAssistProcessor::resetData()
+void ClangdClient::VirtualFunctionAssistProcessor::resetData(bool resetFollowSymbolData)
 {
     if (!m_data)
         return;
     m_data->followSymbolData->virtualFuncAssistProcessor = nullptr;
-    m_data->followSymbolData.reset();
+    if (resetFollowSymbolData)
+        m_data->followSymbolData.reset();
     m_data = nullptr;
 }
 
