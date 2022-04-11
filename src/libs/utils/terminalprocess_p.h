@@ -49,7 +49,6 @@ public:
 
     void terminate() final { stopProcess(); }
     void kill() final { stopProcess(); }
-    void close() final { stopProcess(); }
 
     // intentionally no-op without an assert
     bool waitForStarted(int) final { return false; }

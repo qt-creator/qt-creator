@@ -83,7 +83,6 @@ public:
     virtual void interrupt() = 0;
     virtual void terminate() = 0;
     virtual void kill() = 0;
-    virtual void close() = 0;
 
     virtual qint64 write(const QByteArray &data) = 0;
 
@@ -125,7 +124,6 @@ public:
     void interrupt() override { m_target->interrupt(); }
     void terminate() override { m_target->terminate(); }
     void kill() override { m_target->kill(); }
-    void close() override { m_target->close(); }
 
     qint64 write(const QByteArray &data) override { return m_target->write(data); }
 

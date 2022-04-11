@@ -350,7 +350,6 @@ public:
     void interrupt() final { ProcessHelper::interruptProcess(m_process); }
     void terminate() final { ProcessHelper::terminateProcess(m_process); }
     void kill() final { m_process->kill(); }
-    void close() final { m_process->close(); }
     qint64 write(const QByteArray &data) final { return m_process->write(data); }
 
     QProcess::ProcessState state() const final { return m_process->state(); }
@@ -440,7 +439,6 @@ public:
     }
     void terminate() final { m_handle->terminate(); }
     void kill() final { m_handle->kill(); }
-    void close() final { m_handle->kill(); } // TODO: is it more like terminate or kill?
     qint64 write(const QByteArray &data) final { return m_handle->write(data); }
 
     QProcess::ProcessState state() const final { return m_handle->state(); }
@@ -793,8 +791,8 @@ void QtcProcess::start()
         processImpl = d->createProcessInterface();
     }
     QTC_ASSERT(processImpl, return);
-    setProcessInterface(processImpl);
     d->clearForRun();
+    setProcessInterface(processImpl);
     d->m_process->m_setup->m_commandLine = d->fullCommandLine();
     d->m_process->m_setup->m_environment = d->fullEnvironment();
     if (processLog().isDebugEnabled()) {
@@ -1198,8 +1196,11 @@ qint64 QtcProcess::write(const QByteArray &input)
 
 void QtcProcess::close()
 {
-    if (d->m_process)
-        d->m_process->close();
+    if (d->m_process) {
+        d->m_process->disconnect();
+        d->m_process.release()->deleteLater();
+    }
+    d->clearForRun();
 }
 
 QString QtcProcess::locateBinary(const QString &binary)
