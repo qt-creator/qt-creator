@@ -38,16 +38,22 @@ namespace QmlDesigner {
 
 namespace {
 
-QImage renderImage(ServerNodeInstance rootNodeInstance)
+QImage renderImage(ServerNodeInstance rootNodeInstance, QSize minimumSize, QSize maximumSize)
 {
     rootNodeInstance.updateDirtyNodeRecursive();
 
     QSize previewImageSize = rootNodeInstance.boundingRect().size().toSize();
-    if (previewImageSize.isEmpty())
-        previewImageSize = {150, 150};
+    if (previewImageSize.isEmpty()) {
+        previewImageSize = minimumSize;
+    } else if (previewImageSize.width() < minimumSize.width()
+               || previewImageSize.height() < minimumSize.height()) {
+        previewImageSize.scale(minimumSize, Qt::KeepAspectRatio);
+    }
 
-    if (previewImageSize.width() > 150 || previewImageSize.height() > 150)
-        previewImageSize.scale({150, 150}, Qt::KeepAspectRatio);
+    if (previewImageSize.width() > maximumSize.width()
+        || previewImageSize.height() > maximumSize.height()) {
+        previewImageSize.scale(maximumSize, Qt::KeepAspectRatio);
+    }
 
     QImage previewImage = rootNodeInstance.renderPreviewImage(previewImageSize);
 
@@ -73,13 +79,21 @@ void Qt5CaptureImageNodeInstanceServer::collectItemChangesAndSendChangeCommands(
 
         DesignerSupport::polishItems(quickWindow());
 
-        QImage image = renderImage(rooNodeInstance);
+        QImage image = renderImage(rooNodeInstance, m_minimumSize, m_maximumSize);
 
         nodeInstanceClient()->capturedData(CapturedDataCommand{std::move(image)});
 
         slowDownRenderTimer();
         inFunction = false;
     }
+}
+
+void QmlDesigner::Qt5CaptureImageNodeInstanceServer::createScene(const CreateSceneCommand &command)
+{
+    m_minimumSize = command.captureImageMinimumSize;
+    m_maximumSize = command.captureImageMaximumSize;
+
+    Qt5PreviewNodeInstanceServer::createScene(command);
 }
 
 } // namespace

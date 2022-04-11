@@ -34,7 +34,6 @@
 namespace QmlDesigner {
 
 class ItemLibraryWidget;
-class ImageCacheData;
 class AsynchronousImageCache;
 
 class ItemLibraryView : public AbstractView
@@ -65,6 +64,7 @@ protected:
     void updateImports();
 
 private:
+    class ImageCacheData;
     ImageCacheData *imageCacheData();
 
     std::once_flag imageCacheFlag;

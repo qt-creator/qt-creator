@@ -108,6 +108,8 @@ public:
     {}
     ImageCacheConnectionManager connectionManager;
     ImageCacheCollector collector{connectionManager,
+                                  QSize{300, 300},
+                                  QSize{1000, 1000},
                                   ImageCacheCollectorNullImageHandling::DontCaptureNullImage};
     TimeStampProvider timeStampProvider;
     AsynchronousImageFactory factory;

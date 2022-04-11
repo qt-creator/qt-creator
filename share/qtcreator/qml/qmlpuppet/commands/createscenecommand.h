@@ -25,9 +25,10 @@
 
 #pragma once
 
-#include <qmetatype.h>
+#include <QSize>
 #include <QUrl>
 #include <QVector>
+#include <qmetatype.h>
 
 #include "instancecontainer.h"
 #include "reparentcontainer.h"
@@ -55,6 +56,8 @@ public:
                                 const QUrl &resourceUrl,
                                 const QHash<QString, QVariantMap> &edit3dToolStates,
                                 const QString &language,
+                                QSize captureImageMinimumSize,
+                                QSize captureImageMaximumSize,
                                 qint32 stateInstanceId)
         : instances(instanceContainer)
         , reparentInstances(reparentContainer)
@@ -68,6 +71,8 @@ public:
         , resourceUrl(resourceUrl)
         , edit3dToolStates(edit3dToolStates)
         , language(language)
+        , captureImageMinimumSize(captureImageMinimumSize)
+        , captureImageMaximumSize(captureImageMaximumSize)
         , stateInstanceId{stateInstanceId}
     {}
 
@@ -86,6 +91,8 @@ public:
         out << command.edit3dToolStates;
         out << command.language;
         out << command.stateInstanceId;
+        out << command.captureImageMinimumSize;
+        out << command.captureImageMaximumSize;
 
         return out;
     }
@@ -105,6 +112,8 @@ public:
         in >> command.edit3dToolStates;
         in >> command.language;
         in >> command.stateInstanceId;
+        in >> command.captureImageMinimumSize;
+        in >> command.captureImageMaximumSize;
 
         return in;
     }
@@ -122,6 +131,8 @@ public:
     QUrl resourceUrl;
     QHash<QString, QVariantMap> edit3dToolStates;
     QString language;
+    QSize captureImageMinimumSize;
+    QSize captureImageMaximumSize;
     qint32 stateInstanceId = 0;
 };
 

@@ -51,6 +51,8 @@ class ImageCacheCollector final : public ImageCacheCollectorInterface
 {
 public:
     ImageCacheCollector(ImageCacheConnectionManager &connectionManager,
+                        QSize captureImageMinimumSize,
+                        QSize captureImageMaximumSize,
                         ImageCacheCollectorNullImageHandling nullImageHandling = {});
 
     ~ImageCacheCollector();
@@ -75,6 +77,8 @@ public:
 private:
     ImageCacheConnectionManager &m_connectionManager;
     QPointer<ProjectExplorer::Target> m_target;
+    QSize captureImageMinimumSize;
+    QSize captureImageMaximumSize;
     ImageCacheCollectorNullImageHandling nullImageHandling{};
 };
 

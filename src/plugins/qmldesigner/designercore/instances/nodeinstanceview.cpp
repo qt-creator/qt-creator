@@ -1138,24 +1138,27 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     if (stateNode.isValid() && stateNode.metaInfo().isSubclassOf("QtQuick.State", 1, 0))
         stateInstanceId = stateNode.internalId();
 
-    return CreateSceneCommand(instanceContainerList,
-                              reparentContainerList,
-                              idContainerList,
-                              valueContainerList,
-                              bindingContainerList,
-                              auxiliaryContainerVector,
-                              importVector,
-                              mockupTypesVector,
-                              model()->fileUrl(),
+    return CreateSceneCommand(
+        instanceContainerList,
+        reparentContainerList,
+        idContainerList,
+        valueContainerList,
+        bindingContainerList,
+        auxiliaryContainerVector,
+        importVector,
+        mockupTypesVector,
+        model()->fileUrl(),
 #ifndef QMLDESIGNER_TEST
-                              QUrl::fromLocalFile(QmlDesigner::DocumentManager::currentResourcePath()
-                                                  .toFileInfo().absoluteFilePath()),
+        QUrl::fromLocalFile(
+            QmlDesigner::DocumentManager::currentResourcePath().toFileInfo().absoluteFilePath()),
 #else
-                              QUrl::fromLocalFile(QFileInfo(model()->fileUrl().toLocalFile()).absolutePath()),
+        QUrl::fromLocalFile(QFileInfo(model()->fileUrl().toLocalFile()).absolutePath()),
 #endif
-                              m_edit3DToolStates[model()->fileUrl()],
-                              lastUsedLanguage,
-                              stateInstanceId);
+        m_edit3DToolStates[model()->fileUrl()],
+        lastUsedLanguage,
+        m_captureImageMinimumSize,
+        m_captureImageMaximumSize,
+        stateInstanceId);
 }
 
 ClearSceneCommand NodeInstanceView::createClearSceneCommand() const
