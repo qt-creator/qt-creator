@@ -210,11 +210,6 @@ private:
 
     friend class Internal::QtcProcessPrivate;
     Internal::QtcProcessPrivate *d = nullptr;
-
-    friend tst_QtcProcess;
-    void beginFeed();
-    void feedStdOut(const QByteArray &data);
-    void endFeed();
 };
 
 class DeviceProcessHooks

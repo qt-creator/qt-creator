@@ -1240,23 +1240,6 @@ void QtcProcess::close()
         d->m_process->close();
 }
 
-void QtcProcess::beginFeed()
-{
-    d->clearForRun();
-}
-
-void QtcProcess::endFeed()
-{
-    d->handleFinished(0, QProcess::NormalExit);
-}
-
-void QtcProcess::feedStdOut(const QByteArray &data)
-{
-    d->m_stdOut.append(data);
-    d->m_hangTimerCount = 0;
-    emit readyReadStandardOutput();
-}
-
 QString QtcProcess::locateBinary(const QString &binary)
 {
     const QByteArray path = qgetenv("PATH");
