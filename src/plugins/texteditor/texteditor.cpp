@@ -529,6 +529,7 @@ public:
     void handleBackspaceKey();
     void moveLineUpDown(bool up);
     void copyLineUpDown(bool up);
+    void addSelectionNextFindMatch();
     void saveCurrentCursorPositionForNavigation();
     void updateHighlights();
     void updateCurrentLineInScrollbar();
@@ -6718,6 +6719,40 @@ void TextEditorWidget::copyLine()
     copy();
 }
 
+void TextEditorWidgetPrivate::addSelectionNextFindMatch()
+{
+    MultiTextCursor cursor = q->multiTextCursor();
+    const QList<QTextCursor> cursors = cursor.cursors();
+
+    if (cursor.cursorCount() == 0 || !cursors.first().hasSelection())
+        return;
+
+    const QTextCursor &firstCursor = cursors.first();
+    QTextDocumentFragment selection = firstCursor.selection();
+    QTextDocument *document = firstCursor.document();
+
+    if (Utils::anyOf(cursors, [&firstCursor](const QTextCursor &c) {
+            return c.selection().toPlainText().toCaseFolded()
+                   != firstCursor.selection().toPlainText().toCaseFolded();
+        })) {
+        return;
+    }
+
+    int searchFrom = cursors.last().selectionEnd();
+    while (true) {
+        QTextCursor next = document->find(selection.toPlainText(), searchFrom);
+        if (next.isNull()) {
+            searchFrom = 0;
+            continue;
+        }
+        if (next.selectionStart() == firstCursor.selectionStart())
+            break;
+        cursor.addCursor(next);
+        q->setMultiTextCursor(cursor);
+        break;
+    }
+}
+
 void TextEditorWidgetPrivate::duplicateSelection(bool comment)
 {
     if (comment && !m_commentDefinition.hasMultiLineStyle())
@@ -6760,6 +6795,11 @@ void TextEditorWidgetPrivate::duplicateSelection(bool comment)
 void TextEditorWidget::duplicateSelection()
 {
     d->duplicateSelection(false);
+}
+
+void TextEditorWidget::addSelectionNextFindMatch()
+{
+    d->addSelectionNextFindMatch();
 }
 
 void TextEditorWidget::duplicateSelectionAndComment()

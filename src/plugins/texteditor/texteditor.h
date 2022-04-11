@@ -384,6 +384,7 @@ public:
     void updateTextCodecLabel();
     void selectLineEnding(int index);
     void updateTextLineEndingLabel();
+    void addSelectionNextFindMatch();
 
     void gotoBlockStart();
     void gotoBlockEnd();

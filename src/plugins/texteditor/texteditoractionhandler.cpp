@@ -329,6 +329,10 @@ void TextEditorActionHandlerPrivate::createActions()
             [] (TextEditorWidget *w) { w->copyLine(); }, false, tr("Copy &Line"),
             QKeySequence(tr("Ctrl+Ins")),
             G_EDIT_TEXT, advancedEditMenu);
+    registerAction(ADD_SELECT_NEXT_FIND_MATCH,
+            [] (TextEditorWidget *w) { w->addSelectionNextFindMatch(); }, false, tr("Add Selection to Next Find Match"),
+            QKeySequence(tr("Ctrl+D")),
+            G_EDIT_TEXT, advancedEditMenu);
     m_modifyingActions << registerAction(DUPLICATE_SELECTION,
             [] (TextEditorWidget *w) { w->duplicateSelection(); }, false, tr("&Duplicate Selection"),
             QKeySequence(),

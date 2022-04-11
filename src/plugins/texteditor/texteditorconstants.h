@@ -168,6 +168,7 @@ const char LOWERCASE_SELECTION[]   = "TextEditor.LowercaseSelection";
 const char SORT_SELECTED_LINES[]   = "TextEditor.SortSelectedLines";
 const char CUT_LINE[]              = "TextEditor.CutLine";
 const char COPY_LINE[]             = "TextEditor.CopyLine";
+const char ADD_SELECT_NEXT_FIND_MATCH[] = "TextEditor.AddSelectionNextFindMatch";
 const char DUPLICATE_SELECTION[]   = "TextEditor.DuplicateSelection";
 const char DUPLICATE_SELECTION_AND_COMMENT[] = "TextEditor.DuplicateSelectionAndComment";
 const char DELETE_LINE[]           = "TextEditor.DeleteLine";
