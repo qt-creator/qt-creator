@@ -2714,6 +2714,8 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                 // the call happens, and should not be highlighted as an output argument.
                 // If the call is not fully resolved (as in templates), we don't
                 // know whether the argument is passed as const or not.
+                if (it->arcanaContains("dependent type"))
+                    return false;
                 const QList<AstNode> children = it->children().value_or(QList<AstNode>());
                 return children.isEmpty()
                         || (children.first().range() != (it - 1)->range()
