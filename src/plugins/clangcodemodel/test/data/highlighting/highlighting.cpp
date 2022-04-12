@@ -5,7 +5,7 @@ auto *rawVariable    = R"(Vari
 auto Character       = 'c';
 
 namespace std {
-template<typename T> class vector {};
+template<typename T> class vector { public: void clear(); };
 template<typename T, typename U> class pair {};
 }
 
@@ -1008,3 +1008,19 @@ void foo(structWithOptional & s)
 {
     s.opt_my_struct1->value = 5;
 }
+
+class BaseWithMember
+{
+protected:
+    std::vector<unsigned char> vec;
+};
+
+template<typename T> class Derived : public BaseWithMember
+{
+    void foo()
+    {
+        auto lambda = [&] {};
+        lambda();
+        vec.clear();
+    }
+};

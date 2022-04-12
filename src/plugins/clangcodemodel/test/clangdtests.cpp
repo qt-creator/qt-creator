@@ -1323,6 +1323,10 @@ void ClangdTestHighlighting::test_data()
                                                   << QList<int>{C_LOCAL} << 0;
     QTest::newRow("member access via operator->") << 1009 << 7 << 1009 << 21
                                                   << QList<int>{C_FIELD} << 0;
+    QTest::newRow("lambda call in member") << 1023 << 9 << 1023 << 15
+                                                  << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("call on inherited member") << 1024 << 9 << 1024 << 12
+                                                  << QList<int>{C_FIELD} << 0;
 }
 
 void ClangdTestHighlighting::test()
@@ -1425,12 +1429,12 @@ void ClangdTestHighlighting::test()
 void ClangdTestHighlighting::testIfdefedOutBlocks()
 {
     QCOMPARE(m_ifdefedOutBlocks.size(), 3);
-    QCOMPARE(m_ifdefedOutBlocks.at(0).first(), 12033);
-    QCOMPARE(m_ifdefedOutBlocks.at(0).last(), 12050);
-    QCOMPARE(m_ifdefedOutBlocks.at(1).first(), 13351);
-    QCOMPARE(m_ifdefedOutBlocks.at(1).last(), 13364);
-    QCOMPARE(m_ifdefedOutBlocks.at(2).first(), 13390);
-    QCOMPARE(m_ifdefedOutBlocks.at(2).last(), 13402);
+    QCOMPARE(m_ifdefedOutBlocks.at(0).first(), 12056);
+    QCOMPARE(m_ifdefedOutBlocks.at(0).last(), 12073);
+    QCOMPARE(m_ifdefedOutBlocks.at(1).first(), 13374);
+    QCOMPARE(m_ifdefedOutBlocks.at(1).last(), 13387);
+    QCOMPARE(m_ifdefedOutBlocks.at(2).first(), 13413);
+    QCOMPARE(m_ifdefedOutBlocks.at(2).last(), 13425);
 }
 
 

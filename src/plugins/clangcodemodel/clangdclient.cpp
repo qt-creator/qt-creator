@@ -2710,11 +2710,10 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                 return true;
 
             if (it->kind() == "Call") {
-                // In class templates, member calls can result in "Call" nodes rather than
-                // "CXXMemberCall". We try to detect this by checking for a certain kind of
-                // child node.
+                // The first child is e.g. a called lambda or an object on which
+                // the call happens, and should not be highlighted as an output argument.
                 const QList<AstNode> children = it->children().value_or(QList<AstNode>());
-                return children.isEmpty() || children.first().kind() != "CXXDependentScopeMember";
+                return children.isEmpty() || children.first().range() != (it - 1)->range();
             }
 
             // The token should get marked for e.g. lambdas, but not for assignment operators,
