@@ -2757,6 +2757,8 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
 
             if (it->kind() == "Lambda")
                 return false;
+            if (it->kind() == "BinaryOperator")
+                return false;
             if (it->hasConstType())
                 return false;
 
