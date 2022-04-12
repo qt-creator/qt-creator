@@ -2712,8 +2712,12 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
             if (it->kind() == "Call") {
                 // The first child is e.g. a called lambda or an object on which
                 // the call happens, and should not be highlighted as an output argument.
+                // If the call is not fully resolved (as in templates), we don't
+                // know whether the argument is passed as const or not.
                 const QList<AstNode> children = it->children().value_or(QList<AstNode>());
-                return children.isEmpty() || children.first().range() != (it - 1)->range();
+                return children.isEmpty()
+                        || (children.first().range() != (it - 1)->range()
+                                && children.first().kind() != "UnresolvedLookup");
             }
 
             // The token should get marked for e.g. lambdas, but not for assignment operators,

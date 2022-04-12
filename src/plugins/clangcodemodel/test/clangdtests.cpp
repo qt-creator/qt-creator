@@ -1327,6 +1327,8 @@ void ClangdTestHighlighting::test_data()
                                                   << QList<int>{C_LOCAL} << 0;
     QTest::newRow("call on inherited member") << 1024 << 9 << 1024 << 12
                                                   << QList<int>{C_FIELD} << 0;
+    QTest::newRow("pass inherited member by value") << 1038 << 21 << 1038 << 26
+                                                    << QList<int>{C_FIELD} << 0;
 }
 
 void ClangdTestHighlighting::test()

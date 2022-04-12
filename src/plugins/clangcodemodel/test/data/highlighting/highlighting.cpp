@@ -1024,3 +1024,19 @@ template<typename T> class Derived : public BaseWithMember
         vec.clear();
     }
 };
+
+static bool testVal(int val);
+class BaseWithMember2
+{
+protected:
+    int value;
+};
+template<typename T> class Derived2 : public BaseWithMember2
+{
+    bool foo()
+    {
+        if (testVal(value))
+            return true;
+        return false;
+    }
+};
