@@ -148,7 +148,6 @@ void tst_Ssh::pristineConnectionObject()
               "SOFT ASSERT: \"state\\(\\) == Connected\" in file .*[/\\\\]sshconnection.cpp, line \\d*");
     QTest::ignoreMessage(QtDebugMsg, assertToIgnore);
     QVERIFY(!connection.createRemoteProcess(""));
-    QTest::ignoreMessage(QtDebugMsg, assertToIgnore);
 }
 
 void tst_Ssh::remoteProcess_data()
