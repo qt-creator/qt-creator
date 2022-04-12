@@ -40,7 +40,6 @@
 #include <QAction>
 #include <QApplication>
 #include <QClipboard>
-#include <QTextEdit>
 
 using namespace LanguageServerProtocol;
 using namespace Utils;
@@ -68,6 +67,7 @@ public:
 
 DiagnosticManager::DiagnosticManager(Client *client)
     : m_client(client)
+    , m_extraSelectionsId(TextEditorWidget::CodeWarningsSelection)
 {
 }
 
@@ -88,7 +88,7 @@ void DiagnosticManager::hideDiagnostics(const Utils::FilePath &filePath)
 {
     if (auto doc = TextDocument::textDocumentForFilePath(filePath)) {
         for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(doc))
-            editor->editorWidget()->setExtraSelections(TextEditorWidget::CodeWarningsSelection, {});
+            editor->editorWidget()->setExtraSelections(m_extraSelectionsId, {});
     }
     qDeleteAll(m_marks.take(filePath));
 }
@@ -98,21 +98,6 @@ QList<Diagnostic> DiagnosticManager::filteredDiagnostics(const QList<Diagnostic>
     return diagnostics;
 }
 
-static QTextEdit::ExtraSelection toDiagnosticsSelections(const Diagnostic &diagnostic,
-                                                         QTextDocument *textDocument)
-{
-    QTextCursor cursor(textDocument);
-    cursor.setPosition(diagnostic.range().start().toPositionInDocument(textDocument));
-    cursor.setPosition(diagnostic.range().end().toPositionInDocument(textDocument),
-                       QTextCursor::KeepAnchor);
-
-    const FontSettings &fontSettings = TextEditorSettings::fontSettings();
-    const DiagnosticSeverity severity = diagnostic.severity().value_or(DiagnosticSeverity::Warning);
-    const TextStyle style = severity == DiagnosticSeverity::Error ? C_ERROR : C_WARNING;
-
-    return QTextEdit::ExtraSelection{cursor, fontSettings.toTextCharFormat(style)};
-}
-
 void DiagnosticManager::showDiagnostics(const DocumentUri &uri, int version)
 {
     const FilePath &filePath = uri.toFilePath();
@@ -120,22 +105,20 @@ void DiagnosticManager::showDiagnostics(const DocumentUri &uri, int version)
         QList<QTextEdit::ExtraSelection> extraSelections;
         const VersionedDiagnostics &versionedDiagnostics = m_diagnostics.value(uri);
         if (versionedDiagnostics.version.value_or(version) == version
-                && !versionedDiagnostics.diagnostics.isEmpty()) {
+            && !versionedDiagnostics.diagnostics.isEmpty()) {
             QList<TextEditor::TextMark *> &marks = m_marks[filePath];
             const bool isProjectFile = m_client->project()
                                        && m_client->project()->isKnownFile(filePath);
             for (const Diagnostic &diagnostic : versionedDiagnostics.diagnostics) {
-                extraSelections << toDiagnosticsSelections(diagnostic, doc->document());
+                extraSelections << createDiagnosticSelection(diagnostic, doc->document());
                 marks.append(createTextMark(filePath, diagnostic, isProjectFile));
             }
             if (!marks.isEmpty())
                 emit textMarkCreated(filePath);
         }
 
-        for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(doc)) {
-            editor->editorWidget()->setExtraSelections(TextEditorWidget::CodeWarningsSelection,
-                                                       extraSelections);
-        }
+        for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(doc))
+            editor->editorWidget()->setExtraSelections(m_extraSelectionsId, extraSelections);
     }
 }
 
@@ -154,6 +137,28 @@ TextEditor::TextMark *DiagnosticManager::createTextMark(const FilePath &filePath
     auto mark = new TextMark(filePath, diagnostic, m_client->id());
     mark->setActions({action});
     return mark;
+}
+
+QTextEdit::ExtraSelection DiagnosticManager::createDiagnosticSelection(
+    const LanguageServerProtocol::Diagnostic &diagnostic, QTextDocument *textDocument) const
+{
+    QTextCursor cursor(textDocument);
+    cursor.setPosition(diagnostic.range().start().toPositionInDocument(textDocument));
+    cursor.setPosition(diagnostic.range().end().toPositionInDocument(textDocument),
+                       QTextCursor::KeepAnchor);
+
+    const FontSettings &fontSettings = TextEditorSettings::fontSettings();
+    const DiagnosticSeverity severity = diagnostic.severity().value_or(DiagnosticSeverity::Warning);
+    const TextStyle style = severity == DiagnosticSeverity::Error ? C_ERROR : C_WARNING;
+
+    return QTextEdit::ExtraSelection{cursor, fontSettings.toTextCharFormat(style)};
+}
+
+void DiagnosticManager::setExtraSelectionsId(const Utils::Id &extraSelectionsId)
+{
+    // this function should be called before any diagnostics are handled
+    QTC_CHECK(m_diagnostics.isEmpty());
+    m_extraSelectionsId = extraSelectionsId;
 }
 
 void DiagnosticManager::clearDiagnostics()

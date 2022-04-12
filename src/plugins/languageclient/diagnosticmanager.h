@@ -32,6 +32,7 @@
 #include <utils/id.h>
 
 #include <QMap>
+#include <QTextEdit>
 
 #include <functional>
 
@@ -49,7 +50,7 @@ class LANGUAGECLIENT_EXPORT DiagnosticManager : public QObject
     Q_OBJECT
 public:
     explicit DiagnosticManager(Client *client);
-    ~DiagnosticManager();
+    ~DiagnosticManager() override;
 
     virtual void setDiagnostics(const LanguageServerProtocol::DocumentUri &uri,
                                 const QList<LanguageServerProtocol::Diagnostic> &diagnostics,
@@ -77,15 +78,21 @@ protected:
     virtual TextEditor::TextMark *createTextMark(const Utils::FilePath &filePath,
                                                  const LanguageServerProtocol::Diagnostic &diagnostic,
                                                  bool isProjectFile) const;
+    virtual QTextEdit::ExtraSelection createDiagnosticSelection(
+        const LanguageServerProtocol::Diagnostic &diagnostic, QTextDocument *textDocument) const;
+
+    void setExtraSelectionsId(const Utils::Id &extraSelectionsId);
 
 private:
-    struct VersionedDiagnostics {
+    struct VersionedDiagnostics
+    {
         Utils::optional<int> version;
         QList<LanguageServerProtocol::Diagnostic> diagnostics;
     };
     QMap<LanguageServerProtocol::DocumentUri, VersionedDiagnostics> m_diagnostics;
     QMap<Utils::FilePath, QList<TextEditor::TextMark *>> m_marks;
     Client *m_client;
+    Utils::Id m_extraSelectionsId;
 };
 
 } // namespace LanguageClient
