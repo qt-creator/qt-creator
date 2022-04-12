@@ -56,8 +56,6 @@ private:
     // intentionally no-op without an assert
     bool waitForFinished(int) final { return false; }
 
-    QProcess::ProcessState state() const final;
-
     // OK, however, impl looks a bit different (!= NotRunning vs == Running).
     // Most probably changing it into (== Running) should be OK.
     bool isRunning() const;

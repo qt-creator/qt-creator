@@ -41,7 +41,7 @@ public:
     SshRemoteProcess(const QString &command, const QStringList &connectionArgs);
 
     void requestX11Forwarding(const QString &displayName);
-    void start() override;
+    void startImpl() override;
     Utils::ProcessResultData resultData() const override;
 
     Utils::CommandLine fullLocalCommandLine(bool inTerminal = false) const;

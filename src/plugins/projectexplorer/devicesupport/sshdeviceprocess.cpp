@@ -94,7 +94,7 @@ SshDeviceProcess::~SshDeviceProcess()
     d->setState(SshDeviceProcessPrivate::Inactive);
 }
 
-void SshDeviceProcess::start()
+void SshDeviceProcess::startImpl()
 {
     QTC_ASSERT(d->state == SshDeviceProcessPrivate::Inactive, return);
     QTC_ASSERT(usesTerminal() || !commandLine().isEmpty(), return);
@@ -140,22 +140,6 @@ void SshDeviceProcess::kill()
     d->doSignal(Signal::Kill);
 }
 
-QProcess::ProcessState SshDeviceProcess::state() const
-{
-    switch (d->state) {
-    case SshDeviceProcessPrivate::Inactive:
-        return QProcess::NotRunning;
-    case SshDeviceProcessPrivate::Connecting:
-    case SshDeviceProcessPrivate::Connected:
-        return QProcess::Starting;
-    case SshDeviceProcessPrivate::ProcessRunning:
-        return QProcess::Running;
-    default:
-        QTC_CHECK(false);
-        return QProcess::NotRunning;
-    }
-}
-
 ProcessResultData SshDeviceProcess::resultData() const
 {
     const ProcessResultData result = QtcProcess::resultData();
@@ -190,7 +174,7 @@ void SshDeviceProcess::handleConnected()
     if (usesTerminal()) {
         setAbortOnMetaChars(false);
         setCommand(d->remoteProcess->fullLocalCommandLine(true));
-        QtcProcess::start();
+        QtcProcess::startImpl();
     } else {
         connect(d->remoteProcess.get(), &QtcProcess::started,
                 this, &SshDeviceProcess::handleProcessStarted);

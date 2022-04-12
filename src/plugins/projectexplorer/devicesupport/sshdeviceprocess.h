@@ -42,12 +42,11 @@ public:
     explicit SshDeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = nullptr);
     ~SshDeviceProcess() override;
 
-    void start() override;
+    void startImpl() override;
     void interrupt() override;
     void terminate() override;
     void kill() override;
 
-    QProcess::ProcessState state() const override;
     Utils::ProcessResultData resultData() const override;
 
     QByteArray readAllStandardOutput() override;

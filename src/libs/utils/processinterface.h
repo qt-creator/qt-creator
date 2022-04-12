@@ -110,8 +110,6 @@ private:
     // It's being called in Starting or Running state.
     virtual void sendControlSignal(ControlSignal controlSignal) = 0;
 
-    virtual QProcess::ProcessState state() const = 0;
-
     // It's being called only in Starting state.
     virtual bool waitForStarted(int msecs) = 0;
 

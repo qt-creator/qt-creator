@@ -361,8 +361,6 @@ private:
         }
     }
 
-    QProcess::ProcessState state() const final { return m_process->state(); }
-
     bool waitForStarted(int msecs) final { return m_process->waitForStarted(msecs); }
     bool waitForReadyRead(int msecs) final { return m_process->waitForReadyRead(msecs); }
     bool waitForFinished(int msecs) final { return m_process->waitForFinished(msecs); }
@@ -459,8 +457,6 @@ private:
             break;
         }
     }
-
-    QProcess::ProcessState state() const final { return m_handle->state(); }
 
     bool waitForStarted(int msecs) final { return m_handle->waitForStarted(msecs); }
     bool waitForReadyRead(int msecs) final { return m_handle->waitForReadyRead(msecs); }
@@ -564,6 +560,7 @@ public:
 
     ProcessResult interpretExitCode(int exitCode);
 
+    QProcess::ProcessState m_state = QProcess::NotRunning;
     QProcess::ProcessChannelMode m_processChannelMode = QProcess::SeparateChannels;
     qint64 m_processId = 0;
     qint64 m_applicationMainThreadId = 0;
@@ -601,6 +598,8 @@ void QtcProcessPrivate::clearForRun()
     m_stdErr.clearForRun();
     m_stdErr.codec = m_codec;
     m_result = ProcessResult::StartFailed;
+
+    m_state = QProcess::NotRunning;
     m_processId = 0;
     m_applicationMainThreadId = 0;
     m_resultData = {};
@@ -780,9 +779,14 @@ void QtcProcess::setUseCtrlCStub(bool enabled)
 
 void QtcProcess::start()
 {
-// TODO: Uncomment when we de-virtualize start()
-//    QTC_ASSERT(state() == QProcess::NotRunning, return);
+    QTC_ASSERT(state() == QProcess::NotRunning, return);
+    d->clearForRun();
+    d->m_state = QProcess::Starting;
+    startImpl();
+}
 
+void QtcProcess::startImpl()
+{
     ProcessInterface *processImpl = nullptr;
     if (d->m_setup.m_commandLine.executable().needsDevice()) {
         if (s_deviceHooks.processImplHook) { // TODO: replace "if" with an assert for the hook
@@ -797,7 +801,6 @@ void QtcProcess::start()
         processImpl = d->createProcessInterface();
     }
     QTC_ASSERT(processImpl, return);
-    d->clearForRun();
     d->setProcessInterface(processImpl);
     d->m_process->m_setup = d->m_setup;
     d->m_process->m_setup.m_commandLine = d->fullCommandLine();
@@ -811,25 +814,25 @@ void QtcProcess::start()
 
 void QtcProcess::terminate()
 {
-    if (d->m_process)
+    if (d->m_process && (d->m_state != QProcess::NotRunning))
         d->m_process->sendControlSignal(ControlSignal::Terminate);
 }
 
 void QtcProcess::kill()
 {
-    if (d->m_process)
+    if (d->m_process && (d->m_state != QProcess::NotRunning))
         d->m_process->sendControlSignal(ControlSignal::Kill);
 }
 
 void QtcProcess::interrupt()
 {
-    if (d->m_process)
+    if (d->m_process && (d->m_state != QProcess::NotRunning))
         d->m_process->sendControlSignal(ControlSignal::Interrupt);
 }
 
 void QtcProcess::kickoffProcess()
 {
-    if (d->m_process)
+    if (d->m_process && (d->m_state != QProcess::NotRunning))
         d->m_process->sendControlSignal(ControlSignal::KickOff);
 }
 
@@ -1147,9 +1150,7 @@ void QtcProcess::setProcessChannelMode(QProcess::ProcessChannelMode mode)
 
 QProcess::ProcessState QtcProcess::state() const
 {
-    if (d->m_process)
-        return d->m_process->state();
-    return QProcess::NotRunning;
+    return d->m_state;
 }
 
 bool QtcProcess::isRunning() const
@@ -1165,18 +1166,24 @@ qint64 QtcProcess::processId() const
 bool QtcProcess::waitForStarted(int msecs)
 {
     QTC_ASSERT(d->m_process, return false);
+    if (d->m_state != QProcess::Starting)
+        return false;
     return s_waitForStarted.measureAndRun(&ProcessInterface::waitForStarted, d->m_process, msecs);
 }
 
 bool QtcProcess::waitForReadyRead(int msecs)
 {
     QTC_ASSERT(d->m_process, return false);
+    if (d->m_state == QProcess::NotRunning)
+        return false;
     return d->m_process->waitForReadyRead(msecs);
 }
 
 bool QtcProcess::waitForFinished(int msecs)
 {
     QTC_ASSERT(d->m_process, return false);
+    if (d->m_state == QProcess::NotRunning)
+        return false;
     return d->m_process->waitForFinished(msecs);
 }
 
@@ -1198,6 +1205,7 @@ qint64 QtcProcess::write(const QByteArray &input)
 {
     QTC_ASSERT(processMode() == ProcessMode::Writer, return -1);
     QTC_ASSERT(d->m_process, return -1);
+    QTC_ASSERT(state() == QProcess::Running, return -1);
     return d->m_process->write(input);
 }
 
@@ -1543,6 +1551,9 @@ void QtcProcessPrivate::slotTimeout()
 
 void QtcProcessPrivate::handleStarted(qint64 processId, qint64 applicationMainThreadId)
 {
+    QTC_CHECK(m_state == QProcess::Starting);
+    m_state = QProcess::Running;
+
     m_processId = processId;
     m_applicationMainThreadId = applicationMainThreadId;
     emitStarted();
@@ -1550,6 +1561,8 @@ void QtcProcessPrivate::handleStarted(qint64 processId, qint64 applicationMainTh
 
 void QtcProcessPrivate::handleReadyRead(const QByteArray &outputData, const QByteArray &errorData)
 {
+    QTC_CHECK(m_state == QProcess::Running);
+
     // TODO: check why we need this timer?
     m_hangTimerCount = 0;
     // TODO: store a copy of m_processChannelMode on start()? Currently we assert that state
@@ -1582,6 +1595,19 @@ void QtcProcessPrivate::handleReadyRead(const QByteArray &outputData, const QByt
 void QtcProcessPrivate::handleDone(const ProcessResultData &data)
 {
     m_resultData = data;
+
+    switch (m_state) {
+    case QProcess::NotRunning:
+        QTC_CHECK(false); // Can't happen
+        break;
+    case QProcess::Starting:
+        QTC_CHECK(m_resultData.m_error == QProcess::FailedToStart);
+        break;
+    case QProcess::Running:
+        QTC_CHECK(m_resultData.m_error != QProcess::FailedToStart);
+        break;
+    }
+    m_state = QProcess::NotRunning;
 
     // This code (255) is being returned by QProcess when FailedToStart error occurred
     if (m_resultData.m_error == QProcess::FailedToStart)

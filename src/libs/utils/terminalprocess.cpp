@@ -513,16 +513,6 @@ bool TerminalImpl::isRunning() const
 #endif
 }
 
-QProcess::ProcessState TerminalImpl::state() const
-{
-#ifdef Q_OS_WIN
-    return (d->m_pid != nullptr) ? QProcess::Running : QProcess::NotRunning;
-#else
-    return (d->m_stubSocket && d->m_stubSocket->isOpen())
-            ? QProcess::Running : d->m_process.state();
-#endif
-}
-
 QString TerminalImpl::stubServerListen()
 {
 #ifdef Q_OS_WIN

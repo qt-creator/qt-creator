@@ -66,7 +66,7 @@ void SshRemoteProcess::emitFinished()
     QtcProcess::emitFinished();
 }
 
-void SshRemoteProcess::start()
+void SshRemoteProcess::startImpl()
 {
     QTC_ASSERT(!isRunning(), return);
     m_errorString.clear();
@@ -78,7 +78,7 @@ void SshRemoteProcess::start()
     }
     qCDebug(sshLog) << "starting remote process:" << cmd.toUserOutput();
     setCommand(cmd);
-    QtcProcess::start();
+    QtcProcess::startImpl();
 }
 
 ProcessResultData SshRemoteProcess::resultData() const

@@ -107,7 +107,7 @@ public:
     DockerDeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = nullptr);
     ~DockerDeviceProcess() {}
 
-    void start() override;
+    void startImpl() override;
     void interrupt() override;
 
     const QSharedPointer<const IDevice> m_device;
@@ -120,7 +120,7 @@ DockerDeviceProcess::DockerDeviceProcess(const QSharedPointer<const IDevice> &de
     setProcessMode(ProcessMode::Writer);
 }
 
-void DockerDeviceProcess::start()
+void DockerDeviceProcess::startImpl()
 {
     QTC_ASSERT(state() == QProcess::NotRunning, return);
     DockerDevice::ConstPtr dockerDevice = qSharedPointerCast<const DockerDevice>(m_device);
@@ -139,7 +139,7 @@ void DockerDeviceProcess::start()
     setCommand(command);
 
     LOG("Running process:" << command.toUserOutput() << "in" << workingDirectory().toUserOutput());
-    QtcProcess::start();
+    QtcProcess::startImpl();
 }
 
 void DockerDeviceProcess::interrupt()
