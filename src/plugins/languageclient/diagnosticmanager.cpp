@@ -53,7 +53,6 @@ class TextMark : public TextEditor::TextMark
 public:
     TextMark(const FilePath &fileName, const Diagnostic &diag, const Id &clientId)
         : TextEditor::TextMark(fileName, diag.range().start().line() + 1, clientId)
-        , m_diagnostic(diag)
     {
         setLineAnnotation(diag.message());
         setToolTip(diag.message());
@@ -65,11 +64,6 @@ public:
         setIcon(isError ? Icons::CODEMODEL_ERROR.icon()
                         : Icons::CODEMODEL_WARNING.icon());
     }
-
-    const Diagnostic &diagnostic() const { return m_diagnostic; }
-
-private:
-    const Diagnostic m_diagnostic;
 };
 
 DiagnosticManager::DiagnosticManager(Client *client)
