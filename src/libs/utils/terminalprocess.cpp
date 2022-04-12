@@ -174,13 +174,13 @@ void TerminalImpl::start()
 
     QString pcmd;
     QString pargs;
-    if (m_setup->m_terminalMode != TerminalMode::Run) { // The debugger engines already pre-process the arguments.
-        pcmd = m_setup->m_commandLine.executable().toString();
-        pargs = m_setup->m_commandLine.arguments();
+    if (m_setup.m_terminalMode != TerminalMode::Run) { // The debugger engines already pre-process the arguments.
+        pcmd = m_setup.m_commandLine.executable().toString();
+        pargs = m_setup.m_commandLine.arguments();
     } else {
         ProcessArgs outArgs;
-        ProcessArgs::prepareCommand(m_setup->m_commandLine, &pcmd, &outArgs,
-                                    &m_setup->m_environment, &m_setup->m_workingDirectory);
+        ProcessArgs::prepareCommand(m_setup.m_commandLine, &pcmd, &outArgs,
+                                    &m_setup.m_environment, &m_setup.m_workingDirectory);
         pargs = outArgs.toWindowsArgs();
     }
 
@@ -190,7 +190,7 @@ void TerminalImpl::start()
         return;
     }
 
-    QStringList env = m_setup->m_environment.toStringList();
+    QStringList env = m_setup.m_environment.toStringList();
     if (!env.isEmpty()) {
         d->m_tempFile = new QTemporaryFile();
         if (!d->m_tempFile->open()) {
@@ -237,7 +237,7 @@ void TerminalImpl::start()
     d->m_pid = new PROCESS_INFORMATION;
     ZeroMemory(d->m_pid, sizeof(PROCESS_INFORMATION));
 
-    QString workDir = m_setup->m_workingDirectory.toUserOutput();
+    QString workDir = m_setup.m_workingDirectory.toUserOutput();
     if (!workDir.isEmpty() && !workDir.endsWith(QLatin1Char('\\')))
         workDir.append(QLatin1Char('\\'));
 
@@ -293,7 +293,7 @@ void TerminalImpl::start()
     };
 
     QStringList stubArgs;
-    stubArgs << modeOption(m_setup->m_terminalMode)
+    stubArgs << modeOption(m_setup.m_terminalMode)
              << d->m_stubServer.fullServerName()
              << workDir
              << (d->m_tempFile ? d->m_tempFile->fileName() : QString())
@@ -324,22 +324,22 @@ void TerminalImpl::start()
 #else
 
     ProcessArgs::SplitError perr;
-    ProcessArgs pargs = ProcessArgs::prepareArgs(m_setup->m_commandLine.arguments(),
+    ProcessArgs pargs = ProcessArgs::prepareArgs(m_setup.m_commandLine.arguments(),
                                                  &perr,
                                                  HostOsInfo::hostOs(),
-                                                 &m_setup->m_environment,
-                                                 &m_setup->m_workingDirectory,
-                                                 m_setup->m_abortOnMetaChars);
+                                                 &m_setup.m_environment,
+                                                 &m_setup.m_workingDirectory,
+                                                 m_setup.m_abortOnMetaChars);
 
     QString pcmd;
     if (perr == ProcessArgs::SplitOk) {
-        pcmd = m_setup->m_commandLine.executable().toString();
+        pcmd = m_setup.m_commandLine.executable().toString();
     } else {
         if (perr != ProcessArgs::FoundMeta) {
             emitError(QProcess::FailedToStart, tr("Quoting error in command."));
             return;
         }
-        if (m_setup->m_terminalMode == TerminalMode::Debug) {
+        if (m_setup.m_terminalMode == TerminalMode::Debug) {
             // FIXME: QTCREATORBUG-2809
             emitError(QProcess::FailedToStart, tr("Debugging complex shell commands in a terminal"
                                  " is currently not supported."));
@@ -347,8 +347,8 @@ void TerminalImpl::start()
         }
         pcmd = qEnvironmentVariable("SHELL", "/bin/sh");
         pargs = ProcessArgs::createUnixArgs(
-                        {"-c", (ProcessArgs::quoteArg(m_setup->m_commandLine.executable().toString())
-                         + ' ' + m_setup->m_commandLine.arguments())});
+                        {"-c", (ProcessArgs::quoteArg(m_setup.m_commandLine.executable().toString())
+                         + ' ' + m_setup.m_commandLine.arguments())});
     }
 
     ProcessArgs::SplitError qerr;
@@ -356,8 +356,8 @@ void TerminalImpl::start()
     const ProcessArgs terminalArgs = ProcessArgs::prepareArgs(terminal.executeArgs,
                                                               &qerr,
                                                               HostOsInfo::hostOs(),
-                                                              &m_setup->m_environment,
-                                                              &m_setup->m_workingDirectory);
+                                                              &m_setup.m_environment,
+                                                              &m_setup.m_workingDirectory);
     if (qerr != ProcessArgs::SplitOk) {
         emitError(QProcess::FailedToStart, qerr == ProcessArgs::BadQuoting
                           ? tr("Quoting error in terminal command.")
@@ -371,9 +371,9 @@ void TerminalImpl::start()
         return;
     }
 
-    m_setup->m_environment.unset(QLatin1String("TERM"));
+    m_setup.m_environment.unset(QLatin1String("TERM"));
 
-    const QStringList env = m_setup->m_environment.toStringList();
+    const QStringList env = m_setup.m_environment.toStringList();
     if (!env.isEmpty()) {
         d->m_tempFile = new QTemporaryFile();
         if (!d->m_tempFile->open()) {
@@ -397,10 +397,10 @@ void TerminalImpl::start()
     QStringList allArgs = terminalArgs.toUnixArgs();
 
     allArgs << stubPath
-            << modeOption(m_setup->m_terminalMode)
+            << modeOption(m_setup.m_terminalMode)
             << d->m_stubServer.fullServerName()
             << msgPromptToClose()
-            << m_setup->m_workingDirectory.path()
+            << m_setup.m_workingDirectory.path()
             << (d->m_tempFile ? d->m_tempFile->fileName() : QString())
             << QString::number(getpid())
             << pcmd
@@ -409,9 +409,9 @@ void TerminalImpl::start()
     if (terminal.needsQuotes)
         allArgs = QStringList { ProcessArgs::joinArgs(allArgs) };
 
-    d->m_process.setEnvironment(m_setup->m_environment);
+    d->m_process.setEnvironment(m_setup.m_environment);
     d->m_process.setCommand({FilePath::fromString(terminal.command), allArgs});
-    d->m_process.setProcessImpl(m_setup->m_processImpl);
+    d->m_process.setProcessImpl(m_setup.m_processImpl);
     d->m_process.start();
     if (!d->m_process.waitForStarted()) {
         const QString msg = tr("Cannot start the terminal emulator \"%1\", change the setting in the "
@@ -606,10 +606,10 @@ void TerminalImpl::readStubOutput()
         out.chop(2); // \r\n
         if (out.startsWith("err:chdir ")) {
             emitError(QProcess::FailedToStart,
-                      msgCannotChangeToWorkDir(m_setup->m_workingDirectory, winErrorMessage(out.mid(10).toInt())));
+                      msgCannotChangeToWorkDir(m_setup.m_workingDirectory, winErrorMessage(out.mid(10).toInt())));
         } else if (out.startsWith("err:exec ")) {
             emitError(QProcess::FailedToStart,
-                      msgCannotExecute(m_setup->m_commandLine.executable().toUserOutput(), winErrorMessage(out.mid(9).toInt())));
+                      msgCannotExecute(m_setup.m_commandLine.executable().toUserOutput(), winErrorMessage(out.mid(9).toInt())));
         } else if (out.startsWith("thread ")) { // Windows only
             // TODO: ensure that it comes before "pid " comes
             d->m_appMainThreadId = out.mid(7).toLongLong();
@@ -649,10 +649,10 @@ void TerminalImpl::readStubOutput()
         out.chop(1); // \n
         if (out.startsWith("err:chdir ")) {
             emitError(QProcess::FailedToStart,
-                      msgCannotChangeToWorkDir(m_setup->m_workingDirectory, errorMsg(out.mid(10).toInt())));
+                      msgCannotChangeToWorkDir(m_setup.m_workingDirectory, errorMsg(out.mid(10).toInt())));
         } else if (out.startsWith("err:exec ")) {
             emitError(QProcess::FailedToStart,
-                      msgCannotExecute(m_setup->m_commandLine.executable().toString(), errorMsg(out.mid(9).toInt())));
+                      msgCannotExecute(m_setup.m_commandLine.executable().toString(), errorMsg(out.mid(9).toInt())));
         } else if (out.startsWith("spid ")) {
             delete d->m_tempFile;
             d->m_tempFile = nullptr;

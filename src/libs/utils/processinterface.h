@@ -38,8 +38,6 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT ProcessSetupData
 {
 public:
-    using Ptr = std::shared_ptr<ProcessSetupData>;
-
     ProcessImpl m_processImpl = ProcessImpl::Default;
     ProcessMode m_processMode = ProcessMode::Reader;
     TerminalMode m_terminalMode = TerminalMode::Off;
@@ -83,7 +81,7 @@ class QTCREATOR_UTILS_EXPORT ProcessInterface : public QObject
     Q_OBJECT
 
 public:
-    ProcessInterface(QObject *parent = nullptr) : QObject(parent), m_setup(new ProcessSetupData) {}
+    ProcessInterface(QObject *parent = nullptr) : QObject(parent) {}
 
 signals:
     // This should be emitted when being in Starting state only.
@@ -99,7 +97,7 @@ signals:
     void done(const Utils::ProcessResultData &resultData);
 
 protected:
-    ProcessSetupData::Ptr m_setup;
+    ProcessSetupData m_setup;
 
 private:
     // It's being called only in Starting state. Just before this method is being called,

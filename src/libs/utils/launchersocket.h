@@ -105,7 +105,7 @@ public:
     QString program() const;
     // Called from caller's or launcher's thread.
     QStringList arguments() const;
-    void setProcessSetupData(const ProcessSetupData::Ptr &setup);
+    void setProcessSetupData(ProcessSetupData *setup);
 
 signals:
     void started(qint64 processId, qint64 applicationMainThreadId = 0);
@@ -152,7 +152,7 @@ private:
 
     QString m_command;
     QStringList m_arguments;
-    ProcessSetupData::Ptr m_setup;
+    ProcessSetupData *m_setup = nullptr;
 };
 
 // Moved to the launcher thread, returned to caller's thread.

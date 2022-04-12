@@ -374,7 +374,7 @@ QStringList CallerHandle::arguments() const
     return m_arguments;
 }
 
-void CallerHandle::setProcessSetupData(const ProcessSetupData::Ptr &setup)
+void CallerHandle::setProcessSetupData(ProcessSetupData *setup)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
     m_setup = setup;

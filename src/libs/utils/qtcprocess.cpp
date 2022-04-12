@@ -245,7 +245,7 @@ void DefaultImpl::start()
                 << "Process " << currentNumber << " starting ("
                 << qPrintable(blockingMessage(property(QTC_PROCESS_BLOCKING_TYPE)))
                 << "): "
-                << m_setup->m_commandLine.toUserOutput();
+                << m_setup.m_commandLine.toUserOutput();
         setProperty(QTC_PROCESS_NUMBER, currentNumber);
     }
 
@@ -260,26 +260,26 @@ void DefaultImpl::start()
 
 bool DefaultImpl::dissolveCommand(QString *program, QStringList *arguments)
 {
-    const CommandLine &commandLine = m_setup->m_commandLine;
+    const CommandLine &commandLine = m_setup.m_commandLine;
     QString commandString;
     ProcessArgs processArgs;
     const bool success = ProcessArgs::prepareCommand(commandLine, &commandString, &processArgs,
-                                                     &m_setup->m_environment,
-                                                     &m_setup->m_workingDirectory);
+                                                     &m_setup.m_environment,
+                                                     &m_setup.m_workingDirectory);
 
     if (commandLine.executable().osType() == OsTypeWindows) {
         QString args;
-        if (m_setup->m_useCtrlCStub) {
-            if (m_setup->m_lowPriority)
+        if (m_setup.m_useCtrlCStub) {
+            if (m_setup.m_lowPriority)
                 ProcessArgs::addArg(&args, "-nice");
             ProcessArgs::addArg(&args, QDir::toNativeSeparators(commandString));
             commandString = QCoreApplication::applicationDirPath()
                     + QLatin1String("/qtcreator_ctrlc_stub.exe");
-        } else if (m_setup->m_lowPriority) {
-            m_setup->m_belowNormalPriority = true;
+        } else if (m_setup.m_lowPriority) {
+            m_setup.m_belowNormalPriority = true;
         }
         ProcessArgs::addArgs(&args, processArgs.toWindowsArgs());
-        m_setup->m_nativeArguments = args;
+        m_setup.m_nativeArguments = args;
         // Note: Arguments set with setNativeArgs will be appended to the ones
         // passed with start() below.
         *arguments = QStringList();
@@ -309,7 +309,7 @@ static FilePath resolve(const FilePath &workingDir, const FilePath &filePath)
 
 bool DefaultImpl::ensureProgramExists(const QString &program)
 {
-    const FilePath programFilePath = resolve(m_setup->m_workingDirectory,
+    const FilePath programFilePath = resolve(m_setup.m_workingDirectory,
                                              FilePath::fromString(program));
     if (programFilePath.exists() && programFilePath.isExecutableFile())
         return true;
@@ -370,19 +370,19 @@ private:
     void doDefaultStart(const QString &program, const QStringList &arguments) final
     {
         ProcessStartHandler *handler = m_process->processStartHandler();
-        handler->setProcessMode(m_setup->m_processMode);
-        handler->setWriteData(m_setup->m_writeData);
-        if (m_setup->m_belowNormalPriority)
+        handler->setProcessMode(m_setup.m_processMode);
+        handler->setWriteData(m_setup.m_writeData);
+        if (m_setup.m_belowNormalPriority)
             handler->setBelowNormalPriority();
-        handler->setNativeArguments(m_setup->m_nativeArguments);
-        m_process->setProcessEnvironment(m_setup->m_environment.toProcessEnvironment());
-        m_process->setWorkingDirectory(m_setup->m_workingDirectory.path());
-        m_process->setStandardInputFile(m_setup->m_standardInputFile);
-        if (m_setup->m_lowPriority)
+        handler->setNativeArguments(m_setup.m_nativeArguments);
+        m_process->setProcessEnvironment(m_setup.m_environment.toProcessEnvironment());
+        m_process->setWorkingDirectory(m_setup.m_workingDirectory.path());
+        m_process->setStandardInputFile(m_setup.m_standardInputFile);
+        if (m_setup.m_lowPriority)
             m_process->setLowPriority();
-        if (m_setup->m_unixTerminalDisabled)
+        if (m_setup.m_unixTerminalDisabled)
             m_process->setUnixTerminalDisabled();
-        m_process->setUseCtrlCStub(m_setup->m_useCtrlCStub);
+        m_process->setUseCtrlCStub(m_setup.m_useCtrlCStub);
         m_process->start(program, arguments, handler->openMode());
         handler->handleProcessStart();
     }
@@ -425,7 +425,7 @@ public:
     ProcessLauncherImpl() : m_token(uniqueToken())
     {
         m_handle = LauncherInterface::registerHandle(this, token());
-        m_handle->setProcessSetupData(m_setup);
+        m_handle->setProcessSetupData(&m_setup);
         connect(m_handle, &CallerHandle::started,
                 this, &ProcessInterface::started);
         connect(m_handle, &CallerHandle::readyRead,
@@ -451,7 +451,7 @@ private:
             m_handle->kill();
             break;
         case ControlSignal::Interrupt:
-            if (m_setup->m_useCtrlCStub) // bypass launcher and interrupt directly
+            if (m_setup.m_useCtrlCStub) // bypass launcher and interrupt directly
                 ProcessHelper::interruptPid(m_handle->processId());
             break;
         case ControlSignal::KickOff:
@@ -799,9 +799,9 @@ void QtcProcess::start()
     QTC_ASSERT(processImpl, return);
     d->clearForRun();
     d->setProcessInterface(processImpl);
-    *d->m_process->m_setup = d->m_setup;
-    d->m_process->m_setup->m_commandLine = d->fullCommandLine();
-    d->m_process->m_setup->m_environment = d->fullEnvironment();
+    d->m_process->m_setup = d->m_setup;
+    d->m_process->m_setup.m_commandLine = d->fullCommandLine();
+    d->m_process->m_setup.m_environment = d->fullEnvironment();
     if (processLog().isDebugEnabled()) {
         // Pass a dynamic property with info about blocking type
         d->m_process->setProperty(QTC_PROCESS_BLOCKING_TYPE, property(QTC_PROCESS_BLOCKING_TYPE));
