@@ -42,6 +42,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/target.h>

@@ -25,11 +25,14 @@
 
 #pragma once
 
-#include "idevice.h"
+#include "idevicefwd.h"
 #include <projectexplorer/projectexplorer_export.h>
+#include <utils/id.h>
 
 #include <QIcon>
 #include <QVariantMap>
+
+namespace Utils { class FilePath; }
 
 namespace ProjectExplorer {
 
@@ -43,8 +46,8 @@ public:
     QString displayName() const { return m_displayName; }
     QIcon icon() const { return m_icon; }
     bool canCreate() const;
-    IDevice::Ptr construct() const;
-    IDevice::Ptr create() const;
+    IDevicePtr construct() const;
+    IDevicePtr create() const;
 
     virtual bool canRestore(const QVariantMap &) const { return true; }
 
@@ -58,15 +61,15 @@ protected:
     void setDisplayName(const QString &displayName);
     void setIcon(const QIcon &icon);
     void setCombinedIcon(const Utils::FilePath &small, const Utils::FilePath &large);
-    void setConstructionFunction(const std::function<IDevice::Ptr ()> &constructor);
-    void setCreator(const std::function<IDevice::Ptr()> &creator);
+    void setConstructionFunction(const std::function<IDevicePtr ()> &constructor);
+    void setCreator(const std::function<IDevicePtr()> &creator);
 
 private:
-    std::function<IDevice::Ptr()> m_creator;
+    std::function<IDevicePtr()> m_creator;
     const Utils::Id m_deviceType;
     QString m_displayName;
     QIcon m_icon;
-    std::function<IDevice::Ptr()> m_constructor;
+    std::function<IDevicePtr()> m_constructor;
 };
 
 } // namespace ProjectExplorer

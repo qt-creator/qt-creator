@@ -27,7 +27,7 @@
 
 #include "../projectexplorer_export.h"
 
-#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefwd.h>
 
 #include <QDialog>
 
@@ -51,7 +51,7 @@ public:
     void addAcceptButton(const QString &label);
     void addCloseButton();
 
-    void setDevice(const IDevice::ConstPtr &device);
+    void setDevice(const IDeviceConstPtr &device);
     void showAllDevices();
     Utils::ProcessInfo currentProcess() const;
     KitChooser *kitChooser() const;

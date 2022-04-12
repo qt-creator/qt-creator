@@ -30,6 +30,7 @@
 #include "qnxqtversion.h"
 
 #include <projectexplorer/deployablefile.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <qtsupport/qtversionmanager.h>
 #include <remotelinux/genericdirectuploadservice.h>
 #include <ssh/sshremoteprocessrunner.h>

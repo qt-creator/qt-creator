@@ -63,6 +63,7 @@ add_qtc_plugin(ProjectExplorer
     devicesupport/deviceusedportsgatherer.cpp devicesupport/deviceusedportsgatherer.h
     devicesupport/idevice.cpp devicesupport/idevice.h
     devicesupport/idevicefactory.cpp devicesupport/idevicefactory.h
+    devicesupport/idevicefwd.h
     devicesupport/idevicewidget.h
     devicesupport/localprocesslist.cpp devicesupport/localprocesslist.h
     devicesupport/sshdeviceprocess.cpp devicesupport/sshdeviceprocess.h

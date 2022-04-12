@@ -32,6 +32,10 @@
 
 #include <QProcess>
 
+QT_BEGIN_NAMESPACE
+class QHostAddress;
+QT_END_NAMESPACE
+
 namespace Valgrind {
 
 namespace XmlProtocol { class ThreadedParser; }
@@ -48,7 +52,7 @@ public:
     void setDebuggee(const ProjectExplorer::Runnable &debuggee);
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
     void setLocalServerAddress(const QHostAddress &localServerAddress);
-    void setDevice(const ProjectExplorer::IDevice::ConstPtr &device);
+    void setDevice(const ProjectExplorer::IDeviceConstPtr &device);
     void setUseTerminal(bool on);
 
     void waitForFinished() const;

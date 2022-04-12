@@ -29,6 +29,7 @@
 #include "linuxdevice.h"
 #include "remotelinux_constants.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/portlist.h>
 #include <utils/fileutils.h>
 

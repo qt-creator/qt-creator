@@ -28,6 +28,7 @@
 #include "kitinformation.h"
 #include "target.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 

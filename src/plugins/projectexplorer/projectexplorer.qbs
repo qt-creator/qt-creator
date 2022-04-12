@@ -221,6 +221,7 @@ Project {
                 "deviceusedportsgatherer.cpp", "deviceusedportsgatherer.h",
                 "idevice.cpp", "idevice.h",
                 "idevicefactory.cpp", "idevicefactory.h",
+                "idevicefwd.h",
                 "idevicewidget.h",
                 "localprocesslist.cpp", "localprocesslist.h",
                 "sshdeviceprocess.cpp", "sshdeviceprocess.h",

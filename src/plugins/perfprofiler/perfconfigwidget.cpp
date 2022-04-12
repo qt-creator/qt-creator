@@ -29,6 +29,7 @@
 
 #include <coreplugin/messagebox.h>
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/runcontrol.h>

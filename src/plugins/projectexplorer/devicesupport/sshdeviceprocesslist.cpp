@@ -27,6 +27,7 @@
 
 #include "idevice.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <ssh/sshremoteprocessrunner.h>
 #include <utils/fileutils.h>
 #include <utils/processinfo.h>

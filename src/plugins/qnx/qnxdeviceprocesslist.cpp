@@ -25,6 +25,7 @@
 
 #include "qnxdeviceprocesslist.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/processinfo.h>

@@ -27,6 +27,7 @@
 #include "ui_genericlinuxdeviceconfigurationwidget.h"
 
 #include <coreplugin/coreconstants.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/portlist.h>
 #include <utils/fancylineedit.h>
 #include <utils/utilsicons.h>

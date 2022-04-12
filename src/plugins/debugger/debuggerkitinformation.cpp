@@ -28,9 +28,10 @@
 #include "debuggeritemmanager.h"
 #include "debuggeritem.h"
 
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
+#include <projectexplorer/toolchain.h>
 
 #include <utils/environment.h>
 #include <utils/fileutils.h>

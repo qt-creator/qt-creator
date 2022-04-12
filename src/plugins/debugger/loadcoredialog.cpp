@@ -29,9 +29,10 @@
 #include "debuggerkitinformation.h"
 #include "gdb/gdbengine.h"
 
+#include <projectexplorer/devicesupport/devicefilesystemmodel.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/devicesupport/devicefilesystemmodel.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>

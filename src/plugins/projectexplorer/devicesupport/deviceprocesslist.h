@@ -25,7 +25,8 @@
 
 #pragma once
 
-#include "idevice.h"
+#include "../projectexplorer_export.h"
+#include "idevicefwd.h"
 
 #include <QAbstractItemModel>
 #include <QList>
@@ -43,7 +44,7 @@ class PROJECTEXPLORER_EXPORT DeviceProcessList : public QObject
     Q_OBJECT
 
 public:
-    DeviceProcessList(const IDevice::ConstPtr &device, QObject *parent = nullptr);
+    DeviceProcessList(const IDeviceConstPtr &device, QObject *parent = nullptr);
     ~DeviceProcessList() override;
 
     void update();
@@ -63,7 +64,7 @@ protected:
     void reportProcessKilled();
     void reportProcessListUpdated(const QList<Utils::ProcessInfo> &processes);
 
-    IDevice::ConstPtr device() const;
+    IDeviceConstPtr device() const;
 
 private:
     virtual void doUpdate() = 0;

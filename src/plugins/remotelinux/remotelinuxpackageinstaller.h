@@ -27,7 +27,9 @@
 
 #include "remotelinux_export.h"
 
-#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefwd.h>
+
+#include <QObject>
 
 namespace RemoteLinux {
 
@@ -40,8 +42,8 @@ class REMOTELINUX_EXPORT AbstractRemoteLinuxPackageInstaller : public QObject
 public:
     ~AbstractRemoteLinuxPackageInstaller() override;
 
-    void installPackage(const ProjectExplorer::IDevice::ConstPtr &deviceConfig,
-        const QString &packageFilePath, bool removePackageFile);
+    void installPackage(const ProjectExplorer::IDeviceConstPtr &deviceConfig,
+                        const QString &packageFilePath, bool removePackageFile);
     void cancelInstallation();
 
 signals:

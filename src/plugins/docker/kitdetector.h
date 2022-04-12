@@ -25,7 +25,8 @@
 
 #pragma once
 
-#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefwd.h>
+#include <utils/filepath.h>
 
 #include <QObject>
 
@@ -37,7 +38,7 @@ class KitDetector : public QObject
     Q_OBJECT
 
 public:
-    explicit KitDetector(const ProjectExplorer::IDevice::ConstPtr &device);
+    explicit KitDetector(const ProjectExplorer::IDeviceConstPtr &device);
     ~KitDetector() override;
 
     void autoDetect(const QString &sharedId, const Utils::FilePaths &selectedPaths) const;

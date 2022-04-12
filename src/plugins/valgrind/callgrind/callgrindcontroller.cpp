@@ -27,6 +27,8 @@
 
 #include <utils/temporaryfile.h>
 
+#include <QDebug>
+
 #define CALLGRIND_CONTROL_DEBUG 0
 
 using namespace ProjectExplorer;

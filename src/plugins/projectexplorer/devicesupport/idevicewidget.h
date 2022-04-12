@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "idevice.h"
+#include "idevicefwd.h"
 #include <projectexplorer/projectexplorer_export.h>
 
 #include <QWidget>
@@ -40,14 +40,14 @@ public:
     virtual void updateDeviceFromUi() = 0;
 
 protected:
-    explicit IDeviceWidget(const IDevice::Ptr &device) :
+    explicit IDeviceWidget(const IDevicePtr &device) :
         m_device(device)
     { }
 
-    IDevice::Ptr device() const { return m_device; }
+    IDevicePtr device() const { return m_device; }
 
 private:
-    IDevice::Ptr m_device;
+    IDevicePtr m_device;
 };
 
 } // namespace ProjectExplorer

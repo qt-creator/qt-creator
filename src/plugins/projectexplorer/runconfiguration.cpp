@@ -40,6 +40,9 @@
 #include "target.h"
 #include "toolchain.h"
 
+#include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/detailswidget.h>
@@ -48,9 +51,6 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>
-
-#include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
 
 #include <QDir>
 #include <QFormLayout>

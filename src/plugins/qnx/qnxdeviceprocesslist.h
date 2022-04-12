@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
 
 namespace Qnx {
@@ -36,7 +35,7 @@ class QnxDeviceProcessList : public ProjectExplorer::SshDeviceProcessList
     Q_OBJECT
 public:
     explicit QnxDeviceProcessList(
-            const ProjectExplorer::IDevice::ConstPtr &device, QObject *parent = nullptr);
+            const ProjectExplorer::IDeviceConstPtr &device, QObject *parent = nullptr);
 
 private:
     QString listProcessesCommandLine() const override;

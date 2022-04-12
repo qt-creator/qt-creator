@@ -25,6 +25,7 @@
 
 #include "idevicefactory.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/algorithm.h>
 #include <utils/icon.h>
 #include <utils/qtcassert.h>

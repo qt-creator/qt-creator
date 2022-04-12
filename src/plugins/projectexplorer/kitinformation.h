@@ -26,7 +26,7 @@
 #pragma once
 
 #include "abi.h"
-#include "devicesupport/idevice.h"
+#include "devicesupport/idevicefwd.h"
 #include "kitmanager.h"
 #include "kit.h"
 
@@ -157,9 +157,9 @@ public:
     void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const override;
 
     static Utils::Id id();
-    static IDevice::ConstPtr device(const Kit *k);
+    static IDeviceConstPtr device(const Kit *k);
     static Utils::Id deviceId(const Kit *k);
-    static void setDevice(Kit *k, IDevice::ConstPtr dev);
+    static void setDevice(Kit *k, IDeviceConstPtr dev);
     static void setDeviceId(Kit *k, Utils::Id dataId);
 
 private:
@@ -194,13 +194,13 @@ public:
     void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const override;
 
     static Utils::Id id();
-    static IDevice::ConstPtr device(const Kit *k);
+    static IDeviceConstPtr device(const Kit *k);
     static Utils::Id deviceId(const Kit *k);
-    static void setDevice(Kit *k, IDevice::ConstPtr dev);
+    static void setDevice(Kit *k, IDeviceConstPtr dev);
     static void setDeviceId(Kit *k, Utils::Id dataId);
 
 private:
-    static IDevice::ConstPtr defaultDevice();
+    static IDeviceConstPtr defaultDevice();
 
     void kitsWereLoaded();
     void deviceUpdated(Utils::Id dataId);

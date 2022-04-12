@@ -26,7 +26,6 @@
 #pragma once
 
 #include "buildtargetinfo.h"
-#include "devicesupport/idevice.h"
 #include "projectconfiguration.h"
 #include "projectexplorerconstants.h"
 #include "task.h"

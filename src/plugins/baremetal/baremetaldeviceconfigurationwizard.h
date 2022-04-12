@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefwd.h>
 #include <utils/wizard.h>
 
 namespace BareMetal {
@@ -42,7 +42,7 @@ class BareMetalDeviceConfigurationWizard final : public Utils::Wizard
 public:
     explicit BareMetalDeviceConfigurationWizard(QWidget *parent = nullptr);
 
-    ProjectExplorer::IDevice::Ptr device() const;
+    ProjectExplorer::IDevicePtr device() const;
 
 private:
     BareMetalDeviceConfigurationWizardSetupPage *m_setupPage = nullptr;

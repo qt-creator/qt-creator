@@ -26,11 +26,13 @@
 #pragma once
 
 #include "../projectexplorer_export.h"
-#include "idevice.h"
+#include "idevicefwd.h"
 
 #include <QAbstractListModel>
 
 #include <memory>
+
+namespace Utils { class Id; }
 
 namespace ProjectExplorer {
 namespace Internal { class DeviceManagerModelPrivate; }
@@ -47,9 +49,9 @@ public:
     void setFilter(const QList<Utils::Id> &filter);
     void setTypeFilter(Utils::Id type);
 
-    IDevice::ConstPtr device(int pos) const;
+    IDeviceConstPtr device(int pos) const;
     Utils::Id deviceId(int pos) const;
-    int indexOf(IDevice::ConstPtr dev) const;
+    int indexOf(IDeviceConstPtr dev) const;
     int indexForId(Utils::Id id) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
@@ -62,7 +64,7 @@ private:
     void handleDeviceListChanged();
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    bool matchesTypeFilter(const IDevice::ConstPtr &dev) const;
+    bool matchesTypeFilter(const IDeviceConstPtr &dev) const;
 
     const std::unique_ptr<Internal::DeviceManagerModelPrivate> d;
 };

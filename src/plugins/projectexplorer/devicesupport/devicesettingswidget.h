@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "idevice.h"
+#include "idevicefwd.h"
 
 #include <QList>
 #include <QString>
@@ -38,7 +38,6 @@ class QPushButton;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-class IDevice;
 class DeviceManager;
 class DeviceManagerModel;
 class IDeviceWidget;
@@ -71,7 +70,7 @@ private:
     void initGui();
     void displayCurrent();
     void setDeviceInfoWidgetsEnabled(bool enable);
-    IDevice::ConstPtr currentDevice() const;
+    IDeviceConstPtr currentDevice() const;
     int currentIndex() const;
     void clearDetails();
     QString parseTestOutput();

@@ -27,7 +27,7 @@
 
 #include "applicationlauncher.h"
 #include "buildconfiguration.h"
-#include "devicesupport/idevice.h"
+#include "devicesupport/idevicefwd.h"
 #include "projectexplorerconstants.h"
 #include "runconfiguration.h"
 
@@ -70,7 +70,7 @@ public:
     Utils::CommandLine command;
     Utils::FilePath workingDirectory;
     Utils::Environment environment;
-    IDevice::ConstPtr device; // Override the kit's device. Keep unset by default.
+    IDeviceConstPtr device; // Override the kit's device. Keep unset by default.
     QVariantHash extraData;
 
     // FIXME: Not necessarily a display name
@@ -100,7 +100,7 @@ public:
 
     // Part of read-only interface of RunControl for convenience.
     void appendMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
-    IDevice::ConstPtr device() const;
+    IDeviceConstPtr device() const;
     const Runnable &runnable() const;
 
     // States
@@ -223,7 +223,7 @@ public:
 
     Utils::ProcessHandle applicationProcessHandle() const;
     void setApplicationProcessHandle(const Utils::ProcessHandle &handle);
-    IDevice::ConstPtr device() const;
+    IDeviceConstPtr device() const;
 
     RunConfiguration *runConfiguration() const; // FIXME: Remove.
     // FIXME: Try to cut down to amount of functions.
@@ -275,7 +275,7 @@ signals:
     void applicationProcessHandleChanged(QPrivateSignal); // Use setApplicationProcessHandle
 
 private:
-    void setDevice(const IDevice::ConstPtr &device);
+    void setDevice(const IDeviceConstPtr &device);
 
     friend class RunWorker;
     friend class Internal::RunWorkerPrivate;

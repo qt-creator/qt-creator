@@ -25,9 +25,10 @@
 
 #include "remotelinuxpackageinstaller.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
+#include <ssh/sshremoteprocessrunner.h>
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
-#include <ssh/sshremoteprocessrunner.h>
 
 using namespace ProjectExplorer;
 using namespace QSsh;

@@ -28,7 +28,7 @@
 #include "projectexplorer_export.h"
 
 #include "abi.h"
-#include "devicesupport/idevice.h"
+#include "devicesupport/idevicefwd.h"
 #include "headerpath.h"
 #include "projectmacro.h"
 #include "task.h"
@@ -251,14 +251,14 @@ class PROJECTEXPLORER_EXPORT ToolchainDetector
 {
 public:
     ToolchainDetector(const Toolchains &alreadyKnown,
-                      const IDevice::ConstPtr &device,
+                      const IDeviceConstPtr &device,
                       const Utils::FilePaths &searchPaths);
 
     bool isBadToolchain(const Utils::FilePath &toolchain) const;
     void addBadToolchain(const Utils::FilePath &toolchain) const;
 
     const Toolchains alreadyKnown;
-    const IDevice::ConstPtr device;
+    const IDeviceConstPtr device;
     const Utils::FilePaths searchPaths; // If empty use device path and/or magic.
 };
 

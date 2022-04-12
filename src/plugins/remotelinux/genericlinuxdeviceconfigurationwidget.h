@@ -29,6 +29,8 @@
 
 #include "remotelinux_export.h"
 
+namespace Utils { class FilePath; }
+
 namespace RemoteLinux {
 
 namespace Ui { class GenericLinuxDeviceConfigurationWidget; }
@@ -40,7 +42,7 @@ class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWidget
 
 public:
     explicit GenericLinuxDeviceConfigurationWidget(
-        const ProjectExplorer::IDevice::Ptr &deviceConfig);
+        const ProjectExplorer::IDevicePtr &deviceConfig);
     ~GenericLinuxDeviceConfigurationWidget() override;
 
 private:

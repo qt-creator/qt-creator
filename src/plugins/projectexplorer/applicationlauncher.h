@@ -27,8 +27,6 @@
 
 #include "projectexplorer_export.h"
 
-#include "devicesupport/idevice.h"
-
 #include <utils/outputformat.h>
 #include <utils/processhandle.h>
 

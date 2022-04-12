@@ -28,7 +28,7 @@
 #include <QDialog>
 
 #include <projectexplorer/deployablefile.h>
-#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefwd.h>
 
 namespace QSsh {
 class SshRemoteProcessRunner;
@@ -57,7 +57,7 @@ public:
         Uploading
     };
 
-    explicit QnxDeployQtLibrariesDialog(const ProjectExplorer::IDevice::ConstPtr &device,
+    explicit QnxDeployQtLibrariesDialog(const ProjectExplorer::IDeviceConstPtr &device,
                                         QWidget *parent = nullptr);
     ~QnxDeployQtLibrariesDialog() override;
 
@@ -90,7 +90,7 @@ private:
     QSsh::SshRemoteProcessRunner *m_processRunner;
     RemoteLinux::GenericDirectUploadService *m_uploadService;
 
-    ProjectExplorer::IDevice::ConstPtr m_device;
+    ProjectExplorer::IDeviceConstPtr m_device;
 
     int m_progressCount;
 

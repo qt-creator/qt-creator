@@ -25,6 +25,7 @@
 
 #include "remotelinuxkillappservice.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/fileutils.h>
 
 namespace RemoteLinux {

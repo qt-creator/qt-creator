@@ -28,9 +28,10 @@
 #include "qdbconstants.h"
 #include "qdbrunconfiguration.h"
 
-#include <ssh/sshremoteprocessrunner.h>
-#include <projectexplorer/target.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/target.h>
+#include <ssh/sshremoteprocessrunner.h>
 
 namespace Qdb {
 namespace Internal {

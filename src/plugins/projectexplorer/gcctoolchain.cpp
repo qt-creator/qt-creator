@@ -27,6 +27,7 @@
 
 #include "abiwidget.h"
 #include "clangparser.h"
+#include "devicesupport/idevice.h"
 #include "gccparser.h"
 #include "linuxiccparser.h"
 #include "projectmacro.h"

@@ -28,6 +28,8 @@
 #include "abstractremotelinuxdeployservice.h"
 #include "remotelinux_export.h"
 
+namespace Utils { class FilePath; }
+
 namespace RemoteLinux {
 class AbstractRemoteLinuxPackageInstaller;
 

@@ -25,10 +25,12 @@
 
 #pragma once
 
-#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefwd.h>
 #include <utils/environment.h>
 
 #include <QObject>
+
+namespace Utils { class QtcProcess; }
 
 namespace RemoteLinux {
 namespace Internal {
@@ -38,7 +40,7 @@ class RemoteLinuxEnvironmentReader : public QObject
     Q_OBJECT
 
 public:
-    RemoteLinuxEnvironmentReader(const ProjectExplorer::IDevice::ConstPtr &device,
+    RemoteLinuxEnvironmentReader(const ProjectExplorer::IDeviceConstPtr &device,
                                  QObject *parent = nullptr);
     void start();
     void stop();
@@ -58,7 +60,7 @@ private:
 
     bool m_stop = false;
     Utils::Environment m_env;
-    ProjectExplorer::IDevice::ConstPtr m_device;
+    ProjectExplorer::IDeviceConstPtr m_device;
     Utils::QtcProcess *m_deviceProcess = nullptr;
 };
 

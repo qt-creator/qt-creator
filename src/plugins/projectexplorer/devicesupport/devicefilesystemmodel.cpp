@@ -25,6 +25,7 @@
 
 #include "devicefilesystemmodel.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>

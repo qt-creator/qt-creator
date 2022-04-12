@@ -27,7 +27,7 @@
 
 #include "remotelinux_export.h"
 
-#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefwd.h>
 #include <utils/wizard.h>
 
 namespace RemoteLinux {
@@ -41,7 +41,7 @@ public:
     GenericLinuxDeviceConfigurationWizard(QWidget *parent = nullptr);
     ~GenericLinuxDeviceConfigurationWizard() override;
 
-    ProjectExplorer::IDevice::Ptr device();
+    ProjectExplorer::IDevicePtr device();
 
 private:
     Internal::GenericLinuxDeviceConfigurationWizardPrivate * const d;

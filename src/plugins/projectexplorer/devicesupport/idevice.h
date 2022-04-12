@@ -26,6 +26,7 @@
 #pragma once
 
 #include "../projectexplorer_export.h"
+#include "idevicefwd.h"
 
 #include <utils/id.h>
 #include <utils/filepath.h>
@@ -123,8 +124,8 @@ class PROJECTEXPLORER_EXPORT IDevice : public QEnableSharedFromThis<IDevice>
 {
     friend class Internal::IDevicePrivate;
 public:
-    using Ptr = QSharedPointer<IDevice>;
-    using ConstPtr = QSharedPointer<const IDevice>;
+    using Ptr = IDevicePtr;
+    using ConstPtr = IDeviceConstPtr;
     template <class ...Args> using Continuation = std::function<void(Args...)>;
 
     enum Origin { ManuallyAdded, AutoDetected };

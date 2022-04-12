@@ -27,7 +27,7 @@
 
 #include "remotelinux_export.h"
 
-#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefwd.h>
 
 #include <QObject>
 #include <QVariantMap>
@@ -69,7 +69,7 @@ public:
 
     void setTarget(ProjectExplorer::Target *bc);
     // Only use setDevice() as fallback if no target is available
-    void setDevice(const ProjectExplorer::IDevice::ConstPtr &device);
+    void setDevice(const ProjectExplorer::IDeviceConstPtr &device);
     void start();
     void stop();
 
@@ -89,7 +89,7 @@ signals:
 protected:
     const ProjectExplorer::Target *target() const;
     const ProjectExplorer::Kit *profile() const;
-    ProjectExplorer::IDevice::ConstPtr deviceConfiguration() const;
+    ProjectExplorer::IDeviceConstPtr deviceConfiguration() const;
     QSsh::SshConnection *connection() const;
 
     void saveDeploymentTimeStamp(const ProjectExplorer::DeployableFile &deployableFile,

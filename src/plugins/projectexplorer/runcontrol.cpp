@@ -26,6 +26,7 @@
 #include "runcontrol.h"
 
 #include "devicesupport/desktopdevice.h"
+#include "devicesupport/idevice.h"
 #include "abi.h"
 #include "buildconfiguration.h"
 #include "customparser.h"

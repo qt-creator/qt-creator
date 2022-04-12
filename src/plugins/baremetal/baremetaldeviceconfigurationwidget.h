@@ -41,7 +41,7 @@ class BareMetalDeviceConfigurationWidget final
     Q_OBJECT
 
 public:
-    explicit BareMetalDeviceConfigurationWidget(const ProjectExplorer::IDevice::Ptr &deviceConfig);
+    explicit BareMetalDeviceConfigurationWidget(const ProjectExplorer::IDevicePtr &deviceConfig);
 
 private:
     void debugServerProviderChanged();

@@ -32,7 +32,7 @@
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggerruncontrol.h>
 
-#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefwd.h>
 #include <projectexplorer/runconfiguration.h>
 
 #include <qmldebug/qmldebugcommandlinearguments.h>
@@ -83,7 +83,7 @@ private:
 
     IosToolHandler *m_toolHandler = nullptr;
     QString m_bundleDir;
-    ProjectExplorer::IDevice::ConstPtr m_device;
+    ProjectExplorer::IDeviceConstPtr m_device;
     IosDeviceType m_deviceType;
     bool m_cppDebug = false;
     QmlDebug::QmlDebugServicesPreset m_qmlDebugServices = QmlDebug::NoQmlDebugServices;

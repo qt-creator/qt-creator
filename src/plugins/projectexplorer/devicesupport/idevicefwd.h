@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,39 +25,18 @@
 
 #pragma once
 
-#include <QVariantMap>
+#include <QtGlobal>
+
+QT_BEGIN_NAMESPACE
+template <class T>
+class QSharedPointer;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-class DeployableFile;
-class Kit;
-}
 
-namespace RemoteLinux {
+class IDevice;
 
-class DeploymentTimeInfoPrivate;
+using IDevicePtr = QSharedPointer<IDevice>;
+using IDeviceConstPtr = QSharedPointer<const IDevice>;
 
-class DeploymentTimeInfo
-{
-public:
-    DeploymentTimeInfo();
-    ~DeploymentTimeInfo();
-
-    void importDeployTimes(const QVariantMap &map);
-    QVariantMap exportDeployTimes() const;
-
-    void saveDeploymentTimeStamp(const ProjectExplorer::DeployableFile &deployableFile,
-                                 const ProjectExplorer::Kit *kit,
-                                 const QDateTime &remoteTimestamp);
-
-    bool hasLocalFileChanged(const ProjectExplorer::DeployableFile &deployableFile,
-                             const ProjectExplorer::Kit *kit) const;
-
-    bool hasRemoteFileChanged(const ProjectExplorer::DeployableFile &deployableFile,
-                              const ProjectExplorer::Kit *kit,
-                              const QDateTime &remoteTimestamp) const;
-
-private:
-    DeploymentTimeInfoPrivate *d;
-};
-
-} // namespace RemoteLinux
+} // namespace ProjectExplorer

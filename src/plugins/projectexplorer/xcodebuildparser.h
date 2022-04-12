@@ -27,7 +27,6 @@
 
 #include "projectexplorer_export.h"
 #include "ioutputparser.h"
-#include "devicesupport/idevice.h"
 
 #include <QRegularExpression>
 #include <QStringList>

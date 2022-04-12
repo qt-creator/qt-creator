@@ -25,6 +25,7 @@
 
 #include "deviceprocessesdialog.h"
 #include "deviceprocesslist.h"
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitinformation.h>
 

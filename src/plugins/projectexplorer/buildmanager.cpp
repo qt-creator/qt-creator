@@ -47,6 +47,7 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/algorithm.h>
 #include <utils/outputformatter.h>
 #include <utils/runextensions.h>

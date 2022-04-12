@@ -28,6 +28,7 @@
 
 #include "xmlprotocol/threadedparser.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>

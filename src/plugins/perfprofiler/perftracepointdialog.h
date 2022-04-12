@@ -25,10 +25,12 @@
 
 #pragma once
 
-#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefwd.h>
 
 #include <QDialog>
 #include <QProcess>
+
+namespace Utils { class QtcProcess; }
 
 namespace PerfProfiler {
 namespace Internal {
@@ -50,7 +52,7 @@ private:
     void finish();
 
     Ui::PerfTracePointDialog *m_ui;
-    ProjectExplorer::IDevice::ConstPtr m_device;
+    ProjectExplorer::IDeviceConstPtr m_device;
     std::unique_ptr<Utils::QtcProcess> m_process;
 
     void accept() final;

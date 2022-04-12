@@ -25,9 +25,12 @@
 
 #pragma once
 
-#include "idevice.h"
+#include "../projectexplorer_export.h"
+#include "idevicefwd.h"
 
 #include <QAbstractItemModel>
+
+namespace Utils { class FilePath; }
 
 namespace ProjectExplorer {
 
@@ -44,7 +47,7 @@ public:
     explicit DeviceFileSystemModel(QObject *parent = nullptr);
     ~DeviceFileSystemModel();
 
-    void setDevice(const IDevice::ConstPtr &device);
+    void setDevice(const IDeviceConstPtr &device);
 
     // Use this to get the full path of a file or directory.
     static const int PathRole = Qt::UserRole;

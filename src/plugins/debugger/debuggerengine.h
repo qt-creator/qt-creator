@@ -33,7 +33,7 @@
 #include "threadshandler.h"
 
 #include <coreplugin/icontext.h>
-#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefwd.h>
 #include <projectexplorer/runcontrol.h>
 #include <texteditor/textmark.h>
 #include <utils/fileutils.h>
@@ -554,7 +554,7 @@ protected:
     bool isNativeMixedActiveFrame() const;
     void startDying() const;
 
-    ProjectExplorer::IDevice::ConstPtr device() const;
+    ProjectExplorer::IDeviceConstPtr device() const;
     DebuggerEngine *companionEngine() const;
 
 private:

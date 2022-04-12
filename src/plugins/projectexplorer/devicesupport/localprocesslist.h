@@ -35,7 +35,7 @@ class LocalProcessList : public DeviceProcessList
     Q_OBJECT
 
 public:
-    explicit LocalProcessList(const IDevice::ConstPtr &device, QObject *parent = nullptr);
+    explicit LocalProcessList(const IDeviceConstPtr &device, QObject *parent = nullptr);
 
 private:
     void doUpdate() override;

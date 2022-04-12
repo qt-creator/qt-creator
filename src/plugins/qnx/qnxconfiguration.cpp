@@ -50,6 +50,7 @@
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 
+#include <QDebug>
 #include <QDir>
 #include <QMessageBox>
 #include <QFileInfo>

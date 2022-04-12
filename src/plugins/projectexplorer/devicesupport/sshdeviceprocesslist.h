@@ -35,7 +35,7 @@ class PROJECTEXPLORER_EXPORT SshDeviceProcessList : public DeviceProcessList
 {
     Q_OBJECT
 public:
-    explicit SshDeviceProcessList(const IDevice::ConstPtr &device, QObject *parent = nullptr);
+    explicit SshDeviceProcessList(const IDeviceConstPtr &device, QObject *parent = nullptr);
     ~SshDeviceProcessList() override;
 
 private:

@@ -27,6 +27,7 @@
 #include "deploymenttimeinfo.h"
 
 #include <projectexplorer/deployablefile.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 

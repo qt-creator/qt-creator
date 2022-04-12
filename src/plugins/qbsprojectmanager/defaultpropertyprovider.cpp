@@ -31,6 +31,7 @@
 #include <coreplugin/messagemanager.h>
 #include <baremetal/baremetalconstants.h>
 #include <projectexplorer/abi.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>

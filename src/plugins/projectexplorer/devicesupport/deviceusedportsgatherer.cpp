@@ -27,6 +27,7 @@
 
 #include <ssh/sshconnection.h>
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/port.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>

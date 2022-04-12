@@ -32,6 +32,8 @@
 
 #include <utils/algorithm.h>
 
+#include <QDebug>
+
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;

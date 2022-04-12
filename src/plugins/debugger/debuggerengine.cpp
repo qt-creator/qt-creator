@@ -66,6 +66,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/taskhub.h>
 

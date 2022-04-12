@@ -26,6 +26,7 @@
 #include "startremotedialog.h"
 
 #include <coreplugin/icore.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/runcontrol.h>

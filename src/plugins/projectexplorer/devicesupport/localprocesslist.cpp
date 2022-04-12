@@ -25,6 +25,7 @@
 
 #include "localprocesslist.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/processinfo.h>
 
 #include <QTimer>

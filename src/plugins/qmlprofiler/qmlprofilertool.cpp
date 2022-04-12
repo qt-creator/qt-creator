@@ -40,37 +40,40 @@
 
 #include <app/app_version.h>
 
-#include <debugger/debuggericons.h>
-#include <debugger/debuggermainwindow.h>
-#include <debugger/analyzer/analyzermanager.h>
-
-#include <utils/fancymainwindow.h>
-#include <utils/fileinprojectfinder.h>
-#include <utils/qtcassert.h>
-#include <utils/url.h>
-#include <utils/utilsicons.h>
-#include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/session.h>
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/taskhub.h>
-#include <texteditor/texteditor.h>
-
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/findplugin.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/imode.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/imode.h>
+
+#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/debuggericons.h>
+#include <debugger/debuggermainwindow.h>
+
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/environmentaspect.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/taskhub.h>
 
 #include <qtsupport/qtkitinformation.h>
+
+#include <texteditor/texteditor.h>
+
+#include <utils/fancymainwindow.h>
+#include <utils/fileinprojectfinder.h>
+#include <utils/qtcassert.h>
+#include <utils/url.h>
+#include <utils/utilsicons.h>
 
 #include <QApplication>
 #include <QDockWidget>

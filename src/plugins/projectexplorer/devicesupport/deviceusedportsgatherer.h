@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "idevice.h"
+#include "idevicefwd.h"
 
 #include <projectexplorer/runcontrol.h>
 
@@ -46,7 +46,7 @@ public:
     DeviceUsedPortsGatherer(QObject *parent = nullptr);
     ~DeviceUsedPortsGatherer() override;
 
-    void start(const IDevice::ConstPtr &device);
+    void start(const IDeviceConstPtr &device);
     void stop();
     Utils::Port getNextFreePort(Utils::PortList *freePorts) const; // returns -1 if no more are left
     QList<Utils::Port> usedPorts() const;
