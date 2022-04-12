@@ -147,7 +147,7 @@ void DiagnosticManager::showDiagnostics(const DocumentUri &uri, int version)
 
 TextEditor::TextMark *DiagnosticManager::createTextMark(const FilePath &filePath,
                                                         const Diagnostic &diagnostic,
-                                                        bool isProjectFile) const
+                                                        bool /*isProjectFile*/) const
 {
     static const auto icon = QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon());
     static const QString tooltip = tr("Copy to Clipboard");
