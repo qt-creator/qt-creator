@@ -226,11 +226,11 @@ def logApplicationOutput():
 # get the output from a given cmdline call
 def getOutputFromCmdline(cmdline, environment=None, acceptedError=0):
     try:
-        return subprocess.check_output(cmdline, env=environment)
+        return stringify(subprocess.check_output(cmdline, env=environment))
     except subprocess.CalledProcessError as e:
         if e.returncode != acceptedError:
             test.warning("Command '%s' returned %d" % (e.cmd, e.returncode))
-        return e.output
+        return stringify(e.output)
 
 def selectFromFileDialog(fileName, waitForFile=False, ignoreFinalSnooze=False):
     def __closePopupIfNecessary__():
@@ -672,3 +672,12 @@ def isString(sth):
         return isinstance(sth, str)
     else:
         return isinstance(sth, (str, unicode))
+
+# helper function to ensure we get str, converts bytes if necessary
+def stringify(obj):
+    stringTypes = (str, unicode) if sys.version_info.major == 2 else (str)
+    if isinstance(obj, stringTypes):
+        return obj
+    if isinstance(obj, bytes):
+        tmp = obj.decode('cp1252') if platform.system() in ('Microsoft','Windows') else obj.decode()
+        return tmp
