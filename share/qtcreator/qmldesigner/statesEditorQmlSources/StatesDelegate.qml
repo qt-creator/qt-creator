@@ -285,6 +285,7 @@ Rectangle {
                 anchors.fill: parent
                 source: delegateStateImageSource
                 fillMode: Image.PreserveAspectFit
+                mipmap: true
             }
         }
     }
