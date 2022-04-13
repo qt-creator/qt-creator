@@ -33,6 +33,8 @@
 #include <qmldesignerplugin.h>
 #include <qmldesignerconstants.h>
 
+#include <QFile>
+
 namespace QmlDesigner {
 
 static inline bool itemsHaveSameParent(const QList<ModelNode> &siblingList)
@@ -94,10 +96,24 @@ bool selectionHasSameParent(const SelectionContext &selectionState)
     return !selectionState.selectedModelNodes().isEmpty() && itemsHaveSameParent(selectionState.selectedModelNodes());
 }
 
+bool fileComponentExists(const ModelNode &modelNode)
+{
+    if (!modelNode.metaInfo().isFileComponent())
+        return true;
+
+    const QString fileName = modelNode.metaInfo().componentFileName();
+
+    if (fileName.contains("qml/QtQuick"))
+        return false;
+
+    return QFile::exists(fileName);
+}
+
 bool selectionIsComponent(const SelectionContext &selectionState)
 {
     return selectionState.currentSingleSelectedNode().isValid()
-            && selectionState.currentSingleSelectedNode().isComponent();
+            && selectionState.currentSingleSelectedNode().isComponent()
+            && fileComponentExists(selectionState.currentSingleSelectedNode());
 }
 
 bool selectionIsImported3DAsset(const SelectionContext &selectionState)
