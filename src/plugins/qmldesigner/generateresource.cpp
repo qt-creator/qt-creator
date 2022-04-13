@@ -353,7 +353,7 @@ void GenerateResource::generateMenuEntry()
 
     // ToDo: move this to QtCreator and add tr to the string then
     auto rccAction = new QAction(QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                                             "Generate RCC Resource File"));
+                                                             "Generate Deployable Package"));
     rccAction->setEnabled(ProjectExplorer::SessionManager::startupProject() != nullptr);
     QObject::connect(ProjectExplorer::SessionManager::instance(),
         &ProjectExplorer::SessionManager::startupProjectChanged, [rccAction]() {
