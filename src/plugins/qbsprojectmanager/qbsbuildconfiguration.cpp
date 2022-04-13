@@ -131,13 +131,11 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Utils::Id id)
     connect(separateDebugInfoAspect, &SeparateDebugInfoAspect::changed,
             this, &QbsBuildConfiguration::qbsConfigurationChanged);
 
-    const auto qmlDebuggingAspect = addAspect<QtSupport::QmlDebuggingAspect>();
-    qmlDebuggingAspect->setKit(target->kit());
+    const auto qmlDebuggingAspect = addAspect<QtSupport::QmlDebuggingAspect>(this);
     connect(qmlDebuggingAspect, &QtSupport::QmlDebuggingAspect::changed,
             this, &QbsBuildConfiguration::qbsConfigurationChanged);
 
-    const auto qtQuickCompilerAspect = addAspect<QtSupport::QtQuickCompilerAspect>(qmlDebuggingAspect);
-    qtQuickCompilerAspect->setKit(target->kit());
+    const auto qtQuickCompilerAspect = addAspect<QtSupport::QtQuickCompilerAspect>(this);
     connect(qtQuickCompilerAspect, &QtSupport::QtQuickCompilerAspect::changed,
             this, &QbsBuildConfiguration::qbsConfigurationChanged);
 

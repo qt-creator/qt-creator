@@ -27,6 +27,7 @@
 
 #include "baseqtversion.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildpropertiessettings.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/kitmanager.h>
@@ -42,7 +43,8 @@ using namespace Utils;
 
 namespace QtSupport {
 
-QmlDebuggingAspect::QmlDebuggingAspect()
+QmlDebuggingAspect::QmlDebuggingAspect(BuildConfiguration *buildConfig)
+    : m_buildConfig(buildConfig)
 {
     setSettingsKey("EnableQmlDebugging");
     setDisplayName(tr("QML debugging and profiling:"));
@@ -58,7 +60,9 @@ void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
     builder.addRow({{}, warningLabel});
     const auto changeHandler = [this, warningLabel] {
         QString warningText;
-        const bool supported = m_kit && QtVersion::isQmlDebuggingSupported(m_kit, &warningText);
+        QTC_ASSERT(m_buildConfig, return);
+        Kit *kit = m_buildConfig->kit();
+        const bool supported = kit && QtVersion::isQmlDebuggingSupported(kit, &warningText);
         if (!supported) {
             setValue(TriState::Default);
         } else if (value() == TriState::Enabled) {
@@ -76,8 +80,8 @@ void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
     changeHandler();
 }
 
-QtQuickCompilerAspect::QtQuickCompilerAspect(QmlDebuggingAspect *qmlAspect)
-    : m_qmlDebuggingAspect(qmlAspect)
+QtQuickCompilerAspect::QtQuickCompilerAspect(BuildConfiguration *buildConfig)
+    : m_buildConfig(buildConfig)
 {
     setSettingsKey("QtQuickCompiler");
     setDisplayName(tr("Qt Quick Compiler:"));
@@ -93,13 +97,17 @@ void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
     builder.addRow({{}, warningLabel});
     const auto changeHandler = [this, warningLabel] {
         QString warningText;
-        const bool supported = m_kit
-                && QtVersion::isQtQuickCompilerSupported(m_kit, &warningText);
+        QTC_ASSERT(m_buildConfig, return);
+        Kit *kit = m_buildConfig->kit();
+        const bool supported = kit
+                && QtVersion::isQtQuickCompilerSupported(kit, &warningText);
         if (!supported)
             setValue(TriState::Default);
-        if (value() == TriState::Enabled
-                && m_qmlDebuggingAspect && m_qmlDebuggingAspect->value() == TriState::Enabled) {
-            warningText = tr("Disables QML debugging. QML profiling will still work.");
+        if (value() == TriState::Enabled) {
+            if (auto qmlDebuggingAspect = m_buildConfig->aspect<QmlDebuggingAspect>()) {
+                if (qmlDebuggingAspect->value() == TriState::Enabled)
+                    warningText = tr("Disables QML debugging. QML profiling will still work.");
+            }
         }
         warningLabel->setText(warningText);
         setVisible(supported);
@@ -110,8 +118,8 @@ void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
     connect(KitManager::instance(), &KitManager::kitsChanged, warningLabel, changeHandler);
     connect(this, &QmlDebuggingAspect::changed, warningLabel, changeHandler);
     connect(this, &QtQuickCompilerAspect::changed, warningLabel, changeHandler);
-    if (m_qmlDebuggingAspect)
-        connect(m_qmlDebuggingAspect, &QmlDebuggingAspect::changed,  warningLabel, changeHandler);
+    if (auto qmlDebuggingAspect = m_buildConfig->aspect<QmlDebuggingAspect>())
+        connect(qmlDebuggingAspect, &QmlDebuggingAspect::changed,  warningLabel, changeHandler);
     changeHandler();
 }
 
