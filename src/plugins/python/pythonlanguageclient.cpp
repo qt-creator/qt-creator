@@ -56,6 +56,7 @@
 #include <QTimer>
 
 using namespace LanguageClient;
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Python {

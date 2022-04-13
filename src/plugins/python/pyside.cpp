@@ -25,6 +25,7 @@
 
 #include "pyside.h"
 
+#include "pythonconstants.h"
 #include "pythonplugin.h"
 #include "pythonproject.h"
 #include "pythonrunconfiguration.h"
@@ -32,8 +33,12 @@
 #include "pythonutils.h"
 
 #include <coreplugin/icore.h>
+
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
+
 #include <texteditor/textdocument.h>
+
 #include <utils/algorithm.h>
 #include <utils/infobar.h>
 #include <utils/runextensions.h>
@@ -42,6 +47,7 @@
 #include <QTextCursor>
 
 using namespace Utils;
+using namespace ProjectExplorer;
 
 namespace Python {
 namespace Internal {
@@ -106,10 +112,12 @@ void PySideInstaller::installPyside(const Utils::FilePath &python,
 }
 
 void PySideInstaller::changeInterpreter(const QString &interpreterId,
-                                        PythonRunConfiguration *runConfig)
+                                        RunConfiguration *runConfig)
 {
-    if (runConfig)
-        runConfig->setInterpreter(PythonSettings::interpreter(interpreterId));
+    if (runConfig) {
+        if (auto aspect = runConfig->aspect<InterpreterAspect>())
+            aspect->setCurrentInterpreter(PythonSettings::interpreter(interpreterId));
+    }
 }
 
 void PySideInstaller::handlePySideMissing(const FilePath &python,
@@ -128,21 +136,23 @@ void PySideInstaller::handlePySideMissing(const FilePath &python,
 
     if (PythonProject *project = pythonProjectForFile(document->filePath())) {
         if (ProjectExplorer::Target *target = project->activeTarget()) {
-            if (auto runConfiguration = qobject_cast<PythonRunConfiguration *>(
-                    target->activeRunConfiguration())) {
+            auto runConfiguration = target->activeRunConfiguration();
+            if (runConfiguration->id() == Constants::C_PYTHONRUNCONFIGURATION_ID) {
                 const QList<InfoBarEntry::ComboInfo> interpreters = Utils::transform(
                     PythonSettings::interpreters(), [](const Interpreter &interpreter) {
                         return InfoBarEntry::ComboInfo{interpreter.name, interpreter.id};
                     });
                 auto interpreterChangeCallback =
-                    [=, rc = QPointer<PythonRunConfiguration>(runConfiguration)](
+                    [=, rc = QPointer<RunConfiguration>(runConfiguration)](
                         const InfoBarEntry::ComboInfo &info) {
                         changeInterpreter(info.data.toString(), rc);
                     };
 
-                const auto isCurrentInterpreter
-                    = Utils::equal(&InfoBarEntry::ComboInfo::data,
-                                   QVariant(runConfiguration->interpreter().id));
+                auto interpreterAspect = runConfiguration->aspect<InterpreterAspect>();
+                QTC_ASSERT(interpreterAspect, return);
+                const QString id = interpreterAspect->currentInterpreter().id;
+                const auto isCurrentInterpreter = Utils::equal(&InfoBarEntry::ComboInfo::data,
+                                                               QVariant(id));
                 const QString switchTooltip = tr("Switch the Python interpreter for %1")
                                                   .arg(runConfiguration->displayName());
                 info.setComboInfo(interpreters,

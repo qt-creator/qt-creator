@@ -33,6 +33,7 @@
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
+class QComboBox;
 class QPlainTextEdit;
 class QToolButton;
 QT_END_NAMESPACE
@@ -212,6 +213,63 @@ class PROJECTEXPLORER_EXPORT SymbolFileAspect : public Utils::StringAspect
 
 public:
      SymbolFileAspect() = default;
+};
+
+class PROJECTEXPLORER_EXPORT Interpreter
+{
+public:
+    Interpreter();
+    Interpreter(const QString &id,
+                const QString &name,
+                const Utils::FilePath &command,
+                bool autoDetected = true);
+
+    inline bool operator==(const Interpreter &other) const
+    {
+        return id == other.id && name == other.name && command == other.command;
+    }
+
+    QString id;
+    QString name;
+    Utils::FilePath command;
+    bool autoDetected = true;
+};
+
+class PROJECTEXPLORER_EXPORT InterpreterAspect : public Utils::BaseAspect
+{
+    Q_OBJECT
+
+public:
+    InterpreterAspect();
+
+    Interpreter currentInterpreter() const;
+    void updateInterpreters(const QList<Interpreter> &interpreters);
+    void setDefaultInterpreter(const Interpreter &interpreter) { m_defaultId = interpreter.id; }
+    void setCurrentInterpreter(const Interpreter &interpreter);
+    void setSettingsDialogId(Utils::Id id) { m_settingsDialogId = id; }
+
+    void fromMap(const QVariantMap &) override;
+    void toMap(QVariantMap &) const override;
+    void addToLayout(Utils::LayoutBuilder &builder) override;
+
+    struct Data : Utils::BaseAspect::Data { Interpreter interpreter; };
+
+private:
+    void updateCurrentInterpreter();
+    void updateComboBox();
+    QList<Interpreter> m_interpreters;
+    QPointer<QComboBox> m_comboBox;
+    QString m_defaultId;
+    QString m_currentId;
+    Utils::Id m_settingsDialogId;
+};
+
+class PROJECTEXPLORER_EXPORT MainScriptAspect : public Utils::StringAspect
+{
+    Q_OBJECT
+
+public:
+    MainScriptAspect() = default;
 };
 
 } // namespace ProjectExplorer

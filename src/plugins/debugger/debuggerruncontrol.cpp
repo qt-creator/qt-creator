@@ -939,16 +939,17 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
         m_runParameters.nativeMixedEnabled = bool(nativeMixedOverride);
 
 
-    RunConfiguration *runConfig = runControl->runConfiguration();
-    if (runConfig && runConfig->property("supportsDebugger").toBool()) {
-        const QString mainScript = runConfig->property("mainScript").toString();
-        const QString interpreter = runConfig->property("interpreter").toString();
-        if (!interpreter.isEmpty() && mainScript.endsWith(".py")) {
-            m_runParameters.mainScript = mainScript;
-            m_runParameters.interpreter = interpreter;
-            const QString args = runConfig->property("arguments").toString();
-            m_runParameters.inferior.command.addArgs(args, CommandLine::Raw);
-            m_engine = createPdbEngine();
+    if (auto interpreterAspect = runControl->aspect<InterpreterAspect>()) {
+        if (auto mainScriptAspect = runControl->aspect<MainScriptAspect>()) {
+            const FilePath mainScript = mainScriptAspect->filePath;
+            const FilePath interpreter = interpreterAspect->interpreter.command;
+            if (!interpreter.isEmpty() && mainScript.endsWith(".py")) {
+                m_runParameters.mainScript = mainScript;
+                m_runParameters.interpreter = interpreter;
+                if (auto args = runControl->aspect<ArgumentsAspect>())
+                    m_runParameters.inferior.command.addArgs(args->arguments, CommandLine::Raw);
+                m_engine = createPdbEngine();
+            }
         }
     }
 

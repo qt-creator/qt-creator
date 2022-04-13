@@ -125,28 +125,24 @@ void PdbEngine::setupEngine()
     connect(&m_proc, &QtcProcess::readyReadStandardOutput, this, &PdbEngine::readPdbStandardOutput);
     connect(&m_proc, &QtcProcess::readyReadStandardError, this, &PdbEngine::readPdbStandardError);
 
-    QFile scriptFile(runParameters().mainScript);
-    if (!scriptFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
+    const FilePath scriptFile = runParameters().mainScript;
+    if (!scriptFile.isReadableFile()) {
         AsynchronousMessageBox::critical(tr("Python Error"),
-            QString("Cannot open script file %1:\n%2").
-               arg(scriptFile.fileName(), scriptFile.errorString()));
+            QString("Cannot open script file %1").arg(scriptFile.toUserOutput()));
         notifyEngineSetupFailed();
     }
 
-    QStringList args = {bridge, scriptFile.fileName()};
-    args.append(ProcessArgs::splitArgs(runParameters().inferior.workingDirectory.path()));
-    showMessage("STARTING " + m_interpreter + ' ' + args.join(' '));
+    CommandLine cmd{m_interpreter, {bridge, scriptFile.path()}};
+    cmd.addArg(runParameters().inferior.workingDirectory.path());
+    showMessage("STARTING " + cmd.toUserOutput());
     m_proc.setEnvironment(runParameters().debugger.environment);
-    m_proc.setCommand({ FilePath::fromString(m_interpreter), args });
+    m_proc.setCommand(cmd);
     m_proc.start();
 
     if (!m_proc.waitForStarted()) {
-        const QString msg = tr("Unable to start pdb \"%1\": %2")
-            .arg(m_interpreter, m_proc.errorString());
         notifyEngineSetupFailed();
         showMessage("ADAPTER START FAILED");
-        if (!msg.isEmpty())
-            ICore::showWarningWithOptions(tr("Adapter start failed"), msg);
+        ICore::showWarningWithOptions(tr("Adapter start failed"), m_proc.exitMessage());
         notifyEngineSetupFailed();
         return;
     }
@@ -416,7 +412,7 @@ QString PdbEngine::errorMessage(QProcess::ProcessError error) const
             return tr("The Pdb process failed to start. Either the "
                 "invoked program \"%1\" is missing, or you may have insufficient "
                 "permissions to invoke the program.")
-                .arg(m_interpreter);
+                .arg(m_interpreter.toUserOutput());
         case QProcess::Crashed:
             return tr("The Pdb process crashed some time after starting "
                 "successfully.");

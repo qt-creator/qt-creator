@@ -31,6 +31,8 @@ namespace Python {
 namespace Constants {
 
 const char C_PYTHONEDITOR_ID[] = "PythonEditor.PythonEditor";
+const char C_PYTHONRUNCONFIGURATION_ID[] = "PythonEditor.RunConfiguration.";
+
 const char C_EDITOR_DISPLAY_NAME[] =
         QT_TRANSLATE_NOOP("OpenWith::Editors", "Python Editor");
 

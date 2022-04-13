@@ -37,7 +37,6 @@ namespace TextEditor { class TextDocument; }
 namespace Python {
 namespace Internal {
 
-class Interpreter;
 struct PythonLanguageServerState;
 
 class PyLSSettings : public LanguageClient::StdIOSettings

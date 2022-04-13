@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <projectexplorer/runconfigurationaspects.h>
+
 #include <utils/fileutils.h>
 #include <utils/optional.h>
 
@@ -33,34 +35,13 @@
 namespace Python {
 namespace Internal {
 
-class Interpreter
-{
-public:
-    Interpreter() = default;
-    Interpreter(const Utils::FilePath &python,
-                const QString &defaultName,
-                bool windowedSuffix = false);
-    Interpreter(const QString &id,
-                const QString &name,
-                const Utils::FilePath &command,
-                bool autoDetected = true);
-
-    inline bool operator==(const Interpreter &other) const
-    {
-        return id == other.id && name == other.name && command == other.command;
-    }
-
-    QString id = QUuid::createUuid().toString();
-    QString name;
-    Utils::FilePath command;
-    bool autoDetected = true;
-};
-
 class PythonSettings : public QObject
 {
     Q_OBJECT
 public:
     static void init();
+
+    using Interpreter = ProjectExplorer::Interpreter;
 
     static QList<Interpreter> interpreters();
     static Interpreter defaultInterpreter();

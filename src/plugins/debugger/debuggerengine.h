@@ -184,8 +184,8 @@ public:
     Utils::FilePaths projectSourceFiles;
 
     // Used by Script debugging
-    QString interpreter;
-    QString mainScript;
+    Utils::FilePath interpreter;
+    Utils::FilePath mainScript;
 
     // Used by AttachCrashedExternal.
     QString crashParameter;

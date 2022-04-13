@@ -112,7 +112,7 @@ private:
 
     QString m_inbuffer;
     Utils::QtcProcess m_proc;
-    QString m_interpreter;
+    Utils::FilePath m_interpreter;
 };
 
 } // namespace Internal

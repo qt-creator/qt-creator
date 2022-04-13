@@ -135,220 +135,80 @@ private:
 
 ////////////////////////////////////////////////////////////////
 
-class InterpreterAspect : public BaseAspect
+class PythonRunConfiguration : public RunConfiguration
 {
-    Q_OBJECT
-
 public:
-    InterpreterAspect() = default;
+    PythonRunConfiguration(Target *target, Id id)
+        : RunConfiguration(target, id)
+    {
+        auto interpreterAspect = addAspect<InterpreterAspect>();
+        interpreterAspect->setSettingsKey("PythonEditor.RunConfiguation.Interpreter");
+        interpreterAspect->setSettingsDialogId(Constants::C_PYTHONOPTIONS_PAGE_ID);
 
-    Interpreter currentInterpreter() const;
-    void updateInterpreters(const QList<Interpreter> &interpreters);
-    void setDefaultInterpreter(const Interpreter &interpreter) { m_defaultId = interpreter.id; }
-    void setCurrentInterpreter(const Interpreter &interpreter);
+        connect(interpreterAspect, &InterpreterAspect::changed, this, [this, interpreterAspect] {
+            using namespace LanguageClient;
+            const FilePath python = interpreterAspect->currentInterpreter().command;
 
-    void fromMap(const QVariantMap &) override;
-    void toMap(QVariantMap &) const override;
-    void addToLayout(LayoutBuilder &builder) override;
-
-private:
-    void updateCurrentInterpreter();
-    void updateComboBox();
-    QList<Interpreter> m_interpreters;
-    QPointer<QComboBox> m_comboBox;
-    QString m_defaultId;
-    QString m_currentId;
-};
-
-Interpreter InterpreterAspect::currentInterpreter() const
-{
-    return Utils::findOrDefault(m_interpreters, Utils::equal(&Interpreter::id, m_currentId));
-}
-
-void InterpreterAspect::updateInterpreters(const QList<Interpreter> &interpreters)
-{
-    m_interpreters = interpreters;
-    if (m_comboBox)
-        updateComboBox();
-}
-
-void InterpreterAspect::setCurrentInterpreter(const Interpreter &interpreter)
-{
-    m_currentId = interpreter.id;
-    emit changed();
-}
-
-void InterpreterAspect::fromMap(const QVariantMap &map)
-{
-    m_currentId = map.value(settingsKey(), m_defaultId).toString();
-}
-
-void InterpreterAspect::toMap(QVariantMap &map) const
-{
-    saveToMap(map, m_currentId, QString(), settingsKey());
-}
-
-void InterpreterAspect::addToLayout(LayoutBuilder &builder)
-{
-    if (QTC_GUARD(m_comboBox.isNull()))
-        m_comboBox = new QComboBox;
-
-    updateComboBox();
-    connect(m_comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &InterpreterAspect::updateCurrentInterpreter);
-
-    auto manageButton = new QPushButton(tr("Manage..."));
-    connect(manageButton, &QPushButton::clicked, []() {
-        Core::ICore::showOptionsDialog(Constants::C_PYTHONOPTIONS_PAGE_ID);
-    });
-
-    builder.addItems({tr("Interpreter"), m_comboBox.data(), manageButton});
-}
-
-void InterpreterAspect::updateCurrentInterpreter()
-{
-    const int index = m_comboBox->currentIndex();
-    if (index < 0)
-        return;
-    QTC_ASSERT(index < m_interpreters.size(), return);
-    m_currentId = m_interpreters[index].id;
-    m_comboBox->setToolTip(m_interpreters[index].command.toUserOutput());
-    emit changed();
-}
-
-void InterpreterAspect::updateComboBox()
-{
-    int currentIndex = -1;
-    int defaultIndex = -1;
-    const QString currentId = m_currentId;
-    m_comboBox->clear();
-    for (const Interpreter &interpreter : qAsConst(m_interpreters)) {
-        int index = m_comboBox->count();
-        m_comboBox->addItem(interpreter.name);
-        m_comboBox->setItemData(index, interpreter.command.toUserOutput(), Qt::ToolTipRole);
-        if (interpreter.id == currentId)
-            currentIndex = index;
-        if (interpreter.id == m_defaultId)
-            defaultIndex = index;
-    }
-    if (currentIndex >= 0)
-        m_comboBox->setCurrentIndex(currentIndex);
-    else if (defaultIndex >= 0)
-        m_comboBox->setCurrentIndex(defaultIndex);
-    updateCurrentInterpreter();
-}
-
-class MainScriptAspect : public StringAspect
-{
-    Q_OBJECT
-
-public:
-    MainScriptAspect() = default;
-};
-
-PythonRunConfiguration::PythonRunConfiguration(Target *target, Utils::Id id)
-    : RunConfiguration(target, id)
-{
-    auto interpreterAspect = addAspect<InterpreterAspect>();
-    interpreterAspect->setSettingsKey("PythonEditor.RunConfiguation.Interpreter");
-    connect(interpreterAspect, &InterpreterAspect::changed,
-            this, &PythonRunConfiguration::interpreterChanged);
-
-    connect(PythonSettings::instance(), &PythonSettings::interpretersChanged,
-            interpreterAspect, &InterpreterAspect::updateInterpreters);
-
-    QList<Interpreter> interpreters = PythonSettings::detectPythonVenvs(project()->projectDirectory());
-    aspect<InterpreterAspect>()->updateInterpreters(PythonSettings::interpreters());
-    aspect<InterpreterAspect>()->setDefaultInterpreter(
-        interpreters.isEmpty() ? PythonSettings::defaultInterpreter() : interpreters.first());
-
-    auto bufferedAspect = addAspect<BoolAspect>();
-    bufferedAspect->setSettingsKey("PythonEditor.RunConfiguation.Buffered");
-    bufferedAspect->setLabel(tr("Buffered output"), BoolAspect::LabelPlacement::AtCheckBox);
-    bufferedAspect->setToolTip(tr("Enabling improves output performance, "
-                                  "but results in delayed output."));
-
-    auto scriptAspect = addAspect<MainScriptAspect>();
-    scriptAspect->setSettingsKey("PythonEditor.RunConfiguation.Script");
-    scriptAspect->setLabelText(tr("Script:"));
-    scriptAspect->setDisplayStyle(StringAspect::LabelDisplay);
-
-    addAspect<LocalEnvironmentAspect>(target);
-
-    auto argumentsAspect = addAspect<ArgumentsAspect>();
-
-    addAspect<WorkingDirectoryAspect>(nullptr);
-    addAspect<TerminalAspect>();
-
-    setCommandLineGetter([this, bufferedAspect, interpreterAspect, argumentsAspect] {
-        CommandLine cmd{interpreterAspect->currentInterpreter().command};
-        if (!bufferedAspect->value())
-            cmd.addArg("-u");
-        cmd.addArg(mainScript());
-        cmd.addArgs(argumentsAspect->arguments(macroExpander()), CommandLine::Raw);
-        return cmd;
-    });
-
-    setUpdater([this, scriptAspect] {
-        const BuildTargetInfo bti = buildTargetInfo();
-        const QString script = bti.targetFilePath.toUserOutput();
-        setDefaultDisplayName(tr("Run %1").arg(script));
-        scriptAspect->setValue(script);
-        aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.targetFilePath.parentDir());
-    });
-
-    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
-}
-
-void PythonRunConfiguration::interpreterChanged()
-{
-    using namespace LanguageClient;
-
-    const FilePath python = interpreter().command;
-
-    for (FilePath &file : project()->files(Project::AllFiles)) {
-        if (auto document = TextEditor::TextDocument::textDocumentForFilePath(file)) {
-            if (document->mimeType() == Constants::C_PY_MIMETYPE) {
-                PyLSConfigureAssistant::instance()->openDocumentWithPython(python, document);
-                PySideInstaller::instance()->checkPySideInstallation(python, document);
+            for (FilePath &file : project()->files(Project::AllFiles)) {
+                if (auto document = TextEditor::TextDocument::textDocumentForFilePath(file)) {
+                    if (document->mimeType() == Constants::C_PY_MIMETYPE) {
+                        PyLSConfigureAssistant::instance()->openDocumentWithPython(python, document);
+                        PySideInstaller::instance()->checkPySideInstallation(python, document);
+                    }
+                }
             }
-        }
+        });
+
+        connect(PythonSettings::instance(), &PythonSettings::interpretersChanged,
+                interpreterAspect, &InterpreterAspect::updateInterpreters);
+
+        QList<Interpreter> interpreters = PythonSettings::detectPythonVenvs(project()->projectDirectory());
+        interpreterAspect->updateInterpreters(PythonSettings::interpreters());
+        interpreterAspect->setDefaultInterpreter(
+                    interpreters.isEmpty() ? PythonSettings::defaultInterpreter() : interpreters.first());
+
+        auto bufferedAspect = addAspect<BoolAspect>();
+        bufferedAspect->setSettingsKey("PythonEditor.RunConfiguation.Buffered");
+        bufferedAspect->setLabel(tr("Buffered output"), BoolAspect::LabelPlacement::AtCheckBox);
+        bufferedAspect->setToolTip(tr("Enabling improves output performance, "
+                                      "but results in delayed output."));
+
+        auto scriptAspect = addAspect<MainScriptAspect>();
+        scriptAspect->setSettingsKey("PythonEditor.RunConfiguation.Script");
+        scriptAspect->setLabelText(tr("Script:"));
+        scriptAspect->setDisplayStyle(StringAspect::LabelDisplay);
+
+        addAspect<LocalEnvironmentAspect>(target);
+
+        auto argumentsAspect = addAspect<ArgumentsAspect>();
+
+        addAspect<WorkingDirectoryAspect>(nullptr);
+        addAspect<TerminalAspect>();
+
+        setCommandLineGetter([this, bufferedAspect, interpreterAspect, argumentsAspect, scriptAspect] {
+            CommandLine cmd{interpreterAspect->currentInterpreter().command};
+            if (!bufferedAspect->value())
+                cmd.addArg("-u");
+            cmd.addArg(scriptAspect->filePath().fileName());
+            cmd.addArgs(argumentsAspect->arguments(macroExpander()), CommandLine::Raw);
+            return cmd;
+        });
+
+        setUpdater([this, scriptAspect] {
+            const BuildTargetInfo bti = buildTargetInfo();
+            const QString script = bti.targetFilePath.toUserOutput();
+            setDefaultDisplayName(tr("Run %1").arg(script));
+            scriptAspect->setValue(script);
+            aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.targetFilePath.parentDir());
+        });
+
+        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
     }
-}
-
-bool PythonRunConfiguration::supportsDebugger() const
-{
-    return true;
-}
-
-QString PythonRunConfiguration::mainScript() const
-{
-    return aspect<MainScriptAspect>()->value();
-}
-
-QString PythonRunConfiguration::arguments() const
-{
-    return aspect<ArgumentsAspect>()->arguments(macroExpander());
-}
-
-Interpreter PythonRunConfiguration::interpreter() const
-{
-    return aspect<InterpreterAspect>()->currentInterpreter();
-}
-
-QString PythonRunConfiguration::interpreterPath() const
-{
-    return interpreter().command.toString();
-}
-
-void PythonRunConfiguration::setInterpreter(const Interpreter &interpreter)
-{
-    aspect<InterpreterAspect>()->setCurrentInterpreter(interpreter);
-}
+};
 
 PythonRunConfigurationFactory::PythonRunConfigurationFactory()
 {
-    registerRunConfiguration<PythonRunConfiguration>("PythonEditor.RunConfiguration.");
+    registerRunConfiguration<PythonRunConfiguration>(Constants::C_PYTHONRUNCONFIGURATION_ID);
     addSupportedProjectType(PythonProjectId);
 }
 
@@ -363,5 +223,3 @@ PythonOutputFormatterFactory::PythonOutputFormatterFactory()
 
 } // namespace Internal
 } // namespace Python
-
-#include "pythonrunconfiguration.moc"
