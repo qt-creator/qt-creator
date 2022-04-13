@@ -27,8 +27,9 @@
 
 #include <texteditor/codeassist/iassistproposalmodel.h>
 
-#include <QString>
+#include <QList>
 #include <QSharedPointer>
+#include <QString>
 
 namespace TextEditor { class BaseTextEditor; }
 
