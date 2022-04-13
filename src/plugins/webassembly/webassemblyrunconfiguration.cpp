@@ -56,15 +56,17 @@ static FilePath pythonInterpreter(const Environment &env)
     return {};
 }
 
-static CommandLine emrunCommand(const RunConfiguration *rc, const QString &browser,
+static CommandLine emrunCommand(const Target *target,
+                                const QString &buildKey,
+                                const QString &browser,
                                 const QString &port)
 {
-    if (BuildConfiguration *bc = rc->target()->activeBuildConfiguration()) {
+    if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
         const Environment env = bc->environment();
         const FilePath emrun = env.searchInPath("emrun");
         const FilePath emrunPy = emrun.absolutePath().pathAppended(emrun.baseName() + ".py");
-        const FilePath target = rc->buildTargetInfo().targetFilePath;
-        const FilePath html = target.absolutePath() / target.baseName() + ".html";
+        const FilePath targetPath = bc->buildSystem()->buildTarget(buildKey).targetFilePath;
+        const FilePath html = targetPath.absolutePath() / targetPath.baseName() + ".html";
 
         QStringList args(emrunPy.path());
         if (!browser.isEmpty()) {
@@ -97,8 +99,9 @@ public:
         effectiveEmrunCall->setDisplayStyle(StringAspect::TextEditDisplay);
         effectiveEmrunCall->setReadOnly(true);
 
-        setUpdater([this, effectiveEmrunCall, webBrowserAspect] {
-            effectiveEmrunCall->setValue(emrunCommand(this,
+        setUpdater([this, target, effectiveEmrunCall, webBrowserAspect] {
+            effectiveEmrunCall->setValue(emrunCommand(target,
+                                                      buildKey(),
                                                       webBrowserAspect->currentBrowser(),
                                                       "<port>").toUserOutput());
         });
@@ -121,7 +124,8 @@ public:
             Runnable r;
             const QString browserId =
                     runControl->aspect<WebBrowserSelectionAspect>()->currentBrowser;
-            r.command = emrunCommand(runControl->runConfiguration(),
+            r.command = emrunCommand(runControl->target(),
+                                     runControl->buildKey(),
                                      browserId,
                                      QString::number(portsGatherer->findEndPoint().port()));
             SimpleTargetRunner::doStart(r);
