@@ -310,7 +310,6 @@ public:
     IDevice::ConstPtr device;
     Utils::Icon icon;
     const MacroExpander *macroExpander = nullptr;
-    QPointer<RunConfiguration> runConfiguration; // Not owned. Avoid use.
     AspectContainerData aspectData;
     QString buildKey;
     QMap<Utils::Id, QVariantMap> settingsData;
@@ -399,8 +398,6 @@ void RunControl::copyFromRunControl(RunControl *runControl)
 void RunControl::setRunConfiguration(RunConfiguration *runConfig)
 {
     QTC_ASSERT(runConfig, return);
-    QTC_CHECK(!d->runConfiguration);
-    d->runConfiguration = runConfig;
     d->runConfigId = runConfig->id();
     d->runnable = runConfig->runnable();
     d->displayName = runConfig->expandedDisplayName();
@@ -926,11 +923,6 @@ Utils::Icon RunControl::icon() const
 IDevice::ConstPtr RunControl::device() const
 {
    return d->device;
-}
-
-RunConfiguration *RunControl::runConfiguration() const
-{
-    return d->runConfiguration.data();
 }
 
 Target *RunControl::target() const
