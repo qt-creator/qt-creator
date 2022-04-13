@@ -81,7 +81,7 @@ const Target *AbstractRemoteLinuxDeployService::target() const
     return d->target;
 }
 
-const Kit *AbstractRemoteLinuxDeployService::profile() const
+const Kit *AbstractRemoteLinuxDeployService::kit() const
 {
     return d->target ? d->target->kit() : nullptr;
 }
@@ -99,25 +99,25 @@ SshConnection *AbstractRemoteLinuxDeployService::connection() const
 void AbstractRemoteLinuxDeployService::saveDeploymentTimeStamp(const DeployableFile &deployableFile,
                                                                const QDateTime &remoteTimestamp)
 {
-    d->deployTimes.saveDeploymentTimeStamp(deployableFile, profile(), remoteTimestamp);
+    d->deployTimes.saveDeploymentTimeStamp(deployableFile, kit(), remoteTimestamp);
 }
 
 bool AbstractRemoteLinuxDeployService::hasLocalFileChanged(
         const DeployableFile &deployableFile) const
 {
-    return d->deployTimes.hasLocalFileChanged(deployableFile, profile());
+    return d->deployTimes.hasLocalFileChanged(deployableFile, kit());
 }
 
 bool AbstractRemoteLinuxDeployService::hasRemoteFileChanged(
         const DeployableFile &deployableFile, const QDateTime &remoteTimestamp) const
 {
-    return d->deployTimes.hasRemoteFileChanged(deployableFile, profile(), remoteTimestamp);
+    return d->deployTimes.hasRemoteFileChanged(deployableFile, kit(), remoteTimestamp);
 }
 
 void AbstractRemoteLinuxDeployService::setTarget(Target *target)
 {
     d->target = target;
-    d->deviceConfiguration = DeviceKitAspect::device(profile());
+    d->deviceConfiguration = DeviceKitAspect::device(kit());
 }
 
 void AbstractRemoteLinuxDeployService::setDevice(const IDevice::ConstPtr &device)

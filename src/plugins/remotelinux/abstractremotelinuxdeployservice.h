@@ -88,7 +88,7 @@ signals:
 
 protected:
     const ProjectExplorer::Target *target() const;
-    const ProjectExplorer::Kit *profile() const;
+    const ProjectExplorer::Kit *kit() const;
     ProjectExplorer::IDeviceConstPtr deviceConfiguration() const;
     QSsh::SshConnection *connection() const;
 
