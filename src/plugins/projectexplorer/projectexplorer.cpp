@@ -2732,7 +2732,7 @@ void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *run
     }
 
     auto runControl = new RunControl(runMode);
-    runControl->setRunConfiguration(runConfiguration);
+    runControl->copyDataFromRunConfiguration(runConfiguration);
 
     // A user needed interaction may have cancelled the run
     // (by example asking for a process pid or server url).

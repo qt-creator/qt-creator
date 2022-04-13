@@ -635,7 +635,7 @@ void TestRunner::debugTests()
     }
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    runControl->setRunConfiguration(config->runConfiguration());
+    runControl->copyDataFromRunConfiguration(config->runConfiguration());
 
     QStringList omitted;
     Runnable inferior = config->runnable();

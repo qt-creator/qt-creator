@@ -253,7 +253,7 @@ void QnxAttachDebugSupport::showProcessesDialog()
     }
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    runControl->setRunConfiguration(runConfig);
+    runControl->copyDataFromRunConfiguration(runConfig);
     auto debugger = new QnxAttachDebugSupport(runControl);
     debugger->setStartMode(AttachToRemoteServer);
     debugger->setCloseMode(DetachAtClose);

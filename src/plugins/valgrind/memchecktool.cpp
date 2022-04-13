@@ -709,7 +709,7 @@ MemcheckToolPrivate::MemcheckToolPrivate()
         TaskHub::clearTasks(Debugger::Constants::ANALYZERTASK_ID);
         m_perspective.select();
         RunControl *rc = new RunControl(MEMCHECK_RUN_MODE);
-        rc->setRunConfiguration(runConfig);
+        rc->copyDataFromRunConfiguration(runConfig);
         rc->createMainWorker();
         const auto runnable = dlg.runnable();
         rc->setRunnable(runnable);

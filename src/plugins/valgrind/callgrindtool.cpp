@@ -283,7 +283,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
             return;
         m_perspective.select();
         auto runControl = new RunControl(CALLGRIND_RUN_MODE);
-        runControl->setRunConfiguration(runConfig);
+        runControl->copyDataFromRunConfiguration(runConfig);
         runControl->createMainWorker();
         const auto runnable = dlg.runnable();
         runControl->setRunnable(runnable);

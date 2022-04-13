@@ -389,13 +389,13 @@ RunControl::RunControl(Utils::Id mode) :
 {
 }
 
-void RunControl::copyFromRunControl(RunControl *runControl)
+void RunControl::copyDataFromRunControl(RunControl *runControl)
 {
     QTC_ASSERT(runControl, return);
     d->copyData(runControl->d.get());
 }
 
-void RunControl::setRunConfiguration(RunConfiguration *runConfig)
+void RunControl::copyDataFromRunConfiguration(RunConfiguration *runConfig)
 {
     QTC_ASSERT(runConfig, return);
     d->runConfigId = runConfig->id();

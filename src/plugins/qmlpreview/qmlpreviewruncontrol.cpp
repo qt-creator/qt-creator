@@ -82,7 +82,7 @@ QmlPreviewRunner::QmlPreviewRunner(const QmlPreviewRunnerSetting &settings)
 
         this->connect(runControl(), &ProjectExplorer::RunControl::stopped, [this]() {
             auto rc = new ProjectExplorer::RunControl(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
-            rc->copyFromRunControl(runControl());
+            rc->copyDataFromRunControl(runControl());
             ProjectExplorer::ProjectExplorerPlugin::startRunControl(rc);
         });
 
