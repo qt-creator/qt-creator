@@ -57,6 +57,8 @@ private:
 RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
+    auto envAspect = addAspect<RemoteLinuxEnvironmentAspect>(target);
+
     auto exeAspect = addAspect<ExecutableAspect>();
     exeAspect->setSettingsKey("RemoteLinux.CustomRunConfig.RemoteExecutable");
     exeAspect->setLabelText(tr("Remote executable:"));
@@ -71,10 +73,9 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
     symbolsAspect->setDisplayStyle(SymbolFileAspect::PathChooserDisplay);
 
     addAspect<ArgumentsAspect>();
-    addAspect<WorkingDirectoryAspect>();
+    addAspect<WorkingDirectoryAspect>(envAspect);
     if (HostOsInfo::isAnyUnixHost())
         addAspect<TerminalAspect>();
-    addAspect<RemoteLinuxEnvironmentAspect>(target);
     if (HostOsInfo::isAnyUnixHost())
         addAspect<X11ForwardingAspect>();
 

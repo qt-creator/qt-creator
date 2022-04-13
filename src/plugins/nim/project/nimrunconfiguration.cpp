@@ -49,10 +49,10 @@ public:
     NimRunConfiguration(Target *target, Utils::Id id)
         : RunConfiguration(target, id)
     {
-        addAspect<LocalEnvironmentAspect>(target);
+        auto envAspect = addAspect<LocalEnvironmentAspect>(target);
         addAspect<ExecutableAspect>();
         addAspect<ArgumentsAspect>();
-        addAspect<WorkingDirectoryAspect>();
+        addAspect<WorkingDirectoryAspect>(envAspect);
         addAspect<TerminalAspect>();
 
         setDisplayName(tr("Current Build Target"));

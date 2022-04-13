@@ -117,7 +117,6 @@ public:
     virtual void fromMap(const QVariantMap &map);
     virtual void toMap(QVariantMap &map) const;
     virtual void toActiveMap(QVariantMap &map) const { toMap(map); }
-    virtual void acquaintSiblings(const AspectContainer &);
 
     virtual void addToLayout(LayoutBuilder &builder);
 

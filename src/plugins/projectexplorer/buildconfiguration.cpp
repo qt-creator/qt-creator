@@ -302,8 +302,6 @@ void BuildConfiguration::doInitialize(const BuildInfo &info)
     for (Utils::Id id : qAsConst(d->m_initialCleanSteps))
         d->m_cleanSteps.appendStep(id);
 
-    acquaintAspects();
-
     if (d->m_initializer)
         d->m_initializer(info);
 }
@@ -791,7 +789,6 @@ BuildConfiguration *BuildConfigurationFactory::restore(Target *parent, const QVa
         if (!id.name().startsWith(factory->m_buildConfigId.name()))
             continue;
         BuildConfiguration *bc = factory->m_creator(parent);
-        bc->acquaintAspects();
         QTC_ASSERT(bc, return nullptr);
         if (!bc->fromMap(map)) {
             delete bc;

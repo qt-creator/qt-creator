@@ -41,6 +41,8 @@ namespace Utils { class ExpandButton; }
 
 namespace ProjectExplorer {
 
+class ProjectConfiguration;
+
 class PROJECTEXPLORER_EXPORT TerminalAspect : public Utils::BaseAspect
 {
     Q_OBJECT
@@ -78,10 +80,9 @@ class PROJECTEXPLORER_EXPORT WorkingDirectoryAspect : public Utils::BaseAspect
     Q_OBJECT
 
 public:
-    WorkingDirectoryAspect();
+    explicit WorkingDirectoryAspect(EnvironmentAspect *envAspect);
 
     void addToLayout(Utils::LayoutBuilder &builder) override;
-    void acquaintSiblings(const Utils::AspectContainer &) override;
 
     Utils::FilePath workingDirectory() const;
     Utils::FilePath defaultWorkingDirectory() const;

@@ -59,10 +59,11 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Utils::Id id)
     symbolsAspect->setLabelText(tr("Executable on host:"));
     symbolsAspect->setDisplayStyle(SymbolFileAspect::LabelDisplay);
 
+    auto envAspect = addAspect<RemoteLinuxEnvironmentAspect>(target);
+
     addAspect<ArgumentsAspect>();
-    addAspect<WorkingDirectoryAspect>();
+    addAspect<WorkingDirectoryAspect>(envAspect);
     addAspect<TerminalAspect>();
-    addAspect<RemoteLinuxEnvironmentAspect>(target);
 
     auto libAspect = addAspect<StringAspect>();
     libAspect->setSettingsKey("Qt4ProjectManager.QnxRunConfiguration.QtLibPath");

@@ -100,9 +100,10 @@ QdbRunConfiguration::QdbRunConfiguration(Target *target, Utils::Id id)
     symbolsAspect->setLabelText(tr("Executable on host:"));
     symbolsAspect->setDisplayStyle(SymbolFileAspect::LabelDisplay);
 
-    addAspect<RemoteLinux::RemoteLinuxEnvironmentAspect>(target);
+    auto envAspect = addAspect<RemoteLinux::RemoteLinuxEnvironmentAspect>(target);
+
     addAspect<ArgumentsAspect>();
-    addAspect<WorkingDirectoryAspect>();
+    addAspect<WorkingDirectoryAspect>(envAspect);
     addAspect<FullCommandLineAspect>(this);
 
     setUpdater([this, target, exeAspect, symbolsAspect] {

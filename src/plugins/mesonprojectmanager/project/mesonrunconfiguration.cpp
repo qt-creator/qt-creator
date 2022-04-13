@@ -46,7 +46,7 @@ MesonRunConfiguration::MesonRunConfiguration(ProjectExplorer::Target *target, Ut
 
     addAspect<ProjectExplorer::ExecutableAspect>();
     addAspect<ProjectExplorer::ArgumentsAspect>();
-    addAspect<ProjectExplorer::WorkingDirectoryAspect>();
+    addAspect<ProjectExplorer::WorkingDirectoryAspect>(envAspect);
     addAspect<ProjectExplorer::TerminalAspect>();
 
     auto libAspect = addAspect<ProjectExplorer::UseLibraryPathsAspect>();

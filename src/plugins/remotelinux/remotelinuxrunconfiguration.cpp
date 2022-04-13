@@ -57,6 +57,8 @@ public:
 RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
+    auto envAspect = addAspect<RemoteLinuxEnvironmentAspect>(target);
+
     auto exeAspect = addAspect<ExecutableAspect>();
     exeAspect->setLabelText(tr("Executable on device:"));
     exeAspect->setExecutablePathStyle(OsTypeLinux);
@@ -70,10 +72,9 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
     symbolsAspect->setDisplayStyle(SymbolFileAspect::LabelDisplay);
 
     addAspect<ArgumentsAspect>();
-    addAspect<WorkingDirectoryAspect>();
+    addAspect<WorkingDirectoryAspect>(envAspect);
     if (HostOsInfo::isAnyUnixHost())
         addAspect<TerminalAspect>();
-    addAspect<RemoteLinuxEnvironmentAspect>(target);
     if (HostOsInfo::isAnyUnixHost())
         addAspect<X11ForwardingAspect>();
 

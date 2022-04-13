@@ -53,7 +53,7 @@ public:
         exeAspect->setPlaceHolderText(tr("Unknown"));
 
         addAspect<ArgumentsAspect>();
-        addAspect<WorkingDirectoryAspect>();
+        addAspect<WorkingDirectoryAspect>(nullptr);
 
         setUpdater([this, exeAspect] {
             const BuildTargetInfo bti = buildTargetInfo();
@@ -80,7 +80,7 @@ public:
         exeAspect->setExpectedKind(PathChooser::Any);
 
         addAspect<ArgumentsAspect>();
-        addAspect<WorkingDirectoryAspect>();
+        addAspect<WorkingDirectoryAspect>(nullptr);
 
         setDefaultDisplayName(RunConfigurationFactory::decoratedTargetName(tr("Custom Executable"), target));
     }

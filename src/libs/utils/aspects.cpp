@@ -591,12 +591,6 @@ QVariant BaseAspect::fromSettingsValue(const QVariant &val) const
     return d->m_fromSettings ? d->m_fromSettings(val) : val;
 }
 
-/*!
-    \internal
-*/
-void BaseAspect::acquaintSiblings(const AspectContainer &)
-{}
-
 namespace Internal {
 
 class BoolAspectPrivate

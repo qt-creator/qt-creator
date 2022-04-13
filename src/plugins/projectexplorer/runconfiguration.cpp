@@ -584,7 +584,6 @@ RunConfiguration *RunConfigurationFactory::create(Target *target) const
     for (const RunConfiguration::AspectFactory &factory : theAspectFactories)
         rc->m_aspects.registerAspect(factory(target));
 
-    rc->acquaintAspects();
     rc->doPostInit();
     return rc;
 }

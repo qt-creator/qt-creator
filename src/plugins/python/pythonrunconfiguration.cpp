@@ -277,7 +277,7 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Utils::Id id)
 
     auto argumentsAspect = addAspect<ArgumentsAspect>();
 
-    addAspect<WorkingDirectoryAspect>();
+    addAspect<WorkingDirectoryAspect>(nullptr);
     addAspect<TerminalAspect>();
 
     setCommandLineGetter([this, bufferedAspect, interpreterAspect, argumentsAspect] {

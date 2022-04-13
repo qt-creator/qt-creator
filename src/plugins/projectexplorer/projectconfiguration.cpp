@@ -140,12 +140,6 @@ Utils::BaseAspect *ProjectConfiguration::aspect(Utils::Id id) const
     return m_aspects.aspect(id);
 }
 
-void ProjectConfiguration::acquaintAspects()
-{
-    for (Utils::BaseAspect *aspect : m_aspects)
-        aspect->acquaintSiblings(m_aspects);
-}
-
 void ProjectConfiguration::doPostInit()
 {
     for (const std::function<void()> &postInit : qAsConst(m_postInit))

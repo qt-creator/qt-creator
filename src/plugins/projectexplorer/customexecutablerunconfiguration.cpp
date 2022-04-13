@@ -54,7 +54,7 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
     exeAspect->setEnvironmentChange(EnvironmentChange::fromFixedEnvironment(envAspect->environment()));
 
     addAspect<ArgumentsAspect>();
-    addAspect<WorkingDirectoryAspect>();
+    addAspect<WorkingDirectoryAspect>(envAspect);
     addAspect<TerminalAspect>();
 
     connect(envAspect, &EnvironmentAspect::environmentChanged, this, [exeAspect, envAspect]  {

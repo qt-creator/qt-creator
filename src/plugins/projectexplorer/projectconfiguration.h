@@ -87,8 +87,6 @@ public:
     Utils::BaseAspect *aspect(Utils::Id id) const;
     template <typename T> T *aspect() const { return m_aspects.aspect<T>(); }
 
-    void acquaintAspects();
-
     Utils::FilePath mapFromBuildDeviceToGlobalPath(const Utils::FilePath &path) const;
 
     void addPostInit(const std::function<void()> &fixup) { m_postInit.append(fixup); }

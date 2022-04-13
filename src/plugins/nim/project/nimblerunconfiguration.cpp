@@ -51,10 +51,10 @@ public:
     NimbleRunConfiguration(Target *target, Utils::Id id)
         : RunConfiguration(target, id)
     {
-        addAspect<LocalEnvironmentAspect>(target);
+        auto envAspect = addAspect<LocalEnvironmentAspect>(target);
         addAspect<ExecutableAspect>();
         addAspect<ArgumentsAspect>();
-        addAspect<WorkingDirectoryAspect>();
+        addAspect<WorkingDirectoryAspect>(envAspect);
         addAspect<TerminalAspect>();
 
         setUpdater([this] {
@@ -91,7 +91,7 @@ public:
     {
         addAspect<ExecutableAspect>()->setExecutable(Nim::nimblePathFromKit(target->kit()));
         addAspect<ArgumentsAspect>()->setArguments("test");
-        addAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(project()->projectDirectory());
+        addAspect<WorkingDirectoryAspect>(nullptr)->setDefaultWorkingDirectory(project()->projectDirectory());
         addAspect<TerminalAspect>();
 
         setDisplayName(tr("Nimble Test"));
