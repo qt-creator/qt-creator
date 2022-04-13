@@ -1306,7 +1306,17 @@ static bool isStringValue(const Value *value)
     if (value->asStringValue())
         return true;
     if (auto obj = value->asObjectValue())
-        return obj->className() == "QString" || obj->className() == "string";
+        return obj->className() == "QString" || obj->className() == "string" || obj->className() == "String";
+
+    return false;
+}
+
+static bool isBooleanValue(const Value *value)
+{
+    if (value->asBooleanValue())
+        return true;
+    if (auto obj = value->asObjectValue())
+        return obj->className() == "boolean" || obj->className() == "Boolean";
 
     return false;
 }
@@ -1323,6 +1333,8 @@ static bool strictCompareConstant(const Value *lhs, const Value *rhs)
     if (isIntegerValue(lhs) && isIntegerValue(rhs))
         return false;
     if (isStringValue(lhs) && isStringValue(rhs))
+        return false;
+    if (isBooleanValue(lhs) && isBooleanValue(rhs))
         return false;
     if (lhs->asBooleanValue() && !rhs->asBooleanValue())
         return true;
