@@ -15,8 +15,7 @@
 
 namespace QmlProjectManager {
 
-FileFilterBaseItem::FileFilterBaseItem(QObject *parent) :
-        QmlProjectContentItem(parent)
+FileFilterBaseItem::FileFilterBaseItem()
 {
     m_updateFileListTimer.setSingleShot(true);
     m_updateFileListTimer.setInterval(50);
@@ -271,8 +270,7 @@ QSet<QString> FileFilterBaseItem::filesInSubTree(const QDir &rootDir, const QDir
     return fileSet;
 }
 
-ImageFileFilterItem::ImageFileFilterItem(QObject *parent)
-    : FileFilterBaseItem(parent)
+ImageFileFilterItem::ImageFileFilterItem()
 {
     QString filter;
     // supported image formats according to
@@ -284,8 +282,7 @@ ImageFileFilterItem::ImageFileFilterItem(QObject *parent)
     setFilter(filter);
 }
 
-FileFilterItem::FileFilterItem(const QString &fileFilter, QObject *parent)
-    : FileFilterBaseItem(parent)
+FileFilterItem::FileFilterItem(const QString &fileFilter)
 {
     setFilter(fileFilter);
 }

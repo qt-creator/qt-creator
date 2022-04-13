@@ -191,8 +191,7 @@ void QmlBuildSystem::parseProject(RefreshOptions options)
             m_projectItem.reset();
         if (!m_projectItem) {
             QString errorMessage;
-            m_projectItem.reset(
-                QmlProjectFileFormat::parseProjectFile(projectFilePath(), &errorMessage));
+            m_projectItem = QmlProjectFileFormat::parseProjectFile(projectFilePath(), &errorMessage);
             if (m_projectItem) {
                 connect(m_projectItem.get(),
                         &QmlProjectItem::qmlFilesChanged,
