@@ -1,6 +1,6 @@
 ############################################################################
 #
-# Copyright (C) 2016 The Qt Company Ltd.
+# Copyright (C) 2022 The Qt Company Ltd.
 # Contact: https://www.qt.io/licensing/
 #
 # This file is part of Qt Creator.
@@ -347,10 +347,6 @@ def __checkParentAccess__(filePath):
 # options dialog and returns a dict holding the kits as keys
 # and a list of information of its configured Qt
 def getConfiguredKits():
-    def __retrieveQtVersionName__(target, version):
-        treeView = waitForObject(":qtdirList_QTreeView")
-        return str(treeView.currentIndex().data().toString())
-    # end of internal function for iterateQtVersions
     def __setQtVersionForKit__(kit, kitName, kitsQtVersionName):
         mouseClick(waitForObjectItem(":BuildAndRun_QTreeView", kit))
         qtVersionStr = str(waitForObjectExists(":Kits_QtVersion_QComboBox").currentText)
@@ -361,18 +357,15 @@ def getConfiguredKits():
     # end of internal function for iterate kits
 
     kitsWithQtVersionName = {}
-    result = {}
+    result = []
     # collect kits and their Qt versions
-    targetsQtVersions, qtVersionNames = iterateQtVersions(True, False, __retrieveQtVersionName__)
+    qtVersionNames = iterateQtVersions()
     # update collected Qt versions with their configured device and version
     iterateKits(True, True, __setQtVersionForKit__, kitsWithQtVersionName)
     # merge defined target names with their configured Qt versions and devices
     for kit, qtVersion in kitsWithQtVersionName.iteritems():
-        if kit in ('Fremantle', 'Harmattan', 'Qt Simulator'):
-            test.verify(qtVersion == 'None',
-                        "The outdated kit '%s' should not have a Qt version" % kit)
-        elif qtVersion in qtVersionNames:
-            result[kit] = targetsQtVersions[qtVersionNames.index(qtVersion)].items()[0]
+        if qtVersion in qtVersionNames:
+            result.append(kit)
         else:
             test.fail("Qt version '%s' for kit '%s' can't be found in qtVersionNames."
                       % (qtVersion, kit))
@@ -400,35 +393,14 @@ def regexVerify(text, expectedTexts):
             return True
     return False
 
+
 # function that opens Options Dialog and parses the configured Qt versions
-# param keepOptionsOpen set to True if the Options dialog should stay open when
-#       leaving this function
-# param alreadyOnOptionsDialog set to True if you already have opened the Options Dialog
-#       (if False this function will open it via the MenuBar -> Tools -> Options...)
-# param additionalFunction pass a function or name of a defined function to execute
-#       for each correctly configured item on the list of Qt versions
-#       (Qt versions having no assigned toolchain, failing qmake,... will be skipped)
-#       this function must take at least 2 parameters - the first is the target name
-#       and the second the version of the current selected Qt version item
-# param argsForAdditionalFunc you can specify as much parameters as you want to pass
-#       to additionalFunction from the outside
-# the function returns a list of dict holding target-version mappings if used without
-# additionalFunction
-# WATCH OUT! if you're using the additionalFunction parameter - this function will
-# return the list mentioned above as well as the returned value(s) from
-# additionalFunction. You MUST call this function like
-# result, additionalResult = _iterateQtVersions(...)
-# where additionalResult is the result of all executions of additionalFunction which
-# means it is a list of results.
-def iterateQtVersions(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
-                      additionalFunction=None, *argsForAdditionalFunc):
-    result = []
-    additionalResult = []
-    if not alreadyOnOptionsDialog:
-        invokeMenuItem("Tools", "Options...")
+# the function returns a list of the found Qt versions
+def iterateQtVersions():
+    qtVersionNames = []
+    invokeMenuItem("Tools", "Options...")
     mouseClick(waitForObjectItem(":Options_QListView", "Kits"))
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
-    pattern = re.compile("Qt version (?P<version>.*?) for (?P<target>.*)")
     treeView = waitForObject(":qtdirList_QTreeView")
     model = treeView.model()
     for rootIndex in dumpIndices(model):
@@ -436,31 +408,10 @@ def iterateQtVersions(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
         for subIndex in dumpIndices(model, rootIndex):
             subChildText = str(subIndex.data()).replace(".", "\\.").replace("_", "\\_")
             treeView.scrollTo(subIndex)
-            mouseClick(waitForObjectItem(treeView, ".".join([rootChildText,subChildText])))
-            currentText = str(waitForObject(":QtSupport__Internal__QtVersionManager.QLabel").text)
-            matches = pattern.match(currentText)
-            if matches:
-                target = matches.group("target").strip()
-                version = matches.group("version").strip()
-                result.append({target:version})
-                if additionalFunction:
-                    try:
-                        if isString(additionalFunction):
-                            currResult = globals()[additionalFunction](target, version, *argsForAdditionalFunc)
-                        else:
-                            currResult = additionalFunction(target, version, *argsForAdditionalFunc)
-                    except:
-                        t,v,_ = sys.exc_info()
-                        currResult = None
-                        test.fatal("Function to additionally execute on Options Dialog could not be found or "
-                                   "an exception occurred while executing it.", "%s(%s)" % (str(t), str(v)))
-                    additionalResult.append(currResult)
-    if not keepOptionsOpen:
-        clickButton(waitForObject(":Options.Cancel_QPushButton"))
-    if additionalFunction:
-        return result, additionalResult
-    else:
-        return result
+            mouseClick(waitForObjectItem(treeView, ".".join([rootChildText, subChildText])))
+            qtVersionNames.append(str(treeView.currentIndex().data().toString()))
+    return qtVersionNames
+
 
 # function that opens Options Dialog (if necessary) and parses the configured Kits
 # param keepOptionsOpen set to True if the Options dialog should stay open when
