@@ -2586,6 +2586,7 @@ private:
     const AstNode &m_ast;
     const QTextDocument * const m_doc;
     const QString &m_docContent;
+    AstNode::FileStatus m_currentFileStatus = AstNode::FileStatus::Unknown;
 };
 
 // clangd reports also the #ifs, #elses and #endifs around the disabled code as disabled,
@@ -3961,7 +3962,13 @@ void ExtraHighlightingResultsCollector::visitNode(const AstNode &node)
 {
     if (m_future.isCanceled())
         return;
-    switch (node.fileStatus(m_filePath)) {
+    const AstNode::FileStatus prevFileStatus = m_currentFileStatus;
+    m_currentFileStatus = node.fileStatus(m_filePath);
+    if (m_currentFileStatus == AstNode::FileStatus::Unknown
+            && prevFileStatus != AstNode::FileStatus::Ours) {
+        m_currentFileStatus = prevFileStatus;
+    }
+    switch (m_currentFileStatus) {
     case AstNode::FileStatus::Ours:
     case AstNode::FileStatus::Unknown:
         collectFromNode(node);
@@ -3976,6 +3983,7 @@ void ExtraHighlightingResultsCollector::visitNode(const AstNode &node)
         break;
     }
     }
+    m_currentFileStatus = prevFileStatus;
 }
 
 bool ClangdClient::FollowSymbolData::defLinkIsAmbiguous() const
