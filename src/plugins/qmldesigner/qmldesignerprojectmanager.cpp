@@ -275,6 +275,9 @@ QStringList qmlTypes(::ProjectExplorer::Target *target)
     qmldirPaths.append(installDirectory + "/builtins.qmltypes");
     qmldirPaths.append(installDirectory + "/jsroot.qmltypes");
 
+    qmldirPaths.append(
+        Core::ICore::resourcePath("qmldesigner/projectstorage/fake.qmltypes").toString());
+
     return qmldirPaths;
 }
 

@@ -1,0 +1,286 @@
+import QtQuick.tooling 1.2
+
+
+Module {
+
+Component {
+  name: "Qt3DAnimation::QAnimationClipData"
+}
+
+Component {
+  name: "QVector<float>"
+}
+
+Component {
+  name: "QVector<qreal>"
+}
+
+Component {
+  name: "QVector<int>"
+}
+
+Component {
+  name: "QVector<QRgb>"
+}
+
+Component {
+  name: "QVector<uchar>"
+}
+
+Component {
+  name: "uint"
+}
+
+Component {
+  name: "QGeometryView"
+}
+
+Component {
+  name: "QMatrix3x3"
+}
+
+Component {
+  name: "Qt3DRender::QLevelOfDetailBoundingSphere"
+}
+
+Component {
+  name: "QImage"
+}
+
+Component {
+  name: "qlonglong"
+}
+
+Component {
+  name: "qulonglong"
+}
+
+Component {
+  name: "Hits"
+}
+
+Component {
+  name: "QAbstractTexture"
+}
+
+Component {
+  name: "QBrush"
+}
+
+Component {
+  name: "QDeclarativeListProperty<QGraphicsObject>"
+}
+
+Component {
+  name: "QLocale"
+}
+
+Component {
+  name: "QPen"
+}
+
+Component {
+  name: "QGraphicsLayout"
+}
+
+Component {
+  name: "QGraphicsEffect"
+}
+
+Component {
+  name: "QGraphicsLayout"
+}
+
+Component {
+  name: "QPalette"
+}
+
+Component {
+  name: "QRegExp"
+}
+
+Component {
+  name: "QRegExp"
+}
+
+Component {
+  name: "QList<QColor>"
+}
+
+Component {
+  name: "QList<QAudioDevice>"
+}
+
+Component {
+  name: "QList<QAudioDevice>"
+}
+
+Component {
+  name: "QList<QMediaMetaData>"
+}
+
+Component {
+  name: "QList<QGeoCoordinate>"
+}
+
+Component {
+  name: "QList<QLinearGradient>"
+}
+
+Component {
+  name: "QList<QCameraFormat>"
+}
+
+Component {
+  name: "QList<QCameraDevice>"
+}
+
+Component {
+  name: "QList<QAbstractState*>"
+}
+
+Component {
+  name: "QList<QMatrix4x4>"
+}
+
+Component {
+  name: "QList<QScxmlError>"
+}
+
+Component {
+  name: "QList<QScxmlInvokableService*>"
+}
+
+Component {
+  name: "QCameraFormat"
+}
+
+Component {
+  name: "Features"
+}
+
+Component {
+  name: "QVideoSink"
+}
+
+Component {
+  name: "QVideoSink*"
+}
+
+Component {
+  name: "QVideoFrameFormat::PixelFormat"
+}
+
+Component {
+  name: "QV4::ExecutionEngine"
+}
+
+Component {
+  name: "QSizePolicy"
+}
+
+Component {
+  name: "QLinearGradient"
+}
+
+Component {
+  name: "const QObject"
+}
+
+Component {
+  name: "QPlatformDialogHelper::StandardButtons"
+}
+
+Component {
+  name: "QPlatformDialogHelper::ButtonRole"
+}
+
+Component {
+  name: "QScene2D::RenderPolicy"
+}
+
+Component {
+  name: "QPlatformDialogHelper::ButtonLayout"
+}
+
+Component {
+  name: "Keyboard_QMLTYPE_22"
+}
+
+Component {
+  name: "ShadowInputControl_QMLTYPE_16"
+}
+
+Component {
+  name: "ShadowInputControl_QMLTYPE_16"
+}
+
+Component {
+  name: "const QPointingDevice"
+}
+
+Component {
+  name: "QQuickHandlerPoint"
+}
+
+Component {
+  name: "QQuick3DBounds3"
+}
+
+Component {
+  name: "QPointingDevice::DeviceTypes"
+}
+
+Component {
+  name: "TextureChannelMapping"
+}
+
+Component {
+  name: "MorphTargetAttributes"
+}
+
+Component {
+  name: "QQuick3DRenderStats"
+}
+
+Component {
+  name: "QScxmlDataModel"
+}
+
+Component {
+  name: "QTapReading::TapDirection"
+}
+
+Component {
+  name: "QAmbientLightReading::LightLevel"
+}
+
+Component {
+  name: "QQuickWebEngineScriptCollection"
+}
+
+Component {
+  name: "QQuickWebEngineScriptCollection"
+}
+
+Component {
+  name: "QOrientationReading::Orientation"
+}
+
+Component {
+  name: "QScxmlCompiler::Loader"
+}
+
+Component {
+  name: "QScxmlTableData"
+}
+
+Component {
+  name: "QFileDialogOptions::FileDialogOptions"
+}
+
+Component {
+  name: "QFontDialogOptions::FontDialogOptions"
+}
+
+}
