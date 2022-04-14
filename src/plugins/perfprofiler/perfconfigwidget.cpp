@@ -149,11 +149,8 @@ void PerfConfigWidget::setTarget(ProjectExplorer::Target *target)
         return;
     }
 
-    connect(m_process.get(), &QtcProcess::finished,
-            this, &PerfConfigWidget::handleProcessFinished);
-
-    connect(m_process.get(), &QtcProcess::errorOccurred,
-            this, &PerfConfigWidget::handleProcessError);
+    connect(m_process.get(), &QtcProcess::done,
+            this, &PerfConfigWidget::handleProcessDone);
 
     useTracePointsButton->setEnabled(true);
 }
@@ -182,8 +179,15 @@ void PerfConfigWidget::readTracePoints()
     }
 }
 
-void PerfConfigWidget::handleProcessFinished()
+void PerfConfigWidget::handleProcessDone()
 {
+    if (m_process->error() == QProcess::FailedToStart) {
+        Core::AsynchronousMessageBox::warning(
+                    tr("Cannot List Trace Points"),
+                    tr("\"perf probe -l\" failed to start. Is perf installed?"));
+        useTracePointsButton->setEnabled(true);
+        return;
+    }
     const QList<QByteArray> lines =
             m_process->readAllStandardOutput().append(m_process->readAllStandardError())
             .split('\n');
@@ -218,16 +222,6 @@ void PerfConfigWidget::handleProcessFinished()
         m_settings->period.setVolatileValue(1);
     }
     useTracePointsButton->setEnabled(true);
-}
-
-void PerfConfigWidget::handleProcessError(QProcess::ProcessError error)
-{
-    if (error == QProcess::FailedToStart) {
-        Core::AsynchronousMessageBox::warning(
-                    tr("Cannot List Trace Points"),
-                    tr("\"perf probe -l\" failed to start. Is perf installed?"));
-        useTracePointsButton->setEnabled(true);
-    }
 }
 
 QWidget *SettingsDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option,

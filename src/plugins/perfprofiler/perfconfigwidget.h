@@ -56,8 +56,7 @@ private:
     void apply() final;
 
     void readTracePoints();
-    void handleProcessFinished();
-    void handleProcessError(QProcess::ProcessError error);
+    void handleProcessDone();
 
     PerfSettings *m_settings;
     std::unique_ptr<Utils::QtcProcess> m_process;
