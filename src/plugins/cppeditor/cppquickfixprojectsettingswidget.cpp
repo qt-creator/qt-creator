@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "cppquickfixprojectsettingswidget.h"
+#include "cppeditorconstants.h"
 #include "cppquickfixsettingswidget.h"
 #include "ui_cppquickfixprojectsettingswidget.h"
 
@@ -33,9 +34,10 @@ using namespace CppEditor::Internal;
 
 CppQuickFixProjectSettingsWidget::CppQuickFixProjectSettingsWidget(ProjectExplorer::Project *project,
                                                                    QWidget *parent)
-    : QWidget(parent)
+    : ProjectExplorer::ProjectSettingsWidget(parent)
     , ui(new Ui::CppQuickFixProjectSettingsWidget)
 {
+    setGlobalSettingsId(CppEditor::Constants::QUICK_FIX_SETTINGS_ID);
     m_projectSettings = CppQuickFixProjectsSettings::getSettings(project);
     ui->setupUi(this);
     m_settingsWidget = new CppEditor::Internal::CppQuickFixSettingsWidget(this);
@@ -43,20 +45,20 @@ CppQuickFixProjectSettingsWidget::CppQuickFixProjectSettingsWidget(ProjectExplor
     if (QLayout *layout = m_settingsWidget->layout())
         layout->setContentsMargins(0, 0, 0, 0);
     ui->layout->addWidget(m_settingsWidget);
-    connect(ui->comboBox,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this,
-            &CppQuickFixProjectSettingsWidget::currentItemChanged);
-    connect(ui->pushButton_custom,
-            &QAbstractButton::clicked,
-            this,
-            &CppQuickFixProjectSettingsWidget::buttonCustomClicked);
-    connect(m_settingsWidget, &CppEditor::Internal::CppQuickFixSettingsWidget::settingsChanged, [this] {
-        m_settingsWidget->saveSettings(m_projectSettings->getSettings());
-        if (!useGlobalSettings())
-            m_projectSettings->saveOwnSettings();
-    });
-    ui->comboBox->setCurrentIndex(m_projectSettings->isUsingGlobalSettings() ? 0 : 1);
+
+    connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged,
+            this, &CppQuickFixProjectSettingsWidget::currentItemChanged);
+    setUseGlobalSettings(m_projectSettings->isUsingGlobalSettings());
+    currentItemChanged(m_projectSettings->useCustomSettings());
+
+    connect(ui->pushButton_custom, &QAbstractButton::clicked,
+            this, &CppQuickFixProjectSettingsWidget::buttonCustomClicked);
+    connect(m_settingsWidget, &CppEditor::Internal::CppQuickFixSettingsWidget::settingsChanged, this,
+            [this] {
+                m_settingsWidget->saveSettings(m_projectSettings->getSettings());
+                if (!useGlobalSettings())
+                    m_projectSettings->saveOwnSettings();
+            });
 }
 
 CppQuickFixProjectSettingsWidget::~CppQuickFixProjectSettingsWidget()
@@ -64,9 +66,9 @@ CppQuickFixProjectSettingsWidget::~CppQuickFixProjectSettingsWidget()
     delete ui;
 }
 
-void CppQuickFixProjectSettingsWidget::currentItemChanged()
+void CppQuickFixProjectSettingsWidget::currentItemChanged(bool useGlobalSettings)
 {
-    if (useGlobalSettings()) {
+    if (useGlobalSettings) {
         const auto &path = m_projectSettings->filePathOfSettingsFile();
         ui->pushButton_custom->setToolTip(tr("Custom settings are saved in a file. If you use the "
                                              "global settings, you can delete that file."));
@@ -75,7 +77,7 @@ void CppQuickFixProjectSettingsWidget::currentItemChanged()
         m_projectSettings->useGlobalSettings();
     } else /*Custom*/ {
         if (!m_projectSettings->useCustomSettings()) {
-            ui->comboBox->setCurrentIndex(0);
+            setUseGlobalSettings(!m_projectSettings->useCustomSettings());
             return;
         }
         ui->pushButton_custom->setToolTip(tr("Resets all settings to the global settings."));
@@ -98,9 +100,4 @@ void CppQuickFixProjectSettingsWidget::buttonCustomClicked()
         m_projectSettings->saveOwnSettings();
         m_settingsWidget->loadSettings(m_projectSettings->getSettings());
     }
-}
-
-bool CppQuickFixProjectSettingsWidget::useGlobalSettings()
-{
-    return ui->comboBox->currentIndex() == 0;
 }

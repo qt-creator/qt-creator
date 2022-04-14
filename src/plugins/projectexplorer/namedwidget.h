@@ -26,12 +26,13 @@
 #pragma once
 
 #include "projectexplorer_export.h"
+#include "projectsettingswidget.h"
 
 #include <QWidget>
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT NamedWidget : public QWidget
+class PROJECTEXPLORER_EXPORT NamedWidget : public ProjectSettingsWidget
 {
 public:
     explicit NamedWidget(const QString &displayName, QWidget *parent = nullptr);

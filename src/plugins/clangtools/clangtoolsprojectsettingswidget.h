@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <projectexplorer/projectsettingswidget.h>
+
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -41,16 +43,16 @@ namespace Internal {
 class ClangToolsProjectSettings;
 class RunSettingsWidget;
 
-class ProjectSettingsWidget : public QWidget
+class ClangToolsProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
 {
     Q_OBJECT
 
 public:
-    explicit ProjectSettingsWidget(ProjectExplorer::Project *project, QWidget *parent = nullptr);
+    explicit ClangToolsProjectSettingsWidget(ProjectExplorer::Project *project, QWidget *parent = nullptr);
 
 private:
     void onGlobalCustomChanged();
-    void onGlobalCustomChanged(int index);
+    void onGlobalCustomChanged(bool useGlobal);
 
     void updateButtonStates();
     void updateButtonStateRemoveSelected();

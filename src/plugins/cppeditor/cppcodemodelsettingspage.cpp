@@ -450,43 +450,35 @@ public:
 ClangdProjectSettingsWidget::ClangdProjectSettingsWidget(const ClangdProjectSettings &settings)
     : d(new Private(settings))
 {
+    setGlobalSettingsId(Constants::CPP_CLANGD_SETTINGS_ID);
     const auto layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
-    const auto globalSettingsLayout = new QHBoxLayout;
-    globalSettingsLayout->addWidget(&d->useGlobalSettingsCheckBox);
-    const auto globalSettingsLabel = new QLabel("Use <a href=\"dummy\">global settings</a>");
-    connect(globalSettingsLabel, &QLabel::linkActivated,
-            this, [] { Core::ICore::showOptionsDialog(Constants::CPP_CLANGD_SETTINGS_ID); });
-    globalSettingsLayout->addWidget(globalSettingsLabel);
-    globalSettingsLayout->addStretch(1);
-    layout->addLayout(globalSettingsLayout);
-
-    const auto separator = new QFrame;
-    separator->setFrameShape(QFrame::HLine);
-    layout->addWidget(separator);
     layout->addWidget(&d->widget);
 
     const auto updateGlobalSettingsCheckBox = [this] {
         if (ClangdSettings::instance().granularity() == ClangdSettings::Granularity::Session) {
-            d->useGlobalSettingsCheckBox.setEnabled(false);
-            d->useGlobalSettingsCheckBox.setChecked(true);
+            setUseGlobalSettingsCheckBoxEnabled(false);
+            setUseGlobalSettings(true);
         } else {
-            d->useGlobalSettingsCheckBox.setEnabled(true);
-            d->useGlobalSettingsCheckBox.setChecked(d->settings.useGlobalSettings());
+            setUseGlobalSettingsCheckBoxEnabled(true);
+            setUseGlobalSettings(d->settings.useGlobalSettings());
         }
-        d->widget.setEnabled(!d->useGlobalSettingsCheckBox.isChecked());
+        d->widget.setEnabled(!useGlobalSettings());
     };
+
     updateGlobalSettingsCheckBox();
     connect(&ClangdSettings::instance(), &ClangdSettings::changed,
             this, updateGlobalSettingsCheckBox);
 
-    connect(&d->useGlobalSettingsCheckBox, &QCheckBox::clicked, [this](bool checked) {
-        d->widget.setEnabled(!checked);
-        d->settings.setUseGlobalSettings(checked);
-        if (!checked)
-            d->settings.setSettings(d->widget.settingsData());
-    });
-    connect(&d->widget, &ClangdSettingsWidget::settingsDataChanged, [this] {
+    connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged, this,
+            [this](bool checked) {
+                d->widget.setEnabled(!checked);
+                d->settings.setUseGlobalSettings(checked);
+                if (!checked)
+                    d->settings.setSettings(d->widget.settingsData());
+            });
+
+    connect(&d->widget, &ClangdSettingsWidget::settingsDataChanged, this, [this] {
         d->settings.setSettings(d->widget.settingsData());
     });
 }

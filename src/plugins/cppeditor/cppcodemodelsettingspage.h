@@ -26,6 +26,7 @@
 #pragma once
 
 #include "cppcodemodelsettings.h"
+#include <projectexplorer/projectsettingswidget.h>
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -61,7 +62,7 @@ private:
     Private * const d;
 };
 
-class ClangdProjectSettingsWidget : public QWidget
+class ClangdProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
 {
     Q_OBJECT
 

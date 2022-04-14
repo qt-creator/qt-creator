@@ -25,11 +25,14 @@
 
 #include "panelswidget.h"
 
+#include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
+#include <QCheckBox>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QPainter>
 #include <QScrollArea>
@@ -41,7 +44,7 @@ namespace ProjectExplorer {
 namespace {
 
 const int ABOVE_HEADING_MARGIN = 10;
-const int ABOVE_CONTENTS_MARGIN = 4;
+const int CONTENTS_MARGIN = 5;
 const int BELOW_CONTENTS_MARGIN = 16;
 
 }
@@ -85,7 +88,16 @@ PanelsWidget::PanelsWidget(QWidget *parent) : QWidget(parent)
 PanelsWidget::PanelsWidget(const QString &displayName, QWidget *widget)
     : PanelsWidget(nullptr)
 {
-    addPropertiesPanel(displayName, widget);
+    addPropertiesPanel(displayName);
+    addWidget(widget);
+}
+
+PanelsWidget::PanelsWidget(const QString &displayName, ProjectSettingsWidget *widget)
+    : PanelsWidget(nullptr)
+{
+    addPropertiesPanel(displayName);
+    addGlobalSettingsProperties(widget);
+    addWidget(widget);
 }
 
 PanelsWidget::~PanelsWidget() = default;
@@ -102,7 +114,7 @@ PanelsWidget::~PanelsWidget() = default;
  * | widget     |
  * +------------+ BELOW_CONTENTS_MARGIN
  */
-void PanelsWidget::addPropertiesPanel(const QString &displayName, QWidget *widget)
+void PanelsWidget::addPropertiesPanel(const QString &displayName)
 {
     // name:
     auto nameLabel = new QLabel(m_root);
@@ -120,11 +132,51 @@ void PanelsWidget::addPropertiesPanel(const QString &displayName, QWidget *widge
     line->setForegroundRole(QPalette::Midlight);
     line->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     m_layout->addWidget(line);
+}
 
-    // add the widget:
-    widget->setContentsMargins(0, ABOVE_CONTENTS_MARGIN, 0, BELOW_CONTENTS_MARGIN);
+void PanelsWidget::addWidget(QWidget *widget)
+{
+    widget->setContentsMargins(0, CONTENTS_MARGIN, 0, BELOW_CONTENTS_MARGIN);
     widget->setParent(m_root);
     m_layout->addWidget(widget);
+}
+
+void PanelsWidget::addGlobalSettingsProperties(ProjectSettingsWidget *widget)
+{
+    if (!widget->isUseGlobalSettingsCheckBoxVisible())
+        return;
+    m_layout->setContentsMargins(0, 0, 0, 0);
+    const auto useGlobalSettingsCheckBox = new QCheckBox;
+    useGlobalSettingsCheckBox->setChecked(widget->useGlobalSettings());
+    useGlobalSettingsCheckBox->setEnabled(widget->isUseGlobalSettingsCheckBoxEnabled());
+    const auto settingsLabel = new QLabel("Use <a href=\"dummy\">global settings</a>");
+    settingsLabel->setContentsMargins(CONTENTS_MARGIN, 0, 0, 0);
+    settingsLabel->setEnabled(widget->isUseGlobalSettingsCheckBoxEnabled());
+    const auto horizontLayout = new QHBoxLayout;
+    horizontLayout->setContentsMargins(0, CONTENTS_MARGIN, 0, CONTENTS_MARGIN);
+    horizontLayout->addWidget(useGlobalSettingsCheckBox);
+    horizontLayout->addWidget(settingsLabel);
+    horizontLayout->addStretch(1);
+    m_layout->addLayout(horizontLayout);
+
+    auto separator = new QFrame(m_root);
+    separator->setFrameShape(QFrame::HLine);
+    m_layout->addWidget(separator);
+
+    connect(widget, &ProjectSettingsWidget::useGlobalSettingsCheckBoxEnabledChanged, this,
+            [useGlobalSettingsCheckBox, settingsLabel] (bool enabled) {
+                useGlobalSettingsCheckBox->setEnabled(enabled);
+                settingsLabel->setEnabled(enabled);
+            });
+
+    connect(useGlobalSettingsCheckBox, &QCheckBox::stateChanged,
+            widget, &ProjectSettingsWidget::setUseGlobalSettings);
+    connect(widget, &ProjectSettingsWidget::useGlobalSettingsChanged,
+            useGlobalSettingsCheckBox, &QCheckBox::setChecked);
+
+    connect(settingsLabel, &QLabel::linkActivated, this, [widget] {
+        Core::ICore::showOptionsDialog(widget->globalSettingsId());
+    });
 }
 
 } // ProjectExplorer

@@ -25,8 +25,9 @@
 
 #pragma once
 
-#include <QAbstractListModel>
+#include <projectexplorer/projectsettingswidget.h>
 
+#include <QAbstractListModel>
 #include <QTreeView>
 
 QT_BEGIN_NAMESPACE
@@ -81,7 +82,7 @@ private:
     QSize m_sizeHint;
 };
 
-class DependenciesWidget : public QWidget
+class DependenciesWidget : public ProjectSettingsWidget
 {
     Q_OBJECT
 

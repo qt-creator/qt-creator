@@ -70,20 +70,12 @@ private:
     SuppressedDiagnosticsList m_diagnostics;
 };
 
-enum { UseGlobalSettings, UseCustomSettings }; // Values in sync with m_globalCustomComboBox
-
-ProjectSettingsWidget::ProjectSettingsWidget(ProjectExplorer::Project *project, QWidget *parent) :
-    QWidget(parent),
+ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(ProjectExplorer::Project *project, QWidget *parent) :
+    ProjectExplorer::ProjectSettingsWidget(parent),
     m_projectSettings(ClangToolsProjectSettings::getSettings(project))
 {
-    m_globalCustomComboBox = new QComboBox;
-    m_globalCustomComboBox->addItem(tr("Use Global Settings"));
-    m_globalCustomComboBox->addItem(tr("Use Customized Settings"));
-
+    setGlobalSettingsId(ClangTools::Constants::SETTINGS_PAGE_ID);
     m_restoreGlobal = new QPushButton(tr("Restore Global Settings"));
-
-    auto gotoGlobalSettingsLabel =
-            new QLabel("<a href=\"target\">" + tr("Open Global Settings") + "</a>");
 
     auto gotoAnalyzerModeLabel =
             new QLabel("<a href=\"target\">" + tr("Go to Analyzer") + "</a>");
@@ -100,9 +92,7 @@ ProjectSettingsWidget::ProjectSettingsWidget(ProjectExplorer::Project *project, 
 
     Column {
         Row {
-            m_globalCustomComboBox,
             m_restoreGlobal,
-            gotoGlobalSettingsLabel,
             Stretch(),
             gotoAnalyzerModeLabel
         },
@@ -122,28 +112,18 @@ ProjectSettingsWidget::ProjectSettingsWidget(ProjectExplorer::Project *project, 
         }
     }.attachTo(this, false);
 
-    // Use global/custom settings combo box
-    const int globalOrCustomIndex = m_projectSettings->useGlobalSettings() ? UseGlobalSettings
-                                                                           : UseCustomSettings;
-    m_globalCustomComboBox->setCurrentIndex(globalOrCustomIndex);
-    onGlobalCustomChanged(globalOrCustomIndex);
-    connect(m_globalCustomComboBox,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this,
-            QOverload<int>::of(&ProjectSettingsWidget::onGlobalCustomChanged));
+    setUseGlobalSettings(m_projectSettings->useGlobalSettings());
+    onGlobalCustomChanged();
+    connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged,
+            this, QOverload<bool>::of(&ClangToolsProjectSettingsWidget::onGlobalCustomChanged));
 
     // Global settings
     connect(ClangToolsSettings::instance(),
             &ClangToolsSettings::changed,
             this,
-            QOverload<>::of(&ProjectSettingsWidget::onGlobalCustomChanged));
+            QOverload<>::of(&ClangToolsProjectSettingsWidget::onGlobalCustomChanged));
     connect(m_restoreGlobal, &QPushButton::clicked, this, [this]() {
         m_runSettingsWidget->fromSettings(ClangToolsSettings::instance()->runSettings());
-    });
-
-    // Links
-    connect(gotoGlobalSettingsLabel, &QLabel::linkActivated, [](const QString &) {
-        Core::ICore::showOptionsDialog(ClangTools::Constants::SETTINGS_PAGE_ID);
     });
 
     connect(gotoAnalyzerModeLabel, &QLabel::linkActivated, [](const QString &) {
@@ -151,7 +131,7 @@ ProjectSettingsWidget::ProjectSettingsWidget(ProjectExplorer::Project *project, 
     });
 
     // Run options
-    connect(m_runSettingsWidget, &RunSettingsWidget::changed, [this]() {
+    connect(m_runSettingsWidget, &RunSettingsWidget::changed, this, [this]() {
         // Save project run settings
         m_projectSettings->setRunSettings(m_runSettingsWidget->toSettings());
 
@@ -165,31 +145,30 @@ ProjectSettingsWidget::ProjectSettingsWidget(ProjectExplorer::Project *project, 
     // Suppressed diagnostics
     auto * const model = new SuppressedDiagnosticsModel(this);
     model->setDiagnostics(m_projectSettings->suppressedDiagnostics());
-    connect(m_projectSettings.data(), &ClangToolsProjectSettings::suppressedDiagnosticsChanged,
+    connect(m_projectSettings.data(), &ClangToolsProjectSettings::suppressedDiagnosticsChanged, this,
             [model, this] {
                     model->setDiagnostics(m_projectSettings->suppressedDiagnostics());
                     updateButtonStates();
             });
     m_diagnosticsView->setModel(model);
     updateButtonStates();
-    connect(m_diagnosticsView->selectionModel(), &QItemSelectionModel::selectionChanged,
+    connect(m_diagnosticsView->selectionModel(), &QItemSelectionModel::selectionChanged, this,
             [this](const QItemSelection &, const QItemSelection &) {
                 updateButtonStateRemoveSelected();
             });
     connect(m_removeSelectedButton, &QAbstractButton::clicked,
-            [this](bool) { removeSelected(); });
+            this, [this](bool) { removeSelected(); });
     connect(m_removeAllButton, &QAbstractButton::clicked,
-            [this](bool) { m_projectSettings->removeAllSuppressedDiagnostics();});
+            this, [this](bool) { m_projectSettings->removeAllSuppressedDiagnostics();});
 }
 
-void ProjectSettingsWidget::onGlobalCustomChanged()
+void ClangToolsProjectSettingsWidget::onGlobalCustomChanged()
 {
-    onGlobalCustomChanged(m_globalCustomComboBox->currentIndex());
+    onGlobalCustomChanged(useGlobalSettings());
 }
 
-void ProjectSettingsWidget::onGlobalCustomChanged(int index)
+void ClangToolsProjectSettingsWidget::onGlobalCustomChanged(bool useGlobal)
 {
-    const bool useGlobal = index == UseGlobalSettings;
     const RunSettings runSettings = useGlobal ? ClangToolsSettings::instance()->runSettings()
                                               : m_projectSettings->runSettings();
     m_runSettingsWidget->fromSettings(runSettings);
@@ -199,25 +178,25 @@ void ProjectSettingsWidget::onGlobalCustomChanged(int index)
     m_projectSettings->setUseGlobalSettings(useGlobal);
 }
 
-void ProjectSettingsWidget::updateButtonStates()
+void ClangToolsProjectSettingsWidget::updateButtonStates()
 {
     updateButtonStateRemoveSelected();
     updateButtonStateRemoveAll();
 }
 
-void ProjectSettingsWidget::updateButtonStateRemoveSelected()
+void ClangToolsProjectSettingsWidget::updateButtonStateRemoveSelected()
 {
     const auto selectedRows = m_diagnosticsView->selectionModel()->selectedRows();
     QTC_ASSERT(selectedRows.count() <= 1, return);
     m_removeSelectedButton->setEnabled(!selectedRows.isEmpty());
 }
 
-void ProjectSettingsWidget::updateButtonStateRemoveAll()
+void ClangToolsProjectSettingsWidget::updateButtonStateRemoveAll()
 {
     m_removeAllButton->setEnabled(m_diagnosticsView->model()->rowCount() > 0);
 }
 
-void ProjectSettingsWidget::removeSelected()
+void ClangToolsProjectSettingsWidget::removeSelected()
 {
     const auto selectedRows = m_diagnosticsView->selectionModel()->selectedRows();
     QTC_ASSERT(selectedRows.count() == 1, return);

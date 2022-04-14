@@ -25,6 +25,7 @@
 
 #include "projectsettingswidget.h"
 
+#include "autotestconstants.h"
 #include "autotestplugin.h"
 #include "testframeworkmanager.h"
 #include "testprojectsettings.h"
@@ -53,14 +54,12 @@ static QSpacerItem *createSpacer(QSizePolicy::Policy horizontal, QSizePolicy::Po
 
 ProjectTestSettingsWidget::ProjectTestSettingsWidget(ProjectExplorer::Project *project,
                                                      QWidget *parent)
-    : QWidget(parent)
+    : ProjectExplorer::ProjectSettingsWidget(parent)
     , m_projectSettings(AutotestPlugin::projectSettings(project))
 {
+    setGlobalSettingsId(Constants::AUTOTEST_SETTINGS_ID);
     auto verticalLayout = new QVBoxLayout(this);
     verticalLayout->setContentsMargins(0, 0, 0, 0);
-    m_useGlobalSettings = new QComboBox;
-    m_useGlobalSettings->addItem(tr("Global"));
-    m_useGlobalSettings->addItem(tr("Custom"));
 
     auto generalWidget = new QWidget;
     auto groupBoxLayout = new QVBoxLayout;
@@ -83,29 +82,26 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(ProjectExplorer::Project *p
     generalWidget->setLayout(groupBoxLayout);
 
     horizontalLayout = new QHBoxLayout;
-    horizontalLayout->addWidget(m_useGlobalSettings);
-    horizontalLayout->addItem(createSpacer(QSizePolicy::Expanding, QSizePolicy::Minimum));
-    verticalLayout->addLayout(horizontalLayout);
-    horizontalLayout = new QHBoxLayout;
     verticalLayout->addItem(createSpacer(QSizePolicy::Minimum, QSizePolicy::Fixed));
     horizontalLayout->addWidget(generalWidget);
     horizontalLayout->addItem(createSpacer(QSizePolicy::Expanding, QSizePolicy::Minimum));
     verticalLayout->addLayout(horizontalLayout);
     verticalLayout->addItem(createSpacer(QSizePolicy::Minimum, QSizePolicy::Expanding));
 
-    m_useGlobalSettings->setCurrentIndex(m_projectSettings->useGlobalSettings() ? 0 : 1);
     generalWidget->setDisabled(m_projectSettings->useGlobalSettings());
 
     populateFrameworks(m_projectSettings->activeFrameworks(),
                        m_projectSettings->activeTestTools());
 
-    connect(m_useGlobalSettings, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, [this, generalWidget](int index) {
-        generalWidget->setEnabled(index != 0);
-        m_projectSettings->setUseGlobalSettings(index == 0);
-        m_syncTimer.start(3000);
-        m_syncType = ITestBase::Framework | ITestBase::Tool;
-    });
+    setUseGlobalSettings(m_projectSettings->useGlobalSettings());
+    connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged,
+            this, [this, generalWidget](bool useGlobalSettings) {
+                generalWidget->setEnabled(!useGlobalSettings);
+                m_projectSettings->setUseGlobalSettings(useGlobalSettings);
+                m_syncTimer.start(3000);
+                m_syncType = ITestBase::Framework | ITestBase::Tool;
+            });
+
     connect(m_activeFrameworks, &QTreeWidget::itemChanged,
             this, &ProjectTestSettingsWidget::onActiveFrameworkChanged);
     connect(m_runAfterBuild, QOverload<int>::of(&QComboBox::currentIndexChanged),

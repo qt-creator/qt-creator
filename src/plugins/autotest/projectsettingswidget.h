@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <projectexplorer/projectsettingswidget.h>
+
 #include <QTimer>
 #include <QWidget>
 
@@ -45,12 +47,13 @@ namespace Internal {
 
 class TestProjectSettings;
 
-class ProjectTestSettingsWidget : public QWidget
+class ProjectTestSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
 {
     Q_OBJECT
 public:
     explicit ProjectTestSettingsWidget(ProjectExplorer::Project *project,
                                        QWidget *parent = nullptr);
+
 private:
     void populateFrameworks(const QHash<Autotest::ITestFramework *, bool> &frameworks,
                             const QHash<Autotest::ITestTool *, bool> &testTools);

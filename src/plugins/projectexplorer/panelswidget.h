@@ -26,6 +26,7 @@
 #pragma once
 
 #include "projectexplorer_export.h"
+#include "projectsettingswidget.h"
 
 #include <QWidget>
 
@@ -42,9 +43,12 @@ class PROJECTEXPLORER_EXPORT PanelsWidget : public QWidget
 public:
     explicit PanelsWidget(QWidget *parent = nullptr);
     PanelsWidget(const QString &displayName, QWidget *widget);
+    PanelsWidget(const QString &displayName, ProjectSettingsWidget *widget);
     ~PanelsWidget() override;
 
-    void addPropertiesPanel(const QString &displayName, QWidget *widget);
+    void addPropertiesPanel(const QString &displayName);
+    void addGlobalSettingsProperties(ProjectSettingsWidget *widget);
+    void addWidget(QWidget *widget);
 
     static int constexpr PanelVMargin = 14;
 

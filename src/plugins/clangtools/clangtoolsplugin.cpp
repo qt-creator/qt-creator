@@ -126,7 +126,8 @@ bool ClangToolsPlugin::initialize(const QStringList &arguments, QString *errorSt
     panelFactory->setPriority(100);
     panelFactory->setId(Constants::PROJECT_PANEL_ID);
     panelFactory->setDisplayName(tr("Clang Tools"));
-    panelFactory->setCreateWidgetFunction([](Project *project) { return new ProjectSettingsWidget(project); });
+    panelFactory->setCreateWidgetFunction(
+        [](Project *project) { return new ClangToolsProjectSettingsWidget(project); });
     ProjectPanelFactory::registerFactory(panelFactory);
 
     connect(Core::EditorManager::instance(),

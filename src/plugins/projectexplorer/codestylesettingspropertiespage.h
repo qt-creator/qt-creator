@@ -26,6 +26,7 @@
 #pragma once
 
 #include "ui_codestylesettingspropertiespage.h"
+#include <projectexplorer/projectsettingswidget.h>
 
 namespace ProjectExplorer {
 class EditorConfiguration;
@@ -33,7 +34,7 @@ class Project;
 
 namespace Internal {
 
-class CodeStyleSettingsWidget : public QWidget
+class CodeStyleSettingsWidget : public ProjectSettingsWidget
 {
     Q_OBJECT
 public:

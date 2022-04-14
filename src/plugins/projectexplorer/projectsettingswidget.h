@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,18 +23,42 @@
 **
 ****************************************************************************/
 
-#include "namedwidget.h"
+#pragma once
+
+#include "projectexplorer_export.h"
+#include "projectexplorer/project.h"
+
+#include <utils/id.h>
 
 namespace ProjectExplorer {
 
-NamedWidget::NamedWidget(const QString &displayName, QWidget *parent)
-    : ProjectSettingsWidget(parent), m_displayName(displayName)
+class PROJECTEXPLORER_EXPORT ProjectSettingsWidget : public QWidget
 {
-}
+    Q_OBJECT
+public:
+    explicit ProjectSettingsWidget(QWidget *parent = nullptr);
 
-QString NamedWidget::displayName() const
-{
-    return m_displayName;
-}
+    void setUseGlobalSettings(bool useGlobalSettings);
+    bool useGlobalSettings() const;
 
-} // ProjectExplorer
+    void setUseGlobalSettingsCheckBoxEnabled(bool enadled);
+    bool isUseGlobalSettingsCheckBoxEnabled() const;
+
+    bool isUseGlobalSettingsCheckBoxVisible() const;
+    Utils::Id globalSettingsId() const;
+
+protected:
+    void setUseGlobalSettingsCheckBoxVisible(bool visible);
+    void setGlobalSettingsId(Utils::Id globalId);
+
+signals:
+    void useGlobalSettingsChanged(bool useGlobalSettings);
+    void useGlobalSettingsCheckBoxEnabledChanged(bool enadled);
+
+private:
+    bool m_useGlobalSettings = true;
+    bool m_useGlobalSettingsCheckBoxEnabled = true;
+    bool m_useGlobalSettingsCheckBoxVisibleVisible = true;
+    Utils::Id m_globalSettingsId;
+};
+} // namespace ProjectExplorer

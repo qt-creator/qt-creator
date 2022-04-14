@@ -210,10 +210,11 @@ void DependenciesView::updateSizeHint()
 // DependenciesWidget
 //
 
-DependenciesWidget::DependenciesWidget(Project *project, QWidget *parent) : QWidget(parent),
+DependenciesWidget::DependenciesWidget(Project *project, QWidget *parent) : ProjectSettingsWidget(parent),
     m_project(project),
     m_model(new DependenciesModel(project, this))
 {
+    setUseGlobalSettingsCheckBoxVisible(false);
     auto vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
     m_detailsContainer = new Utils::DetailsWidget(this);

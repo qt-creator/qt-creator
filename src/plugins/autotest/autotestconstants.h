@@ -47,6 +47,7 @@ const char AUTOTEST_CONTEXT[]                = "Auto Tests";
 const char TASK_INDEX[]                      = "AutoTest.Task.Index";
 const char TASK_PARSE[]                      = "AutoTest.Task.Parse";
 const char AUTOTEST_SETTINGS_CATEGORY[]      = "ZY.Tests";
+const char AUTOTEST_SETTINGS_ID[]            = "A.AutoTest.0.General";
 const char AUTOTEST_SETTINGS_TR[]            = QT_TRANSLATE_NOOP("AutoTest", "Testing");
 const char FRAMEWORK_PREFIX[]                = "AutoTest.Framework.";
 const char SETTINGSPAGE_PREFIX[]             = "A.AutoTest.";

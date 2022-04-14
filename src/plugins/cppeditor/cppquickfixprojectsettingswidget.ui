@@ -23,31 +23,14 @@
    <property name="bottomMargin">
     <number>0</number>
    </property>
-   <item row="0" column="1">
+   <item row="2" column="0" colspan="2">
+    <layout class="QVBoxLayout" name="layout"/>
+   </item>
+   <item row="1" column="0">
     <widget class="QPushButton" name="pushButton_custom">
      <property name="text">
       <string/>
      </property>
-    </widget>
-   </item>
-   <item row="1" column="0" colspan="2">
-    <layout class="QVBoxLayout" name="layout"/>
-   </item>
-   <item row="0" column="0">
-    <widget class="QComboBox" name="comboBox">
-     <property name="currentIndex">
-      <number>-1</number>
-     </property>
-     <item>
-      <property name="text">
-       <string>Global Settings</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Custom Settings</string>
-      </property>
-     </item>
     </widget>
    </item>
   </layout>

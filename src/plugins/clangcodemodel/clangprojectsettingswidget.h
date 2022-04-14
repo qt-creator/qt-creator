@@ -23,18 +23,39 @@
 **
 ****************************************************************************/
 
-#include "namedwidget.h"
+#pragma once
 
-namespace ProjectExplorer {
+#include "ui_clangprojectsettingswidget.h"
 
-NamedWidget::NamedWidget(const QString &displayName, QWidget *parent)
-    : ProjectSettingsWidget(parent), m_displayName(displayName)
+#include "clangprojectsettings.h"
+#include <projectexplorer/projectsettingswidget.h>
+
+#include <QPointer>
+
+namespace ProjectExplorer { class Project; }
+
+namespace ClangCodeModel {
+namespace Internal {
+
+class ClangProjectSettingsWidget: public ProjectExplorer::ProjectSettingsWidget
 {
-}
+    Q_OBJECT
 
-QString NamedWidget::displayName() const
-{
-    return m_displayName;
-}
+public:
+    explicit ClangProjectSettingsWidget(ProjectExplorer::Project *project);
 
-} // ProjectExplorer
+private:
+    void onDelayedTemplateParseClicked(bool);
+    void onGlobalCustomChanged(bool useGlobalSettings);
+    void onAboutToSaveProjectSettings();
+
+    void syncWidgets();
+    void syncOtherWidgetsToComboBox();
+
+private:
+    Ui::ClangProjectSettingsWidget m_ui;
+    ClangProjectSettings &m_projectSettings;
+};
+
+} // namespace Internal
+} // namespace ClangCodeModel

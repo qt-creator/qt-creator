@@ -26,15 +26,16 @@
 #include "projectwindow.h"
 
 #include "buildinfo.h"
-#include "projectexplorerconstants.h"
 #include "kit.h"
 #include "kitmanager.h"
 #include "kitoptionspage.h"
 #include "panelswidget.h"
 #include "project.h"
 #include "projectexplorer.h"
+#include "projectexplorerconstants.h"
 #include "projectimporter.h"
 #include "projectpanelfactory.h"
+#include "projectsettingswidget.h"
 #include "session.h"
 #include "target.h"
 #include "targetsettingspanel.h"
@@ -261,7 +262,7 @@ QVariant MiscSettingsPanelItem::data(int column, int role) const
 
     if (role == PanelWidgetRole) {
         if (!m_widget) {
-            QWidget *widget = m_factory->createWidget(m_project);
+            ProjectSettingsWidget *widget = m_factory->createWidget(m_project);
             m_widget = new PanelsWidget(m_factory->displayName(), widget);
             m_widget->setFocusProxy(widget);
         }

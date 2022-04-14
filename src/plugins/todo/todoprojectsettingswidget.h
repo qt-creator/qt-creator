@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <projectexplorer/projectsettingswidget.h>
+
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -42,7 +44,7 @@ namespace Ui {
 class TodoProjectSettingsWidget;
 }
 
-class TodoProjectSettingsWidget : public QWidget
+class TodoProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
 {
     Q_OBJECT
 

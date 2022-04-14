@@ -28,6 +28,8 @@
 #include "project.h"
 #include "projectwindow.h"
 
+#include <utils/layoutbuilder.h>
+
 using namespace ProjectExplorer::Internal;
 using namespace Utils;
 
@@ -90,7 +92,7 @@ void ProjectPanelFactory::setId(Utils::Id id)
     m_id = id;
 }
 
-QWidget *ProjectPanelFactory::createWidget(Project *project) const
+ProjectSettingsWidget *ProjectPanelFactory::createWidget(Project *project) const
 {
     return m_widgetCreator(project);
 }

@@ -34,9 +34,10 @@ using namespace TextEditor;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-CodeStyleSettingsWidget::CodeStyleSettingsWidget(Project *project) : QWidget(), m_project(project)
+CodeStyleSettingsWidget::CodeStyleSettingsWidget(Project *project) : ProjectSettingsWidget(), m_project(project)
 {
     m_ui.setupUi(this);
+    setUseGlobalSettingsCheckBoxVisible(false);
 
     const EditorConfiguration *config = m_project->editorConfiguration();
 

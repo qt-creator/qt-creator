@@ -119,6 +119,7 @@ Project {
                 "projectmodels.cpp", "projectmodels.h",
                 "projectnodes.cpp", "projectnodes.h",
                 "projectpanelfactory.cpp", "projectpanelfactory.h",
+                "projectsettingswidget.cpp", "projectsettingswidget.h",
                 "projecttree.cpp",
                 "projecttree.h",
                 "projecttreewidget.cpp", "projecttreewidget.h",

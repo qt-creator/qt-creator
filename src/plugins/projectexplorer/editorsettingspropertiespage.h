@@ -26,6 +26,7 @@
 #pragma once
 
 #include "ui_editorsettingspropertiespage.h"
+#include <projectexplorer/projectsettingswidget.h>
 
 namespace ProjectExplorer {
 class EditorConfiguration;
@@ -33,14 +34,14 @@ class Project;
 
 namespace Internal {
 
-class EditorSettingsWidget : public QWidget
+class EditorSettingsWidget : public ProjectSettingsWidget
 {
     Q_OBJECT
 public:
     explicit EditorSettingsWidget(Project *project);
 
 private:
-    void globalSettingsActivated(int index);
+    void globalSettingsActivated(bool useGlobal);
     void restoreDefaultValues();
 
     void settingsToUi(const EditorConfiguration *config);

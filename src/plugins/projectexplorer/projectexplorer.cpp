@@ -393,6 +393,7 @@ class ProjectEnvironmentWidget : public NamedWidget
 public:
     explicit ProjectEnvironmentWidget(Project *project) : NamedWidget(tr("Project Environment"))
     {
+        setUseGlobalSettingsCheckBoxVisible(false);
         const auto vbox = new QVBoxLayout(this);
         vbox->setContentsMargins(0, 0, 0, 0);
         const auto envWidget = new EnvironmentWidget(this, EnvironmentWidget::TypeLocal);

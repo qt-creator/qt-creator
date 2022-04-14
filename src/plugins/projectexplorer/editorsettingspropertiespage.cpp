@@ -27,6 +27,7 @@
 #include "editorconfiguration.h"
 #include "project.h"
 
+#include <texteditor/texteditorconstants.h>
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/extraencodingsettings.h>
 #include <texteditor/marginsettings.h>
@@ -38,18 +39,20 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-EditorSettingsWidget::EditorSettingsWidget(Project *project) : QWidget(), m_project(project)
+EditorSettingsWidget::EditorSettingsWidget(Project *project) : ProjectSettingsWidget(), m_project(project)
 {
     m_ui.setupUi(this);
+    setGlobalSettingsId(TextEditor::Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS);
 
     const EditorConfiguration *config = m_project->editorConfiguration();
     settingsToUi(config);
 
-    globalSettingsActivated(config->useGlobalSettings() ? 0 : 1);
+    globalSettingsActivated(config->useGlobalSettings());
+    setUseGlobalSettings(config->useGlobalSettings());
 
-
-    connect(m_ui.globalSelector, QOverload<int>::of(&QComboBox::activated),
+    connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged,
             this, &EditorSettingsWidget::globalSettingsActivated);
+
     connect(m_ui.restoreButton, &QAbstractButton::clicked,
             this, &EditorSettingsWidget::restoreDefaultValues);
 
@@ -78,7 +81,6 @@ void EditorSettingsWidget::settingsToUi(const EditorConfiguration *config)
     m_ui.useIndenter->setChecked(config->marginSettings().m_useIndenter);
     m_ui.wrapColumn->setValue(config->marginSettings().m_marginColumn);
     m_ui.behaviorSettingsWidget->setCodeStyle(config->codeStyle());
-    m_ui.globalSelector->setCurrentIndex(config->useGlobalSettings() ? 0 : 1);
     m_ui.behaviorSettingsWidget->setAssignedCodec(config->textCodec());
     m_ui.behaviorSettingsWidget->setAssignedTypingSettings(config->typingSettings());
     m_ui.behaviorSettingsWidget->setAssignedStorageSettings(config->storageSettings());
@@ -86,9 +88,8 @@ void EditorSettingsWidget::settingsToUi(const EditorConfiguration *config)
     m_ui.behaviorSettingsWidget->setAssignedExtraEncodingSettings(config->extraEncodingSettings());
 }
 
-void EditorSettingsWidget::globalSettingsActivated(int index)
+void EditorSettingsWidget::globalSettingsActivated(bool useGlobal)
 {
-    const bool useGlobal = !index;
     m_ui.displaySettings->setEnabled(!useGlobal);
     m_ui.behaviorSettingsWidget->setActive(!useGlobal);
     m_ui.restoreButton->setEnabled(!useGlobal);

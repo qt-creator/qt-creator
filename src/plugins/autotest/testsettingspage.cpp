@@ -203,7 +203,7 @@ void TestSettingsWidget::onFrameworkItemChanged()
 TestSettingsPage::TestSettingsPage(TestSettings *settings)
     : m_settings(settings)
 {
-    setId("A.AutoTest.0.General");
+    setId(Constants::AUTOTEST_SETTINGS_ID);
     setDisplayName(tr("General"));
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("AutoTest", Constants::AUTOTEST_SETTINGS_TR));

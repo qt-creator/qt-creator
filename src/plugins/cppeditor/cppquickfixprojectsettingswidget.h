@@ -26,6 +26,7 @@
 #pragma once
 
 #include "cppquickfixprojectsettings.h"
+#include <projectexplorer/projectsettingswidget.h>
 
 #include <QWidget>
 
@@ -38,7 +39,7 @@ namespace ProjectExplorer { class Project; }
 namespace CppEditor {
 namespace Internal {
 class CppQuickFixSettingsWidget;
-class CppQuickFixProjectSettingsWidget : public QWidget
+class CppQuickFixProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
 {
     Q_OBJECT
 
@@ -48,12 +49,10 @@ public:
     ~CppQuickFixProjectSettingsWidget();
 
 private slots:
-    void currentItemChanged();
+    void currentItemChanged(bool useGlobalSettings);
     void buttonCustomClicked();
 
 private:
-    bool useGlobalSettings();
-
     QT_PREPEND_NAMESPACE(Ui)::CppQuickFixProjectSettingsWidget *ui;
     CppQuickFixSettingsWidget *m_settingsWidget;
     CppQuickFixProjectsSettings::CppQuickFixProjectsSettingsPtr m_projectSettings;
