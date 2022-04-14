@@ -378,6 +378,7 @@ extend_qtc_plugin(QmlDesigner
     projectstoragepathwatchernotifierinterface.h
     projectstoragepathwatcher.h
     projectstoragepathwatchertypes.h
+    projectstorageprinting.h
     projectstoragetypes.h
     projectstorageupdater.cpp projectstorageupdater.h
     sourcepath.h
