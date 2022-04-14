@@ -77,8 +77,7 @@ protected:
 
 private:
     void onProcessOutput();
-    void onProcessFinished();
-    void onProcessError(QProcess::ProcessError error);
+    void onProcessDone();
 
     QString commandlineAndOutput() const;
 

@@ -85,8 +85,7 @@ void ClangToolRunner::init(const FilePath &outputDirPath, const Environment &env
 
     m_process->setEnvironment(environment);
     m_process->setWorkingDirectory(m_outputDirPath); // Current clang-cl puts log file into working dir.
-    connect(m_process, &QtcProcess::finished, this, &ClangToolRunner::onProcessFinished);
-    connect(m_process, &QtcProcess::errorOccurred, this, &ClangToolRunner::onProcessError);
+    connect(m_process, &QtcProcess::done, this, &ClangToolRunner::onProcessDone);
 }
 
 QStringList ClangToolRunner::mainToolArguments() const
@@ -145,9 +144,11 @@ bool ClangToolRunner::run(const QString &fileToAnalyze, const QStringList &compi
     return true;
 }
 
-void ClangToolRunner::onProcessFinished()
+void ClangToolRunner::onProcessDone()
 {
-    if (m_process->result() == ProcessResult::FinishedWithSuccess) {
+    if (m_process->result() == ProcessResult::StartFailed) {
+        emit finishedWithFailure(generalProcessError(m_name), commandlineAndOutput());
+    } else if (m_process->result() == ProcessResult::FinishedWithSuccess) {
         qCDebug(LOG).noquote() << "Output:\n" << m_process->stdOut();
         emit finishedWithSuccess(m_fileToAnalyze);
     } else if (m_process->result() == ProcessResult::FinishedWithError) {
@@ -156,14 +157,6 @@ void ClangToolRunner::onProcessFinished()
     } else { // == QProcess::CrashExit
         emit finishedWithFailure(finishedDueToCrash(m_name), commandlineAndOutput());
     }
-}
-
-void ClangToolRunner::onProcessError(QProcess::ProcessError error)
-{
-    if (error == QProcess::Crashed)
-        return; // handled by slot of finished()
-
-    emit finishedWithFailure(generalProcessError(m_name), commandlineAndOutput());
 }
 
 QString ClangToolRunner::commandlineAndOutput() const
