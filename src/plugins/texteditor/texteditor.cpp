@@ -5335,7 +5335,7 @@ void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
                                                                         anchorCursor.blockNumber(),
                                                                         anchorColumn};
 
-        cursor.setCursors(d->generateCursorsForBlockSelection(blockSelection));
+        cursor.addCursors(d->generateCursorsForBlockSelection(blockSelection));
         if (!cursor.isNull())
             setMultiTextCursor(cursor);
     } else {

@@ -50,6 +50,12 @@ void MultiTextCursor::addCursor(const QTextCursor &cursor)
     mergeCursors();
 }
 
+void MultiTextCursor::addCursors(const QList<QTextCursor> &cursors)
+{
+    m_cursors.append(cursors);
+    mergeCursors();
+}
+
 void MultiTextCursor::setCursors(const QList<QTextCursor> &cursors)
 {
     m_cursors = cursors;

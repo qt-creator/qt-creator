@@ -57,6 +57,7 @@ public:
     /// the \param cursor that is appended by added by \brief addCursor
     /// will be interpreted as the new main cursor
     void addCursor(const QTextCursor &cursor);
+    void addCursors(const QList<QTextCursor> &cursors);
     /// convenience function that removes the old main cursor and appends
     /// \param cursor as the new main cursor
     void replaceMainCursor(const QTextCursor &cursor);
