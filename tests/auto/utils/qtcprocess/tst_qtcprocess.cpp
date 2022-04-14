@@ -1007,6 +1007,7 @@ void tst_QtcProcess::notRunningAfterStartingNonExistingProgram()
         QCOMPARE(process.exitStatus(), QProcess::NormalExit);
         QCOMPARE(process.error(), QProcess::FailedToStart);
         QVERIFY(process.exitCode() != 0);
+        QCOMPARE(process.result(), ProcessResult::StartFailed);
     }
 }
 

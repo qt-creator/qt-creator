@@ -1609,15 +1609,17 @@ void QtcProcessPrivate::handleDone(const ProcessResultData &data)
         qDebug() << Q_FUNC_INFO << m_resultData.m_exitCode << m_resultData.m_exitStatus;
     m_hangTimerCount = 0;
 
-    switch (m_resultData.m_exitStatus) {
-    case QProcess::NormalExit:
-        m_result = interpretExitCode(m_resultData.m_exitCode);
-        break;
-    case QProcess::CrashExit:
-        // Was hang detected before and killed?
-        if (m_result != ProcessResult::Hang)
-            m_result = ProcessResult::TerminatedAbnormally;
-        break;
+    if (m_resultData.m_error != QProcess::FailedToStart) {
+        switch (m_resultData.m_exitStatus) {
+        case QProcess::NormalExit:
+            m_result = interpretExitCode(m_resultData.m_exitCode);
+            break;
+        case QProcess::CrashExit:
+            // Was hang detected before and killed?
+            if (m_result != ProcessResult::Hang)
+                m_result = ProcessResult::TerminatedAbnormally;
+            break;
+        }
     }
     if (m_eventLoop)
         m_eventLoop->quit();
