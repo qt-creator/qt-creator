@@ -132,7 +132,13 @@ private:
         }
 
         m_coreUnpackProcess.setWorkingDirectory(TemporaryDirectory::masterDirectoryFilePath());
-        connect(&m_coreUnpackProcess, &QtcProcess::finished, this, &CoreUnpacker::reportStarted);
+        connect(&m_coreUnpackProcess, &QtcProcess::done, this, [this] {
+            if (m_coreUnpackProcess.error() == QProcess::UnknownError) {
+                reportStopped();
+                return;
+            }
+            reportFailure("Error unpacking " + m_coreFilePath.toUserOutput());
+        });
 
         const QString msg = DebuggerRunTool::tr("Unpacking core file to %1");
         appendMessage(msg.arg(m_tempCoreFilePath.toUserOutput()), LogMessageFormat);
@@ -140,6 +146,7 @@ private:
         if (m_coreFilePath.endsWith(".lzo")) {
             m_coreUnpackProcess.setCommand({"lzop", {"-o", m_tempCoreFilePath.path(),
                                                      "-x", m_coreFilePath.path()}});
+            reportStarted();
             m_coreUnpackProcess.start();
             return;
         }
@@ -152,6 +159,7 @@ private:
                 m_tempCoreFile.write(m_coreUnpackProcess.readAllStandardOutput());
             });
             m_coreUnpackProcess.setCommand({"gzip", {"-c", "-d", m_coreFilePath.path()}});
+            reportStarted();
             m_coreUnpackProcess.start();
             return;
         }
