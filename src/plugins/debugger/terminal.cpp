@@ -198,12 +198,10 @@ void TerminalRunner::start()
     m_stubProc->setTerminalMode(HostOsInfo::isWindowsHost()
             ? TerminalMode::Suspend : TerminalMode::Debug);
 
-    connect(m_stubProc, &QtcProcess::errorOccurred,
-            this, &TerminalRunner::stubError);
     connect(m_stubProc, &QtcProcess::started,
             this, &TerminalRunner::stubStarted);
-    connect(m_stubProc, &QtcProcess::finished,
-            this, &TerminalRunner::reportDone);
+    connect(m_stubProc, &QtcProcess::done,
+            this, &TerminalRunner::stubDone);
 
     m_stubProc->setEnvironment(stub.environment);
     m_stubProc->setWorkingDirectory(stub.workingDirectory);
@@ -227,9 +225,12 @@ void TerminalRunner::stubStarted()
     reportStarted();
 }
 
-void TerminalRunner::stubError()
+void TerminalRunner::stubDone()
 {
-    reportFailure(m_stubProc->errorString());
+    if (m_stubProc->error() != QProcess::UnknownError)
+        reportFailure(m_stubProc->errorString());
+    if (m_stubProc->error() != QProcess::FailedToStart)
+        reportDone();
 }
 
 } // namespace Internal

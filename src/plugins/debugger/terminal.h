@@ -85,7 +85,7 @@ private:
     void stop() final;
 
     void stubStarted();
-    void stubError();
+    void stubDone();
 
     Utils::QtcProcess *m_stubProc = nullptr;
     std::function<ProjectExplorer::Runnable()> m_stubRunnable;
