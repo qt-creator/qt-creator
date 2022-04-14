@@ -333,15 +333,18 @@ LinuxDevice::LinuxDevice()
 
     setOpenTerminal([this](const Environment &env, const FilePath &workingDir) {
         QtcProcess * const proc = createProcess(nullptr);
-        QObject::connect(proc, &QtcProcess::finished, [proc] {
-            if (!proc->errorString().isEmpty()) {
-                Core::MessageManager::writeDisrupting(
-                    tr("Error running remote shell: %1").arg(proc->errorString()));
+        QObject::connect(proc, &QtcProcess::done, [proc] {
+            if (proc->error() != QProcess::UnknownError) {
+                const QString errorString = proc->errorString();
+                QString message;
+                if (proc->error() == QProcess::FailedToStart)
+                    message = tr("Error starting remote shell.");
+                else if (errorString.isEmpty())
+                    message = tr("Error running remote shell.");
+                else
+                    message = tr("Error running remote shell: %1").arg(errorString);
+                Core::MessageManager::writeDisrupting(message);
             }
-            proc->deleteLater();
-        });
-        QObject::connect(proc, &QtcProcess::errorOccurred, [proc] {
-            Core::MessageManager::writeDisrupting(tr("Error starting remote shell."));
             proc->deleteLater();
         });
 
