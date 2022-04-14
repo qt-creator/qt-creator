@@ -647,9 +647,9 @@ QString ICore::versionString()
 */
 QString ICore::buildCompatibilityString()
 {
-    return tr("Based on Qt %1 (%2, %3 bit)").arg(QLatin1String(qVersion()),
+    return tr("Based on Qt %1 (%2, %3)").arg(QLatin1String(qVersion()),
                                                  compilerString(),
-                                                 QString::number(QSysInfo::WordSize));
+                                                 QSysInfo::buildCpuArchitecture());
 }
 
 /*!
