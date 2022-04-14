@@ -616,6 +616,8 @@ static QString compilerString()
 #elif defined(Q_CC_MSVC)
     if (_MSC_VER > 1999)
         return QLatin1String("MSVC <unknown>");
+    if (_MSC_VER >= 1930)
+        return QLatin1String("MSVC 2022");
     if (_MSC_VER >= 1920)
         return QLatin1String("MSVC 2019");
     if (_MSC_VER >= 1910)
