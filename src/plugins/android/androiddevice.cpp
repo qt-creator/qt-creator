@@ -603,7 +603,7 @@ void AndroidDeviceManager::setEmulatorArguments(QWidget *parent)
     dialog.setLabelText(AndroidDevice::tr("Emulator command-line startup options "
                                           "(<a href=\"%1\">Help Web Page</a>):")
                             .arg(helpUrl));
-    dialog.setTextValue(m_androidConfig.emulatorArgs().join(' '));
+    dialog.setTextValue(m_androidConfig.emulatorArgs());
 
     if (auto label = dialog.findChild<QLabel*>()) {
         label->setOpenExternalLinks(true);
@@ -613,7 +613,7 @@ void AndroidDeviceManager::setEmulatorArguments(QWidget *parent)
     if (dialog.exec() != QDialog::Accepted)
         return;
 
-    m_androidConfig.setEmulatorArgs(ProcessArgs::splitArgs(dialog.textValue()));
+    m_androidConfig.setEmulatorArgs(dialog.textValue());
 }
 
 QString AndroidDeviceManager::getRunningAvdsSerialNumber(const QString &name) const

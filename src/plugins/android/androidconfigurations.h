@@ -123,8 +123,8 @@ public:
     QString toolchainHost(const QtSupport::QtVersion *qtVersion) const;
     static QString toolchainHostFromNdk(const Utils::FilePath &ndkPath);
 
-    QStringList emulatorArgs() const;
-    void setEmulatorArgs(const QStringList &args);
+    QString emulatorArgs() const;
+    void setEmulatorArgs(const QString &args);
 
     bool automaticKitCreation() const;
     void setAutomaticKitCreation(bool b);
@@ -196,7 +196,7 @@ private:
     Utils::FilePath m_openJDKLocation;
     Utils::FilePath m_keystoreLocation;
     Utils::FilePath m_openSslLocation;
-    QStringList m_emulatorArgs;
+    QString m_emulatorArgs;
     bool m_automaticKitCreation = true;
     QUrl m_sdkToolsUrl;
     QByteArray m_sdkToolsSha256;

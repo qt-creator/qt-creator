@@ -229,8 +229,10 @@ QLatin1String AndroidConfig::displayName(const Abi &abi)
 void AndroidConfig::load(const QSettings &settings)
 {
     // user settings
-    m_emulatorArgs = settings.value(EmulatorArgsKey,
-                         QStringList({"-netdelay", "none", "-netspeed", "full"})).toStringList();
+    QVariant emulatorArgs = settings.value(EmulatorArgsKey, QString("-netdelay none -netspeed full"));
+    if (emulatorArgs.type() == QVariant::StringList) // Changed in 8.0 from QStringList to QString.
+        emulatorArgs = ProcessArgs::joinArgs(emulatorArgs.toStringList());
+    m_emulatorArgs = emulatorArgs.toString();
     m_sdkLocation = FilePath::fromUserInput(settings.value(SDKLocationKey).toString()).cleanPath();
     m_customNdkList = settings.value(CustomNdkLocationsKey).toStringList();
     m_defaultNdk =
@@ -1106,12 +1108,12 @@ QString AndroidConfig::toolchainHostFromNdk(const FilePath &ndkPath)
     return toolchainHost;
 }
 
-QStringList AndroidConfig::emulatorArgs() const
+QString AndroidConfig::emulatorArgs() const
 {
     return m_emulatorArgs;
 }
 
-void AndroidConfig::setEmulatorArgs(const QStringList &args)
+void AndroidConfig::setEmulatorArgs(const QString &args)
 {
     m_emulatorArgs = args;
 }

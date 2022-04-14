@@ -292,14 +292,14 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
     });
 
     // start the emulator
-    QStringList arguments;
+    CommandLine cmd(m_config.emulatorToolPath());
     if (AndroidConfigurations::force32bitEmulator())
-        arguments << "-force-32bit";
+        cmd.addArg("-force-32bit");
 
-    arguments << m_config.emulatorArgs() << "-avd" << avdName;
-    qCDebug(avdManagerLog) << "Running command (startAvdAsync):"
-                           << CommandLine(m_config.emulatorToolPath(), arguments).toUserOutput();
-    avdProcess->setCommand({m_config.emulatorToolPath(), arguments});
+    cmd.addArgs(m_config.emulatorArgs(), CommandLine::Raw);
+    cmd.addArgs({"-avd", avdName});
+    qCDebug(avdManagerLog) << "Running command (startAvdAsync):" << cmd.toUserOutput();
+    avdProcess->setCommand(cmd);
     avdProcess->start();
     return avdProcess->waitForStarted(-1);
 }
