@@ -101,8 +101,7 @@ void QnxDevice::updateVersionNumber() const
 {
     QEventLoop eventLoop;
     SshDeviceProcess versionNumberProcess(sharedFromThis());
-    QObject::connect(&versionNumberProcess, &QtcProcess::finished, &eventLoop, &QEventLoop::quit);
-    QObject::connect(&versionNumberProcess, &QtcProcess::errorOccurred, &eventLoop, &QEventLoop::quit);
+    QObject::connect(&versionNumberProcess, &QtcProcess::done, &eventLoop, &QEventLoop::quit);
 
     versionNumberProcess.setCommand({"uname", {"-r"}});
     versionNumberProcess.start();
