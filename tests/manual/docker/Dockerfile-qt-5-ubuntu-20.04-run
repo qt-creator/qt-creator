@@ -14,5 +14,7 @@ RUN apt-get update \
     gdb \
     linux-tools-common \
     valgrind \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+    x11-apps \
+ && apt-get clean
+
+# && rm -rf /var/lib/apt/lists/*
