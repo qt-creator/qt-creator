@@ -56,7 +56,7 @@ private:
 
     void readLogStandardOutput();
     void readLogStandardError();
-    void handleLogError();
+    void handleLogDone();
 
     void printMissingWarning();
     void readLaunchTime();

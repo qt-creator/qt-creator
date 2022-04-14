@@ -52,15 +52,15 @@ Slog2InfoRunner::Slog2InfoRunner(RunControl *runControl)
     m_applicationId.truncate(63);
 
     m_testProcess = new QnxDeviceProcess(device(), this);
-    connect(m_testProcess, &QtcProcess::finished, this, &Slog2InfoRunner::handleTestProcessCompleted);
+    connect(m_testProcess, &QtcProcess::done, this, &Slog2InfoRunner::handleTestProcessCompleted);
 
     m_launchDateTimeProcess = new SshDeviceProcess(device(), this);
-    connect(m_launchDateTimeProcess, &QtcProcess::finished, this, &Slog2InfoRunner::launchSlog2Info);
+    connect(m_launchDateTimeProcess, &QtcProcess::done, this, &Slog2InfoRunner::launchSlog2Info);
 
     m_logProcess = new QnxDeviceProcess(device(), this);
     connect(m_logProcess, &QtcProcess::readyReadStandardOutput, this, &Slog2InfoRunner::readLogStandardOutput);
     connect(m_logProcess, &QtcProcess::readyReadStandardError, this, &Slog2InfoRunner::readLogStandardError);
-    connect(m_logProcess, &QtcProcess::errorOccurred, this, &Slog2InfoRunner::handleLogError);
+    connect(m_logProcess, &QtcProcess::done, this, &Slog2InfoRunner::handleLogDone);
 }
 
 void Slog2InfoRunner::printMissingWarning()
@@ -117,6 +117,9 @@ void Slog2InfoRunner::launchSlog2Info()
     QTC_CHECK(m_found);
 
     if (m_logProcess->state() == QProcess::Running)
+        return;
+
+    if (m_launchDateTimeProcess->error() != QProcess::UnknownError)
         return;
 
     m_launchDateTime = QDateTime::fromString(QString::fromLatin1(m_launchDateTimeProcess->readAllStandardOutput()).trimmed(),
@@ -190,8 +193,11 @@ void Slog2InfoRunner::readLogStandardError()
     appendMessage(QString::fromLatin1(m_logProcess->readAllStandardError()), Utils::StdErrFormat);
 }
 
-void Slog2InfoRunner::handleLogError()
+void Slog2InfoRunner::handleLogDone()
 {
+    if (m_logProcess->error() == QProcess::UnknownError)
+        return;
+
     appendMessage(tr("Cannot show slog2info output. Error: %1")
                   .arg(m_logProcess->errorString()), Utils::StdErrFormat);
 }
