@@ -56,11 +56,7 @@ signals:
     void portListReady();
 
 private:
-    void handleRemoteStdOut();
-    void handleRemoteStdErr();
-    void handleProcessError();
-    void handleProcessFinished();
-
+    void handleProcessDone();
     void setupUsedPorts();
 
     Internal::DeviceUsedPortsGathererPrivate * const d;

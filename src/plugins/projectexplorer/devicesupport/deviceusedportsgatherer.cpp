@@ -34,8 +34,6 @@
 #include <utils/qtcprocess.h>
 #include <utils/url.h>
 
-#include <QPointer>
-
 using namespace QSsh;
 using namespace Utils;
 
@@ -45,7 +43,7 @@ namespace Internal {
 class DeviceUsedPortsGathererPrivate
 {
  public:
-    QPointer<QtcProcess> process;
+    std::unique_ptr<QtcProcess> process;
     QList<Port> usedPorts;
     QByteArray remoteStdout;
     QByteArray remoteStderr;
@@ -76,16 +74,14 @@ void DeviceUsedPortsGatherer::start(const IDevice::ConstPtr &device)
     QTC_ASSERT(d->portsGatheringMethod, emit error("Not implemented"); return);
 
     const QAbstractSocket::NetworkLayerProtocol protocol = QAbstractSocket::AnyIPProtocol;
-    d->process = d->device->createProcess(this);
+    d->process.reset(d->device->createProcess(this));
 
-    connect(d->process.data(), &QtcProcess::finished,
-            this, &DeviceUsedPortsGatherer::handleProcessFinished);
-    connect(d->process.data(), &QtcProcess::errorOccurred,
-            this, &DeviceUsedPortsGatherer::handleProcessError);
-    connect(d->process.data(), &QtcProcess::readyReadStandardOutput,
-            this, &DeviceUsedPortsGatherer::handleRemoteStdOut);
-    connect(d->process.data(), &QtcProcess::readyReadStandardError,
-            this, &DeviceUsedPortsGatherer::handleRemoteStdErr);
+    connect(d->process.get(), &QtcProcess::done,
+            this, &DeviceUsedPortsGatherer::handleProcessDone);
+    connect(d->process.get(), &QtcProcess::readyReadStandardOutput,
+            this, [this] { d->remoteStdout += d->process->readAllStandardOutput(); });
+    connect(d->process.get(), &QtcProcess::readyReadStandardError,
+            this, [this] { d->remoteStderr += d->process->readAllStandardError(); });
 
     d->process->setCommand(d->portsGatheringMethod->commandLine(protocol));
     d->process->start();
@@ -95,9 +91,10 @@ void DeviceUsedPortsGatherer::stop()
 {
     d->remoteStdout.clear();
     d->remoteStderr.clear();
-    if (d->process)
-        disconnect(d->process.data(), nullptr, this, nullptr);
-    d->process.clear();
+    if (d->process) {
+        d->process->disconnect();
+        d->process.release()->deleteLater();
+    }
 }
 
 Port DeviceUsedPortsGatherer::getNextFreePort(PortList *freePorts) const
@@ -126,19 +123,16 @@ void DeviceUsedPortsGatherer::setupUsedPorts()
     emit portListReady();
 }
 
-void DeviceUsedPortsGatherer::handleProcessError()
+void DeviceUsedPortsGatherer::handleProcessDone()
 {
-    emit error(tr("Connection error: %1").arg(d->process->errorString()));
-    stop();
-}
-
-void DeviceUsedPortsGatherer::handleProcessFinished()
-{
-    if (!d->process)
+    if (d->process->error() != QProcess::UnknownError) {
+        emit error(tr("Connection error: %1").arg(d->process->errorString()));
+        stop();
         return;
+    }
+
     QString errMsg;
-    QProcess::ExitStatus exitStatus = d->process->exitStatus();
-    switch (exitStatus) {
+    switch (d->process->exitStatus()) {
     case QProcess::CrashExit:
         errMsg = tr("Remote process crashed: %1").arg(d->process->errorString());
         break;
@@ -161,18 +155,6 @@ void DeviceUsedPortsGatherer::handleProcessFinished()
         emit error(errMsg);
     }
     stop();
-}
-
-void DeviceUsedPortsGatherer::handleRemoteStdOut()
-{
-    if (d->process)
-        d->remoteStdout += d->process->readAllStandardOutput();
-}
-
-void DeviceUsedPortsGatherer::handleRemoteStdErr()
-{
-    if (d->process)
-        d->remoteStderr += d->process->readAllStandardError();
 }
 
 // PortGatherer
