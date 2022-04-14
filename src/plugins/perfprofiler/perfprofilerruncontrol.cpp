@@ -131,17 +131,18 @@ public:
         }
 
         connect(m_process, &QtcProcess::started, this, &RunWorker::reportStarted);
-        connect(m_process, &QtcProcess::finished, this, &RunWorker::reportStopped);
-        connect(m_process, &QtcProcess::errorOccurred, [this](QProcess::ProcessError e) {
+        connect(m_process, &QtcProcess::done, this, [this] {
             // The terminate() below will frequently lead to QProcess::Crashed. We're not interested
             // in that. FailedToStart is the only actual failure.
-            if (e == QProcess::FailedToStart) {
-                QString msg = tr("Perf Process Failed to Start");
-                QMessageBox::warning(Core::ICore::dialogParent(),
-                                     msg, tr("Make sure that you are running a recent Linux kernel and "
-                                             "that the \"perf\" utility is available."));
+            if (m_process->error() == QProcess::FailedToStart) {
+                const QString msg = tr("Perf Process Failed to Start");
+                QMessageBox::warning(Core::ICore::dialogParent(), msg,
+                                     tr("Make sure that you are running a recent Linux kernel and "
+                                        "that the \"perf\" utility is available."));
                 reportFailure(msg);
+                return;
             }
+            reportStopped();
         });
 
         Runnable perfRunnable = runnable();
