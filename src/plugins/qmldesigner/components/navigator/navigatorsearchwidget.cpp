@@ -107,7 +107,7 @@ NavigatorSearchWidget::NavigatorSearchWidget(QWidget *parent)
     setLayout(layout);
 
     m_textField = new LineEdit;
-    m_textField->setPlaceholderText(tr("Filter"));
+    m_textField->setPlaceholderText(tr("Search"));
     m_textField->setFrame(false);
 
     connect(m_textField, &QLineEdit::textChanged, this, &NavigatorSearchWidget::textChanged);
