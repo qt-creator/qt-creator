@@ -64,6 +64,7 @@ void StartProcessPacket::doSerialize(QDataStream &stream) const
            << env
            << int(processMode)
            << writeData
+           << int(processChannelMode)
            << standardInputFile
            << belowNormalPriority
            << nativeArguments
@@ -75,12 +76,14 @@ void StartProcessPacket::doSerialize(QDataStream &stream) const
 void StartProcessPacket::doDeserialize(QDataStream &stream)
 {
     int processModeInt;
+    int processChannelModeInt;
     stream >> command
            >> arguments
            >> workingDir
            >> env
            >> processModeInt
            >> writeData
+           >> processChannelModeInt
            >> standardInputFile
            >> belowNormalPriority
            >> nativeArguments
@@ -88,6 +91,7 @@ void StartProcessPacket::doDeserialize(QDataStream &stream)
            >> unixTerminalDisabled
            >> useCtrlCStub;
     processMode = Utils::ProcessMode(processModeInt);
+    processChannelMode = QProcess::ProcessChannelMode(processChannelModeInt);
 }
 
 

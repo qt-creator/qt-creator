@@ -376,6 +376,7 @@ private:
         m_process->setProcessEnvironment(m_setup.m_environment.toProcessEnvironment());
         m_process->setWorkingDirectory(m_setup.m_workingDirectory.path());
         m_process->setStandardInputFile(m_setup.m_standardInputFile);
+        m_process->setProcessChannelMode(m_setup.m_processChannelMode);
         if (m_setup.m_lowPriority)
             m_process->setLowPriority();
         if (m_setup.m_unixTerminalDisabled)
@@ -561,7 +562,6 @@ public:
     ProcessResult interpretExitCode(int exitCode);
 
     QProcess::ProcessState m_state = QProcess::NotRunning;
-    QProcess::ProcessChannelMode m_processChannelMode = QProcess::SeparateChannels;
     qint64 m_processId = 0;
     qint64 m_applicationMainThreadId = 0;
     ProcessResultData m_resultData;
@@ -1145,7 +1145,7 @@ qint64 QtcProcess::applicationMainThreadId() const
 void QtcProcess::setProcessChannelMode(QProcess::ProcessChannelMode mode)
 {
     QTC_CHECK(state() == QProcess::NotRunning);
-    d->m_processChannelMode = mode;
+    d->m_setup.m_processChannelMode = mode;
 }
 
 QProcess::ProcessState QtcProcess::state() const
@@ -1567,28 +1567,21 @@ void QtcProcessPrivate::handleReadyRead(const QByteArray &outputData, const QByt
     m_hangTimerCount = 0;
     // TODO: store a copy of m_processChannelMode on start()? Currently we assert that state
     // is NotRunning when setting the process channel mode.
-    if (m_processChannelMode == QProcess::MergedChannels) {
-        m_stdOut.append(outputData);
-        m_stdOut.append(errorData);
-        if (!outputData.isEmpty() || !errorData.isEmpty())
-            emitReadyReadStandardOutput();
+    if (m_setup.m_processChannelMode == QProcess::ForwardedOutputChannel
+            || m_setup.m_processChannelMode == QProcess::ForwardedChannels) {
+        std::cout << outputData.constData() << std::flush;
     } else {
-        if (m_processChannelMode == QProcess::ForwardedOutputChannel
-                || m_processChannelMode == QProcess::ForwardedChannels) {
-            std::cout << outputData.constData() << std::flush;
-        } else {
-            m_stdOut.append(outputData);
-            if (!outputData.isEmpty())
-                emitReadyReadStandardOutput();
-        }
-        if (m_processChannelMode == QProcess::ForwardedErrorChannel
-                || m_processChannelMode == QProcess::ForwardedChannels) {
-            std::cerr << errorData.constData() << std::flush;
-        } else {
-            m_stdErr.append(errorData);
-            if (!errorData.isEmpty())
-                emitReadyReadStandardError();
-        }
+        m_stdOut.append(outputData);
+        if (!outputData.isEmpty())
+            emitReadyReadStandardOutput();
+    }
+    if (m_setup.m_processChannelMode == QProcess::ForwardedErrorChannel
+            || m_setup.m_processChannelMode == QProcess::ForwardedChannels) {
+        std::cerr << errorData.constData() << std::flush;
+    } else {
+        m_stdErr.append(errorData);
+        if (!errorData.isEmpty())
+            emitReadyReadStandardError();
     }
 }
 

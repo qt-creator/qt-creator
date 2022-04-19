@@ -47,6 +47,7 @@ public:
     Environment m_environment;
     Environment m_remoteEnvironment;
     QByteArray m_writeData;
+    QProcess::ProcessChannelMode m_processChannelMode = QProcess::SeparateChannels;
     QVariantHash m_extraData;
     QString m_standardInputFile;
     QString m_nativeArguments; // internal, dependent on specific code path
