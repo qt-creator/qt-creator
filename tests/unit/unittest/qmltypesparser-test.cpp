@@ -276,6 +276,34 @@ TEST_F(QmlTypesParser, Properties)
                                                   | Storage::PropertyDeclarationTraits::IsPointer)))));
 }
 
+TEST_F(QmlTypesParser, PropertiesWithQualifiedTypes)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "Qt::Vector" }
+                        Component { name: "Qt::List" }
+                        Component { name: "QObject"
+                          Property { name: "values"; type: "Vector" }
+                          Property { name: "items"; type: "List" }
+                          Property { name: "values2"; type: "Qt::Vector" }
+                      }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types,
+                Contains(Field(&Storage::Type::propertyDeclarations,
+                               UnorderedElementsAre(
+                                   IsPropertyDeclaration("values",
+                                                         Storage::ImportedType{"Qt::Vector"},
+                                                         Storage::PropertyDeclarationTraits::None),
+                                   IsPropertyDeclaration("items",
+                                                         Storage::ImportedType{"Qt::List"},
+                                                         Storage::PropertyDeclarationTraits::None),
+                                   IsPropertyDeclaration("values2",
+                                                         Storage::ImportedType{"Qt::Vector"},
+                                                         Storage::PropertyDeclarationTraits::None)))));
+}
+
 TEST_F(QmlTypesParser, Functions)
 {
     QString source{R"(import QtQuick.tooling 1.2
@@ -318,6 +346,34 @@ TEST_F(QmlTypesParser, Functions)
                                     Field(&Storage::FunctionDeclaration::parameters, IsEmpty()))))));
 }
 
+TEST_F(QmlTypesParser, FunctionsWithQualifiedTypes)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "Qt::Vector" }
+                        Component { name: "Qt::List" }
+                        Component { name: "QObject"
+                          Method {
+                            name: "values"
+                            Parameter { name: "values"; type: "Vector" }
+                            Parameter { name: "items"; type: "List" }
+                            Parameter { name: "values2"; type: "Qt::Vector" }
+                          }
+                      }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types,
+                Contains(
+                    Field(&Storage::Type::functionDeclarations,
+                          UnorderedElementsAre(AllOf(
+                              IsFunctionDeclaration("values", ""),
+                              Field(&Storage::FunctionDeclaration::parameters,
+                                    UnorderedElementsAre(IsParameter("values", "Qt::Vector"),
+                                                         IsParameter("items", "Qt::List"),
+                                                         IsParameter("values2", "Qt::Vector"))))))));
+}
+
 TEST_F(QmlTypesParser, Signals)
 {
     QString source{R"(import QtQuick.tooling 1.2
@@ -355,6 +411,34 @@ TEST_F(QmlTypesParser, Signals)
                                             Field(&Storage::SignalDeclaration::parameters,
                                                   UnorderedElementsAre(
                                                       IsParameter("args", "QQmlV4Function"))))))));
+}
+
+TEST_F(QmlTypesParser, SignalsWithQualifiedTypes)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "Qt::Vector" }
+                        Component { name: "Qt::List" }
+                        Component { name: "QObject"
+                          Signal {
+                            name: "values"
+                            Parameter { name: "values"; type: "Vector" }
+                            Parameter { name: "items"; type: "List" }
+                            Parameter { name: "values2"; type: "Qt::Vector" }
+                          }
+                      }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types,
+                Contains(
+                    Field(&Storage::Type::signalDeclarations,
+                          UnorderedElementsAre(AllOf(
+                              IsSignalDeclaration("values"),
+                              Field(&Storage::SignalDeclaration::parameters,
+                                    UnorderedElementsAre(IsParameter("values", "Qt::Vector"),
+                                                         IsParameter("items", "Qt::List"),
+                                                         IsParameter("values2", "Qt::Vector"))))))));
 }
 
 TEST_F(QmlTypesParser, Enumerations)

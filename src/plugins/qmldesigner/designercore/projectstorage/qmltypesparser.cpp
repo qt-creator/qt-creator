@@ -44,6 +44,29 @@ namespace QmlDom = QQmlJS::Dom;
 
 namespace {
 
+using ComponentWithoutNamespaces = QMap<QString, QString>;
+
+ComponentWithoutNamespaces createComponentNameWithoutNamespaces(
+    const QHash<QString, QQmlJSScope::Ptr> &objects)
+{
+    ComponentWithoutNamespaces componentWithoutNamespaces;
+
+    for (auto current = objects.keyBegin(), end = objects.keyEnd(); current != end; ++current) {
+        const QString &key = *current;
+        QString searchTerm{"::"};
+
+        auto found = std::search(key.cbegin(), key.cend(), searchTerm.cbegin(), searchTerm.cend());
+
+        if (found == key.cend())
+            continue;
+
+        componentWithoutNamespaces.insert(QStringView{std::next(found, 2), key.cend()}.toString(),
+                                          key);
+    }
+
+    return componentWithoutNamespaces;
+}
+
 void appendImports(Storage::Imports &imports,
                    const QString &dependency,
                    SourceId sourceId,
@@ -162,14 +185,28 @@ struct EnumerationType
 
 using EnumerationTypes = std::vector<EnumerationType>;
 
-Storage::PropertyDeclarations createProperties(const QHash<QString, QQmlJSMetaProperty> &qmlProperties,
-                                               const EnumerationTypes &enumerationTypes)
+Utils::SmallString fullyQualifiedTypeName(const QString &typeName,
+                                          const ComponentWithoutNamespaces &componentNameWithoutNamespace)
+{
+    if (auto found = componentNameWithoutNamespace.find(typeName);
+        found != componentNameWithoutNamespace.end())
+        return found.value();
+
+    return typeName;
+}
+
+Storage::PropertyDeclarations createProperties(
+    const QHash<QString, QQmlJSMetaProperty> &qmlProperties,
+    const EnumerationTypes &enumerationTypes,
+    const ComponentWithoutNamespaces &componentNameWithoutNamespace)
 {
     Storage::PropertyDeclarations propertyDeclarations;
     propertyDeclarations.reserve(Utils::usize(qmlProperties));
 
     for (const QQmlJSMetaProperty &qmlProperty : qmlProperties) {
-        Utils::SmallString propertyTypeName{qmlProperty.typeName()};
+        Utils::SmallString propertyTypeName{
+            fullyQualifiedTypeName(qmlProperty.typeName(), componentNameWithoutNamespace)};
+
         auto found = find_if(enumerationTypes.begin(), enumerationTypes.end(), [&](auto &entry) {
             return entry.name == propertyTypeName;
         });
@@ -185,7 +222,8 @@ Storage::PropertyDeclarations createProperties(const QHash<QString, QQmlJSMetaPr
     return propertyDeclarations;
 }
 
-Storage::ParameterDeclarations createParameters(const QQmlJSMetaMethod &qmlMethod)
+Storage::ParameterDeclarations createParameters(
+    const QQmlJSMetaMethod &qmlMethod, const ComponentWithoutNamespaces &componentNameWithoutNamespace)
 {
     Storage::ParameterDeclarations parameterDeclarations;
 
@@ -198,14 +236,16 @@ Storage::ParameterDeclarations createParameters(const QQmlJSMetaMethod &qmlMetho
 
     for (; currentName != nameEnd && currentType != typeEnd; ++currentName, ++currentType) {
         parameterDeclarations.emplace_back(Utils::SmallString{*currentName},
-                                           Utils::SmallString{*currentType});
+                                           fullyQualifiedTypeName(*currentType,
+                                                                  componentNameWithoutNamespace));
     }
 
     return parameterDeclarations;
 }
 
 std::tuple<Storage::FunctionDeclarations, Storage::SignalDeclarations> createFunctionAndSignals(
-    const QMultiHash<QString, QQmlJSMetaMethod> &qmlMethods)
+    const QMultiHash<QString, QQmlJSMetaMethod> &qmlMethods,
+    const ComponentWithoutNamespaces &componentNameWithoutNamespace)
 {
     std::tuple<Storage::FunctionDeclarations, Storage::SignalDeclarations> functionAndSignalDeclarations;
     Storage::FunctionDeclarations &functionsDeclarations{std::get<0>(functionAndSignalDeclarations)};
@@ -216,11 +256,13 @@ std::tuple<Storage::FunctionDeclarations, Storage::SignalDeclarations> createFun
     for (const QQmlJSMetaMethod &qmlMethod : qmlMethods) {
         if (qmlMethod.methodType() != QQmlJSMetaMethod::Type::Signal) {
             functionsDeclarations.emplace_back(Utils::SmallString{qmlMethod.methodName()},
-                                               Utils::SmallString{qmlMethod.returnTypeName()},
-                                               createParameters(qmlMethod));
+                                               fullyQualifiedTypeName(qmlMethod.returnTypeName(),
+                                                                      componentNameWithoutNamespace),
+                                               createParameters(qmlMethod,
+                                                                componentNameWithoutNamespace));
         } else {
             signalDeclarations.emplace_back(Utils::SmallString{qmlMethod.methodName()},
-                                            createParameters(qmlMethod));
+                                            createParameters(qmlMethod, componentNameWithoutNamespace));
         }
     }
 
@@ -279,9 +321,7 @@ EnumerationTypes addEnumerationTypes(Storage::Types &types,
                                      Utils::SmallStringView typeName,
                                      SourceId sourceId,
                                      ModuleId cppModuleId,
-                                     QmlTypesParser::ProjectStorage &storage,
-                                     const QHash<QString, QQmlJSMetaEnum> &qmlEnumerations,
-                                     const QList<QQmlJSScope::Export> &qmlExports)
+                                     const QHash<QString, QQmlJSMetaEnum> &qmlEnumerations)
 {
     EnumerationTypes enumerationTypes;
     enumerationTypes.reserve(Utils::usize(qmlEnumerations));
@@ -289,14 +329,11 @@ EnumerationTypes addEnumerationTypes(Storage::Types &types,
     for (const QQmlJSMetaEnum &qmlEnumeration : qmlEnumerations) {
         Utils::SmallString enumerationName{qmlEnumeration.name()};
         auto fullTypeName = Utils::SmallString::join({typeName, "::", enumerationName});
-        auto &type = types.emplace_back(fullTypeName,
-                                        Storage::ImportedType{Utils::SmallString{}},
-                                        Storage::TypeAccessSemantics::Value
-                                            | Storage::TypeAccessSemantics::IsEnum,
-                                        sourceId,
-                                        createCppEnumerationExports(typeName,
-                                                                    cppModuleId,
-                                                                    enumerationName));
+        types.emplace_back(fullTypeName,
+                           Storage::ImportedType{Utils::SmallString{}},
+                           Storage::TypeAccessSemantics::Value | Storage::TypeAccessSemantics::IsEnum,
+                           sourceId,
+                           createCppEnumerationExports(typeName, cppModuleId, enumerationName));
         enumerationTypes.emplace_back(enumerationName, std::move(fullTypeName));
     }
 
@@ -307,21 +344,24 @@ void addType(Storage::Types &types,
              SourceId sourceId,
              ModuleId cppModuleId,
              const QQmlJSScope &component,
-             QmlTypesParser::ProjectStorage &storage)
+             QmlTypesParser::ProjectStorage &storage,
+             const ComponentWithoutNamespaces &componentNameWithoutNamespace)
 {
-    auto [functionsDeclarations, signalDeclarations] = createFunctionAndSignals(component.ownMethods());
+    auto [functionsDeclarations, signalDeclarations] = createFunctionAndSignals(
+        component.ownMethods(), componentNameWithoutNamespace);
     Utils::SmallString typeName{component.internalName()};
     auto enumerations = component.ownEnumerations();
     auto exports = component.exports();
 
-    auto enumerationTypes = addEnumerationTypes(
-        types, typeName, sourceId, cppModuleId, storage, enumerations, exports);
+    auto enumerationTypes = addEnumerationTypes(types, typeName, sourceId, cppModuleId, enumerations);
     types.emplace_back(Utils::SmallStringView{typeName},
                        Storage::ImportedType{Utils::SmallString{component.baseTypeName()}},
                        createTypeAccessSemantics(component.accessSemantics()),
                        sourceId,
                        createExports(exports, typeName, storage, cppModuleId),
-                       createProperties(component.ownProperties(), enumerationTypes),
+                       createProperties(component.ownProperties(),
+                                        enumerationTypes,
+                                        componentNameWithoutNamespace),
                        std::move(functionsDeclarations),
                        std::move(signalDeclarations),
                        createEnumeration(enumerations));
@@ -330,12 +370,18 @@ void addType(Storage::Types &types,
 void addTypes(Storage::Types &types,
               const Storage::ProjectData &projectData,
               const QHash<QString, QQmlJSScope::Ptr> &objects,
-              QmlTypesParser::ProjectStorage &storage)
+              QmlTypesParser::ProjectStorage &storage,
+              const ComponentWithoutNamespaces &componentNameWithoutNamespaces)
 {
     types.reserve(Utils::usize(objects) + types.size());
 
     for (const auto &object : objects)
-        addType(types, projectData.sourceId, projectData.moduleId, *object.get(), storage);
+        addType(types,
+                projectData.sourceId,
+                projectData.moduleId,
+                *object.get(),
+                storage,
+                componentNameWithoutNamespaces);
 }
 
 } // namespace
@@ -352,8 +398,10 @@ void QmlTypesParser::parse(const QString &sourceContent,
     if (!isValid)
         throw CannotParseQmlTypesFile{};
 
+    auto componentNameWithoutNamespaces = createComponentNameWithoutNamespaces(components);
+
     addImports(imports, projectData.sourceId, dependencies, m_storage, projectData.moduleId);
-    addTypes(types, projectData, components, m_storage);
+    addTypes(types, projectData, components, m_storage, componentNameWithoutNamespaces);
 }
 
 } // namespace QmlDesigner
