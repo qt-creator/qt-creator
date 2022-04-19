@@ -182,7 +182,8 @@ void LauncherSocketHandler::handleProcessFinished()
     packet.errorString = proc->errorString();
     packet.exitCode = proc->exitCode();
     packet.exitStatus = proc->exitStatus();
-    packet.stdErr = proc->readAllStandardError();
+    if (proc->processChannelMode() != QProcess::MergedChannels)
+        packet.stdErr = proc->readAllStandardError();
     packet.stdOut = proc->readAllStandardOutput();
     sendPacket(packet);
     removeProcess(proc->token());
@@ -257,7 +258,8 @@ void LauncherSocketHandler::handleStopPacket()
         packet.error = QProcess::Crashed;
         packet.exitCode = -1;
         packet.exitStatus = QProcess::CrashExit;
-        packet.stdErr = process->readAllStandardError();
+        if (process->processChannelMode() != QProcess::MergedChannels)
+            packet.stdErr = process->readAllStandardError();
         packet.stdOut = process->readAllStandardOutput();
         sendPacket(packet);
     }
