@@ -32,7 +32,7 @@ instructions:
       property: host.os
       in_values: [MacOS, Linux, Windows]
   - type: ExecuteCommand
-    command: "python -u {{.AgentWorkingDir}}/build/qtsdk/packaging-tools/install_qt.py --qt-path {{.AgentWorkingDir}}/build/qt_install_dir --temp-path {{.AgentWorkingDir}}/build/qt_temp --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix={{.Env.QTC_QT_POSTFIX}} --icu7z http://master.qt.io/development_releases/prebuilt/icu/prebuilt/56.1/icu-linux-g++-Rhel7.2-x64.7z {{.Env.QTC_QT_MODULES}}"
+    command: "python3 -u {{.AgentWorkingDir}}/build/qtsdk/packaging-tools/install_qt.py --qt-path {{.AgentWorkingDir}}/build/qt_install_dir --temp-path {{.AgentWorkingDir}}/build/qt_temp --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix={{.Env.QTC_QT_POSTFIX}} --icu7z http://master.qt.io/development_releases/prebuilt/icu/prebuilt/56.1/icu-linux-g++-Rhel7.2-x64.7z {{.Env.QTC_QT_MODULES}}"
     executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
     maxTimeInSeconds: 3600
     maxTimeBetweenOutput: 360
@@ -42,7 +42,7 @@ instructions:
       property: host.os
       equals_value: Linux
   - type: ExecuteCommand
-    command: "python -u {{.AgentWorkingDir}}/build/qtsdk/packaging-tools/install_qt.py --qt-path {{.AgentWorkingDir}}/build/qt_install_dir --temp-path {{.AgentWorkingDir}}/build/qt_temp --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix={{.Env.QTC_QT_POSTFIX}} {{.Env.QTC_QT_MODULES}}"
+    command: "python3 -u {{.AgentWorkingDir}}/build/qtsdk/packaging-tools/install_qt.py --qt-path {{.AgentWorkingDir}}/build/qt_install_dir --temp-path {{.AgentWorkingDir}}/build/qt_temp --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix={{.Env.QTC_QT_POSTFIX}} {{.Env.QTC_QT_MODULES}}"
     executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
     maxTimeInSeconds: 3600
     maxTimeBetweenOutput: 360
@@ -52,7 +52,7 @@ instructions:
       property: host.os
       equals_value: MacOS
   - type: ExecuteCommand
-    command: "C:\\Python27\\Scripts\\pip.exe install pywin32"
+    command: "pip.exe install pywin32"
     maxTimeInSeconds: 1200
     maxTimeBetweenOutput: 120
     userMessageOnFailure: "Failed to install win32api, check logs."

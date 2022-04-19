@@ -96,7 +96,7 @@ instructions:
 
   - type: PrependToEnvironmentVariable
     variableName: PATH
-    variableValue: "{{.InstallDir}}\\bin;"
+    variableValue: "{{.Env.PYTHON3_PATH}};{{.Env.PIP3_PATH}};C:\\Utils\\gnuwin21\\bin;{{.InstallDir}}\\bin;"
     enable_if:
       condition: property
       property: target.os
