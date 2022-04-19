@@ -481,8 +481,6 @@ TEST_F(QmlTypesParser, Enumerations)
 
 TEST_F(QmlTypesParser, EnumerationIsExportedAsType)
 {
-    ModuleId qmlModuleId = storage.moduleId("QML");
-    ModuleId qtQmlModuleId = storage.moduleId("QtQml");
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
                         Component { name: "QObject"
@@ -524,6 +522,87 @@ TEST_F(QmlTypesParser, EnumerationIsExportedAsType)
                                                             "QObject::VerticalLayoutDirection",
                                                             Storage::Version{})))),
             _));
+}
+
+TEST_F(QmlTypesParser, EnumerationIsExportedAsTypeWithAlias)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                          Enum {
+                              name: "NamedColorSpaces"
+                              alias: "NamedColorSpace"
+                              values: [
+                                  "Unknown",
+                                  "SRgb",
+                                  "AdobeRgb",
+                                  "DisplayP3",
+                              ]
+                          }
+                          exports: ["QML/QtObject 1.0", "QtQml/QtObject 2.1"]
+                      }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types,
+                UnorderedElementsAre(
+                    AllOf(IsType("QObject::NamedColorSpaces",
+                                 Storage::ImportedType{},
+                                 Storage::TypeAccessSemantics::Value | Storage::TypeAccessSemantics::IsEnum,
+                                 qmltypesFileSourceId),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(qtQmlNativeModuleId,
+                                                                    "QObject::NamedColorSpace",
+                                                                    Storage::Version{}),
+                                                     IsExportedType(qtQmlNativeModuleId,
+                                                                    "QObject::NamedColorSpaces",
+                                                                    Storage::Version{})))),
+                    _));
+}
+
+TEST_F(QmlTypesParser, EnumerationIsExportedAsTypeWithAliasToo)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                          Enum {
+                              name: "NamedColorSpaces"
+                              alias: "NamedColorSpace"
+                              values: [
+                                  "Unknown",
+                                  "SRgb",
+                                  "AdobeRgb",
+                                  "DisplayP3",
+                              ]
+                          }
+                          Enum {
+                              name: "NamedColorSpace"
+                              values: [
+                                  "Unknown",
+                                  "SRgb",
+                                  "AdobeRgb",
+                                  "DisplayP3",
+                              ]
+                          }
+                          exports: ["QML/QtObject 1.0", "QtQml/QtObject 2.1"]
+                      }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types,
+                UnorderedElementsAre(
+                    AllOf(IsType("QObject::NamedColorSpaces",
+                                 Storage::ImportedType{},
+                                 Storage::TypeAccessSemantics::Value | Storage::TypeAccessSemantics::IsEnum,
+                                 qmltypesFileSourceId),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(qtQmlNativeModuleId,
+                                                                    "QObject::NamedColorSpace",
+                                                                    Storage::Version{}),
+                                                     IsExportedType(qtQmlNativeModuleId,
+                                                                    "QObject::NamedColorSpaces",
+                                                                    Storage::Version{})))),
+                    _));
 }
 
 TEST_F(QmlTypesParser, EnumerationIsReferencedByQualifiedName)
