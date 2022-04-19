@@ -91,10 +91,6 @@
       <tags>qtformcus,mcus,qt,video,2021</tags>
     </tutorial>
 
-    <tutorial imageUrl=":qtsupport/images/icons/qteventicon.png" difficulty="" projectPath="" name="Talk: Introduction to Qt Creator IDE" isVideo="true" videoUrl="https://www.youtube.com/watch?v=nGFmjOiT22Y" videoLength="1:06:32">
-      <description><![CDATA[Getting started with using Qt Creator for cross-platform development.]]></description>
-      <tags>qt creator,talk,2020</tags>
-    </tutorial>
     <tutorial imageUrl=":qtsupport/images/icons/qteventicon.png" difficulty="" projectPath="" name="Talk: Custom Qt Creator Wizards" isVideo="true" videoUrl="https://www.youtube.com/watch?v=Ko3DuCgFamo" videoLength="27:21">
       <description><![CDATA[Adding custom file and project creation wizards to Qt Creator.]]></description>
       <tags>qt creator,wizard,talk,2015</tags>
