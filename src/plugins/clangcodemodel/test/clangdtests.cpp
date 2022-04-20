@@ -1329,6 +1329,14 @@ void ClangdTestHighlighting::test_data()
                                                   << QList<int>{C_FIELD} << 0;
     QTest::newRow("pass inherited member by value") << 1038 << 21 << 1038 << 26
                                                     << QList<int>{C_FIELD} << 0;
+    QTest::newRow("fake operator member declaration") << 1045 << 9 << 1045 << 23
+                                                    << QList<int>{C_FIELD, C_DECLARATION} << 0;
+    QTest::newRow("fake operator method declaration") << 1046 << 10 << 1046 << 24
+                                                    << QList<int>{C_FUNCTION, C_DECLARATION} << 0;
+    QTest::newRow("fake operator member access") << 1049 << 8 << 1049 << 22
+                                                    << QList<int>{C_FIELD} << 0;
+    QTest::newRow("fake operator method call") << 1050 << 8 << 1050 << 22
+                                               << QList<int>{C_FUNCTION} << 0;
 }
 
 void ClangdTestHighlighting::test()

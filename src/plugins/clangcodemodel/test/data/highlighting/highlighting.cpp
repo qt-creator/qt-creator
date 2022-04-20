@@ -1040,3 +1040,12 @@ template<typename T> class Derived2 : public BaseWithMember2
         return false;
     }
 };
+
+struct StructWithMisleadingMemberNames {
+    int operatormember;
+    void operatorMethod();
+};
+void useStrangeStruct(StructWithMisleadingMemberNames *s) {
+    s->operatormember = 5;
+    s->operatorMethod();
+}
