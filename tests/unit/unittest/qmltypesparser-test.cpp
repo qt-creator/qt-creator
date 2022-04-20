@@ -632,4 +632,32 @@ TEST_F(QmlTypesParser, EnumerationIsReferencedByQualifiedName)
                                    Storage::PropertyDeclarationTraits::None)))));
 }
 
+TEST_F(QmlTypesParser, AliasEnumerationIsReferencedByQualifiedName)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                          Property { name: "colorSpace"; type: "NamedColorSpaces" }
+                          Enum {
+                              name: "NamedColorSpace"
+                              alias: "NamedColorSpaces"
+                              values: [
+                                  "Unknown",
+                                  "SRgb",
+                                  "AdobeRgb",
+                                  "DisplayP3",
+                              ]
+                          }
+                      }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types,
+                Contains(Field(&Storage::Type::propertyDeclarations,
+                               ElementsAre(IsPropertyDeclaration(
+                                   "colorSpace",
+                                   Storage::ImportedType{"QObject::NamedColorSpaces"},
+                                   Storage::PropertyDeclarationTraits::None)))));
+}
+
 } // namespace

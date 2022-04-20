@@ -331,6 +331,16 @@ Storage::EnumerationDeclarations createEnumeration(const QHash<QString, QQmlJSMe
     return enumerationDeclarations;
 }
 
+Utils::SmallString addEnumerationType(EnumerationTypes &enumerationTypes,
+                                      Utils::SmallStringView typeName,
+                                      Utils::SmallStringView enumerationName)
+{
+    auto fullTypeName = Utils::SmallString::join({typeName, "::", enumerationName});
+    enumerationTypes.emplace_back(enumerationName, std::move(fullTypeName));
+
+    return fullTypeName;
+}
+
 void addEnumerationType(EnumerationTypes &enumerationTypes,
                         Storage::Types &types,
                         Utils::SmallStringView typeName,
@@ -339,7 +349,7 @@ void addEnumerationType(EnumerationTypes &enumerationTypes,
                         ModuleId cppModuleId,
                         Utils::SmallStringView enumerationAlias)
 {
-    auto fullTypeName = Utils::SmallString::join({typeName, "::", enumerationName});
+    auto fullTypeName = addEnumerationType(enumerationTypes, typeName, enumerationName);
     types.emplace_back(fullTypeName,
                        Storage::ImportedType{Utils::SmallString{}},
                        Storage::TypeAccessSemantics::Value | Storage::TypeAccessSemantics::IsEnum,
@@ -348,7 +358,9 @@ void addEnumerationType(EnumerationTypes &enumerationTypes,
                                                    cppModuleId,
                                                    enumerationName,
                                                    enumerationAlias));
-    enumerationTypes.emplace_back(enumerationName, std::move(fullTypeName));
+
+    if (!enumerationAlias.empty())
+        addEnumerationType(enumerationTypes, typeName, enumerationAlias);
 }
 
 QSet<QString> createEnumerationAliases(const QHash<QString, QQmlJSMetaEnum> &qmlEnumerations)
