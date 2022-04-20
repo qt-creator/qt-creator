@@ -31,6 +31,7 @@
 #include <QDomDocument>
 #include <QList>
 #include <QLoggingCategory>
+#include <QRegularExpression>
 #include <QVersionNumber>
 
 #include <memory>
@@ -40,8 +41,11 @@ Q_DECLARE_LOGGING_CATEGORY(log)
 std::unique_ptr<QDomDocument> documentForResponse(const QString &response)
 {
     // since the output can contain two toplevel items from the two separate MaintenanceTool runs,
-    // surround with a toplevel element
-    const QString xml = response.isEmpty() ? QString() : ("<doc>" + response + "</doc>");
+    // clean up any <?xml version="1.0"?> and surround with a toplevel element
+    QString responseWithoutHeader = response;
+    responseWithoutHeader.remove(QRegularExpression("<\\?xml.*\\?>"));
+    const QString xml = response.isEmpty() ? QString()
+                                           : ("<doc>" + responseWithoutHeader + "</doc>");
     std::unique_ptr<QDomDocument> doc(new QDomDocument);
     doc->setContent(xml);
     return doc;
