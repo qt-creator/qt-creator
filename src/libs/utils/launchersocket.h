@@ -88,7 +88,6 @@ public:
 
     // Called from caller's or launcher's thread.
     QProcess::ProcessState state() const;
-    bool isStartPacketAwaitingAndClear();
     void sendStopPacket(StopProcessPacket::SignalType signalType);
     void terminate();
     void kill();
@@ -96,8 +95,6 @@ public:
     qint64 processId() const;
 
     void start(const QString &program, const QStringList &arguments);
-    // Called from caller's or launcher's thread.
-    void startIfNeeded();
 
     qint64 write(const QByteArray &data);
 
@@ -114,11 +111,8 @@ signals:
 
 private:
     bool waitForSignal(int msecs, SignalType newSignal);
-    bool canWaitFor(SignalType newSignal) const;
 
-    // Called from caller's or launcher's thread. Call me with mutex locked.
-    void doStart();
-    // Called from caller's or launcher's thread.
+    // Called from caller's thread exclusively.
     void sendPacket(const Internal::LauncherPacket &packet);
     // Called from caller's or launcher's thread.
     bool isCalledFromCallersThread() const;
@@ -147,7 +141,6 @@ private:
 
     // Modified from caller's thread, read from launcher's thread
     std::atomic<QProcess::ProcessState> m_processState = QProcess::NotRunning;
-    std::unique_ptr<StartProcessPacket> m_startPacket;
     int m_processId = 0;
 
     QString m_command;
@@ -171,7 +164,6 @@ public:
     void setCallerHandle(CallerHandle *handle) { QMutexLocker locker(&m_mutex); m_callerHandle = handle; }
 
     // Called from launcher's thread exclusively.
-    void handleSocketReady();
     void handleSocketError(const QString &message);
     void handlePacket(LauncherPacketType type, const QByteArray &payload);
 
@@ -180,7 +172,7 @@ public:
 
 private:
     // Called from caller's thread exclusively.
-    bool doWaitForSignal(QDeadlineTimer deadline, CallerHandle::SignalType newSignal);
+    bool doWaitForSignal(QDeadlineTimer deadline);
     // Called from launcher's thread exclusively. Call me with mutex locked.
     void flushCaller();
     // Called from launcher's thread exclusively.
@@ -200,8 +192,6 @@ private:
     QWaitCondition m_waitCondition;
     const quintptr m_token;
     std::atomic_bool m_socketError = false;
-    // Modified only in caller's thread.
-    CallerHandle::SignalType m_waitingFor = CallerHandle::SignalType::NoSignal;
 };
 
 class LauncherSocket : public QObject
@@ -209,16 +199,12 @@ class LauncherSocket : public QObject
     Q_OBJECT
     friend class LauncherInterfacePrivate;
 public:
-    // Called from caller's or launcher's thread.
-    bool isReady() const { return m_socket.load(); }
-    void sendData(const QByteArray &data);
-
     // Called from caller's thread exclusively.
+    void sendData(const QByteArray &data);
     CallerHandle *registerHandle(QObject *parent, quintptr token);
     void unregisterHandle(quintptr token);
 
 signals:
-    void ready();
     void errorOccurred(const QString &error);
 
 private:

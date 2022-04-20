@@ -52,7 +52,6 @@ private:
     friend class Utils::Internal::ProcessLauncherImpl;
 
     static bool isStarted();
-    static bool isReady();
     static void sendData(const QByteArray &data);
     static Utils::Internal::CallerHandle *registerHandle(QObject *parent, quintptr token);
     static void unregisterHandle(quintptr token);

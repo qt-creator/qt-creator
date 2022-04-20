@@ -227,12 +227,6 @@ bool LauncherInterface::isStarted()
     return s_started;
 }
 
-bool LauncherInterface::isReady()
-{
-    QMutexLocker locker(&s_instanceMutex);
-    return instance()->m_private->socket()->isReady();
-}
-
 void LauncherInterface::sendData(const QByteArray &data)
 {
     QMutexLocker locker(&s_instanceMutex);
