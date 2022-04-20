@@ -218,6 +218,9 @@ Storage::PropertyDeclarations createProperties(
     propertyDeclarations.reserve(Utils::usize(qmlProperties));
 
     for (const QQmlJSMetaProperty &qmlProperty : qmlProperties) {
+        if (qmlProperty.typeName().isEmpty())
+            continue;
+
         Utils::SmallString propertyTypeName{
             fullyQualifiedTypeName(qmlProperty.typeName(), componentNameWithoutNamespace)};
 

@@ -304,6 +304,26 @@ TEST_F(QmlTypesParser, PropertiesWithQualifiedTypes)
                                                          Storage::PropertyDeclarationTraits::None)))));
 }
 
+TEST_F(QmlTypesParser, PropertiesWithoutType)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                          Property { name: "objectName"}
+                          Property { name: "target"; type: "QObject"; isPointer: true }
+                      }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types,
+                ElementsAre(
+                    Field(&Storage::Type::propertyDeclarations,
+                          UnorderedElementsAre(
+                              IsPropertyDeclaration("target",
+                                                    Storage::ImportedType{"QObject"},
+                                                    Storage::PropertyDeclarationTraits::IsPointer)))));
+}
+
 TEST_F(QmlTypesParser, Functions)
 {
     QString source{R"(import QtQuick.tooling 1.2
