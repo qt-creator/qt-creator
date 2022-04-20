@@ -84,6 +84,12 @@ public:
     bool widgetApp() const { return m_widgetApp; }
     void setWidgetApp(bool widgetApp) { m_widgetApp = widgetApp; }
 
+    QStringList shaderToolArgs() const { return m_shaderToolArgs; }
+    void setShaderToolArgs(const QStringList &args) {m_shaderToolArgs = args; }
+
+    QStringList shaderToolFiles() const { return m_shaderToolFiles; }
+    void setShaderToolFiles(const QStringList &files) {m_shaderToolFiles = files; }
+
     void appendContent(QmlProjectContentItem *item) { m_content.append(item); }
 
     Utils::EnvironmentItems environment() const;
@@ -107,6 +113,8 @@ protected:
     bool m_qtForMCUs = false;
     bool m_qt6Project = false;
     bool m_widgetApp = false;
+    QStringList m_shaderToolArgs;
+    QStringList m_shaderToolFiles;
 };
 
 } // namespace QmlProjectManager

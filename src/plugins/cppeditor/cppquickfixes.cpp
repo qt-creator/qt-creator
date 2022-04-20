@@ -3907,7 +3907,12 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
         else
             getterInClassDeclaration += QLatin1String(" const");
         getterInClassDeclaration.prepend(m_settings->getterAttributes + QLatin1Char(' '));
+
         auto getterLocation = m_settings->determineGetterLocation(1);
+        // if we have an anonymous class we must add code inside the class
+        if (data.clazz->name()->isAnonymousNameId())
+            getterLocation = CppQuickFixSettings::FunctionLocation::InsideClass;
+
         if (getterLocation == CppQuickFixSettings::FunctionLocation::InsideClass) {
             getterInClassDeclaration += QLatin1String("\n{\nreturn ") + returnExpression
                                         + QLatin1String(";\n}\n");
@@ -4026,6 +4031,10 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
         body += "}";
 
         auto setterLocation = m_settings->determineSetterLocation(body.count('\n') - 2);
+        // if we have an anonymous class we must add code inside the class
+        if (data.clazz->name()->isAnonymousNameId())
+            setterLocation = CppQuickFixSettings::FunctionLocation::InsideClass;
+
         if (setterLocation == CppQuickFixSettings::FunctionLocation::CppFile && !hasSourceFile())
             setterLocation = CppQuickFixSettings::FunctionLocation::OutsideClass;
 
@@ -4100,6 +4109,10 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
         body.replace(QRegularExpression("\\b" + parameterName + "\\b"), "defaultValue");
         // body.count('\n') - 2 : do not count the 2 at start
         auto resetLocation = m_settings->determineSetterLocation(body.count('\n') - 2);
+        // if we have an anonymous class we must add code inside the class
+        if (data.clazz->name()->isAnonymousNameId())
+            resetLocation = CppQuickFixSettings::FunctionLocation::InsideClass;
+
         if (resetLocation == CppQuickFixSettings::FunctionLocation::CppFile && !hasSourceFile())
             resetLocation = CppQuickFixSettings::FunctionLocation::OutsideClass;
 

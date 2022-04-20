@@ -77,9 +77,6 @@ public:
     void extensionsInitialized() override;
     bool delayedInitialize() override;
 
-    void pauseRemoveSplashTimer();
-    void resumeRemoveSplashTimer();
-
     static Utils::FilePath defaultExamplesPath();
     static QString examplesPathSetting();
 
@@ -88,9 +85,7 @@ signals:
 
 private:
     class WelcomeMode *m_welcomeMode = nullptr;
-    QTimer m_removeSplashTimer;
     StudioWelcomeSettingsPage m_settingsPage;
-    int m_removeSplashRemainingTime = 0;
 };
 
 } // namespace Internal

@@ -69,6 +69,10 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view)
     toolBar->setParent(this);
     layout->addWidget(toolBar);
 
+    m_searchWidget = new NavigatorSearchWidget();
+    connect(m_searchWidget, &NavigatorSearchWidget::textChanged, this, &NavigatorWidget::textFilterChanged);
+    layout->addWidget(m_searchWidget);
+
     layout->addWidget(m_treeView);
     setLayout(layout);
 
@@ -160,10 +164,6 @@ QToolBar *NavigatorWidget::createToolBar()
     auto toolBar = new QToolBar();
     for (auto toolButton : buttons)
         toolBar->addWidget(toolButton);
-
-    m_searchWidget = new NavigatorSearchWidget();
-    connect(m_searchWidget, &NavigatorSearchWidget::textChanged, this, &NavigatorWidget::textFilterChanged);
-    toolBar->addWidget(m_searchWidget);
 
     return toolBar;
 }

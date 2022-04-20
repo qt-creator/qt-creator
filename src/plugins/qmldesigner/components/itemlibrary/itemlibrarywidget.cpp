@@ -273,8 +273,10 @@ void ItemLibraryWidget::handleAddImport(int index)
     Import import = m_addModuleModel->getImportAt(index);
     if (import.isLibraryImport() && (import.url().startsWith("QtQuick")
                                      || import.url().startsWith("SimulinkConnector"))) {
+        QString importStr = import.toImportString();
+        importStr.replace(' ', '-');
         QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_IMPORT_ADDED
-                                               + import.toImportString());
+                                               + importStr);
     }
 
     QList<Import> imports;

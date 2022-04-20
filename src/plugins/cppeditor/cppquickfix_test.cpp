@@ -3273,6 +3273,58 @@ void QuickfixTest::testGenerateGetterSetterOnlySetter()
     QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 0);
 }
 
+void QuickfixTest::testGenerateGetterSetterAnonymousClass()
+{
+    QList<TestDocumentPtr> testDocuments;
+    QByteArray original;
+    QByteArray expected;
+    QuickFixSettings s;
+    s->setterInCppFileFrom = 1;
+    s->setterParameterNameTemplate = "value";
+
+    // Header File
+    original = R"(
+    class {
+        int @m_foo;
+    } bar;
+)";
+    expected = R"(
+    class {
+        int m_foo;
+
+    public:
+        int foo() const
+        {
+            return m_foo;
+        }
+        void setFoo(int value)
+        {
+            if (m_foo == value)
+                return;
+            m_foo = value;
+            emit fooChanged();
+        }
+        void resetFoo()
+        {
+            setFoo({}); // TODO: Adapt to use your actual default defaultValue
+        }
+
+    signals:
+        void fooChanged();
+
+    private:
+        Q_PROPERTY(int foo READ foo WRITE setFoo RESET resetFoo NOTIFY fooChanged)
+    } bar;
+)";
+    testDocuments << CppTestDocument::create("file.h", original, expected);
+
+    // Source File
+    testDocuments << CppTestDocument::create("file.cpp", {}, {});
+
+    GenerateGetterSetter factory;
+    QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 4);
+}
+
 void QuickfixTest::testGenerateGetterSetterInlineInHeaderFile()
 {
     QList<TestDocumentPtr> testDocuments;
@@ -3360,6 +3412,43 @@ void QuickfixTest::testGenerateGetterSetterOnlySetterHeaderFileWithIncludeGuard(
 
     GenerateGetterSetter factory;
     QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 0);
+}
+
+void QuickfixTest::testGenerateGetterFunctionAsTemplateArg()
+{
+    QList<TestDocumentPtr> testDocuments;
+    const QByteArray original = R"(
+template<typename T> class TS {};
+template<typename T, typename U> class TS<T(U)> {};
+
+class S2 {
+    TS<int(int)> @member;
+};
+)";
+    const QByteArray expected = R"(
+template<typename T> class TS {};
+template<typename T, typename U> class TS<T(U)> {};
+
+class S2 {
+    TS<int(int)> member;
+
+public:
+    const TS<int (int)> &getMember() const
+    {
+        return member;
+    }
+};
+)";
+
+    testDocuments << CppTestDocument::create("file.h", original, expected);
+
+    QuickFixSettings s;
+    s->getterOutsideClassFrom = 0;
+    s->getterInCppFileFrom = 0;
+    s->getterNameTemplate = "get<Name>";
+
+    GenerateGetterSetter factory;
+    QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 1);
 }
 
 class CppCodeStyleSettingsChanger {

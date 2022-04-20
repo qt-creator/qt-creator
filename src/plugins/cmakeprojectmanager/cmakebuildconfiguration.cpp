@@ -259,7 +259,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_configView->setUniformRowHeights(true);
     m_configView->setSortingEnabled(true);
     m_configView->sortByColumn(0, Qt::AscendingOrder);
-    auto stretcher = new HeaderViewStretcher(m_configView->header(), 0);
+    (void) new HeaderViewStretcher(m_configView->header(), 0);
     m_configView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_configView->setSelectionBehavior(QAbstractItemView::SelectItems);
     m_configView->setAlternatingRowColors(true);
@@ -373,18 +373,15 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         m_configModel->setConfiguration(m_buildConfiguration->configurationFromCMake());
         m_configModel->setInitialParametersConfiguration(
             m_buildConfiguration->initialCMakeConfiguration());
-        m_configView->expandAll();
     }
 
-    connect(bc->buildSystem(), &BuildSystem::parsingFinished, this, [this, stretcher] {
+    connect(bc->buildSystem(), &BuildSystem::parsingFinished, this, [this] {
         m_configModel->setConfiguration(m_buildConfiguration->configurationFromCMake());
         m_configModel->setInitialParametersConfiguration(
             m_buildConfiguration->initialCMakeConfiguration());
         m_buildConfiguration->filterConfigArgumentsFromAdditionalCMakeArguments();
         updateFromKit();
-        m_configView->expandAll();
         m_configView->setEnabled(true);
-        stretcher->stretch();
         updateButtonState();
         m_showProgressTimer.stop();
         m_progressIndicator->hide();
@@ -401,10 +398,6 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         m_showProgressTimer.stop();
         m_progressIndicator->hide();
         updateConfigurationStateSelection();
-    });
-    connect(m_configTextFilterModel, &QAbstractItemModel::modelReset, this, [this, stretcher]() {
-        m_configView->expandAll();
-        stretcher->stretch();
     });
 
     connect(m_configModel, &QAbstractItemModel::dataChanged,

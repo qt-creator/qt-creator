@@ -34,7 +34,6 @@
 namespace QmlDesigner {
 
 class AssetsLibraryWidget;
-class ImageCacheData;
 class AsynchronousImageCache;
 
 class AssetsLibraryView : public AbstractView
@@ -54,9 +53,8 @@ public:
 
     void setResourcePath(const QString &resourcePath);
 
-    AsynchronousImageCache &imageCache();
-
 private:
+    class ImageCacheData;
     ImageCacheData *imageCacheData();
 
     std::once_flag imageCacheFlag;

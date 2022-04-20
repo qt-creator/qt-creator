@@ -164,11 +164,10 @@ MultiTextCursor TextDocumentPrivate::indentOrUnindent(const MultiTextCursor &cur
                 }
                 // make sure that selection that begins in first column stays at first column
                 // even if we insert text at first column
+                cursor = textCursor;
                 if (cursorAtBlockStart) {
-                    cursor = textCursor;
                     cursor.setPosition(startBlock.position(), QTextCursor::KeepAnchor);
                 } else if (anchorAtBlockStart) {
-                    cursor = textCursor;
                     cursor.setPosition(startBlock.position(), QTextCursor::MoveAnchor);
                     cursor.setPosition(textCursor.position(), QTextCursor::KeepAnchor);
                 }

@@ -62,7 +62,7 @@ ProjectExplorer::Target *activeTarget(ProjectExplorer::Project *project)
 }
 } // namespace
 
-class ImageCacheData
+class ItemLibraryView::ImageCacheData
 {
 public:
     Sqlite::Database database{Utils::PathString{
@@ -71,7 +71,7 @@ public:
                               Sqlite::LockingMode::Normal};
     ImageCacheStorage<Sqlite::Database> storage{database};
     ImageCacheConnectionManager connectionManager;
-    ImageCacheCollector collector{connectionManager};
+    ImageCacheCollector collector{connectionManager, QSize{300, 300}, QSize{600, 600}};
     ImageCacheFontCollector fontCollector;
     ImageCacheGenerator generator{collector, storage};
     ImageCacheGenerator fontGenerator{fontCollector, storage};
@@ -177,7 +177,7 @@ void ItemLibraryView::usedImportsChanged(const QList<Import> &usedImports)
     m_widget->updateUsedImports(usedImports);
 }
 
-ImageCacheData *ItemLibraryView::imageCacheData()
+ItemLibraryView::ImageCacheData *ItemLibraryView::imageCacheData()
 {
     std::call_once(imageCacheFlag, [this]() {
         m_imageCacheData = std::make_unique<ImageCacheData>();

@@ -133,11 +133,13 @@ class UsageStatisticPluginModel : public QObject
 
     Q_PROPERTY(bool usageStatisticEnabled MEMBER m_usageStatisticEnabled NOTIFY usageStatisticChanged)
     Q_PROPERTY(bool crashReporterEnabled MEMBER m_crashReporterEnabled NOTIFY crashReporterEnabledChanged)
+    Q_PROPERTY(QString version MEMBER m_versionString CONSTANT)
 
 public:
     explicit UsageStatisticPluginModel(QObject *parent = nullptr)
         : QObject(parent)
     {
+        m_versionString = Core::Constants::IDE_VERSION_DISPLAY;
         setupModel();
     }
 
@@ -160,13 +162,10 @@ public:
 
         Core::ICore::settings()->setValue(CRASH_REPORTER_SETTING, b);
 
-        s_pluginInstance->pauseRemoveSplashTimer();
-
         const QString restartText = tr("The change will take effect after restart.");
         Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
         restartDialog.exec();
 
-        s_pluginInstance->resumeRemoveSplashTimer();
         setupModel();
     }
 
@@ -179,14 +178,10 @@ public:
 
         settings->setValue(STATISTICS_COLLECTION_MODE, b ? DETAILED_USAGE_STATISTICS : NO_TELEMETRY);
 
-        // pause remove splash timer while dialog is open otherwise splash crashes upon removal
-        s_pluginInstance->pauseRemoveSplashTimer();
-
         const QString restartText = tr("The change will take effect after restart.");
         Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
         restartDialog.exec();
 
-        s_pluginInstance->resumeRemoveSplashTimer();
         setupModel();
     }
 
@@ -197,6 +192,7 @@ signals:
 private:
     bool m_usageStatisticEnabled = false;
     bool m_crashReporterEnabled = false;
+    QString m_versionString;
 };
 
 class ProjectModel : public QAbstractListModel
@@ -249,6 +245,9 @@ public:
                                  const QString &formFile,
                                  const QString &explicitQmlproject)
     {
+        QmlDesigner::QmlDesignerPlugin::emitUsageStatistics("exampleOpened:"
+                                                            + exampleName);
+
         const QString exampleFolder = examplePath + "/" + exampleName + "/";
 
         QString projectFile = exampleFolder + exampleName + ".qmlproject";
@@ -517,10 +516,7 @@ void StudioWelcomePlugin::showSystemSettings()
     Core::ICore::infoBar()->removeInfo("WarnCrashReporting");
     Core::ICore::infoBar()->globallySuppressInfo("WarnCrashReporting");
 
-    // pause remove splash timer while settings dialog is open otherwise splash crashes upon removal
-    pauseRemoveSplashTimer();
     Core::ICore::showOptionsDialog(Core::Constants::SETTINGS_ID_SYSTEM);
-    resumeRemoveSplashTimer();
 }
 
 StudioWelcomePlugin::StudioWelcomePlugin()
@@ -543,11 +539,6 @@ bool StudioWelcomePlugin::initialize(const QStringList &arguments, QString *erro
 
     m_welcomeMode = new WelcomeMode;
 
-    m_removeSplashTimer.setSingleShot(true);
-    const QString splashScreenTimeoutEntry = "QML/Designer/splashScreenTimeout";
-    m_removeSplashTimer.setInterval(
-        Core::ICore::settings()->value(splashScreenTimeoutEntry, 15000).toInt());
-    connect(&m_removeSplashTimer, &QTimer::timeout, this, [this] { closeSplashScreen(); });
     return true;
 }
 
@@ -620,8 +611,6 @@ void StudioWelcomePlugin::extensionsInitialized()
 
             s_view->show();
             s_view->raise();
-
-            m_removeSplashTimer.start();
         });
     }
 }
@@ -633,32 +622,7 @@ bool StudioWelcomePlugin::delayedInitialize()
 
     QTC_ASSERT(s_view->rootObject(), return true);
 
-#ifdef ENABLE_CRASHPAD
-    const bool crashReportingEnabled = true;
-    const bool crashReportingOn = Core::ICore::settings()->value(CRASH_REPORTER_SETTING, false).toBool();
-#else
-    const bool crashReportingEnabled = false;
-    const bool crashReportingOn = false;
-#endif
-
-    QMetaObject::invokeMethod(s_view->rootObject(), "onPluginInitialized",
-            Q_ARG(bool, crashReportingEnabled), Q_ARG(bool, crashReportingOn));
-
     return false;
-}
-
-void StudioWelcomePlugin::pauseRemoveSplashTimer()
-{
-    if (m_removeSplashTimer.isActive()) {
-        m_removeSplashRemainingTime = m_removeSplashTimer.remainingTime(); // milliseconds
-        m_removeSplashTimer.stop();
-    }
-}
-
-void StudioWelcomePlugin::resumeRemoveSplashTimer()
-{
-    if (!m_removeSplashTimer.isActive())
-        m_removeSplashTimer.start(m_removeSplashRemainingTime);
 }
 
 Utils::FilePath StudioWelcomePlugin::defaultExamplesPath()

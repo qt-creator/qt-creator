@@ -90,23 +90,23 @@ const char M_VIEW_WORKSPACES[] = "QmlDesigner.Menu.View.Workspaces";
 
 const int MODELNODE_PREVIEW_IMAGE_DIMENSIONS = 150;
 
-const char EVENT_TIMELINE_ADDED[] = "Timeline Added";
-const char EVENT_TRANSITION_ADDED[] = "Transition Added";
-const char EVENT_STATE_ADDED[] = "State Added";
-const char EVENT_CONNECTION_ADDED[] = "Connection Added";
-const char EVENT_PROPERTY_ADDED[] = "Property Added";
-const char EVENT_ANNOTATION_ADDED[] = "Annotation Added";
-const char EVENT_RESOURCE_IMPORTED[] = "Resource Imported ";
-const char EVENT_ACTION_EXECUTED[] = "Action Executed ";
-const char EVENT_HELP_REQUESTED[] = "Help Requested ";
-const char EVENT_IMPORT_ADDED[] = "Import Added ";
-const char EVENT_BINDINGEDITOR_OPENED[] = "Binding Editor Opened";
-const char EVENT_RICHTEXT_OPENED[] = "Richtext Editor Opened";
-const char EVENT_FORMEDITOR_TIME[] = "Form Editor";
-const char EVENT_3DEDITOR_TIME[] = "3D Editor";
-const char EVENT_TIMELINE_TIME[] = "Timeline";
-const char EVENT_TRANSITIONEDITOR_TIME[] = "Transition Editor";
-const char EVENT_CURVEDITOR_TIME[] = "Curve Editor";
+const char EVENT_TIMELINE_ADDED[] = "timelineAdded";
+const char EVENT_TRANSITION_ADDED[] = "transitionAdded";
+const char EVENT_STATE_ADDED[] = "stateAdded";
+const char EVENT_CONNECTION_ADDED[] = "connectionAdded";
+const char EVENT_PROPERTY_ADDED[] = "propertyAdded";
+const char EVENT_ANNOTATION_ADDED[] = "annotationAdded";
+const char EVENT_RESOURCE_IMPORTED[] = "resourceImported";
+const char EVENT_ACTION_EXECUTED[] = "actionExecuted";
+const char EVENT_HELP_REQUESTED[] = "helpRequested";
+const char EVENT_IMPORT_ADDED[] = "importAdded:";
+const char EVENT_BINDINGEDITOR_OPENED[] = "bindingEditorOpened";
+const char EVENT_RICHTEXT_OPENED[] = "richtextEditorOpened";
+const char EVENT_FORMEDITOR_TIME[] = "formEditor";
+const char EVENT_3DEDITOR_TIME[] = "3DEditor";
+const char EVENT_TIMELINE_TIME[] = "timeline";
+const char EVENT_TRANSITIONEDITOR_TIME[] = "transitionEditor";
+const char EVENT_CURVEDITOR_TIME[] = "curveEditor";
 
 const char PROPERTY_EDITOR_CLASSNAME_PROPERTY[] = "__classNamePrivateInternal";
 

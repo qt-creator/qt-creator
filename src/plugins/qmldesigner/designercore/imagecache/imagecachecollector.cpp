@@ -61,8 +61,12 @@ QString fileToString(const QString &filename)
 } // namespace
 
 ImageCacheCollector::ImageCacheCollector(ImageCacheConnectionManager &connectionManager,
+                                         QSize captureImageMinimumSize,
+                                         QSize captureImageMaximumSize,
                                          ImageCacheCollectorNullImageHandling nullImageHandling)
     : m_connectionManager{connectionManager}
+    , captureImageMinimumSize{captureImageMinimumSize}
+    , captureImageMaximumSize{captureImageMaximumSize}
     , nullImageHandling{nullImageHandling}
 {}
 
@@ -76,6 +80,8 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
 {
     RewriterView rewriterView{RewriterView::Amend, nullptr};
     NodeInstanceView nodeInstanceView{m_connectionManager};
+    nodeInstanceView.setCaptureImageMinimumAndMaximumSize(captureImageMinimumSize,
+                                                          captureImageMaximumSize);
 
     const QString filePath{name};
     std::unique_ptr<Model> model{QmlDesigner::Model::create("QtQuick/Item", 2, 1)};
@@ -107,7 +113,10 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
             || !image.isNull()) {
             QSize smallImageSize = image.size().scaled(QSize{96, 96}.boundedTo(image.size()),
                                                        Qt::KeepAspectRatio);
-            QImage smallImage = image.isNull() ? QImage{} : image.scaled(smallImageSize);
+            QImage smallImage = image.isNull() ? QImage{}
+                                               : image.scaled(smallImageSize,
+                                                              Qt::IgnoreAspectRatio,
+                                                              Qt::SmoothTransformation);
             captureCallback(image, smallImage);
         }
     };

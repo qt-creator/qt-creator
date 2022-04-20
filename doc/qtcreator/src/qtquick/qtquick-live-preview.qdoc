@@ -72,6 +72,14 @@
             devices is set up automatically. You only need to connect your
             devices to your system.
             \endif
+
+        \if defined(qtdesignstudio)
+        \li \l{Previewing Android applications}
+
+            You can preview Android applications live using an Android
+            emulator.
+
+        \endif
         \li \l{Previewing in Browsers}
 
             You can open \l{https://qt-webassembly.io/designviewer/}{\QDV}

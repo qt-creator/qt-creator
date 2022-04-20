@@ -41,29 +41,6 @@ typedef unsigned char RGBE[4];
 #define B 2
 #define E 3
 
-struct M8E8
-{
-    quint8 m;
-    quint8 e;
-    M8E8() : m(0), e(0){
-    }
-    M8E8(const float val) {
-        float l2 = 1.f + std::floor(log2f(val));
-        float mm = val / powf(2.f, l2);
-        m = quint8(mm * 255.f);
-        e = quint8(l2 + 128);
-    }
-    M8E8(const float val, quint8 exp) {
-        if (val <= 0) {
-            m = e = 0;
-            return;
-        }
-        float mm = val / powf(2.f, exp - 128);
-        m = quint8(mm * 255.f);
-        e = exp;
-    }
-};
-
 QByteArray fileToByteArray(QString const &filename)
 {
     QFile file(filename);
@@ -147,17 +124,18 @@ void decodeScanlineToImageData(RGBE *scanline, int width, void *outBuf, quint32 
         rgbaF32[R] = convertComponent(scanline[i][E], scanline[i][R]);
         rgbaF32[G] = convertComponent(scanline[i][E], scanline[i][G]);
         rgbaF32[B] = convertComponent(scanline[i][E], scanline[i][B]);
-        rgbaF32[3] = 1.0f;
+        rgbaF32[E] = 1.0f;
 
-        float max = qMax(rgbaF32[R], qMax(rgbaF32[G], rgbaF32[B]));
-        M8E8 ex(max);
-        M8E8 a(rgbaF32[R], ex.e);
-        M8E8 b(rgbaF32[G], ex.e);
-        M8E8 c(rgbaF32[B], ex.e);
         quint8 *dst = target + i * 4;
-        dst[0] = c.m;
-        dst[1] = b.m;
-        dst[2] = a.m;
+
+        auto getColor = [](float src) -> quint8 {
+            const float srcColor = (src > 1.0f) ? 1.0f : src;
+            return quint8(srcColor * 255.0f);
+        };
+
+        dst[0] = getColor(rgbaF32[B]);
+        dst[1] = getColor(rgbaF32[G]);
+        dst[2] = getColor(rgbaF32[R]);
         dst[3] = 255;
     }
 }

@@ -31,7 +31,7 @@
     \nextpage studio-3d-particle-system.html
     \title Particles
 
-    A \e {particle system} enables you to use sprites, 3D models, or images to
+    With a \e {particle system} you can use sprites, 3D models, or images to
     create effects that are hard to reproduce with conventional rendering
     techniques. This includes chaotic systems, natural phenomena, or processes
     caused by chemical reactions. For example, you can simulate fire, smoke,
@@ -47,14 +47,15 @@
         \li \l {Particle Directions}
     \endlist
 
-    \section1 Adding a Particle System
-
-    Preset particle components are available in
-    \uicontrol Components > \uicontrol {Qt Quick 3D Particles 3D}
+    Preset particle \l{Particle Components}{components},
+    \l{Particle Templates}{templates}, and \l{Particle Effects}{effects} are
+    available in \uicontrol Components > \uicontrol {QtQuick3D Particles3D}
     after you add the \uicontrol {QtQuick3D.Particles3D} module to
     your project, as instructed in \l{Adding and Removing Modules}.
 
     \image studio-3d-particles.png "3D Particles"
+
+    \section1 Particle Components
 
     When you add an instance of the \uicontrol {Particle System} component to a
     scene, \QDS automatically adds instances of the \uicontrol {Sprite Particle},
@@ -81,53 +82,6 @@
     to simulate falling objects, an instance of the \uicontrol Wander component
     to simulate flying objects that follow wavy curves, or an instance of the
     \uicontrol {Point Rotator} to simulate windy weather.
-
-    To add a particle system that emits sprite particles:
-
-    \list 1
-        \li Select \uicontrol Assets > \inlineimage icons/plus.png
-            to add your sprites, 3D models, textures, and other graphical
-            \l{Assets}{assets} to the project.
-        \li Drag-and-drop an instance of the \uicontrol {Particle System}
-            component from \uicontrol Components to a scene component instance
-            in \l Navigator.
-        \li Drag-and-drop the sprite image from \uicontrol Assets to the sprite
-            particle instance in \uicontrol Navigator.
-    \endlist
-
-    Add instances of other components according to your use case.
-
-    \section1 Performance Considerations
-
-    The particles are designed to be usable on a variety of hardware on
-    desktops, as well as mobile and embedded devices. However, in addition
-    to rendering the maximum amount of particle elements on the screen,
-    extensibility to different use-cases, rendering quality, integration
-    with the other UI elements, are also important.
-
-    Currently, the rendering runs on GPU, while the particle system logic
-    runs on CPU. However, the \e {stateless particle system} enables you
-    to move the system logic onto GPU if that seems beneficial. The initial
-    measurements indicate that the system is quite well balanced between
-    CPU and GPU. The stateless system also enables animating particles by
-    using a \l{Timeline}{timeline}. The model particles use instanced rendering
-    to boost the performance. Therefore, OpenGL ES 2.0 isn't sufficient to make
-    rendering performant, and at least OpenGL ES 3.0, Vulkan, or some other
-    modern backend is required.
-
-    To get a more concrete view on the actual performance, the video below shows
-    a particles Testbed application running on four different Android devices.
-    These devices and their chipsets and GPUs could be considered to be
-    lower-end to mid-range, confirming that the particles can perform well also
-    on affordable hardware.
-
-    \youtube 9MqUCP6JLCQ
-
-    \section1 Summary of 3D Particles
-
-    \note The \uicontrol {Particles 3D} components are released as a tech
-    preview feature in \QDS 2.2, and their functionality will be improved
-    in future releases.
 
     The following table lists preset particle components.
 
@@ -206,6 +160,190 @@
         \li Wander
         \li Applies random wave curves to particles.
     \endtable
+
+    \section1 Particle Templates
+
+    A particle template is a preset of particle components that you can use to
+    create specific particle effects in a convenient way.
+
+    The following table lists particle templates and their components.
+
+    \table
+    \header
+      \li Template
+      \li Components
+    \row
+      \li Animated Sprite
+      \li
+      Particle System
+      \list
+        \li Particle Emitter
+          \list
+            \li Sprite Particle
+            \li Sprite Sequence
+            \li Texture
+          \endlist
+        \li Vector Direction
+       \endlist
+    \row
+      \li Attractor
+      \li
+      Particle System
+      \list
+        \li Particle Emitter
+          \list
+            \li Sprite Particle
+            \li Vector Direction
+          \endlist
+        \li Particle Attractor
+       \endlist
+    \row
+      \li Burst
+      \li
+      Particle System
+      \list
+        \li Particle Emitter
+          \list
+            \li Sprite Particle
+            \li Vector Direction
+            \li Emit Burst
+          \endlist
+       \endlist
+    \row
+      \li Model Blend
+      \li
+       Particle System
+      \list
+        \li Particle Emitter
+          \list
+            \li Node
+            \li Model Blend Particle
+            \li Particle Emitter
+            \list
+              \li Vector Direction
+            \endlist
+          \endlist
+       \endlist
+    \row
+      \li Model Shape
+      \li
+      Particle System
+      \list
+        \li Particle Emitter
+        \list
+          \li Sprite Particle
+          \list
+            \li Vector Direction
+          \endlist
+        \endlist
+        \li Particle Model Shape
+      \endlist
+    \row
+      \li Particle Trail
+      \li
+      Particle System
+      \list
+        \li Trail Emitter
+        \list
+          \li Vector Direction
+          \li Sprite Particle
+        \endlist
+        \li Particle Emitter
+        \list
+          \li Vector Direction
+          \li Sprite Particle
+        \endlist
+      \endlist
+    \row
+      \li Sprite
+      \li
+      Particle System
+      \list
+        \li Sprite Emitter
+        \list
+          \li Sprite Particle
+          \li Vector Direction
+        \endlist
+      \endlist
+    \row
+      \li Wander
+      \li
+      Particle System
+      \list
+        \li Sprite Emitter
+        \list
+          \li Sprite Particle
+          \list
+            \li Texture
+          \endlist
+        \li Wander
+        \li Node
+        \endlist
+      \endlist
+    \endtable
+
+    \section1 Particle Effects
+
+    A particle effect is a ready-made effect that you can use to create, for
+    example, fire, rain, or mist in a convenient way.
+
+    The following particle effects are available:
+
+    \list
+      \li Clouds
+      \li Dust
+      \li Exhaust
+      \li Fire
+      \li Heavy Rain
+      \li Heavy Tire Spray
+      \li Light Rain
+      \li Light Tire Spray
+      \li Rain Mist
+      \li Snow
+      \li Steam
+    \endlist
+
+    \section1 Adding a Particle System
+
+    The recommended way to add a particle system is to use one of the
+    \l{Particle Templates}{particle templates} and then add or remove
+    particle components according to your use case.
+
+    For example, to add a particle system that emits sprite particles:
+
+    \list
+      \li From \uicontrol {Qt Quick 3D Particles System Templates} in
+      \uicontrol {Components}, drag \uicontrol Sprite to a scene component in
+      \uicontrol Navigator. You can also drag it to \uicontrol {3D Editor}.
+    \endlist
+
+    \image studio-3d-particles-sprite-template.png
+
+    \section1 Performance Considerations
+
+    The particles are designed to be usable on a variety of hardware on
+    desktops, as well as mobile and embedded devices. However, in addition
+    to rendering the maximum amount of particle elements on the screen,
+    extensibility to different use-cases, rendering quality, integration
+    with the other UI elements, are also important.
+
+    Currently, the rendering runs on GPU, while the particle system logic
+    runs on CPU. However, the \e {stateless particle system} enables you
+    to move the system logic onto GPU if that seems beneficial. The initial
+    measurements indicate that the system is quite well balanced between
+    CPU and GPU. The stateless system also enables animating particles by
+    using a \l{Timeline}{timeline}. The model particles use instanced rendering
+    to boost the performance. Therefore, OpenGL ES 2.0 isn't sufficient to make
+    rendering performant, and at least OpenGL ES 3.0, Vulkan, or some other
+    modern backend is required.
+
+    To get a more concrete view on the actual performance, the video below shows
+    a particles Testbed application running on four different Android devices.
+    These devices and their chipsets and GPUs could be considered to be
+    lower-end to mid-range, confirming that the particles can perform well also
+    on affordable hardware.
+
+    \youtube 9MqUCP6JLCQ
 
     \section1 Particle System Tutorials
 

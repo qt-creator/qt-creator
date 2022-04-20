@@ -5,7 +5,7 @@ auto *rawVariable    = R"(Vari
 auto Character       = 'c';
 
 namespace std {
-template<typename T> class vector {};
+template<typename T> class vector { public: void clear(); };
 template<typename T, typename U> class pair {};
 }
 
@@ -997,5 +997,46 @@ public:
 
         T* ptr = nullptr;
         ptr->bar();
+    }
+};
+
+namespace std { template<typename T> struct optional { T* operator->(); }; }
+struct structWithData { int value; };
+struct structWithOptional { std::optional<structWithData> opt_my_struct1; };
+
+void foo(structWithOptional & s)
+{
+    s.opt_my_struct1->value = 5;
+}
+
+class BaseWithMember
+{
+protected:
+    std::vector<unsigned char> vec;
+};
+
+template<typename T> class Derived : public BaseWithMember
+{
+    void foo()
+    {
+        auto lambda = [&] {};
+        lambda();
+        vec.clear();
+    }
+};
+
+static bool testVal(int val);
+class BaseWithMember2
+{
+protected:
+    int value;
+};
+template<typename T> class Derived2 : public BaseWithMember2
+{
+    bool foo()
+    {
+        if (testVal(value))
+            return true;
+        return false;
     }
 };

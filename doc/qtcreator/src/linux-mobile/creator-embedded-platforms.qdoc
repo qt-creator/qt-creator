@@ -65,24 +65,22 @@
     license holders, tooling is provided to customize the contents of the stack
     as well as to take it into desired production hardware.
 
-    Either Windows 7 or later or Ubuntu Linux 64-bit 12.04 LTS
+    Either Windows 10 64-bit or later or Ubuntu Linux 64-bit 20.04 LTS
     or later is required to install and use Boot2Qt.
 
     The following topics contain more information about developing applications
     for Boot2Qt devices:
 
     \list
-        \li \l{https://doc.qt.io/QtForDeviceCreation/qtee-supported-platforms.html}
-            {Reference Target Devices and Development Hosts}
-        \li \l{https://doc.qt.io/QtForDeviceCreation/b2qt-installation-guides.html}
-            {Installation Guides}
+        \li \l{https://doc.qt.io/Boot2Qt/qtdc-supported-platforms.html}
+            {Boot2Qt: Supported Target Devices and Development Hosts}
+        \li \l{https://doc.qt.io/Boot2Qt/b2qt-installation-guides.html}
+            {Boot2Qt: Installation Guides}
         \li \l{Connecting Boot2Qt Devices}
         \li \l{Specifying Run Settings for Boot2Qt Devices}
         \li \l{Deploying Applications to Boot2Qt Devices}
         \li \l{https://doc.qt.io/qtcreator/creator-overview-qtasam.html}
             {Qt Creator Plugin for Qt Application Manager}
-        \li \l{https://doc.qt.io/QtForDeviceCreation/index.html}
-            {Qt for Device Creation}
     \endlist
 
     \section1 Generic Remote Linux

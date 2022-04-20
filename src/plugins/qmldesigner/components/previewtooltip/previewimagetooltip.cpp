@@ -68,7 +68,8 @@ void PreviewImageTooltip::setImage(const QImage &image, bool scale)
     if (scale) {
         m_ui->imageLabel->setPixmap(pm.scaled(m_ui->imageLabel->width(),
                                               m_ui->imageLabel->height(),
-                                              Qt::KeepAspectRatio));
+                                              Qt::KeepAspectRatio,
+                                              Qt::SmoothTransformation));
     } else {
         m_ui->imageLabel->setPixmap(pm);
     }

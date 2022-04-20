@@ -29,7 +29,7 @@ Rectangle {
     id: splashBackground
     width: 460
     height: 480
-    color: "#11102d"
+    color: "transparent"
 
     layer.enabled: true
     layer.textureSize: Qt.size(width * 2, height * 2)
@@ -37,6 +37,7 @@ Rectangle {
 
     Item {
         id: composition
+        anchors.centerIn: parent
         width: 460
         height: 480
 
@@ -55,26 +56,5 @@ Rectangle {
                                      0.00121, -0.00009, 0.0, 1)
             }
         }
-    }
-
-    Image {
-        id: highlight
-        x: -56
-        y: -19
-        width: 520
-        height: 506
-        fillMode: Image.PreserveAspectFit
-        source: "welcome_windows/highlight.png"
-    }
-
-    Image {
-        id: hand
-        x: 245
-        y: 227
-        width: 224
-        height: 264
-        visible: true
-        fillMode: Image.PreserveAspectFit
-        source: "welcome_windows/hand.png"
     }
 }

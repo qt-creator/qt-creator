@@ -677,6 +677,7 @@ public:
 
     void update();
     void finalize();
+    void resetData(bool resetFollowSymbolData);
 
 private:
     IAssistProposal *perform(const AssistInterface *) override
@@ -688,8 +689,6 @@ private:
     {
         return createProposal(false);
     }
-
-    void resetData();
 
     IAssistProposal *immediateProposalImpl() const;
     IAssistProposal *createProposal(bool final) const;
@@ -726,7 +725,7 @@ public:
     {
         closeTempDocuments();
         if (virtualFuncAssistProcessor)
-            virtualFuncAssistProcessor->cancel();
+            virtualFuncAssistProcessor->resetData(false);
         for (const MessageId &id : qAsConst(pendingSymbolInfoRequests))
             q->cancelRequest(id);
         for (const MessageId &id : qAsConst(pendingGotoImplRequests))
@@ -2715,6 +2714,7 @@ private:
     const AstNode &m_ast;
     const QTextDocument * const m_doc;
     const QString &m_docContent;
+    AstNode::FileStatus m_currentFileStatus = AstNode::FileStatus::Unknown;
 };
 
 // clangd reports also the #ifs, #elses and #endifs around the disabled code as disabled,
@@ -2839,11 +2839,16 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                 return true;
 
             if (it->kind() == "Call") {
-                // In class templates, member calls can result in "Call" nodes rather than
-                // "CXXMemberCall". We try to detect this by checking for a certain kind of
-                // child node.
+                // The first child is e.g. a called lambda or an object on which
+                // the call happens, and should not be highlighted as an output argument.
+                // If the call is not fully resolved (as in templates), we don't
+                // know whether the argument is passed as const or not.
+                if (it->arcanaContains("dependent type"))
+                    return false;
                 const QList<AstNode> children = it->children().value_or(QList<AstNode>());
-                return children.isEmpty() || children.first().kind() != "CXXDependentScopeMember";
+                return children.isEmpty()
+                        || (children.first().range() != (it - 1)->range()
+                                && children.first().kind() != "UnresolvedLookup");
             }
 
             // The token should get marked for e.g. lambdas, but not for assignment operators,
@@ -2863,7 +2868,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                 // The callable is never displayed as an output parameter.
                 // TODO: A good argument can be made to display objects on which a non-const
                 //       operator or function is called as output parameters.
-                if (children.at(1).range() == range)
+                if (children.at(1).range().contains(range))
                     return false;
 
                 QList<AstNode> firstChildTree{children.first()};
@@ -2882,6 +2887,8 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
             }
 
             if (it->kind() == "Lambda")
+                return false;
+            if (it->kind() == "BinaryOperator")
                 return false;
             if (it->hasConstType())
                 return false;
@@ -3110,7 +3117,7 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
 
 void ClangdClient::VirtualFunctionAssistProcessor::cancel()
 {
-    resetData();
+    resetData(true);
 }
 
 void ClangdClient::VirtualFunctionAssistProcessor::update()
@@ -3132,15 +3139,16 @@ void ClangdClient::VirtualFunctionAssistProcessor::finalize()
     } else {
         setAsyncProposalAvailable(proposal);
     }
-    resetData();
+    resetData(true);
 }
 
-void ClangdClient::VirtualFunctionAssistProcessor::resetData()
+void ClangdClient::VirtualFunctionAssistProcessor::resetData(bool resetFollowSymbolData)
 {
     if (!m_data)
         return;
     m_data->followSymbolData->virtualFuncAssistProcessor = nullptr;
-    m_data->followSymbolData.reset();
+    if (resetFollowSymbolData)
+        m_data->followSymbolData.reset();
     m_data = nullptr;
 }
 
@@ -3503,6 +3511,8 @@ QIcon ClangdCompletionItem::icon() const
     case SpecialQtType::None:
         break;
     }
+    if (item().kind().value_or(CompletionItemKind::Text) == CompletionItemKind::Property)
+        return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::VarPublicStatic);
     return LanguageClientCompletionItem::icon();
 }
 
@@ -4080,7 +4090,13 @@ void ExtraHighlightingResultsCollector::visitNode(const AstNode &node)
 {
     if (m_future.isCanceled())
         return;
-    switch (node.fileStatus(m_filePath)) {
+    const AstNode::FileStatus prevFileStatus = m_currentFileStatus;
+    m_currentFileStatus = node.fileStatus(m_filePath);
+    if (m_currentFileStatus == AstNode::FileStatus::Unknown
+            && prevFileStatus != AstNode::FileStatus::Ours) {
+        m_currentFileStatus = prevFileStatus;
+    }
+    switch (m_currentFileStatus) {
     case AstNode::FileStatus::Ours:
     case AstNode::FileStatus::Unknown:
         collectFromNode(node);
@@ -4095,6 +4111,7 @@ void ExtraHighlightingResultsCollector::visitNode(const AstNode &node)
         break;
     }
     }
+    m_currentFileStatus = prevFileStatus;
 }
 
 bool ClangdClient::FollowSymbolData::defLinkIsAmbiguous() const

@@ -128,6 +128,7 @@ public:
                                      runControl->buildKey(),
                                      browserId,
                                      QString::number(portsGatherer->findEndPoint().port()));
+            r.environment = runControl->buildEnvironment();
             SimpleTargetRunner::doStart(r);
         });
     }

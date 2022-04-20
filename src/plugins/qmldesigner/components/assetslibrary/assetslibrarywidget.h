@@ -60,8 +60,7 @@ class AssetsLibraryWidget : public QFrame
     Q_OBJECT
 
 public:
-    AssetsLibraryWidget(AsynchronousImageCache &imageCache,
-                        AsynchronousImageCache &asynchronousFontImageCache,
+    AssetsLibraryWidget(AsynchronousImageCache &asynchronousFontImageCache,
                         SynchronousImageCache &synchronousFontImageCache);
     ~AssetsLibraryWidget();
 
@@ -110,7 +109,6 @@ private:
     std::unique_ptr<PreviewTooltipBackend> m_fontPreviewTooltipBackend;
 
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;
-    AsynchronousImageCache &m_imageCache;
     QPointer<Model> m_model;
     QStringList m_assetsToDrag;
     bool m_updateRetry = false;

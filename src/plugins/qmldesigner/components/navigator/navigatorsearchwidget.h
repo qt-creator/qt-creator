@@ -27,7 +27,26 @@
 
 #include <QLineEdit>
 
+class QToolButton;
+
 namespace QmlDesigner {
+
+class LineEdit : public QLineEdit
+{
+    Q_OBJECT
+
+public:
+    LineEdit(QWidget *parent = nullptr);
+
+protected:
+    void resizeEvent(QResizeEvent *);
+
+private slots:
+    void updateClearButton(const QString &text);
+
+private:
+    QToolButton *clearButton;
+};
 
 class NavigatorSearchWidget : public QWidget
 {
@@ -42,8 +61,7 @@ signals:
     void textChanged(const QString &text);
 
 private:
-
-    QLineEdit *m_textField;
+    LineEdit *m_textField;
 };
 
 } //QmlDesigner

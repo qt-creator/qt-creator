@@ -27,6 +27,7 @@
 
 #include "texteditor_global.h"
 
+#include <QList>
 #include <QString>
 #include <QMetaType>
 #include <QSharedPointer>

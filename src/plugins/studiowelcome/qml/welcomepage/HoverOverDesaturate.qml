@@ -116,6 +116,7 @@ Item {
             id: image
             width: 240
             height: 125
+            mipmap: true
             fillMode: Image.PreserveAspectFit
         }
     }

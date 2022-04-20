@@ -36,10 +36,14 @@ public:
         : Qt5PreviewNodeInstanceServer(nodeInstanceClient)
     {}
 
+    void createScene(const CreateSceneCommand &command) override;
+
 protected:
     void collectItemChangesAndSendChangeCommands() override;
 
 private:
+    QSize m_minimumSize;
+    QSize m_maximumSize;
 };
 
 } // namespace QmlDesigner

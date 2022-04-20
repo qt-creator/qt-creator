@@ -67,41 +67,6 @@ if [ -d "$assetimporterSrcDir" ]; then
     fi
 fi
 
-# collect tls plugins to have ssl download feature available
-tlsDestDir="$app_path/Contents/PlugIns/tls"
-tlssrcDir="$plugin_src/tls"
-if [ -d "$tlssrcDir" ]; then
-    if [ ! -d "$tlsDestDir" ]; then
-        echo "- Copying tls plugins to have ssl download feature available"
-        mkdir -p "$tlsDestDir"
-        find "$tlssrcDir" -iname "*.dylib" -maxdepth 1 -exec cp {} "$tlsDestDir"/ \;
-    fi
-fi
-
-# workaround for Qt 6.2:
-# - QTBUG-94796 macdeployqt does not deploy /Contents/PlugIns/sqldrivers/libqsqlite.dylib anymore
-sqldriversDestDir="$app_path/Contents/PlugIns/sqldrivers"
-sqldriversSrcDir="$plugin_src/sqldrivers"
-if [ -d "$sqldriversSrcDir" ]; then
-    if [ ! -d "$sqldriversDestDir" ]; then
-        echo "- Copying sqlitedriver plugin"
-        mkdir -p "$sqldriversDestDir"
-        cp "$sqldriversSrcDir/libqsqlite.dylib" "$sqldriversDestDir/libqsqlite.dylib"
-    fi
-fi
-
-# workaround for Qt 6.2:
-# - QTBUG-94796 macdeployqt does not deploy /Contents/PlugIns/imageformats/libqsvg.dylib anymore
-imageformatsDestDir="$app_path/Contents/PlugIns/imageformats"
-imageformatsSrcDir="$plugin_src/imageformats"
-if [ -d "$imageformatsSrcDir" ]; then
-    if [ ! -d "$imageformatsDestDir" ]; then
-        echo "- Copying sqlitedriver plugin"
-        mkdir -p "$imageformatsDestDir"
-        cp "$imageformatsSrcDir/libqsvg.dylib" "$imageformatsDestDir/libqsvg.dylib"
-    fi
-fi
-
 # copy Qt Quick 2 imports
 imports2Dir="$app_path/Contents/Imports/qtquick2"
 if [ -d "$quick2_src" ]; then
@@ -209,3 +174,19 @@ if [ ! -d "$app_path/Contents/Frameworks/QtCore.framework" ]; then
         "$clangbackendArgument" || exit 1
 
 fi
+
+# clean up after macdeployqt
+# it deploys some plugins (and libs for these) that interfere with what we want
+echo "Cleaning up after macdeployqt..."
+toRemove=(\
+    "Contents/PlugIns/tls/libqopensslbackend.dylib" \
+    "Contents/PlugIns/sqldrivers/libqsqlpsql.dylib" \
+    "Contents/PlugIns/sqldrivers/libqsqlodbc.dylib" \
+    "Contents/Frameworks/libpq.*dylib" \
+    "Contents/Frameworks/libssl.*dylib" \
+    "Contents/Frameworks/libcrypto.*dylib" \
+)
+for f in "${toRemove[@]}"; do
+    echo "- removing \"$app_path/$f\""
+    rm "$app_path"/$f 2> /dev/null; done
+exit 0

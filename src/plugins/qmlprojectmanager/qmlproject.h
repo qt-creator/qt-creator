@@ -95,6 +95,8 @@ public:
     void setPrimaryLanguage(QString language);
     bool forceFreeType() const;
     bool widgetApp() const;
+    QStringList shaderToolArgs() const;
+    QStringList shaderToolFiles() const;
 
     bool addFiles(const QStringList &filePaths);
 

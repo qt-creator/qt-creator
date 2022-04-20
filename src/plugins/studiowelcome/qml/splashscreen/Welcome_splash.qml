@@ -32,8 +32,7 @@ import usagestatistics 1.0
 
 Rectangle {
     id: welcome_splash
-    width: 800
-    height: 480
+    anchors.fill: parent
 
     gradient: Gradient {
         orientation: Gradient.Horizontal
@@ -46,43 +45,27 @@ Rectangle {
     signal closeClicked
     signal configureClicked
 
-    property alias doNotShowAgain: doNotShowCheckBox.checked
+    property bool doNotShowAgain: true
     property bool loadingPlugins: true
-
-    // called from C++
-    function onPluginInitialized(crashReportingEnabled: bool, crashReportingOn: bool)
-    {
-        loadingPlugins = false
-
-        if (crashReportingEnabled) {
-            var configureButton = "<a href='#' style='text-decoration:none;color:#ffff00'>"
-                    + qsTr("[Configure]") + "</a>";
-            var settingPath = Qt.platform.os === "osx"
-                    ? qsTr("Qt Creator > Preferences > Environment > System")
-                    : qsTr("Tools > Options > Environment > System")
-            var strConfigure = qsTr("Qt Design Studio collects usage statistics and crash reports for the sole purpose of fixing bugs and improving the tool. "
-                             + "You can configure the crash reporter under %1. %2").arg(settingPath).arg(configureButton)
-
-            crash_reporting_text.text = strConfigure
-            crashReportCheckBox.visible = true
-        }
-    }
+    color: "#1d212a"
 
     Image {
         id: logo
-        x: 15
-        y: 11
-        width: 66
-        height: 50
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.margins: 10
+        width: 66 * 2
+        height: 50 * 2
+        smooth: true
         source: "welcome_windows/logo.png"
     }
 
+
     Text {
-        id: qt_design_studio
-        x: 13
-        y: 81
-        width: 336
-        height: 46
+        id: qt_design_studio_text
+        anchors.top: logo.top
+        anchors.left: logo.right
+        anchors.leftMargin: 10
         color: "#25709a"
         text: qsTr("Qt Design Studio")
         font.pixelSize: 36
@@ -90,156 +73,89 @@ Rectangle {
     }
 
     Text {
-        id: software_for_ui
-        x: 15
-        y: 126
-        width: 300
-        height: 30
-        color: "#ffffff"
-        text: qsTr("Software for UI and UX Designers")
-        renderType: Text.QtRendering
-        font.pixelSize: 15
+        id: qt_design_studio_version_text
+        anchors.left: qt_design_studio_text.right
+        anchors.baseline: qt_design_studio_text.baseline
+        anchors.leftMargin: 10
+        color: "#25709a"
+        text: usageStatisticModel.version
+
         font.family: StudioFonts.titilliumWeb_light
+        font.pixelSize: 36
     }
 
     Text {
-        id: copyright
-        x: 15
-        y: 155
-        width: 270
-        height: 24
+        id: license_variant_text
+        anchors.left: qt_design_studio_text.left
+        anchors.top: qt_design_studio_text.bottom
+        anchors.leftMargin: 5
         color: "#ffffff"
-        text: qsTr("Copyright 2008 - 2022 The Qt Company")
-        font.pixelSize: 14
-        font.family: StudioFonts.titilliumWeb_light
-    }
 
-    Text {
-        id: all_rights_reserved
-        x: 15
-        y: 174
-        width: 250
-        height: 24
-        color: "#ffffff"
-        text: qsTr("All Rights Reserved")
-        font.pixelSize: 14
         font.family: StudioFonts.titilliumWeb_light
-    }
+        font.pixelSize: 20
 
-    Text {
-        id: marketing_1
-        x: 15
-        y: 206
-        width: 406
-        height: 31
-        color: "#ffffff"
-        text: qsTr("Multi-paradigm language for creating highly dynamic applications.")
-        wrapMode: Text.WordWrap
-        font.family: StudioFonts.titilliumWeb_light
-        font.pixelSize: 12
-        font.wordSpacing: 0
-    }
+        text: {
+            if (projectModel.communityVersion)
+                return qsTr("Community Edition")
+            if (projectModel.enterpriseVersion)
+                return qsTr("Enterprise Edition")
+            return qsTr("Professional Edition")
+        }
 
-    Text {
-        id: marketing_2
-        x: 15
-        y: 229
-        width: 341
-        height: 31
-        color: "#ffffff"
-        text: qsTr("Run your concepts and prototypes on your final hardware.")
-        wrapMode: Text.WordWrap
-        font.family: StudioFonts.titilliumWeb_light
-        font.pixelSize: 12
-        font.wordSpacing: 0
-    }
+        ProjectModel {
+            id: projectModel
+        }
 
-    Text {
-        id: marketing_3
-        x: 15
-        y: 252
-        width: 336
-        height: 31
-        color: "#ffffff"
-        text: qsTr("Seamless integration between designer and developer.")
-        wrapMode: Text.WordWrap
-        font.family: StudioFonts.titilliumWeb_light
-        font.pixelSize: 12
-        font.wordSpacing: 0
-    }
-
-    Text {
-        id: crash_reporting_text
-        color: "#ffffff"
-        anchors.bottom: columnLayout.top
-        textFormat: Text.RichText
-        x: 15
-        y: 280
-        width: 311
-        wrapMode: Text.WordWrap
-        anchors.bottomMargin: 8
-        font.family: StudioFonts.titilliumWeb_light
-        font.pixelSize: 12
-        font.wordSpacing: 0
-        onLinkActivated: welcome_splash.configureClicked()
-
-        MouseArea { // show hand cursor on link hover
-            anchors.fill: parent
-            acceptedButtons: Qt.NoButton // don't eat clicks on the Text
-            cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.ArrowCursor
+        UsageStatisticModel {
+            id: usageStatisticModel
         }
     }
 
     Dof_Effect {
-        id: dof_Effect
-        x: 358
+        id: dof_effect
+        anchors.top: qt_design_studio_text.bottom
+        anchors.horizontalCenter: welcome_splash.horizontalCenter
         width: 442
         height: 480
-        visible: true
         maskBlurSamples: 64
         maskBlurRadius: 32
 
         Splash_Image25d {
             id: animated_artwork
-            x: 358
-            y: 0
-            width: 442
-            height: 480
+            width: dof_effect.width
+            height: dof_effect.height
             clip: true
         }
     }
 
-    Image {
-        id: close_window
-        anchors.top: parent.top
+    Text {
+        id: help_us_text
+        anchors.left: welcome_splash.left
         anchors.right: parent.right
-        anchors.margins: 8
-        width: 13
-        height: 13
-        fillMode: Image.PreserveAspectFit
-        source: "welcome_windows/close.png"
-        opacity: area.containsMouse ? 1 : 0.8
+        anchors.leftMargin: 10
+        anchors.top: dof_effect.bottom
+        anchors.topMargin: 10
+        color: "#FFFFFF"
+        text: qsTr("Before we let you move on to your wonderful designs, help us make Qt Design Studio even better by letting us know how you're using it.")
 
-        MouseArea {
-            id: area
-            hoverEnabled: true
-            anchors.fill: parent
-            anchors.margins: -10
-            onClicked: welcome_splash.closeClicked()
-        }
+        font.family: StudioFonts.titilliumWeb_light
+        font.pixelSize: 18
+        wrapMode: Text.WordWrap
+        anchors.rightMargin: 10
     }
 
     ColumnLayout {
         id: columnLayout
         anchors.left: parent.left
-        anchors.bottom: parent.bottom
-        anchors.leftMargin: 16
-        anchors.bottomMargin: 10
+        anchors.top: help_us_text.bottom
+        anchors.leftMargin: 10
+        anchors.topMargin: 20
         spacing: 3
 
         CheckBox {
+            visible: false
             id: usageStatisticCheckBox
-            text: qsTr("Enable Usage Statistics")
+            text: qsTr("Send Usage Statistics")
             checked: usageStatisticModel.usageStatisticEnabled
             padding: 0
             spacing: 12
@@ -255,11 +171,11 @@ Rectangle {
         }
 
         CheckBox {
+            visible: false
             id: crashReportCheckBox
-            text: qsTr("Enable Crash Reports")
+            text: qsTr("Send Crash Reports")
             spacing: 12
             checked: usageStatisticModel.crashReporterEnabled
-            visible: false
 
             onCheckedChanged: {
                 usageStatisticModel.setCrashReporterEnabled(crashReportCheckBox.checked)
@@ -274,90 +190,41 @@ Rectangle {
             }
             padding: 0
         }
-
-        CheckBox {
-            id: doNotShowCheckBox
-            text: qsTr("Do not show this again")
-            padding: 0
-            spacing: 12
-
-            contentItem: Text {
-                text: doNotShowCheckBox.text
-                color: "#ffffff"
-                leftPadding: doNotShowCheckBox.indicator.width + doNotShowCheckBox.spacing
-                font.pixelSize: 12
-            }
-        }
     }
 
     RowLayout {
-        x: 16
-        y: 277
-        visible: welcome_splash.loadingPlugins
+        anchors.right: parent.right
+        anchors.bottom: welcome_splash.bottom
+        anchors.rightMargin: 10
+        anchors.bottomMargin: 10
+        spacing: 20
 
-        Text {
-            id: text1
-            color: "#ffffff"
-            text: qsTr("%")
-            font.pixelSize: 12
-
-            RotationAnimator {
-                target: text1
-                from: 0
-                to: 360
-                duration: 1800
-                running: true
-                loops: -1
+        CustomButton {
+            text: qsTr("Don't send")
+            onClicked: {
+                usageStatisticModel.setTelemetryEnabled(false)
+                usageStatisticModel.setCrashReporterEnabled(false)
+                welcome_splash.closeClicked()
             }
         }
 
-        Text {
-            id: loading_progress
-            color: "#ffffff"
-            text: qsTr("Loading Plugins")
-            font.family: StudioFonts.titilliumWeb_light
-            font.pixelSize: 16
-        }
-
-        Text {
-            id: text2
-            color: "#ffffff"
-            text: qsTr("%")
-            font.pixelSize: 12
-
-            RotationAnimator {
-                target: text2
-                from: 0
-                to: 360
-                duration: 2000
-                running: true
-                loops: -1
+        CustomButton {
+            text: qsTr("Send analytics data")
+            onClicked: {
+                usageStatisticModel.setTelemetryEnabled(true)
+                usageStatisticModel.setCrashReporterEnabled(true)
+                welcome_splash.closeClicked()
             }
         }
     }
 
-    Text {
-        id: all_rights_reserved1
-        x: 15
-        y: 65
-        color: "#ffffff"
-
-        font.pixelSize: 13
-        font.family: StudioFonts.titilliumWeb_light
-        text: {
-            if (projectModel.communityVersion)
-                return qsTr("Community Edition")
-            if (projectModel.enterpriseVersion)
-                 return qsTr("Enterprise Edition")
-            return qsTr("Professional Edition")
-        }
-
-        ProjectModel {
-            id: projectModel
-        }
-
-        UsageStatisticModel {
-            id: usageStatisticModel
-        }
+    CustomButton {
+        y: 430
+        text: qsTr("Learn More")
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 10
+        anchors.leftMargin: 10
+        onClicked: Qt.openUrlExternally("https://www.qt.io/terms-conditions/telemetry-privacy")
     }
 }

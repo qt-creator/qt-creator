@@ -84,10 +84,13 @@ void NamePrettyPrinter::visit(const TemplateNameId *name)
 
         TemplateArgument templArg = name->templateArgumentAt(index);
         QString arg;
-        if (templArg.type().isValid())
-            arg = overview()->prettyType(templArg.type());
-        else if (const NumericLiteral *num = templArg.numericLiteral())
+        if (templArg.type().isValid()) {
+            Overview o = *_overview;
+            o.showReturnTypes = true;
+            arg = o.prettyType(templArg.type());
+        } else if (const NumericLiteral *num = templArg.numericLiteral()) {
             arg = QString::fromLatin1(num->chars(), num->size());
+        }
 
         if (arg.isEmpty())
             _name += QString::fromLatin1("_Tp%1").arg(index + 1);

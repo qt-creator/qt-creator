@@ -67,7 +67,7 @@
     \section1 Embedding Resources into Applications
 
     Alternatively, you can embedd the resources into your application by
-    selecting \uicontrol Build > \uicontrol {Generate RCC Resource File}.
+    selecting \uicontrol Build > \uicontrol {Generate Deployable Package}.
     Select the location for the .qmlrc file, and then select the files to
     embedd in the \uicontrol {Add Resources} dialog.
 

@@ -28,30 +28,87 @@
 #include <utils/stylehelper.h>
 #include <theme.h>
 
+#include <QAction>
 #include <QBoxLayout>
 #include <QLabel>
-#include <QPushButton>
+#include <QStyle>
+#include <QToolButton>
 
 namespace QmlDesigner {
+
+LineEdit::LineEdit(QWidget *parent)
+    : QLineEdit(parent)
+{
+    clearButton = new QToolButton(this);
+
+    const QString fontName = "qtds_propertyIconFont.ttf";
+    const int searchIconSize = 16;
+    const int clearIconSize = 12;
+    const QColor iconColor(QmlDesigner::Theme::getColor(QmlDesigner::Theme::DSiconColor));
+
+    const QIcon searchIcon
+        = Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                  QmlDesigner::Theme::getIconUnicode(
+                                                      QmlDesigner::Theme::Icon::search),
+                                                  searchIconSize,
+                                                  searchIconSize,
+                                                  iconColor);
+
+    const QIcon clearIcon
+        = Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                  QmlDesigner::Theme::getIconUnicode(
+                                                      QmlDesigner::Theme::Icon::closeCross),
+                                                  clearIconSize,
+                                                  clearIconSize,
+                                                  iconColor);
+
+    addAction(searchIcon, QLineEdit::LeadingPosition);
+
+    clearButton->setIcon(clearIcon);
+    clearButton->setIconSize(QSize(clearIconSize, clearIconSize));
+    clearButton->setCursor(Qt::ArrowCursor);
+    clearButton->hide();
+    clearButton->setStyleSheet(Theme::replaceCssColors(
+        QString("QToolButton { border: none; padding: 0px; }"
+                "QToolButton:hover { background: creatorTheme.DScontrolBackgroundHover; }")));
+
+    setClearButtonEnabled(false);
+
+    connect(clearButton, &QToolButton::clicked, this, &QLineEdit::clear);
+    connect(this, &QLineEdit::textChanged, this, &LineEdit::updateClearButton);
+
+    int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+    setStyleSheet(QString("QLineEdit { padding-right: %1px; } ")
+                      .arg(clearButton->sizeHint().width() + frameWidth + 8));
+
+    setFixedHeight(29);
+}
+
+void LineEdit::resizeEvent(QResizeEvent *)
+{
+    QSize hint = clearButton->sizeHint();
+    int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+
+    clearButton->move(rect().right() - frameWidth - hint.width() - 3,
+                      (rect().bottom() + 1 - hint.height()) / 2);
+}
+
+void LineEdit::updateClearButton(const QString& text)
+{
+    clearButton->setVisible(!text.isEmpty());
+}
 
 NavigatorSearchWidget::NavigatorSearchWidget(QWidget *parent)
     : QWidget(parent)
 {
     auto layout = new QBoxLayout(QBoxLayout::LeftToRight);
+    layout->setSpacing(0);
+    layout->setContentsMargins(5, 5, 5, 3);
     setLayout(layout);
 
-    const QString fontName = "qtds_propertyIconFont.ttf";
-    const int iconSize = 15;
-    const QColor iconColor(QmlDesigner::Theme::getColor(QmlDesigner::Theme::IconsBaseColor));
-    const QIcon searchIcon = Utils::StyleHelper::getIconFromIconFont(
-                fontName, QmlDesigner::Theme::getIconUnicode(QmlDesigner::Theme::Icon::search),
-                iconSize, iconSize, iconColor);
-
-    m_textField = new QLineEdit;
-    m_textField->setPlaceholderText(tr("Filter"));
+    m_textField = new LineEdit;
+    m_textField->setPlaceholderText(tr("Search"));
     m_textField->setFrame(false);
-    m_textField->setClearButtonEnabled(true);
-    m_textField->addAction(searchIcon, QLineEdit::LeadingPosition);
 
     connect(m_textField, &QLineEdit::textChanged, this, &NavigatorSearchWidget::textChanged);
 

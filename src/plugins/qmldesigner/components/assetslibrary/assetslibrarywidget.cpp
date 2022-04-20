@@ -110,16 +110,14 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
-AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &imageCache,
-                                     AsynchronousImageCache &asynchronousFontImageCache,
-                                     SynchronousImageCache &synchronousFontImageCache)
+AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFontImageCache,
+                                         SynchronousImageCache &synchronousFontImageCache)
     : m_itemIconSize(24, 24)
     , m_fontImageCache(synchronousFontImageCache)
     , m_assetsIconProvider(new AssetsLibraryIconProvider(synchronousFontImageCache))
     , m_fileSystemWatcher(new Utils::FileSystemWatcher(this))
     , m_assetsModel(new AssetsLibraryModel(m_fileSystemWatcher, this))
     , m_assetsWidget(new QQuickWidget(this))
-    , m_imageCache{imageCache}
 {
     m_assetCompressionTimer.setInterval(200);
     m_assetCompressionTimer.setSingleShot(true);

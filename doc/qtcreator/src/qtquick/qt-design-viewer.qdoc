@@ -24,11 +24,12 @@
 ****************************************************************************/
 
 /*!
-    \previouspage creator-live-preview-devices.html
     \page qt-design-viewer.html
     \if defined(qtdesignstudio)
+    \previouspage creator-live-preview-android.html
     \nextpage studio-exporting-and-importing.html
     \else
+    \previouspage creator-live-preview-devices.html
     \nextpage creator-building-targets.html
     \endif
 

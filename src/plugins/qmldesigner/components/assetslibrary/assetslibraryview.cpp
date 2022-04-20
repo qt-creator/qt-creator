@@ -50,31 +50,17 @@
 
 namespace QmlDesigner {
 
-namespace {
-ProjectExplorer::Target *activeTarget(ProjectExplorer::Project *project)
-{
-    if (project)
-        return project->activeTarget();
-
-    return {};
-}
-} // namespace
-
-class ImageCacheData
+class AssetsLibraryView::ImageCacheData
 {
 public:
     Sqlite::Database database{Utils::PathString{
-                                  Core::ICore::cacheResourcePath("imagecache-v2.db").toString()},
+                                  Core::ICore::cacheResourcePath("fontimagecache.db").toString()},
                               Sqlite::JournalMode::Wal,
                               Sqlite::LockingMode::Normal};
     ImageCacheStorage<Sqlite::Database> storage{database};
-    ImageCacheConnectionManager connectionManager;
-    ImageCacheCollector collector{connectionManager};
     ImageCacheFontCollector fontCollector;
-    ImageCacheGenerator generator{collector, storage};
     ImageCacheGenerator fontGenerator{fontCollector, storage};
     TimeStampProvider timeStampProvider;
-    AsynchronousImageCache cache{storage, generator, timeStampProvider};
     AsynchronousImageCache asynchronousFontImageCache{storage, fontGenerator, timeStampProvider};
     SynchronousImageCache synchronousFontImageCache{storage, timeStampProvider, fontCollector};
 };
@@ -94,9 +80,8 @@ bool AssetsLibraryView::hasWidget() const
 WidgetInfo AssetsLibraryView::widgetInfo()
 {
     if (m_widget.isNull()) {
-        m_widget = new AssetsLibraryWidget{imageCacheData()->cache,
-                                         imageCacheData()->asynchronousFontImageCache,
-                                         imageCacheData()->synchronousFontImageCache};
+        m_widget = new AssetsLibraryWidget{imageCacheData()->asynchronousFontImageCache,
+                                           imageCacheData()->synchronousFontImageCache};
     }
 
     return createWidgetInfo(m_widget.data(), "Assets", WidgetInfo::LeftPane, 0, tr("Assets"));
@@ -128,49 +113,18 @@ void AssetsLibraryView::setResourcePath(const QString &resourcePath)
     m_lastResourcePath = resourcePath;
 
     if (m_widget.isNull()) {
-        m_widget = new AssetsLibraryWidget{m_imageCacheData->cache,
-                                           m_imageCacheData->asynchronousFontImageCache,
-                                           m_imageCacheData->synchronousFontImageCache};
+        m_widget = new AssetsLibraryWidget{imageCacheData()->asynchronousFontImageCache,
+                                           imageCacheData()->synchronousFontImageCache};
     }
 
     m_widget->setResourcePath(resourcePath);
 }
 
-ImageCacheData *AssetsLibraryView::imageCacheData()
+AssetsLibraryView::ImageCacheData *AssetsLibraryView::imageCacheData()
 {
-    std::call_once(imageCacheFlag, [this]() {
-        m_imageCacheData = std::make_unique<ImageCacheData>();
-        auto setTargetInImageCache =
-            [imageCacheData = m_imageCacheData.get()](ProjectExplorer::Target *target) {
-                if (target == imageCacheData->collector.target())
-                    return;
-
-                if (target)
-                    imageCacheData->cache.clean();
-
-                imageCacheData->collector.setTarget(target);
-            };
-
-        if (auto project = ProjectExplorer::SessionManager::startupProject(); project) {
-            m_imageCacheData->collector.setTarget(project->activeTarget());
-            connect(project,
-                    &ProjectExplorer::Project::activeTargetChanged,
-                    this,
-                    setTargetInImageCache);
-        }
-        connect(ProjectExplorer::SessionManager::instance(),
-                &ProjectExplorer::SessionManager::startupProjectChanged,
-                this,
-                [=](ProjectExplorer::Project *project) {
-                    setTargetInImageCache(activeTarget(project));
-                });
-    });
+    std::call_once(imageCacheFlag,
+                   [this]() { m_imageCacheData = std::make_unique<ImageCacheData>(); });
     return m_imageCacheData.get();
-}
-
-AsynchronousImageCache &AssetsLibraryView::imageCache()
-{
-    return imageCacheData()->cache;
 }
 
 } // namespace QmlDesigner

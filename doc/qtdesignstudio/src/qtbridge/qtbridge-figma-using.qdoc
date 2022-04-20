@@ -97,6 +97,25 @@
     handle, such as gradient fill colors or a mixed radius, the frames are
     exported as images.
 
+
+    \section2 Using Variants
+    Figma variants are exported as a component with states. All variants
+    inside a \e component-set are merged together and the differences across
+    the variants are translated into states.
+
+    For an optimal output, follow these guidelines:
+    \list
+        \li \QBF panel is disabled for variants. Before adding
+            a variant to a component, the \QBF settings for the component
+            should be complete.
+        \li Do not change the layer names across the variants. The \l ID  of
+            a layer is derived from the layer name which in turn is used
+            to identify the property differences for the state generation, so
+            it is essential to keep the layer names same across variants.
+        \li Adding and removing layers across the variants is fine and
+            encouraged to create the variant differences.
+    \endlist
+
     \section1 Exporting Designs
 
     \image qt-figma-bridge.png "Qt Bridge for Figma"
