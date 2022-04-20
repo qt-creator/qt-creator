@@ -66,7 +66,7 @@ add_qtc_library(sdktoolLib
 
 extend_qtc_library(sdktoolLib
   SOURCES_PREFIX "${UtilsSourcesDir}"
-  DEFINES QTCREATOR_UTILS_STATIC_LIB
+  PUBLIC_DEFINES QTCREATOR_UTILS_STATIC_LIB
   SOURCES
     commandline.cpp commandline.h
     environment.cpp environment.h
