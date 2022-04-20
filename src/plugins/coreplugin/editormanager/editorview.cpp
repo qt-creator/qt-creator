@@ -477,6 +477,8 @@ void EditorView::updateEditorHistory(IEditor *editor)
     updateEditorHistory(editor, m_editorHistory);
 }
 
+constexpr int navigationHistorySize = 100;
+
 void EditorView::addCurrentPositionToNavigationHistory(const QByteArray &saveState)
 {
     IEditor *editor = currentEditor();
@@ -502,8 +504,8 @@ void EditorView::addCurrentPositionToNavigationHistory(const QByteArray &saveSta
     m_navigationHistory.insert(m_currentNavigationHistoryPosition, location);
     ++m_currentNavigationHistoryPosition;
 
-    while (m_navigationHistory.size() >= 30) {
-        if (m_currentNavigationHistoryPosition > 15) {
+    while (m_navigationHistory.size() >= navigationHistorySize) {
+        if (m_currentNavigationHistoryPosition > navigationHistorySize / 2) {
             m_navigationHistory.removeFirst();
             --m_currentNavigationHistoryPosition;
         } else {
