@@ -264,47 +264,6 @@ bool CustomToolChain::fromMap(const QVariantMap &data)
     setMkspecs(data.value(QLatin1String(mkspecsKeyC)).toString());
     setOutputParserId(Utils::Id::fromSetting(data.value(QLatin1String(outputParserKeyC))));
 
-    // Restore Pre-4.13 settings.
-    if (outputParserId() == Internal::CustomParser::id()) {
-        CustomParserSettings customParserSettings;
-        customParserSettings.error.setPattern(
-                    data.value("ProjectExplorer.CustomToolChain.ErrorPattern").toString());
-        customParserSettings.error.setFileNameCap(
-                    data.value("ProjectExplorer.CustomToolChain.ErrorLineNumberCap").toInt());
-        customParserSettings.error.setLineNumberCap(
-                    data.value("ProjectExplorer.CustomToolChain.ErrorFileNameCap").toInt());
-        customParserSettings.error.setMessageCap(
-                    data.value("ProjectExplorer.CustomToolChain.ErrorMessageCap").toInt());
-        customParserSettings.error.setChannel(
-                    static_cast<CustomParserExpression::CustomParserChannel>(
-                        data.value("ProjectExplorer.CustomToolChain.ErrorChannel").toInt()));
-        customParserSettings.error.setExample(
-                    data.value("ProjectExplorer.CustomToolChain.ErrorExample").toString());
-        customParserSettings.warning.setPattern(
-                    data.value("ProjectExplorer.CustomToolChain.WarningPattern").toString());
-        customParserSettings.warning.setFileNameCap(
-                    data.value("ProjectExplorer.CustomToolChain.WarningLineNumberCap").toInt());
-        customParserSettings.warning.setLineNumberCap(
-                    data.value("ProjectExplorer.CustomToolChain.WarningFileNameCap").toInt());
-        customParserSettings.warning.setMessageCap(
-                    data.value("ProjectExplorer.CustomToolChain.WarningMessageCap").toInt());
-        customParserSettings.warning.setChannel(
-                    static_cast<CustomParserExpression::CustomParserChannel>(
-                        data.value("ProjectExplorer.CustomToolChain.WarningChannel").toInt()));
-        customParserSettings.warning.setExample(
-                    data.value("ProjectExplorer.CustomToolChain.WarningExample").toString());
-        if (!customParserSettings.error.pattern().isEmpty()
-                || !customParserSettings.error.pattern().isEmpty()) {
-            // Found custom parser in old settings, move to new place.
-            customParserSettings.id = Utils::Id::fromString(QUuid::createUuid().toString());
-            setOutputParserId(customParserSettings.id);
-            customParserSettings.displayName = tr("Parser for toolchain %1").arg(displayName());
-            QList<CustomParserSettings> settings = ProjectExplorerPlugin::customParsers();
-            settings << customParserSettings;
-            ProjectExplorerPlugin::setCustomParsers(settings);
-        }
-    }
-
     return true;
 }
 

@@ -226,11 +226,6 @@ CustomParser *CustomParser::createFromId(Utils::Id id)
     return nullptr;
 }
 
-Utils::Id CustomParser::id()
-{
-    return Utils::Id("ProjectExplorer.OutputParser.Custom");
-}
-
 OutputLineParser::Result CustomParser::handleLine(const QString &line, OutputFormat type)
 {
     const CustomParserExpression::CustomParserChannel channel = type == StdErrFormat

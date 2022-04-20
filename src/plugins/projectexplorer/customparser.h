@@ -124,7 +124,6 @@ public:
     void setSettings(const CustomParserSettings &settings);
 
     static CustomParser *createFromId(Utils::Id id);
-    static Utils::Id id();
 
 private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;
