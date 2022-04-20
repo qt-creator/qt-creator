@@ -435,17 +435,22 @@ void GenericBuildSystem::parse(RefreshOptions options)
 
     if (options & Configuration) {
         m_rawProjectIncludePaths = readLines(m_includesFileName);
-        Utils::FilePaths normalPaths;
-        Utils::FilePaths frameworkPaths;
+        QStringList normalPaths;
+        QStringList frameworkPaths;
         const auto baseDir = Utils::FilePath::fromString(m_includesFileName).parentDir();
         for (const QString &rawPath : qAsConst(m_rawProjectIncludePaths)) {
             if (rawPath.startsWith("-F"))
-                frameworkPaths << baseDir.resolvePath(rawPath.mid(2));
+                frameworkPaths << rawPath.mid(2);
             else
-                normalPaths << baseDir.resolvePath(rawPath);
+                normalPaths << rawPath;
         }
-        m_projectIncludePaths = toUserHeaderPaths(normalPaths);
-        m_projectIncludePaths << toFrameworkHeaderPaths(frameworkPaths);
+        const auto expandedPaths = [this](const QStringList &paths) {
+            return Utils::transform(processEntries(paths), [](const auto &pair) {
+                return pair.first;
+            });
+        };
+        m_projectIncludePaths = toUserHeaderPaths(expandedPaths(normalPaths));
+        m_projectIncludePaths << toFrameworkHeaderPaths(expandedPaths(frameworkPaths));
         m_cxxflags = readFlags(m_cxxflagsFileName);
         m_cflags = readFlags(m_cflagsFileName);
     }
