@@ -40,7 +40,8 @@ private slots:
 
 void tst_UpdateInfo::updates_data()
 {
-    QTest::addColumn<QString>("xml");
+    QTest::addColumn<QString>("updateXml");
+    QTest::addColumn<QString>("packageXml");
     QTest::addColumn<QList<Update>>("xupdates");
     QTest::addColumn<QList<QtPackage>>("xpackages");
 
@@ -48,8 +49,8 @@ void tst_UpdateInfo::updates_data()
         << R"raw(<?xml version="1.0"?>
         <updates>
         <update name="Qt Design Studio 3.2.0" version="3.2.0-0-202203291247" size="3113234690" id="qt.tools.qtdesignstudio"/>
-        </updates>
-        <?xml version="1.0"?>
+        </updates>)raw"
+        << R"raw(<?xml version="1.0"?>
         <availablepackages>
         <package name="qt.qt6.621" displayname="Qt 6.2.1" version="6.2.1-0-202110220854"/>
         <package name="qt.qt5.5152" displayname="Qt 5.15.2" version="5.15.2-0-202011130607" installedVersion="5.15.2-0-202011130607"/>
@@ -64,14 +65,14 @@ void tst_UpdateInfo::updates_data()
 
 void tst_UpdateInfo::updates()
 {
-    QFETCH(QString, xml);
+    QFETCH(QString, updateXml);
+    QFETCH(QString, packageXml);
     QFETCH(QList<Update>, xupdates);
     QFETCH(QList<QtPackage>, xpackages);
 
-    std::unique_ptr<QDomDocument> doc = documentForResponse(xml);
-    const QList<Update> updates = availableUpdates(*doc);
+    const QList<Update> updates = availableUpdates(updateXml);
     QCOMPARE(updates, xupdates);
-    const QList<QtPackage> packages = availableQtPackages(*doc);
+    const QList<QtPackage> packages = availableQtPackages(packageXml);
     QCOMPARE(packages, xpackages);
 }
 

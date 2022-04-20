@@ -89,7 +89,6 @@ private:
     void startPackageManager();
     void stopCheckForUpdates();
 
-    void collectCheckForUpdatesOutput(const QString &contents);
     void checkForUpdatesFinished();
 
     void loadSettings() const;

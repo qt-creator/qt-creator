@@ -34,22 +34,7 @@
 #include <QRegularExpression>
 #include <QVersionNumber>
 
-#include <memory>
-
 Q_DECLARE_LOGGING_CATEGORY(log)
-
-std::unique_ptr<QDomDocument> documentForResponse(const QString &response)
-{
-    // since the output can contain two toplevel items from the two separate MaintenanceTool runs,
-    // clean up any <?xml version="1.0"?> and surround with a toplevel element
-    QString responseWithoutHeader = response;
-    responseWithoutHeader.remove(QRegularExpression("<\\?xml.*\\?>"));
-    const QString xml = response.isEmpty() ? QString()
-                                           : ("<doc>" + responseWithoutHeader + "</doc>");
-    std::unique_ptr<QDomDocument> doc(new QDomDocument);
-    doc->setContent(xml);
-    return doc;
-}
 
 struct Update
 {
@@ -62,8 +47,10 @@ struct Update
     };
 };
 
-QList<Update> availableUpdates(const QDomDocument &document)
+QList<Update> availableUpdates(const QString &updateXml)
 {
+    QDomDocument document;
+    document.setContent(updateXml);
     if (document.isNull() || !document.firstChildElement().hasChildNodes())
         return {};
     QList<Update> result;
@@ -93,8 +80,10 @@ struct QtPackage
     }
 };
 
-QList<QtPackage> availableQtPackages(const QDomDocument &document)
+QList<QtPackage> availableQtPackages(const QString &packageXml)
 {
+    QDomDocument document;
+    document.setContent(packageXml);
     if (document.isNull() || !document.firstChildElement().hasChildNodes())
         return {};
     QList<QtPackage> result;

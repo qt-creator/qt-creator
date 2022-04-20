@@ -32,8 +32,9 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/futureprogress.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/settingsdatabase.h>
-#include <coreplugin/shellcommand.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/infobar.h>
@@ -53,6 +54,8 @@
 #include <QTimer>
 #include <QVersionNumber>
 
+#include <memory>
+
 Q_LOGGING_CATEGORY(log, "qtc.updateinfo", QtWarningMsg)
 
 const char UpdaterGroup[] = "Updater";
@@ -68,6 +71,7 @@ const char InstallUpdates[] = "UpdateInfo.InstallUpdates";
 const char InstallQtUpdates[] = "UpdateInfo.InstallQtUpdates";
 
 using namespace Core;
+using namespace Utils;
 
 namespace UpdateInfo {
 namespace Internal {
@@ -76,11 +80,11 @@ class UpdateInfoPluginPrivate
 {
 public:
     QString m_maintenanceTool;
-    QPointer<ShellCommand> m_checkUpdatesCommand;
+    std::unique_ptr<QtcProcess> m_maintenanceToolProcess;
     QPointer<FutureProgress> m_progress;
-    QString m_collectedOutput;
+    QString m_updateOutput;
+    QString m_packagesOutput;
     QTimer *m_checkUpdatesTimer = nullptr;
-
     struct Settings
     {
         bool automaticCheck = true;
@@ -125,7 +129,7 @@ void UpdateInfoPlugin::stopAutoCheckForUpdates()
 
 void UpdateInfoPlugin::doAutoCheckForUpdates()
 {
-    if (d->m_checkUpdatesCommand)
+    if (d->m_maintenanceToolProcess)
         return; // update task is still running (might have been run manually just before)
 
     if (nextCheckDate().isValid() && nextCheckDate() > QDate::currentDate())
@@ -138,49 +142,84 @@ void UpdateInfoPlugin::startCheckForUpdates()
 {
     stopCheckForUpdates();
 
-    d->m_checkUpdatesCommand = new ShellCommand({}, Utils::Environment::systemEnvironment());
-    d->m_checkUpdatesCommand->setDisplayName(tr("Checking for Updates"));
-    connect(d->m_checkUpdatesCommand, &ShellCommand::stdOutText, this, &UpdateInfoPlugin::collectCheckForUpdatesOutput);
-    connect(d->m_checkUpdatesCommand, &ShellCommand::finished, this, &UpdateInfoPlugin::checkForUpdatesFinished);
-    d->m_checkUpdatesCommand->addJob({Utils::FilePath::fromString(d->m_maintenanceTool),
-                                      {"ch", "-g", "*=false,ifw.package.*=true"}},
-                                     60 * 3, // 3 minutes timeout
-                                     /*workingDirectory=*/{},
-                                     [](int /*exitCode*/) {
-                                         return Utils::ProcessResult::FinishedWithSuccess;
-                                     });
-    if (d->m_settings.checkForQtVersions) {
-        d->m_checkUpdatesCommand
-            ->addJob({Utils::FilePath::fromString(d->m_maintenanceTool),
-                      {"se", "qt[.]qt[0-9][.][0-9]+$", "-g", "*=false,ifw.package.*=true"}},
-                     60 * 3, // 3 minutes timeout
-                     /*workingDirectory=*/{},
-                     [](int /*exitCode*/) { return Utils::ProcessResult::FinishedWithSuccess; });
-    }
-    d->m_checkUpdatesCommand->execute();
-    d->m_progress = d->m_checkUpdatesCommand->futureProgress();
-    if (d->m_progress) {
-        d->m_progress->setKeepOnFinish(FutureProgress::KeepOnFinishTillUserInteraction);
-        d->m_progress->setSubtitleVisibleInStatusBar(true);
-    }
+    QFutureInterface<void> futureIf;
+    FutureProgress *futureProgress
+        = ProgressManager::addTimedTask(futureIf,
+                                        tr("Checking for Updates"),
+                                        Id("UpdateInfo.CheckingForUpdates"),
+                                        60);
+    futureProgress->setKeepOnFinish(FutureProgress::KeepOnFinishTillUserInteraction);
+    futureProgress->setSubtitleVisibleInStatusBar(true);
+    connect(futureProgress, &FutureProgress::canceled, this, [this, futureIf]() mutable {
+        futureIf.reportCanceled();
+        futureIf.reportFinished();
+        stopCheckForUpdates();
+    });
+
+    d->m_maintenanceToolProcess.reset(new QtcProcess);
+    d->m_maintenanceToolProcess->setCommand({Utils::FilePath::fromString(d->m_maintenanceTool),
+                                             {"ch", "-g", "*=false,ifw.package.*=true"}});
+    d->m_maintenanceToolProcess->setTimeoutS(3 * 60); // 3 minutes
+    // TODO handle error
+    connect(
+        d->m_maintenanceToolProcess.get(),
+        &QtcProcess::done,
+        this,
+        [this, futureIf]() mutable {
+            if (d->m_maintenanceToolProcess->result() == ProcessResult::FinishedWithSuccess) {
+                d->m_updateOutput = d->m_maintenanceToolProcess->stdOut();
+                if (d->m_settings.checkForQtVersions) {
+                    d->m_maintenanceToolProcess.reset(new QtcProcess);
+                    d->m_maintenanceToolProcess->setCommand(
+                        {Utils::FilePath::fromString(d->m_maintenanceTool),
+                         {"se", "qt[.]qt[0-9][.][0-9]+$", "-g", "*=false,ifw.package.*=true"}});
+                    d->m_maintenanceToolProcess->setTimeoutS(3 * 60); // 3 minutes
+                    connect(
+                        d->m_maintenanceToolProcess.get(),
+                        &QtcProcess::done,
+                        this,
+                        [this, futureIf]() mutable {
+                            if (d->m_maintenanceToolProcess->result()
+                                == ProcessResult::FinishedWithSuccess) {
+                                d->m_packagesOutput = d->m_maintenanceToolProcess->stdOut();
+                                d->m_maintenanceToolProcess.reset();
+                                futureIf.reportFinished();
+                                checkForUpdatesFinished();
+                            } else {
+                                futureIf.reportCanceled(); // is used to indicate error
+                                futureIf.reportFinished();
+                            }
+                        },
+                        Qt::QueuedConnection);
+                    d->m_maintenanceToolProcess->start();
+                } else {
+                    d->m_maintenanceToolProcess.reset();
+                    futureIf.reportFinished();
+                    checkForUpdatesFinished();
+                }
+            } else {
+                futureIf.reportCanceled(); // is used to indicate error
+                futureIf.reportFinished();
+            }
+        },
+        Qt::QueuedConnection);
+
+    d->m_maintenanceToolProcess->start();
+    futureIf.reportStarted();
+
     emit checkForUpdatesRunningChanged(true);
 }
 
 void UpdateInfoPlugin::stopCheckForUpdates()
 {
-    if (!d->m_checkUpdatesCommand)
+    if (!d->m_maintenanceToolProcess)
         return;
 
-    d->m_collectedOutput.clear();
-    d->m_checkUpdatesCommand->disconnect();
-    d->m_checkUpdatesCommand->cancel();
-    d->m_checkUpdatesCommand = nullptr;
+    d->m_maintenanceToolProcess->disconnect();
+    d->m_maintenanceToolProcess.reset();
+    d->m_updateOutput.clear();
+    d->m_packagesOutput.clear();
     emit checkForUpdatesRunningChanged(false);
-}
-
-void UpdateInfoPlugin::collectCheckForUpdatesOutput(const QString &contents)
-{
-    d->m_collectedOutput += contents;
 }
 
 static void showUpdateInfo(const QList<Update> &updates, const std::function<void()> &startUpdater)
@@ -235,14 +274,15 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
 {
     setLastCheckDate(QDate::currentDate());
 
-    qCDebug(log) << "--- MaintenanceTool output (combined):";
-    qCDebug(log) << qPrintable(d->m_collectedOutput);
-    std::unique_ptr<QDomDocument> document = documentForResponse(d->m_collectedOutput);
+    qCDebug(log) << "--- MaintenanceTool output (updates):";
+    qCDebug(log) << qPrintable(d->m_updateOutput);
+    qCDebug(log) << "--- MaintenanceTool output (packages):";
+    qCDebug(log) << qPrintable(d->m_packagesOutput);
 
     stopCheckForUpdates();
 
-    const QList<Update> updates = availableUpdates(*document);
-    const QList<QtPackage> qtPackages = availableQtPackages(*document);
+    const QList<Update> updates = availableUpdates(d->m_updateOutput);
+    const QList<QtPackage> qtPackages = availableQtPackages(d->m_packagesOutput);
     if (log().isDebugEnabled()) {
         qCDebug(log) << "--- Available updates:";
         for (const Update &u : updates)
@@ -275,7 +315,7 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
 
 bool UpdateInfoPlugin::isCheckForUpdatesRunning() const
 {
-    return d->m_checkUpdatesCommand;
+    return d->m_maintenanceToolProcess.get() != nullptr;
 }
 
 void UpdateInfoPlugin::extensionsInitialized()
