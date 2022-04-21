@@ -571,7 +571,7 @@ static const QString legacySupportVersionFor(const QString &sdkVersion)
 bool checkDeprecatedSdkError(const Utils::FilePath &qulDir, QString &message)
 {
     const McuPackagePathVersionDetector versionDetector("(?<=\\bQtMCUs.)(\\d+\\.\\d+)");
-    const QString sdkDetectedVersion = versionDetector.parseVersion(qulDir.toString());
+    const QString sdkDetectedVersion = versionDetector.parseVersion(qulDir);
     const QString legacyVersion = legacySupportVersionFor(sdkDetectedVersion);
 
     if (!legacyVersion.isEmpty()) {

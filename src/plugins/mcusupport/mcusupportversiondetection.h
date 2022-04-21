@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <QObject>
 #include <utils/filepath.h>
+#include <QObject>
 
 namespace McuSupport {
 namespace Internal {
@@ -37,7 +37,7 @@ class McuPackageVersionDetector : public QObject
 public:
     McuPackageVersionDetector();
     virtual ~McuPackageVersionDetector() = default;
-    virtual QString parseVersion(const QString &packagePath) const = 0;
+    virtual QString parseVersion(const Utils::FilePath &packagePath) const = 0;
 };
 
 // Get version from the output of an executable
@@ -47,7 +47,7 @@ public:
     McuPackageExecutableVersionDetector(const Utils::FilePath &detectionPath,
                                         const QStringList &detectionArgs,
                                         const QString &detectionRegExp);
-    QString parseVersion(const QString &packagePath) const final;
+    QString parseVersion(const Utils::FilePath &packagePath) const final;
 
 private:
     const Utils::FilePath m_detectionPath;
@@ -63,7 +63,7 @@ public:
                                  const QString &elementName,
                                  const QString &versionAttribute,
                                  const QString &versionRegExp);
-    QString parseVersion(const QString &packagePath) const final;
+    QString parseVersion(const Utils::FilePath &packagePath) const final;
 
 private:
     const QString m_filePattern;
@@ -79,7 +79,7 @@ public:
     McuPackageDirectoryVersionDetector(const QString &filePattern,
                                        const QString &versionRegExp,
                                        const bool isFile);
-    QString parseVersion(const QString &packagePath) const final;
+    QString parseVersion(const Utils::FilePath &packagePath) const final;
 
 private:
     const QString m_filePattern;
@@ -92,7 +92,7 @@ class McuPackagePathVersionDetector : public McuPackageVersionDetector
 {
 public:
     McuPackagePathVersionDetector(const QString &versionRegExp);
-    QString parseVersion(const QString &packagePath) const final;
+    QString parseVersion(const Utils::FilePath &packagePath) const final;
 
 private:
     const QString m_versionRegExp;

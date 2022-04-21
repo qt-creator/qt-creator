@@ -46,19 +46,21 @@ QString matchRegExp(const QString &text, const QString &regExp)
 McuPackageVersionDetector::McuPackageVersionDetector() {}
 
 McuPackageExecutableVersionDetector::McuPackageExecutableVersionDetector(
-    const Utils::FilePath &detectionPath, const QStringList &detectionArgs, const QString &detectionRegExp)
+    const Utils::FilePath &detectionPath,
+    const QStringList &detectionArgs,
+    const QString &detectionRegExp)
     : McuPackageVersionDetector()
     , m_detectionPath(detectionPath)
     , m_detectionArgs(detectionArgs)
     , m_detectionRegExp(detectionRegExp)
 {}
 
-QString McuPackageExecutableVersionDetector::parseVersion(const QString &packagePath) const
+QString McuPackageExecutableVersionDetector::parseVersion(const Utils::FilePath &packagePath) const
 {
     if (m_detectionPath.isEmpty() || m_detectionRegExp.isEmpty())
         return QString();
 
-    const Utils::FilePath binaryPath = Utils::FilePath::fromString(packagePath).pathAppended(m_detectionPath.path());
+    const Utils::FilePath binaryPath = packagePath / m_detectionPath.path();
     if (!binaryPath.exists())
         return QString();
 
@@ -89,9 +91,9 @@ McuPackageXmlVersionDetector::McuPackageXmlVersionDetector(const QString &filePa
     , m_versionRegExp(versionRegExp)
 {}
 
-QString McuPackageXmlVersionDetector::parseVersion(const QString &packagePath) const
+QString McuPackageXmlVersionDetector::parseVersion(const Utils::FilePath &packagePath) const
 {
-    const auto files = QDir(packagePath, m_filePattern).entryInfoList();
+    const auto files = QDir(packagePath.toString(), m_filePattern).entryInfoList();
     for (const auto &xmlFile : files) {
         QFile sdkXmlFile = QFile(xmlFile.absoluteFilePath());
         sdkXmlFile.open(QFile::OpenModeFlag::ReadOnly);
@@ -117,9 +119,9 @@ McuPackageDirectoryVersionDetector::McuPackageDirectoryVersionDetector(const QSt
     , m_isFile(isFile)
 {}
 
-QString McuPackageDirectoryVersionDetector::parseVersion(const QString &packagePath) const
+QString McuPackageDirectoryVersionDetector::parseVersion(const Utils::FilePath &packagePath) const
 {
-    const auto files = QDir(packagePath, m_filePattern)
+    const auto files = QDir(packagePath.toString(), m_filePattern)
                            .entryInfoList(m_isFile ? QDir::Filter::Files : QDir::Filter::Dirs);
     for (const auto &entry : files) {
         const QString matched = matchRegExp(entry.fileName(), m_versionRegExp);
@@ -133,11 +135,11 @@ McuPackagePathVersionDetector::McuPackagePathVersionDetector(const QString &vers
     : m_versionRegExp(versionRegExp)
 {}
 
-QString McuPackagePathVersionDetector::parseVersion(const QString &packagePath) const
+QString McuPackagePathVersionDetector::parseVersion(const Utils::FilePath &packagePath) const
 {
-    if (!Utils::FilePath::fromString(packagePath).exists())
+    if (!packagePath.exists())
         return QString();
-    return matchRegExp(packagePath, m_versionRegExp);
+    return matchRegExp(packagePath.toString(), m_versionRegExp);
 }
 
 } // namespace Internal

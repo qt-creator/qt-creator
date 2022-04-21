@@ -213,7 +213,7 @@ public:
         // feature of the run configuration. Otherwise, we just prepend the path, here.
         if (mcuTarget->toolChainPackage()->isDesktopToolchain()
             && !CMakeProjectManager::CMakeToolManager::defaultCMakeTool()->hasFileApi())
-            pathAdditions.append(qtForMCUsSdkPackage->path().pathAppended("bin").toUserOutput());
+            pathAdditions.append((qtForMCUsSdkPackage->path() / "bin").toUserOutput());
 
         auto processPackage = [&pathAdditions](const McuPackagePtr &package) {
             if (package->isAddToSystemPath())

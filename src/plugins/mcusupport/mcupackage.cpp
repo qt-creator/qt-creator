@@ -110,7 +110,7 @@ FilePath McuPackage::basePath() const
 
 FilePath McuPackage::path() const
 {
-    return basePath().pathAppended(m_relativePathModifier.path()).absoluteFilePath();
+    return (basePath() / m_relativePathModifier.path()).absoluteFilePath().cleanPath();
 }
 
 FilePath McuPackage::defaultPath() const
@@ -133,10 +133,10 @@ void McuPackage::updatePath()
 void McuPackage::updateStatus()
 {
     bool validPath = !m_path.isEmpty() && m_path.exists();
-    const FilePath detectionPath = basePath().pathAppended(m_detectionPath.path());
+    const FilePath detectionPath = basePath() / m_detectionPath.path();
     const bool validPackage = m_detectionPath.isEmpty() || detectionPath.exists();
     m_detectedVersion = validPath && validPackage && m_versionDetector
-                            ? m_versionDetector->parseVersion(basePath().toString())
+                            ? m_versionDetector->parseVersion(basePath())
                             : QString();
     const bool validVersion = m_detectedVersion.isEmpty() || m_versions.isEmpty()
                               || m_versions.contains(m_detectedVersion);
@@ -394,7 +394,7 @@ ToolChain *McuToolChainPackage::toolChain(Id language) const
     case ToolChainType::GCC:
         return gccToolChain(language);
     case ToolChainType::IAR: {
-        const FilePath compiler = path().pathAppended("/bin/iccarm").withExecutableSuffix();
+        const FilePath compiler = (path() / "/bin/iccarm").withExecutableSuffix();
         return iarToolChain(compiler, language);
     }
     case ToolChainType::ArmGcc:
@@ -407,7 +407,7 @@ ToolChain *McuToolChainPackage::toolChain(Id language) const
         const QString comp = QLatin1String(m_type == ToolChainType::ArmGcc ? "/bin/arm-none-eabi-%1"
                                                                            : "/bar/foo-keil-%1")
                                  .arg(compilerName);
-        const FilePath compiler = path().pathAppended(comp).withExecutableSuffix();
+        const FilePath compiler = (path() / comp).withExecutableSuffix();
 
         return armGccToolChain(compiler, language);
     }
@@ -469,7 +469,7 @@ QVariant McuToolChainPackage::debuggerId() const
         return QVariant();
     }
 
-    const FilePath command = path().pathAppended(sub).withExecutableSuffix();
+    const FilePath command = (path() / sub).withExecutableSuffix();
     if (const DebuggerItem *debugger = DebuggerItemManager::findByCommand(command)) {
         return debugger->id();
     }

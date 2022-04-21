@@ -77,7 +77,7 @@ static FilePath qulDocsDir()
     const FilePath qulDir = McuSupportOptions::qulDirFromSettings();
     if (qulDir.isEmpty() || !qulDir.exists())
         return {};
-    const FilePath docsDir = qulDir.pathAppended("docs");
+    const FilePath docsDir = qulDir / "docs";
     return docsDir.exists() ? docsDir : FilePath();
 }
 
