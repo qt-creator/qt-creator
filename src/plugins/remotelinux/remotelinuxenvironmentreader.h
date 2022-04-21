@@ -53,12 +53,9 @@ signals:
     void error(const QString &error);
 
 private:
-    void handleError();
-    void remoteProcessFinished();
+    void handleDone();
     void setFinished();
-    void destroyProcess();
 
-    bool m_stop = false;
     Utils::Environment m_env;
     ProjectExplorer::IDeviceConstPtr m_device;
     Utils::QtcProcess *m_deviceProcess = nullptr;

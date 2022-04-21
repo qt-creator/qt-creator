@@ -52,29 +52,20 @@ void RemoteLinuxEnvironmentReader::start()
         setFinished();
         return;
     }
-    m_stop = false;
     m_deviceProcess = m_device->createProcess(this);
-    connect(m_deviceProcess, &QtcProcess::errorOccurred,
-            this, &RemoteLinuxEnvironmentReader::handleError);
-    connect(m_deviceProcess, &QtcProcess::finished,
-            this, &RemoteLinuxEnvironmentReader::remoteProcessFinished);
+    connect(m_deviceProcess, &QtcProcess::done,
+            this, &RemoteLinuxEnvironmentReader::handleDone);
     m_deviceProcess->setCommand({"env", {}});
     m_deviceProcess->start();
 }
 
 void RemoteLinuxEnvironmentReader::stop()
 {
-    m_stop = true;
-    destroyProcess();
-}
-
-void RemoteLinuxEnvironmentReader::handleError()
-{
-    if (m_stop)
+    if (!m_deviceProcess)
         return;
-
-    emit error(tr("Error: %1").arg(m_deviceProcess->errorString()));
-    setFinished();
+    m_deviceProcess->disconnect(this);
+    m_deviceProcess->deleteLater();
+    m_deviceProcess = nullptr;
 }
 
 void RemoteLinuxEnvironmentReader::handleCurrentDeviceConfigChanged()
@@ -83,10 +74,13 @@ void RemoteLinuxEnvironmentReader::handleCurrentDeviceConfigChanged()
     setFinished();
 }
 
-void RemoteLinuxEnvironmentReader::remoteProcessFinished()
+void RemoteLinuxEnvironmentReader::handleDone()
 {
-    if (m_stop)
+    if (m_deviceProcess->result() != ProcessResult::FinishedWithSuccess) {
+        emit error(tr("Error: %1").arg(m_deviceProcess->errorString()));
+        setFinished();
         return;
+    }
 
     m_env.clear();
     QString errorMessage;
@@ -96,6 +90,7 @@ void RemoteLinuxEnvironmentReader::remoteProcessFinished()
         errorMessage = tr("Process exited with code %1.")
                 .arg(m_deviceProcess->exitCode());
     }
+
     if (!errorMessage.isEmpty()) {
         errorMessage = tr("Error running 'env': %1").arg(errorMessage);
         const QString remoteStderr
@@ -104,7 +99,7 @@ void RemoteLinuxEnvironmentReader::remoteProcessFinished()
             errorMessage += QLatin1Char('\n') + tr("Remote stderr was: \"%1\"").arg(remoteStderr);
         emit error(errorMessage);
     } else {
-        QString remoteOutput = QString::fromUtf8(m_deviceProcess->readAllStandardOutput());
+        const QString remoteOutput = QString::fromUtf8(m_deviceProcess->readAllStandardOutput());
         if (!remoteOutput.isEmpty()) {
             m_env = Utils::Environment(remoteOutput.split(QLatin1Char('\n'),
                 Qt::SkipEmptyParts), Utils::OsTypeLinux);
@@ -117,15 +112,6 @@ void RemoteLinuxEnvironmentReader::setFinished()
 {
     stop();
     emit finished();
-}
-
-void RemoteLinuxEnvironmentReader::destroyProcess()
-{
-    if (!m_deviceProcess)
-        return;
-    m_deviceProcess->disconnect(this);
-    m_deviceProcess->deleteLater();
-    m_deviceProcess = nullptr;
 }
 
 } // namespace Internal
