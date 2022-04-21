@@ -43,6 +43,8 @@ constexpr std::underlying_type_t<Enumeration> to_underlying(Enumeration enumerat
     return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
 }
 
+using TypeNameString = Utils::BasicSmallString<63>;
+
 } // namespace QmlDesigner
 
 namespace QmlDesigner::Storage {
@@ -310,7 +312,7 @@ public:
     }
 
 public:
-    Utils::SmallString name;
+    TypeNameString name;
 };
 
 class QualifiedImportedType
@@ -328,7 +330,7 @@ public:
     }
 
 public:
-    Utils::SmallString name;
+    TypeNameString name;
     Import import;
 };
 
@@ -459,7 +461,7 @@ public:
     }
 
 public:
-    Utils::SmallString name;
+    TypeNameString name;
     EnumeratorDeclarations enumeratorDeclarations;
 };
 
@@ -509,7 +511,7 @@ public:
 
 public:
     Utils::SmallString name;
-    Utils::SmallString typeName;
+    TypeNameString typeName;
     PropertyDeclarationTraits traits = {};
 };
 
@@ -584,7 +586,7 @@ public:
 
 public:
     Utils::SmallString name;
-    Utils::SmallString returnTypeName;
+    TypeNameString returnTypeName;
     ParameterDeclarations parameters;
 };
 
@@ -806,7 +808,7 @@ public:
     }
 
 public:
-    Utils::SmallString typeName;
+    TypeNameString typeName;
     ImportedTypeName prototype;
     ExportedTypes exportedTypes;
     PropertyDeclarations propertyDeclarations;

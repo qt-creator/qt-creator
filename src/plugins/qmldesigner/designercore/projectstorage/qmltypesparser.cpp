@@ -128,22 +128,21 @@ Storage::ExportedTypes createExports(const QList<QQmlJSScope::Export> &qmlExport
     exportedTypes.reserve(Utils::usize(qmlExports));
 
     for (const QQmlJSScope::Export &qmlExport : qmlExports) {
-        Utils::SmallString exportedTypeName{qmlExport.type()};
+        TypeNameString exportedTypeName{qmlExport.type()};
         exportedTypes.emplace_back(storage.moduleId(Utils::SmallString{qmlExport.package()}),
                                    std::move(exportedTypeName),
                                    createVersion(qmlExport.version()));
     }
 
-    Utils::SmallString cppExportedTypeName{interanalName};
+    TypeNameString cppExportedTypeName{interanalName};
     exportedTypes.emplace_back(cppModuleId, cppExportedTypeName);
 
     return exportedTypes;
 }
 
-Utils::SmallString createCppEnumerationExport(Utils::SmallStringView typeName,
-                                              Utils::SmallStringView enumerationName)
+auto createCppEnumerationExport(Utils::SmallStringView typeName, Utils::SmallStringView enumerationName)
 {
-    Utils::SmallString cppExportedTypeName{typeName};
+    TypeNameString cppExportedTypeName{typeName};
     cppExportedTypeName += "::";
     cppExportedTypeName += enumerationName;
 
@@ -194,13 +193,13 @@ struct EnumerationType
     {}
 
     Utils::SmallString name;
-    Utils::SmallString full;
+    TypeNameString full;
 };
 
 using EnumerationTypes = std::vector<EnumerationType>;
 
-Utils::SmallString fullyQualifiedTypeName(const QString &typeName,
-                                          const ComponentWithoutNamespaces &componentNameWithoutNamespace)
+TypeNameString fullyQualifiedTypeName(const QString &typeName,
+                                      const ComponentWithoutNamespaces &componentNameWithoutNamespace)
 {
     if (auto found = componentNameWithoutNamespace.find(typeName);
         found != componentNameWithoutNamespace.end())
@@ -221,7 +220,7 @@ Storage::PropertyDeclarations createProperties(
         if (qmlProperty.typeName().isEmpty())
             continue;
 
-        Utils::SmallString propertyTypeName{
+        TypeNameString propertyTypeName{
             fullyQualifiedTypeName(qmlProperty.typeName(), componentNameWithoutNamespace)};
 
         auto found = find_if(enumerationTypes.begin(), enumerationTypes.end(), [&](auto &entry) {
@@ -327,18 +326,18 @@ Storage::EnumerationDeclarations createEnumeration(const QHash<QString, QQmlJSMe
     enumerationDeclarations.reserve(Utils::usize(qmlEnumerations));
 
     for (const QQmlJSMetaEnum &qmlEnumeration : qmlEnumerations) {
-        enumerationDeclarations.emplace_back(Utils::SmallString{qmlEnumeration.name()},
+        enumerationDeclarations.emplace_back(TypeNameString{qmlEnumeration.name()},
                                              createEnumerators(qmlEnumeration));
     }
 
     return enumerationDeclarations;
 }
 
-Utils::SmallString addEnumerationType(EnumerationTypes &enumerationTypes,
-                                      Utils::SmallStringView typeName,
-                                      Utils::SmallStringView enumerationName)
+auto addEnumerationType(EnumerationTypes &enumerationTypes,
+                        Utils::SmallStringView typeName,
+                        Utils::SmallStringView enumerationName)
 {
-    auto fullTypeName = Utils::SmallString::join({typeName, "::", enumerationName});
+    auto fullTypeName = TypeNameString::join({typeName, "::", enumerationName});
     enumerationTypes.emplace_back(enumerationName, std::move(fullTypeName));
 
     return fullTypeName;
@@ -354,7 +353,7 @@ void addEnumerationType(EnumerationTypes &enumerationTypes,
 {
     auto fullTypeName = addEnumerationType(enumerationTypes, typeName, enumerationName);
     types.emplace_back(fullTypeName,
-                       Storage::ImportedType{Utils::SmallString{}},
+                       Storage::ImportedType{TypeNameString{}},
                        Storage::TypeAccessSemantics::Value | Storage::TypeAccessSemantics::IsEnum,
                        sourceId,
                        createCppEnumerationExports(typeName,
@@ -393,8 +392,8 @@ EnumerationTypes addEnumerationTypes(Storage::Types &types,
         if (aliases.contains(qmlEnumeration.name()))
             continue;
 
-        Utils::SmallString enumerationName{qmlEnumeration.name()};
-        Utils::SmallString enumerationAlias{qmlEnumeration.alias()};
+        TypeNameString enumerationName{qmlEnumeration.name()};
+        TypeNameString enumerationAlias{qmlEnumeration.alias()};
         addEnumerationType(enumerationTypes,
                            types,
                            typeName,
@@ -416,13 +415,13 @@ void addType(Storage::Types &types,
 {
     auto [functionsDeclarations, signalDeclarations] = createFunctionAndSignals(
         component.ownMethods(), componentNameWithoutNamespace);
-    Utils::SmallString typeName{component.internalName()};
+    TypeNameString typeName{component.internalName()};
     auto enumerations = component.ownEnumerations();
     auto exports = component.exports();
 
     auto enumerationTypes = addEnumerationTypes(types, typeName, sourceId, cppModuleId, enumerations);
     types.emplace_back(Utils::SmallStringView{typeName},
-                       Storage::ImportedType{Utils::SmallString{component.baseTypeName()}},
+                       Storage::ImportedType{TypeNameString{component.baseTypeName()}},
                        createTypeAccessSemantics(component.accessSemantics()),
                        sourceId,
                        createExports(exports, typeName, storage, cppModuleId),
