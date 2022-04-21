@@ -47,8 +47,7 @@ public:
 
 private:
     void runScript();
-    void handleProcessFinished();
-    void handleProcessError(QProcess::ProcessError error);
+    void handleProcessDone();
     void finish();
 
     Ui::PerfTracePointDialog *m_ui;
