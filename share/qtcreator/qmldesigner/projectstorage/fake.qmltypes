@@ -152,6 +152,30 @@ Component {
 }
 
 Component {
+  name: "QList<QUrl>"
+}
+
+Component {
+  name: "QList<QRgb>"
+}
+
+Component {
+  name: "QList<uchar>"
+}
+
+Component {
+  name: "QList<QString>"
+}
+
+Component {
+  name: "QList<QPolygonF>"
+}
+
+Component {
+  name: "QList<int>"
+}
+
+Component {
   name: "QCameraFormat"
 }
 
@@ -283,4 +307,35 @@ Component {
   name: "QFontDialogOptions::FontDialogOptions"
 }
 
+Component {
+  name: "ApplicationInterface"
+}
+
+Component {
+  name: "QSortFilterProxyModel"
+}
+
+Component {
+  name: "QIfAmFmTunerStation"
+}
+
+Component {
+  name: "QOpcUaLocalizedText"
+}
+
+Component {
+  name: "QDate"
+}
+
+Component {
+  name: "Qt::InputMethodHints"
+}
+
+Component {
+  name: "QChar"
+}
+
+Component {
+  name: "QVector3D"
+}
 }
