@@ -29,6 +29,8 @@
 
 #if defined(PLUGIN3_LIBRARY)
 #  define PLUGIN3_EXPORT Q_DECL_EXPORT
+#elif defined(PLUGIN3_STATIC_LIBRARY)
+#  define PLUGIN3_EXPORT
 #else
 #  define PLUGIN3_EXPORT Q_DECL_IMPORT
 #endif

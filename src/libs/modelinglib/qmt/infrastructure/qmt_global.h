@@ -29,6 +29,8 @@
 
 #if defined(MODELING_LIBRARY)
 #  define QMT_EXPORT Q_DECL_EXPORT
+#elif defined(MODELING_STATIC_LIBRARY)
+#  define QMT_EXPORT
 #else
 #  define QMT_EXPORT Q_DECL_IMPORT
 #endif

@@ -9,7 +9,6 @@ add_qtc_plugin(QmlDesigner
     QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
     Qt5::QuickWidgets Qt5::CorePrivate Sqlite Qt5::Xml Qt5::Svg
   DEFINES
-    DESIGNER_CORE_LIBRARY
     IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
     SHARE_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../../../share/qtcreator/qmldesigner"
   PUBLIC_INCLUDES
@@ -59,7 +58,16 @@ add_qtc_plugin(QmlDesigner
 include(qmldesignercore.cmake)
 extend_with_qmldesigner_core(QmlDesigner)
 
+if (QTC_STATIC_BUILD)
+  get_target_property(_designerType Qt5::Designer TYPE)
+  if (${_designerType} STREQUAL "STATIC_LIBRARY")
+    extend_qtc_target(QmlDesigner PUBLIC_DEFINES QT_DESIGNER_STATIC)
+  endif()
+  extend_qtc_target(QmlDesigner PUBLIC_DEPENDS TextEditor)
+endif()
+
 add_qtc_plugin(assetexporterplugin
+  PLUGIN_CLASS AssetExporterPlugin
   CONDITION TARGET QmlDesigner
   DEPENDS Core ProjectExplorer QmlDesigner Utils Qt5::Qml Qt5::QuickPrivate
   PUBLIC_INCLUDES assetexporterplugin
@@ -81,6 +89,7 @@ add_qtc_plugin(assetexporterplugin
 )
 
 add_qtc_plugin(componentsplugin
+  PLUGIN_CLASS ComponentsPlugin
   CONDITION TARGET QmlDesigner
   DEPENDS Core QmlDesigner Utils Qt5::Qml
   DEFINES COMPONENTS_LIBRARY
@@ -96,6 +105,7 @@ add_qtc_plugin(componentsplugin
 )
 
 add_qtc_plugin(qmlpreviewplugin
+  PLUGIN_CLASS QmlPreviewWidgetPlugin
   CONDITION TARGET QmlDesigner
   DEPENDS Core ProjectExplorer QmlDesigner Utils Qt5::Qml
   SOURCES
@@ -106,6 +116,7 @@ add_qtc_plugin(qmlpreviewplugin
 )
 
 add_qtc_plugin(qtquickplugin
+  PLUGIN_CLASS QtQuickPlugin
   CONDITION TARGET QmlDesigner
   DEPENDS Core QmlDesigner Utils Qt5::Qml
   DEFINES QTQUICK_LIBRARY

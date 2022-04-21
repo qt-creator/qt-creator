@@ -66,7 +66,7 @@ add_qtc_library(sdktoolLib
 
 extend_qtc_library(sdktoolLib
   SOURCES_PREFIX "${UtilsSourcesDir}"
-  PUBLIC_DEFINES QTCREATOR_UTILS_STATIC_LIB
+  PUBLIC_DEFINES UTILS_STATIC_LIBRARY
   SOURCES
     commandline.cpp commandline.h
     environment.cpp environment.h
@@ -109,7 +109,7 @@ add_qtc_executable(sdktool
     main.cpp
 )
 
-if (MSVC AND TARGET sdktool)
+if (MSVC AND TARGET sdktool AND Qt5_VERSION VERSION_LESS 6.0.0)
   # find out if Qt is static and set /MT if so
   get_target_property(_input_type Qt5::Core TYPE)
   if (${_input_type} STREQUAL "STATIC_LIBRARY")

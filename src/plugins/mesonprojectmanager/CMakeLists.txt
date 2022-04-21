@@ -1,4 +1,5 @@
 add_qtc_plugin(MesonProjectManager
+  PLUGIN_CLASS MesonProjectPlugin
   DEPENDS QmlJS
   PLUGIN_DEPENDS Core CppEditor ProjectExplorer TextEditor QtSupport
   SOURCES

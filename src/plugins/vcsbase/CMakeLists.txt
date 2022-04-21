@@ -1,4 +1,5 @@
 add_qtc_plugin(VcsBase
+  PLUGIN_CLASS VcsPlugin
   PLUGIN_DEPENDS Core DiffEditor ProjectExplorer TextEditor
   PLUGIN_RECOMMENDS CodePaster CppEditor
   SOURCES

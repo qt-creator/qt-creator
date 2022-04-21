@@ -33,18 +33,18 @@ QT_FORWARD_DECLARE_CLASS(QAction)
 
 namespace QmlDesigner {
 
-class QmlPreviewPlugin : public QObject, QmlDesigner::IWidgetPlugin
+class QmlPreviewWidgetPlugin : public QObject, QmlDesigner::IWidgetPlugin
 {
     Q_OBJECT
 
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QmlDesignerPlugin" FILE "qmlpreviewplugin.json")
 
-    Q_DISABLE_COPY(QmlPreviewPlugin)
+    Q_DISABLE_COPY(QmlPreviewWidgetPlugin)
     Q_INTERFACES(QmlDesigner::IWidgetPlugin)
 
 public:
-    QmlPreviewPlugin();
-    ~QmlPreviewPlugin() override = default;
+    QmlPreviewWidgetPlugin();
+    ~QmlPreviewWidgetPlugin() override = default;
 
     QString metaInfo() const override;
     QString pluginName() const override;

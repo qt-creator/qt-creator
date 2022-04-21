@@ -1,5 +1,4 @@
 add_qtc_plugin(CppEditor
-  DEFINES CPPEDITOR_LIBRARY
   DEPENDS Qt5::Network Qt5::Xml
   PUBLIC_DEPENDS CPlusPlus ClangSupport Qt5::Widgets
   PLUGIN_DEPENDS Core ProjectExplorer TextEditor

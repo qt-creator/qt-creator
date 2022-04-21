@@ -29,9 +29,9 @@
 
 #include <QtGlobal>
 
-#if defined(BUILD_SQLITE_LIBRARY)
+#if defined(SQLITE_LIBRARY)
 #  define SQLITE_EXPORT Q_DECL_EXPORT
-#elif defined(BUILD_SQLITE_STATIC_LIBRARY)
+#elif defined(SQLITE_STATIC_LIBRARY)
 #  define SQLITE_EXPORT
 #else
 #  define SQLITE_EXPORT Q_DECL_IMPORT

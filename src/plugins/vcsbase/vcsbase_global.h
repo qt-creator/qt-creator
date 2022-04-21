@@ -29,6 +29,8 @@
 
 #if defined(VCSBASE_LIBRARY)
 #  define VCSBASE_EXPORT Q_DECL_EXPORT
+#elif defined(VCSBASE_STATIC_LIBRARY)
+#  define VCSBASE_EXPORT
 #else
 #  define VCSBASE_EXPORT Q_DECL_IMPORT
 #endif

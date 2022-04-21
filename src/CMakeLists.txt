@@ -7,8 +7,8 @@ install(TARGETS app_version EXPORT QtCreator)
 add_subdirectory(libs)
 add_subdirectory(share)
 add_subdirectory(shared)
-add_subdirectory(app)
 add_subdirectory(plugins)
+add_subdirectory(app)
 add_subdirectory(tools)
 
 install(

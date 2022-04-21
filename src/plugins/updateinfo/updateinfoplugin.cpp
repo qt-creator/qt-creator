@@ -56,7 +56,7 @@
 
 #include <memory>
 
-Q_LOGGING_CATEGORY(log, "qtc.updateinfo", QtWarningMsg)
+Q_LOGGING_CATEGORY(updateLog, "qtc.updateinfo", QtWarningMsg)
 
 const char UpdaterGroup[] = "Updater";
 const char MaintenanceToolKey[] = "MaintenanceTool";
@@ -274,23 +274,23 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
 {
     setLastCheckDate(QDate::currentDate());
 
-    qCDebug(log) << "--- MaintenanceTool output (updates):";
-    qCDebug(log) << qPrintable(d->m_updateOutput);
-    qCDebug(log) << "--- MaintenanceTool output (packages):";
-    qCDebug(log) << qPrintable(d->m_packagesOutput);
+    qCDebug(updateLog) << "--- MaintenanceTool output (updates):";
+    qCDebug(updateLog) << qPrintable(d->m_updateOutput);
+    qCDebug(updateLog) << "--- MaintenanceTool output (packages):";
+    qCDebug(updateLog) << qPrintable(d->m_packagesOutput);
 
     stopCheckForUpdates();
 
     const QList<Update> updates = availableUpdates(d->m_updateOutput);
     const QList<QtPackage> qtPackages = availableQtPackages(d->m_packagesOutput);
-    if (log().isDebugEnabled()) {
-        qCDebug(log) << "--- Available updates:";
+    if (updateLog().isDebugEnabled()) {
+        qCDebug(updateLog) << "--- Available updates:";
         for (const Update &u : updates)
-            qCDebug(log) << u.name << u.version;
-        qCDebug(log) << "--- Available Qt packages:";
+            qCDebug(updateLog) << u.name << u.version;
+        qCDebug(updateLog) << "--- Available Qt packages:";
         for (const QtPackage &p : qtPackages) {
-            qCDebug(log) << p.displayName << p.version << "installed:" << p.installed
-                         << "prerelease:" << p.isPrerelease;
+            qCDebug(updateLog) << p.displayName << p.version << "installed:" << p.installed
+                               << "prerelease:" << p.isPrerelease;
         }
     }
     Utils::optional<QtPackage> qtToNag = qtToNagAbout(qtPackages, &d->m_lastMaxQtVersion);

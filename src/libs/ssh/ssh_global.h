@@ -29,6 +29,8 @@
 
 #if defined(QTCSSH_LIBRARY)
 #  define QSSH_EXPORT Q_DECL_EXPORT
+#elif defined(QTCSSH_STATIC_LIBRARY)
+#  define QSSH_EXPORT
 #else
 #  define QSSH_EXPORT Q_DECL_IMPORT
 #endif

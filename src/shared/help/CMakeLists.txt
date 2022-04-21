@@ -12,7 +12,7 @@ if (isMultiConfig)
 endif()
 
 add_qtc_library(shared_help STATIC
-  DEPENDS Utils PUBLIC Qt5::Help Qt5::PrintSupport Qt5::Widgets
+  DEPENDS Utils Core PUBLIC Qt5::Help Qt5::PrintSupport Qt5::Widgets
   PUBLIC_INCLUDES
     "${PLUGIN_SOURCE_DIR}/help"
     "${PLUGIN_SOURCE_DIR}"

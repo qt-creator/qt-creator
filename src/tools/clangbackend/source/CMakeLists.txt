@@ -2,7 +2,8 @@ add_qtc_library(clangbackend_lib STATIC
   DEPENDS libclang
   PUBLIC_DEPENDS
     Qt5::Widgets # FIXME: change the way to get the gui pch to linkto
-  DEFINES
+  PUBLIC_DEFINES
+    $<TARGET_PROPERTY:ClangSupport,INTERFACE_COMPILE_DEFINITIONS>
     $<TARGET_PROPERTY:Sqlite,INTERFACE_COMPILE_DEFINITIONS>
   INCLUDES
     $<TARGET_PROPERTY:ClangSupport,INTERFACE_INCLUDE_DIRECTORIES>

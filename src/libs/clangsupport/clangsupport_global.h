@@ -31,9 +31,9 @@
 
 #include <utils/smallstringfwd.h>
 
-#if defined(CLANGSUPPORT_BUILD_LIB)
+#if defined(CLANGSUPPORT_LIBRARY)
 #  define CLANGSUPPORT_EXPORT Q_DECL_EXPORT
-#elif defined(CLANGSUPPORT_BUILD_STATIC_LIB)
+#elif defined(CLANGSUPPORT_STATIC_LIBRARY)
 #  define CLANGSUPPORT_EXPORT
 #else
 #  define CLANGSUPPORT_EXPORT Q_DECL_IMPORT

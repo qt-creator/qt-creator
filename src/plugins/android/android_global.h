@@ -29,6 +29,8 @@
 
 #if defined(ANDROID_LIBRARY)
 #  define ANDROID_EXPORT Q_DECL_EXPORT
+#elif defined(ANDROID_STATIC_LIBRARY)
+#  define ANDROID_EXPORT
 #else
 #  define ANDROID_EXPORT Q_DECL_IMPORT
 #endif

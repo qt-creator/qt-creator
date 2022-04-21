@@ -29,6 +29,8 @@
 
 #if defined(TRACING_LIBRARY)
 #  define TRACING_EXPORT Q_DECL_EXPORT
+#elif defined(TRACING_STATIC_LIBRARY)
+#  define TRACING_EXPORT
 #else
 #  define TRACING_EXPORT Q_DECL_IMPORT
 #endif

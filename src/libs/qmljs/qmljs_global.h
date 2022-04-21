@@ -29,7 +29,7 @@
 
 #if defined(QMLJS_LIBRARY)
 #  define QMLJS_EXPORT Q_DECL_EXPORT
-#elif defined(QML_BUILD_STATIC_LIB)
+#elif defined(QMLJS_STATIC_LIBRARY)
 #  define QMLJS_EXPORT
 #else
 #  define QMLJS_EXPORT Q_DECL_IMPORT

@@ -1,6 +1,5 @@
 add_qtc_plugin(DiffEditor
   PLUGIN_DEPENDS Core TextEditor
-  DEFINES DIFFEDITOR_LIBRARY
   SOURCES
     descriptionwidgetwatcher.cpp descriptionwidgetwatcher.h
     diffeditor.cpp diffeditor.h

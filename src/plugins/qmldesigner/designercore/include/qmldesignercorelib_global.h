@@ -30,9 +30,9 @@
 
 // Unnecessary since core isn't a dll any more.
 
-#if defined(DESIGNER_CORE_LIBRARY)
+#if defined(QMLDESIGNER_LIBRARY)
 #define QMLDESIGNERCORE_EXPORT Q_DECL_EXPORT
-#elif defined(DESIGNER_STATIC_CORE_LIBRARY)
+#elif defined(QMLDESIGNER_STATIC_LIBRARY)
 #define QMLDESIGNERCORE_EXPORT
 #else
 #define QMLDESIGNERCORE_EXPORT Q_DECL_IMPORT

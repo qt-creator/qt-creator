@@ -1,10 +1,7 @@
-# TODO: Support static build, currently being done with CPLUSPLUS_BUILD_STATIC_LIB
-#       -- if really needed that is.
 # TODO: Make Qt5::Gui optional -- if really needed that is.
 
 add_qtc_library(CPlusPlus
   DEPENDS Utils Qt5::Concurrent
-  DEFINES CPLUSPLUS_BUILD_LIB
   PUBLIC_DEPENDS 3rd_cplusplus Qt5::Gui
   SOURCES
     ASTParent.cpp ASTParent.h
@@ -42,6 +39,12 @@ add_qtc_library(CPlusPlus
     pp.h
   SKIP_PCH
 )
+
+set(export_symbol_declaration DEFINES CPLUSPLUS_BUILD_LIB)
+if (QTC_STATIC_BUILD)
+  set(export_symbol_declaration PUBLIC_DEFINES CPLUSPLUS_BUILD_STATIC_LIB)
+endif()
+extend_qtc_target(CPlusPlus ${export_symbol_declaration})
 
 if(TARGET CPlusPlus)
   qtc_enable_release_for_debug_configuration()

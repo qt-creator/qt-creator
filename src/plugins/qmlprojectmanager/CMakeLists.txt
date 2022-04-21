@@ -1,4 +1,5 @@
 add_qtc_plugin(QmlProjectManager
+  PLUGIN_CLASS QmlProjectPlugin
   DEPENDS QmlJS
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport
   SOURCES

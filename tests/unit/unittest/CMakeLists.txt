@@ -152,7 +152,7 @@ if (NOT TARGET Sqlite)
   add_subdirectory(../../../src/libs/sqlite ${CMAKE_CURRENT_BINARY_DIR}/sqlite)
 endif()
 extend_qtc_test_with_target_sources(Sqlite
-  DEFINES SQLITE_CUSTOM_INCLUDE=config.h
+  DEFINES SQLITE_CUSTOM_INCLUDE=config.h SQLITE_STATIC_LIBRARY
 )
 
 if (APPLE)
@@ -258,7 +258,7 @@ extend_qtc_test(unittest
     "${QmlDesignerDir}/../../../share/qtcreator/qml/qmlpuppet/interfaces"
     "${QmlDesignerDir}/../../../share/qtcreator/qml/qmlpuppet/types"
   DEFINES
-    QMLDESIGNER_TEST DESIGNER_STATIC_CORE_LIBRARY
+    QMLDESIGNER_TEST QMLDESIGNER_STATIC_LIBRARY
   SOURCES_PREFIX
     "${QmlDesignerDir}"
   SOURCES

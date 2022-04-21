@@ -28,7 +28,6 @@ function(extend_with_qmldesigner_core target_name)
       QtSupport
       TextEditor
     DEFINES
-      DESIGNER_CORE_LIBRARY
       TEST_EXPORTS
     INCLUDES
       ${CMAKE_CURRENT_FUNCTION_LIST_DIR}
@@ -420,4 +419,11 @@ function(extend_with_qmldesigner_core target_name)
     SOURCES_PREFIX ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../../../share/qtcreator/qml/qmlpuppet/container
     SOURCES sharedmemory_qt.cpp
   )
+
+  set(export_symbol_declaration DEFINES QMLDESIGNER_LIBRARY)
+  if (QTC_STATIC_BUILD)
+    set(export_symbol_declaration PUBLIC_DEFINES QMLDESIGNER_STATIC_LIBRARY)
+  endif()
+  extend_qtc_target(${target_name} ${export_symbol_declaration})
+
 endfunction()

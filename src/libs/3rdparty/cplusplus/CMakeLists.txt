@@ -1,6 +1,5 @@
 add_qtc_library(3rd_cplusplus OBJECT
   PUBLIC_DEPENDS Qt5::Core Utils
-  DEFINES CPLUSPLUS_BUILD_LIB
   SOURCES
     AST.cpp AST.h
     ASTClone.cpp
@@ -44,6 +43,12 @@ add_qtc_library(3rd_cplusplus OBJECT
   SKIP_PCH
   PROPERTIES POSITION_INDEPENDENT_CODE ON
 )
+
+set(export_symbol_declaration DEFINES CPLUSPLUS_BUILD_LIB)
+if (QTC_STATIC_BUILD)
+  set(export_symbol_declaration PUBLIC_DEFINES CPLUSPLUS_BUILD_STATIC_LIB)
+endif()
+extend_qtc_target(3rd_cplusplus ${export_symbol_declaration})
 
 if(TARGET 3rd_cplusplus)
   qtc_enable_release_for_debug_configuration()

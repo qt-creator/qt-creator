@@ -109,6 +109,7 @@ set(__QTC_PLUGINS "" CACHE INTERNAL "*** Internal ***")
 set(__QTC_LIBRARIES "" CACHE INTERNAL "*** Internal ***")
 set(__QTC_EXECUTABLES "" CACHE INTERNAL "*** Internal ***")
 set(__QTC_TESTS "" CACHE INTERNAL "*** Internal ***")
+set(__QTC_RESOURCE_FILES "" CACHE INTERNAL "*** Internal ***")
 
 # handle SCCACHE hack
 # SCCACHE does not work with the /Zi option, which makes each compilation write debug info
@@ -226,6 +227,16 @@ function(set_public_headers target sources)
   foreach(source IN LISTS sources)
     if (source MATCHES "\.h$|\.hpp$")
       qtc_add_public_header(${source})
+    endif()
+  endforeach()
+endfunction()
+
+function(update_resource_files_list sources)
+  foreach(source IN LISTS sources)
+    if (source MATCHES "\.qrc$")
+      get_filename_component(resource_name ${source} NAME_WE)
+      string(REPLACE "-" "_" resource_name ${resource_name})
+      update_cached_list(__QTC_RESOURCE_FILES "${resource_name}")
     endif()
   endforeach()
 endfunction()
@@ -510,6 +521,7 @@ function(extend_qtc_target target_name)
   endif()
 
   set_public_headers(${target_name} "${_arg_SOURCES}")
+  update_resource_files_list("${_arg_SOURCES}")
 
   foreach(file IN LISTS _arg_EXPLICIT_MOC)
     set_explicit_moc(${target_name} "${file}")

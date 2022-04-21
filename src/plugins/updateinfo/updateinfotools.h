@@ -34,7 +34,7 @@
 #include <QRegularExpression>
 #include <QVersionNumber>
 
-Q_DECLARE_LOGGING_CATEGORY(log)
+Q_DECLARE_LOGGING_CATEGORY(updateLog)
 
 struct Update
 {
@@ -133,8 +133,8 @@ Utils::optional<QtPackage> qtToNagAbout(const QList<QtPackage> &allPackages,
     if (packages.isEmpty())
         return {};
     const QtPackage highest = packages.constFirst();
-    qCDebug(log) << "Highest available (non-prerelease) Qt:" << highest.version;
-    qCDebug(log) << "Highest previously seen (non-prerelease) Qt:" << *highestSeen;
+    qCDebug(updateLog) << "Highest available (non-prerelease) Qt:" << highest.version;
+    qCDebug(updateLog) << "Highest previously seen (non-prerelease) Qt:" << *highestSeen;
     // if the highestSeen version is null, we don't know if the Qt version is new, and better don't nag
     const bool isNew = !highestSeen->isNull() && highest.version > *highestSeen;
     if (highestSeen->isNull() || isNew)
@@ -142,9 +142,9 @@ Utils::optional<QtPackage> qtToNagAbout(const QList<QtPackage> &allPackages,
     if (!isNew)
         return {};
     const Utils::optional<QtPackage> highestInstalled = highestInstalledQt(packages);
-    qCDebug(log) << "Highest installed Qt:"
-                 << qPrintable(highestInstalled ? highestInstalled->version.toString()
-                                                : QString("none"));
+    qCDebug(updateLog) << "Highest installed Qt:"
+                       << qPrintable(highestInstalled ? highestInstalled->version.toString()
+                                                      : QString("none"));
     if (!highestInstalled) // don't nag if no Qt is installed at all
         return {};
     if (highestInstalled->version == highest.version)

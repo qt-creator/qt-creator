@@ -29,6 +29,8 @@
 
 #if defined(DESIGNER_LIBRARY)
 #  define DESIGNER_EXPORT Q_DECL_EXPORT
+#elif defined(DESIGNER_STATIC_LIBRARY)
+#  define DESIGNER_EXPORT
 #else
 #  define DESIGNER_EXPORT Q_DECL_IMPORT
 #endif

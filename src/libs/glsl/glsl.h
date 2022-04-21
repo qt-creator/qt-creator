@@ -31,7 +31,7 @@
 
 #if defined(GLSL_LIBRARY)
 #  define GLSL_EXPORT Q_DECL_EXPORT
-#elif defined(GLSL_BUILD_STATIC_LIB)
+#elif defined(GLSL_STATIC_LIBRARY)
 #  define GLSL_EXPORT
 #else
 #  define GLSL_EXPORT Q_DECL_IMPORT

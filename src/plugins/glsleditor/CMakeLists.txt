@@ -1,4 +1,5 @@
 add_qtc_plugin(GLSLEditor
+  PLUGIN_CLASS GlslEditorPlugin
   DEPENDS GLSL
   PLUGIN_DEPENDS Core CppEditor TextEditor
   SOURCES

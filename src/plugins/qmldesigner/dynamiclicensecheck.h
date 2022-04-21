@@ -43,7 +43,7 @@ enum FoundLicense {
 };
 
 namespace Internal {
-ExtensionSystem::IPlugin *licenseCheckerPlugin()
+inline ExtensionSystem::IPlugin *licenseCheckerPlugin()
 {
     const ExtensionSystem::PluginSpec *pluginSpec = Utils::findOrDefault(
         ExtensionSystem::PluginManager::plugins(),
@@ -55,8 +55,7 @@ ExtensionSystem::IPlugin *licenseCheckerPlugin()
 }
 } // namespace Internal
 
-
-FoundLicense checkLicense()
+inline FoundLicense checkLicense()
 {
     if (auto plugin = Internal::licenseCheckerPlugin()) {
         bool retVal = false;
@@ -72,7 +71,7 @@ FoundLicense checkLicense()
     return community;
 }
 
-QString licensee()
+inline QString licensee()
 {
     if (auto plugin = Internal::licenseCheckerPlugin()) {
         QString retVal;

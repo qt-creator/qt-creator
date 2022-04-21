@@ -1,4 +1,5 @@
 add_qtc_plugin(GenericProjectManager
+  PLUGIN_CLASS GenericProjectPlugin
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport TextEditor
   PLUGIN_TEST_DEPENDS CppEditor
   PLUGIN_RECOMMENDS CppEditor

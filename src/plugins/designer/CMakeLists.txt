@@ -1,4 +1,5 @@
 add_qtc_plugin(Designer
+  PLUGIN_CLASS FormEditorPlugin
   CONDITION TARGET Qt5::DesignerComponents AND TARGET Qt5::Designer
   DEPENDS designerintegrationv2
     Qt5::Designer Qt5::PrintSupport Qt5::DesignerComponents
@@ -35,3 +36,10 @@ extend_qtc_plugin(Designer
   CONDITION WITH_TESTS AND TARGET Qt5::DesignerComponents AND TARGET Qt5::Designer
   SOURCES gotoslot_test.cpp
 )
+
+if (QTC_STATIC_BUILD)
+  get_target_property(_designerType Qt5::Designer TYPE)
+  if (${_designerType} STREQUAL "STATIC_LIBRARY")
+    extend_qtc_target(Designer PUBLIC_DEFINES QT_DESIGNER_STATIC)
+  endif()
+endif()

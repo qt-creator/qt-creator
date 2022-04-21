@@ -60,7 +60,7 @@ protected:
 
     void setDisplayName(const QString &displayName);
     void setIcon(const QIcon &icon);
-    void setCombinedIcon(const Utils::FilePath &small, const Utils::FilePath &large);
+    void setCombinedIcon(const Utils::FilePath &smallIcon, const Utils::FilePath &largeIcon);
     void setConstructionFunction(const std::function<IDevicePtr ()> &constructor);
     void setCreator(const std::function<IDevicePtr()> &creator);
 

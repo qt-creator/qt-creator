@@ -47,14 +47,12 @@ class QAbstractButton;
 class QSplitter;
 QT_END_NAMESPACE
 
-#ifndef ADS_STATIC
-#ifdef ADVANCEDDOCKINGSYSTEM_LIBRARY
-#define ADS_EXPORT Q_DECL_EXPORT
+#if defined(ADVANCEDDOCKINGSYSTEM_LIBRARY)
+#  define ADS_EXPORT Q_DECL_EXPORT
+#elif defined(ADVANCEDDOCKINGSYSTEM_STATIC_LIBRARY)
+#  define ADS_EXPORT
 #else
-#define ADS_EXPORT Q_DECL_IMPORT
-#endif
-#else
-#define ADS_EXPORT
+#  define ADS_EXPORT Q_DECL_IMPORT
 #endif
 
 //#define ADS_DEBUG_PRINT

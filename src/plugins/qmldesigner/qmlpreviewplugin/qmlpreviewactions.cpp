@@ -73,7 +73,7 @@ static void handleAction(const SelectionContext &context)
             }
             ProjectExplorerPlugin::runStartupProject(Constants::QML_PREVIEW_RUN_MODE, skipDeploy);
         } else {
-            QmlPreviewPlugin::stopAllRunControls();
+            QmlPreviewWidgetPlugin::stopAllRunControls();
         }
     }
 }
@@ -81,14 +81,14 @@ static void handleAction(const SelectionContext &context)
 QmlPreviewAction::QmlPreviewAction() : ModelNodeAction(livePreviewId,
                                                        "Live Preview",
                                                        previewIcon.icon(),
-                                                       QmlPreviewPlugin::tr("Show Live Preview"),
+                                                       QmlPreviewWidgetPlugin::tr("Show Live Preview"),
                                                        ComponentCoreConstants::qmlPreviewCategory,
                                                        QKeySequence("Alt+p"),
                                                        20,
                                                        &handleAction,
                                                        &SelectionContextFunctors::always)
 {
-    if (!QmlPreviewPlugin::getPreviewPlugin())
+    if (!QmlPreviewWidgetPlugin::getPreviewPlugin())
         defaultAction()->setVisible(false);
 
     defaultAction()->setCheckable(true);
@@ -97,7 +97,7 @@ QmlPreviewAction::QmlPreviewAction() : ModelNodeAction(livePreviewId,
 void QmlPreviewAction::updateContext()
 {
     if (selectionContext().view()->isAttached())
-        QmlPreviewPlugin::setQmlFile();
+        QmlPreviewWidgetPlugin::setQmlFile();
 
     defaultAction()->setSelectionContext(selectionContext());
 }
@@ -111,9 +111,9 @@ ZoomPreviewAction::ZoomPreviewAction()
     : m_zoomAction(new ZoomAction(nullptr))
 {
     QObject::connect(m_zoomAction.get(), &ZoomAction::zoomLevelChanged, [=](float d) {
-        QmlPreviewPlugin::setZoomFactor(d);
+        QmlPreviewWidgetPlugin::setZoomFactor(d);
     });
-    if (!QmlPreviewPlugin::getPreviewPlugin())
+    if (!QmlPreviewWidgetPlugin::getPreviewPlugin())
         m_zoomAction->setVisible(false);
 }
 
@@ -281,7 +281,7 @@ SwitchLanguageAction::SwitchLanguageAction()
     : m_switchLanguageAction(new SwitchLanguageComboboxAction(nullptr))
 {
     QObject::connect(m_switchLanguageAction.get(), &SwitchLanguageComboboxAction::currentLocaleChanged,
-                     &QmlPreviewPlugin::setLanguageLocale);
+                     &QmlPreviewWidgetPlugin::setLanguageLocale);
 }
 
 QAction *SwitchLanguageAction::action() const

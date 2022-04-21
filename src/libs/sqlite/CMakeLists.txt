@@ -1,7 +1,6 @@
 add_qtc_library(Sqlite
   PROPERTIES AUTOMOC OFF AUTOUIC OFF
   PUBLIC_DEFINES
-      BUILD_SQLITE_LIBRARY
       SQLITE_CORE
   DEPENDS Qt5::Core Threads::Threads ${CMAKE_DL_LIBS}
   PUBLIC_INCLUDES
@@ -45,7 +44,7 @@ add_qtc_library(Sqlite
 extend_qtc_library(Sqlite DEFINES SQLITE_CUSTOM_INCLUDE=config.h)
 
 if (APPLE)
-extend_qtc_library(Sqlite DEFINES _BSD_SOURCE)
+  extend_qtc_library(Sqlite DEFINES _BSD_SOURCE)
 elseif (UNIX)
-extend_qtc_library(Sqlite DEFINES _POSIX_C_SOURCE=200809L _GNU_SOURCE _DEFAULT_SOURCE)
+  extend_qtc_library(Sqlite DEFINES _POSIX_C_SOURCE=200809L _GNU_SOURCE _DEFAULT_SOURCE)
 endif()

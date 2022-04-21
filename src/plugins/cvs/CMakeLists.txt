@@ -1,4 +1,5 @@
 add_qtc_plugin(CVS
+  PLUGIN_CLASS CvsPlugin
   PLUGIN_DEPENDS Core TextEditor VcsBase
   SOURCES
     annotationhighlighter.cpp annotationhighlighter.h

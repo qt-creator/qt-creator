@@ -27,7 +27,7 @@
 
 #include <updateinfo/updateinfotools.h>
 
-Q_LOGGING_CATEGORY(log, "qtc.updateinfo", QtWarningMsg)
+Q_LOGGING_CATEGORY(updateLog, "qtc.updateinfo", QtWarningMsg)
 
 class tst_UpdateInfo : public QObject
 {

@@ -53,7 +53,7 @@ Q_DECLARE_METATYPE(QmlPreview::QmlPreviewRunControlList)
 namespace QmlDesigner {
 static QObject *s_previewPlugin = nullptr;
 
-QmlPreviewPlugin::QmlPreviewPlugin()
+QmlPreviewWidgetPlugin::QmlPreviewWidgetPlugin()
 {
     DesignerActionManager &designerActionManager =
             QmlDesignerPlugin::instance()->designerActionManager();
@@ -92,12 +92,12 @@ QmlPreviewPlugin::QmlPreviewPlugin()
     }
 }
 
-QString QmlPreviewPlugin::pluginName() const
+QString QmlPreviewWidgetPlugin::pluginName() const
 {
     return QLatin1String("QmlPreviewPlugin");
 }
 
-void QmlPreviewPlugin::stopAllRunControls()
+void QmlPreviewWidgetPlugin::stopAllRunControls()
 {
     QTC_ASSERT(s_previewPlugin, return);
 
@@ -109,7 +109,7 @@ void QmlPreviewPlugin::stopAllRunControls()
 
 }
 
-void QmlPreviewPlugin::handleRunningPreviews()
+void QmlPreviewWidgetPlugin::handleRunningPreviews()
 {
     QTC_ASSERT(s_previewPlugin, return);
 
@@ -124,12 +124,12 @@ void QmlPreviewPlugin::handleRunningPreviews()
     }
 }
 
-QString QmlPreviewPlugin::metaInfo() const
+QString QmlPreviewWidgetPlugin::metaInfo() const
 {
     return QLatin1String(":/qmlpreviewplugin/qmlpreview.metainfo");
 }
 
-void QmlPreviewPlugin::setQmlFile()
+void QmlPreviewWidgetPlugin::setQmlFile()
 {
     if (s_previewPlugin) {
         const Utils::FilePath qmlFileName =
@@ -140,7 +140,7 @@ void QmlPreviewPlugin::setQmlFile()
     }
 }
 
-float QmlPreviewPlugin::zoomFactor()
+float QmlPreviewWidgetPlugin::zoomFactor()
 {
     QVariant zoomFactorVariant = 1.0;
     if (s_previewPlugin && !s_previewPlugin->property("zoomFactor").isNull())
@@ -148,7 +148,7 @@ float QmlPreviewPlugin::zoomFactor()
     return zoomFactorVariant.toFloat();
 }
 
-void QmlPreviewPlugin::setZoomFactor(float zoomFactor)
+void QmlPreviewWidgetPlugin::setZoomFactor(float zoomFactor)
 {
     if (auto s_previewPlugin = getPreviewPlugin()) {
         bool hasZoomFactor = s_previewPlugin->setProperty("zoomFactor", zoomFactor);
@@ -156,7 +156,7 @@ void QmlPreviewPlugin::setZoomFactor(float zoomFactor)
     }
 }
 
-void QmlPreviewPlugin::setLanguageLocale(const QString &locale)
+void QmlPreviewWidgetPlugin::setLanguageLocale(const QString &locale)
 {
     if (auto s_previewPlugin = getPreviewPlugin()) {
         bool hasLocaleIsoCode = s_previewPlugin->setProperty("localeIsoCode", locale);
@@ -164,7 +164,7 @@ void QmlPreviewPlugin::setLanguageLocale(const QString &locale)
     }
 }
 
-QObject *QmlPreviewPlugin::getPreviewPlugin()
+QObject *QmlPreviewWidgetPlugin::getPreviewPlugin()
 {
     const QVector<ExtensionSystem::PluginSpec *> &specs = ExtensionSystem::PluginManager::plugins();
     const auto pluginIt = std::find_if(specs.cbegin(), specs.cend(),

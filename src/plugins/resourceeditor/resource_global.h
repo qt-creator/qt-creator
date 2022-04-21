@@ -27,8 +27,10 @@
 
 #include <qglobal.h>
 
-#if defined(RESOURCE_LIBRARY)
+#if defined(RESOURCEEDITOR_LIBRARY)
 #  define RESOURCE_EXPORT Q_DECL_EXPORT
+#elif defined(RESOURCEEDITOR_STATIC_LIBRARY)
+#  define RESOURCE_EXPORT
 #else
 #  define RESOURCE_EXPORT Q_DECL_IMPORT
 #endif

@@ -44,6 +44,7 @@ option(BUILD_TESTS_BY_DEFAULT "Build tests by default. This can be used to build
 option(QTC_SEPARATE_DEBUG_INFO "Extract debug information from binary files." OFF)
 option(WITH_SCCACHE_SUPPORT "Enables support for building with SCCACHE and separate debug info with MSVC, which SCCACHE normally doesn't support." OFF)
 option(WITH_CCACHE_SUPPORT "Enables support for building with CCACHE and separate debug info with MSVC, which CCACHE normally doesn't support." OFF)
+option(QTC_STATIC_BUILD "Builds libraries and plugins as static libraries" OFF)
 
 # If we provide a list of plugins, executables, libraries, then the BUILD_<type>_BY_DEFAULT will be set to OFF
 # and for every element we set BUILD_<type>_<elment> to ON
@@ -157,7 +158,7 @@ function(add_qtc_library name)
   endif()
 
   set(library_type SHARED)
-  if (_arg_STATIC)
+  if (_arg_STATIC OR QTC_STATIC_BUILD)
     set(library_type STATIC)
   endif()
   if (_arg_OBJECT)
@@ -168,7 +169,12 @@ function(add_qtc_library name)
   add_library(QtCreator::${name} ALIAS ${name})
 
   if (${name} MATCHES "^[^0-9-]+$")
-    string(TOUPPER "${name}_LIBRARY" EXPORT_SYMBOL)
+    if (QTC_STATIC_BUILD)
+      set(export_symbol_suffix "STATIC_LIBRARY")
+    else()
+      set(export_symbol_suffix "LIBRARY")
+    endif()
+    string(TOUPPER "${name}_${export_symbol_suffix}" EXPORT_SYMBOL)
   endif()
 
   if (WITH_TESTS)
@@ -185,7 +191,7 @@ function(add_qtc_library name)
     SOURCES ${_arg_SOURCES}
     INCLUDES ${_arg_INCLUDES}
     PUBLIC_INCLUDES ${_arg_PUBLIC_INCLUDES}
-    DEFINES ${EXPORT_SYMBOL} ${default_defines_copy} ${_arg_DEFINES} ${TEST_DEFINES}
+    DEFINES ${default_defines_copy} ${_arg_DEFINES} ${TEST_DEFINES}
     PUBLIC_DEFINES ${_arg_PUBLIC_DEFINES}
     DEPENDS ${_arg_DEPENDS} ${IMPLICIT_DEPENDS}
     PUBLIC_DEPENDS ${_arg_PUBLIC_DEPENDS}
@@ -193,6 +199,12 @@ function(add_qtc_library name)
     SKIP_AUTOMOC ${_arg_SKIP_AUTOMOC}
     EXTRA_TRANSLATIONS ${_arg_EXTRA_TRANSLATIONS}
   )
+
+  if (QTC_STATIC_BUILD)
+    extend_qtc_target(${name} PUBLIC_DEFINES ${EXPORT_SYMBOL})
+  else()
+    extend_qtc_target(${name} DEFINES ${EXPORT_SYMBOL})
+  endif()
 
   # everything is different with SOURCES_PREFIX
   if (NOT _arg_SOURCES_PREFIX)
@@ -253,25 +265,27 @@ function(add_qtc_library name)
     set(COMPONENT_OPTION "COMPONENT" "${_arg_COMPONENT}")
   endif()
 
-  install(TARGETS ${name}
-    EXPORT QtCreator
-    RUNTIME
-      DESTINATION "${_DESTINATION}"
-      ${COMPONENT_OPTION}
-      OPTIONAL
-    LIBRARY
-      DESTINATION "${IDE_LIBRARY_PATH}"
-      ${NAMELINK_OPTION}
-      ${COMPONENT_OPTION}
-      OPTIONAL
-    OBJECTS
-      DESTINATION "${IDE_LIBRARY_PATH}"
-      COMPONENT Devel EXCLUDE_FROM_ALL
-    ARCHIVE
-      DESTINATION "${IDE_LIBRARY_ARCHIVE_PATH}"
-      COMPONENT Devel EXCLUDE_FROM_ALL
-      OPTIONAL
-  )
+  if (NOT QTC_STATIC_BUILD)
+    install(TARGETS ${name}
+      EXPORT QtCreator
+      RUNTIME
+        DESTINATION "${_DESTINATION}"
+        ${COMPONENT_OPTION}
+        OPTIONAL
+      LIBRARY
+        DESTINATION "${IDE_LIBRARY_PATH}"
+        ${NAMELINK_OPTION}
+        ${COMPONENT_OPTION}
+        OPTIONAL
+      OBJECTS
+        DESTINATION "${IDE_LIBRARY_PATH}"
+        COMPONENT Devel EXCLUDE_FROM_ALL
+      ARCHIVE
+        DESTINATION "${IDE_LIBRARY_ARCHIVE_PATH}"
+        COMPONENT Devel EXCLUDE_FROM_ALL
+        OPTIONAL
+    )
+  endif()
 
   qtc_enable_separate_debug_info(${name} "${IDE_LIBRARY_PATH}")
 
@@ -279,7 +293,7 @@ function(add_qtc_library name)
     qtc_enable_sanitize(${SANITIZE_FLAGS})
   endif()
 
-  if (NAMELINK_OPTION)
+  if (NAMELINK_OPTION AND NOT QTC_STATIC_BUILD)
     install(TARGETS ${name}
       LIBRARY
         DESTINATION "${IDE_LIBRARY_PATH}"
@@ -298,7 +312,7 @@ endfunction(add_qtc_library)
 function(add_qtc_plugin target_name)
   cmake_parse_arguments(_arg
     "SKIP_INSTALL;INTERNAL_ONLY;SKIP_TRANSLATION;EXPORT;SKIP_PCH"
-    "VERSION;COMPAT_VERSION;PLUGIN_JSON_IN;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME;BUILD_DEFAULT"
+    "VERSION;COMPAT_VERSION;PLUGIN_JSON_IN;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME;BUILD_DEFAULT;PLUGIN_CLASS"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;PLUGIN_TEST_DEPENDS;PROPERTIES"
     ${ARGN}
   )
@@ -421,13 +435,25 @@ function(add_qtc_plugin target_name)
       CONTENT "${plugin_json}")
   endif()
 
-  add_library(${target_name} SHARED ${_arg_SOURCES})
+  if (QTC_STATIC_BUILD)
+    set(library_type STATIC)
+  else()
+    set(library_type SHARED)
+  endif()
+
+  add_library(${target_name} ${library_type} ${_arg_SOURCES})
   add_library(QtCreator::${target_name} ALIAS ${target_name})
 
   set_public_headers(${target_name} "${_arg_SOURCES}")
+  update_resource_files_list("${_arg_SOURCES}")
 
   ### Generate EXPORT_SYMBOL
-  string(TOUPPER "${name}_LIBRARY" EXPORT_SYMBOL)
+  if (QTC_STATIC_BUILD)
+    set(export_symbol_suffix "STATIC_LIBRARY")
+  else()
+    set(export_symbol_suffix "LIBRARY")
+  endif()
+  string(TOUPPER "${name}_${export_symbol_suffix}" EXPORT_SYMBOL)
 
   if (WITH_TESTS)
     set(TEST_DEFINES WITH_TESTS SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
@@ -440,7 +466,7 @@ function(add_qtc_plugin target_name)
   extend_qtc_target(${target_name}
     INCLUDES ${_arg_INCLUDES}
     PUBLIC_INCLUDES ${_arg_PUBLIC_INCLUDES}
-    DEFINES ${EXPORT_SYMBOL} ${DEFAULT_DEFINES} ${_arg_DEFINES} ${TEST_DEFINES}
+    DEFINES ${DEFAULT_DEFINES} ${_arg_DEFINES} ${TEST_DEFINES}
     PUBLIC_DEFINES ${_arg_PUBLIC_DEFINES}
     DEPENDS ${_arg_DEPENDS} ${_DEP_PLUGINS} ${IMPLICIT_DEPENDS}
     PUBLIC_DEPENDS ${_arg_PUBLIC_DEPENDS}
@@ -448,6 +474,13 @@ function(add_qtc_plugin target_name)
     SKIP_AUTOMOC ${_arg_SKIP_AUTOMOC}
     EXTRA_TRANSLATIONS ${_arg_EXTRA_TRANSLATIONS}
   )
+
+  if (QTC_STATIC_BUILD)
+    extend_qtc_target(${target_name} PUBLIC_DEFINES ${EXPORT_SYMBOL}
+                                     DEFINES QT_STATICPLUGIN)
+  else()
+    extend_qtc_target(${target_name} DEFINES ${EXPORT_SYMBOL})
+  endif()
 
   get_filename_component(public_build_interface_dir "${CMAKE_CURRENT_SOURCE_DIR}/.." ABSOLUTE)
   file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/..")
@@ -471,6 +504,10 @@ function(add_qtc_plugin target_name)
     set(skip_translation ON)
   endif()
 
+  if(NOT _arg_PLUGIN_CLASS)
+    set(_arg_PLUGIN_CLASS ${target_name}Plugin)
+  endif()
+
   qtc_output_binary_dir(_output_binary_dir)
   set_target_properties(${target_name} PROPERTIES
     LINK_DEPENDS_NO_SHARED ON
@@ -490,6 +527,7 @@ function(add_qtc_plugin target_name)
     OUTPUT_NAME "${name}"
     QT_SKIP_TRANSLATION "${skip_translation}"
     QT_COMPILE_OPTIONS_DISABLE_WARNINGS OFF
+    QTC_PLUGIN_CLASS_NAME ${_arg_PLUGIN_CLASS}
     ${_arg_PROPERTIES}
   )
 
@@ -497,7 +535,7 @@ function(add_qtc_plugin target_name)
     enable_pch(${target_name})
   endif()
 
-  if (NOT _arg_SKIP_INSTALL)
+  if (NOT _arg_SKIP_INSTALL AND NOT QTC_STATIC_BUILD)
     if (_arg_EXPORT)
       set(export QtCreator${target_name})
     else()
