@@ -245,8 +245,7 @@ signals:
     void finished();
 
 private:
-    void processError(QProcess::ProcessError);
-    void processFinished();
+    void processDone();
     void timeout();
 
     void errorTermination(const QString &msg);
@@ -292,8 +291,7 @@ QueryContext::QueryContext(const QString &query,
     connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
         m_output.append(m_process.readAllStandardOutput());
     });
-    connect(&m_process, &QtcProcess::finished, this, &QueryContext::processFinished);
-    connect(&m_process, &QtcProcess::errorOccurred, this, &QueryContext::processError);
+    connect(&m_process, &QtcProcess::done, this, &QueryContext::processDone);
     connect(&m_watcher, &QFutureWatcherBase::canceled, this, &QueryContext::terminate);
     m_watcher.setFuture(m_progress.future());
     m_process.setEnvironment(Git::Internal::GitClient::instance()->processEnvironment());
@@ -332,8 +330,6 @@ void QueryContext::errorTermination(const QString &msg)
     if (!m_progress.isCanceled())
         VcsOutputWindow::appendError(msg);
     m_progress.reportCanceled();
-    m_progress.reportFinished();
-    emit finished();
 }
 
 void QueryContext::terminate()
@@ -341,28 +337,23 @@ void QueryContext::terminate()
     m_process.stopProcess();
 }
 
-void QueryContext::processError(QProcess::ProcessError e)
-{
-    const QString msg = tr("Error running %1: %2").arg(m_binary.toUserOutput(), m_process.errorString());
-    if (e == QProcess::FailedToStart)
-        errorTermination(msg);
-    else
-        VcsOutputWindow::appendError(msg);
-}
-
-void QueryContext::processFinished()
+void QueryContext::processDone()
 {
     if (m_timer.isActive())
         m_timer.stop();
-    emit errorText(m_error);
-    if (m_process.exitStatus() != QProcess::NormalExit) {
+
+    if (!m_error.isEmpty())
+        emit errorText(m_error);
+
+    if (m_process.exitStatus() == QProcess::CrashExit)
         errorTermination(tr("%1 crashed.").arg(m_binary.toUserOutput()));
-        return;
-    } else if (m_process.exitCode()) {
+    else if (m_process.exitCode())
         errorTermination(tr("%1 returned %2.").arg(m_binary.toUserOutput()).arg(m_process.exitCode()));
-        return;
-    }
-    emit resultRetrieved(m_output);
+    else if (m_process.result() != ProcessResult::FinishedWithSuccess)
+        errorTermination(tr("Error running %1: %2").arg(m_binary.toUserOutput(), m_process.errorString()));
+    else
+        emit resultRetrieved(m_output);
+
     m_progress.reportFinished();
     emit finished();
 }
