@@ -1117,6 +1117,20 @@ private:
     Utils::optional<MessageId> m_currentRequest;
 };
 
+class HighlightingData
+{
+public:
+    // For all QPairs, the int member is the corresponding document version.
+    QPair<QList<ExpandedSemanticToken>, int> previousTokens;
+
+    // The ranges of symbols referring to virtual functions,
+    // as extracted by the highlighting procedure.
+    QPair<QList<Range>, int> virtualRanges;
+
+    // The highlighter is owned by its document.
+    CppEditor::SemanticHighlighter *highlighter = nullptr;
+};
+
 class ClangdClient::Private
 {
 public:
@@ -1169,15 +1183,8 @@ public:
     Utils::optional<LocalRefsData> localRefsData;
     Utils::optional<QVersionNumber> versionNumber;
 
-    //  The highlighters are owned by their respective documents.
-    std::unordered_map<TextDocument *, CppEditor::SemanticHighlighter *> highlighters;
-
-    QHash<TextDocument *, QPair<QList<ExpandedSemanticToken>, int>> previousTokens;
+    QHash<TextDocument *, HighlightingData> highlightingData;
     QHash<Utils::FilePath, CppEditor::BaseEditorDocumentParser::Configuration> parserConfigs;
-
-    // The ranges of symbols referring to virtual functions, with document version,
-    // as extracted by the highlighting procedure.
-    QHash<TextDocument *, QPair<QList<Range>, int>> virtualRanges;
 
     VersionedDataCache<const TextDocument *, AstNode> astCache;
     VersionedDataCache<Utils::FilePath, AstNode> externalAstCache;
@@ -1582,10 +1589,8 @@ void ClangdClient::handleDocumentOpened(TextDocument *doc)
 
 void ClangdClient::handleDocumentClosed(TextDocument *doc)
 {
-    d->highlighters.erase(doc);
+    d->highlightingData.remove(doc);
     d->astCache.remove(doc);
-    d->previousTokens.remove(doc);
-    d->virtualRanges.remove(doc);
     d->parserConfigs.remove(doc->filePath());
 }
 
@@ -2332,7 +2337,7 @@ void ClangdClient::setVirtualRanges(const Utils::FilePath &filePath, const QList
 {
     TextDocument * const doc = documentForFilePath(filePath);
     if (doc && doc->document()->revision() == revision)
-        d->virtualRanges.insert(doc, {ranges, revision});
+        d->highlightingData[doc].virtualRanges = {ranges, revision};
 }
 
 void ClangdClient::Private::handleGotoDefinitionResult()
@@ -3055,16 +3060,19 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
         return;
     }
     force = force || isTesting;
-    const auto previous = previousTokens.find(doc);
-    if (previous != previousTokens.end()) {
-        if (!force && previous->first == tokens && previous->second == version) {
+    const auto data = highlightingData.find(doc);
+    if (data != highlightingData.end()) {
+        if (!force && data->previousTokens.first == tokens
+                && data->previousTokens.second == version) {
             qCInfo(clangdLogHighlight) << "tokens and version same as last time; nothing to do";
             return;
         }
-        previous->first = tokens;
-        previous->second = version;
+        data->previousTokens.first = tokens;
+        data->previousTokens.second = version;
     } else {
-        previousTokens.insert(doc, qMakePair(tokens, version));
+        HighlightingData data;
+        data.previousTokens = qMakePair(tokens, version);
+        highlightingData.insert(doc, data);
     }
     for (const ExpandedSemanticToken &t : tokens)
         qCDebug(clangdLogHighlight()) << '\t' << t.line << t.column << t.length << t.type
@@ -3102,15 +3110,13 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
             return;
         }
 
-        auto it = highlighters.find(doc);
-        if (it == highlighters.end()) {
-            it = highlighters.insert(std::make_pair(doc, new CppEditor::SemanticHighlighter(doc)))
-                    .first;
-        } else {
-            it->second->updateFormatMapFromFontSettings();
-        }
-        it->second->setHighlightingRunner(runner);
-        it->second->run();
+        auto &data = highlightingData[doc];
+        if (!data.highlighter)
+            data.highlighter = new CppEditor::SemanticHighlighter(doc);
+        else
+            data.highlighter->updateFormatMapFromFontSettings();
+        data.highlighter->setHighlightingRunner(runner);
+        data.highlighter->run();
     };
     getAndHandleAst(doc, astHandler, AstCallbackMode::SyncIfPossible);
 }
@@ -4124,13 +4130,14 @@ bool ClangdClient::FollowSymbolData::defLinkIsAmbiguous() const
     // If we have up-to-date highlighting info, we know whether we are dealing with
     // a virtual call.
     if (editorWidget) {
-        const auto virtualRanges = q->d->virtualRanges.constFind(editorWidget->textDocument());
-        if (virtualRanges != q->d->virtualRanges.constEnd()
-                && virtualRanges->second == docRevision) {
+        const auto highlightingData =
+                q->d->highlightingData.constFind(editorWidget->textDocument());
+        if (highlightingData != q->d->highlightingData.constEnd()
+                && highlightingData->virtualRanges.second == docRevision) {
             const auto matcher = [cursorRange = cursorNode->range()](const Range &r) {
                 return cursorRange.overlaps(r);
             };
-            return Utils::contains(virtualRanges->first, matcher);
+            return Utils::contains(highlightingData->virtualRanges.first, matcher);
         }
     }
 
