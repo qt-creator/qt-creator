@@ -193,7 +193,7 @@ void ProjectStorageUpdater::updateQmlTypes(const QStringList &qmlTypesPaths,
     for (const QString &qmlTypesPath : qmlTypesPaths) {
         SourceId sourceId = m_pathCache.sourceId(SourcePath{qmlTypesPath});
 
-        Storage::ProjectData projectData{SourceId{}, sourceId, moduleId, Storage::FileType::QmlTypes};
+        Storage::ProjectData projectData{sourceId, sourceId, moduleId, Storage::FileType::QmlTypes};
 
         FileState state = parseTypeInfo(projectData,
                                         Utils::PathString{qmlTypesPath},
