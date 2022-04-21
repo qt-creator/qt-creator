@@ -52,4 +52,11 @@ inline QDebug &operator<<(QDebug debug, const Type &type)
     return debug;
 }
 
+inline QDebug &operator<<(QDebug debug, const ImportedTypeName &importedTypeName)
+{
+    std::visit([&](auto &&type) { debug.noquote() << "(" << type.name << ")"; }, importedTypeName);
+
+    return debug;
+}
+
 } // namespace QmlDesigner::Storage
