@@ -90,11 +90,11 @@ SpotlightIterator::SpotlightIterator(const QStringList &command)
     m_process->setCommand({Environment::systemEnvironment().searchInPath(command.first()),
                            command.mid(1)});
     m_process->setEnvironment(Utils::Environment::systemEnvironment());
-    QObject::connect(m_process.get(), &QtcProcess::finished, [this] { scheduleKillProcess(); });
-    QObject::connect(m_process.get(), &QtcProcess::errorOccurred, [this, command] {
-        MessageManager::writeFlashing(
-            SpotlightLocatorFilter::tr("Locator: Error occurred when running \"%1\".")
-                .arg(command.first()));
+    QObject::connect(m_process.get(), &QtcProcess::done, [this, cmd = command.first()] {
+        if (m_process->result() != ProcessResult::FinishedWithSuccess) {
+            MessageManager::writeFlashing(SpotlightLocatorFilter::tr(
+                            "Locator: Error occurred when running \"%1\".").arg(cmd));
+        }
         scheduleKillProcess();
     });
     QObject::connect(m_process.get(), &QtcProcess::readyReadStandardOutput, [this] {
