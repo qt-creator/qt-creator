@@ -30,6 +30,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/winutils.h>
 
@@ -254,6 +255,14 @@ protected:
             painter->drawText(currentPixmapRect.translated(0, -WelcomePageHelpers::ItemGap),
                               exampleItem->videoLength, Qt::AlignBottom | Qt::AlignHCenter);
             painter->restore();
+            static const QPixmap playOverlay =
+                    StyleHelper::dpiSpecificImageFile(":/qtsupport/images/icons/playoverlay.png");
+            const QSize playOverlaySize =  playOverlay.size() / playOverlay.devicePixelRatio();
+            const QPoint playOverlayPos =
+                    QPoint((currentPixmapRect.width() - playOverlaySize.width()) / 2,
+                           (currentPixmapRect.height() - playOverlaySize.height()) / 2)
+                    + currentPixmapRect.topLeft();
+            painter->drawPixmap(playOverlayPos, playOverlay);
         }
     }
 

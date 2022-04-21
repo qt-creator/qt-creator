@@ -6,11 +6,47 @@
         <file>images/dark_qt_qrc.png</file>
         <file>images_areaofinterest.xml</file>
         <file>qtcreator_tutorials.xml</file>
+        <file>images/icons/playoverlay.png</file>
+        <file>images/icons/playoverlay@2x.png</file>
         <file>images/icons/tutorialicon.png</file>
         <file>images/icons/tutorialicon@2x.png</file>
-        <file>images/icons/videotutorialicon.png</file>
-        <file>images/icons/videotutorialicon@2x.png</file>
-        <file>images/icons/qteventicon.png</file>
-        <file>images/icons/qteventicon@2x.png</file>
+        <file>images/icons/youtube-xhiVA0P4yk.webp</file>
+        <file>images/icons/youtube1tSpq5OLkYI.webp</file>
+        <file>images/icons/youtube1w0ak9RNNWY.webp</file>
+        <file>images/icons/youtube2RvhhEAZQxM.webp</file>
+        <file>images/icons/youtube3o2Wo4YzlII.webp</file>
+        <file>images/icons/youtube9BcAYDlpuT8.webp</file>
+        <file>images/icons/youtube9xqhq9nDiOg.webp</file>
+        <file>images/icons/youtubeB0X5FOev9Lw.webp</file>
+        <file>images/icons/youtubeBkgjJfxYN20.webp</file>
+        <file>images/icons/youtubeDP0lMoLVneY.webp</file>
+        <file>images/icons/youtubeDRFz0Tll4G8.webp</file>
+        <file>images/icons/youtubeECA8_oLT0ZE.webp</file>
+        <file>images/icons/youtubeG0AbgVHGdXI.webp</file>
+        <file>images/icons/youtubeKo3DuCgFamo.webp</file>
+        <file>images/icons/youtubePzV2MYRAUYQ.webp</file>
+        <file>images/icons/youtubeR6zWLfHIYJw.webp</file>
+        <file>images/icons/youtubeT_13aX5NTPk.webp</file>
+        <file>images/icons/youtubeTiJiF0MOOFc.webp</file>
+        <file>images/icons/youtubeW3WC-VpKdGQ.webp</file>
+        <file>images/icons/youtubeWIRRoPxIerc.webp</file>
+        <file>images/icons/youtubeX0kEkB0ewyw.webp</file>
+        <file>images/icons/youtubeY-MM-9FigTc.webp</file>
+        <file>images/icons/youtubeYJfFwDBOvqk.webp</file>
+        <file>images/icons/youtubeau3brB7lNms.webp</file>
+        <file>images/icons/youtubehrKz63Q_Rf0.webp</file>
+        <file>images/icons/youtubejbx3Oq1Q4gY.webp</file>
+        <file>images/icons/youtubemAhwHsGdJuI.webp</file>
+        <file>images/icons/youtubemn-JmXIMCqk.webp</file>
+        <file>images/icons/youtubenmvurCcsWos.webp</file>
+        <file>images/icons/youtubepN0pRBUqrrc.webp</file>
+        <file>images/icons/youtubeqclquZ99ZVQ.webp</file>
+        <file>images/icons/youtubesRihJdZFuCg.webp</file>
+        <file>images/icons/youtubetnZo9umrPtg.webp</file>
+        <file>images/icons/youtubeuuhmSZxK1mk.webp</file>
+        <file>images/icons/youtubev4glCQt2jE0.webp</file>
+        <file>images/icons/youtubev_ynSET9FHU.webp</file>
+        <file>images/icons/youtubexNIz78IPBu0.webp</file>
+        <file>images/icons/youtubezAqSiIGdj8M.webp</file>
     </qresource>
 </RCC>
