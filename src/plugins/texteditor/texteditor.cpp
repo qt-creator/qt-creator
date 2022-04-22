@@ -5302,7 +5302,17 @@ void TextEditorWidgetPrivate::clearVisibleFoldedBlock()
 void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
 {
     d->requestUpdateLink(e);
-    d->m_linkPressed = false;
+
+    bool onLink = false;
+    if (d->m_linkPressed && d->m_currentLink.hasValidTarget()) {
+        const int eventCursorPosition = cursorForPosition(e->pos()).position();
+        if (eventCursorPosition < d->m_currentLink.linkTextStart
+            || eventCursorPosition > d->m_currentLink.linkTextEnd) {
+            d->m_linkPressed = false;
+        } else {
+            onLink = true;
+        }
+    }
 
     static Utils::optional<MultiTextCursor> startMouseMoveCursor;
     if (e->buttons() == Qt::LeftButton && e->modifiers() & Qt::AltModifier) {
@@ -5363,7 +5373,8 @@ void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
                 d->m_mouseOnFoldedMarker = false;
                 viewport()->setCursor(Qt::IBeamCursor);
             }
-        } else {
+        } else if (!onLink || e->buttons() != Qt::LeftButton
+                   || e->modifiers() != Qt::ControlModifier) {
             QPlainTextEdit::mouseMoveEvent(e);
         }
     }

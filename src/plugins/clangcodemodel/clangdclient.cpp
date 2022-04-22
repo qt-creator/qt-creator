@@ -3967,10 +3967,18 @@ void ExtraHighlightingResultsCollector::collectFromNode(const AstNode &node)
     QString detail = node.detail().value_or(QString());
     const bool isCallToNew = node.kind() == "CXXNew";
     const bool isCallToDelete = node.kind() == "CXXDelete";
-    if (!isCallToNew && !isCallToDelete
-            && (!detail.startsWith(operatorPrefix) || detail == operatorPrefix)) {
+    const auto isProperOperator = [&] {
+        if (isCallToNew || isCallToDelete)
+            return true;
+        if (!detail.startsWith(operatorPrefix))
+            return false;
+        if (detail == operatorPrefix)
+            return false;
+        const QChar nextChar = detail.at(operatorPrefix.length());
+        return !nextChar.isLetterOrNumber() && nextChar != '_';
+    };
+    if (!isProperOperator())
         return;
-    }
 
     if (!isCallToNew && !isCallToDelete)
         detail.remove(0, operatorPrefix.length());

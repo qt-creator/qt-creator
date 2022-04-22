@@ -23,8 +23,10 @@
 **
 ****************************************************************************/
 
-#include "settingspage.h"
 #include "updateinfoplugin.h"
+
+#include "settingspage.h"
+#include "updateinfotools.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -181,107 +183,6 @@ void UpdateInfoPlugin::collectCheckForUpdatesOutput(const QString &contents)
     d->m_collectedOutput += contents;
 }
 
-struct Update
-{
-    QString name;
-    QString version;
-};
-
-static QList<Update> availableUpdates(const QDomDocument &document)
-{
-    if (document.isNull() || !document.firstChildElement().hasChildNodes())
-        return {};
-    QList<Update> result;
-    const QDomNodeList updates = document.firstChildElement().elementsByTagName("update");
-    for (int i = 0; i < updates.size(); ++i) {
-        const QDomNode node = updates.item(i);
-        if (node.isElement()) {
-            const QDomElement element = node.toElement();
-            if (element.hasAttribute("name"))
-                result.append({element.attribute("name"), element.attribute("version")});
-        }
-    }
-    return result;
-}
-
-struct QtPackage
-{
-    QString displayName;
-    QVersionNumber version;
-    bool installed;
-    bool isPrerelease = false;
-};
-
-static QList<QtPackage> availableQtPackages(const QDomDocument &document)
-{
-    if (document.isNull() || !document.firstChildElement().hasChildNodes())
-        return {};
-    QList<QtPackage> result;
-    const QDomNodeList packages = document.firstChildElement().elementsByTagName("package");
-    for (int i = 0; i < packages.size(); ++i) {
-        const QDomNode node = packages.item(i);
-        if (node.isElement()) {
-            const QDomElement element = node.toElement();
-            if (element.hasAttribute("displayname") && element.hasAttribute("name")
-                && element.hasAttribute("version")) {
-                QtPackage package{element.attribute("displayname"),
-                                  QVersionNumber::fromString(element.attribute("version")),
-                                  element.hasAttribute("installedVersion")};
-                // Heuristic: Prerelease if the name is not "Qt x.y.z"
-                // (prereleases are named "Qt x.y.z-alpha" etc)
-                package.isPrerelease = package.displayName
-                                       != QString("Qt %1").arg(package.version.toString());
-                result.append(package);
-            }
-        }
-    }
-    std::sort(result.begin(), result.end(), [](const QtPackage &p1, const QtPackage &p2) {
-        return p1.version > p2.version;
-    });
-    return result;
-}
-
-// Expects packages to be sorted, high version first.
-static Utils::optional<QtPackage> highestInstalledQt(const QList<QtPackage> &packages)
-{
-    const auto highestInstalledIt = std::find_if(packages.cbegin(),
-                                                 packages.cend(),
-                                                 [](const QtPackage &p) { return p.installed; });
-    if (highestInstalledIt == packages.cend()) // Qt not installed
-        return {};
-    return *highestInstalledIt;
-}
-
-// Expects packages to be sorted, high version first.
-static Utils::optional<QtPackage> qtToNagAbout(const QList<QtPackage> &allPackages,
-                                               QVersionNumber *highestSeen)
-{
-    // Filter out any Qt prereleases
-    const QList<QtPackage> packages = Utils::filtered(allPackages, [](const QtPackage &p) {
-        return !p.isPrerelease;
-    });
-    if (packages.isEmpty())
-        return {};
-    const QtPackage highest = packages.constFirst();
-    qCDebug(log) << "Highest available (non-prerelease) Qt:" << highest.version;
-    qCDebug(log) << "Highest previously seen (non-prerelease) Qt:" << *highestSeen;
-    // if the highestSeen version is null, we don't know if the Qt version is new, and better don't nag
-    const bool isNew = !highestSeen->isNull() && highest.version > *highestSeen;
-    if (highestSeen->isNull() || isNew)
-        *highestSeen = highest.version;
-    if (!isNew)
-        return {};
-    const Utils::optional<QtPackage> highestInstalled = highestInstalledQt(packages);
-    qCDebug(log) << "Highest installed Qt:"
-                 << qPrintable(highestInstalled ? highestInstalled->version.toString()
-                                                : QString("none"));
-    if (!highestInstalled) // don't nag if no Qt is installed at all
-        return {};
-    if (highestInstalled->version == highest.version)
-        return {};
-    return highest;
-}
-
 static void showUpdateInfo(const QList<Update> &updates, const std::function<void()> &startUpdater)
 {
     Utils::InfoBarEntry info(InstallUpdates,
@@ -334,20 +235,14 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
 {
     setLastCheckDate(QDate::currentDate());
 
-    QDomDocument document;
-    // since the output can contain two toplevel items from the two separate MaintenanceTool runs,
-    // surround with a toplevel element
-    const QString xml = d->m_collectedOutput.isEmpty()
-                            ? QString()
-                            : ("<doc>" + d->m_collectedOutput + "</doc>");
     qCDebug(log) << "--- MaintenanceTool output (combined):";
-    qCDebug(log) << qPrintable(xml);
-    document.setContent(xml);
+    qCDebug(log) << qPrintable(d->m_collectedOutput);
+    std::unique_ptr<QDomDocument> document = documentForResponse(d->m_collectedOutput);
 
     stopCheckForUpdates();
 
-    const QList<Update> updates = availableUpdates(document);
-    const QList<QtPackage> qtPackages = availableQtPackages(document);
+    const QList<Update> updates = availableUpdates(*document);
+    const QList<QtPackage> qtPackages = availableQtPackages(*document);
     if (log().isDebugEnabled()) {
         qCDebug(log) << "--- Available updates:";
         for (const Update &u : updates)
