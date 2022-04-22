@@ -26,6 +26,7 @@
 #pragma once
 
 #include "mcuabstractpackage.h"
+#include "settingshandler.h"
 
 #include <utils/filepath.h>
 
@@ -53,7 +54,8 @@ class McuPackage : public McuAbstractPackage
     Q_OBJECT
 
 public:
-    McuPackage(const QString &label,
+    McuPackage(const SettingsHandler::Ptr &settingsHandler,
+               const QString &label,
                const Utils::FilePath &defaultPath,
                const Utils::FilePath &detectionPath,
                const QString &settingsKey,
@@ -91,6 +93,8 @@ private:
     void updatePath();
     void updateStatusUi();
 
+    SettingsHandler::Ptr settingsHandler;
+
     Utils::PathChooser *m_fileChooser = nullptr;
     Utils::InfoLabel *m_infoLabel = nullptr;
 
@@ -118,7 +122,8 @@ class McuToolChainPackage : public McuPackage
 public:
     enum class ToolChainType { IAR, KEIL, MSVC, GCC, ArmGcc, GHS, GHSArm, Unsupported };
 
-    McuToolChainPackage(const QString &label,
+    McuToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
+                        const QString &label,
                         const Utils::FilePath &defaultPath,
                         const Utils::FilePath &detectionPath,
                         const QString &settingsKey,

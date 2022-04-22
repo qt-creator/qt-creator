@@ -27,6 +27,7 @@
 
 #include "mcuabstracttargetfactory.h"
 #include "mcutargetdescription.h"
+#include "settingshandler.h"
 
 namespace McuSupport::Internal::Sdk {
 
@@ -35,10 +36,14 @@ struct PackageDescription;
 class McuTargetFactory : public McuAbstractTargetFactory
 {
 public:
-    QPair<Targets, Packages> createTargets(const McuTargetDescription &) override;
-    Packages createPackages(const McuTargetDescription &);
-    McuToolChainPackage *createToolchain(const McuTargetDescription::Toolchain &);
-    McuPackagePtr createPackage(const PackageDescription &);
+    explicit McuTargetFactory(const SettingsHandler::Ptr &);
+    QPair<Targets, Packages> createTargets(const Sdk::McuTargetDescription &) override;
+    Packages createPackages(const Sdk::McuTargetDescription &);
+    McuToolChainPackage *createToolchain(const Sdk::McuTargetDescription::Toolchain &);
+    McuPackagePtr createPackage(const Sdk::PackageDescription &);
+
+private:
+    SettingsHandler::Ptr settingsHandler;
 }; // struct McuTargetFactory
 
 } // namespace McuSupport::Internal::Sdk

@@ -26,6 +26,8 @@
 #pragma once
 
 #include "mcusupport_global.h"
+#include "settingshandler.h"
+
 #include <utils/environmentfwd.h>
 
 #include <QCoreApplication>
@@ -63,15 +65,15 @@ QList<ProjectExplorer::Kit *> kitsWithMismatchedDependencies(const McuTarget *mc
 QList<ProjectExplorer::Kit *> outdatedKits();
 
 // Maintenance
-void createAutomaticKits();
-void upgradeKitsByCreatingNewPackage(UpgradeOption upgradeOption);
+void createAutomaticKits(const SettingsHandler::Ptr &);
+void upgradeKitsByCreatingNewPackage(const SettingsHandler::Ptr &, UpgradeOption upgradeOption);
 void upgradeKitInPlace(ProjectExplorer::Kit *kit,
                        const McuTarget *mcuTarget,
                        const McuPackagePtr &qtForMCUsSdk);
 
 // Fixing kits:
-void updatePathsInExistingKits();
-void fixExistingKits();
+void updatePathsInExistingKits(const SettingsHandler::Ptr &);
+void fixExistingKits(const SettingsHandler::Ptr &);
 
 // Outdated kits:
 void removeOutdatedKits();

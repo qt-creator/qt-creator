@@ -26,6 +26,7 @@
 #pragma once
 
 #include "mcusupport_global.h"
+#include "settingshandler.h"
 
 #include <utils/filepath.h>
 
@@ -44,33 +45,33 @@ namespace Sdk {
 
 struct McuTargetDescription;
 
-McuAbstractPackage *createQtForMCUsPackage();
+McuPackagePtr createQtForMCUsPackage(const SettingsHandler::Ptr &);
 
 bool checkDeprecatedSdkError(const Utils::FilePath &qulDir, QString &message);
 
-McuSdkRepository targetsAndPackages(const Utils::FilePath &qulDir);
+McuSdkRepository targetsAndPackages(const Utils::FilePath &qulDir, const SettingsHandler::Ptr &);
 
 McuTargetDescription parseDescriptionJson(const QByteArray &);
-McuSdkRepository targetsFromDescriptions(const QList<McuTargetDescription> &, bool isLegacy);
+McuSdkRepository targetsFromDescriptions(const QList<McuTargetDescription> &,
+                                         const SettingsHandler::Ptr &,
+                                         bool isLegacy);
 
 Utils::FilePath kitsPath(const Utils::FilePath &dir);
 
-Utils::FilePath packagePathFromSettings(const QString &settingsKey,
-                                        QSettings::Scope scope,
-                                        const Utils::FilePath &defaultPath);
+McuPackagePtr createUnsupportedToolChainFilePackage(const SettingsHandler::Ptr &);
+McuToolChainPackagePtr createUnsupportedToolChainPackage(const SettingsHandler::Ptr &);
+McuToolChainPackagePtr createIarToolChainPackage(const SettingsHandler::Ptr &);
+McuToolChainPackagePtr createGccToolChainPackage(const SettingsHandler::Ptr &);
+McuToolChainPackagePtr createArmGccToolchainPackage(const SettingsHandler::Ptr &);
+McuToolChainPackagePtr createMsvcToolChainPackage(const SettingsHandler::Ptr &);
+McuToolChainPackagePtr createGhsToolchainPackage(const SettingsHandler::Ptr &);
+McuToolChainPackagePtr createGhsArmToolchainPackage(const SettingsHandler::Ptr &);
 
-McuToolChainPackage *createUnsupportedToolChainPackage();
-McuToolChainPackage *createIarToolChainPackage();
-McuToolChainPackage *createGccToolChainPackage();
-McuToolChainPackage *createArmGccToolchainPackage();
-McuToolChainPackage *createMsvcToolChainPackage();
-McuToolChainPackage *createGhsToolchainPackage();
-McuToolChainPackage *createGhsArmToolchainPackage();
-
-McuAbstractPackage *createBoardSdkPackage(const McuTargetDescription &desc);
-McuAbstractPackage *createFreeRTOSSourcesPackage(const QString &envVar,
-                                                 const Utils::FilePath &boardSdkDir,
-                                                 const Utils::FilePath &freeRTOSBoardSdkSubDir);
+McuPackagePtr createBoardSdkPackage(const SettingsHandler::Ptr &, const McuTargetDescription &);
+McuPackagePtr createFreeRTOSSourcesPackage(const SettingsHandler::Ptr &settingsHandler,
+                                           const QString &envVar,
+                                           const Utils::FilePath &boardSdkDir,
+                                           const Utils::FilePath &freeRTOSBoardSdkSubDir);
 
 } // namespace Sdk
 } // namespace McuSupport::Internal

@@ -72,12 +72,17 @@ void printMessage(const QString &message, bool important)
 class McuSupportPluginPrivate
 {
 public:
+    explicit McuSupportPluginPrivate(const SettingsHandler::Ptr &settingsHandler)
+        : m_settingsHandler(settingsHandler)
+    {}
     McuSupportDeviceFactory deviceFactory;
     McuSupportRunConfigurationFactory runConfigurationFactory;
     RunWorkerFactory runWorkerFactory{makeFlashAndRunWorker(),
                                       {ProjectExplorer::Constants::NORMAL_RUN_MODE},
                                       {Constants::RUNCONFIGURATION}};
-    McuSupportOptionsPage optionsPage;
+    SettingsHandler::Ptr m_settingsHandler;
+    McuSupportOptions m_options{m_settingsHandler};
+    McuSupportOptionsPage optionsPage{m_options, m_settingsHandler};
     McuDependenciesKitAspect environmentPathsKitAspect;
 }; // class McuSupportPluginPrivate
 
@@ -95,10 +100,10 @@ bool McuSupportPlugin::initialize(const QStringList &arguments, QString *errorSt
     Q_UNUSED(errorString)
 
     setObjectName("McuSupportPlugin");
-    dd = new McuSupportPluginPrivate;
+    dd = new McuSupportPluginPrivate(m_settingsHandler);
 
-    McuSupportOptions::registerQchFiles();
-    McuSupportOptions::registerExamples();
+    dd->m_options.registerQchFiles();
+    dd->m_options.registerExamples();
     ProjectExplorer::JsonWizardFactory::addWizardPath(":/mcusupport/wizards/");
 
     return true;
@@ -108,18 +113,18 @@ void McuSupportPlugin::extensionsInitialized()
 {
     ProjectExplorer::DeviceManager::instance()->addDevice(McuSupportDevice::create());
 
-    connect(KitManager::instance(), &KitManager::kitsLoaded, []() {
+    connect(KitManager::instance(), &KitManager::kitsLoaded, [this]() {
         McuKitManager::removeOutdatedKits();
-        McuKitManager::createAutomaticKits();
-        McuKitManager::fixExistingKits();
-        McuSupportPlugin::askUserAboutMcuSupportKitsSetup();
+        McuKitManager::createAutomaticKits(m_settingsHandler);
+        McuKitManager::fixExistingKits(m_settingsHandler);
+        askUserAboutMcuSupportKitsSetup();
     });
 }
 
 void McuSupportPlugin::askUserAboutMcuSupportKitsSetup()
 {
     if (!ICore::infoBar()->canInfoBeAdded(setupMcuSupportKits)
-        || McuSupportOptions::qulDirFromSettings().isEmpty()
+        || dd->m_options.qulDirFromSettings().isEmpty()
         || !McuKitManager::existingKits(nullptr).isEmpty())
         return;
 
@@ -135,7 +140,7 @@ void McuSupportPlugin::askUserAboutMcuSupportKitsSetup()
     ICore::infoBar()->addInfo(info);
 }
 
-void McuSupportPlugin::askUserAboutMcuSupportKitsUpgrade()
+void McuSupportPlugin::askUserAboutMcuSupportKitsUpgrade(const SettingsHandler::Ptr &settingsHandler)
 {
     const char upgradeMcuSupportKits[] = "UpgradeMcuSupportKits";
 
@@ -156,10 +161,10 @@ void McuSupportPlugin::askUserAboutMcuSupportKitsUpgrade()
         selectedOption = selected.data.value<UpgradeOption>();
     });
 
-    info.addCustomButton(tr("Proceed"), [upgradeMcuSupportKits] {
+    info.addCustomButton(tr("Proceed"), [upgradeMcuSupportKits, settingsHandler] {
         ICore::infoBar()->removeInfo(upgradeMcuSupportKits);
-        QTimer::singleShot(0, []() {
-            McuKitManager::upgradeKitsByCreatingNewPackage(selectedOption);
+        QTimer::singleShot(0, [settingsHandler]() {
+            McuKitManager::upgradeKitsByCreatingNewPackage(settingsHandler, selectedOption);
         });
     });
 

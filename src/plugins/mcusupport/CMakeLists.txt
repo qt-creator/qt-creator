@@ -20,6 +20,7 @@ add_qtc_plugin(McuSupport
     mcusupportversiondetection.cpp mcusupportversiondetection.h
     mcutargetdescription.h
     mcuhelpers.cpp mcuhelpers.h
+    settingshandler.cpp settingshandler.h
 )
 
 add_subdirectory(test)

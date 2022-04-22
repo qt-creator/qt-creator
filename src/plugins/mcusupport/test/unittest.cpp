@@ -143,6 +143,19 @@ void verifyGccToolchain(const McuToolChainPackage *gccPackage)
     QCOMPARE(gccPackage->toolchainType(), McuToolChainPackage::ToolChainType::GCC);
 }
 
+McuSupportTest::McuSupportTest()
+    : targetFactory{settingsMockPtr}
+    , toolchainPackagePtr{
+          new McuToolChainPackage{settingsMockPtr,
+                                  {},                                              // label
+                                  {},                                              // defaultPath
+                                  {},                                              // detectionPath
+                                  {},                                              // settingsKey
+                                  McuToolChainPackage::ToolChainType::Unsupported, // toolchain type
+                                  {},                                              // cmake var name
+                                  {}}}                                             // env var name
+{}
+
 void McuSupportTest::initTestCase()
 {
     targetDescription = Sdk::McuTargetDescription{
@@ -269,8 +282,8 @@ void McuSupportTest::test_addFreeRtosCmakeVarToKit()
 
 void McuSupportTest::test_legacy_createIarToolchain()
 {
-    McuToolChainPackage *iarToolchainPackage = Sdk::createIarToolChainPackage();
-    verifyIarToolchain(iarToolchainPackage);
+    McuToolChainPackagePtr iarToolchainPackage = Sdk::createIarToolChainPackage(settingsMockPtr);
+    verifyIarToolchain(iarToolchainPackage.get());
 }
 
 void McuSupportTest::test_createIarToolchain()
@@ -283,8 +296,8 @@ void McuSupportTest::test_createIarToolchain()
 
 void McuSupportTest::test_legacy_createDesktopGccToolchain()
 {
-    McuToolChainPackage *gccPackage = Sdk::createGccToolChainPackage();
-    verifyGccToolchain(gccPackage);
+    McuToolChainPackagePtr gccPackage = Sdk::createGccToolChainPackage(settingsMockPtr);
+    verifyGccToolchain(gccPackage.get());
 }
 
 void McuSupportTest::test_createDesktopGccToolchain()
@@ -384,7 +397,8 @@ void McuSupportTest::test_createPackagesWithCorrespondingSettings()
 {
     QFETCH(QString, json);
     const Sdk::McuTargetDescription description = Sdk::parseDescriptionJson(json.toLocal8Bit());
-    const auto [targets, packages]{Sdk::targetsFromDescriptions({description}, runLegacy)};
+    const auto [targets,
+                packages]{Sdk::targetsFromDescriptions({description}, settingsMockPtr, runLegacy)};
     Q_UNUSED(targets);
 
     QSet<QString> settings = Utils::transform<QSet<QString>>(packages, [](const auto &package) {
@@ -414,7 +428,8 @@ void McuSupportTest::test_createFreeRtosPackageWithCorrectSetting()
     QFETCH(QString, freeRtosEnvVar);
     QFETCH(QString, expectedSettingsKey);
 
-    auto *package{Sdk::createFreeRTOSSourcesPackage(freeRtosEnvVar, FilePath{}, FilePath{})};
+    McuPackagePtr package{
+        Sdk::createFreeRTOSSourcesPackage(settingsMockPtr, freeRtosEnvVar, FilePath{}, FilePath{})};
     QVERIFY(package != nullptr);
 
     QCOMPARE(package->settingsKey(), expectedSettingsKey);

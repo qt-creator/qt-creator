@@ -27,6 +27,7 @@
 #include "mcusupportconstants.h"
 #include "mcusupportsdk.h"
 #include "mcusupportversiondetection.h"
+#include "settingshandler.h"
 
 #include <baremetal/baremetalconstants.h>
 #include <coreplugin/icore.h>
@@ -49,7 +50,8 @@ using namespace Utils;
 
 namespace McuSupport::Internal {
 
-McuPackage::McuPackage(const QString &label,
+McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
+                       const QString &label,
                        const FilePath &defaultPath,
                        const FilePath &detectionPath,
                        const QString &settingsKey,
@@ -59,8 +61,9 @@ McuPackage::McuPackage(const QString &label,
                        const McuPackageVersionDetector *versionDetector,
                        const bool addToSystemPath,
                        const FilePath &relativePathModifier)
-    : m_label(label)
-    , m_defaultPath(Sdk::packagePathFromSettings(settingsKey, QSettings::SystemScope, defaultPath))
+    : settingsHandler(settingsHandler)
+    , m_label(label)
+    , m_defaultPath(settingsHandler->getPath(settingsKey, QSettings::SystemScope, defaultPath))
     , m_detectionPath(detectionPath)
     , m_settingsKey(settingsKey)
     , m_versionDetector(versionDetector)
@@ -70,7 +73,7 @@ McuPackage::McuPackage(const QString &label,
     , m_downloadUrl(downloadUrl)
     , m_addToSystemPath(addToSystemPath)
 {
-    m_path = Sdk::packagePathFromSettings(settingsKey, QSettings::UserScope, m_defaultPath);
+    m_path = this->settingsHandler->getPath(settingsKey, QSettings::UserScope, m_defaultPath);
 }
 
 QString McuPackage::label() const
@@ -227,14 +230,7 @@ QString McuPackage::statusText() const
 
 bool McuPackage::writeToSettings() const
 {
-    const FilePath savedPath = Sdk::packagePathFromSettings(m_settingsKey,
-                                                            QSettings::UserScope,
-                                                            m_defaultPath);
-    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/'
-                        + QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX) + m_settingsKey;
-    Core::ICore::settings()->setValueWithDefault(key, m_path.toString(), m_defaultPath.toString());
-
-    return savedPath != m_path;
+    return settingsHandler->write(m_settingsKey, m_path, m_defaultPath);
 }
 
 QWidget *McuPackage::widget()
@@ -277,7 +273,8 @@ QWidget *McuPackage::widget()
     return widget;
 }
 
-McuToolChainPackage::McuToolChainPackage(const QString &label,
+McuToolChainPackage::McuToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
+                                         const QString &label,
                                          const FilePath &defaultPath,
                                          const FilePath &detectionPath,
                                          const QString &settingsKey,
@@ -285,7 +282,8 @@ McuToolChainPackage::McuToolChainPackage(const QString &label,
                                          const QString &cmakeVarName,
                                          const QString &envVarName,
                                          const McuPackageVersionDetector *versionDetector)
-    : McuPackage(label,
+    : McuPackage(settingsHandler,
+                 label,
                  defaultPath,
                  detectionPath,
                  settingsKey,

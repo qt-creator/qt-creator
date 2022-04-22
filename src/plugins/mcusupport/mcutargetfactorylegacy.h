@@ -26,6 +26,8 @@
 #pragma once
 
 #include "mcuabstracttargetfactory.h"
+#include "mcutargetdescription.h"
+#include "settingshandler.h"
 
 #include <QHash>
 #include <QPair>
@@ -36,10 +38,8 @@ class McuTargetFactoryLegacy : public McuAbstractTargetFactory
 {
 public:
     McuTargetFactoryLegacy(const QHash<QString, McuToolChainPackagePtr> &tcPkgs,
-                           const QHash<QString, McuPackagePtr> &vendorPkgs)
-        : tcPkgs(tcPkgs)
-        , vendorPkgs(vendorPkgs)
-    {}
+                           const QHash<QString, McuPackagePtr> &vendorPkgs,
+                           const SettingsHandler::Ptr &);
 
     QPair<Targets, Packages> createTargets(const McuTargetDescription &) override;
     AdditionalPackages getAdditionalPackages() const override;
@@ -47,6 +47,8 @@ public:
 private:
     const QHash<QString, McuToolChainPackagePtr> tcPkgs;
     const QHash<QString, McuPackagePtr> vendorPkgs;
+
+    SettingsHandler::Ptr settingsHandler;
 }; // struct McuTargetFactoryLegacy
 
 } // namespace McuSupport::Internal::Sdk

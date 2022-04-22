@@ -26,6 +26,7 @@
 #pragma once
 
 #include "mcusupport_global.h"
+#include "settingshandler.h"
 
 #include <extensionsystem/iplugin.h>
 
@@ -44,11 +45,12 @@ public:
     bool initialize(const QStringList &arguments, QString *errorString) final;
     void extensionsInitialized() final;
 
-    static void askUserAboutMcuSupportKitsSetup();
-    static void askUserAboutMcuSupportKitsUpgrade();
+    void askUserAboutMcuSupportKitsSetup();
+    static void askUserAboutMcuSupportKitsUpgrade(const SettingsHandler::Ptr &settingsHandler);
 
 private:
     QVector<QObject *> createTestObjects() const final;
+    SettingsHandler::Ptr m_settingsHandler{new SettingsHandler};
 
 }; // class McuSupportPlugin
 

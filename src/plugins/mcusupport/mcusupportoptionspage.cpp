@@ -30,6 +30,7 @@
 #include "mcusupportoptions.h"
 #include "mcusupportsdk.h"
 #include "mcutarget.h"
+#include "settingshandler.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>
@@ -58,7 +59,7 @@ class McuSupportOptionsWidget : public Core::IOptionsPageWidget
     Q_DECLARE_TR_FUNCTIONS(McuSupport::Internal::McuSupportOptionsWidget)
 
 public:
-    McuSupportOptionsWidget();
+    McuSupportOptionsWidget(McuSupportOptions &, const SettingsHandler::Ptr &);
 
     void updateStatus();
     void showMcuTargetPackages();
@@ -71,7 +72,8 @@ private:
     void showEvent(QShowEvent *event) final;
 
     QString m_armGccPath;
-    McuSupportOptions m_options;
+    McuSupportOptions &m_options;
+    SettingsHandler::Ptr m_settingsHandler;
     QMap<McuPackagePtr, QWidget *> m_packageWidgets;
     QMap<McuTargetPtr, QWidget *> m_mcuTargetPacketWidgets;
     QFormLayout *m_packagesLayout = nullptr;
@@ -88,7 +90,10 @@ private:
     QPushButton *m_kitUpdatePushButton = nullptr;
 };
 
-McuSupportOptionsWidget::McuSupportOptionsWidget()
+McuSupportOptionsWidget::McuSupportOptionsWidget(McuSupportOptions &options,
+                                                 const SettingsHandler::Ptr &settingsHandler)
+    : m_options{options}
+    , m_settingsHandler(settingsHandler)
 {
     auto mainLayout = new QVBoxLayout(this);
 
@@ -161,7 +166,7 @@ McuSupportOptionsWidget::McuSupportOptionsWidget()
         m_kitCreationPushButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         connect(m_kitCreationPushButton, &QPushButton::clicked, this, [this] {
             McuKitManager::newKit(currentMcuTarget().get(), m_options.qtForMCUsSdkPackage);
-            McuSupportOptions::registerQchFiles();
+            m_options.registerQchFiles();
             updateStatus();
         });
         m_kitUpdatePushButton = new QPushButton(tr("Update Kit"));
@@ -311,7 +316,7 @@ void McuSupportOptionsWidget::apply()
 
     if (pathsChanged) {
         m_options.checkUpgradeableKits();
-        McuKitManager::updatePathsInExistingKits();
+        McuKitManager::updatePathsInExistingKits(m_settingsHandler);
     }
 }
 
@@ -326,12 +331,15 @@ void McuSupportOptionsWidget::populateMcuTargetsComboBox()
     updateStatus();
 }
 
-McuSupportOptionsPage::McuSupportOptionsPage()
+McuSupportOptionsPage::McuSupportOptionsPage(McuSupportOptions &options,
+                                             const SettingsHandler::Ptr &settingsHandler)
 {
     setId(Utils::Id(Constants::SETTINGS_ID));
     setDisplayName(McuSupportOptionsWidget::tr("MCU"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
-    setWidgetCreator([] { return new McuSupportOptionsWidget; });
+    setWidgetCreator([&options, &settingsHandler] {
+        return new McuSupportOptionsWidget(options, settingsHandler);
+    });
 }
 
 } // namespace McuSupport::Internal

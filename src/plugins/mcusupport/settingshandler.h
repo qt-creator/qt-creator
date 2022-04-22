@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -22,23 +22,29 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
 #pragma once
 
-#include "settingshandler.h"
+#include <QSettings>
+#include <QSharedPointer>
+#include <QString>
 
-#include <coreplugin/dialogs/ioptionspage.h>
+namespace Utils {
+class FilePath;
+} //namespace Utils
 
-namespace McuSupport {
-namespace Internal {
+namespace McuSupport::Internal {
 
-class McuSupportOptions;
-
-class McuSupportOptionsPage final : public Core::IOptionsPage
+class SettingsHandler
 {
 public:
-    McuSupportOptionsPage(McuSupportOptions &, const SettingsHandler::Ptr &);
-};
+    using Ptr = QSharedPointer<SettingsHandler>;
+    virtual ~SettingsHandler() = default;
+    virtual Utils::FilePath getPath(const QString &settingsKey,
+                                    QSettings::Scope scope,
+                                    const Utils::FilePath &m_defaultPath) const;
 
-} // namespace Internal
-} // namespace McuSupport
+    virtual bool write(const QString &settingsKey,
+                       const Utils::FilePath &path,
+                       const Utils::FilePath &defaultPath) const;
+}; //class SettingsHandler
+} // namespace McuSupport::Internal

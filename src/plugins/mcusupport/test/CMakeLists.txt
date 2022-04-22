@@ -6,7 +6,7 @@ if(TARGET Googletest)
         CONDITION WITH_TESTS
         DEPENDS Googletest
         SOURCES
-        unittest.h unittest.cpp packagemock.h
+            unittest.h unittest.cpp packagemock.h settingshandlermock.h
         )
 else()
     message("Googletest target is missing")

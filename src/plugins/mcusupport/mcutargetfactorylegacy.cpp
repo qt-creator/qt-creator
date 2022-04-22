@@ -36,6 +36,14 @@
 
 namespace McuSupport::Internal::Sdk {
 
+McuTargetFactoryLegacy::McuTargetFactoryLegacy(const QHash<QString, McuToolChainPackagePtr> &tcPkgs,
+                                               const QHash<QString, McuPackagePtr> &vendorPkgs,
+                                               const SettingsHandler::Ptr &settingsHandler)
+    : tcPkgs(tcPkgs)
+    , vendorPkgs(vendorPkgs)
+    , settingsHandler(settingsHandler)
+{}
+
 QPair<Targets, Packages> McuTargetFactoryLegacy::createTargets(const McuTargetDescription &desc)
 {
     QHash<QString, McuPackagePtr> boardSdkPkgs;
@@ -46,7 +54,7 @@ QPair<Targets, Packages> McuTargetFactoryLegacy::createTargets(const McuTargetDe
     if (tcPkg) {
         tcPkg->setVersions(desc.toolchain.versions);
     } else {
-        tcPkg.reset(createUnsupportedToolChainPackage());
+        tcPkg = createUnsupportedToolChainPackage(settingsHandler);
     }
     for (int colorDepth : desc.platform.colorDepths) {
         Packages required3rdPartyPkgs;
@@ -65,7 +73,7 @@ QPair<Targets, Packages> McuTargetFactoryLegacy::createTargets(const McuTargetDe
         Utils::FilePath boardSdkDefaultPath;
         if (!desc.boardSdk.envVar.isEmpty()) {
             if (!boardSdkPkgs.contains(desc.boardSdk.envVar)) {
-                McuPackagePtr boardSdkPkg{createBoardSdkPackage(desc)};
+                McuPackagePtr boardSdkPkg{createBoardSdkPackage(settingsHandler, desc)};
                 boardSdkPkgs.insert(desc.boardSdk.envVar, boardSdkPkg);
             }
             McuPackagePtr boardSdkPkg{boardSdkPkgs.value(desc.boardSdk.envVar)};
@@ -77,11 +85,13 @@ QPair<Targets, Packages> McuTargetFactoryLegacy::createTargets(const McuTargetDe
         // Free RTOS specific settings.
         if (!desc.freeRTOS.envVar.isEmpty()) {
             if (!freeRTOSPkgs.contains(desc.freeRTOS.envVar)) {
-                freeRTOSPkgs.insert(desc.freeRTOS.envVar,
-                                    McuPackagePtr{
-                                        createFreeRTOSSourcesPackage(desc.freeRTOS.envVar,
-                                                                     boardSdkDefaultPath,
-                                                                     desc.freeRTOS.boardSdkSubDir)});
+                freeRTOSPkgs
+                    .insert(desc.freeRTOS.envVar,
+                            McuPackagePtr{
+                                Sdk::createFreeRTOSSourcesPackage(settingsHandler,
+                                                                  desc.freeRTOS.envVar,
+                                                                  boardSdkDefaultPath,
+                                                                  desc.freeRTOS.boardSdkSubDir)});
             }
             required3rdPartyPkgs.insert(freeRTOSPkgs.value(desc.freeRTOS.envVar));
         }

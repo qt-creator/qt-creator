@@ -61,6 +61,10 @@ const static QMap<QString, McuToolChainPackage::ToolChainType> toolchainTypeMapp
     {"ghsarm", McuToolChainPackage::ToolChainType::GHSArm},
 };
 
+McuTargetFactory::McuTargetFactory(const SettingsHandler::Ptr &settingsHandler)
+    : settingsHandler{settingsHandler}
+{}
+
 QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescription &desc)
 {
     Targets mcuTargets;
@@ -109,6 +113,7 @@ Packages McuTargetFactory::createPackages(const McuTargetDescription &desc)
 McuPackagePtr McuTargetFactory::createPackage(const PackageDescription &pkgDesc)
 {
     return McuPackagePtr{new McuPackage{
+        settingsHandler,
         pkgDesc.label,
         pkgDesc.defaultPath,
         pkgDesc.validationPath,
@@ -130,11 +135,12 @@ McuToolChainPackage *McuTargetFactory::createToolchain(
         = toolchainTypeMapping.value(toolchain.id, McuToolChainPackage::ToolChainType::Unsupported);
 
     if (isDesktopToolchain(toolchainType))
-        return new McuToolChainPackage{{}, {}, {}, {}, toolchainType};
+        return new McuToolChainPackage{settingsHandler, {}, {}, {}, {}, toolchainType};
     else if (!isToolchainDescriptionValid(toolchain))
         return nullptr;
 
     return new McuToolChainPackage{
+        settingsHandler,
         compilerDescription.label,
         compilerDescription.defaultPath,
         compilerDescription.validationPath,

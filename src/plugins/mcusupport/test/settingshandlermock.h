@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -22,23 +22,27 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
 #pragma once
 
 #include "settingshandler.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <gmock/gmock.h>
+#include <utils/filepath.h>
 
-namespace McuSupport {
-namespace Internal {
+namespace McuSupport::Internal {
 
-class McuSupportOptions;
-
-class McuSupportOptionsPage final : public Core::IOptionsPage
+class SettingsHandlerMock : public SettingsHandler
 {
 public:
-    McuSupportOptionsPage(McuSupportOptions &, const SettingsHandler::Ptr &);
-};
-
-} // namespace Internal
-} // namespace McuSupport
+    SettingsHandlerMock() = default;
+    ~SettingsHandlerMock() override = default;
+    MOCK_METHOD(Utils::FilePath,
+                getPath,
+                (const QString &, QSettings::Scope, const Utils::FilePath &),
+                (const));
+    MOCK_METHOD(bool,
+                write,
+                (const QString &, const Utils::FilePath &, const Utils::FilePath &),
+                (const));
+}; //class SettingsHandler
+} // namespace McuSupport::Internal

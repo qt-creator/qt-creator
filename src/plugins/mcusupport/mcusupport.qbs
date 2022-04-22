@@ -51,6 +51,8 @@ QtcPlugin {
         "mcukitinformation.h",
         "mcuhelpers.cpp",
         "mcuhelpers.h",
+        "settingshandler.h",
+        "settingshandler.cpp",
     ]
 
     Group {
@@ -59,6 +61,7 @@ QtcPlugin {
         prefix: "test/"
         files: [
             "packagemock.h",
+            "settingshandlermock.h",
             "unittest.cpp", "unittest.h"
         ]
     }

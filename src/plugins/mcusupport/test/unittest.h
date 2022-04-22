@@ -32,6 +32,7 @@
 #include "mcutarget.h"
 #include "mcutargetfactory.h"
 #include "packagemock.h"
+#include "settingshandlermock.h"
 
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
@@ -47,6 +48,8 @@ namespace McuSupport::Internal::Test {
 class McuSupportTest : public QObject
 {
     Q_OBJECT
+public:
+    McuSupportTest();
 
 private slots:
     void initTestCase();
@@ -82,16 +85,12 @@ private:
     PackageMock *sdkPackage{new PackageMock};
     McuPackagePtr freeRtosPackagePtr{freeRtosPackage};
     McuPackagePtr sdkPackagePtr{sdkPackage};
+
+    SettingsHandlerMock *settingsMock{new SettingsHandlerMock};
+    QSharedPointer<SettingsHandlerMock> settingsMockPtr{settingsMock};
     Sdk::McuTargetFactory targetFactory;
     Sdk::McuTargetDescription targetDescription;
-    McuToolChainPackagePtr toolchainPackagePtr{
-        new McuToolChainPackage{{},                                              // label
-                                {},                                              // defaultPath
-                                {},                                              // detectionPath
-                                {},                                              // settingsKey
-                                McuToolChainPackage::ToolChainType::Unsupported, // toolchain type
-                                {},                                              // cmake var name
-                                {}}};                                            // env var name
+    McuToolChainPackagePtr toolchainPackagePtr;
 }; // class McuSupportTest
 
 } // namespace McuSupport::Internal::Test
