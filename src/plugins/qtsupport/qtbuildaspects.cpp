@@ -76,7 +76,8 @@ void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
     changeHandler();
 }
 
-QtQuickCompilerAspect::QtQuickCompilerAspect()
+QtQuickCompilerAspect::QtQuickCompilerAspect(QmlDebuggingAspect *qmlAspect)
+    : m_qmlDebuggingAspect(qmlAspect)
 {
     setSettingsKey("QtQuickCompiler");
     setDisplayName(tr("Qt Quick Compiler:"));
@@ -112,11 +113,6 @@ void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
     if (m_qmlDebuggingAspect)
         connect(m_qmlDebuggingAspect, &QmlDebuggingAspect::changed,  warningLabel, changeHandler);
     changeHandler();
-}
-
-void QtQuickCompilerAspect::acquaintSiblings(const AspectContainer &siblings)
-{
-    m_qmlDebuggingAspect = siblings.aspect<QmlDebuggingAspect>();
 }
 
 } // namespace QtSupport

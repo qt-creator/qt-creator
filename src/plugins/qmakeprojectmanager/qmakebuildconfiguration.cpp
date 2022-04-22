@@ -197,7 +197,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Utils::Id id)
         qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
     });
 
-    const auto qtQuickCompilerAspect = addAspect<QtQuickCompilerAspect>();
+    const auto qtQuickCompilerAspect = addAspect<QtQuickCompilerAspect>(qmlDebuggingAspect);
     qtQuickCompilerAspect->setKit(target->kit());
     connect(qtQuickCompilerAspect, &QtQuickCompilerAspect::changed, this, [this] {
         emit useQtQuickCompilerChanged();

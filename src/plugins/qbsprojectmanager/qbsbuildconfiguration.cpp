@@ -136,7 +136,7 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Utils::Id id)
     connect(qmlDebuggingAspect, &QtSupport::QmlDebuggingAspect::changed,
             this, &QbsBuildConfiguration::qbsConfigurationChanged);
 
-    const auto qtQuickCompilerAspect = addAspect<QtSupport::QtQuickCompilerAspect>();
+    const auto qtQuickCompilerAspect = addAspect<QtSupport::QtQuickCompilerAspect>(qmlDebuggingAspect);
     qtQuickCompilerAspect->setKit(target->kit());
     connect(qtQuickCompilerAspect, &QtSupport::QtQuickCompilerAspect::changed,
             this, &QbsBuildConfiguration::qbsConfigurationChanged);

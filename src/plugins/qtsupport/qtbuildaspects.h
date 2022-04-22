@@ -50,13 +50,12 @@ class QTSUPPORT_EXPORT QtQuickCompilerAspect : public Utils::TriStateAspect
 {
     Q_OBJECT
 public:
-    QtQuickCompilerAspect();
+    QtQuickCompilerAspect(QmlDebuggingAspect *qmlAspect);
 
     void setKit(const ProjectExplorer::Kit *kit) { m_kit = kit; }
 
 private:
     void addToLayout(Utils::LayoutBuilder &builder) override;
-    void acquaintSiblings(const Utils::AspectContainer &siblings) override;
 
     const ProjectExplorer::Kit *m_kit = nullptr;
     const QmlDebuggingAspect *m_qmlDebuggingAspect = nullptr;
