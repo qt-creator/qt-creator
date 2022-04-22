@@ -73,25 +73,29 @@ VersionDialog::VersionDialog(QWidget *parent)
     const QString additionalInfo =
             QStringList(Utils::transform(additionalInfoLines, &QString::toHtmlEscaped)).join(br);
 
-    const QString description = tr(
-        "<h3>%1</h3>"
-        "%2<br/>"
-        "%3"
-        "%4"
-        "%5"
-        "<br/>"
-        "Copyright 2008-%6 %7. All rights reserved.<br/>"
-        "<br/>"
-        "The program is provided AS IS with NO WARRANTY OF ANY KIND, "
-        "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A "
-        "PARTICULAR PURPOSE.<br/>")
-        .arg(ICore::versionString(),
-             ICore::buildCompatibilityString(),
-             buildDateInfo,
-             ideRev,
-             additionalInfo.isEmpty() ? QString() : br + additionalInfo + br,
-             QLatin1String(Constants::IDE_YEAR),
-             QLatin1String(Constants::IDE_AUTHOR));
+    const QString description
+        = tr("<h3>%1</h3>"
+             "%2<br/>"
+             "%3"
+             "%4"
+             "%5"
+             "<br/>"
+             "Copyright 2008-%6 %7. All rights reserved.<br/>"
+             "<br/>"
+             "The program is provided AS IS with NO WARRANTY OF ANY KIND, "
+             "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A "
+             "PARTICULAR PURPOSE.<br/>")
+              .arg(ICore::versionString(),
+                   ICore::buildCompatibilityString(),
+                   buildDateInfo,
+                   ideRev,
+                   additionalInfo.isEmpty() ? QString() : br + additionalInfo + br,
+                   QLatin1String(Constants::IDE_YEAR),
+                   QLatin1String(Constants::IDE_AUTHOR))
+          + "<br/>"
+          + tr("The Qt logo as well as Qt®, Qt Quick®, Built with Qt®, Boot to Qt®, "
+               "Qt Quick Compiler®, Qt Enterprise®, Qt Mobile® and Qt Embedded® are "
+               "registered trademarks of The Qt Company Ltd.");
 
     QLabel *copyRightLabel = new QLabel(description);
     copyRightLabel->setWordWrap(true);
