@@ -739,6 +739,9 @@ clang::format::FormatStyle ClangFormatBaseIndenter::styleForFile() const
             Utils::FilePath filePath = filePathToCurrentSettings(
                 TextEditor::TextEditorSettings::codeStyle("Cpp")->currentPreferences());
 
+            if (!filePath.exists())
+                return qtcStyle();
+
             clang::format::FormatStyle style;
             style.Language = clang::format::FormatStyle::LK_Cpp;
             const std::error_code error

@@ -346,7 +346,9 @@ void CppCodeStylePreferencesWidget::setVisualizeWhitespace(bool on)
 
 void CppCodeStylePreferencesWidget::addTab(CppCodeStyleWidget *page, QString tabName)
 {
-    QTC_ASSERT(page, return);
+    if (!page)
+        return;
+
     m_ui->categoryTab->addTab(page, tabName);
 
     connect(page, &CppEditor::CppCodeStyleWidget::codeStyleSettingsChanged,
