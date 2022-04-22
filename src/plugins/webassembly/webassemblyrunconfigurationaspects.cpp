@@ -33,6 +33,7 @@
 #include <utils/qtcprocess.h>
 
 #include <QComboBox>
+#include <QTextStream>
 
 #ifdef WITH_TESTS
 #   include <QTest>
