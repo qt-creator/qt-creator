@@ -1088,13 +1088,15 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         useMacroExpander(d->m_pathChooserDisplay->lineEdit());
         if (isAutoApply()) {
             if (d->m_autoApplyOnEditingFinished) {
-                connect(d->m_pathChooserDisplay, &PathChooser::editingFinished, this, [this] {
+                const auto setPathChooserValue = [this] {
                     if (d->m_blockAutoApply)
                         return;
                     d->m_blockAutoApply = true;
                     setValue(d->m_pathChooserDisplay->filePath().toString());
                     d->m_blockAutoApply = false;
-                });
+                };
+                connect(d->m_pathChooserDisplay, &PathChooser::editingFinished, this, setPathChooserValue);
+                connect(d->m_pathChooserDisplay, &PathChooser::browsingFinished, this, setPathChooserValue);
             } else {
                 connect(d->m_pathChooserDisplay, &PathChooser::pathChanged,
                         this, [this](const QString &path) {
