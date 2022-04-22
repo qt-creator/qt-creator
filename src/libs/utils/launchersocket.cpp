@@ -116,7 +116,6 @@ bool CallerHandle::flushFor(SignalType signalType)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return {});
     QList<LauncherSignal *> oldSignals;
-    QList<SignalType> flushedSignals;
     {
         QMutexLocker locker(&m_mutex);
         const QList<SignalType> storedSignals =
@@ -124,18 +123,21 @@ bool CallerHandle::flushFor(SignalType signalType)
                                    return launcherSignal->signalType();
         });
 
-        // If we are flushing for Started, flush Started only
-        const bool flushAll = (signalType != SignalType::Started);
+        // If we are flushing for ReadyRead or Done - flush all.
+        // If we are flushing for Started:
+        // - if Started was buffered - flush Started only.
+        // - otherwise if Done signal was buffered - flush all.
+        const bool flushAll = (signalType != SignalType::Started)
+                || (!storedSignals.contains(SignalType::Started)
+                    && storedSignals.contains(SignalType::Done));
         if (flushAll) {
             oldSignals = m_signals;
             m_signals = {};
-            flushedSignals = storedSignals;
         } else {
             auto matchingIndex = storedSignals.lastIndexOf(signalType);
             if (matchingIndex >= 0) {
                 oldSignals = m_signals.mid(0, matchingIndex + 1);
                 m_signals = m_signals.mid(matchingIndex + 1);
-                flushedSignals = storedSignals.mid(0, matchingIndex + 1);
             }
         }
     }
