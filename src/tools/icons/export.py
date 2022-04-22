@@ -74,7 +74,8 @@ def pngName(svgID, scale):
 def checkDirectories(svgIDs):
     invalidDirectories = []
     for id in svgIDs:
-        if not os.path.isdir(os.path.join(qtcRoot(), id, '../')):
+        dirForId = os.path.abspath(os.path.join(qtcRoot(), id, os.pardir))
+        if not os.path.isdir(dirForId):
             invalidDirectories.append(id)
 
     if invalidDirectories:
