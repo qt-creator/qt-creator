@@ -246,8 +246,7 @@ void SemanticTokenSupport::updateFormatHash()
         case numberToken: style = C_NUMBER; break;
         case operatorToken: style = C_OPERATOR; break;
         default:
-            style = m_additionalTypeStyles.value(tokenType, C_TEXT);
-            break;
+            continue;
         }
         int mainHashPart = tokenType << tokenTypeBitOffset;
         m_formatHash[mainHashPart] = fontSettings.toTextCharFormat(style);
