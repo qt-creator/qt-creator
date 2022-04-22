@@ -139,6 +139,12 @@ Rectangle {
         if (nObj === 1) {}
         if (nNum === 1) {}
 
+        var bObj = Boolean(1 > 0);
+        if (bObj === b) {}
+
+        var sBool = String(b);
+        if (sBool === s) {}
+
     }
 
     ListView {
