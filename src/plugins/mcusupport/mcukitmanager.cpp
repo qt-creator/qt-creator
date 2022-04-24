@@ -109,12 +109,10 @@ public:
         }
     }
 
-    static void setKitProperties(const QString &kitName,
-                                 Kit *k,
-                                 const McuTarget *mcuTarget,
-                                 const FilePath &sdkPath)
+    static void setKitProperties(Kit *k, const McuTarget *mcuTarget, const FilePath &sdkPath)
     {
         using namespace Constants;
+        const QString kitName{generateKitNameFromTarget(mcuTarget)};
 
         k->setUnexpandedDisplayName(kitName);
         k->setValue(KIT_MCUTARGET_VENDOR_KEY, mcuTarget->platform().vendor);
@@ -129,8 +127,7 @@ public:
         if (mcuTarget->toolChainPackage()->isDesktopToolchain())
             k->setDeviceTypeForIcon(DEVICE_TYPE);
         k->setValue(QtSupport::SuppliesQtQuickImportPath::id(), true);
-        k->setValue(QtSupport::KitQmlImportPath::id(),
-                    sdkPath.pathAppended("include/qul").toVariant());
+        k->setValue(QtSupport::KitQmlImportPath::id(), (sdkPath / "include/qul").toVariant());
         k->setValue(QtSupport::KitHasMergedHeaderPathsWithQmlImportPaths::id(), true);
         QSet<Id> irrelevant = {
             SysRootKitAspect::id(),
@@ -326,10 +323,7 @@ Kit *newKit(const McuTarget *mcuTarget, const McuPackagePtr &qtForMCUsSdk)
     const auto init = [&mcuTarget, qtForMCUsSdk](Kit *k) {
         KitGuard kitGuard(k);
 
-        McuKitFactory::setKitProperties(generateKitNameFromTarget(mcuTarget),
-                                        k,
-                                        mcuTarget,
-                                        qtForMCUsSdk->path());
+        McuKitFactory::setKitProperties(k, mcuTarget, qtForMCUsSdk->path());
         McuKitFactory::setKitDevice(k, mcuTarget);
         McuKitFactory::setKitToolchains(k, mcuTarget->toolChainPackage());
         McuKitFactory::setKitDebugger(k, mcuTarget->toolChainPackage());
@@ -375,10 +369,10 @@ QVersionNumber kitQulVersion(const Kit *kit)
 }
 
 // Kit Information
-static FilePath kitDependencyPath(const Kit *kit, const QString &variableName)
+static FilePath kitDependencyPath(const Kit *kit, const QString &cmakeVariableName)
 {
     const auto config = CMakeConfigurationKitAspect::configuration(kit).toList();
-    const auto keyName = variableName.toUtf8();
+    const auto keyName = cmakeVariableName.toUtf8();
     for (const CMakeConfigItem &configItem : config) {
         if (configItem.key == keyName)
             return FilePath::fromUserInput(QString::fromUtf8(configItem.value));
@@ -566,10 +560,7 @@ void upgradeKitInPlace(ProjectExplorer::Kit *kit,
                        const McuTarget *mcuTarget,
                        const McuPackagePtr &qtForMCUsSdk)
 {
-    McuKitFactory::setKitProperties(generateKitNameFromTarget(mcuTarget),
-                                    kit,
-                                    mcuTarget,
-                                    qtForMCUsSdk->path());
+    McuKitFactory::setKitProperties(kit, mcuTarget, qtForMCUsSdk->path());
     McuKitFactory::setKitEnvironment(kit, mcuTarget, qtForMCUsSdk);
     McuKitFactory::setKitCMakeOptions(kit, mcuTarget, qtForMCUsSdk);
     McuKitFactory::setKitDependencies(kit, mcuTarget, qtForMCUsSdk);
