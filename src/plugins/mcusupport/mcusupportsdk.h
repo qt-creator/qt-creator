@@ -32,11 +32,16 @@
 
 #include <QSettings>
 
+namespace Utils {
+class FilePath;
+} // namespace Utils
+
 namespace McuSupport::Internal {
 
 constexpr int MAX_COMPATIBILITY_VERSION{1};
 
 class McuAbstractPackage;
+class McuPackage;
 class McuSdkRepository;
 class McuTarget;
 class McuToolChainPackage;
@@ -54,11 +59,13 @@ McuSdkRepository targetsAndPackages(const Utils::FilePath &qulDir, const Setting
 McuTargetDescription parseDescriptionJson(const QByteArray &);
 McuSdkRepository targetsFromDescriptions(const QList<McuTargetDescription> &,
                                          const SettingsHandler::Ptr &,
+                                         const Utils::FilePath &qtForMCUSdkPath,
                                          bool isLegacy);
 
 Utils::FilePath kitsPath(const Utils::FilePath &dir);
 
-McuPackagePtr createUnsupportedToolChainFilePackage(const SettingsHandler::Ptr &);
+McuPackagePtr createUnsupportedToolChainFilePackage(const SettingsHandler::Ptr &,
+                                                    const Utils::FilePath &qtMcuSdkPath);
 McuToolChainPackagePtr createUnsupportedToolChainPackage(const SettingsHandler::Ptr &);
 McuToolChainPackagePtr createIarToolChainPackage(const SettingsHandler::Ptr &);
 McuToolChainPackagePtr createGccToolChainPackage(const SettingsHandler::Ptr &);

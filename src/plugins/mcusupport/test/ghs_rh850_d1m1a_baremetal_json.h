@@ -25,32 +25,21 @@
 
 #pragma once
 
-constexpr auto armgcc_stm32h750b_metal_json = R"({
-  "qulVersion": "2.0.0",
+constexpr auto ghs_rh850_d1m1a_baremetal_json = R"({
+  "qulVersion": "2.1.5",
   "compatVersion": "1",
   "platform": {
-    "id": "STM32H750B-DISCOVERY-BAREMETAL",
-    "vendor": "ST",
+    "id": "RH850-D1M1A-BAREMETAL",
+    "vendor": "RENESAS",
     "colorDepths": [
       32
     ],
-    "pathEntries": [
-      {
-        "id": "STM32CubeProgrammer_PATH",
-        "label": "STM32CubeProgrammer",
-        "type": "path",
-        "defaultValue": {
-          "windows": "$PROGRAMSANDFILES/STMicroelectronics/STM32Cube/STM32CubeProgrammer/",
-          "unix": "$HOME/STMicroelectronics/STM32Cube/STM32CubeProgrammer/"
-        },
-        "optional": false
-      }
-    ],
+    "pathEntries": [],
     "environmentEntries": [],
     "cmakeEntries": [
       {
         "id": "Qul_DIR",
-        "label": "Qt for MCUs SDK",
+        "description": "Qt for MCUs SDK",
         "type": "path",
         "cmakeVar": "Qul_ROOT",
         "optional": false
@@ -58,40 +47,39 @@ constexpr auto armgcc_stm32h750b_metal_json = R"({
     ]
   },
   "toolchain": {
-    "id": "armgcc",
+    "id": "greenhills",
     "versions": [
-      "9.3.1"
+      "2018.1.5"
     ],
     "compiler": {
-        "id": "ARMGCC_DIR",
-        "label": "GNU Arm Embedded Toolchain",
+        "description": "Green Hills Compiler",
         "cmakeVar": "QUL_TARGET_TOOLCHAIN_DIR",
-        "envVar": "ARMGCC_DIR",
-        "setting": "GNUArmEmbeddedToolchain",
+        "setting": "GHSToolchain",
+        "label": "Green Hills Compiler",
         "type": "path",
         "optional": false
-      },
-      "file" : {
-        "id": "ARMGCC_CMAKE_TOOLCHAIN_FILE",
-        "label": "CMake Toolchain File",
+    },
+    "file": {
+        "description": "CMake Toolchain File",
         "cmakeVar": "CMAKE_TOOLCHAIN_FILE",
         "type": "file",
-        "defaultValue": "/opt/qtformcu/2.2//lib/cmake/Qul/toolchain/armgcc.cmake",
+        "defaultValue": "/opt/qtformcu/2.2/lib/cmake/Qul/toolchain/ghs.cmake",
         "visible": false,
         "optional": false
       }
   },
   "boardSdk": {
-    "envVar": "STM32Cube_FW_H7_SDK_PATH",
+    "envVar": "RGL_DIR",
     "versions": [
-      "1.5.0"
+      "2.0.0a"
     ],
     "cmakeEntries": [
       {
-        "id": "ST_SDK_DIR",
-        "label": "Board SDK for STM32H750B-Discovery",
+        "id": "RGL_DIR",
+        "description": "Renesas Graphics Library",
         "cmakeVar": "QUL_BOARD_SDK_DIR",
         "type": "path",
+        "defaultValue": "/Renesas_Electronics/D1x_RGL/rgl_ghs_D1Mx_obj_V.2.0.0a",
         "optional": false
       }
     ]

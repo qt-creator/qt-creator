@@ -32,10 +32,15 @@
 
 #include <memory>
 
+namespace Utils {
+class FilePath;
+} // namespace Utils
+
 namespace McuSupport::Internal {
 
 namespace Sdk {
 struct McuTargetDescription;
+} //namespace Sdk
 
 class McuAbstractTargetFactory
 {
@@ -43,10 +48,11 @@ public:
     using Ptr = std::unique_ptr<McuAbstractTargetFactory>;
     virtual ~McuAbstractTargetFactory() = default;
 
-    virtual QPair<Targets, Packages> createTargets(const McuTargetDescription &) = 0;
+    virtual QPair<Targets, Packages> createTargets(const Sdk::McuTargetDescription &,
+                                                   const Utils::FilePath &qtForMcuPath)
+        = 0;
     using AdditionalPackages
         = QPair<QHash<QString, McuToolChainPackagePtr>, QHash<QString, McuPackagePtr>>;
     virtual AdditionalPackages getAdditionalPackages() const { return {}; }
 }; // struct McuAbstractTargetFactory
-} // namespace Sdk
 } // namespace McuSupport::Internal

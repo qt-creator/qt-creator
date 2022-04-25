@@ -432,11 +432,6 @@ QString McuToolChainPackage::toolChainName() const
     }
 }
 
-QString McuToolChainPackage::cmakeToolChainFileName() const
-{
-    return toolChainName() + QLatin1String(".cmake");
-}
-
 QVariant McuToolChainPackage::debuggerId() const
 {
     using namespace Debugger;

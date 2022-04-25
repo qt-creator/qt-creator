@@ -25,28 +25,9 @@
 
 #pragma once
 
-#include "mcuabstracttargetfactory.h"
-#include "mcutargetdescription.h"
-#include "settingshandler.h"
+namespace McuSupport::Constants {
 
-namespace McuSupport::Internal {
+const char QUL_TOOLCHAIN_CMAKE_DIR[] = "lib/cmake/Qul/toolchain/";
+const char QUL_ENV_VAR[] = "Qul_ROOT";
 
-namespace Sdk {
-struct PackageDescription;
-} // namespace Sdk
-
-class McuTargetFactory : public McuAbstractTargetFactory
-{
-public:
-    explicit McuTargetFactory(const SettingsHandler::Ptr &);
-    QPair<Targets, Packages> createTargets(const Sdk::McuTargetDescription &,
-                                           const Utils::FilePath &qtForMCUSdkPath) override;
-    Packages createPackages(const Sdk::McuTargetDescription &);
-    McuToolChainPackage *createToolchain(const Sdk::McuTargetDescription::Toolchain &);
-    McuPackagePtr createPackage(const Sdk::PackageDescription &);
-
-private:
-    SettingsHandler::Ptr settingsHandler;
-}; // struct McuTargetFactory
-
-} // namespace McuSupport::Internal
+} // namespace McuSupport::Constants

@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "mcukitmanager.h"
+#include "mculegacyconstants.h"
 #include "mcusupportoptions.h"
 
 #include "mcukitinformation.h"
@@ -121,7 +122,7 @@ public:
         k->setValue(KIT_MCUTARGET_SDKVERSION_KEY, mcuTarget->qulVersion().toString());
         k->setValue(KIT_MCUTARGET_KITVERSION_KEY, KIT_VERSION);
         k->setValue(KIT_MCUTARGET_OS_KEY, static_cast<int>(mcuTarget->os()));
-        k->setValue(KIT_MCUTARGET_TOOCHAIN_KEY, mcuTarget->toolChainPackage()->toolChainName());
+        k->setValue(KIT_MCUTARGET_TOOLCHAIN_KEY, mcuTarget->toolChainPackage()->toolChainName());
         k->setAutoDetected(false);
         k->makeSticky();
         if (mcuTarget->toolChainPackage()->isDesktopToolchain())
@@ -252,11 +253,10 @@ public:
         }
 
         if (!mcuTarget->toolChainPackage()->isDesktopToolchain()) {
-            const FilePath cMakeToolchainFile = qtForMCUsSdkPackage->path().pathAppended(
-                "lib/cmake/Qul/toolchain/"
-                + mcuTarget->toolChainPackage()->cmakeToolChainFileName());
+            const FilePath cMakeToolchainFile = mcuTarget->toolChainFilePackage()->path();
 
-            configMap.insert("CMAKE_TOOLCHAIN_FILE", cMakeToolchainFile.toString().toUtf8());
+            configMap.insert(Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
+                             cMakeToolchainFile.toUserOutput().toUtf8());
             if (!cMakeToolchainFile.exists()) {
                 printMessage(
                     McuTarget::tr(
@@ -402,7 +402,7 @@ QList<Kit *> existingKits(const McuTarget *mcuTarget)
                        && kit->value(KIT_MCUTARGET_COLORDEPTH_KEY) == mcuTarget->colorDepth()
                        && kit->value(KIT_MCUTARGET_OS_KEY).toInt()
                               == static_cast<int>(mcuTarget->os())
-                       && kit->value(KIT_MCUTARGET_TOOCHAIN_KEY)
+                       && kit->value(KIT_MCUTARGET_TOOLCHAIN_KEY)
                               == mcuTarget->toolChainPackage()->toolChainName()));
     });
 }

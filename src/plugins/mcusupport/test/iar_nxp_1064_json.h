@@ -42,7 +42,6 @@ constexpr auto iar_nxp_1064_json = R"({
          "envVar": "EVK_MIMXRT1064_SDK_PATH",
          "versions": ["2.10.0"]
     },
-    "compatVersion": "1",
     "freeRTOS": {
         "cmakeEntries": [
             {
@@ -81,18 +80,26 @@ constexpr auto iar_nxp_1064_json = R"({
         "pathEntries": [],
         "vendor": "NXP"
     },
-    "qulVersion": "2.0.0",
     "toolchain": {
-        "cmakeEntries": [
-            {
+        "id": "iar",
+        "versions": ["8.50.9"],
+        "compiler": {
                 "id": "IAR_DIR",
                 "cmakeVar": "QUL_TARGET_TOOLCHAIN_DIR",
+                "setting": "IARToolchain",
+                "envVar": "IAR_ARM_COMPILER_DIR",
                 "label": "IAR ARM Compiler",
                 "optional": false,
                 "type": "path"
-            }
-        ],
-        "id": "iar",
-        "versions": ["8.50.9"]
+        },
+        "file": {
+            "id": "IAR_CMAKE_TOOLCHAIN_FILE",
+            "label": "CMake Toolchain File",
+            "cmakeVar": "CMAKE_TOOLCHAIN_FILE",
+            "type": "file",
+            "defaultValue": "/opt/qtformcu/2.2//lib/cmake/Qul/toolchain/iar.cmake",
+            "visible": false,
+            "optional": false
+        }
     }
 })";

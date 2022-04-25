@@ -62,8 +62,7 @@ constexpr auto iar_stm32f469i_metal_json = R"({
     "versions": [
       "8.50.9"
     ],
-    "cmakeEntries": [
-      {
+    "compiler": {
         "id": "IARToolchain",
         "setting": "IARToolchain",
         "envVar": "IAR_ARM_COMPILER_DIR",
@@ -72,16 +71,15 @@ constexpr auto iar_stm32f469i_metal_json = R"({
         "type": "path",
         "optional": false
       },
-      {
+      "file": {
         "id": "IAR_CMAKE_TOOLCHAIN_FILE",
         "label": "CMake Toolchain File",
         "cmakeVar": "CMAKE_TOOLCHAIN_FILE",
         "type": "file",
-        "defaultValue": "$Qul_ROOT/lib/cmake/Qul/toolchain/iar.cmake",
+        "defaultValue": "/opt/qtformcu/2.2//lib/cmake/Qul/toolchain/iar.cmake",
         "visible": false,
         "optional": false
       }
-    ]
   },
   "boardSdk": {
     "envVar": "STM32Cube_FW_F4_SDK_PATH",

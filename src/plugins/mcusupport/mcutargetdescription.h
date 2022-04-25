@@ -64,7 +64,8 @@ struct McuTargetDescription
     {
         QString id;
         QStringList versions;
-        QList<PackageDescription> packages;
+        PackageDescription compiler;
+        PackageDescription file;
     } toolchain;
     struct BoardSdk
     {

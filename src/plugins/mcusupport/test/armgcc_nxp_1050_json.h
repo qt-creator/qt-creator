@@ -42,6 +42,7 @@ constexpr auto armgcc_nxp_1050_json = R"({
         "label": "Qt for MCUs SDK",
         "type": "path",
         "cmakeVar": "Qul_ROOT",
+        "envVar": "Qul_DIR",
         "optional": false
       },
       {
@@ -62,8 +63,7 @@ constexpr auto armgcc_nxp_1050_json = R"({
     "versions": [
       "9.3.1"
     ],
-    "cmakeEntries": [
-      {
+    "compiler": {
         "id": "ARMGCC_DIR",
         "label": "GNU Arm Embedded Toolchain",
         "cmakeVar": "QUL_TARGET_TOOLCHAIN_DIR",
@@ -72,16 +72,15 @@ constexpr auto armgcc_nxp_1050_json = R"({
         "type": "path",
         "optional": false
       },
-      {
+      "file": {
         "id": "ARMGCC_CMAKE_TOOLCHAIN_FILE",
         "label": "CMake Toolchain File",
         "cmakeVar": "CMAKE_TOOLCHAIN_FILE",
         "type": "file",
-        "defaultValue": "$Qul_ROOT/lib/cmake/Qul/toolchain/armgcc.cmake",
+        "defaultValue": "/opt/qtformcu/2.2/lib/cmake/Qul/toolchain/armgcc.cmake",
         "visible": false,
         "optional": false
       }
-    ]
   },
   "boardSdk": {
     "envVar": "EVKB_IMXRT1050_SDK_PATH",

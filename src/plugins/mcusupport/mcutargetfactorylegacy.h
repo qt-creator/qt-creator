@@ -29,26 +29,38 @@
 #include "mcutargetdescription.h"
 #include "settingshandler.h"
 
+#include <functional>
 #include <QHash>
 #include <QPair>
 
-namespace McuSupport::Internal::Sdk {
+namespace McuSupport::Internal {
+
+class McuPackage;
+
+using ToolchainCompilerCreator = std::function<McuToolChainPackagePtr()>;
 
 class McuTargetFactoryLegacy : public McuAbstractTargetFactory
 {
 public:
-    McuTargetFactoryLegacy(const QHash<QString, McuToolChainPackagePtr> &tcPkgs,
+    McuTargetFactoryLegacy(const QHash<QString, ToolchainCompilerCreator> &toolchainCreators,
+                           const QHash<QString, McuPackagePtr> &toolchainFiles,
                            const QHash<QString, McuPackagePtr> &vendorPkgs,
                            const SettingsHandler::Ptr &);
 
-    QPair<Targets, Packages> createTargets(const McuTargetDescription &) override;
+    QPair<Targets, Packages> createTargets(const Sdk::McuTargetDescription &,
+                                           const Utils::FilePath &qtForMCUSdkPath) override;
     AdditionalPackages getAdditionalPackages() const override;
 
+    McuToolChainPackagePtr getToolchainCompiler(const Sdk::McuTargetDescription::Toolchain &) const;
+    McuPackagePtr getToolchainFile(const Utils::FilePath &qtForMCUSdkPath,
+                                   const QString &toolchainName) const;
+
 private:
-    const QHash<QString, McuToolChainPackagePtr> tcPkgs;
+    QHash<QString, ToolchainCompilerCreator> toolchainCreators;
+    const QHash<QString, McuPackagePtr> toolchainFiles;
     const QHash<QString, McuPackagePtr> vendorPkgs;
 
     SettingsHandler::Ptr settingsHandler;
 }; // struct McuTargetFactoryLegacy
 
-} // namespace McuSupport::Internal::Sdk
+} // namespace McuSupport::Internal

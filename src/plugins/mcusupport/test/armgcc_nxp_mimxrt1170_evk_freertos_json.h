@@ -25,34 +25,34 @@
 
 #pragma once
 
-constexpr auto armgcc_stm32h750b_metal_json = R"({
-  "qulVersion": "2.0.0",
+constexpr auto armgcc_nxp_mimxrt1170_evk_freertos_json = R"({
+  "qulVersion": "2.1.5",
   "compatVersion": "1",
   "platform": {
-    "id": "STM32H750B-DISCOVERY-BAREMETAL",
-    "vendor": "ST",
+    "id": "MIMXRT1170-EVK-FREERTOS",
+    "vendor": "NXP",
     "colorDepths": [
       32
     ],
-    "pathEntries": [
-      {
-        "id": "STM32CubeProgrammer_PATH",
-        "label": "STM32CubeProgrammer",
-        "type": "path",
-        "defaultValue": {
-          "windows": "$PROGRAMSANDFILES/STMicroelectronics/STM32Cube/STM32CubeProgrammer/",
-          "unix": "$HOME/STMicroelectronics/STM32Cube/STM32CubeProgrammer/"
-        },
-        "optional": false
-      }
-    ],
+    "pathEntries": [],
     "environmentEntries": [],
     "cmakeEntries": [
       {
         "id": "Qul_DIR",
-        "label": "Qt for MCUs SDK",
+        "description": "Qt for MCUs SDK",
         "type": "path",
         "cmakeVar": "Qul_ROOT",
+        "optional": false
+      },
+      {
+        "id": "MCU_XPRESSO_PATH",
+        "description": "MCUXpresso IDE",
+        "type": "path",
+        "cmakeVar": "MCUXPRESSO_IDE_PATH",
+        "defaultValue": {
+          "windows": "$ROOT/nxp/MCUXpressoIDE*",
+          "unix": "/usr/local/mcuxpressoide/"
+        },
         "optional": false
       }
     ]
@@ -65,15 +65,17 @@ constexpr auto armgcc_stm32h750b_metal_json = R"({
     "compiler": {
         "id": "ARMGCC_DIR",
         "label": "GNU Arm Embedded Toolchain",
+        "description": "GNU Arm Embedded Toolchain",
         "cmakeVar": "QUL_TARGET_TOOLCHAIN_DIR",
         "envVar": "ARMGCC_DIR",
         "setting": "GNUArmEmbeddedToolchain",
         "type": "path",
         "optional": false
       },
-      "file" : {
+      "file": {
         "id": "ARMGCC_CMAKE_TOOLCHAIN_FILE",
         "label": "CMake Toolchain File",
+        "description": "CMake Toolchain File",
         "cmakeVar": "CMAKE_TOOLCHAIN_FILE",
         "type": "file",
         "defaultValue": "/opt/qtformcu/2.2//lib/cmake/Qul/toolchain/armgcc.cmake",
@@ -82,15 +84,28 @@ constexpr auto armgcc_stm32h750b_metal_json = R"({
       }
   },
   "boardSdk": {
-    "envVar": "STM32Cube_FW_H7_SDK_PATH",
+    "envVar": "EVK_MIMXRT1170_SDK_PATH",
     "versions": [
-      "1.5.0"
+      "2.10.1"
     ],
     "cmakeEntries": [
       {
-        "id": "ST_SDK_DIR",
-        "label": "Board SDK for STM32H750B-Discovery",
+        "id": "NXP_SDK_DIR",
+        "description": "Board SDK for MIMXRT1170-EVK",
         "cmakeVar": "QUL_BOARD_SDK_DIR",
+        "type": "path",
+        "optional": false
+      }
+    ]
+  },
+  "freeRTOS": {
+    "envVar": "EVK_MIMXRT1170_FREERTOS_PATH",
+    "cmakeEntries": [
+      {
+        "id": "NXP_FREERTOS_DIR",
+        "description": "FreeRTOS SDK for MIMXRT1170-EVK",
+        "cmakeVar": "FREERTOS_DIR",
+        "defaultValue": "$QUL_BOARD_SDK_DIR/rtos/freertos/freertos_kernel",
         "type": "path",
         "optional": false
       }

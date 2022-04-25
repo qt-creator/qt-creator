@@ -136,7 +136,6 @@ public:
     bool isDesktopToolchain() const;
     ProjectExplorer::ToolChain *toolChain(Utils::Id language) const;
     QString toolChainName() const;
-    QString cmakeToolChainFileName() const;
     QVariant debuggerId() const;
 
 private:

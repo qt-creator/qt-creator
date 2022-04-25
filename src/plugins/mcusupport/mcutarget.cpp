@@ -39,12 +39,14 @@ McuTarget::McuTarget(const QVersionNumber &qulVersion,
                      OS os,
                      const Packages &packages,
                      const McuToolChainPackagePtr &toolChainPackage,
+                     const McuPackagePtr &toolChainFilePackage,
                      int colorDepth)
     : m_qulVersion(qulVersion)
     , m_platform(platform)
     , m_os(os)
     , m_packages(packages)
     , m_toolChainPackage(toolChainPackage)
+    , m_toolChainFilePackage(toolChainFilePackage)
     , m_colorDepth(colorDepth)
 {}
 
@@ -56,6 +58,11 @@ Packages McuTarget::packages() const
 McuToolChainPackagePtr McuTarget::toolChainPackage() const
 {
     return m_toolChainPackage;
+}
+
+McuPackagePtr McuTarget::toolChainFilePackage() const
+{
+    return m_toolChainFilePackage;
 }
 
 McuTarget::OS McuTarget::os() const
