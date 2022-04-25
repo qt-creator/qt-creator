@@ -1166,7 +1166,9 @@ qint64 QtcProcess::processId() const
 bool QtcProcess::waitForStarted(int msecs)
 {
     QTC_ASSERT(d->m_process, return false);
-    if (d->m_state != QProcess::Starting)
+    if (d->m_state == QProcess::Running)
+        return true;
+    if (d->m_state == QProcess::NotRunning)
         return false;
     return s_waitForStarted.measureAndRun(&ProcessInterface::waitForStarted, d->m_process, msecs);
 }

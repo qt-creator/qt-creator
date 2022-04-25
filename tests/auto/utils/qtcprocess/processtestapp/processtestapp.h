@@ -29,6 +29,10 @@
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 
+QT_BEGIN_NAMESPACE
+class QProcess;
+QT_END_NAMESPACE
+
 namespace Utils { class QtcProcess; }
 
 #define SUB_PROCESS(SubProcessClass)\
@@ -91,6 +95,7 @@ class SubProcessConfig
 public:
     SubProcessConfig(const char *envVar, const QString &envVal);
     void setupSubProcess(Utils::QtcProcess *subProcess);
+    void setupSubProcess(QProcess *subProcess);
 
     static void setPathToProcessTestApp(const QString &path);
 

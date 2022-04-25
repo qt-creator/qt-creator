@@ -151,6 +151,8 @@ private slots:
     void runBlockingStdOut_data();
     void runBlockingStdOut();
     void lineCallback();
+    void waitForStartedAfterStarted();
+    void waitForStartedAfterStarted2();
     void waitForStartedAndFinished();
     void notRunningAfterStartingNonExistingProgram();
     void channelForwarding_data();
@@ -963,6 +965,47 @@ void tst_QtcProcess::lineCallback()
     process.start();
     process.waitForFinished();
     QCOMPARE(lineNumber, lines.size());
+}
+
+void tst_QtcProcess::waitForStartedAfterStarted()
+{
+    SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
+    TestProcess process;
+    subConfig.setupSubProcess(&process);
+
+    bool started = false;
+    bool waitForStartedResult = false;
+    connect(&process, &QtcProcess::started, this, [&] {
+        started = true;
+        waitForStartedResult = process.waitForStarted();
+    });
+
+    process.start();
+    QVERIFY(process.waitForFinished());
+    QVERIFY(started);
+    QVERIFY(waitForStartedResult);
+    QVERIFY(!process.waitForStarted());
+}
+
+// This version is using QProcess
+void tst_QtcProcess::waitForStartedAfterStarted2()
+{
+    SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
+    QProcess process;
+    subConfig.setupSubProcess(&process);
+
+    bool started = false;
+    bool waitForStartedResult = false;
+    connect(&process, &QProcess::started, this, [&] {
+        started = true;
+        waitForStartedResult = process.waitForStarted();
+    });
+
+    process.start();
+    QVERIFY(process.waitForFinished());
+    QVERIFY(started);
+    QVERIFY(waitForStartedResult);
+    QVERIFY(!process.waitForStarted());
 }
 
 void tst_QtcProcess::waitForStartedAndFinished()

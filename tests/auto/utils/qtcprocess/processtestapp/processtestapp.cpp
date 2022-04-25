@@ -106,6 +106,14 @@ void SubProcessConfig::setupSubProcess(QtcProcess *subProcess)
     subProcess->setCommand(CommandLine(filePath, {}));
 }
 
+void SubProcessConfig::setupSubProcess(QProcess *subProcess)
+{
+    subProcess->setProcessEnvironment(m_environment.toProcessEnvironment());
+    subProcess->setProgram(FilePath::fromString(s_pathToProcessTestApp
+                           + QLatin1String("/processtestapp")).withExecutableSuffix().toString());
+}
+
+
 static void doCrash()
 {
     qFatal("The application has crashed purposefully!");
