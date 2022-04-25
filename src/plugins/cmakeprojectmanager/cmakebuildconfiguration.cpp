@@ -390,12 +390,11 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         updateConfigurationStateSelection();
     });
 
-    connect(buildSystem, &CMakeBuildSystem::configurationCleared, this, [this]() {
+    connect(buildSystem, &CMakeBuildSystem::configurationCleared, this, [this] {
         updateConfigurationStateSelection();
     });
 
-    connect(m_buildConfiguration, &CMakeBuildConfiguration::errorOccurred,
-            this, [this]() {
+    connect(buildSystem, &CMakeBuildSystem::errorOccurred, this, [this] {
         m_showProgressTimer.stop();
         m_progressIndicator->hide();
         updateConfigurationStateSelection();
@@ -472,11 +471,13 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     connect(m_batchEditButton, &QAbstractButton::clicked,
             this, &CMakeBuildSettingsWidget::batchEditConfiguration);
 
-    connect(bc, &CMakeBuildConfiguration::errorOccurred, this, &CMakeBuildSettingsWidget::setError);
-    connect(bc, &CMakeBuildConfiguration::warningOccurred, this, &CMakeBuildSettingsWidget::setWarning);
-    connect(bc, &CMakeBuildConfiguration::configurationChanged, this, [this](const CMakeConfig &config) {
-       m_configModel->setBatchEditConfiguration(config);
-    });
+    connect(buildSystem, &CMakeBuildSystem::errorOccurred,
+            this, &CMakeBuildSettingsWidget::setError);
+    connect(buildSystem, &CMakeBuildSystem::warningOccurred,
+            this, &CMakeBuildSettingsWidget::setWarning);
+
+    connect(buildSystem, &CMakeBuildSystem::configurationChanged,
+            m_configModel, &ConfigModel::setBatchEditConfiguration);
 
     updateFromKit();
     connect(m_buildConfiguration->target(), &Target::kitChanged,
@@ -1491,7 +1492,7 @@ void CMakeBuildSystem::setError(const QString &message)
         emit buildConfiguration()->enabledChanged();
     }
     TaskHub::addTask(BuildSystemTask(Task::TaskType::Error, message));
-    emit cmakeBuildConfiguration()->errorOccurred(m_error);
+    emit errorOccurred(m_error);
 }
 
 void CMakeBuildSystem::setWarning(const QString &message)
@@ -1500,7 +1501,7 @@ void CMakeBuildSystem::setWarning(const QString &message)
         return;
     m_warning = message;
     TaskHub::addTask(BuildSystemTask(Task::TaskType::Warning, message));
-    emit cmakeBuildConfiguration()->warningOccurred(m_warning);
+    emit warningOccurred(m_warning);
 }
 
 QString CMakeBuildSystem::error() const

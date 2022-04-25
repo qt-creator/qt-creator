@@ -1323,7 +1323,7 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
     }
 
     if (!config.isEmpty())
-        emit cmakeBuildConfiguration()->configurationChanged(config);
+        emit configurationChanged(config);
 }
 
 } // namespace Internal

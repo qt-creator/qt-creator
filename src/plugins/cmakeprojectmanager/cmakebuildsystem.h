@@ -113,6 +113,9 @@ public:
 
 signals:
     void configurationCleared();
+    void configurationChanged(const CMakeConfig &config);
+    void errorOccurred(const QString &message);
+    void warningOccurred(const QString &message);
 
 private:
     enum ForceEnabledChanged { False, True };
