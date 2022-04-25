@@ -64,8 +64,6 @@ public:
     QString errorString() const;
     QProcess::ProcessError error() const;
 
-    static QString msgWinCannotRetrieveDebuggingOutput();
-
     int exitCode() const;
     QProcess::ExitStatus exitStatus() const;
 

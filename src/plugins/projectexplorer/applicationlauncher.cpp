@@ -107,8 +107,6 @@ public:
     // Keep track whether we need to emit a finished signal
     bool m_processRunning = false;
 
-    qint64 m_listeningPid = 0;
-
     // Remote
     QString m_remoteErrorString;
     QProcess::ProcessError m_remoteError = QProcess::UnknownError;
@@ -180,7 +178,6 @@ void ApplicationLauncherPrivate::stop()
         if (!isRunning())
             return;
         QTC_ASSERT(m_process, return);
-        m_listeningPid = 0;
         m_process->stopProcess();
         QTimer::singleShot(100, this, [this] { emit q->finished(); });
     } else {
@@ -249,7 +246,6 @@ void ApplicationLauncherPrivate::handleLocalDone()
     if (error == QProcess::UnknownError) {
         m_exitCode = m_process->exitCode();
         m_exitStatus = m_process->exitStatus();
-        m_listeningPid = 0;
         emit q->finished();
         return;
     }
@@ -304,19 +300,15 @@ void ApplicationLauncherPrivate::cannotRetrieveLocalDebugOutput()
 {
 #ifdef Q_OS_WIN
     disconnect(WinDebugInterface::instance(), nullptr, this, nullptr);
-    emit q->appendMessage(ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput(), ErrorMessageFormat);
+    emit q->appendMessage(ApplicationLauncher::tr("Cannot retrieve debugging output.")
+                          + QLatin1Char('\n'), ErrorMessageFormat);
 #endif
 }
 
 void ApplicationLauncherPrivate::checkLocalDebugOutput(qint64 pid, const QString &message)
 {
-    if (m_listeningPid == pid)
+    if (applicationPID() == pid)
         emit q->appendMessage(message, DebugFormat);
-}
-
-QString ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput()
-{
-    return tr("Cannot retrieve debugging output.") + QLatin1Char('\n');
 }
 
 int ApplicationLauncher::exitCode() const
@@ -411,12 +403,7 @@ void ApplicationLauncherPrivate::start()
     else
         m_outputCodec = QTextCodec::codecForName("utf8");
 
-    connect(m_process.get(), &QtcProcess::started, this, [this] {
-        // The local bit affects only WinDebugInterface.
-        if (m_isLocal)
-            m_listeningPid = applicationPID();
-        emit q->started();
-    });
+    connect(m_process.get(), &QtcProcess::started, q, &ApplicationLauncher::started);
 
     m_process->setProcessChannelMode(m_processChannelMode);
     if (m_processChannelMode == QProcess::SeparateChannels) {
