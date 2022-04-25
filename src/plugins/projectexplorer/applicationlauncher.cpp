@@ -102,7 +102,6 @@ public:
 
     // Local
     bool m_useTerminal = false;
-    QProcess::ProcessChannelMode m_processChannelMode;
     // Keep track whether we need to emit a finished signal
     bool m_processRunning = false;
 
@@ -125,8 +124,16 @@ static QProcess::ProcessChannelMode defaultProcessChannelMode()
 
 ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *parent)
     : q(parent)
-    , m_processChannelMode(defaultProcessChannelMode())
 {
+    m_process.reset(new QtcProcess(this));
+    m_process->setProcessChannelMode(defaultProcessChannelMode());
+    connect(m_process.get(), &QtcProcess::started, q, &ApplicationLauncher::started);
+    connect(m_process.get(), &QtcProcess::done, this, &ApplicationLauncherPrivate::handleDone);
+    connect(m_process.get(), &QtcProcess::readyReadStandardError,
+                this, &ApplicationLauncherPrivate::handleStandardError);
+    connect(m_process.get(), &QtcProcess::readyReadStandardOutput,
+                this, &ApplicationLauncherPrivate::handleStandardOutput);
+
 #ifdef Q_OS_WIN
     connect(WinDebugInterface::instance(), &WinDebugInterface::cannotRetrieveDebugOutput,
             this, &ApplicationLauncherPrivate::cannotRetrieveLocalDebugOutput);
@@ -144,7 +151,7 @@ ApplicationLauncher::~ApplicationLauncher() = default;
 
 void ApplicationLauncher::setProcessChannelMode(QProcess::ProcessChannelMode mode)
 {
-    d->m_processChannelMode = mode;
+    d->m_process->setProcessChannelMode(mode);
 }
 
 void ApplicationLauncher::setUseTerminal(bool on)
@@ -337,7 +344,6 @@ void ApplicationLauncherPrivate::start()
 
     m_resultData = {};
 
-    m_process.reset(new QtcProcess(this));
     if (m_isLocal) {
         // Work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch' ...)
         const FilePath fixedPath = m_runnable.workingDirectory.normalizedPathName();
@@ -402,19 +408,6 @@ void ApplicationLauncherPrivate::start()
         m_outputCodec = QTextCodec::codecForLocale();
     else
         m_outputCodec = QTextCodec::codecForName("utf8");
-
-    connect(m_process.get(), &QtcProcess::started, q, &ApplicationLauncher::started);
-    connect(m_process.get(), &QtcProcess::done, this, &ApplicationLauncherPrivate::handleDone);
-
-    m_process->setProcessChannelMode(m_processChannelMode);
-    if (m_processChannelMode == QProcess::SeparateChannels) {
-        connect(m_process.get(), &QtcProcess::readyReadStandardError,
-                this, &ApplicationLauncherPrivate::handleStandardError);
-    }
-    if (!m_useTerminal) {
-        connect(m_process.get(), &QtcProcess::readyReadStandardOutput,
-                this, &ApplicationLauncherPrivate::handleStandardOutput);
-    }
 
     m_process->setTerminalMode(m_useTerminal ? Utils::TerminalMode::On : Utils::TerminalMode::Off);
     m_process->start();
