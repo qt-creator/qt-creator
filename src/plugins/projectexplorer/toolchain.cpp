@@ -411,7 +411,8 @@ const ToolChain::MacrosCache &ToolChain::predefinedMacrosCache() const
 
 static long toLanguageVersionAsLong(QByteArray dateAsByteArray)
 {
-    dateAsByteArray.chop(1); // Strip 'L'.
+    if (dateAsByteArray.endsWith('L'))
+        dateAsByteArray.chop(1); // Strip 'L'.
 
     bool success = false;
     const int result = dateAsByteArray.toLong(&success);
