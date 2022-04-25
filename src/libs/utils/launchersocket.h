@@ -51,9 +51,9 @@ namespace Internal {
 class LauncherInterfacePrivate;
 class LauncherHandle;
 class LauncherSignal;
-class StartedSignal;
-class ReadyReadSignal;
-class DoneSignal;
+class LauncherStartedSignal;
+class LauncherReadyReadSignal;
+class LauncherDoneSignal;
 
 // All the methods and data fields in this class are called / accessed from the caller's thread.
 // Exceptions are explicitly marked.
@@ -126,9 +126,9 @@ private:
         return tmp;
     }
 
-    void handleStarted(const StartedSignal *launcherSignal);
-    void handleReadyRead(const ReadyReadSignal *launcherSignal);
-    void handleDone(const DoneSignal *launcherSignal);
+    void handleStarted(const LauncherStartedSignal *launcherSignal);
+    void handleReadyRead(const LauncherReadyReadSignal *launcherSignal);
+    void handleDone(const LauncherDoneSignal *launcherSignal);
 
     // Lives in launcher's thread. Modified from caller's thread.
     LauncherHandle *m_launcherHandle = nullptr;

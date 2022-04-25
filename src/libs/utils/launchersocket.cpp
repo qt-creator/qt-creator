@@ -47,10 +47,10 @@ private:
     const CallerHandle::SignalType m_signalType;
 };
 
-class StartedSignal : public LauncherSignal
+class LauncherStartedSignal : public LauncherSignal
 {
 public:
-    StartedSignal(int processId)
+    LauncherStartedSignal(int processId)
         : LauncherSignal(CallerHandle::SignalType::Started)
         , m_processId(processId) {}
     int processId() const { return m_processId; }
@@ -58,16 +58,16 @@ private:
     const int m_processId;
 };
 
-class ReadyReadSignal : public LauncherSignal
+class LauncherReadyReadSignal : public LauncherSignal
 {
 public:
-    ReadyReadSignal(const QByteArray &stdOut, const QByteArray &stdErr)
+    LauncherReadyReadSignal(const QByteArray &stdOut, const QByteArray &stdErr)
         : LauncherSignal(CallerHandle::SignalType::ReadyRead)
         , m_stdOut(stdOut)
         , m_stdErr(stdErr) {}
     QByteArray stdOut() const { return m_stdOut; }
     QByteArray stdErr() const { return m_stdErr; }
-    void mergeWith(ReadyReadSignal *newSignal) {
+    void mergeWith(LauncherReadyReadSignal *newSignal) {
         m_stdOut += newSignal->stdOut();
         m_stdErr += newSignal->stdErr();
     }
@@ -76,10 +76,10 @@ private:
     QByteArray m_stdErr;
 };
 
-class DoneSignal : public LauncherSignal
+class LauncherDoneSignal : public LauncherSignal
 {
 public:
-    DoneSignal(const ProcessResultData &resultData)
+    LauncherDoneSignal(const ProcessResultData &resultData)
         : LauncherSignal(CallerHandle::SignalType::Done)
         , m_resultData(resultData) {}
     ProcessResultData resultData() const { return m_resultData; }
@@ -150,14 +150,14 @@ bool CallerHandle::flushFor(SignalType signalType)
         case SignalType::NoSignal:
             break;
         case SignalType::Started:
-            handleStarted(static_cast<const StartedSignal *>(storedSignal));
+            handleStarted(static_cast<const LauncherStartedSignal *>(storedSignal));
             break;
         case SignalType::ReadyRead:
-            handleReadyRead(static_cast<const ReadyReadSignal *>(storedSignal));
+            handleReadyRead(static_cast<const LauncherReadyReadSignal *>(storedSignal));
             break;
         case SignalType::Done:
             signalMatched = true;
-            handleDone(static_cast<const DoneSignal *>(storedSignal));
+            handleDone(static_cast<const LauncherDoneSignal *>(storedSignal));
             break;
         }
         delete storedSignal;
@@ -173,7 +173,7 @@ bool CallerHandle::shouldFlush() const
     return !m_signals.isEmpty();
 }
 
-void CallerHandle::handleStarted(const StartedSignal *launcherSignal)
+void CallerHandle::handleStarted(const LauncherStartedSignal *launcherSignal)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
     m_processState = QProcess::Running;
@@ -181,13 +181,13 @@ void CallerHandle::handleStarted(const StartedSignal *launcherSignal)
     emit started(m_processId);
 }
 
-void CallerHandle::handleReadyRead(const ReadyReadSignal *launcherSignal)
+void CallerHandle::handleReadyRead(const LauncherReadyReadSignal *launcherSignal)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
     emit readyRead(launcherSignal->stdOut(), launcherSignal->stdErr());
 }
 
-void CallerHandle::handleDone(const DoneSignal *launcherSignal)
+void CallerHandle::handleDone(const LauncherDoneSignal *launcherSignal)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
     m_processState = QProcess::NotRunning;
@@ -221,8 +221,8 @@ void CallerHandle::appendSignal(LauncherSignal *newSignal)
         // Merge ReadyRead signals into one.
         if (lastSignal->signalType() == SignalType::ReadyRead
                 && newSignal->signalType() == SignalType::ReadyRead) {
-            ReadyReadSignal *lastRead = static_cast<ReadyReadSignal *>(lastSignal);
-            ReadyReadSignal *newRead = static_cast<ReadyReadSignal *>(newSignal);
+            LauncherReadyReadSignal *lastRead = static_cast<LauncherReadyReadSignal *>(lastSignal);
+            LauncherReadyReadSignal *newRead = static_cast<LauncherReadyReadSignal *>(newSignal);
             lastRead->mergeWith(newRead);
             delete newRead;
             return;
@@ -446,7 +446,7 @@ void LauncherHandle::handleStartedPacket(const QByteArray &packetData)
         return;
 
     const auto packet = LauncherPacket::extractPacket<ProcessStartedPacket>(m_token, packetData);
-    m_callerHandle->appendSignal(new StartedSignal(packet.processId));
+    m_callerHandle->appendSignal(new LauncherStartedSignal(packet.processId));
     flushCaller();
 }
 
@@ -461,7 +461,7 @@ void LauncherHandle::handleReadyReadStandardOutput(const QByteArray &packetData)
     if (packet.standardChannel.isEmpty())
         return;
 
-    m_callerHandle->appendSignal(new ReadyReadSignal(packet.standardChannel, {}));
+    m_callerHandle->appendSignal(new LauncherReadyReadSignal(packet.standardChannel, {}));
     flushCaller();
 }
 
@@ -476,7 +476,7 @@ void LauncherHandle::handleReadyReadStandardError(const QByteArray &packetData)
     if (packet.standardChannel.isEmpty())
         return;
 
-    m_callerHandle->appendSignal(new ReadyReadSignal({}, packet.standardChannel));
+    m_callerHandle->appendSignal(new LauncherReadyReadSignal({}, packet.standardChannel));
     flushCaller();
 }
 
@@ -494,8 +494,8 @@ void LauncherHandle::handleDonePacket(const QByteArray &packetData)
                                        packet.error, packet.errorString };
 
     if (!stdOut.isEmpty() || !stdErr.isEmpty())
-        m_callerHandle->appendSignal(new ReadyReadSignal(stdOut, stdErr));
-    m_callerHandle->appendSignal(new DoneSignal(result));
+        m_callerHandle->appendSignal(new LauncherReadyReadSignal(stdOut, stdErr));
+    m_callerHandle->appendSignal(new LauncherDoneSignal(result));
     flushCaller();
 }
 
@@ -512,7 +512,7 @@ void LauncherHandle::handleSocketError(const QString &message)
                                 "Internal socket error: %1").arg(message);
     const ProcessResultData result = { 0, QProcess::NormalExit, QProcess::FailedToStart,
                                        errorString };
-    m_callerHandle->appendSignal(new DoneSignal(result));
+    m_callerHandle->appendSignal(new LauncherDoneSignal(result));
     flushCaller();
 }
 
