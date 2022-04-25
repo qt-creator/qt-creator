@@ -138,11 +138,15 @@ public:
         verticalLayout->setContentsMargins(0, 0, 0, 0);
         verticalLayout->addWidget(scrollArea);
 
+        auto horizontalLayout = new QHBoxLayout;
+        horizontalLayout->addWidget(allKitsCheckBox);
+        horizontalLayout->addSpacing(10);
+        horizontalLayout->addWidget(kitFilterLineEdit);
+
         auto verticalLayout_2 = new QVBoxLayout(setupTargetPage);
         verticalLayout_2->addWidget(headerLabel);
-        verticalLayout_2->addWidget(kitFilterLineEdit);
+        verticalLayout_2->addLayout(horizontalLayout);
         verticalLayout_2->addWidget(noValidKitLabel);
-        verticalLayout_2->addWidget(allKitsCheckBox);
         verticalLayout_2->addWidget(centralWidget);
         verticalLayout_2->addWidget(scrollAreaWidget);
 
