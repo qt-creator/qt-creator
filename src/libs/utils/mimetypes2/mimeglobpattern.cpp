@@ -256,7 +256,7 @@ void MimeAllGlobPatterns::removeMimeType(const QString &mimeType)
 
 void MimeGlobPatternList::match(MimeGlobMatchResult &result,
                                 const QString &fileName,
-                                const QList<QString> &ignoreMimeTypes) const
+                                const QSet<QString> &ignoreMimeTypes) const
 {
 
     MimeGlobPatternList::const_iterator it = this->constBegin();
@@ -275,7 +275,7 @@ void MimeGlobPatternList::match(MimeGlobMatchResult &result,
 
 void MimeAllGlobPatterns::matchingGlobs(const QString &fileName,
                                         MimeGlobMatchResult &result,
-                                        const QList<QString> &ignoreMimeTypes) const
+                                        const QSet<QString> &ignoreMimeTypes) const
 {
     // First try the high weight matches (>50), if any.
     m_highWeightGlobs.match(result, fileName, ignoreMimeTypes);

@@ -47,6 +47,8 @@
 #include "mimetype_p.h"
 #include "mimeutils.h"
 
+#include "algorithm.h"
+
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QStandardPaths>
@@ -98,6 +100,27 @@ bool MimeDatabasePrivate::shouldCheck()
 #if defined(Q_OS_UNIX) && !defined(Q_OS_NACL) && !defined(Q_OS_INTEGRITY)
 #  define QT_USE_MMAP
 #endif
+
+static void updateOverriddenMimeTypes(std::vector<std::unique_ptr<MimeProviderBase>> &providers)
+{
+    // If a provider earlier in the list already defines a mimetype, it should override the
+    // mimetype definition of following providers. Go through everything once here, telling each
+    // provider which mimetypes are overridden by earlier providers.
+    QList<MimeProviderBase *> handledProviders;
+    for (std::unique_ptr<MimeProviderBase> &provider : providers) {
+        provider->m_overriddenMimeTypes.clear();
+        const QStringList ownMimetypes = provider->allMimeTypeNames();
+        for (MimeProviderBase *other : handledProviders) {
+            const QStringList overridden = Utils::filtered(ownMimetypes,
+                                                           [other](const QString &type) {
+                                                               return other->hasMimeTypeForName(
+                                                                   type);
+                                                           });
+            provider->m_overriddenMimeTypes.unite(QSet(overridden.cbegin(), overridden.cend()));
+        }
+        handledProviders.append(provider.get());
+    }
+}
 
 void MimeDatabasePrivate::loadProviders()
 {
@@ -184,6 +207,8 @@ void MimeDatabasePrivate::loadProviders()
             m_providers.push_back(std::move(*it));
         }
     }
+
+    updateOverriddenMimeTypes(m_providers);
 }
 
 const MimeDatabasePrivate::Providers &MimeDatabasePrivate::providers()
@@ -244,9 +269,8 @@ MimeGlobMatchResult MimeDatabasePrivate::findByFileName(const QString &fileName)
 {
     MimeGlobMatchResult result;
     const QString fileNameExcludingPath = QFileInfo(fileName).fileName();
-    QList<QString> checkedMimeTypes;
     for (const auto &provider : providers())
-        provider->addFileNameMatches(fileNameExcludingPath, result, checkedMimeTypes);
+        provider->addFileNameMatches(fileNameExcludingPath, result);
     return result;
 }
 
@@ -387,9 +411,8 @@ MimeType MimeDatabasePrivate::findByData(const QByteArray &data, int *accuracyPt
 
     *accuracyPtr = 0;
     MimeType candidate;
-    QList<QString> checkedMimeTypes;
     for (const auto &provider : providers())
-        provider->findByMagic(data, accuracyPtr, candidate, checkedMimeTypes);
+        provider->findByMagic(data, accuracyPtr, candidate);
 
     if (candidate.isValid())
         return candidate;

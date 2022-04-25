@@ -142,7 +142,7 @@ public:
 
     void match(MimeGlobMatchResult &result,
                const QString &fileName,
-               const QList<QString> &ignoreMimeTypes) const;
+               const QSet<QString> &ignoreMimeTypes) const;
 };
 
 /*!
@@ -161,7 +161,7 @@ public:
     void removeMimeType(const QString &mimeType);
     void matchingGlobs(const QString &fileName,
                        MimeGlobMatchResult &result,
-                       const QList<QString> &ignoreMimeTypes) const;
+                       const QSet<QString> &ignoreMimeTypes) const;
     void clear();
 
     PatternsMap m_fastPatterns; // example: "doc" -> "application/msword", "text/plain"
