@@ -1142,9 +1142,13 @@ qint64 QtcProcess::applicationMainThreadId() const
     return d->m_applicationMainThreadId;
 }
 
+QProcess::ProcessChannelMode QtcProcess::processChannelMode() const
+{
+    return d->m_setup.m_processChannelMode;
+}
+
 void QtcProcess::setProcessChannelMode(QProcess::ProcessChannelMode mode)
 {
-    QTC_CHECK(state() == QProcess::NotRunning);
     d->m_setup.m_processChannelMode = mode;
 }
 
@@ -1569,16 +1573,16 @@ void QtcProcessPrivate::handleReadyRead(const QByteArray &outputData, const QByt
     m_hangTimerCount = 0;
     // TODO: store a copy of m_processChannelMode on start()? Currently we assert that state
     // is NotRunning when setting the process channel mode.
-    if (m_setup.m_processChannelMode == QProcess::ForwardedOutputChannel
-            || m_setup.m_processChannelMode == QProcess::ForwardedChannels) {
+    if (m_process->m_setup.m_processChannelMode == QProcess::ForwardedOutputChannel
+            || m_process->m_setup.m_processChannelMode == QProcess::ForwardedChannels) {
         std::cout << outputData.constData() << std::flush;
     } else {
         m_stdOut.append(outputData);
         if (!outputData.isEmpty())
             emitReadyReadStandardOutput();
     }
-    if (m_setup.m_processChannelMode == QProcess::ForwardedErrorChannel
-            || m_setup.m_processChannelMode == QProcess::ForwardedChannels) {
+    if (m_process->m_setup.m_processChannelMode == QProcess::ForwardedErrorChannel
+            || m_process->m_setup.m_processChannelMode == QProcess::ForwardedChannels) {
         std::cerr << errorData.constData() << std::flush;
     } else {
         m_stdErr.append(errorData);

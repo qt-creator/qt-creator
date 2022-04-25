@@ -35,6 +35,8 @@
 
 namespace Utils {
 
+namespace Internal { class QtcProcessPrivate; }
+
 class QTCREATOR_UTILS_EXPORT ProcessSetupData
 {
 public:
@@ -121,6 +123,7 @@ private:
     virtual bool waitForFinished(int msecs) = 0;
 
     friend class QtcProcess;
+    friend class Internal::QtcProcessPrivate;
 };
 
 } // namespace Utils

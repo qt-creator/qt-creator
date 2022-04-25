@@ -121,6 +121,7 @@ public:
     bool isRunAsRoot() const;
     void setAbortOnMetaChars(bool abort);
 
+    QProcess::ProcessChannelMode processChannelMode() const;
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
     void setStandardInputFile(const QString &inputFile);
 
