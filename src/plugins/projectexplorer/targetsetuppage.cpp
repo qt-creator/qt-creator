@@ -554,7 +554,7 @@ void TargetSetupPage::doInitializePage()
 void TargetSetupPage::showEvent(QShowEvent *event)
 {
     WizardPage::showEvent(event);
-    setFocus(); // Ensure "Configure Project" gets triggered on <Return>
+    m_ui->kitFilterLineEdit->setFocus(); // Ensure "Configure Project" gets triggered on <Return>
 }
 
 void TargetSetupPage::changeAllKitsSelections()
