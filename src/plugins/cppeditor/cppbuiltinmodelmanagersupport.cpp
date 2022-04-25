@@ -27,11 +27,13 @@
 
 #include "builtineditordocumentprocessor.h"
 #include "cppcompletionassist.h"
+#include "cppeditorwidget.h"
 #include "cppelementevaluator.h"
 #include "cppfollowsymbolundercursor.h"
 #include "cppoverviewmodel.h"
 #include "cpprefactoringengine.h"
 #include "cpptoolsreuse.h"
+#include "symbolfinder.h"
 
 #include <app/app_version.h>
 #include <texteditor/basehoverhandler.h>
@@ -127,11 +129,6 @@ TextEditor::BaseHoverHandler *BuiltinModelManagerSupport::createHoverHandler()
     return new CppHoverHandler;
 }
 
-FollowSymbolInterface &BuiltinModelManagerSupport::followSymbolInterface()
-{
-    return *m_followSymbol;
-}
-
 RefactoringEngineInterface &BuiltinModelManagerSupport::refactoringEngineInterface()
 {
     return *m_refactoringEngine;
@@ -140,6 +137,25 @@ RefactoringEngineInterface &BuiltinModelManagerSupport::refactoringEngineInterfa
 std::unique_ptr<AbstractOverviewModel> BuiltinModelManagerSupport::createOverviewModel()
 {
     return std::make_unique<OverviewModel>();
+}
+
+void BuiltinModelManagerSupport::followSymbol(const CursorInEditor &data,
+                                              Utils::ProcessLinkCallback &&processLinkCallback,
+                                              bool resolveTarget, bool inNextSplit)
+{
+    SymbolFinder finder;
+    m_followSymbol->findLink(data, std::move(processLinkCallback),
+            resolveTarget, CppModelManager::instance()->snapshot(),
+            data.editorWidget()->semanticInfo().doc, &finder, inNextSplit);
+}
+
+void BuiltinModelManagerSupport::switchDeclDef(const CursorInEditor &data,
+                                               Utils::ProcessLinkCallback &&processLinkCallback)
+{
+    SymbolFinder finder;
+    m_followSymbol->switchDeclDef(data, std::move(processLinkCallback),
+            CppModelManager::instance()->snapshot(), data.editorWidget()->semanticInfo().doc,
+            &finder);
 }
 
 } // namespace CppEditor::Internal

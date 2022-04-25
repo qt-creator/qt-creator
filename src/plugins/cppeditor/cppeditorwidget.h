@@ -38,7 +38,6 @@ class IAssistProvider;
 }
 
 namespace CppEditor {
-class FollowSymbolInterface;
 class SemanticInfo;
 class ProjectPart;
 
@@ -151,8 +150,6 @@ private:
     unsigned documentRevision() const;
 
     QMenu *createRefactorMenu(QWidget *parent) const;
-
-    FollowSymbolInterface &followSymbolInterface() const;
 
     const ProjectPart *projectPart() const;
 

@@ -67,12 +67,6 @@ public:
                               const QString &replacement) = 0;
     virtual void findUsages(const CursorInEditor &data,
                             UsagesCallback &&showUsagesCallback) const = 0;
-    virtual void globalFollowSymbol(const CursorInEditor &data,
-                                    Utils::ProcessLinkCallback &&processLinkCallback,
-                                    const CPlusPlus::Snapshot &snapshot,
-                                    const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
-                                    SymbolFinder *symbolFinder,
-                                    bool inNextSplit) const = 0;
     virtual bool isRefactoringEngineAvailable() const { return true; }
 };
 

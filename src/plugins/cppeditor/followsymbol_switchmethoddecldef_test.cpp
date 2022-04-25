@@ -350,9 +350,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
     switch (action) {
     case FollowSymbolUnderCursorAction: {
         CppEditorWidget *widget = initialTestFile->m_editorWidget;
-        FollowSymbolInterface &delegate = CppModelManager::instance()->followSymbolInterface();
-        auto* builtinFollowSymbol = dynamic_cast<FollowSymbolUnderCursor *>(&delegate);
-        if (!builtinFollowSymbol) {
+        if (CppModelManager::instance()->isClangCodeModelActive()) {
             if (curTestName == "testFollowSymbolQTCREATORBUG7903")
                 QSKIP((curTestName + " is not supported by Clang FollowSymbol").toLatin1());
             widget->enableTestMode();
@@ -360,6 +358,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
             break;
         }
 
+        FollowSymbolUnderCursor *builtinFollowSymbol = &CppModelManager::builtinFollowSymbol();
         QSharedPointer<VirtualFunctionAssistProvider> original
                 = builtinFollowSymbol->virtualFunctionAssistProvider();
 

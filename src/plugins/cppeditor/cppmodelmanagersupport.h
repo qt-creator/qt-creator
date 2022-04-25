@@ -27,6 +27,8 @@
 
 #include "cppeditor_global.h"
 
+#include <utils/link.h>
+
 #include <QSharedPointer>
 #include <QString>
 
@@ -42,7 +44,7 @@ namespace CppEditor {
 class AbstractOverviewModel;
 class BaseEditorDocumentProcessor;
 class CppCompletionAssistProvider;
-class FollowSymbolInterface;
+class CursorInEditor;
 class RefactoringEngineInterface;
 
 class CPPEDITOR_EXPORT ModelManagerSupport
@@ -58,11 +60,16 @@ public:
     virtual TextEditor::BaseHoverHandler *createHoverHandler() = 0;
     virtual BaseEditorDocumentProcessor *createEditorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) = 0;
-    virtual FollowSymbolInterface &followSymbolInterface() = 0;
     virtual RefactoringEngineInterface &refactoringEngineInterface() = 0;
     virtual std::unique_ptr<AbstractOverviewModel> createOverviewModel() = 0;
     virtual bool supportsOutline(const TextEditor::TextDocument *) const { return true; }
     virtual bool supportsLocalUses(const TextEditor::TextDocument *) const { return true; }
+
+    virtual void followSymbol(const CursorInEditor &data,
+                              Utils::ProcessLinkCallback &&processLinkCallback,
+                              bool resolveTarget, bool inNextSplit) = 0;
+    virtual void switchDeclDef(const CursorInEditor &data,
+                               Utils::ProcessLinkCallback &&processLinkCallback) = 0;
 };
 
 class CPPEDITOR_EXPORT ModelManagerSupportProvider

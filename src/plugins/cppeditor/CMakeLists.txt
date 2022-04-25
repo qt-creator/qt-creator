@@ -102,7 +102,6 @@ add_qtc_plugin(CppEditor
     cursorineditor.h
     doxygengenerator.cpp doxygengenerator.h
     editordocumenthandle.cpp editordocumenthandle.h
-    followsymbolinterface.h
     functionutils.cpp functionutils.h
     generatedcodemodelsupport.cpp generatedcodemodelsupport.h
     headerpathfilter.cpp headerpathfilter.h

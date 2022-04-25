@@ -29,7 +29,6 @@
 #include "clangdclient.h"
 #include "clangdquickfixfactory.h"
 #include "clangeditordocumentprocessor.h"
-#include "clangfollowsymbol.h"
 #include "clangdlocatorfilters.h"
 #include "clanghoverhandler.h"
 #include "clangoverviewmodel.h"
@@ -45,11 +44,13 @@
 
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cppfollowsymbolundercursor.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cppprojectfile.h>
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/editordocumenthandle.h>
+#include <cppeditor/symbolfinder.h>
 
 #include <languageclient/languageclientmanager.h>
 
@@ -106,7 +107,6 @@ static const QList<TextEditor::TextDocument *> allCppDocuments()
 ClangModelManagerSupport::ClangModelManagerSupport()
     : m_completionAssistProvider(m_communicator, CompletionType::Other)
     , m_functionHintAssistProvider(m_communicator, CompletionType::FunctionHint)
-    , m_followSymbol(new ClangFollowSymbol)
     , m_refactoringEngine(new RefactoringEngine)
 {
     QTC_CHECK(!m_instance);
@@ -188,9 +188,37 @@ TextEditor::BaseHoverHandler *ClangModelManagerSupport::createHoverHandler()
     return new Internal::ClangHoverHandler;
 }
 
-CppEditor::FollowSymbolInterface &ClangModelManagerSupport::followSymbolInterface()
+void ClangModelManagerSupport::followSymbol(const CppEditor::CursorInEditor &data,
+                  Utils::ProcessLinkCallback &&processLinkCallback, bool resolveTarget,
+                  bool inNextSplit)
 {
-    return *m_followSymbol;
+    if (ClangdClient * const client = clientForFile(data.filePath());
+            client && client->isFullyIndexed()) {
+        client->followSymbol(data.textDocument(), data.cursor(), data.editorWidget(),
+                             std::move(processLinkCallback), resolveTarget, inNextSplit);
+        return;
+    }
+
+    SymbolFinder finder;
+    CppModelManager::builtinFollowSymbol().findLink(data, std::move(processLinkCallback),
+            resolveTarget, CppModelManager::instance()->snapshot(),
+            data.editorWidget()->semanticInfo().doc, &finder, inNextSplit);
+}
+
+void ClangModelManagerSupport::switchDeclDef(const CppEditor::CursorInEditor &data,
+                   Utils::ProcessLinkCallback &&processLinkCallback)
+{
+    if (ClangdClient * const client = clientForFile(data.filePath());
+            client && client->isFullyIndexed()) {
+        client->switchDeclDef(data.textDocument(), data.cursor(), data.editorWidget(),
+                              std::move(processLinkCallback));
+        return;
+    }
+
+    SymbolFinder finder;
+    CppModelManager::builtinFollowSymbol().switchDeclDef(data, std::move(processLinkCallback),
+            CppModelManager::instance()->snapshot(), data.editorWidget()->semanticInfo().doc,
+            &finder);
 }
 
 CppEditor::RefactoringEngineInterface &ClangModelManagerSupport::refactoringEngineInterface()

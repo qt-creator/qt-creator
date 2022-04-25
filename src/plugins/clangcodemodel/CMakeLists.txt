@@ -35,7 +35,6 @@ add_qtc_plugin(ClangCodeModel
     clangeditordocumentprocessor.cpp clangeditordocumentprocessor.h
     clangfixitoperation.cpp clangfixitoperation.h
     clangfixitoperationsextractor.cpp clangfixitoperationsextractor.h
-    clangfollowsymbol.cpp clangfollowsymbol.h
     clangfunctionhintmodel.cpp clangfunctionhintmodel.h
     clangdlocatorfilters.cpp clangdlocatorfilters.h
     clanghighlightingresultreporter.cpp clanghighlightingresultreporter.h

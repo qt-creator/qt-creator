@@ -60,8 +60,8 @@ class CppCompletionAssistProvider;
 class CppEditorDocumentHandle;
 class CppIndexingSupport;
 class CppLocatorData;
+class FollowSymbolUnderCursor;
 class ModelManagerSupportProvider;
-class FollowSymbolInterface;
 class SymbolFinder;
 class WorkingCopy;
 
@@ -162,12 +162,6 @@ public:
                       const QString &replacement) final;
     void findUsages(const CursorInEditor &data,
                     UsagesCallback &&showUsagesCallback) const final;
-    void globalFollowSymbol(const CursorInEditor &data,
-                            Utils::ProcessLinkCallback &&processLinkCallback,
-                            const CPlusPlus::Snapshot &snapshot,
-                            const Document::Ptr &documentFromSemanticInfo,
-                            SymbolFinder *symbolFinder,
-                            bool inNextSplit) const final;
 
     bool positionRequiresSignal(const QString &filePath, const QByteArray &content,
                                 int position) const;
@@ -187,7 +181,12 @@ public:
     BaseEditorDocumentProcessor *createEditorDocumentProcessor(
                     TextEditor::TextDocument *baseTextDocument) const;
     TextEditor::BaseHoverHandler *createHoverHandler() const;
-    FollowSymbolInterface &followSymbolInterface() const;
+    static FollowSymbolUnderCursor &builtinFollowSymbol();
+    void followSymbol(const CursorInEditor &data, Utils::ProcessLinkCallback &&processLinkCallback,
+                      bool resolveTarget, bool inNextSplit);
+    void switchDeclDef(const CursorInEditor &data,
+                       Utils::ProcessLinkCallback &&processLinkCallback);
+
     std::unique_ptr<AbstractOverviewModel> createOverviewModel() const;
 
     CppIndexingSupport *indexingSupport();
@@ -217,7 +216,6 @@ public:
                                      RefactoringEngineInterface *refactoringEngine);
     static void removeRefactoringEngine(RefactoringEngineType type);
     static RefactoringEngineInterface *builtinRefactoringEngine();
-    static FollowSymbolInterface &builtinFollowSymbol();
 
     void setLocatorFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
     void setClassesFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);

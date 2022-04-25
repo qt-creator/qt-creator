@@ -45,10 +45,7 @@ class QWidget;
 QT_END_NAMESPACE
 
 namespace TextEditor { class TextEditorWidget; }
-namespace CppEditor {
-class FollowSymbolInterface;
-class RefactoringEngineInterface;
-} // namespace CppEditor
+namespace CppEditor { class RefactoringEngineInterface; }
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -71,7 +68,6 @@ public:
     TextEditor::BaseHoverHandler *createHoverHandler() override;
     CppEditor::BaseEditorDocumentProcessor *createEditorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) override;
-    CppEditor::FollowSymbolInterface &followSymbolInterface() override;
     CppEditor::RefactoringEngineInterface &refactoringEngineInterface() override;
     std::unique_ptr<CppEditor::AbstractOverviewModel> createOverviewModel() override;
     bool supportsOutline(const TextEditor::TextDocument *document) const override;
@@ -92,6 +88,12 @@ signals:
     void createdClient(ClangdClient *client);
 
 private:
+    void followSymbol(const CppEditor::CursorInEditor &data,
+                      Utils::ProcessLinkCallback &&processLinkCallback, bool resolveTarget,
+                      bool inNextSplit) override;
+    void switchDeclDef(const CppEditor::CursorInEditor &data,
+                       Utils::ProcessLinkCallback &&processLinkCallback) override;
+
     void onEditorOpened(Core::IEditor *editor);
     void onEditorClosed(const QList<Core::IEditor *> &editors);
     void onCurrentEditorChanged(Core::IEditor *newCurrent);
@@ -142,7 +144,6 @@ private:
     BackendCommunicator m_communicator;
     ClangCompletionAssistProvider m_completionAssistProvider;
     ClangCompletionAssistProvider m_functionHintAssistProvider;
-    std::unique_ptr<CppEditor::FollowSymbolInterface> m_followSymbol;
     std::unique_ptr<CppEditor::RefactoringEngineInterface> m_refactoringEngine;
 
     QHash<ProjectExplorer::Project *, ClangProjectSettings *> m_projectSettings;

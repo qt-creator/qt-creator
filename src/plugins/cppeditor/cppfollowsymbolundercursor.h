@@ -25,13 +25,18 @@
 
 #pragma once
 
-#include "followsymbolinterface.h"
+#include "cppeditor_global.h"
+#include "cursorineditor.h"
+
+#include <cplusplus/CppDocument.h>
+
+#include <texteditor/texteditor.h>
 
 namespace CppEditor {
-
+class SymbolFinder;
 class VirtualFunctionAssistProvider;
 
-class CPPEDITOR_EXPORT FollowSymbolUnderCursor : public FollowSymbolInterface
+class CPPEDITOR_EXPORT FollowSymbolUnderCursor
 {
 public:
     FollowSymbolUnderCursor();
@@ -42,13 +47,13 @@ public:
                   const CPlusPlus::Snapshot &snapshot,
                   const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
                   SymbolFinder *symbolFinder,
-                  bool inNextSplit) override;
+                  bool inNextSplit);
 
     void switchDeclDef(const CursorInEditor &data,
                        Utils::ProcessLinkCallback &&processLinkCallback,
                        const CPlusPlus::Snapshot &snapshot,
                        const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
-                       SymbolFinder *symbolFinder) override;
+                       SymbolFinder *symbolFinder);
 
     QSharedPointer<VirtualFunctionAssistProvider> virtualFunctionAssistProvider();
     void setVirtualFunctionAssistProvider(

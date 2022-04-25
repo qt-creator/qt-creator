@@ -124,25 +124,5 @@ void RefactoringEngine::findUsages(const CppEditor::CursorInEditor &cursor,
     client->findUsages(cursor.textDocument(), cursor.cursor(), {});
 }
 
-void RefactoringEngine::globalFollowSymbol(
-        const CppEditor::CursorInEditor &cursor,
-        Utils::ProcessLinkCallback &&callback,
-        const CPlusPlus::Snapshot &snapshot,
-        const CPlusPlus::Document::Ptr &doc,
-        CppEditor::SymbolFinder *symbolFinder,
-        bool inNextSplit) const
-{
-    ClangdClient * const client
-            = ClangModelManagerSupport::instance()->clientForFile(cursor.filePath());
-    if (!client || !client->isFullyIndexed()) {
-        CppEditor::CppModelManager::builtinRefactoringEngine()
-                ->globalFollowSymbol(cursor, std::move(callback), snapshot, doc, symbolFinder,
-                                     inNextSplit);
-        return;
-    }
-    client->followSymbol(cursor.textDocument(), cursor.cursor(), cursor.editorWidget(),
-                         std::move(callback), true, inNextSplit);
-}
-
 } // namespace Internal
 } // namespace ClangCodeModel

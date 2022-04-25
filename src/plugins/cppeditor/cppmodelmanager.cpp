@@ -48,7 +48,6 @@
 #include "stringtable.h"
 #include "symbolfinder.h"
 #include "symbolsfindfilter.h"
-#include "followsymbolinterface.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -348,20 +347,6 @@ void CppModelManager::findUsages(const CursorInEditor &data,
     engine->findUsages(data, std::move(showUsagesCallback));
 }
 
-void CppModelManager::globalFollowSymbol(
-        const CursorInEditor &data,
-        Utils::ProcessLinkCallback &&processLinkCallback,
-        const CPlusPlus::Snapshot &snapshot,
-        const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
-        SymbolFinder *symbolFinder,
-        bool inNextSplit) const
-{
-    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines);
-    QTC_ASSERT(engine, return;);
-    engine->globalFollowSymbol(data, std::move(processLinkCallback), snapshot, documentFromSemanticInfo,
-                               symbolFinder, inNextSplit);
-}
-
 bool CppModelManager::positionRequiresSignal(const QString &filePath, const QByteArray &content,
                                              int position) const
 {
@@ -487,9 +472,10 @@ RefactoringEngineInterface *CppModelManager::builtinRefactoringEngine()
     return instance()->d->m_refactoringEngines.value(RefactoringEngineType::BuiltIn);
 }
 
-FollowSymbolInterface &CppModelManager::builtinFollowSymbol()
+FollowSymbolUnderCursor &CppModelManager::builtinFollowSymbol()
 {
-    return instance()->d->m_builtinModelManagerSupport->followSymbolInterface();
+    return instance()->d->m_builtinModelManagerSupport.staticCast<BuiltinModelManagerSupport>()
+            ->followSymbolInterface();
 }
 
 template<class FilterClass>
@@ -558,11 +544,6 @@ Core::IFindFilter *CppModelManager::symbolsFindFilter() const
 Core::ILocatorFilter *CppModelManager::currentDocumentFilter() const
 {
     return d->m_currentDocumentFilter.get();
-}
-
-FollowSymbolInterface &CppModelManager::followSymbolInterface() const
-{
-    return d->m_activeModelManagerSupport->followSymbolInterface();
 }
 
 std::unique_ptr<AbstractOverviewModel> CppModelManager::createOverviewModel() const
@@ -1678,6 +1659,20 @@ CppCompletionAssistProvider *CppModelManager::functionHintAssistProvider() const
 TextEditor::BaseHoverHandler *CppModelManager::createHoverHandler() const
 {
     return d->m_activeModelManagerSupport->createHoverHandler();
+}
+
+void CppModelManager::followSymbol(const CursorInEditor &data,
+                                   Utils::ProcessLinkCallback &&processLinkCallback,
+                                   bool resolveTarget, bool inNextSplit)
+{
+    d->m_activeModelManagerSupport->followSymbol(data, std::move(processLinkCallback),
+                                                 resolveTarget, inNextSplit);
+}
+
+void CppModelManager::switchDeclDef(const CursorInEditor &data,
+                                    Utils::ProcessLinkCallback &&processLinkCallback)
+{
+    d->m_activeModelManagerSupport->switchDeclDef(data, std::move(processLinkCallback));
 }
 
 BaseEditorDocumentProcessor *CppModelManager::createEditorDocumentProcessor(

@@ -50,7 +50,6 @@
 #include "cpptoolssettings.h"
 #include "cppuseselectionsupdater.h"
 #include "cppworkingcopy.h"
-#include "followsymbolinterface.h"
 #include "refactoringengineinterface.h"
 #include "symbolfinder.h"
 
@@ -1045,9 +1044,7 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
         if (self && link.hasValidTarget())
             self->openLink(link, split);
     };
-    followSymbolInterface().switchDeclDef(cursor, std::move(callback),
-                                          d->m_modelManager->snapshot(), d->m_lastSemanticInfo.doc,
-                                          d->m_modelManager->symbolFinder());
+    CppModelManager::instance()->switchDeclDef(cursor, std::move(callback));
 }
 
 void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
@@ -1087,24 +1084,16 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
         }
         callback(link);
     };
-    followSymbolInterface().findLink(
+    CppModelManager::instance()->followSymbol(
                 CursorInEditor{cursor, filePath, this, textDocument()},
                 std::move(callbackWrapper),
                 resolveTarget,
-                d->m_modelManager->snapshot(),
-                d->m_lastSemanticInfo.doc,
-                d->m_modelManager->symbolFinder(),
                 inNextSplit);
 }
 
 unsigned CppEditorWidget::documentRevision() const
 {
     return document()->revision();
-}
-
-FollowSymbolInterface &CppEditorWidget::followSymbolInterface() const
-{
-    return d->m_modelManager->followSymbolInterface();
 }
 
 bool CppEditorWidget::isSemanticInfoValidExceptLocalUses() const
