@@ -35,15 +35,15 @@
 #include <QString>
 
 namespace CMakeProjectManager {
-
-class CMakeBuildConfiguration;
-
 namespace Internal {
 
-class BuildDirParameters {
+class CMakeBuildSystem;
+
+class BuildDirParameters
+{
 public:
     BuildDirParameters();
-    explicit BuildDirParameters(CMakeBuildConfiguration *bc);
+    explicit BuildDirParameters(CMakeBuildSystem *buildSystem);
     BuildDirParameters(const BuildDirParameters &other);
     BuildDirParameters &operator=(const BuildDirParameters &other);
 

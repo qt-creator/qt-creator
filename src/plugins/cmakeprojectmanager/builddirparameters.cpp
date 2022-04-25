@@ -26,6 +26,7 @@
 #include "builddirparameters.h"
 
 #include "cmakebuildconfiguration.h"
+#include "cmakebuildsystem.h"
 #include "cmakekitinformation.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectplugin.h"
@@ -47,9 +48,11 @@ namespace Internal {
 
 BuildDirParameters::BuildDirParameters() = default;
 
-BuildDirParameters::BuildDirParameters(CMakeBuildConfiguration *bc)
+BuildDirParameters::BuildDirParameters(CMakeBuildSystem *buildSystem)
 {
-    QTC_ASSERT(bc, return );
+    QTC_ASSERT(buildSystem, return);
+    auto bc = buildSystem->cmakeBuildConfiguration();
+    QTC_ASSERT(bc, return);
 
     const Utils::MacroExpander *expander = bc->macroExpander();
 
