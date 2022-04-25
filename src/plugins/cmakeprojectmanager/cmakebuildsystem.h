@@ -108,10 +108,19 @@ public:
 
     CMakeProject *project() const;
 
+    QString error() const;
+    QString warning() const;
+
 signals:
     void configurationCleared();
 
 private:
+    enum ForceEnabledChanged { False, True };
+    void clearError(ForceEnabledChanged fec = ForceEnabledChanged::False);
+
+    void setError(const QString &message);
+    void setWarning(const QString &message);
+
     // Actually ask for parsing:
     enum ReparseParameters {
         REPARSE_DEFAULT = 0, // Nothing special:-)
@@ -188,6 +197,9 @@ private:
     Utils::FilePath m_ctestPath;
     QList<ProjectExplorer::TestCaseInfo> m_testNames;
     Utils::FutureSynchronizer m_futureSynchronizer;
+
+    QString m_error;
+    QString m_warning;
 };
 
 } // namespace Internal
