@@ -571,7 +571,9 @@ public:
                        "color", "margin", "padding", "print",   "border", "font",
                        "text",  "source", "state",   "visible", "focus",  "data",
                       "clip",  "layer",  "scale",   "enabled", "anchors",
-                      "texture", "shaderInfo", "sprite", "spriteSequence", "baseState"})
+                      "texture", "shaderInfo", "sprite", "spriteSequence", "baseState"
+                      "vector", "string", "url", "var", "point", "date", "size", "list",
+                      "enumeration"})
     {}
 };
 
