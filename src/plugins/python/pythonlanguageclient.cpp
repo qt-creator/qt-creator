@@ -614,7 +614,7 @@ void PyLSConfigureAssistant::openDocumentWithPython(const FilePath &python,
     QPointer<CheckPylsWatcher> watcher = new CheckPylsWatcher();
 
     // cancel and delete watcher after a 10 second timeout
-    QTimer::singleShot(10000, this, [watcher]() {
+    QTimer::singleShot(10000, instance(), [watcher]() {
         if (watcher) {
             watcher->cancel();
             watcher->deleteLater();
@@ -623,11 +623,11 @@ void PyLSConfigureAssistant::openDocumentWithPython(const FilePath &python,
 
     connect(watcher,
             &CheckPylsWatcher::resultReadyAt,
-            this,
+            instance(),
             [=, document = QPointer<TextEditor::TextDocument>(document)]() {
                 if (!document || !watcher)
                     return;
-                handlePyLSState(python, watcher->result(), document);
+                instance()->handlePyLSState(python, watcher->result(), document);
                 watcher->deleteLater();
             });
     watcher->setFuture(Utils::runAsync(&checkPythonLanguageServer, python));

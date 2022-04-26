@@ -40,9 +40,11 @@ namespace Internal {
 class PySideInstaller : public QObject
 {
     Q_DECLARE_TR_FUNCTIONS(Python::Internal::PySideInstaller)
+
 public:
     static PySideInstaller *instance();
-    void checkPySideInstallation(const Utils::FilePath &python, TextEditor::TextDocument *document);
+    static void checkPySideInstallation(const Utils::FilePath &python,
+                                        TextEditor::TextDocument *document);
 
 private:
     PySideInstaller();

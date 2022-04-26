@@ -118,8 +118,8 @@ public:
         if (!python.exists())
             return;
 
-        PyLSConfigureAssistant::instance()->openDocumentWithPython(python, this);
-        PySideInstaller::instance()->checkPySideInstallation(python, this);
+        PyLSConfigureAssistant::openDocumentWithPython(python, this);
+        PySideInstaller::checkPySideInstallation(python, this);
     }
 };
 

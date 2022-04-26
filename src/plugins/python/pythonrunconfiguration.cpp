@@ -152,8 +152,8 @@ public:
             for (FilePath &file : project()->files(Project::AllFiles)) {
                 if (auto document = TextEditor::TextDocument::textDocumentForFilePath(file)) {
                     if (document->mimeType() == Constants::C_PY_MIMETYPE) {
-                        PyLSConfigureAssistant::instance()->openDocumentWithPython(python, document);
-                        PySideInstaller::instance()->checkPySideInstallation(python, document);
+                        PyLSConfigureAssistant::openDocumentWithPython(python, document);
+                        PySideInstaller::checkPySideInstallation(python, document);
                     }
                 }
             }

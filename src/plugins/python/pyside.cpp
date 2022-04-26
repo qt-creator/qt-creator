@@ -60,16 +60,16 @@ PySideInstaller *PySideInstaller::instance()
     return instance;
 }
 
-void PySideInstaller::checkPySideInstallation(const Utils::FilePath &python,
+void PySideInstaller::checkPySideInstallation(const FilePath &python,
                                               TextEditor::TextDocument *document)
 {
     document->infoBar()->removeInfo(installPySideInfoBarId);
     const QString pySide = importedPySide(document->plainText());
     if (pySide == "PySide2" || pySide == "PySide6")
-        runPySideChecker(python, pySide, document);
+        instance()->runPySideChecker(python, pySide, document);
 }
 
-bool PySideInstaller::missingPySideInstallation(const Utils::FilePath &pythonPath,
+bool PySideInstaller::missingPySideInstallation(const FilePath &pythonPath,
                                                 const QString &pySide)
 {
     QTC_ASSERT(!pySide.isEmpty(), return false);
@@ -78,8 +78,7 @@ bool PySideInstaller::missingPySideInstallation(const Utils::FilePath &pythonPat
         return false;
 
     QtcProcess pythonProcess;
-    const CommandLine importPySideCheck(pythonPath, {"-c", "import " + pySide});
-    pythonProcess.setCommand(importPySideCheck);
+    pythonProcess.setCommand({pythonPath, {"-c", "import " + pySide}});
     pythonProcess.runBlocking();
     const bool missing = pythonProcess.result() != ProcessResult::FinishedWithSuccess;
     if (!missing)
