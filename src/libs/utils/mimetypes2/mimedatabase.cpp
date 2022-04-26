@@ -356,9 +356,11 @@ QStringList MimeDatabasePrivate::parents(const QString &mimeName)
             break;
         }
     }
-    const QString parent = fallbackParent(mimeName);
-    if (!parent.isEmpty())
-        result.append(parent);
+    if (result.isEmpty()) {
+        const QString parent = fallbackParent(mimeName);
+        if (!parent.isEmpty())
+            result.append(parent);
+    }
     return result;
 }
 
