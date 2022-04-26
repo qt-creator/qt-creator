@@ -644,7 +644,7 @@ QString StudioWelcomePlugin::examplesPathSetting()
 
 WelcomeMode::WelcomeMode()
 {
-    setDisplayName(tr("Studio"));
+    setDisplayName(tr("Welcome"));
 
     const Utils::Icon FLAT({{":/studiowelcome/images/mode_welcome_mask.png",
                       Utils::Theme::IconsBaseColor}});
