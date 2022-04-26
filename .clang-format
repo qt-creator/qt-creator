@@ -99,7 +99,6 @@ PenaltyExcessCharacter: 50
 PenaltyReturnTypeOnItsOwnLine: 300
 PointerAlignment: Right
 ReflowComments:  false
-RemoveBracesLLVM: true
 SortIncludes:    true
 SortUsingDeclarations: true
 SpaceAfterCStyleCast: true
