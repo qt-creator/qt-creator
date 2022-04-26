@@ -1,10 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of Qt Creator.
+** This file is part of Qt Quick Designer Components.
 **
+** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -15,38 +16,21 @@
 **
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3 as published by the Free Software
-** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
 ** included in the packaging of this file. Please review the following
 ** information to ensure the GNU General Public License requirements will
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
+** $QT_END_LICENSE$
+**
 ****************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 2.8
+import Qt5Compat.GraphicalEffects
 
-Item {
-    id: root
-    width: 600
-    height: 720
-
-    signal closeClicked
-    signal checkBoxToggled
-    signal configureClicked
-
-    property alias doNotShowAgain: welcome_splash.doNotShowAgain
-
-    function onPluginInitialized(crashReportingEnabled: bool, crashReportingOn: bool)
-    {
-        welcome_splash.onPluginInitialized(crashReportingEnabled, crashReportingOn);
-    }
-
-    Welcome_splash {
-        id: welcome_splash
-        x: 0
-        y: 0
-        antialiasing: true
-        onCloseClicked: root.closeClicked()
-        onConfigureClicked: root.configureClicked()
-    }
+FastBlur {
+    id: fastBlur
+    radius: 20
 }
