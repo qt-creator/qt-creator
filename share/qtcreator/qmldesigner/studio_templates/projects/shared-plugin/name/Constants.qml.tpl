@@ -1,12 +1,15 @@
 pragma Singleton
 import QtQuick %{QtQuickVersion}
+@if %{IsQt6Project}
+import QtQuick.Studio.Application
+@else
+@endif
 
 QtObject {
     readonly property int width: %{ScreenWidth}
     readonly property int height: %{ScreenHeight}
 
-    property alias fontDirectory: directoryFontLoader.fontDirectory
-    property alias relativeFontDirectory: directoryFontLoader.relativeFontDirectory
+    property string relativeFontDirectory: "fonts"
 
     /* Edit this comment to add your custom font */
     readonly property font font: Qt.font({
@@ -20,7 +23,14 @@ QtObject {
 
     readonly property color backgroundColor: "#c2c2c2"
 
+
+@if %{IsQt6Project}
+    property StudioApplication application: StudioApplication {
+        fontPath: Qt.resolvedUrl("../../content/" + relativeFontDirectory)
+    }
+@else
     property DirectoryFontLoader directoryFontLoader: DirectoryFontLoader {
         id: directoryFontLoader
     }
+@endif
 }
