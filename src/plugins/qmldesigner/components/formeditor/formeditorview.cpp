@@ -467,7 +467,10 @@ void FormEditorView::bindingPropertiesChanged(const QList<BindingProperty> &prop
 
 void FormEditorView::documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &)
 {
-    if (!errors.isEmpty())
+    QTC_ASSERT(model(), return);
+    QTC_ASSERT(model()->rewriterView(), return);
+
+    if (!errors.isEmpty() && !model()->rewriterView()->hasIncompleteTypeInformation())
         m_formEditorWidget->showErrorMessageBox(errors);
     else
         m_formEditorWidget->hideErrorMessageBox();
