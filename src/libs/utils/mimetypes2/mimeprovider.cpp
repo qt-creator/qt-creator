@@ -946,6 +946,7 @@ QStringList MimeXMLProvider::allMimeTypeNames()
 
 QMap<int, QList<MimeMagicRule>> MimeBinaryProvider::magicRulesForMimeType(const MimeType &mimeType) const
 {
+    Q_UNUSED(mimeType)
     qWarning("Mimetypes: magicRulesForMimeType not implemented for binary provider");
     return {};
 }
@@ -953,12 +954,16 @@ QMap<int, QList<MimeMagicRule>> MimeBinaryProvider::magicRulesForMimeType(const 
 void MimeBinaryProvider::setMagicRulesForMimeType(const MimeType &mimeType,
                                                   const QMap<int, QList<MimeMagicRule>> &rules)
 {
+    Q_UNUSED(mimeType)
+    Q_UNUSED(rules)
     qWarning("Mimetypes: setMagicRulesForMimeType not implemented for binary provider");
 }
 
 void MimeBinaryProvider::setGlobPatternsForMimeType(const MimeType &mimeType,
                                                     const QStringList &patterns)
 {
+    Q_UNUSED(mimeType)
+    Q_UNUSED(patterns)
     qWarning("Mimetypes: setGlobPatternsForMimeType not implemented for binary provider");
 }
 
