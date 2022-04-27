@@ -156,26 +156,32 @@ QString QmlProfilerStatisticsModel::summary(const QVector<int> &typeIds) const
     double maximum = 0;
     double sum = 0;
 
+    QSet<RangeType> types;
+
     for (int typeId : typeIds) {
+        types << m_modelManager->eventType(typeId).rangeType();
         const double percentage = durationPercent(typeId);
         if (percentage > maximum)
             maximum = percentage;
         sum += percentage;
     }
 
+    const QStringList typeNames = Utils::transform<QList>(types, &nameForType);
+    const QString typeSummary = QString(" (%1)").arg(typeNames.join(", "));
+
     const QLatin1Char percent('%');
 
     if (sum < cutoff)
-        return QLatin1Char('<') + QString::number(cutoff, 'f', 1) + percent;
+        return QLatin1Char('<') + QString::number(cutoff, 'f', 1) + percent + typeSummary;
 
     if (typeIds.length() == 1)
-        return QLatin1Char('~') + QString::number(maximum, 'f', 1) + percent;
+        return QLatin1Char('~') + QString::number(maximum, 'f', 1) + percent + typeSummary;
 
     // add/subtract 0.05 to avoid problematic rounding
     if (maximum < cutoff)
-        return QChar(0x2264) + QString::number(sum + round, 'f', 1) + percent;
+        return QChar(0x2264) + QString::number(sum + round, 'f', 1) + percent + typeSummary;
 
-    return QChar(0x2265) + QString::number(qMax(maximum - round, cutoff), 'f', 1) + percent;
+    return QChar(0x2265) + QString::number(qMax(maximum - round, cutoff), 'f', 1) + percent + typeSummary;
 }
 
 void QmlProfilerStatisticsModel::clear()

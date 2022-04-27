@@ -39,29 +39,21 @@ namespace QmlProfiler {
 namespace Internal {
 
 QmlProfilerTextMark::QmlProfilerTextMark(QmlProfilerViewManager *viewManager, int typeId,
-                                         const FilePath &fileName, int lineNumber) :
-    TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY, 3.5), m_viewManager(viewManager),
-    m_typeIds(1, typeId)
+                                         const FilePath &fileName, int lineNumber)
+    : TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY)
+    , m_viewManager(viewManager)
 {
+    addTypeId(typeId);
 }
 
 void QmlProfilerTextMark::addTypeId(int typeId)
 {
     m_typeIds.append(typeId);
-}
 
-void QmlProfilerTextMark::paintIcon(QPainter *painter, const QRect &paintRect) const
-{
     const QmlProfilerStatisticsView *statisticsView = m_viewManager->statisticsView();
     QTC_ASSERT(statisticsView, return);
 
-    painter->save();
-    painter->setPen(Qt::black);
-    painter->fillRect(paintRect, Qt::white);
-    painter->drawRect(paintRect);
-    painter->drawText(paintRect, statisticsView->summary(m_typeIds),
-                      Qt::AlignRight | Qt::AlignVCenter);
-    painter->restore();
+    setLineAnnotation(statisticsView->summary(m_typeIds));
 }
 
 void QmlProfilerTextMark::clicked()
@@ -142,12 +134,27 @@ bool QmlProfilerTextMark::addToolTipContent(QLayout *target) const
     auto layout = new QGridLayout;
     layout->setHorizontalSpacing(10);
     for (int row = 0, rowEnd = m_typeIds.length(); row != rowEnd; ++row) {
+        int typeId = m_typeIds[row];
         const QStringList typeDetails = statisticsView->details(m_typeIds[row]);
         for (int column = 0, columnEnd = typeDetails.length(); column != columnEnd; ++column) {
             QLabel *label = new QLabel;
             label->setAlignment(column == columnEnd - 1 ? Qt::AlignRight : Qt::AlignLeft);
-            label->setTextFormat(Qt::PlainText);
-            label->setText(typeDetails[column]);
+            if (column == 0) {
+                label->setTextFormat(Qt::RichText);
+                label->setTextInteractionFlags(Qt::LinksAccessibleByMouse
+                                               | Qt::LinksAccessibleByKeyboard);
+                label->setText(QString("<a href='selectType' style='text-decoration:none'>%1</a>")
+                                   .arg(typeDetails[column]));
+                QObject::connect(label,
+                                 &QLabel::linkActivated,
+                                 m_viewManager,
+                                 [this, typeId]() {
+                                     emit m_viewManager->typeSelected(typeId);
+                                 });
+            } else {
+                label->setTextFormat(Qt::PlainText);
+                label->setText(typeDetails[column]);
+            }
             layout->addWidget(label, row, column);
         }
     }

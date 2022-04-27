@@ -39,7 +39,6 @@ public:
                         const Utils::FilePath &fileName, int lineNumber);
     void addTypeId(int typeId);
 
-    void paintIcon(QPainter *painter, const QRect &rect) const override;
     void clicked() override;
     bool isClickable() const override { return true; }
     bool addToolTipContent(QLayout *target) const override;
