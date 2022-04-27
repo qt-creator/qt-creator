@@ -409,7 +409,7 @@ int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const 
             ret = QFormLayout::AllNonFixedFieldsGrow;
         break;
     case QStyle::SH_Widget_Animation_Duration:
-        if (widget->inherits("QTreeView"))
+        if (widget && widget->inherits("QTreeView"))
             ret = 0;
         break;
     default:
