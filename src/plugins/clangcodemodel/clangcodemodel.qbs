@@ -82,8 +82,6 @@ QtcPlugin {
         "clangfunctionhintmodel.h",
         "clanghighlightingresultreporter.cpp",
         "clanghighlightingresultreporter.h",
-        "clanghoverhandler.cpp",
-        "clanghoverhandler.h",
         "clangisdiagnosticrelatedtolocation.h",
         "clangmodelmanagersupport.cpp",
         "clangmodelmanagersupport.h",

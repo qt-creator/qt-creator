@@ -1307,6 +1307,11 @@ bool CppModelManager::supportsLocalUses(const TextEditor::TextDocument *document
     return instance()->d->m_activeModelManagerSupport->supportsLocalUses(document);
 }
 
+bool CppModelManager::hasSpecialHoverHandler(const TextEditor::TextDocument *document)
+{
+    return instance()->d->m_activeModelManagerSupport->hasSpecialHoverHandler(document);
+}
+
 bool CppModelManager::isClangCodeModelActive() const
 {
     return d->m_activeModelManagerSupport != d->m_builtinModelManagerSupport;
@@ -1658,7 +1663,7 @@ CppCompletionAssistProvider *CppModelManager::functionHintAssistProvider() const
 
 TextEditor::BaseHoverHandler *CppModelManager::createHoverHandler() const
 {
-    return d->m_activeModelManagerSupport->createHoverHandler();
+    return d->m_builtinModelManagerSupport->createHoverHandler();
 }
 
 void CppModelManager::followSymbol(const CursorInEditor &data,

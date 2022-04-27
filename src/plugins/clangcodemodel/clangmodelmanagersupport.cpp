@@ -30,7 +30,6 @@
 #include "clangdquickfixfactory.h"
 #include "clangeditordocumentprocessor.h"
 #include "clangdlocatorfilters.h"
-#include "clanghoverhandler.h"
 #include "clangoverviewmodel.h"
 #include "clangprojectsettings.h"
 #include "clangrefactoringengine.h"
@@ -183,11 +182,6 @@ CppEditor::CppCompletionAssistProvider *ClangModelManagerSupport::functionHintAs
     return &m_functionHintAssistProvider;
 }
 
-TextEditor::BaseHoverHandler *ClangModelManagerSupport::createHoverHandler()
-{
-    return new Internal::ClangHoverHandler;
-}
-
 void ClangModelManagerSupport::followSymbol(const CppEditor::CursorInEditor &data,
                   Utils::ProcessLinkCallback &&processLinkCallback, bool resolveTarget,
                   bool inNextSplit)
@@ -239,6 +233,12 @@ bool ClangModelManagerSupport::supportsOutline(const TextEditor::TextDocument *d
 bool ClangModelManagerSupport::supportsLocalUses(const TextEditor::TextDocument *document) const
 {
     return !clientForFile(document->filePath());
+}
+
+bool ClangModelManagerSupport::hasSpecialHoverHandler(
+        const TextEditor::TextDocument *document) const
+{
+    return clientForFile(document->filePath());
 }
 
 CppEditor::BaseEditorDocumentProcessor *ClangModelManagerSupport::createEditorDocumentProcessor(

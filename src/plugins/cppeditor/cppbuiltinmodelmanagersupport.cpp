@@ -53,6 +53,11 @@ private:
                        int pos,
                        ReportPriority report) override
     {
+        if (CppModelManager::hasSpecialHoverHandler(editorWidget->textDocument())) {
+            report(Priority_None);
+            return;
+        }
+
         Utils::ExecuteOnDestruction reportPriority([this, report](){ report(priority()); });
 
         QTextCursor tc(editorWidget->document());

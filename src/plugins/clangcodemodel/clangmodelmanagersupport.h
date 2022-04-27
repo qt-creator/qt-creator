@@ -65,13 +65,14 @@ public:
 
     CppEditor::CppCompletionAssistProvider *completionAssistProvider() override;
     CppEditor::CppCompletionAssistProvider *functionHintAssistProvider() override;
-    TextEditor::BaseHoverHandler *createHoverHandler() override;
+    TextEditor::BaseHoverHandler *createHoverHandler() override { return nullptr; }
     CppEditor::BaseEditorDocumentProcessor *createEditorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) override;
     CppEditor::RefactoringEngineInterface &refactoringEngineInterface() override;
     std::unique_ptr<CppEditor::AbstractOverviewModel> createOverviewModel() override;
     bool supportsOutline(const TextEditor::TextDocument *document) const override;
     bool supportsLocalUses(const TextEditor::TextDocument *document) const override;
+    bool hasSpecialHoverHandler(const TextEditor::TextDocument *document) const override;
 
     BackendCommunicator &communicator();
     QString dummyUiHeaderOnDiskDirPath() const;

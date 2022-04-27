@@ -63,6 +63,7 @@ public:
     virtual RefactoringEngineInterface &refactoringEngineInterface() = 0;
     virtual std::unique_ptr<AbstractOverviewModel> createOverviewModel() = 0;
     virtual bool supportsOutline(const TextEditor::TextDocument *) const { return true; }
+    virtual bool hasSpecialHoverHandler(const TextEditor::TextDocument *) const { return false; }
     virtual bool supportsLocalUses(const TextEditor::TextDocument *) const { return true; }
 
     virtual void followSymbol(const CursorInEditor &data,
