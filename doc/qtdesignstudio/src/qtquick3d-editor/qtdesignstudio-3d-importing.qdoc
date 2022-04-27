@@ -34,52 +34,9 @@
 
     \title Importing 3D Assets
 
-    You can download \QB from the \l{https://marketplace.qt.io/}{Qt Marketplace}.
-    It enables you to import files you created using 3D graphics applications
-    and stored in several widely-used formats, such as .blend, .dae, .fbx, .glb,
-    .gltf, .obj, .uia, or .uip. For a list of formats supported by each
+    In \QDS, you can import 3D assets in formats such as .stl, .dae, .fbx, .glb,
+    .gltf, .obj, .uia, and .uip. For a list of formats supported by each
     \l{Qt Quick 3D} version, see the module documentation.
-
-    For more information about exporting 3D graphics, see
-    \l{Exporting 3D Assets}.
-
-    \image studio-import-3d.png
-
-    To import 3D assets to \QDS projects:
-
-    \list 1
-        \li Drag-and-drop an external file containing the 3D asset from,
-            for example, File Explorer (on Windows), to \uicontrol {3D Editor}.
-        \li In the \uicontrol {3D Scene Options} tab, select options for
-            importing the file.
-        \li Select \uicontrol Import to import the 3D graphics file.
-        \li When the import is done, select \uicontrol Close.
-    \endlist
-
-    The 3D asset you dragged-and-dropped to \uicontrol {3D Editor} has now
-    been added to your scene, and you can see it in the \uicontrol {3D Editor}
-    view and in \uicontrol Navigator. It is also available in
-    \uicontrol Components > \uicontrol {My 3D Components}.
-
-    Alternatively, you can initiate the import dialog from the
-    \uicontrol Assets view:
-
-    \list 1
-        \li In the \l{Design Views}{Design mode}, select
-            \uicontrol Assets > \inlineimage icons/plus.png
-            .
-        \li Select \uicontrol {3D Assets} in the dropdown menu to filter 3D
-            graphics files.
-        \li Select a file to import, and then select \uicontrol Open.
-        \li In the \uicontrol {3D Scene Options} tab, select options for
-            importing the file.
-        \li Select \uicontrol Import to import the 3D graphics file.
-        \li When the import is done, select \uicontrol Close.
-    \endlist
-
-    The 3D asset now appears in \uicontrol Components >
-    \uicontrol {My 3D Components}. You can add it to the scene by
-    drag-and-dropping it to \uicontrol {3D Editor}.
 
     During the import, you can optimize the files for \QDS. You can remove
     components from meshes to reduce the cache size, find and fix issues in
@@ -88,7 +45,45 @@
     or with other 3D graphics tools. See the tooltips in the options dialog
     for more information about a particular option.
 
-    The 3D asset you added to the project now appears in
-    \uicontrol Components > \uicontrol {My 3D Components}. You can add it to
-    your UI by dragging-and-dropping it to \l {3D Editor}.
+    For more information about exporting 3D graphics, see
+    \l{Exporting 3D Assets}.
+
+    \image studio-import-3d.png
+
+    \section1 Importing a 3D Asset
+
+    To import a 3D asset to a \QDS project:
+
+    \list 1
+        \li Drag-and-drop an external file containing the 3D asset from,
+            for example, File Explorer (on Windows), to \uicontrol {3D Editor}.
+        \li In the \uicontrol {3D Scene Options} tab, select options for
+            importing the file.
+            \note To see all options, select \uicontrol{Show All Options}.
+        \li Select \uicontrol Import to import the 3D asset.
+    \endlist
+
+    The 3D asset is now added to your scene, and you can see it in the
+    \uicontrol {3D Editor} view and in \uicontrol Navigator. It is also
+    available in \uicontrol Components > \uicontrol {My 3D Components}.
+
+    Alternatively, you can initiate the import dialog from the
+    \uicontrol Assets view:
+
+    \list 1
+        \li Select \l Assets > \inlineimage icons/plus.png
+            .
+        \li Select \uicontrol {3D Assets} in the dropdown menu to filter 3D
+            graphics files.
+        \li Select a file to import, and then select \uicontrol Open.
+        \li In the \uicontrol {3D Scene Options} tab, select options for
+            importing the file.
+            \note To see all options, select \uicontrol{Show All Options}.
+        \li Select \uicontrol Import to import the 3D asset.
+    \endlist
+
+    The 3D asset now appears in \uicontrol Components >
+    \uicontrol {My 3D Components}. You can add it to the scene by
+    drag-and-dropping it to \uicontrol {3D Editor}.
+
 */
