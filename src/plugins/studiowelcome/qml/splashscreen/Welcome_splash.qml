@@ -204,7 +204,7 @@ Rectangle {
         anchors.leftMargin: 20
         anchors.top: bottomBar.top
         color: "#FFFFFF"
-        text: qsTr("Before we let you move on to your wonderful designs, help us make Qt Design Studio even betterby letting us know how you're using it. To do this, we would like to turn on automatic collection of pseudonymized Analytics and Crash Report Data.")
+        text: qsTr("Before we let you move on to your wonderful designs, help us make Qt Design Studio even better by letting us know how you're using it. To do this, we would like to turn on automatic collection of pseudonymized Analytics and Crash Report Data.")
         font.family: StudioFonts.titilliumWeb_light
         font.pixelSize: 16
         horizontalAlignment: Text.AlignHCenter
