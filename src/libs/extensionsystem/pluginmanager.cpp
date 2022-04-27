@@ -1694,11 +1694,20 @@ void PluginManagerPrivate::readPluginPaths()
     // default
     pluginCategories.insert(QString(), QVector<PluginSpec *>());
 
+    // from the file system
     for (const QString &pluginFile : pluginFiles(pluginPaths)) {
         PluginSpec *spec = PluginSpec::read(pluginFile);
-        if (!spec) // not a Qt Creator plugin
-            continue;
+        if (spec) // Qt Creator plugin
+            pluginSpecs.append(spec);
+    }
+    // static
+    for (const QStaticPlugin &plugin : QPluginLoader::staticPlugins()) {
+        PluginSpec *spec = PluginSpec::read(plugin);
+        if (spec) // Qt Creator plugin
+            pluginSpecs.append(spec);
+    }
 
+    for (PluginSpec *spec : pluginSpecs) {
         // defaultDisabledPlugins and defaultEnabledPlugins from install settings
         // is used to override the defaults read from the plugin spec
         if (spec->isEnabledByDefault() && defaultDisabledPlugins.contains(spec->name())) {
@@ -1714,7 +1723,6 @@ void PluginManagerPrivate::readPluginPaths()
             spec->d->setEnabledBySettings(false);
 
         pluginCategories[spec->category()].append(spec);
-        pluginSpecs.append(spec);
     }
     resolveDependencies();
     enableDependenciesIndirectly();

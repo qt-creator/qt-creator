@@ -29,8 +29,9 @@
 
 #include <utils/porting.h>
 
-#include <QString>
 #include <QHash>
+#include <QStaticPlugin>
+#include <QString>
 #include <QVector>
 
 QT_BEGIN_NAMESPACE
@@ -135,6 +136,7 @@ public:
     void setEnabledBySettings(bool value);
 
     static PluginSpec *read(const QString &filePath);
+    static PluginSpec *read(const QStaticPlugin &plugin);
 
 private:
     PluginSpec();

@@ -28,6 +28,8 @@
 #include "pluginspec.h"
 #include "iplugin.h"
 
+#include <utils/optional.h>
+
 #include <QJsonObject>
 #include <QObject>
 #include <QPluginLoader>
@@ -50,7 +52,9 @@ class EXTENSIONSYSTEM_EXPORT PluginSpecPrivate : public QObject
 public:
     PluginSpecPrivate(PluginSpec *spec);
 
+    void reset();
     bool read(const QString &fileName);
+    bool read(const QStaticPlugin &plugin);
     bool provides(const QString &pluginName, const QString &version) const;
     bool resolveDependencies(const QVector<PluginSpec *> &specs);
     bool loadLibrary();
@@ -65,7 +69,8 @@ public:
     void setForceEnabled(bool value);
     void setForceDisabled(bool value);
 
-    QPluginLoader loader;
+    Utils::optional<QPluginLoader> loader;
+    Utils::optional<QStaticPlugin> staticPlugin;
 
     QString name;
     QString version;

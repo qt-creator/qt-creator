@@ -558,6 +558,16 @@ PluginSpec *PluginSpec::read(const QString &filePath)
     return spec;
 }
 
+PluginSpec *PluginSpec::read(const QStaticPlugin &plugin)
+{
+    auto spec = new PluginSpec;
+    if (!spec->d->read(plugin)) { // not a Qt Creator plugin
+        delete spec;
+        return nullptr;
+    }
+    return spec;
+}
+
 //==========PluginSpecPrivate==================
 
 namespace {
@@ -592,9 +602,28 @@ namespace {
 */
 PluginSpecPrivate::PluginSpecPrivate(PluginSpec *spec)
     : q(spec)
+{}
+
+void PluginSpecPrivate::reset()
 {
-    if (Utils::HostOsInfo::isMacHost())
-        loader.setLoadHints(QLibrary::ExportExternalSymbolsHint);
+    name.clear();
+    version.clear();
+    compatVersion.clear();
+    vendor.clear();
+    copyright.clear();
+    license.clear();
+    description.clear();
+    url.clear();
+    category.clear();
+    location.clear();
+    filePath.clear();
+    state = PluginSpec::Invalid;
+    hasError = false;
+    errorString.clear();
+    dependencies.clear();
+    metaData = QJsonObject();
+    loader.reset();
+    staticPlugin.reset();
 }
 
 /*!
@@ -604,32 +633,32 @@ PluginSpecPrivate::PluginSpecPrivate(PluginSpec *spec)
 bool PluginSpecPrivate::read(const QString &fileName)
 {
     qCDebug(pluginLog) << "\nReading meta data of" << fileName;
-    name
-        = version
-        = compatVersion
-        = vendor
-        = copyright
-        = license
-        = description
-        = url
-        = category
-        = location
-        = QString();
-    state = PluginSpec::Invalid;
-    hasError = false;
-    errorString.clear();
-    dependencies.clear();
-    metaData = QJsonObject();
+    reset();
     QFileInfo fileInfo(fileName);
     location = fileInfo.absolutePath();
     filePath = fileInfo.absoluteFilePath();
-    loader.setFileName(filePath);
-    if (loader.fileName().isEmpty()) {
+    loader.emplace();
+    if (Utils::HostOsInfo::isMacHost())
+        loader->setLoadHints(QLibrary::ExportExternalSymbolsHint);
+    loader->setFileName(filePath);
+    if (loader->fileName().isEmpty()) {
         qCDebug(pluginLog) << "Cannot open file";
         return false;
     }
 
-    if (!readMetaData(loader.metaData()))
+    if (!readMetaData(loader->metaData()))
+        return false;
+
+    state = PluginSpec::Read;
+    return true;
+}
+
+bool PluginSpecPrivate::read(const QStaticPlugin &plugin)
+{
+    qCDebug(pluginLog) << "\nReading meta data of static plugin";
+    reset();
+    staticPlugin = plugin;
+    if (!readMetaData(plugin.metaData()))
         return false;
 
     state = PluginSpec::Read;
@@ -1050,17 +1079,19 @@ bool PluginSpecPrivate::loadLibrary()
         hasError = true;
         return false;
     }
-    if (!loader.load()) {
+    if (loader && !loader->load()) {
         hasError = true;
-        errorString = QDir::toNativeSeparators(filePath)
-            + QString::fromLatin1(": ") + loader.errorString();
+        errorString = QDir::toNativeSeparators(filePath) + QString::fromLatin1(": ")
+                      + loader->errorString();
         return false;
     }
-    auto *pluginObject = qobject_cast<IPlugin*>(loader.instance());
+    auto *pluginObject = loader ? qobject_cast<IPlugin *>(loader->instance())
+                                : qobject_cast<IPlugin *>(staticPlugin->instance());
     if (!pluginObject) {
         hasError = true;
         errorString = QCoreApplication::translate("PluginSpec", "Plugin is not valid (does not derive from IPlugin)");
-        loader.unload();
+        if (loader)
+            loader->unload();
         return false;
     }
     state = PluginSpec::Loaded;
