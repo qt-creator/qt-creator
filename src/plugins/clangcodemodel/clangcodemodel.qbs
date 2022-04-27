@@ -54,8 +54,6 @@ QtcPlugin {
         "clangcompletioncontextanalyzer.cpp",
         "clangcompletioncontextanalyzer.h",
         "clangconstants.h",
-        "clangcurrentdocumentfilter.cpp",
-        "clangcurrentdocumentfilter.h",
         "clangdclient.cpp",
         "clangdclient.h",
         "clangdiagnosticfilter.cpp",

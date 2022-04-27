@@ -187,6 +187,7 @@ public:
                       bool resolveTarget, bool inNextSplit);
     void switchDeclDef(const CursorInEditor &data,
                        Utils::ProcessLinkCallback &&processLinkCallback);
+    static Core::ILocatorFilter *createAuxiliaryCurrentDocumentFilter();
 
     std::unique_ptr<AbstractOverviewModel> createOverviewModel() const;
 

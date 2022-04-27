@@ -45,6 +45,8 @@ public:
     explicit CppCurrentDocumentFilter(CppModelManager *manager);
     ~CppCurrentDocumentFilter() override = default;
 
+    void makeAuxiliary();
+
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
     void accept(const Core::LocatorFilterEntry &selection,

@@ -24,7 +24,6 @@ add_qtc_plugin(ClangCodeModel
     clangcompletionchunkstotextconverter.cpp clangcompletionchunkstotextconverter.h
     clangcompletioncontextanalyzer.cpp clangcompletioncontextanalyzer.h
     clangconstants.h
-    clangcurrentdocumentfilter.cpp clangcurrentdocumentfilter.h
     clangdclient.cpp clangdclient.h
     clangdiagnosticfilter.cpp clangdiagnosticfilter.h
     clangdiagnosticmanager.cpp clangdiagnosticmanager.h

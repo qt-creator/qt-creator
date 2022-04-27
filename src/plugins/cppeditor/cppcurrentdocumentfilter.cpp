@@ -60,6 +60,15 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager)
             this, &CppCurrentDocumentFilter::onEditorAboutToClose);
 }
 
+void CppCurrentDocumentFilter::makeAuxiliary()
+{
+    setId({});
+    setDisplayName({});
+    setDefaultShortcutString({});
+    setEnabled(false);
+    setHidden(true);
+}
+
 QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
         QFutureInterface<Core::LocatorFilterEntry> &future, const QString & entry)
 {

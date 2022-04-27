@@ -27,7 +27,6 @@
 
 #include "clangdclient.h"
 #include "clangmodelmanagersupport.h"
-#include "clangcurrentdocumentfilter.h"
 
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cpplocatorfilter.h>
@@ -226,19 +225,6 @@ ClangFunctionsFilter::ClangFunctionsFilter()
     setDefaultIncludedByDefault(false);
 }
 
-class CppCurrentDocumentFilter : public ClangCurrentDocumentFilter
-{
-public:
-    CppCurrentDocumentFilter()
-    {
-        setId({});
-        setDisplayName({});
-        setDefaultShortcutString({});
-        setEnabled(false);
-        setHidden(true);
-    }
-};
-
 class LspCurrentDocumentFilter : public LanguageClient::DocumentLocatorFilter
 {
 public:
@@ -278,7 +264,10 @@ private:
 class ClangdCurrentDocumentFilter::Private
 {
 public:
-    CppCurrentDocumentFilter cppFilter;
+    ~Private() { delete cppFilter; }
+
+    Core::ILocatorFilter * const cppFilter
+            = CppEditor::CppModelManager::createAuxiliaryCurrentDocumentFilter();
     LspCurrentDocumentFilter lspFilter;
     Core::ILocatorFilter *activeFilter = nullptr;
 };
@@ -306,7 +295,7 @@ void ClangdCurrentDocumentFilter::prepareSearch(const QString &entry)
             ->clientForFile(doc->filePath()); client && client->reachable()) {
         d->activeFilter = &d->lspFilter;
     } else {
-        d->activeFilter = &d->cppFilter;
+        d->activeFilter = d->cppFilter;
     }
     d->activeFilter->prepareSearch(entry);
 }
