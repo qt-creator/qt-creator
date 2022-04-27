@@ -52,7 +52,7 @@ public:
     QByteArray readAllStandardOutput() override;
     QByteArray readAllStandardError() override;
 
-    qint64 write(const QByteArray &data) override;
+    qint64 write(const QString &data) override;
 
 protected:
     void emitStarted() override;

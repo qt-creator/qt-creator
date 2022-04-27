@@ -1041,7 +1041,7 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdFutureInterface &fi)
             QByteArray userInput = getUserInput();
             if (!userInput.isEmpty()) {
                 clearUserInput();
-                licenseCommand.write(userInput);
+                licenseCommand.writeRaw(userInput);
                 ++inputCounter;
                 if (steps != -1)
                     fi.setProgressValue(qRound((inputCounter / (double)steps) * 100));

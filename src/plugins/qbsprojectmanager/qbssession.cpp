@@ -233,8 +233,8 @@ void QbsSession::initialize()
 
 void QbsSession::sendQuitPacket()
 {
-    d->qbsProcess->write(Packet::createPacket(QJsonObject{qMakePair(QString("type"),
-                                                          QJsonValue("quit"))}));
+    d->qbsProcess->writeRaw(Packet::createPacket(QJsonObject{qMakePair(QString("type"),
+                                                             QJsonValue("quit"))}));
 }
 
 QbsSession::~QbsSession()
@@ -562,7 +562,7 @@ void QbsSession::sendRequestNow(const QJsonObject &request)
 {
     QTC_ASSERT(d->state == State::Active, return);
     if (!request.isEmpty())
-        d->qbsProcess->write(Packet::createPacket(request));
+        d->qbsProcess->writeRaw(Packet::createPacket(request));
 }
 
 ErrorInfo QbsSession::getErrorInfo(const QJsonObject &packet)

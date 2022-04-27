@@ -326,7 +326,7 @@ void SshDeviceProcess::SshDeviceProcessPrivate::setState(SshDeviceProcess::SshDe
     }
 }
 
-qint64 SshDeviceProcess::write(const QByteArray &data)
+qint64 SshDeviceProcess::write(const QString &data)
 {
     QTC_ASSERT(!usesTerminal(), return -1);
     return d->remoteProcess->write(data);

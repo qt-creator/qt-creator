@@ -130,7 +130,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
         return result;
     }
     QTC_CHECK(proc.isRunning());
-    proc.write(QByteArray("yes\n")); // yes to "Do you wish to create a custom hardware profile"
+    proc.write("yes\n"); // yes to "Do you wish to create a custom hardware profile"
 
     auto start = chrono::steady_clock::now();
     QString errorOutput;
@@ -144,9 +144,9 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
             if (index != -1)
                 question = question.mid(index);
             if (question.contains("hw.gpu.enabled"))
-                proc.write(QByteArray("yes\n"));
+                proc.write("yes\n");
             else
-                proc.write(QByteArray("\n"));
+                proc.write("\n");
             question.clear();
         }
         // The exit code is always 0, so we need to check stderr

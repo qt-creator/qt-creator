@@ -785,7 +785,7 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
                     .arg(token).arg(buffer));
         QMetaObject::invokeMethod(this, [this, buffer] { handleResponse(buffer); });
     } else {
-        m_gdbProc.write(cmd.function.toUtf8() + "\r\n");
+        m_gdbProc.write(cmd.function + "\r\n");
         if (command.flags & NeedsFlush) {
             // We don't need the response or result here, just want to flush
             // anything that's still on the gdb side.

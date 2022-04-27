@@ -1207,11 +1207,27 @@ QByteArray QtcProcess::readAllStandardError()
     return buf;
 }
 
-qint64 QtcProcess::write(const QByteArray &input)
+qint64 QtcProcess::write(const QString &input)
 {
     QTC_ASSERT(processMode() == ProcessMode::Writer, return -1);
     QTC_ASSERT(d->m_process, return -1);
     QTC_ASSERT(state() == QProcess::Running, return -1);
+
+    // Non-windows is assumed to be UTF-8
+    if (commandLine().executable().osType() != OsTypeWindows)
+        return writeRaw(input.toUtf8());
+
+    if (HostOsInfo::hostOs() == OsTypeWindows)
+        return writeRaw(input.toLocal8Bit());
+
+    // "remote" Windows target on non-Windows host is unlikely,
+    // but the true encoding is not accessible. Use UTF8 as best guess.
+    QTC_CHECK(false);
+    return writeRaw(input.toUtf8());
+}
+
+qint64 QtcProcess::writeRaw(const QByteArray &input)
+{
     return d->m_process->write(input);
 }
 

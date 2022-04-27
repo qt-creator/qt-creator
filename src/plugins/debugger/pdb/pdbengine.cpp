@@ -86,7 +86,7 @@ void PdbEngine::postDirectCommand(const QString &command)
 {
     QTC_ASSERT(m_proc.isRunning(), notifyEngineIll());
     showMessage(command, LogInput);
-    m_proc.write(command.toUtf8() + '\n');
+    m_proc.write(command + '\n');
 }
 
 void PdbEngine::runCommand(const DebuggerCommand &cmd)
@@ -98,7 +98,7 @@ void PdbEngine::runCommand(const DebuggerCommand &cmd)
     QTC_ASSERT(m_proc.isRunning(), notifyEngineIll());
     QString command = "qdebug('" + cmd.function + "'," + cmd.argsToPython() + ")";
     showMessage(command, LogInput);
-    m_proc.write(command.toUtf8() + '\n');
+    m_proc.write(command + '\n');
 }
 
 void PdbEngine::shutdownInferior()

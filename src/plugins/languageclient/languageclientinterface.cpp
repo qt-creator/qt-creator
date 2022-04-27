@@ -133,7 +133,7 @@ void StdIOClientInterface::sendData(const QByteArray &data)
     }
     qCDebug(LOGLSPCLIENTV) << "StdIOClient send data:";
     qCDebug(LOGLSPCLIENTV).noquote() << data;
-    m_process.write(data);
+    m_process.writeRaw(data);
 }
 
 void StdIOClientInterface::onProcessFinished()

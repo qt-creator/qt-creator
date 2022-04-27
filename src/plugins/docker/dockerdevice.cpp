@@ -1002,7 +1002,7 @@ bool DockerDevicePrivate::runInShell(const CommandLine &cmd) const
     QTC_ASSERT(m_shell, LOG("No shell. Could not run " << cmd.toUserOutput()); return false);
     QMutexLocker l(&m_shellMutex);
     m_shell->readAllStandardOutput(); // clean possible left-overs
-    m_shell->write(cmd.toUserOutput().toUtf8() + "\necho $?\n");
+    m_shell->write(cmd.toUserOutput() + "\necho $?\n");
     QTC_ASSERT(m_shell->waitForReadyRead(), return false);
     QByteArray output = m_shell->readAllStandardOutput();
     bool ok;
@@ -1033,7 +1033,7 @@ QByteArray DockerDevicePrivate::outputForRunInShell(const CommandLine &cmd) cons
     }
 
     const QByteArray markerWithNewLine("___QC_DOCKER_" + randomHex() + "_OUTPUT_MARKER___\n");
-    m_shell->write(cmd.toUserOutput().toUtf8() + "\necho -n \"" + markerWithNewLine + "\"\n");
+    m_shell->write(cmd.toUserOutput() + "\necho -n \"" + markerWithNewLine + "\"\n");
     QByteArray output;
     while (!output.endsWith(markerWithNewLine)) {
         QTC_ASSERT(m_shell->isRunning(), return {});

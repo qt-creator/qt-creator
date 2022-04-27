@@ -153,7 +153,7 @@ void LldbEngine::runCommand(const DebuggerCommand &command)
     }
     showMessage(msg, LogInput);
     m_commandForToken[currentToken()] = cmd;
-    executeCommand("script theDumper." + function.toUtf8());
+    executeCommand("script theDumper." + function);
 }
 
 void LldbEngine::debugLastCommand()
@@ -170,7 +170,7 @@ void LldbEngine::handleAttachedToCore()
     updateLocals();
 }
 
-void LldbEngine::executeCommand(const QByteArray &command)
+void LldbEngine::executeCommand(const QString &command)
 {
     // For some reason, sometimes LLDB misses the first character of the next command on Windows
     // if passing only 1 LF.
@@ -242,14 +242,13 @@ void LldbEngine::setupEngine()
 
     const DebuggerRunParameters &rp = runParameters();
 
-    executeCommand("script sys.path.insert(1, '" + rp.dumperPath.path().toLocal8Bit() + "')");
+    executeCommand("script sys.path.insert(1, '" + rp.dumperPath.path() + "')");
     // This triggers reportState("enginesetupok") or "enginesetupfailed":
     executeCommand("script from lldbbridge import *");
 
     QString commands = nativeStartupCommands();
     if (!commands.isEmpty())
-        executeCommand(commands.toLocal8Bit());
-
+        executeCommand(commands);
 
     const QString path = debuggerSettings()->extraDumperFile.value();
     if (!path.isEmpty() && QFileInfo(path).isReadable()) {

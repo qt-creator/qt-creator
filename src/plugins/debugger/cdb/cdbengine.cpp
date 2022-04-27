@@ -1060,7 +1060,7 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
         qDebug("CdbEngine::postCommand: resulting command '%s'\n", qPrintable(fullCmd));
     }
     showMessage(cmd, LogInput);
-    m_process.write(fullCmd.toLocal8Bit());
+    m_process.write(fullCmd);
 }
 
 void CdbEngine::activateFrame(int index)

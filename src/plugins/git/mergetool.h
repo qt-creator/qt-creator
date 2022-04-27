@@ -71,7 +71,7 @@ private:
     void readData();
     void readLine(const QString &line);
     void done();
-    void write(const QByteArray &bytes);
+    void write(const QString &str);
 
     FileState parseStatus(const QString &line, QString &extraInfo);
     QString mergeTypeName();

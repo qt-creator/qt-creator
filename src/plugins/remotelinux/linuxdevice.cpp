@@ -872,10 +872,11 @@ public:
         QTC_CHECK(m_shell->readAllStandardOutput().isNull()); // clean possible left-overs
         QTC_CHECK(m_shell->readAllStandardError().isNull()); // clean possible left-overs
 
-        const QByteArray prefix = !data.isEmpty()
-                ? QByteArray("echo '" + data.toBase64() + "' | base64 -d | ") : QByteArray("");
-        const QByteArray suffix = QByteArray(" > /dev/null 2>&1\necho $?\n");
-        const QByteArray command = prefix + cmd.toUserOutput().toUtf8() + suffix;
+        QString prefix;
+        if (!data.isEmpty())
+            prefix =  "echo '" + QString::fromUtf8(data.toBase64()) + "' | base64 -d | ";
+        const QString suffix = " > /dev/null 2>&1\necho $?\n";
+        const QString command = prefix + cmd.toUserOutput() + suffix;
 
         m_shell->write(command);
         DEBUG("RUN1 " << cmd.toUserOutput());
@@ -896,8 +897,8 @@ public:
         QTC_CHECK(m_shell->readAllStandardError().isNull()); // clean possible left-overs
         auto cleanup = qScopeGuard([this] { m_shell->readAllStandardOutput(); }); // clean on assert
 
-        const QByteArray suffix = QByteArray(" 2> /dev/null \necho $? 1>&2\n");
-        const QByteArray command = cmd.toUtf8() + suffix;
+        const QString suffix = " 2> /dev/null \necho $? 1>&2\n";
+        const QString command = cmd + suffix;
 
         m_shell->write(command);
         DEBUG("RUN2 " << cmd.toUserOutput());

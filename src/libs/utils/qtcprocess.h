@@ -69,7 +69,9 @@ public:
 
     virtual QByteArray readAllStandardOutput();
     virtual QByteArray readAllStandardError();
-    virtual qint64 write(const QByteArray &input);
+
+    virtual qint64 write(const QString &input);
+    qint64 writeRaw(const QByteArray &input);
 
     virtual qint64 processId() const;
     qint64 applicationMainThreadId() const;
