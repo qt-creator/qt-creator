@@ -84,12 +84,11 @@ private:
 
 TextMarkRegistry *m_instance = nullptr;
 
-TextMark::TextMark(const FilePath &fileName, int lineNumber, Id category, double widthFactor)
+TextMark::TextMark(const FilePath &fileName, int lineNumber, Id category)
     : m_fileName(fileName)
     , m_lineNumber(lineNumber)
     , m_visible(true)
     , m_category(category)
-    , m_widthFactor(widthFactor)
 {
     if (!m_fileName.isEmpty())
         TextMarkRegistry::add(this);
@@ -200,7 +199,7 @@ TextMark::AnnotationRects TextMark::annotationRects(const QRectF &boundingRect,
     rects.iconRect = QRectF(rects.annotationRect.left(), boundingRect.top(),
                             0, boundingRect.height());
     if (drawIcon)
-        rects.iconRect.setWidth(rects.iconRect.height() * m_widthFactor);
+        rects.iconRect.setWidth(rects.iconRect.height());
     rects.textRect = QRectF(rects.iconRect.right() + margin, boundingRect.top(),
                             qreal(fm.horizontalAdvance(rects.text)), boundingRect.height());
     rects.annotationRect.setRight(rects.textRect.right() + margin);
@@ -261,16 +260,6 @@ void TextMark::setVisible(bool visible)
 {
     m_visible = visible;
     updateMarker();
-}
-
-double TextMark::widthFactor() const
-{
-    return m_widthFactor;
-}
-
-void TextMark::setWidthFactor(double factor)
-{
-    m_widthFactor = factor;
 }
 
 bool TextMark::isClickable() const

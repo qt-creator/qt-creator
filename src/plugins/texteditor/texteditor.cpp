@@ -4793,7 +4793,7 @@ int TextEditorWidget::extraAreaWidth(int *markWidthPtr) const
     int markWidth = 0;
 
     if (d->m_marksVisible) {
-        markWidth += documentLayout->maxMarkWidthFactor * fm.lineSpacing() + 2;
+        markWidth += fm.lineSpacing() + 2;
 
 //     if (documentLayout->doubleMarkCount)
 //         markWidth += fm.lineSpacing() / 3;
@@ -4919,8 +4919,7 @@ void TextEditorWidgetPrivate::paintTextMarks(QPainter &painter, const ExtraAreaP
         if (!mark->isVisible() && !mark->icon().isNull())
             continue;
         const int height = data.lineSpacing - 1;
-        const int width = int(.5 + height * mark->widthFactor());
-        const QRect r(xoffset, int(blockBoundingRect.top()), width, height);
+        const QRect r(xoffset, int(blockBoundingRect.top()), height, height);
         mark->paintIcon(&painter, r);
         xoffset += 2;
     }
@@ -5698,8 +5697,7 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
             if (dist > QApplication::startDragDistance()) {
                 d->m_markDragging = true;
                 const int height = fontMetrics().lineSpacing() - 1;
-                const int width = int(.5 + height * d->m_dragMark->widthFactor());
-                d->m_markDragCursor = QCursor(d->m_dragMark->icon().pixmap({height, width}));
+                d->m_markDragCursor = QCursor(d->m_dragMark->icon().pixmap({height, height}));
                 d->m_dragMark->setVisible(false);
                 QGuiApplication::setOverrideCursor(d->m_markDragCursor);
             }

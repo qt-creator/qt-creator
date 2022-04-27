@@ -225,7 +225,6 @@ public:
 
     int lastSaveRevision = 0;
     bool hasMarks = false;
-    double maxMarkWidthFactor = 1.0;
     int m_requiredWidth = 0;
 
     void setRequiredWidth(int width);

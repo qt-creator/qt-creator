@@ -996,10 +996,8 @@ bool TextDocument::addMark(TextMark *mark)
         if (!mark->isVisible())
             return true;
         // Update document layout
-        double newMaxWidthFactor = qMax(mark->widthFactor(), documentLayout->maxMarkWidthFactor);
-        bool fullUpdate =  newMaxWidthFactor > documentLayout->maxMarkWidthFactor || !documentLayout->hasMarks;
+        bool fullUpdate = !documentLayout->hasMarks;
         documentLayout->hasMarks = true;
-        documentLayout->maxMarkWidthFactor = newMaxWidthFactor;
         if (fullUpdate)
             documentLayout->requestUpdate();
         else
@@ -1037,7 +1035,6 @@ void TextDocument::removeMarkFromMarksCache(TextMark *mark)
 
     if (d->m_marksCache.isEmpty()) {
         documentLayout->hasMarks = false;
-        documentLayout->maxMarkWidthFactor = 1.0;
         scheduleLayoutUpdate();
         return;
     }
@@ -1045,28 +1042,7 @@ void TextDocument::removeMarkFromMarksCache(TextMark *mark)
     if (!mark->isVisible())
         return;
 
-    if (documentLayout->maxMarkWidthFactor == 1.0
-            || mark->widthFactor() == 1.0
-            || mark->widthFactor() < documentLayout->maxMarkWidthFactor) {
-        // No change in width possible
-        documentLayout->requestExtraAreaUpdate();
-    } else {
-        double maxWidthFactor = 1.0;
-        for (const TextMark *mark : qAsConst(d->m_marksCache)) {
-            if (!mark->isVisible())
-                continue;
-            maxWidthFactor = qMax(mark->widthFactor(), maxWidthFactor);
-            if (maxWidthFactor == documentLayout->maxMarkWidthFactor)
-                break; // Still a mark with the maxMarkWidthFactor
-        }
-
-        if (maxWidthFactor != documentLayout->maxMarkWidthFactor) {
-            documentLayout->maxMarkWidthFactor = maxWidthFactor;
-            scheduleLayoutUpdate();
-        } else {
-            documentLayout->requestExtraAreaUpdate();
-        }
-    }
+    documentLayout->requestExtraAreaUpdate();
 }
 
 void TextDocument::removeMark(TextMark *mark)

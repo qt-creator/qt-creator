@@ -55,8 +55,7 @@ class TEXTEDITOR_EXPORT TextMark
 public:
     TextMark(const Utils::FilePath &fileName,
              int lineNumber,
-             Utils::Id category,
-             double widthFactor = 1.0);
+             Utils::Id category);
     TextMark() = delete;
     virtual ~TextMark();
 
@@ -112,8 +111,6 @@ public:
     bool isVisible() const;
     void setVisible(bool isVisible);
     Utils::Id category() const { return m_category; }
-    double widthFactor() const;
-    void setWidthFactor(double factor);
 
     Utils::optional<Utils::Theme::Color> color() const;
     void setColor(const Utils::Theme::Color &color);
@@ -149,7 +146,6 @@ private:
     Utils::optional<Utils::Theme::Color> m_color;
     bool m_visible = false;
     Utils::Id m_category;
-    double m_widthFactor = 1.0;
     QString m_lineAnnotation;
     QString m_toolTip;
     std::function<QString()> m_toolTipProvider;
