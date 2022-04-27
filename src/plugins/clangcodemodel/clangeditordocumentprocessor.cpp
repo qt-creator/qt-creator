@@ -153,7 +153,7 @@ CppEditor::SemanticInfo ClangEditorDocumentProcessor::recalculateSemanticInfo()
 
 CppEditor::BaseEditorDocumentParser::Ptr ClangEditorDocumentProcessor::parser()
 {
-    return m_parser;
+    return m_builtinProcessor.parser();
 }
 
 CPlusPlus::Snapshot ClangEditorDocumentProcessor::snapshot()

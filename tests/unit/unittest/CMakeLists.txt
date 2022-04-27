@@ -174,14 +174,12 @@ extend_qtc_test(unittest
   DEFINES CLANG_UNIT_TESTS
   DEPENDS libclang
   SOURCES
-    activationsequencecontextprocessor-test.cpp
     activationsequenceprocessor-test.cpp
     chunksreportedmonitor.cpp
     clangasyncjob-base.cpp
     clangcodecompleteresults-test.cpp
     clangcodemodelserver-test.cpp
     clangcompletecodejob-test.cpp
-    clangcompletioncontextanalyzer-test.cpp
     clangdocumentprocessors-test.cpp
     clangdocumentprocessor-test.cpp
     clangdocuments-test.cpp
@@ -205,7 +203,6 @@ extend_qtc_test(unittest
     clangupdateannotationsjob-test.cpp
     codecompleter-test.cpp
     codecompletionsextractor-test.cpp
-    completionchunkstotextconverter-test.cpp
     cursor-test.cpp
     diagnosticset-test.cpp
     diagnostic-test.cpp
@@ -415,10 +412,7 @@ extend_qtc_test(unittest DEPENDS Utils CPlusPlus ClangSupport)
 extend_qtc_test(unittest
   SOURCES_PREFIX ../../../src/plugins/clangcodemodel
   SOURCES
-    clangactivationsequencecontextprocessor.cpp clangactivationsequencecontextprocessor.h
     clangactivationsequenceprocessor.cpp clangactivationsequenceprocessor.h
-    clangcompletionchunkstotextconverter.cpp clangcompletionchunkstotextconverter.h
-    clangcompletioncontextanalyzer.cpp clangcompletioncontextanalyzer.h
     clangfixitoperation.cpp clangfixitoperation.h
     clanguiheaderondiskmanager.cpp clanguiheaderondiskmanager.h
 )

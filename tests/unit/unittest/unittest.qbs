@@ -193,7 +193,6 @@ Project {
             name: "libclang tests"
             condition: libclang.present && (!qbs.targetOS.contains("windows") || libclang.llvmBuildModeMatches)
             files: [
-                "activationsequencecontextprocessor-test.cpp",
                 "activationsequenceprocessor-test.cpp",
                 "chunksreportedmonitor.cpp",
                 "chunksreportedmonitor.h",
@@ -203,7 +202,6 @@ Project {
                 "clangcodemodelserver-test.cpp",
                 "clangcompareoperators.h",
                 "clangcompletecodejob-test.cpp",
-                "clangcompletioncontextanalyzer-test.cpp",
                 "clangdocument-test.cpp",
                 "clangdocumentprocessor-test.cpp",
                 "clangdocumentprocessors-test.cpp",
@@ -225,7 +223,6 @@ Project {
                 "clangupdateannotationsjob-test.cpp",
                 "codecompleter-test.cpp",
                 "codecompletionsextractor-test.cpp",
-                "completionchunkstotextconverter-test.cpp",
                 "cursor-test.cpp",
                 "diagnostic-test.cpp",
                 "diagnosticcontainer-matcher.h",
@@ -392,14 +389,8 @@ Project {
             name: "sources from clangcodemodel"
             prefix: "../../../src/plugins/clangcodemodel/"
             files: [
-                "clangactivationsequencecontextprocessor.cpp",
-                "clangactivationsequencecontextprocessor.h",
                 "clangactivationsequenceprocessor.cpp",
                 "clangactivationsequenceprocessor.h",
-                "clangcompletionchunkstotextconverter.cpp",
-                "clangcompletionchunkstotextconverter.h",
-                "clangcompletioncontextanalyzer.cpp",
-                "clangcompletioncontextanalyzer.h",
                 "clangfixitoperation.cpp",
                 "clangfixitoperation.h",
                 "clanguiheaderondiskmanager.cpp",

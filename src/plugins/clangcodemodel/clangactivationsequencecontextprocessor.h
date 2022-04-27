@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include <clangcodemodel/clangcompletionassistinterface.h>
-
 #include <cplusplus/Token.h>
 
 #include <QTextCursor>
@@ -43,7 +41,6 @@ class ActivationSequenceContextProcessor
 public:
     ActivationSequenceContextProcessor(QTextDocument *document, int position,
                                        CPlusPlus::LanguageFeatures languageFeatures);
-    ActivationSequenceContextProcessor(const ClangCompletionAssistInterface *interface);
 
     CPlusPlus::Kind completionKind() const;
     int startOfNamePosition() const;   // e.g. points to 'b' in "foo.bar<CURSOR>"

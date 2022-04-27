@@ -27,7 +27,6 @@
 
 #include "clangbackendlogging.h"
 
-#include "clangcompletionassistprocessor.h"
 #include "clangeditordocumentprocessor.h"
 
 #include <clangsupport/clangcodemodelclientmessages.h>
@@ -71,55 +70,8 @@ void BackendReceiver::setAliveHandler(const BackendReceiver::AliveHandler &handl
     m_aliveHandler = handler;
 }
 
-void BackendReceiver::addExpectedCompletionsMessage(
-        quint64 ticket,
-        ClangCompletionAssistProcessor *processor)
-{
-    QTC_ASSERT(processor, return);
-    QTC_CHECK(!m_assistProcessorsTable.contains(ticket));
-    m_assistProcessorsTable.insert(ticket, processor);
-}
-
-void BackendReceiver::cancelProcessor(TextEditor::IAssistProcessor *processor)
-{
-    for (auto it = m_assistProcessorsTable.cbegin(), end = m_assistProcessorsTable.cend();
-            it != end; ++it)
-    {
-        if (it.value() == processor) {
-            m_assistProcessorsTable.erase(it);
-            return;
-        }
-    }
-}
-
-void BackendReceiver::deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidget *textEditorWidget)
-{
-    QList<quint64> toRemove;
-    for (auto it = m_assistProcessorsTable.cbegin(), end = m_assistProcessorsTable.cend();
-            it != end; ++it)
-    {
-        ClangCompletionAssistProcessor *assistProcessor = it.value();
-        if (assistProcessor->textEditorWidget() == textEditorWidget) {
-            delete assistProcessor;
-            toRemove.append(it.key());
-        }
-    }
-    for (quint64 item : toRemove)
-        m_assistProcessorsTable.remove(item);
-}
-
-bool BackendReceiver::isExpectingCompletionsMessage() const
-{
-    return !m_assistProcessorsTable.isEmpty();
-}
-
 void BackendReceiver::reset()
 {
-    // Clean up waiting assist processors
-    for (ClangCompletionAssistProcessor *processor : m_assistProcessorsTable)
-        processor->setAsyncProposalAvailable(nullptr);
-    m_assistProcessorsTable.clear();
-
     // Clean up futures for references; TODO: Remove duplication
     for (ReferencesEntry &entry : m_referencesTable) {
         entry.futureInterface.cancel();
@@ -155,10 +107,6 @@ void BackendReceiver::completions(const ClangBackEnd::CompletionsMessage &messag
 {
     qCDebugIpc() << "CompletionsMessage with" << message.codeCompletions.size()
                  << "items";
-
-    const quint64 ticket = message.ticketNumber;
-    if (ClangCompletionAssistProcessor *processor = m_assistProcessorsTable.take(ticket))
-        processor->handleAvailableCompletions(message.codeCompletions);
 }
 
 void BackendReceiver::annotations(const ClangBackEnd::AnnotationsMessage &message)

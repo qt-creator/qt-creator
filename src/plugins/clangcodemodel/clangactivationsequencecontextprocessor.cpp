@@ -52,13 +52,6 @@ ActivationSequenceContextProcessor::ActivationSequenceContextProcessor(
     process();
 }
 
-ActivationSequenceContextProcessor::ActivationSequenceContextProcessor(
-        const ClangCompletionAssistInterface *interface)
-    : ActivationSequenceContextProcessor(interface->textDocument(), interface->position(),
-                                         interface->languageFeatures())
-{
-}
-
 CPlusPlus::Kind ActivationSequenceContextProcessor::completionKind() const
 {
     return m_completionKind;

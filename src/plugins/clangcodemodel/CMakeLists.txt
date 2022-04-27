@@ -11,17 +11,11 @@ add_qtc_plugin(ClangCodeModel
   SOURCES
     clangactivationsequencecontextprocessor.cpp clangactivationsequencecontextprocessor.h
     clangactivationsequenceprocessor.cpp clangactivationsequenceprocessor.h
-    clangassistproposalitem.cpp clangassistproposalitem.h
-    clangassistproposalmodel.cpp clangassistproposalmodel.h
     clangbackendcommunicator.cpp clangbackendcommunicator.h
     clangbackendlogging.cpp clangbackendlogging.h
     clangbackendreceiver.cpp clangbackendreceiver.h
     clangbackendsender.cpp clangbackendsender.h
     clangcodemodelplugin.cpp clangcodemodelplugin.h
-    clangcompletionassistinterface.cpp clangcompletionassistinterface.h
-    clangcompletionassistprocessor.cpp clangcompletionassistprocessor.h
-    clangcompletionassistprovider.cpp clangcompletionassistprovider.h
-    clangcompletionchunkstotextconverter.cpp clangcompletionchunkstotextconverter.h
     clangcompletioncontextanalyzer.cpp clangcompletioncontextanalyzer.h
     clangconstants.h
     clangdclient.cpp clangdclient.h
@@ -32,7 +26,6 @@ add_qtc_plugin(ClangCodeModel
     clangeditordocumentprocessor.cpp clangeditordocumentprocessor.h
     clangfixitoperation.cpp clangfixitoperation.h
     clangfixitoperationsextractor.cpp clangfixitoperationsextractor.h
-    clangfunctionhintmodel.cpp clangfunctionhintmodel.h
     clangdlocatorfilters.cpp clangdlocatorfilters.h
     clangmodelmanagersupport.cpp clangmodelmanagersupport.h
     clangpreprocessorassistproposalitem.cpp clangpreprocessorassistproposalitem.h
@@ -57,9 +50,7 @@ extend_qtc_plugin(ClangCodeModel
 extend_qtc_plugin(ClangCodeModel
   CONDITION WITH_TESTS
   SOURCES
-    test/clangautomationutils.cpp test/clangautomationutils.h
     test/clangbatchfileprocessor.cpp test/clangbatchfileprocessor.h
-    test/clangcodecompletion_test.cpp test/clangcodecompletion_test.h
     test/clangdtests.cpp test/clangdtests.h
     test/data/clangtestdata.qrc
 )

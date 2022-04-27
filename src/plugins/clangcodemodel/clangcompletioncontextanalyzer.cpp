@@ -39,6 +39,7 @@
 #include <QDebug>
 #include <QTextBlock>
 #include <QTextCursor>
+#include <QTextDocument>
 
 using namespace CPlusPlus;
 
@@ -64,15 +65,6 @@ bool isTokenForPassThrough(unsigned tokenKind)
 
 namespace ClangCodeModel {
 namespace Internal {
-
-ClangCompletionContextAnalyzer::ClangCompletionContextAnalyzer(
-        const ClangCompletionAssistInterface *assistInterface,
-        CPlusPlus::LanguageFeatures languageFeatures)
-    : ClangCompletionContextAnalyzer(assistInterface->textDocument(), assistInterface->position(),
-                                     assistInterface->type() == CompletionType::FunctionHint,
-                                     languageFeatures)
-{
-}
 
 ClangCompletionContextAnalyzer::ClangCompletionContextAnalyzer(
         QTextDocument *document, int position, bool isFunctionHint,

@@ -25,8 +25,6 @@
 
 #include "clangbatchfileprocessor.h"
 
-#include "clangautomationutils.h"
-
 #include <clangcodemodel/clangeditordocumentprocessor.h>
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -442,45 +440,6 @@ Command::Ptr InsertTextCommand::parse(BatchFileLineTokenizer &arguments,
     return Command::Ptr(new InsertTextCommand(context, textToInsert));
 }
 
-class CompleteCommand : public Command
-{
-public:
-    CompleteCommand(const CommandContext &context);
-
-    bool run() override;
-
-    static Command::Ptr parse(BatchFileLineTokenizer &arguments,
-                              const CommandContext &context);
-};
-
-CompleteCommand::CompleteCommand(const CommandContext &context)
-    : Command(context)
-{
-}
-
-bool CompleteCommand::run()
-{
-    qCDebug(debug) << "line" << context().lineNumber << "CompleteCommand";
-
-    TextEditor::BaseTextEditor *editor = currentTextEditor();
-    QTC_ASSERT(editor, return false);
-
-    const QString documentFilePath = editor->document()->filePath().toString();
-    auto *processor = ClangEditorDocumentProcessor::get(documentFilePath);
-    QTC_ASSERT(processor, return false);
-
-    return !completionResults(editor, QStringList(), timeOutInMs()).isNull();
-}
-
-Command::Ptr CompleteCommand::parse(BatchFileLineTokenizer &arguments,
-                                    const CommandContext &context)
-{
-    Q_UNUSED(arguments)
-    Q_UNUSED(context)
-
-    return Command::Ptr(new CompleteCommand(context));
-}
-
 class SetCursorCommand : public Command
 {
 public:
@@ -687,7 +646,6 @@ BatchFileParser::BatchFileParser(const QString &filePath,
     m_commandParsers.insert("closeAllDocuments", &CloseAllDocuments::parse);
     m_commandParsers.insert("setCursor", &SetCursorCommand::parse);
     m_commandParsers.insert("insertText", &InsertTextCommand::parse);
-    m_commandParsers.insert("complete", &CompleteCommand::parse);
     m_commandParsers.insert("processEvents", &ProcessEventsCommand::parse);
 }
 

@@ -25,7 +25,6 @@
 
 #include "clangdtests.h"
 
-#include "clangautomationutils.h"
 #include "clangbatchfileprocessor.h"
 #include "../clangdclient.h"
 #include "../clangmodelmanagersupport.h"
@@ -82,6 +81,11 @@ Q_DECLARE_METATYPE(IAssistProposal *)
 namespace ClangCodeModel {
 namespace Internal {
 namespace Tests {
+
+static QString qrcPath(const QByteArray &relativeFilePath)
+{
+    return QLatin1String(":/unittests/ClangCodeModel/") + QString::fromUtf8(relativeFilePath);
+}
 
 ClangdTest::~ClangdTest()
 {

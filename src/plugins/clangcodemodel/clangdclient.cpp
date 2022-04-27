@@ -25,7 +25,6 @@
 
 #include "clangdclient.h"
 
-#include "clangcompletionassistprocessor.h"
 #include "clangcompletioncontextanalyzer.h"
 #include "clangconstants.h"
 #include "clangdqpropertyhighlighter.h"
@@ -903,8 +902,7 @@ private:
                     = projectPartForFile(interface->filePath().toString());
             if (projectPart)
                 headerPaths = projectPart->headerPaths;
-            completions = ClangCompletionAssistProcessor::completeInclude(
-                        m_endPos, m_completionOperator, interface, headerPaths);
+            completions = completeInclude(m_endPos, m_completionOperator, interface, headerPaths);
             break;
         }
         }
@@ -925,6 +923,107 @@ private:
         item->setIcon(icon);
         item->setCompletionOperator(m_completionOperator);
         return item;
+    }
+
+    /**
+     * @brief Creates completion proposals for #include and given cursor
+     * @param position - cursor placed after opening bracked or quote
+     * @param completionOperator - the type of token
+     * @param interface - relevant document data
+     * @param headerPaths - the include paths
+     * @return the list of completion items
+     */
+    static QList<AssistProposalItemInterface *> completeInclude(
+            int position, unsigned completionOperator, const TextEditor::AssistInterface *interface,
+            const ProjectExplorer::HeaderPaths &headerPaths)
+    {
+        QTextCursor cursor(interface->textDocument());
+        cursor.setPosition(position);
+        QString directoryPrefix;
+        if (completionOperator == T_SLASH) {
+            QTextCursor c = cursor;
+            c.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
+            QString sel = c.selectedText();
+            int startCharPos = sel.indexOf(QLatin1Char('"'));
+            if (startCharPos == -1) {
+                startCharPos = sel.indexOf(QLatin1Char('<'));
+                completionOperator = T_ANGLE_STRING_LITERAL;
+            } else {
+                completionOperator = T_STRING_LITERAL;
+            }
+            if (startCharPos != -1)
+                directoryPrefix = sel.mid(startCharPos + 1, sel.length() - 1);
+        }
+
+        // Make completion for all relevant includes
+        ProjectExplorer::HeaderPaths allHeaderPaths = headerPaths;
+        const auto currentFilePath = ProjectExplorer::HeaderPath::makeUser(
+                    interface->filePath().toFileInfo().path());
+        if (!allHeaderPaths.contains(currentFilePath))
+            allHeaderPaths.append(currentFilePath);
+
+        const ::Utils::MimeType mimeType = ::Utils::mimeTypeForName("text/x-c++hdr");
+        const QStringList suffixes = mimeType.suffixes();
+
+        QList<AssistProposalItemInterface *> completions;
+        foreach (const ProjectExplorer::HeaderPath &headerPath, allHeaderPaths) {
+            QString realPath = headerPath.path;
+            if (!directoryPrefix.isEmpty()) {
+                realPath += QLatin1Char('/');
+                realPath += directoryPrefix;
+                if (headerPath.type == ProjectExplorer::HeaderPathType::Framework)
+                    realPath += QLatin1String(".framework/Headers");
+            }
+            completions << completeIncludePath(realPath, suffixes, completionOperator);
+        }
+
+        QList<QPair<AssistProposalItemInterface *, QString>> completionsForSorting;
+        for (AssistProposalItemInterface * const item : qAsConst(completions)) {
+            QString s = item->text();
+            s.replace('/', QChar(0)); // The dir separator should compare less than anything else.
+            completionsForSorting << qMakePair(item, s);
+        }
+        Utils::sort(completionsForSorting, [](const auto &left, const auto &right) {
+            return left.second < right.second;
+        });
+        for (int i = 0; i < completionsForSorting.count(); ++i)
+            completions[i] = completionsForSorting[i].first;
+
+        return completions;
+    }
+
+    /**
+     * @brief Finds #include completion proposals using given include path
+     * @param realPath - one of directories where compiler searches includes
+     * @param suffixes - file suffixes for C/C++ header files
+     * @return a list of matching completion items
+     */
+    static QList<AssistProposalItemInterface *> completeIncludePath(
+            const QString &realPath, const QStringList &suffixes, unsigned completionOperator)
+    {
+        QList<AssistProposalItemInterface *> completions;
+        QDirIterator i(realPath, QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+        //: Parent folder for proposed #include completion
+        const QString hint = ClangdClient::tr("Location: %1")
+                .arg(QDir::toNativeSeparators(QDir::cleanPath(realPath)));
+        while (i.hasNext()) {
+            const QString fileName = i.next();
+            const QFileInfo fileInfo = i.fileInfo();
+            const QString suffix = fileInfo.suffix();
+            if (suffix.isEmpty() || suffixes.contains(suffix)) {
+                QString text = fileName.mid(realPath.length() + 1);
+                if (fileInfo.isDir())
+                    text += QLatin1Char('/');
+
+                auto *item = new ClangPreprocessorAssistProposalItem;
+                item->setText(text);
+                item->setDetail(hint);
+                item->setIcon(CPlusPlus::Icons::keywordIcon());
+                item->setCompletionOperator(completionOperator);
+                completions.append(item);
+            }
+        }
+        return completions;
     }
 
     ClangdClient * const m_client;

@@ -31,7 +31,6 @@
 
 #ifdef WITH_TESTS
 #  include "test/clangbatchfileprocessor.h"
-#  include "test/clangcodecompletion_test.h"
 #  include "test/clangdtests.h"
 #endif
 
@@ -209,7 +208,6 @@ void ClangCodeModelPlugin::maybeHandleBatchFileAndExit() const
 QVector<QObject *> ClangCodeModelPlugin::createTestObjects() const
 {
     return {
-        new Tests::ClangCodeCompletionTest,
         new Tests::ClangdTestCompletion,
         new Tests::ClangdTestExternalChanges,
         new Tests::ClangdTestFindReferences,

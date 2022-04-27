@@ -38,14 +38,9 @@ namespace TextEditor { class AssistInterface; }
 namespace ClangCodeModel {
 namespace Internal {
 
-class ClangCompletionAssistInterface;
-
 class ClangCompletionContextAnalyzer
 {
 public:
-    ClangCompletionContextAnalyzer() = delete;
-    ClangCompletionContextAnalyzer(const ClangCompletionAssistInterface *assistInterface,
-                                   CPlusPlus::LanguageFeatures languageFeatures);
     ClangCompletionContextAnalyzer(QTextDocument *document, int position, bool isFunctionHint,
                                    CPlusPlus::LanguageFeatures languageFeatures);
     void analyze();

@@ -43,8 +43,6 @@ class TextEditorWidget;
 namespace ClangCodeModel {
 namespace Internal {
 
-class ClangCompletionAssistProcessor;
-
 class BackendReceiver : public ClangBackEnd::ClangCodeModelClientInterface
 {
 public:
@@ -53,12 +51,6 @@ public:
 
     using AliveHandler = std::function<void ()>;
     void setAliveHandler(const AliveHandler &handler);
-
-    void addExpectedCompletionsMessage(quint64 ticket, ClangCompletionAssistProcessor *processor);
-    void cancelProcessor(TextEditor::IAssistProcessor *processor);
-    void deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidget *textEditorWidget);
-
-    bool isExpectingCompletionsMessage() const;
 
     void reset();
 
@@ -74,7 +66,6 @@ private:
 
 private:
     AliveHandler m_aliveHandler;
-    QHash<quint64, ClangCompletionAssistProcessor *> m_assistProcessorsTable;
 
     struct ReferencesEntry {
         ReferencesEntry() = default;

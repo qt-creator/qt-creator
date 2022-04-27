@@ -48,8 +48,6 @@ namespace TextEditor { class IAssistProcessor; }
 namespace ClangCodeModel {
 namespace Internal {
 
-class ClangCompletionAssistProcessor;
-
 class BackendCommunicator : public QObject
 {
     Q_OBJECT
@@ -84,16 +82,7 @@ public:
     void unsavedFilesUpdatedFromCppEditorDocument(const QString &filePath);
     void unsavedFilesRemoved(const FileContainers &fileContainers);
 
-    void requestCompletions(ClangCompletionAssistProcessor *assistProcessor,
-                            const QString &filePath,
-                            quint32 line,
-                            quint32 column,
-                            qint32 funcNameStartLine = -1,
-                            qint32 funcNameStartColumn = -1);
-    void cancelCompletions(TextEditor::IAssistProcessor *processor);
-
     void updateChangeContentStartPosition(const QString &filePath, int position);
-    bool isNotWaitingForCompletion() const;
 
     void setBackendJobsPostponed(bool postponed);
 
@@ -107,7 +96,6 @@ private:
     void setupDummySender();
 
     void onConnectedToBackend();
-    void onEditorAboutToClose(Core::IEditor *editor);
 
     void logExecutableDoesNotExist();
     void logRestartedDueToUnexpectedFinish();

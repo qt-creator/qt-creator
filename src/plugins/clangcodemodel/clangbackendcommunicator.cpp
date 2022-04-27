@@ -26,7 +26,6 @@
 #include "clangbackendcommunicator.h"
 
 #include "clangbackendlogging.h"
-#include "clangcompletionassistprocessor.h"
 #include "clangmodelmanagersupport.h"
 #include "clangutils.h"
 
@@ -99,8 +98,6 @@ BackendCommunicator::BackendCommunicator()
 
     m_receiver.setAliveHandler([this]() { m_connection.resetProcessAliveTimer(); });
 
-    connect(Core::EditorManager::instance(), &Core::EditorManager::editorAboutToClose,
-            this, &BackendCommunicator::onEditorAboutToClose);
     connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose,
             this, &BackendCommunicator::setupDummySender);
     auto globalFCB = GlobalFileChangeBlocker::instance();
@@ -190,11 +187,6 @@ void BackendCommunicator::documentVisibilityChanged()
 {
     documentVisibilityChanged(currentCppEditorDocumentFilePath(),
                               visibleCppEditorDocumentsFilePaths());
-}
-
-bool BackendCommunicator::isNotWaitingForCompletion() const
-{
-    return !m_receiver.isExpectingCompletionsMessage();
 }
 
 void BackendCommunicator::setBackendJobsPostponed(bool postponed)
@@ -349,12 +341,6 @@ void BackendCommunicator::onConnectedToBackend()
     initializeBackendWithCurrentData();
 }
 
-void BackendCommunicator::onEditorAboutToClose(Core::IEditor *editor)
-{
-    if (auto *textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor))
-        m_receiver.deleteProcessorsOfEditorWidget(textEditor->editorWidget());
-}
-
 void BackendCommunicator::setupDummySender()
 {
     m_sender.reset(new DummyBackendSender);
@@ -441,27 +427,6 @@ void BackendCommunicator::unsavedFilesRemoved(const FileContainers &fileContaine
 {
     const UnsavedFilesRemovedMessage message(fileContainers);
     m_sender->unsavedFilesRemoved(message);
-}
-
-void BackendCommunicator::requestCompletions(ClangCompletionAssistProcessor *assistProcessor,
-                                             const QString &filePath,
-                                             quint32 line,
-                                             quint32 column,
-                                             qint32 funcNameStartLine,
-                                             qint32 funcNameStartColumn)
-{
-    const RequestCompletionsMessage message(filePath,
-                                            line,
-                                            column,
-                                            funcNameStartLine,
-                                            funcNameStartColumn);
-    m_sender->requestCompletions(message);
-    m_receiver.addExpectedCompletionsMessage(message.ticketNumber, assistProcessor);
-}
-
-void BackendCommunicator::cancelCompletions(TextEditor::IAssistProcessor *processor)
-{
-    m_receiver.cancelProcessor(processor);
 }
 
 } // namespace Internal

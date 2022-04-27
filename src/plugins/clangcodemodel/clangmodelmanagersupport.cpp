@@ -104,10 +104,7 @@ static const QList<TextEditor::TextDocument *> allCppDocuments()
     return Utils::qobject_container_cast<TextEditor::TextDocument *>(documents);
 }
 
-ClangModelManagerSupport::ClangModelManagerSupport()
-    : m_completionAssistProvider(m_communicator, CompletionType::Other)
-    , m_functionHintAssistProvider(m_communicator, CompletionType::FunctionHint)
-    , m_refactoringEngine(new RefactoringEngine)
+ClangModelManagerSupport::ClangModelManagerSupport() : m_refactoringEngine(new RefactoringEngine)
 {
     QTC_CHECK(!m_instance);
     m_instance = this;
@@ -175,12 +172,12 @@ ClangModelManagerSupport::~ClangModelManagerSupport()
 
 CppEditor::CppCompletionAssistProvider *ClangModelManagerSupport::completionAssistProvider()
 {
-    return &m_completionAssistProvider;
+    return nullptr;
 }
 
 CppEditor::CppCompletionAssistProvider *ClangModelManagerSupport::functionHintAssistProvider()
 {
-    return &m_functionHintAssistProvider;
+    return nullptr;
 }
 
 void ClangModelManagerSupport::followSymbol(const CppEditor::CursorInEditor &data,

@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "clangcompletionassistprovider.h"
+#include "clangbackendcommunicator.h"
 #include "clanguiheaderondiskmanager.h"
 
 #include <cppeditor/cppmodelmanagersupport.h>
@@ -143,8 +143,6 @@ private:
 
     UiHeaderOnDiskManager m_uiHeaderOnDiskManager;
     BackendCommunicator m_communicator;
-    ClangCompletionAssistProvider m_completionAssistProvider;
-    ClangCompletionAssistProvider m_functionHintAssistProvider;
     std::unique_ptr<CppEditor::RefactoringEngineInterface> m_refactoringEngine;
 
     QHash<ProjectExplorer::Project *, ClangProjectSettings *> m_projectSettings;

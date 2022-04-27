@@ -1653,12 +1653,12 @@ void CppModelManager::activateClangCodeModel(
 
 CppCompletionAssistProvider *CppModelManager::completionAssistProvider() const
 {
-    return d->m_activeModelManagerSupport->completionAssistProvider();
+    return d->m_builtinModelManagerSupport->completionAssistProvider();
 }
 
 CppCompletionAssistProvider *CppModelManager::functionHintAssistProvider() const
 {
-    return d->m_activeModelManagerSupport->functionHintAssistProvider();
+    return d->m_builtinModelManagerSupport->functionHintAssistProvider();
 }
 
 TextEditor::BaseHoverHandler *CppModelManager::createHoverHandler() const
