@@ -153,6 +153,10 @@ public:
     {
     }
 
+    BasicSmallString(const std::wstring &wstring)
+        : BasicSmallString(BasicSmallString::fromQStringView(wstring))
+    {}
+
     template<typename BeginIterator,
              typename EndIterator,
              typename = std::enable_if_t<std::is_same<BeginIterator, EndIterator>::value>
