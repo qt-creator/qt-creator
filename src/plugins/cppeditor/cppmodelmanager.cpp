@@ -548,7 +548,7 @@ Core::ILocatorFilter *CppModelManager::currentDocumentFilter() const
 
 std::unique_ptr<AbstractOverviewModel> CppModelManager::createOverviewModel() const
 {
-    return d->m_activeModelManagerSupport->createOverviewModel();
+    return d->m_builtinModelManagerSupport->createOverviewModel();
 }
 
 QString CppModelManager::configurationFileName()

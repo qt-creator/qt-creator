@@ -30,7 +30,6 @@
 #include "clangdquickfixfactory.h"
 #include "clangeditordocumentprocessor.h"
 #include "clangdlocatorfilters.h"
-#include "clangoverviewmodel.h"
 #include "clangprojectsettings.h"
 #include "clangrefactoringengine.h"
 #include "clangutils.h"
@@ -41,6 +40,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
+#include <cppeditor/abstractoverviewmodel.h>
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppeditorwidget.h>
@@ -222,7 +222,7 @@ CppEditor::RefactoringEngineInterface &ClangModelManagerSupport::refactoringEngi
 
 std::unique_ptr<CppEditor::AbstractOverviewModel> ClangModelManagerSupport::createOverviewModel()
 {
-    return std::make_unique<OverviewModel>();
+    return {};
 }
 
 bool ClangModelManagerSupport::supportsOutline(const TextEditor::TextDocument *document) const

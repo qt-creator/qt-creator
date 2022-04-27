@@ -85,8 +85,6 @@ QtcPlugin {
         "clangisdiagnosticrelatedtolocation.h",
         "clangmodelmanagersupport.cpp",
         "clangmodelmanagersupport.h",
-        "clangoverviewmodel.cpp",
-        "clangoverviewmodel.h",
         "clangpreprocessorassistproposalitem.cpp",
         "clangpreprocessorassistproposalitem.h",
         "clangprojectsettings.cpp",
