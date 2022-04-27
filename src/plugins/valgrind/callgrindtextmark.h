@@ -49,9 +49,10 @@ public:
 
     const Valgrind::Callgrind::Function *function() const;
 
-    void paintIcon(QPainter *painter, const QRect &paintRect) const override;
-
 private:
+    bool addToolTipContent(QLayout *target) const;
+    qreal costs() const;
+
     QPersistentModelIndex m_modelIndex;
 };
 
