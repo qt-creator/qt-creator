@@ -83,10 +83,10 @@ int ProjectModel::rowCount(const QModelIndex &) const
 
 QVariant ProjectModel::data(const QModelIndex &index, int role) const
 {
-    const QList<QPair<QString, QString> > recentProjects = ProjectExplorerPlugin::recentProjects();
+    const RecentProjectsEntries recentProjects = ProjectExplorerPlugin::recentProjects();
     if (recentProjects.count() <= index.row())
         return {};
-    QPair<QString, QString> data = recentProjects.at(index.row());
+    RecentProjectsEntry data = recentProjects.at(index.row());
     switch (role) {
     case Qt::DisplayRole:
         return data.second;

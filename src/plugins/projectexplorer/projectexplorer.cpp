@@ -536,7 +536,7 @@ public:
     void checkForShutdown();
     void timerEvent(QTimerEvent *) override;
 
-    QList<QPair<QString, QString> > recentProjects() const;
+    RecentProjectsEntries recentProjects() const;
 
     void extendFolderNavigationWidgetFactory();
 
@@ -622,7 +622,7 @@ public:
     int m_shutdownWatchDogId = -1;
 
     QHash<QString, std::function<Project *(const FilePath &)>> m_projectCreators;
-    QList<QPair<QString, QString> > m_recentProjects; // pair of filename, displayname
+    RecentProjectsEntries m_recentProjects; // pair of filename, displayname
     static const int m_maxRecentProjects = 25;
 
     QString m_lastOpenDirectory;
@@ -2406,7 +2406,7 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
 
     QStringList fileNames;
     QStringList displayNames;
-    QList<QPair<QString, QString> >::const_iterator it, end;
+    RecentProjectsEntries::const_iterator it, end;
     end = dd->m_recentProjects.constEnd();
     for (it = dd->m_recentProjects.constBegin(); it != end; ++it) {
         fileNames << (*it).first;
@@ -2831,9 +2831,9 @@ void ProjectExplorerPluginPrivate::buildQueueFinished(bool success)
     doUpdateRunActions();
 }
 
-QList<QPair<QString, QString> > ProjectExplorerPluginPrivate::recentProjects() const
+RecentProjectsEntries ProjectExplorerPluginPrivate::recentProjects() const
 {
-    return Utils::filtered(dd->m_recentProjects, [](const QPair<QString, QString> &p) {
+    return Utils::filtered(dd->m_recentProjects, [](const RecentProjectsEntry &p) {
         return QFileInfo(p.first).isFile();
     });
 }
@@ -3418,7 +3418,7 @@ void ProjectExplorerPluginPrivate::addToRecentProjects(const QString &fileName, 
         return;
     QString prettyFileName(QDir::toNativeSeparators(fileName));
 
-    QList<QPair<QString, QString> >::iterator it;
+    RecentProjectsEntries::iterator it;
     for (it = m_recentProjects.begin(); it != m_recentProjects.end();)
         if ((*it).first == prettyFileName)
             it = m_recentProjects.erase(it);
@@ -3447,13 +3447,13 @@ void ProjectExplorerPluginPrivate::updateUnloadProjectMenu()
 
 void ProjectExplorerPluginPrivate::updateRecentProjectMenu()
 {
-    using StringPairListConstIterator = QList<QPair<QString, QString> >::const_iterator;
+    using StringPairListConstIterator = RecentProjectsEntries::const_iterator;
     ActionContainer *aci = ActionManager::actionContainer(Constants::M_RECENTPROJECTS);
     QMenu *menu = aci->menu();
     menu->clear();
 
     int acceleratorKey = 1;
-    auto projects = recentProjects();
+    const RecentProjectsEntries projects = recentProjects();
     //projects (ignore sessions, they used to be in this list)
     const StringPairListConstIterator end = projects.constEnd();
     for (StringPairListConstIterator it = projects.constBegin(); it != end; ++it, ++acceleratorKey) {
@@ -3502,7 +3502,7 @@ void ProjectExplorerPluginPrivate::removeFromRecentProjects(const QString &fileN
                                                             const QString &displayName)
 {
     QTC_ASSERT(!fileName.isEmpty() && !displayName.isEmpty(), return);
-    QTC_CHECK(m_recentProjects.removeOne(QPair<QString, QString>(fileName, displayName)));
+    QTC_CHECK(m_recentProjects.removeOne(RecentProjectsEntry(fileName, displayName)));
 }
 
 void ProjectExplorerPluginPrivate::invalidateProject(Project *project)
@@ -4352,7 +4352,7 @@ OutputWindow *ProjectExplorerPlugin::buildSystemOutput()
     return dd->m_proWindow->buildSystemOutput();
 }
 
-QList<QPair<QString, QString> > ProjectExplorerPlugin::recentProjects()
+RecentProjectsEntries ProjectExplorerPlugin::recentProjects()
 {
     return dd->recentProjects();
 }

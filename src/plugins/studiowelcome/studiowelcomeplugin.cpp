@@ -392,8 +392,8 @@ static QString tags(const QString &projectFilePath)
 
 QVariant ProjectModel::data(const QModelIndex &index, int role) const
 {
-    QPair<QString, QString> data = ProjectExplorer::ProjectExplorerPlugin::recentProjects().at(
-        index.row());
+    const ProjectExplorer::RecentProjectsEntry data =
+            ProjectExplorer::ProjectExplorerPlugin::recentProjects().at(index.row());
     switch (role) {
     case Qt::DisplayRole:
         return data.second;

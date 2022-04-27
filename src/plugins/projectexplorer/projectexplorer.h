@@ -64,6 +64,9 @@ class MiniProjectTargetSelector;
 class ProjectExplorerSettings;
 }
 
+using RecentProjectsEntry = QPair<QString, QString>;
+using RecentProjectsEntries = QList<RecentProjectsEntry>;
+
 class PROJECTEXPLORER_EXPORT ProjectExplorerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -154,7 +157,7 @@ public:
     static void renameFile(Node *node, const QString &newFilePath);
     static QStringList projectFilePatterns();
     static bool isProjectFile(const Utils::FilePath &filePath);
-    static QList<QPair<QString, QString> > recentProjects();
+    static RecentProjectsEntries recentProjects();
 
     static bool canRunStartupProject(Utils::Id runMode, QString *whyNot = nullptr);
     static void runProject(Project *pro, Utils::Id, const bool forceSkipDeploy = false);
