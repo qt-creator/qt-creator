@@ -367,6 +367,9 @@ private:
 
     void doDefaultStart(const QString &program, const QStringList &arguments) final
     {
+        QTC_ASSERT(QThread::currentThread()->eventDispatcher(),
+                   qWarning("QtcProcess::start(): Starting a process in a non QThread thread "
+                            "may cause infinite hang when destroying the running process."));
         ProcessStartHandler *handler = m_process->processStartHandler();
         handler->setProcessMode(m_setup.m_processMode);
         handler->setWriteData(m_setup.m_writeData);
