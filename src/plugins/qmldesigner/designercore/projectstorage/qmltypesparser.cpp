@@ -47,7 +47,7 @@ namespace {
 using ComponentWithoutNamespaces = QMap<QString, QString>;
 
 ComponentWithoutNamespaces createComponentNameWithoutNamespaces(
-    const QHash<QString, QQmlJSScope::Ptr> &objects)
+    const QHash<QString, QQmlJSExportedScope> &objects)
 {
     ComponentWithoutNamespaces componentWithoutNamespaces;
 
@@ -409,15 +409,17 @@ EnumerationTypes addEnumerationTypes(Storage::Types &types,
 void addType(Storage::Types &types,
              SourceId sourceId,
              ModuleId cppModuleId,
-             const QQmlJSScope &component,
+             const QQmlJSExportedScope &exportScope,
              QmlTypesParser::ProjectStorage &storage,
              const ComponentWithoutNamespaces &componentNameWithoutNamespace)
 {
+    const auto &component = *exportScope.scope;
+
     auto [functionsDeclarations, signalDeclarations] = createFunctionAndSignals(
         component.ownMethods(), componentNameWithoutNamespace);
     TypeNameString typeName{component.internalName()};
     auto enumerations = component.ownEnumerations();
-    auto exports = component.exports();
+    auto exports = exportScope.exports;
 
     auto enumerationTypes = addEnumerationTypes(types, typeName, sourceId, cppModuleId, enumerations);
     types.emplace_back(Utils::SmallStringView{typeName},
@@ -435,7 +437,7 @@ void addType(Storage::Types &types,
 
 void addTypes(Storage::Types &types,
               const Storage::ProjectData &projectData,
-              const QHash<QString, QQmlJSScope::Ptr> &objects,
+              const QHash<QString, QQmlJSExportedScope> &objects,
               QmlTypesParser::ProjectStorage &storage,
               const ComponentWithoutNamespaces &componentNameWithoutNamespaces)
 {
@@ -445,7 +447,7 @@ void addTypes(Storage::Types &types,
         addType(types,
                 projectData.sourceId,
                 projectData.moduleId,
-                *object.get(),
+                object,
                 storage,
                 componentNameWithoutNamespaces);
 }
@@ -458,7 +460,7 @@ void QmlTypesParser::parse(const QString &sourceContent,
                            const Storage::ProjectData &projectData)
 {
     QQmlJSTypeDescriptionReader reader({}, sourceContent);
-    QHash<QString, QQmlJSScope::Ptr> components;
+    QHash<QString, QQmlJSExportedScope> components;
     QStringList dependencies;
     bool isValid = reader(&components, &dependencies);
     if (!isValid)

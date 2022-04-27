@@ -133,12 +133,13 @@ protected:
     Storage::Imports imports;
     SourceId qmlFileSourceId{sourcePathCache.sourceId("/path/to/qmlfile.qml")};
     SourceContextId qmlFileSourceContextId{sourcePathCache.sourceContextId(qmlFileSourceId)};
-    ModuleId directoryModuleId{storage.moduleId("/path/to")};
+    Utils::PathString directoryPath{sourcePathCache.sourceContextPath(qmlFileSourceContextId)};
+    ModuleId directoryModuleId{storage.moduleId(directoryPath)};
 };
 
 TEST_F(QmlDocumentParser, Prototype)
 {
-    auto type = parser.parse("Example{}", imports, qmlFileSourceId);
+    auto type = parser.parse("Example{}", imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type, HasPrototype(Storage::ImportedType("Example")));
 }
@@ -149,7 +150,7 @@ TEST_F(QmlDocumentParser, QualifiedPrototype)
     QString text = R"(import Example 2.1 as Example
                       Example.Item{})";
 
-    auto type = parser.parse(text, imports, qmlFileSourceId);
+    auto type = parser.parse(text, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type,
                 HasPrototype(Storage::QualifiedImportedType("Item",
@@ -160,7 +161,7 @@ TEST_F(QmlDocumentParser, QualifiedPrototype)
 
 TEST_F(QmlDocumentParser, Properties)
 {
-    auto type = parser.parse(R"(Example{ property int foo })", imports, qmlFileSourceId);
+    auto type = parser.parse(R"(Example{ property int foo })", imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration("foo",
@@ -175,7 +176,8 @@ TEST_F(QmlDocumentParser, QualifiedProperties)
     auto type = parser.parse(R"(import Example 2.1 as Example
                                 Item{ property Example.Foo foo})",
                              imports,
-                             qmlFileSourceId);
+                             qmlFileSourceId,
+                             directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration(
@@ -192,7 +194,8 @@ TEST_F(QmlDocumentParser, EnumerationInProperties)
     auto type = parser.parse(R"(import Example 2.1 as Example
                                 Item{ property Enumeration.Foo foo})",
                              imports,
-                             qmlFileSourceId);
+                             qmlFileSourceId,
+                             directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration("foo",
@@ -207,7 +210,8 @@ TEST_F(QmlDocumentParser, QualifiedEnumerationInProperties)
     auto type = parser.parse(R"(import Example 2.1 as Example
                                 Item{ property Example.Enumeration.Foo foo})",
                              imports,
-                             qmlFileSourceId);
+                             qmlFileSourceId,
+                             directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration(
@@ -223,22 +227,62 @@ TEST_F(QmlDocumentParser, Imports)
 {
     ModuleId fooDirectoryModuleId = storage.moduleId("/path/foo");
     ModuleId qmlModuleId = storage.moduleId("QML");
-    ModuleId qtQmlModuleId = storage.moduleId("QtQml");
     ModuleId qtQuickModuleId = storage.moduleId("QtQuick");
 
     auto type = parser.parse(R"(import QtQuick
                                 import "../foo"
                                 Example{})",
                              imports,
-                             qmlFileSourceId);
+                             qmlFileSourceId,
+                             directoryPath);
 
     ASSERT_THAT(imports,
                 UnorderedElementsAre(
                     Storage::Import{directoryModuleId, Storage::Version{}, qmlFileSourceId},
                     Storage::Import{fooDirectoryModuleId, Storage::Version{}, qmlFileSourceId},
-                    Storage::Import{qmlModuleId, Storage::Version{1, 0}, qmlFileSourceId},
-                    Storage::Import{qtQmlModuleId, Storage::Version{6, 0}, qmlFileSourceId},
+                    Storage::Import{qmlModuleId, Storage::Version{}, qmlFileSourceId},
                     Storage::Import{qtQuickModuleId, Storage::Version{}, qmlFileSourceId}));
+}
+
+TEST_F(QmlDocumentParser, ImportsWithVersion)
+{
+    ModuleId fooDirectoryModuleId = storage.moduleId("/path/foo");
+    ModuleId qmlModuleId = storage.moduleId("QML");
+    ModuleId qtQuickModuleId = storage.moduleId("QtQuick");
+
+    auto type = parser.parse(R"(import QtQuick 2.1
+                                import "../foo"
+                                Example{})",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(imports,
+                UnorderedElementsAre(
+                    Storage::Import{directoryModuleId, Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{fooDirectoryModuleId, Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{qmlModuleId, Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{qtQuickModuleId, Storage::Version{2, 1}, qmlFileSourceId}));
+}
+
+TEST_F(QmlDocumentParser, ImportsWithExplictDirectory)
+{
+    ModuleId qmlModuleId = storage.moduleId("QML");
+    ModuleId qtQuickModuleId = storage.moduleId("QtQuick");
+
+    auto type = parser.parse(R"(import QtQuick
+                                import "../to"
+                                import "."
+                                Example{})",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(
+        imports,
+        UnorderedElementsAre(Storage::Import{directoryModuleId, Storage::Version{}, qmlFileSourceId},
+                             Storage::Import{qmlModuleId, Storage::Version{}, qmlFileSourceId},
+                             Storage::Import{qtQuickModuleId, Storage::Version{}, qmlFileSourceId}));
 }
 
 TEST_F(QmlDocumentParser, Functions)
@@ -246,7 +290,8 @@ TEST_F(QmlDocumentParser, Functions)
     auto type = parser.parse(
         "Example{\n function someScript(x, y) {}\n function otherFunction() {}\n}",
         imports,
-        qmlFileSourceId);
+        qmlFileSourceId,
+        directoryPath);
 
     ASSERT_THAT(type.functionDeclarations,
                 UnorderedElementsAre(AllOf(IsFunctionDeclaration("otherFunction", ""),
@@ -261,7 +306,8 @@ TEST_F(QmlDocumentParser, Signals)
 {
     auto type = parser.parse("Example{\n signal someSignal(int x, real y)\n signal signal2()\n}",
                              imports,
-                             qmlFileSourceId);
+                             qmlFileSourceId,
+                             directoryPath);
 
     ASSERT_THAT(type.signalDeclarations,
                 UnorderedElementsAre(AllOf(IsSignalDeclaration("someSignal"),
@@ -277,7 +323,8 @@ TEST_F(QmlDocumentParser, Enumeration)
     auto type = parser.parse("Example{\n enum Color{red, green, blue=10, white}\n enum "
                              "State{On,Off}\n}",
                              imports,
-                             qmlFileSourceId);
+                             qmlFileSourceId,
+                             directoryPath);
 
     ASSERT_THAT(type.enumerationDeclarations,
                 UnorderedElementsAre(
@@ -308,7 +355,8 @@ TEST_F(QmlDocumentParser, DISABLED_DuplicateImportsAreRemoved)
  
                                 Example{})",
                              imports,
-                             qmlFileSourceId);
+                             qmlFileSourceId,
+                             directoryPath);
 
     ASSERT_THAT(imports,
                 UnorderedElementsAre(

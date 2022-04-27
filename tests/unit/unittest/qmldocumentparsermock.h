@@ -36,6 +36,7 @@ public:
                 parse,
                 (const QString &sourceContent,
                  QmlDesigner::Storage::Imports &imports,
-                 QmlDesigner::SourceId sourceId),
+                 QmlDesigner::SourceId sourceId,
+                 Utils::SmallStringView directoryPath),
                 (override));
 };

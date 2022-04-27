@@ -97,7 +97,7 @@ private:
                         const QList<QmlDirParser::Import> &qmldirDependencies,
                         const QList<QmlDirParser::Import> &qmldirImports,
                         SourceId qmldirSourceId,
-                        SourceContextId directoryId,
+                        Utils::SmallStringView directoryPath,
                         ModuleId moduleId,
                         Storage::SynchronizationPackage &package,
                         SourceIds &notUpdatedFileStatusSourceIds,
@@ -115,11 +115,13 @@ private:
                             SourceId qmldirSourceId,
                             SourceContextId directoryId,
                             ModuleId moduleId,
+                            ModuleId pathModuleId,
                             Storage::SynchronizationPackage &package,
                             SourceIds &notUpdatedFileStatusSourceIds);
     void parseQmlComponents(const Storage::ProjectDatas &projectDatas,
                             Storage::SynchronizationPackage &package,
-                            SourceIds &notUpdatedFileStatusSourceIds);
+                            SourceIds &notUpdatedFileStatusSourceIds,
+                            Utils::SmallStringView directoryPath);
     void parseQmlComponent(Utils::SmallStringView fileName,
                            Utils::SmallStringView directory,
                            Storage::ExportedTypes exportedTypes,
@@ -129,6 +131,7 @@ private:
                            SourceIds &notUpdatedFileStatusSourceIds);
     void parseQmlComponent(Utils::SmallStringView fileName,
                            Utils::SmallStringView filePath,
+                           Utils::SmallStringView directoryPath,
                            SourceId sourceId,
                            Storage::SynchronizationPackage &package,
                            SourceIds &notUpdatedFileStatusSourceIds);

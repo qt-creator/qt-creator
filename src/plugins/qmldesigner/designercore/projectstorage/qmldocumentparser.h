@@ -53,7 +53,8 @@ public:
 
     Storage::Type parse(const QString &sourceContent,
                         Storage::Imports &imports,
-                        SourceId sourceId) override;
+                        SourceId sourceId,
+                        Utils::SmallStringView directoryPath) override;
 
 private:
     ProjectStorage &m_storage;
