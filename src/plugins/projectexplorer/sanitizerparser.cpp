@@ -246,4 +246,6 @@ SanitizerOutputFormatterFactory::SanitizerOutputFormatterFactory()
 
 } // namespace ProjectExplorer::Internal
 
+#ifdef WITH_TESTS
 #include <sanitizerparser.moc>
+#endif
