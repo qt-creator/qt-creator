@@ -53,7 +53,6 @@ public:
     bool isParserRunning() const override;
 
     QFuture<CursorInfo> cursorInfo(const CursorInfoParams &params) override;
-    QFuture<CursorInfo> requestLocalReferences(const QTextCursor &) override;
 
     using SemanticHighlightingChecker = std::function<bool()>;
     void setSemanticHighlightingChecker(const SemanticHighlightingChecker &checker);

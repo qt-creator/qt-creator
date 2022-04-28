@@ -78,7 +78,6 @@ public:
     CppEditor::BaseEditorDocumentParser::Configuration parserConfig() const;
 
     QFuture<CppEditor::CursorInfo> cursorInfo(const CppEditor::CursorInfoParams &params) override;
-    QFuture<CppEditor::CursorInfo> requestLocalReferences(const QTextCursor &cursor) override;
 
     void closeBackendDocument();
 

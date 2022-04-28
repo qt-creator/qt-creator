@@ -24,11 +24,9 @@
 ****************************************************************************/
 
 #include "clangrefactoringengine.h"
-#include "clangeditordocumentprocessor.h"
 
 #include "clangdclient.h"
 #include "clangmodelmanagersupport.h"
-#include "sourcelocationscontainer.h"
 
 #include <cppeditor/cppmodelmanager.h>
 #include <languageclient/languageclientsymbolsupport.h>
@@ -39,7 +37,7 @@ namespace ClangCodeModel {
 namespace Internal {
 
 void RefactoringEngine::startLocalRenaming(const CppEditor::CursorInEditor &data,
-                                           const CppEditor::ProjectPart *,
+                                           const CppEditor::ProjectPart *projectPart,
                                            RenameCallback &&renameSymbolsCallback)
 {
     ClangdClient * const client
@@ -50,47 +48,8 @@ void RefactoringEngine::startLocalRenaming(const CppEditor::CursorInEditor &data
         return;
     }
 
-    ClangEditorDocumentProcessor *processor = ClangEditorDocumentProcessor::get(
-        data.filePath().toString());
-    const int startRevision = data.cursor().document()->revision();
-
-    using ClangBackEnd::SourceLocationsContainer;
-    auto defaultCallback = [renameSymbolsCallback, startRevision]() {
-        return renameSymbolsCallback(QString(), SourceLocationsContainer{}, startRevision);
-    };
-
-    if (!processor)
-        return defaultCallback();
-
-    QFuture<CppEditor::CursorInfo> cursorFuture = processor->requestLocalReferences(data.cursor());
-    if (cursorFuture.isCanceled())
-        return defaultCallback();
-
-    if (m_watcher)
-        m_watcher->cancel();
-
-    m_watcher.reset(new FutureCursorWatcher());
-    QObject::connect(m_watcher.get(), &FutureCursorWatcher::finished, [=]() {
-        if (m_watcher->isCanceled())
-            return defaultCallback();
-        const CppEditor::CursorInfo info = m_watcher->result();
-        if (info.useRanges.empty())
-            return defaultCallback();
-
-        QTextCursor cursor = Utils::Text::wordStartCursor(data.cursor());
-        cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor,
-                            info.useRanges.first().length);
-        const QString symbolName = cursor.selectedText();
-        ClangBackEnd::SourceLocationsContainer container;
-        for (auto& use : info.useRanges) {
-            container.insertSourceLocation({},
-                                           use.line,
-                                           use.column);
-        }
-        renameSymbolsCallback(symbolName, container, data.cursor().document()->revision());
-    });
-
-    m_watcher->setFuture(cursorFuture);
+    CppEditor::CppModelManager::builtinRefactoringEngine()
+            ->startLocalRenaming(data, projectPart, std::move(renameSymbolsCallback));
 }
 
 void RefactoringEngine::globalRename(const CppEditor::CursorInEditor &cursor,

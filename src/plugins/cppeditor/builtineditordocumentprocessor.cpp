@@ -251,15 +251,6 @@ BuiltinEditorDocumentProcessor::cursorInfo(const CursorInfoParams &params)
     return BuiltinCursorInfo::run(params);
 }
 
-QFuture<CursorInfo> BuiltinEditorDocumentProcessor::requestLocalReferences(const QTextCursor &)
-{
-    QFutureInterface<CursorInfo> futureInterface;
-    futureInterface.reportResult(CursorInfo());
-    futureInterface.reportFinished();
-
-    return futureInterface.future();
-}
-
 void BuiltinEditorDocumentProcessor::setSemanticHighlightingChecker(
             const SemanticHighlightingChecker &checker)
 {

@@ -205,64 +205,10 @@ CppEditor::BaseEditorDocumentParser::Configuration ClangEditorDocumentProcessor:
     return m_parser->configuration();
 }
 
-static bool isCursorOnIdentifier(const QTextCursor &textCursor)
-{
-    QTextDocument *document = textCursor.document();
-    return CppEditor::isValidIdentifierChar(document->characterAt(textCursor.position()));
-}
-
-static QFuture<CppEditor::CursorInfo> defaultCursorInfoFuture()
-{
-    QFutureInterface<CppEditor::CursorInfo> futureInterface;
-    futureInterface.reportResult(CppEditor::CursorInfo());
-    futureInterface.reportFinished();
-
-    return futureInterface.future();
-}
-
-static bool convertPosition(const QTextCursor &textCursor, int *line, int *column)
-{
-    const bool converted = ::Utils::Text::convertPosition(textCursor.document(),
-                                                          textCursor.position(),
-                                                          line,
-                                                          column);
-    QTC_CHECK(converted);
-    return converted;
-}
-
 QFuture<CppEditor::CursorInfo>
 ClangEditorDocumentProcessor::cursorInfo(const CppEditor::CursorInfoParams &params)
 {
-    int line, column;
-    convertPosition(params.textCursor, &line, &column);
-
-    if (!isCursorOnIdentifier(params.textCursor))
-        return defaultCursorInfoFuture();
-
-    column = clangColumn(params.textCursor.document()->findBlockByNumber(line - 1), column);
-    const CppEditor::SemanticInfo::LocalUseMap localUses
-        = CppEditor::BuiltinCursorInfo::findLocalUses(params.semanticInfo.doc, line, column);
-
-    return m_communicator.requestReferences(simpleFileContainer(),
-                                            static_cast<quint32>(line),
-                                            static_cast<quint32>(column),
-                                            localUses);
-}
-
-QFuture<CppEditor::CursorInfo> ClangEditorDocumentProcessor::requestLocalReferences(
-        const QTextCursor &cursor)
-{
-    int line, column;
-    convertPosition(cursor, &line, &column);
-    ++column; // for 1-based columns
-
-    // TODO: check that by highlighting items
-    if (!isCursorOnIdentifier(cursor))
-        return defaultCursorInfoFuture();
-
-    return m_communicator.requestLocalReferences(simpleFileContainer(),
-                                                 static_cast<quint32>(line),
-                                                 static_cast<quint32>(column));
+    return m_builtinProcessor.cursorInfo(params);
 }
 
 ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &filePath)

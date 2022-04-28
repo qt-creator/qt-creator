@@ -301,29 +301,6 @@ void BackendCommunicator::documentsChangedWithRevisionCheck(const FileContainer 
     }
 }
 
-QFuture<CppEditor::CursorInfo> BackendCommunicator::requestReferences(
-        const FileContainer &fileContainer,
-        quint32 line,
-        quint32 column,
-        const CppEditor::SemanticInfo::LocalUseMap &localUses)
-{
-    const RequestReferencesMessage message(fileContainer, line, column);
-    m_sender->requestReferences(message);
-
-    return m_receiver.addExpectedReferencesMessage(message.ticketNumber, localUses);
-}
-
-QFuture<CppEditor::CursorInfo> BackendCommunicator::requestLocalReferences(
-        const FileContainer &fileContainer,
-        quint32 line,
-        quint32 column)
-{
-    const RequestReferencesMessage message(fileContainer, line, column, true);
-    m_sender->requestReferences(message);
-
-    return m_receiver.addExpectedReferencesMessage(message.ticketNumber);
-}
-
 void BackendCommunicator::documentsChangedWithRevisionCheck(Core::IDocument *document)
 {
     const auto textDocument = qobject_cast<TextDocument*>(document);

@@ -108,21 +108,6 @@ void BackendReceiver::deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidge
         m_assistProcessorsTable.remove(item);
 }
 
-QFuture<CppEditor::CursorInfo> BackendReceiver::addExpectedReferencesMessage(
-        quint64 ticket,
-        const CppEditor::SemanticInfo::LocalUseMap &localUses)
-{
-    QTC_CHECK(!m_referencesTable.contains(ticket));
-
-    QFutureInterface<CppEditor::CursorInfo> futureInterface;
-    futureInterface.reportStarted();
-
-    const ReferencesEntry entry{futureInterface, localUses};
-    m_referencesTable.insert(ticket, entry);
-
-    return futureInterface.future();
-}
-
 bool BackendReceiver::isExpectingCompletionsMessage() const
 {
     return !m_assistProcessorsTable.isEmpty();

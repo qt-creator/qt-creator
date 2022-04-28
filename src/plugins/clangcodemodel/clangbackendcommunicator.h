@@ -91,15 +91,6 @@ public:
                             qint32 funcNameStartLine = -1,
                             qint32 funcNameStartColumn = -1);
     void cancelCompletions(TextEditor::IAssistProcessor *processor);
-    QFuture<CppEditor::CursorInfo> requestReferences(
-            const FileContainer &fileContainer,
-            quint32 line,
-            quint32 column,
-            const LocalUseMap &localUses);
-    QFuture<CppEditor::CursorInfo> requestLocalReferences(
-            const FileContainer &fileContainer,
-            quint32 line,
-            quint32 column);
 
     void updateChangeContentStartPosition(const QString &filePath, int position);
     bool isNotWaitingForCompletion() const;

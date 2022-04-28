@@ -58,10 +58,6 @@ public:
     void cancelProcessor(TextEditor::IAssistProcessor *processor);
     void deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidget *textEditorWidget);
 
-    QFuture<CppEditor::CursorInfo>
-    addExpectedReferencesMessage(quint64 ticket,
-                                 const CppEditor::SemanticInfo::LocalUseMap &localUses
-                                     = CppEditor::SemanticInfo::LocalUseMap());
     bool isExpectingCompletionsMessage() const;
 
     void reset();
