@@ -25,7 +25,6 @@
 
 #include "clangdiagnostictooltipwidget.h"
 
-#include "clangdiagnosticmanager.h"
 #include "clangfixitoperation.h"
 #include "clangutils.h"
 

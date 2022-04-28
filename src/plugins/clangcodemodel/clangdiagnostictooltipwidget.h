@@ -36,7 +36,6 @@ QT_END_NAMESPACE
 
 namespace ClangCodeModel {
 namespace Internal {
-class ClangDiagnosticManager;
 
 class ClangDiagnosticWidget {
 public:

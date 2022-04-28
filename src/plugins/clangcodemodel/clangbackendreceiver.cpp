@@ -207,22 +207,6 @@ void BackendReceiver::annotations(const ClangBackEnd::AnnotationsMessage &messag
                  << message.diagnostics.size() << "diagnostics" << message.tokenInfos.size()
                  << "token infos" << message.skippedPreprocessorRanges.size()
                  << "skipped preprocessor ranges";
-
-    auto processor = ClangEditorDocumentProcessor::get(message.fileContainer.filePath);
-    if (!processor)
-        return;
-
-    const quint32 documentRevision = message.fileContainer.documentRevision;
-    if (message.onlyTokenInfos) {
-        processor->updateTokenInfos(message.tokenInfos, documentRevision);
-        return;
-    }
-    processor->updateCodeWarnings(message.diagnostics,
-                                  message.firstHeaderErrorDiagnostic,
-                                  documentRevision);
-    processor->updateHighlighting(message.tokenInfos,
-                                  message.skippedPreprocessorRanges,
-                                  documentRevision);
 }
 
 static

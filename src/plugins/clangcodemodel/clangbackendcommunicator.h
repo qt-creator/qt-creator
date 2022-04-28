@@ -91,7 +91,6 @@ public:
                             qint32 funcNameStartLine = -1,
                             qint32 funcNameStartColumn = -1);
     void cancelCompletions(TextEditor::IAssistProcessor *processor);
-    void requestAnnotations(const ClangBackEnd::FileContainer &fileContainer);
     QFuture<CppEditor::CursorInfo> requestReferences(
             const FileContainer &fileContainer,
             quint32 line,

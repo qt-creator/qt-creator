@@ -62,6 +62,7 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
 
 #include <clangsupport/filecontainer.h>
 #include <utils/algorithm.h>
@@ -260,14 +261,13 @@ void ClangModelManagerSupport::onCurrentEditorChanged(Core::IEditor *editor)
     m_communicator.documentVisibilityChanged();
 
     // Update task hub issues for current CppEditorDocument
-    ClangEditorDocumentProcessor::clearTaskHubIssues();
+    ProjectExplorer::TaskHub::clearTasks(Constants::TASK_CATEGORY_DIAGNOSTICS);
     if (!editor || !editor->document() || !cppModelManager()->isCppEditor(editor))
         return;
 
     const ::Utils::FilePath filePath = editor->document()->filePath();
     if (auto processor = ClangEditorDocumentProcessor::get(filePath.toString())) {
         processor->semanticRehighlight();
-        processor->generateTaskHubIssues();
         if (const auto client = clientForFile(filePath))
             client->updateParserConfig(filePath, processor->parserConfig());
     }
@@ -404,7 +404,6 @@ void ClangModelManagerSupport::updateLanguageClient(
                         || currentClient->state() != Client::Initialized
                         || project->isKnownFile(doc->filePath())) {
                     LanguageClientManager::openDocumentWithClient(doc, client);
-                    ClangEditorDocumentProcessor::clearTextMarks(doc->filePath());
                     hasDocuments = true;
                 }
             }
@@ -496,7 +495,6 @@ void ClangModelManagerSupport::claimNonProjectSources(ClangdClient *client)
                 && (currentClient == client || currentClient->project())) {
             continue;
         }
-        ClangEditorDocumentProcessor::clearTextMarks(doc->filePath());
         if (!ClangdSettings::instance().sizeIsOkay(doc->filePath()))
             continue;
         client->openDocument(doc);
@@ -632,15 +630,6 @@ void ClangModelManagerSupport::onCppDocumentReloadFinishedOnTranslationUnit(bool
     }
 }
 
-namespace {
-void clearDiagnosticFixIts(const QString &filePath)
-{
-    auto processor = ClangEditorDocumentProcessor::get(filePath);
-    if (processor)
-        processor->clearDiagnosticsWithFixIts();
-}
-}
-
 void ClangModelManagerSupport::onCppDocumentContentsChangedOnTranslationUnit(int position,
                                                                              int /*charsRemoved*/,
                                                                              int /*charsAdded*/)
@@ -650,8 +639,6 @@ void ClangModelManagerSupport::onCppDocumentContentsChangedOnTranslationUnit(int
     m_communicator.updateChangeContentStartPosition(document->filePath().toString(),
                                                        position);
     m_communicator.documentsChangedIfNotCurrentDocument(document);
-
-    clearDiagnosticFixIts(document->filePath().toString());
 }
 
 void ClangModelManagerSupport::onCppDocumentAboutToReloadOnUnsavedFile()

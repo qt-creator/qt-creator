@@ -31,7 +31,6 @@
 #include "clangfixitoperation.h"
 #include "clangfixitoperationsextractor.h"
 #include "clangmodelmanagersupport.h"
-#include "clanghighlightingresultreporter.h"
 #include "clangutils.h"
 
 #include <diagnosticcontainer.h>
@@ -72,12 +71,10 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
         TextEditor::TextDocument *document)
     : BaseEditorDocumentProcessor(document->document(), document->filePath().toString())
     , m_document(*document)
-    , m_diagnosticManager(document)
     , m_communicator(communicator)
     , m_parser(new ClangEditorDocumentParser(document->filePath().toString()))
     , m_parserRevision(0)
-    , m_semanticHighlighter(document)
-    , m_builtinProcessor(document, /*enableSemanticHighlighter=*/ false)
+    , m_builtinProcessor(document)
 {
     m_updateBackendDocumentTimer.setSingleShot(true);
     m_updateBackendDocumentTimer.setInterval(350);
@@ -93,6 +90,11 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
             this, &ClangEditorDocumentProcessor::cppDocumentUpdated);
     connect(&m_builtinProcessor, &CppEditor::BuiltinEditorDocumentProcessor::semanticInfoUpdated,
             this, &ClangEditorDocumentProcessor::semanticInfoUpdated);
+    connect(&m_builtinProcessor, &CppEditor::BuiltinEditorDocumentProcessor::codeWarningsUpdated,
+            this, &ClangEditorDocumentProcessor::codeWarningsUpdated);
+    m_builtinProcessor.setSemanticHighlightingChecker([this] {
+        return !ClangModelManagerSupport::instance()->clientForFile(m_document.filePath());
+    });
 
     m_parserSynchronizer.setCancelOnWait(true);
 }
@@ -141,10 +143,7 @@ void ClangEditorDocumentProcessor::semanticRehighlight()
         return;
     if (ClangModelManagerSupport::instance()->clientForFile(m_document.filePath()))
         return;
-
-    m_semanticHighlighter.updateFormatMapFromFontSettings();
-    if (m_projectPart)
-        requestAnnotationsFromBackend();
+    m_builtinProcessor.semanticRehighlight();
 }
 
 CppEditor::SemanticInfo ClangEditorDocumentProcessor::recalculateSemanticInfo()
@@ -187,140 +186,10 @@ void ClangEditorDocumentProcessor::clearProjectPart()
     return m_diagnosticConfigId;
 }
 
-void ClangEditorDocumentProcessor::updateCodeWarnings(
-        const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
-        const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic,
-        uint documentRevision)
-{
-    if (ClangModelManagerSupport::instance()->clientForFile(m_document.filePath()))
-        return;
-
-    if (documentRevision == revision()) {
-        if (m_invalidationState == InvalidationState::Scheduled)
-            m_invalidationState = InvalidationState::Canceled;
-        m_diagnosticManager.processNewDiagnostics(diagnostics, m_isProjectFile);
-        const auto codeWarnings = m_diagnosticManager.takeExtraSelections();
-        const auto fixitAvailableMarkers = m_diagnosticManager.takeFixItAvailableMarkers();
-        const auto creator = creatorForHeaderErrorDiagnosticWidget(firstHeaderErrorDiagnostic);
-
-        emit codeWarningsUpdated(revision(),
-                                 codeWarnings,
-                                 creator,
-                                 fixitAvailableMarkers);
-    }
-}
-namespace {
-
-TextEditor::BlockRange
-toTextEditorBlock(QTextDocument *textDocument,
-                  const ClangBackEnd::SourceRangeContainer &sourceRangeContainer)
-{
-    return {::Utils::Text::positionInText(textDocument,
-                                          sourceRangeContainer.start.line,
-                                          sourceRangeContainer.start.column),
-            ::Utils::Text::positionInText(textDocument,
-                                          sourceRangeContainer.end.line,
-                                          sourceRangeContainer.end.column)};
-}
-
-QList<TextEditor::BlockRange>
-toTextEditorBlocks(QTextDocument *textDocument,
-                   const QVector<ClangBackEnd::SourceRangeContainer> &ifdefedOutRanges)
-{
-    QList<TextEditor::BlockRange> blockRanges;
-    blockRanges.reserve(ifdefedOutRanges.size());
-
-    for (const auto &range : ifdefedOutRanges)
-        blockRanges.append(toTextEditorBlock(textDocument, range));
-
-    return blockRanges;
-}
-}
-
-const QVector<ClangBackEnd::TokenInfoContainer>
-&ClangEditorDocumentProcessor::tokenInfos() const
-{
-    return m_tokenInfos;
-}
-
-void ClangEditorDocumentProcessor::clearTaskHubIssues()
-{
-    ClangDiagnosticManager::clearTaskHubIssues();
-}
-
-void ClangEditorDocumentProcessor::generateTaskHubIssues()
-{
-    m_diagnosticManager.generateTaskHubIssues();
-}
-
-void ClangEditorDocumentProcessor::clearTextMarks(const Utils::FilePath &filePath)
-{
-    if (ClangEditorDocumentProcessor * const proc = get(filePath.toString())) {
-        proc->m_diagnosticManager.cleanMarks();
-        emit proc->codeWarningsUpdated(proc->revision(), {}, {}, {});
-    }
-}
-
-void ClangEditorDocumentProcessor::updateHighlighting(
-        const QVector<ClangBackEnd::TokenInfoContainer> &tokenInfos,
-        const QVector<ClangBackEnd::SourceRangeContainer> &skippedPreprocessorRanges,
-        uint documentRevision)
-{
-    if (ClangModelManagerSupport::instance()->clientForFile(m_document.filePath()))
-        return;
-    if (documentRevision == revision()) {
-        const auto skippedPreprocessorBlocks = toTextEditorBlocks(textDocument(), skippedPreprocessorRanges);
-        emit ifdefedOutBlocksUpdated(documentRevision, skippedPreprocessorBlocks);
-
-        m_semanticHighlighter.setHighlightingRunner(
-            [tokenInfos]() { return highlightResults(tokenInfos); });
-        m_semanticHighlighter.run();
-    }
-}
-
-void ClangEditorDocumentProcessor::updateTokenInfos(
-        const QVector<ClangBackEnd::TokenInfoContainer> &tokenInfos,
-        uint documentRevision)
-{
-    if (documentRevision != revision())
-        return;
-    m_tokenInfos = tokenInfos;
-    emit tokenInfosUpdated();
-}
-
-static int currentLine(const TextEditor::AssistInterface &assistInterface)
-{
-    int line, column;
-    ::Utils::Text::convertPosition(assistInterface.textDocument(), assistInterface.position(),
-                                   &line, &column);
-    return line;
-}
-
-TextEditor::QuickFixOperations ClangEditorDocumentProcessor::extraRefactoringOperations(
-        const TextEditor::AssistInterface &assistInterface)
-{
-    ClangFixItOperationsExtractor extractor(m_diagnosticManager.diagnosticsWithFixIts());
-
-    return extractor.extract(assistInterface.filePath().toString(), currentLine(assistInterface));
-}
-
 void ClangEditorDocumentProcessor::editorDocumentTimerRestarted()
 {
     m_updateBackendDocumentTimer.stop(); // Wait for the next call to run().
     m_invalidationState = InvalidationState::Scheduled;
-}
-
-void ClangEditorDocumentProcessor::invalidateDiagnostics()
-{
-    if (m_invalidationState != InvalidationState::Canceled)
-        m_diagnosticManager.invalidateDiagnostics();
-    m_invalidationState = InvalidationState::Off;
-}
-
-TextEditor::TextMarks ClangEditorDocumentProcessor::diagnosticTextMarksAt(uint line,
-                                                                          uint column) const
-{
-    return m_diagnosticManager.diagnosticTextMarksAt(line, column);
 }
 
 void ClangEditorDocumentProcessor::setParserConfig(
@@ -413,11 +282,6 @@ QFuture<CppEditor::ToolTipInfo> ClangEditorDocumentProcessor::toolTipInfo(const 
                                          static_cast<quint32>(column));
 }
 
-void ClangEditorDocumentProcessor::clearDiagnosticsWithFixIts()
-{
-    m_diagnosticManager.clearDiagnosticsWithFixIts();
-}
-
 ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &filePath)
 {
     return qobject_cast<ClangEditorDocumentProcessor*>(
@@ -490,35 +354,6 @@ void ClangEditorDocumentProcessor::updateBackendDocumentIfProjectPartExists()
         const ClangBackEnd::FileContainer fileContainer = fileContainerWithDocumentContent();
         m_communicator.documentsChangedWithRevisionCheck(fileContainer);
     }
-}
-
-void ClangEditorDocumentProcessor::requestAnnotationsFromBackend()
-{
-    const auto fileContainer = fileContainerWithDocumentContent();
-    m_communicator.requestAnnotations(fileContainer);
-}
-
-CppEditor::BaseEditorDocumentProcessor::HeaderErrorDiagnosticWidgetCreator
-ClangEditorDocumentProcessor::creatorForHeaderErrorDiagnosticWidget(
-        const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic)
-{
-    if (firstHeaderErrorDiagnostic.text.isEmpty())
-        return CppEditor::BaseEditorDocumentProcessor::HeaderErrorDiagnosticWidgetCreator();
-
-    return [firstHeaderErrorDiagnostic]() {
-        auto vbox = new QVBoxLayout;
-        vbox->setContentsMargins(10, 0, 0, 2);
-        vbox->setSpacing(2);
-
-        vbox->addWidget(ClangDiagnosticWidget::createWidget({firstHeaderErrorDiagnostic},
-                                                            ClangDiagnosticWidget::InfoBar, {},
-                                                            "libclang"));
-
-        auto widget = new QWidget;
-        widget->setLayout(vbox);
-
-        return widget;
-    };
 }
 
 ClangBackEnd::FileContainer ClangEditorDocumentProcessor::simpleFileContainer(

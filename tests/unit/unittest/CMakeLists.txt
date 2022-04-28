@@ -182,7 +182,6 @@ extend_qtc_test(unittest
     clangcodemodelserver-test.cpp
     clangcompletecodejob-test.cpp
     clangcompletioncontextanalyzer-test.cpp
-    clangdiagnosticfilter-test.cpp
     clangdocumentprocessors-test.cpp
     clangdocumentprocessor-test.cpp
     clangdocuments-test.cpp
@@ -190,7 +189,6 @@ extend_qtc_test(unittest
     clangdocument-test.cpp
     clangfixitoperation-test.cpp
     clangfollowsymbol-test.cpp
-    clangisdiagnosticrelatedtolocation-test.cpp
     clangjobqueue-test.cpp
     clangjobs-test.cpp
     clangparsesupportivetranslationunitjob-test.cpp
@@ -213,7 +211,6 @@ extend_qtc_test(unittest
     diagnostic-test.cpp
     fixit-test.cpp
     gtest-clang-printing.cpp gtest-clang-printing.h
-    highlightingresultreporter-test.cpp
     readexporteddiagnostics-test.cpp
     skippedsourceranges-test.cpp
     sourcelocation-test.cpp
@@ -422,11 +419,8 @@ extend_qtc_test(unittest
     clangactivationsequenceprocessor.cpp clangactivationsequenceprocessor.h
     clangcompletionchunkstotextconverter.cpp clangcompletionchunkstotextconverter.h
     clangcompletioncontextanalyzer.cpp clangcompletioncontextanalyzer.h
-    clangdiagnosticfilter.cpp clangdiagnosticfilter.h
     clangfixitoperation.cpp clangfixitoperation.h
-    clanghighlightingresultreporter.cpp clanghighlightingresultreporter.h
     clanguiheaderondiskmanager.cpp clanguiheaderondiskmanager.h
-    clangisdiagnosticrelatedtolocation.h
 )
 
 find_package(yaml-cpp QUIET MODULE)

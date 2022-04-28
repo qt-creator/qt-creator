@@ -31,6 +31,8 @@
 #include "cppsemanticinfoupdater.h"
 #include "semantichighlighter.h"
 
+#include <functional>
+
 namespace CppEditor {
 
 class CPPEDITOR_EXPORT BuiltinEditorDocumentProcessor : public BaseEditorDocumentProcessor
@@ -38,8 +40,7 @@ class CPPEDITOR_EXPORT BuiltinEditorDocumentProcessor : public BaseEditorDocumen
     Q_OBJECT
 
 public:
-    BuiltinEditorDocumentProcessor(TextEditor::TextDocument *document,
-                                   bool enableSemanticHighlighter = true);
+    BuiltinEditorDocumentProcessor(TextEditor::TextDocument *document);
     ~BuiltinEditorDocumentProcessor() override;
 
     // BaseEditorDocumentProcessor interface
@@ -54,6 +55,9 @@ public:
     QFuture<CursorInfo> cursorInfo(const CursorInfoParams &params) override;
     QFuture<CursorInfo> requestLocalReferences(const QTextCursor &) override;
     QFuture<SymbolInfo> requestFollowSymbol(int, int) override;
+
+    using SemanticHighlightingChecker = std::function<bool()>;
+    void setSemanticHighlightingChecker(const SemanticHighlightingChecker &checker);
 
 private:
     void onParserFinished(CPlusPlus::Document::Ptr document, CPlusPlus::Snapshot snapshot);
@@ -73,6 +77,7 @@ private:
 
     SemanticInfoUpdater m_semanticInfoUpdater;
     QScopedPointer<SemanticHighlighter> m_semanticHighlighter;
+    SemanticHighlightingChecker m_semanticHighlightingChecker;
 };
 
 } // namespace CppEditor

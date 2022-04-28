@@ -301,12 +301,6 @@ void BackendCommunicator::documentsChangedWithRevisionCheck(const FileContainer 
     }
 }
 
-void BackendCommunicator::requestAnnotations(const FileContainer &fileContainer)
-{
-    const RequestAnnotationsMessage message(fileContainer);
-    m_sender->requestAnnotations(message);
-}
-
 QFuture<CppEditor::CursorInfo> BackendCommunicator::requestReferences(
         const FileContainer &fileContainer,
         quint32 line,

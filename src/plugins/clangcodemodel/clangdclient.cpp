@@ -27,7 +27,7 @@
 
 #include "clangcompletionassistprocessor.h"
 #include "clangcompletioncontextanalyzer.h"
-#include "clangdiagnosticmanager.h"
+#include "clangconstants.h"
 #include "clangdqpropertyhighlighter.h"
 #include "clangmodelmanagersupport.h"
 #include "clangpreprocessorassistproposalitem.h"
@@ -62,6 +62,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/taskhub.h>
 #include <texteditor/basefilefind.h>
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>
@@ -1613,7 +1614,7 @@ public:
     void hideDiagnostics(const Utils::FilePath &filePath) override
     {
         DiagnosticManager::hideDiagnostics(filePath);
-        ClangDiagnosticManager::clearTaskHubIssues();
+        TaskHub::clearTasks(Constants::TASK_CATEGORY_DIAGNOSTICS);
     }
 
     QList<Diagnostic> filteredDiagnostics(const QList<Diagnostic> &diagnostics) const override

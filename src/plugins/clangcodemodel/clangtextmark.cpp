@@ -39,6 +39,8 @@
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/cppcodemodelsettings.h>
 
+#include <projectexplorer/taskhub.h>
+
 #include <utils/fadingindicator.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
@@ -53,9 +55,9 @@
 #include <QString>
 
 using namespace CppEditor;
-using namespace ClangCodeModel::Internal;
 using namespace LanguageClient;
 using namespace LanguageServerProtocol;
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace ClangCodeModel {
@@ -63,26 +65,7 @@ namespace Internal {
 
 namespace {
 
-bool isWarningOrNote(ClangBackEnd::DiagnosticSeverity severity)
-{
-    using ClangBackEnd::DiagnosticSeverity;
-    switch (severity) {
-        case DiagnosticSeverity::Ignored:
-        case DiagnosticSeverity::Note:
-        case DiagnosticSeverity::Warning: return true;
-        case DiagnosticSeverity::Error:
-        case DiagnosticSeverity::Fatal: return false;
-    }
-
-    Q_UNREACHABLE();
-}
-
-static Id categoryForSeverity(ClangBackEnd::DiagnosticSeverity severity)
-{
-    return isWarningOrNote(severity) ? Constants::CLANG_WARNING : Constants::CLANG_ERROR;
-}
-
-ProjectExplorer::Project *projectForCurrentEditor()
+Project *projectForCurrentEditor()
 {
     const QString filePath = currentCppEditorDocumentFilePath();
     if (filePath.isEmpty())
@@ -134,7 +117,7 @@ void disableDiagnosticInConfig(ClangDiagnosticConfig &config,
 ClangDiagnosticConfig diagnosticConfig(const ClangProjectSettings &projectSettings,
                                        const CppCodeModelSettings &globalSettings)
 {
-    ProjectExplorer::Project *project = projectForCurrentEditor();
+    Project *project = projectForCurrentEditor();
     QTC_ASSERT(project, return {});
 
     // Get config id
@@ -148,7 +131,7 @@ ClangDiagnosticConfig diagnosticConfig(const ClangProjectSettings &projectSettin
     return configsModel.configWithId(currentConfigId);
 }
 
-bool isDiagnosticConfigChangable(ProjectExplorer::Project *project,
+bool isDiagnosticConfigChangable(Project *project,
                                  const ClangBackEnd::DiagnosticContainer &diagnostic)
 {
     if (!project)
@@ -168,7 +151,7 @@ bool isDiagnosticConfigChangable(ProjectExplorer::Project *project,
 
 void disableDiagnosticInCurrentProjectConfig(const ClangBackEnd::DiagnosticContainer &diagnostic)
 {
-    ProjectExplorer::Project *project = projectForCurrentEditor();
+    Project *project = projectForCurrentEditor();
     QTC_ASSERT(project, return );
 
     // Get settings
@@ -209,90 +192,6 @@ void disableDiagnosticInCurrentProjectConfig(const ClangBackEnd::DiagnosticConta
     FadingIndicator::showText(Core::ICore::mainWindow(),
                               text,
                               FadingIndicator::SmallText);
-}
-
-} // anonymous namespace
-
-ClangTextMark::ClangTextMark(const FilePath &fileName,
-                             const ClangBackEnd::DiagnosticContainer &diagnostic,
-                             const RemovedFromEditorHandler &removedHandler,
-                             bool fullVisualization, const ClangDiagnosticManager *diagMgr)
-    : TextEditor::TextMark(fileName,
-                           int(diagnostic.location.line),
-                           categoryForSeverity(diagnostic.severity))
-    , m_diagnostic(diagnostic)
-    , m_removedFromEditorHandler(removedHandler)
-    , m_diagMgr(diagMgr)
-{
-    setSettingsPage(CppEditor::Constants::CPP_CODE_MODEL_SETTINGS_ID);
-
-    const bool warning = isWarningOrNote(diagnostic.severity);
-    setDefaultToolTip(warning ? QApplication::translate("Clang Code Model Marks", "Code Model Warning")
-                              : QApplication::translate("Clang Code Model Marks", "Code Model Error"));
-    setPriority(warning ? TextEditor::TextMark::NormalPriority
-                        : TextEditor::TextMark::HighPriority);
-    updateIcon();
-    if (fullVisualization) {
-        setLineAnnotation(diagnosticCategoryPrefixRemoved(diagnostic.text.toString()));
-        setColor(warning ? Theme::CodeModel_Warning_TextMarkColor
-                         : Theme::CodeModel_Error_TextMarkColor);
-    }
-
-    // Copy to clipboard action
-    QVector<QAction *> actions;
-    QAction *action = new QAction();
-    action->setIcon(QIcon::fromTheme("edit-copy", Icons::COPY.icon()));
-    action->setToolTip(QApplication::translate("Clang Code Model Marks", "Copy to Clipboard"));
-    QObject::connect(action, &QAction::triggered, [diagnostic]() {
-        const QString text = ClangDiagnosticWidget::createText({diagnostic},
-                                                               ClangDiagnosticWidget::InfoBar);
-        QApplication::clipboard()->setText(text, QClipboard::Clipboard);
-    });
-    actions << action;
-
-    // Remove diagnostic warning action
-    ProjectExplorer::Project *project = projectForCurrentEditor();
-    if (project && isDiagnosticConfigChangable(project, diagnostic)) {
-        action = new QAction();
-        action->setIcon(Icons::BROKEN.icon());
-        action->setToolTip(QApplication::translate("Clang Code Model Marks",
-                                                   "Disable Diagnostic in Current Project"));
-        QObject::connect(action, &QAction::triggered, [diagnostic]() {
-            disableDiagnosticInCurrentProjectConfig(diagnostic);
-        });
-        actions << action;
-    }
-
-    setActions(actions);
-}
-
-void ClangTextMark::updateIcon(bool valid)
-{
-    using namespace Icons;
-    if (isWarningOrNote(m_diagnostic.severity))
-        setIcon(valid ? CODEMODEL_WARNING.icon() : CODEMODEL_DISABLED_WARNING.icon());
-    else
-        setIcon(valid ? CODEMODEL_ERROR.icon() : CODEMODEL_DISABLED_ERROR.icon());
-}
-
-bool ClangTextMark::addToolTipContent(QLayout *target) const
-{
-    const auto canApplyFixIt = [diag = m_diagnostic, diagMgr = m_diagMgr, c = color()] {
-        return c != Utils::Theme::Color::IconsDisabledColor
-                && !diagMgr->diagnosticsInvalidated()
-                && diagMgr->diagnosticsWithFixIts().contains(diag);
-    };
-    QWidget *widget = ClangDiagnosticWidget::createWidget(
-                {m_diagnostic}, ClangDiagnosticWidget::ToolTip, canApplyFixIt, "libclang");
-    target->addWidget(widget);
-
-    return true;
-}
-
-void ClangTextMark::removedFromEditor()
-{
-    QTC_ASSERT(m_removedFromEditorHandler, return);
-    m_removedFromEditorHandler(this);
 }
 
 ClangBackEnd::DiagnosticSeverity convertSeverity(DiagnosticSeverity src)
@@ -383,6 +282,36 @@ ClangBackEnd::DiagnosticContainer convertDiagnostic(const ClangdDiagnostic &src,
     return target;
 }
 
+void addTask(const ClangBackEnd::DiagnosticContainer &diagnostic)
+{
+    Task::TaskType taskType = Task::TaskType::Unknown;
+    QIcon icon;
+
+    switch (diagnostic.severity) {
+    case ClangBackEnd::DiagnosticSeverity::Fatal:
+    case ClangBackEnd::DiagnosticSeverity::Error:
+        taskType = Task::TaskType::Error;
+        icon = ::Utils::Icons::CODEMODEL_ERROR.icon();
+        break;
+    case ClangBackEnd::DiagnosticSeverity::Warning:
+        taskType = Task::TaskType::Warning;
+        icon = ::Utils::Icons::CODEMODEL_WARNING.icon();
+        break;
+    default:
+        break;
+    }
+
+    TaskHub::addTask(Task(taskType,
+                          diagnosticCategoryPrefixRemoved(diagnostic.text.toString()),
+                          FilePath::fromString(diagnostic.location.filePath.toString()),
+                          diagnostic.location.line,
+                          Constants::TASK_CATEGORY_DIAGNOSTICS,
+                          icon,
+                          Task::NoOptions));
+}
+
+} // anonymous namespace
+
 ClangdTextMark::ClangdTextMark(const FilePath &filePath,
                                const Diagnostic &diagnostic,
                                bool isProjectFile,
@@ -404,7 +333,7 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
         setLineAnnotation(diagnostic.message());
         setColor(isError ? Theme::CodeModel_Error_TextMarkColor
                          : Theme::CodeModel_Warning_TextMarkColor);
-        ClangDiagnosticManager::addTask(m_diagnostic);
+        addTask(m_diagnostic);
     }
 
     // Copy to clipboard action
@@ -420,7 +349,7 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
     actions << action;
 
     // Remove diagnostic warning action
-    ProjectExplorer::Project *project = projectForCurrentEditor();
+    Project *project = projectForCurrentEditor();
     if (project && isDiagnosticConfigChangable(project, m_diagnostic)) {
         action = new QAction();
         action->setIcon(Icons::BROKEN.icon());

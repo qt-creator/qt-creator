@@ -25,11 +25,11 @@
 
 #pragma once
 
-#include "clangdiagnosticmanager.h"
 #include "clangeditordocumentparser.h"
 
+#include <clangsupport/sourcerangecontainer.h>
+
 #include <cppeditor/builtineditordocumentprocessor.h>
-#include <cppeditor/semantichighlighter.h>
 
 #include <utils/futuresynchronizer.h>
 #include <utils/id.h>
@@ -72,22 +72,6 @@ public:
 
     ::Utils::Id diagnosticConfigId() const;
 
-    void updateCodeWarnings(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
-                            const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic,
-                            uint documentRevision);
-    void updateHighlighting(const QVector<ClangBackEnd::TokenInfoContainer> &tokenInfos,
-                            const QVector<ClangBackEnd::SourceRangeContainer> &skippedPreprocessorRanges,
-                            uint documentRevision);
-    void updateTokenInfos(const QVector<ClangBackEnd::TokenInfoContainer> &tokenInfos,
-                          uint documentRevision);
-
-    TextEditor::QuickFixOperations
-    extraRefactoringOperations(const TextEditor::AssistInterface &assistInterface) override;
-
-    void invalidateDiagnostics() override;
-
-    TextEditor::TextMarks diagnosticTextMarksAt(uint line, uint column) const;
-
     void editorDocumentTimerRestarted() override;
 
     void setParserConfig(const CppEditor::BaseEditorDocumentParser::Configuration &config) override;
@@ -101,15 +85,6 @@ public:
                                                int column) override;
 
     void closeBackendDocument();
-
-    void clearDiagnosticsWithFixIts();
-
-    const QVector<ClangBackEnd::TokenInfoContainer> &tokenInfos() const;
-
-    static void clearTaskHubIssues();
-    void generateTaskHubIssues();
-
-    static void clearTextMarks(const Utils::FilePath &filePath);
 
 public:
     static ClangEditorDocumentProcessor *get(const QString &filePath);
@@ -125,10 +100,7 @@ private:
     void updateBackendProjectPartAndDocument();
     void updateBackendDocument(const CppEditor::ProjectPart &projectPart);
     void updateBackendDocumentIfProjectPartExists();
-    void requestAnnotationsFromBackend();
 
-    HeaderErrorDiagnosticWidgetCreator creatorForHeaderErrorDiagnosticWidget(
-            const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic);
     ClangBackEnd::FileContainer simpleFileContainer(const QByteArray &codecName = QByteArray()) const;
     ClangBackEnd::FileContainer fileContainerWithOptionsAndDocumentContent(
         const QStringList &compilationArguments,
@@ -137,7 +109,6 @@ private:
 
 private:
     TextEditor::TextDocument &m_document;
-    ClangDiagnosticManager m_diagnosticManager;
     BackendCommunicator &m_communicator;
     QSharedPointer<ClangEditorDocumentParser> m_parser;
     CppEditor::ProjectPart::ConstPtr m_projectPart;
@@ -148,8 +119,6 @@ private:
     unsigned m_parserRevision;
     enum class InvalidationState { Off, Scheduled, Canceled } m_invalidationState;
 
-    QVector<ClangBackEnd::TokenInfoContainer> m_tokenInfos;
-    CppEditor::SemanticHighlighter m_semanticHighlighter;
     CppEditor::BuiltinEditorDocumentProcessor m_builtinProcessor;
     Utils::FutureSynchronizer m_parserSynchronizer;
 };

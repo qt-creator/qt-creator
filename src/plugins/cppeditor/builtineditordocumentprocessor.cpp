@@ -157,16 +157,12 @@ QList<TextEditor::BlockRange> toTextEditorBlocks(
 
 } // anonymous namespace
 
-BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
-        TextEditor::TextDocument *document,
-        bool enableSemanticHighlighter)
+BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(TextEditor::TextDocument *document)
     : BaseEditorDocumentProcessor(document->document(), document->filePath().toString())
     , m_parser(new BuiltinEditorDocumentParser(document->filePath().toString(),
                                                indexerFileSizeLimitInMb()))
     , m_codeWarningsUpdated(false)
-    , m_semanticHighlighter(enableSemanticHighlighter
-                            ? new SemanticHighlighter(document)
-                            : nullptr)
+    , m_semanticHighlighter(new SemanticHighlighter(document))
 {
     using namespace Internal;
 
@@ -176,18 +172,16 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
     config.usePrecompiledHeaders = cms->pchUsage() != CppCodeModelSettings::PchUse_None;
     m_parser->setConfiguration(config);
 
-    if (m_semanticHighlighter) {
-        m_semanticHighlighter->setHighlightingRunner(
-            [this]() -> QFuture<TextEditor::HighlightingResult> {
-                const SemanticInfo semanticInfo = m_semanticInfoUpdater.semanticInfo();
-                CheckSymbols *checkSymbols = createHighlighter(semanticInfo.doc, semanticInfo.snapshot,
-                                                               textDocument());
-                QTC_ASSERT(checkSymbols, return QFuture<TextEditor::HighlightingResult>());
-                connect(checkSymbols, &CheckSymbols::codeWarningsUpdated,
-                        this, &BuiltinEditorDocumentProcessor::onCodeWarningsUpdated);
-                return checkSymbols->start();
-            });
-    }
+    m_semanticHighlighter->setHighlightingRunner(
+                [this]() -> QFuture<TextEditor::HighlightingResult> {
+                    const SemanticInfo semanticInfo = m_semanticInfoUpdater.semanticInfo();
+                    CheckSymbols *checkSymbols = createHighlighter(semanticInfo.doc, semanticInfo.snapshot,
+                    textDocument());
+                    QTC_ASSERT(checkSymbols, return QFuture<TextEditor::HighlightingResult>());
+                    connect(checkSymbols, &CheckSymbols::codeWarningsUpdated,
+                    this, &BuiltinEditorDocumentProcessor::onCodeWarningsUpdated);
+                    return checkSymbols->start();
+                });
 
     connect(m_parser.data(), &BuiltinEditorDocumentParser::projectPartInfoUpdated,
             this, &BaseEditorDocumentProcessor::projectPartInfoUpdated);
@@ -229,7 +223,7 @@ void BuiltinEditorDocumentProcessor::recalculateSemanticInfoDetached(bool force)
 
 void BuiltinEditorDocumentProcessor::semanticRehighlight()
 {
-    if (m_semanticHighlighter && m_semanticInfoUpdater.semanticInfo().doc) {
+    if (m_semanticInfoUpdater.semanticInfo().doc) {
         if (const CPlusPlus::Document::Ptr document = m_documentSnapshot.document(filePath())) {
             m_codeWarnings = toTextEditorSelections(document->diagnosticMessages(), textDocument());
             m_codeWarningsUpdated = false;
@@ -275,6 +269,12 @@ QFuture<SymbolInfo> BuiltinEditorDocumentProcessor::requestFollowSymbol(int, int
     return futureInterface.future();
 }
 
+void BuiltinEditorDocumentProcessor::setSemanticHighlightingChecker(
+            const SemanticHighlightingChecker &checker)
+{
+    m_semanticHighlightingChecker = checker;
+}
+
 void BuiltinEditorDocumentProcessor::onParserFinished(CPlusPlus::Document::Ptr document,
                                                       CPlusPlus::Snapshot snapshot)
 {
@@ -312,7 +312,7 @@ void BuiltinEditorDocumentProcessor::onSemanticInfoUpdated(const SemanticInfo se
 
     emit semanticInfoUpdated(semanticInfo);
 
-    if (m_semanticHighlighter)
+    if (!m_semanticHighlightingChecker || m_semanticHighlightingChecker())
         m_semanticHighlighter->run();
 }
 
