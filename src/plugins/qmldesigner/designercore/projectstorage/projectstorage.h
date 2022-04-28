@@ -2692,7 +2692,9 @@ public:
         "SELECT kind FROM importedTypeNames WHERE importedTypeNameId=?1", database};
     mutable ReadStatement<1, 1> selectTypeIdForQualifiedImportedTypeNameNamesStatement{
         "SELECT typeId FROM importedTypeNames AS itn JOIN documentImports AS di ON "
-        "importOrSourceId=importId JOIN exportedTypeNames AS etn USING(moduleId) WHERE "
+        "importOrSourceId=di.importId JOIN documentImports AS di2 ON di.sourceId=di2.sourceId AND "
+        "di.moduleId=di2.sourceModuleId "
+        "JOIN exportedTypeNames AS etn ON di2.moduleId=etn.moduleId WHERE "
         "itn.kind=2 AND importedTypeNameId=?1 AND itn.name=etn.name AND "
         "(di.majorVersion IS NULL OR (di.majorVersion=etn.majorVersion AND (di.minorVersion IS "
         "NULL OR di.minorVersion>=etn.minorVersion))) ORDER BY etn.majorVersion DESC NULLS FIRST, "
@@ -2779,7 +2781,7 @@ public:
         "             iif(mei.isAutoVersion=1, i.minorVersion, mei.minorVersion), "
         "             mei.moduleExportedImportId "
         "        FROM moduleExportedImports AS mei JOIN imports AS i USING(moduleId)) "
-        "SELECT moduleId, ifnull(majorVersion, -1), ifnull(minorVersion, -1), "
+        "SELECT DISTINCT moduleId, ifnull(majorVersion, -1), ifnull(minorVersion, -1), "
         "       moduleExportedImportId "
         "FROM imports",
         database};

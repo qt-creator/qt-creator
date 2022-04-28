@@ -4276,4 +4276,37 @@ TEST_F(ProjectStorage, ModuleExportedImportDistinguishBetweenDependencyAndImport
                                 UnorderedElementsAre(IsExportedType(myModuleModuleId, "MyItem"))))));
 }
 
+TEST_F(ProjectStorage, ModuleExportedImportWithQualifiedImportedType)
+{
+    auto package{createModuleExportedImportSynchronizationPackage()};
+    package.types.back().prototype = Storage::QualifiedImportedType{
+        "Object", Storage::Import{qtQuick3DModuleId, Storage::Version{1}, sourceId4}};
+
+    storage.synchronize(std::move(package));
+
+    ASSERT_THAT(storage.fetchTypes(),
+                UnorderedElementsAre(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(qtQuickModuleId, "Item")))),
+                    AllOf(IsStorageType(sourceId2, "QObject", TypeId{}, TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(qmlModuleId, "Object")))),
+                    AllOf(IsStorageType(sourceId3,
+                                        "QQuickItem3d",
+                                        fetchTypeId(sourceId1, "QQuickItem"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(qtQuick3DModuleId, "Item3D")))),
+                    AllOf(IsStorageType(sourceId4,
+                                        "MyItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(myModuleModuleId, "MyItem"))))));
+}
+
 } // namespace
