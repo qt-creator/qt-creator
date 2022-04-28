@@ -120,8 +120,7 @@ void PdbEngine::setupEngine()
     m_interpreter = runParameters().interpreter;
     QString bridge = ICore::resourcePath("debugger/pdbbridge.py").toString();
 
-    connect(&m_proc, &QtcProcess::errorOccurred, this, &PdbEngine::handlePdbError);
-    connect(&m_proc, &QtcProcess::finished, this, &PdbEngine::handlePdbFinished);
+    connect(&m_proc, &QtcProcess::finished, this, &PdbEngine::handlePdbDone);
     connect(&m_proc, &QtcProcess::readyReadStandardOutput, this, &PdbEngine::readPdbStandardOutput);
     connect(&m_proc, &QtcProcess::readyReadStandardError, this, &PdbEngine::readPdbStandardError);
 
@@ -387,24 +386,6 @@ void PdbEngine::updateItem(const QString &iname)
     updateAll();
 }
 
-void PdbEngine::handlePdbError(QProcess::ProcessError error)
-{
-    showMessage("HANDLE PDB ERROR");
-    switch (error) {
-    case QProcess::Crashed:
-        break; // will get a processExited() as well
-    // impossible case QProcess::FailedToStart:
-    case QProcess::ReadError:
-    case QProcess::WriteError:
-    case QProcess::Timedout:
-    default:
-        //setState(EngineShutdownRequested, true);
-        m_proc.kill();
-        AsynchronousMessageBox::critical(tr("Pdb I/O Error"), errorMessage(error));
-        break;
-    }
-}
-
 QString PdbEngine::errorMessage(QProcess::ProcessError error) const
 {
     switch (error) {
@@ -432,8 +413,16 @@ QString PdbEngine::errorMessage(QProcess::ProcessError error) const
     }
 }
 
-void PdbEngine::handlePdbFinished()
+void PdbEngine::handlePdbDone()
 {
+    const QProcess::ProcessError error = m_proc.error();
+    if (error != QProcess::UnknownError) {
+        showMessage("HANDLE PDB ERROR");
+        if (error != QProcess::Crashed)
+            AsynchronousMessageBox::critical(tr("Pdb I/O Error"), errorMessage(error));
+        if (error == QProcess::FailedToStart)
+            return;
+    }
     showMessage(QString("PDB PROCESS FINISHED, status %1, code %2")
                 .arg(m_proc.exitStatus()).arg(m_proc.exitCode()));
     notifyEngineSpontaneousShutdown();
