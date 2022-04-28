@@ -528,10 +528,13 @@ public:
     {
         Environment env;
         if (m_setup.m_haveEnv) {
-            if (m_setup.m_environment.size() == 0)
+            if (m_setup.m_environment.size()) {
+                env = m_setup.m_environment;
+            } else {
                 qWarning("QtcProcess::start: Empty environment set when running '%s'.",
                          qPrintable(m_setup.m_commandLine.executable().toString()));
-            env = m_setup.m_environment;
+                env = Environment::systemEnvironment();
+            }
         } else {
             env = Environment::systemEnvironment();
         }
