@@ -25,6 +25,10 @@
 
 #pragma once
 
+#ifdef SQLITE_STATIC_LIBRARY
+#include "config.h"
+#endif
+
 #include "sqlitedatabase.h"
 #include "sqlitesessionchangeset.h"
 #include "sqlitewritestatement.h"

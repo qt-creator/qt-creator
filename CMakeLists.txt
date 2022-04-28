@@ -76,6 +76,10 @@ else()
   # This includes the code that will enable higher compiler warnings level (/W3 for MSVC, -Wall -Wextra for GCC)
   # This is controlled by QT_COMPILE_OPTIONS_DISABLE_WARNINGS target property.
   include(QtCompilerFlags)
+
+  if (MSVC AND QT_FEATURE_static_runtime)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+  endif()
 endif()
 find_package(Qt5 COMPONENTS LinguistTools QUIET)
 find_package(Qt5 COMPONENTS Quick QuickWidgets Designer DesignerComponents Help SerialPort Svg Tools QUIET)

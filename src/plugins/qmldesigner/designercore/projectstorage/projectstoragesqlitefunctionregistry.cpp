@@ -25,7 +25,7 @@
 
 #include "projectstoragesqlitefunctionregistry.h"
 
-#include <sqlite3.h>
+#include "sqlite.h"
 
 namespace QmlDesigner {
 

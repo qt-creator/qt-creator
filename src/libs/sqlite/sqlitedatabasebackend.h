@@ -25,6 +25,10 @@
 
 #pragma once
 
+#ifdef SQLITE_STATIC_LIBRARY
+#include "config.h"
+#endif
+
 #include "sqliteglobal.h"
 
 #include <utils/smallstringvector.h>

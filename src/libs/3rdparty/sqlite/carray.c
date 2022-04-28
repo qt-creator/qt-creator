@@ -52,6 +52,7 @@
 ** as the number of elements in the array.  The virtual table steps through
 ** the array, element by element.
 */
+#include "config.h"
 #include "sqlite3ext.h"
 SQLITE_EXTENSION_INIT1
 #include <assert.h>
