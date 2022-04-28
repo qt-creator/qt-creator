@@ -69,7 +69,11 @@ class ApplicationLauncherPrivate : public QObject
 public:
     enum State { Inactive, Run };
     explicit ApplicationLauncherPrivate(ApplicationLauncher *parent);
-    ~ApplicationLauncherPrivate() override { setFinished(); }
+
+    ~ApplicationLauncherPrivate() override {
+        if (m_state == Run)
+            emit q->finished();
+    }
 
     void start();
     void stop();
@@ -83,10 +87,6 @@ public:
     void checkLocalDebugOutput(qint64 pid, const QString &message);
     qint64 applicationPID() const;
     bool isRunning() const;
-
-    // Remote
-    void doReportError(QProcess::ProcessError error = QProcess::FailedToStart);
-    void setFinished();
 
 public:
     ApplicationLauncher *q;
@@ -274,11 +274,14 @@ void ApplicationLauncherPrivate::handleDone()
     } else {
         QTC_ASSERT(m_state == Run, return);
         if (m_resultData.m_error == QProcess::FailedToStart) {
-            doReportError();
-        } else if (m_process->exitStatus() == QProcess::CrashExit) {
-            doReportError(QProcess::Crashed);
+            m_resultData.m_exitStatus = QProcess::CrashExit;
+            emit q->errorOccurred(m_resultData.m_error);
+        } else if (m_resultData.m_exitStatus == QProcess::CrashExit) {
+            m_resultData.m_error = QProcess::Crashed;
+            emit q->errorOccurred(m_resultData.m_error);
         }
-        setFinished();
+        m_state = Inactive;
+        emit q->finished();
     }
 }
 
@@ -366,28 +369,34 @@ void ApplicationLauncherPrivate::start()
     } else {
         QTC_ASSERT(m_state == Inactive, return);
 
-        m_state = Run;
         if (!m_runnable.device) {
             m_resultData.m_errorString = ApplicationLauncher::tr("Cannot run: No device.");
-            doReportError();
-            setFinished();
+            m_resultData.m_error = QProcess::FailedToStart;
+            m_resultData.m_exitStatus = QProcess::CrashExit;
+            emit q->errorOccurred(QProcess::FailedToStart);
+            emit q->finished();
             return;
         }
 
         if (!m_runnable.device->canCreateProcess()) {
             m_resultData.m_errorString =ApplicationLauncher::tr("Cannot run: Device is not able to create processes.");
-            doReportError();
-            setFinished();
+            m_resultData.m_error = QProcess::FailedToStart;
+            m_resultData.m_exitStatus = QProcess::CrashExit;
+            emit q->errorOccurred(QProcess::FailedToStart);
+            emit q->finished();
             return;
         }
 
         if (!m_runnable.device->isEmptyCommandAllowed() && m_runnable.command.isEmpty()) {
             m_resultData.m_errorString = ApplicationLauncher::tr("Cannot run: No command given.");
-            doReportError();
-            setFinished();
+            m_resultData.m_error = QProcess::FailedToStart;
+            m_resultData.m_exitStatus = QProcess::CrashExit;
+            emit q->errorOccurred(QProcess::FailedToStart);
+            emit q->finished();
             return;
         }
 
+        m_state = Run;
         m_stopRequested = false;
 
         m_process.reset(m_runnable.device->createProcess(this));
@@ -417,22 +426,6 @@ void ApplicationLauncherPrivate::start()
 
     m_process->setTerminalMode(m_useTerminal ? Utils::TerminalMode::On : Utils::TerminalMode::Off);
     m_process->start();
-}
-
-void ApplicationLauncherPrivate::setFinished()
-{
-    if (m_state == Inactive)
-        return;
-
-    m_state = Inactive;
-    emit q->finished();
-}
-
-void ApplicationLauncherPrivate::doReportError(QProcess::ProcessError error)
-{
-    m_resultData.m_error = error;
-    m_resultData.m_exitStatus = QProcess::CrashExit;
-    emit q->errorOccurred(error);
 }
 
 } // namespace ProjectExplorer
