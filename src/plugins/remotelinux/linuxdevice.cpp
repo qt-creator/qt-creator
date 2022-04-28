@@ -463,6 +463,7 @@ public:
     QThread m_shellThread;
     ShellThreadHandler *m_handler = nullptr;
     mutable QMutex m_shellMutex;
+    QList<QtcProcess *> m_terminals;
 };
 
 // SshProcessImpl
@@ -601,12 +602,14 @@ QString LinuxProcessImpl::fullCommandLine(const CommandLine &commandLine) const
 {
     CommandLine cmd;
 
-    const QStringList rcFilesToSource = {"/etc/profile", "$HOME/.profile"};
-    for (const QString &filePath : rcFilesToSource) {
-        cmd.addArgs({"test", "-f", filePath});
-        cmd.addArgs("&&", CommandLine::Raw);
-        cmd.addArgs({".", filePath});
-        cmd.addArgs(";", CommandLine::Raw);
+    if (!commandLine.isEmpty()) {
+        const QStringList rcFilesToSource = {"/etc/profile", "$HOME/.profile"};
+        for (const QString &filePath : rcFilesToSource) {
+            cmd.addArgs({"test", "-f", filePath});
+            cmd.addArgs("&&", CommandLine::Raw);
+            cmd.addArgs({".", filePath});
+            cmd.addArgs(";", CommandLine::Raw);
+        }
     }
 
     if (!m_setup.m_workingDirectory.isEmpty()) {
@@ -624,7 +627,8 @@ QString LinuxProcessImpl::fullCommandLine(const CommandLine &commandLine) const
     if (m_setup.m_terminalMode == TerminalMode::Off)
         cmd.addArg("exec");
 
-    cmd.addCommandLineAsArgs(commandLine, CommandLine::Raw);
+    if (!commandLine.isEmpty())
+        cmd.addCommandLineAsArgs(commandLine, CommandLine::Raw);
     return cmd.arguments();
 }
 
@@ -1041,8 +1045,9 @@ LinuxDevice::LinuxDevice()
     }});
 
     setOpenTerminal([this](const Environment &env, const FilePath &workingDir) {
-        QtcProcess * const proc = createProcess(nullptr);
-        QObject::connect(proc, &QtcProcess::done, [proc] {
+        QtcProcess * const proc = new QtcProcess;
+        d->m_terminals.append(proc);
+        QObject::connect(proc, &QtcProcess::done, [this, proc] {
             if (proc->error() != QProcess::UnknownError) {
                 const QString errorString = proc->errorString();
                 QString message;
@@ -1055,15 +1060,13 @@ LinuxDevice::LinuxDevice()
                 Core::MessageManager::writeDisrupting(message);
             }
             proc->deleteLater();
+            d->m_terminals.removeOne(proc);
         });
 
-        // It seems we cannot pass an environment to OpenSSH dynamically
-        // without specifying an executable.
-        if (env.size() > 0)
-            proc->setCommand({"/bin/sh", {}});
-
+        proc->setCommand({ mapToGlobalPath({}), {}});
         proc->setTerminalMode(TerminalMode::On);
         proc->setEnvironment(env);
+        proc->setRemoteEnvironment(env);
         proc->setWorkingDirectory(workingDir);
         proc->start();
     });
@@ -1182,6 +1185,7 @@ LinuxDevicePrivate::LinuxDevicePrivate(LinuxDevice *parent)
 
 LinuxDevicePrivate::~LinuxDevicePrivate()
 {
+    qDeleteAll(m_terminals);
     auto closeShell = [this] {
         m_shellThread.quit();
         m_shellThread.wait();
