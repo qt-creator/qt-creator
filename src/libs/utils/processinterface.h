@@ -86,6 +86,8 @@ class QTCREATOR_UTILS_EXPORT ProcessInterface : public QObject
 public:
     ProcessInterface(QObject *parent = nullptr) : QObject(parent) {}
 
+    static int controlSignalToInt(ControlSignal controlSignal);
+
 signals:
     // This should be emitted when being in Starting state only.
     // After emitting this signal the process enters Running state.

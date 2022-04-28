@@ -219,8 +219,6 @@ class DeviceProcessHooks
 {
 public:
     std::function<ProcessInterface *(const FilePath &)> processImplHook;
-    // TODO: remove this hook
-    std::function<void(QtcProcess &)> startProcessHook;
     std::function<Environment(const FilePath &)> systemEnvironmentForBinary;
 };
 

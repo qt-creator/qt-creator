@@ -270,7 +270,6 @@ public:
     virtual QFile::Permissions permissions(const Utils::FilePath &filePath) const;
     virtual bool setPermissions(const Utils::FilePath &filePath, QFile::Permissions) const;
     virtual Utils::ProcessInterface *createProcessInterface() const;
-    virtual void runProcess(Utils::QtcProcess &process) const;
     virtual Utils::Environment systemEnvironment() const;
     virtual qint64 fileSize(const Utils::FilePath &filePath) const;
     virtual qint64 bytesAvailable(const Utils::FilePath &filePath) const;

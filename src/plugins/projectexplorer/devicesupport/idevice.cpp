@@ -426,15 +426,8 @@ bool IDevice::setPermissions(const FilePath &filePath, QFile::Permissions) const
 
 ProcessInterface *IDevice::createProcessInterface() const
 {
-// TODO: uncomment below assert when docker device implements this method
-//    QTC_ASSERT(false, return nullptr);
-    return nullptr;
-}
-
-void IDevice::runProcess(QtcProcess &process) const
-{
-    Q_UNUSED(process);
     QTC_CHECK(false);
+    return nullptr;
 }
 
 Environment IDevice::systemEnvironment() const

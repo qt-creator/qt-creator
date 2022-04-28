@@ -25,10 +25,12 @@
 
 #include "dockerdevicewidget.h"
 
+#include <utils/environment.h>
 #include <utils/utilsicons.h>
 #include <utils/hostosinfo.h>
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
+#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 #include <QToolButton>

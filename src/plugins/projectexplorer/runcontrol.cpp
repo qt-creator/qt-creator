@@ -1155,8 +1155,8 @@ void RunControlPrivate::checkState(RunControlState expectedState)
 void RunControlPrivate::setState(RunControlState newState)
 {
     if (!isAllowedTransition(state, newState))
-        qDebug() << "Invalid run control state transition from " << stateName(state)
-                 << " to " << stateName(newState);
+        qDebug() << "Invalid run control state transition from" << stateName(state)
+                 << "to" << stateName(newState);
 
     state = newState;
 

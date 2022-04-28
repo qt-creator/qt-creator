@@ -713,17 +713,6 @@ void SshProcessInterfacePrivate::start()
     }
 }
 
-static int controlSignalToInt(ControlSignal controlSignal)
-{
-    switch (controlSignal) {
-    case ControlSignal::Terminate: return 15;
-    case ControlSignal::Kill:      return 9;
-    case ControlSignal::Interrupt: return 2;
-    case ControlSignal::KickOff:   QTC_CHECK(false); return 0;
-    }
-    return 0;
-}
-
 QString SshProcessInterface::pidArgumentForKill() const
 {
     return QString::fromLatin1("-%1 %1").arg(d->m_processId);
@@ -734,7 +723,7 @@ void SshProcessInterfacePrivate::sendControlSignal(ControlSignal controlSignal)
     QTC_ASSERT(controlSignal != ControlSignal::KickOff, return);
     // TODO: In case if m_processId == 0 try sending a signal based on process name.
     const QString args = QString::fromLatin1("-%1 %2")
-            .arg(controlSignalToInt(controlSignal)).arg(q->pidArgumentForKill());
+            .arg(ProcessInterface::controlSignalToInt(controlSignal)).arg(q->pidArgumentForKill());
     CommandLine command = { "kill", args, CommandLine::Raw };
     // Note: This blocking call takes up to 2 ms for local remote.
     m_devicePrivate->runInShell(command);

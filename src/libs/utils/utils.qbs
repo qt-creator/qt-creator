@@ -226,6 +226,7 @@ Project {
             "processhandle.h",
             "processinfo.cpp",
             "processinfo.h",
+            "processinterface.cpp",
             "processinterface.h",
             "processreaper.cpp",
             "processreaper.h",

@@ -795,14 +795,8 @@ void QtcProcess::startImpl()
 {
     ProcessInterface *processImpl = nullptr;
     if (d->m_setup.m_commandLine.executable().needsDevice()) {
-        if (s_deviceHooks.processImplHook) { // TODO: replace "if" with an assert for the hook
-            processImpl = s_deviceHooks.processImplHook(commandLine().executable());
-        }
-        if (!processImpl) { // TODO: remove this branch when docker is adapted accordingly
-            QTC_ASSERT(s_deviceHooks.startProcessHook, return);
-            s_deviceHooks.startProcessHook(*this);
-            return;
-        }
+        QTC_ASSERT(s_deviceHooks.processImplHook, return);
+        processImpl = s_deviceHooks.processImplHook(commandLine().executable());
     } else {
         processImpl = d->createProcessInterface();
     }
