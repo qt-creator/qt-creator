@@ -11,10 +11,6 @@ add_qtc_plugin(ClangCodeModel
   SOURCES
     clangactivationsequencecontextprocessor.cpp clangactivationsequencecontextprocessor.h
     clangactivationsequenceprocessor.cpp clangactivationsequenceprocessor.h
-    clangbackendcommunicator.cpp clangbackendcommunicator.h
-    clangbackendlogging.cpp clangbackendlogging.h
-    clangbackendreceiver.cpp clangbackendreceiver.h
-    clangbackendsender.cpp clangbackendsender.h
     clangcodemodelplugin.cpp clangcodemodelplugin.h
     clangcompletioncontextanalyzer.cpp clangcompletioncontextanalyzer.h
     clangconstants.h
