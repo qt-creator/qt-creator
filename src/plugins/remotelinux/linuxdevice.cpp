@@ -860,9 +860,18 @@ public:
     {
         closeShell();
         setSshParameters(parameters);
-        m_shell.reset(new SshRemoteProcess("/bin/sh",
-                  m_displaylessSshParameters.connectionOptions(SshSettings::sshFilePath())
-                                           << m_displaylessSshParameters.host()));
+        m_shell.reset(new QtcProcess);
+
+        SshRemoteProcess::setupSshEnvironment(m_shell.get());
+
+        const FilePath sshPath = SshSettings::sshFilePath();
+        CommandLine cmd { sshPath };
+        cmd.addArg("-q");
+        cmd.addArgs(m_displaylessSshParameters.connectionOptions(sshPath)
+                    << m_displaylessSshParameters.host());
+        cmd.addArg("/bin/sh");
+
+        m_shell->setCommand(cmd);
         m_shell->setProcessMode(ProcessMode::Writer);
         m_shell->setWriteData("echo\n");
         m_shell->start();
