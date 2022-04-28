@@ -55,6 +55,7 @@
 #include <cppeditor/cppvirtualfunctionassistprovider.h>
 #include <cppeditor/cppvirtualfunctionproposalitem.h>
 #include <cppeditor/semantichighlighter.h>
+#include <cppeditor/cppsemanticinfo.h>
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
 #include <languageclient/languageclientutils.h>

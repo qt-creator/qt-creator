@@ -70,10 +70,6 @@ BaseEditorDocumentProcessor::extraRefactoringOperations(const TextEditor::Assist
     return TextEditor::QuickFixOperations();
 }
 
-void BaseEditorDocumentProcessor::editorDocumentTimerRestarted()
-{
-}
-
 void BaseEditorDocumentProcessor::invalidateDiagnostics()
 {
 }

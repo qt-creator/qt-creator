@@ -35,7 +35,6 @@
 #include <utils/id.h>
 
 #include <QFutureWatcher>
-#include <QTimer>
 
 namespace ClangBackEnd {
 class DiagnosticContainer;
@@ -46,16 +45,12 @@ class FileContainer;
 namespace ClangCodeModel {
 namespace Internal {
 
-class BackendCommunicator;
-
 class ClangEditorDocumentProcessor : public CppEditor::BaseEditorDocumentProcessor
 {
     Q_OBJECT
 
 public:
-    ClangEditorDocumentProcessor(BackendCommunicator &communicator,
-                                 TextEditor::TextDocument *document);
-    ~ClangEditorDocumentProcessor() override;
+    ClangEditorDocumentProcessor(TextEditor::TextDocument *document);
 
     // BaseEditorDocumentProcessor interface
     void runImpl(const CppEditor::BaseEditorDocumentParser::UpdateParams &updateParams) override;
@@ -72,14 +67,10 @@ public:
 
     ::Utils::Id diagnosticConfigId() const;
 
-    void editorDocumentTimerRestarted() override;
-
     void setParserConfig(const CppEditor::BaseEditorDocumentParser::Configuration &config) override;
     CppEditor::BaseEditorDocumentParser::Configuration parserConfig() const;
 
     QFuture<CppEditor::CursorInfo> cursorInfo(const CppEditor::CursorInfoParams &params) override;
-
-    void closeBackendDocument();
 
 public:
     static ClangEditorDocumentProcessor *get(const QString &filePath);
@@ -89,29 +80,10 @@ signals:
                              const CppEditor::BaseEditorDocumentParser::Configuration &config);
 
 private:
-    void onParserFinished();
-
-    void updateBackendProjectPartAndDocument();
-    void updateBackendDocument(const CppEditor::ProjectPart &projectPart);
-    void updateBackendDocumentIfProjectPartExists();
-
-    ClangBackEnd::FileContainer simpleFileContainer(const QByteArray &codecName = QByteArray()) const;
-    ClangBackEnd::FileContainer fileContainerWithOptionsAndDocumentContent(
-        const QStringList &compilationArguments,
-        const ProjectExplorer::HeaderPaths headerPaths) const;
-    ClangBackEnd::FileContainer fileContainerWithDocumentContent() const;
-
-private:
     TextEditor::TextDocument &m_document;
-    BackendCommunicator &m_communicator;
     QSharedPointer<ClangEditorDocumentParser> m_parser;
     CppEditor::ProjectPart::ConstPtr m_projectPart;
     ::Utils::Id m_diagnosticConfigId;
-    bool m_isProjectFile = false;
-    QFutureWatcher<void> m_parserWatcher;
-    QTimer m_updateBackendDocumentTimer;
-    unsigned m_parserRevision;
-    enum class InvalidationState { Off, Scheduled, Canceled } m_invalidationState;
 
     CppEditor::BuiltinEditorDocumentProcessor m_builtinProcessor;
     Utils::FutureSynchronizer m_parserSynchronizer;

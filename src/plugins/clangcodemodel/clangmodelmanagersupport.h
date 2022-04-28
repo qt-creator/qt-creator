@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "clangbackendcommunicator.h"
 #include "clanguiheaderondiskmanager.h"
 
 #include <cppeditor/cppmodelmanagersupport.h>
@@ -44,8 +43,9 @@ class QMenu;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace TextEditor { class TextEditorWidget; }
+namespace Core { class IEditor; }
 namespace CppEditor { class RefactoringEngineInterface; }
+namespace TextEditor { class TextEditorWidget; }
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -74,7 +74,6 @@ public:
     bool supportsLocalUses(const TextEditor::TextDocument *document) const override;
     bool hasSpecialHoverHandler(const TextEditor::TextDocument *document) const override;
 
-    BackendCommunicator &communicator();
     QString dummyUiHeaderOnDiskDirPath() const;
     QString dummyUiHeaderOnDiskPath(const QString &filePath) const;
 
@@ -96,16 +95,7 @@ private:
                        Utils::ProcessLinkCallback &&processLinkCallback) override;
 
     void onEditorOpened(Core::IEditor *editor);
-    void onEditorClosed(const QList<Core::IEditor *> &editors);
     void onCurrentEditorChanged(Core::IEditor *newCurrent);
-    void onCppDocumentAboutToReloadOnTranslationUnit();
-    void onCppDocumentReloadFinishedOnTranslationUnit(bool success);
-    void onCppDocumentContentsChangedOnTranslationUnit(int position,
-                                                       int charsRemoved,
-                                                       int charsAdded);
-    void onCppDocumentAboutToReloadOnUnsavedFile();
-    void onCppDocumentReloadFinishedOnUnsavedFile(bool success);
-    void onCppDocumentContentsChangedOnUnsavedFile();
 
     void onAbstractEditorSupportContentsUpdated(const QString &filePath,
                                                 const QString &sourceFilePath,
@@ -128,10 +118,6 @@ private:
     void reinitializeBackendDocuments(const QStringList &projectPartIds);
 
     void connectTextDocumentToTranslationUnit(TextEditor::TextDocument *textDocument);
-    void connectTextDocumentToUnsavedFiles(TextEditor::TextDocument *textDocument);
-    void connectToTextDocumentContentsChangedForTranslationUnit(
-            TextEditor::TextDocument *textDocument);
-    void connectToTextDocumentContentsChangedForUnsavedFile(TextEditor::TextDocument *textDocument);
     void connectToWidgetsMarkContextMenuRequested(QWidget *editorWidget);
 
     void updateLanguageClient(ProjectExplorer::Project *project,
@@ -142,7 +128,6 @@ private:
     void watchForInternalChanges();
 
     UiHeaderOnDiskManager m_uiHeaderOnDiskManager;
-    BackendCommunicator m_communicator;
     std::unique_ptr<CppEditor::RefactoringEngineInterface> m_refactoringEngine;
 
     QHash<ProjectExplorer::Project *, ClangProjectSettings *> m_projectSettings;

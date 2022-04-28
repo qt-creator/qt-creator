@@ -122,8 +122,6 @@ ClangModelManagerSupport::ClangModelManagerSupport() : m_refactoringEngine(new R
             this, &ClangModelManagerSupport::onEditorOpened);
     connect(editorManager, &Core::EditorManager::currentEditorChanged,
             this, &ClangModelManagerSupport::onCurrentEditorChanged);
-    connect(editorManager, &Core::EditorManager::editorsClosed,
-            this, &ClangModelManagerSupport::onEditorClosed);
 
     CppEditor::CppModelManager *modelManager = cppModelManager();
     connect(modelManager, &CppEditor::CppModelManager::abstractEditorSupportContentsUpdated,
@@ -242,7 +240,7 @@ bool ClangModelManagerSupport::hasSpecialHoverHandler(
 CppEditor::BaseEditorDocumentProcessor *ClangModelManagerSupport::createEditorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument)
 {
-    const auto processor = new ClangEditorDocumentProcessor(m_communicator, baseTextDocument);
+    const auto processor = new ClangEditorDocumentProcessor(baseTextDocument);
     const auto handleConfigChange = [this](const Utils::FilePath &fp,
             const BaseEditorDocumentParser::Configuration &config) {
         if (const auto client = clientForFile(fp))
@@ -255,8 +253,6 @@ CppEditor::BaseEditorDocumentProcessor *ClangModelManagerSupport::createEditorDo
 
 void ClangModelManagerSupport::onCurrentEditorChanged(Core::IEditor *editor)
 {
-    m_communicator.documentVisibilityChanged();
-
     // Update task hub issues for current CppEditorDocument
     ProjectExplorer::TaskHub::clearTasks(Constants::TASK_CATEGORY_DIAGNOSTICS);
     if (!editor || !editor->document() || !cppModelManager()->isCppEditor(editor))
@@ -268,50 +264,6 @@ void ClangModelManagerSupport::onCurrentEditorChanged(Core::IEditor *editor)
         if (const auto client = clientForFile(filePath))
             client->updateParserConfig(filePath, processor->parserConfig());
     }
-}
-
-void ClangModelManagerSupport::connectTextDocumentToTranslationUnit(TextEditor::TextDocument *textDocument)
-{
-    // Handle externally changed documents
-    connect(textDocument, &Core::IDocument::aboutToReload,
-            this, &ClangModelManagerSupport::onCppDocumentAboutToReloadOnTranslationUnit,
-            Qt::UniqueConnection);
-    connect(textDocument, &Core::IDocument::reloadFinished,
-            this, &ClangModelManagerSupport::onCppDocumentReloadFinishedOnTranslationUnit,
-            Qt::UniqueConnection);
-
-    // Handle changes from e.g. refactoring actions
-    connectToTextDocumentContentsChangedForTranslationUnit(textDocument);
-}
-
-void ClangModelManagerSupport::connectTextDocumentToUnsavedFiles(TextEditor::TextDocument *textDocument)
-{
-    // Handle externally changed documents
-    connect(textDocument, &Core::IDocument::aboutToReload,
-            this, &ClangModelManagerSupport::onCppDocumentAboutToReloadOnUnsavedFile,
-            Qt::UniqueConnection);
-    connect(textDocument, &Core::IDocument::reloadFinished,
-            this, &ClangModelManagerSupport::onCppDocumentReloadFinishedOnUnsavedFile,
-            Qt::UniqueConnection);
-
-    // Handle changes from e.g. refactoring actions
-    connectToTextDocumentContentsChangedForUnsavedFile(textDocument);
-}
-
-void ClangModelManagerSupport::connectToTextDocumentContentsChangedForTranslationUnit(
-        TextEditor::TextDocument *textDocument)
-{
-    connect(textDocument, &TextEditor::TextDocument::contentsChangedWithPosition,
-            this, &ClangModelManagerSupport::onCppDocumentContentsChangedOnTranslationUnit,
-            Qt::UniqueConnection);
-}
-
-void ClangModelManagerSupport::connectToTextDocumentContentsChangedForUnsavedFile(
-        TextEditor::TextDocument *textDocument)
-{
-    connect(textDocument, &TextEditor::TextDocument::contentsChangedWithPosition,
-            this, &ClangModelManagerSupport::onCppDocumentContentsChangedOnUnsavedFile,
-            Qt::UniqueConnection);
 }
 
 void ClangModelManagerSupport::connectToWidgetsMarkContextMenuRequested(QWidget *editorWidget)
@@ -589,7 +541,6 @@ void ClangModelManagerSupport::onEditorOpened(Core::IEditor *editor)
     auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
 
     if (textDocument && cppModelManager()->isCppEditor(editor)) {
-        connectTextDocumentToTranslationUnit(textDocument);
         connectToWidgetsMarkContextMenuRequested(editor->widget());
 
         // TODO: Ensure that not fully loaded documents are updated?
@@ -606,60 +557,6 @@ void ClangModelManagerSupport::onEditorOpened(Core::IEditor *editor)
     }
 }
 
-void ClangModelManagerSupport::onEditorClosed(const QList<Core::IEditor *> &)
-{
-    m_communicator.documentVisibilityChanged();
-}
-
-void ClangModelManagerSupport::onCppDocumentAboutToReloadOnTranslationUnit()
-{
-    auto textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
-    disconnect(textDocument, &TextEditor::TextDocument::contentsChangedWithPosition,
-               this, &ClangModelManagerSupport::onCppDocumentContentsChangedOnTranslationUnit);
-}
-
-void ClangModelManagerSupport::onCppDocumentReloadFinishedOnTranslationUnit(bool success)
-{
-    if (success) {
-        auto textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
-        connectToTextDocumentContentsChangedForTranslationUnit(textDocument);
-        m_communicator.documentsChangedWithRevisionCheck(textDocument);
-    }
-}
-
-void ClangModelManagerSupport::onCppDocumentContentsChangedOnTranslationUnit(int position,
-                                                                             int /*charsRemoved*/,
-                                                                             int /*charsAdded*/)
-{
-    auto document = qobject_cast<Core::IDocument *>(sender());
-
-    m_communicator.updateChangeContentStartPosition(document->filePath().toString(),
-                                                       position);
-    m_communicator.documentsChangedIfNotCurrentDocument(document);
-}
-
-void ClangModelManagerSupport::onCppDocumentAboutToReloadOnUnsavedFile()
-{
-    auto textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
-    disconnect(textDocument, &TextEditor::TextDocument::contentsChangedWithPosition,
-               this, &ClangModelManagerSupport::onCppDocumentContentsChangedOnUnsavedFile);
-}
-
-void ClangModelManagerSupport::onCppDocumentReloadFinishedOnUnsavedFile(bool success)
-{
-    if (success) {
-        auto textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
-        connectToTextDocumentContentsChangedForUnsavedFile(textDocument);
-        m_communicator.unsavedFilesUpdated(textDocument);
-    }
-}
-
-void ClangModelManagerSupport::onCppDocumentContentsChangedOnUnsavedFile()
-{
-    auto document = qobject_cast<Core::IDocument *>(sender());
-    m_communicator.unsavedFilesUpdated(document);
-}
-
 void ClangModelManagerSupport::onAbstractEditorSupportContentsUpdated(const QString &filePath,
                                                                       const QString &,
                                                                       const QByteArray &content)
@@ -669,8 +566,7 @@ void ClangModelManagerSupport::onAbstractEditorSupportContentsUpdated(const QStr
     if (content.size() == 0)
         return; // Generation not yet finished.
 
-    const QString mappedPath = m_uiHeaderOnDiskManager.write(filePath, content);
-    m_communicator.unsavedFilesUpdated(mappedPath, content, 0);
+    m_uiHeaderOnDiskManager.write(filePath, content);
     ClangdClient::handleUiHeaderChange(Utils::FilePath::fromString(filePath).fileName());
 }
 
@@ -679,9 +575,7 @@ void ClangModelManagerSupport::onAbstractEditorSupportRemoved(const QString &fil
     QTC_ASSERT(!filePath.isEmpty(), return);
 
     if (!cppModelManager()->cppEditorDocument(filePath)) {
-        const QString mappedPath = m_uiHeaderOnDiskManager.remove(filePath);
-        const QString projectPartId = projectPartIdForFile(filePath);
-        m_communicator.unsavedFilesRemoved({{mappedPath, projectPartId}});
+        m_uiHeaderOnDiskManager.remove(filePath);
         ClangdClient::handleUiHeaderChange(Utils::FilePath::fromString(filePath).fileName());
     }
 }
@@ -860,7 +754,6 @@ void ClangModelManagerSupport::reinitializeBackendDocuments(const QStringList &p
 {
     const auto processors = clangProcessorsWithProjectParts(projectPartIds);
     foreach (ClangEditorDocumentProcessor *processor, processors) {
-        processor->closeBackendDocument();
         processor->clearProjectPart();
         processor->run();
     }
@@ -869,11 +762,6 @@ void ClangModelManagerSupport::reinitializeBackendDocuments(const QStringList &p
 ClangModelManagerSupport *ClangModelManagerSupport::instance()
 {
     return m_instance;
-}
-
-BackendCommunicator &ClangModelManagerSupport::communicator()
-{
-    return m_communicator;
 }
 
 QString ClangModelManagerSupport::dummyUiHeaderOnDiskPath(const QString &filePath) const

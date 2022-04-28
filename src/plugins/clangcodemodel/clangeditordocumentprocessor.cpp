@@ -66,21 +66,12 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
-        BackendCommunicator &communicator,
-        TextEditor::TextDocument *document)
+ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(TextEditor::TextDocument *document)
     : BaseEditorDocumentProcessor(document->document(), document->filePath().toString())
     , m_document(*document)
-    , m_communicator(communicator)
     , m_parser(new ClangEditorDocumentParser(document->filePath().toString()))
-    , m_parserRevision(0)
     , m_builtinProcessor(document)
 {
-    m_updateBackendDocumentTimer.setSingleShot(true);
-    m_updateBackendDocumentTimer.setInterval(350);
-    connect(&m_updateBackendDocumentTimer, &QTimer::timeout,
-            this, &ClangEditorDocumentProcessor::updateBackendDocumentIfProjectPartExists);
-
     connect(m_parser.data(), &ClangEditorDocumentParser::projectPartInfoUpdated,
             this, &BaseEditorDocumentProcessor::projectPartInfoUpdated);
 
@@ -99,33 +90,9 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
     m_parserSynchronizer.setCancelOnWait(true);
 }
 
-ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
-{
-    m_updateBackendDocumentTimer.stop();
-
-    if (m_projectPart)
-        closeBackendDocument();
-}
-
 void ClangEditorDocumentProcessor::runImpl(
         const CppEditor::BaseEditorDocumentParser::UpdateParams &updateParams)
 {
-    m_updateBackendDocumentTimer.start();
-
-    // Run clang parser
-    disconnect(&m_parserWatcher, &QFutureWatcher<void>::finished,
-               this, &ClangEditorDocumentProcessor::onParserFinished);
-    m_parserWatcher.cancel();
-    m_parserWatcher.setFuture(QFuture<void>());
-
-    m_parserRevision = revision();
-    connect(&m_parserWatcher, &QFutureWatcher<void>::finished,
-            this, &ClangEditorDocumentProcessor::onParserFinished);
-    const QFuture<void> future = ::Utils::runAsync(&runParser, parser(), updateParams);
-    m_parserWatcher.setFuture(future);
-    m_parserSynchronizer.addFuture(future);
-
-    // Run builtin processor
     m_builtinProcessor.runImpl(updateParams);
 }
 
@@ -163,7 +130,7 @@ CPlusPlus::Snapshot ClangEditorDocumentProcessor::snapshot()
 
 bool ClangEditorDocumentProcessor::isParserRunning() const
 {
-    return m_parserWatcher.isRunning();
+    return m_builtinProcessor.isParserRunning();
 }
 
 bool ClangEditorDocumentProcessor::hasProjectPart() const
@@ -184,12 +151,6 @@ void ClangEditorDocumentProcessor::clearProjectPart()
 ::Utils::Id ClangEditorDocumentProcessor::diagnosticConfigId() const
 {
     return m_diagnosticConfigId;
-}
-
-void ClangEditorDocumentProcessor::editorDocumentTimerRestarted()
-{
-    m_updateBackendDocumentTimer.stop(); // Wait for the next call to run().
-    m_invalidationState = InvalidationState::Scheduled;
 }
 
 void ClangEditorDocumentProcessor::setParserConfig(
@@ -215,111 +176,6 @@ ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &f
 {
     return qobject_cast<ClangEditorDocumentProcessor*>(
                 CppEditor::CppModelManager::cppEditorDocumentProcessor(filePath));
-}
-
-static bool isProjectPartLoadedOrIsFallback(CppEditor::ProjectPart::ConstPtr projectPart)
-{
-    return projectPart
-        && (projectPart->id().isEmpty() || isProjectPartLoaded(projectPart));
-}
-
-void ClangEditorDocumentProcessor::updateBackendProjectPartAndDocument()
-{
-    const CppEditor::ProjectPart::ConstPtr projectPart = m_parser->projectPartInfo().projectPart;
-
-    if (isProjectPartLoadedOrIsFallback(projectPart)) {
-        updateBackendDocument(*projectPart.data());
-
-        m_projectPart = projectPart;
-        m_isProjectFile = m_parser->projectPartInfo().hints
-                & CppEditor::ProjectPartInfo::IsFromProjectMatch;
-    }
-}
-
-void ClangEditorDocumentProcessor::onParserFinished()
-{
-    if (revision() != m_parserRevision)
-        return;
-
-    updateBackendProjectPartAndDocument();
-}
-
-void ClangEditorDocumentProcessor::updateBackendDocument(const CppEditor::ProjectPart &projectPart)
-{
-    // On registration we send the document content immediately as an unsaved
-    // file, because
-    //   (1) a refactoring action might have opened and already modified
-    //       this document.
-    //   (2) it prevents an extra preamble generation on first user
-    //       modification of the document in case the line endings on disk
-    //       differ from the ones returned by textDocument()->toPlainText(),
-    //       like on Windows.
-
-    if (m_projectPart) {
-        if (projectPart.id() == m_projectPart->id())
-            return;
-    }
-
-    ProjectExplorer::Project * const project = CppEditor::projectForProjectPart(projectPart);
-    const CppEditor::ClangDiagnosticConfig config = warningsConfigForProject(project);
-    const QStringList clangOptions = createClangOptions(projectPart, filePath(), config,
-                                                        optionsForProject(project));
-    m_diagnosticConfigId = config.id();
-
-    m_communicator.documentsOpened(
-        {fileContainerWithOptionsAndDocumentContent(clangOptions, projectPart.headerPaths)});
-    setLastSentDocumentRevision(filePath(), revision());
-}
-
-void ClangEditorDocumentProcessor::closeBackendDocument()
-{
-    QTC_ASSERT(m_projectPart, return);
-    m_communicator.documentsClosed({ClangBackEnd::FileContainer(filePath(), m_projectPart->id())});
-}
-
-void ClangEditorDocumentProcessor::updateBackendDocumentIfProjectPartExists()
-{
-    if (m_projectPart) {
-        const ClangBackEnd::FileContainer fileContainer = fileContainerWithDocumentContent();
-        m_communicator.documentsChangedWithRevisionCheck(fileContainer);
-    }
-}
-
-ClangBackEnd::FileContainer ClangEditorDocumentProcessor::simpleFileContainer(
-    const QByteArray &codecName) const
-{
-    return ClangBackEnd::FileContainer(filePath(),
-                                       Utf8String(),
-                                       false,
-                                       revision(),
-                                       Utf8String::fromByteArray(codecName));
-}
-
-ClangBackEnd::FileContainer ClangEditorDocumentProcessor::fileContainerWithOptionsAndDocumentContent(
-    const QStringList &compilationArguments, const ProjectExplorer::HeaderPaths headerPaths) const
-{
-    auto theHeaderPaths
-        = ::Utils::transform<QVector>(headerPaths, [](const ProjectExplorer::HeaderPath path) {
-              return Utf8String(QDir::toNativeSeparators(path.path));
-    });
-    theHeaderPaths << QDir::toNativeSeparators(
-        ClangModelManagerSupport::instance()->dummyUiHeaderOnDiskDirPath());
-
-    return ClangBackEnd::FileContainer(filePath(),
-                                       Utf8StringVector(compilationArguments),
-                                       theHeaderPaths,
-                                       textDocument()->toPlainText(),
-                                       true,
-                                       revision());
-}
-
-ClangBackEnd::FileContainer
-ClangEditorDocumentProcessor::fileContainerWithDocumentContent() const
-{
-    return ClangBackEnd::FileContainer(filePath(),
-                                       textDocument()->toPlainText(),
-                                       true,
-                                       revision());
 }
 
 } // namespace Internal

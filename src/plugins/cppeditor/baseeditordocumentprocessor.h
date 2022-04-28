@@ -83,8 +83,6 @@ public:
 
     virtual void invalidateDiagnostics();
 
-    virtual void editorDocumentTimerRestarted();
-
     virtual void setParserConfig(const BaseEditorDocumentParser::Configuration &config);
 
     virtual QFuture<CursorInfo> cursorInfo(const CursorInfoParams &params) = 0;
