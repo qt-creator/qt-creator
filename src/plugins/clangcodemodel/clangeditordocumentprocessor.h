@@ -79,10 +79,6 @@ public:
 
     QFuture<CppEditor::CursorInfo> cursorInfo(const CppEditor::CursorInfoParams &params) override;
     QFuture<CppEditor::CursorInfo> requestLocalReferences(const QTextCursor &cursor) override;
-    QFuture<CppEditor::SymbolInfo> requestFollowSymbol(int line, int column) override;
-    QFuture<CppEditor::ToolTipInfo> toolTipInfo(const QByteArray &codecName,
-                                               int line,
-                                               int column) override;
 
     void closeBackendDocument();
 
@@ -90,7 +86,6 @@ public:
     static ClangEditorDocumentProcessor *get(const QString &filePath);
 
 signals:
-    void tokenInfosUpdated();
     void parserConfigChanged(const Utils::FilePath &filePath,
                              const CppEditor::BaseEditorDocumentParser::Configuration &config);
 

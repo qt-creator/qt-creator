@@ -62,8 +62,6 @@ public:
     addExpectedReferencesMessage(quint64 ticket,
                                  const CppEditor::SemanticInfo::LocalUseMap &localUses
                                      = CppEditor::SemanticInfo::LocalUseMap());
-    QFuture<CppEditor::SymbolInfo> addExpectedRequestFollowSymbolMessage(quint64 ticket);
-    QFuture<CppEditor::ToolTipInfo> addExpectedToolTipMessage(quint64 ticket);
     bool isExpectingCompletionsMessage() const;
 
     void reset();

@@ -324,26 +324,6 @@ QFuture<CppEditor::CursorInfo> BackendCommunicator::requestLocalReferences(
     return m_receiver.addExpectedReferencesMessage(message.ticketNumber);
 }
 
-QFuture<CppEditor::ToolTipInfo> BackendCommunicator::requestToolTip(
-        const FileContainer &fileContainer, quint32 line, quint32 column)
-{
-    const RequestToolTipMessage message(fileContainer, line, column);
-    m_sender->requestToolTip(message);
-
-    return m_receiver.addExpectedToolTipMessage(message.ticketNumber);
-}
-
-QFuture<CppEditor::SymbolInfo> BackendCommunicator::requestFollowSymbol(
-        const FileContainer &curFileContainer,
-        quint32 line,
-        quint32 column)
-{
-    const RequestFollowSymbolMessage message(curFileContainer, line, column);
-    m_sender->requestFollowSymbol(message);
-
-    return m_receiver.addExpectedRequestFollowSymbolMessage(message.ticketNumber);
-}
-
 void BackendCommunicator::documentsChangedWithRevisionCheck(Core::IDocument *document)
 {
     const auto textDocument = qobject_cast<TextDocument*>(document);

@@ -265,23 +265,6 @@ QFuture<CppEditor::CursorInfo> ClangEditorDocumentProcessor::requestLocalReferen
                                                  static_cast<quint32>(column));
 }
 
-QFuture<CppEditor::SymbolInfo>
-ClangEditorDocumentProcessor::requestFollowSymbol(int line, int column)
-{
-    return m_communicator.requestFollowSymbol(simpleFileContainer(),
-                                              static_cast<quint32>(line),
-                                              static_cast<quint32>(column));
-}
-
-QFuture<CppEditor::ToolTipInfo> ClangEditorDocumentProcessor::toolTipInfo(const QByteArray &codecName,
-                                                                         int line,
-                                                                         int column)
-{
-    return m_communicator.requestToolTip(simpleFileContainer(codecName),
-                                         static_cast<quint32>(line),
-                                         static_cast<quint32>(column));
-}
-
 ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &filePath)
 {
     return qobject_cast<ClangEditorDocumentProcessor*>(

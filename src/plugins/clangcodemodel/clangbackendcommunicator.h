@@ -100,12 +100,6 @@ public:
             const FileContainer &fileContainer,
             quint32 line,
             quint32 column);
-    QFuture<CppEditor::ToolTipInfo> requestToolTip(const FileContainer &fileContainer,
-                                                  quint32 line,
-                                                  quint32 column);
-    QFuture<CppEditor::SymbolInfo> requestFollowSymbol(const FileContainer &curFileContainer,
-                                                      quint32 line,
-                                                      quint32 column);
 
     void updateChangeContentStartPosition(const QString &filePath, int position);
     bool isNotWaitingForCompletion() const;

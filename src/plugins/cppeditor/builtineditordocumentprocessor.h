@@ -54,7 +54,6 @@ public:
 
     QFuture<CursorInfo> cursorInfo(const CursorInfoParams &params) override;
     QFuture<CursorInfo> requestLocalReferences(const QTextCursor &) override;
-    QFuture<SymbolInfo> requestFollowSymbol(int, int) override;
 
     using SemanticHighlightingChecker = std::function<bool()>;
     void setSemanticHighlightingChecker(const SemanticHighlightingChecker &checker);

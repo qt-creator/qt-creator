@@ -84,13 +84,6 @@ void BaseEditorDocumentProcessor::setParserConfig(
     parser()->setConfiguration(config);
 }
 
-QFuture<ToolTipInfo> BaseEditorDocumentProcessor::toolTipInfo(const QByteArray &/*codecName*/,
-                                                              int /*line*/,
-                                                              int /*column*/)
-{
-    return QFuture<ToolTipInfo>();
-}
-
 void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
                                             BaseEditorDocumentParser::Ptr parser,
                                             BaseEditorDocumentParser::UpdateParams updateParams)

@@ -123,30 +123,6 @@ QFuture<CppEditor::CursorInfo> BackendReceiver::addExpectedReferencesMessage(
     return futureInterface.future();
 }
 
-QFuture<CppEditor::SymbolInfo> BackendReceiver::addExpectedRequestFollowSymbolMessage(quint64 ticket)
-{
-    QTC_CHECK(!m_followTable.contains(ticket));
-
-    QFutureInterface<CppEditor::SymbolInfo> futureInterface;
-    futureInterface.reportStarted();
-
-    m_followTable.insert(ticket, futureInterface);
-
-    return futureInterface.future();
-}
-
-QFuture<CppEditor::ToolTipInfo> BackendReceiver::addExpectedToolTipMessage(quint64 ticket)
-{
-    QTC_CHECK(!m_toolTipsTable.contains(ticket));
-
-    QFutureInterface<CppEditor::ToolTipInfo> futureInterface;
-    futureInterface.reportStarted();
-
-    m_toolTipsTable.insert(ticket, futureInterface);
-
-    return futureInterface.future();
-}
-
 bool BackendReceiver::isExpectingCompletionsMessage() const
 {
     return !m_assistProcessorsTable.isEmpty();

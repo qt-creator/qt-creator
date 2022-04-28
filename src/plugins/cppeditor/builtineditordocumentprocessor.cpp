@@ -260,15 +260,6 @@ QFuture<CursorInfo> BuiltinEditorDocumentProcessor::requestLocalReferences(const
     return futureInterface.future();
 }
 
-QFuture<SymbolInfo> BuiltinEditorDocumentProcessor::requestFollowSymbol(int, int)
-{
-    QFutureInterface<SymbolInfo> futureInterface;
-    futureInterface.reportResult(SymbolInfo());
-    futureInterface.reportFinished();
-
-    return futureInterface.future();
-}
-
 void BuiltinEditorDocumentProcessor::setSemanticHighlightingChecker(
             const SemanticHighlightingChecker &checker)
 {
