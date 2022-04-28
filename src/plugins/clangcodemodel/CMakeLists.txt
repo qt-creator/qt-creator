@@ -22,7 +22,6 @@ add_qtc_plugin(ClangCodeModel
     clangdiagnostictooltipwidget.cpp clangdiagnostictooltipwidget.h
     clangdquickfixfactory.cpp clangdquickfixfactory.h
     clangdqpropertyhighlighter.cpp clangdqpropertyhighlighter.h
-    clangeditordocumentparser.cpp clangeditordocumentparser.h
     clangeditordocumentprocessor.cpp clangeditordocumentprocessor.h
     clangfixitoperation.cpp clangfixitoperation.h
     clangfixitoperationsextractor.cpp clangfixitoperationsextractor.h

@@ -25,18 +25,12 @@
 
 #include "clangeditordocumentprocessor.h"
 
-#include "clangbackendcommunicator.h"
 #include "clangprojectsettings.h"
 #include "clangdiagnostictooltipwidget.h"
 #include "clangfixitoperation.h"
 #include "clangfixitoperationsextractor.h"
 #include "clangmodelmanagersupport.h"
 #include "clangutils.h"
-
-#include <diagnosticcontainer.h>
-#include <sourcelocationcontainer.h>
-
-#include <clangsupport/tokeninfocontainer.h>
 
 #include <cppeditor/builtincursorinfo.h>
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
@@ -67,38 +61,13 @@ namespace ClangCodeModel {
 namespace Internal {
 
 ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(TextEditor::TextDocument *document)
-    : BaseEditorDocumentProcessor(document->document(), document->filePath().toString())
-    , m_document(*document)
-    , m_parser(new ClangEditorDocumentParser(document->filePath().toString()))
-    , m_builtinProcessor(document)
+    : BuiltinEditorDocumentProcessor(document), m_document(*document)
 {
-    connect(m_parser.data(), &ClangEditorDocumentParser::projectPartInfoUpdated,
+    connect(parser().data(), &CppEditor::BaseEditorDocumentParser::projectPartInfoUpdated,
             this, &BaseEditorDocumentProcessor::projectPartInfoUpdated);
-
-    // Forwarding the semantic info from the builtin processor enables us to provide all
-    // editor (widget) related features that are not yet implemented by the clang plugin.
-    connect(&m_builtinProcessor, &CppEditor::BuiltinEditorDocumentProcessor::cppDocumentUpdated,
-            this, &ClangEditorDocumentProcessor::cppDocumentUpdated);
-    connect(&m_builtinProcessor, &CppEditor::BuiltinEditorDocumentProcessor::semanticInfoUpdated,
-            this, &ClangEditorDocumentProcessor::semanticInfoUpdated);
-    connect(&m_builtinProcessor, &CppEditor::BuiltinEditorDocumentProcessor::codeWarningsUpdated,
-            this, &ClangEditorDocumentProcessor::codeWarningsUpdated);
-    m_builtinProcessor.setSemanticHighlightingChecker([this] {
+    setSemanticHighlightingChecker([this] {
         return !ClangModelManagerSupport::instance()->clientForFile(m_document.filePath());
     });
-
-    m_parserSynchronizer.setCancelOnWait(true);
-}
-
-void ClangEditorDocumentProcessor::runImpl(
-        const CppEditor::BaseEditorDocumentParser::UpdateParams &updateParams)
-{
-    m_builtinProcessor.runImpl(updateParams);
-}
-
-void ClangEditorDocumentProcessor::recalculateSemanticInfoDetached(bool force)
-{
-    m_builtinProcessor.recalculateSemanticInfoDetached(force);
 }
 
 void ClangEditorDocumentProcessor::semanticRehighlight()
@@ -110,27 +79,7 @@ void ClangEditorDocumentProcessor::semanticRehighlight()
         return;
     if (ClangModelManagerSupport::instance()->clientForFile(m_document.filePath()))
         return;
-    m_builtinProcessor.semanticRehighlight();
-}
-
-CppEditor::SemanticInfo ClangEditorDocumentProcessor::recalculateSemanticInfo()
-{
-    return m_builtinProcessor.recalculateSemanticInfo();
-}
-
-CppEditor::BaseEditorDocumentParser::Ptr ClangEditorDocumentProcessor::parser()
-{
-    return m_builtinProcessor.parser();
-}
-
-CPlusPlus::Snapshot ClangEditorDocumentProcessor::snapshot()
-{
-   return m_builtinProcessor.snapshot();
-}
-
-bool ClangEditorDocumentProcessor::isParserRunning() const
-{
-    return m_builtinProcessor.isParserRunning();
+    BuiltinEditorDocumentProcessor::semanticRehighlight();
 }
 
 bool ClangEditorDocumentProcessor::hasProjectPart() const
@@ -156,20 +105,13 @@ void ClangEditorDocumentProcessor::clearProjectPart()
 void ClangEditorDocumentProcessor::setParserConfig(
         const CppEditor::BaseEditorDocumentParser::Configuration &config)
 {
-    m_parser->setConfiguration(config);
-    m_builtinProcessor.parser()->setConfiguration(config);
+    CppEditor::BuiltinEditorDocumentProcessor::setParserConfig(config);
     emit parserConfigChanged(Utils::FilePath::fromString(filePath()), config);
 }
 
-CppEditor::BaseEditorDocumentParser::Configuration ClangEditorDocumentProcessor::parserConfig() const
+CppEditor::BaseEditorDocumentParser::Configuration ClangEditorDocumentProcessor::parserConfig()
 {
-    return m_parser->configuration();
-}
-
-QFuture<CppEditor::CursorInfo>
-ClangEditorDocumentProcessor::cursorInfo(const CppEditor::CursorInfoParams &params)
-{
-    return m_builtinProcessor.cursorInfo(params);
+    return parser()->configuration();
 }
 
 ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &filePath)

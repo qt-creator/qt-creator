@@ -25,41 +25,21 @@
 
 #pragma once
 
-#include "clangeditordocumentparser.h"
-
-#include <clangsupport/sourcerangecontainer.h>
-
 #include <cppeditor/builtineditordocumentprocessor.h>
 
-#include <utils/futuresynchronizer.h>
 #include <utils/id.h>
-
-#include <QFutureWatcher>
-
-namespace ClangBackEnd {
-class DiagnosticContainer;
-class TokenInfoContainer;
-class FileContainer;
-}
 
 namespace ClangCodeModel {
 namespace Internal {
 
-class ClangEditorDocumentProcessor : public CppEditor::BaseEditorDocumentProcessor
+class ClangEditorDocumentProcessor : public CppEditor::BuiltinEditorDocumentProcessor
 {
     Q_OBJECT
 
 public:
     ClangEditorDocumentProcessor(TextEditor::TextDocument *document);
 
-    // BaseEditorDocumentProcessor interface
-    void runImpl(const CppEditor::BaseEditorDocumentParser::UpdateParams &updateParams) override;
     void semanticRehighlight() override;
-    void recalculateSemanticInfoDetached(bool force) override;
-    CppEditor::SemanticInfo recalculateSemanticInfo() override;
-    CppEditor::BaseEditorDocumentParser::Ptr parser() override;
-    CPlusPlus::Snapshot snapshot() override;
-    bool isParserRunning() const override;
 
     bool hasProjectPart() const;
     CppEditor::ProjectPart::ConstPtr projectPart() const;
@@ -68,9 +48,7 @@ public:
     ::Utils::Id diagnosticConfigId() const;
 
     void setParserConfig(const CppEditor::BaseEditorDocumentParser::Configuration &config) override;
-    CppEditor::BaseEditorDocumentParser::Configuration parserConfig() const;
-
-    QFuture<CppEditor::CursorInfo> cursorInfo(const CppEditor::CursorInfoParams &params) override;
+    CppEditor::BaseEditorDocumentParser::Configuration parserConfig();
 
 public:
     static ClangEditorDocumentProcessor *get(const QString &filePath);
@@ -81,12 +59,8 @@ signals:
 
 private:
     TextEditor::TextDocument &m_document;
-    QSharedPointer<ClangEditorDocumentParser> m_parser;
     CppEditor::ProjectPart::ConstPtr m_projectPart;
     ::Utils::Id m_diagnosticConfigId;
-
-    CppEditor::BuiltinEditorDocumentProcessor m_builtinProcessor;
-    Utils::FutureSynchronizer m_parserSynchronizer;
 };
 
 } // namespace Internal

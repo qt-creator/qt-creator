@@ -52,8 +52,6 @@ QtcPlugin {
         "clangdqpropertyhighlighter.h",
         "clangdquickfixfactory.cpp",
         "clangdquickfixfactory.h",
-        "clangeditordocumentparser.cpp",
-        "clangeditordocumentparser.h",
         "clangeditordocumentprocessor.cpp",
         "clangeditordocumentprocessor.h",
         "clangfixitoperation.cpp",
