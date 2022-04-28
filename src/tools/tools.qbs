@@ -5,7 +5,6 @@ Project {
     name: "Tools"
     references: [
         "buildoutputparser/buildoutputparser.qbs",
-        "clangbackend/clangbackend.qbs",
         "cplusplustools.qbs",
         "disclaim/disclaim.qbs",
         "processlauncher/processlauncher.qbs",

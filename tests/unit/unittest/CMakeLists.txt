@@ -78,7 +78,6 @@ add_qtc_test(unittest GTEST
     processcreator-test.cpp
     processevents-utilities.cpp processevents-utilities.h
     readandwritemessageblock-test.cpp
-    rundocumentparse-utility.h
     sizedarray-test.cpp
     smallstring-test.cpp
     sourcerangecontainer-matcher.h
@@ -143,11 +142,6 @@ function(extend_qtc_test_with_target_sources target)
   )
 endfunction()
 
-if (HAVE_LIBCLANG AND NOT TARGET clangbackend_lib)
-  add_subdirectory(../../../src/tools/clangbackend/source ${CMAKE_CURRENT_BINARY_DIR}/clangbackend)
-endif()
-extend_qtc_test(unittest DEPENDS clangbackend_lib CONDITION HAVE_LIBCLANG)
-
 if (NOT TARGET Sqlite)
   add_subdirectory(../../../src/libs/sqlite ${CMAKE_CURRENT_BINARY_DIR}/sqlite)
 endif()
@@ -176,49 +170,8 @@ extend_qtc_test(unittest
   SOURCES
     activationsequenceprocessor-test.cpp
     chunksreportedmonitor.cpp
-    clangasyncjob-base.cpp
-    clangcodecompleteresults-test.cpp
-    clangcodemodelserver-test.cpp
-    clangcompletecodejob-test.cpp
-    clangdocumentprocessors-test.cpp
-    clangdocumentprocessor-test.cpp
-    clangdocuments-test.cpp
-    clangdocumentsuspenderresumer-test.cpp
-    clangdocument-test.cpp
-    clangfollowsymbol-test.cpp
-    clangjobqueue-test.cpp
-    clangjobs-test.cpp
-    clangparsesupportivetranslationunitjob-test.cpp
-    clangreferencescollector-test.cpp
-    clangrequestannotationsjob-test.cpp
-    clangrequestreferencesjob-test.cpp
-    clangresumedocumentjob-test.cpp
-    clangstring-test.cpp
-    clangsupportivetranslationunitinitializer-test.cpp
-    clangsuspenddocumentjob-test.cpp
-    clangtooltipinfo-test.cpp
-    clangtranslationunits-test.cpp
-    clangtranslationunit-test.cpp
-    clangupdateannotationsjob-test.cpp
-    codecompleter-test.cpp
-    codecompletionsextractor-test.cpp
-    cursor-test.cpp
-    diagnosticset-test.cpp
-    diagnostic-test.cpp
-    fixit-test.cpp
-    gtest-clang-printing.cpp gtest-clang-printing.h
     readexporteddiagnostics-test.cpp
-    skippedsourceranges-test.cpp
-    sourcelocation-test.cpp
-    sourcerange-test.cpp
-    token-test.cpp
-    tokenprocessor-test.cpp
-    translationunitupdater-test.cpp
-    unsavedfile-test.cpp
-    unsavedfiles-test.cpp
-    utf8positionfromlinecolumn-test.cpp
     chunksreportedmonitor.h
-    clangasyncjob-base.h
     clangcompareoperators.h
     diagnosticcontainer-matcher.h
 )
@@ -235,7 +188,6 @@ finalize_qtc_gtest(unittest ".c$")
 # Path needs to be before CppEditor
 target_include_directories(unittest
   PRIVATE
-    BEFORE ../../../src/tools/clangbackend/source
     BEFORE ../../../src/plugins
 )
 
