@@ -121,7 +121,7 @@ public:
     explicit QbsSession(QObject *parent = nullptr);
     ~QbsSession() override;
 
-    enum class State { Initializing, Active, ShuttingDown, Inactive };
+    enum class State { Initializing, Active, Inactive };
     enum class Error { QbsFailedToStart, QbsQuit, ProtocolError, VersionMismatch };
 
     State state() const;
@@ -131,7 +131,6 @@ public:
 
     void sendRequest(const QJsonObject &request);
     void cancelCurrentJob();
-    void quit();
     void requestFilesGeneratedFrom(const QHash<QString, QStringList> &sourceFilesPerProduct);
     QStringList filesGeneratedFrom(const QString &sourceFile) const;
     FileChangeResult addFiles(const QStringList &files, const QString &product,
