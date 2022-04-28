@@ -671,6 +671,11 @@ WelcomeMode::WelcomeMode()
 
     m_modeWidget->engine()->setOutputWarningsToStandardError(false);
 
+    connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged, this, [this](Utils::Id mode){
+       bool active = (mode == Core::Constants::MODE_WELCOME);
+       m_modeWidget->rootObject()->setProperty("active", active);
+    });
+
     if (!useNewWelcomePage()) {
 
 #ifdef QT_DEBUG
