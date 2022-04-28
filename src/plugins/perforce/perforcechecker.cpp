@@ -41,8 +41,7 @@ namespace Internal {
 
 PerforceChecker::PerforceChecker(QObject *parent) : QObject(parent)
 {
-    connect(&m_process, &QtcProcess::errorOccurred, this, &PerforceChecker::slotError);
-    connect(&m_process, &QtcProcess::finished, this, &PerforceChecker::slotFinished);
+    connect(&m_process, &QtcProcess::done, this, &PerforceChecker::slotDone);
 }
 
 PerforceChecker::~PerforceChecker()
@@ -112,30 +111,15 @@ void PerforceChecker::slotTimeOut()
     emitFailed(tr("\"%1\" timed out after %2 ms.").arg(m_binary.toUserOutput()).arg(m_timeOutMS));
 }
 
-void PerforceChecker::slotError(QProcess::ProcessError error)
+void PerforceChecker::slotDone()
 {
     if (m_timedOut)
         return;
-    switch (error) {
-    case QProcess::FailedToStart:
+    if (m_process.error() == QProcess::FailedToStart) {
         emitFailed(tr("Unable to launch \"%1\": %2").
                    arg(m_binary.toUserOutput(), m_process.errorString()));
-        break;
-    case QProcess::Crashed: // Handled elsewhere
-    case QProcess::Timedout:
-        break;
-    case QProcess::ReadError:
-    case QProcess::WriteError:
-    case QProcess::UnknownError:
-        m_process.stopProcess();
-        break;
-    }
-}
-
-void PerforceChecker::slotFinished()
-{
-    if (m_timedOut)
         return;
+    }
     switch (m_process.exitStatus()) {
     case QProcess::CrashExit:
         emitFailed(tr("\"%1\" crashed.").arg(m_binary.toUserOutput()));
