@@ -78,6 +78,8 @@ private slots:
     void test_createArmGccToolchain();
     void test_removeRtosSuffixFromEnvironmentVariable_data();
     void test_removeRtosSuffixFromEnvironmentVariable();
+    void test_useFallbackPathForToolchainWhenPathFromSettingsIsNotAvailable();
+    void test_usePathFromSettingsForToolchainPath();
 
     void test_twoDotOneUsesLegacyImplementation();
     void test_addToolchainFileInfoToKit();

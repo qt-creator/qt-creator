@@ -602,6 +602,49 @@ void McuSupportTest::test_twoDotOneUsesLegacyImplementation()
     QCOMPARE(McuSupportOptions::isLegacyVersion({2, 2, 0}), false);
     QCOMPARE(McuSupportOptions::isLegacyVersion({2, 2, 1}), false);
 }
+void McuSupportTest::test_useFallbackPathForToolchainWhenPathFromSettingsIsNotAvailable()
+{
+    Sdk::PackageDescription compilerDescription{armGcc,
+                                                armGccEnvVar,
+                                                Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE,
+                                                armGcc,
+                                                armGccDirectorySetting,
+                                                fallbackDir,
+                                                {},
+                                                {},
+                                                false};
+    Sdk::McuTargetDescription::Toolchain toolchainDescription{armGcc, {}, compilerDescription, {}};
+
+    EXPECT_CALL(*settingsMockPtr, getPath(QString{armGccDirectorySetting}, _, FilePath{fallbackDir}))
+        .Times(2)
+        .WillRepeatedly(Return(FilePath{fallbackDir}));
+
+    McuToolChainPackage *toolchain = targetFactory.createToolchain(toolchainDescription);
+
+    QCOMPARE(toolchain->path().toString(), fallbackDir);
+}
+
+void McuSupportTest::test_usePathFromSettingsForToolchainPath()
+{
+    Sdk::PackageDescription compilerDescription{{},
+                                                armGccEnvVar,
+                                                Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE,
+                                                armGcc,
+                                                armGccDirectorySetting,
+                                                empty,
+                                                {},
+                                                {},
+                                                false};
+    Sdk::McuTargetDescription::Toolchain toolchainDescription{armGcc, {}, compilerDescription, {}};
+
+    EXPECT_CALL(*settingsMockPtr, getPath(QString{armGccDirectorySetting}, _, FilePath{empty}))
+        .Times(2)
+        .WillOnce(Return(FilePath{empty}))      // system scope settings
+        .WillOnce(Return(FilePath{armGccDir})); // user scope settings
+
+    McuToolChainPackage *toolchain = targetFactory.createToolchain(toolchainDescription);
+    QCOMPARE(toolchain->path().toString(), armGccDir);
+}
 
 void McuSupportTest::test_addNewKit()
 {
