@@ -199,7 +199,7 @@ void QbsSession::initialize()
     });
     connect(d->qbsProcess, &QtcProcess::finished, this, [this] {
         d->qbsProcess->deleteLater();
-        switch (state()) {
+        switch (d->state) {
         case State::Inactive:
             QTC_CHECK(false);
             break;
@@ -244,11 +244,6 @@ QbsSession::~QbsSession()
         delete d->qbsProcess;
     }
     delete d;
-}
-
-QbsSession::State QbsSession::state() const
-{
-    return d->state;
 }
 
 optional<QbsSession::Error> QbsSession::lastError() const

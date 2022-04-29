@@ -124,7 +124,6 @@ public:
     enum class State { Initializing, Active, Inactive };
     enum class Error { QbsFailedToStart, QbsQuit, ProtocolError, VersionMismatch };
 
-    State state() const;
     Utils::optional<Error> lastError() const;
     static QString errorString(Error error);
     QJsonObject projectData() const;
