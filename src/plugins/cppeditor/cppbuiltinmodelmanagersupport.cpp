@@ -26,18 +26,20 @@
 #include "cppbuiltinmodelmanagersupport.h"
 
 #include "builtineditordocumentprocessor.h"
+#include "cppcanonicalsymbol.h"
 #include "cppcompletionassist.h"
 #include "cppeditorwidget.h"
 #include "cppelementevaluator.h"
 #include "cppfollowsymbolundercursor.h"
 #include "cppoverviewmodel.h"
-#include "cpprefactoringengine.h"
 #include "cpptoolsreuse.h"
 #include "symbolfinder.h"
 
 #include <app/app_version.h>
+#include <clangsupport/sourcelocationscontainer.h>
 #include <texteditor/basehoverhandler.h>
 #include <utils/executeondestruction.h>
+#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 
@@ -105,8 +107,7 @@ ModelManagerSupport::Ptr BuiltinModelManagerSupportProvider::createModelManagerS
 
 BuiltinModelManagerSupport::BuiltinModelManagerSupport()
     : m_completionAssistProvider(new InternalCompletionAssistProvider),
-      m_followSymbol(new FollowSymbolUnderCursor),
-      m_refactoringEngine(new CppRefactoringEngine)
+      m_followSymbol(new FollowSymbolUnderCursor)
 {
 }
 
@@ -134,11 +135,6 @@ TextEditor::BaseHoverHandler *BuiltinModelManagerSupport::createHoverHandler()
     return new CppHoverHandler;
 }
 
-RefactoringEngineInterface &BuiltinModelManagerSupport::refactoringEngineInterface()
-{
-    return *m_refactoringEngine;
-}
-
 std::unique_ptr<AbstractOverviewModel> BuiltinModelManagerSupport::createOverviewModel()
 {
     return std::make_unique<OverviewModel>();
@@ -161,6 +157,70 @@ void BuiltinModelManagerSupport::switchDeclDef(const CursorInEditor &data,
     m_followSymbol->switchDeclDef(data, std::move(processLinkCallback),
             CppModelManager::instance()->snapshot(), data.editorWidget()->semanticInfo().doc,
             &finder);
+}
+
+void BuiltinModelManagerSupport::startLocalRenaming(const CursorInEditor &data,
+                                                    const ProjectPart *,
+                                                    RenameCallback &&renameSymbolsCallback)
+{
+    CppEditorWidget *editorWidget = data.editorWidget();
+    QTC_ASSERT(editorWidget, renameSymbolsCallback(QString(),
+                                                   ClangBackEnd::SourceLocationsContainer(),
+                                                   0); return;);
+    editorWidget->updateSemanticInfo();
+    // Call empty callback
+    renameSymbolsCallback(QString(),
+                          ClangBackEnd::SourceLocationsContainer(),
+                          data.cursor().document()->revision());
+}
+
+void BuiltinModelManagerSupport::globalRename(const CursorInEditor &data,
+                                              UsagesCallback &&,
+                                              const QString &replacement)
+{
+    CppModelManager *modelManager = CppModelManager::instance();
+    if (!modelManager)
+        return;
+
+    CppEditorWidget *editorWidget = data.editorWidget();
+    QTC_ASSERT(editorWidget, return;);
+
+    SemanticInfo info = editorWidget->semanticInfo();
+    info.snapshot = modelManager->snapshot();
+    info.snapshot.insert(info.doc);
+    const QTextCursor &cursor = data.cursor();
+    if (const CPlusPlus::Macro *macro = findCanonicalMacro(cursor, info.doc)) {
+        modelManager->renameMacroUsages(*macro, replacement);
+    } else {
+        Internal::CanonicalSymbol cs(info.doc, info.snapshot);
+        CPlusPlus::Symbol *canonicalSymbol = cs(cursor);
+        if (canonicalSymbol)
+            modelManager->renameUsages(canonicalSymbol, cs.context(), replacement);
+    }
+}
+
+void BuiltinModelManagerSupport::findUsages(const CursorInEditor &data,
+                                      UsagesCallback &&) const
+{
+    CppModelManager *modelManager = CppModelManager::instance();
+    if (!modelManager)
+        return;
+
+    CppEditorWidget *editorWidget = data.editorWidget();
+    QTC_ASSERT(editorWidget, return;);
+
+    SemanticInfo info = editorWidget->semanticInfo();
+    info.snapshot = modelManager->snapshot();
+    info.snapshot.insert(info.doc);
+    const QTextCursor &cursor = data.cursor();
+    if (const CPlusPlus::Macro *macro = findCanonicalMacro(cursor, info.doc)) {
+        modelManager->findMacroUsages(*macro);
+    } else {
+        Internal::CanonicalSymbol cs(info.doc, info.snapshot);
+        CPlusPlus::Symbol *canonicalSymbol = cs(cursor);
+        if (canonicalSymbol)
+            modelManager->findUsages(canonicalSymbol, cs.context());
+    }
 }
 
 } // namespace CppEditor::Internal

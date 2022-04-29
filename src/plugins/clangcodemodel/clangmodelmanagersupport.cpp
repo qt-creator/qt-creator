@@ -31,7 +31,6 @@
 #include "clangeditordocumentprocessor.h"
 #include "clangdlocatorfilters.h"
 #include "clangprojectsettings.h"
-#include "clangrefactoringengine.h"
 #include "clangutils.h"
 
 #include <coreplugin/documentmanager.h>
@@ -49,7 +48,6 @@
 #include <cppeditor/cppprojectfile.h>
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/editordocumenthandle.h>
-#include <cppeditor/symbolfinder.h>
 
 #include <languageclient/languageclientmanager.h>
 
@@ -104,7 +102,7 @@ static const QList<TextEditor::TextDocument *> allCppDocuments()
     return Utils::qobject_container_cast<TextEditor::TextDocument *>(documents);
 }
 
-ClangModelManagerSupport::ClangModelManagerSupport() : m_refactoringEngine(new RefactoringEngine)
+ClangModelManagerSupport::ClangModelManagerSupport()
 {
     QTC_CHECK(!m_instance);
     m_instance = this;
@@ -189,10 +187,8 @@ void ClangModelManagerSupport::followSymbol(const CppEditor::CursorInEditor &dat
         return;
     }
 
-    SymbolFinder finder;
-    CppModelManager::builtinFollowSymbol().findLink(data, std::move(processLinkCallback),
-            resolveTarget, CppModelManager::instance()->snapshot(),
-            data.editorWidget()->semanticInfo().doc, &finder, inNextSplit);
+    CppModelManager::followSymbol(data, std::move(processLinkCallback), resolveTarget, inNextSplit,
+                                  CppModelManager::Backend::Builtin);
 }
 
 void ClangModelManagerSupport::switchDeclDef(const CppEditor::CursorInEditor &data,
@@ -205,15 +201,52 @@ void ClangModelManagerSupport::switchDeclDef(const CppEditor::CursorInEditor &da
         return;
     }
 
-    SymbolFinder finder;
-    CppModelManager::builtinFollowSymbol().switchDeclDef(data, std::move(processLinkCallback),
-            CppModelManager::instance()->snapshot(), data.editorWidget()->semanticInfo().doc,
-            &finder);
+    CppModelManager::switchDeclDef(data, std::move(processLinkCallback),
+                                   CppModelManager::Backend::Builtin);
 }
 
-CppEditor::RefactoringEngineInterface &ClangModelManagerSupport::refactoringEngineInterface()
+void ClangModelManagerSupport::startLocalRenaming(const CppEditor::CursorInEditor &data,
+                                           const CppEditor::ProjectPart *projectPart,
+                                           RenameCallback &&renameSymbolsCallback)
 {
-    return *m_refactoringEngine;
+    if (ClangdClient * const client = clientForFile(data.filePath());
+            client && client->reachable()) {
+        client->findLocalUsages(data.textDocument(), data.cursor(),
+                                std::move(renameSymbolsCallback));
+        return;
+    }
+
+    CppModelManager::startLocalRenaming(data, projectPart,
+            std::move(renameSymbolsCallback), CppModelManager::Backend::Builtin);
+}
+
+void ClangModelManagerSupport::globalRename(const CppEditor::CursorInEditor &cursor,
+                                     CppEditor::UsagesCallback &&callback,
+                                     const QString &replacement)
+{
+    if (ClangdClient * const client = clientForFile(cursor.filePath());
+            client && client->isFullyIndexed()) {
+        QTC_ASSERT(client->documentOpen(cursor.textDocument()),
+                   client->openDocument(cursor.textDocument()));
+        client->findUsages(cursor.textDocument(), cursor.cursor(), replacement);
+        return;
+    }
+    CppModelManager::globalRename(cursor, std::move(callback), replacement,
+                                  CppModelManager::Backend::Builtin);
+}
+
+void ClangModelManagerSupport::findUsages(const CppEditor::CursorInEditor &cursor,
+                                   CppEditor::UsagesCallback &&callback) const
+{
+    if (ClangdClient * const client = clientForFile(cursor.filePath());
+            client && client->isFullyIndexed()) {
+        QTC_ASSERT(client->documentOpen(cursor.textDocument()),
+                   client->openDocument(cursor.textDocument()));
+        client->findUsages(cursor.textDocument(), cursor.cursor(), {});
+
+        return;
+    }
+    CppModelManager::findUsages(cursor, std::move(callback), CppModelManager::Backend::Builtin);
 }
 
 std::unique_ptr<CppEditor::AbstractOverviewModel> ClangModelManagerSupport::createOverviewModel()

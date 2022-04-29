@@ -68,7 +68,6 @@ public:
     TextEditor::BaseHoverHandler *createHoverHandler() override { return nullptr; }
     CppEditor::BaseEditorDocumentProcessor *createEditorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) override;
-    CppEditor::RefactoringEngineInterface &refactoringEngineInterface() override;
     std::unique_ptr<CppEditor::AbstractOverviewModel> createOverviewModel() override;
     bool supportsOutline(const TextEditor::TextDocument *document) const override;
     bool supportsLocalUses(const TextEditor::TextDocument *document) const override;
@@ -93,6 +92,13 @@ private:
                       bool inNextSplit) override;
     void switchDeclDef(const CppEditor::CursorInEditor &data,
                        Utils::ProcessLinkCallback &&processLinkCallback) override;
+    void startLocalRenaming(const CppEditor::CursorInEditor &data,
+                            const CppEditor::ProjectPart *projectPart,
+                            CppEditor::RenameCallback &&renameSymbolsCallback) override;
+    void globalRename(const CppEditor::CursorInEditor &cursor, CppEditor::UsagesCallback &&callback,
+                      const QString &replacement) override;
+    void findUsages(const CppEditor::CursorInEditor &cursor,
+                    CppEditor::UsagesCallback &&callback) const override;
 
     void onEditorOpened(Core::IEditor *editor);
     void onCurrentEditorChanged(Core::IEditor *newCurrent);
@@ -128,7 +134,6 @@ private:
     void watchForInternalChanges();
 
     UiHeaderOnDiskManager m_uiHeaderOnDiskManager;
-    std::unique_ptr<CppEditor::RefactoringEngineInterface> m_refactoringEngine;
 
     QHash<ProjectExplorer::Project *, ClangProjectSettings *> m_projectSettings;
     Utils::FutureSynchronizer m_generatorSynchronizer;

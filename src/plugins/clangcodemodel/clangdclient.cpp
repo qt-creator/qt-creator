@@ -826,7 +826,7 @@ public:
 class LocalRefsData {
 public:
     LocalRefsData(quint64 id, TextDocument *doc, const QTextCursor &cursor,
-                  CppEditor::RefactoringEngineInterface::RenameCallback &&callback)
+                  CppEditor::RenameCallback &&callback)
         : id(id), document(doc), cursor(cursor), callback(std::move(callback)),
           uri(DocumentUri::fromFilePath(doc->filePath())), revision(doc->document()->revision())
     {}
@@ -840,7 +840,7 @@ public:
     const quint64 id;
     const QPointer<TextDocument> document;
     const QTextCursor cursor;
-    CppEditor::RefactoringEngineInterface::RenameCallback callback;
+    CppEditor::RenameCallback callback;
     const DocumentUri uri;
     const int revision;
 };
@@ -2187,7 +2187,7 @@ void ClangdClient::switchDeclDef(TextDocument *document, const QTextCursor &curs
 }
 
 void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cursor,
-        CppEditor::RefactoringEngineInterface::RenameCallback &&callback)
+        CppEditor::RenameCallback &&callback)
 {
     QTC_ASSERT(documentOpen(document), openDocument(document));
 

@@ -26,7 +26,6 @@ add_qtc_plugin(ClangCodeModel
     clangpreprocessorassistproposalitem.cpp clangpreprocessorassistproposalitem.h
     clangprojectsettings.cpp clangprojectsettings.h
     clangprojectsettingswidget.cpp clangprojectsettingswidget.h clangprojectsettingswidget.ui
-    clangrefactoringengine.cpp clangrefactoringengine.h
     clangtextmark.cpp clangtextmark.h
     clanguiheaderondiskmanager.cpp clanguiheaderondiskmanager.h
     clangutils.cpp clangutils.h

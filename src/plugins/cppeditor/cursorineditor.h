@@ -29,10 +29,18 @@
 
 #include <QTextCursor>
 
+#include <functional>
+
+namespace ClangBackEnd { class SourceLocationsContainer; }
 namespace TextEditor { class TextDocument; }
 
 namespace CppEditor {
 class CppEditorWidget;
+
+// TODO: Move to a better place.
+using RenameCallback = std::function<void(const QString &,
+                                          const ClangBackEnd::SourceLocationsContainer &,
+                                          int)>;
 
 class CursorInEditor
 {

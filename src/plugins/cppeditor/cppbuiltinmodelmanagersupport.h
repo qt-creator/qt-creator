@@ -46,7 +46,6 @@ public:
     TextEditor::BaseHoverHandler *createHoverHandler() final;
     BaseEditorDocumentProcessor *createEditorDocumentProcessor(
             TextEditor::TextDocument *baseTextDocument) final;
-    RefactoringEngineInterface &refactoringEngineInterface() final;
     std::unique_ptr<AbstractOverviewModel> createOverviewModel() final;
 
     FollowSymbolUnderCursor &followSymbolInterface() { return *m_followSymbol; }
@@ -56,10 +55,15 @@ private:
                       bool resolveTarget, bool inNextSplit) override;
     void switchDeclDef(const CursorInEditor &data,
                        Utils::ProcessLinkCallback &&processLinkCallback) override;
+    void startLocalRenaming(const CursorInEditor &data,
+                            const ProjectPart *projectPart,
+                            RenameCallback &&renameSymbolsCallback) override;
+    void globalRename(const CursorInEditor &data, UsagesCallback &&,
+                      const QString &replacement) override;
+    void findUsages(const CursorInEditor &data, UsagesCallback &&) const override;
 
     QScopedPointer<CppCompletionAssistProvider> m_completionAssistProvider;
     QScopedPointer<FollowSymbolUnderCursor> m_followSymbol;
-    QScopedPointer<RefactoringEngineInterface> m_refactoringEngine;
 };
 
 class BuiltinModelManagerSupportProvider : public ModelManagerSupportProvider

@@ -85,7 +85,6 @@ add_qtc_plugin(CppEditor
     cppquickfixsettingspage.cpp cppquickfixsettingspage.h
     cppquickfixsettingswidget.cpp cppquickfixsettingswidget.h cppquickfixsettingswidget.ui
     cpprefactoringchanges.cpp cpprefactoringchanges.h
-    cpprefactoringengine.cpp cpprefactoringengine.h
     cppselectionchanger.cpp cppselectionchanger.h
     cppsemanticinfo.h
     cppsemanticinfoupdater.cpp cppsemanticinfoupdater.h
@@ -109,7 +108,6 @@ add_qtc_plugin(CppEditor
     insertionpointlocator.cpp insertionpointlocator.h
     projectinfo.cpp projectinfo.h
     projectpart.cpp projectpart.h
-    refactoringengineinterface.h
     resourcepreviewhoverhandler.cpp resourcepreviewhoverhandler.h
     searchsymbols.cpp searchsymbols.h
     semantichighlighter.cpp semantichighlighter.h

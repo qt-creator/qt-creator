@@ -40,7 +40,6 @@
 #include "cpplocatorfilter.h"
 #include "cppbuiltinmodelmanagersupport.h"
 #include "cpprefactoringchanges.h"
-#include "cpprefactoringengine.h"
 #include "cppsourceprocessor.h"
 #include "cpptoolsjsextension.h"
 #include "cpptoolsreuse.h"
@@ -136,8 +135,6 @@ protected:
 
 namespace CppEditor {
 
-using REType = RefactoringEngineType;
-
 namespace Internal {
 
 static CppModelManager *m_instance;
@@ -196,10 +193,6 @@ public:
     bool m_enableGC;
     QTimer m_delayedGcTimer;
     QTimer m_fallbackProjectPartTimer;
-
-    // Refactoring
-    using REHash = QMap<REType, RefactoringEngineInterface *>;
-    REHash m_refactoringEngines;
 
     CppLocatorData m_locatorData;
     std::unique_ptr<Core::ILocatorFilter> m_locatorFilter;
@@ -308,43 +301,32 @@ QString CppModelManager::editorConfigurationFileName()
     return QLatin1String("<per-editor-defines>");
 }
 
-static RefactoringEngineInterface *getRefactoringEngine(CppModelManagerPrivate::REHash &engines)
+ModelManagerSupport *CppModelManager::modelManagerSupport(Backend backend) const
 {
-    QTC_ASSERT(!engines.empty(), return nullptr;);
-    RefactoringEngineInterface *currentEngine = engines[REType::BuiltIn];
-    if (engines.find(REType::ClangCodeModel) != engines.end()) {
-        currentEngine = engines[REType::ClangCodeModel];
-    } else if (engines.find(REType::ClangRefactoring) != engines.end()) {
-        RefactoringEngineInterface *engine = engines[REType::ClangRefactoring];
-        if (engine->isRefactoringEngineAvailable())
-            currentEngine = engine;
-    }
-    return currentEngine;
+    return (backend == Backend::Builtin
+            ? d->m_builtinModelManagerSupport : d->m_activeModelManagerSupport).data();
 }
 
 void CppModelManager::startLocalRenaming(const CursorInEditor &data,
                                          const ProjectPart *projectPart,
-                                         RenameCallback &&renameSymbolsCallback)
+                                         RenameCallback &&renameSymbolsCallback,
+                                         Backend backend)
 {
-    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines);
-    QTC_ASSERT(engine, return;);
-    engine->startLocalRenaming(data, projectPart, std::move(renameSymbolsCallback));
+    instance()->modelManagerSupport(backend)
+            ->startLocalRenaming(data, projectPart, std::move(renameSymbolsCallback));
 }
 
 void CppModelManager::globalRename(const CursorInEditor &data, UsagesCallback &&renameCallback,
-                                   const QString &replacement)
+                                   const QString &replacement, Backend backend)
 {
-    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines);
-    QTC_ASSERT(engine, return;);
-    engine->globalRename(data, std::move(renameCallback), replacement);
+    instance()->modelManagerSupport(backend)
+            ->globalRename(data, std::move(renameCallback), replacement);
 }
 
 void CppModelManager::findUsages(const CursorInEditor &data,
-                                 UsagesCallback &&showUsagesCallback) const
+                                 UsagesCallback &&showUsagesCallback, Backend backend)
 {
-    RefactoringEngineInterface *engine = getRefactoringEngine(d->m_refactoringEngines);
-    QTC_ASSERT(engine, return;);
-    engine->findUsages(data, std::move(showUsagesCallback));
+    instance()->modelManagerSupport(backend)->findUsages(data, std::move(showUsagesCallback));
 }
 
 bool CppModelManager::positionRequiresSignal(const QString &filePath, const QByteArray &content,
@@ -454,22 +436,6 @@ bool CppModelManager::positionRequiresSignal(const QString &filePath, const QByt
     }
 
     return false;
-}
-
-void CppModelManager::addRefactoringEngine(RefactoringEngineType type,
-                                           RefactoringEngineInterface *refactoringEngine)
-{
-    instance()->d->m_refactoringEngines[type] = refactoringEngine;
-}
-
-void CppModelManager::removeRefactoringEngine(RefactoringEngineType type)
-{
-    instance()->d->m_refactoringEngines.remove(type);
-}
-
-RefactoringEngineInterface *CppModelManager::builtinRefactoringEngine()
-{
-    return instance()->d->m_refactoringEngines.value(RefactoringEngineType::BuiltIn);
 }
 
 FollowSymbolUnderCursor &CppModelManager::builtinFollowSymbol()
@@ -622,8 +588,6 @@ void CppModelManager::initializeBuiltinModelManagerSupport()
     d->m_builtinModelManagerSupport
             = BuiltinModelManagerSupportProvider().createModelManagerSupport();
     d->m_activeModelManagerSupport = d->m_builtinModelManagerSupport;
-    d->m_refactoringEngines[RefactoringEngineType::BuiltIn] =
-            &d->m_activeModelManagerSupport->refactoringEngineInterface();
 }
 
 CppModelManager::CppModelManager()
@@ -1647,8 +1611,6 @@ void CppModelManager::activateClangCodeModel(
     QTC_ASSERT(modelManagerSupportProvider, return);
 
     d->m_activeModelManagerSupport = modelManagerSupportProvider->createModelManagerSupport();
-    d->m_refactoringEngines[RefactoringEngineType::ClangCodeModel] =
-            &d->m_activeModelManagerSupport->refactoringEngineInterface();
 }
 
 CppCompletionAssistProvider *CppModelManager::completionAssistProvider() const
@@ -1668,16 +1630,17 @@ TextEditor::BaseHoverHandler *CppModelManager::createHoverHandler() const
 
 void CppModelManager::followSymbol(const CursorInEditor &data,
                                    Utils::ProcessLinkCallback &&processLinkCallback,
-                                   bool resolveTarget, bool inNextSplit)
+                                   bool resolveTarget, bool inNextSplit, Backend backend)
 {
-    d->m_activeModelManagerSupport->followSymbol(data, std::move(processLinkCallback),
-                                                 resolveTarget, inNextSplit);
+    instance()->modelManagerSupport(backend)->followSymbol(data, std::move(processLinkCallback),
+                                                           resolveTarget, inNextSplit);
 }
 
 void CppModelManager::switchDeclDef(const CursorInEditor &data,
-                                    Utils::ProcessLinkCallback &&processLinkCallback)
+                                    Utils::ProcessLinkCallback &&processLinkCallback,
+                                    Backend backend)
 {
-    d->m_activeModelManagerSupport->switchDeclDef(data, std::move(processLinkCallback));
+    instance()->modelManagerSupport(backend)->switchDeclDef(data, std::move(processLinkCallback));
 }
 
 Core::ILocatorFilter *CppModelManager::createAuxiliaryCurrentDocumentFilter()

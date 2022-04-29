@@ -50,7 +50,6 @@
 #include "cpptoolssettings.h"
 #include "cppuseselectionsupdater.h"
 #include "cppworkingcopy.h"
-#include "refactoringengineinterface.h"
 #include "symbolfinder.h"
 
 #include <clangsupport/sourcelocationscontainer.h>
@@ -1044,7 +1043,7 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
         if (self && link.hasValidTarget())
             self->openLink(link, split);
     };
-    CppModelManager::instance()->switchDeclDef(cursor, std::move(callback));
+    CppModelManager::switchDeclDef(cursor, std::move(callback));
 }
 
 void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
@@ -1084,7 +1083,7 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
         }
         callback(link);
     };
-    CppModelManager::instance()->followSymbol(
+    CppModelManager::followSymbol(
                 CursorInEditor{cursor, filePath, this, textDocument()},
                 std::move(callbackWrapper),
                 resolveTarget,

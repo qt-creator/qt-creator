@@ -27,7 +27,7 @@
 
 #include <cppeditor/baseeditordocumentparser.h>
 #include <cppeditor/cppcodemodelsettings.h>
-#include <cppeditor/refactoringengineinterface.h>
+#include <cppeditor/cursorineditor.h>
 #include <languageclient/client.h>
 #include <utils/link.h>
 #include <utils/optional.h>
@@ -74,7 +74,7 @@ public:
             Utils::ProcessLinkCallback &&callback);
 
     void findLocalUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
-                         CppEditor::RefactoringEngineInterface::RenameCallback &&callback);
+                         CppEditor::RenameCallback &&callback);
 
     void gatherHelpItemForTooltip(
             const LanguageServerProtocol::HoverRequest::Response &hoverResponse,
