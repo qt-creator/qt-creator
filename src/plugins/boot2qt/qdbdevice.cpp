@@ -36,6 +36,7 @@
 #include <projectexplorer/runcontrol.h>
 
 #include <remotelinux/linuxdeviceprocess.h>
+#include <remotelinux/linuxprocessinterface.h>
 
 #include <ssh/sshconnection.h>
 
@@ -49,6 +50,7 @@
 #include <QWizard>
 
 using namespace ProjectExplorer;
+using namespace RemoteLinux;
 using namespace Utils;
 
 namespace Qdb {
@@ -74,6 +76,20 @@ public:
     }
 };
 
+class QdbProcessImpl : public LinuxProcessInterface
+{
+public:
+    QdbProcessImpl(const LinuxDevice *linuxDevice)
+        : LinuxProcessInterface(linuxDevice) {}
+    ~QdbProcessImpl() { killIfRunning(); }
+private:
+    void sendControlSignal(ControlSignal controlSignal) final
+    {
+        QTC_ASSERT(controlSignal != ControlSignal::Interrupt, return);
+        QTC_ASSERT(controlSignal != ControlSignal::KickOff, return);
+        runInShell({Constants::AppcontrollerFilepath, {"--stop"}});
+    }
+};
 
 class DeviceApplicationObserver : public ApplicationLauncher
 {
@@ -170,6 +186,11 @@ ProjectExplorer::IDeviceWidget *QdbDevice::createWidget()
 QtcProcess *QdbDevice::createProcess(QObject *parent) const
 {
     return new QdbDeviceProcess(sharedFromThis(), parent);
+}
+
+ProcessInterface *QdbDevice::createProcessInterface() const
+{
+    return new QdbProcessImpl(this);
 }
 
 void QdbDevice::setSerialNumber(const QString &serial)
