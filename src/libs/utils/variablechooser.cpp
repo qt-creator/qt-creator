@@ -309,15 +309,16 @@ void VariableGroupItem::populateGroup(MacroExpander *expander)
 {
     if (!expander)
         return;
-
-    foreach (const QByteArray &variable, expander->visibleVariables()) {
+    const QList<QByteArray> variables = expander->visibleVariables();
+    for (const QByteArray &variable : variables) {
         auto item = new VariableItem;
         item->m_variable = variable;
         item->m_expander = expander;
         appendChild(item);
     }
 
-    foreach (const MacroExpanderProvider &subProvider, expander->subProviders()) {
+    const MacroExpanderProviders subProviders = expander->subProviders();
+    for (const MacroExpanderProvider &subProvider : subProviders) {
         if (!subProvider)
             continue;
         if (expander->isAccumulating()) {
@@ -434,7 +435,8 @@ void VariableChooser::addSupportForChildWidgets(QWidget *parent, MacroExpander *
 {
      auto chooser = new VariableChooser(parent);
      chooser->addMacroExpanderProvider([expander] { return expander; });
-     foreach (QWidget *child, parent->findChildren<QWidget *>()) {
+     const QList<QWidget *> children = parent->findChildren<QWidget *>();
+     for (QWidget *child : children) {
          if (qobject_cast<QLineEdit *>(child)
                  || qobject_cast<QTextEdit *>(child)
                  || qobject_cast<QPlainTextEdit *>(child))

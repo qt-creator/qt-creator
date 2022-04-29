@@ -2487,7 +2487,8 @@ void tst_Json::unicodeKeys()
     JsonObject o = doc.object();
 
     QCOMPARE(o.keys().size(), size_t(5));
-    Q_FOREACH (const std::string &k, o.keys()) {
+    const JsonObject::Keys keys = o.keys();
+    for (const std::string &k : keys) {
         QByteArray key(k.data());
         std::string suffix = key.mid(key.indexOf('_')).data();
         QCOMPARE(o[key.data()].toString(), "hello" + suffix);
