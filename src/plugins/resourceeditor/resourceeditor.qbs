@@ -11,7 +11,7 @@ Project {
 
         Depends { name: "Core" }
 
-        cpp.defines: base.concat(["RESOURCE_LIBRARY"])
+        cpp.defines: base.concat(["RESOURCEEDITOR_LIBRARY"])
 
         Group {
             name: "General"

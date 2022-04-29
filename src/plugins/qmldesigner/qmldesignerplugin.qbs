@@ -29,7 +29,7 @@ Project {
         Depends { name: "Sqlite" }
 
         cpp.defines: base.concat([
-            "DESIGNER_CORE_LIBRARY",
+            "QMLDESIGNER_LIBRARY",
             "TIMELINE_QML_PATH=\"" + FileInfo.joinPaths(path, "components",
                                                         "timelineeditor", "qml") + "\""
         ])

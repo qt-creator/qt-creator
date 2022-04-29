@@ -6,7 +6,7 @@ QtcTool {
 
     Depends { name: "Qt.network" }
 
-    cpp.defines: base.concat("QTCREATOR_UTILS_STATIC_LIB")
+    cpp.defines: base.concat("UTILS_STATIC_LIBRARY")
     cpp.includePaths: base.concat(pathToUtils)
 
     Properties {

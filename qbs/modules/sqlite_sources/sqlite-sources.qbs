@@ -11,9 +11,9 @@ Module {
     cpp.defines: {
         var defines = ["SQLITE_CUSTOM_INCLUDE=config.h", "SQLITE_CORE"];
         if (buildSharedLib)
-            defines.push("BUILD_SQLITE_LIBRARY");
+            defines.push("SQLITE_LIBRARY");
         else
-            defines.push("BUILD_SQLITE_STATIC_LIBRARY");
+            defines.push("SQLITE_STATIC_LIBRARY");
         if (qbs.targetOS.contains("linux"))
             defines.push("_POSIX_C_SOURCE=200809L", "_GNU_SOURCE");
         else if (qbs.targetOS.contains("macos"))

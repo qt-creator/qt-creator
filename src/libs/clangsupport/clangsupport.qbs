@@ -7,7 +7,7 @@ QtcLibrary {
     Depends { name: "Qt.network" }
     Depends { name: "Utils" }
 
-    cpp.defines: base.concat("CLANGSUPPORT_BUILD_LIB")
+    cpp.defines: base.concat("CLANGSUPPORT_LIBRARY")
     cpp.includePaths: base.concat(".")
 
     Group {

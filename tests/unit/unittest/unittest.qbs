@@ -40,7 +40,7 @@ Project {
                         "QT_RESTRICTED_CAST_FROM_ASCII",
                         "QT_USE_FAST_OPERATOR_PLUS",
                         "QT_USE_FAST_CONCATENATION",
-                        "CLANGSUPPORT_BUILD_STATIC_LIB",
+                        "CLANGSUPPORT_STATIC_LIBRARY",
                         "CLANGTOOLS_STATIC_LIBRARY",
                         "CPPEDITOR_STATIC_LIBRARY",
                         "DEBUGGER_STATIC_LIBRARY",
