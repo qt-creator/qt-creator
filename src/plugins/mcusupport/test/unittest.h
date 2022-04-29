@@ -47,6 +47,8 @@ public:
 
 private slots:
     void initTestCase();
+    void init();
+    void cleanup();
 
     void test_addNewKit();
     void test_parseBasicInfoFromJson();
@@ -66,7 +68,6 @@ private slots:
     void test_createFreeRtosPackageWithCorrectSetting();
     void test_createTargets();
     void test_createPackages();
-    void test_addFreeRtosCmakeVarToKit();
     void test_legacy_createIarToolchain();
     void test_createIarToolchain();
     void test_legacy_createDesktopGccToolchain();

@@ -38,8 +38,8 @@
 #include "mcukitmanager.h"
 #include "mculegacyconstants.h"
 #include "mcusupportconstants.h"
-#include "mcusupportsdk.h"
 #include "mcusupportoptions.h"
+#include "mcusupportsdk.h"
 #include "mcutargetdescription.h"
 #include "mcutargetfactorylegacy.h"
 
@@ -73,6 +73,7 @@ const char armGccLabel[]{"GNU Arm Embedded Toolchain"};
 const char armGccToolchainFilePath[]{"/opt/qtformcu/2.2/lib/cmake/Qul/toolchain/armgcc.cmake"};
 const char armGcc[]{"armgcc"};
 const char cmakeToolchainLabel[]{"CMake Toolchain File"};
+const char fallbackDir[]{"/abc/def/fallback"};
 const char freeRtosCMakeVar[]{"FREERTOS_DIR"};
 const char freeRtosDescription[]{"Freertos directory"};
 const char freeRtosEnvVar[]{"EVK_MIMXRT1170_FREERTOS_PATH"};
@@ -246,6 +247,7 @@ McuSupportTest::McuSupportTest()
                 armGccToolchainFilePackagePtr}
 {
     testing::Mock::AllowLeak(settingsMockPtr.get());
+    testing::FLAGS_gmock_verbose = "error";
 }
 
 void McuSupportTest::initTestCase()
@@ -291,6 +293,18 @@ void McuSupportTest::initTestCase()
         });
 }
 
+void McuSupportTest::init()
+{
+    qDebug() << __func__;
+}
+
+void McuSupportTest::cleanup()
+{
+    QVERIFY(testing::Mock::VerifyAndClearExpectations(settingsMockPtr.get()));
+    QVERIFY(testing::Mock::VerifyAndClearExpectations(freeRtosPackage));
+    QVERIFY(testing::Mock::VerifyAndClearExpectations(sdkPackage));
+}
+
 void McuSupportTest::test_parseBasicInfoFromJson()
 {
     const auto description = Sdk::parseDescriptionJson(iar_nxp_1064_json);
@@ -304,8 +318,8 @@ void McuSupportTest::test_parseCmakeEntries()
     const auto description{Sdk::parseDescriptionJson(iar_nxp_1064_json)};
 
     QVERIFY(!description.freeRTOS.packages.isEmpty());
-    auto &freeRtosPackage = description.freeRTOS.packages[0];
-    QCOMPARE(freeRtosPackage.envVar, nxp1064FreeRtosEnvVar);
+    auto &freeRtos = description.freeRTOS.packages[0];
+    QCOMPARE(freeRtos.envVar, nxp1064FreeRtosEnvVar);
 }
 
 void McuSupportTest::test_parseToolchainFromJSON_data()
@@ -354,20 +368,6 @@ void McuSupportTest::test_parseToolchainFromJSON()
     QCOMPARE(toolchainFilePackage.envVar, QString{});
     QCOMPARE(toolchainFilePackage.cmakeVar, Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE);
     QCOMPARE(toolchainFilePackage.defaultPath.cleanPath().toUserOutput(), toolchainFile);
-}
-
-void McuSupportTest::test_addFreeRtosCmakeVarToKit()
-{
-    McuKitManager::upgradeKitInPlace(&kit, &mcuTarget, sdkPackagePtr);
-
-    QVERIFY(kit.hasValue(EnvironmentKitAspect::id()));
-    QVERIFY(kit.isValid());
-    QVERIFY(!kit.allKeys().empty());
-
-    const auto &cmakeConfig{CMakeConfigurationKitAspect::configuration(&kit)};
-    QVERIFY(cmakeConfig.size() > 0);
-    QCOMPARE(cmakeConfig.valueOf(freeRtosCMakeVar),
-             FilePath::fromString(freeRtosPath).toString().toLocal8Bit());
 }
 
 void McuSupportTest::test_legacy_createIarToolchain()
