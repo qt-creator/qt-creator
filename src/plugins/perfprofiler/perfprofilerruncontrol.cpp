@@ -124,7 +124,7 @@ public:
 
     void start() override
     {
-        m_process = device()->createProcess(this);
+        m_process = new QtcProcess(this);
         if (!m_process) {
             reportFailure(tr("Could not start device process."));
             return;
@@ -147,7 +147,7 @@ public:
 
         Runnable perfRunnable = runnable();
 
-        CommandLine cmd({"perf", {"record"}});
+        CommandLine cmd({device()->mapToGlobalPath("perf"), {"record"}});
         cmd.addArgs(m_perfRecordArguments);
         cmd.addArgs({"-o", "-", "--"});
         cmd.addCommandLineAsArgs(perfRunnable.command, CommandLine::Raw);

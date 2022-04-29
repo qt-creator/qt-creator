@@ -144,12 +144,8 @@ void PerfConfigWidget::setTarget(ProjectExplorer::Target *target)
     QTC_ASSERT(device, return);
     QTC_CHECK(!m_process || m_process->state() == QProcess::NotRunning);
 
-    m_process.reset(device->createProcess(nullptr));
-    if (!m_process) {
-        useTracePointsButton->setEnabled(false);
-        return;
-    }
-
+    m_process.reset(new QtcProcess);
+    m_process->setCommand({device->mapToGlobalPath("perf"), {"probe", "-l"}});
     connect(m_process.get(), &QtcProcess::done,
             this, &PerfConfigWidget::handleProcessDone);
 
@@ -174,7 +170,6 @@ void PerfConfigWidget::readTracePoints()
     messageBox.setText(tr("Replace events with trace points read from the device?"));
     messageBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     if (messageBox.exec() == QMessageBox::Yes) {
-        m_process->setCommand({"perf", {"probe", "-l"}});
         m_process->start();
         useTracePointsButton->setEnabled(false);
     }
