@@ -5,7 +5,9 @@ Project {
     name: "Utils"
 
     QtcLibrary {
-        cpp.includePaths: base.concat("mimetypes", ".")
+        property bool useNewMimeDatabase: true
+
+        cpp.includePaths: base.concat((useNewMimeDatabase ? "mimetypes2" : "mimetypes"), ".")
         cpp.defines: base.concat([
             "UTILS_LIBRARY"
         ])
@@ -394,7 +396,7 @@ Project {
 
         Group {
             name: "MimeTypes"
-            prefix: "mimetypes/"
+            prefix: useNewMimeDatabase ? "mimetypes2/" : "mimetypes/"
             files: [
                 "mimedatabase.cpp",
                 "mimedatabase.h",
@@ -439,7 +441,8 @@ Project {
 
         Export {
             Depends { name: "Qt"; submodules: ["concurrent", "widgets" ] }
-            cpp.includePaths: base.concat("mimetypes")
+            cpp.includePaths: base.concat(exportingProduct.useNewMimeDatabase ? "mimetypes2"
+                                                                              : "mimetypes")
         }
     }
 }
