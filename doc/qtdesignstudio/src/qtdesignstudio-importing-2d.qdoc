@@ -103,7 +103,7 @@
             want to import assets.
         \li Select the \uicontrol {Merge QML} check box if you have imported the
             assets before and want to merge the changes into existing QML files
-            instead of overwriting the existing files.
+            instead of overwriting the existing files. See \l {Merging QML Files}.
         \li Select \uicontrol Import to import the QML files and assets. This
             might take a little while for complex projects.
     \endlist
@@ -128,6 +128,25 @@
     \uicontrol {Asset Import} dialog while importing, fix the issues in
     design tool and export the assets again.
 
+    \section2 Merging QML Files
+    When you re-import a QML component, the changes done in \QDS are preserved.
+    The QML item changes in the existing QML component are copied to the corresponding
+    QML item in the new component.
+
+    The following rules are observed while merging QML components.
+    \list
+        \li While importing, a unique identifier (UUID) is added for each QML item in the
+            component. The UUID is used to find the corresponding QML item in the existing
+            component.
+        \li New item properties in the existing component are added to the corresponding
+            item in the new component.
+        \li When a QML property is set in both old and new QML item, the property in the
+            new item remains unchanged. This rule does not apply to binding properties. In case
+            of bindings, changes done in \QDS are preserved.
+        \li New child items are added to the corresponding item in the new component.
+        \li QML items for which a corresponding QML item is not found in the existing component,
+            are added under the root item of the new component.
+    \endlist
     \include qtbridge-tutorial-links.qdocinc qtsketchbridge tutorials
 
 */
