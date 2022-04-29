@@ -649,7 +649,8 @@ void QmlInspectorAgent::addWatchData(const ObjectReference &obj,
         propertiesWatch->value = "list";
         propertiesWatch->wantsChildren = true;
 
-        foreach (const PropertyReference &property, obj.properties()) {
+        const QList<PropertyReference> properties = obj.properties();
+        for (const PropertyReference &property : properties) {
             const QString propertyName = property.name();
             if (propertyName.isEmpty())
                 continue;
@@ -669,7 +670,8 @@ void QmlInspectorAgent::addWatchData(const ObjectReference &obj,
     }
 
     // recurse
-    foreach (const ObjectReference &child, obj.children())
+    const QList<ObjectReference> children = obj.children();
+    for (const ObjectReference &child : children)
         addWatchData(child, objIname, append);
 }
 

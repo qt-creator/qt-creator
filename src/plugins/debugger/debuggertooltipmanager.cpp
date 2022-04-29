@@ -1319,7 +1319,8 @@ void DebuggerToolTipManagerPrivate::leavingDebugMode()
         hideAllToolTips();
         if (QWidget *topLevel = ICore::mainWindow()->topLevelWidget())
             topLevel->removeEventFilter(this);
-        foreach (IEditor *e, DocumentModel::editorsForOpenedDocuments()) {
+        const QList<IEditor *> editors = DocumentModel::editorsForOpenedDocuments();
+        for (IEditor *e : editors) {
             if (auto toolTipEditor = qobject_cast<BaseTextEditor *>(e)) {
                 toolTipEditor->editorWidget()->verticalScrollBar()->disconnect(this);
                 toolTipEditor->editorWidget()->disconnect(this);

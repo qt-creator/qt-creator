@@ -472,7 +472,8 @@ void QmlEngine::gotoLocation(const Location &location)
 
         QString titlePattern = tr("JS Source for %1").arg(fileName);
         //Check if there are open documents with the same title
-        foreach (IDocument *document, DocumentModel::openedDocuments()) {
+        const QList<IDocument *> documents = DocumentModel::openedDocuments();
+        for (IDocument *document: documents) {
             if (document->displayName() == titlePattern) {
                 EditorManager::activateEditorForDocument(document);
                 return;
@@ -895,7 +896,7 @@ static ConsoleItem *constructLogItemTree(const QVariant &result,
             std::sort(children.begin(), children.end(), compareConsoleItems);
 
         item = new ConsoleItem(ConsoleItem::DefaultType, text);
-        foreach (ConsoleItem *child, children) {
+        for (ConsoleItem *child : qAsConst(children)) {
             if (child)
                 item->appendChild(child);
         }
@@ -915,7 +916,7 @@ static ConsoleItem *constructLogItemTree(const QVariant &result,
             std::sort(children.begin(), children.end(), compareConsoleItems);
 
         item = new ConsoleItem(ConsoleItem::DefaultType, text);
-        foreach (ConsoleItem *child, children) {
+        for (ConsoleItem *child : qAsConst(children)) {
             if (child)
                 item->appendChild(child);
         }
@@ -1102,7 +1103,8 @@ void QmlEnginePrivate::updateScriptSource(const QString &fileName, int lineOffse
     //update open editors
     QString titlePattern = QCoreApplication::translate("QmlEngine", "JS Source for %1").arg(fileName);
     //Check if there are open editors with the same title
-    foreach (IDocument *doc, DocumentModel::openedDocuments()) {
+    const QList<IDocument *> documents = DocumentModel::openedDocuments();
+    for (IDocument *doc: documents) {
         if (doc->displayName() == titlePattern) {
             updateDocument(doc, document);
             break;
@@ -1646,7 +1648,8 @@ void QmlEnginePrivate::runDirectCommand(const QString &type, const QByteArray &m
 void QmlEnginePrivate::memorizeRefs(const QVariant &refs)
 {
     if (refs.isValid()) {
-        foreach (const QVariant &ref, refs.toList()) {
+        const QList<QVariant> refList = refs.toList();
+        for (const QVariant &ref : refList) {
             const QVariantMap refData = ref.toMap();
             int handle = refData.value(HANDLE).toInt();
             refVals[handle] = extractData(refData);
@@ -1811,7 +1814,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                         }
 
                         QMap<QString,QString> files;
-                        foreach (const QString &file, sourceFiles) {
+                        for (const QString &file : qAsConst(sourceFiles)) {
                             QString shortName = file;
                             QString fullName = engine->toFileInProject(file);
                             files.insert(shortName, fullName);
@@ -2238,7 +2241,7 @@ void QmlEnginePrivate::constructChildLogItems(ConsoleItem *item, const QmlV8Obje
     if (debuggerSettings()->sortStructMembers.value())
         std::sort(children.begin(), children.end(), compareConsoleItems);
 
-    foreach (ConsoleItem *child, children)
+    for (ConsoleItem *child : qAsConst(children))
         item->appendChild(child);
 }
 
@@ -2364,7 +2367,7 @@ void QmlEnginePrivate::handleExecuteDebuggerCommand(const QVariantMap &response)
         debuggerConsole()->printItem(constructLogItemTree(extractData(response.value(BODY))));
 
         // Update the locals
-        foreach (int index, currentFrameScopes)
+        for (int index : qAsConst(currentFrameScopes))
             scope(index);
     } else {
         debuggerConsole()->printItem(new ConsoleItem(ConsoleItem::ErrorType,
@@ -2439,7 +2442,7 @@ void QmlEnginePrivate::handleVersion(const QVariantMap &response)
 void QmlEnginePrivate::flushSendBuffer()
 {
     QTC_ASSERT(state() == Enabled, return);
-    foreach (const QByteArray &msg, sendBuffer)
+    for (const QByteArray &msg : qAsConst(sendBuffer))
         sendMessage(msg);
     sendBuffer.clear();
 }

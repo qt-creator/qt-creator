@@ -1611,7 +1611,8 @@ void DebuggerEnginePrivate::cleanupViews()
     const bool closeMemory = debuggerSettings()->closeMemoryBuffersOnExit.value();
 
     QList<IDocument *> toClose;
-    foreach (IDocument *document, DocumentModel::openedDocuments()) {
+    const QList<IDocument *> documents = DocumentModel::openedDocuments();
+    for (IDocument *document : documents) {
         const bool isMemory = document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool();
         if (document->property(Constants::OPENED_BY_DEBUGGER).toBool()) {
             bool keepIt = true;
@@ -2501,8 +2502,8 @@ void DebuggerEngine::handleExecRunToSelectedFunction()
     QString functionName = cursor.selectedText();
     if (functionName.isEmpty()) {
         const QTextBlock block = cursor.block();
-        const QString line = block.text();
-        foreach (const QString &str, line.trimmed().split('(')) {
+        const QStringList lineList = block.text().trimmed().split('(');
+        for (const QString &str : lineList) {
             QString a;
             for (int i = str.size(); --i >= 0; ) {
                 if (!str.at(i).isLetterOrNumber())

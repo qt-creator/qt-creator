@@ -265,7 +265,8 @@ void DisassemblerAgentPrivate::configureMimeType()
 
     Utils::MimeType mtype = Utils::mimeTypeForName(mimeType);
     if (mtype.isValid()) {
-        foreach (IEditor *editor, DocumentModel::editorsForDocument(document))
+        const QList<IEditor *> editors = DocumentModel::editorsForDocument(document);
+        for (IEditor *editor : editors)
             if (auto widget = TextEditorWidget::fromEditor(editor))
                 widget->configureGenericHighlighter();
     } else {

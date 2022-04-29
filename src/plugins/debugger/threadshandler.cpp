@@ -331,7 +331,7 @@ bool ThreadsHandler::notifyGroupExited(const QString &groupId)
         if (item->threadData.groupId == groupId)
             list.append(item);
     });
-    foreach (ThreadItem *item, list)
+    for (ThreadItem *item : qAsConst(list))
         destroyItem(item);
 
     m_pidForGroupId.remove(groupId);

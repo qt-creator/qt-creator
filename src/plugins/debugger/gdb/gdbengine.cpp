@@ -818,13 +818,13 @@ void GdbEngine::commandTimeout()
     QList<int> keys = m_commandForToken.keys();
     Utils::sort(keys);
     bool killIt = false;
-    foreach (int key, keys) {
+    for (int key : qAsConst(keys)) {
         const DebuggerCommand &cmd = m_commandForToken.value(key);
         killIt = true;
         showMessage(QString::number(key) + ": " + cmd.function);
     }
     QStringList commands;
-    foreach (const DebuggerCommand &cmd, m_commandForToken)
+    for (const DebuggerCommand &cmd : qAsConst(m_commandForToken))
         commands << QString("\"%1\"").arg(cmd.function);
     if (killIt) {
         showMessage(QString("TIMED OUT WAITING FOR GDB REPLY. "
@@ -2606,7 +2606,7 @@ void GdbEngine::insertBreakpoint(const Breakpoint &bp)
                 QVariant tpCaps = bp->property(tracepointCapturePropertyName);
                 if (tpCaps.isValid()) {
                     QJsonArray caps;
-                    foreach (const auto &tpCap, tpCaps.toList()) {
+                    for (const QVariant &tpCap : tpCaps.toList()) {
                         TracepointCaptureData data = tpCap.value<TracepointCaptureData>();
                         QJsonArray cap;
                         cap.append(static_cast<int>(data.type));
@@ -2844,7 +2844,8 @@ static void handleShowModuleSymbols(const DebuggerResponse &response,
         // Object file /opt/dev/qt/lib/libQtNetworkMyns.so.4:
         // [ 0] A 0x16bd64 _DYNAMIC  moc_qudpsocket.cpp
         // [12] S 0xe94680 _ZN4myns5QFileC1Ev section .plt  myns::QFile::QFile()
-        foreach (const QString &line, QString::fromLocal8Bit(file.readAll()).split('\n')) {
+        const QStringList lines = QString::fromLocal8Bit(file.readAll()).split('\n');
+        for (const QString &line : lines) {
             if (line.isEmpty())
                 continue;
             if (line.at(0) != '[')
@@ -2928,7 +2929,7 @@ void GdbEngine::handleShowModuleSections(const DebuggerResponse &response,
         const QString needle = prefix + moduleName;
         Sections sections;
         bool active = false;
-        foreach (const QString &line, lines) {
+        for (const QString &line : qAsConst(lines)) {
             if (line.startsWith(prefix)) {
                 if (active)
                     break;
@@ -3752,7 +3753,8 @@ bool GdbEngine::handleCliDisassemblerResult(const QString &output, DisassemblerA
     // First line is something like
     // "Dump of assembler code from 0xb7ff598f to 0xb7ff5a07:"
     DisassemblerLines dlines;
-    foreach (const QString &line, output.split('\n'))
+    const QStringList lineList = output.split('\n');
+    for (const QString &line : lineList)
         dlines.appendUnparsed(line);
 
     QVector<DisassemblerLine> lines = dlines.data();
@@ -3829,10 +3831,10 @@ void GdbEngine::setupEngine()
         gdbCommand.addArg("--tty=" + m_outputCollector.serverName());
     }
 
-    const QString tests = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_TESTS"));
-    foreach (const QString &test, tests.split(','))
+    const QStringList testList = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_TESTS")).split(',');
+    for (const QString &test : testList)
         m_testCases.insert(test.toInt());
-    foreach (int test, m_testCases)
+    for (int test : qAsConst(m_testCases))
         showMessage("ENABLING TEST CASE: " + QString::number(test));
 
     m_expectTerminalTrap = terminal();
@@ -4052,7 +4054,8 @@ void GdbEngine::setEnvironmentVariables()
 
     Environment sysEnv = Environment::systemEnvironment();
     Environment runEnv = runParameters().inferior.environment;
-    foreach (const EnvironmentItem &item, sysEnv.diff(runEnv)) {
+    const NameValueItems items = sysEnv.diff(runEnv);
+    for (const EnvironmentItem &item : items) {
         // imitate the weird windows gdb behavior of setting the case of the path environment
         // variable name to an all uppercase PATH
         const QString name = isWindowsPath(item.name) ? "PATH" : item.name;
@@ -4103,8 +4106,8 @@ void GdbEngine::abortDebuggerProcess()
 void GdbEngine::resetInferior()
 {
     if (!runParameters().commandsForReset.isEmpty()) {
-        const QString commands = expand(runParameters().commandsForReset);
-        foreach (QString command, commands.split('\n')) {
+        const QStringList commands = expand(runParameters().commandsForReset).split('\n');
+        for (QString command : commands) {
             command = command.trimmed();
             if (!command.isEmpty())
                 runCommand({command, ConsoleCommand | NeedsTemporaryStop | NativeCommand});
@@ -4185,7 +4188,7 @@ void GdbEngine::resetCommandQueue()
         QString msg;
         QTextStream ts(&msg);
         ts << "RESETING COMMAND QUEUE. LEFT OVER TOKENS: ";
-        foreach (const DebuggerCommand &cmd, m_commandForToken)
+        for (const DebuggerCommand &cmd : qAsConst(m_commandForToken))
             ts << "CMD:" << cmd.function;
         m_commandForToken.clear();
         m_flagsForToken.clear();

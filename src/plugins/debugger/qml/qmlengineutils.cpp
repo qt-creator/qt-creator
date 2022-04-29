@@ -237,7 +237,8 @@ void clearExceptionSelection()
 {
     QList<QTextEdit::ExtraSelection> selections;
 
-    foreach (IEditor *editor, DocumentModel::editorsForOpenedDocuments()) {
+    const QList<IEditor *> editors = DocumentModel::editorsForOpenedDocuments();
+    for (IEditor *editor : editors) {
         if (auto ed = TextEditorWidget::fromEditor(editor))
             ed->setExtraSelections(TextEditorWidget::DebuggerExceptionSelection, selections);
     }

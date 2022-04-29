@@ -213,7 +213,7 @@ void DebuggerRunTool::setStartMode(DebuggerStartMode startMode)
             projects.removeOne(startupProject);
             projects.insert(0, startupProject);
         }
-        foreach (Project *project, projects)
+        for (Project *project : qAsConst(projects))
             m_runParameters.projectSourceFiles.append(project->files(Project::SourceFiles));
         if (!projects.isEmpty())
             m_runParameters.projectSourceDirectory = projects.first()->projectDirectory();

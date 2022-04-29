@@ -1172,7 +1172,8 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
         if (auto kev = ev.as<QKeyEvent>(QEvent::KeyPress)) {
             if (item && (kev->key() == Qt::Key_Delete || kev->key() == Qt::Key_Backspace)
                 && item->isWatcher()) {
-                foreach (const QModelIndex &idx, ev.selectedRows())
+                const QModelIndexList selectedRows = ev.selectedRows();
+                for (const QModelIndex &idx : selectedRows)
                     removeWatchItem(itemForIndex(idx));
                 return true;
             }
@@ -1544,7 +1545,7 @@ MemoryMarkupList WatchModel::variableMemoryMarkup(WatchItem *item,
                 name = ranges.at(i).second;
             }
         dbg << '\n';
-        foreach (const MemoryMarkup &m, result)
+        for (const MemoryMarkup &m : qAsConst(result))
             dbg << m.address <<  ' ' << m.length << ' '  << m.toolTip << '\n';
     }
 
@@ -2180,7 +2181,7 @@ void WatchHandler::insertItems(const GdbMi &data)
             itemsToSort.insert(static_cast<WatchItem *>(item->parent()));
     }
 
-    foreach (WatchItem *toplevel, itemsToSort)
+    for (WatchItem *toplevel : qAsConst(itemsToSort))
         toplevel->sortChildren(&sortByName);
 }
 
@@ -2219,7 +2220,7 @@ bool WatchHandler::insertItem(WatchItem *item)
 
 void WatchModel::reexpandItems()
 {
-    foreach (const QString &iname, m_expandedINames) {
+    for (const QString &iname : qAsConst(m_expandedINames)) {
         if (WatchItem *item = findItem(iname)) {
             emit itemIsExpanded(indexForItem(item));
             emit inameIsExpanded(iname);
@@ -2297,7 +2298,7 @@ void WatchHandler::notifyUpdateFinished()
         return true;
     });
 
-    foreach (auto item, toRemove)
+    for (WatchItem *item : qAsConst(toRemove))
         m_model->destroyItem(item);
 
     m_model->forAllItems([this](WatchItem *item) {
@@ -2582,7 +2583,8 @@ void WatchHandler::loadSessionDataForEngine()
     theWatcherCount = 0;
     QVariant value = SessionManager::value("Watchers");
     m_model->m_watchRoot->removeChildren();
-    foreach (const QString &exp, value.toStringList())
+    const QStringList valueList = value.toStringList();
+    for (const QString &exp : valueList)
         watchExpression(exp.trimmed());
 }
 
@@ -2765,8 +2767,8 @@ void WatchHandler::addDumpers(const GdbMi &dumpers)
     for (const GdbMi &dumper : dumpers) {
         DisplayFormats formats;
         formats.append(RawFormat);
-        QString reportedFormats = dumper["formats"].data();
-        foreach (const QString &format, reportedFormats.split(',')) {
+        const QStringList reportedFormats = dumper["formats"].data().split(',');
+        for (const QString &format : reportedFormats) {
             if (int f = format.toInt())
                 formats.append(DisplayFormat(f));
         }
