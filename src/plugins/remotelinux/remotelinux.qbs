@@ -42,6 +42,7 @@ Project {
             "linuxdeviceprocess.h",
             "linuxdevicetester.cpp",
             "linuxdevicetester.h",
+            "linuxprocessinterface.h",
             "makeinstallstep.cpp",
             "makeinstallstep.h",
             "packageuploader.cpp",

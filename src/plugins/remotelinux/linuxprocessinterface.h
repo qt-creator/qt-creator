@@ -27,43 +27,29 @@
 
 #include "remotelinux_export.h"
 
-#include <utils/processinterface.h>
+#include "sshprocessinterface.h"
 
 namespace RemoteLinux {
 
 class LinuxDevice;
 class SshProcessInterfacePrivate;
 
-class REMOTELINUX_EXPORT SshProcessInterface : public Utils::ProcessInterface
+class REMOTELINUX_EXPORT LinuxProcessInterface : public SshProcessInterface
 {
 public:
-    SshProcessInterface(const LinuxDevice *linuxDevice);
-    ~SshProcessInterface();
-
-protected:
-    void emitStarted(qint64 processId);
-    // To be called from leaf destructor.
-    // Can't call it from SshProcessInterface destructor as it calls virtual method.
-    void killIfRunning();
-    qint64 processId() const;
-    bool runInShell(const Utils::CommandLine &command, const QByteArray &data = {});
+    LinuxProcessInterface(const LinuxDevice *linuxDevice);
+    ~LinuxProcessInterface();
 
 private:
-    virtual void handleStarted(qint64 processId);
-    virtual void handleReadyReadStandardOutput(const QByteArray &outputData);
+    void sendControlSignal(Utils::ControlSignal controlSignal) override;
 
-    virtual QString fullCommandLine(const Utils::CommandLine &commandLine) const = 0;
+    void handleStarted(qint64 processId) final;
+    void handleReadyReadStandardOutput(const QByteArray &outputData) final;
 
-    void start() final;
-    qint64 write(const QByteArray &data) final;
-    void sendControlSignal(Utils::ControlSignal controlSignal) override = 0;
+    QString fullCommandLine(const Utils::CommandLine &commandLine) const final;
 
-    bool waitForStarted(int msecs) final;
-    bool waitForReadyRead(int msecs) final;
-    bool waitForFinished(int msecs) final;
-
-    friend class SshProcessInterfacePrivate;
-    SshProcessInterfacePrivate *d = nullptr;
+    QByteArray m_output;
+    bool m_pidParsed = false;
 };
 
 } // namespace RemoteLinux

@@ -29,6 +29,7 @@
 #include "genericlinuxdeviceconfigurationwizard.h"
 #include "linuxdeviceprocess.h"
 #include "linuxdevicetester.h"
+#include "linuxprocessinterface.h"
 #include "publickeydeploymentdialog.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxsignaloperation.h"
@@ -442,7 +443,6 @@ public:
     SshProcessInterfacePrivate(SshProcessInterface *sshInterface, LinuxDevicePrivate *devicePrivate);
 
     void start();
-    void sendControlSignal(ControlSignal controlSignal);
 
     void handleConnected(const QString &socketFilePath);
     void handleDisconnected(const ProcessResultData &result);
@@ -459,16 +459,17 @@ public:
     SshProcessInterface *q = nullptr;
 
     qint64 m_processId = 0;
-    QtcProcess m_process;
-    LinuxDevicePrivate *m_devicePrivate = nullptr;
     // Store the IDevice::ConstPtr in order to extend the lifetime of device for as long
     // as this object is alive.
     IDevice::ConstPtr m_device;
     std::unique_ptr<SshConnectionHandle> m_connectionHandle;
+    QtcProcess m_process;
+    LinuxDevicePrivate *m_devicePrivate = nullptr;
 
     QString m_socketFilePath;
     SshConnectionParameters m_sshParameters;
     bool m_connecting = false;
+    bool m_killed = false;
 
     ProcessResultData m_result;
 };
@@ -501,8 +502,20 @@ void SshProcessInterface::emitStarted(qint64 processId)
 
 void SshProcessInterface::killIfRunning()
 {
-    if (d->m_process.state() == QProcess::Running)
-        sendControlSignal(ControlSignal::Kill);
+    if (d->m_killed || d->m_process.state() != QProcess::Running)
+        return;
+    sendControlSignal(ControlSignal::Kill);
+    d->m_killed = true;
+}
+
+qint64 SshProcessInterface::processId() const
+{
+    return d->m_processId;
+}
+
+bool SshProcessInterface::runInShell(const CommandLine &command, const QByteArray &data)
+{
+    return d->m_devicePrivate->runInShell(command, data);
 }
 
 void SshProcessInterface::start()
@@ -513,11 +526,6 @@ void SshProcessInterface::start()
 qint64 SshProcessInterface::write(const QByteArray &data)
 {
     return d->m_process.writeRaw(data);
-}
-
-void SshProcessInterface::sendControlSignal(ControlSignal controlSignal)
-{
-    d->sendControlSignal(controlSignal);
 }
 
 bool SshProcessInterface::waitForStarted(int msecs)
@@ -541,30 +549,29 @@ bool SshProcessInterface::waitForFinished(int msecs)
     return false;
 }
 
-class LinuxProcessImpl final : public SshProcessInterface
-{
-    Q_OBJECT
-
-public:
-    LinuxProcessImpl(const LinuxDevice *linuxDevice);
-    ~LinuxProcessImpl() { killIfRunning(); }
-
-private:
-    void handleStarted(qint64 processId) final;
-    void handleReadyReadStandardOutput(const QByteArray &outputData) final;
-
-    QString fullCommandLine(const Utils::CommandLine &commandLine) const final;
-
-    QByteArray m_output;
-    bool m_pidParsed = false;
-};
-
-LinuxProcessImpl::LinuxProcessImpl(const LinuxDevice *linuxDevice)
+LinuxProcessInterface::LinuxProcessInterface(const LinuxDevice *linuxDevice)
     : SshProcessInterface(linuxDevice)
 {
 }
 
-QString LinuxProcessImpl::fullCommandLine(const CommandLine &commandLine) const
+LinuxProcessInterface::~LinuxProcessInterface()
+{
+    killIfRunning();
+}
+
+void LinuxProcessInterface::sendControlSignal(ControlSignal controlSignal)
+{
+    QTC_ASSERT(controlSignal != ControlSignal::KickOff, return);
+    const qint64 pid = processId();
+    QTC_ASSERT(pid, return); // TODO: try sending a signal based on process name
+    const QString args = QString::fromLatin1("-%1 -%2 %2")
+            .arg(controlSignalToInt(controlSignal)).arg(pid);
+    CommandLine command = { "kill", args, CommandLine::Raw };
+    // Note: This blocking call takes up to 2 ms for local remote.
+    runInShell(command);
+}
+
+QString LinuxProcessInterface::fullCommandLine(const CommandLine &commandLine) const
 {
     CommandLine cmd;
 
@@ -598,7 +605,7 @@ QString LinuxProcessImpl::fullCommandLine(const CommandLine &commandLine) const
     return cmd.arguments();
 }
 
-void LinuxProcessImpl::handleStarted(qint64 processId)
+void LinuxProcessInterface::handleStarted(qint64 processId)
 {
     // Don't emit started() when terminal is off,
     // it's being done later inside handleReadyReadStandardOutput().
@@ -609,7 +616,7 @@ void LinuxProcessImpl::handleStarted(qint64 processId)
     emitStarted(processId);
 }
 
-void LinuxProcessImpl::handleReadyReadStandardOutput(const QByteArray &outputData)
+void LinuxProcessInterface::handleReadyReadStandardOutput(const QByteArray &outputData)
 {
     if (m_pidParsed) {
         emit readyRead(outputData, {});
@@ -645,9 +652,9 @@ SshProcessInterfacePrivate::SshProcessInterfacePrivate(SshProcessInterface *sshI
                                                        LinuxDevicePrivate *devicePrivate)
     : QObject(sshInterface)
     , q(sshInterface)
+    , m_device(devicePrivate->q->sharedFromThis())
     , m_process(this)
     , m_devicePrivate(devicePrivate)
-    , m_device(m_devicePrivate->q->sharedFromThis())
 {
     connect(&m_process, &QtcProcess::started, this, &SshProcessInterfacePrivate::handleStarted);
     connect(&m_process, &QtcProcess::done, this, &SshProcessInterfacePrivate::handleDone);
@@ -677,22 +684,6 @@ void SshProcessInterfacePrivate::start()
     } else {
         doStart();
     }
-}
-
-QString SshProcessInterface::pidArgumentForKill() const
-{
-    return QString::fromLatin1("-%1 %1").arg(d->m_processId);
-}
-
-void SshProcessInterfacePrivate::sendControlSignal(ControlSignal controlSignal)
-{
-    QTC_ASSERT(controlSignal != ControlSignal::KickOff, return);
-    // TODO: In case if m_processId == 0 try sending a signal based on process name.
-    const QString args = QString::fromLatin1("-%1 %2")
-            .arg(ProcessInterface::controlSignalToInt(controlSignal)).arg(q->pidArgumentForKill());
-    CommandLine command = { "kill", args, CommandLine::Raw };
-    // Note: This blocking call takes up to 2 ms for local remote.
-    m_devicePrivate->runInShell(command);
 }
 
 void SshProcessInterfacePrivate::handleConnected(const QString &socketFilePath)
@@ -1128,7 +1119,7 @@ bool LinuxDevice::handlesFile(const FilePath &filePath) const
 
 ProcessInterface *LinuxDevice::createProcessInterface() const
 {
-    return new LinuxProcessImpl(this);
+    return new LinuxProcessInterface(this);
 }
 
 LinuxDevicePrivate::LinuxDevicePrivate(LinuxDevice *parent)

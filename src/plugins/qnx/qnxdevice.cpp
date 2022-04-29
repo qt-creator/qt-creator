@@ -57,7 +57,7 @@ public:
 
 private:
     QString fullCommandLine(const CommandLine &commandLine) const final;
-    QString pidArgumentForKill() const final;
+    void sendControlSignal(Utils::ControlSignal controlSignal) final;
 
     const QString m_pidFile;
 };
@@ -95,9 +95,14 @@ QString QnxProcessImpl::fullCommandLine(const CommandLine &commandLine) const
     return fullCommandLine;
 }
 
-QString QnxProcessImpl::pidArgumentForKill() const
+void QnxProcessImpl::sendControlSignal(Utils::ControlSignal controlSignal)
 {
-    return QString::fromLatin1("`cat %1`").arg(m_pidFile);
+    QTC_ASSERT(controlSignal != ControlSignal::KickOff, return);
+    const QString args = QString::fromLatin1("-%1 `cat %2`")
+            .arg(controlSignalToInt(controlSignal)).arg(m_pidFile);
+    CommandLine command = { "kill", args, CommandLine::Raw };
+    // Note: This blocking call takes up to 2 ms for local remote.
+    runInShell(command);
 }
 
 const char QnxVersionKey[] = "QnxVersion";
