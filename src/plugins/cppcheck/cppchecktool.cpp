@@ -118,7 +118,7 @@ void CppcheckTool::updateArguments()
     if (!m_options.unusedFunction && !m_options.customArguments.contains("-j "))
         arguments.push_back("-j " + QString::number(QThread::idealThreadCount()));
 
-    arguments.push_back("--template={file},{line},{severity},{id},{message}");
+    arguments.push_back("--template=\"{file},{line},{severity},{id},{message}\"");
 
     m_runner->reconfigure(m_options.binary, arguments.join(' '));
 }
