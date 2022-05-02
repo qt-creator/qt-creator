@@ -30,6 +30,7 @@
 #include "cmakeprojectnodes.h"
 #include "fileapireader.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 
 #include <utils/fileutils.h>
@@ -110,6 +111,28 @@ public:
     bool usesAllCapsTargets() const;
 
     CMakeProject *project() const;
+
+    QString cmakeBuildType() const;
+    void setCMakeBuildType(const QString &cmakeBuildType, bool quiet = false);
+    ProjectExplorer::BuildConfiguration::BuildType buildType() const;
+
+    CMakeConfig configurationFromCMake() const;
+    CMakeConfig configurationChanges() const;
+
+    QStringList configurationChangesArguments(bool initialParameters = false) const;
+
+    QStringList initialCMakeArguments() const;
+    CMakeConfig initialCMakeConfiguration() const;
+
+    QStringList additionalCMakeArguments() const;
+    void setAdditionalCMakeArguments(const QStringList &args);
+
+    void filterConfigArgumentsFromAdditionalCMakeArguments();
+
+    void setConfigurationFromCMake(const CMakeConfig &config);
+    void setConfigurationChanges(const CMakeConfig &config);
+
+    void setInitialCMakeArguments(const QStringList &args);
 
     QString error() const;
     QString warning() const;
@@ -205,6 +228,9 @@ private:
     Utils::FilePath m_ctestPath;
     QList<ProjectExplorer::TestCaseInfo> m_testNames;
     Utils::FutureSynchronizer m_futureSynchronizer;
+
+    CMakeConfig m_configurationFromCMake;
+    CMakeConfig m_configurationChanges;
 
     QString m_error;
     QString m_warning;

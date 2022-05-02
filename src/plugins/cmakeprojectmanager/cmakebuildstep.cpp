@@ -405,10 +405,9 @@ CommandLine CMakeBuildStep::cmakeCommand() const
     }));
 
     auto bs = qobject_cast<CMakeBuildSystem*>(buildSystem());
-    auto bc = qobject_cast<CMakeBuildConfiguration*>(buildConfiguration());
-    if (bc && bs && bs->isMultiConfigReader()) {
+    if (bs && bs->isMultiConfigReader()) {
         cmd.addArg("--config");
-        cmd.addArg(bc->cmakeBuildType());
+        cmd.addArg(bs->cmakeBuildType());
     }
 
     if (!m_cmakeArguments->value().isEmpty())

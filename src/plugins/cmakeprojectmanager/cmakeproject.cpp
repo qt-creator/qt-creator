@@ -25,7 +25,6 @@
 
 #include "cmakeproject.h"
 
-#include "cmakebuildconfiguration.h"
 #include "cmakebuildstep.h"
 #include "cmakebuildsystem.h"
 #include "cmakekitinformation.h"
@@ -132,16 +131,15 @@ MakeInstallCommand CMakeProject::makeInstallCommand(const Target *target,
     QStringList config;
 
     auto bs = qobject_cast<CMakeBuildSystem*>(target->buildSystem());
-    auto bc = qobject_cast<CMakeBuildConfiguration*>(target->activeBuildConfiguration());
-    if (bs && bc) {
+    if (bs) {
         if (bs->usesAllCapsTargets())
             installTarget = "INSTALL";
         if (bs->isMultiConfigReader())
-            config << "--config" << bc->cmakeBuildType();
+            config << "--config" << bs->cmakeBuildType();
     }
 
     FilePath buildDirectory = ".";
-    if (bc)
+    if (auto bc = bs->buildConfiguration())
         buildDirectory = bc->buildDirectory();
 
     cmd.arguments << "--build" << buildDirectory.onDevice(cmd.command).path()

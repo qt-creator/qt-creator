@@ -557,7 +557,7 @@ void CMakeBuildSystem::updateProjectData()
 
     buildConfiguration()->project()->setExtraProjectFiles(m_reader.projectFilesToWatch());
 
-    CMakeConfig patchedConfig = cmakeBuildConfiguration()->configurationFromCMake();
+    CMakeConfig patchedConfig = configurationFromCMake();
     {
         QSet<QString> res;
         QStringList apps;
@@ -732,7 +732,7 @@ void CMakeBuildSystem::updateCMakeConfiguration(QString &errorMessage)
     for (auto &ci : cmakeConfig)
         ci.inCMakeCache = true;
     if (!errorMessage.isEmpty()) {
-        const CMakeConfig changes = cmakeBuildConfiguration()->configurationChanges();
+        const CMakeConfig changes = configurationChanges();
         for (const auto &ci : changes) {
             if (ci.isInitial)
                 continue;
@@ -743,7 +743,7 @@ void CMakeBuildSystem::updateCMakeConfiguration(QString &errorMessage)
                 cmakeConfig.append(ci);
         }
     }
-    cmakeBuildConfiguration()->setConfigurationFromCMake(cmakeConfig);
+    setConfigurationFromCMake(cmakeConfig);
 }
 
 void CMakeBuildSystem::handleParsingSucceeded(bool restoredFromBackup)
@@ -841,7 +841,7 @@ void CMakeBuildSystem::wireUpConnections()
             const CMakeConfig config = CMakeBuildSystem::parseCMakeCacheDotTxt(cmakeCacheTxt, &errorMessage);
             if (!config.isEmpty() && errorMessage.isEmpty()) {
                 QString cmakeBuildTypeName = config.stringValueOf("CMAKE_BUILD_TYPE");
-                cmakeBuildConfiguration()->setCMakeBuildType(cmakeBuildTypeName, true);
+                setCMakeBuildType(cmakeBuildTypeName, true);
             }
         }
         setParametersAndRequestParse(BuildDirParameters(this), options);
@@ -849,7 +849,7 @@ void CMakeBuildSystem::wireUpConnections()
 
     connect(project(), &Project::projectFileIsDirty, this, [this] {
         if (buildConfiguration()->isActive() && !isParsing()) {
-            const auto cmake = CMakeKitAspect::cmakeTool(cmakeBuildConfiguration()->kit());
+            const auto cmake = CMakeKitAspect::cmakeTool(kit());
             if (cmake && cmake->isAutoRun()) {
                 qCDebug(cmakeBuildSystemLog) << "Requesting parse due to dirty project file";
                 setParametersAndRequestParse(BuildDirParameters(this),
@@ -1216,7 +1216,7 @@ void CMakeBuildSystem::updateQmlJSCodeModel(const QStringList &extraHeaderPaths,
             projectInfo.importPaths.maybeInsert(FilePath::fromString(import), QmlJS::Dialect::Qml);
     };
 
-    const CMakeConfig &cm = cmakeBuildConfiguration()->configurationFromCMake();
+    const CMakeConfig &cm = configurationFromCMake();
     addImports(cm.stringValueOf("QML_IMPORT_PATH"));
     addImports(kit()->value(QtSupport::KitQmlImportPath::id()).toString());
 
@@ -1249,9 +1249,8 @@ void CMakeBuildSystem::updateQmlJSCodeModel(const QStringList &extraHeaderPaths,
 
 void CMakeBuildSystem::updateInitialCMakeExpandableVars()
 {
-    const CMakeConfig &cm = cmakeBuildConfiguration()->configurationFromCMake();
-    const CMakeConfig &initialConfig
-        = cmakeBuildConfiguration()->initialCMakeConfiguration();
+    const CMakeConfig &cm = configurationFromCMake();
+    const CMakeConfig &initialConfig = initialCMakeConfiguration();
 
     CMakeConfig config;
 

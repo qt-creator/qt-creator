@@ -51,14 +51,6 @@ public:
     CMakeBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
     ~CMakeBuildConfiguration() override;
 
-    CMakeConfig configurationFromCMake() const;
-    CMakeConfig configurationChanges() const;
-
-    QStringList configurationChangesArguments(bool initialParameters = false) const;
-
-    QStringList initialCMakeArguments() const;
-    CMakeConfig initialCMakeConfiguration() const;
-
     static Utils::FilePath
     shadowBuildDirectory(const Utils::FilePath &projectFilePath, const ProjectExplorer::Kit *k,
                          const QString &bcName, BuildConfiguration::BuildType buildType);
@@ -69,13 +61,6 @@ public:
 
     void setSourceDirectory(const Utils::FilePath& path);
     Utils::FilePath sourceDirectory() const;
-
-    QString cmakeBuildType() const;
-    void setCMakeBuildType(const QString &cmakeBuildType, bool quiet = false);
-
-    QStringList additionalCMakeArguments() const;
-    void setAdditionalCMakeArguments(const QStringList &args);
-    void filterConfigArgumentsFromAdditionalCMakeArguments();
 
 signals:
     void signingFlagsChanged();
@@ -91,13 +76,6 @@ private:
 
     virtual CMakeConfig signingFlags() const;
 
-    void setConfigurationFromCMake(const CMakeConfig &config);
-    void setConfigurationChanges(const CMakeConfig &config);
-
-    void setInitialCMakeArguments(const QStringList &args);
-
-    CMakeConfig m_configurationFromCMake;
-    CMakeConfig m_configurationChanges;
     Internal::CMakeBuildSystem *m_buildSystem = nullptr;
 
     friend class Internal::CMakeBuildSettingsWidget;
