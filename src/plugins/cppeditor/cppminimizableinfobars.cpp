@@ -47,26 +47,33 @@ MinimizableInfoBars::MinimizableInfoBars(InfoBar &infoBar, QObject *parent)
 {
     connect(settings(), &CppToolsSettings::showNoProjectInfoBarChanged,
             this, &MinimizableInfoBars::updateNoProjectConfiguration);
+    createActions();
 }
 
-MinimizableInfoBars::Actions MinimizableInfoBars::createShowInfoBarActions(
-        const ActionCreator &actionCreator)
+void MinimizableInfoBars::createActions()
 {
-    Actions result;
-    QTC_ASSERT(actionCreator, return result);
-
-    // No project configuration available
-    auto *button = new QToolButton();
-    button->setToolTip(tr("File is not part of any project."));
-    button->setIcon(Utils::Icons::WARNING_TOOLBAR.pixmap());
-    connect(button, &QAbstractButton::clicked, []() {
-        settings()->setShowNoProjectInfoBar(true);
-    });
-    QAction *action = actionCreator(button);
+    auto action = new QAction(this);
+    action->setToolTip(tr("File is not part of any project."));
+    action->setIcon(Icons::WARNING_TOOLBAR.pixmap());
+    connect(action, &QAction::triggered, []() { settings()->setShowNoProjectInfoBar(true); });
     action->setVisible(!settings()->showNoProjectInfoBar());
-    result.insert(Constants::NO_PROJECT_CONFIGURATION, action);
+    m_actions.insert(Constants::NO_PROJECT_CONFIGURATION, action);
 
-    return result;
+}
+
+void MinimizableInfoBars::createShowInfoBarActions(const ActionCreator &actionCreator) const
+{
+    QTC_ASSERT(actionCreator, return );
+
+    for (QAction *action : m_actions) {
+        auto *button = new QToolButton();
+        button->setDefaultAction(action);
+        QAction *toolbarAction = actionCreator(button);
+        connect(action, &QAction::changed, toolbarAction, [action, toolbarAction] {
+            toolbarAction->setVisible(action->isVisible());
+        });
+        toolbarAction->setVisible(action->isVisible());
+    }
 }
 
 void MinimizableInfoBars::processHasProjectPart(bool hasProjectPart)
@@ -88,7 +95,9 @@ void MinimizableInfoBars::updateNoProjectConfiguration()
             show = true;
     }
 
-    emit showAction(id, show);
+    QAction *action = m_actions.value(id);
+    if (QTC_GUARD(action))
+        action->setVisible(show);
 }
 
 static InfoBarEntry createMinimizableInfo(const Id &id,

@@ -136,8 +136,6 @@ private:
     void onIfdefedOutBlocksUpdated(unsigned revision,
                                    const QList<TextEditor::BlockRange> ifdefedOutBlocks);
 
-    void onShowInfoBarAction(const Utils::Id &id, bool show);
-
     void updateSemanticInfo(const SemanticInfo &semanticInfo,
                             bool updateUseSelectionSynchronously = false);
     void updatePreprocessorButtonTooltip();

@@ -424,7 +424,6 @@ public:
     QAction *m_parseContextAction = nullptr;
     ParseContextWidget *m_parseContextWidget = nullptr;
     QToolButton *m_preprocessorButton = nullptr;
-    MinimizableInfoBars::Actions m_showInfoBarActions;
 
     CppLocalRenaming m_localRenaming;
     CppUseSelectionsUpdater m_useSelectionsUpdater;
@@ -555,11 +554,8 @@ void CppEditorWidget::finalizeInitialization()
     }
 
     // Toolbar: Actions to show minimized info bars
-    d->m_showInfoBarActions = MinimizableInfoBars::createShowInfoBarActions([this](QWidget *w) {
-        return this->insertExtraToolBarWidget(TextEditorWidget::Left, w);
-    });
-    connect(&cppEditorDocument()->minimizableInfoBars(), &MinimizableInfoBars::showAction,
-            this, &CppEditorWidget::onShowInfoBarAction);
+    d->m_cppEditorDocument->minimizableInfoBars().createShowInfoBarActions(
+        [this](QWidget *w) { return this->insertExtraToolBarWidget(TextEditorWidget::Left, w); });
 
     d->m_outlineTimer.setInterval(5000);
     d->m_outlineTimer.setSingleShot(true);
@@ -670,13 +666,6 @@ void CppEditorWidget::onIfdefedOutBlocksUpdated(unsigned revision,
     if (revision != documentRevision())
         return;
     textDocument()->setIfdefedOutBlocks(ifdefedOutBlocks);
-}
-
-void CppEditorWidget::onShowInfoBarAction(const Id &id, bool show)
-{
-    QAction *action = d->m_showInfoBarActions.value(id);
-    QTC_ASSERT(action, return);
-    action->setVisible(show);
 }
 
 static QString getDocumentLine(QTextDocument *document, int line)

@@ -46,25 +46,24 @@ class MinimizableInfoBars : public QObject
 
 public:
     using ActionCreator = std::function<QAction *(QWidget *widget)>;
-    using Actions = QHash<Utils::Id, QAction *>;
-
-    static Actions createShowInfoBarActions(const ActionCreator &actionCreator);
 
 public:
     explicit MinimizableInfoBars(Utils::InfoBar &infoBar, QObject *parent = nullptr);
 
+    void createShowInfoBarActions(const ActionCreator &actionCreator) const;
+
     void processHasProjectPart(bool hasProjectPart);
 
-signals:
-    void showAction(const Utils::Id &id, bool show);
-
 private:
+    void createActions();
+
     void updateNoProjectConfiguration();
 
     void addNoProjectConfigurationEntry(const Utils::Id &id);
 
 private:
     Utils::InfoBar &m_infoBar;
+    QHash<Utils::Id, QAction *> m_actions;
 
     bool m_hasProjectPart = true;
 };
