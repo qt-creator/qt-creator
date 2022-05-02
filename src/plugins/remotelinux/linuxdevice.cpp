@@ -679,6 +679,7 @@ SshProcessInterfacePrivate::SshProcessInterfacePrivate(SshProcessInterface *sshI
                                                        LinuxDevicePrivate *devicePrivate)
     : QObject(sshInterface)
     , q(sshInterface)
+    , m_process(this)
     , m_devicePrivate(devicePrivate)
     , m_device(m_devicePrivate->q->sharedFromThis())
 {
@@ -701,6 +702,7 @@ void SshProcessInterfacePrivate::start()
     if (SshSettings::connectionSharingEnabled()) {
         m_connecting = true;
         m_connectionHandle.reset(new SshConnectionHandle(m_devicePrivate->q->sharedFromThis()));
+        m_connectionHandle->setParent(this);
         connect(m_connectionHandle.get(), &SshConnectionHandle::connected,
                 this, &SshProcessInterfacePrivate::handleConnected);
         connect(m_connectionHandle.get(), &SshConnectionHandle::disconnected,
