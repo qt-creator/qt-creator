@@ -406,7 +406,7 @@ CommandLine CMakeBuildStep::cmakeCommand() const
 
     auto bs = qobject_cast<CMakeBuildSystem*>(buildSystem());
     auto bc = qobject_cast<CMakeBuildConfiguration*>(buildConfiguration());
-    if (bc && bs && bs->isMultiConfig()) {
+    if (bc && bs && bs->isMultiConfigReader()) {
         cmd.addArg("--config");
         cmd.addArg(bc->cmakeBuildType());
     }

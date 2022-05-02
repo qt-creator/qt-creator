@@ -183,6 +183,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_configTextFilterModel(new CategorySortFilterModel(this))
 {
     QTC_CHECK(bc);
+    auto buildSystem = static_cast<CMakeBuildSystem *>(bc->buildSystem());
 
     auto vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
@@ -200,8 +201,8 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     });
 
     auto buildTypeAspect = bc->aspect<BuildTypeAspect>();
-    connect(buildTypeAspect, &BaseAspect::changed, this, [this, buildTypeAspect]() {
-        if (!m_buildConfiguration->isMultiConfig()) {
+    connect(buildTypeAspect, &BaseAspect::changed, this, [this, buildSystem, buildTypeAspect] {
+        if (!buildSystem->isMultiConfig()) {
             CMakeConfig config;
             config << CMakeConfigItem("CMAKE_BUILD_TYPE", buildTypeAspect->value().toUtf8());
 
@@ -354,8 +355,6 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             }
         }.setSpacing(0)
     }.attachTo(details, false);
-
-    auto buildSystem = static_cast<CMakeBuildSystem *>(bc->buildSystem());
 
     updateAdvancedCheckBox();
     setError(buildSystem->error());
@@ -1196,7 +1195,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         const Kit *k = target->kit();
 
         CommandLine cmd = defaultInitialCMakeCommand(k, info.typeName);
-        setIsMultiConfig(CMakeGeneratorKitAspect::isMultiConfigGenerator(k));
+        m_buildSystem->setIsMultiConfig(CMakeGeneratorKitAspect::isMultiConfigGenerator(k));
 
         // Android magic:
         if (DeviceTypeKitAspect::deviceTypeId(k) == Android::Constants::ANDROID_DEVICE_TYPE) {
@@ -1286,8 +1285,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         setInitialCMakeArguments(cmd.splitArguments());
         setCMakeBuildType(info.typeName);
     });
-
-    setIsMultiConfig(CMakeGeneratorKitAspect::isMultiConfigGenerator(target->kit()));
 }
 
 CMakeBuildConfiguration::~CMakeBuildConfiguration()
@@ -1660,7 +1657,7 @@ QString CMakeBuildConfiguration::cmakeBuildType() const
                 ->setCMakeBuildType(QString::fromUtf8(it->value));
     };
 
-    if (!isMultiConfig())
+    if (!m_buildSystem->isMultiConfig())
         setBuildTypeFromConfig(configurationChanges());
 
     QString cmakeBuildType = aspect<BuildTypeAspect>()->value();
@@ -1682,7 +1679,7 @@ QString CMakeBuildConfiguration::cmakeBuildType() const
         config = initialCMakeConfiguration();
     }
 
-    if (!config.isEmpty() && !isMultiConfig())
+    if (!config.isEmpty() && !m_buildSystem->isMultiConfig())
         setBuildTypeFromConfig(config);
 
     return cmakeBuildType;
@@ -1696,16 +1693,6 @@ void CMakeBuildConfiguration::setCMakeBuildType(const QString &cmakeBuildType, b
     } else {
         aspect<BuildTypeAspect>()->setValue(cmakeBuildType);
     }
-}
-
-bool CMakeBuildConfiguration::isMultiConfig() const
-{
-    return m_isMultiConfig;
-}
-
-void CMakeBuildConfiguration::setIsMultiConfig(bool isMultiConfig)
-{
-    m_isMultiConfig = isMultiConfig;
 }
 
 namespace Internal {

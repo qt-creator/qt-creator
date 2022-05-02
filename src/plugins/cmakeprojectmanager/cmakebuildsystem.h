@@ -104,6 +104,9 @@ public:
     static bool filteredOutTarget(const CMakeBuildTarget &target);
 
     bool isMultiConfig() const;
+    void setIsMultiConfig(bool isMultiConfig);
+
+    bool isMultiConfigReader() const;
     bool usesAllCapsTargets() const;
 
     CMakeProject *project() const;
@@ -183,6 +186,8 @@ private:
 
     bool m_waitingForParse = false;
     bool m_combinedScanAndParseResult = false;
+
+    bool m_isMultiConfig = false;
 
     ParseGuard m_currentGuard;
 

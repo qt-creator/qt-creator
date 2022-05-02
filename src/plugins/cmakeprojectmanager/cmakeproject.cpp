@@ -136,7 +136,7 @@ MakeInstallCommand CMakeProject::makeInstallCommand(const Target *target,
     if (bs && bc) {
         if (bs->usesAllCapsTargets())
             installTarget = "INSTALL";
-        if (bs->isMultiConfig())
+        if (bs->isMultiConfigReader())
             config << "--config" << bc->cmakeBuildType();
     }
 

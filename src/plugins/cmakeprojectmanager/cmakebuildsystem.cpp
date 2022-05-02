@@ -200,6 +200,8 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
     connect(&m_reader, &FileApiReader::dirty, this, &CMakeBuildSystem::becameDirty);
 
     wireUpConnections();
+
+    m_isMultiConfig = CMakeGeneratorKitAspect::isMultiConfigGenerator(bc->kit());
 }
 
 CMakeBuildSystem::~CMakeBuildSystem()
@@ -1060,6 +1062,16 @@ bool CMakeBuildSystem::filteredOutTarget(const CMakeBuildTarget &target)
 }
 
 bool CMakeBuildSystem::isMultiConfig() const
+{
+    return m_isMultiConfig;
+}
+
+void CMakeBuildSystem::setIsMultiConfig(bool isMultiConfig)
+{
+    m_isMultiConfig = isMultiConfig;
+}
+
+bool CMakeBuildSystem::isMultiConfigReader() const
 {
     return m_reader.isMultiConfig();
 }

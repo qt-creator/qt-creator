@@ -73,9 +73,6 @@ public:
     QString cmakeBuildType() const;
     void setCMakeBuildType(const QString &cmakeBuildType, bool quiet = false);
 
-    bool isMultiConfig() const;
-    void setIsMultiConfig(bool isMultiConfig);
-
     QStringList additionalCMakeArguments() const;
     void setAdditionalCMakeArguments(const QStringList &args);
     void filterConfigArgumentsFromAdditionalCMakeArguments();
@@ -102,8 +99,6 @@ private:
     CMakeConfig m_configurationFromCMake;
     CMakeConfig m_configurationChanges;
     Internal::CMakeBuildSystem *m_buildSystem = nullptr;
-
-    bool m_isMultiConfig = false;
 
     friend class Internal::CMakeBuildSettingsWidget;
     friend class Internal::CMakeBuildSystem;
