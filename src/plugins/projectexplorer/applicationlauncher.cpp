@@ -100,8 +100,6 @@ public:
     QTextCodec::ConverterState m_outputCodecState;
     QTextCodec::ConverterState m_errorCodecState;
 
-    // Local
-    bool m_useTerminal = false;
     // Keep track whether we need to emit a finished signal
     bool m_processRunning = false;
 
@@ -156,7 +154,7 @@ void ApplicationLauncher::setProcessChannelMode(QProcess::ProcessChannelMode mod
 
 void ApplicationLauncher::setUseTerminal(bool on)
 {
-    d->m_useTerminal = on;
+    d->m_process->setTerminalMode(on ? Utils::TerminalMode::On : Utils::TerminalMode::Off);
 }
 
 void ApplicationLauncher::setRunAsRoot(bool on)
@@ -249,7 +247,7 @@ void ApplicationLauncherPrivate::handleDone()
             return;
         }
         // TODO: why below handlings are different?
-        if (m_useTerminal) {
+        if (m_process->usesTerminal()) {
             emit q->appendMessage(m_process->errorString(), ErrorMessageFormat);
             if (m_processRunning && m_process->processId() == 0) {
                 m_processRunning = false;
@@ -409,7 +407,6 @@ void ApplicationLauncherPrivate::start()
     else
         m_outputCodec = QTextCodec::codecForName("utf8");
 
-    m_process->setTerminalMode(m_useTerminal ? Utils::TerminalMode::On : Utils::TerminalMode::Off);
     m_process->start();
 }
 
