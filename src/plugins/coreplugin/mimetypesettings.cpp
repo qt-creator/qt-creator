@@ -351,7 +351,7 @@ void MimeTypeSettingsPrivate::syncData(const QModelIndex &current,
                                        : Utils::magicRulesForMimeType(currentMimeType);
         for (auto it = rules.constBegin(); it != rules.constEnd(); ++it) {
             int priority = it.key();
-            foreach (const Utils::MimeMagicRule &rule, it.value()) {
+            for (const Utils::MimeMagicRule &rule : it.value()) {
                 addMagicHeaderRow(MagicData(rule, priority));
             }
         }
@@ -515,14 +515,14 @@ void MimeTypeSettingsPrivate::writeUserModifiedMimeTypes()
             writer.writeStartDocument();
             writer.writeStartElement(QLatin1String(mimeInfoTagC));
 
-            foreach (const UserMimeType &mt, m_userModifiedMimeTypes) {
+            for (const UserMimeType &mt : qAsConst(m_userModifiedMimeTypes)) {
                 writer.writeStartElement(QLatin1String(mimeTypeTagC));
                 writer.writeAttribute(QLatin1String(mimeTypeAttributeC), mt.name);
                 writer.writeAttribute(QLatin1String(patternAttributeC),
                                       mt.globPatterns.join(kSemiColon));
                 for (auto prioIt = mt.rules.constBegin(); prioIt != mt.rules.constEnd(); ++prioIt) {
                     const QString priorityString = QString::number(prioIt.key());
-                    foreach (const Utils::MimeMagicRule &rule, prioIt.value()) {
+                    for (const Utils::MimeMagicRule &rule : prioIt.value()) {
                         writer.writeStartElement(QLatin1String(matchTagC));
                         writer.writeAttribute(QLatin1String(matchValueAttributeC),
                                               QString::fromUtf8(rule.value()));

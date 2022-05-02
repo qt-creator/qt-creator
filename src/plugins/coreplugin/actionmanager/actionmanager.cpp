@@ -303,7 +303,7 @@ QList<Command *> ActionManager::commands()
 {
     // transform list of Action into list of Command
     QList<Command *> result;
-    foreach (Command *cmd, d->m_idCmdMap)
+    for (Command *cmd : qAsConst(d->m_idCmdMap))
         result << cmd;
     return result;
 }
@@ -346,7 +346,8 @@ void ActionManager::setPresentationModeEnabled(bool enabled)
         return;
 
     // Signal/slots to commands:
-    foreach (Command *c, commands()) {
+    const QList<Command *> commandList = commands();
+    for (Command *c : commandList) {
         if (c->action()) {
             if (enabled)
                 connect(c->action(), &QAction::triggered, d, &ActionManagerPrivate::actionTriggered);
@@ -406,7 +407,7 @@ void ActionManager::setContext(const Context &context)
 ActionManagerPrivate::~ActionManagerPrivate()
 {
     // first delete containers to avoid them reacting to command deletion
-    foreach (ActionContainerPrivate *container, m_idContainerMap)
+    for (const ActionContainerPrivate *container : qAsConst(m_idContainerMap))
         disconnect(container, &QObject::destroyed, this, &ActionManagerPrivate::containerDestroyed);
     qDeleteAll(m_idContainerMap);
     qDeleteAll(m_idCmdMap);

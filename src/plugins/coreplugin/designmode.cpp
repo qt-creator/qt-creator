@@ -140,7 +140,7 @@ void DesignMode::registerDesignWidget(QWidget *widget,
 void DesignMode::unregisterDesignWidget(QWidget *widget)
 {
     d->m_stackWidget->removeWidget(widget);
-    foreach (DesignEditorInfo *info, d->m_editors) {
+    for (DesignEditorInfo *info : qAsConst(d->m_editors)) {
         if (info->widget == widget) {
             d->m_editors.removeAll(info);
             delete info;

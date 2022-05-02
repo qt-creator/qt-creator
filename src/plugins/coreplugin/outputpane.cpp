@@ -126,7 +126,7 @@ void OutputPanePlaceHolder::setMaximized(bool maximize)
     if (maximize) {
         d->m_nonMaximizedSize = sizes[idx];
         int sum = 0;
-        foreach (int s, sizes)
+        for (const int s : qAsConst(sizes))
             sum += s;
         for (int i = 0; i < sizes.count(); ++i) {
             sizes[i] = 32;

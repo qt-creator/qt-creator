@@ -301,7 +301,7 @@ void ModeManager::addAction(QAction *action, int priority)
 
     // Count the number of commands with a higher priority
     int index = 0;
-    foreach (int p, d->m_actions) {
+    for (int p : qAsConst(d->m_actions)) {
         if (p > priority)
             ++index;
     }

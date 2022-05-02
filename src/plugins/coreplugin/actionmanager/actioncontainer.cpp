@@ -351,7 +351,7 @@ Command *ActionContainerPrivate::addSeparator(const Context &context, Id group, 
 void ActionContainerPrivate::clear()
 {
     for (Group &group : m_groups) {
-        foreach (QObject *item, group.items) {
+        for (QObject *item : qAsConst(group.items)) {
             if (auto command = qobject_cast<Command *>(item)) {
                 removeAction(command);
                 disconnect(command, &Command::activeStateChanged,
@@ -482,7 +482,7 @@ bool MenuActionContainer::updateInternal()
     QList<QAction *> actions = m_menu->actions();
 
     for (const Group &group : qAsConst(m_groups)) {
-        foreach (QObject *item, group.items) {
+        for (QObject *item : qAsConst(group.items)) {
             if (auto container = qobject_cast<ActionContainerPrivate*>(item)) {
                 actions.removeAll(container->menu()->menuAction());
                 if (container == this) {
@@ -512,7 +512,7 @@ bool MenuActionContainer::updateInternal()
     }
     if (!hasitems) {
         // look if there were actions added that we don't control and check if they are enabled
-        foreach (const QAction *action, actions) {
+        for (const QAction *action : qAsConst(actions)) {
             if (!action->isSeparator() && action->isEnabled()) {
                 hasitems = true;
                 break;

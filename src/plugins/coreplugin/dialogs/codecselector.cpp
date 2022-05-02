@@ -77,15 +77,15 @@ CodecSelector::CodecSelector(QWidget *parent, Core::BaseTextDocument *doc)
     QList<int> mibs = QTextCodec::availableMibs();
     Utils::sort(mibs);
     QList<int> sortedMibs;
-    foreach (int mib, mibs)
+    for (const int mib : qAsConst(mibs))
         if (mib >= 0)
             sortedMibs += mib;
-    foreach (int mib, mibs)
+    for (const int mib : qAsConst(mibs))
         if (mib < 0)
             sortedMibs += mib;
 
     int currentIndex = -1;
-    foreach (int mib, sortedMibs) {
+    for (const int mib : qAsConst(sortedMibs)) {
         QTextCodec *c = QTextCodec::codecForMib(mib);
         if (!doc->supportsCodec(c))
             continue;
@@ -101,7 +101,8 @@ CodecSelector::CodecSelector(QWidget *parent, Core::BaseTextDocument *doc)
                 continue;
         }
         QString names = QString::fromLatin1(c->name());
-        foreach (const QByteArray &alias, c->aliases())
+        const QList<QByteArray> aliases = c->aliases();
+        for (const QByteArray &alias : aliases)
             names += QLatin1String(" / ") + QString::fromLatin1(alias);
         if (doc->codec() == c)
             currentIndex = encodings.count();

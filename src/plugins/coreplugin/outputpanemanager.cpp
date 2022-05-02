@@ -473,7 +473,8 @@ void OutputPaneManager::initialize()
         auto toolButtonsLayout = new QHBoxLayout;
         toolButtonsLayout->setContentsMargins(0, 0, 0, 0);
         toolButtonsLayout->setSpacing(0);
-        foreach (QWidget *toolButton, outPane->toolBarWidgets())
+        const QList<QWidget *> toolBarWidgets = outPane->toolBarWidgets();
+        for (QWidget *toolButton : toolBarWidgets)
             toolButtonsLayout->addWidget(toolButton);
         toolButtonsLayout->addStretch(5);
         toolButtonsContainer->setLayout(toolButtonsLayout);

@@ -113,7 +113,7 @@ void NavigationSubWidget::comboBoxIndexChanged(int factoryIndex)
     saveSettings();
 
     // Remove toolbutton
-    foreach (QWidget *w, m_additionalToolBarWidgets)
+    for (QWidget *w : qAsConst(m_additionalToolBarWidgets))
         delete w;
     m_additionalToolBarWidgets.clear();
 
@@ -134,9 +134,8 @@ void NavigationSubWidget::comboBoxIndexChanged(int factoryIndex)
     // Add Toolbutton
     m_additionalToolBarWidgets = n.dockToolBarWidgets;
     auto layout = qobject_cast<QHBoxLayout *>(m_toolBar->layout());
-    foreach (QToolButton *w, m_additionalToolBarWidgets) {
+    for (QToolButton *w : qAsConst(m_additionalToolBarWidgets))
         layout->insertWidget(layout->count()-2, w);
-    }
 
     restoreSettings();
     emit factoryIndexChanged(factoryIndex);

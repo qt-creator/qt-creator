@@ -217,7 +217,8 @@ void SettingsDatabase::remove(const QString &key)
     const QString effectiveKey = d->effectiveKey(key);
 
     // Remove keys from the cache
-    foreach (const QString &k, d->m_settings.keys()) {
+    const QStringList keys = d->m_settings.keys();
+    for (const QString &k : keys) {
         // Either it's an exact match, or it matches up to a /
         if (k.startsWith(effectiveKey)
             && (k.length() == effectiveKey.length()
