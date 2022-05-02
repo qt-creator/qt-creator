@@ -337,7 +337,7 @@ ClangdSettings::ClangdSettings()
 
 bool ClangdSettings::useClangd() const
 {
-    return m_data.useClangd && clangdVersion() >= QVersionNumber(13);
+    return m_data.useClangd && clangdVersion() >= QVersionNumber(14);
 }
 
 void ClangdSettings::setDefaultClangdPath(const FilePath &filePath)

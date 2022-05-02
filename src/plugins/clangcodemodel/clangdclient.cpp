@@ -636,8 +636,7 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
         cmd.addArg("--compile-commands-dir=" + jsonDbDir.toString());
     if (clangdLogServer().isDebugEnabled())
         cmd.addArgs({"--log=verbose", "--pretty"});
-    if (settings.clangdVersion() >= QVersionNumber(14))
-        cmd.addArg("--use-dirty-headers");
+    cmd.addArg("--use-dirty-headers");
     const auto interface = new StdIOClientInterface;
     interface->setCommandLine(cmd);
     return interface;
@@ -3390,16 +3389,6 @@ IAssistProcessor *ClangdClient::ClangdCompletionAssistProvider::createProcessor(
                                          contextAnalyzer.positionEndOfExpression(),
                                          contextAnalyzer.completionOperator(),
                                          CustomAssistMode::Preprocessor);
-    case ClangCompletionContextAnalyzer::CompleteIncludePath:
-        if (m_client->versionNumber() < QVersionNumber(14)) { // https://reviews.llvm.org/D112996
-            qCDebug(clangdLogCompletion) << "creating include processor";
-            return new CustomAssistProcessor(m_client,
-                                             contextAnalyzer.positionForProposal(),
-                                             contextAnalyzer.positionEndOfExpression(),
-                                             contextAnalyzer.completionOperator(),
-                                             CustomAssistMode::IncludePath);
-        }
-        [[fallthrough]];
     default:
         break;
     }

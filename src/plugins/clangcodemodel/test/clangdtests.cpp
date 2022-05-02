@@ -238,8 +238,6 @@ void ClangdTestFindReferences::test_data()
 
     ItemList pureVirtualRefs{makeItem(17, 17, Usage::Type::Declaration),
                              makeItem(21, 9, Usage::Type::Declaration)};
-    if (client()->versionNumber() < QVersionNumber(14))
-        pureVirtualRefs << pureVirtualRefs.last();
     QTest::newRow("pure virtual declaration") << "defs.h" << 420 << pureVirtualRefs;
 
     QTest::newRow("pointer variable") << "main.cpp" << 52 << ItemList{
@@ -400,8 +398,6 @@ void ClangdTestFollowSymbol::test()
     timer.stop();
 
     QCOMPARE(actualLink.targetFilePath, filePath(targetFile));
-    if (client()->versionNumber() < QVersionNumber(14))
-        QEXPECT_FAIL("union member ref", "https://github.com/clangd/clangd/issues/877", Abort);
     QCOMPARE(actualLink.targetLine, targetLine);
     QCOMPARE(actualLink.targetColumn + 1, targetColumn);
 }
@@ -627,11 +623,6 @@ void ClangdTestTooltips::test()
     QCOMPARE(editor->document(), doc);
     QVERIFY(editor->editorWidget());
 
-    if (client()->versionNumber() < QVersionNumber(14)
-            && QLatin1String(QTest::currentDataTag()) == QLatin1String("IncludeDirective")) {
-        QSKIP("clangd <= 13 sends empty or no hover data for includes");
-    }
-
     QTimer timer;
     timer.setSingleShot(true);
     QEventLoop loop;
@@ -654,10 +645,8 @@ void ClangdTestTooltips::test()
     timer.stop();
 
     QEXPECT_FAIL("TypeName_ResolveTemplateTypeAlias", "typedef already resolved in AST", Abort);
-    if (client()->versionNumber() >= QVersionNumber(14)) {
-        QEXPECT_FAIL("TypeNameIntroducedByUsingDeclarationQualified",
-                     "https://github.com/clangd/clangd/issues/989", Abort);
-    }
+    QEXPECT_FAIL("TypeNameIntroducedByUsingDeclarationQualified",
+                 "https://github.com/clangd/clangd/issues/989", Abort);
     QCOMPARE(int(helpItem.category()), expectedCategory);
     QEXPECT_FAIL("TemplateClassQualified", "Additional look-up needed?", Abort);
     QCOMPARE(helpItem.helpIds(), expectedIds);
@@ -1376,11 +1365,6 @@ void ClangdTestHighlighting::test()
     };
     const TextEditor::HighlightingResults results = findResults();
 
-    if (client()->versionNumber() < QVersionNumber(14)) {
-        QEXPECT_FAIL("typedef as underlying type in enum declaration",
-                     "https://github.com/clangd/clangd/issues/878",
-                     Abort);
-    }
     QEXPECT_FAIL("old-style signal (signal)", "check if and how we want to support this", Abort);
     QEXPECT_FAIL("old-style signal (signal parameter)",
                  "check if and how we want to support this", Abort);
@@ -1417,17 +1401,6 @@ void ClangdTestHighlighting::test()
             actualStyles << s;
     }
 
-
-    if (client()->versionNumber() < QVersionNumber(14)) {
-        QEXPECT_FAIL("final virtual function call via pointer",
-                     "clangd < 14 does not send virtual modifier", Continue);
-        QEXPECT_FAIL("virtual member function definition outside of class body",
-                     "clangd < 14 does not send virtual modifier", Continue);
-        QEXPECT_FAIL("virtual function call via pointer",
-                     "clangd < 14 does not send virtual modifier", Continue);
-        QEXPECT_FAIL("non-final virtual function call via pointer",
-                     "clangd < 14 does not send virtual modifier", Continue);
-    }
     QEXPECT_FAIL("non-const reference via member function call as output argument (object)",
                  "See below", Continue);
     QEXPECT_FAIL("non-const reference via member function call as output argument (function)",
@@ -1583,15 +1556,9 @@ void ClangdTestCompletion::testCompleteIncludeDirective()
     getProposal("includeDirectiveCompletion.cpp", proposal);
 
     QVERIFY(proposal);
-    if (client()->versionNumber() < QVersionNumber(14)) {
-        QVERIFY(hasItem(proposal, "file.h"));
-        QVERIFY(hasItem(proposal, "otherFile.h"));
-        QVERIFY(hasItem(proposal, "mylib/"));
-    } else {
-        QVERIFY(hasItem(proposal, " file.h>"));
-        QVERIFY(hasItem(proposal, " otherFile.h>"));
-        QVERIFY(hasItem(proposal, " mylib/"));
-    }
+    QVERIFY(hasItem(proposal, " file.h>"));
+    QVERIFY(hasItem(proposal, " otherFile.h>"));
+    QVERIFY(hasItem(proposal, " mylib/"));
     QVERIFY(!hasSnippet(proposal, "class "));
 }
 
@@ -1889,10 +1856,6 @@ void ClangdTestCompletion::testSignalCompletion()
     getProposal("signalCompletion.cpp", proposal, customCode);
 
     QVERIFY(proposal);
-    if (client()->versionNumber() < QVersionNumber(14)
-            && QString::fromLatin1(QTest::currentDataTag()).startsWith("positive:")) {
-        QEXPECT_FAIL("", "Signal info in completions requires clangd >= 14", Abort);
-    }
     QCOMPARE(proposal->size(), expectedSuggestions.size());
     for (const QString &expectedSuggestion : qAsConst(expectedSuggestions))
         QVERIFY2(hasItem(proposal, ' ' + expectedSuggestion), qPrintable(expectedSuggestion));
