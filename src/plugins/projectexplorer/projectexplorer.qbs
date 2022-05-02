@@ -224,7 +224,6 @@ Project {
                 "idevicefwd.h",
                 "idevicewidget.h",
                 "localprocesslist.cpp", "localprocesslist.h",
-                "sshdeviceprocess.cpp", "sshdeviceprocess.h",
                 "sshdeviceprocesslist.cpp", "sshdeviceprocesslist.h",
                 "sshsettingspage.cpp", "sshsettingspage.h",
                 "desktopprocesssignaloperation.cpp", "desktopprocesssignaloperation.h"

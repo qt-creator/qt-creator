@@ -377,15 +377,6 @@ void ApplicationLauncherPrivate::start()
             return;
         }
 
-        if (!m_runnable.device->canCreateProcess()) {
-            m_resultData.m_errorString =ApplicationLauncher::tr("Cannot run: Device is not able to create processes.");
-            m_resultData.m_error = QProcess::FailedToStart;
-            m_resultData.m_exitStatus = QProcess::CrashExit;
-            emit q->errorOccurred(QProcess::FailedToStart);
-            emit q->finished();
-            return;
-        }
-
         if (!m_runnable.device->isEmptyCommandAllowed() && m_runnable.command.isEmpty()) {
             m_resultData.m_errorString = ApplicationLauncher::tr("Cannot run: No command given.");
             m_resultData.m_error = QProcess::FailedToStart;

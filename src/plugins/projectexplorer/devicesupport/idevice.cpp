@@ -583,12 +583,6 @@ OsType IDevice::osType() const
     return d->osType;
 }
 
-QtcProcess *IDevice::createProcess(QObject * /* parent */) const
-{
-    QTC_CHECK(false);
-    return nullptr;
-}
-
 DeviceEnvironmentFetcher::Ptr IDevice::environmentFetcher() const
 {
     return DeviceEnvironmentFetcher::Ptr();

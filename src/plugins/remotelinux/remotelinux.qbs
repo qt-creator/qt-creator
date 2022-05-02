@@ -38,8 +38,6 @@ Project {
             "genericlinuxdeviceconfigurationwizardsetuppage.ui",
             "linuxdevice.cpp",
             "linuxdevice.h",
-            "linuxdeviceprocess.cpp",
-            "linuxdeviceprocess.h",
             "linuxdevicetester.cpp",
             "linuxdevicetester.h",
             "linuxprocessinterface.h",

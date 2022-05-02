@@ -44,7 +44,6 @@ public:
 
     ProjectExplorer::IDeviceWidget *createWidget() final;
 
-    Utils::QtcProcess *createProcess(QObject *parent) const final;
     Utils::ProcessInterface *createProcessInterface() const override;
 
     void setSerialNumber(const QString &serial);

@@ -30,7 +30,6 @@
 #include "qnxdeviceprocesslist.h"
 #include "qnxdeviceprocesssignaloperation.h"
 #include "qnxdeployqtlibrariesdialog.h"
-#include "qnxdeviceprocess.h"
 #include "qnxdevicewizard.h"
 
 #include <remotelinux/sshprocessinterface.h>
@@ -195,11 +194,6 @@ DeviceProcessList *QnxDevice::createProcessListModel(QObject *parent) const
 DeviceTester *QnxDevice::createDeviceTester() const
 {
     return new QnxDeviceTester;
-}
-
-QtcProcess *QnxDevice::createProcess(QObject *parent) const
-{
-    return new QnxDeviceProcess(sharedFromThis(), parent);
 }
 
 Utils::ProcessInterface *QnxDevice::createProcessInterface() const

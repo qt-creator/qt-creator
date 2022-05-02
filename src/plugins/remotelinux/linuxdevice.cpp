@@ -27,7 +27,6 @@
 
 #include "genericlinuxdeviceconfigurationwidget.h"
 #include "genericlinuxdeviceconfigurationwizard.h"
-#include "linuxdeviceprocess.h"
 #include "linuxdevicetester.h"
 #include "linuxprocessinterface.h"
 #include "publickeydeploymentdialog.h"
@@ -1032,11 +1031,6 @@ LinuxDevice::~LinuxDevice()
 IDeviceWidget *LinuxDevice::createWidget()
 {
     return new GenericLinuxDeviceConfigurationWidget(sharedFromThis());
-}
-
-QtcProcess *LinuxDevice::createProcess(QObject *parent) const
-{
-    return new LinuxDeviceProcess(sharedFromThis(), parent);
 }
 
 bool LinuxDevice::canAutoDetectPorts() const

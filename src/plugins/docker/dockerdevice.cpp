@@ -104,52 +104,6 @@ const QString s_pidMarker = "__qtc$$qtc__";
 static Q_LOGGING_CATEGORY(dockerDeviceLog, "qtc.docker.device", QtWarningMsg);
 #define LOG(x) qCDebug(dockerDeviceLog) << this << x << '\n'
 
-class DockerDeviceProcess : public Utils::QtcProcess
-{
-public:
-    DockerDeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = nullptr);
-    ~DockerDeviceProcess() {}
-
-    void startImpl() override;
-    void interrupt() override;
-
-    const QSharedPointer<const IDevice> m_device;
-};
-
-DockerDeviceProcess::DockerDeviceProcess(const QSharedPointer<const IDevice> &device,
-                                         QObject *parent)
-    : QtcProcess(parent), m_device(device)
-{
-    setProcessMode(ProcessMode::Writer);
-}
-
-void DockerDeviceProcess::startImpl()
-{
-    QTC_ASSERT(state() == QProcess::NotRunning, return);
-    DockerDevice::ConstPtr dockerDevice = qSharedPointerCast<const DockerDevice>(m_device);
-    QTC_ASSERT(dockerDevice, return);
-
-    connect(this, &QtcProcess::readyReadStandardOutput, this, [this] {
-        MessageManager::writeSilently(QString::fromLocal8Bit(readAllStandardError()));
-    });
-    connect(this, &QtcProcess::readyReadStandardError, this, [this] {
-        MessageManager::writeDisrupting(QString::fromLocal8Bit(readAllStandardError()));
-    });
-
-    CommandLine command = commandLine();
-    command.setExecutable(
-        command.executable().withNewPath(dockerDevice->mapToDevicePath(command.executable())));
-    setCommand(command);
-
-    LOG("Running process:" << command.toUserOutput() << "in" << workingDirectory().toUserOutput());
-    QtcProcess::startImpl();
-}
-
-void DockerDeviceProcess::interrupt()
-{
-    m_device->signalOperation()->interruptProcess(processId());
-}
-
 class DockerPortsGatheringMethod : public PortsGatheringMethod
 {
     CommandLine commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const override
@@ -653,11 +607,6 @@ QVariantMap DockerDevice::toMap() const
     map.insert(DockerDeviceUseOutsideUser, d->m_data.useLocalUidGid);
     map.insert(DockerDeviceMappedPaths, d->m_data.mounts);
     return map;
-}
-
-QtcProcess *DockerDevice::createProcess(QObject *parent) const
-{
-    return new DockerDeviceProcess(sharedFromThis(), parent);
 }
 
 ProcessInterface *DockerDevice::createProcessInterface() const

@@ -63,8 +63,6 @@ public:
     ProjectExplorer::IDeviceWidget *createWidget() override;
     QList<ProjectExplorer::Task> validate() const override;
 
-    bool canCreateProcess() const override { return true; }
-    Utils::QtcProcess *createProcess(QObject *parent) const override;
     Utils::ProcessInterface *createProcessInterface() const override;
 
     bool canAutoDetectPorts() const override;

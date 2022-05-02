@@ -35,7 +35,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/runcontrol.h>
 
-#include <remotelinux/linuxdeviceprocess.h>
 #include <remotelinux/linuxprocessinterface.h>
 
 #include <ssh/sshconnection.h>
@@ -55,26 +54,6 @@ using namespace Utils;
 
 namespace Qdb {
 namespace Internal {
-
-class QdbDeviceProcess : public RemoteLinux::LinuxDeviceProcess
-{
-public:
-    QdbDeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent)
-        : RemoteLinux::LinuxDeviceProcess(device, parent)
-    {
-    }
-
-    void terminate() override
-    {
-        ProjectExplorer::Runnable r;
-        r.command = {Constants::AppcontrollerFilepath, {"--stop"}};
-        r.device = device();
-
-        auto launcher = new ApplicationLauncher(this);
-        launcher->setRunnable(r);
-        launcher->start();
-    }
-};
 
 class QdbProcessImpl : public LinuxProcessInterface
 {
@@ -181,11 +160,6 @@ ProjectExplorer::IDeviceWidget *QdbDevice::createWidget()
     ProjectExplorer::IDeviceWidget *w = RemoteLinux::LinuxDevice::createWidget();
 
     return w;
-}
-
-QtcProcess *QdbDevice::createProcess(QObject *parent) const
-{
-    return new QdbDeviceProcess(sharedFromThis(), parent);
 }
 
 ProcessInterface *QdbDevice::createProcessInterface() const

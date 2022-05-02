@@ -97,11 +97,6 @@ DeviceProcessList *DesktopDevice::createProcessListModel(QObject *parent) const
     return new Internal::LocalProcessList(sharedFromThis(), parent);
 }
 
-QtcProcess *DesktopDevice::createProcess(QObject *parent) const
-{
-    return new QtcProcess(parent);
-}
-
 DeviceProcessSignalOperation::Ptr DesktopDevice::signalOperation() const
 {
     return DeviceProcessSignalOperation::Ptr(new DesktopProcessSignalOperation());
