@@ -14,7 +14,6 @@ Project {
                 FileInfo.relativePath(project.ide_source_tree, sourceDirectory))
         install: false
 
-        Depends { name: "echoserver" }
         Depends { name: "libclang"; required: false }
         Depends { name: "clang_defines" }
 
@@ -40,7 +39,6 @@ Project {
                         "QT_RESTRICTED_CAST_FROM_ASCII",
                         "QT_USE_FAST_OPERATOR_PLUS",
                         "QT_USE_FAST_CONCATENATION",
-                        "CLANGSUPPORT_STATIC_LIBRARY",
                         "CLANGTOOLS_STATIC_LIBRARY",
                         "CPPEDITOR_STATIC_LIBRARY",
                         "DEBUGGER_STATIC_LIBRARY",
@@ -48,8 +46,6 @@ Project {
                         "DONT_CHECK_MESSAGE_COUNTER",
                         'QTC_RESOURCE_DIR="' + path + "/../../../share/qtcreator" + '"',
                         'TESTDATA_DIR="' + FileInfo.joinPaths(sourceDirectory, "data") + '"',
-                        'ECHOSERVER="' + FileInfo.joinPaths(project.buildDirectory, "tests", "unit",
-                                                            "echoserver", "echo") + '"',
                         'RELATIVE_DATA_PATH="' + FileInfo.relativePath(destinationDirectory,
                                                                        FileInfo.joinPaths(project.sourceDirectory, "share", "qtcreator")) + '"',
                     ];
@@ -99,10 +95,8 @@ Project {
                         "../mockup",
                         "../../../src/libs",
                         "../../../src/libs/3rdparty",
-                        "../../../src/libs/clangsupport",
                         "../../../src/plugins",
                         "../../../src/plugins/clangcodemodel",
-                        "../../../src/tools/clangbackend/source",
                         "../../../share/qtcreator/qml/qmlpuppet/types",
                     ];
             if (libclang.present) {
@@ -127,18 +121,14 @@ Project {
         }
 
         files: [
-            "clientserverinprocess-test.cpp",
-            "clientserveroutsideprocess-test.cpp",
             "compare-operators.h",
             "conditionally-disabled-tests.h",
             "createtablesqlstatementbuilder-test.cpp",
-            "dummyclangipcclient.h",
             "dynamicastmatcherdiagnosticcontainer-matcher.h",
             "eventspy.cpp",
             "eventspy.h",
             "fakeprocess.cpp",
             "fakeprocess.h",
-            "filesystem-utilities.h",
             "google-using-declarations.h",
             "googletest.h",
             "gtest-creator-printing.cpp",
@@ -146,23 +136,17 @@ Project {
             "gtest-llvm-printing.h",
             "gtest-qt-printing.cpp",
             "gtest-qt-printing.h",
-            "lineprefixer-test.cpp",
             "matchingtext-test.cpp",
-            "mockclangcodemodelclient.h",
-            "mockclangcodemodelserver.h",
             "mockfutureinterface.h",
             "mockmutex.h",
             "mockqfilesystemwatcher.h",
-            "mockqueue.h",
             "mocksqlitestatement.h",
             "mocksqlitetransactionbackend.h",
             "mocksyntaxhighligher.h",
             "mocktimer.cpp",
             "mocktimer.h",
-            "processcreator-test.cpp",
             "processevents-utilities.cpp",
             "processevents-utilities.h",
-            "readandwritemessageblock-test.cpp",
             "sizedarray-test.cpp",
             "smallstring-test.cpp",
             "sourcerangecontainer-matcher.h",
@@ -185,7 +169,6 @@ Project {
             "sqlstatementbuilder-test.cpp",
             "unittest-utility-functions.h",
             "unittests-main.cpp",
-            "utf8-test.cpp",
         ]
 
         Group {
@@ -193,8 +176,6 @@ Project {
             condition: libclang.present && (!qbs.targetOS.contains("windows") || libclang.llvmBuildModeMatches)
             files: [
                 "activationsequenceprocessor-test.cpp",
-                "chunksreportedmonitor.cpp",
-                "chunksreportedmonitor.h",
                 "clangcompareoperators.h",
                 "diagnosticcontainer-matcher.h",
                 "readexporteddiagnostics-test.cpp",
@@ -214,15 +195,6 @@ Project {
                 "data/include/*",
             ]
             fileTags: []
-        }
-
-        Group {
-            name: "sources from clangsupport"
-            prefix: "../../../src/libs/clangsupport/"
-            files: [
-                "*.cpp",
-                "*.h",
-            ]
         }
 
         Group {

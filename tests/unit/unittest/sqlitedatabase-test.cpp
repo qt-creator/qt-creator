@@ -31,7 +31,6 @@
 #include <sqlitereadstatement.h>
 #include <sqlitetable.h>
 #include <sqlitewritestatement.h>
-#include <utf8string.h>
 
 #include <utils/temporarydirectory.h>
 

@@ -15,7 +15,6 @@ add_subdirectory(glsl)
 add_subdirectory(languageserverprotocol)
 add_subdirectory(ssh)
 add_subdirectory(sqlite)
-add_subdirectory(clangsupport)
 add_subdirectory(tracing)
 
 add_subdirectory(qtcreatorcdbext)

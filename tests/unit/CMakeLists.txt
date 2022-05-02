@@ -21,8 +21,6 @@ if (NOT QT_CREATOR_API_DEFINED)
 
   set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-  set(BUILD_EXECUTABLES echo)
-
   set(IMPLICIT_DEPENDS Qt5::Test)
 
   include(QtCreatorIDEBranding)
@@ -38,5 +36,4 @@ if (NOT QT_CREATOR_API_DEFINED)
   find_package(Threads)
 endif()
 
-add_subdirectory(echoserver)
 add_subdirectory(unittest)

@@ -8,7 +8,6 @@ Project {
     references: [
         "advanceddockingsystem/advanceddockingsystem.qbs",
         "aggregation/aggregation.qbs",
-        "clangsupport/clangsupport.qbs",
         "cplusplus/cplusplus.qbs",
         "extensionsystem/extensionsystem.qbs",
         "glsl/glsl.qbs",

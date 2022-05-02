@@ -46,8 +46,6 @@ class CppEditorDocumentHandle;
 
 namespace TextEditor { class TextDocumentManipulatorInterface; }
 
-namespace ClangBackEnd { class TokenInfoContainer; }
-
 namespace ProjectExplorer { class Project; }
 
 namespace ClangCodeModel {

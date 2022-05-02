@@ -42,19 +42,14 @@ add_qtc_test(unittest GTEST
     DONT_CHECK_MESSAGE_COUNTER
     QTC_RESOURCE_DIR="${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator"
     TESTDATA_DIR="${CMAKE_CURRENT_BINARY_DIR}/data"
-    ECHOSERVER="$<TARGET_FILE_DIR:echo>/echo"
     TEST_RELATIVE_LIBEXEC_PATH="${TEST_RELATIVE_LIBEXEC_PATH}"
   SOURCES
     abstractviewmock.h
-    clientserverinprocess-test.cpp
-    clientserveroutsideprocess-test.cpp
     compare-operators.h
     conditionally-disabled-tests.h
-    dummyclangipcclient.h
     dynamicastmatcherdiagnosticcontainer-matcher.h
     eventspy.cpp eventspy.h
     fakeprocess.cpp fakeprocess.h
-    filesystem-utilities.h
     googletest.h
     google-using-declarations.h
     gtest-creator-printing.cpp gtest-creator-printing.h
@@ -62,22 +57,16 @@ add_qtc_test(unittest GTEST
     gtest-qt-printing.cpp gtest-qt-printing.h
     gtest-std-printing.h
     lastchangedrowid-test.cpp
-    lineprefixer-test.cpp
     matchingtext-test.cpp
-    mockclangcodemodelclient.h
-    mockclangcodemodelserver.h
     mockfutureinterface.h
     mockmutex.h
     mockqfilesystemwatcher.h
-    mockqueue.h
     mocksqlitestatement.h
     mocksqlitetransactionbackend.h
     mocksyntaxhighligher.h
     mocktimer.cpp mocktimer.h
     nodelistproperty-test.cpp
-    processcreator-test.cpp
     processevents-utilities.cpp processevents-utilities.h
-    readandwritemessageblock-test.cpp
     sizedarray-test.cpp
     smallstring-test.cpp
     sourcerangecontainer-matcher.h
@@ -88,7 +77,6 @@ add_qtc_test(unittest GTEST
     sqlitetransaction-test.cpp
     unittests-main.cpp
     unittest-utility-functions.h
-    utf8-test.cpp
     sqlitecolumn-test.cpp
     sqlitedatabasebackend-test.cpp
     sqlitedatabase-test.cpp
@@ -169,9 +157,7 @@ extend_qtc_test(unittest
   DEPENDS libclang
   SOURCES
     activationsequenceprocessor-test.cpp
-    chunksreportedmonitor.cpp
     readexporteddiagnostics-test.cpp
-    chunksreportedmonitor.h
     clangcompareoperators.h
     diagnosticcontainer-matcher.h
 )
@@ -354,11 +340,8 @@ if (NOT TARGET CPlusPlus)
   add_subdirectory(../../../src/libs/3rdparty/cplusplus ${CMAKE_CURRENT_BINARY_DIR}/3rd_cplusplus)
   add_subdirectory(../../../src/libs/cplusplus ${CMAKE_CURRENT_BINARY_DIR}/cplusplus)
 endif()
-if (NOT TARGET ClangSupport)
-  add_subdirectory(../../../src/libs/clangsupport ${CMAKE_CURRENT_BINARY_DIR}/clangsupport)
-endif()
 
-extend_qtc_test(unittest DEPENDS Utils CPlusPlus ClangSupport)
+extend_qtc_test(unittest DEPENDS Utils CPlusPlus)
 
 extend_qtc_test(unittest
   SOURCES_PREFIX ../../../src/plugins/clangcodemodel
