@@ -36,7 +36,8 @@ QT_FORWARD_DECLARE_CLASS(QDateTime)
 QT_FORWARD_DECLARE_CLASS(QString)
 
 namespace ProjectExplorer { class DeployableFile; }
-namespace QSsh { class SshRemoteProcess; }
+namespace Utils { class QtcProcess; }
+
 namespace RemoteLinux {
 namespace Internal { class GenericDirectUploadServicePrivate; }
 
@@ -65,7 +66,7 @@ protected:
 private:
     void runStat(const ProjectExplorer::DeployableFile &file);
     QDateTime timestampFromStat(const ProjectExplorer::DeployableFile &file,
-                                QSsh::SshRemoteProcess *statProc, const QString &errorMsg);
+                                Utils::QtcProcess *statProc, const QString &errorMsg);
     void checkForStateChangeOnRemoteProcFinished();
 
     QList<ProjectExplorer::DeployableFile> collectFilesToUpload(
