@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <QCoreApplication>
+#include <QObject>
 
 namespace Valgrind {
 namespace Internal {
