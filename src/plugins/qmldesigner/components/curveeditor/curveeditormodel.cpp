@@ -43,6 +43,7 @@ namespace QmlDesigner {
 
 CurveEditorModel::CurveEditorModel(QObject *parent)
     : TreeModel(parent)
+    , m_hasTimeline(false)
     , m_minTime(CurveEditorStyle::defaultTimeMin)
     , m_maxTime(CurveEditorStyle::defaultTimeMax)
 {}
@@ -98,15 +99,19 @@ CurveEditorStyle CurveEditorModel::style() const
 
 void CurveEditorModel::setTimeline(const QmlDesigner::QmlTimeline &timeline)
 {
-    m_minTime = timeline.startKeyframe();
-    m_maxTime = timeline.endKeyframe();
-    std::vector<TreeItem *> items;
-    for (auto &&target : timeline.allTargets()) {
-        if (TreeItem *item = createTopLevelItem(timeline, target))
-            items.push_back(item);
-    }
+    m_hasTimeline = timeline.isValid();
 
-    reset(items);
+    if (m_hasTimeline) {
+        m_minTime = timeline.startKeyframe();
+        m_maxTime = timeline.endKeyframe();
+        std::vector<TreeItem *> items;
+        for (auto &&target : timeline.allTargets()) {
+            if (TreeItem *item = createTopLevelItem(timeline, target))
+                items.push_back(item);
+        }
+        reset(items);
+    }
+    emit timelineChanged(m_hasTimeline);
 }
 
 void CurveEditorModel::setCurrentFrame(int frame)

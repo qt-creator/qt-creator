@@ -88,6 +88,8 @@ public:
 
     SelectableItem *intersect(const QPointF &pos) const;
 
+    void setDirty(bool dirty);
+
     void reset();
 
     void deleteSelectedKeyframes();

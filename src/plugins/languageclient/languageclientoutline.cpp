@@ -31,6 +31,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <languageserverprotocol/languagefeatures.h>
+#include <texteditor/outlinefactory.h>>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <utils/itemviews.h>
@@ -345,13 +346,18 @@ OutlineComboBox::OutlineComboBox(Client *client, TextEditor::BaseTextEditor *edi
     setMaxVisibleItems(40);
 
     setContextMenuPolicy(Qt::ActionsContextMenu);
-    auto sortAction = new QAction(tr("Sort Alphabetically"), this);
+    const QString sortActionText
+        = QCoreApplication::translate("TextEditor::Internal::OutlineWidgetStack",
+                                      "Sort Alphabetically");
+    auto sortAction = new QAction(sortActionText, this);
     sortAction->setCheckable(true);
     sortAction->setChecked(sorted);
     addAction(sortAction);
 
-    connect(client->documentSymbolCache(), &DocumentSymbolCache::gotSymbols,
-            this, &OutlineComboBox::updateModel);
+    connect(client->documentSymbolCache(),
+            &DocumentSymbolCache::gotSymbols,
+            this,
+            &OutlineComboBox::updateModel);
     connect(client, &Client::documentUpdated, this, &OutlineComboBox::documentUpdated);
     connect(m_editorWidget, &TextEditor::TextEditorWidget::cursorPositionChanged,
             this, &OutlineComboBox::updateEntry);

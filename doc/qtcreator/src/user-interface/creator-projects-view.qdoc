@@ -155,6 +155,9 @@
     allows to specify exactly where a new file should be placed in the build
     system.
 
+    If you cannot see some files, they might not be declared as part of the
+    project. For more information, see \l{Specifying Project Contents}.
+
     If the project is under version control, information from the version
     control system might be displayed in brackets after the project name.
     This is currently implemented for Git (the branch name or a tag is

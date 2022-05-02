@@ -1,0 +1,191 @@
+/****************************************************************************
+**
+** Copyright (C) 2022 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page state-transition-animations.html
+    \ingroup gstutorials
+    \sa States, {Transition Editor}, {Adding States}
+
+    \title Animated State Transitions
+    \brief Illustrates how to create animated state transitions.
+
+    \image animated-state-transitions.jpg
+
+    The \e{Animated State Transitions} tutorial illustrates how you can animate
+    the transition between \l{Adding States}{states}.
+
+    The starting point of this tutorial is the Car Demo project, you can
+    download it from
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/animated-state-transition/Start/CarDemo}
+    {here}.
+
+    You can download the completed project from
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/animated-state-transition/Completed/CarDemo}
+    {here}.
+
+    This tutorial requires that you know the basics of \QDS, see
+    \l{Getting Started}.
+
+    \section1 Tutorial Assets
+
+    All assets you need for this tutorial are included in the Car Demo project.
+
+    \section1 Creating States
+
+    First, you create the different states. In this tutorial, you create four
+    different states with different views of the car in the scene:
+    \list
+      \li Side view
+      \li Front view
+      \li Back view
+      \li Interior view
+    \endlist
+
+    To create the first state:
+    \list 1
+      \li In the \l States view, select \inlineimage icons/plus.png
+      .
+      \li Change the name of the new state to \e{side}.
+    \endlist
+
+    For the \e side state, you do not need to make any changes to the car model
+    because it is already in side view position.
+
+    Next, create the rest of the states and change the rotation of the car. For
+    the \e interior state, you also change the position of the camera:
+    \list 1
+      \li Create a new state and change the name to \e{front}.
+      \li In \l{Navigator}, select \e car_final and in
+      \l{Properties}, set \uicontrol Transform > \uicontrol Rotation >
+      \uicontrol Y to 0.
+      \li Create a new state and change the name to \e{back}.
+      \li In \uicontrol{Navigator}, select \e car_final and in
+      \uicontrol{Properties}, set \uicontrol Transform > \uicontrol Rotation >
+      \uicontrol Y to 180.
+      \li Create a new state and change the name to \e{interior}.
+      \li In \uicontrol{Navigator}, select \e camera1 and in
+      \uicontrol{Properties}, set \uicontrol Transform > \uicontrol Translation
+      > \uicontrol Z to 20.
+    \endlist
+
+    \image animated-state-transitions-states.png
+
+    \section1 Creating State Transitions
+
+    With the states created, you need a way to move between the states in the
+    UI. In this tutorial, you create buttons arranged in a column to do this.
+
+    \note Ensure that you have the base state selected before you add the
+    buttons.
+
+    To add the buttons:
+
+    \list 1
+      \li From \l{Components}, drag \uicontrol Column to \e rectangle in
+      \uicontrol{Navigator}.
+      \li In \uicontrol{Navigator}, select \e column and in
+      \uicontrol{Properties}, set:
+      \list
+        \li \uicontrol Size > \uicontrol H to 200.
+        \li \uicontrol Spacing to 10.
+      \endlist
+      \li In \uicontrol{Properties}, go to the \uicontrol Layout tab.
+      \li Select \uicontrol Anchors > \uicontrol{Bottom} and set:
+      \list
+        \li \uicontrol Target to parent.
+        \li \uicontrol Margin to 10.
+      \endlist
+      \li Select \uicontrol Anchors > \uicontrol{Left} and set:
+      \list
+        \li \uicontrol Target to parent.
+        \li \uicontrol Margin to 10.
+      \endlist
+      \li From \uicontrol {Components}, drag \uicontrol Button to \e column in
+      \uicontrol {Navigator}.
+      \li In \uicontrol {Navigator}, select \e button and set \uicontrol ID to
+      \e {button_side}.
+      \li On the \uicontrol Button tab, set \uicontrol Text to \e {Side}.
+      \li Repeat step 6 to 8 three times to create a total of four buttons. Set
+      the ID for the three last buttons to \e{button_front}, \e{button_back},
+      and \e {button_interior}. Change the text on the buttons accordingly.
+    \endlist
+
+    \image state-transition-navigator-buttons.png
+
+    Now, you add the actions to the buttons. Actions determine what happens
+    when you select a button in the application. In this tutorial, you use
+    the buttons to switch between the different states.
+
+    To add actions:
+
+    \list 1
+      \li Go to the \uicontrol Connections view.
+      \li In \uicontrol{Navigator}, select \e button_side and in
+      \uicontrol {Connections}, select \inlineimage icons/plus.png
+      .
+      This creates a new connection with \e button_side as the target.
+      \li Set \uicontrol{Signal Handler} to \uicontrol onClicked.
+      \li Set \uicontrol Actions to \e {Change state to side}.
+      \li Repeat steps 2 to 4 for the next three buttons and set them to go to
+      their corresponding states.
+    \endlist
+
+    \image state-transition-connections.png
+
+    Now you can preview and try the transitions to see how the UI moves between
+    the states when you select the buttons.
+
+    To preview, select \key Alt + \key{P}.
+
+    \section1 Animating State Transitions
+
+    The final step of this tutorial is to create animations between the states:
+
+    \list 1
+      \li Go to \l{Transition Editor}.
+      \li Select \inlineimage icons/plus.png
+      .
+      \li In the upper right corner of \uicontrol {Transition Editor}, change
+      the number 2000 to 1000.
+      This sets the length of the animation in milliseconds.
+      \li Drag the left end of the timebar for \e car_final to the 0 mark in
+      the timeline, and then drag the right end to the 1000 mark.
+      \li Repeat the above step for \e {camera1}.
+    \endlist
+
+    \image state-transition-transitions.png
+
+    This adds the transition and sets the animation durations to 1 second
+    (1000 ms). By default, all properties that have changed between the states
+    are added to the transition and therefor animated. In
+    this case, the properties are Y rotation for the car model and Z position
+    for the camera.
+
+    \section1 Previewing
+
+    Now you are done. To preview and try the transitions animations,
+    select \key Alt + \key{P}.
+
+*/

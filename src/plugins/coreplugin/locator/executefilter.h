@@ -65,6 +65,9 @@ private:
     void createProcess();
     void removeProcess();
 
+    void saveState(QJsonObject &object) const final;
+    void restoreState(const QJsonObject &object) final;
+
     QString headCommand() const;
 
     QQueue<ExecuteData> m_taskQueue;

@@ -239,6 +239,18 @@ void KeyframeItem::setKeyframe(const Keyframe &keyframe)
     setPos(m_transform.map(m_frame.position()));
 }
 
+void KeyframeItem::setDefaultInterpolation()
+{
+    if (!m_left || !m_right)
+        return;
+
+    m_frame.setDefaultInterpolation();
+
+    setKeyframe(m_frame);
+
+    emit redrawCurve();
+}
+
 void KeyframeItem::toggleUnified()
 {
     if (!m_left || !m_right)

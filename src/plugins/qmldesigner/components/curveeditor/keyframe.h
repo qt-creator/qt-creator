@@ -28,6 +28,8 @@
 #include <QPointF>
 #include <QVariant>
 
+#include <string>
+
 namespace QmlDesigner {
 
 class Keyframe
@@ -64,6 +66,8 @@ public:
     std::string string() const;
 
     Interpolation interpolation() const;
+
+    void setDefaultInterpolation();
 
     void setUnified(bool unified);
 

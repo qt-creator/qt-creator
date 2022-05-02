@@ -23,23 +23,24 @@
 **
 ****************************************************************************/
 
+#include "designmodewidget.h"
+#include "edit3dactions.h"
+#include "edit3dcanvas.h"
 #include "edit3dview.h"
 #include "edit3dwidget.h"
-#include "edit3dcanvas.h"
-#include "edit3dactions.h"
-#include "designmodewidget.h"
 
-#include <nodeinstanceview.h>
-#include <designeractionmanager.h>
-#include <designersettings.h>
-#include <qmldesignerconstants.h>
-#include <qmldesignerplugin.h>
-#include <viewmanager.h>
-#include <qmldesignericons.h>
-#include <designmodecontext.h>
-#include <utils/utilsicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
+#include <designeractionmanager.h>
+#include <designersettings.h>
+#include <designmodecontext.h>
+#include <nodeinstanceview.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignericons.h>
+#include <qmldesignerplugin.h>
+#include <viewmanager.h>
+#include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QDebug>
 #include <QToolButton>
@@ -216,6 +217,8 @@ void Edit3DView::modelAttached(Model *model)
 
 void Edit3DView::modelAboutToBeDetached(Model *model)
 {
+    QTC_ASSERT(edit3DWidget()->canvas(), return);
+
     // Hide the canvas when model is detached (i.e. changing documents)
     m_canvasCache.insert(model, edit3DWidget()->canvas()->renderImage());
     edit3DWidget()->showCanvas(false);

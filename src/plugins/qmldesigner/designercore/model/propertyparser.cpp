@@ -242,9 +242,21 @@ QVariant read(int variantType, const QString &str)
     bool conversionOk = true;
     switch (variantType) {
     case QMetaType::QVariant: {
+
+        if (str == "true")
+            return true;
+
+        if (str == "false")
+            return false;
+
         auto tmp = QVariant(str);
-        value = QVariant(tmp);
         conversionOk = tmp.isValid();
+        value = QVariant(tmp);
+
+        if (tmp.canConvert(QMetaType::Double))
+            value.convert(QMetaType::Double);
+        else if (tmp.canConvert(QMetaType::QColor))
+            value.convert(QMetaType::QColor);
         break;
         }
     case QMetaType::QPoint:

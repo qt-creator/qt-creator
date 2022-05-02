@@ -230,9 +230,10 @@
 
     \endlist
 
-    If locator does not find some files, you can add them to the \c DISTFILES
-    variable in the \c .pro file to include them into the distribution tarball
-    of your project and thus make them known to \QC as well.
+    \if defined(qtcreator)
+    If locator does not find some files, see \l{Specifying Project Contents}
+    for how to make them known to the locator.
+    \endif
 
     \section1 Configuring Locator Filters
 

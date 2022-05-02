@@ -27,10 +27,13 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <utils/algorithm.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QMessageBox>
 
 using namespace Core;
@@ -90,11 +93,15 @@ void ExecuteFilter::accept(const LocatorFilterEntry &selection,
     auto p = const_cast<ExecuteFilter *>(this);
 
     const QString value = selection.displayName.trimmed();
+
     const int index = m_commandHistory.indexOf(value);
     if (index != -1 && index != 0)
         p->m_commandHistory.removeAt(index);
     if (index != 0)
         p->m_commandHistory.prepend(value);
+    static const int maxHistory = 100;
+    while (p->m_commandHistory.size() > maxHistory)
+        p->m_commandHistory.removeLast();
 
     bool found;
     QString workingDirectory = Utils::globalMacroExpander()->value("CurrentDocument:Path", &found);
@@ -201,6 +208,20 @@ void ExecuteFilter::removeProcess()
     m_taskQueue.dequeue();
     delete m_process;
     m_process = nullptr;
+}
+
+const char historyKey[] = "history";
+
+void ExecuteFilter::saveState(QJsonObject &object) const
+{
+    if (!m_commandHistory.isEmpty())
+        object.insert(historyKey, QJsonArray::fromStringList(m_commandHistory));
+}
+
+void ExecuteFilter::restoreState(const QJsonObject &object)
+{
+    m_commandHistory = Utils::transform(object.value(historyKey).toArray().toVariantList(),
+                                        &QVariant::toString);
 }
 
 QString ExecuteFilter::headCommand() const
