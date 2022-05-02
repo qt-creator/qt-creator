@@ -33,20 +33,14 @@
 #include "qnxdeviceprocess.h"
 #include "qnxdevicewizard.h"
 
-#include <projectexplorer/devicesupport/sshdeviceprocess.h>
-#include <projectexplorer/runcontrol.h>
-
 #include <remotelinux/sshprocessinterface.h>
 
-#include <ssh/sshconnection.h>
 #include <utils/port.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
-#include <QApplication>
 #include <QRegularExpression>
-#include <QStringList>
-#include <QThread>
 
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
@@ -153,18 +147,10 @@ int QnxDevice::qnxVersion() const
 
 void QnxDevice::updateVersionNumber() const
 {
-    QEventLoop eventLoop;
-    SshDeviceProcess versionNumberProcess(sharedFromThis());
-    QObject::connect(&versionNumberProcess, &QtcProcess::done, &eventLoop, &QEventLoop::quit);
+    QtcProcess versionNumberProcess;
 
-    versionNumberProcess.setCommand({"uname", {"-r"}});
-    versionNumberProcess.start();
-
-    bool isGuiThread = QThread::currentThread() == QCoreApplication::instance()->thread();
-    if (isGuiThread)
-        QApplication::setOverrideCursor(Qt::WaitCursor);
-
-    eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
+    versionNumberProcess.setCommand({mapToGlobalPath("uname"), {"-r"}});
+    versionNumberProcess.runBlocking(EventLoopMode::On);
 
     QByteArray output = versionNumberProcess.readAllStandardOutput();
     QString versionMessage = QString::fromLatin1(output);
@@ -176,9 +162,6 @@ void QnxDevice::updateVersionNumber() const
         int patch = match.captured(3).toInt();
         m_versionNumber = (major << 16)|(minor<<8)|(patch);
     }
-
-    if (isGuiThread)
-        QApplication::restoreOverrideCursor();
 }
 
 void QnxDevice::fromMap(const QVariantMap &map)
