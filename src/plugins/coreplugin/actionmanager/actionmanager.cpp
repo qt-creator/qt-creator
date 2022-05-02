@@ -45,7 +45,6 @@ namespace {
     enum { warnAboutFindFailures = 0 };
 }
 
-static const char kKeyboardSettingsKey[] = "KeyboardShortcuts";
 static const char kKeyboardSettingsKeyV2[] = "KeyboardShortcutsV2";
 
 using namespace Core;
@@ -484,13 +483,8 @@ Action *ActionManagerPrivate::overridableAction(Id id)
 
 void ActionManagerPrivate::readUserSettings(Id id, Action *cmd)
 {
-    // TODO Settings V2 were introduced in Qt Creator 4.13, remove old settings at some point
     QSettings *settings = ICore::settings();
-    // transfer from old settings if not done before
-    const QString group = settings->childGroups().contains(kKeyboardSettingsKeyV2)
-                              ? QString(kKeyboardSettingsKeyV2)
-                              : QString(kKeyboardSettingsKey);
-    settings->beginGroup(group);
+    settings->beginGroup(kKeyboardSettingsKeyV2);
     if (settings->contains(id.toString())) {
         const QVariant v = settings->value(id.toString());
         if (QMetaType::Type(v.type()) == QMetaType::QStringList) {
@@ -508,16 +502,13 @@ void ActionManagerPrivate::saveSettings(Action *cmd)
 {
     const QString id = cmd->id().toString();
     const QString settingsKey = QLatin1String(kKeyboardSettingsKeyV2) + '/' + id;
-    const QString compatSettingsKey = QLatin1String(kKeyboardSettingsKey) + '/' + id;
     const QList<QKeySequence> keys = cmd->keySequences();
     const QList<QKeySequence> defaultKeys = cmd->defaultKeySequences();
     if (keys != defaultKeys) {
         if (keys.isEmpty()) {
             ICore::settings()->setValue(settingsKey, QString());
-            ICore::settings()->setValue(compatSettingsKey, QString());
         } else if (keys.size() == 1) {
             ICore::settings()->setValue(settingsKey, keys.first().toString());
-            ICore::settings()->setValue(compatSettingsKey, keys.first().toString());
         } else {
             ICore::settings()->setValue(settingsKey,
                                         Utils::transform<QStringList>(keys,
