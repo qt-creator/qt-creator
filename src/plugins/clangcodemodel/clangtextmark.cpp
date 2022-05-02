@@ -80,7 +80,7 @@ Project *projectForCurrentEditor()
 }
 
 enum class DiagnosticType { Clang, Tidy, Clazy };
-DiagnosticType diagnosticType(const ClangBackEnd::DiagnosticContainer &diagnostic)
+DiagnosticType diagnosticType(const ClangDiagnostic &diagnostic)
 
 {
     if (!diagnostic.disableOption.isEmpty())
@@ -92,8 +92,7 @@ DiagnosticType diagnosticType(const ClangBackEnd::DiagnosticContainer &diagnosti
     return DiagnosticType::Tidy;
 }
 
-void disableDiagnosticInConfig(ClangDiagnosticConfig &config,
-                               const ClangBackEnd::DiagnosticContainer &diagnostic)
+void disableDiagnosticInConfig(ClangDiagnosticConfig &config, const ClangDiagnostic &diagnostic)
 {
     switch (diagnosticType(diagnostic)) {
     case DiagnosticType::Clang:
@@ -131,8 +130,7 @@ ClangDiagnosticConfig diagnosticConfig(const ClangProjectSettings &projectSettin
     return configsModel.configWithId(currentConfigId);
 }
 
-bool isDiagnosticConfigChangable(Project *project,
-                                 const ClangBackEnd::DiagnosticContainer &diagnostic)
+bool isDiagnosticConfigChangable(Project *project, const ClangDiagnostic &diagnostic)
 {
     if (!project)
         return false;
@@ -149,7 +147,7 @@ bool isDiagnosticConfigChangable(Project *project,
     return true;
 }
 
-void disableDiagnosticInCurrentProjectConfig(const ClangBackEnd::DiagnosticContainer &diagnostic)
+void disableDiagnosticInCurrentProjectConfig(const ClangDiagnostic &diagnostic)
 {
     Project *project = projectForCurrentEditor();
     QTC_ASSERT(project, return );
@@ -194,30 +192,26 @@ void disableDiagnosticInCurrentProjectConfig(const ClangBackEnd::DiagnosticConta
                               FadingIndicator::SmallText);
 }
 
-ClangBackEnd::DiagnosticSeverity convertSeverity(DiagnosticSeverity src)
+ClangDiagnostic::Severity convertSeverity(DiagnosticSeverity src)
 {
     if (src == DiagnosticSeverity::Error)
-        return ClangBackEnd::DiagnosticSeverity::Error;
+        return ClangDiagnostic::Severity::Error;
     if (src == DiagnosticSeverity::Warning)
-        return ClangBackEnd::DiagnosticSeverity::Warning;
-    return ClangBackEnd::DiagnosticSeverity::Note;
+        return ClangDiagnostic::Severity::Warning;
+    return ClangDiagnostic::Severity::Note;
 }
 
-ClangBackEnd::SourceRangeContainer convertRange(const FilePath &filePath, const Range &src)
+ClangSourceRange convertRange(const FilePath &filePath, const Range &src)
 {
-    const ClangBackEnd::SourceLocationContainer start(filePath.toString(), src.start().line() + 1,
-                                                      src.start().character() + 1);
-    const ClangBackEnd::SourceLocationContainer end(filePath.toString(), src.end().line() + 1,
-                                                      src.end().character() + 1);
-    return ClangBackEnd::SourceRangeContainer(start, end);
+    const Utils::Link start(filePath, src.start().line() + 1, src.start().character());
+    const Utils::Link end(filePath, src.end().line() + 1, src.end().character());
+    return ClangSourceRange(start, end);
 }
 
-ClangBackEnd::DiagnosticContainer convertDiagnostic(const ClangdDiagnostic &src,
-                                                    const FilePath &filePath)
+ClangDiagnostic convertDiagnostic(const ClangdDiagnostic &src, const FilePath &filePath)
 {
-    ClangBackEnd::DiagnosticContainer target;
-    target.ranges.append(convertRange(filePath, src.range()));
-    target.location = target.ranges.first().start;
+    ClangDiagnostic target;
+    target.location = convertRange(filePath, src.range()).start;
     const QStringList messages = src.message().split("\n\n", Qt::SkipEmptyParts);
     if (!messages.isEmpty())
         target.text = messages.first();
@@ -230,7 +224,7 @@ ClangBackEnd::DiagnosticContainer convertDiagnostic(const ClangdDiagnostic &src,
                     "^(<command line>|([A-Za-z]:)?[^:]+\\.[^:]+)"
                     "(:(\\d+):(\\d+)|\\((\\d+)\\) *): +(fatal +)?(error|warning|note): (.*)$");
 
-        ClangBackEnd::DiagnosticContainer aux;
+        ClangDiagnostic aux;
         if (const QRegularExpressionMatch match = msgRegex.match(auxMessage); match.hasMatch()) {
             bool ok = false;
             int line = match.captured(4).toInt(&ok);
@@ -242,17 +236,17 @@ ClangBackEnd::DiagnosticContainer convertDiagnostic(const ClangdDiagnostic &src,
             FilePath auxFilePath = FilePath::fromUserInput(match.captured(1));
             if (auxFilePath.isRelativePath() && auxFilePath.fileName() == filePath.fileName())
                 auxFilePath = filePath;
-            aux.location = {auxFilePath.toString(), line, column};
+            aux.location = {auxFilePath, line, column - 1};
             aux.text = match.captured(9);
             const QString type = match.captured(8);
             if (type == "fatal")
-                aux.severity = ClangBackEnd::DiagnosticSeverity::Fatal;
+                aux.severity = ClangDiagnostic::Severity::Fatal;
             else if (type == "error")
-                aux.severity = ClangBackEnd::DiagnosticSeverity::Error;
+                aux.severity = ClangDiagnostic::Severity::Error;
             else if (type == "warning")
-                aux.severity = ClangBackEnd::DiagnosticSeverity::Warning;
+                aux.severity = ClangDiagnostic::Severity::Warning;
             else if (type == "note")
-                aux.severity = ClangBackEnd::DiagnosticSeverity::Note;
+                aux.severity = ClangDiagnostic::Severity::Note;
         } else {
             aux.text = auxMessage;
         }
@@ -274,7 +268,7 @@ ClangBackEnd::DiagnosticContainer convertDiagnostic(const ClangdDiagnostic &src,
             continue;
         for (auto it = changes->cbegin(); it != changes->cend(); ++it) {
             for (const TextEdit &textEdit : it.value()) {
-                target.fixIts << ClangBackEnd::FixItContainer(textEdit.newText(),
+                target.fixIts << ClangFixIt(textEdit.newText(),
                         convertRange(it.key().toFilePath(), textEdit.range()));
             }
         }
@@ -282,18 +276,18 @@ ClangBackEnd::DiagnosticContainer convertDiagnostic(const ClangdDiagnostic &src,
     return target;
 }
 
-void addTask(const ClangBackEnd::DiagnosticContainer &diagnostic)
+void addTask(const ClangDiagnostic &diagnostic)
 {
     Task::TaskType taskType = Task::TaskType::Unknown;
     QIcon icon;
 
     switch (diagnostic.severity) {
-    case ClangBackEnd::DiagnosticSeverity::Fatal:
-    case ClangBackEnd::DiagnosticSeverity::Error:
+    case ClangDiagnostic::Severity::Fatal:
+    case ClangDiagnostic::Severity::Error:
         taskType = Task::TaskType::Error;
         icon = ::Utils::Icons::CODEMODEL_ERROR.icon();
         break;
-    case ClangBackEnd::DiagnosticSeverity::Warning:
+    case ClangDiagnostic::Severity::Warning:
         taskType = Task::TaskType::Warning;
         icon = ::Utils::Icons::CODEMODEL_WARNING.icon();
         break;
@@ -302,9 +296,9 @@ void addTask(const ClangBackEnd::DiagnosticContainer &diagnostic)
     }
 
     TaskHub::addTask(Task(taskType,
-                          diagnosticCategoryPrefixRemoved(diagnostic.text.toString()),
-                          FilePath::fromString(diagnostic.location.filePath.toString()),
-                          diagnostic.location.line,
+                          diagnosticCategoryPrefixRemoved(diagnostic.text),
+                          FilePath::fromString(diagnostic.location.targetFilePath.toString()),
+                          diagnostic.location.targetLine,
                           Constants::TASK_CATEGORY_DIAGNOSTICS,
                           icon,
                           Task::NoOptions));

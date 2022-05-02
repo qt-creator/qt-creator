@@ -31,9 +31,12 @@
 #include <QScopedPointer>
 #include <QString>
 
-namespace ClangBackEnd { class FixItContainer; }
+namespace Utils { class FilePath; }
 
-namespace ClangCodeModel::Internal::Tests {
+namespace ClangCodeModel::Internal {
+class ClangFixIt;
+
+namespace Tests {
 
 class ClangFixItTest : public QObject
 {
@@ -47,14 +50,15 @@ private slots:
     void testDescription();
 
 private:
-    QString semicolonFilePath() const;
-    QString compareFilePath() const;
+    Utils::FilePath semicolonFilePath() const;
+    Utils::FilePath compareFilePath() const;
     QString fileContent(const QByteArray &relFilePath) const;
 
-    ClangBackEnd::FixItContainer semicolonFixIt() const;
+    ClangFixIt semicolonFixIt() const;
 
 private:
     QScopedPointer<CppEditor::Tests::TemporaryCopiedDir> m_dataDir;
 };
 
-} // namespace ClangCodeModel::Internal::Tests
+} //namespace Tests
+} // namespace ClangCodeModel::Internal

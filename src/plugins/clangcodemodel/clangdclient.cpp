@@ -34,7 +34,6 @@
 #include "clangtextmark.h"
 #include "clangutils.h"
 
-#include <clangsupport/sourcelocationscontainer.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultitem.h>
 #include <coreplugin/find/searchresultwindow.h>
@@ -2240,11 +2239,7 @@ void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cu
                         qCDebug(clangdLog) << "found" << locations.size() << "local references";
                         if (!d->localRefsData || id != d->localRefsData->id)
                             return;
-                        ClangBackEnd::SourceLocationsContainer container;
-                        for (const Location &loc : locations) {
-                            container.insertSourceLocation({}, loc.range().start().line() + 1,
-                                                           loc.range().start().character() + 1);
-                        }
+                        const Utils::Links links = Utils::transform(locations, &Location::toLink);
 
                         // The callback only uses the symbol length, so we just create a dummy.
                         // Note that the calculation will be wrong for identifiers with
@@ -2254,7 +2249,7 @@ void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cu
                             const Range r = locations.first().range();
                             symbol = QString(r.end().character() - r.start().character(), 'x');
                         }
-                        d->localRefsData->callback(symbol, container, d->localRefsData->revision);
+                        d->localRefsData->callback(symbol, links, d->localRefsData->revision);
                         d->localRefsData->callback = {};
                         d->localRefsData.reset();
                     });

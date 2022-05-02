@@ -79,6 +79,7 @@ public:
 QTCREATOR_UTILS_EXPORT QHashValueType qHash(const Link &l);
 
 using ProcessLinkCallback = std::function<void(const Link &)>;
+using Links = QList<Link>;
 
 } // namespace Utils
 

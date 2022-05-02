@@ -55,7 +55,6 @@
 #include <QString>
 #include <QThread>
 
-using namespace ClangBackEnd;
 using namespace ProjectExplorer;
 
 namespace ClangCodeModel {

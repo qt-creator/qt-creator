@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <clangsupport/diagnosticcontainer.h>
+#include <QtGlobal>
 
 #include <functional>
 
@@ -36,16 +36,17 @@ QT_END_NAMESPACE
 
 namespace ClangCodeModel {
 namespace Internal {
+class ClangDiagnostic;
 
 class ClangDiagnosticWidget {
 public:
     enum Destination { ToolTip, InfoBar };
 
-    static QString createText(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+    static QString createText(const QList<ClangDiagnostic> &diagnostics,
                               const Destination &destination);
 
 
-    static QWidget *createWidget(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+    static QWidget *createWidget(const QList<ClangDiagnostic> &diagnostics,
                                  const Destination &destination,
                                  const std::function<bool()> &canApplyFixIt,
                                  const QString &source);

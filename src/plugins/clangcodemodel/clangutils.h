@@ -30,6 +30,8 @@
 #include <cppeditor/projectinfo.h>
 #include <cppeditor/compileroptionsbuilder.h>
 
+#include <utils/link.h>
+
 #include <QPair>
 #include <QTextCursor>
 
@@ -71,8 +73,6 @@ int cppEditorColumn(const QTextBlock &line, int clangColumn);
 QString currentCppEditorDocumentFilePath();
 
 QString diagnosticCategoryPrefixRemoved(const QString &text);
-
-Utils::CodeModelIcon::Type iconTypeForToken(const ClangBackEnd::TokenInfoContainer &token);
 
 class GenerateCompilationDbResult
 {
@@ -158,6 +158,75 @@ QString textUntilPreviousStatement(TextEditor::TextDocumentManipulatorInterface 
 
 bool isAtUsingDeclaration(TextEditor::TextDocumentManipulatorInterface &manipulator,
                           int basePosition);
+
+class ClangSourceRange
+{
+public:
+    ClangSourceRange(const Utils::Link &start, const Utils::Link &end) : start(start), end(end) {}
+
+    bool contains(int line, int column) const
+    {
+        if (line < start.targetLine || line > end.targetLine)
+            return false;
+        if (line == start.targetLine && column < start.targetLine)
+            return false;
+        if (line == end.targetLine && column > end.targetColumn)
+            return false;
+        return true;
+    }
+
+    bool contains(const Utils::Link &sourceLocation) const
+    {
+        return contains(sourceLocation.targetLine, sourceLocation.targetColumn);
+    }
+
+    Utils::Link start;
+    Utils::Link end;
+};
+
+inline bool operator==(const ClangSourceRange &first, const ClangSourceRange &second)
+{
+    return first.start == second.start && first.end == second.end;
+}
+
+class ClangFixIt
+{
+public:
+    ClangFixIt(const QString &text, const ClangSourceRange &range) : range(range), text(text) {}
+
+    ClangSourceRange range;
+    QString text;
+};
+
+inline bool operator==(const ClangFixIt &first, const ClangFixIt &second)
+{
+    return first.text == second.text && first.range == second.range;
+}
+
+class ClangDiagnostic
+{
+public:
+    enum class Severity { Ignored, Note, Warning, Error, Fatal };
+
+    Utils::Link location;
+    QString text;
+    QString category;
+    QString enableOption;
+    QString disableOption;
+    QList<ClangDiagnostic> children;
+    QList<ClangFixIt> fixIts;
+    Severity severity = Severity::Ignored;
+};
+
+inline bool operator==(const ClangDiagnostic &first, const ClangDiagnostic &second)
+{
+    return first.text == second.text && first.location == second.location;
+}
+inline bool operator!=(const ClangDiagnostic &first, const ClangDiagnostic &second)
+{
+    return !(first == second);
+}
+
 
 } // namespace Internal
 } // namespace Clang

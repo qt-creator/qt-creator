@@ -52,36 +52,25 @@ namespace {
 const char LINK_ACTION_GOTO_LOCATION[] = "#gotoLocation";
 const char LINK_ACTION_APPLY_FIX[] = "#applyFix";
 
-QString fileNamePrefix(const QString &mainFilePath,
-                       const ClangBackEnd::SourceLocationContainer &location)
+QString fileNamePrefix(const QString &mainFilePath, const Utils::Link &location)
 {
-    const QString filePath = location.filePath.toString();
+    const QString filePath = location.targetFilePath.toString();
     if (filePath != mainFilePath)
         return QFileInfo(filePath).fileName() + QLatin1Char(':');
 
     return QString();
 }
 
-QString locationToString(const ClangBackEnd::SourceLocationContainer &location)
+QString locationToString(const Utils::Link &location)
 {
-    return QString::number(location.line)
+    return QString::number(location.targetLine)
          + QStringLiteral(":")
-         + QString::number(location.column);
+         + QString::number(location.targetColumn + 1);
 }
 
-void openEditorAt(const ClangBackEnd::DiagnosticContainer &diagnostic)
+void applyFixit(const ClangDiagnostic &diagnostic)
 {
-    const ClangBackEnd::SourceLocationContainer &location = diagnostic.location;
-
-    Core::EditorManager::openEditorAt({Utils::FilePath::fromString(location.filePath.toString()),
-                                       int(location.line),
-                                       int(location.column - 1)});
-}
-
-void applyFixit(const ClangBackEnd::DiagnosticContainer &diagnostic)
-{
-    ClangFixItOperation operation(Utf8String(), diagnostic.fixIts);
-
+    ClangFixItOperation operation({}, diagnostic.fixIts);
     operation.perform();
 }
 
@@ -102,7 +91,7 @@ public:
     {
     }
 
-    QWidget *createWidget(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+    QWidget *createWidget(const QList<ClangDiagnostic> &diagnostics,
                           const std::function<bool()> &canApplyFixIt, const QString &source)
     {
         const QString text = htmlText(diagnostics, source);
@@ -133,12 +122,12 @@ public:
         const bool hideToolTipAfterLinkActivation = m_displayHints.hideTooltipAfterLinkActivation;
         QObject::connect(label, &QLabel::linkActivated, [table, hideToolTipAfterLinkActivation,
                          canApplyFixIt](const QString &action) {
-            const ClangBackEnd::DiagnosticContainer diagnostic = table.value(action);
+            const ClangDiagnostic diagnostic = table.value(action);
 
-            if (diagnostic == ClangBackEnd::DiagnosticContainer())
+            if (diagnostic == ClangDiagnostic())
                 QDesktopServices::openUrl(QUrl(action));
             else if (action.startsWith(LINK_ACTION_GOTO_LOCATION)) {
-                openEditorAt(diagnostic);
+                Core::EditorManager::openEditorAt(diagnostic.location);
             } else if (action.startsWith(LINK_ACTION_APPLY_FIX)) {
                 if (canApplyFixIt && canApplyFixIt())
                     applyFixit(diagnostic);
@@ -153,13 +142,12 @@ public:
         return label;
     }
 
-    QString htmlText(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
-                     const QString &source)
+    QString htmlText(const QList<ClangDiagnostic> &diagnostics, const QString &source)
     {
         // For debugging, add: style='border-width:1px;border-color:black'
         QString text = "<table cellspacing='0' cellpadding='0' width='100%'>";
 
-        foreach (const ClangBackEnd::DiagnosticContainer &diagnostic, diagnostics)
+        foreach (const ClangDiagnostic &diagnostic, diagnostics)
             text.append(tableRows(diagnostic));
         if (!source.isEmpty()) {
             text.append(QString::fromUtf8("<tr><td colspan='2' align='left'>"
@@ -186,13 +174,12 @@ private:
     // For clazy/tidy diagnostics, we expect something like "some text [some option]", e.g.:
     //  * clazy: "Use the static QFileInfo::exists() instead. It's documented to be faster. [-Wclazy-qfileinfo-exists]"
     //  * tidy:  "use emplace_back instead of push_back [modernize-use-emplace]"
-    static ClangBackEnd::DiagnosticContainer supplementedDiagnostic(
-        const ClangBackEnd::DiagnosticContainer &diagnostic)
+    static ClangDiagnostic supplementedDiagnostic(const ClangDiagnostic &diagnostic)
     {
         if (!diagnostic.category.isEmpty())
             return diagnostic; // OK, diagnostics from clang itself have this set.
 
-        ClangBackEnd::DiagnosticContainer supplementedDiagnostic = diagnostic;
+        ClangDiagnostic supplementedDiagnostic = diagnostic;
 
         DiagnosticTextInfo info(diagnostic.text);
         supplementedDiagnostic.enableOption = info.option();
@@ -200,18 +187,18 @@ private:
         supplementedDiagnostic.text = info.textWithoutOption();
 
         for (auto &child : supplementedDiagnostic.children)
-            child.text = DiagnosticTextInfo(diagnostic.text.toString()).textWithoutOption();
+            child.text = DiagnosticTextInfo(diagnostic.text).textWithoutOption();
 
         return supplementedDiagnostic;
     }
 
-    QString tableRows(const ClangBackEnd::DiagnosticContainer &diagnostic)
+    QString tableRows(const ClangDiagnostic &diagnostic)
     {
         m_mainFilePath = m_displayHints.showFileNameInMainDiagnostic
-                ? Utf8String()
-                : diagnostic.location.filePath;
+                ? QString()
+                : diagnostic.location.targetFilePath.toString();
 
-        const ClangBackEnd::DiagnosticContainer diag = supplementedDiagnostic(diagnostic);
+        const ClangDiagnostic diag = supplementedDiagnostic(diagnostic);
 
         QString text;
         if (m_displayHints.showCategoryAndEnableOption)
@@ -222,8 +209,7 @@ private:
         return text;
     }
 
-    static QString diagnosticCategoryAndEnableOptionRow(
-            const ClangBackEnd::DiagnosticContainer &diagnostic)
+    static QString diagnosticCategoryAndEnableOptionRow(const ClangDiagnostic &diagnostic)
     {
         const QString text = QString::fromLatin1(
             "  <tr>"
@@ -235,11 +221,11 @@ private:
         return text;
     }
 
-    QString diagnosticText(const ClangBackEnd::DiagnosticContainer &diagnostic)
+    QString diagnosticText(const ClangDiagnostic &diagnostic)
     {
         const bool hasFixit = m_displayHints.enableClickableFixits
                 && !diagnostic.fixIts.isEmpty();
-        const QString diagnosticText = diagnostic.text.toString().toHtmlEscaped();
+        const QString diagnosticText = diagnostic.text.toHtmlEscaped();
         const QString text = QString::fromLatin1("%1: %2")
             .arg(clickableLocation(diagnostic, m_mainFilePath),
                  clickableFixIt(diagnostic, diagnosticText, hasFixit));
@@ -247,8 +233,7 @@ private:
         return text;
     }
 
-    QString diagnosticRow(const ClangBackEnd::DiagnosticContainer &diagnostic,
-                          IndentMode indentMode)
+    QString diagnosticRow(const ClangDiagnostic &diagnostic, IndentMode indentMode)
     {
         const QString text = QString::fromLatin1(
             "  <tr>"
@@ -260,9 +245,9 @@ private:
         return text;
     }
 
-    QString diagnosticRowsForChildren(const ClangBackEnd::DiagnosticContainer &diagnostic)
+    QString diagnosticRowsForChildren(const ClangDiagnostic &diagnostic)
     {
-        const QVector<ClangBackEnd::DiagnosticContainer> &children = diagnostic.children;
+        const QList<ClangDiagnostic> &children = diagnostic.children;
         QString text;
 
         if (children.size() <= 10) {
@@ -277,8 +262,8 @@ private:
     }
 
     QString diagnosticRowsForChildren(
-            const QVector<ClangBackEnd::DiagnosticContainer>::const_iterator first,
-            const QVector<ClangBackEnd::DiagnosticContainer>::const_iterator last)
+            const QList<ClangDiagnostic>::const_iterator first,
+            const QList<ClangDiagnostic>::const_iterator last)
     {
         QString text;
 
@@ -288,10 +273,9 @@ private:
         return text;
     }
 
-    QString clickableLocation(const ClangBackEnd::DiagnosticContainer &diagnostic,
-                              const QString &mainFilePath)
+    QString clickableLocation(const ClangDiagnostic &diagnostic, const QString &mainFilePath)
     {
-        const ClangBackEnd::SourceLocationContainer &location = diagnostic.location;
+        const Utils::Link &location = diagnostic.location;
 
         const QString filePrefix = fileNamePrefix(mainFilePath, location);
         const QString lineColumn = locationToString(location);
@@ -301,9 +285,7 @@ private:
         return wrapInLink(linkText, targetId);
     }
 
-    QString clickableFixIt(const ClangBackEnd::DiagnosticContainer &diagnostic,
-                           const QString &text,
-                           bool hasFixIt)
+    QString clickableFixIt(const ClangDiagnostic &diagnostic, const QString &text, bool hasFixIt)
     {
         if (!hasFixIt)
             return text;
@@ -322,8 +304,7 @@ private:
         return nonClickableCategory + wrapInLink(clickableText, targetId);
     }
 
-    QString generateTargetId(const QString &targetPrefix,
-                             const ClangBackEnd::DiagnosticContainer &diagnostic)
+    QString generateTargetId(const QString &targetPrefix, const ClangDiagnostic &diagnostic)
     {
         const QString idAsString = QString::number(++m_targetIdCounter);
         const QString targetId = targetPrefix + idAsString;
@@ -364,7 +345,7 @@ private:
 private:
     const DisplayHints m_displayHints;
 
-    using TargetIdToDiagnosticTable = QHash<QString, ClangBackEnd::DiagnosticContainer>;
+    using TargetIdToDiagnosticTable = QHash<QString, ClangDiagnostic>;
     TargetIdToDiagnosticTable m_targetIdsToDiagnostics;
     unsigned m_targetIdCounter = 0;
 
@@ -399,7 +380,7 @@ WidgetFromDiagnostics::DisplayHints toHints(const ClangDiagnosticWidget::Destina
 } // anonymous namespace
 
 QString ClangDiagnosticWidget::createText(
-    const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+    const QList<ClangDiagnostic> &diagnostics,
     const ClangDiagnosticWidget::Destination &destination)
 {
     const QString htmlText = WidgetFromDiagnostics(toHints(destination, {}))
@@ -418,7 +399,7 @@ QString ClangDiagnosticWidget::createText(
 }
 
 QWidget *ClangDiagnosticWidget::createWidget(
-        const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+        const QList<ClangDiagnostic> &diagnostics,
         const Destination &destination, const std::function<bool()> &canApplyFixIt,
         const QString &source)
 {

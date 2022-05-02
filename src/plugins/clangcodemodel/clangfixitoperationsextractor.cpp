@@ -29,10 +29,9 @@
 #include "clangutils.h"
 
 #include <utils/algorithm.h>
+#include <utils/link.h>
 
 #include <QDebug>
-
-using ClangBackEnd::DiagnosticContainer;
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -60,38 +59,35 @@ QString tweakedDiagnosticText(const QString &diagnosticText)
     return tweakedText;
 }
 
-bool hasFixItAt(const QVector<ClangBackEnd::FixItContainer> &fixits,
-                const Utf8String &filePath,
-                int line)
+bool hasFixItAt(const QList<ClangFixIt> &fixits, const QString &filePath, int line)
 {
-    const auto isFixitForLocation = [filePath, line] (const ClangBackEnd::FixItContainer &fixit) {
-        const ClangBackEnd::SourceLocationContainer &location = fixit.range.start;
-        return location.filePath == filePath && location.line == line;
+    const auto isFixitForLocation = [filePath, line] (const ClangFixIt &fixit) {
+        const Utils::Link &location = fixit.range.start;
+        return location.targetFilePath.toString() == filePath && location.targetLine == line;
     };
-
     return Utils::anyOf(fixits, isFixitForLocation);
 }
 
 } // anonymous namespace
 
 ClangFixItOperationsExtractor::ClangFixItOperationsExtractor(
-        const QVector<DiagnosticContainer> &diagnosticContainers)
-    : diagnosticContainers(diagnosticContainers)
+        const QList<ClangDiagnostic> &diagnosticContainers)
+    : diagnostics(diagnosticContainers)
 {
 }
 
 TextEditor::QuickFixOperations
 ClangFixItOperationsExtractor::extract(const QString &filePath, int line)
 {
-    foreach (const DiagnosticContainer &diagnosticContainer, diagnosticContainers)
-        extractFromDiagnostic(diagnosticContainer, filePath, line);
+    foreach (const ClangDiagnostic &diagnostic, diagnostics)
+        extractFromDiagnostic(diagnostic, filePath, line);
 
     return operations;
 }
 
 void ClangFixItOperationsExtractor::appendFixitOperation(
         const QString &diagnosticText,
-        const QVector<ClangBackEnd::FixItContainer> &fixits)
+        const QList<ClangFixIt> &fixits)
 {
     if (!fixits.isEmpty()) {
         const QString diagnosticTextTweaked = tweakedDiagnosticText(diagnosticText);
@@ -102,15 +98,14 @@ void ClangFixItOperationsExtractor::appendFixitOperation(
 }
 
 void ClangFixItOperationsExtractor::extractFromDiagnostic(
-        const DiagnosticContainer &diagnosticContainer,
+        const ClangDiagnostic &diagnostic,
         const QString &filePath,
         int line)
 {
-    const QVector<ClangBackEnd::FixItContainer> &fixIts = diagnosticContainer.fixIts;
+    const QList<ClangFixIt> &fixIts = diagnostic.fixIts;
     if (hasFixItAt(fixIts, filePath, line)) {
-        appendFixitOperation(diagnosticContainer.text.toString(), fixIts);
-
-        for (const auto &child : diagnosticContainer.children)
+        appendFixitOperation(diagnostic.text, fixIts);
+        for (const auto &child : diagnostic.children)
             extractFromDiagnostic(child, filePath, line);
     }
 }

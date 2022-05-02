@@ -52,8 +52,6 @@
 #include "cppworkingcopy.h"
 #include "symbolfinder.h"
 
-#include <clangsupport/sourcelocationscontainer.h>
-
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
@@ -934,7 +932,6 @@ const ProjectPart *CppEditorWidget::projectPart() const
 
 namespace {
 
-using ClangBackEnd::SourceLocationContainer;
 using Utils::Text::selectAt;
 
 QTextCharFormat occurrencesTextCharFormat()
@@ -945,7 +942,7 @@ QTextCharFormat occurrencesTextCharFormat()
 }
 
 QList<QTextEdit::ExtraSelection> sourceLocationsToExtraSelections(
-    const std::vector<SourceLocationContainer> &sourceLocations,
+    const Links &sourceLocations,
     uint selectionLength,
     CppEditorWidget *cppEditorWidget)
 {
@@ -954,12 +951,12 @@ QList<QTextEdit::ExtraSelection> sourceLocationsToExtraSelections(
     QList<QTextEdit::ExtraSelection> selections;
     selections.reserve(int(sourceLocations.size()));
 
-    auto sourceLocationToExtraSelection = [&](const SourceLocationContainer &sourceLocation) {
+    auto sourceLocationToExtraSelection = [&](const Link &sourceLocation) {
         QTextEdit::ExtraSelection selection;
 
         selection.cursor = selectAt(cppEditorWidget->textCursor(),
-                                    sourceLocation.line,
-                                    sourceLocation.column,
+                                    sourceLocation.targetLine,
+                                    sourceLocation.targetColumn,
                                     selectionLength);
         selection.format = textCharFormat;
 
@@ -978,8 +975,6 @@ QList<QTextEdit::ExtraSelection> sourceLocationsToExtraSelections(
 
 void CppEditorWidget::renameSymbolUnderCursor()
 {
-    using ClangBackEnd::SourceLocationsContainer;
-
     const ProjectPart *projPart = projectPart();
     if (!projPart)
         return;
@@ -992,17 +987,15 @@ void CppEditorWidget::renameSymbolUnderCursor()
 
     QPointer<CppEditorWidget> cppEditorWidget = this;
 
-    auto renameSymbols = [=](const QString &symbolName,
-                             const SourceLocationsContainer &sourceLocations,
-                             int revision) {
+    auto renameSymbols = [=](const QString &symbolName, const Links &links, int revision) {
         if (cppEditorWidget) {
             viewport()->setCursor(Qt::IBeamCursor);
 
             if (revision != document()->revision())
                 return;
-            if (sourceLocations.hasContent()) {
+            if (!links.isEmpty()) {
                 QList<QTextEdit::ExtraSelection> selections
-                    = sourceLocationsToExtraSelections(sourceLocations.sourceLocationContainers(),
+                    = sourceLocationsToExtraSelections(links,
                                                        static_cast<uint>(symbolName.size()),
                                                        cppEditorWidget);
                 setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection, selections);

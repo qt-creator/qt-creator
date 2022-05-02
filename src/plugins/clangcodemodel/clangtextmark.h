@@ -25,8 +25,7 @@
 
 #pragma once
 
-#include <clangsupport_global.h>
-#include <clangsupport/diagnosticcontainer.h>
+#include "clangutils.h"
 
 #include <languageserverprotocol/lsptypes.h>
 
@@ -54,7 +53,7 @@ private:
     bool addToolTipContent(QLayout *target) const override;
 
     const LanguageServerProtocol::Diagnostic m_lspDiagnostic;
-    const ClangBackEnd::DiagnosticContainer m_diagnostic;
+    const ClangDiagnostic m_diagnostic;
     const QPointer<const LanguageClient::Client> m_client;
 };
 

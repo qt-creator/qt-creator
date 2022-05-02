@@ -6,7 +6,6 @@ QtcPlugin {
 
     Depends { name: "Qt"; submodules: ["concurrent", "widgets"] }
 
-    Depends { name: "ClangSupport" }
     Depends { name: "Core" }
     Depends { name: "CppEditor" }
     Depends { name: "LanguageClient" }

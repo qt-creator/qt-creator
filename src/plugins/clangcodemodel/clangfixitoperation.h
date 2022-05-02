@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include <texteditor/quickfix.h>
+#include "clangutils.h"
 
-#include <clangsupport/fixitcontainer.h>
+#include <texteditor/quickfix.h>
 
 #include <utils/changeset.h>
 
@@ -45,8 +45,7 @@ namespace Internal {
 class ClangFixItOperation : public TextEditor::QuickFixOperation
 {
 public:
-    ClangFixItOperation(const Utf8String &fixItText,
-                        const QVector<ClangBackEnd::FixItContainer> &fixItContainers);
+    ClangFixItOperation(const QString &fixItText, const QList<ClangFixIt> &fixIts);
 
     int priority() const override;
     QString description() const override;
@@ -56,15 +55,14 @@ public:
 
 private:
     void applyFixitsToFile(TextEditor::RefactoringFile &refactoringFile,
-                           const QVector<ClangBackEnd::FixItContainer> fixItContainers);
-    ::Utils::ChangeSet toChangeSet(
-            TextEditor::RefactoringFile &refactoringFile,
-            const QVector<ClangBackEnd::FixItContainer> fixItContainers) const;
+                           const QList<ClangFixIt> fixIts);
+    Utils::ChangeSet toChangeSet(TextEditor::RefactoringFile &refactoringFile,
+            const QList<ClangFixIt> fixIts) const;
 
 private:
-    Utf8String fixItText;
+    QString fixItText;
     QVector<QSharedPointer<TextEditor::RefactoringFile>> refactoringFiles;
-    QVector<ClangBackEnd::FixItContainer> fixItContainers;
+    QList<ClangFixIt> fixIts;
 };
 
 } // namespace Internal

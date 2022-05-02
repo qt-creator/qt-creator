@@ -36,7 +36,6 @@
 #include "symbolfinder.h"
 
 #include <app/app_version.h>
-#include <clangsupport/sourcelocationscontainer.h>
 #include <texteditor/basehoverhandler.h>
 #include <utils/executeondestruction.h>
 #include <utils/qtcassert.h>
@@ -164,14 +163,10 @@ void BuiltinModelManagerSupport::startLocalRenaming(const CursorInEditor &data,
                                                     RenameCallback &&renameSymbolsCallback)
 {
     CppEditorWidget *editorWidget = data.editorWidget();
-    QTC_ASSERT(editorWidget, renameSymbolsCallback(QString(),
-                                                   ClangBackEnd::SourceLocationsContainer(),
-                                                   0); return;);
+    QTC_ASSERT(editorWidget, renameSymbolsCallback(QString(), {}, 0); return;);
     editorWidget->updateSemanticInfo();
     // Call empty callback
-    renameSymbolsCallback(QString(),
-                          ClangBackEnd::SourceLocationsContainer(),
-                          data.cursor().document()->revision());
+    renameSymbolsCallback(QString(), {}, data.cursor().document()->revision());
 }
 
 void BuiltinModelManagerSupport::globalRename(const CursorInEditor &data,

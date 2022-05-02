@@ -29,8 +29,6 @@
 #include "clangmodelmanagersupport.h"
 #include "clangprojectsettings.h"
 
-#include <clangsupport/tokeninfocontainer.h>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <cppeditor/baseeditordocumentparser.h>
@@ -168,109 +166,6 @@ int cppEditorColumn(const QTextBlock &line, int clangColumn)
     // Here we convert column from (1) to (2).
     // '- 1' and '+ 1' are because of 1-based columns
     return QString::fromUtf8(line.text().toUtf8().left(clangColumn - 1)).size() + 1;
-}
-
-CodeModelIcon::Type iconTypeForToken(const ClangBackEnd::TokenInfoContainer &token)
-{
-    const ClangBackEnd::ExtraInfo &extraInfo = token.extraInfo;
-    if (extraInfo.signal)
-        return CodeModelIcon::Signal;
-
-    ClangBackEnd::AccessSpecifier access = extraInfo.accessSpecifier;
-    if (extraInfo.slot) {
-        switch (access) {
-        case ClangBackEnd::AccessSpecifier::Public:
-        case ClangBackEnd::AccessSpecifier::Invalid:
-            return CodeModelIcon::SlotPublic;
-        case ClangBackEnd::AccessSpecifier::Protected:
-            return CodeModelIcon::SlotProtected;
-        case ClangBackEnd::AccessSpecifier::Private:
-            return CodeModelIcon::SlotPrivate;
-        }
-    }
-
-    ClangBackEnd::HighlightingType mainType = token.types.mainHighlightingType;
-
-    if (mainType == ClangBackEnd::HighlightingType::QtProperty)
-        return CodeModelIcon::Property;
-
-    if (mainType == ClangBackEnd::HighlightingType::PreprocessorExpansion
-            || mainType == ClangBackEnd::HighlightingType::PreprocessorDefinition) {
-        return CodeModelIcon::Macro;
-    }
-
-    if (mainType == ClangBackEnd::HighlightingType::Enumeration)
-        return CodeModelIcon::Enumerator;
-
-    if (mainType == ClangBackEnd::HighlightingType::Type
-            || mainType == ClangBackEnd::HighlightingType::Keyword) {
-        const ClangBackEnd::MixinHighlightingTypes &types = token.types.mixinHighlightingTypes;
-        if (types.contains(ClangBackEnd::HighlightingType::Enum))
-            return CodeModelIcon::Enum;
-        if (types.contains(ClangBackEnd::HighlightingType::Struct))
-            return CodeModelIcon::Struct;
-        if (types.contains(ClangBackEnd::HighlightingType::Namespace))
-            return CodeModelIcon::Namespace;
-        if (types.contains(ClangBackEnd::HighlightingType::Class))
-            return CodeModelIcon::Class;
-        if (mainType == ClangBackEnd::HighlightingType::Keyword)
-            return CodeModelIcon::Keyword;
-        return CodeModelIcon::Class;
-    }
-
-    ClangBackEnd::StorageClass storageClass = extraInfo.storageClass;
-    if (mainType == ClangBackEnd::HighlightingType::VirtualFunction
-            || mainType == ClangBackEnd::HighlightingType::Function
-            || token.types.mixinHighlightingTypes.contains(
-                ClangBackEnd::HighlightingType::Operator)) {
-        if (storageClass != ClangBackEnd::StorageClass::Static) {
-            switch (access) {
-            case ClangBackEnd::AccessSpecifier::Public:
-            case ClangBackEnd::AccessSpecifier::Invalid:
-                return CodeModelIcon::FuncPublic;
-            case ClangBackEnd::AccessSpecifier::Protected:
-                return CodeModelIcon::FuncProtected;
-            case ClangBackEnd::AccessSpecifier::Private:
-                return CodeModelIcon::FuncPrivate;
-            }
-        } else {
-            switch (access) {
-            case ClangBackEnd::AccessSpecifier::Public:
-            case ClangBackEnd::AccessSpecifier::Invalid:
-                return CodeModelIcon::FuncPublicStatic;
-            case ClangBackEnd::AccessSpecifier::Protected:
-                return CodeModelIcon::FuncProtectedStatic;
-            case ClangBackEnd::AccessSpecifier::Private:
-                return CodeModelIcon::FuncPrivateStatic;
-            }
-        }
-    }
-    if (mainType == ClangBackEnd::HighlightingType::GlobalVariable
-            || mainType == ClangBackEnd::HighlightingType::Field) {
-        if (storageClass != ClangBackEnd::StorageClass::Static) {
-            switch (access) {
-            case ClangBackEnd::AccessSpecifier::Public:
-            case ClangBackEnd::AccessSpecifier::Invalid:
-                return CodeModelIcon::VarPublic;
-            case ClangBackEnd::AccessSpecifier::Protected:
-                return CodeModelIcon::VarProtected;
-            case ClangBackEnd::AccessSpecifier::Private:
-                return CodeModelIcon::VarPrivate;
-            }
-        } else {
-            switch (access) {
-            case ClangBackEnd::AccessSpecifier::Public:
-            case ClangBackEnd::AccessSpecifier::Invalid:
-                return CodeModelIcon::VarPublicStatic;
-            case ClangBackEnd::AccessSpecifier::Protected:
-                return CodeModelIcon::VarProtectedStatic;
-            case ClangBackEnd::AccessSpecifier::Private:
-                return CodeModelIcon::VarPrivateStatic;
-            }
-        }
-    }
-
-    return CodeModelIcon::Unknown;
 }
 
 QString diagnosticCategoryPrefixRemoved(const QString &text)

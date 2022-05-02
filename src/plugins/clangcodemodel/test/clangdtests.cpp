@@ -29,7 +29,6 @@
 #include "../clangdclient.h"
 #include "../clangmodelmanagersupport.h"
 
-#include <clangsupport/sourcelocationscontainer.h>
 #include <cplusplus/FindUsages.h>
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cpptoolsreuse.h>
@@ -419,9 +418,9 @@ void ClangdTestLocalReferences::test_data()
     QTest::addColumn<QList<Range>>("expectedRanges");
 
     QTest::newRow("cursor not on identifier") << 3 << 5 << QList<Range>();
-    QTest::newRow("local variable, one use") << 3 << 9 << QList<Range>{{3, 9, 3}};
+    QTest::newRow("local variable, one use") << 3 << 9 << QList<Range>{{3, 8, 3}};
     QTest::newRow("local variable, two uses") << 10 << 9
-                                              << QList<Range>{{10, 9, 3}, {11, 12, 3}};
+                                              << QList<Range>{{10, 8, 3}, {11, 11, 3}};
     QTest::newRow("class name") << 16 << 7 << QList<Range>()
             /* QList<Range>{{16, 7, 3}, {19, 5, 3}} */;
     QTest::newRow("namespace") << 24 << 11 << QList<Range>()
@@ -433,9 +432,9 @@ void ClangdTestLocalReferences::test_data()
     QTest::newRow("class name and new expression") << 40 << 7 << QList<Range>()
             /* QList<Range>{{40, 7, 3}, {43, 9, 3}} */;
     QTest::newRow("instantiated template object") << 52 << 19
-                                                  << QList<Range>{{52, 19, 3}, {53, 5, 3}};
+                                                  << QList<Range>{{52, 18, 3}, {53, 4, 3}};
     QTest::newRow("variable in template") << 62 << 13
-                                          << QList<Range>{{62, 13, 3}, {63, 11, 3}};
+                                          << QList<Range>{{62, 12, 3}, {63, 10, 3}};
     QTest::newRow("member in template") << 67 << 7 << QList<Range>()
             /* QList<Range>{{64, 16, 3}, {67, 7, 3}} */;
     QTest::newRow("template type") << 58 << 19 << QList<Range>()
@@ -454,9 +453,9 @@ void ClangdTestLocalReferences::test_data()
     QTest::newRow("enum type") << 112 << 6 << QList<Range>()
             /* QList<Range>{{112, 6, 2}, {113, 8, 2}} */;
     QTest::newRow("captured lambda var") << 122 << 15
-                                         << QList<Range>{{122, 15, 3}, {122, 33, 3}};
+                                         << QList<Range>{{122, 14, 3}, {122, 32, 3}};
     QTest::newRow("lambda initializer") << 122 << 19
-                                         << QList<Range>{{121, 19, 3}, {122, 19, 3}};
+                                         << QList<Range>{{121, 18, 3}, {122, 18, 3}};
     QTest::newRow("template specialization") << 127 << 25 << QList<Range>()
             /* QList<Range>{{127, 5, 3}, {128, 25, 3}, {129, 18, 3}} */;
     QTest::newRow("dependent name") << 133 << 34 << QList<Range>()
@@ -468,16 +467,16 @@ void ClangdTestLocalReferences::test_data()
     QTest::newRow("function-like macro") << 155 << 9 << QList<Range>()
             /* QList<Range>{{155, 9, 3}, {158, 12, 3}} */;
     QTest::newRow("argument to function-like macro") << 156 << 27
-            << QList<Range>{{156, 27, 3}, {158, 16, 3}};
+            << QList<Range>{{156, 26, 3}, {158, 15, 3}};
     QTest::newRow("overloaded bracket operator argument") << 172 << 7
-            << QList<Range>{{171, 7, 1}, {172, 7, 1}, {172, 12, 1},
-                     {173, 7, 1}, {173, 10, 1}};
+            << QList<Range>{{171, 6, 1}, {172, 6, 1}, {172, 11, 1},
+                     {173, 6, 1}, {173, 9, 1}};
     QTest::newRow("overloaded call operator second argument") << 173 << 10
-            << QList<Range>{{171, 7, 1}, {172, 7, 1}, {172, 12, 1},
-                     {173, 7, 1}, {173, 10, 1}};
+            << QList<Range>{{171, 6, 1}, {172, 6, 1}, {172, 11, 1},
+                     {173, 6, 1}, {173, 9, 1}};
     QTest::newRow("overloaded operators arguments from outside") << 171 << 7
-            << QList<Range>{{171, 7, 1}, {172, 7, 1}, {172, 12, 1},
-                     {173, 7, 1}, {173, 10, 1}};
+            << QList<Range>{{171, 6, 1}, {172, 6, 1}, {172, 11, 1},
+                     {173, 6, 1}, {173, 9, 1}};
 }
 
 void ClangdTestLocalReferences::test()
@@ -495,11 +494,9 @@ void ClangdTestLocalReferences::test()
     QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
     QList<Range> actualRanges;
     const auto handler = [&actualRanges, &loop](const QString &symbol,
-            const ClangBackEnd::SourceLocationsContainer &container, int) {
-        for (const ClangBackEnd::SourceLocationContainer &c
-             : container.m_sourceLocationContainers) {
-            actualRanges << Range(c.line, c.column, symbol.length());
-        }
+            const Utils::Links &links, int) {
+        for (const Utils::Link &link : links)
+            actualRanges << Range(link.targetLine, link.targetColumn, symbol.length());
         loop.quit();
     };
 

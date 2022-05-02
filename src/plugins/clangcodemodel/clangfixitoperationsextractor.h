@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include <texteditor/quickfix.h>
+#include "clangutils.h"
 
-#include <clangsupport/diagnosticcontainer.h>
+#include <texteditor/quickfix.h>
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -35,19 +35,19 @@ namespace Internal {
 class ClangFixItOperationsExtractor
 {
 public:
-    ClangFixItOperationsExtractor(const QVector<ClangBackEnd::DiagnosticContainer> &diagnosticContainers);
+    ClangFixItOperationsExtractor(const QList<ClangDiagnostic> &diagnosticContainers);
 
     TextEditor::QuickFixOperations extract(const QString &filePath, int line);
 
 private:
-    void extractFromDiagnostic(const ClangBackEnd::DiagnosticContainer &diagnosticContainer,
+    void extractFromDiagnostic(const ClangDiagnostic &diagnostic,
                                const QString &filePath,
                                int line);
     void appendFixitOperation(const QString &diagnosticText,
-                              const QVector<ClangBackEnd::FixItContainer> &fixits);
+                              const QList<ClangFixIt> &fixits);
 
 private:
-    const QVector<ClangBackEnd::DiagnosticContainer> &diagnosticContainers;
+    const QList<ClangDiagnostic> &diagnostics;
     TextEditor::QuickFixOperations operations;
 };
 

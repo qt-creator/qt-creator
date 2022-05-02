@@ -6,7 +6,6 @@ QtcPlugin {
     Depends { name: "Qt.widgets" }
     Depends { condition: project.withAutotests; name: "Qt.testlib" }
 
-    Depends { name: "ClangSupport" }
     Depends { name: "CPlusPlus" }
     Depends { name: "Utils" }
 

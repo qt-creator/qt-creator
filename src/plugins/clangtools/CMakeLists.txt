@@ -1,11 +1,17 @@
 find_package(yaml-cpp QUIET MODULE)
 
+set(CLANG_VERSION ${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR}.${LLVM_VERSION_PATCH})
+
 add_qtc_plugin(ClangTools
   CONDITION TARGET yaml-cpp
   DEPENDS ClangSupport yaml-cpp
   PLUGIN_DEPENDS Core Debugger CppEditor
   PLUGIN_RECOMMENDS CppEditor
   PLUGIN_TEST_DEPENDS QmakeProjectManager QbsProjectManager
+  DEFINES
+    CLANG_VERSION="${CLANG_VERSION}"
+    CLANG_INCLUDE_DIR="${LLVM_LIBRARY_DIR}/clang/${CLANG_VERSION}/include"
+    CLANG_BINDIR="${LLVM_TOOLS_BINARY_DIR}"
   INCLUDES ${CLANG_INCLUDE_DIRS}
   SOURCES
     clangfileinfo.h

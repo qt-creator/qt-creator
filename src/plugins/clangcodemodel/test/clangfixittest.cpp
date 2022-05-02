@@ -27,14 +27,11 @@
 
 #include "../clangfixitoperation.h"
 
-#include <clangsupport/fixitcontainer.h>
 #include <utils/changeset.h>
 
 #include <QFile>
 #include <QtTest>
 #include <QVector>
-
-using ClangBackEnd::FixItContainer;
 
 namespace ClangCodeModel::Internal::Tests {
 
@@ -52,14 +49,14 @@ void ClangFixItTest::testDescription()
              QLatin1String("Apply Fix: expected ';' at end of declaration"));
 }
 
-QString ClangFixItTest::semicolonFilePath() const
+Utils::FilePath ClangFixItTest::semicolonFilePath() const
 {
-    return m_dataDir->absolutePath("diagnostic_semicolon_fixit.cpp");
+    return Utils::FilePath::fromString(m_dataDir->absolutePath("diagnostic_semicolon_fixit.cpp"));
 }
 
-QString ClangFixItTest::compareFilePath() const
+Utils::FilePath ClangFixItTest::compareFilePath() const
 {
-    return m_dataDir->absolutePath("diagnostic_comparison_fixit.cpp");
+    return Utils::FilePath::fromString(m_dataDir->absolutePath("diagnostic_comparison_fixit.cpp"));
 }
 
 QString ClangFixItTest::fileContent(const QByteArray &relFilePath) const
@@ -71,10 +68,9 @@ QString ClangFixItTest::fileContent(const QByteArray &relFilePath) const
     return QString::fromUtf8(file.readAll());
 }
 
-FixItContainer ClangFixItTest::semicolonFixIt() const
+ClangFixIt ClangFixItTest::semicolonFixIt() const
 {
-    return {Utf8StringLiteral(";"), {{semicolonFilePath(), 3u, 13u},
-                                     {semicolonFilePath(), 3u, 13u}}};
+    return {";", {{semicolonFilePath(), 3u, 12u}, {semicolonFilePath(), 3u, 12u}}};
 }
 
 void ClangFixItTest::init()
@@ -92,8 +88,8 @@ void ClangFixItTest::testAppendSemicolon()
 
 void ClangFixItTest::testComparisonVersusAssignmentChooseComparison()
 {
-    const FixItContainer compareFixIt{Utf8StringLiteral("=="), {{compareFilePath(), 4u, 11u},
-                                                                {compareFilePath(), 4u, 12u}}};
+    const ClangFixIt compareFixIt{"==", {{compareFilePath(), 4u, 10u},
+            {compareFilePath(), 4u, 11u}}};
     ClangFixItOperation operation(diagnosticText(), {compareFixIt});
     operation.perform();
     QCOMPARE(operation.firstRefactoringFileContent_forTestOnly(),
@@ -102,10 +98,10 @@ void ClangFixItTest::testComparisonVersusAssignmentChooseComparison()
 
 void ClangFixItTest::testComparisonVersusAssignmentChooseParentheses()
 {
-    const FixItContainer assignmentFixItParenLeft{Utf8StringLiteral("("),
-        {{compareFilePath(), 4u, 9u}, {compareFilePath(), 4u, 9u}}};
-    const FixItContainer assignmentFixItParenRight{Utf8StringLiteral(")"),
-        {{compareFilePath(), 4u, 14u}, {compareFilePath(), 4u, 14u}}};
+    const ClangFixIt assignmentFixItParenLeft{"(", {{compareFilePath(), 4u, 8u},
+            {compareFilePath(), 4u, 8u}}};
+    const ClangFixIt assignmentFixItParenRight{")", {{compareFilePath(), 4u, 13u},
+            {compareFilePath(), 4u, 13u}}};
     ClangFixItOperation operation(diagnosticText(), {assignmentFixItParenLeft,
                                                      assignmentFixItParenRight});
     operation.perform();
