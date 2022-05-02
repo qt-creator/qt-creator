@@ -25,7 +25,6 @@
 
 #include "cppminimizableinfobars.h"
 
-#include "cppeditorconstants.h"
 #include "cpptoolssettings.h"
 
 #include <QToolButton>
@@ -33,6 +32,8 @@
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
+
+const char NO_PROJECT_CONFIGURATION[] = "CppEditor.NoProjectConfiguration";
 
 using namespace Utils;
 
@@ -57,8 +58,7 @@ void MinimizableInfoBars::createActions()
     action->setIcon(Icons::WARNING_TOOLBAR.pixmap());
     connect(action, &QAction::triggered, []() { settings()->setShowNoProjectInfoBar(true); });
     action->setVisible(!settings()->showNoProjectInfoBar());
-    m_actions.insert(Constants::NO_PROJECT_CONFIGURATION, action);
-
+    m_actions.insert(NO_PROJECT_CONFIGURATION, action);
 }
 
 void MinimizableInfoBars::createShowInfoBarActions(const ActionCreator &actionCreator) const
@@ -84,7 +84,7 @@ void MinimizableInfoBars::processHasProjectPart(bool hasProjectPart)
 
 void MinimizableInfoBars::updateNoProjectConfiguration()
 {
-    const Id id(Constants::NO_PROJECT_CONFIGURATION);
+    const Id id(NO_PROJECT_CONFIGURATION);
     m_infoBar.removeInfo(id);
 
     bool show = false;
