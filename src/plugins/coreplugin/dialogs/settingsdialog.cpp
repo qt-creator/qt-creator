@@ -170,7 +170,7 @@ void CategoryModel::setPages(const QList<IOptionsPage*> &pages,
     m_pageIds.clear();
 
     // Put the pages in categories
-    foreach (IOptionsPage *page, pages) {
+    for (IOptionsPage *page : pages) {
         QTC_ASSERT(!m_pageIds.contains(page->id()),
                    qWarning("duplicate options page id '%s'", qPrintable(page->id().toString())));
         m_pageIds.insert(page->id());
@@ -190,7 +190,7 @@ void CategoryModel::setPages(const QList<IOptionsPage*> &pages,
         category->pages.append(page);
     }
 
-    foreach (IOptionsPageProvider *provider, providers) {
+    for (IOptionsPageProvider *provider : providers) {
         const Id categoryId = provider->category();
         Category *category = findCategoryById(categoryId);
         if (!category) {
@@ -217,11 +217,11 @@ void CategoryModel::ensurePages(Category *category)
 {
     if (!category->providerPagesCreated) {
         QList<IOptionsPage *> createdPages;
-        foreach (const IOptionsPageProvider *provider, category->providers)
+        for (const IOptionsPageProvider *provider : qAsConst(category->providers))
             createdPages += provider->pages();
 
         // check for duplicate ids
-        foreach (IOptionsPage *page, createdPages) {
+        for (const IOptionsPage *page : qAsConst(createdPages)) {
             QTC_ASSERT(!m_pageIds.contains(page->id()),
                        qWarning("duplicate options page id '%s'", qPrintable(page->id().toString())));
         }
@@ -702,9 +702,9 @@ void SettingsDialog::accept()
     m_finished = true;
     disconnectTabWidgets();
     m_applied = true;
-    foreach (IOptionsPage *page, m_visitedPages)
+    for (IOptionsPage *page : qAsConst(m_visitedPages))
         page->apply();
-    foreach (IOptionsPage *page, m_pages)
+    for (IOptionsPage *page : qAsConst(m_pages))
         page->finish();
     done(QDialog::Accepted);
 }
@@ -715,14 +715,14 @@ void SettingsDialog::reject()
         return;
     m_finished = true;
     disconnectTabWidgets();
-    foreach (IOptionsPage *page, m_pages)
+    for (IOptionsPage *page : qAsConst(m_pages))
         page->finish();
     done(QDialog::Rejected);
 }
 
 void SettingsDialog::apply()
 {
-    foreach (IOptionsPage *page, m_visitedPages)
+    for (IOptionsPage *page : qAsConst(m_visitedPages))
         page->apply();
     m_applied = true;
 }

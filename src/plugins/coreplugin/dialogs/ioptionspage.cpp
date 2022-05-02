@@ -270,18 +270,18 @@ bool IOptionsPage::matches(const QRegularExpression &regexp) const
         if (!widget)
             return false;
         // find common subwidgets
-        foreach (const QLabel *label, widget->findChildren<QLabel *>())
+        for (const QLabel *label : widget->findChildren<QLabel *>())
             m_keywords << Utils::stripAccelerator(label->text());
-        foreach (const QCheckBox *checkbox, widget->findChildren<QCheckBox *>())
+        for (const QCheckBox *checkbox : widget->findChildren<QCheckBox *>())
             m_keywords << Utils::stripAccelerator(checkbox->text());
-        foreach (const QPushButton *pushButton, widget->findChildren<QPushButton *>())
+        for (const QPushButton *pushButton : widget->findChildren<QPushButton *>())
             m_keywords << Utils::stripAccelerator(pushButton->text());
-        foreach (const QGroupBox *groupBox, widget->findChildren<QGroupBox *>())
+        for (const QGroupBox *groupBox : widget->findChildren<QGroupBox *>())
             m_keywords << Utils::stripAccelerator(groupBox->title());
 
         m_keywordsInitialized = true;
     }
-    foreach (const QString &keyword, m_keywords)
+    for (const QString &keyword : qAsConst(m_keywords))
         if (keyword.contains(regexp))
             return true;
     return false;

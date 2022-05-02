@@ -101,7 +101,8 @@ public:
         QTC_ASSERT(QDir::fromNativeSeparators(dir) == dir, return);
 
         const QString dirSlash = dir + QLatin1Char('/');
-        foreach (const QString &key, m_cachedMatches.keys()) {
+        const QList<QString> keys = m_cachedMatches.keys();
+        for (const QString &key : keys) {
             if (key == dir || key.startsWith(dirSlash))
                 m_cachedMatches.remove(key);
         }
@@ -172,7 +173,8 @@ VcsManager *VcsManager::instance()
 void VcsManager::extensionsInitialized()
 {
     // Change signal connections
-    foreach (IVersionControl *versionControl, versionControls()) {
+    const QList<IVersionControl *> versionControlList = versionControls();
+    for (const IVersionControl *versionControl : versionControlList) {
         connect(versionControl, &IVersionControl::filesChanged, DocumentManager::instance(),
                 [](const QStringList fileNames) {
                     DocumentManager::notifyFilesChangedInternally(
@@ -240,7 +242,8 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
     // Nothing: ask the IVersionControls directly.
     StringVersionControlPairs allThatCanManage;
 
-    foreach (IVersionControl * versionControl, versionControls()) {
+    const QList<IVersionControl *> versionControlList = versionControls();
+    for (IVersionControl *versionControl : versionControlList) {
         FilePath topLevel;
         if (versionControl->managesDirectory(FilePath::fromString(directory), &topLevel))
             allThatCanManage.push_back(StringVersionControlPair(topLevel.toString(), versionControl));
@@ -465,9 +468,9 @@ void VcsManager::emitRepositoryChanged(const FilePath &repository)
 
 void VcsManager::clearVersionControlCache()
 {
-    QStringList repoList = d->m_cachedMatches.keys();
+    const QStringList repoList = d->m_cachedMatches.keys();
     d->clearCache();
-    foreach (const QString &repo, repoList)
+    for (const QString &repo : repoList)
         emit m_instance->repositoryChanged(FilePath::fromString(repo));
 }
 
@@ -589,7 +592,7 @@ void CorePlugin::testVcsManager()
 
     // From VCSes:
     int expectedCount = 0;
-    foreach (const QString &result, results) {
+    for (const QString &result : qAsConst(results)) {
         // qDebug() << "Expecting:" << result;
 
         QStringList split = result.split(QLatin1Char(':'));

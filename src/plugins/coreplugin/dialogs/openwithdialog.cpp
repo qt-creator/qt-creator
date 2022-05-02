@@ -58,7 +58,7 @@ void OpenWithDialog::setOkButtonEnabled(bool v)
 
 void OpenWithDialog::setEditors(const QStringList &editors)
 {
-    foreach (const QString &e, editors)
+    for (const QString &e : editors)
         editorListWidget->addItem(e);
 }
 

@@ -332,7 +332,7 @@ QWidget *ShortcutSettings::widget()
 
 void ShortcutSettingsWidget::apply()
 {
-    foreach (ShortcutItem *item, m_scitems)
+    for (const ShortcutItem *item : qAsConst(m_scitems))
         item->m_cmd->setKeySequences(item->m_keys);
 }
 
@@ -520,7 +520,7 @@ void ShortcutSettingsWidget::importAction()
 
 void ShortcutSettingsWidget::defaultAction()
 {
-    foreach (ShortcutItem *item, m_scitems) {
+    for (ShortcutItem *item : qAsConst(m_scitems)) {
         item->m_keys = item->m_cmd->defaultKeySequences();
         item->m_item->setText(2, keySequencesToNativeString(item->m_keys));
         setModified(item->m_item, false);
@@ -557,7 +557,8 @@ void ShortcutSettingsWidget::initialize()
     clear();
     QMap<QString, QTreeWidgetItem *> sections;
 
-    foreach (Command *c, ActionManager::commands()) {
+    const QList<Command *> commands = ActionManager::commands();
+    for (Command *c : commands) {
         if (c->hasAttribute(Command::CA_NonConfigurable))
             continue;
         if (c->action() && c->action()->isSeparator())

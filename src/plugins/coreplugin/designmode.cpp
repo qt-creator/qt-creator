@@ -160,8 +160,8 @@ void DesignMode::currentEditorChanged(IEditor *editor)
     if (editor) {
         const QString mimeType = editor->document()->mimeType();
         if (!mimeType.isEmpty()) {
-            foreach (DesignEditorInfo *editorInfo, d->m_editors) {
-                foreach (const QString &mime, editorInfo->mimeTypes) {
+            for (const DesignEditorInfo *editorInfo : qAsConst(d->m_editors)) {
+                for (const QString &mime : editorInfo->mimeTypes) {
                     if (mime == mimeType) {
                         d->m_stackWidget->setCurrentIndex(editorInfo->widgetIndex);
                         setActiveContext(editorInfo->context);
@@ -169,10 +169,10 @@ void DesignMode::currentEditorChanged(IEditor *editor)
                         setEnabled(true);
                         break;
                     }
-                } // foreach mime
+                }
                 if (mimeEditorAvailable)
                     break;
-            } // foreach editorInfo
+            }
         }
     }
     if (d->m_currentEditor)

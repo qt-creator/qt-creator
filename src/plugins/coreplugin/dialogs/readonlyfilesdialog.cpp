@@ -124,7 +124,7 @@ ReadOnlyFilesDialogPrivate::ReadOnlyFilesDialogPrivate(ReadOnlyFilesDialog *pare
 
 ReadOnlyFilesDialogPrivate::~ReadOnlyFilesDialogPrivate()
 {
-    foreach (const ButtonGroupForFile &groupForFile, buttonGroups)
+    for (const ButtonGroupForFile &groupForFile : qAsConst(buttonGroups))
         delete groupForFile.group;
 }
 
@@ -371,8 +371,9 @@ void ReadOnlyFilesDialogPrivate::setAll(int index)
         type = SaveAs;
 
     // Check for every file if the selected operation is available and change it to the operation.
-    foreach (ReadOnlyFilesDialogPrivate::ButtonGroupForFile groupForFile, buttonGroups) {
-        auto radioButton = qobject_cast<QRadioButton*> (groupForFile.group->button(type));
+    for (const ReadOnlyFilesDialogPrivate::ButtonGroupForFile &groupForFile :
+         qAsConst(buttonGroups)) {
+        auto radioButton = qobject_cast<QRadioButton *>(groupForFile.group->button(type));
         if (radioButton)
             radioButton->setChecked(true);
     }
@@ -386,7 +387,8 @@ void ReadOnlyFilesDialogPrivate::setAll(int index)
 void ReadOnlyFilesDialogPrivate::updateSelectAll()
 {
     int selectedOperation = -1;
-    foreach (ReadOnlyFilesDialogPrivate::ButtonGroupForFile groupForFile, buttonGroups) {
+    for (const ReadOnlyFilesDialogPrivate::ButtonGroupForFile &groupForFile :
+         qAsConst(buttonGroups)) {
         if (selectedOperation == -1) {
             selectedOperation = groupForFile.group->checkedId();
         } else if (selectedOperation != groupForFile.group->checkedId()) {

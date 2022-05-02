@@ -201,7 +201,7 @@ static void addThemesFromPath(const QString &path, QList<ThemeEntry> *themes)
     themeDir.setNameFilters({extension});
     themeDir.setFilter(QDir::Files);
     const QStringList themeList = themeDir.entryList();
-    foreach (const QString &fileName, themeList) {
+    for (const QString &fileName : qAsConst(themeList)) {
         QString id = QFileInfo(fileName).completeBaseName();
         themes->append(ThemeEntry(Id::fromString(id), themeDir.absoluteFilePath(fileName)));
     }

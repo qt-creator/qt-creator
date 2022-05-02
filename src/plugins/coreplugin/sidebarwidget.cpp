@@ -90,7 +90,7 @@ SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &id)
     Utils::sort(titleList);
     QString t = id;
     if (!titleList.isEmpty()) {
-        foreach (const QString &itemTitle, titleList)
+        for (const QString &itemTitle : qAsConst(titleList))
             m_comboBox->addItem(itemTitle, m_sideBar->idForTitle(itemTitle));
 
         m_comboBox->setCurrentIndex(0);
@@ -139,7 +139,8 @@ void SideBarWidget::setCurrentItem(const QString &id)
     m_currentItem->widget()->show();
 
     // Add buttons and remember their actions for later removal
-    foreach (QToolButton *b, m_currentItem->createToolBarWidgets())
+    QList<QToolButton *> buttons = m_currentItem->createToolBarWidgets();
+    for (QToolButton *b : buttons)
         m_addedToolBarActions.append(m_toolbar->insertWidget(m_splitAction, b));
 }
 
@@ -153,7 +154,7 @@ void SideBarWidget::updateAvailableItems()
         titleList.append(currentTitle);
     Utils::sort(titleList);
 
-    foreach (const QString &itemTitle, titleList)
+    for (const QString &itemTitle : qAsConst(titleList))
         m_comboBox->addItem(itemTitle, m_sideBar->idForTitle(itemTitle));
 
     int idx = m_comboBox->findText(currentTitle);

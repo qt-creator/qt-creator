@@ -164,7 +164,8 @@ void StatusBarManager::restoreSettings()
         leftSplitWidth = m_splitter->widget(0)->sizeHint().width();
     }
     int sum = 0;
-    foreach (int w, m_splitter->sizes())
+    const QList<int> sizes = m_splitter->sizes();
+    for (const int w : sizes)
         sum += w;
     m_splitter->setSizes(QList<int>() << leftSplitWidth << (sum - leftSplitWidth));
 }

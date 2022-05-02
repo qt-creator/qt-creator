@@ -673,7 +673,8 @@ static QString findUnusedId(const QString &proposal, const QMap<QString, QList<E
         ++number;
         found = false;
         for (auto it = tools.cbegin(), end = tools.cend(); it != end; ++it) {
-            foreach (ExternalTool *tool, it.value()) {
+            const QList<ExternalTool *> tools = it.value();
+            for (const ExternalTool *tool : tools) {
                 if (tool->id() == result) {
                     found = true;
                     break;
@@ -695,7 +696,8 @@ void ExternalToolConfig::apply()
     QMap<QString, QList<ExternalTool *> > resultMap;
     for (auto it = newToolsMap.cbegin(), end = newToolsMap.cend(); it != end; ++it) {
         QList<ExternalTool *> items;
-        foreach (ExternalTool *tool, it.value()) {
+        const QList<ExternalTool *> tools = it.value();
+        for (ExternalTool *tool : tools) {
             ExternalTool *toolToAdd = nullptr;
             if (ExternalTool *originalTool = originalTools.take(tool->id())) {
                 // check if it has different category and is custom tool
@@ -752,7 +754,7 @@ void ExternalToolConfig::apply()
             resultMap.insert(it.key(), items);
     }
     // Remove tools that have been deleted from the settings (and are no preset)
-    foreach (ExternalTool *tool, originalTools) {
+    for (const ExternalTool *tool : qAsConst(originalTools)) {
         QTC_ASSERT(!tool->preset(), continue);
         // TODO error handling
         tool->fileName().removeFile();

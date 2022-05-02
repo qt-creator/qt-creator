@@ -82,7 +82,7 @@ void PromptOverwriteDialog::setFiles(const QStringList &l)
 {
     // Format checkable list excluding common path
     const QString nativeCommonPath = QDir::toNativeSeparators(Utils::commonPath(l));
-    foreach (const QString &fileName, l) {
+    for (const QString &fileName : l) {
         const QString nativeFileName = QDir::toNativeSeparators(fileName);
         const int length = nativeFileName.size() - nativeCommonPath.size() - 1;
         QStandardItem *item = new QStandardItem(nativeFileName.right(length));

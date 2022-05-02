@@ -401,7 +401,8 @@ void NewDialogWidget::currentItemChanged(const QModelIndex &index)
     if (const IWizardFactory *wizard = factoryOfItem(cat)) {
         QString desciption = wizard->description();
         QStringList displayNamesForSupportedPlatforms;
-        foreach (Id platform, wizard->supportedPlatforms())
+        const QSet<Id> platforms = wizard->supportedPlatforms();
+        for (const Id platform : platforms)
             displayNamesForSupportedPlatforms << IWizardFactory::displayNameForPlatform(platform);
         Utils::sort(displayNamesForSupportedPlatforms);
         if (!Qt::mightBeRichText(desciption))

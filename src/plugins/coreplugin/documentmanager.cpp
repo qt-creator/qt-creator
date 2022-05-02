@@ -370,7 +370,7 @@ void DocumentManager::addDocuments(const QList<IDocument *> &documents, bool add
     if (!addWatcher) {
         // We keep those in a separate list
 
-        foreach (IDocument *document, documents) {
+        for (IDocument *document : documents) {
             if (document && !d->m_documentsWithoutWatch.contains(document)) {
                 connect(document, &QObject::destroyed,
                         m_instance, &DocumentManager::documentDestroyed);
@@ -406,7 +406,8 @@ static void removeFileInfo(IDocument *document)
     QTC_ASSERT(isMainThread(), return);
     if (!d->m_documentsWithWatch.contains(document))
         return;
-    foreach (const FilePath &filePath, d->m_documentsWithWatch.value(document)) {
+    const FilePaths filePaths = d->m_documentsWithWatch.value(document);
+    for (const FilePath &filePath : filePaths) {
         if (!d->m_states.contains(filePath))
             continue;
         qCDebug(log) << "removing document (" << filePath << ")";
@@ -599,7 +600,7 @@ QList<IDocument *> DocumentManager::modifiedDocuments()
             modified << document;
     }
 
-    foreach (IDocument *document, d->m_documentsWithoutWatch) {
+    for (IDocument *document : qAsConst(d->m_documentsWithoutWatch)) {
         if (document->isModified())
             modified << document;
     }
@@ -665,7 +666,7 @@ static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
     QHash<IDocument *, QString> modifiedDocumentsMap;
     QList<IDocument *> modifiedDocuments;
 
-    foreach (IDocument *document, documents) {
+    for (IDocument *document : documents) {
         if (document && document->isModified() && !document->isTemporary()) {
             QString name = document->filePath().toString();
             if (name.isEmpty())
@@ -709,7 +710,7 @@ static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
         }
         // Check for files without write permissions.
         QList<IDocument *> roDocuments;
-        foreach (IDocument *document, documentsToSave) {
+        for (IDocument *document : qAsConst(documentsToSave)) {
             if (document->isFileReadOnly())
                 roDocuments << document;
         }
@@ -726,7 +727,7 @@ static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
                 return false;
             }
         }
-        foreach (IDocument *document, documentsToSave) {
+        for (IDocument *document : qAsConst(documentsToSave)) {
             if (!EditorManagerPrivate::saveDocument(document)) {
                 if (cancelled)
                     *cancelled = true;
@@ -1114,7 +1115,7 @@ void DocumentManager::checkForReload()
     QMap<FilePath, FileStateItem> currentStates;
     QMap<FilePath, IDocument::ChangeType> changeTypes;
     QSet<IDocument *> changedIDocuments;
-    foreach (const FilePath &filePath, d->m_changedFiles) {
+    for (const FilePath &filePath : qAsConst(d->m_changedFiles)) {
         const FilePath fileKey = filePathKey(filePath, KeepLinks);
         qCDebug(log) << "handling file change for" << filePath << "(" << fileKey << ")";
         IDocument::ChangeType type = IDocument::TypeContents;
@@ -1130,7 +1131,8 @@ void DocumentManager::checkForReload()
         }
         currentStates.insert(fileKey, state);
         changeTypes.insert(fileKey, type);
-        foreach (IDocument *document, d->m_states.value(fileKey).lastUpdatedState.keys())
+        QList<IDocument *> documents = d->m_states.value(fileKey).lastUpdatedState.keys();
+        for (IDocument *document : documents)
             changedIDocuments.insert(document);
     }
 
@@ -1144,7 +1146,7 @@ void DocumentManager::checkForReload()
     // if the resolved names are different when unexpectFileChange is called
     // we would end up with never-unexpected file names
     QSet<FilePath> expectedFileKeys;
-    foreach (const FilePath &filePath, d->m_expectedFileNames) {
+    for (const FilePath &filePath : qAsConst(d->m_expectedFileNames)) {
         const FilePath cleanAbsFilePath = filePathKey(filePath, KeepLinks);
         expectedFileKeys.insert(filePathKey(filePath, KeepLinks));
         const FilePath resolvedCleanAbsFilePath = cleanAbsFilePath.canonicalPath();
@@ -1155,14 +1157,15 @@ void DocumentManager::checkForReload()
     // handle the IDocuments
     QStringList errorStrings;
     QStringList filesToDiff;
-    foreach (IDocument *document, changedIDocuments) {
+    for (IDocument *document : qAsConst(changedIDocuments)) {
         IDocument::ChangeTrigger trigger = IDocument::TriggerInternal;
         optional<IDocument::ChangeType> type;
         bool changed = false;
         // find out the type & behavior from the two possible files
         // behavior is internal if all changes are expected (and none removed)
         // type is "max" of both types (remove > contents > permissions)
-        foreach (const FilePath &fileKey, d->m_documentsWithWatch.value(document)) {
+        const FilePaths files = d->m_documentsWithWatch.value(document);
+        for (const FilePath &fileKey : files) {
             // was the file reported?
             if (!currentStates.contains(fileKey))
                 continue;
@@ -1379,7 +1382,7 @@ void DocumentManager::saveSettings()
 {
     QVariantList recentFiles;
     QStringList recentEditorIds;
-    foreach (const RecentFile &file, d->m_recentFiles) {
+    for (const RecentFile &file : qAsConst(d->m_recentFiles)) {
         recentFiles.append(file.first.toVariant());
         recentEditorIds.append(file.second.toString());
     }

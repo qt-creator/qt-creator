@@ -65,7 +65,7 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
 
     m_ui.saveBeforeBuildCheckBox->setVisible(false);
 
-    foreach (IDocument *document, items) {
+    for (IDocument *document : qAsConst(items)) {
         QString visibleName;
         QString directory;
         Utils::FilePath filePath = document->filePath();
@@ -135,7 +135,7 @@ void SaveItemsDialog::adjustButtonWidths()
         possibleTexts << tr("Save Selected");
     int maxTextWidth = 0;
     QPushButton *saveButton = m_ui.buttonBox->button(QDialogButtonBox::Save);
-    foreach (const QString &text, possibleTexts) {
+    for (const QString &text : qAsConst(possibleTexts)) {
         saveButton->setText(text);
         int hint = saveButton->sizeHint().width();
         if (hint > maxTextWidth)
@@ -154,7 +154,8 @@ void SaveItemsDialog::adjustButtonWidths()
 void SaveItemsDialog::collectItemsToSave()
 {
     m_itemsToSave.clear();
-    foreach (QTreeWidgetItem *item, m_ui.treeWidget->selectedItems()) {
+    const QList<QTreeWidgetItem *> items = m_ui.treeWidget->selectedItems();
+    for (const QTreeWidgetItem *item : items) {
         m_itemsToSave.append(item->data(0, Qt::UserRole).value<IDocument*>());
     }
     accept();
@@ -163,7 +164,8 @@ void SaveItemsDialog::collectItemsToSave()
 void SaveItemsDialog::collectFilesToDiff()
 {
     m_filesToDiff.clear();
-    foreach (QTreeWidgetItem *item, m_ui.treeWidget->selectedItems()) {
+    const QList<QTreeWidgetItem *> items = m_ui.treeWidget->selectedItems();
+    for (const QTreeWidgetItem *item : items) {
         if (auto doc = item->data(0, Qt::UserRole).value<IDocument*>())
             m_filesToDiff.append(doc->filePath().toString());
     }
