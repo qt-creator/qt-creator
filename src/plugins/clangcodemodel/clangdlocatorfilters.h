@@ -66,6 +66,8 @@ public:
     ClangdCurrentDocumentFilter();
     ~ClangdCurrentDocumentFilter() override;
 
+    void updateCurrentClient();
+
 private:
     void prepareSearch(const QString &entry) override;
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,

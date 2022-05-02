@@ -27,6 +27,7 @@
 
 #include "clangcompletioncontextanalyzer.h"
 #include "clangconstants.h"
+#include "clangdlocatorfilters.h"
 #include "clangdqpropertyhighlighter.h"
 #include "clangmodelmanagersupport.h"
 #include "clangpreprocessorassistproposalitem.h"
@@ -1558,6 +1559,9 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     });
 
     connect(this, &Client::initialized, this, [this] {
+        auto currentDocumentFilter = static_cast<ClangdCurrentDocumentFilter *>(
+            CppEditor::CppModelManager::instance()->currentDocumentFilter());
+        currentDocumentFilter->updateCurrentClient();
         // If we get this signal while there are pending searches, it means that
         // the client was re-initialized, i.e. clangd crashed.
 

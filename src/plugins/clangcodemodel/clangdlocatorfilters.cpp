@@ -287,6 +287,11 @@ ClangdCurrentDocumentFilter::ClangdCurrentDocumentFilter() : d(new Private)
 
 ClangdCurrentDocumentFilter::~ClangdCurrentDocumentFilter() { delete d; }
 
+void ClangdCurrentDocumentFilter::updateCurrentClient()
+{
+    d->lspFilter.updateCurrentClient();
+}
+
 void ClangdCurrentDocumentFilter::prepareSearch(const QString &entry)
 {
     const auto doc = TextEditor::TextDocument::currentTextDocument();
