@@ -206,7 +206,6 @@ Project {
                 "clangdocumentprocessor-test.cpp",
                 "clangdocumentprocessors-test.cpp",
                 "clangdocuments-test.cpp",
-                "clangfixitoperation-test.cpp",
                 "clangfollowsymbol-test.cpp",
                 "clangjobqueue-test.cpp",
                 "clangjobs-test.cpp",
@@ -391,8 +390,6 @@ Project {
             files: [
                 "clangactivationsequenceprocessor.cpp",
                 "clangactivationsequenceprocessor.h",
-                "clangfixitoperation.cpp",
-                "clangfixitoperation.h",
                 "clanguiheaderondiskmanager.cpp",
                 "clanguiheaderondiskmanager.h",
             ]

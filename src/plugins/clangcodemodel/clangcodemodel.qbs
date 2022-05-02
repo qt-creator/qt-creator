@@ -101,6 +101,8 @@ QtcPlugin {
             "clangbatchfileprocessor.h",
             "clangdtests.cpp",
             "clangdtests.h",
+            "clangfixittest.cpp",
+            "clangfixittest.h",
             "data/clangtestdata.qrc",
         ]
     }

@@ -32,6 +32,7 @@
 #ifdef WITH_TESTS
 #  include "test/clangbatchfileprocessor.h"
 #  include "test/clangdtests.h"
+#  include "test/clangfixittest.h"
 #endif
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -215,6 +216,7 @@ QVector<QObject *> ClangCodeModelPlugin::createTestObjects() const
         new Tests::ClangdTestHighlighting,
         new Tests::ClangdTestLocalReferences,
         new Tests::ClangdTestTooltips,
+        new Tests::ClangFixItTest,
     };
 }
 #endif

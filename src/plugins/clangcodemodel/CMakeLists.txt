@@ -47,6 +47,7 @@ extend_qtc_plugin(ClangCodeModel
   SOURCES
     test/clangbatchfileprocessor.cpp test/clangbatchfileprocessor.h
     test/clangdtests.cpp test/clangdtests.h
+    test/clangfixittest.cpp test/clangfixittest.h
     test/data/clangtestdata.qrc
 )
 

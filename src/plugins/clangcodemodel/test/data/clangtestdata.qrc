@@ -55,5 +55,10 @@
         <file>completion/preprocessorKeywordsCompletion3.cpp</file>
         <file>completion/privateFuncDefCompletion.cpp</file>
         <file>highlighting/highlightingmarks.h</file>
+        <file>fixits/diagnostic_comparison_fixit_expected1.cpp</file>
+        <file>fixits/diagnostic_comparison_fixit_expected2.cpp</file>
+        <file>fixits/diagnostic_comparison_fixit.cpp</file>
+        <file>fixits/diagnostic_semicolon_fixit_expected.cpp</file>
+        <file>fixits/diagnostic_semicolon_fixit.cpp</file>
     </qresource>
 </RCC>

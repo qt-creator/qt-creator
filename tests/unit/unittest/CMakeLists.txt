@@ -185,7 +185,6 @@ extend_qtc_test(unittest
     clangdocuments-test.cpp
     clangdocumentsuspenderresumer-test.cpp
     clangdocument-test.cpp
-    clangfixitoperation-test.cpp
     clangfollowsymbol-test.cpp
     clangjobqueue-test.cpp
     clangjobs-test.cpp
@@ -413,7 +412,6 @@ extend_qtc_test(unittest
   SOURCES_PREFIX ../../../src/plugins/clangcodemodel
   SOURCES
     clangactivationsequenceprocessor.cpp clangactivationsequenceprocessor.h
-    clangfixitoperation.cpp clangfixitoperation.h
     clanguiheaderondiskmanager.cpp clanguiheaderondiskmanager.h
 )
 
