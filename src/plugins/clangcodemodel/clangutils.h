@@ -51,9 +51,6 @@ namespace ProjectExplorer { class Project; }
 namespace ClangCodeModel {
 namespace Internal {
 
-CppEditor::CppEditorDocumentHandle *cppDocument(const QString &filePath);
-void setLastSentDocumentRevision(const QString &filePath, uint revision);
-
 CppEditor::ClangDiagnosticConfig warningsConfigForProject(ProjectExplorer::Project *project);
 const QStringList optionsForProject(ProjectExplorer::Project *project,
                                     const CppEditor::ClangDiagnosticConfig &warningsConfig);
@@ -72,11 +69,6 @@ QJsonArray clangOptionsForFile(const CppEditor::ProjectFile &file,
                                CppEditor::UsePrecompiledHeaders usePch);
 
 CppEditor::ProjectPart::ConstPtr projectPartForFile(const QString &filePath);
-CppEditor::ProjectPart::ConstPtr projectPartForFileBasedOnProcessor(const QString &filePath);
-bool isProjectPartLoaded(const CppEditor::ProjectPart::ConstPtr projectPart);
-QString projectPartIdForFile(const QString &filePath);
-int clangColumn(const QTextBlock &line, int cppEditorColumn);
-int cppEditorColumn(const QTextBlock &line, int clangColumn);
 
 QString currentCppEditorDocumentFilePath();
 
@@ -234,7 +226,6 @@ inline bool operator!=(const ClangDiagnostic &first, const ClangDiagnostic &seco
 {
     return !(first == second);
 }
-
 
 } // namespace Internal
 } // namespace Clang

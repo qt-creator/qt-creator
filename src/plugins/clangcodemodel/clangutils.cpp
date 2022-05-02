@@ -72,60 +72,6 @@ ProjectPart::ConstPtr projectPartForFile(const QString &filePath)
     return ProjectPart::ConstPtr();
 }
 
-ProjectPart::ConstPtr projectPartForFileBasedOnProcessor(const QString &filePath)
-{
-    if (const auto processor = ClangEditorDocumentProcessor::get(filePath))
-        return processor->projectPart();
-    return ProjectPart::ConstPtr();
-}
-
-bool isProjectPartLoaded(const ProjectPart::ConstPtr projectPart)
-{
-    if (projectPart)
-        return !CppModelManager::instance()->projectPartForId(projectPart->id()).isNull();
-    return false;
-}
-
-QString projectPartIdForFile(const QString &filePath)
-{
-    const ProjectPart::ConstPtr projectPart = projectPartForFile(filePath);
-
-    if (isProjectPartLoaded(projectPart))
-        return projectPart->id(); // OK, Project Part is still loaded
-    return QString();
-}
-
-CppEditorDocumentHandle *cppDocument(const QString &filePath)
-{
-    return CppEditor::CppModelManager::instance()->cppEditorDocument(filePath);
-}
-
-void setLastSentDocumentRevision(const QString &filePath, uint revision)
-{
-    if (CppEditorDocumentHandle *document = cppDocument(filePath))
-        document->sendTracker().setLastSentRevision(int(revision));
-}
-
-int clangColumn(const QTextBlock &line, int cppEditorColumn)
-{
-    // (1) cppEditorColumn is the actual column shown by CppEditor.
-    // (2) The return value is the column in Clang which is the utf8 byte offset from the beginning
-    //     of the line.
-    // Here we convert column from (1) to (2).
-    // '- 1' and '+ 1' are because of 1-based columns
-    return line.text().left(cppEditorColumn - 1).toUtf8().size() + 1;
-}
-
-int cppEditorColumn(const QTextBlock &line, int clangColumn)
-{
-    // (1) clangColumn is the column in Clang which is the utf8 byte offset from the beginning
-    //     of the line.
-    // (2) The return value is the actual column shown by CppEditor.
-    // Here we convert column from (1) to (2).
-    // '- 1' and '+ 1' are because of 1-based columns
-    return QString::fromUtf8(line.text().toUtf8().left(clangColumn - 1)).size() + 1;
-}
-
 QString diagnosticCategoryPrefixRemoved(const QString &text)
 {
     QString theText = text;
