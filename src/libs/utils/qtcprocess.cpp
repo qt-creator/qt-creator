@@ -1783,14 +1783,6 @@ static bool isGuiThread()
 
 void QtcProcess::runBlocking(EventLoopMode eventLoopMode)
 {
-    // FIXME: Implement properly
-
-    if (d->m_setup.m_commandLine.executable().needsDevice()) {
-        QtcProcess::start();
-        waitForFinished();
-        return;
-    };
-
     if (processLog().isDebugEnabled()) {
         // Attach a dynamic property with info about blocking type
         setProperty(QTC_PROCESS_BLOCKING_TYPE, int(eventLoopMode));
