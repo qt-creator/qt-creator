@@ -315,10 +315,6 @@ void tst_Ssh::sftp()
     SshConnection connection(params);
     QVERIFY(waitForConnection(connection));
 
-    const SshConnectionInfo connInfo = connection.connectionInfo();
-    QVERIFY(connInfo.isValid());
-    QCOMPARE(connInfo.peerPort, params.port());
-
     // Create and upload 1000 small files and one big file
     QTemporaryDir dirForFilesToUpload;
     QTemporaryDir dirForFilesToDownload;

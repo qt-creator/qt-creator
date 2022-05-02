@@ -96,7 +96,6 @@ public:
     void disconnectFromHost();
 
     QProcess::ProcessState state() const;
-    SshConnectionInfo connectionInfo() const;
     QString socketFilePath() const
     {
         QTC_ASSERT(m_masterSocketDir, return QString());
@@ -122,7 +121,6 @@ private:
     { return connectionOptions(binary) << m_sshParameters.host(); }
 
     const SshConnectionParameters m_sshParameters;
-    mutable SshConnectionInfo m_connInfo;
     std::unique_ptr<QtcProcess> m_masterProcess;
     std::unique_ptr<QTemporaryDir> m_masterSocketDir;
     QTimer m_timer;
@@ -238,38 +236,6 @@ void SshSharedConnection::disconnectFromHost()
 QProcess::ProcessState SshSharedConnection::state() const
 {
     return m_state;
-}
-
-SshConnectionInfo SshSharedConnection::connectionInfo() const
-{
-    QTC_ASSERT(state() == QProcess::Running, return SshConnectionInfo());
-    if (m_connInfo.isValid())
-        return m_connInfo;
-    QtcProcess p;
-    const FilePath sshFilePath = SshSettings::sshFilePath();
-    p.setCommand({sshFilePath, connectionArgs(sshFilePath) << "echo" << "-n" << "$SSH_CLIENT"});
-    p.start();
-    if (!p.waitForStarted() || !p.waitForFinished()) {
-//        qCWarning(Internal::sshLog) << "failed to retrieve connection info:" << p.errorString();
-        return SshConnectionInfo();
-    }
-    const QByteArrayList data = p.readAllStandardOutput().split(' ');
-    if (data.size() != 3) {
-//        qCWarning(Internal::sshLog) << "failed to retrieve connection info: unexpected output";
-        return SshConnectionInfo();
-    }
-    m_connInfo.localPort = data.at(1).toInt();
-    if (m_connInfo.localPort == 0) {
-//        qCWarning(Internal::sshLog) << "failed to retrieve connection info: unexpected output";
-        return SshConnectionInfo();
-    }
-    if (!m_connInfo.localAddress.setAddress(QString::fromLatin1(data.first()))) {
-//        qCWarning(Internal::sshLog) << "failed to retrieve connection info: unexpected output";
-        return SshConnectionInfo();
-    }
-    m_connInfo.peerPort = m_sshParameters.port();
-    m_connInfo.peerAddress.setAddress(m_sshParameters.host());
-    return m_connInfo;
 }
 
 void SshSharedConnection::emitConnected()

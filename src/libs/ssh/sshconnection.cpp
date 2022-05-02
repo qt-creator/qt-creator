@@ -166,7 +166,6 @@ struct SshConnection::SshConnectionPrivate
     }
 
     const SshConnectionParameters connParams;
-    SshConnectionInfo connInfo;
     QtcProcess masterProcess;
     QString errorString;
     std::unique_ptr<QTemporaryDir> masterSocketDir;
@@ -248,38 +247,6 @@ QString SshConnection::errorString() const
 SshConnectionParameters SshConnection::connectionParameters() const
 {
     return d->connParams;
-}
-
-SshConnectionInfo SshConnection::connectionInfo() const
-{
-    QTC_ASSERT(state() == Connected, return SshConnectionInfo());
-    if (d->connInfo.isValid())
-        return d->connInfo;
-    QtcProcess p;
-    const FilePath sshFilePath = SshSettings::sshFilePath();
-    p.setCommand({sshFilePath, d->connectionArgs(sshFilePath) << "echo" << "-n" << "$SSH_CLIENT"});
-    p.start();
-    if (!p.waitForStarted() || !p.waitForFinished()) {
-        qCWarning(Internal::sshLog) << "failed to retrieve connection info:" << p.errorString();
-        return SshConnectionInfo();
-    }
-    const QByteArrayList data = p.readAllStandardOutput().split(' ');
-    if (data.size() != 3) {
-        qCWarning(Internal::sshLog) << "failed to retrieve connection info: unexpected output";
-        return SshConnectionInfo();
-    }
-    d->connInfo.localPort = data.at(1).toInt();
-    if (d->connInfo.localPort == 0) {
-        qCWarning(Internal::sshLog) << "failed to retrieve connection info: unexpected output";
-        return SshConnectionInfo();
-    }
-    if (!d->connInfo.localAddress.setAddress(QString::fromLatin1(data.first()))) {
-        qCWarning(Internal::sshLog) << "failed to retrieve connection info: unexpected output";
-        return SshConnectionInfo();
-    }
-    d->connInfo.peerPort = d->connParams.port();
-    d->connInfo.peerAddress.setAddress(d->connParams.host());
-    return d->connInfo;
 }
 
 QStringList SshConnection::connectionOptions(const FilePath &binary) const
