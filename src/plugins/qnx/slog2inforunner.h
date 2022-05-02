@@ -28,13 +28,12 @@
 #include <QObject>
 
 #include <projectexplorer/runcontrol.h>
-#include <remotelinux/linuxdevice.h>
 #include <utils/outputformat.h>
 
 #include <QDateTime>
 #include <QByteArray>
 
-namespace ProjectExplorer { class SshDeviceProcess; }
+namespace Utils { class QtcProcess; }
 
 namespace Qnx {
 namespace Internal {
@@ -70,9 +69,9 @@ private:
     bool m_currentLogs = false;
     QString m_remainingData;
 
-    ProjectExplorer::SshDeviceProcess *m_launchDateTimeProcess = nullptr;
-    ProjectExplorer::SshDeviceProcess *m_testProcess = nullptr;
-    ProjectExplorer::SshDeviceProcess *m_logProcess = nullptr;
+    Utils::QtcProcess *m_launchDateTimeProcess = nullptr;
+    Utils::QtcProcess *m_testProcess = nullptr;
+    Utils::QtcProcess *m_logProcess = nullptr;
 };
 
 } // namespace Internal

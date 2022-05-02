@@ -26,12 +26,12 @@
 #include "slog2inforunner.h"
 
 #include "qnxdevice.h"
-#include "qnxdeviceprocess.h"
 #include "qnxrunconfiguration.h"
 
 #include <projectexplorer/runconfigurationaspects.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QRegularExpression>
 
@@ -51,13 +51,13 @@ Slog2InfoRunner::Slog2InfoRunner(RunControl *runControl)
     // We need to limit length of ApplicationId to 63 otherwise it would not match one in slog2info.
     m_applicationId.truncate(63);
 
-    m_testProcess = new QnxDeviceProcess(device(), this);
+    m_testProcess = new QtcProcess(this);
     connect(m_testProcess, &QtcProcess::done, this, &Slog2InfoRunner::handleTestProcessCompleted);
 
-    m_launchDateTimeProcess = new SshDeviceProcess(device(), this);
+    m_launchDateTimeProcess = new QtcProcess(this);
     connect(m_launchDateTimeProcess, &QtcProcess::done, this, &Slog2InfoRunner::launchSlog2Info);
 
-    m_logProcess = new QnxDeviceProcess(device(), this);
+    m_logProcess = new QtcProcess(this);
     connect(m_logProcess, &QtcProcess::readyReadStandardOutput, this, &Slog2InfoRunner::readLogStandardOutput);
     connect(m_logProcess, &QtcProcess::readyReadStandardError, this, &Slog2InfoRunner::readLogStandardError);
     connect(m_logProcess, &QtcProcess::done, this, &Slog2InfoRunner::handleLogDone);
@@ -70,7 +70,7 @@ void Slog2InfoRunner::printMissingWarning()
 
 void Slog2InfoRunner::start()
 {
-    m_testProcess->setCommand({"slog2info", {}});
+    m_testProcess->setCommand({device()->mapToGlobalPath("slog2info"), {}});
     m_testProcess->start();
     reportStarted();
 }
@@ -107,7 +107,8 @@ void Slog2InfoRunner::handleTestProcessCompleted()
 
 void Slog2InfoRunner::readLaunchTime()
 {
-    m_launchDateTimeProcess->setCommand({"date", "+\"%d %H:%M:%S\"", CommandLine::Raw});
+    m_launchDateTimeProcess->setCommand({device()->mapToGlobalPath("date"),
+                                         "+\"%d %H:%M:%S\"", CommandLine::Raw});
     m_launchDateTimeProcess->start();
 }
 
@@ -125,7 +126,7 @@ void Slog2InfoRunner::launchSlog2Info()
     m_launchDateTime = QDateTime::fromString(QString::fromLatin1(m_launchDateTimeProcess->readAllStandardOutput()).trimmed(),
                                              QString::fromLatin1("dd HH:mm:ss"));
 
-    m_logProcess->setCommand({"slog2info", {"-w"}});
+    m_logProcess->setCommand({device()->mapToGlobalPath("slog2info"), {"-w"}});
     m_logProcess->start();
 }
 
