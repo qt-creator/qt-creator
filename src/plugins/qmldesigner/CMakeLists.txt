@@ -58,7 +58,7 @@ add_qtc_plugin(QmlDesigner
 include(qmldesignercore.cmake)
 extend_with_qmldesigner_core(QmlDesigner)
 
-if (QTC_STATIC_BUILD)
+if (QTC_STATIC_BUILD AND TARGET QmlDesigner)
   get_target_property(_designerType Qt5::Designer TYPE)
   if (${_designerType} STREQUAL "STATIC_LIBRARY")
     extend_qtc_target(QmlDesigner PUBLIC_DEFINES QT_DESIGNER_STATIC)

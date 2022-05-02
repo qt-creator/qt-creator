@@ -37,7 +37,7 @@ extend_qtc_plugin(Designer
   SOURCES gotoslot_test.cpp
 )
 
-if (QTC_STATIC_BUILD)
+if (QTC_STATIC_BUILD AND TARGET Designer)
   get_target_property(_designerType Qt5::Designer TYPE)
   if (${_designerType} STREQUAL "STATIC_LIBRARY")
     extend_qtc_target(Designer PUBLIC_DEFINES QT_DESIGNER_STATIC)
