@@ -27,7 +27,7 @@ import QtQuick 2.0
 
 Item {
     id: root
-    width: 720
+    width: 600
     height: 720
 
     signal closeClicked

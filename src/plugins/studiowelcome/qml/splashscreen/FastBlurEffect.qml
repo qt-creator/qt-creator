@@ -1,10 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the Qt Design Tooling
+** This file is part of Qt Quick Designer Components.
 **
+** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -15,57 +16,21 @@
 **
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3 as published by the Free Software
-** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
 ** included in the packaging of this file. Please review the following
 ** information to ensure the GNU General Public License requirements will
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
+** $QT_END_LICENSE$
+**
 ****************************************************************************/
 
-#pragma once
+import QtQuick 2.8
+import Qt5Compat.GraphicalEffects
 
-#include <QToolBar>
-#include <QWidget>
-#include <QLabel>
-
-namespace QmlDesigner {
-
-class CurveEditorModel;
-class CurveEditorToolBar;
-class GraphicsView;
-class TreeView;
-
-class CurveEditor : public QWidget
-{
-    Q_OBJECT
-
-public:
-    CurveEditor(CurveEditorModel *model, QWidget *parent = nullptr);
-
-    bool dragging() const;
-
-    void zoomX(double zoom);
-
-    void zoomY(double zoom);
-
-    void clearCanvas();
-
-signals:
-    void viewEnabledChanged(const bool);
-
-protected:
-    void showEvent(QShowEvent *event) override;
-    void hideEvent(QHideEvent *event) override;
-
-private:
-    QLabel *m_infoText;
-
-    CurveEditorToolBar *m_toolbar;
-
-    TreeView *m_tree;
-
-    GraphicsView *m_view;
-};
-
-} // End namespace QmlDesigner.
+FastBlur {
+    id: fastBlur
+    radius: 20
+}

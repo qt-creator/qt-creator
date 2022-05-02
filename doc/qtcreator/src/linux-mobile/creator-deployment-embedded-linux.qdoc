@@ -56,6 +56,7 @@
     \section1 Adding Missing Files
 
     The process to add files to deploy depends on the build system you use.
+    For more information, see \l{Specifying Project Contents}.
 
     \section2 CMake Builds
 

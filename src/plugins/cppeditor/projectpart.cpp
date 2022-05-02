@@ -129,6 +129,11 @@ static ToolChain::MacroInspectionReport getToolchainMacros(
     return report;
 }
 
+static QStringList getIncludedFiles(const RawProjectPart &rpp, const RawProjectPartFlags &flags)
+{
+    return !rpp.includedFiles.isEmpty() ? rpp.includedFiles : flags.includedFiles;
+}
+
 ProjectPart::ProjectPart(const Utils::FilePath &topLevelProject,
                          const RawProjectPart &rpp,
                          const QString &displayName,
@@ -148,7 +153,7 @@ ProjectPart::ProjectPart(const Utils::FilePath &topLevelProject,
       languageExtensions(languageExtensions | flags.languageExtensions),
       qtVersion(rpp.qtVersion),
       files(files),
-      includedFiles(rpp.includedFiles),
+      includedFiles(getIncludedFiles(rpp, flags)),
       precompiledHeaders(rpp.precompiledHeaders),
       headerPaths(getHeaderPaths(rpp, flags, tcInfo)),
       projectMacros(getProjectMacros(rpp)),

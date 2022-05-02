@@ -2388,15 +2388,26 @@ void EditorManagerPrivate::handleContextChange(const QList<IContext *> &context)
         if ((editor = qobject_cast<IEditor*>(c)))
             break;
     if (editor && editor != d->m_currentEditor) {
+        d->m_scheduledCurrentEditor = editor;
         // Delay actually setting the current editor to after the current event queue has been handled
         // Without doing this, e.g. clicking into projects tree or locator would always open editors
         // in the main window. That is because clicking anywhere in the main window (even over e.g.
         // the locator line edit) first activates the window and sets focus to its focus widget.
         // Only afterwards the focus is shifted to the widget that received the click.
-        d->m_scheduledCurrentEditor = editor;
-        QTimer::singleShot(QApplication::doubleClickInterval() + 10,
-                           d,
-                           &EditorManagerPrivate::setCurrentEditorFromContextChange);
+
+        // 1) During this event handling, focus landed in the editor.
+        // 2) During the following event handling, focus might change to the project tree.
+        // So, delay setting the current editor by two events.
+        // If focus changes to e.g. the project tree in (2), then m_scheduledCurrentEditor is set to
+        // nullptr, and the setCurrentEditorFromContextChange call becomes a no-op.
+        QMetaObject::invokeMethod(
+            d,
+            [] {
+                QMetaObject::invokeMethod(d,
+                                          &EditorManagerPrivate::setCurrentEditorFromContextChange,
+                                          Qt::QueuedConnection);
+            },
+            Qt::QueuedConnection);
     } else {
         updateActions();
     }

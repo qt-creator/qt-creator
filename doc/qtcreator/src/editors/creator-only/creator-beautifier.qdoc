@@ -121,8 +121,7 @@
 
                 \li Select \uicontrol {Use file *.astylerc defined in project files}
                     or \uicontrol {Use file uncrustify.cfg defined in project files},
-                    to use the configuration file
-                    \l{Displaying Additional File Types in Projects View}
+                    to use the configuration file \l{Specifying Project Contents}
                     {defined in the project file} as the configuration file
                     for the selected tool.
 
