@@ -35,6 +35,12 @@ namespace McuSupport::Internal {
 
 using Utils::FilePath;
 
+namespace {
+const QString automaticKitCreationSettingsKey = QLatin1String(Constants::SETTINGS_GROUP) + '/'
+                                                + QLatin1String(
+                                                    Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION);
+}
+
 static FilePath packagePathFromSettings(const QString &settingsKey,
                                         QSettings &settings,
                                         const FilePath &defaultPath)
@@ -67,4 +73,18 @@ bool SettingsHandler::write(const QString &settingsKey,
 
     return savedPath != path;
 }
+
+bool SettingsHandler::isAutomaticKitCreationEnabled() const
+{
+    QSettings *settings = Core::ICore::settings(QSettings::UserScope);
+    const bool automaticKitCreation = settings->value(automaticKitCreationSettingsKey, true).toBool();
+    return automaticKitCreation;
+}
+
+void SettingsHandler::setAutomaticKitCreation(bool isEnabled)
+{
+    QSettings *settings = Core::ICore::settings(QSettings::UserScope);
+    settings->setValue(automaticKitCreationSettingsKey, isEnabled);
+}
+
 } // namespace McuSupport::Internal

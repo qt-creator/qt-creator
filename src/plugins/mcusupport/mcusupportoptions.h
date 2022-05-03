@@ -87,8 +87,6 @@ public:
 
     bool automaticKitCreationEnabled() const;
     void setAutomaticKitCreationEnabled(const bool enabled);
-    void writeGeneralSettings() const;
-    static bool automaticKitCreationFromSettings();
 
 private:
     SettingsHandler::Ptr settingsHandler;

@@ -30,8 +30,6 @@
 
 #include <utils/filepath.h>
 
-#include <QSettings>
-
 namespace Utils {
 class FilePath;
 } // namespace Utils

@@ -46,5 +46,8 @@ public:
     virtual bool write(const QString &settingsKey,
                        const Utils::FilePath &path,
                        const Utils::FilePath &defaultPath) const;
+
+    virtual bool isAutomaticKitCreationEnabled() const;
+    void setAutomaticKitCreation(bool isEnabled);
 }; //class SettingsHandler
 } // namespace McuSupport::Internal

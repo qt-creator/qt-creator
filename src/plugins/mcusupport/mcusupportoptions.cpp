@@ -51,12 +51,6 @@ using namespace Utils;
 
 namespace McuSupport::Internal {
 
-namespace {
-const QString automaticKitCreationSettingsKey = QLatin1String(Constants::SETTINGS_GROUP) + '/'
-                                                + QLatin1String(
-                                                    Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION);
-}
-
 McuSupportOptions::McuSupportOptions(const SettingsHandler::Ptr &settingsHandler, QObject *parent)
     : QObject(parent)
     , qtForMCUsSdkPackage(Sdk::createQtForMCUsPackage(settingsHandler))
@@ -66,7 +60,7 @@ McuSupportOptions::McuSupportOptions(const SettingsHandler::Ptr &settingsHandler
             &McuAbstractPackage::changed,
             this,
             &McuSupportOptions::populatePackagesAndTargets);
-    m_automaticKitCreation = automaticKitCreationFromSettings();
+    m_automaticKitCreation = settingsHandler->isAutomaticKitCreationEnabled();
 }
 
 void McuSupportOptions::populatePackagesAndTargets()
@@ -195,19 +189,6 @@ bool McuSupportOptions::automaticKitCreationEnabled() const
 void McuSupportOptions::setAutomaticKitCreationEnabled(const bool enabled)
 {
     m_automaticKitCreation = enabled;
-}
-
-void McuSupportOptions::writeGeneralSettings() const
-{
-    QSettings *settings = Core::ICore::settings(QSettings::UserScope);
-    settings->setValue(automaticKitCreationSettingsKey, m_automaticKitCreation);
-}
-
-bool McuSupportOptions::automaticKitCreationFromSettings()
-{
-    QSettings *settings = Core::ICore::settings(QSettings::UserScope);
-    const bool automaticKitCreation = settings->value(automaticKitCreationSettingsKey, true).toBool();
-    return automaticKitCreation;
 }
 
 } // namespace McuSupport::Internal

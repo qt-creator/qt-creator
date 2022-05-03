@@ -452,7 +452,7 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
     McuPackagePtr qtForMCUsPackage{Sdk::createQtForMCUsPackage(settingsHandler)};
 
     const auto createKits = [qtForMCUsPackage, settingsHandler]() {
-        if (McuSupportOptions::automaticKitCreationFromSettings()) {
+        if (settingsHandler->isAutomaticKitCreationEnabled()) {
             qtForMCUsPackage->updateStatus();
             if (!qtForMCUsPackage->isValidStatus()) {
                 switch (qtForMCUsPackage->status()) {

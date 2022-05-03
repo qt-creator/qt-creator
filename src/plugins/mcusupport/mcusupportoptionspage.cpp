@@ -309,7 +309,7 @@ void McuSupportOptionsWidget::apply()
 {
     bool pathsChanged = false;
 
-    m_options.writeGeneralSettings();
+    m_settingsHandler->setAutomaticKitCreation(m_options.automaticKitCreationEnabled());
     pathsChanged |= m_options.qtForMCUsSdkPackage->writeToSettings();
     for (auto package : qAsConst(m_options.sdkRepository.packages))
         pathsChanged |= package->writeToSettings();
