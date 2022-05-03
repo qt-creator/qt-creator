@@ -116,7 +116,7 @@ private:
     void emitConnected();
     void emitError(QProcess::ProcessError processError, const QString &errorString);
     void emitDisconnected();
-    QString fullProcessError(const QString &sshErrorPrefix);
+    QString fullProcessError() const;
     QStringList connectionArgs(const FilePath &binary) const
     { return connectionOptions(binary) << m_sshParameters.host(); }
 
@@ -199,16 +199,17 @@ void SshSharedConnection::connectToHost()
     // TODO: in case of refused connection we are getting the following on stdErr:
     // ssh: connect to host 127.0.0.1 port 22: Connection refused\r\n
     connect(m_masterProcess.get(), &QtcProcess::done, [this] {
-        const QProcess::ProcessError error = m_masterProcess->error();
-        if (error == QProcess::FailedToStart) {
-            emitError(error, fullProcessError(tr("Cannot establish SSH connection. "
-                                                 "Control process failed to start:")));
+        const ProcessResult result = m_masterProcess->result();
+        const ProcessResultData resultData = m_masterProcess->resultData();
+        if (result == ProcessResult::StartFailed) {
+            emitError(QProcess::FailedToStart, tr("Cannot establish SSH connection.\n"
+                                                  "Control process failed to start."));
             return;
-        } else if (error != QProcess::UnknownError) {
-            emitError(error, fullProcessError(tr("SSH connection failure:")));
+        } else if (result == ProcessResult::FinishedWithError) {
+            emitError(resultData.m_error, fullProcessError());
             return;
         }
-        emit disconnected(m_masterProcess->resultData());
+        emit disconnected(resultData);
     });
 
     QStringList args = QStringList{"-M", "-N", "-o", "ControlPersist=no",
@@ -247,7 +248,10 @@ void SshSharedConnection::emitConnected()
 void SshSharedConnection::emitError(QProcess::ProcessError error, const QString &errorString)
 {
     m_state = QProcess::NotRunning;
-    emit disconnected({ 0, QProcess::NormalExit, error, errorString });
+    ProcessResultData resultData = m_masterProcess->resultData();
+    resultData.m_error = error;
+    resultData.m_errorString = errorString;
+    emit disconnected(resultData);
 }
 
 void SshSharedConnection::emitDisconnected()
@@ -256,23 +260,16 @@ void SshSharedConnection::emitDisconnected()
     emit disconnected(m_masterProcess->resultData());
 }
 
-QString SshSharedConnection::fullProcessError(const QString &sshErrorPrefix)
+QString SshSharedConnection::fullProcessError() const
 {
-    QString error;
-    if (m_masterProcess->exitStatus() != QProcess::NormalExit)
-        error = m_masterProcess->errorString();
-    const QByteArray stdErr = m_masterProcess->readAllStandardError();
-    if (!stdErr.isEmpty()) {
-        if (!error.isEmpty())
-            error.append('\n');
-        error.append(QString::fromLocal8Bit(stdErr));
-    }
-
-    QString fullError = sshErrorPrefix;
-    if (!error.isEmpty())
-        fullError.append('\n').append(error);
-
-    return fullError;
+    const QString errorString = m_masterProcess->exitStatus() == QProcess::CrashExit
+            ? m_masterProcess->errorString() : QString();
+    const QString standardError = m_masterProcess->stdErr();
+    const QString errorPrefix = errorString.isEmpty() && standardError.isEmpty()
+            ? tr("SSH connection failure.") : tr("SSH connection failure:");
+    QStringList allErrors {errorPrefix, errorString, standardError};
+    allErrors.removeAll({});
+    return allErrors.join('\n');
 }
 
 // SshConnectionHandle
@@ -717,7 +714,7 @@ void SshProcessInterfacePrivate::handleDisconnected(const ProcessResultData &res
     if (m_connectionHandle) // TODO: should it disconnect from signals first?
         m_connectionHandle.release()->deleteLater();
 
-    if (resultData.m_error != QProcess::UnknownError && m_process.state() != QProcess::NotRunning)
+    if (resultData.m_error != QProcess::UnknownError || m_process.state() != QProcess::NotRunning)
         emit q->done(resultData); // TODO: don't emit done() on process finished afterwards
 }
 
