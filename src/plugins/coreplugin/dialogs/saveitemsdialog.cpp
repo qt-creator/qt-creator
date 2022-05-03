@@ -45,7 +45,7 @@ using namespace Core;
 using namespace Core::Internal;
 
 SaveItemsDialog::SaveItemsDialog(QWidget *parent,
-                                 QList<IDocument *> items)
+                                 const QList<IDocument *> &items)
     : QDialog(parent)
 {
     m_ui.setupUi(this);
@@ -65,7 +65,7 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
 
     m_ui.saveBeforeBuildCheckBox->setVisible(false);
 
-    for (IDocument *document : qAsConst(items)) {
+    for (IDocument *document : items) {
         QString visibleName;
         QString directory;
         Utils::FilePath filePath = document->filePath();

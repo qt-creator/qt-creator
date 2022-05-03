@@ -466,10 +466,7 @@ QList<IEditor *> EditorView::editors() const
 
 IEditor *EditorView::editorForDocument(const IDocument *document) const
 {
-    foreach (IEditor *editor, m_editors)
-        if (editor->document() == document)
-            return editor;
-    return nullptr;
+    return Utils::findOrDefault(m_editors, Utils::equal(&IEditor::document, document));
 }
 
 void EditorView::updateEditorHistory(IEditor *editor)
@@ -681,7 +678,7 @@ SplitterOrView::~SplitterOrView()
     m_splitter = nullptr;
 }
 
-EditorView *SplitterOrView::findFirstView()
+EditorView *SplitterOrView::findFirstView() const
 {
     if (m_splitter) {
         for (int i = 0; i < m_splitter->count(); ++i) {
@@ -694,7 +691,7 @@ EditorView *SplitterOrView::findFirstView()
     return m_view;
 }
 
-EditorView *SplitterOrView::findLastView()
+EditorView *SplitterOrView::findLastView() const
 {
     if (m_splitter) {
         for (int i = m_splitter->count() - 1; 0 < i; --i) {
@@ -921,13 +918,10 @@ QByteArray SplitterOrView::saveState() const
         // don't save state of temporary or ad-hoc editors
         if (e && (e->document()->isTemporary() || e->document()->filePath().isEmpty())) {
             // look for another editor that is more suited
-            e = nullptr;
-            foreach (IEditor *otherEditor, editors()) {
-                if (!otherEditor->document()->isTemporary() && !otherEditor->document()->filePath().isEmpty()) {
-                    e = otherEditor;
-                    break;
-                }
-            }
+            e = Utils::findOrDefault(editors(), [](IEditor *otherEditor) {
+                return !otherEditor->document()->isTemporary()
+                       && !otherEditor->document()->filePath().isEmpty();
+            });
         }
 
         if (!e) {

@@ -276,7 +276,7 @@ Qt::ItemFlags DocumentModelPrivate::flags(const QModelIndex &index) const
 QMimeData *DocumentModelPrivate::mimeData(const QModelIndexList &indexes) const
 {
     auto data = new Utils::DropMimeData;
-    foreach (const QModelIndex &index, indexes) {
+    for (const QModelIndex &index : indexes) {
         const DocumentModel::Entry *e = DocumentModel::entryAtRow(index.row());
         if (!e || e->fileName().isEmpty())
             continue;
@@ -491,7 +491,7 @@ void DocumentModelPrivate::removeAllSuspendedEntries(PinnedFileRemovalPolicy pin
         d->endRemoveRows();
     }
     QSet<QString> displayNames;
-    foreach (DocumentModel::Entry *entry, d->m_entries) {
+    for (DocumentModel::Entry *entry : qAsConst(d->m_entries)) {
         const QString displayName = entry->plainDisplayName();
         if (displayNames.contains(displayName))
             continue;
@@ -594,7 +594,7 @@ QList<IEditor *> DocumentModel::editorsForOpenedDocuments()
 QList<IEditor *> DocumentModel::editorsForDocuments(const QList<IDocument *> &documents)
 {
     QList<IEditor *> result;
-    foreach (IDocument *document, documents)
+    for (IDocument *document : documents)
         result += d->m_editors.value(document);
     return result;
 }

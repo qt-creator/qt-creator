@@ -94,9 +94,9 @@ void SearchResultTreeView::clear()
 
 void SearchResultTreeView::addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode)
 {
-    QList<QModelIndex> addedParents = m_model->addResults(items, mode);
+    const QList<QModelIndex> addedParents = m_model->addResults(items, mode);
     if (m_autoExpandResults && !addedParents.isEmpty()) {
-        foreach (const QModelIndex &index, addedParents)
+        for (const QModelIndex &index : addedParents)
             setExpanded(index, true);
     }
 }

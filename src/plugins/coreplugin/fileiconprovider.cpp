@@ -120,7 +120,8 @@ public:
 
     void registerIconOverlayForMimeType(const QString &iconFilePath, const Utils::MimeType &mimeType)
     {
-        foreach (const QString &suffix, mimeType.suffixes())
+        const QStringList suffixes =  mimeType.suffixes();
+        for (const QString &suffix : suffixes)
             registerIconOverlayForSuffix(iconFilePath, suffix);
     }
 

@@ -545,7 +545,7 @@ void SearchResultWindow::clearContents()
         for (int i = d->m_recentSearchesBox->count() - 1; i > 0 /* don't want i==0 */; --i)
             d->m_recentSearchesBox->removeItem(i);
     }
-    foreach (Internal::SearchResultWidget *widget, d->m_searchResultWidgets)
+    for (Internal::SearchResultWidget *widget : qAsConst(d->m_searchResultWidgets))
         widget->notifyVisibilityChanged(false);
     qDeleteAll(d->m_searchResultWidgets);
     d->m_searchResultWidgets.clear();
@@ -599,7 +599,7 @@ void SearchResultWindow::setTextEditorFont(const QFont &font, const SearchResult
 {
     d->m_font = font;
     d->m_colors = colors;
-    foreach (Internal::SearchResultWidget *widget, d->m_searchResultWidgets)
+    for (Internal::SearchResultWidget *widget : qAsConst(d->m_searchResultWidgets))
         widget->setTextEditorFont(font, colors);
 }
 
@@ -609,7 +609,7 @@ void SearchResultWindow::setTextEditorFont(const QFont &font, const SearchResult
 void SearchResultWindow::setTabWidth(int tabWidth)
 {
     d->m_tabWidth = tabWidth;
-    foreach (Internal::SearchResultWidget *widget, d->m_searchResultWidgets)
+    for (Internal::SearchResultWidget *widget : qAsConst(d->m_searchResultWidgets))
         widget->setTabWidth(tabWidth);
 }
 /*!

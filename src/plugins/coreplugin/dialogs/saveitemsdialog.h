@@ -41,7 +41,7 @@ class SaveItemsDialog : public QDialog
     Q_OBJECT
 
 public:
-    SaveItemsDialog(QWidget *parent, QList<IDocument *> items);
+    SaveItemsDialog(QWidget *parent, const QList<IDocument *> &items);
 
     void setMessage(const QString &msg);
     void setAlwaysSaveMessage(const QString &msg);

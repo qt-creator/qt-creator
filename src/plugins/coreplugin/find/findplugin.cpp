@@ -313,7 +313,7 @@ void FindPrivate::setupFilterMenuItems()
     const Id base("FindFilter.");
     QList<IFindFilter *> sortedFilters = IFindFilter::allFindFilters();
     Utils::sort(sortedFilters, &IFindFilter::displayName);
-    foreach (IFindFilter *filter, sortedFilters) {
+    for (IFindFilter *filter : qAsConst(sortedFilters)) {
         QAction *action = new QAction(filterActionName(filter), this);
         bool isEnabled = filter->isEnabled();
         if (isEnabled)

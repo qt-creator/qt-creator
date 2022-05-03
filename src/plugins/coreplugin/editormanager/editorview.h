@@ -194,8 +194,8 @@ public:
     QByteArray saveState() const;
     void restoreState(const QByteArray &);
 
-    EditorView *findFirstView();
-    EditorView *findLastView();
+    EditorView *findFirstView() const;
+    EditorView *findLastView() const;
     SplitterOrView *findParentSplitter() const;
 
     QSize sizeHint() const override { return minimumSizeHint(); }

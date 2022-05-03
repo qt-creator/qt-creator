@@ -492,7 +492,7 @@ void DocumentManager::renamedFile(const Utils::FilePath &from, const Utils::File
     }
 
     // rename the IDocuments
-    foreach (IDocument *document, documentsToRename) {
+    for (IDocument *document : qAsConst(documentsToRename)) {
         d->m_blockedIDocument = document;
         removeFileInfo(document);
         document->setFilePath(to);

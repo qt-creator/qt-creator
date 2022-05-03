@@ -223,7 +223,7 @@ static DocumentModel::Entry *entryForEditLocation(const EditLocation &item)
 void OpenEditorsWindow::addHistoryItems(const QList<EditLocation> &history, EditorView *view,
                                         QSet<const DocumentModel::Entry *> &entriesDone)
 {
-    foreach (const EditLocation &hi, history) {
+    for (const EditLocation &hi : history) {
         if (DocumentModel::Entry *entry = entryForEditLocation(hi))
             addItem(entry, entriesDone, view);
     }
@@ -232,7 +232,8 @@ void OpenEditorsWindow::addHistoryItems(const QList<EditLocation> &history, Edit
 void OpenEditorsWindow::addRemainingItems(EditorView *view,
                                           QSet<const DocumentModel::Entry *> &entriesDone)
 {
-    foreach (DocumentModel::Entry *entry, DocumentModel::entries())
+    const QList<DocumentModel::Entry *> entries = DocumentModel::entries();
+    for (DocumentModel::Entry *entry : entries)
         addItem(entry, entriesDone, view);
 }
 

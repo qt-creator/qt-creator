@@ -195,9 +195,9 @@ QList<IWizardFactory*> IWizardFactory::allWizardFactories()
         s_areFactoriesLoaded = true;
 
         QHash<Id, IWizardFactory *> sanityCheck;
-        foreach (const FactoryCreator &fc, s_factoryCreators) {
-            QList<IWizardFactory *> tmp = fc();
-            foreach (IWizardFactory *newFactory, tmp) {
+        for (const FactoryCreator &fc : qAsConst(s_factoryCreators)) {
+            const QList<IWizardFactory *> tmp = fc();
+            for (IWizardFactory *newFactory : tmp) {
                 QTC_ASSERT(newFactory, continue);
                 IWizardFactory *existingFactory = sanityCheck.value(newFactory->id());
 
@@ -315,7 +315,8 @@ QSet<Id> IWizardFactory::supportedPlatforms() const
 {
     QSet<Id> platformIds;
 
-    foreach (Id platform, allAvailablePlatforms()) {
+    const QSet<Id> platforms = allAvailablePlatforms();
+    for (const Id platform : platforms) {
         if (isAvailable(platform))
             platformIds.insert(platform);
     }
@@ -331,7 +332,7 @@ void IWizardFactory::registerFactoryCreator(const IWizardFactory::FactoryCreator
 QSet<Id> IWizardFactory::allAvailablePlatforms()
 {
     QSet<Id> platforms;
-    foreach (const IFeatureProvider *featureManager, s_providerList)
+    for (const IFeatureProvider *featureManager : qAsConst(s_providerList))
         platforms.unite(featureManager->availablePlatforms());
 
     return platforms;
@@ -339,7 +340,7 @@ QSet<Id> IWizardFactory::allAvailablePlatforms()
 
 QString IWizardFactory::displayNameForPlatform(Id i)
 {
-    foreach (const IFeatureProvider *featureManager, s_providerList) {
+    for (const IFeatureProvider *featureManager : qAsConst(s_providerList)) {
         const QString displayName = featureManager->displayNameForPlatform(i);
         if (!displayName.isEmpty())
             return displayName;
@@ -384,7 +385,7 @@ void IWizardFactory::destroyFeatureProvider()
 
 void IWizardFactory::clearWizardFactories()
 {
-    foreach (IWizardFactory *factory, s_allFactories)
+    for (IWizardFactory *factory : qAsConst(s_allFactories))
         ActionManager::unregisterAction(factory->m_action, actionId(factory));
 
     qDeleteAll(s_allFactories);
@@ -398,7 +399,8 @@ QSet<Id> IWizardFactory::pluginFeatures()
     static QSet<Id> plugins;
     if (plugins.isEmpty()) {
         // Implicitly create a feature for each plugin loaded:
-        foreach (ExtensionSystem::PluginSpec *s, ExtensionSystem::PluginManager::plugins()) {
+        const QVector<ExtensionSystem::PluginSpec *> pluginVector = ExtensionSystem::PluginManager::plugins();
+        for (const ExtensionSystem::PluginSpec *s : pluginVector) {
             if (s->state() == ExtensionSystem::PluginSpec::Running)
                 plugins.insert(Id::fromString(s->name()));
         }
@@ -410,7 +412,7 @@ QSet<Id> IWizardFactory::availableFeatures(Id platformId)
 {
     QSet<Id> availableFeatures;
 
-    foreach (const IFeatureProvider *featureManager, s_providerList)
+    for (const IFeatureProvider *featureManager : qAsConst(s_providerList))
         availableFeatures.unite(featureManager->availableFeatures(platformId));
 
     return availableFeatures;

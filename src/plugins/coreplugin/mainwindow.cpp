@@ -141,7 +141,8 @@ MainWindow::MainWindow()
     // if the user has specified as base style in the theme settings,
     // prefer that
     const QStringList available = QStyleFactory::keys();
-    foreach (const QString &s, Utils::creatorTheme()->preferredStyles()) {
+    const QStringList styles = Utils::creatorTheme()->preferredStyles();
+    for (const QString &s : styles) {
         if (available.contains(s, Qt::CaseInsensitive)) {
             baseName = s;
             break;
@@ -370,7 +371,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
         return;
     }
 
-    foreach (const std::function<bool()> &listener, m_preCloseListeners) {
+    const QList<std::function<bool()>> listeners = m_preCloseListeners;
+    for (const std::function<bool()> &listener : listeners) {
         if (!listener()) {
             cancelClose();
             return;
@@ -1089,7 +1091,7 @@ void MainWindow::updateContextObject(const QList<IContext *> &context)
     updateContext();
     if (debugMainWindow) {
         qDebug() << "new context objects =" << context;
-        foreach (IContext *c, context)
+        for (const IContext *c : context)
             qDebug() << (c ? c->widget() : nullptr) << (c ? c->widget()->metaObject()->className() : nullptr);
     }
 }
@@ -1210,7 +1212,7 @@ void MainWindow::updateModeSelectorStyleMenu()
 void MainWindow::updateAdditionalContexts(const Context &remove, const Context &add,
                                           ICore::ContextPriority priority)
 {
-    foreach (const Id id, remove) {
+    for (const Id id : remove) {
         if (!id.isValid())
             continue;
         int index = m_lowPrioAdditionalContexts.indexOf(id);
@@ -1221,7 +1223,7 @@ void MainWindow::updateAdditionalContexts(const Context &remove, const Context &
             m_highPrioAdditionalContexts.removeAt(index);
     }
 
-    foreach (const Id id, add) {
+    for (const Id id : add) {
         if (!id.isValid())
             continue;
         Context &cref = (priority == ICore::ContextPriority::High ? m_highPrioAdditionalContexts
@@ -1237,7 +1239,7 @@ void MainWindow::updateContext()
 {
     Context contexts = m_highPrioAdditionalContexts;
 
-    foreach (IContext *context, m_activeContext)
+    for (IContext *context : qAsConst(m_activeContext))
         contexts.add(context->context());
 
     contexts.add(m_lowPrioAdditionalContexts);

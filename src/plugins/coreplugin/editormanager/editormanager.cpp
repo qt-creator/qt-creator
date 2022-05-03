@@ -909,7 +909,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
             auto button = qobject_cast<QPushButton *>(msgbox.button(QMessageBox::Open));
             QTC_ASSERT(button, return nullptr);
             auto menu = new QMenu(button);
-            foreach (EditorType *factory, factories) {
+            for (EditorType *factory : qAsConst(factories)) {
                 QAction *action = menu->addAction(factory->displayName());
                 connect(action, &QAction::triggered, &msgbox, [&selectedFactory, factory, &msgbox]() {
                     selectedFactory = factory;
@@ -969,8 +969,8 @@ IEditor *EditorManagerPrivate::openEditorWith(const FilePath &filePath, Id edito
     // close any open editors that have this file open
     // remember the views to open new editors in there
     QList<EditorView *> views;
-    QList<IEditor *> editorsOpenForFile = DocumentModel::editorsForFilePath(filePath);
-    foreach (IEditor *openEditor, editorsOpenForFile) {
+    const QList<IEditor *> editorsOpenForFile = DocumentModel::editorsForFilePath(filePath);
+    for (IEditor *openEditor : editorsOpenForFile) {
         EditorView *view = EditorManagerPrivate::viewForEditor(openEditor);
         if (view && view->currentEditor() == openEditor) // visible
             views.append(view);
@@ -987,7 +987,7 @@ IEditor *EditorManagerPrivate::openEditorWith(const FilePath &filePath, Id edito
                 views.prepend(currentView); // open editor in current view first
         }
         EditorManager::OpenEditorFlags flags;
-        foreach (EditorView *view, views) {
+        for (EditorView *view : qAsConst(views)) {
             IEditor *editor = EditorManagerPrivate::openEditor(view, filePath, editorId, flags);
             if (!openedEditor && editor)
                 openedEditor = editor;
@@ -1146,7 +1146,7 @@ void EditorManagerPrivate::showPopupOrSelectDocument()
         // if the active window has editors, we want that editor area as a reference
         // TODO: this does not work correctly with multiple editor areas in the same window
         EditorArea *activeEditorArea = nullptr;
-        foreach (EditorArea *area, d->m_editorAreas) {
+        for (EditorArea *area : qAsConst(d->m_editorAreas)) {
             if (area->window() == activeWindow) {
                 activeEditorArea = area;
                 break;
@@ -1644,9 +1644,10 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
     // 2. keep track of the document and all the editors that might remain open for it
     QSet<IEditor*> acceptedEditors;
     QHash<IDocument *, QList<IEditor *> > editorsForDocuments;
-    foreach (IEditor *editor, editors) {
+    for (IEditor *editor : qAsConst(editors)) {
         bool editorAccepted = true;
-        foreach (const std::function<bool(IEditor*)> listener, d->m_closeEditorListeners) {
+        const QList<std::function<bool(IEditor *)>> listeners = d->m_closeEditorListeners;
+        for (const std::function<bool(IEditor *)> &listener : listeners) {
             if (!listener(editor)) {
                 editorAccepted = false;
                 closingFailed = true;
@@ -1794,8 +1795,7 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
         setCurrentEditor(currentView->currentEditor());
     }
 
-    foreach (IEditor *editor, acceptedEditors)
-        delete editor;
+    qDeleteAll(acceptedEditors);
 
     if (!EditorManager::currentEditor()) {
         emit m_instance->currentEditorChanged(nullptr);
@@ -1835,7 +1835,7 @@ int EditorManagerPrivate::visibleDocumentsCount()
         return editorsCount;
 
     QSet<const IDocument *> visibleDocuments;
-    foreach (IEditor *editor, editors) {
+    for (const IEditor *editor : editors) {
         if (const IDocument *document = editor->document())
             visibleDocuments << document;
     }
@@ -1999,7 +1999,8 @@ void EditorManagerPrivate::splitNewWindow(EditorView *view)
 
 IEditor *EditorManagerPrivate::pickUnusedEditor(EditorView **foundView)
 {
-    foreach (IEditor *editor, DocumentModel::editorsForOpenedDocuments()) {
+    const QList<IEditor *> editors = DocumentModel::editorsForOpenedDocuments();
+    for (IEditor *editor : editors) {
         EditorView *view = viewForEditor(editor);
         if (!view || view->currentEditor() != editor) {
             if (foundView)
@@ -2359,7 +2360,8 @@ void EditorManagerPrivate::autoSave()
 {
     QStringList errors;
     // FIXME: the saving should be staggered
-    foreach (IDocument *document, DocumentModel::openedDocuments()) {
+    const QList<IDocument *> documents = DocumentModel::openedDocuments();
+    for (IDocument *document : documents) {
         if (!document->isModified() || !document->shouldAutoSave())
             continue;
         const FilePath saveName = autoSaveName(document->filePath());
@@ -2384,7 +2386,7 @@ void EditorManagerPrivate::handleContextChange(const QList<IContext *> &context)
         qDebug() << Q_FUNC_INFO;
     d->m_scheduledCurrentEditor = nullptr;
     IEditor *editor = nullptr;
-    foreach (IContext *c, context)
+    for (IContext *c : context)
         if ((editor = qobject_cast<IEditor*>(c)))
             break;
     if (editor && editor != d->m_currentEditor) {
@@ -2559,7 +2561,8 @@ void EditorManagerPrivate::closeAllEditorsExceptVisible()
         DocumentModel::Entry *entry = DocumentModel::entryForDocument(document);
         return !entry->pinned;
     });
-    foreach (IEditor *editor, EditorManager::visibleEditors())
+    const QList<IEditor *> editors = EditorManager::visibleEditors();
+    for (const IEditor *editor : editors)
         documentsToClose.removeAll(editor->document());
     EditorManager::closeDocuments(documentsToClose, true);
 }
@@ -2610,7 +2613,7 @@ void EditorManagerPrivate::autoSuspendDocuments()
                                                    &IEditor::document);
     int keptEditorCount = 0;
     QList<IDocument *> documentsToSuspend;
-    foreach (const EditLocation &editLocation, d->m_globalHistory) {
+    for (const EditLocation &editLocation : qAsConst(d->m_globalHistory)) {
         IDocument *document = editLocation.document;
         if (!document || !document->isSuspendAllowed() || document->isModified()
                 || document->isTemporary() || document->filePath().isEmpty()
@@ -2698,7 +2701,7 @@ EditorView *EditorManagerPrivate::currentEditorView()
         }
         QTC_CHECK(view);
         if (!view) { // should not happen, we should always have either currentview or currentdocument
-            foreach (EditorArea *area, d->m_editorAreas) {
+            for (const EditorArea *area : qAsConst(d->m_editorAreas)) {
                 if (area->window()->isActiveWindow()) {
                     view = area->findFirstView();
                     break;
@@ -3258,7 +3261,8 @@ static QString makeTitleUnique(QString *titlePattern)
         if (base.contains(dollar)) {
             int i = 1;
             QSet<QString> docnames;
-            foreach (DocumentModel::Entry *entry, DocumentModel::entries()) {
+            const QList<DocumentModel::Entry *> entries = DocumentModel::entries();
+            for (const DocumentModel::Entry *entry : entries) {
                 QString name = entry->fileName().toString();
                 if (name.isEmpty())
                     name = entry->displayName();
@@ -3315,7 +3319,8 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
 
     IEditor *edt = nullptr;
     if (!uniqueId.isEmpty()) {
-        foreach (IDocument *document, DocumentModel::openedDocuments())
+        const QList<IDocument *> documents = DocumentModel::openedDocuments();
+        for (IDocument *document : documents)
             if (document->property(scratchBufferKey).toString() == uniqueId) {
                 edt = DocumentModel::editorsForDocument(document).constFirst();
 
@@ -3401,7 +3406,7 @@ bool EditorManager::hasSplitter()
 QList<IEditor*> EditorManager::visibleEditors()
 {
     QList<IEditor *> editors;
-    foreach (EditorArea *area, d->m_editorAreas) {
+    for (const EditorArea *area : qAsConst(d->m_editorAreas)) {
         if (area->isSplitter()) {
             EditorView *firstView = area->findFirstView();
             EditorView *view = firstView;
@@ -3535,7 +3540,7 @@ QByteArray EditorManager::saveState()
 
     // TODO: In case of split views it's not possible to restore these for all correctly with this
     QList<IDocument *> documents = DocumentModel::openedDocuments();
-    foreach (IDocument *document, documents) {
+    for (IDocument *document : documents) {
         if (!document->filePath().isEmpty() && !document->isTemporary()) {
             IEditor *editor = DocumentModel::editorsForDocument(document).constFirst();
             QByteArray state = editor->saveState();
@@ -3546,9 +3551,9 @@ QByteArray EditorManager::saveState()
 
     stream << d->m_editorStates;
 
-    QList<DocumentModel::Entry *> entries = DocumentModel::entries();
+    const QList<DocumentModel::Entry *> entries = DocumentModel::entries();
     int entriesCount = 0;
-    foreach (DocumentModel::Entry *entry, entries) {
+    for (const DocumentModel::Entry *entry : entries) {
         // The editor may be 0 if it was not loaded yet: In that case it is not temporary
         if (!entry->document->isTemporary())
             ++entriesCount;
@@ -3556,7 +3561,7 @@ QByteArray EditorManager::saveState()
 
     stream << entriesCount;
 
-    foreach (DocumentModel::Entry *entry, entries) {
+    for (const DocumentModel::Entry *entry : entries) {
         if (!entry->document->isTemporary()) {
             stream << entry->fileName().toString() << entry->plainDisplayName() << entry->id()
                    << entry->pinned;
@@ -3804,7 +3809,7 @@ void EditorManager::setSessionTitleHandler(WindowTitleHandler handler)
 */
 void EditorManager::updateWindowTitles()
 {
-    foreach (EditorArea *area, d->m_editorAreas)
+    for (EditorArea *area : qAsConst(d->m_editorAreas))
         emit area->windowTitleNeedsUpdate();
 }
 

@@ -59,9 +59,10 @@ static void mimeTypeFactoryLookup(const Utils::MimeType &mimeType,
     while (!queue.isEmpty()) {
         Utils::MimeType mt = queue.takeFirst();
         // check for matching factories
-        foreach (EditorTypeLike *factory, allFactories) {
+        for (EditorTypeLike *factory : allFactories) {
             if (!matches.contains(factory)) {
-                foreach (const QString &mimeName, factory->mimeTypes()) {
+                const QStringList mimeTypes = factory->mimeTypes();
+                for (const QString &mimeName : mimeTypes) {
                     if (mt.matchesName(mimeName)) {
                         list->append(factory);
                         matches.insert(factory);
@@ -70,8 +71,8 @@ static void mimeTypeFactoryLookup(const Utils::MimeType &mimeType,
             }
         }
         // add parent mime types
-        QStringList parentNames = mt.parentMimeTypes();
-        foreach (const QString &parentName, parentNames) {
+        const QStringList parentNames = mt.parentMimeTypes();
+        for (const QString &parentName : parentNames) {
             const Utils::MimeType parent = Utils::mimeTypeForName(parentName);
             if (parent.isValid()) {
                 int seenSize = seen.size();

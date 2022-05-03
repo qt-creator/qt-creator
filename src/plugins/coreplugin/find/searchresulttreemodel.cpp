@@ -369,7 +369,7 @@ QSet<SearchResultTreeItem *> SearchResultTreeModel::addPath(const QStringList &p
     QModelIndex currentItemIndex = QModelIndex();
     SearchResultTreeItem *partItem = nullptr;
     QStringList currentPath;
-    foreach (const QString &part, path) {
+    for (const QString &part : path) {
         const int insertionIndex = currentItem->insertionIndex(part, &partItem);
         if (!partItem) {
             SearchResultItem item;
@@ -403,12 +403,12 @@ void SearchResultTreeModel::addResultsToCurrentParent(const QList<SearchResultIt
     if (mode == SearchResult::AddOrdered) {
         // this is the mode for e.g. text search
         beginInsertRows(m_currentIndex, m_currentParent->childrenCount(), m_currentParent->childrenCount() + items.count());
-        foreach (const SearchResultItem &item, items) {
+        for (const SearchResultItem &item : items) {
             m_currentParent->appendChild(item);
         }
         endInsertRows();
     } else if (mode == SearchResult::AddSorted) {
-        foreach (const SearchResultItem &item, items) {
+        for (const SearchResultItem &item : items) {
             SearchResultTreeItem *existingItem;
             const int insertionIndex = m_currentParent->insertionIndex(item, &existingItem);
             if (existingItem) {
@@ -452,7 +452,7 @@ QList<QModelIndex> SearchResultTreeModel::addResults(const QList<SearchResultIte
     QList<SearchResultItem> sortedItems = items;
     std::stable_sort(sortedItems.begin(), sortedItems.end(), lessThanByPath);
     QList<SearchResultItem> itemSet;
-    foreach (const SearchResultItem &item, sortedItems) {
+    for (const SearchResultItem &item : sortedItems) {
         m_editorFontIsUsed |= item.useTextEditorFont();
         if (!m_currentParent || (m_currentPath != item.path())) {
             // first add all the items from before
@@ -470,7 +470,7 @@ QList<QModelIndex> SearchResultTreeModel::addResults(const QList<SearchResultIte
         itemSet.clear();
     }
     QList<QModelIndex> pathIndices;
-    foreach (SearchResultTreeItem *item, pathNodes)
+    for (SearchResultTreeItem *item : qAsConst(pathNodes))
         pathIndices << index(item);
     return pathIndices;
 }

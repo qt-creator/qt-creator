@@ -121,7 +121,8 @@ void ExternalToolManager::parseDirectory(const QString &directory,
     QTC_ASSERT(categoryMenus, return);
     QTC_ASSERT(tools, return);
     QDir dir(directory, QLatin1String("*.xml"), QDir::Unsorted, QDir::Files | QDir::Readable);
-    foreach (const QFileInfo &info, dir.entryInfoList()) {
+    const QList<QFileInfo> infoList = dir.entryInfoList();
+    for (const QFileInfo &info : infoList) {
         const QString &fileName = info.absoluteFilePath();
         QString error;
         ExternalTool *tool = ExternalTool::createFromFile(Utils::FilePath::fromString(fileName), &error, ICore::userInterfaceLanguage());
@@ -169,7 +170,8 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<ExternalT
     QMap<QString, ExternalTool *> newTools;
     QMap<QString, QAction *> newActions;
     for (auto it = tools.cbegin(), end = tools.cend(); it != end; ++it) {
-        foreach (ExternalTool *tool, it.value()) {
+        const QList<ExternalTool *> values = it.value();
+        for (ExternalTool *tool : values) {
             const QString id = tool->id();
             if (d->m_tools.value(id) == tool) {
                 newActions.insert(id, d->m_actions.value(id));
@@ -210,7 +212,8 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<ExternalT
             mexternaltools->addMenu(container, Constants::G_DEFAULT_ONE);
             container->menu()->setTitle(containerName);
         }
-        foreach (ExternalTool *tool, it.value()) {
+        const QList<ExternalTool *> values = it.value();
+        for (ExternalTool *tool : values) {
             const QString &toolId = tool->id();
             // tool action and command
             QAction *action = nullptr;
@@ -255,7 +258,8 @@ void ExternalToolManager::readSettings(const QMap<QString, ExternalTool *> &tool
 
     if (categoryMap) {
         settings->beginGroup(QLatin1String("OverrideCategories"));
-        foreach (const QString &settingsCategory, settings->childGroups()) {
+        const QStringList settingsCategories = settings->childGroups();
+        for (const QString &settingsCategory : settingsCategories) {
             QString displayCategory = settingsCategory;
             if (displayCategory == QLatin1String(kSpecialUncategorizedSetting))
                 displayCategory = QLatin1String("");
@@ -294,7 +298,8 @@ static void writeSettings()
             category = QLatin1String(kSpecialUncategorizedSetting);
         settings->beginWriteArray(category, it.value().count());
         int i = 0;
-        foreach (ExternalTool *tool, it.value()) {
+        const QList<ExternalTool *> values = it.value();
+        for (const ExternalTool *tool : values) {
             settings->setArrayIndex(i);
             settings->setValue(QLatin1String("Tool"), tool->id());
             ++i;
