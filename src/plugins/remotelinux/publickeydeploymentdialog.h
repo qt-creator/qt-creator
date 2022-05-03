@@ -50,10 +50,7 @@ public:
     ~PublicKeyDeploymentDialog() override;
 
 private:
-    void handleDeploymentFinished(const QString &errorMsg);
-    void handleDeploymentError(const QString &errorMsg);
-    void handleDeploymentSuccess();
-    void handleCanceled();
+    void handleDeploymentDone(bool succeeded, const QString &errorMessage);
 
     Internal::PublicKeyDeploymentDialogPrivate * const d;
 };

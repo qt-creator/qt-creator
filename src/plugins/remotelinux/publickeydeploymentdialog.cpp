@@ -25,11 +25,9 @@
 
 #include "publickeydeploymentdialog.h"
 
-#include "sshkeydeployer.h"
-
-#include <coreplugin/icore.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <ssh/sshconnection.h>
+#include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
 
 using namespace ProjectExplorer;
@@ -37,11 +35,12 @@ using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
+
 class PublicKeyDeploymentDialogPrivate
 {
 public:
-    SshKeyDeployer keyDeployer;
-    bool done;
+    QtcProcess m_process;
+    bool m_done;
 };
 } // namespace Internal;
 
@@ -68,16 +67,38 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const IDevice::ConstPtr &de
     setMinimumDuration(0);
     setMaximum(1);
 
-    d->done = false;
+    d->m_done = false;
     setLabelText(tr("Deploying..."));
     setValue(0);
-    connect(this, &PublicKeyDeploymentDialog::canceled,
-            this, &PublicKeyDeploymentDialog::handleCanceled);
-    connect(&d->keyDeployer, &SshKeyDeployer::error,
-            this, &PublicKeyDeploymentDialog::handleDeploymentError);
-    connect(&d->keyDeployer, &SshKeyDeployer::finishedSuccessfully,
-            this, &PublicKeyDeploymentDialog::handleDeploymentSuccess);
-    d->keyDeployer.deployPublicKey(deviceConfig->sshParameters(), publicKeyFileName);
+    connect(this, &PublicKeyDeploymentDialog::canceled, this,
+            [this] { d->m_done ? accept() : reject(); });
+    connect(&d->m_process, &QtcProcess::done, this, [this] {
+        const bool succeeded = d->m_process.error() == QProcess::UnknownError;
+        QString finalMessage;
+        if (!succeeded) {
+            QString errorMessage = d->m_process.errorString();
+            if (errorMessage.isEmpty())
+                errorMessage = d->m_process.stdErr();
+            if (errorMessage.endsWith('\n'))
+                errorMessage.chop(1);
+            finalMessage = tr("Key deployment failed.");
+            if (!errorMessage.isEmpty())
+                finalMessage += '\n' + errorMessage;
+        }
+        handleDeploymentDone(succeeded, finalMessage);
+    });
+
+    FileReader reader;
+    if (!reader.fetch(publicKeyFileName)) {
+        handleDeploymentDone(false, tr("Public key error: %1").arg(reader.errorString()));
+        return;
+    }
+
+    const QString command = "test -d .ssh || mkdir -p ~/.ssh && chmod 0700 .ssh && echo '"
+            + QString::fromLocal8Bit(reader.data())
+            + "' >> .ssh/authorized_keys && chmod 0600 .ssh/authorized_keys";
+    d->m_process.setCommand({deviceConfig->mapToGlobalPath("/bin/sh"), {"-c", command}});
+    d->m_process.start();
 }
 
 PublicKeyDeploymentDialog::~PublicKeyDeploymentDialog()
@@ -85,43 +106,20 @@ PublicKeyDeploymentDialog::~PublicKeyDeploymentDialog()
     delete d;
 }
 
-void PublicKeyDeploymentDialog::handleDeploymentSuccess()
+void PublicKeyDeploymentDialog::handleDeploymentDone(bool succeeded, const QString &errorMessage)
 {
-    handleDeploymentFinished(QString());
-    setValue(1);
-    d->done = true;
-}
-
-void PublicKeyDeploymentDialog::handleDeploymentError(const QString &errorMsg)
-{
-    handleDeploymentFinished(errorMsg);
-}
-
-void PublicKeyDeploymentDialog::handleDeploymentFinished(const QString &errorMsg)
-{
-    QString buttonText;
-    QString textColor;
-    if (errorMsg.isEmpty()) {
-        buttonText = tr("Deployment finished successfully.");
-        textColor = Utils::creatorTheme()->color(Utils::Theme::TextColorNormal).name();
-    } else {
-        buttonText = errorMsg;
-        textColor = Utils::creatorTheme()->color(Utils::Theme::TextColorError).name();
-    }
+    QString buttonText = succeeded ? tr("Deployment finished successfully.") : errorMessage;
+    const QString textColor = creatorTheme()->color(
+                succeeded ? Theme::TextColorNormal : Theme::TextColorError).name();
     setLabelText(QString::fromLatin1("<font color=\"%1\">%2</font>")
-            .arg(textColor)
-            .arg(buttonText.replace("\n", "<br/>")));
+            .arg(textColor, buttonText.replace("\n", "<br/>")));
     setCancelButtonText(tr("Close"));
-}
 
-void PublicKeyDeploymentDialog::handleCanceled()
-{
-    disconnect(&d->keyDeployer, nullptr, this, nullptr);
-    d->keyDeployer.stopDeployment();
-    if (d->done)
-        accept();
-    else
-        reject();
+    if (!succeeded)
+        return;
+
+    setValue(1);
+    d->m_done = true;
 }
 
 } // namespace RemoteLinux

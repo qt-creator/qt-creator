@@ -84,8 +84,6 @@ Project {
             "remotelinuxx11forwardingaspect.h",
             "rsyncdeploystep.cpp",
             "rsyncdeploystep.h",
-            "sshkeydeployer.cpp",
-            "sshkeydeployer.h",
             "sshprocessinterface.h",
             "tarpackagecreationstep.cpp",
             "tarpackagecreationstep.h",
