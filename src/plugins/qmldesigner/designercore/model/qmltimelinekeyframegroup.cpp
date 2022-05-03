@@ -210,10 +210,15 @@ TypeName QmlTimelineKeyframeGroup::valueType() const
 
     const ModelNode targetNode = target();
 
-    if (targetNode.isValid() && targetNode.hasMetaInfo())
-        return targetNode.metaInfo().propertyTypeName(propertyName());
+    TypeName typeName;
 
-    return TypeName();
+    if (targetNode.isValid() && targetNode.hasMetaInfo())
+        typeName = targetNode.metaInfo().propertyTypeName(propertyName());
+
+    if (typeName.startsWith("<cpp>."))
+        typeName.remove(0, 6);
+
+    return typeName;
 }
 
 bool QmlTimelineKeyframeGroup::hasKeyframe(qreal frame)
