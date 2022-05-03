@@ -47,7 +47,7 @@ public:
 private:
     void handleConnected();
     void handleConnectionFailure();
-    void handleProcessFinished();
+    void handleUnameFinished();
     void handlePortsGatheringError(const QString &message);
     void handlePortListReady();
     void handleSftpStarted();

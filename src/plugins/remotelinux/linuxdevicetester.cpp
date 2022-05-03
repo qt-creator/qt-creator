@@ -53,7 +53,7 @@ class GenericLinuxDeviceTesterPrivate
 public:
     IDevice::Ptr deviceConfiguration;
     SshConnection *connection = nullptr;
-    SshRemoteProcessPtr process;
+    QtcProcess unameProcess;
     DeviceUsedPortsGatherer portsGatherer;
     SftpTransferPtr sftpTransfer;
     QtcProcess rsyncProcess;
@@ -68,6 +68,10 @@ using namespace Internal;
 GenericLinuxDeviceTester::GenericLinuxDeviceTester(QObject *parent)
     : DeviceTester(parent), d(new GenericLinuxDeviceTesterPrivate)
 {
+    connect(&d->unameProcess, &QtcProcess::done, this,
+            &GenericLinuxDeviceTester::handleUnameFinished);
+    connect(&d->rsyncProcess, &QtcProcess::done, this,
+            &GenericLinuxDeviceTester::handleRsyncFinished);
     SshRemoteProcess::setupSshEnvironment(&d->rsyncProcess);
 }
 
@@ -107,14 +111,13 @@ void GenericLinuxDeviceTester::stopTest()
         d->portsGatherer.stop();
         break;
     case RunningUname:
-        d->process->close();
+        d->unameProcess.close();
         break;
     case TestingSftp:
         d->sftpTransfer->stop();
         break;
     case TestingRsync:
-        d->rsyncProcess.disconnect();
-        d->rsyncProcess.kill();
+        d->rsyncProcess.close();
     case Inactive:
         break;
     }
@@ -126,13 +129,11 @@ void GenericLinuxDeviceTester::handleConnected()
 {
     QTC_ASSERT(d->state == Connecting, return);
 
-    d->process = d->connection->createRemoteProcess("uname -rsm");
-    connect(d->process.get(), &QtcProcess::done,
-            this, &GenericLinuxDeviceTester::handleProcessFinished);
+    d->unameProcess.setCommand({d->deviceConfiguration->mapToGlobalPath("uname"), {"-rsm"}});
 
     emit progressMessage(tr("Checking kernel version..."));
     d->state = RunningUname;
-    d->process->start();
+    d->unameProcess.start();
 }
 
 void GenericLinuxDeviceTester::handleConnectionFailure()
@@ -144,18 +145,18 @@ void GenericLinuxDeviceTester::handleConnectionFailure()
     setFinished(TestFailure);
 }
 
-void GenericLinuxDeviceTester::handleProcessFinished()
+void GenericLinuxDeviceTester::handleUnameFinished()
 {
     QTC_ASSERT(d->state == RunningUname, return);
 
-    if (!d->process->errorString().isEmpty() || d->process->exitCode() != 0) {
-        const QByteArray stderrOutput = d->process->readAllStandardError();
+    if (!d->unameProcess.errorString().isEmpty() || d->unameProcess.exitCode() != 0) {
+        const QByteArray stderrOutput = d->unameProcess.readAllStandardError();
         if (!stderrOutput.isEmpty())
             emit errorMessage(tr("uname failed: %1").arg(QString::fromUtf8(stderrOutput)) + QLatin1Char('\n'));
         else
             emit errorMessage(tr("uname failed.") + QLatin1Char('\n'));
     } else {
-        emit progressMessage(QString::fromUtf8(d->process->readAllStandardOutput()));
+        emit progressMessage(QString::fromUtf8(d->unameProcess.readAllStandardOutput()));
     }
 
     connect(&d->portsGatherer, &DeviceUsedPortsGatherer::error,
@@ -222,8 +223,6 @@ void GenericLinuxDeviceTester::handleSftpFinished(const QString &error)
 void GenericLinuxDeviceTester::testRsync()
 {
     emit progressMessage(tr("Checking whether rsync works..."));
-    connect(&d->rsyncProcess, &QtcProcess::done, this,
-            &GenericLinuxDeviceTester::handleRsyncFinished);
     const RsyncCommandLine cmdLine = RsyncDeployStep::rsyncCommand(*d->connection,
                                                                    RsyncDeployStep::defaultFlags());
     const QStringList args = QStringList(cmdLine.options)
