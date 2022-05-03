@@ -32,8 +32,8 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
-const char NO_PROJECT_CONFIGURATION[] = "CppEditor.NoProjectConfiguration";
-const char CPPEDITOR_SHOW_INFO_BAR_FOR_FOR_NO_PROJECT[] = "ShowInfoBarForNoProject";
+const char NO_PROJECT_CONFIGURATION[] = "NoProject";
+const char SETTINGS_PREFIX[] = "ShowInfoBarFor";
 const bool kShowInInfoBarDefault = true;
 
 using namespace Core;
@@ -58,15 +58,18 @@ void MinimizableInfoBars::createActions()
     auto action = new QAction(this);
     action->setToolTip(tr("File is not part of any project."));
     action->setIcon(Icons::WARNING_TOOLBAR.pixmap());
-    connect(action, &QAction::triggered, this, [this]() { setShowNoProjectInfoBar(true); });
-    action->setVisible(!showNoProjectInfoBar());
+    connect(action, &QAction::triggered, this, [this]() {
+        setShowInInfoBar(NO_PROJECT_CONFIGURATION, true);
+        updateNoProjectConfiguration();
+    });
+    action->setVisible(!showInInfoBar(NO_PROJECT_CONFIGURATION));
     m_actions.insert(NO_PROJECT_CONFIGURATION, action);
 }
 
-QString MinimizableInfoBars::settingsKey(const QString &id) const
+QString MinimizableInfoBars::settingsKey(const Id &id) const
 {
     QTC_CHECK(!m_settingsGroup.isEmpty());
-    return m_settingsGroup + '/' + id;
+    return m_settingsGroup + '/' + SETTINGS_PREFIX + id.toString();
 }
 
 void MinimizableInfoBars::createShowInfoBarActions(const ActionCreator &actionCreator) const
@@ -97,7 +100,7 @@ void MinimizableInfoBars::updateNoProjectConfiguration()
 
     bool show = false;
     if (!m_hasProjectPart) {
-        if (showNoProjectInfoBar())
+        if (showInInfoBar(id))
             addNoProjectConfigurationEntry(id);
         else
             show = true;
@@ -133,23 +136,20 @@ void MinimizableInfoBars::addNoProjectConfigurationEntry(const Id &id)
     const QString text = tr("<b>Warning</b>: This file is not part of any project. "
                             "The code model might have issues parsing this file properly.");
 
-    m_infoBar.addInfo(
-        createMinimizableInfo(id, text, this, [this]() { setShowNoProjectInfoBar(false); }));
+    m_infoBar.addInfo(createMinimizableInfo(id, text, this, [this, id]() {
+        setShowInInfoBar(id, false);
+        updateNoProjectConfiguration();
+    }));
 }
 
-bool MinimizableInfoBars::showNoProjectInfoBar() const
+bool MinimizableInfoBars::showInInfoBar(const Id &id) const
 {
-    return ICore::settings()
-        ->value(settingsKey(CPPEDITOR_SHOW_INFO_BAR_FOR_FOR_NO_PROJECT), kShowInInfoBarDefault)
-        .toBool();
+    return ICore::settings()->value(settingsKey(id), kShowInInfoBarDefault).toBool();
 }
 
-void MinimizableInfoBars::setShowNoProjectInfoBar(bool show)
+void MinimizableInfoBars::setShowInInfoBar(const Id &id, bool show)
 {
-    ICore::settings()->setValueWithDefault(settingsKey(CPPEDITOR_SHOW_INFO_BAR_FOR_FOR_NO_PROJECT),
-                                           show,
-                                           kShowInInfoBarDefault);
-    updateNoProjectConfiguration();
+    ICore::settings()->setValueWithDefault(settingsKey(id), show, kShowInInfoBarDefault);
 }
 
 } // namespace Internal

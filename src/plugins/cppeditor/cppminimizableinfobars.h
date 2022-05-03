@@ -58,11 +58,9 @@ public:
 private:
     void createActions();
 
-    QString settingsKey(const QString &id) const;
-    bool showHeaderErrorInfoBar() const;
-    void setShowHeaderErrorInfoBar(bool show);
-    bool showNoProjectInfoBar() const;
-    void setShowNoProjectInfoBar(bool show);
+    QString settingsKey(const Utils::Id &id) const;
+    bool showInInfoBar(const Utils::Id &id) const;
+    void setShowInInfoBar(const Utils::Id &id, bool show);
 
     void updateNoProjectConfiguration();
 
