@@ -46,6 +46,7 @@ constexpr char changeNotificationsKey[] = "changeNotifications";
 constexpr char changesKey[] = "changes";
 constexpr char characterKey[] = "character";
 constexpr char childrenKey[] = "children";
+constexpr char clientInfoKey[] = "clientInfo";
 constexpr char codeActionKey[] = "codeAction";
 constexpr char codeActionKindKey[] = "codeActionKind";
 constexpr char codeActionKindsKey[] = "codeActionKinds";

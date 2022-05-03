@@ -53,6 +53,19 @@ private:
     Values m_value = off;
 };
 
+class LANGUAGESERVERPROTOCOL_EXPORT ClientInfo : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+
+    QString name() const { return typedValue<QString>(nameKey); }
+    void setName(const QString &name) { insert(nameKey, name); }
+
+    Utils::optional<QString> version() const { return optionalValue<QString>(versionKey); }
+    void setVersion(const QString &version) { insert(versionKey, version); }
+    void clearVersion() { remove(versionKey); }
+};
+
 class LANGUAGESERVERPROTOCOL_EXPORT InitializeParams : public JsonObject
 {
 public:
@@ -119,6 +132,10 @@ public:
     void setWorkSpaceFolders(const LanguageClientArray<WorkSpaceFolder> &folders)
     { insert(workspaceFoldersKey, folders.toJson()); }
     void clearWorkSpaceFolders() { remove(workspaceFoldersKey); }
+
+    Utils::optional<ClientInfo> clientInfo() const { return optionalValue<ClientInfo>(clientInfoKey); }
+    void setClientInfo(const ClientInfo &clientInfo) { insert(clientInfoKey, clientInfo); }
+    void clearClientInfo() { remove(clientInfoKey); }
 
     bool isValid() const override
     { return contains(processIdKey) && contains(rootUriKey) && contains(capabilitiesKey); }

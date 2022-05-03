@@ -1,5 +1,5 @@
 add_qtc_plugin(LanguageClient
-  PUBLIC_DEPENDS LanguageServerProtocol Qt5::Core
+  PUBLIC_DEPENDS LanguageServerProtocol Qt5::Core app_version
   PLUGIN_DEPENDS ProjectExplorer Core TextEditor
   SOURCES
     client.cpp client.h

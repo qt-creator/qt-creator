@@ -30,6 +30,8 @@
 #include "languageclientutils.h"
 #include "semantichighlightsupport.h"
 
+#include <app/app_version.h>
+
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -87,6 +89,10 @@ Client::Client(BaseClientInterface *clientInterface)
     , m_tokenSupport(this)
 {
     using namespace ProjectExplorer;
+
+    m_clientInfo.setName(Core::Constants::IDE_DISPLAY_NAME);
+    m_clientInfo.setVersion(Core::Constants::IDE_VERSION_DISPLAY);
+
     m_clientProviders.completionAssistProvider = new LanguageClientCompletionAssistProvider(this);
     m_clientProviders.functionHintProvider = new FunctionHintAssistProvider(this);
     m_clientProviders.quickFixAssistProvider = new LanguageClientQuickFixProvider(this);
@@ -299,6 +305,7 @@ void Client::initialize()
     QTC_ASSERT(m_state == Uninitialized, return);
     qCDebug(LOGLSPCLIENT) << "initializing language server " << m_displayName;
     InitializeParams params;
+    params.setClientInfo(m_clientInfo);
     params.setCapabilities(m_clientCapabilities);
     params.setInitializationOptions(m_initializationOptions);
     if (m_project)
@@ -354,6 +361,11 @@ QString Client::stateString() const
     case Error: return tr("error");
     }
     return {};
+}
+
+void Client::setClientInfo(const LanguageServerProtocol::ClientInfo &clientInfo)
+{
+    m_clientInfo = clientInfo;
 }
 
 ClientCapabilities Client::defaultClientCapabilities()

@@ -123,6 +123,7 @@ public:
     QString stateString() const;
     bool reachable() const { return m_state == Initialized; }
 
+    void setClientInfo(const LanguageServerProtocol::ClientInfo &clientInfo);
     // capabilities
     static LanguageServerProtocol::ClientCapabilities defaultClientCapabilities();
     void setClientCapabilities(const LanguageServerProtocol::ClientCapabilities &caps);
@@ -317,6 +318,7 @@ private:
     bool m_locatorsEnabled = true;
     bool m_autoRequestCodeActions = true;
     QTimer m_shutdownTimer;
+    LanguageServerProtocol::ClientInfo m_clientInfo;
 };
 
 } // namespace LanguageClient
