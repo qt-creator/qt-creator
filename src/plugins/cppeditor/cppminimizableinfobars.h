@@ -48,8 +48,9 @@ public:
     using ActionCreator = std::function<QAction *(QWidget *widget)>;
 
 public:
-    explicit MinimizableInfoBars(Utils::InfoBar &infoBar, QObject *parent = nullptr);
+    explicit MinimizableInfoBars(Utils::InfoBar &infoBar);
 
+    void setSettingsGroup(const QString &settingsGroup);
     void createShowInfoBarActions(const ActionCreator &actionCreator) const;
 
     void processHasProjectPart(bool hasProjectPart);
@@ -57,12 +58,19 @@ public:
 private:
     void createActions();
 
+    QString settingsKey(const QString &id) const;
+    bool showHeaderErrorInfoBar() const;
+    void setShowHeaderErrorInfoBar(bool show);
+    bool showNoProjectInfoBar() const;
+    void setShowNoProjectInfoBar(bool show);
+
     void updateNoProjectConfiguration();
 
     void addNoProjectConfigurationEntry(const Utils::Id &id);
 
 private:
     Utils::InfoBar &m_infoBar;
+    QString m_settingsGroup;
     QHash<Utils::Id, QAction *> m_actions;
 
     bool m_hasProjectPart = true;

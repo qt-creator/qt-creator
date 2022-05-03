@@ -128,6 +128,8 @@ CppEditorDocument::CppEditorDocument()
     connect(&m_parseContextModel, &ParseContextModel::preferredParseContextChanged,
             this, &CppEditorDocument::reparseWithPreferredParseContext);
 
+    m_minimizableInfoBars.setSettingsGroup(Constants::CPPEDITOR_SETTINGSGROUP);
+
     // See also onFilePathChanged() for more initialization
 }
 

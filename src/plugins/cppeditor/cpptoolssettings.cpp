@@ -44,7 +44,6 @@
 
 static const char idKey[] = "CppGlobal";
 const bool kSortEditorDocumentOutlineDefault = true;
-const bool kShowNoProjectInfoBarDefault = true;
 
 using namespace Core;
 using namespace TextEditor;
@@ -262,26 +261,6 @@ void CppToolsSettings::setSortedEditorDocumentOutline(bool sorted)
                                            sorted,
                                            kSortEditorDocumentOutlineDefault);
     emit editorDocumentOutlineSortingChanged(sorted);
-}
-
-static QString showNoProjectInfoBarKey()
-{
-    return QLatin1String(Constants::CPPEDITOR_SETTINGSGROUP)
-         + QLatin1Char('/')
-         + QLatin1String(Constants::CPPEDITOR_SHOW_INFO_BAR_FOR_FOR_NO_PROJECT);
-}
-
-bool CppToolsSettings::showNoProjectInfoBar() const
-{
-    return ICore::settings()->value(showNoProjectInfoBarKey(), kShowNoProjectInfoBarDefault).toBool();
-}
-
-void CppToolsSettings::setShowNoProjectInfoBar(bool show)
-{
-    ICore::settings()->setValueWithDefault(showNoProjectInfoBarKey(),
-                                           show,
-                                           kShowNoProjectInfoBarDefault);
-    emit showNoProjectInfoBarChanged(show);
 }
 
 } // namespace CppEditor

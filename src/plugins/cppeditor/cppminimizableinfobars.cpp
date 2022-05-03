@@ -25,30 +25,32 @@
 
 #include "cppminimizableinfobars.h"
 
-#include "cpptoolssettings.h"
-
 #include <QToolButton>
 
+#include <coreplugin/icore.h>
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
 const char NO_PROJECT_CONFIGURATION[] = "CppEditor.NoProjectConfiguration";
+const char CPPEDITOR_SHOW_INFO_BAR_FOR_FOR_NO_PROJECT[] = "ShowInfoBarForNoProject";
+const bool kShowInInfoBarDefault = true;
 
+using namespace Core;
 using namespace Utils;
 
 namespace CppEditor {
 namespace Internal {
 
-static CppToolsSettings *settings() { return CppToolsSettings::instance(); }
-
-MinimizableInfoBars::MinimizableInfoBars(InfoBar &infoBar, QObject *parent)
-    : QObject(parent)
-    , m_infoBar(infoBar)
+MinimizableInfoBars::MinimizableInfoBars(InfoBar &infoBar)
+    : m_infoBar(infoBar)
 {
-    connect(settings(), &CppToolsSettings::showNoProjectInfoBarChanged,
-            this, &MinimizableInfoBars::updateNoProjectConfiguration);
     createActions();
+}
+
+void MinimizableInfoBars::setSettingsGroup(const QString &settingsGroup)
+{
+    m_settingsGroup = settingsGroup;
 }
 
 void MinimizableInfoBars::createActions()
@@ -56,9 +58,15 @@ void MinimizableInfoBars::createActions()
     auto action = new QAction(this);
     action->setToolTip(tr("File is not part of any project."));
     action->setIcon(Icons::WARNING_TOOLBAR.pixmap());
-    connect(action, &QAction::triggered, []() { settings()->setShowNoProjectInfoBar(true); });
-    action->setVisible(!settings()->showNoProjectInfoBar());
+    connect(action, &QAction::triggered, this, [this]() { setShowNoProjectInfoBar(true); });
+    action->setVisible(!showNoProjectInfoBar());
     m_actions.insert(NO_PROJECT_CONFIGURATION, action);
+}
+
+QString MinimizableInfoBars::settingsKey(const QString &id) const
+{
+    QTC_CHECK(!m_settingsGroup.isEmpty());
+    return m_settingsGroup + '/' + id;
 }
 
 void MinimizableInfoBars::createShowInfoBarActions(const ActionCreator &actionCreator) const
@@ -89,7 +97,7 @@ void MinimizableInfoBars::updateNoProjectConfiguration()
 
     bool show = false;
     if (!m_hasProjectPart) {
-        if (settings()->showNoProjectInfoBar())
+        if (showNoProjectInfoBar())
             addNoProjectConfigurationEntry(id);
         else
             show = true;
@@ -102,6 +110,7 @@ void MinimizableInfoBars::updateNoProjectConfiguration()
 
 static InfoBarEntry createMinimizableInfo(const Id &id,
                                           const QString &text,
+                                          QObject *guard,
                                           std::function<void()> minimizer)
 {
     QTC_CHECK(minimizer);
@@ -111,8 +120,9 @@ static InfoBarEntry createMinimizableInfo(const Id &id,
     // The minimizer() might delete the "Minimize" button immediately and as
     // result invalid reads will happen in QToolButton::mouseReleaseEvent().
     // Avoid this by running the minimizer in the next event loop iteration.
-    info.addCustomButton(MinimizableInfoBars::tr("Minimize"), [minimizer] {
-        QMetaObject::invokeMethod(settings(), [minimizer] { minimizer(); }, Qt::QueuedConnection);
+    info.addCustomButton(MinimizableInfoBars::tr("Minimize"), [guard, minimizer] {
+        QMetaObject::invokeMethod(
+            guard, [minimizer] { minimizer(); }, Qt::QueuedConnection);
     });
 
     return info;
@@ -123,9 +133,23 @@ void MinimizableInfoBars::addNoProjectConfigurationEntry(const Id &id)
     const QString text = tr("<b>Warning</b>: This file is not part of any project. "
                             "The code model might have issues parsing this file properly.");
 
-    m_infoBar.addInfo(createMinimizableInfo(id, text, []() {
-        settings()->setShowNoProjectInfoBar(false);
-    }));
+    m_infoBar.addInfo(
+        createMinimizableInfo(id, text, this, [this]() { setShowNoProjectInfoBar(false); }));
+}
+
+bool MinimizableInfoBars::showNoProjectInfoBar() const
+{
+    return ICore::settings()
+        ->value(settingsKey(CPPEDITOR_SHOW_INFO_BAR_FOR_FOR_NO_PROJECT), kShowInInfoBarDefault)
+        .toBool();
+}
+
+void MinimizableInfoBars::setShowNoProjectInfoBar(bool show)
+{
+    ICore::settings()->setValueWithDefault(settingsKey(CPPEDITOR_SHOW_INFO_BAR_FOR_FOR_NO_PROJECT),
+                                           show,
+                                           kShowInInfoBarDefault);
+    updateNoProjectConfiguration();
 }
 
 } // namespace Internal

@@ -58,13 +58,8 @@ public:
     bool sortedEditorDocumentOutline() const;
     void setSortedEditorDocumentOutline(bool sorted);
 
-    bool showNoProjectInfoBar() const;
-    void setShowNoProjectInfoBar(bool show);
-
 signals:
     void editorDocumentOutlineSortingChanged(bool isSorted);
-    void showHeaderErrorInfoBarChanged(bool isShown);
-    void showNoProjectInfoBarChanged(bool isShown);
 
 private:
     Internal::CppToolsSettingsPrivate *d;

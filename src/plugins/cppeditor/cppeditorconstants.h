@@ -99,7 +99,6 @@ const char CPPEDITOR_SETTINGSGROUP[] = "CppTools";
 const char LOWERCASE_CPPFILES_KEY[] = "LowerCaseFiles";
 const bool LOWERCASE_CPPFILES_DEFAULT = true;
 const char CPPEDITOR_SORT_EDITOR_DOCUMENT_OUTLINE[] = "SortedMethodOverview";
-const char CPPEDITOR_SHOW_INFO_BAR_FOR_FOR_NO_PROJECT[] = "ShowInfoBarForNoProject";
 const char CPPEDITOR_MODEL_MANAGER_PCH_USAGE[] = "PCHUsage";
 const char CPPEDITOR_INTERPRET_AMBIGIUOUS_HEADERS_AS_C_HEADERS[]
     = "InterpretAmbiguousHeadersAsCHeaders";
