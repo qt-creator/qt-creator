@@ -2025,6 +2025,8 @@ void NodeInstanceView::updateQsbPathToFilterMap()
     m_qsbPathToFilterMap.clear();
     if (m_currentTarget && !m_qsbPath.isEmpty()) {
         const auto bs = qobject_cast<QmlProjectManager::QmlBuildSystem *>(m_currentTarget->buildSystem());
+        if (!bs)
+            return;
         const QStringList shaderToolFiles = bs->shaderToolFiles();
 
 #ifndef QMLDESIGNER_TEST
@@ -2056,6 +2058,9 @@ void NodeInstanceView::handleShaderChanges()
         return;
 
     const auto bs = qobject_cast<QmlProjectManager::QmlBuildSystem *>(m_currentTarget->buildSystem());
+    if (!bs)
+        return;
+
     QStringList baseArgs = bs->shaderToolArgs();
     if (baseArgs.isEmpty())
         return;
