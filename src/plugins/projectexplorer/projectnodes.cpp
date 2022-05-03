@@ -88,7 +88,7 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
         parts[0].prepend('/');
 
     ProjectExplorer::FolderNode *parent = folder;
-    foreach (const QString &part, parts) {
+    for (const QString &part : qAsConst(parts)) {
         path = path.pathAppended(part);
         // Find folder in subFolders
         FolderNode *next = parent->folderNode(path);
@@ -352,7 +352,8 @@ FilePath Node::pathOrDirectory(bool dir) const
         } else {
             // Otherwise we figure out a commonPath from the subfolders
             QStringList list;
-            foreach (FolderNode *f, folder->folderNodes())
+            const QList<FolderNode *> folders = folder->folderNodes();
+            for (FolderNode *f : folders)
                 list << f->filePath().toString() + QLatin1Char('/');
             location = FilePath::fromString(Utils::commonPath(list));
         }

@@ -304,7 +304,8 @@ public:
         : m_project(project)
     {
         QTC_ASSERT(m_project, return);
-        foreach (ProjectPanelFactory *factory, ProjectPanelFactory::factories())
+        const QList<ProjectPanelFactory *> factories = ProjectPanelFactory::factories();
+        for (ProjectPanelFactory *factory : factories)
             appendChild(new MiscSettingsPanelItem(factory, project));
     }
 

@@ -189,12 +189,12 @@ Kit::Kit(const QVariantMap &data) :
     for (QVariantMap::ConstIterator it = extra.constBegin(); it != cend; ++it)
         d->m_data.insert(Id::fromString(it.key()), it.value());
 
-    QStringList mutableInfoList = data.value(QLatin1String(MUTABLE_INFO_KEY)).toStringList();
-    foreach (const QString &mutableInfo, mutableInfoList)
+    const QStringList mutableInfoList = data.value(QLatin1String(MUTABLE_INFO_KEY)).toStringList();
+    for (const QString &mutableInfo : mutableInfoList)
         d->m_mutable.insert(Id::fromString(mutableInfo));
 
-    QStringList stickyInfoList = data.value(QLatin1String(STICKY_INFO_KEY)).toStringList();
-    foreach (const QString &stickyInfo, stickyInfoList)
+    const QStringList stickyInfoList = data.value(QLatin1String(STICKY_INFO_KEY)).toStringList();
+    for (const QString &stickyInfo : stickyInfoList)
         d->m_sticky.insert(Id::fromString(stickyInfo));
 }
 
@@ -337,7 +337,8 @@ QString Kit::fileSystemFriendlyName() const
     QString name = customFileSystemFriendlyName();
     if (name.isEmpty())
         name = FileUtils::qmakeFriendlyName(displayName());
-    foreach (Kit *i, KitManager::kits()) {
+    const QList<Kit *> kits = KitManager::kits();
+    for (Kit *i : kits) {
         if (i == this)
             continue;
         if (name == FileUtils::qmakeFriendlyName(i->displayName())) {
@@ -536,12 +537,12 @@ QVariantMap Kit::toMap() const
     data.insert(DEVICE_TYPE_FOR_ICON_KEY, d->m_deviceTypeForIcon.toSetting());
 
     QStringList mutableInfo;
-    foreach (Id id, d->m_mutable)
+    for (const Id id : qAsConst(d->m_mutable))
         mutableInfo << id.toString();
     data.insert(QLatin1String(MUTABLE_INFO_KEY), mutableInfo);
 
     QStringList stickyInfo;
-    foreach (Id id, d->m_sticky)
+    for (const Id id : qAsConst(d->m_sticky))
         stickyInfo << id.toString();
     data.insert(QLatin1String(STICKY_INFO_KEY), stickyInfo);
 

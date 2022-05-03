@@ -2610,12 +2610,12 @@ void ProjectExplorerPluginPrivate::determineSessionToRestoreAtStartup()
     // Process command line arguments first:
     const bool lastSessionArg = m_instance->pluginSpec()->arguments().contains("-lastsession");
     m_sessionToRestoreAtStartup = lastSessionArg ? SessionManager::startupSession() : QString();
-    QStringList arguments = ExtensionSystem::PluginManager::arguments();
+    const QStringList arguments = ExtensionSystem::PluginManager::arguments();
     if (!lastSessionArg) {
         QStringList sessions = SessionManager::sessions();
         // We have command line arguments, try to find a session in them
         // Default to no session loading
-        foreach (const QString &arg, arguments) {
+        for (const QString &arg : arguments) {
             if (sessions.contains(arg)) {
                 // Session argument
                 m_sessionToRestoreAtStartup = arg;
@@ -3093,7 +3093,7 @@ static QPair<bool, QString> subprojectEnabledState(const Project *pro)
     result.first = true;
 
     const QList<Project *> &projects = SessionManager::projectOrder(pro);
-    foreach (Project *project, projects) {
+    for (const Project *project : projects) {
         if (project && project->activeTarget()
             && project->activeTarget()->activeBuildConfiguration()
             && !project->activeTarget()->activeBuildConfiguration()->isEnabled()) {
@@ -3249,7 +3249,8 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
 QList<QPair<Runnable, ProcessHandle>> ProjectExplorerPlugin::runningRunControlProcesses()
 {
     QList<QPair<Runnable, ProcessHandle>> processes;
-    foreach (RunControl *rc, allRunControls()) {
+    const QList<RunControl *> runControls = allRunControls();
+    for (RunControl *rc : runControls) {
         if (rc->isRunning())
             processes << qMakePair(rc->runnable(), rc->applicationProcessHandle());
     }
@@ -3576,7 +3577,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
                     m_runActionContextMenu->setData(QVariant::fromValue(runConfigs.first()));
                 } else if (runConfigs.count() > 1) {
                     runMenu->menu()->menuAction()->setVisible(true);
-                    foreach (RunConfiguration *rc, runConfigs) {
+                    for (RunConfiguration *rc : qAsConst(runConfigs)) {
                         auto *act = new QAction(runMenu->menu());
                         act->setData(QVariant::fromValue(rc));
                         act->setText(tr("Run %1").arg(rc->displayName()));

@@ -447,7 +447,8 @@ QString RunSettingsWidget::uniqueDCName(const QString &name)
     QString result = name.trimmed();
     if (!result.isEmpty()) {
         QStringList dcNames;
-        foreach (DeployConfiguration *dc, m_target->deployConfigurations()) {
+        const QList<DeployConfiguration *> configurations = m_target->deployConfigurations();
+        for (DeployConfiguration *dc : configurations) {
             if (dc == m_target->activeDeployConfiguration())
                 continue;
             dcNames.append(dc->displayName());
@@ -462,7 +463,8 @@ QString RunSettingsWidget::uniqueRCName(const QString &name)
     QString result = name.trimmed();
     if (!result.isEmpty()) {
         QStringList rcNames;
-        foreach (RunConfiguration *rc, m_target->runConfigurations()) {
+        const QList<RunConfiguration *> configurations = m_target->runConfigurations();
+        for (RunConfiguration *rc : configurations) {
             if (rc == m_target->activeRunConfiguration())
                 continue;
             rcNames.append(rc->displayName());

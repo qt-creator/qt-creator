@@ -438,7 +438,8 @@ void KitManager::saveKits()
     data.insert(QLatin1String(KIT_FILE_VERSION_KEY), 1);
 
     int count = 0;
-    foreach (Kit *k, kits()) {
+    const QList<Kit *> kits = KitManager::kits();
+    for (Kit *k : kits) {
         QVariantMap tmp = k->toMap();
         if (tmp.isEmpty())
             continue;

@@ -634,7 +634,7 @@ private:
             setKit(m_kit);
         } else {
             // Refresh all widgets if the number of mutable settings did not change
-            foreach (KitAspectWidget *w, m_widgets)
+            for (KitAspectWidget *w : qAsConst(m_widgets))
                 w->refresh();
         }
     }
@@ -1001,7 +1001,8 @@ void MiniProjectTargetSelector::projectAdded(Project *project)
     connect(project, &Project::removedTarget,
             this, &MiniProjectTargetSelector::handleRemovalOfTarget);
 
-    foreach (Target *t, project->targets())
+    const QList<Target *> targets = project->targets();
+    for (Target *t : targets)
         addedTarget(t);
 
     updateProjectListVisible();
@@ -1018,7 +1019,8 @@ void MiniProjectTargetSelector::projectRemoved(Project *project)
     disconnect(project, &Project::removedTarget,
                this, &MiniProjectTargetSelector::handleRemovalOfTarget);
 
-    foreach (Target *t, project->targets())
+    const QList<Target *> targets = project->targets();
+    for (Target *t : targets)
         removedTarget(t);
 
     updateProjectListVisible();
@@ -1165,9 +1167,11 @@ void MiniProjectTargetSelector::updateTargetListVisible()
 void MiniProjectTargetSelector::updateBuildListVisible()
 {
     int maxCount = 0;
-    for (Project *p : SessionManager::projects())
-        foreach (Target *t, p->targets())
+    for (Project *p : SessionManager::projects()) {
+        const QList<Target *> targets = p->targets();
+        for (Target *t : targets)
             maxCount = qMax(t->buildConfigurations().size(), maxCount);
+    }
 
     bool visible = maxCount > 1;
     m_listWidgets[BUILD]->setVisible(visible);
@@ -1179,9 +1183,11 @@ void MiniProjectTargetSelector::updateBuildListVisible()
 void MiniProjectTargetSelector::updateDeployListVisible()
 {
     int maxCount = 0;
-    for (Project *p : SessionManager::projects())
-        foreach (Target *t, p->targets())
+    for (Project *p : SessionManager::projects()) {
+        const QList<Target *> targets = p->targets();
+        for (Target *t : targets)
             maxCount = qMax(t->deployConfigurations().size(), maxCount);
+    }
 
     bool visible = maxCount > 1;
     m_listWidgets[DEPLOY]->setVisible(visible);
@@ -1193,9 +1199,11 @@ void MiniProjectTargetSelector::updateDeployListVisible()
 void MiniProjectTargetSelector::updateRunListVisible()
 {
     int maxCount = 0;
-    for (Project *p : SessionManager::projects())
-        foreach (Target *t, p->targets())
+    for (Project *p : SessionManager::projects()) {
+        const QList<Target *> targets = p->targets();
+        for (Target *t : targets)
             maxCount = qMax(t->runConfigurations().size(), maxCount);
+    }
 
     bool visible = maxCount > 1;
     m_listWidgets[RUN]->setVisible(visible);
@@ -1221,7 +1229,8 @@ void MiniProjectTargetSelector::changeStartupProject(Project *project)
 
     if (project) {
         QList<QObject *> list;
-        foreach (Target *t, project->targets())
+        const QList<Target *> targets = project->targets();
+        for (Target *t : targets)
             list.append(t);
         m_listWidgets[TARGET]->setProjectConfigurations(list, project->activeTarget());
     } else {

@@ -340,7 +340,8 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromRegistry()
 #endif
     QSettings vsRegistry(keyRoot + QStringLiteral("VS7"), QSettings::NativeFormat);
     QScopedPointer<QSettings> vcRegistry;
-    foreach (const QString &vsName, vsRegistry.allKeys()) {
+    const QStringList keys = vsRegistry.allKeys();
+    for (const QString &vsName : keys) {
         const QVersionNumber version = QVersionNumber::fromString(vsName);
         if (!version.isNull()) {
             const QString installationPath = fixRegistryPath(vsRegistry.value(vsName).toString());
@@ -1063,7 +1064,7 @@ Utils::LanguageExtensions MsvcToolChain::languageExtensions(const QStringList &c
 WarningFlags MsvcToolChain::warningFlags(const QStringList &cflags) const
 {
     WarningFlags flags = WarningFlags::NoWarnings;
-    foreach (QString flag, cflags) {
+    for (QString flag : cflags) {
         if (!flag.isEmpty() && flag[0] == QLatin1Char('-'))
             flag[0] = QLatin1Char('/');
 
@@ -1908,7 +1909,8 @@ Toolchains MsvcToolChainFactory::autoDetect(const ToolchainDetector &detector) c
     const QString defaultSdkPath = sdkRegistry.value(QLatin1String("CurrentInstallFolder"))
                                        .toString();
     if (!defaultSdkPath.isEmpty()) {
-        foreach (const QString &sdkKey, sdkRegistry.childGroups()) {
+        const QStringList groups = sdkRegistry.childGroups();
+        for (const QString &sdkKey : groups) {
             const QString name = sdkRegistry.value(sdkKey + QLatin1String("/ProductName")).toString();
             const QString folder = sdkRegistry.value(sdkKey + QLatin1String("/InstallationFolder"))
                                        .toString();
@@ -1944,7 +1946,7 @@ Toolchains MsvcToolChainFactory::autoDetect(const ToolchainDetector &detector) c
                 results = tmp + results;
             else
                 results += tmp;
-        } // foreach
+        } // for
     }
 
     // 2) Installed MSVCs
@@ -1964,7 +1966,8 @@ Toolchains MsvcToolChainFactory::autoDetect(const ToolchainDetector &detector) c
                                                  MsvcToolChain::ia64,
                                                  MsvcToolChain::x86_ia64};
 
-    foreach (const VisualStudioInstallation &i, detectVisualStudio()) {
+    const QVector<VisualStudioInstallation> studios = detectVisualStudio();
+    for (const VisualStudioInstallation &i : studios) {
         for (MsvcToolChain::Platform platform : platforms) {
             const bool toolchainInstalled
                 = QFileInfo(vcVarsBatFor(i.vcVarsPath, platform, i.version)).isFile();
@@ -2143,7 +2146,8 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
 
     const QString output = stdOut.mid(start, end - start);
 
-    foreach (const QString &line, output.split(QLatin1String("\n"))) {
+    const QStringList lines = output.split(QLatin1String("\n"));
+    for (const QString &line : lines) {
         const int pos = line.indexOf('=');
         if (pos > 0) {
             const QString varName = line.mid(0, pos);

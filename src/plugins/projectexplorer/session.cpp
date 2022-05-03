@@ -192,7 +192,8 @@ bool SessionManagerPrivate::recursiveDependencyCheck(const QString &newDep, cons
     if (newDep == checkDep)
         return false;
 
-    foreach (const QString &dependency, m_depMap.value(checkDep)) {
+    const QStringList depList = m_depMap.value(checkDep);
+    for (const QString &dependency : depList) {
         if (!recursiveDependencyCheck(newDep, dependency))
             return false;
     }
@@ -213,7 +214,7 @@ QList<Project *> SessionManager::dependencies(const Project *project)
     const QStringList proDeps = d->m_depMap.value(proName);
 
     QList<Project *> projects;
-    foreach (const QString &dep, proDeps) {
+    for (const QString &dep : proDeps) {
         const Utils::FilePath fn = Utils::FilePath::fromString(dep);
         Project *pro = Utils::findOrDefault(d->m_projects, [&fn](Project *p) { return p->projectFilePath() == fn; });
         if (pro)
@@ -522,7 +523,8 @@ bool SessionManager::save()
         while (i != d->m_depMap.constEnd()) {
             QString key = i.key();
             QStringList values;
-            foreach (const QString &value, i.value())
+            const QStringList valueList = i.value();
+            for (const QString &value : valueList)
                 values << value;
             depMap.insert(key, values);
             ++i;
@@ -587,9 +589,9 @@ QStringList SessionManagerPrivate::dependencies(const QString &proName) const
 
 void SessionManagerPrivate::dependencies(const QString &proName, QStringList &result) const
 {
-    QStringList depends = m_depMap.value(proName);
+    const QStringList depends = m_depMap.value(proName);
 
-    foreach (const QString &dep, depends)
+    for (const QString &dep : depends)
         dependencies(dep, result);
 
     if (!result.contains(proName))
@@ -668,7 +670,7 @@ QStringList SessionManagerPrivate::dependenciesOrder() const
         // remove the handled projects from the dependency lists
         // of the remaining unordered projects
         for (int i = 0; i < unordered.count(); ++i) {
-            foreach (const QString &pro, ordered) {
+            for (const QString &pro : qAsConst(ordered)) {
                 QStringList depList = unordered.at(i).second;
                 depList.removeAll(pro);
                 unordered[i].second = depList;
@@ -689,7 +691,7 @@ QList<Project *> SessionManager::projectOrder(const Project *project)
     else
         pros = d->dependenciesOrder();
 
-    foreach (const QString &proFile, pros) {
+    for (const QString &proFile : qAsConst(pros)) {
         for (Project *pro : projects()) {
             if (pro->projectFilePath().toString() == proFile) {
                 result << pro;
@@ -725,9 +727,11 @@ void SessionManager::configureEditor(IEditor *editor, const QString &fileName)
 
 void SessionManager::configureEditors(Project *project)
 {
-    foreach (IDocument *document, DocumentModel::openedDocuments()) {
+    const QList<IDocument *> documents = DocumentModel::openedDocuments();
+    for (IDocument *document : documents) {
         if (project->isKnownFile(document->filePath())) {
-            foreach (IEditor *editor, DocumentModel::editorsForDocument(document)) {
+            const QList<IEditor *> editors = DocumentModel::editorsForDocument(document);
+            for (IEditor *editor : editors) {
                 if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor)) {
                         project->editorConfiguration()->configureEditor(textEditor);
                 }
@@ -892,7 +896,7 @@ bool SessionManager::cloneSession(const QString &original, const QString &clone)
 void SessionManagerPrivate::restoreValues(const PersistentSettingsReader &reader)
 {
     const QStringList keys = reader.restoreValue(QLatin1String("valueKeys")).toStringList();
-    foreach (const QString &key, keys) {
+    for (const QString &key : keys) {
         QVariant value = reader.restoreValue(QLatin1String("value-") + key);
         m_values.insert(key, value);
     }
@@ -905,7 +909,8 @@ void SessionManagerPrivate::restoreDependencies(const PersistentSettingsReader &
     while (i != depMap.constEnd()) {
         const QString &key = i.key();
         QStringList values;
-        foreach (const QString &value, i.value().toStringList())
+        const QStringList valueList = i.value().toStringList();
+        for (const QString &value : valueList)
             values << value;
         m_depMap.insert(key, values);
         ++i;
@@ -973,7 +978,8 @@ void SessionManagerPrivate::restoreProjects(const FilePaths &fileList)
         ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorerPlugin::openProjects(fileList);
         if (!result)
             ProjectExplorerPlugin::showOpenProjectError(result);
-        foreach (Project *p, result.projects())
+        const QList<Project *> projects = result.projects();
+        for (const Project *p : projects)
             m_failedProjects.removeAll(p->projectFilePath());
     }
 }

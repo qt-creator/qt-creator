@@ -269,7 +269,8 @@ private:
     void refresh() override
     {
         m_ignoreChanges = true;
-        foreach (Utils::Id l, m_languageComboboxMap.keys()) {
+        const QList<Utils::Id> keys = m_languageComboboxMap.keys();
+        for (const Utils::Id l : keys) {
             const Toolchains ltcList
                     = ToolChainManager::toolchains(Utils::equal(&ToolChain::language, l));
 
@@ -277,7 +278,7 @@ private:
             cb->clear();
             cb->addItem(tr("<No compiler>"), QByteArray());
 
-            foreach (ToolChain *tc, ltcList)
+            for (ToolChain *tc : ltcList)
                 cb->addItem(tc->displayName(), tc->id());
 
             cb->setEnabled(cb->count() > 1 && !m_isReadOnly);
@@ -290,7 +291,8 @@ private:
     void makeReadOnly() override
     {
         m_isReadOnly = true;
-        foreach (Utils::Id l, m_languageComboboxMap.keys()) {
+        const QList<Utils::Id> keys = m_languageComboboxMap.keys();
+        for (const Utils::Id l : keys) {
             m_languageComboboxMap.value(l)->setEnabled(false);
         }
     }
@@ -347,7 +349,8 @@ static QMap<Utils::Id, QByteArray> defaultToolChainIds()
     QMap<Utils::Id, QByteArray> toolChains;
     const Abi abi = Abi::hostAbi();
     const Toolchains tcList = ToolChainManager::toolchains(Utils::equal(&ToolChain::targetAbi, abi));
-    foreach (Utils::Id l, ToolChainManager::allLanguages()) {
+    const QList<Utils::Id> languages = ToolChainManager::allLanguages();
+    for (Utils::Id l : languages) {
         ToolChain *tc = Utils::findOrDefault(tcList, Utils::equal(&ToolChain::language, l));
         toolChains.insert(l, tc ? tc->id() : QByteArray());
     }
@@ -374,7 +377,7 @@ Tasks ToolChainKitAspect::validate(const Kit *k) const
         result << BuildSystemTask(Task::Warning, ToolChainKitAspect::msgNoToolChainInTarget());
     } else {
         QSet<Abi> targetAbis;
-        foreach (ToolChain *tc, tcList) {
+        for (const ToolChain *tc : tcList) {
             targetAbis.insert(tc->targetAbi());
             result << tc->validateKit(k);
         }
@@ -454,7 +457,8 @@ void ToolChainKitAspect::upgrade(Kit *k)
 void ToolChainKitAspect::fix(Kit *k)
 {
     QTC_ASSERT(ToolChainManager::isLoaded(), return);
-    foreach (const Utils::Id& l, ToolChainManager::allLanguages()) {
+    const QList<Utils::Id> languages = ToolChainManager::allLanguages();
+    for (const Utils::Id l : languages) {
         const QByteArray tcId = toolChainId(k, l);
         if (!tcId.isEmpty() && !ToolChainManager::findToolChain(tcId)) {
             qWarning("Tool chain set up in kit \"%s\" for \"%s\" not found.",
@@ -701,11 +705,11 @@ void ToolChainKitAspect::clearToolChain(Kit *k, Id language)
 
 Abi ToolChainKitAspect::targetAbi(const Kit *k)
 {
-    QList<ToolChain *> tcList = toolChains(k);
+    const QList<ToolChain *> tcList = toolChains(k);
     // Find the best possible ABI for all the tool chains...
     Abi cxxAbi;
     QHash<Abi, int> abiCount;
-    foreach (ToolChain *tc, tcList) {
+    for (ToolChain *tc : tcList) {
         Abi ta = tc->targetAbi();
         if (tc->language() == Id(Constants::CXX_LANGUAGE_ID))
             cxxAbi = tc->targetAbi();
@@ -739,7 +743,8 @@ QString ToolChainKitAspect::msgNoToolChainInTarget()
 
 void ToolChainKitAspect::kitsWereLoaded()
 {
-    foreach (Kit *k, KitManager::kits())
+    const QList<Kit *> kits = KitManager::kits();
+    for (Kit *k : kits)
         fix(k);
 
     connect(ToolChainManager::instance(), &ToolChainManager::toolChainRemoved,
@@ -759,7 +764,8 @@ void ToolChainKitAspect::toolChainUpdated(ToolChain *tc)
 void ToolChainKitAspect::toolChainRemoved(ToolChain *tc)
 {
     Q_UNUSED(tc)
-    foreach (Kit *k, KitManager::kits())
+    const QList<Kit *> kits = KitManager::kits();
+    for (Kit *k : kits)
         fix(k);
 }
 
@@ -1107,7 +1113,8 @@ void DeviceKitAspect::setDeviceId(Kit *k, Utils::Id id)
 
 void DeviceKitAspect::kitsWereLoaded()
 {
-    foreach (Kit *k, KitManager::kits())
+    const QList<Kit *> kits = KitManager::kits();
+    for (Kit *k : kits)
         fix(k);
 
     DeviceManager *dm = DeviceManager::instance();
@@ -1124,7 +1131,8 @@ void DeviceKitAspect::kitsWereLoaded()
 
 void DeviceKitAspect::deviceUpdated(Utils::Id id)
 {
-    foreach (Kit *k, KitManager::kits()) {
+    const QList<Kit *> kits = KitManager::kits();
+    for (Kit *k : kits) {
         if (deviceId(k) == id)
             notifyAboutUpdate(k);
     }
@@ -1137,7 +1145,8 @@ void DeviceKitAspect::kitUpdated(Kit *k)
 
 void DeviceKitAspect::devicesChanged()
 {
-    foreach (Kit *k, KitManager::kits())
+    const QList<Kit *> kits = KitManager::kits();
+    for (Kit *k : kits)
         setup(k); // Set default device if necessary
 }
 
@@ -1346,7 +1355,8 @@ void BuildDeviceKitAspect::setDeviceId(Kit *k, Utils::Id id)
 
 void BuildDeviceKitAspect::kitsWereLoaded()
 {
-    foreach (Kit *k, KitManager::kits())
+    const QList<Kit *> kits = KitManager::kits();
+    for (Kit *k : kits)
         fix(k);
 
     DeviceManager *dm = DeviceManager::instance();
@@ -1363,7 +1373,8 @@ void BuildDeviceKitAspect::kitsWereLoaded()
 
 void BuildDeviceKitAspect::deviceUpdated(Utils::Id id)
 {
-    foreach (Kit *k, KitManager::kits()) {
+    const QList<Kit *> kits = KitManager::kits();
+    for (Kit *k : kits) {
         if (deviceId(k) == id)
             notifyAboutUpdate(k);
     }
@@ -1376,7 +1387,8 @@ void BuildDeviceKitAspect::kitUpdated(Kit *k)
 
 void BuildDeviceKitAspect::devicesChanged()
 {
-    foreach (Kit *k, KitManager::kits())
+    const QList<Kit *> kits = KitManager::kits();
+    for (Kit *k : kits)
         setup(k); // Set default device if necessary
 }
 

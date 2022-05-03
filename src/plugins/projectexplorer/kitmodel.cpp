@@ -113,7 +113,8 @@ KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent)
     rootItem()->appendChild(m_autoRoot);
     rootItem()->appendChild(m_manualRoot);
 
-    foreach (Kit *k, KitManager::sortKits(KitManager::kits()))
+    const QList<Kit *> kits = KitManager::sortKits(KitManager::kits());
+    for (Kit *k : kits)
         addKit(k);
 
     changeDefaultKit();
@@ -193,7 +194,8 @@ void KitModel::apply()
     });
 
     // Remove unused kits:
-    foreach (KitNode *n, m_toRemoveList)
+    const QList<KitNode *> removeList = m_toRemoveList;
+    for (KitNode *n : removeList)
         n->widget->removeKit();
 
     emit layoutChanged(); // Force update.
@@ -310,7 +312,7 @@ void KitModel::updateKit(Kit *)
 void KitModel::removeKit(Kit *k)
 {
     QList<KitNode *> nodes = m_toRemoveList;
-    foreach (KitNode *n, nodes) {
+    for (KitNode *n : qAsConst(nodes)) {
         if (n->widget->configures(k)) {
             m_toRemoveList.removeOne(n);
             if (m_defaultNode == n)

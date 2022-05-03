@@ -96,7 +96,7 @@ AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children, const QSt
 {
     if (node)
         m_toolTip = node->directory().toString();
-    foreach (AddNewTree *child, children)
+    for (AddNewTree *child : qAsConst(children))
         appendChild(child);
 }
 
@@ -108,7 +108,7 @@ AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children,
 {
     if (node)
         m_toolTip = node->directory().toString();
-    foreach (AddNewTree *child, children)
+    for (AddNewTree *child : qAsConst(children))
         appendChild(child);
 }
 
@@ -259,7 +259,8 @@ static AddNewTree *buildAddFilesTree(FolderNode *root, const FilePaths &files,
                                      Node *contextNode, BestNodeSelector *selector)
 {
     QList<AddNewTree *> children;
-    foreach (FolderNode *fn, root->folderNodes()) {
+    const QList<FolderNode *> folderNodes = root->folderNodes();
+    for (FolderNode *fn : folderNodes) {
         AddNewTree *child = buildAddFilesTree(fn, files, contextNode, selector);
         if (child)
             children.append(child);
@@ -388,7 +389,8 @@ void ProjectWizardPage::initializeVersionControls()
             }
         } else {
             // Create
-            foreach (IVersionControl *vc, VcsManager::versionControls()) {
+            const QList<IVersionControl *> versionControls = VcsManager::versionControls();
+            for (IVersionControl *vc : versionControls) {
                 if (vc->supportsOperation(IVersionControl::CreateRepositoryOperation)) {
                     versionControlChoices.append(vc->displayName());
                     m_activeVersionControls.append(vc);
@@ -427,7 +429,7 @@ bool ProjectWizardPage::runVersionControl(const QList<GeneratedFile> &files, QSt
     }
     // Add files if supported.
     if (versionControl->supportsOperation(IVersionControl::AddOperation)) {
-        foreach (const GeneratedFile &generatedFile, files) {
+        for (const GeneratedFile &generatedFile : files) {
             if (!versionControl->vcsAdd(generatedFile.filePath())) {
                 *errorMessage = tr("Failed to add \"%1\" to the version control system.").arg(generatedFile.path());
                 return false;
@@ -545,7 +547,7 @@ void ProjectWizardPage::setFiles(const QStringList &fileNames)
         }
 );
 
-        foreach (const QString &f, formattedFiles)
+        for (const QString &f : qAsConst(formattedFiles))
             str << QDir::toNativeSeparators(f) << '\n';
 
         str << "</pre>";

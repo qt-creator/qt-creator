@@ -243,7 +243,7 @@ void KitManagerConfigWidget::setHasUniqueName(bool unique)
 
 void KitManagerConfigWidget::makeStickySubWidgetsReadOnly()
 {
-    foreach (KitAspectWidget *w, m_widgets) {
+    for (KitAspectWidget *w : qAsConst(m_widgets)) {
         if (w->kit()->isSticky(w->kitInformation()->id()))
             w->makeReadOnly();
     }
@@ -354,7 +354,7 @@ void KitManagerConfigWidget::workingCopyWasUpdated(Kit *k)
     k->fix();
     m_fixingKit = false;
 
-    foreach (KitAspectWidget *w, m_widgets)
+    for (KitAspectWidget *w : qAsConst(m_widgets))
         w->refresh();
 
     m_cachedDisplayName.clear();
@@ -382,7 +382,7 @@ void KitManagerConfigWidget::kitWasUpdated(Kit *k)
 void KitManagerConfigWidget::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event)
-    foreach (KitAspectWidget *widget, m_widgets)
+    for (KitAspectWidget *widget : qAsConst(m_widgets))
         widget->refresh();
 }
 

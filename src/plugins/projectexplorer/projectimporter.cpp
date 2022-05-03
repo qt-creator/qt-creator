@@ -82,7 +82,8 @@ ProjectImporter::ProjectImporter(const Utils::FilePath &path) : m_projectPath(pa
 
 ProjectImporter::~ProjectImporter()
 {
-    foreach (Kit *k, KitManager::kits())
+    const QList<Kit *> kits = KitManager::kits();
+    for (Kit *k : kits)
         removeProject(k);
 }
 
@@ -134,7 +135,7 @@ const QList<BuildInfo> ProjectImporter::import(const Utils::FilePath &importPath
     }
 
     qCDebug(log) << "Looking for kits";
-    foreach (void *data, dataList) {
+    for (void *data : qAsConst(dataList)) {
         QTC_ASSERT(data, continue);
         QList<Kit *> kitList;
         const QList<Kit *> tmp
@@ -149,7 +150,7 @@ const QList<BuildInfo> ProjectImporter::import(const Utils::FilePath &importPath
             qCDebug(log) << "  " << tmp.count() << "matching kits found.";
         }
 
-        foreach (Kit *k, kitList) {
+        for (Kit *k : qAsConst(kitList)) {
             qCDebug(log) << "Creating buildinfos for kit" << k->displayName();
             const QList<BuildInfo> infoList = buildInfoList(data);
             if (infoList.isEmpty()) {
@@ -167,7 +168,7 @@ const QList<BuildInfo> ProjectImporter::import(const Utils::FilePath &importPath
         }
     }
 
-    foreach (auto *dd, dataList)
+    for (void *dd : qAsConst(dataList))
         deleteDirectoryData(dd);
     dataList.clear();
 
@@ -189,7 +190,7 @@ Target *ProjectImporter::preferredTarget(const QList<Target *> &possibleTargets)
 
     activeTarget = possibleTargets.at(0);
     bool pickedFallback = false;
-    foreach (Target *t, possibleTargets) {
+    for (Target *t : possibleTargets) {
         if (t->kit() == KitManager::defaultKit())
             return t;
         if (pickedFallback)
@@ -234,12 +235,13 @@ void ProjectImporter::makePersistent(Kit *k) const
     k->removeKey(KIT_TEMPORARY_NAME);
     k->removeKey(KIT_FINAL_NAME);
 
-    foreach (const TemporaryInformationHandler &tih, m_temporaryHandlers) {
+    for (const TemporaryInformationHandler &tih : qAsConst(m_temporaryHandlers)) {
         const Utils::Id fid = fullId(tih.id);
         const QVariantList temporaryValues = k->value(fid).toList();
 
         // Mark permanent in all other kits:
-        foreach (Kit *ok, KitManager::kits()) {
+        const QList<Kit *> kits = KitManager::kits();
+        for (Kit *ok : kits) {
             if (ok == k || !ok->hasValue(fid))
                 continue;
             const QVariantList otherTemporaryValues
@@ -258,7 +260,7 @@ void ProjectImporter::makePersistent(Kit *k) const
 void ProjectImporter::cleanupKit(Kit *k) const
 {
     QTC_ASSERT(k, return);
-    foreach (const TemporaryInformationHandler &tih, m_temporaryHandlers) {
+    for (const TemporaryInformationHandler &tih : qAsConst(m_temporaryHandlers)) {
         const Utils::Id fid = fullId(tih.id);
         const QVariantList temporaryValues
                 = Utils::filtered(k->value(fid).toList(), [fid, k](const QVariant &v) {
