@@ -25,7 +25,7 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
   set(ArchSuffix 64)
 endif()
 
-add_qtc_library(qtcreatorcdbext
+add_qtc_library(qtcreatorcdbext SHARED
   COMPONENT qtcreatorcdbext
   DEPENDS ${DbgEngLib}
   DESTINATION lib/qtcreatorcdbext${ArchSuffix}/

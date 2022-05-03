@@ -1,4 +1,4 @@
-add_qtc_library(ProParser SHARED
+add_qtc_library(ProParser
   DEPENDS Qt5::Core Utils
   PUBLIC_DEFINES
     QMAKE_BUILTIN_PRFS QMAKE_OVERRIDE_PRFS

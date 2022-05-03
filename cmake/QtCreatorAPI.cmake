@@ -112,7 +112,7 @@ function(qtc_source_dir varName)
 endfunction()
 
 function(add_qtc_library name)
-  cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION;ALLOW_ASCII_CASTS;FEATURE_INFO;SKIP_PCH"
+  cmake_parse_arguments(_arg "STATIC;OBJECT;SHARED;SKIP_TRANSLATION;ALLOW_ASCII_CASTS;FEATURE_INFO;SKIP_PCH"
     "DESTINATION;COMPONENT;SOURCES_PREFIX;BUILD_DEFAULT"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES" ${ARGN}
   )
@@ -158,7 +158,7 @@ function(add_qtc_library name)
   endif()
 
   set(library_type SHARED)
-  if (_arg_STATIC OR QTC_STATIC_BUILD)
+  if (_arg_STATIC OR (QTC_STATIC_BUILD AND NOT _arg_SHARED))
     set(library_type STATIC)
   endif()
   if (_arg_OBJECT)
@@ -265,7 +265,7 @@ function(add_qtc_library name)
     set(COMPONENT_OPTION "COMPONENT" "${_arg_COMPONENT}")
   endif()
 
-  if (NOT QTC_STATIC_BUILD)
+  if (NOT QTC_STATIC_BUILD OR _arg_SHARED)
     install(TARGETS ${name}
       EXPORT QtCreator
       RUNTIME
