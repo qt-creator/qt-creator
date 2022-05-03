@@ -395,7 +395,7 @@ void EnvironmentWidget::updateSummaryText()
     Utils::EnvironmentItem::sort(&list);
 
     QString text;
-    foreach (const Utils::EnvironmentItem &item, list) {
+    for (const Utils::EnvironmentItem &item : qAsConst(list)) {
         if (item.name != Utils::EnvironmentModel::tr("<VARIABLE>")) {
             if (!d->m_baseEnvironmentText.isEmpty() || !text.isEmpty())
                 text.append(QLatin1String("<br>"));

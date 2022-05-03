@@ -195,7 +195,7 @@ JsonWizard::GeneratorFiles JsonWizard::generateFileList()
 
     if (m_files.isEmpty() && errorMessage.isEmpty()) {
         emit preGenerateFiles();
-        foreach (JsonWizardGenerator *gen, m_generators) {
+        for (JsonWizardGenerator *gen : qAsConst(m_generators)) {
             Core::GeneratedFiles tmp = gen->fileList(&m_expander, stringValue(QStringLiteral("WizardDir")),
                                                      targetPath, &errorMessage);
             if (!errorMessage.isEmpty())
@@ -261,7 +261,7 @@ QList<JsonWizard::OptionDefinition> JsonWizard::parseOptions(const QVariant &v, 
     QList<JsonWizard::OptionDefinition> result;
     if (!v.isNull()) {
         const QVariantList optList = JsonWizardFactory::objectOrList(v, errorMessage);
-        foreach (const QVariant &o, optList) {
+        for (const QVariant &o : optList) {
             QVariantMap optionObject = o.toMap();
             JsonWizard::OptionDefinition odef;
             odef.m_key = optionObject.value(QLatin1String("key")).toString();
@@ -331,7 +331,8 @@ void JsonWizard::removeAttributeFromAllFiles(Core::GeneratedFile::Attribute a)
 QHash<QString, QVariant> JsonWizard::variables() const
 {
     QHash<QString, QVariant> result = Wizard::variables();
-    foreach (const QByteArray &p, dynamicPropertyNames()) {
+    const QList<QByteArray> properties = dynamicPropertyNames();
+    for (const QByteArray &p : properties) {
         QString key = QString::fromUtf8(p);
         result.insert(key, value(key));
     }
@@ -442,7 +443,7 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
 {
     QString errorMessage;
     bool openedSomething = false;
-    foreach (const JsonWizard::GeneratorFile &f, files) {
+    for (const JsonWizard::GeneratorFile &f : files) {
         const Core::GeneratedFile &file = f.file;
         if (!QFileInfo::exists(file.path())) {
             errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",

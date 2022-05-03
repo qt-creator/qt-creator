@@ -112,7 +112,8 @@ static QString supportedTypeIds(const QList<T *> &factories)
 {
     QStringList tmp;
     for (const T *f : factories) {
-        foreach (Id i, f->supportedIds())
+        const QList<Id> ids = f->supportedIds();
+        for (const Id i : ids)
             tmp.append(i.toString());
     }
     return tmp.join(QLatin1String("', '"));
@@ -166,7 +167,8 @@ QVariantMap JsonWizardFactory::loadDefaultValues(const QString &fileName)
     }
 
     QList <Core::IWizardFactory *> result;
-    foreach (const Utils::FilePath &path, searchPaths()) {
+    const Utils::FilePaths paths = searchPaths();
+    for (const Utils::FilePath &path : paths) {
         if (path.isEmpty())
             continue;
 
@@ -402,7 +404,8 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
     const QString wizardFileName = QLatin1String(WIZARD_FILE);
 
     QList <Core::IWizardFactory *> result;
-    foreach (const FilePath &path, searchPaths()) {
+    const Utils::FilePaths paths = searchPaths();
+    for (const Utils::FilePath &path : paths) {
         if (path.isEmpty())
             continue;
 

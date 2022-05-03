@@ -1383,8 +1383,8 @@ void JsonFieldPage::registerFieldFactory(const QString &id, const JsonFieldPage:
 bool JsonFieldPage::setup(const QVariant &data)
 {
     QString errorMessage;
-    QList<QVariant> fieldList = JsonWizardFactory::objectOrList(data, &errorMessage);
-    foreach (const QVariant &field, fieldList) {
+    const QList<QVariant> fieldList = JsonWizardFactory::objectOrList(data, &errorMessage);
+    for (const QVariant &field : fieldList) {
         Field *f = JsonFieldPage::Field::parse(field, &errorMessage);
         if (!f)
             continue;
@@ -1407,7 +1407,7 @@ bool JsonFieldPage::isComplete() const
 
     bool result = true;
     bool hasErrorMessage = false;
-    foreach (Field *f, m_fields) {
+    for (Field *f : qAsConst(m_fields)) {
         f->adjustState(m_expander);
         if (!f->validate(m_expander, &message)) {
             if (!message.isEmpty()) {
@@ -1427,13 +1427,13 @@ bool JsonFieldPage::isComplete() const
 
 void JsonFieldPage::initializePage()
 {
-    foreach (Field *f, m_fields)
+    for (Field *f : qAsConst(m_fields))
         f->initialize(m_expander);
 }
 
 void JsonFieldPage::cleanupPage()
 {
-    foreach (Field *f, m_fields)
+    for (Field *f : qAsConst(m_fields))
         f->cleanup(m_expander);
 }
 

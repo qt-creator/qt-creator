@@ -526,7 +526,7 @@ Utils::LanguageExtensions GccToolChain::languageExtensions(const QStringList &cx
     LanguageExtensions extensions = defaultLanguageExtensions();
 
     const QStringList allCxxflags = m_platformCodeGenFlags + cxxflags; // add only cxxflags is empty?
-    foreach (const QString &flag, allCxxflags) {
+    for (const QString &flag : allCxxflags) {
         if (flag.startsWith("-std=")) {
             const QByteArray std = flag.mid(5).toLatin1();
             if (std.startsWith("gnu"))
@@ -553,7 +553,8 @@ WarningFlags GccToolChain::warningFlags(const QStringList &cflags) const
                            | WarningFlags::SignedComparison | WarningFlags::UninitializedVars);
     WarningFlags groupWextra(WarningFlags::Extra | WarningFlags::IgnoredQualifiers | WarningFlags::UnusedParams);
 
-    foreach (const QString &flag, cflags) {
+    for (int end = cflags.size(), i = 0; i != end; ++i) {
+        const QString &flag = cflags[i];
         if (flag == "--all-warnings")
             flags |= groupWall;
         else if (flag == "--extra-warnings")
@@ -1606,7 +1607,8 @@ LanguageExtensions ClangToolChain::languageExtensions(const QStringList &cxxflag
 WarningFlags ClangToolChain::warningFlags(const QStringList &cflags) const
 {
     WarningFlags flags = GccToolChain::warningFlags(cflags);
-    foreach (const QString &flag, cflags) {
+    for (int end = cflags.size(), i = 0; i != end; ++i) {
+        const QString &flag = cflags[i];
         if (flag == "-Wdocumentation")
             flags |= WarningFlags::Documentation;
         if (flag == "-Wno-documentation")

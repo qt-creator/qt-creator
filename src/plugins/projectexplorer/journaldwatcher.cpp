@@ -212,7 +212,7 @@ void JournaldWatcher::handleEntry()
         if (logEntry.isEmpty())
             break;
 
-        foreach (const JournaldWatcherPrivate::SubscriberInformation &info, d->m_subscriptions)
+        for (const JournaldWatcherPrivate::SubscriberInformation &info: qAsConst(d->m_subscriptions))
             info.subscription(logEntry);
     }
 }

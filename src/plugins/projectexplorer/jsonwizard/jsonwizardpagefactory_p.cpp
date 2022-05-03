@@ -80,7 +80,7 @@ bool FieldPageFactory::validateData(Utils::Id typeId, const QVariant &data, QStr
 {
     QTC_ASSERT(canCreate(typeId), return false);
 
-    QList<QVariant> list = JsonWizardFactory::objectOrList(data, errorMessage);
+    const QList<QVariant> list = JsonWizardFactory::objectOrList(data, errorMessage);
     if (list.isEmpty()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
                                                     "When parsing fields of page \"%1\": %2")
@@ -88,7 +88,7 @@ bool FieldPageFactory::validateData(Utils::Id typeId, const QVariant &data, QStr
         return false;
     }
 
-    foreach (const QVariant &v, list) {
+    for (const QVariant &v : list) {
         JsonFieldPage::Field *field = JsonFieldPage::Field::parse(v, errorMessage);
         if (!field)
             return false;

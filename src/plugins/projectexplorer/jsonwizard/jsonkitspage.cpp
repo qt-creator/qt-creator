@@ -132,7 +132,7 @@ QSet<Id> JsonKitsPage::evaluate(const QVector<JsonKitsPage::ConditionalFeature> 
         return Id::fromStringList(defaultSet.toStringList());
 
     QSet<Id> features;
-    foreach (const ConditionalFeature &f, list) {
+    for (const ConditionalFeature &f : list) {
         if (JsonWizard::boolFromVariant(f.condition, wiz->expander()))
             features.insert(Id::fromString(wiz->expander()->expand(f.feature)));
     }
@@ -154,7 +154,8 @@ QVector<JsonKitsPage::ConditionalFeature> JsonKitsPage::parseFeatures(const QVar
         return result;
     }
 
-    foreach (const QVariant &element, data.toList()) {
+    const QList<QVariant> elements = data.toList();
+    for (const QVariant &element : elements) {
         if (element.type() == QVariant::String) {
             result.append({ element.toString(), QVariant(true) });
         } else if (element.type() == QVariant::Map) {

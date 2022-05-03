@@ -282,7 +282,8 @@ void EditorConfiguration::setUseGlobalSettings(bool use)
 {
     d->m_useGlobal = use;
     d->m_defaultCodeStyle->setCurrentDelegate(use ? TextEditorSettings::codeStyle() : nullptr);
-    foreach (Core::IEditor *editor, Core::DocumentModel::editorsForOpenedDocuments()) {
+    const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForOpenedDocuments();
+    for (Core::IEditor *editor : editors) {
         if (auto widget = TextEditorWidget::fromEditor(editor)) {
             Project *project = SessionManager::projectForFile(editor->document()->filePath());
             if (project && project->editorConfiguration() == this)
@@ -403,7 +404,7 @@ void EditorConfiguration::slotAboutToRemoveProject(Project *project)
     if (project->editorConfiguration() != this)
         return;
 
-    foreach (BaseTextEditor *editor, d->m_editors)
+    for (BaseTextEditor *editor : qAsConst(d->m_editors))
         deconfigureEditor(editor);
 }
 

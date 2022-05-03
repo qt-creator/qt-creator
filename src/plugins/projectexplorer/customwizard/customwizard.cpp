@@ -171,7 +171,8 @@ BaseFileWizard *CustomWizard::create(QWidget *parent, const WizardDialogParamete
         wizard->setPage(parameters()->firstPageId, customPage);
     else
         wizard->addPage(customPage);
-    foreach (QWizardPage *ep, wizard->extensionPages())
+    const QList<QWizardPage *> pages = wizard->extensionPages();
+    for (QWizardPage *ep : pages)
         wizard->addPage(ep);
     if (CustomWizardPrivate::verbose)
         qDebug() << "initWizardDialog" << wizard << wizard->pageIds();
@@ -228,7 +229,8 @@ static bool createFile(CustomWizardFile cwFile,
 template <class WizardPage>
         WizardPage *findWizardPage(const QWizard *w)
 {
-    foreach (int pageId, w->pageIds())
+    const QList<int> ids = w->pageIds();
+    for (const int pageId : ids)
         if (auto wp = qobject_cast<WizardPage *>(w->page(pageId)))
             return wp;
     return nullptr;

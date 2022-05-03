@@ -176,7 +176,7 @@ bool CustomWizardValidationRule::validateRules(const QList<CustomWizardValidatio
     if (rules.isEmpty())
         return true;
     QJSEngine engine;
-    foreach (const CustomWizardValidationRule &rule, rules)
+    for (const CustomWizardValidationRule &rule : rules)
     if (!rule.validate(engine, replacementMap)) {
         *errorMessage = rule.message;
         CustomWizardContext::replaceFields(replacementMap, errorMessage);
@@ -302,7 +302,7 @@ static bool parseCustomProjectElement(QXmlStreamReader &reader,
 static inline QMap<QString, QString> attributesToStringMap(const QXmlStreamAttributes &attributes)
 {
     QMap<QString, QString> rc;
-    foreach (const QXmlStreamAttribute &attribute, attributes)
+    for (const QXmlStreamAttribute &attribute : attributes)
         rc.insert(attribute.name().toString(), attribute.value().toString());
     return rc;
 }
@@ -452,9 +452,9 @@ static inline IWizardFactory::WizardKind kindAttribute(const QXmlStreamReader &r
 static inline QSet<Id> readRequiredFeatures(const QXmlStreamReader &reader)
 {
     QString value = reader.attributes().value(QLatin1String(featuresRequiredC)).toString();
-    QStringList stringList = value.split(QLatin1Char(','), Qt::SkipEmptyParts);
+    const QStringList stringList = value.split(QLatin1Char(','), Qt::SkipEmptyParts);
     QSet<Id> features;
-    foreach (const QString &string, stringList)
+    for (const QString &string : stringList)
         features |= Id::fromString(string);
     return features;
 }
@@ -708,7 +708,7 @@ static inline QString passThrough(const QString &in) { return in; }
 static inline QString headerGuard(const QString &in)
 {
     QString result;
-    foreach (const QChar c, in) {
+    for (const QChar c : in) {
         if (c.isLetterOrNumber())
             result.append(c.toUpper());
         else
@@ -721,7 +721,7 @@ static inline QString structName(const QString &in)
 {
     bool capNeeded = true;
     QString result;
-    foreach (const QChar c, in) {
+    for (const QChar c : in) {
         if (c.isLetterOrNumber()) {
             if (capNeeded) {
                 result.append(c.toUpper());

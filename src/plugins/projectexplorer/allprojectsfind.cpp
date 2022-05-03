@@ -81,7 +81,7 @@ Utils::FileIterator *AllProjectsFind::filesForProjects(const QStringList &nameFi
             Utils::filterFilesFunction(nameFilters, exclusionFilters);
     const QMap<QString, QTextCodec *> openEditorEncodings = TextDocument::openedTextDocumentEncodings();
     QMap<QString, QTextCodec *> encodings;
-    foreach (const Project *project, projects) {
+    for (const Project *project : projects) {
         const EditorConfiguration *config = project->editorConfiguration();
         QTextCodec *projectCodec = config->useGlobalSettings()
             ? Core::EditorManager::defaultTextCodec()

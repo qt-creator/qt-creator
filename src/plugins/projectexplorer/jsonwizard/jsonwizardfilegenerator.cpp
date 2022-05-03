@@ -49,11 +49,11 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
 {
     QTC_ASSERT(errorMessage && errorMessage->isEmpty(), return false);
 
-    QVariantList list = JsonWizardFactory::objectOrList(data, errorMessage);
+    const QVariantList list = JsonWizardFactory::objectOrList(data, errorMessage);
     if (list.isEmpty())
         return false;
 
-    foreach (const QVariant &d, list) {
+    for (const QVariant &d : list) {
         if (d.type() != QVariant::Map) {
             *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
                                                         "Files data list entry is not an object.");
@@ -117,7 +117,7 @@ Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
 
             // evaluate file options once:
             QHash<QString, QString> options;
-            foreach (const JsonWizard::OptionDefinition &od, file.options) {
+            for (const JsonWizard::OptionDefinition &od : qAsConst(file.options)) {
                 if (od.condition(*expander))
                     options.insert(od.key(), od.value(*expander));
             }
@@ -195,7 +195,7 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::MacroExpander *exp
 
     const QSet<QString> knownFiles = Utils::transform<QSet>(fileList, &File::target);
 
-    foreach (const File &dir, dirList) {
+    for (const File &dir : qAsConst(dirList)) {
         QDir sourceDir(dir.source);
         QDirIterator it(dir.source, QDir::NoDotAndDotDot | QDir::Files| QDir::Hidden,
                         QDirIterator::Subdirectories);

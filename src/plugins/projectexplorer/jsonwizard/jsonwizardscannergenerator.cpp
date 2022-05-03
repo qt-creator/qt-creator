@@ -61,8 +61,8 @@ bool JsonWizardScannerGenerator::setup(const QVariant &data, QString *errorMessa
     QVariantMap gen = data.toMap();
 
     m_binaryPattern = gen.value(QLatin1String("binaryPattern")).toString();
-    QStringList patterns = gen.value(QLatin1String("subdirectoryPatterns")).toStringList();
-    foreach (const QString pattern, patterns) {
+    const QStringList patterns = gen.value(QLatin1String("subdirectoryPatterns")).toStringList();
+    for (const QString &pattern : patterns) {
         QRegularExpression regexp(pattern);
         if (!regexp.isValid()) {
             *errorMessage = QCoreApplication::translate("ProjectExplorer::Internal::JsonWizard",
@@ -126,7 +126,7 @@ Core::GeneratedFiles JsonWizardScannerGenerator::fileList(Utils::MacroExpander *
 
 bool JsonWizardScannerGenerator::matchesSubdirectoryPattern(const QString &path)
 {
-    foreach (const QRegularExpression &regexp, m_subDirectoryExpressions) {
+    for (const QRegularExpression &regexp : qAsConst(m_subDirectoryExpressions)) {
         if (regexp.match(path).hasMatch())
             return true;
     }
@@ -141,9 +141,9 @@ Core::GeneratedFiles JsonWizardScannerGenerator::scan(const QString &dir, const 
     if (!directory.exists())
         return result;
 
-    QFileInfoList entries = directory.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot,
-                                                       QDir::DirsLast | QDir::Name);
-    foreach (const QFileInfo &fi, entries) {
+    const QFileInfoList entries = directory.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot,
+                                                          QDir::DirsLast | QDir::Name);
+    for (const QFileInfo &fi : entries) {
         const QString relativePath = base.relativeFilePath(fi.absoluteFilePath());
         if (fi.isDir() && matchesSubdirectoryPattern(relativePath)) {
             result += scan(fi.absoluteFilePath(), base);

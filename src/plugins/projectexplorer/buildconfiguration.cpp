@@ -283,8 +283,8 @@ void BuildConfiguration::addConfigWidgets(const std::function<void(NamedWidget *
     adder(new Internal::BuildStepListWidget(buildSteps()));
     adder(new Internal::BuildStepListWidget(cleanSteps()));
 
-    QList<NamedWidget *> subConfigWidgets = createSubConfigWidgets();
-    foreach (NamedWidget *subConfigWidget, subConfigWidgets)
+    const QList<NamedWidget *> subConfigWidgets = createSubConfigWidgets();
+    for (NamedWidget *subConfigWidget : subConfigWidgets)
         adder(subConfigWidget);
 }
 

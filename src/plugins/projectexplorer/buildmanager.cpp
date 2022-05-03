@@ -156,7 +156,7 @@ static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
             }
 
             if (stopThem) {
-                foreach (RunControl *rc, toStop)
+                for (RunControl *rc : toStop)
                     rc->initiateStop();
 
                 WaitForStopDialog dialog(toStop);
@@ -171,18 +171,18 @@ static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
     QList<BuildStepList *> stepLists;
     QStringList preambleMessage;
 
-    foreach (Project *pro, projects) {
+    for (const Project *pro : projects) {
         if (pro && pro->needsConfiguration()) {
             preambleMessage.append(
                         BuildManager::tr("The project %1 is not configured, skipping it.")
                         .arg(pro->displayName()) + QLatin1Char('\n'));
         }
     }
-    foreach (Id id, stepIds) {
+    for (const Id id : stepIds) {
         const bool isBuild = id == Constants::BUILDSTEPS_BUILD;
         const bool isClean = id == Constants::BUILDSTEPS_CLEAN;
         const bool isDeploy = id == Constants::BUILDSTEPS_DEPLOY;
-        foreach (Project *pro, projects) {
+        for (const Project *pro : projects) {
             if (!pro || pro->needsConfiguration())
                 continue;
             BuildStepList *bsl = nullptr;

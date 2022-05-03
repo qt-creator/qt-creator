@@ -99,7 +99,7 @@ static bool
     // Arguments: Prepend 'dryrun'. Do field replacement to actual
     // argument value to expand via temporary file if specified
     CustomWizardContext::TemporaryFilePtrList temporaryFiles;
-    foreach (const GeneratorScriptArgument &argument, argumentsIn) {
+    for (const GeneratorScriptArgument &argument : argumentsIn) {
         QString value = argument.value;
         const bool nonEmptyReplacements
                 = argument.flags & GeneratorScriptArgument::WriteFile ?
@@ -155,7 +155,8 @@ Core::GeneratedFiles
     Core::GeneratedFiles files;
     // Parse the output consisting of lines with ',' separated tokens.
     // (file name + attributes matching those of the <file> element)
-    foreach (const QString &line, stdOut.split(QLatin1Char('\n'))) {
+    const QStringList lines = stdOut.split(QLatin1Char('\n'));
+    for (const QString &line : lines) {
         const QString trimmed = line.trimmed();
         if (!trimmed.isEmpty()) {
             Core::GeneratedFile file;
@@ -187,7 +188,7 @@ Core::GeneratedFiles
     if (CustomWizard::verbose()) {
         QDebug nospace = qDebug().nospace();
         nospace << script << " generated:\n";
-        foreach (const Core::GeneratedFile &f, files)
+        for (const Core::GeneratedFile &f : qAsConst(files))
             nospace << ' ' << f.path() << f.attributes() << '\n';
     }
     return files;
