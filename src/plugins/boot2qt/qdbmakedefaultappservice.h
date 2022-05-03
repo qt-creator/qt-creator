@@ -41,17 +41,11 @@ public:
     void setMakeDefault(bool makeDefault);
 
 private:
-    void handleStdErr();
-    void handleProcessFinished();
-
     bool isDeploymentNecessary() const final { return true; }
-
     void doDeploy() final;
     void stopDeployment() final;
 
-    void cleanup();
-
-    QdbMakeDefaultAppServicePrivate * const d;
+    std::unique_ptr<QdbMakeDefaultAppServicePrivate> d;
 };
 
 } // namespace Internal

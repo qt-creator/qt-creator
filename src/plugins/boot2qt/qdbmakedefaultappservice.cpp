@@ -29,9 +29,10 @@
 #include "qdbrunconfiguration.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
-#include <ssh/sshremoteprocessrunner.h>
+#include <utils/qtcprocess.h>
+
+using namespace Utils;
 
 namespace Qdb {
 namespace Internal {
@@ -39,62 +40,38 @@ namespace Internal {
 class QdbMakeDefaultAppServicePrivate
 {
 public:
-    bool makeDefault;
-    QSsh::SshRemoteProcessRunner *processRunner;
+    bool m_makeDefault = true;
+    QtcProcess m_process;
 };
 
 QdbMakeDefaultAppService::QdbMakeDefaultAppService(QObject *parent)
     : AbstractRemoteLinuxDeployService(parent),
       d(new QdbMakeDefaultAppServicePrivate)
 {
-    d->processRunner = 0;
-    d->makeDefault = true;
+    connect(&d->m_process, &QtcProcess::done, this, [this] {
+        if (d->m_process.error() != QProcess::UnknownError)
+            emit errorMessage(tr("Remote process failed: %1").arg(d->m_process.errorString()));
+        else if (d->m_makeDefault)
+            emit progressMessage(tr("Application set as the default one."));
+        else
+            emit progressMessage(tr("Reset the default application."));
+
+        stopDeployment();
+    });
+    connect(&d->m_process, &QtcProcess::readyReadStandardError, this, [this] {
+        emit stdErrData(QString::fromUtf8(d->m_process.readAllStandardError()));
+    });
 }
 
-QdbMakeDefaultAppService::~QdbMakeDefaultAppService()
-{
-    cleanup();
-    delete d;
-}
+QdbMakeDefaultAppService::~QdbMakeDefaultAppService() = default;
 
 void QdbMakeDefaultAppService::setMakeDefault(bool makeDefault)
 {
-    d->makeDefault = makeDefault;
-}
-
-void QdbMakeDefaultAppService::handleStdErr()
-{
-    emit stdErrData(QString::fromUtf8(d->processRunner->readAllStandardError()));
-}
-
-void QdbMakeDefaultAppService::handleProcessFinished()
-{
-    const QString error = d->processRunner->errorString();
-    if (!error.isEmpty()) {
-        emit errorMessage(tr("Remote process failed: %1").arg(error));
-        stopDeployment();
-        return;
-    }
-
-    // FIXME: Check that ignoring is fine
-    QByteArray processOutput = d->processRunner->readAllStandardOutput();
-
-    if (d->makeDefault)
-        emit progressMessage(tr("Application set as the default one."));
-    else
-        emit progressMessage(tr("Reset the default application."));
-
-    stopDeployment();
+    d->m_makeDefault = makeDefault;
 }
 
 void QdbMakeDefaultAppService::doDeploy()
 {
-    d->processRunner = new QSsh::SshRemoteProcessRunner;
-    connect(d->processRunner, &QSsh::SshRemoteProcessRunner::finished,
-            this, &QdbMakeDefaultAppService::handleProcessFinished);
-    connect(d->processRunner, &QSsh::SshRemoteProcessRunner::readyReadStandardError,
-            this, &QdbMakeDefaultAppService::handleStdErr);
-
     QString remoteExe;
 
     if (ProjectExplorer::RunConfiguration *rc = target()->activeRunConfiguration()) {
@@ -102,27 +79,18 @@ void QdbMakeDefaultAppService::doDeploy()
             remoteExe = exeAspect->executable().toString();
     }
 
-    QString command = Constants::AppcontrollerFilepath;
-    command += d->makeDefault && !remoteExe.isEmpty() ? QStringLiteral(" --make-default ") + remoteExe
-                                                      : QStringLiteral(" --remove-default");
-
-    d->processRunner->run(command, deviceConfiguration()->sshParameters());
+    const QString args = d->m_makeDefault && !remoteExe.isEmpty()
+            ? QStringLiteral("--make-default ") + remoteExe
+            : QStringLiteral("--remove-default");
+    d->m_process.setCommand(
+            {deviceConfiguration()->mapToGlobalPath(Constants::AppcontrollerFilepath), {args}});
+    d->m_process.start();
 }
 
 void QdbMakeDefaultAppService::stopDeployment()
 {
-    cleanup();
+    d->m_process.close();
     handleDeploymentDone();
-}
-
-void QdbMakeDefaultAppService::cleanup()
-{
-    if (d->processRunner) {
-        disconnect(d->processRunner, 0, this, 0);
-        d->processRunner->cancel();
-        delete d->processRunner;
-        d->processRunner = 0;
-    }
 }
 
 } // namespace Internal
