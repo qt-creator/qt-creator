@@ -195,7 +195,7 @@ class DumperBase():
         self.qtCustomEventFunc = 0
         self.qtCustomEventPltFunc = 0
         self.qtPropertyFunc = 0
-        self.fallbackQtVersion = 0x50200
+        self.fallbackQtVersion = 0x60200
         self.passExceptions = False
         self.isTesting = False
 
