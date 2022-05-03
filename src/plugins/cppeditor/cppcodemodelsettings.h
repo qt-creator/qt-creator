@@ -155,6 +155,7 @@ public:
 
     static QVersionNumber clangdVersion(const Utils::FilePath &clangdFilePath);
     QVersionNumber clangdVersion() const { return clangdVersion(clangdFilePath()); }
+    Utils::FilePath clangdIncludePath() const;
 
 #ifdef WITH_TESTS
     static void setUseClangd(bool use);

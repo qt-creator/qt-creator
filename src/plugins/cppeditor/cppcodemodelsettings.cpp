@@ -405,6 +405,19 @@ QVersionNumber ClangdSettings::clangdVersion(const FilePath &clangdFilePath)
     return it->second;
 }
 
+FilePath ClangdSettings::clangdIncludePath() const
+{
+    QTC_ASSERT(useClangd(), return {});
+    FilePath clangdPath = clangdFilePath();
+    QTC_ASSERT(!clangdPath.isEmpty() && clangdPath.exists(), return {});
+    const QVersionNumber version = clangdVersion();
+    QTC_ASSERT(!version.isNull(), return {});
+    const FilePath includePath = clangdPath.absolutePath().parentDir().pathAppended("lib/clang")
+            .pathAppended(version.toString()).pathAppended("include");
+    QTC_ASSERT(includePath.exists(), return {});
+    return includePath;
+}
+
 void ClangdSettings::loadSettings()
 {
     Utils::fromSettings(clangdSettingsKey(), {}, Core::ICore::settings(), &m_data);
