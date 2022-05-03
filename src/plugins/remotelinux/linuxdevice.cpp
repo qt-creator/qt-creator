@@ -1055,7 +1055,7 @@ DeviceTester *LinuxDevice::createDeviceTester() const
 
 DeviceProcessSignalOperation::Ptr LinuxDevice::signalOperation() const
 {
-    return DeviceProcessSignalOperation::Ptr(new RemoteLinuxSignalOperation(sshParameters()));
+    return DeviceProcessSignalOperation::Ptr(new RemoteLinuxSignalOperation(sharedFromThis()));
 }
 
 class LinuxDeviceEnvironmentFetcher : public DeviceEnvironmentFetcher

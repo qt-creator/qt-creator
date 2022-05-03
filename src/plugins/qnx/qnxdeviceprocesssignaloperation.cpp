@@ -25,14 +25,11 @@
 
 #include "qnxdeviceprocesssignaloperation.h"
 
-#include <utils/fileutils.h>
-
-using namespace Qnx;
 using namespace Qnx::Internal;
 
 QnxDeviceProcessSignalOperation::QnxDeviceProcessSignalOperation(
-        const QSsh::SshConnectionParameters &sshParameters)
-    : RemoteLinux::RemoteLinuxSignalOperation(sshParameters)
+        const ProjectExplorer::IDeviceConstPtr &device)
+    : RemoteLinux::RemoteLinuxSignalOperation(device)
 {
 }
 

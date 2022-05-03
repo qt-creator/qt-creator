@@ -34,7 +34,7 @@ class QnxDeviceProcessSignalOperation : public RemoteLinux::RemoteLinuxSignalOpe
 {
     Q_OBJECT
 protected:
-    explicit QnxDeviceProcessSignalOperation(const QSsh::SshConnectionParameters &sshParameters);
+    explicit QnxDeviceProcessSignalOperation(const ProjectExplorer::IDeviceConstPtr &device);
 
 private:
     QString killProcessByNameCommandLine(const QString &filePath) const override;

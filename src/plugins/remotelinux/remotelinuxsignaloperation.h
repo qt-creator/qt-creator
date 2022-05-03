@@ -28,11 +28,6 @@
 #include "remotelinux_export.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <ssh/sshconnection.h>
-
-namespace QSsh {
-class SshRemoteProcessRunner;
-}
 
 namespace RemoteLinux {
 
@@ -49,19 +44,17 @@ public:
     void interruptProcess(const QString &filePath) override;
 
 protected:
-    RemoteLinuxSignalOperation(const QSsh::SshConnectionParameters &sshParameters);
+    RemoteLinuxSignalOperation(const ProjectExplorer::IDeviceConstPtr &device);
 
 private:
     virtual QString killProcessByNameCommandLine(const QString &filePath) const;
     virtual QString interruptProcessByNameCommandLine(const QString &filePath) const;
 
-    void runnerProcessFinished();
-    void runnerConnectionError();
+    void runnerDone();
     void run(const QString &command);
-    void finish();
 
-    const QSsh::SshConnectionParameters m_sshParameters;
-    QSsh::SshRemoteProcessRunner *m_runner = nullptr;
+    const ProjectExplorer::IDeviceConstPtr m_device;
+    std::unique_ptr<Utils::QtcProcess> m_process;
 
     friend class LinuxDevice;
 };

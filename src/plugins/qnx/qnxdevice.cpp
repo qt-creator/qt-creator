@@ -203,8 +203,7 @@ Utils::ProcessInterface *QnxDevice::createProcessInterface() const
 
 DeviceProcessSignalOperation::Ptr QnxDevice::signalOperation() const
 {
-    return DeviceProcessSignalOperation::Ptr(
-                new QnxDeviceProcessSignalOperation(sshParameters()));
+    return DeviceProcessSignalOperation::Ptr(new QnxDeviceProcessSignalOperation(sharedFromThis()));
 }
 
 // Factory
