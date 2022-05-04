@@ -552,10 +552,6 @@ void CppEditorWidget::finalizeInitialization()
         insertExtraToolBarWidget(TextEditorWidget::Left, d->m_preprocessorButton);
     }
 
-    // Toolbar: Actions to show minimized info bars
-    d->m_cppEditorDocument->minimizableInfoBars().createShowInfoBarActions(
-        [this](QWidget *w) { return this->insertExtraToolBarWidget(TextEditorWidget::Left, w); });
-
     d->m_outlineTimer.setInterval(5000);
     d->m_outlineTimer.setSingleShot(true);
     connect(&d->m_outlineTimer, &QTimer::timeout, this, [this] {

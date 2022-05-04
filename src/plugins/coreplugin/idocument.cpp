@@ -27,6 +27,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/infobar.h>
+#include <utils/minimizableinfobars.h>
 #include <utils/optional.h>
 #include <utils/qtcassert.h>
 
@@ -226,6 +227,7 @@ public:
     QString uniqueDisplayName;
     Utils::FilePath autoSavePath;
     Utils::InfoBar *infoBar = nullptr;
+    MinimizableInfoBars *minimizableInfoBars = nullptr;
     Id id;
     optional<bool> fileIsReadOnly;
     bool temporary = false;
@@ -676,6 +678,13 @@ Utils::InfoBar *IDocument::infoBar()
     if (!d->infoBar)
         d->infoBar = new Utils::InfoBar;
     return d->infoBar;
+}
+
+MinimizableInfoBars *IDocument::minimizableInfoBars()
+{
+    if (!d->minimizableInfoBars)
+        d->minimizableInfoBars = new Utils::MinimizableInfoBars(*infoBar());
+    return d->minimizableInfoBars;
 }
 
 /*!

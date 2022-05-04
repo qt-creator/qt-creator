@@ -35,6 +35,7 @@
 namespace Utils {
 class FilePath;
 class InfoBar;
+class MinimizableInfoBars;
 } // namespace Utils
 
 namespace Core {
@@ -133,6 +134,7 @@ public:
     void setWriteWarning(bool has);
 
     Utils::InfoBar *infoBar();
+    Utils::MinimizableInfoBars *minimizableInfoBars();
 
 signals:
     // For meta data changes: file name, modified state, ...

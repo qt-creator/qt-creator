@@ -80,6 +80,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/infobar.h>
 #include <utils/mimeutils.h>
+#include <utils/minimizableinfobars.h>
 #include <utils/multitextcursor.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
@@ -8534,6 +8535,12 @@ BaseTextEditor *TextEditorFactoryPrivate::createEditorHelper(const TextDocumentP
     if (m_useGenericHighlighter)
         textEditorWidget->setupGenericHighlighter();
     textEditorWidget->finalizeInitialization();
+
+    // Toolbar: Actions to show minimized info bars
+    document->minimizableInfoBars()->createShowInfoBarActions([textEditorWidget](QWidget *w) {
+        return textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Left, w);
+    });
+
     editor->finalizeInitialization();
     return editor;
 }
