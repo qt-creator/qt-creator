@@ -26,14 +26,93 @@
 #include "remotelinuxcustomcommanddeploymentstep.h"
 
 #include "remotelinux_constants.h"
-#include "remotelinuxcustomcommanddeployservice.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/runconfigurationaspects.h>
+
+#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace RemoteLinux {
+namespace Internal {
+
+// RemoteLinuxCustomCommandDeployService
+
+class RemoteLinuxCustomCommandDeployService : public AbstractRemoteLinuxDeployService
+{
+    Q_DECLARE_TR_FUNCTIONS(RemoteLinux::Internal::RemoteLinuxCustomCommandDeployService)
+
+public:
+    RemoteLinuxCustomCommandDeployService();
+
+    void setCommandLine(const QString &commandLine);
+
+    bool isDeploymentNecessary() const override { return true; }
+    CheckResult isDeploymentPossible() const override;
+
+protected:
+    void doDeploy() override;
+    void stopDeployment() override;
+
+    QString m_commandLine;
+    QtcProcess m_process;
+};
+
+RemoteLinuxCustomCommandDeployService::RemoteLinuxCustomCommandDeployService()
+{
+    connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
+        emit stdOutData(QString::fromUtf8(m_process.readAllStandardOutput()));
+    });
+    connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
+        emit stdErrData(QString::fromUtf8(m_process.readAllStandardError()));
+    });
+    connect(&m_process, &QtcProcess::done, this, [this] {
+        if (m_process.error() != QProcess::UnknownError
+                || m_process.exitStatus() != QProcess::NormalExit) {
+            emit errorMessage(tr("Remote process failed: %1").arg(m_process.errorString()));
+        } else if (m_process.exitCode() != 0) {
+            emit errorMessage(tr("Remote process finished with exit code %1.")
+                .arg(m_process.exitCode()));
+        } else {
+            emit progressMessage(tr("Remote command finished successfully."));
+        }
+        stopDeployment();
+    });
+}
+
+void RemoteLinuxCustomCommandDeployService::setCommandLine(const QString &commandLine)
+{
+    m_commandLine = commandLine;
+}
+
+CheckResult RemoteLinuxCustomCommandDeployService::isDeploymentPossible() const
+{
+    if (m_commandLine.isEmpty())
+        return CheckResult::failure(tr("No command line given."));
+
+    return AbstractRemoteLinuxDeployService::isDeploymentPossible();
+}
+
+void RemoteLinuxCustomCommandDeployService::doDeploy()
+{
+    emit progressMessage(tr("Starting remote command \"%1\"...").arg(m_commandLine));
+    m_process.setCommand({deviceConfiguration()->mapToGlobalPath("/bin/sh"),
+                             {"-c", m_commandLine}});
+    m_process.start();
+}
+
+void RemoteLinuxCustomCommandDeployService::stopDeployment()
+{
+    m_process.close();
+    handleDeploymentDone();
+}
+
+} // Internal
+
+
+// RemoteLinuxCustomCommandDeploymentStep
 
 RemoteLinuxCustomCommandDeploymentStep::RemoteLinuxCustomCommandDeploymentStep
         (BuildStepList *bsl, Utils::Id id)

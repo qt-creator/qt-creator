@@ -56,8 +56,6 @@ Project {
             "remotelinuxcheckforfreediskspacestep.h",
             "remotelinuxcustomcommanddeploymentstep.cpp",
             "remotelinuxcustomcommanddeploymentstep.h",
-            "remotelinuxcustomcommanddeployservice.cpp",
-            "remotelinuxcustomcommanddeployservice.h",
             "remotelinuxcustomrunconfiguration.cpp",
             "remotelinuxcustomrunconfiguration.h",
             "remotelinuxdebugsupport.cpp",
