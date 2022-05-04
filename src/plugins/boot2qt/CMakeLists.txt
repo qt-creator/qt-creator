@@ -13,7 +13,6 @@ add_qtc_plugin(Boot2Qt
     qdbplugin.cpp qdbplugin.h
     qdbqtversion.cpp qdbqtversion.h
     qdbrunconfiguration.cpp qdbrunconfiguration.h
-    qdbstopapplicationservice.cpp qdbstopapplicationservice.h
     qdbstopapplicationstep.cpp qdbstopapplicationstep.h
     qdbutils.cpp qdbutils.h
 )
