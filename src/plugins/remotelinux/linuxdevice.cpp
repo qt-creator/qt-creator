@@ -41,7 +41,8 @@
 #include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
 #include <projectexplorer/runcontrol.h>
 
-#include <ssh/sshremoteprocessrunner.h>
+#include <ssh/sshconnection.h>
+#include <ssh/sshremoteprocess.h>
 #include <ssh/sshsettings.h>
 
 #include <utils/algorithm.h>
@@ -50,6 +51,7 @@
 #include <utils/port.h>
 #include <utils/processinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/temporaryfile.h>
 
