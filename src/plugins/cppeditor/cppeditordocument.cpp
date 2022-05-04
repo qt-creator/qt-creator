@@ -55,6 +55,8 @@
 
 #include <QTextDocument>
 
+const char NO_PROJECT_CONFIGURATION[] = "NoProject";
+
 namespace {
 
 CppEditor::CppModelManager *mm()
@@ -129,6 +131,10 @@ CppEditorDocument::CppEditorDocument()
             this, &CppEditorDocument::reparseWithPreferredParseContext);
 
     m_minimizableInfoBars.setSettingsGroup(Constants::CPPEDITOR_SETTINGSGROUP);
+    m_minimizableInfoBars.setPossibleInfoBarEntries(
+        {{NO_PROJECT_CONFIGURATION,
+          tr("<b>Warning</b>: This file is not part of any project. "
+             "The code model might have issues parsing this file properly.")}});
 
     // See also onFilePathChanged() for more initialization
 }
@@ -420,7 +426,7 @@ BaseEditorDocumentProcessor *CppEditorDocument::processor()
                 [this] (const ProjectPartInfo &info)
         {
             const bool hasProjectPart = !(info.hints & ProjectPartInfo::IsFallbackMatch);
-            m_minimizableInfoBars.processHasProjectPart(hasProjectPart);
+            m_minimizableInfoBars.setInfoVisible(NO_PROJECT_CONFIGURATION, !hasProjectPart);
             m_parseContextModel.update(info);
             const bool isAmbiguous = info.hints & ProjectPartInfo::IsAmbiguousMatch;
             const bool isProjectFile = info.hints & ProjectPartInfo::IsFromProjectMatch;

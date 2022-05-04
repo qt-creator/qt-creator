@@ -32,7 +32,6 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
-const char NO_PROJECT_CONFIGURATION[] = "NoProject";
 const char SETTINGS_PREFIX[] = "ShowInfoBarFor";
 const bool kShowInInfoBarDefault = true;
 
@@ -45,6 +44,17 @@ namespace Internal {
 MinimizableInfoBars::MinimizableInfoBars(InfoBar &infoBar)
     : m_infoBar(infoBar)
 {
+}
+
+void MinimizableInfoBars::setPossibleInfoBarEntries(const QList<Utils::InfoBarEntry> &entries)
+{
+    QTC_CHECK(m_actions.isEmpty());
+    m_infoEntries.clear();
+    m_isInfoVisible.clear();
+    for (const Utils::InfoBarEntry &entry : entries) {
+        m_infoEntries.insert(entry.id(), entry);
+        m_isInfoVisible.insert(entry.id(), false);
+    }
     createActions();
 }
 
@@ -55,15 +65,19 @@ void MinimizableInfoBars::setSettingsGroup(const QString &settingsGroup)
 
 void MinimizableInfoBars::createActions()
 {
-    auto action = new QAction(this);
-    action->setToolTip(tr("File is not part of any project."));
-    action->setIcon(Icons::WARNING_TOOLBAR.pixmap());
-    connect(action, &QAction::triggered, this, [this]() {
-        setShowInInfoBar(NO_PROJECT_CONFIGURATION, true);
-        updateNoProjectConfiguration();
-    });
-    action->setVisible(!showInInfoBar(NO_PROJECT_CONFIGURATION));
-    m_actions.insert(NO_PROJECT_CONFIGURATION, action);
+    QTC_CHECK(m_actions.isEmpty());
+    for (const Utils::InfoBarEntry &entry : qAsConst(m_infoEntries)) {
+        const Id id = entry.id();
+        auto action = new QAction(this);
+        action->setToolTip(entry.text());
+        action->setIcon(Icons::WARNING_TOOLBAR.pixmap());
+        connect(action, &QAction::triggered, this, [this, id]() {
+            setShowInInfoBar(id, true);
+            updateInfo(id);
+        });
+        action->setVisible(!showInInfoBar(id));
+        m_actions.insert(id, action);
+    }
 }
 
 QString MinimizableInfoBars::settingsKey(const Id &id) const
@@ -87,21 +101,21 @@ void MinimizableInfoBars::createShowInfoBarActions(const ActionCreator &actionCr
     }
 }
 
-void MinimizableInfoBars::processHasProjectPart(bool hasProjectPart)
+void MinimizableInfoBars::setInfoVisible(const Id &id, bool visible)
 {
-    m_hasProjectPart = hasProjectPart;
-    updateNoProjectConfiguration();
+    QTC_CHECK(m_isInfoVisible.contains(id));
+    m_isInfoVisible.insert(id, visible);
+    updateInfo(id);
 }
 
-void MinimizableInfoBars::updateNoProjectConfiguration()
+void MinimizableInfoBars::updateInfo(const Id &id)
 {
-    const Id id(NO_PROJECT_CONFIGURATION);
     m_infoBar.removeInfo(id);
 
     bool show = false;
-    if (!m_hasProjectPart) {
+    if (m_isInfoVisible.value(id)) {
         if (showInInfoBar(id))
-            addNoProjectConfigurationEntry(id);
+            showInfoBar(id);
         else
             show = true;
     }
@@ -111,35 +125,24 @@ void MinimizableInfoBars::updateNoProjectConfiguration()
         action->setVisible(show);
 }
 
-static InfoBarEntry createMinimizableInfo(const Id &id,
-                                          const QString &text,
-                                          QObject *guard,
-                                          std::function<void()> minimizer)
+void MinimizableInfoBars::showInfoBar(const Id &id)
 {
-    QTC_CHECK(minimizer);
-
-    InfoBarEntry info(id, text);
+    const InfoBarEntry entry = m_infoEntries.value(id);
+    InfoBarEntry info(entry);
     info.removeCancelButton();
     // The minimizer() might delete the "Minimize" button immediately and as
     // result invalid reads will happen in QToolButton::mouseReleaseEvent().
     // Avoid this by running the minimizer in the next event loop iteration.
-    info.addCustomButton(MinimizableInfoBars::tr("Minimize"), [guard, minimizer] {
+    info.addCustomButton(MinimizableInfoBars::tr("Minimize"), [this, id] {
         QMetaObject::invokeMethod(
-            guard, [minimizer] { minimizer(); }, Qt::QueuedConnection);
+            this,
+            [id, this] {
+                setShowInInfoBar(id, false);
+                updateInfo(id);
+            },
+            Qt::QueuedConnection);
     });
-
-    return info;
-}
-
-void MinimizableInfoBars::addNoProjectConfigurationEntry(const Id &id)
-{
-    const QString text = tr("<b>Warning</b>: This file is not part of any project. "
-                            "The code model might have issues parsing this file properly.");
-
-    m_infoBar.addInfo(createMinimizableInfo(id, text, this, [this, id]() {
-        setShowInInfoBar(id, false);
-        updateNoProjectConfiguration();
-    }));
+    m_infoBar.addInfo(info);
 }
 
 bool MinimizableInfoBars::showInInfoBar(const Id &id) const

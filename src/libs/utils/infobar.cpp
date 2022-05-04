@@ -85,6 +85,16 @@ InfoBarEntry::InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppression _
 {
 }
 
+Id InfoBarEntry::id() const
+{
+    return m_id;
+}
+
+QString InfoBarEntry::text() const
+{
+    return m_infoText;
+}
+
 void InfoBarEntry::addCustomButton(const QString &buttonText,
                                    CallBack callBack,
                                    const QString &tooltip)

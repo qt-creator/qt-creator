@@ -26,16 +26,13 @@
 #pragma once
 
 #include <utils/id.h>
+#include <utils/infobar.h>
 
 #include <QAction>
 #include <QHash>
 #include <QObject>
 
 #include <functional>
-
-namespace Utils {
-class InfoBar;
-}
 
 namespace CppEditor {
 namespace Internal {
@@ -51,9 +48,11 @@ public:
     explicit MinimizableInfoBars(Utils::InfoBar &infoBar);
 
     void setSettingsGroup(const QString &settingsGroup);
+    void setPossibleInfoBarEntries(const QList<Utils::InfoBarEntry> &entries);
+
     void createShowInfoBarActions(const ActionCreator &actionCreator) const;
 
-    void processHasProjectPart(bool hasProjectPart);
+    void setInfoVisible(const Utils::Id &id, bool visible);
 
 private:
     void createActions();
@@ -62,16 +61,16 @@ private:
     bool showInInfoBar(const Utils::Id &id) const;
     void setShowInInfoBar(const Utils::Id &id, bool show);
 
-    void updateNoProjectConfiguration();
+    void updateInfo(const Utils::Id &id);
 
-    void addNoProjectConfigurationEntry(const Utils::Id &id);
+    void showInfoBar(const Utils::Id &id);
 
 private:
     Utils::InfoBar &m_infoBar;
     QString m_settingsGroup;
     QHash<Utils::Id, QAction *> m_actions;
-
-    bool m_hasProjectPart = true;
+    QHash<Utils::Id, bool> m_isInfoVisible;
+    QHash<Utils::Id, Utils::InfoBarEntry> m_infoEntries;
 };
 
 } // namespace Internal
