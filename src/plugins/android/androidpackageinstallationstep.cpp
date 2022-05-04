@@ -147,7 +147,7 @@ void AndroidPackageInstallationStep::setupOutputFormatter(OutputFormatter *forma
 void AndroidPackageInstallationStep::doRun()
 {
     QString error;
-    foreach (const QString &dir, m_androidDirsToClean) {
+    for (const QString &dir : qAsConst(m_androidDirsToClean)) {
         FilePath androidDir = FilePath::fromString(dir);
         if (!dir.isEmpty() && androidDir.exists()) {
             emit addOutput(tr("Removing directory %1").arg(dir), OutputFormat::NormalMessage);

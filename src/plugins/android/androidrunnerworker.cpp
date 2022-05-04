@@ -439,7 +439,7 @@ void AndroidRunnerWorker::logcatProcess(const QByteArray &text, QByteArray &buff
     }
 
     QString pidString = QString::number(m_processPID);
-    foreach (const QByteArray &msg, lines) {
+    for (const QByteArray &msg : qAsConst(lines)) {
         const QString line = QString::fromUtf8(msg).trimmed() + QLatin1Char('\n');
         if (!line.contains(pidString))
             continue;

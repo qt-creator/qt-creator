@@ -643,7 +643,8 @@ static GradleProperties readGradleProperties(const QString &path)
     if (!file.open(QIODevice::ReadOnly))
         return properties;
 
-    foreach (const QByteArray &line, file.readAll().split('\n')) {
+    const QList<QByteArray> lines = file.readAll().split('\n');
+    for (const QByteArray &line : lines) {
         if (line.trimmed().startsWith('#'))
             continue;
 

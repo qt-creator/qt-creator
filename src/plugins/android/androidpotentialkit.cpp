@@ -66,8 +66,8 @@ QWidget *AndroidPotentialKit::createWidget(QWidget *parent) const
 
 bool AndroidPotentialKit::isEnabled() const
 {
-    QList<ProjectExplorer::Kit *> kits = ProjectExplorer::KitManager::kits();
-    foreach (ProjectExplorer::Kit *kit, kits) {
+    const QList<ProjectExplorer::Kit *> kits = ProjectExplorer::KitManager::kits();
+    for (const ProjectExplorer::Kit *kit : kits) {
         if (kit->isAutoDetected() && !kit->isSdkProvided()) {
             return false;
         }
@@ -115,8 +115,8 @@ void AndroidPotentialKitWidget::openOptions()
 
 void AndroidPotentialKitWidget::recheck()
 {
-    QList<ProjectExplorer::Kit *> kits = ProjectExplorer::KitManager::kits();
-    foreach (ProjectExplorer::Kit *kit, kits) {
+    const QList<ProjectExplorer::Kit *> kits = ProjectExplorer::KitManager::kits();
+    for (const ProjectExplorer::Kit *kit : kits) {
         if (kit->isAutoDetected() && !kit->isSdkProvided()) {
             setVisible(false);
             return;

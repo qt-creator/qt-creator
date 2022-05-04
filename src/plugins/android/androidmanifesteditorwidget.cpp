@@ -1006,7 +1006,7 @@ QXmlStreamAttributes modifyXmlStreamAttributes(const QXmlStreamAttributes &input
     Q_ASSERT(keys.size() == values.size());
     QXmlStreamAttributes result;
     result.reserve(input.size());
-    foreach (const QXmlStreamAttribute &attribute, input) {
+    for (const QXmlStreamAttribute &attribute : input) {
         const QString &name = attribute.qualifiedName().toString();
         if (remove.contains(name))
             continue;
@@ -1082,7 +1082,7 @@ void AndroidManifestEditorWidget::parseManifest(QXmlStreamReader &reader, QXmlSt
                 writer.writeComment(QLatin1String(" %%INSERT_FEATURES "));
 
             if (!permissions.isEmpty()) {
-                foreach (const QString &permission, permissions) {
+                for (const QString &permission : qAsConst(permissions)) {
                     writer.writeEmptyElement(QLatin1String("uses-permission"));
                     writer.writeAttribute(QLatin1String("android:name"), permission);
                 }

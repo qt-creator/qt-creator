@@ -99,7 +99,8 @@ void AndroidManifestEditor::gotoLine(int line, int column, bool centerLine)
 void AndroidManifestEditor::changeEditorPage(QAction *action)
 {
     if (!widget()->setActivePage(static_cast<AndroidManifestEditorWidget::EditorPage>(action->data().toInt()))) {
-        foreach (QAction *action, m_actionGroup->actions()) {
+        const QList<QAction *> actions = m_actionGroup->actions();
+        for (QAction *action : actions) {
             if (action->data().toInt() == widget()->activePage()) {
                 action->setChecked(true);
                 break;

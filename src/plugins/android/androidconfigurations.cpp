@@ -698,7 +698,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
 
     // workaround for '????????????' serial numbers:
     // can use "adb -d" when only one usb device attached
-    foreach (const QString &device, adbDevs) {
+    for (const QString &device : qAsConst(adbDevs)) {
         const QString serialNo = device.left(device.indexOf('\t')).trimmed();
         const QString deviceType = device.mid(device.indexOf('\t')).trimmed();
         AndroidDeviceInfo dev;
@@ -733,8 +733,8 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
 
 bool AndroidConfig::isConnected(const QString &serialNumber) const
 {
-    QVector<AndroidDeviceInfo> devices = connectedDevices();
-    foreach (AndroidDeviceInfo device, devices) {
+    const QVector<AndroidDeviceInfo> devices = connectedDevices();
+    for (const AndroidDeviceInfo &device : devices) {
         if (device.serialNumber == serialNumber)
             return true;
     }
@@ -888,7 +888,8 @@ bool AndroidConfig::isValidNdk(const QString &ndkLocation) const
 QString AndroidConfig::bestNdkPlatformMatch(int target, const QtVersion *qtVersion) const
 {
     target = std::max(AndroidManager::defaultMinimumSDK(qtVersion), target);
-    foreach (int apiLevel, availableNdkPlatforms(qtVersion)) {
+    const QList<int> platforms = availableNdkPlatforms(qtVersion);
+    for (const int apiLevel : platforms) {
         if (apiLevel <= target)
             return QString::fromLatin1("android-%1").arg(apiLevel);
     }
