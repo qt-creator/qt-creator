@@ -653,7 +653,6 @@ void QmlDesignerPlugin::emitUsageStatistics(const QString &identifier)
 {
     QTC_ASSERT(instance(), return);
     emit instance()->usageStatisticsNotifier(normalizeIdentifier(identifier));
-    qDebug() << normalizeIdentifier(identifier);
 }
 
 void QmlDesignerPlugin::emitUsageStatisticsContextAction(const QString &identifier)
@@ -680,7 +679,6 @@ void QmlDesignerPlugin::emitUsageStatisticsTime(const QString &identifier, int e
 {
     QTC_ASSERT(instance(), return);
     emit instance()->usageStatisticsUsageTimer(normalizeIdentifier(identifier), elapsed);
-    qDebug() << normalizeIdentifier(identifier);
 }
 
 QmlDesignerPlugin *QmlDesignerPlugin::instance()
