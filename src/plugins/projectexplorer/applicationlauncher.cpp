@@ -94,7 +94,7 @@ public:
     bool m_isLocal = true;
     bool m_runAsRoot = false;
 
-    std::unique_ptr<QtcProcess> m_process;
+    QtcProcess m_process;
 
     QTextCodec *m_outputCodec = nullptr;
     QTextCodec::ConverterState m_outputCodecState;
@@ -123,13 +123,12 @@ static QProcess::ProcessChannelMode defaultProcessChannelMode()
 ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *parent)
     : q(parent)
 {
-    m_process.reset(new QtcProcess(this));
-    m_process->setProcessChannelMode(defaultProcessChannelMode());
-    connect(m_process.get(), &QtcProcess::started, q, &ApplicationLauncher::started);
-    connect(m_process.get(), &QtcProcess::done, this, &ApplicationLauncherPrivate::handleDone);
-    connect(m_process.get(), &QtcProcess::readyReadStandardError,
+    m_process.setProcessChannelMode(defaultProcessChannelMode());
+    connect(&m_process, &QtcProcess::started, q, &ApplicationLauncher::started);
+    connect(&m_process, &QtcProcess::done, this, &ApplicationLauncherPrivate::handleDone);
+    connect(&m_process, &QtcProcess::readyReadStandardError,
                 this, &ApplicationLauncherPrivate::handleStandardError);
-    connect(m_process.get(), &QtcProcess::readyReadStandardOutput,
+    connect(&m_process, &QtcProcess::readyReadStandardOutput,
                 this, &ApplicationLauncherPrivate::handleStandardOutput);
 
 #ifdef Q_OS_WIN
@@ -149,12 +148,12 @@ ApplicationLauncher::~ApplicationLauncher() = default;
 
 void ApplicationLauncher::setProcessChannelMode(QProcess::ProcessChannelMode mode)
 {
-    d->m_process->setProcessChannelMode(mode);
+    d->m_process.setProcessChannelMode(mode);
 }
 
 void ApplicationLauncher::setUseTerminal(bool on)
 {
-    d->m_process->setTerminalMode(on ? Utils::TerminalMode::On : Utils::TerminalMode::Off);
+    d->m_process.setTerminalMode(on ? Utils::TerminalMode::On : Utils::TerminalMode::Off);
 }
 
 void ApplicationLauncher::setRunAsRoot(bool on)
@@ -178,8 +177,7 @@ void ApplicationLauncherPrivate::stop()
     if (m_isLocal) {
         if (!isRunning())
             return;
-        QTC_ASSERT(m_process, return);
-        m_process->stopProcess();
+        m_process.stopProcess();
         QTimer::singleShot(100, this, [this] { emit q->finished(); });
     } else {
         if (m_stopRequested)
@@ -189,7 +187,7 @@ void ApplicationLauncherPrivate::stop()
                               NormalMessageFormat);
         switch (m_state) {
             case Run:
-                m_process->terminate();
+                m_process.terminate();
                 break;
             case Inactive:
                 break;
@@ -209,9 +207,7 @@ bool ApplicationLauncher::isLocal() const
 
 bool ApplicationLauncherPrivate::isRunning() const
 {
-    if (!m_process)
-        return false;
-    return m_process->state() != QProcess::NotRunning;
+    return m_process.state() != QProcess::NotRunning;
 }
 
 ProcessHandle ApplicationLauncher::applicationPID() const
@@ -224,7 +220,7 @@ qint64 ApplicationLauncherPrivate::applicationPID() const
     if (!isRunning())
         return 0;
 
-    return m_process->processId();
+    return m_process.processId();
 }
 
 QString ApplicationLauncher::errorString() const
@@ -239,7 +235,7 @@ QProcess::ProcessError ApplicationLauncher::error() const
 
 void ApplicationLauncherPrivate::handleDone()
 {
-    m_resultData = m_process->resultData();
+    m_resultData = m_process.resultData();
 
     if (m_isLocal) {
         if (m_resultData.m_error == QProcess::UnknownError) {
@@ -247,9 +243,9 @@ void ApplicationLauncherPrivate::handleDone()
             return;
         }
         // TODO: why below handlings are different?
-        if (m_process->usesTerminal()) {
-            emit q->appendMessage(m_process->errorString(), ErrorMessageFormat);
-            if (m_processRunning && m_process->processId() == 0) {
+        if (m_process.usesTerminal()) {
+            emit q->appendMessage(m_process.errorString(), ErrorMessageFormat);
+            if (m_processRunning && m_process.processId() == 0) {
                 m_processRunning = false;
                 m_resultData.m_exitCode = -1; // FIXME: Why?
                 emit q->finished();
@@ -292,7 +288,7 @@ void ApplicationLauncherPrivate::handleDone()
 
 void ApplicationLauncherPrivate::handleStandardOutput()
 {
-    const QByteArray data = m_process->readAllStandardOutput();
+    const QByteArray data = m_process.readAllStandardOutput();
     const QString msg = m_outputCodec->toUnicode(
                 data.constData(), data.length(), &m_outputCodecState);
     emit q->appendMessage(msg, StdOutFormat, false);
@@ -300,7 +296,7 @@ void ApplicationLauncherPrivate::handleStandardOutput()
 
 void ApplicationLauncherPrivate::handleStandardError()
 {
-    const QByteArray data = m_process->readAllStandardError();
+    const QByteArray data = m_process.readAllStandardError();
     const QString msg = m_outputCodec->toUnicode(
                 data.constData(), data.length(), &m_errorCodecState);
     emit q->appendMessage(msg, StdErrFormat, false);
@@ -345,13 +341,13 @@ void ApplicationLauncherPrivate::start()
     if (m_isLocal) {
         // Work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch' ...)
         const FilePath fixedPath = m_runnable.workingDirectory.normalizedPathName();
-        m_process->setWorkingDirectory(fixedPath);
+        m_process.setWorkingDirectory(fixedPath);
 
         Environment env = m_runnable.environment;
         if (m_runAsRoot)
             RunControl::provideAskPassEntry(env);
 
-        m_process->setEnvironment(env);
+        m_process.setEnvironment(env);
 
         m_processRunning = true;
     #ifdef Q_OS_WIN
@@ -367,8 +363,8 @@ void ApplicationLauncherPrivate::start()
             cmdLine = disclaim;
         }
 
-        m_process->setRunAsRoot(m_runAsRoot);
-        m_process->setCommand(cmdLine);
+        m_process.setRunAsRoot(m_runAsRoot);
+        m_process.setCommand(cmdLine);
     } else {
         QTC_ASSERT(m_state == Inactive, return);
 
@@ -396,10 +392,10 @@ void ApplicationLauncherPrivate::start()
         CommandLine cmd = m_runnable.command;
         // FIXME: RunConfiguration::runnable() should give us the correct, on-device path, instead of fixing it up here.
         cmd.setExecutable(m_runnable.device->mapToGlobalPath(cmd.executable()));
-        m_process->setCommand(cmd);
-        m_process->setWorkingDirectory(m_runnable.workingDirectory);
-        m_process->setRemoteEnvironment(m_runnable.environment);
-        m_process->setExtraData(m_runnable.extraData);
+        m_process.setCommand(cmd);
+        m_process.setWorkingDirectory(m_runnable.workingDirectory);
+        m_process.setRemoteEnvironment(m_runnable.environment);
+        m_process.setExtraData(m_runnable.extraData);
     }
 
     if (m_isLocal)
@@ -407,7 +403,7 @@ void ApplicationLauncherPrivate::start()
     else
         m_outputCodec = QTextCodec::codecForName("utf8");
 
-    m_process->start();
+    m_process.start();
 }
 
 } // namespace ProjectExplorer
