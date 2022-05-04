@@ -37,7 +37,6 @@ const char CPPEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "C+
 const char SWITCH_DECLARATION_DEFINITION[] = "CppEditor.SwitchDeclarationDefinition";
 const char OPEN_DECLARATION_DEFINITION_IN_NEXT_SPLIT[] = "CppEditor.OpenDeclarationDefinitionInNextSplit";
 const char OPEN_PREPROCESSOR_DIALOG[] = "CppEditor.OpenPreprocessorDialog";
-const char ERRORS_IN_HEADER_FILES[] = "CppEditor.ErrorsInHeaderFiles";
 const char MULTIPLE_PARSE_CONTEXTS_AVAILABLE[] = "CppEditor.MultipleParseContextsAvailable";
 const char NO_PROJECT_CONFIGURATION[] = "CppEditor.NoProjectConfiguration";
 const char M_REFACTORING_MENU_INSERTION_POINT[] = "CppEditor.RefactorGroup";
@@ -101,7 +100,6 @@ const char CPPEDITOR_SETTINGSGROUP[] = "CppTools";
 const char LOWERCASE_CPPFILES_KEY[] = "LowerCaseFiles";
 const bool LOWERCASE_CPPFILES_DEFAULT = true;
 const char CPPEDITOR_SORT_EDITOR_DOCUMENT_OUTLINE[] = "SortedMethodOverview";
-const char CPPEDITOR_SHOW_INFO_BAR_FOR_HEADER_ERRORS[] = "ShowInfoBarForHeaderErrors";
 const char CPPEDITOR_SHOW_INFO_BAR_FOR_FOR_NO_PROJECT[] = "ShowInfoBarForNoProject";
 const char CPPEDITOR_MODEL_MANAGER_PCH_USAGE[] = "PCHUsage";
 const char CPPEDITOR_INTERPRET_AMBIGIUOUS_HEADERS_AS_C_HEADERS[]

@@ -427,10 +427,8 @@ BaseEditorDocumentProcessor *CppEditorDocument::processor()
         connect(m_processor.data(), &BaseEditorDocumentProcessor::codeWarningsUpdated,
                 [this] (unsigned revision,
                         const QList<QTextEdit::ExtraSelection> selections,
-                        const std::function<QWidget*()> &creator,
                         const TextEditor::RefactorMarkers &refactorMarkers) {
             emit codeWarningsUpdated(revision, selections, refactorMarkers);
-            m_minimizableInfoBars.processHeaderDiagnostics(creator);
         });
         connect(m_processor.data(), &BaseEditorDocumentProcessor::ifdefedOutBlocksUpdated,
                 this, &CppEditorDocument::ifdefedOutBlocksUpdated);

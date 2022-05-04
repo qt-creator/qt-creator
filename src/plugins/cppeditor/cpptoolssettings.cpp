@@ -44,7 +44,6 @@
 
 static const char idKey[] = "CppGlobal";
 const bool kSortEditorDocumentOutlineDefault = true;
-const bool kShowHeaderErrorInfoBarDefault = true;
 const bool kShowNoProjectInfoBarDefault = true;
 
 using namespace Core;
@@ -263,28 +262,6 @@ void CppToolsSettings::setSortedEditorDocumentOutline(bool sorted)
                                            sorted,
                                            kSortEditorDocumentOutlineDefault);
     emit editorDocumentOutlineSortingChanged(sorted);
-}
-
-static QString showHeaderErrorInfoBarKey()
-{
-    return QLatin1String(Constants::CPPEDITOR_SETTINGSGROUP)
-         + QLatin1Char('/')
-         + QLatin1String(Constants::CPPEDITOR_SHOW_INFO_BAR_FOR_HEADER_ERRORS);
-}
-
-bool CppToolsSettings::showHeaderErrorInfoBar() const
-{
-    return ICore::settings()
-        ->value(showHeaderErrorInfoBarKey(), kShowHeaderErrorInfoBarDefault)
-        .toBool();
-}
-
-void CppToolsSettings::setShowHeaderErrorInfoBar(bool show)
-{
-    ICore::settings()->setValueWithDefault(showHeaderErrorInfoBarKey(),
-                                           show,
-                                           kShowHeaderErrorInfoBarDefault);
-    emit showHeaderErrorInfoBarChanged(show);
 }
 
 static QString showNoProjectInfoBarKey()

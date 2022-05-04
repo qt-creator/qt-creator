@@ -45,8 +45,6 @@ MinimizableInfoBars::MinimizableInfoBars(InfoBar &infoBar, QObject *parent)
     : QObject(parent)
     , m_infoBar(infoBar)
 {
-    connect(settings(), &CppToolsSettings::showHeaderErrorInfoBarChanged,
-            this, &MinimizableInfoBars::updateHeaderErrors);
     connect(settings(), &CppToolsSettings::showNoProjectInfoBarChanged,
             this, &MinimizableInfoBars::updateNoProjectConfiguration);
 }
@@ -68,48 +66,13 @@ MinimizableInfoBars::Actions MinimizableInfoBars::createShowInfoBarActions(
     action->setVisible(!settings()->showNoProjectInfoBar());
     result.insert(Constants::NO_PROJECT_CONFIGURATION, action);
 
-    // Errors in included files
-    button = new QToolButton();
-    button->setToolTip(tr("File contains errors in included files."));
-    button->setIcon(Utils::Icons::WARNING_TOOLBAR.pixmap());
-    connect(button, &QAbstractButton::clicked, []() {
-        settings()->setShowHeaderErrorInfoBar(true);
-    });
-    action = actionCreator(button);
-    action->setVisible(!settings()->showHeaderErrorInfoBar());
-    result.insert(Constants::ERRORS_IN_HEADER_FILES, action);
-
     return result;
-}
-
-void MinimizableInfoBars::processHeaderDiagnostics(
-        const DiagnosticWidgetCreator &diagnosticWidgetCreator)
-{
-    m_diagnosticWidgetCreator = diagnosticWidgetCreator;
-    updateHeaderErrors();
 }
 
 void MinimizableInfoBars::processHasProjectPart(bool hasProjectPart)
 {
     m_hasProjectPart = hasProjectPart;
     updateNoProjectConfiguration();
-}
-
-void MinimizableInfoBars::updateHeaderErrors()
-{
-    const Id id(Constants::ERRORS_IN_HEADER_FILES);
-    m_infoBar.removeInfo(id);
-
-    bool show = false;
-    // Show the info entry only if there is a project configuration.
-    if (m_hasProjectPart && m_diagnosticWidgetCreator) {
-        if (settings()->showHeaderErrorInfoBar())
-            addHeaderErrorEntry(id, m_diagnosticWidgetCreator);
-        else
-            show = true;
-    }
-
-    emit showAction(id, show);
 }
 
 void MinimizableInfoBars::updateNoProjectConfiguration()
@@ -154,21 +117,6 @@ void MinimizableInfoBars::addNoProjectConfigurationEntry(const Id &id)
     m_infoBar.addInfo(createMinimizableInfo(id, text, []() {
         settings()->setShowNoProjectInfoBar(false);
     }));
-}
-
-void MinimizableInfoBars::addHeaderErrorEntry(const Id &id,
-        const DiagnosticWidgetCreator &diagnosticWidgetCreator)
-{
-    const QString text = tr("<b>Warning</b>: The code model could not parse an included file, "
-                            "which might lead to incorrect code completion and "
-                            "highlighting, for example.");
-
-    InfoBarEntry info = createMinimizableInfo(id, text, []() {
-        settings()->setShowHeaderErrorInfoBar(false);
-    });
-    info.setDetailsWidgetCreator(diagnosticWidgetCreator);
-
-    m_infoBar.addInfo(info);
 }
 
 } // namespace Internal

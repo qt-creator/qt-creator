@@ -318,7 +318,6 @@ void BuiltinEditorDocumentProcessor::onCodeWarningsUpdated(
     m_codeWarningsUpdated = true;
     emit codeWarningsUpdated(revision(),
                              m_codeWarnings,
-                             HeaderErrorDiagnosticWidgetCreator(),
                              TextEditor::RefactorMarkers());
 }
 

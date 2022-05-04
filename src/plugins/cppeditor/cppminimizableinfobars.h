@@ -45,7 +45,6 @@ class MinimizableInfoBars : public QObject
     Q_OBJECT
 
 public:
-    using DiagnosticWidgetCreator = std::function<QWidget *()>;
     using ActionCreator = std::function<QAction *(QWidget *widget)>;
     using Actions = QHash<Utils::Id, QAction *>;
 
@@ -54,26 +53,20 @@ public:
 public:
     explicit MinimizableInfoBars(Utils::InfoBar &infoBar, QObject *parent = nullptr);
 
-    // Expected call order: processHasProjectPart(), processHeaderDiagnostics()
     void processHasProjectPart(bool hasProjectPart);
-    void processHeaderDiagnostics(const DiagnosticWidgetCreator &diagnosticWidgetCreator);
 
 signals:
     void showAction(const Utils::Id &id, bool show);
 
 private:
     void updateNoProjectConfiguration();
-    void updateHeaderErrors();
 
     void addNoProjectConfigurationEntry(const Utils::Id &id);
-    void addHeaderErrorEntry(const Utils::Id &id,
-                             const DiagnosticWidgetCreator &diagnosticWidgetCreator);
 
 private:
     Utils::InfoBar &m_infoBar;
 
     bool m_hasProjectPart = true;
-    DiagnosticWidgetCreator m_diagnosticWidgetCreator;
 };
 
 } // namespace Internal

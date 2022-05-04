@@ -89,16 +89,12 @@ public:
 
     QString filePath() const { return m_filePath; }
 
-public:
-    using HeaderErrorDiagnosticWidgetCreator = std::function<QWidget*()>;
-
 signals:
     // Signal interface to implement
     void projectPartInfoUpdated(const ProjectPartInfo &projectPartInfo);
 
     void codeWarningsUpdated(unsigned revision,
                              const QList<QTextEdit::ExtraSelection> &selections,
-                             const HeaderErrorDiagnosticWidgetCreator &creator,
                              const TextEditor::RefactorMarkers &refactorMarkers);
 
     void ifdefedOutBlocksUpdated(unsigned revision,
