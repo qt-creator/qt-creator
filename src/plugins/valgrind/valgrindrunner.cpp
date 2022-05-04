@@ -52,14 +52,14 @@ public:
     void processStarted();
     void localProcessStarted();
     void remoteProcessStarted();
-    void findPidOutputReceived(const QString &out, Utils::OutputFormat format);
+    void findPidProcessDone();
 
     ValgrindRunner *q;
     Runnable m_debuggee;
-    ApplicationLauncher m_valgrindProcess;
+    QtcProcess m_valgrindProcess;
     IDevice::ConstPtr m_device;
 
-    ApplicationLauncher m_findPID;
+    QtcProcess m_findPID;
 
     CommandLine m_valgrindCommand;
 
@@ -79,7 +79,7 @@ public:
 
 bool ValgrindRunner::Private::run()
 {
-    CommandLine cmd{m_valgrindCommand.executable(), {}};
+    CommandLine cmd{m_device->mapToGlobalPath(m_valgrindCommand.executable())};
 
     if (!localServerAddress.isNull()) {
         if (!q->startServers())
@@ -115,38 +115,42 @@ bool ValgrindRunner::Private::run()
     // consider appending our options last so they override any interfering user-supplied options
     // -q as suggested by valgrind manual
 
-    connect(&m_valgrindProcess, &ApplicationLauncher::finished,
+    connect(&m_valgrindProcess, &QtcProcess::finished,
             q, &ValgrindRunner::processFinished);
-    connect(&m_valgrindProcess, &ApplicationLauncher::started,
+    connect(&m_valgrindProcess, &QtcProcess::started,
             this, &ValgrindRunner::Private::processStarted);
-    connect(&m_valgrindProcess, &ApplicationLauncher::errorOccurred,
+    connect(&m_valgrindProcess, &QtcProcess::errorOccurred,
             q, &ValgrindRunner::processError);
-    connect(&m_valgrindProcess, &ApplicationLauncher::appendMessage,
-            q, &ValgrindRunner::processOutputReceived);
 
-    if (HostOsInfo::isMacHost())
+    connect(&m_valgrindProcess, &QtcProcess::readyReadStandardOutput, q, [this] {
+        q->processOutputReceived(QString::fromUtf8(m_valgrindProcess.readAllStandardOutput()),
+                                 Utils::StdOutFormat);
+    });
+    connect(&m_valgrindProcess, &QtcProcess::readyReadStandardError, q, [this] {
+        q->processOutputReceived(QString::fromUtf8(m_valgrindProcess.readAllStandardError()),
+                                 Utils::StdErrFormat);
+    });
+
+    if (cmd.executable().osType() == OsTypeMac) {
         // May be slower to start but without it we get no filenames for symbols.
         cmd.addArg("--dsymutil=yes");
+    }
 
     cmd.addCommandLineAsArgs(m_debuggee.command);
 
     emit q->valgrindExecuted(cmd.toUserOutput());
 
-    Runnable valgrind;
-    valgrind.command = cmd;
-    valgrind.workingDirectory = m_debuggee.workingDirectory;
-    valgrind.environment = m_debuggee.environment;
-    if (m_device->type() != "DockerDeviceType")
-        valgrind.device = m_device;
-
-    m_valgrindProcess.setRunnable(valgrind);
+    m_valgrindProcess.setCommand(cmd);
+    m_valgrindProcess.setWorkingDirectory(m_debuggee.workingDirectory);
+    m_valgrindProcess.setEnvironment(m_debuggee.environment);
     m_valgrindProcess.start();
+
     return true;
 }
 
 void ValgrindRunner::Private::processStarted()
 {
-    if (m_valgrindProcess.isLocal())
+    if (!m_valgrindProcess.commandLine().executable().needsDevice())
         localProcessStarted();
     else
         remoteProcessStarted();
@@ -154,7 +158,7 @@ void ValgrindRunner::Private::processStarted()
 
 void ValgrindRunner::Private::localProcessStarted()
 {
-    qint64 pid = m_valgrindProcess.applicationPID().pid();
+    qint64 pid = m_valgrindProcess.processId();
     emit q->valgrindStarted(pid);
 }
 
@@ -174,31 +178,31 @@ void ValgrindRunner::Private::remoteProcessStarted()
     QString procEscaped = proc;
     procEscaped.replace("/", "\\\\/");
 
-    Runnable findPid;
+    CommandLine cmd(m_device->mapToGlobalPath(FilePath::fromString("/bin/sh")), {});
     // sleep required since otherwise we might only match "bash -c..." and not the actual
     // valgrind run
-    findPid.command.setExecutable("/bin/sh");
-    findPid.command.setArguments(QString("-c \""
+    cmd.setArguments(QString("-c \""
            "sleep 1; ps ax"        // list all processes with aliased name
            " | grep '%1.*%2'"      // find valgrind process that runs with our exec
            " | awk '\\$5 ~ /^%3/"  // 5th column must start with valgrind process
            " {print \\$1;}'"       // print 1st then (with PID)
            "\"").arg(proc, m_debuggee.command.executable().fileName(), procEscaped));
-    findPid.device = m_device;
 
-//    m_remote.m_findPID = m_remote.m_connection->createRemoteProcess(cmd.toUtf8());
-    connect(&m_findPID, &ApplicationLauncher::appendMessage,
-            this, &ValgrindRunner::Private::findPidOutputReceived);
-    m_findPID.setRunnable(findPid);
+    m_findPID.setCommand(cmd);
+
+    connect(&m_findPID, &QtcProcess::done,
+            this, &ValgrindRunner::Private::findPidProcessDone);
+
     m_findPID.start();
 }
 
-void ValgrindRunner::Private::findPidOutputReceived(const QString &out, Utils::OutputFormat format)
+void ValgrindRunner::Private::findPidProcessDone()
 {
-    if (format != Utils::StdOutFormat) {
-        emit q->processOutputReceived(out, format);
+    if (m_findPID.result() != ProcessResult::FinishedWithSuccess) {
+        emit q->processOutputReceived(m_findPID.allOutput(), StdErrFormat);
         return;
     }
+    QString out = m_findPID.stdOut();
     if (out.isEmpty())
         return;
     bool ok;
@@ -258,7 +262,7 @@ void ValgrindRunner::setDevice(const IDevice::ConstPtr &device)
 
 void ValgrindRunner::setUseTerminal(bool on)
 {
-    d->m_valgrindProcess.setUseTerminal(on);
+    d->m_valgrindProcess.setTerminalMode(on ? TerminalMode::On : TerminalMode::Off);
 }
 
 void ValgrindRunner::waitForFinished() const
@@ -311,7 +315,7 @@ QString ValgrindRunner::errorString() const
 
 void ValgrindRunner::stop()
 {
-    d->m_valgrindProcess.stop();
+    d->m_valgrindProcess.close();
 }
 
 XmlProtocol::ThreadedParser *ValgrindRunner::parser() const
