@@ -97,7 +97,7 @@ Tasks TaskModel::tasks(Utils::Id categoryId) const
         return m_tasks;
 
     Tasks taskList;
-    foreach (const Task &t, m_tasks) {
+    for (const Task &t : qAsConst(m_tasks)) {
         if (t.category == categoryId)
             taskList.append(t);
     }

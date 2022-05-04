@@ -641,7 +641,8 @@ void TaskWindow::updateCategoriesMenu()
     const QList<Utils::Id> filteredCategories = d->m_filter->filteredCategories();
 
     QMap<QString, Utils::Id> nameToIds;
-    foreach (Utils::Id categoryId, d->m_model->categoryIds())
+    const QList<Utils::Id> ids = d->m_model->categoryIds();
+    for (const Utils::Id categoryId : ids)
         nameToIds.insert(d->m_model->categoryDisplayName(categoryId), categoryId);
 
     const NameToIdsConstIt cend = nameToIds.constEnd();

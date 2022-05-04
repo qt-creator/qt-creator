@@ -704,8 +704,8 @@ QVariantMap UserFileVersion16Upgrader::upgrade(const QVariantMap &data)
 
         NamePolicy policy = oldSteps.size() > 1 ? RenameBuildConfiguration : KeepName;
 
-        foreach (const QVariantMap &oldBuildConfiguration, oldBuildConfigurations) {
-            foreach (const OldStepMaps &oldStep, oldSteps) {
+        for (const QVariantMap &oldBuildConfiguration : qAsConst(oldBuildConfigurations)) {
+            for (const OldStepMaps &oldStep : qAsConst(oldSteps)) {
                 QVariantMap newBuildConfiguration = insertSteps(oldBuildConfiguration, oldStep, policy);
                 if (!newBuildConfiguration.isEmpty())
                     newBuildConfigurations.append(newBuildConfiguration);
@@ -735,7 +735,7 @@ QVariant UserFileVersion17Upgrader::process(const QVariant &entry)
     switch (entry.type()) {
     case QVariant::List: {
         QVariantList result;
-        foreach (const QVariant &item, entry.toList())
+        for (const QVariant &item : entry.toList())
             result.append(process(item));
         return result;
     }

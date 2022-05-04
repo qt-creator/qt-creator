@@ -35,8 +35,8 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-WaitForStopDialog::WaitForStopDialog(QList<ProjectExplorer::RunControl *> runControls) :
-    m_runControls(runControls)
+WaitForStopDialog::WaitForStopDialog(const QList<ProjectExplorer::RunControl *> &runControls)
+    : m_runControls(runControls)
 {
     setWindowTitle(tr("Waiting for Applications to Stop"));
 
@@ -53,7 +53,7 @@ WaitForStopDialog::WaitForStopDialog(QList<ProjectExplorer::RunControl *> runCon
 
     updateProgressText();
 
-    foreach (RunControl *rc, runControls)
+    for (const RunControl *rc : runControls)
         connect(rc, &RunControl::stopped, this, &WaitForStopDialog::runControlFinished);
 
     m_timer.start();

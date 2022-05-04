@@ -194,7 +194,7 @@ void ProjectTree::updateFromNode(Node *node)
         project = SessionManager::startupProject();
 
     setCurrent(node, project);
-    foreach (ProjectTreeWidget *widget, m_projectTreeWidgets)
+    for (ProjectTreeWidget *widget : qAsConst(m_projectTreeWidgets))
         widget->sync(node);
 }
 

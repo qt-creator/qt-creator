@@ -220,7 +220,7 @@ bool ToolChainManager::registerToolChain(ToolChain *tc)
 
     if (d->m_toolChains.contains(tc))
         return true;
-    foreach (ToolChain *current, d->m_toolChains) {
+    for (const ToolChain *current : qAsConst(d->m_toolChains)) {
         if (*tc == *current && !tc->isAutoDetected())
             return false;
         QTC_ASSERT(current->id() != tc->id(), return false);

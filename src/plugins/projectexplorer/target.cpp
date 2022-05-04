@@ -621,28 +621,28 @@ void Target::updateDefaultBuildConfigurations()
 
 void Target::updateDefaultDeployConfigurations()
 {
-    QList<DeployConfigurationFactory *> dcFactories = DeployConfigurationFactory::find(this);
+    const QList<DeployConfigurationFactory *> dcFactories = DeployConfigurationFactory::find(this);
     if (dcFactories.isEmpty()) {
         qWarning("No deployment configuration factory found for target id '%s'.", qPrintable(id().toString()));
         return;
     }
 
     QList<Utils::Id> dcIds;
-    foreach (DeployConfigurationFactory *dcFactory, dcFactories)
+    for (const DeployConfigurationFactory *dcFactory : dcFactories)
         dcIds.append(dcFactory->creationId());
 
-    QList<DeployConfiguration *> dcList = deployConfigurations();
+    const QList<DeployConfiguration *> dcList = deployConfigurations();
     QList<Utils::Id> toCreate = dcIds;
 
-    foreach (DeployConfiguration *dc, dcList) {
+    for (DeployConfiguration *dc : dcList) {
         if (dcIds.contains(dc->id()))
             toCreate.removeOne(dc->id());
         else
             removeDeployConfiguration(dc);
     }
 
-    foreach (Utils::Id id, toCreate) {
-        foreach (DeployConfigurationFactory *dcFactory, dcFactories) {
+    for (Utils::Id id : qAsConst(toCreate)) {
+        for (DeployConfigurationFactory *dcFactory : dcFactories) {
             if (dcFactory->creationId() == id) {
                 DeployConfiguration *dc = dcFactory->create(this);
                 if (dc) {
@@ -680,7 +680,7 @@ void Target::updateDefaultRunConfigurations()
     // that produce already existing RCs
     QList<RunConfiguration *> toRemove;
     QList<RunConfigurationCreationInfo> existing;
-    foreach (RunConfiguration *rc, existingConfigured) {
+    for (RunConfiguration *rc : qAsConst(existingConfigured)) {
         bool present = false;
         for (const RunConfigurationCreationInfo &item : creators) {
             QString buildKey = rc->buildKey();
@@ -697,7 +697,7 @@ void Target::updateDefaultRunConfigurations()
     bool removeExistingUnconfigured = false;
     if (ProjectExplorerPlugin::projectExplorerSettings().automaticallyCreateRunConfigurations) {
         // Create new "automatic" RCs and put them into newConfigured/newUnconfigured
-        foreach (const RunConfigurationCreationInfo &item, creators) {
+        for (const RunConfigurationCreationInfo &item : creators) {
             if (item.creationMode == RunConfigurationCreationInfo::ManualCreationOnly)
                 continue;
             bool exists = false;
@@ -735,14 +735,14 @@ void Target::updateDefaultRunConfigurations()
     }
 
     // Do actual changes:
-    foreach (RunConfiguration *rc, newConfigured)
+    for (RunConfiguration *rc : qAsConst(newConfigured))
         addRunConfiguration(rc);
-    foreach (RunConfiguration *rc, newUnconfigured)
+    for (RunConfiguration *rc : qAsConst(newUnconfigured))
         addRunConfiguration(rc);
 
     // Generate complete list of RCs to remove later:
     QList<RunConfiguration *> removalList;
-    foreach (RunConfiguration *rc, toRemove) {
+    for (RunConfiguration *rc : qAsConst(toRemove)) {
         removalList << rc;
         existingConfigured.removeOne(rc); // make sure to also remove them from existingConfigured!
     }
@@ -778,7 +778,7 @@ void Target::updateDefaultRunConfigurations()
     }
 
     // Remove the RCs that are no longer needed:
-    foreach (RunConfiguration *rc, removalList)
+    for (RunConfiguration *rc : qAsConst(removalList))
         removeRunConfiguration(rc);
 }
 

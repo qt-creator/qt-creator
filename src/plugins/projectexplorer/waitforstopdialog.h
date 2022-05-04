@@ -42,7 +42,7 @@ class WaitForStopDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit WaitForStopDialog(QList<ProjectExplorer::RunControl *> runControls);
+    explicit WaitForStopDialog(const QList<ProjectExplorer::RunControl *> &runControls);
 
     bool canceled();
 private:

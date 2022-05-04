@@ -375,7 +375,7 @@ QPair<Task::TaskType, QString> TargetSetupWidget::findIssues(const BuildInfo &in
 
     QString text;
     Task::TaskType highestType = Task::Unknown;
-    foreach (const Task &t, issues) {
+    for (const Task &t : qAsConst(issues)) {
         if (!text.isEmpty())
             text.append(QLatin1String("<br>"));
         // set severity:

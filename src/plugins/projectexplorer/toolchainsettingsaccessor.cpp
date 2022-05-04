@@ -80,7 +80,7 @@ static Toolchains autoDetectToolChains(const ToolchainDetector &detector)
 static Toolchains makeUniqueByEqual(const Toolchains &a)
 {
     Toolchains result;
-    foreach (ToolChain *tc, a) {
+    for (ToolChain *tc : a) {
         if (!Utils::contains(result, [tc](ToolChain *rtc) { return *tc == *rtc; }))
             result.append(tc);
     }
