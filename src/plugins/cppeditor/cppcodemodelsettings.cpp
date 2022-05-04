@@ -480,8 +480,9 @@ QVariantMap ClangdSettings::Data::toMap() const
 {
     QVariantMap map;
     map.insert(useClangdKey(), useClangd);
-    if (executableFilePath != fallbackClangdFilePath())
-        map.insert(clangdPathKey(), executableFilePath.toString());
+    map.insert(clangdPathKey(),
+               executableFilePath != fallbackClangdFilePath() ? executableFilePath.toString()
+                                                              : QString());
     map.insert(clangdIndexingKey(), enableIndexing);
     map.insert(clangdHeaderInsertionKey(), autoIncludeHeaders);
     map.insert(clangdThreadLimitKey(), workerThreadLimit);
