@@ -28,10 +28,11 @@
 #include "abstractremotelinuxdeployservice.h"
 
 namespace RemoteLinux {
-namespace Internal { class RemoteLinuxCustomCommandDeployservicePrivate; }
+namespace Internal {
 
-class REMOTELINUX_EXPORT RemoteLinuxCustomCommandDeployService
-    : public AbstractRemoteLinuxDeployService
+class RemoteLinuxCustomCommandDeployservicePrivate;
+
+class RemoteLinuxCustomCommandDeployService : public AbstractRemoteLinuxDeployService
 {
     Q_OBJECT
 public:
@@ -48,11 +49,8 @@ protected:
     void stopDeployment() override;
 
 private:
-    void handleStdout();
-    void handleStderr();
-    void handleProcessClosed();
-
-    Internal::RemoteLinuxCustomCommandDeployservicePrivate *d;
+    std::unique_ptr<Internal::RemoteLinuxCustomCommandDeployservicePrivate> d;
 };
 
+} // namespace Internal
 } // namespace RemoteLinux
