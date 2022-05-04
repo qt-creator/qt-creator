@@ -26,10 +26,9 @@
 #pragma once
 
 #include <remotelinux/linuxdevicetester.h>
+#include <utils/qtcprocess.h>
 
 #include <QStringList>
-
-namespace QSsh { class SshRemoteProcessRunner; }
 
 namespace Qnx {
 namespace Internal {
@@ -37,16 +36,12 @@ namespace Internal {
 class QnxDeviceTester : public ProjectExplorer::DeviceTester
 {
     Q_OBJECT
+
 public:
     explicit QnxDeviceTester(QObject *parent = nullptr);
 
     void testDevice(const ProjectExplorer::IDevice::Ptr &deviceConfiguration) override;
     void stopTest() override;
-
-private slots:
-    void handleGenericTestFinished(ProjectExplorer::DeviceTester::TestResult result);
-    void handleProcessFinished();
-    void handleConnectionError();
 
 private:
     enum State {
@@ -56,21 +51,24 @@ private:
         CommandsTest
     };
 
+    void handleGenericTestFinished(ProjectExplorer::DeviceTester::TestResult result);
+    void handleProcessDone();
+    void handleVarRunDone();
+    void handleCommandDone();
+
     void testNextCommand();
-    void setFinished();
+    void setFinished(ProjectExplorer::DeviceTester::TestResult result);
 
     QStringList versionSpecificCommandsToTest(int versionNumber) const;
 
-    void handleVarRunProcessFinished(const QString &error);
-
     RemoteLinux::GenericLinuxDeviceTester *m_genericTester;
     ProjectExplorer::IDevice::ConstPtr m_deviceConfiguration;
-    ProjectExplorer::DeviceTester::TestResult m_result;
-    State m_state;
+    ProjectExplorer::DeviceTester::TestResult m_result = TestSuccess;
+    State m_state = Inactive;
 
-    int m_currentCommandIndex;
+    int m_currentCommandIndex = 0;
     QStringList m_commandsToTest;
-    QSsh::SshRemoteProcessRunner *m_processRunner;
+    Utils::QtcProcess m_process;
 };
 
 } // namespace Internal
