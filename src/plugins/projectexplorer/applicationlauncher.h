@@ -57,12 +57,9 @@ public:
 
     void start();
     void stop();
-    bool isRunning() const;
     Utils::ProcessHandle applicationPID() const;
-    bool isLocal() const;
 
     QString errorString() const;
-    QProcess::ProcessError error() const;
 
     int exitCode() const;
     QProcess::ExitStatus exitStatus() const;

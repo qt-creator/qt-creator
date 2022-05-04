@@ -195,16 +195,6 @@ void ApplicationLauncherPrivate::stop()
     }
 }
 
-bool ApplicationLauncher::isRunning() const
-{
-    return d->isRunning();
-}
-
-bool ApplicationLauncher::isLocal() const
-{
-    return d->m_isLocal;
-}
-
 bool ApplicationLauncherPrivate::isRunning() const
 {
     return m_process.state() != QProcess::NotRunning;
@@ -226,11 +216,6 @@ qint64 ApplicationLauncherPrivate::applicationPID() const
 QString ApplicationLauncher::errorString() const
 {
     return d->m_resultData.m_errorString;
-}
-
-QProcess::ProcessError ApplicationLauncher::error() const
-{
-    return d->m_resultData.m_error;
 }
 
 void ApplicationLauncherPrivate::handleDone()
