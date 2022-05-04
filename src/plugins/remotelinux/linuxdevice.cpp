@@ -493,6 +493,11 @@ void SshProcessInterface::handleReadyReadStandardOutput(const QByteArray &output
     emit readyRead(outputData, {});
 }
 
+void SshProcessInterface::handleReadyReadStandardError(const QByteArray &errorData)
+{
+    emit readyRead({}, errorData);
+}
+
 void SshProcessInterface::emitStarted(qint64 processId)
 {
     d->m_processId = processId;
@@ -641,10 +646,20 @@ void LinuxProcessInterface::handleReadyReadStandardOutput(const QByteArray &outp
 
     emitStarted(processId);
 
-    if (!m_output.isEmpty())
-        emit readyRead(m_output, {});
+    if (!m_output.isEmpty() || !m_error.isEmpty())
+        emit readyRead(m_output, m_error);
 
     m_output.clear();
+    m_error.clear();
+}
+
+void LinuxProcessInterface::handleReadyReadStandardError(const QByteArray &errorData)
+{
+    if (m_pidParsed) {
+        emit readyRead({}, errorData);
+        return;
+    }
+    m_error.append(errorData);
 }
 
 SshProcessInterfacePrivate::SshProcessInterfacePrivate(SshProcessInterface *sshInterface,
@@ -721,12 +736,16 @@ void SshProcessInterfacePrivate::handleDone()
 
 void SshProcessInterfacePrivate::handleReadyReadStandardOutput()
 {
-    q->handleReadyReadStandardOutput(m_process.readAllStandardOutput()); // by default emits signal. linux impl does custom parsing for processId and emits delayed start() - only when terminal is off
+    // By default emits signal. LinuxProcessImpl does custom parsing for processId
+    // and emits delayed start() - only when terminal is off.
+    q->handleReadyReadStandardOutput(m_process.readAllStandardOutput());
 }
 
 void SshProcessInterfacePrivate::handleReadyReadStandardError()
 {
-    emit q->readyRead({}, m_process.readAllStandardError());
+    // By default emits signal. LinuxProcessImpl buffers the error channel until
+    // it emits delayed start() - only when terminal is off.
+    q->handleReadyReadStandardError(m_process.readAllStandardError());
 }
 
 void SshProcessInterfacePrivate::clearForStart()

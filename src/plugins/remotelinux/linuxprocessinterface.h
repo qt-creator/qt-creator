@@ -45,10 +45,12 @@ private:
 
     void handleStarted(qint64 processId) final;
     void handleReadyReadStandardOutput(const QByteArray &outputData) final;
+    void handleReadyReadStandardError(const QByteArray &errorData) final;
 
     QString fullCommandLine(const Utils::CommandLine &commandLine) const final;
 
     QByteArray m_output;
+    QByteArray m_error;
     bool m_pidParsed = false;
 };
 

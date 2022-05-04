@@ -51,6 +51,7 @@ protected:
 private:
     virtual void handleStarted(qint64 processId);
     virtual void handleReadyReadStandardOutput(const QByteArray &outputData);
+    virtual void handleReadyReadStandardError(const QByteArray &errorData);
 
     virtual QString fullCommandLine(const Utils::CommandLine &commandLine) const = 0;
 
