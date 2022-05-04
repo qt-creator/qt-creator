@@ -25,7 +25,10 @@
 
 #include "callgrindcontroller.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
+
 #include <utils/temporaryfile.h>
+#include <utils/qtcprocess.h>
 
 #include <QDebug>
 
@@ -86,7 +89,7 @@ void CallgrindController::run(Option option)
     // save back current running operation
     m_lastOption = option;
 
-    m_controllerProcess = new ApplicationLauncher;
+    m_controllerProcess.reset(new QtcProcess);
 
     switch (option) {
         case CallgrindController::Dump:
@@ -108,16 +111,19 @@ void CallgrindController::run(Option option)
 #if CALLGRIND_CONTROL_DEBUG
     m_controllerProcess->setProcessChannelMode(QProcess::ForwardedChannels);
 #endif
-    connect(m_controllerProcess, &ApplicationLauncher::finished,
-            this, &CallgrindController::controllerProcessFinished);
-    connect(m_controllerProcess, &ApplicationLauncher::errorOccurred,
-            this, &CallgrindController::handleControllerProcessError);
+    connect(m_controllerProcess.get(), &QtcProcess::finished,
+            this, &CallgrindController::controllerProcessDone);
 
-    Runnable controller = m_valgrindRunnable;
-    controller.command.setExecutable(FilePath::fromString(CALLGRIND_CONTROL_BINARY));
-    controller.command.setArguments(QString("%1 %2").arg(toOptionString(option)).arg(m_pid));
-    controller.device = m_valgrindRunnable.device;
-    m_controllerProcess->setRunnable(controller);
+    const FilePath cgcontrol = FilePath::fromString(CALLGRIND_CONTROL_BINARY);
+    CommandLine cmd;
+    if (m_valgrindRunnable.device)
+        cmd.setExecutable(m_valgrindRunnable.device->mapToGlobalPath(cgcontrol));
+    else
+        cmd.setExecutable(cgcontrol);
+    cmd.setArguments(QString("%1 %2").arg(toOptionString(option)).arg(m_pid));
+    m_controllerProcess->setCommand(cmd);
+    m_controllerProcess->setWorkingDirectory(m_valgrindRunnable.workingDirectory);
+    m_controllerProcess->setEnvironment(m_valgrindRunnable.environment);
     m_controllerProcess->start();
 }
 
@@ -126,25 +132,15 @@ void CallgrindController::setValgrindPid(qint64 pid)
     m_pid = pid;
 }
 
-void CallgrindController::handleControllerProcessError(QProcess::ProcessError)
+void CallgrindController::controllerProcessDone()
 {
-    QTC_ASSERT(m_controllerProcess, return);
     const QString error = m_controllerProcess->errorString();
-    emit statusMessage(tr("An error occurred while trying to run %1: %2").arg(CALLGRIND_CONTROL_BINARY).arg(error));
+    const ProcessResult result = m_controllerProcess->result();
 
-    m_controllerProcess->deleteLater();
-    m_controllerProcess = nullptr;
-}
+    m_controllerProcess->release().deleteLater();
 
-void CallgrindController::controllerProcessFinished()
-{
-    QTC_ASSERT(m_controllerProcess, return);
-    const QString error = m_controllerProcess->errorString();
-
-    m_controllerProcess->deleteLater(); // Called directly from finished() signal in m_process
-    m_controllerProcess = nullptr;
-
-    if (m_controllerProcess->exitCode() != 0 || m_controllerProcess->exitStatus() != QProcess::NormalExit) {
+    if (result != ProcessResult::FinishedWithSuccess) {
+        emit statusMessage(tr("An error occurred while trying to run %1: %2").arg(CALLGRIND_CONTROL_BINARY).arg(error));
         qWarning() << "Controller exited abnormally:" << error;
         return;
     }

@@ -29,6 +29,8 @@
 
 #include <QProcess>
 
+namespace Utils { class QtcProcess; }
+
 namespace Valgrind {
 namespace Callgrind {
 
@@ -67,13 +69,10 @@ signals:
     void statusMessage(const QString &msg);
 
 private:
-    void handleControllerProcessError(QProcess::ProcessError);
-
     void cleanupTempFile();
+    void controllerProcessDone();
 
-    void controllerProcessFinished();
-
-    ProjectExplorer::ApplicationLauncher *m_controllerProcess = nullptr;
+    std::unique_ptr<Utils::QtcProcess> m_controllerProcess;
     ProjectExplorer::Runnable m_valgrindRunnable;
     qint64 m_pid = 0;
 
