@@ -63,7 +63,6 @@ private:
     void connectionEstablished();
     void connectionStartupFailed();
     void appStartupFailed(const QString &errorMessage);
-    void appMessage(const QString &msg, Utils::OutputFormat);
 
     void setState(DebuggerState state, bool forced) override;
 
@@ -123,8 +122,8 @@ private:
     Core::Context languageContext() const override;
 
     void closeConnection();
-    void startApplicationLauncher();
-    void stopApplicationLauncher();
+    void startProcess();
+    void stopProcess();
 
     void connectionFailed();
 

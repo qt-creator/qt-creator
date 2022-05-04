@@ -47,8 +47,6 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
-#include <projectexplorer/applicationlauncher.h>
-
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmldebug/qmldebugconnection.h>
@@ -58,10 +56,12 @@
 #include <texteditor/texteditor.h>
 
 #include <app/app_version.h>
-#include <utils/treemodel.h>
+
 #include <utils/basetreeview.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
+#include <utils/treemodel.h>
 
 #include <QDebug>
 #include <QDir>
@@ -220,7 +220,7 @@ public:
 
     QHash<QString, QTextDocument*> sourceDocuments;
     InteractiveInterpreter interpreter;
-    ApplicationLauncher applicationLauncher;
+    QtcProcess process;
     QmlInspectorAgent inspectorAgent;
 
     QList<quint32> queryIds;
@@ -269,12 +269,17 @@ QmlEngine::QmlEngine()
     connect(stackHandler(), &StackHandler::currentIndexChanged,
             this, &QmlEngine::updateCurrentContext);
 
-    connect(&d->applicationLauncher, &ApplicationLauncher::finished,
-            this, &QmlEngine::disconnected);
-    connect(&d->applicationLauncher, &ApplicationLauncher::appendMessage,
-            this, &QmlEngine::appMessage);
-    connect(&d->applicationLauncher, &ApplicationLauncher::started,
-            this, &QmlEngine::handleLauncherStarted);
+    connect(&d->process, &QtcProcess::readyReadStandardOutput, this, [this] {
+        // FIXME: Redirect to RunControl
+        showMessage(QString::fromUtf8(d->process.readAllStandardOutput()), AppOutput);
+    });
+    connect(&d->process, &QtcProcess::readyReadStandardError, this, [this] {
+        // FIXME: Redirect to RunControl
+        showMessage(QString::fromUtf8(d->process.readAllStandardError()), AppOutput);
+    });
+
+    connect(&d->process, &QtcProcess::finished, this, &QmlEngine::disconnected);
+    connect(&d->process, &QtcProcess::started, this, &QmlEngine::handleLauncherStarted);
 
     debuggerConsole()->populateFileFinder();
     debuggerConsole()->setScriptEvaluator([this](const QString &expr) {
@@ -327,11 +332,6 @@ void QmlEngine::handleLauncherStarted()
     // raising, so do it here manually for now.
     ProcessHandle(inferiorPid()).activate();
     tryToConnect();
-}
-
-void QmlEngine::appMessage(const QString &msg, Utils::OutputFormat /* format */)
-{
-    showMessage(msg, AppOutput); // FIXME: Redirect to RunControl
 }
 
 void QmlEngine::connectionEstablished()
@@ -502,25 +502,23 @@ void QmlEngine::closeConnection()
     }
 }
 
-void QmlEngine::startApplicationLauncher()
+void QmlEngine::startProcess()
 {
-    if (!d->applicationLauncher.isRunning()) {
-        Runnable runnable = runParameters().inferior;
-        runnable.device.reset();
-        showMessage(tr("Starting %1").arg(runnable.command.toUserOutput()),
-                    NormalMessageFormat);
-        d->applicationLauncher.setRunnable(runnable);
-        d->applicationLauncher.start();
-    }
+    if (d->process.isRunning())
+        return;
+
+    d->process.setCommand(runParameters().inferior.command);
+    d->process.setWorkingDirectory(runParameters().inferior.workingDirectory);
+    d->process.setEnvironment(runParameters().inferior.environment);
+    showMessage(tr("Starting %1").arg(d->process.commandLine().toUserOutput()),
+        NormalMessageFormat);
+    d->process.start();
 }
 
-void QmlEngine::stopApplicationLauncher()
+void QmlEngine::stopProcess()
 {
-    if (d->applicationLauncher.isRunning()) {
-        disconnect(&d->applicationLauncher, &ApplicationLauncher::finished,
-                   this, &QmlEngine::disconnected);
-        d->applicationLauncher.stop();
-    }
+    if (d->process.isRunning())
+        d->process.close();
 }
 
 void QmlEngine::shutdownInferior()
@@ -534,7 +532,7 @@ void QmlEngine::shutdownInferior()
     d->runCommand({DISCONNECT});
 
     resetLocation();
-    stopApplicationLauncher();
+    stopProcess();
     closeConnection();
 
     notifyInferiorShutdownFinished();
@@ -547,7 +545,7 @@ void QmlEngine::shutdownEngine()
     debuggerConsole()->setScriptEvaluator(ScriptEvaluator());
 
    // double check (ill engine?):
-    stopApplicationLauncher();
+    stopProcess();
 
     notifyEngineShutdownFinished();
 }
@@ -571,7 +569,7 @@ void QmlEngine::setupEngine()
         else if (runParameters().startMode == AttachToRemoteProcess)
             beginConnection();
         else
-            startApplicationLauncher();
+            startProcess();
     } else {
         tryToConnect();
     }
@@ -959,7 +957,7 @@ void QmlEngine::quitDebugger()
 {
     d->automaticConnect = false;
     d->retryOnConnectFail = false;
-    stopApplicationLauncher();
+    stopProcess();
     closeConnection();
 }
 
