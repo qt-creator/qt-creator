@@ -22,7 +22,6 @@ add_qtc_plugin(RemoteLinux
     remotelinux.qrc
     remotelinux_constants.h
     remotelinux_export.h
-    remotelinuxcheckforfreediskspaceservice.cpp remotelinuxcheckforfreediskspaceservice.h
     remotelinuxcheckforfreediskspacestep.cpp remotelinuxcheckforfreediskspacestep.h
     remotelinuxcustomcommanddeploymentstep.cpp remotelinuxcustomcommanddeploymentstep.h
     remotelinuxcustomrunconfiguration.cpp remotelinuxcustomrunconfiguration.h

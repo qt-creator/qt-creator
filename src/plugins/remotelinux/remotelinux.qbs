@@ -50,8 +50,6 @@ Project {
             "remotelinux.qrc",
             "remotelinux_constants.h",
             "remotelinux_export.h",
-            "remotelinuxcheckforfreediskspaceservice.cpp",
-            "remotelinuxcheckforfreediskspaceservice.h",
             "remotelinuxcheckforfreediskspacestep.cpp",
             "remotelinuxcheckforfreediskspacestep.h",
             "remotelinuxcustomcommanddeploymentstep.cpp",

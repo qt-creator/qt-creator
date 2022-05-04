@@ -25,9 +25,14 @@
 
 #include "remotelinuxcheckforfreediskspacestep.h"
 
-#include "remotelinuxcheckforfreediskspaceservice.h"
+#include "abstractremotelinuxdeployservice.h"
+
+#include <projectexplorer/devicesupport/idevice.h>
 
 #include <utils/aspects.h>
+#include <utils/fileutils.h>
+
+#include <QScopeGuard>
 
 #include <limits>
 
@@ -36,8 +41,85 @@ using namespace Utils;
 
 namespace RemoteLinux {
 
+// RemoteLinuxCheckForFreeDiskSpaceService
+
+class RemoteLinuxCheckForFreeDiskSpaceService : public AbstractRemoteLinuxDeployService
+{
+    Q_DECLARE_TR_FUNCTIONS(RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceService)
+
+public:
+    RemoteLinuxCheckForFreeDiskSpaceService() {}
+
+    void setPathToCheck(const QString &path);
+    void setRequiredSpaceInBytes(quint64 sizeInBytes);
+
+private:
+    void deployAndFinish();
+    bool isDeploymentNecessary() const override { return true; }
+
+    CheckResult isDeploymentPossible() const override;
+    void doDeviceSetup() final { deployAndFinish(); }
+    void stopDeviceSetup() final { }
+
+    void doDeploy() final {}
+    void stopDeployment() final {}
+
+    QString m_pathToCheck;
+    quint64 m_requiredSpaceInBytes = 0;
+};
+
+void RemoteLinuxCheckForFreeDiskSpaceService::setPathToCheck(const QString &path)
+{
+    m_pathToCheck = path;
+}
+
+void RemoteLinuxCheckForFreeDiskSpaceService::setRequiredSpaceInBytes(quint64 sizeInBytes)
+{
+    m_requiredSpaceInBytes = sizeInBytes;
+}
+
+void RemoteLinuxCheckForFreeDiskSpaceService::deployAndFinish()
+{
+    auto cleanup = qScopeGuard([this] { setFinished(); });
+    const FilePath path
+            = deviceConfiguration()->mapToGlobalPath(FilePath::fromString(m_pathToCheck));
+    const qint64 freeSpace = path.bytesAvailable();
+    if (freeSpace < 0) {
+        emit errorMessage(tr("Cannot get info about free disk space for \"%1\"")
+                .arg(path.toUserOutput()));
+        return;
+    }
+
+    const qint64 mb = 1024 * 1024;
+    const qint64 freeSpaceMB = freeSpace / mb;
+    const qint64 requiredSpaceMB = m_requiredSpaceInBytes / mb;
+
+    if (freeSpaceMB < requiredSpaceMB) {
+        emit errorMessage(tr("The remote file system has only %n megabytes of free space, "
+                "but %1 megabytes are required.", nullptr, freeSpaceMB)
+                          .arg(requiredSpaceMB));
+        return;
+    }
+
+    emit progressMessage(tr("The remote file system has %n megabytes of free space, going ahead.",
+                            nullptr, freeSpaceMB));
+}
+
+CheckResult RemoteLinuxCheckForFreeDiskSpaceService::isDeploymentPossible() const
+{
+    if (!m_pathToCheck.startsWith('/')) {
+        return CheckResult::failure(
+           tr("Cannot check for free disk space: \"%1\" is not an absolute path.")
+                    .arg(m_pathToCheck));
+    }
+
+    return AbstractRemoteLinuxDeployService::isDeploymentPossible();
+}
+
+// RemoteLinuxCheckForFreeDiskSpaceStep
+
 RemoteLinuxCheckForFreeDiskSpaceStep::RemoteLinuxCheckForFreeDiskSpaceStep
-    (BuildStepList *bsl, Utils::Id id)
+    (BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
 {
     auto service = createDeployService<RemoteLinuxCheckForFreeDiskSpaceService>();
@@ -65,7 +147,7 @@ RemoteLinuxCheckForFreeDiskSpaceStep::RemoteLinuxCheckForFreeDiskSpaceStep
 
 RemoteLinuxCheckForFreeDiskSpaceStep::~RemoteLinuxCheckForFreeDiskSpaceStep() = default;
 
-Utils::Id RemoteLinuxCheckForFreeDiskSpaceStep::stepId()
+Id RemoteLinuxCheckForFreeDiskSpaceStep::stepId()
 {
     return "RemoteLinux.CheckForFreeDiskSpaceStep";
 }
