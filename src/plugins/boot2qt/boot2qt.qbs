@@ -27,8 +27,6 @@ QtcPlugin {
             "qdbdevice.h",
             "qdbdevicedebugsupport.cpp",
             "qdbdevicedebugsupport.h",
-            "qdbmakedefaultappservice.cpp",
-            "qdbmakedefaultappservice.h",
             "qdbmakedefaultappstep.cpp",
             "qdbmakedefaultappstep.h",
             "qdbplugin.cpp",

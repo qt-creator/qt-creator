@@ -9,7 +9,6 @@ add_qtc_plugin(Boot2Qt
     qdbdeployconfigurationfactory.cpp qdbdeployconfigurationfactory.h
     qdbdevice.cpp qdbdevice.h
     qdbdevicedebugsupport.cpp qdbdevicedebugsupport.h
-    qdbmakedefaultappservice.cpp qdbmakedefaultappservice.h
     qdbmakedefaultappstep.cpp qdbmakedefaultappstep.h
     qdbplugin.cpp qdbplugin.h
     qdbqtversion.cpp qdbqtversion.h
