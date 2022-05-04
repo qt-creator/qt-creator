@@ -1453,15 +1453,12 @@ private:
 };
 
 static void addToCompilationDb(QJsonObject &cdb,
-                               const CppEditor::ClangDiagnosticConfig &projectWarnings,
+                               const CppEditor::CompilerOptionsBuilder &optionsBuilder,
                                const QStringList &projectOptions,
-                               const CppEditor::ProjectPart::ConstPtr &projectPart,
                                const Utils::FilePath &workingDir,
                                const Utils::FilePath &sourceFile)
 {
-    // TODO: Do we really need to re-calculate the project part options per source file?
-    QStringList args = createClangOptions(*projectPart, sourceFile.toString(),
-                                          projectWarnings, projectOptions);
+    QStringList args = clangOptionsForFile(optionsBuilder, sourceFile.toString(), projectOptions);
 
     // TODO: clangd seems to apply some heuristics depending on what we put here.
     //       Should we make use of them or keep using our own?
@@ -1493,9 +1490,12 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     setQuickFixAssistProvider(new ClangdQuickFixProvider(this));
     if (!project) {
         QJsonObject initOptions;
-        const QStringList clangOptions = createClangOptions(
-                    *CppEditor::CppModelManager::instance()->fallbackProjectPart(), {},
-                    warningsConfigForProject(nullptr), optionsForProject(nullptr));
+        const CppEditor::ClangDiagnosticConfig warningsConfig = warningsConfigForProject(nullptr);
+        CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
+                    *CppEditor::CppModelManager::instance()->fallbackProjectPart(),
+                    warningsConfig);
+        const QStringList clangOptions = clangOptionsForFile(
+                    optionsBuilder, {}, optionsForProject(nullptr, warningsConfig));
         initOptions.insert("fallbackFlags", QJsonArray::fromStringList(clangOptions));
         setInitializationOptions(initOptions);
     }
@@ -1913,8 +1913,11 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     if (!projectPart)
         return;
     QJsonObject cdbChanges;
-    addToCompilationDb(cdbChanges, warningsConfigForProject(project()),
-                       optionsForProject(project()), projectPart, filePath.parentDir(), filePath);
+    const CppEditor::ClangDiagnosticConfig warningsConfig = warningsConfigForProject(project());
+    CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(*projectPart,
+                                                                           warningsConfig);
+    addToCompilationDb(cdbChanges, optionsBuilder, optionsForProject(project(), warningsConfig),
+                       filePath.parentDir(), filePath);
     QJsonObject settings;
     addCompilationDb(settings, cdbChanges);
     DidChangeConfigurationParams configChangeParams;

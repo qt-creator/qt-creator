@@ -65,48 +65,6 @@ using namespace Utils;
 namespace ClangCodeModel {
 namespace Internal {
 
-class LibClangOptionsBuilder final : public CompilerOptionsBuilder
-{
-public:
-    LibClangOptionsBuilder(const ProjectPart &projectPart,
-                           UseBuildSystemWarnings useBuildSystemWarnings)
-        : CompilerOptionsBuilder(projectPart,
-                                 UseSystemHeader::No,
-                                 UseTweakedHeaderPaths::Yes,
-                                 UseLanguageDefines::No,
-                                 useBuildSystemWarnings,
-                                 QString(CLANG_VERSION),
-                                 FilePath(CLANG_INCLUDE_DIR))
-    {
-    }
-
-    void addProjectMacros() final
-    {
-        addMacros({ProjectExplorer::Macro("Q_CREATOR_RUN", "1")});
-        CompilerOptionsBuilder::addProjectMacros();
-    }
-
-    void addExtraOptions() final
-    {
-        addDummyUiHeaderOnDiskIncludePath();
-        add("-fmessage-length=0", /*gccOnlyOption=*/true);
-        add("-fdiagnostics-show-note-include-stack", /*gccOnlyOption=*/true);
-        add("-fretain-comments-from-system-headers", /*gccOnlyOption=*/true);
-        add("-fmacro-backtrace-limit=0");
-        add("-ferror-limit=1000");
-    }
-
-private:
-    void addDummyUiHeaderOnDiskIncludePath()
-    {
-        const QString path = ClangModelManagerSupport::instance()->dummyUiHeaderOnDiskDirPath();
-        if (!path.isEmpty()) {
-            prepend(QDir::toNativeSeparators(path));
-            prepend("-I");
-        }
-    }
-};
-
 ProjectPart::ConstPtr projectPartForFile(const QString &filePath)
 {
     if (const auto parser = CppEditor::BaseEditorDocumentParser::get(filePath))
@@ -225,10 +183,10 @@ static QStringList projectPartArguments(const ProjectPart &projectPart)
 
 static QJsonObject createFileObject(const FilePath &buildDir,
                                     const QStringList &arguments,
+                                    const CompilerOptionsBuilder &optionsBuilder,
                                     const ProjectPart &projectPart,
                                     const ProjectFile &projFile,
                                     CompilationDbPurpose purpose,
-                                    const ClangDiagnosticConfig &warningsConfig,
                                     const QStringList &projectOptions)
 {
     QJsonObject fileObject;
@@ -254,9 +212,8 @@ static QJsonObject createFileObject(const FilePath &buildDir,
                 args.append(langOptionPart);
         }
     } else {
-        // TODO: Do we really need to re-calculate the project part options per source file?
-        args = QJsonArray::fromStringList(createClangOptions(projectPart, projFile.path,
-                                                             warningsConfig, projectOptions));
+        args = QJsonArray::fromStringList(clangOptionsForFile(optionsBuilder, projFile.path,
+                                                              projectOptions));
         args.prepend("clang"); // TODO: clang-cl for MSVC targets? Does it matter at all what we put here?
     }
 
@@ -288,11 +245,13 @@ GenerateCompilationDbResult generateCompilationDB(const CppEditor::ProjectInfo::
 
     for (ProjectPart::ConstPtr projectPart : projectInfo->projectParts()) {
         QStringList args;
+        const CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(*projectPart,
+                                                                          warningsConfig);
         if (purpose == CompilationDbPurpose::Project)
             args = projectPartArguments(*projectPart);
         for (const ProjectFile &projFile : projectPart->files) {
-            const QJsonObject json = createFileObject(baseDir, args, *projectPart, projFile,
-                                                      purpose, warningsConfig, projectOptions);
+            const QJsonObject json = createFileObject(baseDir, args, optionsBuilder, *projectPart,
+                                                      projFile, purpose, projectOptions);
             if (compileCommandsFile.size() > 1)
                 compileCommandsFile.write(",");
             compileCommandsFile.write('\n' + QJsonDocument(json).toJson().trimmed());
@@ -372,121 +331,25 @@ static ClangProjectSettings &getProjectSettings(ProjectExplorer::Project *projec
     return ClangModelManagerSupport::instance()->projectSettings(project);
 }
 
-// TODO: Can we marry this with CompilerOptionsBuilder?
-class FileOptionsBuilder
-{
-public:
-    FileOptionsBuilder(const QString &filePath, const CppEditor::ProjectPart &projectPart,
-                       const ClangDiagnosticConfig &warningsConfig,
-                       const QStringList &projectOptions)
-        : m_filePath(filePath)
-        , m_projectPart(projectPart)
-        , m_warningsConfig(warningsConfig)
-        , m_builder(projectPart)
-    {
-        // Determine the driver mode from toolchain and flags.
-        m_builder.evaluateCompilerFlags();
-        m_isClMode = m_builder.isClStyle();
-
-        addLanguageOptions();
-        addGlobalDiagnosticOptions(); // Before addDiagnosticOptions() so users still can overwrite.
-        addDiagnosticOptions();
-        m_options.append(projectOptions);
-        addPrecompiledHeaderOptions();
-    }
-
-    const QStringList &options() const { return m_options; }
-    CppEditor::UseBuildSystemWarnings useBuildSystemWarnings() const
-    {
-        return m_useBuildSystemWarnings;
-    }
-
-private:
-    void addLanguageOptions()
-    {
-        // Determine file kind with respect to ambiguous headers.
-        CppEditor::ProjectFile::Kind fileKind = CppEditor::ProjectFile::Unclassified;
-        if (!m_filePath.isEmpty())
-            fileKind = CppEditor::ProjectFile::classify(m_filePath);
-        if (fileKind == CppEditor::ProjectFile::AmbiguousHeader) {
-            fileKind = m_projectPart.languageVersion <= ::Utils::LanguageVersion::LatestC
-                 ? CppEditor::ProjectFile::CHeader
-                 : CppEditor::ProjectFile::CXXHeader;
-        }
-
-        m_builder.reset();
-        m_builder.updateFileLanguage(fileKind);
-
-        m_options.append(m_builder.options());
-    }
-
-    void addDiagnosticOptions()
-    {
-        addDiagnosticOptionsForConfig(m_warningsConfig);
-    }
-
-    void addDiagnosticOptionsForConfig(const CppEditor::ClangDiagnosticConfig &diagnosticConfig)
-    {
-        m_useBuildSystemWarnings = diagnosticConfig.useBuildSystemWarnings()
-                                       ? CppEditor::UseBuildSystemWarnings::Yes
-                                       : CppEditor::UseBuildSystemWarnings::No;
-
-        const QStringList options = m_isClMode
-                                        ? CppEditor::clangArgsForCl(diagnosticConfig.clangOptions())
-                                        : diagnosticConfig.clangOptions();
-        m_options.append(options);
-    }
-
-    void addGlobalDiagnosticOptions()
-    {
-        m_options += CppEditor::ClangDiagnosticConfigsModel::globalDiagnosticOptions();
-    }
-
-    void addPrecompiledHeaderOptions()
-    {
-        using namespace CppEditor;
-
-        if (getPchUsage() == UsePrecompiledHeaders::No)
-            return;
-
-        if (m_projectPart.precompiledHeaders.contains(m_filePath))
-            return;
-
-        m_builder.reset();
-        m_builder.addPrecompiledHeaderOptions(UsePrecompiledHeaders::Yes);
-
-        m_options.append(m_builder.options());
-    }
-
-private:
-    const QString &m_filePath;
-    const CppEditor::ProjectPart &m_projectPart;
-    const ClangDiagnosticConfig &m_warningsConfig;
-
-    CppEditor::UseBuildSystemWarnings m_useBuildSystemWarnings = CppEditor::UseBuildSystemWarnings::No;
-    CppEditor::CompilerOptionsBuilder m_builder;
-    bool m_isClMode = false;
-    QStringList m_options;
-};
 } // namespace
 
-QStringList createClangOptions(const ProjectPart &projectPart, const QString &filePath,
-                               const ClangDiagnosticConfig &warningsConfig,
-                               const QStringList &projectOptions)
+QStringList clangOptionsForFile(CompilerOptionsBuilder optionsBuilder,
+                                const QString &filePath, const QStringList &projectOptions)
 {
-    const FileOptionsBuilder fileOptions(filePath, projectPart, warningsConfig, projectOptions);
-    LibClangOptionsBuilder optionsBuilder(projectPart, fileOptions.useBuildSystemWarnings());
-    const QStringList projectPartOptions = optionsBuilder.build(CppEditor::ProjectFile::Unsupported,
-                                                                UsePrecompiledHeaders::No);
-
-    // FIXME: Sanitize FileOptionsBuilder instead.
-    QStringList fileArgs = fileOptions.options();
-    if (projectPartOptions.contains(QLatin1String("-TP")))
-        fileArgs.removeAll(QLatin1String("/TP"));
-    if (projectPartOptions.contains(QLatin1String("-TC")))
-        fileArgs.removeAll(QLatin1String("/TC"));
-
-    return projectPartOptions + fileArgs;
+    ProjectFile::Kind fileKind = filePath.isEmpty()
+            ? ProjectFile::Unclassified : ProjectFile::classify(filePath);
+    if (fileKind == ProjectFile::AmbiguousHeader) {
+        fileKind = optionsBuilder.projectPart().languageVersion <= LanguageVersion::LatestC
+                ? ProjectFile::CHeader : ProjectFile::CXXHeader;
+    }
+    auto pchUsage = getPchUsage();
+    if (pchUsage == UsePrecompiledHeaders::Yes
+            && optionsBuilder.projectPart().precompiledHeaders.contains(filePath)) {
+        pchUsage = UsePrecompiledHeaders::No;
+    }
+    optionsBuilder.updateFileLanguage(fileKind);
+    optionsBuilder.addPrecompiledHeaderOptions(pchUsage);
+    return projectOptions + optionsBuilder.options();
 }
 
 ClangDiagnosticConfig warningsConfigForProject(Project *project)
@@ -505,11 +368,16 @@ ClangDiagnosticConfig warningsConfigForProject(Project *project)
     return CppEditor::codeModelSettings()->clangDiagnosticConfig();
 }
 
-const QStringList optionsForProject(ProjectExplorer::Project *project)
+const QStringList optionsForProject(ProjectExplorer::Project *project,
+                                    const ClangDiagnosticConfig &warningsConfig)
 {
-    if (project)
-        return getProjectSettings(project).commandLineOptions();
-    return ClangProjectSettings::globalCommandLineOptions();
+    QStringList options = ClangDiagnosticConfigsModel::globalDiagnosticOptions();
+    if (!warningsConfig.useBuildSystemWarnings()) {
+        options += project
+                ? getProjectSettings(project).commandLineOptions()
+                : ClangProjectSettings::globalCommandLineOptions();
+    }
+    return options;
 }
 
 // 7.3.3: using typename(opt) nested-name-specifier unqualified-id ;
@@ -546,6 +414,38 @@ QString textUntilPreviousStatement(TextEditor::TextDocumentManipulatorInterface 
     }
 
     return manipulator.textAt(endPosition, startPosition - endPosition);
+}
+
+CompilerOptionsBuilder clangOptionsBuilder(const ProjectPart &projectPart,
+                                           const ClangDiagnosticConfig &warningsConfig)
+{
+    const auto useBuildSystemWarnings = warningsConfig.useBuildSystemWarnings()
+            ? UseBuildSystemWarnings::Yes
+            : UseBuildSystemWarnings::No;
+    CompilerOptionsBuilder optionsBuilder(projectPart, UseSystemHeader::No,
+                                          UseTweakedHeaderPaths::Yes, UseLanguageDefines::No,
+                                          useBuildSystemWarnings, QString(CLANG_VERSION),
+                                          FilePath(CLANG_INCLUDE_DIR));
+    optionsBuilder.provideAdditionalMacros({ProjectExplorer::Macro("Q_CREATOR_RUN", "1")});
+    optionsBuilder.build(ProjectFile::Unclassified, UsePrecompiledHeaders::No);
+    const QString uiIncludePath
+            = ClangModelManagerSupport::instance()->dummyUiHeaderOnDiskDirPath();
+    if (!uiIncludePath.isEmpty()) {
+        optionsBuilder.prepend(QDir::toNativeSeparators(uiIncludePath));
+        optionsBuilder.prepend("-I");
+    }
+    optionsBuilder.add("-fmessage-length=0", /*gccOnlyOption=*/true);
+    optionsBuilder.add("-fdiagnostics-show-note-include-stack", /*gccOnlyOption=*/true);
+    optionsBuilder.add("-fretain-comments-from-system-headers", /*gccOnlyOption=*/true);
+    optionsBuilder.add("-fmacro-backtrace-limit=0");
+    optionsBuilder.add("-ferror-limit=1000");
+
+    if (useBuildSystemWarnings == UseBuildSystemWarnings::No) {
+        for (const QString &opt : warningsConfig.clangOptions())
+            optionsBuilder.add(opt, true);
+    }
+
+    return optionsBuilder;
 }
 
 } // namespace Internal

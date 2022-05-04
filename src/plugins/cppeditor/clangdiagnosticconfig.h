@@ -53,7 +53,7 @@ public:
     bool isReadOnly() const;
     void setIsReadOnly(bool isReadOnly);
 
-    QStringList clangOptions() const;
+    const QStringList clangOptions() const;
     void setClangOptions(const QStringList &options);
 
     bool useBuildSystemWarnings() const;

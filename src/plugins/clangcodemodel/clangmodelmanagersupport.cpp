@@ -419,10 +419,10 @@ void ClangModelManagerSupport::updateLanguageClient(
         });
 
     });
+    const ClangDiagnosticConfig warningsConfig = warningsConfigForProject(project);
     auto future = Utils::runAsync(&Internal::generateCompilationDB, projectInfo, jsonDbDir,
                                   CompilationDbPurpose::CodeModel,
-                                  warningsConfigForProject(project),
-                                  optionsForProject(project));
+                                  warningsConfig, optionsForProject(project, warningsConfig));
     generatorWatcher->setFuture(future);
     m_generatorSynchronizer.addFuture(future);
 }

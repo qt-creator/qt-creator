@@ -52,7 +52,7 @@ void ClangDiagnosticConfig::setDisplayName(const QString &displayName)
     m_displayName = displayName;
 }
 
-QStringList ClangDiagnosticConfig::clangOptions() const
+const QStringList ClangDiagnosticConfig::clangOptions() const
 {
     return m_clangOptions;
 }

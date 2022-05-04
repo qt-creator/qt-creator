@@ -120,8 +120,6 @@ CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart,
 {
 }
 
-CompilerOptionsBuilder::~CompilerOptionsBuilder() = default;
-
 QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
                                           UsePrecompiledHeaders usePrecompiledHeaders)
 {
@@ -158,12 +156,15 @@ QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
 
     addHeaderPathOptions();
 
-    addExtraOptions();
-
     insertWrappedQtHeaders();
     insertWrappedMingwHeaders();
 
     return options();
+}
+
+void CompilerOptionsBuilder::provideAdditionalMacros(const ProjectExplorer::Macros &macros)
+{
+    m_additionalMacros = macros;
 }
 
 void CompilerOptionsBuilder::add(const QString &arg, bool gccOnlyOption)
@@ -413,6 +414,7 @@ void CompilerOptionsBuilder::addProjectMacros()
     }
 
     addMacros(m_projectPart.projectMacros);
+    addMacros(m_additionalMacros);
 }
 
 void CompilerOptionsBuilder::addMacros(const Macros &macros)

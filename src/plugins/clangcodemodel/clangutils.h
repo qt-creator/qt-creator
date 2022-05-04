@@ -57,11 +57,14 @@ CppEditor::CppEditorDocumentHandle *cppDocument(const QString &filePath);
 void setLastSentDocumentRevision(const QString &filePath, uint revision);
 
 CppEditor::ClangDiagnosticConfig warningsConfigForProject(ProjectExplorer::Project *project);
-const QStringList optionsForProject(ProjectExplorer::Project *project);
+const QStringList optionsForProject(ProjectExplorer::Project *project,
+                                    const CppEditor::ClangDiagnosticConfig &warningsConfig);
 
-QStringList createClangOptions(const CppEditor::ProjectPart &projectPart, const QString &filePath,
-                               const CppEditor::ClangDiagnosticConfig &warningsConfig,
-                               const QStringList &projectOptions);
+CppEditor::CompilerOptionsBuilder clangOptionsBuilder(
+        const CppEditor::ProjectPart &projectPart,
+        const CppEditor::ClangDiagnosticConfig &warningsConfig);
+QStringList clangOptionsForFile(CppEditor::CompilerOptionsBuilder optionsBuilder,
+                                const QString &filePath, const QStringList &projectOptions);
 
 CppEditor::ProjectPart::ConstPtr projectPartForFile(const QString &filePath);
 CppEditor::ProjectPart::ConstPtr projectPartForFileBasedOnProcessor(const QString &filePath);
