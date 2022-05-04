@@ -883,24 +883,43 @@ void DockerDevice::iterateWithFind(const FilePath &filePath,
     else
         arguments.prepend("-L");
 
+    arguments.append({"-mindepth", "1"});
+
     if (!filter.iteratorFlags.testFlag(QDirIterator::Subdirectories))
         arguments.append({"-maxdepth", "1"});
 
     QStringList filterOptions;
+
+    if (!(filters & QDir::Hidden))
+        filterOptions << "!" << "-name" << ".*";
+
+    QStringList filterFilesAndDirs;
     if (filters & QDir::Dirs)
-        filterOptions << "-type" << "d";
+        filterFilesAndDirs << "-type" << "d";
     if (filters & QDir::Files) {
-        if (!filterOptions.isEmpty())
-            filterOptions << "-o";
-        filterOptions << "-type" << "f";
+        if (!filterFilesAndDirs.isEmpty())
+            filterFilesAndDirs << "-o";
+        filterFilesAndDirs << "-type" << "f";
+    }
+    if (!filterFilesAndDirs.isEmpty())
+        filterOptions << "(" << filterFilesAndDirs << ")";
+
+    QStringList accessOptions;
+    if (filters & QDir::Readable)
+        accessOptions << "-readable";
+    if (filters & QDir::Writable) {
+        if (!accessOptions.isEmpty())
+            accessOptions << "-o";
+        accessOptions << "-writable";
+    }
+    if (filters & QDir::Executable) {
+        if (!accessOptions.isEmpty())
+            accessOptions << "-o";
+        accessOptions << "-executable";
     }
 
-    if (filters & QDir::Readable)
-        filterOptions << "-readable";
-    if (filters & QDir::Writable)
-        filterOptions << "-writable";
-    if (filters & QDir::Executable)
-        filterOptions << "-executable";
+    if (!accessOptions.isEmpty())
+        filterOptions << "(" << accessOptions << ")";
 
     QTC_CHECK(filters ^ QDir::AllDirs);
     QTC_CHECK(filters ^ QDir::Drives);
@@ -1109,7 +1128,13 @@ static QByteArray randomHex()
 
 QByteArray DockerDevicePrivate::outputForRunInShell(const CommandLine &cmd) const
 {
-    QTC_ASSERT(QThread::currentThread() == qApp->thread(), return {});
+    if (QThread::currentThread() != qApp->thread()) {
+        QByteArray result;
+        QMetaObject::invokeMethod(const_cast<DockerDevicePrivate*>(this), [this, &cmd, &result] {
+            result = this->outputForRunInShell(cmd);
+        }, Qt::BlockingQueuedConnection);
+        return result;
+    }
 
     if (!DockerApi::isDockerDaemonAvailable(false).value_or(false))
         return {};
