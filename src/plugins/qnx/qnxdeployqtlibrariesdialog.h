@@ -27,23 +27,16 @@
 
 #include <QDialog>
 
-#include <projectexplorer/deployablefile.h>
 #include <projectexplorer/devicesupport/idevicefwd.h>
+#include <utils/qtcprocess.h>
 
-namespace QSsh {
-class SshRemoteProcessRunner;
-}
-
-namespace RemoteLinux {
-class GenericDirectUploadService;
-}
+namespace ProjectExplorer { class DeployableFile; }
+namespace RemoteLinux { class GenericDirectUploadService; }
 
 namespace Qnx {
 namespace Internal {
 
-namespace Ui {
-class QnxDeployQtLibrariesDialog;
-}
+namespace Ui { class QnxDeployQtLibrariesDialog; }
 
 class QnxDeployQtLibrariesDialog : public QDialog
 {
@@ -66,35 +59,36 @@ public:
 protected:
     void closeEvent(QCloseEvent *event) override;
 
-private slots:
+private:
     void deployLibraries();
     void updateProgress(const QString &progressMessage);
     void handleUploadFinished();
 
-    void handleRemoteProcessError();
-    void handleRemoteProcessCompleted();
+    void startCheckDirProcess();
+    void startRemoveDirProcess();
 
-private:
+    void handleCheckDirDone();
+    void handleRemoveDirDone();
+    bool handleError(const Utils::QtcProcess &process);
+
     QList<ProjectExplorer::DeployableFile> gatherFiles();
     QList<ProjectExplorer::DeployableFile> gatherFiles(const QString &dirPath,
             const QString &baseDir = QString(),
             const QStringList &nameFilters = QStringList());
 
     QString fullRemoteDirectory() const;
-    void checkRemoteDirectoryExistance();
-    void removeRemoteDirectory();
     void startUpload();
 
     Ui::QnxDeployQtLibrariesDialog *m_ui;
 
-    QSsh::SshRemoteProcessRunner *m_processRunner;
+    Utils::QtcProcess m_checkDirProcess;
+    Utils::QtcProcess m_removeDirProcess;
     RemoteLinux::GenericDirectUploadService *m_uploadService;
 
     ProjectExplorer::IDeviceConstPtr m_device;
 
-    int m_progressCount;
-
-    State m_state;
+    int m_progressCount = 0;
+    State m_state = Inactive;
 };
 
 } // namespace Internal

@@ -33,7 +33,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <qtsupport/qtversionmanager.h>
 #include <remotelinux/genericdirectuploadservice.h>
-#include <ssh/sshremoteprocessrunner.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -41,34 +40,32 @@
 #include <QDir>
 #include <QMessageBox>
 
-using namespace QtSupport;
 using namespace ProjectExplorer;
+using namespace QtSupport;
 using namespace RemoteLinux;
+using namespace Utils;
 
 namespace Qnx {
 namespace Internal {
 
 QnxDeployQtLibrariesDialog::QnxDeployQtLibrariesDialog(const IDevice::ConstPtr &device,
-                                                       QWidget *parent) :
-    QDialog(parent),
-    m_ui(new Ui::QnxDeployQtLibrariesDialog),
-    m_device(device),
-    m_progressCount(0),
-    m_state(Inactive)
+                                                       QWidget *parent)
+    : QDialog(parent)
+    , m_ui(new Ui::QnxDeployQtLibrariesDialog)
+    , m_device(device)
 {
     m_ui->setupUi(this);
 
-    const QList<QtVersion*> qtVersions
-            = QtVersionManager::sortVersions(
-                QtVersionManager::versions(QtVersion::isValidPredicate(Utils::equal(&QtVersion::type,
-                                                                                        QString::fromLatin1(Constants::QNX_QNX_QT)))));
+    const QList<QtVersion*> qtVersions = QtVersionManager::sortVersions(
+                QtVersionManager::versions(QtVersion::isValidPredicate(
+                equal(&QtVersion::type, QString::fromLatin1(Constants::QNX_QNX_QT)))));
     for (QtVersion *v : qtVersions)
         m_ui->qtLibraryCombo->addItem(v->displayName(), v->uniqueId());
 
     m_ui->basePathLabel->setText(QString());
     m_ui->remoteDirectory->setText(QLatin1String("/qt"));
 
-    m_uploadService = new RemoteLinux::GenericDirectUploadService(this);
+    m_uploadService = new GenericDirectUploadService(this);
     m_uploadService->setDevice(m_device);
 
     connect(m_uploadService, &AbstractRemoteLinuxDeployService::progressMessage,
@@ -89,11 +86,10 @@ QnxDeployQtLibrariesDialog::QnxDeployQtLibrariesDialog(const IDevice::ConstPtr &
     connect(m_uploadService, &AbstractRemoteLinuxDeployService::finished,
             this, &QnxDeployQtLibrariesDialog::handleUploadFinished);
 
-    m_processRunner = new QSsh::SshRemoteProcessRunner(this);
-    connect(m_processRunner, &QSsh::SshRemoteProcessRunner::connectionError,
-            this, &QnxDeployQtLibrariesDialog::handleRemoteProcessError);
-    connect(m_processRunner, &QSsh::SshRemoteProcessRunner::finished,
-            this, &QnxDeployQtLibrariesDialog::handleRemoteProcessCompleted);
+    connect(&m_checkDirProcess, &QtcProcess::done,
+            this, &QnxDeployQtLibrariesDialog::handleCheckDirDone);
+    connect(&m_removeDirProcess, &QtcProcess::done,
+            this, &QnxDeployQtLibrariesDialog::handleRemoveDirDone);
 
     connect(m_ui->deployButton, &QAbstractButton::clicked,
             this, &QnxDeployQtLibrariesDialog::deployLibraries);
@@ -119,10 +115,9 @@ void QnxDeployQtLibrariesDialog::closeEvent(QCloseEvent *event)
 {
     // A disabled Deploy button indicates the upload is still running
     if (!m_ui->deployButton->isEnabled()) {
-        int answer = QMessageBox::question(this, windowTitle(),
-                                           tr("Closing the dialog will stop the deployment. "
-                                              "Are you sure you want to do this?"),
-                                           QMessageBox::Yes | QMessageBox::No);
+        const int answer = QMessageBox::question(this, windowTitle(),
+            tr("Closing the dialog will stop the deployment. Are you sure you want to do this?"),
+            QMessageBox::Yes | QMessageBox::No);
         if (answer == QMessageBox::No)
             event->ignore();
         else if (answer == QMessageBox::Yes)
@@ -149,7 +144,7 @@ void QnxDeployQtLibrariesDialog::deployLibraries()
     m_ui->qtLibraryCombo->setEnabled(false);
     m_ui->deployLogWindow->clear();
 
-    checkRemoteDirectoryExistance();
+    startCheckDirProcess();
 }
 
 void QnxDeployQtLibrariesDialog::startUpload()
@@ -186,44 +181,6 @@ void QnxDeployQtLibrariesDialog::handleUploadFinished()
     m_state = Inactive;
 }
 
-void QnxDeployQtLibrariesDialog::handleRemoteProcessError()
-{
-    QTC_CHECK(m_state == CheckingRemoteDirectory || m_state == RemovingRemoteDirectory);
-
-    m_ui->deployLogWindow->appendPlainText(
-                tr("Connection failed: %1")
-                .arg(m_processRunner->lastConnectionErrorString()));
-    handleUploadFinished();
-}
-
-void QnxDeployQtLibrariesDialog::handleRemoteProcessCompleted()
-{
-    QTC_CHECK(m_state == CheckingRemoteDirectory || m_state == RemovingRemoteDirectory);
-
-    if (m_state == CheckingRemoteDirectory) {
-        // Directory exists
-        if (m_processRunner->exitCode() == 0) {
-            int answer = QMessageBox::question(this, windowTitle(),
-                                               tr("The remote directory \"%1\" already exists. "
-                                                  "Deploying to that directory will remove any files "
-                                                  "already present.\n\n"
-                                                  "Are you sure you want to continue?")
-                                               .arg(fullRemoteDirectory()),
-                                               QMessageBox::Yes | QMessageBox::No);
-            if (answer == QMessageBox::Yes)
-                removeRemoteDirectory();
-            else
-                handleUploadFinished();
-        } else {
-            startUpload();
-        }
-    } else if (m_state == RemovingRemoteDirectory) {
-        QTC_ASSERT(m_processRunner->exitCode() == 0, return);
-
-        startUpload();
-    }
-}
-
 QList<DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles()
 {
     QList<DeployableFile> result;
@@ -236,7 +193,7 @@ QList<DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles()
 
     QTC_ASSERT(qtVersion, return result);
 
-    if (Utils::HostOsInfo::isWindowsHost()) {
+    if (HostOsInfo::isWindowsHost()) {
         result.append(gatherFiles(qtVersion->libraryPath().toString(),
                                   QString(),
                                   QStringList() << QLatin1String("*.so.?")));
@@ -248,7 +205,6 @@ QList<DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles()
     result.append(gatherFiles(qtVersion->pluginPath().toString()));
     result.append(gatherFiles(qtVersion->importsPath().toString()));
     result.append(gatherFiles(qtVersion->qmlPath().toString()));
-
     return result;
 }
 
@@ -264,7 +220,7 @@ QList<DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles(
     if (unusedDirs.contains(dp))
         return result;
 
-    QDir dir(dirPath);
+    const QDir dir(dirPath);
     QFileInfoList list = dir.entryInfoList(nameFilters,
             QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
 
@@ -287,7 +243,7 @@ QList<DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles(
                 remoteDir = fullRemoteDirectory() + QLatin1Char('/') +
                         baseDir.relativeFilePath(dirPath);
             }
-            result.append(DeployableFile(Utils::FilePath::fromString(fileInfo.absoluteFilePath()),
+            result.append(DeployableFile(FilePath::fromString(fileInfo.absoluteFilePath()),
                                          remoteDir));
         }
     }
@@ -297,27 +253,72 @@ QList<DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles(
 
 QString QnxDeployQtLibrariesDialog::fullRemoteDirectory() const
 {
-    return  m_ui->remoteDirectory->text();
+    return m_ui->remoteDirectory->text();
 }
 
-void QnxDeployQtLibrariesDialog::checkRemoteDirectoryExistance()
+void QnxDeployQtLibrariesDialog::startCheckDirProcess()
 {
     QTC_CHECK(m_state == Inactive);
-
     m_state = CheckingRemoteDirectory;
     m_ui->deployLogWindow->appendPlainText(tr("Checking existence of \"%1\"")
                                            .arg(fullRemoteDirectory()));
-    m_processRunner->run("test -d " + fullRemoteDirectory(), m_device->sshParameters());
+    m_checkDirProcess.setCommand({m_device->mapToGlobalPath("test"),
+                                  {"-d", fullRemoteDirectory()}});
+    m_checkDirProcess.start();
 }
 
-void QnxDeployQtLibrariesDialog::removeRemoteDirectory()
+void QnxDeployQtLibrariesDialog::startRemoveDirProcess()
 {
     QTC_CHECK(m_state == CheckingRemoteDirectory);
-
     m_state = RemovingRemoteDirectory;
     m_ui->deployLogWindow->appendPlainText(tr("Removing \"%1\"").arg(fullRemoteDirectory()));
-    m_processRunner->run("rm -rf " + fullRemoteDirectory(), m_device->sshParameters());
+    m_removeDirProcess.setCommand({m_device->mapToGlobalPath("rm"),
+                                  {"-rf", fullRemoteDirectory()}});
+    m_removeDirProcess.start();
 }
+
+void QnxDeployQtLibrariesDialog::handleCheckDirDone()
+{
+    QTC_CHECK(m_state == CheckingRemoteDirectory);
+    if (handleError(m_checkDirProcess))
+        return;
+
+    if (m_checkDirProcess.exitCode() == 0) { // Directory exists
+        const int answer = QMessageBox::question(this, windowTitle(),
+            tr("The remote directory \"%1\" already exists.\n"
+               "Deploying to that directory will remove any files already present.\n\n"
+               "Are you sure you want to continue?").arg(fullRemoteDirectory()),
+               QMessageBox::Yes | QMessageBox::No);
+        if (answer == QMessageBox::Yes)
+            startRemoveDirProcess();
+        else
+            handleUploadFinished();
+    } else {
+        startUpload();
+    }
+}
+
+void QnxDeployQtLibrariesDialog::handleRemoveDirDone()
+{
+    QTC_CHECK(m_state == RemovingRemoteDirectory);
+    if (handleError(m_removeDirProcess))
+        return;
+
+    QTC_ASSERT(m_removeDirProcess.exitCode() == 0, return);
+    startUpload();
+}
+
+// Returns true if the error appeared, false when finished with success
+bool QnxDeployQtLibrariesDialog::handleError(const QtcProcess &process)
+{
+    if (process.result() == ProcessResult::FinishedWithSuccess)
+        return false;
+
+    m_ui->deployLogWindow->appendPlainText(tr("Connection failed: %1").arg(process.errorString()));
+    handleUploadFinished();
+    return true;
+}
+
 
 } // namespace Internal
 } // namespace Qnx
