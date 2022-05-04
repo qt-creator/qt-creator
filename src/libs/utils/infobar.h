@@ -124,6 +124,7 @@ public:
     static bool anyGloballySuppressed();
 
     static void initialize(QSettings *settings);
+    static QSettings *settings();
 
 signals:
     void changed();

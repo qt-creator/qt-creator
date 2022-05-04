@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,23 +23,18 @@
 **
 ****************************************************************************/
 
-#include "cppminimizableinfobars.h"
+#include "minimizableinfobars.h"
+
+#include "qtcassert.h"
+#include "qtcsettings.h"
+#include "utilsicons.h"
 
 #include <QToolButton>
-
-#include <coreplugin/icore.h>
-#include <utils/infobar.h>
-#include <utils/qtcassert.h>
-#include <utils/utilsicons.h>
 
 const char SETTINGS_PREFIX[] = "ShowInfoBarFor";
 const bool kShowInInfoBarDefault = true;
 
-using namespace Core;
-using namespace Utils;
-
-namespace CppEditor {
-namespace Internal {
+namespace Utils {
 
 MinimizableInfoBars::MinimizableInfoBars(InfoBar &infoBar)
     : m_infoBar(infoBar)
@@ -147,13 +142,15 @@ void MinimizableInfoBars::showInfoBar(const Id &id)
 
 bool MinimizableInfoBars::showInInfoBar(const Id &id) const
 {
-    return ICore::settings()->value(settingsKey(id), kShowInInfoBarDefault).toBool();
+    return InfoBar::settings()->value(settingsKey(id), kShowInInfoBarDefault).toBool();
 }
 
 void MinimizableInfoBars::setShowInInfoBar(const Id &id, bool show)
 {
-    ICore::settings()->setValueWithDefault(settingsKey(id), show, kShowInInfoBarDefault);
+    QtcSettings::setValueWithDefault(InfoBar::settings(),
+                                     settingsKey(id),
+                                     show,
+                                     kShowInInfoBarDefault);
 }
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace Utils

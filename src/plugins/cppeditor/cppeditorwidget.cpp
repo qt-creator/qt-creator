@@ -39,7 +39,6 @@
 #include "cppfunctiondecldeflink.h"
 #include "cpphighlighter.h"
 #include "cpplocalrenaming.h"
-#include "cppminimizableinfobars.h"
 #include "cppmodelmanager.h"
 #include "cpppreprocessordialog.h"
 #include "cppsemanticinfo.h"

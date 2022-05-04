@@ -413,7 +413,7 @@ QFuture<CursorInfo> CppEditorDocument::cursorInfo(const CursorInfoParams &params
     return processor()->cursorInfo(params);
 }
 
-const MinimizableInfoBars &CppEditorDocument::minimizableInfoBars() const
+const Utils::MinimizableInfoBars &CppEditorDocument::minimizableInfoBars() const
 {
     return m_minimizableInfoBars;
 }

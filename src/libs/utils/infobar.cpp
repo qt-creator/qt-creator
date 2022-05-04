@@ -216,6 +216,11 @@ void InfoBar::initialize(QSettings *settings)
     }
 }
 
+QSettings *InfoBar::settings()
+{
+    return m_settings;
+}
+
 void InfoBar::clearGloballySuppressed()
 {
     globallySuppressed.clear();

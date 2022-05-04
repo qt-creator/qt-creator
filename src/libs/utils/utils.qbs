@@ -182,6 +182,8 @@ Project {
             "macroexpander.h",
             "mapreduce.h",
             "mimeutils.h",
+            "minimizableinfobars.cpp",
+            "minimizableinfobars.h",
             "multitextcursor.cpp",
             "multitextcursor.h",
             "namevaluedictionary.cpp",

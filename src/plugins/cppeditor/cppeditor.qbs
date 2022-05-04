@@ -138,8 +138,6 @@ QtcPlugin {
         "cpplocatordata.h",
         "cpplocatorfilter.cpp",
         "cpplocatorfilter.h",
-        "cppminimizableinfobars.cpp",
-        "cppminimizableinfobars.h",
         "cppmodelmanager.cpp",
         "cppmodelmanager.h",
         "cppmodelmanagersupport.cpp",

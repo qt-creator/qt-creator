@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,8 +25,10 @@
 
 #pragma once
 
-#include <utils/id.h>
-#include <utils/infobar.h>
+#include "utils_global.h"
+
+#include "id.h"
+#include "infobar.h"
 
 #include <QAction>
 #include <QHash>
@@ -34,10 +36,9 @@
 
 #include <functional>
 
-namespace CppEditor {
-namespace Internal {
+namespace Utils {
 
-class MinimizableInfoBars : public QObject
+class QTCREATOR_UTILS_EXPORT MinimizableInfoBars : public QObject
 {
     Q_OBJECT
 
@@ -73,5 +74,4 @@ private:
     QHash<Utils::Id, Utils::InfoBarEntry> m_infoEntries;
 };
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace Utils

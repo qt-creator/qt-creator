@@ -60,7 +60,6 @@ add_qtc_plugin(CppEditor
     cpplocalsymbols.cpp cpplocalsymbols.h
     cpplocatordata.cpp cpplocatordata.h
     cpplocatorfilter.cpp cpplocatorfilter.h
-    cppminimizableinfobars.cpp cppminimizableinfobars.h
     cppmodelmanager.cpp cppmodelmanager.h
     cppmodelmanagersupport.cpp cppmodelmanagersupport.h
     cppoutline.cpp cppoutline.h

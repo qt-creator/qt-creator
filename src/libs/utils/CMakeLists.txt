@@ -88,6 +88,8 @@ add_qtc_library(Utils
     macroexpander.cpp macroexpander.h
     mapreduce.h
     mimeutils.h
+    minimizableinfobars.cpp
+    minimizableinfobars.h
     multitextcursor.cpp multitextcursor.h
     namevaluedictionary.cpp namevaluedictionary.h
     namevaluedictionary.cpp namevaluedictionary.h
