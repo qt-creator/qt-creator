@@ -325,7 +325,7 @@ extend_qtc_plugin(QmlDesigner
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components
-  SOURCES resources/resources.qrc
+  SOURCES resources/resources_qmldesigner_components.qrc
 )
 
 extend_qtc_plugin(QmlDesigner

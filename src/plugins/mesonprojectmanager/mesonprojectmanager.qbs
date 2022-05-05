@@ -78,7 +78,7 @@ Project {
             "project/projecttree/mesonprojectnodes.h",
             "project/projecttree/projecttree.cpp",
             "project/projecttree/projecttree.h",
-            "resources.qrc",
+            "resources_meson.qrc",
             "settings/general/settings.cpp",
             "settings/general/settings.h",
             "settings/tools/kitaspect/mesontoolkitaspect.cpp",

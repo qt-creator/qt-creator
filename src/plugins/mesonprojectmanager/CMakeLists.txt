@@ -83,7 +83,7 @@ add_qtc_plugin(MesonProjectManager
   machinefiles/machinefilemanager.cpp
   machinefiles/nativefilegenerator.h
   machinefiles/nativefilegenerator.cpp
-  resources.qrc
+  resources_meson.qrc
 )
 
 file(RELATIVE_PATH RELATIVE_TEST_PATH "${PROJECT_BINARY_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")

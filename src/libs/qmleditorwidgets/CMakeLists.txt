@@ -18,5 +18,5 @@ add_qtc_library(QmlEditorWidgets
     gradientline.cpp gradientline.h
     huecontrol.cpp huecontrol.h
     qmleditorwidgets_global.h
-    resources.qrc
+    resources_qmleditorwidgets.qrc
 )

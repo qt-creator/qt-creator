@@ -736,7 +736,7 @@ Project {
                 "propertyeditor/qmlmodelnodeproxy.h",
                 "propertyeditor/tooltip.cpp",
                 "propertyeditor/tooltip.h",
-                "resources/resources.qrc",
+                "resources/resources_qmldesigner_components.qrc",
                 "stateseditor/stateseditorimageprovider.cpp",
                 "stateseditor/stateseditorimageprovider.h",
                 "stateseditor/stateseditormodel.cpp",
