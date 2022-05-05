@@ -34,6 +34,7 @@
 #include <ssh/sshconnection.h>
 
 #include <utils/algorithm.h>
+#include <utils/qtcprocess.h>
 #include <utils/url.h>
 
 using namespace Debugger;
@@ -55,12 +56,16 @@ public:
     {
         setId("QdbDebuggeeRunner");
 
-        connect(&m_launcher, &ApplicationLauncher::started,
-                this, &RunWorker::reportStarted);
-        connect(&m_launcher, &ApplicationLauncher::finished,
-                this, &RunWorker::reportStopped);
-        connect(&m_launcher, &ApplicationLauncher::appendMessage,
-                this, &RunWorker::appendMessage);
+        connect(&m_launcher, &QtcProcess::started, this, &RunWorker::reportStarted);
+        connect(&m_launcher, &QtcProcess::finished, this, &RunWorker::reportStopped);
+
+        connect(&m_launcher, &QtcProcess::readyReadStandardOutput, [this] {
+                appendMessage(QString::fromUtf8(m_launcher.readAllStandardOutput()), StdOutFormat);
+        });
+        connect(&m_launcher, &QtcProcess::readyReadStandardError, [this] {
+                appendMessage(QString::fromUtf8(m_launcher.readAllStandardError()), StdErrFormat);
+        });
+
         m_portsGatherer = new DebugServerPortsGatherer(runControl);
         m_portsGatherer->setUseGdbServer(useGdbServer || usePerf);
         m_portsGatherer->setUseQmlServer(useQmlServer);
@@ -82,14 +87,17 @@ public:
 
         Runnable r = runnable();
 
-        QString args;
+        CommandLine cmd;
+        cmd.setExecutable(device()->mapToGlobalPath(FilePath::fromString(Constants::AppcontrollerFilepath)));
+
         if (m_useGdbServer) {
-            args.append(" --debug-gdb");
+            cmd.addArg("--debug-gdb");
             lowerPort = upperPort = gdbServerPort;
         }
         if (m_useQmlServer) {
-            args.append(" --debug-qml --qml-debug-services ");
-            args.append(QmlDebug::qmlDebugServices(m_qmlServices));
+            cmd.addArg("--debug-qml");
+            cmd.addArg("--qml-debug-services");
+            cmd.addArg(QmlDebug::qmlDebugServices(m_qmlServices));
             lowerPort = upperPort = qmlServerPort;
         }
         if (m_useGdbServer && m_useQmlServer) {
@@ -106,24 +114,21 @@ public:
             QString args =  Utils::transform(perfRecordArgs.toStringList(), [](QString arg) {
                                     return arg.replace(',', ",,");
                             }).join(',');
-            args.append(QString(" --profile-perf %1").arg(args));
+            cmd.addArg("--profile-perf");
+            cmd.addArg(args);
             lowerPort = upperPort = perfPort;
         }
-        args.append(QString(" --port-range %1-%2 ").arg(lowerPort).arg(upperPort));
-        // FIXME: Breaks with spaces!
-        args.append(r.command.executable().toString());
-        args.append(" ");
-        args.append(r.command.arguments());
+        cmd.addArg("--port-range");
+        cmd.addArg(QString("%1-%2").arg(lowerPort).arg(upperPort));
+        cmd.addCommandLineAsArgs(r.command);
 
-        r.command.setArguments(args);
-        r.command.setExecutable(FilePath::fromString(Constants::AppcontrollerFilepath));
-        r.device = device();
-
-        m_launcher.setRunnable(r);
+        m_launcher.setCommand(cmd);
+        m_launcher.setWorkingDirectory(r.workingDirectory);
+        m_launcher.setEnvironment(r.environment);
         m_launcher.start();
     }
 
-    void stop() override { m_launcher.stop(); }
+    void stop() override { m_launcher.close(); }
 
 private:
     Debugger::DebugServerPortsGatherer *m_portsGatherer = nullptr;
@@ -131,7 +136,7 @@ private:
     bool m_useGdbServer;
     bool m_useQmlServer;
     QmlDebug::QmlDebugServicesPreset m_qmlServices;
-    ApplicationLauncher m_launcher;
+    QtcProcess m_launcher;
 };
 
 
