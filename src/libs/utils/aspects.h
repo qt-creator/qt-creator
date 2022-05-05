@@ -421,6 +421,7 @@ public:
 
     Utils::FilePath filePath() const;
     void setFilePath(const Utils::FilePath &value);
+    void setDefaultFilePath(const Utils::FilePath &value);
 
     PathChooser *pathChooser() const; // Avoid to use.
 

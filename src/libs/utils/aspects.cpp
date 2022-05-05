@@ -874,6 +874,11 @@ void StringAspect::setFilePath(const FilePath &value)
     setValue(value.toUserOutput());
 }
 
+void StringAspect::setDefaultFilePath(const FilePath &value)
+{
+    setDefaultValue(value.toUserOutput());
+}
+
 PathChooser *StringAspect::pathChooser() const
 {
     return d->m_pathChooserDisplay.data();
@@ -1085,7 +1090,10 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         d->m_pathChooserDisplay->setEnvironmentChange(d->m_environmentChange);
         d->m_pathChooserDisplay->setBaseDirectory(d->m_baseFileName);
         d->m_pathChooserDisplay->setOpenTerminalHandler(d->m_openTerminal);
-        d->m_pathChooserDisplay->setFilePath(FilePath::fromUserInput(displayedString));
+        if (defaultValue() == value())
+            d->m_pathChooserDisplay->setDefaultValue(defaultValue().toString());
+        else
+            d->m_pathChooserDisplay->setFilePath(FilePath::fromUserInput(displayedString));
         d->updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
         addLabeledItem(builder, d->m_pathChooserDisplay);
         useMacroExpander(d->m_pathChooserDisplay->lineEdit());
