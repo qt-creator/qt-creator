@@ -66,6 +66,10 @@ if (QTC_STATIC_BUILD)
     SOURCES "${CMAKE_CURRENT_BINARY_DIR}/plugin_imports.cpp"
   )
 
+  if (Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0 AND TARGET QmlDesigner)
+    qt6_import_qml_plugins(qtcreator
+      PATH_TO_SCAN "${CMAKE_CURRENT_SOURCE_DIR}/../../share/qtcreator/qmldesigner")
+  endif()
 endif()
 
 if (WIN32)

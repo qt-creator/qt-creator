@@ -275,6 +275,10 @@ extend_qtc_executable(qml2puppet
   DEPENDS Nanotrace
 )
 
+if (QTC_STATIC_BUILD AND Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0)
+  qt6_import_qml_plugins(qml2puppet PATH_TO_SCAN ${SRCDIR})
+endif()
+
 # Crashpad
 # only windows requires separate crashpad client per process until client->SetHandlerIPCPipe()
 # is implemented (check the TODO inside startCrashpad())
