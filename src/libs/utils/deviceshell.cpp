@@ -209,7 +209,7 @@ void DeviceShell::close()
  * Override this function to setup the shell process.
  * The default implementation just sets the command line to "bash"
  */
-void DeviceShell::setupShellProcess(QtcProcess* shellProcess)
+void DeviceShell::setupShellProcess(QtcProcess *shellProcess)
 {
     shellProcess->setCommand(CommandLine{"bash"});
 }

@@ -50,6 +50,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
+#include <utils/deviceshell.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -144,14 +145,32 @@ class DockerPortsGatheringMethod : public PortsGatheringMethod
     }
 };
 
+class ContainerShell : public Utils::DeviceShell
+{
+public:
+    ContainerShell(const QString &containerId)
+        : m_containerId(containerId)
+    {
+        start();
+    }
 
+private:
+    void setupShellProcess(QtcProcess *shellProcess) final
+    {
+        shellProcess->setCommand({"docker", {"container", "start", "-i", "-a", m_containerId}});
+    }
+
+private:
+    QString m_containerId;
+};
 
 class DockerDevicePrivate : public QObject
 {
     Q_DECLARE_TR_FUNCTIONS(Docker::Internal::DockerDevice)
 
 public:
-    DockerDevicePrivate(DockerDevice *parent) : q(parent)
+    DockerDevicePrivate(DockerDevice *parent)
+        : q(parent)
     {}
 
     ~DockerDevicePrivate() { stopCurrentContainer(); }
@@ -170,8 +189,9 @@ public:
     DockerDeviceData m_data;
 
     // For local file access
-    QPointer<QtcProcess> m_shell;
-    mutable QMutex m_shellMutex;
+
+    std::unique_ptr<ContainerShell> m_shell;
+
     QString m_container;
 
     Environment m_cachedEnviroment;
@@ -428,20 +448,7 @@ void DockerDevicePrivate::stopCurrentContainer()
     if (m_container.isEmpty() || !DockerApi::isDockerDaemonAvailable(false).value_or(false))
         return;
 
-    if (m_shell) {
-        QMutexLocker l(&m_shellMutex);
-        m_shell->write("exit\n");
-        m_shell->waitForFinished(2000);
-        if (m_shell->state() == QProcess::NotRunning) {
-            LOG("Clean exit via shell");
-            m_container.clear();
-            delete m_shell;
-            m_shell = nullptr;
-            return;
-        }
-
-        m_shell->terminate();
-    }
+    m_shell.reset();
 
     QtcProcess proc;
     proc.setCommand({"docker", {"container", "stop", m_container}});
@@ -507,40 +514,21 @@ void DockerDevicePrivate::startContainer()
         return;
     LOG("Container via process: " << m_container);
 
-    CommandLine dockerRun{"docker", {"container" , "start", "-i", "-a", m_container}};
-    LOG("RUNNING: " << dockerRun.toUserOutput());
-    QPointer<QtcProcess> shell = new QtcProcess;
-    shell->setProcessMode(ProcessMode::Writer);
-    connect(shell, &QtcProcess::finished, this, [this, shell] {
-        LOG("\nSHELL FINISHED\n");
-        QTC_ASSERT(shell, return);
-        const int exitCode = shell->exitCode();
-        LOG("RES: " << int(shell->result())
-            << " EXIT CODE: " << exitCode
-            << " STDOUT: " << shell->readAllStandardOutput()
-            << " STDERR: " << shell->readAllStandardError());
-        // negative exit codes indicate problems like no docker daemon, missing permissions,
-        // no shell and seem to result in exit codes 125+
-        if (exitCode > 120) {
-            DockerApi::recheckDockerDaemon();
-            LOG("DOCKER DAEMON NOT RUNNING?");
-            MessageManager::writeFlashing(tr("Docker daemon appears to be not running. "
-                                             "Verify daemon is up and running and reset the "
-                                             "docker daemon on the docker device settings page "
-                                             "or restart Qt Creator."));
-        }
+    m_shell = std::make_unique<ContainerShell>(m_container);
+    connect(m_shell.get(), &DeviceShell::errorOccurred, this, [this] (QProcess::ProcessError error) {
+        qCWarning(dockerDeviceLog) << "Container shell encountered error:" << error;
+        m_shell.reset();
+
+        DockerApi::recheckDockerDaemon();
+        MessageManager::writeFlashing(tr("Docker daemon appears to be not running. "
+                                         "Verify daemon is up and running and reset the "
+                                         "docker daemon on the docker device settings page "
+                                         "or restart Qt Creator."));
     });
 
-    QTC_ASSERT(!m_shell, delete m_shell);
-    m_shell = shell;
-    m_shell->setCommand(dockerRun);
-    m_shell->start();
-    m_shell->waitForStarted();
-
-    if (!m_shell->isRunning()) {
+    if (!m_shell->waitForStarted()) {
         DockerApi::recheckDockerDaemon();
-        LOG("DOCKER SHELL FAILED");
-        return;
+        qCWarning(dockerDeviceLog) << "Container shell failed to start";
     }
 }
 
@@ -1094,83 +1082,14 @@ bool DockerDevicePrivate::runInContainer(const CommandLine &cmd) const
 
 bool DockerDevicePrivate::runInShell(const CommandLine &cmd) const
 {
-    if (QThread::currentThread() != qApp->thread()) {
-        bool result = false;
-        QMetaObject::invokeMethod(const_cast<DockerDevicePrivate*>(this), [this, &cmd, &result] {
-            result = this->runInShell(cmd);
-        }, Qt::BlockingQueuedConnection);
-        return result;
-    }
-
-    if (!QTC_GUARD(DockerApi::isDockerDaemonAvailable(false).value_or(false))) {
-        LOG("No daemon. Could not run " << cmd.toUserOutput());
-        return false;
-    }
-    QTC_ASSERT(m_shell, LOG("No shell. Could not run " << cmd.toUserOutput()); return false);
-    QMutexLocker l(&m_shellMutex);
-    m_shell->readAllStandardOutput(); // clean possible left-overs
-    m_shell->write(cmd.toUserOutput() + "\necho $?\n");
-    QTC_ASSERT(m_shell->waitForReadyRead(), return false);
-    QByteArray output = m_shell->readAllStandardOutput();
-    bool ok;
-    int result = output.toInt(&ok);
-    LOG("Run command in shell:" << cmd.toUserOutput() << "result: " << output << " ==>" << result);
-    QTC_ASSERT(ok, return false);
-    return result == 0;
-}
-
-// generate hex value
-static QByteArray randomHex()
-{
-    quint32 val = QRandomGenerator::global()->generate();
-    return QString::number(val, 16).toUtf8();
+    QTC_ASSERT(m_shell, return false);
+    return m_shell->runInShell(cmd);
 }
 
 QByteArray DockerDevicePrivate::outputForRunInShell(const CommandLine &cmd) const
 {
-    if (QThread::currentThread() != qApp->thread()) {
-        QByteArray result;
-        QMetaObject::invokeMethod(const_cast<DockerDevicePrivate*>(this), [this, &cmd, &result] {
-            result = this->outputForRunInShell(cmd);
-        }, Qt::BlockingQueuedConnection);
-        return result;
-    }
-
-    if (!DockerApi::isDockerDaemonAvailable(false).value_or(false))
-        return {};
-
-    QTC_ASSERT(m_shell && m_shell->isRunning(), return {});
-
-    QMutexLocker l(&m_shellMutex);
-    m_shell->readAllStandardOutput(); // clean possible left-overs
-
-    const QByteArray oldError = m_shell->readAllStandardError(); // clean possible left-overs
-    if (!oldError.isEmpty()) {
-        LOG("Unexpected old stderr: " << oldError);
-        QTC_CHECK(false);
-    }
-
-    const QByteArray markerWithNewLine("___QC_DOCKER_" + randomHex() + "_OUTPUT_MARKER___\n");
-    m_shell->write(cmd.toUserOutput() + "\necho -n \"" + markerWithNewLine + "\"\n");
-
-    QByteArray output;
-    while (!output.endsWith(markerWithNewLine)) {
-        QTC_ASSERT(m_shell->isRunning(), return {});
-        m_shell->waitForReadyRead();
-        output.append(m_shell->readAllStandardOutput());
-    }
-
-    LOG("Run command in shell:" << cmd.toUserOutput() << "output size:" << output.size());
-    if (QTC_GUARD(output.endsWith(markerWithNewLine)))
-        output.chop(markerWithNewLine.size());
-
-    const QByteArray currentError = m_shell->readAllStandardError();
-    if (!currentError.isEmpty()) {
-        LOG("Unexpected current stderr: " << currentError);
-        QTC_CHECK(false);
-    }
-
-    return output;
+    QTC_ASSERT(m_shell.get(), return {});
+    return m_shell->outputForRunInShell(cmd).stdOutput;
 }
 
 // Factory

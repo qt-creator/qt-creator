@@ -68,7 +68,7 @@ protected:
     void close();
 
 private:
-    virtual void setupShellProcess(QtcProcess* shellProcess);
+    virtual void setupShellProcess(QtcProcess *shellProcess);
     virtual void startupFailed(const CommandLine &cmdLine);
 
     void closeShellProcess();
