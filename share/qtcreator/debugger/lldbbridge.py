@@ -472,6 +472,8 @@ class Dumper(DumperBase):
                     tdata.code = TypeCode.Void
                 elif typeName == 'wchar_t':
                     tdata.code = TypeCode.Integral
+                elif typeName in ("char16_t", "char32_t", "char8_t"):
+                    tdata.code = TypeCode.Integral
                 else:
                     self.warn('UNKNOWN TYPE KEY: %s: %s' % (typeName, code))
             elif code == lldb.eTypeClassEnumeration:

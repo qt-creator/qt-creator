@@ -643,7 +643,7 @@ def qdump__std____1__map(d, value):
 
         with Children(d, size, maxNumChild=1000):
             for (i, pair) in zip(d.childRange(), in_order_traversal(head)):
-                d.putPairItem(i, pair, 'key', 'value')
+                d.putPairItem(i, pair)
 
 
 def qform__std____1__multimap():
@@ -1293,9 +1293,9 @@ def qform__std____cxx11__wstring():
 
 def qdump__std____1__basic_string(d, value):
     innerType = value.type[0].name
-    if innerType == "char":
+    if innerType in ("char", "char8_t", "char16_t"):
         qdump__std____1__string(d, value)
-    elif innerType == "wchar_t":
+    elif innerType in ("wchar_t", "char32_t"):
         qdump__std____1__wstring(d, value)
     else:
         d.warn("UNKNOWN INNER TYPE %s" % innerType)
