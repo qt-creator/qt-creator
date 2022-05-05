@@ -43,7 +43,7 @@ RemoteLinuxSignalOperation::~RemoteLinuxSignalOperation() = default;
 
 static QString signalProcessGroupByPidCommandLine(qint64 pid, int signal)
 {
-    return QString::fromLatin1("kill -%1 -%2 %2").arg(signal).arg(pid);
+    return QString::fromLatin1("kill -%1 %2").arg(signal).arg(pid);
 }
 
 void RemoteLinuxSignalOperation::run(const QString &command)
@@ -80,9 +80,8 @@ QString RemoteLinuxSignalOperation::interruptProcessByNameCommandLine(const QStr
 
 void RemoteLinuxSignalOperation::killProcess(qint64 pid)
 {
-    run(QString::fromLatin1("%1; sleep 1; %2 && %3")
+    run(QString::fromLatin1("%1 && %2")
         .arg(signalProcessGroupByPidCommandLine(pid, 15),
-             signalProcessGroupByPidCommandLine(pid, 0),
              signalProcessGroupByPidCommandLine(pid, 9)));
 }
 

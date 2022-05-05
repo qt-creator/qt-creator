@@ -31,6 +31,8 @@
 
 namespace ProjectExplorer {
 
+class SshDeviceProcessListPrivate;
+
 class PROJECTEXPLORER_EXPORT SshDeviceProcessList : public DeviceProcessList
 {
     Q_OBJECT
@@ -39,8 +41,7 @@ public:
     ~SshDeviceProcessList() override;
 
 private:
-    void handleConnectionError();
-    void handleListProcessFinished();
+    void handleProcessDone();
     void handleKillProcessFinished(const QString &errorString);
 
     virtual QString listProcessesCommandLine() const = 0;
@@ -49,10 +50,8 @@ private:
     void doUpdate() override;
     void doKillProcess(const Utils::ProcessInfo &process) override;
 
-    void handleProcessError(const QString &errorMessage);
     void setFinished();
 
-    class SshDeviceProcessListPrivate;
     const std::unique_ptr<SshDeviceProcessListPrivate> d;
 };
 

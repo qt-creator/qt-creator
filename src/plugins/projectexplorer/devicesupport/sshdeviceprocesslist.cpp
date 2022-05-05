@@ -24,75 +24,63 @@
 ****************************************************************************/
 
 #include "sshdeviceprocesslist.h"
-
 #include "idevice.h"
 
-#include <projectexplorer/devicesupport/idevice.h>
-#include <ssh/sshremoteprocessrunner.h>
-#include <utils/fileutils.h>
 #include <utils/processinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 using namespace QSsh;
 using namespace Utils;
 
 namespace ProjectExplorer {
 
-class SshDeviceProcessList::SshDeviceProcessListPrivate
+class SshDeviceProcessListPrivate
 {
 public:
-    SshRemoteProcessRunner process;
-    DeviceProcessSignalOperation::Ptr signalOperation;
+    QtcProcess m_process;
+    DeviceProcessSignalOperation::Ptr m_signalOperation;
 };
 
 SshDeviceProcessList::SshDeviceProcessList(const IDevice::ConstPtr &device, QObject *parent) :
         DeviceProcessList(device, parent), d(std::make_unique<SshDeviceProcessListPrivate>())
 {
+    connect(&d->m_process, &QtcProcess::done, this, &SshDeviceProcessList::handleProcessDone);
 }
 
 SshDeviceProcessList::~SshDeviceProcessList() = default;
 
 void SshDeviceProcessList::doUpdate()
 {
-    connect(&d->process, &SshRemoteProcessRunner::connectionError,
-            this, &SshDeviceProcessList::handleConnectionError);
-    connect(&d->process, &SshRemoteProcessRunner::finished,
-            this, &SshDeviceProcessList::handleListProcessFinished);
-    d->process.run(listProcessesCommandLine(), device()->sshParameters());
+    d->m_process.close();
+    d->m_process.setCommand({device()->mapToGlobalPath("/bin/sh"),
+                             {"-c", listProcessesCommandLine()}});
+    d->m_process.start();
 }
 
 void SshDeviceProcessList::doKillProcess(const ProcessInfo &process)
 {
-    d->signalOperation = device()->signalOperation();
-    QTC_ASSERT(d->signalOperation, return);
-    connect(d->signalOperation.data(), &DeviceProcessSignalOperation::finished,
+    d->m_signalOperation = device()->signalOperation();
+    QTC_ASSERT(d->m_signalOperation, return);
+    connect(d->m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
             this, &SshDeviceProcessList::handleKillProcessFinished);
-    d->signalOperation->killProcess(process.processId);
+    d->m_signalOperation->killProcess(process.processId);
 }
 
-void SshDeviceProcessList::handleConnectionError()
+void SshDeviceProcessList::handleProcessDone()
 {
-    setFinished();
-    reportError(tr("Connection failure: %1").arg(d->process.lastConnectionErrorString()));
-}
-
-void SshDeviceProcessList::handleListProcessFinished()
-{
-    const QString error = d->process.errorString();
-    setFinished();
-    if (!error.isEmpty()) {
-        handleProcessError(error);
-        return;
-    }
-    if (d->process.exitCode() == 0) {
-        const QByteArray remoteStdout = d->process.readAllStandardOutput();
-        const QString stdoutString
-                = QString::fromUtf8(remoteStdout.data(), remoteStdout.count());
-        reportProcessListUpdated(buildProcessList(stdoutString));
+    if (d->m_process.result() == ProcessResult::FinishedWithSuccess) {
+        reportProcessListUpdated(buildProcessList(d->m_process.stdOut()));
     } else {
-        handleProcessError(tr("Process listing command failed with exit code %1.")
-                           .arg(d->process.exitCode()));
+        const QString errorMessage = d->m_process.exitStatus() == QProcess::NormalExit
+                ? tr("Process listing command failed with exit code %1.").arg(d->m_process.exitCode())
+                : d->m_process.errorString();
+        const QString stdErr = d->m_process.stdErr();
+        const QString fullMessage = stdErr.isEmpty()
+                ? errorMessage : errorMessage + '\n' + tr("Remote stderr was: %1").arg(stdErr);
+        reportError(fullMessage);
     }
+    setFinished();
 }
 
 void SshDeviceProcessList::handleKillProcessFinished(const QString &errorString)
@@ -104,21 +92,12 @@ void SshDeviceProcessList::handleKillProcessFinished(const QString &errorString)
     setFinished();
 }
 
-void SshDeviceProcessList::handleProcessError(const QString &errorMessage)
-{
-    QString fullMessage = errorMessage;
-    const QByteArray remoteStderr = d->process.readAllStandardError();
-    if (!remoteStderr.isEmpty())
-        fullMessage += QLatin1Char('\n') + tr("Remote stderr was: %1").arg(QString::fromUtf8(remoteStderr));
-    reportError(fullMessage);
-}
-
 void SshDeviceProcessList::setFinished()
 {
-    d->process.disconnect(this);
-    if (d->signalOperation) {
-        d->signalOperation->disconnect(this);
-        d->signalOperation.clear();
+    d->m_process.close();
+    if (d->m_signalOperation) {
+        d->m_signalOperation->disconnect(this);
+        d->m_signalOperation.clear();
     }
 }
 

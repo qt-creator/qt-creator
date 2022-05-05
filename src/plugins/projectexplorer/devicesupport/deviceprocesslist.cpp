@@ -24,9 +24,8 @@
 ****************************************************************************/
 
 #include "deviceprocesslist.h"
+#include "idevice.h"
 
-#include <projectexplorer/devicesupport/idevice.h>
-#include <utils/fileutils.h>
 #include <utils/processinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
