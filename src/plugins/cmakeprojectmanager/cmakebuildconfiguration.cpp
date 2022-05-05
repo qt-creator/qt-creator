@@ -1035,13 +1035,6 @@ bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
     return true;
 }
 
-static bool isIos(const Kit *k)
-{
-    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
-    return deviceType == Ios::Constants::IOS_DEVICE_TYPE
-           || deviceType == Ios::Constants::IOS_SIMULATOR_TYPE;
-}
-
 static bool isWebAssembly(const Kit *k)
 {
     return DeviceTypeKitAspect::deviceTypeId(k) == WebAssembly::Constants::WEBASSEMBLY_DEVICE_TYPE;
@@ -1090,7 +1083,7 @@ static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString buildT
     }
 
     // Cross-compilation settings:
-    if (!isIos(k)) { // iOS handles this differently
+    if (!CMakeBuildConfiguration::isIos(k)) { // iOS handles this differently
         const QString sysRoot = SysRootKitAspect::sysRoot(k).path();
         if (!sysRoot.isEmpty()) {
             cmd.addArg("-DCMAKE_SYSROOT:PATH=" + sysRoot);
@@ -1235,7 +1228,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         }
 
         const IDevice::ConstPtr device = DeviceKitAspect::device(k);
-        if (isIos(k)) {
+        if (CMakeBuildConfiguration::isIos(k)) {
             QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
             if (qt && qt->qtVersion().majorVersion >= 6) {
                 // TODO it would be better if we could set
@@ -1349,6 +1342,13 @@ FilePath CMakeBuildConfiguration::shadowBuildDirectory(const FilePath &projectFi
     }
 
     return buildPath;
+}
+
+bool CMakeBuildConfiguration::isIos(const Kit *k)
+{
+    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+    return deviceType == Ios::Constants::IOS_DEVICE_TYPE
+           || deviceType == Ios::Constants::IOS_SIMULATOR_TYPE;
 }
 
 void CMakeBuildConfiguration::buildTarget(const QString &buildTarget)

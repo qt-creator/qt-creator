@@ -54,6 +54,7 @@ public:
     static Utils::FilePath
     shadowBuildDirectory(const Utils::FilePath &projectFilePath, const ProjectExplorer::Kit *k,
                          const QString &bcName, BuildConfiguration::BuildType buildType);
+    static bool isIos(const ProjectExplorer::Kit *k);
 
     // Context menu action:
     void buildTarget(const QString &buildTarget);

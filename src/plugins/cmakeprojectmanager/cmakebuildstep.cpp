@@ -61,6 +61,8 @@ namespace Internal {
 const char BUILD_TARGETS_KEY[] = "CMakeProjectManager.MakeStep.BuildTargets";
 const char CMAKE_ARGUMENTS_KEY[] = "CMakeProjectManager.MakeStep.CMakeArguments";
 const char TOOL_ARGUMENTS_KEY[] = "CMakeProjectManager.MakeStep.AdditionalArguments";
+const char IOS_AUTOMATIC_PROVISIONG_UPDATES_ARGUMENTS_KEY[] =
+        "CMakeProjectManager.MakeStep.iOSAutomaticProvisioningUpdates";
 
 // CmakeProgressParser
 
@@ -180,6 +182,19 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Utils::Id id) :
     m_toolArguments->setSettingsKey(TOOL_ARGUMENTS_KEY);
     m_toolArguments->setLabelText(tr("Tool arguments:"));
     m_toolArguments->setDisplayStyle(StringAspect::LineEditDisplay);
+
+    Kit *kit = buildConfiguration()->kit();
+    if (CMakeBuildConfiguration::isIos(kit)) {
+        m_useiOSAutomaticProvisioningUpdates = addAspect<BoolAspect>();
+        m_useiOSAutomaticProvisioningUpdates->setDefaultValue(true);
+        m_useiOSAutomaticProvisioningUpdates->setSettingsKey(
+                    IOS_AUTOMATIC_PROVISIONG_UPDATES_ARGUMENTS_KEY);
+        m_useiOSAutomaticProvisioningUpdates->setLabel(
+                    tr("Enable automatic provisioning updates:"));
+        m_useiOSAutomaticProvisioningUpdates->setToolTip(
+                    tr("Tells xcodebuild to create and download a provisioning profile "
+                       "if a valid one does not exist."));
+    }
 
     m_buildTargetModel.setHeader({tr("Target")});
 
@@ -413,9 +428,18 @@ CommandLine CMakeBuildStep::cmakeCommand() const
     if (!m_cmakeArguments->value().isEmpty())
         cmd.addArgs(m_cmakeArguments->value(), CommandLine::Raw);
 
+    bool toolArgumentsSpecified = false;
     if (!m_toolArguments->value().isEmpty()) {
         cmd.addArg("--");
         cmd.addArgs(m_toolArguments->value(), CommandLine::Raw);
+        toolArgumentsSpecified = true;
+    }
+
+    if (m_useiOSAutomaticProvisioningUpdates && m_useiOSAutomaticProvisioningUpdates->value()) {
+        // Only add the double dash if it wasn't added before.
+        if (!toolArgumentsSpecified)
+            cmd.addArg("--");
+        cmd.addArgs("-allowProvisioningUpdates", CommandLine::Raw);
     }
 
     return cmd;
@@ -473,6 +497,10 @@ QWidget *CMakeBuildStep::createConfigWidget()
     Layouting::Form builder;
     builder.addRow(m_cmakeArguments);
     builder.addRow(m_toolArguments);
+
+    if (m_useiOSAutomaticProvisioningUpdates)
+        builder.addRow(m_useiOSAutomaticProvisioningUpdates);
+
     builder.addRow({new QLabel(tr("Targets:")), frame});
     auto widget = builder.emerge();
 
@@ -480,6 +508,9 @@ QWidget *CMakeBuildStep::createConfigWidget()
 
     connect(m_cmakeArguments, &StringAspect::changed, this, updateDetails);
     connect(m_toolArguments, &StringAspect::changed, this, updateDetails);
+
+    if (m_useiOSAutomaticProvisioningUpdates)
+        connect(m_useiOSAutomaticProvisioningUpdates, &BoolAspect::changed, this, updateDetails);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
             this, updateDetails);

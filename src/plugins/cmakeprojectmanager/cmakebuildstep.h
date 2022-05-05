@@ -105,6 +105,7 @@ private:
     QStringList m_buildTargets; // Convention: Empty string member signifies "Current executable"
     Utils::StringAspect *m_cmakeArguments = nullptr;
     Utils::StringAspect *m_toolArguments = nullptr;
+    Utils::BoolAspect *m_useiOSAutomaticProvisioningUpdates = nullptr;
     bool m_waiting = false;
 
     QString m_allTarget = "all";
