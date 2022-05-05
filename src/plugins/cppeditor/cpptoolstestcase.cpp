@@ -399,7 +399,7 @@ ProjectOpenerAndCloser::~ProjectOpenerAndCloser()
         hasGcFinished = true;
     });
 
-    foreach (Project *project, m_openProjects)
+    for (Project *project : qAsConst(m_openProjects))
         ProjectExplorerPlugin::unloadProject(project);
 
     QElapsedTimer t;

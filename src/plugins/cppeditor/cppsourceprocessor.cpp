@@ -67,7 +67,7 @@ inline QByteArray generateFingerPrint(const QList<CPlusPlus::Macro> &definedMacr
 {
     QCryptographicHash hash(QCryptographicHash::Sha1);
     hash.addData(code);
-    foreach (const CPlusPlus::Macro &macro, definedMacros) {
+    for (const CPlusPlus::Macro &macro : definedMacros) {
         if (macro.isHidden()) {
             static const QByteArray undef("#undef ");
             hash.addData(undef);
@@ -168,7 +168,8 @@ void CppSourceProcessor::addFrameworkPath(const ProjectExplorer::HeaderPath &fra
 
     const QDir frameworkDir(cleanFrameworkPath.path);
     const QStringList filter = QStringList("*.framework");
-    foreach (const QFileInfo &framework, frameworkDir.entryInfoList(filter)) {
+    const QList<QFileInfo> frameworks = frameworkDir.entryInfoList(filter);
+    for (const QFileInfo &framework : frameworks) {
         if (!framework.isDir())
             continue;
         const QFileInfo privateFrameworks(framework.absoluteFilePath(),
@@ -400,7 +401,8 @@ void CppSourceProcessor::mergeEnvironment(Document::Ptr doc)
 
     m_processed.insert(fn);
 
-    foreach (const Document::Include &incl, doc->resolvedIncludes()) {
+    const QList<Document::Include> includes = doc->resolvedIncludes();
+    for (const Document::Include &incl : includes) {
         const QString includedFile = incl.resolvedFileName();
 
         if (Document::Ptr includedDoc = m_snapshot.document(includedFile))
@@ -468,7 +470,7 @@ void CppSourceProcessor::sourceNeeded(int line, const QString &fileName, Include
     Document::Ptr document = Document::create(absoluteFileName);
     document->setEditorRevision(editorRevision);
     document->setLanguageFeatures(m_languageFeatures);
-    foreach (const QString &include, initialIncludes) {
+    for (const QString &include : initialIncludes) {
         m_included.insert(include);
         Document::Include inc(include, include, 0, IncludeLocal);
         document->addIncludeFile(inc);

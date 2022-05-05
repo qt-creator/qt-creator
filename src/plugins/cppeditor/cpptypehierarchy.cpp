@@ -275,7 +275,9 @@ QStandardItem *CppTypeHierarchyWidget::buildHierarchy(const CppClass &cppClass, 
         if (m_showOldClass && cppClass.qualifiedName == m_oldClass)
             selectedItem = item;
     }
-    foreach (const CppClass &klass, sortClasses(cppClass.*member)) {
+
+    const QList<CppClass> classes = sortClasses(cppClass.*member);
+    for (const CppClass &klass : classes) {
         QStandardItem *item = buildHierarchy(klass, parent, false, member);
         if (!selectedItem)
             selectedItem = item;
@@ -383,7 +385,7 @@ QMimeData *CppTypeHierarchyModel::mimeData(const QModelIndexList &indexes) const
 {
     auto data = new DropMimeData;
     data->setOverrideFileDropAction(Qt::CopyAction); // do not remove the item from the model
-    foreach (const QModelIndex &index, indexes) {
+    for (const QModelIndex &index : indexes) {
         auto link = index.data(LinkRole).value<Link>();
         if (link.hasValidTarget())
             data->addFile(link.targetFilePath, link.targetLine, link.targetColumn);

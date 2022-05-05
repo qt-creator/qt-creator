@@ -59,7 +59,7 @@ ProjectFiles ProjectFileCategorizer::classifyFiles(const QStringList &filePaths,
 {
     ProjectFiles ambiguousHeaders;
 
-    foreach (const QString &filePath, filePaths) {
+    for (const QString &filePath : filePaths) {
         const ProjectFile projectFile(filePath,
                                       getMimeType
                                           ? ProjectFile::classifyByMimeType(getMimeType(filePath))

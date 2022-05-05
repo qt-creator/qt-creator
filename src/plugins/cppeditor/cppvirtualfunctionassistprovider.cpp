@@ -142,7 +142,7 @@ public:
             return nullptr;
 
         QList<AssistProposalItemInterface *> items;
-        foreach (Function *func, overrides)
+        for (Function *func : overrides)
             items << itemFromFunction(func);
         items.first()->setOrder(1000); // Ensure top position for function of static type
 

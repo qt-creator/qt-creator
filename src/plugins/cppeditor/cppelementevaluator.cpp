@@ -184,9 +184,9 @@ void CppClass::lookupBases(QFutureInterfaceBase &futureInterface,
             clazz = current.first;
             visited.insert(clazz);
             const QList<ClassOrNamespace *> &bases = clazz->usings();
-            foreach (ClassOrNamespace *baseClass, bases) {
+            for (ClassOrNamespace *baseClass : bases) {
                 const QList<Symbol *> &symbols = baseClass->symbols();
-                foreach (Symbol *symbol, symbols) {
+                for (Symbol *symbol : symbols) {
                     if (symbol->isClass() && (
                         clazz = context.lookupType(symbol)) &&
                         !visited.contains(clazz)) {
@@ -220,7 +220,8 @@ void CppClass::lookupDerived(QFutureInterfaceBase &futureInterface,
         const Data &current = q.dequeue();
         CppClass *clazz = current.first;
         const TypeHierarchy &classHierarchy = current.second;
-        foreach (const TypeHierarchy &derivedHierarchy, classHierarchy.hierarchy()) {
+        const QList<TypeHierarchy> hierarchy = classHierarchy.hierarchy();
+        for (const TypeHierarchy &derivedHierarchy : hierarchy) {
             clazz->derived.append(CppClass(derivedHierarchy.symbol()));
             q.enqueue(qMakePair(&clazz->derived.last(), derivedHierarchy));
         }
@@ -633,8 +634,9 @@ QFuture<QSharedPointer<CppElement>> FromGuiFunctor::syncExec(
 
 void FromGuiFunctor::checkDiagnosticMessage(int pos)
 {
-    foreach (const QTextEdit::ExtraSelection &sel,
-             m_editor->extraSelections(TextEditor::TextEditorWidget::CodeWarningsSelection)) {
+    const QList<QTextEdit::ExtraSelection> &selections = m_editor->extraSelections(
+        TextEditor::TextEditorWidget::CodeWarningsSelection);
+    for (const QTextEdit::ExtraSelection &sel : selections) {
         if (pos >= sel.cursor.selectionStart() && pos <= sel.cursor.selectionEnd()) {
             m_diagnosis = sel.format.toolTip();
             break;

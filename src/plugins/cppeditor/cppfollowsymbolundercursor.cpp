@@ -207,7 +207,8 @@ Link findMacroLink_helper(const QByteArray &name, Document::Ptr doc, const Snaps
     if (doc && !name.startsWith('<') && !processed->contains(doc->fileName())) {
         processed->insert(doc->fileName());
 
-        foreach (const Macro &macro, doc->definedMacros()) {
+        const QList<Macro> macros = doc->definedMacros();
+        for (const Macro &macro : macros) {
             if (macro.name() == name) {
                 Link link;
                 link.targetFilePath = Utils::FilePath::fromString(macro.fileName());
@@ -644,7 +645,8 @@ void FollowSymbolUnderCursor::findLink(
         // Handle include directives
         if (tk.is(T_STRING_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL)) {
             const int lineno = cursor.blockNumber() + 1;
-            foreach (const Document::Include &incl, doc->resolvedIncludes()) {
+            const QList<Document::Include> includes = doc->resolvedIncludes();
+            for (const Document::Include &incl : includes) {
                 if (incl.line() == lineno) {
                     link.targetFilePath = Utils::FilePath::fromString(incl.resolvedFileName());
                     link.linkTextStart = beginOfToken + 1;
@@ -702,7 +704,7 @@ void FollowSymbolUnderCursor::findLink(
     if (!resolvedSymbols.isEmpty()) {
         LookupItem result = skipForwardDeclarations(resolvedSymbols);
 
-        foreach (const LookupItem &r, resolvedSymbols) {
+        for (const LookupItem &r : resolvedSymbols) {
             if (Symbol *d = r.declaration()) {
                 if (d->isDeclaration() || d->isFunction()) {
                     const QString fileName = QString::fromUtf8(d->fileName(), d->fileNameLength());
@@ -856,7 +858,7 @@ void FollowSymbolUnderCursor::switchDeclDef(
                              functionDefinitionSymbol->enclosingScope());
 
         QList<Symbol *> best;
-        foreach (const LookupItem &r, declarations) {
+        for (const LookupItem &r : declarations) {
             if (Symbol *decl = r.declaration()) {
                 if (Function *funTy = decl->type()->asFunctionType()) {
                     if (funTy->match(functionDefinitionSymbol)) {

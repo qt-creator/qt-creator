@@ -91,7 +91,7 @@ QStringList toAbsolutePaths(const QStringList &relativePathList,
                             const TemporaryCopiedDir &temporaryDir)
 {
     QStringList result;
-    foreach (const QString &file, relativePathList)
+    for (const QString &file : relativePathList)
         result << temporaryDir.absolutePath(file.toUtf8());
     return result;
 }
@@ -108,7 +108,7 @@ public:
     void create(const QString &name, const QString &dir, const QStringList &files)
     {
         const MyTestDataDir projectDir(dir);
-        foreach (const QString &file, files)
+        for (const QString &file : files)
             projectFiles << projectDir.file(file);
 
         RawProjectPart rpp;
@@ -489,7 +489,7 @@ void ModelManagerTest::testRefreshTimeStampModifiedIfSourcefilesChange()
 
     QCOMPARE(refreshedFiles.size(), initialProjectFiles.size());
     snapshot = mm->snapshot();
-    foreach (const QString &file, initialProjectFiles) {
+    for (const QString &file : qAsConst(initialProjectFiles)) {
         QVERIFY(refreshedFiles.contains(file));
         QVERIFY(snapshot.contains(file));
     }
@@ -518,7 +518,7 @@ void ModelManagerTest::testRefreshTimeStampModifiedIfSourcefilesChange()
 
     QCOMPARE(refreshedFiles.size(), finalProjectFiles.size());
     snapshot = mm->snapshot();
-    foreach (const QString &file, finalProjectFiles) {
+    for (const QString &file : qAsConst(finalProjectFiles)) {
         QVERIFY(refreshedFiles.contains(file));
         QVERIFY(snapshot.contains(file));
     }
@@ -569,7 +569,7 @@ void ModelManagerTest::testSnapshotAfterTwoProjects()
     QCOMPARE(refreshedFiles, Utils::toSet(project1.projectFiles));
     const int snapshotSizeAfterProject1 = mm->snapshot().size();
 
-    foreach (const QString &file, project1.projectFiles)
+    for (const QString &file : qAsConst(project1.projectFiles))
         QVERIFY(mm->snapshot().contains(file));
 
     // Project 2
@@ -584,9 +584,9 @@ void ModelManagerTest::testSnapshotAfterTwoProjects()
     QVERIFY(snapshotSizeAfterProject2 > snapshotSizeAfterProject1);
     QVERIFY(snapshotSizeAfterProject2 >= snapshotSizeAfterProject1 + project2.projectFiles.size());
 
-    foreach (const QString &file, project1.projectFiles)
+    for (const QString &file : qAsConst(project1.projectFiles))
         QVERIFY(mm->snapshot().contains(file));
-    foreach (const QString &file, project2.projectFiles)
+    for (const QString &file : qAsConst(project2.projectFiles))
         QVERIFY(mm->snapshot().contains(file));
 }
 
@@ -1014,7 +1014,7 @@ void ModelManagerTest::testRenameIncludes()
 
     // Copy test files to a temporary directory
     QSet<QString> sourceFiles;
-    foreach (const QString &fileName, fileNames) {
+    for (const QString &fileName : qAsConst(fileNames)) {
         const QString &file = workingDir.filePath(fileName);
         QVERIFY(QFile::copy(testDir.file(fileName), file));
         // Saving source file names for the model manager update,
@@ -1027,7 +1027,7 @@ void ModelManagerTest::testRenameIncludes()
     modelManager->updateSourceFiles(sourceFiles).waitForFinished();
     QCoreApplication::processEvents();
     CPlusPlus::Snapshot snapshot = modelManager->snapshot();
-    foreach (const QString &sourceFile, sourceFiles)
+    for (const QString &sourceFile : qAsConst(sourceFiles))
         QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>() << oldHeader);
 
     // Renaming the header
@@ -1039,7 +1039,7 @@ void ModelManagerTest::testRenameIncludes()
     modelManager->updateSourceFiles(sourceFiles).waitForFinished();
     QCoreApplication::processEvents();
     snapshot = modelManager->snapshot();
-    foreach (const QString &sourceFile, sourceFiles)
+    for (const QString &sourceFile : qAsConst(sourceFiles))
         QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>() << newHeader);
 }
 
@@ -1072,7 +1072,7 @@ void ModelManagerTest::testRenameIncludesInEditor()
 
     // Copy test files to a temporary directory
     QSet<QString> sourceFiles;
-    foreach (const QString &fileName, fileNames) {
+    for (const QString &fileName : fileNames) {
         const QString &file = workingDir.filePath(fileName);
         QVERIFY(QFile::copy(testDir.file(fileName), file));
         // Saving source file names for the model manager update,
@@ -1085,7 +1085,7 @@ void ModelManagerTest::testRenameIncludesInEditor()
     modelManager->updateSourceFiles(sourceFiles).waitForFinished();
     QCoreApplication::processEvents();
     CPlusPlus::Snapshot snapshot = modelManager->snapshot();
-    foreach (const QString &sourceFile, sourceFiles)
+    for (const QString &sourceFile : qAsConst(sourceFiles))
         QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>() << headerWithPragmaOnce);
 
     // Open a file in the editor
@@ -1163,7 +1163,7 @@ void ModelManagerTest::testRenameIncludesInEditor()
     modelManager->updateSourceFiles(sourceFiles).waitForFinished();
     QCoreApplication::processEvents();
     snapshot = modelManager->snapshot();
-    foreach (const QString &sourceFile, sourceFiles)
+    for (const QString &sourceFile : qAsConst(sourceFiles))
         QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>() << renamedHeaderWithPragmaOnce);
 }
 

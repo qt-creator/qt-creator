@@ -96,7 +96,7 @@ struct Result
         for (auto it = localUses.cbegin(), end = localUses.cend(); it != end; ++it) {
             const CPlusPlus::Symbol *symbol = it.key();
             const QList<CppEditor::SemanticInfo::Use> &uses = it.value();
-            foreach (const CppEditor::SemanticInfo::Use &use, uses)
+            for (const CppEditor::SemanticInfo::Use &use : uses)
                 result << fromHighlightingResult(symbol, use);
         }
 

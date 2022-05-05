@@ -218,7 +218,7 @@ ClassItem::~ClassItem()
 
 Qt::ItemFlags ClassItem::flags() const
 {
-    foreach (FunctionItem *func, functions) {
+    for (FunctionItem *func : qAsConst(functions)) {
         if (!func->alreadyFound)
             return Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
     }
@@ -231,7 +231,7 @@ Qt::CheckState ClassItem::checkState() const
     if (functions.isEmpty())
         return Qt::Unchecked;
     Qt::CheckState state = functions.first()->checkState();
-    foreach (FunctionItem *function, functions) {
+    for (FunctionItem *function : qAsConst(functions)) {
         Qt::CheckState functionState = function->checkState();
         if (functionState != state)
             return Qt::PartiallyChecked;
@@ -280,7 +280,7 @@ QStringList defaultOverrideReplacements()
 QStringList sortedAndTrimmedStringListWithoutEmptyElements(const QStringList &list)
 {
     QStringList result;
-    foreach (const QString &replacement, list) {
+    for (const QString &replacement : list) {
         const QString trimmedReplacement = replacement.trimmed();
         if (!trimmedReplacement.isEmpty())
             result << trimmedReplacement;
@@ -491,7 +491,7 @@ public:
                 }
             } else {
                 auto classItem = static_cast<ClassItem *>(item);
-                foreach (FunctionItem *funcItem, classItem->functions) {
+                for (FunctionItem *funcItem : qAsConst(classItem->functions)) {
                     if (funcItem->alreadyFound || funcItem->checked == checked)
                         continue;
                     QModelIndex funcIndex = createIndex(funcItem->row, 0, funcItem);
@@ -578,8 +578,9 @@ public:
             ClassOrNamespace *clazz = baseClassQueue.dequeue();
             visitedBaseClasses.insert(clazz);
             const QList<ClassOrNamespace *> bases = clazz->usings();
-            foreach (ClassOrNamespace *baseClass, bases) {
-                foreach (Symbol *symbol, baseClass->symbols()) {
+            for (const ClassOrNamespace *baseClass : bases) {
+                const QList<Symbol *> symbols = baseClass->symbols();
+                for (Symbol *symbol : symbols) {
                     Class *base = symbol->asClass();
                     if (base
                             && (clazz = interface.context().lookupType(symbol))
@@ -597,7 +598,7 @@ public:
         Overview printer = CppCodeStyleSettings::currentProjectCodeStyleOverview();
         printer.showFunctionSignatures = true;
         QHash<const Function *, FunctionItem *> virtualFunctions;
-        foreach (const Class *clazz, baseClasses) {
+        for (const Class *clazz : qAsConst(baseClasses)) {
             ClassItem *itemBase = new ClassItem(printer.prettyName(clazz->name()), clazz);
             for (Scope::iterator it = clazz->memberBegin(); it != clazz->memberEnd(); ++it) {
                 if (const Function *func = (*it)->type()->asFunctionType()) {
@@ -794,14 +795,14 @@ public:
         UseMinimalNames useMinimalNames(targetCoN);
         Control *control = context().bindings()->control().data();
         QList<const Function *> insertedFunctions;
-        foreach (ClassItem *classItem, m_factory->classFunctionModel->classes) {
+        for (ClassItem *classItem : qAsConst(m_factory->classFunctionModel->classes)) {
             if (classItem->checkState() == Qt::Unchecked)
                 continue;
 
             // Insert Declarations (+ definitions)
             QString lastAccessSpecString;
             bool first = true;
-            foreach (FunctionItem *funcItem, classItem->functions) {
+            for (FunctionItem *funcItem : qAsConst(classItem->functions)) {
                 if (funcItem->reimplemented || funcItem->alreadyFound || !funcItem->checked)
                     continue;
 
@@ -1219,7 +1220,7 @@ void InsertVirtualMethodsDialog::setHideReimplementedFunctions(bool hide)
 void InsertVirtualMethodsDialog::updateOverrideReplacementsComboBox()
 {
     m_overrideReplacementComboBox->clear();
-    foreach (const QString &replacement, m_availableOverrideReplacements)
+    for (const QString &replacement : qAsConst(m_availableOverrideReplacements))
         m_overrideReplacementComboBox->addItem(replacement);
 }
 

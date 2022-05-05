@@ -196,7 +196,7 @@ TextEditor::IndentationForBlock CppQtStyleIndenter::indentationForBlocks(
     codeFormatter.updateStateUntil(blocks.last());
 
     TextEditor::IndentationForBlock ret;
-    foreach (QTextBlock block, blocks) {
+    for (const QTextBlock &block : blocks) {
         int indent;
         int padding;
         codeFormatter.indentFor(block, &indent, &padding);

@@ -441,7 +441,7 @@ void DoxygenTest::runTest(const QByteArray &original,
     testDocument.m_source.remove(testDocument.m_cursorPosition, 1);
     testDocument.setBaseDirectory(temporaryDir.path());
     QVERIFY(testDocument.writeToDisk());
-    foreach (CppTestDocument testDocument, includedHeaderDocuments) {
+    for (CppTestDocument testDocument : includedHeaderDocuments) {
         testDocument.setBaseDirectory(temporaryDir.path());
         QVERIFY(testDocument.writeToDisk());
     }

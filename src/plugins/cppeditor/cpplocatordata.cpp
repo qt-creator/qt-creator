@@ -68,7 +68,7 @@ void CppLocatorData::onAboutToRemoveFiles(const QStringList &files)
 
     QMutexLocker locker(&m_pendingDocumentsMutex);
 
-    foreach (const QString &file, files) {
+    for (const QString &file : files) {
         m_infosByFile.remove(file);
 
         for (int i = 0; i < m_pendingDocuments.size(); ++i) {
@@ -91,7 +91,7 @@ void CppLocatorData::flushPendingDocument(bool force) const
     if (m_pendingDocuments.isEmpty())
         return;
 
-    foreach (CPlusPlus::Document::Ptr doc, m_pendingDocuments)
+    for (CPlusPlus::Document::Ptr doc : qAsConst(m_pendingDocuments))
         m_infosByFile.insert(Internal::StringTable::insert(doc->fileName()), m_search(doc));
 
     m_pendingDocuments.clear();

@@ -259,7 +259,7 @@ QSet<QString> CppModelManager::timeStampModifiedFiles(const QList<Document::Ptr>
 {
     QSet<QString> sourceFiles;
 
-    foreach (const Document::Ptr doc, documentsToCheck) {
+    for (const Document::Ptr &doc : documentsToCheck) {
         const QDateTime lastModified = doc->lastModified();
 
         if (!lastModified.isNull()) {
@@ -526,7 +526,7 @@ void CppModelManager::updateModifiedSourceFiles()
 {
     const Snapshot snapshot = this->snapshot();
     QList<Document::Ptr> documentsToCheck;
-    foreach (const Document::Ptr document, snapshot)
+    for (const Document::Ptr &document : snapshot)
         documentsToCheck << document;
 
     updateSourceFiles(timeStampModifiedFiles(documentsToCheck));
@@ -878,7 +878,8 @@ WorkingCopy CppModelManager::buildWorkingCopyList()
 {
     WorkingCopy workingCopy;
 
-    foreach (const CppEditorDocumentHandle *cppEditorDocument, cppEditorDocuments()) {
+    const QList<CppEditorDocumentHandle *> cppEditorDocumentList = cppEditorDocuments();
+    for (const CppEditorDocumentHandle *cppEditorDocument : cppEditorDocumentList) {
         workingCopy.insert(cppEditorDocument->filePath(),
                            cppEditorDocument->contents(),
                            cppEditorDocument->revision());
@@ -957,9 +958,10 @@ ProjectInfo::ConstPtr CppModelManager::projectInfo(ProjectExplorer::Project *pro
 void CppModelManager::removeProjectInfoFilesAndIncludesFromSnapshot(const ProjectInfo &projectInfo)
 {
     QMutexLocker snapshotLocker(&d->m_snapshotMutex);
-    foreach (const ProjectPart::ConstPtr &projectPart, projectInfo.projectParts()) {
-        foreach (const ProjectFile &cxxFile, projectPart->files) {
-            foreach (const QString &fileName, d->m_snapshot.allIncludesForDocument(cxxFile.path))
+    for (const ProjectPart::ConstPtr &projectPart : projectInfo.projectParts()) {
+        for (const ProjectFile &cxxFile : qAsConst(projectPart->files)) {
+            const QSet<QString> fileNames = d->m_snapshot.allIncludesForDocument(cxxFile.path);
+            for (const QString &fileName : fileNames)
                 d->m_snapshot.remove(fileName);
             d->m_snapshot.remove(cxxFile.path);
         }
@@ -1036,7 +1038,7 @@ private:
     {
         QSet<QString> ids;
 
-        foreach (const ProjectPart::ConstPtr &projectPart, projectParts)
+        for (const ProjectPart::ConstPtr &projectPart : projectParts)
             ids.insert(projectPart->id());
 
         return ids;
@@ -1090,7 +1092,8 @@ void CppModelManager::updateCppEditorDocuments(bool projectsUpdated) const
 {
     // Refresh visible documents
     QSet<Core::IDocument *> visibleCppEditorDocuments;
-    foreach (Core::IEditor *editor, Core::EditorManager::visibleEditors()) {
+    const QList<Core::IEditor *> editors = Core::EditorManager::visibleEditors();
+    for (Core::IEditor *editor: editors) {
         if (Core::IDocument *document = editor->document()) {
             const QString filePath = document->filePath().toString();
             if (CppEditorDocumentHandle *theCppEditorDocument = cppEditorDocument(filePath)) {
@@ -1104,7 +1107,7 @@ void CppModelManager::updateCppEditorDocuments(bool projectsUpdated) const
     QSet<Core::IDocument *> invisibleCppEditorDocuments
         = Utils::toSet(Core::DocumentModel::openedDocuments());
     invisibleCppEditorDocuments.subtract(visibleCppEditorDocuments);
-    foreach (Core::IDocument *document, invisibleCppEditorDocuments) {
+    for (Core::IDocument *document : qAsConst(invisibleCppEditorDocuments)) {
         const QString filePath = document->filePath().toString();
         if (CppEditorDocumentHandle *theCppEditorDocument = cppEditorDocument(filePath)) {
             const CppEditorDocumentHandle::RefreshReason refreshReason = projectsUpdated
@@ -1431,8 +1434,9 @@ void CppModelManager::renameIncludes(const Utils::FilePath &oldFilePath,
 
     const TextEditor::RefactoringChanges changes;
 
-    foreach (Snapshot::IncludeLocation loc,
-             snapshot().includeLocationsOfDocument(oldFilePath.toString())) {
+    const QList<Snapshot::IncludeLocation> locations = snapshot().includeLocationsOfDocument(
+        oldFilePath.toString());
+    for (const Snapshot::IncludeLocation &loc : locations) {
         TextEditor::RefactoringFilePtr file = changes.file(
             Utils::FilePath::fromString(loc.first->fileName()));
         const QTextBlock &block = file->document()->findBlockByNumber(loc.second - 1);
@@ -1555,10 +1559,12 @@ void CppModelManager::GC()
 
     // Collect files of opened editors and editor supports (e.g. ui code model)
     QStringList filesInEditorSupports;
-    foreach (const CppEditorDocumentHandle *editorDocument, cppEditorDocuments())
+    const QList<CppEditorDocumentHandle *> editorDocuments = cppEditorDocuments();
+    for (const CppEditorDocumentHandle *editorDocument : editorDocuments)
         filesInEditorSupports << editorDocument->filePath();
 
-    foreach (AbstractEditorSupport *abstractEditorSupport, abstractEditorSupports())
+    const QSet<AbstractEditorSupport *> abstractEditorSupportList = abstractEditorSupports();
+    for (AbstractEditorSupport *abstractEditorSupport : abstractEditorSupportList)
         filesInEditorSupports << abstractEditorSupport->fileName();
 
     Snapshot currentSnapshot = snapshot();

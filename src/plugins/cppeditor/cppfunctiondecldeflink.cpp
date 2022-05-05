@@ -883,7 +883,7 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
             for (auto it = renamedTargetParameters.cbegin(), end = renamedTargetParameters.cend();
                     it != end; ++it) {
                 const QList<SemanticInfo::Use> &uses = localSymbols.uses.value(it.key());
-                foreach (const SemanticInfo::Use &use, uses) {
+                for (const SemanticInfo::Use &use : uses) {
                     if (use.isInvalid())
                         continue;
                     const int useStart = targetFile->position(use.line, use.column);

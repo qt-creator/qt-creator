@@ -369,7 +369,7 @@ public:
 
     void operator()(QList<CPlusPlus::Usage> &, const QList<CPlusPlus::Usage> &usages)
     {
-        foreach (const CPlusPlus::Usage &u, usages)
+        for (const CPlusPlus::Usage &u : usages)
             future->reportResult(u);
 
         future->setProgressValue(future->progressValue() + 1);
@@ -724,7 +724,8 @@ restart_search:
             return usages;
 
         usages.clear();
-        foreach (const CPlusPlus::Document::MacroUse &use, doc->macroUses()) {
+        const QList<CPlusPlus::Document::MacroUse> uses = doc->macroUses();
+        for (const CPlusPlus::Document::MacroUse &use : uses) {
             const CPlusPlus::Macro &useMacro = use.macro();
 
             if (useMacro.fileName() == macro.fileName()) { // Check if this is a match, but possibly against an outdated document.

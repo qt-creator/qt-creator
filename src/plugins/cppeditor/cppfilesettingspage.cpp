@@ -285,13 +285,15 @@ CppFileSettingsWidget::CppFileSettingsWidget(CppFileSettings *settings)
     // populate suffix combos
     const Utils::MimeType sourceMt = Utils::mimeTypeForName(QLatin1String(Constants::CPP_SOURCE_MIMETYPE));
     if (sourceMt.isValid()) {
-        foreach (const QString &suffix, sourceMt.suffixes())
+        const QStringList suffixes = sourceMt.suffixes();
+        for (const QString &suffix : suffixes)
             m_ui.sourceSuffixComboBox->addItem(suffix);
     }
 
     const Utils::MimeType headerMt = Utils::mimeTypeForName(QLatin1String(Constants::CPP_HEADER_MIMETYPE));
     if (headerMt.isValid()) {
-        foreach (const QString &suffix, headerMt.suffixes())
+        const QStringList suffixes = headerMt.suffixes();
+        for (const QString &suffix : suffixes)
             m_ui.headerSuffixComboBox->addItem(suffix);
     }
     m_ui.licenseTemplatePathChooser->setExpectedKind(Utils::PathChooser::File);
@@ -314,7 +316,7 @@ void CppFileSettingsWidget::setLicenseTemplatePath(const FilePath &lp)
 static QStringList trimmedPaths(const QString &paths)
 {
     QStringList res;
-    foreach (const QString &path, paths.split(QLatin1Char(','), Qt::SkipEmptyParts))
+    for (const QString &path : paths.split(QLatin1Char(','), Qt::SkipEmptyParts))
         res << path.trimmed();
     return res;
 }
