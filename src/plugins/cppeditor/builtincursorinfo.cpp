@@ -209,7 +209,7 @@ private:
             const SemanticUses &uses = it.value();
 
             bool good = false;
-            foreach (const SemanticInfo::Use &use, uses) {
+            for (const SemanticInfo::Use &use : uses) {
                 if (m_line == use.line && m_column >= use.column
                         && m_column <= static_cast<int>(use.column + use.length)) {
                     good = true;
@@ -296,7 +296,8 @@ bool handleMacroCase(const Document::Ptr document,
         ranges->append(toRange(textCursor, macro->utf16CharOffset(), length));
 
     // Other macro uses
-    foreach (const Document::MacroUse &use, document->macroUses()) {
+    const QList<Document::MacroUse> macroUses = document->macroUses();
+    for (const Document::MacroUse &use : macroUses) {
         if (isMacroUseOf(use, *macro))
             ranges->append(toRange(textCursor, use.utf16charsBegin(), length));
     }

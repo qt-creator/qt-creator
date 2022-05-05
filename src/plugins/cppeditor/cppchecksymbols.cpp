@@ -97,7 +97,8 @@ protected:
         if (!processed->contains(doc->globalNamespace())) {
             processed->insert(doc->globalNamespace());
 
-            foreach (const Document::Include &i, doc->resolvedIncludes())
+            const QList<Document::Include> includes = doc->resolvedIncludes();
+            for (const Document::Include &i : includes)
                 process(_snapshot.document(i.resolvedFileName()), processed);
 
             _mainDocument = (doc == _doc); // ### improve
@@ -752,7 +753,8 @@ bool CheckSymbols::visit(NewExpressionAST *ast)
             }
 
             Scope *scope = enclosingScope();
-            foreach (Symbol *s, binding->symbols()) {
+            const QList<Symbol *> symbols = binding->symbols();
+            for (Symbol *s : symbols) {
                 if (Class *klass = s->asClass()) {
                     scope = klass;
                     break;
@@ -787,7 +789,8 @@ void CheckSymbols::checkNamespace(NameAST *name)
     getTokenStartPosition(name->firstToken(), &line, &column);
 
     if (ClassOrNamespace *b = _context.lookupType(name->name, enclosingScope())) {
-        foreach (Symbol *s, b->symbols()) {
+        const QList<Symbol *> symbols = b->symbols();
+        for (const Symbol *s : symbols) {
             if (s->isNamespace())
                 return;
         }
@@ -829,7 +832,8 @@ bool CheckSymbols::hasVirtualDestructor(ClassOrNamespace *binding) const
         ClassOrNamespace *b = todo.takeFirst();
         if (b && !processed.contains(b)) {
             processed.insert(b);
-            foreach (Symbol *s, b->symbols()) {
+            const QList<Symbol *> symbols = b->symbols();
+            for (Symbol *s : symbols) {
                 if (Class *k = s->asClass()) {
                     if (hasVirtualDestructor(k))
                         return true;
@@ -1006,7 +1010,8 @@ bool CheckSymbols::visit(MemInitializerAST *ast)
     if (FunctionDefinitionAST *enclosingFunction = enclosingFunctionDefinition()) {
         if (ast->name && enclosingFunction->symbol) {
             if (ClassOrNamespace *binding = _context.lookupType(enclosingFunction->symbol)) {
-                foreach (Symbol *s, binding->symbols()) {
+                const QList<Symbol *> symbols = binding->symbols();
+                for (Symbol *s : symbols) {
                     if (Class *klass = s->asClass()) {
                         NameAST *nameAST = ast->name;
                         if (QualifiedNameAST *q = nameAST->asQualifiedName()) {
@@ -1137,8 +1142,8 @@ bool CheckSymbols::visit(FunctionDefinitionAST *ast)
     accept(ast->function_body);
 
     const Internal::LocalSymbols locals(_doc, ast);
-    foreach (const QList<Result> &uses, locals.uses) {
-        foreach (const Result &u, uses)
+    for (const QList<Result> &uses : qAsConst(locals.uses)) {
+        for (const Result &u : uses)
             addUse(u);
     }
 
@@ -1257,7 +1262,7 @@ bool CheckSymbols::maybeAddTypeOrStatic(const QList<LookupItem> &candidates, Nam
     if (tok.generated())
         return false;
 
-    foreach (const LookupItem &r, candidates) {
+    for (const LookupItem &r : candidates) {
         Symbol *c = r.declaration();
         if (c->isUsingDeclaration()) // skip using declarations...
             continue;
@@ -1300,7 +1305,7 @@ bool CheckSymbols::maybeAddField(const QList<LookupItem> &candidates, NameAST *a
     if (tok.generated())
         return false;
 
-    foreach (const LookupItem &r, candidates) {
+    for (const LookupItem &r : candidates) {
         Symbol *c = r.declaration();
         if (!c)
             continue;
@@ -1345,7 +1350,7 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
 
     Kind kind = functionKind == FunctionDeclaration ? SemanticHighlighter::FunctionDeclarationUse
                                                     : SemanticHighlighter::FunctionUse;
-    foreach (const LookupItem &r, candidates) {
+    for (const LookupItem &r : candidates) {
         Symbol *c = r.declaration();
 
         // Skip current if there's no declaration or name.

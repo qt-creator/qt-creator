@@ -1139,8 +1139,9 @@ void ProjectPartsModel::configure(const QList<ProjectInfo::ConstPtr> &projectInf
 {
     emit layoutAboutToBeChanged();
     m_projectPartsList.clear();
-    foreach (const ProjectInfo::ConstPtr &info, projectInfos) {
-        foreach (const ProjectPart::ConstPtr &projectPart, info->projectParts()) {
+    for (const ProjectInfo::ConstPtr &info : qAsConst(projectInfos)) {
+        const QVector<ProjectPart::ConstPtr> projectParts = info->projectParts();
+        for (const ProjectPart::ConstPtr &projectPart : projectParts) {
             if (!m_projectPartsList.contains(projectPart)) {
                 m_projectPartsList << projectPart;
                 if (projectPart == currentEditorsProjectPart)
@@ -1160,7 +1161,7 @@ QModelIndex ProjectPartsModel::indexForCurrentEditorsProjectPart() const
 
 ProjectPart::ConstPtr ProjectPartsModel::projectPartForProjectId(const QString &projectPartId) const
 {
-    foreach (const ProjectPart::ConstPtr &part, m_projectPartsList) {
+    for (const ProjectPart::ConstPtr &part : qAsConst(m_projectPartsList)) {
         if (part->id() == projectPartId)
             return part;
     }

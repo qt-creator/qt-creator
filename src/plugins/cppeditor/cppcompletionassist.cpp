@@ -790,7 +790,8 @@ Class *classFromLookupItem(const LookupItem &lookupItem, const LookupContext &co
     if (!b)
         return nullptr;
 
-    foreach (Symbol *s, b->symbols()) {
+    const QList<Symbol *> symbols = b->symbols();
+    for (Symbol *s : symbols) {
         if (Class *klass = s->asClass())
             return klass;
     }
@@ -1105,7 +1106,7 @@ bool InternalCppCompletionAssistProcessor::tryObjCCompletion()
     const QList<LookupItem> items = (*m_model->m_typeOfExpression)(expr.toUtf8(), scope);
     LookupContext lookupContext(thisDocument, m_interface->snapshot());
 
-    foreach (const LookupItem &item, items) {
+    for (const LookupItem &item : items) {
         FullySpecifiedType ty = item.type().simplified();
         if (ty->isPointerType()) {
             ty = ty->asPointerType()->elementType().simplified();
@@ -1169,12 +1170,14 @@ void InternalCppCompletionAssistProcessor::completeObjCMsgSend(ClassOrNamespace 
                                                                bool staticClassAccess)
 {
     QList<Scope*> memberScopes;
-    foreach (Symbol *s, binding->symbols()) {
+
+    const QList<Symbol *> symbols = binding->symbols();
+    for (Symbol *s : symbols) {
         if (ObjCClass *c = s->asObjCClass())
             memberScopes.append(c);
     }
 
-    foreach (Scope *scope, memberScopes) {
+    for (Scope *scope : qAsConst(memberScopes)) {
         for (int i = 0; i < scope->memberCount(); ++i) {
             Symbol *symbol = scope->memberAt(i);
 
@@ -1239,7 +1242,7 @@ bool InternalCppCompletionAssistProcessor::completeInclude(const QTextCursor &cu
 
     const QStringList suffixes = Utils::mimeTypeForName(QLatin1String("text/x-c++hdr")).suffixes();
 
-    foreach (const ProjectExplorer::HeaderPath &headerPath, headerPaths) {
+    for (const ProjectExplorer::HeaderPath &headerPath : qAsConst(headerPaths)) {
         QString realPath = headerPath.path;
         if (!directoryPrefix.isEmpty()) {
             realPath += QLatin1Char('/');
@@ -1272,7 +1275,8 @@ void InternalCppCompletionAssistProcessor::completeInclude(const QString &realPa
 
 void InternalCppCompletionAssistProcessor::completePreprocessor()
 {
-    foreach (const QString &preprocessorCompletion, preprocessorCompletions())
+    const QStringList preprocessorCompletionList = preprocessorCompletions();
+    for (const QString &preprocessorCompletion : preprocessorCompletionList)
         addCompletionItem(preprocessorCompletion);
 
     if (objcKeywordsWanted())
@@ -1351,7 +1355,7 @@ int InternalCppCompletionAssistProcessor::startCompletionInternal(const QString 
                                      TypeOfExpression::Preprocess);
 
             // If it's a class, add completions for the constructors
-            foreach (const LookupItem &result, results) {
+            for (const LookupItem &result : results) {
                 if (result.type()->isClassType()) {
                     if (completeConstructorOrFunction(results, endOfExpression, true))
                         return m_positionForProposal;
@@ -1482,7 +1486,8 @@ bool InternalCppCompletionAssistProcessor::globalCompletion(Scope *currentScope)
             break;
         processed.insert(currentBinding);
 
-        foreach (ClassOrNamespace* u, currentBinding->usings())
+        const QList<ClassOrNamespace*> usings = currentBinding->usings();
+        for (ClassOrNamespace* u : usings)
             usingBindings.append(u);
 
         const QList<Symbol *> symbols = currentBinding->symbols();
@@ -1495,7 +1500,7 @@ bool InternalCppCompletionAssistProcessor::globalCompletion(Scope *currentScope)
         }
     }
 
-    foreach (ClassOrNamespace *b, usingBindings)
+    for (ClassOrNamespace *b : qAsConst(usingBindings))
         completeNamespace(b);
 
     addKeywords();
@@ -1547,7 +1552,7 @@ bool InternalCppCompletionAssistProcessor::completeScope(const QList<LookupItem>
     if (results.isEmpty())
         return false;
 
-    foreach (const LookupItem &result, results) {
+    for (const LookupItem &result : results) {
         FullySpecifiedType ty = result.type();
         Scope *scope = result.scope();
 
@@ -1625,12 +1630,14 @@ void InternalCppCompletionAssistProcessor::completeNamespace(ClassOrNamespace *b
         QList<Scope *> scopesToVisit;
         QSet<Scope *> scopesVisited;
 
-        foreach (Symbol *bb, binding->symbols()) {
+        const QList<Symbol *> symbols = binding->symbols();
+        for (Symbol *bb : symbols) {
             if (Scope *scope = bb->asScope())
                 scopesToVisit.append(scope);
         }
 
-        foreach (Enum *e, binding->unscopedEnums())
+        const QList<Enum *> enums = binding->unscopedEnums();
+        for (Enum *e : enums)
             scopesToVisit.append(e);
 
         while (!scopesToVisit.isEmpty()) {
@@ -1665,14 +1672,16 @@ void InternalCppCompletionAssistProcessor::completeClass(ClassOrNamespace *b, bo
         QList<Scope *> scopesToVisit;
         QSet<Scope *> scopesVisited;
 
-        foreach (Symbol *bb, binding->symbols()) {
+        const QList<Symbol *> symbols = binding->symbols();
+        for (Symbol *bb : symbols) {
             if (Class *k = bb->asClass())
                 scopesToVisit.append(k);
             else if (Block *b = bb->asBlock())
                 scopesToVisit.append(b);
         }
 
-        foreach (Enum *e, binding->unscopedEnums())
+        const QList<Enum *> enums = binding->unscopedEnums();
+        for (Enum *e : enums)
             scopesToVisit.append(e);
 
         while (!scopesToVisit.isEmpty()) {
@@ -1740,7 +1749,7 @@ bool InternalCppCompletionAssistProcessor::completeQtMethod(const QList<LookupIt
     o.showFunctionSignatures = true;
 
     QSet<QString> signatures;
-    foreach (const LookupItem &lookupItem, results) {
+    for (const LookupItem &lookupItem : results) {
         ClassOrNamespace *b = classOrNamespaceFromLookupItem(lookupItem, context);
         if (!b)
             continue;
@@ -1754,7 +1763,8 @@ bool InternalCppCompletionAssistProcessor::completeQtMethod(const QList<LookupIt
             if (!processed.contains(binding)) {
                 processed.insert(binding);
 
-                foreach (Symbol *s, binding->symbols())
+                const QList<Symbol *> symbols = binding->symbols();
+                for (Symbol *s : symbols)
                     if (Class *clazz = s->asClass())
                         scopes.append(clazz);
 
@@ -1764,7 +1774,7 @@ bool InternalCppCompletionAssistProcessor::completeQtMethod(const QList<LookupIt
 
         const bool wantSignals = type == CompleteQt4Signals || type == CompleteQt5Signals;
         const bool wantQt5SignalOrSlot = type == CompleteQt5Signals || type == CompleteQt5Slots;
-        foreach (Scope *scope, scopes) {
+        for (Scope *scope : qAsConst(scopes)) {
             Class *klass = scope->asClass();
             if (!klass)
                 continue;
@@ -1821,7 +1831,7 @@ bool InternalCppCompletionAssistProcessor::completeQtMethodClassName(
     const QIcon classIcon = Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Class);
     Overview overview;
 
-    foreach (const LookupItem &lookupItem, results) {
+    for (const LookupItem &lookupItem : results) {
         Class *klass = classFromLookupItem(lookupItem, context);
         if (!klass)
             continue;
@@ -1864,7 +1874,7 @@ void InternalCppCompletionAssistProcessor::addMacros(const QString &fileName,
 
     addMacros_helper(snapshot, fileName, &processed, &definedMacros);
 
-    foreach (const QString &macroName, definedMacros)
+    for (const QString &macroName : qAsConst(definedMacros))
         addCompletionItem(macroName, Icons::macroIcon(), MacrosOrder);
 }
 
@@ -1880,10 +1890,12 @@ void InternalCppCompletionAssistProcessor::addMacros_helper(const Snapshot &snap
 
     processed->insert(doc->fileName());
 
-    foreach (const Document::Include &i, doc->resolvedIncludes())
+    const QList<Document::Include> includes = doc->resolvedIncludes();
+    for (const Document::Include &i : includes)
         addMacros_helper(snapshot, i.resolvedFileName(), processed, definedMacros);
 
-    foreach (const CPlusPlus::Macro &macro, doc->definedMacros()) {
+    const QList<CPlusPlus::Macro> macros = doc->definedMacros();
+    for (const CPlusPlus::Macro &macro : macros) {
         const QString macroName = macro.nameToQString();
         if (!macro.isHidden())
             definedMacros->insert(macroName);
@@ -1899,7 +1911,7 @@ bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const Q
     const LookupContext &context = m_model->m_typeOfExpression->context();
     QList<Function *> functions;
 
-    foreach (const LookupItem &result, results) {
+    for (const LookupItem &result : results) {
         FullySpecifiedType exprTy = result.type().simplified();
 
         if (Class *klass = asClassOrTemplateClassType(exprTy)) {
@@ -1930,7 +1942,7 @@ bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const Q
     }
 
     if (functions.isEmpty()) {
-        foreach (const LookupItem &result, results) {
+        for (const LookupItem &result : results) {
             FullySpecifiedType ty = result.type().simplified();
 
             if (Function *fun = asFunctionOrTemplateFunctionType(ty)) {
@@ -1945,7 +1957,7 @@ bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const Q
 
                 bool newOverload = true;
 
-                foreach (Function *f, functions) {
+                for (Function *f : qAsConst(functions)) {
                     if (fun->match(f)) {
                         newOverload = false;
                         break;
@@ -1961,13 +1973,14 @@ bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const Q
     if (functions.isEmpty()) {
         const Name *functionCallOp = context.bindings()->control()->operatorNameId(OperatorNameId::FunctionCallOp);
 
-        foreach (const LookupItem &result, results) {
+        for (const LookupItem &result : results) {
             FullySpecifiedType ty = result.type().simplified();
             Scope *scope = result.scope();
 
             if (NamedType *namedTy = ty->asNamedType()) {
                 if (ClassOrNamespace *b = context.lookupType(namedTy->name(), scope)) {
-                    foreach (const LookupItem &r, b->lookup(functionCallOp)) {
+                    const QList<LookupItem> items = b->lookup(functionCallOp);
+                    for (const LookupItem &r : items) {
                         Symbol *overload = r.declaration();
                         FullySpecifiedType overloadTy = overload->type().simplified();
 
@@ -2057,7 +2070,7 @@ bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const Q
                 Control *control = context.bindings()->control().data();
 
                 // set up signature autocompletion
-                foreach (Function *f, functions) {
+                for (Function *f : qAsConst(functions)) {
                     Overview overview;
                     overview.showArgumentNames = true;
                     overview.showDefaultArguments = false;

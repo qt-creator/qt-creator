@@ -77,7 +77,7 @@ public:
     QMimeData *mimeData(const QModelIndexList &indexes) const override
     {
         auto mimeData = new Utils::DropMimeData;
-        foreach (const QModelIndex &index, indexes) {
+        for (const QModelIndex &index : indexes) {
             const QVariant fileName = data(index, FileNameRole);
             if (!fileName.canConvert<QString>())
                 continue;

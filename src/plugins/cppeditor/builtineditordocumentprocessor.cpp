@@ -62,7 +62,7 @@ QList<QTextEdit::ExtraSelection> toTextEditorSelections(
     QTextCharFormat errorFormat = fontSettings.toTextCharFormat(TextEditor::C_ERROR);
 
     QList<QTextEdit::ExtraSelection> result;
-    foreach (const CPlusPlus::Document::DiagnosticMessage &m, diagnostics) {
+    for (const CPlusPlus::Document::DiagnosticMessage &m : diagnostics) {
         QTextEdit::ExtraSelection sel;
         if (m.isWarning())
             sel.format = warningFormat;
@@ -108,7 +108,8 @@ CheckSymbols *createHighlighter(const CPlusPlus::Document::Ptr &doc,
     using Utils::Text::convertPosition;
 
     // Get macro definitions
-    foreach (const CPlusPlus::Macro& macro, doc->definedMacros()) {
+    const QList<CPlusPlus::Macro> definedMacros = doc->definedMacros();
+    for (const CPlusPlus::Macro &macro : definedMacros) {
         int line, column;
         convertPosition(textDocument, macro.utf16CharOffset(), &line, &column);
 
@@ -119,7 +120,8 @@ CheckSymbols *createHighlighter(const CPlusPlus::Document::Ptr &doc,
     const LanguageFeatures features = doc->languageFeatures();
 
     // Get macro uses
-    foreach (const Document::MacroUse &macro, doc->macroUses()) {
+    const QList<Document::MacroUse> macroUseList = doc->macroUses();
+    for (const Document::MacroUse &macro : macroUseList) {
         const QString name = macro.macro().nameToQString();
 
         //Filter out QtKeywords
@@ -150,7 +152,7 @@ QList<TextEditor::BlockRange> toTextEditorBlocks(
 {
     QList<TextEditor::BlockRange> result;
     result.reserve(skippedBlocks.size());
-    foreach (const CPlusPlus::Document::Block &block, skippedBlocks)
+    for (const CPlusPlus::Document::Block &block : skippedBlocks)
         result.append(TextEditor::BlockRange(block.utf16charsBegin(), block.utf16charsEnd()));
     return result;
 }

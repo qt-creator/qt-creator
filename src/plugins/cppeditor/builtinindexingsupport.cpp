@@ -95,7 +95,8 @@ public:
         using namespace CPlusPlus;
         const QString fileName = document->fileName();
 
-        foreach (const Document::DiagnosticMessage &message, document->diagnosticMessages()) {
+        const QList<Document::DiagnosticMessage> messages = document->diagnosticMessages();
+        for (const Document::DiagnosticMessage &message : messages) {
             ++m_processedDiagnostics;
 
             QString type;
@@ -125,7 +126,7 @@ private:
 
 void classifyFiles(const QSet<QString> &files, QStringList *headers, QStringList *sources)
 {
-    foreach (const QString &file, files) {
+    for (const QString &file : files) {
         if (ProjectFile::isSource(ProjectFile::classify(file)))
             sources->append(file);
         else
@@ -189,7 +190,7 @@ void index(QFutureInterface<void> &indexingFuture,
     QStringList headers;
     classifyFiles(params.sourceFiles, &headers, &sources);
 
-    foreach (const QString &file, params.sourceFiles)
+    for (const QString &file : qAsConst(params.sourceFiles))
         sourceProcessor->removeFromCache(file);
 
     const int sourceCount = sources.size();

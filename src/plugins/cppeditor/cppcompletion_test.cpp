@@ -277,7 +277,7 @@ void CompletionTest::testCompletionTemplateFunction()
 
     QStringList actualCompletions = test.getCompletions();
     QString errorPattern(QLatin1String("Completion not found: %1"));
-    foreach (const QString &completion, expectedCompletions) {
+    for (const QString &completion : qAsConst(expectedCompletions))  {
         QByteArray errorMessage = errorPattern.arg(completion).toUtf8();
         QVERIFY2(actualCompletions.contains(completion), errorMessage.data());
     }
@@ -371,7 +371,7 @@ void CompletionTest::testGlobalCompletion_data()
                                     "<REPLACEMENT>\n"
                                     "@\n";
     const QStringList replacements = QStringList({"// text", "// text.", "/// text", "/// text."});
-    foreach (const QString &replacement, replacements) {
+    for (const QString &replacement : replacements) {
         QByteArray code = codeTemplate;
         code.replace("<REPLACEMENT>", replacement.toUtf8());
         const QByteArray tag = _("completion after comment: ") + replacement.toUtf8();

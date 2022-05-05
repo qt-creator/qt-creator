@@ -307,7 +307,7 @@ void CppCodeStylePreferencesWidget::updatePreview()
     const CppCodeStyleSettings ccss = cppCodeStylePreferences->currentCodeStyleSettings();
     const TabSettings ts = cppCodeStylePreferences->currentTabSettings();
     QtStyleCodeFormatter formatter(ts, ccss);
-    foreach (SnippetEditorWidget *preview, m_previews) {
+    for (SnippetEditorWidget *preview : qAsConst(m_previews)) {
         preview->textDocument()->setTabSettings(ts);
         preview->setCodeStyle(cppCodeStylePreferences);
 
@@ -329,7 +329,7 @@ void CppCodeStylePreferencesWidget::updatePreview()
 
 void CppCodeStylePreferencesWidget::decorateEditors(const FontSettings &fontSettings)
 {
-    foreach (SnippetEditorWidget *editor, m_previews) {
+    for (SnippetEditorWidget *editor : qAsConst(m_previews)) {
         editor->textDocument()->setFontSettings(fontSettings);
         SnippetProvider::decorateEditor(editor, CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
     }
@@ -337,7 +337,7 @@ void CppCodeStylePreferencesWidget::decorateEditors(const FontSettings &fontSett
 
 void CppCodeStylePreferencesWidget::setVisualizeWhitespace(bool on)
 {
-    foreach (SnippetEditorWidget *editor, m_previews) {
+    for (SnippetEditorWidget *editor : qAsConst(m_previews)) {
         DisplaySettings displaySettings = editor->displaySettings();
         displaySettings.m_visualizeWhitespace = on;
         editor->setDisplaySettings(displaySettings);
