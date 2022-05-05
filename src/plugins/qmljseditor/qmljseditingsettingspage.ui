@@ -93,12 +93,26 @@
        </widget>
       </item>
       <item>
-      <widget class="QCheckBox" name="openUiQmlFilesInQDS">
-       <property name="text">
-        <string>Open .ui.qml files in Qt Design Studio</string>
-       </property>
-      </widget>
-     </item>
+       <layout class="QHBoxLayout" name="uiQmlLayout">
+        <item alignment="Qt::AlignLeft">
+         <widget class="QLabel" name="uiQmlOpenLabel">
+          <property name="text">
+           <string>Open .ui.qml files with:</string>
+          </property>
+         </widget>
+        </item>
+        <item alignment="Qt::AlignLeft">
+         <widget class="QComboBox" name="uiQmlOpenComboBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
      </layout>
     </widget>
    </item>
