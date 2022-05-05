@@ -31,10 +31,7 @@
 
 namespace CMakeProjectManager {
 
-namespace Internal {
-class CMakeProjectImporter;
-class CMakeBuildSystem;
-}
+namespace Internal { class CMakeProjectImporter; }
 
 class CMAKE_EXPORT CMakeProject final : public ProjectExplorer::Project
 {
@@ -61,8 +58,6 @@ private:
                                                            const QString &installRoot) override;
 
     mutable Internal::CMakeProjectImporter *m_projectImporter = nullptr;
-
-    friend class Internal::CMakeBuildSystem;
 
     ProjectExplorer::Tasks m_issues;
 };
