@@ -40,6 +40,7 @@ Project {
         "emacskeys/emacskeys.qbs",
         "genericprojectmanager/genericprojectmanager.qbs",
         "git/git.qbs",
+        "gitlab/gitlab.qbs",
         "glsleditor/glsleditor.qbs",
         "helloworld/helloworld.qbs",
         "help/help.qbs",

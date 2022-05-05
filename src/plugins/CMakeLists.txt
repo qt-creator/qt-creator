@@ -62,6 +62,7 @@ add_subdirectory(languageclient)
 add_subdirectory(cmakeprojectmanager)
 add_subdirectory(debugger)
 add_subdirectory(coco)
+add_subdirectory(gitlab)
 
 # Level 7:
 add_subdirectory(android)
