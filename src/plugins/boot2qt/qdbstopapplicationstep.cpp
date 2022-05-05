@@ -27,13 +27,15 @@
 
 #include "qdbconstants.h"
 
-#include <projectexplorer/applicationlauncher.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
 #include <remotelinux/abstractremotelinuxdeploystep.h>
+
+#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -52,8 +54,7 @@ public:
     ~QdbStopApplicationService() { cleanup(); }
 
 private:
-    void handleProcessFinished();
-    void handleAppendMessage(const QString &message, OutputFormat format);
+    void handleProcessDone();
 
     bool isDeploymentNecessary() const final { return true; }
 
@@ -62,16 +63,22 @@ private:
 
     void cleanup();
 
-    ApplicationLauncher m_applicationLauncher;
+    QtcProcess m_process;
     QString m_errorOutput;
 };
 
-void QdbStopApplicationService::handleProcessFinished()
+void QdbStopApplicationService::handleProcessDone()
 {
     const QString failureMessage = tr("Could not check and possibly stop running application.");
-    if (m_applicationLauncher.exitStatus() == QProcess::CrashExit) {
+
+    if (m_process.exitStatus() == QProcess::CrashExit) {
         emit errorMessage(failureMessage);
         stopDeployment();
+        return;
+    }
+
+    if (m_process.result() != ProcessResult::FinishedWithSuccess) {
+        emit stdErrData(m_process.errorString());
         return;
     }
 
@@ -87,30 +94,24 @@ void QdbStopApplicationService::handleProcessFinished()
     stopDeployment();
 }
 
-void QdbStopApplicationService::handleAppendMessage(const QString &message, OutputFormat format)
-{
-    if (format == StdErrFormat)
-        m_errorOutput.append(message);
-    else
-        emit stdOutData(message);
-}
-
 void QdbStopApplicationService::doDeploy()
 {
-    connect(&m_applicationLauncher, &ApplicationLauncher::errorOccurred,
-            this, [this] { emit stdErrData(m_applicationLauncher.errorString()); });
-    connect(&m_applicationLauncher, &ApplicationLauncher::finished,
-            this, &QdbStopApplicationService::handleProcessFinished);
-    connect(&m_applicationLauncher, &ApplicationLauncher::appendMessage,
-            this, &QdbStopApplicationService::handleAppendMessage);
+    auto device = DeviceKitAspect::device(target()->kit());
+    QTC_ASSERT(device, return);
 
-    Runnable runnable;
-    runnable.command = {Constants::AppcontrollerFilepath, {"--stop"}};
-    runnable.workingDirectory = "/usr/bin";
-    runnable.device = DeviceKitAspect::device(target()->kit());
+    connect(&m_process, &QtcProcess::done,
+            this, &QdbStopApplicationService::handleProcessDone);
 
-    m_applicationLauncher.setRunnable(runnable);
-    m_applicationLauncher.start();
+    connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
+        m_errorOutput.append(QString::fromUtf8(m_process.readAllStandardError()));
+    });
+    connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
+        emit stdOutData(QString::fromUtf8(m_process.readAllStandardOutput()));
+    });
+
+    m_process.setCommand({device->mapToGlobalPath(Constants::AppcontrollerFilepath), {"--stop"}});
+    m_process.setWorkingDirectory("/usr/bin");
+    m_process.start();
 }
 
 void QdbStopApplicationService::stopDeployment()
@@ -121,7 +122,7 @@ void QdbStopApplicationService::stopDeployment()
 
 void QdbStopApplicationService::cleanup()
 {
-    m_applicationLauncher.disconnect(this);
+    m_process.close();
 }
 
 
