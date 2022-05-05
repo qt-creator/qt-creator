@@ -175,7 +175,8 @@ Class *isMemberFunction(const LookupContext &context, Function *function)
         return nullptr;
 
     if (ClassOrNamespace *binding = context.lookupType(q->base(), enclosingScope)) {
-        foreach (Symbol *s, binding->symbols()) {
+        const QList<Symbol *> symbols = binding->symbols();
+        for (Symbol *s : symbols) {
             if (Class *matchingClass = s->asClass())
                 return matchingClass;
         }
@@ -201,7 +202,8 @@ Namespace *isNamespaceFunction(const LookupContext &context, Function *function)
 
     // global namespace
     if (!functionName->isQualifiedNameId()) {
-        foreach (Symbol *s, context.globalNamespace()->symbols()) {
+        const QList<Symbol *> symbols = context.globalNamespace()->symbols();
+        for (Symbol *s : symbols) {
             if (Namespace *matchingNamespace = s->asNamespace())
                 return matchingNamespace;
         }
@@ -213,7 +215,8 @@ Namespace *isNamespaceFunction(const LookupContext &context, Function *function)
         return nullptr;
 
     if (ClassOrNamespace *binding = context.lookupType(q->base(), enclosingScope)) {
-        foreach (Symbol *s, binding->symbols()) {
+        const QList<Symbol *> symbols = binding->symbols();
+        for (Symbol *s : symbols) {
             if (Namespace *matchingNamespace = s->asNamespace())
                 return matchingNamespace;
         }
@@ -1337,7 +1340,8 @@ void TranslateStringLiteral::match(const CppQuickFixInterface &interface,
             ClassOrNamespace *b = interface.context().lookupType(function);
             if (b) {
                 // Do we have a tr function?
-                foreach (const LookupItem &r, b->find(trName)) {
+                const QList<LookupItem> items = b->find(trName);
+                for (const LookupItem &r : items) {
                     Symbol *s = r.declaration();
                     if (s->type()->isFunctionType()) {
                         // no context required for tr
@@ -1351,7 +1355,8 @@ void TranslateStringLiteral::match(const CppQuickFixInterface &interface,
             // We need to do a QCA::translate, so we need a context.
             // Use fully qualified class name:
             Overview oo;
-            foreach (const Name *n, LookupContext::path(function)) {
+            const QList<const Name *> names = LookupContext::path(function);
+            for (const Name *n : names) {
                 if (!trContext.isEmpty())
                     trContext.append(QLatin1String("::"));
                 trContext.append(oo.prettyName(n));
@@ -1669,7 +1674,7 @@ void AddLocalDeclaration::match(const CppQuickFixInterface &interface, QuickFixO
                     SimpleNameAST *nameAST = idExpr->name->asSimpleName();
                     const QList<LookupItem> results = interface.context().lookup(nameAST->name, file->scopeAt(nameAST->firstToken()));
                     Declaration *decl = nullptr;
-                    foreach (const LookupItem &r, results) {
+                    for (const LookupItem &r : results) {
                         if (!r.declaration())
                             continue;
                         if (Declaration *d = r.declaration()->asDeclaration()) {
@@ -1875,7 +1880,7 @@ QString findShortestInclude(const QString currentDocumentFilePath,
     if (fileInfo.path() == QFileInfo(currentDocumentFilePath).path()) {
         result = QLatin1Char('"') + fileInfo.fileName() + QLatin1Char('"');
     } else {
-        foreach (const ProjectExplorer::HeaderPath &headerPath, headerPaths) {
+        for (const ProjectExplorer::HeaderPath &headerPath : headerPaths) {
             if (!candidateFilePath.startsWith(headerPath.path))
                 continue;
             QString relativePath = candidateFilePath.mid(headerPath.path.size());
@@ -1914,7 +1919,7 @@ ProjectExplorer::HeaderPaths relevantHeaderPaths(const QString &filePath)
     if (projectParts.isEmpty()) { // Not part of any project, better use all include paths than none
         headerPaths += modelManager->headerPaths();
     } else {
-        foreach (const ProjectPart::ConstPtr &part, projectParts)
+        for (const ProjectPart::ConstPtr &part : projectParts)
             headerPaths += part->headerPaths;
     }
 
@@ -1960,7 +1965,7 @@ LookupResult lookUpDefinition(const CppQuickFixInterface &interface, const NameA
     // Try to find the class/template definition
     const Name *name = nameAst->name;
     const QList<LookupItem> results = interface.context().lookup(name, scope);
-    foreach (const LookupItem &item, results) {
+    for (const LookupItem &item : results) {
         if (Symbol *declaration = item.declaration()) {
             if (declaration->isClass())
                 return LookupResult::Declared;
@@ -1991,7 +1996,8 @@ Snapshot forwardingHeaders(const CppQuickFixInterface &interface)
 {
     Snapshot result;
 
-    foreach (Document::Ptr doc, interface.snapshot()) {
+    const Snapshot docs = interface.snapshot();
+    for (Document::Ptr doc : docs) {
         if (doc->globalSymbolCount() == 0 && doc->resolvedIncludes().size() == 1)
             result.insert(doc);
     }
@@ -2063,7 +2069,7 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
     if (matchName(nameAst->name, &matches, &className)) {
         QList<IndexItem::Ptr> indexItems;
         const Snapshot forwardHeaders = forwardingHeaders(interface);
-        foreach (const Core::LocatorFilterEntry &entry, matches) {
+        for (const Core::LocatorFilterEntry &entry : qAsConst(matches)) {
             IndexItem::Ptr info = entry.internalData.value<IndexItem::Ptr>();
             if (!info || info->symbolName() != className)
                 continue;
@@ -2075,7 +2081,7 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
             headerAndItsForwardingHeaders << Utils::FilePath::fromString(info->fileName());
             headerAndItsForwardingHeaders += localForwardHeaders.filesDependingOn(info->fileName());
 
-            foreach (const Utils::FilePath &header, headerAndItsForwardingHeaders) {
+            for (const Utils::FilePath &header : qAsConst(headerAndItsForwardingHeaders)) {
                 const QString include = findShortestInclude(currentDocumentFilePath,
                                                             header.toString(),
                                                             headerPaths);
@@ -2328,7 +2334,7 @@ void ReformatPointerDeclaration::match(const CppQuickFixInterface &interface,
     } else {
         const QList<AST *> suitableASTs
             = ReformatPointerDeclarationASTPathResultsFilter().filter(path);
-        foreach (AST *ast, suitableASTs) {
+        for (AST *ast : suitableASTs) {
             change = formatter.format(ast);
             if (!change.isEmpty()) {
                 result << new ReformatPointerDeclarationOp(interface, change);
@@ -2421,7 +2427,7 @@ public:
 
 static Enum *findEnum(const QList<LookupItem> &results, const LookupContext &ctxt)
 {
-    foreach (const LookupItem &result, results) {
+    for (const LookupItem &result : results) {
         const FullySpecifiedType fst = result.type();
 
         Type *type = result.declaration() ? result.declaration()->type().type()
@@ -2442,7 +2448,7 @@ static Enum *findEnum(const QList<LookupItem> &results, const LookupContext &ctx
                 const Name *referenceName = namedType->name();
                 if (const QualifiedNameId *qualifiedName = referenceName->asQualifiedNameId())
                     referenceName = qualifiedName->name();
-                foreach (Enum *e, enums) {
+                for (Enum *e : qAsConst(enums)) {
                     if (const Name *candidateName = e->name()) {
                         if (candidateName->match(referenceName))
                             return e;
@@ -2505,9 +2511,9 @@ void CompleteSwitchCaseStatement::match(const CppQuickFixInterface &interface,
                 Block *block = switchStatement->symbol;
                 CaseStatementCollector caseValues(interface.semanticInfo().doc, interface.snapshot(),
                                                   interface.semanticInfo().doc->scopeAt(block->line(), block->column()));
-                QStringList usedValues = caseValues(switchStatement);
+                const QStringList usedValues = caseValues(switchStatement);
                 // save the values that would be added
-                foreach (const QString &usedValue, usedValues)
+                for (const QString &usedValue : usedValues)
                     values.removeAll(usedValue);
                 if (!values.isEmpty())
                     result << new CompleteSwitchCaseStatementOp(interface, depth,
@@ -2893,8 +2899,8 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                                 // find appropriate implementation file, but do not use this
                                 // location, because insertLocationForMethodDefinition() should
                                 // be used in perform() to get consistent insert positions.
-                                foreach (const InsertionLocation &location,
-                                         locator.methodDefinition(decl, false, QString())) {
+                                for (const InsertionLocation &location :
+                                     locator.methodDefinition(decl, false, QString())) {
                                     if (!location.isValid())
                                         continue;
 
@@ -5299,7 +5305,7 @@ void ExtractFunction::match(const CppQuickFixInterface &interface, QuickFixOpera
         bool usedAfterExtraction = false;
         bool usedInsideExtraction = false;
         const QList<SemanticInfo::Use> &uses = it.value();
-        foreach (const SemanticInfo::Use &use, uses) {
+        for (const SemanticInfo::Use &use : uses) {
             if (use.isInvalid())
                 continue;
 
@@ -5781,7 +5787,8 @@ private:
 
         // Fix all occurrences of the identifier in this function.
         ASTPath astPath(m_document);
-        foreach (const SemanticInfo::Use &use, semanticInfo().localUses.value(m_symbol)) {
+        const QList<SemanticInfo::Use> uses = semanticInfo().localUses.value(m_symbol);
+        for (const SemanticInfo::Use &use : uses) {
             const QList<AST *> path = astPath(use.line, use.column);
             AST *idAST = path.last();
             bool declarationFound = false;
@@ -5903,7 +5910,8 @@ private:
 
         // Fix all occurrences of the identifier in this function.
         ASTPath astPath(m_document);
-        foreach (const SemanticInfo::Use &use, semanticInfo().localUses.value(m_symbol)) {
+        const QList<SemanticInfo::Use> uses = semanticInfo().localUses.value(m_symbol);
+        for (const SemanticInfo::Use &use : uses) {
             const QList<AST *> path = astPath(use.line, use.column);
             AST *idAST = path.last();
             bool insertStar = true;
@@ -6894,7 +6902,7 @@ void AssignToLocalVariable::match(const CppQuickFixInterface &interface, QuickFi
                                      TypeOfExpression::Preprocess);
         }
 
-        foreach (const LookupItem &item, items) {
+        for (const LookupItem &item : qAsConst(items)) {
             if (!item.declaration())
                 continue;
 
@@ -7310,7 +7318,7 @@ private:
 
 Symbol *skipForwardDeclarations(const QList<Symbol *> &symbols)
 {
-    foreach (Symbol *symbol, symbols) {
+    for (Symbol *symbol : symbols) {
         if (!symbol->type()->isForwardClassDeclarationType())
             return symbol;
     }
@@ -7342,7 +7350,7 @@ bool findRawAccessFunction(Class *klass, PointerType *pointerType, QString *objA
         break;
     default:
         // Multiple candidates - prefer a function named data
-        foreach (Function *func, candidates) {
+        for (Function *func : qAsConst(candidates)) {
             if (!strcmp(func->name()->identifier()->chars(), "data")) {
                 funcName = func->name();
                 break;

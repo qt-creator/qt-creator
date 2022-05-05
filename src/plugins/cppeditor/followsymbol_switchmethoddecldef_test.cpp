@@ -271,7 +271,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
     CppEditor::Tests::TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
     QString projectFileContent = "CppApplication { files: [";
-    foreach (TestDocumentPtr testFile, testFiles) {
+   for (TestDocumentPtr testFile : testFiles) {
         QVERIFY(testFile->baseDirectory().isEmpty());
         testFile->setBaseDirectory(temporaryDir.path());
         QVERIFY(testFile->writeToDisk());
@@ -306,12 +306,12 @@ F2TestCase::F2TestCase(CppEditorAction action,
 
     // Update Code Model
     QSet<QString> filePaths;
-    foreach (const TestDocumentPtr &testFile, testFiles)
+   for (const TestDocumentPtr &testFile : testFiles)
         filePaths << testFile->filePath();
     QVERIFY(parseFiles(filePaths));
 
     // Open Files
-    foreach (TestDocumentPtr testFile, testFiles) {
+   for (TestDocumentPtr testFile : testFiles) {
         QVERIFY(openCppEditor(testFile->filePath(), &testFile->m_editor,
                               &testFile->m_editorWidget));
         if (!useClangd) // Editors get closed when unloading project.
@@ -481,7 +481,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
 
 TestDocumentPtr F2TestCase::testFileWithInitialCursorMarker(const QList<TestDocumentPtr> &testFiles)
 {
-    foreach (const TestDocumentPtr testFile, testFiles) {
+   for (const TestDocumentPtr &testFile : testFiles) {
         if (testFile->hasCursorMarker())
             return testFile;
     }
@@ -490,7 +490,7 @@ TestDocumentPtr F2TestCase::testFileWithInitialCursorMarker(const QList<TestDocu
 
 TestDocumentPtr F2TestCase::testFileWithTargetCursorMarker(const QList<TestDocumentPtr> &testFiles)
 {
-    foreach (const TestDocumentPtr testFile, testFiles) {
+   for (const TestDocumentPtr &testFile : testFiles) {
         if (testFile->hasTargetCursorMarker())
             return testFile;
     }

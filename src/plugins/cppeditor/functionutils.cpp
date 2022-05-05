@@ -128,10 +128,10 @@ static bool isVirtualFunction_helper(const Function *function,
     if (!firstVirtuals && res != Unknown)
         return res == True;
 
-    QList<LookupItem> results = context.lookup(function->name(), function->enclosingScope());
+    const QList<LookupItem> results = context.lookup(function->name(), function->enclosingScope());
     if (!results.isEmpty()) {
         const bool isDestructor = function->name()->isDestructorNameId();
-        foreach (const LookupItem &item, results) {
+        for (const LookupItem &item : results) {
             if (Symbol *symbol = item.declaration()) {
                 if (Function *functionType = symbol->type()->asFunctionType()) {
                     if (functionType->name()->isDestructorNameId() != isDestructor)
@@ -197,7 +197,7 @@ QList<Function *> FunctionUtils::overrides(Function *function, Class *functionsC
         Class *c = hierarchy.symbol()->asClass();
         QTC_ASSERT(c, continue);
 
-        foreach (const TypeHierarchy &t, hierarchy.hierarchy()) {
+        for (const TypeHierarchy &t : hierarchy.hierarchy()) {
             if (!l.contains(t))
                 l << t;
         }

@@ -154,17 +154,18 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
     QList<QPointer<ProjectExplorer::Project> > projects;
     const QList<ProjectInfo::ConstPtr> projectInfos = m_modelManager->projectInfos();
 
-    foreach (const ProjectInfo::ConstPtr &info, projectInfos) {
+   for (const ProjectInfo::ConstPtr &info : projectInfos) {
         qDebug() << "Project" << info->projectFilePath().toUserOutput() << "- files to process:"
                  << info->sourceFiles().size();
-        foreach (const QString &sourceFile, info->sourceFiles())
+       const QSet<QString> sourceFiles = info->sourceFiles();
+       for (const QString &sourceFile : sourceFiles)
             filesToOpen << sourceFile;
     }
 
     Utils::sort(filesToOpen);
 
     // Process all files from the projects
-    foreach (const QString filePath, filesToOpen) {
+    for (const QString &filePath : qAsConst(filesToOpen)) {
         // Skip e.g. "<configuration>"
         if (!QFileInfo::exists(filePath))
             continue;
@@ -260,16 +261,17 @@ void TestActionsTestCase::undoChangesInDocument(TextDocument *editorDocument)
 
 void TestActionsTestCase::undoChangesInAllEditorWidgets()
 {
-    foreach (IDocument *document, DocumentModel::openedDocuments()) {
+   const QList<IDocument *> documents = DocumentModel::openedDocuments();
+   for (IDocument *document : documents) {
         TextDocument *baseTextDocument = qobject_cast<TextDocument *>(document);
         undoChangesInDocument(baseTextDocument);
     }
 }
 
 void TestActionsTestCase::executeActionsOnEditorWidget(CppEditorWidget *editorWidget,
-                                                        TestActionsTestCase::Actions actions)
+                                                       TestActionsTestCase::Actions actions)
 {
-    foreach (const ActionPointer &action, actions)
+    for (const ActionPointer &action : qAsConst(actions))
         action->run(editorWidget);
     QApplication::processEvents();
 }
@@ -461,7 +463,7 @@ void RunAllQuickFixesTokenAction::run(CppEditorWidget *editorWidget)
             cppQuickFixFactory->match(qfi, operations);
         }
 
-        foreach (QuickFixOperation::Ptr operation, operations) {
+        for (QuickFixOperation::Ptr operation : qAsConst(operations)) {
             qDebug() << "    -- Performing Quick Fix" << operation->description();
             operation->perform();
             TestActionsTestCase::escape();

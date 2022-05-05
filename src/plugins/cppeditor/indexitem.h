@@ -99,7 +99,7 @@ public:
     VisitorResult visitAllChildren(Visitor callback) const
     {
         VisitorResult result = Recurse;
-        foreach (const IndexItem::Ptr &child, m_children) {
+        for (const IndexItem::Ptr &child : qAsConst(m_children)) {
             result = callback(child);
             switch (result) {
             case Break:

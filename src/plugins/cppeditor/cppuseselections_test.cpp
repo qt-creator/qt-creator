@@ -122,7 +122,7 @@ SelectionList UseSelectionsTestCase::toSelectionList(
         const QList<QTextEdit::ExtraSelection> &extraSelections) const
 {
     SelectionList result;
-    foreach (const QTextEdit::ExtraSelection &selection, extraSelections) {
+    for (const QTextEdit::ExtraSelection &selection : extraSelections) {
         int line, column;
         const int position = qMin(selection.cursor.position(), selection.cursor.anchor());
         m_editorWidget->convertPosition(position, &line, &column);

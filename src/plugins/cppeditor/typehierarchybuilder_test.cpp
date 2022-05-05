@@ -56,7 +56,7 @@ QString toString(const TypeHierarchy &hierarchy, int indent = 0)
     Utils::sort(sortedHierarchy, [&oo](const TypeHierarchy &h1, const TypeHierarchy &h2) -> bool {
         return oo.prettyName(h1.symbol()->name()) < oo.prettyName(h2.symbol()->name());
     });
-    foreach (TypeHierarchy childHierarchy, sortedHierarchy)
+    for (const TypeHierarchy &childHierarchy : qAsConst(sortedHierarchy))
         result += toString(childHierarchy, indent + 2);
     return result;
 }

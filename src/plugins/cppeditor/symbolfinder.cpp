@@ -172,7 +172,8 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
     }
 
     Hit best;
-    foreach (const QString &fileName, fileIterationOrder(declFile, snapshot)) {
+    const QStringList fileNames = fileIterationOrder(declFile, snapshot);
+    for (const QString &fileName : fileNames) {
         Document::Ptr doc = snapshot.document(fileName);
         if (!doc) {
             clearCache(declFile, fileName);
@@ -251,7 +252,8 @@ Symbol *SymbolFinder::findMatchingVarDefinition(Symbol *declaration, const Snaps
     using SymbolWithPriority = QPair<Symbol *, bool>;
     QList<SymbolWithPriority> candidates;
     QList<SymbolWithPriority> fallbacks;
-    foreach (const QString &fileName, fileIterationOrder(declFile, snapshot)) {
+    const QStringList fileNames = fileIterationOrder(declFile, snapshot);
+    for (const QString &fileName : fileNames) {
         Document::Ptr doc = snapshot.document(fileName);
         if (!doc) {
             clearCache(declFile, fileName);
@@ -320,7 +322,8 @@ Class *SymbolFinder::findMatchingClassDeclaration(Symbol *declaration, const Sna
 
     QString declFile = QString::fromUtf8(declaration->fileName(), declaration->fileNameLength());
 
-    foreach (const QString &file, fileIterationOrder(declFile, snapshot)) {
+    const QStringList fileNames = fileIterationOrder(declFile, snapshot);
+    for (const QString &file : fileNames) {
         Document::Ptr doc = snapshot.document(file);
         if (!doc) {
             clearCache(declFile, file);
@@ -337,7 +340,8 @@ Class *SymbolFinder::findMatchingClassDeclaration(Symbol *declaration, const Sna
         if (!type)
             continue;
 
-        foreach (Symbol *s, type->symbols()) {
+        const QList<Symbol *> symbols = type->symbols();
+        for (Symbol *s : symbols) {
             if (Class *c = s->asClass())
                 return c;
         }
@@ -411,7 +415,8 @@ void SymbolFinder::findMatchingDeclaration(const LookupContext &context,
         operatorNameId = onid->kind();
     }
 
-    foreach (Symbol *s, binding->symbols()) {
+    const QList<Symbol *> symbols = binding->symbols();
+    for (Symbol *s : symbols) {
         Scope *scope = s->asScope();
         if (!scope)
             continue;
@@ -460,7 +465,7 @@ QStringList SymbolFinder::fileIterationOrder(const QString &referenceFile, const
     if (m_filePriorityCache.contains(referenceFile)) {
         checkCacheConsistency(referenceFile, snapshot);
     } else {
-        foreach (Document::Ptr doc, snapshot)
+        for (Document::Ptr doc : snapshot)
             insertCache(referenceFile, doc->fileName());
     }
 
@@ -484,7 +489,7 @@ void SymbolFinder::checkCacheConsistency(const QString &referenceFile, const Sna
     // The counterpart validation for "old" files is done when one tries to access the
     // corresponding document and notices it's now null.
     const QSet<QString> &meta = m_fileMetaCache.value(referenceFile);
-    foreach (const Document::Ptr &doc, snapshot) {
+    for (const Document::Ptr &doc : snapshot) {
         if (!meta.contains(doc->fileName()))
             insertCache(referenceFile, doc->fileName());
     }

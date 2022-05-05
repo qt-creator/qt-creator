@@ -119,7 +119,7 @@ void GeneratedCodeModelSupport::update(const QList<ProjectExplorer::ExtraCompile
 
     CppModelManager * const mm = CppModelManager::instance();
 
-    foreach (ExtraCompiler *generator, generators) {
+    for (ExtraCompiler *generator : generators) {
         if (extraCompilerCache.contains(generator))
             continue;
 

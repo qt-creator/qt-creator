@@ -139,7 +139,7 @@ LineForNewIncludeDirective::LineForNewIncludeDirective(const QTextDocument *text
 
     // Ignore *.moc includes if requested
     if (mocIncludeMode == IgnoreMocIncludes) {
-        foreach (const Document::Include &include, includes) {
+        for (const Document::Include &include : qAsConst(includes)) {
             if (!include.unresolvedFileName().endsWith(QLatin1String(".moc")))
                 m_includes << include;
         }
@@ -179,7 +179,7 @@ int LineForNewIncludeDirective::findInsertLineForVeryFirstInclude(unsigned *newL
     const QByteArray includeGuardMacroName = m_cppDocument->includeGuardMacroName();
     if (!includeGuardMacroName.isEmpty()) {
         const QList<Macro> definedMacros = m_cppDocument->definedMacros();
-        foreach (const Macro &definedMacro, definedMacros) {
+        for (const Macro &definedMacro : definedMacros) {
             if (definedMacro.name() == includeGuardMacroName) {
                 if (newLinesToPrepend)
                     *newLinesToPrepend = 1;
@@ -256,7 +256,7 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
 
     IncludeGroups groupsSameIncludeDir;
     IncludeGroups groupsMixedIncludeDirs;
-    foreach (const IncludeGroup &group, groupsMatchingIncludeType) {
+    for (const IncludeGroup &group : qAsConst(groupsMatchingIncludeType)) {
         if (group.hasCommonIncludeDir())
             groupsSameIncludeDir << group;
         else
@@ -264,7 +264,7 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
     }
 
     IncludeGroups groupsMatchingIncludeDir;
-    foreach (const IncludeGroup &group, groupsSameIncludeDir) {
+    for (const IncludeGroup &group : qAsConst(groupsSameIncludeDir)) {
         if (group.commonIncludeDir() == includeDir(pureIncludeFileName))
             groupsMatchingIncludeDir << group;
     }
@@ -274,7 +274,7 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
     if (!groupsMatchingIncludeDir.isEmpty()) {
         // The group with the longest common matching prefix is the best group
         int longestPrefixSoFar = 0;
-        foreach (const IncludeGroup &group, groupsMatchingIncludeDir) {
+        for (const IncludeGroup &group : qAsConst(groupsMatchingIncludeDir)) {
             const int groupPrefixLength = group.commonPrefix().length();
             if (groupPrefixLength >= longestPrefixSoFar) {
                 bestGroup = group;
@@ -295,12 +295,12 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
         //       group with mixed include dirs
         } else {
             IncludeGroups groupsIncludeDir;
-            foreach (const IncludeGroup &group, groupsMixedIncludeDirs) {
+            for (const IncludeGroup &group : qAsConst(groupsMixedIncludeDirs)) {
                 groupsIncludeDir.append(
                             IncludeGroup::detectIncludeGroupsByIncludeDir(group.includes()));
             }
             IncludeGroup localBestIncludeGroup = IncludeGroup(QList<Include>());
-            foreach (const IncludeGroup &group, groupsIncludeDir) {
+            for (const IncludeGroup &group : qAsConst(groupsIncludeDir)) {
                 if (group.commonIncludeDir() == includeDir(pureIncludeFileName))
                     localBestIncludeGroup = group;
             }
@@ -330,7 +330,7 @@ QList<IncludeGroup> IncludeGroup::detectIncludeGroupsByNewLines(QList<Document::
     int lastLine = 0;
     QList<Include> currentIncludes;
     bool isFirst = true;
-    foreach (const Include &include, includes) {
+    for (const Include &include : qAsConst(includes)) {
         // First include...
         if (isFirst) {
             isFirst = false;
@@ -361,7 +361,7 @@ QList<IncludeGroup> IncludeGroup::detectIncludeGroupsByIncludeDir(const QList<In
     QString lastDir;
     QList<Include> currentIncludes;
     bool isFirst = true;
-    foreach (const Include &include, includes) {
+    for (const Include &include : includes) {
         const QString currentDirPrefix = includeDir(include.unresolvedFileName());
 
         // First include...
@@ -394,7 +394,7 @@ QList<IncludeGroup> IncludeGroup::detectIncludeGroupsByIncludeType(const QList<I
     Client::IncludeType lastIncludeType = Client::IncludeLocal;
     QList<Include> currentIncludes;
     bool isFirst = true;
-    foreach (const Include &include, includes) {
+    for (const Include &include : includes) {
         const Client::IncludeType currentIncludeType = include.type();
 
         // First include...
@@ -425,7 +425,7 @@ QList<IncludeGroup> IncludeGroup::filterIncludeGroups(const QList<IncludeGroup> 
                                                       Client::IncludeType includeType)
 {
     QList<IncludeGroup> result;
-    foreach (const IncludeGroup &group, groups) {
+    for (const IncludeGroup &group : groups) {
         if (group.hasOnlyIncludesOfType(includeType))
             result << group;
     }
@@ -436,7 +436,7 @@ QList<IncludeGroup> IncludeGroup::filterIncludeGroups(const QList<IncludeGroup> 
 QList<IncludeGroup> IncludeGroup::filterMixedIncludeGroups(const QList<IncludeGroup> &groups)
 {
     QList<IncludeGroup> result;
-    foreach (const IncludeGroup &group, groups) {
+    for (const IncludeGroup &group : groups) {
         if (!group.hasOnlyIncludesOfType(Client::IncludeLocal)
             && !group.hasOnlyIncludesOfType(Client::IncludeGlobal)) {
             result << group;
@@ -447,7 +447,7 @@ QList<IncludeGroup> IncludeGroup::filterMixedIncludeGroups(const QList<IncludeGr
 
 bool IncludeGroup::hasOnlyIncludesOfType(Client::IncludeType includeType) const
 {
-    foreach (const Include &include, m_includes) {
+    for (const Include &include : qAsConst(m_includes)) {
         if (include.type() != includeType)
             return false;
     }
@@ -490,7 +490,7 @@ int IncludeGroup::lineForNewInclude(const QString &newIncludeFileName,
 QStringList IncludeGroup::filesNames() const
 {
     QStringList names;
-    foreach (const Include &include, m_includes)
+    for (const Include &include : qAsConst(m_includes))
         names << include.unresolvedFileName();
     return names;
 }

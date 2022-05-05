@@ -445,8 +445,8 @@ public:
         _bestToken.maybeSet(-1, lastToken);
 
         if (lastToken >= 2) {
-            QList<const Name *> names = LookupContext::fullyQualifiedName(decl);
-            foreach (const Name *name, names) {
+            const QList<const Name *> names = LookupContext::fullyQualifiedName(decl);
+            for (const Name *name : names) {
                 const Identifier *id = name->asNameId();
                 if (!id)
                     break;
