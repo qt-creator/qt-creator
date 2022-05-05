@@ -187,7 +187,8 @@ static QJsonObject createFileObject(const FilePath &buildDir,
                                     const ProjectPart &projectPart,
                                     const ProjectFile &projFile,
                                     CompilationDbPurpose purpose,
-                                    const QStringList &projectOptions)
+                                    const QStringList &projectOptions,
+                                    UsePrecompiledHeaders usePch)
 {
     QJsonObject fileObject;
     fileObject["file"] = projFile.path;
@@ -213,7 +214,7 @@ static QJsonObject createFileObject(const FilePath &buildDir,
         }
     } else {
         args = QJsonArray::fromStringList(clangOptionsForFile(optionsBuilder, projFile,
-                                                              projectOptions));
+                                                              projectOptions, usePch));
         args.prepend("clang"); // TODO: clang-cl for MSVC targets? Does it matter at all what we put here?
     }
 
@@ -243,6 +244,7 @@ GenerateCompilationDbResult generateCompilationDB(const CppEditor::ProjectInfo::
     }
     compileCommandsFile.write("[");
 
+    const UsePrecompiledHeaders usePch = getPchUsage();
     for (ProjectPart::ConstPtr projectPart : projectInfo->projectParts()) {
         QStringList args;
         const CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(*projectPart,
@@ -251,7 +253,7 @@ GenerateCompilationDbResult generateCompilationDB(const CppEditor::ProjectInfo::
             args = projectPartArguments(*projectPart);
         for (const ProjectFile &projFile : projectPart->files) {
             const QJsonObject json = createFileObject(baseDir, args, optionsBuilder, *projectPart,
-                                                      projFile, purpose, projectOptions);
+                                                      projFile, purpose, projectOptions, usePch);
             if (compileCommandsFile.size() > 1)
                 compileCommandsFile.write(",");
             compileCommandsFile.write('\n' + QJsonDocument(json).toJson().trimmed());
@@ -334,20 +336,20 @@ static ClangProjectSettings &getProjectSettings(ProjectExplorer::Project *projec
 } // namespace
 
 QStringList clangOptionsForFile(CompilerOptionsBuilder optionsBuilder,
-                                const ProjectFile &file, const QStringList &projectOptions)
+                                const ProjectFile &file, const QStringList &projectOptions,
+                                UsePrecompiledHeaders usePch)
 {
     ProjectFile::Kind fileKind = file.kind;
     if (fileKind == ProjectFile::AmbiguousHeader) {
         fileKind = optionsBuilder.projectPart().languageVersion <= LanguageVersion::LatestC
                 ? ProjectFile::CHeader : ProjectFile::CXXHeader;
     }
-    auto pchUsage = getPchUsage();
-    if (pchUsage == UsePrecompiledHeaders::Yes
+    if (usePch == UsePrecompiledHeaders::Yes
             && optionsBuilder.projectPart().precompiledHeaders.contains(file.path)) {
-        pchUsage = UsePrecompiledHeaders::No;
+        usePch = UsePrecompiledHeaders::No;
     }
     optionsBuilder.updateFileLanguage(file.kind);
-    optionsBuilder.addPrecompiledHeaderOptions(pchUsage);
+    optionsBuilder.addPrecompiledHeaderOptions(usePch);
     return projectOptions + optionsBuilder.options();
 }
 

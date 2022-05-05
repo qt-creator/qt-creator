@@ -65,7 +65,7 @@ CppEditor::CompilerOptionsBuilder clangOptionsBuilder(
         const CppEditor::ClangDiagnosticConfig &warningsConfig);
 QStringList clangOptionsForFile(CppEditor::CompilerOptionsBuilder optionsBuilder,
                                 const CppEditor::ProjectFile &file,
-                                const QStringList &projectOptions);
+                                const QStringList &projectOptions, CppEditor::UsePrecompiledHeaders usePch);
 
 CppEditor::ProjectPart::ConstPtr projectPartForFile(const QString &filePath);
 CppEditor::ProjectPart::ConstPtr projectPartForFileBasedOnProcessor(const QString &filePath);

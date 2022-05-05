@@ -1454,11 +1454,12 @@ private:
 
 static void addToCompilationDb(QJsonObject &cdb,
                                const CppEditor::CompilerOptionsBuilder &optionsBuilder,
+                               CppEditor::UsePrecompiledHeaders usePch,
                                const QStringList &projectOptions,
                                const Utils::FilePath &workingDir,
                                const CppEditor::ProjectFile &sourceFile)
 {
-    QStringList args = clangOptionsForFile(optionsBuilder, sourceFile, projectOptions);
+    QStringList args = clangOptionsForFile(optionsBuilder, sourceFile, projectOptions, usePch);
 
     // TODO: clangd seems to apply some heuristics depending on what we put here.
     //       Should we make use of them or keep using our own?
@@ -1495,8 +1496,9 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
         CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
                     *CppEditor::CppModelManager::instance()->fallbackProjectPart(),
                     warningsConfig);
+        const CppEditor::UsePrecompiledHeaders usePch = CppEditor::getPchUsage();
         const QStringList clangOptions = clangOptionsForFile(
-                    optionsBuilder, {}, optionsForProject(nullptr, warningsConfig));
+                    optionsBuilder, {}, optionsForProject(nullptr, warningsConfig), usePch);
         initOptions.insert("fallbackFlags", QJsonArray::fromStringList(clangOptions));
         setInitializationOptions(initOptions);
     }
@@ -1919,8 +1921,8 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
                                                                            warningsConfig);
     const CppEditor::ProjectFile file(filePath.toString(),
                                       CppEditor::ProjectFile::classify(filePath.toString()));
-    addToCompilationDb(cdbChanges, optionsBuilder, optionsForProject(project(), warningsConfig),
-                       filePath.parentDir(), file);
+    addToCompilationDb(cdbChanges, optionsBuilder, CppEditor::getPchUsage(),
+                       optionsForProject(project(), warningsConfig), filePath.parentDir(), file);
     QJsonObject settings;
     addCompilationDb(settings, cdbChanges);
     DidChangeConfigurationParams configChangeParams;
