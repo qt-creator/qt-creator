@@ -957,10 +957,10 @@ protected:
         accept(ast->left);
 
         // in general, avoid splitting at the operator
-        // but && and || are ok
+        // but && || and ?? are ok
         qreal splitBadness = 30;
         if (ast->op == QSOperator::And
-                || ast->op == QSOperator::Or)
+                || ast->op == QSOperator::Or || ast->op == QSOperator::Coalesce)
             splitBadness = 0;
         addPossibleSplit(splitBadness);
 

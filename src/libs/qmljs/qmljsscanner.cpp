@@ -498,6 +498,18 @@ QList<Token> Scanner::operator()(const QString &text, int startState)
             setRegexpMayFollow(&_state, true);
             break;
 
+        case '?':
+            switch (la.unicode()) {
+            case '?':
+            case '.':
+                tokens.append(Token(index, 2, Token::Delimiter));
+                index += 2;
+            default:
+                tokens.append(Token(index++, 1, Token::Delimiter));
+            }
+            setRegexpMayFollow(&_state, true);
+            break;
+
         default:
             if (ch.isSpace()) {
                 do {
