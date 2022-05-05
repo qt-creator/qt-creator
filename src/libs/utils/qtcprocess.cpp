@@ -378,7 +378,12 @@ public:
     }
 
     QByteArray readAllStandardOutput() override { return m_process->readAllStandardOutput(); }
-    QByteArray readAllStandardError() override { return m_process->readAllStandardError(); }
+    QByteArray readAllStandardError() override
+    {
+        if (m_process->processChannelMode() == QProcess::MergedChannels)
+            return {};
+        return m_process->readAllStandardError();
+    }
 
     void setProcessEnvironment(const QProcessEnvironment &environment) override
     { m_process->setProcessEnvironment(environment); }
