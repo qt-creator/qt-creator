@@ -137,7 +137,7 @@ void CallgrindController::controllerProcessDone()
     const QString error = m_controllerProcess->errorString();
     const ProcessResult result = m_controllerProcess->result();
 
-    m_controllerProcess->release().deleteLater();
+    m_controllerProcess.release()->deleteLater();
 
     if (result != ProcessResult::FinishedWithSuccess) {
         emit statusMessage(tr("An error occurred while trying to run %1: %2").arg(CALLGRIND_CONTROL_BINARY).arg(error));
