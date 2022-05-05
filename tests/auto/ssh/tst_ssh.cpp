@@ -25,7 +25,7 @@
 
 #include <ssh/sftptransfer.h>
 #include <ssh/sshconnection.h>
-#include <ssh/sshremoteprocessrunner.h>
+#include <ssh/sshremoteprocess.h>
 #include <ssh/sshsettings.h>
 
 #include <utils/algorithm.h>
@@ -59,8 +59,6 @@ private slots:
     void errorHandling_data();
     void errorHandling();
     void pristineConnectionObject();
-    void remoteProcess_data();
-    void remoteProcess();
     void remoteProcessChannels();
     void remoteProcessInput();
     void sftp();
@@ -150,79 +148,6 @@ void tst_Ssh::pristineConnectionObject()
     QVERIFY(!connection.createRemoteProcess(""));
 }
 
-void tst_Ssh::remoteProcess_data()
-{
-    QTest::addColumn<QByteArray>("commandLine");
-    QTest::addColumn<bool>("isBlocking");
-    QTest::addColumn<bool>("successExpected");
-    QTest::addColumn<bool>("stdoutExpected");
-    QTest::addColumn<bool>("stderrExpected");
-
-    QTest::newRow("normal cmd") << QByteArray("ls -a /tmp") << false << true << true << false;
-    QTest::newRow("failing cmd") << QByteArray("top -n 1") << false << false << false << true;
-    QTest::newRow("blocking cmd") << QByteArray("sleep 100") << true << false << false << false;
-}
-
-void tst_Ssh::remoteProcess()
-{
-    const SshConnectionParameters params = SshTest::getParameters();
-    if (!SshTest::checkParameters(params))
-        QSKIP("Insufficient setup - set QTC_SSH_TEST_* variables.");
-
-    QFETCH(QByteArray, commandLine);
-    QFETCH(bool, isBlocking);
-    QFETCH(bool, successExpected);
-    QFETCH(bool, stdoutExpected);
-    QFETCH(bool, stderrExpected);
-
-    QByteArray remoteStdout;
-    QByteArray remoteStderr;
-    SshRemoteProcessRunner runner;
-    QEventLoop loop;
-    connect(&runner, &SshRemoteProcessRunner::connectionError, &loop, &QEventLoop::quit);
-    connect(&runner, &SshRemoteProcessRunner::started, &loop, &QEventLoop::quit);
-    connect(&runner, &SshRemoteProcessRunner::finished, &loop, &QEventLoop::quit);
-    connect(&runner, &SshRemoteProcessRunner::readyReadStandardOutput,
-            [&remoteStdout, &runner] { remoteStdout += runner.readAllStandardOutput(); });
-    connect(&runner, &SshRemoteProcessRunner::readyReadStandardError,
-            [&remoteStderr, &runner] { remoteStderr += runner.readAllStandardError(); });
-    runner.run(QString::fromUtf8(commandLine), params);
-    QTimer timer;
-    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-    timer.setSingleShot(true);
-    timer.setInterval((params.timeout + 5) * 1000);
-    timer.start();
-    loop.exec();
-    QVERIFY(timer.isActive());
-    timer.stop();
-    QVERIFY2(runner.lastConnectionErrorString().isEmpty(),
-             qPrintable(runner.lastConnectionErrorString()));
-    QVERIFY2(runner.errorString().isEmpty(), qPrintable(runner.errorString()));
-    QVERIFY(runner.isRunning()); // Event loop exit should have been triggered by started().
-    QVERIFY2(remoteStdout.isEmpty(), remoteStdout.constData());
-    QVERIFY2(remoteStderr.isEmpty(), remoteStderr.constData());
-
-    SshRemoteProcessRunner killer;
-    if (isBlocking)
-        killer.run("pkill -f -9 \"" + QString::fromUtf8(commandLine) + '"', params);
-
-    timer.start();
-    loop.exec();
-    QVERIFY(timer.isActive());
-    timer.stop();
-    QVERIFY(!runner.isRunning());
-    QVERIFY2(runner.lastConnectionErrorString().isEmpty(),
-             qPrintable(runner.lastConnectionErrorString()));
-    if (isBlocking) {
-        QVERIFY(runner.exitStatus() == QProcess::CrashExit
-                || runner.exitCode() != 0);
-    } else {
-        QCOMPARE(successExpected, runner.exitCode() == 0);
-    }
-    QCOMPARE(stdoutExpected, !remoteStdout.isEmpty());
-    QCOMPARE(stderrExpected, !remoteStderr.isEmpty());
-}
-
 void tst_Ssh::remoteProcessChannels()
 {
     const SshConnectionParameters params = SshTest::getParameters();
@@ -269,41 +194,6 @@ void tst_Ssh::remoteProcessInput()
         QSKIP("Insufficient setup - set QTC_SSH_TEST_* variables.");
     SshConnection connection(params);
     QVERIFY(waitForConnection(connection));
-
-    SshRemoteProcessPtr catProcess = connection.createRemoteProcess("/bin/cat");
-    catProcess->setProcessMode(ProcessMode::Writer);
-    QEventLoop loop;
-    connect(catProcess.get(), &QtcProcess::started, &loop, &QEventLoop::quit);
-    connect(catProcess.get(), &QtcProcess::done, &loop, &QEventLoop::quit);
-    QTimer timer;
-    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-    timer.setSingleShot(true);
-    timer.setInterval((params.timeout + 5) * 1000);
-    timer.start();
-    catProcess->start();
-    loop.exec();
-    QVERIFY(timer.isActive());
-    timer.stop();
-    QVERIFY(catProcess->isRunning());
-
-    static QString testString = "x\r\n";
-    connect(catProcess.get(), &QtcProcess::readyReadStandardOutput, &loop, &QEventLoop::quit);
-
-    catProcess->write(testString.toUtf8());
-    timer.start();
-    loop.exec();
-    QVERIFY(timer.isActive());
-    timer.stop();
-    QVERIFY(catProcess->isRunning());
-
-    const QString data = QString::fromUtf8(catProcess->readAllStandardOutput());
-    QCOMPARE(data, testString);
-    SshRemoteProcessRunner * const killer = new SshRemoteProcessRunner(this);
-    killer->run("pkill -9 cat", params);
-    timer.start();
-    loop.exec();
-    QVERIFY(!catProcess->isRunning());
-    QVERIFY(catProcess->exitCode() != 0 || catProcess->exitStatus() == QProcess::CrashExit);
 }
 
 void tst_Ssh::sftp()
