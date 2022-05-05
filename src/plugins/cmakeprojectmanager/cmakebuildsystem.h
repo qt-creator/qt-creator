@@ -98,10 +98,6 @@ public:
     Utils::CommandLine commandLineForTests(const QList<QString> &tests,
                                            const QStringList &options) const final;
 
-    // Generic CMake helper functions:
-    static CMakeConfig parseCMakeCacheDotTxt(const Utils::FilePath &cacheFile,
-                                             QString *errorMessage);
-
     static bool filteredOutTarget(const CMakeBuildTarget &target);
 
     bool isMultiConfig() const;

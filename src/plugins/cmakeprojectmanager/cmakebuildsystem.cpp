@@ -830,14 +830,14 @@ void CMakeBuildSystem::wireUpConnections()
         qCDebug(cmakeBuildSystemLog) << "Requesting parse due to build directory change";
         const BuildDirParameters parameters(this);
         const FilePath cmakeCacheTxt = parameters.buildDirectory.pathAppended("CMakeCache.txt");
-        const bool hasCMakeCache = QFile::exists(cmakeCacheTxt.toString());
+        const bool hasCMakeCache = cmakeCacheTxt.exists();
         const auto options = ReparseParameters(
                     hasCMakeCache
                     ? REPARSE_DEFAULT
                     : (REPARSE_FORCE_INITIAL_CONFIGURATION | REPARSE_FORCE_CMAKE_RUN));
         if (hasCMakeCache) {
             QString errorMessage;
-            const CMakeConfig config = CMakeBuildSystem::parseCMakeCacheDotTxt(cmakeCacheTxt, &errorMessage);
+            const CMakeConfig config = CMakeConfig::fromFile(cmakeCacheTxt, &errorMessage);
             if (!config.isEmpty() && errorMessage.isEmpty()) {
                 QString cmakeBuildTypeName = config.stringValueOf("CMAKE_BUILD_TYPE");
                 setCMakeBuildType(cmakeBuildTypeName, true);
@@ -1037,20 +1037,6 @@ QStringList CMakeBuildSystem::buildTargetTitles() const
 const QList<CMakeBuildTarget> &CMakeBuildSystem::buildTargets() const
 {
     return m_buildTargets;
-}
-
-CMakeConfig CMakeBuildSystem::parseCMakeCacheDotTxt(const Utils::FilePath &cacheFile,
-                                                    QString *errorMessage)
-{
-    if (!cacheFile.exists()) {
-        if (errorMessage)
-            *errorMessage = tr("CMakeCache.txt file not found.");
-        return {};
-    }
-    CMakeConfig result = CMakeConfig::fromFile(cacheFile, errorMessage);
-    if (!errorMessage->isEmpty())
-        return {};
-    return result;
 }
 
 bool CMakeBuildSystem::filteredOutTarget(const CMakeBuildTarget &target)

@@ -1665,7 +1665,7 @@ QString CMakeBuildSystem::cmakeBuildType() const
     QString cmakeBuildType = buildConfiguration()->aspect<BuildTypeAspect>()->value();
 
     const Utils::FilePath cmakeCacheTxt = buildConfiguration()->buildDirectory().pathAppended("CMakeCache.txt");
-    const bool hasCMakeCache = QFile::exists(cmakeCacheTxt.toString());
+    const bool hasCMakeCache = cmakeCacheTxt.exists();
     CMakeConfig config;
 
     if (cmakeBuildType == "Unknown") {
@@ -1673,7 +1673,7 @@ QString CMakeBuildSystem::cmakeBuildType() const
         // that doesn't have the "CMake.Build.Type" aspect saved
         if (hasCMakeCache) {
             QString errorMessage;
-            config = CMakeBuildSystem::parseCMakeCacheDotTxt(cmakeCacheTxt, &errorMessage);
+            config = CMakeConfig::fromFile(cmakeCacheTxt, &errorMessage);
         } else {
             config = initialCMakeConfiguration();
         }
