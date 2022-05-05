@@ -26,6 +26,7 @@
 #pragma once
 
 #include "gitsettings.h"
+#include "git_global.h"
 
 #include <coreplugin/iversioncontrol.h>
 
@@ -42,7 +43,7 @@ namespace Internal {
 
 class GitClient;
 
-class GitPlugin final : public ExtensionSystem::IPlugin
+class GITSHARED_EXPORT GitPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Git.json")

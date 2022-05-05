@@ -19,6 +19,7 @@ add_qtc_plugin(Git
     gerrit/gerritremotechooser.cpp gerrit/gerritremotechooser.h
     gerrit/gerritserver.cpp gerrit/gerritserver.h
     git.qrc
+    git_global.h
     gitclient.cpp gitclient.h
     gitconstants.h
     giteditor.cpp giteditor.h

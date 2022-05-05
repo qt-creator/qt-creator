@@ -26,6 +26,7 @@
 #pragma once
 
 #include "gitsettings.h"
+#include "git_global.h"
 #include "commitdata.h"
 
 #include <coreplugin/editormanager/ieditor.h>
@@ -105,7 +106,7 @@ public:
     int behind = 0;
 };
 
-class GitClient : public VcsBase::VcsBaseClientImpl
+class GITSHARED_EXPORT GitClient : public VcsBase::VcsBaseClientImpl
 {
     Q_OBJECT
 
