@@ -289,10 +289,12 @@ void QmlJSEditorPluginPrivate::reformatFile()
 
         IEditor *ed = EditorManager::currentEditor();
         if (ed) {
+            QByteArray state = ed->saveState();
             int line = ed->currentLine();
             int column = ed->currentColumn();
             setNewText();
-            ed->gotoLine(line, column);
+            ed->gotoLine(line, column - 1);
+            ed->restoreState(state);
         } else {
             setNewText();
         }
