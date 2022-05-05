@@ -1453,13 +1453,13 @@ private:
 };
 
 static void addToCompilationDb(QJsonObject &cdb,
-                               const CppEditor::CompilerOptionsBuilder &optionsBuilder,
+                               const CppEditor::ProjectPart &projectPart,
                                CppEditor::UsePrecompiledHeaders usePch,
-                               const QStringList &projectOptions,
+                               const QJsonArray &projectPartOptions,
                                const Utils::FilePath &workingDir,
                                const CppEditor::ProjectFile &sourceFile)
 {
-    QStringList args = clangOptionsForFile(optionsBuilder, sourceFile, projectOptions, usePch);
+    QJsonArray args = clangOptionsForFile(sourceFile, projectPart, projectPartOptions, usePch);
 
     // TODO: clangd seems to apply some heuristics depending on what we put here.
     //       Should we make use of them or keep using our own?
@@ -1469,7 +1469,7 @@ static void addToCompilationDb(QJsonObject &cdb,
     args.append(fileString);
     QJsonObject value;
     value.insert("workingDirectory", workingDir.toString());
-    value.insert("compilationCommand", QJsonArray::fromStringList(args));
+    value.insert("compilationCommand", args);
     cdb.insert(fileString, value);
 }
 
@@ -1497,9 +1497,11 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
                     *CppEditor::CppModelManager::instance()->fallbackProjectPart(),
                     warningsConfig);
         const CppEditor::UsePrecompiledHeaders usePch = CppEditor::getPchUsage();
-        const QStringList clangOptions = clangOptionsForFile(
-                    optionsBuilder, {}, optionsForProject(nullptr, warningsConfig), usePch);
-        initOptions.insert("fallbackFlags", QJsonArray::fromStringList(clangOptions));
+        const QJsonArray projectPartOptions = fullProjectPartOptions(
+                    optionsBuilder, optionsForProject(nullptr, warningsConfig));
+        const QJsonArray clangOptions = clangOptionsForFile({}, optionsBuilder.projectPart(),
+                                                            projectPartOptions, usePch);
+        initOptions.insert("fallbackFlags", clangOptions);
         setInitializationOptions(initOptions);
     }
     auto isRunningClangdClient = [](const LanguageClient::Client *c) {
@@ -1921,8 +1923,10 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
                                                                            warningsConfig);
     const CppEditor::ProjectFile file(filePath.toString(),
                                       CppEditor::ProjectFile::classify(filePath.toString()));
-    addToCompilationDb(cdbChanges, optionsBuilder, CppEditor::getPchUsage(),
-                       optionsForProject(project(), warningsConfig), filePath.parentDir(), file);
+    const QJsonArray projectPartOptions = fullProjectPartOptions(
+                optionsBuilder, optionsForProject(project(), warningsConfig));
+    addToCompilationDb(cdbChanges, *projectPart, CppEditor::getPchUsage(), projectPartOptions,
+                       filePath.parentDir(), file);
     QJsonObject settings;
     addCompilationDb(settings, cdbChanges);
     DidChangeConfigurationParams configChangeParams;

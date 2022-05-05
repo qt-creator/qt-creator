@@ -63,9 +63,15 @@ const QStringList optionsForProject(ProjectExplorer::Project *project,
 CppEditor::CompilerOptionsBuilder clangOptionsBuilder(
         const CppEditor::ProjectPart &projectPart,
         const CppEditor::ClangDiagnosticConfig &warningsConfig);
-QStringList clangOptionsForFile(CppEditor::CompilerOptionsBuilder optionsBuilder,
-                                const CppEditor::ProjectFile &file,
-                                const QStringList &projectOptions, CppEditor::UsePrecompiledHeaders usePch);
+QJsonArray projectPartOptions(const CppEditor::CompilerOptionsBuilder &optionsBuilder);
+QJsonArray fullProjectPartOptions(const CppEditor::CompilerOptionsBuilder &optionsBuilder,
+                                  const QStringList &projectOptions);
+QJsonArray fullProjectPartOptions(const QJsonArray &projectPartOptions,
+                                  const QJsonArray &projectOptions);
+QJsonArray clangOptionsForFile(const CppEditor::ProjectFile &file,
+                               const CppEditor::ProjectPart &projectPart,
+                               const QJsonArray &generalOptions,
+                               CppEditor::UsePrecompiledHeaders usePch);
 
 CppEditor::ProjectPart::ConstPtr projectPartForFile(const QString &filePath);
 CppEditor::ProjectPart::ConstPtr projectPartForFileBasedOnProcessor(const QString &filePath);
