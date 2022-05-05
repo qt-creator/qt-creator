@@ -1456,19 +1456,20 @@ static void addToCompilationDb(QJsonObject &cdb,
                                const CppEditor::CompilerOptionsBuilder &optionsBuilder,
                                const QStringList &projectOptions,
                                const Utils::FilePath &workingDir,
-                               const Utils::FilePath &sourceFile)
+                               const CppEditor::ProjectFile &sourceFile)
 {
-    QStringList args = clangOptionsForFile(optionsBuilder, sourceFile.toString(), projectOptions);
+    QStringList args = clangOptionsForFile(optionsBuilder, sourceFile, projectOptions);
 
     // TODO: clangd seems to apply some heuristics depending on what we put here.
     //       Should we make use of them or keep using our own?
     args.prepend("clang");
 
-    args.append(sourceFile.toUserOutput());
+    const QString fileString = Utils::FilePath::fromString(sourceFile.path).toUserOutput();
+    args.append(fileString);
     QJsonObject value;
     value.insert("workingDirectory", workingDir.toString());
     value.insert("compilationCommand", QJsonArray::fromStringList(args));
-    cdb.insert(sourceFile.toUserOutput(), value);
+    cdb.insert(fileString, value);
 }
 
 static void addCompilationDb(QJsonObject &parentObject, const QJsonObject &cdb)
@@ -1916,8 +1917,10 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     const CppEditor::ClangDiagnosticConfig warningsConfig = warningsConfigForProject(project());
     CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(*projectPart,
                                                                            warningsConfig);
+    const CppEditor::ProjectFile file(filePath.toString(),
+                                      CppEditor::ProjectFile::classify(filePath.toString()));
     addToCompilationDb(cdbChanges, optionsBuilder, optionsForProject(project(), warningsConfig),
-                       filePath.parentDir(), filePath);
+                       filePath.parentDir(), file);
     QJsonObject settings;
     addCompilationDb(settings, cdbChanges);
     DidChangeConfigurationParams configChangeParams;

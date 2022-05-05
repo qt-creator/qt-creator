@@ -212,7 +212,7 @@ static QJsonObject createFileObject(const FilePath &buildDir,
                 args.append(langOptionPart);
         }
     } else {
-        args = QJsonArray::fromStringList(clangOptionsForFile(optionsBuilder, projFile.path,
+        args = QJsonArray::fromStringList(clangOptionsForFile(optionsBuilder, projFile,
                                                               projectOptions));
         args.prepend("clang"); // TODO: clang-cl for MSVC targets? Does it matter at all what we put here?
     }
@@ -334,20 +334,19 @@ static ClangProjectSettings &getProjectSettings(ProjectExplorer::Project *projec
 } // namespace
 
 QStringList clangOptionsForFile(CompilerOptionsBuilder optionsBuilder,
-                                const QString &filePath, const QStringList &projectOptions)
+                                const ProjectFile &file, const QStringList &projectOptions)
 {
-    ProjectFile::Kind fileKind = filePath.isEmpty()
-            ? ProjectFile::Unclassified : ProjectFile::classify(filePath);
+    ProjectFile::Kind fileKind = file.kind;
     if (fileKind == ProjectFile::AmbiguousHeader) {
         fileKind = optionsBuilder.projectPart().languageVersion <= LanguageVersion::LatestC
                 ? ProjectFile::CHeader : ProjectFile::CXXHeader;
     }
     auto pchUsage = getPchUsage();
     if (pchUsage == UsePrecompiledHeaders::Yes
-            && optionsBuilder.projectPart().precompiledHeaders.contains(filePath)) {
+            && optionsBuilder.projectPart().precompiledHeaders.contains(file.path)) {
         pchUsage = UsePrecompiledHeaders::No;
     }
-    optionsBuilder.updateFileLanguage(fileKind);
+    optionsBuilder.updateFileLanguage(file.kind);
     optionsBuilder.addPrecompiledHeaderOptions(pchUsage);
     return projectOptions + optionsBuilder.options();
 }
