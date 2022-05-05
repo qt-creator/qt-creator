@@ -31,7 +31,7 @@
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <languageserverprotocol/languagefeatures.h>
-#include <texteditor/outlinefactory.h>>
+#include <texteditor/outlinefactory.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <utils/itemviews.h>
