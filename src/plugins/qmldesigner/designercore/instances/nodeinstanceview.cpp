@@ -1907,6 +1907,9 @@ void NodeInstanceView::updateWatcher(const QString &path)
     const QString projPath = QFileInfo(model()->fileUrl().toLocalFile()).absolutePath();
 #endif
 
+    if (projPath.isEmpty())
+        return;
+
     const QStringList files = m_fileSystemWatcher->files();
     const QStringList directories = m_fileSystemWatcher->directories();
     if (path.isEmpty()) {
@@ -2034,6 +2037,9 @@ void NodeInstanceView::updateQsbPathToFilterMap()
 #else
         const QString projPath = QFileInfo(model()->fileUrl().toLocalFile()).absolutePath();
 #endif
+        if (projPath.isEmpty())
+            return;
+
         // Parse ShaderTool files from project configuration.
         // Separate files to path and file name (called filter here as it can contain wildcards)
         // and group filters by paths. Blank path indicates project-wide file wildcard.
