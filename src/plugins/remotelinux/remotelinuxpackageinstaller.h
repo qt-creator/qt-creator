@@ -31,6 +31,8 @@
 
 #include <QObject>
 
+#include <memory>
+
 namespace RemoteLinux {
 
 namespace Internal { class AbstractRemoteLinuxPackageInstallerPrivate; }
@@ -55,20 +57,10 @@ protected:
     explicit AbstractRemoteLinuxPackageInstaller(QObject *parent = nullptr);
 
 private:
-    void handleConnectionError();
-    void handleInstallationFinished();
-    void handleInstallerOutput();
-    void handleInstallerErrorOutput();
-
     virtual QString installCommandLine(const QString &packageFilePath) const = 0;
     virtual QString cancelInstallationCommandLine() const = 0;
 
-    virtual void prepareInstallation() {}
-    virtual QString errorString() const { return QString(); }
-
-    void setFinished();
-
-    Internal::AbstractRemoteLinuxPackageInstallerPrivate * const d;
+    std::unique_ptr<Internal::AbstractRemoteLinuxPackageInstallerPrivate> d;
 };
 
 
