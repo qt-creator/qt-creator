@@ -125,6 +125,42 @@ void renameFilesForSymbol(const QString &oldSymbolName, const QString &newSymbol
     }
 }
 
+QString functionAt(CPlusPlus::Document::Ptr doc,
+                   int line,
+                   int column,
+                   int *lineOpeningDeclaratorParenthesis,
+                   int *columnOut)
+{
+    using namespace CPlusPlus;
+    if (line < 1 || column < 1)
+        return QString();
+
+    Symbol *symbol = doc->lastVisibleSymbolAt(line, column);
+    if (!symbol)
+        return QString();
+
+    // Find the enclosing function scope (which might be several levels up, or we might be standing
+    // on it)
+    Scope *scope = symbol->asScope();
+    if (!scope)
+        scope = symbol->enclosingScope();
+
+    while (scope && !scope->isFunction())
+        scope = scope->enclosingScope();
+
+    if (!scope)
+        return QString();
+
+    // We found the function scope
+    if (lineOpeningDeclaratorParenthesis)
+        doc->translationUnit()->getPosition(scope->startOffset(),
+                                            lineOpeningDeclaratorParenthesis,
+                                            columnOut);
+
+    const QList<const Name *> fullyQualifiedName = LookupContext::fullyQualifiedName(scope);
+    return Overview().prettyName(fullyQualifiedName);
+}
+
 QWidget *CppSearchResultFilter::createWidget()
 {
     const auto widget = new QWidget;
@@ -648,6 +684,40 @@ static void displayResults(SearchResult *search, QFutureWatcher<CPlusPlus::Usage
         item.setUseTextEditorFont(true);
         if (search->supportsReplace())
             item.setSelectForReplacement(SessionManager::projectForFile(result.path));
+
+        const CPlusPlus::Snapshot snapshot = CppModelManager::instance()->snapshot();
+        auto document = snapshot.document(result.path);
+        int lineOpeningDeclaratorParenthesis;
+        // In case we're looking for a function, need to look in the middle of the declaration -
+        // otherwise the previous function might be returned.
+        int col = (result.col + result.len) / 2;
+
+        int functionColumn{-1};
+        auto func = functionAt(document,
+                               result.line,
+                               col,
+                               &lineOpeningDeclaratorParenthesis,
+                               &functionColumn);
+
+        QSharedPointer<SearchResultItem> callingFunctionItem{new SearchResultItem};
+
+        const QString noCallingFunctionName{"No calling function"};
+        QString functionName{noCallingFunctionName};
+        int functionLine{item.mainRange().begin.line};
+        int functionNameLength{noCallingFunctionName.size()};
+
+        if (func.size()) {
+            functionName = func;
+            functionNameLength = func.length();
+            functionLine = lineOpeningDeclaratorParenthesis;
+        }
+
+        callingFunctionItem->setLineText(functionName);
+        callingFunctionItem->setPath(item.path());
+        callingFunctionItem->setMainRange(functionLine, 0, functionNameLength);
+        callingFunctionItem->setUseTextEditorFont(true);
+
+        item.setCallingFunctionItem(callingFunctionItem);
         search->addResult(item);
 
         if (parameters.prettySymbolName.isEmpty())

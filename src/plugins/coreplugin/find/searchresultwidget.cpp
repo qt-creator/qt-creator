@@ -531,7 +531,13 @@ QList<SearchResultItem> SearchResultWidget::checkedItems() const
         const int itemCount = model->rowCount(fileIndex);
         for (int rowIndex = 0; rowIndex < itemCount; ++rowIndex) {
             const QModelIndex textIndex = model->index(rowIndex, 0, fileIndex);
-            const SearchResultTreeItem * const rowItem = model->itemForIndex(textIndex);
+            SearchResultTreeItem const *rowItem = model->itemForIndex(textIndex);
+            QTC_ASSERT(rowItem != nullptr, continue);
+            if (!rowItem->isLeaf()) {
+                QTC_CHECK(rowItem->childrenCount() == 1);
+                rowItem = rowItem->childAt(0);
+            }
+
             QTC_ASSERT(rowItem != nullptr, continue);
             if (rowItem->checkState())
                 result << rowItem->item;

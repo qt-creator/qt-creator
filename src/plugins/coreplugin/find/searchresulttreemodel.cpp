@@ -401,13 +401,23 @@ void SearchResultTreeModel::addResultsToCurrentParent(const QList<SearchResultIt
         return;
 
     if (mode == SearchResult::AddOrdered) {
-        // this is the mode for e.g. text search
-        beginInsertRows(m_currentIndex, m_currentParent->childrenCount(), m_currentParent->childrenCount() + items.count());
         foreach (const SearchResultItem &item, items) {
-            m_currentParent->appendChild(item);
+            // this is the mode for e.g. C++ Usages search
+            SearchResultTreeItem *existingItem;
+            int insertionIndex = m_currentParent->insertionIndex(item, &existingItem);
+            beginInsertRows(m_currentIndex, insertionIndex, insertionIndex);
+
+            Q_ASSERT(item.callingFunctionItem());
+            auto callingFunctionItem = new SearchResultTreeItem(*item.callingFunctionItem(),
+                                                                m_currentParent);
+            callingFunctionItem->setGenerated(true);
+            callingFunctionItem->insertChild(0, item);
+            m_currentParent->insertChild(insertionIndex, callingFunctionItem);
+
+            endInsertRows();
         }
-        endInsertRows();
     } else if (mode == SearchResult::AddSorted) {
+        // this is the mode for e.g. text search
         foreach (const SearchResultItem &item, items) {
             SearchResultTreeItem *existingItem;
             const int insertionIndex = m_currentParent->insertionIndex(item, &existingItem);

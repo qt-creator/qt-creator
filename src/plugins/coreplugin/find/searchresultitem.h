@@ -127,6 +127,12 @@ public:
     bool selectForReplacement() const { return m_selectForReplacement; }
     void setSelectForReplacement(bool select) { m_selectForReplacement = select; }
 
+    QSharedPointer<SearchResultItem> callingFunctionItem() const { return m_callingFunctionItem; }
+    void setCallingFunctionItem(QSharedPointer<SearchResultItem> callingFunctionItem)
+    {
+        m_callingFunctionItem = callingFunctionItem;
+    }
+
 private:
     QStringList m_path; // hierarchy to the parent item of this item
     QString m_lineText; // text to show for the item itself
@@ -136,6 +142,7 @@ private:
     bool m_useTextEditorFont = false;
     bool m_selectForReplacement = true;
     SearchResultColor::Style m_style = SearchResultColor::Style::Default;
+    QSharedPointer<SearchResultItem> m_callingFunctionItem;
 };
 
 } // namespace Core
