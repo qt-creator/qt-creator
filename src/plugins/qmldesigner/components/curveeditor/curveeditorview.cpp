@@ -215,10 +215,9 @@ QmlTimeline CurveEditorView::activeTimeline() const
                 if (node.hasVariantProperty("enabled")
                     && node.variantProperty("enabled").value().toBool())
                     return QmlTimeline(node);
-
-                return {};
             }
         }
+        return {};
     }
 
     for (const ModelNode &node : allModelNodesOfType("QtQuick.Timeline.Timeline")) {
@@ -227,8 +226,9 @@ QmlTimeline CurveEditorView::activeTimeline() const
             if (!propertyChanges.isValid())
                 continue;
 
-            if (node.hasVariantProperty("enabled") && node.variantProperty("enabled").value().toBool())
-                return QmlTimeline(node);
+            if (propertyChanges.modelNode().hasProperty("enabled") &&
+                propertyChanges.modelNode().variantProperty("enabled").value().toBool())
+                    return QmlTimeline(node);
         }
     }
     return {};
