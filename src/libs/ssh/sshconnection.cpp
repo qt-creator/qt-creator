@@ -104,6 +104,26 @@ QStringList SshConnectionParameters::connectionOptions(const FilePath &binary) c
     return args;
 }
 
+bool SshConnectionParameters::setupSshEnvironment(QtcProcess *process)
+{
+    Environment env = process->hasEnvironment() ? process->environment()
+                                                : Environment::systemEnvironment();
+    const bool hasDisplay = env.hasKey("DISPLAY") && (env.value("DISPLAY") != QString(":0"));
+    if (SshSettings::askpassFilePath().exists()) {
+        env.set("SSH_ASKPASS", SshSettings::askpassFilePath().toUserOutput());
+
+        // OpenSSH only uses the askpass program if DISPLAY is set, regardless of the platform.
+        if (!env.hasKey("DISPLAY"))
+            env.set("DISPLAY", ":0");
+    }
+    process->setEnvironment(env);
+
+    // Otherwise, ssh will ignore SSH_ASKPASS and read from /dev/tty directly.
+    process->setDisableUnixTerminal();
+    return hasDisplay;
+}
+
+
 static inline bool equals(const SshConnectionParameters &p1, const SshConnectionParameters &p2)
 {
     return p1.url == p2.url
@@ -129,7 +149,7 @@ struct SshConnection::SshConnectionPrivate
     SshConnectionPrivate(const SshConnectionParameters &sshParameters)
         : connParams(sshParameters)
     {
-        SshRemoteProcess::setupSshEnvironment(&masterProcess);
+        SshConnectionParameters::setupSshEnvironment(&masterProcess);
     }
 
     QString fullProcessError()

@@ -29,12 +29,12 @@
 #include "rsyncdeploystep.h"
 
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
-#include <utils/port.h>
-#include <utils/qtcassert.h>
 #include <ssh/sftptransfer.h>
-#include <ssh/sshremoteprocess.h>
 #include <ssh/sshconnection.h>
 #include <ssh/sshconnectionmanager.h>
+#include <utils/port.h>
+#include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 using namespace QSsh;
@@ -72,7 +72,7 @@ GenericLinuxDeviceTester::GenericLinuxDeviceTester(QObject *parent)
             &GenericLinuxDeviceTester::handleUnameFinished);
     connect(&d->rsyncProcess, &QtcProcess::done, this,
             &GenericLinuxDeviceTester::handleRsyncFinished);
-    SshRemoteProcess::setupSshEnvironment(&d->rsyncProcess);
+    SshConnectionParameters::setupSshEnvironment(&d->rsyncProcess);
 }
 
 GenericLinuxDeviceTester::~GenericLinuxDeviceTester()

@@ -42,7 +42,6 @@
 #include <projectexplorer/runcontrol.h>
 
 #include <ssh/sshconnection.h>
-#include <ssh/sshremoteprocess.h>
 #include <ssh/sshsettings.h>
 
 #include <utils/algorithm.h>
@@ -189,7 +188,7 @@ void SshSharedConnection::connectToHost()
     }
 
     m_masterProcess.reset(new QtcProcess);
-    SshRemoteProcess::setupSshEnvironment(m_masterProcess.get());
+    SshConnectionParameters::setupSshEnvironment(m_masterProcess.get());
     m_timer.setSingleShot(true);
     connect(&m_timer, &QTimer::timeout, this, &SshSharedConnection::autoDestructRequested);
     connect(m_masterProcess.get(), &QtcProcess::readyReadStandardOutput, [this] {
@@ -759,7 +758,7 @@ void SshProcessInterfacePrivate::doStart()
     m_process.setTerminalMode(q->m_setup.m_terminalMode);
     m_process.setWriteData(q->m_setup.m_writeData);
     // TODO: what about other fields from m_setup?
-    SshRemoteProcess::setupSshEnvironment(&m_process);
+    SshConnectionParameters::setupSshEnvironment(&m_process);
     if (!m_sshParameters.x11DisplayName.isEmpty()) {
         Environment env = m_process.environment();
         // Note: it seems this is no-op when shared connection is used.
@@ -831,7 +830,7 @@ public:
         setSshParameters(parameters);
         m_shell.reset(new QtcProcess);
 
-        SshRemoteProcess::setupSshEnvironment(m_shell.get());
+        SshConnectionParameters::setupSshEnvironment(m_shell.get());
 
         const FilePath sshPath = SshSettings::sshFilePath();
         CommandLine cmd { sshPath };

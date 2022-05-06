@@ -33,7 +33,6 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <ssh/sshconnection.h>
-#include <ssh/sshremoteprocess.h>
 #include <ssh/sshsettings.h>
 #include <utils/algorithm.h>
 #include <utils/qtcprocess.h>
@@ -50,7 +49,7 @@ class RsyncDeployService : public AbstractRemoteLinuxDeployService
     Q_OBJECT
 public:
     RsyncDeployService(QObject *parent = nullptr) : AbstractRemoteLinuxDeployService(parent)
-        { SshRemoteProcess::setupSshEnvironment(&m_rsync); }
+        { SshConnectionParameters::setupSshEnvironment(&m_rsync); }
 
     void setDeployableFiles(const QList<DeployableFile> &files) { m_deployableFiles = files; }
     void setIgnoreMissingFiles(bool ignore) { m_ignoreMissingFiles = ignore; }

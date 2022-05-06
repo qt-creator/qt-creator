@@ -46,8 +46,6 @@ public:
 
     Utils::CommandLine fullLocalCommandLine(bool inTerminal = false) const;
 
-    static bool setupSshEnvironment(Utils::QtcProcess *process);
-
 protected:
     void emitFinished() override;
 

@@ -25,6 +25,7 @@
 
 #include "sshremoteprocess.h"
 
+#include "sshconnection.h"
 #include "sshlogging_p.h"
 #include "sshsettings.h"
 
@@ -54,7 +55,7 @@ namespace QSsh {
 SshRemoteProcess::SshRemoteProcess(const QString &command, const QStringList &connectionArgs)
     : QtcProcess()
 {
-    setupSshEnvironment(this);
+    SshConnectionParameters::setupSshEnvironment(this);
     m_remoteCommand = command;
     m_connectionArgs = connectionArgs;
 }
@@ -110,25 +111,6 @@ CommandLine SshRemoteProcess::fullLocalCommandLine(bool inTerminal) const
         cmd.addArg(m_remoteCommand);
 
     return cmd;
-}
-
-bool SshRemoteProcess::setupSshEnvironment(QtcProcess *process)
-{
-    Environment env = process->hasEnvironment() ? process->environment()
-                                                : Environment::systemEnvironment();
-    const bool hasDisplay = env.hasKey("DISPLAY") && (env.value("DISPLAY") != QString(":0"));
-    if (SshSettings::askpassFilePath().exists()) {
-        env.set("SSH_ASKPASS", SshSettings::askpassFilePath().toUserOutput());
-
-        // OpenSSH only uses the askpass program if DISPLAY is set, regardless of the platform.
-        if (!env.hasKey("DISPLAY"))
-            env.set("DISPLAY", ":0");
-    }
-    process->setEnvironment(env);
-
-    // Otherwise, ssh will ignore SSH_ASKPASS and read from /dev/tty directly.
-    process->setDisableUnixTerminal();
-    return hasDisplay;
 }
 
 } // namespace QSsh

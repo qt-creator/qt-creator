@@ -27,6 +27,8 @@
 
 #include <ssh/sshremoteprocess.h>
 
+#include <utils/qtcprocess.h>
+
 #include <QCoreApplication>
 #include <QFile>
 #include <QSocketNotifier>

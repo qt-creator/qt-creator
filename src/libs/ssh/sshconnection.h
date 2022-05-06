@@ -38,6 +38,8 @@
 
 #include <memory>
 
+namespace Utils { class QtcProcess; }
+
 namespace QSsh {
 class SshRemoteProcess;
 
@@ -73,6 +75,8 @@ public:
     int timeout = 0; // In seconds.
     AuthenticationType authenticationType = AuthenticationTypeAll;
     SshHostKeyCheckingMode hostKeyCheckingMode = SshHostKeyCheckingAllowNoMatch;
+
+    static bool setupSshEnvironment(Utils::QtcProcess *process);
 };
 
 QSSH_EXPORT bool operator==(const SshConnectionParameters &p1, const SshConnectionParameters &p2);
