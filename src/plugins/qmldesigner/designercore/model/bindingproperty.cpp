@@ -142,9 +142,9 @@ ModelNode BindingProperty::resolveToModelNode() const
 
 static inline QStringList commaSeparatedSimplifiedStringList(const QString &string)
 {
-    QStringList stringList = string.split(QStringLiteral(","));
+    const QStringList stringList = string.split(QStringLiteral(","));
     QStringList simpleList;
-    foreach (const QString &simpleString, stringList)
+    for (const QString &simpleString : stringList)
         simpleList.append(simpleString.simplified());
     return simpleList;
 }
@@ -190,8 +190,8 @@ QList<ModelNode> BindingProperty::resolveToModelNodeList() const
         QString string = expression();
         string.chop(1);
         string.remove(0, 1);
-        QStringList simplifiedList = commaSeparatedSimplifiedStringList(string);
-        foreach (const QString &nodeId, simplifiedList) {
+        const QStringList simplifiedList = commaSeparatedSimplifiedStringList(string);
+        for (const QString &nodeId : simplifiedList) {
             if (view()->hasId(nodeId))
                 returnList.append(view()->modelNodeForId(nodeId));
         }

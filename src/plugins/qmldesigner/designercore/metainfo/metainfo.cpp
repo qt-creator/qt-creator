@@ -115,10 +115,10 @@ void MetaInfoPrivate::parseItemLibraryDescriptions()
 {
 #ifndef QMLDESIGNER_TEST
     Internal::WidgetPluginManager pluginManager;
-    foreach (const QString &pluginDir, m_q->s_pluginDirs)
+    for (const QString &pluginDir : qAsConst(m_q->s_pluginDirs))
         pluginManager.addPath(pluginDir);
-    QList<IWidgetPlugin *> widgetPluginList = pluginManager.instances();
-    foreach (IWidgetPlugin *plugin, widgetPluginList) {
+    const QList<IWidgetPlugin *> widgetPluginList = pluginManager.instances();
+    for (IWidgetPlugin *plugin : widgetPluginList) {
         Internal::MetaInfoReader reader(*m_q);
         try {
             reader.readMetaInfoFile(plugin->metaInfo());

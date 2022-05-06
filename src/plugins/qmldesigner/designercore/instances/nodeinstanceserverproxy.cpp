@@ -174,7 +174,8 @@ QString NodeInstanceServerProxy::qrcMappingString() const
 
             using StringPair = QPair<QString, QString>;
 
-            foreach (const StringPair &pair, rewriterView->qrcMapping()) {
+            const QSet<QPair<QString, QString>> &pairs = rewriterView->qrcMapping();
+            for (const StringPair &pair : pairs) {
                 if (!mappingString.isEmpty())
                     mappingString.append(QLatin1String(";"));
                 mappingString.append(pair.first);

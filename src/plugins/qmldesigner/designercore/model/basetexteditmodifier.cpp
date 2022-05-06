@@ -95,8 +95,9 @@ bool BaseTextEditModifier::renameId(const QString &oldId, const QString &newId)
         if (auto document = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(
                 m_textEdit->textDocument())) {
             Utils::ChangeSet changeSet;
-            foreach (const QmlJS::SourceLocation &loc,
-                    document->semanticInfo().idLocations.value(oldId)) {
+            const QList<QmlJS::SourceLocation> locations = document->semanticInfo()
+                                                               .idLocations.value(oldId);
+            for (const QmlJS::SourceLocation &loc : locations) {
                 changeSet.replace(loc.begin(), loc.end(), newId);
             }
             QTextCursor tc = textCursor();

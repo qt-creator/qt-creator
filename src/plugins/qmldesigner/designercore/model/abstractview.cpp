@@ -825,7 +825,8 @@ QmlTimeline AbstractView::currentTimeline() const
 
 static int getMinorVersionFromImport(const Model *model)
 {
-    foreach (const Import &import, model->imports()) {
+    const QList<Import> imports = model->imports();
+    for (const Import &import : imports) {
         if (import.isLibraryImport() && import.url() == "QtQuick") {
             const QString versionString = import.version();
             if (versionString.contains(".")) {
@@ -840,7 +841,8 @@ static int getMinorVersionFromImport(const Model *model)
 
 static int getMajorVersionFromImport(const Model *model)
 {
-    foreach (const Import &import, model->imports()) {
+    const QList<Import> imports = model->imports();
+    for (const Import &import : imports) {
         if (import.isLibraryImport() && import.url() == QStringLiteral("QtQuick")) {
             const QString versionString = import.version();
             if (versionString.contains(QStringLiteral("."))) {
@@ -870,7 +872,8 @@ static int getMajorVersionFromNode(const ModelNode &modelNode)
 static int getMinorVersionFromNode(const ModelNode &modelNode)
 {
     if (modelNode.metaInfo().isValid()) {
-        foreach (const NodeMetaInfo &info,  modelNode.metaInfo().classHierarchy()) {
+        const QList<NodeMetaInfo> infos =  modelNode.metaInfo().classHierarchy();
+        for (const NodeMetaInfo &info :  infos) {
             if (info.typeName() == "QtQuick.QtObject" || info.typeName() == "QtQuick.Item")
                 return info.minorVersion();
         }

@@ -92,14 +92,14 @@ template <class ViewType>
 void ForwardView<ViewType>::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         view->modelAttached(model);
 }
 
 template <class ViewType>
 void ForwardView<ViewType>::modelAboutToBeDetached(Model *model)
 {
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         view->modelAboutToBeDetached(model);
 
     AbstractView::modelAboutToBeDetached(model);
@@ -108,35 +108,35 @@ void ForwardView<ViewType>::modelAboutToBeDetached(Model *model)
 template <class ViewType>
 void ForwardView<ViewType>::nodeCreated(const ModelNode &createdNode)
 {
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         view->nodeCreated(ModelNode(createdNode, view.data()));
 }
 
 template <class ViewType>
 void ForwardView<ViewType>::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         view->nodeAboutToBeRemoved(ModelNode(removedNode, view.data()));
 }
 
 template <class ViewType>
 void ForwardView<ViewType>::nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange)
 {
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         view->nodeRemoved(ModelNode(removedNode, view.data()), NodeAbstractProperty(parentProperty, view.data()), propertyChange);
 }
 
 template <class ViewType>
 void ForwardView<ViewType>::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, PropertyChangeFlags propertyChange)
 {
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         view->nodeReparented(ModelNode(node, view.data()), NodeAbstractProperty(newPropertyParent, view.data()), NodeAbstractProperty(oldPropertyParent, view.data()), propertyChange);
 }
 
 template <class ViewType>
 void ForwardView<ViewType>::nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId)
 {
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         view->nodeIdChanged(ModelNode(node, view.data()), newId, oldId);
 }
 
@@ -145,7 +145,7 @@ static QList<T> adjustedList(const QList<T>& oldList, AbstractView *view)
 {
     QList<T> newList;
 
-    foreach (const T &item, oldList)
+    for (const T &item : oldList)
     {
        newList.append(T(item, view));
     }
@@ -156,41 +156,41 @@ static QList<T> adjustedList(const QList<T>& oldList, AbstractView *view)
 template <class ViewType>
 void ForwardView<ViewType>::propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList)
 {
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         view->propertiesAboutToBeRemoved(adjustedList(propertyList, view.data()));
 }
 
 template <class ViewType>
 void ForwardView<ViewType>::propertiesRemoved(const QList<AbstractProperty>& propertyList)
 {
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         view->propertiesRemoved(adjustedList(propertyList, view.data()));
 }
 
 template <class ViewType>
 void ForwardView<ViewType>::variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange)
 {
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         view->variantPropertiesChanged(adjustedList(propertyList, view.data()), propertyChange);
 }
 
 template <class ViewType>
 void ForwardView<ViewType>::bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange)
 {
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         view->bindingPropertiesChanged(adjustedList(propertyList, view.data()), propertyChange);
 }
 
 void ForwardView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &propertyList, AbstractView::PropertyChangeFlags propertyChange)
 {
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         view->signalHandlerPropertiesChanged(adjustedList(propertyList, view.data()), propertyChange);
 }
 
 template <class ViewType>
 void ForwardView<ViewType>::rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion)
 {
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         view->rootNodeTypeChanged(type, majorVersion, minorVersion);
 }
 
@@ -198,7 +198,7 @@ template <class ViewType>
 void ForwardView<ViewType>::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                           const QList<ModelNode> &lastSelectedNodeList)
 {
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         view->selectedNodesChanged(adjustedList(selectedNodeList, view.data()), adjustedList(lastSelectedNodeList, view.data()));
 }
 
@@ -207,21 +207,21 @@ void ForwardView<ViewType>::fileUrlChanged(const QUrl &oldUrl, const QUrl &newUr
 {
     AbstractView::fileUrlChanged(oldUrl, newUrl);
 
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         view->fileUrlChanged(oldUrl, newUrl);
 }
 
 template<class ViewType>
 void ForwardView<ViewType>::nodeOrderChanged(const NodeListProperty &listProperty)
 {
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         view->nodeOrderChanged(NodeListProperty(listProperty, view.data()));
 }
 
 template <class ViewType>
 void ForwardView<ViewType>::importChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
 {
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         view->importChanged(addedImport, removedImport);
 }
 
@@ -230,7 +230,7 @@ void ForwardView<ViewType>::importRemoved(const Import &import)
 {
     AbstractView::importRemoved(import);
 
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         view->importRemoved(import);
 }
 
@@ -239,14 +239,14 @@ void ForwardView<ViewType>::auxiliaryDataChanged(const ModelNode &node, const Pr
 {
     AbstractView::auxiliaryDataChanged(node, name, data);
 
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         view->auxiliaryDataChanged(ModelNode(node, view.data()), name, data);
 }
 
 template <class ViewType>
         void ForwardView<ViewType>::scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList)
 {
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         view->scriptFunctionsChanged(node, scriptFunctionList);
 }
 
@@ -267,7 +267,7 @@ QList<ViewType*> ForwardView<ViewType>::viewList() const
 {
     QList<ViewType*> newList;
 
-    foreach (const ViewTypePointer &view, m_targetViewList)
+    for (const ViewTypePointer &view : qAsConst(m_targetViewList))
         newList.append(view.data());
 
     return newList;

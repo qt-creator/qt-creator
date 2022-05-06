@@ -289,7 +289,7 @@ QList<ItemLibraryEntry> ItemLibraryInfo::entriesForType(const QByteArray &typeNa
 {
     QList<ItemLibraryEntry> entries;
 
-    foreach (const ItemLibraryEntry &entry, m_nameToEntryHash) {
+    for (const ItemLibraryEntry &entry : qAsConst(m_nameToEntryHash)) {
         if (entry.typeName() == typeName)
             entries += entry;
     }
@@ -315,7 +315,7 @@ static inline QString keyForEntry(const ItemLibraryEntry &entry)
 
 void ItemLibraryInfo::addEntries(const QList<ItemLibraryEntry> &entries, bool overwriteDuplicate)
 {
-    foreach (const ItemLibraryEntry &entry, entries) {
+    for (const ItemLibraryEntry &entry : entries) {
         const QString key = keyForEntry(entry);
         if (!overwriteDuplicate && m_nameToEntryHash.contains(key))
             throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);

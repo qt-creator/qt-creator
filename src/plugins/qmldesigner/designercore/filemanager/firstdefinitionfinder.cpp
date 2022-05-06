@@ -40,7 +40,8 @@ FirstDefinitionFinder::FirstDefinitionFinder(const QString &text):
 
     if (!ok) {
         qDebug() << text;
-        foreach (const QmlJS::DiagnosticMessage &message, m_doc->diagnosticMessages())
+        const QList<QmlJS::DiagnosticMessage> messages = m_doc->diagnosticMessages();
+        for (const QmlJS::DiagnosticMessage &message : messages)
                 qDebug() << message.message;
     }
 

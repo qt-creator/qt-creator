@@ -140,7 +140,8 @@ static QString qualifiedTypeNameForContext(const ObjectValue *objectValue,
     QStringList packages;
     if (const CppComponentValue *cppComponent = value_cast<CppComponentValue>(objectValue)) {
         QString className = cppComponent->className();
-        foreach (const LanguageUtils::FakeMetaObject::Export &e, cppComponent->metaObject()->exports()) {
+        const QList<LanguageUtils::FakeMetaObject::Export> &exports = cppComponent->metaObject()->exports();
+        for (const LanguageUtils::FakeMetaObject::Export &e : exports) {
             if (e.type == className)
                 packages << e.package;
             if (e.package == CppQmlTypes::cppPackage)
@@ -160,7 +161,7 @@ static QString qualifiedTypeNameForContext(const ObjectValue *objectValue,
         CoreImport cImport = dep.coreImport(objectValue->originId());
         if (!cImport.valid())
             break;
-        foreach (const Export &e, cImport.possibleExports) {
+        for (const Export &e : qAsConst(cImport.possibleExports)) {
             if (e.pathRequired.isEmpty() || vContext.paths.contains(e.pathRequired)) {
                 switch (e.exportName.type) {
                 case ImportType::Library:
@@ -185,7 +186,7 @@ static QString qualifiedTypeNameForContext(const ObjectValue *objectValue,
                     // remove the search path prefix.
                     // this means that the same relative path wrt. different import paths will clash
                     QString filePath = e.exportName.path();
-                    foreach (const QString &path, vContext.paths) {
+                    for (const QString &path : qAsConst(vContext.paths)) {
                         if (filePath.startsWith(path) && filePath.size() > path.size()
                                 && filePath.at(path.size()) == QLatin1Char('/'))
                         {
@@ -260,7 +261,7 @@ static QString qualifiedTypeNameForContext(const ObjectValue *objectValue,
         };
         if (!possibleLibraries.isEmpty()) {
             if (hasQtQuick) {
-                foreach (const QString &libImport, possibleLibraries)
+                for (const QString &libImport : qAsConst(possibleLibraries))
                     if (!libImport.startsWith(QLatin1String("QtQuick")))
                         possibleLibraries.removeAll(libImport);
             }
@@ -456,8 +457,8 @@ QVector<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const Co
             //dot property
             const CppComponentValue * qmlValue = value_cast<CppComponentValue>(objectValue->lookupMember(nameAsString, context));
             if (qmlValue) {
-                QVector<PropertyInfo> dotProperties = getQmlTypes(qmlValue, context, false, rec + 1);
-                foreach (const PropertyInfo &propertyInfo, dotProperties) {
+                const QVector<PropertyInfo> dotProperties = getQmlTypes(qmlValue, context, false, rec + 1);
+                for (const PropertyInfo &propertyInfo : dotProperties) {
                     const PropertyName dotName = name + '.' + propertyInfo.first;
                     const TypeName type = propertyInfo.second;
                     propertyList.append({dotName, type});
@@ -467,8 +468,8 @@ QVector<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const Co
         if (isValueType(objectValue->propertyType(nameAsString))) {
             const ObjectValue *dotObjectValue = value_cast<ObjectValue>(objectValue->lookupMember(nameAsString, context));
             if (dotObjectValue) {
-                QVector<PropertyInfo> dotProperties = getObjectTypes(dotObjectValue, context, false, rec + 1);
-                foreach (const PropertyInfo &propertyInfo, dotProperties) {
+                const QVector<PropertyInfo> dotProperties = getObjectTypes(dotObjectValue, context, false, rec + 1);
+                for (const PropertyInfo &propertyInfo : dotProperties) {
                     const PropertyName dotName = name + '.' + propertyInfo.first;
                     const TypeName type = propertyInfo.second;
                     propertyList.append({dotName, type});
@@ -825,7 +826,7 @@ const CppComponentValue *NodeMetaInfoPrivate::getCppComponentValue() const
     const QmlJS::Imports *importsPtr = context()->imports(document());
     if (importsPtr) {
         const QList<QmlJS::Import> &imports = importsPtr->all();
-        foreach (const QmlJS::Import &import, imports) {
+        for (const QmlJS::Import &import : imports) {
             if (import.info.path() != QString::fromUtf8(module))
                 continue;
             const Value *lookupResult = import.object->lookupMember(QString::fromUtf8(type), context());
@@ -846,9 +847,11 @@ const CppComponentValue *NodeMetaInfoPrivate::getCppComponentValue() const
     const CppComponentValue *cppValue = context()->valueOwner()->cppQmlTypes().objectByCppName(QString::fromUtf8(type));
 
     if (cppValue) {
-        foreach (const LanguageUtils::FakeMetaObject::Export &exportValue, cppValue->metaObject()->exports()) {
+        const QList<LanguageUtils::FakeMetaObject::Export> exports = cppValue->metaObject()->exports();
+        for (const LanguageUtils::FakeMetaObject::Export &exportValue : exports) {
             if (exportValue.package.toUtf8() != "<cpp>") {
-                foreach (const QmlJS::Import &import, context()->imports(document())->all()) {
+                const QList<QmlJS::Import> imports = context()->imports(document())->all();
+                for (const QmlJS::Import &import : imports) {
                     if (import.info.path() != exportValue.package)
                         continue;
                     const Value *lookupResult = import.object->lookupMember(exportValue.type, context());
@@ -884,14 +887,14 @@ const Document *NodeMetaInfoPrivate::document() const
 
 void NodeMetaInfoPrivate::setupLocalPropertyInfo(const QVector<PropertyInfo> &localPropertyInfos)
 {
-    foreach (const PropertyInfo &propertyInfo, localPropertyInfos) {
+    for (const PropertyInfo &propertyInfo : localPropertyInfos) {
         m_localProperties.append(propertyInfo.first);
     }
 }
 
 void NodeMetaInfoPrivate::setupPropertyInfo(const QVector<PropertyInfo> &propertyInfos)
 {
-    foreach (const PropertyInfo &propertyInfo, propertyInfos) {
+    for (const PropertyInfo &propertyInfo : propertyInfos) {
         if (!m_properties.contains(propertyInfo.first)) {
             m_properties.append(propertyInfo.first);
             m_propertyTypes.append(propertyInfo.second);
@@ -1197,7 +1200,8 @@ QString NodeMetaInfoPrivate::importDirectoryPath() const
             return importInfo.path();
         } else if (importInfo.type() == ImportType::Library) {
             if (modelManager) {
-                foreach (const QString &importPath, model()->importPaths()) {
+                const QStringList importPaths = model()->importPaths();
+                for (const QString &importPath : importPaths) {
                     const QString targetPath = QDir(importPath).filePath(importInfo.path());
                     if (QDir(targetPath).exists())
                         return targetPath;
@@ -1271,7 +1275,7 @@ void NodeMetaInfoPrivate::setupPrototypes()
         return;
     }
 
-    foreach (const ObjectValue *ov, objects) {
+    for (const ObjectValue *ov : qAsConst(objects)) {
         TypeDescription description;
         description.className = ov->className();
         description.minorVersion = -1;
@@ -1301,7 +1305,8 @@ void NodeMetaInfoPrivate::setupPrototypes()
             } else {
                 bool found = false;
                 if (cppExport.isValid()) {
-                    foreach (const LanguageUtils::FakeMetaObject::Export &exportValue, qmlValue->metaObject()->exports()) {
+                    const QList<LanguageUtils::FakeMetaObject::Export> exports = qmlValue->metaObject()->exports();
+                    for (const LanguageUtils::FakeMetaObject::Export &exportValue : exports) {
                         if (exportValue.package.toUtf8() != "<cpp>") {
                             found = true;
                             description.className = exportValue.package + '.' + exportValue.type;
@@ -1612,7 +1617,8 @@ bool NodeMetaInfo::isSubclassOf(const TypeName &type, int majorVersion, int mino
     if (m_privateData->prototypeCacheNegatives().contains(Internal::stringIdentifier(type, majorVersion, minorVersion)))
         return false; //take a shortcut - optimization
 
-    foreach (const NodeMetaInfo &superClass, superClasses()) {
+    const QList<NodeMetaInfo> superClassList = superClasses();
+    for (const NodeMetaInfo &superClass : superClassList) {
         if (superClass.m_privateData->cleverCheckType(type)
                 && superClass.availableInVersion(majorVersion, minorVersion)) {
             m_privateData->prototypeCachePositives().insert(Internal::stringIdentifier(type, majorVersion, minorVersion));

@@ -482,7 +482,7 @@ void NodeInstanceView::propertiesAboutToBeRemoved(const QList<AbstractProperty>&
     QList<ModelNode> nodeList;
     QList<AbstractProperty> nonNodePropertyList;
 
-    foreach (const AbstractProperty &property, propertyList) {
+    for (const AbstractProperty &property : propertyList) {
         if (property.isNodeAbstractProperty())
             nodeList.append(property.toNodeAbstractProperty().allSubNodes());
         else
@@ -497,7 +497,7 @@ void NodeInstanceView::propertiesAboutToBeRemoved(const QList<AbstractProperty>&
     m_nodeInstanceServer->removeSharedMemory(createRemoveSharedMemoryCommand("Image", nodeList));
     m_nodeInstanceServer->removeProperties(createRemovePropertiesCommand(nonNodePropertyList));
 
-    foreach (const AbstractProperty &property, propertyList) {
+    for (const AbstractProperty &property : propertyList) {
         const PropertyName &name = property.name();
         if (name == "anchors.fill") {
             resetHorizontalAnchors(property.parentModelNode());
@@ -525,13 +525,14 @@ void NodeInstanceView::propertiesAboutToBeRemoved(const QList<AbstractProperty>&
         }
     }
 
-    foreach (const ModelNode &node, nodeList)
+    for (const ModelNode &node : qAsConst(nodeList))
         removeInstanceNodeRelationship(node);
 }
 
 void NodeInstanceView::removeInstanceAndSubInstances(const ModelNode &node)
 {
-    foreach (const ModelNode &subNode, node.allSubModelNodes()) {
+    const QList<ModelNode> subNodes = node.allSubModelNodes();
+    for (const ModelNode &subNode : subNodes) {
         if (hasInstanceForModelNode(subNode))
             removeInstanceNodeRelationship(subNode);
     }
@@ -636,7 +637,8 @@ void NodeInstanceView::nodeOrderChanged(const NodeListProperty &listProperty)
     if (hasInstanceForModelNode(containerNode))
         containerInstanceId = instanceForModelNode(containerNode).instanceId();
 
-    foreach (const ModelNode &node, listProperty.toModelNodeList()) {
+    const QList<ModelNode> nodes = listProperty.toModelNodeList();
+    for (const ModelNode &node : nodes) {
         qint32 instanceId = -1;
         if (hasInstanceForModelNode(node)) {
             instanceId = instanceForModelNode(node).instanceId();
@@ -848,11 +850,11 @@ NodeInstance NodeInstanceView::activeStateInstance() const
 
 void NodeInstanceView::updateChildren(const NodeAbstractProperty &newPropertyParent)
 {
-    QVector<ModelNode> childNodeVector = newPropertyParent.directSubNodes().toVector();
+    const QVector<ModelNode> childNodeVector = newPropertyParent.directSubNodes().toVector();
 
     qint32 parentInstanceId = newPropertyParent.parentModelNode().internalId();
 
-    foreach (const ModelNode &childNode, childNodeVector) {
+    for (const ModelNode &childNode : childNodeVector) {
         qint32 instanceId = childNode.internalId();
         if (hasInstanceForId(instanceId)) {
             NodeInstance instance = instanceForId(instanceId);
@@ -882,7 +884,7 @@ void NodeInstanceView::updatePosition(const QList<VariantProperty> &propertyList
 {
     QMultiHash<ModelNode, InformationName> informationChangeHash;
 
-    foreach (const VariantProperty &variantProperty, propertyList) {
+    for (const VariantProperty &variantProperty : propertyList) {
         if (variantProperty.name() == "x") {
             const ModelNode modelNode = variantProperty.parentModelNode();
             if (!currentState().isBaseState() && QmlPropertyChanges::isValidQmlPropertyChanges(modelNode)) {
@@ -957,7 +959,8 @@ void NodeInstanceView::removeRecursiveChildRelationship(const ModelNode &removed
 //        instanceForNode(removedNode).setId(QString());
 //    }
 
-    foreach (const ModelNode &childNode, removedNode.directSubModelNodes())
+    const QList<ModelNode> nodes = removedNode.directSubModelNodes();
+    for (const ModelNode &childNode : nodes)
         removeRecursiveChildRelationship(childNode);
 
     removeInstanceNodeRelationship(removedNode);
@@ -974,7 +977,7 @@ QRectF NodeInstanceView::sceneRect() const
 QList<ModelNode> filterNodesForSkipItems(const QList<ModelNode> &nodeList)
 {
     QList<ModelNode> filteredNodeList;
-    foreach (const ModelNode &node, nodeList) {
+    for (const ModelNode &node : nodeList) {
         if (isSkippedNode(node))
             continue;
 
@@ -1169,7 +1172,7 @@ ClearSceneCommand NodeInstanceView::createClearSceneCommand() const
 CompleteComponentCommand NodeInstanceView::createComponentCompleteCommand(const QList<NodeInstance> &instanceList) const
 {
     QVector<qint32> containerList;
-    foreach (const NodeInstance &instance, instanceList) {
+    for (const NodeInstance &instance : instanceList) {
         if (instance.instanceId() >= 0)
             containerList.append(instance.instanceId());
     }
@@ -1180,7 +1183,7 @@ CompleteComponentCommand NodeInstanceView::createComponentCompleteCommand(const 
 ComponentCompletedCommand NodeInstanceView::createComponentCompletedCommand(const QList<NodeInstance> &instanceList) const
 {
     QVector<qint32> containerList;
-    foreach (const NodeInstance &instance, instanceList) {
+    for (const NodeInstance &instance : instanceList) {
         if (instance.instanceId() >= 0)
             containerList.append(instance.instanceId());
     }
@@ -1191,7 +1194,7 @@ ComponentCompletedCommand NodeInstanceView::createComponentCompletedCommand(cons
 CreateInstancesCommand NodeInstanceView::createCreateInstancesCommand(const QList<NodeInstance> &instanceList) const
 {
     QVector<InstanceContainer> containerList;
-    foreach (const NodeInstance &instance, instanceList) {
+    for (const NodeInstance &instance : instanceList) {
         InstanceContainer::NodeSourceType nodeSourceType = static_cast<InstanceContainer::NodeSourceType>(instance.modelNode().nodeSourceType());
 
         InstanceContainer::NodeMetaType nodeMetaType = InstanceContainer::ObjectMetaType;
@@ -1221,7 +1224,7 @@ CreateInstancesCommand NodeInstanceView::createCreateInstancesCommand(const QLis
 ReparentInstancesCommand NodeInstanceView::createReparentInstancesCommand(const QList<NodeInstance> &instanceList) const
 {
     QVector<ReparentContainer> containerList;
-    foreach (const NodeInstance &instance, instanceList) {
+    for (const NodeInstance &instance : instanceList) {
         if (instance.modelNode().hasParentProperty()) {
             NodeAbstractProperty parentProperty = instance.modelNode().parentProperty();
             ReparentContainer container(instance.instanceId(), -1, PropertyName(), instanceForModelNode(parentProperty.parentModelNode()).instanceId(), parentProperty.name());
@@ -1265,7 +1268,7 @@ ChangeValuesCommand NodeInstanceView::createChangeValueCommand(const QList<Varia
 
     const bool reflectionFlag = m_puppetTransaction.isValid() && (!currentTimeline().isValid() || !currentTimeline().isRecording());
 
-    foreach (const VariantProperty &property, propertyList) {
+    for (const VariantProperty &property : propertyList) {
         ModelNode node = property.parentModelNode();
         if (node.isValid() && hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
@@ -1315,7 +1318,7 @@ ChangeIdsCommand NodeInstanceView::createChangeIdsCommand(const QList<NodeInstan
 RemoveInstancesCommand NodeInstanceView::createRemoveInstancesCommand(const QList<ModelNode> &nodeList) const
 {
     QVector<qint32> idList;
-    foreach (const ModelNode &node, nodeList) {
+    for (const ModelNode &node : nodeList) {
         if (node.isValid() && hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
 
@@ -1330,7 +1333,7 @@ RemoveInstancesCommand NodeInstanceView::createRemoveInstancesCommand(const QLis
 ChangeSelectionCommand NodeInstanceView::createChangeSelectionCommand(const QList<ModelNode> &nodeList) const
 {
     QVector<qint32> idList;
-    foreach (const ModelNode &node, nodeList) {
+    for (const ModelNode &node : nodeList) {
         if (node.isValid() && hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
 
@@ -1356,7 +1359,7 @@ RemovePropertiesCommand NodeInstanceView::createRemovePropertiesCommand(const QL
 {
     QVector<PropertyAbstractContainer> containerList;
 
-    foreach (const AbstractProperty &property, propertyList) {
+    for (const AbstractProperty &property : propertyList) {
         ModelNode node = property.parentModelNode();
         if (node.isValid() && hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
@@ -1378,7 +1381,7 @@ RemoveSharedMemoryCommand NodeInstanceView::createRemoveSharedMemoryCommand(cons
 {
     QVector<qint32> keyNumberVector;
 
-    foreach (const ModelNode &modelNode, nodeList)
+    for (const ModelNode &modelNode : nodeList)
         keyNumberVector.append(modelNode.internalId());
 
     return RemoveSharedMemoryCommand(sharedMemoryTypeName, keyNumberVector);
@@ -1391,7 +1394,8 @@ void NodeInstanceView::valuesChanged(const ValuesChangedCommand &command)
 
     QList<QPair<ModelNode, PropertyName> > valuePropertyChangeList;
 
-    foreach (const PropertyValueContainer &container, command.valueChanges()) {
+    const QVector<PropertyValueContainer> containers = command.valueChanges();
+    for (const PropertyValueContainer &container : containers) {
         if (hasInstanceForId(container.instanceId())) {
             NodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
@@ -1439,7 +1443,8 @@ void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
 
     QSet<ModelNode> renderImageChangeSet;
 
-    foreach (const ImageContainer &container, command.images()) {
+    const QVector<ImageContainer> containers = command.images();
+    for (const ImageContainer &container : containers) {
         if (hasInstanceForId(container.instanceId())) {
             NodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
@@ -1459,7 +1464,7 @@ QMultiHash<ModelNode, InformationName> NodeInstanceView::informationChanged(cons
 {
     QMultiHash<ModelNode, InformationName> informationChangeHash;
 
-    foreach (const InformationContainer &container, containerVector) {
+    for (const InformationContainer &container : containerVector) {
         if (hasInstanceForId(container.instanceId())) {
             NodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
@@ -1517,7 +1522,8 @@ void NodeInstanceView::statePreviewImagesChanged(const StatePreviewImageChangedC
 
   QVector<ModelNode> previewImageChangeVector;
 
-  foreach (const ImageContainer &container, command.previews()) {
+  const QVector<ImageContainer> containers = command.previews();
+  for (const ImageContainer &container : containers) {
       if (container.keyNumber() == -1) {
           m_baseStatePreviewImage = container.image();
           if (!container.image().isNull())
@@ -1541,7 +1547,8 @@ void NodeInstanceView::componentCompleted(const ComponentCompletedCommand &comma
 
     QVector<ModelNode> nodeVector;
 
-    foreach (const qint32 &instanceId, command.instances()) {
+    const QVector<qint32> instances = command.instances();
+    for (const qint32 &instanceId : instances) {
         if (hasModelNodeForInternalId(instanceId))
             nodeVector.append(modelNodeForInternalId(instanceId));
     }
@@ -1559,7 +1566,8 @@ void NodeInstanceView::childrenChanged(const ChildrenChangedCommand &command)
 
     QVector<ModelNode> childNodeVector;
 
-    foreach (qint32 instanceId, command.childrenInstances()) {
+    const QVector<qint32> instances = command.childrenInstances();
+    for (const qint32 &instanceId : instances) {
         if (hasInstanceForId(instanceId)) {
             NodeInstance instance = instanceForId(instanceId);
             if (instance.parentId() == -1 || !instance.directUpdates())
@@ -1584,7 +1592,8 @@ void NodeInstanceView::token(const TokenCommand &command)
 
     QVector<ModelNode> nodeVector;
 
-    foreach (const qint32 &instanceId, command.instances()) {
+    const QVector<qint32> instances = command.instances();
+    for (const qint32 &instanceId : instances) {
         if (hasModelNodeForInternalId(instanceId))
             nodeVector.append(modelNodeForInternalId(instanceId));
     }
@@ -1599,7 +1608,8 @@ void NodeInstanceView::debugOutput(const DebugOutputCommand & command)
         emitDocumentMessage(command.text());
     } else {
         QVector<qint32> instanceIdsWithChangedErrors;
-        foreach (qint32 instanceId, command.instanceIds()) {
+        const QVector<qint32> instanceIds = command.instanceIds();
+        for (const qint32 &instanceId : instanceIds) {
             NodeInstance instance = instanceForId(instanceId);
             if (instance.isValid()) {
                 if (instance.setError(command.text()))
@@ -1615,7 +1625,7 @@ void NodeInstanceView::debugOutput(const DebugOutputCommand & command)
 void NodeInstanceView::sendToken(const QString &token, int number, const QVector<ModelNode> &nodeVector)
 {
     QVector<qint32> instanceIdVector;
-    foreach (const ModelNode &node, nodeVector)
+    for (const ModelNode &node : nodeVector)
         instanceIdVector.append(node.internalId());
 
     m_nodeInstanceServer->token(TokenCommand(token, number, instanceIdVector));
@@ -1624,7 +1634,8 @@ void NodeInstanceView::sendToken(const QString &token, int number, const QVector
 void NodeInstanceView::selectionChanged(const ChangeSelectionCommand &command)
 {
     clearSelectedModelNodes();
-    foreach (const qint32 &instanceId, command.instanceIds()) {
+    const QVector<qint32> instanceIds = command.instanceIds();
+    for (const qint32 &instanceId : instanceIds) {
         if (hasModelNodeForInternalId(instanceId))
             selectModelNode(modelNodeForInternalId(instanceId));
     }

@@ -132,8 +132,9 @@ QDateTime PuppetCreator::puppetSourceLastModified() const
     };
 
     QDateTime lastModified;
-    foreach (const QString directoryPath, sourceDirectoryPaths) {
-        foreach (const QFileInfo fileEntry, QDir(directoryPath).entryInfoList()) {
+    for (const QString &directoryPath : sourceDirectoryPaths) {
+        const QFileInfoList fileEntrys = QDir(directoryPath).entryInfoList();
+        for (const QFileInfo &fileEntry : fileEntrys) {
             const QDateTime filePathLastModified = fileEntry.lastModified();
             if (lastModified < filePathLastModified)
                 lastModified = filePathLastModified;

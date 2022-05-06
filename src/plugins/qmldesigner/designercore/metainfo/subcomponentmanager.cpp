@@ -173,7 +173,7 @@ void SubComponentManager::parseDirectories()
     for (const auto &assetPath : assetPaths)
         parseDirectory(assetPath);
 
-    foreach (const Import &import, m_imports) {
+    for (const Import &import : qAsConst(m_imports)) {
         if (import.isFileImport()) {
             QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.file()).toLocalFile());
             if (dirInfo.exists() && dirInfo.isDir()) {
@@ -184,7 +184,8 @@ void SubComponentManager::parseDirectories()
             QString url = import.url();
             url.replace(QLatin1Char('.'), QLatin1Char('/'));
             QFileInfo dirInfo = QFileInfo(url);
-            foreach (const QString &path, importPaths()) {
+            const QStringList paths = importPaths();
+            for (const QString &path : paths) {
                 QString fullUrl  = path + QLatin1Char('/') + url;
                 dirInfo = QFileInfo(fullUrl);
 
@@ -222,7 +223,8 @@ void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool a
         designerDir.setNameFilters(filter);
 
         QStringList metaFiles = designerDir.entryList(QDir::Files);
-        foreach (const QFileInfo &metaInfoFile, designerDir.entryInfoList(QDir::Files)) {
+        const QFileInfoList metaInfoList = designerDir.entryInfoList(QDir::Files);
+        for (const QFileInfo &metaInfoFile : metaInfoList) {
             if (model() && model()->metaInfo().itemLibraryInfo()) {
                 Internal::MetaInfoReader reader(model()->metaInfo());
                 reader.setQualifcation(qualification);
@@ -250,7 +252,8 @@ void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool a
 
     QFileInfoList monitoredList = watchedFiles(canonicalDirPath);
     QFileInfoList newList;
-    foreach (const QFileInfo &qmlFile, dir.entryInfoList()) {
+    const QFileInfoList qmlFileList = dir.entryInfoList();
+    for (const QFileInfo &qmlFile : qmlFileList) {
         if (QFileInfo(m_filePath.toLocalFile()) == qmlFile) {
             // do not parse main file
             continue;
@@ -279,7 +282,8 @@ void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool a
             continue;
         }
         if (oldFileInfo < newFileInfo) {
-            foreach (const QString &qualifier, m_dirToQualifier.value(canonicalDirPath))
+            const QString qualifiers = m_dirToQualifier.value(canonicalDirPath);
+            for (const QChar &qualifier : qualifiers)
                 unregisterQmlFile(oldFileInfo, qualifier);
             m_watcher.removePath(oldFileInfo.filePath());
             ++oldIter;
@@ -291,7 +295,8 @@ void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool a
     }
 
     while (oldIter != monitoredList.constEnd()) {
-        foreach (const QString &qualifier, m_dirToQualifier.value(canonicalDirPath))
+        const QString qualifiers = m_dirToQualifier.value(canonicalDirPath);
+        for (const QChar &qualifier : qualifiers)
             unregisterQmlFile(*oldIter, qualifier);
         ++oldIter;
     }
@@ -315,7 +320,8 @@ void SubComponentManager::parseFile(const QString &canonicalFilePath, bool addTo
 
     const QFileInfo fi(canonicalFilePath);
     const QString dir = fi.path();
-    foreach (const QString &qualifier, m_dirToQualifier.values(dir)) {
+    const QStringList qualifiers = m_dirToQualifier.values(dir);
+    for (const QString &qualifier : qualifiers) {
         registerQmlFile(fi, qualifier, addToLibrary);
     }
     registerQmlFile(fi, qualification, addToLibrary);
@@ -331,7 +337,8 @@ QFileInfoList SubComponentManager::watchedFiles(const QString &canonicalDirPath)
 {
     QFileInfoList files;
 
-    foreach (const QString &monitoredFile, m_watcher.files()) {
+    const QStringList monitoredFiles = m_watcher.files();
+    for (const QString &monitoredFile : monitoredFiles) {
         QFileInfo fileInfo(monitoredFile);
         if (fileInfo.dir().absolutePath() == canonicalDirPath)
             files.append(fileInfo);
