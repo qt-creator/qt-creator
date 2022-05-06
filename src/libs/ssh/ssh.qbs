@@ -31,8 +31,6 @@ Project {
             "sshkeycreationdialog.ui",
             "sshlogging.cpp",
             "sshlogging_p.h",
-            "sshremoteprocess.cpp",
-            "sshremoteprocess.h",
             "sshsettings.cpp",
             "sshsettings.h",
         ]

@@ -27,7 +27,6 @@
 
 #include "sftptransfer.h"
 #include "sshlogging_p.h"
-#include "sshremoteprocess.h"
 #include "sshsettings.h"
 
 #include <utils/fileutils.h>
@@ -284,18 +283,6 @@ SshConnection::~SshConnection()
     disconnect();
     disconnectFromHost();
     delete d;
-}
-
-SshRemoteProcessPtr SshConnection::createRemoteProcess(const QString &command)
-{
-    QTC_ASSERT(state() == Connected, return SshRemoteProcessPtr());
-    return SshRemoteProcessPtr(new SshRemoteProcess(command,
-                                                    d->connectionArgs(SshSettings::sshFilePath())));
-}
-
-SshRemoteProcessPtr SshConnection::createRemoteShell()
-{
-    return createRemoteProcess({});
 }
 
 SftpTransferPtr SshConnection::createUpload(const FilesToTransfer &files,

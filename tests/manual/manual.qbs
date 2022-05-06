@@ -13,7 +13,6 @@ Project {
         "process/process.qbs",
         "proparser/testreader.qbs",
         "shootout/shootout.qbs",
-        "ssh/shell/shell.qbs",
         "widgets/widgets.qbs",
     ]
 }

@@ -13,6 +13,5 @@ add_qtc_library(QtcSsh
     sshconnectionmanager.cpp sshconnectionmanager.h
     sshkeycreationdialog.cpp sshkeycreationdialog.h sshkeycreationdialog.ui
     sshlogging.cpp sshlogging_p.h
-    sshremoteprocess.cpp sshremoteprocess.h
     sshsettings.cpp sshsettings.h
 )

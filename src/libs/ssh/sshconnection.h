@@ -41,7 +41,6 @@
 namespace Utils { class QtcProcess; }
 
 namespace QSsh {
-class SshRemoteProcess;
 
 enum SshHostKeyCheckingMode {
     SshHostKeyCheckingNone,
@@ -82,8 +81,6 @@ public:
 QSSH_EXPORT bool operator==(const SshConnectionParameters &p1, const SshConnectionParameters &p2);
 QSSH_EXPORT bool operator!=(const SshConnectionParameters &p1, const SshConnectionParameters &p2);
 
-using SshRemoteProcessPtr = std::unique_ptr<SshRemoteProcess>;
-
 class QSSH_EXPORT SshConnection : public QObject
 {
     Q_OBJECT
@@ -102,8 +99,6 @@ public:
     bool sharingEnabled() const;
     ~SshConnection();
 
-    SshRemoteProcessPtr createRemoteProcess(const QString &command);
-    SshRemoteProcessPtr createRemoteShell();
     SftpTransferPtr createUpload(const FilesToTransfer &files,
                                  FileTransferErrorHandling errorHandlingMode);
     SftpTransferPtr createDownload(const FilesToTransfer &files,

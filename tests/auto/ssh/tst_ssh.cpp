@@ -25,7 +25,6 @@
 
 #include <ssh/sftptransfer.h>
 #include <ssh/sshconnection.h>
-#include <ssh/sshremoteprocess.h>
 #include <ssh/sshsettings.h>
 
 #include <utils/algorithm.h>
@@ -59,7 +58,6 @@ private slots:
     void errorHandling_data();
     void errorHandling();
     void pristineConnectionObject();
-    void remoteProcessChannels();
     void remoteProcessInput();
     void sftp();
 
@@ -145,46 +143,6 @@ void tst_Ssh::pristineConnectionObject()
     QRegularExpression assertToIgnore(
               "SOFT ASSERT: \"state\\(\\) == Connected\" in file .*[/\\\\]sshconnection.cpp, line \\d*");
     QTest::ignoreMessage(QtDebugMsg, assertToIgnore);
-    QVERIFY(!connection.createRemoteProcess(""));
-}
-
-void tst_Ssh::remoteProcessChannels()
-{
-    const SshConnectionParameters params = SshTest::getParameters();
-    if (!SshTest::checkParameters(params))
-        QSKIP("Insufficient setup - set QTC_SSH_TEST_* variables.");
-    SshConnection connection(params);
-    QVERIFY(waitForConnection(connection));
-
-    static const QByteArray testString("ChannelTest");
-    QByteArray remoteStdout;
-    QByteArray remoteStderr;
-    QByteArray remoteData;
-    SshRemoteProcessPtr echoProcess
-            = connection.createRemoteProcess("printf " + QString::fromUtf8(testString) + " >&2");
-    QEventLoop loop;
-    connect(echoProcess.get(), &QtcProcess::done, &loop, &QEventLoop::quit);
-    connect(echoProcess.get(), &QtcProcess::readyReadStandardError,
-            [&remoteData, p = echoProcess.get()] { remoteData += p->readAllStandardError(); });
-    connect(echoProcess.get(), &QtcProcess::readyReadStandardOutput,
-            [&remoteStdout, p = echoProcess.get()] { remoteStdout += p->readAllStandardOutput(); });
-    connect(echoProcess.get(), &QtcProcess::readyReadStandardError,
-            [&remoteStderr] { remoteStderr = testString; });
-    echoProcess->start();
-    QTimer timer;
-    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-    timer.setSingleShot(true);
-    timer.setInterval((params.timeout + 5) * 1000);
-    timer.start();
-    loop.exec();
-    QVERIFY(timer.isActive());
-    timer.stop();
-    QVERIFY(!echoProcess->isRunning());
-    QCOMPARE(echoProcess->exitStatus(), QProcess::NormalExit);
-    QCOMPARE(echoProcess->exitCode(), 0);
-    QVERIFY(remoteStdout.isEmpty());
-    QCOMPARE(remoteData, testString);
-    QCOMPARE(remoteData, remoteStderr);
 }
 
 void tst_Ssh::remoteProcessInput()
