@@ -47,13 +47,14 @@ public:
     FadingIndicatorPrivate(QWidget *parent, FadingIndicator::TextSize size)
         : QWidget(parent)
     {
+        setAttribute(Qt::WA_TransparentForMouseEvents, true);
         m_effect = new QGraphicsOpacityEffect(this);
         setGraphicsEffect(m_effect);
         m_effect->setOpacity(.999);
 
         m_label = new QLabel;
         QFont font = m_label->font();
-        font.setPixelSize(size == FadingIndicator::LargeText ? 45 : 22);
+        font.setPixelSize(size == FadingIndicator::LargeText ? 30 : 18);
         m_label->setFont(font);
         QPalette pal = palette();
         pal.setColor(QPalette::WindowText, pal.color(QPalette::Window));
@@ -67,6 +68,7 @@ public:
     {
         m_pixmap = QPixmap();
         m_label->setText(text);
+        m_effect->setOpacity(.6); // because of the fat opaque background color
         layout()->setSizeConstraint(QLayout::SetFixedSize);
         adjustSize();
         QWidget *parent = parentWidget();
