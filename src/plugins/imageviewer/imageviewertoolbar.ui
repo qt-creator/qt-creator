@@ -32,10 +32,11 @@
     </widget>
    </item>
    <item>
+    <widget class="Core::CommandButton" name="toolButtonCopyDataUrl">
+    </widget>
+   </item>
+   <item>
     <widget class="Core::CommandButton" name="toolButtonBackground">
-     <property name="toolTipBase">
-      <string>Show Background</string>
-     </property>
      <property name="checkable">
       <bool>true</bool>
      </property>

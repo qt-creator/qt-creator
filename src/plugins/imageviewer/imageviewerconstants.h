@@ -36,6 +36,7 @@ const char IMAGEVIEWER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "
 
 const char ACTION_EXPORT_IMAGE[] = "ImageViewer.ExportImage";
 const char ACTION_EXPORT_MULTI_IMAGES[] = "ImageViewer.ExportMultiImages";
+const char ACTION_COPY_DATA_URL[] = "ImageViewer.CopyDataUrl";
 const char ACTION_FIT_TO_SCREEN[] = "ImageViewer.FitToScreen";
 const char ACTION_BACKGROUND[] = "ImageViewer.Background";
 const char ACTION_OUTLINE[] = "ImageViewer.Outline";

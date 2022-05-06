@@ -102,6 +102,7 @@ void ImageViewer::ctor()
     d->ui_toolbar.setupUi(d->toolbar);
     d->ui_toolbar.toolButtonExportImage->setIcon(Utils::Icons::EXPORTFILE_TOOLBAR.icon());
     d->ui_toolbar.toolButtonMultiExportImages->setIcon(Utils::Icons::MULTIEXPORTFILE_TOOLBAR.icon());
+    d->ui_toolbar.toolButtonCopyDataUrl->setIcon(Utils::Icons::COPY_TOOLBAR.icon());
     const Utils::Icon backgroundIcon({
             {":/utils/images/desktopdevicesmall.png", Utils::Theme::IconsBaseColor}});
     d->ui_toolbar.toolButtonBackground->setIcon(backgroundIcon.icon());
@@ -123,6 +124,7 @@ void ImageViewer::ctor()
 
     d->ui_toolbar.toolButtonExportImage->setCommandId(Constants::ACTION_EXPORT_IMAGE);
     d->ui_toolbar.toolButtonMultiExportImages->setCommandId(Constants::ACTION_EXPORT_MULTI_IMAGES);
+    d->ui_toolbar.toolButtonCopyDataUrl->setCommandId(Constants::ACTION_COPY_DATA_URL);
     d->ui_toolbar.toolButtonZoomIn->setCommandId(Core::Constants::ZOOM_IN);
     d->ui_toolbar.toolButtonZoomOut->setCommandId(Core::Constants::ZOOM_OUT);
     d->ui_toolbar.toolButtonOriginalSize->setCommandId(Core::Constants::ZOOM_RESET);
@@ -136,6 +138,8 @@ void ImageViewer::ctor()
             d->imageView, &ImageView::exportImage);
     connect(d->ui_toolbar.toolButtonMultiExportImages, &QAbstractButton::clicked,
             d->imageView, &ImageView::exportMultiImages);
+    connect(d->ui_toolbar.toolButtonCopyDataUrl, &QAbstractButton::clicked,
+            d->imageView, &ImageView::copyDataUrl);
     connect(d->ui_toolbar.toolButtonZoomIn, &QAbstractButton::clicked,
             d->imageView, &ImageView::zoomIn);
     connect(d->ui_toolbar.toolButtonZoomOut, &QAbstractButton::clicked,
@@ -205,6 +209,11 @@ void ImageViewer::exportMultiImages()
 {
     if (d->file->type() == ImageViewerFile::TypeSvg)
         d->ui_toolbar.toolButtonMultiExportImages->click();
+}
+
+void ImageViewer::copyDataUrl()
+{
+    d->ui_toolbar.toolButtonCopyDataUrl->click();
 }
 
 void ImageViewer::imageSizeUpdated(const QSize &size)

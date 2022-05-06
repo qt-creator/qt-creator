@@ -29,6 +29,7 @@
 #include "exportdialog.h"
 #include "multiexportdialog.h"
 #include "imageviewerfile.h"
+#include "utils/mimeutils.h"
 
 #include <coreplugin/messagemanager.h>
 
@@ -43,6 +44,8 @@
 #include <QImage>
 #include <QPainter>
 #include <QPixmap>
+#include <QClipboard>
+#include <QGuiApplication>
 
 #include <QDir>
 #include <QFileInfo>
@@ -248,6 +251,16 @@ void ImageView::exportMultiImages()
             break;
     }
 #endif // !QT_NO_SVG
+}
+
+void ImageView::copyDataUrl()
+{
+    Utils::MimeType mimeType = Utils::mimeTypeForFile(m_file->filePath());
+    QByteArray data = m_file->filePath().fileContents();
+    const auto url = QStringLiteral("data:%1;base64,%2")
+            .arg(mimeType.name())
+            .arg(QString::fromLatin1(data.toBase64()));
+    QGuiApplication::clipboard()->setText(url);
 }
 
 void ImageView::setViewBackground(bool enable)

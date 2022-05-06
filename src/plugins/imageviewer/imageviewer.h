@@ -56,6 +56,7 @@ public:
 
     void exportImage();
     void exportMultiImages();
+    void copyDataUrl();
     void imageSizeUpdated(const QSize &size);
     void scaleFactorUpdate(qreal factor);
 

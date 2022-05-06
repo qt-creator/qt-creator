@@ -53,6 +53,7 @@ public:
 
     void exportImage();
     void exportMultiImages();
+    void copyDataUrl();
     void setViewBackground(bool enable);
     void setViewOutline(bool enable);
     void zoomIn();

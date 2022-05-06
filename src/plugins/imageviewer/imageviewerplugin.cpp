@@ -125,6 +125,12 @@ public:
         &ImageViewer::exportMultiImages,
         tr("Export Multiple Images"),
     };
+
+    ImageViewerAction copyDataUrlAction {
+        Constants::ACTION_COPY_DATA_URL,
+        &ImageViewer::copyDataUrl,
+        tr("Copy as Data URL"),
+    };
 };
 
 ImageViewerPlugin::~ImageViewerPlugin()
