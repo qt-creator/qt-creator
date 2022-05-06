@@ -526,9 +526,9 @@ PyLSConfigureAssistant *PyLSConfigureAssistant::instance()
 
 const StdIOSettings *PyLSConfigureAssistant::languageServerForPython(const FilePath &python)
 {
+    const FilePath pythonModulePath = getPylsModulePath({python, {"-m", "pylsp"}});
     return findOrDefault(configuredPythonLanguageServer(),
-                         [pythonModulePath = getPylsModulePath(
-                              CommandLine(python, {"-m", "pylsp"}))](const StdIOSettings *setting) {
+                         [pythonModulePath](const StdIOSettings *setting) {
                              return getPylsModulePath(setting->command()) == pythonModulePath;
                          });
 }
