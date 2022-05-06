@@ -92,7 +92,6 @@ static bool isBeautifierOnSaveActivated()
 static int indentIndex() { return 0; }
 static int formatIndex() { return 1; }
 
-
 bool ClangFormatConfigWidget::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::Wheel && qobject_cast<QComboBox *>(object)) {
@@ -111,27 +110,14 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
     , m_ui(std::make_unique<Ui::ClangFormatConfigWidget>())
 {
     m_ui->setupUi(this);
-    setEnabled(!codeStyle->isReadOnly());
-
     m_config = std::make_unique<ClangFormatFile>(filePathToCurrentSettings(codeStyle),
                                                  codeStyle->isReadOnly());
 
-    initChecksAndPreview();
-    showCombobox();
+    initChecksAndPreview(!codeStyle->isReadOnly());
+    initOverrideCheckBox();
+    initIndentationOrFormattingCombobox();
 
-    if (m_project) {
-        m_ui->overrideDefault->setChecked(
-            m_project->namedSettings(Constants::OVERRIDE_FILE_ID).toBool());
-    } else {
-        m_ui->overrideDefault->setChecked(ClangFormatSettings::instance().overrideDefaultFile());
-        m_ui->overrideDefault->setToolTip(
-            tr("Override Clang Format configuration file with the fallback configuration."));
-    }
-
-    connect(m_ui->overrideDefault, &QCheckBox::toggled,
-            this, &ClangFormatConfigWidget::showOrHideWidgets);
     showOrHideWidgets();
-
     fillTable();
     updatePreview();
 
@@ -140,13 +126,14 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
 
 ClangFormatConfigWidget::~ClangFormatConfigWidget() = default;
 
-void ClangFormatConfigWidget::initChecksAndPreview()
+void ClangFormatConfigWidget::initChecksAndPreview(bool enabled)
 {
     m_checksScrollArea = new QScrollArea();
     m_checksWidget = new QWidget;
     m_checks->setupUi(m_checksWidget);
     m_checksScrollArea->setWidget(m_checksWidget);
     m_checksScrollArea->setMaximumWidth(500);
+    m_checksWidget->setEnabled(enabled);
 
     m_ui->horizontalLayout_2->addWidget(m_checksScrollArea);
 
@@ -169,6 +156,29 @@ void ClangFormatConfigWidget::initChecksAndPreview()
     }
 
     m_preview->textDocument()->indenter()->setFileName(fileName);
+}
+
+void ClangFormatConfigWidget::initOverrideCheckBox()
+{
+    if (m_project) {
+        m_ui->overrideDefault->setChecked(
+            m_project->namedSettings(Constants::OVERRIDE_FILE_ID).toBool());
+    } else {
+        m_ui->overrideDefault->setChecked(ClangFormatSettings::instance().overrideDefaultFile());
+        m_ui->overrideDefault->setToolTip(
+            tr("Override Clang Format configuration file with the fallback configuration."));
+    }
+
+    connect(m_ui->overrideDefault, &QCheckBox::toggled,
+            this, &ClangFormatConfigWidget::showOrHideWidgets);
+    connect(m_ui->overrideDefault, &QCheckBox::toggled, this, [this](bool checked) {
+        if (m_project)
+            m_project->setNamedSettings(Constants::OVERRIDE_FILE_ID, checked);
+        else {
+            ClangFormatSettings::instance().setOverrideDefaultFile(checked);
+            ClangFormatSettings::instance().write();
+        }
+    });
 }
 
 void ClangFormatConfigWidget::connectChecks()
@@ -198,7 +208,7 @@ void ClangFormatConfigWidget::onTableChanged()
     saveChanges(sender());
 }
 
-void ClangFormatConfigWidget::showCombobox()
+void ClangFormatConfigWidget::initIndentationOrFormattingCombobox()
 {
     m_ui->indentingOrFormatting->insertItem(indentIndex(), tr("Indenting only"));
     m_ui->indentingOrFormatting->insertItem(formatIndex(), tr("Full formatting"));
@@ -209,6 +219,17 @@ void ClangFormatConfigWidget::showCombobox()
         m_ui->indentingOrFormatting->setCurrentIndex(indentIndex());
 
     m_ui->indentingOrFormatting->show();
+
+    connect(m_ui->indentingOrFormatting, &QComboBox::currentIndexChanged, this, [](int index) {
+        ClangFormatSettings &settings = ClangFormatSettings::instance();
+        const bool isFormatting = index == formatIndex();
+        settings.setFormatCodeInsteadOfIndent(isFormatting);
+
+        if (!isBeautifierOnSaveActivated())
+            settings.setFormatOnSave(isFormatting);
+
+        settings.write();
+    });
 }
 
 static bool projectConfigExists()
@@ -435,22 +456,7 @@ void ClangFormatConfigWidget::synchronize()
 
 void ClangFormatConfigWidget::apply()
 {
-    ClangFormatSettings &settings = ClangFormatSettings::instance();
-    const bool isFormatting = m_ui->indentingOrFormatting->currentIndex()
-                              == formatIndex();
-    settings.setFormatCodeInsteadOfIndent(isFormatting);
-    settings.setOverrideDefaultFile(m_ui->overrideDefault->isChecked());
-
-    if (!isBeautifierOnSaveActivated()) {
-        settings.setFormatOnSave(isFormatting);
-    }
-
-    if (m_project) {
-        m_project->setNamedSettings(Constants::OVERRIDE_FILE_ID, m_ui->overrideDefault->isChecked());
-    }
-    settings.write();
-
-    if (!m_checksWidget->isVisible())
+    if (!m_checksWidget->isVisible() && !m_checksWidget->isEnabled())
         return;
 
     saveChanges(this);

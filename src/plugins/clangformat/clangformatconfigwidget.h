@@ -63,13 +63,14 @@ private:
     bool eventFilter(QObject *object, QEvent *event) override;
 
     void showOrHideWidgets();
-    void initChecksAndPreview();
+    void initChecksAndPreview(bool enabled);
+    void initOverrideCheckBox();
     void connectChecks();
 
     void fillTable();
     void saveChanges(QObject *sender);
 
-    void showCombobox();
+    void initIndentationOrFormattingCombobox();
     void updatePreview();
 
     ProjectExplorer::Project *m_project;
