@@ -989,16 +989,6 @@ QtcProcess::~QtcProcess()
     delete d;
 }
 
-void QtcProcess::emitStarted()
-{
-    emit started();
-}
-
-void QtcProcess::emitFinished()
-{
-    emit finished();
-}
-
 void QtcProcess::setProcessImpl(ProcessImpl processImpl)
 {
     d->m_setup.m_processImpl = processImpl;
@@ -1099,19 +1089,14 @@ void QtcProcess::start()
     QTC_ASSERT(state() == QProcess::NotRunning, return);
     d->clearForRun();
     d->m_state = QProcess::Starting;
-    startImpl();
-}
-
-void QtcProcess::startImpl()
-{
     ProcessInterface *processImpl = nullptr;
     if (d->m_setup.m_commandLine.executable().needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.processImplHook, return);
+        QTC_ASSERT(s_deviceHooks.processImplHook, d->m_state = QProcess::NotRunning; return);
         processImpl = s_deviceHooks.processImplHook(commandLine().executable());
     } else {
         processImpl = d->createProcessInterface();
     }
-    QTC_ASSERT(processImpl, return);
+    QTC_ASSERT(processImpl, d->m_state = QProcess::NotRunning; return);
     d->setProcessInterface(processImpl);
     d->m_process->m_setup = d->m_setup;
     d->m_process->m_setup.m_commandLine = d->fullCommandLine();
@@ -2001,13 +1986,13 @@ void QtcProcessPrivate::handleError()
 void QtcProcessPrivate::emitStarted()
 {
     CALL_STACK_GUARD();
-    q->emitStarted();
+    emit q->started();
 }
 
 void QtcProcessPrivate::emitFinished()
 {
     CALL_STACK_GUARD();
-    q->emitFinished();
+    emit q->finished();
 }
 
 void QtcProcessPrivate::emitErrorOccurred(QProcess::ProcessError error)

@@ -26,6 +26,7 @@
 #include "dockerapi.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 

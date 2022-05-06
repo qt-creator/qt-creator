@@ -84,27 +84,6 @@ protected:
 int MessageHandler::s_destroyCount = 0;
 QtMessageHandler MessageHandler::s_oldMessageHandler = 0;
 
-static std::atomic_int s_processCounter = 0;
-static const bool s_removeSingletonsOnLastProcess = false;
-// The use of this class (when s_removeSingletonsOnLastProcess = true) guarantees that if all
-// instances of QtcProcess are destructed at some point (i.e. after each test function ends)
-// we also run process reaper's and process launcher's destructors. Otherwise
-// (when s_removeSingletonsOnLastProcess = true) this is a no-op wrapper around QtcProcess.
-class TestProcess : public QtcProcess
-{
-public:
-    class TestProcessDeleter : public QObject
-    {
-    public:
-        TestProcessDeleter(QObject *parent) : QObject(parent) { s_processCounter.fetch_add(1); }
-        ~TestProcessDeleter() {
-            if ((s_processCounter.fetch_sub(1) == 1) && s_removeSingletonsOnLastProcess)
-                Utils::Singleton::deleteAll();
-        }
-    };
-    TestProcess() { new TestProcessDeleter(this); }
-};
-
 class MacroMapExpander : public AbstractMacroExpander {
 public:
     virtual bool resolveMacro(const QString &name, QString *ret, QSet<AbstractMacroExpander*> &seen)
@@ -878,7 +857,7 @@ void tst_QtcProcess::exitCode()
 
     SubProcessConfig subConfig(ProcessTestApp::ExitCode::envVar(), QString::number(exitCode));
     {
-        TestProcess process;
+        QtcProcess process;
         subConfig.setupSubProcess(&process);
         process.start();
         const bool finished = process.waitForFinished();
@@ -888,7 +867,7 @@ void tst_QtcProcess::exitCode()
         QCOMPARE(process.exitCode() == 0, process.result() == ProcessResult::FinishedWithSuccess);
     }
     {
-        TestProcess process;
+        QtcProcess process;
         subConfig.setupSubProcess(&process);
         process.runBlocking();
 
@@ -925,7 +904,7 @@ void tst_QtcProcess::runBlockingStdOut()
     QFETCH(ProcessResult, expectedResult);
 
     SubProcessConfig subConfig(ProcessTestApp::RunBlockingStdOut::envVar(), withEndl ? "true" : "false");
-    TestProcess process;
+    QtcProcess process;
     subConfig.setupSubProcess(&process);
 
     process.setTimeoutS(timeOutS);
@@ -947,7 +926,7 @@ void tst_QtcProcess::runBlockingStdOut()
 void tst_QtcProcess::lineCallback()
 {
     SubProcessConfig subConfig(ProcessTestApp::LineCallback::envVar(), {});
-    TestProcess process;
+    QtcProcess process;
     subConfig.setupSubProcess(&process);
 
     QStringList lines = QString(s_lineCallbackData).split('|');
@@ -970,7 +949,7 @@ void tst_QtcProcess::lineCallback()
 void tst_QtcProcess::waitForStartedAfterStarted()
 {
     SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
-    TestProcess process;
+    QtcProcess process;
     subConfig.setupSubProcess(&process);
 
     bool started = false;
@@ -1011,7 +990,7 @@ void tst_QtcProcess::waitForStartedAfterStarted2()
 void tst_QtcProcess::waitForStartedAndFinished()
 {
     SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
-    TestProcess process;
+    QtcProcess process;
     subConfig.setupSubProcess(&process);
 
     process.start();
@@ -1024,7 +1003,7 @@ void tst_QtcProcess::waitForStartedAndFinished()
 
 void tst_QtcProcess::notRunningAfterStartingNonExistingProgram()
 {
-    TestProcess process;
+    QtcProcess process;
     process.setCommand({ FilePath::fromString(
               "there_is_a_big_chance_that_executable_with_that_name_does_not_exists"), {} });
 
@@ -1086,7 +1065,7 @@ void tst_QtcProcess::channelForwarding()
 
     SubProcessConfig subConfig(ProcessTestApp::ChannelForwarding::envVar(),
                                QString::number(int(channelMode)));
-    TestProcess process;
+    QtcProcess process;
     subConfig.setupSubProcess(&process);
 
     process.start();
@@ -1129,7 +1108,7 @@ void tst_QtcProcess::mergedChannels()
     QFETCH(bool, errorOnError);
 
     SubProcessConfig subConfig(ProcessTestApp::StandardOutputAndErrorWriter::envVar(), {});
-    TestProcess process;
+    QtcProcess process;
     subConfig.setupSubProcess(&process);
 
     process.setProcessChannelMode(channelMode);
@@ -1162,7 +1141,7 @@ void tst_QtcProcess::killBlockingProcess()
     SubProcessConfig subConfig(ProcessTestApp::KillBlockingProcess::envVar(),
                                QString::number(int(blockType)));
 
-    TestProcess process;
+    QtcProcess process;
     subConfig.setupSubProcess(&process);
     process.start();
     QVERIFY(process.waitForStarted());
@@ -1172,7 +1151,7 @@ void tst_QtcProcess::killBlockingProcess()
 void tst_QtcProcess::flushFinishedWhileWaitingForReadyRead()
 {
     SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
-    TestProcess process;
+    QtcProcess process;
     subConfig.setupSubProcess(&process);
 
     process.start();
@@ -1197,7 +1176,7 @@ void tst_QtcProcess::flushFinishedWhileWaitingForReadyRead()
 void tst_QtcProcess::emitOneErrorOnCrash()
 {
     SubProcessConfig subConfig(ProcessTestApp::EmitOneErrorOnCrash::envVar(), {});
-    TestProcess process;
+    QtcProcess process;
     subConfig.setupSubProcess(&process);
 
     int errorCount = 0;
@@ -1216,7 +1195,7 @@ void tst_QtcProcess::emitOneErrorOnCrash()
 void tst_QtcProcess::crashAfterOneSecond()
 {
     SubProcessConfig subConfig(ProcessTestApp::CrashAfterOneSecond::envVar(), {});
-    TestProcess process;
+    QtcProcess process;
     subConfig.setupSubProcess(&process);
 
     process.start();
@@ -1236,7 +1215,7 @@ void tst_QtcProcess::recursiveCrashingProcess()
     const int recursionDepth = 5; // must be at least 2
     SubProcessConfig subConfig(ProcessTestApp::RecursiveCrashingProcess::envVar(),
                                QString::number(recursionDepth));
-    TestProcess process;
+    QtcProcess process;
     subConfig.setupSubProcess(&process);
     process.start();
     QVERIFY(process.waitForStarted(1000));
@@ -1268,7 +1247,7 @@ void tst_QtcProcess::recursiveBlockingProcess()
     SubProcessConfig subConfig(ProcessTestApp::RecursiveBlockingProcess::envVar(),
                                QString::number(recursionDepth));
     {
-        TestProcess process;
+        QtcProcess process;
         subConfig.setupSubProcess(&process);
         process.start();
         QVERIFY(process.waitForStarted(1000));

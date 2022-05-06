@@ -30,7 +30,6 @@
 #include "environment.h"
 #include "commandline.h"
 #include "processenums.h"
-#include "qtcassert.h"
 
 #include <QProcess>
 
@@ -49,7 +48,7 @@ class DeviceProcessHooks;
 class ProcessInterface;
 class ProcessResultData;
 
-class QTCREATOR_UTILS_EXPORT QtcProcess : public QObject
+class QTCREATOR_UTILS_EXPORT QtcProcess final : public QObject
 {
     Q_OBJECT
 
@@ -201,12 +200,6 @@ signals:
     void errorOccurred(QProcess::ProcessError error);
     void readyReadStandardOutput();
     void readyReadStandardError();
-
-protected:
-    // TODO: remove these methods on QtcProcess de-virtualization
-    virtual void startImpl();
-    virtual void emitStarted();
-    virtual void emitFinished();
 
 private:
     friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const QtcProcess &r);
