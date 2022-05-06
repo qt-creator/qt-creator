@@ -907,6 +907,8 @@ public:
 
     void handleDeclDefSwitchReplies();
 
+    Utils::optional<QString> getContainingFunctionName(const ClangdAstPath &astPath, const Range& range);
+
     static CppEditor::CppEditorWidget *widgetFromDocument(const TextDocument *doc);
     QString searchTermFromCursor(const QTextCursor &cursor) const;
     QTextCursor adjustedCursor(const QTextCursor &cursor, const TextDocument *doc);
@@ -1762,9 +1764,10 @@ void ClangdClient::Private::addSearchResultsForFile(ReferencesData &refData,
     qCDebug(clangdLog) << file << "has valid AST:" << fileData.ast.isValid();
     for (const auto &rangeWithText : fileData.rangesAndLineText) {
         const Range &range = rangeWithText.first;
-        const Usage::Type usageType = fileData.ast.isValid()
-                ? getUsageType(getAstPath(fileData.ast, qAsConst(range)))
-                : Usage::Type::Other;
+        const ClangdAstPath astPath = getAstPath(fileData.ast, range);
+        const Usage::Type usageType = fileData.ast.isValid() ? getUsageType(astPath)
+                                                             : Usage::Type::Other;
+
         SearchResultItem item;
         item.setUserData(int(usageType));
         item.setStyle(CppEditor::colorStyleForUsageType(usageType));
@@ -1772,6 +1775,8 @@ void ClangdClient::Private::addSearchResultsForFile(ReferencesData &refData,
         item.setMainRange(SymbolSupport::convertRange(range));
         item.setUseTextEditorFont(true);
         item.setLineText(rangeWithText.second);
+        item.setContainingFunctionName(getContainingFunctionName(astPath, range));
+
         if (refData.search->supportsReplace()) {
             const bool fileInSession = SessionManager::projectForFile(file);
             item.setSelectForReplacement(fileInSession);
@@ -2416,6 +2421,31 @@ void ClangdClient::Private::handleDeclDefSwitchReplies()
                         true, false);
     }
     switchDeclDefData.reset();
+}
+
+Utils::optional<QString> ClangdClient::Private::getContainingFunctionName(
+    const ClangdAstPath &astPath, const Range& range)
+{
+    const ClangdAstNode* containingFuncNode{nullptr};
+    const ClangdAstNode* lastCompoundStmtNode{nullptr};
+
+    for (auto it = astPath.crbegin(); it != astPath.crend(); ++it) {
+        if (it->arcanaContains("CompoundStmt"))
+            lastCompoundStmtNode = &*it;
+
+        if (it->isFunction()) {
+            if (lastCompoundStmtNode && lastCompoundStmtNode->hasRange()
+                && lastCompoundStmtNode->range().contains(range)) {
+                containingFuncNode = &*it;
+                break;
+            }
+        }
+    }
+
+    if (!containingFuncNode || !containingFuncNode->isValid())
+        return Utils::nullopt;
+
+    return containingFuncNode->detail();
 }
 
 CppEditor::CppEditorWidget *ClangdClient::Private::widgetFromDocument(const TextDocument *doc)

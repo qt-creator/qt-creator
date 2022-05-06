@@ -7,6 +7,7 @@
   <style name="SearchResult" background="#8a7f2c"/>
   <style name="SearchResultAlt1" foreground="#aaaaff" background="#363655"/>
   <style name="SearchResultAlt2" foreground="#ffaaaa" background="#553636"/>
+  <style name="SearchResultContainingFunction" foreground="#d6cf9a" background="#2e2f30"/>
   <style name="SearchScope" background="#8a602c"/>
   <style name="Parentheses" foreground="#bec0c2" background="#1d545c"/>
   <style name="ParenthesesMismatch" background="#ff6aad"/>

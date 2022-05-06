@@ -29,6 +29,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/optional.h>
 
 #include <QIcon>
 #include <QStringList>
@@ -127,6 +128,13 @@ public:
     bool selectForReplacement() const { return m_selectForReplacement; }
     void setSelectForReplacement(bool select) { m_selectForReplacement = select; }
 
+    Utils::optional<QString> containingFunctionName() const { return m_containingFunctionName; }
+
+    void setContainingFunctionName(Utils::optional<QString> containingFunctionName)
+    {
+        m_containingFunctionName = std::move(containingFunctionName);
+    }
+
 private:
     QStringList m_path; // hierarchy to the parent item of this item
     QString m_lineText; // text to show for the item itself
@@ -136,6 +144,7 @@ private:
     bool m_useTextEditorFont = false;
     bool m_selectForReplacement = true;
     SearchResultColor::Style m_style = SearchResultColor::Style::Default;
+    Utils::optional<QString> m_containingFunctionName;
 };
 
 } // namespace Core

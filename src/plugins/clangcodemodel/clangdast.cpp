@@ -62,6 +62,12 @@ bool ClangdAstNode::arcanaContains(const QString &s) const
     return arcanaString && arcanaString->contains(s);
 }
 
+bool ClangdAstNode::isFunction() const
+{
+    return role() == "declaration"
+           && (kind() == "Function" || kind() == "FunctionProto" || kind() == "CXXMethod");
+}
+
 bool ClangdAstNode::isMemberFunctionCall() const
 {
     return role() == "expression" && (kind() == "CXXMemberCall"

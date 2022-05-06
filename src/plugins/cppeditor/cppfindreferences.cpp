@@ -632,8 +632,29 @@ CPlusPlus::Symbol *CppFindReferences::findSymbol(const CppFindReferencesParamete
     return nullptr;
 }
 
-static void displayResults(SearchResult *search, QFutureWatcher<CPlusPlus::Usage> *watcher,
-                           int first, int last)
+Utils::optional<QString> getContainingFunctionName(const Utils::FilePath &fileName,
+                                                   int line,
+                                                   int column)
+{
+    const CPlusPlus::Snapshot snapshot = CppModelManager::instance()->snapshot();
+    auto document = snapshot.document(fileName);
+
+    // context properties need lookup inside function scope, and thus require a full check
+    CPlusPlus::Document::Ptr localDoc = document;
+    if (document->checkMode() != CPlusPlus::Document::FullCheck) {
+        localDoc = snapshot.documentFromSource(document->utf8Source(), document->fileName());
+        localDoc->check();
+    }
+
+    auto funcName = localDoc->functionAt(line, column);
+
+    return funcName.size() ? Utils::make_optional(funcName) : Utils::nullopt;
+}
+
+static void displayResults(SearchResult *search,
+                           QFutureWatcher<CPlusPlus::Usage> *watcher,
+                           int first,
+                           int last)
 {
     CppFindReferencesParameters parameters = search->userData().value<CppFindReferencesParameters>();
 
@@ -648,6 +669,20 @@ static void displayResults(SearchResult *search, QFutureWatcher<CPlusPlus::Usage
         item.setUseTextEditorFont(true);
         if (search->supportsReplace())
             item.setSelectForReplacement(SessionManager::projectForFile(result.path));
+
+        // In case we're looking for a function, we need to look at the symbol near the end. This
+        // is needed to avoid following corner-cases:
+        // 1) if we're looking at the beginning of the function declaration, we can get the
+        //    declaration of the previous function
+        // 2) if we're looking somewhere at the middle of the function declaration, we can still
+        //    get the declaration of the previous function if the cursor is located at the
+        //    namespace declaration, i.e. CppReference>|<s::findUsages
+
+        const auto containingFunctionName = getContainingFunctionName(result.path,
+                                                                      result.line,
+                                                                      (result.col + result.len) - 1);
+
+        item.setContainingFunctionName(containingFunctionName);
         search->addResult(item);
 
         if (parameters.prettySymbolName.isEmpty())

@@ -31,16 +31,18 @@ namespace Core {
 namespace Internal {
 namespace ItemDataRoles {
 
-enum Roles
-{
+enum Roles {
     ResultItemRole = Qt::UserRole,
     ResultLineRole,
     ResultBeginLineNumberRole,
     ResultIconRole,
     ResultHighlightBackgroundColor,
     ResultHighlightForegroundColor,
+    FunctionHighlightBackgroundColor,
+    FunctionHighlightForegroundColor,
     ResultBeginColumnNumberRole,
     SearchTermLengthRole,
+    ContainingFunctionNameRole,
     IsGeneratedRole
 };
 

@@ -39,14 +39,21 @@ public:
 
     SearchResultColor() = default;
     SearchResultColor(const QColor &textBg, const QColor &textFg,
-                      const QColor &highlightBg, const QColor &highlightFg)
+                      const QColor &highlightBg, const QColor &highlightFg,
+                      const QColor &functionBg, const QColor &functionFg
+                      )
         : textBackground(textBg), textForeground(textFg),
-          highlightBackground(highlightBg), highlightForeground(highlightFg)
+          highlightBackground(highlightBg), highlightForeground(highlightFg),
+          containingFunctionBackground(functionBg),containingFunctionForeground(functionFg)
     {
         if (!highlightBackground.isValid())
             highlightBackground = textBackground;
         if (!highlightForeground.isValid())
             highlightForeground = textForeground;
+        if (!containingFunctionBackground.isValid())
+            containingFunctionBackground = textBackground;
+        if (!containingFunctionForeground.isValid())
+            containingFunctionForeground = textForeground;
     }
 
     friend auto qHash(SearchResultColor::Style style)
@@ -58,6 +65,8 @@ public:
     QColor textForeground;
     QColor highlightBackground;
     QColor highlightForeground;
+    QColor containingFunctionBackground;
+    QColor containingFunctionForeground;
 };
 
 using SearchResultColors = QHash<SearchResultColor::Style, SearchResultColor>;

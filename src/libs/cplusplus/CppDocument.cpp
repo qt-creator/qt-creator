@@ -96,6 +96,86 @@ protected:
     }
 };
 
+class ContainingFunctionAt: protected SymbolVisitor
+{
+    TranslationUnit *translationUnit;
+    Symbol *root;
+    int line;
+    int column;
+    Symbol *functionSymbol;
+    bool foundFunction;
+    bool foundBlock;
+
+    bool scopeContains(Scope* scope, int line, int column){
+        if (!scope)
+            return false;
+
+        int scopeStartLine{-1}, scopeStartColumn{-1}, scopeEndLine{-1}, scopeEndColumn{-1};
+        translationUnit->getPosition(scope->startOffset(), &scopeStartLine, &scopeStartColumn);
+        translationUnit->getPosition(scope->endOffset(), &scopeEndLine, &scopeEndColumn);
+
+        if (line < scopeStartLine || line > scopeEndLine)
+            return false;
+
+        if (line > scopeStartLine && line < scopeEndLine)
+            return true;
+
+        if (scopeStartLine == line && column >= scopeStartColumn)
+            return true;
+
+        if (scopeEndLine == line && column <= scopeEndColumn)
+            return true;
+
+        return false;
+    }
+
+public:
+    ContainingFunctionAt(TranslationUnit *unit, Symbol *root)
+        : translationUnit(unit), root(root), line(0), column(0), functionSymbol(nullptr)
+        , foundFunction(false), foundBlock(false) {}
+
+    Symbol *operator()(int line, int column)
+    {
+        this->line = line;
+        this->column = column;
+        this->functionSymbol = nullptr;
+        accept(root);
+
+        return foundBlock ? functionSymbol : nullptr;
+    }
+
+protected:
+    bool preVisit(Symbol *s) final
+    {
+        if (foundBlock)
+            return false;
+
+        if (foundFunction) {
+            auto block = s->asBlock();
+            if (!block)
+                return true;
+
+            if (scopeContains(block->asScope(), line, column)) {
+                foundBlock = true;
+                return false;
+            }
+            return true;
+        }
+
+        auto asFunction = s->asFunction();
+        if (asFunction) {
+            if (s->line() < line || (s->line() == line && s->column() <= column)) {
+                foundFunction = scopeContains(s->asScope(), line, column);
+                if (foundFunction)
+                    functionSymbol = asFunction;
+            }
+        }
+
+        return true;
+    }
+};
+
+
 class FindScopeAt: protected SymbolVisitor
 {
     TranslationUnit *_unit;
@@ -512,19 +592,11 @@ QString Document::functionAt(int line, int column, int *lineOpeningDeclaratorPar
     if (line < 1 || column < 1)
         return QString();
 
-    Symbol *symbol = lastVisibleSymbolAt(line, column);
+    Symbol *symbol = ContainingFunctionAt{translationUnit(), globalNamespace()}(line, column);
     if (!symbol)
         return QString();
 
-    // Find the enclosing function scope (which might be several levels up, or we might be standing
-    // on it)
     Scope *scope = symbol->asScope();
-    if (!scope)
-        scope = symbol->enclosingScope();
-
-    while (scope && !scope->isFunction() )
-        scope = scope->enclosingScope();
-
     if (!scope)
         return QString();
 

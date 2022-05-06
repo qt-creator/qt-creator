@@ -16,6 +16,7 @@
   <style name="SearchResult" background="#555500"/>
   <style name="SearchResultAlt1" foreground="#aaaaff" background="#363655"/>
   <style name="SearchResultAlt2" foreground="#ffaaaa" background="#553636"/>
+  <style name="SearchResultContainingFunction" foreground="#ffffff" background="#000000"/>
   <style name="SearchScope" background="#222200"/>
   <style name="Parentheses" foreground="#ffffff" background="#11404c"/>
   <style name="CurrentLine" background="#373737"/>

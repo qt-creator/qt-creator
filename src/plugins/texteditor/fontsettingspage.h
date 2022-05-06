@@ -53,6 +53,7 @@ public:
     enum ShowControls {
         ShowForegroundControl = 0x1,
         ShowBackgroundControl = 0x2,
+        ShowForeAndBackgroundControl = ShowForegroundControl | ShowBackgroundControl,
         ShowFontControls = 0x4,
         ShowUnderlineControl = 0x8,
         ShowRelativeForegroundControl = 0x10,

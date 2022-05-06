@@ -41,6 +41,7 @@ const char *nameForStyle(TextStyle style)
     case C_SEARCH_RESULT:       return "SearchResult";
     case C_SEARCH_RESULT_ALT1:  return "SearchResultAlt1";
     case C_SEARCH_RESULT_ALT2:  return "SearchResultAlt2";
+    case C_SEARCH_RESULT_CONTAINING_FUNCTION: return "SearchResultContainingFunction";
     case C_SEARCH_SCOPE:        return "SearchScope";
     case C_PARENTHESES:         return "Parentheses";
     case C_PARENTHESES_MISMATCH:return "ParenthesesMismatch";

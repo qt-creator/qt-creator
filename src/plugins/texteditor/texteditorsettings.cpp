@@ -112,6 +112,11 @@ FormatDescriptions TextEditorSettingsPrivate::initialFormats()
                              tr("Highlighted search results inside the editor.\n"
                                 "Used to mark write accesses to C++ symbols."),
                              FormatDescription::ShowBackgroundControl);
+    formatDescr.emplace_back(C_SEARCH_RESULT_CONTAINING_FUNCTION,
+                             tr("Search Result Containing function"),
+                             tr("Highlighted search results inside the editor.\n"
+                                "Used to mark containing function of the symbol usage."),
+                             FormatDescription::ShowForeAndBackgroundControl);
     formatDescr.emplace_back(C_SEARCH_SCOPE, tr("Search Scope"),
                              tr("Section where the pattern is searched in."),
                              FormatDescription::ShowBackgroundControl);

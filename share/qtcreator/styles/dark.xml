@@ -36,6 +36,7 @@
   <style name="SearchResult" background="#555500"/>
   <style name="SearchResultAlt1" foreground="#aaaaff" background="#363655"/>
   <style name="SearchResultAlt2" foreground="#ffaaaa" background="#553636"/>
+  <style name="SearchResultContainingFunction" foreground="#aaaaaa" background="#000000"/>
   <style name="SearchScope" background="#222200"/>
   <style name="Selection" foreground="#000000" background="#aaaaaa"/>
   <style name="Static" foreground="#55ff55" italic="true"/>

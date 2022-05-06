@@ -43,6 +43,7 @@
   <style name="SearchResult" foreground="#000000" background="#ffef0b"/>
   <style name="SearchResultAlt1" foreground="#000000" background="#6464ff"/>
   <style name="SearchResultAlt2" foreground="#000000" background="#ff6464"/>
+  <style name="SearchResultContainingFunction" foreground="#cfbfad" background="#1e1e27"/>
   <style name="SearchScope" foreground="#000000" background="#f8fafc"/>
   <style name="Selection" foreground="#ffffff" background="#4e4e8f"/>
   <style name="Static" foreground="#cb6ecb"/>

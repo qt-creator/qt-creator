@@ -79,6 +79,7 @@ public:
     bool hasRange() const;
     bool arcanaContains(const QString &s) const;
     bool detailIs(const QString &s) const { return detail() && *detail() == s; }
+    bool isFunction() const;
     bool isMemberFunctionCall() const;
     bool isPureVirtualDeclaration() const;
     bool isPureVirtualDefinition() const;

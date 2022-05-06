@@ -306,6 +306,8 @@ QColor FormatDescription::defaultForeground(TextStyle id)
         return QColor(0x00, 0x00, 0x33);
     } else if (id == C_SEARCH_RESULT_ALT2) {
         return QColor(0x33, 0x00, 0x00);
+    } else if (id == C_SEARCH_RESULT_CONTAINING_FUNCTION) {
+        return Qt::black;
     }
     return QColor();
 }
@@ -322,6 +324,8 @@ QColor FormatDescription::defaultBackground(TextStyle id)
         return QColor(0xb6, 0xcc, 0xff);
     } else if (id == C_SEARCH_RESULT_ALT2) {
         return QColor(0xff, 0xb6, 0xcc);
+    } else if (id == C_SEARCH_RESULT_CONTAINING_FUNCTION) {
+        return Qt::white;
     } else if (id == C_PARENTHESES) {
         return QColor(0xb4, 0xee, 0xb4);
     } else if (id == C_PARENTHESES_MISMATCH) {

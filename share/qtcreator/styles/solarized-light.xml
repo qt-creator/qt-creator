@@ -13,6 +13,7 @@
   <style name="SearchResult" background="#eee8d5"/>
   <style name="SearchResultAlt1" background="#93a1a1"/>
   <style name="SearchResultAlt2" background="#e0dbcb"/>
+  <style name="SearchResultContainingFunction" foreground="#657b83" background="#fdf6e3"/>
   <style name="SearchScope" background="#073642"/>
   <style name="Parentheses" foreground="#dc322f" background="#93a1a1" bold="true"/>
   <style name="ParenthesesMismatch" foreground="#ffff00" background="#ff00ff" bold="true"/>
