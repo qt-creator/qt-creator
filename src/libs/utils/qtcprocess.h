@@ -61,19 +61,19 @@ public:
 
     void start();
 
-    virtual void terminate();
-    virtual void kill();
-    virtual void interrupt();
+    void terminate();
+    void kill();
+    void interrupt();
     void kickoffProcess();
     void close();
 
-    virtual QByteArray readAllStandardOutput();
-    virtual QByteArray readAllStandardError();
+    QByteArray readAllStandardOutput();
+    QByteArray readAllStandardError();
 
-    virtual qint64 write(const QString &input);
+    qint64 write(const QString &input);
     qint64 writeRaw(const QByteArray &input);
 
-    virtual qint64 processId() const;
+    qint64 processId() const;
     qint64 applicationMainThreadId() const;
 
     QProcess::ProcessState state() const;
