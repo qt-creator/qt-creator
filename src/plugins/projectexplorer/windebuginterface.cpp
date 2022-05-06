@@ -56,9 +56,9 @@ WinDebugInterface *WinDebugInterface::instance()
 
 bool WinDebugInterface::stop()
 {
-    if (!m_waitHandles[TerminateEventHandle])
+    if (!m_instance->m_waitHandles[TerminateEventHandle])
         return false;
-    SetEvent(m_waitHandles[TerminateEventHandle]);
+    SetEvent(m_instance->m_waitHandles[TerminateEventHandle]);
     return true;
 }
 
@@ -198,6 +198,12 @@ void WinDebugInterface::dispatchDebugOutput()
         emit _q_debugOutputReady();
 }
 
+void WinDebugInterface::startIfNeeded()
+{
+    if (!m_instance->isRunning())
+        m_instance->start();
+}
+
 } // namespace Internal
 } // namespace ProjectExplorer
 
@@ -221,6 +227,10 @@ bool WinDebugInterface::runLoop() { return false; }
 void WinDebugInterface::emitReadySignal() { }
 
 void WinDebugInterface::dispatchDebugOutput() { }
+
+bool WinDebugInterface::stop() { return false; }
+
+void WinDebugInterface::startIfNeeded() { }
 
 } // namespace Internal
 } // namespace ProjectExplorer

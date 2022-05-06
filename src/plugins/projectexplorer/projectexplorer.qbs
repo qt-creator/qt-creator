@@ -159,6 +159,7 @@ Project {
                 "userfileaccessor.cpp", "userfileaccessor.h",
                 "vcsannotatetaskhandler.cpp", "vcsannotatetaskhandler.h",
                 "waitforstopdialog.cpp", "waitforstopdialog.h",
+                "windebuginterface.cpp", "windebuginterface.h",
                 "xcodebuildparser.cpp", "xcodebuildparser.h"
             ]
         }
@@ -242,8 +243,6 @@ Project {
             files: [
                 "msvctoolchain.cpp",
                 "msvctoolchain.h",
-                "windebuginterface.cpp",
-                "windebuginterface.h",
             ]
         }
 

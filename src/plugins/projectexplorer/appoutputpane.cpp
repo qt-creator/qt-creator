@@ -794,14 +794,12 @@ void AppOutputPane::slotRunControlFinished2(RunControl *sender)
 
     ProjectExplorerPlugin::updateRunActions();
 
-#ifdef Q_OS_WIN
     const bool isRunning = Utils::anyOf(m_runControlTabs, [](const RunControlTab &rt) {
         return rt.runControl && rt.runControl->isRunning();
     });
-    if (!isRunning)
-        WinDebugInterface::instance()->stop();
-#endif
 
+    if (!isRunning)
+        WinDebugInterface::stop();
 }
 
 bool AppOutputPane::canNext() const

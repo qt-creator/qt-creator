@@ -24,10 +24,12 @@
 ****************************************************************************/
 
 #include "applicationlauncher.h"
-#ifdef Q_OS_WIN
+
+#include "devicesupport/desktopdevice.h"
+#include "projectexplorer.h"
+#include "projectexplorersettings.h"
+#include "runcontrol.h"
 #include "windebuginterface.h"
-#include <qt_windows.h>
-#endif
 
 #include <coreplugin/icore.h>
 
@@ -35,11 +37,6 @@
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-
-#include "devicesupport/desktopdevice.h"
-#include "projectexplorer.h"
-#include "projectexplorersettings.h"
-#include "runcontrol.h"
 
 #include <QTextCodec>
 #include <QTimer>
@@ -83,8 +80,6 @@ public:
     void handleDone();
 
     // Local
-    void cannotRetrieveLocalDebugOutput();
-    void checkLocalDebugOutput(qint64 pid, const QString &message);
     qint64 applicationPID() const;
     bool isRunning() const;
 
@@ -131,12 +126,20 @@ ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *pare
     connect(&m_process, &QtcProcess::readyReadStandardOutput,
                 this, &ApplicationLauncherPrivate::handleStandardOutput);
 
-#ifdef Q_OS_WIN
-    connect(WinDebugInterface::instance(), &WinDebugInterface::cannotRetrieveDebugOutput,
-            this, &ApplicationLauncherPrivate::cannotRetrieveLocalDebugOutput);
-    connect(WinDebugInterface::instance(), &WinDebugInterface::debugOutput,
-            this, &ApplicationLauncherPrivate::checkLocalDebugOutput);
-#endif
+    if (WinDebugInterface::instance()) {
+        connect(WinDebugInterface::instance(), &WinDebugInterface::cannotRetrieveDebugOutput,
+            this, [this] {
+                disconnect(WinDebugInterface::instance(), nullptr, this, nullptr);
+                emit q->appendMessage(ApplicationLauncher::tr("Cannot retrieve debugging output.")
+                          + QLatin1Char('\n'), ErrorMessageFormat);
+        });
+
+        connect(WinDebugInterface::instance(), &WinDebugInterface::debugOutput,
+            this, [this](qint64 pid, const QString &message) {
+            if (applicationPID() == pid)
+                emit q->appendMessage(message, DebugFormat);
+        });
+    }
 }
 
 ApplicationLauncher::ApplicationLauncher(QObject *parent) : QObject(parent),
@@ -282,21 +285,6 @@ void ApplicationLauncherPrivate::handleStandardError()
     emit q->appendMessage(msg, StdErrFormat, false);
 }
 
-void ApplicationLauncherPrivate::cannotRetrieveLocalDebugOutput()
-{
-#ifdef Q_OS_WIN
-    disconnect(WinDebugInterface::instance(), nullptr, this, nullptr);
-    emit q->appendMessage(ApplicationLauncher::tr("Cannot retrieve debugging output.")
-                          + QLatin1Char('\n'), ErrorMessageFormat);
-#endif
-}
-
-void ApplicationLauncherPrivate::checkLocalDebugOutput(qint64 pid, const QString &message)
-{
-    if (applicationPID() == pid)
-        emit q->appendMessage(message, DebugFormat);
-}
-
 int ApplicationLauncher::exitCode() const
 {
     return d->m_resultData.m_exitCode;
@@ -335,10 +323,8 @@ void ApplicationLauncherPrivate::start()
         m_process.setEnvironment(env);
 
         m_processRunning = true;
-    #ifdef Q_OS_WIN
-        if (!WinDebugInterface::instance()->isRunning())
-            WinDebugInterface::instance()->start(); // Try to start listener again...
-    #endif
+
+        WinDebugInterface::startIfNeeded();
 
         CommandLine cmdLine = m_runnable.command;
 

@@ -180,6 +180,7 @@ add_qtc_plugin(ProjectExplorer
     userfileaccessor.cpp userfileaccessor.h
     vcsannotatetaskhandler.cpp vcsannotatetaskhandler.h
     waitforstopdialog.cpp waitforstopdialog.h
+    windebuginterface.cpp windebuginterface.h
     xcodebuildparser.cpp xcodebuildparser.h
 )
 
@@ -197,7 +198,6 @@ extend_qtc_plugin(ProjectExplorer
 
 extend_qtc_plugin(ProjectExplorer
   CONDITION WIN32
-  SOURCES windebuginterface.cpp windebuginterface.h
   DEFINES UNICODE _UNICODE
 )
 
