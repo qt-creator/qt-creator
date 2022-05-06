@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/iplugin.h>
 #include <utils/filepath.h>
 
@@ -43,11 +44,28 @@ public:
     static void openQDS(const Utils::FilePath &fileName);
     static Utils::FilePath qdsInstallationEntry();
     static bool qdsInstallationExists();
+    static bool checkIfEditorIsuiQml(Core::IEditor *editor);
+    static Utils::FilePath projectFilePath();
+    static Utils::FilePaths rootCmakeFiles();
+    static QString qtVersion(const Utils::FilePath &projectFilePath);
+    static QString qdsVersion(const Utils::FilePath &projectFilePath);
+
+public slots:
+    void editorModeChanged(Utils::Id newMode, Utils::Id oldMode);
+    void openQtc(bool permanent = false);
+    void openQds(bool permanent = false);
+    void installQds();
+    void generateCmake();
+    void generateProjectFile();
 
 private:
     static void openInQDSWithProject(const Utils::FilePath &filePath);
+    static const QString readFileContents(const Utils::FilePath &filePath);
 
     bool initialize(const QStringList &arguments, QString *errorString) final;
+    void initializeQmlLandingPage();
+    void displayQmlLandingPage();
+    void hideQmlLandingPage();
 
     class QmlProjectPluginPrivate *d = nullptr;
 };

@@ -108,25 +108,7 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     setNeedsBuildConfigurations(false);
     setBuildSystemCreator([](Target *t) { return new QmlBuildSystem(t); });
 
-    if (!QmlProject::isQtDesignStudio()) {
-        if (QmlProjectPlugin::qdsInstallationExists()) {
-            auto lambda = [fileName]() {
-                if (Core::ICore::infoBar()->canInfoBeAdded(openInQDSAppSetting)) {
-                    Utils::InfoBarEntry
-                        info(openInQDSAppSetting,
-                             tr("Would you like to open the project in Qt Design Studio?"),
-                             Utils::InfoBarEntry::GlobalSuppression::Disabled);
-                    info.addCustomButton(tr("Open in Qt Design Studio"), [&, fileName] {
-                        Core::ICore::infoBar()->removeInfo(openInQDSAppSetting);
-                        QmlProjectPlugin::openQDS(fileName);
-                    });
-                    Core::ICore::infoBar()->addInfo(info);
-                }
-            };
-
-            QTimer::singleShot(0, this, lambda);
-        }
-    } else {
+    if (QmlProject::isQtDesignStudio()) {
         m_openFileConnection
             = connect(this,
                       &QmlProject::anyParsingFinished,
