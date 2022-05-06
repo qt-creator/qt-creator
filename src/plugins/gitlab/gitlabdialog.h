@@ -22,39 +22,60 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
 #pragma once
 
-#include "gitlabparameters.h"
+#include "ui_gitlabdialog.h"
 
-#include <extensionsystem/iplugin.h>
+#include "queryrunner.h"
+#include "resultparser.h"
 
-namespace ProjectExplorer { class Project; }
+#include <utils/filepath.h>
+#include <utils/id.h>
+
+#include <QDialog>
+
+QT_BEGIN_NAMESPACE
+class QPushButton;
+QT_END_NAMESPACE
 
 namespace GitLab {
 
-class GitLabProjectSettings;
-class GitLabOptionsPage;
-
-class GitLabPlugin : public ExtensionSystem::IPlugin
+class GitLabParameters;
+class GitLabDialog : public QDialog
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "GitLab.json")
-
 public:
-    GitLabPlugin();
-    ~GitLabPlugin() override;
+    explicit GitLabDialog(QWidget *parent = nullptr);
 
-    bool initialize(const QStringList &arguments, QString *errorString) override;
+    void updateRemotes();
 
-    static QList<GitLabServer> allGitLabServers();
-    static GitLabServer gitLabServerForId(const Utils::Id &id);
-    static GitLabParameters *globalParameters();
-    static GitLabProjectSettings *projectSettings(ProjectExplorer::Project *project);
-    static GitLabOptionsPage *optionsPage();
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
-    void openView();
+    void resetTreeView(QTreeView *treeView, QAbstractItemModel *model);
+    void requestMainViewUpdate();
+    void updatePageButtons();
+
+    void queryFirstPage();
+    void queryPreviousPage();
+    void queryNextPage();
+    void queryLastPage();
+    void querySearch();
+    void continuePageUpdate();
+
+    void handleUser(const User &user);
+    void handleProjects(const Projects &projects);
+    void fetchProjects();
+
+    void cloneSelected();
+
+    Ui::GitLabDialog m_ui;
+    QPushButton *m_clonePB = nullptr;
+    Utils::Id m_currentServerId;
+    Query m_lastTreeViewQuery;
+    PageInformation m_lastPageInformation;
+    int m_currentUserId = -1;
 };
 
 } // namespace GitLab

@@ -25,16 +25,27 @@
 
 #include "gitlabplugin.h"
 
+#include "gitlabdialog.h"
 #include "gitlaboptionspage.h"
 #include "gitlabparameters.h"
 #include "gitlabprojectsettings.h"
 
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
+#include <git/gitplugin.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <utils/qtcassert.h>
 
+#include <QAction>
+#include <QMessageBox>
+#include <QPointer>
+
 namespace GitLab {
+namespace Constants {
+const char GITLAB_OPEN_VIEW[] = "GitLab.OpenView";
+} // namespace Constants
 
 class GitLabPluginPrivate
 {
@@ -42,6 +53,7 @@ public:
     GitLabParameters parameters;
     GitLabOptionsPage optionsPage{&parameters};
     QHash<ProjectExplorer::Project *, GitLabProjectSettings *> projectSettings;
+    QPointer<GitLabDialog> dialog;
 };
 
 static GitLabPluginPrivate *dd = nullptr;
@@ -71,7 +83,40 @@ bool GitLabPlugin::initialize(const QStringList & /*arguments*/, QString * /*err
         return new GitLabProjectSettingsWidget(project);
     });
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
+    QAction *openViewAction = new QAction(tr("GitLab..."), this);
+    auto gitlabCommand = Core::ActionManager::registerAction(openViewAction,
+                                                             Constants::GITLAB_OPEN_VIEW);
+    connect(openViewAction, &QAction::triggered, this, &GitLabPlugin::openView);
+    Core::ActionContainer *ac = Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
+    ac->addAction(gitlabCommand);
+    connect(&dd->optionsPage, &GitLabOptionsPage::settingsChanged, this, [this] {
+        if (dd->dialog)
+            dd->dialog->updateRemotes();
+    });
     return true;
+}
+
+void GitLabPlugin::openView()
+{
+    if (dd->dialog.isNull()) {
+        while (!dd->parameters.isValid()) {
+            QMessageBox::warning(Core::ICore::dialogParent(), tr("Error"),
+                                 tr("Invalid GitLab configuration. For a fully functional "
+                                    "configuration, you need to set up host name or address and "
+                                    "an access token. Providing the path to curl is mandatory."));
+            if (!Core::ICore::showOptionsDialog("GitLab"))
+                return;
+        }
+        GitLabDialog *gitlabD = new GitLabDialog(Core::ICore::dialogParent());
+        gitlabD->setModal(true);
+        Core::ICore::registerWindow(gitlabD, Core::Context("Git.GitLab"));
+        dd->dialog = gitlabD;
+    }
+    const Qt::WindowStates state = dd->dialog->windowState();
+    if (state & Qt::WindowMinimized)
+        dd->dialog->setWindowState(state & ~Qt::WindowMinimized);
+    dd->dialog->show();
+    dd->dialog->raise();
 }
 
 QList<GitLabServer> GitLabPlugin::allGitLabServers()

@@ -294,6 +294,7 @@ void GitLabProjectSettingsWidget::updateEnabledStates()
     const bool isGitRepository = m_hostCB->count() > 0;
     const bool hasGitLabServers = m_linkedGitLabServer->count();
     const bool linked = m_projectSettings->isLinked();
+
     m_linkedGitLabServer->setEnabled(isGitRepository && !linked);
     m_hostCB->setEnabled(isGitRepository && !linked);
     m_linkWithGitLab->setEnabled(isGitRepository && !linked && hasGitLabServers);

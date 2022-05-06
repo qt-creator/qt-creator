@@ -41,11 +41,28 @@ namespace GitLab {
 
 const char API_PREFIX[]                 = "/api/v4";
 const char QUERY_PROJECT[]              = "/projects/%1";
+const char QUERY_PROJECTS[]             = "/projects?simple=true";
+const char QUERY_USER[]                 = "/user";
 
 Query::Query(Type type, const QStringList &parameter)
     : m_type(type)
     , m_parameter(parameter)
 {
+}
+
+void Query::setPageParameter(int page)
+{
+    m_pageParameter = page;
+}
+
+void Query::setAdditionalParameters(const QStringList &additional)
+{
+    m_additionalParameters = additional;
+}
+
+bool Query::hasPaginatedResults() const
+{
+    return m_type == Query::Projects;
 }
 
 QString Query::toString() const
@@ -59,6 +76,20 @@ QString Query::toString() const
         query += QLatin1String(QUERY_PROJECT).arg(QLatin1String(
                                                       QUrl::toPercentEncoding(m_parameter.at(0))));
         break;
+    case Query::Projects:
+        query += QLatin1String(QUERY_PROJECTS);
+        break;
+    case Query::User:
+        query += QUERY_USER;
+        break;
+    }
+    if (m_pageParameter > 0) {
+        query.append(m_type == Query::Projects ? '&' : '?');
+        query.append("page=").append(QString::number(m_pageParameter));
+    }
+    if (!m_additionalParameters.isEmpty()) {
+        query.append((m_type == Query::Projects || m_pageParameter > 0) ? '&' : '?');
+        query.append(m_additionalParameters.join('&'));
     }
     return query;
 }
@@ -69,6 +100,9 @@ QueryRunner::QueryRunner(const Query &query, const Utils::Id &id, QObject *paren
     const GitLabParameters *p = GitLabPlugin::globalParameters();
     const auto server = p->serverForId(id);
     QStringList args = server.curlArguments();
+    m_paginated = query.hasPaginatedResults();
+    if (m_paginated)
+        args << "-i";
     if (!server.token.isEmpty())
         args << "--header" << "PRIVATE-TOKEN: " + server.token;
     QString url = "https://" + server.host;

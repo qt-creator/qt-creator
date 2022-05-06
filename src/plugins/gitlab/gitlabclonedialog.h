@@ -25,36 +25,50 @@
 
 #pragma once
 
-#include "gitlabparameters.h"
+#include <QCoreApplication>
+#include <QDialog>
 
-#include <extensionsystem/iplugin.h>
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QComboBox;
+class QPlainTextEdit;
+class QPushButton;
+QT_END_NAMESPACE
 
-namespace ProjectExplorer { class Project; }
+namespace Core { class ShellCommand; }
+
+namespace Utils {
+class FancyLineEdit;
+class InfoLabel;
+class PathChooser;
+}
 
 namespace GitLab {
 
-class GitLabProjectSettings;
-class GitLabOptionsPage;
+class Project;
 
-class GitLabPlugin : public ExtensionSystem::IPlugin
+class GitLabCloneDialog : public QDialog
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "GitLab.json")
-
+    Q_DECLARE_TR_FUNCTIONS(GitLab::GitLabCloneDialog)
 public:
-    GitLabPlugin();
-    ~GitLabPlugin() override;
-
-    bool initialize(const QStringList &arguments, QString *errorString) override;
-
-    static QList<GitLabServer> allGitLabServers();
-    static GitLabServer gitLabServerForId(const Utils::Id &id);
-    static GitLabParameters *globalParameters();
-    static GitLabProjectSettings *projectSettings(ProjectExplorer::Project *project);
-    static GitLabOptionsPage *optionsPage();
+    explicit GitLabCloneDialog(const Project &project, QWidget *parent = nullptr);
 
 private:
-    void openView();
+    void updateUi();
+    void cloneProject();
+    void cancel();
+    void cloneFinished(bool ok, int exitCode);
+
+    QComboBox * m_repositoryCB = nullptr;
+    QCheckBox *m_submodulesCB = nullptr;
+    QPushButton *m_cloneButton = nullptr;
+    QPushButton *m_cancelButton = nullptr;
+    QPlainTextEdit *m_cloneOutput = nullptr;
+    Utils::PathChooser *m_pathChooser = nullptr;
+    Utils::FancyLineEdit *m_directoryLE = nullptr;
+    Utils::InfoLabel *m_infoLabel = nullptr;
+    Core::ShellCommand *m_command = nullptr;
+    bool m_commandRunning = false;
 };
 
 } // namespace GitLab
