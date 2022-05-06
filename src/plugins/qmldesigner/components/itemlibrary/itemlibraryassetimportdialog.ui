@@ -55,7 +55,7 @@
        <item>
         <widget class="QPushButton" name="advancedSettingsButton">
          <property name="text">
-          <string>Show All Settings</string>
+          <string>Show All Options</string>
          </property>
         </widget>
        </item>
