@@ -28,7 +28,6 @@
 #include "clangprojectsettings.h"
 #include "clangdiagnostictooltipwidget.h"
 #include "clangfixitoperation.h"
-#include "clangfixitoperationsextractor.h"
 #include "clangmodelmanagersupport.h"
 #include "clangutils.h"
 

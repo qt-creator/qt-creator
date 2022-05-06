@@ -47,8 +47,6 @@ QtcPlugin {
         "clangeditordocumentprocessor.h",
         "clangfixitoperation.cpp",
         "clangfixitoperation.h",
-        "clangfixitoperationsextractor.cpp",
-        "clangfixitoperationsextractor.h",
         "clangmodelmanagersupport.cpp",
         "clangmodelmanagersupport.h",
         "clangpreprocessorassistproposalitem.cpp",

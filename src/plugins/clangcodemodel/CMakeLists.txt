@@ -26,7 +26,6 @@ add_qtc_plugin(ClangCodeModel
     clangdqpropertyhighlighter.cpp clangdqpropertyhighlighter.h
     clangeditordocumentprocessor.cpp clangeditordocumentprocessor.h
     clangfixitoperation.cpp clangfixitoperation.h
-    clangfixitoperationsextractor.cpp clangfixitoperationsextractor.h
     clangdlocatorfilters.cpp clangdlocatorfilters.h
     clangmodelmanagersupport.cpp clangmodelmanagersupport.h
     clangpreprocessorassistproposalitem.cpp clangpreprocessorassistproposalitem.h
