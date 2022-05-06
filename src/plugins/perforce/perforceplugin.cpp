@@ -45,6 +45,7 @@
 
 #include <texteditor/textdocument.h>
 
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>

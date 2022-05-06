@@ -51,6 +51,7 @@
 
 #include <vcsbase/vcsoutputwindow.h>
 
+#include <utils/environment.h>
 #include <utils/qtcprocess.h>
 
 #include <QDebug>

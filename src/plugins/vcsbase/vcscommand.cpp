@@ -30,6 +30,7 @@
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/vcsmanager.h>
+#include <utils/environment.h>
 #include <utils/globalfilechangeblocker.h>
 #include <utils/qtcprocess.h>
 

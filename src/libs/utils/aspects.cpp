@@ -26,6 +26,7 @@
 #include "aspects.h"
 
 #include "algorithm.h"
+#include "environment.h"
 #include "fancylineedit.h"
 #include "layoutbuilder.h"
 #include "pathchooser.h"

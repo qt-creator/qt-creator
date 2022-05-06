@@ -27,7 +27,6 @@
 
 #include "utils_global.h"
 
-#include "environment.h"
 #include "commandline.h"
 #include "processenums.h"
 
@@ -44,6 +43,7 @@ namespace Utils {
 
 namespace Internal { class QtcProcessPrivate; }
 
+class Environment;
 class DeviceProcessHooks;
 class ProcessInterface;
 class ProcessResultData;

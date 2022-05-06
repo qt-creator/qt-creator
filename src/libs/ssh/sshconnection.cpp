@@ -29,6 +29,7 @@
 #include "sshlogging_p.h"
 #include "sshsettings.h"
 
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>

@@ -31,6 +31,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 #include <utils/commandline.h>
+#include <utils/environment.h>
 #include <utils/qtcprocess.h>
 #include <vcsbase/vcsoutputwindow.h>
 
