@@ -32,7 +32,7 @@ import StudioTheme 1.0 as StudioTheme
 import QtQuickDesignerTheme 1.0
 
 Row {
-    id: urlChooser
+    id: root
 
     property variant backendValue
     property color textColor: colorLogic.highlight ? colorLogic.textColor
@@ -47,22 +47,24 @@ Row {
     FileResourcesModel {
         id: fileModel
         modelNodeBackendProperty: modelNodeBackend
-        filter: urlChooser.filter
+        filter: root.filter
     }
 
     ColorLogic {
         id: colorLogic
-        backendValue: urlChooser.backendValue
+        backendValue: root.backendValue
     }
 
-    StudioControls.ComboBox {
+    StudioControls.FilterComboBox {
         id: comboBox
 
-        property ListModel items: ListModel {}
+        property ListModel listModel: ListModel {}
 
         implicitWidth: StudioTheme.Values.singleControlColumnWidth
                         + StudioTheme.Values.actionIndicatorWidth
         width: implicitWidth
+        allowUserInput: true
+
         // Note: highlightedIndex property isn't used because it has no setter and it doesn't reset
         // when the combobox is closed by focusing on some other control.
         property int hoverIndex: -1
@@ -70,7 +72,7 @@ Row {
         ToolTip {
             id: toolTip
             visible: comboBox.hover && toolTip.text !== ""
-            text: urlChooser.backendValue.valueToString
+            text: root.backendValue.valueToString
             delay: StudioTheme.Values.toolTipDelay
             height: StudioTheme.Values.toolTipHeight
             background: Rectangle {
@@ -88,27 +90,39 @@ Row {
         delegate: ItemDelegate {
             required property string fullPath
             required property string name
+            required property int group
             required property int index
 
-            id: delegateItem
-            width: parent.width
+            id: delegateRoot
+            width: comboBox.popup.width - comboBox.popup.leftPadding - comboBox.popup.rightPadding
+                   - (comboBox.popupScrollBar.visible ? comboBox.popupScrollBar.contentItem.implicitWidth + 2
+                                                      : 0) // TODO Magic number
             height: StudioTheme.Values.height - 2 * StudioTheme.Values.border
             padding: 0
-            highlighted: comboBox.highlightedIndex === index
+            hoverEnabled: true
+            highlighted: comboBox.highlightedIndex === delegateRoot.DelegateModel.itemsIndex
+
+            onHoveredChanged: {
+                if (delegateRoot.hovered && !comboBox.popupMouseArea.active)
+                    comboBox.setHighlightedIndexItems(delegateRoot.DelegateModel.itemsIndex)
+            }
+
+            onClicked: comboBox.selectItem(delegateRoot.DelegateModel.itemsIndex)
 
             indicator: Item {
                 id: itemDelegateIconArea
-                width: delegateItem.height
-                height: delegateItem.height
+                width: delegateRoot.height
+                height: delegateRoot.height
 
                 Label {
                     id: itemDelegateIcon
                     text: StudioTheme.Constants.tickIcon
-                    color: delegateItem.highlighted ? StudioTheme.Values.themeTextSelectedTextColor
+                    color: delegateRoot.highlighted ? StudioTheme.Values.themeTextSelectedTextColor
                                                     : StudioTheme.Values.themeTextColor
                     font.family: StudioTheme.Constants.iconFont.family
                     font.pixelSize: StudioTheme.Values.spinControlIconSizeMulti
-                    visible: comboBox.currentIndex === index ? true : false
+                    visible: comboBox.currentIndex === delegateRoot.DelegateModel.itemsIndex ? true
+                                                                                             : false
                     anchors.fill: parent
                     renderType: Text.NativeRendering
                     horizontalAlignment: Text.AlignHCenter
@@ -119,7 +133,7 @@ Row {
             contentItem: Text {
                 leftPadding: itemDelegateIconArea.width
                 text: name
-                color: delegateItem.highlighted ? StudioTheme.Values.themeTextSelectedTextColor
+                color: delegateRoot.highlighted ? StudioTheme.Values.themeTextSelectedTextColor
                                                 : StudioTheme.Values.themeTextColor
                 font: comboBox.font
                 elide: Text.ElideRight
@@ -127,17 +141,17 @@ Row {
             }
 
             background: Rectangle {
-                id: itemDelegateBackground
                 x: 0
                 y: 0
-                width: delegateItem.width
-                height: delegateItem.height
-                color: delegateItem.highlighted ? StudioTheme.Values.themeInteraction : "transparent"
+                width: delegateRoot.width
+                height: delegateRoot.height
+                color: delegateRoot.highlighted ? StudioTheme.Values.themeInteraction
+                                                : "transparent"
             }
 
             ToolTip {
                 id: itemToolTip
-                visible: delegateItem.hovered && comboBox.highlightedIndex === index
+                visible: delegateRoot.hovered && comboBox.highlightedIndex === index
                 text: fullPath
                 delay: StudioTheme.Values.toolTipDelay
                 height: StudioTheme.Values.toolTipHeight
@@ -161,7 +175,7 @@ Row {
 
         ExtendedFunctionLogic {
             id: extFuncLogic
-            backendValue: urlChooser.backendValue
+            backendValue: root.backendValue
             onReseted: comboBox.editText = ""
         }
 
@@ -181,19 +195,14 @@ Row {
 
         // Takes into account applied bindings
         property string textValue: {
-            if (urlChooser.backendValue.isBound)
-                return urlChooser.backendValue.expression
+            if (root.backendValue.isBound)
+                return root.backendValue.expression
 
-            var fullPath = urlChooser.backendValue.valueToString
+            var fullPath = root.backendValue.valueToString
             return fullPath.substr(fullPath.lastIndexOf('/') + 1)
         }
 
         onTextValueChanged: comboBox.setCurrentText(comboBox.textValue)
-
-        editable: true
-        textRole: "name"
-        valueRole: "fullPath"
-        model: comboBox.items
 
         onModelChanged: {
             if (!comboBox.isComplete)
@@ -206,20 +215,14 @@ Row {
             if (!comboBox.isComplete)
                 return
 
-            var inputValue = comboBox.editText
+            let inputValue = comboBox.editText
 
             // Check if value set by user matches with a name in the model then pick the full path
-            var index = comboBox.find(inputValue)
+            let index = comboBox.find(inputValue)
             if (index !== -1)
-                inputValue = comboBox.items.get(index).fullPath
+                inputValue = comboBox.items.get(index).model.fullPath
 
-            // Get the currently assigned backend value, extract its file name and compare it to the
-            // input value. If they differ the new value needs to be set.
-            var currentValue = urlChooser.backendValue.value
-            var fileName = currentValue.substr(currentValue.lastIndexOf('/') + 1);
-
-            if (fileName !== inputValue)
-                urlChooser.backendValue.value = inputValue
+            root.backendValue.value = inputValue
 
             comboBox.dirty = false
         }
@@ -234,14 +237,16 @@ Row {
         }
 
         function handleActivate(index) {
-            if (urlChooser.backendValue === undefined || !comboBox.isComplete)
+            if (root.backendValue === undefined || !comboBox.isComplete)
                 return
 
-            if (index === -1) // select first item if index is invalid
-                index = 0
+            let inputValue = comboBox.editText
 
-            if (urlChooser.backendValue.value !== comboBox.items.get(index).fullPath)
-                urlChooser.backendValue.value = comboBox.items.get(index).fullPath
+            if (index >= 0)
+                inputValue = comboBox.items.get(index).model.fullPath
+
+            if (root.backendValue.value !== inputValue)
+                root.backendValue.value = inputValue
 
             comboBox.dirty = false
         }
@@ -250,7 +255,7 @@ Row {
             // Hack to style the text input
             for (var i = 0; i < comboBox.children.length; i++) {
                 if (comboBox.children[i].text !== undefined) {
-                    comboBox.children[i].color = urlChooser.textColor
+                    comboBox.children[i].color = root.textColor
                     comboBox.children[i].anchors.rightMargin = 34
                 }
             }
@@ -261,36 +266,44 @@ Row {
 
     function createModel() {
         // Build the combobox model
-        comboBox.items.clear()
+        comboBox.listModel.clear()
+        // While adding items to the model this binding needs to be interrupted, otherwise the
+        // update function of the SortFilterModel is triggered every time on append() which makes
+        // QtDS very slow. This will happen when selecting different items in the scene.
+        comboBox.model = {}
 
-        if (urlChooser.defaultItems !== undefined) {
-            for (var i = 0; i < urlChooser.defaultItems.length; ++i) {
-                comboBox.items.append({
-                    fullPath: urlChooser.defaultItems[i],
-                    name: urlChooser.defaultItems[i]
+        if (root.defaultItems !== undefined) {
+            for (var i = 0; i < root.defaultItems.length; ++i) {
+                comboBox.listModel.append({
+                    fullPath: root.defaultItems[i],
+                    name: root.defaultItems[i],
+                    group: 0
                 })
             }
         }
 
         for (var j = 0; j < fileModel.fullPathModel.length; ++j) {
-            comboBox.items.append({
+            comboBox.listModel.append({
                 fullPath: fileModel.fullPathModel[j],
-                name: fileModel.fileNameModel[j]
+                name: fileModel.fileNameModel[j],
+                group: 1
             })
         }
+
+        comboBox.model = Qt.binding(function() { return comboBox.listModel })
     }
 
     Connections {
         target: fileModel
         function onFullPathModelChanged() {
-            urlChooser.createModel()
+            root.createModel()
             comboBox.setCurrentText(comboBox.textValue)
         }
     }
 
-    onDefaultItemsChanged: urlChooser.createModel()
+    onDefaultItemsChanged: root.createModel()
 
-    Component.onCompleted: urlChooser.createModel()
+    Component.onCompleted: root.createModel()
 
     function indexOf(model, criteria) {
         for (var i = 0; i < model.count; ++i) {
@@ -305,16 +318,16 @@ Row {
         function onStateChanged(state) {
             // update currentIndex when the popup opens to override the default behavior in super classes
             // that selects currentIndex based on values in the combo box.
-            if (comboBox.popup.opened && !urlChooser.backendValue.isBound) {
-                var index = urlChooser.indexOf(comboBox.items,
+            if (comboBox.popup.opened && !root.backendValue.isBound) {
+                var index = root.indexOf(comboBox.items,
                                                function(item) {
-                                                   return item.fullPath === urlChooser.backendValue.value
+                                                   return item.fullPath === root.backendValue.value
                                                })
 
                 if (index !== -1) {
                     comboBox.currentIndex = index
                     comboBox.hoverIndex = index
-                    comboBox.editText = comboBox.items.get(index).name
+                    comboBox.editText = comboBox.items.get(index).model.name
                 }
             }
         }
@@ -324,11 +337,11 @@ Row {
 
     IconIndicator {
         icon: StudioTheme.Constants.addFile
-        iconColor: urlChooser.textColor
+        iconColor: root.textColor
         onClicked: {
             fileModel.openFileDialog()
             if (fileModel.fileName !== "")
-                urlChooser.backendValue.value = fileModel.fileName
+                root.backendValue.value = fileModel.fileName
         }
     }
 }
