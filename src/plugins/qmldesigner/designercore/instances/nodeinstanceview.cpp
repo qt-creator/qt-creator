@@ -1907,6 +1907,9 @@ void NodeInstanceView::updateWatcher(const QString &path)
     const QString projPath = QFileInfo(model()->fileUrl().toLocalFile()).absolutePath();
 #endif
 
+    if (projPath.isEmpty())
+        return;
+
     const QStringList files = m_fileSystemWatcher->files();
     const QStringList directories = m_fileSystemWatcher->directories();
     if (path.isEmpty()) {
@@ -2025,6 +2028,8 @@ void NodeInstanceView::updateQsbPathToFilterMap()
     m_qsbPathToFilterMap.clear();
     if (m_currentTarget && !m_qsbPath.isEmpty()) {
         const auto bs = qobject_cast<QmlProjectManager::QmlBuildSystem *>(m_currentTarget->buildSystem());
+        if (!bs)
+            return;
         const QStringList shaderToolFiles = bs->shaderToolFiles();
 
 #ifndef QMLDESIGNER_TEST
@@ -2032,6 +2037,9 @@ void NodeInstanceView::updateQsbPathToFilterMap()
 #else
         const QString projPath = QFileInfo(model()->fileUrl().toLocalFile()).absolutePath();
 #endif
+        if (projPath.isEmpty())
+            return;
+
         // Parse ShaderTool files from project configuration.
         // Separate files to path and file name (called filter here as it can contain wildcards)
         // and group filters by paths. Blank path indicates project-wide file wildcard.
@@ -2056,6 +2064,9 @@ void NodeInstanceView::handleShaderChanges()
         return;
 
     const auto bs = qobject_cast<QmlProjectManager::QmlBuildSystem *>(m_currentTarget->buildSystem());
+    if (!bs)
+        return;
+
     QStringList baseArgs = bs->shaderToolArgs();
     if (baseArgs.isEmpty())
         return;

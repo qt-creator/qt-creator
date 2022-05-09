@@ -402,6 +402,8 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
             this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&d->sizeThresholdSpinBox, qOverload<int>(&QSpinBox::valueChanged),
             this, &ClangdSettingsWidget::settingsDataChanged);
+    connect(&d->documentUpdateThreshold, qOverload<int>(&QSpinBox::valueChanged),
+            this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&d->clangdChooser, &Utils::PathChooser::pathChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
 }
