@@ -106,8 +106,9 @@ QStringList SshConnectionParameters::connectionOptions(const FilePath &binary) c
 
 bool SshConnectionParameters::setupSshEnvironment(QtcProcess *process)
 {
-    Environment env = process->hasEnvironment() ? process->environment()
-                                                : Environment::systemEnvironment();
+    Environment env = process->controlEnvironment();
+    if (env.size() == 0)
+        env = Environment::systemEnvironment();
     const bool hasDisplay = env.hasKey("DISPLAY") && (env.value("DISPLAY") != QString(":0"));
     if (SshSettings::askpassFilePath().exists()) {
         env.set("SSH_ASKPASS", SshSettings::askpassFilePath().toUserOutput());

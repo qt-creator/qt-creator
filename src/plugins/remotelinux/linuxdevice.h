@@ -81,6 +81,7 @@ public:
     bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const override;
     QDateTime lastModified(const Utils::FilePath &filePath) const override;
     Utils::ProcessInterface *createProcessInterface() const override;
+    Utils::Environment systemEnvironment() const override;
     qint64 fileSize(const Utils::FilePath &filePath) const override;
     qint64 bytesAvailable(const Utils::FilePath &filePath) const override;
     QFileDevice::Permissions permissions(const Utils::FilePath &filePath) const override;

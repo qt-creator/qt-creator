@@ -239,7 +239,7 @@ CommandLine DockerProcessImpl::fullLocalCommandLine(bool interactive)
 
     args.append({"echo", s_pidMarker, "&&"});
 
-    const Environment &env = m_setup.m_remoteEnvironment;
+    const Environment &env = m_setup.m_environment;
     for (auto it = env.constBegin(); it != env.constEnd(); ++it)
         args.append(env.key(it) + "='" + env.expandedValueForKey(env.key(it)) + '\'');
 

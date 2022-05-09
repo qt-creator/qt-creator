@@ -99,13 +99,11 @@ public:
     void setProcessMode(ProcessMode processMode);
     ProcessMode processMode() const;
 
-    void setEnvironment(const Environment &env);
-    void unsetEnvironment();
+    void setEnvironment(const Environment &env);  // Main process
     const Environment &environment() const;
-    bool hasEnvironment() const;
 
-    void setRemoteEnvironment(const Environment &env);
-    Environment remoteEnvironment() const;
+    void setControlEnvironment(const Environment &env); // Possible helper process (ssh on host etc)
+    const Environment &controlEnvironment() const;
 
     void setCommand(const CommandLine &cmdLine);
     const CommandLine &commandLine() const;

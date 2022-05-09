@@ -343,7 +343,7 @@ void ApplicationLauncherPrivate::start()
         cmd.setExecutable(m_runnable.device->mapToGlobalPath(cmd.executable()));
         m_process.setCommand(cmd);
         m_process.setWorkingDirectory(m_runnable.workingDirectory);
-        m_process.setRemoteEnvironment(m_runnable.environment);
+        m_process.setEnvironment(m_runnable.environment);
         m_process.setExtraData(m_runnable.extraData);
     }
 

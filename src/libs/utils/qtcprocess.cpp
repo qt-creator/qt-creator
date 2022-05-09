@@ -580,7 +580,9 @@ public:
     explicit QtcProcessPrivate(QtcProcess *parent)
         : QObject(parent)
         , q(parent)
-    {}
+    {
+        m_setup.m_controlEnvironment = Environment::systemEnvironment();
+    }
 
     ProcessInterface *createProcessInterface()
     {
@@ -615,22 +617,17 @@ public:
 
     Environment fullEnvironment() const
     {
-        Environment env;
-        if (m_setup.m_haveEnv) {
-            if (m_setup.m_environment.size()) {
-                env = m_setup.m_environment;
-            } else {
-                qWarning("QtcProcess::start: Empty environment set when running '%s'.",
-                         qPrintable(m_setup.m_commandLine.executable().toString()));
-                env = Environment::systemEnvironment();
-            }
-        } else {
-            env = Environment::systemEnvironment();
+        Environment env = m_setup.m_environment;
+        if (env.size() == 0) {
+// FIXME: Either switch to using EnvironmentChange instead of full Environments, or
+// feed the full environment into the QtcProcess instead of fixing it up here.
+//            qWarning("QtcProcess::start: Empty environment set when running '%s'.",
+//                 qPrintable(m_setup.m_commandLine.executable().toString()));
+            env = m_setup.m_commandLine.executable().deviceEnvironment();
         }
-
-// TODO: needs SshSettings
-//        if (m_runAsRoot)
-//            RunControl::provideAskPassEntry(env);
+        // TODO: needs SshSettings
+        //        if (m_runAsRoot)
+        //            RunControl::provideAskPassEntry(env);
         return env;
     }
 
@@ -1017,13 +1014,6 @@ void QtcProcess::setProcessMode(ProcessMode processMode)
 void QtcProcess::setEnvironment(const Environment &env)
 {
     d->m_setup.m_environment = env;
-    d->m_setup.m_haveEnv = true;
-}
-
-void QtcProcess::unsetEnvironment()
-{
-    d->m_setup.m_environment = Environment();
-    d->m_setup.m_haveEnv = false;
 }
 
 const Environment &QtcProcess::environment() const
@@ -1031,19 +1021,14 @@ const Environment &QtcProcess::environment() const
     return d->m_setup.m_environment;
 }
 
-bool QtcProcess::hasEnvironment() const
+void QtcProcess::setControlEnvironment(const Environment &environment)
 {
-    return d->m_setup.m_haveEnv;
+    d->m_setup.m_controlEnvironment = environment;
 }
 
-void QtcProcess::setRemoteEnvironment(const Environment &environment)
+const Environment &QtcProcess::controlEnvironment() const
 {
-    d->m_setup.m_remoteEnvironment = environment;
-}
-
-Environment QtcProcess::remoteEnvironment() const
-{
-    return d->m_setup.m_remoteEnvironment;
+    return d->m_setup.m_controlEnvironment;
 }
 
 void QtcProcess::setCommand(const CommandLine &cmdLine)

@@ -47,7 +47,7 @@ public:
     CommandLine m_commandLine;
     FilePath m_workingDirectory;
     Environment m_environment;
-    Environment m_remoteEnvironment;
+    Environment m_controlEnvironment;
     QByteArray m_writeData;
     QProcess::ProcessChannelMode m_processChannelMode = QProcess::SeparateChannels;
     QVariantHash m_extraData;
@@ -56,7 +56,6 @@ public:
 
     bool m_abortOnMetaChars = true;
     bool m_runAsRoot = false;
-    bool m_haveEnv = false;
     bool m_lowPriority = false;
     bool m_unixTerminalDisabled = false;
     bool m_useCtrlCStub = false; // release only
