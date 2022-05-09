@@ -108,6 +108,22 @@ VcsCommand *VcsBaseClientImpl::createCommand(const FilePath &workingDirectory,
     return cmd;
 }
 
+VcsCommand *VcsBaseClientImpl::execBgCommand(const FilePath &workingDirectory,
+                                             const QStringList &args,
+                                             const std::function<void (const QString &)> &outputCallback,
+                                             unsigned flags) const
+{
+    VcsCommand *cmd = createCommand(workingDirectory);
+    cmd->addFlags(flags
+                  | VcsCommand::SuppressCommandLogging
+                  | VcsCommand::SuppressStdErr
+                  | VcsCommand::SuppressFailMessage);
+    cmd->addJob({vcsBinary(), args});
+    connect(cmd, &VcsCommand::stdOutText, this, outputCallback);
+    cmd->execute();
+    return cmd;
+}
+
 void VcsBaseClientImpl::enqueueJob(VcsCommand *cmd, const QStringList &args,
                                    const ExitCodeInterpreter &interpreter) const
 {
