@@ -30,37 +30,27 @@ except ImportError:
 
 # for easier re-usage (because Python hasn't an enum type)
 class Targets:
-    ALL_TARGETS = tuple(range(5))
+    ALL_TARGETS = tuple(range(3))
 
-    (DESKTOP_4_8_7_DEFAULT,
-     EMBEDDED_LINUX,
-     DESKTOP_5_4_1_GCC,
+    (DESKTOP_5_4_1_GCC,
      DESKTOP_5_10_1_DEFAULT,
      DESKTOP_5_14_1_DEFAULT) = ALL_TARGETS
 
     __TARGET_NAME_DICT__ = dict(zip(ALL_TARGETS,
-                                    ["Desktop 4.8.7 default",
-                                     "Embedded Linux",
-                                     "Desktop 5.4.1 GCC",
+                                    ["Desktop 5.4.1 GCC",
                                      "Desktop 5.10.1 default",
                                      "Desktop 5.14.1 default"]))
 
     @staticmethod
     def availableTargetClasses(ignoreValidity=False):
         availableTargets = set(Targets.ALL_TARGETS)
-        if not qt4Available and not ignoreValidity:
-            availableTargets.remove(Targets.DESKTOP_4_8_7_DEFAULT)
-        if not (qt4Available or ignoreValidity) or platform.system() in ('Windows', 'Microsoft'):
-            availableTargets.remove(Targets.EMBEDDED_LINUX)
-        elif platform.system() == 'Darwin':
+        if platform.system() == 'Darwin':
             availableTargets.remove(Targets.DESKTOP_5_4_1_GCC)
         return availableTargets
 
     @staticmethod
     def desktopTargetClasses():
-        desktopTargets = Targets.availableTargetClasses()
-        desktopTargets.discard(Targets.EMBEDDED_LINUX)
-        return desktopTargets
+        return Targets.availableTargetClasses()
 
     @staticmethod
     def getStringForTarget(target):
