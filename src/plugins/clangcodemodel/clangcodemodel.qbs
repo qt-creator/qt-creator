@@ -14,14 +14,11 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
 
-    Depends { name: "libclang"; required: false }
     Depends { name: "clang_defines" }
 
     pluginTestDepends: [
         "QmakeProjectManager",
     ]
-
-    condition: libclang.present
 
     files: [
         "clangactivationsequencecontextprocessor.cpp",

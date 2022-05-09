@@ -1,18 +1,13 @@
-set(CLANG_VERSION ${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR}.${LLVM_VERSION_PATCH})
-
 set(TEST_LINK_DEPENDS)
 if(WITH_TESTS)
   set(TEST_LINK_DEPENDS QtSupport)
 endif()
 
 add_qtc_plugin(ClangCodeModel
-  CONDITION TARGET libclang
   DEPENDS CPlusPlus
   PLUGIN_DEPENDS Core CppEditor LanguageClient ${TEST_LINK_DEPENDS} TextEditor
   PLUGIN_TEST_DEPENDS QmakeProjectManager
   DEFINES
-    CLANG_VERSION="${CLANG_VERSION}"
-    CLANG_INCLUDE_DIR="${LLVM_LIBRARY_DIR}/clang/${CLANG_VERSION}/include"
     CLANG_BINDIR="${LLVM_TOOLS_BINARY_DIR}"
   SOURCES
     clangactivationsequencecontextprocessor.cpp clangactivationsequencecontextprocessor.h
