@@ -83,7 +83,6 @@ public:
                               JobOutputBindMode mode = NoOutputBind) const;
 
     void enqueueJob(VcsCommand *cmd, const QStringList &args,
-                    const Utils::FilePath &workingDirectory = {},
                     const Utils::ExitCodeInterpreter &interpreter = {}) const;
 
     virtual Utils::Environment processEnvironment() const;
