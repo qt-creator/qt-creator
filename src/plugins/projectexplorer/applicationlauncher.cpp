@@ -72,7 +72,7 @@ public:
 
     ~ApplicationLauncherPrivate() override {
         if (m_state == Run)
-            emit q->finished();
+            emit q->done();
     }
 
     void start();
@@ -178,7 +178,7 @@ void ApplicationLauncherPrivate::stop()
         if (!isRunning())
             return;
         m_process.stopProcess();
-        QTimer::singleShot(100, this, [this] { emit q->finished(); });
+        QTimer::singleShot(100, this, [this] { emit q->done(); });
     } else {
         if (m_stopRequested)
             return;
@@ -224,7 +224,7 @@ void ApplicationLauncherPrivate::handleDone()
 
     if (m_isLocal) {
         if (m_resultData.m_error == QProcess::UnknownError) {
-            emit q->finished();
+            emit q->done();
             return;
         }
         // TODO: why below handlings are different?
@@ -233,7 +233,6 @@ void ApplicationLauncherPrivate::handleDone()
             if (m_processRunning && m_process.processId() == 0) {
                 m_processRunning = false;
                 m_resultData.m_exitCode = -1; // FIXME: Why?
-                emit q->finished();
             }
         } else {
             QString errorString;
@@ -252,23 +251,19 @@ void ApplicationLauncherPrivate::handleDone()
             if (m_processRunning && !isRunning()) {
                 m_processRunning = false;
                 m_resultData.m_exitCode = -1;
-                emit q->finished();
             }
         }
-        emit q->errorOccurred(m_resultData.m_error);
 
     } else {
-        QTC_ASSERT(m_state == Run, return);
+        QTC_ASSERT(m_state == Run, emit q->done(); return);
         if (m_resultData.m_error == QProcess::FailedToStart) {
             m_resultData.m_exitStatus = QProcess::CrashExit;
-            emit q->errorOccurred(m_resultData.m_error);
         } else if (m_resultData.m_exitStatus == QProcess::CrashExit) {
             m_resultData.m_error = QProcess::Crashed;
-            emit q->errorOccurred(m_resultData.m_error);
         }
         m_state = Inactive;
-        emit q->finished();
     }
+    emit q->done();
 }
 
 void ApplicationLauncherPrivate::handleStandardOutput()
@@ -310,6 +305,11 @@ int ApplicationLauncher::exitCode() const
 QProcess::ExitStatus ApplicationLauncher::exitStatus() const
 {
     return d->m_resultData.m_exitStatus;
+}
+
+QProcess::ProcessError ApplicationLauncher::error() const
+{
+    return d->m_resultData.m_error;
 }
 
 void ApplicationLauncher::start()
@@ -357,8 +357,7 @@ void ApplicationLauncherPrivate::start()
             m_resultData.m_errorString = ApplicationLauncher::tr("Cannot run: No device.");
             m_resultData.m_error = QProcess::FailedToStart;
             m_resultData.m_exitStatus = QProcess::CrashExit;
-            emit q->errorOccurred(QProcess::FailedToStart);
-            emit q->finished();
+            emit q->done();
             return;
         }
 
@@ -366,8 +365,7 @@ void ApplicationLauncherPrivate::start()
             m_resultData.m_errorString = ApplicationLauncher::tr("Cannot run: No command given.");
             m_resultData.m_error = QProcess::FailedToStart;
             m_resultData.m_exitStatus = QProcess::CrashExit;
-            emit q->errorOccurred(QProcess::FailedToStart);
-            emit q->finished();
+            emit q->done();
             return;
         }
 

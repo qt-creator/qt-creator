@@ -63,12 +63,12 @@ public:
 
     int exitCode() const;
     QProcess::ExitStatus exitStatus() const;
+    QProcess::ProcessError error() const;
 
 signals:
     void appendMessage(const QString &message, Utils::OutputFormat format, bool appendNewLine = true);
     void started();
-    void finished();
-    void errorOccurred(QProcess::ProcessError error);
+    void done();
 
 private:
     std::unique_ptr<Internal::ApplicationLauncherPrivate> d;

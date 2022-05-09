@@ -1220,26 +1220,18 @@ void SimpleTargetRunner::doStart(const Runnable &runnable)
     const QString msg = RunControl::tr("Starting %1...").arg(runnable.command.toUserOutput());
     appendMessage(msg, Utils::NormalMessageFormat);
 
-    connect(&m_launcher, &ApplicationLauncher::finished, this, [this, runnable]() {
+    connect(&m_launcher, &ApplicationLauncher::done, this, [this, runnable] {
         if (m_stopReported)
             return;
-        const QString msg = (m_launcher.exitStatus() == QProcess::CrashExit)
-                ? tr("%1 crashed.") : tr("%2 exited with code %1").arg(m_launcher.exitCode());
+        QString msg = tr("%2 exited with code %1").arg(m_launcher.exitCode());
+        if (m_launcher.exitStatus() == QProcess::CrashExit)
+            msg = tr("%1 crashed.");
+        else if (m_stopForced)
+            msg = tr("The process was ended forcefully.");
+        else if (m_launcher.error() != QProcess::UnknownError)
+            msg = userMessageForProcessError(m_launcher.error(), runnable.command.executable());
         const QString displayName = runnable.command.executable().toUserOutput();
         appendMessage(msg.arg(displayName), Utils::NormalMessageFormat);
-        m_stopReported = true;
-        reportStopped();
-    });
-
-    connect(&m_launcher, &ApplicationLauncher::errorOccurred,
-        this, [this, runnable](QProcess::ProcessError error) {
-        if (m_stopReported)
-            return;
-        if (error == QProcess::Timedout)
-            return; // No actual change on the process side.
-        const QString msg = m_stopForced ? tr("The process was ended forcefully.")
-                    : userMessageForProcessError(error, runnable.command.executable());
-        appendMessage(msg, Utils::NormalMessageFormat);
         m_stopReported = true;
         reportStopped();
     });
