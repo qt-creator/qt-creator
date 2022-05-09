@@ -465,20 +465,32 @@ public:
             setStartupFile(VcsBase::source(this->document()));
         });
     }
+    ~ShowController()
+    {
+        abortCommands();
+    }
 
     void processCommandOutput(const QString &output) override;
 
 private:
+    void processDescription(const QString &output);
+    void updateDescription();
+    void abortCommands();
     const QString m_id;
     enum State { Idle, GettingDescription, GettingDiff };
     State m_state;
+    QString m_header;
+    QString m_body;
+    QString m_precedes;
+    QStringList m_follows;
+    QList<QPointer<VcsCommand>> m_commands;
 };
 
 void ShowController::processCommandOutput(const QString &output)
 {
     QTC_ASSERT(m_state != Idle, return);
     if (m_state == GettingDescription) {
-        setDescription(m_instance->extendedShowDescription(workingDirectory(), output));
+        processDescription(output);
         // stage 2
         m_state = GettingDiff;
         const QStringList args = {"show", "--format=format:", // omit header, already generated
@@ -488,6 +500,68 @@ void ShowController::processCommandOutput(const QString &output)
         m_state = Idle;
         GitBaseDiffEditorController::processCommandOutput(output);
     }
+}
+
+void ShowController::processDescription(const QString &output)
+{
+    abortCommands();
+    if (!output.startsWith("commit ")) {
+        setDescription(output);
+        return;
+    }
+    QString modText = output;
+    int lastHeaderLine = modText.indexOf("\n\n") + 1;
+    m_header = output.left(lastHeaderLine) + Constants::EXPAND_BRANCHES + '\n';
+    m_body = output.mid(lastHeaderLine + 1);
+    m_precedes = tr("<resolving>");
+    m_follows.append(m_precedes);
+    updateDescription();
+    const QString commit = modText.mid(7, 8);
+    m_commands.append(m_instance->execBgCommand(
+                          workingDirectory(), {"describe", "--contains", commit},
+                          [this](const QString &text) {
+        m_precedes = text.trimmed();
+        const int tilde = m_precedes.indexOf('~');
+        if (tilde != -1)
+            m_precedes.truncate(tilde);
+        if (m_precedes.endsWith("^0"))
+            m_precedes.chop(2);
+        updateDescription();
+    }));
+    QStringList parents;
+    QString errorMessage;
+    m_instance->synchronousParentRevisions(workingDirectory(), commit, &parents, &errorMessage);
+    m_follows.resize(parents.size());
+    for (int i = 0, total = parents.size(); i < total; ++i) {
+        m_commands.append(m_instance->execBgCommand(
+                              workingDirectory(), {"describe", "--tags", "--abbrev=0", parents[i]},
+                              [this, i](const QString &text) {
+            m_follows[i] = text.trimmed();
+            updateDescription();
+        }));
+    }
+}
+
+void ShowController::updateDescription()
+{
+    QString desc = m_header;
+    if (!m_precedes.isEmpty())
+        desc.append("Precedes: " + m_precedes + '\n');
+    QStringList follows = Utils::filtered(m_follows, &QString::size);
+    if (!follows.isEmpty())
+        desc.append("Follows: " + follows.join(", ") + '\n');
+    desc.append('\n' + m_body);
+
+    setDescription(desc);
+}
+
+void ShowController::abortCommands()
+{
+    for (QPointer<VcsCommand> command : m_commands) {
+        if (command)
+            command->abort();
+    }
+    m_commands.clear();
 }
 
 ///////////////////////////////
@@ -1798,35 +1872,6 @@ QString GitClient::synchronousTopRevision(const FilePath &workingDirectory, QDat
     return output.first();
 }
 
-void GitClient::synchronousTagsForCommit(const FilePath &workingDirectory, const QString &revision,
-                                         QString &precedes, QString &follows) const
-{
-    QtcProcess proc1;
-    vcsFullySynchronousExec(proc1, workingDirectory, {"describe", "--contains", revision}, silentFlags);
-    precedes = proc1.stdOut();
-    int tilde = precedes.indexOf('~');
-    if (tilde != -1)
-        precedes.truncate(tilde);
-    else
-        precedes = precedes.trimmed();
-
-    QStringList parents;
-    QString errorMessage;
-    synchronousParentRevisions(workingDirectory, revision, &parents, &errorMessage);
-    for (const QString &p : qAsConst(parents)) {
-        QtcProcess proc2;
-        vcsFullySynchronousExec(proc2,
-                    workingDirectory, {"describe", "--tags", "--abbrev=0", p}, silentFlags);
-        QString pf = proc2.stdOut();
-        pf.truncate(pf.lastIndexOf('\n'));
-        if (!pf.isEmpty()) {
-            if (!follows.isEmpty())
-                follows += ", ";
-            follows += pf;
-        }
-    }
-}
-
 bool GitClient::isRemoteCommit(const FilePath &workingDirectory, const QString &commit)
 {
     QtcProcess proc;
@@ -2476,28 +2521,6 @@ void GitClient::continuePreviousGitCommand(const FilePath &workingDirectory,
         else
             GitPlugin::startCommit();
     }
-}
-
-QString GitClient::extendedShowDescription(const FilePath &workingDirectory, const QString &text) const
-{
-    if (!text.startsWith("commit "))
-        return text;
-    QString modText = text;
-    QString precedes, follows;
-    int lastHeaderLine = modText.indexOf("\n\n") + 1;
-    const QString commit = modText.mid(7, 8);
-    synchronousTagsForCommit(workingDirectory, commit, precedes, follows);
-    if (!precedes.isEmpty())
-        modText.insert(lastHeaderLine, "Precedes: " + precedes + '\n');
-    if (!follows.isEmpty())
-        modText.insert(lastHeaderLine, "Follows: " + follows + '\n');
-
-    // Empty line before headers and commit message
-    const int emptyLine = modText.indexOf("\n\n");
-    if (emptyLine != -1)
-        modText.insert(emptyLine, QString('\n') + Constants::EXPAND_BRANCHES);
-
-    return modText;
 }
 
 // Quietly retrieve branch list of remote repository URL

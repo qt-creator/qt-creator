@@ -266,8 +266,6 @@ public:
     bool synchronousRevParseCmd(const Utils::FilePath &workingDirectory, const QString &ref,
                                 QString *output, QString *errorMessage = nullptr) const;
     QString synchronousTopRevision(const Utils::FilePath &workingDirectory, QDateTime *dateTime = nullptr);
-    void synchronousTagsForCommit(const Utils::FilePath &workingDirectory, const QString &revision,
-                                  QString &precedes, QString &follows) const;
     bool isRemoteCommit(const Utils::FilePath &workingDirectory, const QString &commit);
     bool isFastForwardMerge(const Utils::FilePath &workingDirectory, const QString &branch);
 
@@ -331,8 +329,6 @@ public:
     QString commandInProgressDescription(const Utils::FilePath &workingDirectory) const;
 
     void continueCommandIfNeeded(const Utils::FilePath &workingDirectory, bool allowContinue = true);
-
-    QString extendedShowDescription(const Utils::FilePath &workingDirectory, const QString &text) const;
 
     void launchGitK(const Utils::FilePath &workingDirectory, const QString &fileName) const;
     void launchGitK(const Utils::FilePath &workingDirectory) const { launchGitK(workingDirectory, QString()); }
