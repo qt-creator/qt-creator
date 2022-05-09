@@ -56,7 +56,7 @@ public:
 
     bool isComplete() const;
     bool isValid() const;
-    QByteArray toData() const;
+    QByteArray header() const;
 
     QByteArray mimeType;
     QByteArray content;
@@ -64,7 +64,6 @@ public:
     QTextCodec *codec = defaultCodec();
 
 private:
-    QByteArray header() const;
     QByteArray lengthHeader() const;
     QByteArray typeHeader() const;
 };

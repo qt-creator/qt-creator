@@ -48,7 +48,8 @@ BaseClientInterface::~BaseClientInterface()
 
 void BaseClientInterface::sendMessage(const BaseMessage &message)
 {
-    sendData(message.toData());
+    sendData(message.header());
+    sendData(message.content);
 }
 
 void BaseClientInterface::resetBuffer()

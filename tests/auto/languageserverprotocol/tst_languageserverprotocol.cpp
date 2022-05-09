@@ -358,7 +358,7 @@ void tst_LanguageServerProtocol::baseMessageToData()
     QFETCH(BaseMessage, message);
     QFETCH(QByteArray, data);
 
-    QCOMPARE(message.toData(), data);
+    QCOMPARE(message.header() + message.content, data);
 }
 
 void tst_LanguageServerProtocol::fromJsonValue()
