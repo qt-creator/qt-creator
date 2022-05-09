@@ -52,7 +52,9 @@
 #include <QMenu>
 #include <QTimer>
 
-namespace { const char EXTERNAL_FILE_WARNING[] = "ExternalFile"; }
+namespace {
+const char EXTERNAL_OR_GENERATED_FILE_WARNING[] = "ExternalOrGeneratedFile";
+}
 
 using namespace Utils;
 
@@ -214,14 +216,20 @@ void ProjectTree::setCurrent(Node *node, Project *project)
     }
 
     if (Core::IDocument *document = Core::EditorManager::currentDocument()) {
-        if (node) {
-            disconnect(document, &Core::IDocument::changed,
-                       this, &ProjectTree::updateExternalFileWarning);
-            document->infoBar()->removeInfo(EXTERNAL_FILE_WARNING);
-        } else {
+        if (!node) {
             connect(document, &Core::IDocument::changed,
                     this, &ProjectTree::updateExternalFileWarning,
                     Qt::UniqueConnection);
+        } else if (node->isGenerated()) {
+            connect(document, &Core::IDocument::changed,
+                    this, &ProjectTree::updateGeneratedFileWarning,
+                    Qt::UniqueConnection);
+        } else {
+            disconnect(document, &Core::IDocument::changed,
+                       this, &ProjectTree::updateExternalFileWarning);
+            disconnect(document, &Core::IDocument::changed,
+                       this, &ProjectTree::updateGeneratedFileWarning);
+            document->infoBar()->removeInfo(EXTERNAL_OR_GENERATED_FILE_WARNING);
         }
     }
 
@@ -304,18 +312,18 @@ void ProjectTree::changeProjectRootDirectory()
         m_currentProject->changeRootProjectDirectory();
 }
 
-void ProjectTree::updateExternalFileWarning()
+void ProjectTree::updateFileWarning(const QString &text)
 {
     auto document = qobject_cast<Core::IDocument *>(sender());
     if (!document || document->filePath().isEmpty())
         return;
     Utils::InfoBar *infoBar = document->infoBar();
-    Utils::Id externalFileId(EXTERNAL_FILE_WARNING);
+    Utils::Id infoId(EXTERNAL_OR_GENERATED_FILE_WARNING);
     if (!document->isModified()) {
-        infoBar->removeInfo(externalFileId);
+        infoBar->removeInfo(infoId);
         return;
     }
-    if (!infoBar->canInfoBeAdded(externalFileId))
+    if (!infoBar->canInfoBeAdded(infoId))
         return;
     const FilePath fileName = document->filePath();
     const QList<Project *> projects = SessionManager::projects();
@@ -335,9 +343,17 @@ void ProjectTree::updateExternalFileWarning()
         }
     }
     infoBar->addInfo(
-        Utils::InfoBarEntry(externalFileId,
-                            tr("<b>Warning:</b> This file is outside the project directory."),
-                            Utils::InfoBarEntry::GlobalSuppression::Enabled));
+        Utils::InfoBarEntry(infoId, text, Utils::InfoBarEntry::GlobalSuppression::Enabled));
+}
+
+void ProjectTree::updateExternalFileWarning()
+{
+    updateFileWarning(tr("<b>Warning:</b> This file is outside the project directory."));
+}
+
+void ProjectTree::updateGeneratedFileWarning()
+{
+    updateFileWarning(tr("<b>Warning:</b> This file is generated."));
 }
 
 bool ProjectTree::hasFocus(ProjectTreeWidget *widget)

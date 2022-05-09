@@ -132,7 +132,9 @@ private:
 
     void updateFromFocus();
 
+    void updateFileWarning(const QString &text);
     void updateExternalFileWarning();
+    void updateGeneratedFileWarning();
     static bool hasFocus(Internal::ProjectTreeWidget *widget);
     Internal::ProjectTreeWidget *currentWidget() const;
     void hideContextMenu();
