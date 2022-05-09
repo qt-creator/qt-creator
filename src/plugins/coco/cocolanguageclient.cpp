@@ -138,7 +138,21 @@ public:
     {
         setLineAnnotation(diag.message());
         setToolTip(diag.message());
+        if (optional<CocoDiagnosticSeverity> severity = diag.cocoSeverity()) {
+
+            const TextEditor::TextStyle style = styleForSeverity(*severity);
+            m_annotationColor =
+                    TextEditor::TextEditorSettings::fontSettings().formatFor(style).foreground();
+        }
     }
+
+    QColor annotationColor() const override
+    {
+        return m_annotationColor.isValid() ? m_annotationColor
+                                           : TextEditor::TextMark::annotationColor();
+    }
+
+    QColor m_annotationColor;
 };
 
 class CocoDiagnosticManager : public DiagnosticManager
@@ -171,8 +185,9 @@ private:
                                QTextCursor::KeepAnchor);
 
             const TextEditor::TextStyle style = styleForSeverity(*severity);
-            const QTextCharFormat format = TextEditor::TextEditorSettings::fontSettings()
-                                               .toTextCharFormat(style);
+            QTextCharFormat format = TextEditor::TextEditorSettings::fontSettings()
+                    .toTextCharFormat(style);
+            format.clearForeground();
             return QTextEdit::ExtraSelection{cursor, format};
         }
         return {};

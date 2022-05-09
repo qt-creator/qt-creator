@@ -155,13 +155,12 @@ void TextMark::paintAnnotation(QPainter &painter,
         return;
     }
 
-    const QColor &markColor = m_color.has_value()
-                                  ? Utils::creatorTheme()->color(m_color.value()).toHsl()
-                                  : painter.pen().color();
+    const QColor &markColor = annotationColor();
 
     const FontSettings &fontSettings = m_baseTextDocument->fontSettings();
     const AnnotationColors &colors = AnnotationColors::getAnnotationColors(
-        markColor, fontSettings.toTextCharFormat(C_TEXT).background().color());
+                markColor.isValid() ? markColor : painter.pen().color(),
+                fontSettings.toTextCharFormat(C_TEXT).background().color());
 
     painter.save();
     QLinearGradient grad(rects.fadeInRect.topLeft() - contentOffset,
@@ -353,6 +352,13 @@ bool TextMark::addToolTipContent(QLayout *target) const
     target->addWidget(textLabel);
 
     return true;
+}
+
+QColor TextMark::annotationColor() const
+{
+    if (m_color.has_value())
+        return Utils::creatorTheme()->color(*m_color).toHsl();
+    return {};
 }
 
 void TextMark::setIcon(const QIcon &icon)

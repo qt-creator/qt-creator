@@ -101,6 +101,7 @@ public:
     virtual void dragToLine(int lineNumber);
     void addToToolTipLayout(QGridLayout *target) const;
     virtual bool addToolTipContent(QLayout *target) const;
+    virtual QColor annotationColor() const;
 
     void setIcon(const QIcon &icon);
     void setIconProvider(const std::function<QIcon()> &iconProvider);
