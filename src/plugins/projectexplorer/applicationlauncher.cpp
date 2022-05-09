@@ -149,11 +149,6 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent) : QObject(parent),
 
 ApplicationLauncher::~ApplicationLauncher() = default;
 
-void ApplicationLauncher::setProcessChannelMode(QProcess::ProcessChannelMode mode)
-{
-    d->m_process.setProcessChannelMode(mode);
-}
-
 void ApplicationLauncher::setUseTerminal(bool on)
 {
     d->m_process.setTerminalMode(on ? Utils::TerminalMode::On : Utils::TerminalMode::Off);

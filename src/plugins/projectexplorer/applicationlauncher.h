@@ -53,7 +53,6 @@ public:
     explicit ApplicationLauncher(QObject *parent = nullptr);
     ~ApplicationLauncher() override;
 
-    void setProcessChannelMode(QProcess::ProcessChannelMode mode);
     void setUseTerminal(bool on);
     void setRunAsRoot(bool on);
     void setRunnable(const Runnable &runnable);
