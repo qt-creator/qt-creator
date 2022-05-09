@@ -1223,9 +1223,10 @@ void SimpleTargetRunner::doStart(const Runnable &runnable)
     connect(&m_launcher, &ApplicationLauncher::done, this, [this, runnable] {
         if (m_stopReported)
             return;
-        QString msg = tr("%2 exited with code %1").arg(m_launcher.exitCode());
+        const QString executable = runnable.command.executable().toUserOutput();
+        QString msg = tr("%2 exited with code %1").arg(m_launcher.exitCode()).arg(executable);
         if (m_launcher.exitStatus() == QProcess::CrashExit)
-            msg = tr("%1 crashed.");
+            msg = tr("%1 crashed.").arg(executable);
         else if (m_stopForced)
             msg = tr("The process was ended forcefully.");
         else if (m_launcher.error() != QProcess::UnknownError)
