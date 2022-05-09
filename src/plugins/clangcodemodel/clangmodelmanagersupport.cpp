@@ -310,7 +310,8 @@ void ClangModelManagerSupport::connectToWidgetsMarkContextMenuRequested(QWidget 
 void ClangModelManagerSupport::updateLanguageClient(
         ProjectExplorer::Project *project, const CppEditor::ProjectInfo::ConstPtr &projectInfo)
 {
-    if (!CppEditor::ClangdProjectSettings(project).settings().useClangd)
+    const ClangdSettings::Data clangdSettingsData = ClangdProjectSettings(project).settings();
+    if (!clangdSettingsData.useClangd)
         return;
     const auto getJsonDbDir = [project] {
         if (const ProjectExplorer::Target * const target = project->activeTarget()) {
@@ -419,10 +420,12 @@ void ClangModelManagerSupport::updateLanguageClient(
         });
 
     });
+    const Utils::FilePath includeDir = ClangdSettings(clangdSettingsData).clangdIncludePath();
     const ClangDiagnosticConfig warningsConfig = warningsConfigForProject(project);
     auto future = Utils::runAsync(&Internal::generateCompilationDB, projectInfo, jsonDbDir,
                                   CompilationDbPurpose::CodeModel,
-                                  warningsConfig, optionsForProject(project, warningsConfig));
+                                  warningsConfig, optionsForProject(project, warningsConfig),
+                                  includeDir);
     generatorWatcher->setFuture(future);
     m_generatorSynchronizer.addFuture(future);
 }

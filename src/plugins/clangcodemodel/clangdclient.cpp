@@ -1492,10 +1492,12 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     setQuickFixAssistProvider(new ClangdQuickFixProvider(this));
     if (!project) {
         QJsonObject initOptions;
+        const Utils::FilePath includeDir
+                = CppEditor::ClangdSettings(d->settings).clangdIncludePath();
         const CppEditor::ClangDiagnosticConfig warningsConfig = warningsConfigForProject(nullptr);
         CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
                     *CppEditor::CppModelManager::instance()->fallbackProjectPart(),
-                    warningsConfig);
+                    warningsConfig, includeDir);
         const CppEditor::UsePrecompiledHeaders usePch = CppEditor::getPchUsage();
         const QJsonArray projectPartOptions = fullProjectPartOptions(
                     optionsBuilder, optionsForProject(nullptr, warningsConfig));
@@ -1918,9 +1920,10 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     if (!projectPart)
         return;
     QJsonObject cdbChanges;
+    const Utils::FilePath includeDir = CppEditor::ClangdSettings(d->settings).clangdIncludePath();
     const CppEditor::ClangDiagnosticConfig warningsConfig = warningsConfigForProject(project());
-    CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(*projectPart,
-                                                                           warningsConfig);
+    CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
+                *projectPart, warningsConfig, includeDir);
     const CppEditor::ProjectFile file(filePath.toString(),
                                       CppEditor::ProjectFile::classify(filePath.toString()));
     const QJsonArray projectPartOptions = fullProjectPartOptions(

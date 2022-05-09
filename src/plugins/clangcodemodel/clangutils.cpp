@@ -172,7 +172,8 @@ GenerateCompilationDbResult generateCompilationDB(const CppEditor::ProjectInfo::
                                                   const Utils::FilePath &baseDir,
                                                   CompilationDbPurpose purpose,
                                                   const ClangDiagnosticConfig &warningsConfig,
-                                                  const QStringList &projectOptions)
+                                                  const QStringList &projectOptions,
+                                                  const FilePath &clangIncludeDir)
 {
     QTC_ASSERT(!baseDir.isEmpty(), return GenerateCompilationDbResult(QString(),
         QCoreApplication::translate("ClangUtils", "Could not retrieve build directory.")));
@@ -192,8 +193,8 @@ GenerateCompilationDbResult generateCompilationDB(const CppEditor::ProjectInfo::
     const QJsonArray jsonProjectOptions = QJsonArray::fromStringList(projectOptions);
     for (ProjectPart::ConstPtr projectPart : projectInfo->projectParts()) {
         QStringList args;
-        const CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(*projectPart,
-                                                                          warningsConfig);
+        const CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
+                    *projectPart, warningsConfig, clangIncludeDir);
         QJsonArray ppOptions;
         if (purpose == CompilationDbPurpose::Project) {
             args = projectPartArguments(*projectPart);
@@ -370,13 +371,12 @@ QString textUntilPreviousStatement(TextEditor::TextDocumentManipulatorInterface 
 }
 
 CompilerOptionsBuilder clangOptionsBuilder(const ProjectPart &projectPart,
-                                           const ClangDiagnosticConfig &warningsConfig)
+                                           const ClangDiagnosticConfig &warningsConfig,
+                                           const Utils::FilePath &clangIncludeDir)
 {
     const auto useBuildSystemWarnings = warningsConfig.useBuildSystemWarnings()
             ? UseBuildSystemWarnings::Yes
             : UseBuildSystemWarnings::No;
-    const FilePath clangIncludeDir = Core::ICore::clangIncludeDirectory(
-                QString(CLANG_VERSION), FilePath(CLANG_INCLUDE_DIR));
     CompilerOptionsBuilder optionsBuilder(projectPart, UseSystemHeader::No,
                                           UseTweakedHeaderPaths::Yes, UseLanguageDefines::No,
                                           useBuildSystemWarnings, clangIncludeDir);

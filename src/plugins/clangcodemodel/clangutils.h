@@ -57,7 +57,8 @@ const QStringList optionsForProject(ProjectExplorer::Project *project,
 
 CppEditor::CompilerOptionsBuilder clangOptionsBuilder(
         const CppEditor::ProjectPart &projectPart,
-        const CppEditor::ClangDiagnosticConfig &warningsConfig);
+        const CppEditor::ClangDiagnosticConfig &warningsConfig,
+        const Utils::FilePath &clangIncludeDir);
 QJsonArray projectPartOptions(const CppEditor::CompilerOptionsBuilder &optionsBuilder);
 QJsonArray fullProjectPartOptions(const CppEditor::CompilerOptionsBuilder &optionsBuilder,
                                   const QStringList &projectOptions);
@@ -89,7 +90,8 @@ public:
 enum class CompilationDbPurpose { Project, CodeModel };
 GenerateCompilationDbResult generateCompilationDB(const CppEditor::ProjectInfo::ConstPtr projectInfo,
         const Utils::FilePath &baseDir, CompilationDbPurpose purpose,
-        const CppEditor::ClangDiagnosticConfig &warningsConfig, const QStringList &projectOptions);
+        const CppEditor::ClangDiagnosticConfig &warningsConfig, const QStringList &projectOptions,
+        const Utils::FilePath &clangIncludeDir);
 
 class DiagnosticTextInfo
 {
