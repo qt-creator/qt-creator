@@ -89,7 +89,8 @@ void TimelineView::modelAttached(Model *model)
 
 void TimelineView::modelAboutToBeDetached(Model *model)
 {
-    m_timelineWidget->reset();
+    if (!m_timelineWidget)
+        m_timelineWidget->reset();
     const bool empty = getTimelines().isEmpty();
     if (!empty)
         setTimelineRecording(false);
