@@ -119,13 +119,14 @@ AnalyzeUnit::AnalyzeUnit(const FileInfo &fileInfo,
                          const FilePath &clangIncludeDir,
                          const QString &clangVersion)
 {
+    const FilePath actualClangIncludeDir = Core::ICore::clangIncludeDirectory(
+                clangVersion, clangIncludeDir);
     CompilerOptionsBuilder optionsBuilder(*fileInfo.projectPart,
                                           UseSystemHeader::No,
                                           UseTweakedHeaderPaths::Tools,
                                           UseLanguageDefines::No,
                                           UseBuildSystemWarnings::No,
-                                          clangVersion,
-                                          clangIncludeDir);
+                                          actualClangIncludeDir);
     file = fileInfo.file.toString();
     arguments = extraClangToolsPrependOptions();
     arguments.append(optionsBuilder.build(fileInfo.kind, CppEditor::getPchUsage()));

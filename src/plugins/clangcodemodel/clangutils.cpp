@@ -375,10 +375,11 @@ CompilerOptionsBuilder clangOptionsBuilder(const ProjectPart &projectPart,
     const auto useBuildSystemWarnings = warningsConfig.useBuildSystemWarnings()
             ? UseBuildSystemWarnings::Yes
             : UseBuildSystemWarnings::No;
+    const FilePath clangIncludeDir = Core::ICore::clangIncludeDirectory(
+                QString(CLANG_VERSION), FilePath(CLANG_INCLUDE_DIR));
     CompilerOptionsBuilder optionsBuilder(projectPart, UseSystemHeader::No,
                                           UseTweakedHeaderPaths::Yes, UseLanguageDefines::No,
-                                          useBuildSystemWarnings, QString(CLANG_VERSION),
-                                          FilePath(CLANG_INCLUDE_DIR));
+                                          useBuildSystemWarnings, clangIncludeDir);
     optionsBuilder.provideAdditionalMacros({ProjectExplorer::Macro("Q_CREATOR_RUN", "1")});
     optionsBuilder.build(ProjectFile::Unclassified, UsePrecompiledHeaders::No);
     const QString uiIncludePath

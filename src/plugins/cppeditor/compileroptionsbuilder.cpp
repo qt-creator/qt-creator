@@ -108,14 +108,12 @@ CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart,
                                                UseTweakedHeaderPaths useTweakedHeaderPaths,
                                                UseLanguageDefines useLanguageDefines,
                                                UseBuildSystemWarnings useBuildSystemWarnings,
-                                               const QString &clangVersion,
                                                const FilePath &clangIncludeDirectory)
     : m_projectPart(projectPart)
     , m_useSystemHeader(useSystemHeader)
     , m_useTweakedHeaderPaths(useTweakedHeaderPaths)
     , m_useLanguageDefines(useLanguageDefines)
     , m_useBuildSystemWarnings(useBuildSystemWarnings)
-    , m_clangVersion(clangVersion)
     , m_clangIncludeDirectory(clangIncludeDirectory)
 {
 }
@@ -351,7 +349,6 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
     Internal::HeaderPathFilter filter{
         m_projectPart,
         m_useTweakedHeaderPaths,
-        m_clangVersion,
         m_clangIncludeDirectory};
 
     filter.process();
@@ -362,8 +359,6 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
         addIncludeDirOptionForPath(headerPath);
 
     if (m_useTweakedHeaderPaths != UseTweakedHeaderPaths::No) {
-        QTC_CHECK(!m_clangVersion.isEmpty()
-                  && "Clang resource directory is required with UseTweakedHeaderPaths::Yes.");
 
         // Exclude all built-in includes and Clang resource directory.
         m_options.prepend("-nostdinc++");

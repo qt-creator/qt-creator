@@ -209,13 +209,13 @@ void CompilerOptionsBuilderTest::testHeaderPathOptionsOrder()
     TestHelper t;
     CompilerOptionsBuilder compilerOptionsBuilder{t.finalize(), UseSystemHeader::No,
                 UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
-                "dummy_version", ""};
+                "/dummy"};
     compilerOptionsBuilder.addHeaderPathOptions();
 
     QCOMPARE(compilerOptionsBuilder.options(),
              (QStringList{"-nostdinc", "-nostdinc++", "-I", t.toNative("/tmp/path"),
-                         "-I", t.toNative("/tmp/system_path"), "-isystem", "", "-isystem",
-                         t.toNative("/tmp/builtin_path")}));
+                         "-I", t.toNative("/tmp/system_path"), "-isystem", t.toNative("/dummy"),
+                          "-isystem", t.toNative("/tmp/builtin_path")}));
 }
 
 void CompilerOptionsBuilderTest::testHeaderPathOptionsOrderMsvc()
@@ -224,14 +224,14 @@ void CompilerOptionsBuilderTest::testHeaderPathOptionsOrderMsvc()
     t.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
     CompilerOptionsBuilder compilerOptionsBuilder{t.finalize(), UseSystemHeader::No,
                 UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
-                "dummy_version", ""};
+                "/dummy"};
     compilerOptionsBuilder.evaluateCompilerFlags();
     compilerOptionsBuilder.addHeaderPathOptions();
 
     QCOMPARE(compilerOptionsBuilder.options(),
              (QStringList{"-nostdinc", "-nostdinc++", "-I", t.toNative("/tmp/path"),
                             "-I", t.toNative("/tmp/system_path"), "/clang:-isystem",
-                          "/clang:", "/clang:-isystem",
+                          "/clang:" + t.toNative("/dummy"), "/clang:-isystem",
                           "/clang:" + t.toNative("/tmp/builtin_path")}));
 }
 
@@ -240,13 +240,14 @@ void CompilerOptionsBuilderTest::testUseSystemHeader()
     TestHelper t;
     CompilerOptionsBuilder compilerOptionsBuilder{t.finalize(), UseSystemHeader::Yes,
                 UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
-                "dummy_version", ""};
+                "/dummy"};
     compilerOptionsBuilder.addHeaderPathOptions();
 
     QCOMPARE(compilerOptionsBuilder.options(),
              (QStringList{"-nostdinc", "-nostdinc++", "-I", t.toNative("/tmp/path"),
                           "-isystem", t.toNative("/tmp/system_path"),
-                          "-isystem", "", "-isystem", t.toNative("/tmp/builtin_path")}));
+                          "-isystem", t.toNative("/dummy"),
+                          "-isystem", t.toNative("/tmp/builtin_path")}));
 }
 
 void CompilerOptionsBuilderTest::testNoClangHeadersPath()
@@ -272,7 +273,7 @@ void CompilerOptionsBuilderTest::testClangHeadersAndCppIncludePathsOrderMacOs()
     t.headerPaths = additionalHeaderPaths + t.headerPaths;
     CompilerOptionsBuilder compilerOptionsBuilder(t.finalize(), UseSystemHeader::No,
                 UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
-                "dummy_version", "");
+                "/dummy");
     compilerOptionsBuilder.addHeaderPathOptions();
 
     QCOMPARE(compilerOptionsBuilder.options(),
@@ -281,7 +282,7 @@ void CompilerOptionsBuilderTest::testClangHeadersAndCppIncludePathsOrderMacOs()
                           "-isystem", t.toNative("/usr/include/c++/4.2.1"),
                           "-isystem", t.toNative("/usr/include/c++/4.2.1/backward"),
                           "-isystem", t.toNative("/usr/local/include"),
-                          "-isystem", "",
+                          "-isystem", t.toNative("/dummy"),
                           "-isystem", t.toNative("/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"),
                           "-isystem", t.toNative("/usr/include"),
                           "-isystem", t.toNative("/tmp/builtin_path")}));
@@ -301,7 +302,7 @@ void CompilerOptionsBuilderTest::testClangHeadersAndCppIncludePathsOrderLinux()
         t.builtIn("/usr/include")};
     CompilerOptionsBuilder compilerOptionsBuilder(t.finalize(), UseSystemHeader::No,
                 UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
-                "dummy_version", "");
+                "/dummy");
     compilerOptionsBuilder.addHeaderPathOptions();
 
     QCOMPARE(compilerOptionsBuilder.options(),
@@ -310,7 +311,7 @@ void CompilerOptionsBuilderTest::testClangHeadersAndCppIncludePathsOrderLinux()
                           "-isystem", t.toNative("/usr/include/c++/4.8/backward"),
                           "-isystem", t.toNative("/usr/include/x86_64-linux-gnu/c++/4.8"),
                           "-isystem", t.toNative("/usr/local/include"),
-                          "-isystem", "",
+                          "-isystem", t.toNative("/dummy"),
                           "-isystem", t.toNative("/usr/lib/gcc/x86_64-linux-gnu/4.8/include"),
                           "-isystem", t.toNative("/usr/include/x86_64-linux-gnu"),
                           "-isystem", t.toNative("/usr/include")}));
@@ -327,7 +328,7 @@ void CompilerOptionsBuilderTest::testClangHeadersAndCppIncludePathsOrderNoVersio
         t.builtIn("C:/mingw530/i686-w64-mingw32/include/c++/backward")};
     CompilerOptionsBuilder compilerOptionsBuilder(t.finalize(), UseSystemHeader::No,
                 UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
-                "dummy_version", "");
+                "/dummy");
     compilerOptionsBuilder.addHeaderPathOptions();
 
     QCOMPARE(compilerOptionsBuilder.options(),
@@ -335,7 +336,7 @@ void CompilerOptionsBuilderTest::testClangHeadersAndCppIncludePathsOrderNoVersio
                           "-isystem", t.toNative("C:/mingw530/i686-w64-mingw32/include/c++"),
                           "-isystem", t.toNative("C:/mingw530/i686-w64-mingw32/include/c++/i686-w64-mingw32"),
                           "-isystem", t.toNative("C:/mingw530/i686-w64-mingw32/include/c++/backward"),
-                          "-isystem", "",
+                          "-isystem", t.toNative("/dummy"),
                           "-isystem", t.toNative("C:/mingw530/i686-w64-mingw32/include")}));
 }
 
@@ -351,14 +352,14 @@ void CompilerOptionsBuilderTest::testClangHeadersAndCppIncludePathsOrderAndroidC
         t.builtIn("C:/Android/sdk/ndk-bundle/sysroot/usr/include")};
     CompilerOptionsBuilder compilerOptionsBuilder(t.finalize(), UseSystemHeader::No,
                 UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
-                "dummy_version", "");
+                "/dummy");
     compilerOptionsBuilder.addHeaderPathOptions();
 
     QCOMPARE(compilerOptionsBuilder.options(),
              (QStringList{"-nostdinc", "-nostdinc++",
                           "-isystem", t.toNative("C:/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++/include"),
                           "-isystem", t.toNative("C:/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++abi/include"),
-                          "-isystem", t.toNative(""),
+                          "-isystem", t.toNative("/dummy"),
                           "-isystem", t.toNative("C:/Android/sdk/ndk-bundle/sysroot/usr/include/i686-linux-android"),
                           "-isystem", t.toNative("C:/Android/sdk/ndk-bundle/sources/android/support/include"),
                           "-isystem", t.toNative("C:/Android/sdk/ndk-bundle/sysroot/usr/include")}));
@@ -434,8 +435,7 @@ void CompilerOptionsBuilderTest::testInsertWrappedQtHeaders()
 {
     TestHelper t;
     CompilerOptionsBuilder compilerOptionsBuilder{t.finalize(), UseSystemHeader::Yes,
-                UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
-                "dummy_version", ""};
+                UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No};
     compilerOptionsBuilder.insertWrappedQtHeaders();
 
     QVERIFY(Utils::contains(compilerOptionsBuilder.options(),
@@ -446,7 +446,7 @@ void CompilerOptionsBuilderTest::testInsertWrappedMingwHeadersWithNonMingwToolch
 {
     TestHelper t;
     CompilerOptionsBuilder builder{t.finalize(), UseSystemHeader::Yes, UseTweakedHeaderPaths::Yes,
-                UseLanguageDefines::No, UseBuildSystemWarnings::No, "dummy_version", ""};
+                UseLanguageDefines::No, UseBuildSystemWarnings::No};
     builder.insertWrappedMingwHeaders();
 
     QVERIFY(!Utils::contains(builder.options(),
@@ -458,7 +458,7 @@ void CompilerOptionsBuilderTest::testInsertWrappedMingwHeadersWithMingwToolchain
     TestHelper t;
     t.toolchainType = Constants::MINGW_TOOLCHAIN_TYPEID;
     CompilerOptionsBuilder builder{t.finalize(), UseSystemHeader::Yes, UseTweakedHeaderPaths::Yes,
-                UseLanguageDefines::No, UseBuildSystemWarnings::No, "dummy_version", ""};
+                UseLanguageDefines::No, UseBuildSystemWarnings::No};
     builder.insertWrappedMingwHeaders();
 
     QVERIFY(Utils::contains(builder.options(),
@@ -600,7 +600,7 @@ void CompilerOptionsBuilderTest::testBuildAllOptions()
     t.extraFlags = QStringList{"-arch", "x86_64"};
     CompilerOptionsBuilder compilerOptionsBuilder(t.finalize(), UseSystemHeader::No,
                 UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
-                "dummy_version", "");
+                "/dummy");
     compilerOptionsBuilder.build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
 
     const QString wrappedQtHeadersPath = Utils::findOrDefault(compilerOptionsBuilder.options(),
@@ -614,7 +614,7 @@ void CompilerOptionsBuilderTest::testBuildAllOptions()
                           "-I", wrappedQtCoreHeadersPath,
                           "-I", t.toNative("/tmp/path"),
                           "-I", t.toNative("/tmp/system_path"),
-                          "-isystem", "",
+                          "-isystem", t.toNative("/dummy"),
                           "-isystem", t.toNative("/tmp/builtin_path")}));
 }
 
@@ -624,7 +624,7 @@ void CompilerOptionsBuilderTest::testBuildAllOptionsMsvc()
     t.toolchainType = Constants::MSVC_TOOLCHAIN_TYPEID;
     CompilerOptionsBuilder compilerOptionsBuilder(t.finalize(), UseSystemHeader::No,
                 UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
-                "dummy_version", "");
+                "/dummy");
     compilerOptionsBuilder.build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
 
     const QString wrappedQtHeadersPath = Utils::findOrDefault(compilerOptionsBuilder.options(),
@@ -642,7 +642,7 @@ void CompilerOptionsBuilderTest::testBuildAllOptionsMsvc()
                           "-I", wrappedQtCoreHeadersPath,
                           "-I", t.toNative("/tmp/path"),
                           "-I", t.toNative("/tmp/system_path"),
-                          "/clang:-isystem", "/clang:",
+                          "/clang:-isystem", "/clang:" + t.toNative("/dummy"),
                           "/clang:-isystem", "/clang:" + t.toNative("/tmp/builtin_path")}));
 }
 
@@ -653,7 +653,7 @@ void CompilerOptionsBuilderTest::testBuildAllOptionsMsvcWithExceptions()
     t.toolchainMacros.append(Macro{"_CPPUNWIND", "1"});
     CompilerOptionsBuilder compilerOptionsBuilder(t.finalize(), UseSystemHeader::No,
                 UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
-                "dummy_version", "");
+                "/dummy");
     compilerOptionsBuilder.build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
 
     const QString wrappedQtHeadersPath = Utils::findOrDefault(compilerOptionsBuilder.options(),
@@ -672,7 +672,7 @@ void CompilerOptionsBuilderTest::testBuildAllOptionsMsvcWithExceptions()
                           "-I", wrappedQtCoreHeadersPath,
                           "-I", t.toNative("/tmp/path"),
                           "-I", t.toNative("/tmp/system_path"),
-                          "/clang:-isystem", "/clang:",
+                          "/clang:-isystem", "/clang:" + t.toNative("/dummy"),
                           "/clang:-isystem", "/clang:" + t.toNative("/tmp/builtin_path")}));
 }
 

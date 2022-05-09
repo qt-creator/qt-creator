@@ -103,17 +103,6 @@ void HeaderPathFilter::filterHeaderPath(const ProjectExplorer::HeaderPath &heade
 
 namespace {
 
-FilePath clangIncludeDirectory(const QString &clangVersion, const FilePath &clangFallbackIncludeDir)
-{
-#ifndef UNIT_TESTS
-    return Core::ICore::clangIncludeDirectory(clangVersion, clangFallbackIncludeDir);
-#else
-    Q_UNUSED(clangVersion)
-    Q_UNUSED(clangFallbackIncludeDir)
-    return {CLANG_INCLUDE_DIR};
-#endif
-}
-
 HeaderPaths::iterator resourceIterator(HeaderPaths &headerPaths)
 {
     // include/c++, include/g++, libc++\include and libc++abi\include
@@ -156,11 +145,8 @@ void HeaderPathFilter::tweakHeaderPaths()
 
     auto split = resourceIterator(builtInHeaderPaths);
 
-    if (!clangVersion.isEmpty()) {
-        const FilePath clangIncludePath
-                = clangIncludeDirectory(clangVersion, clangFallbackIncludeDirectory);
-        builtInHeaderPaths.insert(split, HeaderPath::makeBuiltIn(clangIncludePath));
-    }
+    if (!clangIncludeDirectory.isEmpty())
+        builtInHeaderPaths.insert(split, HeaderPath::makeBuiltIn(clangIncludeDirectory));
 }
 
 void HeaderPathFilter::addPreIncludesPath()

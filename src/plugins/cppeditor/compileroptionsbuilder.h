@@ -50,7 +50,6 @@ public:
         UseTweakedHeaderPaths useTweakedHeaderPaths = UseTweakedHeaderPaths::No,
         UseLanguageDefines useLanguageDefines = UseLanguageDefines::No,
         UseBuildSystemWarnings useBuildSystemWarnings = UseBuildSystemWarnings::No,
-        const QString &clangVersion = {},
         const Utils::FilePath &clangIncludeDirectory = {});
 
     QStringList build(ProjectFile::Kind fileKind, UsePrecompiledHeaders usePrecompiledHeaders);
@@ -116,7 +115,6 @@ private:
     const UseLanguageDefines m_useLanguageDefines;
     const UseBuildSystemWarnings m_useBuildSystemWarnings;
 
-    const QString m_clangVersion;
     const Utils::FilePath m_clangIncludeDirectory;
 
     ProjectExplorer::Macros m_additionalMacros;
