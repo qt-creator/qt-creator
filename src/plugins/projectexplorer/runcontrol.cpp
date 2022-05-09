@@ -44,6 +44,7 @@
 #include <utils/detailswidget.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/outputformatter.h>
+#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>
@@ -1224,13 +1225,14 @@ void SimpleTargetRunner::doStart(const Runnable &runnable)
         if (m_stopReported)
             return;
         const QString executable = runnable.command.executable().toUserOutput();
-        QString msg = tr("%2 exited with code %1").arg(m_launcher.exitCode()).arg(executable);
-        if (m_launcher.exitStatus() == QProcess::CrashExit)
+        const ProcessResultData resultData = m_launcher.resultData();
+        QString msg = tr("%2 exited with code %1").arg(resultData.m_exitCode).arg(executable);
+        if (resultData.m_exitStatus == QProcess::CrashExit)
             msg = tr("%1 crashed.").arg(executable);
         else if (m_stopForced)
             msg = tr("The process was ended forcefully.");
-        else if (m_launcher.error() != QProcess::UnknownError)
-            msg = userMessageForProcessError(m_launcher.error(), runnable.command.executable());
+        else if (resultData.m_error != QProcess::UnknownError)
+            msg = userMessageForProcessError(resultData.m_error, runnable.command.executable());
         const QString displayName = runnable.command.executable().toUserOutput();
         appendMessage(msg.arg(displayName), Utils::NormalMessageFormat);
         m_stopReported = true;

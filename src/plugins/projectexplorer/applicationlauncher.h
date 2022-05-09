@@ -34,7 +34,10 @@
 
 #include <memory>
 
-namespace Utils { class ProcessHandle; }
+namespace Utils {
+class ProcessHandle;
+class ProcessResultData;
+} // Utils
 
 namespace ProjectExplorer {
 
@@ -57,13 +60,10 @@ public:
 
     void start();
     void stop();
+
     Utils::ProcessHandle applicationPID() const;
 
-    QString errorString() const;
-
-    int exitCode() const;
-    QProcess::ExitStatus exitStatus() const;
-    QProcess::ProcessError error() const;
+    Utils::ProcessResultData resultData() const;
 
 signals:
     void appendMessage(const QString &message, Utils::OutputFormat format, bool appendNewLine = true);

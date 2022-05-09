@@ -216,9 +216,9 @@ qint64 ApplicationLauncherPrivate::applicationPID() const
     return m_process.processId();
 }
 
-QString ApplicationLauncher::errorString() const
+ProcessResultData ApplicationLauncher::resultData() const
 {
-    return d->m_resultData.m_errorString;
+    return d->m_resultData;
 }
 
 void ApplicationLauncherPrivate::handleDone()
@@ -283,21 +283,6 @@ void ApplicationLauncherPrivate::handleStandardError()
     const QString msg = m_outputCodec->toUnicode(
                 data.constData(), data.length(), &m_errorCodecState);
     emit q->appendMessage(msg, StdErrFormat, false);
-}
-
-int ApplicationLauncher::exitCode() const
-{
-    return d->m_resultData.m_exitCode;
-}
-
-QProcess::ExitStatus ApplicationLauncher::exitStatus() const
-{
-    return d->m_resultData.m_exitStatus;
-}
-
-QProcess::ProcessError ApplicationLauncher::error() const
-{
-    return d->m_resultData.m_error;
 }
 
 void ApplicationLauncher::start()
