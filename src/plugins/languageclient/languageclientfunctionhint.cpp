@@ -95,6 +95,7 @@ IAssistProposal *FunctionHintProcessor::perform(const AssistInterface *interface
     auto uri = DocumentUri::fromFilePath(interface->filePath());
     SignatureHelpRequest request((TextDocumentPositionParams(TextDocumentIdentifier(uri), Position(cursor))));
     request.setResponseCallback([this](auto response) { this->handleSignatureResponse(response); });
+    m_client->addAssistProcessor(this);
     m_client->sendContent(request);
     m_currentRequest = request.id();
     return nullptr;

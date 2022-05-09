@@ -197,6 +197,7 @@ class StateListener : public QObject
 
 public:
     explicit StateListener(QObject *parent);
+    ~StateListener();
 
     static QString windowTitleVcsTopic(const QString &filePath);
 
@@ -221,8 +222,12 @@ StateListener::StateListener(QObject *parent) : QObject(parent)
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
             this, &StateListener::slotStateChanged);
 
-
     EditorManager::setWindowTitleVcsTopicHandler(&StateListener::windowTitleVcsTopic);
+}
+
+StateListener::~StateListener()
+{
+    EditorManager::setWindowTitleVcsTopicHandler({});
 }
 
 QString StateListener::windowTitleVcsTopic(const QString &filePath)
