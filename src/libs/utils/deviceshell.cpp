@@ -30,6 +30,7 @@
 #include <qtcprocess.h>
 
 #include <QLoggingCategory>
+#include <QScopeGuard>
 
 Q_LOGGING_CATEGORY(deviceShellLog, "qtc.utils.deviceshell", QtWarningMsg)
 
