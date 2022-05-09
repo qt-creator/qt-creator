@@ -183,6 +183,9 @@ public:
     void notifyModelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap);
     void notifyImport3DSupportChanged(const QVariantMap &supportMap);
 
+    void notifyDragStarted(QMimeData *mimeData);
+    void notifyDragEnded();
+
     void setDocumentMessages(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings);
 
     void notifyRewriterBeginTransaction();
