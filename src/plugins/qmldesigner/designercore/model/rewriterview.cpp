@@ -220,7 +220,7 @@ void RewriterView::variantPropertiesChanged(const QList<VariantProperty>& proper
         return;
 
     QList<AbstractProperty> usefulPropertyList;
-    foreach (const VariantProperty &property, propertyList)
+    for (const VariantProperty &property : propertyList)
         usefulPropertyList.append(property);
 
     modelToTextMerger()->propertiesChanged(usefulPropertyList, propertyChange);
@@ -236,7 +236,7 @@ void RewriterView::bindingPropertiesChanged(const QList<BindingProperty>& proper
         return;
 
     QList<AbstractProperty> usefulPropertyList;
-    foreach (const BindingProperty &property, propertyList)
+    for (const BindingProperty &property : propertyList)
         usefulPropertyList.append(property);
 
     modelToTextMerger()->propertiesChanged(usefulPropertyList, propertyChange);
@@ -252,7 +252,7 @@ void RewriterView::signalHandlerPropertiesChanged(const QVector<SignalHandlerPro
         return;
 
     QList<AbstractProperty> usefulPropertyList;
-    foreach (const SignalHandlerProperty &property, propertyList)
+    for (const SignalHandlerProperty &property : propertyList)
         usefulPropertyList.append(property);
 
     modelToTextMerger()->propertiesChanged(usefulPropertyList, propertyChange);
@@ -275,10 +275,10 @@ void RewriterView::nodeReparented(const ModelNode &node, const NodeAbstractPrope
 
 void RewriterView::importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
 {
-    foreach (const Import &import, addedImports)
+    for (const Import &import : addedImports)
         importAdded(import);
 
-    foreach (const Import &import, removedImports)
+    for (const Import &import : removedImports)
         importRemoved(import);
 
 }
@@ -290,7 +290,7 @@ void RewriterView::importAdded(const Import &import)
         return;
 
     if (import.url() == QLatin1String("Qt")) {
-        foreach (const Import &import, model()->imports()) {
+        for (const Import &import : model()->imports()) {
             if (import.url() == QLatin1String("QtQuick"))
                 return; //QtQuick magic we do not have to add an import for Qt
         }
@@ -785,7 +785,7 @@ QMap<ModelNode, QString> RewriterView::extractText(const QList<ModelNode> &nodes
     QmlDesigner::ASTObjectTextExtractor extract(m_textModifier->text());
     QMap<ModelNode, QString> result;
 
-    foreach (const ModelNode &node, nodes) {
+    for (const ModelNode &node : nodes) {
         const int nodeLocation = m_positionStorage->nodeOffset(node);
 
         if (nodeLocation == ModelNodePositionStorage::INVALID_LOCATION)
@@ -981,7 +981,7 @@ QString RewriterView::convertTypeToImportAlias(const QString &type) const
 
     QString alias;
     if (!url.isEmpty()) {
-        foreach (const Import &import, model()->imports()) {
+        for (const Import &import : model()->imports()) {
             if (import.url() == url) {
                 alias = import.alias();
                 break;
@@ -1011,7 +1011,7 @@ QString RewriterView::pathForImport(const Import &import)
 
         QmlJS::ImportInfo importInfo;
 
-        foreach (const QmlJS::Import &qmljsImport, imports->all()) {
+        for (const QmlJS::Import &qmljsImport : imports->all()) {
             if (qmljsImport.info.name() == importStr)
                 importInfo = qmljsImport.info;
         }

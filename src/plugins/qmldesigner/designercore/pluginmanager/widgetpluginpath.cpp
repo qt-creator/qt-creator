@@ -162,7 +162,7 @@ void WidgetPluginPath::ensureLoaded()
         const QStringList libraryFiles = libraryFilePaths(m_path);
         if (debug)
             qDebug() << "Checking " << libraryFiles.size() << " plugins " << m_path.absolutePath();
-        foreach (const QString &libFile, libraryFiles)
+        for (const QString &libFile : libraryFiles)
             m_plugins.push_back(WidgetPluginData(libFile));
         m_loaded = true;
     }

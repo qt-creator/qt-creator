@@ -62,7 +62,8 @@ static QString fixExpression(const QString &expression, const QHash<QString, QSt
 
 static void syncVariantProperties(ModelNode &outputNode, const ModelNode &inputNode)
 {
-    foreach (const VariantProperty &property, inputNode.variantProperties()) {
+    const QList<VariantProperty> propertyies = inputNode.variantProperties();
+    for (const VariantProperty &property : propertyies) {
         if (property.isDynamic()) {
             outputNode.variantProperty(property.name()).
                     setDynamicTypeNameAndValue(property.dynamicTypeName(), property.value());
@@ -81,14 +82,16 @@ static void syncAuxiliaryProperties(ModelNode &outputNode, const ModelNode &inpu
 
 static void syncBindingProperties(ModelNode &outputNode, const ModelNode &inputNode, const QHash<QString, QString> &idRenamingHash)
 {
-    foreach (const BindingProperty &bindingProperty, inputNode.bindingProperties()) {
+    const QList<BindingProperty> propertyies = inputNode.bindingProperties();
+    for (const BindingProperty &bindingProperty : propertyies) {
         outputNode.bindingProperty(bindingProperty.name()).setExpression(fixExpression(bindingProperty.expression(), idRenamingHash));
     }
 }
 
 static void syncSignalHandlerProperties(ModelNode &outputNode, const ModelNode &inputNode,  const QHash<QString, QString> &idRenamingHash)
 {
-    foreach (const SignalHandlerProperty &signalProperty, inputNode.signalProperties()) {
+    const QList<SignalHandlerProperty> propertyies = inputNode.signalProperties();
+    for (const SignalHandlerProperty &signalProperty : propertyies) {
         outputNode.signalHandlerProperty(signalProperty.name()).setSource(fixExpression(signalProperty.source(), idRenamingHash));
     }
 }
@@ -119,7 +122,8 @@ static void splitIdInBaseNameAndNumber(const QString &id, QString *baseId, int *
 
 static void setupIdRenamingHash(const ModelNode &modelNode, QHash<QString, QString> &idRenamingHash, AbstractView *view)
 {
-    foreach (const ModelNode &node, modelNode.allSubModelNodesAndThisNode()) {
+    const QList<ModelNode> nodes = modelNode.allSubModelNodesAndThisNode();
+    for (const ModelNode &node : nodes) {
         if (!node.id().isEmpty()) {
             QString newId = node.id();
             QString baseId;
@@ -141,7 +145,8 @@ static void syncNodeProperties(ModelNode &outputNode, const ModelNode &inputNode
                                const QHash<QString, QString> &idRenamingHash,
                                AbstractView *view, const MergePredicate &mergePredicate)
 {
-    foreach (const NodeProperty &nodeProperty, inputNode.nodeProperties()) {
+    const QList<NodeProperty> propertyies = inputNode.nodeProperties();
+    for (const NodeProperty &nodeProperty : propertyies) {
         ModelNode node = nodeProperty.modelNode();
         if (!mergePredicate(node))
             continue;
@@ -154,8 +159,10 @@ static void syncNodeListProperties(ModelNode &outputNode, const ModelNode &input
                                    const QHash<QString, QString> &idRenamingHash,
                                    AbstractView *view, const MergePredicate &mergePredicate)
 {
-    foreach (const NodeListProperty &nodeListProperty, inputNode.nodeListProperties()) {
-        foreach (const ModelNode &node, nodeListProperty.toModelNodeList()) {
+    const QList<NodeListProperty> propertyies = inputNode.nodeListProperties();
+    for (const NodeListProperty &nodeListProperty : propertyies) {
+        const QList<ModelNode> nodes = nodeListProperty.toModelNodeList();
+        for (const ModelNode &node : nodes) {
             if (!mergePredicate(node))
                 continue;
             ModelNode newNode = createNodeFromNode(node, idRenamingHash, view, mergePredicate);
@@ -191,7 +198,7 @@ ModelNode ModelMerger::insertModel(const ModelNode &modelNode, const MergePredic
 
     QList<Import> newImports;
 
-    foreach (const Import &import, modelNode.model()->imports()) {
+    for (const Import &import : modelNode.model()->imports()) {
         if (!view()->model()->hasImport(import, true, true))
             newImports.append(import);
     }
@@ -216,7 +223,8 @@ void ModelMerger::replaceModel(const ModelNode &modelNode, const MergePredicate 
     view()->executeInTransaction("ModelMerger::replaceModel", [this, modelNode, &predicate](){
         ModelNode rootNode(view()->rootModelNode());
 
-        foreach (const PropertyName &propertyName, rootNode.propertyNames())
+        const QList<PropertyName> propertyNames = rootNode.propertyNames();
+        for (const PropertyName &propertyName : propertyNames)
             rootNode.removeProperty(propertyName);
 
         QHash<QString, QString> idRenamingHash;

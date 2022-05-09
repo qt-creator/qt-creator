@@ -190,7 +190,7 @@ bool detectHorizontalCycle(const ModelNode &node, QList<ModelNode> knownNodeList
     static const PropertyNameList validAnchorLines({"right", "left", "horizontalCenter"});
     static const PropertyNameList anchorNames({"anchors.right", "anchors.left", "anchors.horizontalCenter"});
 
-    foreach (const PropertyName &anchorName, anchorNames) {
+    for (const PropertyName &anchorName : anchorNames) {
         if (node.hasBindingProperty(anchorName)) {
             AbstractProperty targetProperty = node.bindingProperty(anchorName).resolveToProperty();
             if (targetProperty.isValid()) {
@@ -205,7 +205,7 @@ bool detectHorizontalCycle(const ModelNode &node, QList<ModelNode> knownNodeList
     }
 
     static const PropertyNameList anchorShortcutNames({"anchors.fill", "anchors.centerIn"});
-    foreach (const PropertyName &anchorName, anchorShortcutNames) {
+    for (const PropertyName &anchorName : anchorShortcutNames) {
         if (node.hasBindingProperty(anchorName)) {
             ModelNode targetNode = node.bindingProperty(anchorName).resolveToModelNode();
 
@@ -230,7 +230,7 @@ bool detectVerticalCycle(const ModelNode &node, QList<ModelNode> knownNodeList)
     static const PropertyNameList validAnchorLines({"top", "bottom", "verticalCenter", "baseline"});
     static const PropertyNameList anchorNames({"anchors.top", "anchors.bottom", "anchors.verticalCenter", "anchors.baseline"});
 
-    foreach (const PropertyName &anchorName, anchorNames) {
+    for (const PropertyName &anchorName : anchorNames) {
         if (node.hasBindingProperty(anchorName)) {
             AbstractProperty targetProperty = node.bindingProperty(anchorName).resolveToProperty();
             if (targetProperty.isValid()) {
@@ -245,7 +245,7 @@ bool detectVerticalCycle(const ModelNode &node, QList<ModelNode> knownNodeList)
     }
 
     static const PropertyNameList anchorShortcutNames({"anchors.fill", "anchors.centerIn"});
-    foreach (const PropertyName &anchorName, anchorShortcutNames) {
+    for (const PropertyName &anchorName : anchorShortcutNames) {
         if (node.hasBindingProperty(anchorName)) {
             ModelNode targetNode = node.bindingProperty(anchorName).resolveToModelNode();
 

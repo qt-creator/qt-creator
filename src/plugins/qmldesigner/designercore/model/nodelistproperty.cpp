@@ -76,7 +76,7 @@ Internal::InternalNodeListPropertyPointer &NodeListProperty::internalNodeListPro
 static QList<ModelNode> internalNodesToModelNodes(const QList<Internal::InternalNode::Pointer> &inputList, Model* model, AbstractView *view)
 {
     QList<ModelNode> modelNodeList;
-    foreach (const Internal::InternalNode::Pointer &internalNode, inputList) {
+    for (const Internal::InternalNode::Pointer &internalNode : inputList) {
         modelNodeList.append(ModelNode(internalNode, model, view));
     }
     return modelNodeList;
@@ -102,7 +102,8 @@ QList<QmlObjectNode> NodeListProperty::toQmlObjectNodeList() const
 
     QList<QmlObjectNode> qmlObjectNodeList;
 
-    foreach (const ModelNode &modelNode, toModelNodeList())
+    const QList<ModelNode> modelNodeList = toModelNodeList();
+    for (const ModelNode &modelNode : modelNodeList)
         qmlObjectNodeList.append(QmlObjectNode(modelNode));
 
     return qmlObjectNodeList;

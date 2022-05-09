@@ -595,7 +595,8 @@ QList<AbstractProperty> ModelNode::properties() const
 
     QList<AbstractProperty> propertyList;
 
-    foreach (const PropertyName &propertyName, internalNode()->propertyNameList()) {
+    const QList<PropertyName> propertyNames = internalNode()->propertyNameList();
+    for (const PropertyName &propertyName : propertyNames) {
         AbstractProperty property(propertyName, internalNode(), model(), view());
         propertyList.append(property);
     }
@@ -614,7 +615,8 @@ QList<VariantProperty> ModelNode::variantProperties() const
 {
     QList<VariantProperty> propertyList;
 
-    foreach (const AbstractProperty &abstractProperty, properties())
+    const QList<AbstractProperty> abstractProperties = properties();
+    for (const AbstractProperty &abstractProperty : abstractProperties)
         if (abstractProperty.isVariantProperty())
             propertyList.append(abstractProperty.toVariantProperty());
     return propertyList;
@@ -624,7 +626,8 @@ QList<NodeAbstractProperty> ModelNode::nodeAbstractProperties() const
 {
     QList<NodeAbstractProperty> propertyList;
 
-    foreach (const AbstractProperty &nodeAbstractProperty, properties())
+    const QList<AbstractProperty> abstractProperties = properties();
+    for (const AbstractProperty &nodeAbstractProperty : abstractProperties)
         if (nodeAbstractProperty.isNodeAbstractProperty())
             propertyList.append(nodeAbstractProperty.toNodeAbstractProperty());
     return propertyList;
@@ -634,7 +637,8 @@ QList<NodeProperty> ModelNode::nodeProperties() const
 {
     QList<NodeProperty> propertyList;
 
-    foreach (const AbstractProperty &nodeProperty, properties())
+    const QList<AbstractProperty> abstractProperties = properties();
+    for (const AbstractProperty &nodeProperty : abstractProperties)
         if (nodeProperty.isNodeProperty())
             propertyList.append(nodeProperty.toNodeProperty());
     return propertyList;
@@ -644,7 +648,8 @@ QList<NodeListProperty> ModelNode::nodeListProperties() const
 {
     QList<NodeListProperty> propertyList;
 
-    foreach (const AbstractProperty &nodeListProperty, properties())
+    const QList<AbstractProperty> abstractProperties = properties();
+    for (const AbstractProperty &nodeListProperty : abstractProperties)
         if (nodeListProperty.isNodeListProperty())
             propertyList.append(nodeListProperty.toNodeListProperty());
     return propertyList;
@@ -661,7 +666,8 @@ QList<BindingProperty> ModelNode::bindingProperties() const
 {
     QList<BindingProperty> propertyList;
 
-    foreach (const AbstractProperty &bindingProperty, properties())
+    const QList<AbstractProperty> abstractProperties = properties();
+    for (const AbstractProperty &bindingProperty : abstractProperties)
         if (bindingProperty.isBindingProperty())
             propertyList.append(bindingProperty.toBindingProperty());
     return propertyList;
@@ -671,7 +677,8 @@ QList<SignalHandlerProperty> ModelNode::signalProperties() const
 {
     QList<SignalHandlerProperty> propertyList;
 
-    foreach (const AbstractProperty &property, properties())
+    const QList<AbstractProperty> abstractProperties = properties();
+    for (const AbstractProperty &property : abstractProperties)
         if (property.isSignalHandlerProperty())
             propertyList.append(property.toSignalHandlerProperty());
     return propertyList;

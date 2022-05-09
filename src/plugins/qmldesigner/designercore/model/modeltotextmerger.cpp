@@ -73,7 +73,7 @@ void ModelToTextMerger::nodeRemoved(const ModelNode &removedNode, const NodeAbst
 
 void ModelToTextMerger::propertiesRemoved(const QList<AbstractProperty>& propertyList)
 {
-    foreach (const AbstractProperty &property, propertyList) {
+    for (const AbstractProperty &property : propertyList) {
         // Default property that has actual binding/value should be removed
         if (isInHierarchy(property) && (!property.isDefaultProperty()
                                         || property.isBindingProperty()
@@ -87,7 +87,7 @@ void ModelToTextMerger::propertiesRemoved(const QList<AbstractProperty>& propert
 void ModelToTextMerger::propertiesChanged(const QList<AbstractProperty>& propertyList, PropertyChangeFlags propertyChange)
 {
     const TextEditor::TabSettings tabSettings = m_rewriterView->textModifier()->tabSettings();
-    foreach (const AbstractProperty &property, propertyList) {
+    for (const AbstractProperty &property : propertyList) {
 
         ModelNode containedModelNode;
         const QString propertyTextValue = QmlTextGenerator(propertyOrder(),
@@ -320,7 +320,7 @@ void ModelToTextMerger::reindent(const QMap<int, int> &dirtyAreas) const
     Utils::sort(offsets);
     TextModifier *textModifier = m_rewriterView->textModifier();
 
-    foreach (const int offset, offsets) {
+    for (const int offset : qAsConst(offsets)) {
         const int length = dirtyAreas[offset];
         textModifier->indent(offset, length);
     }
@@ -415,7 +415,7 @@ void ModelToTextMerger::dumpRewriteActions(const QString &msg)
     if (DebugRewriteActions) {
         qDebug() << "---->" << qPrintable(msg);
 
-        foreach (RewriteAction *action, m_rewriteActions) {
+        for (RewriteAction *action : qAsConst(m_rewriteActions)) {
             qDebug() << "-----" << qPrintable(action->info());
         }
 

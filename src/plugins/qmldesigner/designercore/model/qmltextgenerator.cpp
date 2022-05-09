@@ -200,7 +200,7 @@ QString QmlTextGenerator::toQml(const ModelNode &node, int indentDepth) const
 
     QString alias;
     if (!url.isEmpty()) {
-        foreach (const Import &import, node.model()->imports()) {
+        for (const Import &import : node.model()->imports()) {
             if (import.url() == url) {
                 alias = import.alias();
                 break;
@@ -236,7 +236,7 @@ QString QmlTextGenerator::propertiesToQml(const ModelNode &node, int indentDepth
     PropertyNameList nodePropertyNames = node.propertyNames();
     bool addToTop = true;
 
-    foreach (const PropertyName &propertyName, m_propertyOrder) {
+    for (const PropertyName &propertyName : qAsConst(m_propertyOrder)) {
         if (propertyName == "id") {
             // the model handles the id property special, so:
             if (!node.id().isEmpty()) {
@@ -262,7 +262,7 @@ QString QmlTextGenerator::propertiesToQml(const ModelNode &node, int indentDepth
         }
     }
 
-    foreach (const PropertyName &propertyName, nodePropertyNames) {
+    for (const PropertyName &propertyName : qAsConst(nodePropertyNames)) {
         bottomPart.prepend(propertyToQml(node.property(propertyName), indentDepth));
     }
 

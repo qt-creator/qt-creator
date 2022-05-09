@@ -201,7 +201,8 @@ QList<QmlItemNode> QmlItemNode::children() const
                 childrenList.append(modelNode().nodeListProperty("children").toModelNodeList());
 
         if (modelNode().hasNodeListProperty("data")) {
-            foreach (const ModelNode &node, modelNode().nodeListProperty("data").toModelNodeList()) {
+            const QList<ModelNode> nodes = modelNode().nodeListProperty("data").toModelNodeList();
+            for (const ModelNode &node : nodes) {
                 if (QmlItemNode::isValidQmlItemNode(node))
                     childrenList.append(node);
             }
@@ -221,7 +222,8 @@ QList<QmlObjectNode> QmlItemNode::resources() const
                 resourcesList.append(modelNode().nodeListProperty("resources").toModelNodeList());
 
         if (modelNode().hasNodeListProperty("data")) {
-            foreach (const ModelNode &node, modelNode().nodeListProperty("data").toModelNodeList()) {
+            const QList<ModelNode> nodes = modelNode().nodeListProperty("data").toModelNodeList();
+            for (const ModelNode &node : nodes) {
                 if (!QmlItemNode::isValidQmlItemNode(node))
                     resourcesList.append(node);
             }
@@ -489,7 +491,7 @@ QList<ModelNode> toModelNodeList(const QList<QmlItemNode> &qmlItemNodeList)
 {
     QList<ModelNode> modelNodeList;
 
-    foreach (const QmlItemNode &qmlItemNode, qmlItemNodeList)
+    for (const QmlItemNode &qmlItemNode : qmlItemNodeList)
         modelNodeList.append(qmlItemNode.modelNode());
 
     return modelNodeList;

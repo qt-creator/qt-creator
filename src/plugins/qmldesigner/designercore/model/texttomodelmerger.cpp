@@ -840,7 +840,7 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
         }
     }
 
-    foreach (const Import &import, existingImports)
+    for (const Import &import : qAsConst(existingImports))
         differenceHandler.importAbsentInQMl(import);
 }
 
@@ -894,7 +894,7 @@ static bool isBlacklistImport(const ImportKey &importKey, Model *model)
 static QHash<QString, ImportKey> filterPossibleImportKeys(const QSet<ImportKey> &possibleImportKeys, Model *model)
 {
     QHash<QString, ImportKey> filteredPossibleImportKeys;
-    foreach (const ImportKey &importKey, possibleImportKeys) {
+    for (const ImportKey &importKey : possibleImportKeys) {
         if (isLatestImportVersion(importKey, filteredPossibleImportKeys) && !isBlacklistImport(importKey, model))
             filteredPossibleImportKeys.insert(importKey.path(), importKey);
     }
@@ -904,7 +904,7 @@ static QHash<QString, ImportKey> filterPossibleImportKeys(const QSet<ImportKey> 
 
 static void removeUsedImports(QHash<QString, ImportKey> &filteredPossibleImportKeys, const QList<QmlJS::Import> &usedImports)
 {
-    foreach (const QmlJS::Import &import, usedImports)
+    for (const QmlJS::Import &import : usedImports)
         filteredPossibleImportKeys.remove(import.info.path());
 }
 
@@ -1080,7 +1080,8 @@ Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url, co
 
     if (!doc->isParsedCorrectly()) {
         if (errors) {
-            foreach (const QmlJS::DiagnosticMessage &message, doc->diagnosticMessages())
+            const QList<QmlJS::DiagnosticMessage> messages = doc->diagnosticMessages();
+            for (const QmlJS::DiagnosticMessage &message : messages)
                 errors->append(DocumentMessage(message, QUrl::fromLocalFile(doc->fileName())));
         }
         return Document::MutablePtr();
@@ -1291,12 +1292,12 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         } else if (auto def = AST::cast<AST::UiObjectDefinition *>(member)) {
             const QString &name = def->qualifiedTypeNameId->name.toString();
             if (name.isEmpty() || !name.at(0).isUpper()) {
-                QStringList props = syncGroupedProperties(modelNode,
-                                                          name,
-                                                          def->initializer->members,
-                                                          context,
-                                                          differenceHandler);
-                foreach (const QString &prop, props)
+                const QStringList props = syncGroupedProperties(modelNode,
+                                                                name,
+                                                                def->initializer->members,
+                                                                context,
+                                                                differenceHandler);
+                for (const QString &prop : props)
                     modelPropertyNames.remove(prop.toUtf8());
             } else {
                 defaultPropertyItems.append(member);
@@ -1386,7 +1387,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         }
     }
 
-    foreach (const PropertyName &modelPropertyName, modelPropertyNames) {
+    for (const PropertyName &modelPropertyName : qAsConst(modelPropertyNames)) {
         AbstractProperty modelProperty = modelNode.property(modelPropertyName);
 
         // property deleted.
@@ -2166,7 +2167,8 @@ void TextToModelMerger::clearImplicitComponent(const ModelNode &node)
 
 void TextToModelMerger::collectLinkErrors(QList<DocumentMessage> *errors, const ReadingContext &ctxt)
 {
-    foreach (const QmlJS::DiagnosticMessage &diagnosticMessage, ctxt.diagnosticLinkMessages()) {
+    const QList<QmlJS::DiagnosticMessage> diagnosticMessages = ctxt.diagnosticLinkMessages();
+    for (const QmlJS::DiagnosticMessage &diagnosticMessage : diagnosticMessages) {
         if (diagnosticMessage.kind == QmlJS::Severity::ReadingTypeInfoWarning)
             m_rewriterView->setIncompleteTypeInformation(true);
 
@@ -2182,7 +2184,7 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
     }
 
     bool hasQtQuick = false;
-    foreach (const QmlDesigner::Import &import, m_rewriterView->model()->imports()) {
+    for (const QmlDesigner::Import &import : m_rewriterView->model()->imports()) {
         if (import.isLibraryImport() && import.url() == QStringLiteral("QtQuick")) {
 
             if (supportedQtQuickVersion(import.version())) {
@@ -2245,7 +2247,8 @@ void TextToModelMerger::collectSemanticErrorsAndWarnings(QList<DocumentMessage> 
     check.disableMessage(StaticAnalysis::ErrCouldNotResolvePrototype);
     check.disableMessage(StaticAnalysis::ErrCouldNotResolvePrototypeOf);
 
-    foreach (StaticAnalysis::Type type, StaticAnalysis::Message::allMessageTypes()) {
+    const QList<StaticAnalysis::Type> types = StaticAnalysis::Message::allMessageTypes();
+    for (StaticAnalysis::Type type : types) {
         StaticAnalysis::PrototypeMessageData prototypeMessageData = StaticAnalysis::Message::prototypeForMessageType(type);
         if (prototypeMessageData.severity == Severity::MaybeWarning
                 || prototypeMessageData.severity == Severity::Warning) {
@@ -2256,7 +2259,8 @@ void TextToModelMerger::collectSemanticErrorsAndWarnings(QList<DocumentMessage> 
     check.enableQmlDesignerChecks();
 
     QUrl fileNameUrl = QUrl::fromLocalFile(m_document->fileName());
-    foreach (const StaticAnalysis::Message &message, check()) {
+    const QList<StaticAnalysis::Message> messages = check();
+    for (const StaticAnalysis::Message &message : messages) {
         if (message.severity == Severity::Error) {
             if (message.type == StaticAnalysis::ErrUnknownComponent)
                 warnings->append(DocumentMessage(message.toDiagnosticMessage(), fileNameUrl));

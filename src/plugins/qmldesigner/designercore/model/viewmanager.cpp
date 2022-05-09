@@ -334,7 +334,8 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
 
 QWidget *ViewManager::widget(const QString &uniqueId) const
 {
-    foreach (const WidgetInfo &widgetInfo, widgetInfos()) {
+    const QList<WidgetInfo> widgetInfoList = widgetInfos();
+    for (const WidgetInfo &widgetInfo : widgetInfoList) {
         if (widgetInfo.uniqueId == uniqueId)
             return widgetInfo.widget;
     }

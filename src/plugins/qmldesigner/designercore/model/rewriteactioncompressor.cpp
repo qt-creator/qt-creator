@@ -101,7 +101,7 @@ void RewriteActionCompressor::compressImports(QList<RewriteAction *> &actions) c
         }
     }
 
-    foreach (RewriteAction *action, actionsToRemove) {
+    for (RewriteAction *action : qAsConst(actionsToRemove)) {
         actions.removeOne(action);
         delete action;
     }
@@ -127,7 +127,7 @@ void RewriteActionCompressor::compressRereparentActions(QList<RewriteAction *> &
         }
     }
 
-    foreach (RewriteAction *action, actionsToRemove) {
+    for (RewriteAction *action : qAsConst(actionsToRemove)) {
         actions.removeOne(action);
         delete action;
     }
@@ -146,7 +146,7 @@ void RewriteActionCompressor::compressReparentIntoSamePropertyActions(QList<Rewr
         }
     }
 
-    foreach (RewriteAction *action, actionsToRemove) {
+    for (RewriteAction *action : qAsConst(actionsToRemove)) {
         actions.removeOne(action);
         delete action;
     }
@@ -201,7 +201,7 @@ void RewriteActionCompressor::compressAddEditRemoveNodeActions(QList<RewriteActi
         }
     }
 
-    foreach (RewriteAction *action, actionsToRemove) {
+    for (RewriteAction *action : qAsConst(actionsToRemove)) {
         actions.removeOne(action);
         delete action;
     }
@@ -251,7 +251,7 @@ void RewriteActionCompressor::compressPropertyActions(QList<RewriteAction *> &ac
         }
     }
 
-    foreach (RewriteAction *action, actionsToRemove){
+    for (RewriteAction *action : qAsConst(actionsToRemove)) {
         actions.removeOne(action);
         delete action;
     }
@@ -300,13 +300,13 @@ void RewriteActionCompressor::compressAddEditActions(
         }
     }
 
-    foreach (RewriteAction *action, actionsToRemove){
+    for (RewriteAction *action : qAsConst(actionsToRemove)) {
         actions.removeOne(action);
         delete action;
     }
 
     QmlTextGenerator gen(m_propertyOrder, tabSettings);
-    foreach (RewriteAction *action, dirtyActions) {
+    for (RewriteAction *action : qAsConst(dirtyActions)) {
         RewriteAction *newAction = nullptr;
         if (AddPropertyRewriteAction *addAction = action->asAddPropertyRewriteAction()) {
             newAction = new AddPropertyRewriteAction(addAction->property(),
@@ -371,7 +371,7 @@ void RewriteActionCompressor::compressAddReparentActions(QList<RewriteAction *> 
         }
     }
 
-    foreach (RewriteAction *action, actionsToRemove){
+    for (RewriteAction *action : qAsConst(actionsToRemove)) {
         actions.removeOne(action);
         delete action;
     }
