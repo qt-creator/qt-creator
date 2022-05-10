@@ -87,7 +87,7 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 auto drag = new QDrag(this);
                 drag->setPixmap(m_assetsIconProvider->requestPixmap(m_assetsToDrag[0], nullptr, {128, 128}));
                 QMimeData *mimeData = new QMimeData;
-                mimeData->setData("application/vnd.bauhaus.libraryresource", m_assetsToDrag.join(',').toUtf8());
+                mimeData->setData(Constants::MIME_TYPE_ASSETS, m_assetsToDrag.join(',').toUtf8());
                 drag->setMimeData(mimeData);
                 drag->exec();
                 drag->deleteLater();
@@ -307,25 +307,25 @@ QPair<QString, QByteArray> AssetsLibraryWidget::getAssetTypeAndData(const QStrin
     if (!suffix.isEmpty()) {
         if (AssetsLibraryModel::supportedImageSuffixes().contains(suffix)) {
             // Data: Image format (suffix)
-            return {"application/vnd.bauhaus.libraryresource.image", suffix.toUtf8()};
+            return {Constants::MIME_TYPE_ASSET_IMAGE, suffix.toUtf8()};
         } else if (AssetsLibraryModel::supportedFontSuffixes().contains(suffix)) {
             // Data: Font family name
             QRawFont font(assetPath, 10);
             QString fontFamily = font.isValid() ? font.familyName() : "";
-            return {"application/vnd.bauhaus.libraryresource.font", fontFamily.toUtf8()};
+            return {Constants::MIME_TYPE_ASSET_FONT, fontFamily.toUtf8()};
         } else if (AssetsLibraryModel::supportedShaderSuffixes().contains(suffix)) {
             // Data: shader type, frament (f) or vertex (v)
-            return {"application/vnd.bauhaus.libraryresource.shader",
+            return {Constants::MIME_TYPE_ASSET_SHADER,
                 AssetsLibraryModel::supportedFragmentShaderSuffixes().contains(suffix) ? "f" : "v"};
         } else if (AssetsLibraryModel::supportedAudioSuffixes().contains(suffix)) {
             // No extra data for sounds
-            return {"application/vnd.bauhaus.libraryresource.sound", {}};
+            return {Constants::MIME_TYPE_ASSET_SOUND, {}};
         } else if (AssetsLibraryModel::supportedVideoSuffixes().contains(suffix)) {
             // No extra data for videos
-            return {"application/vnd.bauhaus.libraryresource.video", {}};
+            return {Constants::MIME_TYPE_ASSET_VIDEO, {}};
         } else if (AssetsLibraryModel::supportedTexture3DSuffixes().contains(suffix)) {
             // Data: Image format (suffix)
-            return {"application/vnd.bauhaus.libraryresource.texture3d", suffix.toUtf8()};
+            return {Constants::MIME_TYPE_ASSET_TEXTURE3D, suffix.toUtf8()};
         }
     }
     return {};

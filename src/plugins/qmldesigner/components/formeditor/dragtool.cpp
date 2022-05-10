@@ -31,6 +31,7 @@
 #include <metainfo.h>
 #include <nodehints.h>
 #include <rewritingexception.h>
+#include "qmldesignerconstants.h"
 
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
@@ -219,9 +220,7 @@ void DragTool::abort()
 
 static ItemLibraryEntry itemLibraryEntryFromMimeData(const QMimeData *mimeData)
 {
-    QByteArray data = mimeData->data(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"));
-
-    QDataStream stream(data);
+    QDataStream stream(mimeData->data(Constants::MIME_TYPE_ITEM_LIBRARY_INFO));
 
     ItemLibraryEntry itemLibraryEntry;
     stream >> itemLibraryEntry;
@@ -236,7 +235,7 @@ static bool canBeDropped(const QMimeData *mimeData)
 
 static bool hasItemLibraryInfo(const QMimeData *mimeData)
 {
-    return mimeData->hasFormat(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"));
+    return mimeData->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO);
 }
 
 void DragTool::dropEvent(const QList<QGraphicsItem *> &/*itemList*/, QGraphicsSceneDragDropEvent *event)
@@ -326,12 +325,12 @@ void DragTool::createDragNodes(const QMimeData *mimeData, const QPointF &scenePo
                                   scenePosition);
             } else {
                 const QStringList assetPaths = QString::fromUtf8(mimeData
-                                    ->data("application/vnd.bauhaus.libraryresource")).split(",");
+                                    ->data(Constants::MIME_TYPE_ASSETS)).split(',');
                 for (const QString &assetPath : assetPaths) {
                     QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPath).first;
-                    if (assetType == "application/vnd.bauhaus.libraryresource.image")
+                    if (assetType == Constants::MIME_TYPE_ASSET_IMAGE)
                         createQmlItemNodeFromImage(assetPath, targetContainerQmlItemNode, scenePosition);
-                    else if (assetType == "application/vnd.bauhaus.libraryresource.font")
+                    else if (assetType == Constants::MIME_TYPE_ASSET_FONT)
                         createQmlItemNodeFromFont(assetPath, targetContainerQmlItemNode, scenePosition);
                 }
 

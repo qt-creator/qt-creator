@@ -71,7 +71,7 @@ namespace QmlDesigner {
 
 static QList<ModelNode> modelNodesFromMimeData(const QMimeData *mineData, AbstractView *view)
 {
-    QByteArray encodedModelNodeData = mineData->data(QLatin1String("application/vnd.modelnode.list"));
+    QByteArray encodedModelNodeData = mineData->data(Constants::MIME_TYPE_MODELNODE_LIST);
     QDataStream modelNodeStream(&encodedModelNodeData, QIODevice::ReadOnly);
 
     QList<ModelNode> modelNodeList;
@@ -465,9 +465,9 @@ void NavigatorTreeModel::setView(NavigatorView *view)
 
 QStringList NavigatorTreeModel::mimeTypes() const
 {
-    const static QStringList types({"application/vnd.modelnode.list",
-                                    "application/vnd.bauhaus.itemlibraryinfo",
-                                    "application/vnd.bauhaus.libraryresource"});
+    const static QStringList types({Constants::MIME_TYPE_MODELNODE_LIST,
+                                    Constants::MIME_TYPE_ITEM_LIBRARY_INFO,
+                                    Constants::MIME_TYPE_ASSETS});
 
     return types;
 }
@@ -490,7 +490,7 @@ QMimeData *NavigatorTreeModel::mimeData(const QModelIndexList &modelIndexList) c
         }
     }
 
-    mimeData->setData("application/vnd.modelnode.list", encodedModelNodeData);
+    mimeData->setData(Constants::MIME_TYPE_MODELNODE_LIST, encodedModelNodeData);
 
     return mimeData;
 }
@@ -560,10 +560,10 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
         widget->setDragType("");
 
     if (dropModelIndex.model() == this) {
-        if (mimeData->hasFormat("application/vnd.bauhaus.itemlibraryinfo")) {
+        if (mimeData->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)) {
             handleItemLibraryItemDrop(mimeData, rowNumber, dropModelIndex);
-        } else if (mimeData->hasFormat("application/vnd.bauhaus.libraryresource")) {
-            const QStringList assetsPaths = QString::fromUtf8(mimeData->data("application/vnd.bauhaus.libraryresource")).split(",");
+        } else if (mimeData->hasFormat(Constants::MIME_TYPE_ASSETS)) {
+            const QStringList assetsPaths = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS)).split(',');
             NodeAbstractProperty targetProperty;
 
             const QModelIndex rowModelIndex = dropModelIndex.sibling(dropModelIndex.row(), 0);
@@ -579,9 +579,9 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
                     QSet<QString> neededImports;
                     for (const QString &assetPath : assetsPaths) {
                         QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPath).first;
-                        if (assetType == "application/vnd.bauhaus.libraryresource.shader")
+                        if (assetType == Constants::MIME_TYPE_ASSET_SHADER)
                             neededImports.insert("QtQuick3D");
-                        else if (assetType == "application/vnd.bauhaus.libraryresource.sound")
+                        else if (assetType == Constants::MIME_TYPE_ASSET_SOUND)
                             neededImports.insert("QtMultimedia");
 
                         if (neededImports.size() == 2)
@@ -598,20 +598,20 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
                         auto assetTypeAndData = AssetsLibraryWidget::getAssetTypeAndData(assetPath);
                         QString assetType = assetTypeAndData.first;
                         QString assetData = QString::fromUtf8(assetTypeAndData.second);
-                        if (assetType == "application/vnd.bauhaus.libraryresource.image") {
+                        if (assetType == Constants::MIME_TYPE_ASSET_IMAGE) {
                             currNode = handleItemLibraryImageDrop(assetPath, targetProperty,
                                                                   rowModelIndex, moveNodesAfter);
-                        } else if (assetType == "application/vnd.bauhaus.libraryresource.font") {
+                        } else if (assetType == Constants::MIME_TYPE_ASSET_FONT) {
                             currNode = handleItemLibraryFontDrop(assetData, // assetData is fontFamily
                                                                  targetProperty, rowModelIndex);
-                        } else if (assetType == "application/vnd.bauhaus.libraryresource.shader") {
+                        } else if (assetType == Constants::MIME_TYPE_ASSET_SHADER) {
                             currNode = handleItemLibraryShaderDrop(assetPath, assetData == "f",
                                                                    targetProperty, rowModelIndex,
                                                                    moveNodesAfter);
-                        } else if (assetType == "application/vnd.bauhaus.libraryresource.sound") {
+                        } else if (assetType == Constants::MIME_TYPE_ASSET_SOUND) {
                             currNode = handleItemLibrarySoundDrop(assetPath, targetProperty,
                                                                   rowModelIndex);
-                        } else if (assetType == "application/vnd.bauhaus.libraryresource.texture3d") {
+                        } else if (assetType == Constants::MIME_TYPE_ASSET_TEXTURE3D) {
                             currNode = handleItemLibraryTexture3dDrop(assetPath, targetProperty,
                                                                       rowModelIndex, moveNodesAfter);
                         }
@@ -627,7 +627,7 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
                     m_view->setSelectedModelNodes(addedNodes);
                 }
             }
-        } else if (mimeData->hasFormat("application/vnd.modelnode.list")) {
+        } else if (mimeData->hasFormat(Constants::MIME_TYPE_MODELNODE_LIST)) {
             handleInternalDrop(mimeData, rowNumber, dropModelIndex);
         }
     }
@@ -673,7 +673,7 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
     NodeAbstractProperty targetProperty;
 
     const ItemLibraryEntry itemLibraryEntry =
-        createItemLibraryEntryFromMimeData(mimeData->data("application/vnd.bauhaus.itemlibraryinfo"));
+        createItemLibraryEntryFromMimeData(mimeData->data(Constants::MIME_TYPE_ITEM_LIBRARY_INFO));
 
     const NodeHints hints = NodeHints::fromItemLibraryEntry(itemLibraryEntry);
 

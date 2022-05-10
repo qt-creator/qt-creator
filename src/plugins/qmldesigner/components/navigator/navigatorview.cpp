@@ -268,8 +268,8 @@ void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> & prop
 
 void NavigatorView::dragStarted(QMimeData *mimeData)
 {
-    if (mimeData->hasFormat("application/vnd.bauhaus.itemlibraryinfo")) {
-        QByteArray data = mimeData->data("application/vnd.bauhaus.itemlibraryinfo");
+    if (mimeData->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)) {
+        QByteArray data = mimeData->data(Constants::MIME_TYPE_ITEM_LIBRARY_INFO);
         QDataStream stream(data);
         ItemLibraryEntry itemLibraryEntry;
         stream >> itemLibraryEntry;
