@@ -2,8 +2,12 @@ cmake_minimum_required(VERSION 3.16)
 
 ## Add paths to check for cmake modules:
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(Utils)
 
-option(BUILD_WITH_PCH "Build with precompiled headers" ON)
+env_with_default("QTC_BUILD_WITH_PCH" ENV_QTC_BUILD_WITH_PCH ON)
+env_with_default("QTC_WITH_TESTS" ENV_QTC_WITH_TESTS OFF)
+
+option(BUILD_WITH_PCH "Build with precompiled headers" "${ENV_QTC_BUILD_WITH_PCH}")
 
 include(FeatureSummary)
 include(QtCreatorIDEBranding RESULT_VARIABLE IDE_BRANDING_FILE)
@@ -29,7 +33,7 @@ qtc_handle_compiler_cache_support()
 option(BUILD_LINK_WITH_QT "Link with Qt from the parent Qt Creator" OFF)
 qtc_link_with_qt()
 
-option(WITH_TESTS "Build Tests" OFF)
+option(WITH_TESTS "Build Tests" ${ENV_QTC_WITH_TESTS})
 add_feature_info("Build tests" ${WITH_TESTS} "")
 option(WITH_DEBUG_CMAKE "Enabled CMake project debugging functionality" OFF)
 option(SHOW_BUILD_DATE "Show build date in about dialog" OFF)
