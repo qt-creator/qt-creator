@@ -208,6 +208,7 @@ public:
     void setMachineType(MachineType machineType);
 
     Utils::FilePath rootPath() const;
+    Utils::FilePath filePath(const QString &pathOnDevice) const;
 
     Utils::FilePath debugServerPath() const;
     void setDebugServerPath(const Utils::FilePath &path);

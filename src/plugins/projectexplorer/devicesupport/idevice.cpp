@@ -221,6 +221,11 @@ QString IDevice::mapToDevicePath(const FilePath &globalPath) const
     return globalPath.path();
 }
 
+FilePath IDevice::filePath(const QString &pathOnDevice) const
+{
+    return mapToGlobalPath(FilePath::fromString(pathOnDevice));
+}
+
 bool IDevice::handlesFile(const FilePath &filePath) const
 {
     Q_UNUSED(filePath);
