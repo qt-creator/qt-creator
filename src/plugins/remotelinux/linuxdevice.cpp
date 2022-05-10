@@ -366,45 +366,6 @@ private:
     }
 };
 
-class LinuxPortsGatheringMethod : public PortsGatheringMethod
-{
-    CommandLine commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const override
-    {
-        // We might encounter the situation that protocol is given IPv6
-        // but the consumer of the free port information decides to open
-        // an IPv4(only) port. As a result the next IPv6 scan will
-        // report the port again as open (in IPv6 namespace), while the
-        // same port in IPv4 namespace might still be blocked, and
-        // re-use of this port fails.
-        // GDBserver behaves exactly like this.
-
-        Q_UNUSED(protocol)
-
-        // /proc/net/tcp* covers /proc/net/tcp and /proc/net/tcp6
-        return {"sed", "-e 's/.*: [[:xdigit:]]*:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp*",
-                CommandLine::Raw};
-    }
-
-    QList<Utils::Port> usedPorts(const QByteArray &output) const override
-    {
-        QList<Utils::Port> ports;
-        QList<QByteArray> portStrings = output.split('\n');
-        foreach (const QByteArray &portString, portStrings) {
-            if (portString.size() != 4)
-                continue;
-            bool ok;
-            const Utils::Port port(portString.toInt(&ok, 16));
-            if (ok) {
-                if (!ports.contains(port))
-                    ports << port;
-            } else {
-                qWarning("%s: Unexpected string '%s' is not a port.",
-                         Q_FUNC_INFO, portString.data());
-            }
-        }
-        return ports;
-    }
-};
 
 // LinuxDevicePrivate
 
@@ -1054,9 +1015,45 @@ bool LinuxDevice::canAutoDetectPorts() const
     return true;
 }
 
-PortsGatheringMethod::Ptr LinuxDevice::portsGatheringMethod() const
+PortsGatheringMethod LinuxDevice::portsGatheringMethod() const
 {
-    return LinuxPortsGatheringMethod::Ptr(new LinuxPortsGatheringMethod);
+    return {
+        [this](QAbstractSocket::NetworkLayerProtocol protocol) -> CommandLine {
+            // We might encounter the situation that protocol is given IPv6
+            // but the consumer of the free port information decides to open
+            // an IPv4(only) port. As a result the next IPv6 scan will
+            // report the port again as open (in IPv6 namespace), while the
+            // same port in IPv4 namespace might still be blocked, and
+            // re-use of this port fails.
+            // GDBserver behaves exactly like this.
+
+            Q_UNUSED(protocol)
+
+            // /proc/net/tcp* covers /proc/net/tcp and /proc/net/tcp6
+            return {filePath("sed"),
+                    "-e 's/.*: [[:xdigit:]]*:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp*",
+                    CommandLine::Raw};
+        },
+
+        [](const QByteArray &output) {
+            QList<Utils::Port> ports;
+            const QList<QByteArray> portStrings = output.split('\n');
+            for (const QByteArray &portString : portStrings) {
+                if (portString.size() != 4)
+                    continue;
+                bool ok;
+                const Utils::Port port(portString.toInt(&ok, 16));
+                if (ok) {
+                    if (!ports.contains(port))
+                        ports << port;
+                } else {
+                    qWarning("%s: Unexpected string '%s' is not a port.",
+                         Q_FUNC_INFO, portString.data());
+                }
+            }
+            return ports;
+        }
+    };
 }
 
 DeviceProcessList *LinuxDevice::createProcessListModel(QObject *parent) const

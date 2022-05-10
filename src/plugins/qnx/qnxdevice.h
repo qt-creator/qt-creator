@@ -42,7 +42,7 @@ public:
 
     static Ptr create() { return Ptr(new QnxDevice); }
 
-    ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const override;
+    ProjectExplorer::PortsGatheringMethod portsGatheringMethod() const override;
     ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
 

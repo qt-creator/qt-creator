@@ -118,43 +118,38 @@ DeviceEnvironmentFetcher::Ptr DesktopDevice::environmentFetcher() const
     return DeviceEnvironmentFetcher::Ptr(new DesktopDeviceEnvironmentFetcher());
 }
 
-class DesktopPortsGatheringMethod : public PortsGatheringMethod
+PortsGatheringMethod DesktopDevice::portsGatheringMethod() const
 {
-    CommandLine commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const override
-    {
-        // We might encounter the situation that protocol is given IPv6
-        // but the consumer of the free port information decides to open
-        // an IPv4(only) port. As a result the next IPv6 scan will
-        // report the port again as open (in IPv6 namespace), while the
-        // same port in IPv4 namespace might still be blocked, and
-        // re-use of this port fails.
-        // GDBserver behaves exactly like this.
+    return {
+        [this](QAbstractSocket::NetworkLayerProtocol protocol) -> CommandLine {
+            // We might encounter the situation that protocol is given IPv6
+            // but the consumer of the free port information decides to open
+            // an IPv4(only) port. As a result the next IPv6 scan will
+            // report the port again as open (in IPv6 namespace), while the
+            // same port in IPv4 namespace might still be blocked, and
+            // re-use of this port fails.
+            // GDBserver behaves exactly like this.
 
-        Q_UNUSED(protocol)
+            Q_UNUSED(protocol)
 
-        if (HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost())
-            return {"netstat", {"-a", "-n"}};
-        if (HostOsInfo::isLinuxHost())
-            return {"/bin/sh", {"-c", "cat /proc/net/tcp*"}};
-        return {};
-    }
+            if (HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost())
+                return {filePath("netstat"), {"-a", "-n"}};
+            if (HostOsInfo::isLinuxHost())
+                return {filePath("/bin/sh"), {"-c", "cat /proc/net/tcp*"}};
+            return {};
+        },
 
-    QList<Utils::Port> usedPorts(const QByteArray &output) const override
-    {
-        QList<Utils::Port> ports;
-        const QList<QByteArray> lines = output.split('\n');
-        for (const QByteArray &line : lines) {
-            const Port port(Utils::parseUsedPortFromNetstatOutput(line));
-            if (port.isValid() && !ports.contains(port))
-                ports.append(port);
+        [](const QByteArray &output) {
+            QList<Utils::Port> ports;
+            const QList<QByteArray> lines = output.split('\n');
+            for (const QByteArray &line : lines) {
+                const Port port(Utils::parseUsedPortFromNetstatOutput(line));
+                if (port.isValid() && !ports.contains(port))
+                    ports.append(port);
+            }
+            return ports;
         }
-        return ports;
-    }
-};
-
-PortsGatheringMethod::Ptr DesktopDevice::portsGatheringMethod() const
-{
-    return DesktopPortsGatheringMethod::Ptr(new DesktopPortsGatheringMethod);
+    };
 }
 
 QUrl DesktopDevice::toolControlChannel(const ControlChannelHint &) const

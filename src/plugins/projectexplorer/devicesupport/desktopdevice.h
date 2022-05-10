@@ -48,7 +48,7 @@ public:
     bool canAutoDetectPorts() const override;
     bool canCreateProcessModel() const override;
     DeviceProcessList *createProcessListModel(QObject *parent) const override;
-    ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const override;
+    ProjectExplorer::PortsGatheringMethod portsGatheringMethod() const override;
     DeviceProcessSignalOperation::Ptr signalOperation() const override;
     DeviceEnvironmentFetcher::Ptr environmentFetcher() const override;
     QUrl toolControlChannel(const ControlChannelHint &) const override;

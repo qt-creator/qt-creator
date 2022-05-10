@@ -106,29 +106,6 @@ void QnxProcessImpl::sendControlSignal(Utils::ControlSignal controlSignal)
 
 const char QnxVersionKey[] = "QnxVersion";
 
-class QnxPortsGatheringMethod : public PortsGatheringMethod
-{
-    // TODO: The command is probably needlessly complicated because the parsing method
-    // used to be fixed. These two can now be matched to each other.
-    CommandLine commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const override
-    {
-        Q_UNUSED(protocol)
-        return {"netstat", {"-na"}};
-    }
-
-    QList<Port> usedPorts(const QByteArray &output) const override
-    {
-        QList<Utils::Port> ports;
-        const QList<QByteArray> lines = output.split('\n');
-        for (const QByteArray &line : lines) {
-            const Port port(Utils::parseUsedPortFromNetstatOutput(line));
-            if (port.isValid() && !ports.contains(port))
-                ports.append(port);
-        }
-        return ports;
-    }
-};
-
 QnxDevice::QnxDevice()
 {
     setDisplayType(tr("QNX"));
@@ -181,9 +158,27 @@ QVariantMap QnxDevice::toMap() const
     return map;
 }
 
-PortsGatheringMethod::Ptr QnxDevice::portsGatheringMethod() const
+PortsGatheringMethod QnxDevice::portsGatheringMethod() const
 {
-    return PortsGatheringMethod::Ptr(new QnxPortsGatheringMethod);
+    return {
+        // TODO: The command is probably needlessly complicated because the parsing method
+        // used to be fixed. These two can now be matched to each other.
+        [this](QAbstractSocket::NetworkLayerProtocol protocol) -> CommandLine {
+            Q_UNUSED(protocol)
+            return {filePath("netstat"), {"-na"}};
+        },
+
+        [](const QByteArray &output) {
+            QList<Utils::Port> ports;
+            const QList<QByteArray> lines = output.split('\n');
+            for (const QByteArray &line : lines) {
+                const Port port(Utils::parseUsedPortFromNetstatOutput(line));
+                if (port.isValid() && !ports.contains(port))
+                    ports.append(port);
+            }
+            return ports;
+        }
+    };
 }
 
 DeviceProcessList *QnxDevice::createProcessListModel(QObject *parent) const

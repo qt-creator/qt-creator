@@ -109,14 +109,11 @@ protected:
     explicit DeviceEnvironmentFetcher();
 };
 
-class PROJECTEXPLORER_EXPORT PortsGatheringMethod
+class PROJECTEXPLORER_EXPORT PortsGatheringMethod final
 {
 public:
-    using Ptr = QSharedPointer<const PortsGatheringMethod>;
-
-    virtual ~PortsGatheringMethod() = default;
-    virtual Utils::CommandLine commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const = 0;
-    virtual QList<Utils::Port> usedPorts(const QByteArray &commandOutput) const = 0;
+    std::function<Utils::CommandLine(QAbstractSocket::NetworkLayerProtocol protocol)> commandLine;
+    std::function<QList<Utils::Port>(const QByteArray &commandOutput)> parsePorts;
 };
 
 // See cpp file for documentation.
@@ -175,7 +172,7 @@ public:
     // Devices that can auto detect ports need not return a ports gathering method. Such devices can
     // obtain a free port on demand. eg: Desktop device.
     virtual bool canAutoDetectPorts() const { return false; }
-    virtual PortsGatheringMethod::Ptr portsGatheringMethod() const;
+    virtual PortsGatheringMethod portsGatheringMethod() const { return {}; }
     virtual bool canCreateProcessModel() const { return false; }
     virtual DeviceProcessList *createProcessListModel(QObject *parent = nullptr) const;
     virtual bool hasDeviceTester() const { return false; }

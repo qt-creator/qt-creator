@@ -565,11 +565,6 @@ const QList<IDevice::DeviceAction> IDevice::deviceActions() const
     return d->deviceActions;
 }
 
-PortsGatheringMethod::Ptr IDevice::portsGatheringMethod() const
-{
-    return PortsGatheringMethod::Ptr();
-}
-
 DeviceProcessList *IDevice::createProcessListModel(QObject *parent) const
 {
     Q_UNUSED(parent)

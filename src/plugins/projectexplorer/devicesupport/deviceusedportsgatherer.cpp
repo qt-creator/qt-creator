@@ -48,7 +48,7 @@ class DeviceUsedPortsGathererPrivate
     QByteArray remoteStdout;
     QByteArray remoteStderr;
     IDevice::ConstPtr device;
-    PortsGatheringMethod::Ptr portsGatheringMethod;
+    PortsGatheringMethod portsGatheringMethod;
 };
 
 } // namespace Internal
@@ -71,11 +71,14 @@ void DeviceUsedPortsGatherer::start(const IDevice::ConstPtr &device)
     QTC_ASSERT(d->device, emit error("No device given"); return);
 
     d->portsGatheringMethod = d->device->portsGatheringMethod();
-    QTC_ASSERT(d->portsGatheringMethod, emit error("Not implemented"); return);
+    QTC_ASSERT(d->portsGatheringMethod.commandLine, emit error("Not implemented"); return);
+    QTC_ASSERT(d->portsGatheringMethod.parsePorts, emit error("Not implemented"); return);
 
     const QAbstractSocket::NetworkLayerProtocol protocol = QAbstractSocket::AnyIPProtocol;
 
     d->process.reset(new QtcProcess);
+    d->process->setCommand(d->portsGatheringMethod.commandLine(protocol));
+
     connect(d->process.get(), &QtcProcess::done,
             this, &DeviceUsedPortsGatherer::handleProcessDone);
     connect(d->process.get(), &QtcProcess::readyReadStandardOutput,
@@ -83,10 +86,7 @@ void DeviceUsedPortsGatherer::start(const IDevice::ConstPtr &device)
     connect(d->process.get(), &QtcProcess::readyReadStandardError,
             this, [this] { d->remoteStderr += d->process->readAllStandardError(); });
 
-    CommandLine command = d->portsGatheringMethod->commandLine(protocol);
-    const FilePath executable = d->device->mapToGlobalPath(command.executable());
-    command.setExecutable(executable);
-    d->process->setCommand(command);
+
     d->process->start();
 }
 
@@ -118,7 +118,7 @@ QList<Port> DeviceUsedPortsGatherer::usedPorts() const
 void DeviceUsedPortsGatherer::setupUsedPorts()
 {
     d->usedPorts.clear();
-    const QList<Port> usedPorts = d->portsGatheringMethod->usedPorts(d->remoteStdout);
+    const QList<Port> usedPorts = d->portsGatheringMethod.parsePorts(d->remoteStdout);
     for (const Port port : usedPorts) {
         if (d->device->freePorts().contains(port))
             d->usedPorts << port;

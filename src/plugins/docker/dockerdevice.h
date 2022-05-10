@@ -66,7 +66,7 @@ public:
     Utils::ProcessInterface *createProcessInterface() const override;
 
     bool canAutoDetectPorts() const override;
-    ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const override;
+    ProjectExplorer::PortsGatheringMethod portsGatheringMethod() const override;
     bool canCreateProcessModel() const override { return false; }
     ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const override;
     bool hasDeviceTester() const override { return false; }
