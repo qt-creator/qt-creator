@@ -43,8 +43,6 @@ Project {
             "linuxprocessinterface.h",
             "makeinstallstep.cpp",
             "makeinstallstep.h",
-            "packageuploader.cpp",
-            "packageuploader.h",
             "publickeydeploymentdialog.cpp",
             "publickeydeploymentdialog.h",
             "remotelinux.qrc",

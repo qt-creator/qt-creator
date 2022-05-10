@@ -28,7 +28,10 @@
 #include "abstractremotelinuxdeployservice.h"
 #include "remotelinux_export.h"
 
-namespace Utils { class FilePath; }
+namespace Utils {
+class FilePath;
+class ProcessResultData;
+}
 
 namespace RemoteLinux {
 class AbstractRemoteLinuxPackageInstaller;
@@ -47,7 +50,7 @@ protected:
     ~AbstractUploadAndInstallPackageService() override;
 
 private:
-    void handleUploadFinished(const QString &errorMsg);
+    void handleUploadFinished(const Utils::ProcessResultData &resultData);
     void handleInstallationFinished(const QString &errorMsg);
 
     virtual AbstractRemoteLinuxPackageInstaller *packageInstaller() const = 0;

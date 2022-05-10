@@ -17,7 +17,6 @@ add_qtc_plugin(RemoteLinux
     linuxdevicetester.cpp linuxdevicetester.h
     linuxprocessinterface.h
     makeinstallstep.cpp makeinstallstep.h
-    packageuploader.cpp packageuploader.h
     publickeydeploymentdialog.cpp publickeydeploymentdialog.h
     remotelinux.qrc
     remotelinux_constants.h

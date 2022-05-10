@@ -25,14 +25,14 @@
 
 #include "abstractuploadandinstallpackageservice.h"
 
-#include "packageuploader.h"
+#include "linuxdevice.h"
 #include "remotelinuxpackageinstaller.h"
 
 #include <projectexplorer/deployablefile.h>
+#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 
 #include <QDateTime>
-#include <QString>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -46,14 +46,8 @@ enum State { Inactive, Uploading, Installing };
 class AbstractUploadAndInstallPackageServicePrivate
 {
 public:
-    AbstractUploadAndInstallPackageServicePrivate()
-        : state(Inactive), uploader(new PackageUploader)
-    {
-    }
-    ~AbstractUploadAndInstallPackageServicePrivate() { delete uploader; }
-
-    State state;
-    PackageUploader * const uploader;
+    State state = Inactive;
+    std::unique_ptr<FileTransfer> uploader;
     Utils::FilePath packageFilePath;
 };
 
@@ -103,13 +97,18 @@ void AbstractUploadAndInstallPackageService::doDeploy()
     QTC_ASSERT(d->state == Inactive, return);
 
     d->state = Uploading;
-    const QString fileName = d->packageFilePath.fileName();
-    const QString remoteFilePath = uploadDir() + QLatin1Char('/') + fileName;
-    connect(d->uploader, &PackageUploader::progress,
-            this, &AbstractUploadAndInstallPackageService::progressMessage);
-    connect(d->uploader, &PackageUploader::uploadFinished,
-            this, &AbstractUploadAndInstallPackageService::handleUploadFinished);
-    d->uploader->uploadPackage(connection(), d->packageFilePath.toString(), remoteFilePath);
+
+    LinuxDevice::ConstPtr linuxDevice = deviceConfiguration().dynamicCast<const LinuxDevice>();
+    QTC_ASSERT(linuxDevice, return);
+    const QString remoteFilePath = uploadDir() + QLatin1Char('/') + d->packageFilePath.fileName();
+    const FilesToTransfer files {{d->packageFilePath,
+                    deviceConfiguration()->filePath(remoteFilePath)}};
+    d->uploader.reset(linuxDevice->createFileTransfer(files));
+    connect(d->uploader.get(), &FileTransfer::done, this,
+            &AbstractUploadAndInstallPackageService::handleUploadFinished);
+    connect(d->uploader.get(), &FileTransfer::progress, this,
+            &AbstractUploadAndInstallPackageService::progressMessage);
+    d->uploader->start();
 }
 
 void AbstractUploadAndInstallPackageService::stopDeployment()
@@ -119,7 +118,7 @@ void AbstractUploadAndInstallPackageService::stopDeployment()
         qWarning("%s: Unexpected state 'Inactive'.", Q_FUNC_INFO);
         break;
     case Uploading:
-        d->uploader->cancelUpload();
+        d->uploader->stop();
         setFinished();
         break;
     case Installing:
@@ -129,12 +128,12 @@ void AbstractUploadAndInstallPackageService::stopDeployment()
     }
 }
 
-void AbstractUploadAndInstallPackageService::handleUploadFinished(const QString &errorMsg)
+void AbstractUploadAndInstallPackageService::handleUploadFinished(const ProcessResultData &resultData)
 {
     QTC_ASSERT(d->state == Uploading, return);
 
-    if (!errorMsg.isEmpty()) {
-        emit errorMessage(errorMsg);
+    if (resultData.m_error != QProcess::UnknownError) {
+        emit errorMessage(resultData.m_errorString);
         setFinished();
         return;
     }
@@ -168,7 +167,7 @@ void AbstractUploadAndInstallPackageService::handleInstallationFinished(const QS
 void AbstractUploadAndInstallPackageService::setFinished()
 {
     d->state = Inactive;
-    disconnect(d->uploader, nullptr, this, nullptr);
+    d->uploader->stop();
     disconnect(packageInstaller(), nullptr, this, nullptr);
     handleDeploymentDone();
 }
