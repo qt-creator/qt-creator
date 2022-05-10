@@ -93,7 +93,7 @@ def main():
 
 def verifyKitCheckboxes(kits, displayedPlatforms):
     waitForObject("{type='QLabel' unnamed='1' visible='1' text='Kit Selection'}")
-    availableCheckboxes = frozenset(filter(enabledCheckBoxExists, kits.keys()))
+    availableCheckboxes = frozenset(filter(enabledCheckBoxExists, kits))
     # verification whether expected, found and configured match
 
     expectedShownKits = availableCheckboxes.intersection(displayedPlatforms)

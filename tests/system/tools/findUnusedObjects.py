@@ -2,7 +2,7 @@
 
 ############################################################################
 #
-# Copyright (C) 2019 The Qt Company Ltd.
+# Copyright (C) 2022 The Qt Company Ltd.
 # Contact: https://www.qt.io/licensing/
 #
 # This file is part of Qt Creator.
@@ -189,7 +189,7 @@ def printResult():
 def deleteRemovable():
     global useCounts, objMap
 
-    deletable = filter(lambda x: useCounts[x] == 0, useCounts)
+    deletable = list(filter(lambda x: useCounts[x] == 0, useCounts))
     if len(deletable) == 0:
         print("Nothing to delete - leaving objects.map untouched")
         return

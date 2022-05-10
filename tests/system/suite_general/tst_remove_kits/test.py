@@ -1,6 +1,6 @@
 ############################################################################
 #
-# Copyright (C) 2017 The Qt Company Ltd.
+# Copyright (C) 2022 The Qt Company Ltd.
 # Contact: https://www.qt.io/licensing/
 #
 # This file is part of Qt Creator.
@@ -41,7 +41,8 @@ def verifyProjectsMode(expectedKits):
 
 kitNameTemplate = "Manual.%s"
 
-def __removeKit__(kit, kitName):
+
+def __removeKit__(_, kitName):
     global kitNameTemplate
     if kitName == Targets.getStringForTarget(Targets.getDefaultKit()):
         # The following kits will be the default kit at that time
@@ -58,6 +59,5 @@ def main():
     switchViewTo(ViewConstants.PROJECTS)
     verifyProjectsMode(Targets.getTargetsAsStrings(Targets.availableTargetClasses(True)))
     iterateKits(True, False, __removeKit__)
-    clickButton(waitForObject(":Options.OK_QPushButton"))
     verifyProjectsMode([])
     invokeMenuItem("File", "Exit")
