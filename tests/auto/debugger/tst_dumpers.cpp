@@ -5301,7 +5301,9 @@ void tst_Dumpers::dumper_data()
             << Data("#include <vector>\n"
                     "#include <list>\n"
                     "template<class T>\n"
-                    "class myallocator : public std::allocator<T> {};\n",
+                    "class myallocator : public std::allocator<T> {\n"
+                    "using std::allocator<T>::allocator;\n"
+                    "};\n",
 
                     "std::vector<double> v0, v1;\n"
                     "v1.push_back(1);\n"
