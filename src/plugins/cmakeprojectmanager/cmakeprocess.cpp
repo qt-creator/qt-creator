@@ -140,6 +140,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
                                         "CMake.Configure",
                                         10);
 
+    process->setUseCtrlCStub(true);
     process->setCommand(commandLine);
     emit started();
     m_elapsed.start();
