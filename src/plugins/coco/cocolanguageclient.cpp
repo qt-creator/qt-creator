@@ -74,7 +74,7 @@ BaseClientInterface *CocoLanguageClient::clientInterface(const FilePath &coco,
                                                          const FilePath &csmes)
 {
     auto interface = new StdIOClientInterface();
-    interface->setCommandLine(CommandLine(coco, {"--lsp-stdio", "--debug", csmes.toUserOutput()}));
+    interface->setCommandLine(CommandLine(coco, {"--lsp-stdio", csmes.toUserOutput()}));
     return interface;
 }
 
