@@ -61,8 +61,10 @@ TextEditor::ICodeStylePreferences *NimCodeStylePreferencesFactory::createCodeSty
 
 TextEditor::CodeStyleEditorWidget *NimCodeStylePreferencesFactory::createEditor(
     TextEditor::ICodeStylePreferences *preferences,
+    ProjectExplorer::Project *project,
     QWidget *parent) const
 {
+    Q_UNUSED(project)
     auto result = new NimCodeStylePreferencesWidget(preferences, parent);
     result->layout()->setContentsMargins(0, 0, 0, 0);
     return result;

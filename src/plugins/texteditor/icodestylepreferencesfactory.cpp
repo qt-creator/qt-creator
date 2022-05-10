@@ -34,7 +34,7 @@ ICodeStylePreferencesFactory::ICodeStylePreferencesFactory()
 }
 
 CodeStyleEditorWidget *ICodeStylePreferencesFactory::createCodeStyleEditor(
-    ICodeStylePreferences *codeStyle, QWidget *parent)
+    ICodeStylePreferences *codeStyle, ProjectExplorer::Project *project, QWidget *parent)
 {
-    return new CodeStyleEditor(this, codeStyle, parent);
+    return new CodeStyleEditor(this, codeStyle, project, parent);
 }

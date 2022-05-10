@@ -33,6 +33,7 @@ QT_BEGIN_NAMESPACE
 class QVBoxLayout;
 QT_END_NAMESPACE
 
+namespace ProjectExplorer { class Project; }
 namespace TextEditor {
 
 class ICodeStylePreferencesFactory;
@@ -44,7 +45,9 @@ class TEXTEDITOR_EXPORT CodeStyleEditor : public CodeStyleEditorWidget
     Q_OBJECT
 public:
     CodeStyleEditor(ICodeStylePreferencesFactory *factory,
-                           ICodeStylePreferences *codeStyle, QWidget *parent = nullptr);
+                    ICodeStylePreferences *codeStyle,
+                    ProjectExplorer::Project *project = nullptr,
+                    QWidget *parent = nullptr);
 
 private:
     void updatePreview();
