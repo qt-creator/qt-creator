@@ -52,8 +52,10 @@ class CodeStyleDialog : public QDialog
 {
     Q_OBJECT
 public:
-    CodeStyleDialog(ICodeStylePreferencesFactory *factory,
-                    ICodeStylePreferences *codeStyle, QWidget *parent = nullptr);
+    explicit CodeStyleDialog(ICodeStylePreferencesFactory *factory,
+                             ICodeStylePreferences *codeStyle,
+                             ProjectExplorer::Project *project = nullptr,
+                             QWidget *parent = nullptr);
     ~CodeStyleDialog() override;
     ICodeStylePreferences *codeStyle() const;
 private:
@@ -69,7 +71,9 @@ private:
 };
 
 CodeStyleDialog::CodeStyleDialog(ICodeStylePreferencesFactory *factory,
-                ICodeStylePreferences *codeStyle, QWidget *parent)
+                                 ICodeStylePreferences *codeStyle,
+                                 ProjectExplorer::Project *project,
+                                 QWidget *parent)
     : QDialog(parent)
 {
     setWindowTitle(tr("Edit Code Style"));
@@ -105,7 +109,7 @@ CodeStyleDialog::CodeStyleDialog(ICodeStylePreferencesFactory *factory,
     m_codeStyle->setId(codeStyle->id());
     m_codeStyle->setDisplayName(m_originalDisplayName);
     m_codeStyle->setReadOnly(codeStyle->isReadOnly());
-    TextEditor::CodeStyleEditorWidget *editor = factory->createEditor(m_codeStyle, this);
+    TextEditor::CodeStyleEditorWidget *editor = factory->createEditor(m_codeStyle, project, this);
 
     m_buttons = new QDialogButtonBox(
                 QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
@@ -155,10 +159,13 @@ CodeStyleDialog::~CodeStyleDialog()
 
 } // Internal
 
-CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *factory, QWidget *parent) :
-    QWidget(parent),
-    m_factory(factory),
-    m_ui(new Internal::Ui::CodeStyleSelectorWidget)
+CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *factory,
+                                                 ProjectExplorer::Project *project,
+                                                 QWidget *parent)
+    : QWidget(parent)
+    , m_factory(factory)
+    , m_project(project)
+    , m_ui(new Internal::Ui::CodeStyleSelectorWidget)
 {
     m_ui->setupUi(this);
     m_ui->importButton->setEnabled(false);
@@ -285,7 +292,7 @@ void CodeStyleSelectorWidget::slotEditClicked()
     ICodeStylePreferences *codeStyle = m_codeStyle->currentPreferences();
     // check if it's read-only
 
-    Internal::CodeStyleDialog dialog(m_factory, codeStyle, this);
+    Internal::CodeStyleDialog dialog(m_factory, codeStyle, m_project, this);
     if (dialog.exec() == QDialog::Accepted) {
         ICodeStylePreferences *dialogCodeStyle = dialog.codeStyle();
         if (codeStyle->isReadOnly()) {

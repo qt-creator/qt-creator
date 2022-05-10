@@ -29,6 +29,7 @@
 
 #include <QWidget>
 
+namespace ProjectExplorer { class Project; }
 namespace TextEditor {
 
 namespace Internal { namespace Ui { class CodeStyleSelectorWidget; } }
@@ -40,7 +41,9 @@ class TEXTEDITOR_EXPORT CodeStyleSelectorWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit CodeStyleSelectorWidget(ICodeStylePreferencesFactory *factory, QWidget *parent = nullptr);
+    explicit CodeStyleSelectorWidget(ICodeStylePreferencesFactory *factory,
+                                     ProjectExplorer::Project *project = nullptr,
+                                     QWidget *parent = nullptr);
     ~CodeStyleSelectorWidget() override;
 
     void setCodeStyle(TextEditor::ICodeStylePreferences *codeStyle);
@@ -60,6 +63,7 @@ private:
     void updateName(ICodeStylePreferences *codeStyle);
     ICodeStylePreferencesFactory *m_factory;
     ICodeStylePreferences *m_codeStyle = nullptr;
+    ProjectExplorer::Project *m_project = nullptr;
 
     QString displayName(ICodeStylePreferences *codeStyle) const;
 

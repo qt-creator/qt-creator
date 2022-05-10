@@ -85,12 +85,11 @@ public:
     }
 
     std::pair<CppEditor::CppCodeStyleWidget *, QString> additionalTab(
-        TextEditor::ICodeStylePreferences *codeStyle, QWidget *parent) const override
+        TextEditor::ICodeStylePreferences *codeStyle,
+        ProjectExplorer::Project *project,
+        QWidget *parent) const override
     {
-        if (!parent)
-            return {new ClangFormatConfigWidget(codeStyle), tr("ClangFormat")};
-        return {new ClangFormatConfigWidget(codeStyle, SessionManager::startupProject()),
-                tr("ClangFormat")};
+        return {new ClangFormatConfigWidget(codeStyle, project, parent), tr("ClangFormat")};
     }
 };
 

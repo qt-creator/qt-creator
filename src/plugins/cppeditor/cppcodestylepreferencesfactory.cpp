@@ -99,6 +99,7 @@ TextEditor::ICodeStylePreferences *CppCodeStylePreferencesFactory::createCodeSty
 
 TextEditor::CodeStyleEditorWidget *CppCodeStylePreferencesFactory::createEditor(
     TextEditor::ICodeStylePreferences *preferences,
+    ProjectExplorer::Project *project,
     QWidget *parent) const
 {
     auto cppPreferences = qobject_cast<CppCodeStylePreferences *>(preferences);
@@ -109,7 +110,7 @@ TextEditor::CodeStyleEditorWidget *CppCodeStylePreferencesFactory::createEditor(
     widget->layout()->setContentsMargins(0, 0, 0, 0);
     widget->setCodeStyle(cppPreferences);
 
-    const auto tab = additionalTab(preferences, parent);
+    const auto tab = additionalTab(preferences, project, parent);
     widget->addTab(tab.first, tab.second);
 
     return widget;
@@ -131,10 +132,13 @@ QString CppCodeStylePreferencesFactory::previewText() const
 }
 
 std::pair<CppCodeStyleWidget *, QString> CppCodeStylePreferencesFactory::additionalTab(
-    TextEditor::ICodeStylePreferences *codeStyle, QWidget *parent) const
+    TextEditor::ICodeStylePreferences *codeStyle,
+    ProjectExplorer::Project *project,
+    QWidget *parent) const
 {
     Q_UNUSED(codeStyle)
     Q_UNUSED(parent)
+    Q_UNUSED(project)
     return {nullptr, ""};
 }
 

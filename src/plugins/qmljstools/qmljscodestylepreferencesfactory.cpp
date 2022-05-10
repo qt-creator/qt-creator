@@ -74,8 +74,10 @@ TextEditor::ICodeStylePreferences *QmlJSCodeStylePreferencesFactory::createCodeS
 
 TextEditor::CodeStyleEditorWidget *QmlJSCodeStylePreferencesFactory::createEditor(
     TextEditor::ICodeStylePreferences *preferences,
+    ProjectExplorer::Project *project,
     QWidget *parent) const
 {
+    Q_UNUSED(project)
     auto qmlJSPreferences = qobject_cast<QmlJSCodeStylePreferences *>(preferences);
     if (!qmlJSPreferences)
         return nullptr;

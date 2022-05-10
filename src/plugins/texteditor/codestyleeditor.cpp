@@ -42,13 +42,15 @@
 using namespace TextEditor;
 
 CodeStyleEditor::CodeStyleEditor(ICodeStylePreferencesFactory *factory,
-                                 ICodeStylePreferences *codeStyle, QWidget *parent)
-    : CodeStyleEditorWidget(parent),
-      m_factory(factory),
-      m_codeStyle(codeStyle)
+                                 ICodeStylePreferences *codeStyle,
+                                 ProjectExplorer::Project *project,
+                                 QWidget *parent)
+    : CodeStyleEditorWidget(parent)
+    , m_factory(factory)
+    , m_codeStyle(codeStyle)
 {
     m_layout = new QVBoxLayout(this);
-    auto selector = new CodeStyleSelectorWidget(factory, this);
+    auto selector = new CodeStyleSelectorWidget(factory, project, this);
     selector->setCodeStyle(codeStyle);
     m_preview = new SnippetEditorWidget(this);
     DisplaySettings displaySettings = m_preview->displaySettings();
