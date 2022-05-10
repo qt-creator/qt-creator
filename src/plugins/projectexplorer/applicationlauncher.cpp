@@ -338,10 +338,7 @@ void ApplicationLauncherPrivate::start()
         m_state = Run;
         m_stopRequested = false;
 
-        CommandLine cmd = m_runnable.command;
-        // FIXME: RunConfiguration::runnable() should give us the correct, on-device path, instead of fixing it up here.
-        cmd.setExecutable(m_runnable.device->mapToGlobalPath(cmd.executable()));
-        m_process.setCommand(cmd);
+        m_process.setCommand(m_runnable.command);
         m_process.setWorkingDirectory(m_runnable.workingDirectory);
         m_process.setEnvironment(m_runnable.environment);
         m_process.setExtraData(m_runnable.extraData);

@@ -209,13 +209,17 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
                                      [this] { return commandLine().executable(); });
 
 
-    m_commandLineGetter = [this] {
+    m_commandLineGetter = [target, this] {
         FilePath executable;
         if (const auto executableAspect = aspect<ExecutableAspect>())
             executable = executableAspect->executable();
         QString arguments;
         if (const auto argumentsAspect = aspect<ArgumentsAspect>())
             arguments = argumentsAspect->arguments(macroExpander());
+
+        if (IDevice::ConstPtr dev = DeviceKitAspect::device(target->kit()))
+            executable = dev->filePath(executable.path());
+
         return CommandLine{executable, arguments, CommandLine::Raw};
     };
 

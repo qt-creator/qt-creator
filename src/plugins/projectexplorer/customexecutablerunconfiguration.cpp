@@ -53,12 +53,19 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
     exeAspect->setExpectedKind(PathChooser::ExistingCommand);
     exeAspect->setEnvironmentChange(EnvironmentChange::fromFixedEnvironment(envAspect->environment()));
 
-    addAspect<ArgumentsAspect>();
+    auto argsAspect = addAspect<ArgumentsAspect>();
+
     addAspect<WorkingDirectoryAspect>(envAspect);
     addAspect<TerminalAspect>();
 
     connect(envAspect, &EnvironmentAspect::environmentChanged, this, [exeAspect, envAspect]  {
          exeAspect->setEnvironmentChange(EnvironmentChange::fromFixedEnvironment(envAspect->environment()));
+    });
+
+    setCommandLineGetter([exeAspect, argsAspect, this] {
+        const FilePath executable = exeAspect->executable();
+        const QString arguments = argsAspect->arguments(macroExpander());
+        return CommandLine{executable, arguments, CommandLine::Raw};
     });
 
     setDefaultDisplayName(defaultDisplayName());
