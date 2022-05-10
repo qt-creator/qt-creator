@@ -45,18 +45,25 @@ public:
     void stopTest() override;
 
 private:
-    void handleConnected();
     void handleConnectionFailure();
-    void handleUnameFinished();
-    void handlePortsGatheringError(const QString &message);
-    void handlePortListReady();
-    void handleSftpStarted();
-    void handleSftpFinished(const QString &error);
+    void handleConnected();
+
+    void testUname();
+    void handleUnameDone();
+
+    void testPortsGatherer();
+    void handlePortsGathererError(const QString &message);
+    void handlePortsGathererDone();
+
+    void testSftp();
+    void handleSftpDone(const QString &error);
+
     void testRsync();
-    void handleRsyncFinished();
+    void handleRsyncDone();
+
     void setFinished(ProjectExplorer::DeviceTester::TestResult result);
 
-    Internal::GenericLinuxDeviceTesterPrivate * const d;
+    std::unique_ptr<Internal::GenericLinuxDeviceTesterPrivate> d;
 };
 
 } // namespace RemoteLinux

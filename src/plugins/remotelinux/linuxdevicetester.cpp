@@ -51,7 +51,7 @@ enum State { Inactive, Connecting, RunningUname, TestingPorts, TestingSftp, Test
 class GenericLinuxDeviceTesterPrivate
 {
 public:
-    IDevice::Ptr deviceConfiguration;
+    IDevice::Ptr device;
     SshConnection *connection = nullptr;
     QtcProcess unameProcess;
     DeviceUsedPortsGatherer portsGatherer;
@@ -69,9 +69,13 @@ GenericLinuxDeviceTester::GenericLinuxDeviceTester(QObject *parent)
     : DeviceTester(parent), d(new GenericLinuxDeviceTesterPrivate)
 {
     connect(&d->unameProcess, &QtcProcess::done, this,
-            &GenericLinuxDeviceTester::handleUnameFinished);
+            &GenericLinuxDeviceTester::handleUnameDone);
+    connect(&d->portsGatherer, &DeviceUsedPortsGatherer::error,
+            this, &GenericLinuxDeviceTester::handlePortsGathererError);
+    connect(&d->portsGatherer, &DeviceUsedPortsGatherer::portListReady,
+            this, &GenericLinuxDeviceTester::handlePortsGathererDone);
     connect(&d->rsyncProcess, &QtcProcess::done, this,
-            &GenericLinuxDeviceTester::handleRsyncFinished);
+            &GenericLinuxDeviceTester::handleRsyncDone);
     SshConnectionParameters::setupSshEnvironment(&d->rsyncProcess);
 }
 
@@ -79,14 +83,13 @@ GenericLinuxDeviceTester::~GenericLinuxDeviceTester()
 {
     if (d->connection)
         SshConnectionManager::releaseConnection(d->connection);
-    delete d;
 }
 
 void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguration)
 {
     QTC_ASSERT(d->state == Inactive, return);
 
-    d->deviceConfiguration = deviceConfiguration;
+    d->device = deviceConfiguration;
     SshConnectionManager::forceNewConnection(deviceConfiguration->sshParameters());
     d->connection = SshConnectionManager::acquireConnection(deviceConfiguration->sshParameters());
     connect(d->connection, &SshConnection::connected,
@@ -94,7 +97,7 @@ void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguratio
     connect(d->connection, &SshConnection::errorOccurred,
             this, &GenericLinuxDeviceTester::handleConnectionFailure);
 
-    emit progressMessage(tr("Connecting to host..."));
+    emit progressMessage(tr("Connecting to device..."));
     d->state = Connecting;
     d->connection->connectToHost();
 }
@@ -118,22 +121,12 @@ void GenericLinuxDeviceTester::stopTest()
         break;
     case TestingRsync:
         d->rsyncProcess.close();
+        break;
     case Inactive:
         break;
     }
 
     setFinished(TestFailure);
-}
-
-void GenericLinuxDeviceTester::handleConnected()
-{
-    QTC_ASSERT(d->state == Connecting, return);
-
-    d->unameProcess.setCommand({d->deviceConfiguration->filePath("uname"), {"-rsm"}});
-
-    emit progressMessage(tr("Checking kernel version..."));
-    d->state = RunningUname;
-    d->unameProcess.start();
 }
 
 void GenericLinuxDeviceTester::handleConnectionFailure()
@@ -145,7 +138,24 @@ void GenericLinuxDeviceTester::handleConnectionFailure()
     setFinished(TestFailure);
 }
 
-void GenericLinuxDeviceTester::handleUnameFinished()
+void GenericLinuxDeviceTester::handleConnected()
+{
+    QTC_ASSERT(d->state == Connecting, return);
+    emit progressMessage(tr("Connection to device established.") + QLatin1Char('\n'));
+
+    testUname();
+}
+
+void GenericLinuxDeviceTester::testUname()
+{
+    d->state = RunningUname;
+    emit progressMessage(tr("Checking kernel version..."));
+
+    d->unameProcess.setCommand({d->device->filePath("uname"), {"-rsm"}});
+    d->unameProcess.start();
+}
+
+void GenericLinuxDeviceTester::handleUnameDone()
 {
     QTC_ASSERT(d->state == RunningUname, return);
 
@@ -159,17 +169,18 @@ void GenericLinuxDeviceTester::handleUnameFinished()
         emit progressMessage(QString::fromUtf8(d->unameProcess.readAllStandardOutput()));
     }
 
-    connect(&d->portsGatherer, &DeviceUsedPortsGatherer::error,
-            this, &GenericLinuxDeviceTester::handlePortsGatheringError);
-    connect(&d->portsGatherer, &DeviceUsedPortsGatherer::portListReady,
-            this, &GenericLinuxDeviceTester::handlePortListReady);
-
-    emit progressMessage(tr("Checking if specified ports are available..."));
-    d->state = TestingPorts;
-    d->portsGatherer.start(d->deviceConfiguration);
+    testPortsGatherer();
 }
 
-void GenericLinuxDeviceTester::handlePortsGatheringError(const QString &message)
+void GenericLinuxDeviceTester::testPortsGatherer()
+{
+    d->state = TestingPorts;
+    emit progressMessage(tr("Checking if specified ports are available..."));
+
+    d->portsGatherer.start(d->device);
+}
+
+void GenericLinuxDeviceTester::handlePortsGathererError(const QString &message)
 {
     QTC_ASSERT(d->state == TestingPorts, return);
 
@@ -177,37 +188,38 @@ void GenericLinuxDeviceTester::handlePortsGatheringError(const QString &message)
     setFinished(TestFailure);
 }
 
-void GenericLinuxDeviceTester::handlePortListReady()
+void GenericLinuxDeviceTester::handlePortsGathererDone()
 {
     QTC_ASSERT(d->state == TestingPorts, return);
 
     if (d->portsGatherer.usedPorts().isEmpty()) {
         emit progressMessage(tr("All specified ports are available.") + QLatin1Char('\n'));
     } else {
-        QString portList;
-        foreach (const Port port, d->portsGatherer.usedPorts())
-            portList += QString::number(port.number()) + QLatin1String(", ");
-        portList.remove(portList.count() - 2, 2);
+        const QString portList = transform(d->portsGatherer.usedPorts(), [](const Port &port) {
+            return QString::number(port.number());
+        }).join(", ");
         emit errorMessage(tr("The following specified ports are currently in use: %1")
             .arg(portList) + QLatin1Char('\n'));
     }
 
+    testSftp();
+}
+
+void GenericLinuxDeviceTester::testSftp()
+{
+    d->state = TestingSftp;
     emit progressMessage(tr("Checking whether an SFTP connection can be set up..."));
+
     d->sftpTransfer = d->connection->createDownload(FilesToTransfer());
     connect(d->sftpTransfer.get(), &SftpTransfer::done,
-            this, &GenericLinuxDeviceTester::handleSftpFinished);
-    d->state = TestingSftp;
+            this, &GenericLinuxDeviceTester::handleSftpDone);
     d->sftpTransfer->start();
 }
 
-void GenericLinuxDeviceTester::handleSftpStarted()
+void GenericLinuxDeviceTester::handleSftpDone(const QString &error)
 {
     QTC_ASSERT(d->state == TestingSftp, return);
-}
 
-void GenericLinuxDeviceTester::handleSftpFinished(const QString &error)
-{
-    QTC_ASSERT(d->state == TestingSftp, return);
     if (error.isEmpty()) {
         d->sftpWorks = true;
         emit progressMessage(tr("SFTP service available.\n"));
@@ -216,12 +228,15 @@ void GenericLinuxDeviceTester::handleSftpFinished(const QString &error)
         emit errorMessage(tr("Error setting up SFTP connection: %1\n").arg(error));
     }
     disconnect(d->sftpTransfer.get(), nullptr, this, nullptr);
+
     testRsync();
 }
 
 void GenericLinuxDeviceTester::testRsync()
 {
+    d->state = TestingRsync;
     emit progressMessage(tr("Checking whether rsync works..."));
+
     const RsyncCommandLine cmdLine = RsyncDeployStep::rsyncCommand(*d->connection,
                                                                    RsyncDeployStep::defaultFlags());
     const QStringList args = QStringList(cmdLine.options)
@@ -230,8 +245,10 @@ void GenericLinuxDeviceTester::testRsync()
     d->rsyncProcess.start();
 }
 
-void GenericLinuxDeviceTester::handleRsyncFinished()
+void GenericLinuxDeviceTester::handleRsyncDone()
 {
+    QTC_ASSERT(d->state == TestingRsync, return);
+
     QString error;
     if (d->rsyncProcess.error() == QProcess::FailedToStart) {
         error = tr("Failed to start rsync: %1\n").arg(d->rsyncProcess.errorString());
@@ -256,14 +273,13 @@ void GenericLinuxDeviceTester::handleRsyncFinished()
         emit progressMessage(tr("rsync is functional.\n"));
     }
 
-    d->deviceConfiguration->setExtraData(Constants::SupportsRSync, error.isEmpty());
+    d->device->setExtraData(Constants::SupportsRSync, error.isEmpty());
     setFinished(result);
 }
 
 void GenericLinuxDeviceTester::setFinished(TestResult result)
 {
     d->state = Inactive;
-    disconnect(&d->portsGatherer, nullptr, this, nullptr);
     if (d->sftpTransfer) {
         disconnect(d->sftpTransfer.get(), nullptr, this, nullptr);
         d->sftpTransfer.release()->deleteLater();
