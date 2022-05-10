@@ -203,8 +203,7 @@ void tst_Ssh::sftp()
     QVERIFY2(bigFile.error() == QFile::NoError, qPrintable(bigFile.errorString()));
     filesToUpload << FileToTransfer(bigFile.fileName(), getRemoteFilePath(bigFileName));
 
-    const SftpTransferPtr upload = connection.createUpload(filesToUpload,
-                                                           FileTransferErrorHandling::Abort);
+    const SftpTransferPtr upload = connection.createUpload(filesToUpload);
     QString jobError;
     QEventLoop loop;
     connect(upload.get(), &SftpTransfer::done, [&jobError, &loop](const QString &error) {

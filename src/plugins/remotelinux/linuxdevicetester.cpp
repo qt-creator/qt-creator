@@ -193,8 +193,7 @@ void GenericLinuxDeviceTester::handlePortListReady()
     }
 
     emit progressMessage(tr("Checking whether an SFTP connection can be set up..."));
-    d->sftpTransfer = d->connection->createDownload(FilesToTransfer(),
-                                                    FileTransferErrorHandling::Abort);
+    d->sftpTransfer = d->connection->createDownload(FilesToTransfer());
     connect(d->sftpTransfer.get(), &SftpTransfer::done,
             this, &GenericLinuxDeviceTester::handleSftpFinished);
     d->state = TestingSftp;

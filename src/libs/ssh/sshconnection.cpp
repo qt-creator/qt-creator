@@ -287,16 +287,14 @@ SshConnection::~SshConnection()
     delete d;
 }
 
-SftpTransferPtr SshConnection::createUpload(const FilesToTransfer &files,
-                                            FileTransferErrorHandling errorHandlingMode)
+SftpTransferPtr SshConnection::createUpload(const FilesToTransfer &files)
 {
-    return setupTransfer(files, Internal::FileTransferType::Upload, errorHandlingMode);
+    return setupTransfer(files, Internal::FileTransferType::Upload);
 }
 
-SftpTransferPtr SshConnection::createDownload(const FilesToTransfer &files,
-                                              FileTransferErrorHandling errorHandlingMode)
+SftpTransferPtr SshConnection::createDownload(const FilesToTransfer &files)
 {
-    return setupTransfer(files, Internal::FileTransferType::Download, errorHandlingMode);
+    return setupTransfer(files, Internal::FileTransferType::Download);
 }
 
 void SshConnection::doConnectToHost()
@@ -355,12 +353,11 @@ void SshConnection::emitDisconnected()
     emit disconnected();
 }
 
-SftpTransferPtr SshConnection::setupTransfer(
-        const FilesToTransfer &files, Internal::FileTransferType type,
-        FileTransferErrorHandling errorHandlingMode)
+SftpTransferPtr SshConnection::setupTransfer(const FilesToTransfer &files,
+                                             Internal::FileTransferType type)
 {
     QTC_ASSERT(state() == Connected, return SftpTransferPtr());
-    return SftpTransferPtr(new SftpTransfer(files, type, errorHandlingMode,
+    return SftpTransferPtr(new SftpTransfer(files, type,
                                             d->connectionArgs(SshSettings::sftpFilePath())));
 }
 

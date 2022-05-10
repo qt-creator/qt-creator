@@ -310,7 +310,7 @@ void GenericDirectUploadService::uploadFiles()
         }
         filesToTransfer << FileToTransfer(f.localFilePath().toString(), f.remoteFilePath());
     }
-    d->uploader = connection()->createUpload(filesToTransfer, FileTransferErrorHandling::Abort);
+    d->uploader = connection()->createUpload(filesToTransfer);
     connect(d->uploader.get(), &SftpTransfer::done, [this](const QString &error) {
         QTC_ASSERT(d->state == Uploading, return);
         if (!error.isEmpty()) {

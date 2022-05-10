@@ -52,8 +52,7 @@ void PackageUploader::uploadPackage(SshConnection *connection,
     m_connection = connection;
     connect(m_connection, &SshConnection::errorOccurred,
             this, &PackageUploader::handleConnectionFailure);
-    m_uploader = m_connection->createUpload({FileToTransfer(localFilePath, remoteFilePath)},
-                                            FileTransferErrorHandling::Abort);
+    m_uploader = m_connection->createUpload({FileToTransfer(localFilePath, remoteFilePath)});
     connect(m_uploader.get(), &SftpTransfer::done, this, &PackageUploader::handleUploadDone);
     m_uploader->start();
 }

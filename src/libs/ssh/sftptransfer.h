@@ -50,7 +50,6 @@ signals:
 
 private:
     SftpTransfer(const FilesToTransfer &files, Internal::FileTransferType type,
-                 FileTransferErrorHandling errorHandlingMode,
                  const QStringList &connectionArgs);
     void doStart();
     void emitError(const QString &details);

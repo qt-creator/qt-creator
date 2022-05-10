@@ -48,7 +48,6 @@ struct SftpTransfer::SftpTransferPrivate
     QtcProcess sftpProc;
     FilesToTransfer files;
     Internal::FileTransferType transferType;
-    FileTransferErrorHandling errorHandlingMode;
     QStringList connectionArgs;
     QString batchFilePath;
 
@@ -82,8 +81,6 @@ struct SftpTransfer::SftpTransferPrivate
             command = "get";
             break;
         }
-        if (errorHandlingMode == FileTransferErrorHandling::Ignore)
-            command.prepend('-');
         return command;
     }
 };
@@ -106,14 +103,12 @@ void SftpTransfer::stop()
 }
 
 SftpTransfer::SftpTransfer(const FilesToTransfer &files, Internal::FileTransferType type,
-                           FileTransferErrorHandling errorHandlingMode,
                            const QStringList &connectionArgs)
     : d(new SftpTransferPrivate)
 {
     SshConnectionParameters::setupSshEnvironment(&d->sftpProc);
     d->files = files;
     d->transferType = type;
-    d->errorHandlingMode = errorHandlingMode;
     d->connectionArgs = connectionArgs;
     connect(&d->sftpProc, &QtcProcess::done, [this] {
         if (d->sftpProc.error() == QProcess::FailedToStart) {
