@@ -55,7 +55,7 @@ void RemoteLinuxEnvironmentReader::start()
     m_deviceProcess = new QtcProcess(this);
     connect(m_deviceProcess, &QtcProcess::done,
             this, &RemoteLinuxEnvironmentReader::handleDone);
-    m_deviceProcess->setCommand({m_device->mapToGlobalPath("env"), {}});
+    m_deviceProcess->setCommand({m_device->filePath("env"), {}});
     m_deviceProcess->start();
 }
 

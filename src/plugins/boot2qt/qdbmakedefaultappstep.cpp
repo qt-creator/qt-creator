@@ -87,7 +87,7 @@ private:
                 ? QStringLiteral("--make-default ") + remoteExe
                 : QStringLiteral("--remove-default");
         m_process.setCommand(
-                    {deviceConfiguration()->mapToGlobalPath(Constants::AppcontrollerFilepath), {args}});
+                    {deviceConfiguration()->filePath(Constants::AppcontrollerFilepath), {args}});
         m_process.start();
     }
 

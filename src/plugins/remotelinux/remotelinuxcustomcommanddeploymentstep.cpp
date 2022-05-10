@@ -98,7 +98,7 @@ CheckResult RemoteLinuxCustomCommandDeployService::isDeploymentPossible() const
 void RemoteLinuxCustomCommandDeployService::doDeploy()
 {
     emit progressMessage(tr("Starting remote command \"%1\"...").arg(m_commandLine));
-    m_process.setCommand({deviceConfiguration()->mapToGlobalPath("/bin/sh"),
+    m_process.setCommand({deviceConfiguration()->filePath("/bin/sh"),
                              {"-c", m_commandLine}});
     m_process.start();
 }

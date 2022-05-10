@@ -52,7 +52,7 @@ void RemoteLinuxSignalOperation::run(const QString &command)
     m_process.reset(new QtcProcess);
     connect(m_process.get(), &QtcProcess::done, this, &RemoteLinuxSignalOperation::runnerDone);
 
-    m_process->setCommand({m_device->mapToGlobalPath("/bin/sh"), {"-c", command}});
+    m_process->setCommand({m_device->filePath("/bin/sh"), {"-c", command}});
     m_process->start();
 }
 

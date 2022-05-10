@@ -76,7 +76,7 @@ void AbstractRemoteLinuxPackageInstaller::installPackage(const IDevice::ConstPtr
     QString cmdLine = installCommandLine(packageFilePath);
     if (removePackageFile)
         cmdLine += QLatin1String(" && (rm ") + packageFilePath + QLatin1String(" || :)");
-    d->m_installer.setCommand({d->m_device->mapToGlobalPath("/bin/sh"), {"-c", cmdLine}});
+    d->m_installer.setCommand({d->m_device->filePath("/bin/sh"), {"-c", cmdLine}});
     d->m_installer.start();
 }
 
@@ -84,7 +84,7 @@ void AbstractRemoteLinuxPackageInstaller::cancelInstallation()
 {
     QTC_ASSERT(d->m_installer.state() != QProcess::NotRunning, return);
 
-    d->m_killer.setCommand({d->m_device->mapToGlobalPath("/bin/sh"),
+    d->m_killer.setCommand({d->m_device->filePath("/bin/sh"),
                             {"-c", cancelInstallationCommandLine()}});
     d->m_killer.start();
     d->m_installer.close();

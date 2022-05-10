@@ -198,9 +198,8 @@ void GenericDirectUploadService::runStat(const DeployableFile &file)
 {
     // We'd like to use --format=%Y, but it's not supported by busybox.
     QtcProcess * const statProc = new QtcProcess(this);
-    const CommandLine statCmd {deviceConfiguration()->mapToGlobalPath("stat"),
-        {"-t", Utils::ProcessArgs::quoteArgUnix(file.remoteFilePath())}};
-    statProc->setCommand(statCmd);
+    statProc->setCommand({deviceConfiguration()->filePath("stat"),
+              {"-t", Utils::ProcessArgs::quoteArgUnix(file.remoteFilePath())}});
     connect(statProc, &QtcProcess::done, this, [this, statProc, state = d->state] {
         QTC_ASSERT(d->state == state, return);
         const DeployableFile file = d->getFileForProcess(statProc);
@@ -338,9 +337,8 @@ void GenericDirectUploadService::chmod()
         if (!f.isExecutable())
             continue;
         QtcProcess * const chmodProc = new QtcProcess(this);
-        const CommandLine chmodCmd {deviceConfiguration()->mapToGlobalPath("chmod"),
-            {"a+x", Utils::ProcessArgs::quoteArgUnix(f.remoteFilePath())}};
-        chmodProc->setCommand(chmodCmd);
+        chmodProc->setCommand({deviceConfiguration()->filePath("chmod"),
+                {"a+x", Utils::ProcessArgs::quoteArgUnix(f.remoteFilePath())}});
         connect(chmodProc, &QtcProcess::done, this, [this, chmodProc, state = d->state] {
             QTC_ASSERT(state == d->state, return);
             const DeployableFile file = d->getFileForProcess(chmodProc);

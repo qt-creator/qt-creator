@@ -129,7 +129,7 @@ void GenericLinuxDeviceTester::handleConnected()
 {
     QTC_ASSERT(d->state == Connecting, return);
 
-    d->unameProcess.setCommand({d->deviceConfiguration->mapToGlobalPath("uname"), {"-rsm"}});
+    d->unameProcess.setCommand({d->deviceConfiguration->filePath("uname"), {"-rsm"}});
 
     emit progressMessage(tr("Checking kernel version..."));
     d->state = RunningUname;

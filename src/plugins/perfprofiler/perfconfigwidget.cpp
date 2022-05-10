@@ -145,7 +145,7 @@ void PerfConfigWidget::setTarget(ProjectExplorer::Target *target)
     QTC_CHECK(!m_process || m_process->state() == QProcess::NotRunning);
 
     m_process.reset(new QtcProcess);
-    m_process->setCommand({device->mapToGlobalPath("perf"), {"probe", "-l"}});
+    m_process->setCommand({device->filePath("perf"), {"probe", "-l"}});
     connect(m_process.get(), &QtcProcess::done,
             this, &PerfConfigWidget::handleProcessDone);
 

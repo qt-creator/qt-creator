@@ -114,12 +114,11 @@ void CallgrindController::run(Option option)
     connect(m_controllerProcess.get(), &QtcProcess::finished,
             this, &CallgrindController::controllerProcessDone);
 
-    const FilePath cgcontrol = FilePath::fromString(CALLGRIND_CONTROL_BINARY);
     CommandLine cmd;
     if (m_valgrindRunnable.device)
-        cmd.setExecutable(m_valgrindRunnable.device->mapToGlobalPath(cgcontrol));
+        cmd.setExecutable(m_valgrindRunnable.device->filePath(CALLGRIND_CONTROL_BINARY));
     else
-        cmd.setExecutable(cgcontrol);
+        cmd.setExecutable(CALLGRIND_CONTROL_BINARY);
     cmd.setArguments(QString("%1 %2").arg(toOptionString(option)).arg(m_pid));
     m_controllerProcess->setCommand(cmd);
     m_controllerProcess->setWorkingDirectory(m_valgrindRunnable.workingDirectory);

@@ -153,7 +153,7 @@ void QnxDevice::updateVersionNumber() const
 {
     QtcProcess versionNumberProcess;
 
-    versionNumberProcess.setCommand({mapToGlobalPath("uname"), {"-r"}});
+    versionNumberProcess.setCommand({filePath("uname"), {"-r"}});
     versionNumberProcess.runBlocking(EventLoopMode::On);
 
     QByteArray output = versionNumberProcess.readAllStandardOutput();

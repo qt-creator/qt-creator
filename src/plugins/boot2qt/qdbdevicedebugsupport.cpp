@@ -88,7 +88,7 @@ public:
         Runnable r = runnable();
 
         CommandLine cmd;
-        cmd.setExecutable(device()->mapToGlobalPath(FilePath::fromString(Constants::AppcontrollerFilepath)));
+        cmd.setExecutable(device()->filePath(Constants::AppcontrollerFilepath));
 
         if (m_useGdbServer) {
             cmd.addArg("--debug-gdb");

@@ -53,8 +53,7 @@ SshDeviceProcessList::~SshDeviceProcessList() = default;
 void SshDeviceProcessList::doUpdate()
 {
     d->m_process.close();
-    d->m_process.setCommand({device()->mapToGlobalPath("/bin/sh"),
-                             {"-c", listProcessesCommandLine()}});
+    d->m_process.setCommand({device()->filePath("/bin/sh"), {"-c", listProcessesCommandLine()}});
     d->m_process.start();
 }
 

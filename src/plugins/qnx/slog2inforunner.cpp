@@ -70,7 +70,7 @@ void Slog2InfoRunner::printMissingWarning()
 
 void Slog2InfoRunner::start()
 {
-    m_testProcess->setCommand({device()->mapToGlobalPath("slog2info"), {}});
+    m_testProcess->setCommand({device()->filePath("slog2info"), {}});
     m_testProcess->start();
     reportStarted();
 }
@@ -107,7 +107,7 @@ void Slog2InfoRunner::handleTestProcessCompleted()
 
 void Slog2InfoRunner::readLaunchTime()
 {
-    m_launchDateTimeProcess->setCommand({device()->mapToGlobalPath("date"),
+    m_launchDateTimeProcess->setCommand({device()->filePath("date"),
                                          "+\"%d %H:%M:%S\"", CommandLine::Raw});
     m_launchDateTimeProcess->start();
 }
@@ -126,7 +126,7 @@ void Slog2InfoRunner::launchSlog2Info()
     m_launchDateTime = QDateTime::fromString(QString::fromLatin1(m_launchDateTimeProcess->readAllStandardOutput()).trimmed(),
                                              QString::fromLatin1("dd HH:mm:ss"));
 
-    m_logProcess->setCommand({device()->mapToGlobalPath("slog2info"), {"-w"}});
+    m_logProcess->setCommand({device()->filePath("slog2info"), {"-w"}});
     m_logProcess->start();
 }
 

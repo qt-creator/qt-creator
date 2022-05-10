@@ -156,7 +156,7 @@ public:
     {
         QTC_ASSERT(!m_process, return);
         m_process.reset(new QtcProcess);
-        m_process->setCommand({device()->mapToGlobalPath("echo"), "-n $SSH_CLIENT", CommandLine::Raw});
+        m_process->setCommand({device()->filePath("echo"), "-n $SSH_CLIENT", CommandLine::Raw});
         connect(m_process.get(), &QtcProcess::done, this, [this] {
             if (m_process->error() != QProcess::UnknownError) {
                 reportFailure();

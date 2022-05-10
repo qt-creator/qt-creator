@@ -102,9 +102,8 @@ void RsyncDeployService::createRemoteDirectories()
     remoteDirs.sort();
     remoteDirs.removeDuplicates();
     m_mkdir.reset(new QtcProcess);
-    const CommandLine command {deviceConfiguration()->mapToGlobalPath("mkdir"),
-        {"-p", ProcessArgs::createUnixArgs(remoteDirs).toString()}};
-    m_mkdir->setCommand(command);
+    m_mkdir->setCommand({deviceConfiguration()->filePath("mkdir"),
+             {"-p", ProcessArgs::createUnixArgs(remoteDirs).toString()}});
     connect(m_mkdir.get(), &QtcProcess::done, this, [this] {
         if (m_mkdir->result() != ProcessResult::FinishedWithSuccess) {
             emit errorMessage(tr("Failed to create remote directories: %1")

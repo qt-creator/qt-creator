@@ -95,9 +95,9 @@ void PerfTracePointDialog::runScript()
 
     const QString elevate = m_ui->privilegesChooser->currentText();
     if (elevate != QLatin1String("n.a."))
-        m_process->setCommand({m_device->mapToGlobalPath(FilePath::fromString(elevate)), {"sh"}});
+        m_process->setCommand({m_device->filePath(elevate), {"sh"}});
     else
-        m_process->setCommand({m_device->mapToGlobalPath("sh"), {}});
+        m_process->setCommand({m_device->filePath("sh"), {}});
 
     connect(m_process.get(), &QtcProcess::done, this, &PerfTracePointDialog::handleProcessDone);
     m_process->start();

@@ -178,7 +178,7 @@ void ValgrindRunner::Private::remoteProcessStarted()
     QString procEscaped = proc;
     procEscaped.replace("/", "\\\\/");
 
-    CommandLine cmd(m_device->mapToGlobalPath(FilePath::fromString("/bin/sh")), {});
+    CommandLine cmd(m_device->filePath("/bin/sh"), {});
     // sleep required since otherwise we might only match "bash -c..." and not the actual
     // valgrind run
     cmd.setArguments(QString("-c \""

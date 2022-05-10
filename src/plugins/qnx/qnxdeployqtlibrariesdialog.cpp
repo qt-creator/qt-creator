@@ -262,7 +262,7 @@ void QnxDeployQtLibrariesDialog::startCheckDirProcess()
     m_state = CheckingRemoteDirectory;
     m_ui->deployLogWindow->appendPlainText(tr("Checking existence of \"%1\"")
                                            .arg(fullRemoteDirectory()));
-    m_checkDirProcess.setCommand({m_device->mapToGlobalPath("test"),
+    m_checkDirProcess.setCommand({m_device->filePath("test"),
                                   {"-d", fullRemoteDirectory()}});
     m_checkDirProcess.start();
 }
@@ -272,7 +272,7 @@ void QnxDeployQtLibrariesDialog::startRemoveDirProcess()
     QTC_CHECK(m_state == CheckingRemoteDirectory);
     m_state = RemovingRemoteDirectory;
     m_ui->deployLogWindow->appendPlainText(tr("Removing \"%1\"").arg(fullRemoteDirectory()));
-    m_removeDirProcess.setCommand({m_device->mapToGlobalPath("rm"),
+    m_removeDirProcess.setCommand({m_device->filePath("rm"),
                                   {"-rf", fullRemoteDirectory()}});
     m_removeDirProcess.start();
 }

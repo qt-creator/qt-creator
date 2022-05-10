@@ -109,7 +109,7 @@ void QdbStopApplicationService::doDeploy()
         emit stdOutData(QString::fromUtf8(m_process.readAllStandardOutput()));
     });
 
-    m_process.setCommand({device->mapToGlobalPath(Constants::AppcontrollerFilepath), {"--stop"}});
+    m_process.setCommand({device->filePath(Constants::AppcontrollerFilepath), {"--stop"}});
     m_process.setWorkingDirectory("/usr/bin");
     m_process.start();
 }

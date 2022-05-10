@@ -94,7 +94,7 @@ void QnxDeviceTester::handleGenericTestFinished(TestResult result)
 
     m_state = VarRunTest;
     emit progressMessage(tr("Checking that files can be created in /var/run..."));
-    const CommandLine cmd {m_deviceConfiguration->mapToGlobalPath("/bin/sh"),
+    const CommandLine cmd {m_deviceConfiguration->filePath("/bin/sh"),
         {"-c", QLatin1String("rm %1 > /dev/null 2>&1; echo ABC > %1 && rm %1")
                     .arg("/var/run/qtc_xxxx.pid")}};
     m_process.setCommand(cmd);
@@ -159,8 +159,7 @@ void QnxDeviceTester::testNextCommand()
 
     const QString command = m_commandsToTest[m_currentCommandIndex];
     emit progressMessage(tr("Checking for %1...").arg(command));
-    const CommandLine cmd {m_deviceConfiguration->mapToGlobalPath("command"), {"-v", command}};
-    m_process.setCommand(cmd);
+    m_process.setCommand({m_deviceConfiguration->filePath("command"), {"-v", command}});
     m_process.start();
 }
 

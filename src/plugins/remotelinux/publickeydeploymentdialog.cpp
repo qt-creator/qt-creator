@@ -97,7 +97,7 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const IDevice::ConstPtr &de
     const QString command = "test -d .ssh || mkdir -p ~/.ssh && chmod 0700 .ssh && echo '"
             + QString::fromLocal8Bit(reader.data())
             + "' >> .ssh/authorized_keys && chmod 0600 .ssh/authorized_keys";
-    d->m_process.setCommand({deviceConfig->mapToGlobalPath("/bin/sh"), {"-c", command}});
+    d->m_process.setCommand({deviceConfig->filePath("/bin/sh"), {"-c", command}});
     d->m_process.start();
 }
 
