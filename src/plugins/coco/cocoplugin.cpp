@@ -106,17 +106,17 @@ CocoPlugin::~CocoPlugin()
     delete d;
 }
 
-bool CocoPlugin::initialize(const QStringList &arguments, QString *errorString)
+bool CocoPlugin::initialize(const QStringList &, QString *)
 {
     using namespace Core;
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
+    if (menu) {
+        auto startCoco = new QAction("Squish Coco ...", this);
+        Command *cmd = ActionManager::registerAction(startCoco, "Coco.startCoco");
+        menu->addAction(cmd, Debugger::Constants::G_ANALYZER_TOOLS);
 
-    auto startCoco = new QAction("Squish Coco ...", this);
-    Command *cmd = ActionManager::registerAction(startCoco, "Coco.startCoco");
-    menu->addAction(cmd, Debugger::Constants::G_ANALYZER_TOOLS);
-
-    connect(startCoco, &QAction::triggered, this, [this]() { d->startCoco(); });
-
+        connect(startCoco, &QAction::triggered, this, [this]() { d->startCoco(); });
+    }
     return true;
 }
 
