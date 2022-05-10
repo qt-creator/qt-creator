@@ -119,7 +119,7 @@ static Toolchains doAutoDetect(const ToolchainDetector &detector)
 
     if (detector.device) {
         // Only detect toolchains from the emsdk installation device
-        const FilePath deviceRoot = detector.device->mapToGlobalPath({});
+        const FilePath deviceRoot = detector.device->rootPath();
         if (deviceRoot.host() != sdk.host())
             return {};
     }
