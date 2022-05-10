@@ -78,7 +78,6 @@ public:
     std::function<bool(const FilePath &, const FilePath &)> renameFile;
     std::function<FilePath(const FilePath &, const QList<FilePath> &)> searchInPath;
     std::function<FilePath(const FilePath &)> symLinkTarget;
-    std::function<FilePath(const FilePath &)> mapToGlobalPath;
     std::function<QString(const FilePath &)> mapToDevicePath;
     std::function<void(const FilePath &,
                        const std::function<bool(const FilePath &)> &, // Abort on 'false' return.
