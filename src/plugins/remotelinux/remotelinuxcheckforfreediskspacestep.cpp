@@ -81,8 +81,7 @@ void RemoteLinuxCheckForFreeDiskSpaceService::setRequiredSpaceInBytes(quint64 si
 void RemoteLinuxCheckForFreeDiskSpaceService::deployAndFinish()
 {
     auto cleanup = qScopeGuard([this] { setFinished(); });
-    const FilePath path
-            = deviceConfiguration()->mapToGlobalPath(FilePath::fromString(m_pathToCheck));
+    const FilePath path = deviceConfiguration()->filePath(m_pathToCheck);
     const qint64 freeSpace = path.bytesAvailable();
     if (freeSpace < 0) {
         emit errorMessage(tr("Cannot get info about free disk space for \"%1\"")

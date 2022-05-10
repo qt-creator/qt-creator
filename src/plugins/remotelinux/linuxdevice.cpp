@@ -1027,7 +1027,7 @@ LinuxDevice::LinuxDevice()
             d->m_terminals.removeOne(proc);
         });
 
-        proc->setCommand({ mapToGlobalPath({}), {}});
+        proc->setCommand({filePath({}), {}});
         proc->setTerminalMode(TerminalMode::On);
         proc->setEnvironment(env);
         proc->setWorkingDirectory(workingDir);
