@@ -59,9 +59,6 @@ Item {
         var complexSuffixes = rootView.supportedAssetSuffixes(true);
         for (const u of drag.urls) {
             var url = u.toString();
-            if (url.startsWith("file:///")) // remove file scheme (happens on Windows)
-                url = url.substr(8)
-
             var ext = '*.' + url.slice(url.lastIndexOf('.') + 1).toLowerCase()
             if (simpleSuffixes.includes(ext))
                 root.dropSimpleExtFiles.push(url)

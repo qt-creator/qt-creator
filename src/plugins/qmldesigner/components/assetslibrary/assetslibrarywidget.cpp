@@ -213,26 +213,32 @@ void AssetsLibraryWidget::handleAddAsset()
     addResources({});
 }
 
-void AssetsLibraryWidget::handleExtFilesDrop(const QStringList &simpleFilesPaths,
-                                             const QStringList &complexFilesPaths,
+void AssetsLibraryWidget::handleExtFilesDrop(const QList<QUrl> &simpleFilePaths,
+                                             const QList<QUrl> &complexFilePaths,
                                              const QString &targetDirPath)
 {
-    if (!simpleFilesPaths.isEmpty()) {
+    auto toLocalFile = [](const QUrl &url) { return url.toLocalFile(); };
+
+    QStringList simpleFilePathStrings = Utils::transform<QStringList>(simpleFilePaths, toLocalFile);
+    QStringList complexFilePathStrings = Utils::transform<QStringList>(complexFilePaths,
+                                                                       toLocalFile);
+
+    if (!simpleFilePathStrings.isEmpty()) {
         if (targetDirPath.isEmpty()) {
-            addResources(simpleFilesPaths);
+            addResources(simpleFilePathStrings);
         } else {
-            AddFilesResult result = ModelNodeOperations::addFilesToProject(simpleFilesPaths,
+            AddFilesResult result = ModelNodeOperations::addFilesToProject(simpleFilePathStrings,
                                                                            targetDirPath);
             if (result == AddFilesResult::Failed) {
                 Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
                                                       tr("Could not add %1 to project.")
-                                                          .arg(simpleFilesPaths.join(' ')));
+                                                          .arg(simpleFilePathStrings.join(' ')));
             }
         }
     }
 
-    if (!complexFilesPaths.empty())
-        addResources(complexFilesPaths);
+    if (!complexFilePathStrings.empty())
+        addResources(complexFilePathStrings);
 }
 
 QSet<QString> AssetsLibraryWidget::supportedAssetSuffixes(bool complex)
