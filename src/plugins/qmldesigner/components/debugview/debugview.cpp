@@ -90,12 +90,12 @@ void DebugView::importsChanged(const QList<Import> &addedImports, const QList<Im
     if (isDebugViewEnabled()) {
         QString message;
         message += QString("added imports:") += lineBreak;
-        foreach (const Import &import, addedImports) {
+        for (const Import &import : addedImports) {
             message += import.toImportString() += lineBreak;
         }
 
         message += QString("removed imports:") += lineBreak;
-        foreach (const Import &import, removedImports) {
+        for (const Import &import : removedImports) {
             message += import.toImportString() += lineBreak;
         }
 
@@ -126,7 +126,8 @@ void DebugView::nodeAboutToBeRemoved(const ModelNode &removedNode)
         QString string;
         message.setString(&string);
         message << removedNode << lineBreak;
-        foreach (const ModelNode &modelNode, removedNode.allSubModelNodes()) {
+        const QList<ModelNode> modelNodes = removedNode.allSubModelNodes();
+        for (const ModelNode &modelNode : modelNodes) {
             message << "child node:" << modelNode << lineBreak;
         }
 
@@ -192,7 +193,7 @@ void DebugView::variantPropertiesChanged(const QList<VariantProperty> &propertyL
         QTextStream message;
         QString string;
         message.setString(&string);
-        foreach (const VariantProperty &property, propertyList) {
+        for (const VariantProperty &property : propertyList) {
             message << property;
         }
         log("::variantPropertiesChanged:", string);
@@ -206,7 +207,7 @@ void DebugView::bindingPropertiesChanged(const QList<BindingProperty> &propertyL
         QTextStream message;
         QString string;
         message.setString(&string);
-        foreach (const BindingProperty &property, propertyList) {
+        for (const BindingProperty &property : propertyList) {
             message << property;
         }
         log("::Binding properties changed:", string);
@@ -219,7 +220,7 @@ void DebugView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProper
         QTextStream message;
         QString string;
         message.setString(&string);
-        foreach (const SignalHandlerProperty &property, propertyList) {
+        for (const SignalHandlerProperty &property : propertyList) {
             message << property;
         }
         log("::signalHandlerPropertiesChanged:", string);
@@ -242,7 +243,7 @@ void DebugView::rootNodeTypeChanged(const QString &type, int majorVersion, int m
 void DebugView::selectedNodesChanged(const QList<ModelNode> &selectedNodes /*selectedNodeList*/,
                                      const QList<ModelNode> & /*lastSelectedNodeList*/)
 {
-    foreach (const ModelNode &selectedNode, selectedNodes) {
+    for (const ModelNode &selectedNode : selectedNodes) {
         QTextStream message;
         QString string;
         message.setString(&string);
@@ -305,7 +306,7 @@ void DebugView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
         QTextStream message;
         QString string;
         message.setString(&string);
-        foreach (const AbstractProperty &property, propertyList) {
+        for (const AbstractProperty &property : propertyList) {
             message << property;
         }
         log("::propertiesRemoved:", string);
@@ -334,11 +335,11 @@ void DebugView::documentMessagesChanged(const QList<DocumentMessage> &errors, co
          QString string;
          message.setString(&string);
 
-         foreach (const DocumentMessage &error, errors) {
+         for (const DocumentMessage &error : errors) {
              message << error.toString();
          }
 
-         foreach (const DocumentMessage &warning, warnings) {
+         for (const DocumentMessage &warning : warnings) {
              message << warning.toString();
          }
 
@@ -380,7 +381,7 @@ void DebugView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyNam
 
         using Pair = QPair<ModelNode, PropertyName>;
 
-        foreach (const Pair &pair, propertyList) {
+        for (const Pair &pair : propertyList) {
             message << pair.first;
             message << lineBreak;
             message << pair.second;
@@ -401,7 +402,7 @@ void DebugView::instancesCompleted(const QVector<ModelNode> &completedNodeList)
         QString string;
         message.setString(&string);
 
-        foreach (const ModelNode &modelNode, completedNodeList) {
+        for (const ModelNode &modelNode : completedNodeList) {
             message << modelNode << lineBreak;
             if (QmlItemNode::isValidQmlItemNode(modelNode)) {
                 message << "parent: " << QmlItemNode(modelNode).instanceParent() << lineBreak;
@@ -419,7 +420,8 @@ void DebugView::instanceInformationsChanged(const QMultiHash<ModelNode, Informat
         QString string;
         message.setString(&string);
 
-        foreach (const ModelNode &modelNode, informationChangedHash.keys()) {
+        const QList<ModelNode> modelNodes = informationChangedHash.keys();
+        for (const ModelNode &modelNode : modelNodes) {
             message << modelNode;
             message << informationChangedHash.value(modelNode);
         }
@@ -444,7 +446,7 @@ void DebugView::instancesChildrenChanged(const QVector<ModelNode> & nodeList)
         QString string;
         message.setString(&string);
 
-        foreach (const ModelNode &modelNode, nodeList) {
+        for (const ModelNode &modelNode : nodeList) {
             message << modelNode << lineBreak;
             if (QmlItemNode::isValidQmlItemNode(modelNode)) {
                 message << "parent: " << QmlItemNode(modelNode).instanceParent() << lineBreak;
@@ -464,11 +466,11 @@ void DebugView::customNotification(const AbstractView *view, const QString &iden
 
         message << view;
         message << identifier;
-        foreach (const ModelNode &node, nodeList) {
+        for (const ModelNode &node : nodeList) {
             message << node;
         }
 
-        foreach (const QVariant &variant, data) {
+        for (const QVariant &variant : data) {
             message << variant.toString();
         }
 

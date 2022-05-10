@@ -103,7 +103,7 @@ static int lowerBound(int i)
 static inline QPointF getUpperLeftPosition(const QList<ModelNode> &modelNodeList)
 {
     QPointF postion(std::numeric_limits<qreal>::max(), std::numeric_limits<qreal>::max());
-    foreach (const ModelNode &modelNode, modelNodeList) {
+    for (const ModelNode &modelNode : modelNodeList) {
         if (QmlItemNode::isValidQmlItemNode(modelNode)) {
             QmlItemNode qmlIitemNode = QmlItemNode(modelNode);
             if (qmlIitemNode.instancePosition().x() < postion.x())
@@ -122,18 +122,20 @@ static void setUpperLeftPostionToNode(const ModelNode &layoutNode, const QList<M
     layoutNode.variantProperty("y").setValue(qRound(upperLeftPosition.y()));
 }
 
-void LayoutInGridLayout::reparentToNodeAndRemovePositionForModelNodes(const ModelNode &parentModelNode,
-                                                                             const QList<ModelNode> &modelNodeList)
+void LayoutInGridLayout::reparentToNodeAndRemovePositionForModelNodes(
+    const ModelNode &parentModelNode, const QList<ModelNode> &modelNodeList)
 {
-    foreach (ModelNode modelNode, modelNodeList) {
+    for (ModelNode modelNode : modelNodeList) {
         reparentTo(modelNode, parentModelNode);
         modelNode.removeProperty("x");
         modelNode.removeProperty("y");
-        foreach (const VariantProperty &variantProperty, modelNode.variantProperties()) {
+        const QList<VariantProperty> variantProperties = modelNode.variantProperties();
+        for (const VariantProperty &variantProperty : variantProperties) {
             if (variantProperty.name().contains("anchors."))
                 modelNode.removeProperty(variantProperty.name());
         }
-        foreach (const BindingProperty &bindingProperty, modelNode.bindingProperties()) {
+        const QList<BindingProperty> bindingProperties = modelNode.bindingProperties();
+        for (const BindingProperty &bindingProperty : bindingProperties) {
             if (bindingProperty.name().contains("anchors."))
                 modelNode.removeProperty(bindingProperty.name());
         }
@@ -142,7 +144,7 @@ void LayoutInGridLayout::reparentToNodeAndRemovePositionForModelNodes(const Mode
 
 void LayoutInGridLayout::setSizeAsPreferredSize(const QList<ModelNode> &modelNodeList)
 {
-     foreach (ModelNode modelNode, modelNodeList) {
+     for (ModelNode modelNode : modelNodeList) {
          if (modelNode.hasVariantProperty("width")) {
              modelNode.variantProperty("Layout.preferredWidth").setValue(modelNode.variantProperty("width").value());
              modelNode.removeProperty("width");
@@ -249,7 +251,8 @@ int LayoutInGridLayout::rowCount() const
 
 void LayoutInGridLayout::collectItemNodes()
 {
-    foreach (const ModelNode &modelNode, m_selectionContext.selectedModelNodes()) {
+    const QList<ModelNode> modelNodes = m_selectionContext.selectedModelNodes();
+    for (const ModelNode &modelNode : modelNodes) {
         if (QmlItemNode::isValidQmlItemNode(modelNode)) {
             QmlItemNode itemNode = modelNode;
             if (itemNode.instanceSize().width() > 0
@@ -267,7 +270,7 @@ void LayoutInGridLayout::collectItemNodes()
 void LayoutInGridLayout::collectOffsets()
 {
     //We collect all different x and y offsets that define the cells
-    foreach (const QmlItemNode &qmlItemNode, m_qmlItemNodes) {
+    for (const QmlItemNode &qmlItemNode : qAsConst(m_qmlItemNodes)) {
         int x  = qRound((qmlItemNode.instancePosition().x()));
         m_xTopOffsets.append(x);
         x  = qRound((qmlItemNode.instancePosition().x() + lowerBound(qmlItemNode.instanceBoundingRect().width())));
@@ -303,7 +306,7 @@ void LayoutInGridLayout::calculateGridOffsets()
     int heightTolerance = defaultHeightTolerance;
 
     //The tolerance cannot be bigger then the size of an item
-    foreach (const auto &qmlItemNode, m_qmlItemNodes) {
+    for (const auto &qmlItemNode : qAsConst(m_qmlItemNodes)) {
         widthTolerance = qMin(qmlItemNode.instanceSize().toSize().width() - 1, widthTolerance);
         heightTolerance = qMin(qmlItemNode.instanceSize().toSize().height() - 1, heightTolerance);
     }
@@ -340,7 +343,7 @@ void LayoutInGridLayout::removeEmtpyRowsAndColumns()
     m_columns = QVector<bool>(columnCount());
     m_columns.fill(false);
 
-    foreach (const auto &qmlItemNode, m_qmlItemNodes) {
+    for (const auto &qmlItemNode : qAsConst(m_qmlItemNodes)) {
         int xCell = getCell(m_xTopOffsets, qmlItemNode.instancePosition().x());
         int yCell = getCell(m_yTopOffsets, qmlItemNode.instancePosition().y());
 
@@ -372,7 +375,7 @@ void LayoutInGridLayout::initializeCells()
 void LayoutInGridLayout::markUsedCells()
 {
     //We mark cells which are covered by items with true
-    foreach (const auto &qmlItemNode, m_qmlItemNodes) {
+    for (const auto &qmlItemNode : qAsConst(m_qmlItemNodes)) {
         int xCell = getCell(m_xTopOffsets, qmlItemNode.instancePosition().x());
         int yCell = getCell(m_yTopOffsets, qmlItemNode.instancePosition().y());
 
@@ -391,7 +394,7 @@ void LayoutInGridLayout::fillEmptyCells()
     //Cells which are not covered by items and are not marked as true have to be filled with a "spacer" item
     m_layoutedNodes = m_selectionContext.selectedModelNodes();
 
-    foreach (const QmlItemNode &itemNode, m_qmlItemNodes) {
+    for (const auto &itemNode : qAsConst(m_qmlItemNodes)) {
         m_layoutedNodes.append(itemNode);
     }
 
@@ -431,7 +434,7 @@ void LayoutInGridLayout::setSpanning(const ModelNode &layoutNode)
         layoutNode.variantProperty("columns").setValue(columnCount());
         layoutNode.variantProperty("rows").setValue(rowCount());
 
-        foreach (const ModelNode &modelNode, m_layoutedNodes) {
+        for (const ModelNode &modelNode : qAsConst(m_layoutedNodes)) {
             QmlItemNode qmlItemNode(modelNode);
             int xCell = getCell(m_xTopOffsets, qmlItemNode.instancePosition().x());
             int yCell = getCell(m_yTopOffsets, qmlItemNode.instancePosition().y());
@@ -461,7 +464,7 @@ void LayoutInGridLayout::setSpanning(const ModelNode &layoutNode)
 
 void LayoutInGridLayout::removeSpacersBySpanning(QList<ModelNode> &nodes)
 {
-    foreach (const ModelNode &node, m_spacerNodes) {
+    for (const ModelNode &node : qAsConst(m_spacerNodes)) {
         if (int index = nodes.indexOf(node)) {
             ModelNode before = nodes.at(index -1);
             if (m_spacerNodes.contains(before)) {

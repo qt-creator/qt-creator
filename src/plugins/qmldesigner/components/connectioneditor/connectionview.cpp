@@ -112,7 +112,7 @@ void ConnectionView::propertiesRemoved(const QList<AbstractProperty> &propertyLi
 
 void ConnectionView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList)
 {
-    foreach (const AbstractProperty &property, propertyList) {
+    for (const AbstractProperty &property : propertyList) {
         if (property.isBindingProperty()) {
             bindingModel()->bindingRemoved(property.toBindingProperty());
             dynamicPropertiesModel()->bindingRemoved(property.toBindingProperty());
@@ -127,7 +127,7 @@ void ConnectionView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &p
 void ConnectionView::variantPropertiesChanged(const QList<VariantProperty> &propertyList,
                                          AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
-    foreach (const VariantProperty &variantProperty, propertyList) {
+    for (const VariantProperty &variantProperty : propertyList) {
         if (variantProperty.isDynamic())
             dynamicPropertiesModel()->variantPropertyChanged(variantProperty);
         if (variantProperty.isDynamic() && variantProperty.parentModelNode().isRootNode())
@@ -141,7 +141,7 @@ void ConnectionView::variantPropertiesChanged(const QList<VariantProperty> &prop
 void ConnectionView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList,
                                          AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
-    foreach (const BindingProperty &bindingProperty, propertyList) {
+    for (const BindingProperty &bindingProperty : propertyList) {
         bindingModel()->bindingChanged(bindingProperty);
         if (bindingProperty.isDynamic())
             dynamicPropertiesModel()->bindingPropertyChanged(bindingProperty);

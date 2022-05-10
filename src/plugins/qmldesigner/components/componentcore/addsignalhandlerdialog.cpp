@@ -73,7 +73,7 @@ bool checkForPropertyChanges(const QString &signal)
 void AddSignalHandlerDialog::updateComboBox()
 {
     m_ui->comboBox->clear();
-    foreach (const QString &signal, m_signals) {
+    for (const QString &signal : qAsConst(m_signals)) {
         if (m_ui->all->isChecked()) {
             m_ui->comboBox->addItem(signal);
         } else if (m_ui->properties->isChecked()) {

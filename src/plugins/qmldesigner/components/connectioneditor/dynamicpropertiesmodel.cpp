@@ -345,7 +345,8 @@ QStringList DynamicPropertiesModel::possibleTargetProperties(const BindingProper
 
     if (metaInfo.isValid()) {
         QStringList possibleProperties;
-        foreach (const PropertyName &propertyName, metaInfo.propertyNames()) {
+        const QList<PropertyName> propertyNames = metaInfo.propertyNames();
+        for (const PropertyName &propertyName : propertyNames) {
             if (metaInfo.propertyIsWritable(propertyName))
                 possibleProperties << QString::fromUtf8(propertyName);
         }
@@ -401,7 +402,8 @@ QStringList DynamicPropertiesModel::possibleSourceProperties(const BindingProper
 
     if (metaInfo.isValid())  {
         QStringList possibleProperties;
-        foreach (const PropertyName &propertyName, metaInfo.propertyNames()) {
+        const QList<PropertyName> propertyNames = metaInfo.propertyNames();
+        for (const PropertyName &propertyName : propertyNames) {
             if (metaInfo.propertyTypeName(propertyName) == typeName) //### todo proper check
                 possibleProperties << QString::fromUtf8(propertyName);
         }
@@ -504,12 +506,14 @@ void DynamicPropertiesModel::updateVariantProperty(int rowNumber)
 
 void DynamicPropertiesModel::addModelNode(const ModelNode &modelNode)
 {
-    foreach (const BindingProperty &bindingProperty, modelNode.bindingProperties()) {
+    const QList<BindingProperty> bindingProperties = modelNode.bindingProperties();
+    for (const BindingProperty &bindingProperty : bindingProperties) {
         if (bindingProperty.isDynamic())
             addBindingProperty(bindingProperty);
     }
 
-    foreach (const VariantProperty &variantProperty, modelNode.variantProperties()) {
+    const QList<VariantProperty> variantProperties = modelNode.variantProperties();
+    for (const VariantProperty &variantProperty : variantProperties) {
         if (variantProperty.isDynamic())
             addVariantProperty(variantProperty);
     }

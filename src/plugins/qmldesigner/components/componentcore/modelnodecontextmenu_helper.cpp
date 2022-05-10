@@ -54,7 +54,7 @@ static inline bool itemsHaveSameParent(const QList<ModelNode> &siblingList)
     if (!parent.isValid())
         return false;
 
-    foreach (const ModelNode &node, siblingList) {
+    for (const ModelNode &node : siblingList) {
         QmlItemNode currentItem(node);
         if (!currentItem.isValid())
             return false;

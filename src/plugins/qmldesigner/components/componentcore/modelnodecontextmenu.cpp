@@ -41,18 +41,17 @@ ModelNodeContextMenu::ModelNodeContextMenu(AbstractView *view) :
 {
 }
 
-static QSet<ActionInterface* > findMembers(QSet<ActionInterface* > actionInterface,
-                                                          const QByteArray &category)
+static QSet<ActionInterface *> findMembers(const QSet<ActionInterface *> actionInterface,
+                                           const QByteArray &category)
 {
-    QSet<ActionInterface* > ret;
+    QSet<ActionInterface *> ret;
 
-     foreach (ActionInterface* factory, actionInterface) {
-         if (factory->category() == category)
-             ret.insert(factory);
-     }
-     return ret;
+    for (ActionInterface *factory : actionInterface) {
+        if (factory->category() == category)
+            ret.insert(factory);
+    }
+    return ret;
 }
-
 
 void populateMenu(QSet<ActionInterface* > &actionInterfaces,
                   const QByteArray &category,
@@ -68,7 +67,7 @@ void populateMenu(QSet<ActionInterface* > &actionInterfaces,
         return l->priority() > r->priority();
     });
 
-    foreach (ActionInterface* actionInterface, matchingFactoriesList) {
+    for (ActionInterface* actionInterface : qAsConst(matchingFactoriesList)) {
         if (actionInterface->type() == ActionInterface::ContextMenu) {
             actionInterface->currentContextChanged(selectionContext);
             QMenu *newMenu = actionInterface->action()->menu();

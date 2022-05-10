@@ -178,7 +178,8 @@ void DesignerActionManagerView::setupContext(SelectionContext::UpdateMode update
     }
     SelectionContext selectionContext(this);
     selectionContext.setUpdateMode(updateMode);
-    foreach (ActionInterface* action, m_designerActionManager.designerActions()) {
+    const QList<ActionInterface *> actions = m_designerActionManager.designerActions();
+    for (ActionInterface *action : actions) {
         action->currentContextChanged(selectionContext);
     }
     m_setupContextDirty = false;

@@ -114,7 +114,7 @@ static inline void reparentTo(const ModelNode &node, const QmlItemNode &parent)
 static inline QPointF getUpperLeftPosition(const QList<ModelNode> &modelNodeList)
 {
     QPointF postion(std::numeric_limits<qreal>::max(), std::numeric_limits<qreal>::max());
-    foreach (const ModelNode &modelNode, modelNodeList) {
+    for (const ModelNode &modelNode : modelNodeList) {
         if (QmlItemNode::isValidQmlItemNode(modelNode)) {
             QmlItemNode qmlIitemNode = QmlItemNode(modelNode);
             if (qmlIitemNode.instancePosition().x() < postion.x())
@@ -151,7 +151,8 @@ void deSelect(const SelectionContext &selectionState)
 {
     if (selectionState.view()) {
         QList<ModelNode> selectedNodes = selectionState.view()->selectedModelNodes();
-        foreach (const ModelNode &node, selectionState.selectedModelNodes()) {
+        const QList<ModelNode> nodes = selectionState.selectedModelNodes();
+        for (const ModelNode &node : nodes) {
             if (selectedNodes.contains(node))
                 selectedNodes.removeAll(node);
         }
@@ -310,7 +311,8 @@ void resetSize(const SelectionContext &selectionState)
         return;
 
     selectionState.view()->executeInTransaction("DesignerActionManager|resetSize",[selectionState](){
-        foreach (ModelNode node, selectionState.selectedModelNodes()) {
+        const QList<ModelNode> nodes = selectionState.selectedModelNodes();
+        for (const ModelNode &node : nodes) {
             QmlItemNode itemNode(node);
             if (itemNode.isValid()) {
                 itemNode.removeProperty("width");
@@ -326,7 +328,8 @@ void resetPosition(const SelectionContext &selectionState)
         return;
 
     selectionState.view()->executeInTransaction("DesignerActionManager|resetPosition",[selectionState](){
-        foreach (ModelNode node, selectionState.selectedModelNodes()) {
+        const QList<ModelNode> nodes = selectionState.selectedModelNodes();
+        for (const ModelNode &node : nodes) {
             QmlItemNode itemNode(node);
             if (itemNode.isValid()) {
                 itemNode.removeProperty("x");
@@ -602,8 +605,8 @@ static void addSignal(const QString &typeName, const QString &itemId, const QStr
         signalHandlerName = "on" + toUpper(signalName).toUtf8();
     else
         signalHandlerName = itemId.toUtf8() + ".on" + toUpper(signalName).toUtf8();
-
-    foreach (const ModelNode &modelNode, rewriterView.allModelNodes()) {
+    const QList<ModelNode> nodes = rewriterView.allModelNodes();
+    for (const ModelNode &modelNode : nodes) {
         if (modelNode.type() == typeName.toUtf8()) {
             modelNode.signalHandlerProperty(signalHandlerName).setSource(QLatin1String("{\n}"));
         }
@@ -614,7 +617,7 @@ static QStringList cleanSignalNames(const QStringList &input)
 {
     QStringList output;
 
-    foreach (const QString &signal, input)
+    for (const QString &signal : input)
         if (!signal.startsWith(QLatin1String("__")) && !output.contains(signal))
             output.append(signal);
 
@@ -627,11 +630,13 @@ static QStringList getSortedSignalNameList(const ModelNode &modelNode)
     QStringList signalNames;
 
     if (metaInfo.isValid()) {
-        foreach (const PropertyName &signalName, sortedPropertyNameList(metaInfo.signalNames()))
+        const PropertyNameList signalNameList = sortedPropertyNameList(metaInfo.signalNames());
+        for (const PropertyName &signalName : signalNameList)
             if (!signalName.contains("Changed"))
                 signalNames.append(QString::fromUtf8(signalName));
 
-        foreach (const PropertyName &propertyName, sortedPropertyNameList(metaInfo.propertyNames()))
+        const PropertyNameList propertyNameList = sortedPropertyNameList(metaInfo.propertyNames());
+        for (const PropertyName &propertyName : propertyNameList)
             if (!propertyName.contains("."))
                 signalNames.append(QString::fromUtf8(propertyName + "Changed"));
     }
@@ -743,7 +748,8 @@ void removeLayout(const SelectionContext &selectionContext)
         return;
 
     selectionContext.view()->executeInTransaction("DesignerActionManager|removeLayout", [selectionContext, &layoutItem, parent](){
-        foreach (const ModelNode &modelNode, selectionContext.currentSingleSelectedNode().directSubModelNodes()) {
+        const QList<ModelNode> modelNodes = selectionContext.currentSingleSelectedNode().directSubModelNodes();
+        for (const ModelNode &modelNode : modelNodes) {
             if (QmlItemNode::isValidQmlItemNode(modelNode)) {
 
                 QmlItemNode qmlItem(modelNode);

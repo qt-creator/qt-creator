@@ -139,7 +139,8 @@ QStringList BindingModel::possibleTargetProperties(const BindingProperty &bindin
 
     if (metaInfo.isValid()) {
         QStringList possibleProperties;
-        foreach (const PropertyName &propertyName, metaInfo.propertyNames()) {
+        const QList<PropertyName> propertyNames = metaInfo.propertyNames();
+        for (const PropertyName &propertyName : propertyNames) {
             if (metaInfo.propertyIsWritable(propertyName))
                 possibleProperties << QString::fromUtf8(propertyName);
         }
@@ -232,7 +233,8 @@ static PropertyName unusedProperty(const ModelNode &modelNode)
 {
     PropertyName propertyName = "none";
     if (modelNode.metaInfo().isValid()) {
-        foreach (const PropertyName &propertyName, modelNode.metaInfo().propertyNames()) {
+        const QList<PropertyName> propertyNames = modelNode.metaInfo().propertyNames();
+        for (const PropertyName &propertyName : propertyNames) {
             if (modelNode.metaInfo().propertyIsWritable(propertyName) && !modelNode.hasProperty(propertyName))
                 return propertyName;
         }
@@ -305,7 +307,8 @@ void BindingModel::updateBindingProperty(int rowNumber)
 
 void BindingModel::addModelNode(const ModelNode &modelNode)
 {
-    foreach (const BindingProperty &bindingProperty, modelNode.bindingProperties()) {
+    const QList<BindingProperty> bindingProperties = modelNode.bindingProperties();
+    for (const BindingProperty &bindingProperty : bindingProperties) {
         addBindingProperty(bindingProperty);
     }
 }

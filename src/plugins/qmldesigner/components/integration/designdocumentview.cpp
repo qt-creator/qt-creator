@@ -70,7 +70,7 @@ static QStringList arrayToStringList(const QByteArray &byteArray)
 static QByteArray stringListToArray(const QStringList &stringList)
 {
     QString str;
-    foreach (const QString &subString, stringList)
+    for (const QString &subString : stringList)
         str += subString + QLatin1Char('\n');
     return str.toUtf8();
 }
@@ -83,7 +83,7 @@ void DesignDocumentView::toClipboard() const
 
     data->setText(toText());
     QStringList imports;
-    foreach (const Import &import, model()->imports())
+    for (const Import &import : model()->imports())
         imports.append(import.toImportString());
 
     data->setData(QLatin1String("QmlDesigner::imports"), stringListToArray(imports));
@@ -95,7 +95,7 @@ void DesignDocumentView::fromClipboard()
     QClipboard *clipboard = QApplication::clipboard();
     fromText(clipboard->text());
     QStringList imports = arrayToStringList(clipboard->mimeData()->data(QLatin1String("QmlDesigner::imports")));
-//    foreach (const QString &importString, imports) {
+//    for (const QString &importString, imports) {
 //        Import import(Import::createLibraryImport();
 //        model()->addImport(import); //### imports
 //    }
@@ -109,7 +109,7 @@ QString DesignDocumentView::toText() const
     QPlainTextEdit textEdit;
 
     QString imports;
-    foreach (const Import &import, model()->imports()) {
+    for (const Import &import : model()->imports()) {
         if (import.isFileImport())
             imports += QStringLiteral("import ") + QStringLiteral("\"") + import.file() + QStringLiteral("\"")+ QStringLiteral(";\n");
         else
@@ -215,10 +215,11 @@ void DesignDocumentView::copyModelNodes(const QList<ModelNode> &nodesToCopy)
     if (selectedNodes.isEmpty())
         return;
 
-    foreach (const ModelNode &node, selectedNodes) {
-        foreach (const ModelNode &node2, selectedNodes) {
-            if (node.isAncestorOf(node2))
-                selectedNodes.removeAll(node2);
+    QList<ModelNode> nodeList = selectedNodes;
+    for (int end = nodeList.length(), i = 0; i < end; ++i) {
+        for (int j = 0; j < end; ++j) {
+            if (nodeList.at(i).isAncestorOf(nodeList.at(j)))
+                selectedNodes.removeAll(nodeList.at(j));
         }
     }
 
@@ -238,14 +239,13 @@ void DesignDocumentView::copyModelNodes(const QList<ModelNode> &nodesToCopy)
 
         view.toClipboard();
     } else { // multi items selected
-
-        foreach (ModelNode node, view.rootModelNode().directSubModelNodes()) {
+        for (ModelNode node : view.rootModelNode().directSubModelNodes()) {
             node.destroy();
         }
         view.changeRootNodeType("QtQuick.Rectangle", 2, 0);
         view.rootModelNode().setIdWithRefactoring("__multi__selection__");
 
-        foreach (const ModelNode &selectedNode, selectedNodes) {
+        for (const ModelNode &selectedNode : qAsConst(selectedNodes)) {
             ModelNode newNode(view.insertModel(selectedNode));
             view.rootModelNode().nodeListProperty("data").reparentHere(newNode);
         }

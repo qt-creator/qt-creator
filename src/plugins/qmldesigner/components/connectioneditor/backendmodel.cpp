@@ -105,7 +105,8 @@ void BackendModel::resetModel()
             }
 
     if (rootNode.isValid()) {
-        foreach (const AbstractProperty &property ,rootNode.properties())
+        const QList<AbstractProperty> properties = rootNode.properties();
+        for (const AbstractProperty &property : properties)
             if (property.isDynamic() && !simpleTypes.contains(property.dynamicTypeName())) {
 
                 NodeMetaInfo metaInfo = m_connectionView->model()->metaInfo(property.dynamicTypeName());
@@ -147,7 +148,8 @@ QStringList BackendModel::possibleCppTypes() const
     QStringList list;
 
     if (rewriterView) {
-        foreach (const QmlTypeData &cppTypeData, rewriterView->getQMLTypes())
+        const QList<QmlTypeData> cppTypes = rewriterView->getQMLTypes();
+        for (const QmlTypeData &cppTypeData : cppTypes)
             list.append(cppTypeData.typeName);
     }
 

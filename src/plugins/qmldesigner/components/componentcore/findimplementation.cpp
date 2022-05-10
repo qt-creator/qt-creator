@@ -290,8 +290,8 @@ QList<QmlJSEditor::FindReferences::Usage> FindImplementation::run(const QString 
 
     FindImplementationVisitor visitor(document, context);
 
-    FindImplementationVisitor::Results results = visitor(typeName, itemName, targetValue);
-    foreach (const SourceLocation &location, results) {
+    const FindImplementationVisitor::Results results = visitor(typeName, itemName, targetValue);
+    for (const SourceLocation &location : results) {
         usages.append(QmlJSEditor::FindReferences::Usage(fileName,
                                                          matchingLine(location.offset, document->source()),
                                                          location.startLine, location.startColumn - 1, location.length));
