@@ -167,13 +167,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     if (message == uiShutDownWindowMessage) {
         SetConsoleCtrlHandler(interruptHandler, FALSE);
-        SetConsoleCtrlHandler(shutdownHandler, TRUE);
-        GenerateConsoleCtrlEvent(CTRL_C_EVENT, 0);
         PostQuitMessage(0);
         return 0;
     } else if (message == uiInterruptMessage) {
         SetConsoleCtrlHandler(interruptHandler, TRUE);
-        SetConsoleCtrlHandler(shutdownHandler, FALSE);
         GenerateConsoleCtrlEvent(CTRL_C_EVENT, 0);
         return 0;
     }
@@ -192,12 +189,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 bool isSpaceOrTab(const wchar_t c)
 {
     return c == L' ' || c == L'\t';
-}
-
-BOOL WINAPI shutdownHandler(DWORD /*dwCtrlType*/)
-{
-    PostMessage(hwndMain, WM_DESTROY, 0, 0);
-    return TRUE;
 }
 
 BOOL WINAPI interruptHandler(DWORD /*dwCtrlType*/)
