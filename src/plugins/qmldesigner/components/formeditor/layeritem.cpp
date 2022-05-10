@@ -69,8 +69,8 @@ QList<QGraphicsItem*> LayerItem::findAllChildItems(const QGraphicsItem *item) co
 {
     QList<QGraphicsItem*> itemList(item->childItems());
 
-    foreach (QGraphicsItem *childItem, item->childItems())
-        itemList += findAllChildItems(childItem);
+    for (int end = itemList.length(), i = 0; i < end; ++i)
+        itemList += findAllChildItems(itemList.at(i));
 
     return itemList;
 }

@@ -79,7 +79,8 @@ void FormEditorScene::setupScene()
 
 void FormEditorScene::resetScene()
 {
-    foreach (QGraphicsItem *item, m_manipulatorLayerItem->childItems()) {
+    const QList<QGraphicsItem *> items = m_manipulatorLayerItem->childItems();
+    for (QGraphicsItem *item : items) {
        removeItem(item);
        delete item;
     }
@@ -116,7 +117,8 @@ QList<FormEditorItem*> FormEditorScene::allFormEditorItems() const
 
 void FormEditorScene::updateAllFormEditorItems()
 {
-    foreach (FormEditorItem *item, allFormEditorItems())
+    const QList<FormEditorItem *> items = allFormEditorItems();
+    for (FormEditorItem *item : items)
         item->update();
 }
 
@@ -134,8 +136,8 @@ AbstractFormEditorTool* FormEditorScene::currentTool() const
 FormEditorItem* FormEditorScene::calulateNewParent(FormEditorItem *formEditorItem)
 {
     if (formEditorItem->qmlItemNode().isValid()) {
-        QList<QGraphicsItem *> list = items(formEditorItem->qmlItemNode().instanceBoundingRect().center());
-        foreach (QGraphicsItem *graphicsItem, list) {
+        const QList<QGraphicsItem *> list = items(formEditorItem->qmlItemNode().instanceBoundingRect().center());
+        for (QGraphicsItem *graphicsItem : list) {
             if (qgraphicsitem_cast<FormEditorItem*>(graphicsItem) &&
                 graphicsItem->collidesWithItem(formEditorItem, Qt::ContainsItemShape))
                 return qgraphicsitem_cast<FormEditorItem*>(graphicsItem);
@@ -229,7 +231,7 @@ QList<QGraphicsItem *> FormEditorScene::removeLayerItems(const QList<QGraphicsIt
 {
     QList<QGraphicsItem *> itemListWithoutLayerItems;
 
-    foreach (QGraphicsItem *item, itemList)
+    for (QGraphicsItem *item : itemList)
         if (item != manipulatorLayerItem() && item != formLayerItem())
             itemListWithoutLayerItems.append(item);
 
@@ -422,16 +424,17 @@ void FormEditorScene::clearFormEditorItems()
 
     const QList<FormEditorItem*> formEditorItems = Utils::filtered(formEditorItemsTransformed,
                                                                    [](FormEditorItem *item) { return item; });
-    foreach (FormEditorItem *item, formEditorItems)
+    for (FormEditorItem *item : formEditorItems)
             item->setParentItem(nullptr);
 
-    foreach (FormEditorItem *item, formEditorItems)
+    for (FormEditorItem *item : formEditorItems)
             delete item;
 }
 
 void FormEditorScene::highlightBoundingRect(FormEditorItem *highlighItem)
 {
-    foreach (FormEditorItem *item, allFormEditorItems()) {
+    QList<FormEditorItem *> items = allFormEditorItems();
+    for (FormEditorItem *item : items) {
         if (item == highlighItem)
             item->setHighlightBoundingRect(true);
         else

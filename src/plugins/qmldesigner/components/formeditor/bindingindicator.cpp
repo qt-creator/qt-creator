@@ -144,7 +144,7 @@ void BindingIndicator::setItems(const QList<FormEditorItem *> &itemList)
 
 void BindingIndicator::updateItems(const QList<FormEditorItem *> &itemList)
 {
-    foreach (FormEditorItem *formEditorItem, itemList) {
+    for (FormEditorItem *formEditorItem : itemList) {
         if (formEditorItem == m_formEditorItem) {
             const QmlItemNode qmlItemNode = m_formEditorItem->qmlItemNode();
 

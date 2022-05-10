@@ -48,7 +48,7 @@ ContentNotEditableIndicator::~ContentNotEditableIndicator()
 
 void ContentNotEditableIndicator::clear()
 {
-    foreach (const EntryPair &entryPair, m_entryList) {
+    for (const EntryPair &entryPair : qAsConst(m_entryList)) {
         delete entryPair.second;
         entryPair.first->blurContent(false);
     }
@@ -71,23 +71,25 @@ void ContentNotEditableIndicator::updateItems(const QList<FormEditorItem *> &ite
 {
     QSet<FormEditorItem*> affectedFormEditorItemItems;
     affectedFormEditorItemItems.unite(Utils::toSet(itemList));
-    foreach (FormEditorItem *formEditorItem, itemList)
+    for (FormEditorItem *formEditorItem : itemList)
         affectedFormEditorItemItems.unite(Utils::toSet(formEditorItem->offspringFormEditorItems()));
 
-    foreach (const EntryPair &entryPair, m_entryList) {
-         foreach (FormEditorItem *formEditorItem, affectedFormEditorItemItems) {
-             if (formEditorItem == entryPair.first) {
-                 QRectF boundingRectangleInSceneSpace = formEditorItem->qmlItemNode().instanceSceneTransform().mapRect(formEditorItem->qmlItemNode().instanceBoundingRect());
-                 entryPair.second->setRect(boundingRectangleInSceneSpace);
-                 entryPair.second->update();
-             }
-         }
+    for (const EntryPair &entryPair : qAsConst(m_entryList)) {
+        for (FormEditorItem *formEditorItem : qAsConst(affectedFormEditorItemItems)) {
+            if (formEditorItem == entryPair.first) {
+                QRectF boundingRectangleInSceneSpace
+                    = formEditorItem->qmlItemNode().instanceSceneTransform().mapRect(
+                        formEditorItem->qmlItemNode().instanceBoundingRect());
+                entryPair.second->setRect(boundingRectangleInSceneSpace);
+                entryPair.second->update();
+            }
+        }
     }
 }
 
 void ContentNotEditableIndicator::addAddiationEntries(const QList<FormEditorItem *> &itemList)
 {
-    foreach (FormEditorItem *formEditorItem, itemList) {
+    for (FormEditorItem *formEditorItem : itemList) {
         const ModelNode modelNode = formEditorItem->qmlItemNode().modelNode();
         if (modelNode.metaInfo().isValid() && modelNode.metaInfo().isSubclassOf("QtQuick.Loader")) {
 

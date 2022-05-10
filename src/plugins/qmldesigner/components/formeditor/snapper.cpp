@@ -453,7 +453,7 @@ static QLineF mergedHorizontalLine(const QList<QLineF> &lineList)
 
     double minimumX =  std::numeric_limits<double>::max();
     double maximumX =  std::numeric_limits<double>::min();
-    foreach (const QLineF &line, lineList) {
+    for (const QLineF &line : lineList) {
         minimumX = qMin(minimumX, double(line.x1()));
         minimumX = qMin(minimumX, double(line.x2()));
         maximumX = qMax(maximumX, double(line.x1()));
@@ -471,7 +471,7 @@ static QLineF mergedVerticalLine(const QList<QLineF> &lineList)
 
     double minimumY =  std::numeric_limits<double>::max();
     double maximumY =  std::numeric_limits<double>::min();
-    foreach (const QLineF &line, lineList) {
+    for (const QLineF &line : lineList) {
         minimumY = qMin(minimumY, double(line.y1()));
         minimumY = qMin(minimumY, double(line.y2()));
         maximumY = qMax(maximumY, double(line.y1()));
@@ -705,13 +705,13 @@ QList<QGraphicsItem*> Snapper::generateSnappingLines(const QList<QRectF> &boundi
 {
     QList<QGraphicsItem*> graphicsItemList;
     QList<QLineF> lineList;
-    foreach (const QRectF &boundingRect, boundingRectList) {
+    for (const QRectF &boundingRect : boundingRectList) {
         QList<QRectF> snappedBoundingRectList;
         lineList += mergedHorizontalLines(horizontalSnappedLines(boundingRect, &snappedBoundingRectList));
         lineList += mergedVerticalLines(verticalSnappedLines(boundingRect, &snappedBoundingRectList));
     }
 
-    foreach (const QLineF &line, lineList) {
+    for (const QLineF &line : qAsConst(lineList)) {
         QLineF lineInTransformationSpace = transform.map(line);
         auto lineItem = new QGraphicsLineItem(lineInTransformationSpace, layerItem);
         lineItem->setZValue(40);

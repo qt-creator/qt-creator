@@ -51,7 +51,7 @@ void RubberBandSelectionManipulator::clear()
 
 FormEditorItem *RubberBandSelectionManipulator::topFormEditorItem(const QList<QGraphicsItem*> &itemList)
 {
-    foreach (QGraphicsItem *item, itemList) {
+    for (QGraphicsItem *item : itemList) {
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
 
         if (formEditorItem)

@@ -121,7 +121,7 @@ void AnchorIndicator::setItems(const QList<FormEditorItem *> &itemList)
 
 void AnchorIndicator::updateItems(const QList<FormEditorItem *> &itemList)
 {
-    foreach (FormEditorItem *formEditorItem, itemList) {
+    for (FormEditorItem *formEditorItem : itemList) {
         if (formEditorItem == m_formEditorItem) {
             QmlItemNode sourceQmlItemNode = m_formEditorItem->qmlItemNode();
             if (!sourceQmlItemNode.modelNode().isRootNode()) {

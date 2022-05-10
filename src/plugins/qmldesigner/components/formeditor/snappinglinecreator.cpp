@@ -99,7 +99,8 @@ void SnappingLineCreator::generateLines(const QList<FormEditorItem*> &exceptionL
         addLines(containerBoundingRectInTransformationSpace, m_formEditorItem);
     }
 
-    foreach (FormEditorItem *item, m_formEditorItem->childFormEditorItems()) {
+    const QList<FormEditorItem *> items = m_formEditorItem->childFormEditorItems();
+    for (FormEditorItem *item : items) {
 
         if (!item || !item->qmlItemNode().isValid())
             continue;

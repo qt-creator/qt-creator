@@ -54,7 +54,7 @@ SelectionIndicator::~SelectionIndicator()
 
 void SelectionIndicator::show()
 {
-    foreach (QGraphicsPolygonItem *item, m_indicatorShapeHash)
+    for (QGraphicsPolygonItem *item : qAsConst(m_indicatorShapeHash))
         item->show();
     if (m_labelItem)
         m_labelItem->show();
@@ -62,7 +62,7 @@ void SelectionIndicator::show()
 
 void SelectionIndicator::hide()
 {
-    foreach (QGraphicsPolygonItem *item, m_indicatorShapeHash)
+    for (QGraphicsPolygonItem *item : qAsConst(m_indicatorShapeHash))
         item->hide();
     if (m_labelItem)
         m_labelItem->hide();
@@ -71,7 +71,7 @@ void SelectionIndicator::hide()
 void SelectionIndicator::clear()
 {
     if (m_layerItem) {
-        foreach (QGraphicsItem *item, m_indicatorShapeHash) {
+        for (QGraphicsPolygonItem *item : qAsConst(m_indicatorShapeHash)) {
             m_layerItem->scene()->removeItem(item);
             delete item;
         }
@@ -102,7 +102,7 @@ void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
 
     static QColor selectionColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_FormEditorSelectionColor);
 
-    foreach (FormEditorItem *item, itemList) {
+    for (FormEditorItem *item : itemList) {
         if (!item->qmlItemNode().isValid())
             continue;
 
@@ -178,7 +178,7 @@ void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
 
 void SelectionIndicator::updateItems(const QList<FormEditorItem*> &itemList)
 {
-    foreach (FormEditorItem *item, itemList) {
+    for (FormEditorItem *item : itemList) {
         if (m_indicatorShapeHash.contains(item)) {
             QGraphicsPolygonItem *indicatorGraphicsItem =  m_indicatorShapeHash.value(item);
             indicatorGraphicsItem->setPolygon(boundingRectInLayerItemSpaceForItem(item, m_layerItem.data()));
@@ -207,7 +207,7 @@ void SelectionIndicator::setCursor(const QCursor &cursor)
 {
     m_cursor = cursor;
 
-    foreach (QGraphicsItem  *item, m_indicatorShapeHash)
+    for (QGraphicsItem  *item : qAsConst(m_indicatorShapeHash))
         item->setCursor(cursor);
 }
 

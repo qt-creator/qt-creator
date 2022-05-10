@@ -75,7 +75,7 @@ QList<FormEditorItem *> AbstractFormEditorTool::toFormEditorItemList(const QList
 {
     QList<FormEditorItem *> formEditorItemList;
 
-    foreach (QGraphicsItem *graphicsItem, itemList) {
+    for (QGraphicsItem *graphicsItem : itemList) {
         auto formEditorItem = qgraphicsitem_cast<FormEditorItem*>(graphicsItem);
         if (formEditorItem)
             formEditorItemList.append(formEditorItem);
@@ -105,7 +105,7 @@ bool AbstractFormEditorTool::topSelectedItemIsMovable(const QList<QGraphicsItem*
 {
     QList<ModelNode> selectedNodes = view()->selectedModelNodes();
 
-    foreach (QGraphicsItem *item, itemList) {
+    for (QGraphicsItem *item : itemList) {
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
         if (formEditorItem
             && selectedNodes.contains(formEditorItem->qmlItemNode())
@@ -116,7 +116,7 @@ bool AbstractFormEditorTool::topSelectedItemIsMovable(const QList<QGraphicsItem*
             return true;
     }
 
-    foreach (QGraphicsItem *item, itemList) {
+    for (QGraphicsItem *item : itemList) {
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
         if (formEditorItem
             && formEditorItem->qmlItemNode().isValid()
@@ -163,7 +163,7 @@ bool AbstractFormEditorTool::topItemIsResizeHandle(const QList<QGraphicsItem*> &
 
 QGraphicsItem *AbstractFormEditorTool::topMovableGraphicsItem(const QList<QGraphicsItem*> &itemList)
 {
-    foreach (QGraphicsItem *item, itemList) {
+    for (QGraphicsItem *item : itemList) {
         if (item->flags().testFlag(QGraphicsItem::ItemIsMovable))
             return item;
     }
@@ -173,7 +173,7 @@ QGraphicsItem *AbstractFormEditorTool::topMovableGraphicsItem(const QList<QGraph
 
 FormEditorItem *AbstractFormEditorTool::topMovableFormEditorItem(const QList<QGraphicsItem*> &itemList, bool selectOnlyContentItems)
 {
-    foreach (QGraphicsItem *item, itemList) {
+    for (QGraphicsItem *item : itemList) {
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
         if (formEditorItem
                 && formEditorItem->qmlItemNode().isValid()
@@ -221,7 +221,7 @@ QList<FormEditorItem *> AbstractFormEditorTool::filterSelectedModelNodes(const Q
 {
     QList<FormEditorItem *> filteredItemList;
 
-    foreach (FormEditorItem *item, itemList) {
+    for (FormEditorItem *item : itemList) {
         if (view()->isSelectedModelNode(item->qmlItemNode()))
             filteredItemList.append(item);
     }
@@ -266,7 +266,7 @@ void AbstractFormEditorTool::mousePressEvent(const QList<QGraphicsItem*> & /*ite
 
 static bool containsItemNode(const QList<QGraphicsItem*> & itemList, const QmlItemNode &itemNode)
 {
-    foreach (QGraphicsItem *item, itemList) {
+    for (QGraphicsItem *item : itemList) {
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
         if (formEditorItem && formEditorItem->qmlItemNode() == itemNode)
             return true;
@@ -340,7 +340,7 @@ Snapper::Snapping AbstractFormEditorTool::generateUseSnapping(Qt::KeyboardModifi
 
 static bool isNotAncestorOfItemInList(FormEditorItem *formEditorItem, const QList<FormEditorItem*> &itemList)
 {
-    foreach (FormEditorItem *item, itemList) {
+    for (FormEditorItem *item : itemList) {
         if (item
             && item->qmlItemNode().isValid()
             && item->qmlItemNode().isAncestorOf(formEditorItem->qmlItemNode()))
@@ -352,7 +352,7 @@ static bool isNotAncestorOfItemInList(FormEditorItem *formEditorItem, const QLis
 
 FormEditorItem *AbstractFormEditorTool::containerFormEditorItem(const QList<QGraphicsItem *> &itemUnderMouseList, const QList<FormEditorItem *> &selectedItemList) const
 {
-    foreach (QGraphicsItem* item, itemUnderMouseList) {
+    for (QGraphicsItem* item : itemUnderMouseList) {
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
         if (formEditorItem
                 && !selectedItemList.contains(formEditorItem)

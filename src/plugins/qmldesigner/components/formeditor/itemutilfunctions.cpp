@@ -32,11 +32,11 @@ namespace QmlDesigner {
 
 class FormEditorItem;
 
-QRectF boundingRectForItemList(QList<FormEditorItem*> itemList)
+QRectF boundingRectForItemList(const QList<FormEditorItem*> itemList)
 {
     QRectF boundingRect;
 
-    foreach (FormEditorItem *item, itemList)
+    for (FormEditorItem *item : itemList)
     {
         boundingRect = boundingRect.united(item->mapToScene(item->qmlItemNode().instanceBoundingRect()).boundingRect());
     }

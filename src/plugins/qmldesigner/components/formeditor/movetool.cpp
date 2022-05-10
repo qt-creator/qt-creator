@@ -271,7 +271,7 @@ void MoveTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGra
 
 void MoveTool::itemsAboutToRemoved(const QList<FormEditorItem*> &removedItemList)
 {
-    foreach (FormEditorItem* removedItem, removedItemList)
+    for (FormEditorItem* removedItem : removedItemList)
         m_movingItems.removeOne(removedItem);
 }
 
@@ -304,7 +304,7 @@ bool MoveTool::haveSameParent(const QList<FormEditorItem*> &itemList)
         return false;
 
     QGraphicsItem *firstParent = itemList.constFirst()->parentItem();
-    foreach (FormEditorItem* item, itemList)
+    for (FormEditorItem* item : itemList)
     {
         if (firstParent != item->parentItem())
             return false;
@@ -316,7 +316,7 @@ bool MoveTool::haveSameParent(const QList<FormEditorItem*> &itemList)
 bool MoveTool::isAncestorOfAllItems(FormEditorItem* maybeAncestorItem,
                                     const QList<FormEditorItem*> &itemList)
 {
-    foreach (FormEditorItem* item, itemList)
+    for (FormEditorItem* item : itemList)
     {
         if (!maybeAncestorItem->isAncestorOf(item) && item != maybeAncestorItem)
             return false;
@@ -332,7 +332,7 @@ FormEditorItem* MoveTool::ancestorIfOtherItemsAreChild(const QList<FormEditorIte
         return nullptr;
 
 
-    foreach (FormEditorItem* item, itemList)
+    for (FormEditorItem* item : itemList)
     {
         if (isAncestorOfAllItems(item, itemList))
             return item;

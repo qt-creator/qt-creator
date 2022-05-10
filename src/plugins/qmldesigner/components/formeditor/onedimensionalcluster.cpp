@@ -69,7 +69,7 @@ double OneDimensionalCluster::constFirst() const
 QList<OneDimensionalCluster> OneDimensionalCluster::createOneDimensionalClusterList(const QList<double> & oneDimensionalCoordinateList)
 {
     QList<OneDimensionalCluster> oneDimensionalClusterList;
-    foreach (double coordinate, oneDimensionalCoordinateList)
+    for (double coordinate : oneDimensionalCoordinateList)
     {
         QList<double> initialList;
         initialList.append(coordinate);
@@ -134,7 +134,7 @@ QList<double> OneDimensionalCluster::reduceLines(const QList<double> & oneDimens
     clusterList = reduceOneDimensionalClusterList(clusterList, maximumDistance);
 
     QList<double> lineList;
-    foreach (const OneDimensionalCluster &cluster, clusterList)
+    for (const OneDimensionalCluster &cluster : qAsConst(clusterList))
         lineList.append(cluster.constFirst());
 
     return lineList;

@@ -166,8 +166,8 @@ void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
 
 static void deleteWithoutChildren(const QList<FormEditorItem*> &items)
 {
-    foreach (FormEditorItem *item, items) {
-        foreach (QGraphicsItem *child, item->childItems()) {
+    for (const FormEditorItem *item : items) {
+        for (QGraphicsItem *child : item->childItems()) {
             child->setParentItem(item->scene()->rootFormEditorItem());
         }
         delete item;
@@ -286,11 +286,9 @@ void FormEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 
 void FormEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
-    foreach (FormEditorItem *item, m_scene->allFormEditorItems()) {
+    const QList<FormEditorItem *> items = m_scene->allFormEditorItems();
+    for (FormEditorItem *item : items) {
         item->setParentItem(nullptr);
-    }
-
-    foreach (FormEditorItem *item, m_scene->allFormEditorItems()) {
         m_scene->removeItemFromHash(item);
         delete item;
     }
@@ -309,11 +307,12 @@ void FormEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVer
 void FormEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList)
 {
     QList<FormEditorItem*> removedItems;
-    foreach (const AbstractProperty &property, propertyList) {
+    for (const AbstractProperty &property : propertyList) {
         if (property.isNodeAbstractProperty()) {
             NodeAbstractProperty nodeAbstractProperty = property.toNodeAbstractProperty();
 
-            foreach (const ModelNode &modelNode, nodeAbstractProperty.allSubNodes()) {
+            const QList<ModelNode> modelNodes = nodeAbstractProperty.allSubNodes();
+            for (const ModelNode &modelNode : modelNodes) {
                 const QmlItemNode qmlItemNode(modelNode);
 
                 if (qmlItemNode.isValid()){
