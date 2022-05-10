@@ -104,10 +104,8 @@ Client::Client(BaseClientInterface *clientInterface)
     connect(SessionManager::instance(), &SessionManager::projectRemoved,
             this, &Client::projectClosed);
 
-    m_contentHandler.insert(JsonRpcMessageHandler::jsonRpcMimeType(),
-                            &JsonRpcMessageHandler::parseContent);
     QTC_ASSERT(clientInterface, return);
-    connect(clientInterface, &BaseClientInterface::messageReceived, this, &Client::handleMessage);
+    connect(clientInterface, &BaseClientInterface::contentReceived, this, &Client::handleContent);
     connect(clientInterface, &BaseClientInterface::error, this, &Client::setError);
     connect(clientInterface, &BaseClientInterface::finished, this, &Client::finished);
     connect(Core::EditorManager::instance(),
@@ -161,8 +159,8 @@ Client::~Client()
     m_documentHighlightsTimer.clear();
     updateEditorToolBar(m_openedDocument.keys());
     // do not handle messages while shutting down
-    disconnect(m_clientInterface.data(), &BaseClientInterface::messageReceived,
-               this, &Client::handleMessage);
+    disconnect(m_clientInterface.data(), &BaseClientInterface::contentReceived,
+               this, &Client::handleContent);
     delete m_diagnosticManager;
 }
 
@@ -327,8 +325,8 @@ void Client::initialize()
     if (Utils::optional<ResponseHandler> responseHandler = initRequest.responseHandler())
         m_responseHandlers[responseHandler->id] = responseHandler->callback;
 
-    // directly send message otherwise the state check of sendContent would fail
-    sendMessage(initRequest.toBaseMessage());
+    // directly send content now otherwise the state check of sendContent would fail
+    sendContentNow(initRequest);
     m_state = InitializeRequested;
 }
 
@@ -444,7 +442,7 @@ void Client::sendContent(const IContent &content, SendDocUpdates sendUpdates)
     QString error;
     if (!QTC_GUARD(content.isValid(&error)))
         Core::MessageManager::writeFlashing(error);
-    sendMessage(content.toBaseMessage());
+    sendContentNow(content);
 }
 
 void Client::cancelRequest(const MessageId &id)
@@ -1218,23 +1216,15 @@ void Client::setProgressTitleForToken(const LanguageServerProtocol::ProgressToke
     m_progressManager.setTitleForToken(token, message);
 }
 
-void Client::handleMessage(const BaseMessage &message)
+void Client::handleContent(const LanguageServerProtocol::JsonRpcMessage &message)
 {
-    LanguageClientManager::logBaseMessage(LspLogMessage::ServerMessage, name(), message);
-    if (auto handler = m_contentHandler[message.mimeType]) {
-        QString parseError;
-        handler(message.content, message.codec, parseError,
-                [this](const MessageId &id, const IContent &content){
-                    this->handleResponse(id, content);
-                },
-                [this](const QString &method, const MessageId &id, const IContent &content){
-                    this->handleMethod(method, id, content);
-                });
-        if (!parseError.isEmpty())
-            log(parseError);
-    } else {
-        log(tr("Cannot handle content of type: %1").arg(QLatin1String(message.mimeType)));
-    }
+    LanguageClientManager::logJsonRpcMessage(LspLogMessage::ServerMessage, name(), message);
+    const MessageId id(message.toJsonObject().value(idKey));
+    const QString method = message.toJsonObject().value(methodKey).toString();
+    if (method.isEmpty())
+        handleResponse(id, message);
+    else
+        handleMethod(method, id, message);
 }
 
 void Client::log(const QString &message) const
@@ -1544,10 +1534,14 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
     }
 }
 
-void Client::sendMessage(const BaseMessage &message)
+void Client::sendContentNow(const IContent &content)
 {
-    LanguageClientManager::logBaseMessage(LspLogMessage::ClientMessage, name(), message);
-    m_clientInterface->sendMessage(message);
+    if (content.mimeType() == JsonRpcMessage::jsonRpcMimeType()) {
+        LanguageClientManager::logJsonRpcMessage(LspLogMessage::ClientMessage,
+                                                 name(),
+                                                 static_cast<const JsonRpcMessage &>(content));
+    }
+    m_clientInterface->sendContent(content);
 }
 
 bool Client::documentUpdatePostponed(const Utils::FilePath &fileName) const
@@ -1663,8 +1657,8 @@ void Client::shutDownCallback(const ShutdownRequest::Response &shutdownResponse)
     QTC_ASSERT(m_clientInterface, return);
     if (optional<ShutdownRequest::Response::Error> error = shutdownResponse.error())
         log(*error);
-    // directly send message otherwise the state check of sendContent would fail
-    sendMessage(ExitNotification().toBaseMessage());
+    // directly send content now otherwise the state check of sendContent would fail
+    sendContentNow(ExitNotification());
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " shutdown";
     m_state = Shutdown;
     m_shutdownTimer.start();

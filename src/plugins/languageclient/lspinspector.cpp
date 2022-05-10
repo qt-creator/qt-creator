@@ -120,8 +120,7 @@ public:
     void clear();
 
 private:
-    QLabel *m_contentLength = nullptr;
-    QLabel *m_mimeType = nullptr;
+    QTreeView *m_jsonTree = nullptr;
 };
 
 class LspCapabilitiesWidget : public QWidget
@@ -258,8 +257,11 @@ LspLogWidget::LspLogWidget()
 void LspLogWidget::currentMessageChanged(const QModelIndex &index)
 {
     m_messages->clearSelection();
-    if (!index.isValid())
+    if (!index.isValid()) {
+        m_clientDetails->clear();
+        m_serverDetails->clear();
         return;
+    }
     LspLogMessage message = m_model.itemAt(index.row())->itemData;
     if (message.sender == LspLogMessage::ClientMessage)
         m_clientDetails->setMessage(message);
@@ -273,8 +275,6 @@ static bool matches(LspLogMessage::MessageSender sender,
                     const LspLogMessage &message)
 {
     if (message.sender != sender)
-        return false;
-    if (message.message.mimeType != JsonRpcMessageHandler::jsonRpcMimeType())
         return false;
     return message.id() == id;
 }
@@ -322,7 +322,7 @@ void LspLogWidget::saveLog()
         stream << (message.sender == LspLogMessage::ClientMessage ? QString{"Client"}
                                                                   : QString{"Server"});
         stream << '\n';
-        stream << message.message.codec->toUnicode(message.message.content);
+        stream << QJsonDocument(message.message.toJsonObject()).toJson();
         stream << "\n\n";
     });
 
@@ -365,7 +365,7 @@ QWidget *LspInspector::createWidget(const QString &defaultClient)
 
 void LspInspector::log(const LspLogMessage::MessageSender sender,
                        const QString &clientName,
-                       const BaseMessage &message)
+                       const JsonRpcMessage &message)
 {
     std::list<LspLogMessage> &clientLog = m_logs[clientName];
     while (clientLog.size() >= static_cast<std::size_t>(m_logSize))
@@ -510,50 +510,27 @@ LspCapabilitiesWidget *LspInspectorWidget::capabilities() const
 
 MessageDetailWidget::MessageDetailWidget()
 {
-    auto layout = new QFormLayout;
+    auto layout = new QVBoxLayout;
     setLayout(layout);
 
-    m_contentLength = new QLabel;
-    m_mimeType = new QLabel;
+    m_jsonTree = new QTreeView;
 
-    layout->addRow("Content Length:", m_contentLength);
-    layout->addRow("MIME Type:", m_mimeType);
+    layout->addWidget(m_jsonTree);
 }
 
 void MessageDetailWidget::setMessage(const LspLogMessage &message)
 {
-    m_contentLength->setText(QString::number(message.message.contentLength));
-    m_mimeType->setText(QString::fromLatin1(message.message.mimeType));
-
-    QWidget *newContentWidget = nullptr;
-    if (message.message.mimeType == JsonRpcMessageHandler::jsonRpcMimeType()) {
-        newContentWidget = createJsonTreeView("content", message.json());
-    } else {
-        auto edit = new QPlainTextEdit();
-        edit->setReadOnly(true);
-        edit->setPlainText(message.message.codec->toUnicode(message.message.content));
-        newContentWidget = edit;
-    }
-    auto formLayout = static_cast<QFormLayout *>(layout());
-    if (formLayout->rowCount() > 2)
-        formLayout->removeRow(2);
-    formLayout->setWidget(2, QFormLayout::SpanningRole, newContentWidget);
+    m_jsonTree->setModel(createJsonModel("content", message.message.toJsonObject()));
 }
 
 void MessageDetailWidget::clear()
 {
-    m_contentLength->setText({});
-    m_mimeType->setText({});
-    auto formLayout = static_cast<QFormLayout *>(layout());
-    if (formLayout->rowCount() > 2)
-        formLayout->removeRow(2);
+    m_jsonTree->setModel(createJsonModel("", QJsonObject()));
 }
 
 LspLogMessage::LspLogMessage() = default;
 
-LspLogMessage::LspLogMessage(MessageSender sender,
-                             const QTime &time,
-                             const LanguageServerProtocol::BaseMessage &message)
+LspLogMessage::LspLogMessage(MessageSender sender, const QTime &time, const JsonRpcMessage &message)
     : sender(sender)
     , time(time)
     , message(message)
@@ -562,7 +539,7 @@ LspLogMessage::LspLogMessage(MessageSender sender,
 MessageId LspLogMessage::id() const
 {
     if (!m_id.has_value())
-        m_id = MessageId(json().value(idKey));
+        m_id = MessageId(message.toJsonObject().value(idKey));
     return *m_id;
 }
 
@@ -570,25 +547,10 @@ QString LspLogMessage::displayText() const
 {
     if (!m_displayText.has_value()) {
         m_displayText = QString(time.toString("hh:mm:ss.zzz") + '\n');
-        if (message.mimeType == JsonRpcMessageHandler::jsonRpcMimeType())
-            m_displayText->append(json().value(QString{methodKey}).toString(id().toString()));
-        else
-            m_displayText->append(message.codec->toUnicode(message.content));
+        m_displayText->append(
+            message.toJsonObject().value(QString{methodKey}).toString(id().toString()));
     }
     return *m_displayText;
-}
-
-QJsonObject &LspLogMessage::json() const
-{
-    if (!m_json.has_value()) {
-        if (message.mimeType == JsonRpcMessageHandler::jsonRpcMimeType()) {
-            QString error;
-            m_json = JsonRpcMessageHandler::toJsonObject(message.content, message.codec, error);
-        } else {
-            m_json = QJsonObject();
-        }
-    }
-    return *m_json;
 }
 
 } // namespace LanguageClient

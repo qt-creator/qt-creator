@@ -27,7 +27,7 @@
 
 #include "languageclient_global.h"
 
-#include <languageserverprotocol/basemessage.h>
+#include <languageserverprotocol/jsonrpcmessages.h>
 
 #include <utils/qtcprocess.h>
 
@@ -45,19 +45,20 @@ public:
 
     ~BaseClientInterface() override;
 
-    void sendMessage(const LanguageServerProtocol::BaseMessage &message);
+    void sendContent(const LanguageServerProtocol::IContent &content);
     virtual bool start() { return true; }
 
     void resetBuffer();
 
 signals:
-    void messageReceived(LanguageServerProtocol::BaseMessage message);
+    void contentReceived(const LanguageServerProtocol::JsonRpcMessage message);
     void finished();
     void error(const QString &message);
 
 protected:
     virtual void sendData(const QByteArray &data) = 0;
     void parseData(const QByteArray &data);
+    virtual void parseCurrentMessage();
 
 private:
     QBuffer m_buffer;

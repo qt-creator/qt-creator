@@ -96,9 +96,10 @@ public:
     ///
     static void openDocumentWithClient(TextEditor::TextDocument *document, Client *client);
 
-    static void logBaseMessage(const LspLogMessage::MessageSender sender,
-                               const QString &clientName,
-                               const LanguageServerProtocol::BaseMessage &message);
+    static void logJsonRpcMessage(const LspLogMessage::MessageSender sender,
+                                  const QString &clientName,
+                                  const LanguageServerProtocol::JsonRpcMessage &message);
+
     static void showInspector();
 
 signals:

@@ -47,11 +47,16 @@ QByteArray JsonRpcMessage::toRawData() const
 
 QByteArray JsonRpcMessage::mimeType() const
 {
-    return JsonRpcMessageHandler::jsonRpcMimeType();
+    return jsonRpcMimeType();
 }
 
-bool JsonRpcMessage::isValid(QString * /*errorMessage*/) const
+bool JsonRpcMessage::isValid(QString *errorMessage) const
 {
+    if (!m_parseError.isEmpty()) {
+        if (errorMessage)
+            *errorMessage = m_parseError;
+        return false;
+    }
     return m_jsonObject[jsonRpcVersionKey] == "2.0";
 }
 
@@ -64,38 +69,6 @@ JsonRpcMessage::JsonRpcMessage()
 {
     // The language server protocol always uses “2.0” as the jsonrpc version
     m_jsonObject[jsonRpcVersionKey] = "2.0";
-}
-
-JsonRpcMessage::JsonRpcMessage(const QJsonObject &jsonObject)
-    : m_jsonObject(jsonObject)
-{ }
-
-JsonRpcMessage::JsonRpcMessage(QJsonObject &&jsonObject)
-    : m_jsonObject(std::move(jsonObject))
-{ }
-
-QByteArray JsonRpcMessageHandler::jsonRpcMimeType()
-{
-    return "application/vscode-jsonrpc";
-}
-
-void JsonRpcMessageHandler::parseContent(const QByteArray &content,
-                                         QTextCodec *codec,
-                                         QString &parseError,
-                                         const ResponseHandlers &responseHandlers,
-                                         const MethodHandler &methodHandler)
-{
-    const QJsonObject &jsonObject = toJsonObject(content, codec, parseError);
-    if (jsonObject.isEmpty())
-        return;
-
-    const MessageId id(jsonObject.value(idKey));
-    const QString &method = jsonObject.value(methodKey).toString();
-    const JsonRpcMessage jsonContent(jsonObject);
-    if (method.isEmpty())
-        responseHandlers(id, jsonContent);
-    else
-        methodHandler(method, id, jsonContent);
 }
 
 constexpr int utf8mib = 106;
@@ -113,29 +86,43 @@ static QString docTypeName(const QJsonDocument &doc)
     return {};
 }
 
-QJsonObject JsonRpcMessageHandler::toJsonObject(const QByteArray &_content,
-                                                QTextCodec *codec,
-                                                QString &parseError)
+JsonRpcMessage::JsonRpcMessage(const BaseMessage &message)
 {
-    if (_content.isEmpty())
-        return QJsonObject();
+    if (message.content.isEmpty())
+        return;
     QByteArray content;
-    if (codec && codec->mibEnum() != utf8mib) {
+    if (message.codec && message.codec->mibEnum() != utf8mib) {
         QTextCodec *utf8 = QTextCodec::codecForMib(utf8mib);
         if (utf8)
-            content = utf8->fromUnicode(codec->toUnicode(_content));
+            content = utf8->fromUnicode(message.codec->toUnicode(message.content));
     }
     if (content.isEmpty())
-        content = _content;
-    QJsonParseError error = {0 , QJsonParseError::NoError};
+        content = message.content;
+    QJsonParseError error = {0, QJsonParseError::NoError};
     const QJsonDocument doc = QJsonDocument::fromJson(content, &error);
-    if (doc.isObject())
-        return doc.object();
-    if (doc.isNull())
-        parseError = tr("Could not parse JSON message \"%1\".").arg(error.errorString());
-    else
-        parseError = tr("Expected a JSON object, but got a JSON \"%1\" value.").arg(docTypeName(doc));
-    return QJsonObject();
+    if (doc.isObject()) {
+        m_jsonObject = doc.object();
+    } else if (doc.isNull()) {
+        m_parseError = tr("LanguageServerProtocol::JsonRpcMessage",
+                          "Could not parse JSON message \"%1\".")
+                           .arg(error.errorString());
+    } else {
+        m_parseError = tr("Expected a JSON object, but got a JSON \"%1\" value.")
+                           .arg(docTypeName(doc));
+    }
+}
+
+JsonRpcMessage::JsonRpcMessage(const QJsonObject &jsonObject)
+    : m_jsonObject(jsonObject)
+{ }
+
+JsonRpcMessage::JsonRpcMessage(QJsonObject &&jsonObject)
+    : m_jsonObject(std::move(jsonObject))
+{ }
+
+QByteArray JsonRpcMessage::jsonRpcMimeType()
+{
+    return "application/vscode-jsonrpc";
 }
 
 CancelRequest::CancelRequest(const CancelParameter &params)

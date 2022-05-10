@@ -225,12 +225,12 @@ protected:
     void setError(const QString &message);
     void setProgressTitleForToken(const LanguageServerProtocol::ProgressToken &token,
                                   const QString &message);
-    void handleMessage(const LanguageServerProtocol::BaseMessage &message);
+    void handleContent(const LanguageServerProtocol::JsonRpcMessage &message);
     virtual void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params);
     virtual DiagnosticManager *createDiagnosticManager();
 
 private:
-    void sendMessage(const LanguageServerProtocol::BaseMessage &message);
+    void sendContentNow(const LanguageServerProtocol::IContent &content);
     void handleResponse(const LanguageServerProtocol::MessageId &id,
                         const LanguageServerProtocol::IContent &content);
     void handleMethod(const QString &method,
@@ -274,7 +274,6 @@ private:
     State m_state = Uninitialized;
     QHash<LanguageServerProtocol::MessageId,
           LanguageServerProtocol::ResponseHandler::Callback> m_responseHandlers;
-    QHash<QByteArray, ContentHandler> m_contentHandler;
     QString m_displayName;
     LanguageFilter m_languagFilter;
     QJsonObject m_initializationOptions;

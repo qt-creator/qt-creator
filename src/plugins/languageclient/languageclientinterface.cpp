@@ -46,8 +46,9 @@ BaseClientInterface::~BaseClientInterface()
     m_buffer.close();
 }
 
-void BaseClientInterface::sendMessage(const BaseMessage &message)
+void BaseClientInterface::sendContent(const IContent &content)
 {
+    const BaseMessage message = content.toBaseMessage();
     sendData(message.header());
     sendData(message.content);
 }
@@ -78,14 +79,24 @@ void BaseClientInterface::parseData(const QByteArray &data)
             emit error(parseError);
         if (!m_currentMessage.isComplete())
             break;
-        emit messageReceived(m_currentMessage);
-        m_currentMessage = BaseMessage();
+        parseCurrentMessage();
     }
     if (m_buffer.atEnd()) {
         m_buffer.close();
         m_buffer.setData(nullptr);
         m_buffer.open(QIODevice::ReadWrite | QIODevice::Append);
     }
+}
+
+void BaseClientInterface::parseCurrentMessage()
+{
+    if (m_currentMessage.mimeType == JsonRpcMessage::jsonRpcMimeType()) {
+        emit contentReceived(JsonRpcMessage(m_currentMessage));
+    } else {
+        emit error(tr("Cannot handle mimetype of message %1")
+                       .arg(QString::fromUtf8(m_currentMessage.mimeType)));
+    }
+    m_currentMessage = BaseMessage();
 }
 
 StdIOClientInterface::StdIOClientInterface()

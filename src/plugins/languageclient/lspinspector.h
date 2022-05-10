@@ -45,18 +45,16 @@ public:
     LspLogMessage();
     LspLogMessage(MessageSender sender,
                   const QTime &time,
-                  const LanguageServerProtocol::BaseMessage &message);
+                  const LanguageServerProtocol::JsonRpcMessage &message);
     QTime time;
-    LanguageServerProtocol::BaseMessage message;
+    LanguageServerProtocol::JsonRpcMessage message;
 
     LanguageServerProtocol::MessageId id() const;
     QString displayText() const;
-    QJsonObject &json() const;
 
 private:
     mutable Utils::optional<LanguageServerProtocol::MessageId> m_id;
     mutable Utils::optional<QString> m_displayText;
-    mutable Utils::optional<QJsonObject> m_json;
 };
 
 struct Capabilities
@@ -76,7 +74,7 @@ public:
 
     void log(const LspLogMessage::MessageSender sender,
              const QString &clientName,
-             const LanguageServerProtocol::BaseMessage &message);
+             const LanguageServerProtocol::JsonRpcMessage &message);
     void clientInitialized(const QString &clientName,
                            const LanguageServerProtocol::ServerCapabilities &capabilities);
     void updateCapabilities(const QString &clientName,

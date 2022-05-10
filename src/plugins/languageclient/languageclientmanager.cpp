@@ -424,9 +424,9 @@ void LanguageClientManager::openDocumentWithClient(TextEditor::TextDocument *doc
     TextEditor::IOutlineWidgetFactory::updateOutline();
 }
 
-void LanguageClientManager::logBaseMessage(const LspLogMessage::MessageSender sender,
-                                           const QString &clientName,
-                                           const BaseMessage &message)
+void LanguageClientManager::logJsonRpcMessage(const LspLogMessage::MessageSender sender,
+                                              const QString &clientName,
+                                              const LanguageServerProtocol::JsonRpcMessage &message)
 {
     instance()->m_inspector.log(sender, clientName, message);
 }

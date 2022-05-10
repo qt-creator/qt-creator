@@ -72,7 +72,7 @@ private:
 
 void tst_LanguageServerProtocol::initTestCase()
 {
-    defaultMimeType = JsonRpcMessageHandler::jsonRpcMimeType();
+    defaultMimeType = JsonRpcMessage::jsonRpcMimeType();
     defaultCodec = QTextCodec::codecForName("utf-8");
 }
 
@@ -447,13 +447,13 @@ void tst_LanguageServerProtocol::toJsonObject()
     QFETCH(bool, error);
     QFETCH(QJsonObject, expected);
 
-    QString parseError;
-    const QJsonObject object = JsonRpcMessageHandler::toJsonObject(content, codec, parseError);
+    BaseMessage baseMessage(JsonRpcMessage::jsonRpcMimeType(), content, content.length(), codec);
+    JsonRpcMessage jsonRpcMessage(baseMessage);
 
-    if (!error && !parseError.isEmpty())
-        QFAIL(parseError.toLocal8Bit().data());
-    QCOMPARE(object, expected);
-    QCOMPARE(!parseError.isEmpty(), error);
+    if (!error && !jsonRpcMessage.parseError().isEmpty())
+        QFAIL(jsonRpcMessage.parseError().toLocal8Bit().data());
+    QCOMPARE(jsonRpcMessage.toJsonObject(), expected);
+    QCOMPARE(!jsonRpcMessage.parseError().isEmpty(), error);
 }
 
 void tst_LanguageServerProtocol::jsonMessageToBaseMessage_data()
@@ -462,11 +462,11 @@ void tst_LanguageServerProtocol::jsonMessageToBaseMessage_data()
     QTest::addColumn<BaseMessage>("baseMessage");
 
     QTest::newRow("empty object") << JsonRpcMessage(QJsonObject())
-                                  << BaseMessage(JsonRpcMessageHandler::jsonRpcMimeType(),
+                                  << BaseMessage(JsonRpcMessage::jsonRpcMimeType(),
                                                  "{}");
 
-    QTest::newRow("key value pair") << JsonRpcMessage({{"key", "value"}})
-                                    << BaseMessage(JsonRpcMessageHandler::jsonRpcMimeType(),
+    QTest::newRow("key value pair") << JsonRpcMessage(QJsonObject{{"key", "value"}})
+                                    << BaseMessage(JsonRpcMessage::jsonRpcMimeType(),
                                                    R"({"key":"value"})");
 }
 

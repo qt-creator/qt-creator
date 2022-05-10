@@ -38,12 +38,12 @@ namespace LanguageServerProtocol {
 Q_LOGGING_CATEGORY(parseLog, "qtc.languageserverprotocol.parse", QtWarningMsg)
 
 BaseMessage::BaseMessage()
-    : mimeType(JsonRpcMessageHandler::jsonRpcMimeType())
+    : mimeType(JsonRpcMessage::jsonRpcMimeType())
 { }
 
 BaseMessage::BaseMessage(const QByteArray &mimeType, const QByteArray &content,
                          int expectedLength, QTextCodec *codec)
-    : mimeType(mimeType.isEmpty() ? JsonRpcMessageHandler::jsonRpcMimeType() : mimeType)
+    : mimeType(mimeType.isEmpty() ? JsonRpcMessage::jsonRpcMimeType() : mimeType)
     , content(content)
     , contentLength(expectedLength)
     , codec(codec)
@@ -177,7 +177,7 @@ QByteArray BaseMessage::header() const
     QByteArray header;
     header.append(lengthHeader());
     if (codec != defaultCodec()
-            || (!mimeType.isEmpty() && mimeType != JsonRpcMessageHandler::jsonRpcMimeType())) {
+            || (!mimeType.isEmpty() && mimeType != JsonRpcMessage::jsonRpcMimeType())) {
         header.append(typeHeader());
     }
     header.append(headerSeparator);

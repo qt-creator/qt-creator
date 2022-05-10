@@ -45,33 +45,28 @@ namespace LanguageServerProtocol {
 
 class LANGUAGESERVERPROTOCOL_EXPORT JsonRpcMessage : public IContent
 {
+    Q_DECLARE_TR_FUNCTIONS(JsonRpcMessage)
 public:
     JsonRpcMessage();
+    explicit JsonRpcMessage(const BaseMessage &message);
     explicit JsonRpcMessage(const QJsonObject &jsonObject);
     explicit JsonRpcMessage(QJsonObject &&jsonObject);
+
+    static QByteArray jsonRpcMimeType();
 
     QByteArray toRawData() const final;
     QByteArray mimeType() const final;
     bool isValid(QString *errorMessage) const override;
 
     const QJsonObject &toJsonObject() const;
+
+    const QString parseError() { return m_parseError; }
+
 protected:
     QJsonObject m_jsonObject;
 
 private:
     QString m_parseError;
-};
-
-class LANGUAGESERVERPROTOCOL_EXPORT JsonRpcMessageHandler
-{
-    Q_DECLARE_TR_FUNCTIONS(JsonRpcMessageHandler)
-
-public:
-    static QByteArray jsonRpcMimeType();
-    static void parseContent(const QByteArray &content, QTextCodec *codec, QString &errorMessage,
-                             const ResponseHandlers &responseHandlers,
-                             const MethodHandler &methodHandler);
-    static QJsonObject toJsonObject(const QByteArray &content, QTextCodec *codec, QString &parseError);
 };
 
 template <typename Params>
