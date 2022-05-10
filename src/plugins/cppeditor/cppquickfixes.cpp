@@ -2474,6 +2474,9 @@ Enum *conditionEnum(const CppQuickFixInterface &interface, SwitchStatementAST *s
 void CompleteSwitchCaseStatement::match(const CppQuickFixInterface &interface,
                                         QuickFixOperations &result)
 {
+    if (CppModelManager::usesClangd(interface.currentFile()->editor()->textDocument()))
+        return;
+
     const QList<AST *> &path = interface.path();
 
     if (path.isEmpty())
