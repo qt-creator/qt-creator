@@ -1264,19 +1264,9 @@ bool CppModelManager::isCppEditor(Core::IEditor *editor)
     return editor->context().contains(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 }
 
-bool CppModelManager::supportsOutline(const TextEditor::TextDocument *document)
+bool CppModelManager::usesClangd(const TextEditor::TextDocument *document)
 {
-    return instance()->d->m_activeModelManagerSupport->supportsOutline(document);
-}
-
-bool CppModelManager::supportsLocalUses(const TextEditor::TextDocument *document)
-{
-    return instance()->d->m_activeModelManagerSupport->supportsLocalUses(document);
-}
-
-bool CppModelManager::hasSpecialHoverHandler(const TextEditor::TextDocument *document)
-{
-    return instance()->d->m_activeModelManagerSupport->hasSpecialHoverHandler(document);
+    return instance()->d->m_activeModelManagerSupport->usesClangd(document);
 }
 
 bool CppModelManager::isClangCodeModelActive() const

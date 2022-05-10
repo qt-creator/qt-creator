@@ -404,7 +404,7 @@ class CppEditorWidgetPrivate
 public:
     CppEditorWidgetPrivate(CppEditorWidget *q);
 
-    bool shouldOfferOutline() const { return CppModelManager::supportsOutline(m_cppEditorDocument); }
+    bool shouldOfferOutline() const { return !CppModelManager::usesClangd(m_cppEditorDocument); }
 
 public:
     QPointer<CppModelManager> m_modelManager;

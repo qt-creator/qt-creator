@@ -213,7 +213,7 @@ bool CppOutlineWidgetFactory::supportsEditor(Core::IEditor *editor) const
     const auto cppEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor);
     if (!cppEditor || !CppModelManager::isCppEditor(cppEditor))
         return false;
-    return CppModelManager::supportsOutline(cppEditor->textDocument());
+    return !CppModelManager::usesClangd(cppEditor->textDocument());
 }
 
 TextEditor::IOutlineWidget *CppOutlineWidgetFactory::createWidget(Core::IEditor *editor)

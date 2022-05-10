@@ -253,18 +253,7 @@ std::unique_ptr<CppEditor::AbstractOverviewModel> ClangModelManagerSupport::crea
     return {};
 }
 
-bool ClangModelManagerSupport::supportsOutline(const TextEditor::TextDocument *document) const
-{
-    return !clientForFile(document->filePath());
-}
-
-bool ClangModelManagerSupport::supportsLocalUses(const TextEditor::TextDocument *document) const
-{
-    return !clientForFile(document->filePath());
-}
-
-bool ClangModelManagerSupport::hasSpecialHoverHandler(
-        const TextEditor::TextDocument *document) const
+bool ClangModelManagerSupport::usesClangd(const TextEditor::TextDocument *document) const
 {
     return clientForFile(document->filePath());
 }

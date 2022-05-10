@@ -69,9 +69,7 @@ public:
     CppEditor::BaseEditorDocumentProcessor *createEditorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) override;
     std::unique_ptr<CppEditor::AbstractOverviewModel> createOverviewModel() override;
-    bool supportsOutline(const TextEditor::TextDocument *document) const override;
-    bool supportsLocalUses(const TextEditor::TextDocument *document) const override;
-    bool hasSpecialHoverHandler(const TextEditor::TextDocument *document) const override;
+    bool usesClangd(const TextEditor::TextDocument *document) const override;
 
     QString dummyUiHeaderOnDiskDirPath() const;
     QString dummyUiHeaderOnDiskPath(const QString &filePath) const;

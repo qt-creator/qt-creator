@@ -74,7 +74,7 @@ CppUseSelectionsUpdater::RunnerInfo CppUseSelectionsUpdater::update(CallType cal
     auto *cppEditorDocument = qobject_cast<CppEditorDocument *>(cppEditorWidget->textDocument());
     QTC_ASSERT(cppEditorDocument, return RunnerInfo::FailedToStart);
 
-    m_updateSelections = CppModelManager::instance()->supportsLocalUses(cppEditorDocument);
+    m_updateSelections = !CppModelManager::usesClangd(cppEditorDocument);
 
     CursorInfoParams params;
     params.semanticInfo = cppEditorWidget->semanticInfo();

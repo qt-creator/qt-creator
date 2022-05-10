@@ -54,7 +54,7 @@ private:
                        int pos,
                        ReportPriority report) override
     {
-        if (CppModelManager::hasSpecialHoverHandler(editorWidget->textDocument())) {
+        if (CppModelManager::usesClangd(editorWidget->textDocument())) {
             report(Priority_None);
             return;
         }
