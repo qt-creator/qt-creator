@@ -80,9 +80,7 @@ public:
         QTC_ASSERT(device, return);
         m_deviceName = device->displayName();
 
-        CommandLine cmd;
-        cmd.setExecutable(device->mapToGlobalPath(command.executable()));
-        m_appRunner.setCommand(cmd);
+        m_appRunner.setCommand(command);
         m_appRunner.start();
         showMessage(QdbDevice::tr("Starting command \"%1\" on device \"%2\".")
                     .arg(command.toUserOutput(), m_deviceName));
@@ -132,12 +130,12 @@ QdbDevice::QdbDevice()
 {
     setDisplayType(tr("Boot2Qt Device"));
 
-    addDeviceAction({tr("Reboot Device"), [](const IDevice::Ptr &device, QWidget *) {
-        (void) new DeviceApplicationObserver(device, CommandLine{"reboot"});
+    addDeviceAction({tr("Reboot Device"), [this](const IDevice::Ptr &device, QWidget *) {
+                         (void) new DeviceApplicationObserver(device, {filePath("reboot"), {}});
     }});
 
-    addDeviceAction({tr("Restore Default App"), [](const IDevice::Ptr &device, QWidget *) {
-        (void) new DeviceApplicationObserver(device, CommandLine{"appcontroller", {"--remove-default"}});
+    addDeviceAction({tr("Restore Default App"), [this](const IDevice::Ptr &device, QWidget *) {
+        (void) new DeviceApplicationObserver(device, {filePath("appcontroller"), {"--remove-default"}});
     }});
 }
 
