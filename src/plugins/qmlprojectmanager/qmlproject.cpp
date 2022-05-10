@@ -135,21 +135,38 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
                               disconnect(m_openFileConnection);
 
                           if (target && success) {
-                              Utils::FilePaths uiFiles = getUiQmlFilesForFolder(projectDirectory()
-                                                                                + "/content");
-                              if (uiFiles.isEmpty())
-                                  uiFiles = getUiQmlFilesForFolder(projectDirectory());
 
-                              if (!uiFiles.isEmpty()) {
-                                  Utils::FilePath currentFile;
-                                  if (auto cd = Core::EditorManager::currentDocument())
-                                      currentFile = cd->filePath();
+                              auto target = activeTarget();
+                              if (!target)
+                                  return;
 
-                                  if (currentFile.isEmpty() || !isKnownFile(currentFile))
-                                      QTimer::singleShot(1000, [uiFiles]() {
-                                          Core::EditorManager::openEditor(uiFiles.first(),
+                              auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+                                  target->buildSystem());
+
+                              const Utils::FilePath mainUiFile = qmlBuildSystem->mainUiFilePath();
+
+                              if (mainUiFile.completeSuffix() == "qi.qml" &&  mainUiFile.exists()) {
+                                      QTimer::singleShot(1000, [mainUiFile]() {
+                                          Core::EditorManager::openEditor(mainUiFile,
                                                                           Utils::Id());
-                                      });
+                                  });
+                              } else {
+                                  Utils::FilePaths uiFiles = getUiQmlFilesForFolder(projectDirectory()
+                                                                                    + "/content");
+                                  if (uiFiles.isEmpty())
+                                      uiFiles = getUiQmlFilesForFolder(projectDirectory());
+
+                                  if (!uiFiles.isEmpty()) {
+                                      Utils::FilePath currentFile;
+                                      if (auto cd = Core::EditorManager::currentDocument())
+                                          currentFile = cd->filePath();
+
+                                      if (currentFile.isEmpty() || !isKnownFile(currentFile))
+                                          QTimer::singleShot(1000, [uiFiles]() {
+                                              Core::EditorManager::openEditor(uiFiles.first(),
+                                                                              Utils::Id());
+                                          });
+                                  }
                               }
                           }
                       });
@@ -253,6 +270,58 @@ void QmlBuildSystem::parseProject(RefreshOptions options)
     }
 }
 
+bool QmlBuildSystem::setFileSettingInProjectFile(const QString &setting, const Utils::FilePath &mainFilePath, const QString &oldFile)
+{
+    // make sure to change it also in the qmlproject file
+    const Utils::FilePath qmlProjectFilePath = project()->projectFilePath();
+    Core::FileChangeBlocker fileChangeBlocker(qmlProjectFilePath);
+    const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForFilePath(qmlProjectFilePath);
+    TextEditor::TextDocument *document = nullptr;
+    if (!editors.isEmpty()) {
+        document = qobject_cast<TextEditor::TextDocument*>(editors.first()->document());
+        if (document && document->isModified())
+            if (!Core::DocumentManager::saveDocument(document))
+                return false;
+    }
+
+    QString fileContent;
+    QString error;
+    Utils::TextFileFormat textFileFormat;
+    const QTextCodec *codec = QTextCodec::codecForName("UTF-8"); // qml files are defined to be utf-8
+    if (Utils::TextFileFormat::readFile(qmlProjectFilePath, codec, &fileContent, &textFileFormat, &error)
+        != Utils::TextFileFormat::ReadSuccess) {
+        qWarning() << "Failed to read file" << qmlProjectFilePath << ":" << error;
+    }
+
+    const QString settingQmlCode = setting + ":";
+
+    QDir projectDir = project()->projectFilePath().toDir();
+    projectDir.cdUp();
+    const QString relativePath = projectDir.relativeFilePath(mainFilePath.toString());
+
+    if (fileContent.indexOf(settingQmlCode) < 0) {
+        QString addedText = QString("\n    %1 \"%2\"\n").arg(settingQmlCode).arg(relativePath);
+        auto index = fileContent.lastIndexOf("}");
+        fileContent.insert(index, addedText);
+    } else {
+        QString originalFileName = oldFile;
+        originalFileName.replace(".", "\\.");
+        const QRegularExpression expression(QString("%1\\s*\"(%2)\"").arg(settingQmlCode).arg(originalFileName));
+
+        const QRegularExpressionMatch match = expression.match(fileContent);
+
+        fileContent.replace(match.capturedStart(1),
+                            match.capturedLength(1),
+                            relativePath);
+    }
+
+    if (!textFileFormat.writeFile(qmlProjectFilePath, fileContent, &error))
+        qWarning() << "Failed to write file" << qmlProjectFilePath << ":" << error;
+
+    refresh(Everything);
+    return true;
+}
+
 void QmlBuildSystem::refresh(RefreshOptions options)
 {
     ParseGuard guard = guardParsingRun();
@@ -283,9 +352,66 @@ QString QmlBuildSystem::mainFile() const
     return QString();
 }
 
+QString QmlBuildSystem::mainUiFile() const
+{
+    if (m_projectItem)
+        return m_projectItem->mainUiFile();
+    return QString();
+}
+
 Utils::FilePath QmlBuildSystem::mainFilePath() const
 {
     return projectDirectory().pathAppended(mainFile());
+}
+
+Utils::FilePath QmlBuildSystem::mainUiFilePath() const
+{
+    return projectDirectory().pathAppended(mainUiFile());
+}
+
+bool QmlBuildSystem::setMainFileInProjectFile(const Utils::FilePath &newMainFilePath)
+{
+
+    return setFileSettingInProjectFile("mainFile", newMainFilePath, mainFile());
+}
+
+bool QmlBuildSystem::setMainUiFileInProjectFile(const Utils::FilePath &newMainUiFilePath)
+{
+    return setMainUiFileInMainFile(newMainUiFilePath)
+           && setFileSettingInProjectFile("mainUiFile", newMainUiFilePath, mainUiFile());
+}
+
+bool QmlBuildSystem::setMainUiFileInMainFile(const Utils::FilePath &newMainUiFilePath)
+{
+    Core::FileChangeBlocker fileChangeBlocker(mainFilePath());
+    const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForFilePath(mainFilePath());
+    TextEditor::TextDocument *document = nullptr;
+    if (!editors.isEmpty()) {
+        document = qobject_cast<TextEditor::TextDocument*>(editors.first()->document());
+        if (document && document->isModified())
+            if (!Core::DocumentManager::saveDocument(document))
+                return false;
+    }
+
+    QString fileContent;
+    QString error;
+    Utils::TextFileFormat textFileFormat;
+    const QTextCodec *codec = QTextCodec::codecForName("UTF-8"); // qml files are defined to be utf-8
+    if (Utils::TextFileFormat::readFile(mainFilePath(), codec, &fileContent, &textFileFormat, &error)
+        != Utils::TextFileFormat::ReadSuccess) {
+        qWarning() << "Failed to read file" << mainFilePath() << ":" << error;
+    }
+
+    const QString currentMain = QString("%1 {").arg(mainUiFilePath().baseName());
+    const QString newMain = QString("%1 {").arg(newMainUiFilePath.baseName());
+
+    if (fileContent.contains(currentMain))
+        fileContent.replace(currentMain, newMain);
+
+    if (!textFileFormat.writeFile(mainFilePath(), fileContent, &error))
+        qWarning() << "Failed to write file" << mainFilePath() << ":" << error;
+
+    return true;
 }
 
 bool QmlBuildSystem::qtForMCUs() const
@@ -663,43 +789,10 @@ bool QmlBuildSystem::deleteFiles(Node *context, const FilePaths &filePaths)
 bool QmlBuildSystem::renameFile(Node * context, const FilePath &oldFilePath, const FilePath &newFilePath)
 {
     if (dynamic_cast<QmlProjectNode *>(context)) {
-        if (oldFilePath.endsWith(mainFile())) {
-            setMainFile(newFilePath.toString());
-
-            // make sure to change it also in the qmlproject file
-            const Utils::FilePath qmlProjectFilePath = project()->projectFilePath();
-            Core::FileChangeBlocker fileChangeBlocker(qmlProjectFilePath);
-            const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForFilePath(qmlProjectFilePath);
-            TextEditor::TextDocument *document = nullptr;
-            if (!editors.isEmpty()) {
-                document = qobject_cast<TextEditor::TextDocument*>(editors.first()->document());
-                if (document && document->isModified())
-                    if (!Core::DocumentManager::saveDocument(document))
-                        return false;
-            }
-
-            QString fileContent;
-            QString error;
-            Utils::TextFileFormat textFileFormat;
-            const QTextCodec *codec = QTextCodec::codecForName("UTF-8"); // qml files are defined to be utf-8
-            if (Utils::TextFileFormat::readFile(qmlProjectFilePath, codec, &fileContent, &textFileFormat, &error)
-                    != Utils::TextFileFormat::ReadSuccess) {
-                qWarning() << "Failed to read file" << qmlProjectFilePath << ":" << error;
-            }
-
-            // find the mainFile and do the file name with brackets in a capture group and mask the . with \.
-            QString originalFileName = oldFilePath.fileName();
-            originalFileName.replace(".", "\\.");
-            const QRegularExpression expression(QString("mainFile:\\s*\"(%1)\"").arg(originalFileName));
-            const QRegularExpressionMatch match = expression.match(fileContent);
-
-            fileContent.replace(match.capturedStart(1), match.capturedLength(1), newFilePath.fileName());
-
-            if (!textFileFormat.writeFile(qmlProjectFilePath, fileContent, &error))
-                qWarning() << "Failed to write file" << qmlProjectFilePath << ":" << error;
-
-            refresh(Everything);
-        }
+        if (oldFilePath.endsWith(mainFile()))
+            return setMainFileInProjectFile(newFilePath);
+        if (oldFilePath.endsWith(mainUiFile()))
+            return setMainUiFileInProjectFile(newFilePath);
 
         return true;
     }

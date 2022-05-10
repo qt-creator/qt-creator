@@ -77,7 +77,13 @@ public:
 
     Utils::FilePath canonicalProjectDir() const;
     QString mainFile() const;
+    QString mainUiFile() const;
     Utils::FilePath mainFilePath() const;
+    Utils::FilePath mainUiFilePath() const;
+
+    bool setMainFileInProjectFile(const Utils::FilePath &newMainFilePath);
+    bool setMainUiFileInProjectFile(const Utils::FilePath &newMainUiFilePath);
+    bool setMainUiFileInMainFile(const Utils::FilePath &newMainUiFilePath);
 
     bool qtForMCUs() const;
     bool qt6Project() const;
@@ -116,6 +122,10 @@ public:
     void parseProject(RefreshOptions options);
 
 private:
+    bool setFileSettingInProjectFile(const QString &setting,
+                                     const Utils::FilePath &mainFilePath,
+                                     const QString &oldFile);
+
     std::unique_ptr<QmlProjectItem> m_projectItem;
     Utils::FilePath m_canonicalProjectDir;
     bool m_blockFilesUpdate = false;

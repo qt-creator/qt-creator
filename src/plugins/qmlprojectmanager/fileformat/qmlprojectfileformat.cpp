@@ -91,6 +91,10 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FilePath &fi
         if (mainFileProperty.isValid())
             projectItem->setMainFile(mainFileProperty.value.toString());
 
+        const auto mainUiFileProperty = rootNode->property(QLatin1String("mainUiFile"));
+        if (mainUiFileProperty.isValid())
+            projectItem->setMainUiFile(mainUiFileProperty.value.toString());
+
         const auto importPathsProperty = rootNode->property(QLatin1String("importPaths"));
         if (importPathsProperty.isValid()) {
             QStringList list = importPathsProperty.value.toStringList();
