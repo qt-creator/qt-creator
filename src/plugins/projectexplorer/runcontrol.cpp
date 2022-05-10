@@ -1233,8 +1233,7 @@ void SimpleTargetRunner::doStart(const Runnable &runnable)
             msg = tr("The process was ended forcefully.");
         else if (resultData.m_error != QProcess::UnknownError)
             msg = userMessageForProcessError(resultData.m_error, runnable.command.executable());
-        const QString displayName = runnable.command.executable().toUserOutput();
-        appendMessage(msg.arg(displayName), Utils::NormalMessageFormat);
+        appendMessage(msg, NormalMessageFormat);
         m_stopReported = true;
         reportStopped();
     });
