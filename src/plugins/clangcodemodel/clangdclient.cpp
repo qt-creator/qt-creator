@@ -2772,6 +2772,13 @@ QTextCursor ClangdClient::Private::adjustedCursor(const QTextCursor &cursor,
             c.setPosition(posForToken(destrAst->tilde_token));
             return c;
         }
+
+        // QVector<QString|>
+        if (const TemplateIdAST * const templAst = (*it)->asTemplateId()) {
+            if (posForToken(templAst->greater_token) == cursor.position())
+                return leftMovedCursor();
+            return cursor;
+        }
     }
     return cursor;
 }
