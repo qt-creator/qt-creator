@@ -27,6 +27,7 @@
 #include "navigatorview.h"
 #include "navigatorwidget.h"
 #include "choosefrompropertylistdialog.h"
+#include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
 #include "assetslibrarywidget.h"
 
