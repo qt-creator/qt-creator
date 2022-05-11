@@ -85,7 +85,7 @@ private:
 
     bool m_lowPriority = false;
     bool m_unixTerminalDisabled = false;
-    bool m_useCtrlCStub = false; // release only
+    bool m_useCtrlCStub = false;
     ProcessStartHandler m_processStartHandler;
 };
 

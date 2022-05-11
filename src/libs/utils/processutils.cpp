@@ -112,14 +112,7 @@ BOOL CALLBACK sendInterruptMessageToAllWindowsOfProcess_enumWnd(HWND hwnd, LPARA
 
 void ProcessHelper::setUseCtrlCStub(bool enabled)
 {
-    // Do not use the stub in debug mode. Activating the stub will shut down
-    // Qt Creator otherwise, because they share the same Windows console.
-    // See QTCREATORBUG-11995 for details.
-#ifdef QT_DEBUG
-    Q_UNUSED(enabled)
-#else
     m_useCtrlCStub = enabled;
-#endif
 }
 
 void ProcessHelper::terminateProcess()

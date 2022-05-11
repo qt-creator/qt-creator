@@ -58,7 +58,7 @@ public:
     bool m_runAsRoot = false;
     bool m_lowPriority = false;
     bool m_unixTerminalDisabled = false;
-    bool m_useCtrlCStub = false; // release only
+    bool m_useCtrlCStub = false;
     bool m_belowNormalPriority = false; // internal, dependent on other fields and specific code path
 };
 
