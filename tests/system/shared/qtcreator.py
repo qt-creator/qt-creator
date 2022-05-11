@@ -231,6 +231,23 @@ def substituteCdb(settingsDir):
     __substitute__(debuggers, "SQUISH_DEBUGGER_BITNESS", bitness)
     test.log("Injected architecture '%s' and bitness '%s' in cdb path..." % (architecture, bitness))
 
+
+def substituteMsvcPaths(settingsDir):
+    for msvcFlavor in ["Community", "BuildTools"]:
+        try:
+            msvc2017Path = os.path.join("C:\\Program Files (x86)", "Microsoft Visual Studio",
+                                        "2017", msvcFlavor, "VC", "Tools", "MSVC")
+            msvc2017Path = os.path.join(msvc2017Path, os.listdir(msvc2017Path)[0], "bin",
+                                        "HostX64", "x64")
+            __substitute__(os.path.join(settingsDir, "QtProject", 'qtcreator', 'toolchains.xml'),
+                           "SQUISH_MSVC2017_PATH", msvc2017Path)
+            return
+        except:
+            continue
+    test.warning("PATH variable for MSVC2017 could not be set, some tests will fail.",
+                 "Please make sure that MSVC2017 is installed correctly.")
+
+
 def __guessABI__(supportedABIs, use64Bit):
     if platform.system() == 'Linux':
         supportedABIs = filter(lambda x: 'linux' in x, supportedABIs)
@@ -325,6 +342,7 @@ def copySettingsToTmpDir(destination=None, omitFiles=[]):
         substituteDefaultCompiler(tmpSettingsDir)
     elif platform.system() in ('Windows', 'Microsoft'):
         substituteCdb(tmpSettingsDir)
+        substituteMsvcPaths(tmpSettingsDir)
     substituteUnchosenTargetABIs(tmpSettingsDir)
     SettingsPath = ['-settingspath', '"%s"' % tmpSettingsDir]
 

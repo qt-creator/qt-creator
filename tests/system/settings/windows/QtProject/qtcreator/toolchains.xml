@@ -40,7 +40,13 @@
    <value type="QString" key="ProjectExplorer.MsvcToolChain.SupportedAbi">x86-windows-msvc2017-pe-64bit</value>
    <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBat">C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Auxiliary/Build/vcvarsall.bat</value>
    <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBatArg">amd64</value>
-   <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">false</value>
+   <valuelist type="QVariantList" key="ProjectExplorer.MsvcToolChain.environmentModifications">
+    <valuelist type="QVariantList">
+     <value type="QString">PATH</value>
+     <value type="int">0</value>
+     <value type="QString">SQUISH_MSVC2017_PATH</value>
+    </valuelist>
+   </valuelist>
    <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">MSVC2017 (amd64)</value>
    <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Msvc:{ce3a8004-e9ae-46f2-b62d-d7daf69435ca}</value>
    <value type="int" key="ProjectExplorer.ToolChain.Language">1</value>
@@ -79,7 +85,13 @@
    <value type="QString" key="ProjectExplorer.MsvcToolChain.SupportedAbi">x86-windows-msvc2017-pe-64bit</value>
    <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBat">C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Auxiliary/Build/vcvarsall.bat</value>
    <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBatArg">amd64</value>
-   <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">false</value>
+   <valuelist type="QVariantList" key="ProjectExplorer.MsvcToolChain.environmentModifications">
+    <valuelist type="QVariantList">
+     <value type="QString">PATH</value>
+     <value type="int">0</value>
+     <value type="QString">SQUISH_MSVC2017_PATH</value>
+    </valuelist>
+   </valuelist>
    <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">MSVC2017 (amd64)</value>
    <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Msvc:{3df7c776-a480-4a04-9099-6c75adac2dca}</value>
    <value type="int" key="ProjectExplorer.ToolChain.Language">2</value>
