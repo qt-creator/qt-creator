@@ -39,10 +39,10 @@ public:
     MOCK_METHOD(Utils::FilePath,
                 getPath,
                 (const QString &, QSettings::Scope, const Utils::FilePath &),
-                (const));
+                (const, override));
     MOCK_METHOD(bool,
                 write,
                 (const QString &, const Utils::FilePath &, const Utils::FilePath &),
-                (const));
+                (const, override));
 }; //class SettingsHandler
 } // namespace McuSupport::Internal

@@ -106,7 +106,6 @@ const char unsupported[]{"unsupported"};
 const char vendor[]{"target_vendor"};
 const QString settingsPrefix = QLatin1String(Constants::SETTINGS_GROUP) + '/'
                                + QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX);
-const char qmlToCppSuffixPath[]{"bin/qmltocpp"};
 
 const QString unsupportedToolchainFilePath = QString{qtForMcuSdkPath}
                                              + "/lib/cmake/Qul/toolchain/unsupported.cmake";
