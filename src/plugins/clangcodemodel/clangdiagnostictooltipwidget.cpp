@@ -55,7 +55,7 @@ const char LINK_ACTION_APPLY_FIX[] = "#applyFix";
 QString fileNamePrefix(const QString &mainFilePath, const Utils::Link &location)
 {
     const QString filePath = location.targetFilePath.toString();
-    if (filePath != mainFilePath)
+    if (!filePath.isEmpty() && filePath != mainFilePath)
         return QFileInfo(filePath).fileName() + QLatin1Char(':');
 
     return QString();
@@ -63,6 +63,8 @@ QString fileNamePrefix(const QString &mainFilePath, const Utils::Link &location)
 
 QString locationToString(const Utils::Link &location)
 {
+    if (location.targetLine <= 0 || location.targetColumn <= 0)
+        return {};
     return QString::number(location.targetLine)
          + QStringLiteral(":")
          + QString::number(location.targetColumn + 1);
@@ -226,11 +228,11 @@ private:
         const bool hasFixit = m_displayHints.enableClickableFixits
                 && !diagnostic.fixIts.isEmpty();
         const QString diagnosticText = diagnostic.text.toHtmlEscaped();
-        const QString text = QString::fromLatin1("%1: %2")
-            .arg(clickableLocation(diagnostic, m_mainFilePath),
-                 clickableFixIt(diagnostic, diagnosticText, hasFixit));
-
-        return text;
+        bool hasLocation = false;
+        QString text = clickableLocation(diagnostic, m_mainFilePath, hasLocation);
+        if (hasLocation)
+            text += ": ";
+        return text += clickableFixIt(diagnostic, diagnosticText, hasFixit);
     }
 
     QString diagnosticRow(const ClangDiagnostic &diagnostic, IndentMode indentMode)
@@ -273,7 +275,8 @@ private:
         return text;
     }
 
-    QString clickableLocation(const ClangDiagnostic &diagnostic, const QString &mainFilePath)
+    QString clickableLocation(const ClangDiagnostic &diagnostic, const QString &mainFilePath,
+                              bool &hasContent)
     {
         const Utils::Link &location = diagnostic.location;
 
@@ -281,6 +284,7 @@ private:
         const QString lineColumn = locationToString(location);
         const QString linkText = filePrefix + lineColumn;
         const QString targetId = generateTargetId(LINK_ACTION_GOTO_LOCATION, diagnostic);
+        hasContent = !linkText.isEmpty();
 
         return wrapInLink(linkText, targetId);
     }

@@ -266,12 +266,15 @@ ClangDiagnostic convertDiagnostic(const ClangdDiagnostic &src, const FilePath &f
         const Utils::optional<WorkspaceEdit::Changes> changes = edit->changes();
         if (!changes)
             continue;
+        ClangDiagnostic fixItDiag;
+        fixItDiag.text = codeAction.title();
         for (auto it = changes->cbegin(); it != changes->cend(); ++it) {
             for (const TextEdit &textEdit : it.value()) {
-                target.fixIts << ClangFixIt(textEdit.newText(),
+                fixItDiag.fixIts << ClangFixIt(textEdit.newText(),
                         convertRange(it.key().toFilePath(), textEdit.range()));
             }
         }
+        target.children << fixItDiag;
     }
     return target;
 }
