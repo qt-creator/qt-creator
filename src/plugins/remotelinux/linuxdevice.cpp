@@ -25,6 +25,7 @@
 
 #include "linuxdevice.h"
 
+#include "filetransfer.h"
 #include "genericlinuxdeviceconfigurationwidget.h"
 #include "genericlinuxdeviceconfigurationwizard.h"
 #include "linuxdevicetester.h"
@@ -1458,59 +1459,195 @@ static QByteArray transferCommand(const TransferDirection transferDirection, boo
     return {};
 }
 
-// TODO: Provide 2 subclasses that handle sftp and rsync respectively
+static QString methodName(FileTransferMethod method)
+{
+    switch (method) {
+    case FileTransferMethod::Sftp:  return FileTransfer::tr("sftp");  break;
+    case FileTransferMethod::Rsync: return FileTransfer::tr("rsync"); break;
+    }
+    QTC_CHECK(false);
+    return {};
+}
+
 class FileTransferInterface : public QObject
+{
+    Q_OBJECT
+public:
+    void setDevice(const ProjectExplorer::IDeviceConstPtr &device) { m_device = device; }
+    void setFilesToTransfer(const FilesToTransfer &files, TransferDirection direction)
+    {
+        m_files = files;
+        m_direction = direction;
+    }
+
+    void start() { startImpl(); }
+
+signals:
+    void progress(const QString &progressMessage);
+    void done(const Utils::ProcessResultData &resultData);
+
+protected:
+    FileTransferInterface(FileTransferMethod method)
+        : m_method(method)
+        , m_process(this)
+    {
+        SshConnectionParameters::setupSshEnvironment(&m_process);
+        connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
+            emit progress(QString::fromLocal8Bit(m_process.readAllStandardOutput()));
+        });
+        connect(&m_process, &QtcProcess::done, this, &FileTransferInterface::doneImpl);
+    }
+
+    void startFailed(const QString &errorString)
+    {
+        emit done({0, QProcess::NormalExit, QProcess::FailedToStart, errorString});
+    }
+
+    bool handleError()
+    {
+        ProcessResultData resultData = m_process.resultData();
+        if (resultData.m_error == QProcess::FailedToStart) {
+            resultData.m_errorString = tr("\"%1\" failed to start: %2")
+                    .arg(methodName(m_method), resultData.m_errorString);
+        } else if (resultData.m_exitStatus != QProcess::NormalExit) {
+            resultData.m_errorString = tr("\"%1\" crashed.").arg(methodName(m_method));
+        } else if (resultData.m_exitCode != 0) {
+            resultData.m_errorString = QString::fromLocal8Bit(m_process.readAllStandardError());
+        } else {
+            return false;
+        }
+        return true;
+    }
+
+    void handleDone()
+    {
+        if (!handleError())
+            emit done(m_process.resultData());
+    }
+
+    FileTransferMethod m_method = FileTransferMethod::Default;
+    IDevice::ConstPtr m_device;
+    FilesToTransfer m_files;
+    QtcProcess m_process;
+    TransferDirection m_direction;
+
+private:
+    virtual void startImpl() = 0;
+    virtual void doneImpl() = 0;
+};
+
+class SftpTransferImpl : public FileTransferInterface
+{
+public:
+    SftpTransferImpl() : FileTransferInterface(FileTransferMethod::Sftp) { }
+
+private:
+    void startImpl()
+    {
+        const FilePath sftpBinary = SshSettings::sftpFilePath();
+        if (!sftpBinary.exists()) {
+            startFailed(tr("\"sftp\" binary \"%1\" does not exist.").arg(sftpBinary.toUserOutput()));
+            return;
+        }
+
+        m_batchFile.reset(new QTemporaryFile(this));
+        if (!m_batchFile->isOpen() && !m_batchFile->open()) {
+            startFailed(tr("Could not create temporary file: %1").arg(m_batchFile->errorString()));
+            return;
+        }
+
+        const FilePaths dirs = dirsToCreate(m_files);
+        for (const FilePath &dir : dirs) {
+            if (m_direction == TransferDirection::Upload) {
+                m_batchFile->write("-mkdir " + ProcessArgs::quoteArgUnix(dir.path()).toLocal8Bit()
+                                + '\n');
+            } else if (m_direction == TransferDirection::Download) {
+                if (!QDir::root().mkpath(dir.path())) {
+                    startFailed(tr("Failed to create local directory \"%1\".")
+                                .arg(QDir::toNativeSeparators(dir.path())));
+                    return;
+                }
+            }
+        }
+
+        for (const FileToTransfer &file : m_files) {
+            FilePath sourceFileOrLinkTarget = file.m_source;
+            bool link = false;
+            if (m_direction == TransferDirection::Upload) {
+                const QFileInfo fi(file.m_source.toFileInfo());
+                if (fi.isSymLink()) {
+                    link = true;
+                    m_batchFile->write("-rm " + ProcessArgs::quoteArgUnix(
+                                        file.m_target.path()).toLocal8Bit() + '\n');
+                     // see QTBUG-5817.
+                    sourceFileOrLinkTarget.setPath(fi.dir().relativeFilePath(fi.symLinkTarget()));
+                }
+             }
+             m_batchFile->write(transferCommand(m_direction, link) + ' '
+                 + ProcessArgs::quoteArgUnix(sourceFileOrLinkTarget.path()).toLocal8Bit() + ' '
+                 + ProcessArgs::quoteArgUnix(file.m_target.path()).toLocal8Bit() + '\n');
+        }
+        m_batchFile->close();
+        m_process.setStandardInputFile(m_batchFile->fileName());
+
+        // TODO: Add support for shared ssh connection
+        const SshConnectionParameters params = displayless(m_device->sshParameters());
+        m_process.setCommand(CommandLine(sftpBinary,
+                                         params.connectionOptions(sftpBinary) << params.host()));
+        m_process.start();
+    }
+
+    void doneImpl() final { handleDone(); }
+
+    std::unique_ptr<QTemporaryFile> m_batchFile;
+};
+
+class RsyncTransferImpl : public FileTransferInterface
+{
+public:
+    RsyncTransferImpl(const QString &flags)
+        : FileTransferInterface(FileTransferMethod::Sftp)
+        , m_flags(flags)
+    { }
+
+private:
+    void startImpl() {}
+    void doneImpl() {}
+
+    QString m_flags;
+};
+
+class FileTransferPrivate : public QObject
 {
     Q_OBJECT
 
 public:
-    FileTransferInterface(const LinuxDevice::ConstPtr &device, const FilesToTransfer &files);
+    void setDevice(const ProjectExplorer::IDeviceConstPtr &device) { m_device = device; }
+    void setTransferMethod(FileTransferMethod method) { m_method = method; }
+    void setFilesToTransfer(const FilesToTransfer &files) { m_files = files; }
+    void setRsyncFlags(const QString &flags) { m_rsyncFlags = flags; }
 
     void start();
-    void stop() { m_process.close(); }
+    void stop();
 
 signals:
     void progress(const QString &progressMessage);
     void done(const Utils::ProcessResultData &resultData);
 
 private:
-    LinuxDevice::ConstPtr m_device;
-    FilesToTransfer m_files;
+    void startFailed(const QString &errorString);
 
-    QTemporaryFile m_batchFile;
-    QtcProcess m_process;
+    FileTransferMethod m_method = FileTransferMethod::Default;
+    IDevice::ConstPtr m_device;
+    FilesToTransfer m_files;
+    QString m_rsyncFlags = {"-av"}; // TODO: see RsyncDeployStep::defaultFlags(), reuse it
+
+    std::unique_ptr<FileTransferInterface> m_transfer;
 };
 
-FileTransferInterface::FileTransferInterface(const LinuxDevice::ConstPtr &device, const FilesToTransfer &files)
-    : m_device(device)
-    , m_files(files)
-    , m_batchFile(this)
-    , m_process(this)
-{
-    SshConnectionParameters::setupSshEnvironment(&m_process);
-
-    connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
-        emit progress(QString::fromLocal8Bit(m_process.readAllStandardOutput()));
-    });
-    connect(&m_process, &QtcProcess::done, this, [this] {
-        ProcessResultData resultData = m_process.resultData();
-        if (resultData.m_error == QProcess::FailedToStart)
-            resultData.m_errorString = tr("\"sftp\" failed to start: %1").arg(resultData.m_errorString);
-        else if (resultData.m_exitStatus != QProcess::NormalExit)
-            resultData.m_errorString = tr("\"sftp\" crashed.");
-        else if (resultData.m_exitCode != 0)
-            resultData.m_errorString = QString::fromLocal8Bit(m_process.readAllStandardError());
-        emit done(resultData);
-    });
-}
-
-void FileTransferInterface::start()
+void FileTransferPrivate::start()
 {
     stop();
-
-    auto startFailed = [this](const QString &errorString) {
-        emit done({0, QProcess::NormalExit, QProcess::FailedToStart, errorString});
-    };
 
     if (m_files.isEmpty())
         return startFailed(tr("No files to transfer."));
@@ -1522,66 +1659,66 @@ void FileTransferInterface::start()
     if (!isDeviceMatched(m_files, m_device->id().toString()))
         return startFailed(tr("Trying to transfer into / from not matching device."));
 
-    const FilePath sftpBinary = SshSettings::sftpFilePath();
-    if (!sftpBinary.exists())
-        return startFailed(tr("\"sftp\" binary \"%1\" does not exist.").arg(sftpBinary.toUserOutput()));
-
-    if (!m_batchFile.isOpen() && !m_batchFile.open())
-        return startFailed(tr("Could not create temporary file: %1").arg(m_batchFile.errorString()));
-
-    const FilePaths dirs = dirsToCreate(m_files);
-    for (const FilePath &dir : dirs) {
-        if (direction == TransferDirection::Upload) {
-            m_batchFile.write("-mkdir " + ProcessArgs::quoteArgUnix(dir.path()).toLocal8Bit()
-                            + '\n');
-        } else if (direction == TransferDirection::Download) {
-            if (!QDir::root().mkpath(dir.path())) {
-                return startFailed(tr("Failed to create local directory \"%1\".")
-                                   .arg(dir.toUserOutput()));
-            }
-        }
+    switch (m_method) {
+    case FileTransferMethod::Sftp:
+        m_transfer.reset(new SftpTransferImpl());
+        break;
+    case FileTransferMethod::Rsync:
+        m_transfer.reset(new RsyncTransferImpl(m_rsyncFlags));
+        break;
     }
-
-    for (const FileToTransfer &file : m_files) {
-        FilePath sourceFileOrLinkTarget = file.m_source;
-        bool link = false;
-        if (direction == TransferDirection::Upload) {
-            const QFileInfo fi(file.m_source.toFileInfo());
-            if (fi.isSymLink()) {
-                link = true;
-                m_batchFile.write("-rm " + ProcessArgs::quoteArgUnix(
-                                    file.m_target.path()).toLocal8Bit() + '\n');
-                 // see QTBUG-5817.
-                sourceFileOrLinkTarget.setPath(fi.dir().relativeFilePath(fi.symLinkTarget()));
-            }
-         }
-         m_batchFile.write(transferCommand(direction, link) + ' '
-             + ProcessArgs::quoteArgUnix(sourceFileOrLinkTarget.path()).toLocal8Bit() + ' '
-             + ProcessArgs::quoteArgUnix(file.m_target.path()).toLocal8Bit() + '\n');
-    }
-    m_batchFile.close();
-
-    m_process.setStandardInputFile(m_batchFile.fileName());
-
-    // TODO: Add support for shared ssh connection
-    const SshConnectionParameters params = displayless(m_device->sshParameters());
-    m_process.setCommand(CommandLine(sftpBinary,
-                                     params.connectionOptions(sftpBinary) << params.host()));
-    m_process.start();
+    QTC_ASSERT(m_transfer, startFailed(tr("Missing transfer implementation.")));
+    m_transfer->setDevice(m_device);
+    m_transfer->setFilesToTransfer(m_files, direction);
+    connect(m_transfer.get(), &FileTransferInterface::progress,
+            this, &FileTransferPrivate::progress);
+    connect(m_transfer.get(), &FileTransferInterface::done,
+            this, &FileTransferPrivate::done);
+    m_transfer->start();
 }
 
-FileTransfer::FileTransfer(FileTransferInterface *transferInterface)
-    : d(transferInterface)
+void FileTransferPrivate::stop()
+{
+    m_transfer.reset();
+}
+
+void FileTransferPrivate::startFailed(const QString &errorString)
+{
+    emit done({0, QProcess::NormalExit, QProcess::FailedToStart, errorString});
+}
+
+FileTransfer::FileTransfer()
+    : d(new FileTransferPrivate)
 {
     d->setParent(this);
-    connect(d, &FileTransferInterface::progress, this, &FileTransfer::progress);
-    connect(d, &FileTransferInterface::done, this, &FileTransfer::done);
+    connect(d, &FileTransferPrivate::progress, this, &FileTransfer::progress);
+    connect(d, &FileTransferPrivate::done, this, &FileTransfer::done);
 }
 
 FileTransfer::~FileTransfer()
 {
     stop();
     delete d;
+}
+
+void FileTransfer::setDevice(const ProjectExplorer::IDeviceConstPtr &device)
+{
+    d->setDevice(device);
+}
+
+void FileTransfer::setTransferMethod(FileTransferMethod method)
+{
+    d->setTransferMethod(method);
+}
+
+void FileTransfer::setFilesToTransfer(const FilesToTransfer &files)
+{
+    d->setFilesToTransfer(files);
+}
+
+void FileTransfer::setRsyncFlags(const QString &flags)
+{
+    d->setRsyncFlags(flags);
 }
 
 void FileTransfer::start()
@@ -1592,12 +1729,6 @@ void FileTransfer::start()
 void FileTransfer::stop()
 {
     d->stop();
-}
-
-FileTransfer *LinuxDevice::createFileTransfer(const FilesToTransfer &files) const
-{
-    return new FileTransfer(new FileTransferInterface(
-                                sharedFromThis().dynamicCast<const LinuxDevice>(), files));
 }
 
 namespace Internal {

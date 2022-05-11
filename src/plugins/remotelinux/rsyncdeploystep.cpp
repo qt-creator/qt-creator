@@ -161,6 +161,7 @@ void RsyncDeployService::deployNextFile()
         }
     }
 
+    // TODO: consider adding "--progress" option for reporting the progress.
     const QStringList args = QStringList(cmdLine.options)
             << (localFilePath + (file.localFilePath().isDir() ? "/" : QString()))
             << (cmdLine.remoteHostSpec + ':' + file.remoteFilePath());

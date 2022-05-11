@@ -7,6 +7,7 @@ add_qtc_plugin(RemoteLinux
     abstractremotelinuxdeploystep.cpp abstractremotelinuxdeploystep.h
     abstractuploadandinstallpackageservice.cpp abstractuploadandinstallpackageservice.h
     deploymenttimeinfo.cpp deploymenttimeinfo.h
+    filetransfer.h
     genericdirectuploadservice.cpp genericdirectuploadservice.h
     genericdirectuploadstep.cpp genericdirectuploadstep.h
     genericlinuxdeviceconfigurationwidget.cpp genericlinuxdeviceconfigurationwidget.h genericlinuxdeviceconfigurationwidget.ui

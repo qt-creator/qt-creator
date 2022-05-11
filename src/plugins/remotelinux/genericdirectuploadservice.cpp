@@ -24,9 +24,11 @@
 ****************************************************************************/
 
 #include "genericdirectuploadservice.h"
-#include "linuxdevice.h"
+
+#include "filetransfer.h"
 
 #include <projectexplorer/deployablefile.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/hostosinfo.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
@@ -69,7 +71,7 @@ public:
     QQueue<DeployableFile> filesToStat;
     State state = Inactive;
     QList<DeployableFile> filesToUpload;
-    std::unique_ptr<FileTransfer> uploader;
+    FileTransfer uploader;
     QList<DeployableFile> deployableFiles;
 };
 
@@ -80,6 +82,20 @@ using namespace Internal;
 GenericDirectUploadService::GenericDirectUploadService(QObject *parent)
     : AbstractRemoteLinuxDeployService(parent), d(new GenericDirectUploadServicePrivate)
 {
+    connect(&d->uploader, &FileTransfer::done, this, [this](const ProcessResultData &result) {
+        QTC_ASSERT(d->state == Uploading, return);
+        if (result.m_error != QProcess::UnknownError) {
+            emit errorMessage(result.m_errorString);
+            setFinished();
+            handleDeploymentDone();
+            return;
+        }
+        d->state = PostProcessing;
+        chmod();
+        queryFiles();
+    });
+    connect(&d->uploader, &FileTransfer::progress,
+            this, &GenericDirectUploadService::progressMessage);
 }
 
 GenericDirectUploadService::~GenericDirectUploadService()
@@ -250,7 +266,7 @@ void GenericDirectUploadService::setFinished()
         it.key()->terminate();
     }
     d->remoteProcs.clear();
-    d->uploader->stop();
+    d->uploader.stop();
     d->filesToUpload.clear();
 }
 
@@ -306,25 +322,10 @@ void GenericDirectUploadService::uploadFiles()
         files.append({file.localFilePath(),
                       deviceConfiguration()->filePath(file.remoteFilePath())});
     }
-    LinuxDevice::ConstPtr linuxDevice = deviceConfiguration().dynamicCast<const LinuxDevice>();
-    QTC_ASSERT(linuxDevice, return);
 
-    d->uploader.reset(linuxDevice->createFileTransfer(files));
-    connect(d->uploader.get(), &FileTransfer::done, this, [this](const ProcessResultData &result) {
-        QTC_ASSERT(d->state == Uploading, return);
-        if (result.m_error != QProcess::UnknownError) {
-            emit errorMessage(result.m_errorString);
-            setFinished();
-            handleDeploymentDone();
-            return;
-        }
-        d->state = PostProcessing;
-        chmod();
-        queryFiles();
-    });
-    connect(d->uploader.get(), &FileTransfer::progress,
-            this, &GenericDirectUploadService::progressMessage);
-    d->uploader->start();
+    d->uploader.setDevice(deviceConfiguration());
+    d->uploader.setFilesToTransfer(files);
+    d->uploader.start();
 }
 
 void GenericDirectUploadService::chmod()

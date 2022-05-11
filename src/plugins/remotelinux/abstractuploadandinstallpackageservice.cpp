@@ -25,10 +25,11 @@
 
 #include "abstractuploadandinstallpackageservice.h"
 
-#include "linuxdevice.h"
+#include "filetransfer.h"
 #include "remotelinuxpackageinstaller.h"
 
 #include <projectexplorer/deployablefile.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 
@@ -47,7 +48,7 @@ class AbstractUploadAndInstallPackageServicePrivate
 {
 public:
     State state = Inactive;
-    std::unique_ptr<FileTransfer> uploader;
+    FileTransfer uploader;
     Utils::FilePath packageFilePath;
 };
 
@@ -58,6 +59,10 @@ using namespace Internal;
 AbstractUploadAndInstallPackageService::AbstractUploadAndInstallPackageService()
     : d(new AbstractUploadAndInstallPackageServicePrivate)
 {
+    connect(&d->uploader, &FileTransfer::done, this,
+            &AbstractUploadAndInstallPackageService::handleUploadFinished);
+    connect(&d->uploader, &FileTransfer::progress, this,
+            &AbstractUploadAndInstallPackageService::progressMessage);
 }
 
 AbstractUploadAndInstallPackageService::~AbstractUploadAndInstallPackageService()
@@ -98,17 +103,12 @@ void AbstractUploadAndInstallPackageService::doDeploy()
 
     d->state = Uploading;
 
-    LinuxDevice::ConstPtr linuxDevice = deviceConfiguration().dynamicCast<const LinuxDevice>();
-    QTC_ASSERT(linuxDevice, return);
     const QString remoteFilePath = uploadDir() + QLatin1Char('/') + d->packageFilePath.fileName();
     const FilesToTransfer files {{d->packageFilePath,
                     deviceConfiguration()->filePath(remoteFilePath)}};
-    d->uploader.reset(linuxDevice->createFileTransfer(files));
-    connect(d->uploader.get(), &FileTransfer::done, this,
-            &AbstractUploadAndInstallPackageService::handleUploadFinished);
-    connect(d->uploader.get(), &FileTransfer::progress, this,
-            &AbstractUploadAndInstallPackageService::progressMessage);
-    d->uploader->start();
+    d->uploader.setDevice(deviceConfiguration());
+    d->uploader.setFilesToTransfer(files);
+    d->uploader.start();
 }
 
 void AbstractUploadAndInstallPackageService::stopDeployment()
@@ -118,7 +118,7 @@ void AbstractUploadAndInstallPackageService::stopDeployment()
         qWarning("%s: Unexpected state 'Inactive'.", Q_FUNC_INFO);
         break;
     case Uploading:
-        d->uploader->stop();
+        d->uploader.stop();
         setFinished();
         break;
     case Installing:
@@ -167,7 +167,7 @@ void AbstractUploadAndInstallPackageService::handleInstallationFinished(const QS
 void AbstractUploadAndInstallPackageService::setFinished()
 {
     d->state = Inactive;
-    d->uploader->stop();
+    d->uploader.stop();
     disconnect(packageInstaller(), nullptr, this, nullptr);
     handleDeploymentDone();
 }

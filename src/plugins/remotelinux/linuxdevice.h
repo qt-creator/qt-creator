@@ -30,47 +30,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
-namespace Utils { class ProcessResultData; }
-
 namespace RemoteLinux {
-
-enum class TransferDirection {
-    Upload,
-    Download,
-    Invalid
-};
-
-class FileToTransfer
-{
-public:
-    Utils::FilePath m_source;
-    Utils::FilePath m_target;
-    TransferDirection transferDirection() const;
-};
-using FilesToTransfer = QList<FileToTransfer>;
-
-class FileTransferInterface;
-
-class REMOTELINUX_EXPORT FileTransfer : public QObject
-{
-    Q_OBJECT
-
-public:
-    ~FileTransfer();
-
-    void start();
-    void stop();
-
-signals:
-    void progress(const QString &progressMessage);
-    void done(const Utils::ProcessResultData &resultData);
-
-private:
-    FileTransfer(FileTransferInterface *transferInterface);
-    FileTransferInterface *d;
-
-    friend class LinuxDevice;
-};
 
 class REMOTELINUX_EXPORT LinuxDevice : public ProjectExplorer::IDevice
 {
@@ -126,8 +86,6 @@ public:
     qint64 bytesAvailable(const Utils::FilePath &filePath) const override;
     QFileDevice::Permissions permissions(const Utils::FilePath &filePath) const override;
     bool setPermissions(const Utils::FilePath &filePath, QFileDevice::Permissions permissions) const override;
-
-    FileTransfer *createFileTransfer(const FilesToTransfer &files) const;
 
 protected:
     LinuxDevice();
