@@ -1285,6 +1285,7 @@ public:
 
     QHash<TextDocument *, HighlightingData> highlightingData;
     QHash<Utils::FilePath, CppEditor::BaseEditorDocumentParser::Configuration> parserConfigs;
+    QHash<Utils::FilePath, Tasks> issuePaneEntries;
 
     VersionedDataCache<const TextDocument *, AstNode> astCache;
     VersionedDataCache<Utils::FilePath, AstNode> externalAstCache;
@@ -1717,13 +1718,30 @@ const LanguageClient::Client::CustomInspectorTabs ClangdClient::createCustomInsp
 
 class ClangdDiagnosticManager : public LanguageClient::DiagnosticManager
 {
-public:
     using LanguageClient::DiagnosticManager::DiagnosticManager;
+
+    ClangdClient *getClient() const { return qobject_cast<ClangdClient *>(client()); }
+
+    bool isCurrentDocument(const Utils::FilePath &filePath) const
+    {
+        const IDocument * const doc = EditorManager::currentDocument();
+        return doc && doc->filePath() == filePath;
+    }
+
+    void showDiagnostics(const DocumentUri &uri, int version) override
+    {
+        const Utils::FilePath filePath = uri.toFilePath();
+        getClient()->clearTasks(filePath);
+        DiagnosticManager::showDiagnostics(uri, version);
+        if (isCurrentDocument(filePath))
+            getClient()->switchIssuePaneEntries(filePath);
+    }
 
     void hideDiagnostics(const Utils::FilePath &filePath) override
     {
         DiagnosticManager::hideDiagnostics(filePath);
-        TaskHub::clearTasks(Constants::TASK_CATEGORY_DIAGNOSTICS);
+        if (isCurrentDocument(filePath))
+            TaskHub::clearTasks(Constants::TASK_CATEGORY_DIAGNOSTICS);
     }
 
     QList<Diagnostic> filteredDiagnostics(const QList<Diagnostic> &diagnostics) const override
@@ -1739,7 +1757,7 @@ public:
                              const Diagnostic &diagnostic,
                              bool isProjectFile) const override
     {
-        return new ClangdTextMark(filePath, diagnostic, isProjectFile, client());
+        return new ClangdTextMark(filePath, diagnostic, isProjectFile, getClient());
     }
 };
 
@@ -1935,6 +1953,24 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     DidChangeConfigurationParams configChangeParams;
     configChangeParams.setSettings(settings);
     sendContent(DidChangeConfigurationNotification(configChangeParams));
+}
+
+void ClangdClient::switchIssuePaneEntries(const Utils::FilePath &filePath)
+{
+    TaskHub::clearTasks(Constants::TASK_CATEGORY_DIAGNOSTICS);
+    const Tasks tasks = d->issuePaneEntries.value(filePath);
+    for (const Task &t : tasks)
+        TaskHub::addTask(t);
+}
+
+void ClangdClient::addTask(const ProjectExplorer::Task &task)
+{
+    d->issuePaneEntries[task.file] << task;
+}
+
+void ClangdClient::clearTasks(const Utils::FilePath &filePath)
+{
+    d->issuePaneEntries[filePath].clear();
 }
 
 void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Location> &locations)

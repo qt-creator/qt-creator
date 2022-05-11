@@ -47,7 +47,7 @@ public:
     ClangdTextMark(const ::Utils::FilePath &filePath,
                    const LanguageServerProtocol::Diagnostic &diagnostic,
                    bool isProjectFile,
-                   const LanguageClient::Client *client);
+                   LanguageClient::Client *client);
 
 private:
     bool addToolTipContent(QLayout *target) const override;

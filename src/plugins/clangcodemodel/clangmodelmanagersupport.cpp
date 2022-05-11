@@ -282,8 +282,10 @@ void ClangModelManagerSupport::onCurrentEditorChanged(Core::IEditor *editor)
     const ::Utils::FilePath filePath = editor->document()->filePath();
     if (auto processor = ClangEditorDocumentProcessor::get(filePath.toString())) {
         processor->semanticRehighlight();
-        if (const auto client = clientForFile(filePath))
+        if (const auto client = clientForFile(filePath)) {
             client->updateParserConfig(filePath, processor->parserConfig());
+            client->switchIssuePaneEntries(filePath);
+        }
     }
 }
 

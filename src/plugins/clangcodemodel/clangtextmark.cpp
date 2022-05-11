@@ -39,7 +39,7 @@
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/cppcodemodelsettings.h>
 
-#include <projectexplorer/taskhub.h>
+#include <projectexplorer/task.h>
 
 #include <utils/fadingindicator.h>
 #include <utils/qtcassert.h>
@@ -279,7 +279,7 @@ ClangDiagnostic convertDiagnostic(const ClangdDiagnostic &src, const FilePath &f
     return target;
 }
 
-void addTask(const ClangDiagnostic &diagnostic)
+Task createTask(const ClangDiagnostic &diagnostic)
 {
     Task::TaskType taskType = Task::TaskType::Unknown;
     QIcon icon;
@@ -298,13 +298,13 @@ void addTask(const ClangDiagnostic &diagnostic)
         break;
     }
 
-    TaskHub::addTask(Task(taskType,
-                          diagnosticCategoryPrefixRemoved(diagnostic.text),
-                          FilePath::fromString(diagnostic.location.targetFilePath.toString()),
-                          diagnostic.location.targetLine,
-                          Constants::TASK_CATEGORY_DIAGNOSTICS,
-                          icon,
-                          Task::NoOptions));
+    return Task(taskType,
+                diagnosticCategoryPrefixRemoved(diagnostic.text),
+                FilePath::fromString(diagnostic.location.targetFilePath.toString()),
+                diagnostic.location.targetLine,
+                Constants::TASK_CATEGORY_DIAGNOSTICS,
+                icon,
+                Task::NoOptions);
 }
 
 } // anonymous namespace
@@ -312,7 +312,7 @@ void addTask(const ClangDiagnostic &diagnostic)
 ClangdTextMark::ClangdTextMark(const FilePath &filePath,
                                const Diagnostic &diagnostic,
                                bool isProjectFile,
-                               const Client *client)
+                               Client *client)
     : TextEditor::TextMark(filePath, int(diagnostic.range().start().line() + 1), client->id())
     , m_lspDiagnostic(diagnostic)
     , m_diagnostic(convertDiagnostic(ClangdDiagnostic(diagnostic), filePath))
@@ -330,7 +330,7 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
         setLineAnnotation(diagnostic.message());
         setColor(isError ? Theme::CodeModel_Error_TextMarkColor
                          : Theme::CodeModel_Warning_TextMarkColor);
-        addTask(m_diagnostic);
+        qobject_cast<ClangdClient *>(client)->addTask(createTask(m_diagnostic));
     }
 
     // Copy to clipboard action

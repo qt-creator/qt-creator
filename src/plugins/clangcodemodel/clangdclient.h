@@ -37,7 +37,10 @@
 namespace Core { class SearchResultItem; }
 namespace CppEditor { class CppEditorWidget; }
 namespace LanguageServerProtocol { class Range; }
-namespace ProjectExplorer { class Project; }
+namespace ProjectExplorer {
+class Project;
+class Task;
+}
 namespace TextEditor { class BaseTextEditor; }
 
 namespace ClangCodeModel {
@@ -93,6 +96,9 @@ public:
 
     void updateParserConfig(const Utils::FilePath &filePath,
                             const CppEditor::BaseEditorDocumentParser::Configuration &config);
+    void switchIssuePaneEntries(const Utils::FilePath &filePath);
+    void addTask(const ProjectExplorer::Task &task);
+    void clearTasks(const Utils::FilePath &filePath);
 
 signals:
     void indexingFinished();
