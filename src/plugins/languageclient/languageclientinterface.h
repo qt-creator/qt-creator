@@ -46,7 +46,7 @@ public:
     ~BaseClientInterface() override;
 
     void sendContent(const LanguageServerProtocol::IContent &content);
-    virtual bool start() { return true; }
+    void start() { startImpl(); }
 
     void resetBuffer();
 
@@ -54,8 +54,10 @@ signals:
     void contentReceived(const LanguageServerProtocol::JsonRpcMessage message);
     void finished();
     void error(const QString &message);
+    void started();
 
 protected:
+    virtual void startImpl() { emit started(); }
     virtual void sendData(const QByteArray &data) = 0;
     void parseData(const QByteArray &data);
     virtual void parseCurrentMessage();
@@ -77,7 +79,7 @@ public:
     StdIOClientInterface &operator=(const StdIOClientInterface &) = delete;
     StdIOClientInterface &operator=(StdIOClientInterface &&) = delete;
 
-    bool start() override;
+    void startImpl() override;
 
     // These functions only have an effect if they are called before start
     void setCommandLine(const Utils::CommandLine &cmd);
@@ -85,7 +87,9 @@ public:
 
 protected:
     void sendData(const QByteArray &data) final;
-    Utils::QtcProcess m_process;
+    Utils::CommandLine m_cmd;
+    Utils::FilePath m_workingDirectory;
+    Utils::QtcProcess *m_process = nullptr;
 
 private:
     void readError();

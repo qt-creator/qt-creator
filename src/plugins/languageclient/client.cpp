@@ -62,7 +62,6 @@
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
 
-
 #include <QDebug>
 #include <QLoggingCategory>
 #include <QMessageBox>
@@ -71,6 +70,7 @@
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextDocument>
+#include <QThread>
 #include <QTimer>
 
 using namespace LanguageServerProtocol;
@@ -80,9 +80,56 @@ namespace LanguageClient {
 
 static Q_LOGGING_CATEGORY(LOGLSPCLIENT, "qtc.languageclient.client", QtWarningMsg);
 
+class InterfaceController : public QObject
+{
+    Q_OBJECT
+
+public:
+    InterfaceController(BaseClientInterface *interface)
+        : m_interface(interface)
+    {
+        using Interface = BaseClientInterface;
+        interface->moveToThread(&m_thread);
+        connect(interface, &Interface::contentReceived, this, &InterfaceController::contentReceived);
+        connect(interface, &Interface::error, this, &InterfaceController::error);
+        connect(interface, &Interface::finished, this, &InterfaceController::finished);
+        connect(interface, &Interface::started, this, &InterfaceController::started);
+        m_thread.start();
+    }
+    ~InterfaceController()
+    {
+        m_interface->deleteLater();
+        m_thread.quit();
+        m_thread.wait();
+    }
+
+    void start()
+    {
+        QMetaObject::invokeMethod(m_interface, &BaseClientInterface::start);
+    }
+    void sendContent(const JsonRpcMessage message)
+    {
+        QMetaObject::invokeMethod(m_interface, [=]() { m_interface->sendContent(message); });
+    }
+    void resetBuffer()
+    {
+        QMetaObject::invokeMethod(m_interface, &BaseClientInterface::resetBuffer);
+    }
+
+signals:
+    void contentReceived(const JsonRpcMessage &message);
+    void started();
+    void error(const QString &message);
+    void finished();
+
+private:
+    BaseClientInterface *m_interface;
+    QThread m_thread;
+};
+
 Client::Client(BaseClientInterface *clientInterface)
     : m_id(Utils::Id::fromString(QUuid::createUuid().toString()))
-    , m_clientInterface(clientInterface)
+    , m_clientInterface(new InterfaceController(clientInterface))
     , m_documentSymbolCache(this)
     , m_hoverHandler(this)
     , m_symbolSupport(this)
@@ -105,9 +152,12 @@ Client::Client(BaseClientInterface *clientInterface)
             this, &Client::projectClosed);
 
     QTC_ASSERT(clientInterface, return);
-    connect(clientInterface, &BaseClientInterface::contentReceived, this, &Client::handleContent);
-    connect(clientInterface, &BaseClientInterface::error, this, &Client::setError);
-    connect(clientInterface, &BaseClientInterface::finished, this, &Client::finished);
+    connect(m_clientInterface, &InterfaceController::contentReceived, this, &Client::handleContent);
+    connect(m_clientInterface, &InterfaceController::error, this, &Client::setError);
+    connect(m_clientInterface, &InterfaceController::finished, this, &Client::finished);
+    connect(m_clientInterface, &InterfaceController::started, this, [this]() {
+        LanguageClientManager::clientStarted(this);
+    });
     connect(Core::EditorManager::instance(),
             &Core::EditorManager::documentClosed,
             this,
@@ -159,9 +209,10 @@ Client::~Client()
     m_documentHighlightsTimer.clear();
     updateEditorToolBar(m_openedDocument.keys());
     // do not handle messages while shutting down
-    disconnect(m_clientInterface.data(), &BaseClientInterface::contentReceived,
+    disconnect(m_clientInterface, &InterfaceController::contentReceived,
                this, &Client::handleContent);
     delete m_diagnosticManager;
+    delete m_clientInterface;
 }
 
 static ClientCapabilities generateClientCapabilities()
@@ -1170,10 +1221,7 @@ bool Client::supportsDocumentSymbols(const TextEditor::TextDocument *doc) const
 void Client::start()
 {
     LanguageClientManager::addClient(this);
-    if (m_clientInterface->start())
-        LanguageClientManager::clientStarted(this);
-    else
-        LanguageClientManager::clientFinished(this);
+    m_clientInterface->start();
 }
 
 bool Client::reset()
@@ -1541,8 +1589,8 @@ void Client::sendContentNow(const IContent &content)
         LanguageClientManager::logJsonRpcMessage(LspLogMessage::ClientMessage,
                                                  name(),
                                                  static_cast<const JsonRpcMessage &>(content));
+        m_clientInterface->sendContent(static_cast<const JsonRpcMessage &>(content));
     }
-    m_clientInterface->sendContent(content);
 }
 
 bool Client::documentUpdatePostponed(const Utils::FilePath &fileName) const
@@ -1694,3 +1742,5 @@ QTextCursor Client::adjustedCursorForHighlighting(const QTextCursor &cursor,
 }
 
 } // namespace LanguageClient
+
+#include <client.moc>

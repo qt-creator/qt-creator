@@ -41,6 +41,7 @@ static LanguageClientPlugin *m_instance = nullptr;
 LanguageClientPlugin::LanguageClientPlugin()
 {
     m_instance = this;
+    qRegisterMetaType<LanguageServerProtocol::JsonRpcMessage>();
 }
 
 LanguageClientPlugin::~LanguageClientPlugin()

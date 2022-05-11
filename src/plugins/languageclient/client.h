@@ -80,6 +80,7 @@ QT_END_NAMESPACE
 namespace LanguageClient {
 
 class BaseClientInterface;
+class InterfaceController;
 
 class LANGUAGECLIENT_EXPORT Client : public QObject
 {
@@ -300,7 +301,7 @@ private:
     QMap<TextEditor::TextDocument *, AssistProviders> m_resetAssistProvider;
     QHash<TextEditor::TextEditorWidget *, LanguageServerProtocol::MessageId> m_highlightRequests;
     int m_restartsLeft = 5;
-    QScopedPointer<BaseClientInterface> m_clientInterface;
+    InterfaceController *m_clientInterface = nullptr;
     DiagnosticManager *m_diagnosticManager = nullptr;
     DocumentSymbolCache m_documentSymbolCache;
     HoverHandler m_hoverHandler;

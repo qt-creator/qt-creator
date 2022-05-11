@@ -99,72 +99,72 @@ void BaseClientInterface::parseCurrentMessage()
     m_currentMessage = BaseMessage();
 }
 
-StdIOClientInterface::StdIOClientInterface()
-{
-    m_process.setProcessMode(ProcessMode::Writer);
-
-    connect(&m_process, &QtcProcess::readyReadStandardError,
-            this, &StdIOClientInterface::readError);
-    connect(&m_process, &QtcProcess::readyReadStandardOutput,
-            this, &StdIOClientInterface::readOutput);
-    connect(&m_process, &QtcProcess::finished,
-            this, &StdIOClientInterface::onProcessFinished);
-}
+StdIOClientInterface::StdIOClientInterface() {}
 
 StdIOClientInterface::~StdIOClientInterface()
 {
-    m_process.stopProcess();
+    if (m_process)
+        m_process->stopProcess();
+    delete m_process;
 }
 
-bool StdIOClientInterface::start()
+void StdIOClientInterface::startImpl()
 {
-    m_process.start();
-    if (!m_process.waitForStarted() || m_process.state() != QProcess::Running) {
-        emit error(m_process.errorString());
-        return false;
-    }
-    return true;
+    m_process = new Utils::QtcProcess;
+    m_process->setProcessMode(ProcessMode::Writer);
+    connect(m_process, &QtcProcess::readyReadStandardError,
+            this, &StdIOClientInterface::readError);
+    connect(m_process, &QtcProcess::readyReadStandardOutput,
+            this, &StdIOClientInterface::readOutput);
+    connect(m_process, &QtcProcess::finished, this, &StdIOClientInterface::onProcessFinished);
+    connect(m_process, &QtcProcess::started, this, &StdIOClientInterface::started);
+    m_process->setCommand(m_cmd);
+    m_process->setWorkingDirectory(m_workingDirectory);
+    m_process->start();
 }
 
 void StdIOClientInterface::setCommandLine(const CommandLine &cmd)
 {
-    m_process.setCommand(cmd);
+    m_cmd = cmd;
 }
 
 void StdIOClientInterface::setWorkingDirectory(const FilePath &workingDirectory)
 {
-    m_process.setWorkingDirectory(workingDirectory);
+    m_workingDirectory = workingDirectory;
 }
 
 void StdIOClientInterface::sendData(const QByteArray &data)
 {
-    if (m_process.state() != QProcess::Running) {
+    if (!m_process || m_process->state() != QProcess::Running) {
         emit error(tr("Cannot send data to unstarted server %1")
-            .arg(m_process.commandLine().toUserOutput()));
+            .arg(m_cmd.toUserOutput()));
         return;
     }
     qCDebug(LOGLSPCLIENTV) << "StdIOClient send data:";
     qCDebug(LOGLSPCLIENTV).noquote() << data;
-    m_process.writeRaw(data);
+    m_process->writeRaw(data);
 }
 
 void StdIOClientInterface::onProcessFinished()
 {
-    if (m_process.exitStatus() == QProcess::CrashExit)
+    QTC_ASSERT(m_process, return);
+    if (m_process->exitStatus() == QProcess::CrashExit)
         emit error(tr("Crashed with exit code %1: %2")
-                       .arg(m_process.exitCode()).arg(m_process.errorString()));
+                       .arg(m_process->exitCode()).arg(m_process->errorString()));
     emit finished();
 }
 
 void StdIOClientInterface::readError()
 {
+    QTC_ASSERT(m_process, return);
     qCDebug(LOGLSPCLIENTV) << "StdIOClient std err:\n";
-    qCDebug(LOGLSPCLIENTV).noquote() << m_process.readAllStandardError();
+    qCDebug(LOGLSPCLIENTV).noquote() << m_process->readAllStandardError();
 }
 
 void StdIOClientInterface::readOutput()
 {
-    const QByteArray &out = m_process.readAllStandardOutput();
+    QTC_ASSERT(m_process, return);
+    const QByteArray &out = m_process->readAllStandardOutput();
     qCDebug(LOGLSPCLIENTV) << "StdIOClient std out:\n";
     qCDebug(LOGLSPCLIENTV).noquote() << out;
     parseData(out);

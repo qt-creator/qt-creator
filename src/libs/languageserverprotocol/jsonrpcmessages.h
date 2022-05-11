@@ -354,7 +354,7 @@ public:
     constexpr static const char methodName[] = "$/cancelRequest";
 };
 
-} // namespace LanguageClient
+} // namespace LanguageServerProtocol
 
 template <typename Error>
 inline QDebug operator<<(QDebug stream,
@@ -363,3 +363,5 @@ inline QDebug operator<<(QDebug stream,
     stream.nospace() << error.toString();
     return stream;
 }
+
+Q_DECLARE_METATYPE(LanguageServerProtocol::JsonRpcMessage)

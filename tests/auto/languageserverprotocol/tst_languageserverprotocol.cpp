@@ -34,7 +34,6 @@ using namespace LanguageServerProtocol;
 
 Q_DECLARE_METATYPE(QTextCodec *)
 Q_DECLARE_METATYPE(BaseMessage)
-Q_DECLARE_METATYPE(JsonRpcMessage)
 Q_DECLARE_METATYPE(DocumentUri)
 Q_DECLARE_METATYPE(Range)
 
