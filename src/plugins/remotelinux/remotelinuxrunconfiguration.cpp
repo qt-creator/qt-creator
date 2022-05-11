@@ -70,7 +70,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
     symbolsAspect->setLabelText(tr("Executable on host:"));
     symbolsAspect->setDisplayStyle(SymbolFileAspect::LabelDisplay);
 
-    addAspect<ArgumentsAspect>();
+    addAspect<ArgumentsAspect>(macroExpander());
     addAspect<WorkingDirectoryAspect>(envAspect);
     if (HostOsInfo::isAnyUnixHost())
         addAspect<TerminalAspect>();

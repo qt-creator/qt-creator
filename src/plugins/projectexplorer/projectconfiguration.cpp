@@ -135,15 +135,9 @@ bool ProjectConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
-Utils::BaseAspect *ProjectConfiguration::aspect(Utils::Id id) const
+BaseAspect *ProjectConfiguration::aspect(Id id) const
 {
     return m_aspects.aspect(id);
-}
-
-void ProjectConfiguration::doPostInit()
-{
-    for (const std::function<void()> &postInit : qAsConst(m_postInit))
-        postInit();
 }
 
 FilePath ProjectConfiguration::mapFromBuildDeviceToGlobalPath(const FilePath &path) const
@@ -153,9 +147,9 @@ FilePath ProjectConfiguration::mapFromBuildDeviceToGlobalPath(const FilePath &pa
     return dev->mapToGlobalPath(path);
 }
 
-Utils::Id ProjectExplorer::idFromMap(const QVariantMap &map)
+Id ProjectExplorer::idFromMap(const QVariantMap &map)
 {
-    return Utils::Id::fromSetting(map.value(QLatin1String(CONFIGURATION_ID_KEY)));
+    return Id::fromSetting(map.value(QLatin1String(CONFIGURATION_ID_KEY)));
 }
 
 QString ProjectConfiguration::expandedDisplayName() const

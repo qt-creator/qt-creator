@@ -56,9 +56,9 @@ public:
         auto exeAspect = rc->aspect<ExecutableAspect>();
         auto argumentsAspect = rc->aspect<ArgumentsAspect>();
 
-        auto updateCommandLine = [this, rc, exeAspect, argumentsAspect] {
+        auto updateCommandLine = [this, exeAspect, argumentsAspect] {
             const QString usedExecutable = exeAspect->executable().toString();
-            const QString args = argumentsAspect->arguments(rc->macroExpander());
+            const QString args = argumentsAspect->arguments();
             setValue(QString(Constants::AppcontrollerFilepath)
                      + ' ' + usedExecutable + ' ' + args);
         };
@@ -101,7 +101,7 @@ QdbRunConfiguration::QdbRunConfiguration(Target *target, Id id)
 
     auto envAspect = addAspect<RemoteLinux::RemoteLinuxEnvironmentAspect>(target);
 
-    addAspect<ArgumentsAspect>();
+    addAspect<ArgumentsAspect>(macroExpander());
     addAspect<WorkingDirectoryAspect>(envAspect);
     addAspect<FullCommandLineAspect>(this);
 

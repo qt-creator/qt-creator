@@ -44,7 +44,7 @@ using namespace Utils;
 namespace Qnx {
 namespace Internal {
 
-QnxRunConfiguration::QnxRunConfiguration(Target *target, Utils::Id id)
+QnxRunConfiguration::QnxRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
     auto exeAspect = addAspect<ExecutableAspect>(target);
@@ -60,7 +60,7 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Utils::Id id)
 
     auto envAspect = addAspect<RemoteLinuxEnvironmentAspect>(target);
 
-    addAspect<ArgumentsAspect>();
+    addAspect<ArgumentsAspect>(macroExpander());
     addAspect<WorkingDirectoryAspect>(envAspect);
     addAspect<TerminalAspect>();
 

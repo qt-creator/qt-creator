@@ -55,14 +55,13 @@ private:
 NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Id id)
     : AbstractProcessStep(parentList, id)
 {
-    auto arguments = addAspect<ArgumentsAspect>();
+    auto arguments = addAspect<ArgumentsAspect>(macroExpander());
     arguments->setSettingsKey(Constants::C_NIMBLEBUILDSTEP_ARGUMENTS);
     arguments->setResetter([this] { return defaultArguments(); });
     arguments->setArguments(defaultArguments());
 
     setCommandLineProvider([this, arguments] {
-        return CommandLine(Nim::nimblePathFromKit(kit()),
-                           {"build", arguments->arguments(macroExpander())});
+        return CommandLine(Nim::nimblePathFromKit(kit()), {"build", arguments->arguments()});
     });
     setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });
     setEnvironmentModifier([this](Environment &env) {

@@ -45,14 +45,14 @@ class BareMetalRunConfiguration final : public RunConfiguration
     Q_DECLARE_TR_FUNCTIONS(BareMetal::Internal::BareMetalRunConfiguration)
 
 public:
-    explicit BareMetalRunConfiguration(Target *target, Utils::Id id)
+    explicit BareMetalRunConfiguration(Target *target, Id id)
         : RunConfiguration(target, id)
     {
         const auto exeAspect = addAspect<ExecutableAspect>(target);
         exeAspect->setDisplayStyle(StringAspect::LabelDisplay);
         exeAspect->setPlaceHolderText(tr("Unknown"));
 
-        addAspect<ArgumentsAspect>();
+        addAspect<ArgumentsAspect>(macroExpander());
         addAspect<WorkingDirectoryAspect>(nullptr);
 
         setUpdater([this, exeAspect] {
@@ -79,7 +79,7 @@ public:
         exeAspect->setHistoryCompleter("BareMetal.CustomRunConfig.History");
         exeAspect->setExpectedKind(PathChooser::Any);
 
-        addAspect<ArgumentsAspect>();
+        addAspect<ArgumentsAspect>(macroExpander());
         addAspect<WorkingDirectoryAspect>(nullptr);
 
         setDefaultDisplayName(RunConfigurationFactory::decoratedTargetName(tr("Custom Executable"), target));

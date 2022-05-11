@@ -98,7 +98,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     m_qmlViewerAspect->setDisplayStyle(StringAspect::LineEditDisplay);
     m_qmlViewerAspect->setHistoryCompleter("QmlProjectManager.viewer.history");
 
-    auto argumentAspect = addAspect<ArgumentsAspect>();
+    auto argumentAspect = addAspect<ArgumentsAspect>(macroExpander());
     argumentAspect->setSettingsKey(Constants::QML_VIEWER_ARGUMENTS_KEY);
 
     setCommandLineGetter([this] {
@@ -206,7 +206,7 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
 QString QmlProjectRunConfiguration::commandLineArguments() const
 {
     // arguments in .user file
-    QString args = aspect<ArgumentsAspect>()->arguments(macroExpander());
+    QString args = aspect<ArgumentsAspect>()->arguments();
     const IDevice::ConstPtr device = DeviceKitAspect::device(kit());
     const OsType osType = device ? device->osType() : HostOsInfo::hostOs();
 

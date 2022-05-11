@@ -89,7 +89,7 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Id id)
     m_buildType->addOption(tr("Debug"));
     m_buildType->addOption(tr("Release"));
 
-    m_userArgs = addAspect<ArgumentsAspect>();
+    m_userArgs = addAspect<ArgumentsAspect>(macroExpander());
     m_userArgs->setSettingsKey(QMAKE_ARGUMENTS_KEY);
     m_userArgs->setLabelText(tr("Additional arguments:"));
 
@@ -469,7 +469,7 @@ QStringList QMakeStep::parserArguments()
 
 QString QMakeStep::userArguments() const
 {
-    return m_userArgs->arguments(macroExpander());
+    return m_userArgs->arguments();
 }
 
 QString QMakeStep::mkspec() const

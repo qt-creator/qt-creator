@@ -75,15 +75,14 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Utils::Id id)
     auto envAspect = addAspect<EnvironmentAspect>();
     envAspect->addSupportedBaseEnvironment(tr("Clean Environment"), {});
 
-    auto extraAppArgsAspect = addAspect<ArgumentsAspect>();
+    auto extraAppArgsAspect = addAspect<ArgumentsAspect>(macroExpander());
 
-    connect(extraAppArgsAspect, &BaseAspect::changed,
-            this, [target, extraAppArgsAspect]() {
+    connect(extraAppArgsAspect, &BaseAspect::changed, this, [target, extraAppArgsAspect] {
         if (target->buildConfigurations().first()->buildType() == BuildConfiguration::BuildType::Release) {
             const QString buildKey = target->activeBuildKey();
             target->buildSystem()->setExtraData(buildKey,
                                             Android::Constants::AndroidApplicationArgs,
-                                            extraAppArgsAspect->arguments(target->macroExpander()));
+                                            extraAppArgsAspect->arguments());
         }
     });
 

@@ -83,7 +83,7 @@ IosRunConfiguration::IosRunConfiguration(Target *target, Id id)
     auto executableAspect = addAspect<ExecutableAspect>(target);
     executableAspect->setDisplayStyle(StringAspect::LabelDisplay);
 
-    addAspect<ArgumentsAspect>();
+    addAspect<ArgumentsAspect>(macroExpander());
 
     m_deviceTypeAspect = addAspect<IosDeviceTypeAspect>(this);
 

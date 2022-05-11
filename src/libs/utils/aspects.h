@@ -178,9 +178,9 @@ public:
 
     using DataCreator = std::function<Data *()>;
     using DataCloner = std::function<Data *(const Data *)>;
-    using DataExtractor = std::function<void(Data *data, const MacroExpander *expander)>;
+    using DataExtractor = std::function<void(Data *data)>;
 
-    Data::Ptr extractData(const MacroExpander *expander) const;
+    Data::Ptr extractData() const;
 
 signals:
     void changed();
@@ -205,23 +205,8 @@ protected:
         setDataClonerHelper([](const Data *data) {
             return new DataClass(*static_cast<const DataClass *>(data));
         });
-        addDataExtractorHelper([aspect, p, q](Data *data, const MacroExpander *) {
+        addDataExtractorHelper([aspect, p, q](Data *data) {
             static_cast<DataClass *>(data)->*q = (aspect->*p)();
-        });
-    }
-
-    template <typename AspectClass, typename DataClass, typename Type>
-    void addDataExtractor(AspectClass *aspect,
-                          Type(AspectClass::*p)(const MacroExpander *) const,
-                          Type DataClass::*q) {
-        setDataCreatorHelper([] {
-            return new DataClass;
-        });
-        setDataClonerHelper([](const Data *data) {
-            return new DataClass(*static_cast<const DataClass *>(data));
-        });
-        addDataExtractorHelper([aspect, p, q](Data *data, const MacroExpander *expander) {
-            static_cast<DataClass *>(data)->*q = (aspect->*p)(expander);
         });
     }
 

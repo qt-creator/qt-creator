@@ -209,21 +209,16 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
                                      [this] { return commandLine().executable(); });
 
 
-    m_commandLineGetter = [target, this] {
+    m_commandLineGetter = [this] {
         FilePath executable;
         if (const auto executableAspect = aspect<ExecutableAspect>())
             executable = executableAspect->executable();
         QString arguments;
         if (const auto argumentsAspect = aspect<ArgumentsAspect>())
-            arguments = argumentsAspect->arguments(macroExpander());
+            arguments = argumentsAspect->arguments();
 
         return CommandLine{executable, arguments, CommandLine::Raw};
     };
-
-    addPostInit([this] {
-        if (const auto wdAspect = aspect<WorkingDirectoryAspect>())
-            wdAspect->setMacroExpander(&m_expander);
-    });
 }
 
 RunConfiguration::~RunConfiguration() = default;
@@ -280,7 +275,7 @@ AspectContainerData RunConfiguration::aspectData() const
 {
     AspectContainerData data;
     for (BaseAspect *aspect : m_aspects)
-        data.append(aspect->extractData(&m_expander));
+        data.append(aspect->extractData());
     return data;
 }
 
@@ -585,7 +580,6 @@ RunConfiguration *RunConfigurationFactory::create(Target *target) const
     for (const RunConfiguration::AspectFactory &factory : theAspectFactories)
         rc->m_aspects.registerAspect(factory(target));
 
-    rc->doPostInit();
     return rc;
 }
 

@@ -51,7 +51,7 @@ public:
     {
         auto envAspect = addAspect<LocalEnvironmentAspect>(target);
         addAspect<ExecutableAspect>(target);
-        addAspect<ArgumentsAspect>();
+        addAspect<ArgumentsAspect>(macroExpander());
         addAspect<WorkingDirectoryAspect>(envAspect);
         addAspect<TerminalAspect>();
 

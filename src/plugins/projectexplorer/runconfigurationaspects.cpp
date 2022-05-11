@@ -298,11 +298,6 @@ void WorkingDirectoryAspect::setDefaultWorkingDirectory(const FilePath &defaultW
     }
 }
 
-void WorkingDirectoryAspect::setMacroExpander(MacroExpander *macroExpander)
-{
-    m_macroExpander = macroExpander;
-}
-
 /*!
     \internal
 */
@@ -320,7 +315,8 @@ PathChooser *WorkingDirectoryAspect::pathChooser() const
     arguments for an executable.
 */
 
-ArgumentsAspect::ArgumentsAspect()
+ArgumentsAspect::ArgumentsAspect(const MacroExpander *macroExpander)
+    : m_macroExpander(macroExpander)
 {
     setDisplayName(tr("Arguments"));
     setId("ArgumentsAspect");
@@ -336,14 +332,14 @@ ArgumentsAspect::ArgumentsAspect()
 
     Macros in the value are expanded using \a expander.
 */
-QString ArgumentsAspect::arguments(const MacroExpander *expander) const
+QString ArgumentsAspect::arguments() const
 {
-    QTC_ASSERT(expander, return m_arguments);
+    QTC_ASSERT(m_macroExpander, return m_arguments);
     if (m_currentlyExpanding)
         return m_arguments;
 
     m_currentlyExpanding = true;
-    const QString expanded = expander->expandProcessArgs(m_arguments);
+    const QString expanded = m_macroExpander->expandProcessArgs(m_arguments);
     m_currentlyExpanding = false;
     return expanded;
 }

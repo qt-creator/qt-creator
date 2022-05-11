@@ -71,7 +71,7 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
     symbolsAspect->setLabelText(tr("Local executable:"));
     symbolsAspect->setDisplayStyle(SymbolFileAspect::PathChooserDisplay);
 
-    addAspect<ArgumentsAspect>();
+    addAspect<ArgumentsAspect>(macroExpander());
     addAspect<WorkingDirectoryAspect>(envAspect);
     if (HostOsInfo::isAnyUnixHost())
         addAspect<TerminalAspect>();

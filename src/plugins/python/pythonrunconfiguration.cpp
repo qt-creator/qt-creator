@@ -176,17 +176,17 @@ public:
 
         addAspect<LocalEnvironmentAspect>(target);
 
-        auto argumentsAspect = addAspect<ArgumentsAspect>();
+        auto argumentsAspect = addAspect<ArgumentsAspect>(macroExpander());
 
         addAspect<WorkingDirectoryAspect>(nullptr);
         addAspect<TerminalAspect>();
 
-        setCommandLineGetter([this, bufferedAspect, interpreterAspect, argumentsAspect, scriptAspect] {
+        setCommandLineGetter([bufferedAspect, interpreterAspect, argumentsAspect, scriptAspect] {
             CommandLine cmd{interpreterAspect->currentInterpreter().command};
             if (!bufferedAspect->value())
                 cmd.addArg("-u");
             cmd.addArg(scriptAspect->filePath().fileName());
-            cmd.addArgs(argumentsAspect->arguments(macroExpander()), CommandLine::Raw);
+            cmd.addArgs(argumentsAspect->arguments(), CommandLine::Raw);
             return cmd;
         });
 

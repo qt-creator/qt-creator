@@ -89,7 +89,6 @@ public:
     Utils::FilePath defaultWorkingDirectory() const;
     Utils::FilePath unexpandedWorkingDirectory() const;
     void setDefaultWorkingDirectory(const Utils::FilePath &defaultWorkingDirectory);
-    void setMacroExpander(Utils::MacroExpander *macroExpander);
     Utils::PathChooser *pathChooser() const;
 
 private:
@@ -111,11 +110,11 @@ class PROJECTEXPLORER_EXPORT ArgumentsAspect : public Utils::BaseAspect
     Q_OBJECT
 
 public:
-    ArgumentsAspect();
+    explicit ArgumentsAspect(const Utils::MacroExpander *macroExpander);
 
     void addToLayout(Utils::LayoutBuilder &builder) override;
 
-    QString arguments(const Utils::MacroExpander *expander) const;
+    QString arguments() const;
     QString unexpandedArguments() const;
 
     void setArguments(const QString &arguments);
@@ -143,6 +142,7 @@ private:
     bool m_multiLine = false;
     mutable bool m_currentlyExpanding = false;
     std::function<QString()> m_resetter;
+    const Utils::MacroExpander *m_macroExpander = nullptr;
 };
 
 class PROJECTEXPLORER_EXPORT UseLibraryPathsAspect : public Utils::BoolAspect
