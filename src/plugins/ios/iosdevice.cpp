@@ -486,7 +486,12 @@ void IosDeviceManager::monitorAvailableDevices()
         CFRelease( cfProductIdMaskValue );
     }
 
-    IONotificationPortRef notificationPort = IONotificationPortCreate(kIOMasterPortDefault);
+#if QT_MACOS_DEPLOYMENT_TARGET_BELOW(120000)
+    const mach_port_t port = kIOMasterPortDefault; // deprecated in macOS 12
+#else
+    const mach_port_t port = kIOMainPortDefault; // available since macOS 12
+#endif
+    IONotificationPortRef notificationPort = IONotificationPortCreate(port);
     CFRunLoopSourceRef runLoopSource = IONotificationPortGetRunLoopSource(notificationPort);
 
     CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopDefaultMode);
@@ -495,21 +500,19 @@ void IosDeviceManager::monitorAvailableDevices()
     CFRetain(matchingDictionary);
 
     // Now set up a notification to be called when a device is first matched by I/O Kit.
-    kern_return_t kr;
-    kr = IOServiceAddMatchingNotification(notificationPort,
-                                          kIOMatchedNotification,
-                                          matchingDictionary,
-                                          deviceConnectedCallback,
-                                          NULL,
-                                          &gAddedIter);
+    IOServiceAddMatchingNotification(notificationPort,
+                                     kIOMatchedNotification,
+                                     matchingDictionary,
+                                     deviceConnectedCallback,
+                                     NULL,
+                                     &gAddedIter);
 
-
-    kr = IOServiceAddMatchingNotification(notificationPort,
-                                          kIOTerminatedNotification,
-                                          matchingDictionary,
-                                          deviceDisconnectedCallback,
-                                          NULL,
-                                          &gRemovedIter);
+    IOServiceAddMatchingNotification(notificationPort,
+                                     kIOTerminatedNotification,
+                                     matchingDictionary,
+                                     deviceDisconnectedCallback,
+                                     NULL,
+                                     &gRemovedIter);
 
     // Iterate once to get already-present devices and arm the notification
     deviceConnectedCallback(NULL, gAddedIter);
