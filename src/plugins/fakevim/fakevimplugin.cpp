@@ -1209,7 +1209,7 @@ bool FakeVimPluginPrivate::initialize()
         connect(act, &QAction::triggered, this, [this, i] { userActionTriggered(i); });
     }
 
-    connect(ICore::instance(), &ICore::coreAboutToClose, this, [this] {
+    connect(ICore::instance(), &ICore::coreAboutToClose, this, [] {
         // Don't attach to editors anymore.
         disconnect(EditorManager::instance(), &EditorManager::editorOpened,
                    dd, &FakeVimPluginPrivate::editorOpened);
