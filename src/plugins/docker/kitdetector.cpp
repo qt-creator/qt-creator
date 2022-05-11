@@ -214,10 +214,10 @@ QtVersions KitDetectorPrivate::autoDetectQtVersions() const
     QString error;
 
     const auto handleQmake = [this, &qtVersions, &error](const FilePath &qmake) {
-        if (QtVersion *qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake,
-                                                                            false,
-                                                                            m_sharedId,
-                                                                            &error)) {
+        if (QtVersion *qtVersion = QtVersionFactory::createQtVersionFromQueryToolPath(qmake,
+                                                                                      false,
+                                                                                      m_sharedId,
+                                                                                      &error)) {
             if (qtVersion->isValid()) {
                 if (!Utils::anyOf(qtVersions,
                                  [qtVersion](QtVersion* other) {
@@ -227,7 +227,7 @@ QtVersions KitDetectorPrivate::autoDetectQtVersions() const
                     qtVersions.append(qtVersion);
                     QtVersionManager::addVersion(qtVersion);
                     emit q->logOutput(
-                        tr("Found \"%1\"").arg(qtVersion->qmakeFilePath().toUserOutput()));
+                        tr("Found \"%1\"").arg(qtVersion->queryToolFilePath().toUserOutput()));
                 }
             }
         }

@@ -57,7 +57,7 @@ QtProjectImporter::QtVersionData
 QtProjectImporter::findOrCreateQtVersion(const Utils::FilePath &qmakePath) const
 {
     QtVersionData result;
-    result.qt = QtVersionManager::version(Utils::equal(&QtVersion::qmakeFilePath, qmakePath));
+    result.qt = QtVersionManager::version(Utils::equal(&QtVersion::queryToolFilePath, qmakePath));
     if (result.qt) {
         // Check if version is a temporary qt
         const int qtId = result.qt->uniqueId();
@@ -67,7 +67,7 @@ QtProjectImporter::findOrCreateQtVersion(const Utils::FilePath &qmakePath) const
 
     // Create a new version if not found:
     // Do not use the canonical path here...
-    result.qt = QtVersionFactory::createQtVersionFromQMakePath(qmakePath);
+    result.qt = QtVersionFactory::createQtVersionFromQueryToolPath(qmakePath);
     result.isTemporary = true;
     if (result.qt) {
         UpdateGuard guard(*this);
@@ -281,7 +281,7 @@ static QStringList additionalFilesToCopy(const QtVersion *qt)
         } else if (HostOsInfo::isWindowsHost()) {
             const QString release = QString("bin/Qt%1Core.dll").arg(major);
             const QString debug = QString("bin/Qt%1Cored.dll").arg(major);
-            const FilePath base = qt->qmakeFilePath().parentDir().parentDir();
+            const FilePath base = qt->queryToolFilePath().parentDir().parentDir();
             if (base.pathAppended(release).exists())
                 return {release};
             if (base.pathAppended(debug).exists())
@@ -289,7 +289,7 @@ static QStringList additionalFilesToCopy(const QtVersion *qt)
             return {release};
         } else if (HostOsInfo::isLinuxHost()) {
             const QString core = QString("lib/libQt%1Core.so.%1").arg(major);
-            const QDir base(qt->qmakeFilePath().parentDir().parentDir().pathAppended("lib").toString());
+            const QDir base(qt->queryToolFilePath().parentDir().parentDir().pathAppended("lib").toString());
             const QStringList icuLibs = Utils::transform(base.entryList({"libicu*.so.*"}), [](const QString &lib) { return QString("lib/" + lib); });
             return QStringList(core) + icuLibs;
         }
@@ -300,7 +300,7 @@ static QStringList additionalFilesToCopy(const QtVersion *qt)
 static Utils::FilePath setupQmake(const QtVersion *qt, const QString &path)
 {
     // This is a hack and only works with local, "standard" installations of Qt
-    const FilePath qmake = qt->qmakeFilePath().canonicalPath();
+    const FilePath qmake = qt->queryToolFilePath().canonicalPath();
     const QString qmakeFile = "bin/" + qmake.fileName();
     const FilePath source = qmake.parentDir().parentDir();
     const FilePath target = FilePath::fromString(path);

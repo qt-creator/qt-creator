@@ -35382,16 +35382,16 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <translation>Ingen qmake-sti sat</translation>
     </message>
     <message>
-        <source>qmake does not exist or is not executable</source>
-        <translation>qmake findes ikke eller er ikke eksekverbar</translation>
+        <source>%1 does not exist or is not executable</source>
+        <translation>%1 findes ikke eller er ikke eksekverbar</translation>
     </message>
     <message>
         <source>Qt version is not properly installed, please run make install</source>
         <translation>Qt version er ikke ordentligt installeret, kør venligst make install</translation>
     </message>
     <message>
-        <source>Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?</source>
-        <translation>Kunne ikke beslutte stien til binærene af Qt installationen, måske er qmake-stien forkert?</translation>
+        <source>Could not determine the path to the binaries of the Qt installation, maybe the %1 path is wrong?</source>
+        <translation>Kunne ikke beslutte stien til binærene af Qt installationen, måske er %1-stien forkert?</translation>
     </message>
     <message>
         <source>The default mkspec symlink is broken.</source>

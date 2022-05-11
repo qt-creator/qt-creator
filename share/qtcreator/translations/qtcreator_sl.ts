@@ -21803,8 +21803,8 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
     <message>
         <location line="+58"/>
-        <source>qmake does not exist or is not executable</source>
-        <translation>Datoteka »qmake« ne obstaja ali pa ni izvršljiva</translation>
+        <source>%1 does not exist or is not executable</source>
+        <translation>Datoteka »%1« ne obstaja ali pa ni izvršljiva</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -21813,8 +21813,8 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
     <message>
         <location line="+2"/>
-        <source>Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?</source>
-        <translation>Ni bilo moč ugotoviti poti do programov namestitve Qt. Morda je pot do qmake napačna?</translation>
+        <source>Could not determine the path to the binaries of the Qt installation, maybe the %1 path is wrong?</source>
+        <translation>Ni bilo moč ugotoviti poti do programov namestitve Qt. Morda je pot do %1 napačna?</translation>
     </message>
     <message>
         <location line="+3"/>

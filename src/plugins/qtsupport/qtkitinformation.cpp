@@ -324,6 +324,11 @@ void QtKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
                     QtVersion *version = qtVersion(kit);
                     return version ? version->qmakeFilePath().path() : QString();
                 });
+    expander->registerVariable("Qt:queryToolExecutable", tr("Path to the query tool executable"),
+                [kit]() -> QString {
+                    QtVersion *version = qtVersion(kit);
+                    return version ? version->queryToolFilePath().path() : QString();
+                });
 }
 
 Id QtKitAspect::id()

@@ -22711,8 +22711,8 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <translation>Шлях до qmake не задано</translation>
     </message>
     <message>
-        <source>qmake does not exist or is not executable</source>
-        <translation>qmake не існує або не є виконуваним модулем</translation>
+        <source>%1 does not exist or is not executable</source>
+        <translation>%1 не існує або не є виконуваним модулем</translation>
     </message>
     <message>
         <source>ABI detection failed: Make sure to use a matching compiler when building.</source>
@@ -22763,8 +22763,8 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <translation>Версія Qt не встановлена як слід, будь ласка, запустіть make install</translation>
     </message>
     <message>
-        <source>Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?</source>
-        <translation>Не вдалось визначити шлях до виконуваних модулів встановлення Qt, можливо, шлях до qmake помилковий?</translation>
+        <source>Could not determine the path to the binaries of the Qt installation, maybe the %1 path is wrong?</source>
+        <translation>Не вдалось визначити шлях до виконуваних модулів встановлення Qt, можливо, шлях до %1 помилковий?</translation>
     </message>
     <message>
         <source>The default mkspec symlink is broken.</source>

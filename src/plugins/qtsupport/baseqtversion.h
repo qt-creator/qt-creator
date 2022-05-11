@@ -150,6 +150,8 @@ public:
     bool hasDocs() const;
     bool hasDemos() const;
 
+    Utils::FilePath queryToolFilePath() const;
+
     // former local functions
     Utils::FilePath qmakeFilePath() const;
 
