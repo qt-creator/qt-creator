@@ -85,7 +85,7 @@ QmlMultiLanguageAspect::QmlMultiLanguageAspect(ProjectExplorer::Target *target)
 
     addDataExtractor(this, &QmlMultiLanguageAspect::origin, &Data::origin);
 
-    connect(this, &BoolAspect::changed, this, [this, target] {
+    connect(this, &BoolAspect::changed, this, [this] {
         for (ProjectExplorer::RunControl *runControl :
                 ProjectExplorer::ProjectExplorerPlugin::allRunControls()) {
             if (runControl->aspect<QmlMultiLanguageAspect>()->origin == this)
