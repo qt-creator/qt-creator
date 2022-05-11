@@ -1,3 +1,11 @@
+set(SQLITE_SOURCES
+  ../3rdparty/sqlite/sqlite3.c
+  ../3rdparty/sqlite/sqlite3.h
+  ../3rdparty/sqlite/carray.c
+  ../3rdparty/sqlite/config.h
+  ../3rdparty/sqlite/sqlite.h
+)
+
 add_qtc_library(Sqlite
   PROPERTIES AUTOMOC OFF AUTOUIC OFF
   PUBLIC_DEFINES
@@ -7,11 +15,7 @@ add_qtc_library(Sqlite
     "${CMAKE_CURRENT_LIST_DIR}"
     ../3rdparty/sqlite
   SOURCES
-    ../3rdparty/sqlite/sqlite3.c
-    ../3rdparty/sqlite/sqlite3.h
-    ../3rdparty/sqlite/carray.c
-    ../3rdparty/sqlite/config.h
-    ../3rdparty/sqlite/sqlite.h
+    ${SQLITE_SOURCES}
     constraints.h
     createtablesqlstatementbuilder.h
     lastchangedrowid.h
@@ -39,6 +43,17 @@ add_qtc_library(Sqlite
     sqliteblob.h
     sqlitetimestamp.h
     sqlitelibraryinitializer.cpp sqlitelibraryinitializer.h
+)
+
+if(MSVC)
+  set(DISABLE_WARNINGS "-W0")
+else()
+  set(DISABLE_WARNINGS "-w")
+endif()
+set_source_files_properties(
+  ${SQLITE_SOURCES}
+  PROPERTIES
+    COMPILE_OPTIONS ${DISABLE_WARNINGS}
 )
 
 extend_qtc_library(Sqlite DEFINES SQLITE_CUSTOM_INCLUDE=config.h)
