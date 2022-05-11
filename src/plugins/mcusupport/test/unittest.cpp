@@ -207,7 +207,7 @@ void verifyTargetToolchains(const Targets &targets,
     const auto toolchainCompiler{target->toolChainPackage()};
     QVERIFY(toolchainCompiler);
     QCOMPARE(toolchainCompiler->cmakeVariableName(), Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE);
-    QCOMPARE(toolchainCompiler->path().toUserOutput(), compilerPath);
+    QCOMPARE(toolchainCompiler->path().toString(), compilerPath);
     QCOMPARE(toolchainCompiler->settingsKey(), compilerSetting);
 }
 
@@ -367,7 +367,7 @@ void McuSupportTest::test_parseToolchainFromJSON()
     QCOMPARE(toolchainFilePackage.label, cmakeToolchainLabel);
     QCOMPARE(toolchainFilePackage.envVar, QString{});
     QCOMPARE(toolchainFilePackage.cmakeVar, Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE);
-    QCOMPARE(toolchainFilePackage.defaultPath.cleanPath().toUserOutput(), toolchainFile);
+    QCOMPARE(toolchainFilePackage.defaultPath.cleanPath().toString(), toolchainFile);
 }
 
 void McuSupportTest::test_legacy_createIarToolchain()
@@ -702,7 +702,7 @@ void McuSupportTest::test_legacy_createUnsupportedToolchainFilePackage()
 
     auto unsupportedToolchainFile = legacyTargetFactory.getToolchainFile(qtForMcuSdkPath, iar);
     QVERIFY(unsupportedToolchainFile);
-    QCOMPARE(unsupportedToolchainFile->path().toUserOutput(), unsupportedToolchainFilePath);
+    QCOMPARE(unsupportedToolchainFile->path().toString(), unsupportedToolchainFilePath);
     QCOMPARE(unsupportedToolchainFile->cmakeVariableName(),
              Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE);
 }

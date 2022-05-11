@@ -256,7 +256,7 @@ public:
             const FilePath cMakeToolchainFile = mcuTarget->toolChainFilePackage()->path();
 
             configMap.insert(Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
-                             cMakeToolchainFile.toUserOutput().toUtf8());
+                             cMakeToolchainFile.toString().toUtf8());
             if (!cMakeToolchainFile.exists()) {
                 printMessage(
                     McuTarget::tr(
