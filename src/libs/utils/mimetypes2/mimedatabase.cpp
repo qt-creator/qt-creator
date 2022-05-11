@@ -78,12 +78,14 @@ MimeDatabasePrivate::~MimeDatabasePrivate()
 {
 }
 
+#if 0
 #if 0 //def QT_BUILD_INTERNAL
 Q_CORE_EXPORT
 #else
 static const
 #endif
 int mime_secondsBetweenChecks = 5;
+#endif
 
 bool MimeDatabasePrivate::shouldCheck()
 {
