@@ -80,7 +80,7 @@ static Task handleNmakeJomMessage(const QString &line)
 
     CompileTask task(Task::Error, line.mid(matchLength).trimmed());
     task.details << line;
-    return task;
+    return std::move(task);
 }
 
 static Task::TaskType taskType(const QString &category)
