@@ -182,6 +182,7 @@ void LiteHtmlHelpViewer::addForwardHistoryItems(QMenu *forwardMenu)
 bool LiteHtmlHelpViewer::findText(
     const QString &text, Core::FindFlags flags, bool incremental, bool fromSearch, bool *wrapped)
 {
+    Q_UNUSED(fromSearch)
     return m_viewer->findText(text,
                               Core::textDocumentFlagsForFindFlags(flags),
                               incremental,
@@ -234,6 +235,7 @@ void LiteHtmlHelpViewer::goBackward(int count)
 
 void LiteHtmlHelpViewer::print(QPrinter *printer)
 {
+    Q_UNUSED(printer)
     // TODO
 }
 
