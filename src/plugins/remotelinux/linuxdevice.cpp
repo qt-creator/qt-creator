@@ -101,10 +101,6 @@ public:
         QTC_ASSERT(m_masterSocketDir, return QString());
         return m_masterSocketDir->path() + "/cs";
     }
-    QStringList connectionOptions(const Utils::FilePath &binary) const
-    {
-        return m_sshParameters.connectionOptions(binary) << "-o" << ("ControlPath=" + socketFilePath());
-    }
 
 signals:
     void connected(const QString &socketFilePath);
@@ -117,8 +113,7 @@ private:
     void emitError(QProcess::ProcessError processError, const QString &errorString);
     void emitDisconnected();
     QString fullProcessError() const;
-    QStringList connectionArgs(const FilePath &binary) const
-    { return connectionOptions(binary) << m_sshParameters.host(); }
+    QStringList connectionArgs(const FilePath &binary) const;
 
     const SshParameters m_sshParameters;
     std::unique_ptr<QtcProcess> m_masterProcess;
@@ -270,6 +265,12 @@ QString SshSharedConnection::fullProcessError() const
     QStringList allErrors {errorPrefix, errorString, standardError};
     allErrors.removeAll({});
     return allErrors.join('\n');
+}
+
+QStringList SshSharedConnection::connectionArgs(const FilePath &binary) const
+{
+    return m_sshParameters.connectionOptions(binary) << "-o" << ("ControlPath=" + socketFilePath())
+                                                     << m_sshParameters.host();
 }
 
 // SshConnectionHandle
