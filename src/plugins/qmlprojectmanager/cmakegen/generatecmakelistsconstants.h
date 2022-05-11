@@ -23,48 +23,42 @@
 **
 ****************************************************************************/
 
+#ifndef GENERATECMAKELISTSCONSTANTS_H
+#define GENERATECMAKELISTSCONSTANTS_H
 
-#ifndef CMAKEGENERATORDIALOG_H
-#define CMAKEGENERATORDIALOG_H
+#pragma once
 
-#include "cmakegeneratordialogtreemodel.h"
-
-#include <utils/fileutils.h>
-
-#include <QDialog>
-#include <QTextEdit>
-#include <QTreeView>
-#include <QLabel>
-
-namespace QmlDesigner {
+namespace QmlProjectManager {
 namespace GenerateCmake {
+namespace Constants {
 
-class CmakeGeneratorDialog : public QDialog
-{
-    Q_OBJECT
+const char DIRNAME_CONTENT[] = "content";
+const char DIRNAME_IMPORT[] = "imports";
+const char DIRNAME_ASSET[] = "assets";
+const char DIRNAME_ASSETIMPORT[] = "asset_imports";
+const char DIRNAME_CPP[] = "src";
+const char DIRNAME_DESIGNER[] = "designer";
 
-public:
-    CmakeGeneratorDialog(const Utils::FilePath &rootDir, const Utils::FilePaths &files);
-    Utils::FilePaths getFilePaths();
+const char FILENAME_CMAKELISTS[] = "CMakeLists.txt";
+const char FILENAME_APPMAINQML[] = "App.qml";
+const char FILENAME_MAINQML[] = "main.qml";
+const char FILENAME_MAINCPP[] = "main.cpp";
+const char FILENAME_MAINCPP_HEADER[] = "import_qml_plugins.h";
+const char FILENAME_MODULES[] = "qmlmodules";
+const char FILENAME_QMLDIR[] = "qmldir";
+const char FILENAME_ENV_HEADER[] = "app_environment.h";
 
-public slots:
-    void refreshNotificationText();
-    void advancedVisibilityChanged(bool visible);
+const char FILENAME_SUFFIX_QMLPROJECT[] = "qmlproject";
+const char FILENAME_SUFFIX_QML[] = "qml";
+const char FILENAME_SUFFIX_USER[] = "user";
 
-private:
-    QTreeView* createFileTree();
-    QWidget* createDetailsWidget();
-    QWidget* createButtons();
+const char FILENAME_FILTER_QMLPROJECT[] = "*.qmlproject";
+const char FILENAME_FILTER_QML[] = "*.qml";
 
-private:
-    CMakeGeneratorDialogTreeModel *m_model;
-    QTextEdit *m_notifications;
-    QVariant m_warningIcon;
-    Utils::FilePath m_rootDir;
-    Utils::FilePaths m_files;
-};
+const char ENV_VARIABLE_CONTROLCONF[] = "QT_QUICK_CONTROLS_CONF";
 
+} //Constants
 } //GenerateCmake
-} //QmlDesigner
+} //QmlProjectManager
 
-#endif // CMAKEGENERATORDIALOG_H
+#endif // GENERATECMAKELISTSCONSTANTS_H

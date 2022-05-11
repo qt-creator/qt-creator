@@ -29,6 +29,8 @@
 #include "qmlprojectconstants.h"
 #include "qmlprojectrunconfiguration.h"
 #include "projectfilecontenttools.h"
+#include "cmakegen/cmakeprojectconverter.h"
+#include "cmakegen/generatecmakelists.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -355,6 +357,9 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
                                                      != fileNode->filePath());
                 });
     }
+
+    GenerateCmake::generateMenuEntry();
+    GenerateCmake::CmakeProjectConverter::generateMenuEntry();
 
     return true;
 }

@@ -51,9 +51,9 @@
 #include <QTextStream>
 
 using namespace Utils;
-using namespace QmlDesigner::GenerateCmake::Constants;
+using namespace QmlProjectManager::GenerateCmake::Constants;
 
-namespace QmlDesigner {
+namespace QmlProjectManager {
 
 namespace GenerateCmake {
 
@@ -622,5 +622,5 @@ bool CmakeFileGenerator::isFileResource(const QString &relativeFilePath)
 }
 
 } //GenerateCmake
-} //QmlDesigner
+} //QmlProjectManager
 

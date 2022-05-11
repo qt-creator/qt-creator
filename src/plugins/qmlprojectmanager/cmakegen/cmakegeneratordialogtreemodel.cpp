@@ -31,7 +31,7 @@
 
 using namespace Utils;
 
-namespace QmlDesigner {
+namespace QmlProjectManager {
 namespace GenerateCmake {
 
 CMakeGeneratorDialogTreeModel::CMakeGeneratorDialogTreeModel(const FilePath &rootDir,
@@ -127,16 +127,16 @@ bool CMakeGeneratorDialogTreeModel::checkedByDefault(const Utils::FilePath &file
 {
     if (file.exists()) {
         QString relativePath = file.relativeChildPath(rootDir).toString();
-        if (relativePath.compare(QmlDesigner::GenerateCmake::Constants::FILENAME_CMAKELISTS) == 0)
+        if (relativePath.compare(QmlProjectManager::GenerateCmake::Constants::FILENAME_CMAKELISTS) == 0)
             return false;
-        if (relativePath.endsWith(QmlDesigner::GenerateCmake::Constants::FILENAME_CMAKELISTS)
-            && relativePath.length() > QString(QmlDesigner::GenerateCmake::Constants::FILENAME_CMAKELISTS).length())
+        if (relativePath.endsWith(QmlProjectManager::GenerateCmake::Constants::FILENAME_CMAKELISTS)
+            && relativePath.length() > QString(QmlProjectManager::GenerateCmake::Constants::FILENAME_CMAKELISTS).length())
             return true;
-        if (relativePath.compare(QmlDesigner::GenerateCmake::Constants::FILENAME_MODULES) == 0)
+        if (relativePath.compare(QmlProjectManager::GenerateCmake::Constants::FILENAME_MODULES) == 0)
             return true;
         if (relativePath.compare(
-                FilePath::fromString(QmlDesigner::GenerateCmake::Constants::DIRNAME_CPP)
-                .pathAppended(QmlDesigner::GenerateCmake::Constants::FILENAME_MAINCPP_HEADER)
+                FilePath::fromString(QmlProjectManager::GenerateCmake::Constants::DIRNAME_CPP)
+                .pathAppended(QmlProjectManager::GenerateCmake::Constants::FILENAME_MAINCPP_HEADER)
                 .toString())
                 == 0)
             return true;
@@ -198,4 +198,4 @@ CheckableFileTreeItem* CMakeGeneratorDialogTreeModel::nodeForIndex(const QModelI
 }
 
 } //GenerateCmake
-} //QmlDesigner
+} //QmlProjectManager

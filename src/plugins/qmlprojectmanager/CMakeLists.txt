@@ -7,6 +7,14 @@ add_qtc_plugin(QmlProjectManager
     fileformat/filefilteritems.cpp fileformat/filefilteritems.h
     fileformat/qmlprojectfileformat.cpp fileformat/qmlprojectfileformat.h
     fileformat/qmlprojectitem.cpp fileformat/qmlprojectitem.h
+    cmakegen/checkablefiletreeitem.cpp cmakegen/checkablefiletreeitem.h
+    cmakegen/cmakegeneratordialog.cpp cmakegen/cmakegeneratordialog.h
+    cmakegen/cmakegeneratordialogtreemodel.cpp cmakegen/cmakegeneratordialogtreemodel.h
+    cmakegen/cmakeprojectconverter.cpp cmakegen/cmakeprojectconverter.h
+    cmakegen/cmakeprojectconverterdialog.cpp cmakegen/cmakeprojectconverterdialog.h
+    cmakegen/generatecmakelists.cpp cmakegen/generatecmakelists.h
+    cmakegen/generatecmakelistsconstants.h
+    cmakegen/boilerplate.qrc
     projectfilecontenttools.cpp projectfilecontenttools.h
     qdslandingpage.cpp qdslandingpage.h
     qmlmainfileaspect.cpp qmlmainfileaspect.h

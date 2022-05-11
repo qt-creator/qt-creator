@@ -40,9 +40,9 @@
 #include <QRegularExpression>
 
 using namespace Utils;
-using namespace QmlDesigner::GenerateCmake::Constants;
+using namespace QmlProjectManager::GenerateCmake::Constants;
 
-namespace QmlDesigner {
+namespace QmlProjectManager {
 namespace GenerateCmake {
 
 const QString MENU_ITEM_CONVERT = QCoreApplication::translate("QmlDesigner::CmakeProjectConverter",
@@ -437,4 +437,4 @@ bool CmakeProjectConverter::modifyProjectFile()
 }
 
 } //GenerateCmake
-} //QmlDesigner
+} //QmlProjectManager

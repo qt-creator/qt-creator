@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Tooling
@@ -23,42 +23,47 @@
 **
 ****************************************************************************/
 
-#ifndef GENERATECMAKELISTSCONSTANTS_H
-#define GENERATECMAKELISTSCONSTANTS_H
 
-#pragma once
+#ifndef CMAKEPROJECTCONVERTERDIALOG_H
+#define CMAKEPROJECTCONVERTERDIALOG_H
 
-namespace QmlDesigner {
+#include <qmlprojectmanager/qmlproject.h>
+#include <utils/fancylineedit.h>
+#include <utils/filepath.h>
+#include <utils/infolabel.h>
+#include <utils/pathchooser.h>
+
+#include <QDialog>
+
+namespace QmlProjectManager {
 namespace GenerateCmake {
-namespace Constants {
 
-const char DIRNAME_CONTENT[] = "content";
-const char DIRNAME_IMPORT[] = "imports";
-const char DIRNAME_ASSET[] = "assets";
-const char DIRNAME_ASSETIMPORT[] = "asset_imports";
-const char DIRNAME_CPP[] = "src";
-const char DIRNAME_DESIGNER[] = "designer";
+class CmakeProjectConverterDialog : public QDialog
+{
+    Q_OBJECT
 
-const char FILENAME_CMAKELISTS[] = "CMakeLists.txt";
-const char FILENAME_APPMAINQML[] = "App.qml";
-const char FILENAME_MAINQML[] = "main.qml";
-const char FILENAME_MAINCPP[] = "main.cpp";
-const char FILENAME_MAINCPP_HEADER[] = "import_qml_plugins.h";
-const char FILENAME_MODULES[] = "qmlmodules";
-const char FILENAME_QMLDIR[] = "qmldir";
-const char FILENAME_ENV_HEADER[] = "app_environment.h";
+public:
+    CmakeProjectConverterDialog(const QmlProjectManager::QmlProject *oldProject);
+    const Utils::FilePath newPath() const;
 
-const char FILENAME_SUFFIX_QMLPROJECT[] = "qmlproject";
-const char FILENAME_SUFFIX_QML[] = "qml";
-const char FILENAME_SUFFIX_USER[] = "user";
+public slots:
+    void pathValidChanged();
 
-const char FILENAME_FILTER_QMLPROJECT[] = "*.qmlproject";
-const char FILENAME_FILTER_QML[] = "*.qml";
+private:
+    const QString startsWithBlacklisted(const QString &text) const;
+    const QString errorText() const;
+    const QString uniqueProjectName(const Utils::FilePath &dir, const QString &oldName) const;
+    bool isValid();
 
-const char ENV_VARIABLE_CONTROLCONF[] = "QT_QUICK_CONTROLS_CONF";
+private:
+    Utils::FilePath m_newProjectDir;
+    Utils::FancyLineEdit *m_nameEditor;
+    Utils::PathChooser *m_dirSelector;
+    Utils::InfoLabel *m_errorLabel;
+    QPushButton *m_okButton;
+};
 
-} //Constants
 } //GenerateCmake
-} //QmlDesigner
+} //QmlProjectManager
 
-#endif // GENERATECMAKELISTSCONSTANTS_H
+#endif // CMAKEPROJECTCONVERTERDIALOG_H

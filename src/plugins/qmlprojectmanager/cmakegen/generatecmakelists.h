@@ -29,7 +29,7 @@
 
 #include <utils/fileutils.h>
 
-namespace QmlDesigner {
+namespace QmlProjectManager {
 namespace GenerateCmake {
 struct GeneratableFile {
     Utils::FilePath filePath;
@@ -95,4 +95,4 @@ private:
 
 } //GenerateCmake
 
-} //QmlDesigner
+} //QmlProjectManager

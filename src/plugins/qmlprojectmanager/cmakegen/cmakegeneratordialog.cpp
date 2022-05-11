@@ -39,7 +39,7 @@
 
 using namespace Utils;
 
-namespace QmlDesigner {
+namespace QmlProjectManager {
 namespace GenerateCmake {
 
 CmakeGeneratorDialog::CmakeGeneratorDialog(const FilePath &rootDir, const FilePaths &files)
@@ -186,4 +186,4 @@ void CmakeGeneratorDialog::advancedVisibilityChanged(bool visible)
 }
 
 } //GenerateCmake
-} //QmlDesigner
+} //QmlProjectManager

@@ -23,45 +23,31 @@
 **
 ****************************************************************************/
 
-#include "checkablefiletreeitem.h"
+#ifndef CHECKABLEFILETREEITEM_H
+#define CHECKABLEFILETREEITEM_H
 
-using namespace Utils;
+#include <utils/fileutils.h>
 
-namespace QmlDesigner {
+#include <QStandardItem>
 
-CheckableFileTreeItem::CheckableFileTreeItem(const FilePath &filePath)
-    :QStandardItem(filePath.toString())
+namespace QmlProjectManager {
+
+class CheckableFileTreeItem : public QStandardItem
 {
-    Qt::ItemFlags itemFlags = flags();
-    if (!isDir())
-        itemFlags |= Qt::ItemIsUserCheckable;
-    itemFlags &= ~(Qt::ItemIsEditable | Qt::ItemIsSelectable);
-    setFlags(itemFlags);
-}
+public:
+    explicit CheckableFileTreeItem(const Utils::FilePath &text = Utils::FilePath());
 
-const FilePath CheckableFileTreeItem::toFilePath() const
-{
-    return FilePath::fromString(text());
-}
+    const Utils::FilePath toFilePath() const;
+    bool isFile() const;
+    bool isDir() const;
 
-bool CheckableFileTreeItem::isFile() const
-{
-    return FilePath::fromString(text()).isFile();
-}
+    bool isChecked() const;
+    void setChecked(bool checked);
 
-bool CheckableFileTreeItem::isDir() const
-{
-    return FilePath::fromString(text()).isDir();
-}
+private:
+    bool checked;
+};
 
-void CheckableFileTreeItem::setChecked(bool checked)
-{
-    this->checked = checked;
-}
+} //QmlProjectManager
 
-bool CheckableFileTreeItem::isChecked() const
-{
-    return this->checked;
-}
-
-} //QmlDesigner
+#endif // CHECKABLEFILETREEITEM_H

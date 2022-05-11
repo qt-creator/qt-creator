@@ -26,15 +26,8 @@ add_qtc_plugin(QmlDesigner
     designmodewidget.cpp designmodewidget.h
     documentmanager.cpp documentmanager.h
     documentwarningwidget.cpp documentwarningwidget.h
-    checkablefiletreeitem.cpp checkablefiletreeitem.h
-    cmakegeneratordialog.cpp cmakegeneratordialog.h
-    cmakegeneratordialogtreemodel.cpp cmakegeneratordialogtreemodel.h
-    cmakeprojectconverter.cpp cmakeprojectconverter.h
-    cmakeprojectconverterdialog.cpp cmakeprojectconverterdialog.h
     dynamiclicensecheck.h
     generateresource.cpp generateresource.h
-    generatecmakelists.cpp generatecmakelists.h
-    generatecmakelistsconstants.h
     openuiqmlfiledialog.cpp openuiqmlfiledialog.h openuiqmlfiledialog.ui
     qmldesignerconstants.h
     qmldesignericons.h
@@ -45,7 +38,6 @@ add_qtc_plugin(QmlDesigner
     designermcumanager.cpp designermcumanager.h
     richtexteditordialog.cpp richtexteditordialog.h
     editorproxy.cpp editorproxy.h
-    boilerplate.qrc
   EXPLICIT_MOC
     components/propertyeditor/propertyeditorvalue.h
     components/connectioneditor/connectionviewwidget.h

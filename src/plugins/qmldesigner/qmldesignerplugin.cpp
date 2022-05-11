@@ -24,11 +24,9 @@
 ****************************************************************************/
 
 #include "qmldesignerplugin.h"
-#include "cmakeprojectconverter.h"
 #include "designmodecontext.h"
 #include "designmodewidget.h"
 #include "exception.h"
-#include "generatecmakelists.h"
 #include "generateresource.h"
 #include "nodeinstanceview.h"
 #include "openuiqmlfiledialog.h"
@@ -240,9 +238,6 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     d = new QmlDesignerPluginPrivate;
     if (QmlProjectManager::QmlProject::isQtDesignStudio())
         GenerateResource::generateMenuEntry();
-
-    GenerateCmake::generateMenuEntry();
-    GenerateCmake::CmakeProjectConverter::generateMenuEntry();
 
     const QString fontPath
         = Core::ICore::resourcePath(

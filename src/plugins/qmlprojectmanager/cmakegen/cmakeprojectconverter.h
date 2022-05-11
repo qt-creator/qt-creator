@@ -29,7 +29,7 @@
 #include <utils/fileutils.h>
 #include <qmlprojectmanager/qmlproject.h>
 
-namespace QmlDesigner {
+namespace QmlProjectManager {
 
 namespace GenerateCmake {
 
@@ -94,6 +94,6 @@ private:
 };
 
 } //GenerateCmake
-} //QmlDesigner
+} //QmlProjectManager
 
 #endif // CMAKEPROJECTCONVERTER_H

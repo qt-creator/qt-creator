@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2022 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Tooling
@@ -23,47 +23,45 @@
 **
 ****************************************************************************/
 
+#include "checkablefiletreeitem.h"
 
-#ifndef CMAKEPROJECTCONVERTERDIALOG_H
-#define CMAKEPROJECTCONVERTERDIALOG_H
+using namespace Utils;
 
-#include <qmlprojectmanager/qmlproject.h>
-#include <utils/fancylineedit.h>
-#include <utils/filepath.h>
-#include <utils/infolabel.h>
-#include <utils/pathchooser.h>
+namespace QmlProjectManager {
 
-#include <QDialog>
-
-namespace QmlDesigner {
-namespace GenerateCmake {
-
-class CmakeProjectConverterDialog : public QDialog
+CheckableFileTreeItem::CheckableFileTreeItem(const FilePath &filePath)
+    :QStandardItem(filePath.toString())
 {
-    Q_OBJECT
+    Qt::ItemFlags itemFlags = flags();
+    if (!isDir())
+        itemFlags |= Qt::ItemIsUserCheckable;
+    itemFlags &= ~(Qt::ItemIsEditable | Qt::ItemIsSelectable);
+    setFlags(itemFlags);
+}
 
-public:
-    CmakeProjectConverterDialog(const QmlProjectManager::QmlProject *oldProject);
-    const Utils::FilePath newPath() const;
+const FilePath CheckableFileTreeItem::toFilePath() const
+{
+    return FilePath::fromString(text());
+}
 
-public slots:
-    void pathValidChanged();
+bool CheckableFileTreeItem::isFile() const
+{
+    return FilePath::fromString(text()).isFile();
+}
 
-private:
-    const QString startsWithBlacklisted(const QString &text) const;
-    const QString errorText() const;
-    const QString uniqueProjectName(const Utils::FilePath &dir, const QString &oldName) const;
-    bool isValid();
+bool CheckableFileTreeItem::isDir() const
+{
+    return FilePath::fromString(text()).isDir();
+}
 
-private:
-    Utils::FilePath m_newProjectDir;
-    Utils::FancyLineEdit *m_nameEditor;
-    Utils::PathChooser *m_dirSelector;
-    Utils::InfoLabel *m_errorLabel;
-    QPushButton *m_okButton;
-};
+void CheckableFileTreeItem::setChecked(bool checked)
+{
+    this->checked = checked;
+}
 
-} //GenerateCmake
-} //Qmldesigner
+bool CheckableFileTreeItem::isChecked() const
+{
+    return this->checked;
+}
 
-#endif // CMAKEPROJECTCONVERTERDIALOG_H
+} //QmlProjectManager

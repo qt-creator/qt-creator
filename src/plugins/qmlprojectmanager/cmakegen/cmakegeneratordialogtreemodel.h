@@ -33,7 +33,7 @@
 
 #include <utils/fileutils.h>
 
-namespace QmlDesigner {
+namespace QmlProjectManager {
 namespace GenerateCmake {
 
 class CMakeGeneratorDialogTreeModel : public QStandardItemModel
@@ -67,7 +67,7 @@ private:
 };
 
 } //GenerateCmake
-} //QmlDesigner
+} //QmlProjectManager
 
 
 #endif // CMAKEGENERATORDIALOGTREEMODEL_H

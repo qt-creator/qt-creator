@@ -23,31 +23,48 @@
 **
 ****************************************************************************/
 
-#ifndef CHECKABLEFILETREEITEM_H
-#define CHECKABLEFILETREEITEM_H
+
+#ifndef CMAKEGENERATORDIALOG_H
+#define CMAKEGENERATORDIALOG_H
+
+#include "cmakegeneratordialogtreemodel.h"
 
 #include <utils/fileutils.h>
 
-#include <QStandardItem>
+#include <QDialog>
+#include <QTextEdit>
+#include <QTreeView>
+#include <QLabel>
 
-namespace QmlDesigner {
+namespace QmlProjectManager {
+namespace GenerateCmake {
 
-class CheckableFileTreeItem : public QStandardItem
+class CmakeGeneratorDialog : public QDialog
 {
+    Q_OBJECT
+
 public:
-    explicit CheckableFileTreeItem(const Utils::FilePath &text = Utils::FilePath());
+    CmakeGeneratorDialog(const Utils::FilePath &rootDir, const Utils::FilePaths &files);
+    Utils::FilePaths getFilePaths();
 
-    const Utils::FilePath toFilePath() const;
-    bool isFile() const;
-    bool isDir() const;
-
-    bool isChecked() const;
-    void setChecked(bool checked);
+public slots:
+    void refreshNotificationText();
+    void advancedVisibilityChanged(bool visible);
 
 private:
-    bool checked;
+    QTreeView* createFileTree();
+    QWidget* createDetailsWidget();
+    QWidget* createButtons();
+
+private:
+    CMakeGeneratorDialogTreeModel *m_model;
+    QTextEdit *m_notifications;
+    QVariant m_warningIcon;
+    Utils::FilePath m_rootDir;
+    Utils::FilePaths m_files;
 };
 
-} //QmlDesigner
+} //GenerateCmake
+} //QmlProjectManager
 
-#endif // CHECKABLEFILETREEITEM_H
+#endif // CMAKEGENERATORDIALOG_H

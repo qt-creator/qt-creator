@@ -38,7 +38,7 @@
 
 using namespace Utils;
 
-namespace QmlDesigner {
+namespace QmlProjectManager {
 namespace GenerateCmake {
 
 const QRegularExpression projectNameRegexp("^(?!(import))(?!(QtQml))(?!(QtQuick))(?:[A-Z][a-zA-Z0-9-_]*)$");
@@ -224,4 +224,4 @@ bool CmakeProjectConverterDialog::isValid()
 }
 
 } //GenerateCmake
-} //QmlDesigner
+} //QmlProjectManager
