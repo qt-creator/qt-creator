@@ -299,8 +299,8 @@ void ClangModelManagerSupport::connectToWidgetsMarkContextMenuRequested(QWidget 
 void ClangModelManagerSupport::updateLanguageClient(
         ProjectExplorer::Project *project, const CppEditor::ProjectInfo::ConstPtr &projectInfo)
 {
-    const ClangdSettings::Data clangdSettingsData = ClangdProjectSettings(project).settings();
-    if (!clangdSettingsData.useClangd)
+    const ClangdSettings settings(ClangdProjectSettings(project).settings());
+    if (!settings.useClangd())
         return;
     const auto getJsonDbDir = [project] {
         if (const ProjectExplorer::Target * const target = project->activeTarget()) {
@@ -321,7 +321,7 @@ void ClangModelManagerSupport::updateLanguageClient(
         generatorWatcher->deleteLater();
         if (!ProjectExplorer::SessionManager::hasProject(project))
             return;
-        if (!CppEditor::ClangdProjectSettings(project).settings().useClangd)
+        if (!ClangdSettings(ClangdProjectSettings(project).settings()).useClangd())
             return;
         const CppEditor::ProjectInfo::ConstPtr newProjectInfo
                 = cppModelManager()->projectInfo(project);
@@ -409,7 +409,7 @@ void ClangModelManagerSupport::updateLanguageClient(
         });
 
     });
-    const Utils::FilePath includeDir = ClangdSettings(clangdSettingsData).clangdIncludePath();
+    const Utils::FilePath includeDir = settings.clangdIncludePath();
     const ClangDiagnosticConfig warningsConfig = warningsConfigForProject(project);
     auto future = Utils::runAsync(&Internal::generateCompilationDB, projectInfo, jsonDbDir,
                                   CompilationDbPurpose::CodeModel,
