@@ -240,7 +240,7 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
 
         auto errorLabel = new QLabel;
         auto testButton = new QPushButton(PerforceSettings::tr("Test"));
-        connect(testButton, &QPushButton::clicked, this, [this, settings, errorLabel, testButton] {
+        connect(testButton, &QPushButton::clicked, this, [settings, errorLabel, testButton] {
             testButton->setEnabled(false);
             auto checker = new PerforceChecker(errorLabel);
             checker->setUseOverideCursor(true);
