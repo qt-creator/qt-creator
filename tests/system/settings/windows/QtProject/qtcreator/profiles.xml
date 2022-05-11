@@ -42,8 +42,7 @@
     <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
     <valuelist type="QVariantList" key="PE.Profile.Environment"/>
     <value type="QString" key="PE.Profile.SysRoot"></value>
-    <value type="QString" key="PE.Profile.ToolChain">{7ca0887f-a9a5-4251-aba6-560a15595d20}</value>
-    <valuemap type="QVariantMap" key="PE.Profile.ToolChains">
+    <valuemap type="QVariantMap" key="PE.Profile.ToolChainsV3">
      <value type="QByteArray" key="C">{ce3a8004-e9ae-46f2-b62d-d7daf69435ca}</value>
      <value type="QByteArray" key="Cxx">{3df7c776-a480-4a04-9099-6c75adac2dca}</value>
     </valuemap>
