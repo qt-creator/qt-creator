@@ -120,12 +120,13 @@ bool SourceFilesHandler::setData(const QModelIndex &idx, const QVariant &data, i
             QModelIndex index = idx.sibling(idx.row(), 0);
             QString name = index.data().toString();
 
-            auto addAction = [this, menu](const QString &display, bool on, const std::function<void()> &onTriggered) {
-                QAction *act = menu->addAction(display);
-                act->setEnabled(on);
-                QObject::connect(act, &QAction::triggered, onTriggered);
-                return act;
-            };
+            auto addAction =
+                [menu](const QString &display, bool on, const std::function<void()> &onTriggered) {
+                    QAction *act = menu->addAction(display);
+                    act->setEnabled(on);
+                    QObject::connect(act, &QAction::triggered, onTriggered);
+                    return act;
+                };
 
             addAction(tr("Reload Data"), m_engine->debuggerActionsEnabled(),
                       [this] { m_engine->reloadSourceFiles(); });
