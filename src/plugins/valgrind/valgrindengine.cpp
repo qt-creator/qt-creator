@@ -36,6 +36,8 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -77,7 +79,12 @@ void ValgrindToolRunner::start()
     emit outputReceived(tr("Command line arguments: %1").arg(runnable().debuggeeArgs), LogMessageFormat);
 #endif
 
-    CommandLine valgrind{m_settings.valgrindExecutable.filePath()};
+
+    FilePath valgrindExecutable = m_settings.valgrindExecutable.filePath();
+    if (IDevice::ConstPtr dev = DeviceKitAspect::device(runControl()->kit()))
+        valgrindExecutable = dev->filePath(valgrindExecutable.path());
+
+    CommandLine valgrind{valgrindExecutable};
     valgrind.addArgs(m_settings.valgrindArguments.value(), CommandLine::Raw);
     valgrind.addArgs(genericToolArguments());
     valgrind.addArgs(toolArguments());

@@ -79,7 +79,8 @@ public:
 
 bool ValgrindRunner::Private::run()
 {
-    CommandLine cmd{m_device->mapToGlobalPath(m_valgrindCommand.executable())};
+    CommandLine cmd;
+    cmd.setExecutable(m_valgrindCommand.executable());
 
     if (!localServerAddress.isNull()) {
         if (!q->startServers())
