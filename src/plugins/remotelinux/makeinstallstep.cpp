@@ -57,7 +57,7 @@ const char CleanInstallRootAspectId[] = "RemoteLinux.MakeInstall.CleanInstallRoo
 const char FullCommandLineAspectId[] = "RemoteLinux.MakeInstall.FullCommandLine";
 const char CustomCommandLineAspectId[] = "RemoteLinux.MakeInstall.CustomCommandLine";
 
-MakeInstallStep::MakeInstallStep(BuildStepList *parent, Utils::Id id) : MakeStep(parent, id)
+MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent, id)
 {
     makeCommandAspect()->setVisible(false);
     buildTargetsAspect()->setVisible(false);
@@ -67,7 +67,7 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Utils::Id id) : MakeStep
     jobCountAspect()->setVisible(false);
     disabledForSubdirsAspect()->setVisible(false);
 
-    const auto makeAspect = addAspect<ExecutableAspect>();
+    const auto makeAspect = addAspect<ExecutableAspect>(parent->target());
     makeAspect->setId(MakeAspectId);
     makeAspect->setSettingsKey(MakeAspectId);
     makeAspect->setDisplayStyle(StringAspect::PathChooserDisplay);

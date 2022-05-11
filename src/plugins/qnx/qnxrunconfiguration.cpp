@@ -47,9 +47,8 @@ namespace Internal {
 QnxRunConfiguration::QnxRunConfiguration(Target *target, Utils::Id id)
     : RunConfiguration(target, id)
 {
-    auto exeAspect = addAspect<ExecutableAspect>();
+    auto exeAspect = addAspect<ExecutableAspect>(target);
     exeAspect->setLabelText(tr("Executable on device:"));
-    exeAspect->setExecutablePathStyle(OsTypeLinux);
     exeAspect->setPlaceHolderText(tr("Remote path not set"));
     exeAspect->makeOverridable("RemoteLinux.RunConfig.AlternateRemoteExecutable",
                                "RemoteLinux.RunConfig.UseAlternateRemoteExecutable");

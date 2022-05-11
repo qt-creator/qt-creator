@@ -77,10 +77,10 @@ static IosDeviceType toIosDeviceType(const SimulatorInfo &device)
     return iosDeviceType;
 }
 
-IosRunConfiguration::IosRunConfiguration(Target *target, Utils::Id id)
+IosRunConfiguration::IosRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
-    auto executableAspect = addAspect<ExecutableAspect>();
+    auto executableAspect = addAspect<ExecutableAspect>(target);
     executableAspect->setDisplayStyle(StringAspect::LabelDisplay);
 
     addAspect<ArgumentsAspect>();

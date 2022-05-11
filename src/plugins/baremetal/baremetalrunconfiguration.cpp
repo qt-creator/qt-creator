@@ -48,7 +48,7 @@ public:
     explicit BareMetalRunConfiguration(Target *target, Utils::Id id)
         : RunConfiguration(target, id)
     {
-        const auto exeAspect = addAspect<ExecutableAspect>();
+        const auto exeAspect = addAspect<ExecutableAspect>(target);
         exeAspect->setDisplayStyle(StringAspect::LabelDisplay);
         exeAspect->setPlaceHolderText(tr("Unknown"));
 
@@ -69,10 +69,10 @@ class BareMetalCustomRunConfiguration final : public RunConfiguration
     Q_DECLARE_TR_FUNCTIONS(BareMetal::Internal::BareMetalCustomRunConfiguration)
 
 public:
-    explicit BareMetalCustomRunConfiguration(Target *target, Utils::Id id)
+    explicit BareMetalCustomRunConfiguration(Target *target, Id id)
         : RunConfiguration(target, id)
     {
-        const auto exeAspect = addAspect<ExecutableAspect>();
+        const auto exeAspect = addAspect<ExecutableAspect>(target);
         exeAspect->setSettingsKey("BareMetal.CustomRunConfig.Executable");
         exeAspect->setPlaceHolderText(tr("Unknown"));
         exeAspect->setDisplayStyle(StringAspect::PathChooserDisplay);

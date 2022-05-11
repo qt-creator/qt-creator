@@ -44,7 +44,7 @@ MesonRunConfiguration::MesonRunConfiguration(ProjectExplorer::Target *target, Ut
 {
     auto envAspect = addAspect<ProjectExplorer::LocalEnvironmentAspect>(target);
 
-    addAspect<ProjectExplorer::ExecutableAspect>();
+    addAspect<ProjectExplorer::ExecutableAspect>(target);
     addAspect<ProjectExplorer::ArgumentsAspect>();
     addAspect<ProjectExplorer::WorkingDirectoryAspect>(envAspect);
     addAspect<ProjectExplorer::TerminalAspect>();

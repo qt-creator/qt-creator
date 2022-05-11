@@ -25,7 +25,9 @@
 
 #include "runconfigurationaspects.h"
 
+#include "devicesupport/idevice.h"
 #include "environmentaspect.h"
+#include "kitinformation.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
@@ -515,39 +517,42 @@ void ArgumentsAspect::addToLayout(LayoutBuilder &builder)
     by the build system's parsing results with an optional manual override.
 */
 
-ExecutableAspect::ExecutableAspect()
+ExecutableAspect::ExecutableAspect(Target *target)
+    : m_target(target)
 {
     setDisplayName(tr("Executable"));
     setId("ExecutableAspect");
-    setExecutablePathStyle(HostOsInfo::hostOs());
-
     addDataExtractor(this, &ExecutableAspect::executable, &Data::executable);
 
     m_executable.setPlaceHolderText(tr("<unknown>"));
     m_executable.setLabelText(tr("Executable:"));
     m_executable.setDisplayStyle(StringAspect::LabelDisplay);
 
-    connect(&m_executable, &StringAspect::changed,
-            this, &ExecutableAspect::changed);
+    updateDevice();
+
+    connect(&m_executable, &StringAspect::changed, this, &ExecutableAspect::changed);
 }
 
 /*!
     \internal
 */
+
+static IDevice::ConstPtr deviceForTarget(Target *target)
+{
+    return target ? DeviceKitAspect::device(target->kit()) : IDevice::ConstPtr();
+}
+
 ExecutableAspect::~ExecutableAspect()
 {
     delete m_alternativeExecutable;
     m_alternativeExecutable = nullptr;
 }
 
-/*!
-   Sets the display style of the paths to the default used on \a osType,
-   backslashes on Windows, forward slashes elsewhere.
-
-   \sa Utils::StringAspect::setDisplayFilter()
-*/
-void ExecutableAspect::setExecutablePathStyle(OsType osType)
+void ExecutableAspect::updateDevice()
 {
+    const IDevice::ConstPtr dev = deviceForTarget(m_target);
+    const OsType osType = dev ? dev->osType() : HostOsInfo::hostOs();
+
     m_executable.setDisplayFilter([osType](const QString &pathName) {
         return OsSpecificAspects::pathWithNativeSeparators(osType, pathName);
     });
@@ -632,10 +637,14 @@ void ExecutableAspect::makeOverridable(const QString &overridingKey, const QStri
  */
 FilePath ExecutableAspect::executable() const
 {
-    if (m_alternativeExecutable && m_alternativeExecutable->isChecked())
-        return m_alternativeExecutable->filePath();
+    FilePath exe = m_alternativeExecutable && m_alternativeExecutable->isChecked()
+            ? m_alternativeExecutable->filePath()
+            : m_executable.filePath();
 
-    return m_executable.filePath();
+    if (const IDevice::ConstPtr dev = deviceForTarget(m_target))
+        exe = dev->filePath(exe.path());
+
+    return exe;
 }
 
 /*!

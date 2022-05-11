@@ -52,7 +52,7 @@ public:
         : RunConfiguration(target, id)
     {
         auto envAspect = addAspect<LocalEnvironmentAspect>(target);
-        addAspect<ExecutableAspect>();
+        addAspect<ExecutableAspect>(target);
         addAspect<ArgumentsAspect>();
         addAspect<WorkingDirectoryAspect>(envAspect);
         addAspect<TerminalAspect>();
@@ -89,7 +89,7 @@ public:
     NimbleTestConfiguration(ProjectExplorer::Target *target, Utils::Id id)
         : RunConfiguration(target, id)
     {
-        addAspect<ExecutableAspect>()->setExecutable(Nim::nimblePathFromKit(target->kit()));
+        addAspect<ExecutableAspect>(target)->setExecutable(Nim::nimblePathFromKit(target->kit()));
         addAspect<ArgumentsAspect>()->setArguments("test");
         addAspect<WorkingDirectoryAspect>(nullptr)->setDefaultWorkingDirectory(project()->projectDirectory());
         addAspect<TerminalAspect>();

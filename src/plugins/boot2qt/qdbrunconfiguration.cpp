@@ -84,13 +84,12 @@ private:
     QString defaultDisplayName() const;
 };
 
-QdbRunConfiguration::QdbRunConfiguration(Target *target, Utils::Id id)
+QdbRunConfiguration::QdbRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
-    auto exeAspect = addAspect<ExecutableAspect>();
+    auto exeAspect = addAspect<ExecutableAspect>(target);
     exeAspect->setSettingsKey("QdbRunConfig.RemoteExecutable");
     exeAspect->setLabelText(tr("Executable on device:"));
-    exeAspect->setExecutablePathStyle(OsTypeLinux);
     exeAspect->setPlaceHolderText(tr("Remote path not set"));
     exeAspect->makeOverridable("QdbRunConfig.AlternateRemoteExecutable",
                                "QdbRunCofig.UseAlternateRemoteExecutable");

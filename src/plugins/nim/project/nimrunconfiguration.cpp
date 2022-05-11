@@ -50,7 +50,7 @@ public:
         : RunConfiguration(target, id)
     {
         auto envAspect = addAspect<LocalEnvironmentAspect>(target);
-        addAspect<ExecutableAspect>();
+        addAspect<ExecutableAspect>(target);
         addAspect<ArgumentsAspect>();
         addAspect<WorkingDirectoryAspect>(envAspect);
         addAspect<TerminalAspect>();

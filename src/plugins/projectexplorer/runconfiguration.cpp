@@ -217,9 +217,6 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
         if (const auto argumentsAspect = aspect<ArgumentsAspect>())
             arguments = argumentsAspect->arguments(macroExpander());
 
-        if (IDevice::ConstPtr dev = DeviceKitAspect::device(target->kit()))
-            executable = dev->filePath(executable.path());
-
         return CommandLine{executable, arguments, CommandLine::Raw};
     };
 

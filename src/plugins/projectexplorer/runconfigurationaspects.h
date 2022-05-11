@@ -174,7 +174,7 @@ class PROJECTEXPLORER_EXPORT ExecutableAspect : public Utils::BaseAspect
     Q_OBJECT
 
 public:
-    ExecutableAspect();
+    explicit ExecutableAspect(Target *target); // Uses device from target if non-null.
     ~ExecutableAspect() override;
 
     Utils::FilePath executable() const;
@@ -185,7 +185,6 @@ public:
     void addToLayout(Utils::LayoutBuilder &builder) override;
     void setLabelText(const QString &labelText);
     void setPlaceHolderText(const QString &placeHolderText);
-    void setExecutablePathStyle(Utils::OsType osType);
     void setHistoryCompleter(const QString &historyCompleterKey);
     void setExpectedKind(const Utils::PathChooser::Kind expectedKind);
     void setEnvironmentChange(const Utils::EnvironmentChange &change);
@@ -202,9 +201,11 @@ protected:
 
 private:
     QString executableText() const;
+    void updateDevice();
 
     Utils::StringAspect m_executable;
     Utils::StringAspect *m_alternativeExecutable = nullptr;
+    Target *m_target = nullptr;
 };
 
 class PROJECTEXPLORER_EXPORT SymbolFileAspect : public Utils::StringAspect

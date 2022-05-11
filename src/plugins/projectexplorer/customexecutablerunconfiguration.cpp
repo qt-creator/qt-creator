@@ -41,31 +41,24 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
     : CustomExecutableRunConfiguration(target, CUSTOM_EXECUTABLE_RUNCONFIG_ID)
 {}
 
-CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *target, Utils::Id id)
+CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
     auto envAspect = addAspect<LocalEnvironmentAspect>(target);
 
-    auto exeAspect = addAspect<ExecutableAspect>();
+    auto exeAspect = addAspect<ExecutableAspect>(nullptr); // nullptr - to enforce host-only operation.
     exeAspect->setSettingsKey("ProjectExplorer.CustomExecutableRunConfiguration.Executable");
     exeAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
     exeAspect->setHistoryCompleter("Qt.CustomExecutable.History");
     exeAspect->setExpectedKind(PathChooser::ExistingCommand);
     exeAspect->setEnvironmentChange(EnvironmentChange::fromFixedEnvironment(envAspect->environment()));
 
-    auto argsAspect = addAspect<ArgumentsAspect>();
-
+    addAspect<ArgumentsAspect>();
     addAspect<WorkingDirectoryAspect>(envAspect);
     addAspect<TerminalAspect>();
 
     connect(envAspect, &EnvironmentAspect::environmentChanged, this, [exeAspect, envAspect]  {
          exeAspect->setEnvironmentChange(EnvironmentChange::fromFixedEnvironment(envAspect->environment()));
-    });
-
-    setCommandLineGetter([exeAspect, argsAspect, this] {
-        const FilePath executable = exeAspect->executable();
-        const QString arguments = argsAspect->arguments(macroExpander());
-        return CommandLine{executable, arguments, CommandLine::Raw};
     });
 
     setDefaultDisplayName(defaultDisplayName());
