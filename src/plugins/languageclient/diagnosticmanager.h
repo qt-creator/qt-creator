@@ -69,6 +69,7 @@ public:
     bool hasDiagnostic(const LanguageServerProtocol::DocumentUri &uri,
                        const TextEditor::TextDocument *doc,
                        const LanguageServerProtocol::Diagnostic &diag) const;
+    bool hasDiagnostics(const TextEditor::TextDocument *doc) const;
 
 signals:
     void textMarkCreated(const Utils::FilePath &path);

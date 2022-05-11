@@ -1102,6 +1102,13 @@ bool Client::hasDiagnostic(const LanguageServerProtocol::DocumentUri &uri,
     return false;
 }
 
+bool Client::hasDiagnostics(const TextEditor::TextDocument *document) const
+{
+    if (m_diagnosticManager)
+        return m_diagnosticManager->hasDiagnostics(document);
+    return false;
+}
+
 DiagnosticManager *Client::createDiagnosticManager()
 {
     return new DiagnosticManager(this);

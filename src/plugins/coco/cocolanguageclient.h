@@ -33,18 +33,20 @@ class CocoLanguageClient : public LanguageClient::Client
 {
 public:
     CocoLanguageClient(const Utils::FilePath &coco, const Utils::FilePath &csmes);
+    ~CocoLanguageClient() override;
 
     LanguageClient::BaseClientInterface *clientInterface(const Utils::FilePath &coco,
                                                          const Utils::FilePath &csmes);
 
 protected:
     LanguageClient::DiagnosticManager *createDiagnosticManager() override;
+    void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params) override;
 
 private:
     void initClientCapabilities();
     void handleDocumentOpened(Core::IDocument *document);
     void handleDocumentClosed(Core::IDocument *document);
+    void handleEditorOpened(Core::IEditor *editor);
 };
-
 
 } // namespace Coco

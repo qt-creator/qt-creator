@@ -206,4 +206,16 @@ bool DiagnosticManager::hasDiagnostic(const LanguageServerProtocol::DocumentUri 
     return it->diagnostics.contains(diag);
 }
 
+bool DiagnosticManager::hasDiagnostics(const TextDocument *doc) const
+{
+    const FilePath docPath = doc->filePath();
+    const auto it = m_diagnostics.find(DocumentUri::fromFilePath(docPath));
+    if (it == m_diagnostics.end())
+        return {};
+    const int revision = m_client->documentVersion(docPath);
+    if (revision != it->version.value_or(revision))
+        return false;
+    return !it->diagnostics.isEmpty();
+}
+
 } // namespace LanguageClient

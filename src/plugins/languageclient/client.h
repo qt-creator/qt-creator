@@ -189,6 +189,7 @@ public:
         const QTextCursor &cursor) const;
     bool hasDiagnostic(const LanguageServerProtocol::DocumentUri &uri,
                        const LanguageServerProtocol::Diagnostic &diag) const;
+    bool hasDiagnostics(const TextEditor::TextDocument *document) const;
     void setSemanticTokensHandler(const SemanticTokensHandler &handler);
     void setSymbolStringifier(const LanguageServerProtocol::SymbolStringifier &stringifier);
     LanguageServerProtocol::SymbolStringifier symbolStringifier() const;
