@@ -25,7 +25,6 @@
 
 #include "sshconnection.h"
 
-#include "sftptransfer.h"
 #include "sshlogging_p.h"
 #include "sshsettings.h"
 
@@ -198,8 +197,6 @@ struct SshConnection::SshConnectionPrivate
 SshConnection::SshConnection(const SshConnectionParameters &serverInfo, QObject *parent)
     : QObject(parent), d(new SshConnectionPrivate(serverInfo))
 {
-    qRegisterMetaType<QSsh::SftpFileInfo>("QSsh::SftpFileInfo");
-    qRegisterMetaType<QList <QSsh::SftpFileInfo> >("QList<QSsh::SftpFileInfo>");
     connect(&d->masterProcess, &QtcProcess::readyReadStandardOutput, [this] {
         const QByteArray reply = d->masterProcess.readAllStandardOutput();
         if (reply == "\n")
@@ -287,16 +284,6 @@ SshConnection::~SshConnection()
     delete d;
 }
 
-SftpTransferPtr SshConnection::createUpload(const FilesToTransfer &files)
-{
-    return setupTransfer(files, Internal::FileTransferType::Upload);
-}
-
-SftpTransferPtr SshConnection::createDownload(const FilesToTransfer &files)
-{
-    return setupTransfer(files, Internal::FileTransferType::Download);
-}
-
 void SshConnection::doConnectToHost()
 {
     if (d->state != Connecting)
@@ -351,14 +338,6 @@ void SshConnection::emitDisconnected()
 {
     d->state = Unconnected;
     emit disconnected();
-}
-
-SftpTransferPtr SshConnection::setupTransfer(const FilesToTransfer &files,
-                                             Internal::FileTransferType type)
-{
-    QTC_ASSERT(state() == Connected, return SftpTransferPtr());
-    return SftpTransferPtr(new SftpTransfer(files, type,
-                                            d->connectionArgs(SshSettings::sftpFilePath())));
 }
 
 #ifdef WITH_TESTS

@@ -17,10 +17,6 @@ Project {
         Depends { name: "Utils" }
 
         files: [
-            "sftpdefs.cpp",
-            "sftpdefs.h",
-            "sftptransfer.cpp",
-            "sftptransfer.h",
             "ssh.qrc",
             "sshconnection.h",
             "sshconnection.cpp",

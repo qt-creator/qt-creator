@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "sftpdefs.h"
 #include "ssh_global.h"
 
 #include <utils/filepath.h>
@@ -99,9 +98,6 @@ public:
     bool sharingEnabled() const;
     ~SshConnection();
 
-    SftpTransferPtr createUpload(const FilesToTransfer &files);
-    SftpTransferPtr createDownload(const FilesToTransfer &files);
-
 signals:
     void connected();
     void disconnected();
@@ -112,7 +108,6 @@ private:
     void emitError(const QString &reason);
     void emitConnected();
     void emitDisconnected();
-    SftpTransferPtr setupTransfer(const FilesToTransfer &files, Internal::FileTransferType type);
 
     struct SshConnectionPrivate;
     SshConnectionPrivate * const d;

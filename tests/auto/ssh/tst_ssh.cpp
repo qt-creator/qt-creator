@@ -23,7 +23,6 @@
 **
 ****************************************************************************/
 
-#include <ssh/sftptransfer.h>
 #include <ssh/sshconnection.h>
 #include <ssh/sshsettings.h>
 
@@ -170,23 +169,6 @@ void tst_Ssh::sftp()
     QVERIFY2(dirForFilesToUpload.isValid(), qPrintable(dirForFilesToUpload.errorString()));
     QVERIFY2(dirForFilesToDownload.isValid(), qPrintable(dirForFilesToDownload.errorString()));
     QVERIFY2(dir2ForFilesToDownload.isValid(), qPrintable(dirForFilesToDownload.errorString()));
-    static const auto getRemoteFilePath = [](const QString &localFileName) {
-        return QString("/tmp/").append(localFileName).append(".upload");
-    };
-    FilesToTransfer filesToUpload;
-    std::srand(QDateTime::currentDateTime().toSecsSinceEpoch());
-    for (int i = 0; i < 100; ++i) {
-        const QString fileName = "sftptestfile" + QString::number(i + 1);
-        QFile file(dirForFilesToUpload.path() + '/' + fileName);
-        QVERIFY2(file.open(QIODevice::WriteOnly), qPrintable(file.errorString()));
-        int content[1024 / sizeof(int)];
-        for (size_t j = 0; j < sizeof content / sizeof content[0]; ++j)
-            content[j] = QRandomGenerator::global()->generate();
-        file.write(reinterpret_cast<char *>(content), sizeof content);
-        file.close();
-        QVERIFY2(file.error() == QFile::NoError, qPrintable(file.errorString()));
-        filesToUpload << FileToTransfer(file.fileName(), getRemoteFilePath(fileName));
-    }
     const QString bigFileName("sftpbigfile");
     QFile bigFile(dirForFilesToUpload.path() + '/' + bigFileName);
     QVERIFY2(bigFile.open(QIODevice::WriteOnly), qPrintable(bigFile.errorString()));
@@ -201,25 +183,6 @@ void tst_Ssh::sftp()
     }
     bigFile.close();
     QVERIFY2(bigFile.error() == QFile::NoError, qPrintable(bigFile.errorString()));
-    filesToUpload << FileToTransfer(bigFile.fileName(), getRemoteFilePath(bigFileName));
-
-    const SftpTransferPtr upload = connection.createUpload(filesToUpload);
-    QString jobError;
-    QEventLoop loop;
-    connect(upload.get(), &SftpTransfer::done, [&jobError, &loop](const QString &error) {
-        jobError = error;
-        loop.quit();
-    });
-    QTimer timer;
-    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-    timer.setSingleShot(true);
-    timer.setInterval(30 * 1000);
-    timer.start();
-    upload->start();
-    loop.exec();
-    QVERIFY(timer.isActive());
-    timer.stop();
-    QVERIFY2(jobError.isEmpty(), qPrintable(jobError));
 }
 
 void tst_Ssh::cleanupTestCase()
