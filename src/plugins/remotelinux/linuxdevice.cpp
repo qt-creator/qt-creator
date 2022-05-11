@@ -566,7 +566,7 @@ void LinuxProcessInterface::sendControlSignal(ControlSignal controlSignal)
     QTC_ASSERT(controlSignal != ControlSignal::KickOff, return);
     const qint64 pid = processId();
     QTC_ASSERT(pid, return); // TODO: try sending a signal based on process name
-    const QString args = QString::fromLatin1("-%1 -%2 %2")
+    const QString args = QString::fromLatin1("-%1 %2")
             .arg(controlSignalToInt(controlSignal)).arg(pid);
     CommandLine command = { "kill", args, CommandLine::Raw };
     // Note: This blocking call takes up to 2 ms for local remote.
