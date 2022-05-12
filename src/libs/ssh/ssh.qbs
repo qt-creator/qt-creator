@@ -18,9 +18,6 @@ Project {
 
         files: [
             "ssh.qrc",
-            "sshkeycreationdialog.cpp",
-            "sshkeycreationdialog.h",
-            "sshkeycreationdialog.ui",
             "sshparameters.cpp",
             "sshparameters.h",
             "sshsettings.cpp",

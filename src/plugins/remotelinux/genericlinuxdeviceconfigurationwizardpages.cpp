@@ -27,9 +27,9 @@
 #include "ui_genericlinuxdeviceconfigurationwizardsetuppage.h"
 
 #include "publickeydeploymentdialog.h"
+#include "sshkeycreationdialog.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <ssh/sshkeycreationdialog.h>
 #include <ssh/sshparameters.h>
 #include <utils/pathchooser.h>
 #include <utils/utilsicons.h>

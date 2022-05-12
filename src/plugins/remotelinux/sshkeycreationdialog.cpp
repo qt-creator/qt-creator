@@ -26,7 +26,7 @@
 #include "sshkeycreationdialog.h"
 #include "ui_sshkeycreationdialog.h"
 
-#include "sshsettings.h"
+#include <ssh/sshsettings.h>
 
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>
@@ -36,9 +36,10 @@
 #include <QMessageBox>
 #include <QStandardPaths>
 
+using namespace QSsh;
 using namespace Utils;
 
-namespace QSsh {
+namespace RemoteLinux {
 
 SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
     : QDialog(parent), m_ui(new Ui::SshKeyCreationDialog)

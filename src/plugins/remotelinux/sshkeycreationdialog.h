@@ -25,17 +25,17 @@
 
 #pragma once
 
-#include "ssh_global.h"
+#include "remotelinux_export.h"
 
 #include <utils/filepath.h>
 
 #include <QDialog>
 
-namespace QSsh {
+namespace RemoteLinux {
 
 namespace Ui { class SshKeyCreationDialog; }
 
-class QSSH_EXPORT SshKeyCreationDialog : public QDialog
+class SshKeyCreationDialog : public QDialog
 {
     Q_OBJECT
 public:
@@ -56,4 +56,4 @@ private:
     Ui::SshKeyCreationDialog *m_ui;
 };
 
-} // namespace QSsh
+} // namespace RemoteLinux

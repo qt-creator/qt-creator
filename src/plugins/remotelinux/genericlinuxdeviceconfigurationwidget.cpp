@@ -26,13 +26,14 @@
 #include "genericlinuxdeviceconfigurationwidget.h"
 #include "ui_genericlinuxdeviceconfigurationwidget.h"
 
+#include "sshkeycreationdialog.h"
+
 #include <coreplugin/coreconstants.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <utils/portlist.h>
 #include <utils/fancylineedit.h>
 #include <utils/utilsicons.h>
 #include <ssh/sshparameters.h>
-#include <ssh/sshkeycreationdialog.h>
 
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
