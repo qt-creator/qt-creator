@@ -26,7 +26,7 @@
 #include "sshkeycreationdialog.h"
 #include "ui_sshkeycreationdialog.h"
 
-#include <ssh/sshsettings.h>
+#include <projectexplorer/devicesupport/sshsettings.h>
 
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>
@@ -36,7 +36,7 @@
 #include <QMessageBox>
 #include <QStandardPaths>
 
-using namespace QSsh;
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace RemoteLinux {
@@ -138,4 +138,4 @@ FilePath SshKeyCreationDialog::publicKeyFilePath() const
     return FilePath::fromUserInput(m_ui->publicKeyFileLabel->text());
 }
 
-} // namespace QSsh
+} // namespace RemoteLinux

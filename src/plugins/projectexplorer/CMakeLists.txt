@@ -1,5 +1,5 @@
 add_qtc_plugin(ProjectExplorer
-  DEPENDS QtcSsh Qt5::Qml
+  DEPENDS Qt5::Qml
   PLUGIN_DEPENDS Core TextEditor
   PLUGIN_TEST_DEPENDS GenericProjectManager
   SOURCES
@@ -66,6 +66,8 @@ add_qtc_plugin(ProjectExplorer
     devicesupport/idevicewidget.h
     devicesupport/localprocesslist.cpp devicesupport/localprocesslist.h
     devicesupport/sshdeviceprocesslist.cpp devicesupport/sshdeviceprocesslist.h
+    devicesupport/sshparameters.cpp devicesupport/sshparameters.h
+    devicesupport/sshsettings.cpp devicesupport/sshsettings.h
     devicesupport/sshsettingspage.cpp devicesupport/sshsettingspage.h
     editorconfiguration.cpp editorconfiguration.h
     editorsettingspropertiespage.cpp editorsettingspropertiespage.h editorsettingspropertiespage.ui

@@ -24,10 +24,10 @@
 ****************************************************************************/
 
 #include "sshsettingspage.h"
+#include "sshsettings.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <ssh/sshsettings.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 
@@ -36,7 +36,6 @@
 #include <QFormLayout>
 #include <QSpinBox>
 
-using namespace QSsh;
 using namespace Utils;
 
 namespace ProjectExplorer {

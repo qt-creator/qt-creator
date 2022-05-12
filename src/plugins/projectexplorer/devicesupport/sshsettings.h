@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "ssh_global.h"
+#include "../projectexplorer_export.h"
 
 #include <utils/fileutils.h>
 
@@ -35,9 +35,9 @@ QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
-namespace QSsh {
+namespace ProjectExplorer {
 
-class QSSH_EXPORT SshSettings
+class PROJECTEXPLORER_EXPORT SshSettings
 {
 public:
     static void loadSettings(QSettings *settings);
@@ -65,4 +65,4 @@ public:
     static void setExtraSearchPathRetriever(const SearchPathRetriever &pathRetriever);
 };
 
-} // namespace QSsh
+} // namespace ProjectExplorer

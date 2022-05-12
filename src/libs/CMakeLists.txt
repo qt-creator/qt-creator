@@ -13,7 +13,6 @@ add_subdirectory(qmldebug)
 add_subdirectory(qmleditorwidgets)
 add_subdirectory(glsl)
 add_subdirectory(languageserverprotocol)
-add_subdirectory(ssh)
 add_subdirectory(sqlite)
 add_subdirectory(tracing)
 

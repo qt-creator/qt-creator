@@ -39,7 +39,7 @@
 
 using namespace Utils;
 
-namespace QSsh {
+namespace ProjectExplorer {
 
 SshParameters::SshParameters()
 {
@@ -178,12 +178,12 @@ SshParameters getParameters()
     params.setPort(getPortFromEnvironment());
     params.timeout = 10;
     params.authenticationType = !params.privateKeyFile.isEmpty()
-            ? QSsh::SshParameters::AuthenticationTypeSpecificKey
-            : QSsh::SshParameters::AuthenticationTypeAll;
+            ? SshParameters::AuthenticationTypeSpecificKey
+            : SshParameters::AuthenticationTypeAll;
     return params;
 }
 
-bool checkParameters(const QSsh::SshParameters &params)
+bool checkParameters(const SshParameters &params)
 {
     if (qEnvironmentVariableIsSet("QTC_SSH_TEST_DEFAULTS"))
         return true;
@@ -219,4 +219,4 @@ void printSetupHelp()
 } // namespace SshTest
 #endif
 
-} // namespace QSsh
+} // namespace ProjectExplorer

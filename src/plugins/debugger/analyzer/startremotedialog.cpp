@@ -28,11 +28,10 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/runcontrol.h>
-
-#include <ssh/sshparameters.h>
 
 #include <QDialogButtonBox>
 #include <QFormLayout>

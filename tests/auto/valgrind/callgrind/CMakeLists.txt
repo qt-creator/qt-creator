@@ -1,5 +1,5 @@
 add_qtc_test(tst_callgrindparsertests
-  DEPENDS Utils QtcSsh Core ProjectExplorer Debugger Qt5::Core Qt5::Network
+  DEPENDS Utils Core ProjectExplorer Debugger Qt5::Core Qt5::Network
   DEFINES
     PARSERTESTS_DATA_DIR="${CMAKE_CURRENT_LIST_DIR}/data"
     CALLGRINDPARSERTESTS

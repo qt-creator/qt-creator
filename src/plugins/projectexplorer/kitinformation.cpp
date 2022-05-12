@@ -30,14 +30,13 @@
 #include "devicesupport/devicemanager.h"
 #include "devicesupport/devicemanagermodel.h"
 #include "devicesupport/idevicefactory.h"
+#include "devicesupport/sshparameters.h"
 #include "projectexplorerconstants.h"
 #include "kit.h"
 #include "toolchain.h"
 #include "toolchainmanager.h"
 
 #include <docker/dockerconstants.h>
-
-#include <ssh/sshparameters.h>
 
 #include <utils/algorithm.h>
 #include <utils/elidinglabel.h>

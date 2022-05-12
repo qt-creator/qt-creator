@@ -90,6 +90,7 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
+#include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/itaskhandler.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -101,8 +102,6 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
-
-#include <ssh/sshparameters.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
@@ -378,7 +377,6 @@ using namespace Debugger::Constants;
 using namespace Debugger::Internal;
 using namespace ExtensionSystem;
 using namespace ProjectExplorer;
-using namespace QSsh;
 using namespace TextEditor;
 using namespace Utils;
 

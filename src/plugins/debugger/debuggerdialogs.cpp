@@ -33,10 +33,9 @@
 
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
-
-#include <ssh/sshparameters.h>
 
 #include <utils/fancylineedit.h>
 #include <utils/pathchooser.h>

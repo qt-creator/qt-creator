@@ -1,5 +1,5 @@
 add_qtc_plugin(RemoteLinux
-  DEPENDS QmlDebug QtcSsh
+  DEPENDS QmlDebug
   PLUGIN_DEPENDS Core Debugger ProjectExplorer
   SOURCES
     abstractpackagingstep.cpp abstractpackagingstep.h

@@ -1,5 +1,5 @@
 add_qtc_plugin(Qnx
-  DEPENDS QtcSsh QmlDebug Qt5::Xml
+  DEPENDS QmlDebug Qt5::Xml
   PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport RemoteLinux
   SOURCES
     qnx.qrc

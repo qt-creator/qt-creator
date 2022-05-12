@@ -30,12 +30,11 @@
 #include "remotelinux_constants.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <ssh/sshparameters.h>
+#include <projectexplorer/devicesupport/sshparameters.h>
 #include <utils/portlist.h>
 #include <utils/fileutils.h>
 
 using namespace ProjectExplorer;
-using namespace QSsh;
 
 namespace RemoteLinux {
 namespace Internal {

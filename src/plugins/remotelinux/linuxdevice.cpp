@@ -40,10 +40,9 @@
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
+#include <projectexplorer/devicesupport/sshparameters.h>
+#include <projectexplorer/devicesupport/sshsettings.h>
 #include <projectexplorer/runcontrol.h>
-
-#include <ssh/sshparameters.h>
-#include <ssh/sshsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -65,7 +64,6 @@
 #include <QTimer>
 
 using namespace ProjectExplorer;
-using namespace QSsh;
 using namespace Utils;
 
 namespace RemoteLinux {

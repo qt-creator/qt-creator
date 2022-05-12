@@ -30,14 +30,13 @@
 
 #include <coreplugin/coreconstants.h>
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/sshparameters.h>
 #include <utils/portlist.h>
 #include <utils/fancylineedit.h>
 #include <utils/utilsicons.h>
-#include <ssh/sshparameters.h>
 
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
-using namespace QSsh;
 using namespace Utils;
 
 GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(

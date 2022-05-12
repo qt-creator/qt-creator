@@ -1,5 +1,5 @@
 add_qtc_plugin(Valgrind
-  DEPENDS CPlusPlus QtcSsh
+  DEPENDS CPlusPlus
   PLUGIN_DEPENDS Core Debugger ProjectExplorer TextEditor
   SOURCES
     callgrind/callgrindabstractmodel.h

@@ -1,6 +1,6 @@
 add_qtc_plugin(Boot2Qt
   PLUGIN_CLASS QdbPlugin
-  DEPENDS Qt5::Network QtcSsh
+  DEPENDS Qt5::Network
   PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport RemoteLinux
   SOURCES
     qdb.qrc

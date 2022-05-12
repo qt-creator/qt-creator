@@ -47,8 +47,6 @@ QT_BEGIN_NAMESPACE
 class QWidget;
 QT_END_NAMESPACE
 
-namespace QSsh { class SshParameters; }
-
 namespace Utils {
 class CommandLine;
 class Environment;
@@ -63,6 +61,7 @@ namespace ProjectExplorer {
 
 class DeviceProcessList;
 class Kit;
+class SshParameters;
 class Task;
 
 namespace Internal { class IDevicePrivate; }
@@ -192,8 +191,8 @@ public:
     static QString defaultPrivateKeyFilePath();
     static QString defaultPublicKeyFilePath();
 
-    QSsh::SshParameters sshParameters() const;
-    void setSshParameters(const QSsh::SshParameters &sshParameters);
+    SshParameters sshParameters() const;
+    void setSshParameters(const SshParameters &sshParameters);
 
     enum ControlChannelHint { QmlControlChannel };
     virtual QUrl toolControlChannel(const ControlChannelHint &) const;

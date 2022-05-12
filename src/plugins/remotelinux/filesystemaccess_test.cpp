@@ -29,7 +29,7 @@
 #include "linuxdevice.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <ssh/sshparameters.h>
+#include <projectexplorer/devicesupport/sshparameters.h>
 #include <utils/filepath.h>
 #include <utils/processinterface.h>
 
@@ -40,7 +40,6 @@
 #include <QTimer>
 
 using namespace ProjectExplorer;
-using namespace QSsh;
 using namespace Utils;
 
 namespace RemoteLinux {

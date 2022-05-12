@@ -6,7 +6,6 @@ QtcPlugin {
 
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
     Depends { name: "CPlusPlus"}
-    Depends { name: "QtcSsh" }
     Depends { name: "Utils" }
 
     Depends { name: "Core" }

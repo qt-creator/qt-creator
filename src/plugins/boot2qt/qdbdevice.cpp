@@ -32,11 +32,10 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/runcontrol.h>
 
 #include <remotelinux/linuxprocessinterface.h>
-
-#include <ssh/sshparameters.h>
 
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
@@ -48,7 +47,6 @@
 #include <QWizard>
 
 using namespace ProjectExplorer;
-using namespace QSsh;
 using namespace RemoteLinux;
 using namespace Utils;
 

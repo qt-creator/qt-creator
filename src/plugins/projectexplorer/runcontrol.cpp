@@ -29,6 +29,7 @@
 #include "customparser.h"
 #include "devicesupport/desktopdevice.h"
 #include "devicesupport/idevice.h"
+#include "devicesupport/sshsettings.h"
 #include "kitinformation.h"
 #include "project.h"
 #include "projectexplorer.h"
@@ -55,7 +56,8 @@
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>
 
-#include <ssh/sshsettings.h>
+#include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
 
 #include <QDir>
 #include <QFormLayout>
@@ -72,7 +74,6 @@
 #endif
 
 using namespace ProjectExplorer::Internal;
-using namespace QSsh;
 using namespace Utils;
 
 namespace {

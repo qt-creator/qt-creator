@@ -6,7 +6,6 @@ Project {
     QtcPlugin {
         Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "qml"] }
         Depends { name: "Aggregation" }
-        Depends { name: "QtcSsh" }
         Depends { name: "Utils" }
 
         Depends { name: "Core" }
@@ -225,6 +224,8 @@ Project {
                 "idevicewidget.h",
                 "localprocesslist.cpp", "localprocesslist.h",
                 "sshdeviceprocesslist.cpp", "sshdeviceprocesslist.h",
+                "sshparameters.cpp", "sshparameters.h",
+                "sshsettings.cpp", "sshsettings.h",
                 "sshsettingspage.cpp", "sshsettingspage.h",
                 "desktopprocesssignaloperation.cpp", "desktopprocesssignaloperation.h"
             ]

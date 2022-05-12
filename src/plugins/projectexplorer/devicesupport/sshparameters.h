@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "ssh_global.h"
+#include "../projectexplorer_export.h"
 
 #include <utils/filepath.h>
 
@@ -33,7 +33,7 @@
 
 namespace Utils { class QtcProcess; }
 
-namespace QSsh {
+namespace ProjectExplorer {
 
 enum SshHostKeyCheckingMode {
     SshHostKeyCheckingNone,
@@ -41,7 +41,7 @@ enum SshHostKeyCheckingMode {
     SshHostKeyCheckingAllowNoMatch,
 };
 
-class QSSH_EXPORT SshParameters
+class PROJECTEXPLORER_EXPORT SshParameters
 {
 public:
     enum AuthenticationType {
@@ -71,22 +71,22 @@ public:
     static bool setupSshEnvironment(Utils::QtcProcess *process);
 };
 
-QSSH_EXPORT bool operator==(const SshParameters &p1, const SshParameters &p2);
-QSSH_EXPORT bool operator!=(const SshParameters &p1, const SshParameters &p2);
+PROJECTEXPLORER_EXPORT bool operator==(const SshParameters &p1, const SshParameters &p2);
+PROJECTEXPLORER_EXPORT bool operator!=(const SshParameters &p1, const SshParameters &p2);
 
 #ifdef WITH_TESTS
 namespace SshTest {
-const QString QSSH_EXPORT getHostFromEnvironment();
-quint16 QSSH_EXPORT getPortFromEnvironment();
-const QString QSSH_EXPORT getUserFromEnvironment();
-const QString QSSH_EXPORT getKeyFileFromEnvironment();
-const QSSH_EXPORT QString userAtHost();
-SshParameters QSSH_EXPORT getParameters();
-bool QSSH_EXPORT checkParameters(const SshParameters &params);
-void QSSH_EXPORT printSetupHelp();
+const QString PROJECTEXPLORER_EXPORT getHostFromEnvironment();
+quint16 PROJECTEXPLORER_EXPORT getPortFromEnvironment();
+const QString PROJECTEXPLORER_EXPORT getUserFromEnvironment();
+const QString PROJECTEXPLORER_EXPORT getKeyFileFromEnvironment();
+const PROJECTEXPLORER_EXPORT QString userAtHost();
+SshParameters PROJECTEXPLORER_EXPORT getParameters();
+bool PROJECTEXPLORER_EXPORT checkParameters(const SshParameters &params);
+void PROJECTEXPLORER_EXPORT printSetupHelp();
 } // namespace SshTest
 #endif
 
-} // namespace QSsh
+} // namespace ProjectExplorer
 
-Q_DECLARE_METATYPE(QSsh::SshParameters::AuthenticationType)
+Q_DECLARE_METATYPE(ProjectExplorer::SshParameters::AuthenticationType)

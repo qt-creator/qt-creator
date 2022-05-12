@@ -33,7 +33,7 @@
 
 using namespace Utils;
 
-namespace QSsh {
+namespace ProjectExplorer {
 namespace Internal {
 
 struct SshSettings
@@ -44,14 +44,13 @@ struct SshSettings
     FilePath sftpFilePath;
     FilePath askpassFilePath;
     FilePath keygenFilePath;
-    QSsh::SshSettings::SearchPathRetriever searchPathRetriever = [] { return FilePaths(); };
+    ProjectExplorer::SshSettings::SearchPathRetriever searchPathRetriever = [] { return FilePaths(); };
     QReadWriteLock lock;
 };
 
 } // namespace Internal
 
-Q_GLOBAL_STATIC(QSsh::Internal::SshSettings, sshSettings)
-
+Q_GLOBAL_STATIC(Internal::SshSettings, sshSettings)
 
 class AccessSettingsGroup
 {
@@ -204,4 +203,4 @@ void SshSettings::setExtraSearchPathRetriever(const SearchPathRetriever &pathRet
     sshSettings->searchPathRetriever = pathRetriever;
 }
 
-} // namespace QSsh
+} // namespace ProjectExplorer

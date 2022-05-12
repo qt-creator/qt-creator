@@ -25,16 +25,15 @@
 
 #include "idevice.h"
 
-#include "devicemanager.h"
+#include "sshparameters.h"
+
 #include "deviceprocesslist.h"
 #include "idevicefactory.h"
 
 #include "../kit.h"
 #include "../kitinformation.h"
-#include "../runconfiguration.h"
 
 #include <coreplugin/icore.h>
-#include <ssh/sshparameters.h>
 #include <utils/displayname.h>
 #include <utils/icon.h>
 #include <utils/portlist.h>
@@ -100,7 +99,6 @@
  * Creates an identical copy of a device object.
  */
 
-using namespace QSsh;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -735,7 +733,7 @@ void IDevice::setSshParameters(const SshParameters &sshParameters)
 QUrl IDevice::toolControlChannel(const ControlChannelHint &) const
 {
     QUrl url;
-    url.setScheme(Utils::urlTcpScheme());
+    url.setScheme(urlTcpScheme());
     QReadLocker locker(&d->lock);
     url.setHost(d->sshParameters.host());
     return url;
@@ -785,7 +783,7 @@ FilePath IDevice::debugDumperPath() const
     return d->debugDumperPath;
 }
 
-void IDevice::setDebugDumperPath(const Utils::FilePath &path)
+void IDevice::setDebugDumperPath(const FilePath &path)
 {
     d->debugDumperPath = path;
 }

@@ -4,7 +4,6 @@ QtcPlugin {
     name: "Qnx"
 
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
-    Depends { name: "QtcSsh" }
     Depends { name: "QmlDebug" }
     Depends { name: "Utils" }
 

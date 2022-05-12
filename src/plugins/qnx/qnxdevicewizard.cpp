@@ -27,12 +27,11 @@
 
 #include "qnxconstants.h"
 
+#include <projectexplorer/devicesupport/sshparameters.h>
 #include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
-#include <ssh/sshparameters.h>
 #include <utils/portlist.h>
 
 using namespace ProjectExplorer;
-using namespace QSsh;
 
 namespace Qnx {
 namespace Internal {

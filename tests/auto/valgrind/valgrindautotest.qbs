@@ -3,7 +3,6 @@ import qbs
 QtcAutotest {
     Depends { name: "Debugger" }
     Depends { name: "Core" }
-    Depends { name: "QtcSsh" }
     Depends { name: "Utils" }
     Depends { name: "ProjectExplorer" }
     property path pluginDir: project.ide_source_tree + "/src/plugins/valgrind"

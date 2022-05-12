@@ -25,8 +25,9 @@
 
 #include "deviceusedportsgatherer.h"
 
+#include "sshparameters.h"
+
 #include <projectexplorer/devicesupport/idevice.h>
-#include <ssh/sshparameters.h>
 #include <utils/port.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>

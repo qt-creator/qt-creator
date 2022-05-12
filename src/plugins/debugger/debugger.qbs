@@ -7,7 +7,6 @@ Project {
         Depends { name: "Qt"; submodules: ["widgets", "network"] }
         Depends { name: "Aggregation" }
         Depends { name: "CPlusPlus" }
-        Depends { name: "QtcSsh" }
         Depends { name: "QmlDebug" }
         Depends { name: "LanguageUtils" }
         Depends { name: "QmlJS" }
@@ -256,7 +255,6 @@ Project {
         }
 
         Export {
-            Depends { name: "QtcSsh" }
             Depends { name: "CPlusPlus" }
         }
     }

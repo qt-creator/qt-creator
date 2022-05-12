@@ -20,7 +20,6 @@ Project {
         "qmldebug/qmldebug.qbs",
         "qtcreatorcdbext/qtcreatorcdbext.qbs",
         "sqlite/sqlite.qbs",
-        "ssh/ssh.qbs",
         "tracing/tracing.qbs",
         "utils/process_stub.qbs",
         "utils/process_ctrlc_stub.qbs",

@@ -5,7 +5,6 @@ Project {
 
     QtcPlugin {
         Depends { name: "Qt.widgets" }
-        Depends { name: "QtcSsh" }
         Depends { name: "QmlDebug" }
         Depends { name: "Utils" }
 
@@ -106,7 +105,6 @@ Project {
         Export {
             Depends { name: "Debugger" }
             Depends { name: "Core" }
-            Depends { name: "QtcSsh" }
         }
     }
 }

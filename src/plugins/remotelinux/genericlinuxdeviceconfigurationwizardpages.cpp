@@ -29,8 +29,7 @@
 #include "publickeydeploymentdialog.h"
 #include "sshkeycreationdialog.h"
 
-#include <projectexplorer/devicesupport/idevice.h>
-#include <ssh/sshparameters.h>
+#include <projectexplorer/devicesupport/sshparameters.h>
 #include <utils/pathchooser.h>
 #include <utils/utilsicons.h>
 
@@ -40,7 +39,7 @@
 #include <QStringList>
 #include <QVBoxLayout>
 
-using namespace QSsh;
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace RemoteLinux {

@@ -60,6 +60,7 @@
 #include "devicesupport/desktopdevicefactory.h"
 #include "devicesupport/devicemanager.h"
 #include "devicesupport/devicesettingspage.h"
+#include "devicesupport/sshsettings.h"
 #include "devicesupport/sshsettingspage.h"
 #include "editorsettingspropertiespage.h"
 #include "filesinallprojectsfind.h"
@@ -131,7 +132,6 @@
 #include <coreplugin/vcsmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
-#include <ssh/sshsettings.h>
 #include <texteditor/findinfiles.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
@@ -189,7 +189,6 @@
 
 using namespace Core;
 using namespace ProjectExplorer::Internal;
-using namespace QSsh;
 using namespace Utils;
 
 namespace ProjectExplorer {
