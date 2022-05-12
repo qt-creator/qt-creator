@@ -415,8 +415,7 @@ void ClangModelManagerSupport::updateLanguageClient(
     const ClangDiagnosticConfig warningsConfig = warningsConfigForProject(project);
     auto future = Utils::runAsync(&Internal::generateCompilationDB, projectInfo, jsonDbDir,
                                   CompilationDbPurpose::CodeModel,
-                                  qMakePair(warningsConfig,
-                                            optionsForProject(project, warningsConfig)),
+                                  warningsConfig, optionsForProject(project, warningsConfig),
                                   includeDir);
     generatorWatcher->setFuture(future);
     m_generatorSynchronizer.addFuture(future);

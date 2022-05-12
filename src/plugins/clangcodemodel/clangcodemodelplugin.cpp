@@ -35,6 +35,8 @@
 #  include "test/clangfixittest.h"
 #endif
 
+#include <utils/runextensions.h>
+
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/messagemanager.h>
@@ -50,8 +52,6 @@
 #include <projectexplorer/taskhub.h>
 
 #include <texteditor/textmark.h>
-
-#include <QtConcurrent>
 
 using namespace Utils;
 
@@ -83,11 +83,11 @@ void ClangCodeModelPlugin::generateCompilationDB()
     const CppEditor::ClangDiagnosticConfig warningsConfig
             = warningsConfigForProject(target->project());
     QFuture<GenerateCompilationDbResult> task
-            = QtConcurrent::run(&Internal::generateCompilationDB, projectInfo,
-                                projectInfo->buildRoot(), CompilationDbPurpose::Project,
-                                qMakePair(warningsConfig,
-                                          optionsForProject(target->project(), warningsConfig)),
-                                FilePath());
+            = Utils::runAsync(&Internal::generateCompilationDB, projectInfo,
+                              projectInfo->buildRoot(), CompilationDbPurpose::Project,
+                              warningsConfig,
+                              optionsForProject(target->project(), warningsConfig),
+                              FilePath());
     Core::ProgressManager::addTask(task, tr("Generating Compilation DB"), "generate compilation db");
     m_generatorWatcher.setFuture(task);
 }

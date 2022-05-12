@@ -168,12 +168,12 @@ static QJsonObject createFileObject(const FilePath &buildDir,
     return fileObject;
 }
 
-GenerateCompilationDbResult generateCompilationDB(
-        const CppEditor::ProjectInfo::ConstPtr projectInfo,
-        const Utils::FilePath &baseDir,
-        CompilationDbPurpose purpose,
-        const QPair<ClangDiagnosticConfig, QStringList> &configAndOptions,
-        const FilePath &clangIncludeDir)
+GenerateCompilationDbResult generateCompilationDB(const CppEditor::ProjectInfo::ConstPtr projectInfo,
+                                                  const Utils::FilePath &baseDir,
+                                                  CompilationDbPurpose purpose,
+                                                  const ClangDiagnosticConfig &warningsConfig,
+                                                  const QStringList &projectOptions,
+                                                  const FilePath &clangIncludeDir)
 {
     QTC_ASSERT(!baseDir.isEmpty(), return GenerateCompilationDbResult(QString(),
         QCoreApplication::translate("ClangUtils", "Could not retrieve build directory.")));
@@ -190,11 +190,11 @@ GenerateCompilationDbResult generateCompilationDB(
     compileCommandsFile.write("[");
 
     const UsePrecompiledHeaders usePch = getPchUsage();
-    const QJsonArray jsonProjectOptions = QJsonArray::fromStringList(configAndOptions.second);
+    const QJsonArray jsonProjectOptions = QJsonArray::fromStringList(projectOptions);
     for (ProjectPart::ConstPtr projectPart : projectInfo->projectParts()) {
         QStringList args;
         const CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
-                    *projectPart, configAndOptions.first, clangIncludeDir);
+                    *projectPart, warningsConfig, clangIncludeDir);
         QJsonArray ppOptions;
         if (purpose == CompilationDbPurpose::Project) {
             args = projectPartArguments(*projectPart);
