@@ -30,7 +30,6 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-using namespace QSsh;
 using namespace Utils;
 
 namespace ProjectExplorer {

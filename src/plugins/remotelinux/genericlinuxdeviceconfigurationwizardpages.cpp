@@ -30,14 +30,18 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <ssh/sshkeycreationdialog.h>
-#include <utils/utilsicons.h>
+#include <ssh/sshparameters.h>
 #include <utils/pathchooser.h>
+#include <utils/utilsicons.h>
 
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QStringList>
 #include <QVBoxLayout>
+
+using namespace QSsh;
+using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -56,9 +60,6 @@ public:
 };
 
 } // namespace Internal
-
-using namespace QSsh;
-using namespace Utils;
 
 GenericLinuxDeviceConfigurationWizardSetupPage::GenericLinuxDeviceConfigurationWizardSetupPage(
         QWidget *parent) :
@@ -94,7 +95,7 @@ bool GenericLinuxDeviceConfigurationWizardSetupPage::isComplete() const
 bool GenericLinuxDeviceConfigurationWizardSetupPage::validatePage()
 {
     d->device->setDisplayName(configurationName());
-    SshConnectionParameters sshParams = d->device->sshParameters();
+    SshParameters sshParams = d->device->sshParameters();
     sshParams.url = url();
     d->device->setSshParameters(sshParams);
     return true;
@@ -232,8 +233,8 @@ bool GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::isComplete() const
 bool GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::validatePage()
 {
     if (!d->defaultKeys().contains(d->keyFileChooser.filePath())) {
-        SshConnectionParameters sshParams = d->device->sshParameters();
-        sshParams.authenticationType = SshConnectionParameters::AuthenticationTypeSpecificKey;
+        SshParameters sshParams = d->device->sshParameters();
+        sshParams.authenticationType = SshParameters::AuthenticationTypeSpecificKey;
         sshParams.privateKeyFile = d->keyFileChooser.filePath();
         d->device->setSshParameters(sshParams);
     }

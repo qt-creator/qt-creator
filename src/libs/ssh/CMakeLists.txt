@@ -3,13 +3,7 @@ add_qtc_library(QtcSsh
   SOURCES
     ssh.qrc
     ssh_global.h
-    sshconnection.cpp sshconnection.h
-    sshconnectionmanager.cpp sshconnectionmanager.h
     sshkeycreationdialog.cpp sshkeycreationdialog.h sshkeycreationdialog.ui
-    sshlogging.cpp sshlogging_p.h
-    sshconnection.cpp sshconnection.h
-    sshconnectionmanager.cpp sshconnectionmanager.h
-    sshkeycreationdialog.cpp sshkeycreationdialog.h sshkeycreationdialog.ui
-    sshlogging.cpp sshlogging_p.h
+    sshparameters.cpp sshparameters.h
     sshsettings.cpp sshsettings.h
 )

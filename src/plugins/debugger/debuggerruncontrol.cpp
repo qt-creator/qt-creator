@@ -73,8 +73,6 @@
 
 #include <qtsupport/qtkitinformation.h>
 
-#include <ssh/sshconnection.h>
-
 #include <QTcpServer>
 #include <QTimer>
 

@@ -31,8 +31,6 @@
 
 #include <debugger/debuggerruncontrol.h>
 
-#include <ssh/sshconnection.h>
-
 #include <utils/algorithm.h>
 #include <utils/qtcprocess.h>
 #include <utils/url.h>

@@ -131,7 +131,6 @@
 #include <coreplugin/vcsmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
-#include <ssh/sshconnection.h>
 #include <ssh/sshsettings.h>
 #include <texteditor/findinfiles.h>
 #include <texteditor/textdocument.h>
@@ -190,6 +189,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer::Internal;
+using namespace QSsh;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -2252,7 +2252,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
     TaskHub::addCategory(Constants::TASK_CATEGORY_SANITIZER,
                          tr("Sanitizer", "Category for sanitizer issues listed under 'Issues'"));
 
-    QSsh::SshSettings::loadSettings(Core::ICore::settings());
+    SshSettings::loadSettings(Core::ICore::settings());
     const auto searchPathRetriever = [] {
         FilePaths searchPaths = {Core::ICore::libexecPath()};
         if (HostOsInfo::isWindowsHost()) {
@@ -2271,7 +2271,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
         }
         return searchPaths;
     };
-    QSsh::SshSettings::setExtraSearchPathRetriever(searchPathRetriever);
+    SshSettings::setExtraSearchPathRetriever(searchPathRetriever);
 
     const auto parseIssuesAction = new QAction(tr("Parse Build Output..."), this);
     ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);

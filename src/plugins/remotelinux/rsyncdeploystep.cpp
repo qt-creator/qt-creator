@@ -38,7 +38,6 @@
 #include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
-using namespace QSsh;
 using namespace Utils;
 
 namespace RemoteLinux {

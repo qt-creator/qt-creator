@@ -47,7 +47,7 @@ QT_BEGIN_NAMESPACE
 class QWidget;
 QT_END_NAMESPACE
 
-namespace QSsh { class SshConnectionParameters; }
+namespace QSsh { class SshParameters; }
 
 namespace Utils {
 class CommandLine;
@@ -192,8 +192,8 @@ public:
     static QString defaultPrivateKeyFilePath();
     static QString defaultPublicKeyFilePath();
 
-    QSsh::SshConnectionParameters sshParameters() const;
-    void setSshParameters(const QSsh::SshConnectionParameters &sshParameters);
+    QSsh::SshParameters sshParameters() const;
+    void setSshParameters(const QSsh::SshParameters &sshParameters);
 
     enum ControlChannelHint { QmlControlChannel };
     virtual QUrl toolControlChannel(const ControlChannelHint &) const;

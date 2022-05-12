@@ -71,8 +71,9 @@
 #include "journaldwatcher.h"
 #endif
 
-using namespace Utils;
 using namespace ProjectExplorer::Internal;
+using namespace QSsh;
+using namespace Utils;
 
 namespace {
 static Q_LOGGING_CATEGORY(statesLog, "qtc.projectmanager.states", QtWarningMsg)
@@ -1119,7 +1120,7 @@ bool RunControl::showPromptToStopDialog(const QString &title,
 void RunControl::provideAskPassEntry(Environment &env)
 {
     if (env.value("SUDO_ASKPASS").isEmpty()) {
-        const FilePath askpass = QSsh::SshSettings::askpassFilePath();
+        const FilePath askpass = SshSettings::askpassFilePath();
         if (askpass.exists())
             env.set("SUDO_ASKPASS", askpass.toUserOutput());
     }

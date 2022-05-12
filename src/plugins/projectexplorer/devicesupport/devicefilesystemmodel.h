@@ -69,4 +69,4 @@ private:
     Internal::DeviceFileSystemModelPrivate * const d;
 };
 
-} // namespace QSsh;
+} // namespace ProjectExplorer;

@@ -28,8 +28,6 @@
 #include "linuxdevice.h"
 #include "remotelinux_export.h"
 
-#include <ssh/sshconnection.h>
-
 #include <QWizardPage>
 
 namespace RemoteLinux {

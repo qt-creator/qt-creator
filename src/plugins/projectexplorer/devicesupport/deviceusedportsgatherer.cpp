@@ -25,16 +25,14 @@
 
 #include "deviceusedportsgatherer.h"
 
-#include <ssh/sshconnection.h>
-
 #include <projectexplorer/devicesupport/idevice.h>
+#include <ssh/sshparameters.h>
 #include <utils/port.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/url.h>
 
-using namespace QSsh;
 using namespace Utils;
 
 namespace ProjectExplorer {

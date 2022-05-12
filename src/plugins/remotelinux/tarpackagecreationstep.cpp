@@ -32,9 +32,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
-#include <ssh/sshconnection.h>
-#include <ssh/sshconnectionmanager.h>
-
 #include <QDateTime>
 #include <QDir>
 #include <QFile>

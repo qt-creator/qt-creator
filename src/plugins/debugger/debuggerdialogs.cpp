@@ -25,20 +25,22 @@
 
 #include "debuggerdialogs.h"
 
+#include "cdb/cdbengine.h"
 #include "debuggerkitinformation.h"
 #include "debuggerruncontrol.h"
-#include "cdb/cdbengine.h"
+
+#include <app/app_version.h>
 
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 
-#include <app/app_version.h>
-#include <utils/pathchooser.h>
-#include <utils/fancylineedit.h>
-#include <utils/qtcassert.h>
+#include <ssh/sshparameters.h>
 
-#include <ssh/sshconnection.h>
+#include <utils/fancylineedit.h>
+#include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
 
 #include <QButtonGroup>
 #include <QCheckBox>

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -29,13 +29,7 @@
 
 #include <utils/filepath.h>
 
-#include <QFlags>
-#include <QHostAddress>
-#include <QObject>
-#include <QString>
 #include <QUrl>
-
-#include <memory>
 
 namespace Utils { class QtcProcess; }
 
@@ -47,7 +41,7 @@ enum SshHostKeyCheckingMode {
     SshHostKeyCheckingAllowNoMatch,
 };
 
-class QSSH_EXPORT SshConnectionParameters
+class QSSH_EXPORT SshParameters
 {
 public:
     enum AuthenticationType {
@@ -55,7 +49,7 @@ public:
         AuthenticationTypeSpecificKey,
     };
 
-    SshConnectionParameters();
+    SshParameters();
 
     QString host() const { return url.host(); }
     quint16 port() const { return url.port(); }
@@ -77,41 +71,8 @@ public:
     static bool setupSshEnvironment(Utils::QtcProcess *process);
 };
 
-QSSH_EXPORT bool operator==(const SshConnectionParameters &p1, const SshConnectionParameters &p2);
-QSSH_EXPORT bool operator!=(const SshConnectionParameters &p1, const SshConnectionParameters &p2);
-
-class QSSH_EXPORT SshConnection : public QObject
-{
-    Q_OBJECT
-
-public:
-    enum State { Unconnected, Connecting, Connected, Disconnecting };
-
-    explicit SshConnection(const SshConnectionParameters &serverInfo, QObject *parent = nullptr);
-
-    void connectToHost();
-    void disconnectFromHost();
-    State state() const;
-    QString errorString() const;
-    SshConnectionParameters connectionParameters() const;
-    QStringList connectionOptions(const Utils::FilePath &binary) const;
-    bool sharingEnabled() const;
-    ~SshConnection();
-
-signals:
-    void connected();
-    void disconnected();
-    void errorOccurred();
-
-private:
-    void doConnectToHost();
-    void emitError(const QString &reason);
-    void emitConnected();
-    void emitDisconnected();
-
-    struct SshConnectionPrivate;
-    SshConnectionPrivate * const d;
-};
+QSSH_EXPORT bool operator==(const SshParameters &p1, const SshParameters &p2);
+QSSH_EXPORT bool operator!=(const SshParameters &p1, const SshParameters &p2);
 
 #ifdef WITH_TESTS
 namespace SshTest {
@@ -120,12 +81,12 @@ quint16 QSSH_EXPORT getPortFromEnvironment();
 const QString QSSH_EXPORT getUserFromEnvironment();
 const QString QSSH_EXPORT getKeyFileFromEnvironment();
 const QSSH_EXPORT QString userAtHost();
-SshConnectionParameters QSSH_EXPORT getParameters();
-bool QSSH_EXPORT checkParameters(const SshConnectionParameters &params);
+SshParameters QSSH_EXPORT getParameters();
+bool QSSH_EXPORT checkParameters(const SshParameters &params);
 void QSSH_EXPORT printSetupHelp();
 } // namespace SshTest
 #endif
 
 } // namespace QSsh
 
-Q_DECLARE_METATYPE(QSsh::SshConnectionParameters::AuthenticationType)
+Q_DECLARE_METATYPE(QSsh::SshParameters::AuthenticationType)

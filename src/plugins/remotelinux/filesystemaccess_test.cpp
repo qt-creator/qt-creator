@@ -29,7 +29,7 @@
 #include "linuxdevice.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <ssh/sshconnection.h>
+#include <ssh/sshparameters.h>
 #include <utils/filepath.h>
 #include <utils/processinterface.h>
 
@@ -40,6 +40,7 @@
 #include <QTimer>
 
 using namespace ProjectExplorer;
+using namespace QSsh;
 using namespace Utils;
 
 namespace RemoteLinux {
@@ -49,7 +50,7 @@ static const char TEST_DIR[] = "/tmp/testdir";
 
 static const FilePath baseFilePath()
 {
-    return FilePath::fromString("ssh://" + QSsh::SshTest::userAtHost() + QString(TEST_DIR));
+    return FilePath::fromString("ssh://" + SshTest::userAtHost() + QString(TEST_DIR));
 }
 
 TestLinuxDeviceFactory::TestLinuxDeviceFactory()
@@ -63,7 +64,7 @@ TestLinuxDeviceFactory::TestLinuxDeviceFactory()
         device->setupId(IDevice::ManuallyAdded);
         device->setType("test");
         qDebug() << "device : " << device->type();
-        device->setSshParameters(QSsh::SshTest::getParameters());
+        device->setSshParameters(SshTest::getParameters());
         return device;
     });
 }
@@ -71,22 +72,22 @@ TestLinuxDeviceFactory::TestLinuxDeviceFactory()
 FilePath createFile(const QString &name)
 {
     FilePath testFilePath = baseFilePath() / name;
-    FilePath dummyFilePath = FilePath::fromString("ssh://" + QSsh::SshTest::userAtHost() + "/dev/null");
+    FilePath dummyFilePath = FilePath::fromString("ssh://" + SshTest::userAtHost() + "/dev/null");
     dummyFilePath.copyFile(testFilePath);
     return testFilePath;
 }
 
 void FileSystemAccessTest::initTestCase()
 {
-    const QSsh::SshConnectionParameters params = QSsh::SshTest::getParameters();
+    const SshParameters params = SshTest::getParameters();
     qDebug() << "Using following SSH parameter:"
              << "\nHost:" << params.host()
              << "\nPort:" << params.port()
              << "\nUser:" << params.userName()
              << "\nSSHKey:" << params.privateKeyFile;
-    if (!QSsh::SshTest::checkParameters(params)) {
+    if (!SshTest::checkParameters(params)) {
         m_skippedAtWhole = true;
-        QSsh::SshTest::printSetupHelp();
+        SshTest::printSetupHelp();
         QSKIP("Ensure you have added your default ssh public key to your own authorized keys and "
               "environment QTC_REMOTELINUX_SSH_DEFAULTS set or follow setup help above.");
         return;
@@ -181,7 +182,7 @@ void FileSystemAccessTest::testDirStatus()
 
 void FileSystemAccessTest::testBytesAvailable()
 {
-    FilePath testFilePath = FilePath::fromString("ssh://" + QSsh::SshTest::userAtHost() + "/tmp");
+    FilePath testFilePath = FilePath::fromString("ssh://" + SshTest::userAtHost() + "/tmp");
     QVERIFY(testFilePath.exists());
     QVERIFY(testFilePath.bytesAvailable() > 0);
 }

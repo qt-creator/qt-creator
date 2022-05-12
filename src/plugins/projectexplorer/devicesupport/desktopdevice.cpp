@@ -33,8 +33,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
 
-#include <ssh/sshconnection.h>
-
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/portlist.h>

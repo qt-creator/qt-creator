@@ -37,7 +37,7 @@
 
 #include <docker/dockerconstants.h>
 
-#include <ssh/sshconnection.h>
+#include <ssh/sshparameters.h>
 
 #include <utils/algorithm.h>
 #include <utils/elidinglabel.h>

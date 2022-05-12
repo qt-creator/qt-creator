@@ -26,7 +26,7 @@
 #include "publickeydeploymentdialog.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <ssh/sshconnection.h>
+#include <ssh/sshparameters.h>
 #include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
 

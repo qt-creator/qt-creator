@@ -29,15 +29,12 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
-
-#include <ssh/sshconnection.h>
-#include <ssh/sshconnectionmanager.h>
+#include <ssh/sshparameters.h>
 
 #include <QDateTime>
 
 using namespace ProjectExplorer;
 using namespace Utils;
-using namespace QSsh;
 
 namespace RemoteLinux {
 

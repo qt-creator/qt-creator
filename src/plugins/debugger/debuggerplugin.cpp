@@ -101,7 +101,8 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
-#include <ssh/sshconnection.h>
+
+#include <ssh/sshparameters.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
@@ -377,6 +378,7 @@ using namespace Debugger::Constants;
 using namespace Debugger::Internal;
 using namespace ExtensionSystem;
 using namespace ProjectExplorer;
+using namespace QSsh;
 using namespace TextEditor;
 using namespace Utils;
 
@@ -1835,7 +1837,7 @@ void DebuggerPluginPrivate::attachToQmlPort()
     qmlServer.setPort(dlg.port());
     debugger->setQmlServer(qmlServer);
 
-    QSsh::SshConnectionParameters sshParameters = device->sshParameters();
+    SshParameters sshParameters = device->sshParameters();
     debugger->setRemoteChannel(sshParameters.host(), sshParameters.port());
     debugger->setStartMode(AttachToQmlServer);
 

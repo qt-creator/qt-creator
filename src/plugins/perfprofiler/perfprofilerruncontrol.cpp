@@ -35,7 +35,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
-#include <ssh/sshconnection.h>
 #include <utils/qtcprocess.h>
 
 #include <QAction>

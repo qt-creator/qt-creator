@@ -63,8 +63,8 @@ SingletonStaticData &Singleton::staticData(std::type_index index)
 // Note: it's caller responsibility to ensure that this function is being called when all other
 // threads don't use any singleton. As a good practice: finish all other threads that were using
 // singletons before this function is called.
-// Some singletons (currently e.g. SshConnectionManager) can work only in main thread,
-// so this method should be called from main thread only.
+// Some singletons may work only in main thread, so this method should be called from main thread
+// only.
 void Singleton::deleteAll()
 {
     QTC_ASSERT(QThread::currentThread() == qApp->thread(), return);

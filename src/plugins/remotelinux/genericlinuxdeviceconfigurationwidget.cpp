@@ -31,7 +31,7 @@
 #include <utils/portlist.h>
 #include <utils/fancylineedit.h>
 #include <utils/utilsicons.h>
-#include <ssh/sshconnection.h>
+#include <ssh/sshparameters.h>
 #include <ssh/sshkeycreationdialog.h>
 
 using namespace ProjectExplorer;
@@ -83,11 +83,11 @@ GenericLinuxDeviceConfigurationWidget::~GenericLinuxDeviceConfigurationWidget()
 
 void GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged()
 {
-    SshConnectionParameters sshParams = device()->sshParameters();
+    SshParameters sshParams = device()->sshParameters();
     const bool useKeyFile = m_ui->keyButton->isChecked();
     sshParams.authenticationType = useKeyFile
-            ? SshConnectionParameters::AuthenticationTypeSpecificKey
-            : SshConnectionParameters::AuthenticationTypeAll;
+            ? SshParameters::AuthenticationTypeSpecificKey
+            : SshParameters::AuthenticationTypeAll;
     device()->setSshParameters(sshParams);
     m_ui->keyFileLineEdit->setEnabled(useKeyFile);
     m_ui->keyLabel->setEnabled(useKeyFile);
@@ -95,35 +95,35 @@ void GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged()
 
 void GenericLinuxDeviceConfigurationWidget::hostNameEditingFinished()
 {
-    SshConnectionParameters sshParams = device()->sshParameters();
+    SshParameters sshParams = device()->sshParameters();
     sshParams.setHost(m_ui->hostLineEdit->text().trimmed());
     device()->setSshParameters(sshParams);
 }
 
 void GenericLinuxDeviceConfigurationWidget::sshPortEditingFinished()
 {
-    SshConnectionParameters sshParams = device()->sshParameters();
+    SshParameters sshParams = device()->sshParameters();
     sshParams.setPort(m_ui->sshPortSpinBox->value());
     device()->setSshParameters(sshParams);
 }
 
 void GenericLinuxDeviceConfigurationWidget::timeoutEditingFinished()
 {
-    SshConnectionParameters sshParams = device()->sshParameters();
+    SshParameters sshParams = device()->sshParameters();
     sshParams.timeout = m_ui->timeoutSpinBox->value();
     device()->setSshParameters(sshParams);
 }
 
 void GenericLinuxDeviceConfigurationWidget::userNameEditingFinished()
 {
-    SshConnectionParameters sshParams = device()->sshParameters();
+    SshParameters sshParams = device()->sshParameters();
     sshParams.setUserName(m_ui->userLineEdit->text());
     device()->setSshParameters(sshParams);
 }
 
 void GenericLinuxDeviceConfigurationWidget::keyFileEditingFinished()
 {
-    SshConnectionParameters sshParams = device()->sshParameters();
+    SshParameters sshParams = device()->sshParameters();
     sshParams.privateKeyFile = m_ui->keyFileLineEdit->filePath();
     device()->setSshParameters(sshParams);
 }
@@ -154,7 +154,7 @@ void GenericLinuxDeviceConfigurationWidget::createNewKey()
 
 void GenericLinuxDeviceConfigurationWidget::hostKeyCheckingChanged(bool doCheck)
 {
-    SshConnectionParameters sshParams = device()->sshParameters();
+    SshParameters sshParams = device()->sshParameters();
     sshParams.hostKeyCheckingMode
             = doCheck ? SshHostKeyCheckingAllowNoMatch : SshHostKeyCheckingNone;
     device()->setSshParameters(sshParams);
@@ -192,13 +192,13 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
         = new QRegularExpressionValidator(QRegularExpression(PortList::regularExpression()), this);
     m_ui->portsLineEdit->setValidator(portsValidator);
 
-    const SshConnectionParameters &sshParams = device()->sshParameters();
+    const SshParameters &sshParams = device()->sshParameters();
 
     switch (sshParams.authenticationType) {
-    case SshConnectionParameters::AuthenticationTypeSpecificKey:
+    case SshParameters::AuthenticationTypeSpecificKey:
         m_ui->keyButton->setChecked(true);
         break;
-    case SshConnectionParameters::AuthenticationTypeAll:
+    case SshParameters::AuthenticationTypeAll:
         m_ui->defaultAuthButton->setChecked(true);
         break;
     }

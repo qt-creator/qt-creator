@@ -36,7 +36,7 @@
 
 #include <remotelinux/linuxprocessinterface.h>
 
-#include <ssh/sshconnection.h>
+#include <ssh/sshparameters.h>
 
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
@@ -48,6 +48,7 @@
 #include <QWizard>
 
 using namespace ProjectExplorer;
+using namespace QSsh;
 using namespace RemoteLinux;
 using namespace Utils;
 
@@ -178,12 +179,12 @@ void QdbDevice::setupDefaultNetworkSettings(const QString &host)
 {
     setFreePorts(Utils::PortList::fromString("10000-10100"));
 
-    QSsh::SshConnectionParameters parameters = sshParameters();
+    SshParameters parameters = sshParameters();
     parameters.setHost(host);
     parameters.setUserName("root");
     parameters.setPort(22);
     parameters.timeout = 10;
-    parameters.authenticationType = QSsh::SshConnectionParameters::AuthenticationTypeAll;
+    parameters.authenticationType = SshParameters::AuthenticationTypeAll;
     setSshParameters(parameters);
 }
 

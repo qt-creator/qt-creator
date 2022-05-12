@@ -34,7 +34,7 @@
 #include "../runconfiguration.h"
 
 #include <coreplugin/icore.h>
-#include <ssh/sshconnection.h>
+#include <ssh/sshparameters.h>
 #include <utils/displayname.h>
 #include <utils/icon.h>
 #include <utils/portlist.h>
@@ -100,6 +100,7 @@
  * Creates an identical copy of a device object.
  */
 
+using namespace QSsh;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -130,8 +131,8 @@ const char HostKeyCheckingKey[] = "HostKeyChecking";
 const char DebugServerKey[] = "DebugServerKey";
 const char QmlRuntimeKey[] = "QmlsceneKey";
 
-using AuthType = QSsh::SshConnectionParameters::AuthenticationType;
-const AuthType DefaultAuthType = QSsh::SshConnectionParameters::AuthenticationTypeAll;
+using AuthType = SshParameters::AuthenticationType;
+const AuthType DefaultAuthType = SshParameters::AuthenticationTypeAll;
 const IDevice::MachineType DefaultMachineType = IDevice::Hardware;
 
 const int DefaultTimeout = 10;
@@ -153,7 +154,7 @@ public:
     int version = 0; // This is used by devices that have been added by the SDK.
 
     QReadWriteLock lock; // Currently used to protect sshParameters only
-    QSsh::SshConnectionParameters sshParameters;
+    SshParameters sshParameters;
     PortList freePorts;
     FilePath debugServerPath;
     FilePath debugDumperPath = Core::ICore::resourcePath("debugger/");
@@ -633,16 +634,16 @@ void IDevice::fromMap(const QVariantMap &map)
     // Pre-4.9, the authentication enum used to have more values
     const int storedAuthType = map.value(QLatin1String(AuthKey), DefaultAuthType).toInt();
     const bool outdatedAuthType = storedAuthType
-            > QSsh::SshConnectionParameters::AuthenticationTypeSpecificKey;
+            > SshParameters::AuthenticationTypeSpecificKey;
     d->sshParameters.authenticationType = outdatedAuthType
-            ? QSsh::SshConnectionParameters::AuthenticationTypeAll
+            ? SshParameters::AuthenticationTypeAll
             : static_cast<AuthType>(storedAuthType);
 
     d->sshParameters.privateKeyFile =
         FilePath::fromVariant(map.value(QLatin1String(KeyFileKey), defaultPrivateKeyFilePath()));
     d->sshParameters.timeout = map.value(QLatin1String(TimeoutKey), DefaultTimeout).toInt();
-    d->sshParameters.hostKeyCheckingMode = static_cast<QSsh::SshHostKeyCheckingMode>
-            (map.value(QLatin1String(HostKeyCheckingKey), QSsh::SshHostKeyCheckingNone).toInt());
+    d->sshParameters.hostKeyCheckingMode = static_cast<SshHostKeyCheckingMode>
+            (map.value(QLatin1String(HostKeyCheckingKey), SshHostKeyCheckingNone).toInt());
 
     QString portsSpec = map.value(PortsSpecKey).toString();
     if (portsSpec.isEmpty())
@@ -719,13 +720,13 @@ QString IDevice::deviceStateToString() const
     }
 }
 
-QSsh::SshConnectionParameters IDevice::sshParameters() const
+SshParameters IDevice::sshParameters() const
 {
     QReadLocker locker(&d->lock);
     return d->sshParameters;
 }
 
-void IDevice::setSshParameters(const QSsh::SshConnectionParameters &sshParameters)
+void IDevice::setSshParameters(const SshParameters &sshParameters)
 {
     QWriteLocker locker(&d->lock);
     d->sshParameters = sshParameters;

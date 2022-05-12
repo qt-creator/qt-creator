@@ -18,15 +18,11 @@ Project {
 
         files: [
             "ssh.qrc",
-            "sshconnection.h",
-            "sshconnection.cpp",
-            "sshconnectionmanager.cpp",
-            "sshconnectionmanager.h",
             "sshkeycreationdialog.cpp",
             "sshkeycreationdialog.h",
             "sshkeycreationdialog.ui",
-            "sshlogging.cpp",
-            "sshlogging_p.h",
+            "sshparameters.cpp",
+            "sshparameters.h",
             "sshsettings.cpp",
             "sshsettings.h",
         ]

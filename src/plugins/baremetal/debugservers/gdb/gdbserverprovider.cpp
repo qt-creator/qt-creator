@@ -35,8 +35,6 @@
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 
-#include <ssh/sshconnection.h>
-
 #include <QComboBox>
 #include <QFormLayout>
 #include <QLineEdit>

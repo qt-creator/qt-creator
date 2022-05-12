@@ -28,9 +28,11 @@
 #include "qnxconstants.h"
 
 #include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
+#include <ssh/sshparameters.h>
 #include <utils/portlist.h>
 
 using namespace ProjectExplorer;
+using namespace QSsh;
 
 namespace Qnx {
 namespace Internal {
@@ -49,7 +51,7 @@ QnxDeviceWizard::QnxDeviceWizard(QWidget *parent) :
     setPage(KeyDeploymenPageId, m_keyDeploymentPage);
     setPage(FinalPageId, m_finalPage);
     m_finalPage->setCommitPage(true);
-    QSsh::SshConnectionParameters sshParams;
+    SshParameters sshParams;
     sshParams.timeout = 10;
     m_device = QnxDevice::create();
     m_device->setupId(IDevice::ManuallyAdded);
