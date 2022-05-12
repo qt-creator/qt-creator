@@ -44,6 +44,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 
+#include <qmlprojectmanager/projectfilecontenttools.h>
 #include <qmlprojectmanager/qmlproject.h>
 
 #include <qmldesigner/components/componentcore/theme.h>
@@ -325,43 +326,10 @@ int ProjectModel::rowCount(const QModelIndex &) const
 
 QString getQDSVersion(const QString &projectFilePath)
 {
-    const QString defaultReturn = "";
-    Utils::FileReader reader;
-    if (!reader.fetch(Utils::FilePath::fromString(projectFilePath)))
-        return defaultReturn;
+    const QString qdsVersion = QmlProjectManager::ProjectFileContentTools::qdsVersion(
+                                        Utils::FilePath::fromString(projectFilePath));
 
-    const QByteArray data = reader.data();
-
-    QRegularExpression regexp(R"x(qdsVersion: "(.*)")x");
-    QRegularExpressionMatch match = regexp.match(QString::fromUtf8(data));
-
-    if (!match.hasMatch())
-        return defaultReturn;
-
-    return ProjectModel::tr("Created with Qt Design Studio version: %1").arg(match.captured(1));
-}
-
-QString getMainQmlFile(const QString &projectFilePath)
-{
-    const QString defaultReturn = "content/App.qml";
-    Utils::FileReader reader;
-    if (!reader.fetch(Utils::FilePath::fromString(projectFilePath)))
-            return defaultReturn;
-
-    const QByteArray data = reader.data();
-
-    QRegularExpression regexp(R"x(mainFile: "(.*)")x");
-    QRegularExpressionMatch match = regexp.match(QString::fromUtf8(data));
-
-    if (!match.hasMatch())
-        return defaultReturn;
-
-    return match.captured(1);
-}
-
-QString appQmlFile(const QString &projectFilePath)
-{
-    return QFileInfo(projectFilePath).dir().absolutePath() + "/" +  getMainQmlFile(projectFilePath);
+    return ProjectModel::tr("Created with Qt Design Studio version: %1").arg(qdsVersion);
 }
 
 static QString fromCamelCase(const QString &s) {
@@ -377,32 +345,12 @@ static QString fromCamelCase(const QString &s) {
 
 static QString resolutionFromConstants(const QString &projectFilePath)
 {
-    const QFileInfo fileInfo(projectFilePath);
-    const QString fileName = fileInfo.dir().absolutePath()
-            + "/"  + "imports" + "/" + fileInfo.baseName() + "/Constants.qml";
+    QmlProjectManager::ProjectFileContentTools::Resolution res =
+            QmlProjectManager::ProjectFileContentTools::resolutionFromConstants(
+                Utils::FilePath::fromString(projectFilePath));
 
-    Utils::FileReader reader;
-    if (!reader.fetch(Utils::FilePath::fromString(fileName)))
-        return {};
-
-    const QByteArray data = reader.data();
-
-    const QRegularExpression regexpWidth(R"x(readonly\s+property\s+int\s+width:\s+(\d*))x");
-    const QRegularExpression regexpHeight(R"x(readonly\s+property\s+int\s+height:\s+(\d*))x");
-
-    int width = -1;
-    int height = -1;
-
-    QRegularExpressionMatch match = regexpHeight.match(QString::fromUtf8(data));
-    if (match.hasMatch())
-        height = match.captured(1).toInt();
-
-    match = regexpWidth.match(QString::fromUtf8(data));
-    if (match.hasMatch())
-        width = match.captured(1).toInt();
-
-    if (width > 0 && height > 0)
-        return ProjectModel::tr("Resolution: %1x%2").arg(width).arg(height);
+    if (res.width > 0 && res.height > 0)
+        return ProjectModel::tr("Resolution: %1x%2").arg(res.width).arg(res.height);
 
     return {};
 }
@@ -455,7 +403,9 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
     case PrettyFilePathRole:
         return Utils::withTildeHomePath(QFileInfo(data.first).dir().absolutePath());
     case PreviewUrl:
-        return QVariant(QStringLiteral("image://project_preview/") + appQmlFile(data.first));
+        return QVariant(QStringLiteral("image://project_preview/") +
+                        QmlProjectManager::ProjectFileContentTools::appQmlFile(
+                            Utils::FilePath::fromString(data.first)));
     case TagData:
         return tags(data.first);
     case Description:

@@ -15,6 +15,7 @@ QtcPlugin {
     Group {
         name: "General"
         files: [
+            "projectfilecontenttools.cpp", "projectfilecontenttools.h",
             "qmlmainfileaspect.cpp", "qmlmainfileaspect.h",
             "qmlmultilanguageaspect.cpp", "qmlmultilanguageaspect.h",
             "qmlproject.cpp", "qmlproject.h",

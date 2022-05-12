@@ -6,6 +6,7 @@ add_qtc_plugin(QmlProjectManager
     fileformat/filefilteritems.cpp fileformat/filefilteritems.h
     fileformat/qmlprojectfileformat.cpp fileformat/qmlprojectfileformat.h
     fileformat/qmlprojectitem.cpp fileformat/qmlprojectitem.h
+    projectfilecontenttools.cpp projectfilecontenttools.h
     qmlmainfileaspect.cpp qmlmainfileaspect.h
     qmlmultilanguageaspect.cpp qmlmultilanguageaspect.h
     qmlproject.cpp qmlproject.h

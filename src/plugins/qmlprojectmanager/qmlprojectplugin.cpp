@@ -27,6 +27,7 @@
 #include "qmlproject.h"
 #include "qmlprojectconstants.h"
 #include "qmlprojectrunconfiguration.h"
+#include "projectfilecontenttools.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/fileiconprovider.h>
@@ -259,7 +260,7 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     Core::FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png",
                                                          "qmlproject");
     return true;
-} // namespace Internal
+}
 
 } // namespace Internal
 } // namespace QmlProjectManager
