@@ -534,7 +534,7 @@ void Qt5InformationNodeInstanceServer::handleParticleSystemDeselected()
     for (auto a : anim) {
         a->stop();
         QQuickPropertyAnimation *panim = qobject_cast<QQuickPropertyAnimation *>(a);
-        if (panim)
+        if (panim && panim->target())
             panim->target()->setProperty(qPrintable(baseProperty(panim->property())), animationDefaultValue(i));
         i++;
     }
