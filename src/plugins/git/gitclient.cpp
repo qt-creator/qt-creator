@@ -85,6 +85,8 @@
 #include <QToolButton>
 #include <QTextCodec>
 
+#include <vector>
+
 const char GIT_DIRECTORY[] = ".git";
 const char HEAD[] = "HEAD";
 const char CHERRY_PICK_HEAD[] = "CHERRY_PICK_HEAD";
@@ -482,7 +484,7 @@ private:
     QString m_header;
     QString m_body;
     QString m_precedes;
-    QStringList m_follows;
+    std::vector<QString> m_follows;
     QList<QPointer<VcsCommand>> m_commands;
 };
 
@@ -514,7 +516,7 @@ void ShowController::processDescription(const QString &output)
     m_header = output.left(lastHeaderLine) + Constants::EXPAND_BRANCHES + '\n';
     m_body = output.mid(lastHeaderLine + 1);
     m_precedes = tr("<resolving>");
-    m_follows.append(m_precedes);
+    m_follows.push_back(m_precedes);
     updateDescription();
     const QString commit = modText.mid(7, 8);
     m_commands.append(m_instance->execBgCommand(
@@ -547,7 +549,11 @@ void ShowController::updateDescription()
     QString desc = m_header;
     if (!m_precedes.isEmpty())
         desc.append("Precedes: " + m_precedes + '\n');
-    QStringList follows = Utils::filtered(m_follows, &QString::size);
+    QStringList follows;
+    for (const QString &str : m_follows) {
+        if (!str.isEmpty())
+            follows.append(str);
+    }
     if (!follows.isEmpty())
         desc.append("Follows: " + follows.join(", ") + '\n');
     desc.append('\n' + m_body);
