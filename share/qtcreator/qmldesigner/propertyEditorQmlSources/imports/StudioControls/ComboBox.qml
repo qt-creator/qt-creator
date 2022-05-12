@@ -276,7 +276,7 @@ T.ComboBox {
             PropertyChanges {
                 target: comboBoxBackground
                 color: StudioTheme.Values.themeControlBackgroundInteraction
-                border.color: StudioTheme.Values.themeControlOutline
+                border.color: StudioTheme.Values.themeControlOutlineInteraction
             }
             StateChangeScript {
                 script: comboBoxPopup.close()
