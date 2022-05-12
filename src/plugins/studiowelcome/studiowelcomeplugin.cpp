@@ -693,6 +693,7 @@ WelcomeMode::WelcomeMode()
 
         const QString welcomePagePath = Core::ICore::resourcePath("qmldesigner/welcomepage").toString();
         m_modeWidget->engine()->addImportPath(welcomePagePath + "/imports");
+        m_modeWidget->engine()->addImportPath(welcomePagePath + "/dataImports");
         m_modeWidget->setSource(QUrl::fromLocalFile(welcomePagePath + "/main.qml"));
 
         QShortcut *updateShortcut = nullptr;
