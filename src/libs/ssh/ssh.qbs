@@ -17,7 +17,6 @@ Project {
         Depends { name: "Utils" }
 
         files: [
-            "ssh.qrc",
             "sshparameters.cpp",
             "sshparameters.h",
             "sshsettings.cpp",

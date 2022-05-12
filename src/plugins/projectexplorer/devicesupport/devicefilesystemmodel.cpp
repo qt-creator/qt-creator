@@ -176,7 +176,7 @@ QVariant DeviceFileSystemModel::data(const QModelIndex &index, int role) const
             return Utils::Icons::UNKNOWN_FILE.icon();
         if (node->m_fileType == FileType::Dir)
             return Utils::Icons::DIR.icon();
-        return QIcon(":/ssh/images/help.png"); // Shows a question mark.
+        return Utils::Icons::HELP.icon(); // Shows a question mark.
     }
     if (index.column() == 1) {
         if (role == Qt::DisplayRole) {

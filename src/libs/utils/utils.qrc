@@ -237,6 +237,7 @@
         <file>images/download@2x.png</file>
         <file>images/message.png</file>
         <file>images/message@2x.png</file>
+        <file>images/help.png</file>
         <file alias="mimetypes/freedesktop.org.xml" compression-algorithm="best">../3rdparty/xdg/freedesktop.org.xml</file>
     </qresource>
     <qresource prefix="/codemodel">
