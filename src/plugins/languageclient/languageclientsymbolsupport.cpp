@@ -69,7 +69,7 @@ static void sendTextDocumentPositionParamsRequest(Client *client,
             sendMessage = Utils::get<bool>(*provider);
     }
     if (sendMessage)
-        client->sendContent(request);
+        client->sendMessage(request);
 }
 
 static void handleGotoDefinitionResponse(const GotoDefinitionRequest::Response &response,
@@ -313,7 +313,7 @@ void SymbolSupport::requestPrepareRename(const TextDocumentPositionParams &param
             }
         }
     });
-    m_client->sendContent(request);
+    m_client->sendMessage(request);
 }
 
 void SymbolSupport::requestRename(const TextDocumentPositionParams &positionParams,
@@ -326,7 +326,7 @@ void SymbolSupport::requestRename(const TextDocumentPositionParams &positionPara
     request.setResponseCallback([this, search](const RenameRequest::Response &response) {
         handleRenameResponse(search, response);
     });
-    m_client->sendContent(request);
+    m_client->sendMessage(request);
     search->setTextToReplace(newName);
     search->popup();
 }

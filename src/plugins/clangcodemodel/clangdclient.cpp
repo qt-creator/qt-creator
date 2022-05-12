@@ -1271,13 +1271,13 @@ void ClangdClient::openExtraFile(const Utils::FilePath &filePath, const QString 
     item.setUri(DocumentUri::fromFilePath(filePath));
     item.setText(!content.isEmpty() ? content : QString::fromUtf8(cxxFile.readAll()));
     item.setVersion(0);
-    sendContent(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)),
+    sendMessage(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)),
                 SendDocUpdates::Ignore);
 }
 
 void ClangdClient::closeExtraFile(const Utils::FilePath &filePath)
 {
-    sendContent(DidCloseTextDocumentNotification(DidCloseTextDocumentParams(
+    sendMessage(DidCloseTextDocumentNotification(DidCloseTextDocumentParams(
             TextDocumentIdentifier{DocumentUri::fromFilePath(filePath)})),
                 SendDocUpdates::Ignore);
 }
@@ -1321,7 +1321,7 @@ void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
             return;
         d->findUsages(doc.data(), adjustedCursor, sd.name(), replacement, categorize);
     });
-    sendContent(symReq);
+    sendMessage(symReq);
 }
 
 void ClangdClient::handleDiagnostics(const PublishDiagnosticsParams &params)
@@ -1612,7 +1612,7 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     addCompilationDb(settings, cdbChanges);
     DidChangeConfigurationParams configChangeParams;
     configChangeParams.setSettings(settings);
-    sendContent(DidChangeConfigurationNotification(configChangeParams));
+    sendMessage(DidChangeConfigurationNotification(configChangeParams));
 }
 
 void ClangdClient::switchIssuePaneEntries(const Utils::FilePath &filePath)
@@ -1914,7 +1914,7 @@ void ClangdClient::switchHeaderSource(const Utils::FilePath &filePath, bool inNe
                 CppEditor::openEditor(filePath, inNextSplit);
         }
     });
-    sendContent(req);
+    sendMessage(req);
 }
 
 void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cursor,
@@ -2103,7 +2103,7 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                 // with mainOverload = true, such information would get ignored anyway.
                 d->setHelpItemForTooltip(id, fqn, HelpItem::Function, isFunction ? type : "()");
             });
-            sendContent(symReq, SendDocUpdates::Ignore);
+            sendMessage(symReq, SendDocUpdates::Ignore);
             return;
         }
         if ((node.role() == "expression" && node.kind() == "DeclRef")
@@ -2216,7 +2216,7 @@ void ClangdClient::Private::sendGotoImplementationRequest(const Utils::Link &lin
         followSymbolData->pendingGotoImplRequests.removeOne(reqId);
         handleGotoImplementationResult(response);
     });
-    q->sendContent(req, SendDocUpdates::Ignore);
+    q->sendMessage(req, SendDocUpdates::Ignore);
     followSymbolData->pendingGotoImplRequests << req.id();
     qCDebug(clangdLog) << "sending go to implementation request" << link.targetLine;
 }
@@ -2303,7 +2303,7 @@ void ClangdClient::Private::handleGotoImplementationResult(
         });
         followSymbolData->pendingSymbolInfoRequests << symReq.id();
         qCDebug(clangdLog) << "sending symbol info request";
-        q->sendContent(symReq, SendDocUpdates::Ignore);
+        q->sendMessage(symReq, SendDocUpdates::Ignore);
 
         if (link == followSymbolData->defLink)
             continue;
@@ -2337,7 +2337,7 @@ void ClangdClient::Private::handleGotoImplementationResult(
         followSymbolData->pendingGotoDefRequests << defReq.id();
         qCDebug(clangdLog) << "sending additional go to definition request"
                            << link.targetFilePath << link.targetLine;
-        q->sendContent(defReq, SendDocUpdates::Ignore);
+        q->sendMessage(defReq, SendDocUpdates::Ignore);
     }
 
     const Utils::FilePath defLinkFilePath = followSymbolData->defLink.targetFilePath;
@@ -4094,7 +4094,7 @@ void MemoryUsageWidget::getMemoryTree()
     });
     qCDebug(clangdLog) << "sending memory usage request";
     m_currentRequest = request.id();
-    m_client->sendContent(request, ClangdClient::SendDocUpdates::Ignore);
+    m_client->sendMessage(request, ClangdClient::SendDocUpdates::Ignore);
 }
 
 } // namespace Internal

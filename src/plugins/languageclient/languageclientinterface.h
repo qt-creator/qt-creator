@@ -45,13 +45,13 @@ public:
 
     ~BaseClientInterface() override;
 
-    void sendContent(const LanguageServerProtocol::IContent &content);
+    void sendMessage(const LanguageServerProtocol::JsonRpcMessage message);
     void start() { startImpl(); }
 
     void resetBuffer();
 
 signals:
-    void contentReceived(const LanguageServerProtocol::JsonRpcMessage message);
+    void messageReceived(const LanguageServerProtocol::JsonRpcMessage message);
     void finished();
     void error(const QString &message);
     void started();

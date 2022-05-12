@@ -18,7 +18,6 @@ Project {
             "completion.h",
             "diagnostics.cpp",
             "diagnostics.h",
-            "icontent.h",
             "initializemessages.cpp",
             "initializemessages.h",
             "jsonkeys.h",

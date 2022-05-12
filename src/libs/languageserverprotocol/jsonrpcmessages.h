@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "icontent.h"
+#include "basemessage.h"
 #include "lsptypes.h"
 #include "jsonkeys.h"
 
@@ -43,7 +43,75 @@
 
 namespace LanguageServerProtocol {
 
-class LANGUAGESERVERPROTOCOL_EXPORT JsonRpcMessage : public IContent
+class JsonRpcMessage;
+
+class LANGUAGESERVERPROTOCOL_EXPORT MessageId : public Utils::variant<int, QString>
+{
+public:
+    MessageId() = default;
+    explicit MessageId(int id) : variant(id) {}
+    explicit MessageId(const QString &id) : variant(id) {}
+    explicit MessageId(const QJsonValue &value)
+    {
+        if (value.isDouble())
+            *this = MessageId(value.toInt());
+        else if (value.isString())
+            *this = MessageId(value.toString());
+        else
+            m_valid = false;
+    }
+
+    operator QJsonValue() const
+    {
+        if (auto id = Utils::get_if<int>(this))
+            return *id;
+        if (auto id = Utils::get_if<QString>(this))
+            return *id;
+        return QJsonValue();
+    }
+
+    bool isValid() const { return m_valid; }
+
+    QString toString() const
+    {
+        if (auto id = Utils::get_if<QString>(this))
+            return *id;
+        if (auto id = Utils::get_if<int>(this))
+            return QString::number(*id);
+        return {};
+    }
+
+    friend auto qHash(const MessageId &id)
+    {
+        if (Utils::holds_alternative<int>(id))
+            return QT_PREPEND_NAMESPACE(qHash(Utils::get<int>(id)));
+        if (Utils::holds_alternative<QString>(id))
+            return QT_PREPEND_NAMESPACE(qHash(Utils::get<QString>(id)));
+        return QT_PREPEND_NAMESPACE(qHash(0));
+    }
+
+private:
+    bool m_valid = true;
+};
+
+template <typename Error>
+inline QDebug operator<<(QDebug stream, const LanguageServerProtocol::MessageId &id)
+{
+    if (Utils::holds_alternative<int>(id))
+        stream << Utils::get<int>(id);
+    else
+        stream << Utils::get<QString>(id);
+    return stream;
+}
+
+struct ResponseHandler
+{
+    MessageId id;
+    using Callback = std::function<void(const JsonRpcMessage &)>;
+    Callback callback;
+};
+
+class LANGUAGESERVERPROTOCOL_EXPORT JsonRpcMessage
 {
     Q_DECLARE_TR_FUNCTIONS(JsonRpcMessage)
 public:
@@ -54,13 +122,18 @@ public:
 
     static QByteArray jsonRpcMimeType();
 
-    QByteArray toRawData() const final;
-    QByteArray mimeType() const final;
-    bool isValid(QString *errorMessage) const override;
+    QByteArray toRawData() const;
+    virtual bool isValid(QString *errorMessage) const;
 
     const QJsonObject &toJsonObject() const;
 
     const QString parseError() { return m_parseError; }
+
+    virtual Utils::optional<ResponseHandler> responseHandler() const
+    { return Utils::nullopt; }
+
+    BaseMessage toBaseMessage() const
+    { return BaseMessage(jsonRpcMimeType(), toRawData()); }
 
 protected:
     QJsonObject m_jsonObject;
@@ -306,12 +379,12 @@ public:
         QElapsedTimer timer;
         timer.start();
         auto callback = [callback = m_callBack, method = this->method(), t = std::move(timer)]
-                (const IContent &content) {
+                (const JsonRpcMessage &message) {
             if (!callback)
                 return;
             logElapsedTime(method, t);
 
-            callback(Response(static_cast<const JsonRpcMessage &>(content).toJsonObject()));
+            callback(Response(message.toJsonObject()));
         };
         return Utils::make_optional(ResponseHandler{id(), callback});
     }

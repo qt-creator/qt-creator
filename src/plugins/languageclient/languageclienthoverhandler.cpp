@@ -121,7 +121,7 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
     m_currentRequest = request.id();
     request.setResponseCallback(
         [this](const HoverRequest::Response &response) { handleResponse(response); });
-    m_client->sendContent(request);
+    m_client->sendMessage(request);
 }
 
 void HoverHandler::handleResponse(const HoverRequest::Response &response)

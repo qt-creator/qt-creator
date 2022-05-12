@@ -116,7 +116,7 @@ void SemanticTokenSupport::reloadSemanticTokensImpl(TextDocument *textDocument,
         request.setResponseCallback(responseCallback);
         qCDebug(LOGLSPHIGHLIGHT) << "Requesting all tokens for" << filePath << "with version"
                                  << m_client->documentVersion(filePath);
-        m_client->sendContent(request);
+        m_client->sendMessage(request);
     }
 }
 
@@ -161,7 +161,7 @@ void SemanticTokenSupport::updateSemanticTokensImpl(TextDocument *textDocument,
                 });
             qCDebug(LOGLSPHIGHLIGHT)
                 << "Requesting delta for" << filePath << "with version" << documentVersion;
-            m_client->sendContent(request);
+            m_client->sendMessage(request);
             return;
         }
     }

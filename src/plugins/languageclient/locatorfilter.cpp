@@ -288,7 +288,7 @@ void WorkspaceLocatorFilter::prepareSearch(const QString &entry,
                 handleResponse(client, response);
             });
         m_pendingRequests[client] = request.id();
-        client->sendContent(request);
+        client->sendMessage(request);
     }
 }
 

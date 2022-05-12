@@ -26,7 +26,6 @@
 #include "clangdast.h"
 
 #include <languageclient/client.h>
-#include <languageserverprotocol/icontent.h>
 #include <languageserverprotocol/jsonkeys.h>
 #include <languageserverprotocol/lsptypes.h>
 #include <utils/filepath.h>
@@ -403,7 +402,7 @@ MessageId requestAst(Client *client, const FilePath &filePath, const Range range
         const auto result = response.result();
         handler(result ? *result : ClangdAstNode(), reqId);
     });
-    client->sendContent(request, Client::SendDocUpdates::Ignore);
+    client->sendMessage(request, Client::SendDocUpdates::Ignore);
     return request.id();
 }
 

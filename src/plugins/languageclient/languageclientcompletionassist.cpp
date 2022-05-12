@@ -371,7 +371,7 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistIn
     completionRequest.setResponseCallback([this](auto response) {
         this->handleCompletionResponse(response);
     });
-    m_client->sendContent(completionRequest);
+    m_client->sendMessage(completionRequest);
     m_client->addAssistProcessor(this);
     m_currentRequest = completionRequest.id();
     m_document = interface->textDocument();

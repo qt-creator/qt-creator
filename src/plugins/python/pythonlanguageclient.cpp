@@ -471,7 +471,7 @@ public:
                     DidChangeWorkspaceFoldersParams params;
                     params.setEvent(event);
                     DidChangeWorkspaceFoldersNotification change(params);
-                    sendContent(change);
+                    sendMessage(change);
                     extraWorkspaceDirs.append(workspacePath);
                 }
             }

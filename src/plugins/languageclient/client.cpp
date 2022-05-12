@@ -90,7 +90,7 @@ public:
     {
         using Interface = BaseClientInterface;
         interface->moveToThread(&m_thread);
-        connect(interface, &Interface::contentReceived, this, &InterfaceController::contentReceived);
+        connect(interface, &Interface::messageReceived, this, &InterfaceController::messageReceived);
         connect(interface, &Interface::error, this, &InterfaceController::error);
         connect(interface, &Interface::finished, this, &InterfaceController::finished);
         connect(interface, &Interface::started, this, &InterfaceController::started);
@@ -107,9 +107,9 @@ public:
     {
         QMetaObject::invokeMethod(m_interface, &BaseClientInterface::start);
     }
-    void sendContent(const JsonRpcMessage message)
+    void sendMessage(const JsonRpcMessage &message)
     {
-        QMetaObject::invokeMethod(m_interface, [=]() { m_interface->sendContent(message); });
+        QMetaObject::invokeMethod(m_interface, [=]() { m_interface->sendMessage(message); });
     }
     void resetBuffer()
     {
@@ -117,7 +117,7 @@ public:
     }
 
 signals:
-    void contentReceived(const JsonRpcMessage &message);
+    void messageReceived(const JsonRpcMessage &message);
     void started();
     void error(const QString &message);
     void finished();
@@ -152,7 +152,7 @@ Client::Client(BaseClientInterface *clientInterface)
             this, &Client::projectClosed);
 
     QTC_ASSERT(clientInterface, return);
-    connect(m_clientInterface, &InterfaceController::contentReceived, this, &Client::handleContent);
+    connect(m_clientInterface, &InterfaceController::messageReceived, this, &Client::handleMessage);
     connect(m_clientInterface, &InterfaceController::error, this, &Client::setError);
     connect(m_clientInterface, &InterfaceController::finished, this, &Client::finished);
     connect(m_clientInterface, &InterfaceController::started, this, [this]() {
@@ -209,8 +209,8 @@ Client::~Client()
     m_documentHighlightsTimer.clear();
     updateEditorToolBar(m_openedDocument.keys());
     // do not handle messages while shutting down
-    disconnect(m_clientInterface, &InterfaceController::contentReceived,
-               this, &Client::handleContent);
+    disconnect(m_clientInterface, &InterfaceController::messageReceived,
+               this, &Client::handleMessage);
     delete m_diagnosticManager;
     delete m_clientInterface;
 }
@@ -377,7 +377,7 @@ void Client::initialize()
         m_responseHandlers[responseHandler->id] = responseHandler->callback;
 
     // directly send content now otherwise the state check of sendContent would fail
-    sendContentNow(initRequest);
+    sendMessageNow(initRequest);
     m_state = InitializeRequested;
 }
 
@@ -389,7 +389,7 @@ void Client::shutdown()
     shutdown.setResponseCallback([this](const ShutdownRequest::Response &shutdownResponse){
         shutDownCallback(shutdownResponse);
     });
-    sendContent(shutdown);
+    sendMessage(shutdown);
     m_state = ShutdownRequested;
     m_shutdownTimer.start();
 }
@@ -469,7 +469,7 @@ void Client::openDocument(TextEditor::TextDocument *document)
     if (!m_documentVersions.contains(filePath))
         m_documentVersions[filePath] = 0;
     item.setVersion(m_documentVersions[filePath]);
-    sendContent(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)));
+    sendMessage(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)));
     handleDocumentOpened(document);
 
     const Client *currentClient = LanguageClientManager::clientForDocument(document);
@@ -482,24 +482,24 @@ void Client::openDocument(TextEditor::TextDocument *document)
     }
 }
 
-void Client::sendContent(const IContent &content, SendDocUpdates sendUpdates)
+void Client::sendMessage(const JsonRpcMessage &message, SendDocUpdates sendUpdates)
 {
     QTC_ASSERT(m_clientInterface, return);
     QTC_ASSERT(m_state == Initialized, return);
     if (sendUpdates == SendDocUpdates::Send)
         sendPostponedDocumentUpdates(Schedule::Delayed);
-    if (Utils::optional<ResponseHandler> responseHandler = content.responseHandler())
+    if (Utils::optional<ResponseHandler> responseHandler = message.responseHandler())
         m_responseHandlers[responseHandler->id] = responseHandler->callback;
     QString error;
-    if (!QTC_GUARD(content.isValid(&error)))
+    if (!QTC_GUARD(message.isValid(&error)))
         Core::MessageManager::writeFlashing(error);
-    sendContentNow(content);
+    sendMessageNow(message);
 }
 
 void Client::cancelRequest(const MessageId &id)
 {
     m_responseHandlers.remove(id);
-    sendContent(CancelRequest(CancelParameter(id)), SendDocUpdates::Ignore);
+    sendMessage(CancelRequest(CancelParameter(id)), SendDocUpdates::Ignore);
 }
 
 void Client::closeDocument(TextEditor::TextDocument *document)
@@ -511,7 +511,7 @@ void Client::closeDocument(TextEditor::TextDocument *document)
         handleDocumentClosed(document);
         if (m_state == Initialized) {
             DidCloseTextDocumentParams params(TextDocumentIdentifier{uri});
-            sendContent(DidCloseTextDocumentNotification(params));
+            sendMessage(DidCloseTextDocumentNotification(params));
         }
     }
 }
@@ -652,7 +652,7 @@ void Client::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *widget)
             widget->setExtraSelections(id, selections);
         });
     m_highlightRequests[widget] = request.id();
-    sendContent(request);
+    sendMessage(request);
 }
 
 void Client::activateDocument(TextEditor::TextDocument *document)
@@ -722,16 +722,16 @@ void Client::documentContentsSaved(TextEditor::TextDocument *document)
 {
     if (!m_openedDocument.contains(document))
         return;
-    bool sendMessage = true;
+    bool send = true;
     bool includeText = false;
     const QString method(DidSaveTextDocumentNotification::methodName);
     if (Utils::optional<bool> registered = m_dynamicCapabilities.isRegistered(method)) {
-        sendMessage = *registered;
-        if (sendMessage) {
+        send = *registered;
+        if (send) {
             const TextDocumentSaveRegistrationOptions option(
                         m_dynamicCapabilities.option(method).toObject());
             if (option.isValid()) {
-                sendMessage = option.filterApplies(document->filePath(),
+                send = option.filterApplies(document->filePath(),
                                                    Utils::mimeTypeForName(document->mimeType()));
                 includeText = option.includeText().value_or(includeText);
             }
@@ -743,13 +743,13 @@ void Client::documentContentsSaved(TextEditor::TextDocument *document)
                 includeText = saveOptions->includeText().value_or(includeText);
         }
     }
-    if (!sendMessage)
+    if (!send)
         return;
     DidSaveTextDocumentParams params(
                 TextDocumentIdentifier(DocumentUri::fromFilePath(document->filePath())));
     if (includeText)
         params.setText(document->plainText());
-    sendContent(DidSaveTextDocumentNotification(params));
+    sendMessage(DidSaveTextDocumentNotification(params));
 }
 
 void Client::documentWillSave(Core::IDocument *document)
@@ -758,27 +758,27 @@ void Client::documentWillSave(Core::IDocument *document)
     auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
     if (!m_openedDocument.contains(textDocument))
         return;
-    bool sendMessage = false;
+    bool send = false;
     const QString method(WillSaveTextDocumentNotification::methodName);
     if (Utils::optional<bool> registered = m_dynamicCapabilities.isRegistered(method)) {
-        sendMessage = *registered;
-        if (sendMessage) {
+        send = *registered;
+        if (send) {
             const TextDocumentRegistrationOptions option(m_dynamicCapabilities.option(method));
             if (option.isValid()) {
-                sendMessage = option.filterApplies(filePath,
+                send = option.filterApplies(filePath,
                                                    Utils::mimeTypeForName(document->mimeType()));
             }
         }
     } else if (Utils::optional<ServerCapabilities::TextDocumentSync> _sync
                = m_serverCapabilities.textDocumentSync()) {
         if (auto options = Utils::get_if<TextDocumentSyncOptions>(&*_sync))
-            sendMessage = options->willSave().value_or(sendMessage);
+            send = options->willSave().value_or(send);
     }
-    if (!sendMessage)
+    if (!send)
         return;
     const WillSaveTextDocumentParams params(
         TextDocumentIdentifier(DocumentUri::fromFilePath(filePath)));
-    sendContent(WillSaveTextDocumentNotification(params));
+    sendMessage(WillSaveTextDocumentNotification(params));
 }
 
 void Client::documentContentsChanged(TextEditor::TextDocument *document,
@@ -996,7 +996,7 @@ void Client::requestCodeActions(const CodeActionRequest &request)
             return;
     }
 
-    sendContent(request);
+    sendMessage(request);
 }
 
 void Client::handleCodeActionResponse(const CodeActionRequest::Response &response,
@@ -1025,7 +1025,7 @@ void Client::executeCommand(const Command &command)
                                        .isRegistered(ExecuteCommandRequest::methodName)
                                        .value_or(serverSupportsExecuteCommand);
     if (serverSupportsExecuteCommand)
-        sendContent(ExecuteCommandRequest(ExecuteCommandParams(command)));
+        sendMessage(ExecuteCommandRequest(ExecuteCommandParams(command)));
 }
 
 ProjectExplorer::Project *Client::project() const
@@ -1059,7 +1059,7 @@ void Client::projectOpened(ProjectExplorer::Project *project)
     DidChangeWorkspaceFoldersParams params;
     params.setEvent(event);
     DidChangeWorkspaceFoldersNotification change(params);
-    sendContent(change);
+    sendMessage(change);
 }
 
 void Client::projectClosed(ProjectExplorer::Project *project)
@@ -1071,7 +1071,7 @@ void Client::projectClosed(ProjectExplorer::Project *project)
         DidChangeWorkspaceFoldersParams params;
         params.setEvent(event);
         DidChangeWorkspaceFoldersNotification change(params);
-        sendContent(change);
+        sendMessage(change);
     }
     if (project == m_project) {
         if (m_state == Initialized) {
@@ -1091,7 +1091,7 @@ void Client::updateConfiguration(const QJsonValue &configuration)
         DidChangeConfigurationParams params;
         params.setSettings(configuration);
         DidChangeConfigurationNotification notification(params);
-        sendContent(notification);
+        sendMessage(notification);
     }
 }
 
@@ -1265,7 +1265,7 @@ void Client::setProgressTitleForToken(const LanguageServerProtocol::ProgressToke
     m_progressManager.setTitleForToken(token, message);
 }
 
-void Client::handleContent(const LanguageServerProtocol::JsonRpcMessage &message)
+void Client::handleMessage(const LanguageServerProtocol::JsonRpcMessage &message)
 {
     LanguageClientManager::logJsonRpcMessage(LspLogMessage::ServerMessage, name(), message);
     const MessageId id(message.toJsonObject().value(idKey));
@@ -1383,7 +1383,7 @@ void Client::sendPostponedDocumentUpdates(Schedule semanticTokensSchedule)
     m_documentsToUpdate.clear();
 
     for (const DocumentUpdate &update : updates) {
-        sendContent(update.notification, SendDocUpdates::Ignore);
+        sendMessage(update.notification, SendDocUpdates::Ignore);
         emit documentUpdated(update.document);
 
         if (currentWidget && currentWidget->textDocument() == update.document)
@@ -1404,10 +1404,10 @@ void Client::sendPostponedDocumentUpdates(Schedule semanticTokensSchedule)
     }
 }
 
-void Client::handleResponse(const MessageId &id, const IContent &content)
+void Client::handleResponse(const MessageId &id, const JsonRpcMessage &message)
 {
     if (auto handler = m_responseHandlers[id])
-        handler(content);
+        handler(message);
 }
 
 template<typename T>
@@ -1419,12 +1419,7 @@ static ResponseError<T> createInvalidParamsError(const QString &message)
     return error;
 }
 
-template<typename T>
-static T asJsonContent(const IContent &content) {
-    return T(static_cast<const JsonRpcMessage &>(content).toJsonObject());
-}
-
-void Client::handleMethod(const QString &method, const MessageId &id, const IContent &content)
+void Client::handleMethod(const QString &method, const MessageId &id, const JsonRpcMessage &message)
 {
     auto invalidParamsErrorMessage = [&](const JsonObject &params) {
         return tr("Invalid parameter in \"%1\":\n%2")
@@ -1443,10 +1438,10 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
 
     bool responseSend = false;
     auto sendResponse =
-        [&](const IContent &response) {
+        [&](const JsonRpcMessage &response) {
             responseSend = true;
             if (reachable()) {
-                sendContent(response);
+                sendMessage(response);
             } else {
                 qCDebug(LOGLSPCLIENT)
                     << QString("Dropped response to request %1 id %2 for unreachable server %3")
@@ -1455,28 +1450,28 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
         };
 
     if (method == PublishDiagnosticsNotification::methodName) {
-        auto params = asJsonContent<PublishDiagnosticsNotification>(content).params().value_or(
+        auto params = PublishDiagnosticsNotification(message.toJsonObject()).params().value_or(
             PublishDiagnosticsParams());
         if (params.isValid())
             handleDiagnostics(params);
         else
             log(invalidParamsErrorMessage(params));
     } else if (method == LogMessageNotification::methodName) {
-        auto params = asJsonContent<LogMessageNotification>(content).params().value_or(
+        auto params = LogMessageNotification(message.toJsonObject()).params().value_or(
             LogMessageParams());
         if (params.isValid())
             log(params);
         else
             log(invalidParamsErrorMessage(params));
     } else if (method == ShowMessageNotification::methodName) {
-        auto params = asJsonContent<ShowMessageNotification>(content).params().value_or(
+        auto params = ShowMessageNotification(message.toJsonObject()).params().value_or(
             ShowMessageParams());
         if (params.isValid())
             log(params);
         else
             log(invalidParamsErrorMessage(params));
     } else if (method == ShowMessageRequest::methodName) {
-        auto request = asJsonContent<ShowMessageRequest>(content);
+        auto request = ShowMessageRequest(message.toJsonObject());
         ShowMessageRequest::Response response(id);
         auto params = request.params().value_or(ShowMessageRequestParams());
         if (params.isValid()) {
@@ -1488,7 +1483,7 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
         }
         sendResponse(response);
     } else if (method == RegisterCapabilityRequest::methodName) {
-        auto params = asJsonContent<RegisterCapabilityRequest>(content).params().value_or(
+        auto params = RegisterCapabilityRequest(message.toJsonObject()).params().value_or(
             RegistrationParams());
         if (params.isValid()) {
             registerCapabilities(params.registrations());
@@ -1501,7 +1496,7 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
             sendResponse(response);
         }
     } else if (method == UnregisterCapabilityRequest::methodName) {
-        auto params = asJsonContent<UnregisterCapabilityRequest>(content).params().value_or(
+        auto params = UnregisterCapabilityRequest(message.toJsonObject()).params().value_or(
             UnregistrationParams());
         if (params.isValid()) {
             unregisterCapabilities(params.unregistrations());
@@ -1515,7 +1510,7 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
         }
     } else if (method == ApplyWorkspaceEditRequest::methodName) {
         ApplyWorkspaceEditRequest::Response response(id);
-        auto params = asJsonContent<ApplyWorkspaceEditRequest>(content).params().value_or(
+        auto params = ApplyWorkspaceEditRequest(message.toJsonObject()).params().value_or(
             ApplyWorkspaceEditParams());
         if (params.isValid()) {
             ApplyWorkspaceEditResult result;
@@ -1549,7 +1544,7 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
         sendResponse(createDefaultResponse());
     } else if (method == ProgressNotification::methodName) {
         if (Utils::optional<ProgressParams> params
-            = asJsonContent<ProgressNotification>(content).params()) {
+            = ProgressNotification(message.toJsonObject()).params()) {
             if (!params->isValid())
                 log(invalidParamsErrorMessage(*params));
             m_progressManager.handleProgress(*params);
@@ -1583,14 +1578,10 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
     }
 }
 
-void Client::sendContentNow(const IContent &content)
+void Client::sendMessageNow(const JsonRpcMessage &message)
 {
-    if (content.mimeType() == JsonRpcMessage::jsonRpcMimeType()) {
-        LanguageClientManager::logJsonRpcMessage(LspLogMessage::ClientMessage,
-                                                 name(),
-                                                 static_cast<const JsonRpcMessage &>(content));
-        m_clientInterface->sendContent(static_cast<const JsonRpcMessage &>(content));
-    }
+    LanguageClientManager::logJsonRpcMessage(LspLogMessage::ClientMessage, name(), message);
+    m_clientInterface->sendMessage(message);
 }
 
 bool Client::documentUpdatePostponed(const Utils::FilePath &fileName) const
@@ -1676,7 +1667,7 @@ void Client::initializeCallback(const InitializeRequest::Response &initResponse)
 
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " initialized";
     m_state = Initialized;
-    sendContent(InitializeNotification(InitializedParams()));
+    sendMessage(InitializeNotification(InitializedParams()));
     Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> documentSymbolProvider
         = capabilities().documentSymbolProvider();
     if (documentSymbolProvider.has_value()) {
@@ -1707,7 +1698,7 @@ void Client::shutDownCallback(const ShutdownRequest::Response &shutdownResponse)
     if (optional<ShutdownRequest::Response::Error> error = shutdownResponse.error())
         log(*error);
     // directly send content now otherwise the state check of sendContent would fail
-    sendContentNow(ExitNotification());
+    sendMessageNow(ExitNotification());
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " shutdown";
     m_state = Shutdown;
     m_shutdownTimer.start();

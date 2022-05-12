@@ -25,8 +25,6 @@
 
 #include "messages.h"
 
-#include "icontent.h"
-
 namespace LanguageServerProtocol {
 
 constexpr const char ShowMessageNotification::methodName[];

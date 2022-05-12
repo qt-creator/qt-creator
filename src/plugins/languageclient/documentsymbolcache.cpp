@@ -106,7 +106,7 @@ void DocumentSymbolCache::requestSymbolsImpl()
                 self->handleResponse(uri, response);
         });
         m_runningRequests[uri] = request.id();
-        m_client->sendContent(request);
+        m_client->sendMessage(request);
     }
     m_compressedUris.clear();
 }

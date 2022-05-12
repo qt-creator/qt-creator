@@ -108,7 +108,7 @@ QFutureWatcher<ChangeSet> *LanguageClientFormatter::format(
         handleResponse(response);
     });
     m_currentRequest = request.id();
-    m_client->sendContent(request);
+    m_client->sendMessage(request);
     // ignore first contents changed, because this function is called inside a begin/endEdit block
     m_ignoreCancel = true;
     m_progress.reportStarted();

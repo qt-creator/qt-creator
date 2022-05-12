@@ -46,11 +46,11 @@ BaseClientInterface::~BaseClientInterface()
     m_buffer.close();
 }
 
-void BaseClientInterface::sendContent(const IContent &content)
+void BaseClientInterface::sendMessage(const JsonRpcMessage message)
 {
-    const BaseMessage message = content.toBaseMessage();
-    sendData(message.header());
-    sendData(message.content);
+    const BaseMessage baseMessage = message.toBaseMessage();
+    sendData(baseMessage.header());
+    sendData(baseMessage.content);
 }
 
 void BaseClientInterface::resetBuffer()
@@ -91,7 +91,7 @@ void BaseClientInterface::parseData(const QByteArray &data)
 void BaseClientInterface::parseCurrentMessage()
 {
     if (m_currentMessage.mimeType == JsonRpcMessage::jsonRpcMimeType()) {
-        emit contentReceived(JsonRpcMessage(m_currentMessage));
+        emit messageReceived(JsonRpcMessage(m_currentMessage));
     } else {
         emit error(tr("Cannot handle mimetype of message %1")
                        .arg(QString::fromUtf8(m_currentMessage.mimeType)));

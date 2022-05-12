@@ -45,11 +45,6 @@ QByteArray JsonRpcMessage::toRawData() const
     return QJsonDocument(m_jsonObject).toJson(QJsonDocument::Compact);
 }
 
-QByteArray JsonRpcMessage::mimeType() const
-{
-    return jsonRpcMimeType();
-}
-
 bool JsonRpcMessage::isValid(QString *errorMessage) const
 {
     if (!m_parseError.isEmpty()) {

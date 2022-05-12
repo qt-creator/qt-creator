@@ -6,7 +6,6 @@ add_qtc_library(LanguageServerProtocol
     clientcapabilities.cpp clientcapabilities.h
     completion.cpp completion.h
     diagnostics.cpp diagnostics.h
-    icontent.h
     initializemessages.cpp initializemessages.h
     jsonkeys.h
     jsonobject.cpp jsonobject.h

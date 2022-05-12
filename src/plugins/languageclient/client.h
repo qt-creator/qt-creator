@@ -101,7 +101,7 @@ public:
     QString name() const;
 
     enum class SendDocUpdates { Send, Ignore };
-    void sendContent(const LanguageServerProtocol::IContent &content,
+    void sendMessage(const LanguageServerProtocol::JsonRpcMessage &message,
                      SendDocUpdates sendUpdates = SendDocUpdates::Send);
 
     void cancelRequest(const LanguageServerProtocol::MessageId &id);
@@ -226,17 +226,17 @@ protected:
     void setError(const QString &message);
     void setProgressTitleForToken(const LanguageServerProtocol::ProgressToken &token,
                                   const QString &message);
-    void handleContent(const LanguageServerProtocol::JsonRpcMessage &message);
+    void handleMessage(const LanguageServerProtocol::JsonRpcMessage &message);
     virtual void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params);
     virtual DiagnosticManager *createDiagnosticManager();
 
 private:
-    void sendContentNow(const LanguageServerProtocol::IContent &content);
+    void sendMessageNow(const LanguageServerProtocol::JsonRpcMessage &message);
     void handleResponse(const LanguageServerProtocol::MessageId &id,
-                        const LanguageServerProtocol::IContent &content);
+                        const LanguageServerProtocol::JsonRpcMessage &message);
     void handleMethod(const QString &method,
                       const LanguageServerProtocol::MessageId &id,
-                      const LanguageServerProtocol::IContent &content);
+                      const LanguageServerProtocol::JsonRpcMessage &message);
 
     void initializeCallback(const LanguageServerProtocol::InitializeRequest::Response &initResponse);
     void shutDownCallback(const LanguageServerProtocol::ShutdownRequest::Response &shutdownResponse);
@@ -267,10 +267,6 @@ private:
     virtual void handleDocumentOpened(TextEditor::TextDocument *) {}
     virtual QTextCursor adjustedCursorForHighlighting(const QTextCursor &cursor,
                                                       TextEditor::TextDocument *doc);
-
-    using ContentHandler = std::function<void(const QByteArray &, QTextCodec *, QString &,
-                                              LanguageServerProtocol::ResponseHandlers,
-                                              LanguageServerProtocol::MethodHandler)>;
 
     State m_state = Uninitialized;
     QHash<LanguageServerProtocol::MessageId,

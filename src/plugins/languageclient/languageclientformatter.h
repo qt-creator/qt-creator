@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <languageserverprotocol/icontent.h>
 #include <languageserverprotocol/languagefeatures.h>
 
 #include <texteditor/formatter.h>
