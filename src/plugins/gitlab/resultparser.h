@@ -52,6 +52,7 @@ public:
     QString name;
     QString realname;
     QString email;
+    QString lastLogin;
     Error error;
     int id = -1;
     bool bot = false;
@@ -82,11 +83,34 @@ public:
     PageInformation pageInfo;
 };
 
+class Event
+{
+public:
+    QString action;
+    QString targetType;
+    QString targetTitle;
+    QString timeStamp;
+    QString pushData;
+    User author;
+    Error error;
+
+    QString toMessage() const;
+};
+
+class Events
+{
+public:
+    QList<Event> events;
+    Error error;
+    PageInformation pageInfo;
+};
+
 namespace ResultParser {
 
 User parseUser(const QByteArray &input);
 Project parseProject(const QByteArray &input);
 Projects parseProjects(const QByteArray &input);
+Events parseEvents(const QByteArray &input);
 Error parseErrorMessage(const QString &message);
 
 } // namespace ResultParser

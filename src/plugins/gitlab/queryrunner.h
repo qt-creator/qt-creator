@@ -40,7 +40,8 @@ public:
         NoQuery,
         User,
         Project,
-        Projects
+        Projects,
+        Events
     };
 
     explicit Query(Type type, const QStringList &parameters = {});

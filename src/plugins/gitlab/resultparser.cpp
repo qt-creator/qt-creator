@@ -32,6 +32,25 @@
 #include <utility>
 
 namespace GitLab {
+
+
+QString Event::toMessage() const
+{
+    QString message;
+    if (author.realname.isEmpty())
+        message.append(author.name);
+    else
+        message.append(author.realname + " (" + author.name + ')');
+    message.append(' ');
+    if (!pushData.isEmpty())
+        message.append(pushData);
+    else if (!targetTitle.isEmpty())
+        message.append(action + ' ' + targetType + " '" + targetTitle +'\'');
+    else
+        message.append(action + ' ' + targetType);
+    return message;
+}
+
 namespace ResultParser {
 
 static PageInformation paginationInformation(const QByteArray &header)
@@ -133,6 +152,7 @@ static User userFromJson(const QJsonObject &jsonObj)
     user.realname = jsonObj.value("name").toString();
     user.id = jsonObj.value("id").toInt(-1);
     user.email = jsonObj.value("email").toString();
+    user.lastLogin = jsonObj.value("last_sign_in_at").toString();
     user.bot = jsonObj.value("bot").toBool();
     return user;
 }
@@ -160,6 +180,31 @@ static Project projectFromJson(const QJsonObject &jsonObj)
             project.accessLevel = projAccObj.value("access_level").toInt(-1);
     }
     return project;
+}
+
+static Event eventFromJson(const QJsonObject &jsonObj)
+{
+    Event event;
+    event.action = jsonObj.value("action_name").toString();
+    const QJsonValue value = jsonObj.value("target_type");
+    event.targetType = value.isNull() ? "project" : jsonObj.value("target_type").toString();
+    if (event.targetType == "DiffNote") {
+        const QJsonObject noteObject = jsonObj.value("note").toObject();
+        event.targetType = noteObject.value("noteable_type").toString();
+    }
+    event.targetTitle = jsonObj.value("target_title").toString();
+    event.author = userFromJson(jsonObj.value("author").toObject());
+    event.timeStamp = jsonObj.value("created_at").toString();
+    if (jsonObj.contains("push_data")) {
+        const QJsonObject pushDataObj = jsonObj.value("push_data").toObject();
+        if (!pushDataObj.isEmpty()) {
+            const QString action = pushDataObj.value("action").toString();
+            const QString ref = pushDataObj.value("ref").toString();
+            const QString refType = pushDataObj.value("ref_type").toString();
+            event.pushData = action + ' ' + refType + " '" + ref + '\'';
+        }
+     }
+    return event;
 }
 
 User parseUser(const QByteArray &input)
@@ -202,6 +247,27 @@ Projects parseProjects(const QByteArray &input)
         result.projects.append(projectFromJson(projectObj));
     }
     return result;
+}
+
+Events parseEvents(const QByteArray &input)
+{
+    auto [header, json] = splitHeaderAndBody(input);
+    auto [error, jsonDoc] = preHandleHeaderAndBody(header, json);
+    Events result;
+    if (!error.message.isEmpty()) {
+        result.error = error;
+        return result;
+    }
+    result.pageInfo = paginationInformation(header);
+    const QJsonArray eventsArray = jsonDoc.array();
+    for (const QJsonValue &value : eventsArray) {
+        if (!value.isObject())
+            continue;
+        const QJsonObject eventObj = value.toObject();
+        result.events.append(eventFromJson(eventObj));
+    }
+    return result;
+
 }
 
 Error parseErrorMessage(const QString &message)

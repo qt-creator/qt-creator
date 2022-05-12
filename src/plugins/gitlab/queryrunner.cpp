@@ -43,6 +43,7 @@ const char API_PREFIX[]                 = "/api/v4";
 const char QUERY_PROJECT[]              = "/projects/%1";
 const char QUERY_PROJECTS[]             = "/projects?simple=true";
 const char QUERY_USER[]                 = "/user";
+const char QUERY_EVENTS[]               = "/projects/%1/events";
 
 Query::Query(Type type, const QStringList &parameter)
     : m_type(type)
@@ -62,7 +63,7 @@ void Query::setAdditionalParameters(const QStringList &additional)
 
 bool Query::hasPaginatedResults() const
 {
-    return m_type == Query::Projects;
+    return m_type == Query::Projects || m_type == Query::Events;
 }
 
 QString Query::toString() const
@@ -81,6 +82,11 @@ QString Query::toString() const
         break;
     case Query::User:
         query += QUERY_USER;
+        break;
+    case Query::Events:
+        QTC_ASSERT(!m_parameter.isEmpty(), return {});
+        query += QLatin1String(QUERY_EVENTS).arg(QLatin1String(
+                                                     QUrl::toPercentEncoding(m_parameter.at(0))));
         break;
     }
     if (m_pageParameter > 0) {

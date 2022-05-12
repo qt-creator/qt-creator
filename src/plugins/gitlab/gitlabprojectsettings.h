@@ -28,6 +28,7 @@
 #include <projectexplorer/projectsettingswidget.h>
 #include <utils/id.h>
 
+#include <QDateTime>
 #include <QObject>
 #include <QWidget>
 
@@ -59,9 +60,12 @@ public:
     QString currentProject() const { return m_currentProject; }
     bool isLinked() const { return m_linked; }
     void setLinked(bool linked);
+    QDateTime lastRequest() const { return m_lastRequest; }
+    void setLastRequest(const QDateTime &lastRequest) { m_lastRequest = lastRequest; }
     ProjectExplorer::Project *project() const { return m_project; }
 
     static std::tuple<QString, QString, int> remotePartsFromRemote(const QString &remote);
+
 private:
     void load();
     void save();
@@ -69,6 +73,7 @@ private:
     ProjectExplorer::Project *m_project = nullptr;
     QString m_host;
     Utils::Id m_id;
+    QDateTime m_lastRequest;
     QString m_currentProject;
     bool m_linked = false;
 };

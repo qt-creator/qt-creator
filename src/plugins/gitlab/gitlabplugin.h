@@ -33,6 +33,7 @@ namespace ProjectExplorer { class Project; }
 
 namespace GitLab {
 
+class Events;
 class GitLabProjectSettings;
 class GitLabOptionsPage;
 
@@ -53,8 +54,10 @@ public:
     static GitLabProjectSettings *projectSettings(ProjectExplorer::Project *project);
     static GitLabOptionsPage *optionsPage();
 
+    static void linkedStateChanged(bool enabled);
 private:
     void openView();
+    void onStartupProjectChanged();
 };
 
 } // namespace GitLab
