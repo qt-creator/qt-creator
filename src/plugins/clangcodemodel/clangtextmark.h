@@ -40,6 +40,8 @@ namespace LanguageClient { class Client; }
 namespace ClangCodeModel {
 namespace Internal {
 
+class ClangdClient;
+
 class ClangdTextMark : public TextEditor::TextMark
 {
     Q_DECLARE_TR_FUNCTIONS(ClangdTextMark)
@@ -47,7 +49,7 @@ public:
     ClangdTextMark(const ::Utils::FilePath &filePath,
                    const LanguageServerProtocol::Diagnostic &diagnostic,
                    bool isProjectFile,
-                   LanguageClient::Client *client);
+                   ClangdClient *client);
 
 private:
     bool addToolTipContent(QLayout *target) const override;

@@ -312,7 +312,7 @@ Task createTask(const ClangDiagnostic &diagnostic)
 ClangdTextMark::ClangdTextMark(const FilePath &filePath,
                                const Diagnostic &diagnostic,
                                bool isProjectFile,
-                               Client *client)
+                               ClangdClient *client)
     : TextEditor::TextMark(filePath, int(diagnostic.range().start().line() + 1), client->id())
     , m_lspDiagnostic(diagnostic)
     , m_diagnostic(convertDiagnostic(ClangdDiagnostic(diagnostic), filePath))
@@ -330,7 +330,7 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
         setLineAnnotation(diagnostic.message());
         setColor(isError ? Theme::CodeModel_Error_TextMarkColor
                          : Theme::CodeModel_Warning_TextMarkColor);
-        qobject_cast<ClangdClient *>(client)->addTask(createTask(m_diagnostic));
+        client->addTask(createTask(m_diagnostic));
     }
 
     // Copy to clipboard action
