@@ -29,10 +29,8 @@
 
 #include <projectexplorer/devicesupport/idevicefwd.h>
 
+#include <QtCore/qcontainerfwd.h>
 #include <QObject>
-#include <QVariantMap>
-
-namespace QSsh { class SshConnection; }
 
 namespace ProjectExplorer {
 class DeployableFile;
@@ -90,7 +88,6 @@ protected:
     const ProjectExplorer::Target *target() const;
     const ProjectExplorer::Kit *kit() const;
     ProjectExplorer::IDeviceConstPtr deviceConfiguration() const;
-    QSsh::SshConnection *connection() const;
 
     void saveDeploymentTimeStamp(const ProjectExplorer::DeployableFile &deployableFile,
                                  const QDateTime &remoteTimestamp);
@@ -109,11 +106,7 @@ protected:
     void setFinished();
 
 private:
-    void handleConnected();
-    void handleConnectionFailure();
-
     virtual bool isDeploymentNecessary() const = 0;
-
     virtual void doDeploy() = 0;
     virtual void stopDeployment() = 0;
 

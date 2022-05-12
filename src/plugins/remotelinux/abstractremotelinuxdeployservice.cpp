@@ -31,24 +31,19 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 
-#include <ssh/sshconnection.h>
-#include <ssh/sshconnectionmanager.h>
-
 #include <utils/qtcassert.h>
 
 #include <QDateTime>
 #include <QFileInfo>
 #include <QPointer>
-#include <QString>
 
 using namespace ProjectExplorer;
-using namespace QSsh;
 
 namespace RemoteLinux {
 namespace Internal {
 
 namespace {
-enum State { Inactive, SettingUpDevice, Connecting, Deploying };
+enum State { Inactive, SettingUpDevice, Deploying };
 } // anonymous namespace
 
 class AbstractRemoteLinuxDeployServicePrivate
@@ -58,7 +53,6 @@ public:
     QPointer<Target> target;
 
     DeploymentTimeInfo deployTimes;
-    SshConnection *connection = nullptr;
     State state = Inactive;
     bool stopRequested = false;
 };
@@ -89,11 +83,6 @@ const Kit *AbstractRemoteLinuxDeployService::kit() const
 IDevice::ConstPtr AbstractRemoteLinuxDeployService::deviceConfiguration() const
 {
     return d->deviceConfiguration;
-}
-
-SshConnection *AbstractRemoteLinuxDeployService::connection() const
-{
-    return d->connection;
 }
 
 void AbstractRemoteLinuxDeployService::saveDeploymentTimeStamp(const DeployableFile &deployableFile,
@@ -158,9 +147,6 @@ void AbstractRemoteLinuxDeployService::stop()
         d->stopRequested = true;
         stopDeviceSetup();
         break;
-    case Connecting:
-        setFinished();
-        break;
     case Deploying:
         d->stopRequested = true;
         stopDeployment();
@@ -194,21 +180,8 @@ void AbstractRemoteLinuxDeployService::handleDeviceSetupDone(bool success)
         return;
     }
 
-    d->state = Connecting;
-    d->connection = SshConnectionManager::acquireConnection(deviceConfiguration()->sshParameters());
-    connect(d->connection, &SshConnection::errorOccurred,
-            this, &AbstractRemoteLinuxDeployService::handleConnectionFailure);
-    if (d->connection->state() == SshConnection::Connected) {
-        handleConnected();
-    } else {
-        connect(d->connection, &SshConnection::connected,
-                this, &AbstractRemoteLinuxDeployService::handleConnected);
-        emit progressMessage(tr("Connecting to device \"%1\" (%2).")
-                             .arg(deviceConfiguration()->displayName(),
-                                  deviceConfiguration()->sshParameters().host()));
-        if (d->connection->state() == SshConnection::Unconnected)
-            d->connection->connectToHost();
-    }
+    d->state = Deploying;
+    doDeploy();
 }
 
 void AbstractRemoteLinuxDeployService::handleDeploymentDone()
@@ -218,51 +191,9 @@ void AbstractRemoteLinuxDeployService::handleDeploymentDone()
     setFinished();
 }
 
-void AbstractRemoteLinuxDeployService::handleConnected()
-{
-    QTC_ASSERT(d->state == Connecting, return);
-
-    if (d->stopRequested) {
-        setFinished();
-        return;
-    }
-
-    d->state = Deploying;
-    doDeploy();
-}
-
-void AbstractRemoteLinuxDeployService::handleConnectionFailure()
-{
-    switch (d->state) {
-    case Inactive:
-    case SettingUpDevice:
-        qWarning("%s: Unexpected state %d.", Q_FUNC_INFO, d->state);
-        break;
-    case Connecting: {
-        QString errorMsg = tr("Could not connect to host: %1").arg(d->connection->errorString());
-        errorMsg += QLatin1Char('\n');
-        if (deviceConfiguration()->machineType() == IDevice::Emulator)
-            errorMsg += tr("Did the emulator fail to start?");
-        else
-            errorMsg += tr("Is the device connected and set up for network access?");
-        emit errorMessage(errorMsg);
-        setFinished();
-        break;
-    }
-    case Deploying:
-        emit errorMessage(tr("Connection error: %1").arg(d->connection->errorString()));
-        stopDeployment();
-    }
-}
-
 void AbstractRemoteLinuxDeployService::setFinished()
 {
     d->state = Inactive;
-    if (d->connection) {
-        disconnect(d->connection, nullptr, this, nullptr);
-        SshConnectionManager::releaseConnection(d->connection);
-        d->connection = nullptr;
-    }
     d->stopRequested = false;
     emit finished();
 }
