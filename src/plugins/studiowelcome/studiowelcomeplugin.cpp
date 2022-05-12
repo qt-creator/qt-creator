@@ -498,6 +498,7 @@ public:
 
 private:
     QQuickWidget *m_modeWidget = nullptr;
+    DataModelDownloader *m_dataModelDownloader = nullptr;
 };
 
 void StudioWelcomePlugin::closeSplashScreen()
@@ -647,6 +648,28 @@ WelcomeMode::WelcomeMode()
 {
     setDisplayName(tr("Welcome"));
 
+    const QString welcomePagePath = Core::ICore::resourcePath("qmldesigner/welcomepage").toString();
+
+    m_dataModelDownloader = new DataModelDownloader(this);
+    if (!m_dataModelDownloader->exists()) { //Fallback if data cannot be downloaded
+        Utils::FileUtils::copyRecursively(Utils::FilePath::fromUserInput(welcomePagePath
+                                                                         + "/dataImports"),
+                                          m_dataModelDownloader->targetFolder());
+        m_dataModelDownloader->setForceDownload(true);
+    }
+    Utils::FilePath readme = Utils::FilePath::fromUserInput(welcomePagePath
+                                                            + "/dataImports/readme.txt");
+
+    if (!readme.exists()) // Only downloads contain the readme
+        m_dataModelDownloader->setForceDownload(true);
+
+    m_dataModelDownloader->start();
+
+    connect(m_dataModelDownloader, &DataModelDownloader::finished, this, [this](){
+        auto source = m_modeWidget->source();
+        m_modeWidget->engine()->clearComponentCache();
+        m_modeWidget->setSource(source);
+    });
     const Utils::Icon FLAT({{":/studiowelcome/images/mode_welcome_mask.png",
                       Utils::Theme::IconsBaseColor}});
     const Utils::Icon FLAT_ACTIVE({{":/studiowelcome/images/mode_welcome_mask.png",
@@ -691,9 +714,8 @@ WelcomeMode::WelcomeMode()
 
         m_modeWidget->engine()->addImportPath(Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources/imports").toString());
 
-        const QString welcomePagePath = Core::ICore::resourcePath("qmldesigner/welcomepage").toString();
         m_modeWidget->engine()->addImportPath(welcomePagePath + "/imports");
-        m_modeWidget->engine()->addImportPath(welcomePagePath + "/dataImports");
+        m_modeWidget->engine()->addImportPath(m_dataModelDownloader->targetFolder().toString());
         m_modeWidget->setSource(QUrl::fromLocalFile(welcomePagePath + "/main.qml"));
 
         QShortcut *updateShortcut = nullptr;

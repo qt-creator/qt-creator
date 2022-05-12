@@ -154,5 +154,29 @@ private:
     int m_progress = 0;
     QFile m_tempFile;
     QDateTime m_lastModified;
-    bool m_available;
+    bool m_available = false;
+};
+
+class DataModelDownloader : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit DataModelDownloader(QObject *parent = nullptr);
+    void start();
+    bool exists() const;
+    bool available() const;
+    Utils::FilePath targetFolder() const;
+    void setForceDownload(bool b);
+
+signals:
+    void finished();
+    void availableChanged();
+
+private:
+    FileDownloader m_fileDownloader;
+    QDateTime m_birthTime;
+    bool m_exists = false;
+    bool m_available = false;
+    bool m_forceDownload = false;
 };
