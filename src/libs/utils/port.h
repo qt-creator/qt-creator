@@ -29,6 +29,7 @@
 #include "qtcassert.h"
 
 #include <QMetaType>
+#include <QList>
 #include <QString>
 
 #include <limits>
@@ -54,6 +55,9 @@ public:
     bool isValid() const { return m_port != -1; }
 
     QString toString() const { return QString::number(m_port); }
+
+    static QList<Port> parseFromSedOutput(const QByteArray &output);
+    static QList<Port> parseFromNetstatOutput(const QByteArray &output);
 
 private:
     int m_port = -1;

@@ -1035,24 +1035,7 @@ PortsGatheringMethod LinuxDevice::portsGatheringMethod() const
                     CommandLine::Raw};
         },
 
-        [](const QByteArray &output) {
-            QList<Utils::Port> ports;
-            const QList<QByteArray> portStrings = output.split('\n');
-            for (const QByteArray &portString : portStrings) {
-                if (portString.size() != 4)
-                    continue;
-                bool ok;
-                const Utils::Port port(portString.toInt(&ok, 16));
-                if (ok) {
-                    if (!ports.contains(port))
-                        ports << port;
-                } else {
-                    qWarning("%s: Unexpected string '%s' is not a port.",
-                         Q_FUNC_INFO, portString.data());
-                }
-            }
-            return ports;
-        }
+        &Port::parseFromSedOutput
     };
 }
 

@@ -37,7 +37,6 @@
 #include <utils/port.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/stringutils.h>
 
 #include <QRegularExpression>
 
@@ -168,16 +167,7 @@ PortsGatheringMethod QnxDevice::portsGatheringMethod() const
             return {filePath("netstat"), {"-na"}};
         },
 
-        [](const QByteArray &output) {
-            QList<Utils::Port> ports;
-            const QList<QByteArray> lines = output.split('\n');
-            for (const QByteArray &line : lines) {
-                const Port port(Utils::parseUsedPortFromNetstatOutput(line));
-                if (port.isValid() && !ports.contains(port))
-                    ports.append(port);
-            }
-            return ports;
-        }
+        &Port::parseFromNetstatOutput
     };
 }
 

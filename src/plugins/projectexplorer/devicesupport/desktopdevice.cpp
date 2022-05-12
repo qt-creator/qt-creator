@@ -39,7 +39,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/portlist.h>
 #include <utils/qtcprocess.h>
-#include <utils/stringutils.h>
 #include <utils/url.h>
 
 #include <QCoreApplication>
@@ -139,16 +138,7 @@ PortsGatheringMethod DesktopDevice::portsGatheringMethod() const
             return {};
         },
 
-        [](const QByteArray &output) {
-            QList<Utils::Port> ports;
-            const QList<QByteArray> lines = output.split('\n');
-            for (const QByteArray &line : lines) {
-                const Port port(Utils::parseUsedPortFromNetstatOutput(line));
-                if (port.isValid() && !ports.contains(port))
-                    ports.append(port);
-            }
-            return ports;
-        }
+        &Port::parseFromNetstatOutput
     };
 }
 
