@@ -1611,10 +1611,88 @@ public:
     { }
 
 private:
-    void startImpl() {}
-    void doneImpl() {}
+    void startImpl()
+    {
+        m_currentIndex = 0;
+        startNextFile();
+    }
+
+    void doneImpl()
+    {
+        if (m_currentIndex == m_files.count() - 1)
+            return handleDone();
+
+        if (handleError())
+            return;
+
+        ++m_currentIndex;
+        startNextFile();
+    }
+
+    void startNextFile()
+    {
+        m_process.close();
+
+        const SshConnectionParameters parameters = displayless(m_device->sshParameters());
+        const QStringList connectionOptions // TODO: add shared connection here
+                = parameters.connectionOptions(SshSettings::sshFilePath());
+        const QString sshCmdLine = ProcessArgs::joinArgs(
+                    QStringList{SshSettings::sshFilePath().toUserOutput()} << connectionOptions,
+                    OsTypeLinux);
+        const QStringList options{"-e", sshCmdLine, m_flags};
+        const QString remoteHost = parameters.userName() + '@' + parameters.host();
+
+        const FileToTransfer file = m_files.at(m_currentIndex);
+        const FileToTransfer fixedFile = fixLocalFileOnWindows(file, options);
+        const auto fixedPaths = fixPaths(fixedFile, remoteHost);
+
+        const QStringList args = QStringList(options) << fixedPaths.first << fixedPaths.second;
+        // TODO: Get rsync location from settings?
+        m_process.setCommand(CommandLine("rsync", args));
+        m_process.start();
+    }
+
+    // On Windows, rsync is either from msys or cygwin. Neither work with the other's ssh.exe.
+    FileToTransfer fixLocalFileOnWindows(const FileToTransfer &file, const QStringList &options)
+    {
+        if (!HostOsInfo::isWindowsHost())
+            return file;
+
+        QString localFilePath = m_direction == TransferDirection::Upload
+                ? file.m_source.path() : file.m_target.path();
+        localFilePath = '/' + localFilePath.at(0) + localFilePath.mid(2);
+        if (anyOf(options, [](const QString &opt) {
+                return opt.contains("cygwin", Qt::CaseInsensitive); })) {
+            localFilePath.prepend("/cygdrive");
+        }
+
+        FileToTransfer fixedFile = file;
+        (m_direction == TransferDirection::Upload) ? fixedFile.m_source.setPath(localFilePath)
+                                                   : fixedFile.m_target.setPath(localFilePath);
+        return fixedFile;
+    }
+
+    QPair<QString, QString> fixPaths(const FileToTransfer &file, const QString &remoteHost)
+    {
+        FilePath localPath;
+        FilePath remotePath;
+        if (m_direction == TransferDirection::Upload) {
+            localPath = file.m_source;
+            remotePath = file.m_target;
+        } else {
+            remotePath = file.m_source;
+            localPath = file.m_target;
+        }
+        const QString local = (localPath.isDir() && localPath.path().back() != '/')
+                ? localPath.path() + '/' : localPath.path();
+        const QString remote = remoteHost + ':' + remotePath.path();
+
+        return m_direction == TransferDirection::Upload ? qMakePair(local, remote)
+                                                        : qMakePair(remote, local);
+    }
 
     QString m_flags;
+    int m_currentIndex = 0;
 };
 
 class FileTransferPrivate : public QObject
