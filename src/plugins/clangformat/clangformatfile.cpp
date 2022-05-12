@@ -166,7 +166,7 @@ CppEditor::CppCodeStyleSettings ClangFormatFile::toCppCodeStyleSettings(
     settings.indentControlFlowRelativeToSwitchLabels = style.IndentCaseBlocks;
 #endif
     if (style.DerivePointerAlignment
-        && ClangFormatSettings::instance().formatCodeInsteadOfIndent()) {
+        && ClangFormatSettings::instance().mode() == ClangFormatSettings::Mode::Formatting) {
         settings.bindStarToIdentifier = style.PointerAlignment == FormatStyle::PAS_Right;
         settings.bindStarToTypeName = style.PointerAlignment == FormatStyle::PAS_Left;
         settings.bindStarToLeftSpecifier = style.PointerAlignment == FormatStyle::PAS_Left;
@@ -209,11 +209,11 @@ void ClangFormatFile::fromCppCodeStyleSettings(const CppEditor::CppCodeStyleSett
                                      || settings.bindStarToRightSpecifier;
 
     if ((settings.bindStarToIdentifier || settings.bindStarToRightSpecifier)
-        && ClangFormatSettings::instance().formatCodeInsteadOfIndent())
+        && ClangFormatSettings::instance().mode() == ClangFormatSettings::Mode::Formatting)
         m_style.PointerAlignment = FormatStyle::PAS_Right;
 
     if ((settings.bindStarToTypeName || settings.bindStarToLeftSpecifier)
-        && ClangFormatSettings::instance().formatCodeInsteadOfIndent())
+        && ClangFormatSettings::instance().mode() == ClangFormatSettings::Mode::Formatting)
         m_style.PointerAlignment = FormatStyle::PAS_Left;
 
     saveNewFormat();

@@ -62,36 +62,6 @@ using namespace ProjectExplorer;
 
 namespace ClangFormat {
 
-static bool isBeautifierPluginActivated()
-{
-    const QVector<ExtensionSystem::PluginSpec *> specs = ExtensionSystem::PluginManager::plugins();
-    return std::find_if(specs.begin(),
-                        specs.end(),
-                        [](ExtensionSystem::PluginSpec *spec) {
-                            return spec->name() == "Beautifier";
-                        })
-           != specs.end();
-}
-
-static bool isBeautifierOnSaveActivated()
-{
-    if (!isBeautifierPluginActivated())
-        return false;
-
-    QSettings *s = Core::ICore::settings();
-    bool activated = false;
-    s->beginGroup(Utils::Constants::BEAUTIFIER_SETTINGS_GROUP);
-    s->beginGroup(Utils::Constants::BEAUTIFIER_GENERAL_GROUP);
-    if (s->value(Utils::Constants::BEAUTIFIER_AUTO_FORMAT_ON_SAVE, false).toBool())
-        activated = true;
-    s->endGroup();
-    s->endGroup();
-    return activated;
-}
-
-static int indentIndex() { return 0; }
-static int formatIndex() { return 1; }
-
 bool ClangFormatConfigWidget::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::Wheel && qobject_cast<QComboBox *>(object)) {
@@ -210,25 +180,22 @@ void ClangFormatConfigWidget::onTableChanged()
 
 void ClangFormatConfigWidget::initIndentationOrFormattingCombobox()
 {
-    m_ui->indentingOrFormatting->insertItem(indentIndex(), tr("Indenting only"));
-    m_ui->indentingOrFormatting->insertItem(formatIndex(), tr("Full formatting"));
+    m_ui->indentingOrFormatting->insertItem(static_cast<int>(ClangFormatSettings::Mode::Indenting),
+                                            tr("Indenting only"));
+    m_ui->indentingOrFormatting->insertItem(static_cast<int>(ClangFormatSettings::Mode::Formatting),
+                                            tr("Full formatting"));
+    m_ui->indentingOrFormatting->insertItem(static_cast<int>(ClangFormatSettings::Mode::Disable),
+                                            tr("Disable"));
 
-    if (ClangFormatSettings::instance().formatCodeInsteadOfIndent())
-        m_ui->indentingOrFormatting->setCurrentIndex(formatIndex());
-    else
-        m_ui->indentingOrFormatting->setCurrentIndex(indentIndex());
+    m_ui->indentingOrFormatting->setCurrentIndex(
+        static_cast<int>(ClangFormatSettings::instance().mode()));
 
     m_ui->indentingOrFormatting->show();
 
     connect(m_ui->indentingOrFormatting, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, [](int index) {
                 ClangFormatSettings &settings = ClangFormatSettings::instance();
-                const bool isFormatting = index == formatIndex();
-                settings.setFormatCodeInsteadOfIndent(isFormatting);
-
-                if (!isBeautifierOnSaveActivated())
-                    settings.setFormatOnSave(isFormatting);
-
+                settings.setMode(static_cast<ClangFormatSettings::Mode>(index));
                 settings.write();
             });
 }

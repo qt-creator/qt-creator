@@ -37,22 +37,21 @@ public:
     ClangFormatSettings();
     void write() const;
 
-    void setFormatCodeInsteadOfIndent(bool enable);
-    bool formatCodeInsteadOfIndent() const;
-
-    void setFormatWhileTyping(bool enable);
-    bool formatWhileTyping() const;
-
-    void setFormatOnSave(bool enable);
-    bool formatOnSave() const;
-
     void setOverrideDefaultFile(bool enable);
     bool overrideDefaultFile() const;
+
+    enum Mode {
+        Indenting = 0,
+        Formatting,
+        Disable
+    };
+
+    void setMode(Mode mode);
+    Mode mode() const;
+
 private:
-    bool m_formatCodeInsteadOfIndent = false;
-    bool m_formatWhileTyping = false;
-    bool m_formatOnSave = false;
     bool m_overrideDefaultFile = false;
+    Mode m_mode;
 };
 
 } // namespace ClangFormat

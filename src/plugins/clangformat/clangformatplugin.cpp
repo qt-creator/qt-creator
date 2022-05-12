@@ -28,6 +28,7 @@
 #include "clangformatconfigwidget.h"
 #include "clangformatconstants.h"
 #include "clangformatindenter.h"
+#include "clangformatsettings.h"
 #include "clangformatutils.h"
 #include "tests/clangformat-test.h"
 
@@ -56,6 +57,7 @@
 #include <projectexplorer/target.h>
 
 #include <texteditor/icodestylepreferences.h>
+#include <texteditor/textindenter.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <clang/Format/Format.h>
@@ -81,6 +83,8 @@ class ClangFormatStyleFactory : public CppEditor::CppCodeStylePreferencesFactory
 public:
     TextEditor::Indenter *createIndenter(QTextDocument *doc) const override
     {
+        if (ClangFormatSettings::instance().mode() == ClangFormatSettings::Disable)
+            return CppEditor::CppCodeStylePreferencesFactory::createIndenter(doc);
         return new ClangFormatIndenter(doc);
     }
 

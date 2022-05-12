@@ -24,11 +24,16 @@
 ****************************************************************************/
 
 #include "clangformatindenter.h"
+#include "clangformatconstants.h"
 #include "clangformatsettings.h"
 #include "clangformatutils.h"
 
+#include <coreplugin/icore.h>
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocumentlayout.h>
+#include <utils/genericconstants.h>
 
 using namespace clang;
 using namespace format;
@@ -36,18 +41,40 @@ using namespace TextEditor;
 
 namespace ClangFormat {
 
+static bool isBeautifierPluginActivated()
+{
+    const QVector<ExtensionSystem::PluginSpec *> specs = ExtensionSystem::PluginManager::plugins();
+    return std::find_if(specs.begin(),
+                        specs.end(),
+                        [](ExtensionSystem::PluginSpec *spec) {
+                            return spec->name() == "Beautifier";
+                        })
+           != specs.end();
+}
+
+static bool isBeautifierOnSaveActivated()
+{
+    if (!isBeautifierPluginActivated())
+        return false;
+
+    QSettings *s = Core::ICore::settings();
+    bool activated = false;
+    s->beginGroup(Utils::Constants::BEAUTIFIER_SETTINGS_GROUP);
+    s->beginGroup(Utils::Constants::BEAUTIFIER_GENERAL_GROUP);
+    if (s->value(Utils::Constants::BEAUTIFIER_AUTO_FORMAT_ON_SAVE, false).toBool())
+        activated = true;
+    s->endGroup();
+    s->endGroup();
+    return activated;
+}
+
 ClangFormatIndenter::ClangFormatIndenter(QTextDocument *doc)
     : ClangFormatBaseIndenter(doc)
 {}
 
 bool ClangFormatIndenter::formatCodeInsteadOfIndent() const
 {
-    return ClangFormatSettings::instance().formatCodeInsteadOfIndent();
-}
-
-bool ClangFormatIndenter::formatWhileTyping() const
-{
-    return ClangFormatSettings::instance().formatWhileTyping();
+    return ClangFormatSettings::instance().mode() == ClangFormatSettings::Mode::Formatting;
 }
 
 Utils::optional<TabSettings> ClangFormatIndenter::tabSettings() const
@@ -87,7 +114,7 @@ int ClangFormatIndenter::lastSaveRevision() const
 
 bool ClangFormatIndenter::formatOnSave() const
 {
-    return ClangFormatSettings::instance().formatOnSave();
+    return !isBeautifierOnSaveActivated() && formatCodeInsteadOfIndent();
 }
 
 } // namespace ClangFormat

@@ -40,14 +40,11 @@ ClangFormatSettings::ClangFormatSettings()
 {
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String(Constants::SETTINGS_ID));
-    m_formatCodeInsteadOfIndent
-        = settings->value(QLatin1String(Constants::FORMAT_CODE_INSTEAD_OF_INDENT_ID), false).toBool();
-    m_formatWhileTyping = settings->value(QLatin1String(Constants::FORMAT_WHILE_TYPING_ID), false)
-                              .toBool();
-    m_formatOnSave = settings->value(QLatin1String(Constants::FORMAT_CODE_ON_SAVE_ID), false)
-                         .toBool();
     m_overrideDefaultFile = settings->value(QLatin1String(Constants::OVERRIDE_FILE_ID), false)
                                 .toBool();
+    m_mode = static_cast<ClangFormatSettings::Mode>(
+        settings->value(QLatin1String(Constants::MODE_ID), ClangFormatSettings::Mode::Indenting)
+            .toInt());
     settings->endGroup();
 }
 
@@ -55,42 +52,9 @@ void ClangFormatSettings::write() const
 {
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String(Constants::SETTINGS_ID));
-    settings->setValue(QLatin1String(Constants::FORMAT_CODE_INSTEAD_OF_INDENT_ID),
-                       m_formatCodeInsteadOfIndent);
-    settings->setValue(QLatin1String(Constants::FORMAT_WHILE_TYPING_ID), m_formatWhileTyping);
-    settings->setValue(QLatin1String(Constants::FORMAT_CODE_ON_SAVE_ID), m_formatOnSave);
     settings->setValue(QLatin1String(Constants::OVERRIDE_FILE_ID), m_overrideDefaultFile);
+    settings->setValue(QLatin1String(Constants::MODE_ID), static_cast<int>(m_mode));
     settings->endGroup();
-}
-
-void ClangFormatSettings::setFormatCodeInsteadOfIndent(bool enable)
-{
-    m_formatCodeInsteadOfIndent = enable;
-}
-
-bool ClangFormatSettings::formatCodeInsteadOfIndent() const
-{
-    return m_formatCodeInsteadOfIndent;
-}
-
-void ClangFormatSettings::setFormatWhileTyping(bool enable)
-{
-    m_formatWhileTyping = enable;
-}
-
-bool ClangFormatSettings::formatWhileTyping() const
-{
-    return m_formatWhileTyping;
-}
-
-void ClangFormatSettings::setFormatOnSave(bool enable)
-{
-    m_formatOnSave = enable;
-}
-
-bool ClangFormatSettings::formatOnSave() const
-{
-    return m_formatOnSave;
 }
 
 void ClangFormatSettings::setOverrideDefaultFile(bool enable)
@@ -101,6 +65,16 @@ void ClangFormatSettings::setOverrideDefaultFile(bool enable)
 bool ClangFormatSettings::overrideDefaultFile() const
 {
     return m_overrideDefaultFile;
+}
+
+void ClangFormatSettings::setMode(Mode mode)
+{
+    m_mode = mode;
+}
+
+ClangFormatSettings::Mode ClangFormatSettings::mode() const
+{
+    return m_mode;
 }
 
 } // namespace ClangFormat
