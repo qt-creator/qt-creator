@@ -161,15 +161,23 @@ void updateCodeActionRefactoringMarker(Client *client,
 
     const QList<Diagnostic> &diagnostics = action.diagnostics().value_or(QList<Diagnostic>());
 
-    RefactorMarkers markers;
+    QHash<int, RefactorMarker> markersAtBlock;
     RefactorMarker marker;
     marker.type = client->id();
-    if (action.isValid())
-        marker.tooltip = action.title();
+    marker.tooltip = LanguageClientManager::tr("Show available quick fixes");
+
+    auto addMarkerForCursor = [&](const QTextCursor &cursor) {
+        if (!markersAtBlock.contains(cursor.blockNumber())) {
+            marker.cursor = cursor;
+            marker.callback = [=](TextEditorWidget *editor) {
+                editor->setTextCursor(cursor);
+                editor->invokeAssist(TextEditor::QuickFix);
+            };
+            markersAtBlock[cursor.blockNumber()] = marker;
+        }
+    };
+
     if (Utils::optional<WorkspaceEdit> edit = action.edit()) {
-        marker.callback = [client, edit](const TextEditorWidget *) {
-            applyWorkspaceEdit(client, *edit);
-        };
         if (diagnostics.isEmpty()) {
             QList<TextEdit> edits;
             if (optional<QList<TextDocumentEdit>> documentChanges = edit->documentChanges()) {
@@ -183,23 +191,15 @@ void updateCodeActionRefactoringMarker(Client *client,
                 edits = (*localChanges)[uri];
             }
             for (const TextEdit &edit : qAsConst(edits)) {
-                marker.cursor = endOfLineCursor(edit.range().start().toTextCursor(doc->document()));
-                markers << marker;
+                addMarkerForCursor(
+                    endOfLineCursor(edit.range().start().toTextCursor(doc->document())));
             }
         }
-    } else if (action.command().has_value()) {
-        const Command command = action.command().value();
-        marker.callback = [command, client = QPointer<Client>(client)](const TextEditorWidget *) {
-            if (client)
-                client->executeCommand(command);
-        };
-    } else {
-        return;
     }
-    for (const Diagnostic &diagnostic : diagnostics) {
-        marker.cursor = endOfLineCursor(diagnostic.range().start().toTextCursor(doc->document()));
-        markers << marker;
-    }
+    for (const Diagnostic &diagnostic : diagnostics)
+        addMarkerForCursor(
+            endOfLineCursor(diagnostic.range().start().toTextCursor(doc->document())));
+    const RefactorMarkers markers = markersAtBlock.values();
     for (BaseTextEditor *editor : editors) {
         if (TextEditorWidget *editorWidget = editor->editorWidget())
             editorWidget->setRefactorMarkers(markers + editorWidget->refactorMarkers());
