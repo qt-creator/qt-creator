@@ -57,6 +57,14 @@ if (WITH_TESTS)
   set(IMPLICIT_DEPENDS Qt5::Test)
 endif()
 
+# suppress bogus warning
+# warning C4573 requires the compiler to capture 'this' but the current default capture mode does not allow it
+# when using QObject::connect in lambda without capturing 'this' - which would lead to warnings
+# with other compilers
+if(MSVC)
+  add_compile_options(/wd4573)
+endif()
+
 find_package(Qt5
   ${IDE_QT_VERSION_MIN}
   COMPONENTS Concurrent Core Gui Network PrintSupport Qml Sql Widgets Xml Core5Compat ${QT_TEST_COMPONENT}
