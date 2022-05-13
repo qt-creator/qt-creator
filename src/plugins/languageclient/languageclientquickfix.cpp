@@ -73,12 +73,13 @@ IAssistProposal *LanguageClientQuickFixAssistProcessor::perform(const AssistInte
 
     CodeActionParams params;
     params.setContext({});
-    QTextCursor cursor(interface->textDocument());
-    cursor.setPosition(interface->position());
-    if (cursor.atBlockEnd() || cursor.atBlockStart())
-        cursor.select(QTextCursor::LineUnderCursor);
-    else
-        cursor.select(QTextCursor::WordUnderCursor);
+    QTextCursor cursor = interface->cursor();
+    if (!cursor.hasSelection()) {
+        if (cursor.atBlockEnd() || cursor.atBlockStart())
+            cursor.select(QTextCursor::LineUnderCursor);
+        else
+            cursor.select(QTextCursor::WordUnderCursor);
+    }
     if (!cursor.hasSelection())
         cursor.select(QTextCursor::LineUnderCursor);
     Range range(cursor);
