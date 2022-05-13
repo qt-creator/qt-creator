@@ -34,6 +34,7 @@
 
 #include <QDateTime>
 #include <QDebug>
+#include <QDesktopServices>
 #include <QDir>
 #include <QFileInfo>
 #include <QStringList>
@@ -109,10 +110,12 @@ HelpManager::HelpManager(QObject *parent) :
     QTC_CHECK(!m_instance);
     m_instance = this;
     d = new HelpManagerPrivate;
+    QDesktopServices::setUrlHandler("qthelp", this, "showHelpUrl");
 }
 
 HelpManager::~HelpManager()
 {
+    QDesktopServices::unsetUrlHandler("qthelp");
     delete d;
     m_instance = nullptr;
 }

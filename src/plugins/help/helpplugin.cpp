@@ -286,7 +286,6 @@ HelpPluginPrivate::HelpPluginPrivate()
     connect(&helpIndexFilter, &HelpIndexFilter::linksActivated,
             this, &HelpPluginPrivate::showLinksInCurrentViewer);
 
-    QDesktopServices::setUrlHandler("qthelp", HelpManager::instance(), "showHelpUrl");
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
             this, &HelpPluginPrivate::modeChanged);
 
