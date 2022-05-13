@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.10
 ############################################################################
 #
 # Copyright (C) 2019 The Qt Company Ltd.
@@ -25,11 +25,17 @@
 ############################################################################
 
 import argparse
-import json
 import os
-import docutils.nodes
-import docutils.parsers.rst
-import docutils.utils
+# for installing use pip3 install robotpy-cppheaderparse
+import CppHeaderParser
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Clazy checks header file \
+    generator')
+    parser.add_argument('--clang-format-header-file', help='path to \
+    Format.h usually /usr/lib/llvm-x/include/clang/Format/Format.h',
+                        default=None, dest='options_header', required=True)
+    return parser.parse_args()
 
 def full_ui_content(checks):
     return '''<?xml version="1.0" encoding="UTF-8"?>
@@ -38,7 +44,7 @@ def full_ui_content(checks):
  <widget class="QWidget" name="ClangFormat::ClangFormatChecksWidget">
   <property name="maximumSize">
    <size>
-    <width>480</width>
+    <width>580</width>
     <height>16777215</height>
    </size>
   </property>
@@ -50,63 +56,45 @@ def full_ui_content(checks):
 </ui>
 '''
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(description='Clazy checks header file generator')
-    parser.add_argument('--clang-format-options-rst', help='path to ClangFormatStyleOptions.rst',
-        default=None, dest='options_rst')
-    return parser.parse_args()
-
-def parse_rst(text):
-    parser = docutils.parsers.rst.Parser()
-    components = (docutils.parsers.rst.Parser,)
-    settings = docutils.frontend.OptionParser(components=components).get_default_values()
-    document = docutils.utils.new_document('<rst-doc>', settings=settings)
-    parser.parse(text, document)
-    return document
-
-def createItem(key, value, index):
-    label = '''   <item row="''' + str(index) + '''" column="0">
-    <widget class="QLabel" name="label''' + key + '''">
+def lable_ui(name, index, offset = ""):
+    return '''   <item row="''' + str(index) + '''" column="0">
+    <widget class="QLabel" name="label''' + name + '''">
      <property name="text">
-      <string notr="true">''' + key + '''</string>
+      <string notr="true">''' + offset + name + '''</string>
      </property>
     </widget>
    </item>
 '''
-    value_item = ''
-    if value[0] == 'bool':
-        value_item = '''   <item row="''' + str(index) + '''" column="1">
-    <widget class="QComboBox" name="''' + key + '''">
+
+def combobox_ui(name, values, index):
+    combobox = '''   <item row="''' + str(index) + '''" column="1">
+    <widget class="QComboBox" name="''' + name + '''">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
      </property>
-     <item>
+'''
+    for value in values:
+        combobox += '''     <item>
       <property name="text">
-       <string notr="true">Default</string>
+       <string notr="true">''' + value + '''</string>
       </property>
      </item>
-     <item>
-      <property name="text">
-       <string notr="true">true</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">false</string>
-      </property>
-     </item>
-    </widget>
+'''
+    # for
+    combobox += '''    </widget>
    </item>
 '''
-    elif value[0].startswith('std::string') or value[0] == 'unsigned' or value[0] == 'int':
-        value_item = '''   <item row="''' + str(index) + '''" column="1">
+    return combobox
+
+def string_ui(name, index):
+    return '''   <item row="''' + str(index) + '''" column="1">
     <layout class="QHBoxLayout">
      <item>
-      <widget class="QLineEdit" name="''' + key + '''">
+      <widget class="QLineEdit" name="''' + name + '''">
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="set''' + key + '''">
+      <widget class="QPushButton" name="set''' + name + '''">
        <property name="maximumSize">
         <size>
          <width>40</width>
@@ -121,11 +109,12 @@ def createItem(key, value, index):
     </layout>
    </item>
 '''
-    elif value[0].startswith('std::vector'):
-        value_item = '''   <item row="''' + str(index) + '''" column="1">
+
+def vector_ui(name, index):
+    return '''   <item row="''' + str(index) + '''" column="1">
     <layout class="QHBoxLayout">
      <item>
-      <widget class="QPlainTextEdit" name="''' + key + '''">
+      <widget class="QPlainTextEdit" name="''' + name + '''">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed"/>
        </property>
@@ -138,7 +127,7 @@ def createItem(key, value, index):
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="set''' + key + '''">
+      <widget class="QPushButton" name="set''' + name + '''">
        <property name="maximumSize">
         <size>
          <width>40</width>
@@ -153,139 +142,67 @@ def createItem(key, value, index):
     </layout>
    </item>
 '''
-    else:
-        if ' ' in value[1]:
-            value_item = ''
-            for i, val in enumerate(value):
-                if i == 0:
-                    continue
-                index += 1
-                space_index = val.find(' ')
-                val = val[space_index + 1:]
-                value_item += '''   <item row="''' + str(index) + '''" column="0">
-    <widget class="QLabel" name="label''' + val + '''">
-     <property name="text">
-      <string notr="true">  ''' + val + '''</string>
-     </property>
-    </widget>
-   </item>
-'''
-                value_item += '''   <item row="''' + str(index) + '''" column="1">
-    <widget class="QComboBox" name="''' + val + '''">
-     <property name="focusPolicy">
-      <enum>Qt::StrongFocus</enum>
-     </property>
-     <item>
-      <property name="text">
-       <string notr="true">Default</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">true</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">false</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-'''
-        else:
-            value_item = '''   <item row="''' + str(index) + '''" column="1">
-    <widget class="QComboBox" name="''' + key + '''">
-     <property name="focusPolicy">
-      <enum>Qt::StrongFocus</enum>
-     </property>
-'''
-            if key == 'Language':
-                value_item += '''     <property name="enabled">
-      <bool>false</bool>
-     </property>
-'''
-            if index > 0:
-                value_item += '''     <item>
-      <property name="text">
-       <string notr="true">Default</string>
-      </property>
-     </item>
-'''
-            for i, val in enumerate(value):
-                if i == 0:
-                    continue
-                underline_index = val.find('_')
-                val = val[underline_index + 1:]
-                value_item += '''     <item>
-      <property name="text">
-       <string notr="true">''' + val + '''</string>
-      </property>
-     </item>
-'''
-            value_item += '''    </widget>
-   </item>
-'''
 
-    return label + value_item, index
+def combobox_ui_bool(name, index):
+    return combobox_ui(name, ["Default", "true", "false"], index)
 
-class MyVisitor(docutils.nodes.NodeVisitor):
-    in_bullet_list = False
-    in_bullet_list_paragraph = False
-    tree = {}
-    last_key = ''
-    def visit_term(self, node):
-        node_values = node.traverse(condition=docutils.nodes.Text)
-        name = node_values[0].astext()
-        self.last_key = name
-        self.tree[name] = [node_values[2].astext()]
-    def visit_bullet_list(self, node):
-        self.in_bullet_list = True
-    def depart_bullet_list(self, node):
-        self.in_bullet_list = False
-    def visit_paragraph(self, node):
-        if self.in_bullet_list:
-            self.in_bullet_list_paragraph = True
-    def depart_paragraph(self, node):
-        self.in_bullet_list_paragraph = False
-    def visit_literal(self, node):
-        if self.in_bullet_list_paragraph:
-            value = node.traverse(condition=docutils.nodes.Text)[0].astext()
-            self.tree[self.last_key].append(value)
-            self.in_bullet_list_paragraph = False
-    def unknown_visit(self, node):
-        """Called for all other node types."""
-        #print(node)
-        pass
-    def unknown_departure(self, node):
-        pass
+def in_list(list, type):
+    for element in list:
+        if element["name"] == type:
+            return element;
+    return
+
+create_checks_index = 0
+def create_checks(variables, enums, structs, offset = ""):
+    checks = ""
+    global create_checks_index
+    # create BasedOnStyle combobox ussually not presented in FormatStyle struct
+    if 0 == create_checks_index:
+        create_checks_index += 1
+        checks = lable_ui("BasedOnStyle", create_checks_index)
+        checks += combobox_ui("BasedOnStyle", ["LLVM", "Google", "Chromium", "Mozilla", "WebKit", "Microsoft", "GNU"], create_checks_index)
+
+    for variable in variables:
+        create_checks_index += 1
+        type = variable["type"]
+        name = variable["name"]
+        enum = in_list(enums, type)
+        struct = in_list(structs, type)
+        if enum:
+            checks += lable_ui(name, create_checks_index, offset)
+            checks += combobox_ui(name, [value["name"].split("_")[1] for value in enum["values"]], create_checks_index)
+        elif struct:
+            checks += lable_ui(name, create_checks_index, offset)
+            check = create_checks(struct["properties"]["public"], enums, structs, "  ")
+            checks += check
+        elif "std::string" == type or "unsigned" == type or "int" == type:
+            checks += lable_ui(name, create_checks_index, offset)
+            checks += string_ui(name, create_checks_index)
+        elif "std::vector<std::string >" == type:
+            checks += lable_ui(name, create_checks_index, offset)
+            checks += vector_ui(name, create_checks_index)
+        elif "bool" == type:
+            checks += lable_ui(name, create_checks_index, offset)
+            checks += combobox_ui_bool(name, create_checks_index)
+    return checks
+
 
 def main():
     arguments = parse_arguments()
+    header = CppHeaderParser.CppHeader(arguments.options_header)
 
-    content = file(arguments.options_rst).read()
-    document = parse_rst(content)
-    visitor = MyVisitor(document)
-    document.walkabout(visitor)
-    keys = visitor.tree.keys()
-    basedOnStyleKey = 'BasedOnStyle'
-    keys.remove(basedOnStyleKey)
-    keys.sort()
+    enums = header.classes["FormatStyle"]["enums"]["public"]
+    structs = header.classes["FormatStyle"]["nested_classes"]
+    variables = header.classes["FormatStyle"]["properties"]["public"]
 
-    text = ''
-    line, index = createItem(basedOnStyleKey, visitor.tree[basedOnStyleKey], 0)
-    text += line
-    index = 1
-    for key in keys:
-        line, index = createItem(key, visitor.tree[key], index)
-        text += line
-        index += 1
+    checks = create_checks(variables, enums, structs)
 
     current_path = os.path.dirname(os.path.abspath(__file__))
     ui_path = os.path.abspath(os.path.join(current_path, '..', 'src',
         'plugins', 'clangformat', 'clangformatchecks.ui'))
     with open(ui_path, 'w') as f:
-        f.write(full_ui_content(text))
+        f.write(full_ui_content(checks))
+
 
 if __name__ == "__main__":
     main()
