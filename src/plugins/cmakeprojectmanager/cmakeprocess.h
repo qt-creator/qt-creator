@@ -30,15 +30,21 @@
 #include <utils/outputformatter.h>
 
 #include <QElapsedTimer>
-#include <QFutureInterface>
 #include <QObject>
-#include <QProcess>
 #include <QStringList>
 #include <QTimer>
 
 #include <memory>
 
-namespace Utils { class QtcProcess; }
+QT_BEGIN_NAMESPACE
+template<class T>
+class QFutureInterface;
+QT_END_NAMESPACE
+
+namespace Utils {
+class ProcessResultData;
+class QtcProcess;
+}
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -49,18 +55,10 @@ class CMakeProcess : public QObject
 
 public:
     CMakeProcess();
-    CMakeProcess(const CMakeProcess&) = delete;
     ~CMakeProcess();
 
     void run(const BuildDirParameters &parameters, const QStringList &arguments);
-    void terminate();
-
-    QProcess::ProcessState state() const;
-
-    // Update progress information:
-    void reportCanceled();
-    void reportFinished(); // None of the progress related functions will work after this!
-    void setProgressValue(int p);
+    void stop();
 
     int lastExitCode() const { return m_lastExitCode; }
 
@@ -69,7 +67,7 @@ signals:
     void finished();
 
 private:
-    void handleProcessFinished();
+    void handleProcessDone(const Utils::ProcessResultData &resultData);
     void checkForCancelled();
 
     std::unique_ptr<Utils::QtcProcess> m_process;
