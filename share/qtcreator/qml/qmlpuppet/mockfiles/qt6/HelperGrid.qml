@@ -40,6 +40,8 @@ Node {
 
     Model { // Main grid lines
         readonly property bool _edit3dLocked: true // Make this non-pickable
+        castsShadows: false
+        receivesShadows: false
         geometry: GridGeometry {
             id: gridGeometry
             name: "3D Edit View Helper Grid"
@@ -57,6 +59,8 @@ Node {
 
     Model { // Subdivision lines
         readonly property bool _edit3dLocked: true // Make this non-pickable
+        castsShadows: false
+        receivesShadows: false
         geometry: GridGeometry {
             lines: gridGeometry.lines
             step: gridGeometry.step
@@ -76,6 +80,8 @@ Node {
 
     Model { // Z Axis
         readonly property bool _edit3dLocked: true // Make this non-pickable
+        castsShadows: false
+        receivesShadows: false
         geometry: GridGeometry {
             lines: gridGeometry.lines
             step: gridGeometry.step
@@ -93,6 +99,8 @@ Node {
     }
     Model { // X Axis
         readonly property bool _edit3dLocked: true // Make this non-pickable
+        castsShadows: false
+        receivesShadows: false
         eulerRotation.z: 90
         geometry: GridGeometry {
             lines: gridGeometry.lines

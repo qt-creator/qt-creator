@@ -39,6 +39,8 @@ Node {
     // Note: Only one instance of HelperGrid is supported, as the geometry names are fixed
 
     Model { // Main grid lines
+        castsShadows: false
+        receivesShadows: false
         geometry: GridGeometry {
             id: gridGeometry
             name: "3D Edit View Helper Grid"
@@ -55,6 +57,8 @@ Node {
     }
 
     Model { // Subdivision lines
+        castsShadows: false
+        receivesShadows: false
         geometry: GridGeometry {
             lines: gridGeometry.lines
             step: gridGeometry.step
@@ -73,6 +77,8 @@ Node {
     }
 
     Model { // Z Axis
+        castsShadows: false
+        receivesShadows: false
         geometry: GridGeometry {
             lines: gridGeometry.lines
             step: gridGeometry.step
@@ -89,6 +95,8 @@ Node {
         ]
     }
     Model { // X Axis
+        castsShadows: false
+        receivesShadows: false
         eulerRotation.z: 90
         geometry: GridGeometry {
             lines: gridGeometry.lines
