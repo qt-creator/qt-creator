@@ -1429,12 +1429,31 @@ private:
         return nullptr;
     }
 
-    void handleProposalReady(const QuickFixOperations &ops) override
+    TextEditor::GenericProposal *handleCodeActionResult(const CodeActionResult &result) override
     {
-        // Step 3: Merge the results upon callback from clangd.
-        for (const auto &op : ops)
-            op->setDescription("clangd: " + op->description());
-        setAsyncProposalAvailable(GenericProposal::createProposal(m_interface, ops + m_builtinOps));
+        auto toOperation =
+            [=](const Utils::variant<Command, CodeAction> &item) -> QuickFixOperation * {
+            if (auto action = Utils::get_if<CodeAction>(&item)) {
+                const Utils::optional<QList<Diagnostic>> diagnostics = action->diagnostics();
+                if (!diagnostics.has_value() || diagnostics->isEmpty())
+                    return new CodeActionQuickFixOperation(*action, client());
+            }
+            if (auto command = Utils::get_if<Command>(&item))
+                return new CommandQuickFixOperation(*command, client());
+            return nullptr;
+        };
+
+        if (auto list = Utils::get_if<QList<Utils::variant<Command, CodeAction>>>(&result)) {
+            QuickFixOperations ops;
+            for (const Utils::variant<Command, CodeAction> &item : *list) {
+                if (QuickFixOperation *op = toOperation(item)) {
+                    op->setDescription("clangd: " + op->description());
+                    ops << op;
+                }
+            }
+            return GenericProposal::createProposal(m_interface, ops + m_builtinOps);
+        }
+        return nullptr;
     }
 
     QuickFixOperations m_builtinOps;

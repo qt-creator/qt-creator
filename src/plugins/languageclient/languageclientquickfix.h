@@ -35,7 +35,10 @@
 
 #include <QPointer>
 
-namespace TextEditor { class IAssistProposal; }
+namespace TextEditor {
+class IAssistProposal;
+class GenericProposal;
+} // namespace TextEditor
 
 namespace LanguageClient {
 
@@ -49,6 +52,17 @@ public:
 
 private:
     LanguageServerProtocol::CodeAction m_action;
+    QPointer<Client> m_client;
+};
+
+class LANGUAGECLIENT_EXPORT CommandQuickFixOperation : public TextEditor::QuickFixOperation
+{
+public:
+    CommandQuickFixOperation(const LanguageServerProtocol::Command &command, Client *client);
+    void perform() override;
+
+private:
+    LanguageServerProtocol::Command m_command;
     QPointer<Client> m_client;
 };
 
@@ -77,10 +91,13 @@ public:
 
 protected:
     void setOnlyKinds(const QList<LanguageServerProtocol::CodeActionKind> &only);
+    Client *client() { return m_client; }
 
 private:
-    void handleCodeActionResponse(const LanguageServerProtocol::CodeActionRequest::Response &response);
-    virtual void handleProposalReady(const TextEditor::QuickFixOperations &ops);
+    void handleCodeActionResponse(
+        const LanguageServerProtocol::CodeActionRequest::Response &response);
+    virtual TextEditor::GenericProposal *handleCodeActionResult(
+        const LanguageServerProtocol::CodeActionResult &result);
 
     QSharedPointer<const TextEditor::AssistInterface> m_assistInterface;
     Client *m_client = nullptr; // not owned

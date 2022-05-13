@@ -55,23 +55,17 @@ void CodeActionQuickFixOperation::perform()
         m_client->executeCommand(*command);
 }
 
-class CommandQuickFixOperation : public QuickFixOperation
-{
-public:
-    CommandQuickFixOperation(const Command &command, Client *client)
-        : m_command(command)
-        , m_client(client)
-    { setDescription(command.title()); }
-    void perform() override
-    {
-        if (m_client)
-            m_client->executeCommand(m_command);
-    }
+CommandQuickFixOperation::CommandQuickFixOperation(const Command &command, Client *client)
+    : m_command(command)
+    , m_client(client)
+{ setDescription(command.title()); }
 
-private:
-    Command m_command;
-    QPointer<Client> m_client;
-};
+
+void CommandQuickFixOperation::perform()
+{
+    if (m_client)
+        m_client->executeCommand(m_command);
+}
 
 IAssistProposal *LanguageClientQuickFixAssistProcessor::perform(const AssistInterface *interface)
 {
@@ -119,24 +113,26 @@ void LanguageClientQuickFixAssistProcessor::handleCodeActionResponse(const CodeA
     m_currentRequest.reset();
     if (const Utils::optional<CodeActionRequest::Response::Error> &error = response.error())
         m_client->log(*error);
-    QuickFixOperations ops;
-    if (const Utils::optional<CodeActionResult> &result = response.result()) {
-        if (auto list = Utils::get_if<QList<Utils::variant<Command, CodeAction>>>(&*result)) {
-            for (const Utils::variant<Command, CodeAction> &item : *list) {
-                if (auto action = Utils::get_if<CodeAction>(&item))
-                    ops << new CodeActionQuickFixOperation(*action, m_client);
-                else if (auto command = Utils::get_if<Command>(&item))
-                    ops << new CommandQuickFixOperation(*command, m_client);
-            }
-        }
-    }
     m_client->removeAssistProcessor(this);
-    handleProposalReady(ops);
+    GenericProposal *proposal = nullptr;
+    if (const Utils::optional<CodeActionResult> &result = response.result())
+        proposal = handleCodeActionResult(*result);
+    setAsyncProposalAvailable(proposal);
 }
 
-void LanguageClientQuickFixAssistProcessor::handleProposalReady(const QuickFixOperations &ops)
+GenericProposal *LanguageClientQuickFixAssistProcessor::handleCodeActionResult(const CodeActionResult &result)
 {
-    setAsyncProposalAvailable(GenericProposal::createProposal(m_assistInterface.data(), ops));
+    if (auto list = Utils::get_if<QList<Utils::variant<Command, CodeAction>>>(&result)) {
+        QuickFixOperations ops;
+        for (const Utils::variant<Command, CodeAction> &item : *list) {
+            if (auto action = Utils::get_if<CodeAction>(&item))
+                ops << new CodeActionQuickFixOperation(*action, m_client);
+            else if (auto command = Utils::get_if<Command>(&item))
+                ops << new CommandQuickFixOperation(*command, m_client);
+        }
+        return GenericProposal::createProposal(m_assistInterface.data(), ops);
+    }
+    return nullptr;
 }
 
 LanguageClientQuickFixProvider::LanguageClientQuickFixProvider(Client *client)
