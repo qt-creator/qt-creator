@@ -117,6 +117,7 @@ IAssistProposal *LanguageClientQuickFixAssistProcessor::perform(const AssistInte
         handleCodeActionResponse(response);
     });
 
+    m_client->addAssistProcessor(this);
     m_client->requestCodeActions(request);
     m_currentRequest = request.id();
     return nullptr;
