@@ -25,8 +25,11 @@
 
 #include "utils_global.h"
 
+#include <QMap>
+#include <QMutex>
 #include <QProcess>
 #include <QThread>
+#include <QWaitCondition>
 
 #include <memory>
 
@@ -42,10 +45,19 @@ class QTCREATOR_UTILS_EXPORT DeviceShell : public QObject
     Q_OBJECT
 
 public:
+    enum class State { FailedToStart = -1, Unknown = 0, Succeeded = 1 };
+
     struct RunResult
     {
-        int exitCode;
-        QByteArray stdOutput;
+        int exitCode = 0;
+        QByteArray stdOut;
+        QByteArray stdErr;
+    };
+
+    enum class ParseType {
+        StdOut,
+        StdErr,
+        ExitCode,
     };
 
     DeviceShell();
@@ -54,28 +66,43 @@ public:
     bool runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
     RunResult outputForRunInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
 
-    bool waitForStarted();
+    State state() const;
 
 signals:
     void done();
     void errorOccurred(QProcess::ProcessError error);
 
 protected:
-    bool runInShellImpl(const CommandLine &cmd, const QByteArray &stdInData = {});
-    RunResult outputForRunInShellImpl(const CommandLine &cmd, const QByteArray &stdInData = {});
+    virtual void startupFailed(const CommandLine &cmdLine);
+    RunResult run(const CommandLine &cmd, const QByteArray &stdInData = {});
 
     bool start();
     void close();
 
 private:
     virtual void setupShellProcess(QtcProcess *shellProcess);
-    virtual void startupFailed(const CommandLine &cmdLine);
 
+    bool installShellScript();
     void closeShellProcess();
 
+    void onReadyRead();
+
 private:
+    struct CommandRun : public RunResult
+    {
+        QWaitCondition *waiter;
+    };
+
     QtcProcess *m_shellProcess = nullptr;
     QThread m_thread;
+    int m_currentId{0};
+
+    QMutex m_commandMutex;
+    // QMap is used here to preserve iterators
+    QMap<quint64, CommandRun> m_commandOutput;
+    QByteArray m_commandBuffer;
+
+    State m_shellScriptState = State::Unknown;
 };
 
 } // namespace Utils

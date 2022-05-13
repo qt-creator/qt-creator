@@ -8,6 +8,7 @@ Project {
     references: [
         "debugger/gui/gui.qbs",
         "debugger/simple/simple.qbs",
+        "deviceshell/deviceshell.qbs",
         "fakevim/fakevim.qbs",
         "pluginview/pluginview.qbs",
         "process/process.qbs",

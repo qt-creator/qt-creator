@@ -14,5 +14,6 @@ Project {
         "templateengine/templateengine.qbs",
         "treemodel/treemodel.qbs",
         "multicursor/multicursor.qbs",
+        "deviceshell/deviceshell.qbs",
     ]
 }
