@@ -3989,8 +3989,8 @@ void GdbEngine::setupEngine()
     //if (terminal()->isUsable())
     //    runCommand({"set inferior-tty " + QString::fromUtf8(terminal()->slaveDevice())});
 
-    const QString uninstalledData =
-            rp.debugger.command.executable().pathAppended("data-directory/python").path();
+    const QString uninstalledData = rp.debugger.command.executable().parentDir()
+            .pathAppended("data-directory/python").path();
 
     runCommand({"python sys.path.insert(1, '" + rp.dumperPath.path() + "')"});
     runCommand({"python sys.path.append('" + uninstalledData + "')"});
