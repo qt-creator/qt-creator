@@ -3399,7 +3399,19 @@ IAssistProcessor *ClangdClient::VirtualFunctionAssistProvider::createProcessor(
 
 Utils::optional<QList<CodeAction> > ClangdDiagnostic::codeActions() const
 {
-    return optionalArray<LanguageServerProtocol::CodeAction>("codeActions");
+    auto actions = optionalArray<LanguageServerProtocol::CodeAction>("codeActions");
+    if (!actions)
+        return actions;
+    static const QStringList badCodeActions{
+        "remove constant to silence this warning", // QTCREATORBUG-18593
+    };
+    for (auto it = actions->begin(); it != actions->end();) {
+        if (badCodeActions.contains(it->title()))
+            it = actions->erase(it);
+        else
+            ++it;
+    }
+    return actions;
 }
 
 QString ClangdDiagnostic::category() const
