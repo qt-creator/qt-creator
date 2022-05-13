@@ -334,10 +334,11 @@ QStringList qmlJSAutoComplete(QTextDocument *textDocument,
 {
     QStringList list;
     QmlJSCompletionAssistProcessor processor;
+    QTextCursor cursor(textDocument);
+    cursor.setPosition(position);
     QScopedPointer<IAssistProposal> proposal(processor.perform( /* The processor takes ownership. */
                                                  new QmlJSCompletionAssistInterface(
-                                                     textDocument,
-                                                     position,
+                                                     cursor,
                                                      fileName,
                                                      reason,
                                                      info)));
@@ -978,12 +979,11 @@ bool QmlJSCompletionAssistProcessor::completeUrl(const QString &relativeBasePath
 // ------------------------------
 // QmlJSCompletionAssistInterface
 // ------------------------------
-QmlJSCompletionAssistInterface::QmlJSCompletionAssistInterface(QTextDocument *textDocument,
-                                                               int position,
+QmlJSCompletionAssistInterface::QmlJSCompletionAssistInterface(const QTextCursor &cursor,
                                                                const Utils::FilePath &fileName,
                                                                AssistReason reason,
                                                                const SemanticInfo &info)
-    : AssistInterface(textDocument, position, fileName, reason)
+    : AssistInterface(cursor, fileName, reason)
     , m_semanticInfo(info)
 {}
 

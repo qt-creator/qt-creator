@@ -105,8 +105,7 @@ private:
 class QMLJSEDITOR_EXPORT QmlJSCompletionAssistInterface : public TextEditor::AssistInterface
 {
 public:
-    QmlJSCompletionAssistInterface(QTextDocument *textDocument,
-                                   int position,
+    QmlJSCompletionAssistInterface(const QTextCursor &cursor,
                                    const Utils::FilePath &fileName,
                                    TextEditor::AssistReason reason,
                                    const QmlJSTools::SemanticInfo &info);

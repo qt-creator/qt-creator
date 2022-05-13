@@ -103,7 +103,7 @@ TextEditor::AssistInterface *BindingEditorWidget::createAssistInterface(
 {
     Q_UNUSED(assistKind)
     return new QmlJSEditor::QmlJSCompletionAssistInterface(
-                document(), position(), Utils::FilePath(),
+                textCursor(), Utils::FilePath(),
                 assistReason, qmljsdocument->semanticInfo());
 }
 

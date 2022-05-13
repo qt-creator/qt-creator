@@ -59,7 +59,6 @@ public:
         const Utils::FilePath &filePath,
         const TextEditor::TextEditorWidget *textEditorWidget,
         const CPlusPlus::LanguageFeatures &languageFeatures,
-        int position,
         TextEditor::AssistReason reason) const = 0;
 
     static int activationSequenceChar(const QChar &ch, const QChar &ch2,

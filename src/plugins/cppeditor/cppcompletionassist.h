@@ -87,7 +87,6 @@ public:
         const Utils::FilePath &filePath,
         const TextEditor::TextEditorWidget *textEditorWidget,
         const CPlusPlus::LanguageFeatures &languageFeatures,
-        int position,
         TextEditor::AssistReason reason) const override;
 };
 
@@ -168,10 +167,9 @@ public:
                                  const TextEditor::TextEditorWidget *textEditorWidget,
                                  BuiltinEditorDocumentParser::Ptr parser,
                                  const CPlusPlus::LanguageFeatures &languageFeatures,
-                                 int position,
                                  TextEditor::AssistReason reason,
                                  const WorkingCopy &workingCopy)
-        : TextEditor::AssistInterface(textEditorWidget->document(), position, filePath, reason)
+        : TextEditor::AssistInterface(textEditorWidget->textCursor(), filePath, reason)
         , m_parser(parser)
         , m_gotCppSpecifics(false)
         , m_workingCopy(workingCopy)
@@ -179,13 +177,12 @@ public:
     {}
 
     CppCompletionAssistInterface(const Utils::FilePath &filePath,
-                                 QTextDocument *textDocument,
-                                 int position,
+                                 const TextEditor::TextEditorWidget *textEditorWidget,
                                  TextEditor::AssistReason reason,
                                  const CPlusPlus::Snapshot &snapshot,
                                  const ProjectExplorer::HeaderPaths &headerPaths,
                                  const CPlusPlus::LanguageFeatures &features)
-        : TextEditor::AssistInterface(textDocument, position, filePath, reason)
+        : TextEditor::AssistInterface(textEditorWidget->textCursor(), filePath, reason)
         , m_gotCppSpecifics(true)
         , m_snapshot(snapshot)
         , m_headerPaths(headerPaths)

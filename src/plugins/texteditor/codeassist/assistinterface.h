@@ -30,21 +30,17 @@
 #include <texteditor/texteditor_global.h>
 
 #include <QString>
+#include <QTextCursor>
 #include <QVector>
 
 #include <utils/fileutils.h>
-
-QT_BEGIN_NAMESPACE
-class QTextDocument;
-QT_END_NAMESPACE
 
 namespace TextEditor {
 
 class TEXTEDITOR_EXPORT AssistInterface
 {
 public:
-    AssistInterface(QTextDocument *textDocument,
-                    int position,
+    AssistInterface(const QTextCursor &cursor,
                     const Utils::FilePath &filePath,
                     AssistReason reason);
     virtual ~AssistInterface();
@@ -52,6 +48,7 @@ public:
     virtual int position() const { return m_position; }
     virtual QChar characterAt(int position) const;
     virtual QString textAt(int position, int length) const;
+    QTextCursor cursor() const { return m_cursor; }
     virtual Utils::FilePath filePath() const { return m_filePath; }
     virtual QTextDocument *textDocument() const { return m_textDocument; }
     virtual void prepareForAsyncUse();
@@ -60,8 +57,10 @@ public:
 
 private:
     QTextDocument *m_textDocument;
+    QTextCursor m_cursor;
     bool m_isAsync;
     int m_position;
+    int m_anchor;
     Utils::FilePath m_filePath;
     AssistReason m_reason;
     QString m_text;

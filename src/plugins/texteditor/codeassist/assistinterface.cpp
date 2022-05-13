@@ -101,13 +101,14 @@ using namespace TextEditor;
 
 namespace TextEditor {
 
-AssistInterface::AssistInterface(QTextDocument *textDocument,
-                                               int position,
-                                               const Utils::FilePath &filePath,
-                                               AssistReason reason)
-    : m_textDocument(textDocument)
+AssistInterface::AssistInterface(const QTextCursor &cursor,
+                                 const Utils::FilePath &filePath,
+                                 AssistReason reason)
+    : m_textDocument(cursor.document())
+    , m_cursor(cursor)
     , m_isAsync(false)
-    , m_position(position)
+    , m_position(cursor.position())
+    , m_anchor(cursor.anchor())
     , m_filePath(filePath)
     , m_reason(reason)
 {}
@@ -141,6 +142,9 @@ void AssistInterface::prepareForAsyncUse()
 void AssistInterface::recreateTextDocument()
 {
     m_textDocument = new QTextDocument(m_text);
+    m_cursor = QTextCursor(m_textDocument);
+    m_cursor.setPosition(m_anchor);
+    m_cursor.setPosition(m_position, QTextCursor::KeepAnchor);
     m_text.clear();
 
     QTC_CHECK(m_textDocument->blockCount() == m_userStates.count());

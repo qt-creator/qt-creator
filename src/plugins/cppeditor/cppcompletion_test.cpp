@@ -105,9 +105,12 @@ public:
         QStringList completions;
         LanguageFeatures languageFeatures = LanguageFeatures::defaultFeatures();
         languageFeatures.objCEnabled = false;
+        QTextCursor textCursor = m_editorWidget->textCursor();
+        textCursor.setPosition(m_position);
+        m_editorWidget->setTextCursor(textCursor);
         CppCompletionAssistInterface *ai
             = new CppCompletionAssistInterface(m_editorWidget->textDocument()->filePath(),
-                                               m_textDocument, m_position,
+                                               m_editorWidget,
                                                ExplicitlyInvoked, m_snapshot,
                                                ProjectExplorer::HeaderPaths(),
                                                languageFeatures);

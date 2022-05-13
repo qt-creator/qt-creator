@@ -8169,10 +8169,10 @@ void TextEditorWidget::invokeAssist(AssistKind kind, IAssistProvider *provider)
 }
 
 AssistInterface *TextEditorWidget::createAssistInterface(AssistKind kind,
-                                                             AssistReason reason) const
+                                                         AssistReason reason) const
 {
     Q_UNUSED(kind)
-    return new AssistInterface(document(), position(), d->m_document->filePath(), reason);
+    return new AssistInterface(textCursor(), d->m_document->filePath(), reason);
 }
 
 QString TextEditorWidget::foldReplacementText(const QTextBlock &) const

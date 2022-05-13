@@ -369,8 +369,7 @@ AssistInterface *GlslEditorWidget::createAssistInterface(
     AssistKind kind, AssistReason reason) const
 {
     if (kind == Completion)
-        return new GlslCompletionAssistInterface(document(),
-                                                 position(),
+        return new GlslCompletionAssistInterface(textCursor(),
                                                  textDocument()->filePath(),
                                                  reason,
                                                  textDocument()->mimeType(),

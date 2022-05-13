@@ -545,13 +545,12 @@ bool GlslCompletionAssistProcessor::acceptsIdleEditor() const
 // -----------------------------
 // GlslCompletionAssistInterface
 // -----------------------------
-GlslCompletionAssistInterface::GlslCompletionAssistInterface(QTextDocument *textDocument,
-                                                             int position,
+GlslCompletionAssistInterface::GlslCompletionAssistInterface(const QTextCursor &cursor,
                                                              const Utils::FilePath &fileName,
                                                              AssistReason reason,
                                                              const QString &mimeType,
                                                              const Document::Ptr &glslDoc)
-    : AssistInterface(textDocument, position, fileName, reason)
+    : AssistInterface(cursor, fileName, reason)
     , m_mimeType(mimeType)
     , m_glslDoc(glslDoc)
 {

@@ -1021,11 +1021,8 @@ AssistInterface *QmlJSEditorWidget::createAssistInterface(
     AssistReason reason) const
 {
     if (assistKind == Completion) {
-        return new QmlJSCompletionAssistInterface(document(),
-                                                  position(),
-                                                  textDocument()->filePath(),
-                                                  reason,
-                                                  m_qmlJsEditorDocument->semanticInfo());
+        return new QmlJSCompletionAssistInterface(textCursor(), textDocument()->filePath(),
+                                                  reason, m_qmlJsEditorDocument->semanticInfo());
     } else if (assistKind == QuickFix) {
         return new Internal::QmlJSQuickFixAssistInterface(const_cast<QmlJSEditorWidget *>(this), reason);
     }

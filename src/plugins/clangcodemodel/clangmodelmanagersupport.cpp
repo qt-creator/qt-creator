@@ -616,18 +616,13 @@ void addFixItsActionsToMenu(QMenu *menu, const TextEditor::QuickFixOperations &f
     }
 }
 
-static int lineToPosition(const QTextDocument *textDocument, int lineNumber)
-{
-    QTC_ASSERT(textDocument, return 0);
-    const QTextBlock textBlock = textDocument->findBlockByLineNumber(lineNumber);
-    return textBlock.isValid() ? textBlock.position() - 1 : 0;
-}
-
 static TextEditor::AssistInterface createAssistInterface(TextEditor::TextEditorWidget *widget,
                                                          int lineNumber)
 {
-    return TextEditor::AssistInterface(widget->document(),
-                                       lineToPosition(widget->document(), lineNumber),
+    QTextCursor cursor(widget->document()->findBlockByLineNumber(lineNumber));
+    if (!cursor.atStart())
+        cursor.movePosition(QTextCursor::PreviousCharacter);
+    return TextEditor::AssistInterface(cursor,
                                        widget->textDocument()->filePath(),
                                        TextEditor::IdleEditor);
 }

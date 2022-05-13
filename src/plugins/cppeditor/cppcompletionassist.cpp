@@ -426,7 +426,6 @@ AssistInterface *InternalCompletionAssistProvider::createAssistInterface(
     const Utils::FilePath &filePath,
     const TextEditorWidget *textEditorWidget,
     const LanguageFeatures &languageFeatures,
-    int position,
     AssistReason reason) const
 {
     QTC_ASSERT(textEditorWidget, return nullptr);
@@ -435,7 +434,6 @@ AssistInterface *InternalCompletionAssistProvider::createAssistInterface(
                                             textEditorWidget,
                                             BuiltinEditorDocumentParser::get(filePath.toString()),
                                             languageFeatures,
-                                            position,
                                             reason,
                                             CppModelManager::instance()->workingCopy());
 }

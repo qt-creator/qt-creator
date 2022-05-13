@@ -1312,7 +1312,6 @@ AssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistR
             return cap->createAssistInterface(textDocument()->filePath(),
                                               this,
                                               features,
-                                              position(),
                                               reason);
         } else {
             return TextEditorWidget::createAssistInterface(kind, reason);
