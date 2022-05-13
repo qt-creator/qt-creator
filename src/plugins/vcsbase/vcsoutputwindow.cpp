@@ -428,12 +428,12 @@ void VcsOutputWindow::append(const QString &text, MessageStyle style, bool silen
 
 void VcsOutputWindow::appendError(const QString &text)
 {
-    append(text, Error, false);
+    append(text.endsWith('\n') ? text : text + '\n', Error, false);
 }
 
 void VcsOutputWindow::appendWarning(const QString &text)
 {
-    append(text, Warning, false);
+    append(text + '\n', Warning, false);
 }
 
 QString VcsOutputWindow::msgExecutionLogEntry(const FilePath &workingDir, const CommandLine &command)
@@ -455,7 +455,7 @@ void VcsOutputWindow::appendCommand(const FilePath &workingDirectory, const Comm
 
 void VcsOutputWindow::appendMessage(const QString &text)
 {
-    append(text, Message, true);
+    append(text + '\n', Message, true);
 }
 
 void VcsOutputWindow::destroy()

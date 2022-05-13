@@ -2916,9 +2916,9 @@ bool GitClient::getCommitData(const FilePath &workingDirectory,
 static inline QString msgCommitted(const QString &amendSHA1, int fileCount)
 {
     if (amendSHA1.isEmpty())
-        return GitClient::tr("Committed %n files.", nullptr, fileCount) + '\n';
+        return GitClient::tr("Committed %n files.", nullptr, fileCount);
     if (fileCount)
-        return GitClient::tr("Amended \"%1\" (%n files).", nullptr, fileCount).arg(amendSHA1) + '\n';
+        return GitClient::tr("Amended \"%1\" (%n files).", nullptr, fileCount).arg(amendSHA1);
     return GitClient::tr("Amended \"%1\".").arg(amendSHA1);
 }
 
