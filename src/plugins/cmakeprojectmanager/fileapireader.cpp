@@ -25,6 +25,7 @@
 
 #include "fileapireader.h"
 
+#include "cmakeprocess.h"
 #include "fileapidataextractor.h"
 #include "fileapiparser.h"
 

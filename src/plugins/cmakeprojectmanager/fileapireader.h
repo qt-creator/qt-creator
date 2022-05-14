@@ -25,8 +25,8 @@
 
 #pragma once
 
+#include "builddirparameters.h"
 #include "cmakebuildtarget.h"
-#include "cmakeprocess.h"
 #include "cmakeprojectnodes.h"
 #include "fileapidataextractor.h"
 
@@ -49,6 +49,7 @@ class ProjectNode;
 namespace CMakeProjectManager {
 namespace Internal {
 
+class CMakeProcess;
 class FileApiQtcData;
 
 class FileApiReader final : public QObject

@@ -25,20 +25,18 @@
 
 #pragma once
 
-#include "builddirparameters.h"
-
 #include <utils/outputformatter.h>
 
 #include <QElapsedTimer>
+#include <QFutureInterface>
 #include <QObject>
 #include <QStringList>
-#include <QTimer>
 
 #include <memory>
 
 QT_BEGIN_NAMESPACE
 template<class T>
-class QFutureInterface;
+class QFutureWatcher;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -48,6 +46,8 @@ class QtcProcess;
 
 namespace CMakeProjectManager {
 namespace Internal {
+
+class BuildDirParameters;
 
 class CMakeProcess : public QObject
 {
@@ -68,13 +68,11 @@ signals:
 
 private:
     void handleProcessDone(const Utils::ProcessResultData &resultData);
-    void checkForCancelled();
 
     std::unique_ptr<Utils::QtcProcess> m_process;
     Utils::OutputFormatter m_parser;
-    std::unique_ptr<QFutureInterface<void>> m_future;
-    bool m_processWasCanceled = false;
-    QTimer m_cancelTimer;
+    QFutureInterface<void> m_futureInterface;
+    std::unique_ptr<QFutureWatcher<void>> m_futureWatcher;
     QElapsedTimer m_elapsed;
     int m_lastExitCode = 0;
 };
