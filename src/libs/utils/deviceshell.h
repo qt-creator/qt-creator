@@ -74,7 +74,7 @@ private:
     void closeShellProcess();
 
 private:
-    QtcProcess *m_shellProcess;
+    QtcProcess *m_shellProcess = nullptr;
     QThread m_thread;
 };
 
