@@ -45,15 +45,10 @@ add_qtc_library(Sqlite
     sqlitelibraryinitializer.cpp sqlitelibraryinitializer.h
 )
 
-if(MSVC)
-  set(DISABLE_WARNINGS "-W0")
-else()
-  set(DISABLE_WARNINGS "-w")
-endif()
 set_source_files_properties(
   ${SQLITE_SOURCES}
   PROPERTIES
-    COMPILE_OPTIONS ${DISABLE_WARNINGS}
+    QT_COMPILE_OPTIONS_DISABLE_WARNINGS ON
 )
 
 extend_qtc_library(Sqlite DEFINES SQLITE_CUSTOM_INCLUDE=config.h)
