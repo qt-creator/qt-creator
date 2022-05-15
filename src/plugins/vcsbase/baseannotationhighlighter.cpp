@@ -93,20 +93,21 @@ BaseAnnotationHighlighter::~BaseAnnotationHighlighter()
 void BaseAnnotationHighlighter::setChangeNumbers(const ChangeNumbers &changeNumbers)
 {
     d->m_changeNumberMap.clear();
-    if (!changeNumbers.isEmpty()) {
-        // Assign a color gradient to annotation change numbers. Give
-        // each change number a unique color.
-        const QList<QColor> colors =
-            TextEditor::SyntaxHighlighter::generateColors(changeNumbers.size(), d->m_background);
-        int m = 0;
-        const int cstep = colors.count() / changeNumbers.count();
-        const ChangeNumbers::const_iterator cend = changeNumbers.constEnd();
-        for (ChangeNumbers::const_iterator it =  changeNumbers.constBegin(); it != cend; ++it) {
-            QTextCharFormat format;
-            format.setForeground(colors.at(m));
-            d->m_changeNumberMap.insert(*it, format);
-            m += cstep;
-        }
+    const int changeNumberCount = changeNumbers.size();
+    if (changeNumberCount == 0)
+        return;
+    // Assign a color gradient to annotation change numbers. Give
+    // each change number a unique color.
+    const QList<QColor> colors =
+        TextEditor::SyntaxHighlighter::generateColors(changeNumberCount, d->m_background);
+    int m = 0;
+    const int cstep = colors.count() / changeNumberCount;
+    const ChangeNumbers::const_iterator cend = changeNumbers.constEnd();
+    for (ChangeNumbers::const_iterator it =  changeNumbers.constBegin(); it != cend; ++it) {
+        QTextCharFormat format;
+        format.setForeground(colors.at(m));
+        d->m_changeNumberMap.insert(*it, format);
+        m += cstep;
     }
 }
 
