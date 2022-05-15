@@ -98,7 +98,7 @@ private:
     QList<Button> m_buttons;
     QString m_cancelButtonText;
     CallBack m_cancelButtonCallBack;
-    GlobalSuppression m_globalSuppression;
+    GlobalSuppression m_globalSuppression = GlobalSuppression::Disabled;
     DetailsWidgetCreator m_detailsWidgetCreator;
     bool m_useCancelButton = true;
     Combo m_combo;
