@@ -71,9 +71,14 @@ public:
     void setFilesToTransfer(const FilesToTransfer &files);
     void setRsyncFlags(const QString &flags);
 
+    FileTransferMethod transferMethod() const;
+
     void test();
     void start();
     void stop();
+
+    static QString transferMethodName(FileTransferMethod method);
+    static QString defaultRsyncFlags();
 
 signals:
     void progress(const QString &progressMessage);

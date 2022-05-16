@@ -155,8 +155,6 @@ void RsyncDeployService::setFinished()
 
 } // namespace Internal
 
-static const char s_defaultFlags[] = "-av";
-
 RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Utils::Id id)
     : AbstractRemoteLinuxDeployStep(bsl, id)
 {
@@ -166,7 +164,7 @@ RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Utils::Id id)
     flags->setDisplayStyle(StringAspect::LineEditDisplay);
     flags->setSettingsKey("RemoteLinux.RsyncDeployStep.Flags");
     flags->setLabelText(tr("Flags:"));
-    flags->setValue(s_defaultFlags);
+    flags->setValue(FileTransfer::defaultRsyncFlags());
 
     auto ignoreMissingFiles = addAspect<BoolAspect>();
     ignoreMissingFiles->setSettingsKey("RemoteLinux.RsyncDeployStep.IgnoreMissingFiles");
