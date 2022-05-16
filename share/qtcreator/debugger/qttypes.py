@@ -1762,6 +1762,26 @@ def qdump__QStringData(d, value):
     d.putPlainChildren(value)
 
 
+def qdump__QAnyStringView(d, value):
+    data, size = value.split('pp')
+    bits = d.ptrSize() * 8 - 2
+    tag = size >> bits
+    size = size & (2**bits - 1)
+    elided, shown = d.computeLimit(size, d.displayStringLimit)
+    if tag == 0:
+        mem = d.readMemory(data, shown)
+        d.putValue(mem, 'utf8', elided=elided)
+    elif tag == 1:
+        mem = d.readMemory(data, shown)
+        d.putValue(mem, 'latin1', elided=elided)
+    elif tag == 2:
+        mem = d.readMemory(data, shown * 2)
+        d.putValue(mem, 'utf16', elided=elided)
+    else:
+        d.putSpecialValue('empty')
+    d.putPlainChildren(value)
+
+
 def qform__QStringView():
     return [DisplayFormat.Simple, DisplayFormat.Separate]
 

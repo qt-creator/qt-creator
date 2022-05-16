@@ -3918,6 +3918,28 @@ void tst_Dumpers::dumper_data()
                + Check("empty", "(null)", "@QStringView");
 
 
+    QTest::newRow("QAnyStringView")
+            << Data("#include <QString>\n",
+
+                    "QString s = \"Hi QString\";\n"
+                    "QLatin1String l1 = QLatin1String(\"Hi QLatin1String\");\n"
+                    "const char u8[] = \"Hi Yöü\";\n"
+                    "const char asc[] = \"Hi Ascii\";\n"
+                    "QAnyStringView v_s(s);\n"
+                    "QAnyStringView v_l1(l1);\n"
+                    "QAnyStringView v_u8(u8);\n"
+                    "QAnyStringView v_asc(asc);\n",
+
+                    "&v_s, &v_l1, &v_asc, &v_u8")
+
+               + CoreProfile()
+               + QtVersion(0x60200)
+
+               + Check("v_s", "\"Hi QString\"", "@QAnyStringView")
+               + Check("v_l1", "\"Hi QLatin1String\"", "@QAnyStringView")
+               + Check("v_u8", "\"Hi Yöü\"", "@QAnyStringView")
+               + Check("v_asc", "\"Hi Ascii\"", "@QAnyStringView");
+
     QTest::newRow("QText")
             << Data("#include <QApplication>\n"
                     "#include <QTextCursor>\n"
