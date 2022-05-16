@@ -1298,7 +1298,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_modeBarBuildAction->initialize(cmd->action());
     dd->m_modeBarBuildAction->setAttribute(ProxyAction::UpdateText);
     dd->m_modeBarBuildAction->setAction(cmd->action());
-    ModeManager::addAction(dd->m_modeBarBuildAction, Constants::P_ACTION_BUILDPROJECT);
+    if (!hideBuildMenu())
+        ModeManager::addAction(dd->m_modeBarBuildAction, Constants::P_ACTION_BUILDPROJECT);
 
     // build for run config
     dd->m_buildForRunConfigAction = new ParameterAction(

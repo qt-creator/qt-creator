@@ -435,6 +435,13 @@ static bool hideAnalyzeMenu()
         .toBool();
 }
 
+static bool hideDebugMenu()
+{
+    return Core::ICore::settings()
+        ->value(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_DEBUG, false)
+        .toBool();
+}
+
 QAction *addAction(const QObject *parent, QMenu *menu, const QString &display, bool on,
                    const std::function<void()> &onTriggered)
 {
@@ -921,7 +928,9 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     m_visibleStartAction.setAction(&m_startAction);
 
     m_visibleStartAction.setObjectName("Debug"); // used for UI introduction
-    ModeManager::addAction(&m_visibleStartAction, /*priority*/ 90);
+
+    if (!hideDebugMenu())
+        ModeManager::addAction(&m_visibleStartAction, /*priority*/ 90);
 
     m_undisturbableAction.setIcon(interruptIcon(false));
     m_undisturbableAction.setEnabled(false);
