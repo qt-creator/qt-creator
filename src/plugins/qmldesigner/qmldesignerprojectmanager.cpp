@@ -231,15 +231,36 @@ void projectQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPa
                               + "/qmldir");
 }
 
+bool skipPath(const std::filesystem::path &path)
+{
+    auto directory = path.filename();
+    qDebug() << path.string().data();
+
+    bool skip = directory == "QtApplicationManager" || directory == "QtInterfaceFramework"
+                || directory == "QtOpcUa" || directory == "Qt3D" || directory == "Qt3D"
+                || directory == "Scene2D" || directory == "Scene3D" || directory == "QtWayland";
+    if (skip)
+        qDebug() << "skip" << path.string().data();
+
+    return skip;
+}
+
 void qtQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
 {
     const QString installDirectory = qmlPath(target).toString();
 
     const std::filesystem::path installDirectoryPath{installDirectory.toStdString()};
 
-    for (const auto &entry : std::filesystem::recursive_directory_iterator{installDirectoryPath}) {
+    auto current = std::filesystem::recursive_directory_iterator{installDirectoryPath};
+    auto end = std::filesystem::end(current);
+    for (; current != end; ++current) {
+        const auto &entry = *current;
         auto path = entry.path();
-        if (entry.path().filename() == "qmldir") {
+        if (current.depth() < 3 && !current->is_regular_file() && skipPath(path)) {
+            current.disable_recursion_pending();
+            continue;
+        }
+        if (path.filename() == "qmldir") {
             qmldirPaths.push_back(QString::fromStdU16String(path.generic_u16string()));
         }
     }
