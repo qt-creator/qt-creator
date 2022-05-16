@@ -198,7 +198,9 @@ void dummyStatement(...) {}
 #include <QWebPage>
 #endif
 
+#if QT_VERSION < 0x060000
 #include <QXmlAttributes>
+#endif
 
 #include <QHostAddress>
 #include <QNetworkRequest>
@@ -2515,6 +2517,7 @@ namespace qxml {
 
     void testQXmlAttributes()
     {
+#if QT_VERSION < 0x060000
         // only works with Python dumper
         QXmlAttributes atts;
         atts.append("name1", "uri1", "localPart1", "value1");
@@ -2543,6 +2546,7 @@ namespace qxml {
         // CheckType atts.d QXmlAttributesPrivate.
         // Continue.
         dummyStatement();
+#endif
     }
 
 } // namespace qxml
