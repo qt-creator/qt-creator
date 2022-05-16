@@ -398,7 +398,7 @@ void AbstractView::modelNodePreviewPixmapChanged(const ModelNode & /*node*/, con
 {
 }
 
-void AbstractView::dragStarted(QMimeData *mimeData) {}
+void AbstractView::dragStarted(QMimeData * /*mimeData*/) {}
 void AbstractView::dragEnded() {}
 
 QList<ModelNode> AbstractView::toModelNodeList(const QList<Internal::InternalNode::Pointer> &nodeList) const
