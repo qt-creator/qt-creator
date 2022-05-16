@@ -54,7 +54,8 @@ namespace Internal {
 
 enum {
     UnexpandedTextRole = Qt::UserRole,
-    ExpandedTextRole
+    ExpandedTextRole,
+    CurrentValueDisplayRole
 };
 
 class VariableTreeView : public QTreeView
@@ -197,11 +198,8 @@ public:
         }
 
         if (role == Qt::ToolTipRole) {
-            QString description = m_expander->variableDescription(m_variable);
-            const QString value = m_expander->value(m_variable).toHtmlEscaped();
-            if (!value.isEmpty())
-                description += QLatin1String("<p>") + VariableChooser::tr("Current Value: %1").arg(value);
-            return description;
+            return QString::fromLatin1("<div style=\"white-space:pre\">%1</div>")
+                    .arg(data(column, CurrentValueDisplayRole).toString());
         }
 
         if (role == UnexpandedTextRole)
@@ -209,6 +207,15 @@ public:
 
         if (role == ExpandedTextRole)
             return m_expander->expand(QString::fromUtf8("%{" + m_variable + '}'));
+
+        if (role == CurrentValueDisplayRole) {
+            QString description = m_expander->variableDescription(m_variable);
+            const QString value = m_expander->value(m_variable).toHtmlEscaped();
+            if (!value.isEmpty())
+                description += QLatin1String("<p>")
+                        + VariableChooser::tr("Current Value: %1").arg(value);
+            return description;
+        }
 
         return QVariant();
     }
@@ -451,7 +458,7 @@ void VariableChooserPrivate::updateDescription(const QModelIndex &index)
 {
     if (m_variableDescription)
         m_variableDescription->setText(m_model.data(m_sortModel->mapToSource(index),
-                                                    Qt::ToolTipRole).toString());
+                                                    CurrentValueDisplayRole).toString());
 }
 
 /*!
