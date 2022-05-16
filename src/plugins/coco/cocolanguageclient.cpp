@@ -54,17 +54,17 @@ CocoLanguageClient::CocoLanguageClient(const FilePath &coco, const FilePath &csm
     connect(EditorManager::instance(),
             &EditorManager::documentOpened,
             this,
-            &CocoLanguageClient::handleDocumentOpened);
+            &CocoLanguageClient::onDocumentOpened);
     connect(EditorManager::instance(),
             &EditorManager::documentClosed,
             this,
-            &CocoLanguageClient::handleDocumentClosed);
+            &CocoLanguageClient::onDocumentClosed);
     connect(EditorManager::instance(),
             &EditorManager::editorOpened,
             this,
             &CocoLanguageClient::handleEditorOpened);
     for (IDocument *openDocument : DocumentModel::openedDocuments())
-        handleDocumentOpened(openDocument);
+        onDocumentOpened(openDocument);
 
     ClientInfo info;
     info.setName("CocoQtCreator");
@@ -250,13 +250,13 @@ void CocoLanguageClient::initClientCapabilities()
     setClientCapabilities(capabilities);
 }
 
-void CocoLanguageClient::handleDocumentOpened(IDocument *document)
+void CocoLanguageClient::onDocumentOpened(IDocument *document)
 {
     if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document))
         openDocument(textDocument);
 }
 
-void CocoLanguageClient::handleDocumentClosed(IDocument *document)
+void CocoLanguageClient::onDocumentClosed(IDocument *document)
 {
     if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document))
         closeDocument(textDocument);

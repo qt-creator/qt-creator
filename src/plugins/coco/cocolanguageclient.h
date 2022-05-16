@@ -44,8 +44,8 @@ protected:
 
 private:
     void initClientCapabilities();
-    void handleDocumentOpened(Core::IDocument *document);
-    void handleDocumentClosed(Core::IDocument *document);
+    void onDocumentOpened(Core::IDocument *document);
+    void onDocumentClosed(Core::IDocument *document);
     void handleEditorOpened(Core::IEditor *editor);
 };
 
