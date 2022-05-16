@@ -42,6 +42,7 @@
 #include <QHash>
 #include <QPair>
 #include <QSettings>
+#include <QStandardPaths>
 
 using namespace Utils;
 
@@ -416,6 +417,13 @@ FilePath ClangdSettings::clangdIncludePath() const
             .pathAppended(version.toString()).pathAppended("include");
     QTC_ASSERT(includePath.exists(), return {});
     return includePath;
+}
+
+FilePath ClangdSettings::clangdUserConfigFilePath()
+{
+    return FilePath::fromString(
+                QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation))
+            / "clangd/config.yaml";
 }
 
 void ClangdSettings::loadSettings()

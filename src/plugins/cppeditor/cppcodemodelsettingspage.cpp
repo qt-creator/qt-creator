@@ -39,6 +39,7 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
+#include <QDesktopServices>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -341,6 +342,26 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         // TODO: Remove once the concept is functional.
         d->sessionsGroupBox->hide();
     }
+
+    const auto configFilesHelpLabel = new QLabel;
+    configFilesHelpLabel->setText(tr("Additional settings are available via "
+            "<a href=\"https://clangd.llvm.org/config\"> clangd configuration files</a>.<br>"
+            "General settings go <a href=\"%1\">here</a> "
+            "and can be overridden per project by putting a .clangd file into "
+            "the project source tree.")
+                .arg(ClangdSettings::clangdUserConfigFilePath().toUserOutput()));
+    connect(configFilesHelpLabel, &QLabel::linkHovered, configFilesHelpLabel, &QLabel::setToolTip);
+    connect(configFilesHelpLabel, &QLabel::linkActivated, [](const QString &link) {
+        if (link.startsWith("https"))
+            QDesktopServices::openUrl(link);
+        else
+            Core::EditorManager::openEditor(Utils::FilePath::fromString(link));
+    });
+    const auto separator = new QFrame;
+    separator->setFrameShape(QFrame::HLine);
+    layout->addWidget(separator);
+    layout->addWidget(configFilesHelpLabel);
+
     layout->addStretch(1);
 
     static const auto setWidgetsEnabled = [](QLayout *layout, bool enabled, const auto &f) -> void {
