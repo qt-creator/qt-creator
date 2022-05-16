@@ -615,6 +615,8 @@ void setupClangdConfigFile()
         saver.write(firstLine + '\n');
         saver.write("Hover:\n");
         saver.write("  ShowAKA: Yes\n");
+        saver.write("Diagnostics:\n");
+        saver.write("  UnusedIncludes: Strict\n");
         QTC_CHECK(saver.finalize());
     }
 }
