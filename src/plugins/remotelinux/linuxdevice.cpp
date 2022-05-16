@@ -1417,23 +1417,29 @@ bool LinuxDevice::writeFileContents(const FilePath &filePath, const QByteArray &
     return d->runInShell({"dd", {"of=" + filePath.path()}}, data);
 }
 
-TransferDirection FileToTransfer::transferDirection() const
+enum class TransferDirection {
+    Upload,
+    Download,
+    Invalid
+};
+
+static TransferDirection transferDirection(const FileToTransfer &file)
 {
-    if (m_source.needsDevice() == m_target.needsDevice())
+    if (file.m_source.needsDevice() == file.m_target.needsDevice())
         return TransferDirection::Invalid;
-    return m_source.needsDevice() ? TransferDirection::Download : TransferDirection::Upload;
+    return file.m_source.needsDevice() ? TransferDirection::Download : TransferDirection::Upload;
 }
 
 static TransferDirection transferDirection(const FilesToTransfer &files)
 {
     if (files.isEmpty())
         return TransferDirection::Invalid;
-    const TransferDirection transferDirection = files.first().transferDirection();
+    const TransferDirection direction = transferDirection(files.first());
     for (const FileToTransfer &file : files) {
-        if (file.transferDirection() != transferDirection)
+        if (transferDirection(file) != direction)
             return TransferDirection::Invalid;
     }
-    return transferDirection;
+    return direction;
 }
 
 static bool isDeviceMatched(const FilePath &file, const QString &id)
@@ -1444,9 +1450,9 @@ static bool isDeviceMatched(const FilePath &file, const QString &id)
 static bool isDeviceMatched(const FilesToTransfer &files, const QString &id)
 {
     for (const FileToTransfer &file : files) {
-        if (file.transferDirection() == TransferDirection::Upload && !isDeviceMatched(file.m_target, id))
+        if (transferDirection(file) == TransferDirection::Upload && !isDeviceMatched(file.m_target, id))
             return false;
-        if (file.transferDirection() == TransferDirection::Download && !isDeviceMatched(file.m_source, id))
+        if (transferDirection(file) == TransferDirection::Download && !isDeviceMatched(file.m_source, id))
             return false;
     }
     return true;

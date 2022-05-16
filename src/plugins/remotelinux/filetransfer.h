@@ -35,18 +35,11 @@ namespace Utils { class ProcessResultData; }
 
 namespace RemoteLinux {
 
-enum class TransferDirection {
-    Upload,
-    Download,
-    Invalid
-};
-
 class REMOTELINUX_EXPORT FileToTransfer
 {
 public:
     Utils::FilePath m_source;
     Utils::FilePath m_target;
-    TransferDirection transferDirection() const;
 };
 using FilesToTransfer = QList<FileToTransfer>;
 
