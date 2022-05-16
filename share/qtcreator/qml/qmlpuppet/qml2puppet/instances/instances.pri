@@ -46,7 +46,9 @@ HEADERS += $$PWD/qt5nodeinstanceserver.h \
     $$PWD/positionernodeinstance.h \
     $$PWD/layoutnodeinstance.h \
     $$PWD/qt3dpresentationnodeinstance.h \
+    $$PWD/quick3dmaterialnodeinstance.h \
     $$PWD/quick3dnodeinstance.h \
+    $$PWD/quick3drenderablenodeinstance.h \
     $$PWD/quick3dtexturenodeinstance.h \
     $$PWD/viewconfig.h \
     $$PWD/animationdriver.h
@@ -79,7 +81,9 @@ SOURCES += $$PWD/qt5nodeinstanceserver.cpp \
     $$PWD/positionernodeinstance.cpp \
     $$PWD/layoutnodeinstance.cpp \
     $$PWD/qt3dpresentationnodeinstance.cpp \
+    $$PWD/quick3dmaterialnodeinstance.cpp \
     $$PWD/quick3dnodeinstance.cpp \
+    $$PWD/quick3drenderablenodeinstance.cpp \
     $$PWD/quick3dtexturenodeinstance.cpp \
     $$PWD/viewconfig.cpp \
     $$PWD/animationdriver.cpp

@@ -58,6 +58,15 @@ bool Qml3DNode::isValidQml3DNode(const ModelNode &modelNode)
             && (modelNode.metaInfo().isSubclassOf("QtQuick3D.Node"));
 }
 
+bool Qml3DNode::isValidVisualRoot(const ModelNode &modelNode)
+{
+    return isValidQmlObjectNode(modelNode)
+            && modelNode.metaInfo().isValid()
+            && ((modelNode.metaInfo().isSubclassOf("QtQuick3D.Node"))
+                || (modelNode.metaInfo().isSubclassOf("QtQuick3D.Material")));
+
+}
+
 void Qml3DNode::setVariantProperty(const PropertyName &name, const QVariant &value)
 {
     if (isBlocked(name))

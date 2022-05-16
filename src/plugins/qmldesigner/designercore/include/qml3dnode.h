@@ -49,6 +49,7 @@ public:
     Qml3DNode(const ModelNode &modelNode)  : QmlVisualNode(modelNode) {}
     bool isValid() const override;
     static bool isValidQml3DNode(const ModelNode &modelNode);
+    static bool isValidVisualRoot(const ModelNode &modelNode);
 
     // From QmlObjectNode
     void setVariantProperty(const PropertyName &name, const QVariant &value) override;
