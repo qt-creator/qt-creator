@@ -29,8 +29,6 @@
 #include "remotelinux_constants.h"
 
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
-#include <ssh/sshconnection.h>
-#include <ssh/sshconnectionmanager.h>
 #include <utils/algorithm.h>
 #include <utils/port.h>
 #include <utils/processinterface.h>
@@ -38,14 +36,13 @@
 #include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
-using namespace QSsh;
 using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
 namespace {
 
-enum State { Inactive, Connecting, RunningUname, TestingPorts, TestingSftp, TestingRsync };
+enum State { Inactive, TestingEcho, TestingUname, TestingPorts, TestingSftp, TestingRsync };
 
 } // anonymous namespace
 
@@ -53,7 +50,7 @@ class GenericLinuxDeviceTesterPrivate
 {
 public:
     IDevice::Ptr device;
-    SshConnection *connection = nullptr;
+    QtcProcess echoProcess;
     QtcProcess unameProcess;
     DeviceUsedPortsGatherer portsGatherer;
     FileTransfer fileTransfer;
@@ -68,6 +65,8 @@ using namespace Internal;
 GenericLinuxDeviceTester::GenericLinuxDeviceTester(QObject *parent)
     : DeviceTester(parent), d(new GenericLinuxDeviceTesterPrivate)
 {
+    connect(&d->echoProcess, &QtcProcess::done, this,
+            &GenericLinuxDeviceTester::handleEchoDone);
     connect(&d->unameProcess, &QtcProcess::done, this,
             &GenericLinuxDeviceTester::handleUnameDone);
     connect(&d->portsGatherer, &DeviceUsedPortsGatherer::error,
@@ -78,11 +77,7 @@ GenericLinuxDeviceTester::GenericLinuxDeviceTester(QObject *parent)
             this, &GenericLinuxDeviceTester::handleFileTransferDone);
 }
 
-GenericLinuxDeviceTester::~GenericLinuxDeviceTester()
-{
-    if (d->connection)
-        SshConnectionManager::releaseConnection(d->connection);
-}
+GenericLinuxDeviceTester::~GenericLinuxDeviceTester() = default;
 
 void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguration)
 {
@@ -90,16 +85,8 @@ void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguratio
 
     d->device = deviceConfiguration;
     d->fileTransfer.setDevice(d->device);
-    SshConnectionManager::forceNewConnection(deviceConfiguration->sshParameters());
-    d->connection = SshConnectionManager::acquireConnection(deviceConfiguration->sshParameters());
-    connect(d->connection, &SshConnection::connected,
-            this, &GenericLinuxDeviceTester::handleConnected);
-    connect(d->connection, &SshConnection::errorOccurred,
-            this, &GenericLinuxDeviceTester::handleConnectionFailure);
 
-    emit progressMessage(tr("Connecting to device..."));
-    d->state = Connecting;
-    d->connection->connectToHost();
+    testEcho();
 }
 
 void GenericLinuxDeviceTester::stopTest()
@@ -107,13 +94,13 @@ void GenericLinuxDeviceTester::stopTest()
     QTC_ASSERT(d->state != Inactive, return);
 
     switch (d->state) {
-    case Connecting:
-        d->connection->disconnectFromHost();
+    case TestingEcho:
+        d->echoProcess.close();
         break;
     case TestingPorts:
         d->portsGatherer.stop();
         break;
-    case RunningUname:
+    case TestingUname:
         d->unameProcess.close();
         break;
     case TestingSftp:
@@ -127,26 +114,41 @@ void GenericLinuxDeviceTester::stopTest()
     setFinished(TestFailure);
 }
 
-void GenericLinuxDeviceTester::handleConnectionFailure()
+static const char s_echoContents[] = "Hello Remote World!";
+
+void GenericLinuxDeviceTester::testEcho()
 {
-    QTC_ASSERT(d->state != Inactive, return);
+    d->state = TestingEcho;
+    emit progressMessage(tr("Sending echo to device..."));
 
-    emit errorMessage(d->connection->errorString() + QLatin1Char('\n'));
-
-    setFinished(TestFailure);
+    d->echoProcess.setCommand({d->device->filePath("echo"), {s_echoContents}});
+    d->echoProcess.start();
 }
 
-void GenericLinuxDeviceTester::handleConnected()
+void GenericLinuxDeviceTester::handleEchoDone()
 {
-    QTC_ASSERT(d->state == Connecting, return);
-    emit progressMessage(tr("Connection to device established.") + QLatin1Char('\n'));
+    QTC_ASSERT(d->state == TestingEcho, return);
+    if (d->echoProcess.result() != ProcessResult::FinishedWithSuccess) {
+        const QByteArray stdErrOutput = d->echoProcess.readAllStandardError();
+        if (!stdErrOutput.isEmpty())
+            emit errorMessage(tr("echo failed: %1").arg(QString::fromUtf8(stdErrOutput)) + '\n');
+        else
+            emit errorMessage(tr("echo failed.") + '\n');
+        setFinished(TestFailure);
+    } else {
+        const QString reply = d->echoProcess.stdOut().chopped(1); // Remove trailing \n
+        if (reply != s_echoContents)
+            emit errorMessage(tr("Device replied to echo with unexpected contents.") + '\n');
+        else
+            emit progressMessage(tr("Device replied to echo with expected contents.") + '\n');
+    }
 
     testUname();
 }
 
 void GenericLinuxDeviceTester::testUname()
 {
-    d->state = RunningUname;
+    d->state = TestingUname;
     emit progressMessage(tr("Checking kernel version..."));
 
     d->unameProcess.setCommand({d->device->filePath("uname"), {"-rsm"}});
@@ -155,7 +157,7 @@ void GenericLinuxDeviceTester::testUname()
 
 void GenericLinuxDeviceTester::handleUnameDone()
 {
-    QTC_ASSERT(d->state == RunningUname, return);
+    QTC_ASSERT(d->state == TestingUname, return);
 
     if (!d->unameProcess.errorString().isEmpty() || d->unameProcess.exitCode() != 0) {
         const QByteArray stderrOutput = d->unameProcess.readAllStandardError();
@@ -259,11 +261,6 @@ void GenericLinuxDeviceTester::handleFileTransferDone(const ProcessResultData &r
 void GenericLinuxDeviceTester::setFinished(TestResult result)
 {
     d->state = Inactive;
-    if (d->connection) {
-        disconnect(d->connection, nullptr, this, nullptr);
-        SshConnectionManager::releaseConnection(d->connection);
-        d->connection = nullptr;
-    }
     emit finished(result);
 }
 

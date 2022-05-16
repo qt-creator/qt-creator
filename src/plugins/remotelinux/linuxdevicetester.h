@@ -49,8 +49,8 @@ public:
     void stopTest() override;
 
 private:
-    void handleConnectionFailure();
-    void handleConnected();
+    void testEcho();
+    void handleEchoDone();
 
     void testUname();
     void handleUnameDone();
