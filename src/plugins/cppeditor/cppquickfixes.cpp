@@ -6760,6 +6760,9 @@ private:
 
     QString deduceType() const
     {
+        if (m_file->cppDocument()->languageFeatures().cxx11Enabled)
+            return "auto " + m_originalName;
+
         TypeOfExpression typeOfExpression;
         typeOfExpression.init(semanticInfo().doc, snapshot(), context().bindings());
         typeOfExpression.setExpandTemplates(true);

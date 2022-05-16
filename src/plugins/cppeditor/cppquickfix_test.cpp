@@ -1077,7 +1077,7 @@ void QuickfixTest::testGeneric_data()
         "void bar() {fo@o();}\n"
         ) << _(
         "int foo() {return 1;}\n"
-        "void bar() {int localFoo = foo();}\n"
+        "void bar() {auto localFoo = foo();}\n"
     );
 
     // Check: Add local variable for a member function.
@@ -1092,7 +1092,7 @@ void QuickfixTest::testGeneric_data()
         "class Foo {public: int* fooFunc();}\n"
         "void bar() {\n"
         "    Foo *f = new Foo;\n"
-        "    int *localFooFunc = f->fooFunc();\n"
+        "    auto localFooFunc = f->fooFunc();\n"
         "}\n"
     );
 
@@ -1110,7 +1110,7 @@ void QuickfixTest::testGeneric_data()
         "struct Baz {Foo* foo();};\n"
         "void bar() {\n"
         "    Baz *b = new Baz;\n"
-        "    int *localFunc = b->foo()->func();\n"
+        "    auto localFunc = b->foo()->func();\n"
         "}"
     );
 
@@ -1128,7 +1128,7 @@ void QuickfixTest::testGeneric_data()
         "struct Baz {Foo* foo();};\n"
         "void bar() {\n"
         "    Baz *b = new Baz;\n"
-        "    int *localFunc = b->foo()->func();\n"
+        "    auto localFunc = b->foo()->func();\n"
         "}"
     );
 
@@ -1142,7 +1142,7 @@ void QuickfixTest::testGeneric_data()
         ) << _(
         "class Foo {public: static int* fooFunc();}\n"
         "void bar() {\n"
-        "    int *localFooFunc = Foo::fooFunc();\n"
+        "    auto localFooFunc = Foo::fooFunc();\n"
         "}"
     );
 
@@ -1156,7 +1156,7 @@ void QuickfixTest::testGeneric_data()
         ) << _(
         "class Foo {}\n"
         "void bar() {\n"
-        "    Foo *localFoo = new Foo;\n"
+        "    auto localFoo = new Foo;\n"
         "}"
     );
 
@@ -7384,7 +7384,7 @@ void QuickfixTest::testAssignToLocalVariableTemplates()
         "#include \"file.h\"\n"
         "void foo() {\n"
         "    List<int> list;\n"
-        "    int localFirst = list.first();\n"
+        "    auto localFirst = list.first();\n"
         "}\n";
     testDocuments << CppTestDocument::create("file.cpp", original, expected);
 
