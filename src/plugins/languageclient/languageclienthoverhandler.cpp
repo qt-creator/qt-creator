@@ -58,8 +58,10 @@ void HoverHandler::setHelpItem(const LanguageServerProtocol::MessageId &msgId,
                                const Core::HelpItem &help)
 {
     if (msgId == m_response.id()) {
-        if (Utils::optional<Hover> result = m_response.result())
-            setContent(result->content());
+        if (Utils::optional<HoverResult> result = m_response.result()) {
+            if (auto hover = Utils::get_if<Hover>(&(*result)))
+                setContent(hover->content());
+        }
         m_response = {};
         setLastHelpItemIdentified(help);
         m_report(priority());
@@ -129,13 +131,15 @@ void HoverHandler::handleResponse(const HoverRequest::Response &response)
         if (m_client)
             m_client->log(*error);
     }
-    if (Utils::optional<Hover> result = response.result()) {
-        if (m_helpItemProvider) {
-            m_response = response;
-            m_helpItemProvider(response, m_uri);
-            return;
+    if (Utils::optional<HoverResult> result = response.result()) {
+        if (auto hover = Utils::get_if<Hover>(&(*result))) {
+            if (m_helpItemProvider) {
+                m_response = response;
+                m_helpItemProvider(response, m_uri);
+                return;
+            }
+            setContent(hover->content());
         }
-        setContent(result->content());
     }
     m_report(priority());
 }

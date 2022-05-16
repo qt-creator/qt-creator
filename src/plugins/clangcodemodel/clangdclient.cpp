@@ -2344,35 +2344,38 @@ void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cu
 void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverResponse,
                                             const DocumentUri &uri)
 {
-    if (const Utils::optional<Hover> result = hoverResponse.result()) {
-        const HoverContent content = result->content();
-        const MarkupContent * const markup = Utils::get_if<MarkupContent>(&content);
-        if (markup) {
-            const QString markupString = markup->content();
+    if (const Utils::optional<HoverResult> result = hoverResponse.result()) {
+        if (auto hover = Utils::get_if<Hover>(&(*result))) {
+            const HoverContent content = hover->content();
+            const MarkupContent *const markup = Utils::get_if<MarkupContent>(&content);
+            if (markup) {
+                const QString markupString = markup->content();
 
-            // Macros aren't locatable via the AST, so parse the formatted string.
-            static const QString magicMacroPrefix = "### macro `";
-            if (markupString.startsWith(magicMacroPrefix)) {
-                const int nameStart = magicMacroPrefix.length();
-                const int closingQuoteIndex = markupString.indexOf('`', nameStart);
-                if (closingQuoteIndex != -1) {
-                    const QString macroName = markupString.mid(nameStart,
-                                                               closingQuoteIndex - nameStart);
-                    d->setHelpItemForTooltip(hoverResponse.id(), macroName, HelpItem::Macro);
-                    return;
+                // Macros aren't locatable via the AST, so parse the formatted string.
+                static const QString magicMacroPrefix = "### macro `";
+                if (markupString.startsWith(magicMacroPrefix)) {
+                    const int nameStart = magicMacroPrefix.length();
+                    const int closingQuoteIndex = markupString.indexOf('`', nameStart);
+                    if (closingQuoteIndex != -1) {
+                        const QString macroName = markupString.mid(nameStart,
+                                                                   closingQuoteIndex - nameStart);
+                        d->setHelpItemForTooltip(hoverResponse.id(), macroName, HelpItem::Macro);
+                        return;
+                    }
                 }
-            }
 
-            // Is it the file path for an include directive?
-            QString cleanString = markupString;
-            cleanString.remove('`');
-            const QStringList lines = cleanString.trimmed().split('\n');
-            if (!lines.isEmpty()) {
-                const auto filePath = Utils::FilePath::fromUserInput(lines.last().simplified());
-                if (filePath.exists()) {
-                    d->setHelpItemForTooltip(hoverResponse.id(), filePath.fileName(),
-                                             HelpItem::Brief);
-                    return;
+                // Is it the file path for an include directive?
+                QString cleanString = markupString;
+                cleanString.remove('`');
+                const QStringList lines = cleanString.trimmed().split('\n');
+                if (!lines.isEmpty()) {
+                    const auto filePath = Utils::FilePath::fromUserInput(lines.last().simplified());
+                    if (filePath.exists()) {
+                        d->setHelpItemForTooltip(hoverResponse.id(),
+                                                 filePath.fileName(),
+                                                 HelpItem::Brief);
+                        return;
+                    }
                 }
             }
         }
@@ -2382,7 +2385,11 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
     QTC_ASSERT(doc, return);
     const auto astHandler = [this, uri, hoverResponse](const AstNode &ast, const MessageId &) {
         const MessageId id = hoverResponse.id();
-        const Range range = hoverResponse.result()->range().value_or(Range());
+        Range range;
+        if (const Utils::optional<HoverResult> result = hoverResponse.result()) {
+            if (auto hover = Utils::get_if<Hover>(&(*result)))
+                range = hover->range().value_or(Range());
+        }
         const QList<AstNode> path = getAstPath(ast, range);
         if (path.isEmpty()) {
             d->setHelpItemForTooltip(id);

@@ -403,4 +403,19 @@ Utils::optional<QJsonValue> CodeLens::data() const
     return contains(dataKey) ? Utils::make_optional(value(dataKey)) : Utils::nullopt;
 }
 
+HoverResult::HoverResult(const QJsonValue &value)
+{
+    if (value.isObject())
+        emplace<Hover>(Hover(value.toObject()));
+    else
+        emplace<std::nullptr_t>(nullptr);
+}
+
+bool HoverResult::isValid() const
+{
+    if (auto hover = Utils::get_if<Hover>(this))
+        return hover->isValid();
+    return true;
+}
+
 } // namespace LanguageServerProtocol

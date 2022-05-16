@@ -101,8 +101,17 @@ public:
     bool isValid() const override { return contains(contentsKey); }
 };
 
+class LANGUAGESERVERPROTOCOL_EXPORT HoverResult : public Utils::variant<Hover, std::nullptr_t>
+{
+public:
+    HoverResult() : variant(nullptr) {}
+    explicit HoverResult(const Hover &hover) : variant(hover) {}
+    explicit HoverResult(const QJsonValue &value);
+    bool isValid() const;
+};
+
 class LANGUAGESERVERPROTOCOL_EXPORT HoverRequest
-    : public Request<Hover, std::nullptr_t, TextDocumentPositionParams>
+    : public Request<HoverResult, std::nullptr_t, TextDocumentPositionParams>
 {
 public:
     explicit HoverRequest(const TextDocumentPositionParams &params);
