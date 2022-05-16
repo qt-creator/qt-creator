@@ -33,8 +33,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
-#include <ssh/sshconnection.h>
-#include <ssh/sshsettings.h>
 #include <utils/algorithm.h>
 #include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
@@ -193,22 +191,6 @@ Utils::Id RsyncDeployStep::stepId()
 QString RsyncDeployStep::displayName()
 {
     return tr("Deploy files via rsync");
-}
-
-QString RsyncDeployStep::defaultFlags()
-{
-    return QString("-av");
-}
-
-RsyncCommandLine RsyncDeployStep::rsyncCommand(const SshConnection &sshConnection,
-                                               const QString &flags)
-{
-    const QString sshCmdLine = ProcessArgs::joinArgs(
-                QStringList{SshSettings::sshFilePath().toUserOutput()}
-                << sshConnection.connectionOptions(SshSettings::sshFilePath()), OsTypeLinux);
-    const SshConnectionParameters sshParams = sshConnection.connectionParameters();
-    return RsyncCommandLine(QStringList{"-e", sshCmdLine, flags},
-                            sshParams.userName() + '@' + sshParams.host());
 }
 
 } //namespace RemoteLinux

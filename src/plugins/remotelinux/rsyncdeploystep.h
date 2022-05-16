@@ -28,17 +28,7 @@
 #include "abstractremotelinuxdeploystep.h"
 #include "remotelinux_export.h"
 
-namespace QSsh { class SshConnection; }
-
 namespace RemoteLinux {
-
-class RsyncCommandLine
-{
-public:
-    RsyncCommandLine(const QStringList &o, const QString &h) : options(o), remoteHostSpec(h) {}
-    const QStringList options;
-    const QString remoteHostSpec;
-};
 
 class REMOTELINUX_EXPORT RsyncDeployStep : public AbstractRemoteLinuxDeployStep
 {
@@ -50,10 +40,6 @@ public:
 
     static Utils::Id stepId();
     static QString displayName();
-
-    static QString defaultFlags();
-    static RsyncCommandLine rsyncCommand(const QSsh::SshConnection &sshConnection,
-                                         const QString &flags);
 };
 
 } // namespace RemoteLinux
