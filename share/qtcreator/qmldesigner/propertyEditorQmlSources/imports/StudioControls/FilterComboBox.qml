@@ -113,8 +113,6 @@ Item {
                 myTimer.stop()
                 root.dirty = false
                 root.editText = root.editText.trim()
-                //root.compressedActivated(root.find(root.editText),
-                //                         ComboBox.ActivatedReason.EditingFinished)
             }
 
             root.finishEditing()

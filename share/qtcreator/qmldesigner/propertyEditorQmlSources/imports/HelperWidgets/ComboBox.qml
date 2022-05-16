@@ -92,7 +92,6 @@ StudioControls.ComboBox {
         onValueFromBackendChanged: colorLogic.invalidate()
 
         function invalidate() {
-
             if (comboBox.block)
                 return
 
@@ -138,6 +137,21 @@ StudioControls.ComboBox {
 
             comboBox.block = false
         }
+    }
+
+    onAccepted: {
+        if (!comboBox.__isCompleted)
+            return
+
+        let inputValue = comboBox.editText
+
+        let index = comboBox.find(inputValue)
+        if (index !== -1)
+            inputValue = comboBox.textAt(index)
+
+        comboBox.backendValue.value = inputValue
+
+        comboBox.dirty = false
     }
 
     onCompressedActivated: {

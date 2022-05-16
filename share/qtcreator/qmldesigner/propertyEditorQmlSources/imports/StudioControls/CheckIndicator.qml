@@ -51,15 +51,15 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         onClicked: {
+            if (myControl.activeFocus)
+                myControl.focus = false
+
             if (myPopup.opened) {
                 myPopup.close()
             } else {
                 myPopup.open()
                 myPopup.forceActiveFocus()
             }
-
-            if (myControl.activeFocus)
-                myControl.focus = false
         }
     }
 

@@ -73,13 +73,13 @@ TextInput {
         acceptedButtons: Qt.LeftButton
         cursorShape: Qt.PointingHandCursor
         onPressed: function(mouse) {
-            if (textInput.readOnly) {
+            if (!textInput.myControl.editable) {
                 if (myControl.popup.opened) {
                     myControl.popup.close()
                     myControl.focus = false
                 } else {
-                    myControl.forceActiveFocus()
                     myControl.popup.open()
+                    myControl.forceActiveFocus()
                 }
             } else {
                 textInput.forceActiveFocus()
