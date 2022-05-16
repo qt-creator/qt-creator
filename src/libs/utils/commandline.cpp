@@ -658,6 +658,8 @@ bool ProcessArgs::prepareCommand(const CommandLine &cmdLine, QString *outCmd, Pr
     const QString arguments = cmdLine.arguments();
     if (env && executable.isRelativePath())
         executable = env->searchInPath(executable.toString());
+    if (executable.isEmpty())
+        return false;
     ProcessArgs::SplitError err;
     *outArgs = ProcessArgs::prepareArgs(arguments, &err, executable.osType(), env, pwd);
     if (err == ProcessArgs::SplitOk) {

@@ -25,15 +25,15 @@
 
 #include "linuxdevicetester.h"
 
+#include "filetransfer.h"
 #include "remotelinux_constants.h"
-#include "rsyncdeploystep.h"
 
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
-#include <ssh/sftptransfer.h>
 #include <ssh/sshconnection.h>
 #include <ssh/sshconnectionmanager.h>
 #include <utils/algorithm.h>
 #include <utils/port.h>
+#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -56,8 +56,7 @@ public:
     SshConnection *connection = nullptr;
     QtcProcess unameProcess;
     DeviceUsedPortsGatherer portsGatherer;
-    SftpTransferPtr sftpTransfer;
-    QtcProcess rsyncProcess;
+    FileTransfer fileTransfer;
     State state = Inactive;
     bool sftpWorks = false;
 };
@@ -75,9 +74,8 @@ GenericLinuxDeviceTester::GenericLinuxDeviceTester(QObject *parent)
             this, &GenericLinuxDeviceTester::handlePortsGathererError);
     connect(&d->portsGatherer, &DeviceUsedPortsGatherer::portListReady,
             this, &GenericLinuxDeviceTester::handlePortsGathererDone);
-    connect(&d->rsyncProcess, &QtcProcess::done, this,
-            &GenericLinuxDeviceTester::handleRsyncDone);
-    SshConnectionParameters::setupSshEnvironment(&d->rsyncProcess);
+    connect(&d->fileTransfer, &FileTransfer::done,
+            this, &GenericLinuxDeviceTester::handleFileTransferDone);
 }
 
 GenericLinuxDeviceTester::~GenericLinuxDeviceTester()
@@ -91,6 +89,7 @@ void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguratio
     QTC_ASSERT(d->state == Inactive, return);
 
     d->device = deviceConfiguration;
+    d->fileTransfer.setDevice(d->device);
     SshConnectionManager::forceNewConnection(deviceConfiguration->sshParameters());
     d->connection = SshConnectionManager::acquireConnection(deviceConfiguration->sshParameters());
     connect(d->connection, &SshConnection::connected,
@@ -118,10 +117,8 @@ void GenericLinuxDeviceTester::stopTest()
         d->unameProcess.close();
         break;
     case TestingSftp:
-        d->sftpTransfer->stop();
-        break;
     case TestingRsync:
-        d->rsyncProcess.close();
+        d->fileTransfer.stop();
         break;
     case Inactive:
         break;
@@ -203,88 +200,65 @@ void GenericLinuxDeviceTester::handlePortsGathererDone()
             .arg(portList) + QLatin1Char('\n'));
     }
 
-    testSftp();
+    testFileTransfer(FileTransferMethod::Sftp);
 }
 
-void GenericLinuxDeviceTester::testSftp()
+void GenericLinuxDeviceTester::testFileTransfer(FileTransferMethod method)
 {
-    d->state = TestingSftp;
-    emit progressMessage(tr("Checking whether an SFTP connection can be set up..."));
-
-    d->sftpTransfer = d->connection->createDownload(FilesToTransfer());
-    connect(d->sftpTransfer.get(), &SftpTransfer::done,
-            this, &GenericLinuxDeviceTester::handleSftpDone);
-    d->sftpTransfer->start();
-}
-
-void GenericLinuxDeviceTester::handleSftpDone(const QString &error)
-{
-    QTC_ASSERT(d->state == TestingSftp, return);
-
-    if (error.isEmpty()) {
-        d->sftpWorks = true;
-        emit progressMessage(tr("SFTP service available.\n"));
-    } else {
-        d->sftpWorks = false;
-        emit errorMessage(tr("Error setting up SFTP connection: %1\n").arg(error));
+    switch (method) {
+    case FileTransferMethod::Sftp:  d->state = TestingSftp;  break;
+    case FileTransferMethod::Rsync: d->state = TestingRsync; break;
     }
-    disconnect(d->sftpTransfer.get(), nullptr, this, nullptr);
+    emit progressMessage(tr("Checking whether \"%1\" works...")
+                         .arg(FileTransfer::transferMethodName(method)));
 
-    testRsync();
+    d->fileTransfer.setTransferMethod(method);
+    d->fileTransfer.test();
 }
 
-void GenericLinuxDeviceTester::testRsync()
+void GenericLinuxDeviceTester::handleFileTransferDone(const ProcessResultData &resultData)
 {
-    d->state = TestingRsync;
-    emit progressMessage(tr("Checking whether rsync works..."));
+    QTC_ASSERT(d->state == TestingSftp || d->state == TestingRsync, return);
 
-    const RsyncCommandLine cmdLine = RsyncDeployStep::rsyncCommand(*d->connection,
-                                                                   RsyncDeployStep::defaultFlags());
-    const QStringList args = QStringList(cmdLine.options)
-            << "-n" << "--exclude=*" << (cmdLine.remoteHostSpec + ":/tmp");
-    d->rsyncProcess.setCommand(CommandLine("rsync", args));
-    d->rsyncProcess.start();
-}
-
-void GenericLinuxDeviceTester::handleRsyncDone()
-{
-    QTC_ASSERT(d->state == TestingRsync, return);
-
+    bool succeeded = false;
     QString error;
-    if (d->rsyncProcess.error() == QProcess::FailedToStart) {
-        error = tr("Failed to start rsync: %1\n").arg(d->rsyncProcess.errorString());
-    } else if (d->rsyncProcess.exitStatus() == QProcess::CrashExit) {
-        error = tr("rsync crashed.\n");
-    } else if (d->rsyncProcess.exitCode() != 0) {
-        error = tr("rsync failed with exit code %1: %2\n")
-                .arg(d->rsyncProcess.exitCode())
-                .arg(QString::fromLocal8Bit(d->rsyncProcess.readAllStandardError()));
-    }
-    TestResult result = TestSuccess;
-    if (!error.isEmpty()) {
-        emit errorMessage(error);
-        if (d->sftpWorks) {
-            emit progressMessage(tr("SFTP will be used for deployment, because rsync "
-                                    "is not available.\n"));
-        } else {
-            emit errorMessage(tr("Deployment to this device will not work out of the box.\n"));
-            result = TestFailure;
-        }
+    const QString methodName = FileTransfer::transferMethodName(d->fileTransfer.transferMethod());
+    if (resultData.m_error == QProcess::FailedToStart) {
+        error = tr("Failed to start \"%1\": %2\n").arg(methodName, resultData.m_errorString);
+    } else if (resultData.m_exitStatus == QProcess::CrashExit) {
+        error = tr("\"%1\" crashed.\n").arg(methodName);
+    } else if (resultData.m_exitCode != 0) {
+        error = tr("\"%1\" failed with exit code %2: %3\n")
+                .arg(methodName).arg(resultData.m_exitCode).arg(resultData.m_errorString);
     } else {
-        emit progressMessage(tr("rsync is functional.\n"));
+        succeeded = true;
     }
 
-    d->device->setExtraData(Constants::SupportsRSync, error.isEmpty());
-    setFinished(result);
+    if (succeeded)
+        emit progressMessage(tr("\"%1\" is functional.\n").arg(methodName));
+    else
+        emit errorMessage(error);
+
+    if (d->state == TestingSftp) {
+        d->sftpWorks = succeeded;
+        testFileTransfer(FileTransferMethod::Rsync);
+    } else {
+        if (!succeeded) {
+            if (d->sftpWorks) {
+                emit progressMessage(tr("SFTP will be used for deployment, because rsync "
+                                        "is not available.\n"));
+            } else {
+                emit errorMessage(tr("Deployment to this device will not work out of the box.\n"));
+            }
+        }
+        d->device->setExtraData(Constants::SupportsRSync, succeeded);
+        setFinished(d->sftpWorks || succeeded ? TestSuccess : TestFailure);
+    }
 }
 
 void GenericLinuxDeviceTester::setFinished(TestResult result)
 {
     d->state = Inactive;
-    if (d->sftpTransfer) {
-        disconnect(d->sftpTransfer.get(), nullptr, this, nullptr);
-        d->sftpTransfer.release()->deleteLater();
-    }
     if (d->connection) {
         disconnect(d->connection, nullptr, this, nullptr);
         SshConnectionManager::releaseConnection(d->connection);
