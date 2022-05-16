@@ -657,6 +657,8 @@ jobs:
         name: ${{ steps.ccache.outputs.archive_name }}
 
   release:
+    permissions:
+      contents: write  # for actions/create-release to create a release
     if: contains(github.ref, 'tags/v')
     runs-on: ubuntu-latest
     needs: build
@@ -683,6 +685,8 @@ jobs:
         name: upload_url
 
   publish:
+    permissions:
+      contents: write  # for actions/upload-release-asset to upload release asset
     if: contains(github.ref, 'tags/v')
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
