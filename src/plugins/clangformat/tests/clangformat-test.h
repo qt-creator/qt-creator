@@ -90,10 +90,10 @@ private slots:
     void testIndentAfterFunctionBodyAndNotFormatBefore();
     void testReformatToEmptyFunction();
     void testReformatToNonEmptyFunction();
-    void testIndentClosingScopeAndFormatBeforeIt();
+    void testFormatClosingScope();
     void testDoNotFormatAfterTheFirstColon();
     void testOnlyIndentIncompleteStatementOnElectricalCharacter();
-    void testIndentAndFormatCompleteStatementOnSemicolon();
+    void testFormatCompleteStatementOnSemicolon();
     void testIndentAndFormatCompleteStatementOnClosingScope();
     void testOnlyIndentClosingParenthesis();
     void testEquallyIndentInsideParenthesis();

@@ -471,7 +471,7 @@ void ClangFormatTest::testIndentAfterFunctionBodyAndNotFormatBefore()
 void ClangFormatTest::testReformatToEmptyFunction()
 {
     insertLines({"int foo(int a, int b, int c, int d)", "{", "    ", "}"});
-    m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(3), '}', TextEditor::TabSettings());
+    m_extendedIndenter->format({{1, 4}});
     QCOMPARE(documentLines(), (std::vector<QString>{"int foo(int a, int b, int c, int d) {}"}));
 }
 
@@ -483,10 +483,10 @@ void ClangFormatTest::testReformatToNonEmptyFunction()
     QCOMPARE(documentLines(), (std::vector<QString>{"int foo(int a, int b) {", "    ", "}"}));
 }
 
-void ClangFormatTest::testIndentClosingScopeAndFormatBeforeIt()
+void ClangFormatTest::testFormatClosingScope()
 {
     insertLines({"if(a && b", "   &&c && d", "   ) {", "", "}"});
-    m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(4), '}', TextEditor::TabSettings());
+    m_extendedIndenter->format({{1, 5}});
     QCOMPARE(documentLines(), (std::vector<QString>{"if (a && b && c && d) {", "}"}));
 }
 
@@ -504,17 +504,17 @@ void ClangFormatTest::testOnlyIndentIncompleteStatementOnElectricalCharacter()
     QCOMPARE(documentLines(), (std::vector<QString>{"{bar();", "    foo()", "}"}));
 }
 
-void ClangFormatTest::testIndentAndFormatCompleteStatementOnSemicolon()
+void ClangFormatTest::testFormatCompleteStatementOnSemicolon()
 {
     insertLines({"{bar();", "foo();", "}"});
-    m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(1), ';', TextEditor::TabSettings(), 14);
+    m_extendedIndenter->format({{1, 3}});
     QCOMPARE(documentLines(), (std::vector<QString>{"{", "    bar();", "    foo();", "}"}));
 }
 
 void ClangFormatTest::testIndentAndFormatCompleteStatementOnClosingScope()
 {
     insertLines({"{bar();", "foo();", "}"});
-    m_extendedIndenter->indentBlock(m_doc->findBlockByNumber(1), '}', TextEditor::TabSettings(), 16);
+    m_extendedIndenter->format({{1, 3}});
     QCOMPARE(documentLines(), (std::vector<QString>{"{", "    bar();", "    foo();", "}"}));
 }
 
