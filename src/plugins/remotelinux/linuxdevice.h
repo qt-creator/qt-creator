@@ -92,6 +92,7 @@ protected:
 
     class LinuxDevicePrivate *d;
     friend class SshProcessInterface;
+    friend class FileTransferInterface;
 };
 
 namespace Internal {

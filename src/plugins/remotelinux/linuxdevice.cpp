@@ -1480,14 +1480,37 @@ class FileTransferInterface : public QObject
 {
     Q_OBJECT
 public:
-    void setDevice(const ProjectExplorer::IDeviceConstPtr &device) { m_device = device; }
+    void setDevice(const ProjectExplorer::IDeviceConstPtr &device)
+    {
+        m_device = device;
+        if (m_device) {
+            const LinuxDevice *linuxDevice = m_device.dynamicCast<const LinuxDevice>().get();
+            QTC_ASSERT(linuxDevice, return);
+            m_devicePrivate = linuxDevice->d;
+        }
+    }
     void setFilesToTransfer(const FilesToTransfer &files, TransferDirection direction)
     {
         m_files = files;
         m_direction = direction;
     }
 
-    void start() { startImpl(); }
+    void start()
+    {
+        m_sshParameters = displayless(m_devicePrivate->q->sshParameters());
+        if (SshSettings::connectionSharingEnabled()) {
+            m_connecting = true;
+            m_connectionHandle.reset(new SshConnectionHandle(m_device->sharedFromThis()));
+            m_connectionHandle->setParent(this);
+            connect(m_connectionHandle.get(), &SshConnectionHandle::connected,
+                    this, &FileTransferInterface::handleConnected);
+            connect(m_connectionHandle.get(), &SshConnectionHandle::disconnected,
+                    this, &FileTransferInterface::handleDisconnected);
+            m_devicePrivate->attachToSharedConnection(m_connectionHandle.get(), m_sshParameters);
+        } else {
+            startImpl();
+        }
+    }
 
 signals:
     void progress(const QString &progressMessage);
@@ -1534,15 +1557,55 @@ protected:
             emit done(m_process.resultData());
     }
 
-    FileTransferMethod m_method = FileTransferMethod::Default;
-    IDevice::ConstPtr m_device;
+    QStringList fullConnectionOptions() const
+    {
+        QStringList options = m_sshParameters.connectionOptions(SshSettings::sshFilePath());
+        if (!m_socketFilePath.isEmpty())
+            options << "-o" << ("ControlPath=" + m_socketFilePath);
+        return options;
+    }
+
+    QString host() const { return m_sshParameters.host(); }
+    QString userAtHost() const { return m_sshParameters.userName() + '@' + m_sshParameters.host(); }
+
+    QtcProcess &process() { return m_process; }
+
     FilesToTransfer m_files;
-    QtcProcess m_process;
     TransferDirection m_direction = TransferDirection::Invalid;
 
 private:
     virtual void startImpl() = 0;
     virtual void doneImpl() = 0;
+
+    void handleConnected(const QString &socketFilePath)
+    {
+        m_connecting = false;
+        m_socketFilePath = socketFilePath;
+        startImpl();
+    }
+
+    void handleDisconnected(const ProcessResultData &result)
+    {
+        ProcessResultData resultData = result;
+        if (m_connecting)
+            resultData.m_error = QProcess::FailedToStart;
+
+        m_connecting = false;
+        if (m_connectionHandle) // TODO: should it disconnect from signals first?
+            m_connectionHandle.release()->deleteLater();
+
+        if (resultData.m_error != QProcess::UnknownError || m_process.state() != QProcess::NotRunning)
+            emit done(resultData); // TODO: don't emit done() on process finished afterwards
+    }
+
+    FileTransferMethod m_method = FileTransferMethod::Default;
+    IDevice::ConstPtr m_device;
+    LinuxDevicePrivate *m_devicePrivate = nullptr;
+    std::unique_ptr<SshConnectionHandle> m_connectionHandle;
+    QtcProcess m_process;
+    QString m_socketFilePath;
+    SshParameters m_sshParameters;
+    bool m_connecting = false;
 };
 
 class SftpTransferImpl : public FileTransferInterface
@@ -1551,7 +1614,7 @@ public:
     SftpTransferImpl() : FileTransferInterface(FileTransferMethod::Sftp) { }
 
 private:
-    void startImpl()
+    void startImpl() final
     {
         const FilePath sftpBinary = SshSettings::sftpFilePath();
         if (!sftpBinary.exists()) {
@@ -1597,13 +1660,9 @@ private:
                  + ProcessArgs::quoteArgUnix(file.m_target.path()).toLocal8Bit() + '\n');
         }
         m_batchFile->close();
-        m_process.setStandardInputFile(m_batchFile->fileName());
-
-        // TODO: Add support for shared ssh connection
-        const SshParameters params = displayless(m_device->sshParameters());
-        m_process.setCommand(CommandLine(sftpBinary,
-                                         params.connectionOptions(sftpBinary) << params.host()));
-        m_process.start();
+        process().setStandardInputFile(m_batchFile->fileName());
+        process().setCommand(CommandLine(sftpBinary, fullConnectionOptions() << host()));
+        process().start();
     }
 
     void doneImpl() final { handleDone(); }
@@ -1620,13 +1679,13 @@ public:
     { }
 
 private:
-    void startImpl()
+    void startImpl() final
     {
         m_currentIndex = 0;
         startNextFile();
     }
 
-    void doneImpl()
+    void doneImpl() final
     {
         if (m_files.size() == 0 || m_currentIndex == m_files.size() - 1)
             return handleDone();
@@ -1640,30 +1699,25 @@ private:
 
     void startNextFile()
     {
-        m_process.close();
+        process().close();
 
-        const SshParameters parameters = displayless(m_device->sshParameters());
-        const QStringList connectionOptions // TODO: add shared connection here
-                = parameters.connectionOptions(SshSettings::sshFilePath());
         const QString sshCmdLine = ProcessArgs::joinArgs(
-                    QStringList{SshSettings::sshFilePath().toUserOutput()} << connectionOptions,
-                    OsTypeLinux);
-        const QStringList options{"-e", sshCmdLine, m_flags};
-        const QString remoteHost = parameters.userName() + '@' + parameters.host();
+                    QStringList{SshSettings::sshFilePath().toUserOutput()}
+                    << fullConnectionOptions(), OsTypeLinux);
+        QStringList options{"-e", sshCmdLine, m_flags};
 
-        QStringList args = QStringList(options);
         if (!m_files.isEmpty()) { // NormalRun
             const FileToTransfer file = m_files.at(m_currentIndex);
             const FileToTransfer fixedFile = fixLocalFileOnWindows(file, options);
-            const auto fixedPaths = fixPaths(fixedFile, remoteHost);
+            const auto fixedPaths = fixPaths(fixedFile, userAtHost());
 
-            args << fixedPaths.first << fixedPaths.second;
+            options << fixedPaths.first << fixedPaths.second;
         } else { // TestRun
-            args << "-n" << "--exclude=*" << (remoteHost + ":/tmp");
+            options << "-n" << "--exclude=*" << (userAtHost() + ":/tmp");
         }
         // TODO: Get rsync location from settings?
-        m_process.setCommand(CommandLine("rsync", args));
-        m_process.start();
+        process().setCommand(CommandLine("rsync", options));
+        process().start();
     }
 
     // On Windows, rsync is either from msys or cygwin. Neither work with the other's ssh.exe.
