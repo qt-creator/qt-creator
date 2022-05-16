@@ -159,8 +159,7 @@ void FileSearch::operator()(QFutureInterface<FileSearchResultList> &futureInterf
     while (!stream.atEnd()) {
         ++lineNr;
         const QString chunk = stream.readLine();
-        const QString resultItemText = clippedText(chunk, MAX_LINE_SIZE);
-        int chunkLength = chunk.length();
+        const int chunkLength = chunk.length();
         const QChar *chunkPtr = chunk.constData();
         const QChar *chunkEnd = chunkPtr + chunkLength - 1;
         for (const QChar *regionPtr = chunkPtr; regionPtr + termMaxIndex <= chunkEnd; ++regionPtr) {
@@ -207,12 +206,17 @@ void FileSearch::operator()(QFutureInterface<FileSearchResultList> &futureInterf
                                && *regionCursor != termDataUpper[regionIndex])
                               ) {
                             equal = false;
+                            break;
                         }
                     }
                 }
                 if (equal) {
-                    results << FileSearchResult(item.filePath, lineNr, resultItemText,
-                                                regionPtr - chunkPtr, termMaxIndex + 1,
+                    const QString resultItemText = clippedText(chunk, MAX_LINE_SIZE);
+                    results << FileSearchResult(item.filePath,
+                                                lineNr,
+                                                resultItemText,
+                                                regionPtr - chunkPtr,
+                                                termMaxIndex + 1,
                                                 QStringList());
                     regionPtr += termMaxIndex; // another +1 done by for-loop
                 }
