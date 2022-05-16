@@ -145,9 +145,6 @@ void addModuleExportedImports(Storage::ModuleExportedImports &imports,
                               ProjectStorageInterface &projectStorage)
 {
     for (const QmlDirParser::Import &qmldirImport : qmldirImports) {
-        if (qmldirImport.flags & QmlDirParser::Import::Flag::Optional)
-            continue;
-
         ModuleId exportedModuleId = projectStorage.moduleId(Utils::PathString{qmldirImport.module});
         imports.emplace_back(moduleId,
                              exportedModuleId,

@@ -1258,4 +1258,46 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmldirImportsWithDoubleEntries)
     updater.update(qmlDirs, {});
 }
 
+TEST_F(ProjectStorageUpdater, SynchronizeQmldirOptionalImports)
+{
+    QString qmldir{R"(module Example
+                      import Qml auto
+                      import QML 2.1
+                      optional import Quick
+                      )"};
+    ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/qmldir")))).WillByDefault(Return(qmldir));
+
+    EXPECT_CALL(projectStorageMock,
+                synchronize(
+                    AllOf(Field(&SynchronizationPackage::moduleExportedImports,
+                                UnorderedElementsAre(ModuleExportedImport{exampleModuleId,
+                                                                          qmlModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::Yes},
+                                                     ModuleExportedImport{exampleCppNativeModuleId,
+                                                                          qmlCppNativeModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::No},
+                                                     ModuleExportedImport{exampleModuleId,
+                                                                          builtinModuleId,
+                                                                          Storage::Version{2, 1},
+                                                                          IsAutoVersion::No},
+                                                     ModuleExportedImport{exampleCppNativeModuleId,
+                                                                          builtinCppNativeModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::No},
+                                                     ModuleExportedImport{exampleModuleId,
+                                                                          quickModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::No},
+                                                     ModuleExportedImport{exampleCppNativeModuleId,
+                                                                          quickCppNativeModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::No})),
+                          Field(&SynchronizationPackage::updatedModuleIds,
+                                ElementsAre(exampleModuleId)))));
+
+    updater.update(qmlDirs, {});
+}
+
 } // namespace
