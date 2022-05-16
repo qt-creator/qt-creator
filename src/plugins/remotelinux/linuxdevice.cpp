@@ -1529,7 +1529,7 @@ protected:
     IDevice::ConstPtr m_device;
     FilesToTransfer m_files;
     QtcProcess m_process;
-    TransferDirection m_direction;
+    TransferDirection m_direction = TransferDirection::Invalid;
 
 private:
     virtual void startImpl() = 0;
@@ -1619,7 +1619,7 @@ private:
 
     void doneImpl()
     {
-        if (m_currentIndex == m_files.count() - 1)
+        if (m_files.size() == 0 || m_currentIndex == m_files.size() - 1)
             return handleDone();
 
         if (handleError())
@@ -1642,11 +1642,16 @@ private:
         const QStringList options{"-e", sshCmdLine, m_flags};
         const QString remoteHost = parameters.userName() + '@' + parameters.host();
 
-        const FileToTransfer file = m_files.at(m_currentIndex);
-        const FileToTransfer fixedFile = fixLocalFileOnWindows(file, options);
-        const auto fixedPaths = fixPaths(fixedFile, remoteHost);
+        QStringList args = QStringList(options);
+        if (!m_files.isEmpty()) { // NormalRun
+            const FileToTransfer file = m_files.at(m_currentIndex);
+            const FileToTransfer fixedFile = fixLocalFileOnWindows(file, options);
+            const auto fixedPaths = fixPaths(fixedFile, remoteHost);
 
-        const QStringList args = QStringList(options) << fixedPaths.first << fixedPaths.second;
+            args << fixedPaths.first << fixedPaths.second;
+        } else { // TestRun
+            args << "-n" << "--exclude=*" << (remoteHost + ":/tmp");
+        }
         // TODO: Get rsync location from settings?
         m_process.setCommand(CommandLine("rsync", args));
         m_process.start();
@@ -1705,15 +1710,22 @@ public:
     void setFilesToTransfer(const FilesToTransfer &files) { m_files = files; }
     void setRsyncFlags(const QString &flags) { m_rsyncFlags = flags; }
 
-    void start();
-    void stop();
+    void test() { run(TestRun); }
+    void start() { run(NormalRun); }
+    void stop() { m_transfer.reset(); }
 
 signals:
     void progress(const QString &progressMessage);
     void done(const Utils::ProcessResultData &resultData);
 
 private:
+    enum RunMode {
+        NormalRun,
+        TestRun
+    };
+
     void startFailed(const QString &errorString);
+    void run(RunMode mode);
 
     FileTransferMethod m_method = FileTransferMethod::Default;
     IDevice::ConstPtr m_device;
@@ -1723,19 +1735,22 @@ private:
     std::unique_ptr<FileTransferInterface> m_transfer;
 };
 
-void FileTransferPrivate::start()
+void FileTransferPrivate::run(RunMode mode)
 {
     stop();
 
-    if (m_files.isEmpty())
-        return startFailed(tr("No files to transfer."));
+    TransferDirection direction = TransferDirection::Invalid;
+    if (mode == NormalRun) {
+        if (m_files.isEmpty())
+            return startFailed(tr("No files to transfer."));
 
-    const TransferDirection direction = transferDirection(m_files);
-    if (direction == TransferDirection::Invalid)
-        return startFailed(tr("Mixing different types on transfer in one go."));
+        direction = transferDirection(m_files);
+        if (direction == TransferDirection::Invalid)
+            return startFailed(tr("Mixing different types on transfer in one go."));
 
-    if (!isDeviceMatched(m_files, m_device->id().toString()))
-        return startFailed(tr("Trying to transfer into / from not matching device."));
+        if (!isDeviceMatched(m_files, m_device->id().toString()))
+            return startFailed(tr("Trying to transfer into / from not matching device."));
+    }
 
     switch (m_method) {
     case FileTransferMethod::Sftp:
@@ -1747,17 +1762,13 @@ void FileTransferPrivate::start()
     }
     QTC_ASSERT(m_transfer, startFailed(tr("Missing transfer implementation.")));
     m_transfer->setDevice(m_device);
-    m_transfer->setFilesToTransfer(m_files, direction);
+    if (mode == NormalRun)
+        m_transfer->setFilesToTransfer(m_files, direction);
     connect(m_transfer.get(), &FileTransferInterface::progress,
             this, &FileTransferPrivate::progress);
     connect(m_transfer.get(), &FileTransferInterface::done,
             this, &FileTransferPrivate::done);
     m_transfer->start();
-}
-
-void FileTransferPrivate::stop()
-{
-    m_transfer.reset();
 }
 
 void FileTransferPrivate::startFailed(const QString &errorString)
@@ -1797,6 +1808,11 @@ void FileTransfer::setFilesToTransfer(const FilesToTransfer &files)
 void FileTransfer::setRsyncFlags(const QString &flags)
 {
     d->setRsyncFlags(flags);
+}
+
+void FileTransfer::test()
+{
+    d->test();
 }
 
 void FileTransfer::start()

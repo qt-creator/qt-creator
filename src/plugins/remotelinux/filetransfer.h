@@ -71,6 +71,7 @@ public:
     void setFilesToTransfer(const FilesToTransfer &files);
     void setRsyncFlags(const QString &flags);
 
+    void test();
     void start();
     void stop();
 
