@@ -200,10 +200,7 @@ def substituteDefaultCompiler(settingsDir):
     if platform.system() == 'Darwin':
         compiler = "clang_64"
     elif platform.system() == 'Linux':
-        if __is64BitOS__():
-            compiler = "gcc_64"
-        else:
-            compiler = "gcc"
+        compiler = "gcc_64"
     else:
         test.warning("Called substituteDefaultCompiler() on wrong platform.",
                      "This is a script error.")
@@ -299,23 +296,12 @@ def __guessABI__(supportedABIs, use64Bit):
                'Given ABIs: %s' % str(supportedABIs))
     return ''
 
-def __is64BitOS__():
-    if platform.system() in ('Microsoft', 'Windows'):
-        machine = os.getenv("PROCESSOR_ARCHITEW6432", os.getenv("PROCESSOR_ARCHITECTURE"))
-    else:
-        machine = platform.machine()
-    if machine:
-        return '64' in machine
-    else:
-        return False
-
 def substituteUnchosenTargetABIs(settingsDir):
     class ReadState:
         NONE = 0
         READING = 1
         CLOSED = 2
 
-    on64Bit = __is64BitOS__()
     toolchains = os.path.join(settingsDir, "QtProject", 'qtcreator', 'toolchains.xml')
     origToolchains = toolchains + "_orig"
     os.rename(toolchains, origToolchains)
@@ -338,7 +324,7 @@ def substituteUnchosenTargetABIs(settingsDir):
                 supported = []
                 readState = ReadState.READING
             elif "SET_BY_SQUISH" in line:
-                line = line.replace("SET_BY_SQUISH", __guessABI__(supported, on64Bit))
+                line = line.replace("SET_BY_SQUISH", __guessABI__(supported, True))
         modifiedFile.write(line)
     origFile.close()
     modifiedFile.close()
