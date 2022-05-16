@@ -220,16 +220,17 @@ void ClangFormatConfigWidget::initIndentationOrFormattingCombobox()
 
     m_ui->indentingOrFormatting->show();
 
-    connect(m_ui->indentingOrFormatting, &QComboBox::currentIndexChanged, this, [](int index) {
-        ClangFormatSettings &settings = ClangFormatSettings::instance();
-        const bool isFormatting = index == formatIndex();
-        settings.setFormatCodeInsteadOfIndent(isFormatting);
+    connect(m_ui->indentingOrFormatting, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, [](int index) {
+                ClangFormatSettings &settings = ClangFormatSettings::instance();
+                const bool isFormatting = index == formatIndex();
+                settings.setFormatCodeInsteadOfIndent(isFormatting);
 
-        if (!isBeautifierOnSaveActivated())
-            settings.setFormatOnSave(isFormatting);
+                if (!isBeautifierOnSaveActivated())
+                    settings.setFormatOnSave(isFormatting);
 
-        settings.write();
-    });
+                settings.write();
+            });
 }
 
 static bool projectConfigExists()
