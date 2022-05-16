@@ -6729,78 +6729,87 @@ public:
         , m_insertPos(insertPos)
         , m_ast(ast)
         , m_name(name)
+        , m_oo(CppCodeStyleSettings::currentProjectCodeStyleOverview())
+        , m_originalName(m_oo.prettyName(m_name))
+        , m_file(CppRefactoringChanges(snapshot()).file(filePath()))
     {
         setDescription(QApplication::translate("CppEditor::QuickFix", "Assign to Local Variable"));
     }
 
+private:
     void perform() override
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr file = refactoring.file(filePath());
+        QString type = deduceType();
+        if (type.isEmpty())
+            return;
+        const int origNameLength = m_originalName.length();
+        const QString varName = constructVarName();
+        const QString insertString = type.replace(type.length() - origNameLength, origNameLength,
+                                                  varName + QLatin1String(" = "));
+        ChangeSet changes;
+        changes.insert(m_insertPos, insertString);
+        m_file->setChangeSet(changes);
+        m_file->apply();
 
-        // Determine return type and new variable name
-        TypeOfExpression typeOfExpression;
-        typeOfExpression.init(semanticInfo().doc, snapshot(),
-                              context().bindings());
-        typeOfExpression.setExpandTemplates(true);
-        Scope *scope = file->scopeAt(m_ast->firstToken());
-        const QList<LookupItem> result = typeOfExpression(file->textOf(m_ast).toUtf8(),
-                                                          scope, TypeOfExpression::Preprocess);
-
-        if (!result.isEmpty()) {
-            SubstitutionEnvironment env;
-            env.setContext(context());
-            env.switchScope(result.first().scope());
-            ClassOrNamespace *con = typeOfExpression.context().lookupType(scope);
-            if (!con)
-                con = typeOfExpression.context().globalNamespace();
-            UseMinimalNames q(con);
-            env.enter(&q);
-
-            Control *control = context().bindings()->control().data();
-            FullySpecifiedType type = rewriteType(result.first().type(), &env, control);
-
-            Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
-            QString originalName = oo.prettyName(m_name);
-            QString newName = originalName;
-            if (newName.startsWith(QLatin1String("get"), Qt::CaseInsensitive)
-                    && newName.length() > 3
-                    && newName.at(3).isUpper()) {
-                newName.remove(0, 3);
-                newName.replace(0, 1, newName.at(0).toLower());
-            } else if (newName.startsWith(QLatin1String("to"), Qt::CaseInsensitive)
-                       && newName.length() > 2
-                       && newName.at(2).isUpper()) {
-                newName.remove(0, 2);
-                newName.replace(0, 1, newName.at(0).toLower());
-            } else {
-                newName.replace(0, 1, newName.at(0).toUpper());
-                newName.prepend(QLatin1String("local"));
-            }
-
-            const int nameLength = originalName.length();
-            QString tempType = oo.prettyType(type, m_name);
-            const QString insertString = tempType.replace(
-                        tempType.length() - nameLength, nameLength, newName + QLatin1String(" = "));
-            if (!tempType.isEmpty()) {
-                ChangeSet changes;
-                changes.insert(m_insertPos, insertString);
-                file->setChangeSet(changes);
-                file->apply();
-
-                // move cursor to new variable name
-                QTextCursor c = file->cursor();
-                c.setPosition(m_insertPos + insertString.length() - newName.length() - 3);
-                c.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
-                editor()->setTextCursor(c);
-            }
-        }
+        // move cursor to new variable name
+        QTextCursor c = m_file->cursor();
+        c.setPosition(m_insertPos + insertString.length() - varName.length() - 3);
+        c.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+        editor()->setTextCursor(c);
     }
 
-private:
+    QString deduceType() const
+    {
+        TypeOfExpression typeOfExpression;
+        typeOfExpression.init(semanticInfo().doc, snapshot(), context().bindings());
+        typeOfExpression.setExpandTemplates(true);
+        Scope * const scope = m_file->scopeAt(m_ast->firstToken());
+        const QList<LookupItem> result = typeOfExpression(m_file->textOf(m_ast).toUtf8(),
+                                                          scope, TypeOfExpression::Preprocess);
+        if (result.isEmpty())
+            return {};
+
+        SubstitutionEnvironment env;
+        env.setContext(context());
+        env.switchScope(result.first().scope());
+        ClassOrNamespace *con = typeOfExpression.context().lookupType(scope);
+        if (!con)
+            con = typeOfExpression.context().globalNamespace();
+        UseMinimalNames q(con);
+        env.enter(&q);
+
+        Control *control = context().bindings()->control().data();
+        FullySpecifiedType type = rewriteType(result.first().type(), &env, control);
+
+        return m_oo.prettyType(type, m_name);
+    }
+
+    QString constructVarName() const
+    {
+        QString newName = m_originalName;
+        if (newName.startsWith(QLatin1String("get"), Qt::CaseInsensitive)
+                && newName.length() > 3
+                && newName.at(3).isUpper()) {
+            newName.remove(0, 3);
+            newName.replace(0, 1, newName.at(0).toLower());
+        } else if (newName.startsWith(QLatin1String("to"), Qt::CaseInsensitive)
+                   && newName.length() > 2
+                   && newName.at(2).isUpper()) {
+            newName.remove(0, 2);
+            newName.replace(0, 1, newName.at(0).toLower());
+        } else {
+            newName.replace(0, 1, newName.at(0).toUpper());
+            newName.prepend(QLatin1String("local"));
+        }
+        return newName;
+    }
+
     const int m_insertPos;
-    const AST *m_ast;
-    const Name *m_name;
+    const AST * const m_ast;
+    const Name * const m_name;
+    const Overview m_oo;
+    const QString m_originalName;
+    const CppRefactoringFilePtr m_file;
 };
 
 } // anonymous namespace
