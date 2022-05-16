@@ -48,6 +48,13 @@ public:
 
     void abort() override;
 
+    /// If prefer diagnostics is enabled the hover handler checks whether a diagnostics is at the
+    /// pos passed to identifyMatch _before_ sending hover request to the server. If a diagnostic
+    /// can be found it will be used as a tooltip and no hover request is sent to the server.
+    /// If prefer diagnostics is disabled the diagnostics are only checked if the response is empty.
+    /// Defaults to prefer diagnostics.
+    void setPreferDiagnosticts(bool prefer);
+
     void setHelpItemProvider(const HelpItemProvider &provider) { m_helpItemProvider = provider; }
     void setHelpItem(const LanguageServerProtocol::MessageId &msgId, const Core::HelpItem &help);
 
@@ -57,8 +64,10 @@ protected:
                        ReportPriority report) override;
 
 private:
-    void handleResponse(const LanguageServerProtocol::HoverRequest::Response &response);
+    void handleResponse(const LanguageServerProtocol::HoverRequest::Response &response,
+                        const QTextCursor &cursor);
     void setContent(const LanguageServerProtocol::HoverContent &content);
+    bool reportDiagnostics(const QTextCursor &cursor);
 
     QPointer<Client> m_client;
     Utils::optional<LanguageServerProtocol::MessageId> m_currentRequest;
@@ -66,6 +75,7 @@ private:
     LanguageServerProtocol::HoverRequest::Response m_response;
     TextEditor::BaseHoverHandler::ReportPriority m_report;
     HelpItemProvider m_helpItemProvider;
+    bool m_preferDiagnostics = true;
 };
 
 } // namespace LanguageClient

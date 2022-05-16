@@ -47,6 +47,7 @@ CocoLanguageClient::CocoLanguageClient(const FilePath &coco, const FilePath &csm
     : Client(clientInterface(coco, csmes))
 {
     setName("Coco");
+    hoverHandler()->setPreferDiagnosticts(false);
     setActivateDocumentAutomatically(false);
     LanguageFilter allFiles;
     allFiles.filePattern = QStringList{"*"};

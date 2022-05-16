@@ -54,6 +54,11 @@ void HoverHandler::abort()
     m_response = {};
 }
 
+void HoverHandler::setPreferDiagnosticts(bool prefer)
+{
+    m_preferDiagnostics = prefer;
+}
+
 void HoverHandler::setHelpItem(const LanguageServerProtocol::MessageId &msgId,
                                const Core::HelpItem &help)
 {
@@ -66,6 +71,18 @@ void HoverHandler::setHelpItem(const LanguageServerProtocol::MessageId &msgId,
         setLastHelpItemIdentified(help);
         m_report(priority());
     }
+}
+
+bool HoverHandler::reportDiagnostics(const QTextCursor &cursor)
+{
+    const QList<Diagnostic> &diagnostics = m_client->diagnosticsAt(m_uri, cursor);
+    if (diagnostics.isEmpty())
+        return false;
+
+    const QStringList messages = Utils::transform(diagnostics, &Diagnostic::message);
+    setToolTip(messages.join('\n'));
+    m_report(Priority_Diagnostic);
+    return true;
 }
 
 void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
@@ -81,15 +98,12 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
     }
     m_uri = DocumentUri::fromFilePath(editorWidget->textDocument()->filePath());
     m_response = {};
-    QTextCursor tc = editorWidget->textCursor();
-    tc.setPosition(pos);
-    const QList<Diagnostic> &diagnostics = m_client->diagnosticsAt(m_uri, tc);
-    if (!diagnostics.isEmpty()) {
-        const QStringList messages = Utils::transform(diagnostics, &Diagnostic::message);
-        setToolTip(messages.join('\n'));
-        report(Priority_Diagnostic);
+    m_report = report;
+
+    QTextCursor cursor = editorWidget->textCursor();
+    cursor.setPosition(pos);
+    if (m_preferDiagnostics && reportDiagnostics(cursor))
         return;
-    }
 
     const Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> &provider
         = m_client->capabilities().hoverProvider();
@@ -114,17 +128,15 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
         return;
     }
 
-    m_report = report;
-    QTextCursor cursor = editorWidget->textCursor();
-    cursor.setPosition(pos);
-    HoverRequest request((TextDocumentPositionParams(TextDocumentIdentifier(m_uri), Position(cursor))));
+    HoverRequest request{TextDocumentPositionParams(TextDocumentIdentifier(m_uri),
+                                                    Position(cursor))};
     m_currentRequest = request.id();
     request.setResponseCallback(
-        [this](const HoverRequest::Response &response) { handleResponse(response); });
+        [this, cursor](const HoverRequest::Response &response) { handleResponse(response, cursor); });
     m_client->sendMessage(request);
 }
 
-void HoverHandler::handleResponse(const HoverRequest::Response &response)
+void HoverHandler::handleResponse(const HoverRequest::Response &response, const QTextCursor &cursor)
 {
     m_currentRequest.reset();
     if (Utils::optional<HoverRequest::Response::Error> error = response.error()) {
@@ -139,6 +151,8 @@ void HoverHandler::handleResponse(const HoverRequest::Response &response)
                 return;
             }
             setContent(hover->content());
+        } else if (!m_preferDiagnostics && reportDiagnostics(cursor)) {
+            return;
         }
     }
     m_report(priority());
