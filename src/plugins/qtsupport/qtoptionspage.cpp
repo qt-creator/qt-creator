@@ -124,11 +124,12 @@ public:
             return m_icon;
 
         if (role == Qt::ToolTipRole) {
-            const QString row = "<tr><td>%1:</td><td>%2</td></tr>";
-            return QString("<table>"
+            const QString row = "<dt style=\"font-weight:bold\">%1:</dt>"
+                                "<dd>%2</dd>";
+            return QString("<dl style=\"white-space:pre\">"
                          + row.arg(tr("Qt Version"), m_version->qtVersionString())
                          + row.arg(tr("Location of qmake"), m_version->qmakeFilePath().toUserOutput())
-                         + "</table>");
+                         + "</dl>");
         }
 
         return QVariant();

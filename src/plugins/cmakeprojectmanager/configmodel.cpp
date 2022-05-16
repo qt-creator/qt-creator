@@ -687,7 +687,7 @@ QString ConfigModelTreeItem::toolTip() const
     if (!dataItem->description.isEmpty())
         tooltip << dataItem->description;
 
-    const QString pattern = "<p><b>%1</b> %2</p>";
+    const QString pattern = "<dt style=\"font-weight:bold\">%1</dt><dd>%2</dd>";
     if (dataItem->isInitial) {
         if (!dataItem->kitValue.isEmpty())
             tooltip << pattern.arg(ConfigModel::tr("Kit:")).arg(dataItem->kitValue);
@@ -708,7 +708,7 @@ QString ConfigModelTreeItem::toolTip() const
     }
     tooltip << pattern.arg(ConfigModel::tr("Type:")).arg(dataItem->typeDisplay());
 
-    return tooltip.join(QString());
+    return "<dl style=\"white-space:pre\">" + tooltip.join(QString()) + "</dl>";
 }
 
 QString ConfigModelTreeItem::currentValue() const

@@ -173,7 +173,8 @@ void ProxyAction::updateToolTipWithKeySequence()
 QString ProxyAction::stringWithAppendedShortcut(const QString &str, const QKeySequence &shortcut)
 {
     const QString s = stripAccelerator(str);
-    return QString::fromLatin1("%1 <span style=\"color: gray; font-size: small\">%2</span>")
+    return QString::fromLatin1("<div style=\"white-space:pre\">%1 "
+                               "<span style=\"color: gray; font-size: small\">%2</span></div>")
         .arg(s, shortcut.toString(QKeySequence::NativeText));
 }
 

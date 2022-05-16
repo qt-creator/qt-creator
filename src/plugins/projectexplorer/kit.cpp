@@ -608,7 +608,7 @@ QString Kit::toHtml(const Tasks &additional, const QString &extraText) const
     if (!isValid() || hasWarning() || !additional.isEmpty())
         str << "<p>" << ProjectExplorer::toHtml(additional + validate()) << "</p>";
 
-    str << "<table>";
+    str << "<dl style=\"white-space:pre\">";
     for (KitAspect *aspect : KitManager::kitAspects()) {
         const KitAspect::ItemList list = aspect->toUserOutput(this);
         for (const KitAspect::Item &j : list) {
@@ -620,10 +620,11 @@ QString Kit::toHtml(const Tasks &additional, const QString &extraText) const
                 contents = contents.mid(0, pos);
                 contents += "&lt;...&gt;";
             }
-            str << "<tr><td><b>" << j.first << ":</b></td><td>" << contents << "</td></tr>";
+            str << "<dt style=\"font-weight:bold\">" << j.first
+                << ":</dt><dd>" << contents << "</dd>";
         }
     }
-    str << "</table></body></html>";
+    str << "</dl></body></html>";
     return result;
 }
 
