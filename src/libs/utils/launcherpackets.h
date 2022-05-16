@@ -143,8 +143,9 @@ public:
     StopProcessPacket(quintptr token);
 
     enum class SignalType {
-        Kill,
-        Terminate
+        Kill, // Calls QProcess::kill
+        Terminate, // Calls QProcess::terminate
+        Close // Puts the process into the reaper, no confirmation signal is being sent.
     };
 
     SignalType signalType = SignalType::Kill;

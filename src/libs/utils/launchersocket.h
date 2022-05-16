@@ -89,6 +89,7 @@ public:
     void sendStopPacket(StopProcessPacket::SignalType signalType);
     void terminate();
     void kill();
+    void close();
 
     qint64 processId() const;
 
