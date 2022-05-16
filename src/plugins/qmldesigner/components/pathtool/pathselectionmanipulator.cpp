@@ -119,13 +119,13 @@ QList<ControlPoint> PathSelectionManipulator::allControlPoints()
 {
     QList<ControlPoint> controlPoints;
 
-    foreach (const SelectionPoint &selectionPoint, m_singleSelectedPoints)
+    for (const SelectionPoint &selectionPoint : qAsConst(m_singleSelectedPoints))
         controlPoints.append(selectionPoint.controlPoint);
 
-    foreach (const SelectionPoint &selectionPoint, m_automaticallyAddedSinglePoints)
+    for (const SelectionPoint &selectionPoint : qAsConst(m_automaticallyAddedSinglePoints))
         controlPoints.append(selectionPoint.controlPoint);
 
-    foreach (const SelectionPoint &selectionPoint, m_multiSelectedPoints)
+    for (const SelectionPoint &selectionPoint : qAsConst(m_multiSelectedPoints))
         controlPoints.append(selectionPoint.controlPoint);
 
     return controlPoints;
@@ -155,7 +155,8 @@ void PathSelectionManipulator::updateMultiSelection(const QPointF &updatePoint)
 
     QRectF selectionRect(m_startPoint, updatePoint);
 
-    foreach (const ControlPoint &controlPoint, m_pathItem->controlPoints()) {
+    const QList<ControlPoint> controlPoints = m_pathItem->controlPoints();
+    for (const ControlPoint &controlPoint : controlPoints) {
         if (selectionRect.contains(controlPoint.coordinate()))
             addMultiSelectionControlPoint(controlPoint);
     }
@@ -236,7 +237,7 @@ QPointF manipulatedVector(const QPointF &vector, Qt::KeyboardModifiers keyboardM
 
 static void moveControlPoints(const QList<SelectionPoint> &movePoints, const QPointF &offsetVector)
 {
-    foreach (SelectionPoint movePoint, movePoints)
+    for (SelectionPoint movePoint : movePoints)
         movePoint.controlPoint.setCoordinate(movePoint.startPosition + offsetVector);
 }
 
@@ -266,11 +267,11 @@ bool PathSelectionManipulator::isMoving() const
 
 void PathSelectionManipulator::updateMultiSelectedStartPoint()
 {
-    QList<SelectionPoint> oldSelectionPoints = m_multiSelectedPoints;
+    const QList<SelectionPoint> oldSelectionPoints = m_multiSelectedPoints;
 
     m_multiSelectedPoints.clear();
 
-    foreach (SelectionPoint selectionPoint, oldSelectionPoints) {
+    for (SelectionPoint selectionPoint : oldSelectionPoints) {
         selectionPoint.startPosition = selectionPoint.controlPoint.coordinate();
         m_multiSelectedPoints.append(selectionPoint);
     }

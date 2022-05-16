@@ -78,7 +78,7 @@ bool variantPropertyInEditedPath(const VariantProperty &variantProperty, const M
 
 bool changesEditedPath(const QList<VariantProperty> &propertyList, const ModelNode &editingPathViewModelNode)
 {
-    foreach (const VariantProperty variantProperty, propertyList) {
+    for (const VariantProperty &variantProperty : propertyList) {
         if (variantPropertyInEditedPath(variantProperty, editingPathViewModelNode))
             return true;
     }

@@ -86,7 +86,8 @@ void EnterTabDesignerAction::updateContext()
                     && selectedModelNode.metaInfo().isSubclassOf("QtQuick.Controls.TabView")) {
 
                 const NodeAbstractProperty defaultProperty = selectedModelNode.defaultNodeAbstractProperty();
-                foreach (const QmlDesigner::ModelNode &childModelNode, defaultProperty.directSubNodes()) {
+                const QList<QmlDesigner::ModelNode> childModelNodes = defaultProperty.directSubNodes();
+                for (const QmlDesigner::ModelNode &childModelNode : childModelNodes) {
                     createActionForTab(childModelNode);
                 }
             }

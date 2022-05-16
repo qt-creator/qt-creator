@@ -240,7 +240,7 @@ void  TextTool::instancesParentChanged(const QList<FormEditorItem *> & /*itemLis
 void TextTool::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList)
 {
     using ModelNodePropertyNamePair = QPair<ModelNode, PropertyName>;
-    foreach (const ModelNodePropertyNamePair &propertyPair, propertyList) {
+    for (const ModelNodePropertyNamePair &propertyPair : propertyList) {
         if (propertyPair.first == textItem()->formEditorItem()->qmlItemNode().modelNode()
                 && propertyPair.second == "text")
             textItem()->updateText();

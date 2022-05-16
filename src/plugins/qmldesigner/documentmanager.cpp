@@ -67,7 +67,8 @@ static inline QHash<PropertyName, QVariant> getProperties(const ModelNode &node)
 {
     QHash<PropertyName, QVariant> propertyHash;
     if (QmlObjectNode::isValidQmlObjectNode(node)) {
-        foreach (const AbstractProperty &abstractProperty, node.properties()) {
+        const QList<AbstractProperty> abstractProperties = node.properties();
+        for (const AbstractProperty &abstractProperty : abstractProperties) {
             if (abstractProperty.isVariantProperty()
                     || (abstractProperty.isBindingProperty()
                         && !abstractProperty.name().contains("anchors.")))
@@ -91,9 +92,10 @@ static inline QHash<PropertyName, QVariant> getProperties(const ModelNode &node)
 
 static inline void applyProperties(ModelNode &node, const QHash<PropertyName, QVariant> &propertyHash)
 {
-    QHash<PropertyName, QVariant> auxiliaryData  = node.auxiliaryData();
+    const QHash<PropertyName, QVariant> auxiliaryData  = node.auxiliaryData();
 
-    foreach (const PropertyName &propertyName, auxiliaryData.keys()) {
+    const QList<PropertyName> propertyNames = auxiliaryData.keys();
+    for (const PropertyName &propertyName : propertyNames) {
         if (node.hasAuxiliaryData(propertyName))
             node.setAuxiliaryData(propertyName, QVariant());
     }
@@ -281,7 +283,7 @@ bool DocumentManager::hasCurrentDesignDocument() const
 
 void DocumentManager::removeEditors(const QList<Core::IEditor *> &editors)
 {
-    foreach (Core::IEditor *editor, editors)
+    for (Core::IEditor *editor : editors)
         delete m_designDocumentHash.take(editor).data();
 }
 

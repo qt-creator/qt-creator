@@ -286,8 +286,8 @@ bool StatesEditorView::validStateName(const QString &name) const
 {
     if (name == tr("base state"))
         return false;
-    QList<QmlModelState> modelStates = rootStateGroup().allStates();
-    foreach (const QmlModelState &state, modelStates) {
+    const QList<QmlModelState> modelStates = rootStateGroup().allStates();
+    for (const QmlModelState &state : modelStates) {
         if (state.name() == name)
             return false;
     }
@@ -491,7 +491,7 @@ void StatesEditorView::modelAboutToBeDetached(Model *model)
 
 void StatesEditorView::propertiesRemoved(const QList<AbstractProperty>& propertyList)
 {
-    foreach (const AbstractProperty &property, propertyList) {
+    for (const AbstractProperty &property : propertyList) {
         if (property.name() == "states" && property.parentModelNode().isRootNode())
             resetModel();
         if (property.name() == "when" && QmlModelState::isValidQmlModelState(property.parentModelNode()))
@@ -548,7 +548,7 @@ void StatesEditorView::bindingPropertiesChanged(const QList<BindingProperty> &pr
 {
     Q_UNUSED(propertyChange)
 
-    foreach (const BindingProperty &property, propertyList) {
+    for (const BindingProperty &property : propertyList) {
         if (property.name() == "when" && QmlModelState::isValidQmlModelState(property.parentModelNode()))
             resetModel();
     }
@@ -588,7 +588,7 @@ void StatesEditorView::instancesPreviewImageChanged(const QVector<ModelNode> &no
 
     int minimumIndex = 10000;
     int maximumIndex = -1;
-    foreach (const ModelNode &node, nodeList) {
+    for (const ModelNode &node : nodeList) {
         if (node.isRootNode()) {
             minimumIndex = qMin(minimumIndex, 0);
             maximumIndex = qMax(maximumIndex, 0);

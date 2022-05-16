@@ -463,7 +463,8 @@ void PropertyEditorView::setupQmlBackend()
     TypeName diffClassName;
     if (commonAncestor.isValid()) {
         diffClassName = commonAncestor.typeName();
-        foreach (const NodeMetaInfo &metaInfo, commonAncestor.classHierarchy()) {
+        const QList<NodeMetaInfo> hierarchy = commonAncestor.classHierarchy();
+        for (const NodeMetaInfo &metaInfo : hierarchy) {
             if (PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsFile))
                 break;
             qmlSpecificsFile = PropertyEditorQmlBackend::getQmlFileUrl(metaInfo.typeName() + "Specifics", metaInfo);
@@ -640,7 +641,7 @@ void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty>& proper
     if (noValidSelection())
         return;
 
-    foreach (const AbstractProperty &property, propertyList) {
+    for (const AbstractProperty &property : propertyList) {
         ModelNode node(property.parentModelNode());
 
         if (node.isRootNode() && !m_selectedNode.isRootNode())
@@ -678,7 +679,7 @@ void PropertyEditorView::variantPropertiesChanged(const QList<VariantProperty>& 
     if (noValidSelection())
         return;
 
-    foreach (const VariantProperty &property, propertyList) {
+    for (const VariantProperty &property : propertyList) {
         ModelNode node(property.parentModelNode());
 
         if (propertyIsAttachedLayoutProperty(property.name()))
@@ -701,7 +702,7 @@ void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty>& 
     if (noValidSelection())
         return;
 
-    foreach (const BindingProperty &property, propertyList) {
+    for (const BindingProperty &property : propertyList) {
         ModelNode node(property.parentModelNode());
 
         if (property.isAliasExport())
@@ -809,7 +810,7 @@ void PropertyEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Pr
     m_locked = true;
 
     using ModelNodePropertyPair = QPair<ModelNode, PropertyName>;
-    foreach (const ModelNodePropertyPair &propertyPair, propertyList) {
+    for (const ModelNodePropertyPair &propertyPair : propertyList) {
         const ModelNode modelNode = propertyPair.first;
         const QmlObjectNode qmlObjectNode(modelNode);
         const PropertyName propertyName = propertyPair.second;

@@ -79,7 +79,7 @@ QmlJS::SimpleReaderNode::Ptr templateConfiguration()
 QStringList variantToStringList(const QVariant &variant) {
     QStringList stringList;
 
-    foreach (const QVariant &singleValue, variant.toList())
+    for (const QVariant &singleValue : variant.toList())
         stringList << singleValue.toString();
 
     return stringList;
@@ -410,7 +410,8 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         if (propertyEditorBenchmark().isInfoEnabled())
             time.start();
 
-        foreach (const PropertyName &propertyName, qmlObjectNode.modelNode().metaInfo().propertyNames())
+        const QList<PropertyName> propertyNames = qmlObjectNode.modelNode().metaInfo().propertyNames();
+        for (const PropertyName &propertyName : propertyNames)
             createPropertyEditorValue(qmlObjectNode, propertyName, qmlObjectNode.instanceValue(propertyName), propertyEditor);
 
         setupLayoutAttachedProperties(qmlObjectNode, propertyEditor);
@@ -508,7 +509,8 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
 {
     NodeMetaInfo metaInfo = propertyEditor->model()->metaInfo(typeName);
 
-    foreach (const PropertyName &propertyName, metaInfo.propertyNames())
+    const QList<PropertyName> propertyNames = metaInfo.propertyNames();
+    for (const PropertyName &propertyName : propertyNames)
         setupPropertyEditorValue(propertyName, propertyEditor, QString::fromUtf8(metaInfo.propertyTypeName(propertyName)));
 
     auto valueObject = qobject_cast<PropertyEditorValue *>(variantToQObject(
@@ -898,7 +900,8 @@ void PropertyEditorQmlBackend::setValueforAuxiliaryProperties(const QmlObjectNod
 QUrl PropertyEditorQmlBackend::getQmlUrlForMetaInfo(const NodeMetaInfo &metaInfo, TypeName &className)
 {
     if (metaInfo.isValid()) {
-        foreach (const NodeMetaInfo &info, metaInfo.classHierarchy()) {
+        const QList<NodeMetaInfo> hierarchy = metaInfo.classHierarchy();
+        for (const NodeMetaInfo &info : hierarchy) {
             QUrl fileUrl = fileToUrl(locateQmlFile(info, QString::fromUtf8(qmlFileName(info))));
             if (fileUrl.isValid()) {
                 className = info.typeName();

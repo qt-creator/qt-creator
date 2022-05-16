@@ -546,7 +546,7 @@ void RichTextEditor::setupFontActions()
         w->setEditable(true);
 
         const QList<int> standardSizes = QFontDatabase::standardSizes();
-        foreach (int size, standardSizes)
+        for (const int size : standardSizes)
             w->addItem(QString::number(size));
         w->setCurrentText(QString::number(ui->textEdit->currentCharFormat().font().pointSize()));
         connect(w, &QComboBox::textActivated, [this](const QString &p) {

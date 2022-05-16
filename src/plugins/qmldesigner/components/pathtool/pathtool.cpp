@@ -277,7 +277,7 @@ void  PathTool::instancesParentChanged(const QList<FormEditorItem *> & /*itemLis
 void PathTool::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList)
 {
     using ModelNodePropertyNamePair = QPair<ModelNode, PropertyName>;
-    foreach (const ModelNodePropertyNamePair &propertyPair, propertyList) {
+    for (const ModelNodePropertyNamePair &propertyPair : propertyList) {
         if (propertyPair.first == m_pathItem->formEditorItem()->qmlItemNode().modelNode()
                 && propertyPair.second == "path")
             m_pathItem->updatePath();

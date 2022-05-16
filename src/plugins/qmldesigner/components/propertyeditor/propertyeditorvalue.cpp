@@ -600,10 +600,10 @@ void PropertyEditorNodeWrapper::remove()
     }
     m_modelNode = QmlDesigner::ModelNode();
 
-    foreach (const QString &propertyName, m_valuesPropertyMap.keys())
+    const QStringList propertyNames = m_valuesPropertyMap.keys();
+    for (const QString &propertyName : propertyNames)
         m_valuesPropertyMap.clear(propertyName);
-    foreach (QObject *object, m_valuesPropertyMap.children())
-        delete object;
+    qDeleteAll(m_valuesPropertyMap.children());
     emit propertiesChanged();
     emit existsChanged();
 }
@@ -633,12 +633,13 @@ void PropertyEditorNodeWrapper::setup()
     Q_ASSERT(m_editorValue->modelNode().isValid());
     if ((m_editorValue->modelNode().isValid() && m_modelNode.isValid())) {
         QmlDesigner::QmlObjectNode qmlObjectNode(m_modelNode);
-        foreach ( const QString &propertyName, m_valuesPropertyMap.keys())
+        const QStringList propertyNames = m_valuesPropertyMap.keys();
+        for (const QString &propertyName : propertyNames)
             m_valuesPropertyMap.clear(propertyName);
-        foreach (QObject *object, m_valuesPropertyMap.children())
-            delete object;
+        qDeleteAll(m_valuesPropertyMap.children());
 
-        foreach (const QmlDesigner::PropertyName &propertyName, m_modelNode.metaInfo().propertyNames()) {
+        const QList<QmlDesigner::PropertyName> propertyNameList = m_modelNode.metaInfo().propertyNames();
+        for (const QmlDesigner::PropertyName &propertyName : propertyNameList) {
             if (qmlObjectNode.isValid()) {
                 auto valueObject = new PropertyEditorValue(&m_valuesPropertyMap);
                 valueObject->setName(propertyName);

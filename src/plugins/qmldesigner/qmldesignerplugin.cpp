@@ -369,7 +369,8 @@ static QStringList allUiQmlFilesforCurrentProject(const Utils::FilePath &fileNam
     ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(fileName);
 
     if (currentProject) {
-        foreach (const Utils::FilePath &fileName, currentProject->files(ProjectExplorer::Project::SourceFiles)) {
+        const QList<Utils::FilePath> fileNames = currentProject->files(ProjectExplorer::Project::SourceFiles);
+        for (const Utils::FilePath &fileName : fileNames) {
             if (fileName.endsWith(".ui.qml"))
                 list.append(fileName.toString());
         }

@@ -592,11 +592,11 @@ QStringList QmlAnchorBindingProxy::possibleTargetItems() const
     itemList.removeOne(m_qmlItemNode);
     //We currently have no instanceChildren().
     //So we double check here if the instanceParents are equal.
-    foreach (const QmlItemNode &node, itemList)
+    for (const QmlItemNode &node : qAsConst(itemList))
         if (node.isValid() && (node.instanceParent().modelNode() != m_qmlItemNode.instanceParent().modelNode()))
             itemList.removeAll(node);
 
-    foreach (const QmlItemNode &itemNode, itemList) {
+    for (const QmlItemNode &itemNode : qAsConst(itemList)) {
         if (itemNode.isValid() && !itemNode.id().isEmpty())
             stringList.append(itemNode.id());
     }

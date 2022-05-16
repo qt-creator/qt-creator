@@ -75,7 +75,7 @@ void OpenUiQmlFileDialog::setUiQmlFiles(const QString &projectPath, const QStrin
 {
     QDir projectDir(projectPath);
 
-    foreach (const QString &fileName, stringList) {
+    for (const QString &fileName : stringList) {
         QListWidgetItem *item = new QListWidgetItem(projectDir.relativeFilePath(fileName), ui->listWidget);
         item->setData(Qt::UserRole, fileName);
         ui->listWidget->addItem(item);
