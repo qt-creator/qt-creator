@@ -45,6 +45,7 @@
 #include <texteditor/textmark.h>
 #include <texteditor/texteditor.h>
 
+#include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>

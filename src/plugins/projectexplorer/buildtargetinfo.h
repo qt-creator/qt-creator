@@ -27,7 +27,6 @@
 
 #include "projectexplorer_export.h"
 
-#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/porting.h>

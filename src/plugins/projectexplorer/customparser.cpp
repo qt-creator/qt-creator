@@ -30,6 +30,7 @@
 #include "task.h"
 
 #include <coreplugin/icore.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QCheckBox>

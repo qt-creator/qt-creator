@@ -47,6 +47,7 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
+#include <utils/algorithm.h>
 #include <utils/aspects.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>

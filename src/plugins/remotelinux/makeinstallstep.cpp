@@ -35,6 +35,7 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/task.h>
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>

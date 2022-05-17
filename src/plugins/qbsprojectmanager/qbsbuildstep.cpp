@@ -41,6 +41,7 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>

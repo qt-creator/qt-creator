@@ -32,6 +32,7 @@
 #include <ssh/sftptransfer.h>
 #include <ssh/sshconnection.h>
 #include <ssh/sshconnectionmanager.h>
+#include <utils/algorithm.h>
 #include <utils/port.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>

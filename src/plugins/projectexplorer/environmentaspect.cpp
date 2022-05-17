@@ -28,6 +28,7 @@
 #include "environmentaspectwidget.h"
 #include "target.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 using namespace Utils;

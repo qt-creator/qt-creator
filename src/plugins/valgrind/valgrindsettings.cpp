@@ -25,11 +25,11 @@
 ****************************************************************************/
 
 #include "valgrindsettings.h"
-#include "valgrindplugin.h"
 #include "valgrindconfigwidget.h"
 
 #include <coreplugin/icore.h>
 
+#include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>

@@ -35,7 +35,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/outputwindow.h>
 #include <projectexplorer/buildaspects.h>
-
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QTimer>

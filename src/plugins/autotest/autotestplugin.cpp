@@ -66,6 +66,7 @@
 #include <projectexplorer/target.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+#include <utils/algorithm.h>
 #include <utils/textutils.h>
 #include <utils/utilsicons.h>
 

@@ -42,6 +42,7 @@
 #include <debugger/watchhandler.h>
 #include <debugger/watchutils.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 

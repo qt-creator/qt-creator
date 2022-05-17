@@ -31,10 +31,10 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <resourceeditor/resourcenode.h>
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QDesignerFormWindowInterface>
-
-#include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;

@@ -34,6 +34,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/algorithm.h>
 #include <utils/detailsbutton.h>
 #include <utils/fancylineedit.h>
 #include <utils/layoutbuilder.h>

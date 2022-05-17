@@ -48,6 +48,7 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 
 using namespace Core;

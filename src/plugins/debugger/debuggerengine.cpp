@@ -74,6 +74,7 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 
+#include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/macroexpander.h>

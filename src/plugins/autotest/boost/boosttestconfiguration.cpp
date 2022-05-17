@@ -32,6 +32,7 @@
 #include "../itestframework.h"
 #include "../testsettings.h"
 
+#include <utils/algorithm.h>
 #include <utils/stringutils.h>
 
 namespace Autotest {
