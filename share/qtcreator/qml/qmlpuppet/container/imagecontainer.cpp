@@ -98,7 +98,8 @@ static SharedMemory *createSharedMemory(qint32 key, int byteCount)
         sharedMemory = new SharedMemory(QString(imageKeyTemplateString).arg(key));
         bool sharedMemoryIsCreated = sharedMemory->create(byteCount);
         if (sharedMemoryIsCreated) {
-            globalSharedMemoryContainer()->insert(key, sharedMemory);
+            if (!globalSharedMemoryContainer()->insert(key, sharedMemory))
+                return nullptr;
         } else {
             delete sharedMemory;
             sharedMemory = nullptr;
