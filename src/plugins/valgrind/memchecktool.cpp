@@ -284,7 +284,7 @@ static ErrorListModel::RelevantFrameFinder makeFrameFinder(const QStringList &pr
 
         //find the first frame belonging to the project
         if (!projectFiles.isEmpty()) {
-            foreach (const Frame &frame, frames) {
+            for (const Frame &frame : frames) {
                 if (frame.directory().isEmpty() || frame.fileName().isEmpty())
                     continue;
 
@@ -296,7 +296,7 @@ static ErrorListModel::RelevantFrameFinder makeFrameFinder(const QStringList &pr
         }
 
         //if no frame belonging to the project was found, return the first one that is not malloc/new
-        foreach (const Frame &frame, frames) {
+        for (const Frame &frame : frames) {
             if (!frame.functionName().isEmpty() && frame.functionName() != "malloc"
                 && !frame.functionName().startsWith("operator new("))
             {
@@ -365,9 +365,10 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
         QSet<QString> validFolders;
         for (Project *project : SessionManager::projects()) {
             validFolders << project->projectDirectory().toString();
-            foreach (Target *target, project->targets()) {
-                foreach (const DeployableFile &file,
-                         target->deploymentData().allFiles()) {
+            const QList<Target *> targets = project->targets();
+            for (const Target *target : targets) {
+                const QList<DeployableFile> files = target->deploymentData().allFiles();
+                for (const DeployableFile &file : files) {
                     if (file.isExecutable())
                         validFolders << file.remoteDirectory();
                 }
@@ -383,7 +384,7 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
         bool inProject = false;
         for (int i = 0; i < framesToLookAt; ++i) {
             const Frame &frame = frames.at(i);
-            foreach (const QString &folder, validFolders) {
+            for (const QString &folder : qAsConst(validFolders)) {
                 if (frame.directory().startsWith(folder)) {
                     inProject = true;
                     break;
@@ -633,7 +634,7 @@ MemcheckToolPrivate::MemcheckToolPrivate()
     filterButton->setProperty("noArrow", true);
 
     m_filterMenu = new QMenu(filterButton);
-    foreach (QAction *filterAction, m_errorFilterActions)
+    for (QAction *filterAction : qAsConst(m_errorFilterActions))
         m_filterMenu->addAction(filterAction);
     m_filterMenu->addSeparator();
     m_filterMenu->addAction(m_filterProjectAction);
@@ -934,9 +935,10 @@ void MemcheckToolPrivate::settingsDestroyed(QObject *settings)
 
 void MemcheckToolPrivate::updateFromSettings()
 {
-    foreach (QAction *action, m_errorFilterActions) {
+    for (QAction *action : qAsConst(m_errorFilterActions)) {
         bool contained = true;
-        foreach (const QVariant &v, action->data().toList()) {
+        const QList<QVariant> actions = action->data().toList();
+        for (const QVariant &v : actions) {
             bool ok;
             int kind = v.toInt(&ok);
             if (ok && !m_settings->visibleErrorKinds.value().contains(kind))
@@ -1119,10 +1121,11 @@ void MemcheckToolPrivate::updateErrorFilter()
     m_settings->filterExternalIssues.setValue(!m_filterProjectAction->isChecked());
 
     QList<int> errorKinds;
-    foreach (QAction *a, m_errorFilterActions) {
+    for (QAction *a : qAsConst(m_errorFilterActions)) {
         if (!a->isChecked())
             continue;
-        foreach (const QVariant &v, a->data().toList()) {
+        const QList<QVariant> actions = a->data().toList();
+        for (const QVariant &v : actions) {
             bool ok;
             int kind = v.toInt(&ok);
             if (ok)

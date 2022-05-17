@@ -73,16 +73,17 @@ void FunctionCycle::setFunctions(const QVector<const Function *> &functions)
     d->m_selfCost.fill(0, d->m_data->events().size());
     d->m_inclusiveCost.fill(0, d->m_data->events().size());
 
-    foreach (const Function *func, functions) {
+    for (const Function *func : functions) {
         // just add up self cost
         Private::accumulateCost(d->m_selfCost, func->selfCosts());
         // add outgoing calls to functions that are not part of the cycle
-        foreach (const FunctionCall *call, func->outgoingCalls()) {
+        const QVector<const FunctionCall *> calls = func->outgoingCalls();
+        for (const FunctionCall *call : calls) {
             if (!functions.contains(call->callee()))
                 d->accumulateCall(call, Function::Private::Outgoing);
         }
         // add incoming calls from functions that are not part of the cycle
-        foreach (const FunctionCall *call, func->incomingCalls()) {
+        for (const FunctionCall *call : calls) {
             if (!functions.contains(call->caller())) {
                 d->accumulateCall(call, Function::Private::Incoming);
                 d->m_called += call->calls();

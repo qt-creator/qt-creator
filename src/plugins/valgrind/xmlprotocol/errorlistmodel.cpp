@@ -165,10 +165,12 @@ ErrorItem::ErrorItem(const ErrorListModel *model, const Error &error)
     // just annoy the user.
     // The same goes for the frame level.
     if (m_error.stacks().count() > 1) {
-        foreach (const Stack &s, m_error.stacks())
+        const QVector<Stack> stacks = m_error.stacks();
+        for (const Stack &s : stacks)
             appendChild(new StackItem(s));
     } else if (m_error.stacks().constFirst().frames().count() > 1) {
-        foreach (const Frame &f, m_error.stacks().constFirst().frames())
+        const QVector<Frame> frames = m_error.stacks().constFirst().frames();
+        for (const Frame &f : frames)
             appendChild(new FrameItem(f));
     }
 }
@@ -197,11 +199,13 @@ QVariant ErrorItem::data(int column, int role) const
                << m_model->errorLocation(m_error)
                << "\n";
 
-        foreach (const Stack &stack, m_error.stacks()) {
+        const QVector<Stack> stacks = m_error.stacks();
+        for (const Stack &stack : stacks) {
             if (!stack.auxWhat().isEmpty())
                 stream << stack.auxWhat();
             int i = 1;
-            foreach (const Frame &frame, stack.frames())
+            const QVector<Frame> frames = stack.frames();
+            for (const Frame &frame : frames)
                 stream << "  " << i++ << ": " << makeFrameName(frame, true) << "\n";
         }
 
@@ -229,7 +233,8 @@ QVariant ErrorItem::data(int column, int role) const
 
 StackItem::StackItem(const Stack &stack) : m_stack(stack)
 {
-    foreach (const Frame &f, m_stack.frames())
+    const QVector<Frame> frames = m_stack.frames();
+    for (const Frame &f : frames)
         appendChild(new FrameItem(f));
 }
 

@@ -205,12 +205,13 @@ QString Error::toXml() const
         stream << "  <what>" << d->what << "</what>\n";
     }
 
-    foreach (const Stack &stack, d->stacks) {
+    for (const Stack &stack : qAsConst(d->stacks)) {
         if (!stack.auxWhat().isEmpty())
             stream << "  <auxwhat>" << stack.auxWhat() << "</auxwhat>\n";
         stream << "  <stack>\n";
 
-        foreach (const Frame &frame, stack.frames()) {
+        const QVector<Frame> frames = stack.frames();
+        for (const Frame &frame : frames) {
             stream << "    <frame>\n";
             stream << "      <ip>0x" << QString::number(frame.instructionPointer(), 16) << "</ip>\n";
             if (!frame.object().isEmpty())

@@ -735,7 +735,8 @@ void CallgrindToolPrivate::updateEventCombo()
     }
 
     m_eventCombo->show();
-    foreach (const QString &event, data->events())
+    const QStringList events = data->events();
+    for (const QString &event : events)
         m_eventCombo->addItem(ParseData::prettyStringForEvent(event));
 }
 
@@ -848,7 +849,7 @@ void CallgrindToolPrivate::editorOpened(IEditor *editor)
 void CallgrindToolPrivate::requestContextMenu(TextEditorWidget *widget, int line, QMenu *menu)
 {
     // Find callgrind text mark that corresponds to this editor's file and line number
-    foreach (CallgrindTextMark *textMark, m_textMarks) {
+    for (CallgrindTextMark *textMark : qAsConst(m_textMarks)) {
         if (textMark->fileName() == widget->textDocument()->filePath() && textMark->lineNumber() == line) {
             const Function *func = textMark->function();
             QAction *action = menu->addAction(CallgrindTool::tr("Select This Function in the Analyzer Output"));

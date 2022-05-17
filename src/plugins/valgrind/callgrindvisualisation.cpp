@@ -236,7 +236,8 @@ void Visualization::Private::handleMousePressEvent(QMouseEvent *event,
 {
     // find the first item that accepts mouse presses under the cursor position
     QGraphicsItem *itemAtPos = nullptr;
-    foreach (QGraphicsItem *item, q->items(event->pos())) {
+    const QList<QGraphicsItem *>items = q->items(event->pos());
+    for (QGraphicsItem *item : items) {
         if (!(item->acceptedMouseButtons() & event->button()))
             continue;
 
@@ -291,7 +292,8 @@ const Function *Visualization::functionForItem(QGraphicsItem *item) const
 
 QGraphicsItem *Visualization::itemForFunction(const Function *function) const
 {
-    foreach (QGraphicsItem *item, items()) {
+    const QList<QGraphicsItem *> itemList = items();
+    for (QGraphicsItem *item : itemList) {
         if (functionForItem(item) == function)
             return item;
     }

@@ -45,14 +45,14 @@ CycleDetection::CycleDetection(ParseData *data)
 
 QVector<const Function *> CycleDetection::run(const QVector<const Function *> &input)
 {
-    foreach (const Function *function, input) {
+    for (const Function *function : input) {
         Node *node = new Node;
         node->function = function;
         node->dfs = -1;
         node->lowlink = -1;
         m_nodes.insert(function, node);
     }
-    foreach (Node *node, m_nodes) {
+    for (Node *node : qAsConst(m_nodes)) {
         if (node->dfs == -1)
             tarjan(node);
     }
@@ -69,7 +69,8 @@ void CycleDetection::tarjan(Node *node)
     m_depth++;
     m_stack.push(node);
 
-    foreach (const FunctionCall *call, node->function->outgoingCalls())
+    const QVector<const FunctionCall *> calls = node->function->outgoingCalls();
+    for (const FunctionCall *call : calls)
         tarjanForChildNode(node, m_nodes.value(call->callee()));
 
     if (node->dfs == node->lowlink) {

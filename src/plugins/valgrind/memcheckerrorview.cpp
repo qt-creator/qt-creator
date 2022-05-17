@@ -100,7 +100,7 @@ QList<QAction *> MemcheckErrorView::customActions() const
     QTC_ASSERT(!indizes.isEmpty(), return actions);
 
     bool hasErrors = false;
-    foreach (const QModelIndex &index, indizes) {
+    for (const QModelIndex &index : indizes) {
         Error error = model()->data(index, ErrorListModel::ErrorRole).value<Error>();
         if (!error.suppression().isNull()) {
             hasErrors = true;

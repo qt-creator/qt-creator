@@ -64,7 +64,7 @@ QString toolTipForFrame(const Frame &frame)
                    "<style>dt { font-weight:bold; } dd { font-family: monospace; }</style>\n"
                    "</head><body><dl>";
 
-    foreach (const StringPair &pair, lines) {
+    for (const StringPair &pair : qAsConst(lines)) {
         html += "<dt>";
         html += pair.first;
         html += "</dt><dd>";

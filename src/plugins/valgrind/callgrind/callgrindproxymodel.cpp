@@ -130,7 +130,8 @@ bool DataProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_
     // check if the function from this index is a child of (called by) the filter function
     if (m_function) {
         bool isValid = false;
-        foreach (const FunctionCall *call, func->incomingCalls()) {
+        const QVector<const FunctionCall *> calls = func->incomingCalls();
+        for (const FunctionCall *call : calls) {
             if (call->caller() == m_function) {
                 isValid = true;
                 break;

@@ -219,17 +219,19 @@ void Parser::Private::parse(const FilePath &filePath)
 
     // build fast lookup of functions by their nameId
     QHash<qint64, QList<const Function *> > functionLookup;
-    foreach (const Function *function, data->functions()) {
+    const QVector<const Function *> functions = data->functions();
+    for (const Function *function : functions) {
         functionLookup[function->nameId()].append(function);
     }
 
     // functions that need to accumulate their calees
     QSet<Function *> pendingFunctions;
-    foreach (const CallData &callData, pendingCallees) {
+    for (const CallData &callData : qAsConst(pendingCallees)) {
         Function *calledFunction = nullptr;
         QTC_ASSERT(callData.call, continue);
         QTC_ASSERT(callData.call->caller(), continue);
-        foreach (const Function *function, functionLookup.value(callData.calledFunction)) {
+        const QList<const Function *> functions = functionLookup.value(callData.calledFunction);
+        for (const Function *function : functions) {
             QTC_ASSERT(function->nameId() == callData.calledFunction, continue);
             if (function->objectId() == callData.calledObject
                 && function->fileId() == callData.calledFile)
@@ -245,7 +247,7 @@ void Parser::Private::parse(const FilePath &filePath)
             qDebug() << "caller is:" << callData.call->caller()->name() << callData.call->caller()->nameId();
             qDebug() << "called file:" << callData.calledFile << "object:" << callData.calledObject;
             qDebug() << data->stringForFileCompression(callData.calledFile) << data->stringForObjectCompression(callData.calledObject);
-            foreach (const Function *function, functionLookup.value(callData.calledFunction)) {
+            for (const Function *function, functionLookup.value(callData.calledFunction)) {
                 qDebug() << "available function file:" << function->fileId() << function->file() << "object:" << function->objectId() << function->object();
             }
         }
@@ -263,7 +265,7 @@ void Parser::Private::parse(const FilePath &filePath)
     // lookup done
 
     // now accumulate callees
-    foreach (Function *func, pendingFunctions)
+    for (Function *func : qAsConst(pendingFunctions))
         func->finalize();
 
     emit q->parserDataReady();
@@ -322,7 +324,8 @@ void Parser::Private::parseHeader(QIODevice *device)
         } else if (line.startsWith("summary: ")) {
             QString values = getValue(line, 9);
             uint i = 0;
-            foreach (const QString &value, values.split(' ', Qt::SkipEmptyParts))
+            const QStringList valueList = values.split(' ', Qt::SkipEmptyParts);
+            for (const QString &value : valueList)
                 data->setTotalCost(i++, value.toULongLong());
         } else if (!line.trimmed().isEmpty()) {
             // handle line and exit parseHeader
