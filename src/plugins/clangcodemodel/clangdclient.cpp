@@ -1693,12 +1693,11 @@ void ClangdClient::handleDiagnostics(const PublishDiagnosticsParams &params)
         return;
     for (const Diagnostic &diagnostic : params.diagnostics()) {
         const ClangdDiagnostic clangdDiagnostic(diagnostic);
-        const auto codeActions = clangdDiagnostic.codeActions();
+        auto codeActions = clangdDiagnostic.codeActions();
         if (codeActions && !codeActions->isEmpty()) {
-            for (CodeAction action : *codeActions) {
+            for (CodeAction &action : *codeActions)
                 action.setDiagnostics({diagnostic});
-                LanguageClient::updateCodeActionRefactoringMarker(this, action, uri);
-            }
+            LanguageClient::updateCodeActionRefactoringMarker(this, *codeActions, uri);
         } else {
             // We know that there's only one kind of diagnostic for which clangd has
             // a quickfix tweak, so let's not be wasteful.

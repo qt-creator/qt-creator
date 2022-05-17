@@ -59,7 +59,7 @@ void LANGUAGECLIENT_EXPORT applyTextEdit(TextEditor::TextDocumentManipulatorInte
                                          bool newTextIsSnippet = false);
 void LANGUAGECLIENT_EXPORT
 updateCodeActionRefactoringMarker(Client *client,
-                                  const LanguageServerProtocol::CodeAction &action,
+                                  const QList<LanguageServerProtocol::CodeAction> &actions,
                                   const LanguageServerProtocol::DocumentUri &uri);
 void updateEditorToolBar(Core::IEditor *editor);
 const QIcon LANGUAGECLIENT_EXPORT symbolIcon(int type);

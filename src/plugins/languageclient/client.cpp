@@ -955,13 +955,14 @@ void Client::handleCodeActionResponse(const CodeActionRequest::Response &respons
         log(*error);
     if (const Utils::optional<CodeActionResult> &result = response.result()) {
         if (auto list = Utils::get_if<QList<Utils::variant<Command, CodeAction>>>(&*result)) {
+            QList<CodeAction> codeActions;
             for (const Utils::variant<Command, CodeAction> &item : *list) {
                 if (auto action = Utils::get_if<CodeAction>(&item))
-                    updateCodeActionRefactoringMarker(this, *action, uri);
-                else if (auto command = Utils::get_if<Command>(&item)) {
+                    codeActions << *action;
+                else if (auto command = Utils::get_if<Command>(&item))
                     Q_UNUSED(command) // todo
-                }
             }
+            updateCodeActionRefactoringMarker(this, codeActions, uri);
         }
     }
 }
