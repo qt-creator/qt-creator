@@ -189,7 +189,7 @@ static void appendExtraSelectionsForMessages(
         const QList<DiagnosticMessage> &messages,
         const QTextDocument *document)
 {
-    foreach (const DiagnosticMessage &d, messages) {
+    for (const DiagnosticMessage &d : messages) {
         const int line = d.loc.startLine;
         const int column = qMax(1U, d.loc.startColumn);
 
@@ -511,10 +511,10 @@ void QmlJSEditorWidget::setSelectedElements()
 
     if (m_qmlJsEditorDocument->semanticInfo().isValid()) {
         SelectedElement selectedMembers;
-        QList<UiObjectMember *> members
-                = selectedMembers(m_qmlJsEditorDocument->semanticInfo().document, startPos, endPos);
+        const QList<UiObjectMember *> members
+            = selectedMembers(m_qmlJsEditorDocument->semanticInfo().document, startPos, endPos);
         if (!members.isEmpty()) {
-            foreach (UiObjectMember *m, members) {
+            for (UiObjectMember *m : members) {
                 offsets << m;
             }
         }
@@ -768,7 +768,8 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     if (auto importAst = cast<const AST::UiImport *>(node)) {
         // if it's a file import, link to the file
-        foreach (const ImportInfo &import, semanticInfo.document->bind()->imports()) {
+        const QList<ImportInfo> imports = semanticInfo.document->bind()->imports();
+        for (const ImportInfo &import : imports) {
             if (import.ast() == importAst && import.type() == ImportType::File) {
                 Utils::Link link(Utils::FilePath::fromString(import.path()));
                 link.linkTextStart = importAst->firstSourceLocation().begin();
@@ -896,7 +897,8 @@ void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
     if (ActionContainer *mcontext = ActionManager::actionContainer(Constants::M_CONTEXT)) {
         QMenu *contextMenu = mcontext->menu();
-        foreach (QAction *action, contextMenu->actions()) {
+        const QList<QAction *> actions = contextMenu->actions();
+        for (QAction *action : actions) {
             menu->addAction(action);
             if (action->objectName() == QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT))
                 menu->addMenu(refactoringMenu);

@@ -260,7 +260,8 @@ private:
         if (root && root->lookupMember(_name, _scopeChain.context()))
             return check(root);
 
-        foreach (const QmlComponentChain *parent, chain->instantiatingComponents()) {
+        const QList<const QmlComponentChain *> parents = chain->instantiatingComponents();
+        for (const QmlComponentChain *parent : parents) {
             if (contains(parent))
                 return true;
         }
@@ -278,7 +279,8 @@ private:
 
     bool checkQmlScope()
     {
-        foreach (const ObjectValue *s, _scopeChain.qmlScopeObjects()) {
+        const QList<const ObjectValue *> scopes = _scopeChain.qmlScopeObjects();
+        for (const ObjectValue *s : scopes) {
             if (check(s))
                 return true;
         }
@@ -749,8 +751,8 @@ public:
 
         // find all idenfifier expressions, try to resolve them and check if the result is in scope
         FindUsages findUsages(doc, context);
-        FindUsages::Result results = findUsages(name, scope);
-        foreach (const SourceLocation &loc, results)
+        const FindUsages::Result results = findUsages(name, scope);
+        for (const SourceLocation &loc : results)
             usages.append(Usage(fileName, matchingLine(loc.offset, doc->source()), loc.startLine, loc.startColumn - 1, loc.length));
         if (future->isPaused())
             future->waitForResume();
@@ -791,8 +793,8 @@ public:
 
         // find all idenfifier expressions, try to resolve them and check if the result is in scope
         FindTypeUsages findUsages(doc, context);
-        FindTypeUsages::Result results = findUsages(name, scope);
-        foreach (const SourceLocation &loc, results)
+        const FindTypeUsages::Result results = findUsages(name, scope);
+        for (const SourceLocation &loc : results)
             usages.append(Usage(fileName, matchingLine(loc.offset, doc->source()), loc.startLine, loc.startColumn - 1, loc.length));
         if (future->isPaused())
             future->waitForResume();
@@ -815,7 +817,7 @@ public:
 
     void operator()(QList<Usage> &, const QList<Usage> &usages)
     {
-        foreach (const Usage &u, usages)
+        for (const Usage &u : usages)
             future->reportResult(u);
 
         future->setProgressValue(future->progressValue() + 1);
@@ -892,7 +894,7 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
         replacement = name;
 
     QStringList files;
-    foreach (const Document::Ptr &doc, snapshot) {
+    for (const Document::Ptr &doc : qAsConst(snapshot)) {
         // ### skip files that don't contain the name token
         files.append(doc->fileName());
     }
@@ -974,10 +976,10 @@ QList<FindReferences::Usage> FindReferences::findUsageOfType(const QString &file
 
     QmlJS::Snapshot snapshot =  modelManager->snapshot();
 
-    foreach (const QmlJS::Document::Ptr &doc, snapshot) {
+    for (const QmlJS::Document::Ptr &doc : qAsConst(snapshot)) {
         FindTypeUsages findUsages(doc, context);
-        FindTypeUsages::Result results = findUsages(typeName, targetValue);
-        foreach (const SourceLocation &loc, results) {
+        const FindTypeUsages::Result results = findUsages(typeName, targetValue);
+        for (const SourceLocation &loc : results) {
             usages.append(Usage(doc->fileName(), matchingLine(loc.offset, doc->source()), loc.startLine, loc.startColumn - 1, loc.length));
         }
     }

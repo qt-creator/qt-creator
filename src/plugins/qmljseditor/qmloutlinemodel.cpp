@@ -400,7 +400,7 @@ bool QmlOutlineModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
         stream >> rowPath;
 
         QModelIndex index;
-        foreach (int row, rowPath) {
+        for (int row : qAsConst(rowPath)) {
             index = this->index(row, 0, index);
             if (!index.isValid())
                 continue;
@@ -883,7 +883,7 @@ void QmlOutlineModel::reparentNodes(QmlOutlineItem *targetItem, int row, QList<Q
     TextEditor::RefactoringFilePtr file = refactoring.file(
         Utils::FilePath::fromString(m_semanticInfo.document->fileName()));
     file->setChangeSet(changeSet);
-    foreach (const Utils::ChangeSet::Range &range, changedRanges) {
+    for (const Utils::ChangeSet::Range &range : qAsConst(changedRanges)) {
         file->appendIndentRange(range);
     }
     file->apply();

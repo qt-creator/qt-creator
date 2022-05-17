@@ -63,7 +63,7 @@ QmlTaskManager::QmlTaskManager()
 static Tasks convertToTasks(const QList<DiagnosticMessage> &messages, const FilePath &fileName, Utils::Id category)
 {
     Tasks result;
-    foreach (const DiagnosticMessage &msg, messages) {
+    for (const DiagnosticMessage &msg : messages) {
         Task::TaskType type = msg.isError() ? Task::Error : Task::Warning;
         Task task(type, msg.message, fileName, msg.loc.startLine, category);
         result += task;
@@ -74,17 +74,18 @@ static Tasks convertToTasks(const QList<DiagnosticMessage> &messages, const File
 static Tasks convertToTasks(const QList<StaticAnalysis::Message> &messages, const FilePath &fileName, Utils::Id category)
 {
     QList<DiagnosticMessage> diagnostics;
-    foreach (const StaticAnalysis::Message &msg, messages)
+    for (const StaticAnalysis::Message &msg : messages)
         diagnostics += msg.toDiagnosticMessage();
     return convertToTasks(diagnostics, fileName, category);
 }
 
-void QmlTaskManager::collectMessages(
-        QFutureInterface<FileErrorMessages> &future,
-        Snapshot snapshot, QList<ModelManagerInterface::ProjectInfo> projectInfos,
-        ViewerContext vContext, bool updateSemantic)
+void QmlTaskManager::collectMessages(QFutureInterface<FileErrorMessages> &future,
+                                     Snapshot snapshot,
+                                     const QList<ModelManagerInterface::ProjectInfo> &projectInfos,
+                                     ViewerContext vContext,
+                                     bool updateSemantic)
 {
-    foreach (const ModelManagerInterface::ProjectInfo &info, projectInfos) {
+    for (const ModelManagerInterface::ProjectInfo &info : projectInfos) {
         QHash<QString, QList<DiagnosticMessage> > linkMessages;
         ContextPtr context;
         if (updateSemantic) {
@@ -92,7 +93,7 @@ void QmlTaskManager::collectMessages(
             context = link(&linkMessages);
         }
 
-        foreach (const QString &fileName, info.sourceFiles) {
+        for (const QString &fileName : qAsConst(info.sourceFiles)) {
             Document::Ptr document = snapshot.document(fileName);
             if (!document)
                 continue;
@@ -157,15 +158,15 @@ void QmlTaskManager::updateMessagesNow(bool updateSemantic)
 
 void QmlTaskManager::documentsRemoved(const QStringList &path)
 {
-    foreach (const QString &item, path)
+    for (const QString &item : path)
         removeTasksForFile(item);
 }
 
 void QmlTaskManager::displayResults(int begin, int end)
 {
     for (int i = begin; i < end; ++i) {
-        FileErrorMessages result = m_messageCollector.resultAt(i);
-        foreach (const Task &task, result.tasks) {
+        const ProjectExplorer::Tasks tasks = m_messageCollector.resultAt(i).tasks;
+        for (const Task &task : tasks) {
             insertTask(task);
         }
     }
@@ -189,7 +190,7 @@ void QmlTaskManager::removeTasksForFile(const QString &fileName)
 {
     if (m_docsWithTasks.contains(fileName)) {
         const Tasks tasks = m_docsWithTasks.value(fileName);
-        foreach (const Task &task, tasks)
+        for (const Task &task : tasks)
             TaskHub::removeTask(task);
         m_docsWithTasks.remove(fileName);
     }

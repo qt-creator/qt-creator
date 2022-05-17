@@ -101,7 +101,7 @@ static void addCompletions(QList<AssistProposalItemInterface *> *completions,
                            const QIcon &icon,
                            int order)
 {
-    foreach (const QString &text, newCompletions)
+    for (const QString &text : newCompletions)
         addCompletion(completions, text, icon, order);
 }
 
@@ -226,7 +226,8 @@ public:
         _processed.clear();
         _propertyProcessor = processor;
 
-        foreach (const ObjectValue *scope, _scopeChain->all())
+        const QList<const ObjectValue *> scopes = _scopeChain->all();
+        for (const ObjectValue *scope : scopes)
             processProperties(scope);
     }
 
@@ -302,7 +303,7 @@ const Value *getPropertyValue(const ObjectValue *object,
         return nullptr;
 
     const Value *value = object;
-    foreach (const QString &name, propertyNames) {
+    for (const QString &name : propertyNames) {
         if (const ObjectValue *objectValue = value->asObjectValue()) {
             value = objectValue->lookupMember(name, context);
             if (!value)
@@ -687,7 +688,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
                     QStringList nCompletions;
                     QString prefix(libVersion.left(toSkip));
                     nCompletions.reserve(completions.size());
-                    foreach (const QString &completion, completions)
+                    for (const QString &completion : qAsConst(completions))
                         if (completion.startsWith(prefix))
                             nCompletions.append(completion.right(completion.size()-toSkip));
                     completions = nCompletions;
@@ -800,7 +801,8 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
             if (const QmlEnumValue *enumValue =
                     value_cast<QmlEnumValue>(value)) {
                 const QString &name = context->imports(document.data())->nameForImportedObject(enumValue->owner(), context.data());
-                foreach (const QString &key, enumValue->keys()) {
+                const QStringList keys = enumValue->keys();
+                for (const QString &key : keys) {
                     QString completion;
                     if (name.isEmpty())
                         completion = QString::fromLatin1("\"%1\"").arg(key);
@@ -910,7 +912,7 @@ bool QmlJSCompletionAssistProcessor::acceptsIdleEditor() const
         Scanner scanner;
         const QList<Token> tokens = scanner(blockText, blockState);
         const int column = block.position() - m_interface->position();
-        foreach (const Token &tk, tokens) {
+        for (const Token &tk : tokens) {
             if (column >= tk.begin() && column <= tk.end()) {
                 if (charBeforeCursor == QLatin1Char('/') && tk.is(Token::String))
                     return true; // path completion inside string literals
@@ -1051,7 +1053,7 @@ void QmlJSAssistProposalModel::filter(const QString &prefix)
         return;
     QList<AssistProposalItemInterface *> newCurrentItems;
     newCurrentItems.reserve(m_currentItems.size());
-    foreach (AssistProposalItemInterface *item, m_currentItems)
+    for (AssistProposalItemInterface *item : qAsConst(m_currentItems))
         if (!item->text().startsWith(QLatin1String("__")))
             newCurrentItems << item;
     m_currentItems = newCurrentItems;

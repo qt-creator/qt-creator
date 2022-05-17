@@ -268,15 +268,17 @@ void QmlJSHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, R
 
 bool QmlJSHoverHandler::matchDiagnosticMessage(QmlJSEditorWidget *qmlEditor, int pos)
 {
-    foreach (const QTextEdit::ExtraSelection &sel,
-             qmlEditor->extraSelections(TextEditorWidget::CodeWarningsSelection)) {
+    const QList<QTextEdit::ExtraSelection> selections =
+        qmlEditor->extraSelections(TextEditorWidget::CodeWarningsSelection);
+    for (const QTextEdit::ExtraSelection &sel : selections) {
         if (pos >= sel.cursor.selectionStart() && pos <= sel.cursor.selectionEnd()) {
             setToolTip(sel.format.toolTip());
             return true;
         }
     }
-    foreach (const QTextLayout::FormatRange &range,
-             qmlEditor->qmlJsEditorDocument()->diagnosticRanges()) {
+    const QVector<QTextLayout::FormatRange> ranges =
+        qmlEditor->qmlJsEditorDocument()->diagnosticRanges();
+    for (const QTextLayout::FormatRange &range : ranges) {
         if (pos >= range.start && pos < range.start+range.length) {
             setToolTip(range.format.toolTip());
             return true;
@@ -357,7 +359,8 @@ void QmlJSHoverHandler::handleImport(const ScopeChain &scopeChain, AST::UiImport
     if (!imports)
         return;
 
-    foreach (const Import &import, imports->all()) {
+    const QList<Import> importList = imports->all();
+    for (const Import &import : importList) {
         if (import.info.ast() == node) {
             if (import.info.type() == ImportType::Library
                     && !import.libraryPath.isEmpty()) {

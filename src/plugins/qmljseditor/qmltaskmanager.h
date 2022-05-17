@@ -69,7 +69,7 @@ private:
     };
     static void collectMessages(QFutureInterface<FileErrorMessages> &future,
                                 QmlJS::Snapshot snapshot,
-                                QList<QmlJS::ModelManagerInterface::ProjectInfo> projectInfos,
+                                const QList<QmlJS::ModelManagerInterface::ProjectInfo> &projectInfos,
                                 QmlJS::ViewerContext vContext,
                                 bool updateSemantic);
 

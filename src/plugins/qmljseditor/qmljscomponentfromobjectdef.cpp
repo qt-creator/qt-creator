@@ -123,13 +123,14 @@ public:
 
         QStringList sortedPropertiesWithoutId;
 
-        foreach (const QString &property, propertyReader.properties())
+        const QStringList properties = propertyReader.properties();
+        for (const QString &property : properties)
             if (property != QLatin1String("id"))
                 sortedPropertiesWithoutId.append(property);
 
         sortedPropertiesWithoutId.sort();
 
-        foreach (const QString &property, sortedPropertiesWithoutId)
+        for (const QString &property : qAsConst(sortedPropertiesWithoutId))
             sourcePreview.append(QLatin1String("    ") + property + QLatin1String(": ") + propertyReader.readAstValue(property));
 
         const bool confirm = ComponentNameDialog::go(&componentName, &path, &suffix,
@@ -178,7 +179,7 @@ public:
                 if (program->members)
                     astRootNode = program->members->member;
 
-            foreach (const QString &property, result)
+            for (const QString &property : qAsConst(result))
                 rewriter.removeBindingByName(initializerOfObject(astRootNode), property);
         } else {
             qWarning() << Q_FUNC_INFO << "parsing failed:" << newComponentSource;
@@ -208,7 +209,7 @@ public:
         if (!m_idName.isEmpty())
             replacement += QLatin1String("id: ") + m_idName + QLatin1Char('\n');
 
-        foreach (const QString &property, result)
+        for (const QString &property : qAsConst(result))
             replacement += property + QLatin1String(": ") + propertyReader.readAstValue(property) + QLatin1Char('\n');
 
         Utils::ChangeSet changes;

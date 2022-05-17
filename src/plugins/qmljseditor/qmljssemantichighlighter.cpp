@@ -59,7 +59,7 @@ namespace {
 
 static bool isIdScope(const ObjectValue *scope, const QList<const QmlComponentChain *> &chain)
 {
-    foreach (const QmlComponentChain *c, chain) {
+    for (const QmlComponentChain *c : chain) {
         if (c->idScope() == scope)
             return true;
         if (isIdScope(scope, c->instantiatingComponents()))
@@ -391,7 +391,7 @@ protected:
     void addMessages(QList<DiagnosticMessage> messages,
             const Document::Ptr &doc)
     {
-        foreach (const DiagnosticMessage &d, messages) {
+        for (const DiagnosticMessage &d : messages) {
             int line = d.loc.startLine;
             int column = qMax(1U, d.loc.startColumn);
             int length = d.loc.length;
@@ -426,7 +426,7 @@ protected:
     void addMessages(const QList<StaticAnalysis::Message> &messages,
                      const Document::Ptr &doc)
     {
-        foreach (const StaticAnalysis::Message &d, messages) {
+        for (const StaticAnalysis::Message &d : messages) {
             int line = d.location.startLine;
             int column = qMax(1U, d.location.startColumn);
             int length = d.location.length;

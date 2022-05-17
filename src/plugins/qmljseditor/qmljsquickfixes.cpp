@@ -154,7 +154,7 @@ void matchAddAnalysisMessageSuppressionCommentQuickFix(const QmlJSQuickFixInterf
 {
     const QList<StaticAnalysis::Message> &messages = interface->semanticInfo().staticAnalysisMessages;
 
-    foreach (const StaticAnalysis::Message &message, messages) {
+    for (const StaticAnalysis::Message &message : messages) {
         if (interface->currentFile()->isCursorOn(message.location)) {
             result << new AnalysizeMessageSuppressionOperation(interface, message);
             return;

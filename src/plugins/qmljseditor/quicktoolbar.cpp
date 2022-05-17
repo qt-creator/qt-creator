@@ -129,20 +129,20 @@ void QuickToolBar::apply(TextEditor::TextEditorWidget *editorWidget, Document::P
 
     if (scopeChain && scopeObject) {
         m_prototypes.clear();
-        foreach (const ObjectValue *object,
-                 PrototypeIterator(scopeObject, scopeChain->context()).all()) {
+        const QList<const ObjectValue *> objects
+            = PrototypeIterator(scopeObject, scopeChain->context()).all();
+        for (const ObjectValue *object : objects)
             m_prototypes.append(object->className());
-        }
 
         if (m_prototypes.contains(QLatin1String("PropertyChanges"))) {
             isPropertyChanges = true;
             const ObjectValue *targetObject = getPropertyChangesTarget(node, *scopeChain);
             m_prototypes.clear();
             if (targetObject) {
-                foreach (const ObjectValue *object,
-                         PrototypeIterator(targetObject, scopeChain->context()).all()) {
+                const QList<const ObjectValue *> objects
+                    = PrototypeIterator(targetObject, scopeChain->context()).all();
+                for (const ObjectValue *object : objects)
                     m_prototypes.append(object->className());
-                }
             }
         }
     }
