@@ -345,6 +345,13 @@ QVariant JsonFieldPage::value(const QString &key)
     return w->value(key);
 }
 
+JsonFieldPage::Field *JsonFieldPage::jsonField(const QString &name)
+{
+    return Utils::findOr(m_fields, nullptr, [&name](Field *f) {
+        return f->name() == name;
+    });
+}
+
 QWidget *JsonFieldPage::Field::widget() const
 {
     return d->m_widget;
