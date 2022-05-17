@@ -33,9 +33,7 @@
 #include <utils/terminalcommand.h>
 #include <utils/winutils.h>
 
-#include <QAbstractEventDispatcher>
 #include <QCoreApplication>
-#include <QDir>
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QRegularExpression>

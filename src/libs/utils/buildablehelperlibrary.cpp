@@ -27,7 +27,6 @@
 #include "hostosinfo.h"
 #include "qtcprocess.h"
 
-#include <QDateTime>
 #include <QDebug>
 #include <QDir>
 #include <QRegularExpression>

@@ -25,7 +25,6 @@
 
 #include "htmldocextractor.h"
 
-#include <QStringList>
 #include <QRegularExpression>
 
 namespace Utils {

@@ -30,7 +30,6 @@
 
 #include <QPainter>
 #include <QPaintEvent>
-#include <QLabel>
 
 namespace Utils {
 

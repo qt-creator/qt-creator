@@ -27,7 +27,6 @@
 #include "qtcassert.h"
 
 #include <QRegularExpression>
-#include <QDebug>
 
 /*!
   \class Utils::FileNameValidatingLineEdit

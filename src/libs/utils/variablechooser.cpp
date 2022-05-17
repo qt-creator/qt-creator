@@ -33,7 +33,6 @@
 #include "utilsicons.h"
 
 #include <QApplication>
-#include <QAbstractItemModel>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
@@ -47,7 +46,6 @@
 #include <QTimer>
 #include <QTreeView>
 #include <QVBoxLayout>
-#include <QVector>
 
 namespace Utils {
 namespace Internal {

@@ -34,8 +34,6 @@
 #include <QHash>
 #include <QVariant>
 
-#include <string.h>
-
 namespace Utils {
 
 /*!

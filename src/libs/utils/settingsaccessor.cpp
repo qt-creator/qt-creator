@@ -29,7 +29,6 @@
 #include "qtcassert.h"
 
 #include <QApplication>
-#include <QDebug>
 #include <QDir>
 
 namespace {

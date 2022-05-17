@@ -30,7 +30,6 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QElapsedTimer>
-#include <QHash>
 #include <QProcess>
 #include <QTimer>
 #include <QWaitCondition>

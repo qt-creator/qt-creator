@@ -27,8 +27,6 @@
 #include "namevaluedictionary.h"
 #include "qtcassert.h"
 
-#include <QDir>
-
 namespace Utils {
 
 NameValueDictionary::NameValueDictionary(const QStringList &env, OsType osType)

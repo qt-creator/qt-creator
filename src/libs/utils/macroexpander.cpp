@@ -26,13 +26,10 @@
 #include "macroexpander.h"
 
 #include "algorithm.h"
-#include "fileutils.h"
 #include "commandline.h"
 #include "qtcassert.h"
 #include "stringutils.h"
 
-#include <QCoreApplication>
-#include <QDebug>
 #include <QDir>
 #include <QFileInfo>
 #include <QLoggingCategory>

@@ -25,11 +25,10 @@
 
 #include "temporarydirectory.h"
 
-#include "fileutils.h"
-
-#include <QtCore/QCoreApplication>
-
+#include "filepath.h"
 #include "qtcassert.h"
+
+#include <QCoreApplication>
 
 namespace Utils {
 

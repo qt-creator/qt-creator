@@ -28,7 +28,6 @@
 #include "qtcassert.h"
 
 #include <QTextCodec>
-#include <QStringList>
 #include <QDebug>
 
 enum { debug = 0 };

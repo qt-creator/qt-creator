@@ -39,12 +39,11 @@
 
 #include "filesystemmodel.h"
 
-#include "filepath.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
 
 #include <QDateTime>
-#include <QDebug>
+#include <QCollator>
 #include <QDir>
 #include <QDirIterator>
 #include <QElapsedTimer>
@@ -58,7 +57,6 @@
 #include <QMutex>
 #include <QPair>
 #include <QStack>
-#include <QCollator>
 #include <QRegularExpression>
 #include <QThread>
 #include <QTimer>
@@ -1180,8 +1178,6 @@ void FileSystemModel::timerEvent(QTimerEvent *event)
                 if (!node->hasInformation()) {
                     d->fileInfoGatherer.fetchExtendedInformation(d->toFetch.at(i).dir,
                                                                  QStringList(d->toFetch.at(i).file));
-                } else {
-                    // qDebug("yah!, you saved a little gerbil soul");
                 }
             }
         }

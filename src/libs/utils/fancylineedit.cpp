@@ -30,11 +30,8 @@
 #include "hostosinfo.h"
 #include "optional.h"
 #include "qtcassert.h"
-#include "stylehelper.h"
 #include "utilsicons.h"
 
-#include <QAbstractItemView>
-#include <QDebug>
 #include <QKeyEvent>
 #include <QKeySequence>
 #include <QMenu>
@@ -42,6 +39,8 @@
 #include <QStylePainter>
 #include <QPropertyAnimation>
 #include <QStyle>
+#include <QStyleOptionFocusRect>
+#include <QValidator>
 #include <QWindow>
 
 /*!

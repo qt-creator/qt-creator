@@ -26,7 +26,7 @@
 #include "filewizardpage.h"
 #include "ui_filewizardpage.h"
 
-#include "wizard.h"
+#include "wizard.h" // TODO: only because of SHORT_TITLE_PROPERTY
 
 /*!
   \class Utils::FileWizardPage

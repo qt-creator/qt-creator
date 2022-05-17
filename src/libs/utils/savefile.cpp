@@ -25,7 +25,7 @@
 
 #include "savefile.h"
 #include "qtcassert.h"
-#include "fileutils.h"
+#include "filepath.h"
 #ifdef Q_OS_WIN
 #  include <windows.h>
 #  include <io.h>

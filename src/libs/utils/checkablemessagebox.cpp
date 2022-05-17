@@ -26,7 +26,6 @@
 #include "checkablemessagebox.h"
 
 #include "qtcassert.h"
-#include "qtcsettings.h"
 
 #include <QApplication>
 #include <QCheckBox>

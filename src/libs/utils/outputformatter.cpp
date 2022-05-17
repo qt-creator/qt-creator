@@ -34,7 +34,6 @@
 #include "theme/theme.h"
 
 #include <QDir>
-#include <QFileInfo>
 #include <QPair>
 #include <QPlainTextEdit>
 #include <QPointer>

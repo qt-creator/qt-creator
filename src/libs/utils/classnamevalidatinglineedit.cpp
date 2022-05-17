@@ -27,7 +27,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <QDebug>
 #include <QRegularExpression>
 
 /*!

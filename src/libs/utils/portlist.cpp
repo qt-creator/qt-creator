@@ -27,7 +27,6 @@
 
 #include <QPair>
 #include <QString>
-#include <QStringList>
 
 #include <cctype>
 

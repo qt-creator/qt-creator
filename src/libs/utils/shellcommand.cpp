@@ -31,14 +31,9 @@
 #include "qtcprocess.h"
 #include "runextensions.h"
 
-#include <QFileInfo>
 #include <QFuture>
 #include <QFutureWatcher>
 #include <QMutex>
-#include <QProcessEnvironment>
-#include <QScopedPointer>
-#include <QSharedPointer>
-#include <QStringList>
 #include <QTextCodec>
 #include <QThread>
 #include <QVariant>

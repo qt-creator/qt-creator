@@ -28,14 +28,13 @@
 #include "algorithm.h"
 #include "qtcassert.h"
 #include "qtcsettings.h"
-#include "theme/theme.h"
 #include "utilsicons.h"
 
 #include <QHBoxLayout>
 #include <QSettings>
 #include <QVBoxLayout>
 #include <QLabel>
-#include <QPaintEngine>
+#include <QPainter>
 #include <QToolButton>
 #include <QComboBox>
 

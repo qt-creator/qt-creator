@@ -26,24 +26,19 @@
 #include "filepath.h"
 
 #include "algorithm.h"
-#include "commandline.h"
 #include "environment.h"
 #include "fileutils.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
-#include "savefile.h"
 
 #include <QtGlobal>
-#include <QDataStream>
 #include <QDateTime>
 #include <QDebug>
 #include <QDirIterator>
 #include <QFileInfo>
-#include <QOperatingSystemVersion>
 #include <QRegularExpression>
 #include <QStorageInfo>
 #include <QUrl>
-#include <qplatformdefs.h>
 
 #ifdef Q_OS_WIN
 #ifdef QTCREATOR_PCH_H

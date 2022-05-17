@@ -25,7 +25,6 @@
 
 #include "execmenu.h"
 
-#include <QApplication>
 #include <QMenu>
 #include <QPoint>
 #include <QRect>

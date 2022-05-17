@@ -26,7 +26,6 @@
 #include "launcherpackets.h"
 
 #include <QByteArray>
-#include <QCoreApplication>
 
 namespace Utils {
 namespace Internal {

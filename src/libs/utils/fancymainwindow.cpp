@@ -42,7 +42,6 @@
 #include <QStyle>
 #include <QStyleOption>
 #include <QTimer>
-#include <QToolButton>
 
 static const char AutoHideTitleBarsKey[] = "AutoHideTitleBars";
 static const char ShowCentralWidgetKey[] = "ShowCentralWidget";

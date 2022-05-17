@@ -27,10 +27,10 @@
 
 #include "algorithm.h"
 
-#include <QTextStream>
+#include <QFileInfo>
 #include <QSet>
 #include <QStringList>
-#include <QFileInfo>
+#include <QTextStream>
 
 namespace Utils {
 

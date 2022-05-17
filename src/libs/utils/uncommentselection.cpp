@@ -28,8 +28,8 @@
 #include "qtcassert.h"
 #include "utils/multitextcursor.h"
 
-#include <QPlainTextEdit>
 #include <QTextBlock>
+#include <QTextDocument>
 
 namespace Utils {
 

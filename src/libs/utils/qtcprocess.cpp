@@ -27,14 +27,11 @@
 
 #include "algorithm.h"
 #include "commandline.h"
-#include "executeondestruction.h"
 #include "hostosinfo.h"
 #include "launcherinterface.h"
-#include "launcherpackets.h"
 #include "launchersocket.h"
 #include "processreaper.h"
 #include "processutils.h"
-#include "stringutils.h"
 #include "terminalprocess_p.h"
 
 #include <QCoreApplication>

@@ -30,12 +30,10 @@
 #include "stylehelper.h"
 
 #include <QApplication>
+#include <QDebug>
 #include <QIcon>
 #include <QImage>
 #include <QPainter>
-#include <QPaintEngine>
-#include <QWidget>
-#include <QDebug>
 
 namespace Utils {
 

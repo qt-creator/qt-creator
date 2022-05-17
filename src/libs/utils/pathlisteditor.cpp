@@ -25,13 +25,9 @@
 
 #include "pathlisteditor.h"
 
-#include "hostosinfo.h"
-#include "stringutils.h"
 #include "fileutils.h"
+#include "hostosinfo.h"
 
-#include <QDebug>
-#include <QFileDialog>
-#include <QMenu>
 #include <QMimeData>
 #include <QPlainTextEdit>
 #include <QPushButton>

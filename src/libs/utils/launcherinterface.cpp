@@ -26,7 +26,6 @@
 #include "launcherinterface.h"
 
 #include "filepath.h"
-#include "launcherpackets.h"
 #include "launchersocket.h"
 #include "qtcassert.h"
 #include "temporarydirectory.h"

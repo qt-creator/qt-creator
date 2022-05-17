@@ -27,17 +27,12 @@
 #include "savefile.h"
 
 #include "algorithm.h"
-#include "commandline.h"
-#include "environment.h"
-#include "hostosinfo.h"
 #include "qtcassert.h"
 
 #include <QDataStream>
-#include <QDateTime>
 #include <QDebug>
 #include <QOperatingSystemVersion>
-#include <QTimer>
-#include <QUrl>
+#include <QTextStream>
 #include <qplatformdefs.h>
 
 #ifdef QT_GUI_LIB

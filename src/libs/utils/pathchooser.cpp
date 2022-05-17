@@ -31,9 +31,7 @@
 #include "macroexpander.h"
 #include "qtcassert.h"
 #include "qtcprocess.h"
-#include "theme/theme.h"
 
-#include <QDebug>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QMenu>

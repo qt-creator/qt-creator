@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "deviceshell.h"
-#include "processinterface.h"
 
 #include <qtcassert.h>
 #include <qtcprocess.h>

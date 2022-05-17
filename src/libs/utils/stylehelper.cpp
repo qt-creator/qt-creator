@@ -30,14 +30,15 @@
 
 #include <utils/qtcassert.h>
 
-#include <QPixmapCache>
-#include <QPainter>
 #include <QApplication>
-#include <QFileInfo>
 #include <QCommonStyle>
+#include <QFileInfo>
+#include <QFontDatabase>
+#include <QPainter>
+#include <QPixmapCache>
 #include <QStyleOption>
 #include <QWindow>
-#include <QFontDatabase>
+
 #include <qmath.h>
 
 // Clamps float color values within (0, 255)

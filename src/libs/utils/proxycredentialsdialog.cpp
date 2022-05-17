@@ -26,7 +26,6 @@
 #include "proxycredentialsdialog.h"
 #include "ui_proxycredentialsdialog.h"
 
-#include <utils/networkaccessmanager.h>
 #include <QNetworkProxy>
 
 using namespace Utils;

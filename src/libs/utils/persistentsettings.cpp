@@ -25,22 +25,21 @@
 
 #include "persistentsettings.h"
 
+#include <QDateTime>
 #include <QDebug>
 #include <QDir>
+#include <QRect>
+#include <QRegularExpression>
 #include <QStack>
+#include <QTextStream>
 #include <QXmlStreamAttributes>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
-#include <QDateTime>
-#include <QTextStream>
-#include <QRegularExpression>
-#include <QRect>
 
 #ifdef QT_GUI_LIB
 #include <QMessageBox>
 #endif
 
-#include <utils/porting.h>
 #include <utils/qtcassert.h>
 
 // Read and write rectangle in X11 resource syntax "12x12+4+3"

@@ -32,12 +32,9 @@
 #include <windows.h>
 #endif
 
-#include <QString>
-#include <QVector>
-#include <QDebug>
 #include <QLibrary>
+#include <QString>
 #include <QTextStream>
-#include <QDir>
 
 namespace Utils {
 

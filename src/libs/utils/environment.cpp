@@ -27,7 +27,6 @@
 
 #include "algorithm.h"
 #include "qtcassert.h"
-#include "stringutils.h"
 
 #include <QDebug>
 #include <QDir>

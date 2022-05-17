@@ -34,11 +34,8 @@
 #include <QFileInfo>
 #include <QLocale>
 #include <QLoggingCategory>
-#include <QMultiHash>
 #include <QMutex>
 #include <QMutexLocker>
-#include <QSet>
-#include <QStringList>
 
 static Q_LOGGING_CATEGORY(qrcParserLog, "qtc.qrcParser", QtWarningMsg)
 

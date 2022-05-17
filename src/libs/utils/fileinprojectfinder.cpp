@@ -26,14 +26,11 @@
 #include "fileinprojectfinder.h"
 
 #include "algorithm.h"
-#include "fileutils.h"
 #include "hostosinfo.h"
 #include "qrcparser.h"
 #include "qtcassert.h"
-#include "stringutils.h"
 
 #include <QCursor>
-#include <QDebug>
 #include <QDir>
 #include <QFileInfo>
 #include <QLoggingCategory>

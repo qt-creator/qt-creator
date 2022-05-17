@@ -27,11 +27,8 @@
 
 #include "icon.h"
 #include "qtcassert.h"
-#include "stylehelper.h"
 
-#include <QEvent>
 #include <QPainter>
-#include <QPixmap>
 
 /*!
     \class Utils::ProgressIndicator

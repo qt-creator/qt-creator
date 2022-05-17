@@ -25,14 +25,11 @@
 
 #include "historycompleter.h"
 
-#include "fancylineedit.h"
 #include "qtcassert.h"
 #include "qtcsettings.h"
-#include "theme/theme.h"
 #include "utilsicons.h"
 
 #include <QItemDelegate>
-#include <QKeyEvent>
 #include <QListView>
 #include <QPainter>
 #include <QWindow>

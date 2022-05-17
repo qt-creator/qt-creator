@@ -31,9 +31,7 @@
 #include "layoutbuilder.h"
 #include "pathchooser.h"
 #include "qtcassert.h"
-#include "qtcprocess.h"
 #include "qtcsettings.h"
-#include "utilsicons.h"
 #include "variablechooser.h"
 
 #include <QAction>
@@ -41,7 +39,6 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDebug>
-#include <QFormLayout>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
@@ -52,7 +49,6 @@
 #include <QSettings>
 #include <QSpinBox>
 #include <QTextEdit>
-#include <QToolButton>
 
 namespace Utils {
 namespace Internal {

@@ -29,7 +29,6 @@
 #include <utils/fileutils.h>
 
 #include <QDir>
-#include <QDebug>
 #include <QJsonDocument>
 
 using namespace Utils;
