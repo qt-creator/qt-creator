@@ -53,7 +53,7 @@ GenericProposal *GenericProposal::createProposal(const AssistInterface *interfac
         return nullptr;
 
     QList<AssistProposalItemInterface *> items;
-    foreach (const QuickFixOperation::Ptr &op, quickFixes) {
+    for (const QuickFixOperation::Ptr &op : quickFixes) {
         QVariant v;
         v.setValue(op);
         auto item = new AssistProposalItem;

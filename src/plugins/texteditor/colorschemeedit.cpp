@@ -456,7 +456,8 @@ void ColorSchemeEdit::eraseBackColor()
     m_ui->backgroundToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
     m_ui->eraseBackgroundToolButton->setEnabled(false);
 
-    foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
+    const QList<QModelIndex> indexes = m_ui->itemList->selectionModel()->selectedRows();
+    for (const QModelIndex &index : indexes) {
         const TextStyle category = m_descriptions[index.row()].id();
         m_scheme.formatFor(category).setBackground(newColor);
         m_formatsModel->emitDataChanged(index);
@@ -473,7 +474,8 @@ void ColorSchemeEdit::eraseForeColor()
     m_ui->foregroundToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
     m_ui->eraseForegroundToolButton->setEnabled(false);
 
-    for (const QModelIndex &index : m_ui->itemList->selectionModel()->selectedRows()) {
+    const QList<QModelIndex> indexes = m_ui->itemList->selectionModel()->selectedRows();
+    for (const QModelIndex &index : indexes) {
         const TextStyle category = m_descriptions[index.row()].id();
         m_scheme.formatFor(category).setForeground(newColor);
         m_formatsModel->emitDataChanged(index);
@@ -538,7 +540,8 @@ void ColorSchemeEdit::eraseRelativeBackColor()
     m_ui->backgroundSaturationSpinBox->setValue(0.0);
     m_ui->backgroundLightnessSpinBox->setValue(0.0);
 
-    foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
+    const QList<QModelIndex> indexes = m_ui->itemList->selectionModel()->selectedRows();
+    for (const QModelIndex &index : indexes) {
         const TextStyle category = m_descriptions[index.row()].id();
         m_scheme.formatFor(category).setRelativeBackgroundSaturation(0.0);
         m_scheme.formatFor(category).setRelativeBackgroundLightness(0.0);

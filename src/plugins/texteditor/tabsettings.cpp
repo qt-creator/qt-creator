@@ -273,7 +273,7 @@ bool TabSettings::guessSpacesForTabs(const QTextBlock &_block) const
             if (currentBlocks.at(1).isValid())
                 currentBlocks[1] = currentBlocks.at(1).next();
             bool done = true;
-            foreach (const QTextBlock &block, currentBlocks) {
+            for (const QTextBlock &block : qAsConst(currentBlocks)) {
                 if (block.isValid())
                     done = false;
                 if (!block.isValid() || block.length() == 0)

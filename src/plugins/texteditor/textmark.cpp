@@ -472,7 +472,8 @@ void TextMarkRegistry::editorOpened(IEditor *editor)
     if (!m_marks.contains(document->filePath()))
         return;
 
-    foreach (TextMark *mark, m_marks.value(document->filePath()))
+    const QSet<TextMark *> marks = m_marks.value(document->filePath());
+    for (TextMark *mark : marks)
         document->addMark(mark);
 }
 
@@ -487,13 +488,14 @@ void TextMarkRegistry::documentRenamed(IDocument *document,
         return;
 
     QSet<TextMark *> toBeMoved;
-    foreach (TextMark *mark, baseTextDocument->marks())
+    const QList<TextMark *> marks = baseTextDocument->marks();
+    for (TextMark *mark : marks)
         toBeMoved.insert(mark);
 
     m_marks[oldPath].subtract(toBeMoved);
     m_marks[newPath].unite(toBeMoved);
 
-    foreach (TextMark *mark, toBeMoved)
+    for (TextMark *mark : qAsConst(toBeMoved))
         mark->updateFileName(newPath);
 }
 
@@ -502,12 +504,12 @@ void TextMarkRegistry::allDocumentsRenamed(const FilePath &oldPath, const FilePa
     if (!m_marks.contains(oldPath))
         return;
 
-    QSet<TextMark *> oldFileNameMarks = m_marks.value(oldPath);
+    const QSet<TextMark *> oldFileNameMarks = m_marks.value(oldPath);
 
     m_marks[newPath].unite(oldFileNameMarks);
     m_marks[oldPath].clear();
 
-    foreach (TextMark *mark, oldFileNameMarks)
+    for (TextMark *mark : oldFileNameMarks)
         mark->updateFileName(newPath);
 }
 

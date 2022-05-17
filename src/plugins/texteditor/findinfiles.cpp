@@ -159,7 +159,8 @@ QWidget *FindInFiles::createConfigWidget()
         gridLayout->addWidget(m_searchEngineCombo, row, 1);
 
         m_searchEngineWidget = new QStackedWidget(m_configWidget);
-        foreach (SearchEngine *searchEngine, searchEngines()) {
+        const QVector<SearchEngine *> searchEngineVector = searchEngines();
+        for (const SearchEngine *searchEngine : searchEngineVector) {
             m_searchEngineWidget->addWidget(searchEngine->widget());
             m_searchEngineCombo->addItem(searchEngine->title());
         }
@@ -197,7 +198,7 @@ QWidget *FindInFiles::createConfigWidget()
             setValid(currentSearchEngine()->isEnabled() && m_directory->isValid());
         };
         connect(this, &BaseFileFind::currentSearchEngineChanged, this, updateValidity);
-        foreach (SearchEngine *searchEngine, searchEngines())
+        for (const SearchEngine *searchEngine : searchEngineVector)
             connect(searchEngine, &SearchEngine::enabledChanged, this, updateValidity);
         connect(m_directory.data(), &PathChooser::validChanged, this, updateValidity);
         updateValidity();

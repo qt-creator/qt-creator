@@ -457,7 +457,7 @@ void TextEditorActionHandlerPrivate::createActions()
 void TextEditorActionHandlerPrivate::updateActions()
 {
     bool isWritable = m_currentEditorWidget && !m_currentEditorWidget->isReadOnly();
-    foreach (QAction *a, m_modifyingActions)
+    for (QAction *a : qAsConst(m_modifyingActions))
         a->setEnabled(isWritable);
     m_unCommentSelectionAction->setEnabled((m_optionalActions & TextEditorActionHandler::UnCommentSelection) && isWritable);
     m_visualizeWhitespaceAction->setEnabled(m_currentEditorWidget);

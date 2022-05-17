@@ -625,7 +625,7 @@ public:
         int start;
         int length;
     };
-    void addSearchResultsToScrollBar(QVector<SearchResult> results);
+    void addSearchResultsToScrollBar(const QVector<SearchResult> &results);
     void adjustScrollBarRanges();
 
     void setFindScope(const MultiTextCursor &scope);
@@ -2229,7 +2229,8 @@ void TextEditorWidgetPrivate::moveLineUpDown(bool up)
     RefactorMarkers nonAffectedMarkers;
     QList<int> markerOffsets;
 
-    foreach (const RefactorMarker &marker, m_refactorOverlay->markers()) {
+    const QList<RefactorMarker> markers = m_refactorOverlay->markers();
+    for (const RefactorMarker &marker : markers) {
         //test if marker is part of the selection to be moved
         if ((move.selectionStart() <= marker.cursor.position())
                 && (move.selectionEnd() >= marker.cursor.position())) {
@@ -2674,7 +2675,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
 
         QChar electricChar;
         if (d->m_document->typingSettings().m_autoIndent) {
-            foreach (QChar c, eventText) {
+            for (const QChar c : eventText) {
                 if (d->m_document->indenter()->isElectricCharacter(c)) {
                     electricChar = c;
                     break;
@@ -3100,7 +3101,7 @@ void TextEditorWidget::restoreState(const QByteArray &state)
         stream >> collapsedBlocks;
         QTextDocument *doc = document();
         bool layoutChanged = false;
-        foreach (int blockNumber, collapsedBlocks) {
+        for (const int blockNumber : qAsConst(collapsedBlocks)) {
             QTextBlock block = doc->findBlockByNumber(qMax(0, blockNumber));
             if (block.isValid()) {
                 TextDocumentLayout::doFoldOrUnfold(block, false);
@@ -4105,10 +4106,12 @@ void TextEditorWidgetPrivate::paintBlockHighlight(const PaintEventData &data,
 
         int n = block.blockNumber();
         int depth = 0;
-        foreach (int i, m_highlightBlocksInfo.open)
+        const QList<int> open = m_highlightBlocksInfo.open;
+        for (const int i : open)
             if (n >= i)
                 ++depth;
-        foreach (int i, m_highlightBlocksInfo.close)
+        const QList<int> close = m_highlightBlocksInfo.close;
+        for (const int i : close)
             if (n > i)
                 --depth;
 
@@ -5567,7 +5570,8 @@ static void appendMenuActionsFromContext(QMenu *menu, Id menuContextId)
     ActionContainer *mcontext = ActionManager::actionContainer(menuContextId);
     QMenu *contextMenu = mcontext->menu();
 
-    foreach (QAction *action, contextMenu->actions())
+    const QList<QAction *> actions = contextMenu->actions();
+    for (QAction *action : actions)
         menu->addAction(action);
 }
 
@@ -6213,7 +6217,8 @@ void TextEditorWidgetPrivate::searchResultsReady(int beginIndex, int endIndex)
 {
     QVector<SearchResult> results;
     for (int index = beginIndex; index < endIndex; ++index) {
-        foreach (Utils::FileSearchResult result, m_searchWatcher->resultAt(index)) {
+        const QList<Utils::FileSearchResult> resultList = m_searchWatcher->resultAt(index);
+        for (Utils::FileSearchResult result : resultList) {
             const QTextBlock &block = q->document()->findBlockByNumber(result.lineNumber - 1);
             const int matchStart = block.position() + result.matchStart;
             QTextCursor cursor(block);
@@ -6312,11 +6317,11 @@ Highlight::Priority textMarkPrioToScrollBarPrio(const TextMark::Priority &prio)
     }
 }
 
-void TextEditorWidgetPrivate::addSearchResultsToScrollBar(QVector<SearchResult> results)
+void TextEditorWidgetPrivate::addSearchResultsToScrollBar(const QVector<SearchResult> &results)
 {
     if (!m_highlightScrollBarController)
         return;
-    foreach (SearchResult result, results) {
+    for (SearchResult result : results) {
         const QTextBlock &block = q->document()->findBlock(result.start);
         if (block.isValid() && block.isVisible()) {
             const int firstLine = block.layout()->lineForTextPosition(result.start - block.position()).lineNumber();
@@ -6558,7 +6563,9 @@ void TextEditorWidgetPrivate::_q_matchParentheses()
 
 
     if (animatePosition >= 0) {
-        foreach (const QTextEdit::ExtraSelection &sel, q->extraSelections(TextEditorWidget::ParenthesesMatchingSelection)) {
+        const QList<QTextEdit::ExtraSelection> selections = q->extraSelections(
+            TextEditorWidget::ParenthesesMatchingSelection);
+        for (const QTextEdit::ExtraSelection &sel : selections) {
             if (sel.cursor.selectionStart() == animatePosition
                 || sel.cursor.selectionEnd() - 1 == animatePosition) {
                 animatePosition = -1;
@@ -6904,7 +6911,7 @@ void TextEditorWidgetPrivate::setExtraSelections(Id kind, const QList<QTextEdit:
 
     if (kind == TextEditorWidget::CodeSemanticsSelection) {
         m_overlay->clear();
-        foreach (const QTextEdit::ExtraSelection &selection, m_extraSelections[kind]) {
+        for (const QTextEdit::ExtraSelection &selection : selections) {
             m_overlay->addOverlaySelection(selection.cursor,
                                               selection.format.background().color(),
                                               selection.format.background().color(),
@@ -6935,7 +6942,7 @@ QList<QTextEdit::ExtraSelection> TextEditorWidget::extraSelections(Id kind) cons
 
 QString TextEditorWidget::extraSelectionTooltip(int pos) const
 {
-    foreach (const QList<QTextEdit::ExtraSelection> &sel, d->m_extraSelections) {
+    for (const QList<QTextEdit::ExtraSelection> &sel : qAsConst(d->m_extraSelections)) {
         for (const QTextEdit::ExtraSelection &s : sel) {
             if (s.cursor.selectionStart() <= pos
                 && s.cursor.selectionEnd() >= pos
@@ -7434,7 +7441,8 @@ QMimeData *TextEditorWidget::createMimeDataFromSelection() const
                      current = current.next()) {
                     if (selectionVisible(current.blockNumber())) {
                         const QTextLayout *layout = current.layout();
-                        foreach (const QTextLayout::FormatRange &range, layout->formats()) {
+                        const QVector<QTextLayout::FormatRange> ranges = layout->formats();
+                        for (const QTextLayout::FormatRange &range : ranges) {
                             const int startPosition = current.position() + range.start
                                                       - selectionStart - removedCount;
                             const int endPosition = startPosition + range.length;
@@ -7974,10 +7982,11 @@ RefactorMarkers TextEditorWidget::refactorMarkers() const
 
 void TextEditorWidget::setRefactorMarkers(const RefactorMarkers &markers)
 {
-    foreach (const RefactorMarker &marker, d->m_refactorOverlay->markers())
+    const QList<RefactorMarker> oldMarkers = d->m_refactorOverlay->markers();
+    for (const RefactorMarker &marker : oldMarkers)
         emit requestBlockUpdate(marker.cursor.block());
     d->m_refactorOverlay->setMarkers(markers);
-    foreach (const RefactorMarker &marker, markers)
+    for (const RefactorMarker &marker : markers)
         emit requestBlockUpdate(marker.cursor.block());
 }
 

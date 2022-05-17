@@ -65,10 +65,11 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
         std::find_if(mibs.begin(), mibs.end(), [](int n) { return n >=0; });
     if (firstNonNegative != mibs.end())
         std::rotate(mibs.begin(), firstNonNegative, mibs.end());
-    foreach (int mib, mibs) {
+    for (int mib : qAsConst(mibs)) {
         if (QTextCodec *codec = QTextCodec::codecForMib(mib)) {
             QString compoundName = QLatin1String(codec->name());
-            foreach (const QByteArray &alias, codec->aliases()) {
+            const QList<QByteArray> aliases = codec->aliases();
+            for (const QByteArray &alias : aliases) {
                 compoundName += QLatin1String(" / ");
                 compoundName += QString::fromLatin1(alias);
             }

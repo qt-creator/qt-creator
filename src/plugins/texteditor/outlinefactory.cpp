@@ -129,7 +129,8 @@ void OutlineWidgetStack::restoreSettings(QSettings *settings, int position)
 
     bool syncWithEditor = true;
     m_widgetSettings.clear();
-    foreach (const QString &longKey, settings->allKeys()) {
+    const QStringList longKeys = settings->allKeys();
+    for (const QString &longKey : longKeys) {
         if (!longKey.startsWith(baseKey))
             continue;
 
@@ -169,10 +170,10 @@ void OutlineWidgetStack::toggleSort()
 void OutlineWidgetStack::updateFilterMenu()
 {
     m_filterMenu->clear();
-    if (auto outlineWidget = qobject_cast<IOutlineWidget*>(currentWidget())) {
-        foreach (QAction *filterAction, outlineWidget->filterMenuActions()) {
+    if (auto outlineWidget = qobject_cast<IOutlineWidget *>(currentWidget())) {
+        const QList<QAction *> filterActions = outlineWidget->filterMenuActions();
+        for (QAction *filterAction : filterActions)
             m_filterMenu->addAction(filterAction);
-        }
     }
     m_filterButton->setVisible(!m_filterMenu->actions().isEmpty());
 }

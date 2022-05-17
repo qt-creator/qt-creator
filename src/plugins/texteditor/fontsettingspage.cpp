@@ -626,7 +626,7 @@ void FontSettingsPageWidget::refreshColorSchemeList()
     QString defaultScheme = Utils::FilePath::fromString(FontSettings::defaultSchemeFileName()).fileName();
     if (schemeList.removeAll(defaultScheme))
         schemeList.prepend(defaultScheme);
-    foreach (const QString &file, schemeList) {
+    for (const QString &file : qAsConst(schemeList)) {
         const QString fileName = styleDir.absoluteFilePath(file);
         if (m_value.colorSchemeFileName() == fileName)
             selected = colorSchemes.size();
@@ -638,7 +638,8 @@ void FontSettingsPageWidget::refreshColorSchemeList()
 
     styleDir.setPath(customStylesPath().path());
 
-    foreach (const QString &file, styleDir.entryList()) {
+    const QStringList files = styleDir.entryList();
+    for (const QString &file : files) {
         const QString fileName = styleDir.absoluteFilePath(file);
         if (m_value.colorSchemeFileName() == fileName)
             selected = colorSchemes.size();

@@ -414,7 +414,7 @@ bool FontSettings::loadColorScheme(const QString &fileName,
     }
 
     // Apply default formats to undefined categories
-    foreach (const FormatDescription &desc, descriptions) {
+    for (const FormatDescription &desc : descriptions) {
         const TextStyle id = desc.id();
         if (!m_scheme.contains(id)) {
             if (id == C_NAMESPACE && m_scheme.contains(C_TYPE)) {

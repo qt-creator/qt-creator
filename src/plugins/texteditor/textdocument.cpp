@@ -260,7 +260,8 @@ TextDocument::~TextDocument()
 QMap<QString, QString> TextDocument::openedTextDocumentContents()
 {
     QMap<QString, QString> workingCopy;
-    foreach (IDocument *document, DocumentModel::openedDocuments()) {
+    const QList<IDocument *> documents = DocumentModel::openedDocuments();
+    for (IDocument *document : documents) {
         auto textEditorDocument = qobject_cast<TextDocument *>(document);
         if (!textEditorDocument)
             continue;
@@ -273,7 +274,8 @@ QMap<QString, QString> TextDocument::openedTextDocumentContents()
 QMap<QString, QTextCodec *> TextDocument::openedTextDocumentEncodings()
 {
     QMap<QString, QTextCodec *> workingCopy;
-    foreach (IDocument *document, DocumentModel::openedDocuments()) {
+    const QList<IDocument *> documents = DocumentModel::openedDocuments();
+    for (IDocument *document : documents) {
         auto textEditorDocument = qobject_cast<TextDocument *>(document);
         if (!textEditorDocument)
             continue;
@@ -912,7 +914,7 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool inEntireDocument,
     const IndentationForBlock &indentations
         = d->m_indenter->indentationForBlocks(blocks, currentTabSettings);
 
-    foreach (block, blocks) {
+    for (QTextBlock block : qAsConst(blocks)) {
         QString blockText = block.text();
 
         if (removeTrailingWhitespace)
@@ -1050,7 +1052,7 @@ void TextDocument::removeMarkFromMarksCache(TextMark *mark)
         documentLayout->requestExtraAreaUpdate();
     } else {
         double maxWidthFactor = 1.0;
-        foreach (const TextMark *mark, marks()) {
+        for (const TextMark *mark : qAsConst(d->m_marksCache)) {
             if (!mark->isVisible())
                 continue;
             maxWidthFactor = qMax(mark->widthFactor(), maxWidthFactor);

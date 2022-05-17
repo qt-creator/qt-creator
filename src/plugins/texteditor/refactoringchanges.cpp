@@ -59,7 +59,7 @@ RefactoringSelections RefactoringChanges::rangesToSelections(QTextDocument *docu
 {
     RefactoringSelections selections;
 
-    foreach (const Range &range, ranges) {
+    for (const Range &range : ranges) {
         QTextCursor start(document);
         start.setPosition(range.start);
         start.setKeepPositionOnInsert(true);
