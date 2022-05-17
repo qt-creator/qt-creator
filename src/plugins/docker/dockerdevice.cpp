@@ -109,7 +109,6 @@ public:
     ContainerShell(const QString &containerId)
         : m_containerId(containerId)
     {
-        start();
     }
 
 private:
@@ -464,9 +463,7 @@ void DockerDevicePrivate::startContainer()
                                          "or restart Qt Creator."));
     });
 
-    if (m_shell->state() != DeviceShell::State::Succeeded) {
-        m_shell.reset();
-        DockerApi::recheckDockerDaemon();
+    if (!m_shell->start()) {
         qCWarning(dockerDeviceLog) << "Container shell failed to start";
     }
 }

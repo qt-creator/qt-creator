@@ -46,6 +46,7 @@
 #include <projectexplorer/runcontrol.h>
 
 #include <utils/algorithm.h>
+#include <utils/deviceshell.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/port.h>
@@ -380,7 +381,6 @@ public:
 
     bool setupShell();
     bool runInShell(const CommandLine &cmd, const QByteArray &data = {});
-    QByteArray outputForRunInShell(const QString &cmd);
     QByteArray outputForRunInShell(const CommandLine &cmd);
     void attachToSharedConnection(SshConnectionHandle *connectionHandle,
                                   const SshParameters &sshParameters);
@@ -734,7 +734,7 @@ void SshProcessInterfacePrivate::doStart()
 
 CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
 {
-    Utils::CommandLine cmd{SshSettings::sshFilePath()};
+    CommandLine cmd{SshSettings::sshFilePath()};
 
     if (!m_sshParameters.x11DisplayName.isEmpty())
         cmd.addArg("-X");
@@ -769,6 +769,25 @@ static SshParameters displayless(const SshParameters &sshParameters)
 
 class ShellThreadHandler : public QObject
 {
+    class LinuxDeviceShell : public DeviceShell
+    {
+    public:
+        LinuxDeviceShell(const CommandLine &cmdLine)
+            : m_cmdLine(cmdLine)
+        {
+        }
+
+    private:
+        void setupShellProcess(QtcProcess *shellProcess) override
+        {
+            SshParameters::setupSshEnvironment(shellProcess);
+            shellProcess->setCommand(m_cmdLine);
+        }
+
+    private:
+        const CommandLine m_cmdLine;
+    };
+
 public:
     ~ShellThreadHandler()
     {
@@ -778,10 +797,6 @@ public:
 
     void closeShell()
     {
-        if (m_shell && m_shell->isRunning()) {
-            m_shell->write("exit\n");
-            m_shell->waitForFinished(-1);
-        }
         m_shell.reset();
     }
 
@@ -790,9 +805,6 @@ public:
     {
         closeShell();
         setSshParameters(parameters);
-        m_shell.reset(new QtcProcess);
-
-        SshParameters::setupSshEnvironment(m_shell.get());
 
         const FilePath sshPath = SshSettings::sshFilePath();
         CommandLine cmd { sshPath };
@@ -801,93 +813,23 @@ public:
                     << m_displaylessSshParameters.host());
         cmd.addArg("/bin/sh");
 
-        m_shell->setCommand(cmd);
-        m_shell->setProcessMode(ProcessMode::Writer);
-        m_shell->setWriteData("echo\n");
-        m_shell->start();
-
-        auto failed = [this] {
-            closeShell();
-            qCDebug(linuxDeviceLog) << "Failed to connect to" << m_displaylessSshParameters.host();
-            return false;
-        };
-
-        QDeadlineTimer timer(30000);
-        if (!m_shell->waitForStarted(timer.remainingTime()))
-            return failed();
-
-        while (true) {
-            if (!m_shell->waitForReadyRead(timer.remainingTime()))
-                return failed();
-
-            const QByteArray output = m_shell->readAllStandardOutput();
-            if (output == "\n")
-                break; // expected output from echo
-            if (output.size() > 0)
-                return failed(); // other unidentified output
-
-            // In case of trying to run a shell using SSH_ASKPASS, it may happen
-            // that we receive ready read signal but for error channel, while output
-            // channel still is empty. In this case we wait in loop until the user
-            // provides the right password, otherwise we timeout after 30 seconds.
-        }
-        return true;
+        m_shell.reset(new LinuxDeviceShell(cmd));
+        connect(m_shell.get(), &DeviceShell::done, this, [this] { m_shell.reset(); });
+        return m_shell->start();
     }
 
     // Call me with shell mutex locked
     bool runInShell(const CommandLine &cmd, const QByteArray &data = {})
     {
         QTC_ASSERT(m_shell, return false);
-        QTC_CHECK(m_shell->readAllStandardOutput().isNull()); // clean possible left-overs
-        QTC_CHECK(m_shell->readAllStandardError().isNull()); // clean possible left-overs
-
-        QString prefix;
-        if (!data.isEmpty())
-            prefix =  "echo '" + QString::fromUtf8(data.toBase64()) + "' | base64 -d | ";
-        const QString suffix = " > /dev/null 2>&1\necho $?\n";
-        const QString command = prefix + cmd.toUserOutput() + suffix;
-
-        m_shell->write(command);
-        DEBUG("RUN1 " << cmd.toUserOutput());
-        m_shell->waitForReadyRead();
-        const QByteArray output = m_shell->readAllStandardOutput();
-        DEBUG("GOT1 " << output);
-        bool ok = false;
-        const int result = output.toInt(&ok);
-        LOG("Run command in shell:" << cmd.toUserOutput() << "result: " << output << " ==>" << result);
-        QTC_ASSERT(ok, return false);
-        return !result;
+        return m_shell->runInShell(cmd, data);
     }
 
     // Call me with shell mutex locked
-    QByteArray outputForRunInShell(const QString &cmd)
+    QByteArray outputForRunInShell(const CommandLine &cmd)
     {
         QTC_ASSERT(m_shell, return {});
-        QTC_CHECK(m_shell->readAllStandardOutput().isNull()); // clean possible left-overs
-        QTC_CHECK(m_shell->readAllStandardError().isNull()); // clean possible left-overs
-        auto cleanup = qScopeGuard([this] { m_shell->readAllStandardOutput(); }); // clean on assert
-
-        const QString suffix = " 2> /dev/null \necho $? 1>&2\n";
-        const QString command = cmd + suffix;
-
-        m_shell->write(command);
-        DEBUG("RUN2 " << cmd.toUserOutput());
-
-        while (true) {
-            m_shell->waitForReadyRead();
-            const QByteArray error = m_shell->readAllStandardError();
-            if (!error.isNull()) {
-                bool ok = false;
-                const int result = error.toInt(&ok);
-                QTC_ASSERT(ok, return {});
-                QTC_ASSERT(!result, return {});
-                break;
-            }
-        }
-        const QByteArray output = m_shell->readAllStandardOutput();
-        DEBUG("GOT2 " << output);
-        LOG("Run command in shell:" << cmd << "output size:" << output.size());
-        return output;
+        return m_shell->outputForRunInShell(cmd).stdOut;
     }
 
     void setSshParameters(const SshParameters &sshParameters)
@@ -970,7 +912,7 @@ private:
     mutable QMutex m_mutex;
     SshParameters m_displaylessSshParameters;
     QList<SshSharedConnection *> m_connections;
-    std::unique_ptr<QtcProcess> m_shell;
+    std::unique_ptr<LinuxDeviceShell> m_shell;
 };
 
 // LinuxDevice
@@ -1089,7 +1031,7 @@ public:
 private:
     void start() override { m_reader.start(); }
     void readerFinished() { emit finished(m_reader.remoteEnvironment(), true); }
-    void readerError() { emit finished(Utils::Environment(), false); }
+    void readerError() { emit finished(Environment(), false); }
 
     Internal::RemoteLinuxEnvironmentReader m_reader;
 };
@@ -1172,7 +1114,7 @@ bool LinuxDevicePrivate::runInShell(const CommandLine &cmd, const QByteArray &da
     return ret;
 }
 
-QByteArray LinuxDevicePrivate::outputForRunInShell(const QString &cmd)
+QByteArray LinuxDevicePrivate::outputForRunInShell(const CommandLine &cmd)
 {
     QMutexLocker locker(&m_shellMutex);
     DEBUG(cmd);
@@ -1183,11 +1125,6 @@ QByteArray LinuxDevicePrivate::outputForRunInShell(const QString &cmd)
         return m_handler->outputForRunInShell(cmd);
     }, Qt::BlockingQueuedConnection, &ret);
     return ret;
-}
-
-QByteArray LinuxDevicePrivate::outputForRunInShell(const CommandLine &cmd)
-{
-    return outputForRunInShell(cmd.toUserOutput());
 }
 
 void LinuxDevicePrivate::attachToSharedConnection(SshConnectionHandle *connectionHandle,
@@ -1337,7 +1274,7 @@ qint64 LinuxDevice::bytesAvailable(const FilePath &filePath) const
     CommandLine cmd("df", {"-k"});
     cmd.addArg(filePath.path());
     cmd.addArgs("|tail -n 1 |sed 's/  */ /g'|cut -d ' ' -f 4", CommandLine::Raw);
-    const QByteArray output = d->outputForRunInShell(cmd.toUserOutput());
+    const QByteArray output = d->outputForRunInShell(cmd);
     bool ok = false;
     const qint64 size = output.toLongLong(&ok);
     if (ok)
@@ -1365,7 +1302,7 @@ QFileDevice::Permissions LinuxDevice::permissions(const FilePath &filePath) cons
     return perm;
 }
 
-bool LinuxDevice::setPermissions(const Utils::FilePath &filePath, QFileDevice::Permissions permissions) const
+bool LinuxDevice::setPermissions(const FilePath &filePath, QFileDevice::Permissions permissions) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     const int flags = int(permissions);
@@ -1394,7 +1331,7 @@ QByteArray LinuxDevice::fileContents(const FilePath &filePath, qint64 limit, qin
     CommandLine cmd(FilePath::fromString("dd"), args, CommandLine::Raw);
 
     const QByteArray output = d->outputForRunInShell(cmd);
-    DEBUG(output << output << QByteArray::fromHex(output));
+    DEBUG(output << QByteArray::fromHex(output));
     return output;
 }
 
