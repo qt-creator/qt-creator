@@ -256,6 +256,9 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
     if (noValidSelection())
         return;
 
+    QScopeGuard unlock([&](){ m_locked = false; });
+    m_locked = true;
+
     executeInTransaction("PropertyEditorView::changeExpression", [this, name](){
         PropertyName underscoreName(name);
         underscoreName.replace('.', '_');
@@ -317,9 +320,9 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
             return;
         }
 
-        if (qmlObjectNode->expression(name) != value->expression() || !qmlObjectNode->propertyAffectedByCurrentState(name))
+        if (qmlObjectNode->expression(name) != value->expression()
+            || !qmlObjectNode->propertyAffectedByCurrentState(name))
             qmlObjectNode->setBindingProperty(name, value->expression());
-
     }); /* end of transaction */
 }
 
@@ -692,6 +695,9 @@ void PropertyEditorView::variantPropertiesChanged(const QList<VariantProperty>& 
 
 void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags /*propertyChange*/)
 {
+    if (locked())
+        return;
+
     if (noValidSelection())
         return;
 
