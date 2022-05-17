@@ -130,7 +130,7 @@ public:
 
     static void registerDeclarativeTypes();
 
-    Q_INVOKABLE void exportPopertyAsAlias();
+    Q_INVOKABLE void exportPropertyAsAlias();
     Q_INVOKABLE bool hasPropertyAlias() const;
     Q_INVOKABLE bool isAttachedProperty() const;
     Q_INVOKABLE void removeAliasExport();
@@ -153,7 +153,7 @@ signals:
     void valueChangedQml();
 
     void expressionChanged(const QString &name);
-    void exportPopertyAsAliasRequested(const QString &name);
+    void exportPropertyAsAliasRequested(const QString &name);
     void removeAliasExportRequested(const QString &name);
 
     void modelStateChanged();
