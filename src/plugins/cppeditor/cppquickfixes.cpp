@@ -5225,7 +5225,11 @@ ExtractFunction::ExtractFunction(FunctionNameGetter functionNameGetter)
 
 void ExtractFunction::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
-    CppRefactoringFilePtr file = interface.currentFile();
+    const CppRefactoringFilePtr file = interface.currentFile();
+    if (CppModelManager::usesClangd(file->editor()->textDocument())
+            && file->cppDocument()->languageFeatures().cxxEnabled) {
+        return;
+    }
 
     QTextCursor cursor = file->cursor();
     if (!cursor.hasSelection())
