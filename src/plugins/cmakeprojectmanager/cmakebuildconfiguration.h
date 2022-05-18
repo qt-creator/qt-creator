@@ -89,12 +89,15 @@ class CMAKE_EXPORT CMakeBuildConfigurationFactory
 public:
     CMakeBuildConfigurationFactory();
 
-    enum BuildType { BuildTypeNone = 0,
-                     BuildTypeDebug = 1,
-                     BuildTypeRelease = 2,
-                     BuildTypeRelWithDebInfo = 3,
-                     BuildTypeMinSizeRel = 4,
-                     BuildTypeLast = 5 };
+    enum BuildType {
+        BuildTypeNone = 0,
+        BuildTypeDebug = 1,
+        BuildTypeRelease = 2,
+        BuildTypeRelWithDebInfo = 3,
+        BuildTypeProfile = 4,
+        BuildTypeMinSizeRel = 5,
+        BuildTypeLast = 6
+    };
     static BuildType buildTypeFromByteArray(const QByteArray &in);
     static ProjectExplorer::BuildConfiguration::BuildType cmakeBuildTypeToBuildType(const BuildType &in);
 

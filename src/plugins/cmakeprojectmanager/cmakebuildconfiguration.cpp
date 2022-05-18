@@ -106,6 +106,7 @@ const char CMAKE_OSX_ARCHITECTURES_FLAG[] = "CMAKE_OSX_ARCHITECTURES:DefaultFlag
 const char QT_QML_DEBUG_FLAG[] = "Qt:QML_DEBUG_FLAG";
 const char CMAKE_QT6_TOOLCHAIN_FILE_ARG[]
     = "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=%{Qt:QT_INSTALL_PREFIX}/lib/cmake/Qt6/qt.toolchain.cmake";
+const char CMAKE_BUILD_TYPE[] = "CMake.Build.Type";
 
 namespace Internal {
 
@@ -1211,8 +1212,16 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
     setInitializer([this, target](const BuildInfo &info) {
         const Kit *k = target->kit();
         const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
+        const QVariantMap extraInfoMap = info.extraInfo.value<QVariantMap>();
+        const QString buildType = extraInfoMap.contains(CMAKE_BUILD_TYPE)
+                                      ? extraInfoMap.value(CMAKE_BUILD_TYPE).toString()
+                                      : info.typeName;
+        const TriState qmlDebugging = extraInfoMap.contains(Constants::QML_DEBUG_SETTING)
+                                          ? TriState::fromVariant(
+                                              extraInfoMap.value(Constants::QML_DEBUG_SETTING))
+                                          : TriState::Default;
 
-        CommandLine cmd = defaultInitialCMakeCommand(k, info.typeName);
+        CommandLine cmd = defaultInitialCMakeCommand(k, buildType);
         m_buildSystem->setIsMultiConfig(CMakeGeneratorKitAspect::isMultiConfigGenerator(k));
 
         // Android magic:
@@ -1292,16 +1301,16 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                                                    info.buildType));
         }
 
-        if (info.extraInfo.isValid()) {
-            setSourceDirectory(FilePath::fromVariant(
-                        info.extraInfo.value<QVariantMap>().value(Constants::CMAKE_HOME_DIR)));
-        }
+        if (extraInfoMap.contains(Constants::CMAKE_HOME_DIR))
+            setSourceDirectory(FilePath::fromVariant(extraInfoMap.value(Constants::CMAKE_HOME_DIR)));
+
+        aspect<QtSupport::QmlDebuggingAspect>()->setValue(qmlDebugging);
 
         if (qt && qt->isQmlDebuggingSupported())
             cmd.addArg("-DCMAKE_CXX_FLAGS_INIT:STRING=%{" + QLatin1String(QT_QML_DEBUG_FLAG) + "}");
 
         m_buildSystem->setInitialCMakeArguments(cmd.splitArguments());
-        m_buildSystem->setCMakeBuildType(info.typeName);
+        m_buildSystem->setCMakeBuildType(buildType);
     });
 }
 
@@ -1593,15 +1602,7 @@ CMakeBuildConfigurationFactory::BuildType CMakeBuildConfigurationFactory::buildT
 BuildConfiguration::BuildType CMakeBuildConfigurationFactory::cmakeBuildTypeToBuildType(
     const CMakeBuildConfigurationFactory::BuildType &in)
 {
-    // Cover all common CMake build types
-    if (in == BuildTypeRelease || in == BuildTypeMinSizeRel)
-        return BuildConfiguration::Release;
-    else if (in == BuildTypeDebug)
-        return BuildConfiguration::Debug;
-    else if (in == BuildTypeRelWithDebInfo)
-        return BuildConfiguration::Profile;
-    else
-        return BuildConfiguration::Unknown;
+    return createBuildInfo(in).buildType;
 }
 
 BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
@@ -1614,11 +1615,16 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
         info.displayName = BuildConfiguration::tr("Build");
         info.buildType = BuildConfiguration::Unknown;
         break;
-    case BuildTypeDebug:
+    case BuildTypeDebug: {
         info.typeName = "Debug";
         info.displayName = BuildConfiguration::tr("Debug");
         info.buildType = BuildConfiguration::Debug;
+        QVariantMap extraInfo;
+        // enable QML debugging by default
+        extraInfo.insert(Constants::QML_DEBUG_SETTING, TriState::Enabled.toVariant());
+        info.extraInfo = extraInfo;
         break;
+    }
     case BuildTypeRelease:
         info.typeName = "Release";
         info.displayName = BuildConfiguration::tr("Release");
@@ -1634,6 +1640,18 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
         info.displayName = CMakeBuildConfiguration::tr("Release with Debug Information");
         info.buildType = BuildConfiguration::Profile;
         break;
+    case BuildTypeProfile: {
+        info.typeName = "Profile";
+        info.displayName = CMakeBuildConfiguration::tr("Profile");
+        info.buildType = BuildConfiguration::Profile;
+        QVariantMap extraInfo;
+        // override CMake build type, which defaults to info.typeName
+        extraInfo.insert(CMAKE_BUILD_TYPE, "RelWithDebInfo");
+        // enable QML debugging by default
+        extraInfo.insert(Constants::QML_DEBUG_SETTING, TriState::Enabled.toVariant());
+        info.extraInfo = extraInfo;
+        break;
+    }
     default:
         QTC_CHECK(false);
         break;
@@ -1837,7 +1855,7 @@ SourceDirectoryAspect::SourceDirectoryAspect()
 // -----------------------------------------------------------------------------
 BuildTypeAspect::BuildTypeAspect()
 {
-    setSettingsKey("CMake.Build.Type");
+    setSettingsKey(CMAKE_BUILD_TYPE);
     setLabelText(tr("Build type:"));
     setDisplayStyle(LineEditDisplay);
     setDefaultValue("Unknown");

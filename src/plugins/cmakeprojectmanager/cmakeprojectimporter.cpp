@@ -63,6 +63,7 @@ struct DirectoryData
     QByteArray cmakeBuildType;
     FilePath buildDirectory;
     FilePath cmakeHomeDirectory;
+    bool hasQmlDebugging = false;
 
     // Kit Stuff
     FilePath cmakeBinary;
@@ -336,6 +337,14 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                                        canonicalProjectDirectory.toUserOutput());
         }
 
+        // Determine QML debugging flags. This must match what we do in
+        // CMakeBuildSettingsWidget::getQmlDebugCxxFlags()
+        // such that in doubt we leave the QML Debugging setting at "Leave at default"
+        const QString cxxFlagsInit = config.stringValueOf("CMAKE_CXX_FLAGS_INIT");
+        const QString cxxFlags = config.stringValueOf("CMAKE_CXX_FLAGS");
+        data->hasQmlDebugging = cxxFlagsInit.contains("-DQT_QML_DEBUG")
+                                && cxxFlags.contains("-DQT_QML_DEBUG");
+
         data->buildDirectory = importPath;
         data->cmakeBuildType = buildType;
 
@@ -437,13 +446,22 @@ const QList<BuildInfo> CMakeProjectImporter::buildInfoList(void *directoryData) 
     auto data = static_cast<const DirectoryData *>(directoryData);
 
     // create info:
-    BuildInfo info = CMakeBuildConfigurationFactory::createBuildInfo(
-                CMakeBuildConfigurationFactory::buildTypeFromByteArray(data->cmakeBuildType));
+    CMakeBuildConfigurationFactory::BuildType buildType
+        = CMakeBuildConfigurationFactory::buildTypeFromByteArray(data->cmakeBuildType);
+    // RelWithDebInfo + QML Debugging = Profile
+    if (buildType == CMakeBuildConfigurationFactory::BuildTypeRelWithDebInfo
+        && data->hasQmlDebugging)
+        buildType = CMakeBuildConfigurationFactory::BuildTypeProfile;
+    BuildInfo info = CMakeBuildConfigurationFactory::createBuildInfo(buildType);
     info.buildDirectory = data->buildDirectory;
-    info.displayName = info.typeName;
 
-    QVariantMap config;
+    QVariantMap config = info.extraInfo.toMap(); // new empty, or existing one from createBuildInfo
     config.insert(Constants::CMAKE_HOME_DIR, data->cmakeHomeDirectory.toString());
+    // Potentially overwrite the default QML Debugging settings for the build type as set by
+    // createBuildInfo, in case we are importing a "Debug" CMake configuration without QML Debugging
+    config.insert(Constants::QML_DEBUG_SETTING,
+                  data->hasQmlDebugging ? TriState::Enabled.toVariant()
+                                        : TriState::Default.toVariant());
     info.extraInfo = config;
 
     qCDebug(cmInputLog) << "BuildInfo configured.";
