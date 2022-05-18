@@ -81,8 +81,10 @@ void CocoPluginPrivate::startCoco()
     csmesChoser.setPromptDialogTitle(CocoPlugin::tr("Select a Squish Coco Instrumentation File"));
     layout->addRow(CocoPlugin::tr("CSMes:"), &csmesChoser);
     QDialogButtonBox buttons(QDialogButtonBox::Cancel | QDialogButtonBox::Open);
+    layout->addItem(new QSpacerItem(0, 20, QSizePolicy::Expanding, QSizePolicy::MinimumExpanding));
     layout->addWidget(&buttons);
     dialog.setLayout(layout);
+    dialog.resize(480, dialog.height());
 
     QObject::connect(&buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
     QObject::connect(&buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
