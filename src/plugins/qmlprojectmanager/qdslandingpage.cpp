@@ -51,11 +51,13 @@ QdsLandingPage::QdsLandingPage(QWidget *parent)
     m_dialog->engine()->addImportPath(resourcePath);
     m_dialog->setSource(QUrl::fromLocalFile(landingPath + "/main.qml"));
 
-    connect(m_dialog->rootObject(), SIGNAL(openQtc(bool)), this, SIGNAL(openCreator(bool)));
-    connect(m_dialog->rootObject(), SIGNAL(openQds(bool)), this, SIGNAL(openDesigner(bool)));
-    connect(m_dialog->rootObject(), SIGNAL(installQds()), this, SIGNAL(installDesigner()));
-    connect(m_dialog->rootObject(), SIGNAL(generateCmake()), this, SIGNAL(generateCmake()));
-    connect(m_dialog->rootObject(), SIGNAL(generateProjectFile()), this, SIGNAL(generateProjectFile()));
+    if (m_dialog->rootObject()) { // main.qml only works with Qt6
+        connect(m_dialog->rootObject(), SIGNAL(openQtc(bool)), this, SIGNAL(openCreator(bool)));
+        connect(m_dialog->rootObject(), SIGNAL(openQds(bool)), this, SIGNAL(openDesigner(bool)));
+        connect(m_dialog->rootObject(), SIGNAL(installQds()), this, SIGNAL(installDesigner()));
+        connect(m_dialog->rootObject(), SIGNAL(generateCmake()), this, SIGNAL(generateCmake()));
+        connect(m_dialog->rootObject(), SIGNAL(generateProjectFile()), this, SIGNAL(generateProjectFile()));
+    }
     m_dialog->hide();
 }
 
