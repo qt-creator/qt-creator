@@ -7,7 +7,7 @@ instructions:
         variableValue: "RelWithDebInfo"
       - type: EnvironmentVariable
         variableName: LLVM_BASE_URL
-        variableValue: http://master.qt.io/development_releases/prebuilt/libclang/libclang-release_14.0.0-based
+        variableValue: http://master.qt.io/development_releases/prebuilt/libclang/libclang-release_14.0.3-based
 
   - type: Group
     instructions:
