@@ -2230,11 +2230,12 @@ void FormEditor3dPreview::updateGeometry()
 {
     prepareGeometryChange();
 
-    m_selectionBoundingRect = qmlItemNode().instanceBoundingRect().adjusted(0, 0, 1., 1.);
     m_boundingRect = qmlItemNode().instanceBoundingRect();
+    if (m_boundingRect.isEmpty())
+        m_boundingRect = {0, 0, 640, 480}; // Init to default size so initial view is correct
+    m_selectionBoundingRect = m_boundingRect.adjusted(0, 0, 1., 1.);
     m_paintedBoundingRect = m_boundingRect;
     setTransform(QTransform());
-
 }
 
 QPointF FormEditor3dPreview::instancePosition() const
