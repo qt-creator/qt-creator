@@ -367,9 +367,9 @@ void PropertyEditorValue::setEnumeration(const QString &scope, const QString &na
     setValueWithEmit(QVariant::fromValue(newEnumeration));
 }
 
-void PropertyEditorValue::exportPopertyAsAlias()
+void PropertyEditorValue::exportPropertyAsAlias()
 {
-    emit exportPopertyAsAliasRequested(nameAsQString());
+    emit exportPropertyAsAliasRequested(nameAsQString());
 }
 
 bool PropertyEditorValue::hasPropertyAlias() const

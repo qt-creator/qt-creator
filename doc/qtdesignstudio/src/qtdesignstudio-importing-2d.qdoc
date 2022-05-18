@@ -55,48 +55,47 @@
     \image studio-imported-assets.png "UI imported into Qt Design Studio"
 
     \QB enables you to export assets and then import them to a \QDS project
-    as image and QML files for editing in \l {Form Editor}. If you make changes
+    as images and QML files for editing in \l {Form Editor}. If you make changes
     to your design in the design tool that you originally used to create it,
     you can merge the changes into existing QML files without overwriting the
     changes you have made in \QDS. For more information, see
     \l {Exporting from Design Tools}.
 
-    \note Attempting to import assets exported on another system might fail.
+    \QB exports the designs either as an archive(.qtbridge) or as images with
+    a .metadata file. \QDS support both formats.
 
     The following instructions use an empty project as an example. For more
     information about the options you have, see
     \l {Creating Projects}.
 
-    To import assets exported in \QB to \QDS projects:
+    To import the exported assets to \QDS projects:
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New Project} >
-            \uicontrol General > \uicontrol {Qt Quick Application - Empty} >
-            \uicontrol Choose, and follow the instructions of the wizard to
-            create an empty project.
+            \uicontrol General > \uicontrol {Empty}. Add \uicontrol {Details} about
+            the project and select \uicontrol Create.
         \li In \uicontrol Projects, double-click \e Screen01.ui.qml to move to
             the Design mode.
         \li Select \uicontrol Assets > \inlineimage icons/plus.png
             .
         \li Select the folder where you exported the assets.
-        \li Select \uicontrol {Exported Assets (*.metadata)} in the dropdown
-            menu to filter \e .metadata files.
-        \li Select a \e .metadata file to import, and then select
-            \uicontrol Open.
+        \li Select \uicontrol {Compressed Metadata (*.qtbridge)}  or
+            \uicontrol {Exported Metadata (*.metadata)} in the dropdown menu to
+            filter the exported files.
+        \li Select a the file to import and then select \uicontrol Open.
         \li Select \uicontrol Details next to the
-            \uicontrol {Metadata Import Paths} field to display the path where
-            the metadata is imported from.
-            \image studio-import-metadata.png "Asset Import dialog"
+            \uicontrol {Import Paths} field to display the path where the exported
+            assets are imported from.
+            \image studio-asset-import.png "Asset Import dialog"
         \li Select \uicontrol Details next to the
-            \uicontrol {QML/Asset Export Paths} field to display the paths to
+            \uicontrol {Export Paths} field to display the paths to
             copy the assets to.
         \li In the \uicontrol QML field, you can change the folder to copy the
             QML files to.
         \li In the \uicontrol Assets field, you can change the folder to copy
             the image files to.
-        \li Select the \uicontrol {Create sub directory for each metadata}
-            check box to copy the directory structure from the metadata file
-            to \QDS.
+        \li Select the \uicontrol {Create sub directory} check box to import the
+            assets in a sub directory inside \uicontrol {Export Paths}.
         \li Deselect the \uicontrol {Import assets} check box if you only want
             to create QML files.
         \li Deselect the \uicontrol {Generate QML} check box if you only
@@ -104,25 +103,20 @@
         \li Select the \uicontrol {Merge QML} check box if you have imported the
             assets before and want to merge the changes into existing QML files
             instead of overwriting the existing files. See \l {Merging QML Files}.
+        \li Select the \uicontrol {Round off coordinates} check box to round off
+            the position and dimension values to integers in the generated QML files.
+        \li Select the \uicontrol {Save Logs} check box to write the export logs
+            to a text file inside the directory selected in \uicontrol QML export path.
         \li Select \uicontrol Import to import the QML files and assets. This
             might take a little while for complex projects.
     \endlist
 
-    The imported assets are displayed in \uicontrol Assets
-    as PNG images. The components that you specified in the design tool are
-    displayed in \uicontrol Components > \uicontrol {My Components} as well as
-    in the \uicontrol Projects view as separate QML files. To start using them,
+    The imported assets are displayed in \uicontrol Assets as images.
+    The components that you specified in the design tool are displayed in
+    \uicontrol Components > \uicontrol {My Components} as well as in the
+    \uicontrol Projects view as separate QML files. To use them,
     drag-and-drop them from \uicontrol Components to \uicontrol {Form Editor} or
     \l Navigator.
-
-    \note The layer that was the bottom layer in the design tool becames the top
-    layer in \uicontrol Navigator to reflect the QML code model. You
-    can view the QML code in \l{Text Editor}.
-
-    After importing the metadata files, wait a few moments to allow all
-    imported assets to appear in your project files before selecting your
-    metadata filename from \uicontrol Assets > \inlineimage icons/plus.png
-    .
 
     If asset importer conflicts, warnings, and errors are displayed in the
     \uicontrol {Asset Import} dialog while importing, fix the issues in

@@ -54,6 +54,9 @@ Node {
 
         visible: selectionBox.targetNode && !selectionBoxGeometry.isEmpty
 
+        castsShadows: false
+        receivesShadows: false
+
         materials: [
             DefaultMaterial {
                 diffuseColor: "#fff600"

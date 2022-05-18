@@ -36,19 +36,24 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/filesystemwatcher.h>
+#include <utils/stylehelper.h>
+
+#include <QCheckBox>
 #include <QDebug>
 #include <QDir>
 #include <QDirIterator>
+#include <QElapsedTimer>
 #include <QFont>
 #include <QImageReader>
+#include <QLoggingCategory>
+#include <QMessageBox>
 #include <QMetaProperty>
 #include <QPainter>
 #include <QRawFont>
 #include <QRegularExpression>
-#include <QMessageBox>
-#include <QCheckBox>
-#include <utils/stylehelper.h>
-#include <utils/filesystemwatcher.h>
+
+static Q_LOGGING_CATEGORY(assetsLibraryBenchmark, "qtc.assetsLibrary.setRoot", QtWarningMsg)
 
 namespace QmlDesigner {
 
@@ -298,6 +303,12 @@ void AssetsLibraryModel::refresh()
 
 void AssetsLibraryModel::setRootPath(const QString &path)
 {
+    QElapsedTimer time;
+    if (assetsLibraryBenchmark().isInfoEnabled())
+        time.start();
+
+    qCInfo(assetsLibraryBenchmark) << "start:" << time.elapsed();
+
     static const QStringList ignoredTopLevelDirs {"imports", "asset_imports"};
 
     m_fileSystemWatcher->clear();
@@ -345,6 +356,8 @@ void AssetsLibraryModel::setRootPath(const QString &path)
         return isEmpty;
     };
 
+    qCInfo(assetsLibraryBenchmark) << "directories parsed:" << time.elapsed();
+
     if (m_assetsDir)
         delete m_assetsDir;
 
@@ -360,6 +373,8 @@ void AssetsLibraryModel::setRootPath(const QString &path)
 
     m_assetsDir->setDirVisible(!noAssets); // if there are no assets, hide all empty asset folders
     endResetModel();
+
+    qCInfo(assetsLibraryBenchmark) << "model reset:" << time.elapsed();
 }
 
 void AssetsLibraryModel::setSearchText(const QString &searchText)

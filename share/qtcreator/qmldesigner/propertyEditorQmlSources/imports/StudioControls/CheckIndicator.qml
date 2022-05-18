@@ -50,16 +50,16 @@ Rectangle {
         id: checkIndicatorMouseArea
         anchors.fill: parent
         hoverEnabled: true
-        onPressed: {
+        onClicked: {
+            if (myControl.activeFocus)
+                myControl.focus = false
+
             if (myPopup.opened) {
                 myPopup.close()
             } else {
                 myPopup.open()
                 myPopup.forceActiveFocus()
             }
-
-            if (myControl.activeFocus)
-                myControl.focus = false
         }
     }
 

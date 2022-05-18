@@ -65,6 +65,11 @@ T.ComboBox {
             comboBoxPopup.close()
     }
 
+    onActiveFocusChanged: {
+        if (myComboBox.activeFocus)
+            comboBoxInput.preFocusText = myComboBox.editText
+    }
+
     ActionIndicator {
         id: actionIndicator
         myControl: myComboBox
@@ -76,19 +81,22 @@ T.ComboBox {
 
     contentItem: ComboBoxInput {
         id: comboBoxInput
+
+        property string preFocusText: ""
+
         myControl: myComboBox
         text: myComboBox.editText
 
         onEditingFinished: {
             comboBoxInput.deselect()
             comboBoxInput.focus = false
+            myComboBox.focus = false
 
             // Only trigger the signal, if the value was modified
             if (myComboBox.dirty) {
                 myTimer.stop()
                 myComboBox.dirty = false
-                myComboBox.compressedActivated(myComboBox.find(myComboBox.editText),
-                                               ComboBox.ActivatedReason.EditingFinished)
+                myComboBox.accepted()
             }
         }
         onTextEdited: myComboBox.dirty = true
@@ -276,7 +284,7 @@ T.ComboBox {
             PropertyChanges {
                 target: comboBoxBackground
                 color: StudioTheme.Values.themeControlBackgroundInteraction
-                border.color: StudioTheme.Values.themeControlOutline
+                border.color: StudioTheme.Values.themeControlOutlineInteraction
             }
             StateChangeScript {
                 script: comboBoxPopup.close()
@@ -312,7 +320,10 @@ T.ComboBox {
     ]
 
     Keys.onPressed: function(event) {
-        if (event.key === Qt.Key_Escape)
+        if (event.key === Qt.Key_Escape) {
+            myComboBox.editText = comboBoxInput.preFocusText
+            myComboBox.dirty = true
             myComboBox.focus = false
+        }
     }
 }

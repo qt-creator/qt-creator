@@ -161,11 +161,8 @@ def __createProjectHandleQtQuickSelection__(minimumQtVersion):
 # param buildSystem is a string holding the build system selected for the project
 # param checks turns tests in the function on if set to True
 # param available a list holding the available targets
-# withoutQt4 if True Qt4 will get unchecked / not selected while checking the targets
-def __selectQtVersionDesktop__(buildSystem, checks, available=None, withoutQt4=False):
+def __selectQtVersionDesktop__(buildSystem, checks, available=None):
     wanted = Targets.desktopTargetClasses()
-    if withoutQt4:
-        wanted.discard(Targets.DESKTOP_4_8_7_DEFAULT)
     checkedTargets = __chooseTargets__(wanted, available)
     if checks:
         for target in checkedTargets:
@@ -183,9 +180,8 @@ def __selectQtVersionDesktop__(buildSystem, checks, available=None, withoutQt4=F
                                               objectMap.realName(detailsWidget)))
                     verifyChecked(cbObject % ("Minimum Size Release",
                                               objectMap.realName(detailsWidget)))
-                elif (buildSystem == "qmake"
-                      and target not in (Targets.DESKTOP_4_8_7_DEFAULT, Targets.EMBEDDED_LINUX)):
-                        verifyChecked(cbObject % ("Profile", objectMap.realName(detailsWidget)))
+                elif buildSystem == "qmake":
+                    verifyChecked(cbObject % ("Profile", objectMap.realName(detailsWidget)))
                 clickButton(detailsButton)
     clickButton(waitForObject(":Next_QPushButton"))
 
@@ -207,11 +203,6 @@ def __verifyFileCreation__(path, expectedFiles):
 def __modifyAvailableTargets__(available, requiredQt, asStrings=False):
     versionFinder = re.compile("^Desktop (\\d{1}\.\\d{1,2}\.\\d{1,2}).*$")
     tmp = list(available) # we need a deep copy
-    if Qt5Path.toVersionTuple(requiredQt) > (4,8,7) and qt4Available:
-        toBeRemoved = Targets.EMBEDDED_LINUX
-        if asStrings:
-            toBeRemoved = Targets.getStringForTarget(toBeRemoved)
-        available.discard(toBeRemoved)
     for currentItem in tmp:
         if asStrings:
             item = currentItem
@@ -260,7 +251,7 @@ def createProject_Qt_GUI(path, projectName, checks=True, addToVersionControl="<N
 
     clickButton(waitForObject(":Next_QPushButton"))
     __createProjectHandleTranslationSelection__()
-    __selectQtVersionDesktop__(buildSystem, checks, available, True)
+    __selectQtVersionDesktop__(buildSystem, checks, available)
 
     expectedFiles = []
     if checks:
@@ -540,12 +531,6 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False, ignoreVali
         supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split("\n")
         result = set()
         if 'Desktop' in supports:
-            if (version == None or version < "5.0") and not templateName.startswith("Qt Quick"):
-                neverIgnoreValidity = templateName in ("Qt Custom Designer Widget", "Code Snippet", "Subdirs Project")
-                if qt4Available or ignoreValidity and not neverIgnoreValidity:
-                    result.add(Targets.DESKTOP_4_8_7_DEFAULT)
-                    if platform.system() in ("Linux", "Darwin"):
-                        result.add(Targets.EMBEDDED_LINUX)
             result = result.union(set([Targets.DESKTOP_5_10_1_DEFAULT, Targets.DESKTOP_5_14_1_DEFAULT]))
             if platform.system() != 'Darwin':
                 result.add(Targets.DESKTOP_5_4_1_GCC)

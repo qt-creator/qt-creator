@@ -131,7 +131,7 @@ Item {
                     checkable: true
                     onTriggered: {
                         if (checked)
-                            backendValue.exportPopertyAsAlias()
+                            backendValue.exportPropertyAsAlias()
                         else
                             backendValue.removeAliasExport()
                     }

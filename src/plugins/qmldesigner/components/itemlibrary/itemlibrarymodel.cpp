@@ -36,6 +36,7 @@
 #include <nodemetainfo.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
+#include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -515,9 +516,9 @@ QMimeData *ItemLibraryModel::getMimeData(const ItemLibraryEntry &itemLibraryEntr
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);
     stream << itemLibraryEntry;
-    mimeData->setData(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"), data);
+    mimeData->setData(Constants::MIME_TYPE_ITEM_LIBRARY_INFO, data);
 
-    mimeData->removeFormat(QStringLiteral("text/plain"));
+    mimeData->removeFormat("text/plain");
 
     return mimeData;
 }

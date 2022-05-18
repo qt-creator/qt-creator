@@ -406,11 +406,6 @@ QStringList lastSessionArgument()
 #ifdef ENABLE_CRASHPAD
 bool startCrashpad(const QString &libexecPath, bool crashReportingEnabled)
 {
-    if (QSysInfo::currentCpuArchitecture() == "arm64") {
-        qDebug() << "The crashpad_handler binary does not work on arm64 properly. So it is disabled for now.";
-        return false;
-    }
-
     using namespace crashpad;
 
     // Cache directory that will store crashpad information and minidumps

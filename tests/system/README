@@ -4,29 +4,7 @@ Squish tests inside this folder have several prerequisites to get them running.
 
 First - and most important - you have to own a valid Squish license. At least Squish 6.0 is required.
 
-Second - some of the test suites/test cases expect a build of Qt 4.8.7 to be available:
-[ this is optional and if Qt4 is not available some Qt5 will be tried to use instead ]
- 1. Download the source code from:
-    * Windows: https://download.qt.io/archive/qt/4.8/4.8.7/qt-everywhere-opensource-src-4.8.7.zip
-    * Other: https://download.qt.io/archive/qt/4.8/4.8.7/qt-everywhere-opensource-src-4.8.7.tar.gz
- 2. Extract the contents of the archive's directory qt-everywhere-opensource-src-4.8.7 to:
-    * Windows: C:\Qt\Qt4.8.7
-    * Other: $HOME/Qt4.8.7
- 3. Apply the changes from patch.txt next to this README.
- 4. In the directory you extracted the sources to, configure Qt:
-    * Windows (MSVC2013 32 bit):
-      .\configure.exe -opensource -developer-build -confirm-license -debug-and-release -nomake tests -nomake examples -nomake demos -no-webkit -no-phonon
-    * Linux (gcc < 6):
-      ./configure -opensource -developer-build -confirm-license -debug-and-release -nomake tests -nomake examples -nomake demos -no-webkit -no-phonon
-    * macOS:
-      ./configure -opensource -developer-build -confirm-license -debug-and-release -nomake tests -nomake examples -nomake demos -no-webkit -no-phonon -sdk <PATH_TO_INSTALLED_MACOSX_SDK>
- 5. Make:
-    * Windows (do not use jom):
-      nmake
-    * Other:
-      make -j<number of available cores>
-
-Third - some of the test suites/test cases expect Qt versions to be installed in their default
+Second - some of the test suites/test cases expect Qt versions to be installed in their default
 locations. On Linux/macOS this is ~/Qt5.x.1 and on Windows this is C:\Qt\Qt5.x.1. It's easiest to
 use installations of the official opensource Qt packages. Just install the Qt version for the
 respective toolchain with the components (if available):
@@ -50,7 +28,7 @@ Qt 5.4.1 (gcc)
 Qt 5.10.1 (MSVC2015, 32 bit)
 Qt 5.14.1 (MSVC2017, 64 bit)
 
-Fourth - you'll have to provide some additional repositories.
+Third - you'll have to provide some additional repositories.
 These additional repositories are located inside ~/squish-data or C:\Users\<user>\squish-data (depending on the OS you're on).
 You can also just provide them inside a different folder and specify the folder with the environment variable SYSTEST_SRCPATH.
 This folder must contain the following:
@@ -58,12 +36,12 @@ This folder must contain the following:
  * a subfolder called 'creator-test-data'
  * a speedcrunch 0.11 repository (or source copy) inside 'creator-test-data' named 'speedcrunch'
 
-Fifth - you'll have to make sure that some needed tools are available (no matter on which OS you're on).
+Fourth - you'll have to make sure that some needed tools are available (no matter on which OS you're on).
  * cmake 3.14 or newer
  * wget or curl, capable of HTTPS
 Normally it should be okay to just install them as usual and add their executables' path(s) to the PATH variable.
 
-Sixth - Qt Creator must be built on a Qt without Qt WebEngine or Qt WebKit.
+Fifth - Qt Creator must be built on a Qt without Qt WebEngine or Qt WebKit.
 
 On macOS make sure you are using the correct keyboard layout to avoid problems when using keyboard interaction. Tested and known to be
 working would be 'U.S. International - PC', while pure 'U.S.' had problems.

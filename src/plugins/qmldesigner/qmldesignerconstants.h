@@ -85,6 +85,16 @@ const char QUICK_3D_ASSET_IMPORT_DATA_OPTIONS_KEY[] = "import_options";
 const char QUICK_3D_ASSET_IMPORT_DATA_SOURCE_KEY[] = "source_scene";
 const char DEFAULT_ASSET_IMPORT_FOLDER[] = "/asset_imports";
 
+const char MIME_TYPE_ITEM_LIBRARY_INFO[] = "application/vnd.qtdesignstudio.itemlibraryinfo";
+const char MIME_TYPE_ASSETS[]            = "application/vnd.qtdesignstudio.assets";
+const char MIME_TYPE_ASSET_IMAGE[]       = "application/vnd.qtdesignstudio.asset.image";
+const char MIME_TYPE_ASSET_FONT[]        = "application/vnd.qtdesignstudio.asset.font";
+const char MIME_TYPE_ASSET_SHADER[]      = "application/vnd.qtdesignstudio.asset.shader";
+const char MIME_TYPE_ASSET_SOUND[]       = "application/vnd.qtdesignstudio.asset.sound";
+const char MIME_TYPE_ASSET_VIDEO[]       = "application/vnd.qtdesignstudio.asset.video";
+const char MIME_TYPE_ASSET_TEXTURE3D[]   = "application/vnd.qtdesignstudio.asset.texture3d";
+const char MIME_TYPE_MODELNODE_LIST[]    = "application/vnd.qtdesignstudio.modelnode.list";
+
 // Menus
 const char M_VIEW_WORKSPACES[] = "QmlDesigner.Menu.View.Workspaces";
 

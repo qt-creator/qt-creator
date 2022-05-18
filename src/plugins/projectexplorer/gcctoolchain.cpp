@@ -1079,12 +1079,19 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) co
 Toolchains GccToolChainFactory::detectForImport(const ToolChainDescription &tcd) const
 {
     const QString fileName = tcd.compilerPath.completeBaseName();
-    if ((tcd.language == Constants::C_LANGUAGE_ID && (fileName.startsWith("gcc")
-                                                  || fileName.endsWith("gcc")
-                                                  || fileName == "cc"))
-            || (tcd.language == Constants::CXX_LANGUAGE_ID && (fileName.startsWith("g++")
-                                                           || fileName.endsWith("g++")
-                                                           || fileName == "c++"))) {
+    const QString resolvedSymlinksFileName = tcd.compilerPath.resolveSymlinks().completeBaseName();
+
+    const bool isCCompiler = tcd.language == Constants::C_LANGUAGE_ID
+            && (fileName.startsWith("gcc")
+                || fileName.endsWith("gcc")
+                || (fileName == "cc" && !resolvedSymlinksFileName.contains("clang")));
+
+    const bool isCxxCompiler = tcd.language == Constants::CXX_LANGUAGE_ID
+            && (fileName.startsWith("g++")
+                || fileName.endsWith("g++")
+                || (fileName == "c++" && !resolvedSymlinksFileName.contains("clang")));
+
+    if (isCCompiler || isCxxCompiler) {
         return autoDetectToolChain(tcd, [](const ToolChain *tc) {
             return tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor;
         });
@@ -1765,9 +1772,18 @@ Toolchains ClangToolChainFactory::autoDetect(const ToolchainDetector &detector) 
 
 Toolchains ClangToolChainFactory::detectForImport(const ToolChainDescription &tcd) const
 {
-    const QString fileName = tcd.compilerPath.toString();
-    if ((tcd.language == Constants::C_LANGUAGE_ID && fileName.startsWith("clang") && !fileName.startsWith("clang++"))
-            || (tcd.language == Constants::CXX_LANGUAGE_ID && fileName.startsWith("clang++"))) {
+    const QString fileName = tcd.compilerPath.completeBaseName();
+    const QString resolvedSymlinksFileName = tcd.compilerPath.resolveSymlinks().completeBaseName();
+
+    const bool isCCompiler = tcd.language == Constants::C_LANGUAGE_ID
+            && ((fileName.startsWith("clang") && !fileName.startsWith("clang++"))
+                || (fileName == "cc" && resolvedSymlinksFileName.contains("clang")));
+
+    const bool isCxxCompiler = tcd.language == Constants::CXX_LANGUAGE_ID
+            && (fileName.startsWith("clang++")
+                || (fileName == "c++" && resolvedSymlinksFileName.contains("clang")));
+
+    if (isCCompiler || isCxxCompiler) {
         return autoDetectToolChain(tcd);
     }
     return {};
@@ -2023,7 +2039,7 @@ Toolchains LinuxIccToolChainFactory::autoDetect(const ToolchainDetector &detecto
 
 Toolchains LinuxIccToolChainFactory::detectForImport(const ToolChainDescription &tcd) const
 {
-    const QString fileName = tcd.compilerPath.toString();
+    const QString fileName = tcd.compilerPath.completeBaseName();
     if ((tcd.language == Constants::CXX_LANGUAGE_ID && fileName.startsWith("icpc")) ||
         (tcd.language == Constants::C_LANGUAGE_ID && fileName.startsWith("icc"))) {
         return autoDetectToolChain(tcd);

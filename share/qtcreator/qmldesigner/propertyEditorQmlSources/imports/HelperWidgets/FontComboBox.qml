@@ -29,7 +29,7 @@ import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
 
 StudioControls.ComboBox {
-    id: comboBox
+    id: root
 
     property variant backendValue
     property color textColor: colorLogic.textColor
@@ -39,17 +39,17 @@ StudioControls.ComboBox {
     labelColor: colorLogic.textColor
     editable: true
 
-    onTextColorChanged: setColor()
+    onTextColorChanged: root.setColor()
 
     FileResourcesModel {
         id: fileModel
         modelNodeBackendProperty: modelNodeBackend
-        filter: comboBox.fontFilter
+        filter: root.fontFilter
     }
 
     function createFontLoader(fontUrl) {
         return Qt.createQmlObject('import QtQuick 2.0; FontLoader { source: "' + fontUrl + '"; }',
-                                  comboBox, "dynamicFontLoader")
+                                  root, "dynamicFontLoader")
     }
 
     function setupModel() {
@@ -63,80 +63,83 @@ StudioControls.ComboBox {
         // Remove duplicate family names
         familyNames = [...new Set(familyNames)]
         familyNames.sort()
-        comboBox.model = familyNames
+        root.model = familyNames
+        root.currentIndex = root.find(root.backendValue.value)
     }
 
-    onModelChanged: editText = comboBox.backendValue.valueToString
+    function setColor() {
+        // Hack to style the text input
+        for (var i = 0; i < root.children.length; i++) {
+            if (root.children[i].text !== undefined) {
+                root.children[i].color = root.textColor
+            }
+        }
+    }
+
+    onModelChanged: root.editText = root.backendValue.valueToString
 
     ExtendedFunctionLogic {
         id: extFuncLogic
-        backendValue: comboBox.backendValue
+        backendValue: root.backendValue
     }
 
     actionIndicator.icon.color: extFuncLogic.color
     actionIndicator.icon.text: extFuncLogic.glyph
     actionIndicator.onClicked: extFuncLogic.show()
     actionIndicator.forceVisible: extFuncLogic.menuVisible
-    actionIndicator.visible: comboBox.showExtendedFunctionButton
+    actionIndicator.visible: root.showExtendedFunctionButton
 
     ColorLogic {
         id: colorLogic
-        property string textValue: comboBox.backendValue.valueToString
-        backendValue: comboBox.backendValue
-        onTextValueChanged: comboBox.editText = colorLogic.textValue
+        property string textValue: root.backendValue.valueToString
+        backendValue: root.backendValue
+        onTextValueChanged: root.editText = colorLogic.textValue
     }
 
     onAccepted: {
-        if (backendValue === undefined)
+        if (root.backendValue === undefined)
             return
 
-        if (editText === "")
+        if (root.editText === "")
             return
 
-        if (backendValue.value !== editText)
-            backendValue.value = editText;
+        if (root.backendValue.value !== root.editText)
+            root.backendValue.value = root.editText
     }
 
-    onActivated: {
-        if (backendValue === undefined)
+    onCompressedActivated: function(index, reason) { root.handleActivate(index) }
+
+    function handleActivate(index)
+    {
+        if (root.backendValue === undefined)
             return
 
-        if (editText === "")
+        if (root.editText === "")
             return
 
-        var indexText = comboBox.textAt(index)
+        var indexText = root.textAt(index)
 
-        if (backendValue.value !== indexText)
-            backendValue.value = indexText
+        if (root.backendValue.value !== indexText)
+            root.backendValue.value = indexText
     }
 
     Connections {
         target: modelNodeBackend
         function onSelectionChanged() {
-            comboBox.editText = backendValue.value
-            setupModel()
+            root.editText = root.backendValue.value
+            root.setupModel()
         }
     }
 
     Component.onCompleted: {
-        setupModel()
+        root.setupModel()
         // Hack to style the text input
-        for (var i = 0; i < comboBox.children.length; i++) {
-            if (comboBox.children[i].text !== undefined) {
-                comboBox.children[i].color = comboBox.textColor
-                comboBox.children[i].anchors.rightMargin = 34
-                comboBox.children[i].anchors.leftMargin = 18
+        for (var i = 0; i < root.children.length; i++) {
+            if (root.children[i].text !== undefined) {
+                root.children[i].color = root.textColor
+                root.children[i].anchors.rightMargin = 34
+                root.children[i].anchors.leftMargin = 18
             }
         }
     }
-
-    function setColor() {
-        // Hack to style the text input
-        for (var i = 0; i < comboBox.children.length; i++) {
-            if (comboBox.children[i].text !== undefined) {
-                comboBox.children[i].color = comboBox.textColor
-            }
-        }
-    }
-
 }

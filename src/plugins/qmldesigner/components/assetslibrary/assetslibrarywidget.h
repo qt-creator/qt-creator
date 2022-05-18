@@ -79,8 +79,8 @@ public:
     Q_INVOKABLE void startDragAsset(const QStringList &assetPaths, const QPointF &mousePos);
     Q_INVOKABLE void handleAddAsset();
     Q_INVOKABLE void handleSearchfilterChanged(const QString &filterText);
-    Q_INVOKABLE void handleExtFilesDrop(const QStringList &simpleFilesPaths,
-                                        const QStringList &complexFilesPaths,
+    Q_INVOKABLE void handleExtFilesDrop(const QList<QUrl> &simpleFilePaths,
+                                        const QList<QUrl> &complexFilePaths,
                                         const QString &targetDirPath = {});
     Q_INVOKABLE QSet<QString> supportedAssetSuffixes(bool complex);
 

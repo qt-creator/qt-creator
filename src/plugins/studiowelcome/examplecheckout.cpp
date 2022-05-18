@@ -196,17 +196,6 @@ void FileDownloader::probeUrl()
     });
 
     QNetworkReply::connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-        QQmlData *data = QQmlData::get(this, false);
-        if (!data) {
-            qDebug() << Q_FUNC_INFO << "FileDownloader is nullptr.";
-            return;
-        }
-
-        if (QQmlData::wasDeleted(this)) {
-            qDebug() << Q_FUNC_INFO << "FileDownloader was deleted.";
-            return;
-        }
-
         if (reply->error())
             return;
 
@@ -383,7 +372,6 @@ void FileExtractor::extract()
 
     Utils::Archive *archive = new Utils::Archive(m_sourceFile, m_targetPath);
     QTC_ASSERT(archive->isValid(), delete archive; return);
-    archive->setParent(this);
 
     m_timer.start();
     qint64 bytesBefore = QStorageInfo(m_targetPath.toFileInfo().dir()).bytesAvailable();
@@ -423,7 +411,8 @@ void FileExtractor::extract()
         emit detailedTextChanged();
     });
 
-    QObject::connect(archive, &Utils::Archive::finished, this, [this](bool ret) {
+    QObject::connect(archive, &Utils::Archive::finished, this, [this, archive](bool ret) {
+        delete archive;
         m_finished = ret;
         m_timer.stop();
 
@@ -435,4 +424,77 @@ void FileExtractor::extract()
         QTC_CHECK(ret);
     });
     archive->unarchive();
+}
+
+static Utils::FilePath tempFilePath()
+{
+    QStandardPaths::StandardLocation location = QStandardPaths::CacheLocation;
+
+    return Utils::FilePath::fromString(QStandardPaths::writableLocation(location))
+        .pathAppended("QtDesignStudio");
+}
+
+DataModelDownloader::DataModelDownloader(QObject * /* parent */)
+{
+    auto fileInfo = targetFolder().toFileInfo();
+    m_birthTime = fileInfo.birthTime();
+    m_exists = fileInfo.exists();
+}
+
+void DataModelDownloader::start()
+{
+    m_fileDownloader.setUrl(QUrl::fromUserInput(
+        "https://download.qt.io/learning/examples/qtdesignstudio/dataImports.zip"));
+
+    connect(&m_fileDownloader, &FileDownloader::availableChanged, this, [this]() {
+
+        m_available = m_fileDownloader.available();
+
+        emit availableChanged();
+
+        if (!m_available) {
+            qWarning() << m_fileDownloader.url() << "failed to download";
+            return;
+        }
+
+        if (!m_forceDownload && m_fileDownloader.lastModified() < m_birthTime)
+            return;
+
+        m_fileDownloader.start();
+        connect(&m_fileDownloader, &FileDownloader::finishedChanged, this, [this]() {
+            if (m_fileDownloader.finished()) {
+                const Utils::FilePath archiveFile = Utils::FilePath::fromString(
+                    m_fileDownloader.tempFile());
+                QTC_ASSERT(Utils::Archive::supportsFile(archiveFile), return );
+                auto archive = new Utils::Archive(archiveFile, tempFilePath());
+                QTC_ASSERT(archive->isValid(), delete archive; return );
+                QObject::connect(archive, &Utils::Archive::finished, this, [this, archive](bool ret) {
+                    QTC_CHECK(ret);
+                    delete archive;
+                    emit finished();
+                });
+                archive->unarchive();
+            }
+        });
+    });
+}
+
+bool DataModelDownloader::exists() const
+{
+    return m_exists;
+}
+
+bool DataModelDownloader::available() const
+{
+    return m_available;
+}
+
+Utils::FilePath DataModelDownloader::targetFolder() const
+{
+    return Utils::FilePath::fromUserInput(tempFilePath().toString() + "/" + "dataImports");
+}
+
+void DataModelDownloader::setForceDownload(bool b)
+{
+    m_forceDownload = b;
 }

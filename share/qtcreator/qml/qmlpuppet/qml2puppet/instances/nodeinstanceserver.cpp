@@ -1610,7 +1610,7 @@ void NodeInstanceServer::addAnimation(QQuickAbstractAnimation *animation)
         m_animations.push_back(animation);
 
         QQuickPropertyAnimation *panim = qobject_cast<QQuickPropertyAnimation *>(animation);
-        if (panim) {
+        if (panim && panim->target()) {
             QObject *target = panim->target();
             QString property = panim->property();
             QVariant value = target->property(qPrintable(baseProperty(property)));

@@ -129,6 +129,9 @@ public:
     QString generateNewId(const QString &prefixName) const;
     QString generateNewId(const QString &prefixName, const QString &fallbackPrefix) const;
 
+    void startDrag(QMimeData *mimeData, const QString iconPath = {});
+    void endDrag();
+
 protected:
     Model();
 

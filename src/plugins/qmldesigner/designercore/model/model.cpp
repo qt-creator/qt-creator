@@ -67,6 +67,7 @@
 
 #include <utils/algorithm.h>
 
+#include <QDrag>
 #include <QRegularExpression>
 
 /*!
@@ -586,6 +587,16 @@ void ModelPrivate::notifyModelNodePreviewPixmapChanged(const ModelNode &node, co
 void ModelPrivate::notifyImport3DSupportChanged(const QVariantMap &supportMap)
 {
     notifyInstanceChanges([&](AbstractView *view) { view->updateImport3DSupport(supportMap); });
+}
+
+void ModelPrivate::notifyDragStarted(QMimeData *mimeData)
+{
+    notifyInstanceChanges([&](AbstractView *view) { view->dragStarted(mimeData); });
+}
+
+void ModelPrivate::notifyDragEnded()
+{
+    notifyInstanceChanges([&](AbstractView *view) { view->dragEnded(); });
 }
 
 void ModelPrivate::notifyRewriterBeginTransaction()
@@ -1490,6 +1501,22 @@ QString Model::generateNewId(const QString &prefixName, const QString &fallbackP
     }
 
     return newId;
+}
+
+void Model::startDrag(QMimeData *mimeData, const QString iconPath)
+{
+    d->notifyDragStarted(mimeData);
+
+    auto drag = new QDrag(this);
+    drag->setPixmap(iconPath);
+    drag->setMimeData(mimeData);
+    drag->exec();
+    drag->deleteLater();
+}
+
+void Model::endDrag()
+{
+    d->notifyDragEnded();
 }
 
 QString Model::generateNewId(const QString &prefixName) const
