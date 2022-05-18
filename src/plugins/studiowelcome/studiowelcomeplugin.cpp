@@ -666,13 +666,7 @@ WelcomeMode::WelcomeMode()
     Utils::FilePath readme = Utils::FilePath::fromUserInput(m_dataModelDownloader->targetFolder().toString()
                                                             + "/readme.txt");
 
-    m_dataModelDownloader->start();
 
-    connect(m_dataModelDownloader, &DataModelDownloader::finished, this, [this](){
-        auto source = m_modeWidget->source();
-        m_modeWidget->engine()->clearComponentCache();
-        m_modeWidget->setSource(source);
-    });
     const Utils::Icon FLAT({{":/studiowelcome/images/mode_welcome_mask.png",
                       Utils::Theme::IconsBaseColor}});
     const Utils::Icon FLAT_ACTIVE({{":/studiowelcome/images/mode_welcome_mask.png",
@@ -699,6 +693,19 @@ WelcomeMode::WelcomeMode()
 
     if (forceDownLoad() || !readme.exists()) // Only downloads contain the readme
         m_dataModelDownloader->setForceDownload(true);
+
+    connect(m_dataModelDownloader, &DataModelDownloader::progressChanged, this, [this](){
+        m_modeWidget->rootObject()->setProperty("loadingProgress", m_dataModelDownloader->progress());
+    });
+
+    connect(m_dataModelDownloader, &DataModelDownloader::finished, this, [this](){
+        auto source = m_modeWidget->source();
+        m_modeWidget->engine()->clearComponentCache();
+        m_modeWidget->setSource(source);
+        m_modeWidget->rootObject()->setProperty("loadingProgress", 100);
+    });
+
+    m_dataModelDownloader->start();
 
     connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged, this, [this](Utils::Id mode){
        bool active = (mode == Core::Constants::MODE_WELCOME);
