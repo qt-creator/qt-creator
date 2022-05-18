@@ -30,6 +30,8 @@ QtcPlugin {
         "clangcompletioncontextanalyzer.cpp",
         "clangcompletioncontextanalyzer.h",
         "clangconstants.h",
+        "clangdast.cpp",
+        "clangdast.h",
         "clangdclient.cpp",
         "clangdclient.h",
         "clangdiagnostictooltipwidget.cpp",

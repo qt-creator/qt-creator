@@ -16,6 +16,7 @@ add_qtc_plugin(ClangCodeModel
     clangcompletioncontextanalyzer.cpp clangcompletioncontextanalyzer.h
     clangconstants.h
     clangdclient.cpp clangdclient.h
+    clangdast.cpp clangdast.h
     clangdiagnostictooltipwidget.cpp clangdiagnostictooltipwidget.h
     clangdquickfixfactory.cpp clangdquickfixfactory.h
     clangdqpropertyhighlighter.cpp clangdqpropertyhighlighter.h

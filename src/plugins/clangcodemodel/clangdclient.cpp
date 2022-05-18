@@ -27,6 +27,7 @@
 
 #include "clangcompletioncontextanalyzer.h"
 #include "clangconstants.h"
+#include "clangdast.h"
 #include "clangdlocatorfilters.h"
 #include "clangdqpropertyhighlighter.h"
 #include "clangmodelmanagersupport.h"
@@ -116,368 +117,7 @@ static Q_LOGGING_CATEGORY(clangdLogCompletion, "qtc.clangcodemodel.clangd.comple
                           QtWarningMsg);
 static QString indexingToken() { return "backgroundIndexProgress"; }
 
-static QStringView subViewLen(const QString &s, qsizetype start, qsizetype length)
-{
-    if (start < 0 || length < 0 || start + length > s.length())
-        return {};
-    return QStringView(s).mid(start, length);
-}
-
-static QStringView subViewEnd(const QString &s, qsizetype start, qsizetype end)
-{
-    return subViewLen(s, start, end - start);
-}
-
-class AstNode : public JsonObject
-{
-public:
-    using JsonObject::JsonObject;
-
-    static constexpr char roleKey[] = "role";
-    static constexpr char arcanaKey[] = "arcana";
-
-    // The general kind of node, such as “expression”. Corresponds to clang’s base AST node type,
-    // such as Expr. The most common are “expression”, “statement”, “type” and “declaration”.
-    QString role() const { return typedValue<QString>(roleKey); }
-
-    // The specific kind of node, such as “BinaryOperator”. Corresponds to clang’s concrete
-    // node class, with Expr etc suffix dropped.
-    QString kind() const { return typedValue<QString>(kindKey); }
-
-    // Brief additional details, such as ‘||’. Information present here depends on the node kind.
-    Utils::optional<QString> detail() const { return optionalValue<QString>(detailKey); }
-
-    // One line dump of information, similar to that printed by clang -Xclang -ast-dump.
-    // Only available for certain types of nodes.
-    Utils::optional<QString> arcana() const { return optionalValue<QString>(arcanaKey); }
-
-    // The part of the code that produced this node. Missing for implicit nodes, nodes produced
-    // by macro expansion, etc.
-    Range range() const { return typedValue<Range>(rangeKey); }
-
-    // Descendants describing the internal structure. The tree of nodes is similar to that printed
-    // by clang -Xclang -ast-dump, or that traversed by clang::RecursiveASTVisitor.
-    Utils::optional<QList<AstNode>> children() const { return optionalArray<AstNode>(childrenKey); }
-
-    bool hasRange() const { return contains(rangeKey); }
-
-    bool arcanaContains(const QString &s) const
-    {
-        const Utils::optional<QString> arcanaString = arcana();
-        return arcanaString && arcanaString->contains(s);
-    }
-
-    bool detailIs(const QString &s) const
-    {
-        return detail() && *detail() == s;
-    }
-
-    bool isMemberFunctionCall() const
-    {
-        return role() == "expression" && (kind() == "CXXMemberCall"
-                || (kind() == "Member" && arcanaContains("member function")));
-    }
-
-    bool isPureVirtualDeclaration() const
-    {
-        return role() == "declaration" && kind() == "CXXMethod" && arcanaContains("virtual pure");
-    }
-
-    bool isPureVirtualDefinition() const
-    {
-        return role() == "declaration" && kind() == "CXXMethod" && arcanaContains("' pure");
-    }
-
-    bool mightBeAmbiguousVirtualCall() const
-    {
-        if (!isMemberFunctionCall())
-            return false;
-        bool hasBaseCast = false;
-        bool hasRecordType = false;
-        const QList<AstNode> childList = children().value_or(QList<AstNode>());
-        for (const AstNode &c : childList) {
-            if (!hasBaseCast && c.detailIs("UncheckedDerivedToBase"))
-                hasBaseCast = true;
-            if (!hasRecordType && c.role() == "specifier" && c.kind() == "TypeSpec")
-                hasRecordType = true;
-            if (hasBaseCast && hasRecordType)
-                return false;
-        }
-        return true;
-    }
-
-    bool isNamespace() const { return role() == "declaration" && kind() == "Namespace"; }
-
-    bool isTemplateParameterDeclaration() const
-    {
-        return role() == "declaration" && (kind() == "TemplateTypeParm"
-                                           || kind() == "NonTypeTemplateParm");
-    };
-
-    QString type() const
-    {
-        const Utils::optional<QString> arcanaString = arcana();
-        if (!arcanaString)
-            return {};
-        return typeFromPos(*arcanaString, 0);
-    }
-
-    QString typeFromPos(const QString &s, int pos) const
-    {
-        const int quote1Offset = s.indexOf('\'', pos);
-        if (quote1Offset == -1)
-            return {};
-        const int quote2Offset = s.indexOf('\'', quote1Offset + 1);
-        if (quote2Offset == -1)
-            return {};
-        if (s.mid(quote2Offset + 1, 2) == ":'")
-            return typeFromPos(s, quote2Offset + 2);
-        return s.mid(quote1Offset + 1, quote2Offset - quote1Offset - 1);
-    }
-
-    HelpItem::Category qdocCategoryForDeclaration(HelpItem::Category fallback)
-    {
-        const auto childList = children();
-        if (!childList || childList->size() < 2)
-            return fallback;
-        const AstNode c1 = childList->first();
-        if (c1.role() != "type" || c1.kind() != "Auto")
-            return fallback;
-        QList<AstNode> typeCandidates = {childList->at(1)};
-        while (!typeCandidates.isEmpty()) {
-            const AstNode n = typeCandidates.takeFirst();
-            if (n.role() == "type") {
-                if (n.kind() == "Enum")
-                    return HelpItem::Enum;
-                if (n.kind() == "Record")
-                    return HelpItem::ClassOrNamespace;
-                return fallback;
-            }
-            typeCandidates << n.children().value_or(QList<AstNode>());
-        }
-        return fallback;
-    }
-
-    // Returns true <=> the type is "recursively const".
-    // E.g. returns true for "const int &", "const int *" and "const int * const *",
-    // and false for "int &" and "const int **".
-    // For non-pointer types such as "int", we check whether they are uses as lvalues
-    // or rvalues.
-    bool hasConstType() const
-    {
-        QString theType = type();
-        if (theType.endsWith("const"))
-            theType.chop(5);
-
-        // We don't care about the "inner" type of templates.
-        const int openAngleBracketPos = theType.indexOf('<');
-        if (openAngleBracketPos != -1) {
-            const int closingAngleBracketPos = theType.lastIndexOf('>');
-            if (closingAngleBracketPos > openAngleBracketPos) {
-                theType = theType.left(openAngleBracketPos)
-                        + theType.mid(closingAngleBracketPos + 1);
-            }
-        }
-        const int xrefCount = theType.count("&&");
-        const int refCount = theType.count('&') - 2 * xrefCount;
-        const int ptrRefCount = theType.count('*') + refCount;
-        const int constCount = theType.count("const");
-        if (ptrRefCount == 0)
-            return constCount > 0 || detailIs("LValueToRValue") || arcanaContains("xvalue");
-        return ptrRefCount <= constCount;
-    }
-
-    bool childContainsRange(int index, const Range &range) const
-    {
-        const Utils::optional<QList<AstNode>> childList = children();
-        return childList && childList->size() > index
-                && childList->at(index).range().contains(range);
-    }
-
-    bool hasChildWithRole(const QString &role) const
-    {
-        return Utils::contains(children().value_or(QList<AstNode>()), [&role](const AstNode &c) {
-            return c.role() == role;
-        });
-    }
-
-    QString operatorString() const
-    {
-        if (kind() == "BinaryOperator")
-            return detail().value_or(QString());
-        QTC_ASSERT(kind() == "CXXOperatorCall", return {});
-        const Utils::optional<QString> arcanaString = arcana();
-        if (!arcanaString)
-            return {};
-        const int closingQuoteOffset = arcanaString->lastIndexOf('\'');
-        if (closingQuoteOffset <= 0)
-            return {};
-        const int openingQuoteOffset = arcanaString->lastIndexOf('\'', closingQuoteOffset - 1);
-        if (openingQuoteOffset == -1)
-            return {};
-        return arcanaString->mid(openingQuoteOffset + 1, closingQuoteOffset
-                                 - openingQuoteOffset - 1);
-    }
-
-    enum class FileStatus { Ours, Foreign, Mixed, Unknown };
-    FileStatus fileStatus(const Utils::FilePath &thisFile) const
-    {
-        const Utils::optional<QString> arcanaString = arcana();
-        if (!arcanaString)
-            return FileStatus::Unknown;
-
-        // Example arcanas:
-        // "FunctionDecl 0x7fffb5d0dbd0 </tmp/test.cpp:1:1, line:5:1> line:1:6 func 'void ()'"
-        // "VarDecl 0x7fffb5d0dcf0 </tmp/test.cpp:2:5, /tmp/test.h:1:1> /tmp/test.cpp:2:10 b 'bool' cinit"
-        // The second one is for a particularly silly construction where the RHS of an
-        // initialization comes from an included header.
-        const int openPos = arcanaString->indexOf('<');
-        if (openPos == -1)
-            return FileStatus::Unknown;
-        const int closePos = arcanaString->indexOf('>', openPos + 1);
-        if (closePos == -1)
-            return FileStatus::Unknown;
-        bool hasOurs = false;
-        bool hasOther = false;
-        for (int startPos = openPos + 1; startPos < closePos;) {
-            int colon1Pos = arcanaString->indexOf(':', startPos);
-            if (colon1Pos == -1 || colon1Pos > closePos)
-                break;
-            if (Utils::HostOsInfo::isWindowsHost())
-                colon1Pos = arcanaString->indexOf(':', colon1Pos + 1);
-            if (colon1Pos == -1 || colon1Pos > closePos)
-                break;
-            const int colon2Pos = arcanaString->indexOf(':', colon1Pos + 2);
-            if (colon2Pos == -1 || colon2Pos > closePos)
-                break;
-            const int line = subViewEnd(*arcanaString, colon1Pos + 1, colon2Pos).toString().toInt(); // TODO: Drop toString() once we require >= Qt 5.15
-            if (line == 0)
-                break;
-            const QStringView fileOrLineString = subViewEnd(*arcanaString, startPos, colon1Pos);
-            if (fileOrLineString != QLatin1String("line")) {
-                if (Utils::FilePath::fromUserInput(fileOrLineString.toString()) == thisFile)
-                    hasOurs = true;
-                else
-                    hasOther = true;
-            }
-            const int commaPos = arcanaString->indexOf(',', colon2Pos + 2);
-            if (commaPos != -1)
-                startPos = commaPos + 2;
-            else
-                break;
-        }
-        if (hasOurs)
-            return hasOther ? FileStatus::Mixed : FileStatus::Ours;
-        return hasOther ? FileStatus::Foreign : FileStatus::Unknown;
-    }
-
-    // For debugging.
-    void print(int indent = 0) const
-    {
-        (qDebug().noquote() << QByteArray(indent, ' ')).quote() << role() << kind()
-                 << detail().value_or(QString()) << arcana().value_or(QString())
-                 << range();
-        for (const AstNode &c : children().value_or(QList<AstNode>()))
-            c.print(indent + 2);
-    }
-
-    bool isValid() const override
-    {
-        return contains(roleKey) && contains(kindKey);
-    }
-};
-
-class AstPathCollector
-{
-public:
-    AstPathCollector(const AstNode &root, const Range &range) : m_root(root), m_range(range) {}
-
-    QList<AstNode> collectPath()
-    {
-        if (!m_root.isValid())
-            return {};
-        visitNode(m_root, true);
-        return m_done ? m_path : m_longestSubPath;
-    }
-
-private:
-    void visitNode(const AstNode &node, bool isRoot = false)
-    {
-        if (!isRoot && (!node.hasRange() || !node.range().contains(m_range)))
-            return;
-        m_path << node;
-
-        class PathDropper {
-        public:
-            PathDropper(AstPathCollector &collector) : m_collector(collector) {};
-            ~PathDropper() {
-                if (m_collector.m_done)
-                    return;
-                if (m_collector.m_path.size() > m_collector.m_longestSubPath.size())
-                    m_collector.m_longestSubPath = m_collector.m_path;
-                m_collector.m_path.removeLast();
-            }
-        private:
-            AstPathCollector &m_collector;
-        } pathDropper(*this);
-
-        // Still traverse the children, because they could have the same range.
-        if (node.range() == m_range)
-            m_done = true;
-
-        const auto children = node.children();
-        if (!children)
-            return;
-
-        QList<AstNode> childrenToCheck;
-        if (node.kind() == "Function" || node.role() == "expression") {
-            // Functions and expressions can contain implicit nodes that make the list unsorted.
-            // They cannot be ignored, as we need to consider them in certain contexts.
-            // Therefore, the binary search cannot be used here.
-            childrenToCheck = *children;
-        } else {
-            for (auto it = std::lower_bound(children->cbegin(), children->cend(), m_range,
-                                            leftOfRange);
-                 it != children->cend() && !m_range.isLeftOf(it->range()); ++it) {
-                childrenToCheck << *it;
-            }
-        }
-
-        const bool wasDone = m_done;
-        for (const AstNode &child : qAsConst(childrenToCheck)) {
-            visitNode(child);
-            if (m_done && !wasDone)
-                break;
-        }
-    }
-
-    static bool leftOfRange(const AstNode &node, const Range &range)
-    {
-        // Class and struct nodes can contain implicit constructors, destructors and
-        // operators, which appear at the end of the list, but whose range is the same
-        // as the class name. Therefore, we must force them not to compare less to
-        // anything else.
-        return node.range().isLeftOf(range) && !node.arcanaContains(" implicit ");
-    };
-
-    const AstNode &m_root;
-    const Range &m_range;
-    QList<AstNode> m_path;
-    QList<AstNode> m_longestSubPath;
-    bool m_done = false;
-};
-
-static QList<AstNode> getAstPath(const AstNode &root, const Range &range)
-{
-    return AstPathCollector(root, range).collectPath();
-}
-
-static QList<AstNode> getAstPath(const AstNode &root, const Position &pos)
-{
-    return getAstPath(root, Range(pos, pos));
-}
-
-static Usage::Type getUsageType(const QList<AstNode> &path)
+static Usage::Type getUsageType(const ClangdAstPath &path)
 {
     bool potentialWrite = false;
     bool isFunction = false;
@@ -645,7 +285,7 @@ class ReferencesFileData {
 public:
     QList<QPair<Range, QString>> rangesAndLineText;
     QString fileContent;
-    AstNode ast;
+    ClangdAstNode ast;
 };
 class ReplacementData {
 public:
@@ -761,8 +401,8 @@ public:
     Utils::Link defLink;
     QList<Utils::Link> allLinks;
     QHash<Utils::Link, Utils::Link> declDefMap;
-    Utils::optional<AstNode> cursorNode;
-    AstNode defLinkNode;
+    Utils::optional<ClangdAstNode> cursorNode;
+    ClangdAstNode defLinkNode;
     SymbolDataList symbolsToDisplay;
     std::set<Utils::FilePath> openedFiles;
     VirtualFunctionAssistProcessor *virtualFuncAssistProcessor = nullptr;
@@ -777,11 +417,11 @@ public:
         : id(id), document(doc), uri(DocumentUri::fromFilePath(doc->filePath())),
           cursor(cursor), editorWidget(editorWidget), callback(std::move(callback)) {}
 
-    Utils::optional<AstNode> getFunctionNode() const
+    Utils::optional<ClangdAstNode> getFunctionNode() const
     {
         QTC_ASSERT(ast, return {});
 
-        const QList<AstNode> path = getAstPath(*ast, Range(cursor));
+        const ClangdAstPath path = getAstPath(*ast, Range(cursor));
         for (auto it = path.rbegin(); it != path.rend(); ++it) {
             if (it->role() == "declaration"
                     && (it->kind() == "CXXMethod" || it->kind() == "CXXConversion"
@@ -792,7 +432,7 @@ public:
         return {};
     }
 
-    QTextCursor cursorForFunctionName(const AstNode &functionNode) const
+    QTextCursor cursorForFunctionName(const ClangdAstNode &functionNode) const
     {
         QTC_ASSERT(docSymbols, return {});
 
@@ -818,7 +458,7 @@ public:
     const QPointer<CppEditor::CppEditorWidget> editorWidget;
     Utils::ProcessLinkCallback callback;
     Utils::optional<DocumentSymbolsResult> docSymbols;
-    Utils::optional<AstNode> ast;
+    Utils::optional<ClangdAstNode> ast;
 };
 
 class LocalRefsData {
@@ -1271,7 +911,7 @@ public:
 
     enum class AstCallbackMode { SyncIfPossible, AlwaysAsync };
     using TextDocOrFile = const Utils::variant<const TextDocument *, Utils::FilePath>;
-    using AstHandler = const std::function<void(const AstNode &ast, const MessageId &)>;
+    using AstHandler = const std::function<void(const ClangdAstNode &ast, const MessageId &)>;
     MessageId getAndHandleAst(TextDocOrFile &doc, AstHandler &astHandler,
                               AstCallbackMode callbackMode, const Range &range = {});
 
@@ -1287,8 +927,8 @@ public:
     QHash<Utils::FilePath, CppEditor::BaseEditorDocumentParser::Configuration> parserConfigs;
     QHash<Utils::FilePath, Tasks> issuePaneEntries;
 
-    VersionedDataCache<const TextDocument *, AstNode> astCache;
-    VersionedDataCache<Utils::FilePath, AstNode> externalAstCache;
+    VersionedDataCache<const TextDocument *, ClangdAstNode> astCache;
+    VersionedDataCache<Utils::FilePath, ClangdAstNode> externalAstCache;
     TaskTimer highlightingTimer{"highlighting"};
     quint64 nextJobId = 0;
     bool isFullyIndexed = false;
@@ -2053,7 +1693,7 @@ void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Loca
             q->openExtraFile(it.key().toFilePath(), it->fileContent);
         it->fileContent.clear();
         const auto docVariant = doc ? TextDocOrFile(doc) : TextDocOrFile(it.key().toFilePath());
-        const auto astHandler = [this, key, loc = it.key()](const AstNode &ast,
+        const auto astHandler = [this, key, loc = it.key()](const ClangdAstNode &ast,
                                                             const MessageId &reqId) {
             qCDebug(clangdLog) << "AST for" << loc.toFilePath();
             const auto refData = runningFindUsages.find(key);
@@ -2212,7 +1852,7 @@ void ClangdClient::followSymbol(TextDocument *document,
     symbolSupport().findLinkAt(document, adjustedCursor, std::move(gotoDefCallback), true);
 
     const auto astHandler = [this, id = d->followSymbolData->id]
-            (const AstNode &ast, const MessageId &) {
+            (const ClangdAstNode &ast, const MessageId &) {
         qCDebug(clangdLog) << "received ast response for cursor";
         if (!d->followSymbolData || d->followSymbolData->id != id)
             return;
@@ -2236,7 +1876,7 @@ void ClangdClient::switchDeclDef(TextDocument *document, const QTextCursor &curs
                                  std::move(callback));
 
     // Retrieve AST and document symbols.
-    const auto astHandler = [this, id = d->switchDeclDefData->id](const AstNode &ast,
+    const auto astHandler = [this, id = d->switchDeclDefData->id](const ClangdAstNode &ast,
                                                                   const MessageId &) {
         qCDebug(clangdLog) << "received ast for decl/def switch";
         if (!d->switchDeclDefData || d->switchDeclDefData->id != id
@@ -2304,7 +1944,7 @@ void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cu
         }
 
         // Step 2: Get AST and check whether it's a local variable.
-        const auto astHandler = [this, link, id](const AstNode &ast, const MessageId &) {
+        const auto astHandler = [this, link, id](const ClangdAstNode &ast, const MessageId &) {
             qCDebug(clangdLog) << "received ast response";
             if (!d->localRefsData || id != d->localRefsData->id)
                 return;
@@ -2314,7 +1954,7 @@ void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cu
             }
 
             const Position linkPos(link.targetLine - 1, link.targetColumn);
-            const QList<AstNode> astPath = getAstPath(ast, linkPos);
+            const ClangdAstPath astPath = getAstPath(ast, linkPos);
             bool isVar = false;
             for (auto it = astPath.rbegin(); it != astPath.rend(); ++it) {
                 if (it->role() == "declaration"
@@ -2404,26 +2044,26 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
 
     const TextDocument * const doc = documentForFilePath(uri.toFilePath());
     QTC_ASSERT(doc, return);
-    const auto astHandler = [this, uri, hoverResponse](const AstNode &ast, const MessageId &) {
+    const auto astHandler = [this, uri, hoverResponse](const ClangdAstNode &ast, const MessageId &) {
         const MessageId id = hoverResponse.id();
         Range range;
         if (const Utils::optional<HoverResult> result = hoverResponse.result()) {
             if (auto hover = Utils::get_if<Hover>(&(*result)))
                 range = hover->range().value_or(Range());
         }
-        const QList<AstNode> path = getAstPath(ast, range);
+        const ClangdAstPath path = getAstPath(ast, range);
         if (path.isEmpty()) {
             d->setHelpItemForTooltip(id);
             return;
         }
-        AstNode node = path.last();
+        ClangdAstNode node = path.last();
         if (node.role() == "expression" && node.kind() == "ImplicitCast") {
-            const Utils::optional<QList<AstNode>> children = node.children();
+            const Utils::optional<QList<ClangdAstNode>> children = node.children();
             if (children && !children->isEmpty())
                 node = children->first();
         }
         while (node.kind() == "Qualified") {
-            const Utils::optional<QList<AstNode>> children = node.children();
+            const Utils::optional<QList<ClangdAstNode>> children = node.children();
             if (children && !children->isEmpty())
                 node = children->first();
         }
@@ -2707,7 +2347,7 @@ void ClangdClient::Private::handleGotoImplementationResult(
     const Position defLinkPos(followSymbolData->defLink.targetLine - 1,
                               followSymbolData->defLink.targetColumn);
     const auto astHandler = [this, id = followSymbolData->id]
-            (const AstNode &ast, const MessageId &) {
+            (const ClangdAstNode &ast, const MessageId &) {
         qCDebug(clangdLog) << "received ast response for def link";
         if (!followSymbolData || followSymbolData->id != id)
             return;
@@ -2754,7 +2394,7 @@ void ClangdClient::Private::handleDeclDefSwitchReplies()
     // on a function return type, or ...
     if (clangdLogAst().isDebugEnabled())
         switchDeclDefData->ast->print(0);
-    const Utils::optional<AstNode> functionNode = switchDeclDefData->getFunctionNode();
+    const Utils::optional<ClangdAstNode> functionNode = switchDeclDefData->getFunctionNode();
     if (!functionNode) {
         switchDeclDefData.reset();
         return;
@@ -2815,10 +2455,10 @@ QTextCursor ClangdClient::Private::adjustedCursor(const QTextCursor &cursor,
             case T_DOT:
                 break;
             case T_ARROW: {
-                const Utils::optional<AstNode> clangdAst = astCache.get(doc);
+                const Utils::optional<ClangdAstNode> clangdAst = astCache.get(doc);
                 if (!clangdAst)
                     return cursor;
-                const QList<AstNode> clangdAstPath = getAstPath(*clangdAst, Range(cursor));
+                const ClangdAstPath clangdAstPath = getAstPath(*clangdAst, Range(cursor));
                 for (auto it = clangdAstPath.rbegin(); it != clangdAstPath.rend(); ++it) {
                     if (it->detailIs("operator->") && it->arcanaContains("CXXMethod"))
                         return cursor;
@@ -2903,29 +2543,29 @@ class ExtraHighlightingResultsCollector
 public:
     ExtraHighlightingResultsCollector(QFutureInterface<HighlightingResult> &future,
                                       HighlightingResults &results,
-                                      const Utils::FilePath &filePath, const AstNode &ast,
+                                      const Utils::FilePath &filePath, const ClangdAstNode &ast,
                                       const QTextDocument *doc, const QString &docContent);
 
     void collect();
 private:
     static bool lessThan(const HighlightingResult &r1, const HighlightingResult &r2);
     static int onlyIndexOf(const QStringView &text, const QStringView &subString, int from = 0);
-    int posForNodeStart(const AstNode &node) const;
-    int posForNodeEnd(const AstNode &node) const;
+    int posForNodeStart(const ClangdAstNode &node) const;
+    int posForNodeEnd(const ClangdAstNode &node) const;
     void insertResult(const HighlightingResult &result);
-    void insertResult(const AstNode &node, TextStyle style);
+    void insertResult(const ClangdAstNode &node, TextStyle style);
     void insertAngleBracketInfo(int searchStart1, int searchEnd1, int searchStart2, int searchEnd2);
     void setResultPosFromRange(HighlightingResult &result, const Range &range);
-    void collectFromNode(const AstNode &node);
-    void visitNode(const AstNode&node);
+    void collectFromNode(const ClangdAstNode &node);
+    void visitNode(const ClangdAstNode&node);
 
     QFutureInterface<HighlightingResult> &m_future;
     HighlightingResults &m_results;
     const Utils::FilePath m_filePath;
-    const AstNode &m_ast;
+    const ClangdAstNode &m_ast;
     const QTextDocument * const m_doc;
     const QString &m_docContent;
-    AstNode::FileStatus m_currentFileStatus = AstNode::FileStatus::Unknown;
+    ClangdAstNode::FileStatus m_currentFileStatus = ClangdAstNode::FileStatus::Unknown;
 };
 
 // clangd reports also the #ifs, #elses and #endifs around the disabled code as disabled,
@@ -3012,7 +2652,7 @@ static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, const
 static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                                 const Utils::FilePath &filePath,
                                 const QList<ExpandedSemanticToken> &tokens,
-                                const QString &docContents, const AstNode &ast,
+                                const QString &docContents, const ClangdAstNode &ast,
                                 const QPointer<TextDocument> &textDocument,
                                 int docRevision, const QVersionNumber &clangdVersion,
                                 const TaskTimer &taskTimer)
@@ -3035,7 +2675,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
         if (token.type != "variable" && token.type != "property" && token.type != "parameter")
             return false;
         const Range range = tokenRange(token);
-        const QList<AstNode> path = getAstPath(ast, range);
+        const ClangdAstPath path = getAstPath(ast, range);
         if (path.size() < 2)
             return false;
         if (token.type == "property"
@@ -3056,7 +2696,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                 // know whether the argument is passed as const or not.
                 if (it->arcanaContains("dependent type"))
                     return false;
-                const QList<AstNode> children = it->children().value_or(QList<AstNode>());
+                const QList<ClangdAstNode> children = it->children().value_or(QList<ClangdAstNode>());
                 return children.isEmpty()
                         || (children.first().range() != (it - 1)->range()
                                 && children.first().kind() != "UnresolvedLookup");
@@ -3065,7 +2705,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
             // The token should get marked for e.g. lambdas, but not for assignment operators,
             // where the user sees that it's being written.
             if (it->kind() == "CXXOperatorCall") {
-                const QList<AstNode> children = it->children().value_or(QList<AstNode>());
+                const QList<ClangdAstNode> children = it->children().value_or(QList<ClangdAstNode>());
 
                 // Child 1 is the call itself, Child 2 is the named entity on which the call happens
                 // (a lambda or a class instance), after that follow the actual call arguments.
@@ -3082,9 +2722,9 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                 if (children.at(1).range().contains(range))
                     return false;
 
-                QList<AstNode> firstChildTree{children.first()};
+                QList<ClangdAstNode> firstChildTree{children.first()};
                 while (!firstChildTree.isEmpty()) {
-                    const AstNode n = firstChildTree.takeFirst();
+                    const ClangdAstNode n = firstChildTree.takeFirst();
                     const QString detail = n.detail().value_or(QString());
                     if (detail.startsWith("operator")) {
                         return !detail.contains('=')
@@ -3092,7 +2732,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                                 && !detail.contains("<<") && !detail.contains(">>")
                                 && !detail.contains("*");
                     }
-                    firstChildTree << n.children().value_or(QList<AstNode>());
+                    firstChildTree << n.children().value_or(QList<ClangdAstNode>());
                 }
                 return true;
             }
@@ -3107,7 +2747,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
             if (it->kind() == "CXXMemberCall") {
                 if (it == path.rbegin())
                     return false;
-                const QList<AstNode> children = it->children().value_or(QList<AstNode>());
+                const QList<ClangdAstNode> children = it->children().value_or(QList<ClangdAstNode>());
                 QTC_ASSERT(!children.isEmpty(), return false);
 
                 // The called object is never displayed as an output parameter.
@@ -3141,9 +2781,9 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
             styles.mainStyle = token.modifiers.contains(QLatin1String("virtual"))
                     ? C_VIRTUAL_METHOD : C_FUNCTION;
             if (ast.isValid()) {
-                const QList<AstNode> path = getAstPath(ast, tokenRange(token));
+                const ClangdAstPath path = getAstPath(ast, tokenRange(token));
                 if (path.length() > 1) {
-                    const AstNode declNode = path.at(path.length() - 2);
+                    const ClangdAstNode declNode = path.at(path.length() - 2);
                     if (declNode.kind() == "Function" || declNode.kind() == "CXXMethod") {
                         if (clangdVersion < QVersionNumber(14)
                                 && declNode.arcanaContains("' virtual")) {
@@ -3160,13 +2800,13 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
             // clang hardly ever differentiates between constructors and the associated class,
             // whereas we highlight constructors as functions.
             if (ast.isValid()) {
-                const QList<AstNode> path = getAstPath(ast, tokenRange(token));
+                const ClangdAstPath path = getAstPath(ast, tokenRange(token));
                 if (!path.isEmpty()) {
                     if (path.last().kind() == "CXXConstructor") {
                         if (!path.last().arcanaContains("implicit"))
                             styles.mainStyle = C_FUNCTION;
                     } else if (path.last().kind() == "Record" && path.length() > 1) {
-                        const AstNode node = path.at(path.length() - 2);
+                        const ClangdAstNode node = path.at(path.length() - 2);
                         if (node.kind() == "CXXDestructor" && !node.arcanaContains("implicit")) {
                             styles.mainStyle = C_FUNCTION;
 
@@ -3284,7 +2924,7 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
         qCDebug(clangdLogHighlight()) << '\t' << t.line << t.column << t.length << t.type
                                       << t.modifiers;
 
-    const auto astHandler = [this, tokens, doc, version](const AstNode &ast, const MessageId &) {
+    const auto astHandler = [this, tokens, doc, version](const ClangdAstNode &ast, const MessageId &) {
         FinalizingSubtaskTimer t(highlightingTimer);
         if (!q->documentOpen(doc))
             return;
@@ -3759,48 +3399,10 @@ MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
     }
 
     // Otherwise retrieve the AST from clangd.
-
-    class AstParams : public JsonObject
-    {
-    public:
-        AstParams(const TextDocumentIdentifier &document, const Range &range = {})
-        {
-            setTextDocument(document);
-            if (range.isValid())
-                setRange(range);
-        }
-
-        using JsonObject::JsonObject;
-
-        // The open file to inspect.
-        TextDocumentIdentifier textDocument() const
-        { return typedValue<TextDocumentIdentifier>(textDocumentKey); }
-        void setTextDocument(const TextDocumentIdentifier &id) { insert(textDocumentKey, id); }
-
-        // The region of the source code whose AST is fetched. The highest-level node that entirely
-        // contains the range is returned.
-        Utils::optional<Range> range() const { return optionalValue<Range>(rangeKey); }
-        void setRange(const Range &range) { insert(rangeKey, range); }
-
-        bool isValid() const override { return contains(textDocumentKey); }
-    };
-
-    class AstRequest : public Request<AstNode, std::nullptr_t, AstParams>
-    {
-    public:
-        using Request::Request;
-        explicit AstRequest(const AstParams &params) : Request("textDocument/ast", params) {}
-    };
-
-    AstRequest request(AstParams(TextDocumentIdentifier(DocumentUri::fromFilePath(filePath)),
-                                 range));
-    request.setResponseCallback([this, filePath, guardedTextDoc = QPointer(textDoc), astHandler,
-                                fullAstRequested, docRev = textDoc ? getRevision(textDoc) : -1,
-                                fileRev = getRevision(filePath), reqId = request.id()]
-                                (AstRequest::Response response) {
+    const auto wrapperHandler = [this, filePath, guardedTextDoc = QPointer(textDoc), astHandler,
+            fullAstRequested, docRev = textDoc ? getRevision(textDoc) : -1,
+            fileRev = getRevision(filePath)](const ClangdAstNode &ast, const MessageId &reqId) {
         qCDebug(clangdLog) << "retrieved AST from clangd";
-        const auto result = response.result();
-        const AstNode ast = result ? *result : AstNode();
         if (fullAstRequested) {
             if (guardedTextDoc) {
                 if (docRev == getRevision(guardedTextDoc))
@@ -3810,15 +3412,14 @@ MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
             }
         }
         astHandler(ast, reqId);
-    });
+    };
     qCDebug(clangdLog) << "requesting AST for" << filePath;
-    q->sendContent(request, SendDocUpdates::Ignore);
-    return request.id();
+    return requestAst(q, filePath, range, wrapperHandler);
 }
 
 ExtraHighlightingResultsCollector::ExtraHighlightingResultsCollector(
         QFutureInterface<HighlightingResult> &future, HighlightingResults &results,
-        const Utils::FilePath &filePath, const AstNode &ast, const QTextDocument *doc,
+        const Utils::FilePath &filePath, const ClangdAstNode &ast, const QTextDocument *doc,
         const QString &docContent)
     : m_future(future), m_results(results), m_filePath(filePath), m_ast(ast), m_doc(doc),
       m_docContent(docContent)
@@ -3875,13 +3476,13 @@ int ExtraHighlightingResultsCollector::onlyIndexOf(const QStringView &text,
 // Unfortunately, the exact position of a specific token is usually not
 // recorded in the AST, so if we need that, we have to search for it textually.
 // In corner cases, this might get sabotaged by e.g. comments, in which case we give up.
-int ExtraHighlightingResultsCollector::posForNodeStart(const AstNode &node) const
+int ExtraHighlightingResultsCollector::posForNodeStart(const ClangdAstNode &node) const
 {
     return Utils::Text::positionInText(m_doc, node.range().start().line() + 1,
                                        node.range().start().character() + 1);
 }
 
-int ExtraHighlightingResultsCollector::posForNodeEnd(const AstNode &node) const
+int ExtraHighlightingResultsCollector::posForNodeEnd(const ClangdAstNode &node) const
 {
     return Utils::Text::positionInText(m_doc, node.range().end().line() + 1,
                                        node.range().end().character() + 1);
@@ -3920,7 +3521,7 @@ void ExtraHighlightingResultsCollector::insertResult(const HighlightingResult &r
     }
 }
 
-void ExtraHighlightingResultsCollector::insertResult(const AstNode &node, TextStyle style)
+void ExtraHighlightingResultsCollector::insertResult(const ClangdAstNode &node, TextStyle style)
 {
     HighlightingResult result;
     result.useTextSyles = true;
@@ -3979,7 +3580,7 @@ void ExtraHighlightingResultsCollector::setResultPosFromRange(HighlightingResult
     result.length = endPos.toPositionInDocument(m_doc) - startPos.toPositionInDocument(m_doc);
 }
 
-void ExtraHighlightingResultsCollector::collectFromNode(const AstNode &node)
+void ExtraHighlightingResultsCollector::collectFromNode(const ClangdAstNode &node)
 {
     if (node.kind() == "UserDefinedLiteral")
         return;
@@ -4010,7 +3611,7 @@ void ExtraHighlightingResultsCollector::collectFromNode(const AstNode &node)
     const bool isDeclaration = node.role() == "declaration";
     const int nodeStartPos = posForNodeStart(node);
     const int nodeEndPos = posForNodeEnd(node);
-    const QList<AstNode> children = node.children().value_or(QList<AstNode>());
+    const QList<ClangdAstNode> children = node.children().value_or(QList<ClangdAstNode>());
 
     // Match question mark and colon in ternary operators.
     if (isExpression && node.kind() == "ConditionalOperator") {
@@ -4060,7 +3661,7 @@ void ExtraHighlightingResultsCollector::collectFromNode(const AstNode &node)
         const QString classOrFunctionKind = QLatin1String(node.kind() == "FunctionTemplate"
                                                           ? "Function" : "CXXRecord");
         const auto functionOrClassIt = std::find_if(children.begin(), children.end(),
-                                                    [&classOrFunctionKind](const AstNode &n) {
+                                                    [&classOrFunctionKind](const ClangdAstNode &n) {
             return n.role() == "declaration" && n.kind() == classOrFunctionKind;
         });
         if (functionOrClassIt == children.end() || functionOrClassIt == children.begin())
@@ -4073,7 +3674,7 @@ void ExtraHighlightingResultsCollector::collectFromNode(const AstNode &node)
         return;
     }
 
-    const auto isTemplateParamDecl = [](const AstNode &node) {
+    const auto isTemplateParamDecl = [](const ClangdAstNode &node) {
         return node.isTemplateParameterDeclaration();
     };
     if (isDeclaration && node.kind() == "TypeAliasTemplate") {
@@ -4092,7 +3693,7 @@ void ExtraHighlightingResultsCollector::collectFromNode(const AstNode &node)
                                                     isTemplateParamDecl);
         QTC_ASSERT(lastTemplateParam != children.rend(), return);
         const auto typeAlias = std::find_if(children.begin(), children.end(),
-                [](const AstNode &n) { return n.kind() == "TypeAlias"; });
+                [](const ClangdAstNode &n) { return n.kind() == "TypeAlias"; });
         if (typeAlias == children.end())
             return;
 
@@ -4126,7 +3727,7 @@ void ExtraHighlightingResultsCollector::collectFromNode(const AstNode &node)
                                                     isTemplateParamDecl);
         QTC_ASSERT(lastTemplateParam != children.rend(), return);
         const auto templateArg = std::find_if(children.begin(), children.end(),
-                [](const AstNode &n) { return n.role() == "template argument"; });
+                [](const ClangdAstNode &n) { return n.role() == "template argument"; });
 
         const int firstTemplateParamStartPos = posForNodeStart(*firstTemplateParam);
         const int lastTemplateParamEndPos = posForNodeEnd(*lastTemplateParam);
@@ -4308,27 +3909,27 @@ void ExtraHighlightingResultsCollector::collectFromNode(const AstNode &node)
     insertResult(result);
 }
 
-void ExtraHighlightingResultsCollector::visitNode(const AstNode &node)
+void ExtraHighlightingResultsCollector::visitNode(const ClangdAstNode &node)
 {
     if (m_future.isCanceled())
         return;
-    const AstNode::FileStatus prevFileStatus = m_currentFileStatus;
+    const ClangdAstNode::FileStatus prevFileStatus = m_currentFileStatus;
     m_currentFileStatus = node.fileStatus(m_filePath);
-    if (m_currentFileStatus == AstNode::FileStatus::Unknown
-            && prevFileStatus != AstNode::FileStatus::Ours) {
+    if (m_currentFileStatus == ClangdAstNode::FileStatus::Unknown
+            && prevFileStatus != ClangdAstNode::FileStatus::Ours) {
         m_currentFileStatus = prevFileStatus;
     }
     switch (m_currentFileStatus) {
-    case AstNode::FileStatus::Ours:
-    case AstNode::FileStatus::Unknown:
+    case ClangdAstNode::FileStatus::Ours:
+    case ClangdAstNode::FileStatus::Unknown:
         collectFromNode(node);
         [[fallthrough]];
-    case AstNode::FileStatus::Foreign:
-    case ClangCodeModel::Internal::AstNode::FileStatus::Mixed: {
+    case ClangdAstNode::FileStatus::Foreign:
+    case ClangCodeModel::Internal::ClangdAstNode::FileStatus::Mixed: {
         const auto children = node.children();
         if (!children)
             return;
-        for (const AstNode &childNode : *children)
+        for (const ClangdAstNode &childNode : *children)
             visitNode(childNode);
         break;
     }
