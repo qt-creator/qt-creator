@@ -1,4 +1,5 @@
 add_qtc_plugin(QmlPreview
+  CONDITION TARGET QmlProjectManager
   PUBLIC_DEPENDS QmlDebug
   DEPENDS QmlJS
   PLUGIN_DEPENDS
