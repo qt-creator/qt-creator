@@ -513,7 +513,7 @@ MessageDetailWidget::MessageDetailWidget()
     auto layout = new QVBoxLayout;
     setLayout(layout);
 
-    m_jsonTree = new QTreeView;
+    m_jsonTree = createJsonTreeView();
 
     layout->addWidget(m_jsonTree);
 }
