@@ -544,6 +544,12 @@ bool StudioWelcomePlugin::initialize(const QStringList &arguments, QString *erro
     return true;
 }
 
+static bool forceDownLoad()
+{
+    const QString lastQDSVersionEntry = "QML/Designer/ForceWelcomePageDownload";
+    return Core::ICore::settings()->value(lastQDSVersionEntry, false).toBool();
+}
+
 static bool showSplashScreen()
 {
     const QString lastQDSVersionEntry = "QML/Designer/lastQDSVersion";
@@ -660,9 +666,6 @@ WelcomeMode::WelcomeMode()
     Utils::FilePath readme = Utils::FilePath::fromUserInput(m_dataModelDownloader->targetFolder().toString()
                                                             + "/readme.txt");
 
-    if (!readme.exists()) // Only downloads contain the readme
-        m_dataModelDownloader->setForceDownload(true);
-
     m_dataModelDownloader->start();
 
     connect(m_dataModelDownloader, &DataModelDownloader::finished, this, [this](){
@@ -693,6 +696,9 @@ WelcomeMode::WelcomeMode()
     QmlDesigner::QmlDesignerPlugin::registerPreviewImageProvider(m_modeWidget->engine());
 
     m_modeWidget->engine()->setOutputWarningsToStandardError(false);
+
+    if (forceDownLoad() || !readme.exists()) // Only downloads contain the readme
+        m_dataModelDownloader->setForceDownload(true);
 
     connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged, this, [this](Utils::Id mode){
        bool active = (mode == Core::Constants::MODE_WELCOME);
