@@ -3,7 +3,7 @@ import qbs 1.0
 QtcPlugin {
     name: "QmlProjectManager"
 
-    Depends { name: "Qt"; submodules: ["widgets", "network"] }
+    Depends { name: "Qt"; submodules: ["widgets", "network", "quickwidgets"] }
     Depends { name: "QmlJS" }
     Depends { name: "Utils" }
 
