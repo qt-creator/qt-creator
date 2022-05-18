@@ -45,6 +45,7 @@ namespace CMakeProjectManager {
 namespace Internal {
 
 using namespace ProjectExplorer;
+const int USER_STOP_EXIT_CODE = 15;
 
 static QString stripTrailingNewline(QString str)
 {
@@ -60,6 +61,7 @@ CMakeProcess::~CMakeProcess()
     m_parser.flush();
 
     if (m_futureWatcher) {
+        m_futureWatcher.reset();
         // None of the progress related functions will work after this!
         m_futureInterface.reportCanceled();
         m_futureInterface.reportFinished();
@@ -68,7 +70,7 @@ CMakeProcess::~CMakeProcess()
 
 void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &arguments)
 {
-    QTC_ASSERT(!m_process && !m_futureWatcher, return);
+    QTC_ASSERT(!m_process, return);
 
     CMakeTool *cmake = parameters.cmakeTool();
     QTC_ASSERT(parameters.isValid() && cmake, return);
@@ -152,19 +154,22 @@ void CMakeProcess::stop()
     if (!m_process)
         return;
     m_process->close();
-    m_futureWatcher->disconnect();
-    handleProcessDone({15, QProcess::CrashExit, QProcess::Crashed, {}});
+    handleProcessDone({USER_STOP_EXIT_CODE, QProcess::CrashExit, QProcess::Crashed, {}});
 }
 
 void CMakeProcess::handleProcessDone(const Utils::ProcessResultData &resultData)
 {
+    if (m_futureWatcher) {
+        m_futureWatcher->disconnect();
+        m_futureWatcher.release()->deleteLater();
+    }
     const int code = resultData.m_exitCode;
 
     QString msg;
     if (resultData.m_error == QProcess::FailedToStart) {
         msg = tr("CMake process failed to start.");
     } else if (resultData.m_exitStatus != QProcess::NormalExit) {
-        if (m_futureInterface.isCanceled())
+        if (m_futureInterface.isCanceled() || code == USER_STOP_EXIT_CODE)
             msg = tr("CMake process was canceled by the user.");
          else
             msg = tr("CMake process crashed.");
