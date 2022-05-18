@@ -128,9 +128,8 @@
         \li When the exporting is done, select \uicontrol OK.
     \endlist
 
-    \QBF exports everything into a single archive. Before importing the design
-    into \QDS, you have to manually extract the archive. Then you can import the
-    \e .metainfo into a project in \QDS, as described in \l{Importing 2D Assets}.
+    \QBF exports everything into a .qtbridge archive. You can import the archive
+    into a project in \QDS, as described in \l{Importing 2D Assets}.
 
     \section1 Export Settings
 

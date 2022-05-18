@@ -702,7 +702,8 @@ void CMakeBuildSystem::updateFileSystemNodes()
         addCMakeLists(newRoot.get(), std::move(fileNodes));
     }
 
-    addFileSystemNodes(newRoot.get(), m_allFiles);
+    if (m_allFiles)
+        addFileSystemNodes(newRoot.get(), m_allFiles);
     setRootProjectNode(std::move(newRoot));
 
     m_reader.resetData();

@@ -24,12 +24,12 @@
 ****************************************************************************/
 
 #include "abstractformeditortool.h"
+#include "assetslibrarywidget.h"
+#include "formeditorscene.h"
 #include "formeditorview.h"
 #include "formeditorwidget.h"
-#include "formeditorscene.h"
-#include "assetslibrarywidget.h"
-
-#include <modelnodecontextmenu.h>
+#include "modelnodecontextmenu.h"
+#include "qmldesignerconstants.h"
 
 #include <QDebug>
 #include <QGraphicsSceneDragDropEvent>
@@ -236,20 +236,20 @@ void AbstractFormEditorTool::dropEvent(const QList<QGraphicsItem*> &/*itemList*/
 void AbstractFormEditorTool::dragEnterEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event)
 {
     bool hasValidAssets = false;
-    if (event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
+    if (event->mimeData()->hasFormat(Constants::MIME_TYPE_ASSETS)) {
         const QStringList assetPaths = QString::fromUtf8(event->mimeData()
-                                ->data("application/vnd.bauhaus.libraryresource")).split(",");
+                                ->data(Constants::MIME_TYPE_ASSETS)).split(',');
         for (const QString &assetPath : assetPaths) {
             QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPath).first;
-            if (assetType == "application/vnd.bauhaus.libraryresource.image"
-                || assetType == "application/vnd.bauhaus.libraryresource.font") {
+            if (assetType == Constants::MIME_TYPE_ASSET_IMAGE
+             || assetType == Constants::MIME_TYPE_ASSET_FONT) {
                 hasValidAssets = true;
                 break;
             }
         }
     }
 
-    if (event->mimeData()->hasFormat(QLatin1String("application/vnd.bauhaus.itemlibraryinfo")) || hasValidAssets) {
+    if (event->mimeData()->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO) || hasValidAssets) {
         event->accept();
         view()->changeToDragTool();
         view()->currentTool()->dragEnterEvent(itemList, event);

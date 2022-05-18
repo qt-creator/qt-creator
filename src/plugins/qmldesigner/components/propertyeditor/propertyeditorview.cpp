@@ -256,6 +256,9 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
     if (noValidSelection())
         return;
 
+    QScopeGuard unlock([&](){ m_locked = false; });
+    m_locked = true;
+
     executeInTransaction("PropertyEditorView::changeExpression", [this, name](){
         PropertyName underscoreName(name);
         underscoreName.replace('.', '_');
@@ -317,13 +320,13 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
             return;
         }
 
-        if (qmlObjectNode->expression(name) != value->expression() || !qmlObjectNode->propertyAffectedByCurrentState(name))
+        if (qmlObjectNode->expression(name) != value->expression()
+            || !qmlObjectNode->propertyAffectedByCurrentState(name))
             qmlObjectNode->setBindingProperty(name, value->expression());
-
     }); /* end of transaction */
 }
 
-void PropertyEditorView::exportPopertyAsAlias(const QString &name)
+void PropertyEditorView::exportPropertyAsAlias(const QString &name)
 {
     if (name.isNull())
         return;
@@ -334,7 +337,7 @@ void PropertyEditorView::exportPopertyAsAlias(const QString &name)
     if (noValidSelection())
         return;
 
-    executeInTransaction("PropertyEditorView::exportPopertyAsAlias", [this, name](){
+    executeInTransaction("PropertyEditorView::exportPropertyAsAlias", [this, name](){
         const QString id = m_selectedNode.validId();
         QString upperCasePropertyName = name;
         upperCasePropertyName.replace(0, 1, upperCasePropertyName.at(0).toUpper());
@@ -362,7 +365,7 @@ void PropertyEditorView::removeAliasExport(const QString &name)
     if (noValidSelection())
         return;
 
-    executeInTransaction("PropertyEditorView::exportPopertyAsAlias", [this, name](){
+    executeInTransaction("PropertyEditorView::exportPropertyAsAlias", [this, name](){
         const QString id = m_selectedNode.validId();
 
         for (const BindingProperty &property : rootModelNode().bindingProperties())
@@ -692,6 +695,9 @@ void PropertyEditorView::variantPropertiesChanged(const QList<VariantProperty>& 
 
 void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags /*propertyChange*/)
 {
+    if (locked())
+        return;
+
     if (noValidSelection())
         return;
 

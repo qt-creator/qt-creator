@@ -40,7 +40,6 @@
 #include "modelnodeoperations.h"
 #include <metainfo.h>
 #include <model.h>
-#include <navigatorwidget.h>
 #include <rewritingexception.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
@@ -89,6 +88,9 @@ static QString propertyEditorResourcesPath()
 
 bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 {
+    auto document = QmlDesignerPlugin::instance()->currentDesignDocument();
+    Model *model = document ? document->documentModel() : nullptr;
+
     if (event->type() == QEvent::FocusOut) {
         if (obj == m_itemsWidget.data())
             QMetaObject::invokeMethod(m_itemsWidget->rootObject(), "closeContextMenu");
@@ -115,33 +117,19 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                         }
                     }
                 }
-                QWidget *view = QmlDesignerPlugin::instance()->viewManager().widget("Navigator");
-                if (view) {
-                    NavigatorWidget *navView = qobject_cast<NavigatorWidget *>(view);
-                    if (navView) {
-                        navView->setDragType(entry.typeName());
-                        navView->update();
-                    }
+
+                if (model) {
+                    model->startDrag(m_itemLibraryModel->getMimeData(entry),
+                                     Utils::StyleHelper::dpiSpecificImageFile(entry.libraryEntryIconPath()));
                 }
-                auto drag = new QDrag(this);
-                drag->setPixmap(Utils::StyleHelper::dpiSpecificImageFile(entry.libraryEntryIconPath()));
-                drag->setMimeData(m_itemLibraryModel->getMimeData(entry));
-                drag->exec();
-                drag->deleteLater();
 
                 m_itemToDrag = {};
             }
         }
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
         m_itemToDrag = {};
-        QWidget *view = QmlDesignerPlugin::instance()->viewManager().widget("Navigator");
-        if (view) {
-            NavigatorWidget *navView = qobject_cast<NavigatorWidget *>(view);
-            if (navView) {
-                navView->setDragType("");
-                navView->update();
-            }
-        }
+        if (model)
+            model->endDrag();
     }
 
     return QObject::eventFilter(obj, event);

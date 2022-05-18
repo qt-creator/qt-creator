@@ -169,7 +169,7 @@ void Edit3DCanvas::dragEnterEvent(QDragEnterEvent *e)
     // Allow drop when there is no valid active scene, as the drop goes under the root node of
     // the document in that case.
     if (!node.isValid() || !ModelNode::isThisOrAncestorLocked(node)) {
-        QByteArray data = e->mimeData()->data(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"));
+        QByteArray data = e->mimeData()->data(Constants::MIME_TYPE_ITEM_LIBRARY_INFO);
         if (!data.isEmpty()) {
             QDataStream stream(data);
             stream >> m_itemLibraryEntry;

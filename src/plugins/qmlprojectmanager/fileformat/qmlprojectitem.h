@@ -81,6 +81,9 @@ public:
     QString mainFile() const { return m_mainFile; }
     void setMainFile(const QString &mainFilePath) { m_mainFile = mainFilePath; }
 
+    QString mainUiFile() const { return m_mainUiFile; }
+    void setMainUiFile(const QString &mainUiFilePath) { m_mainUiFile = mainUiFilePath; }
+
     bool widgetApp() const { return m_widgetApp; }
     void setWidgetApp(bool widgetApp) { m_widgetApp = widgetApp; }
 
@@ -107,6 +110,7 @@ protected:
     QStringList m_supportedLanguages;
     QString m_primaryLanguage;
     QString m_mainFile;
+    QString m_mainUiFile;
     Utils::EnvironmentItems m_environment;
     QVector<QmlProjectContentItem *> m_content; // content property
     bool m_forceFreeType = false;

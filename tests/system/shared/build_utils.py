@@ -190,13 +190,12 @@ def verifyBuildConfig(currentTarget, configName, shouldBeDebug=False, enableShad
         # it will wait here until compilation of the debug libraries has finished.
         runCMakeButton = ("{type='QPushButton' text='Run CMake' unnamed='1' "
                           "window=':Qt Creator_Core::Internal::MainWindow'}")
-        if currentTarget not in (Targets.DESKTOP_4_8_7_DEFAULT, Targets.EMBEDDED_LINUX):
-            qmlDebuggingCombo = findObject(':Qt Creator.QML debugging and profiling:_QComboBox')
-            if selectFromCombo(qmlDebuggingCombo, 'Enable'):
-                if buildSystem is None or buildSystem == "CMake": # re-run cmake to apply
-                    clickButton(waitForObject(runCMakeButton))
-                elif buildSystem == "qmake": # Don't rebuild now
-                    clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
+        qmlDebuggingCombo = findObject(':Qt Creator.QML debugging and profiling:_QComboBox')
+        if selectFromCombo(qmlDebuggingCombo, 'Enable'):
+            if buildSystem is None or buildSystem == "CMake": # re-run cmake to apply
+                clickButton(waitForObject(runCMakeButton))
+            elif buildSystem == "qmake": # Don't rebuild now
+                clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
         try:
             problemFound = waitForObject("{window=':Qt Creator_Core::Internal::MainWindow' "
                                          "type='QLabel' name='problemLabel' visible='1'}", 1000)
@@ -205,14 +204,13 @@ def verifyBuildConfig(currentTarget, configName, shouldBeDebug=False, enableShad
         except:
             pass
     else:
-        if currentTarget not in (Targets.DESKTOP_4_8_7_DEFAULT, Targets.EMBEDDED_LINUX):
-            qmlDebuggingCombo = findObject(':Qt Creator.QML debugging and profiling:_QComboBox')
-            if selectFromCombo(qmlDebuggingCombo, "Disable"):
-                test.log("Qml debugging libraries are available - unchecked qml debugging.")
-                if buildSystem is None or buildSystem == "CMake": # re-run cmake to apply
-                    clickButton(waitForObject(runCMakeButton))
-                elif buildSystem == "qmake": # Don't rebuild now
-                    clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
+        qmlDebuggingCombo = findObject(':Qt Creator.QML debugging and profiling:_QComboBox')
+        if selectFromCombo(qmlDebuggingCombo, "Disable"):
+            test.log("Qml debugging libraries are available - unchecked qml debugging.")
+            if buildSystem is None or buildSystem == "CMake": # re-run cmake to apply
+                clickButton(waitForObject(runCMakeButton))
+            elif buildSystem == "qmake": # Don't rebuild now
+                clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
     clickButton(waitForObject(":scrollArea.Details_Utils::DetailsButton"))
     switchViewTo(ViewConstants.EDIT)
 

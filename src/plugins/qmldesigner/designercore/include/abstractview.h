@@ -229,6 +229,9 @@ public:
     virtual void updateImport3DSupport(const QVariantMap &supportMap);
     virtual void modelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap);
 
+    virtual void dragStarted(QMimeData *mimeData);
+    virtual void dragEnded();
+
     void changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion);
 
     NodeInstanceView *nodeInstanceView() const;

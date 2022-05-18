@@ -79,6 +79,8 @@ T.SpinBox {
 
     property alias compressedValueTimer: myTimer
 
+    property string preFocusText: ""
+
     signal realValueModified
     signal compressedRealValueModified
     signal dragStarted
@@ -162,6 +164,8 @@ T.SpinBox {
         validator: doubleValidator
 
         function handleEditingFinished() {
+            mySpinBox.focus = false
+
             // Keep the dirty state before calling setValueFromInput(),
             // it will be set to false (cleared) internally
             var valueModified = mySpinBox.dirty
@@ -174,7 +178,7 @@ T.SpinBox {
                 mySpinBox.compressedRealValueModified()
         }
 
-        onEditingFinished: handleEditingFinished()
+        onEditingFinished: spinBoxInput.handleEditingFinished()
         onTextEdited: mySpinBox.dirty = true
     }
 
@@ -281,7 +285,7 @@ T.SpinBox {
         id: myTimer
         repeat: false
         running: false
-        interval: 200
+        interval: 400
         onTriggered: mySpinBox.compressedRealValueModified()
     }
 
@@ -306,8 +310,10 @@ T.SpinBox {
     }
     onDisplayTextChanged: spinBoxInput.text = mySpinBox.displayText
     onActiveFocusChanged: {
-        if (mySpinBox.activeFocus) // QTBUG-75862 && mySpinBox.focusReason === Qt.TabFocusReason)
+        if (mySpinBox.activeFocus) { // QTBUG-75862 && mySpinBox.focusReason === Qt.TabFocusReason)
+            mySpinBox.preFocusText = spinBoxInput.text
             spinBoxInput.selectAll()
+        }
     }
 
     Keys.onPressed: function(event) {
@@ -333,8 +339,11 @@ T.SpinBox {
             mySpinBox.realStepSize = currStepSize
         }
 
-        if (event.key === Qt.Key_Escape)
-            mySpinBox.focus = false
+        if (event.key === Qt.Key_Escape) {
+            spinBoxInput.text = mySpinBox.preFocusText
+            mySpinBox.dirty = true
+            spinBoxInput.handleEditingFinished()
+        }
     }
 
     function clamp(v, lo, hi) {

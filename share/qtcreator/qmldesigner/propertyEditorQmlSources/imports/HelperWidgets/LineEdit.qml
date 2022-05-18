@@ -32,34 +32,41 @@ StudioControls.TextField {
     id: lineEdit
 
     property variant backendValue
-    property color borderColor: "#222"
-    property color highlightColor: "orange"
-    color: lineEdit.edit ? StudioTheme.Values.themeTextColor : colorLogic.textColor
-
-    property bool showTranslateCheckBox: true
-    translationIndicatorVisible: showTranslateCheckBox
 
     property bool writeValueManually: false
     property bool writeAsExpression: false
 
-    property bool __dirty: false
-
+    property bool showTranslateCheckBox: true
     property bool showExtendedFunctionButton: true
+    property string context
 
-    actionIndicator.visible: showExtendedFunctionButton
+    property bool __dirty: false
 
     signal commitData
 
-    property string context
+    color: lineEdit.edit ? StudioTheme.Values.themeTextColor : colorLogic.textColor
+    actionIndicator.visible: lineEdit.showExtendedFunctionButton
+    translationIndicatorVisible: lineEdit.showTranslateCheckBox
 
     function setTranslateExpression() {
         if (translateFunction() === "qsTranslate") {
-            backendValue.expression = translateFunction()
-                    + "(\"" + backendValue.getTranslationContext()
-                    + "\", " + "\"" + escapeString(text) + "\")"
+            lineEdit.backendValue.expression = translateFunction()
+                    + "(\"" + lineEdit.backendValue.getTranslationContext()
+                    + "\", " + "\"" + lineEdit.escapeString(lineEdit.text) + "\")"
         } else {
-            backendValue.expression = translateFunction() + "(\"" + escapeString(text) + "\")"
+            lineEdit.backendValue.expression = translateFunction()
+                    + "(\"" + lineEdit.escapeString(lineEdit.text) + "\")"
         }
+    }
+
+    function escapeString(string) {
+        var str = string
+        str = str.replace(/\\/g, "\\\\")
+        str.replace(/\"/g, "\\\"")
+        str = str.replace(/\t/g, "\\t")
+        str = str.replace(/\r/g, "\\r")
+        str = str.replace(/\n/g, '\\n')
+        return str
     }
 
     ExtendedFunctionLogic {
@@ -79,60 +86,58 @@ StudioControls.TextField {
             if (colorLogic.valueFromBackend === undefined) {
                 lineEdit.text = ""
             } else {
-                if (writeValueManually)
+                if (lineEdit.writeValueManually)
                     lineEdit.text = convertColorToString(colorLogic.valueFromBackend)
                 else
                     lineEdit.text = colorLogic.valueFromBackend
             }
-            __dirty = false
+            lineEdit.__dirty = false
         }
     }
 
-    onTextChanged: {
-        __dirty = true
-    }
+    onTextChanged: lineEdit.__dirty = true
 
     Connections {
         target: modelNodeBackend
         function onSelectionToBeChanged() {
-            if (__dirty && !writeValueManually) {
-                if (writeAsExpression)
-                    lineEdit.backendValue.expression = text
+            if (lineEdit.__dirty && !lineEdit.writeValueManually) {
+                if (lineEdit.writeAsExpression)
+                    lineEdit.backendValue.expression = lineEdit.text
                 else
-                    lineEdit.backendValue.value = text
-            } else if (__dirty) {
+                    lineEdit.backendValue.value = lineEdit.text
+            } else if (lineEdit.__dirty) {
                 commitData()
             }
 
-            __dirty = false
+            lineEdit.__dirty = false
         }
     }
 
     onEditingFinished: {
-        if (writeValueManually)
+        if (lineEdit.writeValueManually)
             return
 
-        if (!__dirty)
+        if (!lineEdit.__dirty)
             return
 
-        if (backendValue.isTranslated) {
-           setTranslateExpression()
+        if (lineEdit.backendValue.isTranslated) {
+           lineEdit.setTranslateExpression()
         } else {
-            if (writeAsExpression) {
-                if (lineEdit.backendValue.expression !== text)
-                    lineEdit.backendValue.expression = text
-            } else if (lineEdit.backendValue.value !== text) {
-                lineEdit.backendValue.value = text
+            if (lineEdit.writeAsExpression) {
+                if (lineEdit.backendValue.expression !== lineEdit.text)
+                    lineEdit.backendValue.expression = lineEdit.text
+            } else if (lineEdit.backendValue.value !== lineEdit.text) {
+                lineEdit.backendValue.value = lineEdit.text
             }
         }
-        __dirty = false
+        lineEdit.__dirty = false
     }
 
     property bool isTranslated: colorLogic.backendValue === undefined ? false
                                                                       : colorLogic.backendValue.isTranslated
 
     translationIndicator.onClicked: {
-        if (translationIndicator.checked) {
+        if (lineEdit.translationIndicator.checked) {
             setTranslateExpression()
         } else {
             var textValue = lineEdit.text
@@ -141,7 +146,8 @@ StudioControls.TextField {
         colorLogic.evaluate()
     }
 
-    property variant backendValueValueInternal: backendValue === undefined ? 0 : backendValue.value
+    property variant backendValueValueInternal: lineEdit.backendValue === undefined ? 0
+                                                                                    : lineEdit.backendValue.value
     onBackendValueValueInternalChanged: {
         if (lineEdit.backendValue === undefined)
             lineEdit.translationIndicator.checked = false
@@ -155,15 +161,4 @@ StudioControls.TextField {
         else
             lineEdit.translationIndicator.checked = lineEdit.backendValue.isTranslated
     }
-
-    function escapeString(string) {
-        var str = string
-        str = str.replace(/\\/g, "\\\\")
-        str.replace(/\"/g, "\\\"")
-        str = str.replace(/\t/g, "\\t")
-        str = str.replace(/\r/g, "\\r")
-        str = str.replace(/\n/g, '\\n')
-        return str
-    }
-
 }

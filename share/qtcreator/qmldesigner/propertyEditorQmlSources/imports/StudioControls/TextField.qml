@@ -28,15 +28,15 @@ import QtQuick.Templates 2.15 as T
 import StudioTheme 1.0 as StudioTheme
 
 T.TextField {
-    id: myTextField
+    id: root
 
     property alias actionIndicator: actionIndicator
     property alias translationIndicator: translationIndicator
 
     // This property is used to indicate the global hover state
     property bool hover: (actionIndicator.hover || mouseArea.containsMouse
-                         || translationIndicator.hover) && myTextField.enabled
-    property bool edit: myTextField.activeFocus
+                         || translationIndicator.hover) && root.enabled
+    property bool edit: root.activeFocus
 
     property alias actionIndicatorVisible: actionIndicator.visible
     property real __actionIndicatorWidth: StudioTheme.Values.actionIndicatorWidth
@@ -45,6 +45,8 @@ T.TextField {
     property alias translationIndicatorVisible: translationIndicator.visible
     property real __translationIndicatorWidth: StudioTheme.Values.translationIndicatorWidth
     property real __translationIndicatorHeight: StudioTheme.Values.translationIndicatorHeight
+
+    property string preFocusText: ""
 
     horizontalAlignment: Qt.AlignLeft
     verticalAlignment: Qt.AlignVCenter
@@ -78,7 +80,7 @@ T.TextField {
         cursorShape: Qt.PointingHandCursor
         onPressed: function(mouse) {
             if (mouse.button === Qt.RightButton)
-                contextMenu.popup(myTextField)
+                contextMenu.popup(root)
 
             mouse.accepted = false
         }
@@ -86,43 +88,50 @@ T.TextField {
 
     onPersistentSelectionChanged: {
         if (!persistentSelection)
-            myTextField.deselect()
+            root.deselect()
     }
 
     ContextMenu {
         id: contextMenu
-        myTextEdit: myTextField
+        myTextEdit: root
+    }
+
+    onActiveFocusChanged: {
+        if (root.activeFocus)
+            root.preFocusText = root.text
     }
 
     onEditChanged: {
-        if (myTextField.edit)
+        if (root.edit)
             contextMenu.close()
     }
 
+    onEditingFinished: root.focus = false
+
     ActionIndicator {
         id: actionIndicator
-        myControl: myTextField
+        myControl: root
         x: 0
         y: 0
-        width: actionIndicator.visible ? myTextField.__actionIndicatorWidth : 0
-        height: actionIndicator.visible ? myTextField.__actionIndicatorHeight : 0
+        width: actionIndicator.visible ? root.__actionIndicatorWidth : 0
+        height: actionIndicator.visible ? root.__actionIndicatorHeight : 0
     }
 
     Text {
         id: placeholder
-        x: myTextField.leftPadding
-        y: myTextField.topPadding
-        width: myTextField.width - (myTextField.leftPadding + myTextField.rightPadding)
-        height: myTextField.height - (myTextField.topPadding + myTextField.bottomPadding)
+        x: root.leftPadding
+        y: root.topPadding
+        width: root.width - (root.leftPadding + root.rightPadding)
+        height: root.height - (root.topPadding + root.bottomPadding)
 
-        text: myTextField.placeholderText
-        font: myTextField.font
-        color: myTextField.placeholderTextColor
-        verticalAlignment: myTextField.verticalAlignment
-        visible: !myTextField.length && !myTextField.preeditText
-                 && (!myTextField.activeFocus || myTextField.horizontalAlignment !== Qt.AlignHCenter)
+        text: root.placeholderText
+        font: root.font
+        color: root.placeholderTextColor
+        verticalAlignment: root.verticalAlignment
+        visible: !root.length && !root.preeditText
+                 && (!root.activeFocus || root.horizontalAlignment !== Qt.AlignHCenter)
         elide: Text.ElideRight
-        renderType: myTextField.renderType
+        renderType: root.renderType
     }
 
     background: Rectangle {
@@ -131,14 +140,14 @@ T.TextField {
         border.color: StudioTheme.Values.themeControlOutline
         border.width: StudioTheme.Values.border
         x: actionIndicator.width
-        width: myTextField.width - actionIndicator.width
-        height: myTextField.height
+        width: root.width - actionIndicator.width
+        height: root.height
     }
 
     TranslationIndicator {
         id: translationIndicator
-        myControl: myTextField
-        x: myTextField.width - translationIndicator.width
+        myControl: root
+        x: root.width - translationIndicator.width
         width: translationIndicator.visible ? __translationIndicatorWidth : 0
         height: translationIndicator.visible ? __translationIndicatorHeight : 0
     }
@@ -146,15 +155,14 @@ T.TextField {
     states: [
         State {
             name: "default"
-            when: myTextField.enabled && !myTextField.hover
-                  && !myTextField.edit
+            when: root.enabled && !root.hover && !root.edit
             PropertyChanges {
                 target: textFieldBackground
                 color: StudioTheme.Values.themeControlBackground
                 border.color: StudioTheme.Values.themeControlOutline
             }
             PropertyChanges {
-                target: myTextField
+                target: root
                 color: StudioTheme.Values.themeTextColor
                 placeholderTextColor: StudioTheme.Values.themePlaceholderTextColor
             }
@@ -165,15 +173,15 @@ T.TextField {
         },
         State {
             name: "globalHover"
-            when: (actionIndicator.hover || translationIndicator.hover) && !myTextField.edit
-                  && myTextField.enabled
+            when: (actionIndicator.hover || translationIndicator.hover) && !root.edit
+                  && root.enabled
             PropertyChanges {
                 target: textFieldBackground
                 color: StudioTheme.Values.themeControlBackgroundGlobalHover
                 border.color: StudioTheme.Values.themeControlOutline
             }
             PropertyChanges {
-                target: myTextField
+                target: root
                 color: StudioTheme.Values.themeTextColor
                 placeholderTextColor: StudioTheme.Values.themePlaceholderTextColor
             }
@@ -181,28 +189,28 @@ T.TextField {
         State {
             name: "hover"
             when: mouseArea.containsMouse && !actionIndicator.hover && !translationIndicator.hover
-                  && !myTextField.edit && myTextField.enabled
+                  && !root.edit && root.enabled
             PropertyChanges {
                 target: textFieldBackground
                 color: StudioTheme.Values.themeControlBackgroundHover
                 border.color: StudioTheme.Values.themeControlOutline
             }
             PropertyChanges {
-                target: myTextField
+                target: root
                 color: StudioTheme.Values.themeTextColor
                 placeholderTextColor: StudioTheme.Values.themePlaceholderTextColor
             }
         },
         State {
             name: "edit"
-            when: myTextField.edit
+            when: root.edit
             PropertyChanges {
                 target: textFieldBackground
                 color: StudioTheme.Values.themeControlBackgroundInteraction
                 border.color: StudioTheme.Values.themeControlOutlineInteraction
             }
             PropertyChanges {
-                target: myTextField
+                target: root
                 color: StudioTheme.Values.themeTextColor
                 placeholderTextColor: StudioTheme.Values.themePlaceholderTextColorInteraction
             }
@@ -213,14 +221,14 @@ T.TextField {
         },
         State {
             name: "disable"
-            when: !myTextField.enabled
+            when: !root.enabled
             PropertyChanges {
                 target: textFieldBackground
                 color: StudioTheme.Values.themeControlBackgroundDisabled
                 border.color: StudioTheme.Values.themeControlOutlineDisabled
             }
             PropertyChanges {
-                target: myTextField
+                target: root
                 color: StudioTheme.Values.themeTextColorDisabled
                 placeholderTextColor: StudioTheme.Values.themeTextColorDisabled
             }
@@ -228,7 +236,9 @@ T.TextField {
     ]
 
     Keys.onPressed: function(event) {
-        if (event.key === Qt.Key_Escape)
-            myTextField.focus = false
+        if (event.key === Qt.Key_Escape) {
+            root.text = root.preFocusText
+            root.focus = false
+        }
     }
 }

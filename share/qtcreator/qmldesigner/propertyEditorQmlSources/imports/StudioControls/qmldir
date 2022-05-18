@@ -8,6 +8,7 @@ CheckIndicator 1.0 CheckIndicator.qml
 ComboBox 1.0 ComboBox.qml
 ComboBoxInput 1.0 ComboBoxInput.qml
 ContextMenu 1.0 ContextMenu.qml
+FilterComboBox 1.0 FilterComboBox.qml
 InfinityLoopIndicator 1.0 InfinityLoopIndicator.qml
 ItemDelegate 1.0 ItemDelegate.qml
 LinkIndicator2D 1.0 LinkIndicator2D.qml
@@ -30,6 +31,7 @@ SectionLabel 1.0 SectionLabel.qml
 SectionLayout 1.0 SectionLayout.qml
 Slider 1.0 Slider.qml
 SliderPopup 1.0 SliderPopup.qml
+SortFilterModel 1.0 SortFilterModel.qml
 SpinBox 1.0 SpinBox.qml
 SpinBoxIndicator 1.0 SpinBoxIndicator.qml
 SpinBoxInput 1.0 SpinBoxInput.qml

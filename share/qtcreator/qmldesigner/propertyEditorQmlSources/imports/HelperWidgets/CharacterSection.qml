@@ -143,7 +143,8 @@ Section {
         PropertyLabel {
             text: qsTr("Style name")
             tooltip: qsTr("Font's style.")
-            blockedByTemplate: !styleNameComboBox.enabled
+            enabled: styleNameComboBox.model.length
+            blockedByTemplate: !backendValue.isAvailable
         }
 
         SecondColumnLayout {
@@ -156,7 +157,7 @@ Section {
                 backendValue: getBackendValue("styleName")
                 model: styleNamesForFamily(fontComboBox.familyName)
                 valueType: ComboBox.String
-                enabled: backendValue.isAvailable
+                enabled: backendValue.isAvailable && styleNameComboBox.model.length
             }
 
             ExpandingSpacer {}

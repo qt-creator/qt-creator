@@ -263,32 +263,44 @@ def qdump__Utils__Environment(d, value):
     qdump__Utils__NameValueDictionary(d, value)
 
 
+def qdump__Utils__DictKey(d, value):
+    d.putStringValue(value["name"])
+
+
 def qdump__Utils__NameValueDictionary(d, value):
-    dptr = d.extractPointer(value["m_values"])
-    (ref, n) = d.split('ii', dptr)
-    d.check(0 <= n and n <= 100 * 1000 * 1000)
-    d.check(-1 <= ref and ref < 100000)
+    dptr = d.extractPointer(value)
+    if d.qtVersion() >= 0x60000:
+        if dptr == 0:
+            d.putItemCount(0)
+            return
+        m = value['d']['d']['m']
+        d.putItem(m)
+        d.putBetterType('Utils::NameValueDictionary')
+    else: # Qt5
+        (ref, n) = d.split('ii', dptr)
+        d.check(0 <= n and n <= 100 * 1000 * 1000)
+        d.check(-1 <= ref and ref < 100000)
 
-    d.putItemCount(n)
-    if d.isExpanded():
-        if n > 10000:
-            n = 10000
+        d.putItemCount(n)
+        if d.isExpanded():
+            if n > 10000:
+                n = 10000
 
-        typeCode = 'ppp@{%s}@{%s}' % ("Utils::DictKey", "QString")
+            typeCode = 'ppp@{%s}@{%s}' % ("Utils::DictKey", "@QPair<@QString,bool>")
 
-        def helper(node):
-            (p, left, right, padding1, key, padding2, value) = d.split(typeCode, node)
-            if left:
-                for res in helper(left):
-                    yield res
-            yield (key["name"], value)
-            if right:
-                for res in helper(right):
-                    yield res
+            def helper(node):
+                (p, left, right, padding1, key, padding2, value) = d.split(typeCode, node)
+                if left:
+                    for res in helper(left):
+                        yield res
+                yield (key["name"], value)
+                if right:
+                    for res in helper(right):
+                        yield res
 
-        with Children(d, n):
-            for (pair, i) in zip(helper(dptr + 8), range(n)):
-                d.putPairItem(i, pair, 'key', 'value')
+            with Children(d, n):
+                for (pair, i) in zip(helper(dptr + 8), range(n)):
+                    d.putPairItem(i, pair, 'key', 'value')
 
 
 def qdump__Utf8String(d, value):

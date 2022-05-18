@@ -41,16 +41,14 @@
 
     \title Using QML Modules with Plugins
 
-    QML modules may use plugins to expose components defined in C++ to QML
-    applications. \QC cannot load the plugins to determine the details of
-    the contained components, and therefore, the modules must provide extra type
-    information for code completion and the semantic checks to work correctly.
+    \l{Defining a QML Module}{QML modules} may use \l{Creating C++ Plugins for QML}
+    {C++ plugins} to expose components defined in C++ to QML applications.
 
-    To create a QML module
+    To create a QML
     \if defined(qtdesignstudio)
-    and make it appear in the \l Components view:
+    module and make it appear in the \l Components view:
     \else
-    :
+    module:
     \endif
 
     \list 1
@@ -97,26 +95,13 @@
     \c .metainfo file is in place.
     \endif
 
-    \if defined(qtcreator)
-    \section1 Registering QML Types
-
-    When you write a QML module or use QML from a C++ application, and the C++
-    is a part of your qmake project, you typically register new types with the
-    \c qmlRegisterType() function or expose some class instances with
-    \l{QQmlContext::setContextProperty()}. The \QC C++ code model now scans for
-    these calls and tells the QML code model about them. This means that properties
-    are displayed during code completion and the JavaScript code checker does not
-    complain about unknown types. However, this works only when the source code
-    is available, and therefore, you must explicitly generate type information
-    for QML modules with plugins before distributing them.
-    \endif
-
     \section1 Generating Type Description Files
 
-    Ideally, QML modules have a \c{plugins.qmltypes} file in the same directory
-    as the \c qmldir file. The \c qmltypes file contains a description of the
-    components exported by the module's plugins and is loaded by \QC when the
-    module is imported.
+    When \l{Defining QML Types from C++}{registering QML types}, make sure that
+    the QML module has a \c{plugins.qmltypes} file. Ideally, it should be located
+    in the same directory as the \c qmldir file. The \c qmltypes file contains a
+    description of the components exported by the module's plugins and is loaded
+    by \QC when the module is imported.
 
     For more information, see \l{Type Description Files}.
 
@@ -127,7 +112,6 @@
     However, this automatic dumping is a fallback mechanism with many points of
     failure and you cannot rely upon it.
 
-    \if defined(qtcreator)
     \section1 Importing QML Modules
 
     By default, \QC will look in the QML import path of Qt for QML modules.
@@ -145,7 +129,7 @@
 
     The import path affects all the targets built by the CMake project.
 
-    \else
+    \if defined(qtdesignstudio)
     \section1 Running QML Modules in Design Mode
 
     A QML emulation layer (also called QML Puppet) is used in the
@@ -169,7 +153,7 @@
     by an application or edited in the \uicontrol Design mode.
 
     If you want to use a different module in the \uicontrol Design mode
-    than  in your actual application for example to mockup C++ items,
+    than in your actual application for example to mockup C++ items,
     you can use \c{QML_DESIGNER_IMPORT_PATH}
     in the \c{.pro} file (for qmake projects), or declare and set the property
     \c qmlDesignerImportPaths in your product (for Qbs projects).

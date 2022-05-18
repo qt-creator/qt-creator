@@ -47,7 +47,6 @@ def main():
             if not startCreatorVerifyingClang(useClang):
                 continue
             createProject_Qt_Console(tempDir(), "SquishProject")
-            # by default Qt4 is selected, use a Qt5 kit instead
             selectBuildConfig(Targets.DESKTOP_5_10_1_DEFAULT, "Debug")
             checkCodeModelSettings(useClang)
             selectFromLocator("main.cpp")

@@ -36,6 +36,7 @@
 #include <bindingproperty.h>
 #include <designmodecontext.h>
 #include <designersettings.h>
+#include <itemlibraryinfo.h>
 #include <nodeproperty.h>
 #include <nodelistproperty.h>
 #include <variantproperty.h>
@@ -57,8 +58,9 @@
 #include <utils/stylehelper.h>
 
 #include <QHeaderView>
-#include <QTimer>
+#include <QMimeData>
 #include <QPixmap>
+#include <QTimer>
 
 static inline void setScenePos(const QmlDesigner::ModelNode &modelNode,const QPointF &pos)
 {
@@ -261,6 +263,25 @@ void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> & prop
         if (bindingProperty.isAliasExport())
             m_currentModelInterface->notifyDataChanged(modelNodeForId(bindingProperty.expression()));
     }
+}
+
+void NavigatorView::dragStarted(QMimeData *mimeData)
+{
+    if (mimeData->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)) {
+        QByteArray data = mimeData->data(Constants::MIME_TYPE_ITEM_LIBRARY_INFO);
+        QDataStream stream(data);
+        ItemLibraryEntry itemLibraryEntry;
+        stream >> itemLibraryEntry;
+
+        m_widget->setDragType(itemLibraryEntry.typeName());
+        m_widget->update();
+    }
+}
+
+void NavigatorView::dragEnded()
+{
+    m_widget->setDragType("");
+    m_widget->update();
 }
 
 void NavigatorView::customNotification(const AbstractView *view, const QString &identifier,
