@@ -483,7 +483,7 @@ void SwitchHeaderSourceFileAction::run(CppEditorWidget *)
 {
     // Switch Header/Source
     IEditor *editorBefore = EditorManager::currentEditor();
-    switchHeaderSource();
+    CppModelManager::switchHeaderSource(false);
     QApplication::processEvents();
 
     // Go back

@@ -75,6 +75,7 @@ public:
             const QTextCursor &cursor,
             CppEditor::CppEditorWidget *editorWidget,
             Utils::ProcessLinkCallback &&callback);
+    void switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit);
 
     void findLocalUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
                          CppEditor::RenameCallback &&callback);

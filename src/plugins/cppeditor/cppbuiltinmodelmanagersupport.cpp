@@ -218,4 +218,13 @@ void BuiltinModelManagerSupport::findUsages(const CursorInEditor &data,
     }
 }
 
+void BuiltinModelManagerSupport::switchHeaderSource(const Utils::FilePath &filePath,
+                                                    bool inNextSplit)
+{
+    const auto otherFile = Utils::FilePath::fromString(
+                correspondingHeaderOrSource(filePath.toString()));
+    if (!otherFile.isEmpty())
+        openEditor(otherFile, inNextSplit);
+}
+
 } // namespace CppEditor::Internal

@@ -97,6 +97,7 @@ private:
                       const QString &replacement) override;
     void findUsages(const CppEditor::CursorInEditor &cursor,
                     CppEditor::UsagesCallback &&callback) const override;
+    void switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit) override;
 
     void onEditorOpened(Core::IEditor *editor);
     void onCurrentEditorChanged(Core::IEditor *newCurrent);

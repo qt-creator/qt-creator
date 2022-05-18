@@ -248,6 +248,21 @@ void ClangModelManagerSupport::findUsages(const CppEditor::CursorInEditor &curso
     CppModelManager::findUsages(cursor, std::move(callback), CppModelManager::Backend::Builtin);
 }
 
+void ClangModelManagerSupport::switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit)
+{
+    if (ClangdClient * const client = clientForFile(filePath)) {
+        // The fast, synchronous approach works most of the time, so let's try that one first.
+        const auto otherFile = Utils::FilePath::fromString(
+                    correspondingHeaderOrSource(filePath.toString()));
+        if (!otherFile.isEmpty())
+            openEditor(otherFile, inNextSplit);
+        else
+            client->switchHeaderSource(filePath, inNextSplit);
+        return;
+    }
+    CppModelManager::switchHeaderSource(inNextSplit, CppModelManager::Backend::Builtin);
+}
+
 std::unique_ptr<CppEditor::AbstractOverviewModel> ClangModelManagerSupport::createOverviewModel()
 {
     return {};

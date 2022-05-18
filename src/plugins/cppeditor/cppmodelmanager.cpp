@@ -329,6 +329,14 @@ void CppModelManager::findUsages(const CursorInEditor &data,
     instance()->modelManagerSupport(backend)->findUsages(data, std::move(showUsagesCallback));
 }
 
+void CppModelManager::switchHeaderSource(bool inNextSplit, Backend backend)
+{
+    const Core::IDocument *currentDocument = Core::EditorManager::currentDocument();
+    QTC_ASSERT(currentDocument, return);
+    instance()->modelManagerSupport(backend)->switchHeaderSource(currentDocument->filePath(),
+                                                                 inNextSplit);
+}
+
 bool CppModelManager::positionRequiresSignal(const QString &filePath, const QByteArray &content,
                                              int position) const
 {

@@ -78,6 +78,7 @@ public:
                               const QString &replacement) = 0;
     virtual void findUsages(const CursorInEditor &data,
                             UsagesCallback &&showUsagesCallback) const = 0;
+    virtual void switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit) = 0;
 };
 
 class CPPEDITOR_EXPORT ModelManagerSupportProvider

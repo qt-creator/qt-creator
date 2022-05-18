@@ -270,16 +270,6 @@ bool isQtKeyword(QStringView text)
     return false;
 }
 
-void switchHeaderSource()
-{
-    const Core::IDocument *currentDocument = Core::EditorManager::currentDocument();
-    QTC_ASSERT(currentDocument, return);
-    const auto otherFile = Utils::FilePath::fromString(
-        correspondingHeaderOrSource(currentDocument->filePath().toString()));
-    if (!otherFile.isEmpty())
-        Core::EditorManager::openEditor(otherFile);
-}
-
 QString identifierUnderCursor(QTextCursor *cursor)
 {
     cursor->movePosition(QTextCursor::StartOfWord);
@@ -631,6 +621,13 @@ ProjectExplorer::Project *projectForProjectPart(const ProjectPart &part)
 ProjectExplorer::Project *projectForProjectInfo(const ProjectInfo &info)
 {
     return ProjectExplorer::SessionManager::projectWithProjectFilePath(info.projectFilePath());
+}
+
+void openEditor(const Utils::FilePath &filePath, bool inNextSplit)
+{
+    using Core::EditorManager;
+    EditorManager::openEditor(filePath, {}, inNextSplit ? EditorManager::OpenInOtherSplit
+                                                        : EditorManager::NoFlags);
 }
 
 namespace Internal {

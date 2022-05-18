@@ -2255,6 +2255,28 @@ void ClangdClient::switchDeclDef(TextDocument *document, const QTextCursor &curs
     documentSymbolCache()->requestSymbols(d->switchDeclDefData->uri, Schedule::Now);
 }
 
+void ClangdClient::switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit)
+{
+    class SwitchSourceHeaderRequest : public Request<QJsonValue, std::nullptr_t, TextDocumentIdentifier>
+    {
+    public:
+        using Request::Request;
+        explicit SwitchSourceHeaderRequest(const Utils::FilePath &filePath)
+            : Request("textDocument/switchSourceHeader",
+                      TextDocumentIdentifier(DocumentUri::fromFilePath(filePath))) {}
+    };
+    SwitchSourceHeaderRequest req(filePath);
+    req.setResponseCallback([inNextSplit](const SwitchSourceHeaderRequest::Response &response) {
+        if (const Utils::optional<QJsonValue> result = response.result()) {
+            const DocumentUri uri = DocumentUri::fromProtocol(result->toString());
+            const Utils::FilePath filePath = uri.toFilePath();
+            if (!filePath.isEmpty())
+                CppEditor::openEditor(filePath, inNextSplit);
+        }
+    });
+    sendContent(req);
+}
+
 void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cursor,
         CppEditor::RenameCallback &&callback)
 {

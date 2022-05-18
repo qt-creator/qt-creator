@@ -270,7 +270,8 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     Command *command = ActionManager::registerAction(switchAction, Constants::SWITCH_HEADER_SOURCE, context, true);
     command->setDefaultKeySequence(QKeySequence(Qt::Key_F4));
     mcpptools->addAction(command);
-    connect(switchAction, &QAction::triggered, this, &CppEditorPlugin::switchHeaderSource);
+    connect(switchAction, &QAction::triggered,
+            this, [] { CppModelManager::switchHeaderSource(false); });
 
     QAction *openInNextSplitAction = new QAction(tr("Open Corresponding Header/Source in Next Split"), this);
     command = ActionManager::registerAction(openInNextSplitAction, Constants::OPEN_HEADER_SOURCE_IN_NEXT_SPLIT, context, true);
@@ -279,7 +280,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
                                                 : tr("Ctrl+E, F4")));
     mcpptools->addAction(command);
     connect(openInNextSplitAction, &QAction::triggered,
-            this, &CppEditorPlugin::switchHeaderSourceInNextSplit);
+            this, [] { CppModelManager::switchHeaderSource(true); });
 
     MacroExpander *expander = globalMacroExpander();
     expander->registerVariable("Cpp:LicenseTemplate",
@@ -620,19 +621,6 @@ CppCodeModelSettings *CppEditorPlugin::codeModelSettings()
 CppFileSettings *CppEditorPlugin::fileSettings()
 {
     return &instance()->d->m_fileSettings;
-}
-
-void CppEditorPlugin::switchHeaderSource()
-{
-    CppEditor::switchHeaderSource();
-}
-
-void CppEditorPlugin::switchHeaderSourceInNextSplit()
-{
-    const auto otherFile = FilePath::fromString(
-        correspondingHeaderOrSource(EditorManager::currentDocument()->filePath().toString()));
-    if (!otherFile.isEmpty())
-        EditorManager::openEditor(otherFile, Id(), EditorManager::OpenInOtherSplit);
 }
 
 static QStringList findFilesInProject(const QString &name, const Project *project)

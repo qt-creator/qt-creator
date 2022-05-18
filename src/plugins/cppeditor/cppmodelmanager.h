@@ -183,6 +183,7 @@ public:
                              const QString &replacement, Backend backend = Backend::Best);
     static void findUsages(const CursorInEditor &data, UsagesCallback &&showUsagesCallback,
                            Backend backend = Backend::Best);
+    static void switchHeaderSource(bool inNextSplit, Backend backend = Backend::Best);
 
     static Core::ILocatorFilter *createAuxiliaryCurrentDocumentFilter();
 

@@ -66,8 +66,6 @@ public:
     void showPreProcessorDialog();
     void renameSymbolUnderCursor();
     void switchDeclarationDefinition();
-    void switchHeaderSource();
-    void switchHeaderSourceInNextSplit();
 
     CppCodeModelSettings *codeModelSettings();
     static CppFileSettings *fileSettings();
