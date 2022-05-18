@@ -29,8 +29,8 @@
 
 #include <utils/fileutils.h>
 
-#include <AbstractHighlighter>
-#include <Definition>
+#include <KSyntaxHighlighting/AbstractHighlighter>
+#include <KSyntaxHighlighting/Definition>
 
 namespace TextEditor {
 class TextDocument;

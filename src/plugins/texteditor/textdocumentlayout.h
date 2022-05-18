@@ -32,7 +32,7 @@
 
 #include <utils/id.h>
 
-#include <State>
+#include <KSyntaxHighlighting/State>
 
 #include <QTextBlockUserData>
 #include <QPlainTextDocumentLayout>

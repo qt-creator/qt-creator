@@ -38,11 +38,11 @@
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
-#include <DefinitionDownloader>
-#include <FoldingRegion>
-#include <Format>
-#include <Repository>
-#include <SyntaxHighlighter>
+#include <KSyntaxHighlighting/DefinitionDownloader>
+#include <KSyntaxHighlighting/FoldingRegion>
+#include <KSyntaxHighlighting/Format>
+#include <KSyntaxHighlighting/Repository>
+#include <KSyntaxHighlighting/SyntaxHighlighter>
 
 #include <QLoggingCategory>
 #include <QMetaEnum>
