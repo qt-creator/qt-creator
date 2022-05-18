@@ -93,7 +93,7 @@ static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools()
     const QStringList execs = env.appendExeExtensions(QLatin1String("cmake"));
 
     FilePaths suspects;
-    foreach (const FilePath &base, path) {
+    for (const FilePath &base : qAsConst(path)) {
         if (base.isEmpty())
             continue;
 
@@ -106,7 +106,7 @@ static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools()
     }
 
     std::vector<std::unique_ptr<CMakeTool>> found;
-    foreach (const FilePath &command, suspects) {
+    for (const FilePath &command : qAsConst(suspects)) {
         auto item = std::make_unique<CMakeTool>(CMakeTool::AutoDetection, CMakeTool::createId());
         item->setFilePath(command);
         item->setDisplayName(CMakeToolManager::tr("System CMake at %1").arg(command.toUserOutput()));

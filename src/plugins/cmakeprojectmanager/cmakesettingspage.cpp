@@ -243,7 +243,8 @@ CMakeToolItemModel::CMakeToolItemModel()
                            {ProjectExplorer::Constants::msgAutoDetectedToolTip()}));
     rootItem()->appendChild(new StaticTreeItem(tr("Manual")));
 
-    foreach (const CMakeTool *item, CMakeToolManager::cmakeTools())
+    const QList<CMakeTool *> items = CMakeToolManager::cmakeTools();
+    for (const CMakeTool *item : items)
         addCMakeTool(item, false);
 
     CMakeTool *defTool = CMakeToolManager::defaultCMakeTool();
@@ -355,7 +356,7 @@ void CMakeToolItemModel::removeCMakeTool(const Utils::Id &id)
 
 void CMakeToolItemModel::apply()
 {
-    foreach (const Utils::Id &id, m_removedItems)
+    for (const Utils::Id &id : qAsConst(m_removedItems))
         CMakeToolManager::deregisterCMakeTool(id);
 
     QList<CMakeToolTreeItem *> toRegister;
@@ -372,7 +373,7 @@ void CMakeToolItemModel::apply()
         }
     });
 
-    foreach (CMakeToolTreeItem *item, toRegister) {
+    for (CMakeToolTreeItem *item : qAsConst(toRegister)) {
         CMakeTool::Detection detection = item->m_autodetected ? CMakeTool::AutoDetection
                                                               : CMakeTool::ManualDetection;
         auto cmake = std::make_unique<CMakeTool>(detection, item->m_id);

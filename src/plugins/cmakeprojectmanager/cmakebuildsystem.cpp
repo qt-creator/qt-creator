@@ -1197,7 +1197,8 @@ void CMakeBuildSystem::updateQmlJSCodeModel(const QStringList &extraHeaderPaths,
     projectInfo.importPaths.clear();
 
     auto addImports = [&projectInfo](const QString &imports) {
-        foreach (const QString &import, CMakeConfigItem::cmakeSplitValue(imports))
+        const QStringList importList = CMakeConfigItem::cmakeSplitValue(imports);
+        for (const QString &import : importList)
             projectInfo.importPaths.maybeInsert(FilePath::fromString(import), QmlJS::Dialect::Qml);
     };
 

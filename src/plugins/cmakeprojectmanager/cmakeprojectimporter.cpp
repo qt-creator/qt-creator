@@ -80,7 +80,8 @@ static QStringList scanDirectory(const FilePath &path, const QString &prefix)
     QStringList result;
     qCDebug(cmInputLog) << "Scanning for directories matching" << prefix << "in" << path;
 
-    foreach (const FilePath &entry, path.dirEntries({{prefix + "*"}, QDir::Dirs | QDir::NoDotAndDotDot})) {
+    const QList<FilePath> entries = path.dirEntries({{prefix + "*"}, QDir::Dirs | QDir::NoDotAndDotDot});
+    for (const FilePath &entry : entries) {
         QTC_ASSERT(entry.isDir(), continue);
         result.append(entry.toString());
     }
@@ -119,7 +120,8 @@ QStringList CMakeProjectImporter::importCandidates()
 
     candidates << scanDirectory(projectFilePath().absolutePath(), "build");
 
-    foreach (Kit *k, KitManager::kits()) {
+    const QList<Kit *> kits = KitManager::kits();
+    for (const Kit *k : kits) {
         FilePath shadowBuildDirectory
             = CMakeBuildConfiguration::shadowBuildDirectory(projectFilePath(),
                                                             k,
@@ -533,7 +535,7 @@ void CMakeProjectPlugin::testCMakeProjectImporterQt()
     QFETCH(QString, expectedQmake);
 
     CMakeConfig config;
-    foreach (const QString &c, cache) {
+    for (const QString &c : qAsConst(cache)) {
         const int pos = c.indexOf('=');
         Q_ASSERT(pos > 0);
         const QString key = c.left(pos);
@@ -590,7 +592,7 @@ void CMakeProjectPlugin::testCMakeProjectImporterToolChain()
     QCOMPARE(expectedLanguages.count(), expectedToolChains.count());
 
     CMakeConfig config;
-    foreach (const QString &c, cache) {
+    for (const QString &c : qAsConst(cache)) {
         const int pos = c.indexOf('=');
         Q_ASSERT(pos > 0);
         const QString key = c.left(pos);

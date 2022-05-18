@@ -99,7 +99,8 @@ public:
         m_comboBox->setEnabled(false);
         m_comboBox->setToolTip(ki->description());
 
-        foreach (CMakeTool *tool, CMakeToolManager::cmakeTools())
+        const QList<CMakeTool *> tools = CMakeToolManager::cmakeTools();
+        for (const CMakeTool *tool : tools)
             cmakeToolAdded(tool->id());
 
         updateComboBox();
