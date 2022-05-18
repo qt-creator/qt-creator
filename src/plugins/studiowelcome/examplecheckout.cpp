@@ -438,6 +438,11 @@ DataModelDownloader::DataModelDownloader(QObject * /* parent */)
     auto fileInfo = targetFolder().toFileInfo();
     m_birthTime = fileInfo.birthTime();
     m_exists = fileInfo.exists();
+
+    connect(&m_fileDownloader,
+            &FileDownloader::progressChanged,
+            this,
+            &DataModelDownloader::progressChanged);
 }
 
 void DataModelDownloader::start()
@@ -496,4 +501,9 @@ Utils::FilePath DataModelDownloader::targetFolder() const
 void DataModelDownloader::setForceDownload(bool b)
 {
     m_forceDownload = b;
+}
+
+int DataModelDownloader::progress() const
+{
+    return m_fileDownloader.progress();
 }
