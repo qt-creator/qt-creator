@@ -59,6 +59,22 @@ MATCHER_P3(IsPropertyDeclaration,
            && propertyDeclaration.traits == traits;
 }
 
+MATCHER_P4(IsAliasPropertyDeclaration,
+           name,
+           typeName,
+           traits,
+           aliasPropertyName,
+           std::string(negation ? "isn't " : "is ")
+               + PrintToString(Storage::PropertyDeclaration{name, typeName, traits, aliasPropertyName}))
+{
+    const Storage::PropertyDeclaration &propertyDeclaration = arg;
+
+    return propertyDeclaration.name == name
+           && Storage::ImportedTypeName{typeName} == propertyDeclaration.typeName
+           && propertyDeclaration.traits == traits
+           && propertyDeclaration.aliasPropertyName == aliasPropertyName;
+}
+
 MATCHER_P2(IsFunctionDeclaration,
            name,
            returnTypeName,
@@ -365,6 +381,77 @@ TEST_F(QmlDocumentParser, DISABLED_DuplicateImportsAreRemoved)
                     Storage::Import{qmlModuleId, Storage::Version{1, 0}, qmlFileSourceId},
                     Storage::Import{qtQmlModuleId, Storage::Version{6, 0}, qmlFileSourceId},
                     Storage::Import{qtQuickModuleId, Storage::Version{}, qmlFileSourceId}));
+}
+
+TEST_F(QmlDocumentParser, AliasItemProperties)
+{
+    auto type = parser.parse(R"(Example{
+                                    property alias delegate: foo
+                                    Item {
+                                        id: foo
+                                    }
+                                })",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(type.propertyDeclarations,
+                UnorderedElementsAre(IsPropertyDeclaration("delegate",
+                                                           Storage::ImportedType{"Item"},
+                                                           Storage::PropertyDeclarationTraits::None)));
+}
+
+TEST_F(QmlDocumentParser, AliasProperties)
+{
+    auto type = parser.parse(R"(Example{
+                                    property alias text: foo.text2
+                                    Item {
+                                        id: foo
+                                    }
+                                })",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(type.propertyDeclarations,
+                UnorderedElementsAre(IsAliasPropertyDeclaration("text",
+                                                                Storage::ImportedType{"Item"},
+                                                                Storage::PropertyDeclarationTraits::None,
+                                                                "text2")));
+}
+
+TEST_F(QmlDocumentParser, IndirectAliasProperties)
+{
+    auto type = parser.parse(R"(Example{
+                                    property alias textSize: foo.text.size
+                                    Item {
+                                        id: foo
+                                    }
+                                })",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(type.propertyDeclarations,
+                UnorderedElementsAre(IsAliasPropertyDeclaration("textSize",
+                                                                Storage::ImportedType{"Item"},
+                                                                Storage::PropertyDeclarationTraits::None,
+                                                                "text.size")));
+}
+
+TEST_F(QmlDocumentParser, InvalidAliasPropertiesAreSkipped)
+{
+    auto type = parser.parse(R"(Example{
+                                    property alias textSize: foo2.text.size
+                                    Item {
+                                        id: foo
+                                    }
+                                })",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(type.propertyDeclarations, IsEmpty());
 }
 
 } // namespace

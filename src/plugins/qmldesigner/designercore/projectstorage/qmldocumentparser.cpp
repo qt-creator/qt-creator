@@ -27,6 +27,7 @@
 #include "qmldocumentparser.h"
 
 #include "projectstorage.h"
+#include "projectstorageexceptions.h"
 #include "sourcepathcache.h"
 
 #include <sqlitedatabase.h>
@@ -161,14 +162,33 @@ Storage::ImportedTypeName createImportedTypeName(const QStringView rawtypeName,
 }
 
 void addPropertyDeclarations(Storage::Type &type,
-                             const QmlDom::QmlObject &rootObject,
-                             const QualifiedImports &qualifiedImports)
+                             QmlDom::QmlObject &rootObject,
+                             const QualifiedImports &qualifiedImports,
+                             QmlDom::DomItem &fileItem)
 {
     for (const QmlDom::PropertyDefinition &propertyDeclaration : rootObject.propertyDefs()) {
-        type.propertyDeclarations.emplace_back(Utils::SmallString{propertyDeclaration.name},
-                                               createImportedTypeName(propertyDeclaration.typeName,
-                                                                      qualifiedImports),
-                                               Storage::PropertyDeclarationTraits::None);
+        if (propertyDeclaration.isAlias()) {
+            auto rootObjectItem = fileItem.copy(&rootObject);
+            auto property = rootObjectItem.bindings()
+                                .key(propertyDeclaration.name)
+                                .index(0)
+                                .field(QmlDom::Fields::value);
+            auto resolvedAlias = rootObject.resolveAlias(rootObjectItem,
+                                                         property.ownerAs<QmlDom::ScriptExpression>());
+            if (resolvedAlias.valid()) {
+                type.propertyDeclarations.emplace_back(Utils::SmallString{propertyDeclaration.name},
+                                                       createImportedTypeName(resolvedAlias.typeName,
+                                                                              qualifiedImports),
+                                                       Storage::PropertyDeclarationTraits::None,
+                                                       Utils::SmallString{
+                                                           resolvedAlias.accessedPath.join('.')});
+            }
+        } else {
+            type.propertyDeclarations.emplace_back(Utils::SmallString{propertyDeclaration.name},
+                                                   createImportedTypeName(propertyDeclaration.typeName,
+                                                                          qualifiedImports),
+                                                   Storage::PropertyDeclarationTraits::None);
+        }
     }
 }
 
@@ -256,12 +276,12 @@ Storage::Type QmlDocumentParser::parse(const QString &sourceContent,
         return type;
 
     const auto &component = components.first();
-    const auto &objects = component.objects();
+    auto objects = component.objects();
 
     if (objects.empty())
         return type;
 
-    const QmlDom::QmlObject &qmlObject = objects.front();
+    QmlDom::QmlObject &qmlObject = objects.front();
 
     const auto qmlImports = qmlFile->imports();
 
@@ -274,7 +294,7 @@ Storage::Type QmlDocumentParser::parse(const QString &sourceContent,
 
     addImports(imports, qmlFile->imports(), sourceId, directoryPath, m_storage);
 
-    addPropertyDeclarations(type, qmlObject, qualifiedImports);
+    addPropertyDeclarations(type, qmlObject, qualifiedImports, file);
     addFunctionAndSignalDeclarations(type, qmlObject);
     addEnumeraton(type, component);
 
