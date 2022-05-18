@@ -227,7 +227,7 @@ LspLogWidget::LspLogWidget()
     setOrientation(Qt::Horizontal);
 
     m_clientDetails = new MessageDetailWidget;
-    m_clientDetails->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    m_clientDetails->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_clientDetails->setTitle(LspInspector::tr("Client Message"));
     addWidget(m_clientDetails);
     setStretchFactor(0, 1);
@@ -237,13 +237,13 @@ LspLogWidget::LspLogWidget()
     m_messages->setModel(&m_model);
     m_messages->setAlternatingRowColors(true);
     m_model.setHeader({LspInspector::tr("Messages")});
-    m_messages->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
+    m_messages->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     m_messages->setSelectionMode(QAbstractItemView::MultiSelection);
     addWidget(m_messages);
     setStretchFactor(1, 0);
 
     m_serverDetails = new MessageDetailWidget;
-    m_serverDetails->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    m_serverDetails->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_serverDetails->setTitle(LspInspector::tr("Server Message"));
     addWidget(m_serverDetails);
     setStretchFactor(2, 1);
