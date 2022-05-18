@@ -32,13 +32,14 @@
 #include <utils/dropsupport.h>
 #include <previewtooltip/previewtooltipbackend.h>
 
-#include <QFrame>
-#include <QToolButton>
+#include <QElapsedTimer>
 #include <QFileIconProvider>
-#include <QQuickWidget>
-#include <QQmlPropertyMap>
-#include <QTimer>
+#include <QFrame>
 #include <QPointF>
+#include <QQmlPropertyMap>
+#include <QQuickWidget>
+#include <QTimer>
+#include <QToolButton>
 
 #include <memory>
 
@@ -104,6 +105,8 @@ signals:
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
+    void focusOutEvent(QFocusEvent *focusEvent) override;
+    void focusInEvent(QFocusEvent *focusEvent) override;
 
 private:
     void reloadQmlSource();
@@ -132,6 +135,7 @@ private:
     QString m_filterText;
     QPoint m_dragStartPoint;
     bool m_subCompEditMode = false;
+    QElapsedTimer m_usageTimer;
 
     inline static int HORIZONTAL_LAYOUT_WIDTH_LIMIT = 600;
 };

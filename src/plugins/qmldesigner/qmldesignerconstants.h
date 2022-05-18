@@ -117,6 +117,12 @@ const char EVENT_3DEDITOR_TIME[] = "3DEditor";
 const char EVENT_TIMELINE_TIME[] = "timeline";
 const char EVENT_TRANSITIONEDITOR_TIME[] = "transitionEditor";
 const char EVENT_CURVEDITOR_TIME[] = "curveEditor";
+const char EVENT_STATESEDITOR_TIME[] = "statesEditor";
+const char EVENT_TEXTEDITOR_TIME[] = "textEditor";
+const char EVENT_PROPERTYEDITOR_TIME[] = "propertyEditor";
+const char EVENT_ASSETSLIBRARY_TIME[] = "assetsLibrary";
+const char EVENT_ITEMLIBRARY_TIME[] = "itemLibrary";
+const char EVENT_TRANSLATIONVIEW_TIME[] = "translationView";
 
 const char PROPERTY_EDITOR_CLASSNAME_PROPERTY[] = "__classNamePrivateInternal";
 

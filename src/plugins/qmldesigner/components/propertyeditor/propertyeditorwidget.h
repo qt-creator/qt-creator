@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <QElapsedTimer>
 #include <QStackedWidget>
 
 namespace QmlDesigner {
@@ -41,7 +42,12 @@ signals:
     void resized();
 
 protected:
+    void focusOutEvent(QFocusEvent *focusEvent) override;
+    void focusInEvent(QFocusEvent *focusEvent) override;
     void resizeEvent(QResizeEvent * event) override;
+
+private:
+    QElapsedTimer m_usageTimer;
 };
 
 } //QmlDesigner

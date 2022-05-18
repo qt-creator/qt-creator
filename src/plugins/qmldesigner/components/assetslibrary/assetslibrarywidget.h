@@ -28,13 +28,14 @@
 #include <previewtooltip/previewtooltipbackend.h>
 #include "assetslibrarymodel.h"
 
-#include <QFrame>
-#include <QToolButton>
+#include <QElapsedTimer>
 #include <QFileIconProvider>
-#include <QQuickWidget>
-#include <QQmlPropertyMap>
-#include <QTimer>
+#include <QFrame>
 #include <QPointF>
+#include <QQmlPropertyMap>
+#include <QQuickWidget>
+#include <QTimer>
+#include <QToolButton>
 
 #include <memory>
 
@@ -89,6 +90,8 @@ signals:
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
+    void focusOutEvent(QFocusEvent *focusEvent) override;
+    void focusInEvent(QFocusEvent *focusEvent) override;
 
 private:
     void reloadQmlSource();
@@ -114,6 +117,7 @@ private:
     bool m_updateRetry = false;
     QString m_filterText;
     QPoint m_dragStartPoint;
+    QElapsedTimer m_usageTimer;
 };
 
 } // namespace QmlDesigner

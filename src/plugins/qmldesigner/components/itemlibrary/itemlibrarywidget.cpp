@@ -30,14 +30,14 @@
 
 #include <theme.h>
 
+#include "modelnodeoperations.h"
 #include <designeractionmanager.h>
 #include <designermcumanager.h>
 #include <documentmanager.h>
+#include <itemlibraryaddimportmodel.h>
 #include <itemlibraryimageprovider.h>
 #include <itemlibraryinfo.h>
 #include <itemlibrarymodel.h>
-#include <itemlibraryaddimportmodel.h>
-#include "modelnodeoperations.h"
 #include <metainfo.h>
 #include <model.h>
 #include <rewritingexception.h>
@@ -138,6 +138,19 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 void ItemLibraryWidget::resizeEvent(QResizeEvent *event)
 {
     isHorizontalLayout = event->size().width() >= HORIZONTAL_LAYOUT_WIDTH_LIMIT;
+}
+
+void ItemLibraryWidget::focusOutEvent(QFocusEvent *focusEvent)
+{
+    QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_ITEMLIBRARY_TIME,
+                                               m_usageTimer.elapsed());
+    QFrame::focusOutEvent(focusEvent);
+}
+
+void ItemLibraryWidget::focusInEvent(QFocusEvent *focusEvent)
+{
+    m_usageTimer.restart();
+    QFrame::focusInEvent(focusEvent);
 }
 
 ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,

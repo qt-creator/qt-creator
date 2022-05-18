@@ -25,11 +25,26 @@
 
 #include "propertyeditorwidget.h"
 
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
 
 namespace QmlDesigner {
 
 PropertyEditorWidget::PropertyEditorWidget(QWidget *parent) : QStackedWidget(parent)
 {
+}
+
+void PropertyEditorWidget::focusOutEvent(QFocusEvent *focusEvent)
+{
+    QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_PROPERTYEDITOR_TIME,
+                                               m_usageTimer.elapsed());
+    QStackedWidget::focusOutEvent(focusEvent);
+}
+
+void PropertyEditorWidget::focusInEvent(QFocusEvent *focusEvent)
+{
+    m_usageTimer.restart();
+    QStackedWidget::focusInEvent(focusEvent);
 }
 
 void PropertyEditorWidget::resizeEvent(QResizeEvent * event)

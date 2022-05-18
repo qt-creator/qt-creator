@@ -25,9 +25,10 @@
 
 #pragma once
 
-#include <QQuickWidget>
+#include <QElapsedTimer>
 #include <QPointer>
 #include <QQmlPropertyMap>
+#include <QQuickWidget>
 
 QT_BEGIN_NAMESPACE
 class QShortcut;
@@ -59,6 +60,8 @@ public:
 
 protected:
     void showEvent(QShowEvent *) override;
+    void focusOutEvent(QFocusEvent *focusEvent) override;
+    void focusInEvent(QFocusEvent *focusEvent) override;
 
 private:
     void reloadQmlSource();
@@ -67,6 +70,7 @@ private:
     QPointer<StatesEditorView> m_statesEditorView;
     Internal::StatesEditorImageProvider *m_imageProvider;
     QShortcut *m_qmlSourceUpdateShortcut;
+    QElapsedTimer m_usageTimer;
 };
 
 }

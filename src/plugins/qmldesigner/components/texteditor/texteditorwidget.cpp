@@ -30,6 +30,7 @@
 #include <coreplugin/findplaceholder.h>
 #include <rewriterview.h>
 
+#include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 
 #include <theme.h>
@@ -238,6 +239,19 @@ void TextEditorWidget::dropEvent(QDropEvent *dropEvent)
     const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
                                                      ->viewManager().designerActionManager();
     actionManager.handleExternalAssetsDrop(dropEvent->mimeData());
+}
+
+void TextEditorWidget::focusOutEvent(QFocusEvent *focusEvent)
+{
+    QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_TEXTEDITOR_TIME,
+                                               m_usageTimer.elapsed());
+    QWidget::focusOutEvent(focusEvent);
+}
+
+void TextEditorWidget::focusInEvent(QFocusEvent *focusEvent)
+{
+    m_usageTimer.restart();
+    QWidget::focusInEvent(focusEvent);
 }
 
 } // namespace QmlDesigner

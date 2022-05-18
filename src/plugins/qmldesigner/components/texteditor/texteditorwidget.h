@@ -26,6 +26,7 @@
 
 #include <texteditor/texteditor.h>
 
+#include <QElapsedTimer>
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -69,6 +70,8 @@ protected:
     bool eventFilter(QObject *object, QEvent *event) override;
     void dragEnterEvent(QDragEnterEvent *dragEnterEvent) override;
     void dropEvent(QDropEvent *dropEvent) override;
+    void focusOutEvent(QFocusEvent *focusEvent) override;
+    void focusInEvent(QFocusEvent *focusEvent) override;
 
 private:
     void updateSelectionByCursorPosition();
@@ -81,6 +84,7 @@ private:
     QVBoxLayout *m_layout = nullptr;
     bool m_blockCursorSelectionSynchronisation = false;
     bool m_blockRoundTrip = false;
+    QElapsedTimer m_usageTimer;
 };
 
 } // namespace QmlDesigner

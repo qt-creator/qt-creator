@@ -110,6 +110,19 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
+void AssetsLibraryWidget::focusOutEvent(QFocusEvent *focusEvent)
+{
+    QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_ASSETSLIBRARY_TIME,
+                                                            m_usageTimer.elapsed());
+    QFrame::focusOutEvent(focusEvent);
+}
+
+void AssetsLibraryWidget::focusInEvent(QFocusEvent *focusEvent)
+{
+    m_usageTimer.restart();
+    QFrame::focusInEvent(focusEvent);
+}
+
 AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFontImageCache,
                                          SynchronousImageCache &synchronousFontImageCache)
     : m_itemIconSize(24, 24)
