@@ -122,7 +122,8 @@ class TerminalProcessPrivate
 {
 public:
     TerminalProcessPrivate(QObject *parent)
-        : m_process(parent) {}
+        : m_stubServer(parent)
+        , m_process(parent) {}
 
     qint64 m_processId = 0;
     ProcessResultData m_result;
@@ -373,7 +374,7 @@ void TerminalImpl::start()
 
     const QStringList env = m_setup.m_environment.toStringList();
     if (!env.isEmpty()) {
-        d->m_tempFile = new QTemporaryFile();
+        d->m_tempFile = new QTemporaryFile(this);
         if (!d->m_tempFile->open()) {
             cleanupAfterStartFailure(msgCannotCreateTempFile(d->m_tempFile->errorString()));
             return;
