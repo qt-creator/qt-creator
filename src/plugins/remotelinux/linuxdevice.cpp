@@ -1507,6 +1507,7 @@ protected:
         } else {
             return false;
         }
+        emit done(resultData);
         return true;
     }
 
@@ -1597,7 +1598,7 @@ class RsyncTransferImpl : public FileTransferInterface
 {
 public:
     RsyncTransferImpl(const QString &flags)
-        : FileTransferInterface(FileTransferMethod::Sftp)
+        : FileTransferInterface(FileTransferMethod::Rsync)
         , m_flags(flags)
     { }
 
@@ -1649,7 +1650,7 @@ private:
     }
 
     // On Windows, rsync is either from msys or cygwin. Neither work with the other's ssh.exe.
-    FileToTransfer fixLocalFileOnWindows(const FileToTransfer &file, const QStringList &options)
+    FileToTransfer fixLocalFileOnWindows(const FileToTransfer &file, const QStringList &options) const
     {
         if (!HostOsInfo::isWindowsHost())
             return file;
@@ -1668,7 +1669,7 @@ private:
         return fixedFile;
     }
 
-    QPair<QString, QString> fixPaths(const FileToTransfer &file, const QString &remoteHost)
+    QPair<QString, QString> fixPaths(const FileToTransfer &file, const QString &remoteHost) const
     {
         FilePath localPath;
         FilePath remotePath;
@@ -1698,7 +1699,7 @@ class FileTransferPrivate : public QObject
 public:
     void test() { run(TestRun); }
     void start() { run(NormalRun); }
-    void stop() { m_transfer.reset(); }
+    void stop();
 
     FileTransferMethod m_method = FileTransferMethod::Default;
     IDevice::ConstPtr m_device;
@@ -1720,6 +1721,19 @@ private:
 
     std::unique_ptr<FileTransferInterface> m_transfer;
 };
+
+void FileTransferPrivate::stop()
+{
+    if (!m_transfer)
+        return;
+    m_transfer->disconnect();
+    m_transfer.release()->deleteLater();
+}
+
+void FileTransferPrivate::startFailed(const QString &errorString)
+{
+    emit done({0, QProcess::NormalExit, QProcess::FailedToStart, errorString});
+}
 
 void FileTransferPrivate::run(RunMode mode)
 {
@@ -1746,7 +1760,8 @@ void FileTransferPrivate::run(RunMode mode)
         m_transfer.reset(new RsyncTransferImpl(m_rsyncFlags));
         break;
     }
-    QTC_ASSERT(m_transfer, startFailed(tr("Missing transfer implementation.")));
+    QTC_ASSERT(m_transfer, startFailed(tr("Missing transfer implementation.")); return);
+    m_transfer->setParent(this);
     m_transfer->setDevice(m_device);
     if (mode == NormalRun)
         m_transfer->setFilesToTransfer(m_files, direction);
@@ -1755,11 +1770,6 @@ void FileTransferPrivate::run(RunMode mode)
     connect(m_transfer.get(), &FileTransferInterface::done,
             this, &FileTransferPrivate::done);
     m_transfer->start();
-}
-
-void FileTransferPrivate::startFailed(const QString &errorString)
-{
-    emit done({0, QProcess::NormalExit, QProcess::FailedToStart, errorString});
 }
 
 FileTransfer::FileTransfer()
