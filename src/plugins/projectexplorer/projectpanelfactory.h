@@ -27,9 +27,6 @@
 
 #include "projectexplorer_export.h"
 
-#include "panelswidget.h"
-#include "projectwindow.h"
-
 #include <utils/id.h>
 #include <utils/treemodel.h>
 
