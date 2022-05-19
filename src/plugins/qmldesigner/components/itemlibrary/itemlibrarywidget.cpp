@@ -140,19 +140,6 @@ void ItemLibraryWidget::resizeEvent(QResizeEvent *event)
     isHorizontalLayout = event->size().width() >= HORIZONTAL_LAYOUT_WIDTH_LIMIT;
 }
 
-void ItemLibraryWidget::focusOutEvent(QFocusEvent *focusEvent)
-{
-    QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_ITEMLIBRARY_TIME,
-                                               m_usageTimer.elapsed());
-    QFrame::focusOutEvent(focusEvent);
-}
-
-void ItemLibraryWidget::focusInEvent(QFocusEvent *focusEvent)
-{
-    m_usageTimer.restart();
-    QFrame::focusInEvent(focusEvent);
-}
-
 ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
                                      AsynchronousImageCache &asynchronousFontImageCache,
                                      SynchronousImageCache &synchronousFontImageCache)
@@ -212,6 +199,8 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
 
     m_itemsWidget->engine()->addImageProvider("itemlibrary_preview",
                                                       new ItemLibraryIconImageProvider{m_imageCache});
+
+    QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_ITEMLIBRARY_TIME);
 
     // init the first load of the QML UI elements
     reloadQmlSource();

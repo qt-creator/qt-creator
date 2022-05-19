@@ -123,7 +123,9 @@ const char EVENT_PROPERTYEDITOR_TIME[] = "propertyEditor";
 const char EVENT_ASSETSLIBRARY_TIME[] = "assetsLibrary";
 const char EVENT_ITEMLIBRARY_TIME[] = "itemLibrary";
 const char EVENT_TRANSLATIONVIEW_TIME[] = "translationView";
+const char EVENT_NAVIGATORVIEW_TIME[] = "navigatorView";
 const char EVENT_DESIGNMODE_TIME[] = "designMode";
+
 
 const char PROPERTY_EDITOR_CLASSNAME_PROPERTY[] = "__classNamePrivateInternal";
 

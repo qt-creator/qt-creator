@@ -69,6 +69,7 @@ TextEditorWidget::TextEditorWidget(TextEditorView *textEditorView)
     m_updateSelectionTimer.setInterval(200);
 
     connect(&m_updateSelectionTimer, &QTimer::timeout, this, &TextEditorWidget::updateSelectionByCursorPosition);
+    QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_TEXTEDITOR_TIME);
 }
 
 void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor)
@@ -239,19 +240,6 @@ void TextEditorWidget::dropEvent(QDropEvent *dropEvent)
     const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
                                                      ->viewManager().designerActionManager();
     actionManager.handleExternalAssetsDrop(dropEvent->mimeData());
-}
-
-void TextEditorWidget::focusOutEvent(QFocusEvent *focusEvent)
-{
-    QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_TEXTEDITOR_TIME,
-                                               m_usageTimer.elapsed());
-    QWidget::focusOutEvent(focusEvent);
-}
-
-void TextEditorWidget::focusInEvent(QFocusEvent *focusEvent)
-{
-    m_usageTimer.restart();
-    QWidget::focusInEvent(focusEvent);
 }
 
 } // namespace QmlDesigner

@@ -83,6 +83,8 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view)
     sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
     setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
 #endif
+
+    QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_NAVIGATORVIEW_TIME);
 }
 
 void NavigatorWidget::setTreeModel(QAbstractItemModel *model)

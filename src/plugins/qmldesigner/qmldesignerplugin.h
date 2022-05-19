@@ -97,6 +97,8 @@ public:
 
     static void registerPreviewImageProvider(QQmlEngine *engine);
 
+    static void trackWidgetFocusTime(QWidget *widget, const QString &identifier);
+
 signals:
     void usageStatisticsNotifier(const QString &identifier);
     void usageStatisticsUsageTimer(const QString &identifier, int elapsed);

@@ -28,7 +28,6 @@
 #include <previewtooltip/previewtooltipbackend.h>
 #include "assetslibrarymodel.h"
 
-#include <QElapsedTimer>
 #include <QFileIconProvider>
 #include <QFrame>
 #include <QPointF>
@@ -90,8 +89,6 @@ signals:
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
-    void focusOutEvent(QFocusEvent *focusEvent) override;
-    void focusInEvent(QFocusEvent *focusEvent) override;
 
 private:
     void reloadQmlSource();
@@ -117,7 +114,6 @@ private:
     bool m_updateRetry = false;
     QString m_filterText;
     QPoint m_dragStartPoint;
-    QElapsedTimer m_usageTimer;
 };
 
 } // namespace QmlDesigner
