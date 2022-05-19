@@ -645,6 +645,7 @@ public:
 
     void emitStarted();
     void emitFinished();
+    void emitDone();
     void emitErrorOccurred(QProcess::ProcessError error);
     void emitReadyReadStandardOutput();
     void emitReadyReadStandardError();
@@ -979,7 +980,8 @@ QtcProcess::QtcProcess(QObject *parent)
 
 QtcProcess::~QtcProcess()
 {
-    QTC_CHECK(d->m_callStackGuard == 0);
+    QTC_ASSERT(d->m_callStackGuard == 0, qWarning("Deleting QtcProcess instance directly from "
+               "one of its signal handlers will lead to crash!"));
     delete d;
 }
 
@@ -1942,7 +1944,7 @@ void QtcProcessPrivate::handleDone(const ProcessResultData &data)
     if (m_resultData.m_error != QProcess::FailedToStart)
         emitFinished();
 
-    emit q->done();
+    emitDone();
     m_processId = 0;
     m_applicationMainThreadId = 0;
 }
@@ -1968,6 +1970,12 @@ void QtcProcessPrivate::emitFinished()
 {
     CALL_STACK_GUARD();
     emit q->finished();
+}
+
+void QtcProcessPrivate::emitDone()
+{
+    CALL_STACK_GUARD();
+    emit q->done();
 }
 
 void QtcProcessPrivate::emitErrorOccurred(QProcess::ProcessError error)
