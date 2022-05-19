@@ -286,7 +286,6 @@ void DragTool::dragEnterEvent(const QList<QGraphicsItem *> &/*itemList*/, QGraph
         }
 
         if (!m_rewriterTransaction.isValid()) {
-            view()->clearSelectedModelNodes();
             m_rewriterTransaction = view()->beginRewriterTransaction(QByteArrayLiteral("DragTool::dragEnterEvent"));
         }
     }
