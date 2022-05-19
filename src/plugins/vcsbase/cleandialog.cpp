@@ -62,7 +62,8 @@ static void removeFileRecursion(QFutureInterface<void> &futureInterface,
         return;
     if (f.isDir()) {
         const QDir dir(f.absoluteFilePath());
-        foreach (const QFileInfo &fi, dir.entryInfoList(QDir::AllEntries|QDir::NoDotAndDotDot|QDir::Hidden))
+        const QList<QFileInfo> infos = dir.entryInfoList(QDir::AllEntries|QDir::NoDotAndDotDot|QDir::Hidden);
+        for (const QFileInfo &fi : infos)
             removeFileRecursion(futureInterface, fi, errorMessage);
         QDir parent = f.absoluteDir();
         if (!parent.rmdir(f.fileName()))
@@ -86,7 +87,7 @@ static void runCleanFiles(QFutureInterface<void> &futureInterface,
     QString errorMessage;
     futureInterface.setProgressRange(0, files.size());
     futureInterface.setProgressValue(0);
-    foreach (const QString &name, files) {
+    for (const QString &name : files) {
         removeFileRecursion(futureInterface, QFileInfo(name), &errorMessage);
         if (futureInterface.isCanceled())
             break;
@@ -177,9 +178,9 @@ void CleanDialog::setFileList(const QString &workingDirectory, const QStringList
     if (const int oldRowCount = d->m_filesModel->rowCount())
         d->m_filesModel->removeRows(0, oldRowCount);
 
-    foreach (const QString &fileName, files)
+    for (const QString &fileName : files)
         addFile(workingDirectory, fileName, true);
-    foreach (const QString &fileName, ignoredFiles)
+    for (const QString &fileName : ignoredFiles)
         addFile(workingDirectory, fileName, false);
 
     for (int c = 0; c < d->m_filesModel->columnCount(); c++)

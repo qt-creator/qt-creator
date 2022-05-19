@@ -163,7 +163,7 @@ QStringList VcsBaseEditorConfig::arguments() const
 {
     // Compile effective arguments
     QStringList args = baseArguments();
-    foreach (const OptionMapping &mapping, optionMappings())
+    for (const OptionMapping &mapping : optionMappings())
         args += argumentsForOption(mapping);
     return args;
 }
@@ -332,7 +332,7 @@ QStringList VcsBaseEditorConfig::argumentsForOption(const OptionMapping &mapping
 
 void VcsBaseEditorConfig::updateMappedSettings()
 {
-    foreach (const OptionMapping &optMapping, d->m_optionMappings) {
+    for (const OptionMapping &optMapping : optionMappings()) {
         if (d->m_settingMapping.contains(optMapping.object)) {
             Internal::SettingMappingData& settingData = d->m_settingMapping[optMapping.object];
             switch (settingData.type()) {

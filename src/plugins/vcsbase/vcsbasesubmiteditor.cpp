@@ -263,7 +263,7 @@ static inline QStringList fieldTexts(const QString &fileContents)
 {
     QStringList rc;
     const QStringList rawFields = fileContents.trimmed().split(QLatin1Char('\n'));
-    foreach (const QString &field, rawFields) {
+    for (const QString &field : rawFields) {
         const QString trimmedField = field.trimmed();
         if (!trimmedField.isEmpty())
             rc.push_back(trimmedField);

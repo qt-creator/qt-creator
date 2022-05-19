@@ -308,7 +308,7 @@ void ChangeTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType typ
             menu->addAction(createAnnotateAction(widget->decorateVersion(m_currentChange), false));
         const QStringList previousVersions = widget->annotationPreviousVersions(m_currentChange);
         if (!previousVersions.isEmpty()) {
-            foreach (const QString &pv, previousVersions)
+            for (const QString &pv : previousVersions)
                 menu->addAction(createAnnotateAction(widget->decorateVersion(pv), true));
         }
         break;
@@ -592,7 +592,7 @@ VcsBaseEditorWidgetPrivate::VcsBaseEditorWidgetPrivate(VcsBaseEditorWidget *edit
 
 AbstractTextCursorHandler *VcsBaseEditorWidgetPrivate::findTextCursorHandler(const QTextCursor &cursor)
 {
-    foreach (AbstractTextCursorHandler *handler, m_textCursorHandlers) {
+    for (AbstractTextCursorHandler *handler : qAsConst(m_textCursorHandlers)) {
         if (handler->findContentsUnderCursor(cursor))
             return handler;
     }
@@ -1384,7 +1384,7 @@ QString VcsBaseEditor::getTitleId(const FilePath &workingDirectory,
                                   const QString &revision)
 {
     QStringList nonEmptyFileNames;
-    foreach (const QString& fileName, fileNames) {
+    for (const QString& fileName : fileNames) {
         if (!fileName.trimmed().isEmpty())
             nonEmptyFileNames.append(fileName);
     }
@@ -1669,7 +1669,8 @@ void VcsBaseEditor::tagEditor(Core::IEditor *e, const QString &tag)
 
 Core::IEditor *VcsBaseEditor::locateEditorByTag(const QString &tag)
 {
-    foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments()) {
+    const QList<Core::IDocument *> documents = Core::DocumentModel::openedDocuments();
+    for (Core::IDocument *document : documents) {
         const QVariant tagPropertyValue = document->property(tagPropertyC);
         if (tagPropertyValue.type() == QVariant::String && tagPropertyValue.toString() == tag)
             return Core::DocumentModel::editorsForDocument(document).constFirst();

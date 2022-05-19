@@ -63,7 +63,8 @@ using namespace Utils;
 
 static Core::IEditor *locateEditor(const char *property, const QString &entry)
 {
-    foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments())
+    const QList<Core::IDocument *> documents = Core::DocumentModel::openedDocuments();
+    for (Core::IDocument *document : documents)
         if (document->property(property).toString() == entry)
             return Core::DocumentModel::editorsForDocument(document).constFirst();
     return nullptr;
@@ -625,7 +626,7 @@ void VcsBaseClient::statusParser(const QString &text)
 
     QStringList rawStatusList = text.split(QLatin1Char('\n'));
 
-    foreach (const QString &string, rawStatusList) {
+    for (const QString &string : qAsConst(rawStatusList)) {
         const VcsBaseClient::StatusItem lineInfo = parseStatusLine(string);
         if (!lineInfo.flags.isEmpty() && !lineInfo.file.isEmpty())
             lineInfoList.append(lineInfo);

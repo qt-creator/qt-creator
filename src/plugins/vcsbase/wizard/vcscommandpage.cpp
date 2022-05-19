@@ -98,7 +98,8 @@ WizardPage *VcsCommandPageFactory::create(JsonWizard *wizard, Id typeId, const Q
                           tmp.value(QLatin1String(VCSCOMMAND_CHECKOUTNAME)).toString(),
                           args);
 
-    foreach (const QVariant &value, tmp.value(QLatin1String(VCSCOMMAND_JOBS)).toList()) {
+    const QVariantList values = tmp.value(QLatin1String(VCSCOMMAND_JOBS)).toList();
+    for (const QVariant &value : values) {
         const QVariantMap job = value.toMap();
         const bool skipEmpty = job.value(QLatin1String(JOB_SKIP_EMPTY), true).toBool();
         const FilePath workDir = FilePath::fromVariant(job.value(QLatin1String(JOB_WORK_DIRECTORY)));
@@ -183,7 +184,8 @@ bool VcsCommandPageFactory::validateData(Id typeId, const QVariant &data, QStrin
                     .arg(QLatin1String(VCSCOMMAND_JOBS));
         }
 
-        foreach (const QVariant &j, jobs.toList()) {
+        const QVariantList jobList = jobs.toList();
+        for (const QVariant &j : jobList) {
             if (j.isNull()) {
                 em = tr("Job in \"VcsCommand\" page is empty.");
                 break;
@@ -277,7 +279,7 @@ void VcsCommandPage::delayedInitialize()
         setStartedStatus(runMessage);
 
     QStringList extraArgs;
-    foreach (const QString &in, m_arguments) {
+    for (const QString &in : qAsConst(m_arguments)) {
         const QString tmp = wiz->expander()->expand(in);
         if (tmp.isEmpty())
            continue;
@@ -290,7 +292,7 @@ void VcsCommandPage::delayedInitialize()
             = vc->createInitialCheckoutCommand(repo, FilePath::fromString(base),
                                                name, extraArgs);
 
-    foreach (const JobData &job, m_additionalJobs) {
+    for (const JobData &job : qAsConst(m_additionalJobs)) {
         QTC_ASSERT(!job.job.isEmpty(), continue);
 
         if (!JsonWizard::boolFromVariant(job.condition, wiz->expander()))
