@@ -33,6 +33,7 @@
 #include <languageserverprotocol/languagefeatures.h>
 #include <languageserverprotocol/workspace.h>
 
+#include <QPointer>
 #include <QVector>
 
 namespace Core { class IEditor; }

@@ -51,6 +51,7 @@
 #include <QFutureWatcher>
 #include <QGridLayout>
 #include <QGroupBox>
+#include <QJsonDocument>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QTimer>

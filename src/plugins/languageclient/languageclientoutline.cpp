@@ -25,6 +25,7 @@
 
 #include "languageclientoutline.h"
 
+#include "documentsymbolcache.h"
 #include "languageclientmanager.h"
 #include "languageclientutils.h"
 

@@ -26,6 +26,7 @@
 #include "languageclientsymbolsupport.h"
 
 #include "client.h"
+#include "dynamiccapabilities.h"
 #include "languageclientutils.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -34,6 +35,7 @@
 #include <utils/mimeutils.h>
 
 #include <QFile>
+#include <QLabel>
 
 using namespace LanguageServerProtocol;
 

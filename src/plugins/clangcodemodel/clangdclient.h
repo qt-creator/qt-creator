@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <coreplugin/find/searchresultitem.h>
 #include <cppeditor/baseeditordocumentparser.h>
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cursorineditor.h>
@@ -34,14 +35,16 @@
 
 #include <QVersionNumber>
 
-namespace Core { class SearchResultItem; }
 namespace CppEditor { class CppEditorWidget; }
 namespace LanguageServerProtocol { class Range; }
 namespace ProjectExplorer {
 class Project;
 class Task;
 }
-namespace TextEditor { class BaseTextEditor; }
+namespace TextEditor {
+class BaseTextEditor;
+class IAssistProposal;
+}
 
 namespace ClangCodeModel {
 namespace Internal {

@@ -42,6 +42,7 @@
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHeaderView>
+#include <QJsonDocument>
 #include <QLabel>
 #include <QListWidget>
 #include <QPlainTextEdit>

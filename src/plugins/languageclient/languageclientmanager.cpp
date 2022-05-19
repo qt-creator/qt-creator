@@ -25,7 +25,9 @@
 
 #include "languageclientmanager.h"
 
+#include "languageclienthoverhandler.h"
 #include "languageclientplugin.h"
+#include "languageclientsymbolsupport.h"
 #include "languageclientutils.h"
 
 #include <coreplugin/editormanager/editormanager.h>

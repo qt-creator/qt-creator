@@ -25,6 +25,7 @@
 
 #include "locatorfilter.h"
 
+#include "documentsymbolcache.h"
 #include "languageclient_global.h"
 #include "languageclientmanager.h"
 #include "languageclientutils.h"

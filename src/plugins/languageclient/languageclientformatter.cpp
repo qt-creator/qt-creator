@@ -26,6 +26,7 @@
 #include "languageclientformatter.h"
 
 #include "client.h"
+#include "dynamiccapabilities.h"
 #include "languageclientutils.h"
 
 #include <texteditor/tabsettings.h>

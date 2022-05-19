@@ -26,6 +26,7 @@
 #include "languageclienthoverhandler.h"
 
 #include "client.h"
+#include "dynamiccapabilities.h"
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>

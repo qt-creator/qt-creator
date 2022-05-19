@@ -35,6 +35,7 @@
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/snippets/snippet.h>
 #include <texteditor/snippets/snippetassistcollector.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
 #include <utils/algorithm.h>
 #include <utils/textutils.h>

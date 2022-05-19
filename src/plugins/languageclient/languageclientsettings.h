@@ -58,8 +58,9 @@ namespace LanguageClient {
 class Client;
 class BaseClientInterface;
 
-struct LANGUAGECLIENT_EXPORT LanguageFilter
+class LANGUAGECLIENT_EXPORT LanguageFilter
 {
+public:
     QStringList mimeTypes;
     QStringList filePattern;
     bool isSupported(const Utils::FilePath &filePath, const QString &mimeType) const;

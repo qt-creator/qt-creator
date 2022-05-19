@@ -25,44 +25,9 @@
 
 #pragma once
 
-#include "diagnosticmanager.h"
-#include "documentsymbolcache.h"
-#include "dynamiccapabilities.h"
 #include "languageclient_global.h"
-#include "languageclientcompletionassist.h"
-#include "languageclientformatter.h"
-#include "languageclientfunctionhint.h"
-#include "languageclienthoverhandler.h"
-#include "languageclientquickfix.h"
-#include "languageclientsettings.h"
-#include "languageclientsymbolsupport.h"
-#include "progressmanager.h"
+#include "languageclientutils.h"
 #include "semantichighlightsupport.h"
-
-#include <coreplugin/messagemanager.h>
-
-#include <utils/id.h>
-#include <utils/link.h>
-
-#include <languageserverprotocol/client.h>
-#include <languageserverprotocol/diagnostics.h>
-#include <languageserverprotocol/initializemessages.h>
-#include <languageserverprotocol/languagefeatures.h>
-#include <languageserverprotocol/messages.h>
-#include <languageserverprotocol/progresssupport.h>
-#include <languageserverprotocol/semantictokens.h>
-#include <languageserverprotocol/shutdownmessages.h>
-#include <languageserverprotocol/textsynchronization.h>
-
-#include <texteditor/semantichighlighter.h>
-
-#include <QBuffer>
-#include <QHash>
-#include <QJsonDocument>
-#include <QTextCursor>
-
-#include <unordered_map>
-#include <utility>
 
 namespace Core { class IDocument; }
 namespace ProjectExplorer { class Project; }
@@ -77,10 +42,29 @@ QT_BEGIN_NAMESPACE
 class QWidget;
 QT_END_NAMESPACE
 
+namespace LanguageServerProtocol {
+class ClientCapabilities;
+class ClientInfo;
+class ProgressToken;
+class PublishDiagnosticsParams;
+class Registration;
+class ServerCapabilities;
+class Unregistration;
+} // namespace LanguageServerProtocol
+
 namespace LanguageClient {
 
 class BaseClientInterface;
+class ClientPrivate;
+class DiagnosticManager;
+class DocumentSymbolCache;
+class DynamicCapabilities;
+class HoverHandler;
 class InterfaceController;
+class LanguageClientCompletionAssistProvider;
+class LanguageClientQuickFixProvider;
+class LanguageFilter;
+class SymbolSupport;
 
 class LANGUAGECLIENT_EXPORT Client : public QObject
 {
@@ -96,8 +80,8 @@ public:
     Client &operator=(Client &&) = delete;
 
     // basic properties
-    Utils::Id id() const { return m_id; }
-    void setName(const QString &name) { m_displayName = name; }
+    Utils::Id id() const;
+    void setName(const QString &name);
     QString name() const;
 
     enum class SendDocUpdates { Send, Ignore };
@@ -123,22 +107,22 @@ public:
     };
     State state() const;
     QString stateString() const;
-    bool reachable() const { return m_state == Initialized; }
+    bool reachable() const;
 
     void setClientInfo(const LanguageServerProtocol::ClientInfo &clientInfo);
     // capabilities
     static LanguageServerProtocol::ClientCapabilities defaultClientCapabilities();
     void setClientCapabilities(const LanguageServerProtocol::ClientCapabilities &caps);
     const LanguageServerProtocol::ServerCapabilities &capabilities() const;
-    QString serverName() const { return m_serverName; }
-    QString serverVersion() const { return m_serverVersion; }
+    QString serverName() const;
+    QString serverVersion() const;
     const DynamicCapabilities &dynamicCapabilities() const;
     void registerCapabilities(const QList<LanguageServerProtocol::Registration> &registrations);
     void unregisterCapabilities(const QList<LanguageServerProtocol::Unregistration> &unregistrations);
 
-    void setLocatorsEnabled(bool enabled) { m_locatorsEnabled = enabled; }
-    bool locatorsEnabled() const { return m_locatorsEnabled; }
-    void setAutoRequestCodeActions(bool enabled) { m_autoRequestCodeActions = enabled; }
+    void setLocatorsEnabled(bool enabled);
+    bool locatorsEnabled() const;
+    void setAutoRequestCodeActions(bool enabled);
 
     // document synchronization
     void setSupportedLanguage(const LanguageFilter &filter);
@@ -202,7 +186,7 @@ public:
 
     // logging
     enum class LogTarget { Console, Ui };
-    void setLogTarget(LogTarget target) { m_logTarget = target; }
+    void setLogTarget(LogTarget target);
     void log(const QString &message) const;
     template<typename Error>
     void log(const LanguageServerProtocol::ResponseError<Error> &responseError) const
@@ -232,91 +216,13 @@ protected:
     virtual DiagnosticManager *createDiagnosticManager();
 
 private:
-    void sendMessageNow(const LanguageServerProtocol::JsonRpcMessage &message);
-    void handleResponse(const LanguageServerProtocol::MessageId &id,
-                        const LanguageServerProtocol::JsonRpcMessage &message);
-    void handleMethod(const QString &method,
-                      const LanguageServerProtocol::MessageId &id,
-                      const LanguageServerProtocol::JsonRpcMessage &message);
-
-    void initializeCallback(const LanguageServerProtocol::InitializeRequest::Response &initResponse);
-    void shutDownCallback(const LanguageServerProtocol::ShutdownRequest::Response &shutdownResponse);
-    bool sendWorkspceFolderChanges() const;
-    void log(const LanguageServerProtocol::ShowMessageParams &message);
-
-    LanguageServerProtocol::LanguageClientValue<LanguageServerProtocol::MessageActionItem>
-    showMessageBox(const LanguageServerProtocol::ShowMessageRequestParams &message);
-
-    void removeDiagnostics(const LanguageServerProtocol::DocumentUri &uri);
-    void resetAssistProviders(TextEditor::TextDocument *document);
-
-    void sendPostponedDocumentUpdates(Schedule semanticTokensSchedule);
-
-    void updateCompletionProvider(TextEditor::TextDocument *document);
-    void updateFunctionHintProvider(TextEditor::TextDocument *document);
-
-    void requestDocumentHighlights(TextEditor::TextEditorWidget *widget);
-    void requestDocumentHighlightsNow(TextEditor::TextEditorWidget *widget);
-    LanguageServerProtocol::SemanticRequestTypes supportedSemanticRequests(TextEditor::TextDocument *document) const;
-    void handleSemanticTokens(const LanguageServerProtocol::SemanticTokens &tokens);
-    void requestCodeActions(const LanguageServerProtocol::DocumentUri &uri,
-                            const LanguageServerProtocol::Range &range,
-                            const QList<LanguageServerProtocol::Diagnostic> &diagnostics);
-    void documentClosed(Core::IDocument *document);
+    friend class ClientPrivate;
+    ClientPrivate *d = nullptr;
 
     virtual void handleDocumentClosed(TextEditor::TextDocument *) {}
     virtual void handleDocumentOpened(TextEditor::TextDocument *) {}
     virtual QTextCursor adjustedCursorForHighlighting(const QTextCursor &cursor,
                                                       TextEditor::TextDocument *doc);
-
-    State m_state = Uninitialized;
-    QHash<LanguageServerProtocol::MessageId,
-          LanguageServerProtocol::ResponseHandler::Callback> m_responseHandlers;
-    QString m_displayName;
-    LanguageFilter m_languagFilter;
-    QJsonObject m_initializationOptions;
-    QMap<TextEditor::TextDocument *, QString> m_openedDocument;
-    QSet<TextEditor::TextDocument *> m_postponedDocuments;
-    QMap<Utils::FilePath, int> m_documentVersions;
-    std::unordered_map<TextEditor::TextDocument *,
-         QList<LanguageServerProtocol::DidChangeTextDocumentParams::TextDocumentContentChangeEvent>>
-        m_documentsToUpdate;
-    QMap<TextEditor::TextEditorWidget *, QTimer *> m_documentHighlightsTimer;
-    QTimer m_documentUpdateTimer;
-    Utils::Id m_id;
-    LanguageServerProtocol::ClientCapabilities m_clientCapabilities = defaultClientCapabilities();
-    LanguageServerProtocol::ServerCapabilities m_serverCapabilities;
-    DynamicCapabilities m_dynamicCapabilities;
-    struct AssistProviders
-    {
-        QPointer<TextEditor::CompletionAssistProvider> completionAssistProvider;
-        QPointer<TextEditor::CompletionAssistProvider> functionHintProvider;
-        QPointer<TextEditor::IAssistProvider> quickFixAssistProvider;
-    };
-
-    AssistProviders m_clientProviders;
-    QMap<TextEditor::TextDocument *, AssistProviders> m_resetAssistProvider;
-    QHash<TextEditor::TextEditorWidget *, LanguageServerProtocol::MessageId> m_highlightRequests;
-    int m_restartsLeft = 5;
-    InterfaceController *m_clientInterface = nullptr;
-    DiagnosticManager *m_diagnosticManager = nullptr;
-    DocumentSymbolCache m_documentSymbolCache;
-    HoverHandler m_hoverHandler;
-    QHash<LanguageServerProtocol::DocumentUri, TextEditor::HighlightingResults> m_highlights;
-    ProjectExplorer::Project *m_project = nullptr;
-    QSet<TextEditor::IAssistProcessor *> m_runningAssistProcessors;
-    SymbolSupport m_symbolSupport;
-    ProgressManager m_progressManager;
-    bool m_activateDocAutomatically = false;
-    SemanticTokenSupport m_tokenSupport;
-    QString m_serverName;
-    QString m_serverVersion;
-    LanguageServerProtocol::SymbolStringifier m_symbolStringifier;
-    LogTarget m_logTarget = LogTarget::Ui;
-    bool m_locatorsEnabled = true;
-    bool m_autoRequestCodeActions = true;
-    QTimer m_shutdownTimer;
-    LanguageServerProtocol::ClientInfo m_clientInfo;
 };
 
 } // namespace LanguageClient
