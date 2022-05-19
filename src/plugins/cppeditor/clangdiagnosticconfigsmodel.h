@@ -52,8 +52,6 @@ public:
     const ClangDiagnosticConfig &configWithId(const Utils::Id &id) const;
     int indexOfConfig(const Utils::Id &id) const;
 
-    static QVector<Utils::Id> changedOrRemovedConfigs(const ClangDiagnosticConfigs &oldConfigs,
-                                                     const ClangDiagnosticConfigs &newConfigs);
     static ClangDiagnosticConfig createCustomConfig(const ClangDiagnosticConfig &baseConfig,
                                                     const QString &displayName);
     static QStringList globalDiagnosticOptions();

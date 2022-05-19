@@ -34,7 +34,7 @@
 #include <functional>
 
 QT_BEGIN_NAMESPACE
-class QLabel;
+class QFormLayout;
 class QPushButton;
 QT_END_NAMESPACE
 
@@ -48,6 +48,7 @@ class CPPEDITOR_EXPORT ClangDiagnosticConfigsSelectionWidget : public QWidget
 
 public:
     explicit ClangDiagnosticConfigsSelectionWidget(QWidget *parent = nullptr);
+    explicit ClangDiagnosticConfigsSelectionWidget(QFormLayout *parentLayout);
 
     using CreateEditWidget
         = std::function<ClangDiagnosticConfigsWidget *(const ClangDiagnosticConfigs &configs,
@@ -64,13 +65,14 @@ signals:
     void changed();
 
 private:
+    QString label() const;
+    void setUpUi(bool withLabel);
     void onButtonClicked();
 
     ClangDiagnosticConfigsModel m_diagnosticConfigsModel;
     Utils::Id m_currentConfigId;
     bool m_showTidyClazyUi = true;
 
-    QLabel *m_label = nullptr;
     QPushButton *m_button = nullptr;
 
     CreateEditWidget m_createEditWidget;

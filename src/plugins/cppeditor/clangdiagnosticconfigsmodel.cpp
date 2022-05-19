@@ -87,23 +87,6 @@ const ClangDiagnosticConfig &ClangDiagnosticConfigsModel::configWithId(const Uti
     return m_diagnosticConfigs.at(indexOfConfig(id));
 }
 
-QVector<Utils::Id> ClangDiagnosticConfigsModel::changedOrRemovedConfigs(
-    const ClangDiagnosticConfigs &oldConfigs, const ClangDiagnosticConfigs &newConfigs)
-{
-    ClangDiagnosticConfigsModel newConfigsModel(newConfigs);
-    QVector<Utils::Id> changedConfigs;
-
-    for (const ClangDiagnosticConfig &old: oldConfigs) {
-        const int i = newConfigsModel.indexOfConfig(old.id());
-        if (i == -1)
-            changedConfigs.append(old.id()); // Removed
-        else if (newConfigsModel.allConfigs().value(i) != old)
-            changedConfigs.append(old.id()); // Changed
-    }
-
-    return changedConfigs;
-}
-
 ClangDiagnosticConfig ClangDiagnosticConfigsModel::createCustomConfig(
     const ClangDiagnosticConfig &baseConfig, const QString &displayName)
 {

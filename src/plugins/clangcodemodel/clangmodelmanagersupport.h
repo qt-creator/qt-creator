@@ -51,7 +51,6 @@ namespace ClangCodeModel {
 namespace Internal {
 
 class ClangdClient;
-class ClangProjectSettings;
 
 class ClangModelManagerSupport:
         public QObject,
@@ -73,8 +72,6 @@ public:
 
     QString dummyUiHeaderOnDiskDirPath() const;
     QString dummyUiHeaderOnDiskPath(const QString &filePath) const;
-
-    ClangProjectSettings &projectSettings(ProjectExplorer::Project *project) const;
 
     ClangdClient *clientForProject(const ProjectExplorer::Project *project) const;
     ClangdClient *clientForFile(const Utils::FilePath &file) const;
@@ -111,14 +108,9 @@ private:
                                         int lineNumber,
                                         QMenu *menu);
 
-    void onProjectAdded(ProjectExplorer::Project *project);
-    void onAboutToRemoveProject(ProjectExplorer::Project *project);
-
     void onProjectPartsUpdated(ProjectExplorer::Project *project);
     void onProjectPartsRemoved(const QStringList &projectPartIds);
     void onClangdSettingsChanged();
-
-    void onDiagnosticConfigsInvalidated(const QVector<::Utils::Id> &configIds);
 
     void reinitializeBackendDocuments(const QStringList &projectPartIds);
 
@@ -134,7 +126,6 @@ private:
 
     UiHeaderOnDiskManager m_uiHeaderOnDiskManager;
 
-    QHash<ProjectExplorer::Project *, ClangProjectSettings *> m_projectSettings;
     Utils::FutureSynchronizer m_generatorSynchronizer;
     QList<QPointer<ClangdClient>> m_clientsToRestart;
 };

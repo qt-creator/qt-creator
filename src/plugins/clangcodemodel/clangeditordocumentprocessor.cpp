@@ -25,7 +25,6 @@
 
 #include "clangeditordocumentprocessor.h"
 
-#include "clangprojectsettings.h"
 #include "clangdiagnostictooltipwidget.h"
 #include "clangfixitoperation.h"
 #include "clangmodelmanagersupport.h"

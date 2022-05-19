@@ -52,8 +52,7 @@ namespace ClangCodeModel {
 namespace Internal {
 
 CppEditor::ClangDiagnosticConfig warningsConfigForProject(ProjectExplorer::Project *project);
-const QStringList optionsForProject(ProjectExplorer::Project *project,
-                                    const CppEditor::ClangDiagnosticConfig &warningsConfig);
+const QStringList globalClangOptions();
 
 CppEditor::CompilerOptionsBuilder clangOptionsBuilder(
         const CppEditor::ProjectPart &projectPart,

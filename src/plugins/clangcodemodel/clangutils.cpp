@@ -25,13 +25,12 @@
 
 #include "clangutils.h"
 
-#include "clangeditordocumentprocessor.h"
 #include "clangmodelmanagersupport.h"
-#include "clangprojectsettings.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <cppeditor/baseeditordocumentparser.h>
+#include <cppeditor/clangdiagnosticconfigsmodel.h>
 #include <cppeditor/compileroptionsbuilder.h>
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppmodelmanager.h>
@@ -276,14 +275,6 @@ QString DiagnosticTextInfo::clazyCheckName(const QString &option)
 }
 
 
-namespace {
-static ClangProjectSettings &getProjectSettings(ProjectExplorer::Project *project)
-{
-    QTC_CHECK(project);
-    return ClangModelManagerSupport::instance()->projectSettings(project);
-}
-} // namespace
-
 QJsonArray clangOptionsForFile(const ProjectFile &file, const ProjectPart &projectPart,
                                const QJsonArray &generalOptions, UsePrecompiledHeaders usePch)
 {
@@ -308,30 +299,12 @@ QJsonArray clangOptionsForFile(const ProjectFile &file, const ProjectPart &proje
 
 ClangDiagnosticConfig warningsConfigForProject(Project *project)
 {
-    if (project) {
-        ClangProjectSettings &projectSettings = ClangModelManagerSupport::instance()
-                ->projectSettings(project);
-        if (!projectSettings.useGlobalConfig()) {
-            const Utils::Id warningConfigId = projectSettings.warningConfigId();
-            const CppEditor::ClangDiagnosticConfigsModel configsModel
-                    = CppEditor::diagnosticConfigsModel();
-            if (configsModel.hasConfigWithId(warningConfigId))
-                return configsModel.configWithId(warningConfigId);
-        }
-    }
-    return CppEditor::codeModelSettings()->clangDiagnosticConfig();
+    return ClangdSettings(ClangdProjectSettings(project).settings()).diagnosticConfig();
 }
 
-const QStringList optionsForProject(ProjectExplorer::Project *project,
-                                    const ClangDiagnosticConfig &warningsConfig)
+const QStringList globalClangOptions()
 {
-    QStringList options = ClangDiagnosticConfigsModel::globalDiagnosticOptions();
-    if (!warningsConfig.useBuildSystemWarnings()) {
-        options += project
-                ? getProjectSettings(project).commandLineOptions()
-                : ClangProjectSettings::globalCommandLineOptions();
-    }
-    return options;
+    return ClangDiagnosticConfigsModel::globalDiagnosticOptions();
 }
 
 // 7.3.3: using typename(opt) nested-name-specifier unqualified-id ;

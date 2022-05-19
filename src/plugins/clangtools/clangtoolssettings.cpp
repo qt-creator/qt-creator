@@ -30,6 +30,7 @@
 
 #include <coreplugin/icore.h>
 #include <cppeditor/clangdiagnosticconfig.h>
+#include <cppeditor/clangdiagnosticconfigsmodel.h>
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cpptoolsreuse.h>
 
@@ -123,7 +124,7 @@ static QVariantMap convertToMapFromVersionBefore410(QSettings *s)
 
 ClangDiagnosticConfigs importDiagnosticConfigsFromCodeModel()
 {
-    const ClangDiagnosticConfigs configs = codeModelSettings()->clangCustomDiagnosticConfigs();
+    const ClangDiagnosticConfigs configs = ClangdSettings::instance().customDiagnosticConfigs();
 
     ClangDiagnosticConfigs tidyClazyConfigs;
     ClangDiagnosticConfigs clangOnlyConfigs;
@@ -132,12 +133,6 @@ ClangDiagnosticConfigs importDiagnosticConfigsFromCodeModel()
               return !config.clazyChecks().isEmpty()
                   || (!config.clangTidyChecks().isEmpty() && config.clangTidyChecks() != "-*");
           });
-
-    if (!tidyClazyConfigs.isEmpty()) {
-        codeModelSettings()->setClangCustomDiagnosticConfigs(clangOnlyConfigs);
-        codeModelSettings()->toSettings(Core::ICore::settings());
-    }
-
     return tidyClazyConfigs;
 }
 

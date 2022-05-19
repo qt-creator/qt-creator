@@ -54,9 +54,6 @@ static Id initialClangDiagnosticConfigId()
 static CppCodeModelSettings::PCHUsage initialPchUsage()
 { return CppCodeModelSettings::PchUse_BuildSystem; }
 
-static QString clangDiagnosticConfigKey()
-{ return QStringLiteral("ClangDiagnosticConfig"); }
-
 static QString enableLowerClazyLevelsKey()
 { return QLatin1String("enableLowerClazyLevels"); }
 
@@ -83,6 +80,7 @@ static QString clangdSizeThresholdEnabledKey() { return QLatin1String("ClangdSiz
 static QString clangdSizeThresholdKey() { return QLatin1String("ClangdSizeThreshold"); }
 static QString clangdUseGlobalSettingsKey() { return QLatin1String("useGlobalSettings"); }
 static QString sessionsWithOneClangdKey() { return QLatin1String("SessionsWithOneClangd"); }
+static QString diagnosticConfigIdKey() { return QLatin1String("diagnosticConfigId"); }
 
 static FilePath g_defaultClangdFilePath;
 static FilePath fallbackClangdFilePath()
@@ -92,90 +90,9 @@ static FilePath fallbackClangdFilePath()
     return "clangd";
 }
 
-static Id clangDiagnosticConfigIdFromSettings(QSettings *s)
-{
-    QTC_ASSERT(s->group() == QLatin1String(Constants::CPPEDITOR_SETTINGSGROUP), return Id());
-
-    return Id::fromSetting(
-        s->value(clangDiagnosticConfigKey(), initialClangDiagnosticConfigId().toSetting()));
-}
-
-// Removed since Qt Creator 4.11
-static ClangDiagnosticConfigs removedBuiltinConfigs()
-{
-    ClangDiagnosticConfigs configs;
-
-    // Pedantic
-    ClangDiagnosticConfig config;
-    config.setId("Builtin.Pedantic");
-    config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
-                                                      "Pedantic checks"));
-    config.setIsReadOnly(true);
-    config.setClangOptions(QStringList{QStringLiteral("-Wpedantic")});
-    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
-    config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
-    configs << config;
-
-    // Everything with exceptions
-    config = ClangDiagnosticConfig();
-    config.setId("Builtin.EverythingWithExceptions");
-    config.setDisplayName(QCoreApplication::translate(
-                              "ClangDiagnosticConfigsModel",
-                              "Checks for almost everything"));
-    config.setIsReadOnly(true);
-    config.setClangOptions(QStringList{
-        QStringLiteral("-Weverything"),
-        QStringLiteral("-Wno-c++98-compat"),
-        QStringLiteral("-Wno-c++98-compat-pedantic"),
-        QStringLiteral("-Wno-unused-macros"),
-        QStringLiteral("-Wno-newline-eof"),
-        QStringLiteral("-Wno-exit-time-destructors"),
-        QStringLiteral("-Wno-global-constructors"),
-        QStringLiteral("-Wno-gnu-zero-variadic-macro-arguments"),
-        QStringLiteral("-Wno-documentation"),
-        QStringLiteral("-Wno-shadow"),
-        QStringLiteral("-Wno-switch-enum"),
-        QStringLiteral("-Wno-missing-prototypes"), // Not optimal for C projects.
-        QStringLiteral("-Wno-used-but-marked-unused"), // e.g. QTest::qWait
-    });
-    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
-    config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
-    configs << config;
-
-    return configs;
-}
-
-static ClangDiagnosticConfig convertToCustomConfig(const Id &id)
-{
-    const ClangDiagnosticConfig config
-        = findOrDefault(removedBuiltinConfigs(), [id](const ClangDiagnosticConfig &config) {
-              return config.id() == id;
-          });
-    return ClangDiagnosticConfigsModel::createCustomConfig(config, config.displayName());
-}
-
 void CppCodeModelSettings::fromSettings(QSettings *s)
 {
     s->beginGroup(QLatin1String(Constants::CPPEDITOR_SETTINGSGROUP));
-
-    setClangCustomDiagnosticConfigs(diagnosticConfigsFromSettings(s));
-    setClangDiagnosticConfigId(clangDiagnosticConfigIdFromSettings(s));
-
-    // Qt Creator 4.11 removes some built-in configs.
-    bool write = false;
-    const Id id = m_clangDiagnosticConfigId;
-    if (id == "Builtin.Pedantic" || id == "Builtin.EverythingWithExceptions") {
-        // If one of them was used, continue to use it, but convert it to a custom config.
-        const ClangDiagnosticConfig customConfig = convertToCustomConfig(id);
-        m_clangCustomDiagnosticConfigs.append(customConfig);
-        m_clangDiagnosticConfigId = customConfig.id();
-        write = true;
-    }
-
-    // Before Qt Creator 4.8, inconsistent settings might have been written.
-    const ClangDiagnosticConfigsModel model = diagnosticConfigsModel(m_clangCustomDiagnosticConfigs);
-    if (!model.hasConfigWithId(m_clangDiagnosticConfigId))
-        setClangDiagnosticConfigId(initialClangDiagnosticConfigId());
 
     setEnableLowerClazyLevels(s->value(enableLowerClazyLevelsKey(), true).toBool());
 
@@ -194,21 +111,13 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
 
     s->endGroup();
 
-    if (write)
-        toSettings(s);
-
     emit changed();
 }
 
 void CppCodeModelSettings::toSettings(QSettings *s)
 {
     s->beginGroup(QLatin1String(Constants::CPPEDITOR_SETTINGSGROUP));
-    const ClangDiagnosticConfigs previousConfigs = diagnosticConfigsFromSettings(s);
-    const Id previousConfigId = clangDiagnosticConfigIdFromSettings(s);
 
-    diagnosticConfigsToSettings(s, m_clangCustomDiagnosticConfigs);
-
-    s->setValue(clangDiagnosticConfigKey(), clangDiagnosticConfigId().toSetting());
     s->setValue(enableLowerClazyLevelsKey(), enableLowerClazyLevels());
     s->setValue(pchUsageKey(), pchUsage());
 
@@ -218,51 +127,7 @@ void CppCodeModelSettings::toSettings(QSettings *s)
 
     s->endGroup();
 
-    QVector<Id> invalidated
-        = ClangDiagnosticConfigsModel::changedOrRemovedConfigs(previousConfigs,
-                                                               m_clangCustomDiagnosticConfigs);
-
-    if (previousConfigId != clangDiagnosticConfigId() && !invalidated.contains(previousConfigId))
-        invalidated.append(previousConfigId);
-
-    if (!invalidated.isEmpty())
-        emit clangDiagnosticConfigsInvalidated(invalidated);
     emit changed();
-}
-
-Id CppCodeModelSettings::clangDiagnosticConfigId() const
-{
-    if (!diagnosticConfigsModel().hasConfigWithId(m_clangDiagnosticConfigId))
-        return defaultClangDiagnosticConfigId();
-    return m_clangDiagnosticConfigId;
-}
-
-void CppCodeModelSettings::setClangDiagnosticConfigId(const Id &configId)
-{
-    m_clangDiagnosticConfigId = configId;
-}
-
-Id CppCodeModelSettings::defaultClangDiagnosticConfigId()
-{
-    return initialClangDiagnosticConfigId();
-}
-
-const ClangDiagnosticConfig CppCodeModelSettings::clangDiagnosticConfig() const
-{
-    const ClangDiagnosticConfigsModel configsModel = diagnosticConfigsModel(
-        m_clangCustomDiagnosticConfigs);
-
-    return configsModel.configWithId(clangDiagnosticConfigId());
-}
-
-ClangDiagnosticConfigs CppCodeModelSettings::clangCustomDiagnosticConfigs() const
-{
-    return m_clangCustomDiagnosticConfigs;
-}
-
-void CppCodeModelSettings::setClangCustomDiagnosticConfigs(const ClangDiagnosticConfigs &configs)
-{
-    m_clangCustomDiagnosticConfigs = configs;
 }
 
 CppCodeModelSettings::PCHUsage CppCodeModelSettings::pchUsage() const
@@ -346,6 +211,14 @@ void ClangdSettings::setDefaultClangdPath(const FilePath &filePath)
     g_defaultClangdFilePath = filePath;
 }
 
+void ClangdSettings::setCustomDiagnosticConfigs(const ClangDiagnosticConfigs &configs)
+{
+    if (instance().customDiagnosticConfigs() == configs)
+        return;
+    instance().m_data.customDiagnosticConfigs = configs;
+    instance().saveSettings();
+}
+
 FilePath ClangdSettings::clangdFilePath() const
 {
     if (!m_data.executableFilePath.isEmpty())
@@ -356,6 +229,23 @@ FilePath ClangdSettings::clangdFilePath() const
 bool ClangdSettings::sizeIsOkay(const Utils::FilePath &fp) const
 {
     return !sizeThresholdEnabled() || sizeThresholdInKb() * 1024 >= fp.fileSize();
+}
+
+ClangDiagnosticConfigs ClangdSettings::customDiagnosticConfigs() const
+{
+    return m_data.customDiagnosticConfigs;
+}
+
+Id ClangdSettings::diagnosticConfigId() const
+{
+    if (!diagnosticConfigsModel().hasConfigWithId(m_data.diagnosticConfigId))
+        return initialClangDiagnosticConfigId();
+    return m_data.diagnosticConfigId;
+}
+
+ClangDiagnosticConfig ClangdSettings::diagnosticConfig() const
+{
+    return diagnosticConfigsModel(customDiagnosticConfigs()).configWithId(diagnosticConfigId());
 }
 
 ClangdSettings::Granularity ClangdSettings::granularity() const
@@ -428,12 +318,30 @@ FilePath ClangdSettings::clangdUserConfigFilePath()
 
 void ClangdSettings::loadSettings()
 {
-    Utils::fromSettings(clangdSettingsKey(), {}, Core::ICore::settings(), &m_data);
+    const auto settings = Core::ICore::settings();
+    Utils::fromSettings(clangdSettingsKey(), {}, settings, &m_data);
+
+    settings->beginGroup(QLatin1String(Constants::CPPEDITOR_SETTINGSGROUP));
+    m_data.customDiagnosticConfigs = diagnosticConfigsFromSettings(settings);
+
+    // Pre-8.0 compat
+    static const QString oldKey("ClangDiagnosticConfig");
+    const QVariant configId = settings->value(oldKey);
+    if (configId.isValid()) {
+        m_data.diagnosticConfigId = Id::fromSetting(configId);
+        settings->setValue(oldKey, {});
+    }
+
+    settings->endGroup();
 }
 
 void ClangdSettings::saveSettings()
 {
-    Utils::toSettings(clangdSettingsKey(), {}, Core::ICore::settings(), &m_data);
+    const auto settings = Core::ICore::settings();
+    Utils::toSettings(clangdSettingsKey(), {}, settings, &m_data);
+    settings->beginGroup(QLatin1String(Constants::CPPEDITOR_SETTINGSGROUP));
+    diagnosticConfigsToSettings(settings, m_data.customDiagnosticConfigs);
+    settings->endGroup();
 }
 
 #ifdef WITH_TESTS
@@ -459,6 +367,9 @@ ClangdSettings::Data ClangdProjectSettings::settings() const
     // This property is global by definition.
     data.sessionsWithOneClangd = ClangdSettings::instance().data().sessionsWithOneClangd;
 
+    // This list exists only once.
+    data.customDiagnosticConfigs = ClangdSettings::instance().data().customDiagnosticConfigs;
+
     return data;
 }
 
@@ -466,6 +377,7 @@ void ClangdProjectSettings::setSettings(const ClangdSettings::Data &data)
 {
     m_customSettings = data;
     saveSettings();
+    ClangdSettings::setCustomDiagnosticConfigs(data.customDiagnosticConfigs);
     emit ClangdSettings::instance().changed();
 }
 
@@ -474,6 +386,12 @@ void ClangdProjectSettings::setUseGlobalSettings(bool useGlobal)
     m_useGlobalSettings = useGlobal;
     saveSettings();
     emit ClangdSettings::instance().changed();
+}
+
+void ClangdProjectSettings::setDiagnosticConfigId(Utils::Id configId)
+{
+    m_customSettings.diagnosticConfigId = configId;
+    saveSettings();
 }
 
 void ClangdProjectSettings::loadSettings()
@@ -511,6 +429,7 @@ QVariantMap ClangdSettings::Data::toMap() const
     map.insert(clangdSizeThresholdEnabledKey(), sizeThresholdEnabled);
     map.insert(clangdSizeThresholdKey(), sizeThresholdInKb);
     map.insert(sessionsWithOneClangdKey(), sessionsWithOneClangd);
+    map.insert(diagnosticConfigIdKey(), diagnosticConfigId.toSetting());
     return map;
 }
 
@@ -525,6 +444,8 @@ void ClangdSettings::Data::fromMap(const QVariantMap &map)
     sizeThresholdEnabled = map.value(clangdSizeThresholdEnabledKey(), false).toBool();
     sizeThresholdInKb = map.value(clangdSizeThresholdKey(), 1024).toLongLong();
     sessionsWithOneClangd = map.value(sessionsWithOneClangdKey()).toStringList();
+    diagnosticConfigId = Id::fromSetting(map.value(diagnosticConfigIdKey(),
+                                                   initialClangDiagnosticConfigId().toSetting()));
 }
 
 } // namespace CppEditor

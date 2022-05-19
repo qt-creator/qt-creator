@@ -33,6 +33,7 @@
 
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -41,20 +42,15 @@ namespace CppEditor {
 
 ClangDiagnosticConfigsSelectionWidget::ClangDiagnosticConfigsSelectionWidget(QWidget *parent)
     : QWidget(parent)
-    , m_label(new QLabel(tr("Diagnostic configuration:")))
-    , m_button(new QPushButton)
 {
-    auto *layout = new QHBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    setLayout(layout);
-    layout->addWidget(m_label);
-    layout->addWidget(m_button, 1);
-    layout->addStretch();
+    setUpUi(true);
+}
 
-    connect(m_button,
-            &QPushButton::clicked,
-            this,
-            &ClangDiagnosticConfigsSelectionWidget::onButtonClicked);
+ClangDiagnosticConfigsSelectionWidget::ClangDiagnosticConfigsSelectionWidget(
+        QFormLayout *parentLayout)
+{
+    setUpUi(false);
+    parentLayout->addRow(label(), this);
 }
 
 void ClangDiagnosticConfigsSelectionWidget::refresh(const ClangDiagnosticConfigsModel &model,
@@ -77,6 +73,25 @@ Utils::Id ClangDiagnosticConfigsSelectionWidget::currentConfigId() const
 ClangDiagnosticConfigs ClangDiagnosticConfigsSelectionWidget::customConfigs() const
 {
     return m_diagnosticConfigsModel.customConfigs();
+}
+
+QString ClangDiagnosticConfigsSelectionWidget::label() const
+{
+    return tr("Diagnostic configuration:");
+}
+
+void ClangDiagnosticConfigsSelectionWidget::setUpUi(bool withLabel)
+{
+    m_button = new QPushButton;
+    const auto layout = new QHBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
+    if (withLabel)
+        layout->addWidget(new QLabel(label()));
+    layout->addWidget(m_button);
+    layout->addStretch();
+
+    connect(m_button, &QPushButton::clicked,
+            this, &ClangDiagnosticConfigsSelectionWidget::onButtonClicked);
 }
 
 void ClangDiagnosticConfigsSelectionWidget::onButtonClicked()

@@ -25,9 +25,11 @@
 
 #pragma once
 
-#include "clangdiagnosticconfigsmodel.h"
+#include "clangdiagnosticconfig.h"
+#include "cppeditor_global.h"
 
 #include <utils/fileutils.h>
+#include <utils/id.h>
 
 #include <QObject>
 #include <QStringList>
@@ -56,14 +58,6 @@ public:
     void toSettings(QSettings *s);
 
 public:
-    Utils::Id clangDiagnosticConfigId() const;
-    void setClangDiagnosticConfigId(const Utils::Id &configId);
-    static Utils::Id defaultClangDiagnosticConfigId() ;
-    const ClangDiagnosticConfig clangDiagnosticConfig() const;
-
-    ClangDiagnosticConfigs clangCustomDiagnosticConfigs() const;
-    void setClangCustomDiagnosticConfigs(const ClangDiagnosticConfigs &configs);
-
     bool enableLowerClazyLevels() const;
     void setEnableLowerClazyLevels(bool yesno);
 
@@ -91,8 +85,6 @@ private:
     bool m_interpretAmbigiousHeadersAsCHeaders = false;
     bool m_skipIndexingBigFiles = true;
     int m_indexerFileSizeLimitInMB = 5;
-    ClangDiagnosticConfigs m_clangCustomDiagnosticConfigs;
-    Utils::Id m_clangDiagnosticConfigId;
     bool m_enableLowerClazyLevels = true; // For UI behavior only
     bool m_categorizeFindReferences = false; // Ephemeral!
 };
@@ -112,6 +104,8 @@ public:
             return s1.useClangd == s2.useClangd
                     && s1.executableFilePath == s2.executableFilePath
                     && s1.sessionsWithOneClangd == s2.sessionsWithOneClangd
+                    && s1.customDiagnosticConfigs == s2.customDiagnosticConfigs
+                    && s1.diagnosticConfigId == s2.diagnosticConfigId
                     && s1.workerThreadLimit == s2.workerThreadLimit
                     && s1.enableIndexing == s2.enableIndexing
                     && s1.autoIncludeHeaders == s2.autoIncludeHeaders
@@ -123,6 +117,8 @@ public:
 
         Utils::FilePath executableFilePath;
         QStringList sessionsWithOneClangd;
+        ClangDiagnosticConfigs customDiagnosticConfigs;
+        Utils::Id diagnosticConfigId;
         int workerThreadLimit = 0;
         int documentUpdateThreshold = 500;
         qint64 sizeThresholdInKb = 1024;
@@ -138,6 +134,7 @@ public:
     bool useClangd() const;
 
     static void setDefaultClangdPath(const Utils::FilePath &filePath);
+    static void setCustomDiagnosticConfigs(const ClangDiagnosticConfigs &configs);
     Utils::FilePath clangdFilePath() const;
     bool indexingEnabled() const { return m_data.enableIndexing; }
     bool autoIncludeHeaders() const { return m_data.autoIncludeHeaders; }
@@ -146,6 +143,9 @@ public:
     qint64 sizeThresholdInKb() const { return m_data.sizeThresholdInKb; }
     bool sizeThresholdEnabled() const { return m_data.sizeThresholdEnabled; }
     bool sizeIsOkay(const Utils::FilePath &fp) const;
+    ClangDiagnosticConfigs customDiagnosticConfigs() const;
+    Utils::Id diagnosticConfigId() const;
+    ClangDiagnosticConfig diagnosticConfig() const;
 
     enum class Granularity { Project, Session };
     Granularity granularity() const;
@@ -184,6 +184,7 @@ public:
     void setSettings(const ClangdSettings::Data &data);
     bool useGlobalSettings() const { return m_useGlobalSettings; }
     void setUseGlobalSettings(bool useGlobal);
+    void setDiagnosticConfigId(Utils::Id configId);
 
 private:
     void loadSettings();

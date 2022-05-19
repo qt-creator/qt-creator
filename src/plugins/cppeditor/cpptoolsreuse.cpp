@@ -25,6 +25,7 @@
 
 #include "cpptoolsreuse.h"
 
+#include "clangdiagnosticconfigsmodel.h"
 #include "cppautocompleter.h"
 #include "cppcodemodelsettings.h"
 #include "cppeditorconstants.h"
@@ -423,7 +424,7 @@ ClangDiagnosticConfigsModel diagnosticConfigsModel(const ClangDiagnosticConfigs 
 
 ClangDiagnosticConfigsModel diagnosticConfigsModel()
 {
-    return diagnosticConfigsModel(codeModelSettings()->clangCustomDiagnosticConfigs());
+    return diagnosticConfigsModel(ClangdSettings::instance().customDiagnosticConfigs());
 }
 
 NSVisitor::NSVisitor(const CppRefactoringFile *file, const QStringList &namespaces, int symbolPos)

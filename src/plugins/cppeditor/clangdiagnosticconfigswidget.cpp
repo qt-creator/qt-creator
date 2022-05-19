@@ -25,7 +25,7 @@
 
 #include "clangdiagnosticconfigswidget.h"
 
-#include "cppcodemodelsettings.h"
+#include "clangdiagnosticconfigsmodel.h"
 #include "ui_clangdiagnosticconfigswidget.h"
 #include "ui_clangbasechecks.h"
 

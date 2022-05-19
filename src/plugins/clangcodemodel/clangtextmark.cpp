@@ -30,7 +30,6 @@
 #include "clangdiagnostictooltipwidget.h"
 #include "clangeditordocumentprocessor.h"
 #include "clangmodelmanagersupport.h"
-#include "clangprojectsettings.h"
 #include "clangutils.h"
 
 #include <coreplugin/icore.h>
@@ -113,33 +112,18 @@ void disableDiagnosticInConfig(ClangDiagnosticConfig &config, const ClangDiagnos
     }
 }
 
-ClangDiagnosticConfig diagnosticConfig(const ClangProjectSettings &projectSettings,
-                                       const CppCodeModelSettings &globalSettings)
+ClangDiagnosticConfig diagnosticConfig()
 {
     Project *project = projectForCurrentEditor();
     QTC_ASSERT(project, return {});
-
-    // Get config id
-    Id currentConfigId = projectSettings.warningConfigId();
-    if (projectSettings.useGlobalConfig())
-        currentConfigId = globalSettings.clangDiagnosticConfigId();
-
-    // Get config
-    ClangDiagnosticConfigsModel configsModel = CppEditor::diagnosticConfigsModel();
-    QTC_ASSERT(configsModel.hasConfigWithId(currentConfigId), return {});
-    return configsModel.configWithId(currentConfigId);
+    return warningsConfigForProject(project);
 }
 
 bool isDiagnosticConfigChangable(Project *project, const ClangDiagnostic &diagnostic)
 {
     if (!project)
         return false;
-
-    ClangProjectSettings &projectSettings = ClangModelManagerSupport::instance()->projectSettings(
-        project);
-    const CppCodeModelSettings *globalSettings = codeModelSettings();
-    const ClangDiagnosticConfig config = diagnosticConfig(projectSettings, *globalSettings);
-
+    const ClangDiagnosticConfig config = diagnosticConfig();
     if (config.clangTidyMode() == ClangDiagnosticConfig::TidyMode::UseConfigFile
         && diagnosticType(diagnostic) == DiagnosticType::Tidy) {
         return false;
@@ -152,13 +136,8 @@ void disableDiagnosticInCurrentProjectConfig(const ClangDiagnostic &diagnostic)
     Project *project = projectForCurrentEditor();
     QTC_ASSERT(project, return );
 
-    // Get settings
-    ClangProjectSettings &projectSettings = ClangModelManagerSupport::instance()->projectSettings(
-        project);
-    CppCodeModelSettings *globalSettings = codeModelSettings();
-
     // Get config
-    ClangDiagnosticConfig config = diagnosticConfig(projectSettings, *globalSettings);
+    ClangDiagnosticConfig config = diagnosticConfig();
     ClangDiagnosticConfigsModel configsModel = CppEditor::diagnosticConfigsModel();
 
     // Create copy if needed
@@ -174,14 +153,13 @@ void disableDiagnosticInCurrentProjectConfig(const ClangDiagnostic &diagnostic)
     configsModel.appendOrUpdate(config);
 
     // Set global settings
-    globalSettings->setClangCustomDiagnosticConfigs(configsModel.customConfigs());
-    globalSettings->toSettings(Core::ICore::settings());
+    ClangdSettings::setCustomDiagnosticConfigs(configsModel.customConfigs());
 
     // Set project settings
-    if (projectSettings.useGlobalConfig())
-        projectSettings.setUseGlobalConfig(false);
-    projectSettings.setWarningConfigId(config.id());
-    projectSettings.store();
+    ClangdProjectSettings projectSettings(project);
+    if (projectSettings.useGlobalSettings())
+        projectSettings.setUseGlobalSettings(false);
+    projectSettings.setDiagnosticConfigId(config.id());
 
     // Notify the user about changed project specific settings
     const QString text

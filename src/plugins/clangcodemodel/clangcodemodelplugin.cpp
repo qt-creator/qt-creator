@@ -26,7 +26,6 @@
 #include "clangcodemodelplugin.h"
 
 #include "clangconstants.h"
-#include "clangprojectsettingswidget.h"
 #include "clangutils.h"
 
 #ifdef WITH_TESTS
@@ -42,6 +41,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <cppeditor/clangdiagnosticconfig.h>
 #include <cppeditor/cppmodelmanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -58,16 +58,6 @@ using namespace Utils;
 namespace ClangCodeModel {
 namespace Internal {
 
-static void addProjectPanelWidget()
-{
-    auto panelFactory = new ProjectExplorer::ProjectPanelFactory();
-    panelFactory->setPriority(60);
-    panelFactory->setDisplayName(ClangProjectSettingsWidget::tr("Clang Code Model"));
-    panelFactory->setCreateWidgetFunction(
-        [&](ProjectExplorer::Project *project) { return new ClangProjectSettingsWidget(project); });
-    ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
-}
-
 void ClangCodeModelPlugin::generateCompilationDB()
 {
     using namespace CppEditor;
@@ -80,13 +70,11 @@ void ClangCodeModelPlugin::generateCompilationDB()
     if (!projectInfo)
         return;
 
-    const CppEditor::ClangDiagnosticConfig warningsConfig
-            = warningsConfigForProject(target->project());
     QFuture<GenerateCompilationDbResult> task
             = Utils::runAsync(&Internal::generateCompilationDB, projectInfo,
                               projectInfo->buildRoot(), CompilationDbPurpose::Project,
-                              warningsConfig,
-                              optionsForProject(target->project(), warningsConfig),
+                              warningsConfigForProject(target->project()),
+                              globalClangOptions(),
                               FilePath());
     Core::ProgressManager::addTask(task, tr("Generating Compilation DB"), "generate compilation db");
     m_generatorWatcher.setFuture(task);
@@ -120,8 +108,6 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
             &ClangCodeModelPlugin::maybeHandleBatchFileAndExit);
 
     CppEditor::CppModelManager::instance()->activateClangCodeModel(&m_modelManagerSupportProvider);
-
-    addProjectPanelWidget();
 
     createCompilationDBButton();
 

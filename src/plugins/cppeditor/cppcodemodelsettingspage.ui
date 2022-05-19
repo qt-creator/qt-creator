@@ -87,49 +87,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Clang Code Model</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <item>
-       <widget class="QLabel" name="clangCodeModelIsEnabledHint">
-        <property name="text">
-         <string>&lt;i&gt;The Clang Code Model is enabled because the corresponding plugin is loaded.&lt;/i&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="clangCodeModelIsDisabledHint">
-        <property name="text">
-         <string>&lt;i&gt;The Clang Code Model is disabled because the corresponding plugin is not loaded.&lt;/i&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="CppEditor::ClangDiagnosticConfigsSelectionWidget" name="clangDiagnosticConfigsSelectionWidget" native="true"/>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -144,13 +101,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>CppEditor::ClangDiagnosticConfigsSelectionWidget</class>
-   <extends>QWidget</extends>
-   <header>cppeditor/clangdiagnosticconfigsselectionwidget.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>
