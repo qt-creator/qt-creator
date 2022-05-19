@@ -543,7 +543,7 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
     }
 
     QString result;
-    foreach (const QChar &ch, text) {
+    for (const QChar &ch : qAsConst(text)) {
         if      (ch == QLatin1Char('('))  result += QLatin1Char(')');
         else if (ch == QLatin1Char('['))  result += QLatin1Char(']');
         else if (ch == QLatin1Char('{'))  result += QLatin1Char('}');

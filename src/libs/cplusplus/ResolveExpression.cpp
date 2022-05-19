@@ -59,7 +59,7 @@ static QList<T> removeDuplicates(const QList<T> &results)
 {
     QList<T> uniqueList;
     QSet<T> processed;
-    foreach (const T &r, results) {
+    for (const T &r : results) {
         if (processed.contains(r))
             continue;
 
@@ -160,7 +160,7 @@ private:
                      Scope **scope, QSet<Symbol *>& visited)
     {
         bool foundTypedef = false;
-        foreach (const LookupItem &it, namedTypeItems) {
+        for (const LookupItem &it : namedTypeItems) {
             Symbol *declaration = it.declaration();
             if (declaration && declaration->isTypedef()) {
                 if (visited.contains(declaration))
@@ -281,7 +281,7 @@ QList<LookupItem> ResolveExpression::switchResults(const QList<LookupItem> &resu
 
 void ResolveExpression::addResults(const QList<Symbol *> &symbols)
 {
-    foreach (Symbol *symbol, symbols) {
+    for (Symbol *symbol : symbols) {
         LookupItem item;
         item.setType(symbol->type());
         item.setScope(symbol->enclosingScope());
@@ -603,7 +603,8 @@ bool ResolveExpression::visit(UnaryExpressionAST *ast)
             } else if (namedTy != nullptr) {
                 const Name *starOp = control()->operatorNameId(OperatorNameId::StarOp);
                 if (ClassOrNamespace *b = _context.lookupType(namedTy->name(), p.scope(), p.binding())) {
-                    foreach (const LookupItem &r, b->find(starOp)) {
+                    const QList<LookupItem> results = b->find(starOp);
+                    for (const LookupItem &r : results) {
                         Symbol *overload = r.declaration();
                         if (Function *funTy = overload->type()->asFunctionType()) {
                             if (maybeValidPrototype(funTy, 0)) {
@@ -841,7 +842,7 @@ bool ResolveExpression::visit(CallAST *ast)
     if (_reference) {
         typedef std::multimap<int, LookupItem> LookupMap;
         LookupMap sortedResults;
-        foreach (const LookupItem &base, baseResults) {
+        for (const LookupItem &base : baseResults) {
             if (Function *funTy = base.type()->asFunctionType()) {
                 if (! maybeValidPrototype(funTy, actualArgumentCount))
                     continue;
@@ -874,7 +875,7 @@ bool ResolveExpression::visit(CallAST *ast)
 
     const Name *functionCallOp = control()->operatorNameId(OperatorNameId::FunctionCallOp);
 
-    foreach (const LookupItem &result, baseResults) {
+    for (const LookupItem &result : baseResults) {
         FullySpecifiedType ty = result.type().simplified();
         Scope *scope = result.scope();
 
@@ -885,7 +886,8 @@ bool ResolveExpression::visit(CallAST *ast)
                     addResult(ty.simplified(), scope);
                 } else {
                     // operator()
-                    foreach (const LookupItem &r, b->find(functionCallOp)) {
+                    const QList<LookupItem> results = b->find(functionCallOp);
+                    for (const LookupItem &r : results) {
                         Symbol *overload = r.declaration();
                         if (Function *funTy = overload->type()->asFunctionType()) {
                             if (maybeValidPrototype(funTy, actualArgumentCount)) {
@@ -931,7 +933,7 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
     const QList<LookupItem> baseResults = resolve(ast->base_expression, _scope);
     const Name *arrayAccessOp = control()->operatorNameId(OperatorNameId::ArrayAccessOp);
 
-    foreach (const LookupItem &result, baseResults) {
+    for (const LookupItem &result : baseResults) {
         FullySpecifiedType ty = result.type().simplified();
         Scope *scope = result.scope();
 
@@ -946,7 +948,8 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
 
         } else if (NamedType *namedTy = ty->asNamedType()) {
             if (ClassOrNamespace *b = _context.lookupType(namedTy->name(), scope)) {
-                foreach (const LookupItem &r, b->find(arrayAccessOp)) {
+                const QList<LookupItem> results = b->find(arrayAccessOp);
+                for (const LookupItem &r : results) {
                     Symbol *overload = r.declaration();
                     if (Function *funTy = overload->type()->asFunctionType()) {
                         // ### TODO: check the actual arguments
@@ -970,7 +973,7 @@ QList<LookupItem> ResolveExpression::getMembers(ClassOrNamespace *binding, const
 #if 0
     const QList<LookupItem> originalMembers = binding->find(memberName);
 
-    foreach (const LookupItem &m, originalMembers) {
+    for (const LookupItem &m, originalMembers) {
         if (! m.binding() || ! m.binding()->templateId()) {
             members.append(m);
             continue;
@@ -1067,7 +1070,7 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
     Overview oo;
     TypedefsResolver typedefsResolver(_context);
 
-    foreach (const LookupItem &r, baseResults) {
+    for (const LookupItem &r : baseResults) {
         if (!r.type().type() || !r.scope())
             continue;
         FullySpecifiedType ty = r.type().simplified();
@@ -1113,7 +1116,8 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
 
                     const OperatorNameId *arrowOp
                             = control()->operatorNameId(OperatorNameId::ArrowOp);
-                    foreach (const LookupItem &r, binding->find(arrowOp)) {
+                    const QList<LookupItem> results = binding->find(arrowOp);
+                    for (const LookupItem &r : results) {
                         Symbol *overload = r.declaration();
                         if (! overload)
                             continue;
@@ -1157,7 +1161,8 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                             }
 
                             if (ClassOrNamespace *origin = binding->instantiationOrigin()) {
-                                foreach (Symbol *originSymbol, origin->symbols()) {
+                                const QList<Symbol *> symbols = origin->symbols();
+                                for (Symbol *originSymbol : symbols) {
                                     Scope *originScope = originSymbol->asScope();
                                     if (originScope && originScope != scope
                                             && originScope != functionScope) {
@@ -1204,7 +1209,8 @@ ClassOrNamespace *ResolveExpression::findClassForTemplateParameterInExpressionSc
 {
     if (resultBinding) {
         if (ClassOrNamespace *origin = resultBinding->instantiationOrigin()) {
-            foreach (Symbol *originSymbol, origin->symbols()) {
+            const QList<Symbol *> symbols = origin->symbols();
+            for (Symbol *originSymbol : symbols) {
                 if (Scope *originScope = originSymbol->asScope()) {
                     if (ClassOrNamespace *retBinding = findClass(ty, originScope))
                         return retBinding;
@@ -1233,7 +1239,7 @@ bool ResolveExpression::visit(ObjCMessageExpressionAST *ast)
 {
     const QList<LookupItem> receiverResults = resolve(ast->receiver_expression, _scope);
 
-    foreach (const LookupItem &result, receiverResults) {
+    for (const LookupItem &result : receiverResults) {
         FullySpecifiedType ty = result.type().simplified();
         ClassOrNamespace *binding = nullptr;
 
@@ -1250,7 +1256,8 @@ bool ResolveExpression::visit(ObjCMessageExpressionAST *ast)
         }
 
         if (binding) {
-            foreach (const LookupItem &r, binding->lookup(ast->selector->name)) {
+            const QList<LookupItem> results = binding->lookup(ast->selector->name);
+            for (const LookupItem &r : results) {
                 Symbol *s = r.declaration();
                 if (ObjCMethod *m = s->asObjCMethod())
                     addResult(m->returnType(), result.scope());

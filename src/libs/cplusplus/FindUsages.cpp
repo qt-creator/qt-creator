@@ -839,7 +839,8 @@ void FindUsages::memInitializer(MemInitializerAST *ast)
         Class *classScope = _currentScope->enclosingClass();
         if (! classScope) {
             if (ClassOrNamespace *binding = _context.lookupType(_currentScope)) {
-                foreach (Symbol *s, binding->symbols()) {
+                const QList<Symbol *> symbols = binding->symbols();
+                for (Symbol *s : symbols) {
                     if (Class *k = s->asClass()) {
                         classScope = k;
                         break;

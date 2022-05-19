@@ -79,7 +79,7 @@ void DependencyTable::build(QFutureInterfaceBase &futureInterface, const Snapsho
             QList<int> directIncludes;
             const QStringList documentIncludes = doc->includedFiles();
 
-            foreach (const QString &includedFile, documentIncludes) {
+            for (const QString &includedFile : documentIncludes) {
                 int index = fileIndex.value(Utils::FilePath::fromString(includedFile));
 
                 if (index == -1)
@@ -108,7 +108,8 @@ void DependencyTable::build(QFutureInterfaceBase &futureInterface, const Snapsho
             QBitArray bitmap = includeMap.value(i);
             QBitArray previousBitmap = bitmap;
 
-            foreach (int includedFileIndex, includes.value(i)) {
+            const QList<int> includedFileIndexes = includes.value(i);
+            for (const int includedFileIndex : includedFileIndexes) {
                 bitmap |= includeMap.value(includedFileIndex);
                 if (futureInterface.isCanceled())
                     return;

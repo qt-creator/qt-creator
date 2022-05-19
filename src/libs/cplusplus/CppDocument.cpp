@@ -356,7 +356,7 @@ QString Document::fileName() const
 QStringList Document::includedFiles() const
 {
     QStringList files;
-    foreach (const Include &i, _resolvedIncludes)
+    for (const Include &i : qAsConst(_resolvedIncludes))
         files.append(i.resolvedFileName());
     files.removeDuplicates();
     return files;
@@ -387,7 +387,7 @@ void Document::addMacroUse(const Macro &macro,
                  utf16charsOffset, utf16charsOffset + utf16charLength,
                  beginLine);
 
-    foreach (const MacroArgumentReference &actual, actuals) {
+    for (const MacroArgumentReference &actual : actuals) {
         const Block arg(actual.bytesOffset(),
                         actual.bytesOffset() + actual.bytesLength(),
                         actual.utf16charsOffset(),
@@ -555,7 +555,7 @@ Symbol *Document::lastVisibleSymbolAt(int line, int column) const
 
 const Macro *Document::findMacroDefinitionAt(int line) const
 {
-    foreach (const Macro &macro, _definedMacros) {
+    for (const Macro &macro : qAsConst(_definedMacros)) {
         if (macro.line() == line)
             return &macro;
     }
@@ -564,7 +564,7 @@ const Macro *Document::findMacroDefinitionAt(int line) const
 
 const Document::MacroUse *Document::findMacroUseAt(int utf16charsOffset) const
 {
-    foreach (const Document::MacroUse &use, _macroUses) {
+    for (const Document::MacroUse &use : qAsConst(_macroUses)) {
         if (use.containsUtf16charOffset(utf16charsOffset)
                 && (utf16charsOffset < use.utf16charsBegin() + use.macro().nameToQString().size())) {
             return &use;
@@ -575,7 +575,7 @@ const Document::MacroUse *Document::findMacroUseAt(int utf16charsOffset) const
 
 const Document::UndefinedMacroUse *Document::findUndefinedMacroUseAt(int utf16charsOffset) const
 {
-    foreach (const Document::UndefinedMacroUse &use, _undefinedMacroUses) {
+    for (const Document::UndefinedMacroUse &use : qAsConst(_undefinedMacroUses)) {
         if (use.containsUtf16charOffset(utf16charsOffset)
                 && (utf16charsOffset < use.utf16charsBegin()
                     + QString::fromUtf8(use.name(), use.name().size()).length()))
@@ -776,7 +776,7 @@ static QList<Macro> macrosDefinedUntilLine(const QList<Macro> &macros, int line)
 {
     QList<Macro> filtered;
 
-    foreach (const Macro &macro, macros) {
+    for (const Macro &macro : macros) {
         if (macro.line() <= line)
             filtered.append(macro);
         else
@@ -859,7 +859,8 @@ QList<Snapshot::IncludeLocation> Snapshot::includeLocationsOfDocument(const QStr
     QList<IncludeLocation> result;
     for (const_iterator cit = begin(), citEnd = end(); cit != citEnd; ++cit) {
         const Document::Ptr doc = cit.value();
-        foreach (const Document::Include &includeFile, doc->resolvedIncludes()) {
+        const QList<Document::Include> includeFiles = doc->resolvedIncludes();
+        for (const Document::Include &includeFile : includeFiles) {
             if (includeFile.resolvedFileName() == fileName)
                 result.append(qMakePair(doc, includeFile.line()));
         }
@@ -901,7 +902,8 @@ Snapshot Snapshot::simplified(Document::Ptr doc) const
 
     if (doc) {
         snapshot.insert(doc);
-        foreach (const QString &fileName, allIncludesForDocument(doc->fileName()))
+        const QSet<QString> fileNames = allIncludesForDocument(doc->fileName());
+        for (const QString &fileName : fileNames)
             if (Document::Ptr inc = document(fileName))
                 snapshot.insert(inc);
     }

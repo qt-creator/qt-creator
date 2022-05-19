@@ -128,7 +128,7 @@ Macro *Environment::bind(const Macro &macro)
 
 void Environment::addMacros(const QList<Macro> &macros)
 {
-    foreach (const Macro &macro, macros) {
+    for (const Macro &macro : macros) {
         bind(macro);
     }
 }

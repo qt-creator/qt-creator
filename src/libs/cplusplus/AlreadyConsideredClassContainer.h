@@ -48,7 +48,7 @@ public:
             return true;
 
         SafeMatcher matcher;
-        foreach (const T *existingItem, _container) {
+        for (const T *existingItem : qAsConst(_container)) {
             if (Matcher::match(existingItem, item, &matcher))
                 return true;
         }

@@ -1824,7 +1824,8 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
         if (macro.isFunctionLike()) {
             macroId += '(';
             bool fst = true;
-            foreach (const QByteArray &formal, macro.formals()) {
+            const QVector<QByteArray> formals = macro.formals();
+            for (const QByteArray &formal : formals) {
                 if (! fst)
                     macroId += ", ";
                 fst = false;
