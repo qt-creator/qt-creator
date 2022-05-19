@@ -482,6 +482,8 @@ void QmlDesignerPlugin::showDesigner()
     }
 
     d->shortCutManager.updateUndoActions(currentDesignDocument());
+
+    m_usageTimer.restart();
 }
 
 void QmlDesignerPlugin::hideDesigner()
@@ -494,6 +496,7 @@ void QmlDesignerPlugin::hideDesigner()
     d->shortCutManager.disconnectUndoActions(currentDesignDocument());
     d->documentManager.setCurrentDesignDocument(nullptr);
     d->shortCutManager.updateUndoActions(nullptr);
+    emitUsageStatisticsTime(QmlDesigner::Constants::EVENT_DESIGNMODE_TIME, m_usageTimer.elapsed());
 }
 
 void QmlDesignerPlugin::changeEditor()

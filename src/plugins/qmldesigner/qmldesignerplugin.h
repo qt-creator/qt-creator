@@ -35,6 +35,8 @@
 #include "shortcutmanager.h"
 #include <designeractionmanager.h>
 
+#include <QElapsedTimer>
+
 QT_FORWARD_DECLARE_CLASS(QQmlEngine)
 
 namespace Core {
@@ -116,6 +118,7 @@ private: // functions
 private: // variables
     QmlDesignerPluginPrivate *d = nullptr;
     static QmlDesignerPlugin *m_instance;
+    QElapsedTimer m_usageTimer;
 };
 
 } // namespace QmlDesigner
