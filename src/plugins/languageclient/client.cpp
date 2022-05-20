@@ -482,12 +482,13 @@ void Client::openDocument(TextEditor::TextDocument *document)
     }
 }
 
-void Client::sendMessage(const JsonRpcMessage &message, SendDocUpdates sendUpdates)
+void Client::sendMessage(const JsonRpcMessage &message, SendDocUpdates sendUpdates,
+                         Schedule semanticTokensSchedule)
 {
     QTC_ASSERT(m_clientInterface, return);
     QTC_ASSERT(m_state == Initialized, return);
     if (sendUpdates == SendDocUpdates::Send)
-        sendPostponedDocumentUpdates(Schedule::Delayed);
+        sendPostponedDocumentUpdates(semanticTokensSchedule);
     if (Utils::optional<ResponseHandler> responseHandler = message.responseHandler())
         m_responseHandlers[responseHandler->id] = responseHandler->callback;
     QString error;
@@ -749,7 +750,7 @@ void Client::documentContentsSaved(TextEditor::TextDocument *document)
                 TextDocumentIdentifier(DocumentUri::fromFilePath(document->filePath())));
     if (includeText)
         params.setText(document->plainText());
-    sendMessage(DidSaveTextDocumentNotification(params));
+    sendMessage(DidSaveTextDocumentNotification(params), SendDocUpdates::Send, Schedule::Now);
 }
 
 void Client::documentWillSave(Core::IDocument *document)

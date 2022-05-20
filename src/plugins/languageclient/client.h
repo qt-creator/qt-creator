@@ -102,7 +102,8 @@ public:
 
     enum class SendDocUpdates { Send, Ignore };
     void sendMessage(const LanguageServerProtocol::JsonRpcMessage &message,
-                     SendDocUpdates sendUpdates = SendDocUpdates::Send);
+                     SendDocUpdates sendUpdates = SendDocUpdates::Send,
+                     Schedule semanticTokensSchedule = Schedule::Delayed);
 
     void cancelRequest(const LanguageServerProtocol::MessageId &id);
 
