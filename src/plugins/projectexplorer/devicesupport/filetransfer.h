@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,45 +25,42 @@
 
 #pragma once
 
-#include "remotelinux_export.h"
-
-#include <projectexplorer/devicesupport/filetransferinterface.h>
-#include <projectexplorer/devicesupport/idevice.h>
+#include "../projectexplorer_export.h"
+#include "filetransferinterface.h"
+#include "idevicefwd.h"
 
 namespace Utils { class ProcessResultData; }
 
-namespace RemoteLinux {
+namespace ProjectExplorer {
 
-namespace Internal { class GenericLinuxDeviceTesterPrivate; }
+class FileTransferPrivate;
 
-class REMOTELINUX_EXPORT GenericLinuxDeviceTester : public ProjectExplorer::DeviceTester
+class PROJECTEXPLORER_EXPORT FileTransfer : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit GenericLinuxDeviceTester(QObject *parent = nullptr);
-    ~GenericLinuxDeviceTester() override;
+    FileTransfer();
+    ~FileTransfer();
 
-    void testDevice(const ProjectExplorer::IDevice::Ptr &deviceConfiguration) override;
-    void stopTest() override;
+    void setFilesToTransfer(const FilesToTransfer &files);
+    void setTransferMethod(FileTransferMethod method);
+    void setRsyncFlags(const QString &flags);
+
+    FileTransferMethod transferMethod() const;
+
+    void test(const ProjectExplorer::IDeviceConstPtr &onDevice);
+    void start();
+    void stop();
+
+    static QString transferMethodName(FileTransferMethod method);
+
+signals:
+    void progress(const QString &progressMessage);
+    void done(const Utils::ProcessResultData &resultData);
 
 private:
-    void testEcho();
-    void handleEchoDone();
-
-    void testUname();
-    void handleUnameDone();
-
-    void testPortsGatherer();
-    void handlePortsGathererError(const QString &message);
-    void handlePortsGathererDone();
-
-    void testFileTransfer(ProjectExplorer::FileTransferMethod method);
-    void handleFileTransferDone(const Utils::ProcessResultData &resultData);
-
-    void setFinished(ProjectExplorer::DeviceTester::TestResult result);
-
-    std::unique_ptr<Internal::GenericLinuxDeviceTesterPrivate> d;
+    FileTransferPrivate *d;
 };
 
-} // namespace RemoteLinux
+} // namespace ProjectExplorer

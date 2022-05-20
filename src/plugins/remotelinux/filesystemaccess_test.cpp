@@ -25,10 +25,10 @@
 
 #include "filesystemaccess_test.h"
 
-#include "filetransfer.h"
 #include "linuxdevice.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <utils/filepath.h>
 #include <utils/processinterface.h>
@@ -38,6 +38,8 @@
 #include <QRandomGenerator>
 #include <QTest>
 #include <QTimer>
+
+Q_DECLARE_METATYPE(ProjectExplorer::FileTransferMethod)
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -230,7 +232,6 @@ void FileSystemAccessTest::testFileTransfer()
 
     FileTransfer fileTransfer;
     fileTransfer.setTransferMethod(fileTransferMethod);
-    fileTransfer.setDevice(m_device);
 
     // Create and upload 1000 small files and one big file
     QTemporaryDir dirForFilesToUpload;

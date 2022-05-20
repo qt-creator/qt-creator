@@ -25,23 +25,19 @@
 
 #pragma once
 
-#include "remotelinux_export.h"
-
-#include <projectexplorer/devicesupport/idevicefwd.h>
+#include "../projectexplorer_export.h"
 
 #include <utils/filepath.h>
 
 namespace Utils { class ProcessResultData; }
 
-namespace RemoteLinux {
+namespace ProjectExplorer {
 
-class REMOTELINUX_EXPORT FileToTransfer
-{
-public:
-    Utils::FilePath m_source;
-    Utils::FilePath m_target;
+enum class FileTransferDirection {
+    Invalid,
+    Upload,
+    Download
 };
-using FilesToTransfer = QList<FileToTransfer>;
 
 enum class FileTransferMethod {
     Sftp,
@@ -49,38 +45,49 @@ enum class FileTransferMethod {
     Default = Sftp
 };
 
-class FileTransferPrivate;
+class PROJECTEXPLORER_EXPORT FileToTransfer
+{
+public:
+    Utils::FilePath m_source;
+    Utils::FilePath m_target;
 
-class REMOTELINUX_EXPORT FileTransfer : public QObject
+    FileTransferDirection direction() const;
+};
+
+using FilesToTransfer = QList<FileToTransfer>;
+
+class PROJECTEXPLORER_EXPORT FileTransferSetupData
+{
+public:
+    FilesToTransfer m_files; // When empty, do test instead of a real transfer
+    FileTransferMethod m_method = FileTransferMethod::Default;
+    QString m_rsyncFlags = defaultRsyncFlags();
+
+    static QString defaultRsyncFlags();
+};
+
+class PROJECTEXPLORER_EXPORT FileTransferInterface : public QObject
 {
     Q_OBJECT
-
-public:
-    FileTransfer();
-    ~FileTransfer();
-
-    void setDevice(const ProjectExplorer::IDeviceConstPtr &device);
-    void setTransferMethod(FileTransferMethod method);
-    void setFilesToTransfer(const FilesToTransfer &files);
-    void setRsyncFlags(const QString &flags);
-
-    FileTransferMethod transferMethod() const;
-
-    void test();
-    void start();
-    void stop();
-
-    static QString transferMethodName(FileTransferMethod method);
-    static QString defaultRsyncFlags();
 
 signals:
     void progress(const QString &progressMessage);
     void done(const Utils::ProcessResultData &resultData);
 
+protected:
+    FileTransferInterface(const FileTransferSetupData &setupData)
+        : m_setup(setupData) {}
+
+    void startFailed(const QString &errorString);
+
+    const FileTransferSetupData m_setup;
+
 private:
-    FileTransferPrivate *d;
+    FileTransferInterface() = delete;
+
+    virtual void start() = 0;
+
+    friend class FileTransferPrivate;
 };
 
-} // namespace RemoteLinux
-
-Q_DECLARE_METATYPE(RemoteLinux::FileTransferMethod)
+} // namespace ProjectExplorer

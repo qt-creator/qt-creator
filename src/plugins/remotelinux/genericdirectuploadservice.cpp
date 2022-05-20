@@ -25,9 +25,8 @@
 
 #include "genericdirectuploadservice.h"
 
-#include "filetransfer.h"
-
 #include <projectexplorer/deployablefile.h>
+#include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <utils/hostosinfo.h>
 #include <utils/processinterface.h>
@@ -310,7 +309,6 @@ void GenericDirectUploadService::uploadFiles()
                       deviceConfiguration()->filePath(file.remoteFilePath())});
     }
 
-    d->uploader.setDevice(deviceConfiguration());
     d->uploader.setFilesToTransfer(files);
     d->uploader.start();
 }

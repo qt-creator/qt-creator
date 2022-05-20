@@ -26,10 +26,10 @@
 #include "rsyncdeploystep.h"
 
 #include "abstractremotelinuxdeployservice.h"
-#include "filetransfer.h"
 #include "remotelinux_constants.h"
 
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
@@ -136,7 +136,6 @@ void RsyncDeployService::createRemoteDirectories()
 
 void RsyncDeployService::deployFiles()
 {
-    m_fileTransfer.setDevice(deviceConfiguration());
     m_fileTransfer.setTransferMethod(FileTransferMethod::Rsync);
     m_fileTransfer.setRsyncFlags(m_flags);
     m_fileTransfer.setFilesToTransfer(m_files);
@@ -161,7 +160,7 @@ RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Utils::Id id)
     flags->setDisplayStyle(StringAspect::LineEditDisplay);
     flags->setSettingsKey("RemoteLinux.RsyncDeployStep.Flags");
     flags->setLabelText(tr("Flags:"));
-    flags->setValue(FileTransfer::defaultRsyncFlags());
+    flags->setValue(FileTransferSetupData::defaultRsyncFlags());
 
     auto ignoreMissingFiles = addAspect<BoolAspect>();
     ignoreMissingFiles->setSettingsKey("RemoteLinux.RsyncDeployStep.IgnoreMissingFiles");

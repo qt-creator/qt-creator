@@ -21,7 +21,6 @@ Project {
             "abstractremotelinuxdeploystep.h",
             "deploymenttimeinfo.cpp",
             "deploymenttimeinfo.h",
-            "filetransfer.h",
             "genericdirectuploadservice.cpp",
             "genericdirectuploadservice.h",
             "genericdirectuploadstep.cpp",

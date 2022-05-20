@@ -60,6 +60,8 @@ class QtcProcess;
 namespace ProjectExplorer {
 
 class DeviceProcessList;
+class FileTransferInterface;
+class FileTransferSetupData;
 class Kit;
 class SshParameters;
 class Task;
@@ -265,6 +267,8 @@ public:
     virtual QFile::Permissions permissions(const Utils::FilePath &filePath) const;
     virtual bool setPermissions(const Utils::FilePath &filePath, QFile::Permissions) const;
     virtual Utils::ProcessInterface *createProcessInterface() const;
+    virtual FileTransferInterface *createFileTransferInterface(
+            const FileTransferSetupData &setup) const;
     virtual Utils::Environment systemEnvironment() const;
     virtual qint64 fileSize(const Utils::FilePath &filePath) const;
     virtual qint64 bytesAvailable(const Utils::FilePath &filePath) const;

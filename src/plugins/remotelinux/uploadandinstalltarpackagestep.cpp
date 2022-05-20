@@ -25,12 +25,12 @@
 
 #include "uploadandinstalltarpackagestep.h"
 
-#include "filetransfer.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxpackageinstaller.h"
 #include "tarpackagecreationstep.h"
 
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/idevice.h>
 
 #include <utils/processinterface.h>
@@ -103,7 +103,6 @@ void UploadAndInstallTarPackageService::doDeploy()
     const QString remoteFilePath = uploadDir() + QLatin1Char('/') + m_packageFilePath.fileName();
     const FilesToTransfer files {{m_packageFilePath,
                     deviceConfiguration()->filePath(remoteFilePath)}};
-    m_uploader.setDevice(deviceConfiguration());
     m_uploader.setFilesToTransfer(files);
     m_uploader.start();
 }
