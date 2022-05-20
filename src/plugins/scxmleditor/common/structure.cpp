@@ -154,7 +154,7 @@ void Structure::addCheckbox(const QString &name, TagType type)
 void Structure::updateCheckBoxes()
 {
     QVector<TagType> visibleTags;
-    foreach (QCheckBox *box, m_checkboxes) {
+    for (QCheckBox *box : qAsConst(m_checkboxes)) {
         if (box->isChecked()) {
             switch (TagType(box->property(Constants::C_SCXMLTAG_TAGTYPE).toInt())) {
             case State:

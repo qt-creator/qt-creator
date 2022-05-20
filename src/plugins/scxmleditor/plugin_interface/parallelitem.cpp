@@ -63,7 +63,8 @@ void ParallelItem::doLayout(int d)
 
     // 1. Find children items
     QVector<StateItem*> children;
-    foreach (QGraphicsItem *it, childItems()) {
+    const QList<QGraphicsItem *> items = childItems();
+    for (QGraphicsItem *it : items) {
         if (it->type() >= StateType) {
             auto itt = qgraphicsitem_cast<StateItem*>(it);
             if (itt)
@@ -72,17 +73,16 @@ void ParallelItem::doLayout(int d)
     }
 
     // 2. Adjust sizes
-    foreach (StateItem *itt, children) {
+    for (StateItem *itt : qAsConst(children))
         itt->shrink();
-    }
 
     qreal maxw = 0;
-    foreach (StateItem *itt, children) {
+    for (StateItem *itt : qAsConst(children)) {
         QRectF rr = itt->boundingRect();
         maxw = qMax(rr.width(), maxw);
     }
 
-    foreach (StateItem *itt, children) {
+    for (StateItem *itt : qAsConst(children)) {
         QRectF rr = itt->boundingRect();
         if (!qFuzzyCompare(rr.width(), maxw))
             rr.setWidth(maxw);

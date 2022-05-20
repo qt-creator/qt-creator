@@ -149,7 +149,7 @@ QVector<ScxmlTag*> findCopyTags(const QVector<BaseItem*> &items, QPointF &minPos
 {
     QPointF pp(0, 0);
     QVector<ScxmlTag*> tags;
-    foreach (BaseItem *it, items) {
+    for (BaseItem *it : items) {
         if (it->type() >= InitialStateType && it->isSelected()) {
             BaseItem *parent = it->parentBaseItem();
             BaseItem *lastSelectedParent = it;
@@ -181,7 +181,7 @@ QVector<ScxmlTag*> findRemovedTags(const QVector<BaseItem*> &items)
 {
     // Find right tags
     QVector<ScxmlTag*> tags;
-    foreach (BaseItem *it, items) {
+    for (BaseItem *it : items) {
         if (it->isSelected()) {
             // Find the last selected parent
             BaseItem *parent = it->parentBaseItem();
@@ -207,7 +207,7 @@ void layout(const QList<QGraphicsItem*> &items)
     QList<ConnectableItem*> childItems;
     ConnectableItem *initialItem = nullptr;
     ConnectableItem *finalItem = nullptr;
-    foreach (QGraphicsItem *item, items) {
+    for (QGraphicsItem *item : items) {
         auto connectableItem = qgraphicsitem_cast<ConnectableItem*>(item);
         if (connectableItem) {
             if (connectableItem->type() == InitialStateType)
@@ -317,12 +317,16 @@ void layout(const QList<QGraphicsItem*> &items)
         }
 
         // Finally set initial and final positions
-        foreach (ConnectableItem *item, childItems) {
+        for (const ConnectableItem *item : qAsConst(childItems)) {
             if (item == firstItem)
-                initialItem->setPos(firstItem->pos() + firstItem->boundingRect().topLeft() - QPointF(50, 50));
+                initialItem->setPos(firstItem->pos() + firstItem->boundingRect().topLeft()
+                                    - QPointF(50, 50));
             else if (item == lastItem) {
                 int angle = startAngle + childItems.indexOf(item) * angleDiff;
-                QLineF line = QLineF::fromPolar(qMax(lastItem->boundingRect().width() / 2, lastItem->boundingRect().height() / 2) + 20, angle);
+                QLineF line = QLineF::fromPolar(qMax(lastItem->boundingRect().width() / 2,
+                                                     lastItem->boundingRect().height() / 2)
+                                                    + 20,
+                                                angle);
                 finalItem->setPos(lastItem->pos() + lastItem->boundingRect().center() + line.p2());
             }
         }

@@ -70,17 +70,15 @@ bool hasSiblingStates(T *item)
         if (parentItem) {
             children = parentItem->childItems();
         } else if (item->scene()) {
-            foreach (QGraphicsItem *it, item->scene()->items()) {
+            const QList<QGraphicsItem *> items = item->scene()->items();
+            for (QGraphicsItem *it : items)
                 if (!it->parentItem())
                     children << it;
-            }
         }
 
-        foreach (QGraphicsItem *it, children) {
-            if (it != item && it->type() == item->type()) {
+        for (QGraphicsItem *it : qAsConst(children))
+            if (it != item && it->type() == item->type())
                 return true;
-            }
-        }
     }
 
     return false;

@@ -78,9 +78,9 @@ void SCAttributeItemDelegate::setEditorData(QWidget *editor, const QModelIndex &
         auto combo = qobject_cast<QComboBox*>(editor);
         if (combo) {
             combo->clear();
-            QStringList values = index.data(DataRole).toString().split(";");
+            const QStringList values = index.data(DataRole).toString().split(";");
 
-            foreach (QString val, values)
+            for (QString val : values)
                 combo->addItem(val);
 
             combo->setCurrentText(index.data().toString());

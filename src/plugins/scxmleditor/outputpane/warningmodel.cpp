@@ -58,7 +58,7 @@ void WarningModel::clear(bool sendSignal)
 {
     emit modelAboutToBeClear();
 
-    foreach (Warning *w, m_warnings)
+    for (Warning *w : qAsConst(m_warnings))
         w->disconnect(this);
 
     beginResetModel();
