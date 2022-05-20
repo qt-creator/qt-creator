@@ -110,6 +110,10 @@ StdIOClientInterface::~StdIOClientInterface()
 
 void StdIOClientInterface::startImpl()
 {
+    if (m_process) {
+        QTC_ASSERT(!m_process->isRunning(), m_process->stopProcess() );
+        delete m_process;
+    }
     m_process = new Utils::QtcProcess;
     m_process->setProcessMode(ProcessMode::Writer);
     connect(m_process, &QtcProcess::readyReadStandardError,
