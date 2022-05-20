@@ -1490,6 +1490,7 @@ public:
     void setDevice(const ProjectExplorer::IDeviceConstPtr &device)
     {
         m_device = device;
+        m_devicePrivate = nullptr;
         if (m_device) {
             const LinuxDevice *linuxDevice = m_device.dynamicCast<const LinuxDevice>().get();
             QTC_ASSERT(linuxDevice, return);
@@ -1504,6 +1505,12 @@ public:
 
     void start()
     {
+        if (!m_devicePrivate) {
+            startFailed(tr("Transferring files to/from non-linux device "
+                           "isn't supported currently."));
+            return;
+        }
+
         m_sshParameters = displayless(m_devicePrivate->q->sshParameters());
         if (SshSettings::connectionSharingEnabled()) {
             m_connecting = true;
@@ -1822,9 +1829,12 @@ void FileTransferPrivate::run(RunMode mode)
         if (m_files.isEmpty())
             return startFailed(tr("No files to transfer."));
 
+        if (!m_device)
+            return startFailed(tr("No device set for transfer."));
+
         direction = transferDirection(m_files);
         if (direction == TransferDirection::Invalid)
-            return startFailed(tr("Mixing different types on transfer in one go."));
+            return startFailed(tr("Mixing different types of transfer in one go."));
 
         if (!isDeviceMatched(m_files, m_device->id().toString()))
             return startFailed(tr("Trying to transfer into / from not matching device."));
