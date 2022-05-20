@@ -329,6 +329,15 @@ Item {
 
     function handleObjectClicked(object, multi)
     {
+        if (object instanceof View3D) {
+            // View3D can be the resolved pick target in case the 3D editor is showing content
+            // of a component that has View3D as root. In that case locking is resolved on C++ side
+            // and we ignore multiselection.
+            selectObjects([]);
+            selectionChanged([object]);
+            return;
+        }
+
         var clickedObject;
 
         // Click on locked object is treated same as click on empty space
@@ -892,7 +901,7 @@ Item {
 
                         handleObjectClicked(resolvedResult, mouse.modifiers & Qt.ControlModifier);
 
-                        if (pickResult.objectHit) {
+                        if (pickResult.objectHit && pickResult.objectHit instanceof Node) {
                             if (transformMode === EditView3D.TransformMode.Move)
                                 freeDraggerArea = moveGizmo.freeDraggerArea;
                             else if (transformMode === EditView3D.TransformMode.Rotate)

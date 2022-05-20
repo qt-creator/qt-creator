@@ -438,15 +438,15 @@ QQuick3DPickResult GeneralHelper::pickViewAt(QQuick3DViewport *view, float posX,
     return QQuick3DPickResult();
 }
 
-QQuick3DNode *GeneralHelper::resolvePick(QQuick3DNode *pickNode)
+QObject *GeneralHelper::resolvePick(QQuick3DNode *pickNode)
 {
     if (pickNode) {
-        // Check if the picked node actually specifies another node as the pick target
+        // Check if the picked node actually specifies another object as the pick target
         QVariant componentVar = pickNode->property("_pickTarget");
         if (componentVar.isValid()) {
-            auto componentNode = componentVar.value<QQuick3DNode *>();
-            if (componentNode)
-                return componentNode;
+            auto componentObj = componentVar.value<QObject *>();
+            if (componentObj)
+                return componentObj;
         }
     }
     return pickNode;

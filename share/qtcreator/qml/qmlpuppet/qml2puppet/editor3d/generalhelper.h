@@ -85,7 +85,7 @@ public:
     Q_INVOKABLE void delayedPropertySet(QObject *obj, int delay, const QString &property,
                                         const QVariant& value);
     Q_INVOKABLE QQuick3DPickResult pickViewAt(QQuick3DViewport *view, float posX, float posY);
-    Q_INVOKABLE QQuick3DNode *resolvePick(QQuick3DNode *pickNode);
+    Q_INVOKABLE QObject *resolvePick(QQuick3DNode *pickNode);
 
     Q_INVOKABLE bool isLocked(QQuick3DNode *node) const;
     Q_INVOKABLE bool isHidden(QQuick3DNode *node) const;
