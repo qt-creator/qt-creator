@@ -613,7 +613,7 @@ void ClangModelManagerSupport::onAbstractEditorSupportRemoved(const QString &fil
 
 void addFixItsActionsToMenu(QMenu *menu, const TextEditor::QuickFixOperations &fixItOperations)
 {
-    foreach (const auto &fixItOperation, fixItOperations) {
+    for (const TextEditor::QuickFixOperation::Ptr &fixItOperation : fixItOperations) {
         QAction *action = menu->addAction(fixItOperation->description());
         QObject::connect(action, &QAction::triggered, [fixItOperation]() {
             fixItOperation->perform();
@@ -654,7 +654,7 @@ using ClangEditorDocumentProcessors = QVector<ClangEditorDocumentProcessor *>;
 static ClangEditorDocumentProcessors clangProcessors()
 {
     ClangEditorDocumentProcessors result;
-    foreach (auto *editorDocument, cppModelManager()->cppEditorDocuments())
+    for (const CppEditorDocumentHandle *editorDocument : cppModelManager()->cppEditorDocuments())
         result.append(qobject_cast<ClangEditorDocumentProcessor *>(editorDocument->processor()));
 
     return result;
@@ -729,8 +729,8 @@ clangProcessorsWithProjectParts(const QStringList &projectPartIds)
 
 void ClangModelManagerSupport::reinitializeBackendDocuments(const QStringList &projectPartIds)
 {
-    const auto processors = clangProcessorsWithProjectParts(projectPartIds);
-    foreach (ClangEditorDocumentProcessor *processor, processors) {
+    const ClangEditorDocumentProcessors processors = clangProcessorsWithProjectParts(projectPartIds);
+    for (ClangEditorDocumentProcessor *processor : processors) {
         processor->clearProjectPart();
         processor->run();
     }

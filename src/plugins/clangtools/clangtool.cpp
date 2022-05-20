@@ -421,8 +421,8 @@ ClangTool::ClangTool()
     connect(m_diagnosticView, &DiagnosticView::filterOutCurrentKind,
             this, &ClangTool::filterOutCurrentKind);
 
-    foreach (auto * const model,
-             QList<QAbstractItemModel *>({m_diagnosticModel, m_diagnosticFilterModel})) {
+    for (QAbstractItemModel *const model :
+         QList<QAbstractItemModel *>({m_diagnosticModel, m_diagnosticFilterModel})) {
         connect(model, &QAbstractItemModel::rowsInserted,
                 this, &ClangTool::updateForCurrentState);
         connect(model, &QAbstractItemModel::rowsRemoved,

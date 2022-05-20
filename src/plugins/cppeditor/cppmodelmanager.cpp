@@ -976,7 +976,7 @@ void CppModelManager::removeProjectInfoFilesAndIncludesFromSnapshot(const Projec
     }
 }
 
-QList<CppEditorDocumentHandle *> CppModelManager::cppEditorDocuments() const
+const QList<CppEditorDocumentHandle *> CppModelManager::cppEditorDocuments() const
 {
     QMutexLocker locker(&d->m_cppEditorDocumentsMutex);
     return d->m_cppEditorDocuments.values();

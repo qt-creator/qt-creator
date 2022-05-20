@@ -225,7 +225,7 @@ static QString createExplainingStepToolTipString(const ExplainingStep &step)
                    "<style>dt { font-weight:bold; } dd { font-family: monospace; }</style>\n"
                    "<body><dl>");
 
-    foreach (const StringPair &pair, lines) {
+    for (const StringPair &pair : qAsConst(lines)) {
         html += QLatin1String("<dt>");
         html += pair.first;
         html += QLatin1String("</dt><dd>");
@@ -273,7 +273,7 @@ static QString fullText(const Diagnostic &diagnostic)
 
     // Explaining steps.
     int explainingStepNumber = 1;
-    foreach (const ExplainingStep &explainingStep, diagnostic.explainingSteps) {
+    for (const ExplainingStep &explainingStep : qAsConst(diagnostic.explainingSteps)) {
         text += createExplainingStepString(explainingStep, explainingStepNumber++)
                 + QLatin1Char('\n');
     }
@@ -645,7 +645,7 @@ bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
         }
 
         // Explicitly suppressed?
-        foreach (const SuppressedDiagnostic &d, m_suppressedDiagnostics) {
+        for (const SuppressedDiagnostic &d : qAsConst(m_suppressedDiagnostics)) {
             if (d.description != diag.description)
                 continue;
             Utils::FilePath filePath = d.filePath;

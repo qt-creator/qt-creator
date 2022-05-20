@@ -732,7 +732,7 @@ bool runClangBatchFile(const QString &filePath)
         QTC_CHECK(Core::EditorManager::closeAllEditors(/*askAboutModifiedEditors=*/ false));
     });
 
-    foreach (const Command::Ptr &command, commands) {
+    for (const Command::Ptr &command : commands) {
         const bool runSucceeded = command->run();
         QCoreApplication::processEvents(); // Update GUI
 

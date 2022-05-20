@@ -149,7 +149,7 @@ public:
         // For debugging, add: style='border-width:1px;border-color:black'
         QString text = "<table cellspacing='0' cellpadding='0' width='100%'>";
 
-        foreach (const ClangDiagnostic &diagnostic, diagnostics)
+        for (const ClangDiagnostic &diagnostic : diagnostics)
             text.append(tableRows(diagnostic));
         if (!source.isEmpty()) {
             text.append(QString::fromUtf8("<tr><td colspan='2' align='left'>"

@@ -141,7 +141,7 @@ public:
     void addExtraEditorSupport(AbstractEditorSupport *editorSupport);
     void removeExtraEditorSupport(AbstractEditorSupport *editorSupport);
 
-    QList<CppEditorDocumentHandle *> cppEditorDocuments() const;
+    const QList<CppEditorDocumentHandle *> cppEditorDocuments() const;
     CppEditorDocumentHandle *cppEditorDocument(const QString &filePath) const;
     static BaseEditorDocumentProcessor *cppEditorDocumentProcessor(const QString &filePath);
     void registerCppEditorDocument(CppEditorDocumentHandle *cppEditorDocument);

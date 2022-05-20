@@ -615,7 +615,7 @@ private:
         const QStringList suffixes = mimeType.suffixes();
 
         QList<AssistProposalItemInterface *> completions;
-        foreach (const ProjectExplorer::HeaderPath &headerPath, allHeaderPaths) {
+        for (const ProjectExplorer::HeaderPath &headerPath : qAsConst(allHeaderPaths)) {
             QString realPath = headerPath.path;
             if (!directoryPrefix.isEmpty()) {
                 realPath += QLatin1Char('/');

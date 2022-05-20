@@ -166,7 +166,7 @@ void ClangToolsProjectSettings::load()
     m_selectedFiles = Utils::transform<QSet>(files, toFileName);
 
     const QVariantList list = map.value(SETTINGS_KEY_SUPPRESSED_DIAGS).toList();
-    foreach (const QVariant &v, list) {
+    for (const QVariant &v : list) {
         const QVariantMap diag = v.toMap();
         const QString fp = diag.value(SETTINGS_KEY_SUPPRESSED_DIAGS_FILEPATH).toString();
         if (fp.isEmpty())

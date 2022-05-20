@@ -130,7 +130,7 @@ void PreconfiguredSessionTests::testPreconfiguredSession()
     QCOMPARE(ClangTool::instance()->diagnostics().count(), 0);
 }
 
-static QList<Project *> validProjects(const QList<Project *> projectsOfSession)
+static const QList<Project *> validProjects(const QList<Project *> projectsOfSession)
 {
     QList<Project *> sortedProjects = projectsOfSession;
     Utils::sort(sortedProjects, [](Project *lhs, Project *rhs){
@@ -196,8 +196,8 @@ void PreconfiguredSessionTests::testPreconfiguredSession_data()
 
     bool hasAddedTestData = false;
 
-    foreach (Project *project, validProjects(SessionManager::projects())) {
-        foreach (Target *target, validTargets(project)) {
+    for (Project *project : validProjects(SessionManager::projects())) {
+        for (Target *target : validTargets(project)) {
             hasAddedTestData = true;
             QTest::newRow(dataTagName(project, target)) << project << target;
         }
