@@ -1683,6 +1683,7 @@ void Client::initializeCallback(const InitializeRequest::Response &initResponse)
             updateConfiguration(configuration);
     }
 
+    m_tokenSupport.clearTokens(); // clear cached tokens from a pre reset run
     for (TextEditor::TextDocument *doc : m_postponedDocuments)
         openDocument(doc);
     m_postponedDocuments.clear();

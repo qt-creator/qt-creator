@@ -280,6 +280,11 @@ void SemanticTokenSupport::setAdditionalTokenTypeStyles(
     m_additionalTypeStyles = typeStyles;
 }
 
+void SemanticTokenSupport::clearTokens()
+{
+    m_tokens.clear();
+}
+
 //void SemanticTokenSupport::setAdditionalTokenModifierStyles(
 //    const QHash<int, TextStyle> &modifierStyles)
 //{
@@ -319,8 +324,9 @@ void SemanticTokenSupport::handleSemanticTokens(const Utils::FilePath &filePath,
                                                 int documentVersion)
 {
     if (auto tokens = Utils::get_if<SemanticTokens>(&result)) {
+        const bool force = !m_tokens.contains(filePath);
         m_tokens[filePath] = {*tokens, documentVersion};
-        highlight(filePath);
+        highlight(filePath, force);
     }
 }
 

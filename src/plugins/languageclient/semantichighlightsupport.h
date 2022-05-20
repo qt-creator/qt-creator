@@ -71,6 +71,7 @@ public:
     void clearHighlight(TextEditor::TextDocument *doc);
     void rehighlight();
     void setLegend(const LanguageServerProtocol::SemanticTokensLegend &legend);
+    void clearTokens();
 
     void setTokenTypesMap(const QMap<QString, int> &tokenTypesMap);
     void setTokenModifiersMap(const QMap<QString, int> &tokenModifiersMap);
