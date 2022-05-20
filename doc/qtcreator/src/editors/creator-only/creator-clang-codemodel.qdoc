@@ -65,7 +65,7 @@
     \endlist
 
     \QC comes with a plugin that provides some of these services
-    for C++ on top of \l{http://clang.llvm.org/}{Clang}.
+    for C++ on top of \l{https://clangd.llvm.org/}{Clangd}.
 
     \section1 About the Clang Code Model
 
@@ -75,6 +75,8 @@
     set or a close approximation, as when using the built-in \QC code model.
     Clang focuses on detailed information for diagnostics, which is really
     useful if the code contains typos, for example.
+    We make use of these libraries via the clangd tool, which implements
+    an \l{https://microsoft.github.io/language-server-protocol/}{LSP} server.
 
     Clang keeps up with the development of the C++ language. At the time of this
     writing, it supports C++98/03, C++11, C++14, C++17, C89, C99, Objective-C,
@@ -98,14 +100,16 @@
         \li \l{Using Clang Tools}{Diagnostics}
         \li Outline of symbols
         \li Tooltips
-        \li Renaming of local symbols
+        \li Following symbols
+        \li Renaming symbols
+        \li Finding occurrences of symbols
 
     \endlist
 
-    To use the built-in code model instead, select \uicontrol Help >
-    \uicontrol {About Plugins} > \uicontrol C++, and deselect the
-    \uicontrol ClangCodeModel check box. Select \uicontrol {Restart Now}
-    to restart \QC and have the changes take effect.
+    To use the built-in code model instead, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol C++ > \uicontrol clangd, and deselect the \uicontrol {Use clangd} check box.
+    This setting also exists on the project level, so that you can have the clang-based
+    services generally enabled, but switch them off for for certain projects, or vice versa.
 
     You can configure Clang diagnostics either globally or separately for:
 
@@ -137,13 +141,6 @@
             files to index is limited to 5MB by default. To adjust the limit,
             edit the value for the \uicontrol {Do not index files greater than}
             check box. To index all files, deselect the check box.
-
-        \li The \uicontrol {Diagnostic Configuration} field shows the Clang
-            checks to perform. Click the value of the field to open the
-            \uicontrol {Diagnostic Configurations} dialog, where you can
-            select and edit the checks to perform.
-
-            \image qtcreator-diagnostics-configuration.png
 
     \endlist
 
@@ -179,6 +176,10 @@
         \li In \uicontrol {Document update threshold}, specify the amount of
             time \QC waits before sending document changes to the server.
             If the document changes again while waiting, this timeout is reset.
+        \li The \uicontrol {Diagnostic Configuration} field shows the Clang
+            checks to perform. Click the value of the field to open the
+            \uicontrol {Diagnostic Configurations} dialog, where you can
+            select and edit the checks to perform.
     \endlist
 
     \section1 Clang Checks
@@ -203,16 +204,7 @@
     \section1 Specifying Clang Code Model Settings at Project Level
 
     You can specify Clang code model settings at project level by selecting
-    \uicontrol Projects > \uicontrol {Clang Code Model}.
-
-    In addition to configuring the diagnostics,
-    you can select the \uicontrol {Enable MSVC-compliant template parsing} check
-    box to parse templates in a MSVC-compliant way. This enables Clang to parse
-    headers for example from Active Template Library (ATL) or Windows Runtime
-    Library (WRL). However, using the relaxed and extended rules means that no
-    highlighting or completion can be provided within template functions.
-
-    \image qtcreator-clang-code-model-build-settings.png
+    \uicontrol Projects > \uicontrol {clangd}.
 
     \include creator-compilation-database.qdocinc using compilation databases
 
