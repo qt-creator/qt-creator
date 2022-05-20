@@ -436,7 +436,7 @@ static Utils::FilePath tempFilePath()
 DataModelDownloader::DataModelDownloader(QObject * /* parent */)
 {
     auto fileInfo = targetFolder().toFileInfo();
-    m_birthTime = fileInfo.birthTime();
+    m_birthTime = fileInfo.lastModified();
     m_exists = fileInfo.exists();
 
     connect(&m_fileDownloader,
@@ -461,7 +461,7 @@ void DataModelDownloader::start()
             return;
         }
 
-        if (!m_forceDownload && m_fileDownloader.lastModified() < m_birthTime)
+        if (!m_forceDownload && (m_fileDownloader.lastModified() <= m_birthTime))
             return;
 
         m_fileDownloader.start();
