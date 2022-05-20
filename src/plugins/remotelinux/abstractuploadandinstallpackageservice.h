@@ -57,8 +57,6 @@ private:
     virtual QString uploadDir() const; // Defaults to remote user's home directory.
 
     bool isDeploymentNecessary() const override;
-    void doDeviceSetup() override;
-    void stopDeviceSetup() override;
     void doDeploy() override;
     void stopDeployment() override;
 

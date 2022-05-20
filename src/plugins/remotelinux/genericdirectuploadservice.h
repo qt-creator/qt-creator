@@ -55,9 +55,6 @@ public:
 protected:
     bool isDeploymentNecessary() const override;
 
-    void doDeviceSetup() override;
-    void stopDeviceSetup() override;
-
     void doDeploy() override;
     void stopDeployment() override;
 

@@ -85,18 +85,6 @@ bool AbstractUploadAndInstallPackageService::isDeploymentNecessary() const
     return hasLocalFileChanged(DeployableFile(d->packageFilePath, QString()));
 }
 
-void AbstractUploadAndInstallPackageService::doDeviceSetup()
-{
-    QTC_ASSERT(d->state == Inactive, return);
-    AbstractRemoteLinuxDeployService::doDeviceSetup();
-}
-
-void AbstractUploadAndInstallPackageService::stopDeviceSetup()
-{
-    QTC_ASSERT(d->state == Inactive, return);
-    AbstractRemoteLinuxDeployService::stopDeviceSetup();
-}
-
 void AbstractUploadAndInstallPackageService::doDeploy()
 {
     QTC_ASSERT(d->state == Inactive, return);
