@@ -28,7 +28,7 @@
 #include "projectexplorer_export.h"
 
 #include <utils/environment.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/porting.h>
 
 #include <QList>

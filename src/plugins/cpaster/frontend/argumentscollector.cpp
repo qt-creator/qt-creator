@@ -25,7 +25,7 @@
 
 #include "argumentscollector.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QCoreApplication>
 

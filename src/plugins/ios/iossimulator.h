@@ -28,7 +28,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QDebug>
 

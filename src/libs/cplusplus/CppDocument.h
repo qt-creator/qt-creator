@@ -31,7 +31,7 @@
 #include <cplusplus/PreprocessorClient.h>
 #include <cplusplus/DependencyTable.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QSharedPointer>
 #include <QDateTime>

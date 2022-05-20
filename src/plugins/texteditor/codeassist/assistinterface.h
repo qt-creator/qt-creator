@@ -33,7 +33,7 @@
 #include <QTextCursor>
 #include <QVector>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 namespace TextEditor {
 

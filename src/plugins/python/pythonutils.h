@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 namespace Python {
 namespace Internal {

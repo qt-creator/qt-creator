@@ -31,7 +31,7 @@
 #include <coreplugin/vcsmanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 namespace ProjectExplorer {
 
@@ -40,9 +40,8 @@ QList<FileNode *> scanForFiles(QFutureInterface<Result> &future,
                                const Utils::FilePath &directory,
                                const std::function<FileNode *(const Utils::FilePath &)> factory);
 
-// IMPLEMENTATION:
-
 namespace Internal {
+
 template<typename Result>
 QList<FileNode *> scanForFilesRecursively(
     QFutureInterface<Result> &future,

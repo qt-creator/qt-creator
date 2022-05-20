@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "fileutils.h"
+#include "filepath.h"
 #include "porting.h"
 
 #include <QString>

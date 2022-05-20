@@ -25,7 +25,6 @@
 
 #include "qbsprojectimporter.h"
 
-#include "qbsbuildconfiguration.h"
 #include "qbspmlogging.h"
 #include "qbssession.h"
 
@@ -39,7 +38,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <qtsupport/qtkitinformation.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 
 #include <QFileInfo>

@@ -28,7 +28,7 @@
 #include "uvtargetdeviceselection.h"
 
 #include <utils/basetreeview.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/treemodel.h>
 
 QT_BEGIN_NAMESPACE

@@ -28,7 +28,7 @@
 #include <QMetaType>
 #include <QString>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 namespace Debugger {
 namespace Internal {

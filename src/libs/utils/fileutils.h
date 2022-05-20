@@ -28,7 +28,6 @@
 #include "utils_global.h"
 
 #include "filepath.h"
-#include "hostosinfo.h"
 
 #include <QCoreApplication>
 #include <QDir>

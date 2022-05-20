@@ -25,14 +25,11 @@
 
 #pragma once
 
-#include "exewrappers/mesonwrapper.h"
 #include "mesonprojectimporter.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectimporter.h>
 #include <projectexplorer/task.h>
-
-#include <utils/fileutils.h>
 
 namespace MesonProjectManager {
 namespace Internal {

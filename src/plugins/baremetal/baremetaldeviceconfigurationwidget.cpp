@@ -30,7 +30,7 @@
 #include "debugserverproviderchooser.h"
 
 #include <utils/qtcassert.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QFormLayout>
 

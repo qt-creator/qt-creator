@@ -27,8 +27,6 @@
 
 #include <projectexplorer/abstractprocessstep.h>
 
-#include <utils/fileutils.h>
-
 namespace Ios {
 namespace Internal {
 

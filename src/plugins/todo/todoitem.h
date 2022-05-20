@@ -29,7 +29,7 @@
 #include "constants.h"
 #include "todoicons.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QMetaType>
 #include <QString>

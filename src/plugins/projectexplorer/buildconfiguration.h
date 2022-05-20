@@ -30,7 +30,7 @@
 #include "task.h"
 
 #include <utils/environment.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 namespace Utils { class MacroExpander; }
 

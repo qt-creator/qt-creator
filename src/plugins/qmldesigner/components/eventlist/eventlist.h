@@ -25,9 +25,9 @@
 #pragma once
 
 #include "modelnode.h"
-#include "utils/fileutils.h"
 
-#include <unordered_set>
+#include <utils/filepath.h>
+
 #include <QDialog>
 
 QT_FORWARD_DECLARE_CLASS(QStandardItemModel)

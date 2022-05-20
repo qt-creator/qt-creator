@@ -27,7 +27,7 @@
 
 #include <cppcheck/cppcheckdiagnosticmanager.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <unordered_map>
 

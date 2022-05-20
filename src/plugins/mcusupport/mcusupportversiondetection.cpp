@@ -25,7 +25,7 @@
 
 #include "mcusupportversiondetection.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/qtcprocess.h>
 
 #include <QDir>
