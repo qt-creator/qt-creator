@@ -55,8 +55,8 @@ StudioControls.ComboBox {
     function setupModel() {
         var familyNames = ["Arial", "Times New Roman", "Courier", "Verdana", "Tahoma"] // default fonts
 
-        for (var i = 0; i < fileModel.fullPathModel.length; ++i) { // add custom fonts
-            var fontLoader = createFontLoader(fileModel.docPath + "/" + fileModel.fullPathModel[i])
+        for (var i = 0; i < fileModel.model.length; ++i) { // add custom fonts
+            var fontLoader = createFontLoader(fileModel.docPath + "/" + fileModel.model[i].relativeFilePath)
             familyNames.push(fontLoader.name)
         }
 

@@ -88,7 +88,8 @@ Row {
         }
 
         delegate: ItemDelegate {
-            required property string fullPath
+            required property string absoluteFilePath
+            required property string relativeFilePath
             required property string name
             required property int group
             required property int index
@@ -150,9 +151,9 @@ Row {
             }
 
             ToolTip {
-                id: itemToolTip
-                visible: delegateRoot.hovered && comboBox.highlightedIndex === index
-                text: fullPath
+                id: delegateToolTip
+                visible: delegateRoot.hovered
+                text: delegateRoot.relativeFilePath
                 delay: StudioTheme.Values.toolTipDelay
                 height: StudioTheme.Values.toolTipHeight
                 background: Rectangle {
@@ -197,8 +198,9 @@ Row {
             if (root.backendValue.isBound) {
                 comboBox.textValue = root.backendValue.expression
             } else {
-                var fullPath = root.backendValue.valueToString
-                comboBox.textValue = fullPath.substr(fullPath.lastIndexOf('/') + 1)
+                // Can be absolute or relative file path
+                var filePath = root.backendValue.valueToString
+                comboBox.textValue = filePath.substr(filePath.lastIndexOf('/') + 1)
             }
 
             comboBox.setCurrentText(comboBox.textValue)
@@ -230,7 +232,7 @@ Row {
             // Check if value set by user matches with a name in the model then pick the full path
             let index = comboBox.find(inputValue)
             if (index !== -1)
-                inputValue = comboBox.items.get(index).model.fullPath
+                inputValue = comboBox.items.get(index).model.relativeFilePath
 
             root.backendValue.value = inputValue
             comboBox.dirty = false
@@ -252,7 +254,7 @@ Row {
             let inputValue = comboBox.editText
 
             if (index >= 0)
-                inputValue = comboBox.items.get(index).model.fullPath
+                inputValue = comboBox.items.get(index).model.relativeFilePath
 
             if (root.backendValue.value !== inputValue)
                 root.backendValue.value = inputValue
@@ -284,17 +286,22 @@ Row {
         if (root.defaultItems !== undefined) {
             for (var i = 0; i < root.defaultItems.length; ++i) {
                 comboBox.listModel.append({
-                    fullPath: root.defaultItems[i],
+                    absoluteFilePath: "",
+                    relativeFilePath: root.defaultItems[i],
                     name: root.defaultItems[i],
                     group: 0
                 })
             }
         }
 
-        for (var j = 0; j < fileModel.fullPathModel.length; ++j) {
+        const myModel = fileModel.model
+        for (var j = 0; j < myModel.length; ++j) {
+            let item = myModel[j]
+
             comboBox.listModel.append({
-                fullPath: fileModel.fullPathModel[j],
-                name: fileModel.fileNameModel[j],
+                absoluteFilePath: item.absoluteFilePath,
+                relativeFilePath: item.relativeFilePath,
+                name: item.fileName,
                 group: 1
             })
         }
@@ -304,7 +311,7 @@ Row {
 
     Connections {
         target: fileModel
-        function onFullPathModelChanged() {
+        function onModelChanged() {
             root.createModel()
             comboBox.setCurrentText(comboBox.textValue)
         }
