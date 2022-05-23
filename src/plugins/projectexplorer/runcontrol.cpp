@@ -1206,7 +1206,7 @@ class SimpleTargetRunnerPrivate : public QObject
     Q_OBJECT
 
 public:
-    SimpleTargetRunnerPrivate();
+    explicit SimpleTargetRunnerPrivate(SimpleTargetRunner *parent);
     ~SimpleTargetRunnerPrivate() override;
 
     void start();
@@ -1223,6 +1223,8 @@ public:
     // Local
     qint64 privateApplicationPID() const;
     bool isRunning() const;
+
+    SimpleTargetRunner *q = nullptr;
 
     bool m_isLocal = true;
     bool m_runAsRoot = false;
@@ -1249,10 +1251,8 @@ public:
     bool m_stopReported = false;
     bool m_stopForced = false;
 
-signals:
-    void appendMessage(const QString &message, Utils::OutputFormat format, bool appendNewLine = true);
-    void started();
-    void done();
+    void forwardStarted();
+    void forwardDone();
 };
 
 } // Internal
@@ -1263,10 +1263,11 @@ static QProcess::ProcessChannelMode defaultProcessChannelMode()
             ? QProcess::MergedChannels : QProcess::SeparateChannels;
 }
 
-SimpleTargetRunnerPrivate::SimpleTargetRunnerPrivate()
+SimpleTargetRunnerPrivate::SimpleTargetRunnerPrivate(SimpleTargetRunner *parent)
+    : q(parent)
 {
     m_process.setProcessChannelMode(defaultProcessChannelMode());
-    connect(&m_process, &QtcProcess::started, this, &SimpleTargetRunnerPrivate::started);
+    connect(&m_process, &QtcProcess::started, this, &SimpleTargetRunnerPrivate::forwardStarted);
     connect(&m_process, &QtcProcess::done, this, &SimpleTargetRunnerPrivate::handleDone);
     connect(&m_process, &QtcProcess::readyReadStandardError,
                 this, &SimpleTargetRunnerPrivate::handleStandardError);
@@ -1277,14 +1278,14 @@ SimpleTargetRunnerPrivate::SimpleTargetRunnerPrivate()
         connect(WinDebugInterface::instance(), &WinDebugInterface::cannotRetrieveDebugOutput,
             this, [this] {
                 disconnect(WinDebugInterface::instance(), nullptr, this, nullptr);
-                emit appendMessage(tr("Cannot retrieve debugging output.")
+                q->appendMessage(tr("Cannot retrieve debugging output.")
                           + QLatin1Char('\n'), ErrorMessageFormat);
         });
 
         connect(WinDebugInterface::instance(), &WinDebugInterface::debugOutput,
             this, [this](qint64 pid, const QString &message) {
             if (privateApplicationPID() == pid)
-                emit appendMessage(message, DebugFormat);
+                q->appendMessage(message, DebugFormat);
         });
     }
 }
@@ -1292,7 +1293,7 @@ SimpleTargetRunnerPrivate::SimpleTargetRunnerPrivate()
 SimpleTargetRunnerPrivate::~SimpleTargetRunnerPrivate()
 {
     if (m_state == Run)
-        emit done();
+        forwardDone();
 }
 
 void SimpleTargetRunnerPrivate::stop()
@@ -1302,12 +1303,12 @@ void SimpleTargetRunnerPrivate::stop()
         if (!isRunning())
             return;
         m_process.stopProcess();
-        QTimer::singleShot(100, this, [this] { emit done(); });
+        QTimer::singleShot(100, this, [this] { forwardDone(); });
     } else {
         if (m_stopRequested)
             return;
         m_stopRequested = true;
-        emit appendMessage(tr("User requested stop. Shutting down..."), NormalMessageFormat);
+        q->appendMessage(tr("User requested stop. Shutting down..."), NormalMessageFormat);
         switch (m_state) {
             case Run:
                 m_process.terminate();
@@ -1337,12 +1338,12 @@ void SimpleTargetRunnerPrivate::handleDone()
 
     if (m_isLocal) {
         if (m_resultData.m_error == QProcess::UnknownError) {
-            emit done();
+            forwardDone();
             return;
         }
         // TODO: why below handlings are different?
         if (m_process.usesTerminal()) {
-            emit appendMessage(m_process.errorString(), ErrorMessageFormat);
+            q->appendMessage(m_process.errorString(), ErrorMessageFormat);
             if (m_processRunning && m_process.processId() == 0) {
                 m_processRunning = false;
                 m_resultData.m_exitCode = -1; // FIXME: Why?
@@ -1360,7 +1361,7 @@ void SimpleTargetRunnerPrivate::handleDone()
                 errorString = tr("Some error has occurred while running the program.");
             }
             if (!errorString.isEmpty())
-                emit appendMessage(errorString, ErrorMessageFormat);
+                q->appendMessage(errorString, ErrorMessageFormat);
             if (m_processRunning && !isRunning()) {
                 m_processRunning = false;
                 m_resultData.m_exitCode = -1;
@@ -1368,7 +1369,7 @@ void SimpleTargetRunnerPrivate::handleDone()
         }
 
     } else {
-        QTC_ASSERT(m_state == Run, emit done(); return);
+        QTC_ASSERT(m_state == Run, forwardDone(); return);
         if (m_resultData.m_error == QProcess::FailedToStart) {
             m_resultData.m_exitStatus = QProcess::CrashExit;
         } else if (m_resultData.m_exitStatus == QProcess::CrashExit) {
@@ -1376,7 +1377,7 @@ void SimpleTargetRunnerPrivate::handleDone()
         }
         m_state = Inactive;
     }
-    emit done();
+    forwardDone();
 }
 
 void SimpleTargetRunnerPrivate::handleStandardOutput()
@@ -1384,7 +1385,7 @@ void SimpleTargetRunnerPrivate::handleStandardOutput()
     const QByteArray data = m_process.readAllStandardOutput();
     const QString msg = m_outputCodec->toUnicode(
                 data.constData(), data.length(), &m_outputCodecState);
-    emit appendMessage(msg, StdOutFormat, false);
+    q->appendMessage(msg, StdOutFormat, false);
 }
 
 void SimpleTargetRunnerPrivate::handleStandardError()
@@ -1392,7 +1393,7 @@ void SimpleTargetRunnerPrivate::handleStandardError()
     const QByteArray data = m_process.readAllStandardError();
     const QString msg = m_outputCodec->toUnicode(
                 data.constData(), data.length(), &m_errorCodecState);
-    emit appendMessage(msg, StdErrFormat, false);
+    q->appendMessage(msg, StdErrFormat, false);
 }
 
 void SimpleTargetRunnerPrivate::start()
@@ -1429,7 +1430,7 @@ void SimpleTargetRunnerPrivate::start()
             m_resultData.m_errorString = tr("Cannot run: No device.");
             m_resultData.m_error = QProcess::FailedToStart;
             m_resultData.m_exitStatus = QProcess::CrashExit;
-            emit done();
+            forwardDone();
             return;
         }
 
@@ -1437,7 +1438,7 @@ void SimpleTargetRunnerPrivate::start()
             m_resultData.m_errorString = tr("Cannot run: No command given.");
             m_resultData.m_error = QProcess::FailedToStart;
             m_resultData.m_exitStatus = QProcess::CrashExit;
-            emit done();
+            forwardDone();
             return;
         }
 
@@ -1473,13 +1474,12 @@ void SimpleTargetRunnerPrivate::start()
 */
 
 SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
-    : RunWorker(runControl), d(new Internal::SimpleTargetRunnerPrivate)
+    : RunWorker(runControl), d(new Internal::SimpleTargetRunnerPrivate(this))
 {
     setId("SimpleTargetRunner");
 }
 
 SimpleTargetRunner::~SimpleTargetRunner() = default;
-
 
 void SimpleTargetRunner::start()
 {
@@ -1490,6 +1490,37 @@ void SimpleTargetRunner::start()
         runnable.device = runControl()->device();
         doStart(runnable);
     }
+}
+
+void SimpleTargetRunnerPrivate::forwardDone()
+{
+    if (m_stopReported)
+        return;
+    const QString executable = m_runnable.command.executable().toUserOutput();
+    QString msg = tr("%2 exited with code %1").arg(m_resultData.m_exitCode).arg(executable);
+    if (m_resultData.m_exitStatus == QProcess::CrashExit)
+        msg = tr("%1 crashed.").arg(executable);
+    else if (m_stopForced)
+        msg = tr("The process was ended forcefully.");
+    else if (m_resultData.m_error != QProcess::UnknownError)
+        msg = RunWorker::userMessageForProcessError(m_resultData.m_error, m_runnable.command.executable());
+    q->appendMessage(msg, NormalMessageFormat);
+    m_stopReported = true;
+    q->reportStopped();
+}
+
+void SimpleTargetRunnerPrivate::forwardStarted()
+{
+    const bool isDesktop = m_runnable.device.isNull()
+                        || m_runnable.device.dynamicCast<const DesktopDevice>();
+    if (isDesktop) {
+        // Console processes only know their pid after being started
+        ProcessHandle pid{privateApplicationPID()};
+        q->runControl()->setApplicationProcessHandle(pid);
+        pid.activate();
+    }
+
+    q->reportStarted();
 }
 
 void SimpleTargetRunner::doStart(const Runnable &runnable)
@@ -1511,42 +1542,11 @@ void SimpleTargetRunner::doStart(const Runnable &runnable)
     const QString msg = RunControl::tr("Starting %1...").arg(runnable.command.toUserOutput());
     appendMessage(msg, Utils::NormalMessageFormat);
 
-    connect(d.get(), &SimpleTargetRunnerPrivate::done, this, [this, runnable] {
-        if (d->m_stopReported)
-            return;
-        const QString executable = runnable.command.executable().toUserOutput();
-        const ProcessResultData &resultData = d->m_resultData;
-        QString msg = tr("%2 exited with code %1").arg(resultData.m_exitCode).arg(executable);
-        if (resultData.m_exitStatus == QProcess::CrashExit)
-            msg = tr("%1 crashed.").arg(executable);
-        else if (d->m_stopForced)
-            msg = tr("The process was ended forcefully.");
-        else if (resultData.m_error != QProcess::UnknownError)
-            msg = userMessageForProcessError(resultData.m_error, runnable.command.executable());
-        appendMessage(msg, NormalMessageFormat);
-        d->m_stopReported = true;
-        reportStopped();
-    });
-
-    connect(d.get(), &SimpleTargetRunnerPrivate::appendMessage, this, &RunWorker::appendMessage);
-
     const bool isDesktop = runnable.device.isNull()
                         || runnable.device.dynamicCast<const DesktopDevice>();
-    if (isDesktop) {
-        connect(d.get(), &SimpleTargetRunnerPrivate::started, this, [this] {
-            // Console processes only know their pid after being started
-            ProcessHandle pid{d->privateApplicationPID()};
-            runControl()->setApplicationProcessHandle(pid);
-            pid.activate();
-            reportStarted();
-        });
-
-        if (runnable.command.isEmpty()) {
-            reportFailure(RunControl::tr("No executable specified."));
-            return;
-        }
-    } else {
-        connect(d.get(), &SimpleTargetRunnerPrivate::started, this, &RunWorker::reportStarted);
+    if (isDesktop && runnable.command.isEmpty()) {
+        reportFailure(RunControl::tr("No executable specified."));
+        return;
     }
     d->m_runnable = runnable;
     d->start();
