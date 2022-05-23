@@ -1197,29 +1197,32 @@ void RunControlPrivate::debugMessage(const QString &msg)
 
 // ApplicationLauncher
 
-class ApplicationLauncher;
-
-class ApplicationLauncherPrivate : public QObject
+class ApplicationLauncher : public QObject
 {
-public:
-    enum State { Inactive, Run };
-    explicit ApplicationLauncherPrivate(ApplicationLauncher *parent);
+    Q_OBJECT
 
-    ~ApplicationLauncherPrivate() override;
+public:
+    ApplicationLauncher();
+    ~ApplicationLauncher() override;
+
+    void setUseTerminal(bool on);
+    void setRunAsRoot(bool on);
+    void setRunnable(const Runnable &runnable);
 
     void start();
     void stop();
+
+    Utils::ProcessHandle applicationPID() const;
+
+    enum State { Inactive, Run };
 
     void handleStandardOutput();
     void handleStandardError();
     void handleDone();
 
     // Local
-    qint64 applicationPID() const;
+    qint64 privateApplicationPID() const;
     bool isRunning() const;
-
-public:
-    ApplicationLauncher *q;
 
     bool m_isLocal = true;
     bool m_runAsRoot = false;
@@ -1240,34 +1243,11 @@ public:
     Runnable m_runnable;
 
     ProcessResultData m_resultData;
-};
-
-class ApplicationLauncher : public QObject
-{
-    Q_OBJECT
-
-public:
-    explicit ApplicationLauncher(QObject *parent = nullptr);
-    ~ApplicationLauncher() override;
-
-    void setUseTerminal(bool on);
-    void setRunAsRoot(bool on);
-    void setRunnable(const Runnable &runnable);
-
-    void start();
-    void stop();
-
-    Utils::ProcessHandle applicationPID() const;
-
-    Utils::ProcessResultData resultData() const;
 
 signals:
     void appendMessage(const QString &message, Utils::OutputFormat format, bool appendNewLine = true);
     void started();
     void done();
-
-private:
-    std::unique_ptr<ApplicationLauncherPrivate> d;
 };
 
 static QProcess::ProcessChannelMode defaultProcessChannelMode()
@@ -1276,80 +1256,67 @@ static QProcess::ProcessChannelMode defaultProcessChannelMode()
             ? QProcess::MergedChannels : QProcess::SeparateChannels;
 }
 
-ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *parent)
-    : q(parent)
+ApplicationLauncher::ApplicationLauncher()
 {
     m_process.setProcessChannelMode(defaultProcessChannelMode());
-    connect(&m_process, &QtcProcess::started, q, &ApplicationLauncher::started);
-    connect(&m_process, &QtcProcess::done, this, &ApplicationLauncherPrivate::handleDone);
+    connect(&m_process, &QtcProcess::started, this, &ApplicationLauncher::started);
+    connect(&m_process, &QtcProcess::done, this, &ApplicationLauncher::handleDone);
     connect(&m_process, &QtcProcess::readyReadStandardError,
-                this, &ApplicationLauncherPrivate::handleStandardError);
+                this, &ApplicationLauncher::handleStandardError);
     connect(&m_process, &QtcProcess::readyReadStandardOutput,
-                this, &ApplicationLauncherPrivate::handleStandardOutput);
+                this, &ApplicationLauncher::handleStandardOutput);
 
     if (WinDebugInterface::instance()) {
         connect(WinDebugInterface::instance(), &WinDebugInterface::cannotRetrieveDebugOutput,
             this, [this] {
                 disconnect(WinDebugInterface::instance(), nullptr, this, nullptr);
-                emit q->appendMessage(ApplicationLauncher::tr("Cannot retrieve debugging output.")
+                emit appendMessage(ApplicationLauncher::tr("Cannot retrieve debugging output.")
                           + QLatin1Char('\n'), ErrorMessageFormat);
         });
 
         connect(WinDebugInterface::instance(), &WinDebugInterface::debugOutput,
             this, [this](qint64 pid, const QString &message) {
-            if (applicationPID() == pid)
-                emit q->appendMessage(message, DebugFormat);
+            if (privateApplicationPID() == pid)
+                emit appendMessage(message, DebugFormat);
         });
     }
 }
 
-ApplicationLauncherPrivate::~ApplicationLauncherPrivate()
+ApplicationLauncher::~ApplicationLauncher()
 {
     if (m_state == Run)
-        emit q->done();
+        emit done();
 }
-
-ApplicationLauncher::ApplicationLauncher(QObject *parent) : QObject(parent),
-    d(std::make_unique<ApplicationLauncherPrivate>(this))
-{
-}
-
-ApplicationLauncher::~ApplicationLauncher() = default;
 
 void ApplicationLauncher::setUseTerminal(bool on)
 {
-    d->m_process.setTerminalMode(on ? Utils::TerminalMode::On : Utils::TerminalMode::Off);
+    m_process.setTerminalMode(on ? Utils::TerminalMode::On : Utils::TerminalMode::Off);
 }
 
 void ApplicationLauncher::setRunAsRoot(bool on)
 {
-    d->m_runAsRoot = on;
+    m_runAsRoot = on;
 }
 
 void ApplicationLauncher::setRunnable(const Runnable &runnable)
 {
-    d->m_runnable = runnable;
+    m_runnable = runnable;
 }
 
 void ApplicationLauncher::stop()
-{
-    d->stop();
-}
-
-void ApplicationLauncherPrivate::stop()
 {
     m_resultData.m_exitStatus = QProcess::CrashExit;
     if (m_isLocal) {
         if (!isRunning())
             return;
         m_process.stopProcess();
-        QTimer::singleShot(100, this, [this] { emit q->done(); });
+        QTimer::singleShot(100, this, [this] { emit done(); });
     } else {
         if (m_stopRequested)
             return;
         m_stopRequested = true;
-        emit q->appendMessage(ApplicationLauncher::tr("User requested stop. Shutting down..."),
-                              NormalMessageFormat);
+        emit appendMessage(ApplicationLauncher::tr("User requested stop. Shutting down..."),
+                           NormalMessageFormat);
         switch (m_state) {
             case Run:
                 m_process.terminate();
@@ -1360,17 +1327,17 @@ void ApplicationLauncherPrivate::stop()
     }
 }
 
-bool ApplicationLauncherPrivate::isRunning() const
+bool ApplicationLauncher::isRunning() const
 {
     return m_process.state() != QProcess::NotRunning;
 }
 
 ProcessHandle ApplicationLauncher::applicationPID() const
 {
-    return ProcessHandle(d->applicationPID());
+    return ProcessHandle(privateApplicationPID());
 }
 
-qint64 ApplicationLauncherPrivate::applicationPID() const
+qint64 ApplicationLauncher::privateApplicationPID() const
 {
     if (!isRunning())
         return 0;
@@ -1378,23 +1345,18 @@ qint64 ApplicationLauncherPrivate::applicationPID() const
     return m_process.processId();
 }
 
-ProcessResultData ApplicationLauncher::resultData() const
-{
-    return d->m_resultData;
-}
-
-void ApplicationLauncherPrivate::handleDone()
+void ApplicationLauncher::handleDone()
 {
     m_resultData = m_process.resultData();
 
     if (m_isLocal) {
         if (m_resultData.m_error == QProcess::UnknownError) {
-            emit q->done();
+            emit done();
             return;
         }
         // TODO: why below handlings are different?
         if (m_process.usesTerminal()) {
-            emit q->appendMessage(m_process.errorString(), ErrorMessageFormat);
+            emit appendMessage(m_process.errorString(), ErrorMessageFormat);
             if (m_processRunning && m_process.processId() == 0) {
                 m_processRunning = false;
                 m_resultData.m_exitCode = -1; // FIXME: Why?
@@ -1412,7 +1374,7 @@ void ApplicationLauncherPrivate::handleDone()
                 errorString = ApplicationLauncher::tr("Some error has occurred while running the program.");
             }
             if (!errorString.isEmpty())
-                emit q->appendMessage(errorString, ErrorMessageFormat);
+                emit appendMessage(errorString, ErrorMessageFormat);
             if (m_processRunning && !isRunning()) {
                 m_processRunning = false;
                 m_resultData.m_exitCode = -1;
@@ -1420,7 +1382,7 @@ void ApplicationLauncherPrivate::handleDone()
         }
 
     } else {
-        QTC_ASSERT(m_state == Run, emit q->done(); return);
+        QTC_ASSERT(m_state == Run, emit done(); return);
         if (m_resultData.m_error == QProcess::FailedToStart) {
             m_resultData.m_exitStatus = QProcess::CrashExit;
         } else if (m_resultData.m_exitStatus == QProcess::CrashExit) {
@@ -1428,31 +1390,26 @@ void ApplicationLauncherPrivate::handleDone()
         }
         m_state = Inactive;
     }
-    emit q->done();
+    emit done();
 }
 
-void ApplicationLauncherPrivate::handleStandardOutput()
+void ApplicationLauncher::handleStandardOutput()
 {
     const QByteArray data = m_process.readAllStandardOutput();
     const QString msg = m_outputCodec->toUnicode(
                 data.constData(), data.length(), &m_outputCodecState);
-    emit q->appendMessage(msg, StdOutFormat, false);
+    emit appendMessage(msg, StdOutFormat, false);
 }
 
-void ApplicationLauncherPrivate::handleStandardError()
+void ApplicationLauncher::handleStandardError()
 {
     const QByteArray data = m_process.readAllStandardError();
     const QString msg = m_outputCodec->toUnicode(
                 data.constData(), data.length(), &m_errorCodecState);
-    emit q->appendMessage(msg, StdErrFormat, false);
+    emit appendMessage(msg, StdErrFormat, false);
 }
 
 void ApplicationLauncher::start()
-{
-    d->start();
-}
-
-void ApplicationLauncherPrivate::start()
 {
     m_isLocal = m_runnable.device.isNull() || m_runnable.device.dynamicCast<const DesktopDevice>();
 
@@ -1490,7 +1447,7 @@ void ApplicationLauncherPrivate::start()
             m_resultData.m_errorString = ApplicationLauncher::tr("Cannot run: No device.");
             m_resultData.m_error = QProcess::FailedToStart;
             m_resultData.m_exitStatus = QProcess::CrashExit;
-            emit q->done();
+            emit done();
             return;
         }
 
@@ -1498,7 +1455,7 @@ void ApplicationLauncherPrivate::start()
             m_resultData.m_errorString = ApplicationLauncher::tr("Cannot run: No command given.");
             m_resultData.m_error = QProcess::FailedToStart;
             m_resultData.m_exitStatus = QProcess::CrashExit;
-            emit q->done();
+            emit done();
             return;
         }
 
@@ -1520,7 +1477,6 @@ void ApplicationLauncherPrivate::start()
 }
 
 
-// SimpleTargetRunner
 /*!
     \class ProjectExplorer::SimpleTargetRunner
 
@@ -1590,7 +1546,7 @@ void SimpleTargetRunner::doStart(const Runnable &runnable)
         if (d->m_stopReported)
             return;
         const QString executable = runnable.command.executable().toUserOutput();
-        const ProcessResultData resultData = d->m_launcher.resultData();
+        const ProcessResultData &resultData = d->m_launcher.m_resultData;
         QString msg = tr("%2 exited with code %1").arg(resultData.m_exitCode).arg(executable);
         if (resultData.m_exitStatus == QProcess::CrashExit)
             msg = tr("%1 crashed.").arg(executable);
