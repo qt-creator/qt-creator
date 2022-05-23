@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "applicationlauncher.h"
 #include "buildconfiguration.h"
 #include "devicesupport/idevicefwd.h"
 #include "projectexplorerconstants.h"
@@ -33,21 +32,21 @@
 
 #include <utils/commandline.h>
 #include <utils/environment.h>
-#include <utils/icon.h>
+#include <utils/outputformatter.h>
 #include <utils/processhandle.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QHash>
+#include <QProcess> // FIXME: Remove
 #include <QVariant>
 
 #include <functional>
 #include <memory>
 
 namespace Utils {
+class Icon;
 class MacroExpander;
 class OutputLineParser;
-class OutputFormatter;
 } // Utils
 
 namespace ProjectExplorer {
@@ -60,6 +59,7 @@ class Target;
 namespace Internal {
 class RunControlPrivate;
 class RunWorkerPrivate;
+class SimpleTargetRunnerPrivate;
 } // Internal
 
 
@@ -285,7 +285,7 @@ private:
 
 
 /**
- * A simple TargetRunner for cases where a plain QtcProcess is
+ * A simple TargetRunner for cases where a plain ApplicationLauncher is
  * sufficient for running purposes.
  */
 
@@ -295,6 +295,7 @@ class PROJECTEXPLORER_EXPORT SimpleTargetRunner : public RunWorker
 
 public:
     explicit SimpleTargetRunner(RunControl *runControl);
+    ~SimpleTargetRunner() override;
 
 protected:
     void setStarter(const std::function<void()> &starter);
@@ -306,11 +307,7 @@ private:
 
     const Runnable &runnable() const = delete;
 
-    Utils::QtcProcess m_launcher;
-    std::function<void()> m_starter;
-
-    bool m_stopReported = false;
-    bool m_stopForced = false;
+    const std::unique_ptr<Internal::SimpleTargetRunnerPrivate> d;
 };
 
 class PROJECTEXPLORER_EXPORT OutputFormatterFactory

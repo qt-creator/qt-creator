@@ -25,6 +25,7 @@
 
 #include "runcontrol.h"
 
+#include "applicationlauncher.h"
 #include "devicesupport/desktopdevice.h"
 #include "devicesupport/idevice.h"
 #include "abi.h"
@@ -1189,16 +1190,33 @@ void RunControlPrivate::debugMessage(const QString &msg)
 
 // SimpleTargetRunner
 
+namespace Internal {
+
+class SimpleTargetRunnerPrivate
+{
+public:
+    ApplicationLauncher m_launcher;
+    std::function<void()> m_starter;
+
+    bool m_stopReported = false;
+    bool m_stopForced = false;
+};
+
+} // Internal
+
 SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
-    : RunWorker(runControl)
+    : RunWorker(runControl), d(new Internal::SimpleTargetRunnerPrivate)
 {
     setId("SimpleTargetRunner");
 }
 
+SimpleTargetRunner::~SimpleTargetRunner() = default;
+
+
 void SimpleTargetRunner::start()
 {
-    if (m_starter) {
-        m_starter();
+    if (d->m_starter) {
+        d->m_starter();
     } else {
         Runnable runnable = runControl()->runnable();
         runnable.device = runControl()->device();
@@ -1216,55 +1234,40 @@ void SimpleTargetRunner::doStart(const Runnable &runnable)
     if (auto runAsRootAspect = runControl()->aspect<RunAsRootAspect>())
         runAsRoot = runAsRootAspect->value;
 
-    Environment env = runnable.environment;
-    if (runAsRoot)
-        RunControl::provideAskPassEntry(env);
-
-    m_stopForced = false;
-    m_stopReported = false;
-    m_launcher.disconnect(this);
-
-    m_launcher.setTerminalMode(useTerminal ? TerminalMode::On : TerminalMode::Off);
-    m_launcher.setRunAsRoot(runAsRoot);
-
-    m_launcher.setCommand(runnable.command);
-    m_launcher.setWorkingDirectory(runnable.workingDirectory);
-    m_launcher.setEnvironment(env);
-    m_launcher.setExtraData(runnable.extraData);
+    d->m_stopForced = false;
+    d->m_stopReported = false;
+    d->m_launcher.disconnect(this);
+    d->m_launcher.setUseTerminal(useTerminal);
+    d->m_launcher.setRunAsRoot(runAsRoot);
 
     const QString msg = RunControl::tr("Starting %1...").arg(runnable.command.toUserOutput());
     appendMessage(msg, Utils::NormalMessageFormat);
 
-    connect(&m_launcher, &QtcProcess::done, this, [this, runnable] {
-        if (m_stopReported)
+    connect(&d->m_launcher, &ApplicationLauncher::done, this, [this, runnable] {
+        if (d->m_stopReported)
             return;
         const QString executable = runnable.command.executable().toUserOutput();
-        const ProcessResultData resultData = m_launcher.resultData();
+        const ProcessResultData resultData = d->m_launcher.resultData();
         QString msg = tr("%2 exited with code %1").arg(resultData.m_exitCode).arg(executable);
         if (resultData.m_exitStatus == QProcess::CrashExit)
             msg = tr("%1 crashed.").arg(executable);
-        else if (m_stopForced)
+        else if (d->m_stopForced)
             msg = tr("The process was ended forcefully.");
         else if (resultData.m_error != QProcess::UnknownError)
             msg = userMessageForProcessError(resultData.m_error, runnable.command.executable());
         appendMessage(msg, NormalMessageFormat);
-        m_stopReported = true;
+        d->m_stopReported = true;
         reportStopped();
     });
 
-    connect(&m_launcher, &QtcProcess::readyReadStandardOutput, this, [this] {
-        appendMessage(QString::fromUtf8(m_launcher.readAllStandardOutput()), StdOutFormat);
-    });
-    connect(&m_launcher, &QtcProcess::readyReadStandardError, this, [this] {
-        appendMessage(QString::fromUtf8(m_launcher.readAllStandardError()), StdErrFormat);
-    });
+    connect(&d->m_launcher, &ApplicationLauncher::appendMessage, this, &RunWorker::appendMessage);
 
     const bool isDesktop = runnable.device.isNull()
                         || runnable.device.dynamicCast<const DesktopDevice>();
     if (isDesktop) {
-        connect(&m_launcher, &QtcProcess::started, this, [this] {
+        connect(&d->m_launcher, &ApplicationLauncher::started, this, [this] {
             // Console processes only know their pid after being started
-            ProcessHandle pid = ProcessHandle(m_launcher.processId());
+            ProcessHandle pid = d->m_launcher.applicationPID();
             runControl()->setApplicationProcessHandle(pid);
             pid.activate();
             reportStarted();
@@ -1275,20 +1278,21 @@ void SimpleTargetRunner::doStart(const Runnable &runnable)
             return;
         }
     } else {
-        connect(&m_launcher, &QtcProcess::started, this, &RunWorker::reportStarted);
+        connect(&d->m_launcher, &ApplicationLauncher::started, this, &RunWorker::reportStarted);
     }
-    m_launcher.start();
+    d->m_launcher.setRunnable(runnable);
+    d->m_launcher.start();
 }
 
 void SimpleTargetRunner::stop()
 {
-    m_stopForced = true;
-    m_launcher.kill();
+    d->m_stopForced = true;
+    d->m_launcher.stop();
 }
 
 void SimpleTargetRunner::setStarter(const std::function<void ()> &starter)
 {
-    m_starter = starter;
+    d->m_starter = starter;
 }
 
 
