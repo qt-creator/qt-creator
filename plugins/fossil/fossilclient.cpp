@@ -265,7 +265,7 @@ unsigned int FossilClient::synchronousBinaryVersion() const
 
     QtcProcess proc;
     vcsFullySynchronousExec(proc, FilePath(), args);
-    if (proc.result() != ProcessResult::Finished)
+    if (proc.result() != ProcessResult::FinishedWithSuccess)
         return 0;
 
     QString output = proc.stdOut();
@@ -304,7 +304,7 @@ BranchInfo FossilClient::synchronousCurrentBranch(const FilePath &workingDirecto
     // First try to get the current branch from the list of open branches
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, {"branch", "list"});
-    if (proc.result() != ProcessResult::Finished)
+    if (proc.result() != ProcessResult::FinishedWithSuccess)
         return BranchInfo();
 
     const QString output = sanitizeFossilOutput(proc.stdOut());
@@ -316,7 +316,7 @@ BranchInfo FossilClient::synchronousCurrentBranch(const FilePath &workingDirecto
         // If not available from open branches, request it from the list of closed branches.
         QtcProcess proc;
         vcsFullySynchronousExec(proc, workingDirectory, {"branch", "list", "--closed"});
-        if (proc.result() != ProcessResult::Finished)
+        if (proc.result() != ProcessResult::FinishedWithSuccess)
             return BranchInfo();
 
         const QString output = sanitizeFossilOutput(proc.stdOut());
@@ -339,7 +339,7 @@ QList<BranchInfo> FossilClient::synchronousBranchQuery(const FilePath &workingDi
     // First get list of open branches
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, {"branch", "list"});
-    if (proc.result() != ProcessResult::Finished)
+    if (proc.result() != ProcessResult::FinishedWithSuccess)
         return QList<BranchInfo>();
 
     QString output = sanitizeFossilOutput(proc.stdOut());
@@ -347,7 +347,7 @@ QList<BranchInfo> FossilClient::synchronousBranchQuery(const FilePath &workingDi
 
     // Append a list of closed branches.
     vcsFullySynchronousExec(proc, workingDirectory, {"branch", "list", "--closed"});
-    if (proc.result() != ProcessResult::Finished)
+    if (proc.result() != ProcessResult::FinishedWithSuccess)
         return QList<BranchInfo>();
 
     output = sanitizeFossilOutput(proc.stdOut());
@@ -388,7 +388,7 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const FilePath &workingDirec
 
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args, ShellCommand::SuppressCommandLogging);
-    if (proc.result() != ProcessResult::Finished)
+    if (proc.result() != ProcessResult::FinishedWithSuccess)
         return RevisionInfo();
 
     const QString output = sanitizeFossilOutput(proc.stdOut());
@@ -452,7 +452,7 @@ QStringList FossilClient::synchronousTagQuery(const FilePath &workingDirectory, 
 
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
-    if (proc.result() != ProcessResult::Finished)
+    if (proc.result() != ProcessResult::FinishedWithSuccess)
         return QStringList();
 
     const QString output = sanitizeFossilOutput(proc.stdOut());
@@ -475,7 +475,7 @@ RepositorySettings FossilClient::synchronousSettingsQuery(const FilePath &workin
 
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
-    if (proc.result() != ProcessResult::Finished)
+    if (proc.result() != ProcessResult::FinishedWithSuccess)
         return RepositorySettings();
 
     const QString output = sanitizeFossilOutput(proc.stdOut());
@@ -530,7 +530,7 @@ bool FossilClient::synchronousSetSetting(const FilePath &workingDirectory,
 
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
-    return (proc.result() == ProcessResult::Finished);
+    return (proc.result() == ProcessResult::FinishedWithSuccess);
 }
 
 
@@ -587,7 +587,7 @@ QString FossilClient::synchronousUserDefaultQuery(const FilePath &workingDirecto
 
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
-    if (proc.result() != ProcessResult::Finished)
+    if (proc.result() != ProcessResult::FinishedWithSuccess)
         return QString();
 
     QString output = sanitizeFossilOutput(proc.stdOut());
@@ -604,7 +604,7 @@ bool FossilClient::synchronousSetUserDefault(const FilePath &workingDirectory, c
     const QStringList args({"user", "default", userName, "--user", userName});
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
-    return (proc.result() == ProcessResult::Finished);
+    return (proc.result() == ProcessResult::FinishedWithSuccess);
 }
 
 QString FossilClient::synchronousGetRepositoryURL(const FilePath &workingDirectory)
@@ -616,7 +616,7 @@ QString FossilClient::synchronousGetRepositoryURL(const FilePath &workingDirecto
 
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
-    if (proc.result() != ProcessResult::Finished)
+    if (proc.result() != ProcessResult::FinishedWithSuccess)
         return QString();
 
     QString output = sanitizeFossilOutput(proc.stdOut());
@@ -670,7 +670,7 @@ bool FossilClient::synchronousCreateRepository(const FilePath &workingDirectory,
     args << extraOptions << repoFilePath.toUserOutput();
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
-    if (proc.result() != ProcessResult::Finished)
+    if (proc.result() != ProcessResult::FinishedWithSuccess)
         return false;
 
     QString output = sanitizeFossilOutput(proc.stdOut());
@@ -683,7 +683,7 @@ bool FossilClient::synchronousCreateRepository(const FilePath &workingDirectory,
 
     args << "open" << repoFilePath.toUserOutput();
     vcsFullySynchronousExec(proc, workingDirectory, args);
-    if (proc.result() != ProcessResult::Finished)
+    if (proc.result() != ProcessResult::FinishedWithSuccess)
         return false;
 
     output = sanitizeFossilOutput(proc.stdOut());
@@ -697,7 +697,7 @@ bool FossilClient::synchronousCreateRepository(const FilePath &workingDirectory,
 
         args << "user" << "default" << adminUser << "--user" << adminUser;
         vcsFullySynchronousExec(proc, workingDirectory, args);
-        if (proc.result() != ProcessResult::Finished)
+        if (proc.result() != ProcessResult::FinishedWithSuccess)
             return false;
 
         QString output = sanitizeFossilOutput(proc.stdOut());
@@ -724,7 +724,7 @@ bool FossilClient::synchronousMove(const FilePath &workingDir,
     args << extraOptions << from << to;
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDir, args);
-    return (proc.result() == ProcessResult::Finished);
+    return (proc.result() == ProcessResult::FinishedWithSuccess);
 }
 
 bool FossilClient::synchronousPull(const FilePath &workingDir, const QString &srcLocation, const QStringList &extraOptions)
@@ -746,7 +746,7 @@ bool FossilClient::synchronousPull(const FilePath &workingDir, const QString &sr
             | VcsBase::VcsCommand::ShowSuccessMessage;
     QtcProcess proc;
     vcsSynchronousExec(proc, workingDir, args, flags);
-    const bool success = (proc.result() == ProcessResult::Finished);
+    const bool success = (proc.result() == ProcessResult::FinishedWithSuccess);
     if (success)
         emit changed(workingDir.toVariant());
     return success;
@@ -771,7 +771,7 @@ bool FossilClient::synchronousPush(const FilePath &workingDir, const QString &ds
             | VcsBase::VcsCommand::ShowSuccessMessage;
     QtcProcess proc;
     vcsSynchronousExec(proc, workingDir, args, flags);
-    return (proc.result() == ProcessResult::Finished);
+    return (proc.result() == ProcessResult::FinishedWithSuccess);
 }
 
 void FossilClient::commit(const FilePath &repositoryRoot, const QStringList &files,
@@ -859,7 +859,7 @@ bool FossilClient::managesFile(const FilePath &workingDirectory, const QString &
     const QStringList args({"finfo", fileName});
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
-    if (proc.result() != ProcessResult::Finished)
+    if (proc.result() != ProcessResult::FinishedWithSuccess)
         return false;
     QString output = sanitizeFossilOutput(proc.stdOut());
     return !output.startsWith("no history for file", Qt::CaseInsensitive);
