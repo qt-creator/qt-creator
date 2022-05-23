@@ -120,6 +120,8 @@ public:
     explicit JsonRpcMessage(const QJsonObject &jsonObject);
     explicit JsonRpcMessage(QJsonObject &&jsonObject);
 
+    virtual ~JsonRpcMessage() = default;
+
     static QByteArray jsonRpcMimeType();
 
     QByteArray toRawData() const;
