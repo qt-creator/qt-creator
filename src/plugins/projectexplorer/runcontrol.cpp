@@ -1402,10 +1402,6 @@ void SimpleTargetRunnerPrivate::start()
     m_resultData = {};
 
     if (m_isLocal) {
-        // Work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch' ...)
-        const FilePath fixedPath = m_runnable.workingDirectory.normalizedPathName();
-        m_process.setWorkingDirectory(fixedPath);
-
         Environment env = m_runnable.environment;
         if (m_runAsRoot)
             RunControl::provideAskPassEntry(env);
@@ -1449,10 +1445,11 @@ void SimpleTargetRunnerPrivate::start()
         m_stopRequested = false;
 
         m_process.setCommand(m_runnable.command);
-        m_process.setWorkingDirectory(m_runnable.workingDirectory);
         m_process.setEnvironment(m_runnable.environment);
         m_process.setExtraData(m_runnable.extraData);
     }
+
+    m_process.setWorkingDirectory(m_runnable.workingDirectory);
 
     if (m_isLocal)
         m_outputCodec = QTextCodec::codecForLocale();
