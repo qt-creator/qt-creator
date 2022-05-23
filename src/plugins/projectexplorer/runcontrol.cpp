@@ -1216,6 +1216,10 @@ void SimpleTargetRunner::doStart(const Runnable &runnable)
     if (auto runAsRootAspect = runControl()->aspect<RunAsRootAspect>())
         runAsRoot = runAsRootAspect->value;
 
+    Environment env = runnable.environment;
+    if (runAsRoot)
+        RunControl::provideAskPassEntry(env);
+
     m_stopForced = false;
     m_stopReported = false;
     m_launcher.disconnect(this);
@@ -1225,7 +1229,7 @@ void SimpleTargetRunner::doStart(const Runnable &runnable)
 
     m_launcher.setCommand(runnable.command);
     m_launcher.setWorkingDirectory(runnable.workingDirectory);
-    m_launcher.setEnvironment(runnable.environment);
+    m_launcher.setEnvironment(env);
     m_launcher.setExtraData(runnable.extraData);
 
     const QString msg = RunControl::tr("Starting %1...").arg(runnable.command.toUserOutput());
