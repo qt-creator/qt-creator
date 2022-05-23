@@ -89,3 +89,5 @@ private:
 };
 
 } // namespace RemoteLinux
+
+Q_DECLARE_METATYPE(RemoteLinux::FileTransferMethod)
