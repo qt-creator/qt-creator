@@ -213,12 +213,16 @@ public:
 
     Q_INVOKABLE void createProject()
     {
-        ProjectExplorer::ProjectExplorerPlugin::openNewProjectDialog();
+        QTimer::singleShot(0, []() {
+            ProjectExplorer::ProjectExplorerPlugin::openNewProjectDialog();
+        });
     }
 
     Q_INVOKABLE void openProject()
     {
-        ProjectExplorer::ProjectExplorerPlugin::openOpenProjectDialog();
+        QTimer::singleShot(0, []() {
+            ProjectExplorer::ProjectExplorerPlugin::openOpenProjectDialog();
+        });
     }
 
     Q_INVOKABLE void openProjectAt(int row)
