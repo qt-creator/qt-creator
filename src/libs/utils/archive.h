@@ -28,12 +28,12 @@
 #include "utils_global.h"
 
 #include "commandline.h"
-#include "fileutils.h"
 
 #include <QObject>
 
 namespace Utils {
 
+class FilePath;
 class QtcProcess;
 
 class QTCREATOR_UTILS_EXPORT Archive : public QObject

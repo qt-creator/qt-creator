@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "buildablehelperlibrary.h"
+#include "environment.h"
 #include "hostosinfo.h"
 #include "qtcprocess.h"
 

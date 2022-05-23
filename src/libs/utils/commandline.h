@@ -27,7 +27,7 @@
 
 #include "utils_global.h"
 
-#include "fileutils.h"
+#include "filepath.h"
 #include "hostosinfo.h"
 
 #include <QStringList>

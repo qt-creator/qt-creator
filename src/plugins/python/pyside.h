@@ -29,6 +29,7 @@
 
 #include <utils/filepath.h>
 
+#include <QCoreApplication>
 #include <QTextDocument>
 
 namespace TextEditor { class TextDocument; }

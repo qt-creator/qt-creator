@@ -25,11 +25,11 @@
 
 #include "mcusupportversiondetection.h"
 
-#include <utils/filepath.h>
 #include <utils/qtcprocess.h>
 
 #include <QDir>
 #include <QRegularExpression>
+#include <QXmlStreamReader>
 
 namespace McuSupport {
 namespace Internal {

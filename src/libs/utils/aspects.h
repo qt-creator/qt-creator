@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "fileutils.h"
+#include "filepath.h"
 #include "id.h"
 #include "infolabel.h"
 #include "macroexpander.h"

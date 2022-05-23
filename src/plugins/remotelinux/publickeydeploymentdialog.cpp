@@ -27,6 +27,7 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
+#include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
 

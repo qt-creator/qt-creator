@@ -25,10 +25,15 @@
 
 #pragma once
 
-#include "environment.h"
+#include "utils_global.h"
+
 #include "filepath.h"
 
+#include <QCoreApplication>
+
 namespace Utils {
+
+class Environment;
 
 class QTCREATOR_UTILS_EXPORT BuildableHelperLibrary
 {
