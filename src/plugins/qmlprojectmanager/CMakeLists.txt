@@ -17,6 +17,7 @@ add_qtc_plugin(QmlProjectManager
     cmakegen/boilerplate.qrc
     projectfilecontenttools.cpp projectfilecontenttools.h
     qdslandingpage.cpp qdslandingpage.h
+    qdslandingpagetheme.cpp qdslandingpagetheme.h
     qmlmainfileaspect.cpp qmlmainfileaspect.h
     qmlmultilanguageaspect.cpp qmlmultilanguageaspect.h
     qmlproject.cpp qmlproject.h

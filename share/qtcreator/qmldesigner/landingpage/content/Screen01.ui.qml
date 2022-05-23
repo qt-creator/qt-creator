@@ -36,12 +36,14 @@ Check out https://doc.qt.io/qtcreator/creator-quick-ui-forms.html for details on
 import QtQuick 2.15
 import QtQuick.Controls 6.2
 import LandingPage
+import LandingPageApi
+import QdsLandingPageTheme as Theme
 
 Rectangle {
     id: rectangle2
     width: 1024
     height: 768
-    color: "#c3c3c3"
+    color: Theme.Values.themeBackgroundColorNormal
     property bool qdsInstalled: true
     property alias openQtcButton: openQtc
     property alias openQdsButton: openQds
@@ -59,7 +61,7 @@ Rectangle {
         id: logoArea
         width: parent.width
         height: 180
-        color: "#c3c3c3"
+        color: Theme.Values.themeBackgroundColorNormal
         anchors.top: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
 
@@ -74,8 +76,8 @@ Rectangle {
         Text {
             id: qdsText
             text: qsTr("Qt Design Studio")
-            font.pixelSize: 55
-            font.family: "TitilliumWeb"
+            font.pixelSize: Constants.fontSizeTitle
+            font.family: Theme.Values.baseFont
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 20
@@ -100,9 +102,8 @@ Rectangle {
         InstallQdsStatusBlock {
             id: installQdsStatusBlock
             width: parent.width
-            anchors.top: parent.top
-            anchors.topMargin: 0
             anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
             visible: !qdsInstalled
         }
 
@@ -110,9 +111,8 @@ Rectangle {
             id: projectInfoStatusBlock
             width: parent.width
             visible: !installQdsStatusBlock.visible
-            anchors.top: parent.top
-            anchors.topMargin: 0
             anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
         }
 
         LandingSeparator {
@@ -128,7 +128,7 @@ Rectangle {
         height: 220
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
-        color: "#c3c3c3"
+        color: Theme.Values.themeBackgroundColorNormal
 
         Item {
             id: openQdsBox
@@ -142,8 +142,8 @@ Rectangle {
             Text {
                 id: openQdsText
                 text: qsTr("Open with Qt Design Studio")
-                font.pixelSize: 22
-                font.family: "TitilliumWeb"
+                font.pixelSize: Constants.fontSizeSubtitle
+                font.family: Theme.Values.baseFont
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: parent.top
                 anchors.topMargin: 50
@@ -171,8 +171,8 @@ Rectangle {
             Text {
                 id: openQtcText
                 text: qsTr("Open with Qt Creator - Text Mode")
-                font.pixelSize: 22
-                font.family: "TitilliumWeb"
+                font.pixelSize: Constants.fontSizeSubtitle
+                font.family: Theme.Values.baseFont
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: parent.top
                 anchors.topMargin: 50
@@ -190,7 +190,7 @@ Rectangle {
         CheckBox {
             id: rememberCheckbox
             text: qsTr("Remember my choice")
-            font.family: "TitilliumWeb"
+            font.family: Theme.Values.baseFont
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 30
             anchors.horizontalCenter: parent.horizontalCenter

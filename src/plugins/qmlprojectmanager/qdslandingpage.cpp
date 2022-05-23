@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "qdslandingpage.h"
+#include "qdslandingpagetheme.h"
 #include "utils/algorithm.h"
 
 #include <coreplugin/icore.h>
@@ -46,6 +47,8 @@ QdsLandingPage::QdsLandingPage(QWidget *parent)
     const QString landingPath = Core::ICore::resourcePath(LANDINGPAGEPATH).toString();
 
     qmlRegisterSingletonInstance<QdsLandingPage>("LandingPageApi", 1, 0, "LandingPageApi", this);
+    QdsLandingPageTheme::setupTheme(m_dialog->engine());
+
     m_dialog->setResizeMode(QQuickWidget::SizeRootObjectToView);
     m_dialog->engine()->addImportPath(landingPath + "/imports");
     m_dialog->engine()->addImportPath(resourcePath);

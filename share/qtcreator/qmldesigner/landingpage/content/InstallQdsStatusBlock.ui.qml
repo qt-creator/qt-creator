@@ -36,10 +36,11 @@ Check out https://doc.qt.io/qtcreator/creator-quick-ui-forms.html for details on
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import LandingPage
+import QdsLandingPageTheme as Theme
 
 Rectangle {
     id: installQdsBlock
-    color: "#c3c3c3"
+    color: Theme.Values.themeBackgroundColorNormal
     border.width: 0
     property alias installQdsBlockVisible: installQdsBlock.visible
     property alias installButton: installButton
@@ -48,8 +49,8 @@ Rectangle {
     Text {
         id: statusText
         text: qsTr("No Qt Design Studio installation found")
-        font.family: "TitilliumWeb"
-        font.pixelSize: 18
+        font.family: Theme.Values.baseFont
+        font.pixelSize: Constants.fontSizeSubtitle
         anchors.top: parent.top
         anchors.topMargin: 10
         anchors.horizontalCenter: parent.horizontalCenter
@@ -58,8 +59,8 @@ Rectangle {
     Text {
         id: suggestionText
         text: qsTr("Would you like to install it now?")
-        font.family: "TitilliumWeb"
-        font.pixelSize: 18
+        font.family: Theme.Values.baseFont
+        font.pixelSize: Constants.fontSizeSubtitle
         anchors.top: statusText.bottom
         anchors.topMargin: 10
         anchors.horizontalCenterOffset: 0

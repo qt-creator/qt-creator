@@ -29,4 +29,7 @@ import QtQuick 2.10
 QtObject {
     readonly property int buttonDefaultMargin: 30
     readonly property int buttonSmallMargin: 20
+
+    readonly property int fontSizeTitle: 55
+    readonly property int fontSizeSubtitle: 22
 }

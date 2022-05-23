@@ -3,9 +3,8 @@
 ** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of Qt Quick Studio Components.
+** This file is part of Qt Creator.
 **
-** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -16,25 +15,42 @@
 **
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3 or (at your option) any later version
-** approved by the KDE Free Qt Foundation. The licenses are as published by
-** the Free Software Foundation and appearing in the file LICENSE.GPL3
+** General Public License version 3 as published by the Free Software
+** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
 ** included in the packaging of this file. Please review the following
 ** information to ensure the GNU General Public License requirements will
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
-** $QT_END_LICENSE$
-**
 ****************************************************************************/
 
-import QtQuick 2.15
-import QtQuick.Controls 2.15
-import QdsLandingPageTheme as Theme
+#include "qdslandingpagetheme.h"
 
-Rectangle {
-    color: Theme.Values.themeControlBackground
-    width: parent.width
-    height: 2
-    z: 10
-    anchors.horizontalCenter: parent.horizontalCenter
+#include <qmlprojectplugin.h>
+
+#include <coreplugin/icore.h>
+
+#include <QQmlEngine>
+#include <QQmlComponent>
+
+namespace QmlProjectManager {
+
+QdsLandingPageTheme::QdsLandingPageTheme(Utils::Theme *originTheme, QObject *parent)
+    : Utils::Theme(originTheme, parent)
+{
+
 }
+
+void QdsLandingPageTheme::setupTheme(QQmlEngine *engine)
+{
+    Q_UNUSED(engine)
+
+    static const int typeIndex = qmlRegisterSingletonType<QdsLandingPageTheme>(
+        "LandingPageTheme", 1, 0, "Theme", [](QQmlEngine *, QJSEngine *) {
+            return new QdsLandingPageTheme(Utils::creatorTheme(), nullptr);
+        });
+    QScopedPointer<QdsLandingPageTheme> theme(new QdsLandingPageTheme(Utils::creatorTheme(), nullptr));
+
+    Q_UNUSED(typeIndex)
+}
+
+} //QmlProjectManager

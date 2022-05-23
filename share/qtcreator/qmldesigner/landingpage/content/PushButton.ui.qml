@@ -26,6 +26,7 @@
 ****************************************************************************/
 import QtQuick 2.15
 import QtQuick.Templates 2.15
+import QdsLandingPageTheme as Theme
 
 Button {
     id: control
@@ -42,17 +43,18 @@ Button {
     text: "My Button"
     property alias fontpixelSize: textItem.font.pixelSize
     property bool forceHover: false
+    hoverEnabled: true
     state: "normal"
 
     background: buttonBackground
     Rectangle {
         id: buttonBackground
-        color: "#00000000"
+        color: Theme.Values.themeControlBackground
         implicitWidth: 100
         implicitHeight: 40
         opacity: enabled ? 1 : 0.3
         radius: 2
-        border.color: "#047eff"
+        border.color: Theme.Values.themeControlOutline
         anchors.fill: parent
     }
 
@@ -64,7 +66,7 @@ Button {
         font.pixelSize: 18
 
         opacity: enabled ? 1.0 : 0.3
-        color: "#ffffff"
+        color: Theme.Values.themeTextColor
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         rightPadding: 5
@@ -78,13 +80,13 @@ Button {
 
             PropertyChanges {
                 target: buttonBackground
-                color: "#323232"
-                border.color: "#868686"
+                color: Theme.Values.themeControlBackground
+                border.color: Theme.Values.themeControlOutline
             }
 
             PropertyChanges {
                 target: textItem
-                color: "#ffffff"
+                color: Theme.Values.themeTextColor
             }
         },
         State {
@@ -92,13 +94,13 @@ Button {
             when: (control.hovered || control.forceHover) && !control.down
             PropertyChanges {
                 target: textItem
-                color: "#ffffff"
+                color: Theme.Values.themeTextColor
             }
 
             PropertyChanges {
                 target: buttonBackground
-                color: "#474747"
-                border.color: "#adadad"
+                color: Theme.Values.themeControlBackgroundHover
+                border.color: Theme.Values.themeControlBackgroundHover
             }
         },
         State {
@@ -106,13 +108,13 @@ Button {
             when: control.down
             PropertyChanges {
                 target: textItem
-                color: "#111111"
+                color: Theme.Values.themeTextColor
             }
 
             PropertyChanges {
                 target: buttonBackground
-                color: "#2e769e"
-                border.color: "#2e769e"
+                color: Theme.Values.themeControlBackgroundInteraction
+                border.color: Theme.Values.themeControlOutlineInteraction
             }
         }
     ]

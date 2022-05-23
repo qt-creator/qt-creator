@@ -36,12 +36,13 @@ Check out https://doc.qt.io/qtcreator/creator-quick-ui-forms.html for details on
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import LandingPage
+import QdsLandingPageTheme as Theme
 
 Rectangle {
     id: projectInfo
     height: 300
-    color: "#c3c3c3"
-    border.color: "#ffffff"
+    color: Theme.Values.themeBackgroundColorNormal
+    border.color: Theme.Values.themeBackgroundColorNormal
     border.width: 0
     property bool qdsInstalled: qdsVersionText.text.length > 0
     property bool projectFileExists: false
@@ -62,8 +63,8 @@ Rectangle {
         Text {
             id: projectFileInfoTitle
             text: qsTr("QML PROJECT FILE INFO")
-            font.family: "TitilliumWeb"
-            font.pixelSize: 18
+            font.family: Theme.Values.baseFont
+            font.pixelSize: Constants.fontSizeSubtitle
             anchors.top: parent.top
             horizontalAlignment: Text.AlignHCenter
             anchors.horizontalCenter: parent.horizontalCenter
@@ -82,8 +83,8 @@ Rectangle {
             Text {
                 id: qtVersionText
                 text: qsTr("Qt Version - ") + qtVersion
-                font.family: "TitilliumWeb"
-                font.pixelSize: 18
+                font.family: Theme.Values.baseFont
+                font.pixelSize: Constants.fontSizeSubtitle
                 anchors.top: parent.top
                 horizontalAlignment: Text.AlignHCenter
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -93,8 +94,8 @@ Rectangle {
             Text {
                 id: qdsVersionText
                 text: qsTr("Qt Design Studio Version - ") + qdsVersion
-                font.family: "TitilliumWeb"
-                font.pixelSize: 18
+                font.family: Theme.Values.baseFont
+                font.pixelSize: Constants.fontSizeSubtitle
                 anchors.top: qtVersionText.bottom
                 horizontalAlignment: Text.AlignHCenter
                 anchors.topMargin: 10
@@ -114,8 +115,8 @@ Rectangle {
             Text {
                 id: projectFileInfoMissingText
                 text: qsTr("No QML project file found - Would you like to create one?")
-                font.family: "TitilliumWeb"
-                font.pixelSize: 18
+                font.family: Theme.Values.baseFont
+                font.pixelSize: Constants.fontSizeSubtitle
                 anchors.top: parent.top
                 horizontalAlignment: Text.AlignHCenter
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -143,8 +144,8 @@ Rectangle {
         Text {
             id: cmakeInfoTitle
             text: qsTr("CMAKE RESOURCE FILES")
-            font.family: "TitilliumWeb"
-            font.pixelSize: 18
+            font.family: Theme.Values.baseFont
+            font.pixelSize: Constants.fontSizeSubtitle
             anchors.top: parent.top
             horizontalAlignment: Text.AlignHCenter
             anchors.horizontalCenter: parent.horizontalCenter
@@ -164,7 +165,7 @@ Rectangle {
                 id: cmakeList
                 text: qsTr("")
                 font.family: "TitilliumWeb"
-                font.pixelSize: 18
+                font.pixelSize: Constants.fontSizeSubtitle
                 anchors.top: parent.top
                 horizontalAlignment: Text.AlignHCenter
                 anchors.topMargin: 0
@@ -184,8 +185,8 @@ Rectangle {
             Text {
                 id: cmakeMissingText
                 text: qsTr("No resource files found - Would you like to generate them?")
-                font.family: "TitilliumWeb"
-                font.pixelSize: 18
+                font.family: Theme.Values.baseFont
+                font.pixelSize: Constants.fontSizeSubtitle
                 anchors.top: parent.top
                 horizontalAlignment: Text.AlignHCenter
                 anchors.topMargin: 10
