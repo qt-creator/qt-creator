@@ -100,7 +100,7 @@ public:
 
 private:
     TimelineWidget *createWidget();
-    TimelineWidget *m_timelineWidget = nullptr;
+    QPointer<TimelineWidget> m_timelineWidget;
     bool hasQtQuickTimelineImport();
     void ensureQtQuickTimelineImport();
 };

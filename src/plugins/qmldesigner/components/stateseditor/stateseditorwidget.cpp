@@ -30,6 +30,8 @@
 
 #include <designersettings.h>
 #include <theme.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
 
 #include <invalidqmlsourceexception.h>
 
@@ -137,6 +139,19 @@ void StatesEditorWidget::showEvent(QShowEvent *event)
 {
     QQuickWidget::showEvent(event);
     update();
+}
+
+void StatesEditorWidget::focusOutEvent(QFocusEvent *focusEvent)
+{
+    QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_STATESEDITOR_TIME,
+                                               m_usageTimer.elapsed());
+    QQuickWidget::focusOutEvent(focusEvent);
+}
+
+void StatesEditorWidget::focusInEvent(QFocusEvent *focusEvent)
+{
+    m_usageTimer.restart();
+    QQuickWidget::focusInEvent(focusEvent);
 }
 
 void StatesEditorWidget::reloadQmlSource()

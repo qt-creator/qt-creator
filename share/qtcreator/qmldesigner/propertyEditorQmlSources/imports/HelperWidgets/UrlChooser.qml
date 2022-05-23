@@ -185,24 +185,34 @@ Row {
         onEditTextChanged: comboBox.dirty = true
 
         function setCurrentText(text) {
-            var index = comboBox.find(text)
-            if (index === -1)
-                comboBox.currentIndex = -1
-
+            comboBox.currentIndex = comboBox.find(text)
+            comboBox.setHighlightedIndexItems(comboBox.currentIndex)
+            comboBox.autocompleteString = ""
             comboBox.editText = text
             comboBox.dirty = false
         }
 
         // Takes into account applied bindings
-        property string textValue: {
-            if (root.backendValue.isBound)
-                return root.backendValue.expression
+        function updateTextValue() {
+            if (root.backendValue.isBound) {
+                comboBox.textValue = root.backendValue.expression
+            } else {
+                var fullPath = root.backendValue.valueToString
+                comboBox.textValue = fullPath.substr(fullPath.lastIndexOf('/') + 1)
+            }
 
-            var fullPath = root.backendValue.valueToString
-            return fullPath.substr(fullPath.lastIndexOf('/') + 1)
+            comboBox.setCurrentText(comboBox.textValue)
         }
 
-        onTextValueChanged: comboBox.setCurrentText(comboBox.textValue)
+        Connections {
+            target: root.backendValue
+
+            function onIsBoundChanged() { comboBox.updateTextValue() }
+            function onExpressionChanged() { comboBox.updateTextValue() }
+            function onValueChangedQml() { comboBox.updateTextValue() }
+        }
+
+        property string textValue: ""
 
         onModelChanged: {
             if (!comboBox.isComplete)
@@ -223,7 +233,6 @@ Row {
                 inputValue = comboBox.items.get(index).model.fullPath
 
             root.backendValue.value = inputValue
-
             comboBox.dirty = false
         }
 
@@ -303,7 +312,10 @@ Row {
 
     onDefaultItemsChanged: root.createModel()
 
-    Component.onCompleted: root.createModel()
+    Component.onCompleted: {
+        root.createModel()
+        comboBox.updateTextValue()
+    }
 
     function indexOf(model, criteria) {
         for (var i = 0; i < model.count; ++i) {

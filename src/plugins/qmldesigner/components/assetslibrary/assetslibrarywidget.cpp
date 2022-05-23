@@ -188,6 +188,8 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
         }
     });
 
+     QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_ASSETSLIBRARY_TIME);
+
     // init the first load of the QML UI elements
     reloadQmlSource();
 }

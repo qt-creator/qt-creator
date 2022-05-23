@@ -35,6 +35,8 @@
 #include "shortcutmanager.h"
 #include <designeractionmanager.h>
 
+#include <QElapsedTimer>
+
 QT_FORWARD_DECLARE_CLASS(QQmlEngine)
 
 namespace Core {
@@ -95,6 +97,8 @@ public:
 
     static void registerPreviewImageProvider(QQmlEngine *engine);
 
+    static void trackWidgetFocusTime(QWidget *widget, const QString &identifier);
+
 signals:
     void usageStatisticsNotifier(const QString &identifier);
     void usageStatisticsUsageTimer(const QString &identifier, int elapsed);
@@ -116,6 +120,7 @@ private: // functions
 private: // variables
     QmlDesignerPluginPrivate *d = nullptr;
     static QmlDesignerPlugin *m_instance;
+    QElapsedTimer m_usageTimer;
 };
 
 } // namespace QmlDesigner

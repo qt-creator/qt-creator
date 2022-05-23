@@ -36,19 +36,15 @@
     feature in \QDS 2.2, and its functionality will be improved in future
     releases.
 
-    The \uicontrol Repeater3D component is used to create a large number of
+    The \uicontrol Repeater3D component is used to create multiple
     similar items. Like other view types, \uicontrol Repeater3D needs a model
-    and a delegate. For each entry in the model, the delegate is instantiated in
-    a context seeded with data from the model.
+    and a delegate. The delegate sets the item to use and the model sets the
+    structure of the items in the \uicontrol Repeater3D component.
 
-    The model can be any of the supported \l{Lists and Other Data Models}
+    The model can be any of the supported \l{Qt QML Models QML Types}
     {data models}. Additionally, like delegates for other views, a delegate for
     the \uicontrol Repeater3D can access its index within the repeater, as well
     as the model data relevant to the delegate.
-
-    Add a \uicontrol Repeater3D component to your scene by drag-and-dropping it
-    from \uicontrol Components > \uicontrol {Qt Quick 3D} >
-    \uicontrol {Qt Quick 3D} to \uicontrol Scene in \uicontrol Navigator.
 
     \note \uicontrol Repeater3D owns all items it instantiates. Removing or
     dynamically destroying an item created by \uicontrol Repeater3D results in
@@ -60,15 +56,15 @@
     For more information, see \l{https://doc.qt.io/qt/qml-qtquick3d-repeater3d.html}
     {Repeater3D} in the \uicontrol {Qt Quick 3D} documentation.
 
-    \section1 Repeater3D Properties
+    \section2 Repeater3D Properties
 
-    To define a model providing data for the repeater, select it in \l Navigator,
-    and then in \uicontrol Properties > \uicontrol Repeater, specify the
-    \uicontrol Model property. Currently, you can only use the \uicontrol Model
-    property in the \uicontrol Properties view to set a numeric model or to bind
-    to QML based models. You can use the \l {Working in Edit Mode}{Edit} mode or
-    \l {Text Editor} to define any of the supported data models as the value of
-    the \uicontrol Model property:
+    \section3 Model
+
+    The \uicontrol Model property specifies the model providing data for the
+    repeater. You can only use the \uicontrol Model property in the
+    \uicontrol Properties view to set a numeric model or to bind to QML based
+    models. You can use \l {Text Editor} to define any of the supported
+    data models as the value of the \uicontrol Model property:
         \list
             \li A number that indicates the number of delegates to be created by
                 the repeater.
@@ -79,6 +75,8 @@
         \endlist
 
     The type of model affects the properties that are exposed to the delegate.
+
+    \section3 Delegate
 
     The \uicontrol Delegate property specifies a template defining each object
     instantiated by the repeater. Currently, the \uicontrol Delegate property
@@ -91,5 +89,147 @@
     If the model is a model object, such as a ListModel, the delegate can access
     all model roles as named properties, in the same way that delegates do for
     view classes like \uicontrol ListView.
+
+    \section1 Adding a Repeater3D Component with a Numeric Model
+
+    This section explains how to add a \uicontrol Repeater3D component with
+    a numeric model to your \QDS project.
+
+    To add a \uicontrol Repeater3D component:
+
+    \list 1
+      \li Drag a \uicontrol Repeater3D component from \uicontrol Components to
+      \e scene in \uicontrol Navigator.
+      \li Select \e repeater3D in \uicontrol Navigator and in
+      \uicontrol Properties, set \uicontrol Model to 4.
+      \image repeater3d-model-property.png
+    \endlist
+    Now, you have set up the \uicontrol Repeater3D component to use a numeric
+    model that draws four instances of the same item. Next, you need to add the
+    item to draw. In this example we are using a \uicontrol Cube.
+    \list 1
+      \li From \uicontrol Components, drag a \uicontrol Cube to \e repeater3D in
+      \uicontrol Navigator.
+      Now, four cubes are drawn to the scene, but they are drawn to the exact same
+      place.
+      \li Select \e cube in \uicontrol Navigator and in \uicontrol Properties
+      select \inlineimage icons/action-icon.png
+      next to \uicontrol Translation > \uicontrol X.
+      \li Select \uicontrol {Set binding} to open \uicontrol {Binding Editor}.
+      \li In the binding editor, enter \c{index * 150}. This sets the X
+      location to increase by 150 for each of the cube instances.
+      \image repeater3d-index-binding.png
+      \li Select \uicontrol OK and go to \uicontrol {3D Editor} to see the
+      result.
+    \endlist
+    \image repeater3d-numeric-model.webp
+
+    \section1 Adding a Repeater3D Component with a List Model
+
+    This section explains how to add a \uicontrol Repeater3D component with
+    a ListModel to your \QDS project:
+
+    To add a \uicontrol Repeater3D component:
+
+    \list 1
+      \li Drag a \uicontrol Repeater3D component from \uicontrol Components to
+      \e scene in \uicontrol Navigator.
+      \li You need to enter the QML code for the \uicontrol ListModel manually.
+      Go to \uicontrol {Text Editor} and enter the following code somewhere
+      inside the root object:
+      \code qml
+        ListModel {
+            id: planetModel
+            ListElement {
+                name: "Mars"
+                radius: 3.39
+            }
+            ListElement {
+                name: "Earth"
+                radius: 6.37
+            }
+            ListElement {
+                name: "Venus"
+                radius: 6.05
+            }
+        }
+        \endcode
+      The default root object for a \QDS project is \uicontrol Rectangle, so
+      you can paste the \uicontrol ListModel code, for example, like this:
+      \code qml
+      Rectangle {
+        width: Constants.width
+        height: Constants.height
+        color: Constants.backgroundColor
+
+        ListModel {
+            id: planetModel
+            ListElement {
+                name: "Mars"
+                radius: 3.39
+            }
+            ListElement {
+                name: "Earth"
+                radius: 6.37
+            }
+            ListElement {
+                name: "Venus"
+                radius: 6.05
+            }
+        }
+
+        View3D {
+            id: view3D
+            anchors.fill: parent
+            ...
+    \endcode
+    \li In \uicontrol {Text Editor}, add \c {model: planetModel} to the
+    \uicontrol Repeater3D object to tell that you want to use your
+    \uicontrol ListModel as the model for the \uicontrol Repeater3D object.
+    \code qml
+    Repeater3D {
+        id: repeater3D
+        model: planetModel
+    }
+    \endcode
+    \endlist
+
+    Now, you have set up the \uicontrol Repeater3D component to use a
+    \uicontrol ListModel to draw the items. Next, you need to add the
+    item to draw. In this example we are using a \uicontrol Sphere.
+
+    \list 1
+      \li From \uicontrol Components, drag a \uicontrol Sphere to \e repeater3D
+      in \uicontrol Navigator.
+      \image repeater3d-listmodel-navigator.png
+      \li Select \e sphere in \uicontrol Navigator and select
+      \inlineimage icons/action-icon.png
+      next to \uicontrol Scale > \uicontrol X.
+      \li Select \uicontrol {Set binding} to open \uicontrol {Binding Editor}.
+      \li In the binding editor, enter \c{radius}. This sets the X
+      scale to the radius value defined in the ListModel for each of the sphere
+      instances.
+      \image repeater3d-radius-binding.png
+      \li Select \uicontrol OK.
+      \li Repeat steps 2 to 5 for \uicontrol Scale > \uicontrol Y and
+      \uicontrol Scale > \uicontrol Z.
+    \endlist
+
+    Now, three spheres of different size are drawn but they are drawn in the same
+    position so you need to change the position to see all spheres.
+
+    \list 1
+      \li Select \e sphere in \uicontrol Navigator and select
+      \inlineimage icons/action-icon.png
+      next to \uicontrol Translation > \uicontrol X.
+      \li Select \uicontrol {Set binding} to open \uicontrol {Binding Editor}.
+      \li In the binding editor, enter \c{index * 1000}. This sets the X
+      location to increase by 1000 for each of the sphere instances.
+      \image repeater3d-location-binding.png
+      \li Select \uicontrol OK and go to \uicontrol {3D Editor} to see the
+      result. You need to zoom out to see all the spheres.
+    \endlist
+
+    \image repeater3d-list-model.webp
 
 */

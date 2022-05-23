@@ -800,7 +800,7 @@ void Qt5InformationNodeInstanceServer::updateView3DRect(QObject *view3D)
     viewPortProperty.write(viewPortrect);
 }
 
-void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D()
+void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D(bool timerCall)
 {
 #ifdef QUICK3D_MODULE
     if (!m_editView3DSetupDone)
@@ -816,12 +816,16 @@ void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D()
     ServerNodeInstance sceneInstance = active3DSceneInstance();
     const QString sceneId = sceneInstance.id();
 
-    // QML item id is updated with separate call, so delay this update until we have it
-    if (m_active3DScene && sceneId.isEmpty()) {
-        m_active3DSceneUpdatePending = true;
+    // In case of newly created scene node, QML item id is updated with separate command immediately
+    // after the creation of the node, so delay this update for a moment in case we get it.
+    // The changeId command should already be waiting to be handled, so we can use very short
+    // interval timer. If we haven't gotten the scene id by the time the timer triggers, we can
+    // assume scene node doesn't have an id.
+    if (m_active3DScene && !timerCall && sceneId.isEmpty()) {
+        m_activeSceneIdUpdateTimer.start();
         return;
     } else {
-        m_active3DSceneUpdatePending = false;
+        m_activeSceneIdUpdateTimer.stop();
     }
 
     QMetaObject::invokeMethod(m_editView3DData.rootItem, "setActiveScene", Qt::QueuedConnection,
@@ -1266,6 +1270,8 @@ Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceC
     m_inputEventTimer.setSingleShot(true);
     m_renderModelNodeImageViewTimer.setSingleShot(true);
     m_dynamicAddObjectTimer.setSingleShot(true);
+    m_activeSceneIdUpdateTimer.setInterval(20);
+    m_activeSceneIdUpdateTimer.setSingleShot(true);
 
 #ifdef FPS_COUNTER
     if (!_fpsTimer) {
@@ -1291,6 +1297,7 @@ Qt5InformationNodeInstanceServer::~Qt5InformationNodeInstanceServer()
     m_inputEventTimer.stop();
     m_renderModelNodeImageViewTimer.stop();
     m_dynamicAddObjectTimer.stop();
+    m_activeSceneIdUpdateTimer.stop();
 
     if (m_editView3DData.rootItem)
         m_editView3DData.rootItem->disconnect(this);
@@ -1724,6 +1731,9 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
                      this, &Qt5InformationNodeInstanceServer::handleInputEvents);
     QObject::connect(&m_dynamicAddObjectTimer, &QTimer::timeout,
                      this, &Qt5InformationNodeInstanceServer::handleDynamicAddObjectTimeout);
+    QObject::connect(&m_activeSceneIdUpdateTimer, &QTimer::timeout, this, [this]() {
+        Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D(true);
+    });
 
     QString lastSceneId;
     auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
@@ -2243,7 +2253,7 @@ void Qt5InformationNodeInstanceServer::changeIds(const ChangeIdsCommand &command
 #ifdef QUICK3D_MODULE
     if (m_editView3DSetupDone) {
         ServerNodeInstance sceneInstance = active3DSceneInstance();
-        if (m_active3DSceneUpdatePending) {
+        if (m_activeSceneIdUpdateTimer.isActive()) {
             const QString sceneId = sceneInstance.id();
             if (!sceneId.isEmpty())
                 updateActiveSceneToEditView3D();

@@ -25,11 +25,14 @@
 
 #include "propertyeditorwidget.h"
 
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
 
 namespace QmlDesigner {
 
 PropertyEditorWidget::PropertyEditorWidget(QWidget *parent) : QStackedWidget(parent)
 {
+    QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_PROPERTYEDITOR_TIME);
 }
 
 void PropertyEditorWidget::resizeEvent(QResizeEvent * event)

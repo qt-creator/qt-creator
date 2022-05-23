@@ -168,10 +168,12 @@ public:
     bool available() const;
     Utils::FilePath targetFolder() const;
     void setForceDownload(bool b);
+    int progress() const;
 
 signals:
     void finished();
     void availableChanged();
+    void progressChanged();
 
 private:
     FileDownloader m_fileDownloader;
