@@ -918,6 +918,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
 {
     if (!d->m_openedDocument.contains(document) || !reachable())
         return;
+    d->m_diagnosticManager->disableDiagnostics(document);
     const QString method(DidChangeTextDocumentNotification::methodName);
     TextDocumentSyncKind syncKind = d->m_serverCapabilities.textDocumentSyncKindHelper();
     if (Utils::optional<bool> registered = d->m_dynamicCapabilities.isRegistered(method)) {

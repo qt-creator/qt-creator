@@ -90,12 +90,23 @@ void DiagnosticManager::hideDiagnostics(const Utils::FilePath &filePath)
         for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(doc))
             editor->editorWidget()->setExtraSelections(m_extraSelectionsId, {});
     }
-    qDeleteAll(m_marks.take(filePath));
+    m_marks.remove(filePath);
 }
 
 QList<Diagnostic> DiagnosticManager::filteredDiagnostics(const QList<Diagnostic> &diagnostics) const
 {
     return diagnostics;
+}
+
+void DiagnosticManager::disableDiagnostics(TextEditor::TextDocument *document)
+{
+
+    Marks &marks = m_marks[document->filePath()];
+    if (!marks.enabled)
+        return;
+    for (TextEditor::TextMark *mark : marks.marks)
+        mark->setColor(Utils::Theme::Color::IconsDisabledColor);
+    marks.enabled = false;
 }
 
 void DiagnosticManager::showDiagnostics(const DocumentUri &uri, int version)
@@ -106,7 +117,7 @@ void DiagnosticManager::showDiagnostics(const DocumentUri &uri, int version)
         const VersionedDiagnostics &versionedDiagnostics = m_diagnostics.value(uri);
         if (versionedDiagnostics.version.value_or(version) == version
             && !versionedDiagnostics.diagnostics.isEmpty()) {
-            QList<TextEditor::TextMark *> &marks = m_marks[filePath];
+            Marks &marks = m_marks[filePath];
             const bool isProjectFile = m_client->project()
                                        && m_client->project()->isKnownFile(filePath);
             for (const Diagnostic &diagnostic : versionedDiagnostics.diagnostics) {
@@ -115,9 +126,9 @@ void DiagnosticManager::showDiagnostics(const DocumentUri &uri, int version)
                 if (!selection.cursor.isNull())
                     extraSelections << selection;
                 if (TextEditor::TextMark *mark = createTextMark(filePath, diagnostic, isProjectFile))
-                    marks.append(mark);
+                    marks.marks.append(mark);
             }
-            if (!marks.isEmpty())
+            if (!marks.marks.isEmpty())
                 emit textMarkCreated(filePath);
         }
 
@@ -170,11 +181,7 @@ void DiagnosticManager::clearDiagnostics()
     for (const DocumentUri &uri : m_diagnostics.keys())
         hideDiagnostics(uri.toFilePath());
     m_diagnostics.clear();
-    if (!QTC_GUARD(m_marks.isEmpty())) {
-        for (const QList<TextEditor::TextMark *> &marks : qAsConst(m_marks))
-            qDeleteAll(marks);
-        m_marks.clear();
-    }
+    QTC_ASSERT(m_marks.isEmpty(), m_marks.clear());
 }
 
 QList<Diagnostic> DiagnosticManager::diagnosticsAt(const DocumentUri &uri,
@@ -216,6 +223,11 @@ bool DiagnosticManager::hasDiagnostics(const TextDocument *doc) const
     if (revision != it->version.value_or(revision))
         return false;
     return !it->diagnostics.isEmpty();
+}
+
+DiagnosticManager::Marks::~Marks()
+{
+    qDeleteAll(marks);
 }
 
 } // namespace LanguageClient
