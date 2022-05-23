@@ -606,7 +606,8 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
         } else if (p == "mingw32" || p == "win32"
                    || p == "mingw32msvc" || p == "msys"
                    || p == "cygwin" || p == "windows") {
-            arch = X86Architecture;
+            if (arch == UnknownArchitecture)
+                arch = X86Architecture;
             os = WindowsOS;
             flavor = WindowsMSysFlavor;
             format = PEFormat;
