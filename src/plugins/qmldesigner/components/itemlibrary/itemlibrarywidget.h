@@ -32,13 +32,13 @@
 #include <utils/dropsupport.h>
 #include <previewtooltip/previewtooltipbackend.h>
 
-#include <QFrame>
-#include <QToolButton>
 #include <QFileIconProvider>
-#include <QQuickWidget>
-#include <QQmlPropertyMap>
-#include <QTimer>
+#include <QFrame>
 #include <QPointF>
+#include <QQmlPropertyMap>
+#include <QQuickWidget>
+#include <QTimer>
+#include <QToolButton>
 
 #include <memory>
 

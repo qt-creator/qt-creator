@@ -129,7 +129,7 @@ private:
                             const QList<PropertyName> &propNames,
                             ValuesModifiedCommand::TransactionOption option);
     void updateView3DRect(QObject *view3D);
-    void updateActiveSceneToEditView3D();
+    void updateActiveSceneToEditView3D(bool timerCall = false);
     void removeNode3D(QObject *node);
     void resolveSceneRoots();
     ServerNodeInstance active3DSceneInstance() const;
@@ -165,7 +165,6 @@ private:
     QMultiHash<QObject *, QObject *> m_3DSceneMap; // key: scene root, value: node
     QObject *m_active3DView = nullptr;
     QObject *m_active3DScene = nullptr;
-    bool m_active3DSceneUpdatePending = false;
     QSet<ServerNodeInstance> m_parentChangedSet;
     QList<ServerNodeInstance> m_completedComponentList;
     QList<TokenCommand> m_tokenList;
@@ -175,6 +174,7 @@ private:
     QTimer m_renderModelNodeImageViewTimer;
     QTimer m_inputEventTimer;
     QTimer m_dynamicAddObjectTimer;
+    QTimer m_activeSceneIdUpdateTimer;
 #ifdef QUICK3D_PARTICLES_MODULE
     bool m_particleAnimationPlaying = true;
     AnimationDriver *m_particleAnimationDriver = nullptr;

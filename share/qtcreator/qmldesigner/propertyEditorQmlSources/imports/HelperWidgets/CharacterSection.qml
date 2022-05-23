@@ -47,14 +47,14 @@ Section {
         return backendValues[root.fontName + "_" + name]
     }
 
-    property variant fontFamily: getBackendValue("family")
-    property variant pointSize: getBackendValue("pointSize")
-    property variant pixelSize: getBackendValue("pixelSize")
+    property variant fontFamily: root.getBackendValue("family")
+    property variant pointSize: root.getBackendValue("pointSize")
+    property variant pixelSize: root.getBackendValue("pixelSize")
 
-    property variant boldStyle: getBackendValue("bold")
-    property variant italicStyle: getBackendValue("italic")
-    property variant underlineStyle: getBackendValue("underline")
-    property variant strikeoutStyle: getBackendValue("strikeout")
+    property variant boldStyle: root.getBackendValue("bold")
+    property variant italicStyle: root.getBackendValue("italic")
+    property variant underlineStyle: root.getBackendValue("underline")
+    property variant strikeoutStyle: root.getBackendValue("strikeout")
 
     onPointSizeChanged: sizeWidget.setPointPixelSize()
     onPixelSizeChanged: sizeWidget.setPointPixelSize()
@@ -144,20 +144,20 @@ Section {
             text: qsTr("Style name")
             tooltip: qsTr("Font's style.")
             enabled: styleNameComboBox.model.length
-            blockedByTemplate: !backendValue.isAvailable
+            blockedByTemplate: !styleNameComboBox.backendValue.isAvailable
         }
 
         SecondColumnLayout {
             ComboBox {
                 id: styleNameComboBox
-                property bool styleSet: backendValue.isInModel
+                property bool styleSet: styleNameComboBox.backendValue.isInModel
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 width: implicitWidth
-                backendValue: getBackendValue("styleName")
+                backendValue: root.getBackendValue("styleName")
                 model: styleNamesForFamily(fontComboBox.familyName)
                 valueType: ComboBox.String
-                enabled: backendValue.isAvailable && styleNameComboBox.model.length
+                enabled: styleNameComboBox.backendValue.isAvailable && styleNameComboBox.model.length
             }
 
             ExpandingSpacer {}
@@ -260,7 +260,7 @@ Section {
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 width: implicitWidth
-                backendValue: getBackendValue("weight")
+                backendValue: root.getBackendValue("weight")
                 model: ["Normal", "Light", "ExtraLight", "Thin", "Medium", "DemiBold", "Bold", "ExtraBold", "Black"]
                 scope: "Font"
                 enabled: !styleNameComboBox.styleSet
@@ -301,14 +301,14 @@ Section {
         PropertyLabel {
             text: qsTr("Letter spacing")
             tooltip: qsTr("Letter spacing for the font.")
-            blockedByTemplate: !getBackendValue("letterSpacing").isAvailable
+            blockedByTemplate: !root.getBackendValue("letterSpacing").isAvailable
         }
 
         SecondColumnLayout {
             SpinBox {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
-                backendValue: getBackendValue("letterSpacing")
+                backendValue: root.getBackendValue("letterSpacing")
                 decimals: 2
                 minimumValue: -500
                 maximumValue: 500
@@ -322,14 +322,14 @@ Section {
         PropertyLabel {
             text: qsTr("Word spacing")
             tooltip: qsTr("Word spacing for the font.")
-            blockedByTemplate: !getBackendValue("wordSpacing").isAvailable
+            blockedByTemplate: !root.getBackendValue("wordSpacing").isAvailable
         }
 
         SecondColumnLayout {
             SpinBox {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
-                backendValue: getBackendValue("wordSpacing")
+                backendValue: root.getBackendValue("wordSpacing")
                 decimals: 2
                 minimumValue: -500
                 maximumValue: 500

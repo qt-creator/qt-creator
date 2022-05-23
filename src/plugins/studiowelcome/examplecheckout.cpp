@@ -437,8 +437,13 @@ static Utils::FilePath tempFilePath()
 DataModelDownloader::DataModelDownloader(QObject * /* parent */)
 {
     auto fileInfo = targetFolder().toFileInfo();
-    m_birthTime = fileInfo.birthTime();
+    m_birthTime = fileInfo.lastModified();
     m_exists = fileInfo.exists();
+
+    connect(&m_fileDownloader,
+            &FileDownloader::progressChanged,
+            this,
+            &DataModelDownloader::progressChanged);
 }
 
 void DataModelDownloader::start()
@@ -457,7 +462,7 @@ void DataModelDownloader::start()
             return;
         }
 
-        if (!m_forceDownload && m_fileDownloader.lastModified() < m_birthTime)
+        if (!m_forceDownload && (m_fileDownloader.lastModified() <= m_birthTime))
             return;
 
         m_fileDownloader.start();
@@ -497,4 +502,9 @@ Utils::FilePath DataModelDownloader::targetFolder() const
 void DataModelDownloader::setForceDownload(bool b)
 {
     m_forceDownload = b;
+}
+
+int DataModelDownloader::progress() const
+{
+    return m_fileDownloader.progress();
 }

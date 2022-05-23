@@ -30,6 +30,7 @@
 #include <coreplugin/findplaceholder.h>
 #include <rewriterview.h>
 
+#include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 
 #include <theme.h>
@@ -68,6 +69,7 @@ TextEditorWidget::TextEditorWidget(TextEditorView *textEditorView)
     m_updateSelectionTimer.setInterval(200);
 
     connect(&m_updateSelectionTimer, &QTimer::timeout, this, &TextEditorWidget::updateSelectionByCursorPosition);
+    QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_TEXTEDITOR_TIME);
 }
 
 void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor)

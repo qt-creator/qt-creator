@@ -128,7 +128,7 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
 
                               const Utils::FilePath mainUiFile = qmlBuildSystem->mainUiFilePath();
 
-                              if (mainUiFile.completeSuffix() == "qi.qml" &&  mainUiFile.exists()) {
+                              if (mainUiFile.completeSuffix() == "ui.qml" &&  mainUiFile.exists()) {
                                       QTimer::singleShot(1000, [mainUiFile]() {
                                           Core::EditorManager::openEditor(mainUiFile,
                                                                           Utils::Id());

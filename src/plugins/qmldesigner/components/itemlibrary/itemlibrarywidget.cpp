@@ -30,14 +30,14 @@
 
 #include <theme.h>
 
+#include "modelnodeoperations.h"
 #include <designeractionmanager.h>
 #include <designermcumanager.h>
 #include <documentmanager.h>
+#include <itemlibraryaddimportmodel.h>
 #include <itemlibraryimageprovider.h>
 #include <itemlibraryinfo.h>
 #include <itemlibrarymodel.h>
-#include <itemlibraryaddimportmodel.h>
-#include "modelnodeoperations.h"
 #include <metainfo.h>
 #include <model.h>
 #include <rewritingexception.h>
@@ -199,6 +199,8 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
 
     m_itemsWidget->engine()->addImageProvider("itemlibrary_preview",
                                                       new ItemLibraryIconImageProvider{m_imageCache});
+
+    QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_ITEMLIBRARY_TIME);
 
     // init the first load of the QML UI elements
     reloadQmlSource();
