@@ -27,7 +27,6 @@
 
 #include "appoutputpane.h"
 #include "buildpropertiessettings.h"
-#include "buildsteplist.h"
 #include "buildsystem.h"
 #include "compileoutputwindow.h"
 #include "configtaskhandler.h"
@@ -48,7 +47,6 @@
 #include "appoutputpane.h"
 #include "buildconfiguration.h"
 #include "buildmanager.h"
-#include "buildsettingspropertiespage.h"
 #include "codestylesettingspropertiespage.h"
 #include "copytaskhandler.h"
 #include "currentprojectfilter.h"
@@ -87,7 +85,6 @@
 #include "projectwindow.h"
 #include "removetaskhandler.h"
 #include "runconfigurationaspects.h"
-#include "runsettingspropertiespage.h"
 #include "sanitizerparser.h"
 #include "selectablefilesmodel.h"
 #include "session.h"
@@ -95,14 +92,15 @@
 #include "showineditortaskhandler.h"
 #include "simpleprojectwizard.h"
 #include "target.h"
-#include "targetsettingspanel.h"
 #include "taskhub.h"
 #include "toolchainmanager.h"
 #include "toolchainoptionspage.h"
 #include "vcsannotatetaskhandler.h"
 
+#ifdef Q_OS_WIN
 #include "windebuginterface.h"
 #include "msvctoolchain.h"
+#endif
 
 #include "projecttree.h"
 #include "projectwelcomepage.h"
