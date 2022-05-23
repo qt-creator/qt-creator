@@ -1246,7 +1246,7 @@ public:
 
     ProcessResultData m_resultData;
 
-    std::function<void()> m_starter;
+    std::function<void()> m_startModifier;
 
     bool m_stopReported = false;
     bool m_stopForced = false;
@@ -1481,17 +1481,6 @@ SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
 
 SimpleTargetRunner::~SimpleTargetRunner() = default;
 
-void SimpleTargetRunner::start()
-{
-    if (d->m_starter) {
-        d->m_starter();
-    } else {
-        Runnable runnable = runControl()->runnable();
-        runnable.device = runControl()->device();
-        doStart(runnable);
-    }
-}
-
 void SimpleTargetRunnerPrivate::forwardDone()
 {
     if (m_stopReported)
@@ -1523,8 +1512,14 @@ void SimpleTargetRunnerPrivate::forwardStarted()
     q->reportStarted();
 }
 
-void SimpleTargetRunner::doStart(const Runnable &runnable)
+void SimpleTargetRunner::start()
 {
+    d->m_runnable = runControl()->runnable();
+    d->m_runnable.device = runControl()->device();
+
+    if (d->m_startModifier)
+        d->m_startModifier();
+
     bool useTerminal = false;
     if (auto terminalAspect = runControl()->aspect<TerminalAspect>())
         useTerminal = terminalAspect->useTerminal;
@@ -1539,16 +1534,15 @@ void SimpleTargetRunner::doStart(const Runnable &runnable)
     d->m_process.setTerminalMode(useTerminal ? Utils::TerminalMode::On : Utils::TerminalMode::Off);
     d->m_runAsRoot = runAsRoot;
 
-    const QString msg = RunControl::tr("Starting %1...").arg(runnable.command.toUserOutput());
+    const QString msg = RunControl::tr("Starting %1...").arg(d->m_runnable.command.toUserOutput());
     appendMessage(msg, Utils::NormalMessageFormat);
 
-    const bool isDesktop = runnable.device.isNull()
-                        || runnable.device.dynamicCast<const DesktopDevice>();
-    if (isDesktop && runnable.command.isEmpty()) {
+    const bool isDesktop = d->m_runnable.device.isNull()
+                        || d->m_runnable.device.dynamicCast<const DesktopDevice>();
+    if (isDesktop && d->m_runnable.command.isEmpty()) {
         reportFailure(RunControl::tr("No executable specified."));
         return;
     }
-    d->m_runnable = runnable;
     d->start();
 }
 
@@ -1558,11 +1552,40 @@ void SimpleTargetRunner::stop()
     d->stop();
 }
 
-void SimpleTargetRunner::setStarter(const std::function<void ()> &starter)
+void SimpleTargetRunner::setStartModifier(const std::function<void ()> &startModifier)
 {
-    d->m_starter = starter;
+    d->m_startModifier = startModifier;
 }
 
+CommandLine SimpleTargetRunner::commandLine() const
+{
+    return d->m_runnable.command;
+}
+
+void SimpleTargetRunner::setCommandLine(const Utils::CommandLine &commandLine)
+{
+    d->m_runnable.command = commandLine;
+}
+
+void SimpleTargetRunner::setEnvironment(const Environment &environment)
+{
+    d->m_runnable.environment = environment;
+}
+
+void SimpleTargetRunner::setWorkingDirectory(const FilePath &workingDirectory)
+{
+    d->m_runnable.workingDirectory = workingDirectory;
+}
+
+void SimpleTargetRunner::forceRunOnHost()
+{
+    d->m_runnable.device = {};
+    const FilePath executable = d->m_runnable.command.executable();
+    if (executable.needsDevice()) {
+        QTC_CHECK(false);
+        d->m_runnable.command.setExecutable(FilePath::fromString(executable.path()));
+    }
+}
 
 // RunWorkerPrivate
 

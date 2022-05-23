@@ -298,14 +298,22 @@ public:
     ~SimpleTargetRunner() override;
 
 protected:
-    void setStarter(const std::function<void()> &starter);
-    void doStart(const Runnable &runnable);
+    void setStartModifier(const std::function<void()> &startModifier);
+
+    Utils::CommandLine commandLine() const;
+    void setCommandLine(const Utils::CommandLine &commandLine);
+
+    void setEnvironment(const Utils::Environment &environment);
+    void setWorkingDirectory(const Utils::FilePath &workingDirectory);
+
+    void forceRunOnHost();
 
 private:
     void start() final;
     void stop() final;
 
     const Runnable &runnable() const = delete;
+    void setRunnable(const Runnable &) = delete;
 
     const std::unique_ptr<Internal::SimpleTargetRunnerPrivate> d;
 };

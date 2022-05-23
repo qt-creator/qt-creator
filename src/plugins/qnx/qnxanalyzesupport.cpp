@@ -56,14 +56,13 @@ QnxQmlProfilerSupport::QnxQmlProfilerSupport(RunControl *runControl)
     profiler->addStartDependency(this);
     addStopDependency(profiler);
 
-    setStarter([this, runControl, portsGatherer, profiler] {
+    setStartModifier([this, portsGatherer, profiler] {
         const QUrl serverUrl = portsGatherer->findEndPoint();
         profiler->recordData("QmlServerUrl", serverUrl);
 
-        Runnable r = runControl->runnable();
-        r.command.addArg(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, serverUrl));
-        r.device = runControl->device();
-        doStart(r);
+        CommandLine cmd = commandLine();
+        cmd.addArg(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, serverUrl));
+        setCommandLine(cmd);
     });
 }
 

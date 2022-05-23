@@ -26,11 +26,9 @@
 #include "qnxdebugsupport.h"
 
 #include "qnxconstants.h"
-#include "qnxdevice.h"
 #include "qnxrunconfiguration.h"
 #include "slog2inforunner.h"
 #include "qnxqtversion.h"
-#include "qnxutils.h"
 
 #include <coreplugin/icore.h>
 
@@ -103,21 +101,21 @@ public:
     {
         setId("QnxDebuggeeRunner");
 
-        setStarter([this, runControl, portsGatherer] {
-            Runnable r = runControl->runnable();
+        setStartModifier([this, portsGatherer] {
+            CommandLine cmd = commandLine();
             QStringList arguments;
             if (portsGatherer->useGdbServer()) {
                 int pdebugPort = portsGatherer->gdbServer().port();
-                r.command.setExecutable(FilePath::fromString(QNX_DEBUG_EXECUTABLE));
+                cmd.setExecutable(FilePath::fromString(QNX_DEBUG_EXECUTABLE));
                 arguments.append(QString::number(pdebugPort));
             }
             if (portsGatherer->useQmlServer()) {
                 arguments.append(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
                                                                 portsGatherer->qmlServer()));
             }
-            r.command.setArguments(ProcessArgs::joinArgs(arguments));
-            r.device = runControl->device();
-            doStart(r);
+            cmd.setArguments(ProcessArgs::joinArgs(arguments));
+            setCommandLine(cmd);
+
         });
     }
 };
@@ -197,13 +195,9 @@ public:
         setId("PDebugRunner");
         addStartDependency(portsGatherer);
 
-        setStarter([this, runControl, portsGatherer] {
+        setStartModifier([this, portsGatherer] {
             const int pdebugPort = portsGatherer->gdbServer().port();
-
-            Runnable r;
-            r.command = {QNX_DEBUG_EXECUTABLE, {QString::number(pdebugPort)}};
-            r.device = runControl->device();
-            doStart(r);
+            setCommandLine({QNX_DEBUG_EXECUTABLE, {QString::number(pdebugPort)}});
         });
     }
 };

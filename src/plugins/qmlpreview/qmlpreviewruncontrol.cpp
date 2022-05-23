@@ -41,6 +41,8 @@
 #include <utils/url.h>
 #include <utils/fileutils.h>
 
+using namespace Utils;
+
 namespace QmlPreview {
 
 static const QString QmlServerUrl = "QmlServerUrl";
@@ -126,9 +128,10 @@ LocalQmlPreviewSupport::LocalQmlPreviewSupport(ProjectExplorer::RunControl *runC
     addStopDependency(preview);
     addStartDependency(preview);
 
-    setStarter([this, runControl, serverUrl] {
-        ProjectExplorer::Runnable runnable = runControl->runnable();
-        QStringList qmlProjectRunConfigurationArguments = runnable.command.splitArguments();
+    setStartModifier([this, runControl, serverUrl] {
+        CommandLine cmd = commandLine();
+
+        QStringList qmlProjectRunConfigurationArguments = cmd.splitArguments();
 
         const auto currentTarget = runControl->target();
         const auto *qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(currentTarget->buildSystem());
@@ -142,15 +145,15 @@ LocalQmlPreviewSupport::LocalQmlPreviewSupport(ProjectExplorer::RunControl *runC
 
             if (!currentFile.isEmpty() && qmlProjectRunConfigurationArguments.last().contains(mainScriptFromProject)) {
                 qmlProjectRunConfigurationArguments.removeLast();
-                runnable.command = Utils::CommandLine(runnable.command.executable(), qmlProjectRunConfigurationArguments);
-                runnable.command.addArg(currentFile);
+                cmd = Utils::CommandLine(cmd.executable(), qmlProjectRunConfigurationArguments);
+                cmd.addArg(currentFile);
             }
         }
 
-        runnable.command.addArg(QmlDebug::qmlDebugLocalArguments(QmlDebug::QmlPreviewServices,
-                                                                 serverUrl.path()));
-        runnable.device.reset();
-        doStart(runnable);
+        cmd.addArg(QmlDebug::qmlDebugLocalArguments(QmlDebug::QmlPreviewServices, serverUrl.path()));
+        setCommandLine(cmd);
+
+        forceRunOnHost();
     });
 }
 

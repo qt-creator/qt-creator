@@ -1042,35 +1042,31 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
    : SimpleTargetRunner(runControl)
 {
     setId("DebugServerRunner");
-    const Runnable mainRunnable = runControl->runnable();
     addStartDependency(portsGatherer);
 
     QTC_ASSERT(portsGatherer, reportFailure(); return);
 
-    setStarter([this, runControl, mainRunnable, portsGatherer] {
+    setStartModifier([this, runControl, portsGatherer] {
         QTC_ASSERT(portsGatherer, reportFailure(); return);
-
-        Runnable debugServer;
-        debugServer.environment = mainRunnable.environment;
-        debugServer.workingDirectory = mainRunnable.workingDirectory;
-
-        QStringList args = ProcessArgs::splitArgs(mainRunnable.command.arguments(), OsTypeLinux);
 
         const bool isQmlDebugging = portsGatherer->useQmlServer();
         const bool isCppDebugging = portsGatherer->useGdbServer();
 
+        CommandLine cmd;
+
+        QStringList args = ProcessArgs::splitArgs(commandLine().arguments(), OsTypeLinux);
         if (isQmlDebugging) {
             args.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
                                                         portsGatherer->qmlServer()));
         }
         if (isQmlDebugging && !isCppDebugging) {
-            debugServer.command.setExecutable(mainRunnable.command.executable()); // FIXME: Case should not happen?
+            cmd.setExecutable(commandLine().executable()); // FIXME: Case should not happen?
         } else {
-            debugServer.command.setExecutable(runControl->device()->debugServerPath());
-            if (debugServer.command.isEmpty())
-                debugServer.command.setExecutable("gdbserver");
+            cmd.setExecutable(runControl->device()->debugServerPath());
+            if (cmd.isEmpty())
+                cmd.setExecutable("gdbserver");
             args.clear();
-            if (debugServer.command.executable().toString().contains("lldb-server")) {
+            if (cmd.executable().toString().contains("lldb-server")) {
                 args.append("platform");
                 args.append("--listen");
                 args.append(QString("*:%1").arg(portsGatherer->gdbServer().port()));
@@ -1086,9 +1082,9 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
                     args.append(QString::number(m_pid.pid()));
             }
         }
-        debugServer.command.setArguments(ProcessArgs::joinArgs(args, OsTypeLinux));
-        debugServer.device = runControl->device();
-        doStart(debugServer);
+        cmd.setArguments(ProcessArgs::joinArgs(args, OsTypeLinux));
+
+        setCommandLine(cmd);
     });
 }
 

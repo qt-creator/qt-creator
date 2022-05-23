@@ -88,15 +88,12 @@ public:
     FlashAndRunWorker(RunControl *runControl)
         : SimpleTargetRunner(runControl)
     {
-        setStarter([this, runControl] {
+        setStartModifier([this, runControl] {
             const Target *target = runControl->target();
-            Runnable r;
-            r.command = {cmakeFilePath(target),
-                         runControl->aspect<StringAspect>()->value,
-                         CommandLine::Raw};
-            r.workingDirectory = target->activeBuildConfiguration()->buildDirectory();
-            r.environment = target->activeBuildConfiguration()->environment();
-            SimpleTargetRunner::doStart(r);
+            setCommandLine({cmakeFilePath(target), runControl->aspect<StringAspect>()->value,
+                            CommandLine::Raw});
+            setWorkingDirectory(target->activeBuildConfiguration()->buildDirectory());
+            setEnvironment(target->activeBuildConfiguration()->environment());
         });
     }
 };

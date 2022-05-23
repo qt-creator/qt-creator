@@ -126,7 +126,7 @@ class GdbServerProviderRunner final : public ProjectExplorer::SimpleTargetRunner
 {
 public:
     explicit GdbServerProviderRunner(ProjectExplorer::RunControl *runControl,
-                                     const ProjectExplorer::Runnable &runnable);
+                                     const Utils::CommandLine &commandLine);
 };
 
 } // namespace Internal

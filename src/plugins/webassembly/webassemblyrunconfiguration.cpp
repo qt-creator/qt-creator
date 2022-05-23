@@ -120,16 +120,14 @@ public:
         auto portsGatherer = new PortsGatherer(runControl);
         addStartDependency(portsGatherer);
 
-        setStarter([this, runControl, portsGatherer] {
-            Runnable r;
+        setStartModifier([this, runControl, portsGatherer] {
             const QString browserId =
                     runControl->aspect<WebBrowserSelectionAspect>()->currentBrowser;
-            r.command = emrunCommand(runControl->target(),
-                                     runControl->buildKey(),
-                                     browserId,
-                                     QString::number(portsGatherer->findEndPoint().port()));
-            r.environment = runControl->buildEnvironment();
-            SimpleTargetRunner::doStart(r);
+            setCommandLine(emrunCommand(runControl->target(),
+                                        runControl->buildKey(),
+                                        browserId,
+                                        QString::number(portsGatherer->findEndPoint().port())));
+            setEnvironment(runControl->buildEnvironment());
         });
     }
 };

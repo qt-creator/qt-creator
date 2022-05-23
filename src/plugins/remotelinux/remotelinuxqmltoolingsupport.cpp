@@ -51,16 +51,15 @@ RemoteLinuxQmlToolingSupport::RemoteLinuxQmlToolingSupport(RunControl *runContro
     runworker->addStartDependency(this);
     addStopDependency(runworker);
 
-    setStarter([this, runControl, portsGatherer, runworker] {
+    setStartModifier([this, runControl, portsGatherer, runworker] {
         const QUrl serverUrl = portsGatherer->findEndPoint();
         runworker->recordData("QmlServerUrl", serverUrl);
 
         QmlDebug::QmlDebugServicesPreset services = QmlDebug::servicesForRunMode(runControl->runMode());
 
-        Runnable r = runControl->runnable();
-        r.command.addArg(QmlDebug::qmlDebugTcpArguments(services, serverUrl));
-        r.device = runControl->device();
-        doStart(r);
+        CommandLine cmd = commandLine();
+        cmd.addArg(QmlDebug::qmlDebugTcpArguments(services, serverUrl));
+        setCommandLine(cmd);
     });
 }
 

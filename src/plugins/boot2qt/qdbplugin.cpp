@@ -142,13 +142,11 @@ public:
     QdbDeviceRunSupport(RunControl *runControl)
         : SimpleTargetRunner(runControl)
     {
-        setStarter([this, runControl] {
-            Runnable r = runControl->runnable();
-            // FIXME: Spaces!
-            r.command.setArguments(r.command.executable().toString() + ' ' + r.command.arguments());
-            r.command.setExecutable(FilePath::fromString(Constants::AppcontrollerFilepath));
-            r.device = runControl->device();
-            doStart(r);
+        setStartModifier([this] {
+            CommandLine cmd;
+            cmd.setExecutable(FilePath::fromString(Constants::AppcontrollerFilepath));
+            cmd.addCommandLineAsArgs(commandLine());
+            setCommandLine(cmd);
         });
     }
 };
