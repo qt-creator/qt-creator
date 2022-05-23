@@ -644,6 +644,7 @@ Item {
                             Image {
                                 id: img
                                 asynchronous: true
+                                fillMode: Image.PreserveAspectFit
                                 width: 48
                                 height: 48
                                 source: "image://qmldesigner_assets/" + filePath
