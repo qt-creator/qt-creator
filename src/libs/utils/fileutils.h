@@ -31,11 +31,6 @@
 
 #include <QCoreApplication>
 #include <QDir>
-#include <QFileInfo>
-#include <QMetaType>
-#include <QStringList>
-#include <QUrl>
-#include <QXmlStreamWriter> // Mac.
 
 #ifdef QT_WIDGETS_LIB
 #include <QFileDialog>
@@ -48,6 +43,7 @@ QT_BEGIN_NAMESPACE
 class QDataStream;
 class QTextStream;
 class QWidget;
+class QXmlStreamWriter;
 
 // for withNtfsPermissions
 #ifdef Q_OS_WIN

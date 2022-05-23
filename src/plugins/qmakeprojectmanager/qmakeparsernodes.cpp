@@ -27,7 +27,6 @@
 
 #include "qmakeproject.h"
 #include "qmakeprojectmanagerconstants.h"
-#include "qmakebuildconfiguration.h"
 
 #include <android/androidconstants.h>
 #include <coreplugin/documentmanager.h>
@@ -57,6 +56,7 @@
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QTextCodec>
+#include <QXmlStreamWriter>
 
 using namespace Core;
 using namespace ProjectExplorer;

@@ -25,6 +25,7 @@
 
 #include "algorithm.h"
 #include "namevaluedictionary.h"
+#include "namevalueitem.h"
 #include "qtcassert.h"
 
 namespace Utils {

@@ -38,6 +38,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>

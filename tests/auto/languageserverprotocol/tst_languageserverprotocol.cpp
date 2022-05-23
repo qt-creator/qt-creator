@@ -27,6 +27,8 @@
 #include <languageserverprotocol/jsonobject.h>
 #include <languageserverprotocol/jsonrpcmessages.h>
 
+#include <utils/hostosinfo.h>
+
 #include <QTextCodec>
 #include <QtTest>
 

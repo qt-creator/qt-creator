@@ -76,6 +76,8 @@
 #include <QSpinBox>
 #include <QTimer>
 #include <QToolButton>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 #include <algorithm>
 #include <limits>

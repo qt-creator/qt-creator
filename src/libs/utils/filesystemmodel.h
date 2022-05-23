@@ -42,7 +42,6 @@
 #include "utils_global.h"
 
 #include <QAbstractItemModel>
-#include <QPair>
 #include <QDir>
 
 QT_BEGIN_NAMESPACE

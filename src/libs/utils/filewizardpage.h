@@ -27,10 +27,11 @@
 
 #include "utils_global.h"
 
-#include "filepath.h"
 #include "wizardpage.h"
 
 namespace Utils {
+
+class FilePath;
 
 class FileWizardPagePrivate;
 

@@ -25,7 +25,8 @@
 
 #include "filecrumblabel.h"
 
-#include <utils/hostosinfo.h>
+#include "filepath.h"
+#include "hostosinfo.h"
 
 #include <QDir>
 #include <QUrl>

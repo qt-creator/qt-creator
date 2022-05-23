@@ -37,6 +37,7 @@
 #include <QLineEdit>
 #include <QMenu>
 #include <QPainter>
+#include <QXmlStreamReader>
 
 using namespace Utils;
 

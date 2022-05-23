@@ -39,6 +39,8 @@
 #include "docksplitter.h"
 #include "iconprovider.h"
 
+#include <utils/hostosinfo.h>
+
 #include <QAbstractButton>
 #include <QPainter>
 #include <QStyle>

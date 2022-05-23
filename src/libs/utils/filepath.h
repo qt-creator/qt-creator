@@ -26,9 +26,9 @@
 #pragma once
 
 #include "utils_global.h"
-#include "porting.h"
 
-#include "hostosinfo.h"
+#include "osspecificaspects.h"
+#include "porting.h"
 
 #include <QDir>
 #include <QDirIterator>

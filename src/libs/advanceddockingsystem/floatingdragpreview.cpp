@@ -41,6 +41,8 @@
 #include "dockoverlay.h"
 #include "dockwidget.h"
 
+#include <utils/hostosinfo.h>
+
 #include <QApplication>
 #include <QEvent>
 #include <QKeyEvent>

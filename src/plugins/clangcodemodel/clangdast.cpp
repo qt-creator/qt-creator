@@ -28,6 +28,7 @@
 #include <languageclient/client.h>
 #include <languageserverprotocol/jsonkeys.h>
 #include <languageserverprotocol/lsptypes.h>
+#include <utils/hostosinfo.h>
 #include <utils/filepath.h>
 
 #include <QStringView>

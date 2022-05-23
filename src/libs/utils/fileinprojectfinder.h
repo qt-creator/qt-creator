@@ -25,8 +25,9 @@
 
 #pragma once
 
-#include <utils/utils_global.h>
-#include <utils/fileutils.h>
+#include "utils_global.h"
+
+#include "filepath.h"
 
 #include <QHash>
 #include <QSharedPointer>

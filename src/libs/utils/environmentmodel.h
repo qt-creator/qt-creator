@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "utils_global.h"
+
 #include "namevaluemodel.h"
 
 namespace Utils {

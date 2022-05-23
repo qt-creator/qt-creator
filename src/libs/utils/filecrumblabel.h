@@ -26,11 +26,12 @@
 #pragma once
 
 #include "utils_global.h"
-#include "fileutils.h"
 
 #include <QLabel>
 
 namespace Utils {
+
+class FilePath;
 
 class QTCREATOR_UTILS_EXPORT FileCrumbLabel : public QLabel
 {

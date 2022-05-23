@@ -26,6 +26,7 @@
 #pragma once
 
 #include "utils_global.h"
+
 #include "completinglineedit.h"
 
 #include <QAbstractButton>
@@ -140,7 +141,7 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
 
 signals:
-    void buttonClicked(Utils::FancyLineEdit::Side side);
+    void buttonClicked(FancyLineEdit::Side side);
     void leftButtonClicked();
     void rightButtonClicked();
 

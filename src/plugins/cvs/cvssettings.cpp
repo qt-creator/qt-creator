@@ -27,6 +27,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 

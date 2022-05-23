@@ -43,6 +43,8 @@
 #include <QTabWidget>
 #include <QToolButton>
 #include <QVBoxLayout>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 using namespace Utils;
 

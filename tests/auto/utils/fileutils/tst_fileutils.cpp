@@ -28,6 +28,7 @@
 #include <QRandomGenerator>
 
 #include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
 #include <utils/link.h>
 
 //TESTED_COMPONENT=src/libs/utils

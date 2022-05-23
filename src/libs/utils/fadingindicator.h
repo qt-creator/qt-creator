@@ -27,8 +27,10 @@
 
 #include "utils_global.h"
 
-#include <QString>
-#include <QWidget>
+QT_BEGIN_NAMESPACE
+class QString;
+class QWidget;
+QT_END_NAMESPACE
 
 namespace Utils {
 namespace FadingIndicator {

@@ -29,7 +29,10 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
+
+#include <QXmlStreamWriter>
 
 using namespace Utils;
 

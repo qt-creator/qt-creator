@@ -25,7 +25,9 @@
 
 #pragma once
 
-#include "environment.h"
+#include "utils_global.h"
+
+#include "environmentfwd.h"
 #include "namevaluesdialog.h"
 #include <thread>
 

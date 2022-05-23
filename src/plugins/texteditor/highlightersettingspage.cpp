@@ -29,6 +29,7 @@
 #include "ui_highlightersettingspage.h"
 
 #include <coreplugin/icore.h>
+#include <utils/hostosinfo.h>
 
 #include <QDir>
 #include <QMessageBox>

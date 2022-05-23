@@ -27,6 +27,7 @@
 
 #include <utils/qtcprocess.h>
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QHash>
 #include <QMutex>

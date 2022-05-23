@@ -46,6 +46,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 #include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>

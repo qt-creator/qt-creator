@@ -25,11 +25,13 @@
 
 #include "namevaluemodel.h"
 
-#include <utils/algorithm.h>
-#include <utils/hostosinfo.h>
-#include <utils/namevaluedictionary.h>
-#include <utils/qtcassert.h>
+#include "algorithm.h"
+#include "hostosinfo.h"
+#include "namevaluedictionary.h"
+#include "namevalueitem.h"
+#include "qtcassert.h"
 
+#include <QFileInfo>
 #include <QFont>
 #include <QGuiApplication>
 #include <QPalette>

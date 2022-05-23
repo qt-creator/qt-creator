@@ -52,6 +52,8 @@
 #include <QStringList>
 #include <QStyledItemDelegate>
 #include <QSortFilterProxyModel>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 static const char kModifiedMimeTypesFile[] = "mimetypes/modifiedmimetypes.xml";
 

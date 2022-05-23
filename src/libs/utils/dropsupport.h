@@ -60,7 +60,7 @@ public:
     static QStringList mimeTypesForFilePaths();
 
 signals:
-    void filesDropped(const QList<Utils::DropSupport::FileSpec> &files, const QPoint &dropPos);
+    void filesDropped(const QList<DropSupport::FileSpec> &files, const QPoint &dropPos);
     void valuesDropped(const QList<QVariant> &values, const QPoint &dropPos);
 
 public:

@@ -26,6 +26,7 @@
 #include "environment.h"
 
 #include "algorithm.h"
+#include "fileutils.h"
 #include "qtcassert.h"
 
 #include <QDebug>
@@ -34,12 +35,12 @@
 #include <QSet>
 #include <QCoreApplication>
 
-Q_GLOBAL_STATIC_WITH_ARGS(Utils::Environment, staticSystemEnvironment,
+namespace Utils {
+
+Q_GLOBAL_STATIC_WITH_ARGS(Environment, staticSystemEnvironment,
                           (QProcessEnvironment::systemEnvironment().toStringList()))
 
-Q_GLOBAL_STATIC(QVector<Utils::EnvironmentProvider>, environmentProviders)
-
-namespace Utils {
+Q_GLOBAL_STATIC(QVector<EnvironmentProvider>, environmentProviders)
 
 QProcessEnvironment Environment::toProcessEnvironment() const
 {
@@ -126,7 +127,7 @@ void Environment::prependOrSetLibrarySearchPath(const FilePath &value)
 
 void Environment::prependOrSetLibrarySearchPaths(const FilePaths &values)
 {
-    Utils::reverseForeach(values, [this](const FilePath &value) {
+    reverseForeach(values, [this](const FilePath &value) {
         prependOrSetLibrarySearchPath(value);
     });
 }
@@ -406,7 +407,7 @@ FilePath Environment::expandVariables(const FilePath &variables) const
 
 QStringList Environment::expandVariables(const QStringList &variables) const
 {
-    return Utils::transform(variables, [this](const QString &i) { return expandVariables(i); });
+    return transform(variables, [this](const QString &i) { return expandVariables(i); });
 }
 
 void EnvironmentProvider::addProvider(EnvironmentProvider &&provider)

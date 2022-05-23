@@ -1277,24 +1277,24 @@ Environment FilePath::deviceEnvironment() const
 
 QString FilePath::formatFilePaths(const QList<FilePath> &files, const QString &separator)
 {
-    const QStringList nativeFiles = Utils::transform(files, &FilePath::toUserOutput);
+    const QStringList nativeFiles = transform(files, &FilePath::toUserOutput);
     return nativeFiles.join(separator);
 }
 
 void FilePath::removeDuplicates(QList<FilePath> &files)
 {
     // FIXME: Improve.
-    QStringList list = Utils::transform<QStringList>(files, &FilePath::toString);
+    QStringList list = transform<QStringList>(files, &FilePath::toString);
     list.removeDuplicates();
-    files = Utils::transform(list, &FilePath::fromString);
+    files = transform(list, &FilePath::fromString);
 }
 
 void FilePath::sort(QList<FilePath> &files)
 {
     // FIXME: Improve.
-    QStringList list = Utils::transform<QStringList>(files, &FilePath::toString);
+    QStringList list = transform<QStringList>(files, &FilePath::toString);
     list.sort();
-    files = Utils::transform(list, &FilePath::fromString);
+    files = transform(list, &FilePath::fromString);
 }
 
 FilePath FilePath::pathAppended(const QString &path) const
@@ -1332,7 +1332,7 @@ FilePath FilePath::stringAppended(const QString &str) const
 
 QHashValueType FilePath::hash(uint seed) const
 {
-    if (Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
+    if (HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
         return qHash(m_data.toUpper(), seed);
     return qHash(m_data, seed);
 }

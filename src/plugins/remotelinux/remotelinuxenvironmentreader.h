@@ -29,6 +29,7 @@
 #include <utils/environment.h>
 
 #include <QObject>
+#include <QSharedPointer>
 
 namespace Utils { class QtcProcess; }
 

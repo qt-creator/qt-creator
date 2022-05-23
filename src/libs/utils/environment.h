@@ -25,13 +25,12 @@
 
 #pragma once
 
-#include "fileutils.h"
-#include "hostosinfo.h"
-#include "namevaluedictionary.h"
-#include "namevalueitem.h"
-#include "optional.h"
+#include "utils_global.h"
 
-#include <QStringList>
+#include "environmentfwd.h"
+#include "filepath.h"
+#include "namevaluedictionary.h"
+#include "optional.h"
 
 #include <functional>
 
@@ -51,11 +50,11 @@ public:
     void appendOrSet(const QString &key, const QString &value, const QString &sep = QString());
     void prependOrSet(const QString &key, const QString &value, const QString &sep = QString());
 
-    void appendOrSetPath(const Utils::FilePath &value);
-    void prependOrSetPath(const Utils::FilePath &value);
+    void appendOrSetPath(const FilePath &value);
+    void prependOrSetPath(const FilePath &value);
 
-    void prependOrSetLibrarySearchPath(const Utils::FilePath &value);
-    void prependOrSetLibrarySearchPaths(const Utils::FilePaths &values);
+    void prependOrSetLibrarySearchPath(const FilePath &value);
+    void prependOrSetLibrarySearchPaths(const FilePaths &values);
 
     void setupEnglishOutput();
 
@@ -97,8 +96,8 @@ public:
 
     void addSetValue(const QString &key, const QString &value);
     void addUnsetValue(const QString &key);
-    void addPrependToPath(const Utils::FilePaths &values);
-    void addAppendToPath(const Utils::FilePaths &values);
+    void addPrependToPath(const FilePaths &values);
+    void addAppendToPath(const FilePaths &values);
     void addModify(const NameValueItems &items);
     void addChange(const Item &item) { m_changeItems.append(item); }
 

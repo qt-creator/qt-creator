@@ -26,10 +26,10 @@
 #pragma once
 
 #include "utils_global.h"
-#include <QtGlobal>
 
 #include <QFuture>
 #include <QList>
+#include <QtGlobal>
 
 namespace Utils {
 

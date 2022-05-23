@@ -44,6 +44,7 @@
 
 #include <QGridLayout>
 #include <QLineEdit>
+#include <QXmlStreamWriter>
 
 using namespace ProjectExplorer;
 using namespace Utils;

@@ -41,6 +41,9 @@
 #include "dockoverlay.h"
 #include "dockwidget.h"
 #include "linux/floatingwidgettitlebar.h"
+
+#include <utils/hostosinfo.h>
+
 #ifdef Q_OS_WIN
 #include <windows.h>
 #ifdef _MSC_VER

@@ -254,7 +254,7 @@ DockWidget::DockWidget(QWidget *inner, FancyMainWindow *parent, bool immutable)
 
     QString title = inner->windowTitle();
     toggleViewAction()->setProperty("original_title", title);
-    title = Utils::stripAccelerator(title);
+    title = stripAccelerator(title);
     setWindowTitle(title);
 
     QStyleOptionDockWidget opt;
@@ -547,7 +547,7 @@ void FancyMainWindow::addDockActionsToMenu(QMenu *menu)
             actions.append(action);
         }
     }
-    Utils::sort(actions, [](const QAction *action1, const QAction *action2) {
+    sort(actions, [](const QAction *action1, const QAction *action2) {
         QTC_ASSERT(action1, return true);
         QTC_ASSERT(action2, return false);
         return stripAccelerator(action1->text()).toLower() < stripAccelerator(action2->text()).toLower();

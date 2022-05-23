@@ -38,6 +38,7 @@
 
 #include <QPoint>
 #include <QTextBlock>
+#include <QXmlStreamReader>
 
 using namespace Core;
 using namespace TextEditor;

@@ -28,14 +28,18 @@
 #include "utils_global.h"
 
 #include <QDir>
-#include <QFuture>
 #include <QMap>
+#include <QSet>
 #include <QStack>
 #include <QTextDocument>
 
 #include <functional>
 
-QT_FORWARD_DECLARE_CLASS(QTextCodec)
+QT_BEGIN_NAMESPACE
+template <typename T>
+class QFuture;
+class QTextCodec;
+QT_END_NAMESPACE
 
 namespace Utils {
 

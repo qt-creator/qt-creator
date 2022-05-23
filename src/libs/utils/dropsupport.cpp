@@ -39,7 +39,7 @@
 
 namespace Utils {
 
-static bool isFileDrop(const QMimeData *d, QList<DropSupport::FileSpec> *files = nullptr)
+static bool isFileDropMime(const QMimeData *d, QList<DropSupport::FileSpec> *files = nullptr)
 {
     // internal drop
     if (const auto internalData = qobject_cast<const DropMimeData *>(d)) {
@@ -94,7 +94,7 @@ QStringList DropSupport::mimeTypesForFilePaths()
 
 bool DropSupport::isFileDrop(QDropEvent *event)
 {
-    return Utils::isFileDrop(event->mimeData());
+    return isFileDropMime(event->mimeData());
 }
 
 bool DropSupport::isValueDrop(QDropEvent *event)
@@ -125,7 +125,7 @@ bool DropSupport::eventFilter(QObject *obj, QEvent *event)
         if (!m_filterFunction || m_filterFunction(de, this)) {
             const auto fileDropMimeData = qobject_cast<const DropMimeData *>(de->mimeData());
             QList<FileSpec> tempFiles;
-            if (Utils::isFileDrop(de->mimeData(), &tempFiles)) {
+            if (isFileDropMime(de->mimeData(), &tempFiles)) {
                 event->accept();
                 accepted = true;
                 if (fileDropMimeData && fileDropMimeData->isOverridingFileDropAction())
