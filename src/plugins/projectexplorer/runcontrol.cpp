@@ -1196,19 +1196,17 @@ void RunControlPrivate::debugMessage(const QString &msg)
 }
 
 
-// ApplicationLauncher
+// SimpleTargetRunnerPrivate
 
-class ApplicationLauncher : public QObject
+namespace Internal {
+
+class SimpleTargetRunnerPrivate : public QObject
 {
     Q_OBJECT
 
 public:
-    ApplicationLauncher();
-    ~ApplicationLauncher() override;
-
-    void setUseTerminal(bool on);
-    void setRunAsRoot(bool on);
-    void setRunnable(const Runnable &runnable);
+    SimpleTargetRunnerPrivate();
+    ~SimpleTargetRunnerPrivate() override;
 
     void start();
     void stop();
@@ -1245,11 +1243,18 @@ public:
 
     ProcessResultData m_resultData;
 
+    std::function<void()> m_starter;
+
+    bool m_stopReported = false;
+    bool m_stopForced = false;
+
 signals:
     void appendMessage(const QString &message, Utils::OutputFormat format, bool appendNewLine = true);
     void started();
     void done();
 };
+
+} // Internal
 
 static QProcess::ProcessChannelMode defaultProcessChannelMode()
 {
@@ -1257,21 +1262,21 @@ static QProcess::ProcessChannelMode defaultProcessChannelMode()
             ? QProcess::MergedChannels : QProcess::SeparateChannels;
 }
 
-ApplicationLauncher::ApplicationLauncher()
+SimpleTargetRunnerPrivate::SimpleTargetRunnerPrivate()
 {
     m_process.setProcessChannelMode(defaultProcessChannelMode());
-    connect(&m_process, &QtcProcess::started, this, &ApplicationLauncher::started);
-    connect(&m_process, &QtcProcess::done, this, &ApplicationLauncher::handleDone);
+    connect(&m_process, &QtcProcess::started, this, &SimpleTargetRunnerPrivate::started);
+    connect(&m_process, &QtcProcess::done, this, &SimpleTargetRunnerPrivate::handleDone);
     connect(&m_process, &QtcProcess::readyReadStandardError,
-                this, &ApplicationLauncher::handleStandardError);
+                this, &SimpleTargetRunnerPrivate::handleStandardError);
     connect(&m_process, &QtcProcess::readyReadStandardOutput,
-                this, &ApplicationLauncher::handleStandardOutput);
+                this, &SimpleTargetRunnerPrivate::handleStandardOutput);
 
     if (WinDebugInterface::instance()) {
         connect(WinDebugInterface::instance(), &WinDebugInterface::cannotRetrieveDebugOutput,
             this, [this] {
                 disconnect(WinDebugInterface::instance(), nullptr, this, nullptr);
-                emit appendMessage(ApplicationLauncher::tr("Cannot retrieve debugging output.")
+                emit appendMessage(tr("Cannot retrieve debugging output.")
                           + QLatin1Char('\n'), ErrorMessageFormat);
         });
 
@@ -1283,28 +1288,13 @@ ApplicationLauncher::ApplicationLauncher()
     }
 }
 
-ApplicationLauncher::~ApplicationLauncher()
+SimpleTargetRunnerPrivate::~SimpleTargetRunnerPrivate()
 {
     if (m_state == Run)
         emit done();
 }
 
-void ApplicationLauncher::setUseTerminal(bool on)
-{
-    m_process.setTerminalMode(on ? Utils::TerminalMode::On : Utils::TerminalMode::Off);
-}
-
-void ApplicationLauncher::setRunAsRoot(bool on)
-{
-    m_runAsRoot = on;
-}
-
-void ApplicationLauncher::setRunnable(const Runnable &runnable)
-{
-    m_runnable = runnable;
-}
-
-void ApplicationLauncher::stop()
+void SimpleTargetRunnerPrivate::stop()
 {
     m_resultData.m_exitStatus = QProcess::CrashExit;
     if (m_isLocal) {
@@ -1316,8 +1306,7 @@ void ApplicationLauncher::stop()
         if (m_stopRequested)
             return;
         m_stopRequested = true;
-        emit appendMessage(ApplicationLauncher::tr("User requested stop. Shutting down..."),
-                           NormalMessageFormat);
+        emit appendMessage(tr("User requested stop. Shutting down..."), NormalMessageFormat);
         switch (m_state) {
             case Run:
                 m_process.terminate();
@@ -1328,17 +1317,12 @@ void ApplicationLauncher::stop()
     }
 }
 
-bool ApplicationLauncher::isRunning() const
+bool SimpleTargetRunnerPrivate::isRunning() const
 {
     return m_process.state() != QProcess::NotRunning;
 }
 
-ProcessHandle ApplicationLauncher::applicationPID() const
-{
-    return ProcessHandle(privateApplicationPID());
-}
-
-qint64 ApplicationLauncher::privateApplicationPID() const
+qint64 SimpleTargetRunnerPrivate::privateApplicationPID() const
 {
     if (!isRunning())
         return 0;
@@ -1346,7 +1330,7 @@ qint64 ApplicationLauncher::privateApplicationPID() const
     return m_process.processId();
 }
 
-void ApplicationLauncher::handleDone()
+void SimpleTargetRunnerPrivate::handleDone()
 {
     m_resultData = m_process.resultData();
 
@@ -1366,13 +1350,13 @@ void ApplicationLauncher::handleDone()
             QString errorString;
             switch (m_resultData.m_error) {
             case QProcess::FailedToStart:
-                errorString = ApplicationLauncher::tr("Failed to start program. Path or permissions wrong?");
+                errorString = tr("Failed to start program. Path or permissions wrong?");
                 break;
             case QProcess::Crashed:
                 m_resultData.m_exitStatus = QProcess::CrashExit;
                 break;
             default:
-                errorString = ApplicationLauncher::tr("Some error has occurred while running the program.");
+                errorString = tr("Some error has occurred while running the program.");
             }
             if (!errorString.isEmpty())
                 emit appendMessage(errorString, ErrorMessageFormat);
@@ -1394,7 +1378,7 @@ void ApplicationLauncher::handleDone()
     emit done();
 }
 
-void ApplicationLauncher::handleStandardOutput()
+void SimpleTargetRunnerPrivate::handleStandardOutput()
 {
     const QByteArray data = m_process.readAllStandardOutput();
     const QString msg = m_outputCodec->toUnicode(
@@ -1402,7 +1386,7 @@ void ApplicationLauncher::handleStandardOutput()
     emit appendMessage(msg, StdOutFormat, false);
 }
 
-void ApplicationLauncher::handleStandardError()
+void SimpleTargetRunnerPrivate::handleStandardError()
 {
     const QByteArray data = m_process.readAllStandardError();
     const QString msg = m_outputCodec->toUnicode(
@@ -1410,7 +1394,7 @@ void ApplicationLauncher::handleStandardError()
     emit appendMessage(msg, StdErrFormat, false);
 }
 
-void ApplicationLauncher::start()
+void SimpleTargetRunnerPrivate::start()
 {
     m_isLocal = m_runnable.device.isNull() || m_runnable.device.dynamicCast<const DesktopDevice>();
 
@@ -1445,7 +1429,7 @@ void ApplicationLauncher::start()
         QTC_ASSERT(m_state == Inactive, return);
 
         if (!m_runnable.device) {
-            m_resultData.m_errorString = ApplicationLauncher::tr("Cannot run: No device.");
+            m_resultData.m_errorString = tr("Cannot run: No device.");
             m_resultData.m_error = QProcess::FailedToStart;
             m_resultData.m_exitStatus = QProcess::CrashExit;
             emit done();
@@ -1453,7 +1437,7 @@ void ApplicationLauncher::start()
         }
 
         if (!m_runnable.device->isEmptyCommandAllowed() && m_runnable.command.isEmpty()) {
-            m_resultData.m_errorString = ApplicationLauncher::tr("Cannot run: No command given.");
+            m_resultData.m_errorString = tr("Cannot run: No command given.");
             m_resultData.m_error = QProcess::FailedToStart;
             m_resultData.m_exitStatus = QProcess::CrashExit;
             emit done();
@@ -1490,20 +1474,6 @@ void ApplicationLauncher::start()
     \sa Utils::QtcProcess
 */
 
-namespace Internal {
-
-class SimpleTargetRunnerPrivate
-{
-public:
-    ApplicationLauncher m_launcher;
-    std::function<void()> m_starter;
-
-    bool m_stopReported = false;
-    bool m_stopForced = false;
-};
-
-} // Internal
-
 SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
     : RunWorker(runControl), d(new Internal::SimpleTargetRunnerPrivate)
 {
@@ -1536,18 +1506,18 @@ void SimpleTargetRunner::doStart(const Runnable &runnable)
 
     d->m_stopForced = false;
     d->m_stopReported = false;
-    d->m_launcher.disconnect(this);
-    d->m_launcher.setUseTerminal(useTerminal);
-    d->m_launcher.setRunAsRoot(runAsRoot);
+    d->disconnect(this);
+    d->m_process.setTerminalMode(useTerminal ? Utils::TerminalMode::On : Utils::TerminalMode::Off);
+    d->m_runAsRoot = runAsRoot;
 
     const QString msg = RunControl::tr("Starting %1...").arg(runnable.command.toUserOutput());
     appendMessage(msg, Utils::NormalMessageFormat);
 
-    connect(&d->m_launcher, &ApplicationLauncher::done, this, [this, runnable] {
+    connect(d.get(), &SimpleTargetRunnerPrivate::done, this, [this, runnable] {
         if (d->m_stopReported)
             return;
         const QString executable = runnable.command.executable().toUserOutput();
-        const ProcessResultData &resultData = d->m_launcher.m_resultData;
+        const ProcessResultData &resultData = d->m_resultData;
         QString msg = tr("%2 exited with code %1").arg(resultData.m_exitCode).arg(executable);
         if (resultData.m_exitStatus == QProcess::CrashExit)
             msg = tr("%1 crashed.").arg(executable);
@@ -1560,14 +1530,14 @@ void SimpleTargetRunner::doStart(const Runnable &runnable)
         reportStopped();
     });
 
-    connect(&d->m_launcher, &ApplicationLauncher::appendMessage, this, &RunWorker::appendMessage);
+    connect(d.get(), &SimpleTargetRunnerPrivate::appendMessage, this, &RunWorker::appendMessage);
 
     const bool isDesktop = runnable.device.isNull()
                         || runnable.device.dynamicCast<const DesktopDevice>();
     if (isDesktop) {
-        connect(&d->m_launcher, &ApplicationLauncher::started, this, [this] {
+        connect(d.get(), &SimpleTargetRunnerPrivate::started, this, [this] {
             // Console processes only know their pid after being started
-            ProcessHandle pid = d->m_launcher.applicationPID();
+            ProcessHandle pid{d->privateApplicationPID()};
             runControl()->setApplicationProcessHandle(pid);
             pid.activate();
             reportStarted();
@@ -1578,16 +1548,16 @@ void SimpleTargetRunner::doStart(const Runnable &runnable)
             return;
         }
     } else {
-        connect(&d->m_launcher, &ApplicationLauncher::started, this, &RunWorker::reportStarted);
+        connect(d.get(), &SimpleTargetRunnerPrivate::started, this, &RunWorker::reportStarted);
     }
-    d->m_launcher.setRunnable(runnable);
-    d->m_launcher.start();
+    d->m_runnable = runnable;
+    d->start();
 }
 
 void SimpleTargetRunner::stop()
 {
     d->m_stopForced = true;
-    d->m_launcher.stop();
+    d->stop();
 }
 
 void SimpleTargetRunner::setStarter(const std::function<void ()> &starter)
