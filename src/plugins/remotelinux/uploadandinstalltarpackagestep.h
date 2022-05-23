@@ -25,28 +25,10 @@
 
 #pragma once
 
-#include "abstractuploadandinstallpackageservice.h"
 #include "abstractremotelinuxdeploystep.h"
 
 namespace RemoteLinux {
 class AbstractRemoteLinuxPackageInstaller;
-
-namespace Internal { class UploadAndInstallTarPackageServicePrivate; }
-
-class REMOTELINUX_EXPORT UploadAndInstallTarPackageService : public AbstractUploadAndInstallPackageService
-{
-    Q_OBJECT
-
-public:
-    UploadAndInstallTarPackageService();
-    ~UploadAndInstallTarPackageService() override;
-
-private:
-    AbstractRemoteLinuxPackageInstaller *packageInstaller() const override;
-
-    Internal::UploadAndInstallTarPackageServicePrivate *d;
-};
-
 
 class REMOTELINUX_EXPORT UploadAndInstallTarPackageStep : public AbstractRemoteLinuxDeployStep
 {
