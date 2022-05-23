@@ -50,12 +50,15 @@ private slots:
     void testDirStatus();
     void testBytesAvailable();
     void testFileActions();
+    void testFileTransfer_data();
+    void testFileTransfer();
 
     void cleanupTestCase();
 
 private:
     TestLinuxDeviceFactory m_testLinuxDeviceFactory;
     bool m_skippedAtWhole = false;
+    ProjectExplorer::IDeviceConstPtr m_device;
 };
 
 } // Internal

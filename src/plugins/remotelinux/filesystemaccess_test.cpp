@@ -25,15 +25,19 @@
 
 #include "filesystemaccess_test.h"
 
+#include "filetransfer.h"
 #include "linuxdevice.h"
-#include "remotelinux_constants.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <ssh/sshconnection.h>
 #include <utils/filepath.h>
+#include <utils/processinterface.h>
 
 #include <QDebug>
+#include <QFile>
+#include <QRandomGenerator>
 #include <QTest>
+#include <QTimer>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -55,12 +59,12 @@ TestLinuxDeviceFactory::TestLinuxDeviceFactory()
     setIcon(QIcon());
     setConstructionFunction(&LinuxDevice::create);
     setCreator([] {
-        LinuxDevice::Ptr newDev = LinuxDevice::create();
-        newDev->setType("test");
-        qDebug() << "device : " << newDev->type();
-        QSsh::SshConnectionParameters sshParams = QSsh::SshTest::getParameters();
-        newDev->setSshParameters(sshParams);
-        return newDev;
+        LinuxDevice::Ptr device = LinuxDevice::create();
+        device->setupId(IDevice::ManuallyAdded);
+        device->setType("test");
+        qDebug() << "device : " << device->type();
+        device->setSshParameters(QSsh::SshTest::getParameters());
+        return device;
     });
 }
 
@@ -90,10 +94,12 @@ void FileSystemAccessTest::initTestCase()
     FilePath filePath = baseFilePath();
 
     if (DeviceManager::deviceForPath(filePath) == nullptr) {
-        DeviceManager *const devMgr = DeviceManager::instance();
-        const IDevice::Ptr newDev = m_testLinuxDeviceFactory.create();
-        QVERIFY(!newDev.isNull());
-        devMgr->addDevice(newDev);
+        const IDevice::Ptr device = m_testLinuxDeviceFactory.create();
+        QVERIFY(!device.isNull());
+        DeviceManager *deviceManager = DeviceManager::instance();
+        deviceManager->addDevice(device);
+        m_device = deviceManager->find(device->id());
+        QVERIFY(m_device);
     }
     if (filePath.exists()) // Do initial cleanup after possible leftovers from previously failed test
         QVERIFY(filePath.removeRecursively());
@@ -208,6 +214,85 @@ void FileSystemAccessTest::testFileActions()
     QVERIFY(newTestFilePath.exists());
     QVERIFY(newTestFilePath.removeFile());
     QVERIFY(!newTestFilePath.exists());
+}
+
+void FileSystemAccessTest::testFileTransfer_data()
+{
+    QTest::addColumn<FileTransferMethod>("fileTransferMethod");
+
+    QTest::addRow("Sftp") << FileTransferMethod::Sftp;
+//    QTest::addRow("Rsync") << FileTransferMethod::Rsync;
+}
+
+void FileSystemAccessTest::testFileTransfer()
+{
+    QFETCH(FileTransferMethod, fileTransferMethod);
+
+    FileTransfer fileTransfer;
+    fileTransfer.setTransferMethod(fileTransferMethod);
+    fileTransfer.setDevice(m_device);
+
+    // Create and upload 1000 small files and one big file
+    QTemporaryDir dirForFilesToUpload;
+    QTemporaryDir dirForFilesToDownload;
+    QTemporaryDir dir2ForFilesToDownload;
+    QVERIFY2(dirForFilesToUpload.isValid(), qPrintable(dirForFilesToUpload.errorString()));
+    QVERIFY2(dirForFilesToDownload.isValid(), qPrintable(dirForFilesToDownload.errorString()));
+    QVERIFY2(dir2ForFilesToDownload.isValid(), qPrintable(dirForFilesToDownload.errorString()));
+    static const auto getRemoteFilePath = [this](const QString &localFileName) {
+        return m_device->filePath(QString("/tmp/").append(localFileName).append(".upload"));
+    };
+    FilesToTransfer filesToUpload;
+    std::srand(QDateTime::currentDateTime().toSecsSinceEpoch());
+    for (int i = 0; i < 100; ++i) {
+        const QString fileName = "testFile" + QString::number(i + 1);
+        QFile file(dirForFilesToUpload.path() + '/' + fileName);
+        QVERIFY2(file.open(QIODevice::WriteOnly), qPrintable(file.errorString()));
+        int content[1024 / sizeof(int)];
+        for (size_t j = 0; j < sizeof content / sizeof content[0]; ++j)
+            content[j] = QRandomGenerator::global()->generate();
+        file.write(reinterpret_cast<char *>(content), sizeof content);
+        file.close();
+        QVERIFY2(file.error() == QFile::NoError, qPrintable(file.errorString()));
+        filesToUpload << FileToTransfer{FilePath::fromString(file.fileName()),
+                                        getRemoteFilePath(fileName)};
+    }
+
+    const QString bigFileName("bigFile");
+    QFile bigFile(dirForFilesToUpload.path() + '/' + bigFileName);
+    QVERIFY2(bigFile.open(QIODevice::WriteOnly), qPrintable(bigFile.errorString()));
+    const int bigFileSize = 100 * 1024 * 1024;
+    const int blockSize = 8192;
+    const int blockCount = bigFileSize / blockSize;
+    for (int block = 0; block < blockCount; ++block) {
+        int content[blockSize / sizeof(int)];
+        for (size_t j = 0; j < sizeof content / sizeof content[0]; ++j)
+            content[j] = QRandomGenerator::global()->generate();
+        bigFile.write(reinterpret_cast<char *>(content), sizeof content);
+    }
+    bigFile.close();
+    QVERIFY2(bigFile.error() == QFile::NoError, qPrintable(bigFile.errorString()));
+    filesToUpload << FileToTransfer{FilePath::fromString(bigFile.fileName()),
+                                    getRemoteFilePath(bigFileName)};
+    fileTransfer.setFilesToTransfer(filesToUpload);
+
+    QString jobError;
+    QEventLoop loop;
+    connect(&fileTransfer, &FileTransfer::done, [&jobError, &loop]
+            (const ProcessResultData &resultData) {
+        jobError = resultData.m_errorString;
+        loop.quit();
+    });
+    QTimer timer;
+    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+    timer.setSingleShot(true);
+    timer.setInterval(30 * 1000);
+    timer.start();
+    fileTransfer.start();
+    loop.exec();
+    QVERIFY(timer.isActive());
+    timer.stop();
+    QVERIFY2(jobError.isEmpty(), qPrintable(jobError));
 }
 
 } // Internal
