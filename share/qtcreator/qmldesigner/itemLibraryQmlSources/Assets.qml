@@ -48,7 +48,7 @@ Item {
 
     function clearSearchFilter()
     {
-        searchBox.text = "";
+        searchBox.clear();
     }
 
     function updateDropExtFiles(drag)

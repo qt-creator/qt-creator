@@ -33,7 +33,7 @@ Item {
 
     property alias text: searchFilterText.text
 
-    function clearSearchFilter()
+    function clear()
     {
         searchFilterText.text = "";
     }

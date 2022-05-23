@@ -91,6 +91,12 @@ Item {
         itemContextMenu.close()
     }
 
+    // Called from C++
+    function clearSearchFilter()
+    {
+        searchBox.clear();
+    }
+
     // Called also from C++
     function switchToComponentsView()
     {

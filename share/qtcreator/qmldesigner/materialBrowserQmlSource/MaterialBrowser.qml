@@ -56,7 +56,7 @@ Item {
     // Called from C++
     function clearSearchFilter()
     {
-        searchBox.clearSearchFilter();
+        searchBox.clear();
     }
 
     MouseArea {
