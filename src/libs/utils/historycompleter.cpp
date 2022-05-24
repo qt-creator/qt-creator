@@ -31,6 +31,7 @@
 
 #include <QItemDelegate>
 #include <QListView>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QWindow>
 

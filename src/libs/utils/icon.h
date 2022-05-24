@@ -25,9 +25,10 @@
 
 #pragma once
 
-#include "fileutils.h"
-#include "theme/theme.h"
 #include "utils_global.h"
+
+#include "filepath.h"
+#include "theme/theme.h"
 
 #include <QIcon>
 #include <QPair>

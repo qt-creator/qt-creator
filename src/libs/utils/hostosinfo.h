@@ -29,7 +29,7 @@
 
 #include "osspecificaspects.h"
 
-#include <QString>
+QT_FORWARD_DECLARE_CLASS(QString)
 
 #ifdef Q_OS_WIN
 #define QTC_HOST_EXE_SUFFIX QTC_WIN_EXE_SUFFIX

@@ -25,8 +25,9 @@
 
 #pragma once
 
-#include "icon.h"
 #include "utils_global.h"
+
+#include "icon.h"
 
 namespace Utils {
 namespace Icons {

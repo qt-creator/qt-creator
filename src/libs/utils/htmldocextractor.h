@@ -27,6 +27,8 @@
 
 #include "utils_global.h"
 
+QT_FORWARD_DECLARE_CLASS(QString)
+
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT HtmlDocExtractor

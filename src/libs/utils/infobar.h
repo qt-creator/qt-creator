@@ -25,10 +25,10 @@
 
 #pragma once
 
-#include "id.h"
 #include "utils_global.h"
 
-#include <QFrame>
+#include "id.h"
+
 #include <QObject>
 #include <QSet>
 

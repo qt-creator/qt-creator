@@ -27,15 +27,13 @@
 
 #include "utils_global.h"
 
-static const char activationModeC[] = "ActivationMode";
-
+#include <QKeyEvent>
 #include <QListView>
 #include <QListWidget>
 #include <QTreeView>
 #include <QTreeWidget>
 
-#include <QKeyEvent>
-
+static const char activationModeC[] = "ActivationMode";
 
 namespace Utils {
 

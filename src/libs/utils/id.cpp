@@ -241,14 +241,14 @@ Id Id::versionedId(const QByteArray &prefix, int major, int minor)
 
 QSet<Id> Id::fromStringList(const QStringList &list)
 {
-    return Utils::transform<QSet<Id>>(list, &Id::fromString);
+    return transform<QSet<Id>>(list, &Id::fromString);
 }
 
 QStringList Id::toStringList(const QSet<Id> &ids)
 {
-    QList<Id> idList = Utils::toList(ids);
-    Utils::sort(idList);
-    return Utils::transform(idList, &Id::toString);
+    QList<Id> idList = toList(ids);
+    sort(idList);
+    return transform(idList, &Id::toString);
 }
 
 /*!
@@ -336,12 +336,12 @@ QString Id::suffixAfter(Id baseId) const
     return n.startsWith(b) ? QString::fromUtf8(n.mid(b.size())) : QString();
 }
 
-QDataStream &operator<<(QDataStream &ds, Utils::Id id)
+QDataStream &operator<<(QDataStream &ds, Id id)
 {
     return ds << id.name();
 }
 
-QDataStream &operator>>(QDataStream &ds, Utils::Id &id)
+QDataStream &operator>>(QDataStream &ds, Id &id)
 {
     QByteArray ba;
     ds >> ba;
@@ -349,7 +349,7 @@ QDataStream &operator>>(QDataStream &ds, Utils::Id &id)
     return ds;
 }
 
-QDebug operator<<(QDebug dbg, const Utils::Id &id)
+QDebug operator<<(QDebug dbg, const Id &id)
 {
     return dbg << id.name();
 }

@@ -38,7 +38,6 @@
 #include "testsettingspage.h"
 #include "testtreeitem.h"
 #include "testtreemodel.h"
-#include "testtreeview.h"
 
 #include "boost/boosttestframework.h"
 #include "catch/catchframework.h"

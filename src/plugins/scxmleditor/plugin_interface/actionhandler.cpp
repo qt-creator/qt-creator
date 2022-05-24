@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "actionhandler.h"
+
 #include "mytypes.h"
 
 #include <utils/utilsicons.h>

@@ -30,6 +30,7 @@
 #include "ui_docsettingspage.h"
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 
 #include <QFileDialog>
 #include <QKeyEvent>

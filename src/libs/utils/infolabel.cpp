@@ -25,8 +25,8 @@
 
 #include "infolabel.h"
 
-#include <utils/icon.h>
-#include <utils/utilsicons.h>
+#include "icon.h"
+#include "utilsicons.h"
 
 #include <QPainter>
 #include <QPaintEvent>
@@ -75,7 +75,7 @@ QSize InfoLabel::minimumSizeHint() const
     return baseHint;
 }
 
-static Utils::Theme::Color fillColorForType(InfoLabel::InfoType type)
+static Theme::Color fillColorForType(InfoLabel::InfoType type)
 {
     using namespace Utils;
     switch (type) {

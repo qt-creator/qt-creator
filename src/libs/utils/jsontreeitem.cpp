@@ -28,7 +28,9 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
-Utils::JsonTreeItem::JsonTreeItem(const QString &displayName, const QJsonValue &value)
+namespace Utils {
+
+JsonTreeItem::JsonTreeItem(const QString &displayName, const QJsonValue &value)
     : m_name(displayName)
     , m_value(value)
 { }
@@ -37,24 +39,24 @@ static QString typeName(QJsonValue::Type type)
 {
     switch (type) {
     case QJsonValue::Null:
-        return Utils::JsonTreeItem::tr("Null");
+        return JsonTreeItem::tr("Null");
     case QJsonValue::Bool:
-        return Utils::JsonTreeItem::tr("Bool");
+        return JsonTreeItem::tr("Bool");
     case QJsonValue::Double:
-        return Utils::JsonTreeItem::tr("Double");
+        return JsonTreeItem::tr("Double");
     case QJsonValue::String:
-        return Utils::JsonTreeItem::tr("String");
+        return JsonTreeItem::tr("String");
     case QJsonValue::Array:
-        return Utils::JsonTreeItem::tr("Array");
+        return JsonTreeItem::tr("Array");
     case QJsonValue::Object:
-        return Utils::JsonTreeItem::tr("Object");
+        return JsonTreeItem::tr("Object");
     case QJsonValue::Undefined:
-        return Utils::JsonTreeItem::tr("Undefined");
+        return JsonTreeItem::tr("Undefined");
     }
     return {};
 }
 
-QVariant Utils::JsonTreeItem::data(int column, int role) const
+QVariant JsonTreeItem::data(int column, int role) const
 {
     if (role != Qt::DisplayRole)
         return {};
@@ -69,12 +71,12 @@ QVariant Utils::JsonTreeItem::data(int column, int role) const
     return m_value.toVariant();
 }
 
-bool Utils::JsonTreeItem::canFetchMore() const
+bool JsonTreeItem::canFetchMore() const
 {
     return canFetchObjectChildren() || canFetchArrayChildren();
 }
 
-void Utils::JsonTreeItem::fetchMore()
+void JsonTreeItem::fetchMore()
 {
     if (canFetchObjectChildren()) {
         const QJsonObject &object = m_value.toObject();
@@ -88,12 +90,14 @@ void Utils::JsonTreeItem::fetchMore()
     }
 }
 
-bool Utils::JsonTreeItem::canFetchObjectChildren() const
+bool JsonTreeItem::canFetchObjectChildren() const
 {
     return m_value.isObject() && m_value.toObject().size() > childCount();
 }
 
-bool Utils::JsonTreeItem::canFetchArrayChildren() const
+bool JsonTreeItem::canFetchArrayChildren() const
 {
     return m_value.isArray() && m_value.toArray().size() > childCount();
 }
+
+} // namespace Utils

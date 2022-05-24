@@ -27,10 +27,10 @@
 
 #include "utils_global.h"
 
-#include <QHash>
-#include <QVector>
-#include <QStringList>
 #include <QDateTime>
+#include <QHash>
+#include <QStringList>
+#include <QVector>
 
 QT_FORWARD_DECLARE_CLASS(QVariant)
 

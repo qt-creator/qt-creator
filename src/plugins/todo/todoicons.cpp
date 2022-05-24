@@ -23,11 +23,12 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
+#include "todoicons.h"
+
 #include <utils/icon.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
-
-#include "todoicons.h"
 
 using namespace Utils;
 

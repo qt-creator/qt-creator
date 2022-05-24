@@ -26,6 +26,7 @@
 #pragma once
 
 #include "utils_global.h"
+
 #include "porting.h"
 
 #include <QList>
@@ -75,9 +76,9 @@ public:
     static QStringList toStringList(const QSet<Id> &ids);
 
     friend QHashValueType qHash(Id id) { return static_cast<QHashValueType>(id.uniqueIdentifier()); }
-    friend QTCREATOR_UTILS_EXPORT QDataStream &operator<<(QDataStream &ds, Utils::Id id);
-    friend QTCREATOR_UTILS_EXPORT QDataStream &operator>>(QDataStream &ds, Utils::Id &id);
-    friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const Utils::Id &id);
+    friend QTCREATOR_UTILS_EXPORT QDataStream &operator<<(QDataStream &ds, Id id);
+    friend QTCREATOR_UTILS_EXPORT QDataStream &operator>>(QDataStream &ds, Id &id);
+    friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const Id &id);
 
 private:
     explicit Id(quintptr uid) : m_id(uid) {}

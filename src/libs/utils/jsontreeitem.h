@@ -29,8 +29,8 @@
 
 #include "utils_global.h"
 
-#include <QJsonValue>
 #include <QCoreApplication>
+#include <QJsonValue>
 
 namespace Utils {
 

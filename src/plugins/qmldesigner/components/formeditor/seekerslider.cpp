@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "seekerslider.h"
+
 #include <utils/icon.h>
 
 #include <QStyleOption>

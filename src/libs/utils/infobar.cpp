@@ -119,7 +119,7 @@ void InfoBarEntry::setComboInfo(const QStringList &list,
                                 const QString &tooltip,
                                 int currentIndex)
 {
-    auto comboInfos = Utils::transform(list, [](const QString &string) {
+    auto comboInfos = transform(list, [](const QString &string) {
         return ComboInfo{string, string};
     });
     setComboInfo(comboInfos, callBack, tooltip, currentIndex);
@@ -157,14 +157,14 @@ void InfoBar::addInfo(const InfoBarEntry &info)
 void InfoBar::removeInfo(Id id)
 {
     const int size = m_infoBarEntries.size();
-    Utils::erase(m_infoBarEntries, Utils::equal(&InfoBarEntry::m_id, id));
+    Utils::erase(m_infoBarEntries, equal(&InfoBarEntry::m_id, id));
     if (size != m_infoBarEntries.size())
         emit changed();
 }
 
 bool InfoBar::containsInfo(Id id) const
 {
-    return Utils::anyOf(m_infoBarEntries, Utils::equal(&InfoBarEntry::m_id, id));
+    return anyOf(m_infoBarEntries, equal(&InfoBarEntry::m_id, id));
 }
 
 // Remove and suppress id
@@ -211,7 +211,7 @@ void InfoBar::initialize(QSettings *settings)
 
     if (QTC_GUARD(m_settings)) {
         const QStringList list = m_settings->value(QLatin1String(C_SUPPRESSED_WARNINGS)).toStringList();
-        globallySuppressed = Utils::transform<QSet>(list, Id::fromString);
+        globallySuppressed = transform<QSet>(list, Id::fromString);
     }
 }
 
@@ -236,7 +236,7 @@ void InfoBar::writeGloballySuppressedToSettings()
 {
     if (!m_settings)
         return;
-    const QStringList list = Utils::transform<QList>(globallySuppressed, &Id::toString);
+    const QStringList list = transform<QList>(globallySuppressed, &Id::toString);
     QtcSettings::setValueWithDefault(m_settings, C_SUPPRESSED_WARNINGS, list);
 }
 
@@ -386,7 +386,7 @@ void InfoBarDisplay::update()
         if (info.m_cancelButtonText.isEmpty()) {
             if (infoWidgetCloseButton) {
                 infoWidgetCloseButton->setAutoRaise(true);
-                infoWidgetCloseButton->setIcon(Utils::Icons::CLOSE_FOREGROUND.icon());
+                infoWidgetCloseButton->setIcon(Icons::CLOSE_FOREGROUND.icon());
                 infoWidgetCloseButton->setToolTip(tr("Close"));
             }
 

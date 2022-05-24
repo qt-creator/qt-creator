@@ -34,6 +34,7 @@
 #include <QIcon>
 #include <QImage>
 #include <QPainter>
+#include <QWidget>
 
 namespace Utils {
 
