@@ -62,6 +62,8 @@ Project {
              "components/texteditor",
              "components/timelineeditor",
              "components/listmodeleditor",
+             "components/materialbrowser",
+             "components/materialeditor",
         ])
 
         Properties {
