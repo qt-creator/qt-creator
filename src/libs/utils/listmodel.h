@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "utils_global.h"
 #include "treemodel.h"
 
 namespace Utils {

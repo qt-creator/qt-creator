@@ -27,11 +27,11 @@
 
 #include "utils_global.h"
 
-#include <functional>
-
+#include <QCoreApplication>
 #include <QList>
 #include <QVector>
-#include <QCoreApplication>
+
+#include <functional>
 
 namespace Utils {
 

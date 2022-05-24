@@ -39,10 +39,10 @@
 
 #pragma once
 
+#include "utils_global.h"
+
 #include <mimemagicrule_p.h>
 #include <mimetype.h>
-
-#include <utils/utils_global.h>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;

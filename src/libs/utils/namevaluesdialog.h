@@ -25,19 +25,17 @@
 
 #pragma once
 
-#include "environmentfwd.h"
-#include "namevalueitem.h"
-#include "optional.h"
 #include "utils_global.h"
+
+#include "environmentfwd.h"
+#include "optional.h"
 
 #include <QDialog>
 
 #include <functional>
 #include <memory>
 
-QT_BEGIN_NAMESPACE
-class QPlainTextEdit;
-QT_END_NAMESPACE
+QT_FORWARD_DECLARE_CLASS(QPlainTextEdit)
 
 namespace Utils {
 

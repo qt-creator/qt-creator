@@ -26,6 +26,7 @@
 #pragma once
 
 #include "utils_global.h"
+
 #include "algorithm.h"
 #include "runextensions.h"
 

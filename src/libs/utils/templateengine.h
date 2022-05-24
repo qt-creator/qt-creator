@@ -31,7 +31,7 @@
 
 #include <QString>
 
-QT_FORWARD_DECLARE_CLASS(QJSEngine);
+QT_FORWARD_DECLARE_CLASS(QJSEngine)
 
 namespace Utils {
 

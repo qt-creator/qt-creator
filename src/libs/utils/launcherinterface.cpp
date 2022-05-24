@@ -72,7 +72,7 @@ private:
 
 static QString launcherSocketName()
 {
-    return Utils::TemporaryDirectory::masterDirectoryPath()
+    return TemporaryDirectory::masterDirectoryPath()
            + QStringLiteral("/launcher-%1").arg(QString::number(qApp->applicationPid()));
 }
 
@@ -232,7 +232,7 @@ void LauncherInterface::sendData(const QByteArray &data)
     instance()->m_private->socket()->sendData(data);
 }
 
-Utils::Internal::CallerHandle *LauncherInterface::registerHandle(QObject *parent, quintptr token)
+Internal::CallerHandle *LauncherInterface::registerHandle(QObject *parent, quintptr token)
 {
     QMutexLocker locker(&s_instanceMutex);
     return instance()->m_private->socket()->registerHandle(parent, token);

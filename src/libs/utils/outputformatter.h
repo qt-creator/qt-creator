@@ -26,7 +26,8 @@
 #pragma once
 
 #include "utils_global.h"
-#include "fileutils.h"
+
+#include "filepath.h"
 #include "optional.h"
 #include "outputformat.h"
 

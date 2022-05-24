@@ -25,22 +25,26 @@
 
 #pragma once
 
-#include "environmentfwd.h"
 #include "utils_global.h"
 
-#include <QModelIndex>
+#include "environmentfwd.h"
+
 #include <QPersistentModelIndex>
 #include <QTimer>
 #include <QValidator>
 
+QT_FORWARD_DECLARE_CLASS(QModelIndex)
+
 namespace Utils {
+
+class NameValueModel;
 
 class QTCREATOR_UTILS_EXPORT NameValueValidator : public QValidator
 {
     Q_OBJECT
 public:
     NameValueValidator(QWidget *parent,
-                       Utils::NameValueModel *model,
+                       NameValueModel *model,
                        QTreeView *view,
                        const QModelIndex &index,
                        const QString &toolTipText);
@@ -51,7 +55,7 @@ public:
 
 private:
     const QString m_toolTipText;
-    Utils::NameValueModel *m_model;
+    NameValueModel *m_model;
     QTreeView *m_view;
     QPersistentModelIndex m_index;
     mutable QTimer m_hideTipTimer;

@@ -25,10 +25,12 @@
 
 #include "minimizableinfobars.h"
 
+#include "infobar.h"
 #include "qtcassert.h"
 #include "qtcsettings.h"
 #include "utilsicons.h"
 
+#include <QAction>
 #include <QToolButton>
 
 const char SETTINGS_PREFIX[] = "ShowInfoBarFor";

@@ -32,7 +32,7 @@
 namespace Utils {
 
 NameValueValidator::NameValueValidator(QWidget *parent,
-                                       Utils::NameValueModel *model,
+                                       NameValueModel *model,
                                        QTreeView *view,
                                        const QModelIndex &index,
                                        const QString &toolTipText)
@@ -44,7 +44,7 @@ NameValueValidator::NameValueValidator(QWidget *parent,
 {
     m_hideTipTimer.setInterval(2000);
     m_hideTipTimer.setSingleShot(true);
-    connect(&m_hideTipTimer, &QTimer::timeout, this, []() { Utils::ToolTip::hide(); });
+    connect(&m_hideTipTimer, &QTimer::timeout, this, []() { ToolTip::hide(); });
 }
 
 QValidator::State NameValueValidator::validate(QString &in, int &pos) const
@@ -53,7 +53,7 @@ QValidator::State NameValueValidator::validate(QString &in, int &pos) const
     QModelIndex idx = m_model->variableToIndex(in);
     if (idx.isValid() && idx != m_index)
         return QValidator::Intermediate;
-    Utils::ToolTip::hide();
+    ToolTip::hide();
     m_hideTipTimer.stop();
     return QValidator::Acceptable;
 }
@@ -65,8 +65,8 @@ void NameValueValidator::fixup(QString &input) const
     if (!m_index.isValid())
         return;
     QPoint pos = m_view->mapToGlobal(m_view->visualRect(m_index).topLeft());
-    pos -= Utils::ToolTip::offsetFromPosition();
-    Utils::ToolTip::show(pos, m_toolTipText);
+    pos -= ToolTip::offsetFromPosition();
+    ToolTip::show(pos, m_toolTipText);
     m_hideTipTimer.start();
     // do nothing
 }

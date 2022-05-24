@@ -28,15 +28,18 @@
 #include "utils_global.h"
 
 #include "id.h"
-#include "infobar.h"
 
-#include <QAction>
 #include <QHash>
 #include <QObject>
 
 #include <functional>
 
+QT_FORWARD_DECLARE_CLASS(QAction)
+
 namespace Utils {
+
+class InfoBar;
+class InfoBarEntry;
 
 class QTCREATOR_UTILS_EXPORT MinimizableInfoBars : public QObject
 {
@@ -46,32 +49,32 @@ public:
     using ActionCreator = std::function<QAction *(QWidget *widget)>;
 
 public:
-    explicit MinimizableInfoBars(Utils::InfoBar &infoBar);
+    explicit MinimizableInfoBars(InfoBar &infoBar);
 
     void setSettingsGroup(const QString &settingsGroup);
-    void setPossibleInfoBarEntries(const QList<Utils::InfoBarEntry> &entries);
+    void setPossibleInfoBarEntries(const QList<InfoBarEntry> &entries);
 
     void createShowInfoBarActions(const ActionCreator &actionCreator) const;
 
-    void setInfoVisible(const Utils::Id &id, bool visible);
+    void setInfoVisible(const Id &id, bool visible);
 
 private:
     void createActions();
 
-    QString settingsKey(const Utils::Id &id) const;
-    bool showInInfoBar(const Utils::Id &id) const;
-    void setShowInInfoBar(const Utils::Id &id, bool show);
+    QString settingsKey(const Id &id) const;
+    bool showInInfoBar(const Id &id) const;
+    void setShowInInfoBar(const Id &id, bool show);
 
-    void updateInfo(const Utils::Id &id);
+    void updateInfo(const Id &id);
 
-    void showInfoBar(const Utils::Id &id);
+    void showInfoBar(const Id &id);
 
 private:
-    Utils::InfoBar &m_infoBar;
+    InfoBar &m_infoBar;
     QString m_settingsGroup;
-    QHash<Utils::Id, QAction *> m_actions;
-    QHash<Utils::Id, bool> m_isInfoVisible;
-    QHash<Utils::Id, Utils::InfoBarEntry> m_infoEntries;
+    QHash<Id, QAction *> m_actions;
+    QHash<Id, bool> m_isInfoVisible;
+    QHash<Id, InfoBarEntry> m_infoEntries;
 };
 
 } // namespace Utils

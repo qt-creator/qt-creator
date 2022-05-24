@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "environment.h"
-#include "filepath.h"
 #include "launcherpackets.h"
 #include "processinterface.h"
 

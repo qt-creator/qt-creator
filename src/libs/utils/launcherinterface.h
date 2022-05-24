@@ -47,13 +47,13 @@ public:
     static void setPathToLauncher(const QString &pathToLauncher);
 
 private:
-    friend class Utils::Internal::CallerHandle;
-    friend class Utils::Internal::LauncherHandle;
-    friend class Utils::Internal::ProcessLauncherImpl;
+    friend class Internal::CallerHandle;
+    friend class Internal::LauncherHandle;
+    friend class Internal::ProcessLauncherImpl;
 
     static bool isStarted();
     static void sendData(const QByteArray &data);
-    static Utils::Internal::CallerHandle *registerHandle(QObject *parent, quintptr token);
+    static Internal::CallerHandle *registerHandle(QObject *parent, quintptr token);
     static void unregisterHandle(quintptr token);
 
     LauncherInterface();

@@ -25,8 +25,9 @@
 
 #pragma once
 
-#include "environmentfwd.h"
 #include "utils_global.h"
+
+#include "environmentfwd.h"
 
 #include <QAbstractTableModel>
 
