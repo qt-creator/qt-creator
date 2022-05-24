@@ -25,8 +25,6 @@
 
 #include "callgrindcontroller.h"
 
-#include <projectexplorer/devicesupport/idevice.h>
-
 #include <utils/temporaryfile.h>
 #include <utils/qtcprocess.h>
 
@@ -114,13 +112,9 @@ void CallgrindController::run(Option option)
     connect(m_controllerProcess.get(), &QtcProcess::finished,
             this, &CallgrindController::controllerProcessDone);
 
-    CommandLine cmd;
-    if (m_valgrindRunnable.device)
-        cmd.setExecutable(m_valgrindRunnable.device->filePath(CALLGRIND_CONTROL_BINARY));
-    else
-        cmd.setExecutable(CALLGRIND_CONTROL_BINARY);
-    cmd.setArguments(QString("%1 %2").arg(toOptionString(option)).arg(m_pid));
-    m_controllerProcess->setCommand(cmd);
+    const FilePath control =
+            FilePath(CALLGRIND_CONTROL_BINARY).onDevice(m_valgrindRunnable.command.executable());
+    m_controllerProcess->setCommand({control, {toOptionString(option), QString::number(m_pid)}});
     m_controllerProcess->setWorkingDirectory(m_valgrindRunnable.workingDirectory);
     m_controllerProcess->setEnvironment(m_valgrindRunnable.environment);
     m_controllerProcess->start();
