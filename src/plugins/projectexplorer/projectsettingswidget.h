@@ -26,9 +26,10 @@
 #pragma once
 
 #include "projectexplorer_export.h"
-#include "projectexplorer/project.h"
 
 #include <utils/id.h>
+
+#include <QWidget>
 
 namespace ProjectExplorer {
 
@@ -61,4 +62,5 @@ private:
     bool m_useGlobalSettingsCheckBoxVisibleVisible = true;
     Utils::Id m_globalSettingsId;
 };
+
 } // namespace ProjectExplorer
