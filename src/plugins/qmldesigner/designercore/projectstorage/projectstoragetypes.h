@@ -640,10 +640,13 @@ public:
     explicit PropertyDeclaration(Utils::SmallStringView name,
                                  ImportedTypeName typeName,
                                  PropertyDeclarationTraits traits,
-                                 Utils::SmallStringView aliasPropertyName)
+                                 Utils::SmallStringView aliasPropertyName,
+                                 Utils::SmallStringView aliasPropertyNameTail = {})
         : name{name}
         , typeName{std::move(typeName)}
         , aliasPropertyName{aliasPropertyName}
+        , aliasPropertyNameTail{aliasPropertyNameTail}
+
         , traits{traits}
         , kind{PropertyKind::Property}
     {}
@@ -651,9 +654,11 @@ public:
     explicit PropertyDeclaration(Utils::SmallStringView name,
                                  TypeId propertyTypeId,
                                  PropertyDeclarationTraits traits,
-                                 Utils::SmallStringView aliasPropertyName)
+                                 Utils::SmallStringView aliasPropertyName,
+                                 Utils::SmallStringView aliasPropertyNameTail = {})
         : name{name}
         , aliasPropertyName{aliasPropertyName}
+        , aliasPropertyNameTail{aliasPropertyNameTail}
         , traits{traits}
         , propertyTypeId{propertyTypeId}
         , kind{PropertyKind::Property}
@@ -662,9 +667,12 @@ public:
     explicit PropertyDeclaration(Utils::SmallStringView name,
                                  long long propertyTypeId,
                                  int traits,
-                                 Utils::SmallStringView aliasPropertyName)
+                                 Utils::SmallStringView aliasPropertyName,
+                                 Utils::SmallStringView aliasPropertyNameTail = {})
         : name{name}
         , aliasPropertyName{aliasPropertyName}
+        , aliasPropertyNameTail{aliasPropertyNameTail}
+
         , traits{static_cast<PropertyDeclarationTraits>(traits)}
         , propertyTypeId{propertyTypeId}
         , kind{PropertyKind::Property}
@@ -672,10 +680,13 @@ public:
 
     explicit PropertyDeclaration(Utils::SmallStringView name,
                                  ImportedTypeName aliasTypeName,
-                                 Utils::SmallStringView aliasPropertyName)
+                                 Utils::SmallStringView aliasPropertyName,
+                                 Utils::SmallStringView aliasPropertyNameTail = {})
         : name{name}
         , typeName{std::move(aliasTypeName)}
         , aliasPropertyName{aliasPropertyName}
+        , aliasPropertyNameTail{aliasPropertyNameTail}
+
         , kind{PropertyKind::Alias}
     {}
 
@@ -683,6 +694,7 @@ public:
     {
         return first.name == second.name && first.typeName == second.typeName
                && first.aliasPropertyName == second.aliasPropertyName
+               && first.aliasPropertyNameTail == second.aliasPropertyNameTail
                && first.traits == second.traits && first.kind == second.kind;
     }
 
@@ -690,6 +702,7 @@ public:
     Utils::SmallString name;
     ImportedTypeName typeName;
     Utils::SmallString aliasPropertyName;
+    Utils::SmallString aliasPropertyNameTail;
     PropertyDeclarationTraits traits = {};
     TypeId propertyTypeId;
     TypeId typeId;

@@ -399,11 +399,13 @@ private:
             PropertyDeclarationId propertyDeclarationId,
             ImportedTypeNameId aliasImportedTypeNameId,
             Utils::SmallString aliasPropertyName,
+            Utils::SmallString aliasPropertyNameTail,
             PropertyDeclarationId aliasPropertyDeclarationId = PropertyDeclarationId{})
             : typeId{typeId}
             , propertyDeclarationId{propertyDeclarationId}
             , aliasImportedTypeNameId{aliasImportedTypeNameId}
             , aliasPropertyName{std::move(aliasPropertyName)}
+            , aliasPropertyNameTail{std::move(aliasPropertyNameTail)}
             , aliasPropertyDeclarationId{aliasPropertyDeclarationId}
         {}
 
@@ -419,6 +421,7 @@ private:
         PropertyDeclarationId propertyDeclarationId;
         ImportedTypeNameId aliasImportedTypeNameId;
         Utils::SmallString aliasPropertyName;
+        Utils::SmallString aliasPropertyNameTail;
         PropertyDeclarationId aliasPropertyDeclarationId;
     };
 
@@ -783,15 +786,21 @@ private:
         auto callback = [&](long long typeId,
                             long long propertyDeclarationId,
                             long long propertyImportedTypeNameId,
-                            long long aliasPropertyDeclarationId) {
+                            long long aliasPropertyDeclarationId,
+                            long long aliasPropertyDeclarationTailId) {
             auto aliasPropertyName = selectPropertyNameStatement.template value<Utils::SmallString>(
                 aliasPropertyDeclarationId);
+            Utils::SmallString aliasPropertyNameTail;
+            if (aliasPropertyDeclarationTailId != -1)
+                aliasPropertyNameTail = selectPropertyNameStatement.template value<Utils::SmallString>(
+                    aliasPropertyDeclarationTailId);
 
             relinkableAliasPropertyDeclarations
                 .emplace_back(TypeId{typeId},
                               PropertyDeclarationId{propertyDeclarationId},
                               ImportedTypeNameId{propertyImportedTypeNameId},
-                              std::move(aliasPropertyName));
+                              std::move(aliasPropertyName),
+                              std::move(aliasPropertyNameTail));
 
             updateAliasPropertyDeclarationToNullStatement.write(propertyDeclarationId);
 
@@ -966,6 +975,20 @@ private:
         relinkAliasPropertyDeclarations(relinkableAliasPropertyDeclarations, deletedTypeIds);
     }
 
+    PropertyDeclarationId fetchAliasId(TypeId aliasTypeId,
+                                       Utils::SmallStringView aliasPropertyName,
+                                       Utils::SmallStringView aliasPropertyNameTail)
+    {
+        if (aliasPropertyNameTail.empty())
+            return fetchPropertyDeclarationIdByTypeIdAndNameUngarded(aliasTypeId, aliasPropertyName);
+
+        auto stemAlias = fetchPropertyDeclarationByTypeIdAndNameUngarded(aliasTypeId,
+                                                                         aliasPropertyName);
+
+        return fetchPropertyDeclarationIdByTypeIdAndNameUngarded(stemAlias.propertyTypeId,
+                                                                 aliasPropertyNameTail);
+    }
+
     void linkAliasPropertyDeclarationAliasIds(const AliasPropertyDeclarations &aliasDeclarations)
     {
         for (const auto &aliasDeclaration : aliasDeclarations) {
@@ -974,8 +997,9 @@ private:
             if (!aliasTypeId)
                 throw TypeNameDoesNotExists{};
 
-            auto aliasId = fetchPropertyDeclarationIdByTypeIdAndNameUngarded(
-                aliasTypeId, aliasDeclaration.aliasPropertyName);
+            auto aliasId = fetchAliasId(aliasTypeId,
+                                        aliasDeclaration.aliasPropertyName,
+                                        aliasDeclaration.aliasPropertyNameTail);
 
             updatePropertyDeclarationAliasIdAndTypeNameIdStatement
                 .write(&aliasDeclaration.propertyDeclarationId,
@@ -1020,8 +1044,19 @@ private:
                                   Prototypes &relinkablePrototypes)
     {
         std::sort(exportedTypes.begin(), exportedTypes.end(), [](auto &&first, auto &&second) {
-            return std::tie(first.moduleId, first.name, first.version)
-                   < std::tie(second.moduleId, second.name, second.version);
+            if (first.moduleId < second.moduleId)
+                return true;
+            else if (first.moduleId > second.moduleId)
+                return false;
+
+            auto nameCompare = Sqlite::compare(first.name, second.name);
+
+            if (nameCompare < 0)
+                return true;
+            else if (nameCompare > 0)
+                return false;
+
+            return first.version < second.version;
         });
 
         auto range = selectExportedTypesForSourceIdsStatement.template range<Storage::ExportedTypeView>(
@@ -1105,7 +1140,8 @@ private:
                                                            PropertyDeclarationId{propertyDeclarationId},
                                                            fetchImportedTypeNameId(value.typeName,
                                                                                    sourceId),
-                                                           std::move(value.aliasPropertyName));
+                                                           value.aliasPropertyName,
+                                                           value.aliasPropertyNameTail);
             return Sqlite::CallbackControl::Abort;
         };
 
@@ -1147,6 +1183,7 @@ private:
                                                                   fetchImportedTypeNameId(value.typeName,
                                                                                           sourceId),
                                                                   value.aliasPropertyName,
+                                                                  value.aliasPropertyNameTail,
                                                                   view.aliasId);
     }
 
@@ -2065,10 +2102,17 @@ private:
                     propertyDeclarationTable,
                     Sqlite::ForeignKeyAction::NoAction,
                     Sqlite::ForeignKeyAction::Restrict);
+                auto &aliasPropertyDeclarationTailIdColumn = propertyDeclarationTable.addForeignKeyColumn(
+                    "aliasPropertyDeclarationTailId",
+                    propertyDeclarationTable,
+                    Sqlite::ForeignKeyAction::NoAction,
+                    Sqlite::ForeignKeyAction::Restrict);
 
                 propertyDeclarationTable.addUniqueIndex({typeIdColumn, nameColumn});
                 propertyDeclarationTable.addIndex({aliasPropertyDeclarationIdColumn},
                                                   "aliasPropertyDeclarationId IS NOT NULL");
+                propertyDeclarationTable.addIndex({aliasPropertyDeclarationTailIdColumn},
+                                                  "aliasPropertyDeclarationTailId IS NOT NULL");
 
                 propertyDeclarationTable.initialize(database);
             }
@@ -2571,10 +2615,12 @@ public:
         "propertyTraits=NULL WHERE propertyDeclarationId=? AND (aliasPropertyDeclarationId IS NOT "
         "NULL OR propertyTypeId IS NOT NULL OR propertyTraits IS NOT NULL)",
         database};
-    ReadStatement<4, 1> selectAliasPropertiesDeclarationForPropertiesWithTypeIdStatement{
+    ReadStatement<5, 1> selectAliasPropertiesDeclarationForPropertiesWithTypeIdStatement{
         "SELECT alias.typeId, alias.propertyDeclarationId, alias.propertyImportedTypeNameId, "
-        "target.propertyDeclarationId FROM propertyDeclarations AS alias JOIN propertyDeclarations "
-        "AS target ON alias.aliasPropertyDeclarationId=target.propertyDeclarationId WHERE "
+        "alias.aliasPropertyDeclarationId, ifnull(alias.aliasPropertyDeclarationTailId, -1) FROM "
+        "propertyDeclarations AS alias JOIN propertyDeclarations AS target ON "
+        "alias.aliasPropertyDeclarationId=target.propertyDeclarationId OR "
+        "alias.aliasPropertyDeclarationTailId=target.propertyDeclarationId WHERE "
         "alias.propertyTypeId=?1 OR target.typeId=?1 OR alias.propertyImportedTypeNameId IN "
         "(SELECT importedTypeNameId FROM exportedTypeNames JOIN importedTypeNames USING(name) "
         "WHERE typeId=?1)",

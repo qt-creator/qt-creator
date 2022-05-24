@@ -334,6 +334,160 @@ protected:
         return package;
     }
 
+    auto createSynchronizationPackageWithIndirectAliases()
+    {
+        SynchronizationPackage package;
+
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId1);
+        package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId1);
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId2);
+
+        package.moduleDependencies.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId1);
+        package.moduleDependencies.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId1);
+        package.moduleDependencies.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId2);
+
+        package.updatedModuleDependencySourceIds.push_back(sourceId1);
+        package.updatedModuleDependencySourceIds.push_back(sourceId2);
+
+        importsSourceId1.emplace_back(qmlModuleId, Storage::Version{}, sourceId1);
+        importsSourceId1.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId1);
+        moduleDependenciesSourceId1.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId1);
+        moduleDependenciesSourceId1.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId1);
+
+        importsSourceId2.emplace_back(qmlModuleId, Storage::Version{}, sourceId2);
+        moduleDependenciesSourceId2.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId2);
+
+        package.types.push_back(Storage::Type{
+            "QQuickItem",
+            Storage::ImportedType{"QObject"},
+            TypeAccessSemantics::Reference,
+            sourceId1,
+            {Storage::ExportedType{qtQuickModuleId, "Item"},
+             Storage::ExportedType{qtQuickNativeModuleId, "QQuickItem"}},
+            {Storage::PropertyDeclaration{"children",
+                                          Storage::ImportedType{"QChildren"},
+                                          Storage::PropertyDeclarationTraits::IsReadOnly},
+             Storage::PropertyDeclaration{"kids",
+                                          Storage::ImportedType{"QChildren2"},
+                                          Storage::PropertyDeclarationTraits::IsReadOnly}}});
+
+        package.types.push_back(
+            Storage::Type{"QObject",
+                          Storage::ImportedType{},
+                          TypeAccessSemantics::Reference,
+                          sourceId2,
+                          {Storage::ExportedType{qmlModuleId, "Object", Storage::Version{2}},
+                           Storage::ExportedType{qmlModuleId, "Obj", Storage::Version{2}},
+                           Storage::ExportedType{qmlNativeModuleId, "QObject"}}});
+
+        package.updatedSourceIds = {sourceId1, sourceId2};
+
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId3);
+        package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+        package.moduleDependencies.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId3);
+        package.moduleDependencies.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId3);
+        package.updatedModuleDependencySourceIds.push_back(sourceId3);
+
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId4);
+        package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId4);
+        package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId4);
+        package.moduleDependencies.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId4);
+        package.moduleDependencies.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId4);
+        package.updatedModuleDependencySourceIds.push_back(sourceId4);
+
+        importsSourceId3.emplace_back(qmlModuleId, Storage::Version{}, sourceId3);
+        importsSourceId3.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+        moduleDependenciesSourceId3.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId3);
+        moduleDependenciesSourceId3.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId3);
+
+        importsSourceId4.emplace_back(qmlModuleId, Storage::Version{}, sourceId4);
+        importsSourceId4.emplace_back(pathToModuleId, Storage::Version{}, sourceId4);
+        importsSourceId4.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId4);
+        moduleDependenciesSourceId4.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId4);
+        moduleDependenciesSourceId4.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId4);
+
+        package.types[1].propertyDeclarations.push_back(
+            Storage::PropertyDeclaration{"objects",
+                                         Storage::ImportedType{"QObject"},
+                                         Storage::PropertyDeclarationTraits::IsList});
+        package.types.push_back(
+            Storage::Type{"QAliasItem",
+                          Storage::ImportedType{"Item"},
+                          TypeAccessSemantics::Reference,
+                          sourceId3,
+                          {Storage::ExportedType{qtQuickModuleId, "AliasItem"},
+                           Storage::ExportedType{qtQuickNativeModuleId, "QAliasItem"}}});
+        package.types.back().propertyDeclarations.push_back(
+            Storage::PropertyDeclaration{"items", Storage::ImportedType{"Item"}, "children", "items"});
+        package.types.back().propertyDeclarations.push_back(Storage::PropertyDeclaration{
+            "objects", Storage::ImportedType{"Item"}, "children", "objects"});
+
+        package.types.push_back(Storage::Type{"QObject2",
+                                              Storage::ImportedType{},
+                                              TypeAccessSemantics::Reference,
+                                              sourceId4,
+                                              {Storage::ExportedType{pathToModuleId, "Object2"},
+                                               Storage::ExportedType{pathToModuleId, "Obj2"}}});
+        package.types[3].propertyDeclarations.push_back(
+            Storage::PropertyDeclaration{"children",
+                                         Storage::ImportedType{"QChildren2"},
+                                         Storage::PropertyDeclarationTraits::IsReadOnly});
+
+        package.updatedSourceIds.push_back(sourceId3);
+        package.updatedSourceIds.push_back(sourceId4);
+
+        package.types.push_back(Storage::Type{
+            "QChildren",
+            Storage::ImportedType{},
+            TypeAccessSemantics::Reference,
+            sourceId5,
+            {Storage::ExportedType{qtQuickModuleId, "Children", Storage::Version{2}},
+             Storage::ExportedType{qtQuickNativeModuleId, "QChildren"}},
+            {Storage::PropertyDeclaration{"items",
+                                          Storage::ImportedType{"QQuickItem"},
+                                          Storage::PropertyDeclarationTraits::IsList},
+             Storage::PropertyDeclaration{"objects",
+                                          Storage::ImportedType{"QObject"},
+                                          Storage::PropertyDeclarationTraits::IsList
+                                              | Storage::PropertyDeclarationTraits::IsReadOnly}}});
+
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId5);
+        package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId5);
+        package.moduleDependencies.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId5);
+        package.moduleDependencies.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId5);
+        importsSourceId5.emplace_back(qmlModuleId, Storage::Version{}, sourceId5);
+        importsSourceId5.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId5);
+        moduleDependenciesSourceId5.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId5);
+        moduleDependenciesSourceId5.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId5);
+        package.updatedModuleDependencySourceIds.push_back(sourceId5);
+        package.updatedSourceIds.push_back(sourceId5);
+
+        package.types.push_back(Storage::Type{
+            "QChildren2",
+            Storage::ImportedType{},
+            TypeAccessSemantics::Reference,
+            sourceId6,
+            {Storage::ExportedType{qtQuickModuleId, "Children2", Storage::Version{2}},
+             Storage::ExportedType{qtQuickNativeModuleId, "QChildren2"}},
+            {Storage::PropertyDeclaration{"items",
+                                          Storage::ImportedType{"QQuickItem"},
+                                          Storage::PropertyDeclarationTraits::IsList},
+             Storage::PropertyDeclaration{"objects",
+                                          Storage::ImportedType{"Object2"},
+                                          Storage::PropertyDeclarationTraits::IsList
+                                              | Storage::PropertyDeclarationTraits::IsReadOnly}}});
+
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId6);
+        package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId6);
+        package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId6);
+        package.moduleDependencies.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId6);
+        package.moduleDependencies.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId6);
+        package.updatedModuleDependencySourceIds.push_back(sourceId6);
+        package.updatedSourceIds.push_back(sourceId6);
+
+        return package;
+    }
+
     auto createSynchronizationPackageWithAliases2()
     {
         auto package{createSynchronizationPackageWithAliases()};
@@ -485,11 +639,13 @@ protected:
     QmlDesigner::SourcePathView path3{"/path3/to"};
     QmlDesigner::SourcePathView path4{"/path4/to"};
     QmlDesigner::SourcePathView path5{"/path5/to"};
+    QmlDesigner::SourcePathView path6{"/path6/to"};
     SourceId sourceId1{sourcePathCache.sourceId(path1)};
     SourceId sourceId2{sourcePathCache.sourceId(path2)};
     SourceId sourceId3{sourcePathCache.sourceId(path3)};
     SourceId sourceId4{sourcePathCache.sourceId(path4)};
     SourceId sourceId5{sourcePathCache.sourceId(path5)};
+    SourceId sourceId6{sourcePathCache.sourceId(path6)};
     SourceId qmlProjectSourceId{sourcePathCache.sourceId("/path1/qmldir")};
     SourceId qtQuickProjectSourceId{sourcePathCache.sourceId("/path2/qmldir")};
     ModuleId qmlModuleId{storage.moduleId("Qml")};
@@ -503,10 +659,12 @@ protected:
     Storage::Imports importsSourceId2;
     Storage::Imports importsSourceId3;
     Storage::Imports importsSourceId4;
+    Storage::Imports importsSourceId5;
     Storage::Imports moduleDependenciesSourceId1;
     Storage::Imports moduleDependenciesSourceId2;
     Storage::Imports moduleDependenciesSourceId3;
     Storage::Imports moduleDependenciesSourceId4;
+    Storage::Imports moduleDependenciesSourceId5;
 };
 
 TEST_F(ProjectStorage, FetchSourceContextIdReturnsAlwaysTheSameIdForTheSamePath)
@@ -4309,4 +4467,422 @@ TEST_F(ProjectStorage, ModuleExportedImportWithQualifiedImportedType)
                                 UnorderedElementsAre(IsExportedType(myModuleModuleId, "MyItem"))))));
 }
 
+TEST_F(ProjectStorage, SynchronizeTypesAddIndirectAliasDeclarations)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType(sourceId3,
+                                        "QAliasItem",
+                                        fetchTypeId(sourceId1, "QQuickItem"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::propertyDeclarations,
+                                UnorderedElementsAre(
+                                    IsPropertyDeclaration("items",
+                                                          fetchTypeId(sourceId1, "QQuickItem"),
+                                                          Storage::PropertyDeclarationTraits::IsList),
+                                    IsPropertyDeclaration(
+                                        "objects",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        Storage::PropertyDeclarationTraits::IsList
+                                            | Storage::PropertyDeclarationTraits::IsReadOnly))))));
+}
+
+TEST_F(ProjectStorage, SynchronizeTypesAddIndirectAliasDeclarationsAgain)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType(sourceId3,
+                                        "QAliasItem",
+                                        fetchTypeId(sourceId1, "QQuickItem"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::propertyDeclarations,
+                                UnorderedElementsAre(
+                                    IsPropertyDeclaration("items",
+                                                          fetchTypeId(sourceId1, "QQuickItem"),
+                                                          Storage::PropertyDeclarationTraits::IsList),
+                                    IsPropertyDeclaration(
+                                        "objects",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        Storage::PropertyDeclarationTraits::IsList
+                                            | Storage::PropertyDeclarationTraits::IsReadOnly))))));
+}
+
+TEST_F(ProjectStorage, SynchronizeTypesRemoveIndirectAliasDeclaration)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+    package.types[2].propertyDeclarations.pop_back();
+
+    storage.synchronize(SynchronizationPackage{importsSourceId3, {package.types[2]}, {sourceId3}});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(AllOf(IsStorageType(sourceId3,
+                                             "QAliasItem",
+                                             fetchTypeId(sourceId1, "QQuickItem"),
+                                             TypeAccessSemantics::Reference),
+                               Field(&Storage::Type::propertyDeclarations,
+                                     UnorderedElementsAre(IsPropertyDeclaration(
+                                         "items",
+                                         fetchTypeId(sourceId1, "QQuickItem"),
+                                         Storage::PropertyDeclarationTraits::IsList))))));
+}
+
+TEST_F(ProjectStorage, SynchronizeTypesAddIndirectAliasDeclarationsThrowsForWrongTypeName)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+    package.types[2].propertyDeclarations[1].typeName = Storage::ImportedType{"QQuickItemWrong"};
+
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{importsSourceId3,
+                                                            {package.types[2]},
+                                                            {sourceId3},
+                                                            moduleDependenciesSourceId3,
+                                                            {sourceId3}}),
+                 QmlDesigner::TypeNameDoesNotExists);
+}
+
+TEST_F(ProjectStorage, SynchronizeTypesAddIndirectAliasDeclarationsThrowsForWrongPropertyName)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+    package.types[2].propertyDeclarations[1].aliasPropertyName = "childrenWrong";
+
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{importsSourceId3,
+                                                            {package.types[2]},
+                                                            {sourceId3},
+                                                            moduleDependenciesSourceId3,
+                                                            {sourceId3}}),
+                 QmlDesigner::PropertyNameDoesNotExists);
+}
+
+TEST_F(ProjectStorage, SynchronizeTypesAddIndirectAliasDeclarationsThrowsForWrongPropertyNameTail)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+    package.types[2].propertyDeclarations[1].aliasPropertyNameTail = "objectsWrong";
+
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{importsSourceId3,
+                                                            {package.types[2]},
+                                                            {sourceId3},
+                                                            moduleDependenciesSourceId3,
+                                                            {sourceId3}}),
+                 QmlDesigner::PropertyNameDoesNotExists);
+}
+
+TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasDeclarationTypeName)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+    package.types[2].propertyDeclarations[1].typeName = Storage::ImportedType{"Obj2"};
+    importsSourceId3.emplace_back(pathToModuleId, Storage::Version{}, sourceId3);
+
+    storage.synchronize(SynchronizationPackage{
+        importsSourceId3, {package.types[2]}, {sourceId3}, moduleDependenciesSourceId3, {sourceId3}});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType(sourceId3,
+                                        "QAliasItem",
+                                        fetchTypeId(sourceId1, "QQuickItem"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::propertyDeclarations,
+                                UnorderedElementsAre(
+                                    IsPropertyDeclaration("items",
+                                                          fetchTypeId(sourceId1, "QQuickItem"),
+                                                          Storage::PropertyDeclarationTraits::IsList),
+                                    IsPropertyDeclaration(
+                                        "objects",
+                                        fetchTypeId(sourceId4, "QObject2"),
+                                        Storage::PropertyDeclarationTraits::IsList
+                                            | Storage::PropertyDeclarationTraits::IsReadOnly))))));
+}
+
+TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasDeclarationTailsTypeName)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+    package.types[4].propertyDeclarations[1].typeName = Storage::ImportedType{"Obj2"};
+    importsSourceId5.emplace_back(pathToModuleId, Storage::Version{}, sourceId5);
+
+    storage.synchronize(SynchronizationPackage{
+        importsSourceId5, {package.types[4]}, {sourceId5}, moduleDependenciesSourceId5, {sourceId5}});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType(sourceId3,
+                                        "QAliasItem",
+                                        fetchTypeId(sourceId1, "QQuickItem"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::propertyDeclarations,
+                                UnorderedElementsAre(
+                                    IsPropertyDeclaration("items",
+                                                          fetchTypeId(sourceId1, "QQuickItem"),
+                                                          Storage::PropertyDeclarationTraits::IsList),
+                                    IsPropertyDeclaration(
+                                        "objects",
+                                        fetchTypeId(sourceId4, "QObject2"),
+                                        Storage::PropertyDeclarationTraits::IsList
+                                            | Storage::PropertyDeclarationTraits::IsReadOnly))))));
+}
+
+TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasDeclarationsPropertyName)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+    package.types[2].propertyDeclarations[1].aliasPropertyName = "kids";
+
+    storage.synchronize(SynchronizationPackage{
+        importsSourceId3, {package.types[2]}, {sourceId3}, moduleDependenciesSourceId3, {sourceId3}});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType(sourceId3,
+                                        "QAliasItem",
+                                        fetchTypeId(sourceId1, "QQuickItem"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::propertyDeclarations,
+                                UnorderedElementsAre(
+                                    IsPropertyDeclaration("items",
+                                                          fetchTypeId(sourceId1, "QQuickItem"),
+                                                          Storage::PropertyDeclarationTraits::IsList),
+                                    IsPropertyDeclaration(
+                                        "objects",
+                                        fetchTypeId(sourceId4, "QObject2"),
+                                        Storage::PropertyDeclarationTraits::IsList
+                                            | Storage::PropertyDeclarationTraits::IsReadOnly))))));
+}
+
+TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasDeclarationsPropertyNameTail)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+    package.types[2].propertyDeclarations[1].aliasPropertyNameTail = "items";
+
+    storage.synchronize(SynchronizationPackage{
+        importsSourceId3, {package.types[2]}, {sourceId3}, moduleDependenciesSourceId3, {sourceId3}});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(AllOf(
+                    IsStorageType(sourceId3,
+                                  "QAliasItem",
+                                  fetchTypeId(sourceId1, "QQuickItem"),
+                                  TypeAccessSemantics::Reference),
+                    Field(&Storage::Type::propertyDeclarations,
+                          UnorderedElementsAre(
+                              IsPropertyDeclaration("items",
+                                                    fetchTypeId(sourceId1, "QQuickItem"),
+                                                    Storage::PropertyDeclarationTraits::IsList),
+                              IsPropertyDeclaration("objects",
+                                                    fetchTypeId(sourceId1, "QQuickItem"),
+                                                    Storage::PropertyDeclarationTraits::IsList))))));
+}
+
+TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasDeclarationsToPropertyDeclaration)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+    package.types[2].propertyDeclarations.pop_back();
+    package.types[2].propertyDeclarations.push_back(
+        Storage::PropertyDeclaration{"objects",
+                                     Storage::ImportedType{"QQuickItem"},
+                                     Storage::PropertyDeclarationTraits::IsList
+                                         | Storage::PropertyDeclarationTraits::IsReadOnly});
+
+    storage.synchronize(SynchronizationPackage{
+        importsSourceId3, {package.types[2]}, {sourceId3}, moduleDependenciesSourceId3, {sourceId3}});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType(sourceId3,
+                                        "QAliasItem",
+                                        fetchTypeId(sourceId1, "QQuickItem"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::propertyDeclarations,
+                                UnorderedElementsAre(
+                                    IsPropertyDeclaration("items",
+                                                          fetchTypeId(sourceId1, "QQuickItem"),
+                                                          Storage::PropertyDeclarationTraits::IsList),
+                                    IsPropertyDeclaration(
+                                        "objects",
+                                        fetchTypeId(sourceId1, "QQuickItem"),
+                                        Storage::PropertyDeclarationTraits::IsList
+                                            | Storage::PropertyDeclarationTraits::IsReadOnly))))));
+}
+
+TEST_F(ProjectStorage, SynchronizeTypesChangePropertyDeclarationsToIndirectAliasDeclaration)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+    auto packageChanged = package;
+    packageChanged.types[2].propertyDeclarations.pop_back();
+    packageChanged.types[2].propertyDeclarations.push_back(
+        Storage::PropertyDeclaration{"objects",
+                                     Storage::ImportedType{"QQuickItem"},
+                                     Storage::PropertyDeclarationTraits::IsList
+                                         | Storage::PropertyDeclarationTraits::IsReadOnly});
+    storage.synchronize(SynchronizationPackage{importsSourceId3,
+                                               {packageChanged.types[2]},
+                                               {sourceId3},
+                                               moduleDependenciesSourceId3,
+                                               {sourceId3}});
+
+    storage.synchronize(SynchronizationPackage{
+        importsSourceId3, {package.types[2]}, {sourceId3}, moduleDependenciesSourceId3, {sourceId3}});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType(sourceId3,
+                                        "QAliasItem",
+                                        fetchTypeId(sourceId1, "QQuickItem"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::propertyDeclarations,
+                                UnorderedElementsAre(
+                                    IsPropertyDeclaration("items",
+                                                          fetchTypeId(sourceId1, "QQuickItem"),
+                                                          Storage::PropertyDeclarationTraits::IsList),
+                                    IsPropertyDeclaration(
+                                        "objects",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        Storage::PropertyDeclarationTraits::IsList
+                                            | Storage::PropertyDeclarationTraits::IsReadOnly))))));
+}
+
+TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasTargetPropertyDeclarationTraits)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+    package.types[4].propertyDeclarations[0].traits = Storage::PropertyDeclarationTraits::IsList
+                                                      | Storage::PropertyDeclarationTraits::IsReadOnly;
+
+    storage.synchronize(SynchronizationPackage{
+        importsSourceId5, {package.types[4]}, {sourceId5}, moduleDependenciesSourceId5, {sourceId5}});
+
+    ASSERT_THAT(
+        storage.fetchTypes(),
+        Contains(AllOf(
+            IsStorageType(sourceId3,
+                          "QAliasItem",
+                          fetchTypeId(sourceId1, "QQuickItem"),
+                          TypeAccessSemantics::Reference),
+            Field(&Storage::Type::propertyDeclarations,
+                  UnorderedElementsAre(
+                      IsPropertyDeclaration("items",
+                                            fetchTypeId(sourceId1, "QQuickItem"),
+                                            Storage::PropertyDeclarationTraits::IsList
+                                                | Storage::PropertyDeclarationTraits::IsReadOnly),
+                      IsPropertyDeclaration("objects",
+                                            fetchTypeId(sourceId2, "QObject"),
+                                            Storage::PropertyDeclarationTraits::IsList
+                                                | Storage::PropertyDeclarationTraits::IsReadOnly))))));
+}
+
+TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasTargetPropertyDeclarationTypeName)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+    package.types[4].propertyDeclarations[1].typeName = Storage::ImportedType{"Item"};
+
+    storage.synchronize(SynchronizationPackage{
+        importsSourceId5, {package.types[4]}, {sourceId5}, moduleDependenciesSourceId5, {sourceId5}});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(
+                    AllOf(IsStorageType(sourceId3,
+                                        "QAliasItem",
+                                        fetchTypeId(sourceId1, "QQuickItem"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::propertyDeclarations,
+                                UnorderedElementsAre(
+                                    IsPropertyDeclaration("items",
+                                                          fetchTypeId(sourceId1, "QQuickItem"),
+                                                          Storage::PropertyDeclarationTraits::IsList),
+                                    IsPropertyDeclaration(
+                                        "objects",
+                                        fetchTypeId(sourceId1, "QQuickItem"),
+                                        Storage::PropertyDeclarationTraits::IsList
+                                            | Storage::PropertyDeclarationTraits::IsReadOnly))))));
+}
+
+TEST_F(ProjectStorage, SynchronizeTypesRemovePropertyDeclarationWithAnIndirectAliasThrows)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+    package.types[4].propertyDeclarations.pop_back();
+
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{importsSourceId5,
+                                                            {package.types[4]},
+                                                            {sourceId5},
+                                                            moduleDependenciesSourceId5,
+                                                            {sourceId5}}),
+                 Sqlite::ConstraintPreventsModification);
+}
+
+TEST_F(ProjectStorage, SynchronizeTypesRemoveStemPropertyDeclarationWithAnIndirectAliasThrows)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+    package.types[0].propertyDeclarations.erase(package.types[0].propertyDeclarations.begin());
+
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{importsSourceId1,
+                                                            {package.types[0]},
+                                                            {sourceId1},
+                                                            moduleDependenciesSourceId1,
+                                                            {sourceId1}}),
+                 Sqlite::ConstraintPreventsModification);
+}
+
+TEST_F(ProjectStorage, SynchronizeTypesRemovePropertyDeclarationAndIndirectAlias)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+    package.types[2].propertyDeclarations.pop_back();
+    package.types[4].propertyDeclarations.pop_back();
+
+    storage.synchronize(SynchronizationPackage{importsSourceId3 + importsSourceId5,
+                                               {package.types[2], package.types[4]},
+                                               {sourceId3, sourceId5},
+                                               moduleDependenciesSourceId3 + moduleDependenciesSourceId5,
+                                               {sourceId3, sourceId5}});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(AllOf(IsStorageType(sourceId3,
+                                             "QAliasItem",
+                                             fetchTypeId(sourceId1, "QQuickItem"),
+                                             TypeAccessSemantics::Reference),
+                               Field(&Storage::Type::propertyDeclarations,
+                                     UnorderedElementsAre(IsPropertyDeclaration(
+                                         "items",
+                                         fetchTypeId(sourceId1, "QQuickItem"),
+                                         Storage::PropertyDeclarationTraits::IsList))))));
+}
+
+TEST_F(ProjectStorage, SynchronizeTypesRemovePropertyDeclarationAndIndirectAliasSteam)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+    package.types[0].propertyDeclarations.clear();
+    package.types[2].propertyDeclarations.clear();
+
+    storage.synchronize(SynchronizationPackage{importsSourceId1 + importsSourceId3,
+                                               {package.types[0], package.types[2]},
+                                               {sourceId1, sourceId3},
+                                               moduleDependenciesSourceId1 + moduleDependenciesSourceId3,
+                                               {sourceId1, sourceId3}});
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(AllOf(IsStorageType(sourceId3,
+                                             "QAliasItem",
+                                             fetchTypeId(sourceId1, "QQuickItem"),
+                                             TypeAccessSemantics::Reference),
+                               Field(&Storage::Type::propertyDeclarations, IsEmpty()))));
+}
 } // namespace

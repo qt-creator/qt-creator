@@ -366,6 +366,22 @@ TEST_F(QmlTypesParser, Functions)
                                     Field(&Storage::FunctionDeclaration::parameters, IsEmpty()))))));
 }
 
+TEST_F(QmlTypesParser, SkipJavaScriptFunctions)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                          Method {
+                            name: "do"
+                            isJavaScriptFunction: true
+                          }
+                      }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types, ElementsAre(Field(&Storage::Type::functionDeclarations, IsEmpty())));
+}
+
 TEST_F(QmlTypesParser, FunctionsWithQualifiedTypes)
 {
     QString source{R"(import QtQuick.tooling 1.2
