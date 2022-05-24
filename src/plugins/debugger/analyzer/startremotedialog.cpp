@@ -131,11 +131,8 @@ void StartRemoteDialog::validate()
 
 Runnable StartRemoteDialog::runnable() const
 {
-    Kit *kit = d->kitChooser->currentKit();
-    IDevice::ConstPtr device = DeviceKitAspect::device(kit);
-    FilePath filePath = FilePath::fromString(d->executable->text());
-    if (device)
-        filePath = device->filePath(d->arguments->text());
+    const Kit *kit = d->kitChooser->currentKit();
+    const FilePath filePath = DeviceKitAspect::deviceFilePath(kit, d->executable->text());
 
     Runnable r;
     r.command = {filePath, d->arguments->text(), CommandLine::Raw};

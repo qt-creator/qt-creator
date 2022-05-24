@@ -1110,6 +1110,13 @@ void DeviceKitAspect::setDeviceId(Kit *k, Utils::Id id)
     k->setValue(DeviceKitAspect::id(), id.toSetting());
 }
 
+FilePath DeviceKitAspect::deviceFilePath(const Kit *k, const QString &pathOnDevice)
+{
+    if (IDevice::ConstPtr dev = device(k))
+        return dev->filePath(pathOnDevice);
+    return FilePath::fromString(pathOnDevice);
+}
+
 void DeviceKitAspect::kitsWereLoaded()
 {
     const QList<Kit *> kits = KitManager::kits();

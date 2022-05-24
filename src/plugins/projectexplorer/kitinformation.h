@@ -161,6 +161,7 @@ public:
     static Utils::Id deviceId(const Kit *k);
     static void setDevice(Kit *k, IDeviceConstPtr dev);
     static void setDeviceId(Kit *k, Utils::Id dataId);
+    static Utils::FilePath deviceFilePath(const Kit *k, const QString &pathOnDevice);
 
 private:
     QVariant defaultValue(const Kit *k) const;
