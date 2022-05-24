@@ -1,12 +1,3 @@
-if (TARGET libclang)
-  set(HAVE_LIBCLANG ON)
-endif()
-
-if (HAVE_LIBCLANG AND NOT QTC_CLANG_BUILDMODE_MATCH)
-    message(STATUS "Disabling libclang tests due to build mode mismatch.")
-    set(HAVE_LIBCLANG OFF)
-endif()
-
 find_package(Googletest MODULE)
 find_package(GoogleBenchmark MODULE)
 
@@ -151,15 +142,9 @@ add_custom_command(TARGET unittest POST_BUILD
 )
 
 extend_qtc_test(unittest
-  CONDITION HAVE_LIBCLANG
-  INCLUDES "${CLANG_INCLUDE_DIRS}"
-  DEFINES CLANG_UNIT_TESTS
-  DEPENDS libclang
   SOURCES
     activationsequenceprocessor-test.cpp
     readexporteddiagnostics-test.cpp
-    clangcompareoperators.h
-    diagnosticcontainer-matcher.h
 )
 
 extend_qtc_test(unittest
