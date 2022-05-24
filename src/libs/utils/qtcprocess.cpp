@@ -27,6 +27,7 @@
 
 #include "algorithm.h"
 #include "commandline.h"
+#include "guard.h"
 #include "hostosinfo.h"
 #include "launcherinterface.h"
 #include "launchersocket.h"
@@ -667,7 +668,6 @@ public:
     QList<ProcessInterfaceSignal *> m_signals;
     // =======================================
 
-
     QProcess::ProcessState m_state = QProcess::NotRunning;
     qint64 m_processId = 0;
     qint64 m_applicationMainThreadId = 0;
@@ -685,17 +685,8 @@ public:
     bool m_timeOutMessageBoxEnabled = false;
     bool m_waitingForUser = false;
 
-    class Guard {
-    public:
-        Guard(int &guard) : m_guard(guard) { ++guard; }
-        ~Guard() { --m_guard; }
-    private:
-        int &m_guard;
-    };
-    int m_callStackGuard = 0;
+    Guard m_guard;
 };
-
-#define CALL_STACK_GUARD() Guard guard(m_callStackGuard)
 
 ProcessInterfaceHandler::ProcessInterfaceHandler(QtcProcessPrivate *caller,
                                                  ProcessInterface *process)
@@ -980,7 +971,7 @@ QtcProcess::QtcProcess(QObject *parent)
 
 QtcProcess::~QtcProcess()
 {
-    QTC_ASSERT(d->m_callStackGuard == 0, qWarning("Deleting QtcProcess instance directly from "
+    QTC_ASSERT(!d->m_guard.isLocked(), qWarning("Deleting QtcProcess instance directly from "
                "one of its signal handlers will lead to crash!"));
     delete d;
 }
@@ -1962,37 +1953,37 @@ void QtcProcessPrivate::handleError()
 
 void QtcProcessPrivate::emitStarted()
 {
-    CALL_STACK_GUARD();
+    GuardLocker locker(m_guard);
     emit q->started();
 }
 
 void QtcProcessPrivate::emitFinished()
 {
-    CALL_STACK_GUARD();
+    GuardLocker locker(m_guard);
     emit q->finished();
 }
 
 void QtcProcessPrivate::emitDone()
 {
-    CALL_STACK_GUARD();
+    GuardLocker locker(m_guard);
     emit q->done();
 }
 
 void QtcProcessPrivate::emitErrorOccurred(QProcess::ProcessError error)
 {
-    CALL_STACK_GUARD();
+    GuardLocker locker(m_guard);
     emit q->errorOccurred(error);
 }
 
 void QtcProcessPrivate::emitReadyReadStandardOutput()
 {
-    CALL_STACK_GUARD();
+    GuardLocker locker(m_guard);
     emit q->readyReadStandardOutput();
 }
 
 void QtcProcessPrivate::emitReadyReadStandardError()
 {
-    CALL_STACK_GUARD();
+    GuardLocker locker(m_guard);
     emit q->readyReadStandardError();
 }
 
