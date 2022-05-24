@@ -96,7 +96,7 @@ signals:
     // This should be emitted when being in Starting or Running state.
     // When being in Starting state, the resultData should set error to FailedToStart.
     // After emitting this signal the process enters NotRunning state.
-    void done(const Utils::ProcessResultData &resultData);
+    void done(const ProcessResultData &resultData);
 
 protected:
     static int controlSignalToInt(ControlSignal controlSignal);

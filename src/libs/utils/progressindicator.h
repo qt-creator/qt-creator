@@ -25,11 +25,11 @@
 
 #pragma once
 
-#include "overlaywidget.h"
 #include "utils_global.h"
 
+#include "overlaywidget.h"
+
 #include <QTimer>
-#include <QWidget>
 
 #include <functional>
 #include <memory>

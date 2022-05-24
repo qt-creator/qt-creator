@@ -27,6 +27,7 @@
 
 #include "commandline.h"
 #include "environment.h"
+#include "fileutils.h"
 #include "hostosinfo.h"
 #include "macroexpander.h"
 #include "qtcassert.h"
@@ -231,7 +232,7 @@ FilePath PathChooserPrivate::expandedPath(const QString &input) const
     case PathChooser::File:
     case PathChooser::SaveFile:
         if (!m_baseDirectory.isEmpty()) {
-            Utils::FilePath fp = m_baseDirectory.resolvePath(path.path()).absoluteFilePath();
+            FilePath fp = m_baseDirectory.resolvePath(path.path()).absoluteFilePath();
             // FIXME bad hotfix for manually editing PathChooser (invalid paths, jumping cursor)
             // examples: have an absolute path and try to change the device letter by typing the new
             // letter and removing the original afterwards ends up in

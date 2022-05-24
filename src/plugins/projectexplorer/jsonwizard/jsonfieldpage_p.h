@@ -27,6 +27,7 @@
 
 #include "jsonfieldpage.h"
 
+#include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 
 #include <QWidget>

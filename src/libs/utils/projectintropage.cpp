@@ -27,6 +27,7 @@
 #include "ui_projectintropage.h"
 
 #include "filenamevalidatinglineedit.h"
+#include "fileutils.h"
 #include "wizard.h"
 
 #include <QDir>

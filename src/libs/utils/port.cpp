@@ -43,7 +43,7 @@ QList<Port> Port::parseFromSedOutput(const QByteArray &output)
         if (portString.size() != 4)
             continue;
         bool ok;
-        const Utils::Port port(portString.toInt(&ok, 16));
+        const Port port(portString.toInt(&ok, 16));
         if (ok) {
             if (!ports.contains(port))
                 ports << port;
@@ -60,7 +60,7 @@ QList<Port> Port::parseFromNetstatOutput(const QByteArray &output)
     QList<Port> ports;
     const QList<QByteArray> lines = output.split('\n');
     for (const QByteArray &line : lines) {
-        const Port port(Utils::parseUsedPortFromNetstatOutput(line));
+        const Port port(parseUsedPortFromNetstatOutput(line));
         if (port.isValid() && !ports.contains(port))
             ports.append(port);
     }

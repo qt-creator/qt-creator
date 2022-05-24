@@ -793,9 +793,9 @@ bool QtcProcessPrivate::flushFor(SignalType signalType)
     QList<ProcessInterfaceSignal *> oldSignals;
     {
         QMutexLocker locker(&m_mutex);
-        const QList<SignalType> storedSignals =
-                Utils::transform(qAsConst(m_signals), [](const ProcessInterfaceSignal *aSignal) {
-                                   return aSignal->signalType();
+        const QList<SignalType> storedSignals = transform(qAsConst(m_signals),
+                                [](const ProcessInterfaceSignal *aSignal) {
+            return aSignal->signalType();
         });
 
         // If we are flushing for ReadyRead or Done - flush all.

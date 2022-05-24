@@ -25,9 +25,10 @@
 
 #pragma once
 
+#include "utils_global.h"
+
 #include "functiontraits.h"
 #include "optional.h"
-#include "utils_global.h"
 
 #include <QCoreApplication>
 #include <QFuture>
@@ -481,7 +482,7 @@ runAsync(QThread::Priority priority, Function &&function, Args&&... args)
 template<typename Function,
          typename... Args,
          typename ResultType = typename Internal::resultType<Function>::type>
-QFuture<ResultType> runAsync(Utils::StackSizeInBytes stackSize, Function &&function, Args &&... args)
+QFuture<ResultType> runAsync(StackSizeInBytes stackSize, Function &&function, Args &&... args)
 {
     return Internal::runAsync_internal(static_cast<QThreadPool *>(nullptr),
                                        stackSize,
@@ -500,7 +501,7 @@ QFuture<ResultType> runAsync(Utils::StackSizeInBytes stackSize, Function &&funct
 template<typename Function,
          typename... Args,
          typename ResultType = typename Internal::resultType<Function>::type>
-QFuture<ResultType> runAsync(Utils::StackSizeInBytes stackSize,
+QFuture<ResultType> runAsync(StackSizeInBytes stackSize,
                              QThread::Priority priority,
                              Function &&function,
                              Args &&... args)

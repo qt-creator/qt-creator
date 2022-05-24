@@ -39,7 +39,7 @@ class QTCREATOR_UTILS_EXPORT ProjectIntroPage : public WizardPage
 {
     Q_OBJECT
     Q_PROPERTY(QString description READ description WRITE setDescription DESIGNABLE true)
-    Q_PROPERTY(FilePath filePath READ filePath WRITE setFilePath DESIGNABLE true)
+    Q_PROPERTY(Utils::FilePath filePath READ filePath WRITE setFilePath DESIGNABLE true)
     Q_PROPERTY(QString projectName READ projectName WRITE setProjectName DESIGNABLE true)
     Q_PROPERTY(bool useAsDefaultPath READ useAsDefaultPath WRITE setUseAsDefaultPath DESIGNABLE true)
     Q_PROPERTY(bool forceSubProject READ forceSubProject WRITE setForceSubProject DESIGNABLE true)
@@ -61,7 +61,7 @@ public:
     bool forceSubProject() const;
     void setForceSubProject(bool force);
     void setProjectList(const QStringList &projectList);
-    void setProjectDirectories(const Utils::FilePaths &directoryList);
+    void setProjectDirectories(const FilePaths &directoryList);
     int projectIndex() const;
 
     bool validateProjectName(const QString &name, QString *errorMessage);

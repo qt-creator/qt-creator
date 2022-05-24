@@ -26,7 +26,6 @@
 #pragma once
 
 #include "processenums.h"
-#include "processreaper.h"
 
 #include <QIODevice>
 #include <QProcess>

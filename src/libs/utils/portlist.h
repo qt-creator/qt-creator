@@ -26,6 +26,7 @@
 #pragma once
 
 #include "utils_global.h"
+
 #include "port.h"
 
 QT_FORWARD_DECLARE_CLASS(QString)

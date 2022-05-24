@@ -25,8 +25,9 @@
 
 #pragma once
 
-#include "fileutils.h"
 #include "utils_global.h"
+
+#include "filepath.h"
 
 #include <QVariant>
 

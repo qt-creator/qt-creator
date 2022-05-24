@@ -30,6 +30,8 @@
 #include "sshkeycreationdialog.h"
 
 #include <projectexplorer/devicesupport/sshparameters.h>
+
+#include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 #include <utils/utilsicons.h>
 

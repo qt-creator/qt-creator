@@ -24,14 +24,18 @@
 ****************************************************************************/
 
 #pragma once
+
 #include "utils_global.h"
 
-#include <QMap>
 #include <QSharedPointer>
 #include <QString>
 #include <QStringList>
 
-QT_FORWARD_DECLARE_CLASS(QLocale)
+QT_BEGIN_NAMESPACE
+class QLocale;
+template <typename K, typename V>
+class QMap;
+QT_END_NAMESPACE
 
 namespace Utils {
 
@@ -50,7 +54,7 @@ public:
     QString firstFileAtPath(const QString &path, const QLocale &locale) const;
     void collectFilesAtPath(const QString &path, QStringList *res, const QLocale *locale = nullptr) const;
     bool hasDirAtPath(const QString &path, const QLocale *locale = nullptr) const;
-    void collectFilesInPath(const QString &path, QMap<QString,QStringList> *res, bool addDirs = false,
+    void collectFilesInPath(const QString &path, QMap<QString, QStringList> *res, bool addDirs = false,
                             const QLocale *locale = nullptr) const;
     void collectResourceFilesForSourceFile(const QString &sourceFile, QStringList *results,
                                            const QLocale *locale = nullptr) const;

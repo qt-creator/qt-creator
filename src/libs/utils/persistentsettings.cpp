@@ -25,6 +25,9 @@
 
 #include "persistentsettings.h"
 
+#include "fileutils.h"
+
+#include <QCoreApplication>
 #include <QDateTime>
 #include <QDebug>
 #include <QDir>

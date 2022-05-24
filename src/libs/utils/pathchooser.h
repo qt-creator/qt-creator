@@ -25,8 +25,10 @@
 
 #pragma once
 
+#include "utils_global.h"
+
 #include "fancylineedit.h"
-#include "fileutils.h"
+#include "filepath.h"
 
 #include <QWidget>
 
@@ -35,11 +37,9 @@ class QAbstractButton;
 class QLineEdit;
 QT_END_NAMESPACE
 
-
 namespace Utils {
 
 class CommandLine;
-class FancyLineEdit;
 class MacroExpander;
 class Environment;
 class EnvironmentChange;
@@ -126,7 +126,7 @@ public:
     void setCommandVersionArguments(const QStringList &arguments);
 
     // Utility to run a tool and return its stdout.
-    static QString toolVersion(const Utils::CommandLine &cmd);
+    static QString toolVersion(const CommandLine &cmd);
     // Install a tooltip on lineedits used for binaries showing the version.
     static void installLineEditVersionToolTip(QLineEdit *le, const QStringList &arguments);
 

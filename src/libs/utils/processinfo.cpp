@@ -191,7 +191,7 @@ QList<ProcessInfo> ProcessInfo::processInfoList()
         ProcessInfo p;
         p.processId = pe.th32ProcessID;
         // Image has the absolute path, but can fail.
-        const QString image = Utils::imageName(pe.th32ProcessID);
+        const QString image = imageName(pe.th32ProcessID);
         p.executable = p.commandLine = image.isEmpty() ?
             QString::fromWCharArray(pe.szExeFile) : image;
         processes << p;
