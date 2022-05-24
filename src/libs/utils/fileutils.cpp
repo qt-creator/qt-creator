@@ -32,6 +32,7 @@
 #include <QDataStream>
 #include <QDebug>
 #include <QOperatingSystemVersion>
+#include <QTemporaryFile>
 #include <QTextStream>
 #include <QXmlStreamWriter>
 

@@ -27,6 +27,7 @@
 
 #include "algorithm.h"
 #include "qtcassert.h"
+#include "persistentsettings.h"
 
 #include <QApplication>
 #include <QDir>
@@ -71,6 +72,8 @@ applicationDisplayName(applicationDisplayName)
     QTC_CHECK(!displayName.isEmpty());
     QTC_CHECK(!applicationDisplayName.isEmpty());
 }
+
+SettingsAccessor::~SettingsAccessor() = default;
 
 /*!
  * Restore settings from disk and report any issues in a message box centered on \a parent.
@@ -299,7 +302,7 @@ BackingUpSettingsAccessor::writeData(const FilePath &path, const QVariantMap &da
 
 FilePaths BackingUpSettingsAccessor::readFileCandidates(const FilePath &path) const
 {
-    FilePaths result = Utils::filteredUnique(m_strategy->readFileCandidates(path));
+    FilePaths result = filteredUnique(m_strategy->readFileCandidates(path));
     if (result.removeOne(baseFilePath()))
         result.prepend(baseFilePath());
 
@@ -746,7 +749,7 @@ static QVariant mergeQVariantMapsRecursion(const QVariantMap &mainTree, const QV
                                            const SettingsMergeFunction &merge)
 {
     QVariantMap result;
-    const QList<QString> allKeys = Utils::filteredUnique(mainSubtree.keys() + secondarySubtree.keys());
+    const QList<QString> allKeys = filteredUnique(mainSubtree.keys() + secondarySubtree.keys());
 
     MergingSettingsAccessor::SettingsMergeData global = {mainTree, secondaryTree, QString()};
     MergingSettingsAccessor::SettingsMergeData local = {mainSubtree, secondarySubtree, QString()};

@@ -92,7 +92,7 @@ QTCREATOR_UTILS_EXPORT QString commonPrefix(const QStringList &strings)
 
 QTCREATOR_UTILS_EXPORT QString commonPath(const QStringList &files)
 {
-    QStringList appendedSlashes = Utils::transform(files, [](const QString &file) -> QString {
+    QStringList appendedSlashes = transform(files, [](const QString &file) -> QString {
         if (!file.endsWith('/'))
             return QString(file + '/');
         return file;

@@ -27,9 +27,8 @@
 
 #include "utils_global.h"
 
-#include "fileutils.h"
+#include "filepath.h"
 #include "optional.h"
-#include "persistentsettings.h"
 
 #include <QHash>
 #include <QMessageBox>
@@ -63,6 +62,7 @@ QTCREATOR_UTILS_EXPORT void setVersionInMap(QVariantMap &data, int version);
 QTCREATOR_UTILS_EXPORT void setOriginalVersionInMap(QVariantMap &data, int version);
 QTCREATOR_UTILS_EXPORT void setSettingsIdInMap(QVariantMap &data, const QByteArray &id);
 
+class PersistentSettingsWriter;
 using SettingsMergeResult = optional<QPair<QString, QVariant>>;
 
 // --------------------------------------------------------------------
@@ -75,7 +75,7 @@ class QTCREATOR_UTILS_EXPORT SettingsAccessor
 public:
     SettingsAccessor(const QString &docType, const QString &displayName,
                      const QString &applicationDisplayName);
-    virtual ~SettingsAccessor() = default;
+    virtual ~SettingsAccessor();
 
     enum ProceedInfo { Continue, DiscardAndContinue };
     using ButtonMap = QHash<QMessageBox::StandardButton, ProceedInfo>;

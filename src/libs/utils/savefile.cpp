@@ -34,6 +34,8 @@
 #  include <sys/stat.h>
 #endif
 
+#include <QTemporaryFile>
+
 namespace Utils {
 
 static QFile::Permissions m_umask;

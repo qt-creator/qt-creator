@@ -27,7 +27,9 @@
 
 #include "utils_global.h"
 
-#include <QTemporaryFile>
+#include <QFile>
+
+QT_FORWARD_DECLARE_CLASS(QTemporaryFile)
 
 #include <memory>
 
