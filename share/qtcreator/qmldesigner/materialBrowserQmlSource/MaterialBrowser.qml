@@ -92,13 +92,13 @@ Item {
 
         StudioControls.MenuItem {
             text: qsTr("Apply to selected (replace)")
-            enabled: currentMaterial
+            enabled: currentMaterial && materialBrowserModel.hasModelSelection
             onTriggered: materialBrowserModel.applyToSelected(currentMaterial.materialInternalId, false)
         }
 
         StudioControls.MenuItem {
             text: qsTr("Apply to selected (add)")
-            enabled: currentMaterial
+            enabled: currentMaterial && materialBrowserModel.hasModelSelection
             onTriggered: materialBrowserModel.applyToSelected(currentMaterial.materialInternalId, true)
         }
 

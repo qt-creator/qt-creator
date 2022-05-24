@@ -50,7 +50,7 @@ Rectangle {
             normalColor: "transparent"
             iconSize: StudioTheme.Values.bigIconFontSize
             buttonSize: root.height
-            enabled: hasMaterial && hasQuick3DImport
+            enabled: hasMaterial && hasModelSelection && hasQuick3DImport
             onClicked: root.toolBarAction(ToolBarAction.ApplyToSelected)
             tooltip: qsTr("Apply material to selected model.")
         }

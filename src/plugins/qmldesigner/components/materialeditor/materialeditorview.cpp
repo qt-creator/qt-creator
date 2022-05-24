@@ -677,6 +677,8 @@ void MaterialEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNo
         if (node.isSubclassOf("QtQuick3D.Model"))
             m_selectedModels.append(node);
     }
+
+    m_qmlBackEnd->contextObject()->setHasModelSelection(!m_selectedModels.isEmpty());
 }
 
 void MaterialEditorView::currentStateChanged(const ModelNode &node)

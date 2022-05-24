@@ -40,6 +40,7 @@ class MaterialBrowserModel : public QAbstractListModel
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
     Q_PROPERTY(int selectedIndex MEMBER m_selectedIndex NOTIFY selectedIndexChanged)
     Q_PROPERTY(bool hasQuick3DImport READ hasQuick3DImport WRITE setHasQuick3DImport NOTIFY hasQuick3DImportChanged)
+    Q_PROPERTY(bool hasModelSelection READ hasModelSelection WRITE setHasModelSelection NOTIFY hasModelSelectionChanged)
 
 public:
     MaterialBrowserModel(QObject *parent = nullptr);
@@ -53,6 +54,9 @@ public:
 
     bool hasQuick3DImport() const;
     void setHasQuick3DImport(bool b);
+
+    bool hasModelSelection() const;
+    void setHasModelSelection(bool b);
 
     void setMaterials(const QList<ModelNode> &materials, bool hasQuick3DImport);
     void removeMaterial(const ModelNode &material);
@@ -73,6 +77,7 @@ public:
 signals:
     void isEmptyChanged();
     void hasQuick3DImportChanged();
+    void hasModelSelectionChanged();
     void selectedIndexChanged(int idx);
     void renameMaterialTriggered(const QmlDesigner::ModelNode &material, const QString &newName);
     void applyToSelectedTriggered(const QmlDesigner::ModelNode &material, bool add = false);
@@ -89,6 +94,7 @@ private:
     int m_selectedIndex = 0;
     bool m_isEmpty = true;
     bool m_hasQuick3DImport = false;
+    bool m_hasModelSelection = false;
 };
 
 } // namespace QmlDesigner

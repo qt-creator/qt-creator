@@ -106,6 +106,20 @@ void MaterialBrowserModel::setHasQuick3DImport(bool b)
     emit hasQuick3DImportChanged();
 }
 
+bool MaterialBrowserModel::hasModelSelection() const
+{
+    return m_hasModelSelection;
+}
+
+void MaterialBrowserModel::setHasModelSelection(bool b)
+{
+    if (b == m_hasModelSelection)
+        return;
+
+    m_hasModelSelection = b;
+    emit hasModelSelectionChanged();
+}
+
 void MaterialBrowserModel::setSearchText(const QString &searchText)
 {
     QString lowerSearchText = searchText.toLower();
@@ -156,11 +170,7 @@ void MaterialBrowserModel::setMaterials(const QList<ModelNode> &materials, bool 
         emit isEmptyChanged();
     }
 
-    if (hasQuick3DImport != m_hasQuick3DImport) {
-        m_hasQuick3DImport = hasQuick3DImport;
-        emit hasQuick3DImportChanged();
-    }
-
+    setHasQuick3DImport(hasQuick3DImport);
     updateSelectedMaterial();
     resetModel();
 }

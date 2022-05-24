@@ -118,10 +118,6 @@ void MaterialBrowserView::modelAboutToBeDetached(Model *model)
 void MaterialBrowserView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                                const QList<ModelNode> &lastSelectedNodeList)
 {
-    if (!m_autoSelectModelMaterial)
-        return;
-
-    // if selected object is a model, select its material in the material browser and editor
     ModelNode selectedModel;
 
     for (const ModelNode &node : selectedNodeList) {
@@ -130,6 +126,11 @@ void MaterialBrowserView::selectedNodesChanged(const QList<ModelNode> &selectedN
             break;
         }
     }
+
+    m_widget->materialBrowserModel()->setHasModelSelection(selectedModel.isValid());
+
+    if (!m_autoSelectModelMaterial)
+        return;
 
     if (selectedNodeList.size() > 1 || !selectedModel.isValid())
         return;
@@ -144,6 +145,7 @@ void MaterialBrowserView::selectedNodesChanged(const QList<ModelNode> &selectedN
     if (!mat.isValid())
         return;
 
+    // if selected object is a model, select its material in the material browser and editor
     int idx = m_widget->materialBrowserModel()->materialIndex(mat);
     m_widget->materialBrowserModel()->selectMaterial(idx);
 }
