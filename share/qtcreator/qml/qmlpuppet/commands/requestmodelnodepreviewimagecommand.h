@@ -64,9 +64,15 @@ inline bool operator==(const RequestModelNodePreviewImageCommand &first,
         && first.renderItemId() == second.renderItemId();
 }
 
-inline size_t qHash(const RequestModelNodePreviewImageCommand &key, size_t seed)
+inline size_t qHash(const RequestModelNodePreviewImageCommand &key, size_t seed = 0)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    return ::qHash(key.instanceId(), seed)
+            ^ ::qHash(std::make_pair(key.size().width(), key.size().height()), seed)
+            ^ ::qHash(key.componentPath(), seed) ^ ::qHash(key.renderItemId(), seed);
+#else
     return qHashMulti(seed, key.instanceId(), key.size(), key.componentPath(), key.renderItemId());
+#endif
 }
 
 QDataStream &operator<<(QDataStream &out, const RequestModelNodePreviewImageCommand &command);
