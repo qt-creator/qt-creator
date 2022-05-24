@@ -292,7 +292,7 @@ private:
         int autoSaveInterval = 5;
 
         bool autoSuspendEnabled = true;
-        int autoSuspendMinDocumentCount = 30;
+        int autoSuspendMinDocumentCount = 10;
 
         bool autoSaveAfterRefactoring = true;
         bool warnBeforeOpeningBigFilesEnabled = true;
