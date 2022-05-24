@@ -242,13 +242,14 @@ void TextMark::removedFromEditor()
 void TextMark::updateMarker()
 {
     if (m_baseTextDocument)
-        m_baseTextDocument->updateMark(this);
+        m_baseTextDocument->updateLayout();
 }
 
 void TextMark::setPriority(TextMark::Priority prioriy)
 {
     m_priority = prioriy;
-    updateMarker();
+    if (m_baseTextDocument)
+        m_baseTextDocument->updateMark(this);
 }
 
 bool TextMark::isVisible() const

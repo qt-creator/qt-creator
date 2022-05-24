@@ -111,6 +111,7 @@ public:
     bool addMark(TextMark *mark);
     TextMarks marksAt(int line) const;
     void removeMark(TextMark *mark);
+    void updateLayout() const;
     void updateMark(TextMark *mark);
     void moveMark(TextMark *mark, int previousLine);
     void removeMarkFromMarksCache(TextMark *mark);
@@ -187,7 +188,6 @@ private:
     void cleanWhitespace(QTextCursor &cursor, bool inEntireDocument, bool cleanIndentation);
     void ensureFinalNewLine(QTextCursor &cursor);
     void modificationChanged(bool modified);
-    void updateLayout() const;
 
     TextDocumentPrivate *d;
 };
