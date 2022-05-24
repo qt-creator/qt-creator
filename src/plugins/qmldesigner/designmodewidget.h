@@ -80,7 +80,7 @@ public:
     void disableWidgets();
 
     CrumbleBar *crumbleBar() const;
-    void showDockWidget(const QString &objectName);
+    void showDockWidget(const QString &objectName, bool focus = false);
 
     void determineWorkspaceToRestoreAtStartup();
 

@@ -583,11 +583,15 @@ CrumbleBar *DesignModeWidget::crumbleBar() const
     return m_crumbleBar;
 }
 
-void DesignModeWidget::showDockWidget(const QString &objectName)
+void DesignModeWidget::showDockWidget(const QString &objectName, bool focus)
 {
     auto dockWidget = m_dockManager->findDockWidget(objectName);
-    if (dockWidget)
+    if (dockWidget) {
         dockWidget->toggleView(true);
+
+        if (focus)
+            dockWidget->setFocus();
+    }
 }
 
 void DesignModeWidget::contextHelp(const Core::IContext::HelpCallback &callback) const

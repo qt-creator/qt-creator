@@ -275,7 +275,7 @@ void MaterialBrowserModel::applyToSelected(qint64 internalId, bool add)
 
 void MaterialBrowserModel::openMaterialEditor()
 {
-    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor");
+    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor", true);
 }
 
 } // namespace QmlDesigner

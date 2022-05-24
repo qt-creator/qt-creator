@@ -459,7 +459,7 @@ void MaterialEditorView::handleToolBarAction(int action)
     }
 
     case MaterialEditorContextObject::OpenMaterialBrowser: {
-        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialBrowser");
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialBrowser", true);
         break;
     }
     }
