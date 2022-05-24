@@ -163,9 +163,10 @@ Item {
         }
 
         Text {
-            text: qsTr("No materials yet.");
+            text: qsTr("No materials yet.\nClick '+' above to start.")
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.mediumFontSize
+            horizontalAlignment: Text.AlignHCenter
             topPadding: 30
             anchors.horizontalCenter: parent.horizontalCenter
             visible: materialBrowserModel.hasQuick3DImport && materialBrowserModel.isEmpty && searchBox.isEmpty()
