@@ -1497,7 +1497,7 @@ void SimpleTargetRunnerPrivate::forwardDone()
     if (m_stopReported)
         return;
     const QString executable = m_runnable.command.executable().toUserOutput();
-    QString msg = tr("%2 exited with code %1").arg(m_resultData.m_exitCode).arg(executable);
+    QString msg = tr("%1 exited with code %2").arg(executable).arg(m_resultData.m_exitCode);
     if (m_resultData.m_exitStatus == QProcess::CrashExit)
         msg = tr("%1 crashed.").arg(executable);
     else if (m_stopForced)
