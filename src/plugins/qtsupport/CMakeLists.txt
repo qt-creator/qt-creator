@@ -29,7 +29,6 @@ add_qtc_plugin(QtSupport
     qtversioninfo.ui
     qtversionmanager.cpp qtversionmanager.h qtversionmanager.ui
     qtversions.cpp qtversions.h
-    screenshotcropper.cpp screenshotcropper.h
     showbuildlog.ui
     translationwizardpage.cpp translationwizardpage.h
     uicgenerator.cpp uicgenerator.h

@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #include "exampleslistmodel.h"
-#include "screenshotcropper.h"
 
 #include <QBuffer>
+#include <QApplication>
 #include <QDir>
 #include <QFile>
 #include <QImageReader>
@@ -527,8 +527,13 @@ QPixmap ExamplesListModel::fetchPixmapAndUpdatePixmapCache(const QString &url) c
             imgBuffer.open(QIODevice::ReadOnly);
             QImageReader reader(&imgBuffer, QFileInfo(url).suffix().toLatin1());
             QImage img = reader.read();
-            img = ScreenshotCropper::croppedImage(img, url, ListModel::defaultImageSize);
-            pixmap = QPixmap::fromImage(img);
+            img.convertTo(QImage::Format_RGB32);
+            const int dpr = qApp->devicePixelRatio();
+            // boundedTo -> don't scale thumbnails up
+            const QSize scaledSize = ListModel::defaultImageSize.boundedTo(img.size()) * dpr;
+            pixmap = QPixmap::fromImage(
+                        img.scaled(scaledSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            pixmap.setDevicePixelRatio(dpr);
         }
     }
     QPixmapCache::insert(url, pixmap);
