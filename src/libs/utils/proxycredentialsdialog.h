@@ -29,7 +29,9 @@
 
 #include <QDialog>
 
-QT_FORWARD_DECLARE_CLASS(QNetworkProxy)
+QT_BEGIN_NAMESPACE
+class QNetworkProxy;
+QT_END_NAMESPACE
 
 namespace Utils {
 

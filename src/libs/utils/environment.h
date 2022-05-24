@@ -34,7 +34,9 @@
 
 #include <functional>
 
-QT_FORWARD_DECLARE_CLASS(QProcessEnvironment)
+QT_BEGIN_NAMESPACE
+class QProcessEnvironment;
+QT_END_NAMESPACE
 
 namespace Utils {
 

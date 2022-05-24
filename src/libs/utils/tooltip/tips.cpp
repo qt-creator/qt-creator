@@ -26,12 +26,11 @@
 #include "tips.h"
 #include "tooltip.h"
 
-#include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
+#include "../qtcassert.h"
 
-#include <QApplication>
 #include <QColor>
 #include <QFontMetrics>
+#include <QGuiApplication>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPen>
@@ -43,6 +42,7 @@
 #include <QStyleOptionFrame>
 #include <QTextDocument>
 #include <QScreen>
+#include <QVBoxLayout>
 #include <QWidget>
 
 #include <memory>

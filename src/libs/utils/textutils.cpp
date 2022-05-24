@@ -165,7 +165,7 @@ int utf8NthLineOffset(const QTextDocument *textDocument, const QByteArray &buffe
 
 LineColumn utf16LineColumn(const QByteArray &utf8Buffer, int utf8Offset)
 {
-    Utils::LineColumn lineColumn;
+    LineColumn lineColumn;
     lineColumn.line = static_cast<int>(
                           std::count(utf8Buffer.begin(), utf8Buffer.begin() + utf8Offset, '\n'))
                       + 1;
@@ -221,7 +221,7 @@ void applyReplacements(QTextDocument *doc, const Replacements &replacements)
     int fullOffsetShift = 0;
     QTextCursor editCursor(doc);
     editCursor.beginEditBlock();
-    for (const Utils::Text::Replacement &replacement : replacements) {
+    for (const Text::Replacement &replacement : replacements) {
         editCursor.setPosition(replacement.offset + fullOffsetShift);
         editCursor.movePosition(QTextCursor::NextCharacter,
                                 QTextCursor::KeepAnchor,

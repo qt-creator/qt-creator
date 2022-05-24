@@ -29,7 +29,9 @@
 
 #include <QFile>
 
-QT_FORWARD_DECLARE_CLASS(QTemporaryFile)
+QT_BEGIN_NAMESPACE
+class QTemporaryFile;
+QT_END_NAMESPACE
 
 #include <memory>
 

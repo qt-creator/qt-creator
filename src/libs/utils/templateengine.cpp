@@ -25,6 +25,7 @@
 
 #include "templateengine.h"
 
+#include "macroexpander.h"
 #include "qtcassert.h"
 
 #include <QJSEngine>

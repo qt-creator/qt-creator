@@ -25,12 +25,14 @@
 
 #pragma once
 
-#include <utils/utils_global.h>
+#include "../utils_global.h"
 
-#include <QAction>
-#include <QByteArray>
-#include <QIcon>
-#include <QString>
+QT_BEGIN_NAMESPACE
+class QAction;
+class QByteArray;
+class QIcon;
+class QString;
+QT_END_NAMESPACE
 
 namespace Utils {
 

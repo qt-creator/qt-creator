@@ -104,7 +104,7 @@ public:
     void createIconButton()
     {
         m_iconButton = new IconButton;
-        m_iconButton->setIcon(Utils::Icons::REPLACE.icon());
+        m_iconButton->setIcon(Icons::REPLACE.icon());
         m_iconButton->setToolTip(VariableChooser::tr("Insert Variable"));
         m_iconButton->hide();
         connect(m_iconButton.data(), static_cast<void(QAbstractButton::*)(bool)>(&QAbstractButton::clicked),
@@ -132,7 +132,7 @@ public:
     QPointer<QPlainTextEdit> m_plainTextEdit;
     QPointer<IconButton> m_iconButton;
 
-    Utils::FancyLineEdit *m_variableFilter;
+    FancyLineEdit *m_variableFilter;
     VariableTreeView *m_variableTree;
     QLabel *m_variableDescription;
     QSortFilterProxyModel *m_sortModel;
@@ -275,7 +275,7 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
 {
     m_defaultDescription = VariableChooser::tr("Select a variable to insert.");
 
-    m_variableFilter = new Utils::FancyLineEdit(q);
+    m_variableFilter = new FancyLineEdit(q);
     m_variableTree = new VariableTreeView(q, this);
     m_variableDescription = new QLabel(q);
 

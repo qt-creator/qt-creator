@@ -33,7 +33,9 @@
 #include <QTimer>
 #include <QValidator>
 
-QT_FORWARD_DECLARE_CLASS(QModelIndex)
+QT_BEGIN_NAMESPACE
+class QModelIndex;
+QT_END_NAMESPACE
 
 namespace Utils {
 

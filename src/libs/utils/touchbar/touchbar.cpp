@@ -25,6 +25,11 @@
 
 #include "touchbar.h"
 
+#include <QAction>
+#include <QByteArray>
+#include <QIcon>
+#include <QString>
+
 namespace Utils {
 namespace Internal {
 

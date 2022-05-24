@@ -31,7 +31,9 @@
 
 #include <functional>
 
-QT_FORWARD_DECLARE_CLASS(QPushButton)
+QT_BEGIN_NAMESPACE
+class QPushButton;
+QT_END_NAMESPACE
 
 namespace Utils {
 

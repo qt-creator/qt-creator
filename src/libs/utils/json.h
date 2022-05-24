@@ -32,7 +32,9 @@
 #include <QStringList>
 #include <QVector>
 
-QT_FORWARD_DECLARE_CLASS(QVariant)
+QT_BEGIN_NAMESPACE
+class QVariant;
+QT_END_NAMESPACE
 
 namespace Utils {
 

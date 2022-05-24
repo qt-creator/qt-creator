@@ -27,7 +27,9 @@
 
 #include "utils_global.h"
 
-QT_FORWARD_DECLARE_CLASS(QTimer)
+QT_BEGIN_NAMESPACE
+class QTimer;
+QT_END_NAMESPACE
 
 #include <QLabel>
 

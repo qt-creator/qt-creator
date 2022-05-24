@@ -30,8 +30,10 @@
 #include <QBrush> // QGradientStops
 #include <QObject>
 
-QT_FORWARD_DECLARE_CLASS(QSettings)
-QT_FORWARD_DECLARE_CLASS(QPalette)
+QT_BEGIN_NAMESPACE
+class QPalette;
+class QSettings;
+QT_END_NAMESPACE
 
 namespace Utils {
 

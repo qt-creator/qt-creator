@@ -155,8 +155,8 @@ TerminalCommand TerminalCommand::terminalEmulator()
                 const QStringList splitCommand = ProcessArgs::splitArgs(value);
                 if (QTC_GUARD(!splitCommand.isEmpty())) {
                     const QString command = splitCommand.first();
-                    const QStringList quotedArgs = Utils::transform(splitCommand.mid(1),
-                                                                    &ProcessArgs::quoteArgUnix);
+                    const QStringList quotedArgs = transform(splitCommand.mid(1),
+                                                             &ProcessArgs::quoteArgUnix);
                     const QString options = quotedArgs.join(' ');
                     return {command, "", options};
                 }

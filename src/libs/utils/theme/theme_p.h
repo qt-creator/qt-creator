@@ -25,8 +25,9 @@
 
 #pragma once
 
-#include "theme.h"
 #include "../utils_global.h"
+
+#include "theme.h"
 
 #include <QColor>
 #include <QMap>

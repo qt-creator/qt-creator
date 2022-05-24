@@ -34,7 +34,9 @@
 
 #include <functional>
 
-QT_FORWARD_DECLARE_CLASS(QAction)
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
 
 namespace Utils {
 

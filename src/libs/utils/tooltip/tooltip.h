@@ -27,7 +27,6 @@
 
 #include "../utils_global.h"
 
-#include <QSharedPointer>
 #include <QObject>
 #include <QPointer>
 #include <QTimer>

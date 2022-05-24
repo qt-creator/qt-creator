@@ -28,10 +28,10 @@
 #include "utils_global.h"
 
 #include <QString>
-#include <QTextCursor>
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
+class QTextCursor;
 QT_END_NAMESPACE
 
 namespace Utils {

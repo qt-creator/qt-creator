@@ -28,6 +28,7 @@
 
 #include <QHostAddress>
 #include <QTcpServer>
+#include <QUrl>
 
 namespace Utils {
 

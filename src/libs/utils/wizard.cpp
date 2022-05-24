@@ -319,7 +319,7 @@ Wizard::Wizard(QWidget *parent, Qt::WindowFlags flags) :
     setOption(QWizard::NoCancelButton, false);
     setOption(QWizard::NoDefaultButton, false);
     setOption(QWizard::NoBackButtonOnStartPage, true);
-    if (!Utils::creatorTheme()->preferredStyles().isEmpty())
+    if (!creatorTheme()->preferredStyles().isEmpty())
         setWizardStyle(QWizard::ModernStyle);
 
     if (HostOsInfo::isMacHost()) {

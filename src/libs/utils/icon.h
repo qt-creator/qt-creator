@@ -34,9 +34,11 @@
 #include <QPair>
 #include <QVector>
 
-QT_FORWARD_DECLARE_CLASS(QColor)
-QT_FORWARD_DECLARE_CLASS(QPixmap)
-QT_FORWARD_DECLARE_CLASS(QString)
+QT_BEGIN_NAMESPACE
+class QColor;
+class QPixmap;
+class QString;
+QT_END_NAMESPACE
 
 namespace Utils {
 

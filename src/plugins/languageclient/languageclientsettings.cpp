@@ -44,6 +44,7 @@
 #include <utils/delegates.h>
 #include <utils/fancylineedit.h>
 #include <utils/jsontreeitem.h>
+#include <utils/macroexpander.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>

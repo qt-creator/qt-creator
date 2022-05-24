@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include <utils/macroexpander.h>
 #include <utils/templateengine.h>
 
 #include <QtTest>

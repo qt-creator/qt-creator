@@ -27,13 +27,14 @@
 
 #include "utils_global.h"
 
-#include "macroexpander.h"
-
-#include <QString>
-
-QT_FORWARD_DECLARE_CLASS(QJSEngine)
+QT_BEGIN_NAMESPACE
+class QJSEngine;
+class QString;
+QT_END_NAMESPACE
 
 namespace Utils {
+
+class MacroExpander;
 
 class QTCREATOR_UTILS_EXPORT TemplateEngine {
 public:

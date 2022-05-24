@@ -25,13 +25,16 @@
 
 #pragma once
 
-#include "linecolumn.h"
 #include "utils_global.h"
+
+#include "linecolumn.h"
 
 #include <QString>
 
-QT_FORWARD_DECLARE_CLASS(QTextDocument)
-QT_FORWARD_DECLARE_CLASS(QTextCursor)
+QT_BEGIN_NAMESPACE
+class QTextCursor;
+class QTextDocument;
+QT_END_NAMESPACE
 
 namespace Utils {
 namespace Text {

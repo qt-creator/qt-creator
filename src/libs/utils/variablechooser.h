@@ -26,13 +26,14 @@
 #pragma once
 
 #include "utils_global.h"
-#include "macroexpander.h"
 
 #include <QWidget>
 
 #include <functional>
 
 namespace Utils {
+
+class MacroExpander;
 
 namespace Internal { class VariableChooserPrivate; }
 
@@ -44,10 +45,10 @@ public:
     explicit VariableChooser(QWidget *parent = nullptr);
     ~VariableChooser() override;
 
-    void addMacroExpanderProvider(const Utils::MacroExpanderProvider &provider);
+    void addMacroExpanderProvider(const std::function<MacroExpander *()> &provider);
     void addSupportedWidget(QWidget *textcontrol, const QByteArray &ownName = QByteArray());
 
-    static void addSupportForChildWidgets(QWidget *parent, Utils::MacroExpander *expander);
+    static void addSupportForChildWidgets(QWidget *parent, MacroExpander *expander);
 
 protected:
     bool event(QEvent *ev) override;

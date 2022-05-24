@@ -437,14 +437,14 @@ void TerminalImpl::cleanupAfterStartFailure(const QString &errorMessage)
 void TerminalImpl::sendControlSignal(ControlSignal controlSignal)
 {
     switch (controlSignal) {
-    case Utils::ControlSignal::Terminate:
-    case Utils::ControlSignal::Kill:
+    case ControlSignal::Terminate:
+    case ControlSignal::Kill:
         stopProcess();
         break;
-    case Utils::ControlSignal::Interrupt:
+    case ControlSignal::Interrupt:
         sendCommand('i');
         break;
-    case Utils::ControlSignal::KickOff:
+    case ControlSignal::KickOff:
         sendCommand('c');
         break;
     }

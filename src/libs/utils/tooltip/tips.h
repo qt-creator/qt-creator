@@ -29,9 +29,11 @@
 
 #include <QLabel>
 #include <QPixmap>
-#include <QSharedPointer>
 #include <QVariant>
-#include <QVBoxLayout>
+
+QT_BEGIN_NAMESPACE
+class QVBoxLayout;
+QT_END_NAMESPACE
 
 namespace Utils {
 namespace Internal {

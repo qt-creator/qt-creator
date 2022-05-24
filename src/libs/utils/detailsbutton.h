@@ -29,7 +29,9 @@
 
 #include <QAbstractButton>
 
-QT_FORWARD_DECLARE_CLASS(QGraphicsOpacityEffect)
+QT_BEGIN_NAMESPACE
+class QGraphicsOpacityEffect;
+QT_END_NAMESPACE
 
 namespace Utils {
 class QTCREATOR_UTILS_EXPORT FadingPanel : public QWidget

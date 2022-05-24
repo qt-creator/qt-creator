@@ -30,7 +30,9 @@
 #include <QString>
 #include <QList>
 
-QT_FORWARD_DECLARE_CLASS(QTextCursor)
+QT_BEGIN_NAMESPACE
+class QTextCursor;
+QT_END_NAMESPACE
 
 namespace Utils {
 

@@ -29,6 +29,7 @@
 
 QT_BEGIN_NAMESPACE
 class QSettings;
+class QString;
 QT_END_NAMESPACE
 
 namespace Utils {

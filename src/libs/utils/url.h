@@ -26,7 +26,11 @@
 #pragma once
 
 #include "utils_global.h"
-#include <QUrl>
+
+QT_BEGIN_NAMESPACE
+class QString;
+class QUrl;
+QT_END_NAMESPACE
 
 namespace Utils {
 

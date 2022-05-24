@@ -29,6 +29,7 @@
 #include "utils/multitextcursor.h"
 
 #include <QTextBlock>
+#include <QTextCursor>
 #include <QTextDocument>
 
 namespace Utils {
