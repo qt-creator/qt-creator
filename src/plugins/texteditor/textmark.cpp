@@ -387,6 +387,8 @@ Utils::optional<Theme::Color> TextMark::color() const
 
 void TextMark::setColor(const Theme::Color &color)
 {
+    if (m_color.has_value() && *m_color == color)
+        return;
     m_color = color;
     updateMarker();
 }
