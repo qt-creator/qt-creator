@@ -83,7 +83,8 @@ void FunctionCycle::setFunctions(const QVector<const Function *> &functions)
                 d->accumulateCall(call, Function::Private::Outgoing);
         }
         // add incoming calls from functions that are not part of the cycle
-        for (const FunctionCall *call : calls) {
+        const QVector<const FunctionCall *> inCalls = func->incomingCalls();
+        for (const FunctionCall *call : inCalls) {
             if (!functions.contains(call->caller())) {
                 d->accumulateCall(call, Function::Private::Incoming);
                 d->m_called += call->calls();
