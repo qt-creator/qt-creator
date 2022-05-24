@@ -75,7 +75,6 @@ Project {
             "cpplanguage_details.h",
             "crumblepath.cpp",
             "crumblepath.h",
-            "declarationmacros.h",
             "delegates.cpp",
             "delegates.h",
             "detailsbutton.cpp",

@@ -27,8 +27,6 @@
 
 #include "textdocumentmanipulatorinterface.h"
 
-#include <utils/declarationmacros.h>
-
 QT_BEGIN_NAMESPACE
 class QIcon;
 class QString;
@@ -54,7 +52,7 @@ public:
     AssistProposalItemInterface() = default;
     virtual ~AssistProposalItemInterface() noexcept = default;
 
-    UTILS_DELETE_MOVE_AND_COPY(AssistProposalItemInterface)
+    Q_DISABLE_COPY_MOVE(AssistProposalItemInterface)
 
     virtual QString text() const = 0;
     virtual QString filterText() const { return text(); }
