@@ -227,7 +227,7 @@ def copyPreservingLinks(source, destination):
     else:
         shutil.copy(source, destination)
 
-def deploy_libclang(install_dir, llvm_install_dir, chrpath_bin):
+def deploy_clang(install_dir, llvm_install_dir, chrpath_bin):
     # contains pairs of (source, target directory)
     deployinfo = []
     resourcesource = os.path.join(llvm_install_dir, 'lib', 'clang')
@@ -238,18 +238,12 @@ def deploy_libclang(install_dir, llvm_install_dir, chrpath_bin):
         clanglibdirtarget = os.path.join(install_dir, 'bin', 'clang', 'lib')
         if not os.path.exists(clanglibdirtarget):
             os.makedirs(clanglibdirtarget)
-        deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'libclang.dll'),
-                           os.path.join(install_dir, 'bin')))
         for binary in ['clang', 'clang-cl', 'clangd', 'clang-tidy', 'clazy-standalone']:
             binary_filepath = os.path.join(llvm_install_dir, 'bin', binary + '.exe')
             if os.path.exists(binary_filepath):
                 deployinfo.append((binary_filepath, clangbindirtarget))
         resourcetarget = os.path.join(clanglibdirtarget, 'clang')
     else:
-        # libclang -> Qt Creator libraries
-        libsources = glob(os.path.join(llvm_install_dir, 'lib', 'libclang.so*'))
-        for libsource in libsources:
-            deployinfo.append((libsource, os.path.join(install_dir, 'lib', 'qtcreator')))
         # clang binaries -> clang libexec
         clangbinary_targetdir = os.path.join(install_dir, 'libexec', 'qtcreator', 'clang', 'bin')
         if not os.path.exists(clangbinary_targetdir):
@@ -273,7 +267,7 @@ def deploy_libclang(install_dir, llvm_install_dir, chrpath_bin):
                 deployinfo.append((lib, clanglibs_targetdir))
         resourcetarget = os.path.join(install_dir, 'libexec', 'qtcreator', 'clang', 'lib', 'clang')
 
-    print("copying libclang...")
+    print("copying clang...")
     for source, target in deployinfo:
         print(source, '->', target)
         copyPreservingLinks(source, target)
@@ -403,7 +397,7 @@ def main():
         copy_qt_libs(qt_deploy_prefix, qt_install.bin, qt_install.lib, qt_install.plugins, qt_install.qml, plugins)
     copy_translations(install_dir, qt_install.translations)
     if args.llvm_path:
-        deploy_libclang(install_dir, args.llvm_path, chrpath_bin)
+        deploy_clang(install_dir, args.llvm_path, chrpath_bin)
 
     if args.elfutils_path:
         deploy_elfutils(install_dir, chrpath_bin, args)
