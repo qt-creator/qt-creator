@@ -25,7 +25,6 @@
 
 #include "customexecutablerunconfiguration.h"
 
-#include "devicesupport/devicemanager.h"
 #include "localenvironmentaspect.h"
 #include "target.h"
 
@@ -82,7 +81,6 @@ Runnable CustomExecutableRunConfiguration::runnable() const
     r.command = commandLine();
     r.environment = aspect<EnvironmentAspect>()->environment();
     r.workingDirectory = workingDirectory;
-    r.device = DeviceManager::defaultDesktopDevice();
 
     if (!r.command.isEmpty()) {
         const FilePath expanded = macroExpander()->expand(r.command.executable());
