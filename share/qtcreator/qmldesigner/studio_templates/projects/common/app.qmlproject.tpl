@@ -92,6 +92,8 @@ Project {
 
     qdsVersion: "3.4"
 
+    quickVersion: "%{QtQuickVersion}"
+
 @if %{IsQt6Project}
     /* If any modules the project imports require widgets (e.g. QtCharts), widgetApp must be true */
     widgetApp: true

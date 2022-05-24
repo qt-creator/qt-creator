@@ -236,6 +236,7 @@
                     {
                         "index": 1,
                         "items":
+                        "items":
                             [
                             {
                                 "trKey": "Qt 5",
@@ -245,10 +246,17 @@
                                 })"
                             },
                             {
-                                "trKey": "Qt 6",
+                                "trKey": "Qt 6.2",
                                 "value":
                                 "({
-                                    'TargetQuickVersion': ''
+                                    'TargetQuickVersion': '6.2'
+                                })"
+                            },
+                            {
+                                "trKey": "Qt 6.3",
+                                "value":
+                                "({
+                                    'TargetQuickVersion': '6.3'
                                 })"
                             }
                         ]
