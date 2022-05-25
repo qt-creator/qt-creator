@@ -510,8 +510,8 @@ void Differ::unifiedDiffWithWhitespaceReduced(const QString &leftInput,
  */
 static QString encodeExpandedWhitespace(const QString &leftEquality,
                                         const QString &rightEquality,
-                                        QMap<int, QPair<int, QString> > *leftCodeMap,
-                                        QMap<int, QPair<int, QString> > *rightCodeMap,
+                                        QMap<int, QPair<int, QString>> *leftCodeMap,
+                                        QMap<int, QPair<int, QString>> *rightCodeMap,
                                         bool *ok)
 {
     if (ok)
@@ -586,7 +586,7 @@ static QString encodeExpandedWhitespace(const QString &leftEquality,
  * the returned value contains decoded diff list.
  */
 static QList<Diff> decodeExpandedWhitespace(const QList<Diff> &input,
-                                            const QMap<int, QPair<int, QString> > &codeMap,
+                                            const QMap<int, QPair<int, QString>> &codeMap,
                                             bool *ok)
 {
     if (ok)
@@ -651,16 +651,16 @@ static bool diffWithWhitespaceExpandedInEqualities(const QList<Diff> &leftInput,
     QString leftText;
     QString rightText;
 
-    QMap<int, QPair<int, QString> > commonLeftCodeMap;
-    QMap<int, QPair<int, QString> > commonRightCodeMap;
+    QMap<int, QPair<int, QString>> commonLeftCodeMap;
+    QMap<int, QPair<int, QString>> commonRightCodeMap;
 
     while (l <= leftCount && r <= rightCount) {
         const Diff leftDiff = l < leftCount ? leftInput.at(l) : Diff(Diff::Equal);
         const Diff rightDiff = r < rightCount ? rightInput.at(r) : Diff(Diff::Equal);
 
         if (leftDiff.command == Diff::Equal && rightDiff.command == Diff::Equal) {
-            QMap<int, QPair<int, QString> > leftCodeMap;
-            QMap<int, QPair<int, QString> > rightCodeMap;
+            QMap<int, QPair<int, QString>> leftCodeMap;
+            QMap<int, QPair<int, QString>> rightCodeMap;
 
             bool ok = false;
             const QString &commonEquality = encodeExpandedWhitespace(leftDiff.text,

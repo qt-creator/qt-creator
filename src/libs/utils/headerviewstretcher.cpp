@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "headerviewstretcher.h"
+
 #include <QHideEvent>
 #include <QHeaderView>
 

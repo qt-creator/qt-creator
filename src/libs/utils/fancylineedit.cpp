@@ -23,9 +23,10 @@
 **
 ****************************************************************************/
 
+#include "fancylineedit.h"
+
 #include "camelcasecursor.h"
 #include "execmenu.h"
-#include "fancylineedit.h"
 #include "historycompleter.h"
 #include "hostosinfo.h"
 #include "optional.h"

@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "elidinglabel.h"
+
 #include <QFontMetrics>
 #include <QPainter>
 #include <QStyle>

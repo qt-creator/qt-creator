@@ -24,11 +24,11 @@
 ****************************************************************************/
 
 #include "detailsbutton.h"
+
 #include "hostosinfo.h"
 #include "theme/theme.h"
 
 #include <QGraphicsOpacityEffect>
-#include <QGuiApplication>
 #include <QPropertyAnimation>
 #include <QPaintEvent>
 #include <QPainter>

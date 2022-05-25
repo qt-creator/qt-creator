@@ -56,7 +56,7 @@ namespace Internal {
 class BaseAspectPrivate
 {
 public:
-    Utils::Id m_id;
+    Id m_id;
     QVariant m_value;
     QVariant m_defaultValue;
     std::function<QVariant(const QVariant &)> m_toSettings;
@@ -710,7 +710,7 @@ class TextDisplayPrivate
 {
 public:
     QString m_message;
-    Utils::InfoLabel::InfoType m_type;
+    InfoLabel::InfoType m_type;
     QPointer<InfoLabel> m_label;
 };
 
@@ -2119,18 +2119,18 @@ void IntegersAspect::emitChangedValue()
 
 QList<int> IntegersAspect::value() const
 {
-    return Utils::transform(BaseAspect::value().toList(),
+    return transform(BaseAspect::value().toList(),
                             [](QVariant v) { return v.toInt(); });
 }
 
 void IntegersAspect::setValue(const QList<int> &value)
 {
-    BaseAspect::setValue(Utils::transform(value, &QVariant::fromValue<int>));
+    BaseAspect::setValue(transform(value, &QVariant::fromValue<int>));
 }
 
 void IntegersAspect::setDefaultValue(const QList<int> &value)
 {
-    BaseAspect::setDefaultValue(Utils::transform(value, &QVariant::fromValue<int>));
+    BaseAspect::setDefaultValue(transform(value, &QVariant::fromValue<int>));
 }
 
 
@@ -2252,7 +2252,7 @@ void AspectContainer::registerAspects(const AspectContainer &aspects)
 */
 BaseAspect *AspectContainer::aspect(Id id) const
 {
-    return Utils::findOrDefault(d->m_items, Utils::equal(&BaseAspect::id, id));
+    return findOrDefault(d->m_items, equal(&BaseAspect::id, id));
 }
 
 AspectContainer::const_iterator AspectContainer::begin() const

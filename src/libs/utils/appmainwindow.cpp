@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #include "appmainwindow.h"
-#include "theme/theme_p.h"
 
 #ifdef Q_OS_WIN
+#include "theme/theme_p.h"
 #include <windows.h>
 #endif
 

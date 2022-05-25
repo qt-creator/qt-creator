@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "utils_global.h"
+
 #include "fancylineedit.h"
 
 namespace Utils {

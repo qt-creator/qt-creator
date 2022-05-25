@@ -68,8 +68,8 @@ public:
     BaseAspect();
     ~BaseAspect() override;
 
-    Utils::Id id() const;
-    void setId(Utils::Id id);
+    Id id() const;
+    void setId(Id id);
 
     QVariant value() const;
     void setValue(const QVariant &value);
@@ -147,7 +147,7 @@ public:
 
         virtual ~Data() = default;
 
-        Utils::Id id() const { return m_id; }
+        Id id() const { return m_id; }
         ClassId classId() const { return m_classId; }
         Data *clone() const { return m_cloner(this); }
 
@@ -171,7 +171,7 @@ public:
 
     protected:
         friend class BaseAspect;
-        Utils::Id m_id;
+        Id m_id;
         ClassId m_classId = 0;
         std::function<Data *(const Data *)> m_cloner;
     };
@@ -349,7 +349,7 @@ public:
     struct Data : BaseAspect::Data
     {
         QString value;
-        Utils::FilePath filePath;
+        FilePath filePath;
     };
 
     void addToLayout(LayoutBuilder &builder) override;
@@ -370,15 +370,15 @@ public:
     void setDisplayFilter(const std::function<QString (const QString &)> &displayFilter);
     void setPlaceHolderText(const QString &placeHolderText);
     void setHistoryCompleter(const QString &historyCompleterKey);
-    void setExpectedKind(const Utils::PathChooser::Kind expectedKind);
-    void setEnvironmentChange(const Utils::EnvironmentChange &change);
-    void setBaseFileName(const Utils::FilePath &baseFileName);
+    void setExpectedKind(const PathChooser::Kind expectedKind);
+    void setEnvironmentChange(const EnvironmentChange &change);
+    void setBaseFileName(const FilePath &baseFileName);
     void setUndoRedoEnabled(bool readOnly);
     void setAcceptRichText(bool acceptRichText);
-    void setMacroExpanderProvider(const Utils::MacroExpanderProvider &expanderProvider);
+    void setMacroExpanderProvider(const MacroExpanderProvider &expanderProvider);
     void setUseGlobalMacroExpander();
     void setUseResetButton();
-    void setValidationFunction(const Utils::FancyLineEdit::ValidationFunction &validator);
+    void setValidationFunction(const FancyLineEdit::ValidationFunction &validator);
     void setOpenTerminalHandler(const std::function<void()> &openTerminal);
     void setAutoApplyOnEditingFinished(bool applyOnEditingFinished);
     void setElideMode(Qt::TextElideMode elideMode);
@@ -404,9 +404,9 @@ public:
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
-    Utils::FilePath filePath() const;
-    void setFilePath(const Utils::FilePath &value);
-    void setDefaultFilePath(const Utils::FilePath &value);
+    FilePath filePath() const;
+    void setFilePath(const FilePath &value);
+    void setDefaultFilePath(const FilePath &value);
 
     PathChooser *pathChooser() const; // Avoid to use.
 
@@ -562,12 +562,12 @@ class QTCREATOR_UTILS_EXPORT TextDisplay : public BaseAspect
 
 public:
     TextDisplay(const QString &message = {},
-                Utils::InfoLabel::InfoType type = Utils::InfoLabel::None);
+                InfoLabel::InfoType type = InfoLabel::None);
     ~TextDisplay() override;
 
     void addToLayout(LayoutBuilder &builder) override;
 
-    void setIconType(Utils::InfoLabel::InfoType t);
+    void setIconType(InfoLabel::InfoType t);
     void setText(const QString &message);
 
 private:
@@ -579,8 +579,8 @@ class QTCREATOR_UTILS_EXPORT AspectContainerData
 public:
     AspectContainerData() = default;
 
-    const BaseAspect::Data *aspect(Utils::Id instanceId) const;
-    const BaseAspect::Data *aspect(Utils::BaseAspect::Data::ClassId classId) const;
+    const BaseAspect::Data *aspect(Id instanceId) const;
+    const BaseAspect::Data *aspect(BaseAspect::Data::ClassId classId) const;
 
     void append(const BaseAspect::Data::Ptr &data);
 
@@ -643,9 +643,9 @@ public:
         return nullptr;
     }
 
-    BaseAspect *aspect(Utils::Id id) const;
+    BaseAspect *aspect(Id id) const;
 
-    template <typename T> T *aspect(Utils::Id id) const
+    template <typename T> T *aspect(Id id) const
     {
         return qobject_cast<T*>(aspect(id));
     }

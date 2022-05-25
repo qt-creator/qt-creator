@@ -25,7 +25,7 @@
 
 #include "classnamevalidatinglineedit.h"
 
-#include <utils/qtcassert.h>
+#include "qtcassert.h"
 
 #include <QRegularExpression>
 

@@ -25,7 +25,7 @@
 
 #include "environmentmodel.h"
 
-#include <utils/environment.h>
+#include "environment.h"
 
 namespace Utils {
 const Environment &EnvironmentModel::baseEnvironment() const

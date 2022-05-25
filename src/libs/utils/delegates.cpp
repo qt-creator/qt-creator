@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "delegates.h"
+
 #include "completinglineedit.h"
 
 #include <QPainter>

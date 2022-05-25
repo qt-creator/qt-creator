@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "detailswidget.h"
+
 #include "detailsbutton.h"
 #include "hostosinfo.h"
 #include "theme/theme.h"

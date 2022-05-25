@@ -26,7 +26,7 @@
 #include "filesearch.h"
 
 #include "algorithm.h"
-#include "fileutils.h"
+#include "filepath.h"
 #include "mapreduce.h"
 #include "qtcassert.h"
 #include "stringutils.h"

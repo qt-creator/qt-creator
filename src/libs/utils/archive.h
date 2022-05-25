@@ -53,8 +53,8 @@ signals:
     void finished(bool success);
 
 private:
-    Utils::CommandLine m_commandLine;
-    Utils::FilePath m_workingDirectory;
+    CommandLine m_commandLine;
+    FilePath m_workingDirectory;
     std::unique_ptr<QtcProcess> m_process;
 };
 

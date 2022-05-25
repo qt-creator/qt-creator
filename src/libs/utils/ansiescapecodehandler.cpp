@@ -24,7 +24,8 @@
 ****************************************************************************/
 
 #include "ansiescapecodehandler.h"
-#include <utils/qtcassert.h>
+
+#include "qtcassert.h"
 
 namespace Utils {
 

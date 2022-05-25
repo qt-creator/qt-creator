@@ -25,12 +25,11 @@
 
 #include "basetreeview.h"
 
+#include "algorithm.h"
 #include "progressindicator.h"
+#include "qtcassert.h"
 #include "qtcsettings.h"
 #include "treemodel.h"
-
-#include <utils/algorithm.h>
-#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QFontMetrics>
@@ -638,7 +637,7 @@ ItemViewEvent::ItemViewEvent(QEvent *ev, QAbstractItemView *view)
     };
 
     m_sourceModelIndex = fixIndex(m_index);
-    m_selectedRows = Utils::transform(m_selectedRows, fixIndex);
+    m_selectedRows = transform(m_selectedRows, fixIndex);
 }
 
 QModelIndexList ItemViewEvent::currentOrSelectedRows() const

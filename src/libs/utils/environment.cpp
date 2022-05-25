@@ -29,11 +29,9 @@
 #include "fileutils.h"
 #include "qtcassert.h"
 
-#include <QDebug>
 #include <QDir>
 #include <QProcessEnvironment>
 #include <QSet>
-#include <QCoreApplication>
 
 namespace Utils {
 

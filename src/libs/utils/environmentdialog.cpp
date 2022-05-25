@@ -25,13 +25,7 @@
 
 #include "environmentdialog.h"
 
-#include <utils/environment.h>
-#include <utils/hostosinfo.h>
-
-#include <QVBoxLayout>
-#include <QDialogButtonBox>
-#include <QPlainTextEdit>
-#include <QLabel>
+#include "environment.h"
 
 namespace Utils {
 

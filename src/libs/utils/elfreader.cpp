@@ -24,10 +24,10 @@
 ****************************************************************************/
 
 #include "elfreader.h"
+
 #include "qtcassert.h"
 
 #include <QDir>
-#include <QDebug>
 #include <QtEndian>
 
 #include <new> // std::bad_alloc

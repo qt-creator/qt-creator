@@ -85,7 +85,7 @@ QTCREATOR_UTILS_EXPORT void writeBeginQtVersionCheck(QTextStream &str)
 static void qtSection(const QStringList &qtIncludes, QTextStream &str)
 {
     QStringList sorted = qtIncludes;
-    Utils::sort(sorted);
+    sort(sorted);
     for (const QString &inc : qAsConst(sorted)) {
         if (!inc.isEmpty())
             str << QStringLiteral("#include <%1>\n").arg(inc);
@@ -105,8 +105,8 @@ void writeQtIncludeSection(const QStringList &qt4,
     else
         trans = [](const QString &i) { return i.mid(i.indexOf(QLatin1Char('/')) + 1); };
 
-    QSet<QString> qt4Only = Utils::transform<QSet>(qt4, trans);
-    QSet<QString> qt5Only = Utils::transform<QSet>(qt5, trans);
+    QSet<QString> qt4Only = transform<QSet>(qt4, trans);
+    QSet<QString> qt5Only = transform<QSet>(qt5, trans);
 
     if (addQtVersionCheck) {
         QSet<QString> common = qt4Only;
@@ -121,23 +121,23 @@ void writeQtIncludeSection(const QStringList &qt4,
         qt4Only.subtract(common);
         qt5Only.subtract(common);
 
-        qtSection(Utils::toList(common), str);
+        qtSection(toList(common), str);
 
         if (!qt4Only.isEmpty() || !qt5Only.isEmpty()) {
             if (addQtVersionCheck)
                 writeBeginQtVersionCheck(str);
-            qtSection(Utils::toList(qt5Only), str);
+            qtSection(toList(qt5Only), str);
             if (addQtVersionCheck)
                 str << QLatin1String("#else\n");
-            qtSection(Utils::toList(qt4Only), str);
+            qtSection(toList(qt4Only), str);
             if (addQtVersionCheck)
                 str << QLatin1String("#endif\n");
         }
     } else {
         if (!qt5Only.isEmpty()) // default to Qt5
-            qtSection(Utils::toList(qt5Only), str);
+            qtSection(toList(qt5Only), str);
         else
-            qtSection(Utils::toList(qt4Only), str);
+            qtSection(toList(qt4Only), str);
     }
 }
 
