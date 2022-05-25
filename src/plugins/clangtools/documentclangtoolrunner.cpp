@@ -26,7 +26,6 @@
 #include "documentclangtoolrunner.h"
 
 #include "clangfileinfo.h"
-#include "clangfixitsrefactoringchanges.h"
 #include "clangtidyclazyrunner.h"
 #include "clangtoolruncontrol.h"
 #include "clangtoolsconstants.h"
@@ -39,13 +38,18 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+
 #include <cppeditor/cppmodelmanager.h>
+
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildtargettype.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
+
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 

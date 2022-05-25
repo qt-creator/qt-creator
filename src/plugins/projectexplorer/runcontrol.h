@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "buildconfiguration.h"
 #include "devicesupport/idevicefwd.h"
 #include "runconfiguration.h"
 
@@ -233,7 +232,6 @@ public:
     }
 
     QString buildKey() const;
-    BuildConfiguration::BuildType buildType() const;
     Utils::FilePath buildDirectory() const;
     Utils::Environment buildEnvironment() const;
 

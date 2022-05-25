@@ -28,11 +28,11 @@
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidmanager.h"
-#include "androidrunconfiguration.h"
 
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
