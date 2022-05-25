@@ -145,7 +145,8 @@ QTCREATOR_UTILS_EXPORT bool is64BitWindowsSystem()
     SYSTEM_INFO systemInfo;
     GetNativeSystemInfo(&systemInfo);
     return systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64
-            || systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64;
+            || systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64
+            || systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_ARM64;
 #else
     return false;
 #endif
