@@ -27,6 +27,7 @@
 
 #include "pyside.h"
 #include "pysidebuildconfiguration.h"
+#include "pysideuicextracompiler.h"
 #include "pythonconstants.h"
 #include "pythonlanguageclient.h"
 #include "pythonproject.h"
@@ -137,13 +138,6 @@ private:
 
 ////////////////////////////////////////////////////////////////
 
-class PythonRunConfiguration : public RunConfiguration
-{
-public:
-    PythonRunConfiguration(Target *target, Id id);
-    void currentInterpreterChanged();
-};
-
 PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
@@ -202,6 +196,13 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     });
 
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+    connect(target, &Target::buildSystemUpdated, this, &PythonRunConfiguration::updateExtraCompilers);
+    currentInterpreterChanged();
+}
+
+PythonRunConfiguration::~PythonRunConfiguration()
+{
+    qDeleteAll(m_extraCompilers);
 }
 
 void PythonRunConfiguration::currentInterpreterChanged()
@@ -210,6 +211,7 @@ void PythonRunConfiguration::currentInterpreterChanged()
     BuildStepList *buildSteps = target()->activeBuildConfiguration()->buildSteps();
 
     Utils::FilePath pySideProjectPath;
+    m_pySideUicPath.clear();
     const PipPackage pySide6Package("PySide6");
     const PipPackageInfo info = pySide6Package.info(python);
 
@@ -217,9 +219,17 @@ void PythonRunConfiguration::currentInterpreterChanged()
         if (file.fileName() == HostOsInfo::withExecutableSuffix("pyside6-project")) {
             pySideProjectPath = info.location.resolvePath(file);
             pySideProjectPath = pySideProjectPath.cleanPath();
-            break;
+            if (!m_pySideUicPath.isEmpty())
+                break;
+        } else if (file.fileName() == HostOsInfo::withExecutableSuffix("pyside6-uic")) {
+            m_pySideUicPath = info.location.resolvePath(file);
+            m_pySideUicPath = m_pySideUicPath.cleanPath();
+            if (!pySideProjectPath.isEmpty())
+                break;
         }
     }
+
+    updateExtraCompilers();
 
     if (auto pySideBuildStep = buildSteps->firstOfType<PySideBuildStep>())
         pySideBuildStep->updatePySideProjectPath(pySideProjectPath);
@@ -232,6 +242,48 @@ void PythonRunConfiguration::currentInterpreterChanged()
             }
         }
     }
+}
+
+QList<PySideUicExtraCompiler *> PythonRunConfiguration::extraCompilers() const
+{
+    return m_extraCompilers;
+}
+
+void PythonRunConfiguration::updateExtraCompilers()
+{
+    QList<PySideUicExtraCompiler *> oldCompilers = m_extraCompilers;
+    m_extraCompilers.clear();
+
+    if (m_pySideUicPath.isExecutableFile()) {
+        auto uiMatcher = [](const ProjectExplorer::Node *node) {
+            if (const ProjectExplorer::FileNode *fileNode = node->asFileNode())
+                return fileNode->fileType() == ProjectExplorer::FileType::Form;
+            return false;
+        };
+        const FilePaths uiFiles = project()->files(uiMatcher);
+        for (const FilePath &uiFile : uiFiles) {
+            Utils::FilePath generated = uiFile.parentDir();
+            generated = generated.pathAppended("/ui_" + uiFile.baseName() + ".py");
+            int index = Utils::indexOf(oldCompilers, [&](PySideUicExtraCompiler *oldCompiler) {
+                return oldCompiler->pySideUicPath() == m_pySideUicPath
+                       && oldCompiler->project() == project() && oldCompiler->source() == uiFile
+                       && oldCompiler->targets() == Utils::FilePaths{generated};
+            });
+            if (index < 0) {
+                m_extraCompilers << new PySideUicExtraCompiler(m_pySideUicPath,
+                                                               project(),
+                                                               uiFile,
+                                                               {generated},
+                                                               this);
+            } else {
+                m_extraCompilers << oldCompilers.takeAt(index);
+            }
+        }
+    }
+    const FilePath python = aspect<InterpreterAspect>()->currentInterpreter().command;
+    if (auto client = PyLSClient::clientForPython(python))
+        client->updateExtraCompilers(project(), m_extraCompilers);
+    qDeleteAll(oldCompilers);
 }
 
 PythonRunConfigurationFactory::PythonRunConfigurationFactory()

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,40 +25,28 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runcontrol.h>
+#include <projectexplorer/extracompiler.h>
 
 namespace Python {
 namespace Internal {
 
-class PySideUicExtraCompiler;
-
-class PythonRunConfiguration : public ProjectExplorer::RunConfiguration
+class PySideUicExtraCompiler : public ProjectExplorer::ProcessExtraCompiler
 {
-    Q_OBJECT
 public:
-    PythonRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
-    ~PythonRunConfiguration() override;
-    void currentInterpreterChanged();
-    QList<PySideUicExtraCompiler *> extraCompilers() const;
+    PySideUicExtraCompiler(const Utils::FilePath &pySideUic,
+                           const ProjectExplorer::Project *project,
+                           const Utils::FilePath &source,
+                           const Utils::FilePaths &targets,
+                           QObject *parent = nullptr);
+
+    Utils::FilePath pySideUicPath() const;
 
 private:
-    void updateExtraCompilers();
-    Utils::FilePath m_pySideUicPath;
+    Utils::FilePath command() const override;
+    ProjectExplorer::FileNameToContentsHash handleProcessFinished(
+        Utils::QtcProcess *process) override;
 
-    QList<PySideUicExtraCompiler *> m_extraCompilers;
-};
-
-class PythonRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
-{
-public:
-    PythonRunConfigurationFactory();
-};
-
-class PythonOutputFormatterFactory : public ProjectExplorer::OutputFormatterFactory
-{
-public:
-    PythonOutputFormatterFactory();
+    Utils::FilePath m_pySideUic;
 };
 
 } // namespace Internal

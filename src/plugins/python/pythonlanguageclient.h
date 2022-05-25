@@ -26,18 +26,46 @@
 #pragma once
 
 #include <utils/fileutils.h>
+#include <utils/temporarydirectory.h>
 
 #include <languageclient/client.h>
 #include <languageclient/languageclientsettings.h>
 
 namespace Core { class IDocument; }
-namespace LanguageClient { class Client; }
+namespace ProjectExplorer { class ExtraCompiler; }
 namespace TextEditor { class TextDocument; }
 
 namespace Python {
 namespace Internal {
 
-struct PythonLanguageServerState;
+class PySideUicExtraCompiler;
+class PythonLanguageServerState;
+
+class PyLSClient : public LanguageClient::Client
+{
+    Q_OBJECT
+public:
+    explicit PyLSClient(LanguageClient::BaseClientInterface *interface);
+
+    void openDocument(TextEditor::TextDocument *document) override;
+    void projectClosed(ProjectExplorer::Project *project) override;
+
+    void updateExtraCompilers(ProjectExplorer::Project *project,
+                              const QList<PySideUicExtraCompiler *> &extraCompilers);
+
+    static PyLSClient *clientForPython(const Utils::FilePath &python);
+
+private:
+    void updateExtraCompilerContents(ProjectExplorer::ExtraCompiler *compiler,
+                                     const Utils::FilePath &file);
+    void closeExtraDoc(const Utils::FilePath &file);
+    void closeExtraCompiler(ProjectExplorer::ExtraCompiler *compiler);
+
+    Utils::FilePaths m_extraWorkspaceDirs;
+    Utils::FilePath m_extraCompilerOutputDir;
+
+    QHash<ProjectExplorer::Project *, QList<ProjectExplorer::ExtraCompiler *>> m_extraCompilers;
+};
 
 class PyLSSettings : public LanguageClient::StdIOSettings
 {
@@ -56,6 +84,9 @@ public:
     LanguageClient::Client *createClient(LanguageClient::BaseClientInterface *interface) const final;
 
 private:
+    LanguageClient::BaseClientInterface *createInterfaceWithProject(
+        ProjectExplorer::Project *project) const override;
+
     static QJsonObject defaultConfiguration();
 
     QString m_interpreterId;

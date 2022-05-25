@@ -242,7 +242,6 @@ static FileType getFileType(const FilePath &f)
 void PythonBuildSystem::triggerParsing()
 {
     ParseGuard guard = guardParsingRun();
-
     parse();
 
     const QDir baseDir(projectDirectory().toString());
