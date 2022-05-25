@@ -15,6 +15,8 @@ add_qtc_plugin(QmlProjectManager
     cmakegen/generatecmakelists.cpp cmakegen/generatecmakelists.h
     cmakegen/generatecmakelistsconstants.h
     cmakegen/boilerplate.qrc
+    qmlprojectgen/qmlprojectgenerator.cpp qmlprojectgen/qmlprojectgenerator.h
+    qmlprojectgen/templates.qrc
     projectfilecontenttools.cpp projectfilecontenttools.h
     qdslandingpage.cpp qdslandingpage.h
     qdslandingpagetheme.cpp qdslandingpagetheme.h

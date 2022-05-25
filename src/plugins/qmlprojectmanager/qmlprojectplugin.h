@@ -66,6 +66,7 @@ private:
     void initializeQmlLandingPage();
     void displayQmlLandingPage();
     void hideQmlLandingPage();
+    void updateQmlLandingPageProjectInfo(const Utils::FilePath &projectFile);
 
     class QmlProjectPluginPrivate *d = nullptr;
 };
