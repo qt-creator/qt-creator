@@ -76,7 +76,6 @@ public:
     void setInferior(const ProjectExplorer::Runnable &runnable);
     void setInferiorExecutable(const Utils::FilePath &executable);
     void setInferiorEnvironment(const Utils::Environment &env); // Used by GammaRay plugin
-    void setInferiorDevice(ProjectExplorer::IDeviceConstPtr device); // Used by cdbengine
     void setRunControlName(const QString &name);
     void setStartMessage(const QString &msg);
     void addQmlServerInferiorCommandLineArgumentIfNeeded();

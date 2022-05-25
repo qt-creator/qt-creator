@@ -1672,7 +1672,6 @@ void HeobData::processFinished()
             auto debugger = new DebuggerRunTool(m_runControl);
             debugger->setAttachPid(ProcessHandle(m_data[1]));
             debugger->setRunControlName(tr("Process %1").arg(m_data[1]));
-            debugger->setInferiorDevice(DeviceKitAspect::device(m_kit));
             debugger->setStartMode(AttachToLocalProcess);
             debugger->setCloseMode(DetachAtClose);
             debugger->setContinueAfterAttach(true);
