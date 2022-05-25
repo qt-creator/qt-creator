@@ -3246,13 +3246,13 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
     dd->doUpdateRunActions();
 }
 
-QList<QPair<Runnable, ProcessHandle>> ProjectExplorerPlugin::runningRunControlProcesses()
+QList<QPair<CommandLine, ProcessHandle>> ProjectExplorerPlugin::runningRunControlProcesses()
 {
-    QList<QPair<Runnable, ProcessHandle>> processes;
+    QList<QPair<CommandLine, ProcessHandle>> processes;
     const QList<RunControl *> runControls = allRunControls();
     for (RunControl *rc : runControls) {
         if (rc->isRunning())
-            processes << qMakePair(rc->runnable(), rc->applicationProcessHandle());
+            processes << qMakePair(rc->commandLine(), rc->applicationProcessHandle());
     }
     return processes;
 }

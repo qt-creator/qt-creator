@@ -164,7 +164,7 @@ public:
     static void runStartupProject(Utils::Id runMode, bool forceSkipDeploy = false);
     static void runRunConfiguration(RunConfiguration *rc, Utils::Id runMode,
                              const bool forceSkipDeploy = false);
-    static QList<QPair<Runnable, Utils::ProcessHandle>> runningRunControlProcesses();
+    static QList<QPair<Utils::CommandLine, Utils::ProcessHandle>> runningRunControlProcesses();
     static QList<RunControl *> allRunControls();
 
     static void addExistingFiles(FolderNode *folderNode, const Utils::FilePaths &filePaths);
