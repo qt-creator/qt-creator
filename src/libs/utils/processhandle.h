@@ -41,16 +41,16 @@ public:
     void setPid(qint64 pid);
     qint64 pid() const;
 
-    bool equals(const ProcessHandle &) const;
-
     bool activate();
 
 private:
+    bool equals(const ProcessHandle &) const;
+
+    friend bool operator==(const ProcessHandle &p, const ProcessHandle &q) { return p.equals(q); }
+    friend bool operator!=(const ProcessHandle &p, const ProcessHandle &q) { return !p.equals(q); }
+
     qint64 m_pid;
 };
-
-inline bool operator==(const ProcessHandle &p1, const ProcessHandle &p2) { return p1.equals(p2); }
-inline bool operator!=(const ProcessHandle &p1, const ProcessHandle &p2) { return !p1.equals(p2); }
 
 } // Utils
 
