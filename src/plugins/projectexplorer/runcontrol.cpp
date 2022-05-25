@@ -1510,7 +1510,6 @@ void SimpleTargetRunnerPrivate::forwardStarted()
 void SimpleTargetRunner::start()
 {
     d->m_runnable = runControl()->runnable();
-    d->m_runnable.device = runControl()->device();
 
     if (d->m_startModifier)
         d->m_startModifier();
@@ -1573,7 +1572,6 @@ void SimpleTargetRunner::setWorkingDirectory(const FilePath &workingDirectory)
 
 void SimpleTargetRunner::forceRunOnHost()
 {
-    d->m_runnable.device = {};
     const FilePath executable = d->m_runnable.command.executable();
     if (executable.needsDevice()) {
         QTC_CHECK(false);

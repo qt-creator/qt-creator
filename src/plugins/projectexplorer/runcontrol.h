@@ -67,7 +67,6 @@ public:
     Utils::CommandLine command;
     Utils::FilePath workingDirectory;
     Utils::Environment environment;
-    IDeviceConstPtr device; // Override the kit's device. Keep unset by default.
     QVariantHash extraData;
 };
 
