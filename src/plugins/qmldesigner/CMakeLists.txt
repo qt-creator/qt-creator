@@ -316,6 +316,23 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/materialeditor
+  SOURCES
+    materialeditorcontextobject.cpp materialeditorcontextobject.h
+    materialeditorqmlbackend.cpp materialeditorqmlbackend.h
+    materialeditortransaction.cpp materialeditortransaction.h
+    materialeditorview.cpp materialeditorview.h
+)
+
+extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/materialbrowser
+  SOURCES
+    materialbrowserview.cpp materialbrowserview.h
+    materialbrowserwidget.cpp materialbrowserwidget.h
+    materialbrowsermodel.cpp materialbrowsermodel.h
+)
+
+extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components
   SOURCES resources/resources_qmldesigner_components.qrc
 )

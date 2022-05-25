@@ -79,14 +79,14 @@ public:
     void enableWidgets();
     void disableWidgets();
 
-    CrumbleBar* crumbleBar() const;
-    void showInternalTextEditor();
+    CrumbleBar *crumbleBar() const;
+    void showDockWidget(const QString &objectName, bool focus = false);
 
     void determineWorkspaceToRestoreAtStartup();
 
     static QWidget *createProjectExplorerWidget(QWidget *parent);
 
-private: // functions
+private:
     enum InitializeStatus { NotInitialized, Initializing, Initialized };
 
     void toolBarOnGoBackClicked();
@@ -101,7 +101,6 @@ private: // functions
 
     void aboutToShowWorkspaces();
 
-private: // variables
     QPointer<QWidget> m_bottomSideBar;
     Core::EditorToolBar *m_toolBar;
     CrumbleBar *m_crumbleBar;

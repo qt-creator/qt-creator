@@ -42,10 +42,10 @@
 #include <abstractview.h>
 #include <invalididexception.h>
 #include <rewritingexception.h>
+#include <qmldesignerconstants.h>
 #include <qmlitemnode.h>
 #include <designeractionmanager.h>
 #include <import.h>
-
 #include <coreplugin/icore.h>
 
 #include <qmlprojectmanager/qmlproject.h>
@@ -339,7 +339,8 @@ QList<ModelNode> NavigatorTreeModel::filteredList(const NodeListProperty &proper
 
     if (filter) {
         list.append(Utils::filtered(nameFilteredList, [] (const ModelNode &arg) {
-            const bool value = QmlItemNode::isValidQmlItemNode(arg) || NodeHints::fromModelNode(arg).visibleInNavigator();
+            const bool value = (QmlItemNode::isValidQmlItemNode(arg) || NodeHints::fromModelNode(arg).visibleInNavigator())
+                               && arg.id() != Constants::MATERIAL_LIB_ID;
             return value;
         }));
     } else {
@@ -688,13 +689,20 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
             return;
 
         bool validContainer = false;
-        bool showMatToCompInfo = false;
+        ModelNode targetNode = targetProperty.parentModelNode();
+
+        // don't allow dropping materials on any node but Models
+        QString itemType = QString::fromLatin1(itemLibraryEntry.typeName());
+        if (itemType.startsWith("QtQuick3D.") && itemType.endsWith("Material")
+            && !targetNode.isSubclassOf("QtQuick3D.Model")) {
+            return;
+        }
+
         QmlObjectNode newQmlObjectNode;
         m_view->executeInTransaction("NavigatorTreeModel::handleItemLibraryItemDrop", [&] {
             newQmlObjectNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, QPointF(), targetProperty, false);
             ModelNode newModelNode = newQmlObjectNode.modelNode();
             if (newModelNode.isValid()) {
-                ModelNode targetNode = targetProperty.parentModelNode();
                 ChooseFromPropertyListDialog *dialog = ChooseFromPropertyListDialog::createIfNeeded(
                             targetNode, newModelNode, Core::ICore::dialogParent());
                 if (dialog) {
@@ -728,17 +736,35 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                     }
                     delete dialog;
                 }
+
+                if (newModelNode.isSubclassOf("QtQuick3D.View3D")) {
+                    const QList<ModelNode> models = newModelNode.subModelNodesOfType("QtQuick3D.Model");
+
+                    QTC_ASSERT(models.size() == 1, return);
+
+                    assignMaterialToModel(models.at(0));
+                } else if (newModelNode.isSubclassOf("QtQuick3D.Model")) {
+                    assignMaterialToModel(newModelNode);
+                }
+
+                // dropping a material on a model
                 if (newModelNode.isSubclassOf("QtQuick3D.Material")
-                    && targetProperty.parentModelNode().isSubclassOf("QtQuick3D.Node")
-                    && targetProperty.parentModelNode().isComponent()) {
-                    // Inserting materials under imported components is likely a mistake, so
-                    // notify user with a helpful messagebox that suggests the correct action.
-                    showMatToCompInfo = true;
+                    && targetNode.isSubclassOf("QtQuick3D.Model")) {
+                    // parent material to material library and assign it to target model
+                    ModelNode matLib = m_view->modelNodeForId(Constants::MATERIAL_LIB_ID);
+
+                    QTC_ASSERT(matLib.isValid(), return);
+
+                    VariantProperty objName = newModelNode.variantProperty("objectName");
+                    objName.setValue("New Material");
+                    BindingProperty matsProp = targetNode.bindingProperty("materials");
+                    matsProp.setExpression(newModelNode.id());
+                    matLib.defaultNodeListProperty().reparentHere(newModelNode);
+                    return;
                 }
 
                 if (!validContainer) {
-                    if (!showMatToCompInfo)
-                        validContainer = NodeHints::fromModelNode(targetProperty.parentModelNode()).canBeContainerFor(newModelNode);
+                    validContainer = NodeHints::fromModelNode(targetProperty.parentModelNode()).canBeContainerFor(newModelNode);
                     if (!validContainer)
                         newQmlObjectNode.destroy();
                 }
@@ -769,30 +795,6 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                     if (!QFile::copy(copyFile, targetFile))
                         qWarning() << QStringLiteral("Copying extra file '%1' failed.").arg(copyFile);
                 }
-            }
-        }
-
-        if (showMatToCompInfo) {
-            QMessageBox::StandardButton selectedButton = QMessageBox::information(
-                        Core::ICore::dialogParent(),
-                        QCoreApplication::translate("NavigatorTreeModel", "Warning"),
-                        QCoreApplication::translate(
-                            "NavigatorTreeModel",
-                            "Inserting materials under imported 3D component nodes is not supported. "
-                            "Materials used in imported 3D components have to be modified inside the component itself.\n\n"
-                            "Would you like to go into component \"%1\"?")
-                        .arg(targetProperty.parentModelNode().id()),
-                        QMessageBox::Yes | QMessageBox::No,
-                        QMessageBox::No);
-            if (selectedButton == QMessageBox::Yes) {
-                qint32 internalId = targetProperty.parentModelNode().internalId();
-                QTimer::singleShot(0, this, [internalId, this]() {
-                    if (!m_view.isNull() && m_view->model()) {
-                        ModelNode node = m_view->modelNodeForInternalId(internalId);
-                        if (node.isValid() && node.isComponent())
-                            DocumentManager::goIntoComponent(node);
-                    }
-                });
             }
         }
     }
@@ -1090,6 +1092,40 @@ ModelNode NavigatorTreeModel::createTextureNode(const NodeAbstractProperty &targ
         return newModelNode;
     }
     return {};
+}
+
+// Add a material to a Quick3D.Model node
+void NavigatorTreeModel::assignMaterialToModel(const ModelNode &node)
+{
+    ModelNode matLib = m_view->modelNodeForId(Constants::MATERIAL_LIB_ID);
+
+    QTC_ASSERT(matLib.isValid(), return);
+    QTC_ASSERT(node.isSubclassOf("QtQuick3D.Model"), return);
+
+    const QList<ModelNode> materials = matLib.directSubModelNodes();
+    ModelNode material;
+    if (materials.size() > 0) {
+        for (const ModelNode &mat : materials) {
+            if (mat.isSubclassOf("QtQuick3D.Material")) {
+                material = mat;
+                break;
+            }
+        }
+    }
+
+    // if no valid material, create a new default material
+    if (!material.isValid()) {
+        NodeMetaInfo metaInfo = m_view->model()->metaInfo("QtQuick3D.DefaultMaterial");
+        material = m_view->createModelNode("QtQuick3D.DefaultMaterial", metaInfo.majorVersion(),
+                                                                        metaInfo.minorVersion());
+        VariantProperty matNameProp = material.variantProperty("objectName");
+        matNameProp.setValue("New Material");
+        material.validId();
+        matLib.defaultNodeListProperty().reparentHere(material);
+    }
+
+    BindingProperty modelMatsProp = node.bindingProperty("materials");
+    modelMatsProp.setExpression(material.id());
 }
 
 TypeName propertyType(const NodeAbstractProperty &property)

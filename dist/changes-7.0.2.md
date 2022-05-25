@@ -25,6 +25,7 @@ Editing
 
 ### C++
 
+* Updated to LLVM 14.0.3
 * Fixed wrong `__cplusplus` value for older GCC versions
 * ClangFormat
     * Fixed disappearing settings drop down (QTCREATORBUG-26948)
@@ -56,6 +57,7 @@ Platforms
 
 ### macOS
 
+* Fixed that `arm_neon.h` could not be found by code model (QTCREATORBUG-27455)
 * Fixed compilier identification of `cc` and `c++` (QTCREATORBUG-27523)
 
 Credits for these changes go to:

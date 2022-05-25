@@ -1506,6 +1506,17 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &singleSelection,
                           &singleSelection));
 
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          editMaterialCommandId,
+                          editMaterialDisplayName,
+                          {},
+                          rootCategory,
+                          QKeySequence(),
+                          44,
+                          &editMaterial,
+                          &modelHasMaterial,
+                          &isModel));
+
     addDesignerAction(new ModelNodeContextMenuAction(mergeTemplateCommandId,
                                                      mergeTemplateDisplayName,
                                                      {},

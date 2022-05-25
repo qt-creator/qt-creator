@@ -42,6 +42,8 @@
 #include <navigatorview.h>
 #include <nodeinstanceview.h>
 #include <propertyeditorview.h>
+#include <materialeditorview.h>
+#include <materialbrowserview.h>
 #include <rewriterview.h>
 #include <stateseditorview.h>
 #include <texteditorview.h>
@@ -76,6 +78,8 @@ public:
     ItemLibraryView itemLibraryView;
     NavigatorView navigatorView;
     PropertyEditorView propertyEditorView;
+    MaterialEditorView materialEditorView;
+    MaterialBrowserView materialBrowserView;
     StatesEditorView statesEditorView;
 
     std::vector<std::unique_ptr<AbstractView>> additionalViews;
@@ -92,7 +96,7 @@ ViewManager::ViewManager()
     d->formEditorView.setGotoErrorCallback([this](int line, int column) {
         d->textEditorView.gotoCursorPosition(line, column);
         if (Internal::DesignModeWidget *designModeWidget = QmlDesignerPlugin::instance()->mainWidget())
-            designModeWidget->showInternalTextEditor();
+            designModeWidget->showDockWidget("TextEditor");
     });
 }
 
@@ -183,6 +187,8 @@ QList<AbstractView *> ViewManager::standardViews() const
                                   &d->itemLibraryView,
                                   &d->navigatorView,
                                   &d->propertyEditorView,
+                                  &d->materialEditorView,
+                                  &d->materialBrowserView,
                                   &d->statesEditorView,
                                   &d->designerActionManagerView};
 
@@ -316,6 +322,8 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     widgetInfoList.append(d->itemLibraryView.widgetInfo());
     widgetInfoList.append(d->navigatorView.widgetInfo());
     widgetInfoList.append(d->propertyEditorView.widgetInfo());
+    widgetInfoList.append(d->materialEditorView.widgetInfo());
+    widgetInfoList.append(d->materialBrowserView.widgetInfo());
     widgetInfoList.append(d->statesEditorView.widgetInfo());
     if (d->debugView.hasWidget())
         widgetInfoList.append(d->debugView.widgetInfo());

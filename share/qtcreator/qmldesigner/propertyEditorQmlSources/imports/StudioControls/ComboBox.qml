@@ -39,6 +39,7 @@ T.ComboBox {
                          && myComboBox.enabled
     property bool edit: myComboBox.activeFocus && myComboBox.editable
     property bool open: comboBoxPopup.opened
+    property bool hasActiveDrag: false
 
     property bool dirty: false // user modification flag
 
@@ -251,7 +252,8 @@ T.ComboBox {
             PropertyChanges {
                 target: comboBoxBackground
                 color: StudioTheme.Values.themeControlBackground
-                border.color: StudioTheme.Values.themeControlOutline
+                border.color: hasActiveDrag ? StudioTheme.Values.themeInteraction
+                                            : StudioTheme.Values.themeControlOutline
             }
         },
         // This state is intended for ComboBoxes which aren't editable, but have focus e.g. via

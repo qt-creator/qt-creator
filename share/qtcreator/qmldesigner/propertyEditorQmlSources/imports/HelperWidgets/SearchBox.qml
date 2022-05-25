@@ -26,8 +26,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuickDesignerTheme 1.0
-import HelperWidgets 2.0 as HelperWidgets
-import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
 Item {
@@ -35,7 +33,7 @@ Item {
 
     property alias text: searchFilterText.text
 
-    function clearSearchFilter()
+    function clear()
     {
         searchFilterText.text = "";
     }
@@ -87,7 +85,7 @@ Item {
         Label {
             text: StudioTheme.Constants.search
             font.family: StudioTheme.Constants.iconFont.family
-            font.pixelSize: 16
+            font.pixelSize: StudioTheme.Values.myIconFontSize
             anchors.left: parent.left
             anchors.leftMargin: 7
             anchors.verticalCenter: parent.verticalCenter

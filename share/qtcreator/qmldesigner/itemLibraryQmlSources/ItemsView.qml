@@ -91,6 +91,12 @@ Item {
         itemContextMenu.close()
     }
 
+    // Called from C++
+    function clearSearchFilter()
+    {
+        searchBox.clear();
+    }
+
     // Called also from C++
     function switchToComponentsView()
     {
@@ -218,12 +224,15 @@ Item {
             SearchBox {
                 id: searchBox
 
-                width: parent.width - addAssetButton.width - 5
+                width: parent.width - addModuleButton.width - 5
             }
 
-            PlusButton {
-                id: addAssetButton
+            IconButton {
+                id: addModuleButton
+                anchors.verticalCenter: parent.verticalCenter
                 tooltip: qsTr("Add a module.")
+                icon: StudioTheme.Constants.plus
+                buttonSize: parent.height
 
                 onClicked: isAddModuleView = true
             }

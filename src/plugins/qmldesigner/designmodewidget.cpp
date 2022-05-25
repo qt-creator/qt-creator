@@ -552,11 +552,15 @@ CrumbleBar *DesignModeWidget::crumbleBar() const
     return m_crumbleBar;
 }
 
-void DesignModeWidget::showInternalTextEditor()
+void DesignModeWidget::showDockWidget(const QString &objectName, bool focus)
 {
-    auto dockWidget = m_dockManager->findDockWidget("TextEditor");
-    if (dockWidget)
+    auto dockWidget = m_dockManager->findDockWidget(objectName);
+    if (dockWidget) {
         dockWidget->toggleView(true);
+
+        if (focus)
+            dockWidget->setFocus();
+    }
 }
 
 void DesignModeWidget::contextHelp(const Core::IContext::HelpCallback &callback) const

@@ -13,6 +13,7 @@
         <file>mockfiles/images/directional@2x.png</file>
         <file>mockfiles/images/point.png</file>
         <file>mockfiles/images/point@2x.png</file>
+        <file>mockfiles/images/floor_tex.png</file>
         <file>mockfiles/images/spot.png</file>
         <file>mockfiles/images/spot@2x.png</file>
         <file>mockfiles/qt5/AdjustableArrow.qml</file>

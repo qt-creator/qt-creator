@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "modelnodeoperations.h"
+#include "designmodewidget.h"
 #include "modelnodecontextmenu_helper.h"
 #include "addimagesdialog.h"
 #include "layoutingridlayout.h"
@@ -793,6 +794,37 @@ void goImplementation(const SelectionContext &selectionState)
 void addNewSignalHandler(const SelectionContext &selectionState)
 {
     addSignalHandlerOrGotoImplementation(selectionState, true);
+}
+
+// Open a model's material in the material editor
+void editMaterial(const SelectionContext &selectionContext)
+{
+    ModelNode modelNode = selectionContext.currentSingleSelectedNode();
+    QTC_ASSERT(modelNode.isValid(), return);
+
+    BindingProperty prop = modelNode.bindingProperty("materials");
+    if (!prop.exists())
+        return;
+
+    AbstractView *view = selectionContext.view();
+
+    ModelNode material;
+
+    if (view->hasId(prop.expression())) {
+        material = view->modelNodeForId(prop.expression());
+    } else {
+        QList<ModelNode> materials = prop.resolveToModelNodeList();
+
+        if (materials.size() > 0)
+            material = materials.first();
+    }
+
+    if (material.isValid()) {
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor");
+
+        // to MaterialEditor and MaterialBrowser...
+        view->emitCustomNotification("selected_material_changed", {material});
+    }
 }
 
 void addItemToStackedContainer(const SelectionContext &selectionContext)
