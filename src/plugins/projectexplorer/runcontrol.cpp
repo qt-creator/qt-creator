@@ -1906,11 +1906,6 @@ void RunWorker::stop()
     reportStopped();
 }
 
-QString Runnable::displayName() const
-{
-    return command.executable().toString();
-}
-
 // OutputFormatterFactory
 
 static QList<OutputFormatterFactory *> g_outputFormatterFactories;

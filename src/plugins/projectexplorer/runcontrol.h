@@ -73,9 +73,6 @@ public:
     Utils::Environment environment;
     IDeviceConstPtr device; // Override the kit's device. Keep unset by default.
     QVariantHash extraData;
-
-    // FIXME: Not necessarily a display name
-    QString displayName() const;
 };
 
 class PROJECTEXPLORER_EXPORT RunWorker : public QObject
