@@ -243,12 +243,18 @@ public:
     Utils::Id runMode() const;
 
     const Runnable &runnable() const;
-    void setRunnable(const Runnable &runnable);
 
     const Utils::CommandLine &commandLine() const;
+    void setCommandLine(const Utils::CommandLine &command);
+
     const Utils::FilePath &workingDirectory() const;
+    void setWorkingDirectory(const Utils::FilePath &workingDirectory);
+
     const Utils::Environment &environment() const;
+    void setEnvironment(const Utils::Environment &environment);
+
     const QVariantHash &extraData() const;
+    void setExtraData(const QVariantHash &extraData);
 
     static bool showPromptToStopDialog(const QString &title, const QString &text,
                                        const QString &stopButtonText = QString(),

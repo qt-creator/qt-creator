@@ -904,14 +904,14 @@ const Runnable &RunControl::runnable() const
     return d->runnable;
 }
 
-void RunControl::setRunnable(const Runnable &runnable)
-{
-    d->runnable = runnable;
-}
-
 const CommandLine &RunControl::commandLine() const
 {
     return d->runnable.command;
+}
+
+void RunControl::setCommandLine(const CommandLine &command)
+{
+    d->runnable.command = command;
 }
 
 const FilePath &RunControl::workingDirectory() const
@@ -919,14 +919,29 @@ const FilePath &RunControl::workingDirectory() const
     return d->runnable.workingDirectory;
 }
 
+void RunControl::setWorkingDirectory(const FilePath &workingDirectory)
+{
+    d->runnable.workingDirectory = workingDirectory;
+}
+
 const Environment &RunControl::environment() const
 {
     return d->runnable.environment;
 }
 
+void RunControl::setEnvironment(const Environment &environment)
+{
+    d->runnable.environment = environment;
+}
+
 const QVariantHash &RunControl::extraData() const
 {
     return d->runnable.extraData;
+}
+
+void RunControl::setExtraData(const QVariantHash &extraData)
+{
+    d->runnable.extraData = extraData;
 }
 
 QString RunControl::displayName() const

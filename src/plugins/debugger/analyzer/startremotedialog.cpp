@@ -129,15 +129,16 @@ void StartRemoteDialog::validate()
     d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(valid);
 }
 
-Runnable StartRemoteDialog::runnable() const
+CommandLine StartRemoteDialog::commandLine() const
 {
     const Kit *kit = d->kitChooser->currentKit();
     const FilePath filePath = DeviceKitAspect::deviceFilePath(kit, d->executable->text());
+    return {filePath, d->arguments->text(), CommandLine::Raw};
+}
 
-    Runnable r;
-    r.command = {filePath, d->arguments->text(), CommandLine::Raw};
-    r.workingDirectory = FilePath::fromString(d->workingDirectory->text());
-    return r;
+FilePath StartRemoteDialog::workingDirectory() const
+{
+    return FilePath::fromString(d->workingDirectory->text());
 }
 
 } // namespace Debugger

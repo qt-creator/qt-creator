@@ -704,12 +704,13 @@ MemcheckToolPrivate::MemcheckToolPrivate()
             return;
         TaskHub::clearTasks(Debugger::Constants::ANALYZERTASK_ID);
         m_perspective.select();
+        const CommandLine cmd = dlg.commandLine();
         RunControl *rc = new RunControl(MEMCHECK_RUN_MODE);
         rc->copyDataFromRunConfiguration(runConfig);
         rc->createMainWorker();
-        const auto runnable = dlg.runnable();
-        rc->setRunnable(runnable);
-        rc->setDisplayName(runnable.command.executable().toUserOutput());
+        rc->setCommandLine(cmd);
+        rc->setWorkingDirectory(dlg.workingDirectory());
+        rc->setDisplayName(cmd.toUserOutput());
         ProjectExplorerPlugin::startRunControl(rc);
     });
 

@@ -282,12 +282,13 @@ CallgrindToolPrivate::CallgrindToolPrivate()
         if (dlg.exec() != QDialog::Accepted)
             return;
         m_perspective.select();
+        CommandLine command = dlg.commandLine();
         auto runControl = new RunControl(CALLGRIND_RUN_MODE);
         runControl->copyDataFromRunConfiguration(runConfig);
         runControl->createMainWorker();
-        const auto runnable = dlg.runnable();
-        runControl->setRunnable(runnable);
-        runControl->setDisplayName(runnable.command.executable().toUserOutput());
+        runControl->setCommandLine(command);
+        runControl->setWorkingDirectory(dlg.workingDirectory());
+        runControl->setDisplayName(command.executable().toUserOutput());
         ProjectExplorerPlugin::startRunControl(runControl);
     });
 
