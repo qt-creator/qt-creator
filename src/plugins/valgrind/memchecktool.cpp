@@ -28,7 +28,6 @@
 
 #include "memcheckerrorview.h"
 #include "valgrindsettings.h"
-#include "valgrindplugin.h"
 #include "valgrindengine.h"
 #include "valgrindsettings.h"
 #include "valgrindrunner.h"
@@ -38,9 +37,6 @@
 #include "xmlprotocol/errorlistmodel.h"
 #include "xmlprotocol/frame.h"
 #include "xmlprotocol/stack.h"
-#include "xmlprotocol/stackmodel.h"
-#include "xmlprotocol/status.h"
-#include "xmlprotocol/suppression.h"
 #include "xmlprotocol/threadedparser.h"
 
 #include <debugger/debuggerkitinformation.h>
@@ -51,7 +47,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/deploymentdata.h>
-#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -746,10 +742,9 @@ void MemcheckToolPrivate::heobAction()
             kit = target->kit();
             if (kit) {
                 abi = ToolChainKitAspect::targetAbi(kit);
-
-                const Runnable runnable = rc->runnable();
-                sr = runnable;
-                const IDevice::ConstPtr device = sr.device;
+                sr = rc->runnable();
+                const IDevice::ConstPtr device
+                        = DeviceManager::deviceForPath(sr.command.executable());
                 hasLocalRc = device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
                 if (!hasLocalRc)
                     hasLocalRc = DeviceTypeKitAspect::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
