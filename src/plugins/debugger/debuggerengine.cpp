@@ -33,7 +33,6 @@
 #include "debuggerruncontrol.h"
 #include "debuggertooltipmanager.h"
 
-#include "analyzer/analyzermanager.h"
 #include "breakhandler.h"
 #include "disassembleragent.h"
 #include "localsandexpressionswindow.h"
@@ -54,7 +53,6 @@
 #include "watchutils.h"
 #include "watchwindow.h"
 #include "debugger/shared/peutils.h"
-#include "console/console.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -66,7 +64,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 
-#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/taskhub.h>
 
@@ -1060,11 +1058,10 @@ void DebuggerEngine::setRunId(const QString &id)
 
 void DebuggerEngine::setRunTool(DebuggerRunTool *runTool)
 {
-    RunControl *runControl = runTool->runControl();
-    d->m_device = runControl->device();
-    if (!d->m_device)
-        d->m_device = d->m_runParameters.inferior.device;
-    if (d->m_device)
+    d->m_device = runTool->device();
+    QTC_ASSERT(d->m_device, d->m_device = DeviceManager::deviceForPath(
+                                d->m_runParameters.inferior.command.executable()));
+    if (QTC_GUARD(d->m_device))
         d->m_runParameters.dumperPath = d->m_device->debugDumperPath();
     d->m_terminalRunner = runTool->terminalRunner();
 
