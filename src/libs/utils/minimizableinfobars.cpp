@@ -25,7 +25,6 @@
 
 #include "minimizableinfobars.h"
 
-#include "infobar.h"
 #include "qtcassert.h"
 #include "qtcsettings.h"
 #include "utilsicons.h"

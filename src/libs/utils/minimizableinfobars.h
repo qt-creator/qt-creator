@@ -28,6 +28,7 @@
 #include "utils_global.h"
 
 #include "id.h"
+#include "infobar.h"
 
 #include <QHash>
 #include <QObject>
@@ -39,9 +40,6 @@ class QAction;
 QT_END_NAMESPACE
 
 namespace Utils {
-
-class InfoBar;
-class InfoBarEntry;
 
 class QTCREATOR_UTILS_EXPORT MinimizableInfoBars : public QObject
 {
