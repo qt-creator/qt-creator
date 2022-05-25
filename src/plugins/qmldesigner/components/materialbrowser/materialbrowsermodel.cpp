@@ -246,11 +246,14 @@ void MaterialBrowserModel::selectMaterial(int idx, bool force)
     }
 }
 
-void MaterialBrowserModel::deleteMaterial(qint32 internalId)
+void MaterialBrowserModel::duplicateMaterial(int idx)
 {
-    int idx = m_materialIndexHash.value(internalId);
-    if (isValidIndex(idx))
-        m_materialList[idx].destroy();
+    emit duplicateMaterialTriggered(m_materialList.at(idx));
+}
+
+void MaterialBrowserModel::deleteMaterial(int idx)
+{
+    m_materialList[idx].destroy();
 }
 
 void MaterialBrowserModel::renameMaterial(int idx, const QString &newName)

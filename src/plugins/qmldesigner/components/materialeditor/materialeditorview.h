@@ -106,6 +106,7 @@ private:
     void commitAuxValueToModel(const PropertyName &propertyName, const QVariant &value);
     void removePropertyFromModel(const PropertyName &propertyName);
     void renameMaterial(ModelNode &material, const QString &newName);
+    void duplicateMaterial(const ModelNode &material);
 
     bool noValidSelection() const;
 

@@ -745,6 +745,41 @@ void MaterialEditorView::renameMaterial(ModelNode &material, const QString &newN
     });
 }
 
+void MaterialEditorView::duplicateMaterial(const ModelNode &material)
+{
+    QTC_ASSERT(material.isValid(), return);
+
+    ensureMaterialLibraryNode();
+
+    TypeName matType = material.type();
+    QmlObjectNode sourceMat(material);
+
+    executeInTransaction(__FUNCTION__, [&] {
+        // create the duplicate material
+        NodeMetaInfo metaInfo = model()->metaInfo(matType);
+        QmlObjectNode duplicateMat = createModelNode(matType, metaInfo.majorVersion(), metaInfo.minorVersion());
+
+        // set name and id
+        QString newName = sourceMat.modelNode().variantProperty("objectName").value().toString() + " copy";
+        duplicateMat.modelNode().variantProperty("objectName").setValue(newName);
+        duplicateMat.modelNode().setIdWithoutRefactoring(generateIdFromName(newName));
+
+        // sync properties
+        const QList<AbstractProperty> props = material.properties();
+        for (const AbstractProperty &prop : props) {
+            if (prop.name() == "objectName")
+                continue;
+
+            if (prop.isVariantProperty())
+                duplicateMat.setVariantProperty(prop.name(), prop.toVariantProperty().value());
+            else if (prop.isBindingProperty())
+                duplicateMat.setBindingProperty(prop.name(), prop.toBindingProperty().expression());
+        }
+
+        m_materialLibrary.defaultNodeListProperty().reparentHere(duplicateMat);
+    });
+}
+
 void MaterialEditorView::customNotification(const AbstractView *view, const QString &identifier,
                                             const QList<ModelNode> &nodeList, const QList<QVariant> &data)
 {
@@ -758,6 +793,8 @@ void MaterialEditorView::customNotification(const AbstractView *view, const QStr
             renameMaterial(m_selectedMaterial, data.first().toString());
     } else if (identifier == "add_new_material") {
         handleToolBarAction(MaterialEditorContextObject::AddNewMaterial);
+    } else if (identifier == "duplicate_material") {
+        duplicateMaterial(nodeList.first());
     }
 }
 
