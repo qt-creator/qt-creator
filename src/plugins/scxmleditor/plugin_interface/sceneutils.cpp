@@ -317,7 +317,7 @@ void layout(const QList<QGraphicsItem*> &items)
         }
 
         // Finally set initial and final positions
-        for (const ConnectableItem *item : qAsConst(childItems)) {
+        for (ConnectableItem *item : qAsConst(childItems)) {
             if (item == firstItem)
                 initialItem->setPos(firstItem->pos() + firstItem->boundingRect().topLeft()
                                     - QPointF(50, 50));
