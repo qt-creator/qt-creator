@@ -44,6 +44,7 @@
 
 #include <extensionsystem/invoker.h>
 #include <extensionsystem/pluginmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
@@ -65,6 +66,8 @@
 #include <QVBoxLayout>
 
 static Q_LOGGING_CATEGORY(appOutputLog, "qtc.projectexplorer.appoutput", QtWarningMsg);
+
+using namespace Utils;
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -398,19 +401,20 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     connect(rc, &RunControl::applicationProcessHandleChanged,
             this, &AppOutputPane::enableDefaultButtons);
     connect(rc, &RunControl::appendMessage,
-            this, [this, rc](const QString &out, Utils::OutputFormat format) {
+            this, [this, rc](const QString &out, OutputFormat format) {
                 appendMessage(rc, out, format);
             });
 
     // First look if we can reuse a tab
-    const Runnable thisRunnable = rc->runnable();
+    const CommandLine thisCommand = rc->commandLine();
+    const FilePath thisWorkingDirectory = rc->workingDirectory();
+    const Environment thisEnvironment = rc->environment();
     const int tabIndex = Utils::indexOf(m_runControlTabs, [&](const RunControlTab &tab) {
         if (!tab.runControl || tab.runControl->isRunning())
             return false;
-        const Runnable otherRunnable = tab.runControl->runnable();
-        return thisRunnable.command == otherRunnable.command
-                && thisRunnable.workingDirectory == otherRunnable.workingDirectory
-                && thisRunnable.environment == otherRunnable.environment;
+        return thisCommand == tab.runControl->commandLine()
+                && thisWorkingDirectory == tab.runControl->workingDirectory()
+                && thisEnvironment == tab.runControl->environment();
     });
     if (tabIndex != -1) {
         RunControlTab &tab = m_runControlTabs[tabIndex];
@@ -433,7 +437,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     }
     // Create new
     static int counter = 0;
-    Utils::Id contextId = Utils::Id(C_APP_OUTPUT).withSuffix(counter++);
+    Id contextId = Id(C_APP_OUTPUT).withSuffix(counter++);
     Core::Context context(contextId);
     Core::OutputWindow *ow = new Core::OutputWindow(context, SETTINGS_KEY, m_tabWidget);
     ow->setWindowTitle(tr("Application Output Window"));
@@ -486,19 +490,19 @@ void AppOutputPane::updateFromSettings()
     }
 }
 
-void AppOutputPane::appendMessage(RunControl *rc, const QString &out, Utils::OutputFormat format)
+void AppOutputPane::appendMessage(RunControl *rc, const QString &out, OutputFormat format)
 {
     const int index = indexOf(rc);
     if (index != -1) {
         Core::OutputWindow *window = m_runControlTabs.at(index).window;
         QString stringToWrite;
-        if (format == Utils::NormalMessageFormat || format == Utils::ErrorMessageFormat) {
+        if (format == NormalMessageFormat || format == ErrorMessageFormat) {
             stringToWrite = QTime::currentTime().toString();
             stringToWrite += ": ";
         }
         stringToWrite += out;
         window->appendMessage(stringToWrite, format);
-        if (format != Utils::NormalMessageFormat) {
+        if (format != NormalMessageFormat) {
             RunControlTab &tab = m_runControlTabs[index];
             switch (tab.behaviorOnOutput) {
             case AppOutputPaneMode::FlashOnOutput:
@@ -530,7 +534,7 @@ const bool kWrapOutputDefault = true;
 
 void AppOutputPane::storeSettings() const
 {
-    Utils::QtcSettings *const s = Core::ICore::settings();
+    QtcSettings *const s = Core::ICore::settings();
     s->setValueWithDefault(POP_UP_FOR_RUN_OUTPUT_KEY,
                            int(m_settings.runOutputMode),
                            int(kRunOutputModeDefault));
@@ -706,7 +710,7 @@ void AppOutputPane::enableButtons(const RunControl *rc)
         m_stopAction->setEnabled(isRunning);
         if (isRunning && debuggerPlugin() && rc->applicationProcessHandle().isValid()) {
             m_attachButton->setEnabled(true);
-            Utils::ProcessHandle h = rc->applicationProcessHandle();
+            ProcessHandle h = rc->applicationProcessHandle();
             QString tip = h.isValid() ? RunControl::tr("PID %1").arg(h.pid())
                                       : RunControl::tr("Invalid");
             m_attachButton->setToolTip(msgAttachDebuggerTooltip(tip));

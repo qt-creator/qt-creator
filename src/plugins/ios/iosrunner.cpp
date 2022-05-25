@@ -197,8 +197,8 @@ void IosRunner::start()
     connect(m_toolHandler, &IosToolHandler::finished,
             this, &IosRunner::handleFinished);
 
-    const Runnable runnable = runControl()->runnable();
-    QStringList args = ProcessArgs::splitArgs(runnable.command.arguments(), OsTypeMac);
+    const CommandLine command = runControl()->commandLine();
+    QStringList args = ProcessArgs::splitArgs(command.arguments(), OsTypeMac);
     if (m_qmlServerPort.isValid()) {
         QUrl qmlServer;
         qmlServer.setPort(m_qmlServerPort.number());

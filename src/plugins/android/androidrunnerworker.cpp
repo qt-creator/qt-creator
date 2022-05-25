@@ -274,9 +274,8 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     qCDebug(androidRunWorkerLog) << "Environment variables for the app"
                                  << m_extraEnvVars.toStringList();
 
-    if (target->buildConfigurations().first()->buildType() != BuildConfiguration::BuildType::Release) {
-        m_extraAppParams = runControl->runnable().command.arguments();
-    }
+    if (target->buildConfigurations().first()->buildType() != BuildConfiguration::BuildType::Release)
+        m_extraAppParams = runControl->commandLine().arguments();
 
     if (auto aspect = runControl->aspect(Constants::ANDROID_AM_START_ARGS)) {
         QTC_CHECK(aspect->value.type() == QVariant::String);

@@ -245,6 +245,11 @@ public:
     const Runnable &runnable() const;
     void setRunnable(const Runnable &runnable);
 
+    const Utils::CommandLine &commandLine() const;
+    const Utils::FilePath &workingDirectory() const;
+    const Utils::Environment &environment() const;
+    const QVariantHash &extraData() const;
+
     static bool showPromptToStopDialog(const QString &title, const QString &text,
                                        const QString &stopButtonText = QString(),
                                        const QString &cancelButtonText = QString(),

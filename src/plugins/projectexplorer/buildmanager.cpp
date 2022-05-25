@@ -120,7 +120,7 @@ static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
                 return projects.contains(rc->project());
             case StopBeforeBuild::SameBuildDir:
                 return Utils::contains(projects, [rc, configSelection](Project *p) {
-                    const FilePath executable = rc->runnable().command.executable();
+                    const FilePath executable = rc->commandLine().executable();
                     IDevice::ConstPtr device = DeviceManager::deviceForPath(executable);
                     for (const Target * const t : targetsForSelection(p, configSelection)) {
                         if (device.isNull())

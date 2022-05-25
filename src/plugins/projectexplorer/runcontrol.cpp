@@ -909,6 +909,26 @@ void RunControl::setRunnable(const Runnable &runnable)
     d->runnable = runnable;
 }
 
+const CommandLine &RunControl::commandLine() const
+{
+    return d->runnable.command;
+}
+
+const FilePath &RunControl::workingDirectory() const
+{
+    return d->runnable.workingDirectory;
+}
+
+const Environment &RunControl::environment() const
+{
+    return d->runnable.environment;
+}
+
+const QVariantHash &RunControl::extraData() const
+{
+    return d->runnable.extraData;
+}
+
 QString RunControl::displayName() const
 {
     return d->displayName;
@@ -1236,7 +1256,10 @@ public:
     State m_state = Inactive;
     bool m_stopRequested = false;
 
-    Runnable m_runnable;
+    Utils::CommandLine m_command;
+    Utils::FilePath m_workingDirectory;
+    Utils::Environment m_environment;
+    QVariantHash m_extraData;
 
     ProcessResultData m_resultData;
 
@@ -1392,12 +1415,12 @@ void SimpleTargetRunnerPrivate::handleStandardError()
 
 void SimpleTargetRunnerPrivate::start()
 {
-    m_isLocal = !m_runnable.command.executable().needsDevice();
+    m_isLocal = !m_command.executable().needsDevice();
 
     m_resultData = {};
 
     if (m_isLocal) {
-        Environment env = m_runnable.environment;
+        Environment env = m_environment;
         if (m_runAsRoot)
             RunControl::provideAskPassEntry(env);
 
@@ -1407,7 +1430,7 @@ void SimpleTargetRunnerPrivate::start()
 
         WinDebugInterface::startIfNeeded();
 
-        CommandLine cmdLine = m_runnable.command;
+        CommandLine cmdLine = m_command;
 
         if (HostOsInfo::isMacHost()) {
             CommandLine disclaim(Core::ICore::libexecPath("disclaim"));
@@ -1420,8 +1443,7 @@ void SimpleTargetRunnerPrivate::start()
     } else {
         QTC_ASSERT(m_state == Inactive, return);
 
-        const IDevice::ConstPtr device =
-                DeviceManager::deviceForPath(m_runnable.command.executable());
+        const IDevice::ConstPtr device = DeviceManager::deviceForPath(m_command.executable());
         if (!device) {
             m_resultData.m_errorString = tr("Cannot run: No device.");
             m_resultData.m_error = QProcess::FailedToStart;
@@ -1430,7 +1452,7 @@ void SimpleTargetRunnerPrivate::start()
             return;
         }
 
-        if (!device->isEmptyCommandAllowed() && m_runnable.command.isEmpty()) {
+        if (!device->isEmptyCommandAllowed() && m_command.isEmpty()) {
             m_resultData.m_errorString = tr("Cannot run: No command given.");
             m_resultData.m_error = QProcess::FailedToStart;
             m_resultData.m_exitStatus = QProcess::CrashExit;
@@ -1441,12 +1463,12 @@ void SimpleTargetRunnerPrivate::start()
         m_state = Run;
         m_stopRequested = false;
 
-        m_process.setCommand(m_runnable.command);
-        m_process.setEnvironment(m_runnable.environment);
-        m_process.setExtraData(m_runnable.extraData);
+        m_process.setCommand(m_command);
+        m_process.setEnvironment(m_environment);
+        m_process.setExtraData(m_extraData);
     }
 
-    m_process.setWorkingDirectory(m_runnable.workingDirectory);
+    m_process.setWorkingDirectory(m_workingDirectory);
 
     if (m_isLocal)
         m_outputCodec = QTextCodec::codecForLocale();
@@ -1481,14 +1503,14 @@ void SimpleTargetRunnerPrivate::forwardDone()
 {
     if (m_stopReported)
         return;
-    const QString executable = m_runnable.command.executable().toUserOutput();
+    const QString executable = m_command.executable().toUserOutput();
     QString msg = tr("%1 exited with code %2").arg(executable).arg(m_resultData.m_exitCode);
     if (m_resultData.m_exitStatus == QProcess::CrashExit)
         msg = tr("%1 crashed.").arg(executable);
     else if (m_stopForced)
         msg = tr("The process was ended forcefully.");
     else if (m_resultData.m_error != QProcess::UnknownError)
-        msg = RunWorker::userMessageForProcessError(m_resultData.m_error, m_runnable.command.executable());
+        msg = RunWorker::userMessageForProcessError(m_resultData.m_error, m_command.executable());
     q->appendMessage(msg, NormalMessageFormat);
     m_stopReported = true;
     q->reportStopped();
@@ -1496,7 +1518,7 @@ void SimpleTargetRunnerPrivate::forwardDone()
 
 void SimpleTargetRunnerPrivate::forwardStarted()
 {
-    const bool isDesktop = !m_runnable.command.executable().needsDevice();
+    const bool isDesktop = !m_command.executable().needsDevice();
     if (isDesktop) {
         // Console processes only know their pid after being started
         ProcessHandle pid{privateApplicationPID()};
@@ -1509,7 +1531,10 @@ void SimpleTargetRunnerPrivate::forwardStarted()
 
 void SimpleTargetRunner::start()
 {
-    d->m_runnable = runControl()->runnable();
+    d->m_command = runControl()->commandLine();
+    d->m_workingDirectory = runControl()->workingDirectory();
+    d->m_environment = runControl()->environment();
+    d->m_extraData = runControl()->extraData();
 
     if (d->m_startModifier)
         d->m_startModifier();
@@ -1528,11 +1553,11 @@ void SimpleTargetRunner::start()
     d->m_process.setTerminalMode(useTerminal ? Utils::TerminalMode::On : Utils::TerminalMode::Off);
     d->m_runAsRoot = runAsRoot;
 
-    const QString msg = RunControl::tr("Starting %1...").arg(d->m_runnable.command.toUserOutput());
+    const QString msg = RunControl::tr("Starting %1...").arg(d->m_command.toUserOutput());
     appendMessage(msg, NormalMessageFormat);
 
-    const bool isDesktop = !d->m_runnable.command.executable().needsDevice();
-    if (isDesktop && d->m_runnable.command.isEmpty()) {
+    const bool isDesktop = !d->m_command.executable().needsDevice();
+    if (isDesktop && d->m_command.isEmpty()) {
         reportFailure(RunControl::tr("No executable specified."));
         return;
     }
@@ -1552,30 +1577,30 @@ void SimpleTargetRunner::setStartModifier(const std::function<void ()> &startMod
 
 CommandLine SimpleTargetRunner::commandLine() const
 {
-    return d->m_runnable.command;
+    return d->m_command;
 }
 
 void SimpleTargetRunner::setCommandLine(const Utils::CommandLine &commandLine)
 {
-    d->m_runnable.command = commandLine;
+    d->m_command = commandLine;
 }
 
 void SimpleTargetRunner::setEnvironment(const Environment &environment)
 {
-    d->m_runnable.environment = environment;
+    d->m_environment = environment;
 }
 
 void SimpleTargetRunner::setWorkingDirectory(const FilePath &workingDirectory)
 {
-    d->m_runnable.workingDirectory = workingDirectory;
+    d->m_workingDirectory = workingDirectory;
 }
 
 void SimpleTargetRunner::forceRunOnHost()
 {
-    const FilePath executable = d->m_runnable.command.executable();
+    const FilePath executable = d->m_command.executable();
     if (executable.needsDevice()) {
         QTC_CHECK(false);
-        d->m_runnable.command.setExecutable(FilePath::fromString(executable.path()));
+        d->m_command.setExecutable(FilePath::fromString(executable.path()));
     }
 }
 
