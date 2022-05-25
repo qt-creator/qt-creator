@@ -25,7 +25,7 @@
 
 #include "qrcparser.h"
 
-#include <utils/qtcassert.h>
+#include "qtcassert.h"
 
 #include <QCoreApplication>
 #include <QDir>

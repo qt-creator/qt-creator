@@ -25,13 +25,13 @@
 
 #include "terminalprocess_p.h"
 
-#include <utils/environment.h>
-#include <utils/hostosinfo.h>
-#include <utils/commandline.h>
-#include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-#include <utils/terminalcommand.h>
-#include <utils/winutils.h>
+#include "commandline.h"
+#include "environment.h"
+#include "hostosinfo.h"
+#include "qtcassert.h"
+#include "qtcprocess.h"
+#include "terminalcommand.h"
+#include "winutils.h"
 
 #include <QCoreApplication>
 #include <QLocalServer>

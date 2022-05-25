@@ -26,7 +26,7 @@
 #include "uncommentselection.h"
 
 #include "qtcassert.h"
-#include "utils/multitextcursor.h"
+#include "multitextcursor.h"
 
 #include <QTextBlock>
 #include <QTextCursor>

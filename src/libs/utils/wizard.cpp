@@ -28,9 +28,8 @@
 #include "algorithm.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
+#include "theme/theme.h"
 #include "wizardpage.h"
-
-#include <utils/theme/theme.h>
 
 #include <QDebug>
 #include <QDialog>
@@ -41,8 +40,8 @@
 #include <QLabel>
 #include <QMap>
 #include <QScrollArea>
-#include <QVBoxLayout>
 #include <QVariant>
+#include <QVBoxLayout>
 
 
 /*! \class Utils::Wizard

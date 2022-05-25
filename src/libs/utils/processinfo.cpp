@@ -34,8 +34,8 @@
 #include <string.h>
 #include <unistd.h>
 #elif defined(Q_OS_WIN)
+#include "winutils.h"
 #include <windows.h>
-#include <utils/winutils.h>
 #include <tlhelp32.h>
 #include <psapi.h>
 #endif

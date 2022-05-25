@@ -27,9 +27,9 @@
 #include "tips.h"
 #include "effects.h"
 
-#include <utils/faketooltip.h>
-#include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
+#include "faketooltip.h"
+#include "hostosinfo.h"
+#include "qtcassert.h"
 
 #include <QApplication>
 #include <QColor>

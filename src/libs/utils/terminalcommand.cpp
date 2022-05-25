@@ -25,11 +25,11 @@
 
 #include "terminalcommand.h"
 
-#include <utils/algorithm.h>
-#include <utils/commandline.h>
-#include <utils/environment.h>
-#include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
+#include "algorithm.h"
+#include "commandline.h"
+#include "environment.h"
+#include "hostosinfo.h"
+#include "qtcassert.h"
 
 #include <QCoreApplication>
 #include <QFileInfo>

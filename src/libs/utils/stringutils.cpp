@@ -25,10 +25,9 @@
 
 #include "stringutils.h"
 
+#include "algorithm.h"
 #include "hostosinfo.h"
-
-#include <utils/algorithm.h>
-#include <utils/qtcassert.h>
+#include "qtcassert.h"
 
 #include <QCoreApplication>
 #include <QDir>

@@ -36,7 +36,6 @@
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
-#include <QListWidgetItem>
 #include <QMenu>
 #include <QPlainTextEdit>
 #include <QPointer>

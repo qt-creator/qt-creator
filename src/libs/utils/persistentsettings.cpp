@@ -26,6 +26,7 @@
 #include "persistentsettings.h"
 
 #include "fileutils.h"
+#include "qtcassert.h"
 
 #include <QCoreApplication>
 #include <QDateTime>
@@ -42,8 +43,6 @@
 #ifdef QT_GUI_LIB
 #include <QMessageBox>
 #endif
-
-#include <utils/qtcassert.h>
 
 // Read and write rectangle in X11 resource syntax "12x12+4+3"
 static QString rectangleToString(const QRect &r)

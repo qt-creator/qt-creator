@@ -25,12 +25,12 @@
 
 #include "unixutils.h"
 
-#include "fileutils.h"
+#include "filepath.h"
 #include "qtcsettings.h"
 
-#include <QSettings>
-#include <QFileInfo>
 #include <QCoreApplication>
+#include <QFileInfo>
+#include <QSettings>
 
 using namespace Utils;
 

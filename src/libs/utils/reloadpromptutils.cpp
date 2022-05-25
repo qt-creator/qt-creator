@@ -23,8 +23,9 @@
 **
 ****************************************************************************/
 
-#include "fileutils.h"
 #include "reloadpromptutils.h"
+
+#include "fileutils.h"
 
 #include <QCoreApplication>
 #include <QDir>

@@ -24,11 +24,12 @@
 ****************************************************************************/
 
 #include "textfileformat.h"
+
 #include "fileutils.h"
 #include "qtcassert.h"
 
-#include <QTextCodec>
 #include <QDebug>
+#include <QTextCodec>
 
 enum { debug = 0 };
 

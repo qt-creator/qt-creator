@@ -25,8 +25,8 @@
 
 #include "namevaluesdialog.h"
 
-#include <utils/environment.h>
-#include <utils/hostosinfo.h>
+#include "environment.h"
+#include "hostosinfo.h"
 
 #include <QDialogButtonBox>
 #include <QLabel>

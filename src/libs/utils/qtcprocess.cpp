@@ -26,7 +26,6 @@
 #include "qtcprocess.h"
 
 #include "algorithm.h"
-#include "commandline.h"
 #include "guard.h"
 #include "hostosinfo.h"
 #include "launcherinterface.h"

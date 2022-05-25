@@ -25,8 +25,8 @@
 
 #include "json.h"
 
-#include <utils/qtcassert.h>
-#include <utils/fileutils.h>
+#include "fileutils.h"
+#include "qtcassert.h"
 
 #include <QDir>
 #include <QJsonDocument>

@@ -26,7 +26,7 @@
 #include "removefiledialog.h"
 #include "ui_removefiledialog.h"
 
-#include <utils/filepath.h>
+#include "filepath.h"
 
 namespace Utils {
 

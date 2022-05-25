@@ -27,8 +27,7 @@
 
 #include "theme/theme.h"
 #include "hostosinfo.h"
-
-#include <utils/qtcassert.h>
+#include "qtcassert.h"
 
 #include <QApplication>
 #include <QCommonStyle>

@@ -30,13 +30,13 @@
 #include "qtcsettings.h"
 #include "utilsicons.h"
 
+#include <QComboBox>
 #include <QHBoxLayout>
-#include <QSettings>
-#include <QVBoxLayout>
 #include <QLabel>
 #include <QPainter>
+#include <QSettings>
 #include <QToolButton>
-#include <QComboBox>
+#include <QVBoxLayout>
 
 static const char C_SUPPRESSED_WARNINGS[] = "SuppressedWarnings";
 

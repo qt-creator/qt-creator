@@ -25,9 +25,9 @@
 
 #include "layoutbuilder.h"
 
-#include <utils/algorithm.h>
-#include <utils/aspects.h>
-#include <utils/qtcassert.h>
+#include "algorithm.h"
+#include "aspects.h"
+#include "qtcassert.h"
 
 #include <QFormLayout>
 #include <QGridLayout>

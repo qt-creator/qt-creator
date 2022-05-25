@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "treemodel.h"
+
 #include "qtcassert.h"
 
 #include <QStack>
