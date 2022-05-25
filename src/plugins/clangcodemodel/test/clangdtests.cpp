@@ -174,6 +174,7 @@ void ClangdTest::initTestCase()
         QVERIFY(doc);
         QVERIFY2(m_client->documentForFilePath(sourceFilePath) == doc,
                  qPrintable(sourceFilePath.toUserOutput()));
+        doc->setSuspendAllowed(false);
         m_sourceDocuments.insert(sourceFileName, doc);
     }
 }
