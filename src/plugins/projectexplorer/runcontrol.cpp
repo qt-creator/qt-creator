@@ -447,8 +447,8 @@ void RunControl::setKit(Kit *kit)
     d->kit = kit;
     d->macroExpander = kit->macroExpander();
 
-    if (d->runnable.device)
-        setDevice(d->runnable.device);
+    if (!d->runnable.command.isEmpty())
+        setDevice(DeviceManager::deviceForPath(d->runnable.command.executable()));
     else
         setDevice(DeviceKitAspect::device(kit));
 }
