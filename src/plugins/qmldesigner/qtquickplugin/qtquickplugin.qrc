@@ -95,5 +95,8 @@
         <file>images/video-output-16px.png</file>
         <file>images/video-output-24px.png</file>
         <file>images/video-output-24px@2x.png</file>
+        <file>images/timeline-16px.png</file>
+        <file>images/keyframe-16px.png</file>
+        <file>images/timeline-animation-16px.png</file>
     </qresource>
 </RCC>
