@@ -26,54 +26,58 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuickDesignerTheme 1.0
-import HelperWidgets 2.0 as HelperWidgets
-import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
 Rectangle {
     id: root
 
-    property string tooltip: ""
-
     signal clicked()
 
-    implicitWidth: 29
-    implicitHeight: 29
-    color: mouseArea.containsMouse && enabled
-           ? StudioTheme.Values.themeControlBackgroundHover
-           : StudioTheme.Values.themeControlBackground
+    property alias icon: icon.text
+    property alias enabled: mouseArea.enabled
+    property alias tooltip: toolTip.text
+    property alias iconSize: icon.font.pixelSize
+
+    property int buttonSize: StudioTheme.Values.height
+    property color normalColor: StudioTheme.Values.themeControlBackground
+    property color hoverColor: StudioTheme.Values.themeControlBackgroundHover
+    property color pressColor: StudioTheme.Values.themeControlBackgroundInteraction
+
+    width: buttonSize
+    height: buttonSize
+
+    color: mouseArea.pressed ? pressColor
+                             : mouseArea.containsMouse ? hoverColor
+                                                       : normalColor
 
     Behavior on color {
         ColorAnimation {
-            duration: StudioTheme.Values.hoverDuration
-            easing.type: StudioTheme.Values.hoverEasing
+            duration: 300
+            easing.type: Easing.OutQuad
         }
     }
 
-    Label { // + sign
-        text: StudioTheme.Constants.plus
+    Text {
+        id: icon
+
+        color: root.enabled ? StudioTheme.Values.themeTextColor : StudioTheme.Values.themeTextColorDisabled
         font.family: StudioTheme.Constants.iconFont.family
-        font.pixelSize: StudioTheme.Values.myIconFontSize
-        verticalAlignment: Text.AlignVCenter
-        horizontalAlignment: Text.AlignHCenter
-        anchors.centerIn: parent
-        color: root.enabled ? StudioTheme.Values.themeIconColor
-                            : StudioTheme.Values.themeIconColorDisabled
-        scale: mouseArea.containsMouse ? 1.4 : 1
-
-        Behavior on scale {
-            NumberAnimation {
-                duration: 300
-                easing.type: Easing.OutExpo
-            }
-        }
+        font.pixelSize: StudioTheme.Values.baseIconFontSize
+        anchors.centerIn: root
     }
 
-    HelperWidgets.ToolTipArea {
+    MouseArea {
         id: mouseArea
+
         anchors.fill: parent
         hoverEnabled: true
         onClicked: root.clicked()
-        tooltip: root.tooltip
+    }
+
+    ToolTip {
+        id: toolTip
+
+        visible: mouseArea.containsMouse
+        delay: 1000
     }
 }

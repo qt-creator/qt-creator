@@ -125,6 +125,7 @@ public:
     void clearMetaInfoCache();
 
     bool hasId(const QString &id) const;
+    bool hasImport(const QString &importUrl) const;
 
     QString generateNewId(const QString &prefixName) const;
     QString generateNewId(const QString &prefixName, const QString &fallbackPrefix) const;

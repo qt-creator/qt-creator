@@ -32,13 +32,21 @@ QtObject {
 
     property real baseHeight: 29
     property real baseFont: 12
+    property real mediumFont: 14
+    property real bigFont: 16
     property real baseIconFont: 12
+    property real bigIconFont: 26
 
     property real scaleFactor: 1.0
 
     property real height: Math.round(values.baseHeight * values.scaleFactor)
-    property real myFontSize: Math.round(values.baseFont * values.scaleFactor)
-    property real myIconFontSize: Math.round(values.baseIconFont * values.scaleFactor)
+    property real baseFontSize: Math.round(values.baseFont * values.scaleFactor)
+    property real myFontSize: values.baseFontSize // TODO: rename all refs to myFontSize -> baseFontSize then remove myFontSize
+    property real mediumFontSize: Math.round(values.mediumFont * values.scaleFactor)
+    property real bigFontSize: Math.round(values.bigFont * values.scaleFactor)
+    property real baseIconFontSize: Math.round(values.baseIconFont * values.scaleFactor)
+    property real myIconFontSize: values.baseIconFontSize;  // TODO: rename all refs to myIconFontSize -> baseIconFontSize then remove myIconFontSize
+    property real bigIconFontSize: Math.round(values.bigIconFont * values.scaleFactor)
 
     property real squareComponentWidth: values.height
     property real smallRectWidth: values.height / 2 * 1.5

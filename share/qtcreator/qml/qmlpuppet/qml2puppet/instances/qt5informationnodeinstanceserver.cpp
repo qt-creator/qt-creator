@@ -1030,27 +1030,32 @@ void Qt5InformationNodeInstanceServer::doRender3DEditView()
 void Qt5InformationNodeInstanceServer::renderModelNodeImageView()
 {
     if (!m_renderModelNodeImageViewTimer.isActive())
-        m_renderModelNodeImageViewTimer.start(0);
+        m_renderModelNodeImageViewTimer.start(17);
 }
 
 void Qt5InformationNodeInstanceServer::doRenderModelNodeImageView()
 {
     // This crashes on Qt 6.0.x due to QtQuick3D issue, so the preview generation is disabled
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0) || QT_VERSION >= QT_VERSION_CHECK(6, 1, 0)
+    RequestModelNodePreviewImageCommand cmd = *m_modelNodePreviewImageCommands.begin();
     ServerNodeInstance instance;
-    if (m_modelNodePreviewImageCommand.renderItemId() >= 0)
-        instance = instanceForId(m_modelNodePreviewImageCommand.renderItemId());
+    if (cmd.renderItemId() >= 0)
+        instance = instanceForId(cmd.renderItemId());
     else
-        instance = instanceForId(m_modelNodePreviewImageCommand.instanceId());
+        instance = instanceForId(cmd.instanceId());
 
     if (instance.isSubclassOf("QQuick3DObject"))
-        doRenderModelNode3DImageView();
+        doRenderModelNode3DImageView(cmd);
     else if (instance.isSubclassOf("QQuickItem"))
-        doRenderModelNode2DImageView();
+        doRenderModelNode2DImageView(cmd);
+
+    m_modelNodePreviewImageCommands.remove(cmd);
+    if (!m_modelNodePreviewImageCommands.isEmpty())
+        m_renderModelNodeImageViewTimer.start(17);
 #endif
 }
 
-void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
+void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView(const RequestModelNodePreviewImageCommand &cmd)
 {
 #ifdef QUICK3D_MODULE
     if (m_modelNode3DImageViewData.rootItem) {
@@ -1059,19 +1064,19 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
             m_modelNode3DImageViewData.contentItem = getContentItemForRendering(m_modelNode3DImageViewData.rootItem);
 
         QImage renderImage;
-        if (m_modelNodePreviewImageCache.contains(m_modelNodePreviewImageCommand.componentPath())) {
-            renderImage = m_modelNodePreviewImageCache[m_modelNodePreviewImageCommand.componentPath()];
+        if (m_modelNodePreviewImageCache.contains(cmd.componentPath())) {
+            renderImage = m_modelNodePreviewImageCache[cmd.componentPath()];
         } else {
             bool createdFromComponent = false;
             QObject *instanceObj = nullptr;
-            ServerNodeInstance instance = instanceForId(m_modelNodePreviewImageCommand.instanceId());
-            if (!m_modelNodePreviewImageCommand.componentPath().isEmpty()
+            ServerNodeInstance instance = instanceForId(cmd.instanceId());
+            if (!cmd.componentPath().isEmpty()
                     && instance.isSubclassOf("QQuick3DNode")) {
                 // Create a new instance for Node components, as using Nodes in multiple
                 // import scenes simultaneously isn't supported. And even if it was, we still
                 // wouldn't want the children of the Node to appear in the preview.
                 QQmlComponent component(engine());
-                component.loadUrl(QUrl::fromLocalFile(m_modelNodePreviewImageCommand.componentPath()));
+                component.loadUrl(QUrl::fromLocalFile(cmd.componentPath()));
                 instanceObj = qobject_cast<QQuick3DObject *>(component.create());
                 if (!instanceObj) {
                     qWarning() << "Could not create preview component: " << component.errors();
@@ -1081,7 +1086,7 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
             } else {
                 instanceObj = instance.internalObject();
             }
-            QSize renderSize = m_modelNodePreviewImageCommand.size();
+            QSize renderSize = cmd.size();
             if (Internal::QuickItemNodeInstance::unifiedRenderPathOrQt6()) {
                 // Requested size is already adjusted for target pixel ratio, so we have to adjust
                 // back if ratio is not default for our window.
@@ -1138,13 +1143,13 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
 
             if (createdFromComponent) {
                 // If component changes, puppet will need a reset anyway, so we can cache the image
-                m_modelNodePreviewImageCache.insert(m_modelNodePreviewImageCommand.componentPath(),
+                m_modelNodePreviewImageCache.insert(cmd.componentPath(),
                                                     renderImage);
                 delete instanceObj;
             }
         }
         // Key number is selected so that it is unlikely to conflict other ImageContainer use.
-        ImageContainer imgContainer(m_modelNodePreviewImageCommand.instanceId(), {}, 2100000001);
+        ImageContainer imgContainer(cmd.instanceId(), {}, 2100000001 + cmd.instanceId());
         imgContainer.setImage(renderImage);
 
         // send the rendered image to creator process
@@ -1175,23 +1180,23 @@ static QRectF itemBoundingRect(QQuickItem *item)
     return itemRect;
 }
 
-void Qt5InformationNodeInstanceServer::doRenderModelNode2DImageView()
+void Qt5InformationNodeInstanceServer::doRenderModelNode2DImageView(const RequestModelNodePreviewImageCommand &cmd)
 {
     if (m_modelNode2DImageViewData.rootItem) {
         if (!m_modelNode2DImageViewData.contentItem)
             m_modelNode2DImageViewData.contentItem = getContentItemForRendering(m_modelNode2DImageViewData.rootItem);
 
         // Key number is the same as in 3D case as they produce image for same purpose
-        auto imgContainer = ImageContainer(m_modelNodePreviewImageCommand.instanceId(), {}, 2100000001);
+        auto imgContainer = ImageContainer(cmd.instanceId(), {}, 2100000001 + cmd.instanceId());
         QImage renderImage;
-        if (m_modelNodePreviewImageCache.contains(m_modelNodePreviewImageCommand.componentPath())) {
-            renderImage = m_modelNodePreviewImageCache[m_modelNodePreviewImageCommand.componentPath()];
+        if (m_modelNodePreviewImageCache.contains(cmd.componentPath())) {
+            renderImage = m_modelNodePreviewImageCache[cmd.componentPath()];
         } else {
             QQuickItem *instanceItem = nullptr;
 
-            if (!m_modelNodePreviewImageCommand.componentPath().isEmpty()) {
+            if (!cmd.componentPath().isEmpty()) {
                 QQmlComponent component(engine());
-                component.loadUrl(QUrl::fromLocalFile(m_modelNodePreviewImageCommand.componentPath()));
+                component.loadUrl(QUrl::fromLocalFile(cmd.componentPath()));
                 instanceItem = qobject_cast<QQuickItem *>(component.create());
                 if (!instanceItem) {
                     qWarning() << "Could not create preview component: " << component.errors();
@@ -1207,7 +1212,7 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode2DImageView()
             // Some component may expect to always be shown at certain size, so their layouts may
             // not support scaling, so let's always render at the default size if item has one and
             // scale the resulting image instead.
-            QSize finalSize = m_modelNodePreviewImageCommand.size();
+            QSize finalSize = cmd.size();
             QRectF renderRect = itemBoundingRect(instanceItem);
             QSize renderSize = renderRect.size().toSize();
             if (renderSize.isEmpty()) {
@@ -1247,7 +1252,7 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode2DImageView()
             delete instanceItem;
 
             // If component changes, puppet will need a reset anyway, so we can cache the image
-            m_modelNodePreviewImageCache.insert(m_modelNodePreviewImageCommand.componentPath(), renderImage);
+            m_modelNodePreviewImageCache.insert(cmd.componentPath(), renderImage);
         }
 
         if (!renderImage.isNull()) {
@@ -2229,7 +2234,7 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
 
 void Qt5InformationNodeInstanceServer::requestModelNodePreviewImage(const RequestModelNodePreviewImageCommand &command)
 {
-    m_modelNodePreviewImageCommand = command;
+    m_modelNodePreviewImageCommands.insert(command);
     renderModelNodeImageView();
 }
 

@@ -27,6 +27,7 @@
 
 #include "modelnodeoperations.h"
 #include "abstractaction.h"
+#include "bindingproperty.h"
 #include "abstractactiongroup.h"
 #include "qmlitemnode.h"
 #include <qmldesignerplugin.h>
@@ -61,6 +62,24 @@ inline bool inBaseState(const SelectionContext &selectionState)
 inline bool singleSelection(const SelectionContext &selectionState)
 {
     return selectionState.singleNodeIsSelected();
+}
+
+inline bool isModel(const SelectionContext &selectionState)
+{
+    ModelNode node = selectionState.currentSingleSelectedNode();
+    return node.isValid() && node.isSubclassOf("QtQuick3D.Model");
+}
+
+inline bool modelHasMaterial(const SelectionContext &selectionState)
+{
+    ModelNode node = selectionState.currentSingleSelectedNode();
+
+    if (!node.isValid())
+        return false;
+
+    BindingProperty prop = node.bindingProperty("materials");
+
+    return prop.exists() && (!prop.expression().isEmpty() || !prop.resolveToModelNodeList().empty());
 }
 
 inline bool selectionEnabled(const SelectionContext &selectionState)

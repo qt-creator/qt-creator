@@ -74,6 +74,29 @@ StudioControls.ComboBox {
 
     property alias colorLogic: colorLogic
 
+    DropArea {
+        id: dropArea
+
+        anchors.fill: parent
+
+        property string assetPath: ""
+
+        onEntered: (drag) => {
+            dropArea.assetPath = drag.getDataAsString(drag.keys[0]).split(",")[0]
+
+            drag.accepted = comboBox.backendValue !== undefined && comboBox.backendValue.isSupportedDrop(dropArea.assetPath)
+            comboBox.hasActiveDrag = drag.accepted
+        }
+
+        onExited: comboBox.hasActiveDrag = false
+
+        onDropped: {
+            comboBox.backendValue.commitDrop(dropArea.assetPath)
+            comboBox.hasActiveDrag = false
+        }
+
+    }
+
     ExtendedFunctionLogic {
         id: extFuncLogic
         backendValue: comboBox.backendValue

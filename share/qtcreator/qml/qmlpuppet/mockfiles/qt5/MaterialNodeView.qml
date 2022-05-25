@@ -45,20 +45,48 @@ View3D {
 
     Node {
         DirectionalLight {
-            eulerRotation.x: -30
-            eulerRotation.y: -30
+            shadowMapQuality: Light.ShadowMapQualityMedium
+            shadowFilter: 20
+            shadowFactor: 21
+            castsShadow: true
+            eulerRotation.x: -26
+            eulerRotation.y: -57
         }
 
         PerspectiveCamera {
+            y: 125.331
             z: 120
-            clipFar: 1000
+            eulerRotation.x: -31
             clipNear: 1
+            clipFar: 1000
         }
 
         Model {
             id: model
+
+            y: 50
             source: "#Sphere"
             materials: previewMaterial
+        }
+
+        Model {
+            id: floorModel
+            source: "#Rectangle"
+            scale.y: 8
+            scale.x: 8
+            eulerRotation.x: -90
+            materials: floorMaterial
+            DefaultMaterial {
+                id: floorMaterial
+                diffuseMap: floorTex
+
+                Texture {
+                    id: floorTex
+                    source: "../images/floor_tex.png"
+                    scaleU: floorModel.scale.x
+                    scaleV: floorModel.scale.y
+                }
+            }
         }
     }
 }

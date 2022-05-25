@@ -48,7 +48,7 @@ Item {
 
     function clearSearchFilter()
     {
-        searchBox.text = "";
+        searchBox.clear();
     }
 
     function updateDropExtFiles(drag)
@@ -442,10 +442,12 @@ Item {
                 width: parent.width - addAssetButton.width - 5
             }
 
-            PlusButton {
+            IconButton {
                 id: addAssetButton
                 anchors.verticalCenter: parent.verticalCenter
                 tooltip: qsTr("Add a new asset to the project.")
+                icon: StudioTheme.Constants.plus
+                buttonSize: parent.height
 
                 onClicked: rootView.handleAddAsset()
             }
@@ -642,6 +644,7 @@ Item {
                             Image {
                                 id: img
                                 asynchronous: true
+                                fillMode: Image.PreserveAspectFit
                                 width: 48
                                 height: 48
                                 source: "image://qmldesigner_assets/" + filePath

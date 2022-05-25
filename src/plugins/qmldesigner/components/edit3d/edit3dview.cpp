@@ -67,16 +67,7 @@ void Edit3DView::createEdit3DWidget()
 
 void Edit3DView::checkImports()
 {
-    bool has3dImport = false;
-    const QList<Import> imports = model()->imports();
-    for (const auto &import : imports) {
-        if (import.url() == "QtQuick3D") {
-            has3dImport = true;
-            break;
-        }
-    }
-
-    edit3DWidget()->showCanvas(has3dImport);
+    edit3DWidget()->showCanvas(model()->hasImport("QtQuick3D"));
 }
 
 WidgetInfo Edit3DView::widgetInfo()
