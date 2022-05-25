@@ -804,11 +804,30 @@ public:
         m_shell->setWriteData("echo\n");
         m_shell->start();
 
-        if (!m_shell->waitForStarted() || !m_shell->waitForReadyRead()
-                || m_shell->readAllStandardOutput() != "\n") {
+        auto failed = [this] {
             closeShell();
             qCDebug(linuxDeviceLog) << "Failed to connect to" << m_displaylessSshParameters.host();
             return false;
+        };
+
+        QDeadlineTimer timer(30000);
+        if (!m_shell->waitForStarted(timer.remainingTime()))
+            return failed();
+
+        while (true) {
+            if (!m_shell->waitForReadyRead(timer.remainingTime()))
+                return failed();
+
+            const QByteArray output = m_shell->readAllStandardOutput();
+            if (output == "\n")
+                break; // expected output from echo
+            if (output.size() > 0)
+                return failed(); // other unidentified output
+
+            // In case of trying to run a shell using SSH_ASKPASS, it may happen
+            // that we receive ready read signal but for error channel, while output
+            // channel still is empty. In this case we wait in loop until the user
+            // provides the right password, otherwise we timeout after 30 seconds.
         }
         return true;
     }
