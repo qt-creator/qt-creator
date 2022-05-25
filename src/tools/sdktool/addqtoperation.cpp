@@ -318,7 +318,7 @@ QVariantMap AddQtData::addQt(const QVariantMap &map) const
     data << KeyValuePair(QStringList() << qt << ABIS, QVariant(m_abis));
 
     KeyValuePairList qtExtraList;
-    foreach (const KeyValuePair &pair, m_extra)
+    for (const KeyValuePair &pair : qAsConst(m_extra))
         qtExtraList << KeyValuePair(QStringList() << qt << pair.key, pair.value);
     data.append(qtExtraList);
 
@@ -343,8 +343,8 @@ bool AddQtData::exists(const QVariantMap &map, const QString &id)
     QString sdkId = extendId(id);
 
     // Sanity check: Make sure autodetection source is not in use already:
-    QStringList valueKeys = FindValueOperation::findValue(map, sdkId);
-    foreach (const QString &k, valueKeys) {
+    const QStringList valueKeys = FindValueOperation::findValue(map, sdkId);
+    for (const QString &k : valueKeys) {
         if (k.endsWith(QString(QLatin1Char('/')) + QLatin1String(AUTODETECTION_SOURCE)))
             return true;
     }

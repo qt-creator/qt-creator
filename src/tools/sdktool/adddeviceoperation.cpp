@@ -412,8 +412,8 @@ bool AddDeviceData::exists(const QVariantMap &map, const QString &id)
     if (id == QLatin1String(INTERNAL_DSEKTOP_DEVICE_ID))
         return true;
     QVariantMap dmMap = map.value(QLatin1String(DEVICEMANAGER_ID)).toMap();
-    QVariantList devList = dmMap.value(QLatin1String(DEVICE_LIST_ID)).toList();
-    foreach (const QVariant &dev, devList) {
+    const QVariantList devList = dmMap.value(QLatin1String(DEVICE_LIST_ID)).toList();
+    for (const QVariant &dev : devList) {
         QVariantMap devData = dev.toMap();
         QString current = devData.value(QLatin1String(DEVICE_ID_ID)).toString();
         if (current == id)

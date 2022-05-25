@@ -229,7 +229,7 @@ QVariantMap AddCMakeData::addCMake(const QVariantMap &map) const
     data << KeyValuePair({cm, AUTODETECTED_KEY}, QVariant(true));
     data << KeyValuePair({cm, PATH_KEY}, Utils::FilePath::fromUserInput(m_path).toVariant());
     KeyValuePairList extraList;
-    foreach (const KeyValuePair &pair, m_extra)
+    for (const KeyValuePair &pair : qAsConst(m_extra))
         extraList << KeyValuePair(QStringList({cm}) << pair.key, pair.value);
     data.append(extraList);
     data << KeyValuePair(COUNT, QVariant(count + 1));
@@ -251,7 +251,7 @@ bool AddCMakeData::exists(const QVariantMap &map, const QString &id)
     // support old settings using QByteArray for id's
     valueKeys.append(FindValueOperation::findValue(map, id.toUtf8()));
 
-    foreach (const QString &k, valueKeys) {
+    for (const QString &k : qAsConst(valueKeys)) {
         if (k.endsWith(QString('/') + ID_KEY)) {
             return true;
         }
