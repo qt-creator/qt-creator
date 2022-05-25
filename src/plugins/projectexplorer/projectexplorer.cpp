@@ -333,7 +333,8 @@ static bool canOpenTerminalWithRunEnv(const Project *project, const ProjectNode 
     const RunConfiguration * const runConfig = runConfigForNode(target, node);
     if (!runConfig)
         return false;
-    IDevice::ConstPtr device = runConfig->runnable().device;
+    IDevice::ConstPtr device
+        = DeviceManager::deviceForPath(runConfig->runnable().command.executable());
     if (!device)
         device = DeviceKitAspect::device(target->kit());
     return device && device->canOpenTerminal();
