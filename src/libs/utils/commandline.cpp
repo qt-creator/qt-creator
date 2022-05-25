@@ -1485,6 +1485,21 @@ void CommandLine::addArgs(const QString &inArgs, RawType)
     ProcessArgs::addArgs(&m_arguments, inArgs);
 }
 
+void CommandLine::prependArgs(const QStringList &inArgs)
+{
+    QString oldArgs = m_arguments;
+    m_arguments.clear();
+    addArgs(inArgs);
+    addArgs(oldArgs, Raw);
+}
+
+void CommandLine::prependArgs(const QString &inArgs, RawType)
+{
+    QString oldArgs = m_arguments;
+    m_arguments = inArgs;
+    addArgs(oldArgs, Raw);
+}
+
 QString CommandLine::toUserOutput() const
 {
     QString res = m_executable.toUserOutput();
