@@ -27,7 +27,6 @@
 
 #include "buildconfiguration.h"
 #include "devicesupport/idevicefwd.h"
-#include "projectexplorerconstants.h"
 #include "runconfiguration.h"
 
 #include <utils/commandline.h>
@@ -50,8 +49,6 @@ class OutputLineParser;
 } // Utils
 
 namespace ProjectExplorer {
-class GlobalOrProjectAspect;
-class Node;
 class RunConfiguration;
 class RunControl;
 class Target;
