@@ -1550,11 +1550,29 @@ QString ClangdClient::displayNameFromDocumentSymbol(SymbolKind kind, const QStri
     case SymbolKind::Constructor:
         return name + detail;
     case SymbolKind::Method:
-    case LanguageServerProtocol::SymbolKind::Function: {
-        const int parenOffset = detail.indexOf(" (");
-        if (parenOffset == -1)
+    case SymbolKind::Function: {
+        const int lastParenOffset = detail.lastIndexOf(')');
+        if (lastParenOffset == -1)
             return name;
-        return name + detail.mid(parenOffset + 1) + " -> " + detail.mid(0, parenOffset);
+        int leftParensNeeded = 1;
+        int i = -1;
+        for (i = lastParenOffset - 1; i >= 0; --i) {
+            switch (detail.at(i).toLatin1()) {
+            case ')':
+                ++leftParensNeeded;
+                break;
+            case '(':
+                --leftParensNeeded;
+                break;
+            default:
+                break;
+            }
+            if (leftParensNeeded == 0)
+                break;
+        }
+        if (leftParensNeeded > 0)
+            return name;
+        return name + detail.mid(i) + " -> " + detail.left(i);
     }
     case SymbolKind::Variable:
     case SymbolKind::Field:
