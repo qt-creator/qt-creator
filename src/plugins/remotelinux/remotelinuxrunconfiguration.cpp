@@ -75,7 +75,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
     if (HostOsInfo::isAnyUnixHost())
         addAspect<TerminalAspect>();
     if (HostOsInfo::isAnyUnixHost())
-        addAspect<X11ForwardingAspect>();
+        addAspect<X11ForwardingAspect>(macroExpander());
 
     setUpdater([this, target, exeAspect, symbolsAspect] {
         BuildTargetInfo bti = buildTargetInfo();
@@ -88,7 +88,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
 
     setRunnableModifier([this](Runnable &r) {
         if (const auto * const forwardingAspect = aspect<X11ForwardingAspect>())
-            r.extraData.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display(macroExpander()));
+            r.extraData.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display());
     });
 
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);

@@ -38,9 +38,17 @@ class REMOTELINUX_EXPORT X11ForwardingAspect : public Utils::StringAspect
     Q_OBJECT
 
 public:
-    X11ForwardingAspect();
+    X11ForwardingAspect(const Utils::MacroExpander *macroExpander);
 
-    QString display(const Utils::MacroExpander *expander) const;
+    struct Data : BaseAspect::Data
+    {
+        QString display;
+    };
+
+    QString display() const;
+
+private:
+    const Utils::MacroExpander *m_macroExpander;
 };
 
 } // namespace RemoteLinux

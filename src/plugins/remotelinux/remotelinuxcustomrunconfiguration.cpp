@@ -76,11 +76,11 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
     if (HostOsInfo::isAnyUnixHost())
         addAspect<TerminalAspect>();
     if (HostOsInfo::isAnyUnixHost())
-        addAspect<X11ForwardingAspect>();
+        addAspect<X11ForwardingAspect>(macroExpander());
 
     setRunnableModifier([this](Runnable &r) {
         if (const auto * const forwardingAspect = aspect<X11ForwardingAspect>())
-            r.extraData.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display(macroExpander()));
+            r.extraData.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display());
     });
 
     setDefaultDisplayName(runConfigDefaultDisplayName());
