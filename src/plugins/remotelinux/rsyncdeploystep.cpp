@@ -51,11 +51,22 @@ public:
     {
         connect(&m_mkdir, &QtcProcess::done, this, [this] {
             if (m_mkdir.result() != ProcessResult::FinishedWithSuccess) {
-                emit errorMessage(tr("Failed to create remote directories: %1").arg(m_mkdir.stdErr()));
+                QString finalMessage = m_mkdir.errorString();
+                const QString stdErr = m_mkdir.stdErr();
+                if (!stdErr.isEmpty()) {
+                    if (!finalMessage.isEmpty())
+                        finalMessage += '\n';
+                    finalMessage += stdErr;
+                }
+                emit errorMessage(tr("Deploy via rsync: failed to create remote directories:")
+                                  + '\n' + finalMessage);
                 setFinished();
                 return;
             }
             deployFiles();
+        });
+        connect(&m_mkdir, &QtcProcess::readyReadStandardError, this, [this] {
+            emit stdErrData(QString::fromLocal8Bit(m_mkdir.readAllStandardError()));
         });
         connect(&m_fileTransfer, &FileTransfer::progress,
                 this, &AbstractRemoteLinuxDeployService::stdOutData);

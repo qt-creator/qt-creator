@@ -448,6 +448,11 @@ void SshProcessInterface::handleStarted(qint64 processId)
     emitStarted(processId);
 }
 
+void SshProcessInterface::handleDone(const ProcessResultData &resultData)
+{
+    emit done(resultData);
+}
+
 void SshProcessInterface::handleReadyReadStandardOutput(const QByteArray &outputData)
 {
     emit readyRead(outputData, {});
@@ -580,6 +585,20 @@ void LinuxProcessInterface::handleStarted(qint64 processId)
     emitStarted(processId);
 }
 
+void LinuxProcessInterface::handleDone(const ProcessResultData &resultData)
+{
+    ProcessResultData finalData = resultData;
+    if (!m_pidParsed) {
+        finalData.m_error = QProcess::FailedToStart;
+        if (!m_error.isEmpty()) {
+            if (!finalData.m_errorString.isEmpty())
+                finalData.m_errorString += "\n";
+            finalData.m_errorString += QString::fromLocal8Bit(m_error);
+        }
+    }
+    emit done(finalData);
+}
+
 void LinuxProcessInterface::handleReadyReadStandardOutput(const QByteArray &outputData)
 {
     if (m_pidParsed) {
@@ -690,8 +709,9 @@ void SshProcessInterfacePrivate::handleStarted()
 
 void SshProcessInterfacePrivate::handleDone()
 {
-    m_connectionHandle.reset();
-    emit q->done(m_process.resultData());
+    if (m_connectionHandle) // TODO: should it disconnect from signals first?
+        m_connectionHandle.release()->deleteLater();
+    q->handleDone(m_process.resultData());
 }
 
 void SshProcessInterfacePrivate::handleReadyReadStandardOutput()
