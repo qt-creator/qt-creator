@@ -732,12 +732,9 @@ void PeripheralRegisterHandler::updateRegisterGroups()
     clear();
 
     const DebuggerRunParameters &rp = m_engine->runParameters();
-    const FilePath peripheralDescriptionFile = FilePath::fromVariant(
-                rp.inferior.extraData.value(Debugger::Constants::kPeripheralDescriptionFile));
-
-    if (!peripheralDescriptionFile.exists())
+    if (!rp.peripheralDescriptionFile.exists())
         return;
-    m_peripheralRegisterGroups = availablePeripheralRegisterGroups(peripheralDescriptionFile);
+    m_peripheralRegisterGroups = availablePeripheralRegisterGroups(rp.peripheralDescriptionFile);
 }
 
 void PeripheralRegisterHandler::updateRegister(quint64 address, quint64 value)

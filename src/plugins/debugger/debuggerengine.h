@@ -206,6 +206,14 @@ public:
 
     Utils::FilePath dumperPath;
     int fallbackQtVersion = 0x50200;
+
+    // Common debugger constants.
+    Utils::FilePath peripheralDescriptionFile;
+
+    // UVSC-specific debugger constants.
+    Utils::FilePath uVisionProjectFilePath;
+    Utils::FilePath uVisionOptionsFilePath;
+    bool uVisionSimulator = false;
 };
 
 class UpdateParameters
