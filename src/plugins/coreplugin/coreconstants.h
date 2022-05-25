@@ -188,7 +188,7 @@ const char G_VIEW_PANES[]          = "QtCreator.Group.View.Panes";
 
 // Tools menu groups
 const char G_TOOLS_DEBUG[]         = "QtCreator.Group.Tools.Debug";
-const char G_TOOLS_OPTIONS[]       = "QtCreator.Group.Tools.Options";
+const char G_EDIT_PREFERENCES[]    = "QtCreator.Group.Edit.Preferences";
 
 // Window menu groups
 const char G_WINDOW_SIZE[]         = "QtCreator.Group.Window.Size";

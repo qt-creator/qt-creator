@@ -717,14 +717,14 @@ void MainWindow::registerDefaultActions()
     connect(m_loggerAction, &QAction::triggered, this, [] { LoggingViewer::showLoggingView(); });
 
     // Options Action
-    mtools->appendGroup(Constants::G_TOOLS_OPTIONS);
-    mtools->addSeparator(Constants::G_TOOLS_OPTIONS);
+    medit->appendGroup(Constants::G_EDIT_PREFERENCES);
+    medit->addSeparator(Constants::G_EDIT_PREFERENCES);
 
-    m_optionsAction = new QAction(tr("&Options..."), this);
+    m_optionsAction = new QAction(tr("&Preferences..."), this);
     m_optionsAction->setMenuRole(QAction::PreferencesRole);
     cmd = ActionManager::registerAction(m_optionsAction, Constants::OPTIONS);
     cmd->setDefaultKeySequence(QKeySequence::Preferences);
-    mtools->addAction(cmd, Constants::G_TOOLS_OPTIONS);
+    medit->addAction(cmd, Constants::G_EDIT_PREFERENCES);
     connect(m_optionsAction, &QAction::triggered, this, [] { ICore::showOptionsDialog(Id()); });
 
     mwindow->addSeparator(Constants::G_WINDOW_LIST);
