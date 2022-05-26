@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,34 +25,19 @@
 
 #pragma once
 
-#include "abstractremotelinuxdeployservice.h"
+#include "abstractremotelinuxdeploystep.h"
 
 namespace RemoteLinux {
-namespace Internal { class RemoteLinuxKillAppServicePrivate; }
 
-class REMOTELINUX_EXPORT RemoteLinuxKillAppService : public AbstractRemoteLinuxDeployService
+class REMOTELINUX_EXPORT KillAppStep : public AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT
 public:
-    RemoteLinuxKillAppService();
-    ~RemoteLinuxKillAppService() override;
+    explicit KillAppStep(ProjectExplorer::BuildStepList *bsl,
+            Utils::Id id = stepId());
 
-    void setRemoteExecutable(const QString &filePath);
-
-private:
-    void handleStdErr();
-    void handleProcessFinished();
-
-    bool isDeploymentNecessary() const override;
-
-    void doDeploy() override;
-    void stopDeployment() override;
-
-    void handleSignalOpFinished(const QString &errorMessage);
-    void cleanup();
-    void finishDeployment();
-
-    Internal::RemoteLinuxKillAppServicePrivate * const d;
+    static Utils::Id stepId();
+    static QString displayName();
 };
 
 } // namespace RemoteLinux

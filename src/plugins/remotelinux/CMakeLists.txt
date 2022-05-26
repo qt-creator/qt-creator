@@ -13,6 +13,7 @@ add_qtc_plugin(RemoteLinux
     genericlinuxdeviceconfigurationwizard.cpp genericlinuxdeviceconfigurationwizard.h
     genericlinuxdeviceconfigurationwizardpages.cpp genericlinuxdeviceconfigurationwizardpages.h
     genericlinuxdeviceconfigurationwizardsetuppage.ui
+    killappstep.cpp killappstep.h
     linuxdevice.cpp linuxdevice.h
     linuxdevicetester.cpp linuxdevicetester.h
     linuxprocessinterface.h
@@ -29,8 +30,6 @@ add_qtc_plugin(RemoteLinux
     remotelinuxenvironmentaspect.cpp remotelinuxenvironmentaspect.h
     remotelinuxenvironmentaspectwidget.cpp remotelinuxenvironmentaspectwidget.h
     remotelinuxenvironmentreader.cpp remotelinuxenvironmentreader.h
-    remotelinuxkillappservice.cpp remotelinuxkillappservice.h
-    remotelinuxkillappstep.cpp remotelinuxkillappstep.h
     remotelinuxpackageinstaller.cpp remotelinuxpackageinstaller.h
     remotelinuxplugin.cpp remotelinuxplugin.h
     remotelinuxqmltoolingsupport.cpp remotelinuxqmltoolingsupport.h

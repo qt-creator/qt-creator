@@ -38,7 +38,7 @@
 #include "remotelinuxcheckforfreediskspacestep.h"
 #include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxcustomcommanddeploymentstep.h"
-#include "remotelinuxkillappstep.h"
+#include "killappstep.h"
 #include "rsyncdeploystep.h"
 #include "tarpackagecreationstep.h"
 #include "uploadandinstalltarpackagestep.h"
@@ -83,7 +83,7 @@ public:
         customCommandDeploymentStepFactory;
     GenericDeployStepFactory<RemoteLinuxCheckForFreeDiskSpaceStep>
         checkForFreeDiskSpaceStepFactory;
-    GenericDeployStepFactory<RemoteLinuxKillAppStep> remoteLinuxKillAppStepFactory;
+    GenericDeployStepFactory<KillAppStep> killAppStepFactory;
     GenericDeployStepFactory<MakeInstallStep> makeInstallStepFactory;
 
     const QList<Utils::Id> supportedRunConfigs {
