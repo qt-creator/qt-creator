@@ -33,12 +33,12 @@ add_qtc_plugin(RemoteLinux
     remotelinuxqmltoolingsupport.cpp remotelinuxqmltoolingsupport.h
     remotelinuxrunconfiguration.cpp remotelinuxrunconfiguration.h
     remotelinuxsignaloperation.cpp remotelinuxsignaloperation.h
-    remotelinuxx11forwardingaspect.cpp remotelinuxx11forwardingaspect.h
     rsyncdeploystep.cpp rsyncdeploystep.h
     sshkeycreationdialog.cpp sshkeycreationdialog.h sshkeycreationdialog.ui
     sshprocessinterface.h
     tarpackagecreationstep.cpp tarpackagecreationstep.h
     tarpackagedeploystep.cpp tarpackagedeploystep.h
+    x11forwardingaspect.cpp x11forwardingaspect.h
 )
 
 extend_qtc_plugin(RemoteLinux

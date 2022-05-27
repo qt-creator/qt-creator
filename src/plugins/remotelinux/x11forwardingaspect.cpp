@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "remotelinuxx11forwardingaspect.h"
+#include "x11forwardingaspect.h"
 
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>

@@ -71,8 +71,6 @@ Project {
             "remotelinuxrunconfiguration.h",
             "remotelinuxsignaloperation.cpp",
             "remotelinuxsignaloperation.h",
-            "remotelinuxx11forwardingaspect.cpp",
-            "remotelinuxx11forwardingaspect.h",
             "rsyncdeploystep.cpp",
             "rsyncdeploystep.h",
             "sshkeycreationdialog.cpp",
@@ -83,6 +81,8 @@ Project {
             "tarpackagecreationstep.h",
             "tarpackagedeploystep.cpp",
             "tarpackagedeploystep.h",
+            "x11forwardingaspect.cpp",
+            "x11forwardingaspect.h",
             "images/embeddedtarget.png",
         ]
 

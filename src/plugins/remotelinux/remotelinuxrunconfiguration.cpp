@@ -26,8 +26,8 @@
 #include "remotelinuxrunconfiguration.h"
 
 #include "remotelinux_constants.h"
-#include "remotelinuxx11forwardingaspect.h"
 #include "remotelinuxenvironmentaspect.h"
+#include "x11forwardingaspect.h"
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
