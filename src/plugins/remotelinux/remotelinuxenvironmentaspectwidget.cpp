@@ -26,7 +26,7 @@
 #include "remotelinuxenvironmentaspectwidget.h"
 
 #include "linuxdevice.h"
-#include "remotelinuxrunconfiguration.h"
+#include "remotelinuxenvironmentaspect.h"
 #include "remotelinuxenvironmentreader.h"
 
 #include <coreplugin/icore.h>

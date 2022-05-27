@@ -25,8 +25,9 @@
 
 #pragma once
 
-#include "linuxdevice.h"
 #include "remotelinux_export.h"
+
+#include "linuxdevice.h"
 
 #include <QWizardPage>
 

@@ -25,11 +25,9 @@
 
 #pragma once
 
-#include "remotelinux_export.h"
-
-#include <utils/filepath.h>
-
 #include <QDialog>
+
+namespace Utils { class FilePath; }
 
 namespace RemoteLinux {
 

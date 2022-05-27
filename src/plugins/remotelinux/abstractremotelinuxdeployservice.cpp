@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "abstractremotelinuxdeployservice.h"
+
 #include "deploymenttimeinfo.h"
 
 #include <projectexplorer/deployablefile.h>

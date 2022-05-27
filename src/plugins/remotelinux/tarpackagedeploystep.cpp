@@ -25,6 +25,7 @@
 
 #include "tarpackagedeploystep.h"
 
+#include "abstractremotelinuxdeployservice.h"
 #include "remotelinux_constants.h"
 #include "tarpackagecreationstep.h"
 

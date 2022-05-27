@@ -26,7 +26,6 @@
 #include "abstractremotelinuxdeploystep.h"
 
 #include "abstractremotelinuxdeployservice.h"
-#include "remotelinuxdeployconfiguration.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/kitinformation.h>

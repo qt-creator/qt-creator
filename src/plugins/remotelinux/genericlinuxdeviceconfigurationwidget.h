@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include <projectexplorer/devicesupport/idevicewidget.h>
-
 #include "remotelinux_export.h"
+
+#include <projectexplorer/devicesupport/idevicewidget.h>
 
 namespace Utils { class FilePath; }
 

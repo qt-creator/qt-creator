@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "remotelinux_export.h"
-
 #include <projectexplorer/runconfiguration.h>
 
 namespace RemoteLinux {

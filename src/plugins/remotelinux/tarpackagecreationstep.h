@@ -25,13 +25,12 @@
 
 #pragma once
 
-#include "abstractpackagingstep.h"
-#include "deploymenttimeinfo.h"
 #include "remotelinux_export.h"
 
-#include <projectexplorer/deployablefile.h>
+#include "abstractpackagingstep.h"
+#include "deploymenttimeinfo.h"
 
-#include <utils/aspects.h>
+#include <projectexplorer/deployablefile.h>
 
 QT_BEGIN_NAMESPACE
 class QFile;

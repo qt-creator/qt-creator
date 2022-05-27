@@ -25,6 +25,7 @@
 
 #include "killappstep.h"
 
+#include "abstractremotelinuxdeployservice.h"
 #include "remotelinux_constants.h"
 
 #include <projectexplorer/devicesupport/idevice.h>

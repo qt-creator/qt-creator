@@ -25,13 +25,16 @@
 
 #pragma once
 
-#include "abstractremotelinuxdeployservice.h"
 #include "remotelinux_export.h"
+
+#include "abstractremotelinuxdeployservice.h"
 
 #include <QList>
 
-QT_FORWARD_DECLARE_CLASS(QDateTime)
-QT_FORWARD_DECLARE_CLASS(QString)
+QT_BEGIN_NAMESPACE
+class QDateTime;
+class QString;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer { class DeployableFile; }
 namespace Utils { class QtcProcess; }
