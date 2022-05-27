@@ -229,11 +229,6 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
         } else if (role == Qt::ToolTipRole) {
             if (currentQmlObjectNode.hasError()) {
                 QString errorString = currentQmlObjectNode.error();
-                if (QmlProjectManager::QmlProject::isQtDesignStudio()
-                        && currentQmlObjectNode.isRootNode()) {
-                    errorString.append(QString("\n%1").arg(tr("Changing the setting \"%1\" might solve the issue.").arg(
-                                                               tr("Use QML emulation layer that is built with the selected Qt"))));
-                }
                 return errorString;
             }
 
