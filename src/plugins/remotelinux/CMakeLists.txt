@@ -5,6 +5,7 @@ add_qtc_plugin(RemoteLinux
     abstractpackagingstep.cpp abstractpackagingstep.h
     abstractremotelinuxdeployservice.cpp abstractremotelinuxdeployservice.h
     abstractremotelinuxdeploystep.cpp abstractremotelinuxdeploystep.h
+    checkforfreediskspacestep.cpp checkforfreediskspacestep.h
     customcommanddeploystep.cpp customcommanddeploystep.h
     deploymenttimeinfo.cpp deploymenttimeinfo.h
     genericdirectuploadservice.cpp genericdirectuploadservice.h
@@ -22,7 +23,6 @@ add_qtc_plugin(RemoteLinux
     remotelinux.qrc
     remotelinux_constants.h
     remotelinux_export.h
-    remotelinuxcheckforfreediskspacestep.cpp remotelinuxcheckforfreediskspacestep.h
     remotelinuxcustomrunconfiguration.cpp remotelinuxcustomrunconfiguration.h
     remotelinuxdebugsupport.cpp remotelinuxdebugsupport.h
     remotelinuxdeployconfiguration.cpp remotelinuxdeployconfiguration.h

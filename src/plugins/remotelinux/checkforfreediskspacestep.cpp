@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "remotelinuxcheckforfreediskspacestep.h"
+#include "checkforfreediskspacestep.h"
 
 #include "abstractremotelinuxdeployservice.h"
 
@@ -41,14 +41,12 @@ using namespace Utils;
 
 namespace RemoteLinux {
 
-// RemoteLinuxCheckForFreeDiskSpaceService
-
-class RemoteLinuxCheckForFreeDiskSpaceService : public AbstractRemoteLinuxDeployService
+class CheckForFreeDiskSpaceService : public AbstractRemoteLinuxDeployService
 {
-    Q_DECLARE_TR_FUNCTIONS(RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceService)
+    Q_DECLARE_TR_FUNCTIONS(RemoteLinux::CheckForFreeDiskSpaceService)
 
 public:
-    RemoteLinuxCheckForFreeDiskSpaceService() {}
+    CheckForFreeDiskSpaceService() {}
 
     void setPathToCheck(const QString &path);
     void setRequiredSpaceInBytes(quint64 sizeInBytes);
@@ -65,17 +63,17 @@ private:
     quint64 m_requiredSpaceInBytes = 0;
 };
 
-void RemoteLinuxCheckForFreeDiskSpaceService::setPathToCheck(const QString &path)
+void CheckForFreeDiskSpaceService::setPathToCheck(const QString &path)
 {
     m_pathToCheck = path;
 }
 
-void RemoteLinuxCheckForFreeDiskSpaceService::setRequiredSpaceInBytes(quint64 sizeInBytes)
+void CheckForFreeDiskSpaceService::setRequiredSpaceInBytes(quint64 sizeInBytes)
 {
     m_requiredSpaceInBytes = sizeInBytes;
 }
 
-void RemoteLinuxCheckForFreeDiskSpaceService::doDeploy()
+void CheckForFreeDiskSpaceService::doDeploy()
 {
     auto cleanup = qScopeGuard([this] { setFinished(); });
     const FilePath path = deviceConfiguration()->filePath(m_pathToCheck);
@@ -104,7 +102,7 @@ void RemoteLinuxCheckForFreeDiskSpaceService::doDeploy()
     handleDeploymentDone();
 }
 
-CheckResult RemoteLinuxCheckForFreeDiskSpaceService::isDeploymentPossible() const
+CheckResult CheckForFreeDiskSpaceService::isDeploymentPossible() const
 {
     if (!m_pathToCheck.startsWith('/')) {
         return CheckResult::failure(
@@ -115,13 +113,11 @@ CheckResult RemoteLinuxCheckForFreeDiskSpaceService::isDeploymentPossible() cons
     return AbstractRemoteLinuxDeployService::isDeploymentPossible();
 }
 
-// RemoteLinuxCheckForFreeDiskSpaceStep
-
-RemoteLinuxCheckForFreeDiskSpaceStep::RemoteLinuxCheckForFreeDiskSpaceStep
+CheckForFreeDiskSpaceStep::CheckForFreeDiskSpaceStep
     (BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
 {
-    auto service = createDeployService<RemoteLinuxCheckForFreeDiskSpaceService>();
+    auto service = createDeployService<CheckForFreeDiskSpaceService>();
 
     auto pathToCheckAspect = addAspect<StringAspect>();
     pathToCheckAspect->setSettingsKey("RemoteLinux.CheckForFreeDiskSpaceStep.PathToCheck");
@@ -144,14 +140,12 @@ RemoteLinuxCheckForFreeDiskSpaceStep::RemoteLinuxCheckForFreeDiskSpaceStep
     });
 }
 
-RemoteLinuxCheckForFreeDiskSpaceStep::~RemoteLinuxCheckForFreeDiskSpaceStep() = default;
-
-Id RemoteLinuxCheckForFreeDiskSpaceStep::stepId()
+Id CheckForFreeDiskSpaceStep::stepId()
 {
     return "RemoteLinux.CheckForFreeDiskSpaceStep";
 }
 
-QString RemoteLinuxCheckForFreeDiskSpaceStep::displayName()
+QString CheckForFreeDiskSpaceStep::displayName()
 {
     return tr("Check for free disk space");
 }

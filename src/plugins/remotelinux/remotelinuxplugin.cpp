@@ -25,13 +25,13 @@
 
 #include "remotelinuxplugin.h"
 
+#include "checkforfreediskspacestep.h"
 #include "customcommanddeploystep.h"
 #include "genericdirectuploadstep.h"
 #include "killappstep.h"
 #include "linuxdevice.h"
 #include "makeinstallstep.h"
 #include "remotelinux_constants.h"
-#include "remotelinuxcheckforfreediskspacestep.h"
 #include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxqmltoolingsupport.h"
 #include "remotelinuxcustomrunconfiguration.h"
@@ -79,8 +79,7 @@ public:
     GenericDeployStepFactory<GenericDirectUploadStep> genericDirectUploadStepFactory;
     GenericDeployStepFactory<RsyncDeployStep> rsyncDeployStepFactory;
     GenericDeployStepFactory<CustomCommandDeployStep> customCommandDeployStepFactory;
-    GenericDeployStepFactory<RemoteLinuxCheckForFreeDiskSpaceStep>
-        checkForFreeDiskSpaceStepFactory;
+    GenericDeployStepFactory<CheckForFreeDiskSpaceStep> checkForFreeDiskSpaceStepFactory;
     GenericDeployStepFactory<KillAppStep> killAppStepFactory;
     GenericDeployStepFactory<MakeInstallStep> makeInstallStepFactory;
 

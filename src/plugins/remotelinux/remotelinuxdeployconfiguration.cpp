@@ -25,9 +25,9 @@
 
 #include "remotelinuxdeployconfiguration.h"
 
+#include "checkforfreediskspacestep.h"
 #include "genericdirectuploadstep.h"
 #include "makeinstallstep.h"
-#include "remotelinuxcheckforfreediskspacestep.h"
 #include "killappstep.h"
 #include "remotelinux_constants.h"
 #include "rsyncdeploystep.h"
@@ -76,7 +76,7 @@ RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory()
     });
 
     addInitialStep(MakeInstallStep::stepId(), needsMakeInstall);
-    addInitialStep(RemoteLinuxCheckForFreeDiskSpaceStep::stepId());
+    addInitialStep(CheckForFreeDiskSpaceStep::stepId());
     addInitialStep(KillAppStep::stepId());
     addInitialStep(RsyncDeployStep::stepId(), [](Target *target) {
         auto device = DeviceKitAspect::device(target->kit());

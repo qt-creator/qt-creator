@@ -29,13 +29,12 @@
 
 namespace RemoteLinux {
 
-class REMOTELINUX_EXPORT RemoteLinuxCheckForFreeDiskSpaceStep : public AbstractRemoteLinuxDeployStep
+class REMOTELINUX_EXPORT CheckForFreeDiskSpaceStep : public AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT
 
 public:
-    RemoteLinuxCheckForFreeDiskSpaceStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
-    ~RemoteLinuxCheckForFreeDiskSpaceStep() override;
+    CheckForFreeDiskSpaceStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
 
     static Utils::Id stepId();
     static QString displayName();
