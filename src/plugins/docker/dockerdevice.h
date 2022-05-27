@@ -27,6 +27,7 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
+#include <coreplugin/documentmanager.h>
 
 #include <utils/aspects.h>
 
@@ -44,7 +45,7 @@ public:
     QString tag;
     QString size;
     bool useLocalUidGid = true;
-    QStringList mounts;
+    QStringList mounts = { Core::DocumentManager::projectsDirectory().toString() };
 };
 
 class DockerDevice : public ProjectExplorer::IDevice
