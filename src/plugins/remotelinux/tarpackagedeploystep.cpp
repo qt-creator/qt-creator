@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "uploadandinstalltarpackagestep.h"
+#include "tarpackagedeploystep.h"
 
 #include "remotelinux_constants.h"
 #include "remotelinuxpackageinstaller.h"
@@ -43,12 +43,12 @@ using namespace Utils;
 namespace RemoteLinux {
 namespace Internal {
 
-class UploadAndInstallTarPackageService : public AbstractRemoteLinuxDeployService
+class TarPackageDeployService : public AbstractRemoteLinuxDeployService
 {
     Q_OBJECT
 
 public:
-    UploadAndInstallTarPackageService();
+    TarPackageDeployService();
     void setPackageFilePath(const FilePath &filePath);
 
 private:
@@ -71,30 +71,30 @@ private:
     RemoteLinuxTarPackageInstaller m_installer;
 };
 
-UploadAndInstallTarPackageService::UploadAndInstallTarPackageService()
+TarPackageDeployService::TarPackageDeployService()
 {
     connect(&m_uploader, &FileTransfer::done, this,
-            &UploadAndInstallTarPackageService::handleUploadFinished);
+            &TarPackageDeployService::handleUploadFinished);
     connect(&m_uploader, &FileTransfer::progress, this,
-            &UploadAndInstallTarPackageService::progressMessage);
+            &TarPackageDeployService::progressMessage);
 }
 
-void UploadAndInstallTarPackageService::setPackageFilePath(const FilePath &filePath)
+void TarPackageDeployService::setPackageFilePath(const FilePath &filePath)
 {
     m_packageFilePath = filePath;
 }
 
-QString UploadAndInstallTarPackageService::uploadDir() const
+QString TarPackageDeployService::uploadDir() const
 {
     return QLatin1String("/tmp");
 }
 
-bool UploadAndInstallTarPackageService::isDeploymentNecessary() const
+bool TarPackageDeployService::isDeploymentNecessary() const
 {
     return hasLocalFileChanged(DeployableFile(m_packageFilePath, {}));
 }
 
-void UploadAndInstallTarPackageService::doDeploy()
+void TarPackageDeployService::doDeploy()
 {
     QTC_ASSERT(m_state == Inactive, return);
 
@@ -107,7 +107,7 @@ void UploadAndInstallTarPackageService::doDeploy()
     m_uploader.start();
 }
 
-void UploadAndInstallTarPackageService::stopDeployment()
+void TarPackageDeployService::stopDeployment()
 {
     switch (m_state) {
     case Inactive:
@@ -124,7 +124,7 @@ void UploadAndInstallTarPackageService::stopDeployment()
     }
 }
 
-void UploadAndInstallTarPackageService::handleUploadFinished(const ProcessResultData &resultData)
+void TarPackageDeployService::handleUploadFinished(const ProcessResultData &resultData)
 {
     QTC_ASSERT(m_state == Uploading, return);
 
@@ -143,11 +143,11 @@ void UploadAndInstallTarPackageService::handleUploadFinished(const ProcessResult
     connect(&m_installer, &AbstractRemoteLinuxPackageInstaller::stderrData,
             this, &AbstractRemoteLinuxDeployService::stdErrData);
     connect(&m_installer, &AbstractRemoteLinuxPackageInstaller::finished,
-            this, &UploadAndInstallTarPackageService::handleInstallationFinished);
+            this, &TarPackageDeployService::handleInstallationFinished);
     m_installer.installPackage(deviceConfiguration(), remoteFilePath, true);
 }
 
-void UploadAndInstallTarPackageService::handleInstallationFinished(const QString &errorMsg)
+void TarPackageDeployService::handleInstallationFinished(const QString &errorMsg)
 {
     QTC_ASSERT(m_state == Installing, return);
 
@@ -160,7 +160,7 @@ void UploadAndInstallTarPackageService::handleInstallationFinished(const QString
     setFinished();
 }
 
-void UploadAndInstallTarPackageService::setFinished()
+void TarPackageDeployService::setFinished()
 {
     m_state = Inactive;
     m_uploader.stop();
@@ -172,10 +172,10 @@ void UploadAndInstallTarPackageService::setFinished()
 
 using namespace Internal;
 
-UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bsl, Id id)
+TarPackageDeployStep::TarPackageDeployStep(BuildStepList *bsl, Id id)
     : AbstractRemoteLinuxDeployStep(bsl, id)
 {
-    auto service = createDeployService<UploadAndInstallTarPackageService>();
+    auto service = createDeployService<TarPackageDeployService>();
 
     setWidgetExpandedByDefault(false);
 
@@ -196,16 +196,16 @@ UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bs
     });
 }
 
-Id UploadAndInstallTarPackageStep::stepId()
+Id TarPackageDeployStep::stepId()
 {
-    return Constants::UploadAndInstallTarPackageStepId;
+    return Constants::TarPackageDeployStepId;
 }
 
-QString UploadAndInstallTarPackageStep::displayName()
+QString TarPackageDeployStep::displayName()
 {
     return tr("Deploy tarball via SFTP upload");
 }
 
 } //namespace RemoteLinux
 
-#include "uploadandinstalltarpackagestep.moc"
+#include "tarpackagedeploystep.moc"

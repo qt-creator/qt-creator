@@ -83,8 +83,8 @@ Project {
             "sshprocessinterface.h",
             "tarpackagecreationstep.cpp",
             "tarpackagecreationstep.h",
-            "uploadandinstalltarpackagestep.cpp",
-            "uploadandinstalltarpackagestep.h",
+            "tarpackagedeploystep.cpp",
+            "tarpackagedeploystep.h",
             "images/embeddedtarget.png",
         ]
 

@@ -39,7 +39,7 @@ add_qtc_plugin(RemoteLinux
     sshkeycreationdialog.cpp sshkeycreationdialog.h sshkeycreationdialog.ui
     sshprocessinterface.h
     tarpackagecreationstep.cpp tarpackagecreationstep.h
-    uploadandinstalltarpackagestep.cpp uploadandinstalltarpackagestep.h
+    tarpackagedeploystep.cpp tarpackagedeploystep.h
 )
 
 extend_qtc_plugin(RemoteLinux

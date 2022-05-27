@@ -41,7 +41,7 @@
 #include "killappstep.h"
 #include "rsyncdeploystep.h"
 #include "tarpackagecreationstep.h"
-#include "uploadandinstalltarpackagestep.h"
+#include "tarpackagedeploystep.h"
 
 #ifdef WITH_TESTS
 #include "filesystemaccess_test.h"
@@ -76,7 +76,7 @@ public:
     RemoteLinuxCustomRunConfigurationFactory customRunConfigurationFactory;
     RemoteLinuxDeployConfigurationFactory deployConfigurationFactory;
     GenericDeployStepFactory<TarPackageCreationStep> tarPackageCreationStepFactory;
-    GenericDeployStepFactory<UploadAndInstallTarPackageStep> uploadAndInstallTarPackageStepFactory;
+    GenericDeployStepFactory<TarPackageDeployStep> tarPackageDeployStepFactory;
     GenericDeployStepFactory<GenericDirectUploadStep> genericDirectUploadStepFactory;
     GenericDeployStepFactory<RsyncDeployStep> rsyncDeployStepFactory;
     GenericDeployStepFactory<RemoteLinuxCustomCommandDeploymentStep>

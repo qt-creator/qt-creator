@@ -30,12 +30,12 @@
 namespace RemoteLinux {
 class AbstractRemoteLinuxPackageInstaller;
 
-class REMOTELINUX_EXPORT UploadAndInstallTarPackageStep : public AbstractRemoteLinuxDeployStep
+class TarPackageDeployStep : public AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT
 
 public:
-    UploadAndInstallTarPackageStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
+    TarPackageDeployStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
 
     static Utils::Id stepId();
     static QString displayName();
