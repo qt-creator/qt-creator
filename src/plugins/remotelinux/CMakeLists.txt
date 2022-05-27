@@ -2,7 +2,6 @@ add_qtc_plugin(RemoteLinux
   DEPENDS QmlDebug
   PLUGIN_DEPENDS Core Debugger ProjectExplorer
   SOURCES
-    abstractpackagingstep.cpp abstractpackagingstep.h
     abstractremotelinuxdeployservice.cpp abstractremotelinuxdeployservice.h
     abstractremotelinuxdeploystep.cpp abstractremotelinuxdeploystep.h
     checkforfreediskspacestep.cpp checkforfreediskspacestep.h
