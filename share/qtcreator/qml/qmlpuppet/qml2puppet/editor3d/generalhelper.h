@@ -77,7 +77,7 @@ public:
                                              bool closeUp = false);
     Q_INVOKABLE void calculateNodeBoundsAndFocusCamera(QQuick3DCamera *camera, QQuick3DNode *node,
                                                        QQuick3DViewport *viewPort,
-                                                       float defaultLookAtDistance);
+                                                       float defaultLookAtDistance, bool closeUp);
     Q_INVOKABLE void alignCameras(QQuick3DCamera *camera, const QVariant &nodes);
     Q_INVOKABLE QVector3D alignView(QQuick3DCamera *camera, const QVariant &nodes,
                                     const QVector3D &lookAtPoint);

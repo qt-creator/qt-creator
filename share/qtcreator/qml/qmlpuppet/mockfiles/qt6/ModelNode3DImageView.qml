@@ -41,6 +41,8 @@ Item {
     property var modelViewComponent
     property var nodeViewComponent
 
+    property bool closeUp: false
+
     function destroyView()
     {
         previewObject = null;
@@ -96,17 +98,30 @@ Item {
 
     function fitToViewPort()
     {
-        view.fitToViewPort();
+        view.fitToViewPort(closeUp);
+    }
+
+    // Enables/disables icon mode. When in icon mode, camera is zoomed bit closer to reduce margins
+    // and the background is removed, in order to generate a preview suitable for library icons.
+    function setIconMode(enable)
+    {
+        closeUp = enable;
+        backgroundRect.visible = !enable;
     }
 
     Item {
         id: contentItem
         anchors.fill: parent
 
-        Rectangle {
+        Item {
             id: viewRect
             anchors.fill: parent
+        }
 
+        Rectangle {
+            id: backgroundRect
+            anchors.fill: parent
+            z: -1
             gradient: Gradient {
                 GradientStop { position: 1.0; color: "#222222" }
                 GradientStop { position: 0.0; color: "#999999" }

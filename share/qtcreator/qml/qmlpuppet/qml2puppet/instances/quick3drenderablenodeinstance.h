@@ -52,6 +52,7 @@ public:
     QList<ServerNodeInstance> stateInstances() const override;
 
     QQuickItem *contentItem() const override;
+    void setPropertyVariant(const PropertyName &name, const QVariant &value) override;
 
 protected:
     explicit Quick3DRenderableNodeInstance(QObject *node);
