@@ -92,11 +92,6 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect, QWid
             this, &EnvironmentAspectWidget::environmentChanged);
 }
 
-EnvironmentAspect *EnvironmentAspectWidget::aspect() const
-{
-    return m_aspect;
-}
-
 QWidget *EnvironmentAspectWidget::additionalWidget() const
 {
     return m_additionalWidget;

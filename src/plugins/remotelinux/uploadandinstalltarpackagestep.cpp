@@ -185,7 +185,7 @@ UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bs
         for (BuildStep *step : deployConfiguration()->stepList()->steps()) {
             if (step == this)
                 break;
-            if ((pStep = dynamic_cast<TarPackageCreationStep *>(step)))
+            if ((pStep = qobject_cast<TarPackageCreationStep *>(step)))
                 break;
         }
         if (!pStep)
