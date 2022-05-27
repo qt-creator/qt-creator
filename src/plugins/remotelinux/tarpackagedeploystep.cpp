@@ -26,7 +26,6 @@
 #include "tarpackagedeploystep.h"
 
 #include "remotelinux_constants.h"
-#include "remotelinuxpackageinstaller.h"
 #include "tarpackagecreationstep.h"
 
 #include <projectexplorer/deployconfiguration.h>
@@ -34,6 +33,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 
 #include <utils/processinterface.h>
+#include <utils/qtcprocess.h>
 
 #include <QDateTime>
 
@@ -42,6 +42,67 @@ using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
+
+class TarPackageInstaller : public QObject
+{
+    Q_OBJECT
+
+public:
+    TarPackageInstaller(QObject *parent = nullptr);
+
+    void installPackage(const ProjectExplorer::IDeviceConstPtr &deviceConfig,
+                        const QString &packageFilePath, bool removePackageFile);
+    void cancelInstallation();
+
+signals:
+    void stdoutData(const QString &output);
+    void stderrData(const QString &output);
+    void finished(const QString &errorMsg = QString());
+
+private:
+    IDevice::ConstPtr m_device;
+    QtcProcess m_installer;
+    QtcProcess m_killer;
+};
+
+TarPackageInstaller::TarPackageInstaller(QObject *parent)
+    : QObject(parent)
+{
+    connect(&m_installer, &QtcProcess::readyReadStandardOutput, this, [this] {
+        emit stdoutData(QString::fromUtf8(m_installer.readAllStandardOutput()));
+    });
+    connect(&m_installer, &QtcProcess::readyReadStandardError, this, [this] {
+        emit stderrData(QString::fromUtf8(m_installer.readAllStandardError()));
+    });
+    connect(&m_installer, &QtcProcess::finished, this, [this] {
+        const QString errorMessage = m_installer.result() == ProcessResult::FinishedWithSuccess
+                ? QString() : tr("Installing package failed.") + m_installer.errorString();
+        emit finished(errorMessage);
+    });
+}
+
+void TarPackageInstaller::installPackage(const IDevice::ConstPtr &deviceConfig,
+    const QString &packageFilePath, bool removePackageFile)
+{
+    QTC_ASSERT(m_installer.state() == QProcess::NotRunning, return);
+
+    m_device = deviceConfig;
+
+    QString cmdLine = QLatin1String("cd / && tar xvf ") + packageFilePath;
+    if (removePackageFile)
+        cmdLine += QLatin1String(" && (rm ") + packageFilePath + QLatin1String(" || :)");
+    m_installer.setCommand({m_device->filePath("/bin/sh"), {"-c", cmdLine}});
+    m_installer.start();
+}
+
+void TarPackageInstaller::cancelInstallation()
+{
+    QTC_ASSERT(m_installer.state() != QProcess::NotRunning, return);
+
+    m_killer.setCommand({m_device->filePath("/bin/sh"), {"-c", "pkill tar"}});
+    m_killer.start();
+    m_installer.close();
+}
 
 class TarPackageDeployService : public AbstractRemoteLinuxDeployService
 {
@@ -68,7 +129,7 @@ private:
     State m_state = Inactive;
     FileTransfer m_uploader;
     FilePath m_packageFilePath;
-    RemoteLinuxTarPackageInstaller m_installer;
+    TarPackageInstaller m_installer;
 };
 
 TarPackageDeployService::TarPackageDeployService()
@@ -138,11 +199,11 @@ void TarPackageDeployService::handleUploadFinished(const ProcessResultData &resu
     const QString remoteFilePath = uploadDir() + '/' + m_packageFilePath.fileName();
     m_state = Installing;
     emit progressMessage(tr("Installing package to device..."));
-    connect(&m_installer, &AbstractRemoteLinuxPackageInstaller::stdoutData,
+    connect(&m_installer, &TarPackageInstaller::stdoutData,
             this, &AbstractRemoteLinuxDeployService::stdOutData);
-    connect(&m_installer, &AbstractRemoteLinuxPackageInstaller::stderrData,
+    connect(&m_installer, &TarPackageInstaller::stderrData,
             this, &AbstractRemoteLinuxDeployService::stdErrData);
-    connect(&m_installer, &AbstractRemoteLinuxPackageInstaller::finished,
+    connect(&m_installer, &TarPackageInstaller::finished,
             this, &TarPackageDeployService::handleInstallationFinished);
     m_installer.installPackage(deviceConfiguration(), remoteFilePath, true);
 }

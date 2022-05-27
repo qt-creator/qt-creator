@@ -63,8 +63,6 @@ Project {
             "remotelinuxenvironmentaspectwidget.h",
             "remotelinuxenvironmentreader.cpp",
             "remotelinuxenvironmentreader.h",
-            "remotelinuxpackageinstaller.cpp",
-            "remotelinuxpackageinstaller.h",
             "remotelinuxplugin.cpp",
             "remotelinuxplugin.h",
             "remotelinuxqmltoolingsupport.cpp",

@@ -28,7 +28,6 @@
 #include "abstractremotelinuxdeploystep.h"
 
 namespace RemoteLinux {
-class AbstractRemoteLinuxPackageInstaller;
 
 class TarPackageDeployStep : public AbstractRemoteLinuxDeployStep
 {
