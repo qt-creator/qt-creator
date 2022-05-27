@@ -61,7 +61,7 @@ protected:
 private:
     void runStat(const ProjectExplorer::DeployableFile &file);
     QDateTime timestampFromStat(const ProjectExplorer::DeployableFile &file,
-                                Utils::QtcProcess *statProc, const QString &errorMsg);
+                                Utils::QtcProcess *statProc);
     void checkForStateChangeOnRemoteProcFinished();
 
     QList<ProjectExplorer::DeployableFile> collectFilesToUpload(
