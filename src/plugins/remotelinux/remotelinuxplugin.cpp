@@ -25,20 +25,19 @@
 
 #include "remotelinuxplugin.h"
 
+#include "customcommanddeploystep.h"
+#include "genericdirectuploadstep.h"
+#include "killappstep.h"
 #include "linuxdevice.h"
+#include "makeinstallstep.h"
 #include "remotelinux_constants.h"
+#include "remotelinuxcheckforfreediskspacestep.h"
+#include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxqmltoolingsupport.h"
 #include "remotelinuxcustomrunconfiguration.h"
 #include "remotelinuxdebugsupport.h"
 #include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxrunconfiguration.h"
-
-#include "genericdirectuploadstep.h"
-#include "makeinstallstep.h"
-#include "remotelinuxcheckforfreediskspacestep.h"
-#include "remotelinuxdeployconfiguration.h"
-#include "remotelinuxcustomcommanddeploymentstep.h"
-#include "killappstep.h"
 #include "rsyncdeploystep.h"
 #include "tarpackagecreationstep.h"
 #include "tarpackagedeploystep.h"
@@ -79,8 +78,7 @@ public:
     GenericDeployStepFactory<TarPackageDeployStep> tarPackageDeployStepFactory;
     GenericDeployStepFactory<GenericDirectUploadStep> genericDirectUploadStepFactory;
     GenericDeployStepFactory<RsyncDeployStep> rsyncDeployStepFactory;
-    GenericDeployStepFactory<RemoteLinuxCustomCommandDeploymentStep>
-        customCommandDeploymentStepFactory;
+    GenericDeployStepFactory<CustomCommandDeployStep> customCommandDeployStepFactory;
     GenericDeployStepFactory<RemoteLinuxCheckForFreeDiskSpaceStep>
         checkForFreeDiskSpaceStepFactory;
     GenericDeployStepFactory<KillAppStep> killAppStepFactory;

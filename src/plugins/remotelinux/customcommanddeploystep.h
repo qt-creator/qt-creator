@@ -29,14 +29,12 @@
 
 namespace RemoteLinux {
 
-class REMOTELINUX_EXPORT RemoteLinuxCustomCommandDeploymentStep
-    : public AbstractRemoteLinuxDeployStep
+class REMOTELINUX_EXPORT CustomCommandDeployStep : public AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT
 
 public:
-    RemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
-    ~RemoteLinuxCustomCommandDeploymentStep() override;
+    CustomCommandDeployStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
 
     static Utils::Id stepId();
     static QString displayName();

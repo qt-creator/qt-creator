@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "remotelinuxcustomcommanddeploymentstep.h"
+#include "customcommanddeploystep.h"
 
 #include "remotelinux_constants.h"
 
@@ -38,14 +38,12 @@ using namespace Utils;
 namespace RemoteLinux {
 namespace Internal {
 
-// RemoteLinuxCustomCommandDeployService
-
-class RemoteLinuxCustomCommandDeployService : public AbstractRemoteLinuxDeployService
+class CustomCommandDeployService : public AbstractRemoteLinuxDeployService
 {
-    Q_DECLARE_TR_FUNCTIONS(RemoteLinux::Internal::RemoteLinuxCustomCommandDeployService)
+    Q_DECLARE_TR_FUNCTIONS(RemoteLinux::Internal::CustomCommandDeployService)
 
 public:
-    RemoteLinuxCustomCommandDeployService();
+    CustomCommandDeployService();
 
     void setCommandLine(const QString &commandLine);
 
@@ -60,7 +58,7 @@ protected:
     QtcProcess m_process;
 };
 
-RemoteLinuxCustomCommandDeployService::RemoteLinuxCustomCommandDeployService()
+CustomCommandDeployService::CustomCommandDeployService()
 {
     connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
         emit stdOutData(QString::fromUtf8(m_process.readAllStandardOutput()));
@@ -82,12 +80,12 @@ RemoteLinuxCustomCommandDeployService::RemoteLinuxCustomCommandDeployService()
     });
 }
 
-void RemoteLinuxCustomCommandDeployService::setCommandLine(const QString &commandLine)
+void CustomCommandDeployService::setCommandLine(const QString &commandLine)
 {
     m_commandLine = commandLine;
 }
 
-CheckResult RemoteLinuxCustomCommandDeployService::isDeploymentPossible() const
+CheckResult CustomCommandDeployService::isDeploymentPossible() const
 {
     if (m_commandLine.isEmpty())
         return CheckResult::failure(tr("No command line given."));
@@ -95,7 +93,7 @@ CheckResult RemoteLinuxCustomCommandDeployService::isDeploymentPossible() const
     return AbstractRemoteLinuxDeployService::isDeploymentPossible();
 }
 
-void RemoteLinuxCustomCommandDeployService::doDeploy()
+void CustomCommandDeployService::doDeploy()
 {
     emit progressMessage(tr("Starting remote command \"%1\"...").arg(m_commandLine));
     m_process.setCommand({deviceConfiguration()->filePath("/bin/sh"),
@@ -103,7 +101,7 @@ void RemoteLinuxCustomCommandDeployService::doDeploy()
     m_process.start();
 }
 
-void RemoteLinuxCustomCommandDeployService::stopDeployment()
+void CustomCommandDeployService::stopDeployment()
 {
     m_process.close();
     handleDeploymentDone();
@@ -111,14 +109,10 @@ void RemoteLinuxCustomCommandDeployService::stopDeployment()
 
 } // Internal
 
-
-// RemoteLinuxCustomCommandDeploymentStep
-
-RemoteLinuxCustomCommandDeploymentStep::RemoteLinuxCustomCommandDeploymentStep
-        (BuildStepList *bsl, Utils::Id id)
+CustomCommandDeployStep::CustomCommandDeployStep(BuildStepList *bsl, Utils::Id id)
     : AbstractRemoteLinuxDeployStep(bsl, id)
 {
-    auto service = createDeployService<Internal::RemoteLinuxCustomCommandDeployService>();
+    auto service = createDeployService<Internal::CustomCommandDeployService>();
 
     auto commandLine = addAspect<StringAspect>();
     commandLine->setSettingsKey("RemoteLinuxCustomCommandDeploymentStep.CommandLine");
@@ -134,14 +128,12 @@ RemoteLinuxCustomCommandDeploymentStep::RemoteLinuxCustomCommandDeploymentStep
     addMacroExpander();
 }
 
-RemoteLinuxCustomCommandDeploymentStep::~RemoteLinuxCustomCommandDeploymentStep() = default;
-
-Utils::Id RemoteLinuxCustomCommandDeploymentStep::stepId()
+Utils::Id CustomCommandDeployStep::stepId()
 {
     return Constants::CustomCommandDeployStepId;
 }
 
-QString RemoteLinuxCustomCommandDeploymentStep::displayName()
+QString CustomCommandDeployStep::displayName()
 {
     return tr("Run custom remote command");
 }
