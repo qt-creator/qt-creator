@@ -978,8 +978,8 @@ private:
 LinuxDevice::LinuxDevice()
     : d(new LinuxDevicePrivate(this))
 {
-    setDisplayType(tr("Generic Linux"));
-    setDefaultDisplayName(tr("Generic Linux Device"));
+    setDisplayType(tr("Remote Linux"));
+    setDefaultDisplayName(tr("Remote Linux Device"));
     setOsType(OsTypeLinux);
 
     addDeviceAction({tr("Deploy Public Key..."), [](const IDevice::Ptr &device, QWidget *parent) {
@@ -1714,7 +1714,7 @@ namespace Internal {
 LinuxDeviceFactory::LinuxDeviceFactory()
     : IDeviceFactory(Constants::GenericLinuxOsType)
 {
-    setDisplayName(LinuxDevice::tr("Generic Linux Device"));
+    setDisplayName(LinuxDevice::tr("Remote Linux Device"));
     setIcon(QIcon());
     setConstructionFunction(&LinuxDevice::create);
     setCreator([] {

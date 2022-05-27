@@ -57,7 +57,7 @@ static const FilePath baseFilePath()
 TestLinuxDeviceFactory::TestLinuxDeviceFactory()
     : IDeviceFactory("test")
 {
-    setDisplayName("Generic Linux Device");
+    setDisplayName("Remote Linux Device");
     setIcon(QIcon());
     setConstructionFunction(&LinuxDevice::create);
     setCreator([] {
