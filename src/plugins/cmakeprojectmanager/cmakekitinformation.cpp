@@ -1219,7 +1219,7 @@ Tasks CMakeConfigurationKitAspect::validate(const Kit *k) const
         if (!tcC || !tcC->isValid()) {
             addWarning(tr("CMake configuration has a path to a C compiler set, "
                           "even though the kit has no valid tool chain."));
-        } else if (tcCPath != tcC->compilerCommand()) {
+        } else if (tcCPath != tcC->compilerCommand() && tcCPath != tcC->compilerCommand().onDevice(tcCPath)) {
             addWarning(tr("CMake configuration has a path to a C compiler set "
                           "that does not match the compiler path "
                           "configured in the tool chain of the kit."));
@@ -1235,7 +1235,7 @@ Tasks CMakeConfigurationKitAspect::validate(const Kit *k) const
         if (!tcCxx || !tcCxx->isValid()) {
             addWarning(tr("CMake configuration has a path to a C++ compiler set, "
                           "even though the kit has no valid tool chain."));
-        } else if (tcCxxPath != tcCxx->compilerCommand()) {
+        } else if (tcCxxPath != tcCxx->compilerCommand() && tcCxxPath != tcCxx->compilerCommand().onDevice(tcCxxPath)) {
             addWarning(tr("CMake configuration has a path to a C++ compiler set "
                           "that does not match the compiler path "
                           "configured in the tool chain of the kit."));
