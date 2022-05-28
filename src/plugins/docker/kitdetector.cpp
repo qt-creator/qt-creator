@@ -25,8 +25,6 @@
 
 #include "kitdetector.h"
 
-#include "dockerconstants.h"
-
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -337,7 +335,7 @@ void KitDetectorPrivate::autoDetect()
         if (cmakeId.isValid())
             k->setValue(CMakeProjectManager::Constants::TOOL_ID, cmakeId.toSetting());
 
-        DeviceTypeKitAspect::setDeviceTypeId(k, Constants::DOCKER_DEVICE_TYPE);
+        DeviceTypeKitAspect::setDeviceTypeId(k, m_device->type());
         DeviceKitAspect::setDevice(k, m_device);
         BuildDeviceKitAspect::setDevice(k, m_device);
 
