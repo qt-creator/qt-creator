@@ -39,7 +39,8 @@ T.ComboBox {
                          && myComboBox.enabled
     property bool edit: myComboBox.activeFocus && myComboBox.editable
     property bool open: comboBoxPopup.opened
-    property bool hasActiveDrag: false
+    property bool hasActiveDrag: false // an item that can be dropped on the combobox is being dragged
+    property bool hasActiveHoverDrag: false // an item that can be dropped on the combobox is being hovered on the combobox
 
     property bool dirty: false // user modification flag
 
@@ -49,6 +50,9 @@ T.ComboBox {
 
     property alias textInput: comboBoxInput
 
+    property int borderWidth: myComboBox.hasActiveHoverDrag ? StudioTheme.Values.borderHover
+                                                            : StudioTheme.Values.border
+
     signal compressedActivated(int index, int reason)
 
     enum ActivatedReason { EditingFinished, Other }
@@ -57,7 +61,7 @@ T.ComboBox {
     height: StudioTheme.Values.defaultControlHeight
 
     leftPadding: actionIndicator.width
-    rightPadding: popupIndicator.width + StudioTheme.Values.border
+    rightPadding: popupIndicator.width + myComboBox.borderWidth
     font.pixelSize: StudioTheme.Values.myFontSize
     wheelEnabled: false
 
@@ -87,6 +91,7 @@ T.ComboBox {
 
         myControl: myComboBox
         text: myComboBox.editText
+        borderWidth: myComboBox.borderWidth
 
         onEditingFinished: {
             comboBoxInput.deselect()
@@ -108,16 +113,16 @@ T.ComboBox {
         myControl: myComboBox
         myPopup: myComboBox.popup
         x: comboBoxInput.x + comboBoxInput.width
-        y: StudioTheme.Values.border
-        width: StudioTheme.Values.checkIndicatorWidth - StudioTheme.Values.border
-        height: StudioTheme.Values.checkIndicatorHeight - (StudioTheme.Values.border * 2)
+        y: myComboBox.borderWidth
+        width: StudioTheme.Values.checkIndicatorWidth - myComboBox.borderWidth
+        height: StudioTheme.Values.checkIndicatorHeight - myComboBox.borderWidth * 2
     }
 
     background: Rectangle {
         id: comboBoxBackground
         color: StudioTheme.Values.themeControlBackground
         border.color: StudioTheme.Values.themeControlOutline
-        border.width: StudioTheme.Values.border
+        border.width: myComboBox.borderWidth
         x: actionIndicator.width
         width: myComboBox.width - actionIndicator.width
         height: myComboBox.height
@@ -144,7 +149,7 @@ T.ComboBox {
         width: comboBoxPopup.width - comboBoxPopup.leftPadding - comboBoxPopup.rightPadding
                - (comboBoxPopupScrollBar.visible ? comboBoxPopupScrollBar.contentItem.implicitWidth
                                                    + 2 : 0) // TODO Magic number
-        height: StudioTheme.Values.height - 2 * StudioTheme.Values.border
+        height: StudioTheme.Values.height - 2 * myComboBox.borderWidth
         padding: 0
         enabled: model.enabled === undefined ? true : model.enabled
 
@@ -198,9 +203,9 @@ T.ComboBox {
 
     popup: T.Popup {
         id: comboBoxPopup
-        x: actionIndicator.width + StudioTheme.Values.border
+        x: actionIndicator.width + myComboBox.borderWidth
         y: myComboBox.height
-        width: myComboBox.width - actionIndicator.width - (StudioTheme.Values.border * 2)
+        width: myComboBox.width - actionIndicator.width - myComboBox.borderWidth * 2
         // TODO Setting the height on the popup solved the problem with the popup of height 0,
         // but it has the problem that it sometimes extend over the border of the actual window
         // and is then cut off.
@@ -208,7 +213,7 @@ T.ComboBox {
                          + comboBoxPopup.bottomPadding,
                          myComboBox.Window.height - topMargin - bottomMargin,
                          StudioTheme.Values.maxComboBoxPopupHeight)
-        padding: StudioTheme.Values.border
+        padding: myComboBox.borderWidth
         margins: 0 // If not defined margin will be -1
         closePolicy: T.Popup.CloseOnPressOutside | T.Popup.CloseOnPressOutsideParent
                      | T.Popup.CloseOnEscape | T.Popup.CloseOnReleaseOutside
@@ -252,8 +257,9 @@ T.ComboBox {
             PropertyChanges {
                 target: comboBoxBackground
                 color: StudioTheme.Values.themeControlBackground
-                border.color: hasActiveDrag ? StudioTheme.Values.themeInteraction
-                                            : StudioTheme.Values.themeControlOutline
+                border.color: myComboBox.hasActiveDrag ? StudioTheme.Values.themeInteraction
+                                                       : StudioTheme.Values.themeControlOutline
+                border.width: myComboBox.borderWidth
             }
         },
         // This state is intended for ComboBoxes which aren't editable, but have focus e.g. via

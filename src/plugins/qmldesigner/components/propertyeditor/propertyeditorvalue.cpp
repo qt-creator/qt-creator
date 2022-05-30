@@ -274,6 +274,19 @@ bool PropertyEditorValue::isTranslated() const
     return false;
 }
 
+bool PropertyEditorValue::hasActiveDrag() const
+{
+    return m_hasActiveDrag;
+}
+
+void PropertyEditorValue::setHasActiveDrag(bool val)
+{
+    if (m_hasActiveDrag != val) {
+        m_hasActiveDrag = val;
+        emit hasActiveDragChanged();
+    }
+}
+
 static bool isAllowedSubclassType(const QString &type, const QmlDesigner::NodeMetaInfo &metaInfo)
 {
     if (!metaInfo.isValid())
@@ -369,18 +382,6 @@ void PropertyEditorValue::setEnumeration(const QString &scope, const QString &na
     QmlDesigner::Enumeration newEnumeration(scope, name);
 
     setValueWithEmit(QVariant::fromValue(newEnumeration));
-}
-
-bool PropertyEditorValue::isSupportedDrop(const QString &path)
-{
-    QString suffix = "*." + QFileInfo(path).suffix().toLower();
-
-    if (m_modelNode.isSubclassOf("QtQuick3D.Material") && nameAsQString().endsWith("Map"))
-        return QmlDesigner::AssetsLibraryModel::supportedImageSuffixes().contains(suffix);
-
-    // TODO: handle support for other object properties dnd here (like image source)
-
-    return false;
 }
 
 void PropertyEditorValue::exportPropertyAsAlias()
