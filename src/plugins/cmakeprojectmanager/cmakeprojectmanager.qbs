@@ -75,6 +75,10 @@ QtcPlugin {
         "fileapiparser.h",
         "fileapireader.cpp",
         "fileapireader.h",
+        "presetsparser.cpp",
+        "presetsparser.h",
+        "presetsmacros.cpp",
+        "presetsmacros.h",
         "projecttreehelper.cpp",
         "projecttreehelper.h"
     ]

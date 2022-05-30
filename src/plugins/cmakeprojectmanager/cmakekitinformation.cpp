@@ -1,6 +1,7 @@
 // Copyright (C) 2016 Canonical Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
+#include "cmakeconfigitem.h"
 #include "cmakekitinformation.h"
 
 #include "cmakeprojectconstants.h"
@@ -875,6 +876,7 @@ const char CMAKE_C_TOOLCHAIN_KEY[] = "CMAKE_C_COMPILER";
 const char CMAKE_CXX_TOOLCHAIN_KEY[] = "CMAKE_CXX_COMPILER";
 const char CMAKE_QMAKE_KEY[] = "QT_QMAKE_EXECUTABLE";
 const char CMAKE_PREFIX_PATH_KEY[] = "CMAKE_PREFIX_PATH";
+const char QTC_CMAKE_PRESET_KEY[] = "QTC_CMAKE_PRESET";
 
 class CMakeConfigurationKitAspectWidget final : public KitAspectWidget
 {
@@ -1118,6 +1120,23 @@ CMakeConfig CMakeConfigurationKitAspect::defaultConfiguration(const Kit *k)
     config << CMakeConfigItem(CMAKE_CXX_TOOLCHAIN_KEY, CMakeConfigItem::FILEPATH, "%{Compiler:Executable:Cxx}");
 
     return config;
+}
+
+void CMakeConfigurationKitAspect::setCMakePreset(Kit *k, const QString &presetName)
+{
+    CMakeConfig config = configuration(k);
+    config.prepend(
+        CMakeConfigItem(QTC_CMAKE_PRESET_KEY, CMakeConfigItem::INTERNAL, presetName.toUtf8()));
+
+    setConfiguration(k, config);
+}
+
+CMakeConfigItem CMakeConfigurationKitAspect::cmakePresetConfigItem(const ProjectExplorer::Kit *k)
+{
+    const CMakeConfig config = configuration(k);
+    return Utils::findOrDefault(config, [](const CMakeConfigItem &item) {
+        return item.key == QTC_CMAKE_PRESET_KEY;
+    });
 }
 
 QVariant CMakeConfigurationKitAspect::defaultValue(const Kit *k) const

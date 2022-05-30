@@ -4,6 +4,7 @@
 #pragma once
 
 #include "cmake_global.h"
+#include "presetsparser.h"
 
 #include <projectexplorer/project.h>
 
@@ -27,15 +28,21 @@ public:
     void addIssue(IssueType type, const QString &text);
     void clearIssues();
 
+    Internal::PresetsData presetsData() const;
+    void readPresets();
+
 protected:
     bool setupTarget(ProjectExplorer::Target *t) final;
 
 private:
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
+    Internal::PresetsData combinePresets(Internal::PresetsData &cmakePresetsData,
+                                         Internal::PresetsData &cmakeUserPresetsData);
 
     mutable Internal::CMakeProjectImporter *m_projectImporter = nullptr;
 
     ProjectExplorer::Tasks m_issues;
+    Internal::PresetsData m_presetsData;
 };
 
 } // namespace CMakeProjectManager

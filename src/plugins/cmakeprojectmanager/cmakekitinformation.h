@@ -90,6 +90,9 @@ public:
 
     static CMakeConfig defaultConfiguration(const ProjectExplorer::Kit *k);
 
+    static void setCMakePreset(ProjectExplorer::Kit *k, const QString &presetName);
+    static CMakeConfigItem cmakePresetConfigItem(const ProjectExplorer::Kit *k);
+
     // KitAspect interface
     ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const final;
     void setup(ProjectExplorer::Kit *k) final;

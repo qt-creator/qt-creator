@@ -8,12 +8,15 @@
 #include "cmakebuildsystem.h"
 #include "cmakeconfigitem.h"
 #include "cmakekitinformation.h"
+#include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectplugin.h"
 #include "cmakespecificsettings.h"
 #include "configmodel.h"
 #include "configmodelitemdelegate.h"
 #include "fileapiparser.h"
+#include "presetsmacros.h"
+#include "presetsparser.h"
 
 #include <android/androidconstants.h>
 #include <docker/dockerconstants.h>
@@ -1163,6 +1166,164 @@ static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString buildT
     return cmd;
 }
 
+static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArguments,
+                                                      const CMakeProject *project,
+                                                      const Kit *k,
+                                                      const Utils::Environment &env)
+
+{
+    const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
+    if (presetItem.isNull())
+        return;
+
+    // Remove the -DQTC_CMAKE_PRESET argument, which is only used as a kit marker
+    const QString presetArgument = presetItem.toArgument();
+    const QString presetName = presetItem.expandedValue(k);
+    initialArguments.removeIf(
+        [presetArgument](const QString &item) { return item == presetArgument; });
+
+    PresetsDetails::ConfigurePreset configurePreset
+        = Utils::findOrDefault(project->presetsData().configurePresets,
+                               [presetName](const PresetsDetails::ConfigurePreset &preset) {
+                                   return preset.name == presetName;
+                               });
+
+    // Add the command line arguments
+    if (configurePreset.warnings) {
+        if (configurePreset.warnings.value().dev) {
+            bool value = configurePreset.warnings.value().dev.value();
+            initialArguments.append(value ? QString("-Wdev") : QString("-Wno-dev"));
+        }
+        if (configurePreset.warnings.value().deprecated) {
+            bool value = configurePreset.warnings.value().deprecated.value();
+            initialArguments.append(value ? QString("-Wdeprecated") : QString("-Wno-deprecated"));
+        }
+        if (configurePreset.warnings.value().uninitialized
+            && configurePreset.warnings.value().uninitialized.value())
+            initialArguments.append("--warn-uninitialized");
+        if (configurePreset.warnings.value().unusedCli
+            && !configurePreset.warnings.value().unusedCli.value())
+            initialArguments.append(" --no-warn-unused-cli");
+        if (configurePreset.warnings.value().systemVars
+            && configurePreset.warnings.value().systemVars.value())
+            initialArguments.append("--check-system-vars");
+    }
+
+    if (configurePreset.errors) {
+        if (configurePreset.errors.value().dev) {
+            bool value = configurePreset.errors.value().dev.value();
+            initialArguments.append(value ? QString("-Werror=dev") : QString("-Wno-error=dev"));
+        }
+        if (configurePreset.errors.value().deprecated) {
+            bool value = configurePreset.errors.value().deprecated.value();
+            initialArguments.append(value ? QString("-Werror=deprecated")
+                                          : QString("-Wno-error=deprecated"));
+        }
+    }
+
+    if (configurePreset.debug) {
+        if (configurePreset.debug.value().find && configurePreset.debug.value().find.value())
+            initialArguments.append("--debug-find");
+        if (configurePreset.debug.value().tryCompile
+            && configurePreset.debug.value().tryCompile.value())
+            initialArguments.append("--debug-trycompile");
+        if (configurePreset.debug.value().output && configurePreset.debug.value().output.value())
+            initialArguments.append("--debug-output");
+    }
+
+    // Merge the presets cache variables
+    CMakeConfig cache;
+    if (configurePreset.cacheVariables)
+        cache = configurePreset.cacheVariables.value();
+
+    for (const CMakeConfigItem &presetItemRaw : cache) {
+
+        // Expand the CMakePresets Macros
+        CMakeConfigItem presetItem(presetItemRaw);
+
+        QString presetItemValue = QString::fromUtf8(presetItem.value);
+        CMakePresets::Macros::expand(configurePreset, env, project->projectDirectory(), presetItemValue);
+        presetItem.value = presetItemValue.toUtf8();
+
+        const QString presetItemArg = presetItem.toArgument();
+        const QString presetItemArgNoType = presetItemArg.left(presetItemArg.indexOf(":"));
+
+        auto it = std::find_if(initialArguments.begin(),
+                               initialArguments.end(),
+                               [presetItemArgNoType](const QString &arg) {
+                                   return arg.startsWith(presetItemArgNoType);
+                               });
+
+        if (it != initialArguments.end()) {
+            QString &arg = *it;
+            CMakeConfigItem argItem = CMakeConfigItem::fromString(arg.mid(2)); // skip -D
+
+            // For multi value path variables append the non Qt path
+            if (argItem.key == "CMAKE_PREFIX_PATH" || argItem.key == "CMAKE_FIND_ROOT_PATH") {
+                QStringList presetValueList = presetItem.expandedValue(k).split(";");
+
+                // Remove the expanded Qt path from the presets values
+                QString argItemExpandedValue = argItem.expandedValue(k);
+                presetValueList.removeIf([argItemExpandedValue](const QString &presetPath) {
+                    QStringList argItemPaths = argItemExpandedValue.split(";");
+                    for (const QString &argPath : argItemPaths) {
+                        const FilePath argFilePath = FilePath::fromString(argPath);
+                        const FilePath presetFilePath = FilePath::fromString(presetPath);
+
+                        if (argFilePath == presetFilePath)
+                            return true;
+                    }
+                    return false;
+                });
+
+                // Add the presets values to the final argument
+                for (const QString &presetPath : presetValueList) {
+                    argItem.value.append(";");
+                    argItem.value.append(presetPath.toUtf8());
+                }
+
+                arg = argItem.toArgument();
+            } else if (argItem.key == "CMAKE_C_COMPILER" || argItem.key == "CMAKE_CXX_COMPILER"
+                       || argItem.key == "QT_QMAKE_EXECUTABLE" || argItem.key == "QT_HOST_PATH"
+                       || argItem.key == "CMAKE_PROJECT_INCLUDE_BEFORE"
+                       || argItem.key == "CMAKE_TOOLCHAIN_FILE") {
+                const FilePath argFilePath = FilePath::fromString(argItem.expandedValue(k));
+                const FilePath presetFilePath = FilePath::fromUtf8(presetItem.value);
+
+                if (argFilePath != presetFilePath)
+                    arg = presetItem.toArgument();
+            } else if (argItem.expandedValue(k) != QString::fromUtf8(presetItem.value)) {
+                arg = presetItem.toArgument();
+            }
+        } else {
+            initialArguments.append(presetItem.toArgument());
+        }
+    }
+}
+
+static Utils::EnvironmentItems getEnvironmentItemsFromCMakePreset(const CMakeProject *project,
+                                                                  const Kit *k)
+
+{
+    Utils::EnvironmentItems envItems;
+
+    const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
+    if (presetItem.isNull())
+        return envItems;
+
+    const QString presetName = presetItem.expandedValue(k);
+
+    PresetsDetails::ConfigurePreset configurePreset
+        = Utils::findOrDefault(project->presetsData().configurePresets,
+                               [presetName](const PresetsDetails::ConfigurePreset &preset) {
+                                   return preset.name == presetName;
+                               });
+
+    CMakePresets::Macros::expand(configurePreset, envItems, project->projectDirectory());
+
+    return envItems;
+}
+
 // -----------------------------------------------------------------------------
 // CMakeBuildConfigurationPrivate:
 // -----------------------------------------------------------------------------
@@ -1365,7 +1526,15 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         if (qt && qt->isQmlDebuggingSupported())
             cmd.addArg("-DCMAKE_CXX_FLAGS_INIT:STRING=%{" + QLatin1String(QT_QML_DEBUG_FLAG) + "}");
 
-        m_buildSystem->setInitialCMakeArguments(cmd.splitArguments());
+        CMakeProject *cmakeProject = static_cast<CMakeProject *>(target->project());
+        setUserConfigureEnvironmentChanges(getEnvironmentItemsFromCMakePreset(cmakeProject, k));
+
+        QStringList initialCMakeArguments = cmd.splitArguments();
+        addCMakeConfigurePresetToInitialArguments(initialCMakeArguments,
+                                                  cmakeProject,
+                                                  k,
+                                                  configureEnvironment());
+        m_buildSystem->setInitialCMakeArguments(initialCMakeArguments);
         m_buildSystem->setCMakeBuildType(buildType);
         updateAndEmitConfigureEnvironmentChanged();
     });

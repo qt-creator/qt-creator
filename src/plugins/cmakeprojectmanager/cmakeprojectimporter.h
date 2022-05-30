@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include "presetsparser.h"
+#include "utils/temporarydirectory.h"
+
 #include <qtsupport/qtprojectimporter.h>
 
 namespace CMakeProjectManager {
@@ -16,7 +19,7 @@ class CMakeProjectImporter : public QtSupport::QtProjectImporter
     Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeProjectImporter)
 
 public:
-    CMakeProjectImporter(const Utils::FilePath &path);
+    CMakeProjectImporter(const Utils::FilePath &path, const Internal::PresetsData &presetsData);
 
     QStringList importCandidates() final;
 
@@ -37,6 +40,9 @@ private:
 
     void cleanupTemporaryCMake(ProjectExplorer::Kit *k, const QVariantList &vl);
     void persistTemporaryCMake(ProjectExplorer::Kit *k, const QVariantList &vl);
+
+    Internal::PresetsData m_presetsData;
+    Utils::TemporaryDirectory m_presetsTempDir;
 };
 
 } // namespace Internal

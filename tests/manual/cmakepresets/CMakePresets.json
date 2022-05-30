@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 19,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "mingw",
+      "displayName": "MinGW 11.2.0",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-${presetName}-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_PREFIX_PATH": "c:/Qt/6.3.1/mingw_64"
+      },
+      "environment": {
+        "PATH": "c:/mingw64/bin;$penv{PATH}"
+      },
+      "debug" : {
+        "find" : true
+      }
+    },
+    {
+      "name": "mingw-make",
+      "displayName": "MinGW 11.2.0 Makefiles",
+      "generator": "MinGW Makefiles",
+      "inherits" : "mingw"
+    },
+    {
+      "name": "visualc",
+      "displayName": "Visual C++ 2019 x64",
+      "generator": "Visual Studio 16 2019",
+      "binaryDir": "${sourceDir}/build-${presetName}",
+      "architecture" : {
+        "value": "x64"
+      },
+      "cacheVariables": {
+        "CMAKE_PREFIX_PATH": "c:/Qt/6.3.1/msvc2019_64"
+      }
+    }
+  ]
+}
