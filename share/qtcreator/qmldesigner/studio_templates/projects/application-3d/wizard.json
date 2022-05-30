@@ -243,21 +243,24 @@
                                 "trKey": "Qt 5",
                                 "value":
                                 "({
-                                    'TargetQuickVersion': '2.15'
+                                    'TargetQuickVersion': '2.15',
+                                    'TargetQuick3DVersion': '1.15'
                                 })"
                             },
                             {
                                 "trKey": "Qt 6.2",
                                 "value":
                                 "({
-                                    'TargetQuickVersion': '6.2'
+                                    'TargetQuickVersion': '6.2',
+                                    'TargetQuick3DVersion': '6.2'
                                 })"
                             },
                             {
                                 "trKey": "Qt 6.3",
                                 "value":
                                 "({
-                                    'TargetQuickVersion': '6.3'
+                                    'TargetQuickVersion': '6.3',
+                                    'TargetQuick3DVersion': '6.3'
                                 })"
                             }
                         ]
