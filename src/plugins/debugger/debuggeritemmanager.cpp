@@ -669,7 +669,9 @@ void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
 
     for (const QFileInfo &kitFolderFi : kitFolders) {
         const QString path = kitFolderFi.absoluteFilePath();
-        const QStringList abis = {"x86", "x64", "arm64"};
+        QStringList abis = {"x86", "x64"};
+        if (HostOsInfo::hostArchitecture() == HostOsInfo::HostArchitectureArm)
+            abis << "arm64";
         for (const QString &abi: abis) {
             const QFileInfo cdbBinary(path + "/Debuggers/" + abi + "/cdb.exe");
             if (cdbBinary.isExecutable())
