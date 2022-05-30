@@ -231,7 +231,9 @@ extend_qtc_executable(qml2puppet
     qt5previewnodeinstanceserver.cpp qt5previewnodeinstanceserver.h
     qt5rendernodeinstanceserver.cpp qt5rendernodeinstanceserver.h
     qt5testnodeinstanceserver.cpp qt5testnodeinstanceserver.h
+    quick3dmaterialnodeinstance.cpp quick3dmaterialnodeinstance.h
     quick3dnodeinstance.cpp quick3dnodeinstance.h
+    quick3drenderablenodeinstance.cpp quick3drenderablenodeinstance.h
     quick3dtexturenodeinstance.cpp quick3dtexturenodeinstance.h
     quickitemnodeinstance.cpp quickitemnodeinstance.h
     servernodeinstance.cpp servernodeinstance.h

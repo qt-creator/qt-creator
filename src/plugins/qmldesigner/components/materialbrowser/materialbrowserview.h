@@ -68,12 +68,6 @@ private:
     QPointer<MaterialBrowserWidget> m_widget;
     bool m_hasQuick3DImport = false;
     bool m_autoSelectModelMaterial = false; // TODO: wire this to some action
-
-private slots:
-    void handleSelectedMaterialChanged(int idx);
-    void handleApplyToSelectedTriggered(const QmlDesigner::ModelNode &material, bool add = false);
-    void handleRenameMaterial(const QmlDesigner::ModelNode &material, const QString &newName);
-    void handleAddNewMaterial();
 };
 
 } // namespace QmlDesigner

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,34 +23,35 @@
 **
 ****************************************************************************/
 
-#pragma once
-
-#include <QtGlobal>
-
-#include "quick3drenderablenodeinstance.h"
-
-QT_FORWARD_DECLARE_CLASS(QQuick3DNode)
+#include "quick3dmaterialnodeinstance.h"
 
 namespace QmlDesigner {
 namespace Internal {
 
-class Quick3DNodeInstance : public Quick3DRenderableNodeInstance
+Quick3DMaterialNodeInstance::Quick3DMaterialNodeInstance(QObject *node)
+   : Quick3DRenderableNodeInstance(node)
 {
-public:
-    using Pointer = QSharedPointer<Quick3DNodeInstance>;
+}
 
-    ~Quick3DNodeInstance() override;
-    static Pointer create(QObject *objectToBeWrapped);
-    void setHiddenInEditor(bool b) override;
-    void initialize(const ObjectNodeInstance::Pointer &objectNodeInstance,
-                    InstanceContainer::NodeFlags flags) override;
+Quick3DMaterialNodeInstance::~Quick3DMaterialNodeInstance()
+{
+}
 
-protected:
-    explicit Quick3DNodeInstance(QObject *node);
+void Quick3DMaterialNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance,
+                                             InstanceContainer::NodeFlags flags)
+{
+    m_dummyRootViewCreateFunction = "createViewForMaterial";
 
-private:
-    QQuick3DNode *quick3DNode() const;
-};
+    Quick3DRenderableNodeInstance::initialize(objectNodeInstance, flags);
+}
+
+Quick3DMaterialNodeInstance::Pointer Quick3DMaterialNodeInstance::create(QObject *object)
+{
+    Pointer instance(new Quick3DMaterialNodeInstance(object));
+    instance->populateResetHashes();
+    return instance;
+}
 
 } // namespace Internal
 } // namespace QmlDesigner
+

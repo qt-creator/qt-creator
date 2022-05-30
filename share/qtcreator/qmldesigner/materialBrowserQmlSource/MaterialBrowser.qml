@@ -103,6 +103,12 @@ Item {
         }
 
         StudioControls.MenuItem {
+            text: qsTr("Duplicate")
+            enabled: currentMaterial
+            onTriggered: materialBrowserModel.duplicateMaterial(currentMaterialIdx)
+        }
+
+        StudioControls.MenuItem {
             text: qsTr("Rename")
             enabled: currentMaterial
             onTriggered: {
@@ -116,7 +122,7 @@ Item {
             text: qsTr("Delete")
             enabled: currentMaterial
 
-            onTriggered: materialBrowserModel.deleteMaterial(currentMaterial.materialInternalId)
+            onTriggered: materialBrowserModel.deleteMaterial(currentMaterialIdx)
         }
 
         StudioControls.MenuSeparator {}

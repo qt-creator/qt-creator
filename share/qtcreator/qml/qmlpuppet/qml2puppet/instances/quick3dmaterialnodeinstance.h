@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -29,27 +29,23 @@
 
 #include "quick3drenderablenodeinstance.h"
 
-QT_FORWARD_DECLARE_CLASS(QQuick3DNode)
+QT_FORWARD_DECLARE_CLASS(QQuick3DMaterial)
 
 namespace QmlDesigner {
 namespace Internal {
 
-class Quick3DNodeInstance : public Quick3DRenderableNodeInstance
+class Quick3DMaterialNodeInstance : public Quick3DRenderableNodeInstance
 {
 public:
-    using Pointer = QSharedPointer<Quick3DNodeInstance>;
+    using Pointer = QSharedPointer<Quick3DMaterialNodeInstance>;
 
-    ~Quick3DNodeInstance() override;
+    ~Quick3DMaterialNodeInstance() override;
     static Pointer create(QObject *objectToBeWrapped);
-    void setHiddenInEditor(bool b) override;
     void initialize(const ObjectNodeInstance::Pointer &objectNodeInstance,
                     InstanceContainer::NodeFlags flags) override;
 
 protected:
-    explicit Quick3DNodeInstance(QObject *node);
-
-private:
-    QQuick3DNode *quick3DNode() const;
+    explicit Quick3DMaterialNodeInstance(QObject *node);
 };
 
 } // namespace Internal

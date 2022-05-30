@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -27,29 +27,40 @@
 
 #include <QtGlobal>
 
-#include "quick3drenderablenodeinstance.h"
-
-QT_FORWARD_DECLARE_CLASS(QQuick3DNode)
+#include "objectnodeinstance.h"
 
 namespace QmlDesigner {
 namespace Internal {
 
-class Quick3DNodeInstance : public Quick3DRenderableNodeInstance
+class Quick3DRenderableNodeInstance : public ObjectNodeInstance
 {
 public:
-    using Pointer = QSharedPointer<Quick3DNodeInstance>;
-
-    ~Quick3DNodeInstance() override;
-    static Pointer create(QObject *objectToBeWrapped);
-    void setHiddenInEditor(bool b) override;
+    ~Quick3DRenderableNodeInstance() override;
     void initialize(const ObjectNodeInstance::Pointer &objectNodeInstance,
                     InstanceContainer::NodeFlags flags) override;
 
+    QImage renderImage() const override;
+    QImage renderPreviewImage(const QSize &previewImageSize) const override;
+
+    bool isRenderable() const override;
+    bool hasContent() const override;
+    QRectF boundingRect() const override;
+    QRectF contentItemBoundingBox() const override;
+    QPointF position() const override;
+    QSizeF size() const override;
+
+    QList<ServerNodeInstance> stateInstances() const override;
+
+    QQuickItem *contentItem() const override;
+
 protected:
-    explicit Quick3DNodeInstance(QObject *node);
+    explicit Quick3DRenderableNodeInstance(QObject *node);
+    Qt5NodeInstanceServer *qt5NodeInstanceServer() const;
+
+    QByteArray m_dummyRootViewCreateFunction;
 
 private:
-    QQuick3DNode *quick3DNode() const;
+    QQuickItem *m_dummyRootView = nullptr;
 };
 
 } // namespace Internal

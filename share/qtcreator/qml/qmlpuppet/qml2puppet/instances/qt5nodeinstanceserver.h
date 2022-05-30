@@ -80,6 +80,7 @@ protected:
     void resetAllItems();
     void setupScene(const CreateSceneCommand &command) override;
     QList<QQuickItem*> allItems() const;
+    bool rootIsRenderable3DObject() const;
 
     struct RenderViewData {
         QPointer<QQuickWindow> window = nullptr;
