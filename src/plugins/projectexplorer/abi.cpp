@@ -221,7 +221,7 @@ static Abi macAbiForCpu(quint32 type) {
     }
 }
 
-static Abis parseCoffHeader(const QByteArray &data)
+static Abis parseCoffHeader(const QByteArray &data, int pePos)
 {
     Abis result;
     if (data.size() < 20)
@@ -262,7 +262,11 @@ static Abis parseCoffHeader(const QByteArray &data)
         break;
     }
 
-    if (data.size() >= 24) {
+    if (pePos == 132 || pePos == 124) {
+        // 132 (0x84) => GNU ld.bfd
+        // 124 (0x7c) => LLVM lld
+        flavor = Abi::WindowsMSysFlavor;
+    } else if (data.size() >= 24) {
         // Get Major and Minor Image Version from optional header fields
         quint8 minorLinker = data.at(23);
         switch (data.at(22)) {
@@ -448,7 +452,7 @@ static Abis abiOf(const QByteArray &data)
             return result;
         if (getUint8(data, pePos) == 'P' && getUint8(data, pePos + 1) == 'E'
             && getUint8(data, pePos + 2) == 0 && getUint8(data, pePos + 3) == 0)
-            result = parseCoffHeader(data.mid(pePos + 4));
+            result = parseCoffHeader(data.mid(pePos + 4), pePos + 4);
     }
     return result;
 }
@@ -1198,11 +1202,11 @@ Abis Abi::abisOfBinary(const Utils::FilePath &path)
 
             tmp.append(abiOf(data.mid(toSkip)));
             if (tmp.isEmpty() && fileName == "/0              ") {
-                tmp = parseCoffHeader(data.mid(toSkip, 20)); // This might be windws...
+                tmp = parseCoffHeader(data.mid(toSkip, 20), toSkip); // This might be windws...
                 if (tmp.isEmpty()) {
                     // Qt 6.2 static builds have the coff headers for both MSVC and MinGW at offset 66
                     toSkip = 66 + fileNameOffset;
-                    tmp = parseCoffHeader(data.mid(toSkip, 20));
+                    tmp = parseCoffHeader(data.mid(toSkip, 20), toSkip);
                 }
             }
 
