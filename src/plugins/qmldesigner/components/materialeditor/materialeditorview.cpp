@@ -675,6 +675,8 @@ WidgetInfo MaterialEditorView::widgetInfo()
 void MaterialEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                               const QList<ModelNode> &lastSelectedNodeList)
 {
+    Q_UNUSED(lastSelectedNodeList)
+
     m_selectedModels.clear();
 
     for (const ModelNode &node : selectedNodeList) {
@@ -730,6 +732,9 @@ void MaterialEditorView::modelNodePreviewPixmapChanged(const ModelNode &node, co
 
 void MaterialEditorView::importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
 {
+    Q_UNUSED(addedImports)
+    Q_UNUSED(removedImports)
+
     m_hasQuick3DImport = model()->hasImport("QtQuick3D");
     m_qmlBackEnd->contextObject()->setHasQuick3DImport(m_hasQuick3DImport);
 
@@ -787,6 +792,8 @@ void MaterialEditorView::duplicateMaterial(const ModelNode &material)
 void MaterialEditorView::customNotification(const AbstractView *view, const QString &identifier,
                                             const QList<ModelNode> &nodeList, const QList<QVariant> &data)
 {
+    Q_UNUSED(view)
+
     if (identifier == "selected_material_changed") {
         m_selectedMaterial = nodeList.first();
         QTimer::singleShot(0, this, &MaterialEditorView::resetView);
