@@ -560,7 +560,7 @@ void IosDeviceManagerPrivate::addDevice(AMDeviceRef device)
         m_pendingLookups.remove(devId);
         devices << m_pendingLookups.values(QString());
         m_pendingLookups.remove(QString());
-        foreach (PendingDeviceLookup *devLookup, devices) {
+        for (PendingDeviceLookup *devLookup : qAsConst(devices)) {
             if (debugAll) qDebug() << "found pending op";
             devLookup->timer.stop();
             devLookup->callback(devId, device, devLookup->userData);
@@ -589,8 +589,10 @@ void IosDeviceManagerPrivate::removeDevice(AMDeviceRef device)
 
 void IosDeviceManagerPrivate::checkPendingLookups()
 {
-    foreach (const QString &deviceId, m_pendingLookups.keys()) {
-        foreach (PendingDeviceLookup *deviceLookup, m_pendingLookups.values(deviceId)) {
+    const QStringList keys = m_pendingLookups.keys();
+    for (const QString &deviceId : keys) {
+        const QList<PendingDeviceLookup *> values = m_pendingLookups.values(deviceId);
+        for (PendingDeviceLookup *deviceLookup : values) {
             if (!deviceLookup->timer.isActive()) {
                 m_pendingLookups.remove(deviceId, deviceLookup);
                 deviceLookup->callback(deviceId, 0, deviceLookup->userData);
