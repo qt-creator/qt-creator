@@ -946,6 +946,8 @@ void RunControl::setExtraData(const QVariantHash &extraData)
 
 QString RunControl::displayName() const
 {
+    if (d->displayName.isEmpty())
+        return d->runnable.command.executable().toUserOutput();
     return d->displayName;
 }
 

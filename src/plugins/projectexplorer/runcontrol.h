@@ -202,7 +202,7 @@ public:
 
     bool supportsReRunning() const;
 
-    virtual QString displayName() const;
+    QString displayName() const;
     void setDisplayName(const QString &displayName);
 
     bool isRunning() const;
