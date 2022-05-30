@@ -54,7 +54,7 @@ public:
         auto envAspect = addAspect<LocalEnvironmentAspect>(target);
         addAspect<ExecutableAspect>(target);
         addAspect<ArgumentsAspect>(macroExpander());
-        addAspect<WorkingDirectoryAspect>(envAspect);
+        addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
         addAspect<TerminalAspect>();
 
         setUpdater([this] {
@@ -91,7 +91,8 @@ public:
     {
         addAspect<ExecutableAspect>(target)->setExecutable(Nim::nimblePathFromKit(target->kit()));
         addAspect<ArgumentsAspect>(macroExpander())->setArguments("test");
-        addAspect<WorkingDirectoryAspect>(nullptr)->setDefaultWorkingDirectory(project()->projectDirectory());
+        addAspect<WorkingDirectoryAspect>(macroExpander(), nullptr)
+                ->setDefaultWorkingDirectory(project()->projectDirectory());
         addAspect<TerminalAspect>();
 
         setDisplayName(tr("Nimble Test"));

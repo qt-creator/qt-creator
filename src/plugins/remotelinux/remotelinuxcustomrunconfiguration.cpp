@@ -72,7 +72,7 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
     symbolsAspect->setDisplayStyle(SymbolFileAspect::PathChooserDisplay);
 
     addAspect<ArgumentsAspect>(macroExpander());
-    addAspect<WorkingDirectoryAspect>(envAspect);
+    addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
     if (HostOsInfo::isAnyUnixHost())
         addAspect<TerminalAspect>();
     if (HostOsInfo::isAnyUnixHost())

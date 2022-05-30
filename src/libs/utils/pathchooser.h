@@ -136,7 +136,7 @@ public:
     // Sets a macro expander that is used when producing path and fileName.
     // By default, the global expander is used.
     // nullptr can be passed to disable macro expansion.
-    void setMacroExpander(MacroExpander *macroExpander);
+    void setMacroExpander(const MacroExpander *macroExpander);
 
     bool isReadOnly() const;
     void setReadOnly(bool b);

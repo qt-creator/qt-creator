@@ -81,7 +81,8 @@ class PROJECTEXPLORER_EXPORT WorkingDirectoryAspect : public Utils::BaseAspect
     Q_OBJECT
 
 public:
-    explicit WorkingDirectoryAspect(EnvironmentAspect *envAspect);
+    explicit WorkingDirectoryAspect(const Utils::MacroExpander *expander,
+                                    EnvironmentAspect *envAspect);
 
     void addToLayout(Utils::LayoutBuilder &builder) override;
 
@@ -102,7 +103,7 @@ private:
     Utils::FilePath m_defaultWorkingDirectory;
     QPointer<Utils::PathChooser> m_chooser;
     QPointer<QToolButton> m_resetButton;
-    Utils::MacroExpander *m_macroExpander = nullptr;
+    const Utils::MacroExpander *m_macroExpander = nullptr;
 };
 
 class PROJECTEXPLORER_EXPORT ArgumentsAspect : public Utils::BaseAspect

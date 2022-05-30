@@ -71,7 +71,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
     symbolsAspect->setDisplayStyle(SymbolFileAspect::LabelDisplay);
 
     addAspect<ArgumentsAspect>(macroExpander());
-    addAspect<WorkingDirectoryAspect>(envAspect);
+    addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
     if (HostOsInfo::isAnyUnixHost())
         addAspect<TerminalAspect>();
     if (HostOsInfo::isAnyUnixHost())

@@ -178,7 +178,7 @@ public:
 
         auto argumentsAspect = addAspect<ArgumentsAspect>(macroExpander());
 
-        addAspect<WorkingDirectoryAspect>(nullptr);
+        addAspect<WorkingDirectoryAspect>(macroExpander(), nullptr);
         addAspect<TerminalAspect>();
 
         setCommandLineGetter([bufferedAspect, interpreterAspect, argumentsAspect, scriptAspect] {
