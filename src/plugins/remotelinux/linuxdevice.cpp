@@ -1609,8 +1609,8 @@ private:
                  + ProcessArgs::quoteArgUnix(file.m_target.path()).toLocal8Bit() + '\n');
         }
         m_batchFile->close();
-        process().setStandardInputFile(m_batchFile->fileName());
-        process().setCommand(CommandLine(sftpBinary, fullConnectionOptions() << host()));
+        process().setCommand(CommandLine(sftpBinary, fullConnectionOptions()
+                                         << "-b" << m_batchFile->fileName() << host()));
         process().start();
     }
 
