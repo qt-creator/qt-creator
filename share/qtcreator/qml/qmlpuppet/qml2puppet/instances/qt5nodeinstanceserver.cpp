@@ -202,6 +202,12 @@ QList<QQuickItem*> Qt5NodeInstanceServer::allItems() const
     return QList<QQuickItem*>();
 }
 
+bool Qt5NodeInstanceServer::rootIsRenderable3DObject() const
+{
+    return rootNodeInstance().isSubclassOf("QQuick3DNode")
+            || rootNodeInstance().isSubclassOf("QQuick3DMaterial");
+}
+
 bool Qt5NodeInstanceServer::initRhi(RenderViewData &viewData)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -398,8 +404,6 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
 
     QQuickItemPrivate *pItem = QQuickItemPrivate::get(item);
 
-    const bool rootIs3dNode = rootNodeInstance().isSubclassOf("QQuick3DNode");
-
     const bool renderEffects = qEnvironmentVariableIsSet("QMLPUPPET_RENDER_EFFECTS");
 
     if (renderEffects) {
@@ -429,7 +433,7 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
     if (instance.isValid())
         renderBoundingRect = instance.boundingRect();
 
-    else if (rootIs3dNode)
+    else if (rootIsRenderable3DObject())
         renderBoundingRect = item->boundingRect();
     else
         renderBoundingRect = ServerNodeInstance::effectAdjustedBoundingRect(item);

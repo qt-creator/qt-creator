@@ -68,6 +68,7 @@ public:
     void resetModel();
 
     Q_INVOKABLE void selectMaterial(int idx, bool force = false);
+    Q_INVOKABLE void duplicateMaterial(int idx);
     Q_INVOKABLE void deleteMaterial(int idx);
     Q_INVOKABLE void renameMaterial(int idx, const QString &newName);
     Q_INVOKABLE void addNewMaterial();
@@ -82,6 +83,7 @@ signals:
     void renameMaterialTriggered(const QmlDesigner::ModelNode &material, const QString &newName);
     void applyToSelectedTriggered(const QmlDesigner::ModelNode &material, bool add = false);
     void addNewMaterialTriggered();
+    void duplicateMaterialTriggered(const QmlDesigner::ModelNode &material);
 
 private:
     bool isMaterialVisible(int idx) const;

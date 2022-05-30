@@ -658,7 +658,7 @@ static void updateTransitions(FormEditorScene *scene, const QmlItemNode &qmlItem
 
 void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeList)
 {
-    if (Qml3DNode::isValidQml3DNode(rootModelNode())) {
+    if (Qml3DNode::isValidVisualRoot(rootModelNode())) {
         if (completedNodeList.contains(rootModelNode())) {
             FormEditorItem *item = scene()->itemForQmlItemNode(rootModelNode());
             if (item)
@@ -735,7 +735,7 @@ void FormEditorView::instancesRenderImageChanged(const QVector<ModelNode> &nodeL
         if (QmlItemNode::isValidQmlItemNode(node))
              if (FormEditorItem *item = scene()->itemForQmlItemNode(QmlItemNode(node)))
                  item->update();
-        if (Qml3DNode::isValidQml3DNode(node)) {
+        if (Qml3DNode::isValidVisualRoot(node)) {
             if (FormEditorItem *item = scene()->itemForQmlItemNode(node))
                 item->update();
         }
@@ -810,7 +810,7 @@ void FormEditorView::setupFormEditorWidget()
     if (QmlItemNode::isValidQmlItemNode(rootModelNode()))
         setupFormEditorItemTree(rootModelNode());
 
-    if (Qml3DNode::isValidQml3DNode(rootModelNode()))
+    if (Qml3DNode::isValidVisualRoot(rootModelNode()))
         setupFormEditor3DView();
 
     m_formEditorWidget->initialize();
@@ -922,7 +922,7 @@ void FormEditorView::checkRootModelNode()
     QTC_ASSERT(rootModelNode().isValid(), return);
 
     if (!rootModelNode().metaInfo().isGraphicalItem()
-        && !Qml3DNode::isValidQml3DNode(rootModelNode()))
+        && !Qml3DNode::isValidVisualRoot(rootModelNode()))
         m_formEditorWidget->showErrorMessageBox(
             {DocumentMessage(tr("%1 is not supported as the root element by Form Editor.")
                                  .arg(rootModelNode().simplifiedTypeName()))});

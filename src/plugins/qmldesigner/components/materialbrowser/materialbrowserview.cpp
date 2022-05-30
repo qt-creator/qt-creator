@@ -54,16 +54,33 @@ WidgetInfo MaterialBrowserView::widgetInfo()
 {
     if (m_widget.isNull()) {
         m_widget = new MaterialBrowserWidget;
-        connect(m_widget->materialBrowserModel().data(), SIGNAL(selectedIndexChanged(int)),
-                this, SLOT(handleSelectedMaterialChanged(int)));
-        connect(m_widget->materialBrowserModel().data(),
-                SIGNAL(applyToSelectedTriggered(const QmlDesigner::ModelNode &, bool)),
-                this, SLOT(handleApplyToSelectedTriggered(const QmlDesigner::ModelNode &, bool)));
-        connect(m_widget->materialBrowserModel().data(),
-                SIGNAL(renameMaterialTriggered(const QmlDesigner::ModelNode &, const QString &)),
-                this, SLOT(handleRenameMaterial(const QmlDesigner::ModelNode &, const QString &)));
-        connect(m_widget->materialBrowserModel().data(), SIGNAL(addNewMaterialTriggered()),
-                this, SLOT(handleAddNewMaterial()));
+        MaterialBrowserModel *matBrowserModel = m_widget->materialBrowserModel().data();
+
+        // custom notifications below are sent to the MaterialEditor
+
+        connect(matBrowserModel, &MaterialBrowserModel::selectedIndexChanged, this, [&] (int idx) {
+            ModelNode matNode = m_widget->materialBrowserModel()->materialAt(idx);
+            emitCustomNotification("selected_material_changed", {matNode}, {});
+        });
+
+        connect(matBrowserModel, &MaterialBrowserModel::applyToSelectedTriggered, this,
+                [&] (const ModelNode &material, bool add) {
+            emitCustomNotification("apply_to_selected_triggered", {material}, {add});
+        });
+
+        connect(matBrowserModel, &MaterialBrowserModel::renameMaterialTriggered, this,
+                [&] (const ModelNode &material, const QString &newName) {
+            emitCustomNotification("rename_material", {material}, {newName});
+        });
+
+        connect(matBrowserModel, &MaterialBrowserModel::addNewMaterialTriggered, this, [&] {
+            emitCustomNotification("add_new_material");
+        });
+
+        connect(matBrowserModel, &MaterialBrowserModel::duplicateMaterialTriggered, this,
+                [&] (const ModelNode &material) {
+            emitCustomNotification("duplicate_material", {material});
+        });
     }
 
     return createWidgetInfo(m_widget.data(),
@@ -237,31 +254,6 @@ void MaterialBrowserView::customNotification(const AbstractView *view, const QSt
         if (idx != -1)
             m_widget->materialBrowserModel()->selectMaterial(idx);
     }
-}
-
-void MaterialBrowserView::handleSelectedMaterialChanged(int idx)
-{
-    ModelNode matNode = m_widget->materialBrowserModel()->materialAt(idx);
-    // to MaterialEditor...
-    emitCustomNotification("selected_material_changed", {matNode}, {});
-}
-
-void MaterialBrowserView::handleApplyToSelectedTriggered(const ModelNode &material, bool add)
-{
-    // to MaterialEditor...
-    emitCustomNotification("apply_to_selected_triggered", {material}, {add});
-}
-
-void MaterialBrowserView::handleRenameMaterial(const ModelNode &material, const QString &newName)
-{
-    // to MaterialEditor...
-    emitCustomNotification("rename_material", {material}, {newName});
-}
-
-void MaterialBrowserView::handleAddNewMaterial()
-{
-    // to MaterialEditor...
-    emitCustomNotification("add_new_material");
 }
 
 } // namespace QmlDesigner

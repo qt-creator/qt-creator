@@ -148,16 +148,23 @@ void CurveEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Prope
 {
     Q_UNUSED(propertyList);
 
-    for (const auto &pair : propertyList) {
-        if (!QmlTimeline::isValidQmlTimeline(pair.first))
-            continue;
+    if (auto timeline = activeTimeline(); timeline.isValid()) {
 
-        if (pair.second == "startFrame")
-            updateStartFrame(pair.first);
-        else if (pair.second == "endFrame")
-            updateEndFrame(pair.first);
-        else if (pair.second == "currentFrame")
-            updateCurrentFrame(pair.first);
+        auto timelineNode = timeline.modelNode();
+        for (const auto &pair : propertyList) {
+            if (!QmlTimeline::isValidQmlTimeline(pair.first))
+                continue;
+
+            if (pair.first != timelineNode)
+                continue;
+
+            if (pair.second == "startFrame")
+                updateStartFrame(pair.first);
+            else if (pair.second == "endFrame")
+                updateEndFrame(pair.first);
+            else if (pair.second == "currentFrame")
+                updateCurrentFrame(pair.first);
+        }
     }
 }
 

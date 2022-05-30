@@ -414,14 +414,15 @@ Item {
                             SC.ComboBox {   // Target Qt Version ComboBox
                                 id: qtVersionComboBox
                                 actionIndicatorVisible: false
-                                implicitWidth: 70
+                                implicitWidth: 82
                                 Layout.alignment: Qt.AlignRight
                                 currentIndex: BackendApi.targetQtVersionIndex
                                 font.pixelSize: DialogValues.defaultPixelSize
 
                                 model: ListModel {
-                                    ListElement { name: "Qt 5" }
-                                    ListElement { name: "Qt 6" }
+                                    ListElement { name: "Qt 5.15" }
+                                    ListElement { name: "Qt 6.2" }
+                                    ListElement { name: "Qt 6.3" }
                                 }
 
                                 onActivated: (index) => {

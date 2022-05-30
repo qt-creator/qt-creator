@@ -133,7 +133,7 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
             nodeInstanceClient()->synchronizeWithClientProcess();
         }
 
-        if (rootNodeInstance().isSubclassOf("QQuick3DNode") && rootNodeInstance().contentItem()
+        if (rootIsRenderable3DObject() && rootNodeInstance().contentItem()
             && DesignerSupport::isDirty(rootNodeInstance().contentItem(),
                                         DesignerSupport::AllMask)
             && nodeInstanceClient()->bytesToWrite() < 10000) {
