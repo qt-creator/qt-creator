@@ -482,6 +482,15 @@ void ExtraHighlightingResultsCollector::insertResult(const HighlightingResult &r
             return;
         }
 
+        // Bogus ranges; e.g. QTCREATORBUG-27601
+        if (it != m_results.end()) {
+            const int nextStartPos = Utils::Text::positionInText(m_doc, it->line, it->column);
+            const int resultEndPos = Utils::Text::positionInText(m_doc, result.line, result.column)
+                    + result.length;
+            if (resultEndPos > nextStartPos)
+                return;
+        }
+
         qCDebug(clangdLogHighlight) << "adding additional highlighting result"
                                     << result.line << result.column << result.length;
         m_results.insert(it, result);
