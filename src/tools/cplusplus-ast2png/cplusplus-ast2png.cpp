@@ -97,7 +97,7 @@ public:
 
         typedef QPair<QByteArray, QByteArray> Pair;
 
-        foreach (const Pair &conn, _connections)
+        for (const Pair &conn : qAsConst(_connections))
             out << conn.first.constData() << " -> " << conn.second.constData() << std::endl;
 
         alignTerminals();
@@ -113,7 +113,7 @@ public:
 protected:
     void alignTerminals() {
         out<<"{ rank=same;" << std::endl;
-        foreach (const QByteArray &terminalShape, _terminalShapes) {
+        for (const QByteArray &terminalShape : qAsConst(_terminalShapes)) {
             out << "  " << std::string(terminalShape.constData(), terminalShape.size()).c_str() << ";" << std::endl;
         }
         out<<"}"<<std::endl;
@@ -439,10 +439,10 @@ public:
 /// successfully parse with one of the given parseModes (one parse mode after the other
 /// is tried), otherwise a null pointer.
 static Document::Ptr parse(const QString &fileName, const QByteArray &source,
-                           QList<Document::ParseMode> parseModes, QByteArray *errors,
+                           const QList<Document::ParseMode> parseModes, QByteArray *errors,
                            bool verbose = false)
 {
-    foreach (const Document::ParseMode parseMode, parseModes) {
+    for (const Document::ParseMode parseMode : parseModes) {
         ErrorHandler *errorHandler = new ErrorHandler(parseMode, errors); // Deleted by ~Document.
         if (verbose)
             std::cout << "Parsing as " << qPrintable(parseModeToString(parseMode)) << "...";
@@ -466,7 +466,7 @@ static Document::Ptr parse(const QString &fileName, const QByteArray &source,
 
 /// Convenience function
 static Document::Ptr parse(const QString &fileName, const QByteArray &source,
-                           Document::ParseMode parseMode, QByteArray *errors,
+                           const Document::ParseMode parseMode, QByteArray *errors,
                            bool verbose = false)
 {
     QList<Document::ParseMode> parseModes = QList<Document::ParseMode>() << parseMode;
@@ -576,7 +576,7 @@ int main(int argc, char *argv[])
 
     // Process files
     const QStringList files = args;
-    foreach (const QString &fileName, files) {
+    for (const QString &fileName : files) {
         if (! QFile::exists(fileName)) {
             std::cerr << "Error: File \"" << qPrintable(fileName) << "\" does not exist."
                       << std::endl;
@@ -638,7 +638,7 @@ int main(int argc, char *argv[])
                                           QString(fileName + QLatin1String(".ast.png"))));
         inputOutputFiles.append(qMakePair(QString(fileName + QLatin1String(".symbols.dot")),
                                           QString(fileName + QLatin1String(".symbols.png"))));
-        foreach (const Pair &pair, inputOutputFiles) {
+        for (const Pair &pair : qAsConst(inputOutputFiles)) {
             createImageFromDot(pair.first, pair.second, optionVerbose);
             std::cout << qPrintable(QDir::toNativeSeparators(pair.second)) << std::endl;
         }

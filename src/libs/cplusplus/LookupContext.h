@@ -70,9 +70,9 @@ public:
     ClassOrNamespace *instantiationOrigin() const;
 
     ClassOrNamespace *parent() const;
-    QList<ClassOrNamespace *> usings() const;
+    const QList<ClassOrNamespace *> usings() const;
     QList<Enum *> unscopedEnums() const;
-    QList<Symbol *> symbols() const;
+    const QList<Symbol *> symbols() const;
 
     ClassOrNamespace *globalNamespace() const;
 

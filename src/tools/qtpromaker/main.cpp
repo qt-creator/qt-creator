@@ -159,7 +159,7 @@ private:
 
 void Project::setPaths(const QStringList &paths)
 {
-    foreach (const QString &path, paths)
+    for (const QString &path : paths)
         m_items.append(path);
 }
 
@@ -220,7 +220,8 @@ void Project::handleBinary(const QString &item)
     // "}] (gdb)
     int first = input.indexOf(QLatin1Char('{'));
     input = input.mid(first, input.lastIndexOf(QLatin1Char('}')) - first);
-    foreach (QString item, input.split(QLatin1String("},{"))) {
+    const QStringList items = input.split(QLatin1String("},{"));
+    for (QString item : items) {
         //qDebug() << "ITEM: " << item;
         int full = item.indexOf(QLatin1String(",fullname=\""));
         if (full != -1)
@@ -299,17 +300,17 @@ void Project::writeProFile()
     if (m_subdirs.isEmpty()) {
         ts << "TEMPLATE = app\n";
         ts << "TARGET = " << QFileInfo(m_outputFileName).baseName() << "\n";
-        foreach (const FileClass &fc, m_fileClasses)
+        for (const FileClass &fc : qAsConst(m_fileClasses))
             fc.writeProBlock(ts);
         ts << "\nPATHS *=";
-        foreach (const QDir &dir, m_items)
+        for (const QDir dir : qAsConst(m_items))
             ts << " \\\n    " << dir.path();
         ts << "\n\nDEPENDPATH *= $$PATHS\n";
         ts << "\nINCLUDEPATH *= $$PATHS\n";
     } else {
         ts << "TEMPLATE = subdirs\n";
         ts << "SUBDIRS = ";
-        foreach (const QString &subdir, m_subdirs)
+        for (const QString &subdir : qAsConst(m_subdirs))
             ts << " \\\n    " << subdir;
         ts << "\n";
     }

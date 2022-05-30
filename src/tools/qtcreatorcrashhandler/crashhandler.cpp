@@ -70,7 +70,7 @@ class CExecList : public QVector<char *>
 public:
     CExecList(const QStringList &list)
     {
-        foreach (const QString &item, list)
+        for (const QString &item : list)
             append(qstrdup(item.toLatin1().data()));
         append(0);
     }
@@ -195,7 +195,7 @@ bool CrashHandler::collectRestartAppData()
         return false;
     }
     commandLine.removeLast();
-    foreach (const QByteArray &item, commandLine)
+    for (const QByteArray &item : qAsConst(commandLine))
         d->restartAppCommandLine.append(QString::fromLatin1(item));
 
     // Get environment.
@@ -209,7 +209,7 @@ bool CrashHandler::collectRestartAppData()
     }
     if (environment.last().isEmpty())
         environment.removeLast();
-    foreach (const QByteArray &item, environment)
+    for (const QByteArray &item : qAsConst(environment))
         d->restartAppEnvironment.append(QString::fromLatin1(item));
 
     return true;

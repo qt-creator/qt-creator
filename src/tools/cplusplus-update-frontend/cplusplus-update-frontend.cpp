@@ -1294,7 +1294,7 @@ void generateASTMatcher_H(const Snapshot &, const QDir &cplusplusDir,
 "    virtual ~ASTMatcher();\n"
 "\n";
 
-  foreach (const QByteArray &klass, classes) {
+  for (const QByteArray &klass : classes) {
     out << "    virtual bool match(" << klass << " *node, " << klass << " *pattern);\n";
   }
 
@@ -1340,7 +1340,7 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, co
     Overview oo;
 
     QStringList castMethods;
-    foreach (ClassSpecifierAST *classAST, astNodes.deriveds) {
+    for (ClassSpecifierAST *classAST : qAsConst(astNodes.deriveds)) {
         cursors[classAST] = removeCastMethods(classAST);
         const QString className = oo(classAST->symbol->name());
         const QString methodName = QLatin1String("as") + className.mid(0, className.length() - 3);
