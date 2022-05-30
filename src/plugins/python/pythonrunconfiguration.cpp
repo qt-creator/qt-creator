@@ -140,85 +140,99 @@ private:
 class PythonRunConfiguration : public RunConfiguration
 {
 public:
-    PythonRunConfiguration(Target *target, Id id)
-        : RunConfiguration(target, id)
-    {
-        auto interpreterAspect = addAspect<InterpreterAspect>();
-        interpreterAspect->setSettingsKey("PythonEditor.RunConfiguation.Interpreter");
-        interpreterAspect->setSettingsDialogId(Constants::C_PYTHONOPTIONS_PAGE_ID);
+    PythonRunConfiguration(Target *target, Id id);
+    void currentInterpreterChanged();
+};
 
-        connect(interpreterAspect, &InterpreterAspect::changed,
-                this, &PythonRunConfiguration::currentInterpreterChanged);
+PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
+    : RunConfiguration(target, id)
+{
+    auto interpreterAspect = addAspect<InterpreterAspect>();
+    interpreterAspect->setSettingsKey("PythonEditor.RunConfiguation.Interpreter");
+    interpreterAspect->setSettingsDialogId(Constants::C_PYTHONOPTIONS_PAGE_ID);
 
-        connect(PythonSettings::instance(), &PythonSettings::interpretersChanged,
-                interpreterAspect, &InterpreterAspect::updateInterpreters);
+    connect(interpreterAspect, &InterpreterAspect::changed,
+            this, &PythonRunConfiguration::currentInterpreterChanged);
 
-        QList<Interpreter> interpreters = PythonSettings::detectPythonVenvs(
-            project()->projectDirectory());
-        interpreterAspect->updateInterpreters(PythonSettings::interpreters());
-        Interpreter defaultInterpreter = interpreters.isEmpty()
-                                             ? PythonSettings::defaultInterpreter()
-                                             : interpreters.first();
-        if (!defaultInterpreter.command.isExecutableFile())
-            defaultInterpreter = PythonSettings::interpreters().value(0);
-        interpreterAspect->setDefaultInterpreter(defaultInterpreter);
+    connect(PythonSettings::instance(), &PythonSettings::interpretersChanged,
+            interpreterAspect, &InterpreterAspect::updateInterpreters);
 
-        auto bufferedAspect = addAspect<BoolAspect>();
-        bufferedAspect->setSettingsKey("PythonEditor.RunConfiguation.Buffered");
-        bufferedAspect->setLabel(tr("Buffered output"), BoolAspect::LabelPlacement::AtCheckBox);
-        bufferedAspect->setToolTip(tr("Enabling improves output performance, "
-                                      "but results in delayed output."));
+    QList<Interpreter> interpreters = PythonSettings::detectPythonVenvs(
+        project()->projectDirectory());
+    interpreterAspect->updateInterpreters(PythonSettings::interpreters());
+    Interpreter defaultInterpreter = interpreters.isEmpty() ? PythonSettings::defaultInterpreter()
+                                                            : interpreters.first();
+    if (!defaultInterpreter.command.isExecutableFile())
+        defaultInterpreter = PythonSettings::interpreters().value(0);
+    interpreterAspect->setDefaultInterpreter(defaultInterpreter);
 
-        auto scriptAspect = addAspect<MainScriptAspect>();
-        scriptAspect->setSettingsKey("PythonEditor.RunConfiguation.Script");
-        scriptAspect->setLabelText(tr("Script:"));
-        scriptAspect->setDisplayStyle(StringAspect::LabelDisplay);
+    auto bufferedAspect = addAspect<BoolAspect>();
+    bufferedAspect->setSettingsKey("PythonEditor.RunConfiguation.Buffered");
+    bufferedAspect->setLabel(tr("Buffered output"), BoolAspect::LabelPlacement::AtCheckBox);
+    bufferedAspect->setToolTip(tr("Enabling improves output performance, "
+                                  "but results in delayed output."));
 
-        addAspect<LocalEnvironmentAspect>(target);
+    auto scriptAspect = addAspect<MainScriptAspect>();
+    scriptAspect->setSettingsKey("PythonEditor.RunConfiguation.Script");
+    scriptAspect->setLabelText(tr("Script:"));
+    scriptAspect->setDisplayStyle(StringAspect::LabelDisplay);
 
-        auto argumentsAspect = addAspect<ArgumentsAspect>(macroExpander());
+    addAspect<LocalEnvironmentAspect>(target);
 
-        addAspect<WorkingDirectoryAspect>(macroExpander(), nullptr);
-        addAspect<TerminalAspect>();
+    auto argumentsAspect = addAspect<ArgumentsAspect>(macroExpander());
 
-        setCommandLineGetter([bufferedAspect, interpreterAspect, argumentsAspect, scriptAspect] {
-            CommandLine cmd{interpreterAspect->currentInterpreter().command};
-            if (!bufferedAspect->value())
-                cmd.addArg("-u");
-            cmd.addArg(scriptAspect->filePath().fileName());
-            cmd.addArgs(argumentsAspect->arguments(), CommandLine::Raw);
-            return cmd;
-        });
+    addAspect<WorkingDirectoryAspect>(macroExpander(), nullptr);
+    addAspect<TerminalAspect>();
 
-        setUpdater([this, scriptAspect] {
-            const BuildTargetInfo bti = buildTargetInfo();
-            const QString script = bti.targetFilePath.toUserOutput();
-            setDefaultDisplayName(tr("Run %1").arg(script));
-            scriptAspect->setValue(script);
-            aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.targetFilePath.parentDir());
-        });
+    setCommandLineGetter([bufferedAspect, interpreterAspect, argumentsAspect, scriptAspect] {
+        CommandLine cmd{interpreterAspect->currentInterpreter().command};
+        if (!bufferedAspect->value())
+            cmd.addArg("-u");
+        cmd.addArg(scriptAspect->filePath().fileName());
+        cmd.addArgs(argumentsAspect->arguments(), CommandLine::Raw);
+        return cmd;
+    });
 
-        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+    setUpdater([this, scriptAspect] {
+        const BuildTargetInfo bti = buildTargetInfo();
+        const QString script = bti.targetFilePath.toUserOutput();
+        setDefaultDisplayName(tr("Run %1").arg(script));
+        scriptAspect->setValue(script);
+        aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.targetFilePath.parentDir());
+    });
+
+    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+}
+
+void PythonRunConfiguration::currentInterpreterChanged()
+{
+    const FilePath python = aspect<InterpreterAspect>()->currentInterpreter().command;
+    BuildStepList *buildSteps = target()->activeBuildConfiguration()->buildSteps();
+
+    Utils::FilePath pySideProjectPath;
+    const PipPackage pySide6Package("PySide6");
+    const PipPackageInfo info = pySide6Package.info(python);
+
+    for (const FilePath &file : qAsConst(info.files)) {
+        if (file.fileName() == HostOsInfo::withExecutableSuffix("pyside6-project")) {
+            pySideProjectPath = info.location.resolvePath(file);
+            pySideProjectPath = pySideProjectPath.cleanPath();
+            break;
+        }
     }
 
-    void currentInterpreterChanged()
-    {
-        const FilePath python = aspect<InterpreterAspect>()->currentInterpreter().command;
+    if (auto pySideBuildStep = buildSteps->firstOfType<PySideBuildStep>())
+        pySideBuildStep->updatePySideProjectPath(pySideProjectPath);
 
-        BuildStepList *buildSteps = target()->activeBuildConfiguration()->buildSteps();
-        if (auto pySideBuildStep = buildSteps->firstOfType<PySideBuildStep>())
-            pySideBuildStep->updateInterpreter(python);
-
-        for (FilePath &file : project()->files(Project::AllFiles)) {
-            if (auto document = TextEditor::TextDocument::textDocumentForFilePath(file)) {
-                if (document->mimeType() == Constants::C_PY_MIMETYPE) {
-                    PyLSConfigureAssistant::openDocumentWithPython(python, document);
-                    PySideInstaller::checkPySideInstallation(python, document);
-                }
+    for (FilePath &file : project()->files(Project::AllFiles)) {
+        if (auto document = TextEditor::TextDocument::textDocumentForFilePath(file)) {
+            if (document->mimeType() == Constants::C_PY_MIMETYPE) {
+                PyLSConfigureAssistant::openDocumentWithPython(python, document);
+                PySideInstaller::checkPySideInstallation(python, document);
             }
         }
     }
-};
+}
 
 PythonRunConfigurationFactory::PythonRunConfigurationFactory()
 {
