@@ -28,6 +28,7 @@
 #include "buildconfiguration.h"
 #include "customparser.h"
 #include "devicesupport/desktopdevice.h"
+#include "devicesupport/devicemanager.h"
 #include "devicesupport/idevice.h"
 #include "devicesupport/sshsettings.h"
 #include "kitinformation.h"
