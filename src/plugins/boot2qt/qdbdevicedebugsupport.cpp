@@ -83,8 +83,6 @@ public:
         int lowerPort = 0;
         int upperPort = 0;
 
-        Runnable r = runnable();
-
         CommandLine cmd;
         cmd.setExecutable(device()->filePath(Constants::AppcontrollerFilepath));
 
@@ -118,11 +116,11 @@ public:
         }
         cmd.addArg("--port-range");
         cmd.addArg(QString("%1-%2").arg(lowerPort).arg(upperPort));
-        cmd.addCommandLineAsArgs(r.command);
+        cmd.addCommandLineAsArgs(runControl()->commandLine());
 
         m_launcher.setCommand(cmd);
-        m_launcher.setWorkingDirectory(r.workingDirectory);
-        m_launcher.setEnvironment(r.environment);
+        m_launcher.setWorkingDirectory(runControl()->workingDirectory());
+        m_launcher.setEnvironment(runControl()->environment());
         m_launcher.start();
     }
 

@@ -140,12 +140,10 @@ public:
             reportStopped();
         });
 
-        Runnable perfRunnable = runnable();
-
         CommandLine cmd({device()->filePath("perf"), {"record"}});
         cmd.addArgs(m_perfRecordArguments);
         cmd.addArgs({"-o", "-", "--"});
-        cmd.addCommandLineAsArgs(perfRunnable.command, CommandLine::Raw);
+        cmd.addCommandLineAsArgs(runControl()->commandLine(), CommandLine::Raw);
 
         m_process->setCommand(cmd);
         m_process->start();

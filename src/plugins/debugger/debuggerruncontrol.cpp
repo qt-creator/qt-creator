@@ -905,7 +905,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
         }
     }
 
-    Runnable inferior = runnable();
+    Runnable inferior = runControl->runnable();
     const FilePath &debuggerExecutable = m_runParameters.debugger.command.executable();
     inferior.command.setExecutable(inferior.command.executable().onDevice(debuggerExecutable));
     inferior.workingDirectory = inferior.workingDirectory.onDevice(debuggerExecutable);

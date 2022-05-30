@@ -1828,11 +1828,6 @@ IDevice::ConstPtr RunWorker::device() const
     return d->runControl->device();
 }
 
-const Runnable &RunWorker::runnable() const
-{
-    return d->runControl->runnable();
-}
-
 void RunWorker::addStartDependency(RunWorker *dependency)
 {
     d->startDependencies.append(dependency);
