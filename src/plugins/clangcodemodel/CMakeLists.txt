@@ -15,11 +15,12 @@ add_qtc_plugin(ClangCodeModel
     clangcodemodelplugin.cpp clangcodemodelplugin.h
     clangcompletioncontextanalyzer.cpp clangcompletioncontextanalyzer.h
     clangconstants.h
-    clangdclient.cpp clangdclient.h
     clangdast.cpp clangdast.h
+    clangdclient.cpp clangdclient.h
     clangdiagnostictooltipwidget.cpp clangdiagnostictooltipwidget.h
     clangdquickfixfactory.cpp clangdquickfixfactory.h
     clangdqpropertyhighlighter.cpp clangdqpropertyhighlighter.h
+    clangdsemantichighlighting.cpp clangdsemantichighlighting.h
     clangeditordocumentprocessor.cpp clangeditordocumentprocessor.h
     clangfixitoperation.cpp clangfixitoperation.h
     clangdlocatorfilters.cpp clangdlocatorfilters.h
@@ -28,6 +29,7 @@ add_qtc_plugin(ClangCodeModel
     clangtextmark.cpp clangtextmark.h
     clanguiheaderondiskmanager.cpp clanguiheaderondiskmanager.h
     clangutils.cpp clangutils.h
+    tasktimers.cpp tasktimers.h
   EXPLICIT_MOC clangcodemodelplugin.h
 )
 
