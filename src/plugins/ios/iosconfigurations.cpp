@@ -178,7 +178,7 @@ static QSet<Kit *> existingAutoDetectedIosKits()
 
 static void printKits(const QSet<Kit *> &kits)
 {
-    foreach (const Kit *kit, kits)
+    for (const Kit *kit : kits)
         qCDebug(kitSetupLog) << "  -" << kit->displayName();
 }
 
@@ -320,7 +320,7 @@ void IosConfigurations::updateAutomaticKitList()
     existingKits.subtract(resultingKits);
     qCDebug(kitSetupLog) << "Removing unused kits:";
     printKits(existingKits);
-    foreach (Kit *kit, existingKits)
+    for (Kit *kit : qAsConst(existingKits))
         KitManager::deregisterKit(kit);
 }
 
@@ -496,7 +496,7 @@ void IosConfigurations::loadProvisioningData(bool notify)
         return teamInfo1.value(freeTeamTag).toInt() < teamInfo2.value(freeTeamTag).toInt();
     });
 
-    foreach (auto teamInfo, teams) {
+    for (auto teamInfo : qAsConst(teams)) {
         auto team = std::make_shared<DevelopmentTeam>();
         team->m_name = teamInfo.value(teamNameTag).toString();
         team->m_email = teamInfo.value(emailTag).toString();
@@ -507,7 +507,10 @@ void IosConfigurations::loadProvisioningData(bool notify)
 
     const QDir provisioningProflesDir(provisioningProfileDirPath);
     const QStringList filters = {"*.mobileprovision"};
-    foreach (QFileInfo fileInfo, provisioningProflesDir.entryInfoList(filters, QDir::NoDotAndDotDot | QDir::Files)) {
+    const QList<QFileInfo> fileInfos = provisioningProflesDir.entryInfoList(filters,
+                                                                            QDir::NoDotAndDotDot
+                                                                                | QDir::Files);
+    for (const QFileInfo fileInfo : fileInfos) {
         QDomDocument provisioningDoc;
         auto profile = std::make_shared<ProvisioningProfile>();
         QString teamID;
@@ -643,7 +646,7 @@ QDebug &operator<<(QDebug &stream, DevelopmentTeamPtr team)
 {
     QTC_ASSERT(team, return stream);
     stream << team->displayName() << team->identifier() << team->isFreeProfile();
-    foreach (auto profile, team->m_profiles)
+    for (const auto profile : qAsConst(team->m_profiles))
         stream << "Profile:" << profile;
     return stream;
 }

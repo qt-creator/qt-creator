@@ -127,7 +127,7 @@ void IosSettingsWidget::onStart()
                              Utils::NormalMessageFormat);
 
     QList<QFuture<void>> futureList;
-    foreach (const SimulatorInfo &info, simulatorInfoList) {
+    for (const SimulatorInfo &info : simulatorInfoList) {
         if (!info.isShutdown()) {
             statusDialog->addMessage(tr("Cannot start simulator (%1, %2) in current state: %3")
                                     .arg(info.name).arg(info.runtimeName).arg(info.state),
@@ -198,7 +198,7 @@ void IosSettingsWidget::onReset()
     statusDialog->addMessage(tr("Resetting contents and settings..."), Utils::NormalMessageFormat);
 
     QList<QFuture<void>> futureList;
-    foreach (const SimulatorInfo &info, simulatorInfoList) {
+    for (const SimulatorInfo &info : simulatorInfoList) {
         futureList << QFuture<void>(Utils::onResultReady(
             SimulatorControl::resetSimulator(info.identifier),
             std::bind(onSimOperation, info, statusDialog, tr("simulator reset"), _1)));
@@ -255,7 +255,7 @@ void IosSettingsWidget::onDelete()
     statusDialog->addMessage(tr("Deleting %n simulator device(s)...", "", simulatorInfoList.count()),
                              Utils::NormalMessageFormat);
     QList<QFuture<void>> futureList;
-    foreach (const SimulatorInfo &info, simulatorInfoList) {
+    for (const SimulatorInfo &info : simulatorInfoList) {
         futureList << QFuture<void>(Utils::onResultReady(
             SimulatorControl::deleteSimulator(info.identifier),
             std::bind(onSimOperation, info, statusDialog, tr("simulator delete"), _1)));
@@ -286,7 +286,7 @@ void IosSettingsWidget::onScreenshot()
     statusDialog->addMessage(tr("Capturing screenshots from %n device(s)...", "",
                                 simulatorInfoList.count()), Utils::NormalMessageFormat);
     QList<QFuture<void>> futureList;
-    foreach (const SimulatorInfo &info, simulatorInfoList) {
+    for (const SimulatorInfo &info : simulatorInfoList) {
         futureList << QFuture<void>(Utils::onResultReady(
             SimulatorControl::takeSceenshot(info.identifier, generatePath(info)),
             std::bind(onSimOperation, info, statusDialog, tr("simulator screenshot"), _1)));

@@ -532,7 +532,7 @@ IosDeviceManager::IosDeviceManager(QObject *parent) :
 
 void IosDeviceManager::updateUserModeDevices()
 {
-    foreach (const QString &uid, m_userModeDeviceIds)
+    for (const QString &uid : qAsConst(m_userModeDeviceIds))
         updateInfo(uid);
 }
 
@@ -544,7 +544,7 @@ IosDeviceManager *IosDeviceManager::instance()
 
 void IosDeviceManager::updateAvailableDevices(const QStringList &devices)
 {
-    foreach (const QString &uid, devices)
+    for (const QString &uid : devices)
         deviceConnected(uid);
 
     DeviceManager *devManager = DeviceManager::instance();

@@ -54,13 +54,14 @@ SimulatorOperationDialog::SimulatorOperationDialog(QWidget *parent) :
 SimulatorOperationDialog::~SimulatorOperationDialog()
 {
     // Cancel all pending futures.
-    foreach (auto watcher, m_futureWatchList) {
+    const auto futureWatchList = m_futureWatchList;
+    for (auto watcher : futureWatchList) {
         if (!watcher->isFinished())
             watcher->cancel();
     }
 
     // wait for futures to finish
-    foreach (auto watcher, m_futureWatchList) {
+    for (auto watcher : futureWatchList) {
         if (!watcher->isFinished())
             watcher->waitForFinished();
         delete watcher;
@@ -72,7 +73,7 @@ SimulatorOperationDialog::~SimulatorOperationDialog()
 
 void SimulatorOperationDialog::addFutures(const QList<QFuture<void> > &futureList)
 {
-    foreach (auto future, futureList) {
+    for (auto future : futureList) {
         if (!future.isFinished() || !future.isCanceled()) {
             auto watcher = new QFutureWatcher<void>;
             connect(watcher, &QFutureWatcher<void>::finished,

@@ -654,7 +654,8 @@ IosDeviceToolHandlerPrivate::IosDeviceToolHandlerPrivate(const IosDeviceType &de
 
     // Prepare & set process Environment.
     QProcessEnvironment env(QProcessEnvironment::systemEnvironment());
-    foreach (const QString &k, env.keys())
+    const QStringList keys = env.keys();
+    for (const QString &k : keys)
         if (k.startsWith(QLatin1String("DYLD_")))
             env.remove(k);
     QStringList frameworkPaths;

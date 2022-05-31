@@ -375,7 +375,8 @@ void IosDeviceTypeAspect::updateValues()
     m_deviceTypeLabel->setVisible(showDeviceSelector);
     m_deviceTypeComboBox->setVisible(showDeviceSelector);
     if (showDeviceSelector && m_deviceTypeModel.rowCount() == 0) {
-        foreach (const SimulatorInfo &device, SimulatorControl::availableSimulators()) {
+        const QList<SimulatorInfo> devices = SimulatorControl::availableSimulators();
+        for (const SimulatorInfo &device : devices) {
             QStandardItem *item = new QStandardItem(Internal::displayName(device));
             QVariant v;
             v.setValue(device);

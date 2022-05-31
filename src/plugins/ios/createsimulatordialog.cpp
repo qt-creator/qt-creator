@@ -120,10 +120,10 @@ void CreateSimulatorDialog::populateDeviceTypes(const QList<DeviceTypeInfo> &dev
     m_ui->deviceTypeCombo->insertSeparator(1);
 
     auto addItems = [this, deviceTypes](const QString &filter) {
-        auto filteredTypes = Utils::filtered(deviceTypes, [filter](const DeviceTypeInfo &type){
+        const auto filteredTypes = Utils::filtered(deviceTypes, [filter](const DeviceTypeInfo &type){
             return type.name.contains(filter, Qt::CaseInsensitive);
         });
-        foreach (auto type, filteredTypes) {
+        for (auto type : filteredTypes) {
             m_ui->deviceTypeCombo->addItem(type.name, QVariant::fromValue<DeviceTypeInfo>(type));
         }
         return filteredTypes.count();
@@ -156,10 +156,10 @@ void CreateSimulatorDialog::populateRuntimes(const DeviceTypeInfo &deviceType)
     m_ui->runtimeCombo->insertSeparator(1);
 
     auto addItems = [this](const QString &filter) {
-        auto filteredTypes = Utils::filtered(m_runtimes, [filter](const RuntimeInfo &runtime){
+        const auto filteredTypes = Utils::filtered(m_runtimes, [filter](const RuntimeInfo &runtime){
             return runtime.name.contains(filter, Qt::CaseInsensitive);
         });
-        foreach (auto runtime, filteredTypes) {
+        for (auto runtime : filteredTypes) {
             m_ui->runtimeCombo->addItem(runtime.name, QVariant::fromValue<RuntimeInfo>(runtime));
         }
     };

@@ -271,7 +271,8 @@ void IosSigningSettingsWidget::populateDevelopmentTeams()
         // Populate Team id's
         m_signEntityCombo->clear();
         m_signEntityCombo->addItem(IosQmakeBuildConfiguration::tr("Default"));
-        foreach (auto team, IosConfigurations::developmentTeams()) {
+        const auto teams = IosConfigurations::developmentTeams();
+        for (auto team : teams) {
             m_signEntityCombo->addItem(team->displayName());
             const int index = m_signEntityCombo->count() - 1;
             m_signEntityCombo->setItemData(index, team->identifier(), IdentifierRole);

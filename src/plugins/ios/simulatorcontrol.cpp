@@ -135,7 +135,7 @@ static QList<DeviceTypeInfo> getAvailableDeviceTypes()
     QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
     if (!doc.isNull()) {
         const QJsonArray runtimesArray = doc.object().value(deviceTypeTag).toArray();
-        foreach (const QJsonValue deviceTypeValue, runtimesArray) {
+        for (const QJsonValue deviceTypeValue : runtimesArray) {
             QJsonObject deviceTypeObject = deviceTypeValue.toObject();
             if (isAvailable(deviceTypeObject)) {
                 DeviceTypeInfo deviceType;
@@ -159,7 +159,7 @@ static QList<RuntimeInfo> getAvailableRuntimes()
     QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
     if (!doc.isNull()) {
         const QJsonArray runtimesArray = doc.object().value(runtimesTag).toArray();
-        foreach (const QJsonValue runtimeValue, runtimesArray) {
+        for (const QJsonValue runtimeValue : runtimesArray) {
             QJsonObject runtimeObject = runtimeValue.toObject();
             if (isAvailable(runtimeObject)) {
                 RuntimeInfo runtime;
@@ -225,9 +225,10 @@ static QList<SimulatorInfo> getAllSimulatorDevices()
     QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
     if (!doc.isNull()) {
         const QJsonObject runtimeObject = doc.object().value(devicesTag).toObject();
-        foreach (const QString &runtime, runtimeObject.keys()) {
+        const QStringList keys = runtimeObject.keys();
+        for (const QString &runtime : keys) {
             const QJsonArray devices = runtimeObject.value(runtime).toArray();
-            foreach (const QJsonValue deviceValue, devices) {
+            for (const QJsonValue deviceValue : devices) {
                 QJsonObject deviceObject = deviceValue.toObject();
                 SimulatorInfo device;
                 device.identifier = deviceObject.value(udidTag).toString();
@@ -503,7 +504,7 @@ void launchApp(QFutureInterface<SimulatorControl::ResponseData> &fi,
         if (waitForDebugger)
             args.insert(1, "-w");
 
-        foreach (const QString extraArgument, extraArgs) {
+        for (const QString extraArgument : extraArgs) {
             if (!extraArgument.trimmed().isEmpty())
                 args << extraArgument;
         }
