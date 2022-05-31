@@ -82,6 +82,9 @@ void Quick3DNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNo
     m_dummyRootViewCreateFunction = "createViewForNode";
 
     Quick3DRenderableNodeInstance::initialize(objectNodeInstance, flags);
+#else
+    Q_UNUSED(objectNodeInstance)
+    Q_UNUSED(flags)
 #endif // QUICK3D_MODULE
 }
 
