@@ -320,6 +320,7 @@ extend_qtc_plugin(QmlDesigner
     materialeditorqmlbackend.cpp materialeditorqmlbackend.h
     materialeditortransaction.cpp materialeditortransaction.h
     materialeditorview.cpp materialeditorview.h
+    materialeditor.qrc
 )
 
 extend_qtc_plugin(QmlDesigner

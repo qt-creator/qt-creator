@@ -693,6 +693,7 @@ Project {
                 "materialeditor/materialeditortransaction.h",
                 "materialeditor/materialeditorview.cpp",
                 "materialeditor/materialeditorview.h",
+                "materialeditor/materialeditor.qrc",
                 "navigator/iconcheckboxitemdelegate.cpp",
                 "navigator/iconcheckboxitemdelegate.h",
                 "navigator/nameitemdelegate.cpp",
