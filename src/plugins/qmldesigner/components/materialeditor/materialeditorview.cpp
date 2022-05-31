@@ -50,7 +50,6 @@
 #include <coreplugin/messagebox.h>
 #include <designmodewidget.h>
 #include <qmldesignerplugin.h>
-#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -819,13 +818,10 @@ void MaterialEditorView::dragStarted(QMimeData *mimeData)
     if (!mimeData->hasFormat(Constants::MIME_TYPE_ASSETS))
         return;
 
-    const QStringList assetPaths = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS)).split(',');
-    bool isImage = Utils::anyOf(assetPaths, [] (const QString &assetPath) {
-        QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPath).first;
-        return assetType == Constants::MIME_TYPE_ASSET_IMAGE;
-    });
+    const QString assetPath = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS)).split(',')[0];
+    QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPath).first;
 
-    if (!isImage) // only image assets are dnd supported
+    if (assetType != Constants::MIME_TYPE_ASSET_IMAGE) // currently only image assets have dnd-supported properties
         return;
 
     highlightSupportedProperties();
