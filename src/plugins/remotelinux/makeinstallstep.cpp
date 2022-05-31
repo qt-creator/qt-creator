@@ -67,7 +67,8 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent
     jobCountAspect()->setVisible(false);
     disabledForSubdirsAspect()->setVisible(false);
 
-    const auto makeAspect = addAspect<ExecutableAspect>(parent->target());
+    const auto makeAspect = addAspect<ExecutableAspect>(parent->target(),
+                                                        ExecutableAspect::BuildDevice);
     makeAspect->setId(MakeAspectId);
     makeAspect->setSettingsKey(MakeAspectId);
     makeAspect->setDisplayStyle(StringAspect::PathChooserDisplay);

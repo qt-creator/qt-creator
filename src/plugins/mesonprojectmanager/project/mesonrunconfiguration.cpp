@@ -36,31 +36,29 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
+using namespace ProjectExplorer;
+
 namespace MesonProjectManager {
 namespace Internal {
 
-MesonRunConfiguration::MesonRunConfiguration(ProjectExplorer::Target *target, Utils::Id id)
-    : ProjectExplorer::RunConfiguration{target, id}
+MesonRunConfiguration::MesonRunConfiguration(Target *target, Utils::Id id)
+    : RunConfiguration{target, id}
 {
-    auto envAspect = addAspect<ProjectExplorer::LocalEnvironmentAspect>(target);
+    auto envAspect = addAspect<LocalEnvironmentAspect>(target);
 
-    addAspect<ProjectExplorer::ExecutableAspect>(target);
-    addAspect<ProjectExplorer::ArgumentsAspect>(macroExpander());
-    addAspect<ProjectExplorer::WorkingDirectoryAspect>(macroExpander(), envAspect);
-    addAspect<ProjectExplorer::TerminalAspect>();
+    addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
+    addAspect<ArgumentsAspect>(macroExpander());
+    addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
+    addAspect<TerminalAspect>();
 
-    auto libAspect = addAspect<ProjectExplorer::UseLibraryPathsAspect>();
-    connect(libAspect,
-            &ProjectExplorer::UseLibraryPathsAspect::changed,
-            envAspect,
-            &ProjectExplorer::EnvironmentAspect::environmentChanged);
+    auto libAspect = addAspect<UseLibraryPathsAspect>();
+    connect(libAspect, &UseLibraryPathsAspect::changed,
+            envAspect, &EnvironmentAspect::environmentChanged);
 
     if (Utils::HostOsInfo::isMacHost()) {
-        auto dyldAspect = addAspect<ProjectExplorer::UseDyldSuffixAspect>();
-        connect(dyldAspect,
-                &ProjectExplorer::UseLibraryPathsAspect::changed,
-                envAspect,
-                &ProjectExplorer::EnvironmentAspect::environmentChanged);
+        auto dyldAspect = addAspect<UseDyldSuffixAspect>();
+        connect(dyldAspect, &UseLibraryPathsAspect::changed,
+                envAspect, &EnvironmentAspect::environmentChanged);
         envAspect->addModifier([dyldAspect](Utils::Environment &env) {
             if (dyldAspect->value())
                 env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
@@ -68,17 +66,14 @@ MesonRunConfiguration::MesonRunConfiguration(ProjectExplorer::Target *target, Ut
     }
 
     envAspect->addModifier([this, libAspect](Utils::Environment &env) {
-        ProjectExplorer::BuildTargetInfo bti = buildTargetInfo();
+        BuildTargetInfo bti = buildTargetInfo();
         if (bti.runEnvModifier)
             bti.runEnvModifier(env, libAspect->value());
     });
 
     setUpdater([this] { updateTargetInformation(); });
 
-    connect(target,
-            &ProjectExplorer::Target::buildSystemUpdated,
-            this,
-            &ProjectExplorer::RunConfiguration::update);
+    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
 }
 
 void MesonRunConfiguration::updateTargetInformation()
@@ -86,13 +81,11 @@ void MesonRunConfiguration::updateTargetInformation()
     if (!activeBuildSystem())
         return;
 
-    ProjectExplorer::BuildTargetInfo bti = buildTargetInfo();
-    auto terminalAspect = aspect<ProjectExplorer::TerminalAspect>();
-    terminalAspect->setUseTerminalHint(bti.usesTerminal);
-    aspect<ProjectExplorer::ExecutableAspect>()->setExecutable(bti.targetFilePath);
-    aspect<ProjectExplorer::WorkingDirectoryAspect>()->setDefaultWorkingDirectory(
-        bti.workingDirectory);
-    emit aspect<ProjectExplorer::LocalEnvironmentAspect>()->environmentChanged();
+    BuildTargetInfo bti = buildTargetInfo();
+    aspect<TerminalAspect>()->setUseTerminalHint(bti.usesTerminal);
+    aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
+    aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
+    emit aspect<LocalEnvironmentAspect>()->environmentChanged();
 }
 
 MesonRunConfigurationFactory::MesonRunConfigurationFactory()

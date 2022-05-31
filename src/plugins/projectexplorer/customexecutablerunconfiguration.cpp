@@ -45,7 +45,7 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
 {
     auto envAspect = addAspect<LocalEnvironmentAspect>(target);
 
-    auto exeAspect = addAspect<ExecutableAspect>(nullptr); // nullptr - to enforce host-only operation.
+    auto exeAspect = addAspect<ExecutableAspect>(target, ExecutableAspect::HostDevice);
     exeAspect->setSettingsKey("ProjectExplorer.CustomExecutableRunConfiguration.Executable");
     exeAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
     exeAspect->setHistoryCompleter("Qt.CustomExecutable.History");
