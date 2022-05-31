@@ -62,18 +62,18 @@ CallgrindToolRunner::CallgrindToolRunner(RunControl *runControl)
     connect(&m_parser, &Callgrind::Parser::parserDataReady,
             this, &CallgrindToolRunner::slotFinished);
 
-    connect(&m_runner, &ValgrindRunner::valgrindStarted,
-            this, &CallgrindToolRunner::setValgrindPid);
+    connect(&m_runner, &ValgrindRunner::valgrindStarted, this, [this](qint64 pid) {
+        m_pid = pid;
+    });
 
     connect(&m_runner, &ValgrindRunner::extraProcessFinished, this, [this] {
         triggerParse();
     });
 
-    setValgrindRunnable(runControl->runnable());
+    m_valgrindRunnable = runControl->runnable();
 
     static int fileCount = 100;
     m_valgrindOutputFile = runControl->workingDirectory() / QString("callgrind.out.f%1").arg(++fileCount);
-    setValgrindOutputFile(m_valgrindOutputFile);
 
     setupCallgrindRunner(this);
 }
@@ -125,11 +125,6 @@ void CallgrindToolRunner::start()
     return ValgrindToolRunner::start();
 }
 
-void CallgrindToolRunner::dump()
-{
-    run(Dump);
-}
-
 void CallgrindToolRunner::setPaused(bool paused)
 {
     if (m_markAsPaused == paused)
@@ -152,21 +147,6 @@ void CallgrindToolRunner::setToggleCollectFunction(const QString &toggleCollectF
     m_argumentForToggleCollect = "--toggle-collect=" + toggleCollectFunction;
 }
 
-void CallgrindToolRunner::reset()
-{
-    run(ResetEventCounters);
-}
-
-void CallgrindToolRunner::pause()
-{
-    run(Pause);
-}
-
-void CallgrindToolRunner::unpause()
-{
-    run(UnPause);
-}
-
 Callgrind::ParseData *CallgrindToolRunner::takeParserData()
 {
     return m_parser.takeData();
@@ -181,12 +161,6 @@ void CallgrindToolRunner::showStatusMessage(const QString &message)
 {
     Debugger::showPermanentStatusMessage(message);
 }
-
-void CallgrindToolRunner::triggerParse()
-{
-    getLocalDataFile();
-}
-
 
 static QString toOptionString(CallgrindToolRunner::Option option)
 {
@@ -261,11 +235,6 @@ void CallgrindToolRunner::run(Option option)
     m_controllerProcess->start();
 }
 
-void CallgrindToolRunner::setValgrindPid(qint64 pid)
-{
-    m_pid = pid;
-}
-
 void CallgrindToolRunner::controllerProcessDone()
 {
     const QString error = m_controllerProcess->errorString();
@@ -286,36 +255,24 @@ void CallgrindToolRunner::controllerProcessDone()
             run(Dump);
             return;
         case Pause:
+            m_paused = true;
             break;
         case Dump:
             showStatusMessage(tr("Callgrind dumped profiling info"));
+            triggerParse();
             break;
         case UnPause:
+            m_paused = false;
             showStatusMessage(tr("Callgrind unpaused."));
             break;
         default:
             break;
     }
 
-    switch (m_lastOption)
-    {
-    case Pause:
-        m_paused = true;
-        break;
-    case UnPause:
-        m_paused = false;
-        break;
-    case Dump:
-        triggerParse();
-        break;
-    default:
-        break; // do nothing
-    }
-
     m_lastOption = Unknown;
 }
 
-void CallgrindToolRunner::getLocalDataFile()
+void CallgrindToolRunner::triggerParse()
 {
     cleanupTempFile();
     {
@@ -339,11 +296,6 @@ void CallgrindToolRunner::cleanupTempFile()
         m_hostOutputFile.removeFile();
 
     m_hostOutputFile.clear();
-}
-
-void CallgrindToolRunner::setValgrindRunnable(const Runnable &runnable)
-{
-    m_valgrindRunnable = runnable;
 }
 
 } // Internal

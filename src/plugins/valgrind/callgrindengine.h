@@ -48,10 +48,10 @@ public:
     Valgrind::Callgrind::ParseData *takeParserData();
 
     /// controller actions
-    void dump();
-    void reset();
-    void pause();
-    void unpause();
+    void dump() { run(Dump); }
+    void reset() { run(ResetEventCounters); }
+    void pause() { run(Pause); }
+    void unpause() { run(UnPause); }
 
     /// marks the callgrind process as paused
     /// calls pause() and unpause() if there's an active run
@@ -80,21 +80,16 @@ private:
     void slotFinished();
     void showStatusMessage(const QString &message);
 
-    void triggerParse();
-    void controllerFinished(Option option);
-
-    void run(Option option);
-
     /**
      * Make data file available locally, triggers @c localParseDataAvailable.
      *
      * If the valgrind process was run remotely, this transparently
      * downloads the data file first and returns a local path.
      */
-    void getLocalDataFile();
-    void setValgrindPid(qint64 pid);
-    void setValgrindRunnable(const ProjectExplorer::Runnable &runnable);
-    void setValgrindOutputFile(const Utils::FilePath &output) { m_valgrindOutputFile = output; }
+    void triggerParse();
+    void controllerFinished(Option option);
+
+    void run(Option option);
 
     void cleanupTempFile();
     void controllerProcessDone();
