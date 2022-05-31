@@ -137,8 +137,8 @@ void QmlProfilerStatisticsView::contextMenuEvent(QContextMenuEvent *ev)
 
     QPoint position = ev->globalPos();
 
-    QList <QAction *> commonActions = QmlProfilerTool::profilerContextMenuActions();
-    foreach (QAction *act, commonActions)
+    const QList <QAction *> commonActions = QmlProfilerTool::profilerContextMenuActions();
+    for (QAction *act : commonActions)
         menu.addAction(act);
 
     if (mouseOnTable(position)) {

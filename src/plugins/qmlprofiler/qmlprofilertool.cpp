@@ -503,7 +503,8 @@ void QmlProfilerTool::setButtonsEnabled(bool enable)
 void QmlProfilerTool::createInitialTextMarks()
 {
     QmlProfilerTextMarkModel *model = d->m_profilerModelManager->textMarkModel();
-    foreach (IDocument *document, DocumentModel::openedDocuments())
+    const QList<IDocument *> documents = DocumentModel::openedDocuments();
+    for (IDocument *document : documents)
         model->createMarks(d->m_viewContainer, document->filePath().toString());
 }
 
@@ -736,7 +737,8 @@ void QmlProfilerTool::setAvailableFeatures(quint64 features)
 
 void QmlProfilerTool::setRecordedFeatures(quint64 features)
 {
-    foreach (QAction *action, d->m_displayFeaturesMenu->actions())
+    const QList<QAction *> actions = d->m_displayFeaturesMenu->actions();
+    for (QAction *action : actions)
         action->setEnabled(features & (1ULL << action->data().toUInt()));
 }
 

@@ -319,7 +319,8 @@ void QmlBuildSystem::refresh(RefreshOptions options)
 
     QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
             modelManager->defaultProjectInfoForProject(project());
-    foreach (const QString &searchPath, makeAbsolute(canonicalProjectDir(), customImportPaths()))
+    const QStringList searchPaths = makeAbsolute(canonicalProjectDir(), customImportPaths());
+    for (const QString &searchPath : searchPaths)
         projectInfo.importPaths.maybeInsert(Utils::FilePath::fromString(searchPath),
                                             QmlJS::Dialect::Qml);
 

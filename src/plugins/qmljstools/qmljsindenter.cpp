@@ -99,7 +99,7 @@ TextEditor::IndentationForBlock Indenter::indentationForBlocks(
     codeFormatter.updateStateUntil(blocks.last());
 
     TextEditor::IndentationForBlock ret;
-    foreach (QTextBlock block, blocks)
+    for (QTextBlock block : blocks)
         ret.insert(block.blockNumber(), codeFormatter.indentFor(block));
     return ret;
 }

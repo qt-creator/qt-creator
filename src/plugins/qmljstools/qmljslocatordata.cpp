@@ -252,7 +252,7 @@ void LocatorData::onDocumentUpdated(const Document::Ptr &doc)
 void LocatorData::onAboutToRemoveFiles(const QStringList &files)
 {
     QMutexLocker l(&m_mutex);
-    foreach (const QString &file, files) {
+    for (const QString &file : files) {
         m_entries.remove(file);
     }
 }

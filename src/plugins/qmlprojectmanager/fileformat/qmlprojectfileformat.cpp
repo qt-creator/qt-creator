@@ -142,7 +142,8 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FilePath &fi
         if (debug)
             qDebug() << "importPath:" << importPathsProperty.value << "mainFile:" << mainFileProperty.value;
 
-        foreach (const QmlJS::SimpleReaderNode::Ptr &childNode, rootNode->children()) {
+        const QList<QmlJS::SimpleReaderNode::Ptr> childNodes = rootNode->children();
+        for (const QmlJS::SimpleReaderNode::Ptr &childNode : childNodes) {
             if (debug)
                 qDebug() << "reading type:" << childNode->name();
 

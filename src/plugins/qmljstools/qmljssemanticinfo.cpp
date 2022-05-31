@@ -191,7 +191,7 @@ QList<AST::Node *> SemanticInfo::rangePath(int cursorPosition) const
 {
     QList<AST::Node *> path;
 
-    foreach (const Range &range, ranges) {
+    for (const Range &range : qAsConst(ranges)) {
         if (range.begin.isNull() || range.end.isNull())
             continue;
         else if (cursorPosition >= range.begin.position() && cursorPosition <= range.end.position())

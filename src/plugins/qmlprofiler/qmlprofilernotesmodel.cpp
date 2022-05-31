@@ -41,7 +41,8 @@ int QmlProfilerNotesModel::addQmlNote(int typeId, int collapsedRow, qint64 start
     int foundTypeId = -1;
     int timelineModel = -1;
     int timelineIndex = -1;
-    foreach (const Timeline::TimelineModel *model, timelineModels()) {
+    const QList<const Timeline::TimelineModel *> models = timelineModels();
+    for (const Timeline::TimelineModel *model : models) {
         if (model->handlesTypeId(typeId)) {
             for (int i = model->firstIndex(start); i <= model->lastIndex(start + duration); ++i) {
                 if (i < 0)
