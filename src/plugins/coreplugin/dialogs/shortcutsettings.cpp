@@ -29,7 +29,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/actionmanager/command_p.h>
 #include <coreplugin/actionmanager/commandsfile.h>
 
 #include <utils/algorithm.h>
@@ -38,15 +37,16 @@
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
-#include <QKeyEvent>
+#include <QAction>
+#include <QApplication>
+#include <QDebug>
 #include <QFileDialog>
 #include <QGroupBox>
 #include <QHBoxLayout>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
 #include <QTreeWidgetItem>
-#include <QApplication>
-#include <QDebug>
 
 using namespace Utils;
 

@@ -243,13 +243,13 @@ ActionContainer *ActionManager::createTouchBar(Id id, const QIcon &icon, const Q
 */
 Command *ActionManager::registerAction(QAction *action, Id id, const Context &context, bool scriptable)
 {
-    Action *a = d->overridableAction(id);
-    if (a) {
-        a->addOverrideAction(action, context, scriptable);
+    Command *cmd = d->overridableAction(id);
+    if (cmd) {
+        cmd->d->addOverrideAction(action, context, scriptable);
         emit m_instance->commandListChanged();
         emit m_instance->commandAdded(id);
     }
-    return a;
+    return cmd;
 }
 
 /*!
@@ -301,11 +301,7 @@ ActionContainer *ActionManager::actionContainer(Id id)
 */
 QList<Command *> ActionManager::commands()
 {
-    // transform list of Action into list of Command
-    QList<Command *> result;
-    for (Command *cmd : qAsConst(d->m_idCmdMap))
-        result << cmd;
-    return result;
+    return d->m_idCmdMap.values();
 }
 
 /*!
@@ -318,21 +314,21 @@ QList<Command *> ActionManager::commands()
 */
 void ActionManager::unregisterAction(QAction *action, Id id)
 {
-    Action *a = d->m_idCmdMap.value(id, nullptr);
-    if (!a) {
+    Command *cmd = d->m_idCmdMap.value(id, nullptr);
+    if (!cmd) {
         qWarning() << "unregisterAction: id" << id.name()
                    << "is registered with a different command type.";
         return;
     }
-    a->removeOverrideAction(action);
-    if (a->isEmpty()) {
+    cmd->d->removeOverrideAction(action);
+    if (cmd->d->isEmpty()) {
         // clean up
-        ActionManagerPrivate::saveSettings(a);
-        ICore::mainWindow()->removeAction(a->action());
+        ActionManagerPrivate::saveSettings(cmd);
+        ICore::mainWindow()->removeAction(cmd->action());
         // ActionContainers listen to the commands' destroyed signals
-        delete a->action();
+        delete cmd->action();
         d->m_idCmdMap.remove(id);
-        delete a;
+        delete cmd;
     }
     emit m_instance->commandListChanged();
 }
@@ -421,7 +417,7 @@ void ActionManagerPrivate::setContext(const Context &context)
     m_context = context;
     const IdCmdMap::const_iterator cmdcend = m_idCmdMap.constEnd();
     for (IdCmdMap::const_iterator it = m_idCmdMap.constBegin(); it != cmdcend; ++it)
-        it.value()->setCurrentContext(m_context);
+        it.value()->d->setCurrentContext(m_context);
 }
 
 bool ActionManagerPrivate::hasContext(const Context &context) const
@@ -463,26 +459,29 @@ void ActionManagerPrivate::showShortcutPopup(const QString &shortcut)
     Utils::FadingIndicator::showText(window, shortcut);
 }
 
-Action *ActionManagerPrivate::overridableAction(Id id)
+Command *ActionManagerPrivate::overridableAction(Id id)
 {
-    Action *a = m_idCmdMap.value(id, nullptr);
-    if (!a) {
-        a = new Action(id);
-        m_idCmdMap.insert(id, a);
-        readUserSettings(id, a);
-        ICore::mainWindow()->addAction(a->action());
-        a->action()->setObjectName(id.toString());
-        a->action()->setShortcutContext(Qt::ApplicationShortcut);
-        a->setCurrentContext(m_context);
+    Command *cmd = m_idCmdMap.value(id, nullptr);
+    if (!cmd) {
+        cmd = new Command(id);
+        m_idCmdMap.insert(id, cmd);
+        readUserSettings(id, cmd);
+        ICore::mainWindow()->addAction(cmd->action());
+        cmd->action()->setObjectName(id.toString());
+        cmd->action()->setShortcutContext(Qt::ApplicationShortcut);
+        cmd->d->setCurrentContext(m_context);
 
         if (ActionManager::isPresentationModeEnabled())
-            connect(a->action(), &QAction::triggered, this, &ActionManagerPrivate::actionTriggered);
+            connect(cmd->action(),
+                    &QAction::triggered,
+                    this,
+                    &ActionManagerPrivate::actionTriggered);
     }
 
-    return a;
+    return cmd;
 }
 
-void ActionManagerPrivate::readUserSettings(Id id, Action *cmd)
+void ActionManagerPrivate::readUserSettings(Id id, Command *cmd)
 {
     QSettings *settings = ICore::settings();
     settings->beginGroup(kKeyboardSettingsKeyV2);
@@ -499,7 +498,7 @@ void ActionManagerPrivate::readUserSettings(Id id, Action *cmd)
     settings->endGroup();
 }
 
-void ActionManagerPrivate::saveSettings(Action *cmd)
+void ActionManagerPrivate::saveSettings(Command *cmd)
 {
     const QString id = cmd->id().toString();
     const QString settingsKey = QLatin1String(kKeyboardSettingsKeyV2) + '/' + id;

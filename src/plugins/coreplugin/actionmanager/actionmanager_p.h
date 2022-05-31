@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include <coreplugin/actionmanager/command_p.h>
-#include <coreplugin/actionmanager/actioncontainer_p.h>
 #include <coreplugin/icontext.h>
 
 #include <QMap>
@@ -36,9 +34,10 @@
 
 namespace Core {
 
+class Command;
+
 namespace Internal {
 
-class Action;
 class ActionContainerPrivate;
 
 class ActionManagerPrivate : public QObject
@@ -46,7 +45,7 @@ class ActionManagerPrivate : public QObject
     Q_OBJECT
 
 public:
-    using IdCmdMap = QHash<Utils::Id, Action *>;
+    using IdCmdMap = QHash<Utils::Id, Command *>;
     using IdContainerMap = QHash<Utils::Id, ActionContainerPrivate *>;
 
     ~ActionManagerPrivate() override;
@@ -55,13 +54,13 @@ public:
     bool hasContext(int context) const;
 
     void saveSettings();
-    static void saveSettings(Action *cmd);
+    static void saveSettings(Command *cmd);
 
     static void showShortcutPopup(const QString &shortcut);
     bool hasContext(const Context &context) const;
-    Action *overridableAction(Utils::Id id);
+    Command *overridableAction(Utils::Id id);
 
-    static void readUserSettings(Utils::Id id, Action *cmd);
+    static void readUserSettings(Utils::Id id, Command *cmd);
 
     void containerDestroyed();
     void actionTriggered();

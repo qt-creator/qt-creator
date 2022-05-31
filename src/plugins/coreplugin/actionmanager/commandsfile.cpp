@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "commandsfile.h"
-#include "command_p.h"
+#include "command.h"
 #include <coreplugin/dialogs/shortcutsettings.h>
 #include <coreplugin/icore.h>
 
