@@ -272,7 +272,7 @@ bool ScxmlTag::hasData() const
     if (!m_attributeNames.isEmpty() || !m_content.isEmpty())
         return true;
 
-    foreach (ScxmlTag *tag, m_childTags) {
+    for (ScxmlTag *tag : qAsConst(m_childTags)) {
         if (tag->hasData())
             return true;
     }
@@ -282,7 +282,7 @@ bool ScxmlTag::hasData() const
 
 bool ScxmlTag::hasChild(TagType type) const
 {
-    foreach (ScxmlTag *tag, m_childTags) {
+    for (ScxmlTag *tag : qAsConst(m_childTags)) {
         if (tag->tagType() == type)
             return true;
     }
@@ -292,7 +292,7 @@ bool ScxmlTag::hasChild(TagType type) const
 
 bool ScxmlTag::hasChild(const QString &name) const
 {
-    foreach (ScxmlTag *tag, m_childTags) {
+    for (ScxmlTag *tag : qAsConst(m_childTags)) {
         if (tag->tagName() == name)
             return true;
     }
@@ -507,7 +507,7 @@ QVector<ScxmlTag*> ScxmlTag::allChildren() const
 QVector<ScxmlTag*> ScxmlTag::children(const QString &name) const
 {
     QVector<ScxmlTag*> children;
-    foreach (ScxmlTag *tag, m_childTags) {
+    for (ScxmlTag *tag : qAsConst(m_childTags)) {
         if (tag->tagName() == name)
             children << tag;
     }
@@ -517,7 +517,7 @@ QVector<ScxmlTag*> ScxmlTag::children(const QString &name) const
 
 ScxmlTag *ScxmlTag::child(const QString &name) const
 {
-    foreach (ScxmlTag *tag, m_childTags) {
+    for (ScxmlTag *tag : qAsConst(m_childTags)) {
         if (tag->tagName() == name)
             return tag;
     }
@@ -639,8 +639,8 @@ void ScxmlTag::readXml(QXmlStreamReader &xml, bool checkCopyId)
         else if (token == QXmlStreamReader::StartElement) {
             if (m_tagType != Metadata && m_tagType != MetadataItem && xml.qualifiedName().toString() == "qt:editorinfo") {
                 // Read editorinfos
-                QXmlStreamAttributes attributes = xml.attributes();
-                foreach (QXmlStreamAttribute attr, attributes) {
+                const QXmlStreamAttributes attributes = xml.attributes();
+                for (QXmlStreamAttribute attr : attributes) {
                     m_editorInfo[attr.name().toString()] = attr.value().toString();
                 }
 

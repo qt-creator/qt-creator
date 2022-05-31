@@ -93,7 +93,8 @@ void ScxmlUiFactory::initPlugins()
     QStringList nameFilters;
     nameFilters << "*.dll" << "*.so";
 
-    foreach (QFileInfo dllFileInfo, pluginDir.entryInfoList(nameFilters)) {
+    const QList<QFileInfo> dllFileInfos = pluginDir.entryInfoList(nameFilters);
+    for (QFileInfo dllFileInfo : dllFileInfos) {
 
         QPluginLoader loader(dllFileInfo.absoluteFilePath());
         loader.load();

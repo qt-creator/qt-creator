@@ -70,7 +70,8 @@ bool TagTextItem::needIgnore(const QPointF sPos)
 {
     // If we found QuickTransition-item or CornerGrabber at this point, we must ignore mouse press here
     // So we can press QuickTransition/CornerGrabber item although there is transition lines front of these items
-    foreach (QGraphicsItem *item, scene()->items(sPos)) {
+    const QList<QGraphicsItem *> items = scene()->items(sPos);
+    for (QGraphicsItem *item : items) {
         if (item->type() == QuickTransitionType || (item->type() == CornerGrabberType && item->parentItem() != this))
             return true;
     }

@@ -312,7 +312,7 @@ bool ScxmlDocument::pasteData(const QByteArray &data, const QPointF &minPos, con
     QBuffer buffer(&d);
     buffer.open(QIODevice::ReadOnly);
     QXmlStreamReader xml(&buffer);
-    foreach (ScxmlNamespace *ns, m_namespaces) {
+    for (ScxmlNamespace *ns : qAsConst(m_namespaces)) {
         xml.addExtraNamespaceDeclaration(QXmlStreamNamespaceDeclaration(ns->prefix(), ns->name()));
     }
 
@@ -412,7 +412,7 @@ QByteArray ScxmlDocument::content(const QVector<ScxmlTag*> &tags) const
         if (writeScxml)
             xml.writeStartElement("scxml");
 
-        foreach (ScxmlTag *tag, tags) {
+        for (ScxmlTag *tag : tags) {
             tag->writeXml(xml);
         }
         xml.writeEndDocument();
@@ -597,7 +597,7 @@ QString ScxmlDocument::nextUniqueId(const QString &key)
         name = QString::fromLatin1("%1_%2").arg(key).arg(id);
 
         // Check duplicate
-        foreach (const ScxmlTag *tag, m_tags) {
+        for (const ScxmlTag *tag : qAsConst(m_tags)) {
             if (tag->attribute("id") == name) {
                 bFound = true;
                 break;
@@ -619,7 +619,7 @@ QString ScxmlDocument::getUniqueCopyId(const ScxmlTag *tag)
     while (true) {
         bFound = false;
         // Check duplicate
-        foreach (const ScxmlTag *t, m_tags) {
+        for (const ScxmlTag *t : qAsConst(m_tags)) {
             if (t->attribute("id") == name && t != tag) {
                 name = QString::fromLatin1("%1_Copy%2").arg(key).arg(counter);
                 bFound = true;

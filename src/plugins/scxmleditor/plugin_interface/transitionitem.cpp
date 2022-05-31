@@ -280,7 +280,8 @@ void TransitionItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         if (bLeftButton) {
             // If we found QuickTransition-item or CornerGrabber at this point, we must ignore mouse press here
             // So we can press QuickTransition/CornerGrabber item although there is transition lines front of these items
-            foreach (QGraphicsItem *item, scene()->items(event->scenePos())) {
+            const QList<QGraphicsItem *> items = scene()->items(event->scenePos());
+            for (QGraphicsItem *item : items) {
                 if (item->type() == QuickTransitionType || (item->type() == CornerGrabberType && item->parentItem() != this)) {
                     event->ignore();
                     return;

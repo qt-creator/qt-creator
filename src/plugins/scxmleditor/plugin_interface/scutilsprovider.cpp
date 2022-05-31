@@ -85,7 +85,7 @@ void SCUtilsProvider::checkInitialState(const QList<QGraphicsItem*> &items, Scxm
         }
     }
 
-    foreach (QGraphicsItem *item, items) {
+    for (QGraphicsItem *item : items) {
         if (item->type() >= StateType) {
             auto stateItem = static_cast<StateItem*>(item);
             if (stateItem)
