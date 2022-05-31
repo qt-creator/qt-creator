@@ -25,7 +25,6 @@
 
 #include "callgrindengine.h"
 
-#include "callgrindtool.h"
 #include "valgrindsettings.h"
 
 #include <valgrind/callgrind/callgrindcontroller.h>
@@ -105,7 +104,7 @@ QStringList CallgrindToolRunner::toolArguments() const
 
     arguments << "--callgrind-out-file=" + m_valgrindOutputFile.path();
 
-    arguments << Utils::ProcessArgs::splitArgs(m_settings.callgrindArguments.value());
+    arguments << ProcessArgs::splitArgs(m_settings.callgrindArguments.value());
 
     return arguments;
 }
@@ -117,7 +116,8 @@ QString CallgrindToolRunner::progressTitle() const
 
 void CallgrindToolRunner::start()
 {
-    appendMessage(tr("Profiling %1").arg(executable().toUserOutput()), Utils::NormalMessageFormat);
+    const FilePath executable = runControl()->commandLine().executable();
+    appendMessage(tr("Profiling %1").arg(executable.toUserOutput()), NormalMessageFormat);
     return ValgrindToolRunner::start();
 }
 

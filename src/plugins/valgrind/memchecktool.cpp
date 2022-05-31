@@ -1008,7 +1008,7 @@ void MemcheckToolPrivate::setupRunner(MemcheckToolRunner *runTool)
     m_loadExternalLogFile->setDisabled(true);
 
     const FilePath dir = runControl->project()->projectDirectory();
-    const QString name = runTool->executable().fileName();
+    const QString name = runControl->commandLine().executable().fileName();
 
     m_errorView->setDefaultSuppressionFile(dir.pathAppended(name + ".supp"));
 

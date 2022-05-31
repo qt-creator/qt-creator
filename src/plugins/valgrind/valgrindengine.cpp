@@ -122,11 +122,6 @@ void ValgrindToolRunner::stop()
     m_runner.stop();
 }
 
-FilePath ValgrindToolRunner::executable() const
-{
-    return runControl()->commandLine().executable();
-}
-
 QStringList ValgrindToolRunner::genericToolArguments() const
 {
     QString smcCheckValue;
