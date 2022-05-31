@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -22,53 +22,26 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
 
-#include <QtWidgets/qwidget.h>
-#include <QtWidgets/qlabel.h>
-#include <QtWidgets/qmenu.h>
-#include <QtCore/qpointer.h>
-#include <coreplugin/icontext.h>
+#include <QColorDialog>
 
 namespace QmlDesigner {
-
-class Edit3DView;
-class Edit3DCanvas;
-class ToolBox;
-
-class Edit3DWidget : public QWidget
+class BackgroundColorSelection : public QObject
 {
     Q_OBJECT
 
 public:
-    Edit3DWidget(Edit3DView *view);
+    explicit BackgroundColorSelection(QObject *parent = nullptr)
+        : QObject{parent}
+    {}
 
-    Edit3DCanvas *canvas() const;
-    Edit3DView *view() const;
-    void contextHelp(const Core::IContext::HelpCallback &callback) const;
-
-    void showCanvas(bool show);
-    QMenu *visibilityTogglesMenu() const;
-    void showVisibilityTogglesMenu(bool show, const QPoint &pos);
-
-    QMenu *backgroundColorMenu() const;
-    void showBackgroundColorMenu(bool show, const QPoint &pos);
-
-protected:
-    void dragEnterEvent(QDragEnterEvent *dragEnterEvent) override;
-    void dropEvent(QDropEvent *dropEvent) override;
+    static void showBackgroundColorSelectionWidget(QWidget *parent);
 
 private:
-    void linkActivated(const QString &link);
-
-    QPointer<Edit3DView> m_edit3DView;
-    QPointer<Edit3DView> m_view;
-    QPointer<Edit3DCanvas> m_canvas;
-    QPointer<QLabel> m_onboardingLabel;
-    QPointer<ToolBox> m_toolBox;
-    Core::IContext *m_context = nullptr;
-    QPointer<QMenu> m_visibilityTogglesMenu;
-    QPointer<QMenu> m_backgroundColorMenu;
+    static QPointer<QColorDialog> createDialog(QWidget *parent);
+    inline static QPointer<QColorDialog> m_dialog;
 };
 
 } // namespace QmlDesigner

@@ -28,6 +28,8 @@
 #include <QSize>
 #include <QUrl>
 #include <QVector>
+#include <QList>
+#include <QColor>
 #include <qmetatype.h>
 
 #include "instancecontainer.h"
@@ -58,7 +60,8 @@ public:
                                 const QString &language,
                                 QSize captureImageMinimumSize,
                                 QSize captureImageMaximumSize,
-                                qint32 stateInstanceId)
+                                qint32 stateInstanceId,
+                                const QList<QColor> &edit3dBackgroundColor)
         : instances(instanceContainer)
         , reparentInstances(reparentContainer)
         , ids(idVector)
@@ -74,6 +77,7 @@ public:
         , captureImageMinimumSize(captureImageMinimumSize)
         , captureImageMaximumSize(captureImageMaximumSize)
         , stateInstanceId{stateInstanceId}
+        , edit3dBackgroundColor{edit3dBackgroundColor}
     {}
 
     friend QDataStream &operator<<(QDataStream &out, const CreateSceneCommand &command)
@@ -93,6 +97,7 @@ public:
         out << command.stateInstanceId;
         out << command.captureImageMinimumSize;
         out << command.captureImageMaximumSize;
+        out << command.edit3dBackgroundColor;
 
         return out;
     }
@@ -114,6 +119,7 @@ public:
         in >> command.stateInstanceId;
         in >> command.captureImageMinimumSize;
         in >> command.captureImageMaximumSize;
+        in >> command.edit3dBackgroundColor;
 
         return in;
     }
@@ -134,6 +140,7 @@ public:
     QSize captureImageMinimumSize;
     QSize captureImageMaximumSize;
     qint32 stateInstanceId = 0;
+    QList<QColor> edit3dBackgroundColor;
 };
 
 QDebug operator<<(QDebug debug, const CreateSceneCommand &command);

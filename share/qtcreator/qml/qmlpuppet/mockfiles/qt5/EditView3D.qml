@@ -45,6 +45,8 @@ Item {
     property bool usePerspective: true
     property bool globalOrientation: false
     property alias contentItem: contentItem
+    property color backgroundGradientColorStart: "#222222"
+    property color backgroundGradientColorEnd: "#999999"
 
     enum SelectionMode { Item, Group }
     enum TransformMode { Move, Rotate, Scale }
@@ -210,6 +212,15 @@ Item {
     {
         if (editView)
             cameraControl.alignView(selectedNodes);
+    }
+
+    function updateViewStates(viewStates)
+    {
+        if ("selectBackgroundColor" in viewStates) {
+            var color = viewStates.selectBackgroundColor
+            backgroundGradientColorStart = color[0];
+            backgroundGradientColorEnd = color[1];
+        }
     }
 
     // If resetToDefault is true, tool states not specifically set to anything will be reset to
@@ -730,8 +741,8 @@ Item {
             anchors.fill: parent
 
             gradient: Gradient {
-                GradientStop { position: 1.0; color: "#222222" }
-                GradientStop { position: 0.0; color: "#999999" }
+                GradientStop { position: 1.0; color: backgroundGradientColorStart }
+                GradientStop { position: 0.0; color: backgroundGradientColorEnd }
             }
 
             MouseArea {

@@ -982,6 +982,17 @@ QList<ModelNode> filterNodesForSkipItems(const QList<ModelNode> &nodeList)
     return filteredNodeList;
 }
 
+QList<QColor> readBackgroundColorConfiguration(const QVariant &var)
+{
+    if (!var.isValid())
+        return {};
+
+    auto colorNameList = var.value<QList<QString>>();
+    QTC_ASSERT(colorNameList.size() == 2, return {});
+
+    return {colorNameList[0], colorNameList[1]};
+}
+
 CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
 {
     QList<ModelNode> nodeList = allModelNodes();
@@ -1136,6 +1147,13 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     if (stateNode.isValid() && stateNode.metaInfo().isSubclassOf("QtQuick.State", 1, 0))
         stateInstanceId = stateNode.internalId();
 
+    auto value = QmlDesigner::DesignerSettings::getValue(
+        QmlDesigner::DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR);
+
+    QList<QColor> edit3dBackgroundColor;
+    if (value.isValid())
+        edit3dBackgroundColor = readBackgroundColorConfiguration(value);
+
     return CreateSceneCommand(
         instanceContainerList,
         reparentContainerList,
@@ -1156,7 +1174,8 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
         lastUsedLanguage,
         m_captureImageMinimumSize,
         m_captureImageMaximumSize,
-        stateInstanceId);
+        stateInstanceId,
+        edit3dBackgroundColor);
 }
 
 ClearSceneCommand NodeInstanceView::createClearSceneCommand() const

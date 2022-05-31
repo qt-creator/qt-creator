@@ -42,6 +42,8 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
+#include <backgroundcolorselection.h>
+
 #include <QDebug>
 #include <QToolButton>
 
@@ -336,6 +338,32 @@ void Edit3DView::createEdit3DActions()
                 QKeySequence(Qt::Key_G), true, true, {}, {}, nullptr,
                 QCoreApplication::translate("ShowGridAction", "Toggle the visibility of the helper grid."));
 
+    SelectionContextOperation showBackgroundColorSelection = [this](const SelectionContext &) {
+        BackgroundColorSelection::showBackgroundColorSelectionWidget(edit3DWidget());
+    };
+
+    m_backgroundColorSelectionAction = new Edit3DAction(
+        QmlDesigner::Constants::EDIT3D_EDIT_SELECT_BACKGROUND_COLOR, View3DActionCommand::SelectBackgroundColor,
+        QCoreApplication::translate("SelectBackgroundColorAction", "Select Background color"),
+        {}, false, false, {}, {}, showBackgroundColorSelection,
+        QCoreApplication::translate("SelectBackgroundColorAction", "Choose a color for the background."));
+
+    m_resetBackgroundColorAction = new Edit3DAction(
+        QmlDesigner::Constants::EDIT3D_EDIT_RESET_BACKGROUND_COLOR, View3DActionCommand::ResetBackgroundColor,
+        QCoreApplication::translate("ResetBackgroundColorAction", "Reset Background color"),
+        {}, false, false, {}, {}, [](const SelectionContext &) {
+            QList<QColor> colors = {QRgb(0x222222), QRgb(0x999999)};
+            auto view = QmlDesignerPlugin::instance()->viewManager().nodeInstanceView();
+            View3DActionCommand cmd(View3DActionCommand::SelectBackgroundColor, QVariant::fromValue(colors));
+            view->view3DAction(cmd);
+
+            QList<QString> colorsToSave = {colors[0].name(), colors[1].name()};
+            QmlDesigner::DesignerSettings::setValue(
+                QmlDesigner::DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR,
+                QVariant::fromValue(colorsToSave));
+        },
+        QCoreApplication::translate("ResetBackgroundColorAction", "Reset Background color to the default value."));
+
     m_showSelectionBoxAction = new Edit3DAction(
                 QmlDesigner::Constants::EDIT3D_EDIT_SHOW_SELECTION_BOX, View3DActionCommand::ShowSelectionBox,
                 QCoreApplication::translate("ShowSelectionBoxAction", "Show Selection Boxes"),
@@ -438,6 +466,29 @@ void Edit3DView::createEdit3DActions()
                 QKeySequence(), false, false, Utils::Icons::EYE_OPEN_TOOLBAR.icon(),
                 {}, visibilityTogglesTrigger);
 
+    SelectionContextOperation backgroundColorActionsTrigger = [this](const SelectionContext &) {
+        if (!edit3DWidget()->backgroundColorMenu())
+            return;
+
+        QPoint pos;
+        const auto &actionWidgets = m_backgrondColorMenuAction->action()->associatedWidgets();
+        for (auto actionWidget : actionWidgets) {
+            if (auto button = qobject_cast<QToolButton *>(actionWidget)) {
+                pos = button->mapToGlobal(QPoint(0, 0));
+                break;
+            }
+        }
+
+        edit3DWidget()->showBackgroundColorMenu(!edit3DWidget()->backgroundColorMenu()->isVisible(),
+                                                pos);
+    };
+
+    m_backgrondColorMenuAction = new Edit3DAction(
+        QmlDesigner::Constants::EDIT3D_BACKGROUND_COLOR_ACTIONS, View3DActionCommand::Empty,
+        QCoreApplication::translate("BackgroundColorMenuActions", "Background Color Actions"),
+        QKeySequence(), false, false, Icons::COLOR_PALETTE.icon(),
+        {}, backgroundColorActionsTrigger);
+
     m_leftActions << m_selectionModeAction;
     m_leftActions << nullptr; // Null indicates separator
     m_leftActions << nullptr; // Second null after separator indicates an exclusive group
@@ -455,6 +506,8 @@ void Edit3DView::createEdit3DActions()
     m_leftActions << m_alignViewAction;
     m_leftActions << nullptr;
     m_leftActions << m_visibilityTogglesAction;
+    m_leftActions << nullptr;
+    m_leftActions << m_backgrondColorMenuAction;
 
     m_rightActions << m_particleViewModeAction;
     m_rightActions << m_particlesPlayAction;
@@ -467,6 +520,9 @@ void Edit3DView::createEdit3DActions()
     m_visibilityToggleActions << m_showIconGizmoAction;
     m_visibilityToggleActions << m_showCameraFrustumAction;
     m_visibilityToggleActions << m_showParticleEmitterAction;
+
+    m_backgroundColorActions << m_backgroundColorSelectionAction;
+    m_backgroundColorActions << m_resetBackgroundColorAction;
 }
 
 QVector<Edit3DAction *> Edit3DView::leftActions() const
@@ -482,6 +538,11 @@ QVector<Edit3DAction *> Edit3DView::rightActions() const
 QVector<Edit3DAction *> Edit3DView::visibilityToggleActions() const
 {
     return m_visibilityToggleActions;
+}
+
+QVector<Edit3DAction *> Edit3DView::backgroundColorActions() const
+{
+    return m_backgroundColorActions;
 }
 
 void Edit3DView::addQuick3DImport()

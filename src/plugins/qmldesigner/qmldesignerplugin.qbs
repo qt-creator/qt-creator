@@ -526,6 +526,8 @@ Project {
                 "debugview/debugviewwidget.ui",
                 "edit3d/edit3dview.cpp",
                 "edit3d/edit3dview.h",
+                "edit3d/backgroundcolorselection.cpp",
+                "edit3d/backgroundcolorselection.h",
                 "edit3d/edit3dwidget.cpp",
                 "edit3d/edit3dwidget.h",
                 "edit3d/edit3dcanvas.cpp",
