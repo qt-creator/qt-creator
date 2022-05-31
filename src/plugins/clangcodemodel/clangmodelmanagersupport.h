@@ -25,14 +25,14 @@
 
 #pragma once
 
-#include "clanguiheaderondiskmanager.h"
-
 #include <cppeditor/cppmodelmanagersupport.h>
 #include <cppeditor/projectinfo.h>
 
+#include <utils/filepath.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/id.h>
 
+#include <QHash>
 #include <QObject>
 #include <QPointer>
 
@@ -69,9 +69,6 @@ public:
                 TextEditor::TextDocument *baseTextDocument) override;
     std::unique_ptr<CppEditor::AbstractOverviewModel> createOverviewModel() override;
     bool usesClangd(const TextEditor::TextDocument *document) const override;
-
-    QString dummyUiHeaderOnDiskDirPath() const;
-    QString dummyUiHeaderOnDiskPath(const QString &filePath) const;
 
     ClangdClient *clientForProject(const ProjectExplorer::Project *project) const;
     ClangdClient *clientForFile(const Utils::FilePath &file) const;
@@ -122,10 +119,9 @@ private:
     void watchForExternalChanges();
     void watchForInternalChanges();
 
-    UiHeaderOnDiskManager m_uiHeaderOnDiskManager;
-
     Utils::FutureSynchronizer m_generatorSynchronizer;
     QList<QPointer<ClangdClient>> m_clientsToRestart;
+    QHash<Utils::FilePath, QString> m_queuedShadowDocuments;
 };
 
 class ClangModelManagerSupportProvider : public CppEditor::ModelManagerSupportProvider

@@ -136,6 +136,8 @@ public:
     void deactivateDocument(TextEditor::TextDocument *document);
     bool documentOpen(const TextEditor::TextDocument *document) const;
     TextEditor::TextDocument *documentForFilePath(const Utils::FilePath &file) const;
+    void setShadowDocument(const Utils::FilePath &filePath, const QString &contents);
+    void removeShadowDocument(const Utils::FilePath &filePath);
     void documentContentsSaved(TextEditor::TextDocument *document);
     void documentWillSave(Core::IDocument *document);
     void documentContentsChanged(TextEditor::TextDocument *document,
@@ -205,6 +207,7 @@ signals:
     void capabilitiesChanged(const DynamicCapabilities &capabilities);
     void documentUpdated(TextEditor::TextDocument *document);
     void workDone(const LanguageServerProtocol::ProgressToken &token);
+    void shadowDocumentSwitched(const Utils::FilePath &filePath);
     void finished();
 
 protected:

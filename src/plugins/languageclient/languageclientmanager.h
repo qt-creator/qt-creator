@@ -62,7 +62,7 @@ public:
     static void clientStarted(Client *client);
     static void clientFinished(Client *client);
     static Client *startClient(const BaseSettings *setting, ProjectExplorer::Project *project = nullptr);
-    static QList<Client *> clients();
+    static const QList<Client *> clients();
     static void addClient(Client *client);
 
     static void addExclusiveRequest(const LanguageServerProtocol::MessageId &id, Client *client);

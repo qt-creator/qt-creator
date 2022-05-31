@@ -54,8 +54,6 @@ QtcPlugin {
         "clangpreprocessorassistproposalitem.h",
         "clangtextmark.cpp",
         "clangtextmark.h",
-        "clanguiheaderondiskmanager.cpp",
-        "clanguiheaderondiskmanager.h",
         "clangutils.cpp",
         "clangutils.h",
         "tasktimers.cpp",

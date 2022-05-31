@@ -181,7 +181,7 @@ Client *LanguageClientManager::startClient(const BaseSettings *setting,
     return client;
 }
 
-QList<Client *> LanguageClientManager::clients()
+const QList<Client *> LanguageClientManager::clients()
 {
     QTC_ASSERT(managerInstance, return {});
     return managerInstance->m_clients;
