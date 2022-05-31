@@ -40,7 +40,7 @@ class REMOTELINUX_EXPORT X11ForwardingAspect : public Utils::StringAspect
 public:
     X11ForwardingAspect(const Utils::MacroExpander *macroExpander);
 
-    struct Data : BaseAspect::Data
+    struct Data : StringAspect::Data
     {
         QString display;
     };
