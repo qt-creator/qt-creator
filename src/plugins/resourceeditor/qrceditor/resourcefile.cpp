@@ -25,7 +25,6 @@
 
 #include "resourcefile_p.h"
 
-#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
@@ -33,6 +32,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/removefiledialog.h>
 #include <utils/theme/theme.h>
 
@@ -580,7 +580,7 @@ void ResourceFile::clearPrefixList()
 ResourceModel::ResourceModel(QObject *parent)
     : QAbstractItemModel(parent), m_dirty(false)
 {
-    static QIcon resourceFolderIcon = Core::FileIconProvider::directoryIcon(QLatin1String(ProjectExplorer::Constants::FILEOVERLAY_QRC));
+    static QIcon resourceFolderIcon = Utils::FileIconProvider::directoryIcon(QLatin1String(ProjectExplorer::Constants::FILEOVERLAY_QRC));
     m_prefixIcon = resourceFolderIcon;
 }
 
@@ -797,7 +797,7 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
                 if (iconFileExtension(path))
                     file->icon = QIcon(path);
                 else
-                    file->icon = Core::FileIconProvider::icon(Utils::FilePath::fromString(path));
+                    file->icon = Utils::FileIconProvider::icon(Utils::FilePath::fromString(path));
             }
             if (!file->icon.isNull())
                 result = file->icon;

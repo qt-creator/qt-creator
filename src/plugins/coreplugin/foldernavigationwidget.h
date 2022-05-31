@@ -80,6 +80,9 @@ public:
     void saveSettings(Utils::QtcSettings *settings, int position, QWidget *widget) override;
     void restoreSettings(QSettings *settings, int position, QWidget *widget) override;
 
+    void addRootPath(Utils::Id id, const QString &displayName, const QIcon &icon, const Utils::FilePath &path) override;
+    void removeRootPath(Utils::Id path) override;
+
     static void insertRootDirectory(const RootDirectory &directory);
     static void removeRootDirectory(const QString &id);
 

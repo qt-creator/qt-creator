@@ -43,8 +43,6 @@
 #include "settings/nimsettings.h"
 #include "suggest/nimsuggestcache.h"
 
-#include <coreplugin/fileiconprovider.h>
-
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runcontrol.h>
@@ -52,6 +50,8 @@
 #include <projectexplorer/toolchainmanager.h>
 
 #include <texteditor/snippets/snippetprovider.h>
+
+#include <utils/fsengine/fileiconprovider.h>
 
 using namespace Utils;
 using namespace ProjectExplorer;
@@ -128,13 +128,13 @@ bool NimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 void NimPlugin::extensionsInitialized()
 {
     // Add MIME overlay icons (these icons displayed at Project dock panel)
-    const QIcon icon = Utils::Icon({{":/nim/images/settingscategory_nim.png",
-            Utils::Theme::PanelTextColorDark
-        }}, Utils::Icon::Tint).icon();
+    const QIcon icon = Icon({{":/nim/images/settingscategory_nim.png",
+            Theme::PanelTextColorDark
+        }}, Icon::Tint).icon();
     if (!icon.isNull()) {
-        Core::FileIconProvider::registerIconOverlayForMimeType(icon, Constants::C_NIM_MIMETYPE);
-        Core::FileIconProvider::registerIconOverlayForMimeType(icon, Constants::C_NIM_SCRIPT_MIMETYPE);
-        Core::FileIconProvider::registerIconOverlayForMimeType(icon, Constants::C_NIMBLE_MIMETYPE);
+        FileIconProvider::registerIconOverlayForMimeType(icon, Constants::C_NIM_MIMETYPE);
+        FileIconProvider::registerIconOverlayForMimeType(icon, Constants::C_NIM_SCRIPT_MIMETYPE);
+        FileIconProvider::registerIconOverlayForMimeType(icon, Constants::C_NIMBLE_MIMETYPE);
     }
     TaskHub::addCategory(Constants::C_NIMPARSE_ID, "Nim");
 }

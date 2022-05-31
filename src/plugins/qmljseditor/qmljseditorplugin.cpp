@@ -43,7 +43,6 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -55,6 +54,7 @@
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/tabsettings.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/qtcassert.h>
 #include <utils/json.h>
 

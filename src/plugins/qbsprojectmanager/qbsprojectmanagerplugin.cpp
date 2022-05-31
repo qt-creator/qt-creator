@@ -46,7 +46,6 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/fileiconprovider.h>
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
@@ -63,6 +62,7 @@
 #include <qmljstools/qmljstoolsconstants.h>
 
 #include <utils/fileutils.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -112,7 +112,7 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     const Core::Context projectContext(::QbsProjectManager::Constants::PROJECT_ID);
 
-    Core::FileIconProvider::registerIconOverlayForSuffix(ProjectExplorer::Constants::FILEOVERLAY_QT, "qbs");
+    Utils::FileIconProvider::registerIconOverlayForSuffix(ProjectExplorer::Constants::FILEOVERLAY_QT, "qbs");
     Core::HelpManager::registerDocumentation({Core::HelpManager::documentationPath() + "/qbs.qch"});
 
     ProjectManager::registerProjectType<QbsProject>(QmlJSTools::Constants::QBS_MIMETYPE);

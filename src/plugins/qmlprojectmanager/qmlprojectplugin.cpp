@@ -38,7 +38,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/modemanager.h>
@@ -62,6 +61,7 @@
 #include <extensionsystem/pluginspec.h>
 
 #include <utils/fileutils.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/qtcprocess.h>
 
 #include <QAction>
@@ -286,7 +286,7 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     }
 
     ProjectManager::registerProjectType<QmlProject>(QmlJSTools::Constants::QMLPROJECT_MIMETYPE);
-    Core::FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png",
+    Utils::FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png",
                                                          "qmlproject");
 
     if (QmlProject::isQtDesignStudio()) {

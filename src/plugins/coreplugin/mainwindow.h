@@ -116,6 +116,8 @@ public:
 
     void restart();
 
+    void openFileFromDevice();
+
 public slots:
     static void openFileWith();
     void exit();
@@ -186,6 +188,7 @@ private:
     QAction *m_newAction = nullptr;
     QAction *m_openAction = nullptr;
     QAction *m_openWithAction = nullptr;
+    QAction *m_openFromDeviceAction = nullptr;
     QAction *m_saveAllAction = nullptr;
     QAction *m_exitAction = nullptr;
     QAction *m_optionsAction = nullptr;

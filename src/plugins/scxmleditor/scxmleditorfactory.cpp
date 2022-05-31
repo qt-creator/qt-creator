@@ -29,8 +29,8 @@
 #include "scxmleditordata.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/fileiconprovider.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <utils/fsengine/fileiconprovider.h>
 
 #include <QGuiApplication>
 #include <QFileInfo>
@@ -44,7 +44,7 @@ ScxmlEditorFactory::ScxmlEditorFactory()
     setDisplayName(QCoreApplication::translate("ScxmlEditor", C_SCXMLEDITOR_DISPLAY_NAME));
     addMimeType(ProjectExplorer::Constants::SCXML_MIMETYPE);
 
-    Core::FileIconProvider::registerIconOverlayForSuffix(":/projectexplorer/images/fileoverlay_scxml.png", "scxml");
+    Utils::FileIconProvider::registerIconOverlayForSuffix(":/projectexplorer/images/fileoverlay_scxml.png", "scxml");
 
     setEditorCreator([this] {
         if (!m_editorData) {

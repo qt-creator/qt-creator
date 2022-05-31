@@ -72,6 +72,8 @@
 #include <coreplugin/settingsdatabase.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
+#include <utils/fsengine/fileiconprovider.h>
+#include <utils/fsengine/fsengine.h>
 #include <utils/historycompleter.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeutils.h>
@@ -83,6 +85,7 @@
 #include <utils/touchbar/touchbar.h>
 #include <utils/utilsicons.h>
 
+#include <QAbstractProxyModel>
 #include <QActionGroup>
 #include <QApplication>
 #include <QBrush>
@@ -93,11 +96,13 @@
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QFileInfo>
+#include <QFileSystemModel>
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QPrinter>
 #include <QSettings>
+#include <QSortFilterProxyModel>
 #include <QStatusBar>
 #include <QStyleFactory>
 #include <QSyntaxHighlighter>
@@ -113,6 +118,17 @@ using namespace Utils;
 
 namespace Core {
 namespace Internal {
+
+static const char settingsGroup[] = "MainWindow";
+static const char colorKey[] = "Color";
+static const char askBeforeExitKey[] = "AskBeforeExit";
+static const char windowGeometryKey[] = "WindowGeometry";
+static const char windowStateKey[] = "WindowState";
+static const char modeSelectorLayoutKey[] = "ModeSelectorLayout";
+static const char openFromDeviceDialogKey[] = "OpenFromDeviceDialog";
+
+static const bool askBeforeExitDefault = false;
+
 
 enum { debugMainWindow = 0 };
 
@@ -583,6 +599,14 @@ void MainWindow::registerDefaultActions()
     mfile->addAction(cmd, Constants::G_FILE_OPEN);
     connect(m_openWithAction, &QAction::triggered, this, &MainWindow::openFileWith);
 
+    if (FSEngine::isAvailable()) {
+        // Open From Device Action
+        m_openFromDeviceAction = new QAction(Tr::tr("Open From Device..."), this);
+        cmd = ActionManager::registerAction(m_openFromDeviceAction, Constants::OPEN_FROM_DEVICE);
+        mfile->addAction(cmd, Constants::G_FILE_OPEN);
+        connect(m_openFromDeviceAction, &QAction::triggered, this, &MainWindow::openFileFromDevice);
+    }
+
     // File->Recent Files Menu
     ActionContainer *ac = ActionManager::createMenu(Constants::M_FILE_RECENTFILES);
     mfile->addMenu(ac, Constants::G_FILE_OPEN);
@@ -1043,6 +1067,41 @@ void MainWindow::openFileWith()
     }
 }
 
+void MainWindow::openFileFromDevice()
+{
+    QSettings *settings = PluginManager::settings();
+    settings->beginGroup(QLatin1String(settingsGroup));
+    QVariant dialogSettings = settings->value(QLatin1String(openFromDeviceDialogKey));
+
+    QFileDialog dialog;
+    dialog.setOption(QFileDialog::DontUseNativeDialog);
+    if (!dialogSettings.isNull()) {
+        dialog.restoreState(dialogSettings.toByteArray());
+    }
+    QList<QUrl> sideBarUrls = Utils::transform(Utils::filtered(FSEngine::registeredDeviceRoots(),
+                                                               [](const auto &filePath) {
+                                                                   return filePath.exists();
+                                                               }),
+                                               [](const auto &filePath) {
+                                                   return QUrl::fromLocalFile(filePath.toFSPathString());
+                                               });
+    dialog.setSidebarUrls(sideBarUrls);
+    dialog.setFileMode(QFileDialog::AnyFile);
+
+    dialog.setIconProvider(FileIconProvider::iconProvider());
+
+    if (dialog.exec()) {
+        FilePaths filePaths = Utils::transform(dialog.selectedFiles(), [](const auto &path) {
+            return FilePath::fromString(path);
+        });
+
+        openFiles(filePaths, ICore::SwitchMode);
+    }
+
+    settings->setValue(QLatin1String(openFromDeviceDialogKey), dialog.saveState());
+    settings->endGroup();
+}
+
 IContext *MainWindow::contextObject(QWidget *widget) const
 {
     const auto it = m_contextWidgets.find(widget);
@@ -1125,15 +1184,6 @@ void MainWindow::aboutToShutdown()
     m_activeContext.clear();
     hide();
 }
-
-static const char settingsGroup[] = "MainWindow";
-static const char colorKey[] = "Color";
-static const char askBeforeExitKey[] = "AskBeforeExit";
-static const char windowGeometryKey[] = "WindowGeometry";
-static const char windowStateKey[] = "WindowState";
-static const char modeSelectorLayoutKey[] = "ModeSelectorLayout";
-
-static const bool askBeforeExitDefault = false;
 
 void MainWindow::readSettings()
 {

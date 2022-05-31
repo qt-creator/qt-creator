@@ -30,10 +30,11 @@
 #include "clangtoolsutils.h"
 #include "diagnosticmark.h"
 
-#include <coreplugin/fileiconprovider.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <texteditor/textmark.h>
+
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -58,7 +59,7 @@ QVariant FilePathItem::data(int column, int role) const
         case Qt::DisplayRole:
             return m_filePath.toUserOutput();
         case Qt::DecorationRole:
-            return Core::FileIconProvider::icon(m_filePath);
+            return Utils::FileIconProvider::icon(m_filePath);
         case Debugger::DetailedErrorView::FullTextRole:
             return m_filePath.toUserOutput();
         default:

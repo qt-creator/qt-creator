@@ -28,6 +28,7 @@
 #include "algorithm.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
+#include "filepath.h"
 
 #ifdef QT_WIDGETS_LIB
 #include <QApplication>
@@ -117,6 +118,9 @@ QTCREATOR_UTILS_EXPORT QString commonPath(const QStringList &files)
 QTCREATOR_UTILS_EXPORT QString withTildeHomePath(const QString &path)
 {
     if (HostOsInfo::isWindowsHost())
+        return path;
+
+    if (FilePath::fromString(path).needsDevice())
         return path;
 
     static const QString homePath = QDir::homePath();
@@ -475,7 +479,6 @@ QTCREATOR_UTILS_EXPORT QString languageNameFromLanguageCode(const QString &langu
 }
 
 #ifdef QT_WIDGETS_LIB
-
 QTCREATOR_UTILS_EXPORT void setClipboardAndSelection(const QString &text)
 {
     QClipboard *clipboard = QApplication::clipboard();
@@ -483,7 +486,14 @@ QTCREATOR_UTILS_EXPORT void setClipboardAndSelection(const QString &text)
     if (clipboard->supportsSelection())
         clipboard->setText(text, QClipboard::Selection);
 }
-
 #endif
+
+QTCREATOR_UTILS_EXPORT QString chopIfEndsWith(QString str, QChar c)
+{
+    if (str.endsWith(c))
+        str.chop(1);
+
+    return str;
+}
 
 } // namespace Utils

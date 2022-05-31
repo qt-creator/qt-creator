@@ -641,6 +641,15 @@ QString DockerDevice::mapToDevicePath(const Utils::FilePath &globalPath) const
     return path;
 }
 
+Utils::FilePath DockerDevice::rootPath() const
+{
+    FilePath root;
+    root.setScheme(Constants::DOCKER_DEVICE_SCHEME);
+    root.setHost(d->m_data.repoAndTag());
+    root.setPath("/");
+    return root;
+}
+
 bool DockerDevice::handlesFile(const FilePath &filePath) const
 {
     if (filePath.scheme() == "device" && filePath.host() == id().toString())

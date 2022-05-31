@@ -41,13 +41,13 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <texteditor/snippets/snippetprovider.h>
 
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/parameteraction.h>
 
 using namespace Core;

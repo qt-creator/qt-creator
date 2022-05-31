@@ -26,11 +26,13 @@
 #include "dockerplugin.h"
 
 #include "dockerapi.h"
+#include "dockerconstants.h"
 #include "dockerdevice.h"
 #include "dockersettings.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/fsengine/fsengine.h>
 #include <utils/qtcassert.h>
 
 using namespace Core;
@@ -57,6 +59,7 @@ static DockerPlugin *s_instance = nullptr;
 DockerPlugin::DockerPlugin()
 {
     s_instance = this;
+    FSEngine::registerDeviceScheme(Constants::DOCKER_DEVICE_SCHEME);
 }
 
 DockerApi *DockerPlugin::dockerApi()
@@ -67,6 +70,7 @@ DockerApi *DockerPlugin::dockerApi()
 
 DockerPlugin::~DockerPlugin()
 {
+    FSEngine::unregisterDeviceScheme(Constants::DOCKER_DEVICE_SCHEME);
     s_instance = nullptr;
     delete d;
 }

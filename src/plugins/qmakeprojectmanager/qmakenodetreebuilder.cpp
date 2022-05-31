@@ -27,7 +27,6 @@
 
 #include "qmakeproject.h"
 
-#include <coreplugin/fileiconprovider.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/baseqtversion.h>
@@ -35,6 +34,7 @@
 #include <resourceeditor/resourcenode.h>
 
 #include <utils/algorithm.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/qtcassert.h>
 
 using namespace Core;
@@ -112,12 +112,12 @@ QmakeStaticData::QmakeStaticData()
         const QString filter = QString::fromUtf8(fileType.addFileFilter);
         fileTypeData.push_back(QmakeStaticData::FileTypeData(fileType.type,
                                                              desc, filter,
-                                                             Core::FileIconProvider::directoryIcon(QLatin1String(fileType.icon))));
+                                                             Utils::FileIconProvider::directoryIcon(QLatin1String(fileType.icon))));
     }
     // Project icon
-    projectIcon = Core::FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_QT);
-    productIcon = Core::FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_PRODUCT);
-    groupIcon = Core::FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_GROUP);
+    projectIcon = Utils::FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_QT);
+    productIcon = Utils::FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_PRODUCT);
+    groupIcon = Utils::FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_GROUP);
 
     qAddPostRoutine(clearQmakeStaticData);
 }

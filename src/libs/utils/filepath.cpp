@@ -39,6 +39,7 @@
 #include <QRegularExpression>
 #include <QStorageInfo>
 #include <QUrl>
+#include <QStringView>
 
 #ifdef Q_OS_WIN
 #ifdef QTCREATOR_PCH_H
@@ -480,9 +481,20 @@ QString FilePath::toString() const
 {
     if (m_scheme.isEmpty())
         return m_data;
+
     if (m_data.startsWith('/'))
-        return m_scheme + "://" + hostEncoded(m_host) + m_data;
-    return m_scheme + "://" + hostEncoded(m_host) + "/./" + m_data;
+        return specialPath(SpecialPathComponent::RootPath) + "/" + m_scheme + "/" + hostEncoded(m_host) + m_data;
+    return specialPath(SpecialPathComponent::RootPath) + "/" + m_scheme + "/" + hostEncoded(m_host) + "/./" + m_data;
+}
+
+QString FilePath::toFSPathString() const
+{
+    if (m_scheme.isEmpty())
+        return m_data;
+
+    if (m_data.startsWith('/'))
+        return specialPath(SpecialPathComponent::RootPath) + "/" + m_scheme + "/" + hostEncoded(m_host) + m_data;
+    return specialPath(SpecialPathComponent::RootPath) + "/" + m_scheme + "/" + hostEncoded(m_host) + "/./" + m_data;
 }
 
 QUrl FilePath::toUrl() const
@@ -504,6 +516,12 @@ void FileUtils::setDeviceFileHooks(const DeviceFileHooks &hooks)
 /// this path belongs to.
 QString FilePath::toUserOutput() const
 {
+    if (needsDevice()) {
+        if (m_data.startsWith('/'))
+            return m_scheme + "://" + hostEncoded(m_host) + m_data;
+        return m_scheme + "://" + hostEncoded(m_host) + "/./" + m_data;
+    }
+
     FilePath tmp = *this;
     if (osType() == OsTypeWindows)
         tmp.m_data.replace('/', '\\');
@@ -941,6 +959,27 @@ FilePath FilePath::absoluteFilePath() const
     return result;
 }
 
+QString FilePath::specialPath(SpecialPathComponent component)
+{
+    switch (component) {
+    case SpecialPathComponent::RootName:
+        return QLatin1String("__qtc_devices__");
+    case SpecialPathComponent::RootPath:
+        return (QDir::rootPath() + "__qtc_devices__");
+    case SpecialPathComponent::DeviceRootName:
+        return QLatin1String("device");
+    case SpecialPathComponent::DeviceRootPath:
+        return QDir::rootPath() + "__qtc_devices__/device";
+    }
+
+    QTC_ASSERT(false, return {});
+}
+
+FilePath FilePath::specialFilePath(SpecialPathComponent component)
+{
+    return FilePath::fromString(specialPath(component));
+}
+
 FilePath FilePath::normalizedPathName() const
 {
     FilePath result = *this;
@@ -1005,28 +1044,88 @@ FilePath FilePath::fromString(const QString &filepath)
 
 void FilePath::setFromString(const QString &filename)
 {
-    if (filename.startsWith('/')) {
-        m_data = filename;  // fast track: absolute local paths
-    } else {
-        int pos1 = filename.indexOf("://");
-        if (pos1 >= 0) {
-            m_scheme = filename.left(pos1);
-            pos1 += 3;
-            int pos2 = filename.indexOf('/', pos1);
-            if (pos2 == -1) {
-                m_data = filename.mid(pos1);
-            } else {
-                m_host = filename.mid(pos1, pos2 - pos1);
-                m_host.replace("%2f", "/");
-                m_host.replace("%25", "%");
-                m_data = filename.mid(pos2);
+#ifndef UTILS_FILEPATH_USE_REGEXP
+    static const QLatin1String qtcDevSlash("__qtc_devices__/");
+
+    const QStringView fileNameView(filename);
+    const QString rootPath = QDir::rootPath();
+
+    if (fileNameView.startsWith(rootPath, Qt::CaseInsensitive)) { // Absolute path ...
+        const QStringView withoutRootPath = fileNameView.mid(rootPath.size());
+        if (withoutRootPath.startsWith(qtcDevSlash)) { // Starts with "/__qtc_devices__/" ...
+            const QStringView withoutQtcDeviceRoot = withoutRootPath.mid(qtcDevSlash.size());
+
+            const auto firstSlash = withoutQtcDeviceRoot.indexOf('/');
+
+            if (firstSlash != -1) {
+                m_scheme = withoutQtcDeviceRoot.left(firstSlash).toString();
+                const auto secondSlash = withoutQtcDeviceRoot.indexOf('/', firstSlash + 1);
+                m_host = withoutQtcDeviceRoot.mid(firstSlash + 1, secondSlash - firstSlash - 1)
+                             .toString();
+                if (secondSlash != -1) {
+                    const QStringView path = withoutQtcDeviceRoot.mid(secondSlash);
+                    m_data = path.startsWith(QLatin1String("/./")) ? path.mid(3).toString()
+                                                                   : path.toString();
+                    return;
+                }
+                m_data = "/";
+
+                return;
             }
-            if (m_data.startsWith("/./"))
-                m_data = m_data.mid(3);
-        } else {
-            m_data = filename; // treat everything else as local, too.
+            m_scheme = "";
+            m_host = "";
+            m_data = filename;
+
+            return;
         }
     }
+
+    const auto firstSlash = filename.indexOf('/');
+    const auto schemeEnd = filename.indexOf("://");
+    if (schemeEnd != -1 && schemeEnd < firstSlash) {
+        // This is a pseudo Url, we can't use QUrl here sadly.
+        m_scheme = filename.left(schemeEnd);
+        const auto hostEnd = filename.indexOf('/', schemeEnd + 3);
+        m_host = filename.mid(schemeEnd + 3, hostEnd - schemeEnd - 3);
+        m_data = filename.mid(hostEnd);
+
+        return;
+    }
+
+    m_data = filename;
+
+    return;
+#else
+    // Convert the root path ( "/" or e.g. "c:/") to a regex match string ( e.g. ^[(?i)c(?-i)]:\/ )
+    // (?i) will turn on case insensitivity, (?-i) will turn it off again.
+    static const QString rootPart = '^'
+                                    + QDir::rootPath()
+                                          .replace('/', "\\/")
+                                          .replace(QRegularExpression("([a-zA-Z])"),
+                                                   R"((?i)[\1](?-i))");
+
+    static const QString pathPattern = rootPart + specialPath(SpecialPathComponent::RootName)
+                                       + QString(R"(\/([^\/]+)\/([^\/]+)(\/.*)?)");
+
+    static const QRegularExpression rePath(pathPattern);
+    static const QRegularExpression reUrl(R"(^\/?([^:]+):\/{2}([^\/]*)(\/.*))");
+
+    const auto m = filename.startsWith(specialPath(SpecialPathComponent::RootPath),
+                                       Qt::CaseInsensitive)
+                       ? rePath.match(filename)
+                       : reUrl.match(filename);
+
+    if (m.hasMatch()) {
+        m_scheme = m.captured(1);
+        m_host = m.captured(2);
+        m_host.replace("%2f", "/");
+        m_host.replace("%25", "%");
+
+        m_data = m.captured(3).isEmpty() ? "/" : m.captured(3);
+    } else {
+        m_data = filename;
+    }
+#endif
 }
 
 /// Constructs a FilePath from \a filePath. The \a defaultExtension is appended

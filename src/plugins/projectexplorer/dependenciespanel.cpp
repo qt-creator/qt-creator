@@ -27,11 +27,11 @@
 #include "project.h"
 #include "session.h"
 
-#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 
-#include <utils/detailswidget.h>
 #include <utils/algorithm.h>
+#include <utils/detailswidget.h>
+#include <utils/fsengine/fileiconprovider.h>
 
 #include <QDebug>
 #include <QSize>
@@ -99,7 +99,7 @@ QVariant DependenciesModel::data(const QModelIndex &index, int role) const
     case Qt::CheckStateRole:
         return SessionManager::hasDependency(m_project, p) ? Qt::Checked : Qt::Unchecked;
     case Qt::DecorationRole:
-        return Core::FileIconProvider::icon(p->projectFilePath());
+        return Utils::FileIconProvider::icon(p->projectFilePath());
     default:
         return QVariant();
     }

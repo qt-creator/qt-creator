@@ -32,7 +32,6 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -46,6 +45,7 @@
 #include <utils/algorithm.h>
 #include <utils/filecrumblabel.h>
 #include <utils/fileutils.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
@@ -158,7 +158,25 @@ public:
 
 protected:
     bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
 };
+
+bool FolderSortProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+{
+    if (static_cast<QFileSystemModel *>(sourceModel())->rootPath().isEmpty()) {
+        QModelIndex sourceIndex = sourceModel()->index(source_row, 0, source_parent);
+        while (sourceIndex.isValid()) {
+            if (sourceIndex.data().toString()
+                == FilePath::specialPath(FilePath::SpecialPathComponent::RootName)) {
+                return false;
+            }
+
+            sourceIndex = sourceIndex.parent();
+        }
+    }
+
+    return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
+}
 
 FolderSortProxyModel::FolderSortProxyModel(QObject *parent)
     : QSortFilterProxyModel(parent)
@@ -281,8 +299,9 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_sortProxyModel->setSourceModel(m_fileSystemModel);
     m_sortProxyModel->setSortRole(FolderNavigationModel::IsFolderRole);
     m_sortProxyModel->sort(0);
+
     m_fileSystemModel->setResolveSymlinks(false);
-    m_fileSystemModel->setIconProvider(Core::FileIconProvider::iconProvider());
+    m_fileSystemModel->setIconProvider(Utils::FileIconProvider::iconProvider());
     QDir::Filters filters = QDir::AllEntries | QDir::NoDotAndDotDot;
     if (Utils::HostOsInfo::isWindowsHost()) // Symlinked directories can cause file watcher warnings on Win32.
         filters |= QDir::NoSymLinks;
@@ -922,6 +941,17 @@ void FolderNavigationWidgetFactory::updateProjectsDirectoryRoot()
 static FolderNavigationWidget *currentFolderNavigationWidget()
 {
     return qobject_cast<FolderNavigationWidget *>(Core::ICore::currentContextWidget());
+}
+
+void FolderNavigationWidgetFactory::addRootPath(Utils::Id id, const QString &displayName, const QIcon &icon, const Utils::FilePath &path)
+{
+    if (path.isDir())
+        insertRootDirectory({id.toString(), 0, displayName, path, icon});
+}
+
+void FolderNavigationWidgetFactory::removeRootPath(Utils::Id id)
+{
+    removeRootDirectory(id.toString());
 }
 
 void FolderNavigationWidgetFactory::registerActions()

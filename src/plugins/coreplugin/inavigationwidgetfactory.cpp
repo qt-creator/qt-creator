@@ -28,6 +28,7 @@
 
 #include "inavigationwidgetfactory.h"
 
+#include <QIcon>
 #include <QKeySequence>
 
 /*!
@@ -170,4 +171,16 @@ void INavigationWidgetFactory::saveSettings(Utils::QtcSettings * /* settings */,
 */
 void INavigationWidgetFactory::restoreSettings(QSettings * /* settings */, int /* position */, QWidget * /* widget */)
 {
+}
+
+// Registers a new root path in the factory
+void INavigationWidgetFactory::addRootPath(Utils::Id /*id*/, const QString & /*displayName*/, const QIcon & /*icon*/, const Utils::FilePath & /*path*/)
+{
+
+}
+
+// Removes a root path from the factory
+void INavigationWidgetFactory::removeRootPath(Utils::Id /*path*/)
+{
+
 }

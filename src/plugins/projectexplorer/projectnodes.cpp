@@ -32,12 +32,12 @@
 #include "projecttree.h"
 #include "target.h"
 
-#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <utils/fileutils.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeutils.h>
 #include <utils/pointeralgorithm.h>
@@ -257,7 +257,7 @@ QIcon FileNode::icon() const
     if (hasError())
         return Utils::Icons::WARNING.icon();
     if (m_icon.isNull())
-        m_icon = Core::FileIconProvider::icon(filePath());
+        m_icon = Utils::FileIconProvider::icon(filePath());
     return m_icon;
 }
 
@@ -479,7 +479,7 @@ QIcon FolderNode::icon() const
     } else {
         auto iconPtr = Utils::get_if<QIcon>(&m_icon);
         if (!iconPtr || iconPtr->isNull())
-            m_icon = Core::FileIconProvider::icon(QFileIconProvider::Folder);
+            m_icon = Utils::FileIconProvider::icon(QFileIconProvider::Folder);
     }
     return Utils::get<QIcon>(m_icon);
 }
@@ -1089,7 +1089,7 @@ QIcon DirectoryIcon::icon() const
     const auto it = m_cache.find(m_overlay);
     if (it != m_cache.end())
         return it.value();
-    const QIcon icon = Core::FileIconProvider::directoryIcon(m_overlay);
+    const QIcon icon = Utils::FileIconProvider::directoryIcon(m_overlay);
     m_cache.insert(m_overlay, icon);
     return icon;
 }

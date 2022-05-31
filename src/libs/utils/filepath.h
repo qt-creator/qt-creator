@@ -78,6 +78,7 @@ public:
 
     QString toUserOutput() const;
     QString toString() const;
+    QString toFSPathString() const;
     QVariant toVariant() const;
     QUrl toUrl() const;
 
@@ -209,6 +210,16 @@ public:
     [[nodiscard]] QDir toDir() const; // Avoid.
     [[nodiscard]] FilePath absolutePath() const; // Avoid. Use resolvePath(...)[.parent()] with proper base.
     [[nodiscard]] FilePath absoluteFilePath() const; // Avoid. Use resolvePath(...) with proper base.
+
+    enum class SpecialPathComponent {
+        RootName,
+        RootPath,
+        DeviceRootName,
+        DeviceRootPath,
+    };
+
+    [[nodiscard]] static QString specialPath(SpecialPathComponent component);
+    [[nodiscard]] static FilePath specialFilePath(SpecialPathComponent component);
 
 private:
     friend class ::tst_fileutils;

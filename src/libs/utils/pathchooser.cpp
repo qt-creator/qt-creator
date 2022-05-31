@@ -33,6 +33,7 @@
 #include "qtcassert.h"
 #include "qtcprocess.h"
 
+#include <QGuiApplication>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QMenu>
@@ -194,6 +195,7 @@ public:
     QList<QAbstractButton *> m_buttons;
     const MacroExpander *m_macroExpander = globalMacroExpander();
     std::function<void()> m_openTerminal;
+    bool m_allowPathFromDevice = false;
 };
 
 PathChooserPrivate::PathChooserPrivate()
@@ -420,40 +422,46 @@ void PathChooser::slotBrowse()
     case PathChooser::Directory:
     case PathChooser::ExistingDirectory:
         newPath = FileUtils::getExistingDirectory(this,
-                        makeDialogTitle(tr("Choose Directory")), predefined);
+                                                  makeDialogTitle(tr("Choose Directory")),
+                                                  predefined);
         break;
     case PathChooser::ExistingCommand:
     case PathChooser::Command:
         newPath = FileUtils::getOpenFilePath(this,
-                        makeDialogTitle(tr("Choose Executable")), predefined, d->m_dialogFilter);
+                                             makeDialogTitle(tr("Choose Executable")),
+                                             predefined,
+                                             d->m_dialogFilter,
+                                             nullptr,
+                                             {},
+                                             d->m_allowPathFromDevice);
         newPath = appBundleExpandedPath(newPath);
         break;
     case PathChooser::File: // fall through
         newPath = FileUtils::getOpenFilePath(this,
-                        makeDialogTitle(tr("Choose File")), predefined, d->m_dialogFilter);
+                                             makeDialogTitle(tr("Choose File")),
+                                             predefined,
+                                             d->m_dialogFilter,
+                                             nullptr,
+                                             {},
+                                             d->m_allowPathFromDevice);
         newPath = appBundleExpandedPath(newPath);
         break;
     case PathChooser::SaveFile:
         newPath = FileUtils::getSaveFilePath(this,
-                        makeDialogTitle(tr("Choose File")), predefined, d->m_dialogFilter);
+                                             makeDialogTitle(tr("Choose File")),
+                                             predefined,
+                                             d->m_dialogFilter);
         break;
     case PathChooser::Any: {
-        QFileDialog dialog(this);
-        dialog.setFileMode(QFileDialog::AnyFile);
-        dialog.setWindowTitle(makeDialogTitle(tr("Choose File")));
-        if (predefined.exists())
-            dialog.setDirectory(predefined.absolutePath().toDir());
-        // FIXME: fix QFileDialog so that it filters properly: lib*.a
-        dialog.setNameFilter(d->m_dialogFilter);
-        if (dialog.exec() == QDialog::Accepted) {
-            // probably loop here until the *.framework dir match
-            QStringList paths = dialog.selectedFiles();
-            if (!paths.isEmpty())
-                newPath = FilePath::fromString(paths.at(0));
-        }
+        newPath = FileUtils::getOpenFilePath(this,
+                                             makeDialogTitle(tr("Choose File")),
+                                             predefined,
+                                             d->m_dialogFilter,
+                                             nullptr,
+                                             {},
+                                             d->m_allowPathFromDevice);
         break;
-        }
-
+    }
     default:
         break;
     }
@@ -756,6 +764,16 @@ void PathChooser::setCommandVersionArguments(const QStringList &arguments)
             d->m_binaryVersionToolTipEventFilter = new PathChooserBinaryVersionToolTipEventFilter(this);
         d->m_binaryVersionToolTipEventFilter->setArguments(arguments);
     }
+}
+
+void PathChooser::setAllowPathFromDevice(bool allow)
+{
+    d->m_allowPathFromDevice = allow;
+}
+
+bool PathChooser::allowPathFromDevice() const
+{
+    return d->m_allowPathFromDevice;
 }
 
 } // namespace Utils

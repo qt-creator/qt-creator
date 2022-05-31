@@ -35,7 +35,6 @@
 #include "cppmodelmanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/find/itemviewfind.h>
 
 #include <cplusplus/CppDocument.h>
@@ -45,6 +44,7 @@
 #include <utils/delegates.h>
 #include <utils/dropsupport.h>
 #include <utils/fileutils.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>

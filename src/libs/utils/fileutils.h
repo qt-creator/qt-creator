@@ -152,7 +152,8 @@ public:
                                     const FilePath &dir = {},
                                     const QString &filter = {},
                                     QString *selectedFilter = nullptr,
-                                    QFileDialog::Options options = {});
+                                    QFileDialog::Options options = {},
+                                    bool fromDeviceIfShiftIsPressed = false);
 
     static FilePath getSaveFilePath(QWidget *parent,
                                     const QString &caption,
@@ -172,6 +173,13 @@ public:
                                       const QString &filter = {},
                                       QString *selectedFilter = nullptr,
                                       QFileDialog::Options options = {});
+
+    static FilePath getOpenFilePathFromDevice(QWidget *parent,
+                                              const QString &caption,
+                                              const FilePath &dir = {},
+                                              const QString &filter = {},
+                                              QString *selectedFilter = nullptr,
+                                              QFileDialog::Options options = {});
 #endif
 
 };

@@ -49,12 +49,12 @@
 
 #include "algorithm.h"
 
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QStandardPaths>
-#include <QtCore/QBuffer>
-#include <QtCore/QUrl>
-#include <QtCore/QDebug>
+#include <QFile>
+#include <QFileInfo>
+#include <QStandardPaths>
+#include <QBuffer>
+#include <QUrl>
+#include <QDebug>
 
 #include <algorithm>
 #include <functional>

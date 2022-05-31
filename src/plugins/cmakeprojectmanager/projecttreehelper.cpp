@@ -25,10 +25,10 @@
 
 #include "projecttreehelper.h"
 
-#include <coreplugin/fileiconprovider.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;

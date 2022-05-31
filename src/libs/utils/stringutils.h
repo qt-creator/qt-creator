@@ -130,4 +130,6 @@ QTCREATOR_UTILS_EXPORT void setClipboardAndSelection(const QString &text);
 
 #endif
 
+QTCREATOR_UTILS_EXPORT QString chopIfEndsWith(QString str, QChar c);
+
 } // namespace Utils

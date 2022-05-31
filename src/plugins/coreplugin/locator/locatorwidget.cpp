@@ -33,12 +33,12 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/mainwindow.h>
 #include <utils/algorithm.h>
 #include <utils/appmainwindow.h>
 #include <utils/fancylineedit.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/highlightingitemdelegate.h>
 #include <utils/hostosinfo.h>
 #include <utils/itemviews.h>

@@ -35,6 +35,7 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/fsengine/fsengine.h>
 #include <utils/hostosinfo.h>
 #include <utils/optional.h>
 #include <utils/qtcsettings.h>
@@ -450,6 +451,8 @@ int main(int argc, char **argv)
 {
     Restarter restarter(argc, argv);
     Utils::Environment::systemEnvironment(); // cache system environment before we do any changes
+
+    Utils::FSEngine fileSystemEngine;
 
     // Manually determine various command line options
     // We can't use the regular way of the plugin manager,

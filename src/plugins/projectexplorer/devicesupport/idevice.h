@@ -205,7 +205,7 @@ public:
     MachineType machineType() const;
     void setMachineType(MachineType machineType);
 
-    Utils::FilePath rootPath() const;
+    virtual Utils::FilePath rootPath() const;
     Utils::FilePath filePath(const QString &pathOnDevice) const;
 
     Utils::FilePath debugServerPath() const;

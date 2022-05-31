@@ -318,6 +318,7 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
         item.reinitializeFromFile({}, errorMessage);
         return errorMessage->isEmpty();
     });
+    m_binaryChooser->setAllowPathFromDevice(true);
 
     m_workingDirectoryChooser = new PathChooser(this);
     m_workingDirectoryChooser->setExpectedKind(PathChooser::Directory);

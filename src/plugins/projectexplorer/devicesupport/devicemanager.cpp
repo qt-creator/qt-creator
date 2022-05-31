@@ -34,6 +34,7 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/fsengine/fsengine.h>
 #include <utils/persistentsettings.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
@@ -304,6 +305,10 @@ void DeviceManager::addDevice(const IDevice::ConstPtr &_device)
             d->devices << device;
         }
         emit deviceAdded(device->id());
+
+        if (FSEngine::isAvailable()) {
+            Utils::FSEngine::addDevice(device->rootPath());
+        }
     }
 
     emit updated();
@@ -322,6 +327,10 @@ void DeviceManager::removeDevice(Utils::Id id)
         d->devices.removeAt(d->indexForId(id));
     }
     emit deviceRemoved(device->id());
+
+    if (FSEngine::isAvailable()) {
+        Utils::FSEngine::removeDevice(device->rootPath());
+    }
 
     if (wasDefault) {
         for (int i = 0; i < d->devices.count(); ++i) {

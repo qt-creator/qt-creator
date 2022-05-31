@@ -59,7 +59,6 @@ add_qtc_plugin(Core
     fancyactionbar.qrc
     fancytabwidget.cpp fancytabwidget.h
     featureprovider.cpp featureprovider.h
-    fileiconprovider.cpp fileiconprovider.h
     fileutils.cpp fileutils.h
     find/basetextfind.cpp find/basetextfind.h
     find/currentdocumentfind.cpp find/currentdocumentfind.h

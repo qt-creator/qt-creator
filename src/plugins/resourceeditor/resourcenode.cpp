@@ -28,12 +28,12 @@
 #include "qrceditor/resourcefile_p.h"
 
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/fileiconprovider.h>
 
 #include <qmljstools/qmljstoolsconstants.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/threadutils.h>

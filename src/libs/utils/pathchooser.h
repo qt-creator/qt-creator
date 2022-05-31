@@ -158,6 +158,9 @@ public:
     // setting an empty QString will disable this and clear the placeHolderText
     void setDefaultValue(const QString &defaultValue);
 
+    void setAllowPathFromDevice(bool allow);
+    bool allowPathFromDevice() const;
+
 private:
     QString rawPath() const; // The raw unexpanded input.
     bool validatePath(FancyLineEdit *edit, QString *errorMessage) const;

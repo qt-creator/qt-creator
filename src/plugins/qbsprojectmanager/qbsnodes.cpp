@@ -32,13 +32,14 @@
 #include "qbssession.h"
 
 #include <android/androidconstants.h>
-#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/idocument.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <resourceeditor/resourcenode.h>
+
 #include <utils/algorithm.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 

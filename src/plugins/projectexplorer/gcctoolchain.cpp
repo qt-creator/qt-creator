@@ -1341,6 +1341,7 @@ GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
     m_compilerCommand->setCommandVersionArguments(gnuVersionArgs);
     m_compilerCommand->setHistoryCompleter("PE.Gcc.Command.History");
+    m_compilerCommand->setAllowPathFromDevice(true);
     m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
     m_platformCodeGenFlagsLineEdit = new QLineEdit(this);
     m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->platformCodeGenFlags()));

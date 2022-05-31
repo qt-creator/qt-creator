@@ -26,11 +26,11 @@
 #include "selectablefilesmodel.h"
 #include "projectexplorerconstants.h"
 
-#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/pathchooser.h>
 #include <utils/runextensions.h>
 #include <utils/stringutils.h>
@@ -231,7 +231,7 @@ QVariant SelectableFilesModel::data(const QModelIndex &index, int role) const
         return t->checked;
     if (role == Qt::DecorationRole) {
         if (t->icon.isNull())
-            t->icon = Core::FileIconProvider::icon(t->fullPath);
+            t->icon = Utils::FileIconProvider::icon(t->fullPath);
         return t->icon;
     }
     return QVariant();

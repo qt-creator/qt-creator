@@ -31,8 +31,6 @@
 #include "pythonsettings.h"
 #include "pythonrunconfiguration.h"
 
-#include <coreplugin/fileiconprovider.h>
-
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -40,6 +38,7 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/taskhub.h>
 
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/theme/theme.h>
 
 using namespace ProjectExplorer;
@@ -100,7 +99,7 @@ void PythonPlugin::extensionsInitialized()
     // Add MIME overlay icons (these icons displayed at Project dock panel)
     QString imageFile = Utils::creatorTheme()->imageFile(Utils::Theme::IconOverlayPro,
                                                          ::Constants::FILEOVERLAY_PY);
-    Core::FileIconProvider::registerIconOverlayForSuffix(imageFile, "py");
+    Utils::FileIconProvider::registerIconOverlayForSuffix(imageFile, "py");
 
     TaskHub::addCategory(PythonErrorTaskCategory, "Python", true);
 }

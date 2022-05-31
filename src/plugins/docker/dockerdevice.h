@@ -81,6 +81,8 @@ public:
     Utils::FilePath mapToGlobalPath(const Utils::FilePath &pathOnDevice) const override;
     QString mapToDevicePath(const Utils::FilePath &globalPath) const override;
 
+    Utils::FilePath rootPath() const override;
+
     bool handlesFile(const Utils::FilePath &filePath) const override;
     bool isExecutableFile(const Utils::FilePath &filePath) const override;
     bool isReadableFile(const Utils::FilePath &filePath) const override;

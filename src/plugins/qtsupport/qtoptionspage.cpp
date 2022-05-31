@@ -60,6 +60,7 @@
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QFormLayout>
+#include <QGuiApplication>
 #include <QHeaderView>
 #include <QLabel>
 #include <QMessageBox>
@@ -644,12 +645,15 @@ QtOptionsPageWidget::~QtOptionsPageWidget()
 
 void QtOptionsPageWidget::addQtDir()
 {
-    FilePath qtVersion = FileUtils::getOpenFilePath(this,
-                                                    tr("Select a qmake Executable"),
-                                                    {},
-                                                    BuildableHelperLibrary::filterForQmakeFileDialog(),
-                                                    0,
-                                                    QFileDialog::DontResolveSymlinks);
+    FilePath qtVersion
+        = FileUtils::getOpenFilePath(this,
+                                     tr("Select a qmake Executable"),
+                                     {},
+                                     BuildableHelperLibrary::filterForQmakeFileDialog(),
+                                     nullptr,
+                                     QFileDialog::DontResolveSymlinks,
+                                     true);
+
     if (qtVersion.isEmpty())
         return;
 
@@ -1025,6 +1029,7 @@ void QtOptionsPageWidget::linkWithQt()
     });
     const Utils::optional<FilePath> currentLink = currentlyLinkedQtDir(nullptr);
     pathInput->setFilePath(currentLink ? *currentLink : defaultQtInstallationPath());
+    pathInput->setAllowPathFromDevice(true);
     auto buttons = new QDialogButtonBox;
     layout->addStretch(10);
     layout->addWidget(buttons);

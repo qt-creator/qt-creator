@@ -67,8 +67,6 @@ Project {
                 "fancytabwidget.h",
                 "featureprovider.cpp",
                 "featureprovider.h",
-                "fileiconprovider.cpp",
-                "fileiconprovider.h",
                 "fileutils.cpp",
                 "fileutils.h",
                 "findplaceholder.cpp",

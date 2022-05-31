@@ -31,10 +31,10 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/editormanager_p.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 
 #include <utils/fileutils.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -415,7 +415,7 @@ void EditorToolBar::updateDocumentStatus(IDocument *document)
     if (document->filePath().isEmpty())
         d->m_dragHandle->setIcon(QIcon());
     else
-        d->m_dragHandle->setIcon(FileIconProvider::icon(document->filePath()));
+        d->m_dragHandle->setIcon(Utils::FileIconProvider::icon(document->filePath()));
 
     d->m_editorList->setToolTip(document->filePath().isEmpty()
                                 ? document->displayName()

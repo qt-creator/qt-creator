@@ -49,7 +49,10 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
+#include <utils/fsengine/fsengine.h>
+
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -114,10 +117,12 @@ static RemoteLinuxPluginPrivate *dd = nullptr;
 RemoteLinuxPlugin::RemoteLinuxPlugin()
 {
     setObjectName(QLatin1String("RemoteLinuxPlugin"));
+    FSEngine::registerDeviceScheme("ssh");
 }
 
 RemoteLinuxPlugin::~RemoteLinuxPlugin()
 {
+    FSEngine::unregisterDeviceScheme("ssh");
     delete dd;
 }
 

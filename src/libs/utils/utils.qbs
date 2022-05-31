@@ -33,7 +33,7 @@ Project {
             cpp.frameworks: ["Foundation", "AppKit"]
         }
 
-        Depends { name: "Qt"; submodules: ["concurrent", "network", "qml", "widgets", "xml"] }
+        Depends { name: "Qt"; submodules: ["concurrent", "core-private", "network", "qml", "widgets", "xml"] }
         Depends { name: "Qt.macextras"; condition: Qt.core.versionMajor < 6 && qbs.targetOS.contains("macos") }
         Depends { name: "app_version_header" }
 
@@ -133,6 +133,11 @@ Project {
             "fixedsizeclicklabel.h",
             "flowlayout.cpp",
             "flowlayout.h",
+            "fsengine/fileiconprovider.cpp",
+            "fsengine/fileiconprovider.h",
+            "fsengine/qtcfsengine.cpp",
+            "fsengine/qtcfsengine.h",
+            "fsengine/qtcfsengine_p.h",
             "functiontraits.h",
             "futuresynchronizer.cpp",
             "futuresynchronizer.h",

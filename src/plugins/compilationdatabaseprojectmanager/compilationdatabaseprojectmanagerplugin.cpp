@@ -32,13 +32,13 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/fileiconprovider.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
 
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/parameteraction.h>
 #include <utils/utilsicons.h>
 
@@ -71,9 +71,9 @@ bool CompilationDatabaseProjectManagerPlugin::initialize(const QStringList &argu
 
     d = new CompilationDatabaseProjectManagerPluginPrivate;
 
-    FileIconProvider::registerIconOverlayForFilename(Utils::Icons::PROJECT.imageFilePath().toString(),
+    Utils::FileIconProvider::registerIconOverlayForFilename(Utils::Icons::PROJECT.imageFilePath().toString(),
                                                      COMPILE_COMMANDS_JSON);
-    FileIconProvider::registerIconOverlayForFilename(
+    Utils::FileIconProvider::registerIconOverlayForFilename(
         Utils::Icons::PROJECT.imageFilePath().toString(),
         QString(COMPILE_COMMANDS_JSON) + Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX);
 

@@ -29,6 +29,9 @@
 #include "algorithm.h"
 #include "qtcassert.h"
 
+#include "fsengine/fileiconprovider.h"
+#include "fsengine/fsengine.h"
+
 #include <QDataStream>
 #include <QDebug>
 #include <QOperatingSystemVersion>
@@ -41,6 +44,7 @@
 #ifdef QT_GUI_LIB
 #include <QMessageBox>
 #include <QRegularExpression>
+#include <QGuiApplication>
 #endif
 
 #ifdef Q_OS_WIN
@@ -438,8 +442,15 @@ FilePath FileUtils::getOpenFilePath(QWidget *parent,
                                     const FilePath &dir,
                                     const QString &filter,
                                     QString *selectedFilter,
-                                    QFileDialog::Options options)
+                                    QFileDialog::Options options,
+                                    bool fromDeviceIfShiftIsPressed)
 {
+#ifdef QT_GUI_LIB
+    if (fromDeviceIfShiftIsPressed && qApp->queryKeyboardModifiers() & Qt::ShiftModifier) {
+        return getOpenFilePathFromDevice(parent, caption, dir, filter, selectedFilter, options);
+    }
+#endif
+
     const QString result = QFileDialog::getOpenFileName(dialogParent(parent),
                                                         caption,
                                                         dir.toString(),
@@ -491,6 +502,47 @@ FilePaths FileUtils::getOpenFilePaths(QWidget *parent,
                                                              selectedFilter,
                                                              options);
     return transform(result, &FilePath::fromString);
+}
+
+FilePath FileUtils::getOpenFilePathFromDevice(QWidget *parent,
+                                              const QString &caption,
+                                              const FilePath &dir,
+                                              const QString &filter,
+                                              QString *selectedFilter,
+                                              QFileDialog::Options options)
+{
+    QFileDialog dialog;
+    dialog.setOptions(options | QFileDialog::DontUseNativeDialog);
+    dialog.setWindowTitle(caption);
+    dialog.setDirectory(dir.toString());
+    dialog.setNameFilter(filter);
+
+    QList<QUrl> sideBarUrls = Utils::transform(Utils::filtered(FSEngine::registeredDeviceRoots(),
+                                                               [](const auto &filePath) {
+                                                                   return filePath.exists();
+                                                               }),
+                                               [](const auto &filePath) {
+                                                   return QUrl::fromLocalFile(
+                                                       filePath.toFSPathString());
+                                               });
+    dialog.setSidebarUrls(sideBarUrls);
+    dialog.setFileMode(QFileDialog::AnyFile);
+
+    dialog.setIconProvider(Utils::FileIconProvider::iconProvider());
+
+    if (dialog.exec()) {
+        FilePaths filePaths = Utils::transform(dialog.selectedFiles(), [](const auto &path) {
+            return FilePath::fromString(path);
+        });
+
+        if (selectedFilter) {
+            *selectedFilter = dialog.selectedNameFilter();
+        }
+
+        return filePaths.first();
+    }
+
+    return {};
 }
 
 // Used on 'ls' output on unix-like systems.

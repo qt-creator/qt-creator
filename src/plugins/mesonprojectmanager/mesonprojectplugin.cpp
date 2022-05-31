@@ -37,12 +37,13 @@
 #include "settings/tools/toolssettingsaccessor.h"
 #include "settings/tools/toolssettingspage.h"
 
-#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runcontrol.h>
+
+#include <utils/fsengine/fileiconprovider.h>
 
 using namespace Core;
 using namespace ProjectExplorer;

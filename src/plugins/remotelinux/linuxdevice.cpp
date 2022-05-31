@@ -1046,6 +1046,15 @@ QString LinuxDevice::userAtHost() const
     return sshParameters().userAtHost();
 }
 
+Utils::FilePath LinuxDevice::rootPath() const
+{
+    Utils::FilePath root;
+    root.setScheme("ssh");
+    root.setHost(userAtHost());
+    root.setPath("/");
+    return root;
+}
+
 bool LinuxDevice::handlesFile(const FilePath &filePath) const
 {
     if (filePath.scheme() == "device" && filePath.host() == id().toString())

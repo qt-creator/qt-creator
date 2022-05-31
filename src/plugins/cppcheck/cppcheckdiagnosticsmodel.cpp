@@ -25,10 +25,9 @@
 
 #include "cppcheckdiagnosticsmodel.h"
 
-#include <coreplugin/fileiconprovider.h>
-
 #include <debugger/analyzer/diagnosticlocation.h>
 
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/utilsicons.h>
 
 namespace Cppcheck {
@@ -47,7 +46,7 @@ QVariant FilePathItem::data(int column, int role) const
         case Qt::DisplayRole:
             return m_filePath;
         case Qt::DecorationRole:
-            return Core::FileIconProvider::icon(Utils::FilePath::fromString(m_filePath));
+            return Utils::FileIconProvider::icon(Utils::FilePath::fromString(m_filePath));
         case Debugger::DetailedErrorView::FullTextRole:
             return m_filePath;
         default:

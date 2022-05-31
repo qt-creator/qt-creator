@@ -38,8 +38,9 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
+
+#include <utils/fsengine/fileiconprovider.h>
 
 #include <QMenu>
 

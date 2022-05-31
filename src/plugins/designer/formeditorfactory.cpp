@@ -28,14 +28,15 @@
 #include "formwindoweditor.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/fileiconprovider.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <utils/fsengine/fileiconprovider.h>
 
 #include <QCoreApplication>
 #include <QDebug>
 
 using namespace Core;
 using namespace Designer::Constants;
+using namespace Utils;
 
 namespace Designer {
 namespace Internal {

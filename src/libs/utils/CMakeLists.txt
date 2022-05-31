@@ -57,6 +57,8 @@ add_qtc_library(Utils
     filewizardpage.cpp filewizardpage.h
     fixedsizeclicklabel.cpp fixedsizeclicklabel.h
     flowlayout.cpp flowlayout.h
+    fsengine/fsengine.cpp fsengine/fsengine.h
+    fsengine/fileiconprovider.cpp fsengine/fileiconprovider.h
     functiontraits.h
     futuresynchronizer.cpp futuresynchronizer.h
     fuzzymatcher.cpp fuzzymatcher.h
@@ -247,6 +249,20 @@ extend_qtc_library(Utils CONDITION UNIX AND NOT APPLE
     touchbar/touchbar.cpp
 )
 
+extend_qtc_library(Utils
+  CONDITION TARGET Qt5::CorePrivate
+  DEPENDS Qt5::CorePrivate
+  DEFINES QTC_UTILS_WITH_FSENGINE
+  SOURCES fsengine/fsengine_impl.cpp
+          fsengine/fsengine_impl.h
+          fsengine/diriterator.h
+          fsengine/fileiteratordevicesappender.h
+          fsengine/rootinjectfsengine.h
+          fsengine/fixedlistfsengine.h
+          fsengine/fsenginehandler.cpp
+          fsengine/fsenginehandler.h
+)
+
 if (WIN32)
   add_qtc_executable(qtcreator_process_stub
     SOURCES process_stub_win.c
@@ -263,3 +279,4 @@ if (WIN32)
 else()
   add_qtc_executable(qtcreator_process_stub SOURCES process_stub_unix.c)
 endif()
+

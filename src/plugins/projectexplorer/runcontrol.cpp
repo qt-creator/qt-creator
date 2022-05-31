@@ -514,24 +514,22 @@ void RunControl::initiateFinish()
 
 RunWorker *RunControl::createWorker(Utils::Id workerId)
 {
-    const auto check = std::bind(&RunWorkerFactory::canRun,
-                                 std::placeholders::_1,
-                                 workerId,
-                                 DeviceTypeKitAspect::deviceTypeId(d->kit),
-                                 QString{});
-    RunWorkerFactory *factory = Utils::findOrDefault(g_runWorkerFactories, check);
+    RunWorkerFactory *factory
+        = Utils::findOrDefault(g_runWorkerFactories, [this, workerId](RunWorkerFactory *factory) {
+              return factory->canRun(workerId, DeviceTypeKitAspect::deviceTypeId(d->kit), QString{});
+          });
     return factory ? factory->producer()(this) : nullptr;
 }
 
 bool RunControl::createMainWorker()
 {
-    const auto canRun = std::bind(&RunWorkerFactory::canRun,
-                                  std::placeholders::_1,
-                                  d->runMode,
-                                  DeviceTypeKitAspect::deviceTypeId(d->kit),
-                                  d->runConfigId.toString());
+    const QList<RunWorkerFactory *> candidates
+        = Utils::filtered(g_runWorkerFactories, [this](RunWorkerFactory *factory) {
+              return factory->canRun(d->runMode,
+                                     DeviceTypeKitAspect::deviceTypeId(d->kit),
+                                     d->runConfigId.toString());
+          });
 
-    const QList<RunWorkerFactory *> candidates = Utils::filtered(g_runWorkerFactories, canRun);
     // There might be combinations that cannot run. But that should have been checked
     // with canRun below.
     QTC_ASSERT(!candidates.empty(), return false);

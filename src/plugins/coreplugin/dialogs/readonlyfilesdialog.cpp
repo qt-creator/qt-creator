@@ -27,7 +27,6 @@
 #include "ui_readonlyfilesdialog.h"
 
 #include <coreplugin/editormanager/editormanager_p.h>
-#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/iversioncontrol.h>
@@ -35,6 +34,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
 #include <utils/stringutils.h>
 

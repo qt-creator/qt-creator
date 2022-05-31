@@ -32,7 +32,6 @@
 #include "qmakeproject.h"
 #include "qmakeprojectmanagerconstants.h"
 
-#include <coreplugin/fileiconprovider.h>
 #include <extensionsystem/pluginmanager.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -41,6 +40,7 @@
 #include <projectexplorer/session.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textdocument.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
@@ -298,11 +298,11 @@ ProFileEditorFactory::ProFileEditorFactory()
     setSyntaxHighlighterCreator([]() { return new ProFileHighlighter; });
 
     const QString defaultOverlay = QLatin1String(ProjectExplorer::Constants::FILEOVERLAY_QT);
-    Core::FileIconProvider::registerIconOverlayForSuffix(
+    Utils::FileIconProvider::registerIconOverlayForSuffix(
                 creatorTheme()->imageFile(Theme::IconOverlayPro, defaultOverlay), "pro");
-    Core::FileIconProvider::registerIconOverlayForSuffix(
+    Utils::FileIconProvider::registerIconOverlayForSuffix(
                 creatorTheme()->imageFile(Theme::IconOverlayPri, defaultOverlay), "pri");
-    Core::FileIconProvider::registerIconOverlayForSuffix(
+    Utils::FileIconProvider::registerIconOverlayForSuffix(
                 creatorTheme()->imageFile(Theme::IconOverlayPrf, defaultOverlay), "prf");
 }
 

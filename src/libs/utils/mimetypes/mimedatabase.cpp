@@ -49,14 +49,14 @@
 
 #include <utils/fileutils.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QSet>
-#include <QtCore/QBuffer>
-#include <QtCore/QUrl>
-#include <QtCore/QStack>
-#include <QtCore/QDebug>
+#include <QCoreApplication>
+#include <QFile>
+#include <QFileInfo>
+#include <QSet>
+#include <QBuffer>
+#include <QUrl>
+#include <QStack>
+#include <QDebug>
 
 #include <algorithm>
 #include <functional>

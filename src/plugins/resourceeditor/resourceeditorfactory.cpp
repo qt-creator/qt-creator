@@ -28,9 +28,9 @@
 #include "resourceeditorplugin.h"
 #include "resourceeditorconstants.h"
 
-#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <utils/fsengine/fileiconprovider.h>
 
 #include <QCoreApplication>
 #include <QFileInfo>
@@ -45,7 +45,7 @@ ResourceEditorFactory::ResourceEditorFactory(ResourceEditorPlugin *plugin)
     setMimeTypes(QStringList(QLatin1String(C_RESOURCE_MIMETYPE)));
     setDisplayName(QCoreApplication::translate("OpenWith::Editors", C_RESOURCEEDITOR_DISPLAY_NAME));
 
-    Core::FileIconProvider::registerIconOverlayForSuffix(
+    Utils::FileIconProvider::registerIconOverlayForSuffix(
                 ProjectExplorer::Constants::FILEOVERLAY_QRC, "qrc");
 
     setEditorCreator([plugin] {

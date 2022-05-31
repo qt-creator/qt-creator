@@ -25,11 +25,10 @@
 
 #pragma once
 
-#include <coreplugin/fileiconprovider.h>
-
 #include <projectexplorer/projectnodes.h>
 
 #include <utils/fileutils.h>
+#include <utils/fsengine/fileiconprovider.h>
 
 namespace MesonProjectManager {
 namespace Internal {

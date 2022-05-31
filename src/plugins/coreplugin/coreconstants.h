@@ -91,6 +91,7 @@ const char NEW[]                   = "QtCreator.New";
 const char NEW_FILE[]              = "QtCreator.NewFile";
 const char OPEN[]                  = "QtCreator.Open";
 const char OPEN_WITH[]             = "QtCreator.OpenWith";
+const char OPEN_FROM_DEVICE[]      = "QtCreator.OpenFromDevice";
 const char REVERTTOSAVED[]         = "QtCreator.RevertToSaved";
 const char SAVE[]                  = "QtCreator.Save";
 const char SAVEAS[]                = "QtCreator.SaveAs";

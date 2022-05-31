@@ -27,6 +27,7 @@
 
 #include "core_global.h"
 
+#include <utils/filepath.h>
 #include <utils/id.h>
 
 #include <QObject>
@@ -79,6 +80,9 @@ public:
 
     virtual void saveSettings(Utils::QtcSettings *settings, int position, QWidget *widget);
     virtual void restoreSettings(QSettings *settings, int position, QWidget *widget);
+
+    virtual void addRootPath(Utils::Id id, const QString &displayName, const QIcon &icon, const Utils::FilePath &path);
+    virtual void removeRootPath(Utils::Id id);
 
 private:
     QString m_displayName;

@@ -41,11 +41,14 @@
 
 #include <QFileIconProvider>
 #include <QIcon>
+#include <QLoggingCategory>
 
 using namespace Utils;
 
+Q_LOGGING_CATEGORY(fileIconProvider, "qtc.core.fileiconprovider", QtWarningMsg)
+
 /*!
-  \namespace Core::FileIconProvider
+  \namespace Utils::FileIconProvider
   \inmodule QtCreator
   \brief Provides functions for registering custom overlay icons for system
   icons.
@@ -64,10 +67,8 @@ using namespace Utils;
 
 using Item = Utils::variant<QIcon, QString>; // icon or filename for the icon
 
-namespace Core {
+namespace Utils {
 namespace FileIconProvider {
-
-enum { debug = 0 };
 
 static Utils::optional<QIcon> getIcon(QHash<QString, Item> &cache, const QString &key)
 {
@@ -128,7 +129,43 @@ public:
     // Mapping of file suffix to icon.
     mutable QHash<QString, Item> m_suffixCache;
     mutable QHash<QString, Item> m_filenameCache;
+
+    // QAbstractFileIconProvider interface
+public:
+    QIcon icon(IconType) const override;
+    QIcon icon(const QFileInfo &) const override;
+    QString type(const QFileInfo &) const override;
 };
+
+QIcon FileIconProviderImplementation::icon(IconType type) const
+{
+    return QFileIconProvider::icon(type);
+}
+
+QIcon FileIconProviderImplementation::icon(const QFileInfo &fi) const
+{
+    return icon(FilePath::fromString(fi.filePath()));
+}
+
+QString FileIconProviderImplementation::type(const QFileInfo &fi) const
+{
+    const FilePath fPath = FilePath::fromString(fi.filePath());
+    if (fPath.needsDevice()) {
+        if (fPath.isDir()) {
+#ifdef Q_OS_WIN
+        return QGuiApplication::translate("QAbstractFileIconProvider", "File Folder", "Match Windows Explorer");
+#else
+        return QGuiApplication::translate("QAbstractFileIconProvider", "Folder", "All other platforms");
+#endif
+        }
+        if (fPath.isExecutableFile()) {
+            return "Program";
+        }
+
+        return QFileIconProvider::type(fi);
+    }
+    return QFileIconProvider::type(fi);
+}
 
 FileIconProviderImplementation *instance()
 {
@@ -155,11 +192,20 @@ static const QIcon &dirIcon()
 
 QIcon FileIconProviderImplementation::icon(const FilePath &filePath) const
 {
-    if (debug)
-        qDebug() << "FileIconProvider::icon" << filePath.absoluteFilePath();
+    qCDebug(fileIconProvider) << "FileIconProvider::icon" << filePath.absoluteFilePath();
+
+    if (filePath.isEmpty())
+        return unknownFileIcon();
+
+    // Check if its one of the virtual devices directories
+    if (filePath.path().startsWith(FilePath::specialPath(FilePath::SpecialPathComponent::RootPath))) {
+        // If the filepath does not need a device, it is a virtual device directory
+        if (!filePath.needsDevice())
+            return dirIcon();
+    }
+
     bool isDir = filePath.isDir();
-    if (filePath.needsDevice())
-        return isDir ? dirIcon() : unknownFileIcon();
+
     // Check for cached overlay icons by file suffix.
     const QString filename = !isDir ? filePath.fileName() : QString();
     if (!filename.isEmpty()) {
@@ -167,12 +213,16 @@ QIcon FileIconProviderImplementation::icon(const FilePath &filePath) const
         if (icon)
             return *icon;
     }
+
     const QString suffix = !isDir ? filePath.suffix() : QString();
     if (!suffix.isEmpty()) {
         const Utils::optional<QIcon> icon = getIcon(m_suffixCache, suffix);
         if (icon)
             return *icon;
     }
+
+    if (filePath.needsDevice())
+        return isDir ? dirIcon() : unknownFileIcon();
 
     // Get icon from OS (and cache it based on suffix!)
     QIcon icon;
@@ -263,7 +313,7 @@ QIcon directoryIcon(const QString &overlay)
     const QPixmap dirPixmap = QApplication::style()->standardIcon(QStyle::SP_DirIcon).pixmap(desiredSize);
     const QIcon overlayIcon(overlay);
     QIcon result;
-    result.addPixmap(Core::FileIconProvider::overlayIcon(dirPixmap, overlayIcon));
+    result.addPixmap(FileIconProvider::overlayIcon(dirPixmap, overlayIcon));
     return result;
 }
 

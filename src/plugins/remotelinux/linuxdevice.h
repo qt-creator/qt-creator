@@ -57,6 +57,8 @@ public:
 
     QString userAtHost() const;
 
+    Utils::FilePath rootPath() const override;
+
     bool handlesFile(const Utils::FilePath &filePath) const override;
     bool isExecutableFile(const Utils::FilePath &filePath) const override;
     bool isReadableFile(const Utils::FilePath &filePath) const override;

@@ -26,10 +26,10 @@
 #include "saveitemsdialog.h"
 
 #include <coreplugin/diffservice.h>
-#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/idocument.h>
 
 #include <utils/fileutils.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -78,7 +78,7 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
         QTreeWidgetItem *item = new QTreeWidgetItem(m_ui.treeWidget, QStringList()
                                                     << visibleName << QDir::toNativeSeparators(directory));
         if (!filePath.isEmpty())
-            item->setIcon(0, FileIconProvider::icon(filePath));
+            item->setIcon(0, Utils::FileIconProvider::icon(filePath));
         item->setData(0, Qt::UserRole, QVariant::fromValue(document));
     }
 

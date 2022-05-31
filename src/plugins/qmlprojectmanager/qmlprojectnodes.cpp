@@ -25,7 +25,7 @@
 
 #include "qmlprojectnodes.h"
 
-#include <coreplugin/fileiconprovider.h>
+#include <utils/fsengine/fileiconprovider.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
