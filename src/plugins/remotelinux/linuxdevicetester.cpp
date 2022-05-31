@@ -42,7 +42,13 @@ namespace RemoteLinux {
 namespace Internal {
 namespace {
 
-enum State { Inactive, TestingEcho, TestingUname, TestingPorts, TestingSftp, TestingRsync };
+enum State { Inactive,
+             TestingEcho,
+             TestingUname,
+             TestingPorts,
+             TestingSftp,
+             TestingRsync,
+             TestingCommands };
 
 } // anonymous namespace
 
@@ -56,7 +62,42 @@ public:
     FileTransfer fileTransfer;
     State state = Inactive;
     bool sftpWorks = false;
+    int currentCommandIndex = 0;
+    bool commandFailed = false;
+    QtcProcess commandsProcess;
 };
+
+const QStringList s_commandsToTest = {"base64",
+                                      "cat",
+                                      "chmod",
+                                      "cp",
+                                      "cut",
+                                      "dd",
+                                      "df",
+                                      "echo",
+                                      "eval",
+                                      "exit",
+                                      "kill",
+                                      "ls",
+                                      "mkdir",
+                                      "mkfifo",
+                                      "mktemp",
+                                      "mv",
+                                      "printf",
+                                      "read",
+                                      "readlink",
+                                      "rm",
+                                      "sed",
+                                      "sh",
+                                      "shift",
+                                      "stat",
+                                      "tail",
+                                      "test",
+                                      "trap",
+                                      "touch",
+                                      "which"};
+// other possible commands (checked for qnx):
+// "awk", "grep", "netstat", "print", "pidin", "sleep", "uname"
 
 } // namespace Internal
 
@@ -75,6 +116,8 @@ GenericLinuxDeviceTester::GenericLinuxDeviceTester(QObject *parent)
             this, &GenericLinuxDeviceTester::handlePortsGathererDone);
     connect(&d->fileTransfer, &FileTransfer::done,
             this, &GenericLinuxDeviceTester::handleFileTransferDone);
+    connect(&d->commandsProcess, &QtcProcess::done,
+            this, &GenericLinuxDeviceTester::handleCommandDone);
 }
 
 GenericLinuxDeviceTester::~GenericLinuxDeviceTester() = default;
@@ -105,6 +148,9 @@ void GenericLinuxDeviceTester::stopTest()
     case TestingSftp:
     case TestingRsync:
         d->fileTransfer.stop();
+        break;
+    case TestingCommands:
+        d->commandsProcess.close();
         break;
     case Inactive:
         break;
@@ -254,8 +300,57 @@ void GenericLinuxDeviceTester::handleFileTransferDone(const ProcessResultData &r
             }
         }
         d->device->setExtraData(Constants::SupportsRSync, succeeded);
-        setFinished(d->sftpWorks || succeeded ? TestSuccess : TestFailure);
+        if (d->sftpWorks || succeeded)
+            testCommands();
+        else
+            setFinished(TestFailure);
     }
+}
+
+void GenericLinuxDeviceTester::testCommands()
+{
+    d->state = TestingCommands;
+    emit progressMessage(tr("Checking if required commands are available..."));
+
+    d->currentCommandIndex = 0;
+    d->commandFailed = false;
+    testNextCommand();
+}
+
+void GenericLinuxDeviceTester::testNextCommand()
+{
+    d->commandsProcess.close();
+    if (s_commandsToTest.size() == d->currentCommandIndex) {
+        setFinished(d->commandFailed ? TestFailure : TestSuccess);
+        return;
+    }
+
+    const QString commandName = s_commandsToTest[d->currentCommandIndex];
+    emit progressMessage(tr("%1...").arg(commandName));
+    CommandLine command{d->device->filePath("/bin/sh"), {"-c"}};
+    command.addArgs(QLatin1String("\"command -v %1\"").arg(commandName), CommandLine::Raw);
+    d->commandsProcess.setCommand(command);
+    d->commandsProcess.start();
+}
+
+void GenericLinuxDeviceTester::handleCommandDone()
+{
+    QTC_ASSERT(d->state == TestingCommands, return);
+
+    const QString command = s_commandsToTest[d->currentCommandIndex];
+    if (d->commandsProcess.result() == ProcessResult::FinishedWithSuccess) {
+        emit progressMessage(tr("%1 found.").arg(command));
+    } else {
+        d->commandFailed = true;
+        const QString message = d->commandsProcess.result() == ProcessResult::StartFailed
+                ? tr("An error occurred while checking for %1.").arg(command)
+                  + '\n' + d->commandsProcess.errorString()
+                : tr("%1 not found.").arg(command);
+        emit errorMessage(message);
+    }
+
+    ++d->currentCommandIndex;
+    testNextCommand();
 }
 
 void GenericLinuxDeviceTester::setFinished(TestResult result)

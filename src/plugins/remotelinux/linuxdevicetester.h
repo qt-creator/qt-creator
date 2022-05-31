@@ -61,6 +61,10 @@ private:
     void testFileTransfer(ProjectExplorer::FileTransferMethod method);
     void handleFileTransferDone(const Utils::ProcessResultData &resultData);
 
+    void testCommands();
+    void testNextCommand();
+    void handleCommandDone();
+
     void setFinished(ProjectExplorer::DeviceTester::TestResult result);
 
     std::unique_ptr<Internal::GenericLinuxDeviceTesterPrivate> d;
