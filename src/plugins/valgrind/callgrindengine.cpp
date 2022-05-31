@@ -27,7 +27,6 @@
 
 #include "valgrindsettings.h"
 
-#include <valgrind/callgrind/callgrindcontroller.h>
 #include <valgrind/callgrind/callgrindparser.h>
 #include <valgrind/valgrindrunner.h>
 
@@ -36,6 +35,11 @@
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/temporaryfile.h>
+
+#include <QDebug>
+
+#define CALLGRIND_CONTROL_DEBUG 0
 
 using namespace ProjectExplorer;
 using namespace Valgrind::Callgrind;
@@ -43,6 +47,8 @@ using namespace Utils;
 
 namespace Valgrind {
 namespace Internal {
+
+const char CALLGRIND_CONTROL_BINARY[] = "callgrind_control";
 
 void setupCallgrindRunner(CallgrindToolRunner *);
 
@@ -56,27 +62,25 @@ CallgrindToolRunner::CallgrindToolRunner(RunControl *runControl)
     connect(&m_parser, &Callgrind::Parser::parserDataReady,
             this, &CallgrindToolRunner::slotFinished);
 
-    connect(&m_controller, &CallgrindController::finished,
-            this, &CallgrindToolRunner::controllerFinished);
-    connect(&m_controller, &CallgrindController::localParseDataAvailable,
-            this, &CallgrindToolRunner::handleLocalParseData);
-    connect(&m_controller, &CallgrindController::statusMessage,
-            this, &CallgrindToolRunner::showStatusMessage);
-
     connect(&m_runner, &ValgrindRunner::valgrindStarted,
-            &m_controller, &CallgrindController::setValgrindPid);
+            this, &CallgrindToolRunner::setValgrindPid);
 
     connect(&m_runner, &ValgrindRunner::extraProcessFinished, this, [this] {
         triggerParse();
     });
 
-    m_controller.setValgrindRunnable(runControl->runnable());
+    setValgrindRunnable(runControl->runnable());
 
     static int fileCount = 100;
     m_valgrindOutputFile = runControl->workingDirectory() / QString("callgrind.out.f%1").arg(++fileCount);
-    m_controller.setValgrindOutputFile(m_valgrindOutputFile);
+    setValgrindOutputFile(m_valgrindOutputFile);
 
     setupCallgrindRunner(this);
+}
+
+CallgrindToolRunner::~CallgrindToolRunner()
+{
+    cleanupTempFile();
 }
 
 QStringList CallgrindToolRunner::toolArguments() const
@@ -123,7 +127,7 @@ void CallgrindToolRunner::start()
 
 void CallgrindToolRunner::dump()
 {
-    m_controller.run(CallgrindController::Dump);
+    run(Dump);
 }
 
 void CallgrindToolRunner::setPaused(bool paused)
@@ -150,17 +154,17 @@ void CallgrindToolRunner::setToggleCollectFunction(const QString &toggleCollectF
 
 void CallgrindToolRunner::reset()
 {
-    m_controller.run(Callgrind::CallgrindController::ResetEventCounters);
+    run(ResetEventCounters);
 }
 
 void CallgrindToolRunner::pause()
 {
-    m_controller.run(Callgrind::CallgrindController::Pause);
+    run(Pause);
 }
 
 void CallgrindToolRunner::unpause()
 {
-    m_controller.run(Callgrind::CallgrindController::UnPause);
+    run(UnPause);
 }
 
 Callgrind::ParseData *CallgrindToolRunner::takeParserData()
@@ -180,32 +184,166 @@ void CallgrindToolRunner::showStatusMessage(const QString &message)
 
 void CallgrindToolRunner::triggerParse()
 {
-    m_controller.getLocalDataFile();
+    getLocalDataFile();
 }
 
-void CallgrindToolRunner::handleLocalParseData(const FilePath &outputFile)
+
+static QString toOptionString(CallgrindToolRunner::Option option)
 {
-    QTC_ASSERT(outputFile.exists(), return);
-    showStatusMessage(tr("Parsing Profile Data..."));
-    m_parser.parse(outputFile);
+    /* callgrind_control help from v3.9.0
+
+    Options:
+    -h --help        Show this help text
+    --version        Show version
+    -s --stat        Show statistics
+    -b --back        Show stack/back trace
+    -e [<A>,...]     Show event counters for <A>,... (default: all)
+    --dump[=<s>]     Request a dump optionally using <s> as description
+    -z --zero        Zero all event counters
+    -k --kill        Kill
+    --instr=<on|off> Switch instrumentation state on/off
+    */
+
+    switch (option) {
+        case CallgrindToolRunner::Dump:
+            return QLatin1String("--dump");
+        case CallgrindToolRunner::ResetEventCounters:
+            return QLatin1String("--zero");
+        case CallgrindToolRunner::Pause:
+            return QLatin1String("--instr=off");
+        case CallgrindToolRunner::UnPause:
+            return QLatin1String("--instr=on");
+        default:
+            return QString(); // never reached
+    }
 }
 
-void CallgrindToolRunner::controllerFinished(CallgrindController::Option option)
+void CallgrindToolRunner::run(Option option)
 {
-    switch (option)
+    if (m_controllerProcess) {
+        showStatusMessage(tr("Previous command has not yet finished."));
+        return;
+    }
+
+    // save back current running operation
+    m_lastOption = option;
+
+    m_controllerProcess.reset(new QtcProcess);
+
+    switch (option) {
+        case CallgrindToolRunner::Dump:
+            showStatusMessage(tr("Dumping profile data..."));
+            break;
+        case CallgrindToolRunner::ResetEventCounters:
+            showStatusMessage(tr("Resetting event counters..."));
+            break;
+        case CallgrindToolRunner::Pause:
+            showStatusMessage(tr("Pausing instrumentation..."));
+            break;
+        case CallgrindToolRunner::UnPause:
+            showStatusMessage(tr("Unpausing instrumentation..."));
+            break;
+        default:
+            break;
+    }
+
+#if CALLGRIND_CONTROL_DEBUG
+    m_controllerProcess->setProcessChannelMode(QProcess::ForwardedChannels);
+#endif
+    connect(m_controllerProcess.get(), &QtcProcess::finished,
+            this, &CallgrindToolRunner::controllerProcessDone);
+
+    const FilePath control =
+            FilePath(CALLGRIND_CONTROL_BINARY).onDevice(m_valgrindRunnable.command.executable());
+    m_controllerProcess->setCommand({control, {toOptionString(option), QString::number(m_pid)}});
+    m_controllerProcess->setWorkingDirectory(m_valgrindRunnable.workingDirectory);
+    m_controllerProcess->setEnvironment(m_valgrindRunnable.environment);
+    m_controllerProcess->start();
+}
+
+void CallgrindToolRunner::setValgrindPid(qint64 pid)
+{
+    m_pid = pid;
+}
+
+void CallgrindToolRunner::controllerProcessDone()
+{
+    const QString error = m_controllerProcess->errorString();
+    const ProcessResult result = m_controllerProcess->result();
+
+    m_controllerProcess.release()->deleteLater();
+
+    if (result != ProcessResult::FinishedWithSuccess) {
+        showStatusMessage(tr("An error occurred while trying to run %1: %2").arg(CALLGRIND_CONTROL_BINARY).arg(error));
+        qWarning() << "Controller exited abnormally:" << error;
+        return;
+    }
+
+    // this call went fine, we might run another task after this
+    switch (m_lastOption) {
+        case ResetEventCounters:
+            // lets dump the new reset profiling info
+            run(Dump);
+            return;
+        case Pause:
+            break;
+        case Dump:
+            showStatusMessage(tr("Callgrind dumped profiling info"));
+            break;
+        case UnPause:
+            showStatusMessage(tr("Callgrind unpaused."));
+            break;
+        default:
+            break;
+    }
+
+    switch (m_lastOption)
     {
-    case CallgrindController::Pause:
+    case Pause:
         m_paused = true;
         break;
-    case CallgrindController::UnPause:
+    case UnPause:
         m_paused = false;
         break;
-    case CallgrindController::Dump:
+    case Dump:
         triggerParse();
         break;
     default:
         break; // do nothing
     }
+
+    m_lastOption = Unknown;
+}
+
+void CallgrindToolRunner::getLocalDataFile()
+{
+    cleanupTempFile();
+    {
+        TemporaryFile dataFile("callgrind.out");
+        dataFile.open();
+        m_hostOutputFile = FilePath::fromString(dataFile.fileName());
+    }
+
+    const auto afterCopy = [this](bool res) {
+        QTC_CHECK(res);
+        QTC_ASSERT(m_hostOutputFile.exists(), return);
+        showStatusMessage(tr("Parsing Profile Data..."));
+        m_parser.parse(m_hostOutputFile);
+    };
+    m_valgrindOutputFile.asyncCopyFile(afterCopy, m_hostOutputFile);
+}
+
+void CallgrindToolRunner::cleanupTempFile()
+{
+    if (!m_hostOutputFile.isEmpty() && m_hostOutputFile.exists())
+        m_hostOutputFile.removeFile();
+
+    m_hostOutputFile.clear();
+}
+
+void CallgrindToolRunner::setValgrindRunnable(const Runnable &runnable)
+{
+    m_valgrindRunnable = runnable;
 }
 
 } // Internal

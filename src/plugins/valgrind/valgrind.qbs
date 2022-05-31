@@ -44,7 +44,6 @@ QtcPlugin {
         files: [
             "callgrindabstractmodel.h",
             "callgrindcallmodel.cpp", "callgrindcallmodel.h",
-            "callgrindcontroller.cpp", "callgrindcontroller.h",
             "callgrindcostitem.cpp", "callgrindcostitem.h",
             "callgrindcycledetection.cpp", "callgrindcycledetection.h",
             "callgrinddatamodel.cpp", "callgrinddatamodel.h",

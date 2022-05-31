@@ -11,7 +11,6 @@ extend_qtc_test(tst_callgrindparsertests
   SOURCES_PREFIX "${PROJECT_SOURCE_DIR}/src/plugins/valgrind/"
   SOURCES
     callgrind/callgrindcallmodel.h callgrind/callgrindcallmodel.cpp
-    callgrind/callgrindcontroller.h callgrind/callgrindcontroller.cpp
     callgrind/callgrindcostitem.h callgrind/callgrindcostitem.cpp
     callgrind/callgrindcycledetection.h callgrind/callgrindcycledetection.cpp
     callgrind/callgrinddatamodel.h callgrind/callgrinddatamodel.cpp

@@ -26,11 +26,11 @@
 #pragma once
 
 #include "valgrindengine.h"
-#include "valgrindrunner.h"
 
 #include "callgrind/callgrindparsedata.h"
 #include "callgrind/callgrindparser.h"
-#include "callgrind/callgrindcontroller.h"
+
+#include <utils/qtcprocess.h>
 
 namespace Valgrind {
 namespace Internal {
@@ -41,6 +41,7 @@ class CallgrindToolRunner : public ValgrindToolRunner
 
 public:
     explicit CallgrindToolRunner(ProjectExplorer::RunControl *runControl);
+    ~CallgrindToolRunner() override;
 
     void start() override;
 
@@ -58,6 +59,16 @@ public:
 
     void setToggleCollectFunction(const QString &toggleCollectFunction);
 
+    enum Option {
+        Unknown,
+        Dump,
+        ResetEventCounters,
+        Pause,
+        UnPause
+    };
+
+    Q_ENUM(Option)
+
 protected:
     QStringList toolArguments() const override;
     QString progressTitle() const override;
@@ -70,12 +81,36 @@ private:
     void showStatusMessage(const QString &message);
 
     void triggerParse();
-    void handleLocalParseData(const Utils::FilePath &filePath);
-    void controllerFinished(Callgrind::CallgrindController::Option option);
+    void controllerFinished(Option option);
+
+    void run(Option option);
+
+    /**
+     * Make data file available locally, triggers @c localParseDataAvailable.
+     *
+     * If the valgrind process was run remotely, this transparently
+     * downloads the data file first and returns a local path.
+     */
+    void getLocalDataFile();
+    void setValgrindPid(qint64 pid);
+    void setValgrindRunnable(const ProjectExplorer::Runnable &runnable);
+    void setValgrindOutputFile(const Utils::FilePath &output) { m_valgrindOutputFile = output; }
+
+    void cleanupTempFile();
+    void controllerProcessDone();
 
     bool m_markAsPaused = false;
-    Utils::FilePath m_valgrindOutputFile;
-    Callgrind::CallgrindController m_controller;
+
+    std::unique_ptr<Utils::QtcProcess> m_controllerProcess;
+    ProjectExplorer::Runnable m_valgrindRunnable;
+    qint64 m_pid = 0;
+
+    Option m_lastOption = Unknown;
+
+    // remote callgrind support
+    Utils::FilePath m_valgrindOutputFile; // On the device that runs valgrind
+    Utils::FilePath m_hostOutputFile; // On the device that runs creator
+
     Callgrind::Parser m_parser;
     bool m_paused = false;
 
