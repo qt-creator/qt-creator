@@ -89,24 +89,9 @@ PySideBuildStep::PySideBuildStep(BuildStepList *bsl, Id id)
     setWorkingDirectoryProvider([this] { return target()->project()->projectDirectory(); });
 }
 
-void PySideBuildStep::updateInterpreter(const Utils::FilePath &python)
+void PySideBuildStep::updatePySideProjectPath(const Utils::FilePath &pySideProjectPath)
 {
-    Utils::FilePath pySideProjectPath;
-    const PipPackage pySide6Package("PySide6");
-    const PipPackageInfo info = pySide6Package.info(python);
-    for (const FilePath &file : qAsConst(info.files)) {
-        if (file.fileName() == HostOsInfo::withExecutableSuffix("pyside6-project")) {
-            pySideProjectPath = info.location.resolvePath(file);
-            pySideProjectPath = pySideProjectPath.cleanPath();
-            break;
-        }
-    }
-
-    if (!pySideProjectPath.isExecutableFile())
-        pySideProjectPath = Environment::systemEnvironment().searchInPath("pyside6-project");
-
-    if (pySideProjectPath.isExecutableFile())
-        m_pysideProject->setFilePath(pySideProjectPath);
+    m_pysideProject->setFilePath(pySideProjectPath);
 }
 
 void PySideBuildStep::doRun()

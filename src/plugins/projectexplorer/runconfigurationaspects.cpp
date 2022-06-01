@@ -171,8 +171,9 @@ bool TerminalAspect::isUserSet() const
     working directory for running the executable.
 */
 
-WorkingDirectoryAspect::WorkingDirectoryAspect(EnvironmentAspect *envAspect)
-    : m_envAspect(envAspect)
+WorkingDirectoryAspect::WorkingDirectoryAspect(const MacroExpander *expander,
+                                               EnvironmentAspect *envAspect)
+    : m_envAspect(envAspect), m_macroExpander(expander)
 {
     setDisplayName(tr("Working Directory"));
     setId("WorkingDirectoryAspect");

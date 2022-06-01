@@ -26,10 +26,10 @@
 #include "rsyncdeploystep.h"
 
 #include "abstractremotelinuxdeployservice.h"
-#include "filetransfer.h"
 #include "remotelinux_constants.h"
 
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
@@ -51,11 +51,22 @@ public:
     {
         connect(&m_mkdir, &QtcProcess::done, this, [this] {
             if (m_mkdir.result() != ProcessResult::FinishedWithSuccess) {
-                emit errorMessage(tr("Failed to create remote directories: %1").arg(m_mkdir.stdErr()));
+                QString finalMessage = m_mkdir.errorString();
+                const QString stdErr = m_mkdir.stdErr();
+                if (!stdErr.isEmpty()) {
+                    if (!finalMessage.isEmpty())
+                        finalMessage += '\n';
+                    finalMessage += stdErr;
+                }
+                emit errorMessage(tr("Deploy via rsync: failed to create remote directories:")
+                                  + '\n' + finalMessage);
                 setFinished();
                 return;
             }
             deployFiles();
+        });
+        connect(&m_mkdir, &QtcProcess::readyReadStandardError, this, [this] {
+            emit stdErrData(QString::fromLocal8Bit(m_mkdir.readAllStandardError()));
         });
         connect(&m_fileTransfer, &FileTransfer::progress,
                 this, &AbstractRemoteLinuxDeployService::stdOutData);
@@ -136,7 +147,6 @@ void RsyncDeployService::createRemoteDirectories()
 
 void RsyncDeployService::deployFiles()
 {
-    m_fileTransfer.setDevice(deviceConfiguration());
     m_fileTransfer.setTransferMethod(FileTransferMethod::Rsync);
     m_fileTransfer.setRsyncFlags(m_flags);
     m_fileTransfer.setFilesToTransfer(m_files);
@@ -161,7 +171,7 @@ RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Utils::Id id)
     flags->setDisplayStyle(StringAspect::LineEditDisplay);
     flags->setSettingsKey("RemoteLinux.RsyncDeployStep.Flags");
     flags->setLabelText(tr("Flags:"));
-    flags->setValue(FileTransfer::defaultRsyncFlags());
+    flags->setValue(FileTransferSetupData::defaultRsyncFlags());
 
     auto ignoreMissingFiles = addAspect<BoolAspect>();
     ignoreMissingFiles->setSettingsKey("RemoteLinux.RsyncDeployStep.IgnoreMissingFiles");

@@ -61,7 +61,7 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Id id)
     auto envAspect = addAspect<RemoteLinuxEnvironmentAspect>(target);
 
     addAspect<ArgumentsAspect>(macroExpander());
-    addAspect<WorkingDirectoryAspect>(envAspect);
+    addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
     addAspect<TerminalAspect>();
 
     auto libAspect = addAspect<StringAspect>();

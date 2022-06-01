@@ -33604,8 +33604,8 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
         <translation>Chemin de qmake non spécifié</translation>
     </message>
     <message>
-        <source>qmake does not exist or is not executable</source>
-        <translation>qmake n&apos;existe pas ou n&apos;est pas exécutable</translation>
+        <source>%1 does not exist or is not executable</source>
+        <translation>%1 n&apos;existe pas ou n&apos;est pas exécutable</translation>
     </message>
     <message>
         <source>Qt version has no name</source>
@@ -33633,8 +33633,8 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
         <translation>La version de Qt n&apos;est pas correctement installée, veuillez exécuter make install</translation>
     </message>
     <message>
-        <source>Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?</source>
-        <translation>Impossible de déterminer le chemin vers les programmes de Qt, peut-être que le chemin vers qmake est faux ?</translation>
+        <source>Could not determine the path to the binaries of the Qt installation, maybe the %1 path is wrong?</source>
+        <translation>Impossible de déterminer le chemin vers les programmes de Qt, peut-être que le chemin vers %1 est faux ?</translation>
     </message>
     <message>
         <source>The default mkspec symlink is broken.</source>

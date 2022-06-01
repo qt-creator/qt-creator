@@ -1736,8 +1736,7 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     runControl->setDisplayName(tr("Process %1").arg(processInfo.processId));
     auto debugger = new DebuggerRunTool(runControl);
     debugger->setAttachPid(ProcessHandle(processInfo.processId));
-    debugger->setInferiorExecutable(FilePath::fromString(processInfo.executable));
-    debugger->setInferiorDevice(device);
+    debugger->setInferiorExecutable(device->filePath(processInfo.executable));
     debugger->setStartMode(AttachToLocalProcess);
     debugger->setCloseMode(DetachAtClose);
     debugger->setContinueAfterAttach(contAfterAttach);

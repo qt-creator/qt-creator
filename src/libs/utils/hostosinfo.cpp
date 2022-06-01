@@ -65,6 +65,7 @@ HostOsInfo::HostArchitecture HostOsInfo::hostArchitecture()
     case PROCESSOR_ARCHITECTURE_IA64:
         return HostOsInfo::HostArchitectureItanium;
     case PROCESSOR_ARCHITECTURE_ARM:
+    case PROCESSOR_ARCHITECTURE_ARM64:
         return HostOsInfo::HostArchitectureArm;
     default:
         return HostOsInfo::HostArchitectureUnknown;

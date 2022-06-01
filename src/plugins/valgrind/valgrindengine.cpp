@@ -91,7 +91,7 @@ void ValgrindToolRunner::start()
 
     m_runner.setValgrindCommand(valgrind);
     m_runner.setDevice(device());
-    m_runner.setDebuggee(runnable());
+    m_runner.setDebuggee(runControl()->runnable());
 
     if (auto aspect = runControl()->aspect<TerminalAspect>())
         m_runner.setUseTerminal(aspect->useTerminal);
@@ -120,11 +120,6 @@ void ValgrindToolRunner::stop()
 {
     m_isStopping = true;
     m_runner.stop();
-}
-
-FilePath ValgrindToolRunner::executable() const
-{
-    return runnable().command.executable();
 }
 
 QStringList ValgrindToolRunner::genericToolArguments() const

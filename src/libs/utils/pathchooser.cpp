@@ -192,7 +192,7 @@ public:
     EnvironmentChange m_environmentChange;
     BinaryVersionToolTipEventFilter *m_binaryVersionToolTipEventFilter = nullptr;
     QList<QAbstractButton *> m_buttons;
-    MacroExpander *m_macroExpander = globalMacroExpander();
+    const MacroExpander *m_macroExpander = globalMacroExpander();
     std::function<void()> m_openTerminal;
 };
 
@@ -732,7 +732,7 @@ void PathChooser::setHistoryCompleter(const QString &historyKey, bool restoreLas
     d->m_lineEdit->setHistoryCompleter(historyKey, restoreLastItemFromHistory);
 }
 
-void PathChooser::setMacroExpander(MacroExpander *macroExpander)
+void PathChooser::setMacroExpander(const MacroExpander *macroExpander)
 {
     d->m_macroExpander = macroExpander;
 }

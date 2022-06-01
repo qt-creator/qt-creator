@@ -610,7 +610,7 @@ QString PuppetCreator::qmakeCommand() const
 {
     QtSupport::QtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(m_target->kit());
     if (currentQtVersion)
-        return currentQtVersion->qmakeFilePath().toString();
+        return currentQtVersion->queryToolFilePath().toString();
 
     return QString();
 }

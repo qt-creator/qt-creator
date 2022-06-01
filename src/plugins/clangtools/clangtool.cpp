@@ -51,6 +51,7 @@
 
 #include <debugger/analyzer/analyzermanager.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>

@@ -395,11 +395,6 @@ void DebuggerRunTool::setInferiorEnvironment(const Utils::Environment &env)
     m_runParameters.inferior.environment = env;
 }
 
-void DebuggerRunTool::setInferiorDevice(IDevice::ConstPtr device)
-{
-    m_runParameters.inferior.device = device;
-}
-
 void DebuggerRunTool::setRunControlName(const QString &name)
 {
     m_runParameters.displayName = name;
@@ -910,7 +905,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
         }
     }
 
-    Runnable inferior = runnable();
+    Runnable inferior = runControl->runnable();
     const FilePath &debuggerExecutable = m_runParameters.debugger.command.executable();
     inferior.command.setExecutable(inferior.command.executable().onDevice(debuggerExecutable));
     inferior.workingDirectory = inferior.workingDirectory.onDevice(debuggerExecutable);

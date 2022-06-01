@@ -51,7 +51,7 @@ public:
     /// the desktop factory claims to handle all paths
     int priority() const { return m_priority; }
 
-    static QtVersion *createQtVersionFromQMakePath(const Utils::FilePath &qmakePath,
+    static QtVersion *createQtVersionFromQueryToolPath(const Utils::FilePath &qmakePath,
                                                        bool isAutoDetected = false,
                                                        const QString &detectionSource = {},
                                                        QString *error = nullptr);

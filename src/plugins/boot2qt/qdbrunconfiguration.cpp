@@ -102,7 +102,7 @@ QdbRunConfiguration::QdbRunConfiguration(Target *target, Id id)
     auto envAspect = addAspect<RemoteLinux::RemoteLinuxEnvironmentAspect>(target);
 
     addAspect<ArgumentsAspect>(macroExpander());
-    addAspect<WorkingDirectoryAspect>(envAspect);
+    addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
     addAspect<FullCommandLineAspect>(this);
 
     setUpdater([this, target, exeAspect, symbolsAspect] {

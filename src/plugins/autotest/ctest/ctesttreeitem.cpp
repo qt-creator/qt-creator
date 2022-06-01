@@ -32,6 +32,7 @@
 #include "../itestframework.h"
 #include "../testsettings.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/project.h>

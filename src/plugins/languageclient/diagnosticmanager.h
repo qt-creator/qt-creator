@@ -61,6 +61,7 @@ public:
     virtual QList<LanguageServerProtocol::Diagnostic> filteredDiagnostics(
         const QList<LanguageServerProtocol::Diagnostic> &diagnostics) const;
 
+    void disableDiagnostics(TextEditor::TextDocument *document);
     void clearDiagnostics();
 
     QList<LanguageServerProtocol::Diagnostic> diagnosticsAt(
@@ -91,7 +92,14 @@ private:
         QList<LanguageServerProtocol::Diagnostic> diagnostics;
     };
     QMap<LanguageServerProtocol::DocumentUri, VersionedDiagnostics> m_diagnostics;
-    QMap<Utils::FilePath, QList<TextEditor::TextMark *>> m_marks;
+    class Marks
+    {
+    public:
+        ~Marks();
+        bool enabled = true;
+        QList<TextEditor::TextMark *> marks;
+    };
+    QMap<Utils::FilePath, Marks> m_marks;
     Client *m_client;
     Utils::Id m_extraSelectionsId;
 };

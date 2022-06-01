@@ -103,7 +103,8 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Id id)
     auto updateSummary = [this] {
         QtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
         if (!qtVersion)
-            return tr("<b>qmake:</b> No Qt version set. Cannot run qmake.");
+            return tr("<b>Query tool:</b> No Qt version set. "
+                      "Cannot run neither qmake nor qtpaths.");
         const QString program = qtVersion->qmakeFilePath().fileName();
         return tr("<b>qmake:</b> %1 %2").arg(program, project()->projectFilePath().fileName());
     };
@@ -164,7 +165,7 @@ QString QMakeStep::allArguments(const QtVersion *v, ArgumentFlags flags) const
     QString args = ProcessArgs::joinArgs(arguments);
     // User arguments
     ProcessArgs::addArgs(&args, userArguments());
-    for (QString arg : qAsConst(m_extraArgs))
+    for (const QString &arg : qAsConst(m_extraArgs))
         ProcessArgs::addArgs(&args, arg);
     return (flags & ArgumentFlag::Expand) ? bc->macroExpander()->expand(args) : args;
 }
@@ -214,7 +215,8 @@ bool QMakeStep::init()
     else
         workingDirectory = qmakeBc->buildDirectory();
 
-    m_qmakeCommand = CommandLine{qtVersion->qmakeFilePath(), allArguments(qtVersion), CommandLine::Raw};
+    m_qmakeCommand =
+            CommandLine{qtVersion->qmakeFilePath(), allArguments(qtVersion), CommandLine::Raw};
     m_runMakeQmake = (qtVersion->qtVersion() >= QtVersionNumber(5, 0 ,0));
 
     // The Makefile is used by qmake and make on the build device, from that

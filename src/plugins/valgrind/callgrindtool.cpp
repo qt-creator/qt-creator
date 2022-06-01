@@ -285,9 +285,8 @@ CallgrindToolPrivate::CallgrindToolPrivate()
         auto runControl = new RunControl(CALLGRIND_RUN_MODE);
         runControl->copyDataFromRunConfiguration(runConfig);
         runControl->createMainWorker();
-        const auto runnable = dlg.runnable();
-        runControl->setRunnable(runnable);
-        runControl->setDisplayName(runnable.command.executable().toUserOutput());
+        runControl->setCommandLine(dlg.commandLine());
+        runControl->setWorkingDirectory(dlg.workingDirectory());
         ProjectExplorerPlugin::startRunControl(runControl);
     });
 

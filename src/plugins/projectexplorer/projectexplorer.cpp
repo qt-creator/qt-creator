@@ -333,7 +333,8 @@ static bool canOpenTerminalWithRunEnv(const Project *project, const ProjectNode 
     const RunConfiguration * const runConfig = runConfigForNode(target, node);
     if (!runConfig)
         return false;
-    IDevice::ConstPtr device = runConfig->runnable().device;
+    IDevice::ConstPtr device
+        = DeviceManager::deviceForPath(runConfig->runnable().command.executable());
     if (!device)
         device = DeviceKitAspect::device(target->kit());
     return device && device->canOpenTerminal();
@@ -3245,13 +3246,13 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
     dd->doUpdateRunActions();
 }
 
-QList<QPair<Runnable, ProcessHandle>> ProjectExplorerPlugin::runningRunControlProcesses()
+QList<QPair<CommandLine, ProcessHandle>> ProjectExplorerPlugin::runningRunControlProcesses()
 {
-    QList<QPair<Runnable, ProcessHandle>> processes;
+    QList<QPair<CommandLine, ProcessHandle>> processes;
     const QList<RunControl *> runControls = allRunControls();
     for (RunControl *rc : runControls) {
         if (rc->isRunning())
-            processes << qMakePair(rc->runnable(), rc->applicationProcessHandle());
+            processes << qMakePair(rc->commandLine(), rc->applicationProcessHandle());
     }
     return processes;
 }
@@ -3935,7 +3936,7 @@ void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
     QTC_ASSERT(runConfig, return);
 
     const Runnable runnable = runConfig->runnable();
-    IDevice::ConstPtr device = runnable.device;
+    IDevice::ConstPtr device = DeviceManager::deviceForPath(runnable.command.executable());
     if (!device)
         device = DeviceKitAspect::device(target->kit());
     QTC_ASSERT(device && device->canOpenTerminal(), return);

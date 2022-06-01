@@ -745,6 +745,9 @@ Tasks QmakeProject::projectIssues(const Kit *k) const
         result.append(createProjectTask(Task::TaskType::Error, tr("Qt version is invalid.")));
     if (!ToolChainKitAspect::cxxToolChain(k))
         result.append(createProjectTask(Task::TaskType::Error, tr("No C++ compiler set in kit.")));
+    if (!qtFromKit->qmakeFilePath().isExecutableFile())
+        result.append(createProjectTask(Task::TaskType::Error,
+                                        tr("Qmake was not found or is not executable.")));
 
     // A project can be considered part of more than one Qt version, for instance if it is an
     // example shipped via the installer.

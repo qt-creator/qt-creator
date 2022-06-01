@@ -29,7 +29,10 @@
 
 #include <QDialog>
 
-namespace ProjectExplorer { class Runnable; }
+namespace Utils {
+class CommandLine;
+class FilePath;
+} // Utils
 
 namespace Debugger {
 
@@ -43,7 +46,8 @@ public:
     explicit StartRemoteDialog(QWidget *parent = nullptr);
     ~StartRemoteDialog() override;
 
-    ProjectExplorer::Runnable runnable() const;
+    Utils::CommandLine commandLine() const;
+    Utils::FilePath workingDirectory() const;
 
 private:
     void validate();

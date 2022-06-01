@@ -25,9 +25,7 @@
 
 #pragma once
 
-#include "buildconfiguration.h"
 #include "devicesupport/idevicefwd.h"
-#include "projectexplorerconstants.h"
 #include "runconfiguration.h"
 
 #include <utils/commandline.h>
@@ -50,8 +48,6 @@ class OutputLineParser;
 } // Utils
 
 namespace ProjectExplorer {
-class GlobalOrProjectAspect;
-class Node;
 class RunConfiguration;
 class RunControl;
 class Target;
@@ -71,11 +67,7 @@ public:
     Utils::CommandLine command;
     Utils::FilePath workingDirectory;
     Utils::Environment environment;
-    IDeviceConstPtr device; // Override the kit's device. Keep unset by default.
     QVariantHash extraData;
-
-    // FIXME: Not necessarily a display name
-    QString displayName() const;
 };
 
 class PROJECTEXPLORER_EXPORT RunWorker : public QObject
@@ -102,7 +94,6 @@ public:
     // Part of read-only interface of RunControl for convenience.
     void appendMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
     IDeviceConstPtr device() const;
-    const Runnable &runnable() const;
 
     // States
     void initiateStart();
@@ -211,7 +202,7 @@ public:
 
     bool supportsReRunning() const;
 
-    virtual QString displayName() const;
+    QString displayName() const;
     void setDisplayName(const QString &displayName);
 
     bool isRunning() const;
@@ -239,7 +230,6 @@ public:
     }
 
     QString buildKey() const;
-    BuildConfiguration::BuildType buildType() const;
     Utils::FilePath buildDirectory() const;
     Utils::Environment buildEnvironment() const;
 
@@ -252,7 +242,18 @@ public:
     Utils::Id runMode() const;
 
     const Runnable &runnable() const;
-    void setRunnable(const Runnable &runnable);
+
+    const Utils::CommandLine &commandLine() const;
+    void setCommandLine(const Utils::CommandLine &command);
+
+    const Utils::FilePath &workingDirectory() const;
+    void setWorkingDirectory(const Utils::FilePath &workingDirectory);
+
+    const Utils::Environment &environment() const;
+    void setEnvironment(const Utils::Environment &environment);
+
+    const QVariantHash &extraData() const;
+    void setExtraData(const QVariantHash &extraData);
 
     static bool showPromptToStopDialog(const QString &title, const QString &text,
                                        const QString &stopButtonText = QString(),

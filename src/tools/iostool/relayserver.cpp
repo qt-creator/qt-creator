@@ -284,8 +284,7 @@ bool RelayServer::startServer()
 
 void RelayServer::stopServer()
 {
-    foreach (Relayer *connection, m_connections)
-        delete connection;
+    qDeleteAll(m_connections);
     if (m_ipv4Server.isListening())
         m_ipv4Server.close();
     if (m_ipv6Server.isListening())

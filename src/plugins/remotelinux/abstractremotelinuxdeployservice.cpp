@@ -43,7 +43,7 @@ namespace RemoteLinux {
 namespace Internal {
 
 namespace {
-enum State { Inactive, SettingUpDevice, Deploying };
+enum State { Inactive, Deploying };
 } // anonymous namespace
 
 class AbstractRemoteLinuxDeployServicePrivate
@@ -131,8 +131,8 @@ void AbstractRemoteLinuxDeployService::start()
         return;
     }
 
-    d->state = SettingUpDevice;
-    doDeviceSetup();
+    d->state = Deploying;
+    doDeploy();
 }
 
 void AbstractRemoteLinuxDeployService::stop()
@@ -140,17 +140,9 @@ void AbstractRemoteLinuxDeployService::stop()
     if (d->stopRequested)
         return;
 
-    switch (d->state) {
-    case Inactive:
-        break;
-    case SettingUpDevice:
-        d->stopRequested = true;
-        stopDeviceSetup();
-        break;
-    case Deploying:
+    if (d->state == Deploying) {
         d->stopRequested = true;
         stopDeployment();
-        break;
     }
 }
 
@@ -169,19 +161,6 @@ QVariantMap AbstractRemoteLinuxDeployService::exportDeployTimes() const
 void AbstractRemoteLinuxDeployService::importDeployTimes(const QVariantMap &map)
 {
     d->deployTimes.importDeployTimes(map);
-}
-
-void AbstractRemoteLinuxDeployService::handleDeviceSetupDone(bool success)
-{
-    QTC_ASSERT(d->state == SettingUpDevice, return);
-
-    if (!success || d->stopRequested) {
-        setFinished();
-        return;
-    }
-
-    d->state = Deploying;
-    doDeploy();
 }
 
 void AbstractRemoteLinuxDeployService::handleDeploymentDone()

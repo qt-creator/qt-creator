@@ -91,10 +91,10 @@ static QString toString(const QVariant &variant, int indentation = 0)
         return res;
     }
     case QVariant::List: {
-        QVariantList list = variant.toList();
+        const QVariantList list = variant.toList();
         QString res;
         int counter = 0;
-        foreach (const QVariant &item, list)
+        for (const QVariant &item : list)
             res += indent + QString::number(counter++) + QLatin1String(":\n") + toString(item, indentation + 1);
         return res;
     }
@@ -108,7 +108,7 @@ int GetOperation::execute() const
     Q_ASSERT(!m_keys.isEmpty());
     QVariantMap map = load(m_file);
 
-    foreach (const QString &key, m_keys) {
+    for (const QString &key : qAsConst(m_keys)) {
         const QVariant result = get(map, key);
         if (!result.isValid())
             std::cout << "<invalid>" << std::endl;

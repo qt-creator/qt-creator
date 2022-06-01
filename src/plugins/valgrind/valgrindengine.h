@@ -47,8 +47,6 @@ public:
     void start() override;
     void stop() override;
 
-    Utils::FilePath executable() const;
-
 protected:
     virtual QString progressTitle() const = 0;
     virtual QStringList toolArguments() const = 0;

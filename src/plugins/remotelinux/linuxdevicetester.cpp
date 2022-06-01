@@ -25,10 +25,10 @@
 
 #include "linuxdevicetester.h"
 
-#include "filetransfer.h"
 #include "remotelinux_constants.h"
 
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
+#include <projectexplorer/devicesupport/filetransfer.h>
 #include <utils/algorithm.h>
 #include <utils/port.h>
 #include <utils/processinterface.h>
@@ -84,7 +84,6 @@ void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguratio
     QTC_ASSERT(d->state == Inactive, return);
 
     d->device = deviceConfiguration;
-    d->fileTransfer.setDevice(d->device);
 
     testEcho();
 }
@@ -215,7 +214,7 @@ void GenericLinuxDeviceTester::testFileTransfer(FileTransferMethod method)
                          .arg(FileTransfer::transferMethodName(method)));
 
     d->fileTransfer.setTransferMethod(method);
-    d->fileTransfer.test();
+    d->fileTransfer.test(d->device);
 }
 
 void GenericLinuxDeviceTester::handleFileTransferDone(const ProcessResultData &resultData)

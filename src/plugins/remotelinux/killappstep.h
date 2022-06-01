@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,46 +25,19 @@
 
 #pragma once
 
-#include "abstractremotelinuxdeployservice.h"
-#include "remotelinux_export.h"
-
-namespace Utils {
-class FilePath;
-class ProcessResultData;
-}
+#include "abstractremotelinuxdeploystep.h"
 
 namespace RemoteLinux {
-class AbstractRemoteLinuxPackageInstaller;
 
-namespace Internal { class AbstractUploadAndInstallPackageServicePrivate; }
-
-class REMOTELINUX_EXPORT AbstractUploadAndInstallPackageService : public AbstractRemoteLinuxDeployService
+class REMOTELINUX_EXPORT KillAppStep : public AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT
-
 public:
-    void setPackageFilePath(const Utils::FilePath &filePath);
+    explicit KillAppStep(ProjectExplorer::BuildStepList *bsl,
+            Utils::Id id = stepId());
 
-protected:
-     AbstractUploadAndInstallPackageService();
-    ~AbstractUploadAndInstallPackageService() override;
-
-private:
-    void handleUploadFinished(const Utils::ProcessResultData &resultData);
-    void handleInstallationFinished(const QString &errorMsg);
-
-    virtual AbstractRemoteLinuxPackageInstaller *packageInstaller() const = 0;
-    virtual QString uploadDir() const; // Defaults to remote user's home directory.
-
-    bool isDeploymentNecessary() const override;
-    void doDeviceSetup() override;
-    void stopDeviceSetup() override;
-    void doDeploy() override;
-    void stopDeployment() override;
-
-    void setFinished();
-
-    Internal::AbstractUploadAndInstallPackageServicePrivate * const d;
+    static Utils::Id stepId();
+    static QString displayName();
 };
 
 } // namespace RemoteLinux

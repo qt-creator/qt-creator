@@ -27,8 +27,7 @@
 
 #include "remotelinux_export.h"
 
-#include "filetransfer.h"
-
+#include <projectexplorer/devicesupport/filetransferinterface.h>
 #include <projectexplorer/devicesupport/idevice.h>
 
 namespace Utils { class ProcessResultData; }
@@ -59,7 +58,7 @@ private:
     void handlePortsGathererError(const QString &message);
     void handlePortsGathererDone();
 
-    void testFileTransfer(FileTransferMethod method);
+    void testFileTransfer(ProjectExplorer::FileTransferMethod method);
     void handleFileTransferDone(const Utils::ProcessResultData &resultData);
 
     void setFinished(ProjectExplorer::DeviceTester::TestResult result);

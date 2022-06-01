@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,34 +25,33 @@
 
 #pragma once
 
-#include "abstractremotelinuxdeployservice.h"
+#include <QFutureInterface>
+#include <QLoggingCategory>
+#include <QPointer>
+#include <QVersionNumber>
 
-namespace RemoteLinux {
-namespace Internal { class RemoteLinuxKillAppServicePrivate; }
+namespace LanguageClient { class ExpandedSemanticToken; }
+namespace TextEditor {
+class HighlightingResult;
+class TextDocument;
+}
+namespace Utils { class FilePath; }
 
-class REMOTELINUX_EXPORT RemoteLinuxKillAppService : public AbstractRemoteLinuxDeployService
-{
-    Q_OBJECT
-public:
-    RemoteLinuxKillAppService();
-    ~RemoteLinuxKillAppService() override;
+namespace ClangCodeModel::Internal {
+class ClangdAstNode;
+class TaskTimer;
+Q_DECLARE_LOGGING_CATEGORY(clangdLogHighlight);
 
-    void setRemoteExecutable(const QString &filePath);
+void doSemanticHighlighting(
+        QFutureInterface<TextEditor::HighlightingResult> &future,
+        const Utils::FilePath &filePath,
+        const QList<LanguageClient::ExpandedSemanticToken> &tokens,
+        const QString &docContents,
+        const ClangdAstNode &ast,
+        const QPointer<TextEditor::TextDocument> &textDocument,
+        int docRevision,
+        const QVersionNumber &clangdVersion,
+        const TaskTimer &taskTimer
+        );
 
-private:
-    void handleStdErr();
-    void handleProcessFinished();
-
-    bool isDeploymentNecessary() const override;
-
-    void doDeploy() override;
-    void stopDeployment() override;
-
-    void handleSignalOpFinished(const QString &errorMessage);
-    void cleanup();
-    void finishDeployment();
-
-    Internal::RemoteLinuxKillAppServicePrivate * const d;
-};
-
-} // namespace RemoteLinux
+} // namespace ClangCodeModel::Internal

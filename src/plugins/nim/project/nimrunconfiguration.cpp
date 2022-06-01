@@ -52,7 +52,7 @@ public:
         auto envAspect = addAspect<LocalEnvironmentAspect>(target);
         addAspect<ExecutableAspect>(target);
         addAspect<ArgumentsAspect>(macroExpander());
-        addAspect<WorkingDirectoryAspect>(envAspect);
+        addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
         addAspect<TerminalAspect>();
 
         setDisplayName(tr("Current Build Target"));

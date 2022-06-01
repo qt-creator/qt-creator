@@ -229,7 +229,7 @@ QVariantMap AddKeysData::addKeys(const QVariantMap &map) const
     // Insert data:
     QVariantMap result = map;
 
-    foreach (const KeyValuePair &p, m_data) {
+    for (const KeyValuePair &p : m_data) {
         QList<QVariantMap> stack;
 
         // Set up a stack of QVariantMaps along the path we take:

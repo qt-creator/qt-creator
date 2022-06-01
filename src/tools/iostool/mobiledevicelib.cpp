@@ -44,7 +44,8 @@ MobileDeviceLib::MobileDeviceLib()
     if (!load())
         addError(QLatin1String("Error loading MobileDevice.framework"));
     if (!errors().isEmpty()) {
-        foreach (const QString &msg, errors())
+        const QStringList errs = errors();
+        for (const QString &msg : errs)
             addError(msg);
     }
     setLogLevel(5);

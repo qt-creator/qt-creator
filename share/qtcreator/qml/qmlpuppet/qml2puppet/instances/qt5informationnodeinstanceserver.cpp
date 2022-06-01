@@ -837,6 +837,8 @@ void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D(bool timerC
     auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
     if (helper)
         helper->storeToolState(helper->globalStateId(), helper->lastSceneIdKey(), QVariant(sceneId), 0);
+#else
+    Q_UNUSED(timerCall)
 #endif
 }
 
@@ -1157,6 +1159,8 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView(const Reques
                     {PuppetToCreatorCommand::RenderModelNodePreviewImage,
                      QVariant::fromValue(imgContainer)});
     }
+#else
+    Q_UNUSED(cmd)
 #endif
 }
 

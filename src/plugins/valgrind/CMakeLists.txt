@@ -4,7 +4,6 @@ add_qtc_plugin(Valgrind
   SOURCES
     callgrind/callgrindabstractmodel.h
     callgrind/callgrindcallmodel.cpp callgrind/callgrindcallmodel.h
-    callgrind/callgrindcontroller.cpp callgrind/callgrindcontroller.h
     callgrind/callgrindcostitem.cpp callgrind/callgrindcostitem.h
     callgrind/callgrindcycledetection.cpp callgrind/callgrindcycledetection.h
     callgrind/callgrinddatamodel.cpp callgrind/callgrinddatamodel.h

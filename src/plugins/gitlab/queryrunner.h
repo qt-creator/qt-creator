@@ -38,15 +38,24 @@ class Query
 public:
     enum Type {
         NoQuery,
-        Project
+        User,
+        Project,
+        Projects,
+        Events
     };
 
     explicit Query(Type type, const QStringList &parameters = {});
+    void setPageParameter(int page);
+    void setAdditionalParameters(const QStringList &additional);
+    bool hasPaginatedResults() const;
+    Type type() const { return m_type; }
     QString toString() const;
 
 private:
     Type m_type = NoQuery;
     QStringList m_parameter;
+    QStringList m_additionalParameters;
+    int m_pageParameter = -1;
 };
 
 class QueryRunner : public QObject
@@ -70,6 +79,7 @@ private:
 
     Utils::QtcProcess m_process;
     bool m_running = false;
+    bool m_paginated = false;
 };
 
 } // namespace GitLab

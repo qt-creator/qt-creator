@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,19 +25,50 @@
 
 #pragma once
 
-#include "abstractremotelinuxdeploystep.h"
+#include <QCoreApplication>
+#include <QDialog>
 
-namespace RemoteLinux {
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QComboBox;
+class QPlainTextEdit;
+class QPushButton;
+QT_END_NAMESPACE
 
-class REMOTELINUX_EXPORT RemoteLinuxKillAppStep : public AbstractRemoteLinuxDeployStep
+namespace Core { class ShellCommand; }
+
+namespace Utils {
+class FancyLineEdit;
+class InfoLabel;
+class PathChooser;
+}
+
+namespace GitLab {
+
+class Project;
+
+class GitLabCloneDialog : public QDialog
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(GitLab::GitLabCloneDialog)
 public:
-    explicit RemoteLinuxKillAppStep(ProjectExplorer::BuildStepList *bsl,
-            Utils::Id id = stepId());
+    explicit GitLabCloneDialog(const Project &project, QWidget *parent = nullptr);
 
-    static Utils::Id stepId();
-    static QString displayName();
+private:
+    void updateUi();
+    void cloneProject();
+    void cancel();
+    void cloneFinished(bool ok, int exitCode);
+
+    QComboBox * m_repositoryCB = nullptr;
+    QCheckBox *m_submodulesCB = nullptr;
+    QPushButton *m_cloneButton = nullptr;
+    QPushButton *m_cancelButton = nullptr;
+    QPlainTextEdit *m_cloneOutput = nullptr;
+    Utils::PathChooser *m_pathChooser = nullptr;
+    Utils::FancyLineEdit *m_directoryLE = nullptr;
+    Utils::InfoLabel *m_infoLabel = nullptr;
+    Core::ShellCommand *m_command = nullptr;
+    bool m_commandRunning = false;
 };
 
-} // namespace RemoteLinux
+} // namespace GitLab

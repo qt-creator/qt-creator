@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 
     // Process files
     const QStringList files = args;
-    foreach (const QString &fileName, files) {
+    for (const QString &fileName : files) {
         // Run preprocessor
         const QString fileNamePreprocessed = fileName + QLatin1String(".preprocessed");
         CplusplusToolsUtils::SystemPreprocessor preprocessor(optionVerbose);

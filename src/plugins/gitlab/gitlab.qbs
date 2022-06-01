@@ -10,6 +10,11 @@ QtcPlugin {
     Depends { name: "Utils" }
 
     files: [
+        "gitlabclonedialog.cpp",
+        "gitlabclonedialog.h",
+        "gitlabdialog.cpp",
+        "gitlabdialog.h",
+        "gitlabdialog.ui",
         "gitlaboptionspage.cpp",
         "gitlaboptionspage.h",
         "gitlabparameters.cpp",

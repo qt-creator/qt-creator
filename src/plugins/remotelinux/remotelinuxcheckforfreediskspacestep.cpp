@@ -54,14 +54,11 @@ public:
     void setRequiredSpaceInBytes(quint64 sizeInBytes);
 
 private:
-    void deployAndFinish();
     bool isDeploymentNecessary() const override { return true; }
 
     CheckResult isDeploymentPossible() const override;
-    void doDeviceSetup() final { deployAndFinish(); }
-    void stopDeviceSetup() final { }
 
-    void doDeploy() final {}
+    void doDeploy() final;
     void stopDeployment() final {}
 
     QString m_pathToCheck;
@@ -78,7 +75,7 @@ void RemoteLinuxCheckForFreeDiskSpaceService::setRequiredSpaceInBytes(quint64 si
     m_requiredSpaceInBytes = sizeInBytes;
 }
 
-void RemoteLinuxCheckForFreeDiskSpaceService::deployAndFinish()
+void RemoteLinuxCheckForFreeDiskSpaceService::doDeploy()
 {
     auto cleanup = qScopeGuard([this] { setFinished(); });
     const FilePath path = deviceConfiguration()->filePath(m_pathToCheck);
@@ -86,6 +83,7 @@ void RemoteLinuxCheckForFreeDiskSpaceService::deployAndFinish()
     if (freeSpace < 0) {
         emit errorMessage(tr("Cannot get info about free disk space for \"%1\"")
                 .arg(path.toUserOutput()));
+        handleDeploymentDone();
         return;
     }
 
@@ -97,11 +95,13 @@ void RemoteLinuxCheckForFreeDiskSpaceService::deployAndFinish()
         emit errorMessage(tr("The remote file system has only %n megabytes of free space, "
                 "but %1 megabytes are required.", nullptr, freeSpaceMB)
                           .arg(requiredSpaceMB));
+        handleDeploymentDone();
         return;
     }
 
     emit progressMessage(tr("The remote file system has %n megabytes of free space, going ahead.",
                             nullptr, freeSpaceMB));
+    handleDeploymentDone();
 }
 
 CheckResult RemoteLinuxCheckForFreeDiskSpaceService::isDeploymentPossible() const

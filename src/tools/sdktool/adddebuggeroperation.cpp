@@ -208,9 +208,9 @@ void AddDebuggerOperation::unittest()
 QVariantMap AddDebuggerData::addDebugger(const QVariantMap &map) const
 {
     // Sanity check: Make sure autodetection source is not in use already:
-    QStringList valueKeys = FindValueOperation::findValue(map, QVariant(m_id));
+    const QStringList valueKeys = FindValueOperation::findValue(map, QVariant(m_id));
     bool hasId = false;
-    foreach (const QString &k, valueKeys) {
+    for (const QString &k : valueKeys) {
         if (k.endsWith(QString(QLatin1Char('/')) + QLatin1String(ID))) {
             hasId = true;
             break;
@@ -250,7 +250,7 @@ QVariantMap AddDebuggerData::addDebugger(const QVariantMap &map) const
     data << KeyValuePair(QStringList() << QLatin1String(COUNT), QVariant(count + 1));
 
     KeyValuePairList qtExtraList;
-    foreach (const KeyValuePair &pair, m_extra)
+    for (const KeyValuePair &pair : qAsConst(m_extra))
         qtExtraList << KeyValuePair(QStringList() << debugger << pair.key, pair.value);
     data.append(qtExtraList);
 

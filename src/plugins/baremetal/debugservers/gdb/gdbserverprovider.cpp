@@ -179,8 +179,6 @@ bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool,
 
     Runnable inferior;
     inferior.command.setExecutable(bin);
-    inferior.extraData.insert(Debugger::Constants::kPeripheralDescriptionFile,
-                              m_peripheralDescriptionFile.toVariant());
     if (const auto argAspect = runControl->aspect<ArgumentsAspect>())
         inferior.command.setArguments(argAspect->arguments);
     runTool->setInferior(inferior);
@@ -191,6 +189,7 @@ bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool,
     runTool->setRemoteChannel(channelString());
     runTool->setUseContinueInsteadOfRun(true);
     runTool->setUseExtendedRemote(useExtendedRemote());
+    runTool->runParameters().peripheralDescriptionFile = m_peripheralDescriptionFile;
     return true;
 }
 

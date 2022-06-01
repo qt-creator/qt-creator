@@ -44,6 +44,7 @@ private:
     void sendControlSignal(Utils::ControlSignal controlSignal) override;
 
     void handleStarted(qint64 processId) final;
+    void handleDone(const Utils::ProcessResultData &resultData) final;
     void handleReadyReadStandardOutput(const QByteArray &outputData) final;
     void handleReadyReadStandardError(const QByteArray &errorData) final;
 

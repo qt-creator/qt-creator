@@ -55,16 +55,13 @@ public:
 protected:
     bool isDeploymentNecessary() const override;
 
-    void doDeviceSetup() override;
-    void stopDeviceSetup() override;
-
     void doDeploy() override;
     void stopDeployment() override;
 
 private:
     void runStat(const ProjectExplorer::DeployableFile &file);
     QDateTime timestampFromStat(const ProjectExplorer::DeployableFile &file,
-                                Utils::QtcProcess *statProc, const QString &errorMsg);
+                                Utils::QtcProcess *statProc);
     void checkForStateChangeOnRemoteProcFinished();
 
     QList<ProjectExplorer::DeployableFile> collectFilesToUpload(

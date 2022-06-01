@@ -219,6 +219,8 @@ Project {
                 "devicesettingswidget.cpp", "devicesettingswidget.h", "devicesettingswidget.ui",
                 "devicetestdialog.cpp", "devicetestdialog.h", "devicetestdialog.ui",
                 "deviceusedportsgatherer.cpp", "deviceusedportsgatherer.h",
+                "filetransfer.cpp", "filetransfer.h",
+                "filetransferinterface.h",
                 "idevice.cpp", "idevice.h",
                 "idevicefactory.cpp", "idevicefactory.h",
                 "idevicefwd.h",

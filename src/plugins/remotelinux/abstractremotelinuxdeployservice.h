@@ -96,12 +96,7 @@ protected:
     bool hasRemoteFileChanged(const ProjectExplorer::DeployableFile &deployableFile,
                               const QDateTime &remoteTimestamp) const;
 
-    void handleDeviceSetupDone(bool success);
     void handleDeploymentDone();
-
-    // Should do things needed *before* connecting. Call default implementation afterwards.
-    virtual void doDeviceSetup() { handleDeviceSetupDone(true); }
-    virtual void stopDeviceSetup() { handleDeviceSetupDone(false); }
 
     void setFinished();
 

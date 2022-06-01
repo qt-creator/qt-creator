@@ -25,9 +25,8 @@
 
 #include "genericdirectuploadservice.h"
 
-#include "filetransfer.h"
-
 #include <projectexplorer/deployablefile.h>
+#include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <utils/hostosinfo.h>
 #include <utils/processinterface.h>
@@ -129,18 +128,6 @@ bool GenericDirectUploadService::isDeploymentNecessary() const
     return !d->deployableFiles.isEmpty();
 }
 
-void GenericDirectUploadService::doDeviceSetup()
-{
-    QTC_ASSERT(d->state == Inactive, return);
-    AbstractRemoteLinuxDeployService::doDeviceSetup();
-}
-
-void GenericDirectUploadService::stopDeviceSetup()
-{
-    QTC_ASSERT(d->state == Inactive, return);
-    AbstractRemoteLinuxDeployService::stopDeviceSetup();
-}
-
 void GenericDirectUploadService::doDeploy()
 {
     QTC_ASSERT(d->state == Inactive, setFinished(); return);
@@ -149,21 +136,27 @@ void GenericDirectUploadService::doDeploy()
 }
 
 QDateTime GenericDirectUploadService::timestampFromStat(const DeployableFile &file,
-                                                        QtcProcess *statProc,
-                                                        const QString &errorMsg)
+                                                        QtcProcess *statProc)
 {
-    QString errorDetails;
-    if (!errorMsg.isEmpty())
-        errorDetails = errorMsg;
-    else if (statProc->exitCode() != 0)
-        errorDetails = QString::fromUtf8(statProc->readAllStandardError());
-    if (!errorDetails.isEmpty()) {
+    bool succeeded = false;
+    QString error;
+    if (statProc->error() == QProcess::FailedToStart) {
+        error = tr("Failed to start \"stat\": %1").arg(statProc->errorString());
+    } else if (statProc->exitStatus() == QProcess::CrashExit) {
+        error = tr("\"stat\" crashed.");
+    } else if (statProc->exitCode() != 0) {
+        error = tr("\"stat\" failed with exit code %1: %2")
+                .arg(statProc->exitCode()).arg(statProc->stdErr());
+    } else {
+        succeeded = true;
+    }
+    if (!succeeded) {
         emit warningMessage(tr("Failed to retrieve remote timestamp for file \"%1\". "
                                "Incremental deployment will not work. Error message was: %2")
-                            .arg(file.remoteFilePath(), errorDetails));
+                            .arg(file.remoteFilePath(), error));
         return QDateTime();
     }
-    QByteArray output = statProc->readAllStandardOutput().trimmed();
+    const QByteArray output = statProc->readAllStandardOutput().trimmed();
     const QString warningString(tr("Unexpected stat output for remote file \"%1\": %2")
                                 .arg(file.remoteFilePath()).arg(QString::fromUtf8(output)));
     if (!output.startsWith(file.remoteFilePath().toUtf8())) {
@@ -218,7 +211,7 @@ void GenericDirectUploadService::runStat(const DeployableFile &file)
         QTC_ASSERT(d->state == state, return);
         const DeployableFile file = d->getFileForProcess(statProc);
         QTC_ASSERT(file.isValid(), return);
-        const QDateTime timestamp = timestampFromStat(file, statProc, statProc->errorString());
+        const QDateTime timestamp = timestampFromStat(file, statProc);
         statProc->deleteLater();
         switch (state) {
         case PreChecking:
@@ -322,7 +315,6 @@ void GenericDirectUploadService::uploadFiles()
                       deviceConfiguration()->filePath(file.remoteFilePath())});
     }
 
-    d->uploader.setDevice(deviceConfiguration());
     d->uploader.setFilesToTransfer(files);
     d->uploader.start();
 }

@@ -10113,8 +10113,8 @@ Dies ist unabhängig vom Wert der Eigenschaft &quot;visible&quot; in QML.</trans
         <translation>Es ist keine qmake-Pfad gesetzt</translation>
     </message>
     <message>
-        <source>qmake does not exist or is not executable</source>
-        <translation>Die qmake-Datei existiert nicht oder ist nicht ausführbar</translation>
+        <source>%1 does not exist or is not executable</source>
+        <translation>Die %1-Datei existiert nicht oder ist nicht ausführbar</translation>
     </message>
     <message>
         <source>Qt version has no name</source>
@@ -10141,8 +10141,8 @@ Dies ist unabhängig vom Wert der Eigenschaft &quot;visible&quot; in QML.</trans
         <translation>Die Qt-Version ist nicht richtig installiert, führen Sie bitte make install aus</translation>
     </message>
     <message>
-        <source>Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?</source>
-        <translation>Der Pfad zu den ausführbaren Dateien der Qt-Installation konnte nicht bestimmt werden, möglicherweise ist der Pfad zu qmake falsch?</translation>
+        <source>Could not determine the path to the binaries of the Qt installation, maybe the %1 path is wrong?</source>
+        <translation>Der Pfad zu den ausführbaren Dateien der Qt-Installation konnte nicht bestimmt werden, möglicherweise ist der Pfad zu %1 falsch?</translation>
     </message>
     <message>
         <source>The default mkspec symlink is broken.</source>

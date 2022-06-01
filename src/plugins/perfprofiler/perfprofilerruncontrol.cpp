@@ -23,9 +23,9 @@
 **
 ****************************************************************************/
 
-#include "perfdatareader.h"
-#include "perfprofilerconstants.h"
 #include "perfprofilerruncontrol.h"
+
+#include "perfdatareader.h"
 #include "perfprofilertool.h"
 #include "perfrunconfigurationaspect.h"
 #include "perfsettings.h"
@@ -124,10 +124,6 @@ public:
     void start() override
     {
         m_process = new QtcProcess(this);
-        if (!m_process) {
-            reportFailure(tr("Could not start device process."));
-            return;
-        }
 
         connect(m_process, &QtcProcess::started, this, &RunWorker::reportStarted);
         connect(m_process, &QtcProcess::done, this, [this] {
@@ -144,12 +140,10 @@ public:
             reportStopped();
         });
 
-        Runnable perfRunnable = runnable();
-
         CommandLine cmd({device()->filePath("perf"), {"record"}});
         cmd.addArgs(m_perfRecordArguments);
         cmd.addArgs({"-o", "-", "--"});
-        cmd.addCommandLineAsArgs(perfRunnable.command, CommandLine::Raw);
+        cmd.addCommandLineAsArgs(runControl()->commandLine(), CommandLine::Raw);
 
         m_process->setCommand(cmd);
         m_process->start();

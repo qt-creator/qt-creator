@@ -81,6 +81,8 @@ public:
     bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const override;
     QDateTime lastModified(const Utils::FilePath &filePath) const override;
     Utils::ProcessInterface *createProcessInterface() const override;
+    ProjectExplorer::FileTransferInterface *createFileTransferInterface(
+            const ProjectExplorer::FileTransferSetupData &setup) const override;
     Utils::Environment systemEnvironment() const override;
     qint64 fileSize(const Utils::FilePath &filePath) const override;
     qint64 bytesAvailable(const Utils::FilePath &filePath) const override;
@@ -92,6 +94,7 @@ protected:
 
     class LinuxDevicePrivate *d;
     friend class SshProcessInterface;
+    friend class SshTransferInterface;
 };
 
 namespace Internal {

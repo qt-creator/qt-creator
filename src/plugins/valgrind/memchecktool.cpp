@@ -28,7 +28,6 @@
 
 #include "memcheckerrorview.h"
 #include "valgrindsettings.h"
-#include "valgrindplugin.h"
 #include "valgrindengine.h"
 #include "valgrindsettings.h"
 #include "valgrindrunner.h"
@@ -38,9 +37,6 @@
 #include "xmlprotocol/errorlistmodel.h"
 #include "xmlprotocol/frame.h"
 #include "xmlprotocol/stack.h"
-#include "xmlprotocol/stackmodel.h"
-#include "xmlprotocol/status.h"
-#include "xmlprotocol/suppression.h"
 #include "xmlprotocol/threadedparser.h"
 
 #include <debugger/debuggerkitinformation.h>
@@ -51,7 +47,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/deploymentdata.h>
-#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -711,9 +707,8 @@ MemcheckToolPrivate::MemcheckToolPrivate()
         RunControl *rc = new RunControl(MEMCHECK_RUN_MODE);
         rc->copyDataFromRunConfiguration(runConfig);
         rc->createMainWorker();
-        const auto runnable = dlg.runnable();
-        rc->setRunnable(runnable);
-        rc->setDisplayName(runnable.command.executable().toUserOutput());
+        rc->setCommandLine(dlg.commandLine());
+        rc->setWorkingDirectory(dlg.workingDirectory());
         ProjectExplorerPlugin::startRunControl(rc);
     });
 
@@ -746,10 +741,9 @@ void MemcheckToolPrivate::heobAction()
             kit = target->kit();
             if (kit) {
                 abi = ToolChainKitAspect::targetAbi(kit);
-
-                const Runnable runnable = rc->runnable();
-                sr = runnable;
-                const IDevice::ConstPtr device = sr.device;
+                sr = rc->runnable();
+                const IDevice::ConstPtr device
+                        = DeviceManager::deviceForPath(sr.command.executable());
                 hasLocalRc = device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
                 if (!hasLocalRc)
                     hasLocalRc = DeviceTypeKitAspect::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
@@ -1014,7 +1008,7 @@ void MemcheckToolPrivate::setupRunner(MemcheckToolRunner *runTool)
     m_loadExternalLogFile->setDisabled(true);
 
     const FilePath dir = runControl->project()->projectDirectory();
-    const QString name = runTool->executable().fileName();
+    const QString name = runControl->commandLine().executable().fileName();
 
     m_errorView->setDefaultSuppressionFile(dir.pathAppended(name + ".supp"));
 
@@ -1672,7 +1666,6 @@ void HeobData::processFinished()
             auto debugger = new DebuggerRunTool(m_runControl);
             debugger->setAttachPid(ProcessHandle(m_data[1]));
             debugger->setRunControlName(tr("Process %1").arg(m_data[1]));
-            debugger->setInferiorDevice(DeviceKitAspect::device(m_kit));
             debugger->setStartMode(AttachToLocalProcess);
             debugger->setCloseMode(DetachAtClose);
             debugger->setContinueAfterAttach(true);

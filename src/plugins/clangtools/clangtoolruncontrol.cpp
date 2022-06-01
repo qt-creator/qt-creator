@@ -253,10 +253,10 @@ void ClangToolRunWorker::start()
 
     // Collect files
     const auto clangIncludeDirAndVersion =
-            getClangIncludeDirAndVersion(runControl()->runnable().command.executable());
+            getClangIncludeDirAndVersion(runControl()->commandLine().executable());
     const AnalyzeUnits unitsToProcess = unitsToAnalyze(clangIncludeDirAndVersion.first,
                                                        clangIncludeDirAndVersion.second);
-    qCDebug(LOG) << Q_FUNC_INFO << runControl()->runnable().command.executable()
+    qCDebug(LOG) << Q_FUNC_INFO << runControl()->commandLine().executable()
                  << clangIncludeDirAndVersion.first << clangIncludeDirAndVersion.second;
     qCDebug(LOG) << "Files to process:" << unitsToProcess;
 

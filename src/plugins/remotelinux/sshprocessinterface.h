@@ -50,6 +50,7 @@ protected:
 
 private:
     virtual void handleStarted(qint64 processId);
+    virtual void handleDone(const Utils::ProcessResultData &resultData);
     virtual void handleReadyReadStandardOutput(const QByteArray &outputData);
     virtual void handleReadyReadStandardError(const QByteArray &errorData);
 

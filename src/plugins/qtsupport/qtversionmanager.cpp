@@ -265,7 +265,8 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
     if (log().isDebugEnabled()) {
         qCDebug(log) << "======= Existing Qt versions =======";
         for (QtVersion *version : qAsConst(m_versions)) {
-            qCDebug(log) << version->qmakeFilePath().toUserOutput() << "id:"<<version->uniqueId();
+            qCDebug(log) << version->queryToolFilePath().toUserOutput()
+                         << "id:" <<version->uniqueId();
             qCDebug(log) << "  autodetection source:" << version->detectionSource();
             qCDebug(log) << "";
         }
@@ -341,7 +342,8 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
     if (log().isDebugEnabled()) {
         qCDebug(log) << "======= Before removing outdated sdk versions =======";
         for (QtVersion *version : qAsConst(m_versions)) {
-            qCDebug(log) << version->qmakeFilePath().toUserOutput() << "id:" << version->uniqueId();
+            qCDebug(log) << version->queryToolFilePath().toUserOutput()
+                         << "id:" << version->uniqueId();
             qCDebug(log) << "  autodetection source:" << version->detectionSource();
             qCDebug(log) << "";
         }
@@ -360,7 +362,8 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
     if (log().isDebugEnabled()) {
         qCDebug(log)<< "======= End result =======";
         for (QtVersion *version : qAsConst(m_versions)) {
-            qCDebug(log) << version->qmakeFilePath().toUserOutput() << "id:" << version->uniqueId();
+            qCDebug(log) << version->queryToolFilePath().toUserOutput()
+                         << "id:" << version->uniqueId();
             qCDebug(log) << "  autodetection source:" << version->detectionSource();
             qCDebug(log) << "";
         }
@@ -401,14 +404,20 @@ static QList<QByteArray> runQtChooser(const QString &qtchooser, const QStringLis
 }
 
 // Asks qtchooser for the qmake path of a given version
+// TODO: Extend to qtpaths if qtchooser is also used for Qt 6
 static QString qmakePath(const QString &qtchooser, const QString &version)
 {
     const QList<QByteArray> outputs = runQtChooser(qtchooser,
                                                    {QStringLiteral("-qt=%1").arg(version),
                                                     QStringLiteral("-print-env")});
+    // Exemplary output of "qtchooser -qt=qt5-x86_64-linux-gnu -print-env":
+    // QT_SELECT="qt5-x86_64-linux-gnu"
+    // QTTOOLDIR="/usr/lib/qt5/bin"
+    // QTLIBDIR="/usr/lib/x86_64-linux-gnu"
+    const QByteArray qtToolDirPrefix("QTTOOLDIR=\"");
     for (const QByteArray &output : outputs) {
-        if (output.startsWith("QTTOOLDIR=\"")) {
-            QByteArray withoutVarName = output.mid(11); // remove QTTOOLDIR="
+        if (output.startsWith(qtToolDirPrefix)) {
+            QByteArray withoutVarName = output.mid(qtToolDirPrefix.size()); // remove QTTOOLDIR="
             withoutVarName.chop(1); // remove trailing quote
             return QStandardPaths::findExecutable(QStringLiteral("qmake"), QStringList()
                                                   << QString::fromLocal8Bit(withoutVarName));
@@ -424,6 +433,15 @@ static FilePaths gatherQmakePathsFromQtChooser()
         return FilePaths();
 
     const QList<QByteArray> versions = runQtChooser(qtchooser, QStringList("-l"));
+    // Exemplary output of "qtchooser -l":
+    // 4
+    // 5
+    // default
+    // qt4-x86_64-linux-gnu
+    // qt4
+    // qt5-x86_64-linux-gnu
+    // qt5
+    // ""
     QSet<FilePath> foundQMakes;
     for (const QByteArray &version : versions) {
         FilePath possibleQMake = FilePath::fromString(
@@ -436,19 +454,20 @@ static FilePaths gatherQmakePathsFromQtChooser()
 
 static void findSystemQt()
 {
-    FilePaths systemQMakes
+    FilePaths systemQueryTools
             = BuildableHelperLibrary::findQtsInEnvironment(Environment::systemEnvironment());
-    systemQMakes.append(gatherQmakePathsFromQtChooser());
-    for (const FilePath &qmakePath : qAsConst(systemQMakes)) {
-        if (BuildableHelperLibrary::isQtChooser(qmakePath))
+    systemQueryTools.append(gatherQmakePathsFromQtChooser());
+    for (const FilePath &queryToolPath : qAsConst(systemQueryTools)) {
+        if (BuildableHelperLibrary::isQtChooser(queryToolPath))
             continue;
-        const auto isSameQmake = [qmakePath](const QtVersion *version) {
+        const auto isSameQueryTool = [queryToolPath](const QtVersion *version) {
             return Environment::systemEnvironment().
-                    isSameExecutable(qmakePath.toString(), version->qmakeFilePath().toString());
+                    isSameExecutable(queryToolPath.toString(),
+                                     version->queryToolFilePath().toString());
         };
-        if (contains(m_versions, isSameQmake))
+        if (contains(m_versions, isSameQueryTool))
             continue;
-        QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qmakePath,
+        QtVersion *version = QtVersionFactory::createQtVersionFromQueryToolPath(queryToolPath,
                                                                                 false,
                                                                                 "PATH");
         if (version)

@@ -32,9 +32,10 @@ using namespace Utils;
 
 namespace RemoteLinux {
 
-static QString defaultDisplay() { return QLatin1String(qgetenv("DISPLAY")); }
+static QString defaultDisplay() { return qEnvironmentVariable("DISPLAY"); }
 
-X11ForwardingAspect::X11ForwardingAspect()
+X11ForwardingAspect::X11ForwardingAspect(const MacroExpander *expander)
+    : m_macroExpander(expander)
 {
     setLabelText(tr("X11 Forwarding:"));
     setDisplayStyle(LineEditDisplay);
@@ -43,12 +44,14 @@ X11ForwardingAspect::X11ForwardingAspect()
     makeCheckable(CheckBoxPlacement::Right, tr("Forward to local display"),
                   "RunConfiguration.UseX11Forwarding");
     setValue(defaultDisplay());
+
+    addDataExtractor(this, &X11ForwardingAspect::display, &Data::display);
 }
 
-QString X11ForwardingAspect::display(const Utils::MacroExpander *expander) const
+QString X11ForwardingAspect::display() const
 {
-    QTC_ASSERT(expander, return value());
-    return !isChecked() ? QString() : expander->expandProcessArgs(value());
+    QTC_ASSERT(m_macroExpander, return value());
+    return !isChecked() ? QString() : m_macroExpander->expandProcessArgs(value());
 }
 
 } // namespace RemoteLinux

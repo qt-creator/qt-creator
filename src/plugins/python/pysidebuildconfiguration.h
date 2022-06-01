@@ -50,7 +50,7 @@ class PySideBuildStep : public ProjectExplorer::AbstractProcessStep
     Q_OBJECT
 public:
     PySideBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
-    void updateInterpreter(const Utils::FilePath &python);
+    void updatePySideProjectPath(const Utils::FilePath &pySideProjectPath);
 
 private:
     Utils::StringAspect *m_pysideProject;

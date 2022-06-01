@@ -629,7 +629,7 @@ ClassOrNamespace *ClassOrNamespace::parent() const
     return _parent;
 }
 
-QList<ClassOrNamespace *> ClassOrNamespace::usings() const
+const QList<ClassOrNamespace *> ClassOrNamespace::usings() const
 {
     const_cast<ClassOrNamespace *>(this)->flush();
     return _usings;
@@ -641,7 +641,7 @@ QList<Enum *> ClassOrNamespace::unscopedEnums() const
     return _enums;
 }
 
-QList<Symbol *> ClassOrNamespace::symbols() const
+const QList<Symbol *> ClassOrNamespace::symbols() const
 {
     const_cast<ClassOrNamespace *>(this)->flush();
     return _symbols;

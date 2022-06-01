@@ -134,6 +134,8 @@ void MaterialBrowserView::modelAboutToBeDetached(Model *model)
 void MaterialBrowserView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                                const QList<ModelNode> &lastSelectedNodeList)
 {
+    Q_UNUSED(lastSelectedNodeList)
+
     ModelNode selectedModel;
 
     for (const ModelNode &node : selectedNodeList) {
@@ -175,6 +177,8 @@ void MaterialBrowserView::modelNodePreviewPixmapChanged(const ModelNode &node, c
 void MaterialBrowserView::variantPropertiesChanged(const QList<VariantProperty> &propertyList,
                                                    PropertyChangeFlags propertyChange)
 {
+    Q_UNUSED(propertyChange)
+
     for (const VariantProperty &property : propertyList) {
         ModelNode node(property.parentModelNode());
 
@@ -188,6 +192,8 @@ void MaterialBrowserView::nodeReparented(const ModelNode &node,
                                          const NodeAbstractProperty &oldPropertyParent,
                                          PropertyChangeFlags propertyChange)
 {
+    Q_UNUSED(propertyChange)
+
     if (!isMaterial(node))
         return;
 
@@ -225,6 +231,9 @@ void MaterialBrowserView::nodeRemoved(const ModelNode &removedNode,
                                       const NodeAbstractProperty &parentProperty,
                                       PropertyChangeFlags propertyChange)
 {
+    Q_UNUSED(removedNode)
+    Q_UNUSED(propertyChange)
+
     if (parentProperty.parentModelNode().id() != Constants::MATERIAL_LIB_ID)
         return;
 
@@ -233,6 +242,9 @@ void MaterialBrowserView::nodeRemoved(const ModelNode &removedNode,
 
 void MaterialBrowserView::importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
 {
+    Q_UNUSED(addedImports)
+    Q_UNUSED(removedImports)
+
     bool hasQuick3DImport = model()->hasImport("QtQuick3D");
 
     if (hasQuick3DImport == m_hasQuick3DImport)
@@ -246,6 +258,8 @@ void MaterialBrowserView::importsChanged(const QList<Import> &addedImports, cons
 void MaterialBrowserView::customNotification(const AbstractView *view, const QString &identifier,
                                              const QList<ModelNode> &nodeList, const QList<QVariant> &data)
 {
+    Q_UNUSED(data)
+
     if (view == this)
         return;
 

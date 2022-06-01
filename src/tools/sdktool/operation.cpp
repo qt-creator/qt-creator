@@ -55,7 +55,7 @@ QVariant valueFromString(const QString &v)
     } else if (type == QLatin1String("QVariantList")) {
         QVariantList list;
         const QStringList elements = value.split(QLatin1Char(','));
-        foreach (const QString &e, elements)
+        for (const QString &e : elements)
             list << QVariant(e);
         return QVariant(list);
     }

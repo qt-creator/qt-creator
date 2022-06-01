@@ -49,6 +49,7 @@ namespace GitLab {
 const char PSK_LINKED_ID[]  = "GitLab.LinkedId";
 const char PSK_SERVER[]     = "GitLab.Server";
 const char PSK_PROJECT[]    = "GitLab.Project";
+const char PSK_LAST_REQ[]   = "GitLab.LastRequest";
 
 static QString accessLevelString(int accessLevel)
 {
@@ -106,6 +107,7 @@ void GitLabProjectSettings::load()
     m_id = Utils::Id::fromSetting(m_project->namedSettings(PSK_LINKED_ID));
     m_host = m_project->namedSettings(PSK_SERVER).toString();
     m_currentProject = m_project->namedSettings(PSK_PROJECT).toString();
+    m_lastRequest = m_project->namedSettings(PSK_LAST_REQ).toDateTime();
 
     // may still be wrong, but we avoid an additional request by just doing sanity check here
     if (!m_id.isValid() || m_host.isEmpty())
@@ -124,6 +126,7 @@ void GitLabProjectSettings::save()
         m_project->setNamedSettings(PSK_SERVER, QString());
     }
     m_project->setNamedSettings(PSK_PROJECT, m_currentProject);
+    m_project->setNamedSettings(PSK_LAST_REQ, m_lastRequest);
 }
 
 GitLabProjectSettingsWidget::GitLabProjectSettingsWidget(ProjectExplorer::Project *project,
@@ -184,6 +187,7 @@ void GitLabProjectSettingsWidget::unlink()
     m_projectSettings->setLinked(false);
     m_projectSettings->setCurrentProject({});
     updateEnabledStates();
+    GitLabPlugin::linkedStateChanged(false);
 }
 
 void GitLabProjectSettingsWidget::checkConnection(CheckMode mode)
@@ -245,6 +249,7 @@ void GitLabProjectSettingsWidget::onConnectionChecked(const Project &project,
         m_projectSettings->setCurrentServerHost(remote);
         m_projectSettings->setLinked(true);
         m_projectSettings->setCurrentProject(projectName);
+        GitLabPlugin::linkedStateChanged(true);
     }
     updateEnabledStates();
 }
@@ -282,8 +287,10 @@ void GitLabProjectSettingsWidget::updateUi()
             m_hostCB->setCurrentIndex(m_hostCB->findData(QVariant::fromValue(serverHost)));
             m_linkedGitLabServer->setCurrentIndex(
                         m_linkedGitLabServer->findData(QVariant::fromValue(server)));
+            GitLabPlugin::linkedStateChanged(true);
         } else {
             m_projectSettings->setLinked(false);
+            GitLabPlugin::linkedStateChanged(false);
         }
     }
     updateEnabledStates();
@@ -294,6 +301,7 @@ void GitLabProjectSettingsWidget::updateEnabledStates()
     const bool isGitRepository = m_hostCB->count() > 0;
     const bool hasGitLabServers = m_linkedGitLabServer->count();
     const bool linked = m_projectSettings->isLinked();
+
     m_linkedGitLabServer->setEnabled(isGitRepository && !linked);
     m_hostCB->setEnabled(isGitRepository && !linked);
     m_linkWithGitLab->setEnabled(isGitRepository && !linked && hasGitLabServers);

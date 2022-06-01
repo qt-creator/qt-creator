@@ -70,7 +70,7 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Id id, Kind kin
 
     addAspect<ExecutableAspect>(target);
     addAspect<ArgumentsAspect>(macroExpander());
-    addAspect<WorkingDirectoryAspect>(envAspect);
+    addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
     addAspect<TerminalAspect>();
 
     auto libAspect = addAspect<UseLibraryPathsAspect>();

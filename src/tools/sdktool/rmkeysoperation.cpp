@@ -172,7 +172,7 @@ QVariantMap RmKeysOperation::rmKeys(const QVariantMap &map, const QStringList &r
 {
     QVariantMap result = map;
 
-    foreach (const QString &r, removals) {
+    for (const QString &r : removals) {
         QList<QVariantMap> stack;
 
         const QStringList keys = r.split(QLatin1Char('/'));

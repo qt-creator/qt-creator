@@ -82,9 +82,9 @@ int FindValueOperation::execute() const
     Q_ASSERT(!m_values.isEmpty());
     QVariantMap map = load(m_file);
 
-    foreach (const QVariant &v, m_values) {
+    for (const QVariant &v : qAsConst(m_values)) {
         const QStringList result = findValue(map, v);
-        foreach (const QString &r, result)
+        for (const QString &r : result)
             std::cout << qPrintable(r) << std::endl;
     }
 
