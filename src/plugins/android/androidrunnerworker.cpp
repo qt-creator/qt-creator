@@ -645,7 +645,7 @@ void AndroidRunnerWorker::asyncStartHelper()
              << QString::fromLatin1(appArgs.join(' ').toUtf8().toBase64());
     }
 
-    if (m_extraEnvVars.size() > 0) {
+    if (m_extraEnvVars.isValid()) {
         args << "-e" << "extraenvvars"
              << QString::fromLatin1(m_extraEnvVars.toStringList().join('\t')
                                     .toUtf8().toBase64());

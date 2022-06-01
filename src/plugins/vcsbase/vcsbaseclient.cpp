@@ -215,7 +215,7 @@ void VcsBaseClientImpl::vcsSynchronousExec(QtcProcess &proc,
                                            QTextCodec *outputCodec) const
 {
     Environment env = processEnvironment();
-    VcsCommand command(workingDir, env.size() == 0 ? Environment::systemEnvironment() : env);
+    VcsCommand command(workingDir, env.isValid() ? env : Environment::systemEnvironment());
     proc.setTimeoutS(vcsTimeoutS());
     command.addFlags(flags);
     command.setCodec(outputCodec);

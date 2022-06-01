@@ -611,7 +611,7 @@ public:
     Environment fullEnvironment() const
     {
         Environment env = m_setup.m_environment;
-        if (env.size() == 0) {
+        if (!env.isValid()) {
 // FIXME: Either switch to using EnvironmentChange instead of full Environments, or
 // feed the full environment into the QtcProcess instead of fixing it up here.
 //            qWarning("QtcProcess::start: Empty environment set when running '%s'.",
@@ -1113,7 +1113,7 @@ QString QtcProcess::toStandaloneCommandLine() const
         d->m_setup.m_workingDirectory.path();
     }
     parts.append("-i");
-    if (d->m_setup.m_environment.size() > 0) {
+    if (d->m_setup.m_environment.isValid()) {
         const QStringList envVars = d->m_setup.m_environment.toStringList();
         std::transform(envVars.cbegin(), envVars.cend(),
                        std::back_inserter(parts), ProcessArgs::quoteArgUnix);

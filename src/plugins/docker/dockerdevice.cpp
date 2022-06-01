@@ -1005,10 +1005,10 @@ bool DockerDevice::writeFileContents(const FilePath &filePath, const QByteArray 
 
 Environment DockerDevice::systemEnvironment() const
 {
-    if (d->m_cachedEnviroment.size() == 0)
+    if (!d->m_cachedEnviroment.isValid())
         d->fetchSystemEnviroment();
 
-    QTC_CHECK(d->m_cachedEnviroment.size() != 0);
+    QTC_CHECK(d->m_cachedEnviroment.isValid());
     return d->m_cachedEnviroment;
 }
 
