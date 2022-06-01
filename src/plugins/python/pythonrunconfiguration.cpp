@@ -236,7 +236,8 @@ void PythonRunConfiguration::currentInterpreterChanged()
 
     for (FilePath &file : project()->files(Project::AllFiles)) {
         if (auto document = TextEditor::TextDocument::textDocumentForFilePath(file)) {
-            if (document->mimeType() == Constants::C_PY_MIMETYPE) {
+            if (document->mimeType() == Constants::C_PY_MIMETYPE
+                || document->mimeType() == Constants::C_PY3_MIMETYPE) {
                 PyLSConfigureAssistant::openDocumentWithPython(python, document);
                 PySideInstaller::checkPySideInstallation(python, document);
             }
