@@ -40,13 +40,27 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT Environment final : public NameValueDictionary
+class QTCREATOR_UTILS_EXPORT Environment final
 {
 public:
-    using NameValueDictionary::NameValueDictionary;
+    Environment() : m_dict(HostOsInfo::hostOs()) {}
+    explicit Environment(OsType osType) : m_dict(osType) {}
+    explicit Environment(const QStringList &env, OsType osType = HostOsInfo::hostOs())
+        : m_dict(env, osType) {}
+    explicit Environment(const NameValuePairs &nameValues) : m_dict(nameValues) {}
+    explicit Environment(const NameValueDictionary &dict) : m_dict(dict) {}
 
-    static Environment systemEnvironment();
+    QString value(const QString &key) const { return m_dict.value(key); }
+    bool hasKey(const QString &key) const { return m_dict.hasKey(key); }
 
+    void set(const QString &key, const QString &value, bool enabled = true) { m_dict.set(key, value, enabled); }
+    void unset(const QString &key) { m_dict.unset(key); }
+    void modify(const NameValueItems &items) { m_dict.modify(items); }
+
+    int size() const { return m_dict.size(); }
+    void clear() { return m_dict.clear(); }
+
+    QStringList toStringList() const { return m_dict.toStringList(); }
     QProcessEnvironment toProcessEnvironment() const;
 
     void appendOrSet(const QString &key, const QString &value, const QString &sep = QString());
@@ -81,8 +95,38 @@ public:
     FilePath expandVariables(const FilePath &input) const;
     QStringList expandVariables(const QStringList &input) const;
 
+    OsType osType() const { return m_dict.osType(); }
+    QString userName() const;
+
+    using const_iterator = NameValueMap::const_iterator; // FIXME: avoid
+    NameValueDictionary toDictionary() const { return m_dict; } // FIXME: avoid
+    NameValueItems diff(const Environment &other, bool checkAppendPrepend = false) const; // FIXME: avoid
+
+    QString key(const_iterator it) const { return m_dict.key(it); } // FIXME: avoid
+    QString value(const_iterator it) const { return m_dict.value(it); } // FIXME: avoid
+    bool isEnabled(const_iterator it) const { return m_dict.isEnabled(it); } // FIXME: avoid
+
+    const_iterator constBegin() const { return m_dict.constBegin(); } // FIXME: avoid
+    const_iterator constEnd() const { return m_dict.constEnd(); } // FIXME: avoid
+    const_iterator constFind(const QString &name) const { return m_dict.constFind(name); } // FIXME: avoid
+
+    friend bool operator!=(const Environment &first, const Environment &second)
+    {
+        return first.m_dict != second.m_dict;
+    }
+
+    friend bool operator==(const Environment &first, const Environment &second)
+    {
+        return first.m_dict == second.m_dict;
+    }
+
+    static Environment systemEnvironment();
+
     static void modifySystemEnvironment(const EnvironmentItems &list); // use with care!!!
     static void setSystemEnvironment(const Environment &environment);  // don't use at all!!!
+
+private:
+    NameValueDictionary m_dict;
 };
 
 class QTCREATOR_UTILS_EXPORT EnvironmentChange final

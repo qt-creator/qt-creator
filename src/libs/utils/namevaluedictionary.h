@@ -101,6 +101,7 @@ public:
     }
 
 protected:
+    friend class Environment;
     NameValueMap::iterator findKey(const QString &key);
     const_iterator findKey(const QString &key) const;
 
