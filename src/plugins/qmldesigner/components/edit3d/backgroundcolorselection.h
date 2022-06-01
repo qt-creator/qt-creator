@@ -40,8 +40,8 @@ public:
     static void showBackgroundColorSelectionWidget(QWidget *parent);
 
 private:
-    static QPointer<QColorDialog> createDialog(QWidget *parent);
-    inline static QPointer<QColorDialog> m_dialog;
+    static QColorDialog *createDialog(QWidget *parent);
+    inline static QColorDialog *m_dialog = nullptr;
 };
 
 } // namespace QmlDesigner

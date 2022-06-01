@@ -65,7 +65,7 @@ void saveBackgroundColorConfiguration(const QList<QColor> &colorConfig)
 
 } // namespace
 
-QPointer<QColorDialog> BackgroundColorSelection::createDialog(QWidget *parent)
+QColorDialog *BackgroundColorSelection::createDialog(QWidget *parent)
 {
     auto dialog = new QColorDialog(parent);
 
@@ -100,4 +100,8 @@ void BackgroundColorSelection::showBackgroundColorSelectionWidget(QWidget *paren
 
     m_dialog = BackgroundColorSelection::createDialog(parent);
     QTC_ASSERT(m_dialog, return);
+
+    QObject::connect(m_dialog, &QWidget::destroyed, m_dialog, [&]() {
+        m_dialog = nullptr;
+    });
 }
