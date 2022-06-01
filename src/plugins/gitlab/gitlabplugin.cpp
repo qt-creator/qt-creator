@@ -106,7 +106,7 @@ bool GitLabPlugin::initialize(const QStringList & /*arguments*/, QString * /*err
     connect(openViewAction, &QAction::triggered, this, &GitLabPlugin::openView);
     Core::ActionContainer *ac = Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
     ac->addAction(gitlabCommand);
-    connect(&dd->optionsPage, &GitLabOptionsPage::settingsChanged, this, [this] {
+    connect(&dd->optionsPage, &GitLabOptionsPage::settingsChanged, this, [] {
         if (dd->dialog)
             dd->dialog->updateRemotes();
     });
