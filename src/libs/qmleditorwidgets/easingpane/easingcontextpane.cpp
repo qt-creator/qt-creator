@@ -49,7 +49,7 @@ class EasingSimulation : public QObject
     Q_OBJECT
 public:
     QGraphicsView *m_g;
-    EasingSimulation(QObject *parent=nullptr, QGraphicsView *v=nullptr):QObject(parent) {
+    EasingSimulation(QObject *parent, QGraphicsView *v):QObject(parent) {
         m_qtLogo = new PixmapItem(QPixmap(":/qmleditorwidgets/qt_logo.png"));
         m_scene.addItem(m_qtLogo);
         m_scene.setSceneRect(0,0,v->viewport()->width(),m_qtLogo->boundingRect().height());
