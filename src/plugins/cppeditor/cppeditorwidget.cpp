@@ -810,14 +810,7 @@ void CppEditorWidget::renameUsages(const QString &replacement, QTextCursor curso
     CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this,
                 textDocument()};
     QPointer<CppEditorWidget> cppEditorWidget = this;
-    d->m_modelManager->globalRename(cursorInEditor,
-                                    [=](const Usages &usages) {
-                                        if (!cppEditorWidget)
-                                            return;
-                                        findRenameCallback(cppEditorWidget.data(), cursor, usages,
-                                                           true, replacement);
-                                    },
-                                    replacement);
+    d->m_modelManager->globalRename(cursorInEditor, replacement);
 }
 
 bool CppEditorWidget::selectBlockUp()

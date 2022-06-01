@@ -179,8 +179,8 @@ public:
     static void startLocalRenaming(const CursorInEditor &data, const ProjectPart *projectPart,
                                    RenameCallback &&renameSymbolsCallback,
                                    Backend backend = Backend::Best);
-    static void globalRename(const CursorInEditor &data, UsagesCallback &&renameCallback,
-                             const QString &replacement, Backend backend = Backend::Best);
+    static void globalRename(const CursorInEditor &data, const QString &replacement,
+                             Backend backend = Backend::Best);
     static void findUsages(const CursorInEditor &data, UsagesCallback &&showUsagesCallback,
                            Backend backend = Backend::Best);
     static void switchHeaderSource(bool inNextSplit, Backend backend = Backend::Best);

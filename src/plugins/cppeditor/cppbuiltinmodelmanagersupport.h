@@ -58,8 +58,7 @@ private:
     void startLocalRenaming(const CursorInEditor &data,
                             const ProjectPart *projectPart,
                             RenameCallback &&renameSymbolsCallback) override;
-    void globalRename(const CursorInEditor &data, UsagesCallback &&,
-                      const QString &replacement) override;
+    void globalRename(const CursorInEditor &data, const QString &replacement) override;
     void findUsages(const CursorInEditor &data, UsagesCallback &&) const override;
     void switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit) override;
 

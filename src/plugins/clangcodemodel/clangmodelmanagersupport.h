@@ -90,8 +90,7 @@ private:
     void startLocalRenaming(const CppEditor::CursorInEditor &data,
                             const CppEditor::ProjectPart *projectPart,
                             CppEditor::RenameCallback &&renameSymbolsCallback) override;
-    void globalRename(const CppEditor::CursorInEditor &cursor, CppEditor::UsagesCallback &&callback,
-                      const QString &replacement) override;
+    void globalRename(const CppEditor::CursorInEditor &cursor, const QString &replacement) override;
     void findUsages(const CppEditor::CursorInEditor &cursor,
                     CppEditor::UsagesCallback &&callback) const override;
     void switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit) override;
