@@ -51,7 +51,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
@@ -112,7 +111,7 @@ public:
             if (column == 0)
                 return m_version->displayName();
             if (column == 1)
-                return m_version->queryToolFilePath().toUserOutput();
+                return m_version->qmakeFilePath().toUserOutput();
         }
 
         if (role == Qt::FontRole && m_changed) {
@@ -129,8 +128,7 @@ public:
                                 "<dd>%2</dd>";
             return QString("<dl style=\"white-space:pre\">"
                          + row.arg(tr("Qt Version"), m_version->qtVersionString())
-                         + row.arg(tr("Location of the query tool"),
-                                   m_version->queryToolFilePath().toUserOutput())
+                         + row.arg(tr("Location of qmake"), m_version->qmakeFilePath().toUserOutput())
                          + "</dl>");
         }
 
@@ -602,42 +600,27 @@ QtOptionsPageWidget::~QtOptionsPageWidget()
     delete m_configurationWidget;
 }
 
-static bool isIncompatibleQtPathsTool(const FilePath &tool)
-{
-    if (!tool.baseName().startsWith("qtpaths"))
-        return false;
-    QtcProcess process;
-    process.setTimeoutS(1);
-    process.setCommand({tool, {"-query"}});
-    process.runBlocking();
-    return process.result() != ProcessResult::FinishedWithSuccess;
-}
-
 void QtOptionsPageWidget::addQtDir()
 {
-    FilePath qtQueryTool =
-            FileUtils::getOpenFilePath(this,
-                                       tr("Select a qmake or qtpaths Executable"),
-                                       {},
-                                       BuildableHelperLibrary::filterForQtQueryToolsFileDialog(),
-                                       0,
-                                       QFileDialog::DontResolveSymlinks);
-    if (qtQueryTool.isEmpty())
+    FilePath qtVersion = FileUtils::getOpenFilePath(this,
+                                                    tr("Select a qmake Executable"),
+                                                    {},
+                                                    BuildableHelperLibrary::filterForQmakeFileDialog(),
+                                                    0,
+                                                    QFileDialog::DontResolveSymlinks);
+    if (qtVersion.isEmpty())
         return;
 
-    if (isIncompatibleQtPathsTool(qtQueryTool))
-        qtQueryTool = qtQueryTool.parentDir() / HostOsInfo::withExecutableSuffix("qmake");
-
     // should add all qt versions here ?
-    if (BuildableHelperLibrary::isQtChooser(qtQueryTool))
-        qtQueryTool = BuildableHelperLibrary::qtChooserToQueryToolPath(qtQueryTool.symLinkTarget());
+    if (BuildableHelperLibrary::isQtChooser(qtVersion))
+        qtVersion = BuildableHelperLibrary::qtChooserToQmakePath(qtVersion.symLinkTarget());
 
-    auto checkAlreadyExists = [qtQueryTool](TreeItem *parent) {
+    auto checkAlreadyExists = [qtVersion](TreeItem *parent) {
         for (int i = 0; i < parent->childCount(); ++i) {
             auto item = static_cast<QtVersionItem *>(parent->childAt(i));
-            // Compare parent dirs, since it could be either qmake or qtpaths
-            if (item->version()->queryToolFilePath().parentDir() == qtQueryTool.parentDir())
+            if (item->version()->qmakeFilePath() == qtVersion) {
                 return std::make_pair(true, item->version()->displayName());
+            }
         }
         return std::make_pair(false, QString());
     };
@@ -657,8 +640,7 @@ void QtOptionsPageWidget::addQtDir()
     }
 
     QString error;
-    QtVersion *version = QtVersionFactory::createQtVersionFromQueryToolPath(qtQueryTool, false,
-                                                                            QString(), &error);
+    QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion, false, QString(), &error);
     if (version) {
         auto item = new QtVersionItem(version);
         item->setIcon(version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
@@ -668,9 +650,8 @@ void QtOptionsPageWidget::addQtDir()
         m_versionUi.nameEdit->setFocus();
         m_versionUi.nameEdit->selectAll();
     } else {
-        QMessageBox::warning(this, tr("Not Executable"),
-                             tr("The executable %1 could not be added: %2").arg(
-                                 qtQueryTool.toUserOutput()).arg(error));
+        QMessageBox::warning(this, tr("Qmake Not Executable"),
+                             tr("The qmake executable %1 could not be added: %2").arg(qtVersion.toUserOutput()).arg(error));
         return;
     }
     updateCleanUpButton();
@@ -690,16 +671,16 @@ void QtOptionsPageWidget::removeQtDir()
 void QtOptionsPageWidget::editPath()
 {
     QtVersion *current = currentVersion();
-    const FilePath queryTool =
+    FilePath qtVersion =
             FileUtils::getOpenFilePath(this,
-                                       tr("Select a qmake or qtpaths Executable"),
-                                       current->queryToolFilePath().absolutePath(),
-                                       BuildableHelperLibrary::filterForQtQueryToolsFileDialog(),
+                                       tr("Select a qmake Executable"),
+                                       current->qmakeFilePath().absolutePath(),
+                                       BuildableHelperLibrary::filterForQmakeFileDialog(),
                                        nullptr,
                                        QFileDialog::DontResolveSymlinks);
-    if (queryTool.isEmpty())
+    if (qtVersion.isEmpty())
         return;
-    QtVersion *version = QtVersionFactory::createQtVersionFromQueryToolPath(queryTool);
+    QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion);
     if (!version)
         return;
     // Same type? then replace!
@@ -787,7 +768,7 @@ void QtOptionsPageWidget::updateWidgets()
     QtVersion *version = currentVersion();
     if (version) {
         m_versionUi.nameEdit->setText(version->unexpandedDisplayName());
-        m_versionUi.queryToolPath->setText(version->queryToolFilePath().toUserOutput());
+        m_versionUi.qmakePath->setText(version->qmakeFilePath().toUserOutput());
         m_configurationWidget = version->createConfigurationWidget();
         if (m_configurationWidget) {
             m_versionUi.formLayout->addRow(m_configurationWidget);
@@ -797,7 +778,7 @@ void QtOptionsPageWidget::updateWidgets()
         }
     } else {
         m_versionUi.nameEdit->clear();
-        m_versionUi.queryToolPath->clear();
+        m_versionUi.qmakePath->clear();
     }
 
     const bool enabled = version != nullptr;

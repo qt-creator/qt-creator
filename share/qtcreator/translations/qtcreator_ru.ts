@@ -45319,8 +45319,8 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <translation>Путь к qmake не указан</translation>
     </message>
     <message>
-        <source>%1 does not exist or is not executable</source>
-        <translation>%1 отсутствует или не запускается</translation>
+        <source>qmake does not exist or is not executable</source>
+        <translation>qmake отсутствует или не запускается</translation>
     </message>
     <message>
         <source>Qt version has no name</source>
@@ -45347,8 +45347,8 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <translation>Профиль Qt не установлен, пожалуйста выполните make install</translation>
     </message>
     <message>
-        <source>Could not determine the path to the binaries of the Qt installation, maybe the %1 path is wrong?</source>
-        <translation>Не удалось определить путь к утилитам Qt. Может путь к %1 неверен?</translation>
+        <source>Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?</source>
+        <translation>Не удалось определить путь к утилитам Qt. Может путь к qmake неверен?</translation>
     </message>
     <message>
         <source>The default mkspec symlink is broken.</source>

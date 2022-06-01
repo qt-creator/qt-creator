@@ -27948,8 +27948,8 @@ Did you start Qemu?</source>
         <translation>没有设置qmake路径</translation>
     </message>
     <message>
-        <source>%1 does not exist or is not executable</source>
-        <translation>%1不存在或者不可执行</translation>
+        <source>qmake does not exist or is not executable</source>
+        <translation>qmake不存在或者不可执行</translation>
     </message>
     <message>
         <source>Qt version has no name</source>
@@ -27976,8 +27976,8 @@ Did you start Qemu?</source>
         <translation>Qt没有被正确安装，请运行make install</translation>
     </message>
     <message>
-        <source>Could not determine the path to the binaries of the Qt installation, maybe the %1 path is wrong?</source>
-        <translation>无法确定Qt安装的二进制所在的路径，或许%1的路径设置出现了错误?</translation>
+        <source>Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?</source>
+        <translation>无法确定Qt安装的二进制所在的路径，或许qmake的路径设置出现了错误?</translation>
     </message>
     <message>
         <source>The default mkspec symlink is broken.</source>
