@@ -30,6 +30,7 @@
 #include <coreplugin/icore.h>
 
 #include <QtQml/QQmlEngine>
+#include <QHBoxLayout>
 #include <QQuickItem>
 
 namespace QmlProjectManager {
@@ -38,51 +39,76 @@ namespace Internal {
 const char QMLRESOURCEPATH[] = "qmldesigner/propertyEditorQmlSources/imports";
 const char LANDINGPAGEPATH[] = "qmldesigner/landingpage";
 
-QdsLandingPage::QdsLandingPage(QWidget *parent)
-    : m_dialog{new QQuickWidget(parent)}
+QdsLandingPageWidget::QdsLandingPageWidget(QWidget* parent)
+    : QWidget(parent)
 {
-    setParent(m_dialog);
+    setLayout(new QHBoxLayout());
+    layout()->setContentsMargins(0, 0, 0, 0);
+}
+
+QdsLandingPageWidget::~QdsLandingPageWidget()
+{
+    if (m_widget)
+        m_widget->deleteLater();
+}
+
+QQuickWidget *QdsLandingPageWidget::widget()
+{
+    if (!m_widget) {
+        m_widget = new QQuickWidget();
+        layout()->addWidget(m_widget);
+    }
+
+    return m_widget;
+}
+
+QdsLandingPage::QdsLandingPage(QdsLandingPageWidget *widget, QWidget *parent)
+    : m_widget{widget->widget()}
+{
+    Q_UNUSED(parent)
+
+    setParent(m_widget);
 
     const QString resourcePath = Core::ICore::resourcePath(QMLRESOURCEPATH).toString();
     const QString landingPath = Core::ICore::resourcePath(LANDINGPAGEPATH).toString();
 
     qmlRegisterSingletonInstance<QdsLandingPage>("LandingPageApi", 1, 0, "LandingPageApi", this);
-    QdsLandingPageTheme::setupTheme(m_dialog->engine());
+    QdsLandingPageTheme::setupTheme(m_widget->engine());
 
-    m_dialog->setResizeMode(QQuickWidget::SizeRootObjectToView);
-    m_dialog->engine()->addImportPath(landingPath + "/imports");
-    m_dialog->engine()->addImportPath(resourcePath);
-    m_dialog->setSource(QUrl::fromLocalFile(landingPath + "/main.qml"));
+    m_widget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    m_widget->engine()->addImportPath(landingPath + "/imports");
+    m_widget->engine()->addImportPath(resourcePath);
+    m_widget->setSource(QUrl::fromLocalFile(landingPath + "/main.qml"));
 
-    if (m_dialog->rootObject()) { // main.qml only works with Qt6
-        connect(m_dialog->rootObject(), SIGNAL(openQtc(bool)), this, SIGNAL(openCreator(bool)));
-        connect(m_dialog->rootObject(), SIGNAL(openQds(bool)), this, SIGNAL(openDesigner(bool)));
-        connect(m_dialog->rootObject(), SIGNAL(installQds()), this, SIGNAL(installDesigner()));
-        connect(m_dialog->rootObject(), SIGNAL(generateCmake()), this, SIGNAL(generateCmake()));
-        connect(m_dialog->rootObject(), SIGNAL(generateProjectFile()), this, SIGNAL(generateProjectFile()));
+    if (m_widget->rootObject()) { // main.qml only works with Qt6
+        connect(m_widget->rootObject(), SIGNAL(openQtc(bool)), this, SIGNAL(openCreator(bool)));
+        connect(m_widget->rootObject(), SIGNAL(openQds(bool)), this, SIGNAL(openDesigner(bool)));
+        connect(m_widget->rootObject(), SIGNAL(installQds()), this, SIGNAL(installDesigner()));
+        connect(m_widget->rootObject(), SIGNAL(generateCmake()), this, SIGNAL(generateCmake()));
+        connect(m_widget->rootObject(), SIGNAL(generateProjectFile()), this, SIGNAL(generateProjectFile()));
     }
-    m_dialog->hide();
+    m_widget->hide();
 }
 
-QWidget* QdsLandingPage::dialog()
+QWidget *QdsLandingPage::widget()
 {
-    return m_dialog;
+    return m_widget;
 }
 
 void QdsLandingPage::show()
 {
-    m_dialog->rootObject()->setProperty("qdsInstalled", m_qdsInstalled);
-    m_dialog->rootObject()->setProperty("projectFileExists", m_projectFileExists);
-    m_dialog->rootObject()->setProperty("qtVersion", m_qtVersion);
-    m_dialog->rootObject()->setProperty("qdsVersion", m_qdsVersion);
-    m_dialog->rootObject()->setProperty("cmakeLists", m_cmakeResources);
-    m_dialog->rootObject()->setProperty("rememberSelection", Qt::Unchecked);
-    m_dialog->show();
+    m_widget->rootObject()->setProperty("qdsInstalled", m_qdsInstalled);
+    m_widget->rootObject()->setProperty("projectFileExists", m_projectFileExists);
+    m_widget->rootObject()->setProperty("qtVersion", m_qtVersion);
+    m_widget->rootObject()->setProperty("qdsVersion", m_qdsVersion);
+    m_widget->rootObject()->setProperty("cmakeLists", m_cmakeResources);
+    m_widget->rootObject()->setProperty("rememberSelection", Qt::Unchecked);
+    m_widget->show();
 }
 
 void QdsLandingPage::hide()
 {
-    m_dialog->hide();
+    m_widget->hide();
 }
 
 bool QdsLandingPage::qdsInstalled() const
