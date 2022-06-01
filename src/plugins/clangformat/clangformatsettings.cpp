@@ -29,6 +29,9 @@
 #include <coreplugin/icore.h>
 
 namespace ClangFormat {
+static const char FORMAT_CODE_INSTEAD_OF_INDENT_ID[] = "ClangFormat.FormatCodeInsteadOfIndent";
+static const char FORMAT_CODE_ON_SAVE_ID[] = "ClangFormat.FormatCodeOnSave";
+static const char FORMAT_WHILE_TYPING_ID[] = "ClangFormat.FormatWhileTyping";
 
 ClangFormatSettings &ClangFormatSettings::instance()
 {
@@ -42,9 +45,25 @@ ClangFormatSettings::ClangFormatSettings()
     settings->beginGroup(QLatin1String(Constants::SETTINGS_ID));
     m_overrideDefaultFile = settings->value(QLatin1String(Constants::OVERRIDE_FILE_ID), false)
                                 .toBool();
-    m_mode = static_cast<ClangFormatSettings::Mode>(
-        settings->value(QLatin1String(Constants::MODE_ID), ClangFormatSettings::Mode::Indenting)
-            .toInt());
+
+    // Convert old settings to new ones. New settings were added to QtC 8.0
+    bool isOldFormattingOn
+        = settings->value(QLatin1String(FORMAT_CODE_INSTEAD_OF_INDENT_ID), false).toBool()
+          || settings->value(QLatin1String(FORMAT_CODE_ON_SAVE_ID), false).toBool();
+
+    Core::ICore::settings()->remove(QLatin1String(FORMAT_CODE_INSTEAD_OF_INDENT_ID));
+    Core::ICore::settings()->remove(QLatin1String(FORMAT_CODE_ON_SAVE_ID));
+    Core::ICore::settings()->remove(QLatin1String(FORMAT_WHILE_TYPING_ID));
+
+    if (isOldFormattingOn) {
+        settings->setValue(QLatin1String(Constants::MODE_ID),
+                           static_cast<int>(ClangFormatSettings::Mode::Formatting));
+        m_mode = ClangFormatSettings::Mode::Formatting;
+    } else
+        m_mode = static_cast<ClangFormatSettings::Mode>(
+            settings->value(QLatin1String(Constants::MODE_ID), ClangFormatSettings::Mode::Indenting)
+                .toInt());
+
     settings->endGroup();
 }
 
