@@ -91,8 +91,7 @@ private:
                             const CppEditor::ProjectPart *projectPart,
                             CppEditor::RenameCallback &&renameSymbolsCallback) override;
     void globalRename(const CppEditor::CursorInEditor &cursor, const QString &replacement) override;
-    void findUsages(const CppEditor::CursorInEditor &cursor,
-                    CppEditor::UsagesCallback &&callback) const override;
+    void findUsages(const CppEditor::CursorInEditor &cursor) const override;
     void switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit) override;
 
     void onEditorOpened(Core::IEditor *editor);

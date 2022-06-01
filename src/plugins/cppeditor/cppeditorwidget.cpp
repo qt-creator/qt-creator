@@ -792,23 +792,16 @@ void CppEditorWidget::findUsages()
 void CppEditorWidget::findUsages(QTextCursor cursor)
 {
     // 'this' in cursorInEditor is never used (and must never be used) asynchronously.
-    const CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this,
-                textDocument()};
+    const CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this, textDocument()};
     QPointer<CppEditorWidget> cppEditorWidget = this;
-    d->m_modelManager->findUsages(cursorInEditor,
-                                  [=](const Usages &usages) {
-                                      if (!cppEditorWidget)
-                                          return;
-                                      findRenameCallback(cppEditorWidget.data(), cursor, usages);
-                                  });
+    d->m_modelManager->findUsages(cursorInEditor);
 }
 
 void CppEditorWidget::renameUsages(const QString &replacement, QTextCursor cursor)
 {
     if (cursor.isNull())
         cursor = textCursor();
-    CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this,
-                textDocument()};
+    CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this, textDocument()};
     QPointer<CppEditorWidget> cppEditorWidget = this;
     d->m_modelManager->globalRename(cursorInEditor, replacement);
 }

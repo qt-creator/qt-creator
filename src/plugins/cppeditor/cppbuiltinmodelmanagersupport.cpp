@@ -193,8 +193,7 @@ void BuiltinModelManagerSupport::globalRename(const CursorInEditor &data,
     }
 }
 
-void BuiltinModelManagerSupport::findUsages(const CursorInEditor &data,
-                                      UsagesCallback &&) const
+void BuiltinModelManagerSupport::findUsages(const CursorInEditor &data) const
 {
     CppModelManager *modelManager = CppModelManager::instance();
     if (!modelManager)

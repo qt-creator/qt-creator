@@ -322,10 +322,9 @@ void CppModelManager::globalRename(const CursorInEditor &data, const QString &re
     instance()->modelManagerSupport(backend)->globalRename(data, replacement);
 }
 
-void CppModelManager::findUsages(const CursorInEditor &data,
-                                 UsagesCallback &&showUsagesCallback, Backend backend)
+void CppModelManager::findUsages(const CursorInEditor &data, Backend backend)
 {
-    instance()->modelManagerSupport(backend)->findUsages(data, std::move(showUsagesCallback));
+    instance()->modelManagerSupport(backend)->findUsages(data);
 }
 
 void CppModelManager::switchHeaderSource(bool inNextSplit, Backend backend)
