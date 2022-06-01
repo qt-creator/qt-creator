@@ -30,7 +30,6 @@
 #include "cursorineditor.h"
 #include "projectinfo.h"
 #include "projectpart.h"
-#include "usages.h"
 
 #include <cplusplus/cppmodelmanagerbase.h>
 #include <coreplugin/find/ifindfilter.h>

@@ -27,7 +27,6 @@
 
 #include "cppeditor_global.h"
 #include "cursorineditor.h"
-#include "usages.h"
 
 #include <utils/link.h>
 
