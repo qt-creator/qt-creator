@@ -26,6 +26,7 @@
 #include "customcommanddeploystep.h"
 
 #include "abstractremotelinuxdeployservice.h"
+#include "abstractremotelinuxdeploystep.h"
 #include "remotelinux_constants.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
@@ -108,35 +109,41 @@ void CustomCommandDeployService::stopDeployment()
     handleDeploymentDone();
 }
 
+class CustomCommandDeployStep : public AbstractRemoteLinuxDeployStep
+{
+    Q_DECLARE_TR_FUNCTIONS(RemoteLinux::Internal::CustomCommandDeployStep)
+
+public:
+    CustomCommandDeployStep(BuildStepList *bsl, Id id)
+        : AbstractRemoteLinuxDeployStep(bsl, id)
+    {
+        auto service = createDeployService<CustomCommandDeployService>();
+
+        auto commandLine = addAspect<StringAspect>();
+        commandLine->setSettingsKey("RemoteLinuxCustomCommandDeploymentStep.CommandLine");
+        commandLine->setLabelText(tr("Command line:"));
+        commandLine->setDisplayStyle(StringAspect::LineEditDisplay);
+        commandLine->setHistoryCompleter("RemoteLinuxCustomCommandDeploymentStep.History");
+
+        setInternalInitializer([service, commandLine] {
+            service->setCommandLine(commandLine->value().trimmed());
+            return service->isDeploymentPossible();
+        });
+
+        addMacroExpander();
+    }
+};
+
+
+// CustomCommandDeployStepFactory
+
+CustomCommandDeployStepFactory::CustomCommandDeployStepFactory()
+{
+    registerStep<CustomCommandDeployStep>(Constants::CustomCommandDeployStepId);
+    setDisplayName(CustomCommandDeployStep::tr("Run custom remote command"));
+    setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+}
+
 } // Internal
-
-CustomCommandDeployStep::CustomCommandDeployStep(BuildStepList *bsl, Utils::Id id)
-    : AbstractRemoteLinuxDeployStep(bsl, id)
-{
-    auto service = createDeployService<Internal::CustomCommandDeployService>();
-
-    auto commandLine = addAspect<StringAspect>();
-    commandLine->setSettingsKey("RemoteLinuxCustomCommandDeploymentStep.CommandLine");
-    commandLine->setLabelText(tr("Command line:"));
-    commandLine->setDisplayStyle(StringAspect::LineEditDisplay);
-    commandLine->setHistoryCompleter("RemoteLinuxCustomCommandDeploymentStep.History");
-
-    setInternalInitializer([service, commandLine] {
-        service->setCommandLine(commandLine->value().trimmed());
-        return service->isDeploymentPossible();
-    });
-
-    addMacroExpander();
-}
-
-Utils::Id CustomCommandDeployStep::stepId()
-{
-    return Constants::CustomCommandDeployStepId;
-}
-
-QString CustomCommandDeployStep::displayName()
-{
-    return tr("Run custom remote command");
-}
-
-} // namespace RemoteLinux
+} // RemoteLinux

@@ -78,7 +78,7 @@ public:
     TarPackageDeployStepFactory tarPackageDeployStepFactory;
     GenericDeployStepFactory<GenericDirectUploadStep> genericDirectUploadStepFactory;
     GenericDeployStepFactory<RsyncDeployStep> rsyncDeployStepFactory;
-    GenericDeployStepFactory<CustomCommandDeployStep> customCommandDeployStepFactory;
+    CustomCommandDeployStepFactory customCommandDeployStepFactory;
     GenericDeployStepFactory<CheckForFreeDiskSpaceStep> checkForFreeDiskSpaceStepFactory;
     GenericDeployStepFactory<KillAppStep> killAppStepFactory;
     GenericDeployStepFactory<MakeInstallStep> makeInstallStepFactory;
