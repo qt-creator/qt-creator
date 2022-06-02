@@ -65,6 +65,7 @@ public:
     void interrupt();
     void kickoffProcess();
     void close();
+    void stop(int killTimeout = 500);
 
     QByteArray readAllStandardOutput();
     QByteArray readAllStandardError();

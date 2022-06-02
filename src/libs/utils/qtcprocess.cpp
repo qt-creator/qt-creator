@@ -550,6 +550,7 @@ public:
     // Called from caller's thread exclusively.
     bool waitForSignal(int msecs, SignalType newSignal);
     void moveToCallerThread();
+    void startKillTimer(int killTimeout);
 
 private:
     // Called from caller's thread exclusively.
@@ -563,6 +564,7 @@ private:
     void appendSignal(ProcessInterfaceSignal *newSignal);
 
     QtcProcessPrivate *m_caller = nullptr;
+    QTimer m_killTimer;
     QMutex m_mutex;
     QWaitCondition m_waitCondition;
 };
@@ -655,8 +657,9 @@ public:
     bool flushFor(SignalType signalType);
     bool shouldFlush() const { QMutexLocker locker(&m_mutex); return !m_signals.isEmpty(); }
     Qt::ConnectionType connectionType() const;
-    void sendControlSignal(ControlSignal controlSignal);
+    void sendControlSignal(ControlSignal controlSignal, int killTimeout = -1);
     // Called from ProcessInterfaceHandler thread exclusively.
+    void kill();
     void appendSignal(ProcessInterfaceSignal *launcherSignal);
 
     mutable QMutex m_mutex;
@@ -686,6 +689,7 @@ public:
 ProcessInterfaceHandler::ProcessInterfaceHandler(QtcProcessPrivate *caller,
                                                  ProcessInterface *process)
     : m_caller(caller)
+    , m_killTimer(this)
 {
     connect(process, &ProcessInterface::started,
             this, &ProcessInterfaceHandler::handleStarted);
@@ -693,6 +697,8 @@ ProcessInterfaceHandler::ProcessInterfaceHandler(QtcProcessPrivate *caller,
             this, &ProcessInterfaceHandler::handleReadyRead);
     connect(process, &ProcessInterface::done,
             this, &ProcessInterfaceHandler::handleDone);
+    m_killTimer.setSingleShot(true);
+    connect(&m_killTimer, &QTimer::timeout, caller, &QtcProcessPrivate::kill, Qt::DirectConnection);
 }
 
 // Called from caller's thread exclusively.
@@ -716,7 +722,14 @@ bool ProcessInterfaceHandler::waitForSignal(int msecs, SignalType newSignal)
 void ProcessInterfaceHandler::moveToCallerThread()
 {
     QMetaObject::invokeMethod(this, [this] {
-        moveToThread(m_caller->thread()); }, Qt::BlockingQueuedConnection);
+        moveToThread(m_caller->thread());
+    }, Qt::BlockingQueuedConnection);
+}
+
+void ProcessInterfaceHandler::startKillTimer(int killTimeout)
+{
+    m_killTimer.setInterval(killTimeout);
+    m_killTimer.start();
 }
 
 // Called from caller's thread exclusively.
@@ -748,6 +761,7 @@ void ProcessInterfaceHandler::handleReadyRead(const QByteArray &outputData, cons
 // Called from ProcessInterfaceHandler thread exclusively
 void ProcessInterfaceHandler::handleDone(const ProcessResultData &data)
 {
+    m_killTimer.stop();
     appendSignal(new DoneSignal(data));
 }
 
@@ -843,15 +857,24 @@ Qt::ConnectionType QtcProcessPrivate::connectionType() const
 }
 
 // Called from caller's thread exclusively
-void QtcProcessPrivate::sendControlSignal(ControlSignal controlSignal)
+void QtcProcessPrivate::sendControlSignal(ControlSignal controlSignal, int killTimeout)
 {
     QTC_ASSERT(QThread::currentThread() == thread(), return);
     if (!m_process || (m_state == QProcess::NotRunning))
         return;
 
-    QMetaObject::invokeMethod(m_process.get(), [this, controlSignal] {
+    QMetaObject::invokeMethod(m_process.get(), [this, controlSignal, killTimeout] {
         m_process->sendControlSignal(controlSignal);
+        if (killTimeout >= 0)
+            m_processHandler->startKillTimer(killTimeout);
     }, connectionType());
+}
+
+// Called from ProcessInterfaceHandler thread exclusively.
+void QtcProcessPrivate::kill()
+{
+    QTC_ASSERT(QThread::currentThread() == m_process->thread(), return);
+    m_process->sendControlSignal(ControlSignal::Kill);
 }
 
 // Called from ProcessInterfaceHandler thread exclusively.
@@ -1476,6 +1499,14 @@ void QtcProcess::close()
         d->m_processHandler.release()->deleteLater();
     }
     d->clearForRun();
+}
+
+void QtcProcess::stop(int killTimeout)
+{
+    if (state() == QProcess::NotRunning)
+        return;
+
+    d->sendControlSignal(ControlSignal::Terminate, killTimeout);
 }
 
 QString QtcProcess::locateBinary(const QString &binary)
