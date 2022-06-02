@@ -26,17 +26,17 @@
 #include "tarpackagedeploystep.h"
 
 #include "abstractremotelinuxdeployservice.h"
+#include "abstractremotelinuxdeploystep.h"
 #include "remotelinux_constants.h"
 #include "tarpackagecreationstep.h"
 
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
-
-#include <QDateTime>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -49,10 +49,11 @@ class TarPackageInstaller : public QObject
     Q_OBJECT
 
 public:
-    TarPackageInstaller(QObject *parent = nullptr);
+    TarPackageInstaller();
 
-    void installPackage(const ProjectExplorer::IDeviceConstPtr &deviceConfig,
-                        const QString &packageFilePath, bool removePackageFile);
+    void installPackage(const IDeviceConstPtr &deviceConfig,
+                        const QString &packageFilePath,
+                        bool removePackageFile);
     void cancelInstallation();
 
 signals:
@@ -66,8 +67,7 @@ private:
     QtcProcess m_killer;
 };
 
-TarPackageInstaller::TarPackageInstaller(QObject *parent)
-    : QObject(parent)
+TarPackageInstaller::TarPackageInstaller()
 {
     connect(&m_installer, &QtcProcess::readyReadStandardOutput, this, [this] {
         emit stdoutData(QString::fromUtf8(m_installer.readAllStandardOutput()));
@@ -230,44 +230,50 @@ void TarPackageDeployService::setFinished()
     handleDeploymentDone();
 }
 
-} // namespace Internal
+// TarPackageDeployStep
 
-using namespace Internal;
-
-TarPackageDeployStep::TarPackageDeployStep(BuildStepList *bsl, Id id)
-    : AbstractRemoteLinuxDeployStep(bsl, id)
+class TarPackageDeployStep : public AbstractRemoteLinuxDeployStep
 {
-    auto service = createDeployService<TarPackageDeployService>();
+    Q_DECLARE_TR_FUNCTIONS(RemoteLinux::Internal::TarPackageDeployStep)
 
-    setWidgetExpandedByDefault(false);
+public:
+    TarPackageDeployStep(BuildStepList *bsl, Id id)
+        : AbstractRemoteLinuxDeployStep(bsl, id)
+    {
+        auto service = createDeployService<TarPackageDeployService>();
 
-    setInternalInitializer([this, service] {
-        const TarPackageCreationStep *pStep = nullptr;
+        setWidgetExpandedByDefault(false);
 
-        for (BuildStep *step : deployConfiguration()->stepList()->steps()) {
-            if (step == this)
-                break;
-            if ((pStep = qobject_cast<TarPackageCreationStep *>(step)))
-                break;
-        }
-        if (!pStep)
-            return CheckResult::failure(tr("No tarball creation step found."));
+        setInternalInitializer([this, service] {
+            const TarPackageCreationStep *pStep = nullptr;
 
-        service->setPackageFilePath(pStep->packageFilePath());
-        return service->isDeploymentPossible();
-    });
+            for (BuildStep *step : deployConfiguration()->stepList()->steps()) {
+                if (step == this)
+                    break;
+                if ((pStep = qobject_cast<TarPackageCreationStep *>(step)))
+                    break;
+            }
+            if (!pStep)
+                return CheckResult::failure(tr("No tarball creation step found."));
+
+            service->setPackageFilePath(pStep->packageFilePath());
+            return service->isDeploymentPossible();
+        });
+    }
+};
+
+
+// TarPackageDeployStepFactory
+
+TarPackageDeployStepFactory::TarPackageDeployStepFactory()
+{
+    registerStep<TarPackageDeployStep>(Constants::TarPackageDeployStepId);
+    setDisplayName(TarPackageDeployStep::tr("Deploy tarball via SFTP upload"));
+    setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
 }
 
-Id TarPackageDeployStep::stepId()
-{
-    return Constants::TarPackageDeployStepId;
-}
-
-QString TarPackageDeployStep::displayName()
-{
-    return tr("Deploy tarball via SFTP upload");
-}
-
-} //namespace RemoteLinux
+} // Internal
+} // RemoteLinux
 
 #include "tarpackagedeploystep.moc"

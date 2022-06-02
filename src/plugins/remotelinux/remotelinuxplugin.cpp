@@ -75,7 +75,7 @@ public:
     RemoteLinuxCustomRunConfigurationFactory customRunConfigurationFactory;
     RemoteLinuxDeployConfigurationFactory deployConfigurationFactory;
     GenericDeployStepFactory<TarPackageCreationStep> tarPackageCreationStepFactory;
-    GenericDeployStepFactory<TarPackageDeployStep> tarPackageDeployStepFactory;
+    TarPackageDeployStepFactory tarPackageDeployStepFactory;
     GenericDeployStepFactory<GenericDirectUploadStep> genericDirectUploadStepFactory;
     GenericDeployStepFactory<RsyncDeployStep> rsyncDeployStepFactory;
     GenericDeployStepFactory<CustomCommandDeployStep> customCommandDeployStepFactory;
