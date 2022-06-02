@@ -54,7 +54,16 @@ public:
     QString text;
 };
 
-using AuxiliaryData = Utils::variant<Utils::monostate, FontCollectorSizeAuxiliaryData, FontCollectorSizesAuxiliaryData>;
+class LibraryIconAuxiliaryData
+{
+public:
+    bool enable;
+};
+
+using AuxiliaryData = Utils::variant<Utils::monostate,
+                                     LibraryIconAuxiliaryData,
+                                     FontCollectorSizeAuxiliaryData,
+                                     FontCollectorSizesAuxiliaryData>;
 
 enum class AbortReason : char { Abort, Failed };
 

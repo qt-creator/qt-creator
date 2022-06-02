@@ -86,6 +86,7 @@ QtObject {
 
     property real marginTopBottom: 4
     property real border: 1
+    property real borderHover: 3
 
     property real maxComboBoxPopupHeight: Math.round(300 * values.scaleFactor)
     property real maxTextAreaPopupHeight: Math.round(150 * values.scaleFactor)

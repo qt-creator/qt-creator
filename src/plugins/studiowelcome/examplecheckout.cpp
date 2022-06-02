@@ -57,6 +57,12 @@
 
 using namespace Utils;
 
+static bool enableDownload()
+{
+    const QString lastQDSVersionEntry = "QML/Designer/EnableWelcomePageDownload";
+    return Core::ICore::settings()->value(lastQDSVersionEntry, false).toBool();
+}
+
 void ExampleCheckout::registerTypes()
 {
     static bool once = []() {
@@ -186,6 +192,12 @@ bool FileDownloader::available() const
 
 void FileDownloader::probeUrl()
 {
+    if (!enableDownload()) {
+        m_available = false;
+        emit availableChanged();
+        return;
+    }
+
     auto request = QNetworkRequest(m_url);
     request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
                          QNetworkRequest::UserVerifiedRedirectPolicy);
@@ -448,6 +460,13 @@ DataModelDownloader::DataModelDownloader(QObject * /* parent */)
 
 void DataModelDownloader::start()
 {
+
+    if (!enableDownload()) {
+        m_available = false;
+        emit availableChanged();
+        return;
+    }
+
     m_fileDownloader.setUrl(QUrl::fromUserInput(
         "https://download.qt.io/learning/examples/qtdesignstudio/dataImports.zip"));
 

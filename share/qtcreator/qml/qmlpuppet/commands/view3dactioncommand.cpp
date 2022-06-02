@@ -30,24 +30,27 @@
 
 namespace QmlDesigner {
 
-View3DActionCommand::View3DActionCommand(Type type, bool enable)
+View3DActionCommand::View3DActionCommand(Type type, const QVariant &value)
     : m_type(type)
-    , m_enabled(enable)
-    , m_position(0)
+    , m_value(value)
 {
 }
 
 View3DActionCommand::View3DActionCommand(int pos)
     : m_type(ParticlesSeek)
-    , m_enabled(true)
-    , m_position(pos)
+    , m_value(pos)
 {
 
 }
 
 bool View3DActionCommand::isEnabled() const
 {
-    return m_enabled;
+    return m_value.toBool();
+}
+
+QVariant View3DActionCommand::value() const
+{
+    return m_value;
 }
 
 View3DActionCommand::Type View3DActionCommand::type() const
@@ -57,29 +60,32 @@ View3DActionCommand::Type View3DActionCommand::type() const
 
 int View3DActionCommand::position() const
 {
-    return m_position;
+    bool ok = false;
+    int result = m_value.toInt(&ok);
+    if (!ok) {
+        qWarning() << "View3DActionCommand: returning a position that is not int; command type = "
+                   << m_type;
+    }
+
+    return result;
 }
 
 QDataStream &operator<<(QDataStream &out, const View3DActionCommand &command)
 {
-    out << qint32(command.isEnabled());
+    out << command.value();
     out << qint32(command.type());
-    out << qint32(command.position());
 
     return out;
 }
 
 QDataStream &operator>>(QDataStream &in, View3DActionCommand &command)
 {
-    qint32 enabled;
+    QVariant value;
     qint32 type;
-    qint32 pos;
-    in >> enabled;
+    in >> value;
     in >> type;
-    in >> pos;
-    command.m_enabled = bool(enabled);
+    command.m_value = value;
     command.m_type = View3DActionCommand::Type(type);
-    command.m_position = pos;
 
     return in;
 }
@@ -88,7 +94,7 @@ QDebug operator<<(QDebug debug, const View3DActionCommand &command)
 {
     return debug.nospace() << "View3DActionCommand(type: "
                            << command.m_type << ","
-                           << command.m_enabled << ")";
+                           << command.m_value << ")\n";
 }
 
 } // namespace QmlDesigner

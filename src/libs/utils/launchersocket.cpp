@@ -67,10 +67,7 @@ public:
         , m_stdErr(stdErr) {}
     QByteArray stdOut() const { return m_stdOut; }
     QByteArray stdErr() const { return m_stdErr; }
-    void mergeWith(LauncherReadyReadSignal *newSignal) {
-        m_stdOut += newSignal->stdOut();
-        m_stdErr += newSignal->stdErr();
-    }
+
 private:
     QByteArray m_stdOut;
     QByteArray m_stdErr;
@@ -203,31 +200,6 @@ void CallerHandle::appendSignal(LauncherSignal *newSignal)
 
     QMutexLocker locker(&m_mutex);
     QTC_ASSERT(isCalledFromLaunchersThread(), return);
-
-    // TODO: we might assert if the caller's state is proper, e.g.
-    // start signal can't appear if we are in Running or NotRunning state,
-    // or finish signal can't appear if we are in NotRunning or Starting state,
-    // or readyRead signal can't appear if we are in NotRunning or Starting state,
-    // or error signal can't appear if we are in NotRunning state
-    // or FailedToStart error signal can't appear if we are in Running state
-    // or other than FailedToStart error signal can't appear if we are in Starting state.
-    if (!m_signals.isEmpty()) {
-        LauncherSignal *lastSignal = m_signals.last();
-
-        QTC_ASSERT(lastSignal->signalType() != SignalType::Done,
-                   qWarning() << "Buffering new signal for process" << m_command
-                   << "while the last done() signal wasn't flushed yet.");
-
-        // Merge ReadyRead signals into one.
-        if (lastSignal->signalType() == SignalType::ReadyRead
-                && newSignal->signalType() == SignalType::ReadyRead) {
-            LauncherReadyReadSignal *lastRead = static_cast<LauncherReadyReadSignal *>(lastSignal);
-            LauncherReadyReadSignal *newRead = static_cast<LauncherReadyReadSignal *>(newSignal);
-            lastRead->mergeWith(newRead);
-            delete newRead;
-            return;
-        }
-    }
     m_signals.append(newSignal);
 }
 

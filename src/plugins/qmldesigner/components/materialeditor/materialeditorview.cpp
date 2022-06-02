@@ -29,6 +29,7 @@
 #include "materialeditorcontextobject.h"
 #include "propertyeditorvalue.h"
 #include "materialeditortransaction.h"
+#include "assetslibrarywidget.h"
 
 #include <qmldesignerconstants.h>
 #include <qmltimeline.h>
@@ -807,6 +808,39 @@ void MaterialEditorView::customNotification(const AbstractView *view, const QStr
     } else if (identifier == "duplicate_material") {
         duplicateMaterial(nodeList.first());
     }
+}
+
+void QmlDesigner::MaterialEditorView::highlightSupportedProperties(bool highlight)
+{
+    DesignerPropertyMap &propMap = m_qmlBackEnd->backendValuesPropertyMap();
+    const QStringList propNames = propMap.keys();
+
+    for (const QString &propName : propNames) {
+        if (propName.endsWith("Map")) {
+            QObject *propEditorValObj = propMap.value(propName).value<QObject *>();
+            PropertyEditorValue *propEditorVal = qobject_cast<PropertyEditorValue *>(propEditorValObj);
+            propEditorVal->setHasActiveDrag(highlight);
+        }
+    }
+}
+
+void MaterialEditorView::dragStarted(QMimeData *mimeData)
+{
+    if (!mimeData->hasFormat(Constants::MIME_TYPE_ASSETS))
+        return;
+
+    const QString assetPath = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS)).split(',')[0];
+    QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPath).first;
+
+    if (assetType != Constants::MIME_TYPE_ASSET_IMAGE) // currently only image assets have dnd-supported properties
+        return;
+
+    highlightSupportedProperties();
+}
+
+void MaterialEditorView::dragEnded()
+{
+    highlightSupportedProperties(false);
 }
 
 // from model to material editor

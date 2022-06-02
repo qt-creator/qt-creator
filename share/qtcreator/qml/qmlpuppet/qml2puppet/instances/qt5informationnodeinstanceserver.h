@@ -80,6 +80,7 @@ public:
 
     void handleInstanceLocked(const ServerNodeInstance &instance, bool enable, bool checkAncestors) override;
     void handleInstanceHidden(const ServerNodeInstance &instance, bool enable, bool checkAncestors) override;
+    void handlePickTarget(const ServerNodeInstance &instance) override;
 
     bool isInformationServer() const override;
     void handleDynamicAddObject();

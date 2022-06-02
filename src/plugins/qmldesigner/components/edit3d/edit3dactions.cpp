@@ -48,9 +48,10 @@ Edit3DActionTemplate::Edit3DActionTemplate(const QString &description,
 
 void Edit3DActionTemplate::actionTriggered(bool b)
 {
-    if (m_type != View3DActionCommand::Empty) {
-        QmlDesignerPlugin::instance()->viewManager().nodeInstanceView()
-                ->view3DAction(View3DActionCommand(m_type, b));
+    if (m_type != View3DActionCommand::Empty && m_type != View3DActionCommand::SelectBackgroundColor) {
+        auto view = QmlDesignerPlugin::instance()->viewManager().nodeInstanceView();
+        View3DActionCommand cmd(m_type, b);
+        view->view3DAction(cmd);
     }
 
     if (m_action)

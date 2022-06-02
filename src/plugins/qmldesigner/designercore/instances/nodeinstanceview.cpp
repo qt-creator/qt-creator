@@ -600,11 +600,9 @@ void NodeInstanceView::nodeReparented(const ModelNode &node, const NodeAbstractP
 
         // Reset puppet when particle emitter/affector is reparented to work around issue in
         // autodetecting the particle system it belongs to. QTBUG-101157
-        // Reset is also needed when particle shapes are reparented. QTBUG-101882
-        if (((node.isSubclassOf("QtQuick.Particles3D.ParticleEmitter3D")
+        if ((node.isSubclassOf("QtQuick.Particles3D.ParticleEmitter3D")
               || node.isSubclassOf("QtQuick.Particles3D.Affector3D"))
-             && node.property("system").toBindingProperty().expression().isEmpty())
-            || node.isSubclassOf("QQuick3DParticleAbstractShape")) {
+             && node.property("system").toBindingProperty().expression().isEmpty()) {
             resetPuppet();
         }
     }
@@ -987,6 +985,17 @@ QList<ModelNode> filterNodesForSkipItems(const QList<ModelNode> &nodeList)
     return filteredNodeList;
 }
 
+QList<QColor> readBackgroundColorConfiguration(const QVariant &var)
+{
+    if (!var.isValid())
+        return {};
+
+    auto colorNameList = var.value<QList<QString>>();
+    QTC_ASSERT(colorNameList.size() == 2, return {});
+
+    return {colorNameList[0], colorNameList[1]};
+}
+
 CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
 {
     QList<ModelNode> nodeList = allModelNodes();
@@ -1141,6 +1150,17 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     if (stateNode.isValid() && stateNode.metaInfo().isSubclassOf("QtQuick.State", 1, 0))
         stateInstanceId = stateNode.internalId();
 
+    auto value
+#ifndef QMLDESIGNER_TEST
+            = QmlDesigner::DesignerSettings::getValue(
+                QmlDesigner::DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR);
+#else
+            = QColor();
+#endif
+    QList<QColor> edit3dBackgroundColor;
+    if (value.isValid())
+        edit3dBackgroundColor = readBackgroundColorConfiguration(value);
+
     return CreateSceneCommand(
         instanceContainerList,
         reparentContainerList,
@@ -1161,7 +1181,8 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
         lastUsedLanguage,
         m_captureImageMinimumSize,
         m_captureImageMaximumSize,
-        stateInstanceId);
+        stateInstanceId,
+        edit3dBackgroundColor);
 }
 
 ClearSceneCommand NodeInstanceView::createClearSceneCommand() const
@@ -2190,9 +2211,8 @@ void NodeInstanceView::maybeResetOnPropertyChange(const PropertyName &name, cons
 {
     bool reset = false;
     if (flags & AbstractView::PropertiesAdded
-            && name == "model" && (node.isSubclassOf("QtQuick.Repeater")
-                                   || node.isSubclassOf("QtQuick3D.Repeater3D"))) {
-        // TODO: This is a workaround for QTBUG-97583 (2D) and QTBUG-97586 (3D):
+            && name == "model" && node.isSubclassOf("QtQuick.Repeater")) {
+        // TODO: This is a workaround for QTBUG-97583:
         //       Reset puppet when repeater model is first added, if there is already a delegate
         if (node.hasProperty("delegate"))
             reset = true;

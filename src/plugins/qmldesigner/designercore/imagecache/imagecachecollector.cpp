@@ -74,7 +74,7 @@ ImageCacheCollector::~ImageCacheCollector() = default;
 
 void ImageCacheCollector::start(Utils::SmallStringView name,
                                 Utils::SmallStringView state,
-                                const ImageCache::AuxiliaryData &,
+                                const ImageCache::AuxiliaryData &auxiliaryData,
                                 CaptureCallback captureCallback,
                                 AbortCallback abortCallback)
 {
@@ -96,11 +96,20 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
 
     model->setRewriterView(&rewriterView);
 
+    bool is3DRoot = !rewriterView.inErrorState()
+            && (rewriterView.rootModelNode().isSubclassOf("Quick3D.Node")
+                || rewriterView.rootModelNode().isSubclassOf("Quick3D.Material"));
+
     if (rewriterView.inErrorState() || (!rewriterView.rootModelNode().metaInfo().isGraphicalItem()
-                                        && !rewriterView.rootModelNode().isSubclassOf("Quick3D.Node") )) {
+                                        && !is3DRoot)) {
         if (abortCallback)
             abortCallback(ImageCache::AbortReason::Failed);
         return;
+    }
+
+    if (is3DRoot) {
+        if (auto libIcon = Utils::get_if<ImageCache::LibraryIconAuxiliaryData>(&auxiliaryData))
+            rewriterView.rootModelNode().setAuxiliaryData("isLibraryIcon@NodeInstance", libIcon->enable);
     }
 
     ModelNode stateNode = rewriterView.modelNodeForId(QString{state});

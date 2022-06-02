@@ -81,30 +81,20 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
         if (obj == m_assetsWidget.data())
             QMetaObject::invokeMethod(m_assetsWidget->rootObject(), "handleViewFocusOut");
     } else if (event->type() == QMouseEvent::MouseMove) {
-        if (!m_assetsToDrag.isEmpty()) {
+        if (!m_assetsToDrag.isEmpty() && !m_model.isNull()) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 10) {
-                auto drag = new QDrag(this);
-                drag->setPixmap(m_assetsIconProvider->requestPixmap(m_assetsToDrag[0], nullptr, {128, 128}));
                 QMimeData *mimeData = new QMimeData;
                 mimeData->setData(Constants::MIME_TYPE_ASSETS, m_assetsToDrag.join(',').toUtf8());
-                drag->setMimeData(mimeData);
-                drag->exec();
-                drag->deleteLater();
-
+                m_model->startDrag(mimeData,
+                                   m_assetsIconProvider->requestPixmap(m_assetsToDrag[0], nullptr, {128, 128}));
                 m_assetsToDrag.clear();
             }
         }
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
         m_assetsToDrag.clear();
-        QWidget *view = QmlDesignerPlugin::instance()->viewManager().widget("Navigator");
-        if (view) {
-            NavigatorWidget *navView = qobject_cast<NavigatorWidget *>(view);
-            if (navView) {
-                navView->setDragType("");
-                navView->update();
-            }
-        }
+        if (m_model)
+            m_model->endDrag();
     }
 
     return QObject::eventFilter(obj, event);

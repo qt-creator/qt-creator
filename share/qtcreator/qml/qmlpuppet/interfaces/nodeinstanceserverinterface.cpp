@@ -142,6 +142,7 @@ void NodeInstanceServerInterface::registerCommands()
     registerCommand<View3DActionCommand>("View3DActionCommand");
     registerCommand<RequestModelNodePreviewImageCommand>("RequestModelNodePreviewImageCommand");
     registerCommand<QPair<int, int>>("QPairIntInt");
+    registerCommand<QList<QColor>>("QColorList");
     registerCommand<ChangeLanguageCommand>("ChangeLanguageCommand");
     registerCommand<ChangePreviewImageSizeCommand>("ChangePreviewImageSizeCommand");
     registerCommand<CapturedDataCommand>("CapturedDataCommand");

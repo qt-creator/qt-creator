@@ -1510,12 +1510,12 @@ QString Model::generateNewId(const QString &prefixName, const QString &fallbackP
     return newId;
 }
 
-void Model::startDrag(QMimeData *mimeData, const QString iconPath)
+void Model::startDrag(QMimeData *mimeData, const QPixmap &icon)
 {
     d->notifyDragStarted(mimeData);
 
     auto drag = new QDrag(this);
-    drag->setPixmap(iconPath);
+    drag->setPixmap(icon);
     drag->setMimeData(mimeData);
     drag->exec();
     drag->deleteLater();
