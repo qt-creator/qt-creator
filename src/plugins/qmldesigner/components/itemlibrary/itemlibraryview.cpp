@@ -77,6 +77,7 @@ void ItemLibraryView::modelAttached(Model *model)
     AbstractView::modelAttached(model);
 
     m_widget->clearSearchFilter();
+    m_widget->switchToComponentsView();
     m_widget->setModel(model);
     updateImports();
     if (model)

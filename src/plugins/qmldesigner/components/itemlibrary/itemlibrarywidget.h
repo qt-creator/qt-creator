@@ -73,8 +73,9 @@ public:
     QList<QToolButton *> createToolBarWidgets();
 
     static QString qmlSourcesPath();
-    void clearSearchFilter();
 
+    void clearSearchFilter();
+    void switchToComponentsView();
     void delayedUpdateModel();
     void updateModel();
     void updatePossibleImports(const QList<Import> &possibleImports);
