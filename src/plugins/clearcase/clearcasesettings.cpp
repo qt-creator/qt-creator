@@ -88,7 +88,8 @@ void ClearCaseSettings::fromSettings(QSettings *settings)
     indexOnlyVOBs = settings->value(QLatin1String(indexOnlyVOBsC), QString()).toString();
     extDiffAvailable = !Utils::Environment::systemEnvironment().searchInPath(QLatin1String("diff")).isEmpty();
     settings->beginGroup(QLatin1String(totalFilesKeyC));
-    foreach (const QString &view, settings->childKeys())
+    const QStringList views = settings->childKeys();
+    for (const QString &view : views)
         totalFiles[view] = settings->value(view).toInt();
     settings->endGroup();
     settings->endGroup();

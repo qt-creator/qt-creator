@@ -104,7 +104,7 @@ bool MercurialClient::manifestSync(const FilePath &repository, const QString &re
     const QFileInfo needle = QFileInfo(repositoryDir, relativeFilename);
 
     const QStringList files = proc.stdOut().split(QLatin1Char('\n'));
-    foreach (const QString &fileName, files) {
+    for (const QString &fileName : files) {
         const QFileInfo managedFile(repositoryDir, fileName);
         if (needle == managedFile)
             return true;

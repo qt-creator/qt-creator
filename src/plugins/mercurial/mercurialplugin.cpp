@@ -732,7 +732,7 @@ void MercurialPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
     revertFile->setParameter(filename);
     statusFile->setParameter(filename);
 
-    foreach (QAction *repoAction, m_repositoryActionList)
+    for (QAction *repoAction : qAsConst(m_repositoryActionList))
         repoAction->setEnabled(repoEnabled);
 }
 

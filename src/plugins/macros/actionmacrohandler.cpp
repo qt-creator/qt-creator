@@ -53,8 +53,8 @@ ActionMacroHandler::ActionMacroHandler()
             this, &ActionMacroHandler::addCommand);
 
     // Register all existing scriptable actions
-    QList<Command *> commands = ActionManager::commands();
-    foreach (Command *command, commands) {
+    const QList<Command *> commands = ActionManager::commands();
+    for (Command *command : commands) {
         if (command->isScriptable())
             registerCommand(command->id());
     }

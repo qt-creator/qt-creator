@@ -77,9 +77,9 @@ void ActivitySelector::userChanged()
 bool ActivitySelector::refresh()
 {
     int current;
-    QList<QStringPair> activities = ClearCasePlugin::activities(&current);
+    const QList<QStringPair> activities = ClearCasePlugin::activities(&current);
     m_cmbActivity->clear();
-    foreach (const QStringPair &activity, activities)
+    for (const QStringPair &activity : activities)
         m_cmbActivity->addItem(activity.second, activity.first);
     m_cmbActivity->setCurrentIndex(current);
     m_cmbActivity->updateGeometry();

@@ -143,7 +143,7 @@ bool Macro::save(const QString &fileName, QWidget *parent)
         QDataStream stream(saver.file());
         stream << d->version;
         stream << d->description;
-        foreach (const MacroEvent &event, d->events) {
+        for (const MacroEvent &event : qAsConst(d->events)) {
             event.save(stream);
         }
         saver.setResult(&stream);

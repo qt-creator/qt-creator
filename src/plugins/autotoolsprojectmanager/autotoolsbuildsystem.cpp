@@ -116,13 +116,13 @@ void AutotoolsBuildSystem::makefileParsingFinished()
     const QFileInfo fileInfo = projectFilePath().toFileInfo();
     const QDir dir = fileInfo.absoluteDir();
     const QStringList files = m_makefileParserThread->sources();
-    foreach (const QString& file, files)
+    for (const QString& file : files)
         m_files.append(dir.absoluteFilePath(file));
 
     // Watch for changes of Makefile.am files. If a Makefile.am file
     // has been changed, the project tree must be reparsed.
     const QStringList makefiles = m_makefileParserThread->makefiles();
-    foreach (const QString &makefile, makefiles) {
+    for (const QString &makefile : makefiles) {
         const QString absMakefile = dir.absoluteFilePath(makefile);
 
         m_files.append(absMakefile);
@@ -161,7 +161,7 @@ static QStringList filterIncludes(const QString &absSrc, const QString &absBuild
                                   const QStringList &in)
 {
     QStringList result;
-    foreach (const QString i, in) {
+    for (const QString &i : in) {
         QString out = i;
         out.replace(QLatin1String("$(top_srcdir)"), absSrc);
         out.replace(QLatin1String("$(abs_top_srcdir)"), absSrc);

@@ -125,7 +125,7 @@ void PerforceSubmitEditor::updateFields()
 
     lines = m_entries.value(QLatin1String("Files")).split(newLine);
     // split up "file#add" and store complete spec line as user data
-    foreach (const QString &specLine, lines) {
+    for (const QString &specLine : qAsConst(lines)) {
         const QStringList list = specLine.split(QLatin1Char('#'));
         if (list.size() == 2) {
             const QString file = list.at(0).trimmed();
