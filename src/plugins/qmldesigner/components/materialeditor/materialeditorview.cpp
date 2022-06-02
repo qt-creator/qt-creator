@@ -87,10 +87,6 @@ void MaterialEditorView::ensureMaterialLibraryNode()
     if (m_materialLibrary.isValid())
         return;
 
-    const QList<ModelNode> materials = rootModelNode().subModelNodesOfType("QtQuick3D.Material");
-    if (materials.isEmpty())
-        return;
-
     // create material library node
     TypeName nodeType = rootModelNode().isSubclassOf("QtQuick3D.Node") ? "QtQuick3D.Node" : "QtQuick.Item";
     NodeMetaInfo metaInfo = model()->metaInfo(nodeType);
@@ -98,6 +94,10 @@ void MaterialEditorView::ensureMaterialLibraryNode()
 
     m_materialLibrary.setIdWithoutRefactoring(Constants::MATERIAL_LIB_ID);
     rootModelNode().defaultNodeListProperty().reparentHere(m_materialLibrary);
+
+    const QList<ModelNode> materials = rootModelNode().subModelNodesOfType("QtQuick3D.Material");
+    if (materials.isEmpty())
+        return;
 
     RewriterTransaction transaction = beginRewriterTransaction(
         "MaterialEditorView::ensureMaterialLibraryNode");
