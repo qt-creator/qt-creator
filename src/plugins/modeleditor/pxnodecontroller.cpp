@@ -156,11 +156,12 @@ void PxNodeController::addFileSystemEntry(const QString &filePath, int line, int
         auto menu = new QMenu;
         menu->addAction(new MenuAction(tr("Add Component %1").arg(elementName), elementName,
                                        MenuAction::TYPE_ADD_COMPONENT, menu));
-        QStringList classNames = Utils::toList(d->classViewController->findClassDeclarations(filePath, line, column));
+        const QStringList classNames = Utils::toList(
+            d->classViewController->findClassDeclarations(filePath, line, column));
         if (!classNames.empty()) {
             menu->addSeparator();
             int index = 0;
-            foreach (const QString &className, classNames) {
+            for (const QString &className : classNames) {
                 auto action = new MenuAction(tr("Add Class %1").arg(className), elementName,
                                              MenuAction::TYPE_ADD_CLASS, index, menu);
                 action->className = className;

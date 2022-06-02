@@ -168,11 +168,12 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
     CppEditor::CppModelManager *cppModelManager = CppEditor::CppModelManager::instance();
     CPlusPlus::Snapshot snapshot = cppModelManager->snapshot();
 
-    QStringList filePaths = findFilePathOfComponent(component);
-    foreach (const QString &filePath, filePaths) {
+    const QStringList filePaths = findFilePathOfComponent(component);
+    for (const QString &filePath : filePaths) {
         CPlusPlus::Document::Ptr document = snapshot.document(filePath);
         if (document) {
-            foreach (const CPlusPlus::Document::Include &include, document->resolvedIncludes()) {
+            const QList<CPlusPlus::Document::Include> includes = document->resolvedIncludes();
+            for (const CPlusPlus::Document::Include &include : includes) {
                 QString includeFilePath = include.resolvedFileName();
                 // replace proxy header with real one
                 CPlusPlus::Document::Ptr includeDocument = snapshot.document(includeFilePath);
@@ -214,7 +215,8 @@ QStringList UpdateIncludeDependenciesVisitor::findFilePathOfComponent(const qmt:
     }
     QStringList bestFilePaths;
     int maxPathLength = 1;
-    foreach (const Node &node, m_filePaths.values(component->name())) {
+    const QList<Node> nodes = m_filePaths.values(component->name());
+    for (const Node &node : nodes) {
         int i = elementPath.size() - 1;
         int j = node.m_elementPath.size() - 1;
         while (i >= 0 && j >= 0 && elementPath.at(i) == node.m_elementPath.at(j)) {
@@ -235,14 +237,16 @@ QStringList UpdateIncludeDependenciesVisitor::findFilePathOfComponent(const qmt:
 void UpdateIncludeDependenciesVisitor::collectElementPaths(const ProjectExplorer::FolderNode *folderNode,
                                                            QMultiHash<QString, Node> *filePathsMap)
 {
-    foreach (const ProjectExplorer::FileNode *fileNode, folderNode->fileNodes()) {
+    const QList<ProjectExplorer::FileNode *> fileNodes = folderNode->fileNodes();
+    for (const ProjectExplorer::FileNode *fileNode : fileNodes) {
         QString elementName = qmt::NameController::convertFileNameToElementName(fileNode->filePath().toString());
         QFileInfo fileInfo = fileNode->filePath().toFileInfo();
         QString nodePath = fileInfo.path();
         QStringList elementsPath = qmt::NameController::buildElementsPath(nodePath, false);
         filePathsMap->insert(elementName, Node(fileNode->filePath().toString(), elementsPath));
     }
-    foreach (const ProjectExplorer::FolderNode *subNode, folderNode->folderNodes())
+    const QList<ProjectExplorer::FolderNode *> subNodes = folderNode->folderNodes();
+    for (const ProjectExplorer::FolderNode *subNode : subNodes)
         collectElementPaths(subNode, filePathsMap);
 }
 

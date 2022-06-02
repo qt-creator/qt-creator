@@ -431,13 +431,15 @@ void ModelIndexer::scanProject(ProjectExplorer::Project *project)
         }
 
         // remove deleted files from indexed models
-        foreach (const QString &file, d->indexedModels.keys()) {
+        const QStringList files = d->indexedModels.keys();
+        for (const QString &file : files) {
             if (!filesSet.contains(QueuedFile(file, project)))
                 removeModelFile(file, project);
         }
 
         // remove deleted files from indexed diagrams
-        foreach (const QString &file, d->indexedDiagramReferences.keys()) {
+        const QStringList deletedFiles = d->indexedDiagramReferences.keys();
+        for (const QString &file : deletedFiles) {
             if (!filesSet.contains(QueuedFile(file, project)))
                 removeDiagramReferenceFile(file, project);
         }
@@ -468,11 +470,13 @@ QString ModelIndexer::findFirstModel(ProjectExplorer::FolderNode *folderNode,
 {
     if (!mimeType.isValid())
         return QString();
-    foreach (ProjectExplorer::FileNode *fileNode, folderNode->fileNodes()) {
+    const QList<ProjectExplorer::FileNode *> fileNodes = folderNode->fileNodes();
+    for (const ProjectExplorer::FileNode *fileNode : fileNodes) {
         if (mimeType.suffixes().contains(fileNode->filePath().completeSuffix()))
             return fileNode->filePath().toString();
     }
-    foreach (ProjectExplorer::FolderNode *subFolderNode, folderNode->folderNodes()) {
+    const QList<ProjectExplorer::FolderNode *> subFolderNodes = folderNode->folderNodes();
+    for (ProjectExplorer::FolderNode *subFolderNode : subFolderNodes) {
         QString modelFileName = findFirstModel(subFolderNode, mimeType);
         if (!modelFileName.isEmpty())
             return modelFileName;

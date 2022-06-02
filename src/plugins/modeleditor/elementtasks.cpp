@@ -114,9 +114,9 @@ bool ElementTasks::hasClassDefinition(const qmt::MElement *element) const
             return false;
 
         QFutureInterface<Core::LocatorFilterEntry> dummyInterface;
-        QList<Core::LocatorFilterEntry> matches = classesFilter->matchesFor(dummyInterface,
-                                                                            qualifiedClassName);
-        foreach (const Core::LocatorFilterEntry &entry, matches) {
+        const QList<Core::LocatorFilterEntry> matches
+            = classesFilter->matchesFor(dummyInterface, qualifiedClassName);
+        for (const Core::LocatorFilterEntry &entry : matches) {
             CppEditor::IndexItem::Ptr info = qvariant_cast<CppEditor::IndexItem::Ptr>(entry.internalData);
             if (info->scopedSymbolName() != qualifiedClassName)
                 continue;
@@ -151,8 +151,9 @@ void ElementTasks::openClassDefinition(const qmt::MElement *element)
             return;
 
         QFutureInterface<Core::LocatorFilterEntry> dummyInterface;
-        QList<Core::LocatorFilterEntry> matches = classesFilter->matchesFor(dummyInterface, qualifiedClassName);
-        foreach (const Core::LocatorFilterEntry &entry, matches) {
+        const QList<Core::LocatorFilterEntry> matches
+            = classesFilter->matchesFor(dummyInterface, qualifiedClassName);
+        for (const Core::LocatorFilterEntry &entry : matches) {
             CppEditor::IndexItem::Ptr info = qvariant_cast<CppEditor::IndexItem::Ptr>(entry.internalData);
             if (info->scopedSymbolName() != qualifiedClassName)
                 continue;

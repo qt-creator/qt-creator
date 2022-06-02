@@ -74,7 +74,7 @@ bool ModelUtilities::haveDependency(const qmt::MObject *source,
 bool ModelUtilities::haveDependency(const qmt::MObject *source,
                                     const QList<qmt::MPackage *> &targets)
 {
-    foreach (const qmt::MPackage *target, targets) {
+    for (const qmt::MPackage *target : targets) {
         if (haveDependency(source, target))
             return true;
     }
