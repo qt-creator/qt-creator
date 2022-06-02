@@ -383,9 +383,11 @@ void BindingLoopMaterialShader::initialize()
 BindingLoopMaterial::BindingLoopMaterial()
 {
     setFlag(QSGMaterial::Blending, false);
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 3, 0)
+    setFlag(QSGMaterial::NoBatching, true);
+#elif QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     setFlag(QSGMaterial::CustomCompileStep, true);
-#endif // >= Qt 6
+#endif // >= Qt 6.3/6.0
 }
 
 QSGMaterialType *BindingLoopMaterial::type() const
