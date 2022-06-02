@@ -28,9 +28,6 @@
 #include <projectexplorer/deployconfiguration.h>
 
 namespace RemoteLinux {
-
-Utils::Id genericDeployConfigurationId();
-
 namespace Internal {
 
 class RemoteLinuxDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory

@@ -43,19 +43,11 @@
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {
-
-using namespace Internal;
-
-Utils::Id genericDeployConfigurationId()
-{
-    return "DeployToGenericLinux";
-}
-
 namespace Internal {
 
 RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory()
 {
-    setConfigBaseId(genericDeployConfigurationId());
+    setConfigBaseId(RemoteLinux::Constants::DeployToGenericLinux);
     addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
     setDefaultDisplayName(QCoreApplication::translate("RemoteLinux",
                                                       "Deploy to Remote Linux Host"));
