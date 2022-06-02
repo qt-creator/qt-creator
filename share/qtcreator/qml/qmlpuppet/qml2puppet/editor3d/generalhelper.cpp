@@ -826,8 +826,15 @@ bool GeneralHelper::getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVec
     auto renderNode = static_cast<QSSGRenderNode *>(nodePriv->spatialNode);
 
     if (recursive && renderNode) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 4, 0)
         if (renderNode->flags.testFlag(QSSGRenderNode::Flag::TransformDirty))
             renderNode->calculateLocalTransform();
+#else
+        if (renderNode->isDirty(QSSGRenderNode::DirtyFlag::TransformDirty)) {
+            renderNode->localTransform = QSSGRenderNode::calculateTransformMatrix(
+                        node->position(), node->scale(), node->pivot(), node->rotation());
+        }
+#endif
         localTransform = renderNode->localTransform;
     }
 
