@@ -99,16 +99,23 @@ void MaterialEditorView::ensureMaterialLibraryNode()
     m_materialLibrary.setIdWithoutRefactoring(Constants::MATERIAL_LIB_ID);
     rootModelNode().defaultNodeListProperty().reparentHere(m_materialLibrary);
 
-    // move all materials to under material library node
-    for (const ModelNode &node : materials) {
-        // if material has no name, set name to id
-        QString matName = node.variantProperty("objectName").value().toString();
-        if (matName.isEmpty()) {
-            VariantProperty objNameProp = node.variantProperty("objectName");
-            objNameProp.setValue(node.id());
-        }
+    RewriterTransaction transaction = beginRewriterTransaction(
+        "MaterialEditorView::ensureMaterialLibraryNode");
 
-        m_materialLibrary.defaultNodeListProperty().reparentHere(node);
+    try {
+        // move all materials to under material library node
+        for (const ModelNode &node : materials) {
+            // if material has no name, set name to id
+            QString matName = node.variantProperty("objectName").value().toString();
+            if (matName.isEmpty()) {
+                VariantProperty objNameProp = node.variantProperty("objectName");
+                objNameProp.setValue(node.id());
+            }
+
+            m_materialLibrary.defaultNodeListProperty().reparentHere(node);
+        }
+    } catch (Exception &e) {
+        e.showException();
     }
 }
 
