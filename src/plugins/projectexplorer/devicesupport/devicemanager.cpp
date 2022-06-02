@@ -595,6 +595,12 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->bytesAvailable(filePath);
     };
 
+    deviceHooks.deviceDisplayName = [](const FilePath &filePath) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return QString());
+        return device->displayName();
+    };
+
     FileUtils::setDeviceFileHooks(deviceHooks);
 
     DeviceProcessHooks processHooks;

@@ -921,6 +921,29 @@ FilePath FilePath::normalizedPathName() const
     return result;
 }
 
+QString FilePath::displayName(const QString &args) const
+{
+    QString deviceName;
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.deviceDisplayName, return m_data);
+        deviceName = s_deviceHooks.deviceDisplayName(*this);
+    }
+
+    if (args.isEmpty()) {
+        if (deviceName.isEmpty())
+            return m_data;
+
+        return QCoreApplication::translate("Utils::FileUtils", "%1 on %2", "File on device")
+                .arg(m_data, deviceName);
+    }
+
+    if (deviceName.isEmpty())
+        return m_data + ' ' + args;
+
+    return QCoreApplication::translate("Utils::FileUtils", "%1 %2 on %3", "File and args on device")
+            .arg(m_data, args, deviceName);
+}
+
 /// Constructs a FilePath from \a filename
 /// \a filename is not checked for validity.
 FilePath FilePath::fromString(const QString &filepath)

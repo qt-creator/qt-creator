@@ -1508,6 +1508,11 @@ QString CommandLine::toUserOutput() const
     return res;
 }
 
+QString CommandLine::displayName() const
+{
+    return m_executable.displayName(m_arguments);
+}
+
 QStringList CommandLine::splitArguments() const
 {
     return ProcessArgs::splitArgs(m_arguments, m_executable.osType());
