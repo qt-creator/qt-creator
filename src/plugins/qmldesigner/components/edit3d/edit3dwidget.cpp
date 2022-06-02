@@ -141,7 +141,9 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view) :
     m_visibilityTogglesMenu = new Edit3DVisibilityTogglesMenu(this);
     handleActions(view->visibilityToggleActions(), m_visibilityTogglesMenu, false);
 
-    m_backgroundColorMenu = new Edit3DVisibilityTogglesMenu(this);
+    m_backgroundColorMenu = new QMenu(this);
+    m_backgroundColorMenu->setToolTipsVisible(true);
+
     handleActions(view->backgroundColorActions(), m_backgroundColorMenu, false);
 
     view->setSeeker(seeker);

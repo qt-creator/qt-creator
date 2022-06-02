@@ -344,13 +344,13 @@ void Edit3DView::createEdit3DActions()
 
     m_backgroundColorSelectionAction = new Edit3DAction(
         QmlDesigner::Constants::EDIT3D_EDIT_SELECT_BACKGROUND_COLOR, View3DActionCommand::SelectBackgroundColor,
-        QCoreApplication::translate("SelectBackgroundColorAction", "Select Background color"),
+        QCoreApplication::translate("SelectBackgroundColorAction", "Select Background Color"),
         {}, false, false, {}, {}, showBackgroundColorSelection,
-        QCoreApplication::translate("SelectBackgroundColorAction", "Choose a color for the background."));
+        QCoreApplication::translate("SelectBackgroundColorAction", "Select a color for the background of the 3D Editor."));
 
     m_resetBackgroundColorAction = new Edit3DAction(
         QmlDesigner::Constants::EDIT3D_EDIT_RESET_BACKGROUND_COLOR, View3DActionCommand::ResetBackgroundColor,
-        QCoreApplication::translate("ResetBackgroundColorAction", "Reset Background color"),
+        QCoreApplication::translate("ResetBackgroundColorAction", "Reset Background Color"),
         {}, false, false, {}, {}, [](const SelectionContext &) {
             QList<QColor> colors = {QRgb(0x222222), QRgb(0x999999)};
             auto view = QmlDesignerPlugin::instance()->viewManager().nodeInstanceView();
@@ -362,7 +362,7 @@ void Edit3DView::createEdit3DActions()
                 QmlDesigner::DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR,
                 QVariant::fromValue(colorsToSave));
         },
-        QCoreApplication::translate("ResetBackgroundColorAction", "Reset Background color to the default value."));
+        QCoreApplication::translate("ResetBackgroundColorAction", "Reset background color of the 3D Editor to the default value."));
 
     m_showSelectionBoxAction = new Edit3DAction(
                 QmlDesigner::Constants::EDIT3D_EDIT_SHOW_SELECTION_BOX, View3DActionCommand::ShowSelectionBox,
