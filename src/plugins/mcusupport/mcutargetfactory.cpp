@@ -27,6 +27,7 @@
 #include "mcuhelpers.h"
 #include "mcupackage.h"
 #include "mcusupportconstants.h"
+#include "mcusupportversiondetection.h"
 #include "mcutarget.h"
 #include "mcutargetdescription.h"
 

@@ -40,6 +40,7 @@
 #include "mcusupportconstants.h"
 #include "mcusupportoptions.h"
 #include "mcusupportsdk.h"
+#include "mcusupportversiondetection.h"
 #include "mcutargetdescription.h"
 #include "mcutargetfactorylegacy.h"
 
