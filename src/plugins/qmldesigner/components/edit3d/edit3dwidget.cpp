@@ -141,6 +141,9 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view) :
     m_visibilityTogglesMenu = new Edit3DVisibilityTogglesMenu(this);
     handleActions(view->visibilityToggleActions(), m_visibilityTogglesMenu, false);
 
+    m_backgroundColorMenu = new Edit3DVisibilityTogglesMenu(this);
+    handleActions(view->backgroundColorActions(), m_backgroundColorMenu, false);
+
     view->setSeeker(seeker);
     seeker->setToolTip(QLatin1String("Seek particle system time when paused."));
 
@@ -199,6 +202,21 @@ void Edit3DWidget::showVisibilityTogglesMenu(bool show, const QPoint &pos)
         m_visibilityTogglesMenu->popup(pos);
     else
         m_visibilityTogglesMenu->close();
+}
+
+QMenu *Edit3DWidget::backgroundColorMenu() const
+{
+    return m_backgroundColorMenu.data();
+}
+
+void Edit3DWidget::showBackgroundColorMenu(bool show, const QPoint &pos)
+{
+    if (m_backgroundColorMenu.isNull())
+        return;
+    if (show)
+        m_backgroundColorMenu->popup(pos);
+    else
+        m_backgroundColorMenu->close();
 }
 
 void Edit3DWidget::linkActivated(const QString &link)

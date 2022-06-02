@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,45 +25,29 @@
 
 #pragma once
 
-#include <utils/smallstringview.h>
+#include <projectexplorer/extracompiler.h>
 
-#include <QString>
+namespace Python {
+namespace Internal {
 
-#include <vector>
-#include <functional>
-
-namespace CppEditor {
-
-class Usage
+class PySideUicExtraCompiler : public ProjectExplorer::ProcessExtraCompiler
 {
 public:
-    Usage() = default;
-    Usage(Utils::SmallStringView path, int line, int column)
-        : path(QString::fromUtf8(path.data(), int(path.size()))),
-          line(line),
-          column(column)
-    {}
+    PySideUicExtraCompiler(const Utils::FilePath &pySideUic,
+                           const ProjectExplorer::Project *project,
+                           const Utils::FilePath &source,
+                           const Utils::FilePaths &targets,
+                           QObject *parent = nullptr);
 
-    friend bool operator==(const Usage &first, const Usage &second)
-    {
-        return first.line == second.line
-            && first.column == second.column
-            && first.path == second.path;
-    }
+    Utils::FilePath pySideUicPath() const;
 
-    friend bool operator<(const Usage &first, const Usage &second)
-    {
-        return std::tie(first.path, first.line, first.column)
-               < std::tie(second.path, second.line, second.column);
-    }
+private:
+    Utils::FilePath command() const override;
+    ProjectExplorer::FileNameToContentsHash handleProcessFinished(
+        Utils::QtcProcess *process) override;
 
-public:
-    QString path;
-    int line = 0;
-    int column = 0;
+    Utils::FilePath m_pySideUic;
 };
 
-using Usages = std::vector<Usage>;
-using UsagesCallback = std::function<void(const Usages &usages)>;
-
-} // namespace CppEditor
+} // namespace Internal
+} // namespace Python

@@ -170,7 +170,6 @@ void BuiltinModelManagerSupport::startLocalRenaming(const CursorInEditor &data,
 }
 
 void BuiltinModelManagerSupport::globalRename(const CursorInEditor &data,
-                                              UsagesCallback &&,
                                               const QString &replacement)
 {
     CppModelManager *modelManager = CppModelManager::instance();
@@ -194,8 +193,7 @@ void BuiltinModelManagerSupport::globalRename(const CursorInEditor &data,
     }
 }
 
-void BuiltinModelManagerSupport::findUsages(const CursorInEditor &data,
-                                      UsagesCallback &&) const
+void BuiltinModelManagerSupport::findUsages(const CursorInEditor &data) const
 {
     CppModelManager *modelManager = CppModelManager::instance();
     if (!modelManager)

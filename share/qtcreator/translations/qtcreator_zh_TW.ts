@@ -15636,8 +15636,8 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
         <translation>沒有設定 qmake 路徑</translation>
     </message>
     <message>
-        <source>%1 does not exist or is not executable</source>
-        <translation>%1 不存在或無法執行</translation>
+        <source>qmake does not exist or is not executable</source>
+        <translation>qmake 不存在或無法執行</translation>
     </message>
     <message>
         <source>Qt version has no name</source>
@@ -15664,8 +15664,8 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
         <translation>Qt 沒有被正確安裝，請執行 make install</translation>
     </message>
     <message>
-        <source>Could not determine the path to the binaries of the Qt installation, maybe the %1 path is wrong?</source>
-        <translation>無法決定 Qt 安裝版的路徑。也許是 %1 的路徑設定有錯誤？</translation>
+        <source>Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?</source>
+        <translation>無法決定 Qt 安裝版的路徑。也許是 qmake 的路徑設定有錯誤？</translation>
     </message>
     <message>
         <source>The default mkspec symlink is broken.</source>

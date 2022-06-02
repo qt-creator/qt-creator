@@ -12382,8 +12382,8 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
         <translation>Nie ustawiono ścieżki do qmake</translation>
     </message>
     <message>
-        <source>%1 does not exist or is not executable</source>
-        <translation>Brak %1 lub nie jest on plikiem wykonywalnym</translation>
+        <source>qmake does not exist or is not executable</source>
+        <translation>Brak qmake lub nie jest on plikiem wykonywalnym</translation>
     </message>
     <message>
         <source>Qt version has no name</source>
@@ -12410,8 +12410,8 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
         <translation>Wersja Qt zainstalowana niepoprawnie, uruchom komendę: make install</translation>
     </message>
     <message>
-        <source>Could not determine the path to the binaries of the Qt installation, maybe the %1 path is wrong?</source>
-        <translation>Nie można określić ścieżki do plików binarnych instalacji Qt. Sprawdź ścieżkę do %1.</translation>
+        <source>Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?</source>
+        <translation>Nie można określić ścieżki do plików binarnych instalacji Qt. Sprawdź ścieżkę do qmake.</translation>
     </message>
     <message>
         <source>The default mkspec symlink is broken.</source>

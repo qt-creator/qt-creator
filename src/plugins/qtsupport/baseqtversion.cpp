@@ -81,7 +81,6 @@ const char QTVERSIONAUTODETECTED[] = "isAutodetected";
 const char QTVERSIONDETECTIONSOURCE[] = "autodetectionSource";
 const char QTVERSION_OVERRIDE_FEATURES[] = "overrideFeatures";
 const char QTVERSIONQMAKEPATH[] = "QMakePath";
-const char QTVERSIONQUERYTOOLPATH[] = "QueryToolPath";
 const char QTVERSIONSOURCEPATH[] = "SourcePath";
 
 const char QTVERSION_ABIS[] = "Abis";
@@ -188,19 +187,19 @@ public:
     FilePath findHostBinary(HostBinaries binary) const;
     void updateMkspec();
     QHash<ProKey, ProString> versionInfo();
-    static bool queryQtPaths(const FilePath &queryTool,
-                             const Environment &env,
-                             QHash<ProKey, ProString> *versionInfo,
-                             QString *error = nullptr);
+    static bool queryQMakeVariables(const FilePath &binary,
+                                    const Environment &env,
+                                    QHash<ProKey, ProString> *versionInfo,
+                                    QString *error = nullptr);
     enum PropertyVariant { PropertyVariantDev, PropertyVariantGet, PropertyVariantSrc };
     QString qmakeProperty(const QByteArray &name, PropertyVariant variant = PropertyVariantGet);
     static QString qmakeProperty(const QHash<ProKey, ProString> &versionInfo,
                                  const QByteArray &name,
                                  PropertyVariant variant = PropertyVariantGet);
     static FilePath mkspecDirectoryFromVersionInfo(const QHash<ProKey, ProString> &versionInfo,
-                                                   const FilePath &queryTool);
+                                                   const FilePath &qmakeCommand);
     static FilePath mkspecFromVersionInfo(const QHash<ProKey,ProString> &versionInfo,
-                                          const FilePath &queryTool);
+                                          const FilePath &qmakeCommand);
     static FilePath sourcePath(const QHash<ProKey,ProString> &versionInfo);
     void setId(int id); // used by the qtversionmanager for legacy restore
                         // and by the qtoptionspage to replace Qt versions
@@ -222,7 +221,7 @@ public:
     bool m_defaultConfigIsDebugAndRelease = true;
     bool m_frameworkBuild = false;
     bool m_versionInfoUpToDate = false;
-    bool m_queryToolIsExecutable = true;
+    bool m_qmakeIsExecutable = true;
 
     QString m_detectionSource;
     QSet<Utils::Id> m_overrideFeatures;
@@ -234,7 +233,6 @@ public:
 
     QHash<ProKey, ProString> m_versionInfo;
 
-    FilePath m_queryTool;
     FilePath m_qmakeCommand;
 
     FilePath m_rccPath;
@@ -348,12 +346,12 @@ QtVersion::~QtVersion()
 QString QtVersion::defaultUnexpandedDisplayName() const
 {
     QString location;
-    if (queryToolFilePath().isEmpty()) {
+    if (qmakeFilePath().isEmpty()) {
         location = QCoreApplication::translate("QtVersion", "<unknown>");
     } else {
         // Deduce a description from '/foo/qt-folder/[qtbase]/bin/qmake' -> '/foo/qt-folder'.
         // '/usr' indicates System Qt 4.X on Linux.
-        for (FilePath dir = queryToolFilePath().parentDir(); !dir.isEmpty(); dir = dir.parentDir()) {
+        for (FilePath dir = qmakeFilePath().parentDir(); !dir.isEmpty(); dir = dir.parentDir()) {
             const QString dirName = dir.fileName();
             if (dirName == "usr") { // System-installed Qt.
                 location = QCoreApplication::translate("QtVersion", "System");
@@ -727,23 +725,20 @@ void QtVersion::fromMap(const QVariantMap &map)
     d->m_isAutodetected = map.value(QTVERSIONAUTODETECTED).toBool();
     d->m_detectionSource = map.value(QTVERSIONDETECTIONSOURCE).toString();
     d->m_overrideFeatures = Utils::Id::fromStringList(map.value(QTVERSION_OVERRIDE_FEATURES).toStringList());
-    d->m_queryTool = FilePath::fromVariant(map.value(QTVERSIONQUERYTOOLPATH,
-                                                     map.value(QTVERSIONQMAKEPATH)));
-    if (!d->m_queryTool.baseName().contains("qtpaths"))
-        d->m_qmakeCommand = d->m_queryTool;
+    d->m_qmakeCommand = FilePath::fromVariant(map.value(QTVERSIONQMAKEPATH));
 
-    FilePath queryTool = d->m_queryTool;
+    FilePath qmake = d->m_qmakeCommand;
     // FIXME: Check this is still needed or whether ProcessArgs::splitArg handles it.
-    QString string = d->m_queryTool.path();
+    QString string = d->m_qmakeCommand.path();
     if (string.startsWith('~'))
         string.remove(0, 1).prepend(QDir::homePath());
-    queryTool.setPath(string);
-    if (!d->m_queryTool.needsDevice()) {
-        if (BuildableHelperLibrary::isQtChooser(queryTool)) {
+    qmake.setPath(string);
+    if (!d->m_qmakeCommand.needsDevice()) {
+        if (BuildableHelperLibrary::isQtChooser(qmake)) {
             // we don't want to treat qtchooser as a normal qmake
             // see e.g. QTCREATORBUG-9841, also this lead to users changing what
             // qtchooser forwards too behind our backs, which will inadvertly lead to bugs
-            d->m_queryTool = BuildableHelperLibrary::qtChooserToQueryToolPath(queryTool);
+            d->m_qmakeCommand = BuildableHelperLibrary::qtChooserToQmakePath(qmake);
         }
     }
 
@@ -774,7 +769,6 @@ QVariantMap QtVersion::toMap() const
         result.insert(QTVERSION_OVERRIDE_FEATURES, Utils::Id::toStringList(d->m_overrideFeatures));
 
     result.insert(QTVERSIONQMAKEPATH, qmakeFilePath().toVariant());
-    result.insert(QTVERSIONQUERYTOOLPATH, queryToolFilePath().toVariant());
     return result;
 }
 
@@ -785,8 +779,8 @@ bool QtVersion::isValid() const
     d->updateVersionInfo();
     d->updateMkspec();
 
-    return !queryToolFilePath().isEmpty() && d->m_data.installed && !binPath().isEmpty()
-           && !d->m_mkspecFullPath.isEmpty() && d->m_queryToolIsExecutable;
+    return !qmakeFilePath().isEmpty() && d->m_data.installed && !binPath().isEmpty()
+           && !d->m_mkspecFullPath.isEmpty() && d->m_qmakeIsExecutable;
 }
 
 QtVersion::Predicate QtVersion::isValidPredicate(const QtVersion::Predicate &predicate)
@@ -800,18 +794,15 @@ QString QtVersion::invalidReason() const
 {
     if (displayName().isEmpty())
         return QCoreApplication::translate("QtVersion", "Qt version has no name");
-    if (queryToolFilePath().isEmpty())
-        return QCoreApplication::translate("QtVersion", "No Qt query tool path set");
-    if (!d->m_queryToolIsExecutable)
-        return QCoreApplication::translate("QtVersion", "%1 does not exist or is not executable")
-                .arg(queryToolFilePath().baseName());
+    if (qmakeFilePath().isEmpty())
+        return QCoreApplication::translate("QtVersion", "No qmake path set");
+    if (!d->m_qmakeIsExecutable)
+        return QCoreApplication::translate("QtVersion", "qmake does not exist or is not executable");
     if (!d->m_data.installed)
         return QCoreApplication::translate("QtVersion", "Qt version is not properly installed, please run make install");
     if (binPath().isEmpty())
         return QCoreApplication::translate("QtVersion",
-                                           "Could not determine the path to the binaries of the "
-                                           "Qt installation, maybe the %1 path is wrong?")
-                .arg(queryToolFilePath().baseName());
+                                           "Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?");
     if (d->m_mkspecUpToDate && d->m_mkspecFullPath.isEmpty())
         return QCoreApplication::translate("QtVersion", "The default mkspec symlink is broken.");
     return QString();
@@ -829,20 +820,8 @@ QStringList QtVersion::warningReason() const
     return ret;
 }
 
-FilePath QtVersion::queryToolFilePath() const
-{
-    return d->m_queryTool;
-}
-
 FilePath QtVersion::qmakeFilePath() const
 {
-    if (d->m_qmakeCommand.isEmpty() && d->m_queryTool.baseName().contains("qtpaths")) {
-        // TODO: might need a less lazy implementation
-        const FilePath qmake =
-                FilePath::fromString(d->m_queryTool.toString().replace("qtpaths", "qmake"));
-        if (qmake.exists())
-            d->m_qmakeCommand = qmake;
-    }
     return d->m_qmakeCommand;
 }
 
@@ -876,7 +855,7 @@ bool QtVersion::hasAbi(ProjectExplorer::Abi::OS os, ProjectExplorer::Abi::OSFlav
 
 bool QtVersion::equals(QtVersion *other)
 {
-    if (d->m_queryTool != other->d->m_queryTool)
+    if (d->m_qmakeCommand != other->d->m_qmakeCommand)
         return false;
     if (type() != other->type())
         return false;
@@ -954,15 +933,13 @@ QString QtVersion::toHtml(bool verbose) const
                 str << "<td>" << abis.at(i).toString() << "</td></tr>";
             }
         }
-        const OsType osType = d->m_queryTool.osType();
+        const OsType osType = d->m_qmakeCommand.osType();
         str << "<tr><td><b>" << QCoreApplication::translate("QtVersion", "Source:")
             << "</b></td><td>" << sourcePath().toUserOutput() << "</td></tr>";
         str << "<tr><td><b>" << QCoreApplication::translate("QtVersion", "mkspec:")
             << "</b></td><td>" << QDir::toNativeSeparators(mkspec()) << "</td></tr>";
         str << "<tr><td><b>" << QCoreApplication::translate("QtVersion", "qmake:")
-            << "</b></td><td>" << qmakeFilePath().toUserOutput() << "</td></tr>";
-        str << "<tr><td><b>" << QCoreApplication::translate("QtVersion", "Query tool:")
-            << "</b></td><td>" << d->m_queryTool.toUserOutput() << "</td></tr>";
+            << "</b></td><td>" << d->m_qmakeCommand.toUserOutput() << "</td></tr>";
         ensureMkSpecParsed();
         if (!mkspecPath().isEmpty()) {
             if (d->m_defaultConfigIsDebug || d->m_defaultConfigIsDebugAndRelease) {
@@ -1187,13 +1164,13 @@ void QtVersionPrivate::updateMkspec()
         return;
 
     m_mkspecUpToDate = true;
-    m_mkspecFullPath = mkspecFromVersionInfo(versionInfo(), m_queryTool);
+    m_mkspecFullPath = mkspecFromVersionInfo(versionInfo(), m_qmakeCommand);
 
     m_mkspec = m_mkspecFullPath;
     if (m_mkspecFullPath.isEmpty())
         return;
 
-    FilePath baseMkspecDir = mkspecDirectoryFromVersionInfo(versionInfo(), m_queryTool);
+    FilePath baseMkspecDir = mkspecDirectoryFromVersionInfo(versionInfo(), m_qmakeCommand);
 
     if (m_mkspec.isChildOf(baseMkspecDir)) {
         m_mkspec = m_mkspec.relativeChildPath(baseMkspecDir);
@@ -1220,7 +1197,7 @@ void QtVersion::ensureMkSpecParsed() const
     QMakeVfs vfs;
     QMakeGlobals option;
     applyProperties(&option);
-    Environment env = d->m_queryTool.deviceEnvironment();
+    Environment env = d->m_qmakeCommand.deviceEnvironment();
     setupQmakeRunEnvironment(env);
     option.environment = env.toProcessEnvironment();
     ProMessageHandler msgHandler(true);
@@ -1333,7 +1310,7 @@ QtVersionNumber QtVersion::qtVersion() const
 
 void QtVersionPrivate::updateVersionInfo()
 {
-    if (m_versionInfoUpToDate || !m_queryToolIsExecutable || m_isUpdating)
+    if (m_versionInfoUpToDate || !m_qmakeIsExecutable || m_isUpdating)
         return;
 
     m_isUpdating = true;
@@ -1344,16 +1321,16 @@ void QtVersionPrivate::updateVersionInfo()
     m_data.hasExamples = false;
     m_data.hasDocumentation = false;
 
-    if (!queryQtPaths(m_queryTool, q->qmakeRunEnvironment(), &m_versionInfo)) {
-        m_queryToolIsExecutable = false;
+    if (!queryQMakeVariables(m_qmakeCommand, q->qmakeRunEnvironment(), &m_versionInfo)) {
+        m_qmakeIsExecutable = false;
         qWarning("Cannot update Qt version information: %s cannot be run.",
-                 qPrintable(m_queryTool.toString()));
+                 qPrintable(m_qmakeCommand.toString()));
         return;
     }
-    m_queryToolIsExecutable = true;
+    m_qmakeIsExecutable = true;
 
     auto fileProperty = [this](const QByteArray &name) {
-        return FilePath::fromUserInput(qmakeProperty(name)).onDevice(m_queryTool);
+        return FilePath::fromUserInput(qmakeProperty(name)).onDevice(m_qmakeCommand);
     };
 
     m_data.prefix = fileProperty("QT_INSTALL_PREFIX");
@@ -1408,8 +1385,8 @@ QHash<ProKey,ProString> QtVersionPrivate::versionInfo()
 }
 
 QString QtVersionPrivate::qmakeProperty(const QHash<ProKey, ProString> &versionInfo,
-                                        const QByteArray &name,
-                                        PropertyVariant variant)
+                                            const QByteArray &name,
+                                            PropertyVariant variant)
 {
     QString val = versionInfo
                       .value(ProKey(QString::fromLatin1(
@@ -1751,7 +1728,7 @@ void QtVersion::addToEnvironment(const Kit *k, Environment &env) const
 
 Environment QtVersion::qmakeRunEnvironment() const
 {
-    Environment env = d->m_queryTool.deviceEnvironment();
+    Environment env = d->m_qmakeCommand.deviceEnvironment();
     setupQmakeRunEnvironment(env);
     return env;
 }
@@ -1779,7 +1756,7 @@ Tasks QtVersion::reportIssuesImpl(const QString &proFile, const QString &buildDi
         results.append(BuildSystemTask(Task::Error, msg));
     }
 
-    FilePath qmake = queryToolFilePath();
+    FilePath qmake = qmakeFilePath();
     if (!qmake.isExecutableFile()) {
         //: %1: Path to qmake executable
         const QString msg = QCoreApplication::translate("QmakeProjectManager::QtVersion",
@@ -1839,21 +1816,20 @@ static QByteArray runQmakeQuery(const FilePath &binary, const Environment &env, 
     return process.readAllStandardOutput();
 }
 
-bool QtVersionPrivate::queryQtPaths(const FilePath &queryTool, const Environment &env,
-                                    QHash<ProKey, ProString> *versionInfo, QString *error)
+bool QtVersionPrivate::queryQMakeVariables(const FilePath &binary, const Environment &env,
+                                               QHash<ProKey, ProString> *versionInfo, QString *error)
 {
     QString tmp;
     if (!error)
         error = &tmp;
 
-    if (!queryTool.isExecutableFile()) {
-        *error = QCoreApplication::translate("QtVersion", "\"%1\" is not an executable.")
-                .arg(queryTool.toUserOutput());
+    if (!binary.isExecutableFile()) {
+        *error = QCoreApplication::translate("QtVersion", "qmake \"%1\" is not an executable.").arg(binary.toUserOutput());
         return false;
     }
 
     QByteArray output;
-    output = runQmakeQuery(queryTool, env, error);
+    output = runQmakeQuery(binary, env, error);
 
     if (!output.contains("QMAKE_VERSION:")) {
         // Some setups pass error messages via stdout, fooling the logic below.
@@ -1871,14 +1847,14 @@ bool QtVersionPrivate::queryQtPaths(const FilePath &queryTool, const Environment
         // Try running qmake with all kinds of tool chains set up in the environment.
         // This is required to make non-static qmakes work on windows where every tool chain
         // tries to be incompatible with any other.
-        const Abis abiList = Abi::abisOfBinary(queryTool);
+        const Abis abiList = Abi::abisOfBinary(binary);
         const Toolchains tcList = ToolChainManager::toolchains([&abiList](const ToolChain *t) {
             return abiList.contains(t->targetAbi());
         });
         for (ToolChain *tc : tcList) {
             Environment realEnv = env;
             tc->addToEnvironment(realEnv);
-            output = runQmakeQuery(queryTool, realEnv, error);
+            output = runQmakeQuery(binary, realEnv, error);
             if (error->isEmpty())
                 break;
         }
@@ -1900,18 +1876,18 @@ QString QtVersionPrivate::qmakeProperty(const QByteArray &name,
 }
 
 FilePath QtVersionPrivate::mkspecDirectoryFromVersionInfo(const QHash<ProKey, ProString> &versionInfo,
-                                                          const FilePath &queryTool)
+                                                              const FilePath &qmakeCommand)
 {
     QString dataDir = qmakeProperty(versionInfo, "QT_HOST_DATA", PropertyVariantSrc);
     if (dataDir.isEmpty())
         return FilePath();
-    return FilePath::fromUserInput(dataDir + "/mkspecs").onDevice(queryTool);
+    return FilePath::fromUserInput(dataDir + "/mkspecs").onDevice(qmakeCommand);
 }
 
 FilePath QtVersionPrivate::mkspecFromVersionInfo(const QHash<ProKey, ProString> &versionInfo,
-                                                 const FilePath &queryTool)
+                                                     const FilePath &qmakeCommand)
 {
-    FilePath baseMkspecDir = mkspecDirectoryFromVersionInfo(versionInfo, queryTool);
+    FilePath baseMkspecDir = mkspecDirectoryFromVersionInfo(versionInfo, qmakeCommand);
     if (baseMkspecDir.isEmpty())
         return FilePath();
 
@@ -2343,16 +2319,14 @@ void QtVersion::resetCache() const
 
 static QList<QtVersionFactory *> g_qtVersionFactories;
 
-QtVersion *QtVersionFactory::createQtVersionFromQueryToolPath(const FilePath &queryTool,
-                                                              bool isAutoDetected,
-                                                              const QString &detectionSource,
-                                                              QString *error)
+QtVersion *QtVersionFactory::createQtVersionFromQMakePath
+    (const FilePath &qmakePath, bool isAutoDetected, const QString &detectionSource, QString *error)
 {
     QHash<ProKey, ProString> versionInfo;
-    const Environment env = queryTool.deviceEnvironment();
-    if (!QtVersionPrivate::queryQtPaths(queryTool, env, &versionInfo, error))
+    const Environment env = qmakePath.deviceEnvironment();
+    if (!QtVersionPrivate::queryQMakeVariables(qmakePath, env, &versionInfo, error))
         return nullptr;
-    FilePath mkspec = QtVersionPrivate::mkspecFromVersionInfo(versionInfo, queryTool);
+    FilePath mkspec = QtVersionPrivate::mkspecFromVersionInfo(versionInfo, qmakePath);
 
     QMakeVfs vfs;
     QMakeGlobals globals;
@@ -2368,7 +2342,7 @@ QtVersion *QtVersionFactory::createQtVersionFromQueryToolPath(const FilePath &qu
         return l->m_priority > r->m_priority;
     });
 
-    if (!queryTool.isExecutableFile())
+    if (!qmakePath.isExecutableFile())
         return nullptr;
 
     QtVersionFactory::SetupData setup;
@@ -2381,8 +2355,8 @@ QtVersion *QtVersionFactory::createQtVersionFromQueryToolPath(const FilePath &qu
             QtVersion *ver = factory->create();
             QTC_ASSERT(ver, continue);
             ver->d->m_id = QtVersionManager::getUniqueId();
-            QTC_CHECK(ver->d->m_queryTool.isEmpty()); // Should only be used once.
-            ver->d->m_queryTool = queryTool;
+            QTC_CHECK(ver->d->m_qmakeCommand.isEmpty()); // Should only be used once.
+            ver->d->m_qmakeCommand = qmakePath;
             ver->d->m_detectionSource = detectionSource;
             ver->d->m_isAutodetected = isAutoDetected;
             ver->updateDefaultDisplayName();
@@ -2393,7 +2367,7 @@ QtVersion *QtVersionFactory::createQtVersionFromQueryToolPath(const FilePath &qu
     ProFileCacheManager::instance()->decRefCount();
     if (error) {
         *error = QCoreApplication::translate("QtSupport::QtVersionFactory",
-                    "No factory found for query tool \"%1\"").arg(queryTool.toUserOutput());
+                    "No factory found for qmake: \"%1\"").arg(qmakePath.toUserOutput());
     }
     return nullptr;
 }

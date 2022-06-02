@@ -45,6 +45,8 @@ Item {
     property bool usePerspective: true
     property bool globalOrientation: false
     property alias contentItem: contentItem
+    property color backgroundGradientColorStart: "#222222"
+    property color backgroundGradientColorEnd: "#999999"
 
     enum SelectionMode { Item, Group }
     enum TransformMode { Move, Rotate, Scale }
@@ -212,6 +214,15 @@ Item {
             cameraControl.alignView(selectedNodes);
     }
 
+    function updateViewStates(viewStates)
+    {
+        if ("selectBackgroundColor" in viewStates) {
+            var color = viewStates.selectBackgroundColor
+            backgroundGradientColorStart = color[0];
+            backgroundGradientColorEnd = color[1];
+        }
+    }
+
     // If resetToDefault is true, tool states not specifically set to anything will be reset to
     // their default state.
     function updateToolStates(toolStates, resetToDefault)
@@ -329,6 +340,15 @@ Item {
 
     function handleObjectClicked(object, multi)
     {
+        if (object instanceof View3D) {
+            // View3D can be the resolved pick target in case the 3D editor is showing content
+            // of a component that has View3D as root. In that case locking is resolved on C++ side
+            // and we ignore multiselection.
+            selectObjects([]);
+            selectionChanged([object]);
+            return;
+        }
+
         var clickedObject;
 
         // Click on locked object is treated same as click on empty space
@@ -721,8 +741,8 @@ Item {
             anchors.fill: parent
 
             gradient: Gradient {
-                GradientStop { position: 1.0; color: "#222222" }
-                GradientStop { position: 0.0; color: "#999999" }
+                GradientStop { position: 1.0; color: backgroundGradientColorStart }
+                GradientStop { position: 0.0; color: backgroundGradientColorEnd }
             }
 
             MouseArea {
@@ -740,7 +760,7 @@ Item {
                         handleObjectClicked(_generalHelper.resolvePick(pickResult.objectHit),
                                             mouse.modifiers & Qt.ControlModifier);
 
-                        if (pickResult.objectHit) {
+                        if (pickResult.objectHit && pickResult.objectHit instanceof Node) {
                             if (transformMode === EditView3D.TransformMode.Move)
                                 freeDraggerArea = moveGizmo.freeDraggerArea;
                             else if (transformMode === EditView3D.TransformMode.Rotate)

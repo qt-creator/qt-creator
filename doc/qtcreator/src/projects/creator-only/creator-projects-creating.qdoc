@@ -122,20 +122,26 @@
                 to desktop, embedded, and mobile target platforms.
         \row
             \li {1,4} Application (Qt for Python)
-            \li Qt for Python - Empty
+            \li Empty Application
             \li Creates a \l{https://doc.qt.io/qtforpython/index.html}
                 {Qt for Python} application that contains only the main
                 code for a QApplication.
         \row
-            \li Qt for Python - Window
+            \li Empty Window
             \li Creates a Qt for Python application that contains an empty
                 window.
         \row
-            \li Qt for Python - Window (UI file)
+            \li Window UI
+            \li Creates a Qt for Python application that contains an empty
+                window with a widget-based UI. Preferred approach that requires
+                you to generate a Python file from the .ui file, to import
+                it directly into your application.
+        \row
+            \li Window UI - Dynamic load
             \li Creates a Qt for Python application that contains an empty
                 window with a widget-based UI.
         \row
-            \li Qt for Python - Qt Quick Application
+            \li Qt Quick Application - Empty
             \li Creates a Python project that contains an empty Qt Quick
                 Application.
         \row

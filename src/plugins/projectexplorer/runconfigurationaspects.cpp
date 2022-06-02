@@ -25,13 +25,12 @@
 
 #include "runconfigurationaspects.h"
 
+#include "devicesupport/devicemanager.h"
 #include "devicesupport/idevice.h"
 #include "environmentaspect.h"
 #include "kitinformation.h"
-#include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
-#include "runconfiguration.h"
 #include "target.h"
 
 #include <coreplugin/icore.h>
@@ -514,8 +513,8 @@ void ArgumentsAspect::addToLayout(LayoutBuilder &builder)
     by the build system's parsing results with an optional manual override.
 */
 
-ExecutableAspect::ExecutableAspect(Target *target)
-    : m_target(target)
+ExecutableAspect::ExecutableAspect(Target *target, ExecutionDeviceSelector selector)
+    : m_target(target), m_selector(selector)
 {
     setDisplayName(tr("Executable"));
     setId("ExecutableAspect");
@@ -534,9 +533,16 @@ ExecutableAspect::ExecutableAspect(Target *target)
     \internal
 */
 
-static IDevice::ConstPtr deviceForTarget(Target *target)
+static IDevice::ConstPtr executionDevice(Target *target,
+                                         ExecutableAspect::ExecutionDeviceSelector selector)
 {
-    return target ? DeviceKitAspect::device(target->kit()) : IDevice::ConstPtr();
+    if (target) {
+        if (selector == ExecutableAspect::RunDevice)
+            return DeviceKitAspect::device(target->kit());
+        if (selector == ExecutableAspect::BuildDevice)
+            return BuildDeviceKitAspect::device(target->kit());
+    }
+    return DeviceManager::defaultDesktopDevice();
 }
 
 ExecutableAspect::~ExecutableAspect()
@@ -547,7 +553,7 @@ ExecutableAspect::~ExecutableAspect()
 
 void ExecutableAspect::updateDevice()
 {
-    const IDevice::ConstPtr dev = deviceForTarget(m_target);
+    const IDevice::ConstPtr dev = executionDevice(m_target, m_selector);
     const OsType osType = dev ? dev->osType() : HostOsInfo::hostOs();
 
     m_executable.setDisplayFilter([osType](const QString &pathName) {
@@ -638,7 +644,7 @@ FilePath ExecutableAspect::executable() const
             ? m_alternativeExecutable->filePath()
             : m_executable.filePath();
 
-    if (const IDevice::ConstPtr dev = deviceForTarget(m_target))
+    if (const IDevice::ConstPtr dev = executionDevice(m_target, m_selector))
         exe = dev->filePath(exe.path());
 
     return exe;

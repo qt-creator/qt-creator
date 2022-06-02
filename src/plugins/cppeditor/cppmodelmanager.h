@@ -30,7 +30,6 @@
 #include "cursorineditor.h"
 #include "projectinfo.h"
 #include "projectpart.h"
-#include "usages.h"
 
 #include <cplusplus/cppmodelmanagerbase.h>
 #include <coreplugin/find/ifindfilter.h>
@@ -179,10 +178,9 @@ public:
     static void startLocalRenaming(const CursorInEditor &data, const ProjectPart *projectPart,
                                    RenameCallback &&renameSymbolsCallback,
                                    Backend backend = Backend::Best);
-    static void globalRename(const CursorInEditor &data, UsagesCallback &&renameCallback,
-                             const QString &replacement, Backend backend = Backend::Best);
-    static void findUsages(const CursorInEditor &data, UsagesCallback &&showUsagesCallback,
-                           Backend backend = Backend::Best);
+    static void globalRename(const CursorInEditor &data, const QString &replacement,
+                             Backend backend = Backend::Best);
+    static void findUsages(const CursorInEditor &data, Backend backend = Backend::Best);
     static void switchHeaderSource(bool inNextSplit, Backend backend = Backend::Best);
 
     static Core::ILocatorFilter *createAuxiliaryCurrentDocumentFilter();

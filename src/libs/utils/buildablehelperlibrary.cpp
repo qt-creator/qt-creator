@@ -41,61 +41,7 @@ bool BuildableHelperLibrary::isQtChooser(const FilePath &filePath)
     return filePath.symLinkTarget().endsWith("/qtchooser");
 }
 
-static const QStringList &queryToolNames()
-{
-    static const QStringList names = {"qmake", "qtpaths"};
-    return names;
-}
-
-static bool isQueryTool(FilePath path)
-{
-    if (path.isEmpty())
-        return false;
-    if (BuildableHelperLibrary::isQtChooser(path))
-        path = BuildableHelperLibrary::qtChooserToQueryToolPath(path.symLinkTarget());
-    if (!path.exists())
-        return false;
-    QtcProcess proc;
-    proc.setCommand({path, {"-query"}});
-    proc.runBlocking();
-    if (proc.result() != ProcessResult::FinishedWithSuccess)
-        return false;
-    const QString output = proc.stdOut();
-    // Exemplary output of "[qmake|qtpaths] -query":
-    // QT_SYSROOT:...
-    // QT_INSTALL_PREFIX:...
-    // [...]
-    // QT_VERSION:6.4.0
-    return output.contains("QT_VERSION:");
-}
-
-static FilePath findQueryToolInDir(const FilePath &dir)
-{
-    if (dir.isEmpty())
-        return {};
-
-    for (const QString &queryTool : queryToolNames()) {
-        FilePath queryToolPath = dir.pathAppended(queryTool).withExecutableSuffix();
-        if (queryToolPath.exists()) {
-            if (isQueryTool(queryToolPath))
-                return queryToolPath;
-        }
-
-        // Prefer qmake-qt5 to qmake-qt4 by sorting the filenames in reverse order.
-        const FilePaths candidates = dir.dirEntries(
-                    {BuildableHelperLibrary::possibleQtQueryTools(queryTool), QDir::Files},
-                    QDir::Name | QDir::Reversed);
-        for (const FilePath &candidate : candidates) {
-            if (candidate == queryToolPath)
-                continue;
-            if (isQueryTool(candidate))
-                return candidate;
-        }
-    }
-    return {};
-}
-
-FilePath BuildableHelperLibrary::qtChooserToQueryToolPath(const FilePath &qtChooser)
+FilePath BuildableHelperLibrary::qtChooserToQmakePath(const FilePath &qtChooser)
 {
     const QString toolDir = QLatin1String("QTTOOLDIR=\"");
     QtcProcess proc;
@@ -105,10 +51,6 @@ FilePath BuildableHelperLibrary::qtChooserToQueryToolPath(const FilePath &qtChoo
     if (proc.result() != ProcessResult::FinishedWithSuccess)
         return {};
     const QString output = proc.stdOut();
-    // Exemplary output of "qtchooser -print-env":
-    // QT_SELECT="default"
-    // QTTOOLDIR="/usr/lib/qt5/bin"
-    // QTLIBDIR="/usr/lib/x86_64-linux-gnu"
     int pos = output.indexOf(toolDir);
     if (pos == -1)
         return {};
@@ -117,13 +59,44 @@ FilePath BuildableHelperLibrary::qtChooserToQueryToolPath(const FilePath &qtChoo
     if (end == -1)
         return {};
 
-    FilePath queryToolPath = qtChooser;
-    for (const QString &queryTool : queryToolNames()) {
-        queryToolPath.setPath(output.mid(pos, end - pos) + "/" + queryTool);
-        if (queryToolPath.exists())
-            return queryToolPath;
+    FilePath qmake = qtChooser;
+    qmake.setPath(output.mid(pos, end - pos) + "/qmake");
+    return qmake;
+}
+
+static bool isQmake(FilePath path)
+{
+    if (path.isEmpty())
+        return false;
+    if (BuildableHelperLibrary::isQtChooser(path))
+        path = BuildableHelperLibrary::qtChooserToQmakePath(path.symLinkTarget());
+    if (!path.exists())
+        return false;
+    return !BuildableHelperLibrary::qtVersionForQMake(path).isEmpty();
+}
+
+static FilePath findQmakeInDir(const FilePath &dir)
+{
+    if (dir.isEmpty())
+        return {};
+
+    FilePath qmakePath = dir.pathAppended("qmake").withExecutableSuffix();
+    if (qmakePath.exists()) {
+        if (isQmake(qmakePath))
+            return qmakePath;
     }
-    return queryToolPath;
+
+    // Prefer qmake-qt5 to qmake-qt4 by sorting the filenames in reverse order.
+    const FilePaths candidates = dir.dirEntries(
+                {BuildableHelperLibrary::possibleQMakeCommands(), QDir::Files},
+                QDir::Name | QDir::Reversed);
+    for (const FilePath &candidate : candidates) {
+        if (candidate == qmakePath)
+            continue;
+        if (isQmake(candidate))
+            return candidate;
+    }
+    return {};
 }
 
 FilePath BuildableHelperLibrary::findSystemQt(const Environment &env)
@@ -134,55 +107,86 @@ FilePath BuildableHelperLibrary::findSystemQt(const Environment &env)
 
 FilePaths BuildableHelperLibrary::findQtsInEnvironment(const Environment &env, int maxCount)
 {
-    FilePaths queryToolList;
+    FilePaths qmakeList;
     std::set<QString> canonicalEnvPaths;
     const FilePaths paths = env.path();
     for (const FilePath &path : paths) {
         if (!canonicalEnvPaths.insert(path.toFileInfo().canonicalFilePath()).second)
             continue;
-        const FilePath queryTool = findQueryToolInDir(path);
-        if (queryTool.isEmpty())
+        const FilePath qmake = findQmakeInDir(path);
+        if (qmake.isEmpty())
             continue;
-        queryToolList << queryTool;
-        if (maxCount != -1 && queryToolList.size() == maxCount)
+        qmakeList << qmake;
+        if (maxCount != -1 && qmakeList.size() == maxCount)
             break;
     }
-    return queryToolList;
+    return qmakeList;
 }
 
-QString BuildableHelperLibrary::filterForQtQueryToolsFileDialog()
+QString BuildableHelperLibrary::qtVersionForQMake(const FilePath &qmakePath)
 {
-    QStringList toolFilters;
-    for (const QString &queryTool : queryToolNames()) {
-        for (const QString &tool: BuildableHelperLibrary::possibleQtQueryTools(queryTool)) {
-            QString toolFilter;
-            if (HostOsInfo::isMacHost())
-                // work around QTBUG-7739 that prohibits filters that don't start with *
-                toolFilter += QLatin1Char('*');
-            toolFilter += tool;
-            if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost())
-                // kde bug, we need at least one wildcard character
-                // see QTCREATORBUG-7771
-                toolFilter += QLatin1Char('*');
-            toolFilters.append(toolFilter);
-        }
+    if (qmakePath.isEmpty())
+        return QString();
+
+    QtcProcess qmake;
+    qmake.setTimeoutS(5);
+    qmake.setCommand({qmakePath, {"--version"}});
+    qmake.runBlocking();
+    if (qmake.result() != ProcessResult::FinishedWithSuccess) {
+        qWarning() << qmake.exitMessage();
+        return QString();
     }
-    return queryToolNames().join(", ") + " (" + toolFilters.join(" ") + ")";
+
+    const QString output = qmake.allOutput();
+    static const QRegularExpression regexp("(QMake version:?)[\\s]*([\\d.]*)",
+                                           QRegularExpression::CaseInsensitiveOption);
+    const QRegularExpressionMatch match = regexp.match(output);
+    const QString qmakeVersion = match.captured(2);
+    if (qmakeVersion.startsWith(QLatin1String("2."))
+            || qmakeVersion.startsWith(QLatin1String("3."))) {
+        static const QRegularExpression regexp2("Using Qt version[\\s]*([\\d\\.]*)",
+                                                QRegularExpression::CaseInsensitiveOption);
+        const QRegularExpressionMatch match2 = regexp2.match(output);
+        const QString version = match2.captured(1);
+        return version;
+    }
+    return QString();
 }
 
-QStringList BuildableHelperLibrary::possibleQtQueryTools(const QString &tool)
+QString BuildableHelperLibrary::filterForQmakeFileDialog()
 {
-    // On Windows it is "<queryTool>.exe" or "<queryTool>.bat"
+    QString filter = QLatin1String("qmake (");
+    const QStringList commands = possibleQMakeCommands();
+    for (int i = 0; i < commands.size(); ++i) {
+        if (i)
+            filter += QLatin1Char(' ');
+        if (HostOsInfo::isMacHost())
+            // work around QTBUG-7739 that prohibits filters that don't start with *
+            filter += QLatin1Char('*');
+        filter += commands.at(i);
+        if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost())
+            // kde bug, we need at least one wildcard character
+            // see QTCREATORBUG-7771
+            filter += QLatin1Char('*');
+    }
+    filter += QLatin1Char(')');
+    return filter;
+}
+
+
+QStringList BuildableHelperLibrary::possibleQMakeCommands()
+{
+    // On Windows it is always "qmake.exe"
     // On Unix some distributions renamed qmake with a postfix to avoid clashes
     // On OS X, Qt 4 binary packages also has renamed qmake. There are also symbolic links that are
-    // named <tool>, but the file dialog always checks against resolved links (native Cocoa issue)
-    QStringList tools(HostOsInfo::withExecutableSuffix(tool + "*"));
+    // named "qmake", but the file dialog always checks against resolved links (native Cocoa issue)
+    QStringList commands(HostOsInfo::withExecutableSuffix("qmake*"));
 
     // Qt 6 CMake built targets, such as Android, are dependent on the host installation
-    // and use a script wrapper around the host queryTool executable
+    // and use a script wrapper around the host qmake executable
     if (HostOsInfo::isWindowsHost())
-        tools.append(tool + "*.bat");
-    return tools;
+        commands.append("qmake*.bat");
+    return commands;
 }
 
 } // namespace Utils

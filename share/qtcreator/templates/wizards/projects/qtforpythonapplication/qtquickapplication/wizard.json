@@ -4,7 +4,7 @@
     "id": "F.QtQuickQtForPythonApplicationEmpty",
     "category": "F.ApplicationPySide",
     "trDescription": "Creates a Qt Quick application that contains an empty window.",
-    "trDisplayName": "Qt for Python - Qt Quick Application - Empty",
+    "trDisplayName": "Qt Quick Application - Empty",
     "trDisplayCategory": "Application (Qt for Python)",
     "icon": "../icons/icon.png",
     "iconKind": "Themed",

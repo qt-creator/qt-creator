@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include "command.h"
 #include "command_p.h"
 
 #include <coreplugin/coreconstants.h>
@@ -260,82 +261,92 @@
 using namespace Utils;
 
 namespace Core {
-namespace Internal {
 
-Action::Action(Id id)
-    : m_attributes({}),
-      m_id(id),
-      m_action(new Utils::ProxyAction(this))
+Command::Command(Utils::Id id)
+    : d(new Internal::CommandPrivate(this))
+{
+    d->m_id = id;
+}
+
+Command::~Command()
+{
+    delete d;
+}
+
+Internal::CommandPrivate::CommandPrivate(Command *parent)
+    : m_q(parent)
+    , m_attributes({})
+    , m_action(new Utils::ProxyAction(this))
 {
     m_action->setShortcutVisibleInToolTip(true);
-    connect(m_action, &QAction::changed, this, &Action::updateActiveState);
+    connect(m_action, &QAction::changed, this, &CommandPrivate::updateActiveState);
 }
 
-Id Action::id() const
+Id Command::id() const
 {
-    return m_id;
+    return d->m_id;
 }
 
-void Action::setDefaultKeySequence(const QKeySequence &key)
+void Command::setDefaultKeySequence(const QKeySequence &key)
 {
-    if (!m_isKeyInitialized)
+    if (!d->m_isKeyInitialized)
         setKeySequences({key});
-    m_defaultKeys = {key};
+    d->m_defaultKeys = {key};
 }
 
-void Action::setDefaultKeySequences(const QList<QKeySequence> &keys)
+void Command::setDefaultKeySequences(const QList<QKeySequence> &keys)
 {
-    if (!m_isKeyInitialized)
+    if (!d->m_isKeyInitialized)
         setKeySequences(keys);
-    m_defaultKeys = keys;
+    d->m_defaultKeys = keys;
 }
 
-QList<QKeySequence> Action::defaultKeySequences() const
+QList<QKeySequence> Command::defaultKeySequences() const
 {
-    return m_defaultKeys;
+    return d->m_defaultKeys;
 }
 
-QAction *Action::action() const
+QAction *Command::action() const
 {
-    return m_action;
+    return d->m_action;
 }
 
-QString Action::stringWithAppendedShortcut(const QString &str) const
+QString Command::stringWithAppendedShortcut(const QString &str) const
 {
     return Utils::ProxyAction::stringWithAppendedShortcut(str, keySequence());
 }
 
-Context Action::context() const
+Context Command::context() const
 {
-    return m_context;
+    return d->m_context;
 }
 
-void Action::setKeySequences(const QList<QKeySequence> &keys)
+void Command::setKeySequences(const QList<QKeySequence> &keys)
 {
-    m_isKeyInitialized = true;
-    m_action->setShortcuts(keys);
+    d->m_isKeyInitialized = true;
+    d->m_action->setShortcuts(keys);
     emit keySequenceChanged();
 }
 
-QList<QKeySequence> Action::keySequences() const
+QList<QKeySequence> Command::keySequences() const
 {
-    return m_action->shortcuts();
+    return d->m_action->shortcuts();
 }
 
-QKeySequence Action::keySequence() const
+QKeySequence Command::keySequence() const
 {
-    return m_action->shortcut();
+    return d->m_action->shortcut();
 }
 
-void Action::setDescription(const QString &text)
+void Command::setDescription(const QString &text)
 {
-    m_defaultText = text;
+    d->m_defaultText = text;
 }
 
-QString Action::description() const
+QString Command::description() const
 {
-    if (!m_defaultText.isEmpty())
-        return m_defaultText;
+    if (!d->m_defaultText.isEmpty())
+        return d->m_defaultText;
     if (QAction *act = action()) {
         const QString text = Utils::stripAccelerator(act->text());
         if (!text.isEmpty())
@@ -344,7 +355,7 @@ QString Action::description() const
     return id().toString();
 }
 
-void Action::setCurrentContext(const Context &context)
+void Internal::CommandPrivate::setCurrentContext(const Context &context)
 {
     m_context = context;
 
@@ -360,7 +371,7 @@ void Action::setCurrentContext(const Context &context)
     updateActiveState();
 }
 
-void Action::updateActiveState()
+void Internal::CommandPrivate::updateActiveState()
 {
     setActive(m_action->isEnabled() && m_action->isVisible() && !m_action->isSeparator());
 }
@@ -377,7 +388,9 @@ static QString msgActionWarning(QAction *newAction, Id id, QAction *oldAction)
     return msg;
 }
 
-void Action::addOverrideAction(QAction *action, const Context &context, bool scriptable)
+void Internal::CommandPrivate::addOverrideAction(QAction *action,
+                                                 const Context &context,
+                                                 bool scriptable)
 {
     // disallow TextHeuristic menu role, because it doesn't work with translations,
     // e.g. QTCREATORBUG-13101
@@ -398,7 +411,7 @@ void Action::addOverrideAction(QAction *action, const Context &context, bool scr
     setCurrentContext(m_context);
 }
 
-void Action::removeOverrideAction(QAction *action)
+void Internal::CommandPrivate::removeOverrideAction(QAction *action)
 {
     QList<Id> toRemove;
     for (auto it = m_contextActionMap.cbegin(), end = m_contextActionMap.cend(); it != end; ++it) {
@@ -410,124 +423,122 @@ void Action::removeOverrideAction(QAction *action)
     setCurrentContext(m_context);
 }
 
-bool Action::isActive() const
+bool Command::isActive() const
 {
-    return m_active;
+    return d->m_active;
 }
 
-void Action::setActive(bool state)
+void Internal::CommandPrivate::setActive(bool state)
 {
     if (state != m_active) {
         m_active = state;
-        emit activeStateChanged();
+        emit m_q->activeStateChanged();
     }
 }
 
-bool Action::isEmpty() const
+bool Internal::CommandPrivate::isEmpty() const
 {
     return m_contextActionMap.isEmpty();
 }
 
-bool Action::isScriptable() const
+bool Command::isScriptable() const
 {
-    return std::find(m_scriptableMap.cbegin(), m_scriptableMap.cend(), true) !=
-            m_scriptableMap.cend();
+    return std::find(d->m_scriptableMap.cbegin(), d->m_scriptableMap.cend(), true)
+           != d->m_scriptableMap.cend();
 }
 
-bool Action::isScriptable(const Context &context) const
+bool Command::isScriptable(const Context &context) const
 {
-    if (context == m_context && m_scriptableMap.contains(m_action->action()))
-        return m_scriptableMap.value(m_action->action());
+    if (context == d->m_context && d->m_scriptableMap.contains(d->m_action->action()))
+        return d->m_scriptableMap.value(d->m_action->action());
 
     for (int i = 0; i < context.size(); ++i) {
-        if (QAction *a = m_contextActionMap.value(context.at(i), nullptr)) {
-            if (m_scriptableMap.contains(a) && m_scriptableMap.value(a))
+        if (QAction *a = d->m_contextActionMap.value(context.at(i), nullptr)) {
+            if (d->m_scriptableMap.contains(a) && d->m_scriptableMap.value(a))
                 return true;
         }
     }
     return false;
 }
 
-void Action::setAttribute(CommandAttribute attr)
+void Command::setAttribute(CommandAttribute attr)
 {
-    m_attributes |= attr;
+    d->m_attributes |= attr;
     switch (attr) {
     case Command::CA_Hide:
-        m_action->setAttribute(Utils::ProxyAction::Hide);
+        d->m_action->setAttribute(Utils::ProxyAction::Hide);
         break;
     case Command::CA_UpdateText:
-        m_action->setAttribute(Utils::ProxyAction::UpdateText);
+        d->m_action->setAttribute(Utils::ProxyAction::UpdateText);
         break;
     case Command::CA_UpdateIcon:
-        m_action->setAttribute(Utils::ProxyAction::UpdateIcon);
+        d->m_action->setAttribute(Utils::ProxyAction::UpdateIcon);
         break;
     case Command::CA_NonConfigurable:
         break;
     }
 }
 
-void Action::removeAttribute(CommandAttribute attr)
+void Command::removeAttribute(CommandAttribute attr)
 {
-    m_attributes &= ~attr;
+    d->m_attributes &= ~attr;
     switch (attr) {
     case Command::CA_Hide:
-        m_action->removeAttribute(Utils::ProxyAction::Hide);
+        d->m_action->removeAttribute(Utils::ProxyAction::Hide);
         break;
     case Command::CA_UpdateText:
-        m_action->removeAttribute(Utils::ProxyAction::UpdateText);
+        d->m_action->removeAttribute(Utils::ProxyAction::UpdateText);
         break;
     case Command::CA_UpdateIcon:
-        m_action->removeAttribute(Utils::ProxyAction::UpdateIcon);
+        d->m_action->removeAttribute(Utils::ProxyAction::UpdateIcon);
         break;
     case Command::CA_NonConfigurable:
         break;
     }
 }
 
-bool Action::hasAttribute(Command::CommandAttribute attr) const
+bool Command::hasAttribute(CommandAttribute attr) const
 {
-    return (m_attributes & attr);
+    return (d->m_attributes & attr);
 }
 
-void Action::setTouchBarText(const QString &text)
+void Command::setTouchBarText(const QString &text)
 {
-    m_touchBarText = text;
+    d->m_touchBarText = text;
 }
 
-QString Action::touchBarText() const
+QString Command::touchBarText() const
 {
-    return m_touchBarText;
+    return d->m_touchBarText;
 }
 
-void Action::setTouchBarIcon(const QIcon &icon)
+void Command::setTouchBarIcon(const QIcon &icon)
 {
-    m_touchBarIcon = icon;
+    d->m_touchBarIcon = icon;
 }
 
-QIcon Action::touchBarIcon() const
+QIcon Command::touchBarIcon() const
 {
-    return m_touchBarIcon;
+    return d->m_touchBarIcon;
 }
 
-QAction *Action::touchBarAction() const
+QAction *Command::touchBarAction() const
 {
-    if (!m_touchBarAction) {
-        m_touchBarAction = std::make_unique<Utils::ProxyAction>();
-        m_touchBarAction->initialize(m_action);
-        m_touchBarAction->setIcon(m_touchBarIcon);
-        m_touchBarAction->setText(m_touchBarText);
+    if (!d->m_touchBarAction) {
+        d->m_touchBarAction = std::make_unique<Utils::ProxyAction>();
+        d->m_touchBarAction->initialize(d->m_action);
+        d->m_touchBarAction->setIcon(d->m_touchBarIcon);
+        d->m_touchBarAction->setText(d->m_touchBarText);
         // the touch bar action should be hidden if the command is not valid for the context
-        m_touchBarAction->setAttribute(Utils::ProxyAction::Hide);
-        m_touchBarAction->setAction(m_action->action());
-        connect(m_action,
+        d->m_touchBarAction->setAttribute(Utils::ProxyAction::Hide);
+        d->m_touchBarAction->setAction(d->m_action->action());
+        connect(d->m_action,
                 &Utils::ProxyAction::currentActionChanged,
-                m_touchBarAction.get(),
+                d->m_touchBarAction.get(),
                 &Utils::ProxyAction::setAction);
     }
-    return m_touchBarAction.get();
+    return d->m_touchBarAction.get();
 }
-
-} // namespace Internal
 
 /*!
     Appends the main keyboard shortcut that is currently assigned to the action

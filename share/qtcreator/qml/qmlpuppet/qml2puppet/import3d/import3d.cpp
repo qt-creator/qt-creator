@@ -77,9 +77,8 @@ void import3D(const QString &sourceAsset, const QString &outDir, const QString &
         }
     }
 
-    // Allow little time for file operations to finish
-    QTimer::singleShot(2000, nullptr, []() {
-        qApp->exit(0);
+    QTimer::singleShot(0, nullptr, []() {
+        qApp->quit();
     });
 }
 

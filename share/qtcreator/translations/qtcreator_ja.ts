@@ -26108,16 +26108,16 @@ Do you want to save the data first?</source>
         <translation>qmake のパスが設定されていません</translation>
     </message>
     <message>
-        <source>%1 does not exist or is not executable</source>
-        <translation>%1 が存在しないか実行可能ではありません</translation>
+        <source>qmake does not exist or is not executable</source>
+        <translation>qmake が存在しないか実行可能ではありません</translation>
     </message>
     <message>
         <source>Qt version is not properly installed, please run make install</source>
         <translation>Qt バージョンが正しくインストールされていません。make install を実行してください</translation>
     </message>
     <message>
-        <source>Could not determine the path to the binaries of the Qt installation, maybe the %1 path is wrong?</source>
-        <translation>Qt インストール先のパスが特定できませんでした。%1 のパスが間違っていませんか？</translation>
+        <source>Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?</source>
+        <translation>Qt インストール先のパスが特定できませんでした。qmake のパスが間違っていませんか？</translation>
     </message>
     <message>
         <source>The default mkspec symlink is broken.</source>

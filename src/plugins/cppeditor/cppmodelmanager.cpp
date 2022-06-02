@@ -316,17 +316,15 @@ void CppModelManager::startLocalRenaming(const CursorInEditor &data,
             ->startLocalRenaming(data, projectPart, std::move(renameSymbolsCallback));
 }
 
-void CppModelManager::globalRename(const CursorInEditor &data, UsagesCallback &&renameCallback,
-                                   const QString &replacement, Backend backend)
+void CppModelManager::globalRename(const CursorInEditor &data, const QString &replacement,
+                                   Backend backend)
 {
-    instance()->modelManagerSupport(backend)
-            ->globalRename(data, std::move(renameCallback), replacement);
+    instance()->modelManagerSupport(backend)->globalRename(data, replacement);
 }
 
-void CppModelManager::findUsages(const CursorInEditor &data,
-                                 UsagesCallback &&showUsagesCallback, Backend backend)
+void CppModelManager::findUsages(const CursorInEditor &data, Backend backend)
 {
-    instance()->modelManagerSupport(backend)->findUsages(data, std::move(showUsagesCallback));
+    instance()->modelManagerSupport(backend)->findUsages(data);
 }
 
 void CppModelManager::switchHeaderSource(bool inNextSplit, Backend backend)

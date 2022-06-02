@@ -4,6 +4,10 @@ from %{PySideVersion}.QtWidgets import QApplication
 
 
 if __name__ == "__main__":
-    app = QApplication([])
+    app = QApplication(sys.argv)
     # ...
+@if '%{PySideVersion}' === 'PySide6'
+    sys.exit(app.exec())
+@else
     sys.exit(app.exec_())
+@endif

@@ -8171,6 +8171,9 @@ private:
 
 void RemoveUsingNamespace::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
+    if (CppModelManager::usesClangd(interface.currentFile()->editor()->textDocument()))
+        return;
+
     const QList<AST *> &path = interface.path();
     // We expect something like
     // [0] TranslationUnitAST

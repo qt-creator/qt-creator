@@ -99,7 +99,9 @@ void BaseClientInterface::parseCurrentMessage()
     m_currentMessage = BaseMessage();
 }
 
-StdIOClientInterface::StdIOClientInterface() {}
+StdIOClientInterface::StdIOClientInterface()
+    : m_env(Utils::Environment::systemEnvironment())
+{}
 
 StdIOClientInterface::~StdIOClientInterface()
 {
@@ -124,6 +126,7 @@ void StdIOClientInterface::startImpl()
     connect(m_process, &QtcProcess::started, this, &StdIOClientInterface::started);
     m_process->setCommand(m_cmd);
     m_process->setWorkingDirectory(m_workingDirectory);
+    m_process->setEnvironment(m_env);
     m_process->start();
 }
 
@@ -135,6 +138,11 @@ void StdIOClientInterface::setCommandLine(const CommandLine &cmd)
 void StdIOClientInterface::setWorkingDirectory(const FilePath &workingDirectory)
 {
     m_workingDirectory = workingDirectory;
+}
+
+void StdIOClientInterface::setEnvironment(const Utils::Environment &environment)
+{
+    m_env = environment;
 }
 
 void StdIOClientInterface::sendData(const QByteArray &data)

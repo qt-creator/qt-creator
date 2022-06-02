@@ -44,6 +44,7 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <asynchronousexplicitimagecache.h>
+#include <asynchronousimagecache.h>
 #include <imagecache/asynchronousimagefactory.h>
 #include <imagecache/explicitimagecacheimageprovider.h>
 #include <imagecache/imagecachecollector.h>
@@ -59,6 +60,14 @@
 namespace QmlDesigner {
 
 namespace {
+
+ProjectExplorer::Target *activeTarget(ProjectExplorer::Project *project)
+{
+    if (project)
+        return project->activeTarget();
+
+    return {};
+}
 
 QString defaultImagePath()
 {
@@ -89,7 +98,22 @@ public:
 
 } // namespace
 
-class PreviewImageCacheData
+class QmlDesignerProjectManager::ImageCacheData
+{
+public:
+    Sqlite::Database database{Utils::PathString{
+                                                Core::ICore::cacheResourcePath("imagecache-v2.db").toString()},
+                              Sqlite::JournalMode::Wal,
+                              Sqlite::LockingMode::Normal};
+    ImageCacheStorage<Sqlite::Database> storage{database};
+    ImageCacheConnectionManager connectionManager;
+    ImageCacheCollector collector{connectionManager, QSize{300, 300}, QSize{600, 600}};
+    ImageCacheGenerator generator{collector, storage};
+    TimeStampProvider timeStampProvider;
+    AsynchronousImageCache asynchronousImageCache{storage, generator, timeStampProvider};
+};
+
+class QmlDesignerProjectManager::PreviewImageCacheData
 {
 public:
     Sqlite::Database database{Utils::PathString{
@@ -100,7 +124,7 @@ public:
     AsynchronousExplicitImageCache cache{storage};
 };
 
-class QmlDesignerProjectManagerProjectData
+class QmlDesignerProjectManager::QmlDesignerProjectManagerProjectData
 {
 public:
     QmlDesignerProjectManagerProjectData(ImageCacheStorage<Sqlite::Database> &storage)
@@ -117,7 +141,7 @@ public:
 };
 
 QmlDesignerProjectManager::QmlDesignerProjectManager()
-    : m_imageCacheData{std::make_unique<PreviewImageCacheData>()}
+    : m_previewImageCacheData{std::make_unique<PreviewImageCacheData>()}
 {
     auto editorManager = ::Core::EditorManager::instance();
     QObject::connect(editorManager, &::Core::EditorManager::editorOpened, [&](auto *editor) {
@@ -145,10 +169,15 @@ QmlDesignerProjectManager::~QmlDesignerProjectManager() = default;
 
 void QmlDesignerProjectManager::registerPreviewImageProvider(QQmlEngine *engine) const
 {
-    auto imageProvider = std::make_unique<ExplicitImageCacheImageProvider>(m_imageCacheData->cache,
+    auto imageProvider = std::make_unique<ExplicitImageCacheImageProvider>(m_previewImageCacheData->cache,
                                                                            QImage{defaultImagePath()});
 
     engine->addImageProvider("project_preview", imageProvider.release());
+}
+
+AsynchronousImageCache &QmlDesignerProjectManager::asynchronousImageCache()
+{
+    return imageCacheData()->asynchronousImageCache;
 }
 
 void QmlDesignerProjectManager::editorOpened(::Core::IEditor *) {}
@@ -171,7 +200,7 @@ void QmlDesignerProjectManager::editorsClosed(const QList<::Core::IEditor *> &) 
 
 void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *project)
 {
-    m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>(m_imageCacheData->storage);
+    m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>(m_previewImageCacheData->storage);
     m_projectData->activeTarget = project->activeTarget();
 }
 
@@ -182,5 +211,37 @@ void QmlDesignerProjectManager::aboutToRemoveProject(::ProjectExplorer::Project 
 }
 
 void QmlDesignerProjectManager::projectRemoved(::ProjectExplorer::Project *) {}
+
+QmlDesignerProjectManager::ImageCacheData *QmlDesignerProjectManager::imageCacheData()
+{
+    std::call_once(imageCacheFlag, [this]() {
+        m_imageCacheData = std::make_unique<ImageCacheData>();
+        auto setTargetInImageCache =
+            [imageCacheData = m_imageCacheData.get()](ProjectExplorer::Target *target) {
+                if (target == imageCacheData->collector.target())
+                    return;
+
+                if (target)
+                    imageCacheData->asynchronousImageCache.clean();
+
+                imageCacheData->collector.setTarget(target);
+            };
+
+        if (auto project = ProjectExplorer::SessionManager::startupProject(); project) {
+            m_imageCacheData->collector.setTarget(project->activeTarget());
+            QObject::connect(project,
+                             &ProjectExplorer::Project::activeTargetChanged,
+                             this,
+                             setTargetInImageCache);
+        }
+        QObject::connect(ProjectExplorer::SessionManager::instance(),
+                         &ProjectExplorer::SessionManager::startupProjectChanged,
+                         this,
+                         [=](ProjectExplorer::Project *project) {
+                             setTargetInImageCache(activeTarget(project));
+                         });
+    });
+    return m_imageCacheData.get();
+}
 
 } // namespace QmlDesigner

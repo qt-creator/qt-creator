@@ -30,12 +30,6 @@
 #include <asynchronousimagecache.h>
 #include <bindingproperty.h>
 #include <coreplugin/icore.h>
-#include <imagecache/imagecachecollector.h>
-#include <imagecache/imagecacheconnectionmanager.h>
-#include <imagecache/imagecachefontcollector.h>
-#include <imagecache/imagecachegenerator.h>
-#include <imagecache/imagecachestorage.h>
-#include <imagecache/timestampprovider.h>
 #include <import.h>
 #include <nodelistproperty.h>
 #include <projectexplorer/kit.h>
@@ -44,7 +38,6 @@
 #include <projectexplorer/target.h>
 #include <rewriterview.h>
 #include <sqlitedatabase.h>
-#include <synchronousimagecache.h>
 #include <utils/algorithm.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
@@ -52,38 +45,9 @@
 
 namespace QmlDesigner {
 
-namespace {
-ProjectExplorer::Target *activeTarget(ProjectExplorer::Project *project)
-{
-    if (project)
-        return project->activeTarget();
-
-    return {};
-}
-} // namespace
-
-class ItemLibraryView::ImageCacheData
-{
-public:
-    Sqlite::Database database{Utils::PathString{
-                                  Core::ICore::cacheResourcePath("imagecache-v2.db").toString()},
-                              Sqlite::JournalMode::Wal,
-                              Sqlite::LockingMode::Normal};
-    ImageCacheStorage<Sqlite::Database> storage{database};
-    ImageCacheConnectionManager connectionManager;
-    ImageCacheCollector collector{connectionManager, QSize{300, 300}, QSize{600, 600}};
-    ImageCacheFontCollector fontCollector;
-    ImageCacheGenerator generator{collector, storage};
-    ImageCacheGenerator fontGenerator{fontCollector, storage};
-    TimeStampProvider timeStampProvider;
-    AsynchronousImageCache cache{storage, generator, timeStampProvider};
-    AsynchronousImageCache asynchronousFontImageCache{storage, fontGenerator, timeStampProvider};
-    SynchronousImageCache synchronousFontImageCache{storage, timeStampProvider, fontCollector};
-};
-
-ItemLibraryView::ItemLibraryView(QObject* parent)
-    : AbstractView(parent)
-
+ItemLibraryView::ItemLibraryView(AsynchronousImageCache &imageCache)
+    : AbstractView()
+    , m_imageCache(imageCache)
 {}
 
 ItemLibraryView::~ItemLibraryView()
@@ -97,11 +61,8 @@ bool ItemLibraryView::hasWidget() const
 
 WidgetInfo ItemLibraryView::widgetInfo()
 {
-    if (m_widget.isNull()) {
-        m_widget = new ItemLibraryWidget{imageCacheData()->cache,
-                                         imageCacheData()->asynchronousFontImageCache,
-                                         imageCacheData()->synchronousFontImageCache};
-    }
+    if (m_widget.isNull())
+        m_widget = new ItemLibraryWidget{m_imageCache};
 
     return createWidgetInfo(m_widget.data(), "Components", WidgetInfo::LeftPane, 0, tr("Components"));
 }
@@ -175,43 +136,6 @@ void ItemLibraryView::possibleImportsChanged(const QList<Import> &possibleImport
 void ItemLibraryView::usedImportsChanged(const QList<Import> &usedImports)
 {
     m_widget->updateUsedImports(usedImports);
-}
-
-ItemLibraryView::ImageCacheData *ItemLibraryView::imageCacheData()
-{
-    std::call_once(imageCacheFlag, [this]() {
-        m_imageCacheData = std::make_unique<ImageCacheData>();
-        auto setTargetInImageCache =
-            [imageCacheData = m_imageCacheData.get()](ProjectExplorer::Target *target) {
-                if (target == imageCacheData->collector.target())
-                    return;
-
-                if (target)
-                    imageCacheData->cache.clean();
-
-                imageCacheData->collector.setTarget(target);
-            };
-
-        if (auto project = ProjectExplorer::SessionManager::startupProject(); project) {
-            m_imageCacheData->collector.setTarget(project->activeTarget());
-            connect(project,
-                    &ProjectExplorer::Project::activeTargetChanged,
-                    this,
-                    setTargetInImageCache);
-        }
-        connect(ProjectExplorer::SessionManager::instance(),
-                &ProjectExplorer::SessionManager::startupProjectChanged,
-                this,
-                [=](ProjectExplorer::Project *project) {
-                    setTargetInImageCache(activeTarget(project));
-                });
-    });
-    return m_imageCacheData.get();
-}
-
-AsynchronousImageCache &ItemLibraryView::imageCache()
-{
-    return imageCacheData()->cache;
 }
 
 void ItemLibraryView::documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &)

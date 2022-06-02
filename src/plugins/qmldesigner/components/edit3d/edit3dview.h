@@ -74,6 +74,7 @@ public:
     QVector<Edit3DAction *> leftActions() const;
     QVector<Edit3DAction *> rightActions() const;
     QVector<Edit3DAction *> visibilityToggleActions() const;
+    QVector<Edit3DAction *> backgroundColorActions() const;
     void setSeeker(SeekerSlider *slider);
 
     void addQuick3DImport();
@@ -88,6 +89,7 @@ private:
     QVector<Edit3DAction *> m_leftActions;
     QVector<Edit3DAction *> m_rightActions;
     QVector<Edit3DAction *> m_visibilityToggleActions;
+    QVector<Edit3DAction *> m_backgroundColorActions;
     Edit3DAction *m_selectionModeAction = nullptr;
     Edit3DAction *m_moveToolAction = nullptr;
     Edit3DAction *m_rotateToolAction = nullptr;
@@ -99,6 +101,8 @@ private:
     Edit3DAction *m_orientationModeAction = nullptr;
     Edit3DAction *m_editLightAction = nullptr;
     Edit3DAction *m_showGridAction = nullptr;
+    Edit3DAction *m_backgroundColorSelectionAction = nullptr;
+    Edit3DAction *m_resetBackgroundColorAction = nullptr;
     Edit3DAction *m_showSelectionBoxAction = nullptr;
     Edit3DAction *m_showIconGizmoAction = nullptr;
     Edit3DAction *m_showCameraFrustumAction = nullptr;
@@ -108,6 +112,7 @@ private:
     Edit3DAction *m_particlesPlayAction = nullptr;
     Edit3DAction *m_particlesRestartAction = nullptr;
     Edit3DAction *m_visibilityTogglesAction = nullptr;
+    Edit3DAction *m_backgrondColorMenuAction = nullptr;
     SeekerSlider *m_seeker = nullptr;
     int particlemode;
     ModelCache<QImage> m_canvasCache;

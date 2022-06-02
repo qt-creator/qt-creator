@@ -27,7 +27,6 @@
 
 #include "cppeditor_global.h"
 #include "cursorineditor.h"
-#include "usages.h"
 
 #include <utils/link.h>
 
@@ -73,11 +72,8 @@ public:
     virtual void startLocalRenaming(const CursorInEditor &data,
                                     const ProjectPart *projectPart,
                                     RenameCallback &&renameSymbolsCallback) = 0;
-    virtual void globalRename(const CursorInEditor &data,
-                              UsagesCallback &&renameCallback,
-                              const QString &replacement) = 0;
-    virtual void findUsages(const CursorInEditor &data,
-                            UsagesCallback &&showUsagesCallback) const = 0;
+    virtual void globalRename(const CursorInEditor &data, const QString &replacement) = 0;
+    virtual void findUsages(const CursorInEditor &data) const = 0;
     virtual void switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit) = 0;
 };
 

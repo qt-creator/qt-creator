@@ -26,6 +26,7 @@
 #pragma once
 
 #include <QMetaType>
+#include <QVariant>
 
 namespace QmlDesigner {
 
@@ -55,20 +56,22 @@ public:
                 ParticlesPlay,
                 ParticlesRestart,
                 ParticlesSeek,
+                SelectBackgroundColor,
+                ResetBackgroundColor,
               };
 
-    explicit View3DActionCommand(Type type, bool enable);
+    explicit View3DActionCommand(Type type, const QVariant &value);
 
     View3DActionCommand() = default;
 
     bool isEnabled() const;
+    QVariant value() const;
     Type type() const;
     int position() const;
 
 private:
     Type m_type = Empty;
-    bool m_enabled = false;
-    int m_position = 0;
+    QVariant m_value;
 
 protected:
     View3DActionCommand(int pos);

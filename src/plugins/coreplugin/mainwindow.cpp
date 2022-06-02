@@ -71,10 +71,12 @@
 #include <utils/historycompleter.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeutils.h>
+#include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
+#include <utils/touchbar/touchbar.h>
 #include <utils/utilsicons.h>
 
 #include <QActionGroup>

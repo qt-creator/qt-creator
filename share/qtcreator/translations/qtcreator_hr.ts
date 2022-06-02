@@ -41628,7 +41628,7 @@ Saving failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>%1 does not exist or is not executable</source>
+        <source>qmake does not exist or is not executable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -41636,7 +41636,7 @@ Saving failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Could not determine the path to the binaries of the Qt installation, maybe the %1 path is wrong?</source>
+        <source>Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

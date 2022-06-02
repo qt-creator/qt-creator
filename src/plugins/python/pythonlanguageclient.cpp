@@ -26,18 +26,24 @@
 #include "pythonlanguageclient.h"
 
 #include "pipsupport.h"
+#include "pysideuicextracompiler.h"
 #include "pythonconstants.h"
 #include "pythonplugin.h"
 #include "pythonproject.h"
+#include "pythonrunconfiguration.h"
 #include "pythonsettings.h"
 #include "pythonutils.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
+#include <languageserverprotocol/textsynchronization.h>
 #include <languageserverprotocol/workspace.h>
+#include <projectexplorer/extracompiler.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <utils/infobar.h>
@@ -57,6 +63,7 @@
 #include <QTimer>
 
 using namespace LanguageClient;
+using namespace LanguageServerProtocol;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -67,8 +74,9 @@ static constexpr char startPylsInfoBarId[] = "Python::StartPyls";
 static constexpr char installPylsInfoBarId[] = "Python::InstallPyls";
 static constexpr char enablePylsInfoBarId[] = "Python::EnablePyls";
 
-struct PythonLanguageServerState
+class PythonLanguageServerState
 {
+public:
     enum {
         CanNotBeInstalled,
         CanBeInstalled,
@@ -454,35 +462,119 @@ void PyLSSettings::setInterpreter(const QString &interpreterId)
     m_executable = interpreter.command;
 }
 
-class PyLSClient : public Client
+class PyLSInterface : public StdIOClientInterface
 {
 public:
-    using Client::Client;
-    void openDocument(TextEditor::TextDocument *document) override
+    PyLSInterface()
+        : m_extraPythonPath("QtCreator-pyls-XXXXXX")
     {
-        using namespace LanguageServerProtocol;
-        if (reachable()) {
-            const FilePath documentPath = document->filePath();
-            if (isSupportedDocument(document) && !pythonProjectForFile(documentPath)) {
-                const FilePath workspacePath = documentPath.parentDir();
-                if (!extraWorkspaceDirs.contains(workspacePath)) {
-                    WorkspaceFoldersChangeEvent event;
-                    event.setAdded({WorkSpaceFolder(DocumentUri::fromFilePath(workspacePath),
-                                                    workspacePath.fileName())});
-                    DidChangeWorkspaceFoldersParams params;
-                    params.setEvent(event);
-                    DidChangeWorkspaceFoldersNotification change(params);
-                    sendMessage(change);
-                    extraWorkspaceDirs.append(workspacePath);
-                }
+        Environment env = Environment::systemEnvironment();
+        env.appendOrSet("PYTHONPATH",
+                        m_extraPythonPath.path().toString(),
+                        OsSpecificAspects::pathListSeparator(env.osType()));
+        setEnvironment(env);
+    }
+    TemporaryDirectory m_extraPythonPath;
+};
+
+BaseClientInterface *PyLSSettings::createInterfaceWithProject(
+    ProjectExplorer::Project *project) const
+{
+    auto interface = new PyLSInterface;
+    interface->setCommandLine(command());
+    if (project)
+        interface->setWorkingDirectory(project->projectDirectory());
+    return interface;
+}
+
+PyLSClient::PyLSClient(BaseClientInterface *interface)
+    : Client(interface)
+    , m_extraCompilerOutputDir(static_cast<PyLSInterface *>(interface)->m_extraPythonPath.path())
+{
+}
+
+void PyLSClient::openDocument(TextEditor::TextDocument *document)
+{
+    using namespace LanguageServerProtocol;
+    if (reachable()) {
+        const FilePath documentPath = document->filePath();
+        if (PythonProject *project = pythonProjectForFile(documentPath)) {
+            if (Target *target = project->activeTarget()) {
+                if (auto rc = qobject_cast<PythonRunConfiguration *>(target->activeRunConfiguration()))
+                    updateExtraCompilers(project, rc->extraCompilers());
+            }
+        } else if (isSupportedDocument(document)) {
+            const FilePath workspacePath = documentPath.parentDir();
+            if (!m_extraWorkspaceDirs.contains(workspacePath)) {
+                WorkspaceFoldersChangeEvent event;
+                event.setAdded({WorkSpaceFolder(DocumentUri::fromFilePath(workspacePath),
+                                                workspacePath.fileName())});
+                DidChangeWorkspaceFoldersParams params;
+                params.setEvent(event);
+                DidChangeWorkspaceFoldersNotification change(params);
+                sendMessage(change);
+                m_extraWorkspaceDirs.append(workspacePath);
             }
         }
-        Client::openDocument(document);
     }
+    Client::openDocument(document);
+}
 
-private:
-    FilePaths extraWorkspaceDirs;
-};
+void PyLSClient::projectClosed(ProjectExplorer::Project *project)
+{
+    for (ProjectExplorer::ExtraCompiler *compiler : m_extraCompilers.value(project))
+        closeExtraCompiler(compiler);
+    Client::projectClosed(project);
+}
+
+void PyLSClient::updateExtraCompilers(ProjectExplorer::Project *project,
+                                      const QList<PySideUicExtraCompiler *> &extraCompilers)
+{
+    auto oldCompilers = m_extraCompilers.take(project);
+    for (PySideUicExtraCompiler *extraCompiler : extraCompilers) {
+        QTC_ASSERT(extraCompiler->targets().size() == 1 , continue);
+        int index = oldCompilers.indexOf(extraCompiler);
+        if (index < 0) {
+            m_extraCompilers[project] << extraCompiler;
+            connect(extraCompiler,
+                    &ExtraCompiler::contentsChanged,
+                    this,
+                    [this, extraCompiler](const FilePath &file) {
+                        updateExtraCompilerContents(extraCompiler, file);
+                    });
+            if (extraCompiler->isDirty())
+                static_cast<ExtraCompiler *>(extraCompiler)->run();
+        } else {
+            m_extraCompilers[project] << oldCompilers.takeAt(index);
+        }
+    }
+    for (ProjectExplorer::ExtraCompiler *compiler : oldCompilers)
+        closeExtraCompiler(compiler);
+}
+
+void PyLSClient::updateExtraCompilerContents(ExtraCompiler *compiler, const FilePath &file)
+{
+    const QString text = QString::fromUtf8(compiler->content(file));
+    const FilePath target = m_extraCompilerOutputDir.pathAppended(file.fileName());
+
+    target.writeFileContents(compiler->content(file));
+}
+
+void PyLSClient::closeExtraCompiler(ProjectExplorer::ExtraCompiler *compiler)
+{
+    const FilePath file = compiler->targets().first();
+    m_extraCompilerOutputDir.pathAppended(file.fileName()).removeFile();
+    compiler->disconnect(this);
+}
+
+PyLSClient *PyLSClient::clientForPython(const FilePath &python)
+{
+    if (auto setting = PyLSConfigureAssistant::languageServerForPython(python)) {
+        if (auto client = LanguageClientManager::clientsForSetting(setting).value(0))
+            return qobject_cast<PyLSClient *>(client);
+    }
+    return nullptr;
+}
 
 Client *PyLSSettings::createClient(BaseClientInterface *interface) const
 {

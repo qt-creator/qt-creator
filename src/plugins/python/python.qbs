@@ -23,6 +23,8 @@ QtcPlugin {
             "pyside.h",
             "pysidebuildconfiguration.cpp",
             "pysidebuildconfiguration.h",
+            "pysideuicextracompiler.cpp",
+            "pysideuicextracompiler.h",
             "python.qrc",
             "pythonconstants.h",
             "pythoneditor.cpp",

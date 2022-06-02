@@ -40,7 +40,12 @@ QT_END_NAMESPACE
 
 
 namespace Core {
+namespace Internal {
+class ActionManagerPrivate;
+class CommandPrivate;
+} // namespace Internal
 
+class ActionManager;
 class Context;
 
 constexpr bool useMacShortcuts = Utils::HostOsInfo::isMacHost();
@@ -57,46 +62,56 @@ public:
     };
     Q_DECLARE_FLAGS(CommandAttributes, CommandAttribute)
 
-    virtual void setDefaultKeySequence(const QKeySequence &key) = 0;
-    virtual void setDefaultKeySequences(const QList<QKeySequence> &keys) = 0;
-    virtual QList<QKeySequence> defaultKeySequences() const = 0;
-    virtual QList<QKeySequence> keySequences() const = 0;
-    virtual QKeySequence keySequence() const = 0;
+    ~Command();
+
+    void setDefaultKeySequence(const QKeySequence &key);
+    void setDefaultKeySequences(const QList<QKeySequence> &keys);
+    QList<QKeySequence> defaultKeySequences() const;
+    QList<QKeySequence> keySequences() const;
+    QKeySequence keySequence() const;
     // explicitly set the description (used e.g. in shortcut settings)
     // default is to use the action text for actions, or the whatsThis for shortcuts,
     // or, as a last fall back if these are empty, the command ID string
     // override the default e.g. if the text is context dependent and contains file names etc
-    virtual void setDescription(const QString &text) = 0;
-    virtual QString description() const = 0;
+    void setDescription(const QString &text);
+    QString description() const;
 
-    virtual Utils::Id id() const = 0;
+    Utils::Id id() const;
 
-    virtual QAction *action() const = 0;
-    virtual Context context() const = 0;
+    QAction *action() const;
+    Context context() const;
 
-    virtual void setAttribute(CommandAttribute attr) = 0;
-    virtual void removeAttribute(CommandAttribute attr) = 0;
-    virtual bool hasAttribute(CommandAttribute attr) const = 0;
+    void setAttribute(CommandAttribute attr);
+    void removeAttribute(CommandAttribute attr);
+    bool hasAttribute(CommandAttribute attr) const;
 
-    virtual bool isActive() const = 0;
+    bool isActive() const;
 
-    virtual void setKeySequences(const QList<QKeySequence> &keys) = 0;
-    virtual QString stringWithAppendedShortcut(const QString &str) const = 0;
+    void setKeySequences(const QList<QKeySequence> &keys);
+    QString stringWithAppendedShortcut(const QString &str) const;
     void augmentActionWithShortcutToolTip(QAction *action) const;
     static QToolButton *toolButtonWithAppendedShortcut(QAction *action, Command *cmd);
 
-    virtual bool isScriptable() const = 0;
-    virtual bool isScriptable(const Context &) const = 0;
+    bool isScriptable() const;
+    bool isScriptable(const Context &) const;
 
-    virtual void setTouchBarText(const QString &text) = 0;
-    virtual QString touchBarText() const = 0;
-    virtual void setTouchBarIcon(const QIcon &icon) = 0;
-    virtual QIcon touchBarIcon() const = 0;
-    virtual QAction *touchBarAction() const = 0;
+    void setTouchBarText(const QString &text);
+    QString touchBarText() const;
+    void setTouchBarIcon(const QIcon &icon);
+    QIcon touchBarIcon() const;
+    QAction *touchBarAction() const;
 
 signals:
     void keySequenceChanged();
     void activeStateChanged();
+
+private:
+    friend class ActionManager;
+    friend class Internal::ActionManagerPrivate;
+
+    Command(Utils::Id id);
+
+    Internal::CommandPrivate *d;
 };
 
 } // namespace Core

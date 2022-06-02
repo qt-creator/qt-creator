@@ -226,6 +226,7 @@ public:
 
     virtual void handleInstanceLocked(const ServerNodeInstance &instance, bool enable, bool checkAncestors);
     virtual void handleInstanceHidden(const ServerNodeInstance &instance, bool enable, bool checkAncestors);
+    virtual void handlePickTarget(const ServerNodeInstance &instance);
 
     virtual QImage grabWindow() = 0;
     virtual QImage grabItem(QQuickItem *item) = 0;

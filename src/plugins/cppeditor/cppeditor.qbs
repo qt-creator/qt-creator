@@ -246,7 +246,6 @@ QtcPlugin {
         "symbolsfindfilter.h",
         "typehierarchybuilder.cpp",
         "typehierarchybuilder.h",
-        "usages.h",
         "wrappablelineedit.cpp", // FIXME: Is this used?
         "wrappablelineedit.h",
     ]

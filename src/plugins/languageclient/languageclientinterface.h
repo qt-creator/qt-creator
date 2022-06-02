@@ -29,6 +29,7 @@
 
 #include <languageserverprotocol/jsonrpcmessages.h>
 
+#include <utils/environment.h>
 #include <utils/qtcprocess.h>
 
 #include <QBuffer>
@@ -84,12 +85,14 @@ public:
     // These functions only have an effect if they are called before start
     void setCommandLine(const Utils::CommandLine &cmd);
     void setWorkingDirectory(const Utils::FilePath &workingDirectory);
+    void setEnvironment(const Utils::Environment &environment);
 
 protected:
     void sendData(const QByteArray &data) final;
     Utils::CommandLine m_cmd;
     Utils::FilePath m_workingDirectory;
     Utils::QtcProcess *m_process = nullptr;
+    Utils::Environment m_env;
 
 private:
     void readError();

@@ -175,7 +175,9 @@ class PROJECTEXPLORER_EXPORT ExecutableAspect : public Utils::BaseAspect
     Q_OBJECT
 
 public:
-    explicit ExecutableAspect(Target *target); // Uses device from target if non-null.
+    enum ExecutionDeviceSelector { HostDevice, BuildDevice, RunDevice };
+
+    explicit ExecutableAspect(Target *target, ExecutionDeviceSelector selector);
     ~ExecutableAspect() override;
 
     Utils::FilePath executable() const;
@@ -207,6 +209,7 @@ private:
     Utils::StringAspect m_executable;
     Utils::StringAspect *m_alternativeExecutable = nullptr;
     Target *m_target = nullptr;
+    ExecutionDeviceSelector m_selector = RunDevice;
 };
 
 class PROJECTEXPLORER_EXPORT SymbolFileAspect : public Utils::StringAspect

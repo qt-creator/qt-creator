@@ -92,7 +92,9 @@ QQuickImageResponse *ItemLibraryIconImageProvider::requestImageResponse(const QS
                     }
                 },
                 Qt::QueuedConnection);
-        });
+        },
+        "libIcon",
+        ImageCache::LibraryIconAuxiliaryData{true});
 
     return response.release();
 }

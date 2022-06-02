@@ -80,7 +80,7 @@ static IosDeviceType toIosDeviceType(const SimulatorInfo &device)
 IosRunConfiguration::IosRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
-    auto executableAspect = addAspect<ExecutableAspect>(target);
+    auto executableAspect = addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
     executableAspect->setDisplayStyle(StringAspect::LabelDisplay);
 
     addAspect<ArgumentsAspect>(macroExpander());

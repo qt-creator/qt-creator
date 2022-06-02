@@ -31,6 +31,24 @@
 namespace Python {
 namespace Internal {
 
+class PySideUicExtraCompiler;
+
+class PythonRunConfiguration : public ProjectExplorer::RunConfiguration
+{
+    Q_OBJECT
+public:
+    PythonRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
+    ~PythonRunConfiguration() override;
+    void currentInterpreterChanged();
+    QList<PySideUicExtraCompiler *> extraCompilers() const;
+
+private:
+    void updateExtraCompilers();
+    Utils::FilePath m_pySideUicPath;
+
+    QList<PySideUicExtraCompiler *> m_extraCompilers;
+};
+
 class PythonRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
 public:

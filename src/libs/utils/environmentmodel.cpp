@@ -28,12 +28,15 @@
 #include "environment.h"
 
 namespace Utils {
-const Environment &EnvironmentModel::baseEnvironment() const
+
+Environment EnvironmentModel::baseEnvironment() const
 {
-    return static_cast<const Environment &>(baseNameValueDictionary());
+    return Environment(baseNameValueDictionary());
 }
+
 void EnvironmentModel::setBaseEnvironment(const Environment &env)
 {
-    setBaseNameValueDictionary(env);
+    setBaseNameValueDictionary(env.toDictionary());
 }
+
 } // namespace Utils

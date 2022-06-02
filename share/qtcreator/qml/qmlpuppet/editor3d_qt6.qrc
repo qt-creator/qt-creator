@@ -32,7 +32,6 @@
         <file>mockfiles/qt6/FadeHandle.qml</file>
         <file>mockfiles/qt6/HelperGrid.qml</file>
         <file>mockfiles/qt6/IconGizmo.qml</file>
-        <file>mockfiles/qt6/IconRenderer3D.qml</file>
         <file>mockfiles/qt6/LightGizmo.qml</file>
         <file>mockfiles/qt6/LightIconGizmo.qml</file>
         <file>mockfiles/qt6/LightModel.qml</file>

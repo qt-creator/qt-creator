@@ -43,56 +43,24 @@
 namespace Core {
 namespace Internal {
 
-class Action : public Command
+class CommandPrivate : public QObject
 {
     Q_OBJECT
 public:
-    Action(Utils::Id id);
+    CommandPrivate(Command *parent);
 
-    Utils::Id id() const override;
-
-    void setDefaultKeySequence(const QKeySequence &key) override;
-    void setDefaultKeySequences(const QList<QKeySequence> &key) override;
-    QList<QKeySequence> defaultKeySequences() const override;
-
-    void setKeySequences(const QList<QKeySequence> &keys) override;
-    QList<QKeySequence> keySequences() const override;
-    QKeySequence keySequence() const override;
-
-    void setDescription(const QString &text) override;
-    QString description() const override;
-
-    QAction *action() const override;
-
-    QString stringWithAppendedShortcut(const QString &str) const override;
-
-    Context context() const override;
     void setCurrentContext(const Context &context);
 
-    bool isActive() const override;
     void addOverrideAction(QAction *action, const Context &context, bool scriptable);
     void removeOverrideAction(QAction *action);
     bool isEmpty() const;
 
-    bool isScriptable() const override;
-    bool isScriptable(const Context &context) const override;
-
-    void setAttribute(CommandAttribute attr) override;
-    void removeAttribute(CommandAttribute attr) override;
-    bool hasAttribute(CommandAttribute attr) const override;
-
-    void setTouchBarText(const QString &text) override;
-    QString touchBarText() const override;
-    void setTouchBarIcon(const QIcon &icon) override;
-    QIcon touchBarIcon() const override;
-    QAction *touchBarAction() const override;
-
-private:
     void updateActiveState();
     void setActive(bool state);
 
+    Command *m_q = nullptr;
     Context m_context;
-    CommandAttributes m_attributes;
+    Command::CommandAttributes m_attributes;
     Utils::Id m_id;
     QList<QKeySequence> m_defaultKeys;
     QString m_defaultText;

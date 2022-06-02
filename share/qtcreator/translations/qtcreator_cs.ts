@@ -32121,16 +32121,16 @@ Spustil jste Qemu?</translation>
         <translation>Qt %1 (%2)</translation>
     </message>
     <message>
-        <source>%1 does not exist or is not executable</source>
-        <translation>Soubor %1 neexistuje nebo není spustitelný</translation>
+        <source>qmake does not exist or is not executable</source>
+        <translation>Soubor qmake neexistuje nebo není spustitelný</translation>
     </message>
     <message>
         <source>Qt version is not properly installed, please run make install</source>
         <translation>Verze Qt není správně nainstalována. Proveďte, prosím, příkaz &quot;make install&quot;</translation>
     </message>
     <message>
-        <source>Could not determine the path to the binaries of the Qt installation, maybe the %1 path is wrong?</source>
-        <translation>Cestu ke spustitelným souborům instalace Qt se nepodařilo určit. Možná je cesta k %1 chybná?</translation>
+        <source>Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?</source>
+        <translation>Cestu ke spustitelným souborům instalace Qt se nepodařilo určit. Možná je cesta k qmake chybná?</translation>
     </message>
     <message>
         <source>The default mkspec symlink is broken.</source>

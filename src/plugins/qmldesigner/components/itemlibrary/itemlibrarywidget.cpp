@@ -140,18 +140,13 @@ void ItemLibraryWidget::resizeEvent(QResizeEvent *event)
     isHorizontalLayout = event->size().width() >= HORIZONTAL_LAYOUT_WIDTH_LIMIT;
 }
 
-ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
-                                     AsynchronousImageCache &asynchronousFontImageCache,
-                                     SynchronousImageCache &synchronousFontImageCache)
+ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache)
     : m_itemIconSize(24, 24)
-    , m_fontImageCache(synchronousFontImageCache)
     , m_itemLibraryModel(new ItemLibraryModel(this))
     , m_addModuleModel(new ItemLibraryAddImportModel(this))
     , m_itemsWidget(new QQuickWidget(this))
     , m_imageCache{imageCache}
 {
-    Q_UNUSED(asynchronousFontImageCache)
-
     m_compressionTimer.setInterval(200);
     m_compressionTimer.setSingleShot(true);
     ItemLibraryModel::registerQmlTypes();
