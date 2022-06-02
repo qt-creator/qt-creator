@@ -598,8 +598,9 @@ void McuSupportTest::test_twoDotOneUsesLegacyImplementation()
     QCOMPARE(McuSupportOptions::isLegacyVersion({2, 0}), true);
     QCOMPARE(McuSupportOptions::isLegacyVersion({2, 0, 0}), true);
     QCOMPARE(McuSupportOptions::isLegacyVersion({2, 0, 1}), true);
-    QCOMPARE(McuSupportOptions::isLegacyVersion({2, 2, 0}), false);
-    QCOMPARE(McuSupportOptions::isLegacyVersion({2, 2, 1}), false);
+    QCOMPARE(McuSupportOptions::isLegacyVersion({2, 2, 0}), true);
+    QCOMPARE(McuSupportOptions::isLegacyVersion({2, 2, 1}), true);
+    QCOMPARE(McuSupportOptions::isLegacyVersion({2, 3, 0}), false);
 }
 void McuSupportTest::test_useFallbackPathForToolchainWhenPathFromSettingsIsNotAvailable()
 {
