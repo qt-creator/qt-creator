@@ -92,7 +92,7 @@ void MaterialEditorView::ensureMaterialLibraryNode()
         return;
 
     // create material library node
-    TypeName nodeType = rootModelNode().isSubclassOf("QtQuick3D.Node") ? "Quick3D.Node" : "QtQuick.Item";
+    TypeName nodeType = rootModelNode().isSubclassOf("QtQuick3D.Node") ? "QtQuick3D.Node" : "QtQuick.Item";
     NodeMetaInfo metaInfo = model()->metaInfo(nodeType);
     m_materialLibrary = createModelNode(nodeType, metaInfo.majorVersion(), metaInfo.minorVersion());
 
