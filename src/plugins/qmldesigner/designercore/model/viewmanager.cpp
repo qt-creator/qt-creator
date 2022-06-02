@@ -62,6 +62,10 @@ static Q_LOGGING_CATEGORY(viewBenchmark, "qtc.viewmanager.attach", QtWarningMsg)
 class ViewManagerData
 {
 public:
+    ViewManagerData(AsynchronousImageCache &imageCache)
+        : itemLibraryView(imageCache)
+    {}
+
     InteractiveConnectionManager connectionManager;
     CapturingConnectionManager capturingConnectionManager;
     QmlModelState savedState;
@@ -90,12 +94,13 @@ static CrumbleBar *crumbleBar() {
     return QmlDesignerPlugin::instance()->mainWidget()->crumbleBar();
 }
 
-ViewManager::ViewManager()
-    : d(std::make_unique<ViewManagerData>())
+ViewManager::ViewManager(AsynchronousImageCache &imageCache)
+    : d(std::make_unique<ViewManagerData>(imageCache))
 {
     d->formEditorView.setGotoErrorCallback([this](int line, int column) {
         d->textEditorView.gotoCursorPosition(line, column);
-        if (Internal::DesignModeWidget *designModeWidget = QmlDesignerPlugin::instance()->mainWidget())
+        if (Internal::DesignModeWidget *designModeWidget = QmlDesignerPlugin::instance()
+                                                               ->mainWidget())
             designModeWidget->showDockWidget("TextEditor");
     });
 }
@@ -437,11 +442,6 @@ void ViewManager::enableStandardViews()
 {
     d->disableStandardViews = false;
     attachViewsExceptRewriterAndComponetView();
-}
-
-AsynchronousImageCache &ViewManager::imageCache()
-{
-    return d->itemLibraryView.imageCache();
 }
 
 void ViewManager::addView(std::unique_ptr<AbstractView> &&view)

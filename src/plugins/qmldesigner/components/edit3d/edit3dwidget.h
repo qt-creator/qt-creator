@@ -51,6 +51,9 @@ public:
     QMenu *visibilityTogglesMenu() const;
     void showVisibilityTogglesMenu(bool show, const QPoint &pos);
 
+    QMenu *backgroundColorMenu() const;
+    void showBackgroundColorMenu(bool show, const QPoint &pos);
+
 protected:
     void dragEnterEvent(QDragEnterEvent *dragEnterEvent) override;
     void dropEvent(QDropEvent *dropEvent) override;
@@ -65,6 +68,7 @@ private:
     QPointer<ToolBox> m_toolBox;
     Core::IContext *m_context = nullptr;
     QPointer<QMenu> m_visibilityTogglesMenu;
+    QPointer<QMenu> m_backgroundColorMenu;
 };
 
 } // namespace QmlDesigner

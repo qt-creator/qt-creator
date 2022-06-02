@@ -553,7 +553,18 @@ void Qt5InformationNodeInstanceServer::handleSelectionChanged(const QVariant &ob
         auto obj = object.value<QObject *>();
         if (obj) {
             ServerNodeInstance instance = instanceForObject(obj);
-            instanceList << instance;
+            // If instance is a View3D, make sure it is not locked
+            bool locked = false;
+            if (instance.isSubclassOf("QQuick3DViewport")) {
+                locked = instance.internalInstance()->isLockedInEditor();
+                auto parentInst = instance.parent();
+                while (!locked && parentInst.isValid()) {
+                    locked = parentInst.internalInstance()->isLockedInEditor();
+                    parentInst = parentInst.parent();
+                }
+            }
+            if (!locked)
+                instanceList << instance;
 #ifdef QUICK3D_PARTICLES_MODULE
             if (!skipSystemDeselect) {
                 auto particleSystem = parentParticleSystem(instance.internalObject());
@@ -1452,8 +1463,9 @@ void Qt5InformationNodeInstanceServer::handleSelectionChangeTimeout()
 
 void Qt5InformationNodeInstanceServer::handleDynamicAddObjectTimeout()
 {
-#ifdef QUICK3D_MODULE
     for (auto obj : std::as_const(m_dynamicObjectConstructors)) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 2, 1)
+#ifdef QUICK3D_MODULE
         auto handleHiding = [this](QQuick3DNode *node) -> bool {
             if (node && hasInstanceForObject(node)) {
                 ServerNodeInstance instance = instanceForObject(node);
@@ -1468,8 +1480,22 @@ void Qt5InformationNodeInstanceServer::handleDynamicAddObjectTimeout()
             if (auto pickTarget = obj->property("_pickTarget").value<QQuick3DNode *>())
                 handleHiding(pickTarget);
         }
-    }
 #endif
+#else
+        auto handlePicking = [this](QObject *object) -> bool {
+            if (object && hasInstanceForObject(object)) {
+                ServerNodeInstance instance = instanceForObject(object);
+                handlePickTarget(instance);
+                return true;
+            }
+            return false;
+        };
+        if (!handlePicking(obj)) {
+            if (auto pickTarget = obj->property("_pickTarget").value<QObject *>())
+                handlePicking(pickTarget);
+        }
+#endif
+    }
     m_dynamicObjectConstructors.clear();
 }
 
@@ -1932,6 +1958,12 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
 #ifdef IMPORT_QUICK3D_ASSETS
     QTimer::singleShot(0, this, &Qt5InformationNodeInstanceServer::resolveImportSupport);
 #endif
+
+    if (!command.edit3dBackgroundColor.isEmpty()) {
+        View3DActionCommand backgroundColorCommand(View3DActionCommand::SelectBackgroundColor,
+                                                   QVariant::fromValue(command.edit3dBackgroundColor));
+        view3DAction(backgroundColorCommand);
+    }
 }
 
 void Qt5InformationNodeInstanceServer::sendChildrenChangedCommand(const QList<ServerNodeInstance> &childList)
@@ -2147,18 +2179,19 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
     if (!m_editView3DSetupDone)
         return;
 
-    QVariantMap updatedState;
+    QVariantMap updatedToolState;
+    QVariantMap updatedViewState;
     int renderCount = 1;
 
     switch (command.type()) {
     case View3DActionCommand::MoveTool:
-        updatedState.insert("transformMode", 0);
+        updatedToolState.insert("transformMode", 0);
         break;
     case View3DActionCommand::RotateTool:
-        updatedState.insert("transformMode", 1);
+        updatedToolState.insert("transformMode", 1);
         break;
     case View3DActionCommand::ScaleTool:
-        updatedState.insert("transformMode", 2);
+        updatedToolState.insert("transformMode", 2);
         break;
     case View3DActionCommand::FitToView:
         QMetaObject::invokeMethod(m_editView3DData.rootItem, "fitToView");
@@ -2170,38 +2203,42 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
         QMetaObject::invokeMethod(m_editView3DData.rootItem, "alignViewToCamera");
         break;
     case View3DActionCommand::SelectionModeToggle:
-        updatedState.insert("selectionMode", command.isEnabled() ? 1 : 0);
+        updatedToolState.insert("selectionMode", command.isEnabled() ? 1 : 0);
         break;
     case View3DActionCommand::CameraToggle:
-        updatedState.insert("usePerspective", command.isEnabled());
+        updatedToolState.insert("usePerspective", command.isEnabled());
         // It can take a couple frames to properly update icon gizmo positions
         renderCount = 2;
         break;
     case View3DActionCommand::OrientationToggle:
-        updatedState.insert("globalOrientation", command.isEnabled());
+        updatedToolState.insert("globalOrientation", command.isEnabled());
         break;
     case View3DActionCommand::EditLightToggle:
-        updatedState.insert("showEditLight", command.isEnabled());
+        updatedToolState.insert("showEditLight", command.isEnabled());
         break;
     case View3DActionCommand::ShowGrid:
-        updatedState.insert("showGrid", command.isEnabled());
+        updatedToolState.insert("showGrid", command.isEnabled());
         break;
     case View3DActionCommand::ShowSelectionBox:
-        updatedState.insert("showSelectionBox", command.isEnabled());
+        updatedToolState.insert("showSelectionBox", command.isEnabled());
         break;
     case View3DActionCommand::ShowIconGizmo:
-        updatedState.insert("showIconGizmo", command.isEnabled());
+        updatedToolState.insert("showIconGizmo", command.isEnabled());
         break;
     case View3DActionCommand::ShowCameraFrustum:
-        updatedState.insert("showCameraFrustum", command.isEnabled());
+        updatedToolState.insert("showCameraFrustum", command.isEnabled());
         break;
+    case View3DActionCommand::SelectBackgroundColor: {
+        updatedViewState.insert("selectBackgroundColor", command.value());
+        break;
+    }
 #ifdef QUICK3D_PARTICLES_MODULE
     case View3DActionCommand::ShowParticleEmitter:
-        updatedState.insert("showParticleEmitter", command.isEnabled());
+        updatedToolState.insert("showParticleEmitter", command.isEnabled());
         break;
     case View3DActionCommand::ParticlesPlay:
         m_particleAnimationPlaying = command.isEnabled();
-        updatedState.insert("particlePlay", command.isEnabled());
+        updatedToolState.insert("particlePlay", command.isEnabled());
         if (m_particleAnimationPlaying) {
             m_particleAnimationDriver->play();
             m_particleAnimationDriver->setSeekerEnabled(false);
@@ -2227,10 +2264,15 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
         break;
     }
 
-    if (!updatedState.isEmpty()) {
+    if (!updatedToolState.isEmpty()) {
         QMetaObject::invokeMethod(m_editView3DData.rootItem, "updateToolStates",
-                                  Q_ARG(QVariant, updatedState),
+                                  Q_ARG(QVariant, updatedToolState),
                                   Q_ARG(QVariant, QVariant::fromValue(false)));
+    }
+
+    if (!updatedViewState.isEmpty()) {
+        QMetaObject::invokeMethod(m_editView3DData.rootItem, "updateViewStates",
+                                  Q_ARG(QVariant, updatedViewState));
     }
 
     render3DEditView(renderCount);
@@ -2332,9 +2374,9 @@ void Qt5InformationNodeInstanceServer::handleInstanceLocked(const ServerNodeInst
         }
     }
 #else
-    Q_UNUSED(instance);
-    Q_UNUSED(enable);
-    Q_UNUSED(checkAncestors);
+    Q_UNUSED(instance)
+    Q_UNUSED(enable)
+    Q_UNUSED(checkAncestors)
 #endif
 }
 
@@ -2388,6 +2430,7 @@ void Qt5InformationNodeInstanceServer::handleInstanceHidden(const ServerNodeInst
                 // Don't override explicit hide in children
                 handleInstanceHidden(quick3dInstance, edit3dHidden || isInstanceHidden, false);
             } else {
+#if QT_VERSION < QT_VERSION_CHECK(6, 2, 1)
                 // Children of components do not have instances, but will still need to be pickable
                 std::function<void(QQuick3DNode *)> checkChildren;
                 checkChildren = [&](QQuick3DNode *checkNode) {
@@ -2402,9 +2445,7 @@ void Qt5InformationNodeInstanceServer::handleInstanceHidden(const ServerNodeInst
                             value = QVariant::fromValue(node);
                         // Specify the actual pick target with dynamic property
                         checkModel->setProperty("_pickTarget", value);
-#if QT_VERSION < QT_VERSION_CHECK(6, 2, 1)
                         checkModel->setPickable(!edit3dHidden);
-#endif
                     } else {
                         auto checkRepeater = qobject_cast<QQuick3DRepeater *>(checkNode);
                         auto checkLoader = qobject_cast<QQuick3DLoader *>(checkNode);
@@ -2436,13 +2477,102 @@ void Qt5InformationNodeInstanceServer::handleInstanceHidden(const ServerNodeInst
                 };
                 if (auto childNode = qobject_cast<QQuick3DNode *>(childItem))
                     checkChildren(childNode);
+#endif
             }
         }
     }
 #else
-    Q_UNUSED(instance);
-    Q_UNUSED(enable);
-    Q_UNUSED(checkAncestors);
+    Q_UNUSED(instance)
+    Q_UNUSED(enable)
+    Q_UNUSED(checkAncestors)
+#endif
+}
+
+void Qt5InformationNodeInstanceServer::handlePickTarget(const ServerNodeInstance &instance)
+{
+#if defined(QUICK3D_MODULE) && (QT_VERSION >= QT_VERSION_CHECK(6, 2, 1))
+    // Picking is dependent on hidden status prior to global picking support (<6.2.1), so it is
+    // handled in handleInstanceHidden() method in those builds
+
+    if (!ViewConfig::isQuick3DMode())
+        return;
+
+    QObject *obj = instance.internalObject();
+    QList<QQuick3DObject *> childItems;
+    if (auto node = qobject_cast<QQuick3DNode *>(obj)) {
+        childItems = node->childItems();
+    } else if (auto view = qobject_cast<QQuick3DViewport *>(obj)) {
+        // We only need to handle views that are components
+        // View is a component if its scene is not an instance and scene has node children that
+        // have no instances
+        QQuick3DNode *node = view->scene();
+        if (node) {
+            if (hasInstanceForObject(node))
+                return;
+            childItems = node->childItems();
+            bool allHaveInstance = true;
+            for (const auto &childItem : childItems) {
+                if (qobject_cast<QQuick3DNode *>(childItem) && !hasInstanceForObject(childItem)) {
+                    allHaveInstance = false;
+                    break;
+                }
+            }
+            if (allHaveInstance)
+                return;
+        }
+    } else {
+        return;
+    }
+
+    for (auto childItem : qAsConst(childItems)) {
+        if (!hasInstanceForObject(childItem)) {
+            // Children of components do not have instances, but will still need to be pickable
+            // and redirect their pick to the component
+            std::function<void(QQuick3DNode *)> checkChildren;
+            checkChildren = [&](QQuick3DNode *checkNode) {
+                const auto childItems = checkNode->childItems();
+                for (auto child : childItems) {
+                    if (auto childNode = qobject_cast<QQuick3DNode *>(child))
+                        checkChildren(childNode);
+                }
+                if (auto checkModel = qobject_cast<QQuick3DModel *>(checkNode)) {
+                    // Specify the actual pick target with dynamic property
+                    checkModel->setProperty("_pickTarget", QVariant::fromValue(obj));
+                } else {
+                    auto checkRepeater = qobject_cast<QQuick3DRepeater *>(checkNode);
+                    auto checkLoader = qobject_cast<QQuick3DLoader *>(checkNode);
+#if defined(QUICK3D_ASSET_UTILS_MODULE)
+                    auto checkRunLoader = qobject_cast<QQuick3DRuntimeLoader *>(checkNode);
+                    if (checkRepeater || checkLoader || checkRunLoader) {
+#else
+                    if (checkRepeater || checkLoader) {
+#endif
+                        // Repeaters/loaders may not yet have created their children, so we set
+                        // _pickTarget on them and connect the notifier.
+                        if (checkNode->property("_pickTarget").isNull()) {
+                            if (checkRepeater) {
+                                QObject::connect(checkRepeater, &QQuick3DRepeater::objectAdded,
+                                                 this, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);
+#if defined(QUICK3D_ASSET_UTILS_MODULE)
+                            } else if (checkRunLoader) {
+                                QObject::connect(checkRunLoader, &QQuick3DRuntimeLoader::statusChanged,
+                                                 this, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);
+#endif
+                            } else {
+                                QObject::connect(checkLoader, &QQuick3DLoader::loaded,
+                                                 this, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);
+                            }
+                        }
+                        checkNode->setProperty("_pickTarget", QVariant::fromValue(obj));
+                    }
+                }
+            };
+            if (auto childNode = qobject_cast<QQuick3DNode *>(childItem))
+                checkChildren(childNode);
+        }
+    }
+#else
+    Q_UNUSED(instance)
 #endif
 }
 

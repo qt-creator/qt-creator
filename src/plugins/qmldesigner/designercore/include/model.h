@@ -35,6 +35,7 @@
 #include <import.h>
 
 QT_BEGIN_NAMESPACE
+class QPixmap;
 class QUrl;
 QT_END_NAMESPACE
 
@@ -44,7 +45,7 @@ namespace Internal {
 class ModelPrivate;
 class WriteLocker;
 class NodeMetaInfoPrivate;
-} //Internal
+} // namespace Internal
 
 class AnchorLine;
 class ModelNode;
@@ -130,7 +131,7 @@ public:
     QString generateNewId(const QString &prefixName) const;
     QString generateNewId(const QString &prefixName, const QString &fallbackPrefix) const;
 
-    void startDrag(QMimeData *mimeData, const QString iconPath = {});
+    void startDrag(QMimeData *mimeData, const QPixmap &icon);
     void endDrag();
 
 protected:
@@ -140,4 +141,4 @@ private:
     Internal::ModelPrivate *d;
 };
 
-}
+} // namespace QmlDesigner

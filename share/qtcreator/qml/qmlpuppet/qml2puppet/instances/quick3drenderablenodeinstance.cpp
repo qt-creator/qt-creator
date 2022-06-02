@@ -57,6 +57,9 @@ void Quick3DRenderableNodeInstance::initialize(const ObjectNodeInstance::Pointer
     // In case this is the scene root, we need to create a dummy View3D for the scene
     // in preview puppets
     if (instanceId() == 0 && (!nodeInstanceServer()->isInformationServer())) {
+        nodeInstanceServer()->quickWindow()->setDefaultAlphaBuffer(true);
+        nodeInstanceServer()->quickWindow()->setColor(Qt::transparent);
+
         auto helper = new QmlDesigner::Internal::GeneralHelper();
         engine()->rootContext()->setContextProperty("_generalHelper", helper);
 
@@ -197,6 +200,14 @@ QList<ServerNodeInstance> Quick3DRenderableNodeInstance::stateInstances() const
 QQuickItem *Quick3DRenderableNodeInstance::contentItem() const
 {
     return m_dummyRootView;
+}
+
+void Quick3DRenderableNodeInstance::setPropertyVariant(const PropertyName &name,
+                                                       const QVariant &value)
+{
+    if (m_dummyRootView && name == "isLibraryIcon")
+        QMetaObject::invokeMethod(m_dummyRootView, "setIconMode", Q_ARG(QVariant, value));
+    ObjectNodeInstance::setPropertyVariant(name, value);
 }
 
 Qt5NodeInstanceServer *Quick3DRenderableNodeInstance::qt5NodeInstanceServer() const

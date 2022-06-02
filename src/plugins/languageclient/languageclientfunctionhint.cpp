@@ -103,6 +103,7 @@ IAssistProposal *FunctionHintProcessor::perform(const AssistInterface *interface
 
 void FunctionHintProcessor::cancel()
 {
+    QTC_ASSERT(m_client, return);
     if (running()) {
         m_client->cancelRequest(*m_currentRequest);
         m_client->removeAssistProcessor(this);
@@ -112,6 +113,7 @@ void FunctionHintProcessor::cancel()
 
 void FunctionHintProcessor::handleSignatureResponse(const SignatureHelpRequest::Response &response)
 {
+    QTC_ASSERT(m_client, setAsyncProposalAvailable(nullptr); return);
     m_currentRequest.reset();
     if (auto error = response.error())
         m_client->log(*error);

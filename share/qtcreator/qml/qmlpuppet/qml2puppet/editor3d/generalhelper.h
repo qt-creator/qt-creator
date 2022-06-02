@@ -77,7 +77,7 @@ public:
                                              bool closeUp = false);
     Q_INVOKABLE void calculateNodeBoundsAndFocusCamera(QQuick3DCamera *camera, QQuick3DNode *node,
                                                        QQuick3DViewport *viewPort,
-                                                       float defaultLookAtDistance);
+                                                       float defaultLookAtDistance, bool closeUp);
     Q_INVOKABLE void alignCameras(QQuick3DCamera *camera, const QVariant &nodes);
     Q_INVOKABLE QVector3D alignView(QQuick3DCamera *camera, const QVariant &nodes,
                                     const QVector3D &lookAtPoint);
@@ -85,7 +85,7 @@ public:
     Q_INVOKABLE void delayedPropertySet(QObject *obj, int delay, const QString &property,
                                         const QVariant& value);
     Q_INVOKABLE QQuick3DPickResult pickViewAt(QQuick3DViewport *view, float posX, float posY);
-    Q_INVOKABLE QQuick3DNode *resolvePick(QQuick3DNode *pickNode);
+    Q_INVOKABLE QObject *resolvePick(QQuick3DNode *pickNode);
 
     Q_INVOKABLE bool isLocked(QQuick3DNode *node) const;
     Q_INVOKABLE bool isHidden(QQuick3DNode *node) const;

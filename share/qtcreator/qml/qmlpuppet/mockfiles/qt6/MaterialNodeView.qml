@@ -32,7 +32,7 @@ View3D {
 
     property Material previewMaterial
 
-    function fitToViewPort()
+    function fitToViewPort(closeUp)
     {
         // No need to zoom this view, this is here just to avoid runtime warnings
     }

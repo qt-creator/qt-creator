@@ -56,7 +56,6 @@ class Model;
 class ItemLibraryModel;
 class ItemLibraryAddImportModel;
 class ItemLibraryResourceView;
-class SynchronousImageCache;
 class AsynchronousImageCache;
 class ImageCacheCollector;
 
@@ -67,9 +66,7 @@ class ItemLibraryWidget : public QFrame
 public:
     Q_PROPERTY(bool subCompEditMode READ subCompEditMode NOTIFY subCompEditModeChanged)
 
-    ItemLibraryWidget(AsynchronousImageCache &imageCache,
-                      AsynchronousImageCache &asynchronousFontImageCache,
-                      SynchronousImageCache &synchronousFontImageCache);
+    ItemLibraryWidget(AsynchronousImageCache &imageCache);
     ~ItemLibraryWidget();
 
     void setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo);
@@ -115,7 +112,6 @@ private:
     QTimer m_compressionTimer;
     QSize m_itemIconSize;
 
-    SynchronousImageCache &m_fontImageCache;
     QPointer<ItemLibraryInfo> m_itemLibraryInfo;
 
     QPointer<ItemLibraryModel> m_itemLibraryModel;

@@ -91,6 +91,8 @@ const Utils::Icon EDIT3D_ALIGN_CAMERA_ON({
         {":/edit3d/images/align_camera_on.png", Utils::Theme::IconsBaseColor}});
 const Utils::Icon EDIT3D_ALIGN_VIEW_ON({
         {":/edit3d/images/align_view_on.png", Utils::Theme::IconsBaseColor}});
+const Utils::Icon COLOR_PALETTE({
+        {":/edit3d/images/color_palette.png", Utils::Theme::IconsBaseColor}});
 
 } // Icons
 } // QmlDesigner

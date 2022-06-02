@@ -41,6 +41,8 @@ StudioControls.ComboBox {
 
     onModelChanged: colorLogic.invalidate()
 
+    hasActiveDrag: comboBox.backendValue !== undefined && comboBox.backendValue.hasActiveDrag
+
     // This is available in all editors.
 
     onValueTypeChanged: {
@@ -83,16 +85,15 @@ StudioControls.ComboBox {
 
         onEntered: (drag) => {
             dropArea.assetPath = drag.getDataAsString(drag.keys[0]).split(",")[0]
-
-            drag.accepted = comboBox.backendValue !== undefined && comboBox.backendValue.isSupportedDrop(dropArea.assetPath)
-            comboBox.hasActiveDrag = drag.accepted
+            drag.accepted = comboBox.backendValue !== undefined && comboBox.backendValue.hasActiveDrag
+            comboBox.hasActiveHoverDrag = drag.accepted
         }
 
-        onExited: comboBox.hasActiveDrag = false
+        onExited: comboBox.hasActiveHoverDrag = false
 
         onDropped: {
             comboBox.backendValue.commitDrop(dropArea.assetPath)
-            comboBox.hasActiveDrag = false
+            comboBox.hasActiveHoverDrag = false
         }
 
     }

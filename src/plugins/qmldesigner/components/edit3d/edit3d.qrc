@@ -44,5 +44,7 @@
         <file>images/align_camera_on@2x.png</file>
         <file>images/align_view_on.png</file>
         <file>images/align_view_on@2x.png</file>
+        <file>images/color_palette.png</file>
+        <file>images/color_palette@2x.png</file>
     </qresource>
 </RCC>

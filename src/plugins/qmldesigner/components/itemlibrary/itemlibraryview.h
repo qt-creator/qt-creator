@@ -29,19 +29,16 @@
 
 #include <QPointer>
 
-#include <mutex>
-
 namespace QmlDesigner {
 
 class ItemLibraryWidget;
-class AsynchronousImageCache;
 
 class ItemLibraryView : public AbstractView
 {
     Q_OBJECT
 
 public:
-    ItemLibraryView(QObject* parent = nullptr);
+    ItemLibraryView(class AsynchronousImageCache &imageCache);
     ~ItemLibraryView() override;
 
     bool hasWidget() const override;
@@ -58,17 +55,11 @@ public:
     void customNotification(const AbstractView *view, const QString &identifier,
                             const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
 
-    AsynchronousImageCache &imageCache();
-
 protected:
     void updateImports();
 
 private:
-    class ImageCacheData;
-    ImageCacheData *imageCacheData();
-
-    std::once_flag imageCacheFlag;
-    std::unique_ptr<ImageCacheData> m_imageCacheData;
+    AsynchronousImageCache &m_imageCache;
     QPointer<ItemLibraryWidget> m_widget;
     bool m_hasErrors = false;
     QVariantMap m_importableExtensions3DMap;

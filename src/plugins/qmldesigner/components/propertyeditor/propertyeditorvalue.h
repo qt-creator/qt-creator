@@ -82,6 +82,7 @@ class PropertyEditorValue : public QObject
     Q_PROPERTY(bool isBound READ isBound NOTIFY isBoundChanged FINAL)
     Q_PROPERTY(bool isValid READ isValid NOTIFY isValidChanged FINAL)
     Q_PROPERTY(bool isTranslated READ isTranslated NOTIFY expressionChanged FINAL)
+    Q_PROPERTY(bool hasActiveDrag READ hasActiveDrag WRITE setHasActiveDrag NOTIFY hasActiveDragChanged FINAL)
 
     Q_PROPERTY(bool isIdList READ isIdList NOTIFY expressionChanged FINAL)
     Q_PROPERTY(QStringList expressionAsList READ getExpressionAsList NOTIFY expressionChanged FINAL)
@@ -117,6 +118,9 @@ public:
 
     bool isTranslated() const;
 
+    bool hasActiveDrag() const;
+    void setHasActiveDrag(bool val);
+
     bool isAvailable() const;
 
     QmlDesigner::PropertyName name() const;
@@ -148,7 +152,6 @@ public:
 public slots:
     void resetValue();
     void setEnumeration(const QString &scope, const QString &name);
-    bool isSupportedDrop(const QString &path);
 
 signals:
     void valueChanged(const QString &name, const QVariant&);
@@ -164,6 +167,7 @@ signals:
     void isBoundChanged();
     void isValidChanged();
     void isExplicitChanged();
+    void hasActiveDragChanged();
 
 private:
     QStringList generateStringList(const QString &string) const;
@@ -176,6 +180,7 @@ private:
     bool m_isInSubState;
     bool m_isInModel;
     bool m_isBound;
+    bool m_hasActiveDrag = false;
     bool m_isValid; // if the property value belongs to a non-existing complexProperty it is invalid
     PropertyEditorNodeWrapper *m_complexNode;
 };

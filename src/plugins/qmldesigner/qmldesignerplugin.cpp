@@ -135,7 +135,7 @@ class QmlDesignerPluginPrivate
 {
 public:
     QmlDesignerProjectManager projectManager;
-    ViewManager viewManager;
+    ViewManager viewManager{projectManager.asynchronousImageCache()};
     DocumentManager documentManager;
     ShortCutManager shortCutManager;
     SettingsPage settingsPage;
@@ -666,7 +666,7 @@ void QmlDesignerPlugin::emitUsageStatisticsHelpRequested(const QString &identifi
 
 AsynchronousImageCache &QmlDesignerPlugin::imageCache()
 {
-    return m_instance->d->viewManager.imageCache();
+    return m_instance->d->projectManager.asynchronousImageCache();
 }
 
 void QmlDesignerPlugin::registerPreviewImageProvider(QQmlEngine *engine)

@@ -26,8 +26,10 @@
 #pragma once
 
 #include <QList>
+#include <QObject>
 
 #include <memory>
+#include <mutex>
 
 QT_FORWARD_DECLARE_CLASS(QQmlEngine)
 
@@ -42,16 +44,21 @@ class Target;
 
 namespace QmlDesigner {
 
-class QmlDesignerProjectManagerProjectData;
-class PreviewImageCacheData;
-
-class QmlDesignerProjectManager
+class QmlDesignerProjectManager : public QObject
 {
+    Q_OBJECT
+
+    class QmlDesignerProjectManagerProjectData;
+    class PreviewImageCacheData;
+    class ImageCacheData;
+
 public:
     QmlDesignerProjectManager();
     ~QmlDesignerProjectManager();
 
     void registerPreviewImageProvider(QQmlEngine *engine) const;
+
+    class AsynchronousImageCache &asynchronousImageCache();
 
 private:
     void editorOpened(::Core::IEditor *editor);
@@ -60,9 +67,12 @@ private:
     void projectAdded(::ProjectExplorer::Project *project);
     void aboutToRemoveProject(::ProjectExplorer::Project *project);
     void projectRemoved(::ProjectExplorer::Project *project);
+    ImageCacheData *imageCacheData();
 
 private:
-    std::unique_ptr<PreviewImageCacheData> m_imageCacheData;
+    std::once_flag imageCacheFlag;
+    std::unique_ptr<ImageCacheData> m_imageCacheData;
+    std::unique_ptr<PreviewImageCacheData> m_previewImageCacheData;
     std::unique_ptr<QmlDesignerProjectManagerProjectData> m_projectData;
 };
 } // namespace QmlDesigner

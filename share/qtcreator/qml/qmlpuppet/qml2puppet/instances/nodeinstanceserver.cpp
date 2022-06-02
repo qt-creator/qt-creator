@@ -1561,6 +1561,10 @@ void NodeInstanceServer::handleInstanceHidden(const ServerNodeInstance &/*instan
 {
 }
 
+void NodeInstanceServer::handlePickTarget(const ServerNodeInstance &/*instance*/)
+{
+}
+
 void NodeInstanceServer::setupState(qint32 stateInstanceId)
 {
     if (hasInstanceForId(stateInstanceId)) {

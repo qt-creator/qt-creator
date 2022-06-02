@@ -308,7 +308,7 @@ QVector4D GeneralHelper::focusNodesToCamera(QQuick3DCamera *camera, float defaul
 // and recalculating bounds for every frame is not a problem.
 void GeneralHelper::calculateNodeBoundsAndFocusCamera(
         QQuick3DCamera *camera, QQuick3DNode *node, QQuick3DViewport *viewPort,
-        float defaultLookAtDistance)
+        float defaultLookAtDistance, bool closeUp)
 {
     QVector3D minBounds;
     QVector3D maxBounds;
@@ -317,7 +317,9 @@ void GeneralHelper::calculateNodeBoundsAndFocusCamera(
 
     QVector3D extents = maxBounds - minBounds;
     QVector3D lookAt = minBounds + (extents / 2.f);
-    float maxExtent = qMax(extents.x(), qMax(extents.y(), extents.z()));
+    float maxExtent = qSqrt(qreal(extents.x()) * qreal(extents.x())
+                          + qreal(extents.y()) * qreal(extents.y())
+                          + qreal(extents.z()) * qreal(extents.z()));
 
     // Reset camera position to default zoom
     QMatrix4x4 m = camera->sceneTransform();
@@ -328,9 +330,27 @@ void GeneralHelper::calculateNodeBoundsAndFocusCamera(
 
     camera->setPosition(lookAt + newLookVector);
 
-    float newZoomFactor = maxExtent / 725.f; // Divisor taken from focusNodesToCamera function
+    // CloseUp divisor is used for icon generation, where we can allow some extreme models to go
+    // slightly out of bounds for better results generally. The other divisor is used for other
+    // previews, where the image is larger to begin with and we would also like some margin
+    // between preview edge and the rendered model, so we can be more conservative with the zoom.
+    // The divisor values are empirically selected to provide nice result.
+    float divisor = closeUp ? 1250.f : 1050.f;
+    float newZoomFactor = maxExtent / divisor;
 
     zoomCamera(viewPort, camera, 0, defaultLookAtDistance, lookAt, newZoomFactor, false);
+
+    if (auto perspectiveCamera = qobject_cast<QQuick3DPerspectiveCamera *>(camera)) {
+        // Fix camera near/far clips in case we are dealing with extreme zooms
+        const float cameraDist = qAbs((camera->position() - lookAt).length());
+        const float minDist = cameraDist - (maxExtent / 2.f);
+        const float maxDist = cameraDist + (maxExtent / 2.f);
+        if (minDist < perspectiveCamera->clipNear() || maxDist > perspectiveCamera->clipFar()) {
+            perspectiveCamera->setClipNear(minDist * 0.99);
+            perspectiveCamera->setClipFar(maxDist * 1.01);
+        }
+
+    }
 }
 
 // Aligns any cameras found in nodes list to a camera.
@@ -418,15 +438,15 @@ QQuick3DPickResult GeneralHelper::pickViewAt(QQuick3DViewport *view, float posX,
     return QQuick3DPickResult();
 }
 
-QQuick3DNode *GeneralHelper::resolvePick(QQuick3DNode *pickNode)
+QObject *GeneralHelper::resolvePick(QQuick3DNode *pickNode)
 {
     if (pickNode) {
-        // Check if the picked node actually specifies another node as the pick target
+        // Check if the picked node actually specifies another object as the pick target
         QVariant componentVar = pickNode->property("_pickTarget");
         if (componentVar.isValid()) {
-            auto componentNode = componentVar.value<QQuick3DNode *>();
-            if (componentNode)
-                return componentNode;
+            auto componentObj = componentVar.value<QObject *>();
+            if (componentObj)
+                return componentObj;
         }
     }
     return pickNode;
@@ -823,12 +843,13 @@ bool GeneralHelper::getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVec
         if (auto childNode = qobject_cast<QQuick3DNode *>(child)) {
             QVector3D newMinBounds = minBounds;
             QVector3D newMaxBounds = maxBounds;
-            hasModel = getBounds(view3D, childNode, newMinBounds, newMaxBounds, true);
+            bool childHasModel = getBounds(view3D, childNode, newMinBounds, newMaxBounds, true);
             // Ignore any subtrees that do not have Model in them as we don't need those
             // for visual bounds calculations
-            if (hasModel) {
+            if (childHasModel) {
                 minBoundsVec << newMinBounds;
                 maxBoundsVec << newMaxBounds;
+                hasModel = true;
             }
         }
     }

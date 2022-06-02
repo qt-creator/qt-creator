@@ -25,44 +25,23 @@
 
 #pragma once
 
-#include <QtGlobal>
-
-#include "objectnodeinstance.h"
+#include <QColorDialog>
 
 namespace QmlDesigner {
-namespace Internal {
-
-class Quick3DRenderableNodeInstance : public ObjectNodeInstance
+class BackgroundColorSelection : public QObject
 {
+    Q_OBJECT
+
 public:
-    ~Quick3DRenderableNodeInstance() override;
-    void initialize(const ObjectNodeInstance::Pointer &objectNodeInstance,
-                    InstanceContainer::NodeFlags flags) override;
+    explicit BackgroundColorSelection(QObject *parent = nullptr)
+        : QObject{parent}
+    {}
 
-    QImage renderImage() const override;
-    QImage renderPreviewImage(const QSize &previewImageSize) const override;
-
-    bool isRenderable() const override;
-    bool hasContent() const override;
-    QRectF boundingRect() const override;
-    QRectF contentItemBoundingBox() const override;
-    QPointF position() const override;
-    QSizeF size() const override;
-
-    QList<ServerNodeInstance> stateInstances() const override;
-
-    QQuickItem *contentItem() const override;
-    void setPropertyVariant(const PropertyName &name, const QVariant &value) override;
-
-protected:
-    explicit Quick3DRenderableNodeInstance(QObject *node);
-    Qt5NodeInstanceServer *qt5NodeInstanceServer() const;
-
-    QByteArray m_dummyRootViewCreateFunction;
+    static void showBackgroundColorSelectionWidget(QWidget *parent);
 
 private:
-    QQuickItem *m_dummyRootView = nullptr;
+    static QColorDialog *createDialog(QWidget *parent);
+    inline static QColorDialog *m_dialog = nullptr;
 };
 
-} // namespace Internal
 } // namespace QmlDesigner

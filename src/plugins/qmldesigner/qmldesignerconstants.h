@@ -65,6 +65,8 @@ const char EDIT3D_EDIT_CAMERA[]    = "QmlDesigner.Editor3D.EditCameraToggle";
 const char EDIT3D_ORIENTATION[]    = "QmlDesigner.Editor3D.OrientationToggle";
 const char EDIT3D_EDIT_LIGHT[]     = "QmlDesigner.Editor3D.EditLightToggle";
 const char EDIT3D_EDIT_SHOW_GRID[] = "QmlDesigner.Editor3D.ToggleGrid";
+const char EDIT3D_EDIT_SELECT_BACKGROUND_COLOR[] = "QmlDesigner.Editor3D.SelectBackgroundColor";
+const char EDIT3D_EDIT_RESET_BACKGROUND_COLOR[] = "QmlDesigner.Editor3D.ResetBackgroundColor";
 const char EDIT3D_EDIT_SHOW_SELECTION_BOX[] = "QmlDesigner.Editor3D.ToggleSelectionBox";
 const char EDIT3D_EDIT_SHOW_ICON_GIZMO[] = "QmlDesigner.Editor3D.ToggleIconGizmo";
 const char EDIT3D_EDIT_SHOW_CAMERA_FRUSTUM[] = "QmlDesigner.Editor3D.ToggleCameraFrustum";
@@ -74,6 +76,7 @@ const char EDIT3D_PARTICLE_MODE[]     = "QmlDesigner.Editor3D.ParticleViewModeTo
 const char EDIT3D_PARTICLES_PLAY[]    = "QmlDesigner.Editor3D.ParticlesPlay";
 const char EDIT3D_PARTICLES_RESTART[] = "QmlDesigner.Editor3D.ParticlesRestart";
 const char EDIT3D_VISIBILITY_TOGGLES[] = "QmlDesigner.Editor3D.VisibilityToggles";
+const char EDIT3D_BACKGROUND_COLOR_ACTIONS[] = "QmlDesigner.Editor3D.BackgroundColorActions";
 
 
 const char QML_DESIGNER_SUBFOLDER[] = "/designer/";
