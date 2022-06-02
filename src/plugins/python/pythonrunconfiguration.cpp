@@ -229,6 +229,19 @@ void PythonRunConfiguration::currentInterpreterChanged()
         }
     }
 
+    // Workaround that pip might return an incomplete file list on windows
+    if (HostOsInfo::isWindowsHost() && !python.needsDevice()
+        && !info.location.isEmpty() && m_pySideUicPath.isEmpty()) {
+        const FilePath scripts = info.location.parentDir().pathAppended("Scripts");
+        auto userInstalledPySideTool = [&](const QString &toolName) {
+            const FilePath tool = scripts.pathAppended(HostOsInfo::withExecutableSuffix(toolName));
+            return tool.isExecutableFile() ? tool : FilePath();
+        };
+        m_pySideUicPath = userInstalledPySideTool("pyside6-uic");
+        if (pySideProjectPath.isEmpty())
+            pySideProjectPath = userInstalledPySideTool("pyside6-project");
+    }
+
     updateExtraCompilers();
 
     if (auto pySideBuildStep = buildSteps->firstOfType<PySideBuildStep>())
