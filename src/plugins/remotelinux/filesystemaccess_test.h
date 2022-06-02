@@ -27,8 +27,6 @@
 
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
-#include <utils/fileutils.h>
-
 namespace RemoteLinux {
 namespace Internal {
 

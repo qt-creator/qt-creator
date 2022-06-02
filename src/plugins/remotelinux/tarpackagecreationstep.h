@@ -25,63 +25,51 @@
 
 #pragma once
 
-#include "abstractpackagingstep.h"
-#include "deploymenttimeinfo.h"
 #include "remotelinux_export.h"
 
-#include <projectexplorer/deployablefile.h>
-
-#include <utils/aspects.h>
+#include <projectexplorer/buildstep.h>
 
 QT_BEGIN_NAMESPACE
 class QFile;
 class QFileInfo;
 QT_END_NAMESPACE
 
+namespace ProjectExplorer { class DeployableFile; }
+
 namespace RemoteLinux {
 
-class REMOTELINUX_EXPORT TarPackageCreationStep : public AbstractPackagingStep
+namespace Internal { class TarPackageCreationStepPrivate; }
+
+class REMOTELINUX_EXPORT TarPackageCreationStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
+
 public:
-    TarPackageCreationStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
+    explicit TarPackageCreationStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
+    ~TarPackageCreationStep() override;
 
     static Utils::Id stepId();
     static QString displayName();
 
-    void setIgnoreMissingFiles(bool ignoreMissingFiles);
-    bool ignoreMissingFiles() const;
-
-    void setIncrementalDeployment(bool incrementalDeployment);
-    bool isIncrementalDeployment() const;
+    Utils::FilePath packageFilePath() const;
 
 private:
     bool init() override;
     void doRun() override;
-
-    void deployFinished(bool success);
-
-    void addNeededDeploymentFiles(const ProjectExplorer::DeployableFile &deployable,
-                                  const ProjectExplorer::Kit *kit);
-
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
-    QString packageFileName() const override;
-
+    void raiseError(const QString &errorMessage);
+    void raiseWarning(const QString &warningMessage);
+    bool isPackagingNeeded() const;
+    void deployFinished(bool success);
+    void addNeededDeploymentFiles(const ProjectExplorer::DeployableFile &deployable,
+                                  const ProjectExplorer::Kit *kit);
     bool runImpl();
     bool doPackage();
-    bool appendFile(QFile &tarFile, const QFileInfo &fileInfo,
-        const QString &remoteFilePath);
-    bool writeHeader(QFile &tarFile, const QFileInfo &fileInfo,
-        const QString &remoteFilePath);
+    bool appendFile(QFile &tarFile, const QFileInfo &fileInfo, const QString &remoteFilePath);
 
-    DeploymentTimeInfo m_deployTimes;
-
-    Utils::BoolAspect *m_incrementalDeploymentAspect = nullptr;
-    Utils::BoolAspect *m_ignoreMissingFilesAspect = nullptr;
-    bool m_packagingNeeded = false;
-    QList<ProjectExplorer::DeployableFile> m_files;
+    std::unique_ptr<Internal::TarPackageCreationStepPrivate> d;
 };
 
 } // namespace RemoteLinux

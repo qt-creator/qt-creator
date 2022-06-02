@@ -25,13 +25,15 @@
 
 #pragma once
 
-#include "remotelinuxenvironmentaspect.h"
-
 #include <projectexplorer/environmentaspectwidget.h>
 
-QT_FORWARD_DECLARE_CLASS(QPushButton)
+QT_BEGIN_NAMESPACE
+class QPushButton;
+QT_END_NAMESPACE
 
 namespace RemoteLinux {
+
+class RemoteLinuxEnvironmentAspect;
 
 namespace Internal { class RemoteLinuxEnvironmentReader; }
 
@@ -43,16 +45,14 @@ public:
     RemoteLinuxEnvironmentAspectWidget(RemoteLinuxEnvironmentAspect *aspect,
                                        ProjectExplorer::Target *target);
 
-    RemoteLinuxEnvironmentAspect *aspect() const override;
-    QPushButton *fetchButton() const;
-
 private:
     void fetchEnvironment();
     void fetchEnvironmentFinished();
     void fetchEnvironmentError(const QString &error);
     void stopFetchEnvironment();
 
-    Internal::RemoteLinuxEnvironmentReader *deviceEnvReader;
+    Internal::RemoteLinuxEnvironmentReader *m_deviceEnvReader = nullptr;
+    QPushButton *m_fetchButton = nullptr;
 };
 
 } // namespace RemoteLinux

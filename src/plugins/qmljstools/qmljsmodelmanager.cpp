@@ -92,10 +92,11 @@ static void setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &proje
 
     if (projectInfo.project) {
         QSet<Kit *> currentKits;
-        foreach (const Target *t, projectInfo.project->targets())
+        const QList<Target *> targets = projectInfo.project->targets();
+        for (const Target *t : targets)
             currentKits.insert(t->kit());
         currentKits.remove(activeKit);
-        foreach (Kit *kit, currentKits) {
+        for (Kit *kit : qAsConst(currentKits)) {
             for (IBundleProvider *bp : IBundleProvider::allBundleProviders())
                 bp->mergeBundlesForKit(kit, projectInfo.extendedBundle, replacements);
         }
@@ -214,22 +215,28 @@ QHash<QString,Dialect> ModelManager::initLanguageForSuffix() const
 
     if (ICore::instance()) {
         MimeType jsSourceTy = Utils::mimeTypeForName(Constants::JS_MIMETYPE);
-        foreach (const QString &suffix, jsSourceTy.suffixes())
+        const QStringList jsSuffixes = jsSourceTy.suffixes();
+        for (const QString &suffix : jsSuffixes)
             res[suffix] = Dialect::JavaScript;
         MimeType qmlSourceTy = Utils::mimeTypeForName(Constants::QML_MIMETYPE);
-        foreach (const QString &suffix, qmlSourceTy.suffixes())
+        const QStringList qmlSuffixes = qmlSourceTy.suffixes();
+        for (const QString &suffix : qmlSuffixes)
             res[suffix] = Dialect::Qml;
         MimeType qbsSourceTy = Utils::mimeTypeForName(Constants::QBS_MIMETYPE);
-        foreach (const QString &suffix, qbsSourceTy.suffixes())
+        const QStringList qbsSuffixes = qbsSourceTy.suffixes();
+        for (const QString &suffix : qbsSuffixes)
             res[suffix] = Dialect::QmlQbs;
         MimeType qmlProjectSourceTy = Utils::mimeTypeForName(Constants::QMLPROJECT_MIMETYPE);
-        foreach (const QString &suffix, qmlProjectSourceTy.suffixes())
+        const QStringList qmlProjSuffixes = qmlProjectSourceTy.suffixes();
+        for (const QString &suffix : qmlProjSuffixes)
             res[suffix] = Dialect::QmlProject;
         MimeType qmlUiSourceTy = Utils::mimeTypeForName(Constants::QMLUI_MIMETYPE);
-        foreach (const QString &suffix, qmlUiSourceTy.suffixes())
+        const QStringList qmlUiSuffixes = qmlUiSourceTy.suffixes();
+        for (const QString &suffix : qmlUiSuffixes)
             res[suffix] = Dialect::QmlQtQuick2Ui;
         MimeType jsonSourceTy = Utils::mimeTypeForName(Constants::JSON_MIMETYPE);
-        foreach (const QString &suffix, jsonSourceTy.suffixes())
+        const QStringList jsonSuffixes = jsonSourceTy.suffixes();
+        for (const QString &suffix : jsonSuffixes)
             res[suffix] = Dialect::Json;
     }
     return res;
@@ -288,7 +295,8 @@ ModelManagerInterface::WorkingCopy ModelManager::workingCopyInternal() const
     if (!Core::ICore::instance())
         return workingCopy;
 
-    foreach (IDocument *document, DocumentModel::openedDocuments()) {
+    const QList<IDocument *> documents = DocumentModel::openedDocuments();
+    for (IDocument *document : documents) {
         const QString key = document->filePath().toString();
         if (auto textDocument = qobject_cast<const TextEditor::TextDocument *>(document)) {
             // TODO the language should be a property on the document, not the editor

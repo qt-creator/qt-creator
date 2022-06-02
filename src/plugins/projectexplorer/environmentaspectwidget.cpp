@@ -41,9 +41,8 @@ namespace ProjectExplorer {
 // EnvironmentAspectWidget:
 // --------------------------------------------------------------------
 
-EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect, QWidget *additionalWidget) :
-    m_aspect(aspect),
-    m_additionalWidget(additionalWidget)
+EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect)
+    : m_aspect(aspect)
 {
     QTC_CHECK(m_aspect);
 
@@ -52,10 +51,10 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect, QWid
     topLayout->setContentsMargins(0, 0, 0, 25);
 
     auto baseEnvironmentWidget = new QWidget;
-    auto baseLayout = new QHBoxLayout(baseEnvironmentWidget);
-    baseLayout->setContentsMargins(0, 0, 0, 0);
+    m_baseLayout = new QHBoxLayout(baseEnvironmentWidget);
+    m_baseLayout->setContentsMargins(0, 0, 0, 0);
     auto label = new QLabel(tr("Base environment for this run configuration:"), this);
-    baseLayout->addWidget(label);
+    m_baseLayout->addWidget(label);
 
     m_baseEnvironmentComboBox = new QComboBox;
     for (const QString &displayName : m_aspect->displayNames())
@@ -67,10 +66,8 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect, QWid
     connect(m_baseEnvironmentComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &EnvironmentAspectWidget::baseEnvironmentSelected);
 
-    baseLayout->addWidget(m_baseEnvironmentComboBox);
-    baseLayout->addStretch(10);
-    if (additionalWidget)
-        baseLayout->addWidget(additionalWidget);
+    m_baseLayout->addWidget(m_baseEnvironmentComboBox);
+    m_baseLayout->addStretch(10);
 
     const EnvironmentWidget::Type widgetType = aspect->isLocal()
             ? EnvironmentWidget::TypeLocal : EnvironmentWidget::TypeRemote;
@@ -92,14 +89,9 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect, QWid
             this, &EnvironmentAspectWidget::environmentChanged);
 }
 
-EnvironmentAspect *EnvironmentAspectWidget::aspect() const
+void EnvironmentAspectWidget::addWidget(QWidget *widget)
 {
-    return m_aspect;
-}
-
-QWidget *EnvironmentAspectWidget::additionalWidget() const
-{
-    return m_additionalWidget;
+    m_baseLayout->addWidget(widget);
 }
 
 void EnvironmentAspectWidget::baseEnvironmentSelected(int idx)

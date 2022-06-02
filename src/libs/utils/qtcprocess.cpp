@@ -437,7 +437,7 @@ public:
     }
     ~ProcessLauncherImpl() final
     {
-        m_handle->kill();
+        m_handle->close();
         LauncherInterface::unregisterHandle(token());
         m_handle = nullptr;
     }

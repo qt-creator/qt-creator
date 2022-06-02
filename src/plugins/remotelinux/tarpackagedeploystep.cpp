@@ -23,10 +23,10 @@
 **
 ****************************************************************************/
 
-#include "uploadandinstalltarpackagestep.h"
+#include "tarpackagedeploystep.h"
 
+#include "abstractremotelinuxdeployservice.h"
 #include "remotelinux_constants.h"
-#include "remotelinuxpackageinstaller.h"
 #include "tarpackagecreationstep.h"
 
 #include <projectexplorer/deployconfiguration.h>
@@ -34,6 +34,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 
 #include <utils/processinterface.h>
+#include <utils/qtcprocess.h>
 
 #include <QDateTime>
 
@@ -43,12 +44,73 @@ using namespace Utils;
 namespace RemoteLinux {
 namespace Internal {
 
-class UploadAndInstallTarPackageService : public AbstractRemoteLinuxDeployService
+class TarPackageInstaller : public QObject
 {
     Q_OBJECT
 
 public:
-    UploadAndInstallTarPackageService();
+    TarPackageInstaller(QObject *parent = nullptr);
+
+    void installPackage(const ProjectExplorer::IDeviceConstPtr &deviceConfig,
+                        const QString &packageFilePath, bool removePackageFile);
+    void cancelInstallation();
+
+signals:
+    void stdoutData(const QString &output);
+    void stderrData(const QString &output);
+    void finished(const QString &errorMsg = QString());
+
+private:
+    IDevice::ConstPtr m_device;
+    QtcProcess m_installer;
+    QtcProcess m_killer;
+};
+
+TarPackageInstaller::TarPackageInstaller(QObject *parent)
+    : QObject(parent)
+{
+    connect(&m_installer, &QtcProcess::readyReadStandardOutput, this, [this] {
+        emit stdoutData(QString::fromUtf8(m_installer.readAllStandardOutput()));
+    });
+    connect(&m_installer, &QtcProcess::readyReadStandardError, this, [this] {
+        emit stderrData(QString::fromUtf8(m_installer.readAllStandardError()));
+    });
+    connect(&m_installer, &QtcProcess::finished, this, [this] {
+        const QString errorMessage = m_installer.result() == ProcessResult::FinishedWithSuccess
+                ? QString() : tr("Installing package failed.") + m_installer.errorString();
+        emit finished(errorMessage);
+    });
+}
+
+void TarPackageInstaller::installPackage(const IDevice::ConstPtr &deviceConfig,
+    const QString &packageFilePath, bool removePackageFile)
+{
+    QTC_ASSERT(m_installer.state() == QProcess::NotRunning, return);
+
+    m_device = deviceConfig;
+
+    QString cmdLine = QLatin1String("cd / && tar xvf ") + packageFilePath;
+    if (removePackageFile)
+        cmdLine += QLatin1String(" && (rm ") + packageFilePath + QLatin1String(" || :)");
+    m_installer.setCommand({m_device->filePath("/bin/sh"), {"-c", cmdLine}});
+    m_installer.start();
+}
+
+void TarPackageInstaller::cancelInstallation()
+{
+    QTC_ASSERT(m_installer.state() != QProcess::NotRunning, return);
+
+    m_killer.setCommand({m_device->filePath("/bin/sh"), {"-c", "pkill tar"}});
+    m_killer.start();
+    m_installer.close();
+}
+
+class TarPackageDeployService : public AbstractRemoteLinuxDeployService
+{
+    Q_OBJECT
+
+public:
+    TarPackageDeployService();
     void setPackageFilePath(const FilePath &filePath);
 
 private:
@@ -68,33 +130,33 @@ private:
     State m_state = Inactive;
     FileTransfer m_uploader;
     FilePath m_packageFilePath;
-    RemoteLinuxTarPackageInstaller m_installer;
+    TarPackageInstaller m_installer;
 };
 
-UploadAndInstallTarPackageService::UploadAndInstallTarPackageService()
+TarPackageDeployService::TarPackageDeployService()
 {
     connect(&m_uploader, &FileTransfer::done, this,
-            &UploadAndInstallTarPackageService::handleUploadFinished);
+            &TarPackageDeployService::handleUploadFinished);
     connect(&m_uploader, &FileTransfer::progress, this,
-            &UploadAndInstallTarPackageService::progressMessage);
+            &TarPackageDeployService::progressMessage);
 }
 
-void UploadAndInstallTarPackageService::setPackageFilePath(const FilePath &filePath)
+void TarPackageDeployService::setPackageFilePath(const FilePath &filePath)
 {
     m_packageFilePath = filePath;
 }
 
-QString UploadAndInstallTarPackageService::uploadDir() const
+QString TarPackageDeployService::uploadDir() const
 {
     return QLatin1String("/tmp");
 }
 
-bool UploadAndInstallTarPackageService::isDeploymentNecessary() const
+bool TarPackageDeployService::isDeploymentNecessary() const
 {
     return hasLocalFileChanged(DeployableFile(m_packageFilePath, {}));
 }
 
-void UploadAndInstallTarPackageService::doDeploy()
+void TarPackageDeployService::doDeploy()
 {
     QTC_ASSERT(m_state == Inactive, return);
 
@@ -107,7 +169,7 @@ void UploadAndInstallTarPackageService::doDeploy()
     m_uploader.start();
 }
 
-void UploadAndInstallTarPackageService::stopDeployment()
+void TarPackageDeployService::stopDeployment()
 {
     switch (m_state) {
     case Inactive:
@@ -124,7 +186,7 @@ void UploadAndInstallTarPackageService::stopDeployment()
     }
 }
 
-void UploadAndInstallTarPackageService::handleUploadFinished(const ProcessResultData &resultData)
+void TarPackageDeployService::handleUploadFinished(const ProcessResultData &resultData)
 {
     QTC_ASSERT(m_state == Uploading, return);
 
@@ -138,16 +200,16 @@ void UploadAndInstallTarPackageService::handleUploadFinished(const ProcessResult
     const QString remoteFilePath = uploadDir() + '/' + m_packageFilePath.fileName();
     m_state = Installing;
     emit progressMessage(tr("Installing package to device..."));
-    connect(&m_installer, &AbstractRemoteLinuxPackageInstaller::stdoutData,
+    connect(&m_installer, &TarPackageInstaller::stdoutData,
             this, &AbstractRemoteLinuxDeployService::stdOutData);
-    connect(&m_installer, &AbstractRemoteLinuxPackageInstaller::stderrData,
+    connect(&m_installer, &TarPackageInstaller::stderrData,
             this, &AbstractRemoteLinuxDeployService::stdErrData);
-    connect(&m_installer, &AbstractRemoteLinuxPackageInstaller::finished,
-            this, &UploadAndInstallTarPackageService::handleInstallationFinished);
+    connect(&m_installer, &TarPackageInstaller::finished,
+            this, &TarPackageDeployService::handleInstallationFinished);
     m_installer.installPackage(deviceConfiguration(), remoteFilePath, true);
 }
 
-void UploadAndInstallTarPackageService::handleInstallationFinished(const QString &errorMsg)
+void TarPackageDeployService::handleInstallationFinished(const QString &errorMsg)
 {
     QTC_ASSERT(m_state == Installing, return);
 
@@ -160,7 +222,7 @@ void UploadAndInstallTarPackageService::handleInstallationFinished(const QString
     setFinished();
 }
 
-void UploadAndInstallTarPackageService::setFinished()
+void TarPackageDeployService::setFinished()
 {
     m_state = Inactive;
     m_uploader.stop();
@@ -172,10 +234,10 @@ void UploadAndInstallTarPackageService::setFinished()
 
 using namespace Internal;
 
-UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bsl, Id id)
+TarPackageDeployStep::TarPackageDeployStep(BuildStepList *bsl, Id id)
     : AbstractRemoteLinuxDeployStep(bsl, id)
 {
-    auto service = createDeployService<UploadAndInstallTarPackageService>();
+    auto service = createDeployService<TarPackageDeployService>();
 
     setWidgetExpandedByDefault(false);
 
@@ -185,7 +247,7 @@ UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bs
         for (BuildStep *step : deployConfiguration()->stepList()->steps()) {
             if (step == this)
                 break;
-            if ((pStep = dynamic_cast<TarPackageCreationStep *>(step)))
+            if ((pStep = qobject_cast<TarPackageCreationStep *>(step)))
                 break;
         }
         if (!pStep)
@@ -196,16 +258,16 @@ UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bs
     });
 }
 
-Id UploadAndInstallTarPackageStep::stepId()
+Id TarPackageDeployStep::stepId()
 {
-    return Constants::UploadAndInstallTarPackageStepId;
+    return Constants::TarPackageDeployStepId;
 }
 
-QString UploadAndInstallTarPackageStep::displayName()
+QString TarPackageDeployStep::displayName()
 {
     return tr("Deploy tarball via SFTP upload");
 }
 
 } //namespace RemoteLinux
 
-#include "uploadandinstalltarpackagestep.moc"
+#include "tarpackagedeploystep.moc"

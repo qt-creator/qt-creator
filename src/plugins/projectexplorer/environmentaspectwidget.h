@@ -37,6 +37,7 @@
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
+class QHBoxLayout;
 QT_END_NAMESPACE
 
 namespace Utils { class DetailsWidget; }
@@ -50,12 +51,12 @@ class PROJECTEXPLORER_EXPORT EnvironmentAspectWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit EnvironmentAspectWidget(EnvironmentAspect *aspect, QWidget *additionalWidget = nullptr);
+    explicit EnvironmentAspectWidget(EnvironmentAspect *aspect);
 
-    virtual EnvironmentAspect *aspect() const;
+protected:
+    EnvironmentAspect *aspect() const { return m_aspect; }
     EnvironmentWidget *envWidget() const { return m_environmentWidget; }
-
-    QWidget *additionalWidget() const;
+    void addWidget(QWidget *widget);
 
 private:
     void baseEnvironmentSelected(int idx);
@@ -66,8 +67,7 @@ private:
 
     EnvironmentAspect *m_aspect;
     bool m_ignoreChange = false;
-
-    QWidget *m_additionalWidget = nullptr;
+    QHBoxLayout *m_baseLayout = nullptr;
     QComboBox *m_baseEnvironmentComboBox = nullptr;
     EnvironmentWidget *m_environmentWidget = nullptr;
 };

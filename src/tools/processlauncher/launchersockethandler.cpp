@@ -242,28 +242,17 @@ void LauncherSocketHandler::handleStopPacket()
                 m_packetParser.token(),
                 m_packetParser.packetData());
 
-    if (packet.signalType == StopProcessPacket::SignalType::Terminate) {
+    switch (packet.signalType) {
+    case StopProcessPacket::SignalType::Terminate:
         process->terminate();
-        return;
+        break;
+    case StopProcessPacket::SignalType::Kill:
+        process->kill();
+        break;
+    case StopProcessPacket::SignalType::Close:
+        removeProcess(process->token());
+        break;
     }
-
-    if (process->state() == QProcess::NotRunning) {
-        // This shouldn't happen, since as soon as process finishes or error occurrs
-        // the process is being removed.
-        logWarn("Got stop request when process was not running");
-    } else {
-        // We got the client request to stop the starting / running process.
-        // We report process exit to the client.
-        ProcessDonePacket packet(process->token());
-        packet.error = QProcess::Crashed;
-        packet.exitCode = -1;
-        packet.exitStatus = QProcess::CrashExit;
-        if (process->processChannelMode() != QProcess::MergedChannels)
-            packet.stdErr = process->readAllStandardError();
-        packet.stdOut = process->readAllStandardOutput();
-        sendPacket(packet);
-    }
-    removeProcess(process->token());
 }
 
 void LauncherSocketHandler::handleShutdownPacket()

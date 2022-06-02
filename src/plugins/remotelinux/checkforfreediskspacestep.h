@@ -25,18 +25,18 @@
 
 #pragma once
 
+#include "remotelinux_export.h"
+
 #include "abstractremotelinuxdeploystep.h"
 
 namespace RemoteLinux {
 
-class REMOTELINUX_EXPORT RemoteLinuxCustomCommandDeploymentStep
-    : public AbstractRemoteLinuxDeployStep
+class REMOTELINUX_EXPORT CheckForFreeDiskSpaceStep : public AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT
 
 public:
-    RemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
-    ~RemoteLinuxCustomCommandDeploymentStep() override;
+    CheckForFreeDiskSpaceStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
 
     static Utils::Id stepId();
     static QString displayName();

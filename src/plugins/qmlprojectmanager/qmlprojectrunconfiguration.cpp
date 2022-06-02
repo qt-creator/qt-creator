@@ -212,8 +212,9 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
 
     // arguments from .qmlproject file
     const QmlBuildSystem *bs = qobject_cast<QmlBuildSystem *>(target()->buildSystem());
-    foreach (const QString &importPath,
-             QmlBuildSystem::makeAbsolute(bs->targetDirectory(), bs->customImportPaths())) {
+    const QStringList importPaths = QmlBuildSystem::makeAbsolute(bs->targetDirectory(),
+                                                                 bs->customImportPaths());
+    for (const QString &importPath : importPaths) {
         ProcessArgs::addArg(&args, "-I", osType);
         ProcessArgs::addArg(&args, importPath, osType);
     }

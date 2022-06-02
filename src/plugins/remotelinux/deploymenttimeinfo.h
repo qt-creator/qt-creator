@@ -27,6 +27,10 @@
 
 #include <QVariantMap>
 
+QT_BEGIN_NAMESPACE
+class QDateTime;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer {
 class DeployableFile;
 class Kit;

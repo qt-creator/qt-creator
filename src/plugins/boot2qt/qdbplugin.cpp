@@ -45,9 +45,9 @@
 
 #include <qtsupport/qtversionfactory.h>
 
+#include <remotelinux/checkforfreediskspacestep.h>
 #include <remotelinux/genericdirectuploadstep.h>
 #include <remotelinux/makeinstallstep.h>
-#include <remotelinux/remotelinuxcheckforfreediskspacestep.h>
 #include <remotelinux/remotelinux_constants.h>
 
 #include <utils/hostosinfo.h>
@@ -176,7 +176,7 @@ public:
     QdbStopApplicationStepFactory m_stopApplicationStepFactory;
     QdbMakeDefaultAppStepFactory m_makeDefaultAppStepFactory;
 
-    QdbDeployStepFactory<RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep>
+    QdbDeployStepFactory<RemoteLinux::CheckForFreeDiskSpaceStep>
         m_checkForFreeDiskSpaceStepFactory{RemoteLinux::Constants::CheckForFreeDiskSpaceId};
     QdbDeployStepFactory<RemoteLinux::GenericDirectUploadStep>
         m_directUploadStepFactory{RemoteLinux::Constants::DirectUploadStepId};

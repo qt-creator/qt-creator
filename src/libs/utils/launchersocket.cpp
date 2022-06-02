@@ -262,6 +262,12 @@ void CallerHandle::kill()
     sendStopPacket(StopProcessPacket::SignalType::Kill);
 }
 
+void CallerHandle::close()
+{
+    QTC_ASSERT(isCalledFromCallersThread(), return);
+    sendStopPacket(StopProcessPacket::SignalType::Close);
+}
+
 qint64 CallerHandle::processId() const
 {
     QTC_ASSERT(isCalledFromCallersThread(), return 0);

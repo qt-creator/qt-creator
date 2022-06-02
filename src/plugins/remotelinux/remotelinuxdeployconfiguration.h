@@ -25,9 +25,6 @@
 
 #pragma once
 
-#include "remotelinux_export.h"
-
-#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
 
 namespace RemoteLinux {

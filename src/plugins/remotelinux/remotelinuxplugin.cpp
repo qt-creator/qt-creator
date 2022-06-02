@@ -25,23 +25,22 @@
 
 #include "remotelinuxplugin.h"
 
+#include "checkforfreediskspacestep.h"
+#include "customcommanddeploystep.h"
+#include "genericdirectuploadstep.h"
+#include "killappstep.h"
 #include "linuxdevice.h"
+#include "makeinstallstep.h"
 #include "remotelinux_constants.h"
+#include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxqmltoolingsupport.h"
 #include "remotelinuxcustomrunconfiguration.h"
 #include "remotelinuxdebugsupport.h"
 #include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxrunconfiguration.h"
-
-#include "genericdirectuploadstep.h"
-#include "makeinstallstep.h"
-#include "remotelinuxcheckforfreediskspacestep.h"
-#include "remotelinuxdeployconfiguration.h"
-#include "remotelinuxcustomcommanddeploymentstep.h"
-#include "killappstep.h"
 #include "rsyncdeploystep.h"
 #include "tarpackagecreationstep.h"
-#include "uploadandinstalltarpackagestep.h"
+#include "tarpackagedeploystep.h"
 
 #ifdef WITH_TESTS
 #include "filesystemaccess_test.h"
@@ -76,13 +75,11 @@ public:
     RemoteLinuxCustomRunConfigurationFactory customRunConfigurationFactory;
     RemoteLinuxDeployConfigurationFactory deployConfigurationFactory;
     GenericDeployStepFactory<TarPackageCreationStep> tarPackageCreationStepFactory;
-    GenericDeployStepFactory<UploadAndInstallTarPackageStep> uploadAndInstallTarPackageStepFactory;
+    GenericDeployStepFactory<TarPackageDeployStep> tarPackageDeployStepFactory;
     GenericDeployStepFactory<GenericDirectUploadStep> genericDirectUploadStepFactory;
     GenericDeployStepFactory<RsyncDeployStep> rsyncDeployStepFactory;
-    GenericDeployStepFactory<RemoteLinuxCustomCommandDeploymentStep>
-        customCommandDeploymentStepFactory;
-    GenericDeployStepFactory<RemoteLinuxCheckForFreeDiskSpaceStep>
-        checkForFreeDiskSpaceStepFactory;
+    GenericDeployStepFactory<CustomCommandDeployStep> customCommandDeployStepFactory;
+    GenericDeployStepFactory<CheckForFreeDiskSpaceStep> checkForFreeDiskSpaceStepFactory;
     GenericDeployStepFactory<KillAppStep> killAppStepFactory;
     GenericDeployStepFactory<MakeInstallStep> makeInstallStepFactory;
 

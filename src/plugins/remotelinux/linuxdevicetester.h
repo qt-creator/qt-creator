@@ -27,9 +27,9 @@
 
 #include "remotelinux_export.h"
 
-#include <projectexplorer/devicesupport/filetransferinterface.h>
 #include <projectexplorer/devicesupport/idevice.h>
 
+namespace ProjectExplorer { enum class FileTransferMethod; }
 namespace Utils { class ProcessResultData; }
 
 namespace RemoteLinux {

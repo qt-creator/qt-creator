@@ -27,11 +27,12 @@
 
 #include "remotelinux_export.h"
 
-#include "abstractremotelinuxdeployservice.h"
-
 #include <projectexplorer/buildstep.h>
 
 namespace RemoteLinux {
+
+class AbstractRemoteLinuxDeployService;
+class CheckResult;
 
 namespace Internal { class AbstractRemoteLinuxDeployStepPrivate; }
 

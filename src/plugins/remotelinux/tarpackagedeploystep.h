@@ -25,47 +25,19 @@
 
 #pragma once
 
-#include "remotelinux_export.h"
-
-#include <projectexplorer/buildstep.h>
+#include "abstractremotelinuxdeploystep.h"
 
 namespace RemoteLinux {
 
-namespace Internal { class AbstractPackagingStepPrivate; }
-
-class REMOTELINUX_EXPORT AbstractPackagingStep : public ProjectExplorer::BuildStep
+class TarPackageDeployStep : public AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT
 
 public:
-    explicit AbstractPackagingStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
-    ~AbstractPackagingStep() override;
+    TarPackageDeployStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
 
-    Utils::FilePath packageFilePath() const;
-    Utils::FilePath cachedPackageFilePath() const;
-    bool init() override;
-
-signals:
-    void unmodifyDeploymentData();
-
-protected:
-    void setPackagingStarted();
-    void setPackagingFinished(bool success);
-
-    void raiseError(const QString &errorMessage);
-    void raiseWarning(const QString &warningMessage);
-    Utils::FilePath cachedPackageDirectory() const;
-    Utils::FilePath packageDirectory() const;
-
-    virtual bool isPackagingNeeded() const;
-
-private:
-    void setDeploymentDataUnmodified();
-    void setDeploymentDataModified();
-
-    virtual QString packageFileName() const = 0;
-
-    Internal::AbstractPackagingStepPrivate *d;
+    static Utils::Id stepId();
+    static QString displayName();
 };
 
-} // namespace RemoteLinux
+} //namespace RemoteLinux

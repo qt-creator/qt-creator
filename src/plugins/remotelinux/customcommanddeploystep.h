@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,35 +23,23 @@
 **
 ****************************************************************************/
 
-#include "remotelinuxx11forwardingaspect.h"
+#pragma once
 
-#include <utils/macroexpander.h>
-#include <utils/qtcassert.h>
+#include "remotelinux_export.h"
 
-using namespace Utils;
+#include "abstractremotelinuxdeploystep.h"
 
 namespace RemoteLinux {
 
-static QString defaultDisplay() { return qEnvironmentVariable("DISPLAY"); }
-
-X11ForwardingAspect::X11ForwardingAspect(const MacroExpander *expander)
-    : m_macroExpander(expander)
+class REMOTELINUX_EXPORT CustomCommandDeployStep : public AbstractRemoteLinuxDeployStep
 {
-    setLabelText(tr("X11 Forwarding:"));
-    setDisplayStyle(LineEditDisplay);
-    setId("X11ForwardingAspect");
-    setSettingsKey("RunConfiguration.X11Forwarding");
-    makeCheckable(CheckBoxPlacement::Right, tr("Forward to local display"),
-                  "RunConfiguration.UseX11Forwarding");
-    setValue(defaultDisplay());
+    Q_OBJECT
 
-    addDataExtractor(this, &X11ForwardingAspect::display, &Data::display);
-}
+public:
+    CustomCommandDeployStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
 
-QString X11ForwardingAspect::display() const
-{
-    QTC_ASSERT(m_macroExpander, return value());
-    return !isChecked() ? QString() : m_macroExpander->expandProcessArgs(value());
-}
+    static Utils::Id stepId();
+    static QString displayName();
+};
 
 } // namespace RemoteLinux
