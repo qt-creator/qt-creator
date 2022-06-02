@@ -526,13 +526,9 @@ public:
         , m_stdErr(stdErr) {}
     QByteArray stdOut() const { return m_stdOut; }
     QByteArray stdErr() const { return m_stdErr; }
-    void mergeWith(ReadyReadSignal *newSignal) {
-        m_stdOut += newSignal->stdOut();
-        m_stdErr += newSignal->stdErr();
-    }
 private:
-    QByteArray m_stdOut;
-    QByteArray m_stdErr;
+    const QByteArray m_stdOut;
+    const QByteArray m_stdErr;
 };
 
 class DoneSignal : public ProcessInterfaceSignal
@@ -864,31 +860,6 @@ void QtcProcessPrivate::appendSignal(ProcessInterfaceSignal *newSignal)
     QTC_ASSERT(newSignal->signalType() != SignalType::NoSignal, delete newSignal; return);
 
     QMutexLocker locker(&m_mutex);
-
-    // TODO: we might assert if the caller's state is proper, e.g.
-    // start signal can't appear if we are in Running or NotRunning state,
-    // or finish signal can't appear if we are in NotRunning or Starting state,
-    // or readyRead signal can't appear if we are in NotRunning or Starting state,
-    // or error signal can't appear if we are in NotRunning state
-    // or FailedToStart error signal can't appear if we are in Running state
-    // or other than FailedToStart error signal can't appear if we are in Starting state.
-    if (!m_signals.isEmpty()) {
-        ProcessInterfaceSignal *lastSignal = m_signals.last();
-
-        QTC_ASSERT(lastSignal->signalType() != SignalType::Done,
-                   qWarning() << "Buffering new signal for process" << m_setup.m_commandLine
-                   << "while the last done() signal wasn't flushed yet.");
-
-        // Merge ReadyRead signals into one.
-        if (lastSignal->signalType() == SignalType::ReadyRead
-                && newSignal->signalType() == SignalType::ReadyRead) {
-            ReadyReadSignal *lastRead = static_cast<ReadyReadSignal *>(lastSignal);
-            ReadyReadSignal *newRead = static_cast<ReadyReadSignal *>(newSignal);
-            lastRead->mergeWith(newRead);
-            delete newRead;
-            return;
-        }
-    }
     m_signals.append(newSignal);
 }
 
