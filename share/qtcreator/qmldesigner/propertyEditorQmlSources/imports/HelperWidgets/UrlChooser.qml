@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -63,6 +63,7 @@ Row {
 
         property ListModel listModel: ListModel {}
 
+        hasActiveDrag: activeDragSuffix !== "" && root.filter.includes(activeDragSuffix)
         implicitWidth: StudioTheme.Values.singleControlColumnWidth
                         + StudioTheme.Values.actionIndicatorWidth
         width: implicitWidth
@@ -71,6 +72,30 @@ Row {
         // Note: highlightedIndex property isn't used because it has no setter and it doesn't reset
         // when the combobox is closed by focusing on some other control.
         property int hoverIndex: -1
+
+        DropArea {
+            id: dropArea
+
+            anchors.fill: parent
+
+            property string assetPath: ""
+
+            onEntered: function(drag) {
+                dropArea.assetPath = drag.getDataAsString(drag.keys[0]).split(",")[0]
+                drag.accepted = comboBox.hasActiveDrag
+                comboBox.hasActiveHoverDrag = drag.accepted
+            }
+
+            onExited: comboBox.hasActiveHoverDrag = false
+
+            onDropped: function(drop) {
+                drop.accepted = comboBox.hasActiveHoverDrag
+                comboBox.editText = dropArea.assetPath
+                comboBox.accepted()
+                comboBox.hasActiveHoverDrag = false
+                root.backendValue.commitDrop(dropArea.assetPath)
+            }
+        }
 
         ToolTip {
             id: toolTip

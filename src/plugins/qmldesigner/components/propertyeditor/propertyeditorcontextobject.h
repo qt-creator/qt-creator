@@ -56,6 +56,8 @@ class PropertyEditorContextObject : public QObject
     Q_PROPERTY(int majorQtQuickVersion READ majorQtQuickVersion WRITE setMajorQtQuickVersion NOTIFY majorQtQuickVersionChanged)
     Q_PROPERTY(int minorQtQuickVersion READ minorQtQuickVersion WRITE setMinorQtQuickVersion NOTIFY minorQtQuickVersionChanged)
 
+    Q_PROPERTY(QString activeDragSuffix READ activeDragSuffix NOTIFY activeDragSuffixChanged)
+
     Q_PROPERTY(bool hasAliasExport READ hasAliasExport NOTIFY hasAliasExportChanged)
 
     Q_PROPERTY(bool hasActiveTimeline READ hasActiveTimeline NOTIFY hasActiveTimelineChanged)
@@ -102,6 +104,9 @@ public:
 
     Q_INVOKABLE bool isBlocked(const QString &propName) const;
 
+    QString activeDragSuffix() const;
+    void setActiveDragSuffix(const QString &suffix);
+
     int majorVersion() const;
     int majorQtQuickVersion() const;
     int minorQtQuickVersion() const;
@@ -134,6 +139,7 @@ signals:
     void specificQmlComponentChanged();
     void hasAliasExportChanged();
     void hasActiveTimelineChanged();
+    void activeDragSuffixChanged();
 
 public slots:
 
@@ -182,6 +188,8 @@ private:
     bool m_aliasExport = false;
 
     bool m_setHasActiveTimeline = false;
+
+    QString m_activeDragSuffix;
 };
 
 class EasingCurveEditor : public QObject

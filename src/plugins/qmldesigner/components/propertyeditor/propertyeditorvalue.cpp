@@ -537,6 +537,8 @@ void PropertyEditorValue::commitDrop(const QString &path)
         // assign the texture to the property
         setExpressionWithEmit(texture.id());
     }
+
+    m_modelNode.view()->model()->endDrag();
 }
 
 QStringList PropertyEditorValue::generateStringList(const QString &string) const

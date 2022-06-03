@@ -87,6 +87,9 @@ public:
                         const NodeAbstractProperty &oldPropertyParent,
                         AbstractView::PropertyChangeFlags propertyChange) override;
 
+    void dragStarted(QMimeData *mimeData) override;
+    void dragEnded() override;
+
     void changeValue(const QString &name);
     void changeExpression(const QString &name);
     void exportPropertyAsAlias(const QString &name);

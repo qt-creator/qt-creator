@@ -26,8 +26,8 @@
 #include "propertyeditorview.h"
 
 #include "propertyeditorqmlbackend.h"
-#include "propertyeditorvalue.h"
 #include "propertyeditortransaction.h"
+#include "propertyeditorvalue.h"
 
 #include <qmldesignerconstants.h>
 #include <qmltimeline.h>
@@ -850,7 +850,26 @@ void PropertyEditorView::nodeReparented(const ModelNode &node,
         m_qmlBackEndForCurrentType->backendAnchorBinding().setup(QmlItemNode(m_selectedNode));
 }
 
-void PropertyEditorView::setValue(const QmlObjectNode &qmlObjectNode, const PropertyName &name, const QVariant &value)
+void PropertyEditorView::dragStarted(QMimeData *mimeData)
+{
+    if (!mimeData->hasFormat(Constants::MIME_TYPE_ASSETS))
+        return;
+
+    const QString assetPath = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS))
+                                  .split(',')[0];
+    const QString suffix = "*." + assetPath.split('.').last().toLower();
+
+    m_qmlBackEndForCurrentType->contextObject()->setActiveDragSuffix(suffix);
+}
+
+void PropertyEditorView::dragEnded()
+{
+    m_qmlBackEndForCurrentType->contextObject()->setActiveDragSuffix("");
+}
+
+void PropertyEditorView::setValue(const QmlObjectNode &qmlObjectNode,
+                                  const PropertyName &name,
+                                  const QVariant &value)
 {
     m_locked = true;
     m_qmlBackEndForCurrentType->setValue(qmlObjectNode, name, value);
@@ -869,6 +888,4 @@ void PropertyEditorView::reloadQml()
     resetView();
 }
 
-
-} //QmlDesigner
-
+} // namespace QmlDesigner

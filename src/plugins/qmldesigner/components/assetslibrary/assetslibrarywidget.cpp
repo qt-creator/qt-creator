@@ -91,10 +91,6 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 m_assetsToDrag.clear();
             }
         }
-    } else if (event->type() == QMouseEvent::MouseButtonRelease) {
-        m_assetsToDrag.clear();
-        if (m_model)
-            m_model->endDrag();
     }
 
     return QObject::eventFilter(obj, event);
