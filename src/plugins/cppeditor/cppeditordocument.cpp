@@ -487,7 +487,7 @@ bool CppEditorDocument::save(QString *errorString, const Utils::FilePath &filePa
 
         if (!editedRanges.empty()) {
             QTextCursor cursor(document());
-            cursor.beginEditBlock();
+            cursor.joinPreviousEditBlock();
             indenter()->format(editedRanges);
             cursor.endEditBlock();
         }
