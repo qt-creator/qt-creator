@@ -359,7 +359,7 @@ class ClangdClient::FollowSymbolData {
 public:
     FollowSymbolData(ClangdClient *q, quint64 id, const QTextCursor &cursor,
                      CppEditor::CppEditorWidget *editorWidget,
-                     const DocumentUri &uri, Utils::ProcessLinkCallback &&callback,
+                     const DocumentUri &uri, Utils::LinkHandler &&callback,
                      bool openInSplit)
         : q(q), id(id), cursor(cursor), editorWidget(editorWidget), uri(uri),
           callback(std::move(callback)), virtualFuncAssistProvider(q->d),
@@ -395,7 +395,7 @@ public:
     const QTextCursor cursor;
     const QPointer<CppEditor::CppEditorWidget> editorWidget;
     const DocumentUri uri;
-    const Utils::ProcessLinkCallback callback;
+    const Utils::LinkHandler callback;
     VirtualFunctionAssistProvider virtualFuncAssistProvider;
     QList<MessageId> pendingSymbolInfoRequests;
     QList<MessageId> pendingGotoImplRequests;
@@ -418,7 +418,7 @@ class SwitchDeclDefData {
 public:
     SwitchDeclDefData(quint64 id, TextDocument *doc, const QTextCursor &cursor,
                       CppEditor::CppEditorWidget *editorWidget,
-                      Utils::ProcessLinkCallback &&callback)
+                      Utils::LinkHandler &&callback)
         : id(id), document(doc), uri(DocumentUri::fromFilePath(doc->filePath())),
           cursor(cursor), editorWidget(editorWidget), callback(std::move(callback)) {}
 
@@ -461,7 +461,7 @@ public:
     const DocumentUri uri;
     const QTextCursor cursor;
     const QPointer<CppEditor::CppEditorWidget> editorWidget;
-    Utils::ProcessLinkCallback callback;
+    Utils::LinkHandler callback;
     Utils::optional<DocumentSymbolsResult> docSymbols;
     Utils::optional<ClangdAstNode> ast;
 };
@@ -1726,7 +1726,7 @@ void ClangdClient::Private::finishSearch(const ReferencesData &refData, bool can
 void ClangdClient::followSymbol(TextDocument *document,
         const QTextCursor &cursor,
         CppEditor::CppEditorWidget *editorWidget,
-        Utils::ProcessLinkCallback &&callback,
+        Utils::LinkHandler &&callback,
         bool resolveTarget,
         bool openInSplit
         )
@@ -1777,7 +1777,7 @@ void ClangdClient::followSymbol(TextDocument *document,
 
 void ClangdClient::switchDeclDef(TextDocument *document, const QTextCursor &cursor,
                                  CppEditor::CppEditorWidget *editorWidget,
-                                 Utils::ProcessLinkCallback &&callback)
+                                 Utils::LinkHandler &&callback)
 {
     QTC_ASSERT(documentOpen(document), openDocument(document));
 

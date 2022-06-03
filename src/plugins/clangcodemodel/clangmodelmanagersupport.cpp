@@ -191,7 +191,7 @@ CppEditor::CppCompletionAssistProvider *ClangModelManagerSupport::functionHintAs
 }
 
 void ClangModelManagerSupport::followSymbol(const CppEditor::CursorInEditor &data,
-                  Utils::ProcessLinkCallback &&processLinkCallback, bool resolveTarget,
+                  Utils::LinkHandler &&processLinkCallback, bool resolveTarget,
                   bool inNextSplit)
 {
     if (ClangdClient * const client = clientForFile(data.filePath());
@@ -206,7 +206,7 @@ void ClangModelManagerSupport::followSymbol(const CppEditor::CursorInEditor &dat
 }
 
 void ClangModelManagerSupport::switchDeclDef(const CppEditor::CursorInEditor &data,
-                   Utils::ProcessLinkCallback &&processLinkCallback)
+                   Utils::LinkHandler &&processLinkCallback)
 {
     if (ClangdClient * const client = clientForFile(data.filePath());
             client && client->isFullyIndexed()) {

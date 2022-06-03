@@ -80,10 +80,10 @@ signals:
 
 private:
     void followSymbol(const CppEditor::CursorInEditor &data,
-                      Utils::ProcessLinkCallback &&processLinkCallback, bool resolveTarget,
+                      Utils::LinkHandler &&processLinkCallback, bool resolveTarget,
                       bool inNextSplit) override;
     void switchDeclDef(const CppEditor::CursorInEditor &data,
-                       Utils::ProcessLinkCallback &&processLinkCallback) override;
+                       Utils::LinkHandler &&processLinkCallback) override;
     void startLocalRenaming(const CppEditor::CursorInEditor &data,
                             const CppEditor::ProjectPart *projectPart,
                             CppEditor::RenameCallback &&renameSymbolsCallback) override;

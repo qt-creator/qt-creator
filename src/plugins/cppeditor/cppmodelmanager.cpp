@@ -1631,7 +1631,7 @@ TextEditor::BaseHoverHandler *CppModelManager::createHoverHandler() const
 }
 
 void CppModelManager::followSymbol(const CursorInEditor &data,
-                                   Utils::ProcessLinkCallback &&processLinkCallback,
+                                   Utils::LinkHandler &&processLinkCallback,
                                    bool resolveTarget, bool inNextSplit, Backend backend)
 {
     instance()->modelManagerSupport(backend)->followSymbol(data, std::move(processLinkCallback),
@@ -1639,7 +1639,7 @@ void CppModelManager::followSymbol(const CursorInEditor &data,
 }
 
 void CppModelManager::switchDeclDef(const CursorInEditor &data,
-                                    Utils::ProcessLinkCallback &&processLinkCallback,
+                                    Utils::LinkHandler &&processLinkCallback,
                                     Backend backend)
 {
     instance()->modelManagerSupport(backend)->switchDeclDef(data, std::move(processLinkCallback));

@@ -75,7 +75,7 @@ static void sendTextDocumentPositionParamsRequest(Client *client,
 }
 
 static void handleGotoDefinitionResponse(const GotoDefinitionRequest::Response &response,
-                                         Utils::ProcessLinkCallback callback,
+                                         Utils::LinkHandler callback,
                                          Utils::optional<Utils::Link> linkUnderCursor)
 {
     if (Utils::optional<GotoResult> result = response.result()) {
@@ -105,7 +105,7 @@ static TextDocumentPositionParams generateDocPosParams(TextEditor::TextDocument 
 
 void SymbolSupport::findLinkAt(TextEditor::TextDocument *document,
                                const QTextCursor &cursor,
-                               Utils::ProcessLinkCallback callback,
+                               Utils::LinkHandler callback,
                                const bool resolveTarget)
 {
     if (!m_client->reachable())

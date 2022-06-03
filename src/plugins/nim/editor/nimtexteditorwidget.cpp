@@ -60,7 +60,7 @@ NimTextEditorWidget::NimTextEditorWidget(QWidget *parent)
     setLanguageSettingsId(Nim::Constants::C_NIMLANGUAGE_ID);
 }
 
-void NimTextEditorWidget::findLinkAt(const QTextCursor &c, Utils::ProcessLinkCallback &&processLinkCallback, bool /*resolveTarget*/, bool /*inNextSplit*/)
+void NimTextEditorWidget::findLinkAt(const QTextCursor &c, Utils::LinkHandler &&processLinkCallback, bool /*resolveTarget*/, bool /*inNextSplit*/)
 {
     const Utils::FilePath &path = textDocument()->filePath();
 

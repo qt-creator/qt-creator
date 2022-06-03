@@ -170,10 +170,10 @@ public:
 
     enum class Backend { Builtin, Best };
     static void followSymbol(const CursorInEditor &data,
-                             Utils::ProcessLinkCallback &&processLinkCallback,
+                             Utils::LinkHandler &&processLinkCallback,
                              bool resolveTarget, bool inNextSplit, Backend backend = Backend::Best);
     static void switchDeclDef(const CursorInEditor &data,
-                              Utils::ProcessLinkCallback &&processLinkCallback,
+                              Utils::LinkHandler &&processLinkCallback,
                               Backend backend = Backend::Best);
     static void startLocalRenaming(const CursorInEditor &data, const ProjectPart *projectPart,
                                    RenameCallback &&renameSymbolsCallback,

@@ -51,7 +51,7 @@ public:
 
     void findLinkAt(TextEditor::TextDocument *document,
                     const QTextCursor &cursor,
-                    Utils::ProcessLinkCallback callback,
+                    Utils::LinkHandler callback,
                     const bool resolveTarget);
 
     using ResultHandler = std::function<void(const QList<LanguageServerProtocol::Location> &)>;

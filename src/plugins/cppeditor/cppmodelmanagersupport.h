@@ -65,10 +65,10 @@ public:
     virtual bool usesClangd(const TextEditor::TextDocument *) const { return false; }
 
     virtual void followSymbol(const CursorInEditor &data,
-                              Utils::ProcessLinkCallback &&processLinkCallback,
+                              Utils::LinkHandler &&processLinkCallback,
                               bool resolveTarget, bool inNextSplit) = 0;
     virtual void switchDeclDef(const CursorInEditor &data,
-                               Utils::ProcessLinkCallback &&processLinkCallback) = 0;
+                               Utils::LinkHandler &&processLinkCallback) = 0;
     virtual void startLocalRenaming(const CursorInEditor &data,
                                     const ProjectPart *projectPart,
                                     RenameCallback &&renameSymbolsCallback) = 0;
