@@ -38,6 +38,8 @@
 #include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
 
+#include <QDateTime>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
