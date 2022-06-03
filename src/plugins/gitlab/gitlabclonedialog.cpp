@@ -84,6 +84,7 @@ GitLabCloneDialog::GitLabCloneDialog(const Project &project, QWidget *parent)
     form->addRow(tr("Directory"), m_directoryLE);
     m_submodulesCB = new QCheckBox(this);
     form->addRow(tr("Recursive"), m_submodulesCB);
+    form->addItem(new QSpacerItem(10, 10));
     centerLayout->addLayout(form);
     m_cloneOutput = new QPlainTextEdit(this);
     m_cloneOutput->setReadOnly(true);
@@ -91,7 +92,6 @@ GitLabCloneDialog::GitLabCloneDialog(const Project &project, QWidget *parent)
     layout->addLayout(centerLayout);
     m_infoLabel = new Utils::InfoLabel(this);
     layout->addWidget(m_infoLabel);
-    layout->addStretch(1);
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel, this);
     m_cloneButton = new QPushButton(tr("Clone"), this);
     buttons->addButton(m_cloneButton, QDialogButtonBox::ActionRole);
