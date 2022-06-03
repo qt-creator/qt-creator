@@ -604,8 +604,7 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
                                                         const QString &projectName,
                                                         const Kit *kit,
                                                         const QString &bcName,
-                                                        BuildType buildType,
-                                                        SpaceHandling spaceHandling)
+                                                        BuildType buildType)
 {
     MacroExpander exp;
 
@@ -644,8 +643,7 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
     qCDebug(bcLog) << "build dir template:" << buildDir;
     buildDir = exp.expand(buildDir);
     qCDebug(bcLog) << "expanded build:" << buildDir;
-    if (spaceHandling == ReplaceSpaces)
-        buildDir.replace(" ", "-");
+    buildDir.replace(" ", "-");
 
     return projectDir.resolvePath(buildDir);
 }

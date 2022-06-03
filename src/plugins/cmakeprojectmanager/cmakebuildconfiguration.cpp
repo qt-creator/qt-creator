@@ -1370,7 +1370,7 @@ FilePath CMakeBuildConfiguration::shadowBuildDirectory(const FilePath &projectFi
     const QString projectName = projectFilePath.parentDir().fileName();
     const FilePath projectDir = Project::projectDirectory(projectFilePath);
     FilePath buildPath = BuildConfiguration::buildDirectoryFromTemplate(projectDir,
-        projectFilePath, projectName, k, bcName, buildType, BuildConfiguration::ReplaceSpaces);
+        projectFilePath, projectName, k, bcName, buildType);
 
     if (CMakeGeneratorKitAspect::isMultiConfigGenerator(k)) {
         QString path = buildPath.path();
