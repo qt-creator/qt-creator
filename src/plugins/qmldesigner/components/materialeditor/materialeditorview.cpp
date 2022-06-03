@@ -567,8 +567,6 @@ void MaterialEditorView::modelAttached(Model *model)
 
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
 
-    ensureMaterialLibraryNode();
-
     if (!m_setupCompleted) {
         reloadQml();
         m_setupCompleted = true;
@@ -742,7 +740,6 @@ void MaterialEditorView::importsChanged(const QList<Import> &addedImports, const
     m_hasQuick3DImport = model()->hasImport("QtQuick3D");
     m_qmlBackEnd->contextObject()->setHasQuick3DImport(m_hasQuick3DImport);
 
-    ensureMaterialLibraryNode(); // create the material lib if Quick3D import is added
     resetView();
 }
 
