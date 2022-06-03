@@ -68,7 +68,7 @@ DiffEditorWidgetController::DiffEditorWidgetController(QWidget *diffEditorWidget
 void DiffEditorWidgetController::setDocument(DiffEditorDocument *document)
 {
     if (!m_progressIndicator) {
-        m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Large);
+        m_progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Large);
         m_progressIndicator->attachToWidget(m_diffEditorWidget);
         m_progressIndicator->hide();
     }
@@ -182,7 +182,7 @@ void DiffEditorWidgetController::patch(bool revert, int fileIndex, int chunkInde
         if (!textDocument)
             return;
 
-        Utils::TemporaryFile contentsCopy("diff");
+        TemporaryFile contentsCopy("diff");
         if (!contentsCopy.open())
             return;
 
@@ -306,12 +306,12 @@ void DiffEditorWidgetController::updateCannotDecodeInfo()
     if (!m_document)
         return;
 
-    Utils::InfoBar *infoBar = m_document->infoBar();
+    InfoBar *infoBar = m_document->infoBar();
     Id selectEncodingId(Constants::SELECT_ENCODING);
     if (m_document->hasDecodingError()) {
         if (!infoBar->canInfoBeAdded(selectEncodingId))
             return;
-        Utils::InfoBarEntry info(selectEncodingId,
+        InfoBarEntry info(selectEncodingId,
                                  tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding.")
                                      .arg(m_document->displayName(),
                                           QString::fromLatin1(m_document->codec()->name())));
