@@ -180,7 +180,7 @@ int ProcessTestApp::ChannelForwarding::main()
     return 0;
 }
 
-int ProcessTestApp::KillBlockingProcess::main()
+int ProcessTestApp::BlockingProcess::main()
 {
     std::cout << "Blocking process successfully executed." << std::endl;
     const BlockType blockType = BlockType(qEnvironmentVariableIntValue(envVar()));
@@ -261,7 +261,8 @@ int ProcessTestApp::RecursiveBlockingProcess::main()
     if (currentDepth == 1) {
         std::cout << s_leafProcessStarted << std::flush;
         while (true) {
-            QThread::sleep(1);
+            // TODO: make it configurable so that we could test the reaper timeout
+            QThread::msleep(100);
 #ifndef Q_OS_WIN
             if (s_terminate.load()) {
                 std::cout << s_leafProcessTerminated << std::flush;
