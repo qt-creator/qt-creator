@@ -65,7 +65,7 @@ public:
     void interrupt();
     void kickoffProcess();
     void close();
-    void stop(int killTimeout = 500);
+    void stop();
 
     QByteArray readAllStandardOutput();
     QByteArray readAllStandardError();
@@ -130,6 +130,9 @@ public:
 
     void setExtraData(const QVariantHash &extraData);
     QVariantHash extraData() const;
+
+    void setReaperTimeout(int msecs);
+    int reaperTimeout() const;
 
     static void setRemoteProcessHooks(const DeviceProcessHooks &hooks);
 

@@ -340,7 +340,7 @@ public:
             emit readyRead({}, m_process->readAllStandardError());
         });
     }
-    ~QProcessImpl() final { ProcessReaper::reap(m_process); }
+    ~QProcessImpl() final { ProcessReaper::reap(m_process, m_setup.m_reaperTimeout); }
 
 private:
     qint64 write(const QByteArray &data) final { return m_process->write(data); }
@@ -1166,6 +1166,16 @@ QVariantHash QtcProcess::extraData() const
     return d->m_setup.m_extraData;
 }
 
+void QtcProcess::setReaperTimeout(int msecs)
+{
+    d->m_setup.m_reaperTimeout = msecs;
+}
+
+int QtcProcess::reaperTimeout() const
+{
+    return d->m_setup.m_reaperTimeout;
+}
+
 void QtcProcess::setRemoteProcessHooks(const DeviceProcessHooks &hooks)
 {
     s_deviceHooks = hooks;
@@ -1501,12 +1511,16 @@ void QtcProcess::close()
     d->clearForRun();
 }
 
-void QtcProcess::stop(int killTimeout)
+/*
+   Calls terminate() directly and after a delay of reaperTimeout() it calls kill()
+   if the process is still running.
+*/
+void QtcProcess::stop()
 {
     if (state() == QProcess::NotRunning)
         return;
 
-    d->sendControlSignal(ControlSignal::Terminate, killTimeout);
+    d->sendControlSignal(ControlSignal::Terminate, d->m_process->m_setup.m_reaperTimeout);
 }
 
 QString QtcProcess::locateBinary(const QString &binary)

@@ -69,7 +69,8 @@ void StartProcessPacket::doSerialize(QDataStream &stream) const
            << nativeArguments
            << lowPriority
            << unixTerminalDisabled
-           << useCtrlCStub;
+           << useCtrlCStub
+           << reaperTimeout;
 }
 
 void StartProcessPacket::doDeserialize(QDataStream &stream)
@@ -88,7 +89,8 @@ void StartProcessPacket::doDeserialize(QDataStream &stream)
            >> nativeArguments
            >> lowPriority
            >> unixTerminalDisabled
-           >> useCtrlCStub;
+           >> useCtrlCStub
+           >> reaperTimeout;
     processMode = Utils::ProcessMode(processModeInt);
     processChannelMode = QProcess::ProcessChannelMode(processChannelModeInt);
 }

@@ -738,6 +738,7 @@ void SshProcessInterfacePrivate::doStart()
     m_process.setProcessImpl(q->m_setup.m_processImpl);
     m_process.setProcessMode(q->m_setup.m_processMode);
     m_process.setTerminalMode(q->m_setup.m_terminalMode);
+    m_process.setReaperTimeout(q->m_setup.m_reaperTimeout);
     m_process.setWriteData(q->m_setup.m_writeData);
     // TODO: what about other fields from m_setup?
     SshParameters::setupSshEnvironment(&m_process);

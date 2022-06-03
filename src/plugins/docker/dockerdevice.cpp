@@ -264,6 +264,7 @@ void DockerProcessImpl::start()
     m_process.setProcessImpl(m_setup.m_processImpl);
     m_process.setProcessMode(m_setup.m_processMode);
     m_process.setTerminalMode(m_setup.m_terminalMode);
+    m_process.setReaperTimeout(m_setup.m_reaperTimeout);
     m_process.setWriteData(m_setup.m_writeData);
     m_process.setProcessChannelMode(m_setup.m_processChannelMode);
     m_process.setExtraData(m_setup.m_extraData);
