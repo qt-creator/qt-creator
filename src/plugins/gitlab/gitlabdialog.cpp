@@ -221,16 +221,21 @@ void GitLabDialog::handleUser(const User &user)
     m_currentUserId = user.id;
 
     if (!user.error.message.isEmpty()) {
-        // TODO
+        m_ui.mainLabel->setText(tr("Not logged in."));
         if (user.error.code == 1) {
-            m_ui.mainLabel->setText(tr("Not logged in."));
             m_ui.detailsLabel->setText(tr("Insufficient access token."));
             m_ui.detailsLabel->setToolTip(user.error.message + QLatin1Char('\n')
                                           + tr("Permission scope read_api or api needed."));
-            updatePageButtons();
-            m_ui.treeViewTitle->setText(tr("Projects (%1)").arg(0));
-            return;
+        } else if (user.error.code >= 300 && user.error.code < 400) {
+            m_ui.detailsLabel->setText(tr("Check settings for misconfiguration."));
+            m_ui.detailsLabel->setToolTip(user.error.message);
+        } else {
+            m_ui.detailsLabel->setText({});
+            m_ui.detailsLabel->setToolTip({});
         }
+        updatePageButtons();
+        m_ui.treeViewTitle->setText(tr("Projects (%1)").arg(0));
+        return;
     }
 
     if (user.id != -1) {

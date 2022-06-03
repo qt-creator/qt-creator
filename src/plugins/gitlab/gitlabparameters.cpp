@@ -46,12 +46,13 @@ GitLabServer::GitLabServer()
 }
 
 GitLabServer::GitLabServer(const Utils::Id &id, const QString &host, const QString &description,
-                           const QString &token, unsigned short port)
+                           const QString &token, unsigned short port, bool secure)
     : id(id)
     , host(host)
     , description(description)
     , token(token)
     , port(port)
+    , secure(secure)
 {
 }
 
@@ -59,8 +60,8 @@ bool GitLabServer::operator==(const GitLabServer &other) const
 {
     if (port && other.port && port != other.port)
         return false;
-    return id == other.id && host == other.host && description == other.description
-            && token == other.token ;
+    return secure == other.secure && id == other.id && host == other.host
+            && description == other.description && token == other.token ;
 }
 
 bool GitLabServer::operator!=(const GitLabServer &other) const
@@ -76,12 +77,13 @@ QJsonObject GitLabServer::toJson() const
     result.insert("description", description);
     result.insert("port", port);
     result.insert("token", token);
+    result.insert("secure", secure);
     return result;
 }
 
 GitLabServer GitLabServer::fromJson(const QJsonObject &json)
 {
-    GitLabServer invalid{Utils::Id(), "", "", "", 0};
+    GitLabServer invalid{Utils::Id(), "", "", "", 0, true};
     const QJsonValue id = json.value("id");
     if (id == QJsonValue::Undefined)
         return invalid;
@@ -97,15 +99,16 @@ GitLabServer GitLabServer::fromJson(const QJsonObject &json)
     const QJsonValue port = json.value("port");
     if (port == QJsonValue::Undefined)
         return invalid;
+    const bool secure = json.value("secure").toBool(true);
     return {Utils::Id::fromString(id.toString()), host.toString(), description.toString(),
-                token.toString(), (unsigned short)port.toInt()};
+                token.toString(), (unsigned short)port.toInt(), secure};
 }
 
 QStringList GitLabServer::curlArguments() const
 {
     // credentials from .netrc (?), no progress
     QStringList args = { "-nsS" };
-    if (!validateCert)
+    if (secure && !validateCert)
         args << "-k";
     return args;
 }

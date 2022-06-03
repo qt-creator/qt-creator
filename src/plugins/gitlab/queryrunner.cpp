@@ -111,8 +111,8 @@ QueryRunner::QueryRunner(const Query &query, const Utils::Id &id, QObject *paren
         args << "-i";
     if (!server.token.isEmpty())
         args << "--header" << "PRIVATE-TOKEN: " + server.token;
-    QString url = "https://" + server.host;
-    if (server.port != GitLabServer::defaultPort)
+    QString url = (server.secure ? "https://" : "http://") + server.host;
+    if (server.port && (server.port != (server.secure ? GitLabServer::defaultPort : 80)))
         url.append(':' + QString::number(server.port));
     url += query.toString();
     args << url;

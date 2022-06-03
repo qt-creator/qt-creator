@@ -56,6 +56,7 @@ private:
     Utils::StringAspect m_description;
     Utils::StringAspect m_token;
     Utils::IntegerAspect m_port;
+    Utils::BoolAspect m_secure;
 };
 
 class GitLabOptionsWidget : public QWidget

@@ -93,6 +93,8 @@ static std::pair<Error, QJsonObject> preHandleSingle(const QByteArray &json)
     const QJsonDocument doc = QJsonDocument::fromJson(json, &error);
 
     if (error.error != QJsonParseError::NoError) {
+        if (!json.isEmpty() && json.at(0) == '<') // we likely got an HTML response
+            result.code = 399;
         result.message = error.errorString();
     } else if (!doc.isObject()) {
         result.message = "Not an Object";

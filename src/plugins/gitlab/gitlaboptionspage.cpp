@@ -84,6 +84,10 @@ GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
     m_port.setDefaultValue(GitLabServer::defaultPort);
     m_port.setEnabled(m == Edit);
     m_port.setLabelText(tr("Port:"));
+    m_secure.setLabelText(tr("HTTPS:"));
+    m_secure.setLabelPlacement(Utils::BoolAspect::LabelPlacement::InExtraLabel);
+    m_secure.setDefaultValue(true);
+    m_secure.setEnabled(m == Edit);
 
     using namespace Utils::Layouting;
     const Break nl;
@@ -93,7 +97,8 @@ GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
             m_host,
             m_description,
             m_token,
-            m_port
+            m_port,
+            m_secure
         },
         Stretch()
     }.attachTo(this, m == Edit);
@@ -107,6 +112,7 @@ GitLabServer GitLabServerWidget::gitLabServer() const
     result.description = m_description.value();
     result.token = m_token.value();
     result.port = m_port.value();
+    result.secure = m_secure.value();
     return result;
 }
 
@@ -117,6 +123,7 @@ void GitLabServerWidget::setGitLabServer(const GitLabServer &server)
     m_description.setValue(server.description);
     m_token.setValue(server.token);
     m_port.setValue(server.port);
+    m_secure.setValue(server.secure);
 }
 
 GitLabOptionsWidget::GitLabOptionsWidget(QWidget *parent)

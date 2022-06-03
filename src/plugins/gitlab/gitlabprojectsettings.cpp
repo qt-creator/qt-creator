@@ -233,7 +233,8 @@ void GitLabProjectSettingsWidget::onConnectionChecked(const Project &project,
     bool linkable = false;
     if (!project.error.message.isEmpty()) {
         m_infoLabel->setType(Utils::InfoLabel::Error);
-        m_infoLabel->setText(project.error.message);
+        m_infoLabel->setText(tr("Check settings for misconfiguration.")
+                             + " (" + project.error.message + ')');
     } else {
         if (project.accessLevel != -1) {
             m_infoLabel->setType(Utils::InfoLabel::Ok);
