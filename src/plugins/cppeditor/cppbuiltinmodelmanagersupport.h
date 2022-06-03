@@ -51,10 +51,10 @@ public:
     FollowSymbolUnderCursor &followSymbolInterface() { return *m_followSymbol; }
 
 private:
-    void followSymbol(const CursorInEditor &data, Utils::LinkHandler &&processLinkCallback,
+    void followSymbol(const CursorInEditor &data, const Utils::LinkHandler &processLinkCallback,
                       bool resolveTarget, bool inNextSplit) override;
     void switchDeclDef(const CursorInEditor &data,
-                       Utils::LinkHandler &&processLinkCallback) override;
+                       const Utils::LinkHandler &processLinkCallback) override;
     void startLocalRenaming(const CursorInEditor &data,
                             const ProjectPart *projectPart,
                             RenameCallback &&renameSymbolsCallback) override;

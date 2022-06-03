@@ -36,7 +36,7 @@ public:
     NimTextEditorWidget(QWidget* parent = nullptr);
 
 protected:
-    void findLinkAt(const QTextCursor &, Utils::LinkHandler &&processLinkCallback, bool resolveTarget, bool inNextSplit);
+    void findLinkAt(const QTextCursor &, const Utils::LinkHandler &processLinkCallback, bool resolveTarget, bool inNextSplit);
 
 private:
     void onFindLinkFinished();

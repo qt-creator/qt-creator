@@ -191,32 +191,31 @@ CppEditor::CppCompletionAssistProvider *ClangModelManagerSupport::functionHintAs
 }
 
 void ClangModelManagerSupport::followSymbol(const CppEditor::CursorInEditor &data,
-                  Utils::LinkHandler &&processLinkCallback, bool resolveTarget,
+                  const Utils::LinkHandler &processLinkCallback, bool resolveTarget,
                   bool inNextSplit)
 {
     if (ClangdClient * const client = clientForFile(data.filePath());
             client && client->isFullyIndexed()) {
         client->followSymbol(data.textDocument(), data.cursor(), data.editorWidget(),
-                             std::move(processLinkCallback), resolveTarget, inNextSplit);
+                             processLinkCallback, resolveTarget, inNextSplit);
         return;
     }
 
-    CppModelManager::followSymbol(data, std::move(processLinkCallback), resolveTarget, inNextSplit,
+    CppModelManager::followSymbol(data, processLinkCallback, resolveTarget, inNextSplit,
                                   CppModelManager::Backend::Builtin);
 }
 
 void ClangModelManagerSupport::switchDeclDef(const CppEditor::CursorInEditor &data,
-                   Utils::LinkHandler &&processLinkCallback)
+                   const Utils::LinkHandler &processLinkCallback)
 {
     if (ClangdClient * const client = clientForFile(data.filePath());
             client && client->isFullyIndexed()) {
         client->switchDeclDef(data.textDocument(), data.cursor(), data.editorWidget(),
-                              std::move(processLinkCallback));
+                              processLinkCallback);
         return;
     }
 
-    CppModelManager::switchDeclDef(data, std::move(processLinkCallback),
-                                   CppModelManager::Backend::Builtin);
+    CppModelManager::switchDeclDef(data, processLinkCallback, CppModelManager::Backend::Builtin);
 }
 
 void ClangModelManagerSupport::startLocalRenaming(const CppEditor::CursorInEditor &data,

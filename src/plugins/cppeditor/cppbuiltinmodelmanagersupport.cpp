@@ -140,20 +140,20 @@ std::unique_ptr<AbstractOverviewModel> BuiltinModelManagerSupport::createOvervie
 }
 
 void BuiltinModelManagerSupport::followSymbol(const CursorInEditor &data,
-                                              Utils::LinkHandler &&processLinkCallback,
+                                              const Utils::LinkHandler &processLinkCallback,
                                               bool resolveTarget, bool inNextSplit)
 {
     SymbolFinder finder;
-    m_followSymbol->findLink(data, std::move(processLinkCallback),
+    m_followSymbol->findLink(data, processLinkCallback,
             resolveTarget, CppModelManager::instance()->snapshot(),
             data.editorWidget()->semanticInfo().doc, &finder, inNextSplit);
 }
 
 void BuiltinModelManagerSupport::switchDeclDef(const CursorInEditor &data,
-                                               Utils::LinkHandler &&processLinkCallback)
+                                               const Utils::LinkHandler &processLinkCallback)
 {
     SymbolFinder finder;
-    m_followSymbol->switchDeclDef(data, std::move(processLinkCallback),
+    m_followSymbol->switchDeclDef(data, processLinkCallback,
             CppModelManager::instance()->snapshot(), data.editorWidget()->semanticInfo().doc,
             &finder);
 }

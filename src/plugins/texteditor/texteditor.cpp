@@ -6081,7 +6081,7 @@ void TextEditorWidget::zoomReset()
 }
 
 void TextEditorWidget::findLinkAt(const QTextCursor &cursor,
-                                  Utils::LinkHandler &&callback,
+                                  const Utils::LinkHandler &callback,
                                   bool resolveTarget,
                                   bool inNextSplit)
 {

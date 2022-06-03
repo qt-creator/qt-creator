@@ -456,7 +456,7 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
         if (TextEditorWidget *widget = textEditor->editorWidget()) {
             connect(widget, &TextEditorWidget::requestLinkAt, this,
                     [document = textEditor->textDocument()]
-                    (const QTextCursor &cursor, Utils::LinkHandler &callback, bool resolveTarget) {
+                    (const QTextCursor &cursor, const Utils::LinkHandler &callback, bool resolveTarget) {
                         if (auto client = clientForDocument(document))
                             client->symbolSupport().findLinkAt(document, cursor, callback, resolveTarget);
                     });

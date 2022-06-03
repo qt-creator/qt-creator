@@ -1631,18 +1631,18 @@ TextEditor::BaseHoverHandler *CppModelManager::createHoverHandler() const
 }
 
 void CppModelManager::followSymbol(const CursorInEditor &data,
-                                   Utils::LinkHandler &&processLinkCallback,
+                                   const Utils::LinkHandler &processLinkCallback,
                                    bool resolveTarget, bool inNextSplit, Backend backend)
 {
-    instance()->modelManagerSupport(backend)->followSymbol(data, std::move(processLinkCallback),
+    instance()->modelManagerSupport(backend)->followSymbol(data, processLinkCallback,
                                                            resolveTarget, inNextSplit);
 }
 
 void CppModelManager::switchDeclDef(const CursorInEditor &data,
-                                    Utils::LinkHandler &&processLinkCallback,
+                                    const Utils::LinkHandler &processLinkCallback,
                                     Backend backend)
 {
-    instance()->modelManagerSupport(backend)->switchDeclDef(data, std::move(processLinkCallback));
+    instance()->modelManagerSupport(backend)->switchDeclDef(data, processLinkCallback);
 }
 
 Core::ILocatorFilter *CppModelManager::createAuxiliaryCurrentDocumentFilter()

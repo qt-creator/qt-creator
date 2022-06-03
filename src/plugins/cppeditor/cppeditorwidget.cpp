@@ -889,7 +889,7 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
 }
 
 void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
-                                 LinkHandler &&processLinkCallback,
+                                 const LinkHandler &processLinkCallback,
                                  bool resolveTarget,
                                  bool inNextSplit)
 {
@@ -903,7 +903,7 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
     QTextCursor c(cursor);
     c.select(QTextCursor::WordUnderCursor);
     LinkHandler callbackWrapper = [start = c.selectionStart(), end = c.selectionEnd(),
-            doc = QPointer(cursor.document()), callback = std::move(processLinkCallback),
+            doc = QPointer(cursor.document()), callback = processLinkCallback,
             filePath](const Link &link) {
         const int linkPos = doc ? Text::positionInText(doc, link.targetLine, link.targetColumn + 1)
                                 : -1;
@@ -927,7 +927,7 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
     };
     CppModelManager::followSymbol(
                 CursorInEditor{cursor, filePath, this, textDocument()},
-                std::move(callbackWrapper),
+                callbackWrapper,
                 resolveTarget,
                 inNextSplit);
 }

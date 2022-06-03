@@ -359,10 +359,10 @@ class ClangdClient::FollowSymbolData {
 public:
     FollowSymbolData(ClangdClient *q, quint64 id, const QTextCursor &cursor,
                      CppEditor::CppEditorWidget *editorWidget,
-                     const DocumentUri &uri, Utils::LinkHandler &&callback,
+                     const DocumentUri &uri, const Utils::LinkHandler &callback,
                      bool openInSplit)
         : q(q), id(id), cursor(cursor), editorWidget(editorWidget), uri(uri),
-          callback(std::move(callback)), virtualFuncAssistProvider(q->d),
+          callback(callback), virtualFuncAssistProvider(q->d),
           docRevision(editorWidget ? editorWidget->textDocument()->document()->revision() : -1),
           openInSplit(openInSplit) {}
 
@@ -418,9 +418,9 @@ class SwitchDeclDefData {
 public:
     SwitchDeclDefData(quint64 id, TextDocument *doc, const QTextCursor &cursor,
                       CppEditor::CppEditorWidget *editorWidget,
-                      Utils::LinkHandler &&callback)
+                      const Utils::LinkHandler &callback)
         : id(id), document(doc), uri(DocumentUri::fromFilePath(doc->filePath())),
-          cursor(cursor), editorWidget(editorWidget), callback(std::move(callback)) {}
+          cursor(cursor), editorWidget(editorWidget), callback(callback) {}
 
     Utils::optional<ClangdAstNode> getFunctionNode() const
     {
@@ -1726,7 +1726,7 @@ void ClangdClient::Private::finishSearch(const ReferencesData &refData, bool can
 void ClangdClient::followSymbol(TextDocument *document,
         const QTextCursor &cursor,
         CppEditor::CppEditorWidget *editorWidget,
-        Utils::LinkHandler &&callback,
+        const Utils::LinkHandler &callback,
         bool resolveTarget,
         bool openInSplit
         )
@@ -1735,7 +1735,7 @@ void ClangdClient::followSymbol(TextDocument *document,
     const QTextCursor adjustedCursor = d->adjustedCursor(cursor, document);
     if (!resolveTarget) {
         d->followSymbolData.reset();
-        symbolSupport().findLinkAt(document, adjustedCursor, std::move(callback), false);
+        symbolSupport().findLinkAt(document, adjustedCursor, callback, false);
         return;
     }
 
@@ -1743,7 +1743,7 @@ void ClangdClient::followSymbol(TextDocument *document,
                        << adjustedCursor.blockNumber() << adjustedCursor.positionInBlock();
     d->followSymbolData.emplace(this, ++d->nextJobId, adjustedCursor, editorWidget,
                                 DocumentUri::fromFilePath(document->filePath()),
-                                std::move(callback), openInSplit);
+                                callback, openInSplit);
 
     // Step 1: Follow the symbol via "Go to Definition". At the same time, request the
     //         AST node corresponding to the cursor position, so we can find out whether
@@ -1777,14 +1777,13 @@ void ClangdClient::followSymbol(TextDocument *document,
 
 void ClangdClient::switchDeclDef(TextDocument *document, const QTextCursor &cursor,
                                  CppEditor::CppEditorWidget *editorWidget,
-                                 Utils::LinkHandler &&callback)
+                                 const Utils::LinkHandler &callback)
 {
     QTC_ASSERT(documentOpen(document), openDocument(document));
 
     qCDebug(clangdLog) << "switch decl/dev requested" << document->filePath()
                        << cursor.blockNumber() << cursor.positionInBlock();
-    d->switchDeclDefData.emplace(++d->nextJobId, document, cursor, editorWidget,
-                                 std::move(callback));
+    d->switchDeclDefData.emplace(++d->nextJobId, document, cursor, editorWidget, callback);
 
     // Retrieve AST and document symbols.
     const auto astHandler = [this, id = d->switchDeclDefData->id](const ClangdAstNode &ast,
