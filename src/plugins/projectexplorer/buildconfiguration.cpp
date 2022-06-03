@@ -604,7 +604,8 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
                                                         const QString &projectName,
                                                         const Kit *kit,
                                                         const QString &bcName,
-                                                        BuildType buildType)
+                                                        BuildType buildType,
+                                                        const QString &buildSystem)
 {
     MacroExpander exp;
 
@@ -630,6 +631,10 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
                          QCoreApplication::translate(
                              "ProjectExplorer", "Name of the project's active build configuration"),
                          [bcName] { return bcName; });
+    exp.registerVariable("BuildSystem:Name",
+                         QCoreApplication::translate(
+                             "ProjectExplorer", "Name of the project's active build system"),
+                         [buildSystem] { return buildSystem; });
     exp.registerVariable("CurrentBuild:Type",
                          QCoreApplication::translate("ProjectExplorer", "Type of current build"),
                          [buildType] { return buildTypeName(buildType); }, false);

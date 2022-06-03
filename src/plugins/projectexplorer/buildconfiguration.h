@@ -115,7 +115,8 @@ public:
                                                       const QString &projectName,
                                                       const Kit *kit,
                                                       const QString &bcName,
-                                                      BuildType buildType);
+                                                      BuildType buildType,
+                                                      const QString &buildSystem);
 
     bool isActive() const;
 
