@@ -510,8 +510,10 @@ QList<Token> Scanner::operator()(const QString &text, int startState)
             case '.':
                 tokens.append(Token(index, 2, Token::Delimiter));
                 index += 2;
+                break;
             default:
                 tokens.append(Token(index++, 1, Token::Delimiter));
+                break;
             }
             setRegexpMayFollow(&_state, true);
             break;
