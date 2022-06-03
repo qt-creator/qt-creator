@@ -188,7 +188,7 @@ private:
     TemporaryDirectory m_workspaceDir = TemporaryDirectory("QtCreator-jls-XXXXXX");
 };
 
-LanguageClient::BaseClientInterface *JLSSettings::createInterface() const
+LanguageClient::BaseClientInterface *JLSSettings::createInterface(ProjectExplorer::Project *) const
 {
     auto interface = new JLSInterface();
     CommandLine cmd{m_executable, arguments(), CommandLine::Raw};

@@ -581,7 +581,7 @@ Client *BaseSettings::createClient(ProjectExplorer::Project *project) const
 {
     if (!isValid() || !m_enabled)
         return nullptr;
-    BaseClientInterface *interface = createInterfaceWithProject(project);
+    BaseClientInterface *interface = createInterface(project);
     QTC_ASSERT(interface, return nullptr);
     auto *client = createClient(interface);
     client->setName(Utils::globalMacroExpander()->expand(m_name));
@@ -590,6 +590,11 @@ Client *BaseSettings::createClient(ProjectExplorer::Project *project) const
     client->setActivateDocumentAutomatically(true);
     client->setCurrentProject(project);
     return client;
+}
+
+BaseClientInterface *BaseSettings::createInterface(ProjectExplorer::Project *) const
+{
+    return nullptr;
 }
 
 Client *BaseSettings::createClient(BaseClientInterface *interface) const
@@ -772,7 +777,7 @@ Utils::CommandLine StdIOSettings::command() const
     return Utils::CommandLine(m_executable, arguments(), Utils::CommandLine::Raw);
 }
 
-BaseClientInterface *StdIOSettings::createInterfaceWithProject(ProjectExplorer::Project *project) const
+BaseClientInterface *StdIOSettings::createInterface(ProjectExplorer::Project *project) const
 {
     auto interface = new StdIOClientInterface;
     interface->setCommandLine(command());

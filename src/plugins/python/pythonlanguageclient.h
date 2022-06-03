@@ -84,7 +84,7 @@ public:
     LanguageClient::Client *createClient(LanguageClient::BaseClientInterface *interface) const final;
 
 private:
-    LanguageClient::BaseClientInterface *createInterfaceWithProject(
+    LanguageClient::BaseClientInterface *createInterface(
         ProjectExplorer::Project *project) const override;
 
     static QJsonObject defaultConfiguration();

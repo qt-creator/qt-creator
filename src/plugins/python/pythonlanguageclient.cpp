@@ -480,8 +480,7 @@ public:
     TemporaryDirectory m_extraPythonPath;
 };
 
-BaseClientInterface *PyLSSettings::createInterfaceWithProject(
-    ProjectExplorer::Project *project) const
+BaseClientInterface *PyLSSettings::createInterface(ProjectExplorer::Project *project) const
 {
     auto interface = new PyLSInterface;
     interface->setCommandLine(command());

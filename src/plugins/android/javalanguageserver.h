@@ -42,7 +42,8 @@ public:
     void fromMap(const QVariantMap &map) final;
     LanguageClient::BaseSettings *copy() const final;
     LanguageClient::Client *createClient(LanguageClient::BaseClientInterface *interface) const final;
-    LanguageClient::BaseClientInterface *createInterface() const final;
+    LanguageClient::BaseClientInterface *createInterface(
+        ProjectExplorer::Project *project) const final;
 
     Utils::FilePath m_languageServer;
 
