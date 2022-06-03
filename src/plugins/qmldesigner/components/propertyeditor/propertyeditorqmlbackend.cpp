@@ -95,9 +95,12 @@ static QObject *variantToQObject(const QVariant &value)
 
 namespace QmlDesigner {
 
-PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyEditor) :
-        m_view(new Quick2PropertyEditorView), m_propertyEditorTransaction(new PropertyEditorTransaction(propertyEditor)), m_dummyPropertyEditorValue(new PropertyEditorValue()),
-        m_contextObject(new PropertyEditorContextObject())
+PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyEditor,
+                                                   AsynchronousImageCache &imageCache)
+    : m_view(new Quick2PropertyEditorView(imageCache))
+    , m_propertyEditorTransaction(new PropertyEditorTransaction(propertyEditor))
+    , m_dummyPropertyEditorValue(new PropertyEditorValue())
+    , m_contextObject(new PropertyEditorContextObject())
 {
     m_view->engine()->setOutputWarningsToStandardError(QmlDesignerPlugin::instance()
         ->settings().value(DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS).toBool());
@@ -115,7 +118,9 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
 
 PropertyEditorQmlBackend::~PropertyEditorQmlBackend() = default;
 
-void PropertyEditorQmlBackend::setupPropertyEditorValue(const PropertyName &name, PropertyEditorView *propertyEditor, const QString &type)
+void PropertyEditorQmlBackend::setupPropertyEditorValue(const PropertyName &name,
+                                                        PropertyEditorView *propertyEditor,
+                                                        const QString &type)
 {
     QmlDesigner::PropertyName propertyName(name);
     propertyName.replace('.', '_');

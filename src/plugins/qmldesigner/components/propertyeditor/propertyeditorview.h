@@ -51,7 +51,7 @@ class PropertyEditorView: public AbstractView
     Q_OBJECT
 
 public:
-    PropertyEditorView(QWidget *parent = nullptr);
+    PropertyEditorView(class AsynchronousImageCache &imageCache);
     ~PropertyEditorView() override;
 
     bool hasWidget() const override;
@@ -119,8 +119,8 @@ private: //functions
     bool noValidSelection() const;
 
 private: //variables
+    AsynchronousImageCache &m_imageCache;
     ModelNode m_selectedNode;
-    QWidget *m_parent;
     QShortcut *m_updateShortcut;
     int m_timerId;
     PropertyEditorWidget* m_stackedWidget;

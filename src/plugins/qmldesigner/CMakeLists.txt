@@ -302,6 +302,7 @@ extend_qtc_plugin(QmlDesigner
     gradientpresetitem.cpp gradientpresetitem.h
     gradientpresetlistmodel.cpp gradientpresetlistmodel.h
     propertyeditorcontextobject.cpp propertyeditorcontextobject.h
+    propertyeditorimageprovider.cpp propertyeditorimageprovider.h
     propertyeditorqmlbackend.cpp propertyeditorqmlbackend.h
     propertyeditortransaction.cpp propertyeditortransaction.h
     propertyeditorvalue.cpp propertyeditorvalue.h
@@ -389,7 +390,8 @@ extend_qtc_plugin(QmlDesigner
   SOURCES
     explicitimagecacheimageprovider.cpp
     explicitimagecacheimageprovider.h
-
+    smallimagecacheprovider.cpp
+    smallimagecacheprovider.h
 )
 
 extend_qtc_plugin(QmlDesigner

@@ -69,16 +69,16 @@ static bool propertyIsAttachedLayoutProperty(const PropertyName &propertyName)
     return propertyName.contains("Layout.");
 }
 
-PropertyEditorView::PropertyEditorView(QWidget *parent) :
-        AbstractView(parent),
-        m_parent(parent),
-        m_updateShortcut(nullptr),
-        m_timerId(0),
-        m_stackedWidget(new PropertyEditorWidget(parent)),
-        m_qmlBackEndForCurrentType(nullptr),
-        m_locked(false),
-        m_setupCompleted(false),
-        m_singleShotTimer(new QTimer(this))
+PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache)
+    : AbstractView()
+    , m_imageCache(imageCache)
+    , m_updateShortcut(nullptr)
+    , m_timerId(0)
+    , m_stackedWidget(new PropertyEditorWidget())
+    , m_qmlBackEndForCurrentType(nullptr)
+    , m_locked(false)
+    , m_setupCompleted(false)
+    , m_singleShotTimer(new QTimer(this))
 {
     m_qmlDir = PropertyEditorQmlBackend::propertyEditorResourcesPath();
 
@@ -117,7 +117,7 @@ void PropertyEditorView::setupPane(const TypeName &typeName)
     PropertyEditorQmlBackend *qmlBackend = m_qmlBackendHash.value(qmlFile.toString());
 
     if (!qmlBackend) {
-        qmlBackend = new PropertyEditorQmlBackend(this);
+        qmlBackend = new PropertyEditorQmlBackend(this, m_imageCache);
 
         qmlBackend->initialSetup(typeName, qmlSpecificsFile, this);
         qmlBackend->setSource(qmlFile);
@@ -484,7 +484,7 @@ void PropertyEditorView::setupQmlBackend()
     QString currentStateName = currentState().isBaseState() ? currentState().name() : QStringLiteral("invalid state");
 
     if (!currentQmlBackend) {
-        currentQmlBackend = new PropertyEditorQmlBackend(this);
+        currentQmlBackend = new PropertyEditorQmlBackend(this, m_imageCache);
 
         m_stackedWidget->addWidget(currentQmlBackend->widget());
         m_qmlBackendHash.insert(qmlFile.toString(), currentQmlBackend);

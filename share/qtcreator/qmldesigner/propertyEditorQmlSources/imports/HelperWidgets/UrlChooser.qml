@@ -44,6 +44,9 @@ Row {
     // by QtQuick3D to add built-in primitives to the model.
     property var defaultItems
 
+    // Current item
+    property string absoluteFilePath: ""
+
     FileResourcesModel {
         id: fileModel
         modelNodeBackendProperty: modelNodeBackend
@@ -74,16 +77,64 @@ Row {
             visible: comboBox.hover && toolTip.text !== ""
             text: root.backendValue.valueToString
             delay: StudioTheme.Values.toolTipDelay
-            height: StudioTheme.Values.toolTipHeight
+
             background: Rectangle {
                 color: StudioTheme.Values.themeToolTipBackground
                 border.color: StudioTheme.Values.themeToolTipOutline
                 border.width: StudioTheme.Values.border
             }
-            contentItem: Text {
-                color: StudioTheme.Values.themeToolTipText
-                text: toolTip.text
-                verticalAlignment: Text.AlignVCenter
+
+            contentItem: RowLayout {
+                spacing: 10
+
+                Item {
+                    visible: thumbnail.status === Image.Ready
+                    Layout.preferredWidth: 100
+                    Layout.preferredHeight: 100
+
+                    Image {
+                        id: checker
+                        visible: !root.isMesh(root.absoluteFilePath)
+                        anchors.fill: parent
+                        fillMode: Image.Tile
+                        source: "images/checkers.png"
+                    }
+
+                    Image {
+                        id: thumbnail
+                        asynchronous: true
+                        anchors.fill: parent
+                        fillMode: Image.PreserveAspectFit
+                        source: {
+                            if (root.isBuiltInPrimitive(root.absoluteFilePath))
+                                return "image://qmldesigner_thumbnails/"
+                                    + root.absoluteFilePath.substring(1, root.absoluteFilePath.length)
+                                    + ".builtin"
+
+                            if (fileModel.isLocal(root.absoluteFilePath))
+                                return "image://qmldesigner_thumbnails/" + root.absoluteFilePath
+
+                            return root.absoluteFilePath
+                        }
+                    }
+                }
+
+                ColumnLayout {
+                    Text {
+                        text: root.fileName(toolTip.text)
+                        color: StudioTheme.Values.themeToolTipText
+                        font: toolTip.font
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: root.isBuiltInPrimitive(toolTip.text) ? qsTr("Built-in primitive")
+                                                                    : toolTip.text
+                        font: toolTip.font
+                        color: StudioTheme.Values.themeToolTipText
+                        wrapMode: Text.WordWrap
+                    }
+                }
             }
         }
 
@@ -155,16 +206,62 @@ Row {
                 visible: delegateRoot.hovered
                 text: delegateRoot.relativeFilePath
                 delay: StudioTheme.Values.toolTipDelay
-                height: StudioTheme.Values.toolTipHeight
+
                 background: Rectangle {
                     color: StudioTheme.Values.themeToolTipBackground
                     border.color: StudioTheme.Values.themeToolTipOutline
                     border.width: StudioTheme.Values.border
                 }
-                contentItem: Text {
-                    color: StudioTheme.Values.themeToolTipText
-                    text: itemToolTip.text
-                    verticalAlignment: Text.AlignVCenter
+
+                contentItem: RowLayout {
+                    spacing: 10
+
+                    Item {
+                        visible: delegateThumbnail.status === Image.Ready
+                        Layout.preferredWidth: 100
+                        Layout.preferredHeight: 100
+
+                        Image {
+                            id: delegateChecker
+                            visible: !root.isMesh(delegateRoot.absoluteFilePath)
+                            anchors.fill: parent
+                            fillMode: Image.Tile
+                            source: "images/checkers.png"
+                        }
+
+                        Image {
+                            id: delegateThumbnail
+                            asynchronous: true
+                            anchors.fill: parent
+                            fillMode: Image.PreserveAspectFit
+                            source: {
+                                if (root.isBuiltInPrimitive(delegateRoot.name))
+                                    return "image://qmldesigner_thumbnails/"
+                                        + delegateRoot.name.substring(1, delegateRoot.name.length)
+                                        + ".builtin"
+
+                                return "image://qmldesigner_thumbnails/" + delegateRoot.absoluteFilePath
+                            }
+                        }
+                    }
+
+                    ColumnLayout {
+                        Text {
+                            text: delegateRoot.name
+                            color: StudioTheme.Values.themeToolTipText
+                            font: delegateToolTip.font
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: root.isBuiltInPrimitive(delegateToolTip.text)
+                                  ? qsTr("Built-in primitive")
+                                  : delegateToolTip.text
+                            font: delegateToolTip.font
+                            color: StudioTheme.Values.themeToolTipText
+                            wrapMode: Text.WordWrap
+                        }
+                    }
                 }
             }
         }
@@ -235,6 +332,10 @@ Row {
                 inputValue = comboBox.items.get(index).model.relativeFilePath
 
             root.backendValue.value = inputValue
+
+            if (!root.backendValue.isBound)
+                root.absoluteFilePath = fileModel.resolve(root.backendValue.value)
+
             comboBox.dirty = false
         }
 
@@ -259,6 +360,9 @@ Row {
             if (root.backendValue.value !== inputValue)
                 root.backendValue.value = inputValue
 
+            if (!root.backendValue.isBound)
+                root.absoluteFilePath = fileModel.resolve(root.backendValue.value)
+
             comboBox.dirty = false
         }
 
@@ -273,6 +377,23 @@ Row {
             comboBox.isComplete = true
             comboBox.setCurrentText(comboBox.textValue)
         }
+    }
+
+    function isBuiltInPrimitive(value) {
+        return value.startsWith('#')
+    }
+
+    function isMesh(value) {
+        return root.isBuiltInPrimitive(value)
+                || root.hasFileExtension(root.fileName(value), "mesh")
+    }
+
+    function hasFileExtension(fileName, extension) {
+        return fileName.split('.').pop() === extension
+    }
+
+    function fileName(filePath) {
+        return filePath.substr(filePath.lastIndexOf('/') + 1)
     }
 
     function createModel() {
@@ -322,6 +443,9 @@ Row {
     Component.onCompleted: {
         root.createModel()
         comboBox.updateTextValue()
+
+        if (!root.backendValue.isBound)
+            root.absoluteFilePath = fileModel.resolve(root.backendValue.value)
     }
 
     function indexOf(model, criteria) {
@@ -340,7 +464,7 @@ Row {
             if (comboBox.popup.opened && !root.backendValue.isBound) {
                 var index = root.indexOf(comboBox.items,
                                                function(item) {
-                                                   return item.fullPath === root.backendValue.value
+                                                   return item.relativeFilePath === root.backendValue.value
                                                })
 
                 if (index !== -1) {
@@ -359,8 +483,10 @@ Row {
         iconColor: root.textColor
         onClicked: {
             fileModel.openFileDialog()
-            if (fileModel.fileName !== "")
+            if (fileModel.fileName !== "") {
                 root.backendValue.value = fileModel.fileName
+                root.absoluteFilePath = fileModel.resolve(root.backendValue.value)
+            }
         }
     }
 }

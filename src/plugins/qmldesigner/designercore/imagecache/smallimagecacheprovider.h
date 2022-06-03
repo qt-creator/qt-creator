@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,22 +23,46 @@
 **
 ****************************************************************************/
 
-#include "timestampprovider.h"
+#pragma once
 
-#include <QDateTime>
-#include <QFileInfo>
-
-#include <limits>
+#include <QQuickAsyncImageProvider>
+#include <QQuickImageResponse>
 
 namespace QmlDesigner {
 
-Sqlite::TimeStamp TimeStampProvider::timeStamp(Utils::SmallStringView name) const
-{
-    QFileInfo info{QString{name}};
-    if (info.exists())
-        return info.lastModified().toSecsSinceEpoch();
+class AsynchronousImageCache;
 
-    return {std::numeric_limits<long long>::max()};
-}
+class ImageResponse : public QQuickImageResponse
+{
+public:
+    ImageResponse(const QImage &defaultImage)
+        : m_image(defaultImage)
+    {}
+
+    QQuickTextureFactory *textureFactory() const override;
+
+    void setImage(const QImage &image);
+
+    void abort();
+
+private:
+    QImage m_image;
+};
+
+class SmallImageCacheProvider : public QQuickAsyncImageProvider
+{
+public:
+    SmallImageCacheProvider(AsynchronousImageCache &imageCache, const QImage &defaultImage = {})
+        : m_cache{imageCache}
+        , m_defaultImage(defaultImage)
+    {}
+
+    QQuickImageResponse *requestImageResponse(const QString &id,
+                                              const QSize &requestedSize) override;
+
+private:
+    AsynchronousImageCache &m_cache;
+    QImage m_defaultImage;
+};
 
 } // namespace QmlDesigner

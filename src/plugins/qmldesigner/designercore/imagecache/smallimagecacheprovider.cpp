@@ -23,52 +23,38 @@
 **
 ****************************************************************************/
 
-#include "explicitimagecacheimageprovider.h"
+#include "smallimagecacheprovider.h"
 
-#include <asynchronousexplicitimagecache.h>
+#include <asynchronousimagecache.h>
 
 #include <QMetaObject>
-#include <QQuickImageResponse>
-
-namespace {
-
-class ImageResponse : public QQuickImageResponse
-{
-public:
-    ImageResponse(const QImage &defaultImage)
-        : m_image(defaultImage)
-    {}
-
-    QQuickTextureFactory *textureFactory() const override
-    {
-        return QQuickTextureFactory::textureFactoryForImage(m_image);
-    }
-
-    void setImage(const QImage &image)
-    {
-        m_image = image;
-
-        emit finished();
-    }
-
-    void abort() { emit finished(); }
-
-private:
-    QImage m_image;
-};
-
-} // namespace
 
 namespace QmlDesigner {
 
-QQuickImageResponse *ExplicitImageCacheImageProvider::requestImageResponse(const QString &id,
-                                                                           const QSize &)
+QQuickTextureFactory *ImageResponse::textureFactory() const
 {
-    auto response = std::make_unique<::ImageResponse>(m_defaultImage);
+    return QQuickTextureFactory::textureFactoryForImage(m_image);
+}
 
-    m_cache.requestImage(
+void ImageResponse::setImage(const QImage &image)
+{
+    m_image = image;
+
+    emit finished();
+}
+
+void ImageResponse::abort()
+{
+    emit finished();
+}
+
+QQuickImageResponse *SmallImageCacheProvider::requestImageResponse(const QString &id, const QSize &)
+{
+    auto response = std::make_unique<QmlDesigner::ImageResponse>(m_defaultImage);
+
+    m_cache.requestSmallImage(
         id,
-        [response = QPointer<::ImageResponse>(response.get())](const QImage &image) {
+        [response = QPointer<QmlDesigner::ImageResponse>(response.get())](const QImage &image) {
             QMetaObject::invokeMethod(
                 response,
                 [response, image] {
@@ -77,7 +63,8 @@ QQuickImageResponse *ExplicitImageCacheImageProvider::requestImageResponse(const
                 },
                 Qt::QueuedConnection);
         },
-        [response = QPointer<::ImageResponse>(response.get())](ImageCache::AbortReason abortReason) {
+        [response = QPointer<QmlDesigner::ImageResponse>(response.get())](
+            ImageCache::AbortReason abortReason) {
             QMetaObject::invokeMethod(
                 response,
                 [response, abortReason] {
