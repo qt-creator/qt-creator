@@ -28,7 +28,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>&amp;Indent size:</string>
+        <string>&amp;Line length:</string>
        </property>
        <property name="buddy">
         <cstring>lineLengthSpinBox</cstring>
