@@ -143,22 +143,22 @@ bool MakeInstallStep::init()
 {
     if (!MakeStep::init())
         return false;
-    const QString rootDirPath = installRoot().toString();
-    if (rootDirPath.isEmpty()) {
+
+    const FilePath rootDir = installRoot().onDevice(makeCommand());
+    if (rootDir.isEmpty()) {
         emit addTask(BuildSystemTask(Task::Error, tr("You must provide an install root.")));
         return false;
     }
-    QDir rootDir(rootDirPath);
     if (cleanInstallRoot() && !rootDir.removeRecursively()) {
         emit addTask(BuildSystemTask(Task::Error,
                                         tr("The install root \"%1\" could not be cleaned.")
-                                            .arg(installRoot().toUserOutput())));
+                                            .arg(rootDir.toUserOutput())));
         return false;
     }
-    if (!rootDir.exists() && !QDir::root().mkpath(rootDirPath)) {
+    if (!rootDir.exists() && !rootDir.createDir()) {
         emit addTask(BuildSystemTask(Task::Error,
                                         tr("The install root \"%1\" could not be created.")
-                                            .arg(installRoot().toUserOutput())));
+                                            .arg(rootDir.toUserOutput())));
         return false;
     }
     if (this == deployConfiguration()->stepList()->steps().last()) {
@@ -167,7 +167,7 @@ bool MakeInstallStep::init()
                                             "last in the list of deploy steps. "
                                             "Consider moving it up.")));
     }
-    const MakeInstallCommand cmd = target()->makeInstallCommand(installRoot().toString());
+    const MakeInstallCommand cmd = target()->makeInstallCommand(rootDir.path());
     if (cmd.environment.isValid()) {
         Environment env = processParameters()->environment();
         for (auto it = cmd.environment.constBegin(); it != cmd.environment.constEnd(); ++it) {
@@ -191,21 +191,30 @@ bool MakeInstallStep::init()
 void MakeInstallStep::finish(bool success)
 {
     if (success) {
+        const FilePath rootDir = installRoot().onDevice(makeCommand());
+
         m_deploymentData = DeploymentData();
-        m_deploymentData.setLocalInstallRoot(installRoot());
-        QDirIterator dit(installRoot().toString(), QDir::Files | QDir::Hidden,
-                         QDirIterator::Subdirectories);
+        m_deploymentData.setLocalInstallRoot(rootDir);
+
+        const int startPos = rootDir.toString().length();
+
         const auto appFileNames = transform<QSet<QString>>(buildSystem()->applicationTargets(),
             [](const BuildTargetInfo &appTarget) { return appTarget.targetFilePath.fileName(); });
-        while (dit.hasNext()) {
-            dit.next();
-            const QFileInfo fi = dit.fileInfo();
-            const DeployableFile::Type type = appFileNames.contains(fi.fileName())
+
+        auto handleFile = [this, &appFileNames, startPos](const FilePath &filePath) {
+            const DeployableFile::Type type = appFileNames.contains(filePath.fileName())
                 ? DeployableFile::TypeExecutable
                 : DeployableFile::TypeNormal;
-            m_deploymentData.addFile(FilePath::fromString(fi.filePath()),
-                                     fi.dir().path().mid(installRoot().toString().length()), type);
-        }
+            QString targetDir = filePath.parentDir().toString().mid(startPos);
+            // FIXME: This is conceptually the wrong place, but currently "downstream" like
+            // the rsync step doesn't handle full remote paths here.
+            targetDir = FilePath::fromString(targetDir).path();
+            m_deploymentData.addFile(filePath, targetDir, type);
+            return true;
+        };
+        rootDir.iterateDirectory(handleFile,
+                                 {{}, QDir::Files | QDir::Hidden, QDirIterator::Subdirectories});
+
         buildSystem()->setDeploymentData(m_deploymentData);
     } else if (m_noInstallTarget && m_isCmakeProject) {
         emit addTask(DeploymentTask(Task::Warning, tr("You need to add an install statement "

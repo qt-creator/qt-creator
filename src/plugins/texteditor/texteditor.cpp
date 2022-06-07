@@ -6781,9 +6781,11 @@ void TextEditorWidgetPrivate::addSelectionNextFindMatch()
         return;
     }
 
+    const QTextDocument::FindFlags findFlags = textDocumentFlagsForFindFlags(m_findFlags);
+
     int searchFrom = cursors.last().selectionEnd();
     while (true) {
-        QTextCursor next = document->find(selection.toPlainText(), searchFrom);
+        QTextCursor next = document->find(selection.toPlainText(), searchFrom, findFlags);
         if (next.isNull()) {
             searchFrom = 0;
             continue;
