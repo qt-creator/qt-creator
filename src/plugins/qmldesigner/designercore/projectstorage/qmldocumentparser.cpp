@@ -161,6 +161,17 @@ Storage::ImportedTypeName createImportedTypeName(const QStringView rawtypeName,
                                           foundImport->second};
 }
 
+std::pair<Utils::SmallString, Utils::SmallString> createAccessPaths(const QStringList &accessPath)
+{
+    if (accessPath.size() == 1)
+        return {accessPath[0], {}};
+
+    if (accessPath.size() == 2)
+        return {accessPath[0], accessPath[1]};
+
+    return {};
+}
+
 void addPropertyDeclarations(Storage::Type &type,
                              QmlDom::QmlObject &rootObject,
                              const QualifiedImports &qualifiedImports,
@@ -176,12 +187,15 @@ void addPropertyDeclarations(Storage::Type &type,
             auto resolvedAlias = rootObject.resolveAlias(rootObjectItem,
                                                          property.ownerAs<QmlDom::ScriptExpression>());
             if (resolvedAlias.valid()) {
+                auto [aliasPropertyName, aliasPropertyNameTail] = createAccessPaths(
+                    resolvedAlias.accessedPath);
+
                 type.propertyDeclarations.emplace_back(Utils::SmallString{propertyDeclaration.name},
                                                        createImportedTypeName(resolvedAlias.typeName,
                                                                               qualifiedImports),
                                                        Storage::PropertyDeclarationTraits::None,
-                                                       Utils::SmallString{
-                                                           resolvedAlias.accessedPath.join('.')});
+                                                       aliasPropertyName,
+                                                       aliasPropertyNameTail);
             }
         } else {
             type.propertyDeclarations.emplace_back(Utils::SmallString{propertyDeclaration.name},

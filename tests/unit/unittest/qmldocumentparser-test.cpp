@@ -72,7 +72,26 @@ MATCHER_P4(IsAliasPropertyDeclaration,
     return propertyDeclaration.name == name
            && Storage::ImportedTypeName{typeName} == propertyDeclaration.typeName
            && propertyDeclaration.traits == traits
-           && propertyDeclaration.aliasPropertyName == aliasPropertyName;
+           && propertyDeclaration.aliasPropertyName == aliasPropertyName
+           && propertyDeclaration.aliasPropertyNameTail.empty();
+}
+
+MATCHER_P5(IsAliasPropertyDeclaration,
+           name,
+           typeName,
+           traits,
+           aliasPropertyName,
+           aliasPropertyNameTail,
+           std::string(negation ? "isn't " : "is ")
+               + PrintToString(Storage::PropertyDeclaration{name, typeName, traits, aliasPropertyName}))
+{
+    const Storage::PropertyDeclaration &propertyDeclaration = arg;
+
+    return propertyDeclaration.name == name
+           && Storage::ImportedTypeName{typeName} == propertyDeclaration.typeName
+           && propertyDeclaration.traits == traits
+           && propertyDeclaration.aliasPropertyName == aliasPropertyName
+           && propertyDeclaration.aliasPropertyNameTail == aliasPropertyNameTail;
 }
 
 MATCHER_P2(IsFunctionDeclaration,
@@ -436,7 +455,8 @@ TEST_F(QmlDocumentParser, IndirectAliasProperties)
                 UnorderedElementsAre(IsAliasPropertyDeclaration("textSize",
                                                                 Storage::ImportedType{"Item"},
                                                                 Storage::PropertyDeclarationTraits::None,
-                                                                "text.size")));
+                                                                "text",
+                                                                "size")));
 }
 
 TEST_F(QmlDocumentParser, InvalidAliasPropertiesAreSkipped)
