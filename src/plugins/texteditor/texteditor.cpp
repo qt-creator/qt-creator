@@ -151,7 +151,6 @@
     implementation matches the MIME type.
 */
 
-
 using namespace Core;
 using namespace Utils;
 
@@ -6976,7 +6975,6 @@ void TextEditorWidget::rewrapParagraph()
 {
     const int paragraphWidth = marginSettings().m_marginColumn;
     const QRegularExpression anyLettersOrNumbers("\\w");
-    const int tabSize = d->m_document->tabSettings().m_tabSize;
 
     QTextCursor cursor = textCursor();
     cursor.beginEditBlock();
@@ -6997,18 +6995,8 @@ void TextEditorWidget::rewrapParagraph()
     cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
 
     // Find indent level of current block.
-
-    int indentLevel = 0;
     const QString text = cursor.block().text();
-
-    for (const QChar &ch : text) {
-        if (ch == QLatin1Char(' '))
-            indentLevel++;
-        else if (ch == QLatin1Char('\t'))
-            indentLevel += tabSize - (indentLevel % tabSize);
-        else
-            break;
-    }
+    int indentLevel = textDocument()->tabSettings().indentationColumn(text);
 
     // If there is a common prefix, it should be kept and expanded to all lines.
     // this allows nice reflowing of doxygen style comments.
