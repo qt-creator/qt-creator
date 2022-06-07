@@ -349,15 +349,12 @@ bool DeviceShell::start()
 
 bool DeviceShell::installShellScript()
 {
-    const QString installCmd
-        = QString("echo %1 | base64 -d > /tmp/shell.sh 2>/dev/null && "
-                  "chmod +x /tmp/shell.sh && "
-                  "/tmp/shell.sh || echo ERROR_INSTALL_SCRIPT >&2\n")
-              .arg(QString::fromLatin1(
-                  QByteArray(r_execScript.begin(), r_execScript.size()).toBase64()));
+    const QByteArray runScriptCmd = "scriptData=$(echo "
+            + QByteArray(r_execScript.begin(), r_execScript.size()).toBase64()
+            + " | base64 -d) && /bin/sh -c \"$scriptData\" || echo ERROR_INSTALL_SCRIPT >&2\n";
 
-    qCDebug(deviceShellLog) << "Install shell script command:" << installCmd;
-    m_shellProcess->write(installCmd);
+    qCDebug(deviceShellLog) << "Install shell script command:" << runScriptCmd;
+    m_shellProcess->writeRaw(runScriptCmd);
 
     while (m_shellScriptState == State::Unknown) {
         if (!m_shellProcess->waitForReadyRead()) {
