@@ -46,10 +46,12 @@ public:
     bool isUseGlobalSettingsCheckBoxEnabled() const;
 
     bool isUseGlobalSettingsCheckBoxVisible() const;
+    bool isUseGlobalSettingsLabelVisible() const;
     Utils::Id globalSettingsId() const;
 
 protected:
     void setUseGlobalSettingsCheckBoxVisible(bool visible);
+    void setUseGlobalSettingsLabelVisible(bool visible);
     void setGlobalSettingsId(Utils::Id globalId);
 
 signals:
@@ -60,6 +62,7 @@ private:
     bool m_useGlobalSettings = true;
     bool m_useGlobalSettingsCheckBoxEnabled = true;
     bool m_useGlobalSettingsCheckBoxVisibleVisible = true;
+    bool m_useGlobalSettingsLabelVisibleVisible = true;
     Utils::Id m_globalSettingsId;
 };
 

@@ -67,6 +67,16 @@ void ProjectSettingsWidget::setUseGlobalSettingsCheckBoxVisible(bool visible)
     m_useGlobalSettingsCheckBoxVisibleVisible = visible;
 }
 
+bool ProjectSettingsWidget::isUseGlobalSettingsLabelVisible() const
+{
+    return m_useGlobalSettingsLabelVisibleVisible;
+}
+
+void ProjectSettingsWidget::setUseGlobalSettingsLabelVisible(bool visible)
+{
+    m_useGlobalSettingsLabelVisibleVisible = visible;
+}
+
 Utils::Id ProjectSettingsWidget::globalSettingsId() const
 {
     return m_globalSettingsId;
