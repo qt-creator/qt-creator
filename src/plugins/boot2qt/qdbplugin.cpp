@@ -143,9 +143,10 @@ public:
         : SimpleTargetRunner(runControl)
     {
         setStartModifier([this] {
+            CommandLine plain = commandLine();
             CommandLine cmd;
-            cmd.setExecutable(FilePath::fromString(Constants::AppcontrollerFilepath));
-            cmd.addCommandLineAsArgs(commandLine());
+            cmd.setExecutable(plain.executable().withNewPath(Constants::AppcontrollerFilepath));
+            cmd.addCommandLineAsArgs(plain);
             setCommandLine(cmd);
         });
     }

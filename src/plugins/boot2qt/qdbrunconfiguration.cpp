@@ -36,6 +36,8 @@
 
 #include <remotelinux/remotelinuxenvironmentaspect.h>
 
+#include <utils/commandline.h>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -57,10 +59,11 @@ public:
         auto argumentsAspect = rc->aspect<ArgumentsAspect>();
 
         auto updateCommandLine = [this, exeAspect, argumentsAspect] {
-            const QString usedExecutable = exeAspect->executable().toString();
-            const QString args = argumentsAspect->arguments();
-            setValue(QString(Constants::AppcontrollerFilepath)
-                     + ' ' + usedExecutable + ' ' + args);
+            CommandLine plain{exeAspect->executable(), argumentsAspect->arguments(), CommandLine::Raw};
+            CommandLine cmd;
+            cmd.setExecutable(plain.executable().withNewPath(Constants::AppcontrollerFilepath));
+            cmd.addCommandLineAsArgs(plain);
+            setValue(cmd.toUserOutput());
         };
 
         connect(argumentsAspect, &ArgumentsAspect::changed, this, updateCommandLine);
