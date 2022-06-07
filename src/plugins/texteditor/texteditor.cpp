@@ -6975,6 +6975,7 @@ void TextEditorWidget::rewrapParagraph()
 {
     const int paragraphWidth = marginSettings().m_marginColumn;
     const QRegularExpression anyLettersOrNumbers("\\w");
+    const TabSettings ts = d->m_document->tabSettings();
 
     QTextCursor cursor = textCursor();
     cursor.beginEditBlock();
@@ -6996,7 +6997,7 @@ void TextEditorWidget::rewrapParagraph()
 
     // Find indent level of current block.
     const QString text = cursor.block().text();
-    int indentLevel = textDocument()->tabSettings().indentationColumn(text);
+    int indentLevel = ts.indentationColumn(text);
 
     // If there is a common prefix, it should be kept and expanded to all lines.
     // this allows nice reflowing of doxygen style comments.
@@ -7033,11 +7034,10 @@ void TextEditorWidget::rewrapParagraph()
     QString spacing;
 
     if (commonPrefix.isEmpty()) {
-        spacing = d->m_document->tabSettings().indentationString(
-                    0, indentLevel, 0, textCursor().block());
+        spacing = ts.indentationString(0, indentLevel, 0, textCursor().block());
     } else {
         spacing = commonPrefix;
-        indentLevel = commonPrefix.length();
+        indentLevel = ts.columnCountForText(spacing);
     }
 
     int currentLength = indentLevel;
