@@ -379,7 +379,16 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
     }
 
     connect(m_buildSystem, &BuildSystem::parsingFinished, this, [this] {
-        m_configModel->setConfiguration(m_buildSystem->configurationFromCMake());
+        const CMakeConfig config = m_buildSystem->configurationFromCMake();
+        auto qmlDebugAspect = m_buildSystem->buildConfiguration()
+                                  ->aspect<QtSupport::QmlDebuggingAspect>();
+        const TriState qmlDebugSetting = qmlDebugAspect->value();
+        bool qmlDebugConfig = CMakeBuildConfiguration::hasQmlDebugging(config);
+        if ((qmlDebugSetting == TriState::Enabled && !qmlDebugConfig)
+            || (qmlDebugSetting == TriState::Disabled && qmlDebugConfig)) {
+            qmlDebugAspect->setValue(TriState::Default);
+        }
+        m_configModel->setConfiguration(config);
         m_configModel->setInitialParametersConfiguration(
             m_buildSystem->initialCMakeConfiguration());
         m_buildSystem->filterConfigArgumentsFromAdditionalCMakeArguments();
@@ -738,7 +747,8 @@ void CMakeBuildSettingsWidget::updateButtonState()
         } else {
             m_reconfigureButton->setText(tr("Run CMake"));
         }
-        reconfigureButtonFont.setBold(m_configModel->hasChanges(isInitial));
+        reconfigureButtonFont.setBold(isInitial ? m_configModel->hasChanges(isInitial)
+                                                : !configChanges.isEmpty());
     }
     m_reconfigureButton->setFont(reconfigureButtonFont);
 
@@ -1386,6 +1396,16 @@ bool CMakeBuildConfiguration::isIos(const Kit *k)
     const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
     return deviceType == Ios::Constants::IOS_DEVICE_TYPE
            || deviceType == Ios::Constants::IOS_SIMULATOR_TYPE;
+}
+
+bool CMakeBuildConfiguration::hasQmlDebugging(const CMakeConfig &config)
+{
+    // Determine QML debugging flags. This must match what we do in
+    // CMakeBuildSettingsWidget::getQmlDebugCxxFlags()
+    // such that in doubt we leave the QML Debugging setting at "Leave at default"
+    const QString cxxFlagsInit = config.stringValueOf("CMAKE_CXX_FLAGS_INIT");
+    const QString cxxFlags = config.stringValueOf("CMAKE_CXX_FLAGS");
+    return cxxFlagsInit.contains("-DQT_QML_DEBUG") && cxxFlags.contains("-DQT_QML_DEBUG");
 }
 
 void CMakeBuildConfiguration::buildTarget(const QString &buildTarget)

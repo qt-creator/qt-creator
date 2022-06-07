@@ -55,6 +55,7 @@ public:
     shadowBuildDirectory(const Utils::FilePath &projectFilePath, const ProjectExplorer::Kit *k,
                          const QString &bcName, BuildConfiguration::BuildType buildType);
     static bool isIos(const ProjectExplorer::Kit *k);
+    static bool hasQmlDebugging(const CMakeConfig &config);
 
     // Context menu action:
     void buildTarget(const QString &buildTarget);
