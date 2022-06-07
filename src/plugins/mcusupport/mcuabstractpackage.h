@@ -51,7 +51,7 @@ public:
     virtual QString cmakeVariableName() const = 0;
     virtual QString environmentVariableName() const = 0;
     virtual bool isAddToSystemPath() const = 0;
-    virtual void setVersions(const QStringList &) = 0;
+    virtual QStringList versions() const = 0;
 
     virtual Utils::FilePath basePath() const = 0;
     virtual Utils::FilePath path() const = 0;

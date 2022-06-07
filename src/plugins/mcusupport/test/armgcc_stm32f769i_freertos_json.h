@@ -61,7 +61,8 @@ constexpr auto armgcc_stm32f769i_freertos_json = R"({
   "toolchain": {
     "id": "armgcc",
     "versions": [
-      "9.3.1"
+      "9.3.1",
+      "10.3.1"
     ],
     "compiler": {
         "id": "ARMGCC_DIR",

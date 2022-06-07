@@ -50,7 +50,7 @@ public:
     MOCK_METHOD(QString, environmentVariableName, (), (const));
     MOCK_METHOD(bool, isAddToSystemPath, (), (const));
     MOCK_METHOD(bool, writeToSettings, (), (const));
-    MOCK_METHOD(void, setVersions, (const QStringList &) );
+    MOCK_METHOD(QStringList, versions, (), (const));
 
     MOCK_METHOD(QWidget *, widget, ());
 }; // class PackageMock

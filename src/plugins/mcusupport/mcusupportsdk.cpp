@@ -145,7 +145,8 @@ McuPackagePtr createBoardSdkPackage(const SettingsHandler::Ptr &settingsHandler,
                                         desc.boardSdk.envVar, // settings key
                                         "QUL_BOARD_SDK_DIR",  // cmake var
                                         desc.boardSdk.envVar, // env var
-                                        {},                   // download URL
+                                        desc.boardSdk.versions,
+                                        {}, // download URL
                                         versionDetector)};
 }
 
@@ -170,6 +171,7 @@ McuPackagePtr createFreeRTOSSourcesPackage(const SettingsHandler::Ptr &settingsH
                        QString{Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(envVarPrefix),
                        "FREERTOS_DIR",           // cmake var
                        envVar,                   // env var
+                       {},                       // versions
                        "https://freertos.org")}; // download url
 }
 
@@ -190,30 +192,25 @@ McuPackagePtr createUnsupportedToolChainFilePackage(const SettingsHandler::Ptr &
 McuToolChainPackagePtr createUnsupportedToolChainPackage(const SettingsHandler::Ptr &settingsHandler)
 {
     return McuToolChainPackagePtr{new McuToolChainPackage(
-        settingsHandler, {}, {}, {}, {}, McuToolChainPackage::ToolChainType::Unsupported)};
+        settingsHandler, {}, {}, {}, {}, McuToolChainPackage::ToolChainType::Unsupported, {}, {})};
 }
 
-McuToolChainPackagePtr createMsvcToolChainPackage(const SettingsHandler::Ptr &settingsHandler)
+McuToolChainPackagePtr createMsvcToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
+                                                  const QStringList &versions)
 {
-    return McuToolChainPackagePtr{new McuToolChainPackage(settingsHandler,
-                                                          {},
-                                                          {},
-                                                          {},
-                                                          {},
-                                                          McuToolChainPackage::ToolChainType::MSVC)};
+    return McuToolChainPackagePtr{new McuToolChainPackage(
+        settingsHandler, {}, {}, {}, {}, McuToolChainPackage::ToolChainType::MSVC, versions, {})};
 }
 
-McuToolChainPackagePtr createGccToolChainPackage(const SettingsHandler::Ptr &settingsHandler)
+McuToolChainPackagePtr createGccToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
+                                                 const QStringList &versions)
 {
-    return McuToolChainPackagePtr{new McuToolChainPackage(settingsHandler,
-                                                          {},
-                                                          {},
-                                                          {},
-                                                          {},
-                                                          McuToolChainPackage::ToolChainType::GCC)};
+    return McuToolChainPackagePtr{new McuToolChainPackage(
+        settingsHandler, {}, {}, {}, {}, McuToolChainPackage::ToolChainType::GCC, versions, {})};
 }
 
-McuToolChainPackagePtr createArmGccToolchainPackage(const SettingsHandler::Ptr &settingsHandler)
+McuToolChainPackagePtr createArmGccToolchainPackage(const SettingsHandler::Ptr &settingsHandler,
+                                                    const QStringList &versions)
 {
     const char envVar[] = "ARMGCC_DIR";
 
@@ -244,12 +241,14 @@ McuToolChainPackagePtr createArmGccToolchainPackage(const SettingsHandler::Ptr &
                                 detectionPath,
                                 "GNUArmEmbeddedToolchain",                  // settingsKey
                                 McuToolChainPackage::ToolChainType::ArmGcc, // toolchainType
-                                Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE,    // cmake var
-                                envVar,                                     // env var
+                                versions,
+                                Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE, // cmake var
+                                envVar,                                  // env var
                                 versionDetector)};
 }
 
-McuToolChainPackagePtr createGhsToolchainPackage(const SettingsHandler::Ptr &settingsHandler)
+McuToolChainPackagePtr createGhsToolchainPackage(const SettingsHandler::Ptr &settingsHandler,
+                                                 const QStringList &versions)
 {
     const char envVar[] = "GHS_COMPILER_DIR";
 
@@ -267,12 +266,14 @@ McuToolChainPackagePtr createGhsToolchainPackage(const SettingsHandler::Ptr &set
                                 FilePath("ccv850").withExecutableSuffix(), // detectionPath
                                 "GHSToolchain",                            // settingsKey
                                 McuToolChainPackage::ToolChainType::GHS,   // toolchainType
-                                Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE,   // cmake var
-                                envVar,                                    // env var
+                                versions,
+                                Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE, // cmake var
+                                envVar,                                  // env var
                                 versionDetector)};
 }
 
-McuToolChainPackagePtr createGhsArmToolchainPackage(const SettingsHandler::Ptr &settingsHandler)
+McuToolChainPackagePtr createGhsArmToolchainPackage(const SettingsHandler::Ptr &settingsHandler,
+                                                    const QStringList &versions)
 {
     const char envVar[] = "GHS_ARM_COMPILER_DIR";
 
@@ -290,12 +291,14 @@ McuToolChainPackagePtr createGhsArmToolchainPackage(const SettingsHandler::Ptr &
                                 FilePath("cxarm").withExecutableSuffix(),   // detectionPath
                                 "GHSArmToolchain",                          // settingsKey
                                 McuToolChainPackage::ToolChainType::GHSArm, // toolchainType
-                                Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE,    // cmake var
-                                envVar,                                     // env var
+                                versions,
+                                Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE, // cmake var
+                                envVar,                                  // env var
                                 versionDetector)};
 }
 
-McuToolChainPackagePtr createIarToolChainPackage(const SettingsHandler::Ptr &settingsHandler)
+McuToolChainPackagePtr createIarToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
+                                                 const QStringList &versions)
 {
     const char envVar[] = "IAR_ARM_COMPILER_DIR";
 
@@ -326,6 +329,7 @@ McuToolChainPackagePtr createIarToolChainPackage(const SettingsHandler::Ptr &set
                                 detectionPath,
                                 "IARToolchain",                          // settings key
                                 McuToolChainPackage::ToolChainType::IAR, // toolchainType
+                                versions,
                                 Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE, // cmake var
                                 envVar,                                  // env var
                                 versionDetector)};
@@ -357,6 +361,7 @@ static McuPackagePtr createStm32CubeProgrammerPackage(const SettingsHandler::Ptr
                        "Stm32CubeProgrammer",
                        {},                                                           // cmake var
                        {},                                                           // env var
+                       {},                                                           // versions
                        "https://www.st.com/en/development-tools/stm32cubeprog.html", // download url
                        nullptr, // version detector
                        true,    // add to path
@@ -395,6 +400,7 @@ static McuPackagePtr createMcuXpressoIdePackage(const SettingsHandler::Ptr &sett
                                         "MCUXpressoIDE",             // settings key
                                         "MCUXPRESSO_IDE_PATH",       // cmake var
                                         envVar,
+                                        {},                                     // versions
                                         "https://www.nxp.com/mcuxpresso/ide")}; // download url
 }
 
@@ -459,15 +465,25 @@ static McuAbstractTargetFactory::Ptr createFactory(bool isLegacy,
     McuAbstractTargetFactory::Ptr result;
     if (isLegacy) {
         static const QHash<QString, ToolchainCompilerCreator> toolchainCreators = {
-            {{"armgcc"},
-             {[settingsHandler] { return createArmGccToolchainPackage(settingsHandler); }}},
+            {{"armgcc"}, {[settingsHandler](const QStringList &versions) {
+                 return createArmGccToolchainPackage(settingsHandler, versions);
+             }}},
             {{"greenhills"},
-             [settingsHandler] { return createGhsToolchainPackage(settingsHandler); }},
-            {{"iar"}, {[settingsHandler] { return createIarToolChainPackage(settingsHandler); }}},
-            {{"msvc"}, {[settingsHandler] { return createMsvcToolChainPackage(settingsHandler); }}},
-            {{"gcc"}, {[settingsHandler] { return createGccToolChainPackage(settingsHandler); }}},
-            {{"arm-greenhills"},
-             {[settingsHandler] { return createGhsArmToolchainPackage(settingsHandler); }}},
+             [settingsHandler](const QStringList &versions) {
+                 return createGhsToolchainPackage(settingsHandler, versions);
+             }},
+            {{"iar"}, {[settingsHandler](const QStringList &versions) {
+                 return createIarToolChainPackage(settingsHandler, versions);
+             }}},
+            {{"msvc"}, {[settingsHandler](const QStringList &versions) {
+                 return createMsvcToolChainPackage(settingsHandler, versions);
+             }}},
+            {{"gcc"}, {[settingsHandler](const QStringList &versions) {
+                 return createGccToolChainPackage(settingsHandler, versions);
+             }}},
+            {{"arm-greenhills"}, {[settingsHandler](const QStringList &versions) {
+                 return createGhsArmToolchainPackage(settingsHandler, versions);
+             }}},
         };
 
         const FilePath toolchainFilePrefix = qtMcuSdkPath / Constants::QUL_TOOLCHAIN_CMAKE_DIR;
@@ -568,6 +584,11 @@ static QFileInfoList targetDescriptionFiles(const Utils::FilePath &dir)
 
 static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
 {
+    const QVariantList versionsVariantList = cmakeEntry["versions"].toArray().toVariantList();
+    const auto versions = Utils::transform<QStringList>(versionsVariantList,
+                                                        [&](const QVariant &version) {
+                                                            return version.toString();
+                                                        });
     return {cmakeEntry["label"].toString(),
             cmakeEntry["envVar"].toString(),
             cmakeEntry["cmakeVar"].toString(),
@@ -575,7 +596,7 @@ static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
             cmakeEntry["setting"].toString(),
             FilePath::fromString(cmakeEntry["defaultValue"].toString()),
             FilePath::fromString(cmakeEntry["validation"].toString()),
-            {},
+            versions,
             false};
 }
 

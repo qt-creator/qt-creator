@@ -62,6 +62,7 @@ public:
                const QString &settingsKey,
                const QString &cmakeVarName,
                const QString &envVarName,
+               const QStringList &versions = {},
                const QString &downloadUrl = {},
                const McuPackageVersionDetector *versionDetector = nullptr,
                const bool addToPath = false,
@@ -73,7 +74,7 @@ public:
     QString cmakeVariableName() const override;
     QString environmentVariableName() const override;
     bool isAddToSystemPath() const override;
-    void setVersions(const QStringList &versions) override;
+    QStringList versions() const override;
 
     Utils::FilePath basePath() const override;
     Utils::FilePath path() const override;
@@ -129,7 +130,8 @@ public:
                         const Utils::FilePath &detectionPath,
                         const QString &settingsKey,
                         ToolChainType toolchainType,
-                        const QString &cmakeVarName = {},
+                        const QStringList &versions,
+                        const QString &cmakeVarName,
                         const QString &envVarName = {},
                         const McuPackageVersionDetector *versionDetector = nullptr);
 

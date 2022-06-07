@@ -57,6 +57,7 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
                        const QString &settingsKey,
                        const QString &cmakeVarName,
                        const QString &envVarName,
+                       const QStringList &versions,
                        const QString &downloadUrl,
                        const McuPackageVersionDetector *versionDetector,
                        const bool addToSystemPath,
@@ -68,6 +69,7 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
     , m_settingsKey(settingsKey)
     , m_versionDetector(versionDetector)
     , m_relativePathModifier(relativePathModifier)
+    , m_versions(versions)
     , m_cmakeVariableName(cmakeVarName)
     , m_environmentVariableName(envVarName)
     , m_downloadUrl(downloadUrl)
@@ -101,9 +103,9 @@ bool McuPackage::isAddToSystemPath() const
     return m_addToSystemPath;
 }
 
-void McuPackage::setVersions(const QStringList &versions)
+QStringList McuPackage::versions() const
 {
-    m_versions = versions;
+    return m_versions;
 }
 
 FilePath McuPackage::basePath() const
@@ -279,6 +281,7 @@ McuToolChainPackage::McuToolChainPackage(const SettingsHandler::Ptr &settingsHan
                                          const FilePath &detectionPath,
                                          const QString &settingsKey,
                                          McuToolChainPackage::ToolChainType type,
+                                         const QStringList &versions,
                                          const QString &cmakeVarName,
                                          const QString &envVarName,
                                          const McuPackageVersionDetector *versionDetector)
@@ -289,7 +292,8 @@ McuToolChainPackage::McuToolChainPackage(const SettingsHandler::Ptr &settingsHan
                  settingsKey,
                  cmakeVarName,
                  envVarName,
-                 {},
+                 versions,
+                 {}, // url
                  versionDetector)
     , m_type(type)
 {}

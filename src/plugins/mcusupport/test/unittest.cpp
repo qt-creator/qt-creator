@@ -73,6 +73,9 @@ const char armGccEnvVar[]{"ARMGCC_DIR"};
 const char armGccLabel[]{"GNU Arm Embedded Toolchain"};
 const char armGccToolchainFilePath[]{"/opt/qtformcu/2.2/lib/cmake/Qul/toolchain/armgcc.cmake"};
 const char armGcc[]{"armgcc"};
+const char armGccVersion[]{"9.3.1"};
+const char armGccNewVersion[]{"10.3.1"};
+const QStringList boardSdkVersions{{"2.11.0"}};
 const char cmakeToolchainLabel[]{"CMake Toolchain File"};
 const char fallbackDir[]{"/abc/def/fallback"};
 const char freeRtosCMakeVar[]{"FREERTOS_DIR"};
@@ -84,11 +87,13 @@ const char freeRtosSetting[]{"Freertos"};
 const char greenhillToolchainFilePath[]{"/opt/qtformcu/2.2/lib/cmake/Qul/toolchain/ghs.cmake"};
 const char greenhillCompilerDir[]{"/abs/ghs"};
 const char greenhillSetting[]{"GHSToolchain"};
+const QStringList greenhillVersions{{"2018.1.5"}};
 const char iarDir[]{"/opt/iar/compiler"};
 const char iarEnvVar[]{"IAR_ARM_COMPILER_DIR"};
 const char iarLabel[]{"IAR ARM Compiler"};
 const char iarSetting[]{"IARToolchain"};
 const char iarToolchainFilePath[]{"/opt/qtformcu/2.2/lib/cmake/Qul/toolchain/iar.cmake"};
+const QStringList iarVersions{{"8.50.9"}};
 const char iar[]{"iar"};
 const char id[]{"target_id"};
 const char name[]{"target_name"};
@@ -157,7 +162,7 @@ void verifyIarToolchain(const McuToolChainPackagePtr &iarToolchainPackage)
     QCOMPARE(iarToolchain->detection(), ToolChain::UninitializedDetection);
 }
 
-void verifyArmGccToolchain(const McuToolChainPackagePtr &armGccPackage)
+void verifyArmGccToolchain(const McuToolChainPackagePtr &armGccPackage, const QStringList &versions)
 {
     //Fake register and fake detect compiler.
     Id armGccId{ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID};
@@ -173,13 +178,14 @@ void verifyArmGccToolchain(const McuToolChainPackagePtr &armGccPackage)
     QCOMPARE(armGccPackage->toolChainName(), armGcc);
     QCOMPARE(armGccPackage->toolchainType(), McuToolChainPackage::ToolChainType::ArmGcc);
     QCOMPARE(armGccPackage->settingsKey(), armGccDirectorySetting);
+    QCOMPARE(armGccPackage->versions(), versions);
 
     // FIXME(piotr.mucko): Re-enable when toolchains retrieval from McuToolChainPackage is unified for arm and iar.
     // armToolchain = armGccPackage->toolChain(cxxLanguageId);
     // QVERIFY(armToolchain != nullptr);
 }
 
-void verifyGccToolchain(const McuToolChainPackagePtr &gccPackage)
+void verifyGccToolchain(const McuToolChainPackagePtr &gccPackage, const QStringList &versions)
 {
     QVERIFY(gccPackage != nullptr);
     QCOMPARE(gccPackage->cmakeVariableName(), "");
@@ -187,12 +193,14 @@ void verifyGccToolchain(const McuToolChainPackagePtr &gccPackage)
     QCOMPARE(gccPackage->isDesktopToolchain(), true);
     QCOMPARE(gccPackage->toolChainName(), unsupported);
     QCOMPARE(gccPackage->toolchainType(), McuToolChainPackage::ToolChainType::GCC);
+    QCOMPARE(gccPackage->versions(), versions);
 }
 
 void verifyTargetToolchains(const Targets &targets,
                             const QString &toolchainFilePath,
                             const QString &compilerPath,
-                            const QString &compilerSetting)
+                            const QString &compilerSetting,
+                            const QStringList &versions)
 {
     QCOMPARE(targets.size(), 1);
     const auto &target{targets.first()};
@@ -208,6 +216,7 @@ void verifyTargetToolchains(const Targets &targets,
     QCOMPARE(toolchainCompiler->cmakeVariableName(), Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE);
     QCOMPARE(toolchainCompiler->path().toString(), compilerPath);
     QCOMPARE(toolchainCompiler->settingsKey(), compilerSetting);
+    QCOMPARE(toolchainCompiler->versions(), versions);
 }
 
 McuSupportTest::McuSupportTest()
@@ -227,6 +236,7 @@ McuSupportTest::McuSupportTest()
                                                         {}, // validation path
                                                         armGccDirectorySetting,
                                                         McuToolChainPackage::ToolChainType::ArmGcc,
+                                                        {armGccVersion},
                                                         Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE,
                                                         armGccEnvVar}}
     , iarToolchainPackagePtr{new McuToolChainPackage{settingsMockPtr,
@@ -235,6 +245,7 @@ McuSupportTest::McuSupportTest()
                                                      {}, // validation path
                                                      iarSetting,
                                                      McuToolChainPackage::ToolChainType::IAR,
+                                                     {armGccVersion},
                                                      Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE,
                                                      iarEnvVar}}
     , platform{id, name, vendor}
@@ -371,7 +382,8 @@ void McuSupportTest::test_parseToolchainFromJSON()
 
 void McuSupportTest::test_legacy_createIarToolchain()
 {
-    McuToolChainPackagePtr iarToolchainPackage = Sdk::createIarToolChainPackage(settingsMockPtr);
+    McuToolChainPackagePtr iarToolchainPackage = Sdk::createIarToolChainPackage(settingsMockPtr,
+                                                                                iarVersions);
     verifyIarToolchain(iarToolchainPackage);
 }
 
@@ -385,30 +397,34 @@ void McuSupportTest::test_createIarToolchain()
 
 void McuSupportTest::test_legacy_createDesktopGccToolchain()
 {
-    McuToolChainPackagePtr gccPackage = Sdk::createGccToolChainPackage(settingsMockPtr);
-    verifyGccToolchain(gccPackage);
+    McuToolChainPackagePtr gccPackage = Sdk::createGccToolChainPackage(settingsMockPtr,
+                                                                       {armGccNewVersion});
+    verifyGccToolchain(gccPackage, {armGccNewVersion});
 }
 
 void McuSupportTest::test_createDesktopGccToolchain()
 {
     const auto description = Sdk::parseDescriptionJson(gcc_desktop_json);
     McuToolChainPackagePtr gccPackage{targetFactory.createToolchain(description.toolchain)};
-    verifyGccToolchain(gccPackage);
+    verifyGccToolchain(gccPackage, {});
 }
 
 void McuSupportTest::test_verifyManuallyCreatedArmGccToolchain()
 {
-    verifyArmGccToolchain(armGccToolchainPackagePtr);
+    verifyArmGccToolchain(armGccToolchainPackagePtr, {armGccVersion});
 }
 
 void McuSupportTest::test_legacy_createArmGccToolchain()
 {
-    McuToolChainPackagePtr armGccPackage = Sdk::createArmGccToolchainPackage(settingsMockPtr);
-    verifyArmGccToolchain(armGccPackage);
+    McuToolChainPackagePtr armGccPackage = Sdk::createArmGccToolchainPackage(settingsMockPtr,
+                                                                             {armGccVersion});
+    verifyArmGccToolchain(armGccPackage, {armGccVersion});
 }
 
 void McuSupportTest::test_createArmGccToolchain_data()
 {
+    QStringList versions{armGccVersion, armGccNewVersion};
+
     QTest::addColumn<QString>("json");
     QTest::newRow("armgcc_nxp_1050_json") << armgcc_nxp_1050_json;
     QTest::newRow("armgcc_stm32f769i_freertos_json") << armgcc_stm32f769i_freertos_json;
@@ -423,7 +439,7 @@ void McuSupportTest::test_createArmGccToolchain()
 
     const auto description = Sdk::parseDescriptionJson(json.toLocal8Bit());
     McuToolChainPackagePtr armGccPackage{targetFactory.createToolchain(description.toolchain)};
-    verifyArmGccToolchain(armGccPackage);
+    verifyArmGccToolchain(armGccPackage, description.toolchain.versions);
 }
 
 void McuSupportTest::test_mapParsedToolchainIdToCorrespondingType_data()
@@ -681,7 +697,7 @@ void McuSupportTest::test_getFullToolchainFilePathFromTarget()
 void McuSupportTest::test_legacy_getPredefinedToolchainFilePackage()
 {
     QHash<QString, ToolchainCompilerCreator> toolchainCreators{
-        {armGcc, [this] { return armGccToolchainPackagePtr; }}};
+        {armGcc, [this](const QStringList & /*versions*/) { return armGccToolchainPackagePtr; }}};
     McuTargetFactoryLegacy legacyTargetFactory{toolchainCreators,
                                                {{armGcc, armGccToolchainFilePackagePtr}},
                                                {},
@@ -694,7 +710,7 @@ void McuSupportTest::test_legacy_getPredefinedToolchainFilePackage()
 void McuSupportTest::test_legacy_createUnsupportedToolchainFilePackage()
 {
     QHash<QString, ToolchainCompilerCreator> toolchainCreators{
-        {armGcc, [this] { return armGccToolchainPackagePtr; }}};
+        {armGcc, [this](const QStringList & /*versions*/) { return armGccToolchainPackagePtr; }}};
     McuTargetFactoryLegacy legacyTargetFactory{toolchainCreators,
                                                {{armGcc, armGccToolchainFilePackagePtr}},
                                                {},
@@ -713,20 +729,26 @@ void McuSupportTest::test_legacy_createTargetWithToolchainPackages_data()
     QTest::addColumn<QString>("toolchainFilePath");
     QTest::addColumn<QString>("compilerPath");
     QTest::addColumn<QString>("compilerSetting");
+    QTest::addColumn<QStringList>("versions");
 
     QTest::newRow("nxp1050") << armgcc_nxp_1050_json << armGccToolchainFilePath << armGccDir
-                             << armGccDirectorySetting;
+                             << armGccDirectorySetting
+                             << QStringList{armGccVersion, armGccNewVersion};
     QTest::newRow("stm32h750b") << armgcc_stm32h750b_metal_json << armGccToolchainFilePath
-                                << armGccDir << armGccDirectorySetting;
+                                << armGccDir << armGccDirectorySetting
+                                << QStringList{armGccVersion};
     QTest::newRow("stm32f769i") << armgcc_stm32f769i_freertos_json << armGccToolchainFilePath
-                                << armGccDir << armGccDirectorySetting;
+                                << armGccDir << armGccDirectorySetting
+                                << QStringList{armGccVersion, armGccNewVersion};
     QTest::newRow("stm32f469i") << iar_stm32f469i_metal_json << iarToolchainFilePath << iarDir
-                                << iarSetting;
-    QTest::newRow("nxp1064") << iar_nxp_1064_json << iarToolchainFilePath << iarDir << iarSetting;
-    QTest::newRow("nxp1064") << iar_nxp_1064_json << iarToolchainFilePath << iarDir << iarSetting;
+                                << iarSetting << iarVersions;
+    QTest::newRow("nxp1064") << iar_nxp_1064_json << iarToolchainFilePath << iarDir << iarSetting
+                             << iarVersions;
+    QTest::newRow("nxp1064") << iar_nxp_1064_json << iarToolchainFilePath << iarDir << iarSetting
+                             << iarVersions;
     QTest::newRow("ghs_rh850_d1m1a_baremetal_json")
         << ghs_rh850_d1m1a_baremetal_json << greenhillToolchainFilePath << greenhillCompilerDir
-        << greenhillSetting;
+        << greenhillSetting << greenhillVersions;
 }
 
 void McuSupportTest::test_legacy_createTargetWithToolchainPackages()
@@ -735,6 +757,7 @@ void McuSupportTest::test_legacy_createTargetWithToolchainPackages()
     QFETCH(QString, toolchainFilePath);
     QFETCH(QString, compilerPath);
     QFETCH(QString, compilerSetting);
+    QFETCH(QStringList, versions);
 
     const Sdk::McuTargetDescription description = Sdk::parseDescriptionJson(json.toLocal8Bit());
 
@@ -748,7 +771,7 @@ void McuSupportTest::test_legacy_createTargetWithToolchainPackages()
         Sdk::targetsFromDescriptions({description}, settingsMockPtr, qtForMcuSdkPath, runLegacy)};
     Q_UNUSED(packages);
 
-    verifyTargetToolchains(targets, toolchainFilePath, compilerPath, compilerSetting);
+    verifyTargetToolchains(targets, toolchainFilePath, compilerPath, compilerSetting, versions);
 }
 
 void McuSupportTest::test_createTargetWithToolchainPackages_data()
@@ -762,6 +785,10 @@ void McuSupportTest::test_createTargetWithToolchainPackages()
     QFETCH(QString, toolchainFilePath);
     QFETCH(QString, compilerPath);
     QFETCH(QString, compilerSetting);
+    QFETCH(QStringList, versions);
+
+    EXPECT_CALL(*settingsMockPtr, getPath(compilerSetting, _, _))
+        .WillRepeatedly(Return(FilePath::fromString(compilerPath)));
 
     EXPECT_CALL(*settingsMockPtr, getPath(compilerSetting, _, _))
         .WillRepeatedly(Return(FilePath::fromString(compilerPath)));
@@ -771,7 +798,7 @@ void McuSupportTest::test_createTargetWithToolchainPackages()
         Sdk::targetsFromDescriptions({description}, settingsMockPtr, qtForMcuSdkPath, !runLegacy)};
     Q_UNUSED(packages);
 
-    verifyTargetToolchains(targets, toolchainFilePath, compilerPath, compilerSetting);
+    verifyTargetToolchains(targets, toolchainFilePath, compilerPath, compilerSetting, versions);
 }
 
 void McuSupportTest::test_addToolchainFileInfoToKit()

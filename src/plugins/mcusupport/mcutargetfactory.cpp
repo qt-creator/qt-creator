@@ -124,6 +124,7 @@ McuPackagePtr McuTargetFactory::createPackage(const PackageDescription &pkgDesc)
         pkgDesc.setting,
         pkgDesc.cmakeVar,
         pkgDesc.envVar,
+        pkgDesc.versions,
     }};
 }
 
@@ -136,7 +137,14 @@ McuToolChainPackage *McuTargetFactory::createToolchain(
         = toolchainTypeMapping.value(toolchain.id, McuToolChainPackage::ToolChainType::Unsupported);
 
     if (isDesktopToolchain(toolchainType))
-        return new McuToolChainPackage{settingsHandler, {}, {}, {}, {}, toolchainType};
+        return new McuToolChainPackage{settingsHandler,
+                                       {},
+                                       {},
+                                       {},
+                                       {},
+                                       toolchainType,
+                                       toolchain.versions,
+                                       compilerDescription.cmakeVar};
     else if (!isToolchainDescriptionValid(toolchain))
         toolchainType = McuToolChainPackage::ToolChainType::Unsupported;
 
@@ -147,6 +155,7 @@ McuToolChainPackage *McuTargetFactory::createToolchain(
         compilerDescription.validationPath,
         compilerDescription.setting,
         toolchainType,
+        toolchain.versions,
         compilerDescription.cmakeVar,
         compilerDescription.envVar,
         nullptr, // McuPackageVersionDetector

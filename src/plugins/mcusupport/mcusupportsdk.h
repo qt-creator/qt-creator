@@ -65,12 +65,14 @@ Utils::FilePath kitsPath(const Utils::FilePath &dir);
 McuPackagePtr createUnsupportedToolChainFilePackage(const SettingsHandler::Ptr &,
                                                     const Utils::FilePath &qtMcuSdkPath);
 McuToolChainPackagePtr createUnsupportedToolChainPackage(const SettingsHandler::Ptr &);
-McuToolChainPackagePtr createIarToolChainPackage(const SettingsHandler::Ptr &);
-McuToolChainPackagePtr createGccToolChainPackage(const SettingsHandler::Ptr &);
-McuToolChainPackagePtr createArmGccToolchainPackage(const SettingsHandler::Ptr &);
-McuToolChainPackagePtr createMsvcToolChainPackage(const SettingsHandler::Ptr &);
-McuToolChainPackagePtr createGhsToolchainPackage(const SettingsHandler::Ptr &);
-McuToolChainPackagePtr createGhsArmToolchainPackage(const SettingsHandler::Ptr &);
+McuToolChainPackagePtr createIarToolChainPackage(const SettingsHandler::Ptr &, const QStringList &);
+McuToolChainPackagePtr createGccToolChainPackage(const SettingsHandler::Ptr &, const QStringList &);
+McuToolChainPackagePtr createArmGccToolchainPackage(const SettingsHandler::Ptr &,
+                                                    const QStringList &);
+McuToolChainPackagePtr createMsvcToolChainPackage(const SettingsHandler::Ptr &, const QStringList &);
+McuToolChainPackagePtr createGhsToolchainPackage(const SettingsHandler::Ptr &, const QStringList &);
+McuToolChainPackagePtr createGhsArmToolchainPackage(const SettingsHandler::Ptr &,
+                                                    const QStringList &);
 
 McuPackagePtr createBoardSdkPackage(const SettingsHandler::Ptr &, const McuTargetDescription &);
 McuPackagePtr createFreeRTOSSourcesPackage(const SettingsHandler::Ptr &settingsHandler,

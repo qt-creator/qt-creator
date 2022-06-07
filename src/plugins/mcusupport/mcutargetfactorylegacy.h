@@ -37,7 +37,7 @@ namespace McuSupport::Internal {
 
 class McuPackage;
 
-using ToolchainCompilerCreator = std::function<McuToolChainPackagePtr()>;
+using ToolchainCompilerCreator = std::function<McuToolChainPackagePtr(const QStringList &version)>;
 
 class McuTargetFactoryLegacy : public McuAbstractTargetFactory
 {

@@ -42,7 +42,7 @@ struct PackageDescription
     QString setting;
     Utils::FilePath defaultPath;
     Utils::FilePath validationPath;
-    QList<QVersionNumber> versions;
+    QStringList versions;
     bool shouldAddToSystemPath;
 }; //struct PackageDescription
 

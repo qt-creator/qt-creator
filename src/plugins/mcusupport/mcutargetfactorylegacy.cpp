@@ -78,7 +78,6 @@ QPair<Targets, Packages> McuTargetFactoryLegacy::createTargets(const Sdk::McuTar
                 boardSdkPkgs.insert(desc.boardSdk.envVar, boardSdkPkg);
             }
             McuPackagePtr boardSdkPkg{boardSdkPkgs.value(desc.boardSdk.envVar)};
-            boardSdkPkg->setVersions(desc.boardSdk.versions);
             boardSdkDefaultPath = boardSdkPkg->defaultPath();
             required3rdPartyPkgs.insert(boardSdkPkg);
         }
@@ -119,11 +118,10 @@ McuAbstractTargetFactory::AdditionalPackages McuTargetFactoryLegacy::getAddition
 McuToolChainPackagePtr McuTargetFactoryLegacy::getToolchainCompiler(
     const Sdk::McuTargetDescription::Toolchain &desc) const
 {
-    auto compilerCreator = toolchainCreators.value(desc.id, [this] {
+    auto compilerCreator = toolchainCreators.value(desc.id, [this](const QStringList & /*versions*/) {
         return McuToolChainPackagePtr{Sdk::createUnsupportedToolChainPackage(settingsHandler)};
     });
-    McuToolChainPackagePtr toolchainPackage = compilerCreator();
-    toolchainPackage->setVersions(desc.versions);
+    McuToolChainPackagePtr toolchainPackage = compilerCreator(desc.versions);
     return toolchainPackage;
 }
 
