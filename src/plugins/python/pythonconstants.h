@@ -37,6 +37,7 @@ const char C_EDITOR_DISPLAY_NAME[] =
         QT_TRANSLATE_NOOP("OpenWith::Editors", "Python Editor");
 
 const char C_PYTHONOPTIONS_PAGE_ID[] = "PythonEditor.OptionsPage";
+const char C_PYLSCONFIGURATION_PAGE_ID[] = "PythonEditor.PythonLanguageServerConfiguration";
 const char C_PYTHON_SETTINGS_CATEGORY[] = "P.Python";
 
 const char PYTHON_OPEN_REPL[] = "Python.OpenRepl";

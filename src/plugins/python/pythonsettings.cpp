@@ -29,7 +29,9 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
-
+#include <languageclient/languageclientsettings.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/detailswidget.h>
@@ -49,6 +51,11 @@
 #include <QStackedWidget>
 #include <QTreeView>
 #include <QWidget>
+#include <QVBoxLayout>
+#include <QGroupBox>
+#include <QCheckBox>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -364,6 +371,193 @@ static InterpreterOptionsPage &interpreterOptionsPage()
     return page;
 }
 
+static const QStringList &plugins()
+{
+    static const QStringList plugins{"flake8",
+                                     "jedi_completion",
+                                     "jedi_definition",
+                                     "jedi_hover",
+                                     "jedi_references",
+                                     "jedi_signature_help",
+                                     "jedi_symbols",
+                                     "mccabe",
+                                     "pycodestyle",
+                                     "pydocstyle",
+                                     "pyflakes",
+                                     "pylint",
+                                     "rope_completion",
+                                     "yapf"};
+    return plugins;
+}
+
+class PyLSConfigureWidget : public QWidget
+{
+public:
+    PyLSConfigureWidget()
+        : m_editor(LanguageClient::jsonEditor())
+        , m_advancedLabel(new QLabel)
+        , m_pluginsGroup(new QGroupBox(tr("Plugins:")))
+
+    {
+        auto mainLayout = new QVBoxLayout;
+
+        auto pluginsLayout = new QGridLayout;
+        m_pluginsGroup->setLayout(pluginsLayout);
+        int i = 0;
+        for (const QString &plugin : plugins()) {
+            auto checkBox = new QCheckBox(plugin, this);
+            connect(checkBox, &QCheckBox::clicked, this, [this, plugin, checkBox](bool enabled) {
+                updatePluginEnabled(checkBox->checkState(), plugin);
+            });
+            m_checkBoxes[plugin] = checkBox;
+            pluginsLayout->addWidget(checkBox, i / 4, i % 4);
+            ++i;
+        }
+        mainLayout->addWidget(m_pluginsGroup);
+
+        const QString labelText = tr(
+            "For a complete list of avilable options, consult the <a "
+            "href=\"https://github.com/python-lsp/python-lsp-server/blob/develop/"
+            "CONFIGURATION.md\">Python LSP Server configuration documentation</a>.");
+
+        m_advancedLabel->setText(labelText);
+        m_advancedLabel->setOpenExternalLinks(true);
+        mainLayout->addWidget(m_advancedLabel);
+        mainLayout->addWidget(m_editor->editorWidget(), 1);
+
+        setAdvanced(false);
+
+        mainLayout->addStretch();
+
+        auto advanced = new QCheckBox(tr("Advanced"));
+        advanced->setChecked(false);
+
+        connect(advanced,
+                &QCheckBox::toggled,
+                this,
+                &PyLSConfigureWidget::setAdvanced);
+
+        mainLayout->addWidget(advanced);
+        setLayout(mainLayout);
+    }
+
+    void setConfiguration(const QString &configuration)
+    {
+        m_editor->textDocument()->setPlainText(configuration);
+        updateCheckboxes();
+    }
+
+    void apply()
+    {
+        PythonSettings::setPyLSConfiguration(m_editor->textDocument()->plainText());
+    }
+private:
+    void setAdvanced(bool advanced)
+    {
+        m_editor->editorWidget()->setVisible(advanced);
+        m_advancedLabel->setVisible(advanced);
+        m_pluginsGroup->setVisible(!advanced);
+        updateCheckboxes();
+    }
+
+    void updateCheckboxes()
+    {
+        const QJsonDocument document = QJsonDocument::fromJson(
+            m_editor->textDocument()->plainText().toUtf8());
+        if (document.isObject()) {
+            const QJsonObject pluginsObject
+                = document.object()["pylsp"].toObject()["plugins"].toObject();
+            for (const QString &plugin : plugins()) {
+                auto checkBox = m_checkBoxes[plugin];
+                if (!checkBox)
+                    continue;
+                const QJsonValue enabled = pluginsObject[plugin].toObject()["enabled"];
+                if (!enabled.isBool())
+                    checkBox->setCheckState(Qt::PartiallyChecked);
+                else
+                    checkBox->setCheckState(enabled.toBool(false) ? Qt::Checked : Qt::Unchecked);
+            }
+        }
+    }
+
+    void updatePluginEnabled(Qt::CheckState check, const QString &plugin)
+    {
+        if (check == Qt::PartiallyChecked)
+            return;
+        QJsonDocument document = QJsonDocument::fromJson(
+            m_editor->textDocument()->plainText().toUtf8());
+        QJsonObject config;
+        if (!document.isNull())
+            config = document.object();
+        QJsonObject pylsp = config["pylsp"].toObject();
+        QJsonObject plugins = pylsp["plugins"].toObject();
+        QJsonObject pluginValue = plugins[plugin].toObject();
+        pluginValue.insert("enabled", check == Qt::Checked);
+        plugins.insert(plugin, pluginValue);
+        pylsp.insert("plugins", plugins);
+        config.insert("pylsp", pylsp);
+        document.setObject(config);
+        m_editor->textDocument()->setPlainText(QString::fromUtf8(document.toJson()));
+    }
+
+    QMap<QString, QCheckBox *> m_checkBoxes;
+    TextEditor::BaseTextEditor *m_editor = nullptr;
+    QLabel *m_advancedLabel = nullptr;
+    QGroupBox *m_pluginsGroup = nullptr;
+};
+
+
+class PyLSOptionsPage : public Core::IOptionsPage
+{
+public:
+    PyLSOptionsPage();
+
+    void setConfiguration(const QString &configuration) { m_configuration = configuration; }
+    QString configuration() const { return m_configuration; }
+
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
+
+private:
+    QPointer<PyLSConfigureWidget> m_widget;
+    QString m_configuration;
+};
+
+PyLSOptionsPage::PyLSOptionsPage()
+{
+    setId(Constants::C_PYLSCONFIGURATION_PAGE_ID);
+    setDisplayName(PythonSettings::tr("Language Server Configuration"));
+    setCategory(Constants::C_PYTHON_SETTINGS_CATEGORY);
+}
+
+QWidget *PyLSOptionsPage::widget()
+{
+    if (!m_widget) {
+        m_widget = new PyLSConfigureWidget();
+        m_widget->setConfiguration(m_configuration);
+    }
+    return m_widget;
+}
+
+void PyLSOptionsPage::apply()
+{
+    if (m_widget)
+        m_widget->apply();
+}
+
+void PyLSOptionsPage::finish()
+{
+    delete m_widget;
+    m_widget = nullptr;
+}
+
+static PyLSOptionsPage &pylspOptionsPage()
+{
+    static PyLSOptionsPage page;
+    return page;
+}
+
 void InterpreterOptionsWidget::makeDefault()
 {
     const QModelIndex &index = m_view.currentIndex();
@@ -388,16 +582,48 @@ void InterpreterOptionsWidget::cleanUp()
 constexpr char settingsGroupKey[] = "Python";
 constexpr char interpreterKey[] = "Interpeter";
 constexpr char defaultKey[] = "DefaultInterpeter";
+constexpr char pylsConfigurationKey[] = "PylsConfiguration";
 
 struct SavedSettings
 {
     QList<Interpreter> pythons;
     QString defaultId;
+    QString pylsConfiguration;
 };
+
+static QString defaultPylsConfiguration()
+{
+    static QJsonObject configuration;
+    if (configuration.isEmpty()) {
+        QJsonObject enabled;
+        enabled.insert("enabled", true);
+        QJsonObject disabled;
+        disabled.insert("enabled", false);
+        QJsonObject plugins;
+        plugins.insert("flake8", disabled);
+        plugins.insert("jedi_completion", enabled);
+        plugins.insert("jedi_definition", enabled);
+        plugins.insert("jedi_hover", enabled);
+        plugins.insert("jedi_references", enabled);
+        plugins.insert("jedi_signature_help", enabled);
+        plugins.insert("jedi_symbols", enabled);
+        plugins.insert("mccabe", disabled);
+        plugins.insert("pycodestyle", disabled);
+        plugins.insert("pydocstyle", disabled);
+        plugins.insert("pyflakes", enabled);
+        plugins.insert("pylint", disabled);
+        plugins.insert("rope_completion", enabled);
+        plugins.insert("yapf", enabled);
+        QJsonObject pylsp;
+        pylsp.insert("plugins", plugins);
+        configuration.insert("pylsp", pylsp);
+    }
+    return QString::fromUtf8(QJsonDocument(configuration).toJson());
+}
 
 static SavedSettings fromSettings(QSettings *settings)
 {
-    QList<Interpreter> pythons;
+    SavedSettings result;
     settings->beginGroup(settingsGroupKey);
     const QVariantList interpreters = settings->value(interpreterKey).toList();
     QList<Interpreter> oldSettings;
@@ -410,24 +636,28 @@ static SavedSettings fromSettings(QSettings *settings)
         if (interpreterList.size() == 3)
             oldSettings << interpreter;
         else if (interpreterList.size() == 4)
-            pythons << interpreter;
+            result.pythons << interpreter;
     }
 
     for (const Interpreter &interpreter : qAsConst(oldSettings)) {
-        if (Utils::anyOf(pythons, Utils::equal(&Interpreter::id, interpreter.id)))
+        if (Utils::anyOf(result.pythons, Utils::equal(&Interpreter::id, interpreter.id)))
             continue;
-        pythons << interpreter;
+        result.pythons << interpreter;
     }
 
-    pythons = Utils::filtered(pythons, [](const Interpreter &interpreter){
+    result.pythons = Utils::filtered(result.pythons, [](const Interpreter &interpreter){
         return !interpreter.autoDetected || interpreter.command.isExecutableFile();
     });
 
-    const QString defaultId = settings->value(defaultKey).toString();
+    result.defaultId = settings->value(defaultKey).toString();
 
+    const QVariant pylsConfiguration = settings->value(pylsConfigurationKey);
+    if (!pylsConfiguration.isNull())
+        result.pylsConfiguration = pylsConfiguration.toString();
+    else
+        result.pylsConfiguration = defaultPylsConfiguration();
     settings->endGroup();
-
-    return {pythons, defaultId};
+    return result;
 }
 
 static void toSettings(QSettings *settings, const SavedSettings &savedSettings)
@@ -444,6 +674,7 @@ static void toSettings(QSettings *settings, const SavedSettings &savedSettings)
     }
     settings->setValue(interpreterKey, interpretersVar);
     settings->setValue(defaultKey, savedSettings.defaultId);
+    settings->setValue(pylsConfigurationKey, savedSettings.pylsConfiguration);
     settings->endGroup();
 }
 
@@ -541,6 +772,8 @@ void PythonSettings::init()
     settingsInstance = new PythonSettings();
 
     const SavedSettings &settings = fromSettings(Core::ICore::settings());
+    pylspOptionsPage().setConfiguration(settings.pylsConfiguration);
+
     QList<Interpreter> pythons = settings.pythons;
 
     if (HostOsInfo::isWindowsHost())
@@ -561,6 +794,20 @@ void PythonSettings::setInterpreter(const QList<Interpreter> &interpreters, cons
     interpreterOptionsPage().setInterpreter(interpreters);
     interpreterOptionsPage().setDefaultInterpreter(defaultId);
     saveSettings();
+}
+
+void PythonSettings::setPyLSConfiguration(const QString &configuration)
+{
+    if (configuration == pylspOptionsPage().configuration())
+        return;
+    pylspOptionsPage().setConfiguration(configuration);
+    saveSettings();
+    emit instance()->pylsConfigurationChanged(configuration);
+}
+
+QString PythonSettings::pyLSConfiguration()
+{
+    return pylspOptionsPage().configuration();
 }
 
 void PythonSettings::addInterpreter(const Interpreter &interpreter, bool isDefault)
@@ -618,7 +865,8 @@ void PythonSettings::saveSettings()
 {
     const QList<Interpreter> &interpreters = interpreterOptionsPage().interpreters();
     const QString defaultId = interpreterOptionsPage().defaultInterpreter().id;
-    toSettings(Core::ICore::settings(), {interpreters, defaultId});
+    const QString pylsConfiguration = pylspOptionsPage().configuration();
+    toSettings(Core::ICore::settings(), {interpreters, defaultId, pylsConfiguration});
     if (QTC_GUARD(settingsInstance))
         emit settingsInstance->interpretersChanged(interpreters, defaultId);
 }

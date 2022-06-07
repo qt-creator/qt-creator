@@ -56,6 +56,7 @@ public:
     static PyLSClient *clientForPython(const Utils::FilePath &python);
 
 private:
+    void updateConfiguration();
     void updateExtraCompilerContents(ProjectExplorer::ExtraCompiler *compiler,
                                      const Utils::FilePath &file);
     void closeExtraDoc(const Utils::FilePath &file);
@@ -86,8 +87,6 @@ public:
 private:
     LanguageClient::BaseClientInterface *createInterface(
         ProjectExplorer::Project *project) const override;
-
-    static QJsonObject defaultConfiguration();
 
     QString m_interpreterId;
 
