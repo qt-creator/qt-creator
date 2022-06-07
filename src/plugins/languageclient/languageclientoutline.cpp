@@ -266,7 +266,7 @@ void LanguageClientOutlineWidget::updateSelectionInTree(const QTextCursor &curre
 {
     if (LanguageClientOutlineItem *item = itemForCursor(m_model, currentCursor)) {
         const QModelIndex index = m_proxyModel.mapFromSource(m_model.indexForItem(item));
-        m_view.selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+        m_view.setCurrentIndex(index);
         m_view.scrollTo(index);
     } else {
         m_view.clearSelection();
