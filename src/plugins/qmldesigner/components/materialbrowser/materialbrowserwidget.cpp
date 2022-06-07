@@ -81,11 +81,15 @@ public:
     {
         Q_UNUSED(requestedSize)
 
+        static QPixmap defaultPreview = QPixmap::fromImage(QImage(":/materialeditor/images/defaultmaterialpreview.png"));
+
         QPixmap pixmap{150, 150};
 
         qint32 internalId = id.toInt();
         if (m_pixmaps.contains(internalId))
             pixmap = m_pixmaps.value(internalId);
+        else
+            pixmap = defaultPreview;
 
         if (size)
             *size = pixmap.size();

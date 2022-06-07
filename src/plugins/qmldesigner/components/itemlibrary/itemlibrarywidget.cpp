@@ -278,7 +278,7 @@ void ItemLibraryWidget::handleAddImport(int index)
     imports.append(import);
     model->changeImports(imports, {});
 
-    QMetaObject::invokeMethod(m_itemsWidget->rootObject(), "switchToComponentsView");
+    switchToComponentsView();
     updateSearch();
 }
 
@@ -310,7 +310,7 @@ void ItemLibraryWidget::setModel(Model *model)
             m_subCompEditMode = subCompEditMode;
             // Switch out of add module view if it's active
             if (m_subCompEditMode)
-                QMetaObject::invokeMethod(m_itemsWidget->rootObject(), "switchToComponentsView");
+                switchToComponentsView();
             emit subCompEditModeChanged();
         }
     }
@@ -328,6 +328,11 @@ QString ItemLibraryWidget::qmlSourcesPath()
 void ItemLibraryWidget::clearSearchFilter()
 {
     QMetaObject::invokeMethod(m_itemsWidget->rootObject(), "clearSearchFilter");
+}
+
+void ItemLibraryWidget::switchToComponentsView()
+{
+    QMetaObject::invokeMethod(m_itemsWidget->rootObject(), "switchToComponentsView");
 }
 
 void ItemLibraryWidget::reloadQmlSource()

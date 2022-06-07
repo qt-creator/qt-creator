@@ -80,7 +80,8 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::ALWAYS_DESIGN_MODE, true);
     restoreValue(settings, DesignerSettingsKey::DISABLE_ITEM_LIBRARY_UPDATE_TIMER, false);
     restoreValue(settings, DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET, true);
-    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR, QList<QString>{"#222222", "#999999"});
+    const QStringList defaultValue = QStringList() << "#222222" << "#999999";
+    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR, defaultValue);
 
     settings->endGroup();
     settings->endGroup();

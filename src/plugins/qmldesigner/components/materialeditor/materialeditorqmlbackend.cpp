@@ -77,15 +77,20 @@ public:
     {
         Q_UNUSED(requestedSize)
 
+        static QPixmap defaultPreview = QPixmap::fromImage(QImage(":/materialeditor/images/defaultmaterialpreview.png"));
+
         QPixmap pixmap{150, 150};
 
         if (id == "preview") {
             if (!m_previewPixmap.isNull())
                 pixmap = m_previewPixmap;
+            else
+                pixmap = defaultPreview;
         } else {
-            QString path = Core::ICore::resourcePath("qmldesigner/materialEditorQmlSources/images/" + id).toString();
-            pixmap = QPixmap{path};
+            qWarning() << __FUNCTION__ << "Unsupported image id:" << id;
+            pixmap.fill(Qt::red);
         }
+
 
         if (size)
             *size = pixmap.size();

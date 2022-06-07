@@ -252,7 +252,6 @@ void MaterialBrowserView::importsChanged(const QList<Import> &addedImports, cons
 
     m_hasQuick3DImport = hasQuick3DImport;
     refreshModel();
-
 }
 
 void MaterialBrowserView::customNotification(const AbstractView *view, const QString &identifier,
