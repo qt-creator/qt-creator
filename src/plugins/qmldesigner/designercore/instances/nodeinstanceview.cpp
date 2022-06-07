@@ -1150,12 +1150,12 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     if (stateNode.isValid() && stateNode.metaInfo().isSubclassOf("QtQuick.State", 1, 0))
         stateInstanceId = stateNode.internalId();
 
-    auto value
+    QVariant value
 #ifndef QMLDESIGNER_TEST
             = QmlDesigner::DesignerSettings::getValue(
                 QmlDesigner::DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR);
 #else
-            = QColor();
+            = {};
 #endif
     QList<QColor> edit3dBackgroundColor;
     if (value.isValid())

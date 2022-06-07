@@ -49,13 +49,18 @@ Rectangle {
                 id: cubeModel
                 eulerRotation.y: 45
                 eulerRotation.x: 30
-                materials: cubeMaterial
+                materials: defaultMaterial
                 source: "#Cube"
-                DefaultMaterial {
-                    id: cubeMaterial
-                    diffuseColor: "#4aee45"
-                }
             }
+        }
+    }
+
+    Item {
+        id: __materialLibrary__
+        DefaultMaterial {
+            id: defaultMaterial
+            objectName: "Default Material"
+            diffuseColor: "#4aee45"
         }
     }
 }

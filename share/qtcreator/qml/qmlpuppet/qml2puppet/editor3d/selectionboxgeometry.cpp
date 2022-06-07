@@ -192,7 +192,11 @@ void SelectionBoxGeometry::doUpdateGeometry()
                 m = targetRN->parent->globalTransform;
             }
             rootRN->localTransform = m;
+#if QT_VERSION < QT_VERSION_CHECK(6, 4, 0)
             rootRN->markDirty(QSSGRenderNode::TransformDirtyFlag::TransformNotDirty);
+#else
+            rootRN->markDirty(QSSGRenderNode::DirtyFlag::TransformDirty);
+#endif
             rootRN->calculateGlobalVariables();
         } else if (!m_spatialNodeUpdatePending) {
             // Necessary spatial nodes do not yet exist. Defer selection box creation one frame.
@@ -236,8 +240,15 @@ void SelectionBoxGeometry::getBounds(
 
     if (node != m_targetNode) {
         if (renderNode) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 4, 0)
             if (renderNode->flags.testFlag(QSSGRenderNode::Flag::TransformDirty))
                 renderNode->calculateLocalTransform();
+#else
+            if (renderNode->isDirty(QSSGRenderNode::DirtyFlag::TransformDirty)) {
+                renderNode->localTransform = QSSGRenderNode::calculateTransformMatrix(
+                            node->position(), node->scale(), node->pivot(), node->rotation());
+            }
+#endif
             localTransform = renderNode->localTransform;
         }
         trackNodeChanges(node);
