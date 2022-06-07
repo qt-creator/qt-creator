@@ -190,7 +190,7 @@ public:
     static bool queryQMakeVariables(const FilePath &binary,
                                     const Environment &env,
                                     QHash<ProKey, ProString> *versionInfo,
-                                    QString *error = nullptr);
+                                    QString *error);
     enum PropertyVariant { PropertyVariantDev, PropertyVariantGet, PropertyVariantSrc };
     QString qmakeProperty(const QByteArray &name, PropertyVariant variant = PropertyVariantGet);
     static QString qmakeProperty(const QHash<ProKey, ProString> &versionInfo,
@@ -1321,10 +1321,11 @@ void QtVersionPrivate::updateVersionInfo()
     m_data.hasExamples = false;
     m_data.hasDocumentation = false;
 
-    if (!queryQMakeVariables(m_qmakeCommand, q->qmakeRunEnvironment(), &m_versionInfo)) {
+    QString error;
+    if (!queryQMakeVariables(m_qmakeCommand, q->qmakeRunEnvironment(), &m_versionInfo, &error)) {
         m_qmakeIsExecutable = false;
-        qWarning("Cannot update Qt version information: %s cannot be run.",
-                 qPrintable(m_qmakeCommand.toString()));
+        qWarning("Cannot update Qt version information from %s: %s.",
+                 qPrintable(m_qmakeCommand.displayName()), qPrintable(error));
         return;
     }
     m_qmakeIsExecutable = true;
@@ -1760,7 +1761,7 @@ Tasks QtVersion::reportIssuesImpl(const QString &proFile, const QString &buildDi
     if (!qmake.isExecutableFile()) {
         //: %1: Path to qmake executable
         const QString msg = QCoreApplication::translate("QmakeProjectManager::QtVersion",
-                                                        "The qmake command \"%1\" was not found or is not executable.").arg(qmake.toUserOutput());
+                    "The qmake command \"%1\" was not found or is not executable.").arg(qmake.displayName());
         results.append(BuildSystemTask(Task::Error, msg));
     }
 
@@ -1799,21 +1800,31 @@ static QByteArray runQmakeQuery(const FilePath &binary, const Environment &env, 
     process.start();
 
     if (!process.waitForStarted()) {
-        *error = QCoreApplication::translate("QtVersion", "Cannot start \"%1\": %2").arg(binary.toUserOutput()).arg(process.errorString());
-        return QByteArray();
+        *error = QCoreApplication::translate("QtVersion", "Cannot start \"%1\": %2")
+                .arg(binary.displayName()).arg(process.errorString());
+        return {};
     }
     if (!process.waitForFinished(timeOutMS)) {
         process.stopProcess();
-        *error = QCoreApplication::translate("QtVersion", "Timeout running \"%1\" (%2 ms).").arg(binary.toUserOutput()).arg(timeOutMS);
-        return QByteArray();
+        *error = QCoreApplication::translate("QtVersion", "Timeout running \"%1\" (%2 ms).")
+                .arg(binary.displayName()).arg(timeOutMS);
+        return {};
     }
     if (process.exitStatus() != QProcess::NormalExit) {
-        *error = QCoreApplication::translate("QtVersion", "\"%1\" crashed.").arg(binary.toUserOutput());
-        return QByteArray();
+        *error = QCoreApplication::translate("QtVersion", "\"%1\" crashed.")
+                .arg(binary.displayName());
+        return {};
+    }
+
+    const QByteArray out = process.readAllStandardOutput();
+    if (out.isEmpty()) {
+        *error = QCoreApplication::translate("QtVersion", "\"%1\" produced no output: %2.")
+                .arg(binary.displayName(), process.stdErr());
+        return {};
     }
 
     error->clear();
-    return process.readAllStandardOutput();
+    return out;
 }
 
 bool QtVersionPrivate::queryQMakeVariables(const FilePath &binary, const Environment &env,
@@ -1824,7 +1835,8 @@ bool QtVersionPrivate::queryQMakeVariables(const FilePath &binary, const Environ
         error = &tmp;
 
     if (!binary.isExecutableFile()) {
-        *error = QCoreApplication::translate("QtVersion", "qmake \"%1\" is not an executable.").arg(binary.toUserOutput());
+        *error = QCoreApplication::translate("QtVersion", "qmake \"%1\" is not an executable.")
+                .arg(binary.displayName());
         return false;
     }
 
@@ -1837,7 +1849,7 @@ bool QtVersionPrivate::queryQMakeVariables(const FilePath &binary, const Environ
         // starting container process caused: exec: "/bin/qmake": stat /bin/qmake: no such file or directory"
         // Since we have a rough idea on what the output looks like we can work around this.
         // Output does not always start with QT_SYSROOT, see QTCREATORBUG-26123.
-        *error = QString::fromUtf8(output);
+        *error += QString::fromUtf8(output);
         return false;
     }
 
@@ -2367,7 +2379,7 @@ QtVersion *QtVersionFactory::createQtVersionFromQMakePath
     ProFileCacheManager::instance()->decRefCount();
     if (error) {
         *error = QCoreApplication::translate("QtSupport::QtVersionFactory",
-                    "No factory found for qmake: \"%1\"").arg(qmakePath.toUserOutput());
+                    "No factory found for qmake: \"%1\"").arg(qmakePath.displayName());
     }
     return nullptr;
 }
