@@ -90,6 +90,7 @@ protected:
     void move(const QPointF &scenePos, const QList<QGraphicsItem *> &itemList);
     void createDragNodes(const QMimeData *mimeData, const QPointF &scenePosition, const QList<QGraphicsItem *> &itemList);
     void commitTransaction();
+    void handleView3dDrop();
 
 private:
     MoveManipulator m_moveManipulator;

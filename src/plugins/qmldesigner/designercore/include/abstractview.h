@@ -259,6 +259,9 @@ public:
 
     void changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion);
 
+    ModelNode materialLibraryNode();
+    void assignMaterialTo3dModel(const ModelNode &modelNode, const ModelNode &materialNode = {});
+
     NodeInstanceView *nodeInstanceView() const;
     RewriterView *rewriterView() const;
 

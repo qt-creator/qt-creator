@@ -99,7 +99,6 @@ private:
     void highlightSupportedProperties(bool highlight = true);
     QString generateIdFromName(const QString &name);
 
-    void ensureMaterialLibraryNode();
     void requestPreviewRender();
     void applyMaterialToSelectedModels(const ModelNode &material, bool add = false);
 
@@ -115,7 +114,6 @@ private:
     bool noValidSelection() const;
 
     ModelNode m_selectedMaterial;
-    ModelNode m_materialLibrary;
     QShortcut *m_updateShortcut = nullptr;
     int m_timerId = 0;
     QStackedWidget *m_stackedWidget = nullptr;

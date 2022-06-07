@@ -78,47 +78,6 @@ MaterialEditorView::MaterialEditorView(QWidget *parent)
     m_stackedWidget->setMinimumWidth(250);
 }
 
-void MaterialEditorView::ensureMaterialLibraryNode()
-{
-    if (!m_hasQuick3DImport)
-        return;
-
-    m_materialLibrary = modelNodeForId(Constants::MATERIAL_LIB_ID);
-    if (m_materialLibrary.isValid())
-        return;
-
-    // create material library node
-    TypeName nodeType = rootModelNode().isSubclassOf("QtQuick3D.Node") ? "QtQuick3D.Node" : "QtQuick.Item";
-    NodeMetaInfo metaInfo = model()->metaInfo(nodeType);
-    m_materialLibrary = createModelNode(nodeType, metaInfo.majorVersion(), metaInfo.minorVersion());
-
-    m_materialLibrary.setIdWithoutRefactoring(Constants::MATERIAL_LIB_ID);
-    rootModelNode().defaultNodeListProperty().reparentHere(m_materialLibrary);
-
-    const QList<ModelNode> materials = rootModelNode().subModelNodesOfType("QtQuick3D.Material");
-    if (materials.isEmpty())
-        return;
-
-    RewriterTransaction transaction = beginRewriterTransaction(
-        "MaterialEditorView::ensureMaterialLibraryNode");
-
-    try {
-        // move all materials to under material library node
-        for (const ModelNode &node : materials) {
-            // if material has no name, set name to id
-            QString matName = node.variantProperty("objectName").value().toString();
-            if (matName.isEmpty()) {
-                VariantProperty objNameProp = node.variantProperty("objectName");
-                objNameProp.setValue(node.id());
-            }
-
-            m_materialLibrary.defaultNodeListProperty().reparentHere(node);
-        }
-    } catch (Exception &e) {
-        e.showException();
-    }
-}
-
 MaterialEditorView::~MaterialEditorView()
 {
     qDeleteAll(m_qmlBackendHash);
@@ -447,15 +406,13 @@ void MaterialEditorView::handleToolBarAction(int action)
     }
 
     case MaterialEditorContextObject::AddNewMaterial: {
-        ensureMaterialLibraryNode();
-
         executeInTransaction("MaterialEditorView:handleToolBarAction", [&] {
             NodeMetaInfo metaInfo = model()->metaInfo("QtQuick3D.DefaultMaterial");
             ModelNode newMatNode = createModelNode("QtQuick3D.DefaultMaterial", metaInfo.majorVersion(),
                                                                                 metaInfo.minorVersion());
             renameMaterial(newMatNode, "New Material");
 
-            m_materialLibrary.defaultNodeListProperty().reparentHere(newMatNode);
+            materialLibraryNode().defaultNodeListProperty().reparentHere(newMatNode);
         });
         break;
     }
@@ -759,8 +716,6 @@ void MaterialEditorView::duplicateMaterial(const ModelNode &material)
 {
     QTC_ASSERT(material.isValid(), return);
 
-    ensureMaterialLibraryNode();
-
     TypeName matType = material.type();
     QmlObjectNode sourceMat(material);
 
@@ -786,7 +741,7 @@ void MaterialEditorView::duplicateMaterial(const ModelNode &material)
                 duplicateMat.setBindingProperty(prop.name(), prop.toBindingProperty().expression());
         }
 
-        m_materialLibrary.defaultNodeListProperty().reparentHere(duplicateMat);
+        materialLibraryNode().defaultNodeListProperty().reparentHere(duplicateMat);
     });
 }
 
