@@ -48,7 +48,7 @@ using McuToolChainPackagePtr = QSharedPointer<McuToolChainPackage>;
 using McuTargetPtr = QSharedPointer<McuTarget>;
 
 static const QVersionNumber minimalVersion{2, 0, 0};
-static const QVersionNumber newVersion{2, 2};
+static const QVersionNumber newVersion{2, 3};
 using Targets = QList<McuTargetPtr>;
 using Packages = QSet<McuPackagePtr>;
 

@@ -25,8 +25,9 @@
 
 #include "deviceshell.h"
 
-#include <qtcassert.h>
-#include <qtcprocess.h>
+#include "processinterface.h"
+#include "qtcassert.h"
+#include "qtcprocess.h"
 
 #include <QLoggingCategory>
 #include <QScopeGuard>
@@ -34,6 +35,123 @@
 Q_LOGGING_CATEGORY(deviceShellLog, "qtc.utils.deviceshell", QtWarningMsg)
 
 namespace Utils {
+
+namespace {
+
+/*!
+ * The multiplex script waits for input via stdin.
+ *
+ * To start a command, a message is send with the format "<cmd-id> "<base64-encoded-stdin-data>" <commandline>\n"
+ * To stop the script, simply send "exit\n" via stdin
+ *
+ * Once a message is received, two new streams are created that the new process redirects its output to ( $stdoutraw and $stderrraw ).
+ *
+ * These streams are piped through base64 into the two streams stdoutenc and stderrenc.
+ *
+ * Two subshells read from these base64 encoded streams, and prepend the command-id, as well as either "O:" or "E:" depending on whether its the stdout or stderr stream.
+ *
+ * Once the process exits its exit code is send to stdout with the command-id and the type "R".
+ *
+ */
+const QLatin1String r_execScript = QLatin1String(R"(
+#!/bin/sh
+
+readAndMark() {
+    local buffer
+    while read buffer
+    do
+        printf '%s:%s:%s\n' "$1" "$2" "$buffer"
+    done
+}
+
+base64decode()
+{
+    base64 -d 2>/dev/null
+}
+
+base64encode()
+{
+    base64 2>/dev/null
+}
+
+executeAndMark()
+{
+    PID="$1"
+    INDATA="$2"
+    shift
+    shift
+    CMD="$@"
+
+    # Output Streams
+    stdoutenc=$(mktemp -u)
+    stderrenc=$(mktemp -u)
+    mkfifo "$stdoutenc" "$stderrenc"
+
+    # app output streams
+    stdoutraw=$(mktemp -u)
+    stderrraw=$(mktemp -u)
+    mkfifo "$stdoutraw" "$stderrraw"
+
+    # Cleanup
+    trap 'rm -f "$stdoutenc" "$stderrenc" "$stdoutraw" "$stderrraw" ' EXIT
+
+    # Pipe all app output through base64, and then into the output streams
+    cat $stdoutraw | base64encode > "$stdoutenc" &
+    cat $stderrraw | base64encode > "$stderrenc" &
+
+    # Mark the app's output streams
+    readAndMark $PID 'O' < "$stdoutenc" >&1 &
+    readAndMark $PID 'E' < "$stderrenc" >&1 &
+
+    # Start the app ...
+    if [ -z "$INDATA" ]
+    then
+        eval $CMD 1> "$stdoutraw" 2> "$stderrraw"
+    else
+        echo $INDATA | base64decode | eval "$CMD" 1> "$stdoutraw" 2> "$stderrraw"
+    fi
+
+    exitcode=$(echo $? | base64encode)
+
+    wait
+    echo "$PID:R:$exitcode"
+}
+
+execute()
+{
+    PID="$1"
+    INDATA=$(eval echo "$2")
+    shift
+    shift
+    CMD=$@
+    executeAndMark $PID "$INDATA" "$CMD"
+}
+
+cleanup()
+{
+    kill -- -$$
+    exit 1
+}
+
+if ! command -v base64 &> /dev/null
+then
+    echo "base64 command could not be found" >&2
+    exit 1
+fi
+
+trap cleanup 1 2 3 6
+
+echo SCRIPT_INSTALLED >&2
+
+while read -r id inData cmd; do
+    if [ "$id" = "exit" ]; then
+        exit
+    fi
+    execute $id $inData $cmd &
+done
+)");
+
+} // namespace
 
 DeviceShell::DeviceShell()
 {
@@ -43,24 +161,12 @@ DeviceShell::DeviceShell()
 
 DeviceShell::~DeviceShell()
 {
+    m_shellProcess->deleteLater();
+
     if (m_thread.isRunning()) {
         m_thread.quit();
         m_thread.wait();
     }
-}
-
-bool DeviceShell::waitForStarted()
-{
-    QTC_ASSERT(m_shellProcess, return false);
-    Q_ASSERT(QThread::currentThread() != &m_thread);
-
-    bool result;
-    QMetaObject::invokeMethod(
-        m_shellProcess,
-        [this] { return m_shellProcess->waitForStarted(); },
-        Qt::BlockingQueuedConnection,
-        &result);
-    return result;
 }
 
 /*!
@@ -78,48 +184,8 @@ bool DeviceShell::runInShell(const CommandLine &cmd, const QByteArray &stdInData
     QTC_ASSERT(m_shellProcess, return false);
     Q_ASSERT(QThread::currentThread() != &m_thread);
 
-    bool result = false;
-    QMetaObject::invokeMethod(
-        m_shellProcess,
-        [this, &cmd, &stdInData] { return runInShellImpl(cmd, stdInData); },
-        Qt::BlockingQueuedConnection,
-        &result);
-    return result;
-}
-
-bool DeviceShell::runInShellImpl(const CommandLine &cmd, const QByteArray &stdInData)
-{
-    QTC_ASSERT(QThread::currentThread() == &m_thread, return false);
-
-    QTC_ASSERT(m_shellProcess->isRunning(), return false);
-    QTC_ASSERT(m_shellProcess, return false);
-    QTC_CHECK(m_shellProcess->readAllStandardOutput().isNull()); // clean possible left-overs
-    QTC_CHECK(m_shellProcess->readAllStandardError().isNull());  // clean possible left-overs
-    auto cleanup = qScopeGuard(
-        [this] { m_shellProcess->readAllStandardOutput(); }); // clean on assert
-
-    QString prefix;
-    if (!stdInData.isEmpty())
-        prefix = "echo '" + QString::fromUtf8(stdInData.toBase64()) + "' | base64 -d | ";
-
-    const QString suffix = " > /dev/null 2>&1\necho $?\n";
-    const QString command = prefix + cmd.toUserOutput() + suffix;
-
-    qCDebug(deviceShellLog) << "Running:" << command;
-
-    m_shellProcess->write(command);
-    m_shellProcess->waitForReadyRead();
-
-    const QByteArray output = m_shellProcess->readAllStandardOutput();
-
-    bool ok = false;
-    const int result = output.toInt(&ok);
-
-    qCInfo(deviceShellLog) << "Run command in shell:" << cmd.toUserOutput() << "result: " << output
-                           << " ==>" << result;
-    QTC_ASSERT(ok, return false);
-
-    return result == EXIT_SUCCESS;
+    const RunResult result = run(cmd, stdInData);
+    return result.exitCode == 0;
 }
 
 /*!
@@ -138,59 +204,37 @@ DeviceShell::RunResult DeviceShell::outputForRunInShell(const CommandLine &cmd,
     QTC_ASSERT(m_shellProcess, return {});
     Q_ASSERT(QThread::currentThread() != &m_thread);
 
-    RunResult result;
-    QMetaObject::invokeMethod(
-        m_shellProcess,
-        [this, &cmd, &stdInData] { return outputForRunInShellImpl(cmd, stdInData); },
-        Qt::BlockingQueuedConnection,
-        &result);
-    return result;
+    return run(cmd, stdInData);
 }
 
-DeviceShell::RunResult DeviceShell::outputForRunInShellImpl(const CommandLine &cmd,
-                                                            const QByteArray &stdInData)
+DeviceShell::State DeviceShell::state() const { return m_shellScriptState; }
+
+DeviceShell::RunResult DeviceShell::run(const CommandLine &cmd, const QByteArray &stdInData)
 {
-    QTC_ASSERT(QThread::currentThread() == &m_thread, return {});
+    const RunResult errorResult{-1, {}, {}};
+    QTC_ASSERT(m_shellProcess, return errorResult);
+    QTC_ASSERT(m_shellScriptState == State::Succeeded, return errorResult);
 
-    QTC_ASSERT(m_shellProcess, return {});
-    QTC_CHECK(m_shellProcess->readAllStandardOutput().isNull()); // clean possible left-overs
-    QTC_CHECK(m_shellProcess->readAllStandardError().isNull());  // clean possible left-overs
-    auto cleanup = qScopeGuard(
-        [this] { m_shellProcess->readAllStandardOutput(); }); // clean on assert
+    QMutexLocker lk(&m_commandMutex);
 
-    QString prefix;
-    if (!stdInData.isEmpty())
-        prefix = "echo '" + QString::fromUtf8(stdInData.toBase64()) + "' | base64 -d | ";
+    QWaitCondition waiter;
+    const int id = ++m_currentId;
+    const auto it = m_commandOutput.insert(id, CommandRun{-1, {}, {}, &waiter});
 
-    const QString markerCmd = "echo __qtc$?qtc__ 1>&2\n";
-    const QString suffix = "\n" + markerCmd;
-    const QString command = prefix + cmd.toUserOutput() + suffix;
+    QMetaObject::invokeMethod(m_shellProcess, [this, id, &cmd, &stdInData]() {
+        const QString command = QString("%1 \"%2\" %3\n")
+                                    .arg(id)
+                                    .arg(QString::fromLatin1(stdInData.toBase64()))
+                                    .arg(cmd.toUserOutput());
+        qCDebug(deviceShellLog) << "Running:" << command;
+        m_shellProcess->writeRaw(command.toUtf8());
+    });
 
-    qCDebug(deviceShellLog) << "Running:" << command;
-    m_shellProcess->write(command);
+    waiter.wait(&m_commandMutex);
 
-    RunResult result;
+    const RunResult result = *it;
+    m_commandOutput.erase(it);
 
-    while (true) {
-        m_shellProcess->waitForReadyRead();
-        QByteArray stdErr = m_shellProcess->readAllStandardError();
-        if (stdErr.endsWith("qtc__\n")) {
-            QByteArray marker = stdErr.right(stdErr.length() - stdErr.lastIndexOf("__qtc"));
-            QByteArray exitCodeStr = marker.mid(5, marker.length() - 11);
-            bool ok = false;
-            const int exitCode = exitCodeStr.toInt(&ok);
-
-            result.stdOutput = m_shellProcess->readAllStandardOutput();
-            result.exitCode = ok ? exitCode : -1;
-            break;
-        }
-    }
-
-    //const QByteArray output = m_shellProcess->readAllStandardOutput();
-    qCDebug(deviceShellLog) << "Received output:" << result.stdOutput;
-    qCInfo(deviceShellLog) << "Run command in shell:" << cmd.toUserOutput()
-                           << "output size:" << result.stdOutput.size()
-                           << "exit code:" << result.exitCode;
     return result;
 }
 
@@ -221,7 +265,7 @@ void DeviceShell::setupShellProcess(QtcProcess *shellProcess)
  */
 void DeviceShell::startupFailed(const CommandLine &cmdLine)
 {
-    qCDebug(deviceShellLog) << "Failed to start shell via:" << cmdLine.toUserOutput();
+    qCWarning(deviceShellLog) << "Failed to start shell via:" << cmdLine.toUserOutput();
 }
 
 /*!
@@ -241,7 +285,6 @@ bool DeviceShell::start()
     setupShellProcess(m_shellProcess);
 
     m_shellProcess->setProcessMode(ProcessMode::Writer);
-    m_shellProcess->setWriteData("echo\n");
 
     // Moving the process into its own thread ...
     m_shellProcess->moveToThread(&m_thread);
@@ -252,12 +295,46 @@ bool DeviceShell::start()
         [this] {
             m_shellProcess->start();
 
-            if (!m_shellProcess->waitForStarted() || !m_shellProcess->waitForReadyRead()
-                || m_shellProcess->readAllStandardOutput() != "\n") {
+            if (!m_shellProcess->waitForStarted()) {
                 closeShellProcess();
                 return false;
             }
-            // TODO: Check if necessary tools are available ( e.g. base64, /bin/sh etc. )
+
+            connect(m_shellProcess, &QtcProcess::readyReadStandardOutput, m_shellProcess, [this] {
+                onReadyRead();
+            });
+            connect(m_shellProcess, &QtcProcess::readyReadStandardError, m_shellProcess, [this] {
+                const QByteArray stdErr = m_shellProcess->readAllStandardError();
+
+                if (m_shellScriptState == State::Unknown) {
+                    if (stdErr.contains("SCRIPT_INSTALLED")) {
+                        m_shellScriptState = State::Succeeded;
+                        return;
+                    }
+                    if (stdErr.contains("ERROR_INSTALL_SCRIPT")) {
+                        m_shellScriptState = State::FailedToStart;
+                        qCWarning(deviceShellLog) << "Failed installing device shell script";
+                        return;
+                    }
+                }
+
+                qCWarning(deviceShellLog) << "Received unexpected output on stderr:" << stdErr;
+            });
+
+            connect(m_shellProcess, &QtcProcess::done, m_shellProcess, [this]() {
+                if (m_shellProcess->resultData().m_exitCode != EXIT_SUCCESS
+                    || m_shellProcess->resultData().m_exitStatus != QProcess::NormalExit) {
+                    qCWarning(deviceShellLog) << "Shell exited with error code:"
+                                              << m_shellProcess->resultData().m_exitCode << "("
+                                              << m_shellProcess->exitMessage() << ")";
+                }
+            });
+
+            if (!installShellScript()) {
+                closeShellProcess();
+                return false;
+            }
+
             return true;
         },
         Qt::BlockingQueuedConnection,
@@ -270,16 +347,158 @@ bool DeviceShell::start()
     return result;
 }
 
+bool DeviceShell::installShellScript()
+{
+    const QString installCmd
+        = QString("echo %1 | base64 -d > /tmp/shell.sh 2>/dev/null && "
+                  "chmod +x /tmp/shell.sh && "
+                  "/tmp/shell.sh || echo ERROR_INSTALL_SCRIPT >&2\n")
+              .arg(QString::fromLatin1(
+                  QByteArray(r_execScript.begin(), r_execScript.size()).toBase64()));
+
+    qCDebug(deviceShellLog) << "Install shell script command:" << installCmd;
+    m_shellProcess->write(installCmd);
+
+    while (m_shellScriptState == State::Unknown) {
+        if (!m_shellProcess->waitForReadyRead()) {
+            qCWarning(deviceShellLog) << "Timeout while waiting for device shell script to install";
+            m_shellScriptState = State::FailedToStart;
+            return false;
+        }
+    }
+    return m_shellScriptState == State::Succeeded;
+}
+
 void DeviceShell::closeShellProcess()
 {
     if (m_shellProcess) {
         if (m_shellProcess->isRunning()) {
-            m_shellProcess->write("exit\n");
+            m_shellProcess->write("exit\nexit\n");
             if (!m_shellProcess->waitForFinished(2000))
                 m_shellProcess->terminate();
         }
-        m_shellProcess->deleteLater();
     }
+}
+
+QByteArray::const_iterator next(const QByteArray::const_iterator &bufferEnd,
+                                const QByteArray::const_iterator &itCurrent)
+{
+    for (QByteArray::const_iterator it = itCurrent; it != bufferEnd; ++it) {
+        if (*it == '\n')
+            return it;
+    }
+    return bufferEnd;
+}
+
+QByteArray byteArrayFromRange(QByteArray::const_iterator itStart, QByteArray::const_iterator itEnd)
+{
+    return QByteArray(itStart, std::distance(itStart, itEnd));
+}
+
+QList<std::tuple<int, DeviceShell::ParseType, QByteArray>> parseShellOutput(const QByteArray &data)
+{
+    auto itStart = data.cbegin();
+    const auto itEnd = data.cend();
+
+    QList<std::tuple<int, DeviceShell::ParseType, QByteArray>> result;
+
+    for (auto it = next(itEnd, itStart); it != itEnd; ++it, itStart = it, it = next(itEnd, it)) {
+        const QByteArray lineView = byteArrayFromRange(itStart, it);
+        QTC_ASSERT(lineView.size() > 0, continue);
+
+        const auto pidEnd = lineView.indexOf(':');
+        const auto typeEnd = lineView.indexOf(':', pidEnd + 1);
+
+        QTC_ASSERT(pidEnd != -1 && typeEnd != -1, continue);
+
+        bool ok = false;
+        const QLatin1String sId(lineView.begin(), pidEnd);
+        const quint64 id = QString(sId).toInt(&ok);
+        QTC_ASSERT(ok, continue);
+
+        const QByteArray data = byteArrayFromRange(lineView.begin() + typeEnd + 1, lineView.end());
+        const QByteArray decoded = QByteArray::fromBase64(data);
+
+        DeviceShell::ParseType t;
+        char type = lineView.at(typeEnd - 1);
+        switch (type) {
+        case 'O':
+            t = DeviceShell::ParseType::StdOut;
+            break;
+        case 'E':
+            t = DeviceShell::ParseType::StdErr;
+            break;
+        case 'R':
+            t = DeviceShell::ParseType::ExitCode;
+            break;
+        default:
+            QTC_CHECK(false);
+            continue;
+        }
+
+        result.append(std::make_tuple(id, t, decoded));
+    }
+
+    return result;
+}
+
+/*!
+ * \brief DeviceShell::onReadyRead
+ *
+ * Reads lines coming from the multiplex script.
+ *
+ * The format is: "<command-id>:<type>:base64-encoded-text-or-returnvalue"
+ * The possible <type>'s are:
+ * O for stdout
+ * E for stderr
+ * R for exit code
+ *
+ * Multiple O/E messages may be received for a process. Once
+ * a single "R" is received, the exit code is reported back
+ * and no further messages from that process are expected.
+ */
+void DeviceShell::onReadyRead()
+{
+    m_commandBuffer += m_shellProcess->readAllStandardOutput();
+    const qsizetype lastLineEndIndex = m_commandBuffer.lastIndexOf('\n') + 1;
+
+    if (lastLineEndIndex == 0)
+        return;
+
+    const QByteArray input(m_commandBuffer.cbegin(), lastLineEndIndex);
+
+    const auto result = parseShellOutput(input);
+
+    QMutexLocker lk(&m_commandMutex);
+    for (const auto &line : result) {
+        const auto &[cmdId, type, data] = line;
+
+        const auto itCmd = m_commandOutput.find(cmdId);
+        QTC_ASSERT(itCmd != m_commandOutput.end(), continue);
+
+        switch (type) {
+        case Utils::DeviceShell::ParseType::StdOut:
+            itCmd->stdOut.append(data);
+            break;
+        case Utils::DeviceShell::ParseType::StdErr:
+            itCmd->stdErr.append(data);
+            break;
+        case Utils::DeviceShell::ParseType::ExitCode: {
+            bool ok = false;
+            int exitCode;
+            exitCode = QString::fromUtf8(data.begin(), data.size()).toInt(&ok);
+            QTC_ASSERT(ok, exitCode = -1);
+            itCmd->exitCode = exitCode;
+            itCmd->waiter->wakeOne();
+            break;
+        }
+        }
+    };
+
+    if (lastLineEndIndex == m_commandBuffer.size())
+        m_commandBuffer.clear();
+    else
+        m_commandBuffer = m_commandBuffer.mid(lastLineEndIndex);
 }
 
 } // namespace Utils

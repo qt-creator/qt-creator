@@ -87,28 +87,35 @@ void MaterialEditorView::ensureMaterialLibraryNode()
     if (m_materialLibrary.isValid())
         return;
 
-    const QList<ModelNode> materials = rootModelNode().subModelNodesOfType("QtQuick3D.Material");
-    if (materials.isEmpty())
-        return;
-
     // create material library node
-    TypeName nodeType = rootModelNode().isSubclassOf("QtQuick3D.Node") ? "Quick3D.Node" : "QtQuick.Item";
+    TypeName nodeType = rootModelNode().isSubclassOf("QtQuick3D.Node") ? "QtQuick3D.Node" : "QtQuick.Item";
     NodeMetaInfo metaInfo = model()->metaInfo(nodeType);
     m_materialLibrary = createModelNode(nodeType, metaInfo.majorVersion(), metaInfo.minorVersion());
 
     m_materialLibrary.setIdWithoutRefactoring(Constants::MATERIAL_LIB_ID);
     rootModelNode().defaultNodeListProperty().reparentHere(m_materialLibrary);
 
-    // move all materials to under material library node
-    for (const ModelNode &node : materials) {
-        // if material has no name, set name to id
-        QString matName = node.variantProperty("objectName").value().toString();
-        if (matName.isEmpty()) {
-            VariantProperty objNameProp = node.variantProperty("objectName");
-            objNameProp.setValue(node.id());
-        }
+    const QList<ModelNode> materials = rootModelNode().subModelNodesOfType("QtQuick3D.Material");
+    if (materials.isEmpty())
+        return;
 
-        m_materialLibrary.defaultNodeListProperty().reparentHere(node);
+    RewriterTransaction transaction = beginRewriterTransaction(
+        "MaterialEditorView::ensureMaterialLibraryNode");
+
+    try {
+        // move all materials to under material library node
+        for (const ModelNode &node : materials) {
+            // if material has no name, set name to id
+            QString matName = node.variantProperty("objectName").value().toString();
+            if (matName.isEmpty()) {
+                VariantProperty objNameProp = node.variantProperty("objectName");
+                objNameProp.setValue(node.id());
+            }
+
+            m_materialLibrary.defaultNodeListProperty().reparentHere(node);
+        }
+    } catch (Exception &e) {
+        e.showException();
     }
 }
 
@@ -560,8 +567,6 @@ void MaterialEditorView::modelAttached(Model *model)
 
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
 
-    ensureMaterialLibraryNode();
-
     if (!m_setupCompleted) {
         reloadQml();
         m_setupCompleted = true;
@@ -739,7 +744,6 @@ void MaterialEditorView::importsChanged(const QList<Import> &addedImports, const
     m_hasQuick3DImport = model()->hasImport("QtQuick3D");
     m_qmlBackEnd->contextObject()->setHasQuick3DImport(m_hasQuick3DImport);
 
-    ensureMaterialLibraryNode(); // create the material lib if Quick3D import is added
     resetView();
 }
 

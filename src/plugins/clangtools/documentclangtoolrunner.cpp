@@ -183,7 +183,7 @@ static Environment projectBuildEnvironment(Project *project)
         if (BuildConfiguration *buildConfig = target->activeBuildConfiguration())
             env = buildConfig->environment();
     }
-    if (env.size() == 0)
+    if (!env.isValid())
         env = Environment::systemEnvironment();
     return env;
 }

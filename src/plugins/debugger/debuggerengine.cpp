@@ -123,8 +123,8 @@ QDebug operator<<(QDebug str, const DebuggerRunParameters &sp)
     nospace << "executable=" << sp.inferior.command.executable()
             << " coreFile=" << sp.coreFile
             << " processArgs=" << sp.inferior.command.arguments()
-            << " inferior environment=<" << sp.inferior.environment.size() << " variables>"
-            << " debugger environment=<" << sp.debugger.environment.size() << " variables>"
+            << " inferior environment=<" << sp.inferior.environment.toStringList().size() << " variables>"
+            << " debugger environment=<" << sp.debugger.environment.toStringList().size() << " variables>"
             << " workingDir=" << sp.inferior.workingDirectory
             << " attachPID=" << sp.attachPID.pid()
             << " remoteChannel=" << sp.remoteChannel

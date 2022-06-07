@@ -159,6 +159,8 @@ GitLabProjectSettingsWidget::GitLabProjectSettingsWidget(ProjectExplorer::Projec
     horizontalLayout->addWidget(m_checkConnection);
     horizontalLayout->addStretch(1);
     verticalLayout->addLayout(horizontalLayout);
+    verticalLayout->addWidget(new QLabel(tr("Projects linked with GitLab receive event "
+                                            "notifications in the Version Control output pane.")));
 
     connect(m_linkWithGitLab, &QPushButton::clicked, this, [this]() {
         checkConnection(Link);

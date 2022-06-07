@@ -83,9 +83,8 @@ FilePath MesonBuildConfiguration::shadowBuildDirectory(const FilePath &projectFi
         return {};
 
     const QString projectName = projectFilePath.parentDir().fileName();
-    return BuildConfiguration::buildDirectoryFromTemplate(
-        Project::projectDirectory(projectFilePath),
-        projectFilePath, projectName, k, bcName, buildType, BuildConfiguration::ReplaceSpaces);
+    return buildDirectoryFromTemplate(Project::projectDirectory(projectFilePath), projectFilePath,
+                                      projectName, k, bcName, buildType, "meson");
 }
 
 ProjectExplorer::BuildSystem *MesonBuildConfiguration::buildSystem() const

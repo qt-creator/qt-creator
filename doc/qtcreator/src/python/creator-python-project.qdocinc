@@ -44,7 +44,7 @@
     use \c {.pyqtc} files, but we recommend that you choose \c{.pyproject} files
     for new projects.
 
-    The \uicontrol {Qt for Python - Window (UI file)} wizard enables you to
+    The \uicontrol {Window UI} wizard enables you to
     create a Python project that contains the source file for a class. Specify
     the PySide version, class name, base class, and and source file for the
     class.
@@ -56,13 +56,23 @@
     Widgets module, and Qt UI tools:
 
     \badcode
-    import os
-    from pathlib import Path
     import sys
+    from pathlib import Path
 
     from PySide6.QtWidgets import QApplication, QWidget
-    from PySide6.QtCore import QFile
-    from PySide6.QtUiTools import QUiLoader
+    \endcode
+
+    \note It is important that you first create the Python code
+    from your UI form. In PySide6, you can do this by executing
+    \c{pyside6-uic form.ui -o ui_form.py} on a terminal. This
+    enables you to import the class that represents your UI
+    from that Python file.
+
+    Once you generate the Python code from the UI file,
+    you can import the class:
+
+    \badcode
+    from ui_form import Ui_Widget
     \endcode
 
     The wizard also adds a main class with the specified name that
@@ -70,24 +80,21 @@
 
     \badcode
     class Widget(QWidget):
-        def __init__(self):
-            super(Widget, self).__init__()
-            self.load_ui()
-            ...
+        def __init__(self, parent=None):
+            super().__init__(parent)
     \endcode
 
-    The following lines in the main class load the generated Python class from
-    the UI file:
+    The following lines in the main class instantiate the generated Python class from
+    your UI file, and set up the interface for the current class.
 
     \badcode
-        def load_ui(self):
-            loader = QUiLoader()
-            path = os.fspath(Path(__file__).resolve().parent / "form.ui")
-            ui_file = QFile(path)
-            ui_file.open(QFile.ReadOnly)
-            loader.load(ui_file, self)
-            ui_file.close()
+            self.ui = Ui_Widget()
+            self.ui.setupUi(self)
     \endcode
+
+    \note UI elements of the new class can be accessed as member variables.
+    For example, if you have a button called \e{button1}, you
+    can interact with it using \c{self.ui.button1}.
 
     Next, the wizard adds a main function, where it creates a
     QApplication instance. As Qt can receive arguments from the command line,
@@ -96,7 +103,7 @@
 
     \badcode
     if __name__ == "__main__":
-        app = QApplication([])
+        app = QApplication(sys.argv)
     \endcode
 
     Next, the wizard instantiates the \c MainWindow class and shows it:
@@ -107,11 +114,11 @@
         ...
     \endcode
 
-    Finally, the wizard calls the \c app.exec_() method to enter the Qt
+    Finally, the wizard calls the \c app.exec() method to enter the Qt
     main loop and start executing the Qt code:
 
     \badcode
-        sys.exit(app.exec_())
+        sys.exit(app.exec())
     \endcode
 
     You can now modify the boilerplate code in the Edit mode to develop your
@@ -120,6 +127,8 @@
     To start the shell and import the current file as a module, select
     select \uicontrol {REPL Import File}. To also import all functions from
     the file, select \uicontrol {REPL Import *}.
+
+    Always regenerate the Python code after modifying a UI file.
 
     Open the .ui file in the \uicontrol Design mode to create a widget-based UI
     in \QD.
@@ -182,13 +191,13 @@
 
     Finally, the wizard adds code that checks whether the file was successfully
     loaded. If loading the file fails, the application exits with an error code.
-    If loading succeeds, the wizard calls the \c app.exec_() method to enter the
+    If loading succeeds, the wizard calls the \c app.exec() method to enter the
     Qt main loop and start executing the Qt code:
 
     \badcode
     if not engine.rootObjects():
         sys.exit(-1)
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
     \endcode
 
     Open the .qml file in the \uicontrol Edit mode to design a Qt Quick UI, or

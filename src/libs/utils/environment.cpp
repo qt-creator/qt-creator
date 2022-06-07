@@ -45,6 +45,11 @@ NameValueItems Environment::diff(const Environment &other, bool checkAppendPrepe
     return m_dict.diff(other.m_dict, checkAppendPrepend);
 }
 
+int Environment::isValid() const
+{
+    return m_dict.size() != 0;
+}
+
 QProcessEnvironment Environment::toProcessEnvironment() const
 {
     QProcessEnvironment result;
@@ -433,44 +438,61 @@ optional<EnvironmentProvider> EnvironmentProvider::provider(const QByteArray &id
 
 void EnvironmentChange::addSetValue(const QString &key, const QString &value)
 {
-    m_changeItems.append([key, value](Environment &env) { env.set(key, value); });
+    m_changeItems.append({Item::SetValue, QVariant::fromValue(QPair<QString, QString>(key, value))});
 }
 
 void EnvironmentChange::addUnsetValue(const QString &key)
 {
-    m_changeItems.append([key](Environment &env) { env.unset(key); });
+    m_changeItems.append({Item::UnsetValue, key});
 }
 
 void EnvironmentChange::addPrependToPath(const FilePaths &values)
 {
     for (int i = values.size(); --i >= 0; ) {
         const FilePath value = values.at(i);
-        m_changeItems.append([value](Environment &env) { env.prependOrSetPath(value); });
+        m_changeItems.append({Item::PrependToPath, value.toVariant()});
     }
 }
 
 void EnvironmentChange::addAppendToPath(const FilePaths &values)
 {
     for (const FilePath &value : values)
-        m_changeItems.append([value](Environment &env) { env.appendOrSetPath(value); });
-}
-
-void EnvironmentChange::addModify(const NameValueItems &items)
-{
-    m_changeItems.append([items](Environment &env) { env.modify(items); });
+        m_changeItems.append({Item::AppendToPath, value.toVariant()});
 }
 
 EnvironmentChange EnvironmentChange::fromFixedEnvironment(const Environment &fixedEnv)
 {
     EnvironmentChange change;
-    change.m_changeItems.append([fixedEnv](Environment &env) { env = fixedEnv; });
+    change.m_changeItems.append({Item::SetFixedEnvironment, QVariant::fromValue(fixedEnv)});
     return change;
 }
 
 void EnvironmentChange::applyToEnvironment(Environment &env) const
 {
-    for (const Item &item : m_changeItems)
-        item(env);
+    for (const Item &item : m_changeItems) {
+        switch (item.type) {
+        case Item::SetSystemEnvironment:
+            env = Environment::systemEnvironment();
+            break;
+        case Item::SetFixedEnvironment:
+            env = item.data.value<Environment>();
+            break;
+        case Item::SetValue: {
+            auto data = item.data.value<QPair<QString, QString>>();
+            env.set(data.first, data.second);
+            break;
+        }
+        case Item::UnsetValue:
+            env.unset(item.data.toString());
+            break;
+        case Item::PrependToPath:
+            env.prependOrSetPath(FilePath::fromVariant(item.data));
+            break;
+        case Item::AppendToPath:
+            env.appendOrSetPath(FilePath::fromVariant(item.data));
+            break;
+        }
+    }
 }
 
 } // namespace Utils

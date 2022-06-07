@@ -83,8 +83,8 @@ FilePath ITestConfiguration::executableFilePath() const
     if (!hasExecutable())
         return {};
 
-    const Environment env = m_runnable.environment.size() == 0 ? Environment::systemEnvironment()
-                                                               : m_runnable.environment;
+    const Environment env = m_runnable.environment.isValid()
+            ? m_runnable.environment : Environment::systemEnvironment();
     return env.searchInPath(m_runnable.command.executable().path());
 }
 

@@ -181,7 +181,7 @@ Client *LanguageClientManager::startClient(const BaseSettings *setting,
     return client;
 }
 
-QList<Client *> LanguageClientManager::clients()
+const QList<Client *> LanguageClientManager::clients()
 {
     QTC_ASSERT(managerInstance, return {});
     return managerInstance->m_clients;
@@ -456,7 +456,7 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
         if (TextEditorWidget *widget = textEditor->editorWidget()) {
             connect(widget, &TextEditorWidget::requestLinkAt, this,
                     [document = textEditor->textDocument()]
-                    (const QTextCursor &cursor, Utils::ProcessLinkCallback &callback, bool resolveTarget) {
+                    (const QTextCursor &cursor, const Utils::LinkHandler &callback, bool resolveTarget) {
                         if (auto client = clientForDocument(document))
                             client->symbolSupport().findLinkAt(document, cursor, callback, resolveTarget);
                     });

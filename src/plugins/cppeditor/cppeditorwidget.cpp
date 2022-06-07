@@ -663,57 +663,6 @@ void CppEditorWidget::onIfdefedOutBlocksUpdated(unsigned revision,
     textDocument()->setIfdefedOutBlocks(ifdefedOutBlocks);
 }
 
-static QString getDocumentLine(QTextDocument *document, int line)
-{
-    if (document)
-        return document->findBlockByNumber(line - 1).text();
-
-    return {};
-}
-
-static std::unique_ptr<QTextDocument> getCurrentDocument(const QString &path)
-{
-    const QTextCodec *defaultCodec = Core::EditorManager::defaultTextCodec();
-    QString contents;
-    Utils::TextFileFormat format;
-    QString error;
-    if (Utils::TextFileFormat::readFile(Utils::FilePath::fromString(path),
-                                        defaultCodec,
-                                        &contents,
-                                        &format,
-                                        &error)
-        != Utils::TextFileFormat::ReadSuccess) {
-        qWarning() << "Error reading file " << path << " : " << error;
-        return {};
-    }
-
-    return std::make_unique<QTextDocument>(contents);
-}
-
-static void onReplaceUsagesClicked(const QString &text,
-                                   const QList<SearchResultItem> &items,
-                                   bool preserveCase)
-{
-    CppModelManager *modelManager = CppModelManager::instance();
-    if (!modelManager)
-        return;
-
-    const FilePaths filePaths = TextEditor::BaseFileFind::replaceAll(text, items, preserveCase);
-    if (!filePaths.isEmpty()) {
-        modelManager->updateSourceFiles(Utils::transform<QSet>(filePaths, &FilePath::toString));
-        SearchResultWindow::instance()->hide();
-    }
-}
-
-static QTextDocument *getOpenDocument(const QString &path)
-{
-    const IDocument *document = DocumentModel::documentForFilePath(FilePath::fromString(path));
-    if (document)
-        return qobject_cast<const TextDocument *>(document)->document();
-
-    return {};
-}
-
 void CppEditorWidget::findUsages()
 {
     findUsages(textCursor());
@@ -940,7 +889,7 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
 }
 
 void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
-                                 ProcessLinkCallback &&processLinkCallback,
+                                 const LinkHandler &processLinkCallback,
                                  bool resolveTarget,
                                  bool inNextSplit)
 {
@@ -953,8 +902,8 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
     // UI header.
     QTextCursor c(cursor);
     c.select(QTextCursor::WordUnderCursor);
-    ProcessLinkCallback callbackWrapper = [start = c.selectionStart(), end = c.selectionEnd(),
-            doc = QPointer(cursor.document()), callback = std::move(processLinkCallback),
+    LinkHandler callbackWrapper = [start = c.selectionStart(), end = c.selectionEnd(),
+            doc = QPointer(cursor.document()), callback = processLinkCallback,
             filePath](const Link &link) {
         const int linkPos = doc ? Text::positionInText(doc, link.targetLine, link.targetColumn + 1)
                                 : -1;
@@ -978,7 +927,7 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
     };
     CppModelManager::followSymbol(
                 CursorInEditor{cursor, filePath, this, textDocument()},
-                std::move(callbackWrapper),
+                callbackWrapper,
                 resolveTarget,
                 inNextSplit);
 }

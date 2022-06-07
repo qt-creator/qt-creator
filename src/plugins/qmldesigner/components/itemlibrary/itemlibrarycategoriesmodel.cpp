@@ -207,10 +207,11 @@ void ItemLibraryCategoriesModel::clearSelectedCategory(int categoryIndex)
 
 QPointer<ItemLibraryCategory> ItemLibraryCategoriesModel::selectCategory(int categoryIndex)
 {
-    if (categoryIndex == -1 || m_categoryList.isEmpty())
+    if (m_categoryList.isEmpty() || categoryIndex < 0 || categoryIndex >= m_categoryList.size())
         return nullptr;
 
     const QPointer<ItemLibraryCategory> category = m_categoryList.at(categoryIndex);
+
     if (!category->categorySelected()) {
         category->setCategorySelected(true);
         emit dataChanged(index(categoryIndex),index(categoryIndex), {m_roleNames.key("categorySelected")});

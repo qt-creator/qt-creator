@@ -60,7 +60,7 @@ NimTextEditorWidget::NimTextEditorWidget(QWidget *parent)
     setLanguageSettingsId(Nim::Constants::C_NIMLANGUAGE_ID);
 }
 
-void NimTextEditorWidget::findLinkAt(const QTextCursor &c, Utils::ProcessLinkCallback &&processLinkCallback, bool /*resolveTarget*/, bool /*inNextSplit*/)
+void NimTextEditorWidget::findLinkAt(const QTextCursor &c, const Utils::LinkHandler &processLinkCallback, bool /*resolveTarget*/, bool /*inNextSplit*/)
 {
     const Utils::FilePath &path = textDocument()->filePath();
 
@@ -90,7 +90,7 @@ void NimTextEditorWidget::findLinkAt(const QTextCursor &c, Utils::ProcessLinkCal
         m_callback(Utils::Link());
 
     m_dirtyFile = std::move(dirtyFile);
-    m_callback = std::move(processLinkCallback);
+    m_callback = processLinkCallback;
     m_request = std::move(request);
 
     QObject::connect(m_request.get(), &NimSuggestClientRequest::finished, this, &NimTextEditorWidget::onFindLinkFinished);

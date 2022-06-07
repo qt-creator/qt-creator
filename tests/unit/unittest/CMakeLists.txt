@@ -332,7 +332,6 @@ extend_qtc_test(unittest
   SOURCES_PREFIX ../../../src/plugins/clangcodemodel
   SOURCES
     clangactivationsequenceprocessor.cpp clangactivationsequenceprocessor.h
-    clanguiheaderondiskmanager.cpp clanguiheaderondiskmanager.h
 )
 
 find_package(yaml-cpp QUIET MODULE)

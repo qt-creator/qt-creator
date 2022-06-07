@@ -62,7 +62,7 @@ class ProFileEditorWidget : public TextEditorWidget
 {
 private:
     void findLinkAt(const QTextCursor &,
-                    Utils::ProcessLinkCallback &&processLinkCallback,
+                    const Utils::LinkHandler &processLinkCallback,
                     bool resolveTarget = true,
                     bool inNextSplit = false) override;
     void contextMenuEvent(QContextMenuEvent *) override;
@@ -125,7 +125,7 @@ QString ProFileEditorWidget::checkForPrfFile(const QString &baseName) const
 }
 
 void ProFileEditorWidget::findLinkAt(const QTextCursor &cursor,
-                                     Utils::ProcessLinkCallback &&processLinkCallback,
+                                     const LinkHandler &processLinkCallback,
                                      bool /*resolveTarget*/,
                                      bool /*inNextSplit*/)
 {

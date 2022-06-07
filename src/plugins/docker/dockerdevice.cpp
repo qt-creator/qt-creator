@@ -135,7 +135,7 @@ public:
     ~DockerDevicePrivate() { stopCurrentContainer(); }
 
     bool runInContainer(const CommandLine &cmd) const;
-    bool runInShell(const CommandLine &cmd) const;
+    bool runInShell(const CommandLine &cmd, const QByteArray &stdInData = {}) const;
     QByteArray outputForRunInShell(const CommandLine &cmd) const;
 
     void updateContainerAccess();
@@ -485,7 +485,8 @@ void DockerDevicePrivate::startContainer()
                                          "or restart Qt Creator."));
     });
 
-    if (!m_shell->waitForStarted()) {
+    if (m_shell->state() != DeviceShell::State::Succeeded) {
+        m_shell.reset();
         DockerApi::recheckDockerDaemon();
         qCWarning(dockerDeviceLog) << "Container shell failed to start";
     }
@@ -979,36 +980,16 @@ bool DockerDevice::writeFileContents(const FilePath &filePath, const QByteArray 
     QTC_ASSERT(handlesFile(filePath), return {});
     updateContainerAccess();
 
-// This following would be the generic Unix solution.
-// But it doesn't pass input. FIXME: Why?
-//    QtcProcess proc;
-//    proc.setCommand({"dd", {"of=" + filePath.path()}});
-//    proc.setWriteData(data);
-//    runProcess(proc);
-//    proc.waitForFinished();
-
-    TemporaryFile tempFile("dockertransport-XXXXXX");
-    tempFile.open();
-    tempFile.write(data);
-
-    const QString tempName = tempFile.fileName();
-    tempFile.close();
-
-    CommandLine cmd{"docker", {"cp", tempName, d->m_container + ':' + filePath.path()}};
-
-    QtcProcess proc;
-    proc.setCommand(cmd);
-    proc.runBlocking();
-
-    return proc.exitCode() == 0;
+    QTC_ASSERT(handlesFile(filePath), return {});
+    return d->runInShell({"dd", {"of=" + filePath.path()}}, data);
 }
 
 Environment DockerDevice::systemEnvironment() const
 {
-    if (d->m_cachedEnviroment.size() == 0)
+    if (!d->m_cachedEnviroment.isValid())
         d->fetchSystemEnviroment();
 
-    QTC_CHECK(d->m_cachedEnviroment.size() != 0);
+    QTC_CHECK(d->m_cachedEnviroment.isValid());
     return d->m_cachedEnviroment;
 }
 
@@ -1058,16 +1039,16 @@ bool DockerDevicePrivate::runInContainer(const CommandLine &cmd) const
     return exitCode == 0;
 }
 
-bool DockerDevicePrivate::runInShell(const CommandLine &cmd) const
+bool DockerDevicePrivate::runInShell(const CommandLine &cmd, const QByteArray& stdInData) const
 {
     QTC_ASSERT(m_shell, return false);
-    return m_shell->runInShell(cmd);
+    return m_shell->runInShell(cmd, stdInData);
 }
 
 QByteArray DockerDevicePrivate::outputForRunInShell(const CommandLine &cmd) const
 {
     QTC_ASSERT(m_shell.get(), return {});
-    return m_shell->outputForRunInShell(cmd).stdOutput;
+    return m_shell->outputForRunInShell(cmd).stdOut;
 }
 
 // Factory

@@ -389,7 +389,8 @@ PyLSSettings::PyLSSettings()
     m_settingsTypeId = Constants::PYLS_SETTINGS_ID;
     m_name = "Python Language Server";
     m_startBehavior = RequiresFile;
-    m_languageFilter.mimeTypes = QStringList(Constants::C_PY_MIMETYPE);
+    m_languageFilter.mimeTypes = QStringList()
+                                 << Constants::C_PY_MIMETYPE << Constants::C_PY3_MIMETYPE;
     m_arguments = "-m pylsp";
     const QJsonDocument config(defaultConfiguration());
     m_configuration = QString::fromUtf8(config.toJson());
@@ -416,6 +417,8 @@ void PyLSSettings::fromMap(const QVariantMap &map)
         const QJsonDocument config(defaultConfiguration());
         m_configuration = QString::fromUtf8(config.toJson());
     }
+    m_languageFilter.mimeTypes = QStringList()
+                                 << Constants::C_PY_MIMETYPE << Constants::C_PY3_MIMETYPE;
     setInterpreter(map[interpreterKey].toString());
 }
 
@@ -477,8 +480,7 @@ public:
     TemporaryDirectory m_extraPythonPath;
 };
 
-BaseClientInterface *PyLSSettings::createInterfaceWithProject(
-    ProjectExplorer::Project *project) const
+BaseClientInterface *PyLSSettings::createInterface(ProjectExplorer::Project *project) const
 {
     auto interface = new PyLSInterface;
     interface->setCommandLine(command());
@@ -640,7 +642,8 @@ static Client *registerLanguageServer(const FilePath &python)
         auto *settings = new StdIOSettings();
         settings->m_executable = python;
         settings->m_arguments = "-m pylsp";
-        settings->m_languageFilter.mimeTypes = QStringList(Constants::C_PY_MIMETYPE);
+        settings->m_languageFilter.mimeTypes = QStringList() << Constants::C_PY_MIMETYPE
+                                                             << Constants::C_PY3_MIMETYPE;
     }
     settings->m_name = PyLSConfigureAssistant::tr("Python Language Server (%1)")
                            .arg(pythonName(python));

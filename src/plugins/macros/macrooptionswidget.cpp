@@ -130,7 +130,7 @@ void MacroOptionsWidget::remove()
 void MacroOptionsWidget::apply()
 {
     // Remove macro
-    foreach (const QString &name, m_macroToRemove) {
+    for (const QString &name : qAsConst(m_macroToRemove)) {
         MacroManager::instance()->deleteMacro(name);
         m_macroToChange.remove(name);
     }

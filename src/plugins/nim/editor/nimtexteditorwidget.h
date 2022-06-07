@@ -36,13 +36,13 @@ public:
     NimTextEditorWidget(QWidget* parent = nullptr);
 
 protected:
-    void findLinkAt(const QTextCursor &, Utils::ProcessLinkCallback &&processLinkCallback, bool resolveTarget, bool inNextSplit);
+    void findLinkAt(const QTextCursor &, const Utils::LinkHandler &processLinkCallback, bool resolveTarget, bool inNextSplit);
 
 private:
     void onFindLinkFinished();
 
     std::shared_ptr<Nim::Suggest::NimSuggestClientRequest> m_request;
-    Utils::ProcessLinkCallback m_callback;
+    Utils::LinkHandler m_callback;
     std::unique_ptr<QTemporaryFile> m_dirtyFile;
 };
 

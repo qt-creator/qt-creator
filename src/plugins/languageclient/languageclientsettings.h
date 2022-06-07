@@ -105,13 +105,8 @@ public:
     virtual void fromMap(const QVariantMap &map);
 
 protected:
-    // TODO: remove in Qt Creator 6 and rename createInterfaceWithProject back to it
-    virtual BaseClientInterface *createInterface() const { return nullptr; }
+    virtual BaseClientInterface *createInterface(ProjectExplorer::Project *) const;
     virtual Client *createClient(BaseClientInterface *interface) const;
-    virtual BaseClientInterface *createInterfaceWithProject(ProjectExplorer::Project *) const
-    {
-        return createInterface();
-    }
 
     BaseSettings(const BaseSettings &other) = default;
     BaseSettings(BaseSettings &&other) = default;
@@ -141,7 +136,7 @@ public:
     Utils::CommandLine command() const;
 
 protected:
-    BaseClientInterface *createInterfaceWithProject(ProjectExplorer::Project *project) const override;
+    BaseClientInterface *createInterface(ProjectExplorer::Project *project) const override;
 
     StdIOSettings(const StdIOSettings &other) = default;
     StdIOSettings(StdIOSettings &&other) = default;

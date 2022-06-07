@@ -438,8 +438,8 @@ void CdbEngine::setupEngine()
     m_outputBuffer.clear();
     m_autoBreakPointCorrection = false;
 
-    Utils::Environment inferiorEnvironment = sp.inferior.environment.size() == 0
-            ? Utils::Environment::systemEnvironment() : sp.inferior.environment;
+    Environment inferiorEnvironment = sp.inferior.environment.isValid()
+            ? sp.inferior.environment : Environment::systemEnvironment();
 
     // Make sure that QTestLib uses OutputDebugString for logging.
     const QString qtLoggingToConsoleKey = QStringLiteral("QT_LOGGING_TO_CONSOLE");

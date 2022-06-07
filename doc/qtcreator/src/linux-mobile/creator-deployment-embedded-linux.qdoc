@@ -47,9 +47,9 @@
     \image qtcreator-embedded-linux-deployment-details.png "Deploy to embedded Linux"
 
     The files to be installed are listed in the \uicontrol {Deployment} step,
-    the \uicontrol {Files to deploy} field. The \uicontrol {Local File Path}
+    the \uicontrol {Files to deploy} field. The \uicontrol {Source File Path}
     field displays the location of the file on the development PC. The
-    \uicontrol {Remote Directory} field displays the directory where the file is
+    \uicontrol {Target Directory} field displays the directory where the file is
     installed on the device. Text in red color indicates that the information is
     missing.
 

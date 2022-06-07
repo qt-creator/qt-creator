@@ -753,7 +753,7 @@ void QmlJSEditorWidget::inspectElementUnderCursor() const
 }
 
 void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
-                                   Utils::ProcessLinkCallback &&processLinkCallback,
+                                   const Utils::LinkHandler &processLinkCallback,
                                    bool /*resolveTarget*/,
                                    bool /*inNextSplit*/)
 {

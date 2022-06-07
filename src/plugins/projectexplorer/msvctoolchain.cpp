@@ -1145,7 +1145,7 @@ ToolChain::BuiltInHeaderPathsRunner MsvcToolChain::createBuiltInHeaderPathsRunne
 void MsvcToolChain::addToEnvironment(Utils::Environment &env) const
 {
     // We cache the full environment (incoming + modifications by setup script).
-    if (!m_resultEnvironment.size() || env != m_lastEnvironment) {
+    if (m_resultEnvironment.isValid() || env != m_lastEnvironment) {
         qCDebug(Log) << "addToEnvironment: " << displayName();
         m_lastEnvironment = env;
         m_resultEnvironment = readEnvironmentSetting(env);
@@ -2121,7 +2121,7 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
     // Windows SDK setup scripts require command line switches for environment expansion.
     CommandLine cmd(cmdPath, {"/E:ON", "/V:ON", "/c", saver.filePath().toUserOutput()});
     qCDebug(Log) << "readEnvironmentSetting: " << call << cmd.toUserOutput()
-                 << " Env: " << runEnv.size();
+                 << " Env: " << runEnv.toStringList().size();
     run.setCodec(QTextCodec::codecForName("UTF-8"));
     run.setCommand(cmd);
     run.runBlocking();

@@ -165,7 +165,7 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *erro
         return;
     }
 
-    Environment env = sysEnv.size() == 0 ? Environment::systemEnvironment() : sysEnv;
+    Environment env = sysEnv.isValid() ? sysEnv : Environment::systemEnvironment();
     // Prevent calling lldb on Windows because the lldb from the llvm package is linked against
     // python but does not contain a python dll.
     const bool isAndroidNdkLldb = DebuggerItem::addAndroidLldbPythonEnv(m_command, env);

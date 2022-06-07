@@ -116,7 +116,7 @@ protected:
     bool handleStringSplitting(QKeyEvent *e) const;
 
     void findLinkAt(const QTextCursor &cursor,
-                    Utils::ProcessLinkCallback &&processLinkCallback,
+                    const Utils::LinkHandler &processLinkCallback,
                     bool resolveTarget = true,
                     bool inNextSplit = false) override;
 

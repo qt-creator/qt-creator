@@ -454,7 +454,8 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
         newBc->setBuildDirectory(BuildConfiguration::buildDirectoryFromTemplate(
                     project->projectDirectory(), project->projectFilePath(),
                     project->displayName(), newTarget->kit(),
-                    sourceBc->displayName(), sourceBc->buildType()));
+                    sourceBc->displayName(), sourceBc->buildType(),
+                    sourceBc->buildSystem()->name()));
         newTarget->addBuildConfiguration(newBc);
         if (sourceTarget->activeBuildConfiguration() == sourceBc)
             SessionManager::setActiveBuildConfiguration(newTarget, newBc, SetActive::NoCascade);

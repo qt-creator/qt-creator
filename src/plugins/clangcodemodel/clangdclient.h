@@ -70,14 +70,14 @@ public:
     void followSymbol(TextEditor::TextDocument *document,
             const QTextCursor &cursor,
             CppEditor::CppEditorWidget *editorWidget,
-            Utils::ProcessLinkCallback &&callback,
+            const Utils::LinkHandler &callback,
             bool resolveTarget,
             bool openInSplit);
 
     void switchDeclDef(TextEditor::TextDocument *document,
             const QTextCursor &cursor,
             CppEditor::CppEditorWidget *editorWidget,
-            Utils::ProcessLinkCallback &&callback);
+            const Utils::LinkHandler &callback);
     void switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit);
 
     void findLocalUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,

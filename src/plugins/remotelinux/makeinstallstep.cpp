@@ -168,7 +168,7 @@ bool MakeInstallStep::init()
                                             "Consider moving it up.")));
     }
     const MakeInstallCommand cmd = target()->makeInstallCommand(installRoot().toString());
-    if (cmd.environment.size() > 0) {
+    if (cmd.environment.isValid()) {
         Environment env = processParameters()->environment();
         for (auto it = cmd.environment.constBegin(); it != cmd.environment.constEnd(); ++it) {
             if (cmd.environment.isEnabled(it)) {

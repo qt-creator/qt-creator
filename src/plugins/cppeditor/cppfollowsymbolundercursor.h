@@ -42,7 +42,7 @@ public:
     FollowSymbolUnderCursor();
 
     void findLink(const CursorInEditor &data,
-                  Utils::ProcessLinkCallback &&processLinkCallback,
+                  const Utils::LinkHandler &processLinkCallback,
                   bool resolveTarget,
                   const CPlusPlus::Snapshot &snapshot,
                   const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
@@ -50,7 +50,7 @@ public:
                   bool inNextSplit);
 
     void switchDeclDef(const CursorInEditor &data,
-                       Utils::ProcessLinkCallback &&processLinkCallback,
+                       const Utils::LinkHandler &processLinkCallback,
                        const CPlusPlus::Snapshot &snapshot,
                        const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
                        SymbolFinder *symbolFinder);

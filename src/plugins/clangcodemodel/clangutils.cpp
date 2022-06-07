@@ -25,8 +25,6 @@
 
 #include "clangutils.h"
 
-#include "clangmodelmanagersupport.h"
-
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <cppeditor/baseeditordocumentparser.h>
@@ -355,12 +353,6 @@ CompilerOptionsBuilder clangOptionsBuilder(const ProjectPart &projectPart,
                                           useBuildSystemWarnings, clangIncludeDir);
     optionsBuilder.provideAdditionalMacros({ProjectExplorer::Macro("Q_CREATOR_RUN", "1")});
     optionsBuilder.build(ProjectFile::Unclassified, UsePrecompiledHeaders::No);
-    const QString uiIncludePath
-            = ClangModelManagerSupport::instance()->dummyUiHeaderOnDiskDirPath();
-    if (!uiIncludePath.isEmpty()) {
-        optionsBuilder.prepend(QDir::toNativeSeparators(uiIncludePath));
-        optionsBuilder.prepend("-I");
-    }
     optionsBuilder.add("-fmessage-length=0", /*gccOnlyOption=*/true);
     optionsBuilder.add("-fdiagnostics-show-note-include-stack", /*gccOnlyOption=*/true);
     optionsBuilder.add("-fretain-comments-from-system-headers", /*gccOnlyOption=*/true);

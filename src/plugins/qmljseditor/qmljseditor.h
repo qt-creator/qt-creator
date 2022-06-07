@@ -102,7 +102,7 @@ protected:
     void applyFontSettings() override;
     void createToolBar();
     void findLinkAt(const QTextCursor &cursor,
-                    Utils::ProcessLinkCallback &&processLinkCallback,
+                    const Utils::LinkHandler &processLinkCallback,
                     bool resolveTarget = true,
                     bool inNextSplit = false) override;
     QString foldReplacementText(const QTextBlock &block) const override;

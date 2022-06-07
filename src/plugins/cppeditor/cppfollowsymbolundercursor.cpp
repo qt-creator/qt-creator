@@ -492,7 +492,7 @@ static int skipMatchingParentheses(const Tokens &tokens, int idx, int initialDep
 
 void FollowSymbolUnderCursor::findLink(
         const CursorInEditor &data,
-        Utils::ProcessLinkCallback &&processLinkCallback,
+        const Utils::LinkHandler &processLinkCallback,
         bool resolveTarget,
         const Snapshot &theSnapshot,
         const Document::Ptr &documentFromSemanticInfo,
@@ -803,7 +803,7 @@ void FollowSymbolUnderCursor::findLink(
 
 void FollowSymbolUnderCursor::switchDeclDef(
         const CursorInEditor &data,
-        Utils::ProcessLinkCallback &&processLinkCallback,
+        const Utils::LinkHandler &processLinkCallback,
         const CPlusPlus::Snapshot &snapshot,
         const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
         SymbolFinder *symbolFinder)

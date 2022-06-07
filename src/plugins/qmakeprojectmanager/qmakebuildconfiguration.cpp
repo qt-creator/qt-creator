@@ -103,8 +103,8 @@ FilePath QmakeBuildConfiguration::shadowBuildDirectory(const FilePath &proFilePa
         return {};
 
     const QString projectName = proFilePath.completeBaseName();
-    return BuildConfiguration::buildDirectoryFromTemplate(
-        Project::projectDirectory(proFilePath), proFilePath, projectName, k, suffix, buildType);
+    return buildDirectoryFromTemplate(Project::projectDirectory(proFilePath), proFilePath,
+                                      projectName, k, suffix, buildType, "qmake");
 }
 
 const char BUILD_CONFIGURATION_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.BuildConfiguration";

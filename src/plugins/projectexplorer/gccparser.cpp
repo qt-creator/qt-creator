@@ -126,8 +126,8 @@ void GccParser::createOrAmendTask(
 
     // If a "required from here" line is present, it is almost always the cause of the problem,
     // so that's where we should go when the issue is double-clicked.
-    if ((originalLine.endsWith("required from here") || originalLine.endsWith("requested here"))
-            && !file.isEmpty() && line > 0) {
+    if ((originalLine.endsWith("required from here") || originalLine.endsWith("requested here")
+         || originalLine.endsWith("note: here")) && !file.isEmpty() && line > 0) {
         m_requiredFromHereFound = true;
         m_currentTask.setFile(file);
         m_currentTask.line = line;
@@ -1396,6 +1396,39 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                  "    if (!QTest::qCompare(actual, expected, #actual, #expected, __FILE__, __LINE__))\\\n"
                                  "                ^",
                                  FilePath::fromUserInput("tst_addresscache.cpp"), 79, 13, {})}
+            << QString();
+
+    QTest::newRow(R"("note: here")")
+            << QString(
+                   "In file included from qmlprofilerstatisticsmodel.h:31,\n"
+                   "                 from qmlprofilerstatisticsmodel.cpp:26:\n"
+                   "qmlprofilerstatisticsmodel.cpp: In member function ‘virtual QVariant QmlProfiler::QmlProfilerStatisticsModel::data(const QModelIndex&, int) const’:\n"
+                   "qtcassert.h:43:34: warning: this statement may fall through [-Wimplicit-fallthrough=]\n"
+                   "   43 | #define QTC_ASSERT(cond, action) if (Q_LIKELY(cond)) {} else { QTC_ASSERT_STRING(#cond); action; } do {} while (0)\n"
+                   "      |                                  ^~\n"
+                   "qtcassert.h:43:34: note: in definition of macro ‘QTC_ASSERT’\n"
+                   "   43 | #define QTC_ASSERT(cond, action) if (Q_LIKELY(cond)) {} else { QTC_ASSERT_STRING(#cond); action; } do {} while (0)\n"
+                   "      |                                  ^~\n"
+                   "qmlprofilerstatisticsmodel.cpp:365:5: note: here\n"
+                   "  365 |     default:\n"
+                   "      |     ^~~~~~~")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << Tasks{compileTask(Task::Warning,
+                                 "this statement may fall through [-Wimplicit-fallthrough=]\n"
+                                 "In file included from qmlprofilerstatisticsmodel.h:31,\n"
+                                 "                 from qmlprofilerstatisticsmodel.cpp:26:\n"
+                                 "qmlprofilerstatisticsmodel.cpp: In member function ‘virtual QVariant QmlProfiler::QmlProfilerStatisticsModel::data(const QModelIndex&, int) const’:\n"
+                                 "qtcassert.h:43:34: warning: this statement may fall through [-Wimplicit-fallthrough=]\n"
+                                 "   43 | #define QTC_ASSERT(cond, action) if (Q_LIKELY(cond)) {} else { QTC_ASSERT_STRING(#cond); action; } do {} while (0)\n"
+                                 "      |                                  ^~\n"
+                                 "qtcassert.h:43:34: note: in definition of macro ‘QTC_ASSERT’\n"
+                                 "   43 | #define QTC_ASSERT(cond, action) if (Q_LIKELY(cond)) {} else { QTC_ASSERT_STRING(#cond); action; } do {} while (0)\n"
+                                 "      |                                  ^~\n"
+                                 "qmlprofilerstatisticsmodel.cpp:365:5: note: here\n"
+                                 "  365 |     default:\n"
+                                 "      |     ^~~~~~~",
+                                 FilePath::fromUserInput("qmlprofilerstatisticsmodel.cpp"), 365, 5, {})}
             << QString();
 
     QTest::newRow("cc1plus")

@@ -203,8 +203,6 @@ Project {
             files: [
                 "clangactivationsequenceprocessor.cpp",
                 "clangactivationsequenceprocessor.h",
-                "clanguiheaderondiskmanager.cpp",
-                "clanguiheaderondiskmanager.h",
             ]
         }
 

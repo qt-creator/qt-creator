@@ -108,7 +108,7 @@ public:
 private:
     bool save(const QString &fileName = QString());
     void findLinkAt(const QTextCursor &cursor,
-                    Utils::ProcessLinkCallback &&processLinkCallback,
+                    const Utils::LinkHandler &processLinkCallback,
                     bool resolveTarget = true,
                     bool inNextSplit = false) override;
     void contextMenuEvent(QContextMenuEvent *e) override;
@@ -152,7 +152,7 @@ static QString unescape(const QString &s)
 }
 
 void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
-                                   Utils::ProcessLinkCallback &&processLinkCallback,
+                                   const Utils::LinkHandler &processLinkCallback,
                                    bool/* resolveTarget*/,
                                    bool /*inNextSplit*/)
 {

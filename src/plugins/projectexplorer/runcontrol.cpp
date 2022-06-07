@@ -1520,7 +1520,7 @@ void SimpleTargetRunnerPrivate::forwardDone()
 {
     if (m_stopReported)
         return;
-    const QString executable = m_command.executable().toUserOutput();
+    const QString executable = m_command.executable().displayName();
     QString msg = tr("%1 exited with code %2").arg(executable).arg(m_resultData.m_exitCode);
     if (m_resultData.m_exitStatus == QProcess::CrashExit)
         msg = tr("%1 crashed.").arg(executable);
@@ -1570,7 +1570,7 @@ void SimpleTargetRunner::start()
     d->m_process.setTerminalMode(useTerminal ? Utils::TerminalMode::On : Utils::TerminalMode::Off);
     d->m_runAsRoot = runAsRoot;
 
-    const QString msg = RunControl::tr("Starting %1...").arg(d->m_command.toUserOutput());
+    const QString msg = RunControl::tr("Starting %1...").arg(d->m_command.displayName());
     appendMessage(msg, NormalMessageFormat);
 
     const bool isDesktop = !d->m_command.executable().needsDevice();

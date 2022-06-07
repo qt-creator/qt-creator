@@ -53,7 +53,7 @@ static FilePath defaultBuildDirectory(const Kit *k,
 {
     return BuildConfiguration::buildDirectoryFromTemplate(
         projectFilePath.parentDir(), projectFilePath, projectFilePath.baseName(),
-        k, bc, buildType);
+        k, bc, buildType, "nim");
 }
 
 NimBuildConfiguration::NimBuildConfiguration(Target *target, Utils::Id id)

@@ -110,14 +110,13 @@ public:
 
     static QString buildTypeName(BuildType type);
 
-    enum SpaceHandling { KeepSpace, ReplaceSpaces };
     static Utils::FilePath buildDirectoryFromTemplate(const Utils::FilePath &projectDir,
                                                       const Utils::FilePath &mainFilePath,
                                                       const QString &projectName,
                                                       const Kit *kit,
                                                       const QString &bcName,
                                                       BuildType buildType,
-                                                      SpaceHandling spaceHandling = ReplaceSpaces);
+                                                      const QString &buildSystem);
 
     bool isActive() const;
 

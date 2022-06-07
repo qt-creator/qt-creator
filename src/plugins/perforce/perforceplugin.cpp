@@ -724,7 +724,8 @@ void PerforcePluginPrivate::printOpenedFileList()
     QString errorMessage;
     QString mapped;
     const QChar delimiter = QLatin1Char('#');
-    foreach (const QString &line, perforceResponse.stdOut.split(QLatin1Char('\n'))) {
+    const QStringList lines = perforceResponse.stdOut.split(QLatin1Char('\n'));
+    for (const QString &line : lines) {
         mapped.clear();
         const int delimiterPos = line.indexOf(delimiter);
         if (delimiterPos > 0)
@@ -787,9 +788,9 @@ void PerforcePluginPrivate::startSubmitProject()
         return;
     }
 
-    QStringList filesLines = filesResult.stdOut.split(QLatin1Char('\n'));
+    const QStringList filesLines = filesResult.stdOut.split(QLatin1Char('\n'));
     QStringList depotFileNames;
-    foreach (const QString &line, filesLines) {
+    for (const QString &line : filesLines) {
         depotFileNames.append(line.left(line.lastIndexOf(QRegularExpression("#[0-9]+\\s-\\s"))));
     }
     if (depotFileNames.isEmpty()) {

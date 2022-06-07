@@ -745,7 +745,8 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
             if (hasSelection) {
                 qmt::DSelection selection = documentController->diagramsManager()->diagramSceneModel(activeDiagram)->selectedElements();
                 if (!selection.isEmpty()) {
-                    foreach (qmt::DSelection::Index index, selection.indices()) {
+                    const QList<qmt::DSelection::Index> indexes = selection.indices();
+                    for (qmt::DSelection::Index index : indexes) {
                         qmt::DElement *diagramElement = documentController->diagramController()->findElement(index.elementKey(), activeDiagram);
                         if (diagramElement)
                             propertiesDiagramElements.append(diagramElement);
@@ -765,9 +766,9 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
         canPaste =  hasSingleSelection && !modelsManager->isModelClipboardEmpty();
         canSelectAll = activeDiagram && !activeDiagram->diagramElements().isEmpty();
         canExportDiagram = activeDiagram != nullptr;
-        QModelIndexList indexes = d->modelTreeView->selectedSourceModelIndexes();
+        const QModelIndexList indexes = d->modelTreeView->selectedSourceModelIndexes();
         if (!indexes.isEmpty()) {
-            foreach (const QModelIndex &propertiesIndex, indexes) {
+            for (const QModelIndex &propertiesIndex : indexes) {
                 if (propertiesIndex.isValid()) {
                     qmt::MElement *modelElement = documentController->treeModel()->element(propertiesIndex);
                     if (modelElement)
@@ -1065,7 +1066,7 @@ void ModelEditor::initToolbars()
     QList<qmt::Toolbar> toolbars = stereotypeController->toolbars();
     std::stable_sort(toolbars.begin(), toolbars.end(),
                      [=](const qmt::Toolbar &lhs, const qmt::Toolbar &rhs) { return lhs.priority() > rhs.priority(); });
-    foreach (const qmt::Toolbar &toolbar, toolbars) {
+    for (const qmt::Toolbar &toolbar : qAsConst(toolbars)) {
         QWidget *toolBar = toolBars.value(toolbar.id());
         QLayout *toolBarLayout = nullptr;
         if (!toolBar) {
@@ -1081,7 +1082,8 @@ void ModelEditor::initToolbars()
             toolBarLayout = toolBar->layout();
             QMT_ASSERT(toolBarLayout, continue);
         }
-        foreach (const qmt::Toolbar::Tool &tool, toolbar.tools()) {
+        const QList<qmt::Toolbar::Tool> tools = toolbar.tools();
+        for (const qmt::Toolbar::Tool &tool : tools) {
             switch (tool.m_toolType) {
             case qmt::Toolbar::TooltypeTool:
             {
@@ -1193,7 +1195,7 @@ void ModelEditor::initToolbars()
 
     // add stretch to all layouts and calculate width of tool bar
     int maxWidth = 48;
-    foreach (QWidget *toolBar, toolBars) {
+    for (QWidget *toolBar : qAsConst(toolBars)) {
         QMT_ASSERT(toolBar, continue);
         auto layout = qobject_cast<QBoxLayout *>(toolBar->layout());
         QMT_ASSERT(layout, continue);
@@ -1442,13 +1444,14 @@ void ModelEditor::synchronizeDiagramWithBrowser()
         if (currentDiagram()) {
             bool done = false;
             qmt::DocumentController *documentController = d->document->documentController();
-            QModelIndexList indexes = d->modelTreeView->selectedSourceModelIndexes();
+            const QModelIndexList indexes = d->modelTreeView->selectedSourceModelIndexes();
             if (!indexes.isEmpty()) {
-                foreach (const QModelIndex &index, indexes) {
+                for (const QModelIndex &index : indexes) {
                     if (index.isValid()) {
                         qmt::MElement *modelElement = documentController->treeModel()->element(index);
                         if (modelElement) {
-                            foreach (qmt::DElement *diagramElement, currentDiagram()->diagramElements()) {
+                            const QList<qmt::DElement *> diagramElements = currentDiagram()->diagramElements();
+                            for (qmt::DElement *diagramElement : diagramElements) {
                                 if (diagramElement->modelUid() == modelElement->uid()) {
                                     // disconnect temporarily avoiding double update of properties Ui
                                     disconnect(documentController->diagramsManager(), &qmt::DiagramsManager::diagramSelectionChanged,
@@ -1479,7 +1482,8 @@ void ModelEditor::synchronizeBrowserWithDiagram(const qmt::MDiagram *diagram)
         qmt::DocumentController *documentController = d->document->documentController();
         qmt::DSelection selection = documentController->diagramsManager()->diagramSceneModel(diagram)->selectedElements();
         if (!selection.isEmpty()) {
-            foreach (qmt::DSelection::Index index, selection.indices()) {
+            const QList<qmt::DSelection::Index> indexes = selection.indices();
+            for (qmt::DSelection::Index index : indexes) {
                 qmt::DElement *diagramElement = documentController->diagramController()->findElement(index.elementKey(), diagram);
                 if (diagramElement) {
                     qmt::MElement *modelElement = documentController->modelController()->findElement(diagramElement->modelUid());

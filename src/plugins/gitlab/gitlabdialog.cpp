@@ -131,6 +131,9 @@ void GitLabDialog::requestMainViewUpdate()
     }
     m_ui.remoteCB->setEnabled(!linked);
 
+    if (!m_currentServerId.isValid())
+        return;
+
     const Query query(Query::User);
     QueryRunner *runner = new QueryRunner(query, m_currentServerId, this);
     connect(runner, &QueryRunner::resultRetrieved, this, [this](const QByteArray &result) {

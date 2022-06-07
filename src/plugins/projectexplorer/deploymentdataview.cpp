@@ -84,11 +84,10 @@ public:
     bool isEditable = false;
 };
 
-
 DeploymentDataView::DeploymentDataView(DeployConfiguration *dc)
 {
     auto model = new TreeModel<DeploymentDataItem>(this);
-    model->setHeader({tr("Local File Path"), tr("Remote Directory")});
+    model->setHeader({tr("Source File Path"), tr("Target Directory")});
 
     auto view = new QTreeView(this);
     view->setMinimumSize(QSize(100, 100));

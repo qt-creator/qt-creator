@@ -303,10 +303,15 @@ FilePath ClangdSettings::clangdIncludePath() const
     QTC_ASSERT(!clangdPath.isEmpty() && clangdPath.exists(), return {});
     const QVersionNumber version = clangdVersion();
     QTC_ASSERT(!version.isNull(), return {});
-    const FilePath includePath = clangdPath.absolutePath().parentDir().pathAppended("lib/clang")
-            .pathAppended(version.toString()).pathAppended("include");
-    QTC_ASSERT(includePath.exists(), return {});
-    return includePath;
+    static const QStringList libDirs{"lib", "lib64"};
+    for (const QString &libDir : libDirs) {
+        const FilePath includePath = clangdPath.absolutePath().parentDir().pathAppended(libDir)
+                .pathAppended("clang").pathAppended(version.toString()).pathAppended("include");
+        if (includePath.exists())
+            return includePath;
+    }
+    QTC_CHECK(false);
+    return {};
 }
 
 FilePath ClangdSettings::clangdUserConfigFilePath()

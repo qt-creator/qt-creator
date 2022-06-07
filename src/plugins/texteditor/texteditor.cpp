@@ -388,7 +388,6 @@ public:
             restart();
     }
 
-private:
     void abortHandlers()
     {
         for (BaseHoverHandler *handler : m_handlers)
@@ -396,6 +395,7 @@ private:
         m_currentHandlerIndex = -1;
     }
 
+private:
     void restart()
     {
         abortHandlers();
@@ -6081,7 +6081,7 @@ void TextEditorWidget::zoomReset()
 }
 
 void TextEditorWidget::findLinkAt(const QTextCursor &cursor,
-                                  Utils::ProcessLinkCallback &&callback,
+                                  const Utils::LinkHandler &callback,
                                   bool resolveTarget,
                                   bool inNextSplit)
 {
@@ -6717,6 +6717,7 @@ void TextEditorWidget::focusInEvent(QFocusEvent *e)
 void TextEditorWidget::focusOutEvent(QFocusEvent *e)
 {
     QPlainTextEdit::focusOutEvent(e);
+    d->m_hoverHandlerRunner.abortHandlers();
     if (viewport()->cursor().shape() == Qt::BlankCursor)
         viewport()->setCursor(Qt::IBeamCursor);
     d->m_cursorFlashTimer.stop();

@@ -57,7 +57,7 @@ public:
     void unset(const QString &key) { m_dict.unset(key); }
     void modify(const NameValueItems &items) { m_dict.modify(items); }
 
-    int size() const { return m_dict.size(); }
+    int isValid() const;
     void clear() { return m_dict.clear(); }
 
     QStringList toStringList() const { return m_dict.toStringList(); }
@@ -132,9 +132,23 @@ private:
 class QTCREATOR_UTILS_EXPORT EnvironmentChange final
 {
 public:
-    using Item = std::function<void(Environment &)>;
-
     EnvironmentChange() = default;
+
+    class Item final
+    {
+    public:
+        enum Type {
+            SetSystemEnvironment,
+            SetFixedEnvironment,
+            SetValue,
+            UnsetValue,
+            PrependToPath,
+            AppendToPath,
+        };
+
+        Type type;
+        QVariant data;
+    };
 
     static EnvironmentChange fromFixedEnvironment(const Environment &fixedEnv);
 
@@ -144,8 +158,6 @@ public:
     void addUnsetValue(const QString &key);
     void addPrependToPath(const FilePaths &values);
     void addAppendToPath(const FilePaths &values);
-    void addModify(const NameValueItems &items);
-    void addChange(const Item &item) { m_changeItems.append(item); }
 
 private:
     QList<Item> m_changeItems;

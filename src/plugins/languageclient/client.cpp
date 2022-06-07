@@ -260,6 +260,9 @@ public:
                             const LanguageServerProtocol::Range &range,
                             const QList<LanguageServerProtocol::Diagnostic> &diagnostics);
     void documentClosed(Core::IDocument *document);
+    void sendOpenNotification(const FilePath &filePath, const QString &mimeType,
+                              const QString &content, int version);
+    void sendCloseNotification(const FilePath &filePath);
 
     bool reset();
 
@@ -270,6 +273,11 @@ public:
     LanguageFilter m_languagFilter;
     QJsonObject m_initializationOptions;
     QMap<TextEditor::TextDocument *, QString> m_openedDocument;
+
+    // Used for build system artifacts (e.g. UI headers) that Qt Creator "live-generates" ahead of
+    // the build.
+    QMap<FilePath, QString> m_shadowDocuments;
+
     QSet<TextEditor::TextDocument *> m_postponedDocuments;
     QMap<Utils::FilePath, int> m_documentVersions;
     std::unordered_map<TextEditor::TextDocument *,
@@ -568,6 +576,11 @@ void Client::openDocument(TextEditor::TextDocument *document)
     }
 
     const FilePath &filePath = document->filePath();
+    if (d->m_shadowDocuments.contains(filePath)) {
+        d->sendCloseNotification(filePath);
+        emit shadowDocumentSwitched(filePath);
+    }
+
     const QString method(DidOpenTextDocumentNotification::methodName);
     if (Utils::optional<bool> registered = d->m_dynamicCapabilities.isRegistered(method)) {
         if (!*registered)
@@ -591,14 +604,10 @@ void Client::openDocument(TextEditor::TextDocument *document)
             [this, document](int position, int charsRemoved, int charsAdded) {
         documentContentsChanged(document, position, charsRemoved, charsAdded);
     });
-    TextDocumentItem item;
-    item.setLanguageId(TextDocumentItem::mimeTypeToLanguageId(document->mimeType()));
-    item.setUri(DocumentUri::fromFilePath(filePath));
-    item.setText(document->plainText());
     if (!d->m_documentVersions.contains(filePath))
         d->m_documentVersions[filePath] = 0;
-    item.setVersion(d->m_documentVersions[filePath]);
-    sendMessage(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)));
+    d->sendOpenNotification(filePath, document->mimeType(), document->plainText(),
+                            d->m_documentVersions[filePath]);
     handleDocumentOpened(document);
 
     const Client *currentClient = LanguageClientManager::clientForDocument(document);
@@ -635,15 +644,21 @@ void Client::cancelRequest(const MessageId &id)
 void Client::closeDocument(TextEditor::TextDocument *document)
 {
     deactivateDocument(document);
-    const DocumentUri &uri = DocumentUri::fromFilePath(document->filePath());
     d->m_postponedDocuments.remove(document);
     if (d->m_openedDocument.remove(document) != 0) {
         handleDocumentClosed(document);
-        if (d->m_state == Initialized) {
-            DidCloseTextDocumentParams params(TextDocumentIdentifier{uri});
-            sendMessage(DidCloseTextDocumentNotification(params));
-        }
+        if (d->m_state == Initialized)
+            d->sendCloseNotification(document->filePath());
     }
+
+    if (d->m_state != Initialized)
+        return;
+    const auto shadowIt = d->m_shadowDocuments.constFind(document->filePath());
+    if (shadowIt == d->m_shadowDocuments.constEnd())
+        return;
+    d->sendOpenNotification(document->filePath(), document->mimeType(), shadowIt.value(),
+                            ++d->m_documentVersions[document->filePath()]);
+    emit shadowDocumentSwitched(document->filePath());
 }
 
 void ClientPrivate::updateCompletionProvider(TextEditor::TextDocument *document)
@@ -834,6 +849,25 @@ void ClientPrivate::documentClosed(Core::IDocument *document)
         q->closeDocument(textDocument);
 }
 
+void ClientPrivate::sendOpenNotification(const FilePath &filePath, const QString &mimeType,
+                                         const QString &content, int version)
+{
+    TextDocumentItem item;
+    item.setLanguageId(TextDocumentItem::mimeTypeToLanguageId(mimeType));
+    item.setUri(DocumentUri::fromFilePath(filePath));
+    item.setText(content);
+    item.setVersion(version);
+    q->sendMessage(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)),
+                   Client::SendDocUpdates::Ignore);
+}
+
+void ClientPrivate::sendCloseNotification(const FilePath &filePath)
+{
+    q->sendMessage(DidCloseTextDocumentNotification(DidCloseTextDocumentParams(
+            TextDocumentIdentifier{DocumentUri::fromFilePath(filePath)})),
+                   Client::SendDocUpdates::Ignore);
+}
+
 bool Client::documentOpen(const TextEditor::TextDocument *document) const
 {
     return d->m_openedDocument.contains(const_cast<TextEditor::TextDocument *>(document));
@@ -846,6 +880,41 @@ TextEditor::TextDocument *Client::documentForFilePath(const Utils::FilePath &fil
             return it.key();
     }
     return nullptr;
+}
+
+void Client::setShadowDocument(const Utils::FilePath &filePath, const QString &content)
+{
+    QTC_ASSERT(reachable(), return);
+    const auto it = d->m_shadowDocuments.find(filePath);
+    const bool isNew = it == d->m_shadowDocuments.end();
+    if (isNew)
+        d->m_shadowDocuments.insert(filePath, content);
+    else
+        it.value() = content;
+    if (documentForFilePath(filePath))
+        return;
+    const auto uri = DocumentUri::fromFilePath(filePath);
+    if (isNew) {
+        const QString mimeType = mimeTypeForFile(
+                    filePath.toString(), MimeMatchMode::MatchExtension).name();
+        d->sendOpenNotification(filePath, mimeType, content, 0);
+    }
+
+    VersionedTextDocumentIdentifier docId(uri);
+    docId.setVersion(++d->m_documentVersions[filePath]);
+    const DidChangeTextDocumentParams params(docId, content);
+    sendMessage(DidChangeTextDocumentNotification(params), SendDocUpdates::Ignore);
+}
+
+void Client::removeShadowDocument(const Utils::FilePath &filePath)
+{
+    const auto it = d->m_shadowDocuments.find(filePath);
+    if (it == d->m_shadowDocuments.end())
+        return;
+    d->m_shadowDocuments.erase(it);
+    if (documentForFilePath(filePath))
+        return;
+    d->sendCloseNotification(filePath);
 }
 
 void Client::documentContentsSaved(TextEditor::TextDocument *document)
@@ -918,7 +987,8 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
 {
     if (!d->m_openedDocument.contains(document) || !reachable())
         return;
-    d->m_diagnosticManager->disableDiagnostics(document);
+    if (d->m_diagnosticManager)
+        d->m_diagnosticManager->disableDiagnostics(document);
     const QString method(DidChangeTextDocumentNotification::methodName);
     TextDocumentSyncKind syncKind = d->m_serverCapabilities.textDocumentSyncKindHelper();
     if (Utils::optional<bool> registered = d->m_dynamicCapabilities.isRegistered(method)) {
@@ -1406,6 +1476,7 @@ bool ClientPrivate::reset()
     qDeleteAll(m_documentHighlightsTimer);
     m_documentHighlightsTimer.clear();
     m_progressManager.reset();
+    m_shadowDocuments.clear();
     m_documentVersions.clear();
     return true;
 }

@@ -175,6 +175,7 @@ public:
     // on Windows and macOS. This is rarely needed.
     [[nodiscard]] FilePath normalizedPathName() const;
 
+    QString displayName(const QString &args = {}) const;
     QString nativePath() const;
     QString shortNativePath() const;
     bool startsWithDriveLetter() const;

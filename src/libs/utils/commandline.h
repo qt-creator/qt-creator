@@ -152,6 +152,7 @@ public:
     void addCommandLineAsArgs(const CommandLine &cmd, RawType);
 
     QString toUserOutput() const;
+    QString displayName() const;
 
     FilePath executable() const { return m_executable; }
     void setExecutable(const FilePath &executable) { m_executable = executable; }

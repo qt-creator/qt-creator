@@ -27,7 +27,6 @@ add_qtc_plugin(ClangCodeModel
     clangmodelmanagersupport.cpp clangmodelmanagersupport.h
     clangpreprocessorassistproposalitem.cpp clangpreprocessorassistproposalitem.h
     clangtextmark.cpp clangtextmark.h
-    clanguiheaderondiskmanager.cpp clanguiheaderondiskmanager.h
     clangutils.cpp clangutils.h
     tasktimers.cpp tasktimers.h
   EXPLICIT_MOC clangcodemodelplugin.h

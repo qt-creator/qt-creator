@@ -131,9 +131,9 @@ void MacroManagerPrivate::initialize()
     const QDir dir(MacroManager::macrosDirectory());
     QStringList filter;
     filter << QLatin1String("*.") + QLatin1String(Constants::M_EXTENSION);
-    QStringList files = dir.entryList(filter, QDir::Files);
+    const QStringList files = dir.entryList(filter, QDir::Files);
 
-    foreach (const QString &name, files) {
+    for (const QString &name : files) {
         QString fileName = dir.absolutePath() + QLatin1Char('/') + name;
         auto macro = new Macro;
         if (macro->loadHeader(fileName))
@@ -196,10 +196,11 @@ void MacroManagerPrivate::changeMacroDescription(Macro *macro, const QString &de
 bool MacroManagerPrivate::executeMacro(Macro *macro)
 {
     bool error = !macro->load();
-    foreach (const MacroEvent &macroEvent, macro->events()) {
+    const QList<MacroEvent> macroEvents = macro->events();
+    for (const MacroEvent &macroEvent : macroEvents) {
         if (error)
             break;
-        foreach (IMacroHandler *handler, handlers) {
+        for (IMacroHandler *handler : qAsConst(handlers)) {
             if (handler->canExecuteEvent(macroEvent)) {
                 if (!handler->executeEvent(macroEvent))
                     error = true;
@@ -255,8 +256,8 @@ MacroManager::MacroManager() :
 MacroManager::~MacroManager()
 {
     // Cleanup macro
-    QStringList macroList = d->macros.keys();
-    foreach (const QString &name, macroList)
+    const QStringList macroList = d->macros.keys();
+    for (const QString &name : macroList)
         d->removeMacro(name);
 
     // Cleanup handlers
@@ -277,7 +278,7 @@ void MacroManager::startMacro()
     Core::ActionManager::command(Constants::END_MACRO)->action()->setEnabled(true);
     Core::ActionManager::command(Constants::EXECUTE_LAST_MACRO)->action()->setEnabled(false);
     Core::ActionManager::command(Constants::SAVE_LAST_MACRO)->action()->setEnabled(false);
-    foreach (IMacroHandler *handler, d->handlers)
+    for (IMacroHandler *handler : qAsConst(d->handlers))
         handler->startRecording(d->currentMacro);
 
     const QString endShortcut = Core::ActionManager::command(Constants::END_MACRO)
@@ -302,7 +303,7 @@ void MacroManager::endMacro()
     Core::ActionManager::command(Constants::END_MACRO)->action()->setEnabled(false);
     Core::ActionManager::command(Constants::EXECUTE_LAST_MACRO)->action()->setEnabled(true);
     Core::ActionManager::command(Constants::SAVE_LAST_MACRO)->action()->setEnabled(true);
-    foreach (IMacroHandler *handler, d->handlers)
+    for (IMacroHandler *handler : qAsConst(d->handlers))
         handler->endRecordingMacro(d->currentMacro);
 
     d->isRecording = false;

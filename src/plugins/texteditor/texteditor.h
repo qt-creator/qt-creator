@@ -496,7 +496,7 @@ signals:
 
     void requestBlockUpdate(const QTextBlock &);
 
-    void requestLinkAt(const QTextCursor &cursor, Utils::ProcessLinkCallback &callback,
+    void requestLinkAt(const QTextCursor &cursor, const Utils::LinkHandler &callback,
                        bool resolveTarget, bool inNextSplit);
     void requestUsages(const QTextCursor &cursor);
     void requestRename(const QTextCursor &cursor);
@@ -582,7 +582,7 @@ protected:
        (it isn't until the link is used).
      */
     virtual void findLinkAt(const QTextCursor &,
-                            Utils::ProcessLinkCallback &&processLinkCallback,
+                            const Utils::LinkHandler &processLinkCallback,
                             bool resolveTarget = true,
                             bool inNextSplit = false);
 

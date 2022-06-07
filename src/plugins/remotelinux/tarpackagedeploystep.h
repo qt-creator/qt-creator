@@ -25,19 +25,16 @@
 
 #pragma once
 
-#include "abstractremotelinuxdeploystep.h"
+#include <projectexplorer/buildstep.h>
 
 namespace RemoteLinux {
+namespace Internal {
 
-class TarPackageDeployStep : public AbstractRemoteLinuxDeployStep
+class TarPackageDeployStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
-
 public:
-    TarPackageDeployStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
-
-    static Utils::Id stepId();
-    static QString displayName();
+    TarPackageDeployStepFactory();
 };
 
-} //namespace RemoteLinux
+} // Internal
+} // RemoteLinux

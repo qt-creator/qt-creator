@@ -526,13 +526,9 @@ public:
         , m_stdErr(stdErr) {}
     QByteArray stdOut() const { return m_stdOut; }
     QByteArray stdErr() const { return m_stdErr; }
-    void mergeWith(ReadyReadSignal *newSignal) {
-        m_stdOut += newSignal->stdOut();
-        m_stdErr += newSignal->stdErr();
-    }
 private:
-    QByteArray m_stdOut;
-    QByteArray m_stdErr;
+    const QByteArray m_stdOut;
+    const QByteArray m_stdErr;
 };
 
 class DoneSignal : public ProcessInterfaceSignal
@@ -554,6 +550,7 @@ public:
     // Called from caller's thread exclusively.
     bool waitForSignal(int msecs, SignalType newSignal);
     void moveToCallerThread();
+    void startKillTimer(int killTimeout);
 
 private:
     // Called from caller's thread exclusively.
@@ -567,6 +564,7 @@ private:
     void appendSignal(ProcessInterfaceSignal *newSignal);
 
     QtcProcessPrivate *m_caller = nullptr;
+    QTimer m_killTimer;
     QMutex m_mutex;
     QWaitCondition m_waitCondition;
 };
@@ -615,7 +613,7 @@ public:
     Environment fullEnvironment() const
     {
         Environment env = m_setup.m_environment;
-        if (env.size() == 0) {
+        if (!env.isValid()) {
 // FIXME: Either switch to using EnvironmentChange instead of full Environments, or
 // feed the full environment into the QtcProcess instead of fixing it up here.
 //            qWarning("QtcProcess::start: Empty environment set when running '%s'.",
@@ -659,8 +657,9 @@ public:
     bool flushFor(SignalType signalType);
     bool shouldFlush() const { QMutexLocker locker(&m_mutex); return !m_signals.isEmpty(); }
     Qt::ConnectionType connectionType() const;
-    void sendControlSignal(ControlSignal controlSignal);
+    void sendControlSignal(ControlSignal controlSignal, int killTimeout = -1);
     // Called from ProcessInterfaceHandler thread exclusively.
+    void kill();
     void appendSignal(ProcessInterfaceSignal *launcherSignal);
 
     mutable QMutex m_mutex;
@@ -690,6 +689,7 @@ public:
 ProcessInterfaceHandler::ProcessInterfaceHandler(QtcProcessPrivate *caller,
                                                  ProcessInterface *process)
     : m_caller(caller)
+    , m_killTimer(this)
 {
     connect(process, &ProcessInterface::started,
             this, &ProcessInterfaceHandler::handleStarted);
@@ -697,6 +697,8 @@ ProcessInterfaceHandler::ProcessInterfaceHandler(QtcProcessPrivate *caller,
             this, &ProcessInterfaceHandler::handleReadyRead);
     connect(process, &ProcessInterface::done,
             this, &ProcessInterfaceHandler::handleDone);
+    m_killTimer.setSingleShot(true);
+    connect(&m_killTimer, &QTimer::timeout, caller, &QtcProcessPrivate::kill, Qt::DirectConnection);
 }
 
 // Called from caller's thread exclusively.
@@ -720,7 +722,14 @@ bool ProcessInterfaceHandler::waitForSignal(int msecs, SignalType newSignal)
 void ProcessInterfaceHandler::moveToCallerThread()
 {
     QMetaObject::invokeMethod(this, [this] {
-        moveToThread(m_caller->thread()); }, Qt::BlockingQueuedConnection);
+        moveToThread(m_caller->thread());
+    }, Qt::BlockingQueuedConnection);
+}
+
+void ProcessInterfaceHandler::startKillTimer(int killTimeout)
+{
+    m_killTimer.setInterval(killTimeout);
+    m_killTimer.start();
 }
 
 // Called from caller's thread exclusively.
@@ -752,6 +761,7 @@ void ProcessInterfaceHandler::handleReadyRead(const QByteArray &outputData, cons
 // Called from ProcessInterfaceHandler thread exclusively
 void ProcessInterfaceHandler::handleDone(const ProcessResultData &data)
 {
+    m_killTimer.stop();
     appendSignal(new DoneSignal(data));
 }
 
@@ -847,15 +857,24 @@ Qt::ConnectionType QtcProcessPrivate::connectionType() const
 }
 
 // Called from caller's thread exclusively
-void QtcProcessPrivate::sendControlSignal(ControlSignal controlSignal)
+void QtcProcessPrivate::sendControlSignal(ControlSignal controlSignal, int killTimeout)
 {
     QTC_ASSERT(QThread::currentThread() == thread(), return);
     if (!m_process || (m_state == QProcess::NotRunning))
         return;
 
-    QMetaObject::invokeMethod(m_process.get(), [this, controlSignal] {
+    QMetaObject::invokeMethod(m_process.get(), [this, controlSignal, killTimeout] {
         m_process->sendControlSignal(controlSignal);
+        if (killTimeout >= 0)
+            m_processHandler->startKillTimer(killTimeout);
     }, connectionType());
+}
+
+// Called from ProcessInterfaceHandler thread exclusively.
+void QtcProcessPrivate::kill()
+{
+    QTC_ASSERT(QThread::currentThread() == m_process->thread(), return);
+    m_process->sendControlSignal(ControlSignal::Kill);
 }
 
 // Called from ProcessInterfaceHandler thread exclusively.
@@ -864,31 +883,6 @@ void QtcProcessPrivate::appendSignal(ProcessInterfaceSignal *newSignal)
     QTC_ASSERT(newSignal->signalType() != SignalType::NoSignal, delete newSignal; return);
 
     QMutexLocker locker(&m_mutex);
-
-    // TODO: we might assert if the caller's state is proper, e.g.
-    // start signal can't appear if we are in Running or NotRunning state,
-    // or finish signal can't appear if we are in NotRunning or Starting state,
-    // or readyRead signal can't appear if we are in NotRunning or Starting state,
-    // or error signal can't appear if we are in NotRunning state
-    // or FailedToStart error signal can't appear if we are in Running state
-    // or other than FailedToStart error signal can't appear if we are in Starting state.
-    if (!m_signals.isEmpty()) {
-        ProcessInterfaceSignal *lastSignal = m_signals.last();
-
-        QTC_ASSERT(lastSignal->signalType() != SignalType::Done,
-                   qWarning() << "Buffering new signal for process" << m_setup.m_commandLine
-                   << "while the last done() signal wasn't flushed yet.");
-
-        // Merge ReadyRead signals into one.
-        if (lastSignal->signalType() == SignalType::ReadyRead
-                && newSignal->signalType() == SignalType::ReadyRead) {
-            ReadyReadSignal *lastRead = static_cast<ReadyReadSignal *>(lastSignal);
-            ReadyReadSignal *newRead = static_cast<ReadyReadSignal *>(newSignal);
-            lastRead->mergeWith(newRead);
-            delete newRead;
-            return;
-        }
-    }
     m_signals.append(newSignal);
 }
 
@@ -1142,7 +1136,7 @@ QString QtcProcess::toStandaloneCommandLine() const
         d->m_setup.m_workingDirectory.path();
     }
     parts.append("-i");
-    if (d->m_setup.m_environment.size() > 0) {
+    if (d->m_setup.m_environment.isValid()) {
         const QStringList envVars = d->m_setup.m_environment.toStringList();
         std::transform(envVars.cbegin(), envVars.cend(),
                        std::back_inserter(parts), ProcessArgs::quoteArgUnix);
@@ -1505,6 +1499,14 @@ void QtcProcess::close()
         d->m_processHandler.release()->deleteLater();
     }
     d->clearForRun();
+}
+
+void QtcProcess::stop(int killTimeout)
+{
+    if (state() == QProcess::NotRunning)
+        return;
+
+    d->sendControlSignal(ControlSignal::Terminate, killTimeout);
 }
 
 QString QtcProcess::locateBinary(const QString &binary)
