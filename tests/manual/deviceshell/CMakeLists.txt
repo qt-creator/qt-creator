@@ -4,7 +4,7 @@ file(RELATIVE_PATH TEST_RELATIVE_LIBEXEC_PATH "/${RELATIVE_TEST_PATH}" "/${IDE_L
 add_qtc_test(tst_manual_deviceshell
   MANUALTEST
   DEFINES "TEST_RELATIVE_LIBEXEC_PATH=\"${TEST_RELATIVE_LIBEXEC_PATH}\""
-  DEPENDS Utils
+  DEPENDS Utils app_version
   SOURCES
     tst_deviceshell.cpp
 )

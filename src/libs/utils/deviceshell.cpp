@@ -219,7 +219,7 @@ DeviceShell::RunResult DeviceShell::run(const CommandLine &cmd, const QByteArray
 
     QWaitCondition waiter;
     const int id = ++m_currentId;
-    const auto it = m_commandOutput.insert(id, CommandRun{-1, {}, {}, &waiter});
+    const auto it = m_commandOutput.insert(id, CommandRun{{-1, {}, {}}, &waiter});
 
     QMetaObject::invokeMethod(m_shellProcess, [this, id, &cmd, &stdInData]() {
         const QString command = QString("%1 \"%2\" %3\n")
