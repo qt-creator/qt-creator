@@ -34,6 +34,8 @@ QtcPlugin {
         "clangdast.h",
         "clangdclient.cpp",
         "clangdclient.h",
+        "clangdfollowsymbol.cpp",
+        "clangdfollowsymbol.h",
         "clangdiagnostictooltipwidget.cpp",
         "clangdiagnostictooltipwidget.h",
         "clangdlocatorfilters.cpp",

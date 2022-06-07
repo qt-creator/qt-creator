@@ -28,6 +28,7 @@
 #include "clangcompletioncontextanalyzer.h"
 #include "clangconstants.h"
 #include "clangdast.h"
+#include "clangdfollowsymbol.h"
 #include "clangdlocatorfilters.h"
 #include "clangpreprocessorassistproposalitem.h"
 #include "clangtextmark.h"
@@ -115,7 +116,7 @@ using namespace TextEditor;
 namespace ClangCodeModel {
 namespace Internal {
 
-static Q_LOGGING_CATEGORY(clangdLog, "qtc.clangcodemodel.clangd", QtWarningMsg);
+Q_LOGGING_CATEGORY(clangdLog, "qtc.clangcodemodel.clangd", QtWarningMsg);
 static Q_LOGGING_CATEGORY(clangdLogServer, "qtc.clangcodemodel.clangd.server", QtWarningMsg);
 static Q_LOGGING_CATEGORY(clangdLogAst, "qtc.clangcodemodel.clangd.ast", QtWarningMsg);
 static Q_LOGGING_CATEGORY(clangdLogCompletion, "qtc.clangcodemodel.clangd.completion",
@@ -307,111 +308,6 @@ public:
     quint64 key;
     bool canceled = false;
     bool categorize = CppEditor::codeModelSettings()->categorizeFindReferences();
-};
-
-using SymbolData = QPair<QString, Utils::Link>;
-using SymbolDataList = QList<SymbolData>;
-
-class ClangdClient::VirtualFunctionAssistProcessor : public IAssistProcessor
-{
-public:
-    VirtualFunctionAssistProcessor(ClangdClient::Private *data) : m_data(data) {}
-
-    void cancel() override;
-    bool running() override { return m_data; }
-
-    void update();
-    void finalize();
-    void resetData(bool resetFollowSymbolData);
-
-private:
-    IAssistProposal *perform(const AssistInterface *) override
-    {
-        return nullptr;
-    }
-
-    IAssistProposal *immediateProposal(const AssistInterface *) override
-    {
-        return createProposal(false);
-    }
-
-    IAssistProposal *immediateProposalImpl() const;
-    IAssistProposal *createProposal(bool final) const;
-    CppEditor::VirtualFunctionProposalItem *createEntry(const QString &name,
-                                                       const Utils::Link &link) const;
-
-    ClangdClient::Private *m_data = nullptr;
-};
-
-class ClangdClient::VirtualFunctionAssistProvider : public IAssistProvider
-{
-public:
-    VirtualFunctionAssistProvider(ClangdClient::Private *data) : m_data(data) {}
-
-private:
-    RunType runType() const override { return Asynchronous; }
-    IAssistProcessor *createProcessor(const AssistInterface *) const override;
-
-    ClangdClient::Private * const m_data;
-};
-
-class ClangdClient::FollowSymbolData {
-public:
-    FollowSymbolData(ClangdClient *q, quint64 id, const QTextCursor &cursor,
-                     CppEditor::CppEditorWidget *editorWidget,
-                     const DocumentUri &uri, const Utils::LinkHandler &callback,
-                     bool openInSplit)
-        : q(q), id(id), cursor(cursor), editorWidget(editorWidget), uri(uri),
-          callback(callback), virtualFuncAssistProvider(q->d),
-          docRevision(editorWidget ? editorWidget->textDocument()->document()->revision() : -1),
-          openInSplit(openInSplit) {}
-
-    ~FollowSymbolData()
-    {
-        closeTempDocuments();
-        if (virtualFuncAssistProcessor)
-            virtualFuncAssistProcessor->resetData(false);
-        for (const MessageId &id : qAsConst(pendingSymbolInfoRequests))
-            q->cancelRequest(id);
-        for (const MessageId &id : qAsConst(pendingGotoImplRequests))
-            q->cancelRequest(id);
-        for (const MessageId &id : qAsConst(pendingGotoDefRequests))
-            q->cancelRequest(id);
-    }
-
-    void closeTempDocuments()
-    {
-        for (const Utils::FilePath &fp : qAsConst(openedFiles)) {
-            if (!q->documentForFilePath(fp))
-                q->closeExtraFile(fp);
-        }
-        openedFiles.clear();
-    }
-
-    bool defLinkIsAmbiguous() const;
-
-    ClangdClient * const q;
-    const quint64 id;
-    const QTextCursor cursor;
-    const QPointer<CppEditor::CppEditorWidget> editorWidget;
-    const DocumentUri uri;
-    const Utils::LinkHandler callback;
-    VirtualFunctionAssistProvider virtualFuncAssistProvider;
-    QList<MessageId> pendingSymbolInfoRequests;
-    QList<MessageId> pendingGotoImplRequests;
-    QList<MessageId> pendingGotoDefRequests;
-    const int docRevision;
-    const bool openInSplit;
-
-    Utils::Link defLink;
-    QList<Utils::Link> allLinks;
-    QHash<Utils::Link, Utils::Link> declDefMap;
-    Utils::optional<ClangdAstNode> cursorNode;
-    ClangdAstNode defLinkNode;
-    SymbolDataList symbolsToDisplay;
-    std::set<Utils::FilePath> openedFiles;
-    VirtualFunctionAssistProcessor *virtualFuncAssistProcessor = nullptr;
-    bool finished = false;
 };
 
 class SwitchDeclDefData {
@@ -781,11 +677,6 @@ public:
     void reportAllSearchResultsAndFinish(ReferencesData &data);
     void finishSearch(const ReferencesData &refData, bool canceled);
 
-    void handleGotoDefinitionResult();
-    void sendGotoImplementationRequest(const Utils::Link &link);
-    void handleGotoImplementationResult(const GotoImplementationRequest::Response &response);
-    void handleDocumentInfoResults();
-
     void handleDeclDefSwitchReplies();
 
     Utils::optional<QString> getContainingFunctionName(const ClangdAstPath &astPath, const Range& range);
@@ -801,16 +692,13 @@ public:
     void handleSemanticTokens(TextDocument *doc, const QList<ExpandedSemanticToken> &tokens,
                               int version, bool force);
 
-    enum class AstCallbackMode { SyncIfPossible, AlwaysAsync };
-    using TextDocOrFile = const Utils::variant<const TextDocument *, Utils::FilePath>;
-    using AstHandler = const std::function<void(const ClangdAstNode &ast, const MessageId &)>;
-    MessageId getAndHandleAst(TextDocOrFile &doc, AstHandler &astHandler,
+    MessageId getAndHandleAst(const TextDocOrFile &doc, const AstHandler &astHandler,
                               AstCallbackMode callbackMode, const Range &range = {});
 
     ClangdClient * const q;
     const CppEditor::ClangdSettings::Data settings;
     QHash<quint64, ReferencesData> runningFindUsages;
-    Utils::optional<FollowSymbolData> followSymbolData;
+    ClangdFollowSymbol *followSymbol = nullptr;
     Utils::optional<SwitchDeclDefData> switchDeclDefData;
     Utils::optional<LocalRefsData> localRefsData;
     Utils::optional<QVersionNumber> versionNumber;
@@ -1141,12 +1029,8 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
 
 ClangdClient::~ClangdClient()
 {
-    if (d->followSymbolData) {
-        d->followSymbolData->openedFiles.clear();
-        d->followSymbolData->pendingSymbolInfoRequests.clear();
-        d->followSymbolData->pendingGotoImplRequests.clear();
-        d->followSymbolData->pendingGotoDefRequests.clear();
-    }
+    if (d->followSymbol)
+        d->followSymbol->clear();
     delete d;
 }
 
@@ -1194,25 +1078,15 @@ void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
 
     // Otherwise get the proper spelling of the search term from clang, so we can put it into the
     // search widget.
-    const TextDocumentIdentifier docId(DocumentUri::fromFilePath(document->filePath()));
-    const TextDocumentPositionParams params(docId, Range(adjustedCursor).start());
-    SymbolInfoRequest symReq(params);
-    symReq.setResponseCallback([this, doc = QPointer(document), adjustedCursor, replacement, categorize]
-                               (const SymbolInfoRequest::Response &response) {
+    const auto symbolInfoHandler = [this, doc = QPointer(document), adjustedCursor, replacement, categorize]
+            (const QString &, const QString &name, const MessageId &) {
         if (!doc)
             return;
-        const auto result = response.result();
-        if (!result)
+        if (name.isEmpty())
             return;
-        const auto list = Utils::get_if<QList<SymbolDetails>>(&result.value());
-        if (!list || list->isEmpty())
-            return;
-        const SymbolDetails &sd = list->first();
-        if (sd.name().isEmpty())
-            return;
-        d->findUsages(doc.data(), adjustedCursor, sd.name(), replacement, categorize);
-    });
-    sendMessage(symReq);
+        d->findUsages(doc.data(), adjustedCursor, name, replacement, categorize);
+    };
+    requestSymbolInfo(document->filePath(), Range(adjustedCursor).start(), symbolInfoHandler);
 }
 
 void ClangdClient::handleDiagnostics(const PublishDiagnosticsParams &params)
@@ -1541,6 +1415,54 @@ void ClangdClient::clearTasks(const Utils::FilePath &filePath)
     d->issuePaneEntries[filePath].clear();
 }
 
+Utils::optional<bool> ClangdClient::hasVirtualFunctionAt(TextDocument *doc, int revision,
+                                                         const Range &range)
+{
+    const auto highlightingData = d->highlightingData.constFind(doc);
+    if (highlightingData == d->highlightingData.constEnd()
+            || highlightingData->virtualRanges.second != revision) {
+        return {};
+    }
+    const auto matcher = [range](const Range &r) { return range.overlaps(r); };
+    return Utils::contains(highlightingData->virtualRanges.first, matcher);
+}
+
+MessageId ClangdClient::getAndHandleAst(const TextDocOrFile &doc, const AstHandler &astHandler,
+                                        AstCallbackMode callbackMode, const Range &range)
+{
+    return d->getAndHandleAst(doc, astHandler, callbackMode, range);
+}
+
+MessageId ClangdClient::requestSymbolInfo(const Utils::FilePath &filePath, const Position &position,
+                                          const SymbolInfoHandler &handler)
+{
+    const TextDocumentIdentifier docId(DocumentUri::fromFilePath(filePath));
+    const TextDocumentPositionParams params(docId, position);
+    SymbolInfoRequest symReq(params);
+    symReq.setResponseCallback([handler, reqId = symReq.id()]
+                               (const SymbolInfoRequest::Response &response) {
+        const auto result = response.result();
+        if (!result) {
+            handler({}, {}, reqId);
+            return;
+        }
+
+        // According to the documentation, we should receive a single
+        // object here, but it's a list. No idea what it means if there's
+        // more than one entry. We choose the first one.
+        const auto list = Utils::get_if<QList<SymbolDetails>>(&result.value());
+        if (!list || list->isEmpty()) {
+            handler({}, {}, reqId);
+            return;
+        }
+
+        const SymbolDetails &sd = list->first();
+        handler(sd.name(), sd.containerName(), reqId);
+    });
+    sendMessage(symReq);
+    return symReq.id();
+}
+
 void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Location> &locations)
 {
     const auto refData = runningFindUsages.find(key);
@@ -1732,47 +1654,24 @@ void ClangdClient::followSymbol(TextDocument *document,
         )
 {
     QTC_ASSERT(documentOpen(document), openDocument(document));
+
+    delete d->followSymbol;
+    d->followSymbol = nullptr;
+
     const QTextCursor adjustedCursor = d->adjustedCursor(cursor, document);
     if (!resolveTarget) {
-        d->followSymbolData.reset();
         symbolSupport().findLinkAt(document, adjustedCursor, callback, false);
         return;
     }
 
     qCDebug(clangdLog) << "follow symbol requested" << document->filePath()
                        << adjustedCursor.blockNumber() << adjustedCursor.positionInBlock();
-    d->followSymbolData.emplace(this, ++d->nextJobId, adjustedCursor, editorWidget,
-                                DocumentUri::fromFilePath(document->filePath()),
-                                callback, openInSplit);
-
-    // Step 1: Follow the symbol via "Go to Definition". At the same time, request the
-    //         AST node corresponding to the cursor position, so we can find out whether
-    //         we have to look for overrides.
-    const auto gotoDefCallback = [this, id = d->followSymbolData->id](const Utils::Link &link) {
-        qCDebug(clangdLog) << "received go to definition response";
-        if (!link.hasValidTarget()) {
-            d->followSymbolData.reset();
-            return;
-        }
-        if (!d->followSymbolData || id != d->followSymbolData->id)
-            return;
-        d->followSymbolData->defLink = link;
-        if (d->followSymbolData->cursorNode)
-            d->handleGotoDefinitionResult();
-    };
-    symbolSupport().findLinkAt(document, adjustedCursor, std::move(gotoDefCallback), true);
-
-    const auto astHandler = [this, id = d->followSymbolData->id]
-            (const ClangdAstNode &ast, const MessageId &) {
-        qCDebug(clangdLog) << "received ast response for cursor";
-        if (!d->followSymbolData || d->followSymbolData->id != id)
-            return;
-        d->followSymbolData->cursorNode = ast;
-        if (d->followSymbolData->defLink.hasValidTarget())
-            d->handleGotoDefinitionResult();
-    };
-    d->getAndHandleAst(document, astHandler, Private::AstCallbackMode::AlwaysAsync,
-                       Range(adjustedCursor));
+    d->followSymbol = new ClangdFollowSymbol(this, adjustedCursor, editorWidget, document, callback,
+                                             openInSplit);
+    connect(d->followSymbol, &ClangdFollowSymbol::done, this, [this] {
+        delete d->followSymbol;
+        d->followSymbol = nullptr;
+    });
 }
 
 void ClangdClient::switchDeclDef(TextDocument *document, const QTextCursor &cursor,
@@ -1801,7 +1700,7 @@ void ClangdClient::switchDeclDef(TextDocument *document, const QTextCursor &curs
             d->handleDeclDefSwitchReplies();
 
     };
-    d->getAndHandleAst(document, astHandler, Private::AstCallbackMode::SyncIfPossible);
+    d->getAndHandleAst(document, astHandler, AstCallbackMode::SyncIfPossible);
     documentSymbolCache()->requestSymbols(d->switchDeclDefData->uri, Schedule::Now);
 }
 
@@ -1907,7 +1806,7 @@ void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cu
         };
         qCDebug(clangdLog) << "sending ast request for link";
         d->getAndHandleAst(d->localRefsData->document, astHandler,
-                           Private::AstCallbackMode::SyncIfPossible);
+                           AstCallbackMode::SyncIfPossible);
     };
     symbolSupport().findLinkAt(document, cursor, std::move(gotoDefCallback), true);
 }
@@ -1992,28 +1891,19 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
         const bool isFunction = node.role() == "expression" && node.kind() == "DeclRef"
                 && type.contains('(');
         if (isMemberFunction || isFunction) {
-            const TextDocumentPositionParams params(TextDocumentIdentifier(uri), range.start());
-            SymbolInfoRequest symReq(params);
-            symReq.setResponseCallback([this, id, type, isFunction]
-                                       (const SymbolInfoRequest::Response &response) {
+            const auto symbolInfoHandler = [this, id, type, isFunction]
+                    (const QString &name, const QString &prefix, const MessageId &) {
                 qCDebug(clangdLog) << "handling symbol info reply";
-                QString fqn;
-                if (const auto result = response.result()) {
-                    if (const auto list = Utils::get_if<QList<SymbolDetails>>(&result.value())) {
-                        if (!list->isEmpty()) {
-                           const SymbolDetails &sd = list->first();
-                           fqn = sd.containerName() + sd.name();
-                        }
-                    }
-                }
+                const QString fqn = prefix + name;
 
                 // Unfortunately, the arcana string contains the signature only for
                 // free functions, so we can't distinguish member function overloads.
                 // But since HtmlDocExtractor::getFunctionDescription() is always called
                 // with mainOverload = true, such information would get ignored anyway.
-                d->setHelpItemForTooltip(id, fqn, HelpItem::Function, isFunction ? type : "()");
-            });
-            sendMessage(symReq, SendDocUpdates::Ignore);
+                if (!fqn.isEmpty())
+                    d->setHelpItemForTooltip(id, fqn, HelpItem::Function, isFunction ? type : "()");
+            };
+            requestSymbolInfo(uri.toFilePath(), range.start(), symbolInfoHandler);
             return;
         }
         if ((node.role() == "expression" && node.kind() == "DeclRef")
@@ -2078,7 +1968,7 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
         }
         d->setHelpItemForTooltip(id);
     };
-    d->getAndHandleAst(doc, astHandler, Private::AstCallbackMode::SyncIfPossible);
+    d->getAndHandleAst(doc, astHandler, AstCallbackMode::SyncIfPossible);
 }
 
 void ClangdClient::setVirtualRanges(const Utils::FilePath &filePath, const QList<Range> &ranges,
@@ -2087,209 +1977,6 @@ void ClangdClient::setVirtualRanges(const Utils::FilePath &filePath, const QList
     TextDocument * const doc = documentForFilePath(filePath);
     if (doc && doc->document()->revision() == revision)
         d->highlightingData[doc].virtualRanges = {ranges, revision};
-}
-
-void ClangdClient::Private::handleGotoDefinitionResult()
-{
-    QTC_ASSERT(followSymbolData->defLink.hasValidTarget(), return);
-
-    qCDebug(clangdLog) << "handling go to definition result";
-
-    // No dis-ambiguation necessary. Call back with the link and finish.
-    if (!followSymbolData->defLinkIsAmbiguous()) {
-        followSymbolData->callback(followSymbolData->defLink);
-        followSymbolData.reset();
-        return;
-    }
-
-    // Step 2: Get all possible overrides via "Go to Implementation".
-    // Note that we have to do this for all member function calls, because
-    // we cannot tell here whether the member function is virtual.
-    followSymbolData->allLinks << followSymbolData->defLink;
-    sendGotoImplementationRequest(followSymbolData->defLink);
-}
-
-void ClangdClient::Private::sendGotoImplementationRequest(const Utils::Link &link)
-{
-    if (!q->documentForFilePath(link.targetFilePath)
-        && followSymbolData->openedFiles.insert(link.targetFilePath).second) {
-        q->openExtraFile(link.targetFilePath);
-    }
-    const Position position(link.targetLine - 1, link.targetColumn);
-    const TextDocumentIdentifier documentId(DocumentUri::fromFilePath(link.targetFilePath));
-    GotoImplementationRequest req(TextDocumentPositionParams(documentId, position));
-    req.setResponseCallback([this, id = followSymbolData->id, reqId = req.id()](
-                            const GotoImplementationRequest::Response &response) {
-        qCDebug(clangdLog) << "received go to implementation reply";
-        if (!followSymbolData || id != followSymbolData->id)
-            return;
-        followSymbolData->pendingGotoImplRequests.removeOne(reqId);
-        handleGotoImplementationResult(response);
-    });
-    q->sendMessage(req, SendDocUpdates::Ignore);
-    followSymbolData->pendingGotoImplRequests << req.id();
-    qCDebug(clangdLog) << "sending go to implementation request" << link.targetLine;
-}
-
-void ClangdClient::Private::handleGotoImplementationResult(
-        const GotoImplementationRequest::Response &response)
-{
-    if (const Utils::optional<GotoResult> &result = response.result()) {
-        QList<Utils::Link> newLinks;
-        if (const auto ploc = Utils::get_if<Location>(&*result))
-            newLinks = {ploc->toLink()};
-        if (const auto plloc = Utils::get_if<QList<Location>>(&*result))
-            newLinks = Utils::transform(*plloc, &Location::toLink);
-        for (const Utils::Link &link : qAsConst(newLinks)) {
-            if (!followSymbolData->allLinks.contains(link)) {
-                followSymbolData->allLinks << link;
-
-                // We must do this recursively, because clangd reports only the first
-                // level of overrides.
-                sendGotoImplementationRequest(link);
-            }
-        }
-    }
-
-    // We didn't find any further candidates, so jump to the original definition link.
-    if (followSymbolData->allLinks.size() == 1
-            && followSymbolData->pendingGotoImplRequests.isEmpty()) {
-        followSymbolData->callback(followSymbolData->allLinks.first());
-        followSymbolData.reset();
-        return;
-    }
-
-    // As soon as we know that there is more than one candidate, we start the code assist
-    // procedure, to let the user know that things are happening.
-    if (followSymbolData->allLinks.size() > 1 && !followSymbolData->virtualFuncAssistProcessor
-            && followSymbolData->editorWidget) {
-        followSymbolData->editorWidget->invokeTextEditorWidgetAssist(FollowSymbol,
-                &followSymbolData->virtualFuncAssistProvider);
-    }
-
-    if (!followSymbolData->pendingGotoImplRequests.isEmpty())
-        return;
-
-    // Step 3: We are done looking for overrides, and we found at least one.
-    //         Make a symbol info request for each link to get the class names.
-    //         Also get the AST for the base declaration, so we can find out whether it's
-    //         pure virtual and mark it accordingly.
-    //         In addition, we need to follow all override links, because for these, clangd
-    //         gives us the declaration instead of the definition.
-    for (const Utils::Link &link : qAsConst(followSymbolData->allLinks)) {
-        if (!q->documentForFilePath(link.targetFilePath)
-                && followSymbolData->openedFiles.insert(link.targetFilePath).second) {
-            q->openExtraFile(link.targetFilePath);
-        }
-        const TextDocumentIdentifier doc(DocumentUri::fromFilePath(link.targetFilePath));
-        const Position pos(link.targetLine - 1, link.targetColumn);
-        const TextDocumentPositionParams params(doc, pos);
-        SymbolInfoRequest symReq(params);
-        symReq.setResponseCallback([this, link, id = followSymbolData->id, reqId = symReq.id()](
-                                const SymbolInfoRequest::Response &response) {
-            qCDebug(clangdLog) << "handling symbol info reply"
-                               << link.targetFilePath.toUserOutput() << link.targetLine;
-            if (!followSymbolData || id != followSymbolData->id)
-                return;
-            if (const auto result = response.result()) {
-                if (const auto list = Utils::get_if<QList<SymbolDetails>>(&result.value())) {
-                    if (!list->isEmpty()) {
-                        // According to the documentation, we should receive a single
-                        // object here, but it's a list. No idea what it means if there's
-                        // more than one entry. We choose the first one.
-                        const SymbolDetails &sd = list->first();
-                        followSymbolData->symbolsToDisplay << qMakePair(sd.containerName()
-                                                                        + sd.name(), link);
-                    }
-                }
-            }
-            followSymbolData->pendingSymbolInfoRequests.removeOne(reqId);
-            followSymbolData->virtualFuncAssistProcessor->update();
-            if (followSymbolData->pendingSymbolInfoRequests.isEmpty()
-                    && followSymbolData->pendingGotoDefRequests.isEmpty()
-                    && followSymbolData->defLinkNode.isValid()) {
-                handleDocumentInfoResults();
-            }
-        });
-        followSymbolData->pendingSymbolInfoRequests << symReq.id();
-        qCDebug(clangdLog) << "sending symbol info request";
-        q->sendMessage(symReq, SendDocUpdates::Ignore);
-
-        if (link == followSymbolData->defLink)
-            continue;
-
-        GotoDefinitionRequest defReq(params);
-        defReq.setResponseCallback([this, link, id = followSymbolData->id, reqId = defReq.id()]
-                (const GotoDefinitionRequest::Response &response) {
-            qCDebug(clangdLog) << "handling additional go to definition reply for"
-                               << link.targetFilePath << link.targetLine;
-            if (!followSymbolData || id != followSymbolData->id)
-                return;
-            Utils::Link newLink;
-            if (Utils::optional<GotoResult> _result = response.result()) {
-                const GotoResult result = _result.value();
-                if (const auto ploc = Utils::get_if<Location>(&result)) {
-                    newLink = ploc->toLink();
-                } else if (const auto plloc = Utils::get_if<QList<Location>>(&result)) {
-                    if (!plloc->isEmpty())
-                        newLink = plloc->value(0).toLink();
-                }
-            }
-            qCDebug(clangdLog) << "def link is" << newLink.targetFilePath << newLink.targetLine;
-            followSymbolData->declDefMap.insert(link, newLink);
-            followSymbolData->pendingGotoDefRequests.removeOne(reqId);
-            if (followSymbolData->pendingSymbolInfoRequests.isEmpty()
-                    && followSymbolData->pendingGotoDefRequests.isEmpty()
-                    && followSymbolData->defLinkNode.isValid()) {
-                handleDocumentInfoResults();
-            }
-        });
-        followSymbolData->pendingGotoDefRequests << defReq.id();
-        qCDebug(clangdLog) << "sending additional go to definition request"
-                           << link.targetFilePath << link.targetLine;
-        q->sendMessage(defReq, SendDocUpdates::Ignore);
-    }
-
-    const Utils::FilePath defLinkFilePath = followSymbolData->defLink.targetFilePath;
-    const TextDocument * const defLinkDoc = q->documentForFilePath(defLinkFilePath);
-    const auto defLinkDocVariant = defLinkDoc ? TextDocOrFile(defLinkDoc)
-                                              : TextDocOrFile(defLinkFilePath);
-    const Position defLinkPos(followSymbolData->defLink.targetLine - 1,
-                              followSymbolData->defLink.targetColumn);
-    const auto astHandler = [this, id = followSymbolData->id]
-            (const ClangdAstNode &ast, const MessageId &) {
-        qCDebug(clangdLog) << "received ast response for def link";
-        if (!followSymbolData || followSymbolData->id != id)
-            return;
-        followSymbolData->defLinkNode = ast;
-        if (followSymbolData->pendingSymbolInfoRequests.isEmpty()
-                && followSymbolData->pendingGotoDefRequests.isEmpty()) {
-            handleDocumentInfoResults();
-        }
-    };
-    getAndHandleAst(defLinkDocVariant, astHandler, AstCallbackMode::AlwaysAsync,
-                    Range(defLinkPos, defLinkPos));
-}
-
-void ClangdClient::Private::handleDocumentInfoResults()
-{
-    followSymbolData->closeTempDocuments();
-
-    // If something went wrong, we just follow the original link.
-    if (followSymbolData->symbolsToDisplay.isEmpty()) {
-        followSymbolData->callback(followSymbolData->defLink);
-        followSymbolData.reset();
-        return;
-    }
-    if (followSymbolData->symbolsToDisplay.size() == 1) {
-        followSymbolData->callback(followSymbolData->symbolsToDisplay.first().second);
-        followSymbolData.reset();
-        return;
-    }
-    QTC_ASSERT(followSymbolData->virtualFuncAssistProcessor
-               && followSymbolData->virtualFuncAssistProcessor->running(),
-               followSymbolData.reset(); return);
-    followSymbolData->virtualFuncAssistProcessor->finalize();
 }
 
 void ClangdClient::Private::handleDeclDefSwitchReplies()
@@ -2557,104 +2244,6 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
         data.highlighter->run();
     };
     getAndHandleAst(doc, astHandler, AstCallbackMode::SyncIfPossible);
-}
-
-void ClangdClient::VirtualFunctionAssistProcessor::cancel()
-{
-    resetData(true);
-}
-
-void ClangdClient::VirtualFunctionAssistProcessor::update()
-{
-    if (!m_data->followSymbolData->editorWidget)
-        return;
-    setAsyncProposalAvailable(createProposal(false));
-}
-
-void ClangdClient::VirtualFunctionAssistProcessor::finalize()
-{
-    if (!m_data->followSymbolData->editorWidget)
-        return;
-    const auto proposal = createProposal(true);
-    if (m_data->followSymbolData->editorWidget->isInTestMode()) {
-        m_data->followSymbolData->symbolsToDisplay.clear();
-        const auto immediateProposal = createProposal(false);
-        m_data->followSymbolData->editorWidget->setProposals(immediateProposal, proposal);
-    } else {
-        setAsyncProposalAvailable(proposal);
-    }
-    resetData(true);
-}
-
-void ClangdClient::VirtualFunctionAssistProcessor::resetData(bool resetFollowSymbolData)
-{
-    if (!m_data)
-        return;
-    m_data->followSymbolData->virtualFuncAssistProcessor = nullptr;
-    if (resetFollowSymbolData)
-        m_data->followSymbolData.reset();
-    m_data = nullptr;
-}
-
-IAssistProposal *ClangdClient::VirtualFunctionAssistProcessor::createProposal(bool final) const
-{
-    QTC_ASSERT(m_data && m_data->followSymbolData, return nullptr);
-
-    QList<AssistProposalItemInterface *> items;
-    bool needsBaseDeclEntry = !m_data->followSymbolData->defLinkNode.range()
-            .contains(Position(m_data->followSymbolData->cursor));
-    for (const SymbolData &symbol : qAsConst(m_data->followSymbolData->symbolsToDisplay)) {
-        Utils::Link link = symbol.second;
-        if (m_data->followSymbolData->defLink == link) {
-            if (!needsBaseDeclEntry)
-                continue;
-            needsBaseDeclEntry = false;
-        } else {
-            const Utils::Link defLink = m_data->followSymbolData->declDefMap.value(symbol.second);
-            if (defLink.hasValidTarget())
-                link = defLink;
-        }
-        items << createEntry(symbol.first, link);
-    }
-    if (needsBaseDeclEntry)
-        items << createEntry({}, m_data->followSymbolData->defLink);
-    if (!final) {
-        const auto infoItem = new CppEditor::VirtualFunctionProposalItem({}, false);
-        infoItem->setText(ClangdClient::tr("collecting overrides ..."));
-        infoItem->setOrder(-1);
-        items << infoItem;
-    }
-
-    return new CppEditor::VirtualFunctionProposal(
-                m_data->followSymbolData->cursor.position(),
-                items, m_data->followSymbolData->openInSplit);
-}
-
-CppEditor::VirtualFunctionProposalItem *
-ClangdClient::VirtualFunctionAssistProcessor::createEntry(const QString &name,
-                                                          const Utils::Link &link) const
-{
-    const auto item = new CppEditor::VirtualFunctionProposalItem(
-                link, m_data->followSymbolData->openInSplit);
-    QString text = name;
-    if (link == m_data->followSymbolData->defLink) {
-        item->setOrder(1000); // Ensure base declaration is on top.
-        if (text.isEmpty()) {
-            text = ClangdClient::tr("<base declaration>");
-        } else if (m_data->followSymbolData->defLinkNode.isPureVirtualDeclaration()
-                   || m_data->followSymbolData->defLinkNode.isPureVirtualDefinition()) {
-            text += " = 0";
-        }
-    }
-    item->setText(text);
-    return item;
-}
-
-IAssistProcessor *ClangdClient::VirtualFunctionAssistProvider::createProcessor(
-    const AssistInterface *) const
-{
-    return m_data->followSymbolData->virtualFuncAssistProcessor
-            = new VirtualFunctionAssistProcessor(m_data);
 }
 
 Utils::optional<QList<CodeAction> > ClangdDiagnostic::codeActions() const
@@ -3007,32 +2596,6 @@ MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
     };
     qCDebug(clangdLog) << "requesting AST for" << filePath;
     return requestAst(q, filePath, range, wrapperHandler);
-}
-
-bool ClangdClient::FollowSymbolData::defLinkIsAmbiguous() const
-{
-    // Even if the call is to a virtual function, it might not be ambiguous:
-    // class A { virtual void f(); }; class B : public A { void f() override { A::f(); } };
-    if (!cursorNode->mightBeAmbiguousVirtualCall() && !cursorNode->isPureVirtualDeclaration())
-        return false;
-
-    // If we have up-to-date highlighting info, we know whether we are dealing with
-    // a virtual call.
-    if (editorWidget) {
-        const auto highlightingData =
-                q->d->highlightingData.constFind(editorWidget->textDocument());
-        if (highlightingData != q->d->highlightingData.constEnd()
-                && highlightingData->virtualRanges.second == docRevision) {
-            const auto matcher = [cursorRange = cursorNode->range()](const Range &r) {
-                return cursorRange.overlaps(r);
-            };
-            return Utils::contains(highlightingData->virtualRanges.first, matcher);
-        }
-    }
-
-    // Otherwise, we accept potentially doing more work than needed rather than not catching
-    // possible overrides.
-    return true;
 }
 
 class MemoryTree : public JsonObject
