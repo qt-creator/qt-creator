@@ -767,11 +767,16 @@ void MaterialEditorView::customNotification(const AbstractView *view, const QStr
 
 void QmlDesigner::MaterialEditorView::highlightSupportedProperties(bool highlight)
 {
+    if (!m_selectedMaterial.isValid())
+        return;
+
     DesignerPropertyMap &propMap = m_qmlBackEnd->backendValuesPropertyMap();
     const QStringList propNames = propMap.keys();
+    NodeMetaInfo metaInfo = m_selectedMaterial.metaInfo();
+    QTC_ASSERT(metaInfo.isValid(), return);
 
     for (const QString &propName : propNames) {
-        if (propName.endsWith("Map")) {
+        if (metaInfo.propertyTypeName(propName.toLatin1()) == "QtQuick3D.Texture") {
             QObject *propEditorValObj = propMap.value(propName).value<QObject *>();
             PropertyEditorValue *propEditorVal = qobject_cast<PropertyEditorValue *>(propEditorValObj);
             propEditorVal->setHasActiveDrag(highlight);

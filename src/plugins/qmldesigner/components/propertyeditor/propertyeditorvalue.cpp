@@ -518,14 +518,15 @@ bool PropertyEditorValue::idListReplace(int idx, const QString &value)
 
 void PropertyEditorValue::commitDrop(const QString &path)
 {
-    if (m_modelNode.isSubclassOf("QtQuick3D.Material") && nameAsQString().endsWith("Map")) {
+    if (m_modelNode.isSubclassOf("QtQuick3D.Material")
+        && m_modelNode.metaInfo().propertyTypeName(m_name) == "QtQuick3D.Texture") {
         // create a texture node
         QmlDesigner::NodeMetaInfo metaInfo = m_modelNode.view()->model()->metaInfo("QtQuick3D.Texture");
         QmlDesigner::ModelNode texture = m_modelNode.view()->createModelNode("QtQuick3D.Texture",
                                                                              metaInfo.majorVersion(),
                                                                              metaInfo.minorVersion());
         texture.validId();
-        modelNode().view()->rootModelNode().defaultNodeListProperty().reparentHere(texture);
+        m_modelNode.view()->rootModelNode().defaultNodeListProperty().reparentHere(texture);
         // TODO: group textures under 1 node (just like materials)
 
         // set texture source
