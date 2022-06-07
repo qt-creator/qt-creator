@@ -504,7 +504,7 @@ void launchApp(QFutureInterface<SimulatorControl::ResponseData> &fi,
         if (waitForDebugger)
             args.insert(1, "-w");
 
-        for (const QString extraArgument : extraArgs) {
+        for (const QString &extraArgument : extraArgs) {
             if (!extraArgument.trimmed().isEmpty())
                 args << extraArgument;
         }

@@ -510,7 +510,7 @@ void IosConfigurations::loadProvisioningData(bool notify)
     const QList<QFileInfo> fileInfos = provisioningProflesDir.entryInfoList(filters,
                                                                             QDir::NoDotAndDotDot
                                                                                 | QDir::Files);
-    for (const QFileInfo fileInfo : fileInfos) {
+    for (const QFileInfo &fileInfo : fileInfos) {
         QDomDocument provisioningDoc;
         auto profile = std::make_shared<ProvisioningProfile>();
         QString teamID;
@@ -646,7 +646,7 @@ QDebug &operator<<(QDebug &stream, DevelopmentTeamPtr team)
 {
     QTC_ASSERT(team, return stream);
     stream << team->displayName() << team->identifier() << team->isFreeProfile();
-    for (const auto profile : qAsConst(team->m_profiles))
+    for (const auto &profile : qAsConst(team->m_profiles))
         stream << "Profile:" << profile;
     return stream;
 }
