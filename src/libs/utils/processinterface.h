@@ -85,12 +85,21 @@ enum class ProcessSignalType {
     Done
 };
 
+class QTCREATOR_UTILS_EXPORT ProcessBlockingInterface : public QObject
+{
+private:
+    // Wait for:
+    // - Started is being called only in Starting state.
+    // - ReadyRead is being called in Starting or Running state.
+    // - Done is being called in Starting or Running state.
+    virtual bool waitForSignal(ProcessSignalType signalType, int msecs) = 0;
+
+    friend class Internal::QtcProcessPrivate;
+};
+
 class QTCREATOR_UTILS_EXPORT ProcessInterface : public QObject
 {
     Q_OBJECT
-
-public:
-    ProcessInterface(QObject *parent = nullptr) : QObject(parent) {}
 
 signals:
     // This should be emitted when being in Starting state only.
@@ -121,14 +130,7 @@ private:
     // It's being called in Starting or Running state.
     virtual void sendControlSignal(ControlSignal controlSignal) = 0;
 
-    // It's being called only in Starting state.
-    virtual bool waitForStarted(int msecs) = 0;
-
-    // It's being called in Starting or Running state.
-    virtual bool waitForReadyRead(int msecs) = 0;
-
-    // It's being called in Starting or Running state.
-    virtual bool waitForFinished(int msecs) = 0;
+    virtual ProcessBlockingInterface *processBlockingInterface() const { return nullptr; }
 
     friend class QtcProcess;
     friend class Internal::QtcProcessPrivate;

@@ -168,10 +168,6 @@ private:
     qint64 write(const QByteArray &data) override;
     void sendControlSignal(ControlSignal controlSignal) override;
 
-    bool waitForStarted(int msecs) override;
-    bool waitForReadyRead(int msecs) override;
-    bool waitForFinished(int msecs) override;
-
 private:
     CommandLine fullLocalCommandLine(bool interactive);
 
@@ -286,27 +282,6 @@ void DockerProcessImpl::sendControlSignal(ControlSignal controlSignal)
     int signal = controlSignalToInt(controlSignal);
     m_devicePrivate->runInShell(
         {"kill", {QString("-%1").arg(signal), QString("%2").arg(m_remotePID)}});
-}
-
-bool DockerProcessImpl::waitForStarted(int msecs)
-{
-    Q_UNUSED(msecs)
-    QTC_CHECK(false);
-    return false;
-}
-
-bool DockerProcessImpl::waitForReadyRead(int msecs)
-{
-    Q_UNUSED(msecs)
-    QTC_CHECK(false);
-    return false;
-}
-
-bool DockerProcessImpl::waitForFinished(int msecs)
-{
-    Q_UNUSED(msecs)
-    QTC_CHECK(false);
-    return false;
 }
 
 IDeviceWidget *DockerDevice::createWidget()

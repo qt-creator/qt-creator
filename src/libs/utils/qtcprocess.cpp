@@ -322,10 +322,34 @@ bool DefaultImpl::ensureProgramExists(const QString &program)
     return false;
 }
 
+class QProcessBlockingImpl : public ProcessBlockingInterface
+{
+public:
+    QProcessBlockingImpl(QProcess *process) : m_process(process) {}
+
+private:
+    bool waitForSignal(ProcessSignalType signalType, int msecs) final
+    {
+        switch (signalType) {
+        case ProcessSignalType::Started:
+            return m_process->waitForStarted(msecs);
+        case ProcessSignalType::ReadyRead:
+            return m_process->waitForReadyRead(msecs);
+        case ProcessSignalType::Done:
+            return m_process->waitForFinished(msecs);
+        }
+        return false;
+    }
+
+    QProcess *m_process = nullptr;
+};
+
 class QProcessImpl final : public DefaultImpl
 {
 public:
-    QProcessImpl() : m_process(new ProcessHelper(this))
+    QProcessImpl()
+        : m_process(new ProcessHelper(this))
+        , m_blockingImpl(new QProcessBlockingImpl(m_process))
     {
         connect(m_process, &QProcess::started,
                 this, &QProcessImpl::handleStarted);
@@ -361,9 +385,7 @@ private:
         }
     }
 
-    bool waitForStarted(int msecs) final { return m_process->waitForStarted(msecs); }
-    bool waitForReadyRead(int msecs) final { return m_process->waitForReadyRead(msecs); }
-    bool waitForFinished(int msecs) final { return m_process->waitForFinished(msecs); }
+    virtual ProcessBlockingInterface *processBlockingInterface() const { return m_blockingImpl; }
 
     void doDefaultStart(const QString &program, const QStringList &arguments) final
     {
@@ -411,7 +433,8 @@ private:
         emit done(result);
     }
 
-    ProcessHelper *m_process;
+    ProcessHelper *m_process = nullptr;
+    QProcessBlockingImpl *m_blockingImpl = nullptr;
 };
 
 static uint uniqueToken()
@@ -419,6 +442,33 @@ static uint uniqueToken()
     static std::atomic_uint globalUniqueToken = 0;
     return ++globalUniqueToken;
 }
+
+class ProcessLauncherBlockingImpl : public ProcessBlockingInterface
+{
+public:
+    ProcessLauncherBlockingImpl(CallerHandle *caller) : m_caller(caller) {}
+
+private:
+    bool waitForSignal(ProcessSignalType signalType, int msecs) final
+    {
+        // TODO: Remove CallerHandle::SignalType
+        const CallerHandle::SignalType type = [signalType] {
+            switch (signalType) {
+            case ProcessSignalType::Started:
+                return CallerHandle::SignalType::Started;
+            case ProcessSignalType::ReadyRead:
+                return CallerHandle::SignalType::ReadyRead;
+            case ProcessSignalType::Done:
+                return CallerHandle::SignalType::Done;
+            }
+            QTC_CHECK(false);
+            return CallerHandle::SignalType::NoSignal;
+        }();
+        return m_caller->waitForSignal(type, msecs);
+    }
+
+    CallerHandle *m_caller = nullptr;
+};
 
 class ProcessLauncherImpl final : public DefaultImpl
 {
@@ -434,6 +484,7 @@ public:
                 this, &ProcessInterface::readyRead);
         connect(m_handle, &CallerHandle::done,
                 this, &ProcessInterface::done);
+        m_blockingImpl = new ProcessLauncherBlockingImpl(m_handle);
     }
     ~ProcessLauncherImpl() final
     {
@@ -462,9 +513,7 @@ private:
         }
     }
 
-    bool waitForStarted(int msecs) final { return m_handle->waitForStarted(msecs); }
-    bool waitForReadyRead(int msecs) final { return m_handle->waitForReadyRead(msecs); }
-    bool waitForFinished(int msecs) final { return m_handle->waitForFinished(msecs); }
+    virtual ProcessBlockingInterface *processBlockingInterface() const { return m_blockingImpl; }
 
     void doDefaultStart(const QString &program, const QStringList &arguments) final
     {
@@ -476,6 +525,7 @@ private:
     const uint m_token = 0;
     // Lives in caller's thread.
     CallerHandle *m_handle = nullptr;
+    ProcessLauncherBlockingImpl *m_blockingImpl = nullptr;
 };
 
 static ProcessImpl defaultProcessImpl()
@@ -535,13 +585,15 @@ private:
     const ProcessResultData m_resultData;
 };
 
+class GeneralProcessBlockingImpl;
+
 class ProcessInterfaceHandler : public QObject
 {
 public:
-    ProcessInterfaceHandler(QtcProcessPrivate *caller, ProcessInterface *process);
+    ProcessInterfaceHandler(GeneralProcessBlockingImpl *caller, ProcessInterface *process);
 
     // Called from caller's thread exclusively.
-    bool waitForSignal(int msecs, ProcessSignalType newSignal);
+    bool waitForSignal(ProcessSignalType newSignal, int msecs);
     void moveToCallerThread();
 
 private:
@@ -555,9 +607,42 @@ private:
     void handleDone(const ProcessResultData &data);
     void appendSignal(ProcessInterfaceSignal *newSignal);
 
-    QtcProcessPrivate *m_caller = nullptr;
+    GeneralProcessBlockingImpl *m_caller = nullptr;
     QMutex m_mutex;
     QWaitCondition m_waitCondition;
+};
+
+class GeneralProcessBlockingImpl : public ProcessBlockingInterface
+{
+public:
+    GeneralProcessBlockingImpl(QtcProcessPrivate *parent);
+
+    void flush() { flushSignals(takeAllSignals()); }
+    bool flushFor(ProcessSignalType signalType) {
+        return flushSignals(takeSignalsFor(signalType), &signalType);
+    }
+
+    bool shouldFlush() const { QMutexLocker locker(&m_mutex); return !m_signals.isEmpty(); }
+    // Called from ProcessInterfaceHandler thread exclusively.
+    void appendSignal(ProcessInterfaceSignal *launcherSignal);
+
+private:
+    // Called from caller's thread exclusively
+    bool waitForSignal(ProcessSignalType newSignal, int msecs) final;
+
+    QList<ProcessInterfaceSignal *> takeAllSignals();
+    QList<ProcessInterfaceSignal *> takeSignalsFor(ProcessSignalType signalType);
+    bool flushSignals(const QList<ProcessInterfaceSignal *> &signalList,
+                      ProcessSignalType *signalType = nullptr);
+
+    void handleStartedSignal(const StartedSignal *launcherSignal);
+    void handleReadyReadSignal(const ReadyReadSignal *launcherSignal);
+    void handleDoneSignal(const DoneSignal *launcherSignal);
+
+    QtcProcessPrivate *m_caller = nullptr;
+    std::unique_ptr<ProcessInterfaceHandler> m_processHandler;
+    mutable QMutex m_mutex;
+    QList<ProcessInterfaceSignal *> m_signals;
 };
 
 class QtcProcessPrivate : public QObject
@@ -591,11 +676,18 @@ public:
     void setProcessInterface(ProcessInterface *process)
     {
         m_process.reset(process);
-        m_processHandler.reset(new ProcessInterfaceHandler(this, process));
+        m_process->setParent(this);
+        connect(m_process.get(), &ProcessInterface::started,
+                this, &QtcProcessPrivate::handleStarted);
+        connect(m_process.get(), &ProcessInterface::readyRead,
+                this, &QtcProcessPrivate::handleReadyRead);
+        connect(m_process.get(), &ProcessInterface::done,
+                this, &QtcProcessPrivate::handleDone);
 
-        // In order to move the process into another thread together with handle
-        m_process->setParent(m_processHandler.get());
-        m_processHandler->setParent(this);
+        m_blockingInterface.reset(process->processBlockingInterface());
+        if (!m_blockingInterface)
+            m_blockingInterface.reset(new GeneralProcessBlockingImpl(this));
+        m_blockingInterface->setParent(this);
     }
 
     CommandLine fullCommandLine() const
@@ -624,14 +716,11 @@ public:
     }
 
     QtcProcess *q;
-    std::unique_ptr<ProcessInterfaceHandler> m_processHandler;
+    std::unique_ptr<ProcessBlockingInterface> m_blockingInterface;
     std::unique_ptr<ProcessInterface> m_process;
     ProcessSetupData m_setup;
 
     void slotTimeout();
-    void handleStartedSignal(const StartedSignal *launcherSignal);
-    void handleReadyReadSignal(const ReadyReadSignal *launcherSignal);
-    void handleDoneSignal(const DoneSignal *launcherSignal);
     void handleStarted(qint64 processId, qint64 applicationMainThreadId);
     void handleReadyRead(const QByteArray &outputData, const QByteArray &errorData);
     void handleDone(const ProcessResultData &data);
@@ -647,31 +736,11 @@ public:
 
     ProcessResult interpretExitCode(int exitCode);
 
-    // === ProcessInterfaceHandler related ===
-    // Called from caller's thread exclusively
-    bool waitForSignal(int msecs, ProcessSignalType newSignal);
-    void flush() { flushSignals(takeAllSignals()); }
-    bool flushFor(ProcessSignalType signalType) {
-        return flushSignals(takeSignalsFor(signalType), &signalType);
-    }
-
-    QList<ProcessInterfaceSignal *> takeAllSignals();
-    QList<ProcessInterfaceSignal *> takeSignalsFor(ProcessSignalType signalType);
-    bool flushSignals(const QList<ProcessInterfaceSignal *> &signalList,
-                      ProcessSignalType *signalType = nullptr);
-
-    bool shouldFlush() const { QMutexLocker locker(&m_mutex); return !m_signals.isEmpty(); }
+    bool waitForSignal(ProcessSignalType signalType, int msecs);
     Qt::ConnectionType connectionType() const;
     void sendControlSignal(ControlSignal controlSignal);
-    // Called from ProcessInterfaceHandler thread exclusively.
-    void appendSignal(ProcessInterfaceSignal *launcherSignal);
 
-    mutable QMutex m_mutex;
-    QList<ProcessInterfaceSignal *> m_signals;
     QTimer m_killTimer;
-
-    // =======================================
-
     QProcess::ProcessState m_state = QProcess::NotRunning;
     qint64 m_processId = 0;
     qint64 m_applicationMainThreadId = 0;
@@ -692,10 +761,11 @@ public:
     Guard m_guard;
 };
 
-ProcessInterfaceHandler::ProcessInterfaceHandler(QtcProcessPrivate *caller,
+ProcessInterfaceHandler::ProcessInterfaceHandler(GeneralProcessBlockingImpl *caller,
                                                  ProcessInterface *process)
     : m_caller(caller)
 {
+    process->disconnect();
     connect(process, &ProcessInterface::started,
             this, &ProcessInterfaceHandler::handleStarted);
     connect(process, &ProcessInterface::readyRead,
@@ -705,7 +775,7 @@ ProcessInterfaceHandler::ProcessInterfaceHandler(QtcProcessPrivate *caller,
 }
 
 // Called from caller's thread exclusively.
-bool ProcessInterfaceHandler::waitForSignal(int msecs, ProcessSignalType newSignal)
+bool ProcessInterfaceHandler::waitForSignal(ProcessSignalType newSignal, int msecs)
 {
     QDeadlineTimer deadline(msecs);
     while (true) {
@@ -769,17 +839,20 @@ void ProcessInterfaceHandler::appendSignal(ProcessInterfaceSignal *newSignal)
     }
     m_waitCondition.wakeOne();
     // call in callers thread
-    QMetaObject::invokeMethod(m_caller, &QtcProcessPrivate::flush);
+    QMetaObject::invokeMethod(m_caller, &GeneralProcessBlockingImpl::flush);
 }
 
-// Called from caller's thread exclusively
-bool QtcProcessPrivate::waitForSignal(int msecs, ProcessSignalType newSignal)
+GeneralProcessBlockingImpl::GeneralProcessBlockingImpl(QtcProcessPrivate *parent)
+    : m_caller(parent)
+    , m_processHandler(new ProcessInterfaceHandler(this, parent->m_process.get()))
 {
-    const QDeadlineTimer timeout(msecs);
-    const QDeadlineTimer currentKillTimeout(m_killTimer.remainingTime());
-    const bool needsSplit = m_killTimer.isActive() ? timeout > currentKillTimeout : false;
-    const QDeadlineTimer mainTimeout = needsSplit ? currentKillTimeout : timeout;
+    // In order to move the process interface into another thread together with handle
+    parent->m_process.get()->setParent(m_processHandler.get());
+    m_processHandler->setParent(this);
+}
 
+bool GeneralProcessBlockingImpl::waitForSignal(ProcessSignalType newSignal, int msecs)
+{
     m_processHandler->setParent(nullptr);
 
     QThread thread;
@@ -789,12 +862,7 @@ bool QtcProcessPrivate::waitForSignal(int msecs, ProcessSignalType newSignal)
     // the caller here is blocked, so all signals should be buffered and we are going
     // to flush them from inside waitForSignal().
     m_processHandler->moveToThread(&thread);
-    bool result = m_processHandler->waitForSignal(mainTimeout.remainingTime(), newSignal);
-    if (!result && needsSplit) {
-        m_killTimer.stop();
-        sendControlSignal(ControlSignal::Kill);
-        result = m_processHandler->waitForSignal(timeout.remainingTime(), newSignal);
-    }
+    const bool result = m_processHandler->waitForSignal(newSignal, msecs);
     m_processHandler->moveToCallerThread();
     m_processHandler->setParent(this);
     thread.quit();
@@ -803,14 +871,14 @@ bool QtcProcessPrivate::waitForSignal(int msecs, ProcessSignalType newSignal)
 }
 
 // Called from caller's thread exclusively
-QList<ProcessInterfaceSignal *> QtcProcessPrivate::takeAllSignals()
+QList<ProcessInterfaceSignal *> GeneralProcessBlockingImpl::takeAllSignals()
 {
     QMutexLocker locker(&m_mutex);
     return std::exchange(m_signals, {});
 }
 
 // Called from caller's thread exclusively
-QList<ProcessInterfaceSignal *> QtcProcessPrivate::takeSignalsFor(ProcessSignalType signalType)
+QList<ProcessInterfaceSignal *> GeneralProcessBlockingImpl::takeSignalsFor(ProcessSignalType signalType)
 {
     // If we are flushing for ReadyRead or Done - flush all.
     if (signalType != ProcessSignalType::Started)
@@ -840,7 +908,7 @@ QList<ProcessInterfaceSignal *> QtcProcessPrivate::takeSignalsFor(ProcessSignalT
 }
 
 // Called from caller's thread exclusively
-bool QtcProcessPrivate::flushSignals(const QList<ProcessInterfaceSignal *> &signalList,
+bool GeneralProcessBlockingImpl::flushSignals(const QList<ProcessInterfaceSignal *> &signalList,
                                      ProcessSignalType *signalType)
 {
     bool signalMatched = false;
@@ -866,14 +934,50 @@ bool QtcProcessPrivate::flushSignals(const QList<ProcessInterfaceSignal *> &sign
     return signalMatched;
 }
 
-// Called from caller's thread exclusively
+void GeneralProcessBlockingImpl::handleStartedSignal(const StartedSignal *aSignal)
+{
+    m_caller->handleStarted(aSignal->processId(), aSignal->applicationMainThreadId());
+}
+
+void GeneralProcessBlockingImpl::handleReadyReadSignal(const ReadyReadSignal *aSignal)
+{
+    m_caller->handleReadyRead(aSignal->stdOut(), aSignal->stdErr());
+}
+
+void GeneralProcessBlockingImpl::handleDoneSignal(const DoneSignal *aSignal)
+{
+    m_caller->handleDone(aSignal->resultData());
+}
+
+// Called from ProcessInterfaceHandler thread exclusively.
+void GeneralProcessBlockingImpl::appendSignal(ProcessInterfaceSignal *newSignal)
+{
+    QMutexLocker locker(&m_mutex);
+    m_signals.append(newSignal);
+}
+
+bool QtcProcessPrivate::waitForSignal(ProcessSignalType newSignal, int msecs)
+{
+    const QDeadlineTimer timeout(msecs);
+    const QDeadlineTimer currentKillTimeout(m_killTimer.remainingTime());
+    const bool needsSplit = m_killTimer.isActive() ? timeout > currentKillTimeout : false;
+    const QDeadlineTimer mainTimeout = needsSplit ? currentKillTimeout : timeout;
+
+    bool result = m_blockingInterface->waitForSignal(newSignal, mainTimeout.remainingTime());
+    if (!result && needsSplit) {
+        m_killTimer.stop();
+        sendControlSignal(ControlSignal::Kill);
+        result = m_blockingInterface->waitForSignal(newSignal, timeout.remainingTime());
+    }
+    return result;
+}
+
 Qt::ConnectionType QtcProcessPrivate::connectionType() const
 {
     return (m_process->thread() == thread()) ? Qt::DirectConnection
                                              : Qt::BlockingQueuedConnection;
 }
 
-// Called from caller's thread exclusively
 void QtcProcessPrivate::sendControlSignal(ControlSignal controlSignal)
 {
     QTC_ASSERT(QThread::currentThread() == thread(), return);
@@ -883,13 +987,6 @@ void QtcProcessPrivate::sendControlSignal(ControlSignal controlSignal)
     QMetaObject::invokeMethod(m_process.get(), [this, controlSignal] {
         m_process->sendControlSignal(controlSignal);
     }, connectionType());
-}
-
-// Called from ProcessInterfaceHandler thread exclusively.
-void QtcProcessPrivate::appendSignal(ProcessInterfaceSignal *newSignal)
-{
-    QMutexLocker locker(&m_mutex);
-    m_signals.append(newSignal);
 }
 
 void QtcProcessPrivate::clearForRun()
@@ -1444,8 +1541,8 @@ bool QtcProcess::waitForStarted(int msecs)
         return true;
     if (d->m_state == QProcess::NotRunning)
         return false;
-    return s_waitForStarted.measureAndRun(&QtcProcessPrivate::waitForSignal, d, msecs,
-                                          ProcessSignalType::Started);
+    return s_waitForStarted.measureAndRun(&QtcProcessPrivate::waitForSignal, d,
+                                          ProcessSignalType::Started, msecs);
 }
 
 bool QtcProcess::waitForReadyRead(int msecs)
@@ -1453,7 +1550,7 @@ bool QtcProcess::waitForReadyRead(int msecs)
     QTC_ASSERT(d->m_process, return false);
     if (d->m_state == QProcess::NotRunning)
         return false;
-    return d->waitForSignal(msecs, ProcessSignalType::ReadyRead);
+    return d->waitForSignal(ProcessSignalType::ReadyRead, msecs);
 }
 
 bool QtcProcess::waitForFinished(int msecs)
@@ -1461,7 +1558,7 @@ bool QtcProcess::waitForFinished(int msecs)
     QTC_ASSERT(d->m_process, return false);
     if (d->m_state == QProcess::NotRunning)
         return false;
-    return d->waitForSignal(msecs, ProcessSignalType::Done);
+    return d->waitForSignal(ProcessSignalType::Done, msecs);
 }
 
 QByteArray QtcProcess::readAllStandardOutput()
@@ -1511,9 +1608,9 @@ void QtcProcess::close()
         d->m_process->disconnect();
         d->m_process.release()->deleteLater();
     }
-    if (d->m_processHandler) {
-        d->m_processHandler->disconnect();
-        d->m_processHandler.release()->deleteLater();
+    if (d->m_blockingInterface) {
+        d->m_blockingInterface->disconnect();
+        d->m_blockingInterface.release()->deleteLater();
     }
     d->clearForRun();
 }
@@ -1854,22 +1951,6 @@ void QtcProcessPrivate::slotTimeout()
     }
 }
 
-void QtcProcessPrivate::handleStartedSignal(const StartedSignal *aSignal)
-{
-    handleStarted(aSignal->processId(), aSignal->applicationMainThreadId());
-}
-
-void QtcProcessPrivate::handleReadyReadSignal(const ReadyReadSignal *aSignal)
-{
-    handleReadyRead(aSignal->stdOut(), aSignal->stdErr());
-}
-
-void QtcProcessPrivate::handleDoneSignal(const DoneSignal *aSignal)
-{
-    m_killTimer.stop();
-    handleDone(aSignal->resultData());
-}
-
 void QtcProcessPrivate::handleStarted(qint64 processId, qint64 applicationMainThreadId)
 {
     QTC_CHECK(m_state == QProcess::Starting);
@@ -1908,6 +1989,7 @@ void QtcProcessPrivate::handleReadyRead(const QByteArray &outputData, const QByt
 
 void QtcProcessPrivate::handleDone(const ProcessResultData &data)
 {
+    m_killTimer.stop();
     m_resultData = data;
 
     switch (m_state) {

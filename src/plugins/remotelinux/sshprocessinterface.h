@@ -60,10 +60,6 @@ private:
     qint64 write(const QByteArray &data) final;
     void sendControlSignal(Utils::ControlSignal controlSignal) override = 0;
 
-    bool waitForStarted(int msecs) final;
-    bool waitForReadyRead(int msecs) final;
-    bool waitForFinished(int msecs) final;
-
     friend class SshProcessInterfacePrivate;
     SshProcessInterfacePrivate *d = nullptr;
 };

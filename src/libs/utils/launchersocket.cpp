@@ -89,21 +89,6 @@ CallerHandle::~CallerHandle()
     qDeleteAll(m_signals);
 }
 
-bool CallerHandle::waitForStarted(int msecs)
-{
-    return waitForSignal(msecs, SignalType::Started);
-}
-
-bool CallerHandle::waitForReadyRead(int msces)
-{
-    return waitForSignal(msces, SignalType::ReadyRead);
-}
-
-bool CallerHandle::waitForFinished(int msecs)
-{
-    return waitForSignal(msecs, SignalType::Done);
-}
-
 void CallerHandle::flush()
 {
     flushFor(SignalType::NoSignal);
@@ -329,11 +314,11 @@ void CallerHandle::setProcessSetupData(ProcessSetupData *setup)
     m_setup = setup;
 }
 
-bool CallerHandle::waitForSignal(int msecs, SignalType newSignal)
+bool CallerHandle::waitForSignal(SignalType signalType, int msecs)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return false);
     QTC_ASSERT(m_launcherHandle, return false);
-    return m_launcherHandle->waitForSignal(msecs, newSignal);
+    return m_launcherHandle->waitForSignal(signalType, msecs);
 }
 
 // Called from caller's or launcher's thread.
@@ -351,7 +336,7 @@ bool CallerHandle::isCalledFromLaunchersThread() const
 }
 
 // Called from caller's thread exclusively.
-bool LauncherHandle::waitForSignal(int msecs, CallerHandle::SignalType newSignal)
+bool LauncherHandle::waitForSignal(CallerHandle::SignalType newSignal, int msecs)
 {
     QTC_ASSERT(!isCalledFromLaunchersThread(), return false);
     QDeadlineTimer deadline(msecs);
