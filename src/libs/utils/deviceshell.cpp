@@ -410,7 +410,7 @@ QList<std::tuple<int, DeviceShell::ParseType, QByteArray>> parseShellOutput(cons
 
         bool ok = false;
         const QLatin1String sId(lineView.begin(), pidEnd);
-        const quint64 id = QString(sId).toInt(&ok);
+        const int id = QString(sId).toInt(&ok);
         QTC_ASSERT(ok, continue);
 
         const QByteArray data = byteArrayFromRange(lineView.begin() + typeEnd + 1, lineView.end());
