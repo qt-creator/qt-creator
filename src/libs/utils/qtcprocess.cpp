@@ -485,28 +485,22 @@ static ProcessImpl defaultProcessImpl()
     return ProcessImpl::ProcessLauncher;
 }
 
-enum class SignalType {
-    Started,
-    ReadyRead,
-    Done
-};
-
 class ProcessInterfaceSignal
 {
 public:
-    SignalType signalType() const { return m_signalType; }
+    ProcessSignalType signalType() const { return m_signalType; }
     virtual ~ProcessInterfaceSignal() = default;
 protected:
-    ProcessInterfaceSignal(SignalType signalType) : m_signalType(signalType) {}
+    ProcessInterfaceSignal(ProcessSignalType signalType) : m_signalType(signalType) {}
 private:
-    const SignalType m_signalType;
+    const ProcessSignalType m_signalType;
 };
 
 class StartedSignal : public ProcessInterfaceSignal
 {
 public:
     StartedSignal(qint64 processId, qint64 applicationMainThreadId)
-        : ProcessInterfaceSignal(SignalType::Started)
+        : ProcessInterfaceSignal(ProcessSignalType::Started)
         , m_processId(processId)
         , m_applicationMainThreadId(applicationMainThreadId) {}
     qint64 processId() const { return m_processId; }
@@ -520,7 +514,7 @@ class ReadyReadSignal : public ProcessInterfaceSignal
 {
 public:
     ReadyReadSignal(const QByteArray &stdOut, const QByteArray &stdErr)
-        : ProcessInterfaceSignal(SignalType::ReadyRead)
+        : ProcessInterfaceSignal(ProcessSignalType::ReadyRead)
         , m_stdOut(stdOut)
         , m_stdErr(stdErr) {}
     QByteArray stdOut() const { return m_stdOut; }
@@ -534,7 +528,7 @@ class DoneSignal : public ProcessInterfaceSignal
 {
 public:
     DoneSignal(const ProcessResultData &resultData)
-        : ProcessInterfaceSignal(SignalType::Done)
+        : ProcessInterfaceSignal(ProcessSignalType::Done)
         , m_resultData(resultData) {}
     ProcessResultData resultData() const { return m_resultData; }
 private:
@@ -547,7 +541,7 @@ public:
     ProcessInterfaceHandler(QtcProcessPrivate *caller, ProcessInterface *process);
 
     // Called from caller's thread exclusively.
-    bool waitForSignal(int msecs, SignalType newSignal);
+    bool waitForSignal(int msecs, ProcessSignalType newSignal);
     void moveToCallerThread();
     void startKillTimer(int killTimeout);
 
@@ -651,16 +645,16 @@ public:
 
     // === ProcessInterfaceHandler related ===
     // Called from caller's thread exclusively
-    bool waitForSignal(int msecs, SignalType newSignal);
+    bool waitForSignal(int msecs, ProcessSignalType newSignal);
     void flush() { flushSignals(takeAllSignals()); }
-    bool flushFor(SignalType signalType) {
+    bool flushFor(ProcessSignalType signalType) {
         return flushSignals(takeSignalsFor(signalType), &signalType);
     }
 
     QList<ProcessInterfaceSignal *> takeAllSignals();
-    QList<ProcessInterfaceSignal *> takeSignalsFor(SignalType signalType);
+    QList<ProcessInterfaceSignal *> takeSignalsFor(ProcessSignalType signalType);
     bool flushSignals(const QList<ProcessInterfaceSignal *> &signalList,
-                      SignalType *signalType = nullptr);
+                      ProcessSignalType *signalType = nullptr);
 
     bool shouldFlush() const { QMutexLocker locker(&m_mutex); return !m_signals.isEmpty(); }
     Qt::ConnectionType connectionType() const;
@@ -709,7 +703,7 @@ ProcessInterfaceHandler::ProcessInterfaceHandler(QtcProcessPrivate *caller,
 }
 
 // Called from caller's thread exclusively.
-bool ProcessInterfaceHandler::waitForSignal(int msecs, SignalType newSignal)
+bool ProcessInterfaceHandler::waitForSignal(int msecs, ProcessSignalType newSignal)
 {
     QDeadlineTimer deadline(msecs);
     while (true) {
@@ -784,7 +778,7 @@ void ProcessInterfaceHandler::appendSignal(ProcessInterfaceSignal *newSignal)
 }
 
 // Called from caller's thread exclusively
-bool QtcProcessPrivate::waitForSignal(int msecs, SignalType newSignal)
+bool QtcProcessPrivate::waitForSignal(int msecs, ProcessSignalType newSignal)
 {
     m_processHandler->setParent(nullptr);
 
@@ -811,14 +805,14 @@ QList<ProcessInterfaceSignal *> QtcProcessPrivate::takeAllSignals()
 }
 
 // Called from caller's thread exclusively
-QList<ProcessInterfaceSignal *> QtcProcessPrivate::takeSignalsFor(SignalType signalType)
+QList<ProcessInterfaceSignal *> QtcProcessPrivate::takeSignalsFor(ProcessSignalType signalType)
 {
     // If we are flushing for ReadyRead or Done - flush all.
-    if (signalType != SignalType::Started)
+    if (signalType != ProcessSignalType::Started)
         return takeAllSignals();
 
     QMutexLocker locker(&m_mutex);
-    const QList<SignalType> storedSignals = transform(qAsConst(m_signals),
+    const QList<ProcessSignalType> storedSignals = transform(qAsConst(m_signals),
                             [](const ProcessInterfaceSignal *aSignal) {
         return aSignal->signalType();
     });
@@ -826,8 +820,10 @@ QList<ProcessInterfaceSignal *> QtcProcessPrivate::takeSignalsFor(SignalType sig
     // If we are flushing for Started:
     // - if Started was buffered - flush Started only (even when Done was buffered)
     // - otherwise if Done signal was buffered - flush all.
-    if (!storedSignals.contains(SignalType::Started) && storedSignals.contains(SignalType::Done))
+    if (!storedSignals.contains(ProcessSignalType::Started)
+            && storedSignals.contains(ProcessSignalType::Done)) {
         return std::exchange(m_signals, {}); // avoid takeAllSignals() because of mutex locked
+    }
 
     QList<ProcessInterfaceSignal *> oldSignals;
     const auto matchingIndex = storedSignals.lastIndexOf(signalType);
@@ -840,21 +836,21 @@ QList<ProcessInterfaceSignal *> QtcProcessPrivate::takeSignalsFor(SignalType sig
 
 // Called from caller's thread exclusively
 bool QtcProcessPrivate::flushSignals(const QList<ProcessInterfaceSignal *> &signalList,
-                                     SignalType *signalType)
+                                     ProcessSignalType *signalType)
 {
     bool signalMatched = false;
     for (const ProcessInterfaceSignal *storedSignal : qAsConst(signalList)) {
-        const SignalType storedSignalType = storedSignal->signalType();
+        const ProcessSignalType storedSignalType = storedSignal->signalType();
         if (signalType && storedSignalType == *signalType)
             signalMatched = true;
         switch (storedSignalType) {
-        case SignalType::Started:
+        case ProcessSignalType::Started:
             handleStartedSignal(static_cast<const StartedSignal *>(storedSignal));
             break;
-        case SignalType::ReadyRead:
+        case ProcessSignalType::ReadyRead:
             handleReadyReadSignal(static_cast<const ReadyReadSignal *>(storedSignal));
             break;
-        case SignalType::Done:
+        case ProcessSignalType::Done:
             if (signalType)
                 signalMatched = true;
             handleDoneSignal(static_cast<const DoneSignal *>(storedSignal));
@@ -1452,7 +1448,7 @@ bool QtcProcess::waitForStarted(int msecs)
     if (d->m_state == QProcess::NotRunning)
         return false;
     return s_waitForStarted.measureAndRun(&QtcProcessPrivate::waitForSignal, d, msecs,
-                                          SignalType::Started);
+                                          ProcessSignalType::Started);
 }
 
 bool QtcProcess::waitForReadyRead(int msecs)
@@ -1460,7 +1456,7 @@ bool QtcProcess::waitForReadyRead(int msecs)
     QTC_ASSERT(d->m_process, return false);
     if (d->m_state == QProcess::NotRunning)
         return false;
-    return d->waitForSignal(msecs, SignalType::ReadyRead);
+    return d->waitForSignal(msecs, ProcessSignalType::ReadyRead);
 }
 
 bool QtcProcess::waitForFinished(int msecs)
@@ -1468,7 +1464,7 @@ bool QtcProcess::waitForFinished(int msecs)
     QTC_ASSERT(d->m_process, return false);
     if (d->m_state == QProcess::NotRunning)
         return false;
-    return d->waitForSignal(msecs, SignalType::Done);
+    return d->waitForSignal(msecs, ProcessSignalType::Done);
 }
 
 QByteArray QtcProcess::readAllStandardOutput()

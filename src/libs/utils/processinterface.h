@@ -79,6 +79,12 @@ enum class ControlSignal {
     KickOff
 };
 
+enum class ProcessSignalType {
+    Started,
+    ReadyRead,
+    Done
+};
+
 class QTCREATOR_UTILS_EXPORT ProcessInterface : public QObject
 {
     Q_OBJECT
