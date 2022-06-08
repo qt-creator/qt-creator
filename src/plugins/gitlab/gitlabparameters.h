@@ -57,7 +57,7 @@ public:
     unsigned short port = 0;
 
     bool secure = true;
-    bool validateCert = true; // TODO
+    bool validateCert = true;
 };
 
 class GitLabParameters

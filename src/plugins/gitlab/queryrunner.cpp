@@ -102,9 +102,10 @@ QString Query::toString() const
 
 QueryRunner::QueryRunner(const Query &query, const Utils::Id &id, QObject *parent)
     : QObject(parent)
+    , m_serverId(id)
 {
     const GitLabParameters *p = GitLabPlugin::globalParameters();
-    const auto server = p->serverForId(id);
+    const auto server = p->serverForId(m_serverId);
     QStringList args = server.curlArguments();
     m_paginated = query.hasPaginatedResults();
     if (m_paginated)
@@ -161,7 +162,18 @@ void QueryRunner::processFinished()
     if (m_process.exitStatus() != QProcess::NormalExit) {
         errorTermination(tr("%1 crashed.").arg(executable));
         return;
-    } else if (m_process.exitCode()) {
+    } else if (int exitCode = m_process.exitCode()) {
+        if (exitCode == 35 || exitCode == 60) { // common ssl certificate issues
+            if (GitLabPlugin::handleCertificateIssue(m_serverId)) {
+                m_running = false;
+                // prepend -k for re-requesting the same query
+                Utils::CommandLine cmdline = m_process.commandLine();
+                cmdline.prependArgs({"-k"});
+                m_process.setCommand(cmdline);
+                start();
+                return;
+            }
+        }
         errorTermination(tr("%1 returned %2.").arg(executable).arg(m_process.exitCode()));
         return;
     }

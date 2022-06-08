@@ -53,6 +53,7 @@ public:
     static GitLabParameters *globalParameters();
     static GitLabProjectSettings *projectSettings(ProjectExplorer::Project *project);
     static GitLabOptionsPage *optionsPage();
+    static bool handleCertificateIssue(const Utils::Id &serverId);
 
     static void linkedStateChanged(bool enabled);
 private:

@@ -307,6 +307,30 @@ GitLabOptionsPage *GitLabPlugin::optionsPage()
     return &dd->optionsPage;
 }
 
+bool GitLabPlugin::handleCertificateIssue(const Utils::Id &serverId)
+{
+    QTC_ASSERT(dd, return false);
+
+    GitLabServer server = dd->parameters.serverForId(serverId);
+    if (QMessageBox::question(Core::ICore::dialogParent(),
+                              QCoreApplication::translate(
+                                  "GitLab::GitLabDialog", "Certificate Error"),
+                              QCoreApplication::translate(
+                                  "GitLab::GitLabDialog",
+                                  "Server certificate for %1 cannot be authenticated.\n"
+                                  "Do you want to disable SSL verification for this server?\n"
+                                  "Note: This can expose you to man-in-the-middle attack.")
+                              .arg(server.host))
+            == QMessageBox::Yes) {
+        int index = dd->parameters.gitLabServers.indexOf(server);
+        server.validateCert = false;
+        dd->parameters.gitLabServers.replace(index, server);
+        emit dd->optionsPage.settingsChanged();
+        return true;
+    }
+    return false;
+}
+
 void GitLabPlugin::linkedStateChanged(bool enabled)
 {
     QTC_ASSERT(dd, return);
