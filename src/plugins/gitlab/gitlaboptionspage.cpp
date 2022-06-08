@@ -64,35 +64,38 @@ GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
     : QWidget(parent)
     , m_mode(m)
 {
-    using namespace Utils::Layouting;
-
-    auto hostLabel = new QLabel(tr("Host:"), this);
+    m_host.setLabelText(tr("Host:"));
     m_host.setDisplayStyle(m == Display ? Utils::StringAspect::LabelDisplay
                                         : Utils::StringAspect::LineEditDisplay);
     m_host.setValidationFunction([](Utils::FancyLineEdit *l, QString *) {
         return hostValid(l->text());
     });
-    auto descriptionLabel = new QLabel(tr("Description:"), this);
+
+    m_description.setLabelText(tr("Description:"));
     m_description.setDisplayStyle(m == Display ? Utils::StringAspect::LabelDisplay
                                                : Utils::StringAspect::LineEditDisplay);
-    auto tokenLabel = new QLabel(tr("Access token:"), this);
+
+    m_token.setLabelText(tr("Access token:"));
     m_token.setDisplayStyle(m == Display ? Utils::StringAspect::LabelDisplay
                                          : Utils::StringAspect::LineEditDisplay);
     m_token.setVisible(m == Edit);
-    tokenLabel->setVisible(m == Edit);
+
     m_port.setRange(1, 65535);
-    auto portLabel = new QLabel(tr("Port:"), this);
     m_port.setDefaultValue(GitLabServer::defaultPort);
     m_port.setEnabled(m == Edit);
+    m_port.setLabelText(tr("Port:"));
 
     using namespace Utils::Layouting;
     const Break nl;
 
-    Form {
-        hostLabel, m_host, nl,
-        descriptionLabel, m_description, nl,
-        tokenLabel, m_token, nl,
-        portLabel, Span(1, Row { m_port, Stretch() }), nl,
+    Row {
+        Form {
+            m_host,
+            m_description,
+            m_token,
+            m_port
+        },
+        Stretch()
     }.attachTo(this, m == Edit);
 }
 
