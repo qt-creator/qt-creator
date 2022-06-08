@@ -238,7 +238,8 @@ bool skipPath(const std::filesystem::path &path)
 
     bool skip = directory == "QtApplicationManager" || directory == "QtInterfaceFramework"
                 || directory == "QtOpcUa" || directory == "Qt3D" || directory == "Qt3D"
-                || directory == "Scene2D" || directory == "Scene3D" || directory == "QtWayland";
+                || directory == "Scene2D" || directory == "Scene3D" || directory == "QtWayland"
+                || directory == "Qt5Compat";
     if (skip)
         qDebug() << "skip" << path.string().data();
 
