@@ -270,7 +270,10 @@ void CallgrindToolRunner::triggerParse()
     cleanupTempFile();
     {
         TemporaryFile dataFile("callgrind.out");
-        dataFile.open();
+        if (!dataFile.open()) {
+            showStatusMessage(tr("Failed opening temp file..."));
+            return;
+        }
         m_hostOutputFile = FilePath::fromString(dataFile.fileName());
     }
 
