@@ -486,7 +486,6 @@ static ProcessImpl defaultProcessImpl()
 }
 
 enum class SignalType {
-    NoSignal,
     Started,
     ReadyRead,
     Done
@@ -653,8 +652,16 @@ public:
     // === ProcessInterfaceHandler related ===
     // Called from caller's thread exclusively
     bool waitForSignal(int msecs, SignalType newSignal);
-    void flush() { flushFor(SignalType::NoSignal); }
-    bool flushFor(SignalType signalType);
+    void flush() { flushSignals(takeAllSignals()); }
+    bool flushFor(SignalType signalType) {
+        return flushSignals(takeSignalsFor(signalType), &signalType);
+    }
+
+    QList<ProcessInterfaceSignal *> takeAllSignals();
+    QList<ProcessInterfaceSignal *> takeSignalsFor(SignalType signalType);
+    bool flushSignals(const QList<ProcessInterfaceSignal *> &signalList,
+                      SignalType *signalType = nullptr);
+
     bool shouldFlush() const { QMutexLocker locker(&m_mutex); return !m_signals.isEmpty(); }
     Qt::ConnectionType connectionType() const;
     void sendControlSignal(ControlSignal controlSignal, int killTimeout = -1);
@@ -797,42 +804,50 @@ bool QtcProcessPrivate::waitForSignal(int msecs, SignalType newSignal)
 }
 
 // Called from caller's thread exclusively
-bool QtcProcessPrivate::flushFor(SignalType signalType)
+QList<ProcessInterfaceSignal *> QtcProcessPrivate::takeAllSignals()
 {
-    QList<ProcessInterfaceSignal *> oldSignals;
-    {
-        QMutexLocker locker(&m_mutex);
-        const QList<SignalType> storedSignals = transform(qAsConst(m_signals),
-                                [](const ProcessInterfaceSignal *aSignal) {
-            return aSignal->signalType();
-        });
+    QMutexLocker locker(&m_mutex);
+    return std::exchange(m_signals, {});
+}
 
-        // If we are flushing for ReadyRead or Done - flush all.
-        // If we are flushing for Started:
-        // - if Started was buffered - flush Started only.
-        // - otherwise if Done signal was buffered - flush all.
-        const bool flushAll = (signalType != SignalType::Started)
-                || (!storedSignals.contains(SignalType::Started)
-                    && storedSignals.contains(SignalType::Done));
-        if (flushAll) {
-            oldSignals = m_signals;
-            m_signals = {};
-        } else {
-            auto matchingIndex = storedSignals.lastIndexOf(signalType);
-            if (matchingIndex >= 0) {
-                oldSignals = m_signals.mid(0, matchingIndex + 1);
-                m_signals = m_signals.mid(matchingIndex + 1);
-            }
-        }
+// Called from caller's thread exclusively
+QList<ProcessInterfaceSignal *> QtcProcessPrivate::takeSignalsFor(SignalType signalType)
+{
+    // If we are flushing for ReadyRead or Done - flush all.
+    if (signalType != SignalType::Started)
+        return takeAllSignals();
+
+    QMutexLocker locker(&m_mutex);
+    const QList<SignalType> storedSignals = transform(qAsConst(m_signals),
+                            [](const ProcessInterfaceSignal *aSignal) {
+        return aSignal->signalType();
+    });
+
+    // If we are flushing for Started:
+    // - if Started was buffered - flush Started only (even when Done was buffered)
+    // - otherwise if Done signal was buffered - flush all.
+    if (!storedSignals.contains(SignalType::Started) && storedSignals.contains(SignalType::Done))
+        return std::exchange(m_signals, {}); // avoid takeAllSignals() because of mutex locked
+
+    QList<ProcessInterfaceSignal *> oldSignals;
+    const auto matchingIndex = storedSignals.lastIndexOf(signalType);
+    if (matchingIndex >= 0) {
+        oldSignals = m_signals.mid(0, matchingIndex + 1);
+        m_signals = m_signals.mid(matchingIndex + 1);
     }
+    return oldSignals;
+}
+
+// Called from caller's thread exclusively
+bool QtcProcessPrivate::flushSignals(const QList<ProcessInterfaceSignal *> &signalList,
+                                     SignalType *signalType)
+{
     bool signalMatched = false;
-    for (const ProcessInterfaceSignal *storedSignal : qAsConst(oldSignals)) {
+    for (const ProcessInterfaceSignal *storedSignal : qAsConst(signalList)) {
         const SignalType storedSignalType = storedSignal->signalType();
-        if (storedSignalType == signalType)
+        if (signalType && storedSignalType == *signalType)
             signalMatched = true;
         switch (storedSignalType) {
-        case SignalType::NoSignal:
-            break;
         case SignalType::Started:
             handleStartedSignal(static_cast<const StartedSignal *>(storedSignal));
             break;
@@ -840,7 +855,8 @@ bool QtcProcessPrivate::flushFor(SignalType signalType)
             handleReadyReadSignal(static_cast<const ReadyReadSignal *>(storedSignal));
             break;
         case SignalType::Done:
-            signalMatched = true;
+            if (signalType)
+                signalMatched = true;
             handleDoneSignal(static_cast<const DoneSignal *>(storedSignal));
             break;
         }
@@ -880,8 +896,6 @@ void QtcProcessPrivate::kill()
 // Called from ProcessInterfaceHandler thread exclusively.
 void QtcProcessPrivate::appendSignal(ProcessInterfaceSignal *newSignal)
 {
-    QTC_ASSERT(newSignal->signalType() != SignalType::NoSignal, delete newSignal; return);
-
     QMutexLocker locker(&m_mutex);
     m_signals.append(newSignal);
 }
