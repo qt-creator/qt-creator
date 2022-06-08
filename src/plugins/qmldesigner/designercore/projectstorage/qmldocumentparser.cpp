@@ -144,9 +144,6 @@ void addImports(Storage::Imports &imports,
 Storage::ImportedTypeName createImportedTypeName(const QStringView rawtypeName,
                                                  const QualifiedImports &qualifiedImports)
 {
-    if (!rawtypeName.contains('.'))
-        return Storage::ImportedType{Utils::SmallString{rawtypeName}};
-
     auto foundDot = std::find(rawtypeName.begin(), rawtypeName.end(), '.');
 
     QStringView alias(rawtypeName.begin(), foundDot);
@@ -159,6 +156,42 @@ Storage::ImportedTypeName createImportedTypeName(const QStringView rawtypeName,
 
     return Storage::QualifiedImportedType{Utils::SmallString{typeName.toString()},
                                           foundImport->second};
+}
+
+bool isListProperty(const QStringView rawtypeName)
+{
+    return rawtypeName.startsWith(u"list<") && rawtypeName.endsWith(u'>');
+}
+
+struct TypeNameViewAndTraits
+{
+    QStringView typeName;
+    Storage::PropertyDeclarationTraits traits;
+};
+
+TypeNameViewAndTraits filteredListTypeName(const QStringView rawtypeName)
+{
+    if (!isListProperty(rawtypeName))
+        return {rawtypeName, Storage::PropertyDeclarationTraits::None};
+
+    return {rawtypeName.mid(5, rawtypeName.size() - 6), Storage::PropertyDeclarationTraits::IsList};
+};
+
+struct TypeNameAndTraits
+{
+    Storage::ImportedTypeName importedTypeName;
+    Storage::PropertyDeclarationTraits traits;
+};
+
+TypeNameAndTraits createImportedTypeNameAndTypeTraits(const QStringView rawtypeName,
+                                                      const QualifiedImports &qualifiedImports)
+{
+    auto [filteredTypeName, traits] = filteredListTypeName(rawtypeName);
+
+    if (!filteredTypeName.contains('.'))
+        return {Storage::ImportedType{Utils::SmallString{filteredTypeName}}, traits};
+
+    return {createImportedTypeName(filteredTypeName, qualifiedImports), traits};
 }
 
 std::pair<Utils::SmallString, Utils::SmallString> createAccessPaths(const QStringList &accessPath)
@@ -190,18 +223,21 @@ void addPropertyDeclarations(Storage::Type &type,
                 auto [aliasPropertyName, aliasPropertyNameTail] = createAccessPaths(
                     resolvedAlias.accessedPath);
 
+                auto [importedTypeName, traits] = createImportedTypeNameAndTypeTraits(
+                    resolvedAlias.typeName, qualifiedImports);
+
                 type.propertyDeclarations.emplace_back(Utils::SmallString{propertyDeclaration.name},
-                                                       createImportedTypeName(resolvedAlias.typeName,
-                                                                              qualifiedImports),
-                                                       Storage::PropertyDeclarationTraits::None,
+                                                       std::move(importedTypeName),
+                                                       traits,
                                                        aliasPropertyName,
                                                        aliasPropertyNameTail);
             }
         } else {
+            auto [importedTypeName, traits] = createImportedTypeNameAndTypeTraits(
+                propertyDeclaration.typeName, qualifiedImports);
             type.propertyDeclarations.emplace_back(Utils::SmallString{propertyDeclaration.name},
-                                                   createImportedTypeName(propertyDeclaration.typeName,
-                                                                          qualifiedImports),
-                                                   Storage::PropertyDeclarationTraits::None);
+                                                   std::move(importedTypeName),
+                                                   traits);
         }
     }
 }

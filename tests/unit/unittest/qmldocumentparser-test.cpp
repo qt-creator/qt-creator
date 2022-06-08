@@ -474,4 +474,62 @@ TEST_F(QmlDocumentParser, InvalidAliasPropertiesAreSkipped)
     ASSERT_THAT(type.propertyDeclarations, IsEmpty());
 }
 
+TEST_F(QmlDocumentParser, ListProperty)
+{
+    auto type = parser.parse(R"(Item{
+                                    property list<Foo> foos
+                                })",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(type.propertyDeclarations,
+                UnorderedElementsAre(
+                    IsPropertyDeclaration("foos",
+                                          Storage::ImportedType{"Foo"},
+                                          Storage::PropertyDeclarationTraits::IsList)));
+}
+
+TEST_F(QmlDocumentParser, AliasOnListProperty)
+{
+    auto type = parser.parse(R"(Item{
+                                    property alias foos: foo.foos
+
+                                    Item {
+                                        id: foo
+                                        property list<Foo> foos
+                                    }
+                                })",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(type.propertyDeclarations,
+                UnorderedElementsAre(
+                    IsPropertyDeclaration("foos",
+                                          Storage::ImportedType{"Foo"},
+                                          Storage::PropertyDeclarationTraits::IsList)));
+}
+
+TEST_F(QmlDocumentParser, QualifiedListProperty)
+{
+    auto exampleModuleId = storage.moduleId("Example");
+    auto type = parser.parse(R"(import Example 2.1 as Example
+                                Item{
+                                    property list<Example.Foo> foos
+                                })",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(type.propertyDeclarations,
+                UnorderedElementsAre(IsPropertyDeclaration(
+                    "foos",
+                    Storage::QualifiedImportedType{"Foo",
+                                                   Storage::Import{exampleModuleId,
+                                                                   Storage::Version{2, 1},
+                                                                   qmlFileSourceId}},
+                    Storage::PropertyDeclarationTraits::IsList)));
+}
+
 } // namespace
