@@ -270,6 +270,9 @@ std::tuple<Storage::FunctionDeclarations, Storage::SignalDeclarations> createFun
     signalDeclarations.reserve(Utils::usize(qmlMethods));
 
     for (const QQmlJSMetaMethod &qmlMethod : qmlMethods) {
+        if (qmlMethod.isJavaScriptFunction())
+            continue;
+
         if (qmlMethod.methodType() != QQmlJSMetaMethod::Type::Signal) {
             functionsDeclarations.emplace_back(Utils::SmallString{qmlMethod.methodName()},
                                                fullyQualifiedTypeName(qmlMethod.returnTypeName(),
