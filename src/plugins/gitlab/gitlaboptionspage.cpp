@@ -57,7 +57,7 @@ static bool hostValid(const QString &host)
         }
         return true;
     }
-    return dn.match(host).hasMatch();
+    return (host == "localhost") || dn.match(host).hasMatch();
 }
 
 GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
