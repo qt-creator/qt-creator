@@ -81,9 +81,9 @@ GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
     m_token.setVisible(m == Edit);
 
     m_port.setRange(1, 65535);
-    m_port.setDefaultValue(GitLabServer::defaultPort);
+    m_port.setValue(GitLabServer::defaultPort);
+    auto portLabel = new QLabel(tr("Port:"), this);
     m_port.setEnabled(m == Edit);
-    m_port.setLabelText(tr("Port:"));
     m_secure.setLabelText(tr("HTTPS:"));
     m_secure.setLabelPlacement(Utils::BoolAspect::LabelPlacement::InExtraLabel);
     m_secure.setDefaultValue(true);
@@ -97,7 +97,7 @@ GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
             m_host,
             m_description,
             m_token,
-            m_port,
+            portLabel, &m_port, nl,
             m_secure
         },
         Stretch()
