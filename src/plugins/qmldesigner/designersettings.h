@@ -50,6 +50,7 @@ const char WARNING_FOR_DESIGNER_FEATURES_IN_EDITOR[] = "WarnAboutQtQuickDesigner
 const char SHOW_DEBUGVIEW[] = "ShowQtQuickDesignerDebugView";
 const char ENABLE_DEBUGVIEW[] = "EnableQtQuickDesignerDebugView";
 const char EDIT3DVIEW_BACKGROUND_COLOR[] = "Edit3DViewBackgroundColor";
+const char EDIT3DVIEW_GRID_COLOR[] = "Edit3DViewGridLineColor";
 const char ALWAYS_SAVE_IN_CRUMBLEBAR[] = "AlwaysSaveInCrumbleBar";
 const char USE_DEFAULT_PUPPET[] = "UseDefaultQml2Puppet";
 const char PUPPET_TOPLEVEL_BUILD_DIRECTORY[] = "PuppetToplevelBuildDirectory";

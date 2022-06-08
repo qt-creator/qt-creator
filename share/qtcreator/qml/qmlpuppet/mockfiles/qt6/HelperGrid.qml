@@ -33,6 +33,7 @@ Node {
     property alias lines: gridGeometry.lines
     property alias step: gridGeometry.step
     property alias subdivAlpha: subGridMaterial.opacity
+    property alias gridColor: mainGridMaterial.diffuseColor
 
     eulerRotation.x: 90
 

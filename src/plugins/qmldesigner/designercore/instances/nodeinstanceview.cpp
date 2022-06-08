@@ -94,6 +94,8 @@
 
 #include <coreplugin/messagemanager.h>
 
+#include <edit3d/edit3dviewconfig.h>
+
 #include <projectexplorer/kit.h>
 #include <projectexplorer/target.h>
 
@@ -983,17 +985,6 @@ QList<ModelNode> filterNodesForSkipItems(const QList<ModelNode> &nodeList)
     return filteredNodeList;
 }
 
-QList<QColor> readBackgroundColorConfiguration(const QVariant &var)
-{
-    if (!var.isValid())
-        return {};
-
-    auto colorNameList = var.value<QList<QString>>();
-    QTC_ASSERT(colorNameList.size() == 2, return {});
-
-    return {colorNameList[0], colorNameList[1]};
-}
-
 CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
 {
     QList<ModelNode> nodeList = allModelNodes();
@@ -1148,16 +1139,15 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     if (stateNode.isValid() && stateNode.metaInfo().isSubclassOf("QtQuick.State", 1, 0))
         stateInstanceId = stateNode.internalId();
 
-    QVariant value
+    QColor gridColor;
+    QList<QColor> backgroundColor;
+
 #ifndef QMLDESIGNER_TEST
-            = QmlDesigner::DesignerSettings::getValue(
-                QmlDesigner::DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR);
-#else
-            = {};
+    backgroundColor = Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR);
+    QList<QColor> gridColorList = Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR);
+    if (!gridColorList.isEmpty())
+        gridColor = gridColorList.at(0);
 #endif
-    QList<QColor> edit3dBackgroundColor;
-    if (value.isValid())
-        edit3dBackgroundColor = readBackgroundColorConfiguration(value);
 
     return CreateSceneCommand(
         instanceContainerList,
@@ -1180,7 +1170,8 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
         m_captureImageMinimumSize,
         m_captureImageMaximumSize,
         stateInstanceId,
-        edit3dBackgroundColor);
+        backgroundColor,
+        gridColor);
 }
 
 ClearSceneCommand NodeInstanceView::createClearSceneCommand() const

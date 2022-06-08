@@ -1742,7 +1742,7 @@ QObject *Qt5InformationNodeInstanceServer::find3DSceneRoot(QObject *obj) const
 }
 
 void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeInstance> &instanceList,
-                                                       const QHash<QString, QVariantMap> &toolStates)
+                                                       const CreateSceneCommand &command)
 {
 #ifdef QUICK3D_MODULE
     if (!m_editView3DData.rootItem)
@@ -1775,6 +1775,7 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
         Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D(true);
     });
 
+    const QHash<QString, QVariantMap> &toolStates = command.edit3dToolStates;
     QString lastSceneId;
     auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
     if (helper) {
@@ -1828,11 +1829,23 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
 
     createCameraAndLightGizmos(instanceList);
 
+    if (!command.edit3dBackgroundColor.isEmpty()) {
+        View3DActionCommand backgroundColorCommand(View3DActionCommand::SelectBackgroundColor,
+                                                   QVariant::fromValue(command.edit3dBackgroundColor));
+        view3DAction(backgroundColorCommand);
+    }
+
+    if (command.edit3dGridColor.isValid()) {
+        View3DActionCommand backgroundColorCommand(View3DActionCommand::SelectGridColor,
+                                                   QVariant::fromValue(command.edit3dGridColor));
+        view3DAction(backgroundColorCommand);
+    }
+
     // Queue two renders to make sure icon gizmos update properly
     render3DEditView(2);
 #else
     Q_UNUSED(instanceList)
-    Q_UNUSED(toolStates)
+    Q_UNUSED(command)
 #endif
 }
 
@@ -1954,7 +1967,7 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
     nodeInstanceClient()->componentCompleted(createComponentCompletedCommand(instanceList));
 
     if (ViewConfig::isQuick3DMode()) {
-        setup3DEditView(instanceList, command.edit3dToolStates);
+        setup3DEditView(instanceList, command);
         updateRotationBlocks(command.auxiliaryChanges);
     }
 
@@ -1963,12 +1976,6 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
 #ifdef IMPORT_QUICK3D_ASSETS
     QTimer::singleShot(0, this, &Qt5InformationNodeInstanceServer::resolveImportSupport);
 #endif
-
-    if (!command.edit3dBackgroundColor.isEmpty()) {
-        View3DActionCommand backgroundColorCommand(View3DActionCommand::SelectBackgroundColor,
-                                                   QVariant::fromValue(command.edit3dBackgroundColor));
-        view3DAction(backgroundColorCommand);
-    }
 }
 
 void Qt5InformationNodeInstanceServer::sendChildrenChangedCommand(const QList<ServerNodeInstance> &childList)
@@ -2233,8 +2240,11 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
     case View3DActionCommand::ShowCameraFrustum:
         updatedToolState.insert("showCameraFrustum", command.isEnabled());
         break;
-    case View3DActionCommand::SelectBackgroundColor: {
+    case View3DActionCommand::SelectBackgroundColor:
         updatedViewState.insert("selectBackgroundColor", command.value());
+        break;
+    case View3DActionCommand::SelectGridColor: {
+        updatedViewState.insert("selectGridColor", command.value());
         break;
     }
 #ifdef QUICK3D_PARTICLES_MODULE

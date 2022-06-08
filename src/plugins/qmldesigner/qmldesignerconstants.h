@@ -66,6 +66,7 @@ const char EDIT3D_ORIENTATION[]    = "QmlDesigner.Editor3D.OrientationToggle";
 const char EDIT3D_EDIT_LIGHT[]     = "QmlDesigner.Editor3D.EditLightToggle";
 const char EDIT3D_EDIT_SHOW_GRID[] = "QmlDesigner.Editor3D.ToggleGrid";
 const char EDIT3D_EDIT_SELECT_BACKGROUND_COLOR[] = "QmlDesigner.Editor3D.SelectBackgroundColor";
+const char EDIT3D_EDIT_SELECT_GRID_COLOR[] = "QmlDesigner.Editor3D.SelectGridColor";
 const char EDIT3D_EDIT_RESET_BACKGROUND_COLOR[] = "QmlDesigner.Editor3D.ResetBackgroundColor";
 const char EDIT3D_EDIT_SHOW_SELECTION_BOX[] = "QmlDesigner.Editor3D.ToggleSelectionBox";
 const char EDIT3D_EDIT_SHOW_ICON_GIZMO[] = "QmlDesigner.Editor3D.ToggleIconGizmo";

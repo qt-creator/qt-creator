@@ -114,7 +114,7 @@ private:
     void createEditView3D();
     void create3DPreviewView();
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList,
-                         const QHash<QString, QVariantMap> &toolStates);
+                         const CreateSceneCommand &command);
     void createCameraAndLightGizmos(const QList<ServerNodeInstance> &instanceList) const;
     void add3DViewPorts(const QList<ServerNodeInstance> &instanceList);
     void add3DScenes(const QList<ServerNodeInstance> &instanceList);

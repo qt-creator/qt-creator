@@ -23,85 +23,56 @@
 **
 ****************************************************************************/
 
-#include "backgroundcolorselection.h"
+#pragma once
 
-#include <nodeinstanceview.h>
+#include <QColorDialog>
+
 #include <utils/qtcassert.h>
-#include <view3dactioncommand.h>
-#include <qmldesignerplugin.h>
+
+#include "backgroundcolorselection.h"
+#include "edit3dviewconfig.h"
 
 using namespace QmlDesigner;
 
-namespace {
-QList<QColor> readBackgroundColorConfiguration()
+void BackgroundColorSelection::showBackgroundColorSelectionWidget(QWidget *parent, const QByteArray &key,
+                                                                  View3DActionCommand::Type cmdType)
 {
-    QVariant var = QmlDesigner::DesignerSettings::getValue(
-        QmlDesigner::DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR);
+    if (m_dialog)
+        return;
 
-    if (!var.isValid())
-        return {};
+    m_dialog = BackgroundColorSelection::createColorDialog(parent, key, cmdType);
+    QTC_ASSERT(m_dialog, return);
 
-    auto colorNameList = var.value<QList<QString>>();
-    QTC_ASSERT(colorNameList.size() == 2, return {});
-
-    return {colorNameList[0], colorNameList[1]};
+    QObject::connect(m_dialog, &QWidget::destroyed, m_dialog, [&]() {
+        m_dialog = nullptr;
+    });
 }
 
-void setBackgroundColorConfiguration(const QList<QColor> &colorConfig)
-{
-    auto view = QmlDesignerPlugin::instance()->viewManager().nodeInstanceView();
-    View3DActionCommand cmd(View3DActionCommand::SelectBackgroundColor,
-                            QVariant::fromValue(colorConfig));
-    view->view3DAction(cmd);
-}
-
-void saveBackgroundColorConfiguration(const QList<QColor> &colorConfig)
-{
-    QList<QString> colorsSaved = {colorConfig[0].name(), colorConfig[1].name()};
-    QmlDesigner::DesignerSettings::setValue(
-        QmlDesigner::DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR,
-        QVariant::fromValue(colorsSaved));
-}
-
-} // namespace
-
-QColorDialog *BackgroundColorSelection::createDialog(QWidget *parent)
+QColorDialog *BackgroundColorSelection::createColorDialog(QWidget *parent, const QByteArray &key,
+                                                          View3DActionCommand::Type cmdType)
 {
     auto dialog = new QColorDialog(parent);
 
     dialog->setModal(true);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
 
-    const QList<QColor> oldColorConfig = readBackgroundColorConfiguration();
+    QList<QColor> oldColorConfig = Edit3DViewConfig::load(key);
 
     dialog->show();
 
-    QObject::connect(dialog, &QColorDialog::currentColorChanged, dialog, [](const QColor &color) {
-        setBackgroundColorConfiguration({color, color});
+    QObject::connect(dialog, &QColorDialog::currentColorChanged, dialog, [cmdType](const QColor &color) {
+        Edit3DViewConfig::set(cmdType, color);
     });
 
-    QObject::connect(dialog, &QColorDialog::colorSelected, dialog, [](const QColor &color) {
-        saveBackgroundColorConfiguration({color, color});
+    QObject::connect(dialog, &QColorDialog::colorSelected, dialog, [key](const QColor &color) {
+        Edit3DViewConfig::save(key, color);
     });
 
-    if (!oldColorConfig.isEmpty()) {
-        QObject::connect(dialog, &QColorDialog::rejected, dialog, [oldColorConfig]() {
-            setBackgroundColorConfiguration(oldColorConfig);
+    if (Edit3DViewConfig::isValid(oldColorConfig)) {
+        QObject::connect(dialog, &QColorDialog::rejected, dialog, [cmdType, oldColorConfig]() {
+            Edit3DViewConfig::set(cmdType, oldColorConfig);
         });
     }
 
     return dialog;
-}
-
-void BackgroundColorSelection::showBackgroundColorSelectionWidget(QWidget *parent)
-{
-    if (m_dialog)
-        return;
-
-    m_dialog = BackgroundColorSelection::createDialog(parent);
-    QTC_ASSERT(m_dialog, return);
-
-    QObject::connect(m_dialog, &QWidget::destroyed, m_dialog, [&]() {
-        m_dialog = nullptr;
-    });
 }
