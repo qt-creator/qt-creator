@@ -543,7 +543,6 @@ public:
     // Called from caller's thread exclusively.
     bool waitForSignal(int msecs, ProcessSignalType newSignal);
     void moveToCallerThread();
-    void startKillTimer(int killTimeout);
 
 private:
     // Called from caller's thread exclusively.
@@ -557,7 +556,6 @@ private:
     void appendSignal(ProcessInterfaceSignal *newSignal);
 
     QtcProcessPrivate *m_caller = nullptr;
-    QTimer m_killTimer;
     QMutex m_mutex;
     QWaitCondition m_waitCondition;
 };
@@ -568,8 +566,14 @@ public:
     explicit QtcProcessPrivate(QtcProcess *parent)
         : QObject(parent)
         , q(parent)
+        , m_killTimer(this)
     {
         m_setup.m_controlEnvironment = Environment::systemEnvironment();
+        m_killTimer.setSingleShot(true);
+        connect(&m_killTimer, &QTimer::timeout, this, [this] {
+            m_killTimer.stop();
+            sendControlSignal(ControlSignal::Kill);
+        });
     }
 
     ProcessInterface *createProcessInterface()
@@ -658,13 +662,14 @@ public:
 
     bool shouldFlush() const { QMutexLocker locker(&m_mutex); return !m_signals.isEmpty(); }
     Qt::ConnectionType connectionType() const;
-    void sendControlSignal(ControlSignal controlSignal, int killTimeout = -1);
+    void sendControlSignal(ControlSignal controlSignal);
     // Called from ProcessInterfaceHandler thread exclusively.
-    void kill();
     void appendSignal(ProcessInterfaceSignal *launcherSignal);
 
     mutable QMutex m_mutex;
     QList<ProcessInterfaceSignal *> m_signals;
+    QTimer m_killTimer;
+
     // =======================================
 
     QProcess::ProcessState m_state = QProcess::NotRunning;
@@ -690,7 +695,6 @@ public:
 ProcessInterfaceHandler::ProcessInterfaceHandler(QtcProcessPrivate *caller,
                                                  ProcessInterface *process)
     : m_caller(caller)
-    , m_killTimer(this)
 {
     connect(process, &ProcessInterface::started,
             this, &ProcessInterfaceHandler::handleStarted);
@@ -698,8 +702,6 @@ ProcessInterfaceHandler::ProcessInterfaceHandler(QtcProcessPrivate *caller,
             this, &ProcessInterfaceHandler::handleReadyRead);
     connect(process, &ProcessInterface::done,
             this, &ProcessInterfaceHandler::handleDone);
-    m_killTimer.setSingleShot(true);
-    connect(&m_killTimer, &QTimer::timeout, caller, &QtcProcessPrivate::kill, Qt::DirectConnection);
 }
 
 // Called from caller's thread exclusively.
@@ -725,12 +727,6 @@ void ProcessInterfaceHandler::moveToCallerThread()
     QMetaObject::invokeMethod(this, [this] {
         moveToThread(m_caller->thread());
     }, Qt::BlockingQueuedConnection);
-}
-
-void ProcessInterfaceHandler::startKillTimer(int killTimeout)
-{
-    m_killTimer.setInterval(killTimeout);
-    m_killTimer.start();
 }
 
 // Called from caller's thread exclusively.
@@ -762,7 +758,6 @@ void ProcessInterfaceHandler::handleReadyRead(const QByteArray &outputData, cons
 // Called from ProcessInterfaceHandler thread exclusively
 void ProcessInterfaceHandler::handleDone(const ProcessResultData &data)
 {
-    m_killTimer.stop();
     appendSignal(new DoneSignal(data));
 }
 
@@ -780,6 +775,11 @@ void ProcessInterfaceHandler::appendSignal(ProcessInterfaceSignal *newSignal)
 // Called from caller's thread exclusively
 bool QtcProcessPrivate::waitForSignal(int msecs, ProcessSignalType newSignal)
 {
+    const QDeadlineTimer timeout(msecs);
+    const QDeadlineTimer currentKillTimeout(m_killTimer.remainingTime());
+    const bool needsSplit = m_killTimer.isActive() ? timeout > currentKillTimeout : false;
+    const QDeadlineTimer mainTimeout = needsSplit ? currentKillTimeout : timeout;
+
     m_processHandler->setParent(nullptr);
 
     QThread thread;
@@ -789,7 +789,12 @@ bool QtcProcessPrivate::waitForSignal(int msecs, ProcessSignalType newSignal)
     // the caller here is blocked, so all signals should be buffered and we are going
     // to flush them from inside waitForSignal().
     m_processHandler->moveToThread(&thread);
-    const bool result = m_processHandler->waitForSignal(msecs, newSignal);
+    bool result = m_processHandler->waitForSignal(mainTimeout.remainingTime(), newSignal);
+    if (!result && needsSplit) {
+        m_killTimer.stop();
+        sendControlSignal(ControlSignal::Kill);
+        result = m_processHandler->waitForSignal(timeout.remainingTime(), newSignal);
+    }
     m_processHandler->moveToCallerThread();
     m_processHandler->setParent(this);
     thread.quit();
@@ -869,24 +874,15 @@ Qt::ConnectionType QtcProcessPrivate::connectionType() const
 }
 
 // Called from caller's thread exclusively
-void QtcProcessPrivate::sendControlSignal(ControlSignal controlSignal, int killTimeout)
+void QtcProcessPrivate::sendControlSignal(ControlSignal controlSignal)
 {
     QTC_ASSERT(QThread::currentThread() == thread(), return);
     if (!m_process || (m_state == QProcess::NotRunning))
         return;
 
-    QMetaObject::invokeMethod(m_process.get(), [this, controlSignal, killTimeout] {
+    QMetaObject::invokeMethod(m_process.get(), [this, controlSignal] {
         m_process->sendControlSignal(controlSignal);
-        if (killTimeout >= 0)
-            m_processHandler->startKillTimer(killTimeout);
     }, connectionType());
-}
-
-// Called from ProcessInterfaceHandler thread exclusively.
-void QtcProcessPrivate::kill()
-{
-    QTC_ASSERT(QThread::currentThread() == m_process->thread(), return);
-    m_process->sendControlSignal(ControlSignal::Kill);
 }
 
 // Called from ProcessInterfaceHandler thread exclusively.
@@ -905,6 +901,7 @@ void QtcProcessPrivate::clearForRun()
     m_stdErr.codec = m_codec;
     m_result = ProcessResult::StartFailed;
 
+    m_killTimer.stop();
     m_state = QProcess::NotRunning;
     m_processId = 0;
     m_applicationMainThreadId = 0;
@@ -1530,7 +1527,8 @@ void QtcProcess::stop()
     if (state() == QProcess::NotRunning)
         return;
 
-    d->sendControlSignal(ControlSignal::Terminate, d->m_process->m_setup.m_reaperTimeout);
+    d->sendControlSignal(ControlSignal::Terminate);
+    d->m_killTimer.start(d->m_process->m_setup.m_reaperTimeout);
 }
 
 QString QtcProcess::locateBinary(const QString &binary)
@@ -1868,6 +1866,7 @@ void QtcProcessPrivate::handleReadyReadSignal(const ReadyReadSignal *aSignal)
 
 void QtcProcessPrivate::handleDoneSignal(const DoneSignal *aSignal)
 {
+    m_killTimer.stop();
     handleDone(aSignal->resultData());
 }
 
