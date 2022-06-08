@@ -1390,7 +1390,7 @@ void QmakeBuildSystem::testToolChain(ToolChain *tc, const FilePath &path) const
     const Utils::FilePath expected = tc->compilerCommand();
     Environment env = buildConfiguration()->environment();
 
-    if (env.isSameExecutable(path.toString(), expected.toString()))
+    if (tc->matchesCompilerCommand(expected, env))
         return;
     const QPair<Utils::FilePath, Utils::FilePath> pair = qMakePair(expected, path);
     if (m_toolChainWarnings.contains(pair))

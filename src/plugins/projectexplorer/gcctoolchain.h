@@ -33,6 +33,7 @@
 #include "headerpath.h"
 
 #include <utils/fileutils.h>
+#include <utils/optional.h>
 
 #include <functional>
 #include <memory>
@@ -211,6 +212,10 @@ public:
     explicit ClangToolChain(Utils::Id typeId);
     ~ClangToolChain() override;
 
+    bool matchesCompilerCommand(
+        const Utils::FilePath &command,
+        const Utils::Environment &env = Utils::Environment::systemEnvironment()) const override;
+
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
 
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
@@ -237,6 +242,9 @@ protected:
     void syncAutodetectedWithParentToolchains();
 
 private:
+    // "resolved" on macOS from /usr/bin/clang(++) etc to <DeveloperDir>/usr/bin/clang(++)
+    // which is used for comparison with matchesCompileCommand
+    mutable Utils::optional<Utils::FilePath> m_resolvedCompilerCommand;
     QByteArray m_parentToolChainId;
     QMetaObject::Connection m_mingwToolchainAddedConnection;
     QMetaObject::Connection m_thisToolchainRemovedConnection;

@@ -414,9 +414,7 @@ ProjectImporter::findOrCreateToolChains(const ToolChainDescription &tcd) const
 {
     ToolChainData result;
     result.tcs = ToolChainManager::toolchains([&tcd](const ToolChain *tc) {
-        return tc->language() == tcd.language &&
-               Utils::Environment::systemEnvironment().isSameExecutable(
-                    tc->compilerCommand().toString(), tcd.compilerPath.toString());
+        return tc->language() == tcd.language && tc->matchesCompilerCommand(tcd.compilerPath);
     });
     for (const ToolChain *tc : qAsConst(result.tcs)) {
         const QByteArray tcId = tc->id();
