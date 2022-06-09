@@ -855,7 +855,7 @@ bool ModelNode::hasAnySubModelNodes() const
     return !nodeAbstractProperties().isEmpty();
 }
 
-const NodeMetaInfo ModelNode::metaInfo() const
+NodeMetaInfo ModelNode::metaInfo() const
 {
     if (!isValid()) {
         Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");

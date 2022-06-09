@@ -25,12 +25,14 @@
 
 #pragma once
 
+#include "propertymetainfo.h"
+
 #include <QIcon>
 #include <QList>
 #include <QString>
 #include <QVariant>
 
-#include "qmldesignercorelib_global.h"
+#include <qmldesignercorelib_global.h>
 
 QT_BEGIN_NAMESPACE
 class QDeclarativeContext;
@@ -51,19 +53,14 @@ public:
     bool isValid() const { return {}; }
     bool isFileComponent() const { return {}; }
     bool hasProperty(const PropertyName &) const { return {}; }
+    PropertyMetaInfos properties() const { return {}; }
+    PropertyMetaInfos localProperties() const { return {}; }
+    PropertyMetaInfo property(const PropertyName &) const { return {}; }
     PropertyNameList propertyNames() const { return {}; }
     PropertyNameList signalNames() const { return {}; }
     PropertyNameList directPropertyNames() const { return {}; }
     PropertyName defaultPropertyName() const { return "data"; }
     bool hasDefaultProperty() const { return {}; }
-    TypeName propertyTypeName(const PropertyName &) const { return {}; }
-    bool propertyIsWritable(const PropertyName &) const { return {}; }
-    bool propertyIsListProperty(const PropertyName &) const { return {}; }
-    bool propertyIsEnumType(const PropertyName &) const { return {}; }
-    bool propertyIsPrivate(const PropertyName &) const { return {}; }
-    QString propertyEnumScope(const PropertyName &) const { return {}; }
-    QStringList propertyKeysForEnum(const PropertyName &) const { return {}; }
-    QVariant propertyCastedValue(const PropertyName &, const QVariant &) const { return {}; }
 
     QList<NodeMetaInfo> classHierarchy() const { return {}; }
     QList<NodeMetaInfo> superClasses() const { return {}; }

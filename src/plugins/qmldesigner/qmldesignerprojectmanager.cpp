@@ -130,7 +130,7 @@ public:
                                   QSize{300, 300},
                                   QSize{1000, 1000},
                                   ImageCacheCollectorNullImageHandling::DontCaptureNullImage};
-    TimeStampProvider timeStampProvider;
+    PreviewTimeStampProvider timeStampProvider;
     AsynchronousExplicitImageCache cache{storage};
     AsynchronousImageFactory factory{storage, timeStampProvider, collector};
 };

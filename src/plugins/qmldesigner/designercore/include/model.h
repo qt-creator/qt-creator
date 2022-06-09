@@ -44,8 +44,7 @@ namespace QmlDesigner {
 namespace Internal {
 class ModelPrivate;
 class WriteLocker;
-class NodeMetaInfoPrivate;
-} // namespace Internal
+} //Internal
 
 class AnchorLine;
 class ModelNode;
@@ -70,7 +69,7 @@ class QMLDESIGNERCORE_EXPORT Model : public QObject
     friend AbstractView;
     friend Internal::ModelPrivate;
     friend Internal::WriteLocker;
-    friend Internal::NodeMetaInfoPrivate;
+    friend class NodeMetaInfoPrivate;
 
     Q_OBJECT
 
@@ -141,4 +140,4 @@ private:
     Internal::ModelPrivate *d;
 };
 
-} // namespace QmlDesigner
+}

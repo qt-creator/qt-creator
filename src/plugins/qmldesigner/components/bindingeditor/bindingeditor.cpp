@@ -113,7 +113,7 @@ void BindingEditor::setBackendValue(const QVariant &backendValue)
         const ModelNode node = propertyEditorValue->modelNode();
 
         if (node.isValid()) {
-            m_backendValueTypeName = node.metaInfo().propertyTypeName(propertyEditorValue->name());
+            m_backendValueTypeName = node.metaInfo().property(propertyEditorValue->name()).propertyTypeName();
 
             QString nodeId = node.id();
             if (nodeId.isEmpty())
@@ -205,14 +205,14 @@ void BindingEditor::prepareBindings()
 
     for (const auto &objnode : allNodes) {
         BindingEditorDialog::BindingOption binding;
-        for (const auto &propertyName : objnode.metaInfo().propertyNames()) {
-            TypeName propertyTypeName = objnode.metaInfo().propertyTypeName(propertyName);
+        for (const auto &property : objnode.metaInfo().properties()) {
+            const TypeName &propertyTypeName = property.propertyTypeName();
 
             if (skipTypeFiltering
                     || (m_backendValueTypeName == propertyTypeName)
                     || isVariant(propertyTypeName)
                     || (targetTypeIsNumeric && isNumeric(propertyTypeName))) {
-                binding.properties.append(QString::fromUtf8(propertyName));
+                binding.properties.append(QString::fromUtf8(property.name()));
             }
         }
 
@@ -259,15 +259,15 @@ void BindingEditor::prepareBindings()
                 if (metaInfo.isValid()) {
                     BindingEditorDialog::BindingOption binding;
 
-                    for (const PropertyName &propertyName : metaInfo.propertyNames()) {
-                        TypeName propertyTypeName = metaInfo.propertyTypeName(propertyName);
+                    for (const auto &property : metaInfo.properties()) {
+                        TypeName propertyTypeName = property.propertyTypeName();
 
                         if (skipTypeFiltering
                                 || (m_backendValueTypeName == propertyTypeName)
                                 || (isVariant(propertyTypeName))
                                 || (targetTypeIsNumeric && isNumeric(propertyTypeName))
                                 || (isColor(m_backendValueTypeName) && isColor(propertyTypeName))) {
-                            binding.properties.append(QString::fromUtf8(propertyName));
+                            binding.properties.append(QString::fromUtf8(property.name()));
                         }
                     }
 

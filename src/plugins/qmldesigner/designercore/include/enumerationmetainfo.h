@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,16 +25,27 @@
 
 #pragma once
 
-#include <QByteArray>
-#include <QList>
+#include <qmldesignercorelib_global.h>
+
+#include <QSharedPointer>
+#include <QString>
 
 #include <vector>
 
 namespace QmlDesigner {
 
-using PropertyName = QByteArray;
-using PropertyNameList = QList<PropertyName>;
-using PropertyNames = std::vector<PropertyName>;
-using TypeName = QByteArray;
+class EnumerationMetaInfo
+{
+public:
+    EnumerationMetaInfo(QSharedPointer<class NodeMetaInfoPrivate> nodeMetaInfoPrivateData,
+                        const TypeName &enumeration);
+    ~EnumerationMetaInfo();
 
-}
+private:
+    QSharedPointer<class NodeMetaInfoPrivate> m_nodeMetaInfoPrivateData;
+    const TypeName &m_enumeration;
+};
+
+using EnumerationMetaInfos = std::vector<EnumerationMetaInfo>;
+
+} // namespace QmlDesigner

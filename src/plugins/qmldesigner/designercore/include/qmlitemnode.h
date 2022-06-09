@@ -212,12 +212,14 @@ public:
     void setStartFlowItem(const QmlFlowItemNode &flowItem);
     ModelNode createTransition();
 
-    static PropertyNameList st_mouseSignals;
     static QList<QmlConnections> getAssociatedConnections(const ModelNode &node);
-
+    static const PropertyNameList &mouseSignals() { return s_mouseSignals; }
 
 protected:
     QList<ModelNode> transitionsForProperty(const PropertyName &propertyName, const ModelNode &modelNode);
+
+private:
+    static PropertyNameList s_mouseSignals;
 };
 
 

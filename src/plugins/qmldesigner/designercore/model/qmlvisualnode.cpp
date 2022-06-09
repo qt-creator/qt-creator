@@ -223,7 +223,7 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
     if (!forceNonDefaultProperty.isEmpty()) {
         const NodeMetaInfo metaInfo = parentQmlItemNode.modelNode().metaInfo();
         if (metaInfo.hasProperty(forceNonDefaultProperty)) {
-            if (!metaInfo.propertyIsListProperty(forceNonDefaultProperty)
+            if (!metaInfo.property(forceNonDefaultProperty).isListProperty()
                 && parentQmlItemNode.modelNode().hasNodeProperty(forceNonDefaultProperty)) {
                 parentQmlItemNode.removeProperty(forceNonDefaultProperty);
             }
@@ -324,7 +324,7 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
             const ModelNode parentNode = parentProperty.parentModelNode();
             const NodeMetaInfo metaInfo = parentNode.metaInfo();
 
-            if (metaInfo.isValid() && !metaInfo.propertyIsListProperty(propertyName)
+            if (metaInfo.isValid() && !metaInfo.property(propertyName).isListProperty()
                 && parentProperty.isNodeProperty()) {
                 parentNode.removeProperty(propertyName);
             }

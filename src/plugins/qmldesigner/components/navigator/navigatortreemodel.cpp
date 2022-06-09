@@ -725,7 +725,7 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                             }
                         }
 
-                        if (targetNode.metaInfo().propertyIsListProperty(selectedProp)) {
+                        if (targetNode.metaInfo().property(selectedProp).isListProperty()) {
                             BindingProperty listProp = targetNode.bindingProperty(selectedProp);
                             listProp.addModelNodeToArray(newModelNode);
                             validContainer = true;
@@ -1105,7 +1105,7 @@ ModelNode NavigatorTreeModel::createTextureNode(const NodeAbstractProperty &targ
 
 TypeName propertyType(const NodeAbstractProperty &property)
 {
-    return property.parentModelNode().metaInfo().propertyTypeName(property.name());
+    return property.parentModelNode().metaInfo().property(property.name()).propertyTypeName();
 }
 
 void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProperty,

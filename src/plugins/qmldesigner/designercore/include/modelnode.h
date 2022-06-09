@@ -174,7 +174,7 @@ public:
     Model *model() const;
     AbstractView *view() const;
 
-    const NodeMetaInfo metaInfo() const;
+    NodeMetaInfo metaInfo() const;
     bool hasMetaInfo() const;
 
     bool isSelected() const;

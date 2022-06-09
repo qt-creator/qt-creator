@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,16 +25,45 @@
 
 #pragma once
 
-#include <QByteArray>
-#include <QList>
+#include <qmldesignercorelib_global.h>
+
+#include <QSharedPointer>
+#include <QString>
 
 #include <vector>
 
 namespace QmlDesigner {
 
-using PropertyName = QByteArray;
-using PropertyNameList = QList<PropertyName>;
-using PropertyNames = std::vector<PropertyName>;
-using TypeName = QByteArray;
+class PropertyMetaInfo
+{
+public:
+    PropertyMetaInfo() = default;
+    PropertyMetaInfo(QSharedPointer<class NodeMetaInfoPrivate>, const PropertyName &) {}
+    ~PropertyMetaInfo() {}
 
-}
+    const TypeName &propertyTypeName() const
+    {
+        static TypeName foo;
+        return foo;
+    }
+    class NodeMetaInfo propertyNodeMetaInfo() const;
+
+    bool isWritable() const { return {}; }
+    bool isListProperty() const { return {}; }
+    bool isEnumType() const { return {}; }
+    bool isPrivate() const { return {}; }
+    bool isPointer() const { return {}; }
+    QVariant castedValue(const QVariant &) const { return {}; }
+    PropertyName name() const & { return {}; }
+
+    template<typename... TypeName>
+    bool hasPropertyTypeName(const TypeName &...typeName) const
+    {
+        auto propertyTypeName_ = propertyTypeName();
+        return ((propertyTypeName_ == typeName) && ...);
+    }
+};
+
+using PropertyMetaInfos = std::vector<PropertyMetaInfo>;
+
+} // namespace QmlDesigner

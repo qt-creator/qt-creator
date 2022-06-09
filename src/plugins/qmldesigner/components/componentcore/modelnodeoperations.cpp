@@ -568,11 +568,17 @@ void layoutGridLayout(const SelectionContext &selectionContext)
     }
 }
 
-static PropertyNameList sortedPropertyNameList(const PropertyNameList &nameList)
+static PropertyNameList sortedPropertyNameList(const PropertyMetaInfos &properties)
 {
-    PropertyNameList sortedPropertyNameList = nameList;
-    std::stable_sort(sortedPropertyNameList.begin(), sortedPropertyNameList.end());
-    return sortedPropertyNameList;
+    auto propertyNames = Utils::transform<PropertyNameList>(properties, [](const auto &property) {
+        return property.name();
+    });
+
+    std::sort(propertyNames.begin(), propertyNames.end());
+
+    propertyNames.erase(std::unique(propertyNames.begin(), propertyNames.end()), propertyNames.end());
+
+    return propertyNames;
 }
 
 static QString toUpper(const QString &signal)
@@ -628,12 +634,14 @@ static QStringList getSortedSignalNameList(const ModelNode &modelNode)
     QStringList signalNames;
 
     if (metaInfo.isValid()) {
-        const PropertyNameList signalNameList = sortedPropertyNameList(metaInfo.signalNames());
+        // TODO seem to be broken because there can be properties without notifier and the notifier can be even have a different name
+
+        const PropertyNameList signalNameList = metaInfo.signalNames();
         for (const PropertyName &signalName : signalNameList)
             if (!signalName.contains("Changed"))
                 signalNames.append(QString::fromUtf8(signalName));
 
-        const PropertyNameList propertyNameList = sortedPropertyNameList(metaInfo.propertyNames());
+        const PropertyNameList propertyNameList = sortedPropertyNameList(metaInfo.properties());
         for (const PropertyName &propertyName : propertyNameList)
             if (!propertyName.contains("."))
                 signalNames.append(QString::fromUtf8(propertyName + "Changed"));

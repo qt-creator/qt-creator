@@ -298,23 +298,19 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
 
         auto addMetaInfoProperties = [&](const NodeMetaInfo& itemMetaInfo, QString itemName){
             if (itemMetaInfo.isValid()) {
-                for (const PropertyName &propertyName : itemMetaInfo.propertyNames()) {
-                    TypeName propertyType = itemMetaInfo.propertyTypeName(propertyName);
+                for (const auto &property : itemMetaInfo.properties()) {
+                    TypeName propertyType = property.propertyTypeName();
                     if (!propertyType.isEmpty()) {
                         //first letter is a reliable item indicator
                         QChar firstLetter = QString::fromUtf8(propertyType).at(0);
                         if (firstLetter.isLetter() && firstLetter.isUpper()) {
-                            if (!itemMetaInfo.propertyIsEnumType(propertyName)
-                                    && !itemMetaInfo.propertyIsPrivate(propertyName)
-                                    && !itemMetaInfo.propertyIsListProperty(propertyName)
-                                    && !itemMetaInfo.propertyIsPointer(propertyName)) {
+                            if (!property.isEnumType() && !property.isPrivate()
+                                && !property.isListProperty() && !property.isPointer()) {
                                 NodeMetaInfo propertyMetaInfo =
                                         connectionModel->connectionView()->model()->metaInfo(propertyType);
                                 if (propertyMetaInfo.isValid()) {
                                     if (propertyMetaInfo.isQmlItem()) {
-                                        connectionComboBox->addItem(itemName
-                                                                    + "."
-                                                                    + propertyName);
+                                        connectionComboBox->addItem(itemName + "." + property.name());
                                     }
                                 }
                             }

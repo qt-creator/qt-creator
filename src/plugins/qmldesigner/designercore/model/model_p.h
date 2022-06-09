@@ -46,6 +46,7 @@ namespace QmlDesigner {
 class AbstractProperty;
 class RewriterView;
 class NodeInstanceView;
+class NodeMetaInfoPrivate;
 
 namespace Internal {
 
@@ -85,7 +86,7 @@ class ModelPrivate : public QObject {
 
     friend Model;
     friend Internal::WriteLocker;
-    friend Internal::NodeMetaInfoPrivate;
+    friend NodeMetaInfoPrivate;
 
 public:
      ModelPrivate(Model *model);

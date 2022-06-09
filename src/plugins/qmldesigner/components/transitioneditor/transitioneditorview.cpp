@@ -226,7 +226,7 @@ ModelNode TransitionEditorView::addNewTransition()
             if (target.isValid() && target.hasMetaInfo()) {
                 const QString targetId = target.id();
                 for (const VariantProperty &property : change.modelNode().variantProperties()) {
-                    TypeName typeName = target.metaInfo().propertyTypeName(property.name());
+                    TypeName typeName = target.metaInfo().property(property.name()).propertyTypeName();
                     if (typeName.startsWith("<cpp>."))
                         typeName.remove(0, 6);
 

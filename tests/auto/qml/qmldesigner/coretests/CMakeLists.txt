@@ -1,5 +1,5 @@
 add_qtc_test(tst_qml_testcore
-  CONDITION TARGET QmlProjectManager
+  CONDITION TARGET QmlProjectManager AND Qt5_VERSION VERSION_GREATER_EQUAL 6.2.0
   DEFINES
     QT_CREATOR
     QMLDESIGNER_TEST

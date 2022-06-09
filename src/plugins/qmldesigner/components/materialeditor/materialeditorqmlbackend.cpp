@@ -270,9 +270,12 @@ void MaterialEditorQmlBackend::setup(const QmlObjectNode &selectedMaterialNode, 
     if (selectedMaterialNode.isValid()) {
         m_contextObject->setModel(materialEditor->model());
 
-        const PropertyNameList propertyNames = selectedMaterialNode.modelNode().metaInfo().propertyNames();
-        for (const PropertyName &propertyName : propertyNames)
-            createPropertyEditorValue(selectedMaterialNode, propertyName, selectedMaterialNode.instanceValue(propertyName), materialEditor);
+        for (const auto &property : selectedMaterialNode.modelNode().metaInfo().properties()) {
+            createPropertyEditorValue(selectedMaterialNode,
+                                      property.name(),
+                                      selectedMaterialNode.instanceValue(property.name()),
+                                      materialEditor);
+        }
 
         // model node
         m_backendModelNode.setup(selectedMaterialNode.modelNode());

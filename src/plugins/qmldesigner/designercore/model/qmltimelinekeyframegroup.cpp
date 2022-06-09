@@ -213,7 +213,7 @@ TypeName QmlTimelineKeyframeGroup::valueType() const
     TypeName typeName;
 
     if (targetNode.isValid() && targetNode.hasMetaInfo())
-        typeName = targetNode.metaInfo().propertyTypeName(propertyName());
+        typeName = targetNode.metaInfo().property(propertyName()).propertyTypeName();
 
     if (typeName.startsWith("<cpp>."))
         typeName.remove(0, 6);

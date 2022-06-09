@@ -246,16 +246,16 @@ QVariant QmlObjectNode::modelValue(const PropertyName &name) const
 
 bool QmlObjectNode::isTranslatableText(const PropertyName &name) const
 {
-    if (modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name))
-        if (modelNode().metaInfo().propertyTypeName(name) == "QString" || modelNode().metaInfo().propertyTypeName(name) == "string") {
-            if (modelNode().hasBindingProperty(name)) {
-                static QRegularExpression regularExpressionPattern(
-                            QLatin1String("^qsTr(|Id|anslate)\\(\".*\"\\)$"));
-                return modelNode().bindingProperty(name).expression().contains(regularExpressionPattern);
-            }
-
-            return false;
+    if (modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name)
+        && modelNode().metaInfo().property(name).hasPropertyTypeName("QString", "string")) {
+        if (modelNode().hasBindingProperty(name)) {
+            static QRegularExpression regularExpressionPattern(
+                QLatin1String("^qsTr(|Id|anslate)\\(\".*\"\\)$"));
+            return modelNode().bindingProperty(name).expression().contains(regularExpressionPattern);
         }
+
+        return false;
+    }
 
     return false;
 }

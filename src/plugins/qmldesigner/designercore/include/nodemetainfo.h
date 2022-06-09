@@ -25,12 +25,15 @@
 
 #pragma once
 
+#include "invalidmetainfoexception.h"
+#include "propertymetainfo.h"
+#include "qmldesignercorelib_global.h"
+
 #include <QList>
 #include <QString>
 #include <QIcon>
 
-#include "qmldesignercorelib_global.h"
-#include "invalidmetainfoexception.h"
+#include <vector>
 
 QT_BEGIN_NAMESPACE
 class QDeclarativeContext;
@@ -41,14 +44,6 @@ namespace QmlDesigner {
 class MetaInfo;
 class Model;
 class AbstractProperty;
-
-namespace Internal {
-    class MetaInfoPrivate;
-    class MetaInfoReader;
-    class SubComponentManagerPrivate;
-    class ItemLibraryEntryData;
-    class NodeMetaInfoPrivate;
-}
 
 class QMLDESIGNERCORE_EXPORT NodeMetaInfo
 {
@@ -64,20 +59,13 @@ public:
     bool isValid() const;
     bool isFileComponent() const;
     bool hasProperty(const PropertyName &propertyName) const;
-    PropertyNameList propertyNames() const;
+    PropertyMetaInfos properties() const;
+    PropertyMetaInfos localProperties() const;
+    PropertyMetaInfo property(const PropertyName &propertyName) const;
     PropertyNameList signalNames() const;
     PropertyNameList slotNames() const;
-    PropertyNameList directPropertyNames() const;
     PropertyName defaultPropertyName() const;
     bool hasDefaultProperty() const;
-    TypeName propertyTypeName(const PropertyName &propertyName) const;
-    bool propertyIsWritable(const PropertyName &propertyName) const;
-    bool propertyIsListProperty(const PropertyName &propertyName) const;
-    bool propertyIsEnumType(const PropertyName &propertyName) const;
-    bool propertyIsPrivate(const PropertyName &propertyName) const;
-    bool propertyIsPointer(const PropertyName &propertyName) const;
-    QStringList propertyKeysForEnum(const PropertyName &propertyName) const;
-    QVariant propertyCastedValue(const PropertyName &propertyName, const QVariant &value) const;
 
     QList<NodeMetaInfo> classHierarchy() const;
     QList<NodeMetaInfo> superClasses() const;
@@ -104,7 +92,9 @@ public:
     QString importDirectoryPath() const;
 
 private:
-    QSharedPointer<Internal::NodeMetaInfoPrivate> m_privateData;
+    QSharedPointer<class NodeMetaInfoPrivate> m_privateData;
 };
+
+using NodeMetaInfos = std::vector<NodeMetaInfo>;
 
 } //QmlDesigner

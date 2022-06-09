@@ -220,7 +220,10 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
         }
 
         // Create a list of properties available for the new type
-        QList<PropertyName> propertiesAndSignals(metaInfo.propertyNames());
+        auto propertiesAndSignals = Utils::transform<PropertyNameList>(metaInfo.properties(),
+                                                                       [](const auto &property) {
+                                                                           return property.name();
+                                                                       });
         // Add signals to the list
         for (const auto &signal : metaInfo.signalNames()) {
             if (signal.isEmpty())

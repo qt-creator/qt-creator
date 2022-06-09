@@ -125,7 +125,7 @@ void MaterialEditorView::changeValue(const QString &name)
     QVariant castedValue;
 
     if (metaInfo.isValid() && metaInfo.hasProperty(propertyName)) {
-        castedValue = metaInfo.propertyCastedValue(propertyName, value->value());
+        castedValue = metaInfo.property(propertyName).castedValue(value->value());
     } else {
         qWarning() << __FUNCTION__ << propertyName << "cannot be casted (metainfo)";
         return;
@@ -139,8 +139,7 @@ void MaterialEditorView::changeValue(const QString &name)
     bool propertyTypeUrl = false;
 
     if (metaInfo.isValid() && metaInfo.hasProperty(propertyName)) {
-        if (metaInfo.propertyTypeName(propertyName) == "QUrl"
-                || metaInfo.propertyTypeName(propertyName) == "url") {
+        if (metaInfo.property(propertyName).hasPropertyTypeName("QUrl", "url")) {
             // turn absolute local file paths into relative paths
             propertyTypeUrl = true;
             QString filePath = castedValue.toUrl().toString();
@@ -202,13 +201,15 @@ void MaterialEditorView::changeExpression(const QString &propertyName)
             return;
         }
 
-        if (m_selectedMaterial.metaInfo().isValid() && m_selectedMaterial.metaInfo().hasProperty(name)) {
-            if (m_selectedMaterial.metaInfo().propertyTypeName(name) == "QColor") {
+        if (auto metaInfo = m_selectedMaterial.metaInfo();
+            metaInfo.isValid() && metaInfo.hasProperty(name)) {
+            auto propertyTypeName = metaInfo.property(name).propertyTypeName();
+            if (propertyTypeName == "QColor") {
                 if (QColor(value->expression().remove('"')).isValid()) {
                     qmlObjectNode.setVariantProperty(name, QColor(value->expression().remove('"')));
                     return;
                 }
-            } else if (m_selectedMaterial.metaInfo().propertyTypeName(name) == "bool") {
+            } else if (propertyTypeName == "bool") {
                 if (isTrueFalseLiteral(value->expression())) {
                     if (value->expression().compare("true", Qt::CaseInsensitive) == 0)
                         qmlObjectNode.setVariantProperty(name, true);
@@ -216,21 +217,21 @@ void MaterialEditorView::changeExpression(const QString &propertyName)
                         qmlObjectNode.setVariantProperty(name, false);
                     return;
                 }
-            } else if (m_selectedMaterial.metaInfo().propertyTypeName(name) == "int") {
+            } else if (propertyTypeName == "int") {
                 bool ok;
                 int intValue = value->expression().toInt(&ok);
                 if (ok) {
                     qmlObjectNode.setVariantProperty(name, intValue);
                     return;
                 }
-            } else if (m_selectedMaterial.metaInfo().propertyTypeName(name) == "qreal") {
+            } else if (propertyTypeName == "qreal") {
                 bool ok;
                 qreal realValue = value->expression().toDouble(&ok);
                 if (ok) {
                     qmlObjectNode.setVariantProperty(name, realValue);
                     return;
                 }
-            } else if (m_selectedMaterial.metaInfo().propertyTypeName(name) == "QVariant") {
+            } else if (propertyTypeName == "QVariant") {
                 bool ok;
                 qreal realValue = value->expression().toDouble(&ok);
                 if (ok) {
@@ -809,7 +810,7 @@ void QmlDesigner::MaterialEditorView::highlightSupportedProperties(bool highligh
     QTC_ASSERT(metaInfo.isValid(), return);
 
     for (const QString &propName : propNames) {
-        if (metaInfo.propertyTypeName(propName.toLatin1()) == "QtQuick3D.Texture") {
+        if (metaInfo.property(propName.toUtf8()).hasPropertyTypeName("QtQuick3D.Texture")) {
             QObject *propEditorValObj = propMap.value(propName).value<QObject *>();
             PropertyEditorValue *propEditorVal = qobject_cast<PropertyEditorValue *>(propEditorValObj);
             propEditorVal->setHasActiveDrag(highlight);

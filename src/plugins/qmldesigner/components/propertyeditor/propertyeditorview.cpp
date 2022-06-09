@@ -185,7 +185,7 @@ void PropertyEditorView::changeValue(const QString &name)
     QVariant castedValue;
 
     if (metaInfo.isValid() && metaInfo.hasProperty(propertyName)) {
-        castedValue = metaInfo.propertyCastedValue(propertyName, value->value());
+        castedValue = metaInfo.property(propertyName).castedValue(value->value());
     } else if (propertyIsAttachedLayoutProperty(propertyName)) {
         castedValue = value->value();
     } else {
@@ -200,17 +200,15 @@ void PropertyEditorView::changeValue(const QString &name)
 
     bool propertyTypeUrl = false;
 
-    if (metaInfo.isValid() && metaInfo.hasProperty(propertyName)) {
-        if (metaInfo.propertyTypeName(propertyName) == "QUrl"
-                || metaInfo.propertyTypeName(propertyName) == "url") {
-            // turn absolute local file paths into relative paths
-            propertyTypeUrl = true;
-            QString filePath = castedValue.toUrl().toString();
-            QFileInfo fi(filePath);
-            if (fi.exists() && fi.isAbsolute()) {
-                QDir fileDir(QFileInfo(model()->fileUrl().toLocalFile()).absolutePath());
-                castedValue = QUrl(fileDir.relativeFilePath(filePath));
-            }
+    if (metaInfo.isValid() && metaInfo.hasProperty(propertyName)
+        && metaInfo.property(propertyName).hasPropertyTypeName("QUrl", "url")) {
+        // turn absolute local file paths into relative paths
+        propertyTypeUrl = true;
+        QString filePath = castedValue.toUrl().toString();
+        QFileInfo fi(filePath);
+        if (fi.exists() && fi.isAbsolute()) {
+            QDir fileDir(QFileInfo(model()->fileUrl().toLocalFile()).absolutePath());
+            castedValue = QUrl(fileDir.relativeFilePath(filePath));
         }
     }
 
@@ -272,13 +270,15 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
             return;
         }
 
-        if (qmlObjectNode->modelNode().metaInfo().isValid() && qmlObjectNode->modelNode().metaInfo().hasProperty(name)) {
-            if (qmlObjectNode->modelNode().metaInfo().propertyTypeName(name) == "QColor") {
+        if (auto metaInfo = qmlObjectNode->modelNode().metaInfo();
+            metaInfo.isValid() && metaInfo.hasProperty(name)) {
+            const auto &propertTypeName = metaInfo.property(name).propertyTypeName();
+            if (propertTypeName == "QColor") {
                 if (QColor(value->expression().remove('"')).isValid()) {
                     qmlObjectNode->setVariantProperty(name, QColor(value->expression().remove('"')));
                     return;
                 }
-            } else if (qmlObjectNode->modelNode().metaInfo().propertyTypeName(name) == "bool") {
+            } else if (propertTypeName == "bool") {
                 if (isTrueFalseLiteral(value->expression())) {
                     if (value->expression().compare("true", Qt::CaseInsensitive) == 0)
                         qmlObjectNode->setVariantProperty(name, true);
@@ -286,21 +286,21 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
                         qmlObjectNode->setVariantProperty(name, false);
                     return;
                 }
-            } else if (qmlObjectNode->modelNode().metaInfo().propertyTypeName(name) == "int") {
+            } else if (propertTypeName == "int") {
                 bool ok;
                 int intValue = value->expression().toInt(&ok);
                 if (ok) {
                     qmlObjectNode->setVariantProperty(name, intValue);
                     return;
                 }
-            } else if (qmlObjectNode->modelNode().metaInfo().propertyTypeName(name) == "qreal") {
+            } else if (propertTypeName == "qreal") {
                 bool ok;
                 qreal realValue = value->expression().toDouble(&ok);
                 if (ok) {
                     qmlObjectNode->setVariantProperty(name, realValue);
                     return;
                 }
-            } else if (qmlObjectNode->modelNode().metaInfo().propertyTypeName(name) == "QVariant") {
+            } else if (propertTypeName == "QVariant") {
                 bool ok;
                 qreal realValue = value->expression().toDouble(&ok);
                 if (ok) {

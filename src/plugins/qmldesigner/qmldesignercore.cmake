@@ -153,6 +153,7 @@ function(extend_with_qmldesigner_core target_name)
       include/componenttextmodifier.h
       include/customnotifications.h
       include/documentmessage.h
+      include/enumerationmetainfo.h
       include/exception.h
       include/forwardview.h
       include/imagecacheauxiliarydata.h
@@ -184,6 +185,7 @@ function(extend_with_qmldesigner_core target_name)
       include/notimplementedexception.h
       include/plaintexteditmodifier.h
       include/propertycontainer.h
+      include/propertymetainfo.h
       include/propertynode.h
       include/propertyparser.h
       include/qmlanchors.h

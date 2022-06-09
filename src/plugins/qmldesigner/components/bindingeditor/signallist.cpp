@@ -39,6 +39,8 @@
 #include <qmlitemnode.h>
 #include <nodeabstractproperty.h>
 
+#include <utils/set_algorithm.h>
+
 #include <QStandardItemModel>
 #include <QSortFilterProxyModel>
 #include <QTableView>
@@ -137,6 +139,20 @@ void SignalList::setModelNode(const ModelNode &modelNode)
         m_modelNode = modelNode;
 }
 
+namespace {
+template<typename Callback>
+void callOnlyMouseSignalNames(const PropertyNameList &signalNames,
+                              const PropertyNameList &mouseSignalNames,
+                              const Callback &callback)
+{
+    std::set_union(signalNames.begin(),
+                   signalNames.end(),
+                   mouseSignalNames.begin(),
+                   mouseSignalNames.end(),
+                   Utils::make_iterator(callback));
+}
+} // namespace
+
 void SignalList::prepareSignals()
 {
     if (!m_modelNode.isValid())
@@ -145,27 +161,21 @@ void SignalList::prepareSignals()
     QList<QmlConnections> connections = QmlFlowViewNode::getAssociatedConnections(m_modelNode);
 
     for (ModelNode &node : m_modelNode.view()->allModelNodes()) {
-        // Collect all items which contain at least one of the specified signals
-        const PropertyNameList signalNames = node.metaInfo().signalNames();
-        // Put the signals into a QSet to avoid duplicates
-        auto signalNamesSet = QSet<PropertyName>(signalNames.begin(), signalNames.end());
-        for (const PropertyName &signal : signalNamesSet) {
-            if (QmlFlowViewNode::st_mouseSignals.contains(signal))
-                appendSignalToModel(connections, node, signal);
-        }
+        callOnlyMouseSignalNames(node.metaInfo().signalNames(),
+                                 QmlFlowViewNode::mouseSignals(),
+                                 [&](const PropertyName &signal) {
+                                     appendSignalToModel(connections, node, signal);
+                                 });
 
         // Gather valid properties and aliases from components
-        for (const PropertyName &property : node.metaInfo().propertyNames()) {
-            const TypeName propertyType = node.metaInfo().propertyTypeName(property);
-            const NodeMetaInfo info = m_modelNode.model()->metaInfo(propertyType);
-            // Collect all items which contain at least one of the specified signals
-            const PropertyNameList signalNames = info.signalNames();
-            // Put the signals into a QSet to avoid duplicates
-            auto signalNamesSet = QSet<PropertyName>(signalNames.begin(), signalNames.end());
-            for (const PropertyName &signal : signalNamesSet) {
-                if (QmlFlowViewNode::st_mouseSignals.contains(signal))
-                    appendSignalToModel(connections, node, signal, property);
-            }
+        for (const auto &property : node.metaInfo().properties()) {
+            const NodeMetaInfo info = m_modelNode.model()->metaInfo(property.propertyTypeName());
+
+            callOnlyMouseSignalNames(info.signalNames(),
+                                     QmlFlowViewNode::mouseSignals(),
+                                     [&](const PropertyName &signal) {
+                                         appendSignalToModel(connections, node, signal);
+                                     });
         }
     }
 }

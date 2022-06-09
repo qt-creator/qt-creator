@@ -99,7 +99,8 @@ void MaterialEditorContextObject::changeTypeName(const QString &typeName)
         QTC_ASSERT(metaInfo.isValid(), return);
 
         // Create a list of properties available for the new type
-        PropertyNameList propertiesAndSignals(metaInfo.propertyNames());
+        PropertyNameList propertiesAndSignals = Utils::transform<PropertyNameList>(
+            metaInfo.properties(), [](const auto &property) { return property.name(); });
         // Add signals to the list
         const PropertyNameList signalNames = metaInfo.signalNames();
         for (const PropertyName &signal : signalNames) {

@@ -25,8 +25,9 @@
 
 #include "propertyeditorqmlbackend.h"
 
-#include "propertyeditorvalue.h"
 #include "propertyeditortransaction.h"
+#include "propertyeditorvalue.h"
+#include "propertymetainfo.h"
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmltimeline.h>
@@ -415,10 +416,13 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         if (propertyEditorBenchmark().isInfoEnabled())
             time.start();
 
-        const QList<PropertyName> propertyNames = qmlObjectNode.modelNode().metaInfo().propertyNames();
-        for (const PropertyName &propertyName : propertyNames)
-            createPropertyEditorValue(qmlObjectNode, propertyName, qmlObjectNode.instanceValue(propertyName), propertyEditor);
-
+        for (const auto &property : qmlObjectNode.modelNode().metaInfo().properties()) {
+            auto propertyName = property.name();
+            createPropertyEditorValue(qmlObjectNode,
+                                      propertyName,
+                                      qmlObjectNode.instanceValue(propertyName),
+                                      propertyEditor);
+        }
         setupLayoutAttachedProperties(qmlObjectNode, propertyEditor);
         setupAuxiliaryProperties(qmlObjectNode, propertyEditor);
 
@@ -514,9 +518,11 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
 {
     NodeMetaInfo metaInfo = propertyEditor->model()->metaInfo(typeName);
 
-    const QList<PropertyName> propertyNames = metaInfo.propertyNames();
-    for (const PropertyName &propertyName : propertyNames)
-        setupPropertyEditorValue(propertyName, propertyEditor, QString::fromUtf8(metaInfo.propertyTypeName(propertyName)));
+    for (const auto &property : metaInfo.properties()) {
+        setupPropertyEditorValue(property.name(),
+                                 propertyEditor,
+                                 QString::fromUtf8(property.propertyTypeName()));
+    }
 
     auto valueObject = qobject_cast<PropertyEditorValue *>(variantToQObject(
         m_backendValuesPropertyMap.value(Constants::PROPERTY_EDITOR_CLASSNAME_PROPERTY)));
@@ -579,7 +585,7 @@ inline bool dotPropertyHeuristic(const QmlObjectNode &node, const NodeMetaInfo &
     const PropertyName parentProperty = list.first();
     const PropertyName itemProperty = list.last();
 
-    TypeName typeName = type.propertyTypeName(parentProperty);
+    TypeName typeName = type.property(parentProperty).propertyTypeName();
 
     NodeMetaInfo itemInfo = node.view()->model()->metaInfo("QtQuick.Item");
     NodeMetaInfo textInfo = node.view()->model()->metaInfo("QtQuick.Text");
@@ -596,7 +602,7 @@ inline bool dotPropertyHeuristic(const QmlObjectNode &node, const NodeMetaInfo &
     return true;
 }
 
-QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
+QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaType,
                                                      const NodeMetaInfo &superType,
                                                      const QmlObjectNode &node)
 {
@@ -615,20 +621,22 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
         allTypes.append(variantToStringList(node->property("typeNames").value));
     }
 
-    const QList<PropertyName> allProperties = type.propertyNames();
-
-    QMap<PropertyName, QList<PropertyName>> propertyMap;
-    QList<PropertyName> separateSectionProperties;
+    auto propertyMetaInfoCompare = [](const auto &first, const auto &second) {
+        return first.name() < second.name();
+    };
+    std::map<PropertyMetaInfo, PropertyMetaInfos, decltype(propertyMetaInfoCompare)> propertyMap(
+        propertyMetaInfoCompare);
+    PropertyMetaInfos separateSectionProperties;
 
     // Iterate over all properties and isolate the properties which have their own template
-    for (const PropertyName &propertyName : allProperties) {
+    for (const auto &property : metaType.properties()) {
+        const auto &propertyName = property.name();
         if (propertyName.startsWith("__"))
             continue; // private API
 
-        if (!superType.hasProperty(propertyName)
-            && type.propertyIsWritable(propertyName)
-            && dotPropertyHeuristic(node, type, propertyName)) {
-            QString typeName = QString::fromLatin1(type.propertyTypeName(propertyName));
+        if (!superType.hasProperty(propertyName) // TODO add property.isLocalProperty()
+            && property.isWritable() && dotPropertyHeuristic(node, metaType, propertyName)) {
+            QString typeName = QString::fromUtf8(property.propertyTypeName());
 
             if (typeName == "alias" && node.isValid())
                 typeName = QString::fromLatin1(node.instanceType(propertyName));
@@ -636,18 +644,16 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
             // Check if a template for the type exists
             if (allTypes.contains(typeName)) {
                 if (separateSectionTypes.contains(typeName)) { // template enforces separate section
-                    separateSectionProperties.append(propertyName);
+                    separateSectionProperties.push_back(property);
                 } else {
                     if (propertyName.contains('.')) {
-                        const PropertyName parentProperty = propertyName.split('.').first();
+                        const PropertyName parentPropertyName = propertyName.split('.').first();
+                        const PropertyMetaInfo parentProperty = metaType.property(
+                            parentPropertyName);
 
-                        if (propertyMap.contains(parentProperty))
-                            propertyMap[parentProperty].append(propertyName);
-                        else
-                            propertyMap[parentProperty] = { propertyName };
+                        propertyMap[parentProperty].push_back(property);
                     } else {
-                        if (!propertyMap.contains(propertyName))
-                            propertyMap[propertyName] = {};
+                        propertyMap[property];
                     }
                 }
             }
@@ -655,28 +661,29 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
     }
 
     // Filter out the properties which have a basic type e.g. int, string, bool
-    QList<PropertyName> basicProperties;
+    PropertyMetaInfos basicProperties;
     auto it = propertyMap.begin();
     while (it != propertyMap.end()) {
-        if (it.value().empty()) {
-            basicProperties.append(it.key());
+        if (it->second.empty()) {
+            basicProperties.push_back(it->first);
             it = propertyMap.erase(it);
         } else {
             ++it;
         }
     }
 
-    Utils::sort(basicProperties);
+    Utils::sort(basicProperties, propertyMetaInfoCompare);
 
-    auto findAndFillTemplate = [&nodes, &node, &type](const PropertyName &label,
-                                                      const PropertyName &property) {
-        PropertyName underscoreProperty = property;
+    auto findAndFillTemplate = [&nodes, &node](const PropertyName &label,
+                                               const PropertyMetaInfo &property) {
+        const auto &propertyName = property.name();
+        PropertyName underscoreProperty = propertyName;
         underscoreProperty.replace('.', '_');
 
-        TypeName typeName = type.propertyTypeName(property);
+        TypeName typeName = property.propertyTypeName();
         // alias resolution only possible with instance
         if (typeName == "alias" && node.isValid())
-            typeName = node.instanceType(property);
+            typeName = node.instanceType(propertyName);
 
         QString filledTemplate;
         for (const QmlJS::SimpleReaderNode::Ptr &n : nodes) {
@@ -730,8 +737,8 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
         qmlInnerTemplate += "bottomPadding: 10\n";
         qmlInnerTemplate += "SectionLayout {\n";
 
-        for (const auto &p : qAsConst(basicProperties))
-            qmlInnerTemplate += findAndFillTemplate(p, p);
+        for (const auto &basicProperty : std::as_const(basicProperties))
+            qmlInnerTemplate += findAndFillTemplate(basicProperty.name(), basicProperty);
 
         qmlInnerTemplate += "}\n"; // SectionLayout
         qmlInnerTemplate += "}\n"; // Column
@@ -740,16 +747,17 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
     // Second the section containing properties of complex type for which no specific template exists e.g. Button
     if (!propertyMap.empty()) {
         emptyTemplate = false;
-        for (auto it = propertyMap.cbegin(); it != propertyMap.cend(); ++it) {
-            const auto &key = it.key();
-            TypeName parentTypeName = type.propertyTypeName(key);
+        for (auto &[property, properties] : propertyMap) {
+            //     for (auto it = propertyMap.cbegin(); it != propertyMap.cend(); ++it) {
+            TypeName parentTypeName = property.propertyTypeName();
             // alias resolution only possible with instance
             if (parentTypeName == "alias" && node.isValid())
-                parentTypeName = node.instanceType(key);
+                parentTypeName = node.instanceType(property.name());
 
             qmlInnerTemplate += "Section {\n";
             qmlInnerTemplate += QStringLiteral("caption: \"%1 - %2\"\n")
-                    .arg(QString::fromUtf8(key), QString::fromUtf8(parentTypeName));
+                                    .arg(QString::fromUtf8(property.name()),
+                                         QString::fromUtf8(parentTypeName));
             qmlInnerTemplate += anchorLeftRight;
             qmlInnerTemplate += "leftPadding: 8\n";
             qmlInnerTemplate += "rightPadding: 0\n";
@@ -757,12 +765,14 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
             qmlInnerTemplate += "level: 1\n";
             qmlInnerTemplate += "SectionLayout {\n";
 
-            auto properties = it.value();
-            Utils::sort(properties);
+            Utils::sort(properties, propertyMetaInfoCompare);
 
-            for (const auto &p : qAsConst(properties)) {
-                const PropertyName shortName = p.contains('.') ? p.split('.').last() : p;
-                qmlInnerTemplate += findAndFillTemplate(shortName, p);
+            for (const auto &subProperty : properties) {
+                const auto &propertyName = subProperty.name();
+                auto found = std::find(propertyName.rbegin(), propertyName.rend(), '.');
+                const PropertyName shortName{found.base(),
+                                             std::distance(found.base(), propertyName.end())};
+                qmlInnerTemplate += findAndFillTemplate(shortName, property);
             }
 
             qmlInnerTemplate += "}\n"; // SectionLayout
@@ -773,9 +783,9 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
     // Third the section containing properties of complex type for which a specific template exists e.g. Rectangle, Image
     if (!separateSectionProperties.empty()) {
         emptyTemplate = false;
-        Utils::sort(separateSectionProperties);
-        for (const auto &p : qAsConst(separateSectionProperties))
-            qmlInnerTemplate += findAndFillTemplate(p, p);
+        Utils::sort(separateSectionProperties, propertyMetaInfoCompare);
+        for (const auto &property : separateSectionProperties)
+            qmlInnerTemplate += findAndFillTemplate(property.name(), property);
     }
 
     qmlInnerTemplate += "}\n"; // Column

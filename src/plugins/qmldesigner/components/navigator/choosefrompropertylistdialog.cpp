@@ -65,11 +65,10 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
         if (parentInfo.isSubclassOf("QtQuick3D.DefaultMaterial")
             || parentInfo.isSubclassOf("QtQuick3D.PrincipledMaterial")) {
             // All texture properties are valid targets
-            const PropertyNameList targetNodeNameList = parentInfo.propertyNames();
-            for (const PropertyName &name : targetNodeNameList) {
-                TypeName propType = parentInfo.propertyTypeName(name);
+            for (const auto &property : parentInfo.properties()) {
+                const TypeName &propType = property.propertyTypeName();
                 if (propType == textureType || propType == textureTypeCpp) {
-                    propertyList.append(QString::fromLatin1(name));
+                    propertyList.append(QString::fromUtf8(property.name()));
                     if (breakOnFirst)
                         return;
                 }
@@ -168,15 +167,13 @@ ChooseFromPropertyListDialog *ChooseFromPropertyListDialog::createIfNeeded(
 
 // Create dialog for selecting writable properties of exact property type
 ChooseFromPropertyListDialog *ChooseFromPropertyListDialog::createIfNeeded(
-        const ModelNode &targetNode, TypeName type, QWidget *parent)
+    const ModelNode &targetNode, TypeName propertyType, QWidget *parent)
 {
     const NodeMetaInfo metaInfo = targetNode.metaInfo();
-    const PropertyNameList propNames = metaInfo.propertyNames();
-    const TypeName property(type);
     QStringList matchingNames;
-    for (const auto &propName : propNames) {
-        if (metaInfo.propertyTypeName(propName) == property && metaInfo.propertyIsWritable(propName))
-            matchingNames.append(QString::fromLatin1(propName));
+    for (const auto &property : metaInfo.properties()) {
+        if (property.hasPropertyTypeName(propertyType) && property.isWritable())
+            matchingNames.append(QString::fromUtf8(property.name()));
     }
 
     if (!matchingNames.isEmpty())

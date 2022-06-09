@@ -337,8 +337,9 @@ bool propertyIsComponentType(const QmlDesigner::NodeAbstractProperty &property, 
     if (model->metaInfo(type).isSubclassOf("QtQuick.Component") && !isComponentType(type))
         return false; //If the type is already a subclass of Component keep it
 
-    return property.parentModelNode().isValid() &&
-            isComponentType(property.parentModelNode().metaInfo().propertyTypeName(property.name()));
+    return property.parentModelNode().isValid()
+           && isComponentType(
+               property.parentModelNode().metaInfo().property(property.name()).propertyTypeName());
 }
 
 QString extractComponentFromQml(const QString &source)

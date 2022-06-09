@@ -33,6 +33,8 @@
 #include "model.h"
 #include "model_p.h"
 
+#include <nodemetainfo.h>
+
 namespace QmlDesigner {
 
 NodeAbstractProperty::NodeAbstractProperty() = default;
@@ -53,10 +55,14 @@ NodeAbstractProperty::NodeAbstractProperty(const Internal::InternalNodeAbstractP
 
 void NodeAbstractProperty::reparentHere(const ModelNode &modelNode)
 {
-    if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isNodeAbstractProperty())
+    if (internalNode()->hasProperty(name())
+        && !internalNode()->property(name())->isNodeAbstractProperty()) {
         reparentHere(modelNode, isNodeListProperty());
-    else
-        reparentHere(modelNode, parentModelNode().metaInfo().propertyIsListProperty(name()) || isDefaultProperty()); //we could use the metasystem instead?
+    } else {
+        reparentHere(modelNode,
+                     parentModelNode().metaInfo().property(name()).isListProperty()
+                         || isDefaultProperty()); //we could use the metasystem instead?
+    }
 }
 
 void NodeAbstractProperty::reparentHere(const ModelNode &modelNode,  bool isNodeList, const TypeName &dynamicTypeName)

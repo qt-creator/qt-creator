@@ -4232,6 +4232,17 @@ void tst_TestCore::testCopyModelRewriter2()
     QCOMPARE(stripWhiteSpaces(textEdit2.toPlainText()), stripWhiteSpaces(qmlString1));
 }
 
+namespace {
+bool contains(const QmlDesigner::PropertyMetaInfos &properties, QUtf8StringView propertyName)
+{
+    auto found = std::find_if(properties.begin(), properties.end(), [&](const auto &property) {
+        return property.name() == propertyName;
+    });
+
+    return found != properties.end();
+}
+} // namespace
+
 void tst_TestCore::testSubComponentManager()
 {
     const QString qmlString("import QtQuick 2.15\n"
@@ -4267,7 +4278,7 @@ void tst_TestCore::testSubComponentManager()
     subComponentManager->update(QUrl::fromLocalFile(fileName), model->imports());
 
     QVERIFY(model->hasNodeMetaInfo("QtQuick.Rectangle", 2, 15));
-    QVERIFY(model->metaInfo("QtQuick.Rectangle").propertyNames().contains("border.width"));
+    QVERIFY(contains(model->metaInfo("QtQuick.Rectangle").properties(), "border.width"));
 
     model->rewriterView()->setTextModifier(&modifier);
 
@@ -4276,14 +4287,14 @@ void tst_TestCore::testSubComponentManager()
     QVERIFY(model->rewriterView()->rootModelNode().isValid());
 
     QVERIFY(model->hasNodeMetaInfo("QtQuick.Rectangle", 2, 15));
-    QVERIFY(model->metaInfo("QtQuick.Rectangle").propertyNames().contains("border.width"));
+    QVERIFY(contains(model->metaInfo("QtQuick.Rectangle").properties(), "border.width"));
 
     QVERIFY(model->metaInfo("<cpp>.QQuickPen").isValid());
 
     QSKIP("File components not working TODO", SkipAll);
     NodeMetaInfo myButtonMetaInfo = model->metaInfo("MyButton");
     QVERIFY(myButtonMetaInfo.isValid());
-    QVERIFY(myButtonMetaInfo.propertyNames().contains("border.width"));
+    QVERIFY(contains(myButtonMetaInfo.properties(), "border.width"));
     QVERIFY(myButtonMetaInfo.hasProperty("border.width"));
 }
 
@@ -4638,7 +4649,7 @@ void tst_TestCore::testMetaInfoCustomType()
     QCOMPARE(propertyChangesInfo.superClasses().size(), 3);
 
     // DeclarativePropertyChanges just has 3 properties
-    QCOMPARE(propertyChangesInfo.propertyNames().size() - stateOperationInfo.propertyNames().size(), 3);
+    QCOMPARE(propertyChangesInfo.properties().size() - stateOperationInfo.properties().size(), 3);
 
     QApplication::processEvents();
 }
@@ -4656,15 +4667,13 @@ void tst_TestCore::testMetaInfoEnums()
 
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("transformOrigin"));
 
-    QVERIFY(view->rootModelNode().metaInfo().propertyIsEnumType("transformOrigin"));
-    QCOMPARE(view->rootModelNode().metaInfo().propertyTypeName("transformOrigin"), QmlDesigner::TypeName("TransformOrigin"));
-    QVERIFY(view->rootModelNode().metaInfo().propertyKeysForEnum("transformOrigin").contains(QLatin1String("Bottom")));
-    QVERIFY(view->rootModelNode().metaInfo().propertyKeysForEnum("transformOrigin").contains(QLatin1String("Top")));
+    QVERIFY(view->rootModelNode().metaInfo().property("transformOrigin").isEnumType());
+    QCOMPARE(view->rootModelNode().metaInfo().property("transformOrigin").propertyTypeName(),
+             QmlDesigner::TypeName("TransformOrigin"));
 
-    QVERIFY(view->rootModelNode().metaInfo().propertyIsEnumType("horizontalAlignment"));
-    QCOMPARE(view->rootModelNode().metaInfo().propertyTypeName("horizontalAlignment"), QmlDesigner::TypeName("HAlignment"));
-    QVERIFY(view->rootModelNode().metaInfo().propertyKeysForEnum("horizontalAlignment").contains(QLatin1String("AlignLeft")));
-    QVERIFY(view->rootModelNode().metaInfo().propertyKeysForEnum("horizontalAlignment").contains(QLatin1String("AlignRight")));
+    QVERIFY(view->rootModelNode().metaInfo().property("horizontalAlignment").isEnumType());
+    QCOMPARE(view->rootModelNode().metaInfo().property("horizontalAlignment").propertyTypeName(),
+             QmlDesigner::TypeName("HAlignment"));
 
     QApplication::processEvents();
 }
@@ -4743,8 +4752,8 @@ void tst_TestCore::testMetaInfoProperties()
     QVERIFY(textNodeMetaInfo.hasProperty("objectName")); // QtQuick.QObject
     QVERIFY(!textNodeMetaInfo.hasProperty("bla"));
 
-    QVERIFY(textNodeMetaInfo.propertyIsWritable("text"));
-    QVERIFY(textNodeMetaInfo.propertyIsWritable("x"));
+    QVERIFY(textNodeMetaInfo.property("text").isWritable());
+    QVERIFY(textNodeMetaInfo.property("x").isWritable());
 
     QApplication::processEvents();
 }
@@ -4761,22 +4770,23 @@ void tst_TestCore::testMetaInfoDotProperties()
     QVERIFY(model->hasNodeMetaInfo("QtQuick.Text"));
 
     QVERIFY(model->metaInfo("QtQuick.Rectangle").hasProperty("border"));
-    QCOMPARE(model->metaInfo("QtQuick.Rectangle").propertyTypeName("border"), QmlDesigner::TypeName("<cpp>.QQuickPen"));
+    QCOMPARE(model->metaInfo("QtQuick.Rectangle").property("border").propertyTypeName(),
+             QmlDesigner::TypeName("<cpp>.QQuickPen"));
 
     QCOMPARE(view->rootModelNode().metaInfo().typeName(), QmlDesigner::TypeName("QtQuick.Text"));
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("font"));
 
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("font.bold"));
-    QVERIFY(view->rootModelNode().metaInfo().propertyNames().contains("font.bold"));
-    QVERIFY(view->rootModelNode().metaInfo().propertyNames().contains("font.pointSize"));
+    QVERIFY(contains(view->rootModelNode().metaInfo().properties(), "font.bold"));
+    QVERIFY(contains(view->rootModelNode().metaInfo().properties(), "font.pointSize"));
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("font.pointSize"));
 
     ModelNode rectNode(addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 2, 0, "data"));
 
-    QVERIFY(rectNode.metaInfo().propertyNames().contains("implicitHeight"));
-    QVERIFY(rectNode.metaInfo().propertyNames().contains("implicitWidth"));
-    QVERIFY(rectNode.metaInfo().propertyNames().contains("anchors.topMargin"));
-    QVERIFY(rectNode.metaInfo().propertyNames().contains("border.width"));
+    QVERIFY(contains(rectNode.metaInfo().properties(), "implicitHeight"));
+    QVERIFY(contains(rectNode.metaInfo().properties(), "implicitWidth"));
+    QVERIFY(contains(rectNode.metaInfo().properties(), "anchors.topMargin"));
+    QVERIFY(contains(rectNode.metaInfo().properties(), "border.width"));
     QVERIFY(rectNode.metaInfo().hasProperty("border"));
     QVERIFY(rectNode.metaInfo().hasProperty("border.width"));
 
@@ -4796,20 +4806,20 @@ void tst_TestCore::testMetaInfoListProperties()
     QCOMPARE(view->rootModelNode().metaInfo().typeName(), QmlDesigner::TypeName("QtQuick.Item"));
 
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("states"));
-    QVERIFY(view->rootModelNode().metaInfo().propertyIsListProperty("states"));
+    QVERIFY(view->rootModelNode().metaInfo().property("states").isListProperty());
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("children"));
-    QVERIFY(view->rootModelNode().metaInfo().propertyIsListProperty("children"));
+    QVERIFY(view->rootModelNode().metaInfo().property("children").isListProperty());
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("data"));
-    QVERIFY(view->rootModelNode().metaInfo().propertyIsListProperty("data"));
+    QVERIFY(view->rootModelNode().metaInfo().property("data").isListProperty());
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("resources"));
-    QVERIFY(view->rootModelNode().metaInfo().propertyIsListProperty("resources"));
+    QVERIFY(view->rootModelNode().metaInfo().property("resources").isListProperty());
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("transitions"));
-    QVERIFY(view->rootModelNode().metaInfo().propertyIsListProperty("transitions"));
+    QVERIFY(view->rootModelNode().metaInfo().property("transitions").isListProperty());
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("transform"));
-    QVERIFY(view->rootModelNode().metaInfo().propertyIsListProperty("transform"));
+    QVERIFY(view->rootModelNode().metaInfo().property("transform").isListProperty());
 
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("parent"));
-    QVERIFY(!view->rootModelNode().metaInfo().propertyIsListProperty("parent"));
+    QVERIFY(!view->rootModelNode().metaInfo().property("parent").isListProperty());
 
     QApplication::processEvents();
 }
@@ -4904,8 +4914,8 @@ void tst_TestCore::testQtQuickControls2()
     QVERIFY(rootModelNode.metaInfo().isGraphicalItem());
     QVERIFY(rootModelNode.isSubclassOf("QtQuick.Window.Window", -1, -1));
 
-    QVERIFY(!rootModelNode.metaInfo().directPropertyNames().contains("visible"));
-    QVERIFY(rootModelNode.metaInfo().propertyNames().contains("visible"));
+    QVERIFY(!contains(rootModelNode.metaInfo().localProperties(), "visible"));
+    QVERIFY(contains(rootModelNode.metaInfo().properties(), "visible"));
 
     QVERIFY(!rootModelNode.allSubModelNodes().isEmpty());
     ModelNode button = rootModelNode.allSubModelNodes().first();

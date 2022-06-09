@@ -993,8 +993,14 @@ QList<ModelNode> QmlFlowViewNode::transitionsForProperty(const PropertyName &pro
     return list;
 }
 
-PropertyNameList QmlFlowViewNode::st_mouseSignals = { "clicked", "doubleClicked", "pressAndHold",
-                                                      "pressed", "released", "wheel" };
+PropertyNameList QmlFlowViewNode::s_mouseSignals = []() {
+    PropertyNameList mouseSignals = {
+        "clicked", "doubleClicked", "pressed", "pressAndHold", "released", "wheel"};
+
+    Q_ASSERT(std::is_sorted(mouseSignals.begin(), mouseSignals.end()));
+
+    return mouseSignals;
+}();
 
 QList<QmlConnections> QmlFlowViewNode::getAssociatedConnections(const ModelNode &node)
 {
@@ -1020,8 +1026,7 @@ QList<QmlConnections> QmlFlowViewNode::getAssociatedConnections(const ModelNode 
                 sourceProperty = sourceComponents[1];
             }
 
-            if (st_mouseSignals.contains(signalWithoutPrefix)
-                && sourceId == node.id()
+            if (mouseSignals().contains(signalWithoutPrefix) && sourceId == node.id()
                 && sourceProperty == "trigger()")
                 return true;
         }

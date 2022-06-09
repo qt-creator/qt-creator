@@ -46,17 +46,6 @@
 
 namespace QmlDesigner {
 
-namespace Internal {
-
-struct TypeDescription
-{
-    QString className;
-    int minorVersion{};
-    int majorVersion{};
-};
-
-} //Internal
-
 /*!
 \class QmlDesigner::NodeMetaInfo
 \ingroup CoreModel
@@ -74,7 +63,14 @@ NodeMetaInfo object will result in an InvalidMetaInfoException being thrown.
 \see QmlDesigner::MetaInfo, QmlDesigner::PropertyMetaInfo, QmlDesigner::EnumeratorMetaInfo
 */
 
-namespace Internal {
+namespace {
+
+struct TypeDescription
+{
+    QString className;
+    int minorVersion{};
+    int majorVersion{};
+};
 
 using namespace QmlJS;
 
@@ -516,6 +512,9 @@ PropertyNameList getSignals(const ObjectValue *objectValue, const ContextPtr &co
             signalList.append(getSignals(prototype, context, true));
     }
 
+    std::sort(signalList.begin(), signalList.end());
+    signalList.erase(std::unique(signalList.begin(), signalList.end()), signalList.end());
+
     return signalList;
 }
 
@@ -543,6 +542,9 @@ PropertyNameList getSlots(const ObjectValue *objectValue, const ContextPtr &cont
         for (const ObjectValue *prototype : objects)
             slotList.append(getSlots(prototype, context, true));
     }
+
+    std::sort(slotList.begin(), slotList.end());
+    slotList.erase(std::unique(slotList.begin(), slotList.end()), slotList.end());
 
     return slotList;
 }
@@ -604,6 +606,7 @@ QVector<PropertyInfo> getObjectTypes(const ObjectValue *objectValue, const Conte
 
     return propertyList;
 }
+} // namespace
 
 class NodeMetaInfoPrivate
 {
@@ -614,12 +617,12 @@ public:
 
     bool isValid() const;
     bool isFileComponent() const;
-    PropertyNameList properties() const;
-    PropertyNameList localProperties() const;
+    const PropertyNameList &properties() const;
+    const PropertyNameList &localProperties() const;
     PropertyNameList signalNames() const;
     PropertyNameList slotNames() const;
     PropertyName defaultPropertyName() const;
-    TypeName propertyType(const PropertyName &propertyName) const;
+    const TypeName &propertyType(const PropertyName &propertyName) const;
 
     void setupPrototypes();
     QList<TypeDescription> prototypes() const;
@@ -634,7 +637,7 @@ public:
 
     int majorVersion() const;
     int minorVersion() const;
-    TypeName qualfiedTypeName() const;
+    const TypeName &qualfiedTypeName() const;
     Model *model() const;
 
     QByteArray cppPackageName() const;
@@ -691,14 +694,14 @@ bool NodeMetaInfoPrivate::isFileComponent() const
     return m_isFileComponent;
 }
 
-PropertyNameList NodeMetaInfoPrivate::properties() const
+const PropertyNameList &NodeMetaInfoPrivate::properties() const
 {
     ensureProperties();
 
     return m_properties;
 }
 
-PropertyNameList NodeMetaInfoPrivate::localProperties() const
+const PropertyNameList &NodeMetaInfoPrivate::localProperties() const
 {
     ensureProperties();
 
@@ -741,8 +744,9 @@ static inline TypeName stringIdentifier( const TypeName &type, int maj, int min)
 
 NodeMetaInfoPrivate::Pointer NodeMetaInfoPrivate::create(Model *model, const TypeName &type, int major, int minor)
 {
-    if (model->d->m_nodeMetaInfoCache.contains(stringIdentifier(type, major, minor)))
-        return model->d->m_nodeMetaInfoCache.value(stringIdentifier(type, major, minor));
+    auto &&cache = model->d->m_nodeMetaInfoCache;
+    if (auto found = cache.find(stringIdentifier(type, major, minor)); found != cache.end())
+        return *found;
 
     Pointer newData(new NodeMetaInfoPrivate(model, type, major, minor));
     if (newData->isValid())
@@ -1144,7 +1148,7 @@ int NodeMetaInfoPrivate::minorVersion() const
     return m_minorVersion;
 }
 
-TypeName NodeMetaInfoPrivate::qualfiedTypeName() const
+const TypeName &NodeMetaInfoPrivate::qualfiedTypeName() const
 {
     return m_qualfiedTypeName;
 }
@@ -1248,12 +1252,16 @@ bool NodeMetaInfoPrivate::isValid() const
     return m_isValid && context() && document();
 }
 
-TypeName NodeMetaInfoPrivate::propertyType(const PropertyName &propertyName) const
+namespace {
+TypeName nonexistingTypeName("Property does not exist...");
+}
+
+const TypeName &NodeMetaInfoPrivate::propertyType(const PropertyName &propertyName) const
 {
     ensureProperties();
 
     if (!m_properties.contains(propertyName))
-        return TypeName("Property does not exist...");
+        return nonexistingTypeName;
     return m_propertyTypes.at(m_properties.indexOf(propertyName));
 }
 
@@ -1386,14 +1394,14 @@ void NodeMetaInfoPrivate::initialiseProperties()
     m_slots = getSlots(m_objectValue, context());
 }
 
-} //namespace Internal
-
-NodeMetaInfo::NodeMetaInfo() : m_privateData(new Internal::NodeMetaInfoPrivate())
+NodeMetaInfo::NodeMetaInfo()
+    : m_privateData(QSharedPointer<NodeMetaInfoPrivate>::create())
 {
 
 }
 
-NodeMetaInfo::NodeMetaInfo(Model *model, const TypeName &type, int maj, int min) : m_privateData(Internal::NodeMetaInfoPrivate::create(model, type, maj, min))
+NodeMetaInfo::NodeMetaInfo(Model *model, const TypeName &type, int maj, int min)
+    : m_privateData(NodeMetaInfoPrivate::create(model, type, maj, min))
 {
 
 }
@@ -1422,12 +1430,38 @@ bool NodeMetaInfo::isFileComponent() const
 
 bool NodeMetaInfo::hasProperty(const PropertyName &propertyName) const
 {
-    return propertyNames().contains(propertyName);
+    return m_privateData->properties().contains(propertyName);
 }
 
-PropertyNameList NodeMetaInfo::propertyNames() const
+PropertyMetaInfos NodeMetaInfo::properties() const
 {
-    return m_privateData->properties();
+    const auto &properties = m_privateData->properties();
+
+    PropertyMetaInfos propertyMetaInfos;
+    propertyMetaInfos.reserve(static_cast<std::size_t>(properties.size()));
+
+    for (const auto &name : properties)
+        propertyMetaInfos.emplace_back(m_privateData, name);
+
+    return propertyMetaInfos;
+}
+
+PropertyMetaInfos NodeMetaInfo::localProperties() const
+{
+    const auto &properties = m_privateData->localProperties();
+
+    PropertyMetaInfos propertyMetaInfos;
+    propertyMetaInfos.reserve(static_cast<std::size_t>(properties.size()));
+
+    for (const auto &name : properties)
+        propertyMetaInfos.emplace_back(m_privateData, name);
+
+    return propertyMetaInfos;
+}
+
+PropertyMetaInfo NodeMetaInfo::property(const PropertyName &propertyName) const
+{
+    return PropertyMetaInfo{m_privateData, propertyName};
 }
 
 PropertyNameList NodeMetaInfo::signalNames() const
@@ -1440,11 +1474,6 @@ PropertyNameList NodeMetaInfo::slotNames() const
     return m_privateData->slotNames();
 }
 
-PropertyNameList NodeMetaInfo::directPropertyNames() const
-{
-    return m_privateData->localProperties();
-}
-
 PropertyName NodeMetaInfo::defaultPropertyName() const
 {
     return m_privateData->defaultPropertyName();
@@ -1453,84 +1482,6 @@ PropertyName NodeMetaInfo::defaultPropertyName() const
 bool NodeMetaInfo::hasDefaultProperty() const
 {
     return !defaultPropertyName().isEmpty();
-}
-
-TypeName NodeMetaInfo::propertyTypeName(const PropertyName &propertyName) const
-{
-    return m_privateData->propertyType(propertyName);
-}
-
-bool NodeMetaInfo::propertyIsWritable(const PropertyName &propertyName) const
-{
-    return m_privateData->isPropertyWritable(propertyName);
-}
-
-bool NodeMetaInfo::propertyIsListProperty(const PropertyName &propertyName) const
-{
-    return m_privateData->isPropertyList(propertyName);
-}
-
-bool NodeMetaInfo::propertyIsEnumType(const PropertyName &propertyName) const
-{
-    return m_privateData->isPropertyEnum(propertyName);
-}
-
-bool NodeMetaInfo::propertyIsPrivate(const PropertyName &propertyName) const
-{
-    return propertyName.startsWith("__");
-}
-
-bool NodeMetaInfo::propertyIsPointer(const PropertyName &propertyName) const
-{
-    return m_privateData->isPropertyPointer(propertyName);
-}
-
-QStringList NodeMetaInfo::propertyKeysForEnum(const PropertyName &propertyName) const
-{
-    return m_privateData->keysForEnum(QString::fromUtf8(propertyTypeName(propertyName)));
-}
-
-QVariant NodeMetaInfo::propertyCastedValue(const PropertyName &propertyName, const QVariant &value) const
-{
-    const QVariant variant = value;
-    QVariant copyVariant = variant;
-    if (propertyIsEnumType(propertyName)
-            || variant.canConvert<Enumeration>())
-        return variant;
-
-    const TypeName typeName = propertyTypeName(propertyName);
-
-    QVariant::Type typeId = m_privateData->variantTypeId(propertyName);
-
-    if (variant.type() == QVariant::UserType && variant.userType() == ModelNode::variantUserType()) {
-        return variant;
-    } else if (typeId == QVariant::UserType && typeName == "QVariant") {
-        return variant;
-    } else if (typeId == QVariant::UserType && typeName == "variant") {
-        return variant;
-    } else if (typeId == QVariant::UserType && typeName == "var") {
-        return variant;
-    } else if (variant.type() == QVariant::List) {
-        // TODO: check the contents of the list
-        return variant;
-    } else if (typeName == "var" || typeName == "variant") {
-        return variant;
-    } else if (typeName == "alias") {
-        // TODO: The QML compiler resolves the alias type. We probably should do the same.
-        return variant;
-    } else if (typeName == "<cpp>.double") {
-        return variant.toDouble();
-    } else if (typeName == "<cpp>.float") {
-        return variant.toFloat();
-    } else if (typeName == "<cpp>.int") {
-        return variant.toInt();
-    } else if (typeName == "<cpp>.bool") {
-        return variant.toBool();
-    } else if (copyVariant.convert(typeId)) {
-        return copyVariant;
-    }
-
-    return Internal::PropertyParser::variantFromString(variant.toString());
 }
 
 QList<NodeMetaInfo> NodeMetaInfo::classHierarchy() const
@@ -1543,7 +1494,7 @@ QList<NodeMetaInfo> NodeMetaInfo::classHierarchy() const
 QList<NodeMetaInfo> NodeMetaInfo::superClasses() const
 {
     Model *model = m_privateData->model();
-    return Utils::transform(m_privateData->prototypes(), [model](const Internal::TypeDescription &type) {
+    return Utils::transform(m_privateData->prototypes(), [model](const TypeDescription &type) {
         return NodeMetaInfo(model, type.className.toUtf8(), type.majorVersion, type.minorVersion);
     });
 }
@@ -1556,7 +1507,7 @@ NodeMetaInfo NodeMetaInfo::directSuperClass() const
 bool NodeMetaInfo::defaultPropertyIsComponent() const
 {
     if (hasDefaultProperty())
-        return propertyTypeName(defaultPropertyName()) == "Component";
+        return property(defaultPropertyName()).hasPropertyTypeName("Component");
 
     return false;
 }
@@ -1613,21 +1564,24 @@ bool NodeMetaInfo::isSubclassOf(const TypeName &type, int majorVersion, int mino
     if (typeName() == type && availableInVersion(majorVersion, minorVersion))
         return true;
 
-    if (m_privateData->prototypeCachePositives().contains(Internal::stringIdentifier(type, majorVersion, minorVersion)))
+    if (m_privateData->prototypeCachePositives().contains(
+            stringIdentifier(type, majorVersion, minorVersion)))
         return true; //take a shortcut - optimization
 
-    if (m_privateData->prototypeCacheNegatives().contains(Internal::stringIdentifier(type, majorVersion, minorVersion)))
+    if (m_privateData->prototypeCacheNegatives().contains(
+            stringIdentifier(type, majorVersion, minorVersion)))
         return false; //take a shortcut - optimization
 
     const QList<NodeMetaInfo> superClassList = superClasses();
     for (const NodeMetaInfo &superClass : superClassList) {
         if (superClass.m_privateData->cleverCheckType(type)
                 && superClass.availableInVersion(majorVersion, minorVersion)) {
-            m_privateData->prototypeCachePositives().insert(Internal::stringIdentifier(type, majorVersion, minorVersion));
+            m_privateData->prototypeCachePositives().insert(
+                stringIdentifier(type, majorVersion, minorVersion));
             return true;
         }
     }
-    m_privateData->prototypeCacheNegatives().insert(Internal::stringIdentifier(type, majorVersion, minorVersion));
+    m_privateData->prototypeCacheNegatives().insert(stringIdentifier(type, majorVersion, minorVersion));
     return false;
 }
 
@@ -1666,6 +1620,92 @@ bool NodeMetaInfo::isView() const
 bool NodeMetaInfo::isTabView() const
 {
     return isSubclassOf("QtQuick.Controls.TabView");
+}
+
+PropertyMetaInfo::PropertyMetaInfo(QSharedPointer<NodeMetaInfoPrivate> nodeMetaInfoPrivateData,
+                                   const PropertyName &propertyName)
+    : m_nodeMetaInfoPrivateData{nodeMetaInfoPrivateData}
+    , m_propertyName{propertyName}
+
+{}
+
+PropertyMetaInfo::~PropertyMetaInfo() {}
+
+const TypeName &PropertyMetaInfo::propertyTypeName() const
+{
+    return m_nodeMetaInfoPrivateData->propertyType(m_propertyName);
+}
+
+NodeMetaInfo PropertyMetaInfo::propertyNodeMetaInfo() const
+{
+    return m_nodeMetaInfoPrivateData->model()->metaInfo(propertyTypeName());
+}
+
+bool PropertyMetaInfo::isWritable() const
+{
+    return m_nodeMetaInfoPrivateData->isPropertyWritable(m_propertyName);
+}
+
+bool PropertyMetaInfo::isListProperty() const
+{
+    return m_nodeMetaInfoPrivateData->isPropertyList(m_propertyName);
+}
+
+bool PropertyMetaInfo::isEnumType() const
+{
+    return m_nodeMetaInfoPrivateData->isPropertyEnum(m_propertyName);
+}
+
+bool PropertyMetaInfo::isPrivate() const
+{
+    return m_propertyName.startsWith("__");
+}
+
+bool PropertyMetaInfo::isPointer() const
+{
+    return m_nodeMetaInfoPrivateData->isPropertyPointer(m_propertyName);
+}
+
+QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
+{
+    const QVariant variant = value;
+    QVariant copyVariant = variant;
+    if (isEnumType() || variant.canConvert<Enumeration>())
+        return variant;
+
+    const TypeName &typeName = propertyTypeName();
+
+    QVariant::Type typeId = m_nodeMetaInfoPrivateData->variantTypeId(m_propertyName);
+
+    if (variant.type() == QVariant::UserType && variant.userType() == ModelNode::variantUserType()) {
+        return variant;
+    } else if (typeId == QVariant::UserType && typeName == "QVariant") {
+        return variant;
+    } else if (typeId == QVariant::UserType && typeName == "variant") {
+        return variant;
+    } else if (typeId == QVariant::UserType && typeName == "var") {
+        return variant;
+    } else if (variant.type() == QVariant::List) {
+        // TODO: check the contents of the list
+        return variant;
+    } else if (typeName == "var" || typeName == "variant") {
+        return variant;
+    } else if (typeName == "alias") {
+        // TODO: The QML compiler resolves the alias type. We probably should do the same.
+        return variant;
+    } else if (typeName == "<cpp>.double") {
+        return variant.toDouble();
+    } else if (typeName == "<cpp>.float") {
+        return variant.toFloat();
+    } else if (typeName == "<cpp>.int") {
+        return variant.toInt();
+    } else if (typeName == "<cpp>.bool") {
+        return variant.toBool();
+    } else if (copyVariant.convert(typeId)) {
+        return copyVariant;
+    }
+
+    return Internal::PropertyParser::variantFromString(variant.toString());
 }
 
 } // namespace QmlDesigner

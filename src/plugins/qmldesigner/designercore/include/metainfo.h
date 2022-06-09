@@ -42,6 +42,7 @@ class ItemLibraryInfo;
 namespace Internal {
     class MetaInfoPrivate;
     class ModelPrivate;
+    class MetaInfoReader;
     class SubComponentManagerPrivate;
     using MetaInfoPrivatePointer = QSharedPointer<MetaInfoPrivate>;
 }

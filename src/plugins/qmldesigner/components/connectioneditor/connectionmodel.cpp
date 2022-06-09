@@ -475,7 +475,7 @@ QStringList ConnectionModel::getPossibleSignalsForConnection(const ModelNode &co
     auto getAliasMetaSignals = [&](QString aliasPart, NodeMetaInfo metaInfo) {
         if (metaInfo.isValid() && metaInfo.hasProperty(aliasPart.toUtf8())) {
             NodeMetaInfo propertyMetaInfo = connectionView()->model()->metaInfo(
-                        metaInfo.propertyTypeName(aliasPart.toUtf8()));
+                metaInfo.property(aliasPart.toUtf8()).propertyTypeName());
             if (propertyMetaInfo.isValid()) {
                 return propertyNameListToStringList(propertyMetaInfo.signalNames());
             }

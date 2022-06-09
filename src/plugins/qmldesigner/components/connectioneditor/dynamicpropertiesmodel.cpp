@@ -36,6 +36,7 @@
 #include <qmldesignerplugin.h>
 #include <qmldesignerconstants.h>
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 
 #include <QMessageBox>
@@ -345,10 +346,9 @@ QStringList DynamicPropertiesModel::possibleTargetProperties(const BindingProper
 
     if (metaInfo.isValid()) {
         QStringList possibleProperties;
-        const QList<PropertyName> propertyNames = metaInfo.propertyNames();
-        for (const PropertyName &propertyName : propertyNames) {
-            if (metaInfo.propertyIsWritable(propertyName))
-                possibleProperties << QString::fromUtf8(propertyName);
+        for (const auto &property : metaInfo.properties()) {
+            if (property.isWritable())
+                possibleProperties.push_back(QString::fromUtf8(property.name()));
         }
 
         return possibleProperties;
@@ -383,8 +383,8 @@ QStringList DynamicPropertiesModel::possibleSourceProperties(const BindingProper
 
     PropertyName typeName;
 
-    if (bindingProperty.parentModelNode().metaInfo().isValid()) {
-        typeName = bindingProperty.parentModelNode().metaInfo().propertyTypeName(bindingProperty.name());
+    if (auto metaInfo = bindingProperty.parentModelNode().metaInfo(); metaInfo.isValid()) {
+        typeName = metaInfo.property(bindingProperty.name()).propertyTypeName();
     } else {
         qWarning() << " BindingModel::possibleSourcePropertiesForRow no meta info for target node";
     }
@@ -402,10 +402,9 @@ QStringList DynamicPropertiesModel::possibleSourceProperties(const BindingProper
 
     if (metaInfo.isValid())  {
         QStringList possibleProperties;
-        const QList<PropertyName> propertyNames = metaInfo.propertyNames();
-        for (const PropertyName &propertyName : propertyNames) {
-            if (metaInfo.propertyTypeName(propertyName) == typeName) //### todo proper check
-                possibleProperties << QString::fromUtf8(propertyName);
+        for (const auto &property : metaInfo.properties()) {
+            if (property.propertyTypeName() == typeName) //### todo proper check
+                possibleProperties.push_back(QString::fromUtf8(property.name()));
         }
         return possibleProperties;
     } else {
