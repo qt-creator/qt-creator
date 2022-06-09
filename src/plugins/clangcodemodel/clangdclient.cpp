@@ -1061,11 +1061,11 @@ void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
                               const Utils::optional<QString> &replacement)
 {
     // Quick check: Are we even on anything searchable?
-    const QString searchTerm = d->searchTermFromCursor(cursor);
+    const QTextCursor adjustedCursor = d->adjustedCursor(cursor, document);
+    const QString searchTerm = d->searchTermFromCursor(adjustedCursor);
     if (searchTerm.isEmpty())
         return;
 
-    const QTextCursor adjustedCursor = d->adjustedCursor(cursor, document);
     const bool categorize = CppEditor::codeModelSettings()->categorizeFindReferences();
 
     // If it's a "normal" symbol, go right ahead.
