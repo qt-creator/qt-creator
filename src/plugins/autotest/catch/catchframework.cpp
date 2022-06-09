@@ -35,6 +35,11 @@ const char *CatchFramework::name() const
     return "Catch";
 }
 
+QString CatchFramework::displayName() const
+{
+    return QCoreApplication::translate("CatchFramework", "Catch Test");
+}
+
 unsigned CatchFramework::priority() const
 {
     return 12;
@@ -48,7 +53,7 @@ ITestParser *CatchFramework::createTestParser()
 ITestTreeItem *CatchFramework::createRootNode()
 {
     return new CatchTreeItem(this,
-                             QCoreApplication::translate("CatchFramework", "Catch Test"),
+                             displayName(),
                              Utils::FilePath(), ITestTreeItem::Root);
 }
 

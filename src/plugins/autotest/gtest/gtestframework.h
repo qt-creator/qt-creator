@@ -42,6 +42,7 @@ public:
 
 private:
     const char *name() const override;
+    QString displayName() const override;
     unsigned priority() const override;
     QString groupingToolTip() const override;
     ITestSettings *testSettings() override { return &m_settings; }

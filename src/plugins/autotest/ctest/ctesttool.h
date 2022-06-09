@@ -42,6 +42,7 @@ public:
 
 protected:
     const char *name() const final;
+    QString displayName() const final;
     ITestTreeItem *createRootNode() final;
 
 private:

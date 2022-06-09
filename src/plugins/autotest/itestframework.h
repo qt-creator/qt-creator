@@ -53,6 +53,7 @@ public:
     virtual ~ITestBase() = default;
 
     virtual const char *name() const = 0;
+    virtual QString displayName() const = 0;
     virtual unsigned priority() const = 0;          // should this be modifyable?
     TestBaseType type() const { return m_type; }
 

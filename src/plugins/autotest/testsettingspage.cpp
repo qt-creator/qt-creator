@@ -115,7 +115,7 @@ void TestSettingsWidget::populateFrameworksListWidget(const QHash<Utils::Id, boo
     m_ui.frameworkTreeWidget->clear();
     for (const ITestFramework *framework : registered) {
         const Utils::Id id = framework->id();
-        auto item = new QTreeWidgetItem(m_ui.frameworkTreeWidget, QStringList(QLatin1String(framework->name())));
+        auto item = new QTreeWidgetItem(m_ui.frameworkTreeWidget, {framework->displayName()});
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
         item->setCheckState(0, frameworks.value(id) ? Qt::Checked : Qt::Unchecked);
         item->setData(0, BaseId, id.toSetting());
@@ -132,7 +132,7 @@ void TestSettingsWidget::populateFrameworksListWidget(const QHash<Utils::Id, boo
     const TestTools &registeredTools = TestFrameworkManager::registeredTestTools();
     for (const ITestTool *testTool : registeredTools) {
         const Utils::Id id = testTool->id();
-        auto item = new QTreeWidgetItem(m_ui.frameworkTreeWidget, {QLatin1String(testTool->name())});
+        auto item = new QTreeWidgetItem(m_ui.frameworkTreeWidget, {testTool->displayName()});
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
         item->setCheckState(0, testTools.value(id) ? Qt::Checked : Qt::Unchecked);
         item->setData(0, BaseId, id.toSetting());

@@ -50,10 +50,15 @@ const char *CTestTool::name() const
     return "CTest";
 }
 
+QString CTestTool::displayName() const
+{
+    return QCoreApplication::translate("CTestTool", "CTest");
+}
+
 ITestTreeItem *CTestTool::createRootNode()
 {
     return new CTestTreeItem(this,
-                             QCoreApplication::translate("CTestTool", "CTest"),
+                             displayName(),
                              Utils::FilePath(), ITestTreeItem::Root);
 }
 

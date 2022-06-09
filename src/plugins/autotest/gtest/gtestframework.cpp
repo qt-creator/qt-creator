@@ -48,14 +48,19 @@ ITestTreeItem *GTestFramework::createRootNode()
 {
     return new GTestTreeItem(
                 this,
-                QCoreApplication::translate("GTestFramework",
-                                            GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY),
+                displayName(),
                 Utils::FilePath(), ITestTreeItem::Root);
 }
 
 const char *GTestFramework::name() const
 {
     return GTest::Constants::FRAMEWORK_NAME;
+}
+
+QString GTestFramework:: displayName() const
+{
+    return QCoreApplication::translate("GTestFramework",
+                                       GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY);
 }
 
 unsigned GTestFramework::priority() const

@@ -40,14 +40,19 @@ ITestTreeItem *QtTestFramework::createRootNode()
 {
     return new QtTestTreeItem(
                 this,
-                QCoreApplication::translate("QtTestFramework",
-                                            QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY),
+                displayName(),
                 Utils::FilePath(), ITestTreeItem::Root);
 }
 
 const char *QtTestFramework::name() const
 {
     return QtTest::Constants::FRAMEWORK_NAME;
+}
+
+QString QtTestFramework::displayName() const
+{
+    return QCoreApplication::translate("QtTestFramework",
+                                       QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY);
 }
 
 unsigned QtTestFramework::priority() const
