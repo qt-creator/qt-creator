@@ -47,18 +47,20 @@ namespace Internal {
 
 FilePath detectPython(const FilePath &documentPath)
 {
-    PythonProject *project = documentPath.isEmpty()
-                                 ? nullptr
-                                 : qobject_cast<PythonProject *>(
-                                     SessionManager::projectForFile(documentPath));
+    Project *project = documentPath.isEmpty() ? nullptr
+                                              : SessionManager::projectForFile(documentPath);
     if (!project)
-        project = qobject_cast<PythonProject *>(SessionManager::startupProject());
+        project = SessionManager::startupProject();
+
+    Environment env = Environment::systemEnvironment();
 
     if (project) {
         if (auto target = project->activeTarget()) {
             if (auto runConfig = target->activeRunConfiguration()) {
                 if (auto interpreter = runConfig->aspect<InterpreterAspect>())
                     return interpreter->currentInterpreter().command;
+                if (auto environmentAspect = runConfig->aspect<EnvironmentAspect>())
+                    env = environmentAspect->environment();
             }
         }
     }
@@ -71,6 +73,14 @@ FilePath detectPython(const FilePath &documentPath)
     auto defaultInterpreter = PythonSettings::defaultInterpreter().command;
     if (defaultInterpreter.exists())
         return defaultInterpreter;
+
+    const FilePath python3FromPath = env.searchInPath("python3");
+    if (python3FromPath.exists())
+        return python3FromPath;
+
+    const FilePath pythonFromPath = env.searchInPath("python");
+    if (pythonFromPath.exists())
+        return pythonFromPath;
 
     return PythonSettings::interpreters().value(0).command;
 }
