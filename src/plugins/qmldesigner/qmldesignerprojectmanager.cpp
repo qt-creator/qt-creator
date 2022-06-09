@@ -307,24 +307,26 @@ QStringList qmlTypes(::ProjectExplorer::Target *target)
 
 void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *project)
 {
-    m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>(m_imageCacheData->storage,
-                                                                           project);
-    m_projectData->activeTarget = project->activeTarget();
+    if (qEnvironmentVariableIsSet("QDS_ACTIVATE_PROJECT_STORAGE")) {
+        m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>(m_imageCacheData->storage,
+                                                                               project);
+        m_projectData->activeTarget = project->activeTarget();
 
-    QObject::connect(project, &::ProjectExplorer::Project::fileListChanged, [&]() {
-        fileListChanged();
-    });
+        QObject::connect(project, &::ProjectExplorer::Project::fileListChanged, [&]() {
+            fileListChanged();
+        });
 
-    QObject::connect(project, &::ProjectExplorer::Project::activeTargetChanged, [&](auto *target) {
-        activeTargetChanged(target);
-    });
+        QObject::connect(project,
+                         &::ProjectExplorer::Project::activeTargetChanged,
+                         [&](auto *target) { activeTargetChanged(target); });
 
-    QObject::connect(project, &::ProjectExplorer::Project::aboutToRemoveTarget, [&](auto *target) {
-        aboutToRemoveTarget(target);
-    });
+        QObject::connect(project,
+                         &::ProjectExplorer::Project::aboutToRemoveTarget,
+                         [&](auto *target) { aboutToRemoveTarget(target); });
 
-    if (auto target = project->activeTarget(); target)
-        activeTargetChanged(target);
+        if (auto target = project->activeTarget(); target)
+            activeTargetChanged(target);
+    }
 }
 
 void QmlDesignerProjectManager::aboutToRemoveProject(::ProjectExplorer::Project *)
@@ -344,6 +346,9 @@ void QmlDesignerProjectManager::fileListChanged()
 
 void QmlDesignerProjectManager::activeTargetChanged(ProjectExplorer::Target *target)
 {
+    if (m_projectData)
+        return;
+
     QObject::disconnect(m_projectData->activeTarget, nullptr, nullptr, nullptr);
 
     m_projectData->activeTarget = target;
