@@ -29,7 +29,7 @@ import QtCreator.Tracing
 Item {
     id: timeMarks
     visible: model && (mockup || (!model.hidden && !model.empty))
-    property QtObject model
+    property TimelineModel model
     property bool startOdd
     property bool mockup
 
@@ -40,7 +40,7 @@ Item {
 
     property int rowCount: model ? model.rowCount : 0
 
-    function roundTo3Digits(number) {
+    function roundTo3Digits(number: real) : real  {
         var factor;
 
         if (number < 10)
@@ -53,7 +53,7 @@ Item {
         return Math.round(number * factor) / factor;
     }
 
-    function prettyPrintScale(amount) {
+    function prettyPrintScale(amount: real) : string {
         var sign;
         if (amount < 0) {
             sign = "-";
@@ -69,9 +69,9 @@ Item {
     }
 
     Connections {
-        target: model
-        function onExpandedRowHeightChanged(row, height) {
-            if (model && model.expanded && row >= 0)
+        target: timeMarks.model
+        function onExpandedRowHeightChanged(row: real, height: real) {
+            if (timeMarks.model && timeMarks.model.expanded && row >= 0)
                 rowRepeater.itemAt(row).height = height;
         }
     }
@@ -86,17 +86,20 @@ Item {
             model: timeMarks.rowCount
             Rectangle {
                 id: scaleItem
-                color: ((index + (startOdd ? 1 : 0)) % 2)
+                required property int index
+                property TimeMarks scope: timeMarks
+
+                color: ((index + (scope.startOdd ? 1 : 0)) % 2)
                        ? Theme.color(Theme.Timeline_BackgroundColor1)
                        : Theme.color(Theme.Timeline_BackgroundColor2)
                 anchors.left: scaleArea.left
                 anchors.right: scaleArea.right
-                height: timeMarks.model ? timeMarks.model.rowHeight(index) : 0
+                height: scope.model ? scope.model.rowHeight(index) : 0
 
-                property double minVal: timeMarks.model ? timeMarks.model.rowMinValue(index) : 0
-                property double maxVal: timeMarks.model ? timeMarks.model.rowMaxValue(index) : 0
+                property double minVal: scope.model ? scope.model.rowMinValue(index) : 0
+                property double maxVal: scope.model ? scope.model.rowMaxValue(index) : 0
                 property double valDiff: maxVal - minVal
-                property bool scaleVisible: timeMarks.model && timeMarks.model.expanded &&
+                property bool scaleVisible: scope.model && scope.model.expanded &&
                                             height > scaleMinHeight && valDiff > 0
 
                 property double stepVal: {
