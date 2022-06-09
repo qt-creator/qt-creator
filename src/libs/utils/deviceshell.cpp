@@ -53,7 +53,7 @@ namespace {
  * Once the process exits its exit code is send to stdout with the command-id and the type "R".
  *
  */
-const QLatin1String r_execScript = QLatin1String(R"(
+const QLatin1String r_execScript = QLatin1String(R"SCRIPT(
 #!/bin/sh
 
 readAndMark() {
@@ -133,7 +133,7 @@ cleanup()
     exit 1
 }
 
-if ! command -v base64 &> /dev/null
+if [ -z "$(which base64)" ]
 then
     echo "base64 command could not be found" >&2
     exit 1
@@ -149,7 +149,7 @@ while read -r id inData cmd; do
     fi
     execute $id $inData $cmd &
 done
-)");
+)SCRIPT");
 
 } // namespace
 
