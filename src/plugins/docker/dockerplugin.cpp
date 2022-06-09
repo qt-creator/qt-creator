@@ -28,11 +28,12 @@
 #include "dockerconstants.h"
 
 #include "dockerapi.h"
-#include "dockerbuildstep.h"
 #include "dockerdevice.h"
 #include "dockersettings.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
+
+#include <utils/qtcassert.h>
 
 using namespace Core;
 using namespace ProjectExplorer;

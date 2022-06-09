@@ -30,12 +30,7 @@ namespace Docker {
 namespace Constants {
 
 const char DOCKER_SETTINGS_ID[] = "Docker.Settings";
-const char ACTION_ID[] = "Docker.Action";
-const char MENU_ID[] = "Docker.Menu";
-
 const char DOCKER_DEVICE_TYPE[] = "DockerDeviceType";
-
-const char DOCKER_BUILDHOST_BUILDSTEP_ID[] = "Docker.BuildStep.BuildHost";
 
 } // namespace Constants
 } // namespace Docker

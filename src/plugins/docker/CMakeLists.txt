@@ -4,7 +4,6 @@ add_qtc_plugin(Docker
   SOURCES
     docker_global.h
     dockerapi.cpp dockerapi.h
-    dockerbuildstep.cpp dockerbuildstep.h
     dockerconstants.h
     dockerdevice.cpp dockerdevice.h
     dockerdevicewidget.cpp dockerdevicewidget.h

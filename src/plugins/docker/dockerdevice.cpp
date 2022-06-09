@@ -26,7 +26,6 @@
 #include "dockerdevice.h"
 
 #include "dockerconstants.h"
-#include "dockerplugin.h"
 #include "dockerdevicewidget.h"
 #include "kitdetector.h"
 
