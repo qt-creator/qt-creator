@@ -47,8 +47,6 @@ namespace Internal {
 
 FilePath detectPython(const FilePath &documentPath)
 {
-    FilePath python;
-
     PythonProject *project = documentPath.isEmpty()
                                  ? nullptr
                                  : qobject_cast<PythonProject *>(
@@ -60,23 +58,21 @@ FilePath detectPython(const FilePath &documentPath)
         if (auto target = project->activeTarget()) {
             if (auto runConfig = target->activeRunConfiguration()) {
                 if (auto interpreter = runConfig->aspect<InterpreterAspect>())
-                    python = interpreter->currentInterpreter().command;
+                    return interpreter->currentInterpreter().command;
             }
         }
     }
 
     // check whether this file is inside a python virtual environment
-    QList<Interpreter> venvInterpreters = PythonSettings::detectPythonVenvs(documentPath);
-    if (!python.exists() && !venvInterpreters.isEmpty())
-        python = venvInterpreters.first().command;
+    const QList<Interpreter> venvInterpreters = PythonSettings::detectPythonVenvs(documentPath);
+    if (!venvInterpreters.isEmpty())
+        return venvInterpreters.first().command;
 
-    if (!python.exists())
-        python = PythonSettings::defaultInterpreter().command;
+    auto defaultInterpreter = PythonSettings::defaultInterpreter().command;
+    if (defaultInterpreter.exists())
+        return defaultInterpreter;
 
-    if (!python.exists() && !PythonSettings::interpreters().isEmpty())
-        python = PythonSettings::interpreters().constFirst().command;
-
-    return python;
+    return PythonSettings::interpreters().value(0).command;
 }
 
 static QStringList replImportArgs(const FilePath &pythonFile, ReplType type)
