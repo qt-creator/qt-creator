@@ -75,10 +75,6 @@ public:
 PythonPlugin::PythonPlugin()
 {
     m_instance = this;
-
-    LanguageClient::LanguageClientSettings::registerClientType({Constants::PYLS_SETTINGS_ID,
-                                                                tr("Python Language Server"),
-                                                                []() { return new PyLSSettings; }});
 }
 
 PythonPlugin::~PythonPlugin()

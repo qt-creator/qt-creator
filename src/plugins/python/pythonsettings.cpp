@@ -397,23 +397,26 @@ public:
         : m_editor(LanguageClient::jsonEditor())
         , m_advancedLabel(new QLabel)
         , m_pluginsGroup(new QGroupBox(tr("Plugins:")))
+        , m_mainGroup(new QGroupBox(tr("Use Python Language Server")))
 
     {
-        auto mainLayout = new QVBoxLayout;
+        m_mainGroup->setCheckable(true);
 
-        auto pluginsLayout = new QGridLayout;
+        auto mainGroupLayout = new QVBoxLayout;
+
+        auto pluginsLayout = new QVBoxLayout;
         m_pluginsGroup->setLayout(pluginsLayout);
-        int i = 0;
+        m_pluginsGroup->setFlat(true);
         for (const QString &plugin : plugins()) {
             auto checkBox = new QCheckBox(plugin, this);
-            connect(checkBox, &QCheckBox::clicked, this, [this, plugin, checkBox](bool enabled) {
+            connect(checkBox, &QCheckBox::clicked, this, [this, plugin, checkBox]() {
                 updatePluginEnabled(checkBox->checkState(), plugin);
             });
             m_checkBoxes[plugin] = checkBox;
-            pluginsLayout->addWidget(checkBox, i / 4, i % 4);
-            ++i;
+            pluginsLayout->addWidget(checkBox);
         }
-        mainLayout->addWidget(m_pluginsGroup);
+
+        mainGroupLayout->addWidget(m_pluginsGroup);
 
         const QString labelText = tr(
             "For a complete list of avilable options, consult the <a "
@@ -422,12 +425,12 @@ public:
 
         m_advancedLabel->setText(labelText);
         m_advancedLabel->setOpenExternalLinks(true);
-        mainLayout->addWidget(m_advancedLabel);
-        mainLayout->addWidget(m_editor->editorWidget(), 1);
+        mainGroupLayout->addWidget(m_advancedLabel);
+        mainGroupLayout->addWidget(m_editor->editorWidget(), 1);
 
         setAdvanced(false);
 
-        mainLayout->addStretch();
+        mainGroupLayout->addStretch();
 
         auto advanced = new QCheckBox(tr("Advanced"));
         advanced->setChecked(false);
@@ -437,18 +440,25 @@ public:
                 this,
                 &PyLSConfigureWidget::setAdvanced);
 
-        mainLayout->addWidget(advanced);
+        mainGroupLayout->addWidget(advanced);
+
+        m_mainGroup->setLayout(mainGroupLayout);
+
+        QVBoxLayout *mainLayout = new QVBoxLayout;
+        mainLayout->addWidget(m_mainGroup);
         setLayout(mainLayout);
     }
 
-    void setConfiguration(const QString &configuration)
+    void initialize(bool enabled, const QString &configuration)
     {
         m_editor->textDocument()->setPlainText(configuration);
+        m_mainGroup->setChecked(enabled);
         updateCheckboxes();
     }
 
     void apply()
     {
+        PythonSettings::setPylsEnabled(m_mainGroup->isChecked());
         PythonSettings::setPyLSConfiguration(m_editor->textDocument()->plainText());
     }
 private:
@@ -504,6 +514,7 @@ private:
     TextEditor::BaseTextEditor *m_editor = nullptr;
     QLabel *m_advancedLabel = nullptr;
     QGroupBox *m_pluginsGroup = nullptr;
+    QGroupBox *m_mainGroup = nullptr;
 };
 
 
@@ -511,6 +522,9 @@ class PyLSOptionsPage : public Core::IOptionsPage
 {
 public:
     PyLSOptionsPage();
+
+    bool enabled() const { return m_enabled; }
+    void setEnabled(bool enabled);
 
     void setConfiguration(const QString &configuration) { m_configuration = configuration; }
     QString configuration() const { return m_configuration; }
@@ -521,6 +535,7 @@ public:
 
 private:
     QPointer<PyLSConfigureWidget> m_widget;
+    bool m_enabled = true;
     QString m_configuration;
 };
 
@@ -535,7 +550,7 @@ QWidget *PyLSOptionsPage::widget()
 {
     if (!m_widget) {
         m_widget = new PyLSConfigureWidget();
-        m_widget->setConfiguration(m_configuration);
+        m_widget->initialize(m_enabled, m_configuration);
     }
     return m_widget;
 }
@@ -550,6 +565,11 @@ void PyLSOptionsPage::finish()
 {
     delete m_widget;
     m_widget = nullptr;
+}
+
+void PyLSOptionsPage::setEnabled(bool enabled)
+{
+    m_enabled = enabled;
 }
 
 static PyLSOptionsPage &pylspOptionsPage()
@@ -582,6 +602,7 @@ void InterpreterOptionsWidget::cleanUp()
 constexpr char settingsGroupKey[] = "Python";
 constexpr char interpreterKey[] = "Interpeter";
 constexpr char defaultKey[] = "DefaultInterpeter";
+constexpr char pylsEnabledKey[] = "PylsEnabled";
 constexpr char pylsConfigurationKey[] = "PylsConfiguration";
 
 struct SavedSettings
@@ -589,6 +610,7 @@ struct SavedSettings
     QList<Interpreter> pythons;
     QString defaultId;
     QString pylsConfiguration;
+    bool pylsEnabled = true;
 };
 
 static QString defaultPylsConfiguration()
@@ -651,6 +673,9 @@ static SavedSettings fromSettings(QSettings *settings)
 
     result.defaultId = settings->value(defaultKey).toString();
 
+    QVariant pylsEnabled = settings->value(pylsEnabledKey);
+    if (!pylsEnabled.isNull())
+        result.pylsEnabled = pylsEnabled.toBool();
     const QVariant pylsConfiguration = settings->value(pylsConfigurationKey);
     if (!pylsConfiguration.isNull())
         result.pylsConfiguration = pylsConfiguration.toString();
@@ -675,6 +700,7 @@ static void toSettings(QSettings *settings, const SavedSettings &savedSettings)
     settings->setValue(interpreterKey, interpretersVar);
     settings->setValue(defaultKey, savedSettings.defaultId);
     settings->setValue(pylsConfigurationKey, savedSettings.pylsConfiguration);
+    settings->setValue(pylsEnabledKey, savedSettings.pylsEnabled);
     settings->endGroup();
 }
 
@@ -773,6 +799,7 @@ void PythonSettings::init()
 
     const SavedSettings &settings = fromSettings(Core::ICore::settings());
     pylspOptionsPage().setConfiguration(settings.pylsConfiguration);
+    pylspOptionsPage().setEnabled(settings.pylsEnabled);
 
     QList<Interpreter> pythons = settings.pythons;
 
@@ -803,6 +830,20 @@ void PythonSettings::setPyLSConfiguration(const QString &configuration)
     pylspOptionsPage().setConfiguration(configuration);
     saveSettings();
     emit instance()->pylsConfigurationChanged(configuration);
+}
+
+void PythonSettings::setPylsEnabled(const bool &enabled)
+{
+    if (enabled == pylspOptionsPage().enabled())
+        return;
+    pylspOptionsPage().setEnabled(enabled);
+    saveSettings();
+    emit instance()->pylsEnabledChanged(enabled);
+}
+
+bool PythonSettings::pylsEnabled()
+{
+    return pylspOptionsPage().enabled();
 }
 
 QString PythonSettings::pyLSConfiguration()
@@ -866,7 +907,8 @@ void PythonSettings::saveSettings()
     const QList<Interpreter> &interpreters = interpreterOptionsPage().interpreters();
     const QString defaultId = interpreterOptionsPage().defaultInterpreter().id;
     const QString pylsConfiguration = pylspOptionsPage().configuration();
-    toSettings(Core::ICore::settings(), {interpreters, defaultId, pylsConfiguration});
+    const bool pylsEnabled = pylspOptionsPage().enabled();
+    toSettings(Core::ICore::settings(), {interpreters, defaultId, pylsConfiguration, pylsEnabled});
     if (QTC_GUARD(settingsInstance))
         emit settingsInstance->interpretersChanged(interpreters, defaultId);
 }

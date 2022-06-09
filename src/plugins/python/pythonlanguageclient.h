@@ -46,6 +46,7 @@ class PyLSClient : public LanguageClient::Client
     Q_OBJECT
 public:
     explicit PyLSClient(LanguageClient::BaseClientInterface *interface);
+    ~PyLSClient();
 
     void openDocument(TextEditor::TextDocument *document) override;
     void projectClosed(ProjectExplorer::Project *project) override;
@@ -54,9 +55,9 @@ public:
                               const QList<PySideUicExtraCompiler *> &extraCompilers);
 
     static PyLSClient *clientForPython(const Utils::FilePath &python);
+    void updateConfiguration();
 
 private:
-    void updateConfiguration();
     void updateExtraCompilerContents(ProjectExplorer::ExtraCompiler *compiler,
                                      const Utils::FilePath &file);
     void closeExtraDoc(const Utils::FilePath &file);
@@ -68,39 +69,11 @@ private:
     QHash<ProjectExplorer::Project *, QList<ProjectExplorer::ExtraCompiler *>> m_extraCompilers;
 };
 
-class PyLSSettings : public LanguageClient::StdIOSettings
-{
-public:
-    PyLSSettings();
-
-    QString interpreterId() const { return m_interpreterId; }
-    void setInterpreter(const QString &interpreterId);
-
-    bool isValid() const final;
-    QVariantMap toMap() const final;
-    void fromMap(const QVariantMap &map) final;
-    bool applyFromSettingsWidget(QWidget *widget) final;
-    QWidget *createSettingsWidget(QWidget *parent) const final;
-    LanguageClient::BaseSettings *copy() const final;
-    LanguageClient::Client *createClient(LanguageClient::BaseClientInterface *interface) const final;
-
-private:
-    LanguageClient::BaseClientInterface *createInterface(
-        ProjectExplorer::Project *project) const override;
-
-    QString m_interpreterId;
-
-    PyLSSettings(const PyLSSettings &other) = default;
-};
-
 class PyLSConfigureAssistant : public QObject
 {
     Q_OBJECT
 public:
     static PyLSConfigureAssistant *instance();
-
-    static const LanguageClient::StdIOSettings *languageServerForPython(
-        const Utils::FilePath &python);
 
     static void updateEditorInfoBars(const Utils::FilePath &python,
                                      LanguageClient::Client *client);
