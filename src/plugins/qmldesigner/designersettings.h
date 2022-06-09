@@ -72,6 +72,7 @@ const char COLOR_PALETTE_FAVORITE[] = "ColorPaletteFavorite";
 const char ALWAYS_DESIGN_MODE[] = "AlwaysDesignMode";
 const char DISABLE_ITEM_LIBRARY_UPDATE_TIMER[] = "DisableItemLibraryUpdateTimer";
 const char ASK_BEFORE_DELETING_ASSET[] = "AskBeforeDeletingAsset";
+const char SMOOTH_RENDERING[] = "SmoothRendering";
 }
 
 class QMLDESIGNERCORE_EXPORT DesignerSettings : public QHash<QByteArray, QVariant>
