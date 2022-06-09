@@ -56,6 +56,7 @@ Rectangle {
             objectName: "Default Material"
             diffuseColor: "#4aee45"
         }
+    }
 
     Text {
         text: qsTr("Hello %{ProjectName}")
