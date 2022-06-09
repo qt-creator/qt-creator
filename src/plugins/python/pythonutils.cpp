@@ -67,8 +67,8 @@ FilePath detectPython(const FilePath &documentPath)
 
     // check whether this file is inside a python virtual environment
     QList<Interpreter> venvInterpreters = PythonSettings::detectPythonVenvs(documentPath);
-    if (!python.exists())
-        python = venvInterpreters.value(0).command;
+    if (!python.exists() && !venvInterpreters.isEmpty())
+        python = venvInterpreters.first().command;
 
     if (!python.exists())
         python = PythonSettings::defaultInterpreter().command;
