@@ -783,7 +783,7 @@ QDateTime DockerDevice::lastModified(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
     updateContainerAccess();
-    const QByteArray output = d->outputForRunInShell({"stat", {"-c", "%Y", filePath.path()}});
+    const QByteArray output = d->outputForRunInShell({"stat", {"-L", "-c", "%Y", filePath.path()}});
     qint64 secs = output.toLongLong();
     const QDateTime dt = QDateTime::fromSecsSinceEpoch(secs, Qt::UTC);
     return dt;
@@ -802,7 +802,7 @@ qint64 DockerDevice::fileSize(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return -1);
     updateContainerAccess();
-    const QByteArray output = d->outputForRunInShell({"stat", {"-c", "%s", filePath.path()}});
+    const QByteArray output = d->outputForRunInShell({"stat", {"-L", "-c", "%s", filePath.path()}});
     return output.toLongLong();
 }
 
@@ -811,7 +811,7 @@ QFileDevice::Permissions DockerDevice::permissions(const FilePath &filePath) con
     QTC_ASSERT(handlesFile(filePath), return {});
     updateContainerAccess();
 
-    const QByteArray output = d->outputForRunInShell({"stat", {"-c", "%a", filePath.path()}});
+    const QByteArray output = d->outputForRunInShell({"stat", {"-L", "-c", "%a", filePath.path()}});
     const uint bits = output.toUInt(nullptr, 8);
     QFileDevice::Permissions perm = {};
 #define BIT(n, p) if (bits & (1<<n)) perm |= QFileDevice::p

@@ -1345,7 +1345,7 @@ bool LinuxDevice::renameFile(const FilePath &filePath, const FilePath &target) c
 QDateTime LinuxDevice::lastModified(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
-    const QByteArray output = d->outputForRunInShell({"stat", {"-c", "%Y", filePath.path()}});
+    const QByteArray output = d->outputForRunInShell({"stat", {"-L", "-c", "%Y", filePath.path()}});
     const qint64 secs = output.toLongLong();
     const QDateTime dt = QDateTime::fromSecsSinceEpoch(secs, Qt::UTC);
     return dt;
@@ -1362,7 +1362,7 @@ FilePath LinuxDevice::symLinkTarget(const FilePath &filePath) const
 qint64 LinuxDevice::fileSize(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return -1);
-    const QByteArray output = d->outputForRunInShell({"stat", {"-c", "%s", filePath.path()}});
+    const QByteArray output = d->outputForRunInShell({"stat", {"-L", "-c", "%s", filePath.path()}});
     return output.toLongLong();
 }
 
@@ -1383,7 +1383,7 @@ qint64 LinuxDevice::bytesAvailable(const FilePath &filePath) const
 QFileDevice::Permissions LinuxDevice::permissions(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
-    const QByteArray output = d->outputForRunInShell({"stat", {"-c", "%a", filePath.path()}});
+    const QByteArray output = d->outputForRunInShell({"stat", {"-L", "-c", "%a", filePath.path()}});
     const uint bits = output.toUInt(nullptr, 8);
     QFileDevice::Permissions perm = {};
 #define BIT(n, p) if (bits & (1<<n)) perm |= QFileDevice::p
