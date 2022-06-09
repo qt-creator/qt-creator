@@ -1740,6 +1740,11 @@ def qdump__QString(d, value):
             d.putArrayData(data, size, d.createType('@QChar'))
 
 
+def qdump__QSettingsKey(d, value):
+    qdump__QString(d, value)
+    d.putBetterType(value.type)
+
+
 def qdump__QStaticStringData(d, value):
     size = value.type[0]
     (ref, size, alloc, pad, offset, data) = value.split('iii@p%ss' % (2 * size))
