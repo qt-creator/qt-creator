@@ -50,8 +50,8 @@
     architectures (ABIs) installed as one.
 
     To enable helpful code editing features for Java, such as code completion,
-    highlighting, function tooltips, and navigating in code, specify settings
-    for a \l{Specifying Java Language Server Settings}{Java language server}.
+    highlighting, function tooltips, and navigating in code, add a
+    \l{Java Language Server}{Java language server}.
 
     The Android Debug Bridge (adb) command line tool is integrated to \QC to
     enable you to deploy applications to connected Android devices, to run
