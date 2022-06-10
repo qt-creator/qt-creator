@@ -120,7 +120,7 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent
     installRootAspect->setFilePath(FilePath::fromString(tmpDir.path()));
     const MakeInstallCommand cmd = target()->makeInstallCommand(tmpDir.path());
     QTC_ASSERT(!cmd.command.isEmpty(), return);
-    makeAspect->setExecutable(cmd.command);
+    makeAspect->setExecutable(cmd.command.executable());
 }
 
 Utils::Id MakeInstallStep::stepId()
@@ -254,9 +254,9 @@ void MakeInstallStep::updateArgsFromAspect()
 {
     if (customCommandLineAspect()->isChecked())
         return;
-    setUserArguments(ProcessArgs::joinArgs(target()->makeInstallCommand(
-        static_cast<StringAspect *>(aspect(InstallRootAspectId))->filePath().toString())
-                                          .arguments));
+
+    const CommandLine cmd = target()->makeInstallCommand(installRoot().toString()).command;
+    setUserArguments(cmd.arguments());
     updateFullCommandLine();
 }
 

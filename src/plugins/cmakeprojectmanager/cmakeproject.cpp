@@ -123,7 +123,7 @@ MakeInstallCommand CMakeProject::makeInstallCommand(const Target *target,
     if (const BuildConfiguration * const bc = target->activeBuildConfiguration()) {
         if (const auto cmakeStep = bc->buildSteps()->firstOfType<CMakeBuildStep>()) {
             if (CMakeTool *tool = CMakeKitAspect::cmakeTool(target->kit()))
-                cmd.command = tool->cmakeExecutable();
+                cmd.command.setExecutable(tool->cmakeExecutable());
         }
     }
 
@@ -142,8 +142,11 @@ MakeInstallCommand CMakeProject::makeInstallCommand(const Target *target,
     if (auto bc = bs->buildConfiguration())
         buildDirectory = bc->buildDirectory();
 
-    cmd.arguments << "--build" << buildDirectory.onDevice(cmd.command).path()
-                  << "--target" << installTarget << config;
+    cmd.command.addArg("--build");
+    cmd.command.addArg(buildDirectory.onDevice(cmd.command.executable()).path());
+    cmd.command.addArg("--target");
+    cmd.command.addArg(installTarget);
+    cmd.command.addArgs(config);
 
     cmd.environment.set("DESTDIR", QDir::toNativeSeparators(installRoot));
     return cmd;
