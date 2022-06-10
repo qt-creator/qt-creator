@@ -49,7 +49,8 @@ namespace CatchXml {
 }
 
 CatchOutputReader::CatchOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                                     QProcess *testApplication, const Utils::FilePath &buildDirectory,
+                                     Utils::QtcProcess *testApplication,
+                                     const Utils::FilePath &buildDirectory,
                                      const Utils::FilePath &projectFile)
     : TestOutputReader (futureInterface, testApplication, buildDirectory)
     , m_projectFile(projectFile)

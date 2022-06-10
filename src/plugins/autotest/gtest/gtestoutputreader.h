@@ -38,7 +38,7 @@ class GTestOutputReader : public TestOutputReader
 
 public:
     GTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                      QProcess *testApplication, const Utils::FilePath &buildDirectory,
+                      Utils::QtcProcess *testApplication, const Utils::FilePath &buildDirectory,
                       const Utils::FilePath &projectFile);
 protected:
     void processOutputLine(const QByteArray &outputLine) override;

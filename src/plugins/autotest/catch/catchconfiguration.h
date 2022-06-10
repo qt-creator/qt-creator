@@ -34,7 +34,7 @@ class CatchConfiguration : public DebuggableTestConfiguration
 public:
     CatchConfiguration(ITestFramework *framework) : DebuggableTestConfiguration(framework) {}
     TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                   QProcess *app) const override;
+                                   Utils::QtcProcess *app) const override;
     QStringList argumentsForTestRunner(QStringList *omitted = nullptr) const override;
     Utils::Environment filteredEnvironment(const Utils::Environment &original) const override;
 };

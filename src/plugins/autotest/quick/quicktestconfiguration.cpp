@@ -44,7 +44,7 @@ QuickTestConfiguration::QuickTestConfiguration(ITestFramework *framework)
 }
 
 TestOutputReader *QuickTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                                       QProcess *app) const
+                                                       Utils::QtcProcess *app) const
 {
     auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
     const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput.value()

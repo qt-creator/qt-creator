@@ -66,7 +66,7 @@ public:
         ProjectExplorer::Runnable r;
         QTC_ASSERT(m_testConfig, return r);
         r.command.setExecutable(m_testConfig->executableFilePath());
-        r.command.setArguments(m_testConfig->argumentsForTestRunner().join(' '));
+        r.command.addArgs(m_testConfig->argumentsForTestRunner().join(' '), Utils::CommandLine::Raw);
         r.workingDirectory = m_testConfig->workingDirectory();
         r.environment = m_testConfig->environment();
         return r;

@@ -90,6 +90,8 @@ TestRunner::TestRunner()
 {
     s_instance = this;
 
+    m_cancelTimer.setSingleShot(true);
+    connect(&m_cancelTimer, &QTimer::timeout, this, [this]() { cancelCurrent(Timeout); });
     connect(&m_futureWatcher, &QFutureWatcher<TestResultPtr>::resultReadyAt,
             this, [this](int index) { emit testResultReady(m_futureWatcher.resultAt(index)); });
     connect(&m_futureWatcher, &QFutureWatcher<TestResultPtr>::finished,
@@ -131,16 +133,17 @@ void TestRunner::runTest(TestRunMode mode, const ITestTreeItem *item)
     }
 }
 
-static QString processInformation(const QProcess *proc)
+static QString processInformation(const QtcProcess *proc)
 {
     QTC_ASSERT(proc, return QString());
-    QString information("\nCommand line: " + proc->program() + ' ' + proc->arguments().join(' '));
+    const Utils::CommandLine command = proc->commandLine();
+    QString information("\nCommand line: " + command.executable().toUserOutput() + ' ' + command.arguments());
     QStringList important = { "PATH" };
     if (Utils::HostOsInfo::isLinuxHost())
         important.append("LD_LIBRARY_PATH");
     else if (Utils::HostOsInfo::isMacHost())
         important.append({ "DYLD_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH" });
-    const QProcessEnvironment &environment = proc->processEnvironment();
+    const Utils::Environment &environment = proc->environment();
     for (const QString &var : important)
         information.append('\n' + var + ": " + environment.value(var));
     return information;
@@ -204,34 +207,35 @@ bool TestRunner::currentConfigValid()
 void TestRunner::setUpProcess()
 {
     QTC_ASSERT(m_currentConfig, return);
-    m_currentProcess = new QProcess;
-    m_currentProcess->setReadChannel(QProcess::StandardOutput);
+    m_currentProcess = new QtcProcess;
     if (m_currentConfig->testBase()->type() == ITestBase::Framework) {
         TestConfiguration *current = static_cast<TestConfiguration *>(m_currentConfig);
-        m_currentProcess->setProgram(current->executableFilePath().toString());
+        m_currentProcess->setCommand({current->executableFilePath(), {}});
     } else {
         TestToolConfiguration *current = static_cast<TestToolConfiguration *>(m_currentConfig);
-        m_currentProcess->setProgram(current->commandLine().executable().toString());
+        m_currentProcess->setCommand({current->commandLine().executable(), {}});
     }
 }
 
 void TestRunner::setUpProcessEnv()
 {
+    Utils::CommandLine command = m_currentProcess->commandLine();
     if (m_currentConfig->testBase()->type() == ITestBase::Framework) {
         TestConfiguration *current = static_cast<TestConfiguration *>(m_currentConfig);
 
         QStringList omitted;
-        m_currentProcess->setArguments(current->argumentsForTestRunner(&omitted));
+        command.addArgs(current->argumentsForTestRunner(&omitted).join(' '), Utils::CommandLine::Raw);
         if (!omitted.isEmpty()) {
             const QString &details = constructOmittedDetailsString(omitted);
             reportResult(ResultType::MessageWarn, details.arg(current->displayName()));
         }
     } else {
         TestToolConfiguration *current = static_cast<TestToolConfiguration *>(m_currentConfig);
-        m_currentProcess->setArguments(current->commandLine().splitArguments());
+        command.setArguments(current->commandLine().arguments());
     }
+    m_currentProcess->setCommand(command);
 
-    m_currentProcess->setWorkingDirectory(m_currentConfig->workingDirectory().toString());
+    m_currentProcess->setWorkingDirectory(m_currentConfig->workingDirectory());
     const Utils::Environment &original = m_currentConfig->environment();
     Utils::Environment environment =  m_currentConfig->filteredEnvironment(original);
     const Utils::EnvironmentItems removedVariables = Utils::filtered(
@@ -243,7 +247,7 @@ void TestRunner::setUpProcessEnv()
                 .arg(m_currentConfig->displayName());
         reportResult(ResultType::MessageWarn, details);
     }
-    m_currentProcess->setProcessEnvironment(environment.toProcessEnvironment());
+    m_currentProcess->setEnvironment(environment);
 }
 
 void TestRunner::scheduleNext()
@@ -272,15 +276,16 @@ void TestRunner::scheduleNext()
 
     setUpProcessEnv();
 
-    connect(m_currentProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+    connect(m_currentProcess, &Utils::QtcProcess::finished,
             this, &TestRunner::onProcessFinished);
     const int timeout = AutotestPlugin::settings()->timeout;
-    QTimer::singleShot(timeout, m_currentProcess, [this]() { cancelCurrent(Timeout); });
+    m_cancelTimer.setInterval(timeout);
+    m_cancelTimer.start();
 
-    qCInfo(runnerLog) << "Command:" << m_currentProcess->program();
-    qCInfo(runnerLog) << "Arguments:" << m_currentProcess->arguments();
+    qCInfo(runnerLog) << "Command:" << m_currentProcess->commandLine().executable();
+    qCInfo(runnerLog) << "Arguments:" << m_currentProcess->commandLine().arguments();
     qCInfo(runnerLog) << "Working directory:" << m_currentProcess->workingDirectory();
-    qCDebug(runnerLog) << "Environment:" << m_currentProcess->environment();
+    qCDebug(runnerLog) << "Environment:" << m_currentProcess->environment().toStringList();
 
     m_currentProcess->start();
     if (!m_currentProcess->waitForStarted()) {
@@ -355,7 +360,8 @@ void TestRunner::onProcessFinished()
 void TestRunner::resetInternalPointers()
 {
     delete m_currentOutputReader;
-    delete m_currentProcess;
+    if (m_currentProcess)
+        m_currentProcess->deleteLater();
     delete m_currentConfig;
     m_currentOutputReader = nullptr;
     m_currentProcess = nullptr;
@@ -812,6 +818,7 @@ void TestRunner::onBuildQueueFinished(bool success)
 
 void TestRunner::onFinished()
 {
+    m_cancelTimer.stop();
     // if we've been canceled and we still have test configurations queued just throw them away
     qDeleteAll(m_selectedTests);
     m_selectedTests.clear();

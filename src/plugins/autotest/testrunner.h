@@ -32,16 +32,17 @@
 #include <QFutureWatcher>
 #include <QObject>
 #include <QQueue>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
 class QComboBox;
 class QDialogButtonBox;
 class QLabel;
-class QProcess;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
+namespace Utils { class QtcProcess; }
 
 namespace Autotest {
 
@@ -105,7 +106,7 @@ private:
     bool m_executingTests = false;
     bool m_canceled = false;
     ITestConfiguration *m_currentConfig = nullptr;
-    QProcess *m_currentProcess = nullptr;
+    Utils::QtcProcess *m_currentProcess = nullptr;
     TestOutputReader *m_currentOutputReader = nullptr;
     TestRunMode m_runMode = TestRunMode::None;
 
@@ -116,6 +117,7 @@ private:
     QMetaObject::Connection m_finishDebugConnect;
     // temporarily used for handling of switching the current target
     QMetaObject::Connection m_targetConnect;
+    QTimer m_cancelTimer;
     bool m_skipTargetsCheck = false;
 };
 

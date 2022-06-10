@@ -35,7 +35,8 @@
 namespace Autotest {
 namespace Internal {
 
-TestOutputReader *CatchConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi, QProcess *app) const
+TestOutputReader *CatchConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
+                                                   Utils::QtcProcess *app) const
 {
     return new CatchOutputReader(fi, app, buildDirectory(), projectFile());
 }
