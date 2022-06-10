@@ -90,22 +90,24 @@ void CatchCodeParser::handleIdentifier()
     QTC_ASSERT(m_currentIndex < m_tokens.size(), return);
     const Token &token = m_tokens.at(m_currentIndex);
     const QByteArray &identifier = m_source.mid(int(token.bytesBegin()), int(token.bytes()));
-    if (identifier == "TEST_CASE") {
+    const QByteArray unprefixed = identifier.startsWith("CATCH_") ? identifier.mid(6) : identifier;
+
+    if (unprefixed == "TEST_CASE") {
         handleTestCase(false);
-    } else if (identifier == "SCENARIO") {
+    } else if (unprefixed == "SCENARIO") {
         handleTestCase(true);
-    } else if (identifier == "TEMPLATE_TEST_CASE" || identifier == "TEMPLATE_PRODUCT_TEST_CASE"
-               || identifier == "TEMPLATE_LIST_TEST_CASE" || identifier == "TEMPLATE_TEST_CASE_SIG"
-               || identifier == "TEMPLATE_PRODUCT_TEST_CASE_SIG") {
+    } else if (unprefixed == "TEMPLATE_TEST_CASE" || unprefixed == "TEMPLATE_PRODUCT_TEST_CASE"
+               || unprefixed == "TEMPLATE_LIST_TEST_CASE" || unprefixed == "TEMPLATE_TEST_CASE_SIG"
+               || unprefixed == "TEMPLATE_PRODUCT_TEST_CASE_SIG") {
         handleParameterizedTestCase(false);
-    } else if (identifier == "TEST_CASE_METHOD") {
+    } else if (unprefixed == "TEST_CASE_METHOD") {
         handleFixtureOrRegisteredTestCase(true);
-    } else if (identifier == "TEMPLATE_TEST_CASE_METHOD_SIG"
-               || identifier == "TEMPLATE_PRODUCT_TEST_CASE_METHOD_SIG"
-               || identifier == "TEMPLATE_TEST_CASE_METHOD"
-               || identifier == "TEMPLATE_LIST_TEST_CASE_METHOD") {
+    } else if (unprefixed == "TEMPLATE_TEST_CASE_METHOD_SIG"
+               || unprefixed == "TEMPLATE_PRODUCT_TEST_CASE_METHOD_SIG"
+               || unprefixed == "TEMPLATE_TEST_CASE_METHOD"
+               || unprefixed == "TEMPLATE_LIST_TEST_CASE_METHOD") {
         handleParameterizedTestCase(true);
-    } else if (identifier == "METHOD_AS_TEST_CASE" || identifier == "REGISTER_TEST_CASE") {
+    } else if (unprefixed == "METHOD_AS_TEST_CASE" || unprefixed == "REGISTER_TEST_CASE") {
         handleFixtureOrRegisteredTestCase(false);
     }
 }
