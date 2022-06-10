@@ -130,7 +130,7 @@ private:
     void handlePendingToolStateUpdate();
     QVector3D pivotScenePosition(QQuick3DNode *node) const;
     bool getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVector3D &minBounds,
-                   QVector3D &maxBounds, bool recursive = false);
+                   QVector3D &maxBounds);
 
     QTimer m_overlayUpdateTimer;
     QTimer m_toolStateUpdateTimer;
