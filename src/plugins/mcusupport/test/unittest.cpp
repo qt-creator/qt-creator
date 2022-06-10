@@ -130,6 +130,7 @@ using ProjectExplorer::EnvironmentKitAspect;
 using ProjectExplorer::Kit;
 using ProjectExplorer::KitManager;
 using ProjectExplorer::ToolChain;
+using ProjectExplorer::ToolChainFactory;
 using ProjectExplorer::ToolChainManager;
 
 using testing::_;
@@ -137,9 +138,8 @@ using testing::Return;
 
 void verifyIarToolchain(const McuToolChainPackagePtr &iarToolchainPackage)
 {
-    ProjectExplorer::ToolChainFactory toolchainFactory;
     Id iarId{BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID};
-    ToolChain *iarToolchain{toolchainFactory.createToolChain(iarId)};
+    ToolChain *iarToolchain{ToolChainFactory::createToolChain(iarId)};
     iarToolchain->setLanguage(cxxLanguageId);
     ToolChainManager::instance()->registerToolChain(iarToolchain);
 
@@ -160,10 +160,9 @@ void verifyIarToolchain(const McuToolChainPackagePtr &iarToolchainPackage)
 void verifyArmGccToolchain(const McuToolChainPackagePtr &armGccPackage)
 {
     //Fake register and fake detect compiler.
-    ProjectExplorer::ToolChainFactory toolchainFactory;
     Id armGccId{ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID};
 
-    ToolChain *armToolchain{toolchainFactory.createToolChain(armGccId)};
+    ToolChain *armToolchain{ProjectExplorer::ToolChainFactory::createToolChain(armGccId)};
     armToolchain->setLanguage(cxxLanguageId);
     ToolChainManager::instance()->registerToolChain(armToolchain);
 
