@@ -98,6 +98,9 @@ public:
     Utils::CommandLine commandLineForTests(const QList<QString> &tests,
                                            const QStringList &options) const final;
 
+    ProjectExplorer::MakeInstallCommand makeInstallCommand(
+            const Utils::FilePath &installRoot) const final;
+
     static bool filteredOutTarget(const CMakeBuildTarget &target);
 
     bool isMultiConfig() const;

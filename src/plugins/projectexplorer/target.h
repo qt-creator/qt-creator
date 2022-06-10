@@ -25,8 +25,11 @@
 
 #pragma once
 
-#include "projectconfiguration.h"
 #include "projectexplorer_export.h"
+
+#include <utils/id.h>
+
+#include <QObject>
 
 #include <memory>
 
@@ -41,7 +44,6 @@ class BuildSystem;
 class DeployConfiguration;
 class DeploymentData;
 class Kit;
-class MakeInstallCommand;
 class Project;
 class ProjectConfigurationModel;
 class RunConfiguration;
@@ -114,7 +116,6 @@ public:
     void setNamedSettings(const QString &name, const QVariant &value);
 
     QVariant additionalData(Utils::Id id) const;
-    MakeInstallCommand makeInstallCommand(const Utils::FilePath &installRoot) const;
 
     Utils::MacroExpander *macroExpander() const;
 

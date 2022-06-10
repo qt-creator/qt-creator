@@ -34,7 +34,11 @@
 
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/outputwindow.h>
+
 #include <projectexplorer/buildaspects.h>
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/makestep.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -251,6 +255,22 @@ bool BuildSystem::addDependencies(Node *, const QStringList &dependencies)
 bool BuildSystem::supportsAction(Node *, ProjectAction, const Node *) const
 {
     return false;
+}
+
+MakeInstallCommand BuildSystem::makeInstallCommand(const FilePath &installRoot) const
+{
+    QTC_ASSERT(target()->project()->hasMakeInstallEquivalent(), return {});
+
+    BuildStepList *buildSteps = buildConfiguration()->buildSteps();
+    QTC_ASSERT(buildSteps, return {});
+
+    MakeInstallCommand cmd;
+    if (const auto makeStep = buildSteps->firstOfType<MakeStep>()) {
+        cmd.command.setExecutable(makeStep->makeExecutable());
+        cmd.command.addArg("install");
+        cmd.command.addArg("INSTALL_ROOT=" + installRoot.nativePath());
+    }
+    return cmd;
 }
 
 FilePaths BuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const

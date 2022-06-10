@@ -49,7 +49,7 @@ public:
 
     QList<BuildStep *> steps() const;
 
-    template <class BS> BS *firstOfType() {
+    template <class BS> BS *firstOfType() const {
         BS *bs = nullptr;
         for (int i = 0; i < count(); ++i) {
             bs = qobject_cast<BS *>(at(i));
@@ -76,7 +76,7 @@ public:
 
     bool removeStep(int position);
     void moveStepUp(int position);
-    BuildStep *at(int position);
+    BuildStep *at(int position) const;
 
     Target *target() { return m_target; }
 

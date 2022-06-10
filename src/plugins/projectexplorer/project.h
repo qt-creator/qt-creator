@@ -149,8 +149,6 @@ public:
 
     virtual DeploymentKnowledge deploymentKnowledge() const { return DeploymentKnowledge::Bad; }
     bool hasMakeInstallEquivalent() const;
-    virtual MakeInstallCommand makeInstallCommand(const Target *target,
-                                                  const Utils::FilePath &installRoot);
 
     void setup(const QList<BuildInfo> &infoList);
     Utils::MacroExpander *macroExpander() const;

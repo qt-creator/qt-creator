@@ -803,11 +803,6 @@ QVariant Target::additionalData(Utils::Id id) const
     return {};
 }
 
-MakeInstallCommand Target::makeInstallCommand(const FilePath &installRoot) const
-{
-    return project()->makeInstallCommand(this, installRoot);
-}
-
 MacroExpander *Target::macroExpander() const
 {
     return &d->m_macroExpander;

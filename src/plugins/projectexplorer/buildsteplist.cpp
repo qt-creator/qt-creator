@@ -196,7 +196,7 @@ void BuildStepList::moveStepUp(int position)
     emit stepMoved(position, position - 1);
 }
 
-BuildStep *BuildStepList::at(int position)
+BuildStep *BuildStepList::at(int position) const
 {
     return m_steps.at(position);
 }
