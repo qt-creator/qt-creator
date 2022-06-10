@@ -98,7 +98,7 @@ QStringList CatchConfiguration::argumentsForTestRunner(QStringList *omitted) con
 {
     QStringList arguments;
     if (testCaseCount())
-        arguments << "\"" + testCases().join("\",\"") + "\"";
+        arguments << "\"" + testCases().join("\", \"") + "\"";
     arguments << "--reporter" << "xml";
 
     if (AutotestPlugin::settings()->processArgs) {
