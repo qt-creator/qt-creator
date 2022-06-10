@@ -36,8 +36,8 @@
     \uicontrol {C++} > \uicontrol {ClangFormat}. Then select
     \uicontrol {Restart Now} to restart \QC and load the plugin.
 
-    \note If you enable the plugin, do not use the \l{Beautifying Source Code}
-    {Beautifier}, because combining the two can provide unexpected results.
+    \note If you enable Clang Format, do not use the \l{Beautifying Source Code}
+    {Beautifier} because combining them can provide unexpected results.
 
     You can use Clang Format to enforce a coding style for a project or the
     whole organization. Create a \c {.clang-format} file that contains the
@@ -47,36 +47,26 @@
     format file recursively from the directory that contains the source file
     up to the file system root.
 
-    To specify global settings for automatic formatting and indentation, you
-    must copy the built-in settings and edit the copy:
+    To override the \c {.clang-format} file globally for all projects, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol {C++} > \uicontrol Copy >
+    \uicontrol Edit > \uicontrol {ClangFormat} >
+    \uicontrol {Override Clang Format configuration file}.
 
-    \list 1
-       \li Select \uicontrol Tools > \uicontrol Options > \uicontrol {C++} >
-            \uicontrol Edit > \uicontrol {Copy Built-in Code Style} >
-            \uicontrol {ClangFormat}.
-            \image qtcreator-code-style-clang-format.png "C++ Clang Format options"
-        \li Select the \uicontrol {Format instead of indenting} check box to
-            use the \key {Ctrl+I} keyboard shortcut to format code instead of
-            indenting it.
-        \li Select the \uicontrol {Format while typing} check box to apply the
-            formatting while you type code.
-        \li Select the \uicontrol {Format edited code on file save} check box
-            to apply the formatting to the edited code when you save the file.
-        \li Select the \uicontrol {Override Clang Format configuration file}
-            check box to create a local configuration file that overrides the
-            one stored in the file system.
-            \note This is not recommended, because it defeats the purpose of
-            a Clang format file.
-        \li To modify the values in the file, select them in the left-side
-            column and enter the new values.
-        \li To view examples of the new values in the right-hand column, select
-            \uicontrol Apply.
-    \endlist
+    \image qtcreator-code-style-clang-format.png "C++ Clang Format options"
 
-    To override the \c {.clang-format} file for a project, select
+    In \uicontrol {Formatting mode}, select \uicontrol {Indenting Only} to only
+    indent code. Select \uicontrol {Full Formatting} to use the \key {Ctrl+I}
+    keyboard shortcut to format code instead of indenting it and to apply the
+    formatting to the edited code when you save the file.
+
+    This creates a local configuration file that overrides the one stored in the
+    file system.
+
+    To override the \c {.clang-format} file for a particular project, create a
+    copy of the built-in style and edit its settings by selecting
     \uicontrol Projects > \uicontrol {Project Settings} >
-    \uicontrol {Code Style} > \uicontrol Edit >
-    \uicontrol {Copy Built-in Code Style} > \uicontrol {ClangFormat} >
+    \uicontrol {Code Style} > \uicontrol Copy > \uicontrol Edit >
+    \uicontrol {ClangFormat} >
     \uicontrol {Override Clang Format configuration file}.
 
     You can create \c {.clang-format} files that contain the configuration

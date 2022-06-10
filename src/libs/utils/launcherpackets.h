@@ -119,6 +119,7 @@ public:
     bool lowPriority = false;
     bool unixTerminalDisabled = false;
     bool useCtrlCStub = false;
+    int reaperTimeout = 500;
 
 private:
     void doSerialize(QDataStream &stream) const override;

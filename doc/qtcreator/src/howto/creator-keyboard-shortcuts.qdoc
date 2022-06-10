@@ -476,11 +476,18 @@
             \li  F4
         \endif
         \row
+            \li Add a cursor at the next occurrence of selected text for
+                multi-cursor editing
+            \li  Ctrl+D
+        \row
             \li  Turn selected text into lowercase
             \li  Alt+U
         \row
             \li  Turn selected text into uppercase
             \li  Alt+Shift+U
+        \row
+            \li  Sort selected lines alphabetically
+            \li  Alt+Shift+S
         \row
             \li  Run static checks on JavaScript code to find common problems
             \li  Ctrl+Shift+C

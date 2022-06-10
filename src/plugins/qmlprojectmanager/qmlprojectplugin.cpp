@@ -117,6 +117,7 @@ public:
                                       {runConfigFactory.runConfigurationId()}};
     QPointer<QMessageBox> lastMessageBox;
     QdsLandingPage *landingPage = nullptr;
+    QdsLandingPageWidget *landingPageWidget = nullptr;
 };
 
 QmlProjectPlugin::~QmlProjectPlugin()
@@ -125,6 +126,8 @@ QmlProjectPlugin::~QmlProjectPlugin()
         d->lastMessageBox->deleteLater();
     if (d->landingPage)
         d->landingPage->deleteLater();
+    if (d->landingPageWidget)
+        d->landingPageWidget->deleteLater();
     delete d;
 }
 
@@ -263,8 +266,19 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 
     d = new QmlProjectPluginPrivate;
 
-    if (!qmlDesignerEnabled())
-        initializeQmlLandingPage();
+    if (!qmlDesignerEnabled()) {
+        d->landingPageWidget = new QdsLandingPageWidget();
+
+        const QStringList mimeTypes = {QmlJSTools::Constants::QMLUI_MIMETYPE};
+        auto context = new Internal::DesignModeContext(d->landingPageWidget);
+        Core::ICore::addContextObject(context);
+
+        Core::DesignMode::registerDesignWidget(d->landingPageWidget, mimeTypes, context->context());
+
+        connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged,
+                this, &QmlProjectPlugin::editorModeChanged);
+    }
+
 
     ProjectManager::registerProjectType<QmlProject>(QmlJSTools::Constants::QMLPROJECT_MIMETYPE);
     Core::FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png",
@@ -366,29 +380,21 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 
 void QmlProjectPlugin::initializeQmlLandingPage()
 {
-    d->landingPage = new QdsLandingPage();
+    d->landingPage = new QdsLandingPage(d->landingPageWidget);
     connect(d->landingPage, &QdsLandingPage::openCreator, this, &QmlProjectPlugin::openQtc);
     connect(d->landingPage, &QdsLandingPage::openDesigner, this, &QmlProjectPlugin::openQds);
     connect(d->landingPage, &QdsLandingPage::installDesigner, this, &QmlProjectPlugin::installQds);
     connect(d->landingPage, &QdsLandingPage::generateCmake, this, &QmlProjectPlugin::generateCmake);
     connect(d->landingPage, &QdsLandingPage::generateProjectFile, this, &QmlProjectPlugin::generateProjectFile);
-
-    auto dialog = d->landingPage->dialog();
-
-    const QStringList mimeTypes = {QmlJSTools::Constants::QMLUI_MIMETYPE};
-    auto context = new Internal::DesignModeContext(dialog);
-    Core::ICore::addContextObject(context);
-
-    Core::DesignMode::registerDesignWidget(dialog, mimeTypes, context->context());
-
-    connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged,
-            this, &QmlProjectPlugin::editorModeChanged);
 }
 
 void QmlProjectPlugin::displayQmlLandingPage()
 {
     const QString qtVersionString = ProjectFileContentTools::qtVersion(projectFilePath());
     const QString qdsVersionString = ProjectFileContentTools::qdsVersion(projectFilePath());
+
+    if (!d->landingPage)
+        initializeQmlLandingPage();
 
     d->landingPage->setQdsInstalled(qdsInstallationExists());
     d->landingPage->setProjectFileExists(projectFilePath().exists());
@@ -400,7 +406,8 @@ void QmlProjectPlugin::displayQmlLandingPage()
 
 void QmlProjectPlugin::hideQmlLandingPage()
 {
-    d->landingPage->hide();
+    if (d->landingPage)
+        d->landingPage->hide();
 }
 
 static bool isDesignerMode(Utils::Id mode)
@@ -430,7 +437,9 @@ void QmlProjectPlugin::openQtc(bool permanent)
     if (permanent)
         setAlwaysOpenWithMode(Core::Constants::MODE_EDIT);
 
-    hideQmlLandingPage();
+    if (d->landingPage)
+        hideQmlLandingPage();
+
     Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
 }
 
@@ -439,7 +448,9 @@ void QmlProjectPlugin::openQds(bool permanent)
     if (permanent)
         setAlwaysOpenWithMode(Core::Constants::MODE_DESIGN);
 
-    hideQmlLandingPage();
+    if (d->landingPage)
+        hideQmlLandingPage();
+
     auto editor = Core::EditorManager::currentEditor();
     if (editor)
         openInQDSWithProject(editor->document()->filePath());

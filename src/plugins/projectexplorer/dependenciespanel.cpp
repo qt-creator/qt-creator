@@ -215,6 +215,7 @@ DependenciesWidget::DependenciesWidget(Project *project, QWidget *parent) : Proj
     m_model(new DependenciesModel(project, this))
 {
     setUseGlobalSettingsCheckBoxVisible(false);
+    setUseGlobalSettingsLabelVisible(false);
     auto vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
     m_detailsContainer = new Utils::DetailsWidget(this);

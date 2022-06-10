@@ -80,7 +80,7 @@ void CheckForFreeDiskSpaceService::doDeploy()
     const qint64 freeSpace = path.bytesAvailable();
     if (freeSpace < 0) {
         emit errorMessage(tr("Cannot get info about free disk space for \"%1\"")
-                .arg(path.toUserOutput()));
+                .arg(path.displayName()));
         handleDeploymentDone();
         return;
     }

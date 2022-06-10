@@ -54,6 +54,7 @@ public:
     QString m_standardInputFile;
     QString m_nativeArguments; // internal, dependent on specific code path
 
+    int m_reaperTimeout = 500; // in ms
     bool m_abortOnMetaChars = true;
     bool m_runAsRoot = false;
     bool m_lowPriority = false;
@@ -76,6 +77,12 @@ enum class ControlSignal {
     Kill,
     Interrupt,
     KickOff
+};
+
+enum class ProcessSignalType {
+    Started,
+    ReadyRead,
+    Done
 };
 
 class QTCREATOR_UTILS_EXPORT ProcessInterface : public QObject

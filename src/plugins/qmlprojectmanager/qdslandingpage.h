@@ -42,6 +42,19 @@ public:
     DesignModeContext(QWidget *widget) { setWidget(widget); }
 };
 
+class QdsLandingPageWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    QdsLandingPageWidget(QWidget* parent = nullptr);
+    ~QdsLandingPageWidget();
+    QQuickWidget *widget();
+
+private:
+    QQuickWidget *m_widget = nullptr;
+};
+
 class QdsLandingPage : public QObject
 {
     Q_OBJECT
@@ -53,9 +66,9 @@ public:
     Q_PROPERTY(QString qdsVersion MEMBER m_qdsVersion READ qdsVersion WRITE setQdsVersion)
 
 public:
-    QdsLandingPage(QWidget *parent = nullptr);
+    QdsLandingPage(QdsLandingPageWidget *widget, QWidget *parent = nullptr);
 
-    QWidget *dialog();
+    QWidget *widget();
     void show();
     void hide();
 
@@ -80,7 +93,7 @@ signals:
     void generateProjectFile();
 
 private:
-    QQuickWidget *m_dialog = nullptr;
+    QQuickWidget *m_widget = nullptr;
 
     bool m_qdsInstalled = false;
     bool m_projectFileExists = false;

@@ -48,6 +48,9 @@ class IAssistProposal;
 
 namespace ClangCodeModel {
 namespace Internal {
+class ClangdAstNode;
+
+Q_DECLARE_LOGGING_CATEGORY(clangdLog);
 
 void setupClangdConfigFile();
 
@@ -103,6 +106,24 @@ public:
     void switchIssuePaneEntries(const Utils::FilePath &filePath);
     void addTask(const ProjectExplorer::Task &task);
     void clearTasks(const Utils::FilePath &filePath);
+    Utils::optional<bool> hasVirtualFunctionAt(TextEditor::TextDocument *doc, int revision,
+                                               const LanguageServerProtocol::Range &range);
+
+    using TextDocOrFile = Utils::variant<const TextEditor::TextDocument *, Utils::FilePath>;
+    using AstHandler = std::function<void(const ClangdAstNode &ast,
+                                                const LanguageServerProtocol::MessageId &)>;
+    enum class AstCallbackMode { SyncIfPossible, AlwaysAsync };
+    LanguageServerProtocol::MessageId getAndHandleAst(const TextDocOrFile &doc,
+                                                     const AstHandler &astHandler,
+                                                      AstCallbackMode callbackMode,
+                                                      const LanguageServerProtocol::Range &range);
+
+    using SymbolInfoHandler = std::function<void(const QString &name, const QString &prefix,
+                                                 const LanguageServerProtocol::MessageId &)>;
+    LanguageServerProtocol::MessageId requestSymbolInfo(
+            const Utils::FilePath &filePath,
+            const LanguageServerProtocol::Position &position,
+            const SymbolInfoHandler &handler);
 
 signals:
     void indexingFinished();
@@ -125,7 +146,6 @@ private:
     LanguageClient::DiagnosticManager *createDiagnosticManager() override;
 
     class Private;
-    class FollowSymbolData;
     class VirtualFunctionAssistProcessor;
     class VirtualFunctionAssistProvider;
     class ClangdFunctionHintProcessor;

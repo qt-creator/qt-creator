@@ -143,40 +143,49 @@ void PanelsWidget::addWidget(QWidget *widget)
 
 void PanelsWidget::addGlobalSettingsProperties(ProjectSettingsWidget *widget)
 {
-    if (!widget->isUseGlobalSettingsCheckBoxVisible())
+    if (!widget->isUseGlobalSettingsCheckBoxVisible() && !widget->isUseGlobalSettingsLabelVisible())
         return;
     m_layout->setContentsMargins(0, 0, 0, 0);
     const auto useGlobalSettingsCheckBox = new QCheckBox;
     useGlobalSettingsCheckBox->setChecked(widget->useGlobalSettings());
     useGlobalSettingsCheckBox->setEnabled(widget->isUseGlobalSettingsCheckBoxEnabled());
-    const auto settingsLabel = new QLabel("Use <a href=\"dummy\">global settings</a>");
-    settingsLabel->setContentsMargins(CONTENTS_MARGIN, 0, 0, 0);
+
+    const QString labelText = widget->isUseGlobalSettingsCheckBoxVisible()
+                                  ? QStringLiteral("Use <a href=\"dummy\">global settings</a>")
+                                  : QStringLiteral("<a href=\"dummy\">Global settings</a>");
+    const auto settingsLabel = new QLabel(labelText);
     settingsLabel->setEnabled(widget->isUseGlobalSettingsCheckBoxEnabled());
-    const auto horizontLayout = new QHBoxLayout;
-    horizontLayout->setContentsMargins(0, CONTENTS_MARGIN, 0, CONTENTS_MARGIN);
-    horizontLayout->addWidget(useGlobalSettingsCheckBox);
-    horizontLayout->addWidget(settingsLabel);
-    horizontLayout->addStretch(1);
-    m_layout->addLayout(horizontLayout);
+
+    const auto horizontalLayout = new QHBoxLayout;
+    horizontalLayout->setContentsMargins(0, CONTENTS_MARGIN, 0, CONTENTS_MARGIN);
+    horizontalLayout->setSpacing(CONTENTS_MARGIN);
+
+    if (widget->isUseGlobalSettingsCheckBoxVisible()) {
+        horizontalLayout->addWidget(useGlobalSettingsCheckBox);
+
+        connect(widget, &ProjectSettingsWidget::useGlobalSettingsCheckBoxEnabledChanged,
+                this, [useGlobalSettingsCheckBox, settingsLabel](bool enabled) {
+                    useGlobalSettingsCheckBox->setEnabled(enabled);
+                    settingsLabel->setEnabled(enabled);
+                });
+        connect(useGlobalSettingsCheckBox, &QCheckBox::stateChanged,
+                widget, &ProjectSettingsWidget::setUseGlobalSettings);
+        connect(widget, &ProjectSettingsWidget::useGlobalSettingsChanged,
+                useGlobalSettingsCheckBox, &QCheckBox::setChecked);
+    }
+
+    if (widget->isUseGlobalSettingsLabelVisible()) {
+        horizontalLayout->addWidget(settingsLabel);
+        connect(settingsLabel, &QLabel::linkActivated, this, [widget] {
+            Core::ICore::showOptionsDialog(widget->globalSettingsId());
+        });
+    }
+    horizontalLayout->addStretch(1);
+    m_layout->addLayout(horizontalLayout);
 
     auto separator = new QFrame(m_root);
     separator->setFrameShape(QFrame::HLine);
     m_layout->addWidget(separator);
-
-    connect(widget, &ProjectSettingsWidget::useGlobalSettingsCheckBoxEnabledChanged, this,
-            [useGlobalSettingsCheckBox, settingsLabel] (bool enabled) {
-                useGlobalSettingsCheckBox->setEnabled(enabled);
-                settingsLabel->setEnabled(enabled);
-            });
-
-    connect(useGlobalSettingsCheckBox, &QCheckBox::stateChanged,
-            widget, &ProjectSettingsWidget::setUseGlobalSettings);
-    connect(widget, &ProjectSettingsWidget::useGlobalSettingsChanged,
-            useGlobalSettingsCheckBox, &QCheckBox::setChecked);
-
-    connect(settingsLabel, &QLabel::linkActivated, this, [widget] {
-        Core::ICore::showOptionsDialog(widget->globalSettingsId());
-    });
 }
 
 } // ProjectExplorer

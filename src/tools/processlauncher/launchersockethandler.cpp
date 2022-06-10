@@ -44,9 +44,12 @@ public:
         ProcessHelper(parent), m_token(token) { }
 
     quintptr token() const { return m_token; }
+    void setReaperTimeout(int msecs) { m_reaperTimeout = msecs; };
+    int reaperTimeout() const { return m_reaperTimeout; }
 
 private:
     const quintptr m_token;
+    int m_reaperTimeout = 500;
 };
 
 LauncherSocketHandler::LauncherSocketHandler(QString serverPath, QObject *parent)
@@ -208,6 +211,7 @@ void LauncherSocketHandler::handleStartPacket()
     if (packet.unixTerminalDisabled)
         process->setUnixTerminalDisabled();
     process->setUseCtrlCStub(packet.useCtrlCStub);
+    process->setReaperTimeout(packet.reaperTimeout);
     process->start(packet.command, packet.arguments, handler->openMode());
     handler->handleProcessStart();
 }
@@ -289,7 +293,7 @@ void LauncherSocketHandler::removeProcess(quintptr token)
 
     Process *process = it.value();
     m_processes.erase(it);
-    ProcessReaper::reap(process);
+    ProcessReaper::reap(process, process->reaperTimeout());
 }
 
 } // namespace Internal

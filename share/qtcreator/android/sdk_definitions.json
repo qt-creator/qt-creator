@@ -18,11 +18,16 @@
     "specific_qt_versions": [
         {
             "versions": ["default"],
+            "sdk_essential_packages": ["build-tools;31.0.0", "ndk;23.1.7779620"],
+            "ndk_path": "ndk/23.1.7779620"
+        },
+        {
+            "versions": ["6.3", "6.2", "5.15"],
             "sdk_essential_packages": ["build-tools;31.0.0", "ndk;22.1.7171670"],
             "ndk_path": "ndk/22.1.7171670"
         },
         {
-            "versions": ["5.15.[0-8]", "5.14.[0-2]", "5.13.2"],
+            "versions": ["5.15.[0-8]", "5.14.[0-2]", "5.13.2", "6.0", "6.1"],
             "sdk_essential_packages": ["build-tools;31.0.0", "ndk;21.3.6528147"],
             "ndk_path": "ndk/21.3.6528147"
         },

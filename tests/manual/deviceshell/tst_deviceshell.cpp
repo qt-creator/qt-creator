@@ -223,6 +223,6 @@ private slots:
     }
 };
 
-QTEST_MAIN(tst_DeviceShell)
+QTEST_GUILESS_MAIN(tst_DeviceShell)
 
 #include "tst_deviceshell.moc"

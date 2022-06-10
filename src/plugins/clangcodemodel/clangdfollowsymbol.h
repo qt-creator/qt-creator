@@ -25,45 +25,41 @@
 
 #pragma once
 
-#include "projectexplorer_export.h"
+#include <utils/link.h>
 
-#include <utils/id.h>
+#include <QObject>
 
-#include <QWidget>
+namespace CppEditor { class CppEditorWidget; }
+namespace TextEditor { class TextDocument; }
 
-namespace ProjectExplorer {
+QT_BEGIN_NAMESPACE
+class QTextCursor;
+QT_END_NAMESPACE
 
-class PROJECTEXPLORER_EXPORT ProjectSettingsWidget : public QWidget
+namespace ClangCodeModel::Internal {
+class ClangdAstNode;
+class ClangdClient;
+
+class ClangdFollowSymbol : public QObject
 {
     Q_OBJECT
 public:
-    explicit ProjectSettingsWidget(QWidget *parent = nullptr);
-
-    void setUseGlobalSettings(bool useGlobalSettings);
-    bool useGlobalSettings() const;
-
-    void setUseGlobalSettingsCheckBoxEnabled(bool enadled);
-    bool isUseGlobalSettingsCheckBoxEnabled() const;
-
-    bool isUseGlobalSettingsCheckBoxVisible() const;
-    bool isUseGlobalSettingsLabelVisible() const;
-    Utils::Id globalSettingsId() const;
-
-protected:
-    void setUseGlobalSettingsCheckBoxVisible(bool visible);
-    void setUseGlobalSettingsLabelVisible(bool visible);
-    void setGlobalSettingsId(Utils::Id globalId);
+    ClangdFollowSymbol(ClangdClient *client, const QTextCursor &cursor,
+                       CppEditor::CppEditorWidget *editorWidget,
+                       TextEditor::TextDocument *document, const Utils::LinkHandler &callback,
+                       bool openInSplit);
+    ~ClangdFollowSymbol();
+    void clear();
 
 signals:
-    void useGlobalSettingsChanged(bool useGlobalSettings);
-    void useGlobalSettingsCheckBoxEnabledChanged(bool enadled);
+    void done();
 
 private:
-    bool m_useGlobalSettings = true;
-    bool m_useGlobalSettingsCheckBoxEnabled = true;
-    bool m_useGlobalSettingsCheckBoxVisibleVisible = true;
-    bool m_useGlobalSettingsLabelVisibleVisible = true;
-    Utils::Id m_globalSettingsId;
+    class VirtualFunctionAssistProcessor;
+    class VirtualFunctionAssistProvider;
+
+    class Private;
+    Private * const d;
 };
 
-} // namespace ProjectExplorer
+} // namespace ClangCodeModel::Internal

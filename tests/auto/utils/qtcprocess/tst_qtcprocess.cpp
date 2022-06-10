@@ -106,6 +106,9 @@ private:
     QHash<QString, QString> m_map;
 };
 
+static constexpr char s_skipTerminateOnWindows[] =
+        "Windows implementation of this test is lacking handling of WM_CLOSE message.";
+
 class tst_QtcProcess : public QObject
 {
     Q_OBJECT
@@ -138,13 +141,15 @@ private slots:
     void channelForwarding();
     void mergedChannels_data();
     void mergedChannels();
-    void killBlockingProcess_data();
-    void killBlockingProcess();
+    void destroyBlockingProcess_data();
+    void destroyBlockingProcess();
     void flushFinishedWhileWaitingForReadyRead();
     void emitOneErrorOnCrash();
     void crashAfterOneSecond();
     void recursiveCrashingProcess();
     void recursiveBlockingProcess();
+    void quitBlockingProcess_data();
+    void quitBlockingProcess();
 
     void cleanupTestCase();
 
@@ -1124,7 +1129,7 @@ void tst_QtcProcess::mergedChannels()
     QCOMPARE(error.contains(QByteArray(s_errorData)), errorOnError);
 }
 
-void tst_QtcProcess::killBlockingProcess_data()
+void tst_QtcProcess::destroyBlockingProcess_data()
 {
     QTest::addColumn<BlockType>("blockType");
 
@@ -1134,11 +1139,11 @@ void tst_QtcProcess::killBlockingProcess_data()
     QTest::newRow("EventLoop") << BlockType::EventLoop;
 }
 
-void tst_QtcProcess::killBlockingProcess()
+void tst_QtcProcess::destroyBlockingProcess()
 {
     QFETCH(BlockType, blockType);
 
-    SubProcessConfig subConfig(ProcessTestApp::KillBlockingProcess::envVar(),
+    SubProcessConfig subConfig(ProcessTestApp::BlockingProcess::envVar(),
                                QString::number(int(blockType)));
 
     QtcProcess process;
@@ -1239,7 +1244,7 @@ static int runningTestProcessCount()
 void tst_QtcProcess::recursiveBlockingProcess()
 {
     if (HostOsInfo::isWindowsHost())
-        QSKIP("Windows implementation of this test is lacking handling of WM_CLOSE message.");
+        QSKIP(s_skipTerminateOnWindows);
 
     Singleton::deleteAll();
     QCOMPARE(runningTestProcessCount(), 0);
@@ -1264,6 +1269,87 @@ void tst_QtcProcess::recursiveBlockingProcess()
     }
     Singleton::deleteAll();
     QCOMPARE(runningTestProcessCount(), 0);
+}
+
+enum class QuitType {
+    Terminate,
+    Kill,
+    Stop,
+    Close
+};
+
+Q_DECLARE_METATYPE(QuitType)
+
+void tst_QtcProcess::quitBlockingProcess_data()
+{
+    QTest::addColumn<QuitType>("quitType");
+    QTest::addColumn<bool>("doneExpected");
+    QTest::addColumn<bool>("gracefulQuit");
+
+    QTest::newRow("Terminate") << QuitType::Terminate << true << true;
+    QTest::newRow("Kill") << QuitType::Kill << true << false;
+    QTest::newRow("Stop") << QuitType::Stop << true << true;
+    QTest::newRow("Close") << QuitType::Close << false << true;
+}
+
+void tst_QtcProcess::quitBlockingProcess()
+{
+    QFETCH(QuitType, quitType);
+    QFETCH(bool, doneExpected);
+    QFETCH(bool, gracefulQuit);
+
+    if (HostOsInfo::isWindowsHost() && quitType == QuitType::Terminate)
+        QSKIP(s_skipTerminateOnWindows);
+
+    const int recursionDepth = 1;
+
+    SubProcessConfig subConfig(ProcessTestApp::RecursiveBlockingProcess::envVar(),
+                               QString::number(recursionDepth));
+
+    QtcProcess process;
+    subConfig.setupSubProcess(&process);
+    bool done = false;
+    connect(&process, &QtcProcess::done, this, [&done] { done = true; });
+
+    process.start();
+    QVERIFY(process.waitForStarted());
+    QVERIFY(!done);
+    QVERIFY(process.isRunning());
+
+    QVERIFY(process.waitForReadyRead(1000));
+    QCOMPARE(process.readAllStandardOutput(), s_leafProcessStarted);
+
+    switch (quitType) {
+    case QuitType::Terminate: process.terminate(); break;
+    case QuitType::Kill: process.kill(); break;
+    case QuitType::Stop: process.stop(); break;
+    case QuitType::Close: process.close(); break;
+    }
+
+    QVERIFY(!done);
+
+    if (doneExpected) {
+        QVERIFY(process.isRunning());
+
+        QVERIFY(process.waitForFinished());
+
+        QVERIFY(!process.isRunning());
+        QVERIFY(done);
+
+        if (gracefulQuit) {
+            if (HostOsInfo::isWindowsHost())
+                QSKIP(s_skipTerminateOnWindows);
+            QCOMPARE(process.readAllStandardOutput(), s_leafProcessTerminated);
+            QCOMPARE(process.exitStatus(), QProcess::NormalExit);
+            QCOMPARE(process.exitCode(), s_crashCode);
+        } else {
+            QCOMPARE(process.readAllStandardOutput(), QByteArray());
+            QCOMPARE(process.exitStatus(), QProcess::CrashExit);
+            QVERIFY(process.exitCode() != s_crashCode);
+        }
+    } else {
+        QVERIFY(!process.isRunning());
+    }
 }
 
 QTEST_MAIN(tst_QtcProcess)

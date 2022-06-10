@@ -1994,7 +1994,7 @@ TriState TriStateAspect::value() const
 
 void TriStateAspect::setValue(TriState value)
 {
-    BaseAspect::setValue(value.toVariant());
+    SelectionAspect::setValue(value.toInt());
 }
 
 void TriStateAspect::setDefaultValue(TriState value)

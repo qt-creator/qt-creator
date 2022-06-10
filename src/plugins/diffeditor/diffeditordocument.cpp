@@ -308,8 +308,8 @@ bool DiffEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeTyp
     return open(errorString, filePath(), filePath()) == OpenResult::Success;
 }
 
-Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const Utils::FilePath &filePath,
-                              const Utils::FilePath &realFilePath)
+Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const FilePath &filePath,
+                                                     const FilePath &realFilePath)
 {
     QTC_CHECK(filePath == realFilePath); // does not support autosave
     beginReload();

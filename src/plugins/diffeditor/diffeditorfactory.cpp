@@ -61,7 +61,7 @@ DiffEditorFactory::DiffEditorFactory() :
     },
     rightHandler {
         Constants::DIFF_EDITOR_ID,
-        Utils::Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(2),
+        Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(2),
         TextEditorActionHandler::None,
         [](Core::IEditor *e) { return static_cast<DiffEditor *>(e)->rightEditorWidget(); }
     }

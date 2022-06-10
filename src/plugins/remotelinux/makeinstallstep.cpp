@@ -152,13 +152,13 @@ bool MakeInstallStep::init()
     if (cleanInstallRoot() && !rootDir.removeRecursively()) {
         emit addTask(BuildSystemTask(Task::Error,
                                         tr("The install root \"%1\" could not be cleaned.")
-                                            .arg(rootDir.toUserOutput())));
+                                            .arg(rootDir.displayName())));
         return false;
     }
     if (!rootDir.exists() && !rootDir.createDir()) {
         emit addTask(BuildSystemTask(Task::Error,
                                         tr("The install root \"%1\" could not be created.")
-                                            .arg(rootDir.toUserOutput())));
+                                            .arg(rootDir.displayName())));
         return false;
     }
     if (this == deployConfiguration()->stepList()->steps().last()) {

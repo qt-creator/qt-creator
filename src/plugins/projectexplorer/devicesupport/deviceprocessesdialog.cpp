@@ -104,7 +104,7 @@ public:
     ProcessInfo selectedProcess() const;
 
     QDialog *q;
-    DeviceProcessList *processList;
+    std::unique_ptr<DeviceProcessList> processList;
     ProcessListFilterModel proxyModel;
     QLabel *kitLabel;
     KitChooser *kitChooser;
@@ -127,8 +127,6 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
 {
     q->setWindowTitle(DeviceProcessesDialog::tr("List of Processes"));
     q->setMinimumHeight(500);
-
-    processList = nullptr;
 
     processFilterLineEdit = new FancyLineEdit(q);
     processFilterLineEdit->setPlaceholderText(DeviceProcessesDialog::tr("Filter"));
@@ -208,21 +206,20 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
 
 void DeviceProcessesDialogPrivate::setDevice(const IDevice::ConstPtr &device)
 {
-    delete processList;
-    processList = nullptr;
+    processList.reset();
     proxyModel.setSourceModel(nullptr);
     if (!device)
         return;
 
-    processList = device->createProcessListModel();
+    processList.reset(device->createProcessListModel());
     QTC_ASSERT(processList, return);
     proxyModel.setSourceModel(processList->model());
 
-    connect(processList, &DeviceProcessList::error,
+    connect(processList.get(), &DeviceProcessList::error,
             this, &DeviceProcessesDialogPrivate::handleRemoteError);
-    connect(processList, &DeviceProcessList::processListUpdated,
+    connect(processList.get(), &DeviceProcessList::processListUpdated,
             this, &DeviceProcessesDialogPrivate::handleProcessListUpdated);
-    connect(processList, &DeviceProcessList::processKilled,
+    connect(processList.get(), &DeviceProcessList::processKilled,
             this, &DeviceProcessesDialogPrivate::handleProcessKilled, Qt::QueuedConnection);
 
     updateButtons();

@@ -487,6 +487,7 @@ class QTCREATOR_UTILS_EXPORT TriState
 public:
     TriState() = default;
 
+    int toInt() const { return int(m_value); }
     QVariant toVariant() const { return int(m_value); }
     static TriState fromVariant(const QVariant &variant);
 

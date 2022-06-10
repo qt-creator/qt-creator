@@ -135,6 +135,7 @@ GitLabProjectSettingsWidget::GitLabProjectSettingsWidget(ProjectExplorer::Projec
     , m_projectSettings(GitLabPlugin::projectSettings(project))
 {
     setUseGlobalSettingsCheckBoxVisible(false);
+    setUseGlobalSettingsLabelVisible(true);
     // setup ui
     auto verticalLayout = new QVBoxLayout(this);
     verticalLayout->setContentsMargins(0, 0, 0, 0);

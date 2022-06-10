@@ -663,7 +663,14 @@ static QString reformatInteger(quint64 value, int format, int size, bool isSigne
 // Format printable (char-type) characters
 static QString reformatCharacter(int code, int size, bool isSigned)
 {
-    const QChar c = QChar(uint(code));
+    QChar c;
+    switch (size) {
+        case 1: c = QChar(uchar(code)); break;
+        case 2: c = QChar(uint16_t(code)); break;
+        case 4: c = QChar(uint32_t(code)); break;
+        default: c = QChar(uint(code)); break;
+    }
+
     QString out;
     if (c.isPrint())
         out = QString("'") + c + "' ";

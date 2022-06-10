@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -163,19 +163,4 @@
     The instances of the symbol are highlighted in code and you can edit
     the symbol. All instances of the local symbol are changed as you type.
     \endif
-
-    \section1 Multi-Cursor Editing
-
-    To apply a change to several places simultaneously, press and hold \key Alt,
-    and click to place cursors in several places. Any changes you make are
-    applied simultaneously at all the cursor positions.
-
-    Use the arrow keys to move all the cursors up and down. The \key Home and
-    \key End key move all the cursors to the beginning or to the end of the
-    line.
-
-    Press and hold \key Alt and double-click strings to select several strings
-    simultaneously.
-
-    Press \key Esc to remove all the cursors and selections.
    */

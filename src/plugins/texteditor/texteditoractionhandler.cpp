@@ -330,7 +330,7 @@ void TextEditorActionHandlerPrivate::createActions()
             QKeySequence(tr("Ctrl+Ins")),
             G_EDIT_TEXT, advancedEditMenu);
     registerAction(ADD_SELECT_NEXT_FIND_MATCH,
-            [] (TextEditorWidget *w) { w->addSelectionNextFindMatch(); }, false, tr("Add Selection to Next Find Match"),
+            [] (TextEditorWidget *w) { w->addSelectionNextFindMatch(); }, false, tr("Add Next Occurrence to Selection"),
             QKeySequence(tr("Ctrl+D")),
             G_EDIT_TEXT, advancedEditMenu);
     m_modifyingActions << registerAction(DUPLICATE_SELECTION,

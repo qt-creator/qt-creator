@@ -151,7 +151,6 @@
     implementation matches the MIME type.
 */
 
-
 using namespace Core;
 using namespace Utils;
 
@@ -6976,7 +6975,7 @@ void TextEditorWidget::rewrapParagraph()
 {
     const int paragraphWidth = marginSettings().m_marginColumn;
     const QRegularExpression anyLettersOrNumbers("\\w");
-    const int tabSize = d->m_document->tabSettings().m_tabSize;
+    const TabSettings ts = d->m_document->tabSettings();
 
     QTextCursor cursor = textCursor();
     cursor.beginEditBlock();
@@ -6997,18 +6996,8 @@ void TextEditorWidget::rewrapParagraph()
     cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
 
     // Find indent level of current block.
-
-    int indentLevel = 0;
     const QString text = cursor.block().text();
-
-    for (const QChar &ch : text) {
-        if (ch == QLatin1Char(' '))
-            indentLevel++;
-        else if (ch == QLatin1Char('\t'))
-            indentLevel += tabSize - (indentLevel % tabSize);
-        else
-            break;
-    }
+    int indentLevel = ts.indentationColumn(text);
 
     // If there is a common prefix, it should be kept and expanded to all lines.
     // this allows nice reflowing of doxygen style comments.
@@ -7045,11 +7034,10 @@ void TextEditorWidget::rewrapParagraph()
     QString spacing;
 
     if (commonPrefix.isEmpty()) {
-        spacing = d->m_document->tabSettings().indentationString(
-                    0, indentLevel, 0, textCursor().block());
+        spacing = ts.indentationString(0, indentLevel, 0, textCursor().block());
     } else {
         spacing = commonPrefix;
-        indentLevel = commonPrefix.length();
+        indentLevel = ts.columnCountForText(spacing);
     }
 
     int currentLength = indentLevel;

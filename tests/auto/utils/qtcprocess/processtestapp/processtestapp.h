@@ -71,7 +71,7 @@ public:
     SUB_PROCESS(LineCallback);
     SUB_PROCESS(StandardOutputAndErrorWriter);
     SUB_PROCESS(ChannelForwarding);
-    SUB_PROCESS(KillBlockingProcess);
+    SUB_PROCESS(BlockingProcess);
     SUB_PROCESS(EmitOneErrorOnCrash);
     SUB_PROCESS(CrashAfterOneSecond);
     SUB_PROCESS(RecursiveCrashingProcess);

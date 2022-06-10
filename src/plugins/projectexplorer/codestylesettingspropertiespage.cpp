@@ -38,6 +38,7 @@ CodeStyleSettingsWidget::CodeStyleSettingsWidget(Project *project) : ProjectSett
 {
     m_ui.setupUi(this);
     setUseGlobalSettingsCheckBoxVisible(false);
+    setUseGlobalSettingsLabelVisible(false);
 
     const EditorConfiguration *config = m_project->editorConfiguration();
 
