@@ -969,7 +969,8 @@ void ModelManagerInterface::parseLoop(QSet<QString> &scannedPaths,
         doc->parse();
 
 #ifdef WITH_TESTS
-        if (ExtensionSystem::PluginManager::isScenarioRunning("TestModelManagerInterface")) {
+        if (ExtensionSystem::PluginManager::instance() // we might run as an auto-test
+            && ExtensionSystem::PluginManager::isScenarioRunning("TestModelManagerInterface")) {
             ExtensionSystem::PluginManager::waitForScenarioFullyInitialized();
             if (ExtensionSystem::PluginManager::finishScenario()) {
                 qDebug() << "Point 1: Shutdown triggered";
