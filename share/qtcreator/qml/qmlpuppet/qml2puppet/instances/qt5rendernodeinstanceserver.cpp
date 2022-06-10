@@ -111,8 +111,6 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
                 }
             }
 
-            clearChangedPropertyList();
-
             if (Internal::QuickItemNodeInstance::unifiedRenderPath()) {
                 if (windowDirty)
                     nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand({rootNodeInstance()}));
@@ -134,12 +132,14 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
         }
 
         if (rootIsRenderable3DObject() && rootNodeInstance().contentItem()
-            && DesignerSupport::isDirty(rootNodeInstance().contentItem(),
-                                        DesignerSupport::AllMask)
+            && !changedPropertyList().isEmpty()
             && nodeInstanceClient()->bytesToWrite() < 10000) {
+
             Internal::QuickItemNodeInstance::updateDirtyNode(rootNodeInstance().contentItem());
             nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand({rootNodeInstance()}));
         }
+
+        clearChangedPropertyList();
 
         inFunction = false;
     }
