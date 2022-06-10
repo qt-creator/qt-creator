@@ -830,8 +830,7 @@ FilePath DocumentManager::getSaveFileName(const QString &title, const FilePath &
     bool repeat;
     do {
         repeat = false;
-        filePath = FileUtils::getSaveFilePath(nullptr, title, path, filter, selectedFilter,
-                                              QFileDialog::DontConfirmOverwrite);
+        filePath = FileUtils::getSaveFilePath(nullptr, title, path, filter, selectedFilter);
         if (!filePath.isEmpty()) {
             // If the selected filter is All Files (*) we leave the name exactly as the user
             // specified. Otherwise the suffix must be one available in the selected filter. If
@@ -852,18 +851,20 @@ FilePath DocumentManager::getSaveFileName(const QString &title, const FilePath &
                             suffixOk = true;
                             break;
                         }
-                    if (!suffixOk && !suffixes.isEmpty())
+                    if (!suffixOk && !suffixes.isEmpty()) {
                         filePath = filePath.stringAppended(suffixes.at(0));
+                        if (filePath.exists()) {
+                            if (QMessageBox::warning(ICore::dialogParent(), tr("Overwrite?"),
+                                tr("An item named \"%1\" already exists at this location. "
+                                   "Do you want to overwrite it?").arg(filePath.toUserOutput()),
+                                QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
+                                repeat = true;
+                            }
+                        }
+                    }
                 }
             }
-            if (filePath.exists()) {
-                if (QMessageBox::warning(ICore::dialogParent(), tr("Overwrite?"),
-                    tr("An item named \"%1\" already exists at this location. "
-                       "Do you want to overwrite it?").arg(filePath.toUserOutput()),
-                    QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
-                    repeat = true;
-                }
-            }
+
         }
     } while (repeat);
     if (!filePath.isEmpty())
