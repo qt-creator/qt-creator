@@ -1356,7 +1356,7 @@ FilePath FilePath::stringAppended(const QString &str) const
 QHashValueType FilePath::hash(uint seed) const
 {
     if (HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
-        return qHash(m_data.toUpper(), seed);
+        return qHash(m_data.toCaseFolded(), seed);
     return qHash(m_data, seed);
 }
 
@@ -1496,6 +1496,6 @@ std::hash<Utils::FilePath>::result_type
     std::hash<Utils::FilePath>::operator()(const std::hash<Utils::FilePath>::argument_type &fn) const
 {
     if (fn.caseSensitivity() == Qt::CaseInsensitive)
-        return hash<string>()(fn.toString().toUpper().toStdString());
+        return hash<string>()(fn.toString().toCaseFolded().toStdString());
     return hash<string>()(fn.toString().toStdString());
 }
