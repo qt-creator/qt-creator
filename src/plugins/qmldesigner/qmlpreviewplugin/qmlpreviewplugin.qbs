@@ -2,6 +2,7 @@ import qbs
 
 QtcProduct {
     name: "qmlpreviewplugin"
+    condition: QmlDesigner.present
     type: ["dynamiclibrary"]
     installDir: qtc.ide_plugin_path + '/' + installDirName
     property string installDirName: qbs.targetOS.contains("macos") ? "QmlDesigner" : "qmldesigner"
@@ -15,7 +16,7 @@ QtcProduct {
 
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "QmlDesigner" }
+    Depends { name: "QmlDesigner"; required: false }
     Depends { name: "Qt.qml" }
     Depends { name: "Utils" }
 

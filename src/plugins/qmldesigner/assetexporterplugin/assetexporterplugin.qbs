@@ -2,13 +2,14 @@ import qbs
 
 QtcProduct {
     name: "assetexporterplugin"
+    condition: QmlDesigner.present
     type: ["dynamiclibrary"]
     installDir: qtc.ide_plugin_path + '/' + installDirName
     property string installDirName: qbs.targetOS.contains("macos") ? "QmlDesigner" : "qmldesigner"
 
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "QmlDesigner" }
+    Depends { name: "QmlDesigner"; required: false }
     Depends { name: "Utils" }
     Depends {
         name: "Qt"

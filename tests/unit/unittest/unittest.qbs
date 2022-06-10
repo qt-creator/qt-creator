@@ -6,7 +6,8 @@ Project {
 
     QtcProduct {
         name: "Unit test"
-        condition: qtc_gtest_gmock.hasRepo || qtc_gtest_gmock.externalLibsPresent
+        condition: (qtc_gtest_gmock.hasRepo || qtc_gtest_gmock.externalLibsPresent)
+                   && QmlDesigner.present
 
         type: ["application", "autotest"]
         consoleApplication: true
@@ -17,7 +18,7 @@ Project {
         Depends { name: "libclang"; required: false }
         Depends { name: "clang_defines" }
 
-        Depends { name: "QmlDesigner" }
+        Depends { name: "QmlDesigner"; required: false }
 
         Depends { name: "sqlite_sources" }
         Depends { name: "Core" }

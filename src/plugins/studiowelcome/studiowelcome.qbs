@@ -2,6 +2,7 @@ import qbs.FileInfo
 
 QtcPlugin {
     name: "StudioWelcome"
+    condition: QmlDesigner.present
 
     Depends { name: "Qt"; submodules: ["qml", "qml-private", "quick", "quickwidgets"] }
     Depends { name: "Utils" }
@@ -9,7 +10,7 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
-    Depends { name: "QmlDesigner" }
+    Depends { name: "QmlDesigner"; required: false }
     Depends { name: "QmlProjectManager" }
     Depends { name: "app_version_header" }
 
