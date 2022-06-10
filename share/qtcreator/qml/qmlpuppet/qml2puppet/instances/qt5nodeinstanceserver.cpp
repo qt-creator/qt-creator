@@ -407,8 +407,6 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
     const bool renderEffects = qEnvironmentVariableIsSet("QMLPUPPET_RENDER_EFFECTS");
     const bool smoothRendering = qEnvironmentVariableIsSet("QMLPUPPET_SMOOTH_RENDERING");
 
-    int scaleFactor = smoothRendering ? 2 : 1;
-
     if (renderEffects) {
         if (parentEffectItem(item))
             return renderImage;
@@ -430,16 +428,19 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
 
     ServerNodeInstance instance = instanceForObject(item);
 
+    const bool rootIs3DObject = rootIsRenderable3DObject();
+
     // Setting layer enabled to false messes up the bounding rect.
     // Therefore we calculate it upfront.
     QRectF renderBoundingRect;
     if (instance.isValid())
         renderBoundingRect = instance.boundingRect();
-
-    else if (rootIsRenderable3DObject())
+    else if (rootIs3DObject)
         renderBoundingRect = item->boundingRect();
     else
         renderBoundingRect = ServerNodeInstance::effectAdjustedBoundingRect(item);
+
+    const int scaleFactor = (smoothRendering && !rootIs3DObject) ? 2 : 1;
 
     // Hide immediate children that have instances and are QQuickItems so we get only
     // the parent item's content, as compositing is handled on creator side.
@@ -521,7 +522,6 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
 
     if (!isLayerEnabled(pItem))
         pItem->derefFromEffectItem(false);
-
 #else
     Q_UNUSED(item)
 #endif
