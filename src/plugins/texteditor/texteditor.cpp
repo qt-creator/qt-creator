@@ -640,6 +640,7 @@ public:
     void slotSelectionChanged();
     void _q_animateUpdate(const QTextCursor &cursor, QPointF lastPos, QRectF rect);
     void updateCodeFoldingVisible();
+    void updateFileLineEndingVisible();
 
     void reconfigure();
     void updateSyntaxInfoBar(const Highlighter::Definitions &definitions, const QString &fileName);
@@ -952,10 +953,9 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_fileLineEnding->addItems(ExtraEncodingSettings::lineTerminationModeNames());
     m_fileLineEnding->setContentsMargins(spacing, 0, spacing, 0);
     m_fileLineEndingAction = m_toolBar->addWidget(m_fileLineEnding);
-    m_fileLineEndingAction->setVisible(!q->isReadOnly());
-    connect(q, &TextEditorWidget::readOnlyChanged, this, [this] {
-        m_fileLineEndingAction->setVisible(!q->isReadOnly());
-    });
+    updateFileLineEndingVisible();
+    connect(q, &TextEditorWidget::readOnlyChanged,
+            this, &TextEditorWidgetPrivate::updateFileLineEndingVisible);
 
     m_fileEncodingLabel = new FixedSizeClickLabel;
     m_fileEncodingLabel->setContentsMargins(spacing, 0, spacing, 0);
@@ -3223,6 +3223,11 @@ void TextEditorWidgetPrivate::updateCodeFoldingVisible()
         m_codeFoldingVisible = visible;
         slotUpdateExtraAreaWidth();
     }
+}
+
+void TextEditorWidgetPrivate::updateFileLineEndingVisible()
+{
+    m_fileLineEndingAction->setVisible(m_displaySettings.m_displayFileLineEnding && !q->isReadOnly());
 }
 
 void TextEditorWidgetPrivate::reconfigure()
@@ -7211,6 +7216,7 @@ void TextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
     }
 
     d->updateCodeFoldingVisible();
+    d->updateFileLineEndingVisible();
     d->updateHighlights();
     d->setupScrollBar();
     viewport()->update();
