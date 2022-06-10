@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "qmlprojectgenerator.h"
-#include "cmakegen/generatecmakelists.h"
+#include "../cmakegen/generatecmakelists.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
