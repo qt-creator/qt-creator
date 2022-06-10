@@ -42,11 +42,14 @@ public:
     enum class Type { Declaration, Initialization, Read, Write, WritableRef, Other };
 
     Usage() = default;
-    Usage(const Utils::FilePath &path, const QString &lineText, Type t, int line, int col, int len)
-        : path(path), lineText(lineText), type(t), line(line), col(col), len(len) {}
+    Usage(const Utils::FilePath &path, const QString &lineText, const QString &func, Type t,
+          int line, int col, int len)
+        : path(path), lineText(lineText), containingFunction(func), type(t),
+          line(line), col(col), len(len) {}
 
     Utils::FilePath path;
     QString lineText;
+    QString containingFunction;
     Type type = Type::Other;
     int line = 0;
     int col = 0;
@@ -75,6 +78,7 @@ protected:
     void reportResult(unsigned tokenIndex, const Name *name, Scope *scope = nullptr);
     void reportResult(unsigned tokenIndex, const QList<LookupItem> &candidates);
     Usage::Type getType(int line, int column, int tokenIndex);
+    QString getContainingFunction(int line, int column);
 
     bool checkCandidates(const QList<LookupItem> &candidates) const;
     void checkExpression(unsigned startToken, unsigned endToken, Scope *scope = nullptr);

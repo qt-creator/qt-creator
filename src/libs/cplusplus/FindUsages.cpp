@@ -142,9 +142,28 @@ void FindUsages::reportResult(unsigned tokenIndex, const QList<LookupItem> &cand
     const int len = tk.utf16chars();
 
     const Usage u(Utils::FilePath::fromString(_doc->fileName()), lineText,
-                  getType(line, col, tokenIndex), line, col - 1, len);
+                  getContainingFunction(line, col), getType(line, col, tokenIndex),
+                  line, col - 1, len);
     _usages.append(u);
     _references.append(tokenIndex);
+}
+
+QString FindUsages::getContainingFunction(int line, int column)
+{
+    const QList<AST *> astPath = ASTPath(_doc)(line, column);
+    bool hasBlock = false;
+    for (auto it = astPath.crbegin(); it != astPath.crend(); ++it) {
+        if (!hasBlock && (*it)->asCompoundStatement())
+            hasBlock = true;
+        if (const auto func = (*it)->asFunctionDefinition()) {
+            if (!hasBlock)
+                return {};
+            if (!func->symbol)
+                return {};
+            return Overview().prettyName(func->symbol->name());
+        }
+    }
+    return {};
 }
 
 class FindUsages::GetUsageType
