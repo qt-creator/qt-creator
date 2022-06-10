@@ -134,13 +134,14 @@ void GenericLinuxDeviceTester::handleEchoDone()
         else
             emit errorMessage(tr("echo failed.") + '\n');
         setFinished(TestFailure);
-    } else {
-        const QString reply = d->echoProcess.stdOut().chopped(1); // Remove trailing \n
-        if (reply != s_echoContents)
-            emit errorMessage(tr("Device replied to echo with unexpected contents.") + '\n');
-        else
-            emit progressMessage(tr("Device replied to echo with expected contents.") + '\n');
+        return;
     }
+
+    const QString reply = d->echoProcess.stdOut().chopped(1); // Remove trailing \n
+    if (reply != s_echoContents)
+        emit errorMessage(tr("Device replied to echo with unexpected contents.") + '\n');
+    else
+        emit progressMessage(tr("Device replied to echo with expected contents.") + '\n');
 
     testUname();
 }
