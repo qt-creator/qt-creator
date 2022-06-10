@@ -577,6 +577,6 @@ void tst_Algorithm::take()
     }
 }
 
-QTEST_MAIN(tst_Algorithm)
+QTEST_GUILESS_MAIN(tst_Algorithm)
 
 #include "tst_algorithm.moc"

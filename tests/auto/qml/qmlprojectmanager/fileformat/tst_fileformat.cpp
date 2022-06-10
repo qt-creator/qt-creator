@@ -253,5 +253,5 @@ void tst_FileFormat::testMainFile()
     delete project;
 }
 
-QTEST_MAIN(tst_FileFormat);
+QTEST_GUILESS_MAIN(tst_FileFormat);
 #include "tst_fileformat.moc"

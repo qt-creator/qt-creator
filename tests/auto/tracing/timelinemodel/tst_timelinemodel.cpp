@@ -483,6 +483,6 @@ void tst_TimelineModel::parentingOfEqualStarts()
     QCOMPARE(dummy.lastIndex(2), 1);
 }
 
-QTEST_MAIN(tst_TimelineModel)
+QTEST_GUILESS_MAIN(tst_TimelineModel)
 
 #include "tst_timelinemodel.moc"

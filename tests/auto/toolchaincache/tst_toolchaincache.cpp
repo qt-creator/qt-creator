@@ -132,5 +132,5 @@ void tst_ToolChainCache::insertOneTwoOneThree()
     QVERIFY(!cache.check({"other"}));
 }
 
-QTEST_MAIN(tst_ToolChainCache)
+QTEST_GUILESS_MAIN(tst_ToolChainCache)
 #include "tst_toolchaincache.moc"

@@ -349,6 +349,6 @@ void tst_Environment::find()
 
 }
 
-QTEST_MAIN(tst_Environment)
+QTEST_GUILESS_MAIN(tst_Environment)
 
 #include "tst_environment.moc"

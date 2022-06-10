@@ -338,6 +338,6 @@ void tst_PluginSpec::initializeExtensions()
     QVERIFY(isExtensionsInitialized);
 }
 
-QTEST_MAIN(tst_PluginSpec)
+QTEST_GUILESS_MAIN(tst_PluginSpec)
 
 #include "tst_pluginspec.moc"

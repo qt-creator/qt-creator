@@ -86,7 +86,7 @@ void tst_TimelineRenderPass::emptyState()
     QVERIFY(state.expandedRows().isEmpty());
 }
 
-QTEST_MAIN(tst_TimelineRenderPass)
+QTEST_GUILESS_MAIN(tst_TimelineRenderPass)
 
 #include "tst_timelinerenderpass.moc"
 

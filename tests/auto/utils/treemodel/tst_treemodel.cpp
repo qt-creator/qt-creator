@@ -130,6 +130,6 @@ void tst_TreeModel::testTypes()
     static_assert(std::is_same<Internal::SelectType<3, A, B, C>::Type, TreeItem>::value, "");
 }
 
-QTEST_MAIN(tst_TreeModel)
+QTEST_GUILESS_MAIN(tst_TreeModel)
 
 #include "tst_treemodel.moc"

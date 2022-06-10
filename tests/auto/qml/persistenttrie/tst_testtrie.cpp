@@ -363,7 +363,7 @@ int main(int , const char *[])
 
 #else
 
-QTEST_MAIN(tst_TestTrie);
+QTEST_GUILESS_MAIN(tst_TestTrie);
 
 //#include "moc_tst_testtrie.cpp"
 

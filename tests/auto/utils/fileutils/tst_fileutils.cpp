@@ -527,5 +527,5 @@ void tst_fileutils::asyncLocalCopy()
     QVERIFY(spy.count() == 1 || spy.wait(3000));
 }
 
-QTEST_MAIN(tst_fileutils)
+QTEST_GUILESS_MAIN(tst_fileutils)
 #include "tst_fileutils.moc"

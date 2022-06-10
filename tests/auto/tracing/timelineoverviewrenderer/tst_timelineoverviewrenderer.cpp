@@ -75,6 +75,6 @@ void tst_TimelineOverviewRenderer::updatePaintNode()
     delete node;
 }
 
-QTEST_MAIN(tst_TimelineOverviewRenderer)
+QTEST_GUILESS_MAIN(tst_TimelineOverviewRenderer)
 
 #include "tst_timelineoverviewrenderer.moc"

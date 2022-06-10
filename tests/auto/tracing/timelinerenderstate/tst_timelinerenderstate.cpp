@@ -171,7 +171,7 @@ void tst_TimelineRenderState::assembleNodeTree()
     delete node;
 }
 
-QTEST_MAIN(tst_TimelineRenderState)
+QTEST_GUILESS_MAIN(tst_TimelineRenderState)
 
 #include "tst_timelinerenderstate.moc"
 

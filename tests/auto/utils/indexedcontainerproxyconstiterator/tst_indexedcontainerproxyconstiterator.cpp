@@ -204,6 +204,6 @@ void tst_IndexedContainerProxyConstIterator::testIteration()
     QCOMPARE(boolsCopy, bools);
 }
 
-QTEST_MAIN(tst_IndexedContainerProxyConstIterator)
+QTEST_GUILESS_MAIN(tst_IndexedContainerProxyConstIterator)
 
 #include "tst_indexedcontainerproxyconstiterator.moc"

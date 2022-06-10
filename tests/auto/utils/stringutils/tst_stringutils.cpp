@@ -267,6 +267,6 @@ void tst_StringUtils::testParseUsedPortFromNetstatOutput_data()
     QTest::newRow("QnxA") << "tcp6       0      0  *.22                   *.*                    LISTEN   "     <<    22;
 }
 
-QTEST_MAIN(tst_StringUtils)
+QTEST_GUILESS_MAIN(tst_StringUtils)
 
 #include "tst_stringutils.moc"

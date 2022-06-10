@@ -319,6 +319,6 @@ void tst_PointerAlgorithm::takeOrDefault()
     }
 }
 
-QTEST_MAIN(tst_PointerAlgorithm)
+QTEST_GUILESS_MAIN(tst_PointerAlgorithm)
 
 #include "tst_pointeralgorithm.moc"

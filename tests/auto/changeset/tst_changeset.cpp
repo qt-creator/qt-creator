@@ -435,6 +435,6 @@ void tst_ChangeSet::conflicts()
     }
 }
 
-QTEST_MAIN(tst_ChangeSet)
+QTEST_GUILESS_MAIN(tst_ChangeSet)
 
 #include "tst_changeset.moc"

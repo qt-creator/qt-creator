@@ -1041,5 +1041,5 @@ void tst_Semantic::enum_constantValueNegative()
     testEnumaratorDeclarator(e, 3, "1");
 }
 
-QTEST_MAIN(tst_Semantic)
+QTEST_GUILESS_MAIN(tst_Semantic)
 #include "tst_semantic.moc"
