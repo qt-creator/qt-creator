@@ -47,7 +47,7 @@ public:
 private:
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
     ProjectExplorer::MakeInstallCommand makeInstallCommand(const ProjectExplorer::Target *target,
-                                                           const QString &installRoot) override;
+                                                           const Utils::FilePath &installRoot) final;
 
     mutable std::unique_ptr<MesonProjectImporter> m_projectImporter;
 };

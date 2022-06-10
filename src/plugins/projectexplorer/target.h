@@ -114,7 +114,7 @@ public:
     void setNamedSettings(const QString &name, const QVariant &value);
 
     QVariant additionalData(Utils::Id id) const;
-    MakeInstallCommand makeInstallCommand(const QString &installRoot) const;
+    MakeInstallCommand makeInstallCommand(const Utils::FilePath &installRoot) const;
 
     Utils::MacroExpander *macroExpander() const;
 

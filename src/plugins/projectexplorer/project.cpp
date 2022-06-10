@@ -971,7 +971,7 @@ bool Project::hasMakeInstallEquivalent() const
     return d->m_hasMakeInstallEquivalent;
 }
 
-MakeInstallCommand Project::makeInstallCommand(const Target *target, const QString &installRoot)
+MakeInstallCommand Project::makeInstallCommand(const Target *target, const FilePath &installRoot)
 {
     QTC_ASSERT(hasMakeInstallEquivalent(), return MakeInstallCommand());
     MakeInstallCommand cmd;
@@ -980,7 +980,7 @@ MakeInstallCommand Project::makeInstallCommand(const Target *target, const QStri
             cmd.command.setExecutable(makeStep->makeExecutable());
     }
     cmd.command.addArg("install");
-    cmd.command.addArg("INSTALL_ROOT=" + QDir::toNativeSeparators(installRoot));
+    cmd.command.addArg("INSTALL_ROOT=" + installRoot.nativePath());
     return cmd;
 }
 

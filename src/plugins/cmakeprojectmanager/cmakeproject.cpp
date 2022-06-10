@@ -117,7 +117,7 @@ ProjectExplorer::DeploymentKnowledge CMakeProject::deploymentKnowledge() const
 }
 
 MakeInstallCommand CMakeProject::makeInstallCommand(const Target *target,
-                                                    const QString &installRoot)
+                                                    const FilePath &installRoot)
 {
     MakeInstallCommand cmd;
     if (const BuildConfiguration * const bc = target->activeBuildConfiguration()) {
@@ -131,12 +131,12 @@ MakeInstallCommand CMakeProject::makeInstallCommand(const Target *target,
     QStringList config;
 
     auto bs = qobject_cast<CMakeBuildSystem*>(target->buildSystem());
-    if (bs) {
-        if (bs->usesAllCapsTargets())
-            installTarget = "INSTALL";
-        if (bs->isMultiConfigReader())
-            config << "--config" << bs->cmakeBuildType();
-    }
+    QTC_ASSERT(bs, return {});
+
+    if (bs->usesAllCapsTargets())
+        installTarget = "INSTALL";
+    if (bs->isMultiConfigReader())
+        config << "--config" << bs->cmakeBuildType();
 
     FilePath buildDirectory = ".";
     if (auto bc = bs->buildConfiguration())
@@ -148,7 +148,7 @@ MakeInstallCommand CMakeProject::makeInstallCommand(const Target *target,
     cmd.command.addArg(installTarget);
     cmd.command.addArgs(config);
 
-    cmd.environment.set("DESTDIR", QDir::toNativeSeparators(installRoot));
+    cmd.environment.set("DESTDIR", installRoot.nativePath());
     return cmd;
 }
 
