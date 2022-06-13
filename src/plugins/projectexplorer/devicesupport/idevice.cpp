@@ -212,7 +212,17 @@ bool IDevice::isAnyUnixDevice() const
 
 FilePath IDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
 {
-    return pathOnDevice;
+    if (pathOnDevice.needsDevice()) {
+        // Already correct form, only sanity check it's ours...
+        QTC_CHECK(handlesFile(pathOnDevice));
+        return pathOnDevice;
+    }
+    // match DeviceManager::deviceForPath
+    FilePath result;
+    result.setPath(pathOnDevice.path());
+    result.setScheme("device");
+    result.setHost(id().toString());
+    return result;
 }
 
 QString IDevice::mapToDevicePath(const FilePath &globalPath) const
@@ -227,7 +237,8 @@ FilePath IDevice::filePath(const QString &pathOnDevice) const
 
 bool IDevice::handlesFile(const FilePath &filePath) const
 {
-    Q_UNUSED(filePath);
+    if (filePath.scheme() == "device" && filePath.host() == id().toString())
+        return true;
     return false;
 }
 

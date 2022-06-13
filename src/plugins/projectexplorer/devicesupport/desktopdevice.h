@@ -79,6 +79,7 @@ public:
     qint64 fileSize(const Utils::FilePath &filePath) const override;
     QFile::Permissions permissions(const Utils::FilePath &filePath) const override;
     bool setPermissions(const Utils::FilePath &filePath, QFile::Permissions) const override;
+    Utils::FilePath mapToGlobalPath(const Utils::FilePath &pathOnDevice) const override;
 
 protected:
     DesktopDevice();

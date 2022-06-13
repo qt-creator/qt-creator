@@ -179,6 +179,12 @@ bool DesktopDevice::setPermissions(const FilePath &filePath, QFile::Permissions 
     return filePath.setPermissions(permissions);
 }
 
+FilePath DesktopDevice::mapToGlobalPath(const Utils::FilePath &pathOnDevice) const
+{
+    QTC_CHECK(!pathOnDevice.needsDevice());
+    return pathOnDevice;
+}
+
 Environment DesktopDevice::systemEnvironment() const
 {
     return Environment::systemEnvironment();
