@@ -212,7 +212,7 @@ void tst_PluginManager::correctPlugins1()
     QVERIFY(plugin3running);
 }
 
-QTEST_MAIN(tst_PluginManager)
+QTEST_GUILESS_MAIN(tst_PluginManager)
 
 #include "tst_pluginmanager.moc"
 

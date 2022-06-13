@@ -26,14 +26,12 @@
 #pragma once
 
 #include <utils/filepath.h>
-#include <QObject>
+#include <QString>
 
-namespace McuSupport {
-namespace Internal {
+namespace McuSupport::Internal {
 
-class McuPackageVersionDetector : public QObject
+class McuPackageVersionDetector
 {
-    Q_OBJECT
 public:
     McuPackageVersionDetector();
     virtual ~McuPackageVersionDetector() = default;
@@ -98,5 +96,4 @@ private:
     const QString m_versionRegExp;
 };
 
-} // namespace Internal
-} // namespace McuSupport
+} // namespace McuSupport::Internal

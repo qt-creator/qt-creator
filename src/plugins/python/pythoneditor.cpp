@@ -108,7 +108,19 @@ static QWidget *createEditorWidget()
 class PythonDocument : public TextEditor::TextDocument
 {
 public:
-    PythonDocument() : TextEditor::TextDocument(Constants::C_PYTHONEDITOR_ID) {}
+    PythonDocument() : TextEditor::TextDocument(Constants::C_PYTHONEDITOR_ID)
+    {
+        connect(PythonSettings::instance(),
+                &PythonSettings::pylsEnabledChanged,
+                this,
+                [this](const bool enabled) {
+                    if (!enabled)
+                        return;
+                    const Utils::FilePath &python = detectPython(filePath());
+                    if (python.exists())
+                        PyLSConfigureAssistant::openDocumentWithPython(python, this);
+                });
+    }
 
     void setFilePath(const Utils::FilePath &filePath) override
     {

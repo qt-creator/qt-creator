@@ -98,5 +98,5 @@ void tst_FileIterationOrder::preferWithCommonPrefixToReferenceFilePath()
     QCOMPARE(order.toStringList(), expected);
 }
 
-QTEST_MAIN(tst_FileIterationOrder)
+QTEST_GUILESS_MAIN(tst_FileIterationOrder)
 #include "tst_fileiterationorder.moc"

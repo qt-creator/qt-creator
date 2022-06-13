@@ -118,9 +118,10 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent
 
     QTemporaryDir tmpDir;
     installRootAspect->setFilePath(FilePath::fromString(tmpDir.path()));
-    const MakeInstallCommand cmd = target()->makeInstallCommand(tmpDir.path());
+
+    const MakeInstallCommand cmd = target()->makeInstallCommand(FilePath::fromString(tmpDir.path()));
     QTC_ASSERT(!cmd.command.isEmpty(), return);
-    makeAspect->setExecutable(cmd.command);
+    makeAspect->setExecutable(cmd.command.executable());
 }
 
 Utils::Id MakeInstallStep::stepId()
@@ -167,7 +168,7 @@ bool MakeInstallStep::init()
                                             "last in the list of deploy steps. "
                                             "Consider moving it up.")));
     }
-    const MakeInstallCommand cmd = target()->makeInstallCommand(rootDir.path());
+    const MakeInstallCommand cmd = target()->makeInstallCommand(rootDir);
     if (cmd.environment.isValid()) {
         Environment env = processParameters()->environment();
         for (auto it = cmd.environment.constBegin(); it != cmd.environment.constEnd(); ++it) {
@@ -254,9 +255,9 @@ void MakeInstallStep::updateArgsFromAspect()
 {
     if (customCommandLineAspect()->isChecked())
         return;
-    setUserArguments(ProcessArgs::joinArgs(target()->makeInstallCommand(
-        static_cast<StringAspect *>(aspect(InstallRootAspectId))->filePath().toString())
-                                          .arguments));
+
+    const CommandLine cmd = target()->makeInstallCommand(installRoot()).command;
+    setUserArguments(cmd.arguments());
     updateFullCommandLine();
 }
 

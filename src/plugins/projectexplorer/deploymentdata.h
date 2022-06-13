@@ -28,6 +28,7 @@
 #include "deployablefile.h"
 #include "projectexplorer_export.h"
 
+#include <utils/commandline.h>
 #include <utils/environment.h>
 
 #include <QList>
@@ -39,8 +40,7 @@ enum class DeploymentKnowledge { Perfect, Approximative, Bad };
 class PROJECTEXPLORER_EXPORT MakeInstallCommand
 {
 public:
-    Utils::FilePath command;
-    QStringList arguments;
+    Utils::CommandLine command;
     Utils::Environment environment;
 };
 

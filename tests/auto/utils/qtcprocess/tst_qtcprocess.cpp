@@ -1352,6 +1352,6 @@ void tst_QtcProcess::quitBlockingProcess()
     }
 }
 
-QTEST_MAIN(tst_QtcProcess)
+QTEST_GUILESS_MAIN(tst_QtcProcess)
 
 #include "tst_qtcprocess.moc"

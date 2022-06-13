@@ -78,6 +78,6 @@ private slots:
     void test_RmToolChainOperation() { RmToolChainOperation::unittest(); }
 };
 
-QTEST_MAIN(SdktoolTest)
+QTEST_GUILESS_MAIN(SdktoolTest)
 
 #include "tst_sdktool.moc"

@@ -589,6 +589,7 @@ Client *BaseSettings::createClient(ProjectExplorer::Project *project) const
     client->setInitializationOptions(initializationOptions());
     client->setActivateDocumentAutomatically(true);
     client->setCurrentProject(project);
+    client->updateConfiguration(m_configuration);
     return client;
 }
 

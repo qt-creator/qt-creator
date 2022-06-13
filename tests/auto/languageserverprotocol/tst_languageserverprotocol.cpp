@@ -596,6 +596,6 @@ void tst_LanguageServerProtocol::range()
     QCOMPARE(r2.contains(r1), r2Containsr1);
 }
 
-QTEST_MAIN(tst_LanguageServerProtocol)
+QTEST_GUILESS_MAIN(tst_LanguageServerProtocol)
 
 #include "tst_languageserverprotocol.moc"

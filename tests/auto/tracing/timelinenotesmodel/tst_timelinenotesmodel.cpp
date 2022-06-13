@@ -193,6 +193,6 @@ void tst_TimelineNotesModel::modify()
 
 }
 
-QTEST_MAIN(tst_TimelineNotesModel)
+QTEST_GUILESS_MAIN(tst_TimelineNotesModel)
 
 #include "tst_timelinenotesmodel.moc"

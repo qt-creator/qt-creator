@@ -146,6 +146,6 @@ void tst_FileSearch::matchCaseReplacement()
     QCOMPARE(Utils::matchCaseReplacement("pReFiXTeStPaDSuFfIx", "prefixfoobarsuffix"), QString("pReFiXfoobarSuFfIx"));   //mixed case, use replacement as specified
 }
 
-QTEST_MAIN(tst_FileSearch)
+QTEST_GUILESS_MAIN(tst_FileSearch)
 
 #include "tst_filesearch.moc"

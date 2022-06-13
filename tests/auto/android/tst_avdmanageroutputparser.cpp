@@ -108,6 +108,6 @@ void tst_AvdManagerOutputParser::parse()
     QCOMPARE(avdErrorPaths, errorPaths);
 }
 
-QTEST_MAIN(tst_AvdManagerOutputParser)
+QTEST_GUILESS_MAIN(tst_AvdManagerOutputParser)
 
 #include "tst_avdmanageroutputparser.moc"

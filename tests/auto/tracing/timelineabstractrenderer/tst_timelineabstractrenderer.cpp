@@ -152,6 +152,6 @@ void tst_TimelineAbstractRenderer::dirty()
     QVERIFY(!renderer.rowHeightsDirty());
 }
 
-QTEST_MAIN(tst_TimelineAbstractRenderer)
+QTEST_GUILESS_MAIN(tst_TimelineAbstractRenderer)
 
 #include "tst_timelineabstractrenderer.moc"

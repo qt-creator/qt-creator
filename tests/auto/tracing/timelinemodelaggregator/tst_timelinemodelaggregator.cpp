@@ -162,6 +162,6 @@ void tst_TimelineModelAggregator::prevNext()
     }
 }
 
-QTEST_MAIN(tst_TimelineModelAggregator)
+QTEST_GUILESS_MAIN(tst_TimelineModelAggregator)
 
 #include "tst_timelinemodelaggregator.moc"

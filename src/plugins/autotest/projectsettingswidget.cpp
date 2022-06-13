@@ -127,7 +127,7 @@ void ProjectTestSettingsWidget::populateFrameworks(const QHash<ITestFramework *,
     Utils::sort(sortedFrameworks, &ITestFramework::priority);
 
     auto generateItem = [this](ITestBase *frameworkOrTestTool, bool checked) {
-        auto item = new QTreeWidgetItem(m_activeFrameworks, {QLatin1String(frameworkOrTestTool->name())});
+        auto item = new QTreeWidgetItem(m_activeFrameworks, {frameworkOrTestTool->displayName()});
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
         item->setCheckState(0, checked ? Qt::Checked : Qt::Unchecked);
         item->setData(0, BaseIdRole, frameworkOrTestTool->id().toSetting());

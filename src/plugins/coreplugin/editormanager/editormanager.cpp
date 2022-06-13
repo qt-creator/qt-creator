@@ -128,6 +128,8 @@ static const char preferredEditorFactoriesKey[] = "EditorManager/PreferredEditor
 
 static const char scratchBufferKey[] = "_q_emScratchBuffer";
 
+static const int kMaxViews = 20;
+
 // for lupdate
 using namespace Core;
 
@@ -2098,6 +2100,7 @@ void EditorManagerPrivate::setupSaveActions(IDocument *document, QAction *saveAc
 void EditorManagerPrivate::updateActions()
 {
     IDocument *curDocument = EditorManager::currentDocument();
+    const int viewCount = allEditorViews().size();
     const int openedCount = DocumentModel::entryCount();
 
     if (curDocument)
@@ -2129,6 +2132,10 @@ void EditorManagerPrivate::updateActions()
     d->m_removeCurrentSplitAction->setEnabled(hasSplitter);
     d->m_removeAllSplitsAction->setEnabled(hasSplitter);
     d->m_gotoNextSplitAction->setEnabled(hasSplitter || d->m_editorAreas.size() > 1);
+    const bool splitActionsEnabled = viewCount < kMaxViews;
+    d->m_splitAction->setEnabled(splitActionsEnabled);
+    d->m_splitNewWindowAction->setEnabled(splitActionsEnabled);
+    d->m_splitSideBySideAction->setEnabled(splitActionsEnabled);
 }
 
 void EditorManagerPrivate::updateWindowTitleForDocument(IDocument *document, QWidget *window)
@@ -2711,6 +2718,24 @@ EditorView *EditorManagerPrivate::currentEditorView()
         }
     }
     return view;
+}
+
+QList<EditorView *> EditorManagerPrivate::allEditorViews()
+{
+    QList<EditorView *> views;
+    for (const EditorArea *area : qAsConst(d->m_editorAreas)) {
+        EditorView *firstView = area->findFirstView();
+        EditorView *view = firstView;
+        if (view) {
+            do {
+                views.append(view);
+                view = view->findNextView();
+                // we start with firstView and shouldn't have cycles
+                QTC_ASSERT(view != firstView, break);
+            } while (view);
+        }
+    }
+    return views;
 }
 
 /*!
@@ -3405,23 +3430,11 @@ bool EditorManager::hasSplitter()
 */
 QList<IEditor*> EditorManager::visibleEditors()
 {
+    const QList<EditorView *> allViews = EditorManagerPrivate::allEditorViews();
     QList<IEditor *> editors;
-    for (const EditorArea *area : qAsConst(d->m_editorAreas)) {
-        if (area->isSplitter()) {
-            EditorView *firstView = area->findFirstView();
-            EditorView *view = firstView;
-            if (view) {
-                do {
-                    if (view->currentEditor())
-                        editors.append(view->currentEditor());
-                    view = view->findNextView();
-                    QTC_ASSERT(view != firstView, break); // we start with firstView and shouldn't have cycles
-                } while (view);
-            }
-        } else {
-            if (area->editor())
-                editors.append(area->editor());
-        }
+    for (const EditorView *view : allViews) {
+        if (view->currentEditor())
+            editors.append(view->currentEditor());
     }
     return editors;
 }

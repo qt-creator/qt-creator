@@ -116,6 +116,6 @@ void tst_Reformatter::test()
     QCOMPARE(sourceLines.size(), newLines.size());
 }
 
-QTEST_MAIN(tst_Reformatter);
+QTEST_GUILESS_MAIN(tst_Reformatter);
 
 #include "tst_reformatter.moc"

@@ -38,6 +38,12 @@ namespace Internal {
 
 const char QMLRESOURCEPATH[] = "qmldesigner/propertyEditorQmlSources/imports";
 const char LANDINGPAGEPATH[] = "qmldesigner/landingpage";
+const char PROPERTY_QDSINSTALLED[] = "qdsInstalled";
+const char PROPERTY_PROJECTFILEEXISTS[] = "projectFileExists";
+const char PROPERTY_QTVERSION[] = "qtVersion";
+const char PROPERTY_QDSVERSION[] = "qdsVersion";
+const char PROPERTY_CMAKES[] = "cmakeLists";
+const char PROPERTY_REMEMBER[] = "rememberSelection";
 
 QdsLandingPageWidget::QdsLandingPageWidget(QWidget* parent)
     : QWidget(parent)
@@ -97,12 +103,12 @@ QWidget *QdsLandingPage::widget()
 
 void QdsLandingPage::show()
 {
-    m_widget->rootObject()->setProperty("qdsInstalled", m_qdsInstalled);
-    m_widget->rootObject()->setProperty("projectFileExists", m_projectFileExists);
-    m_widget->rootObject()->setProperty("qtVersion", m_qtVersion);
-    m_widget->rootObject()->setProperty("qdsVersion", m_qdsVersion);
-    m_widget->rootObject()->setProperty("cmakeLists", m_cmakeResources);
-    m_widget->rootObject()->setProperty("rememberSelection", Qt::Unchecked);
+    m_widget->rootObject()->setProperty(PROPERTY_QDSINSTALLED, m_qdsInstalled);
+    m_widget->rootObject()->setProperty(PROPERTY_PROJECTFILEEXISTS, m_projectFileExists);
+    m_widget->rootObject()->setProperty(PROPERTY_QTVERSION, m_qtVersion);
+    m_widget->rootObject()->setProperty(PROPERTY_QDSVERSION, m_qdsVersion);
+    m_widget->rootObject()->setProperty(PROPERTY_CMAKES, m_cmakeResources);
+    m_widget->rootObject()->setProperty(PROPERTY_REMEMBER, Qt::Unchecked);
     m_widget->show();
 }
 
@@ -119,6 +125,8 @@ bool QdsLandingPage::qdsInstalled() const
 void QdsLandingPage::setQdsInstalled(bool installed)
 {
     m_qdsInstalled = installed;
+    if (m_widget->rootObject())
+        m_widget->rootObject()->setProperty(PROPERTY_QDSINSTALLED, installed);
 }
 
 bool QdsLandingPage::projectFileExists() const
@@ -129,6 +137,8 @@ bool QdsLandingPage::projectFileExists() const
 void QdsLandingPage::setProjectFileExists(bool exists)
 {
     m_projectFileExists = exists;
+    if (m_widget->rootObject())
+        m_widget->rootObject()->setProperty(PROPERTY_PROJECTFILEEXISTS, exists);
 }
 
 const QString QdsLandingPage::qtVersion() const
@@ -139,6 +149,8 @@ const QString QdsLandingPage::qtVersion() const
 void QdsLandingPage::setQtVersion(const QString &version)
 {
     m_qtVersion = version;
+    if (m_widget->rootObject())
+        m_widget->rootObject()->setProperty(PROPERTY_QTVERSION, version);
 }
 
 const QString QdsLandingPage::qdsVersion() const
@@ -149,6 +161,8 @@ const QString QdsLandingPage::qdsVersion() const
 void QdsLandingPage::setQdsVersion(const QString &version)
 {
     m_qdsVersion = version;
+    if (m_widget->rootObject())
+        m_widget->rootObject()->setProperty(PROPERTY_QDSVERSION, version);
 }
 
 const QStringList QdsLandingPage::cmakeResources() const

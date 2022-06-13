@@ -41,14 +41,19 @@ ITestTreeItem *BoostTestFramework::createRootNode()
 {
     return new BoostTestTreeItem(
                 this,
-                QCoreApplication::translate("BoostTestFramework",
-                                            BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY),
+                displayName(),
                 Utils::FilePath(), ITestTreeItem::Root);
 }
 
 const char *BoostTestFramework::name() const
 {
     return BoostTest::Constants::FRAMEWORK_NAME;
+}
+
+QString BoostTestFramework::displayName() const
+{
+    return QCoreApplication::translate("BoostTestFramework",
+                                       BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY);
 }
 
 unsigned BoostTestFramework::priority() const

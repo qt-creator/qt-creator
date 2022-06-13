@@ -26,6 +26,7 @@
 #pragma once
 
 #include "mcuabstractpackage.h"
+#include "mcusupportversiondetection.h"
 #include "settingshandler.h"
 
 #include <utils/filepath.h>
@@ -102,7 +103,7 @@ private:
     const Utils::FilePath m_defaultPath;
     const Utils::FilePath m_detectionPath;
     const QString m_settingsKey;
-    const McuPackageVersionDetector *m_versionDetector;
+    QScopedPointer<const McuPackageVersionDetector> m_versionDetector;
 
     Utils::FilePath m_path;
     Utils::FilePath m_relativePathModifier; // relative path to m_path to be returned by path()

@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/projectfiletemplates">
+        <file>qmlproject.tpl</file>
+    </qresource>
+</RCC>

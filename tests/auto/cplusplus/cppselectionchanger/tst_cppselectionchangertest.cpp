@@ -1154,5 +1154,5 @@ void tst_CppSelectionChanger::testWholeDocumentSelection()
     QVERIFY(!result);
 }
 
-QTEST_MAIN(tst_CppSelectionChanger)
+QTEST_GUILESS_MAIN(tst_CppSelectionChanger)
 #include "tst_cppselectionchangertest.moc"

@@ -83,6 +83,7 @@ public:
 
     static EditorArea *mainEditorArea();
     static EditorView *currentEditorView();
+    static QList<EditorView *> allEditorViews();
     static void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
     static IEditor *openEditor(EditorView *view,
                                const Utils::FilePath &filePath,

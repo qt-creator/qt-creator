@@ -54,4 +54,13 @@ QtcPlugin {
             "cmakeprojectconverterdialog.cpp", "cmakeprojectconverterdialog.h",
         ]
     }
+    
+    Group {
+        name: "QML Project File Generator"
+        prefix: "qmlprojectgen/"
+        files: [
+            "qmlprojectgenerator.cpp", "qmlprojectgenerator.h",
+            "templates.qrc"
+        ]
+    }
 }

@@ -207,6 +207,6 @@ void tst_Ecmascript::test()
     QCOMPARE(semanticInfo.staticAnalysisMessages.length(), nExpectedStaticMessages);
 }
 
-QTEST_MAIN(tst_Ecmascript)
+QTEST_GUILESS_MAIN(tst_Ecmascript)
 
 #include "tst_ecmascript7.moc"

@@ -631,6 +631,6 @@ void tst_RunExtensions::onResultReady()
     }
 }
 
-QTEST_MAIN(tst_RunExtensions)
+QTEST_GUILESS_MAIN(tst_RunExtensions)
 
 #include "tst_runextensions.moc"

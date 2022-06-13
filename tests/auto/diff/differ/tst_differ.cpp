@@ -795,8 +795,7 @@ void tst_Differ::cleanupSemanticsLossless()
     QCOMPARE(result, expected);
 }
 
-
-QTEST_MAIN(tst_Differ)
+QTEST_GUILESS_MAIN(tst_Differ)
 
 #include "tst_differ.moc"
 

@@ -217,6 +217,6 @@ void tst_TimelineZoomControl::selection()
     QCOMPARE(spy.count(), 2);
 }
 
-QTEST_MAIN(tst_TimelineZoomControl)
+QTEST_GUILESS_MAIN(tst_TimelineZoomControl)
 
 #include "tst_timelinezoomcontrol.moc"

@@ -101,6 +101,6 @@ void PersistentSettingsTest::tst_readwrite()
     tmpDir.setAutoRemove(!QTest::currentTestFailed());
 }
 
-QTEST_MAIN(PersistentSettingsTest)
+QTEST_GUILESS_MAIN(PersistentSettingsTest)
 
 #include "tst_persistentsettings.moc"

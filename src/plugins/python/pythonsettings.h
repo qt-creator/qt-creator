@@ -48,12 +48,18 @@ public:
     static Interpreter interpreter(const QString &interpreterId);
     static void setInterpreter(const QList<Interpreter> &interpreters, const QString &defaultId);
     static void addInterpreter(const Interpreter &interpreter, bool isDefault = false);
+    static void setPyLSConfiguration(const QString &configuration);
+    static bool pylsEnabled();
+    static void setPylsEnabled(const bool &enabled);
+    static QString pyLSConfiguration();
     static PythonSettings *instance();
 
     static QList<Interpreter> detectPythonVenvs(const Utils::FilePath &path);
 
 signals:
     void interpretersChanged(const QList<Interpreter> &interpreters, const QString &defaultId);
+    void pylsConfigurationChanged(const QString &configuration);
+    void pylsEnabledChanged(const bool enabled);
 
 private:
     PythonSettings();

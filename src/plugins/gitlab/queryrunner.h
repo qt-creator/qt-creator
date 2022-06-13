@@ -25,11 +25,10 @@
 
 #pragma once
 
+#include <utils/id.h>
 #include <utils/qtcprocess.h>
 
 #include <QObject>
-
-namespace Utils { class Id; }
 
 namespace GitLab {
 
@@ -78,6 +77,7 @@ private:
     void processFinished();
 
     Utils::QtcProcess m_process;
+    Utils::Id m_serverId;
     bool m_running = false;
     bool m_paginated = false;
 };

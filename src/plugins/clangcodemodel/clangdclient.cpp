@@ -1061,11 +1061,11 @@ void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
                               const Utils::optional<QString> &replacement)
 {
     // Quick check: Are we even on anything searchable?
-    const QString searchTerm = d->searchTermFromCursor(cursor);
+    const QTextCursor adjustedCursor = d->adjustedCursor(cursor, document);
+    const QString searchTerm = d->searchTermFromCursor(adjustedCursor);
     if (searchTerm.isEmpty())
         return;
 
-    const QTextCursor adjustedCursor = d->adjustedCursor(cursor, document);
     const bool categorize = CppEditor::codeModelSettings()->categorizeFindReferences();
 
     // If it's a "normal" symbol, go right ahead.
@@ -2058,10 +2058,17 @@ QTextCursor ClangdClient::Private::adjustedCursor(const QTextCursor &cursor,
     if (!cppDoc)
         return cursor;
     const QList<AST *> builtinAstPath = ASTPath(cppDoc)(cursor);
+    if (builtinAstPath.isEmpty())
+        return cursor;
     const TranslationUnit * const tu = cppDoc->translationUnit();
     const auto posForToken = [doc, tu](int tok) {
         int line, column;
         tu->getTokenPosition(tok, &line, &column);
+        return Utils::Text::positionInText(doc->document(), line, column);
+    };
+    const auto endPosForToken = [doc, tu](int tok) {
+        int line, column;
+        tu->getTokenEndPosition(tok, &line, &column);
         return Utils::Text::positionInText(doc->document(), line, column);
     };
     const auto leftMovedCursor = [cursor] {
@@ -2069,6 +2076,14 @@ QTextCursor ClangdClient::Private::adjustedCursor(const QTextCursor &cursor,
         c.setPosition(cursor.position() - 1);
         return c;
     };
+
+    // enum E { v1|, v2 };
+    if (const EnumeratorAST * const enumAst = builtinAstPath.last()->asEnumerator()) {
+        if (endPosForToken(enumAst->identifier_token) == cursor.position())
+            return leftMovedCursor();
+        return cursor;
+    }
+
     for (auto it = builtinAstPath.rbegin(); it != builtinAstPath.rend(); ++it) {
 
         // s|.x or s|->x

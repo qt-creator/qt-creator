@@ -31,6 +31,7 @@
 #include <utils/aspects.h>
 
 #include <QPointer>
+#include <QSpinBox>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -55,7 +56,8 @@ private:
     Utils::StringAspect m_host;
     Utils::StringAspect m_description;
     Utils::StringAspect m_token;
-    Utils::IntegerAspect m_port;
+    QSpinBox m_port;
+    Utils::BoolAspect m_secure;
 };
 
 class GitLabOptionsWidget : public QWidget

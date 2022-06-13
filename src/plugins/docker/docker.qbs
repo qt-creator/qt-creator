@@ -14,8 +14,6 @@ QtcPlugin {
         "docker_global.h",
         "dockerapi.cpp",
         "dockerapi.h",
-        "dockerbuildstep.cpp",
-        "dockerbuildstep.h",
         "dockerconstants.h",
         "dockerdevice.cpp",
         "dockerdevice.h",

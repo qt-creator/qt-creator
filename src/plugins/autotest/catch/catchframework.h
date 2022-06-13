@@ -37,6 +37,7 @@ public:
     CatchFramework() : ITestFramework(true) {}
 
     const char *name() const override;
+    QString displayName() const override;
     unsigned priority() const override;
 
 protected:

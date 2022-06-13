@@ -279,5 +279,5 @@ void tst_Misc::doNotCrashForInvalidRawString()
     doc->check();
 }
 
-QTEST_MAIN(tst_Misc)
+QTEST_GUILESS_MAIN(tst_Misc)
 #include "tst_misc.moc"

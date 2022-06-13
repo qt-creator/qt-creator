@@ -744,6 +744,5 @@ void tst_ProFileWriter::removeFiles()
     QCOMPARE(lines.join(QLatin1Char('\n')), output);
 }
 
-
-QTEST_MAIN(tst_ProFileWriter)
+QTEST_GUILESS_MAIN(tst_ProFileWriter)
 #include "tst_profilewriter.moc"

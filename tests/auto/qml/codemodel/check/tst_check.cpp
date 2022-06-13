@@ -225,6 +225,6 @@ void tst_Check::test()
     }
 }
 
-QTEST_MAIN(tst_Check);
+QTEST_GUILESS_MAIN(tst_Check);
 
 #include "tst_check.moc"

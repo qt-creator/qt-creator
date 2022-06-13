@@ -199,6 +199,6 @@ void tst_Aggregate::parentAggregate()
     QCOMPARE(Aggregation::Aggregate::parentAggregate(component11), (Aggregation::Aggregate *)0);
 }
 
-QTEST_MAIN(tst_Aggregate)
+QTEST_GUILESS_MAIN(tst_Aggregate)
 
 #include "tst_aggregate.moc"

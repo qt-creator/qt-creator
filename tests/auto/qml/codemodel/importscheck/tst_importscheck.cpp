@@ -414,7 +414,7 @@ int main(int argc, char *argv[])
 
 #else
 
-QTEST_MAIN(tst_ImportCheck)
+QTEST_GUILESS_MAIN(tst_ImportCheck)
 
 #endif // MANUAL_IMPORT_SCANNER
 

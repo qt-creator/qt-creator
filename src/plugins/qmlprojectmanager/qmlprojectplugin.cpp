@@ -31,6 +31,7 @@
 #include "projectfilecontenttools.h"
 #include "cmakegen/cmakeprojectconverter.h"
 #include "cmakegen/generatecmakelists.h"
+#include "qmlprojectgen/qmlprojectgenerator.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -390,17 +391,12 @@ void QmlProjectPlugin::initializeQmlLandingPage()
 
 void QmlProjectPlugin::displayQmlLandingPage()
 {
-    const QString qtVersionString = ProjectFileContentTools::qtVersion(projectFilePath());
-    const QString qdsVersionString = ProjectFileContentTools::qdsVersion(projectFilePath());
-
     if (!d->landingPage)
         initializeQmlLandingPage();
 
+    updateQmlLandingPageProjectInfo(projectFilePath());
     d->landingPage->setQdsInstalled(qdsInstallationExists());
-    d->landingPage->setProjectFileExists(projectFilePath().exists());
     d->landingPage->setCmakeResources(ProjectFileContentTools::rootCmakeFiles());
-    d->landingPage->setQtVersion(qtVersionString);
-    d->landingPage->setQdsVersion(qdsVersionString);
     d->landingPage->show();
 }
 
@@ -469,7 +465,24 @@ void QmlProjectPlugin::generateCmake()
 
 void QmlProjectPlugin::generateProjectFile()
 {
-    qWarning() << "TODO generate .qmlproject";
+    GenerateQmlProject::QmlProjectFileGenerator generator;
+
+    Core::IEditor *editor = Core::EditorManager::currentEditor();
+    if (editor)
+        if (generator.prepareForUiQmlFile(editor->document()->filePath()))
+            if (generator.execute())
+                updateQmlLandingPageProjectInfo(generator.targetFile());
+}
+
+void QmlProjectPlugin::updateQmlLandingPageProjectInfo(const Utils::FilePath &projectFile)
+{
+    if (d->landingPage) {
+        const QString qtVersionString = ProjectFileContentTools::qtVersion(projectFile);
+        const QString qdsVersionString = ProjectFileContentTools::qdsVersion(projectFile);
+        d->landingPage->setProjectFileExists(projectFile.exists());
+        d->landingPage->setQtVersion(qtVersionString);
+        d->landingPage->setQdsVersion(qdsVersionString);
+    }
 }
 
 Utils::FilePath QmlProjectPlugin::projectFilePath()

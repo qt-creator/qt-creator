@@ -43,6 +43,7 @@ class QuickTestFramework : public ITestFramework
 public:
     QuickTestFramework() : ITestFramework(true) {}
     const char *name() const override;
+    QString displayName() const override;
     unsigned priority() const override;
     ITestSettings *testSettings() override;
 

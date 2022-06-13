@@ -42,7 +42,7 @@ public:
 
     GitLabServer(); // TODO different protocol handling e.g. for clone / push?
     GitLabServer(const Utils::Id &id, const QString &host, const QString &description,
-                 const QString &token, unsigned short port);;
+                 const QString &token, unsigned short port, bool secure);
     bool operator==(const GitLabServer &other) const;
     bool operator!=(const GitLabServer &other) const;
     QJsonObject toJson() const;
@@ -56,7 +56,8 @@ public:
     QString token;
     unsigned short port = 0;
 
-    bool validateCert = true; // TODO
+    bool secure = true;
+    bool validateCert = true;
 };
 
 class GitLabParameters

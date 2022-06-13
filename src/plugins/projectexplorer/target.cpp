@@ -803,7 +803,7 @@ QVariant Target::additionalData(Utils::Id id) const
     return {};
 }
 
-MakeInstallCommand Target::makeInstallCommand(const QString &installRoot) const
+MakeInstallCommand Target::makeInstallCommand(const FilePath &installRoot) const
 {
     return project()->makeInstallCommand(this, installRoot);
 }

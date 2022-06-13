@@ -752,6 +752,6 @@ void tst_SettingsAccessor::loadSettings_pickBest()
     QCOMPARE(read.size(), data.size() + 2);
 }
 
-QTEST_MAIN(tst_SettingsAccessor)
+QTEST_GUILESS_MAIN(tst_SettingsAccessor)
 
 #include "tst_settings.moc"

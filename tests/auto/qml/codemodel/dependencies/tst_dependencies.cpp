@@ -181,6 +181,6 @@ void tst_Dependencies::test()
     QCOMPARE(semanticInfo.staticAnalysisMessages.length(), nExpectedStaticMessages);
 }
 
-QTEST_MAIN(tst_Dependencies)
+QTEST_GUILESS_MAIN(tst_Dependencies)
 
 #include "tst_dependencies.moc"

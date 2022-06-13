@@ -248,6 +248,6 @@ void tst_SimpleReader::testBug01()
     QCOMPARE(rootNode->propertyNames().count(), 1);
 }
 
-QTEST_MAIN(tst_SimpleReader);
+QTEST_GUILESS_MAIN(tst_SimpleReader);
 
 #include "tst_qmljssimplereader.moc"
