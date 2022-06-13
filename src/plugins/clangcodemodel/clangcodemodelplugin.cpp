@@ -34,8 +34,6 @@
 #  include "test/clangfixittest.h"
 #endif
 
-#include <utils/runextensions.h>
-
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/messagemanager.h>
@@ -45,6 +43,7 @@
 #include <cppeditor/cppmodelmanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
@@ -52,6 +51,9 @@
 #include <projectexplorer/taskhub.h>
 
 #include <texteditor/textmark.h>
+
+#include <utils/temporarydirectory.h>
+#include <utils/runextensions.h>
 
 using namespace Utils;
 
@@ -69,10 +71,13 @@ void ClangCodeModelPlugin::generateCompilationDB()
     const auto projectInfo = CppModelManager::instance()->projectInfo(target->project());
     if (!projectInfo)
         return;
+    FilePath baseDir = projectInfo->buildRoot();
+    if (baseDir == target->project()->projectDirectory())
+        baseDir = TemporaryDirectory::masterDirectoryFilePath();
 
     QFuture<GenerateCompilationDbResult> task
             = Utils::runAsync(&Internal::generateCompilationDB, projectInfo,
-                              projectInfo->buildRoot(), CompilationDbPurpose::Project,
+                              baseDir, CompilationDbPurpose::Project,
                               warningsConfigForProject(target->project()),
                               globalClangOptions(),
                               FilePath());
