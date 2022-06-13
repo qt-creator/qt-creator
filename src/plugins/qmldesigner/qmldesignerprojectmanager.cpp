@@ -141,7 +141,7 @@ public:
                                   ImageCacheCollectorNullImageHandling::DontCaptureNullImage};
     PreviewTimeStampProvider timeStampProvider;
     AsynchronousImageFactory factory;
-    ::ProjectExplorer::Target *activeTarget = nullptr;
+    QPointer<::ProjectExplorer::Target> activeTarget;
 };
 
 QmlDesignerProjectManager::QmlDesignerProjectManager()
