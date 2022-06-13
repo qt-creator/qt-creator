@@ -363,27 +363,24 @@ ToolChainTreeItem *ToolChainOptionsWidget::insertToolChain(ToolChain *tc, bool c
 
 void ToolChainOptionsWidget::addToolChain(ToolChain *tc)
 {
-    for (int i = 0; i < m_toAddList.size(); ++i) {
-        if (m_toAddList.at(i)->toolChain == tc) {
-            // do not delete i element: Still used elsewhere!
-            m_toAddList.removeAt(i);
-            return;
-        }
+    if (Utils::eraseOne(m_toAddList, [tc](const ToolChainTreeItem *item) {
+                        return item->toolChain == tc; })) {
+        // do not delete here!
+        return;
     }
 
     insertToolChain(tc);
-
     updateState();
 }
 
 void ToolChainOptionsWidget::removeToolChain(ToolChain *tc)
 {
-    for (int i = 0; i < m_toRemoveList.size(); ++i) {
-        if (m_toRemoveList.at(i)->toolChain == tc) {
-            m_toRemoveList.removeAt(i);
-            delete m_toRemoveList.at(i);
-            return;
-        }
+    if (auto it = std::find_if(m_toRemoveList.begin(), m_toRemoveList.end(),
+            [tc](const ToolChainTreeItem *item) { return item->toolChain == tc; });
+            it != m_toRemoveList.end()) {
+        m_toRemoveList.erase(it);
+        delete *it;
+        return;
     }
 
     StaticTreeItem *parent = parentForToolChain(tc);

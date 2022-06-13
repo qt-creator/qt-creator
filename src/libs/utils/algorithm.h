@@ -76,6 +76,8 @@ bool allOf(const T &container, F predicate);
 /////////////////////////
 template<typename T, typename F>
 void erase(T &container, F predicate);
+template<typename T, typename F>
+bool eraseOne(T &container, F predicate);
 
 /////////////////////////
 // contains
@@ -442,7 +444,15 @@ void erase(T &container, F predicate)
     container.erase(std::remove_if(std::begin(container), std::end(container), predicate),
                     std::end(container));
 }
-
+template<typename T, typename F>
+bool eraseOne(T &container, F predicate)
+{
+    const auto it = std::find_if(std::begin(container), std::end(container), predicate);
+    if (it == std::end(container))
+        return false;
+    container.erase(it);
+    return true;
+}
 
 //////////////////
 // contains
