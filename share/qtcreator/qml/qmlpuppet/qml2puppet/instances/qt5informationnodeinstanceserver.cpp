@@ -848,6 +848,18 @@ void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D(bool timerC
         m_activeSceneIdUpdateTimer.stop();
     }
 
+    // We may have to substitute another scene to work around QTBUG-103316
+    // The worked around issue is that if a material is used in multiple scenes, there is some
+    // kind of ownership for it in the first View3D that uses it, so if that view is not rendered
+    // first, the material will not be properly initialized for other views using it.
+    // To make materials work properly, we ensure that views are rendered at least once in the
+    // order they appear in the scene.
+    if (!m_priorityView3DsToRender.isEmpty()) {
+        QObject *sceneRoot = find3DSceneRoot(m_priorityView3DsToRender.first());
+        if (sceneRoot)
+            activeSceneVar = objectToVariant(sceneRoot);
+    }
+
     QMetaObject::invokeMethod(m_editView3DData.rootItem, "setActiveScene", Qt::QueuedConnection,
                               Q_ARG(QVariant, activeSceneVar),
                               Q_ARG(QVariant, QVariant::fromValue(sceneId)));
@@ -1010,7 +1022,7 @@ void Qt5InformationNodeInstanceServer::doRender3DEditView()
         // If we have only one or no render queued, send the result to the creator side.
         // Otherwise, we'll hold on that until we have rendered all pending frames to ensure sent
         // results are correct.
-        if (m_need3DEditViewRender <= 1) {
+        if (m_priorityView3DsToRender.isEmpty() && m_need3DEditViewRender <= 1) {
             nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::Render3DView,
                                                                 QVariant::fromValue(imgContainer)});
 #ifdef QUICK3D_PARTICLES_MODULE
@@ -1019,6 +1031,25 @@ void Qt5InformationNodeInstanceServer::doRender3DEditView()
                 m_need3DEditViewRender = 1;
             }
 #endif
+        }
+
+        if (!m_priorityView3DsToRender.isEmpty()) {
+            static int tryCounter = 0;
+            QObject *sceneRoot = find3DSceneRoot(m_priorityView3DsToRender.first());
+            bool needAnotherRender = false;
+            if (sceneRoot) {
+                // Active scene is updated asynchronously, so verify we are actually rendering
+                // the correct priority scene
+                QObject *activeScene = QQmlProperty::read(m_editView3DData.rootItem, "activeScene").value<QObject *>();
+                needAnotherRender = activeScene != sceneRoot;
+            }
+
+            if (!needAnotherRender || ++tryCounter > 10) {
+                m_priorityView3DsToRender.removeFirst();
+                updateActiveSceneToEditView3D();
+                tryCounter = 0;
+            }
+            ++m_need3DEditViewRender;
         }
 
         if (m_need3DEditViewRender > 0) {
@@ -1057,6 +1088,13 @@ void Qt5InformationNodeInstanceServer::doRenderModelNodeImageView()
 {
     // This crashes on Qt 6.0.x due to QtQuick3D issue, so the preview generation is disabled
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0) || QT_VERSION >= QT_VERSION_CHECK(6, 1, 0)
+    if (!m_priorityView3DsToRender.isEmpty()) {
+        // Postpone any preview renders until we have rendered the priority views to ensure
+        // materials in material library are properly initialized
+        m_renderModelNodeImageViewTimer.start(17);
+        return;
+    }
+
     RequestModelNodePreviewImageCommand cmd = *m_modelNodePreviewImageCommands.begin();
     ServerNodeInstance instance;
     if (cmd.renderItemId() >= 0)
@@ -1574,6 +1612,8 @@ void Qt5InformationNodeInstanceServer::add3DViewPorts(const QList<ServerNodeInst
     for (const ServerNodeInstance &instance : instanceList) {
         if (instance.isSubclassOf("QQuick3DViewport")) {
             QObject *obj = instance.internalObject();
+            if (!m_editView3DSetupDone)
+                m_priorityView3DsToRender.append(obj); // Workaround for quick3d bug QTBUG-103316
             if (!m_view3Ds.contains(obj))  {
                 m_view3Ds << obj;
                 QObject::connect(obj, SIGNAL(widthChanged()), this, SLOT(handleView3DSizeChange()));
