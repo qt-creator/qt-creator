@@ -398,7 +398,7 @@ FormatDescriptions TextEditorSettingsPrivate::initialFormats()
                              tr("Unreachable code."),
                              FormatDescription::ShowAllControls);
     formatDescr.emplace_back(C_COCO_EXECUTION_COUNT_TOO_LOW,
-                             tr("Code Coverage Execution Count To Low"),
+                             tr("Code Coverage Execution Count Too Low"),
                              tr("Minimum count not reached."),
                              FormatDescription::ShowAllControls);
     formatDescr.emplace_back(C_COCO_NOT_COVERED_INFO,
