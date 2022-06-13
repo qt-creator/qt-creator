@@ -756,6 +756,12 @@ McuSdkRepository targetsAndPackages(const Utils::FilePath &qtForMCUSdkPath,
         return McuKitManager::generateKitNameFromTarget(lhs.get())
                < McuKitManager::generateKitNameFromTarget(rhs.get());
     });
+
+    for (const auto &target : repo.mcuTargets) {
+        printMessage(McuTarget::tr("Kit for %1 created.")
+                         .arg(McuKitManager::generateKitNameFromTarget(target.get())),
+                     false);
+    }
     return repo;
 }
 
