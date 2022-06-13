@@ -77,6 +77,18 @@ public:
     const char *what() const noexcept override { return "The module does not exist!"; }
 };
 
+class ModuleAlreadyExists : std::exception
+{
+public:
+    const char *what() const noexcept override { return "The module does already exist!"; }
+};
+
+class ExportedTypeCannotBeInserted : std::exception
+{
+public:
+    const char *what() const noexcept override { return "The exported type cannot be inserted!"; }
+};
+
 class TypeNameDoesNotExists : std::exception
 {
 public:

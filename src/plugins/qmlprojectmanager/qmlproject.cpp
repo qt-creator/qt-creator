@@ -327,6 +327,8 @@ void QmlBuildSystem::refresh(RefreshOptions options)
     modelManager->updateProjectInfo(projectInfo, project());
 
     guard.markAsSuccess();
+
+    emit projectChanged();
 }
 
 QString QmlBuildSystem::mainFile() const
@@ -746,6 +748,20 @@ QStringList QmlBuildSystem::shaderToolFiles() const
 {
     if (m_projectItem)
         return m_projectItem->shaderToolFiles();
+    return {};
+}
+
+QStringList QmlBuildSystem::importPaths() const
+{
+    if (m_projectItem)
+        return m_projectItem->importPaths();
+    return {};
+}
+
+QStringList QmlBuildSystem::files() const
+{
+    if (m_projectItem)
+        return m_projectItem->files();
     return {};
 }
 

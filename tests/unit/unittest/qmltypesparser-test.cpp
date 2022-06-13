@@ -173,9 +173,10 @@ protected:
     Storage::Imports imports;
     Storage::Types types;
     SourceId qmltypesFileSourceId{sourcePathCache.sourceId("path/to/types.qmltypes")};
+    ModuleId qtQmlNativeModuleId = storage.moduleId("QtQml-cppnative");
     QmlDesigner::Storage::ProjectData projectData{qmltypesFileSourceId,
                                                   qmltypesFileSourceId,
-                                                  storage.moduleId("QtQml-cppnative"),
+                                                  qtQmlNativeModuleId,
                                                   Storage::FileType::QmlTypes};
     SourceContextId qmltypesFileSourceContextId{sourcePathCache.sourceContextId(qmltypesFileSourceId)};
     ModuleId directoryModuleId{storage.moduleId("path/to/")};
@@ -193,13 +194,11 @@ TEST_F(QmlTypesParser, Imports)
     ASSERT_THAT(
         imports,
         UnorderedElementsAre(
-            IsImport(storage.moduleId("QML"), Storage::Version{}, qmltypesFileSourceId),
+            IsImport(storage.moduleId("QML-cppnative"), Storage::Version{}, qmltypesFileSourceId),
             IsImport(storage.moduleId("QtQml-cppnative"), Storage::Version{}, qmltypesFileSourceId),
-            IsImport(storage.moduleId("QtQuick-cppnative"), Storage::Version{2, 15}, qmltypesFileSourceId),
-            IsImport(storage.moduleId("QtQuick.Window-cppnative"),
-                     Storage::Version{2, 1},
-                     qmltypesFileSourceId),
-            IsImport(storage.moduleId("QtFoo-cppnative"), Storage::Version{6}, qmltypesFileSourceId)));
+            IsImport(storage.moduleId("QtQuick-cppnative"), Storage::Version{}, qmltypesFileSourceId),
+            IsImport(storage.moduleId("QtQuick.Window-cppnative"), Storage::Version{}, qmltypesFileSourceId),
+            IsImport(storage.moduleId("QtFoo-cppnative"), Storage::Version{}, qmltypesFileSourceId)));
 }
 
 TEST_F(QmlTypesParser, Types)
@@ -214,11 +213,11 @@ TEST_F(QmlTypesParser, Types)
 
     ASSERT_THAT(types,
                 UnorderedElementsAre(IsType("QObject",
-                                            Storage::NativeType{},
+                                            Storage::ImportedType{},
                                             Storage::TypeAccessSemantics::Reference,
                                             qmltypesFileSourceId),
                                      IsType("QQmlComponent",
-                                            Storage::NativeType{"QObject"},
+                                            Storage::ImportedType{"QObject"},
                                             Storage::TypeAccessSemantics::Reference,
                                             qmltypesFileSourceId)));
 }
@@ -232,16 +231,16 @@ TEST_F(QmlTypesParser, ExportedTypes)
                       }})"};
     ModuleId qmlModuleId = storage.moduleId("QML");
     ModuleId qtQmlModuleId = storage.moduleId("QtQml");
-    ModuleId qtQmlNativeModuleId = storage.moduleId("QtQml-cppnative");
 
     parser.parse(source, imports, types, projectData);
 
     ASSERT_THAT(types,
-                ElementsAre(Field(
-                    &Storage::Type::exportedTypes,
-                    ElementsAre(IsExportedType(qmlModuleId, "QtObject", Storage::Version{1, 0}),
-                                IsExportedType(qtQmlModuleId, "QtObject", Storage::Version{2, 1}),
-                                IsExportedType(qtQmlNativeModuleId, "QObject", Storage::Version{})))));
+                ElementsAre(
+                    Field(&Storage::Type::exportedTypes,
+                          UnorderedElementsAre(
+                              IsExportedType(qmlModuleId, "QtObject", Storage::Version{1, 0}),
+                              IsExportedType(qtQmlModuleId, "QtObject", Storage::Version{2, 1}),
+                              IsExportedType(qtQmlNativeModuleId, "QObject", Storage::Version{})))));
 }
 
 TEST_F(QmlTypesParser, Properties)
@@ -262,19 +261,67 @@ TEST_F(QmlTypesParser, Properties)
                     &Storage::Type::propertyDeclarations,
                     UnorderedElementsAre(
                         IsPropertyDeclaration("objectName",
-                                              Storage::NativeType{"string"},
+                                              Storage::ImportedType{"string"},
                                               Storage::PropertyDeclarationTraits::None),
                         IsPropertyDeclaration("target",
-                                              Storage::NativeType{"QObject"},
+                                              Storage::ImportedType{"QObject"},
                                               Storage::PropertyDeclarationTraits::IsPointer),
                         IsPropertyDeclaration("progress",
-                                              Storage::NativeType{"double"},
+                                              Storage::ImportedType{"double"},
                                               Storage::PropertyDeclarationTraits::IsReadOnly),
                         IsPropertyDeclaration("targets",
-                                              Storage::NativeType{"QQuickItem"},
+                                              Storage::ImportedType{"QQuickItem"},
                                               Storage::PropertyDeclarationTraits::IsReadOnly
                                                   | Storage::PropertyDeclarationTraits::IsList
                                                   | Storage::PropertyDeclarationTraits::IsPointer)))));
+}
+
+TEST_F(QmlTypesParser, PropertiesWithQualifiedTypes)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "Qt::Vector" }
+                        Component { name: "Qt::List" }
+                        Component { name: "QObject"
+                          Property { name: "values"; type: "Vector" }
+                          Property { name: "items"; type: "List" }
+                          Property { name: "values2"; type: "Qt::Vector" }
+                      }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types,
+                Contains(Field(&Storage::Type::propertyDeclarations,
+                               UnorderedElementsAre(
+                                   IsPropertyDeclaration("values",
+                                                         Storage::ImportedType{"Qt::Vector"},
+                                                         Storage::PropertyDeclarationTraits::None),
+                                   IsPropertyDeclaration("items",
+                                                         Storage::ImportedType{"Qt::List"},
+                                                         Storage::PropertyDeclarationTraits::None),
+                                   IsPropertyDeclaration("values2",
+                                                         Storage::ImportedType{"Qt::Vector"},
+                                                         Storage::PropertyDeclarationTraits::None)))));
+}
+
+TEST_F(QmlTypesParser, PropertiesWithoutType)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                          Property { name: "objectName"}
+                          Property { name: "target"; type: "QObject"; isPointer: true }
+                      }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types,
+                ElementsAre(
+                    Field(&Storage::Type::propertyDeclarations,
+                          UnorderedElementsAre(
+                              IsPropertyDeclaration("target",
+                                                    Storage::ImportedType{"QObject"},
+                                                    Storage::PropertyDeclarationTraits::IsPointer)))));
 }
 
 TEST_F(QmlTypesParser, Functions)
@@ -319,6 +366,50 @@ TEST_F(QmlTypesParser, Functions)
                                     Field(&Storage::FunctionDeclaration::parameters, IsEmpty()))))));
 }
 
+TEST_F(QmlTypesParser, SkipJavaScriptFunctions)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                          Method {
+                            name: "do"
+                            isJavaScriptFunction: true
+                          }
+                      }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types, ElementsAre(Field(&Storage::Type::functionDeclarations, IsEmpty())));
+}
+
+TEST_F(QmlTypesParser, FunctionsWithQualifiedTypes)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "Qt::Vector" }
+                        Component { name: "Qt::List" }
+                        Component { name: "QObject"
+                          Method {
+                            name: "values"
+                            Parameter { name: "values"; type: "Vector" }
+                            Parameter { name: "items"; type: "List" }
+                            Parameter { name: "values2"; type: "Qt::Vector" }
+                          }
+                      }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types,
+                Contains(
+                    Field(&Storage::Type::functionDeclarations,
+                          UnorderedElementsAre(AllOf(
+                              IsFunctionDeclaration("values", ""),
+                              Field(&Storage::FunctionDeclaration::parameters,
+                                    UnorderedElementsAre(IsParameter("values", "Qt::Vector"),
+                                                         IsParameter("items", "Qt::List"),
+                                                         IsParameter("values2", "Qt::Vector"))))))));
+}
+
 TEST_F(QmlTypesParser, Signals)
 {
     QString source{R"(import QtQuick.tooling 1.2
@@ -358,6 +449,34 @@ TEST_F(QmlTypesParser, Signals)
                                                       IsParameter("args", "QQmlV4Function"))))))));
 }
 
+TEST_F(QmlTypesParser, SignalsWithQualifiedTypes)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "Qt::Vector" }
+                        Component { name: "Qt::List" }
+                        Component { name: "QObject"
+                          Signal {
+                            name: "values"
+                            Parameter { name: "values"; type: "Vector" }
+                            Parameter { name: "items"; type: "List" }
+                            Parameter { name: "values2"; type: "Qt::Vector" }
+                          }
+                      }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types,
+                Contains(
+                    Field(&Storage::Type::signalDeclarations,
+                          UnorderedElementsAre(AllOf(
+                              IsSignalDeclaration("values"),
+                              Field(&Storage::SignalDeclaration::parameters,
+                                    UnorderedElementsAre(IsParameter("values", "Qt::Vector"),
+                                                         IsParameter("items", "Qt::List"),
+                                                         IsParameter("values2", "Qt::Vector"))))))));
+}
+
 TEST_F(QmlTypesParser, Enumerations)
 {
     QString source{R"(import QtQuick.tooling 1.2
@@ -381,7 +500,7 @@ TEST_F(QmlTypesParser, Enumerations)
     parser.parse(source, imports, types, projectData);
 
     ASSERT_THAT(types,
-                ElementsAre(
+                Contains(
                     Field(&Storage::Type::enumerationDeclarations,
                           UnorderedElementsAre(
                               AllOf(IsEnumeration("NamedColorSpace"),
@@ -394,6 +513,187 @@ TEST_F(QmlTypesParser, Enumerations)
                                     Field(&Storage::EnumerationDeclaration::enumeratorDeclarations,
                                           UnorderedElementsAre(IsEnumerator("TopToBottom"),
                                                                IsEnumerator("BottomToTop"))))))));
+}
+
+TEST_F(QmlTypesParser, EnumerationIsExportedAsType)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                          Enum {
+                              name: "NamedColorSpace"
+                              values: [
+                                  "Unknown",
+                                  "SRgb",
+                                  "AdobeRgb",
+                                  "DisplayP3",
+                              ]
+                          }
+                          Enum {
+                              name: "VerticalLayoutDirection"
+                              values: ["TopToBottom", "BottomToTop"]
+                          }
+                          exports: ["QML/QtObject 1.0", "QtQml/QtObject 2.1"]
+                      }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(
+        types,
+        UnorderedElementsAre(
+            AllOf(IsType("QObject::NamedColorSpace",
+                         Storage::ImportedType{},
+                         Storage::TypeAccessSemantics::Value | Storage::TypeAccessSemantics::IsEnum,
+                         qmltypesFileSourceId),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType(qtQmlNativeModuleId,
+                                                            "QObject::NamedColorSpace",
+                                                            Storage::Version{})))),
+            AllOf(IsType("QObject::VerticalLayoutDirection",
+                         Storage::ImportedType{},
+                         Storage::TypeAccessSemantics::Value | Storage::TypeAccessSemantics::IsEnum,
+                         qmltypesFileSourceId),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType(qtQmlNativeModuleId,
+                                                            "QObject::VerticalLayoutDirection",
+                                                            Storage::Version{})))),
+            _));
+}
+
+TEST_F(QmlTypesParser, EnumerationIsExportedAsTypeWithAlias)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                          Enum {
+                              name: "NamedColorSpaces"
+                              alias: "NamedColorSpace"
+                              values: [
+                                  "Unknown",
+                                  "SRgb",
+                                  "AdobeRgb",
+                                  "DisplayP3",
+                              ]
+                          }
+                          exports: ["QML/QtObject 1.0", "QtQml/QtObject 2.1"]
+                      }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types,
+                UnorderedElementsAre(
+                    AllOf(IsType("QObject::NamedColorSpaces",
+                                 Storage::ImportedType{},
+                                 Storage::TypeAccessSemantics::Value | Storage::TypeAccessSemantics::IsEnum,
+                                 qmltypesFileSourceId),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(qtQmlNativeModuleId,
+                                                                    "QObject::NamedColorSpace",
+                                                                    Storage::Version{}),
+                                                     IsExportedType(qtQmlNativeModuleId,
+                                                                    "QObject::NamedColorSpaces",
+                                                                    Storage::Version{})))),
+                    _));
+}
+
+TEST_F(QmlTypesParser, EnumerationIsExportedAsTypeWithAliasToo)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                          Enum {
+                              name: "NamedColorSpaces"
+                              alias: "NamedColorSpace"
+                              values: [
+                                  "Unknown",
+                                  "SRgb",
+                                  "AdobeRgb",
+                                  "DisplayP3",
+                              ]
+                          }
+                          Enum {
+                              name: "NamedColorSpace"
+                              values: [
+                                  "Unknown",
+                                  "SRgb",
+                                  "AdobeRgb",
+                                  "DisplayP3",
+                              ]
+                          }
+                          exports: ["QML/QtObject 1.0", "QtQml/QtObject 2.1"]
+                      }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types,
+                UnorderedElementsAre(
+                    AllOf(IsType("QObject::NamedColorSpaces",
+                                 Storage::ImportedType{},
+                                 Storage::TypeAccessSemantics::Value | Storage::TypeAccessSemantics::IsEnum,
+                                 qmltypesFileSourceId),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(qtQmlNativeModuleId,
+                                                                    "QObject::NamedColorSpace",
+                                                                    Storage::Version{}),
+                                                     IsExportedType(qtQmlNativeModuleId,
+                                                                    "QObject::NamedColorSpaces",
+                                                                    Storage::Version{})))),
+                    _));
+}
+
+TEST_F(QmlTypesParser, EnumerationIsReferencedByQualifiedName)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                          Property { name: "colorSpace"; type: "NamedColorSpace" }
+                          Enum {
+                              name: "NamedColorSpace"
+                              values: [
+                                  "Unknown",
+                                  "SRgb",
+                                  "AdobeRgb",
+                                  "DisplayP3",
+                              ]
+                          }
+                      }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types,
+                Contains(Field(&Storage::Type::propertyDeclarations,
+                               ElementsAre(IsPropertyDeclaration(
+                                   "colorSpace",
+                                   Storage::ImportedType{"QObject::NamedColorSpace"},
+                                   Storage::PropertyDeclarationTraits::None)))));
+}
+
+TEST_F(QmlTypesParser, AliasEnumerationIsReferencedByQualifiedName)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                          Property { name: "colorSpace"; type: "NamedColorSpaces" }
+                          Enum {
+                              name: "NamedColorSpace"
+                              alias: "NamedColorSpaces"
+                              values: [
+                                  "Unknown",
+                                  "SRgb",
+                                  "AdobeRgb",
+                                  "DisplayP3",
+                              ]
+                          }
+                      }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types,
+                Contains(Field(&Storage::Type::propertyDeclarations,
+                               ElementsAre(IsPropertyDeclaration(
+                                   "colorSpace",
+                                   Storage::ImportedType{"QObject::NamedColorSpaces"},
+                                   Storage::PropertyDeclarationTraits::None)))));
 }
 
 } // namespace

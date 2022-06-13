@@ -103,6 +103,8 @@ public:
     bool widgetApp() const;
     QStringList shaderToolArgs() const;
     QStringList shaderToolFiles() const;
+    QStringList importPaths() const;
+    QStringList files() const;
 
     bool addFiles(const QStringList &filePaths);
 
@@ -120,6 +122,9 @@ public:
 
     // plain format
     void parseProject(RefreshOptions options);
+
+signals:
+    void projectChanged();
 
 private:
     bool setFileSettingInProjectFile(const QString &setting,

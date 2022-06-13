@@ -69,6 +69,15 @@ private:
     void projectRemoved(::ProjectExplorer::Project *project);
     ImageCacheData *imageCacheData();
 
+    void fileListChanged();
+    void activeTargetChanged(::ProjectExplorer::Target *target);
+    void aboutToRemoveTarget(::ProjectExplorer::Target *target);
+    void kitChanged();
+    void projectChanged();
+
+private:
+    void update();
+
 private:
     std::once_flag imageCacheFlag;
     std::unique_ptr<ImageCacheData> m_imageCacheData;

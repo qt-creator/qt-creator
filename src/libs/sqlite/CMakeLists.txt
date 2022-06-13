@@ -11,6 +11,7 @@ add_qtc_library(Sqlite
   PUBLIC_DEFINES
       SQLITE_CORE
   DEPENDS Qt5::Core Threads::Threads ${CMAKE_DL_LIBS}
+  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.2.0
   PUBLIC_INCLUDES
     "${CMAKE_CURRENT_LIST_DIR}"
     ../3rdparty/sqlite

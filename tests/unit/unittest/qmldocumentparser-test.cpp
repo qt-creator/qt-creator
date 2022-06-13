@@ -59,6 +59,41 @@ MATCHER_P3(IsPropertyDeclaration,
            && propertyDeclaration.traits == traits;
 }
 
+MATCHER_P4(IsAliasPropertyDeclaration,
+           name,
+           typeName,
+           traits,
+           aliasPropertyName,
+           std::string(negation ? "isn't " : "is ")
+               + PrintToString(Storage::PropertyDeclaration{name, typeName, traits, aliasPropertyName}))
+{
+    const Storage::PropertyDeclaration &propertyDeclaration = arg;
+
+    return propertyDeclaration.name == name
+           && Storage::ImportedTypeName{typeName} == propertyDeclaration.typeName
+           && propertyDeclaration.traits == traits
+           && propertyDeclaration.aliasPropertyName == aliasPropertyName
+           && propertyDeclaration.aliasPropertyNameTail.empty();
+}
+
+MATCHER_P5(IsAliasPropertyDeclaration,
+           name,
+           typeName,
+           traits,
+           aliasPropertyName,
+           aliasPropertyNameTail,
+           std::string(negation ? "isn't " : "is ")
+               + PrintToString(Storage::PropertyDeclaration{name, typeName, traits, aliasPropertyName}))
+{
+    const Storage::PropertyDeclaration &propertyDeclaration = arg;
+
+    return propertyDeclaration.name == name
+           && Storage::ImportedTypeName{typeName} == propertyDeclaration.typeName
+           && propertyDeclaration.traits == traits
+           && propertyDeclaration.aliasPropertyName == aliasPropertyName
+           && propertyDeclaration.aliasPropertyNameTail == aliasPropertyNameTail;
+}
+
 MATCHER_P2(IsFunctionDeclaration,
            name,
            returnTypeName,
@@ -129,12 +164,12 @@ protected:
     QmlDesigner::ProjectStorage<Sqlite::Database> storage{database, database.isInitialized()};
     QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage<Sqlite::Database>> sourcePathCache{
         storage};
-    QmlDesigner::QmlDocumentParser parser{storage};
+    QmlDesigner::QmlDocumentParser parser{storage, sourcePathCache};
     Storage::Imports imports;
-    SourceId qmlFileSourceId{sourcePathCache.sourceId("path/to/qmlfile.qml")};
+    SourceId qmlFileSourceId{sourcePathCache.sourceId("/path/to/qmlfile.qml")};
     SourceContextId qmlFileSourceContextId{sourcePathCache.sourceContextId(qmlFileSourceId)};
-    QString directoryPath{"/path/to"};
-    ModuleId directoryModuleId{storage.moduleId("/path/to")};
+    Utils::PathString directoryPath{sourcePathCache.sourceContextPath(qmlFileSourceContextId)};
+    ModuleId directoryModuleId{storage.moduleId(directoryPath)};
 };
 
 TEST_F(QmlDocumentParser, Prototype)
@@ -144,22 +179,24 @@ TEST_F(QmlDocumentParser, Prototype)
     ASSERT_THAT(type, HasPrototype(Storage::ImportedType("Example")));
 }
 
-TEST_F(QmlDocumentParser, DISABLED_QualifiedPrototype)
+TEST_F(QmlDocumentParser, QualifiedPrototype)
 {
     auto exampleModuleId = storage.moduleId("Example");
-    auto type = parser.parse("import Example as Example\n Example.Item{}",
-                             imports,
-                             qmlFileSourceId,
-                             directoryPath);
+    QString text = R"(import Example 2.1 as Example
+                      Example.Item{})";
+
+    auto type = parser.parse(text, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type,
-                HasPrototype(Storage::QualifiedImportedType(
-                    "Item", Storage::Import{exampleModuleId, Storage::Version{}, qmlFileSourceId})));
+                HasPrototype(Storage::QualifiedImportedType("Item",
+                                                            Storage::Import{exampleModuleId,
+                                                                            Storage::Version{2, 1},
+                                                                            qmlFileSourceId})));
 }
 
 TEST_F(QmlDocumentParser, Properties)
 {
-    auto type = parser.parse("Example{\n property int foo\n}", imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(R"(Example{ property int foo })", imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration("foo",
@@ -167,12 +204,66 @@ TEST_F(QmlDocumentParser, Properties)
                                                            Storage::PropertyDeclarationTraits::None)));
 }
 
+TEST_F(QmlDocumentParser, QualifiedProperties)
+{
+    auto exampleModuleId = storage.moduleId("Example");
+
+    auto type = parser.parse(R"(import Example 2.1 as Example
+                                Item{ property Example.Foo foo})",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(type.propertyDeclarations,
+                UnorderedElementsAre(IsPropertyDeclaration(
+                    "foo",
+                    Storage::QualifiedImportedType("Foo",
+                                                   Storage::Import{exampleModuleId,
+                                                                   Storage::Version{2, 1},
+                                                                   qmlFileSourceId}),
+                    Storage::PropertyDeclarationTraits::None)));
+}
+
+TEST_F(QmlDocumentParser, EnumerationInProperties)
+{
+    auto type = parser.parse(R"(import Example 2.1 as Example
+                                Item{ property Enumeration.Foo foo})",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(type.propertyDeclarations,
+                UnorderedElementsAre(IsPropertyDeclaration("foo",
+                                                           Storage::ImportedType("Enumeration.Foo"),
+                                                           Storage::PropertyDeclarationTraits::None)));
+}
+
+TEST_F(QmlDocumentParser, QualifiedEnumerationInProperties)
+{
+    auto exampleModuleId = storage.moduleId("Example");
+
+    auto type = parser.parse(R"(import Example 2.1 as Example
+                                Item{ property Example.Enumeration.Foo foo})",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(type.propertyDeclarations,
+                UnorderedElementsAre(IsPropertyDeclaration(
+                    "foo",
+                    Storage::QualifiedImportedType("Enumeration.Foo",
+                                                   Storage::Import{exampleModuleId,
+                                                                   Storage::Version{2, 1},
+                                                                   qmlFileSourceId}),
+                    Storage::PropertyDeclarationTraits::None)));
+}
+
 TEST_F(QmlDocumentParser, Imports)
 {
     ModuleId fooDirectoryModuleId = storage.moduleId("/path/foo");
     ModuleId qmlModuleId = storage.moduleId("QML");
-    ModuleId qtQmlModuleId = storage.moduleId("QtQml");
     ModuleId qtQuickModuleId = storage.moduleId("QtQuick");
+
     auto type = parser.parse(R"(import QtQuick
                                 import "../foo"
                                 Example{})",
@@ -184,9 +275,49 @@ TEST_F(QmlDocumentParser, Imports)
                 UnorderedElementsAre(
                     Storage::Import{directoryModuleId, Storage::Version{}, qmlFileSourceId},
                     Storage::Import{fooDirectoryModuleId, Storage::Version{}, qmlFileSourceId},
-                    Storage::Import{qmlModuleId, Storage::Version{1, 0}, qmlFileSourceId},
-                    Storage::Import{qtQmlModuleId, Storage::Version{6, 0}, qmlFileSourceId},
+                    Storage::Import{qmlModuleId, Storage::Version{}, qmlFileSourceId},
                     Storage::Import{qtQuickModuleId, Storage::Version{}, qmlFileSourceId}));
+}
+
+TEST_F(QmlDocumentParser, ImportsWithVersion)
+{
+    ModuleId fooDirectoryModuleId = storage.moduleId("/path/foo");
+    ModuleId qmlModuleId = storage.moduleId("QML");
+    ModuleId qtQuickModuleId = storage.moduleId("QtQuick");
+
+    auto type = parser.parse(R"(import QtQuick 2.1
+                                import "../foo"
+                                Example{})",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(imports,
+                UnorderedElementsAre(
+                    Storage::Import{directoryModuleId, Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{fooDirectoryModuleId, Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{qmlModuleId, Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{qtQuickModuleId, Storage::Version{2, 1}, qmlFileSourceId}));
+}
+
+TEST_F(QmlDocumentParser, ImportsWithExplictDirectory)
+{
+    ModuleId qmlModuleId = storage.moduleId("QML");
+    ModuleId qtQuickModuleId = storage.moduleId("QtQuick");
+
+    auto type = parser.parse(R"(import QtQuick
+                                import "../to"
+                                import "."
+                                Example{})",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(
+        imports,
+        UnorderedElementsAre(Storage::Import{directoryModuleId, Storage::Version{}, qmlFileSourceId},
+                             Storage::Import{qmlModuleId, Storage::Version{}, qmlFileSourceId},
+                             Storage::Import{qtQuickModuleId, Storage::Version{}, qmlFileSourceId}));
 }
 
 TEST_F(QmlDocumentParser, Functions)
@@ -241,6 +372,164 @@ TEST_F(QmlDocumentParser, Enumeration)
                     AllOf(IsEnumeration("State"),
                           Field(&Storage::EnumerationDeclaration::enumeratorDeclarations,
                                 ElementsAre(IsEnumerator("On", 0), IsEnumerator("Off", 1))))));
+}
+
+TEST_F(QmlDocumentParser, DISABLED_DuplicateImportsAreRemoved)
+{
+    ModuleId fooDirectoryModuleId = storage.moduleId("/path/foo");
+    ModuleId qmlModuleId = storage.moduleId("QML");
+    ModuleId qtQmlModuleId = storage.moduleId("QtQml");
+    ModuleId qtQuickModuleId = storage.moduleId("QtQuick");
+
+    auto type = parser.parse(R"(import QtQuick
+                                import "../foo"
+                                import QtQuick
+                                import "../foo"
+                                import "/path/foo"
+                                import "."
+ 
+                                Example{})",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(imports,
+                UnorderedElementsAre(
+                    Storage::Import{directoryModuleId, Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{fooDirectoryModuleId, Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{qmlModuleId, Storage::Version{1, 0}, qmlFileSourceId},
+                    Storage::Import{qtQmlModuleId, Storage::Version{6, 0}, qmlFileSourceId},
+                    Storage::Import{qtQuickModuleId, Storage::Version{}, qmlFileSourceId}));
+}
+
+TEST_F(QmlDocumentParser, AliasItemProperties)
+{
+    auto type = parser.parse(R"(Example{
+                                    property alias delegate: foo
+                                    Item {
+                                        id: foo
+                                    }
+                                })",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(type.propertyDeclarations,
+                UnorderedElementsAre(IsPropertyDeclaration("delegate",
+                                                           Storage::ImportedType{"Item"},
+                                                           Storage::PropertyDeclarationTraits::None)));
+}
+
+TEST_F(QmlDocumentParser, AliasProperties)
+{
+    auto type = parser.parse(R"(Example{
+                                    property alias text: foo.text2
+                                    Item {
+                                        id: foo
+                                    }
+                                })",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(type.propertyDeclarations,
+                UnorderedElementsAre(IsAliasPropertyDeclaration("text",
+                                                                Storage::ImportedType{"Item"},
+                                                                Storage::PropertyDeclarationTraits::None,
+                                                                "text2")));
+}
+
+TEST_F(QmlDocumentParser, IndirectAliasProperties)
+{
+    auto type = parser.parse(R"(Example{
+                                    property alias textSize: foo.text.size
+                                    Item {
+                                        id: foo
+                                    }
+                                })",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(type.propertyDeclarations,
+                UnorderedElementsAre(IsAliasPropertyDeclaration("textSize",
+                                                                Storage::ImportedType{"Item"},
+                                                                Storage::PropertyDeclarationTraits::None,
+                                                                "text",
+                                                                "size")));
+}
+
+TEST_F(QmlDocumentParser, InvalidAliasPropertiesAreSkipped)
+{
+    auto type = parser.parse(R"(Example{
+                                    property alias textSize: foo2.text.size
+                                    Item {
+                                        id: foo
+                                    }
+                                })",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(type.propertyDeclarations, IsEmpty());
+}
+
+TEST_F(QmlDocumentParser, ListProperty)
+{
+    auto type = parser.parse(R"(Item{
+                                    property list<Foo> foos
+                                })",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(type.propertyDeclarations,
+                UnorderedElementsAre(
+                    IsPropertyDeclaration("foos",
+                                          Storage::ImportedType{"Foo"},
+                                          Storage::PropertyDeclarationTraits::IsList)));
+}
+
+TEST_F(QmlDocumentParser, AliasOnListProperty)
+{
+    auto type = parser.parse(R"(Item{
+                                    property alias foos: foo.foos
+
+                                    Item {
+                                        id: foo
+                                        property list<Foo> foos
+                                    }
+                                })",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(type.propertyDeclarations,
+                UnorderedElementsAre(
+                    IsPropertyDeclaration("foos",
+                                          Storage::ImportedType{"Foo"},
+                                          Storage::PropertyDeclarationTraits::IsList)));
+}
+
+TEST_F(QmlDocumentParser, QualifiedListProperty)
+{
+    auto exampleModuleId = storage.moduleId("Example");
+    auto type = parser.parse(R"(import Example 2.1 as Example
+                                Item{
+                                    property list<Example.Foo> foos
+                                })",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(type.propertyDeclarations,
+                UnorderedElementsAre(IsPropertyDeclaration(
+                    "foos",
+                    Storage::QualifiedImportedType{"Foo",
+                                                   Storage::Import{exampleModuleId,
+                                                                   Storage::Version{2, 1},
+                                                                   qmlFileSourceId}},
+                    Storage::PropertyDeclarationTraits::IsList)));
 }
 
 } // namespace

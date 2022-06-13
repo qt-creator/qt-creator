@@ -34,18 +34,36 @@
 #include <tuple>
 #include <vector>
 
+namespace QmlDesigner {
+
+template<typename Enumeration>
+constexpr std::underlying_type_t<Enumeration> to_underlying(Enumeration enumeration) noexcept
+{
+    static_assert(std::is_enum_v<Enumeration>, "to_underlying expect an enumeration");
+    return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
+}
+
+using TypeNameString = Utils::BasicSmallString<63>;
+
+} // namespace QmlDesigner
+
 namespace QmlDesigner::Storage {
 
 enum class TypeAccessSemantics : int { None, Reference, Value, Sequence, IsEnum = 1 << 8 };
 
-enum class PropertyDeclarationTraits : unsigned int {
+constexpr TypeAccessSemantics operator|(TypeAccessSemantics first, TypeAccessSemantics second)
+{
+    return static_cast<TypeAccessSemantics>(static_cast<int>(first) | static_cast<int>(second));
+}
+
+enum class PropertyDeclarationTraits : int {
     None = 0,
     IsReadOnly = 1 << 0,
     IsPointer = 1 << 1,
     IsList = 1 << 2
 };
 
-enum class TypeNameKind { Native = 0, Exported = 1, QualifiedExported = 2 };
+enum class TypeNameKind { Exported = 1, QualifiedExported = 2 };
 
 enum class FileType : char { QmlTypes, QmlDocument };
 
@@ -136,7 +154,12 @@ inline int operator<(IsQualified first, IsQualified second)
     return static_cast<int>(first) < static_cast<int>(second);
 }
 
-enum class ImportKind : char { Module, Directory, QmlTypesDependency };
+enum class ImportKind : char {
+    Import,
+    ModuleDependency,
+    ModuleExportedImport,
+    ModuleExportedModuleDependency
+};
 
 class Import
 {
@@ -161,11 +184,16 @@ public:
                && first.sourceId == second.sourceId;
     }
 
+    friend bool operator<(const Import &first, const Import &second)
+    {
+        return std::tie(first.sourceId, first.moduleId, first.version)
+               < std::tie(second.sourceId, second.moduleId, second.version);
+    }
+
 public:
     Version version;
     ModuleId moduleId;
     SourceId sourceId;
-    Utils::SmallString aliasName;
 };
 
 using Imports = std::vector<Import>;
@@ -195,6 +223,81 @@ public:
     Version version;
 };
 
+enum class IsAutoVersion : char { No, Yes };
+
+constexpr bool operator<(IsAutoVersion first, IsAutoVersion second)
+{
+    return to_underlying(first) < to_underlying(second);
+}
+
+class ModuleExportedImport
+{
+public:
+    explicit ModuleExportedImport(ModuleId moduleId,
+                                  ModuleId exportedModuleId,
+                                  Version version,
+                                  IsAutoVersion isAutoVersion)
+        : version{version}
+        , moduleId{moduleId}
+        , exportedModuleId{exportedModuleId}
+        , isAutoVersion{isAutoVersion}
+    {}
+
+    friend bool operator==(const ModuleExportedImport &first, const ModuleExportedImport &second)
+    {
+        return first.moduleId == second.moduleId && first.version == second.version
+               && first.exportedModuleId == second.exportedModuleId
+               && first.isAutoVersion == second.isAutoVersion;
+    }
+
+    friend bool operator<(const ModuleExportedImport &first, const ModuleExportedImport &second)
+    {
+        return std::tie(first.moduleId, first.exportedModuleId, first.isAutoVersion, first.version)
+               < std::tie(second.moduleId, second.exportedModuleId, second.isAutoVersion, second.version);
+    }
+
+public:
+    Version version;
+    ModuleId moduleId;
+    ModuleId exportedModuleId;
+    IsAutoVersion isAutoVersion = IsAutoVersion::No;
+};
+
+using ModuleExportedImports = std::vector<ModuleExportedImport>;
+
+class ModuleExportedImportView
+{
+public:
+    explicit ModuleExportedImportView() = default;
+
+    explicit ModuleExportedImportView(long long moduleExportedImportId,
+                                      int moduleId,
+                                      int exportedModuleId,
+                                      int majorVersion,
+                                      int minorVersion,
+                                      int isAutoVersion)
+        : moduleExportedImportId{moduleExportedImportId}
+        , version{majorVersion, minorVersion}
+        , moduleId{moduleId}
+        , exportedModuleId{exportedModuleId}
+        , isAutoVersion{static_cast<IsAutoVersion>(isAutoVersion)}
+    {}
+
+    friend bool operator==(const ModuleExportedImportView &first,
+                           const ModuleExportedImportView &second)
+    {
+        return first.moduleId == second.moduleId && first.exportedModuleId == second.exportedModuleId
+               && first.version == second.version && first.isAutoVersion == second.isAutoVersion;
+    }
+
+public:
+    ModuleExportedImportId moduleExportedImportId;
+    Version version;
+    ModuleId moduleId;
+    ModuleId exportedModuleId;
+    IsAutoVersion isAutoVersion = IsAutoVersion::No;
+};
+
 class ImportedType
 {
 public:
@@ -209,7 +312,7 @@ public:
     }
 
 public:
-    Utils::SmallString name;
+    TypeNameString name;
 };
 
 class QualifiedImportedType
@@ -227,7 +330,7 @@ public:
     }
 
 public:
-    Utils::SmallString name;
+    TypeNameString name;
     Import import;
 };
 
@@ -264,6 +367,12 @@ public:
     friend bool operator==(const ExportedType &first, const ExportedType &second)
     {
         return first.name == second.name;
+    }
+
+    friend bool operator<(const ExportedType &first, const ExportedType &second)
+    {
+        return std::tie(first.moduleId, first.name, first.version)
+               < std::tie(second.moduleId, second.name, second.version);
     }
 
 public:
@@ -305,24 +414,7 @@ public:
     ExportedTypeNameId exportedTypeNameId;
 };
 
-class NativeType
-{
-public:
-    explicit NativeType() = default;
-    explicit NativeType(Utils::SmallStringView name)
-        : name{name}
-    {}
-
-    friend bool operator==(const NativeType &first, const NativeType &second)
-    {
-        return first.name == second.name;
-    }
-
-public:
-    Utils::SmallString name;
-};
-
-using ImportedTypeName = Utils::variant<NativeType, ImportedType, QualifiedImportedType>;
+using ImportedTypeName = Utils::variant<ImportedType, QualifiedImportedType>;
 
 class EnumeratorDeclaration
 {
@@ -369,7 +461,7 @@ public:
     }
 
 public:
-    Utils::SmallString name;
+    TypeNameString name;
     EnumeratorDeclarations enumeratorDeclarations;
 };
 
@@ -419,7 +511,7 @@ public:
 
 public:
     Utils::SmallString name;
-    Utils::SmallString typeName;
+    TypeNameString typeName;
     PropertyDeclarationTraits traits = {};
 };
 
@@ -494,7 +586,7 @@ public:
 
 public:
     Utils::SmallString name;
-    Utils::SmallString returnTypeName;
+    TypeNameString returnTypeName;
     ParameterDeclarations parameters;
 };
 
@@ -548,10 +640,13 @@ public:
     explicit PropertyDeclaration(Utils::SmallStringView name,
                                  ImportedTypeName typeName,
                                  PropertyDeclarationTraits traits,
-                                 Utils::SmallStringView aliasPropertyName)
+                                 Utils::SmallStringView aliasPropertyName,
+                                 Utils::SmallStringView aliasPropertyNameTail = {})
         : name{name}
         , typeName{std::move(typeName)}
         , aliasPropertyName{aliasPropertyName}
+        , aliasPropertyNameTail{aliasPropertyNameTail}
+
         , traits{traits}
         , kind{PropertyKind::Property}
     {}
@@ -559,9 +654,11 @@ public:
     explicit PropertyDeclaration(Utils::SmallStringView name,
                                  TypeId propertyTypeId,
                                  PropertyDeclarationTraits traits,
-                                 Utils::SmallStringView aliasPropertyName)
+                                 Utils::SmallStringView aliasPropertyName,
+                                 Utils::SmallStringView aliasPropertyNameTail = {})
         : name{name}
         , aliasPropertyName{aliasPropertyName}
+        , aliasPropertyNameTail{aliasPropertyNameTail}
         , traits{traits}
         , propertyTypeId{propertyTypeId}
         , kind{PropertyKind::Property}
@@ -570,9 +667,12 @@ public:
     explicit PropertyDeclaration(Utils::SmallStringView name,
                                  long long propertyTypeId,
                                  int traits,
-                                 Utils::SmallStringView aliasPropertyName)
+                                 Utils::SmallStringView aliasPropertyName,
+                                 Utils::SmallStringView aliasPropertyNameTail = {})
         : name{name}
         , aliasPropertyName{aliasPropertyName}
+        , aliasPropertyNameTail{aliasPropertyNameTail}
+
         , traits{static_cast<PropertyDeclarationTraits>(traits)}
         , propertyTypeId{propertyTypeId}
         , kind{PropertyKind::Property}
@@ -580,10 +680,13 @@ public:
 
     explicit PropertyDeclaration(Utils::SmallStringView name,
                                  ImportedTypeName aliasTypeName,
-                                 Utils::SmallStringView aliasPropertyName)
+                                 Utils::SmallStringView aliasPropertyName,
+                                 Utils::SmallStringView aliasPropertyNameTail = {})
         : name{name}
         , typeName{std::move(aliasTypeName)}
         , aliasPropertyName{aliasPropertyName}
+        , aliasPropertyNameTail{aliasPropertyNameTail}
+
         , kind{PropertyKind::Alias}
     {}
 
@@ -591,6 +694,7 @@ public:
     {
         return first.name == second.name && first.typeName == second.typeName
                && first.aliasPropertyName == second.aliasPropertyName
+               && first.aliasPropertyNameTail == second.aliasPropertyNameTail
                && first.traits == second.traits && first.kind == second.kind;
     }
 
@@ -598,6 +702,7 @@ public:
     Utils::SmallString name;
     ImportedTypeName typeName;
     Utils::SmallString aliasPropertyName;
+    Utils::SmallString aliasPropertyNameTail;
     PropertyDeclarationTraits traits = {};
     TypeId propertyTypeId;
     TypeId typeId;
@@ -687,7 +792,7 @@ public:
                   int accessSemantics,
                   int sourceId)
         : typeName{typeName}
-        , prototype{NativeType{prototype}}
+        , prototype{ImportedType{prototype}}
         , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
         , sourceId{sourceId}
 
@@ -716,7 +821,7 @@ public:
     }
 
 public:
-    Utils::SmallString typeName;
+    TypeNameString typeName;
     ImportedTypeName prototype;
     ExportedTypes exportedTypes;
     PropertyDeclarations propertyDeclarations;
@@ -774,6 +879,18 @@ public:
         , updatedSourceIds(std::move(updatedSourceIds))
     {}
 
+    SynchronizationPackage(Imports imports,
+                           Types types,
+                           SourceIds updatedSourceIds,
+                           Imports moduleDependencies,
+                           SourceIds updatedModuleDependencySourceIds)
+        : imports{std::move(imports)}
+        , types{std::move(types)}
+        , updatedSourceIds{std::move(updatedSourceIds)}
+        , moduleDependencies{std::move(moduleDependencies)}
+        , updatedModuleDependencySourceIds{std::move(updatedModuleDependencySourceIds)}
+    {}
+
     SynchronizationPackage(Types types)
         : types{std::move(types)}
     {}
@@ -800,6 +917,10 @@ public:
     FileStatuses fileStatuses;
     ProjectDatas projectDatas;
     SourceIds updatedProjectSourceIds;
+    Imports moduleDependencies;
+    SourceIds updatedModuleDependencySourceIds;
+    ModuleExportedImports moduleExportedImports;
+    ModuleIds updatedModuleIds;
 };
 
 } // namespace QmlDesigner::Storage

@@ -156,14 +156,12 @@ std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext);
 namespace Storage {
 class Type;
 class ExportedType;
-class NativeType;
 class ImportedType;
 class QualifiedImportedType;
-using TypeName = Utils::variant<NativeType, ExportedType>;
 class Version;
 class VersionNumber;
 enum class TypeAccessSemantics : int;
-enum class PropertyDeclarationTraits : unsigned int;
+enum class PropertyDeclarationTraits : int;
 class PropertyDeclaration;
 class FunctionDeclaration;
 class ParameterDeclaration;
@@ -171,19 +169,20 @@ class SignalDeclaration;
 class EnumerationDeclaration;
 class EnumeratorDeclaration;
 enum class ImportKind : char;
+enum class IsAutoVersion : char;
 class Import;
 enum class IsQualified : int;
 class ProjectData;
 class SynchronizationPackage;
 enum class FileType : char;
 enum class ChangeLevel : char;
+class ModuleExportedImport;
 
 std::ostream &operator<<(std::ostream &out, TypeAccessSemantics accessSemantics);
 std::ostream &operator<<(std::ostream &out, VersionNumber versionNumber);
 std::ostream &operator<<(std::ostream &out, Version version);
 std::ostream &operator<<(std::ostream &out, const Type &type);
 std::ostream &operator<<(std::ostream &out, const ExportedType &exportedType);
-std::ostream &operator<<(std::ostream &out, const NativeType &nativeType);
 std::ostream &operator<<(std::ostream &out, const ImportedType &importedType);
 std::ostream &operator<<(std::ostream &out, const QualifiedImportedType &importedType);
 std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyDeclaration);
@@ -200,6 +199,7 @@ std::ostream &operator<<(std::ostream &out, const ProjectData &data);
 std::ostream &operator<<(std::ostream &out, const SynchronizationPackage &package);
 std::ostream &operator<<(std::ostream &out, FileType fileType);
 std::ostream &operator<<(std::ostream &out, ChangeLevel changeLevel);
+std::ostream &operator<<(std::ostream &out, const ModuleExportedImport &import);
 
 } // namespace Storage
 

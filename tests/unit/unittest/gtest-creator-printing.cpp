@@ -582,12 +582,22 @@ const char *isQualifiedToString(IsQualified isQualified)
 const char *importKindToText(ImportKind kind)
 {
     switch (kind) {
-    case ImportKind::Module:
-        return "Module";
-    case ImportKind::Directory:
-        return "Directory";
-    case ImportKind::QmlTypesDependency:
-        return "QmlTypesDependency";
+    case ImportKind::Import:
+        return "Import";
+    case ImportKind::ModuleDependency:
+        return "ModuleDependency";
+    }
+
+    return "";
+}
+
+const char *isAutoVersionToText(IsAutoVersion isAutoVersion)
+{
+    switch (isAutoVersion) {
+    case IsAutoVersion::No:
+        return "is not autoversion";
+    case IsAutoVersion::Yes:
+        return "is auto version";
     }
 
     return "";
@@ -671,11 +681,6 @@ std::ostream &operator<<(std::ostream &out, const ExportedType &exportedType)
                << exportedType.version << ")";
 }
 
-std::ostream &operator<<(std::ostream &out, const NativeType &nativeType)
-{
-    return out << "(\"" << nativeType.name << "\")";
-}
-
 std::ostream &operator<<(std::ostream &out, const ImportedType &importedType)
 {
     return out << "(\"" << importedType.name << "\")";
@@ -701,8 +706,8 @@ std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyD
     using Utils::operator<<;
     return out << "(\"" << propertyDeclaration.name << "\", " << propertyDeclaration.typeName
                << ", " << propertyDeclaration.typeId << ", " << propertyDeclaration.traits << ", "
-               << propertyDeclaration.typeId << ", \"" << propertyDeclaration.aliasPropertyName
-               << "\")";
+               << propertyDeclaration.propertyTypeId << ", \""
+               << propertyDeclaration.aliasPropertyName << "\")";
 }
 
 std::ostream &operator<<(std::ostream &out, PropertyDeclarationTraits traits)
@@ -764,9 +769,20 @@ std::ostream &operator<<(std::ostream &out, const ImportKind &importKind)
     return out << importKindToText(importKind);
 }
 
+std::ostream &operator<<(std::ostream &out, const IsAutoVersion &isAutoVersion)
+{
+    return out << isAutoVersionToText(isAutoVersion);
+}
+
 std::ostream &operator<<(std::ostream &out, const Import &import)
 {
     return out << "(" << import.moduleId << ", " << import.version << ", " << import.sourceId << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const ModuleExportedImport &import)
+{
+    return out << "(" << import.moduleId << ", " << import.exportedModuleId << ", "
+               << import.version << ", " << import.isAutoVersion << ")";
 }
 
 } // namespace Storage

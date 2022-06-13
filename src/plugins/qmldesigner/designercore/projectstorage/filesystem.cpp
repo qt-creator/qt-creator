@@ -77,6 +77,15 @@ FileStatus FileSystem::fileStatus(SourceId sourceId) const
     return FileStatus{sourceId, -1, -1};
 }
 
+QString FileSystem::contentAsQString(const QString &filePath) const
+{
+    QFile file{filePath};
+    if (file.open(QIODevice::ReadOnly))
+        return QString::fromUtf8(file.readAll());
+
+    return {};
+}
+
 void FileSystem::remove(const SourceIds &sourceIds)
 {
     for (SourceId sourceId : sourceIds)
