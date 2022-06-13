@@ -228,6 +228,7 @@ public:
     QStringList m_stepNames;
     int m_progress = 0;
     int m_maxProgress = 0;
+    bool m_poppedUpTaskWindow = false;
     bool m_running = false;
     bool m_isDeploying = false;
     // is set to true while canceling, so that nextBuildStep knows that the BuildStep finished because of canceling
@@ -489,6 +490,10 @@ void BuildManager::updateTaskCount()
 {
     const int errors = getErrorTaskCount();
     ProgressManager::setApplicationLabel(errors > 0 ? QString::number(errors) : QString());
+    if (errors > 0 && !d->m_poppedUpTaskWindow) {
+        showTaskWindow();
+        d->m_poppedUpTaskWindow = true;
+    }
 }
 
 void BuildManager::finish()
@@ -516,6 +521,7 @@ void BuildManager::clearBuildQueue()
     d->m_buildQueue.clear();
     d->m_enabledState.clear();
     d->m_running = false;
+    d->m_poppedUpTaskWindow = false;
     d->m_isDeploying = false;
     d->m_previousBuildStepProject = nullptr;
     d->m_currentBuildStep = nullptr;
@@ -752,6 +758,7 @@ void BuildManager::nextStep()
         d->m_currentBuildStep->run();
     } else {
         d->m_running = false;
+        d->m_poppedUpTaskWindow = false;
         d->m_isDeploying = false;
         d->m_previousBuildStepProject = nullptr;
         d->m_progressFutureInterface->reportFinished();
