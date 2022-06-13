@@ -1717,7 +1717,7 @@ void NodeInstanceView::view3DAction(const View3DActionCommand &command)
 
 void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node, const ModelNode &renderNode)
 {
-    if (node.isValid()) {
+    if (m_nodeInstanceServer && node.isValid()) {
         auto instance = instanceForModelNode(node);
         if (instance.isValid()) {
             qint32 renderItemId = -1;
