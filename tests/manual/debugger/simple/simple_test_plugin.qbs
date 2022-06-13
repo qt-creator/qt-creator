@@ -4,6 +4,7 @@ DynamicLibrary {
     name: "Manual Test Simple Plugin"
     targetName: "simple_test_plugin"
 
+    Depends { name: "qtc" }
     Depends { name: "Qt.core" }
 
     files: [ "simple_test_plugin.cpp" ]
