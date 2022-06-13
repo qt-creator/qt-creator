@@ -1620,11 +1620,6 @@ CppCompletionAssistProvider *CppModelManager::completionAssistProvider() const
     return d->m_builtinModelManagerSupport->completionAssistProvider();
 }
 
-CppCompletionAssistProvider *CppModelManager::functionHintAssistProvider() const
-{
-    return d->m_builtinModelManagerSupport->functionHintAssistProvider();
-}
-
 TextEditor::BaseHoverHandler *CppModelManager::createHoverHandler() const
 {
     return d->m_builtinModelManagerSupport->createHoverHandler();

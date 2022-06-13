@@ -150,22 +150,10 @@ void CppEditorDocument::setCompletionAssistProvider(TextEditor::CompletionAssist
     m_completionAssistProvider = nullptr;
 }
 
-void CppEditorDocument::setFunctionHintAssistProvider(TextEditor::CompletionAssistProvider *provider)
-{
-    TextDocument::setFunctionHintAssistProvider(provider);
-    m_functionHintAssistProvider = nullptr;
-}
-
 CompletionAssistProvider *CppEditorDocument::completionAssistProvider() const
 {
     return m_completionAssistProvider
             ? m_completionAssistProvider : TextDocument::completionAssistProvider();
-}
-
-CompletionAssistProvider *CppEditorDocument::functionHintAssistProvider() const
-{
-    return m_functionHintAssistProvider
-            ? m_functionHintAssistProvider : TextDocument::functionHintAssistProvider();
 }
 
 TextEditor::IAssistProvider *CppEditorDocument::quickFixAssistProvider() const
@@ -223,7 +211,6 @@ void CppEditorDocument::onMimeTypeChanged()
     m_isObjCEnabled = (mt == QLatin1String(Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
                        || mt == QLatin1String(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
     m_completionAssistProvider = mm()->completionAssistProvider();
-    m_functionHintAssistProvider = mm()->functionHintAssistProvider();
 
     initializeTimer();
 }
