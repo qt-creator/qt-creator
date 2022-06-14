@@ -32,8 +32,10 @@
 #include <utils/qtcassert.h>
 
 #include <QDir>
+#include <QDirIterator>
 #include <QTemporaryFile>
 #include <QVariant>
+#include <QVersionNumber>
 
 namespace Core {
 namespace Internal {
@@ -163,6 +165,35 @@ QString UtilsJsExtension::asciify(const QString &input) const
             result.append(QString::fromLatin1("u%1").arg(c.unicode(), 4, 16, QChar('0')));
     }
     return result;
+}
+
+QString UtilsJsExtension::qtQuickVersion(const QString &filePath) const
+{
+    QDirIterator dirIt(Utils::FilePath::fromString(filePath).parentDir().path(), {"*.qml"},
+                       QDir::Files, QDirIterator::Subdirectories);
+    while (dirIt.hasNext()) {
+        Utils::FileReader reader;
+        if (!reader.fetch(Utils::FilePath::fromString(dirIt.next())))
+            continue;
+        const QString data = QString::fromUtf8(reader.data());
+        static const QString importString("import QtQuick");
+        const int importIndex = data.indexOf(importString);
+        if (importIndex == -1)
+            continue;
+        const int versionIndex = importIndex + importString.length();
+        const int newLineIndex = data.indexOf('\n', versionIndex);
+        if (newLineIndex == -1)
+            continue;
+        const QString versionString = data.mid(versionIndex,
+                                               newLineIndex - versionIndex).simplified();
+        if (versionString.isEmpty())
+            return {};
+        const auto version = QVersionNumber::fromString(versionString);
+        if (version.isNull())
+            return {};
+        return version.toString();
+    }
+    return QLatin1String("2.15");
 }
 
 } // namespace Internal
