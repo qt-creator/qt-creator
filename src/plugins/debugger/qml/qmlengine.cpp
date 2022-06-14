@@ -47,6 +47,9 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projecttree.h>
+
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmldebug/qmldebugconnection.h>
@@ -1384,6 +1387,17 @@ void QmlEnginePrivate::scripts(int types, const QList<int> ids, bool includeSour
     runCommand(cmd);
 }
 
+static QString targetFile(const FilePath &original)
+{
+    auto projectTree = ProjectExplorer::ProjectTree::instance();
+    auto node = projectTree->nodeForFile(original);
+
+    if (auto resourceNode = dynamic_cast<ProjectExplorer::ResourceFileNode *>(node))
+        return QLatin1String("qrc:") + resourceNode->qrcPath();
+
+    return original.fileName();
+}
+
 void QmlEnginePrivate::setBreakpoint(const QString type, const QString target,
                                      bool enabled, int line, int column,
                                      const QString condition, int ignoreCount)
@@ -1413,7 +1427,7 @@ void QmlEnginePrivate::setBreakpoint(const QString type, const QString target,
         cmd.arg(ENABLED, enabled);
 
         if (type == SCRIPTREGEXP)
-            cmd.arg(TARGET, Utils::FilePath::fromString(target).fileName());
+            cmd.arg(TARGET, targetFile(FilePath::fromString(target)));
         else
             cmd.arg(TARGET, target);
 
@@ -1841,6 +1855,12 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                     QList<Breakpoint> v8Breakpoints;
 
                     const QVariantList v8BreakpointIdList = breakData.value("breakpoints").toList();
+                    // skip debug break if no breakpoint - likely stopped in another file with same naming
+                    if (v8BreakpointIdList.isEmpty()) {
+                        inferiorStop = false;
+                        continueDebugging(Continue);
+                    }
+
                     for (const QVariant &breakpointId : v8BreakpointIdList) {
                         const QString responseId = QString::number(breakpointId.toInt());
                         Breakpoint bp = engine->breakHandler()->findBreakpointByResponseId(responseId);
