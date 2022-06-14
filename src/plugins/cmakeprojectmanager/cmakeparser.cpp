@@ -64,6 +64,13 @@ void CMakeParser::setSourceDirectory(const QString &sourceDir)
 
 OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputFormat type)
 {
+    if (line.startsWith("ninja: build stopped")) {
+        m_lastTask = BuildSystemTask(Task::Error, line);
+        m_lines = 1;
+        flush();
+        return Status::Done;
+    }
+
     if (type != StdErrFormat)
         return Status::NotHandled;
 
