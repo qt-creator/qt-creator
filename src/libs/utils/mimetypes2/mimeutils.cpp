@@ -60,12 +60,6 @@ MimeType mimeTypeForFile(const QString &fileName, MimeMatchMode mode)
     return mdb.mimeTypeForFile(fileName, MimeDatabase::MatchMode(mode));
 }
 
-MimeType mimeTypeForFile(const QFileInfo &fileInfo, MimeMatchMode mode)
-{
-    MimeDatabase mdb;
-    return mdb.mimeTypeForFile(fileInfo, MimeDatabase::MatchMode(mode));
-}
-
 MimeType mimeTypeForFile(const FilePath &filePath, MimeMatchMode mode)
 {
     MimeDatabase mdb;
