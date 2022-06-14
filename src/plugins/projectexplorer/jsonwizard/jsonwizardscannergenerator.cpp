@@ -25,15 +25,12 @@
 
 #include "jsonwizardscannergenerator.h"
 
-#include "../projectexplorer.h"
 #include "../projectmanager.h"
-#include "jsonwizard.h"
-#include "jsonwizardfactory.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
@@ -104,7 +101,8 @@ Core::GeneratedFiles JsonWizardScannerGenerator::fileList(Utils::MacroExpander *
     for (auto it = result.begin(); it != result.end(); ++it) {
         const QString relPath = project.relativeFilePath(it->path());
         it->setBinary(binaryPattern.match(relPath).hasMatch());
-        bool found = ProjectManager::canOpenProjectForMimeType(Utils::mimeTypeForFile(relPath));
+        bool found = ProjectManager::canOpenProjectForMimeType(Utils::mimeTypeForFile(
+                              Utils::FilePath::fromString(relPath)));
         if (found) {
             it->setAttributes(it->attributes() | Core::GeneratedFile::OpenProjectAttribute);
             minDepth = std::min(minDepth, getDepth(it->path()));
