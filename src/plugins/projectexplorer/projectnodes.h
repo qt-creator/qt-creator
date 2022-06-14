@@ -464,6 +464,20 @@ private:
     Project *m_project;
 };
 
+class PROJECTEXPLORER_EXPORT ResourceFileNode : public ProjectExplorer::FileNode
+{
+public:
+    ResourceFileNode(const Utils::FilePath &filePath, const QString &qrcPath, const QString &displayName);
+
+    QString displayName() const override;
+    QString qrcPath() const;
+    bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
+
+private:
+    QString m_qrcPath;
+    QString m_displayName;
+};
+
 } // namespace ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::Node *)

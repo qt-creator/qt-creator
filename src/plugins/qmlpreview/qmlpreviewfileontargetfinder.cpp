@@ -33,8 +33,6 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 
-#include <resourceeditor/resourcenode.h>
-
 #include <utils/qtcassert.h>
 
 namespace QmlPreview {
@@ -52,7 +50,7 @@ ProjectExplorer::Target *QmlPreviewFileOnTargetFinder::target() const
 
 QString resourceNodePath(const ProjectExplorer::Node *node)
 {
-    if (auto resourceNode = dynamic_cast<const ResourceEditor::ResourceFileNode *>(node))
+    if (auto resourceNode = dynamic_cast<const ProjectExplorer::ResourceFileNode *>(node))
         return ":" + resourceNode->qrcPath();
     return QString();
 }

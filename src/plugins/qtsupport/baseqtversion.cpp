@@ -1693,7 +1693,7 @@ void QtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Target 
     if (startupProject) {
         if (ProjectNode *rootNode = startupProject->rootProjectNode()) {
             rootNode->forEachNode([&](FileNode *node) {
-                if (auto resourceNode = dynamic_cast<ResourceEditor::ResourceFileNode *>(node))
+                if (auto resourceNode = dynamic_cast<ProjectExplorer::ResourceFileNode *>(node))
                     finder->addMappedPath(node->filePath(), ":" + resourceNode->qrcPath());
             });
         } else {
