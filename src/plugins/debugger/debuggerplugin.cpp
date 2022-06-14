@@ -1753,6 +1753,7 @@ void DebuggerPlugin::attachExternalApplication(RunControl *rc)
     runControl->setTarget(rc->target());
     runControl->setDisplayName(tr("Process %1").arg(pid.pid()));
     auto debugger = new DebuggerRunTool(runControl);
+    debugger->setInferiorExecutable(rc->targetFilePath());
     debugger->setAttachPid(pid);
     debugger->setStartMode(AttachToLocalProcess);
     debugger->setCloseMode(DetachAtClose);
