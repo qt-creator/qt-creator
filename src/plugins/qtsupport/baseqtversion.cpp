@@ -157,6 +157,10 @@ static QSet<Id> versionedIds(const QByteArray &prefix, int major, int minor)
         result.insert(Id::fromName(featureDotMajor + '.' + minorStr));
     }
 
+    // FIXME: Terrible hack. Get rid of using version numbers as tags!
+    if (major > 5)
+        result.unite(versionedIds(prefix, major - 1, 15));
+
     return result;
 }
 
