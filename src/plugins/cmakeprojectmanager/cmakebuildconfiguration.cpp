@@ -1714,6 +1714,15 @@ FilePath CMakeBuildConfiguration::sourceDirectory() const
     return aspect<SourceDirectoryAspect>()->filePath();
 }
 
+void CMakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
+{
+    CMakeSpecificSettings *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
+    if (!settings->ninjaPath.filePath().isEmpty()) {
+        const Utils::FilePath ninja = settings->ninjaPath.filePath();
+        env.appendOrSetPath(ninja.isFile() ? ninja.parentDir() : ninja);
+    }
+}
+
 QString CMakeBuildSystem::cmakeBuildType() const
 {
     auto setBuildTypeFromConfig = [this](const CMakeConfig &config) {

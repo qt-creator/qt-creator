@@ -64,6 +64,8 @@ public:
     void setSourceDirectory(const Utils::FilePath& path);
     Utils::FilePath sourceDirectory() const;
 
+    void addToEnvironment(Utils::Environment &env) const override;
+
 signals:
     void signingFlagsChanged();
 

@@ -89,12 +89,6 @@ BuildDirParameters::BuildDirParameters(CMakeBuildSystem *buildSystem)
     if (Utils::HostOsInfo::isAnyUnixHost())
         environment.set("ICECC", "no");
 
-    CMakeSpecificSettings *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
-    if (!settings->ninjaPath.filePath().isEmpty()) {
-        const Utils::FilePath ninja = settings->ninjaPath.filePath();
-        environment.appendOrSetPath(ninja.isFile() ? ninja.parentDir() : ninja);
-    }
-
     cmakeToolId = CMakeKitAspect::cmakeToolId(k);
 }
 
