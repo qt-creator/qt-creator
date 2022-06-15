@@ -62,7 +62,7 @@ public:
     static IosDeviceManager *instance();
     bool watchDevices();
     void requestAppOp(const QString &bundlePath, const QStringList &extraArgs, AppOp appOp,
-                      const QString &deviceId, int timeout = 1000);
+                      const QString &deviceId, int timeout = 1000, QString deltaPath = QString());
     void requestDeviceInfo(const QString &deviceId, int timeout = 1000);
     int processGdbServer(ServiceConnRef conn);
     void stopGdbServer(ServiceConnRef conn, int phase);

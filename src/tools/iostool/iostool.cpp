@@ -82,6 +82,12 @@ void IosTool::run(const QStringList &args)
                 printHelp = true;
             }
             bundlePath = args.value(iarg);
+        } else if (arg == QLatin1String("--delta-path")) {
+            if (++iarg == args.size()) {
+                writeMsg(QStringLiteral("missing path after ") + arg);
+                printHelp = true;
+            }
+            m_deltasPath = args.value(iarg);
         } else if (arg == QLatin1String("--install")) {
             appOp = IosDeviceManager::AppOp(appOp | IosDeviceManager::Install);
         } else if (arg == QLatin1String("--run")) {
@@ -163,7 +169,7 @@ void IosTool::run(const QStringList &args)
             break;
         }
         maxProgress = 200;
-        manager->requestAppOp(bundlePath, extraArgs, appOp, deviceId, timeout);
+        manager->requestAppOp(bundlePath, extraArgs, appOp, deviceId, timeout, m_deltasPath);
     }
     if (opLeft == 0)
         doExit(0);

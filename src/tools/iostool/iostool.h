@@ -79,6 +79,7 @@ private:
     Ios::IosDeviceManager::AppOp appOp;
     QFile outFile;
     QString m_qmlPort;
+    QString m_deltasPath;
     QXmlStreamWriter out;
     GdbRelayServer *gdbServer;
     QmlRelayServer *qmlServer;
