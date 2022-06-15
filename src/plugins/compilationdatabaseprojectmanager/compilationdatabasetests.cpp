@@ -36,6 +36,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <utils/algorithm.h>
+#include <utils/hostosinfo.h>
 
 #include <QtTest>
 
@@ -239,13 +240,15 @@ void CompilationDatabaseTests::testFilterCommand()
                                         "SemaCodeComplete");
     testData.getFilteredFlags();
 
-    QCOMPARE(testData.flags,
-             (QStringList{"/Zc:inline", "/Zc:strictStrings", "/Zc:rvalueCast", "/Zi"}));
-    QCOMPARE(testData.headerPaths,
-             toUserHeaderPaths(QStringList{"C:/build-qt_llvm-msvc2017_64bit-Debug/tools\\clang\\lib\\Sema"}));
-    QCOMPARE(testData.macros, (Macros{{"UNICODE", "1"}, {"_HAS_EXCEPTIONS", "0"}, {"WIN32", "1"},
-                                      {"_WINDOWS", "1"}}));
-    QCOMPARE(testData.fileKind, CppEditor::ProjectFile::Kind::CXXSource);
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        QCOMPARE(testData.flags,
+                 (QStringList{"/Zc:inline", "/Zc:strictStrings", "/Zc:rvalueCast", "/Zi"}));
+        QCOMPARE(testData.headerPaths,
+                 toUserHeaderPaths(QStringList{"C:/build-qt_llvm-msvc2017_64bit-Debug/tools\\clang\\lib\\Sema"}));
+        QCOMPARE(testData.macros, (Macros{{"UNICODE", "1"}, {"_HAS_EXCEPTIONS", "0"}, {"WIN32", "1"},
+                                          {"_WINDOWS", "1"}}));
+        QCOMPARE(testData.fileKind, CppEditor::ProjectFile::Kind::CXXSource);
+    }
 }
 
 void CompilationDatabaseTests::testFileKindDifferentFromExtension()
