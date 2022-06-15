@@ -28,7 +28,6 @@
 #include "cmakebuildconfiguration.h"
 #include "cmakebuildsystem.h"
 #include "cmakekitinformation.h"
-#include "cmakeprojectconstants.h"
 #include "cmakeprojectplugin.h"
 #include "cmakespecificsettings.h"
 #include "cmaketoolmanager.h"
@@ -108,9 +107,6 @@ CMakeTool *BuildDirParameters::cmakeTool() const
 {
     return CMakeToolManager::findById(cmakeToolId);
 }
-
-BuildDirParameters::BuildDirParameters(const BuildDirParameters &) = default;
-BuildDirParameters &BuildDirParameters::operator=(const BuildDirParameters &) = default;
 
 } // namespace Internal
 } // namespace CMakeProjectManager
