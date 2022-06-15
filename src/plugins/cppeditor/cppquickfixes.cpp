@@ -1634,6 +1634,10 @@ private:
     {
         CppRefactoringChanges refactoring(snapshot());
         CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
+
+        if (currentFile->cppDocument()->languageFeatures().cxx11Enabled)
+            return "auto " + oo.prettyName(simpleNameAST->name);
 
         TypeOfExpression typeOfExpression;
         typeOfExpression.init(semanticInfo().doc, snapshot(), context().bindings());
@@ -1656,7 +1660,6 @@ private:
             Control *control = context().bindings()->control().data();
             FullySpecifiedType tn = rewriteType(result.first().type(), &env, control);
 
-            Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
             QString declaration = oo.prettyType(tn, simpleNameAST->name);
             return declaration;
         }
@@ -3864,7 +3867,7 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
 
     FullySpecifiedType memberVariableType = data.declarationSymbol->type();
     memberVariableType.setConst(false);
-    const bool isMemberVariableStatic = data.declarationSymbol->isStatic();
+    const bool isMemberVariableStatic = memberVariableType.isStatic();
     memberVariableType.setStatic(false);
     Overview overview = CppCodeStyleSettings::currentProjectCodeStyleOverview();
     overview.showTemplateParameters = false;
