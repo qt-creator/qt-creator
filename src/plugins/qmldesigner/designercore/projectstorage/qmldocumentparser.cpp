@@ -30,12 +30,16 @@
 
 #include <sqlitedatabase.h>
 
+#ifdef QDS_HAS_QMLDOM
 #include <qmldom/qqmldomtop_p.h>
+#endif
 
 #include <filesystem>
 #include <QDateTime>
 
 namespace QmlDesigner {
+
+#ifdef QDS_HAS_QMLDOM
 
 namespace QmlDom = QQmlJS::Dom;
 
@@ -195,4 +199,15 @@ Storage::Type QmlDocumentParser::parse(const QString &sourceContent,
     return type;
 }
 
+#else
+
+Storage::Type QmlDocumentParser::parse([[maybe_unused]] const QString &sourceContent,
+                                       [[maybe_unused]] Storage::Imports &imports,
+                                       [[maybe_unused]] SourceId sourceId,
+                                       [[maybe_unused]] Utils::SmallStringView directoryPath)
+{
+    return Storage::Type{};
+}
+
+#endif
 } // namespace QmlDesigner

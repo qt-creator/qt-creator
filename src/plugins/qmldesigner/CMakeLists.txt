@@ -50,6 +50,28 @@ add_qtc_plugin(QmlDesigner
 include(qmldesignercore.cmake)
 extend_with_qmldesigner_core(QmlDesigner)
 
+get_filename_component(
+    QMLDOM_STANDALONE_CMAKELISTS
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../../../qmldom_standalone/src/qmldom/standalone/"
+    ABSOLUTE
+)
+
+if(EXISTS ${QMLDOM_STANDALONE_CMAKELISTS} AND Qt6_FOUND AND NOT TARGET qmldomlib)
+  add_subdirectory(
+    ../../../../qmldom_standalone/src/qmldom/standalone
+    ${CMAKE_BINARY_DIR}/qmldom_standalone)
+
+  set_target_properties(qmldomlib PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "$<TARGET_PROPERTY:QmlJS,RUNTIME_OUTPUT_DIRECTORY>"
+    LIBRARY_OUTPUT_DIRECTORY "$<TARGET_PROPERTY:QmlJS,LIBRARY_OUTPUT_DIRECTORY>")
+endif()
+
+extend_qtc_target(QmlDesigner
+    CONDITION TARGET qmldomlib
+    DEFINES QDS_HAS_QMLDOM
+    DEPENDS qmldomlib
+)
+
 if (QTC_STATIC_BUILD AND TARGET QmlDesigner)
   get_target_property(_designerType Qt5::Designer TYPE)
   if (${_designerType} STREQUAL "STATIC_LIBRARY")

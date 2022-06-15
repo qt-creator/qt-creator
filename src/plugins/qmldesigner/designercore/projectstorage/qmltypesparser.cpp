@@ -30,8 +30,10 @@
 
 #include <sqlitedatabase.h>
 
+#ifdef QDS_HAS_QMLDOM
 #include <qmlcompiler/qqmljstypedescriptionreader_p.h>
 #include <qmldom/qqmldomtop_p.h>
+#endif
 
 #include <QDateTime>
 
@@ -40,6 +42,7 @@
 
 namespace QmlDesigner {
 
+#ifdef QDS_HAS_QMLDOM
 namespace QmlDom = QQmlJS::Dom;
 
 namespace {
@@ -303,5 +306,15 @@ void QmlTypesParser::parse(const QString &sourceContent,
     addImports(imports, projectData.sourceId, dependencies, m_storage);
     addTypes(types, projectData, components, m_storage);
 }
+
+#else
+
+void QmlTypesParser::parse([[maybe_unused]] const QString &sourceContent,
+                           [[maybe_unused]] Storage::Imports &imports,
+                           [[maybe_unused]] Storage::Types &types,
+                           [[maybe_unused]] const Storage::ProjectData &projectData)
+{}
+
+#endif
 
 } // namespace QmlDesigner
