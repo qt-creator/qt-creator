@@ -87,7 +87,7 @@ static FilePath fallbackClangdFilePath()
 {
     if (g_defaultClangdFilePath.exists())
         return g_defaultClangdFilePath;
-    return "clangd";
+    return Environment::systemEnvironment().searchInPath("clangd");
 }
 
 void CppCodeModelSettings::fromSettings(QSettings *s)
