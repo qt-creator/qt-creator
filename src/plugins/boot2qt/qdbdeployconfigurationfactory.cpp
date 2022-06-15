@@ -52,7 +52,6 @@ QdbDeployConfigurationFactory::QdbDeployConfigurationFactory()
         return prj->deploymentKnowledge() == DeploymentKnowledge::Bad
                 && prj->hasMakeInstallEquivalent();
     });
-    addInitialStep(RemoteLinux::Constants::CheckForFreeDiskSpaceId);
     addInitialStep(Qdb::Constants::QdbStopApplicationStepId);
     addInitialStep(RemoteLinux::Constants::DirectUploadStepId);
 }

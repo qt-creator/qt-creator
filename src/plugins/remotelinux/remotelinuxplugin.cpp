@@ -25,7 +25,6 @@
 
 #include "remotelinuxplugin.h"
 
-#include "checkforfreediskspacestep.h"
 #include "customcommanddeploystep.h"
 #include "genericdirectuploadstep.h"
 #include "killappstep.h"
@@ -79,7 +78,6 @@ public:
     GenericDeployStepFactory<GenericDirectUploadStep> genericDirectUploadStepFactory;
     GenericDeployStepFactory<RsyncDeployStep> rsyncDeployStepFactory;
     CustomCommandDeployStepFactory customCommandDeployStepFactory;
-    GenericDeployStepFactory<CheckForFreeDiskSpaceStep> checkForFreeDiskSpaceStepFactory;
     GenericDeployStepFactory<KillAppStep> killAppStepFactory;
     GenericDeployStepFactory<MakeInstallStep> makeInstallStepFactory;
 

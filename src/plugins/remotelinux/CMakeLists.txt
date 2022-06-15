@@ -4,7 +4,6 @@ add_qtc_plugin(RemoteLinux
   SOURCES
     abstractremotelinuxdeployservice.cpp abstractremotelinuxdeployservice.h
     abstractremotelinuxdeploystep.cpp abstractremotelinuxdeploystep.h
-    checkforfreediskspacestep.cpp checkforfreediskspacestep.h
     customcommanddeploystep.cpp customcommanddeploystep.h
     deploymenttimeinfo.cpp deploymenttimeinfo.h
     genericdirectuploadservice.cpp genericdirectuploadservice.h
