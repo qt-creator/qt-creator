@@ -46,20 +46,20 @@ void GdbRunner::run()
 {
     {
         QMutexLocker l(&m_iosTool->m_xmlMutex);
-        if (!m_iosTool->splitAppOutput) {
-            m_iosTool->out.writeStartElement(QLatin1String("app_output"));
-            m_iosTool->inAppOutput = true;
+        if (!m_iosTool->m_splitAppOutput) {
+            m_iosTool->m_xmlWriter.writeStartElement(QLatin1String("app_output"));
+            m_iosTool->m_inAppOutput = true;
         }
-        m_iosTool->outFile.flush();
+        m_iosTool->m_outputFile.flush();
     }
     Ios::IosDeviceManager::instance()->processGdbServer(m_conn);
     {
         QMutexLocker l(&m_iosTool->m_xmlMutex);
-        if (!m_iosTool->splitAppOutput) {
-            m_iosTool->inAppOutput = false;
-            m_iosTool->out.writeEndElement();
+        if (!m_iosTool->m_splitAppOutput) {
+            m_iosTool->m_inAppOutput = false;
+            m_iosTool->m_xmlWriter.writeEndElement();
         }
-        m_iosTool->outFile.flush();
+        m_iosTool->m_outputFile.flush();
     }
     MobileDeviceLib::instance().serviceConnectionInvalidate(m_conn);
     m_conn = nullptr;

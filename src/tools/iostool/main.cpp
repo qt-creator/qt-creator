@@ -25,13 +25,15 @@
 
 #include "iostool.h"
 
-#include <QGuiApplication>
+#include <QCoreApplication>
 #include <QStringList>
 
 int main(int argc, char *argv[])
 {
-    //This keeps iostool from stealing focus
-    qputenv("QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "true");
+    // Make sure that our runloop uses the CFRunLoop dispatcher.
+    // Otherwise the MobileDevice.Framework notifications won't work.
+    qputenv("QT_EVENT_DISPATCHER_CORE_FOUNDATION", "1");
+
     // We do not pass the real arguments to QCoreApplication because this wrapper needs to be able
     // to forward arguments like -qmljsdebugger=... that are filtered by QCoreApplication
     QStringList args;
@@ -44,7 +46,10 @@ int main(int argc, char *argv[])
         qtArgc = 1;
     }
 
-    QGuiApplication a(qtArgc, &qtArg);
+    QCoreApplication a(qtArgc, &qtArg);
+    QCoreApplication::setApplicationName("iostool");
+    QCoreApplication::setApplicationVersion("1.0");
+
     Ios::IosTool tool;
     tool.run(args);
     int res = a.exec();

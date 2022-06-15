@@ -180,8 +180,10 @@ public:
     QStringList m_errors;
 
 private:
-    QLibrary lib;
-    QList<QLibrary *> deps;
+    template<typename T> void resolveFunction(const char *functionName, T &functionPtr);
+
+private:
+    QLibrary m_mobileDeviceLib;
     AMDSetLogLevelPtr m_AMDSetLogLevel;
     AMDeviceNotificationSubscribePtr m_AMDeviceNotificationSubscribe;
     AMDeviceNotificationUnsubscribePtr m_AMDeviceNotificationUnsubscribe;

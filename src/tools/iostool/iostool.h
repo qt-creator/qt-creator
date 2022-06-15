@@ -40,6 +40,8 @@ class QmlRelayServer;
 
 class IosTool: public QObject
 {
+    friend class GdbRunner;
+
     Q_OBJECT
 
 public:
@@ -71,20 +73,19 @@ private:
     void readStdin();
 
     QRecursiveMutex m_xmlMutex;
-    int maxProgress;
-    int opLeft;
-    bool debug;
-    bool inAppOutput;
-    bool splitAppOutput; // as QXmlStreamReader reports the text attributes atomically it is better to split
-    Ios::IosDeviceManager::AppOp appOp;
-    QFile outFile;
+    int m_maxProgress = 0;
+    int m_operationsRemaining = 0;
+    bool m_debug = false;
+    bool m_inAppOutput = false;
+    bool m_splitAppOutput = true; // as QXmlStreamReader reports the text attributes atomically it is better to split
+    IosDeviceManager::AppOp m_requestedOperation{IosDeviceManager::AppOp::None};
+    QFile m_outputFile;
     QString m_qmlPort;
     QString m_deltasPath;
-    QXmlStreamWriter out;
-    GdbRelayServer *gdbServer;
-    QmlRelayServer *qmlServer;
-    GdbRunner *gdbRunner;
+    QXmlStreamWriter m_xmlWriter;
+    std::unique_ptr<GdbRelayServer> m_gdbServer;
+    std::unique_ptr<QmlRelayServer> m_qmlServer;
+    std::unique_ptr<GdbRunner> m_gdbRunner;
     bool m_echoRelays = false;
-    friend class GdbRunner;
 };
 }

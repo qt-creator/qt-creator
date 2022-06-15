@@ -733,7 +733,7 @@ void IosDeviceToolHandlerPrivate::requestRunApp(const QString &bundlePath,
         args << QLatin1String("--debug");
         break;
     }
-    args << QLatin1String("--args") << extraArgs;
+    args << QLatin1String("--") << extraArgs;
     op = OpAppRun;
     start(IosToolHandler::iosDeviceToolPath(), args);
 }

@@ -24,9 +24,15 @@
 ****************************************************************************/
 
 #include "mobiledevicelib.h"
+#include "cfutils.h"
 
 #include <QDebug>
+#include <QLoggingCategory>
+#include <QUrl>
 
+namespace {
+Q_LOGGING_CATEGORY(loggingCategory, "qtc.iostool.mobiledevicelib")
+}
 
 #ifdef MOBILE_DEV_DIRECT_LINK
 #include "MobileDevice.h"
@@ -49,6 +55,14 @@ MobileDeviceLib::MobileDeviceLib()
             addError(msg);
     }
     setLogLevel(5);
+}
+
+template<typename T>
+void MobileDeviceLib::resolveFunction(const char *functionName, T &functionPtr) {
+    functionPtr = reinterpret_cast<T>(m_mobileDeviceLib.resolve(functionName));
+    if (!functionPtr) {
+        addError(QLatin1String("MobileDeviceLib does not define ") + functionName);
+    }
 }
 
 bool MobileDeviceLib::load()
@@ -75,116 +89,46 @@ bool MobileDeviceLib::load()
     //m_AMDeviceLookupApplications = &AMDeviceLookupApplications;
     m_USBMuxConnectByPort = &USBMuxConnectByPort;
 #else
-    QLibrary *libAppleFSCompression = new QLibrary(QLatin1String("/System/Library/PrivateFrameworks/AppleFSCompression.framework/AppleFSCompression"));
-    if (!libAppleFSCompression->load())
-        addError("MobileDevice dependency AppleFSCompression failed to load");
-    deps << libAppleFSCompression;
-    QLibrary *libBom = new QLibrary(QLatin1String("/System/Library/PrivateFrameworks/Bom.framework/Bom"));
-    if (!libBom->load())
-        addError("MobileDevice dependency Bom failed to load");
-    deps << libBom;
-    lib.setFileName(QLatin1String("/System/Library/PrivateFrameworks/MobileDevice.framework/MobileDevice"));
-    if (!lib.load())
+    m_mobileDeviceLib.setFileName("/System/Library/PrivateFrameworks/MobileDevice.framework/MobileDevice");
+    if (!m_mobileDeviceLib.load())
         return false;
-    m_AMDSetLogLevel = reinterpret_cast<AMDSetLogLevelPtr>(lib.resolve("AMDSetLogLevel"));
-    if (m_AMDSetLogLevel == 0)
-        addError("MobileDeviceLib does not define AMDSetLogLevel");
 
-    m_AMDeviceSecureInstallApplicationBundle
-        = reinterpret_cast<AMDeviceSecureInstallApplicationBundlePtr>(
-            lib.resolve("AMDeviceSecureInstallApplicationBundle"));
-    if (m_AMDeviceSecureInstallApplicationBundle == 0)
-        addError("MobileDeviceLib does not define m_AMDeviceSecureInstallApplicationBundle");
-
-    m_AMDeviceNotificationSubscribe = reinterpret_cast<AMDeviceNotificationSubscribePtr>(
-        lib.resolve("AMDeviceNotificationSubscribe"));
-    if (m_AMDeviceNotificationSubscribe == 0)
-        addError("MobileDeviceLib does not define AMDeviceNotificationSubscribe");
-    m_AMDeviceNotificationUnsubscribe = reinterpret_cast<AMDeviceNotificationUnsubscribePtr>(lib.resolve("AMDeviceNotificationUnsubscribe"));
-    if (m_AMDeviceNotificationUnsubscribe == 0)
-        addError("MobileDeviceLib does not define AMDeviceNotificationUnsubscribe");
-    m_AMDeviceGetInterfaceType = reinterpret_cast<AMDeviceGetInterfaceTypePtr>(lib.resolve("AMDeviceGetInterfaceType"));
-    if (m_AMDeviceGetInterfaceType == 0)
-        addError("MobileDeviceLib does not define AMDeviceGetInterfaceType");
-    m_AMDeviceCopyValue = reinterpret_cast<AMDeviceCopyValuePtr>(lib.resolve("AMDeviceCopyValue"));
-    if (m_AMDSetLogLevel == 0)
-        addError("MobileDeviceLib does not define AMDSetLogLevel");
-    m_AMDeviceGetConnectionID = reinterpret_cast<AMDeviceGetConnectionIDPtr>(lib.resolve("AMDeviceGetConnectionID"));
-    if (m_AMDeviceGetConnectionID == 0)
-        addError("MobileDeviceLib does not define AMDeviceGetConnectionID");
-    m_AMDeviceCopyDeviceIdentifier = reinterpret_cast<AMDeviceCopyDeviceIdentifierPtr>(lib.resolve("AMDeviceCopyDeviceIdentifier"));
-    if (m_AMDeviceCopyDeviceIdentifier == 0)
-        addError("MobileDeviceLib does not define AMDeviceCopyDeviceIdentifier");
-    m_AMDeviceConnect = reinterpret_cast<AMDeviceConnectPtr>(lib.resolve("AMDeviceConnect"));
-    if (m_AMDeviceConnect == 0)
-        addError("MobileDeviceLib does not define AMDeviceConnect");
-    m_AMDevicePair = reinterpret_cast<AMDevicePairPtr>(lib.resolve("AMDevicePair"));
-    if (m_AMDevicePair == 0)
-        addError("MobileDeviceLib does not define AMDevicePair");
-    m_AMDeviceIsPaired = reinterpret_cast<AMDeviceIsPairedPtr>(lib.resolve("AMDeviceIsPaired"));
-    if (m_AMDeviceIsPaired == 0)
-        addError("MobileDeviceLib does not define AMDeviceIsPaired");
-    m_AMDeviceValidatePairing = reinterpret_cast<AMDeviceValidatePairingPtr>(lib.resolve("AMDeviceValidatePairing"));
-    if (m_AMDeviceValidatePairing == 0)
-        addError("MobileDeviceLib does not define AMDeviceValidatePairing");
-    m_AMDeviceStartSession = reinterpret_cast<AMDeviceStartSessionPtr>(lib.resolve("AMDeviceStartSession"));
-    if (m_AMDeviceStartSession == 0)
-        addError("MobileDeviceLib does not define AMDeviceStartSession");
-    m_AMDeviceStopSession = reinterpret_cast<AMDeviceStopSessionPtr>(lib.resolve("AMDeviceStopSession"));
-    if (m_AMDeviceStopSession == 0)
-        addError("MobileDeviceLib does not define AMDeviceStopSession");
-    m_AMDeviceDisconnect = reinterpret_cast<AMDeviceDisconnectPtr>(lib.resolve("AMDeviceDisconnect"));
-    if (m_AMDeviceDisconnect == 0)
-        addError("MobileDeviceLib does not define AMDeviceDisconnect");
-    m_AMDeviceMountImage = reinterpret_cast<AMDeviceMountImagePtr>(lib.resolve("AMDeviceMountImage"));
-    if (m_AMDeviceMountImage == 0)
-        addError("MobileDeviceLib does not define AMDeviceMountImage");
-    m_AMDeviceSecureStartService = reinterpret_cast<AMDeviceSecureStartServicePtr>(lib.resolve("AMDeviceSecureStartService"));
-    if (m_AMDeviceSecureStartService == 0)
-        addError("MobileDeviceLib does not define AMDeviceSecureStartService");
-    m_AMDeviceSecureTransferPath = reinterpret_cast<AMDeviceSecureTransferPathPtr>(lib.resolve("AMDeviceSecureTransferPath"));
-    if (m_AMDeviceSecureTransferPath == 0)
-        addError("MobileDeviceLib does not define AMDeviceSecureTransferPath");
-    m_AMDeviceSecureInstallApplication = reinterpret_cast<AMDeviceSecureInstallApplicationPtr>(lib.resolve("AMDeviceSecureInstallApplication"));
-    if (m_AMDeviceSecureInstallApplication == 0)
-        addError("MobileDeviceLib does not define AMDeviceSecureInstallApplication");
-    m_AMDServiceConnectionGetSocket = reinterpret_cast<AMDServiceConnectionGetSocketPtr>(lib.resolve("AMDServiceConnectionGetSocket"));
-    if (m_AMDServiceConnectionGetSocket == nullptr)
-        addError("MobileDeviceLib does not define AMDServiceConnectionGetSocket");
-    m_AMDeviceUninstallApplication = reinterpret_cast<AMDeviceUninstallApplicationPtr>(lib.resolve("AMDeviceUninstallApplication"));
-    m_AMDServiceConnectionSend = reinterpret_cast<AMDServiceConnectionSendPtr>(lib.resolve("AMDServiceConnectionSend"));
-    if (m_AMDServiceConnectionSend == nullptr)
-        addError("MobileDeviceLib does not define AMDServiceConnectionSend");
-    m_AMDServiceConnectionReceive = reinterpret_cast<AMDServiceConnectionReceivePtr>(lib.resolve("AMDServiceConnectionReceive"));
-    if (m_AMDServiceConnectionReceive == nullptr)
-        addError("MobileDeviceLib does not define AMDServiceConnectionReceive");
-    m_AMDServiceConnectionInvalidate = reinterpret_cast<AMDServiceConnectionInvalidatePtr>(lib.resolve("AMDServiceConnectionInvalidate"));
-    if (m_AMDServiceConnectionInvalidate == nullptr)
-        addError("MobileDeviceLib does not define AMDServiceConnectionInvalidate");
-    m_AMDeviceIsAtLeastVersionOnPlatform = reinterpret_cast<AMDeviceIsAtLeastVersionOnPlatformPtr>(lib.resolve("AMDeviceIsAtLeastVersionOnPlatform"));
-    if (m_AMDeviceIsAtLeastVersionOnPlatform == nullptr)
-        addError("MobileDeviceLib does not define AMDeviceIsAtLeastVersionOnPlatform");
-    if (m_AMDeviceUninstallApplication == 0)
-        addError("MobileDeviceLib does not define AMDeviceUninstallApplication");
-    m_AMDeviceLookupApplications = reinterpret_cast<AMDeviceLookupApplicationsPtr>(lib.resolve("AMDeviceLookupApplications"));
-    if (m_AMDeviceLookupApplications == 0)
-        addError("MobileDeviceLib does not define AMDeviceLookupApplications");
-    m_AMDErrorString = reinterpret_cast<AMDErrorStringPtr>(lib.resolve("AMDErrorString"));
-    if (m_AMDErrorString == 0)
-        addError("MobileDeviceLib does not define AMDErrorString");
-    m_MISCopyErrorStringForErrorCode = reinterpret_cast<MISCopyErrorStringForErrorCodePtr>(lib.resolve("MISCopyErrorStringForErrorCode"));
-    if (m_MISCopyErrorStringForErrorCode == 0)
-        addError("MobileDeviceLib does not define MISCopyErrorStringForErrorCode");
-    m_USBMuxConnectByPort = reinterpret_cast<USBMuxConnectByPortPtr>(lib.resolve("USBMuxConnectByPort"));
-    if (m_USBMuxConnectByPort == 0)
-        addError("MobileDeviceLib does not define USBMuxConnectByPort");
+    resolveFunction("AMDSetLogLevel", m_AMDSetLogLevel);
+    resolveFunction("AMDeviceSecureInstallApplicationBundle", m_AMDeviceSecureInstallApplicationBundle);
+    resolveFunction("AMDeviceNotificationSubscribe", m_AMDeviceNotificationSubscribe);
+    resolveFunction("AMDeviceNotificationUnsubscribe", m_AMDeviceNotificationUnsubscribe);
+    resolveFunction("AMDeviceGetInterfaceType", m_AMDeviceGetInterfaceType);
+    resolveFunction("AMDeviceCopyValue", m_AMDeviceCopyValue);
+    resolveFunction("AMDeviceGetConnectionID", m_AMDeviceGetConnectionID);
+    resolveFunction("AMDeviceCopyDeviceIdentifier", m_AMDeviceCopyDeviceIdentifier);
+    resolveFunction("AMDeviceConnect", m_AMDeviceConnect);
+    resolveFunction("AMDevicePair", m_AMDevicePair);
+    resolveFunction("AMDeviceIsPaired", m_AMDeviceIsPaired);
+    resolveFunction("AMDeviceValidatePairing", m_AMDeviceValidatePairing);
+    resolveFunction("AMDeviceStartSession", m_AMDeviceStartSession);
+    resolveFunction("AMDeviceStopSession", m_AMDeviceStopSession);
+    resolveFunction("AMDeviceDisconnect", m_AMDeviceDisconnect);
+    resolveFunction("AMDeviceMountImage", m_AMDeviceMountImage);
+    resolveFunction("AMDeviceSecureStartService", m_AMDeviceSecureStartService);
+    resolveFunction("AMDeviceSecureTransferPath", m_AMDeviceSecureTransferPath);
+    resolveFunction("AMDeviceSecureInstallApplication", m_AMDeviceSecureInstallApplication);
+    resolveFunction("AMDServiceConnectionGetSocket", m_AMDServiceConnectionGetSocket);
+    resolveFunction("AMDeviceUninstallApplication", m_AMDeviceUninstallApplication);
+    resolveFunction("AMDServiceConnectionSend", m_AMDServiceConnectionSend);
+    resolveFunction("AMDServiceConnectionReceive", m_AMDServiceConnectionReceive);
+    resolveFunction("AMDServiceConnectionInvalidate", m_AMDServiceConnectionInvalidate);
+    resolveFunction("AMDeviceIsAtLeastVersionOnPlatform", m_AMDeviceIsAtLeastVersionOnPlatform);
+    resolveFunction("AMDeviceLookupApplications", m_AMDeviceLookupApplications);
+    resolveFunction("AMDErrorString", m_AMDErrorString);
+    resolveFunction("MISCopyErrorStringForErrorCode", m_MISCopyErrorStringForErrorCode);
+    resolveFunction("USBMuxConnectByPort", m_USBMuxConnectByPort);
 #endif
     return true;
 }
 
 bool MobileDeviceLib::isLoaded()
 {
-    return lib.isLoaded();
+    return m_mobileDeviceLib.isLoaded();
 }
 
 QStringList MobileDeviceLib::errors()
@@ -199,11 +143,13 @@ void MobileDeviceLib::setLogLevel(int i)
 }
 
 am_res_t MobileDeviceLib::deviceNotificationSubscribe(AMDeviceNotificationCallback callback,
-                                           unsigned int v1, unsigned int v2, void *callbackArgs,
-                                           const AMDeviceNotification **handle)
+                                                      unsigned int v1,
+                                                      unsigned int v2,
+                                                      void *callbackArgs,
+                                                      const AMDeviceNotification **handle)
 {
     if (m_AMDeviceNotificationSubscribe)
-        return m_AMDeviceNotificationSubscribe(callback,v1,v2,callbackArgs,handle);
+        return m_AMDeviceNotificationSubscribe(callback, v1, v2, callbackArgs, handle);
     return -1;
 }
 
@@ -221,7 +167,9 @@ int MobileDeviceLib::deviceGetInterfaceType(AMDeviceRef device)
     return DeviceInterfaceType::UNKNOWN;
 }
 
-CFPropertyListRef MobileDeviceLib::deviceCopyValue(AMDeviceRef device,CFStringRef group,CFStringRef key)
+CFPropertyListRef MobileDeviceLib::deviceCopyValue(AMDeviceRef device,
+                                                   CFStringRef group,
+                                                   CFStringRef key)
 {
     if (m_AMDeviceCopyValue)
         return m_AMDeviceCopyValue(device, group, key);
@@ -291,28 +239,35 @@ am_res_t MobileDeviceLib::deviceDisconnect(AMDeviceRef device)
     return -1;
 }
 
-am_res_t MobileDeviceLib::deviceMountImage(AMDeviceRef device, CFStringRef imagePath,
-                                                 CFDictionaryRef options,
-                                                 AMDeviceMountImageCallback callback,
-                                                 void *callbackExtraArgs)
+am_res_t MobileDeviceLib::deviceMountImage(AMDeviceRef device,
+                                           CFStringRef imagePath,
+                                           CFDictionaryRef options,
+                                           AMDeviceMountImageCallback callback,
+                                           void *callbackExtraArgs)
 {
     if (m_AMDeviceMountImage)
         return m_AMDeviceMountImage(device, imagePath, options, callback, callbackExtraArgs);
     return -1;
 }
 
-am_res_t MobileDeviceLib::deviceUninstallApplication(int serviceFd, CFStringRef bundleId,
-                                                           CFDictionaryRef options,
-                                                           AMDeviceInstallApplicationCallback callback,
-                                                           void *callbackExtraArgs)
+am_res_t MobileDeviceLib::deviceUninstallApplication(int serviceFd,
+                                                     CFStringRef bundleId,
+                                                     CFDictionaryRef options,
+                                                     AMDeviceInstallApplicationCallback callback,
+                                                     void *callbackExtraArgs)
 {
     if (m_AMDeviceUninstallApplication)
-        return m_AMDeviceUninstallApplication(serviceFd, bundleId, options, callback, callbackExtraArgs);
+        return m_AMDeviceUninstallApplication(serviceFd,
+                                              bundleId,
+                                              options,
+                                              callback,
+                                              callbackExtraArgs);
     return -1;
 }
 
-am_res_t MobileDeviceLib::deviceLookupApplications(AMDeviceRef device, CFDictionaryRef options,
-                                                         CFDictionaryRef *res)
+am_res_t MobileDeviceLib::deviceLookupApplications(AMDeviceRef device,
+                                                   CFDictionaryRef options,
+                                                   CFDictionaryRef *res)
 {
     if (m_AMDeviceLookupApplications)
         return m_AMDeviceLookupApplications(device, options, res);
@@ -342,7 +297,7 @@ am_res_t MobileDeviceLib::connectByPort(unsigned int connectionId, int port, Ser
 
 void MobileDeviceLib::addError(const QString &msg)
 {
-    qDebug() << "MobileDeviceLib ERROR:" << msg;
+    qCWarning(loggingCategory) << "MobileDeviceLib ERROR:" << msg;
     m_errors << QLatin1String("MobileDeviceLib ERROR:") << msg;
 }
 
@@ -351,16 +306,25 @@ void MobileDeviceLib::addError(const char *msg)
     addError(QLatin1String(msg));
 }
 
-am_res_t MobileDeviceLib::deviceSecureStartService(AMDeviceRef device, CFStringRef serviceName, ServiceConnRef *fdRef)
+am_res_t MobileDeviceLib::deviceSecureStartService(AMDeviceRef device,
+                                                   CFStringRef serviceName,
+                                                   ServiceConnRef *fdRef)
 {
     if (m_AMDeviceSecureStartService)
         return m_AMDeviceSecureStartService(device, serviceName, nullptr, fdRef);
     return 0;
 }
 
-int MobileDeviceLib::deviceSecureTransferApplicationPath(int zero, AMDeviceRef device, CFURLRef url, CFDictionaryRef dict, AMDeviceSecureInstallApplicationCallback callback, int args)
+int MobileDeviceLib::deviceSecureTransferApplicationPath(
+    int zero,
+    AMDeviceRef device,
+    CFURLRef url,
+    CFDictionaryRef dict,
+    AMDeviceSecureInstallApplicationCallback callback,
+    int args)
 {
     int returnCode = -1;
+
     if (m_AMDeviceSecureTransferPath)
         returnCode = m_AMDeviceSecureTransferPath(zero, device, url, dict, callback, args);
     return returnCode;
@@ -381,7 +345,12 @@ int MobileDeviceLib::deviceSecureInstallApplicationBundle(
     return returnCode;
 }
 
-int MobileDeviceLib::deviceSecureInstallApplication(int zero, AMDeviceRef device, CFURLRef url, CFDictionaryRef options, AMDeviceSecureInstallApplicationCallback callback, int arg)
+int MobileDeviceLib::deviceSecureInstallApplication(int zero,
+                                                    AMDeviceRef device,
+                                                    CFURLRef url,
+                                                    CFDictionaryRef options,
+                                                    AMDeviceSecureInstallApplicationCallback callback,
+                                                    int arg)
 {
     int returnCode = -1;
     if (m_AMDeviceSecureInstallApplication) {
@@ -390,7 +359,8 @@ int MobileDeviceLib::deviceSecureInstallApplication(int zero, AMDeviceRef device
     return returnCode;
 }
 
-int MobileDeviceLib::deviceConnectionGetSocket(ServiceConnRef ref) {
+int MobileDeviceLib::deviceConnectionGetSocket(ServiceConnRef ref)
+{
     int fd = 0;
     if (m_AMDServiceConnectionGetSocket)
         fd = m_AMDServiceConnectionGetSocket(ref);
@@ -428,4 +398,4 @@ bool MobileDeviceLib::deviceIsAtLeastVersionOnPlatform(AMDeviceRef device, CFDic
     return false;
 }
 
-} // IOS
+} // namespace Ios
