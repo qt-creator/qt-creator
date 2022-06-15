@@ -187,6 +187,7 @@ CommandLine DockerProcessImpl::fullLocalCommandLine(bool interactive)
     QStringList args;
 
     if (!m_setup.m_workingDirectory.isEmpty()) {
+        QTC_CHECK(DeviceManager::deviceForPath(m_setup.m_workingDirectory) == m_device);
         args.append({"cd", m_setup.m_workingDirectory.path()});
         args.append("&&");
     }
