@@ -198,6 +198,10 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
     connect(target, &Target::buildSystemUpdated, this, &PythonRunConfiguration::updateExtraCompilers);
     currentInterpreterChanged();
+
+    setRunnableModifier([](Runnable &r) {
+        r.workingDirectory = r.workingDirectory.onDevice(r.command.executable());
+    });
 }
 
 PythonRunConfiguration::~PythonRunConfiguration()
