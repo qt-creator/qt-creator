@@ -83,6 +83,7 @@ static int &currentToken()
 
 LldbEngine::LldbEngine()
 {
+    m_lldbProc.setUseCtrlCStub(true);
     m_lldbProc.setProcessMode(ProcessMode::Writer);
 
     setObjectName("LldbEngine");
