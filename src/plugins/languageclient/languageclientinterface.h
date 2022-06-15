@@ -72,7 +72,7 @@ class LANGUAGECLIENT_EXPORT StdIOClientInterface : public BaseClientInterface
 {
     Q_OBJECT
 public:
-    StdIOClientInterface();
+    StdIOClientInterface() = default;
     ~StdIOClientInterface() override;
 
     StdIOClientInterface(const StdIOClientInterface &) = delete;

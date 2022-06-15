@@ -153,14 +153,22 @@ class PyLSInterface : public StdIOClientInterface
 public:
     PyLSInterface()
         : m_extraPythonPath("QtCreator-pyls-XXXXXX")
-    {
-        Environment env = Environment::systemEnvironment();
-        env.appendOrSet("PYTHONPATH",
-                        m_extraPythonPath.path().toString(),
-                        OsSpecificAspects::pathListSeparator(env.osType()));
-        setEnvironment(env);
-    }
+    { }
+
     TemporaryDirectory m_extraPythonPath;
+protected:
+    void startImpl() override
+    {
+        if (!m_cmd.executable().needsDevice()) {
+            // todo check where to put this tempdir in remote setups
+            Environment env = Environment::systemEnvironment();
+            env.appendOrSet("PYTHONPATH",
+                            m_extraPythonPath.path().toString(),
+                            OsSpecificAspects::pathListSeparator(env.osType()));
+            setEnvironment(env);
+        }
+        StdIOClientInterface::startImpl();
+    }
 };
 
 PyLSClient *clientForPython(const FilePath &python)
