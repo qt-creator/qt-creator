@@ -113,7 +113,7 @@ void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
     for (const JsonWizard::GeneratorFile &f : files) {
         if (f.file.attributes() & GeneratedFile::OpenProjectAttribute) {
             Project *project = ProjectManager::openProject(Utils::mimeTypeForFile(f.file.filePath()),
-                                                           f.file.filePath().absolutePath());
+                                                           f.file.filePath().absoluteFilePath());
             if (project) {
                 if (setupProject(project))
                     project->saveSettings();
