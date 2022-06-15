@@ -114,6 +114,7 @@ private:
     bool noValidSelection() const;
 
     ModelNode m_selectedMaterial;
+    QTimer m_ensureMatLibTimer;
     QShortcut *m_updateShortcut = nullptr;
     int m_timerId = 0;
     QStackedWidget *m_stackedWidget = nullptr;

@@ -73,6 +73,13 @@ MaterialEditorView::MaterialEditorView(QWidget *parent)
     m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F7), m_stackedWidget);
     connect(m_updateShortcut, &QShortcut::activated, this, &MaterialEditorView::reloadQml);
 
+    m_ensureMatLibTimer.callOnTimeout([this] {
+        if (model() && model()->rewriterView() && !model()->rewriterView()->hasIncompleteTypeInformation()) {
+            materialLibraryNode(); // create the material library node
+            m_ensureMatLibTimer.stop();
+        }
+    });
+
     m_stackedWidget->setStyleSheet(Theme::replaceCssColors(
         QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
     m_stackedWidget->setMinimumWidth(250);
@@ -524,6 +531,11 @@ void MaterialEditorView::modelAttached(Model *model)
 
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
 
+    // Creating the material library node on model attach causes errors as long as the type information
+    // not complete yet, so we keep checking until type info is complete.
+    if (m_hasQuick3DImport)
+        m_ensureMatLibTimer.start(500);
+
     if (!m_setupCompleted) {
         reloadQml();
         m_setupCompleted = true;
@@ -537,8 +549,6 @@ void MaterialEditorView::modelAboutToBeDetached(Model *model)
 {
     AbstractView::modelAboutToBeDetached(model);
     m_qmlBackEnd->materialEditorTransaction()->end();
-
-
 }
 
 void MaterialEditorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
