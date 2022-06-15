@@ -427,7 +427,7 @@ static McuPackagePtr createCypressProgrammerPackage(const SettingsHandler::Ptr &
 
 static McuPackagePtr createRenesasProgrammerPackage(const SettingsHandler::Ptr &settingsHandler)
 {
-    const char envVar[] = "RenesasFlashProgrammer_PATH";
+    const char envVar[] = "RENESAS_FLASH_PROGRAMMER_PATH";
 
     FilePath defaultPath;
     if (qEnvironmentVariableIsSet(envVar)) {
