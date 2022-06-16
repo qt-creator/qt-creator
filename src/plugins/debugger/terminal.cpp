@@ -213,8 +213,10 @@ void TerminalRunner::start()
 
 void TerminalRunner::stop()
 {
-    if (m_stubProc)
-        m_stubProc->stopProcess();
+    if (m_stubProc && m_stubProc->isRunning()) {
+        m_stubProc->stop();
+        m_stubProc->waitForFinished();
+    }
     reportStopped();
 }
 
