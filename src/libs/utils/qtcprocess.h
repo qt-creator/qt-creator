@@ -184,10 +184,16 @@ public:
     QByteArray allRawOutput() const;
     QString allOutput() const;
 
-    QString stdOut() const;
-    QString stdErr() const;
-
     QByteArray rawStdOut() const;
+
+    QString stdOut() const; // possibly with CR
+    QString stdErr() const; // possibly with CR
+
+    QString cleanedStdOut() const; // with CR removed
+    QString cleanedStdErr() const; // with CR removed
+
+    const QStringList stdOutLines() const; // split, CR removed
+    const QStringList stdErrLines() const; // split, CR removed
 
     QString exitMessage() const;
 

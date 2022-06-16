@@ -1361,7 +1361,7 @@ bool QtcProcess::readDataFromProcess(int timeoutS,
 QString QtcProcess::normalizeNewlines(const QString &text)
 {
     QString res = text;
-    const auto newEnd = std::unique(res.begin(), res.end(), [](const QChar &c1, const QChar &c2) {
+    const auto newEnd = std::unique(res.begin(), res.end(), [](const QChar c1, const QChar c2) {
         return c1 == '\r' && c2 == '\r'; // QTCREATORBUG-24556
     });
     res.chop(std::distance(newEnd, res.end()));
@@ -1704,10 +1704,16 @@ QString QtcProcess::allOutput() const
     return !out.isEmpty() ? out : err;
 }
 
+QByteArray QtcProcess::rawStdOut() const
+{
+    QTC_CHECK(d->m_stdOut.keepRawData);
+    return d->m_stdOut.rawData;
+}
+
 QString QtcProcess::stdOut() const
 {
     QTC_CHECK(d->m_stdOut.keepRawData);
-    return normalizeNewlines(d->m_codec->toUnicode(d->m_stdOut.rawData));
+    return d->m_codec->toUnicode(d->m_stdOut.rawData);
 }
 
 QString QtcProcess::stdErr() const
@@ -1717,13 +1723,37 @@ QString QtcProcess::stdErr() const
     // is not trivial. So weaken it a bit for now.
     //QTC_CHECK(d->m_stdErr.keepRawData);
     QTC_CHECK(d->m_stdErr.keepRawData || d->m_stdErr.rawData.isEmpty());
-    return normalizeNewlines(d->m_codec->toUnicode(d->m_stdErr.rawData));
+    return d->m_codec->toUnicode(d->m_stdErr.rawData);
 }
 
-QByteArray QtcProcess::rawStdOut() const
+QString QtcProcess::cleanedStdOut() const
 {
-    QTC_CHECK(d->m_stdOut.keepRawData);
-    return d->m_stdOut.rawData;
+    return normalizeNewlines(stdOut());
+}
+
+QString QtcProcess::cleanedStdErr() const
+{
+    return normalizeNewlines(stdErr());
+}
+
+static QStringList splitLines(const QString &text)
+{
+    QStringList result = text.split('\n');
+    for (QString &line : result) {
+        if (line.endsWith('\r'))
+            line.chop(1);
+    }
+    return result;
+}
+
+const QStringList QtcProcess::stdOutLines() const
+{
+    return splitLines(stdOut());
+}
+
+const QStringList QtcProcess::stdErrLines() const
+{
+    return splitLines(stdErr());
 }
 
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const QtcProcess &r)
