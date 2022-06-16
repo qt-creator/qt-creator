@@ -316,7 +316,7 @@ QString ValgrindRunner::errorString() const
 
 void ValgrindRunner::stop()
 {
-    d->m_valgrindProcess.stopProcess();
+    d->m_valgrindProcess.stop();
 }
 
 XmlProtocol::ThreadedParser *ValgrindRunner::parser() const
