@@ -38,6 +38,7 @@
 #include <texteditor/codeassist/iassistprovider.h>
 #include <texteditor/textdocument.h>
 
+#include <QApplication>
 #include <QPointer>
 
 using namespace CppEditor;
@@ -143,6 +144,16 @@ ClangdFollowSymbol::ClangdFollowSymbol(ClangdClient *client, const QTextCursor &
       d(new Private(this, client, cursor, editorWidget, document->filePath(), callback,
                     openInSplit))
 {
+    // Abort if the user does something else with the document in the meantime.
+    connect(document, &TextDocument::contentsChanged, this, &ClangdFollowSymbol::done,
+            Qt::QueuedConnection);
+    if (editorWidget) {
+        connect(editorWidget, &CppEditorWidget::cursorPositionChanged,
+                this, &ClangdFollowSymbol::done, Qt::QueuedConnection);
+    }
+    connect(qApp, &QApplication::focusChanged,
+            this, &ClangdFollowSymbol::done, Qt::QueuedConnection);
+
     // Step 1: Follow the symbol via "Go to Definition". At the same time, request the
     //         AST node corresponding to the cursor position, so we can find out whether
     //         we have to look for overrides.
