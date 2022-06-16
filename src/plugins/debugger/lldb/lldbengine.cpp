@@ -35,6 +35,7 @@
 #include <debugger/terminal.h>
 
 #include <debugger/breakhandler.h>
+#include <debugger/debuggeritem.h>
 #include <debugger/debuggersourcepathmappingwidget.h>
 #include <debugger/disassemblerlines.h>
 #include <debugger/moduleshandler.h>
@@ -49,6 +50,7 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 
+#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -832,7 +834,7 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
 
 void LldbEngine::handleLldbFinished()
 {
-    notifyDebuggerProcessFinished(m_lldbProc.exitCode(), m_lldbProc.exitStatus(), "LLDB");
+    notifyDebuggerProcessFinished(m_lldbProc.resultData(), "LLDB");
 }
 
 void LldbEngine::readLldbStandardError()

@@ -77,6 +77,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/macroexpander.h>
 #include <utils/processhandle.h>
+#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/styledbar.h>
@@ -1789,14 +1790,14 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
     }
 }
 
-void DebuggerEngine::notifyDebuggerProcessFinished(int exitCode,
-    QProcess::ExitStatus exitStatus, const QString &backendName)
+void DebuggerEngine::notifyDebuggerProcessFinished(const ProcessResultData &result,
+                                                   const QString &backendName)
 {
     showMessage(QString("%1 PROCESS FINISHED, status %2, exit code %3 (0x%4)")
                     .arg(backendName)
-                    .arg(exitStatus)
-                    .arg(exitCode)
-                    .arg(QString::number(exitCode, 16)));
+                    .arg(result.m_exitStatus)
+                    .arg(result.m_exitCode)
+                    .arg(QString::number(result.m_exitCode, 16)));
 
     switch (state()) {
     case DebuggerFinished:
@@ -1816,9 +1817,9 @@ void DebuggerEngine::notifyDebuggerProcessFinished(int exitCode,
     default: {
         // Initiate shutdown sequence
         notifyInferiorIll();
-        const QString msg = exitStatus == QProcess::CrashExit ?
+        const QString msg = result.m_exitStatus == QProcess::CrashExit ?
                 tr("The %1 process terminated.") :
-                tr("The %2 process terminated unexpectedly (exit code %1).").arg(exitCode);
+                tr("The %2 process terminated unexpectedly (exit code %1).").arg(result.m_exitCode);
         AsynchronousMessageBox::critical(tr("Unexpected %1 Exit").arg(backendName),
                                          msg.arg(backendName));
         break;

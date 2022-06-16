@@ -65,6 +65,7 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/winutils.h>
@@ -708,7 +709,7 @@ void CdbEngine::processFinished()
                elapsedLogTime(), qPrintable(stateName(state())),
                m_process.exitStatus(), m_process.exitCode());
 
-    notifyDebuggerProcessFinished(m_process.exitCode(), m_process.exitStatus(), "CDB");
+    notifyDebuggerProcessFinished(m_process.resultData(), "CDB");
 }
 
 void CdbEngine::detachDebugger()

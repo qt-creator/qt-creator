@@ -61,6 +61,7 @@
 #include <app/app_version.h>
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
@@ -4095,7 +4096,7 @@ void GdbEngine::handleGdbDone()
     if (m_commandTimer.isActive())
         m_commandTimer.stop();
 
-    notifyDebuggerProcessFinished(m_gdbProc.exitCode(), m_gdbProc.exitStatus(), "GDB");
+    notifyDebuggerProcessFinished(m_gdbProc.resultData(), "GDB");
 }
 
 void GdbEngine::abortDebuggerProcess()
