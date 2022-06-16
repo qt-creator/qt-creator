@@ -2148,8 +2148,8 @@ void EditorManagerPrivate::updateWindowTitleForDocument(IDocument *document, QWi
     if (!documentName.isEmpty())
         windowTitle.append(documentName);
 
-    const QString filePath = document ? document->filePath().absoluteFilePath().path()
-                              : QString();
+    const Utils::FilePath filePath = document ? document->filePath().absoluteFilePath()
+                                              : Utils::FilePath();
     const QString windowTitleAddition = d->m_titleAdditionHandler
             ? d->m_titleAdditionHandler(filePath)
             : QString();
@@ -2181,7 +2181,7 @@ void EditorManagerPrivate::updateWindowTitleForDocument(IDocument *document, QWi
         windowTitle.append(dashSep);
     windowTitle.append(Core::Constants::IDE_DISPLAY_NAME);
     window->window()->setWindowTitle(windowTitle);
-    window->window()->setWindowFilePath(filePath);
+    window->window()->setWindowFilePath(filePath.path());
 
     if (HostOsInfo::isMacHost()) {
         if (document)

@@ -96,8 +96,8 @@ public:
     QStringList dependenciesOrder() const;
     void dependencies(const QString &proName, QStringList &result) const;
 
-    static QString windowTitleAddition(const QString &filePath);
-    static QString sessionTitle(const QString &filePath);
+    static QString windowTitleAddition(const FilePath &filePath);
+    static QString sessionTitle(const FilePath &filePath);
 
     bool hasProjects() const { return !m_projects.isEmpty(); }
 
@@ -118,7 +118,7 @@ public:
     PersistentSettingsWriter *m_writer = nullptr;
 
 private:
-    static QString locationInProject(const QString &filePath);
+    static QString locationInProject(const FilePath &filePath);
 };
 
 static SessionManager *m_instance = nullptr;
@@ -598,7 +598,7 @@ void SessionManagerPrivate::dependencies(const QString &proName, QStringList &re
         result.append(proName);
 }
 
-QString SessionManagerPrivate::sessionTitle(const QString &filePath)
+QString SessionManagerPrivate::sessionTitle(const FilePath &filePath)
 {
     if (SessionManager::isDefaultSession(d->m_sessionName)) {
         if (filePath.isEmpty()) {
@@ -616,18 +616,17 @@ QString SessionManagerPrivate::sessionTitle(const QString &filePath)
     return QString();
 }
 
-QString SessionManagerPrivate::locationInProject(const QString &filePath) {
-    const Project *project = SessionManager::projectForFile(Utils::FilePath::fromString(filePath));
+QString SessionManagerPrivate::locationInProject(const FilePath &filePath) {
+    const Project *project = SessionManager::projectForFile(filePath);
     if (!project)
         return QString();
 
-    const Utils::FilePath file = Utils::FilePath::fromString(filePath);
-    const Utils::FilePath parentDir = file.parentDir();
+    const FilePath parentDir = filePath.parentDir();
     if (parentDir == project->projectDirectory())
         return "@ " + project->displayName();
 
-    if (file.isChildOf(project->projectDirectory())) {
-        const Utils::FilePath dirInProject = parentDir.relativeChildPath(project->projectDirectory());
+    if (filePath.isChildOf(project->projectDirectory())) {
+        const FilePath dirInProject = parentDir.relativeChildPath(project->projectDirectory());
         return "(" + dirInProject.toUserOutput() + " @ " + project->displayName() + ")";
     }
 
@@ -637,7 +636,7 @@ QString SessionManagerPrivate::locationInProject(const QString &filePath) {
    return "(" + parentDir.toUserOutput() + " @ " + project->displayName() + ")";
 }
 
-QString SessionManagerPrivate::windowTitleAddition(const QString &filePath)
+QString SessionManagerPrivate::windowTitleAddition(const FilePath &filePath)
 {
     return filePath.isEmpty() ? QString() : locationInProject(filePath);
 }
