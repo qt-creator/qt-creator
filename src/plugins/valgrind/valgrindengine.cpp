@@ -61,6 +61,17 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
     setSupportsReRunning(false);
 
     m_settings.fromMap(runControl->settingsData(ANALYZER_VALGRIND_SETTINGS));
+
+    connect(&m_runner, &ValgrindRunner::processOutputReceived,
+            this, &ValgrindToolRunner::receiveProcessOutput);
+    connect(&m_runner, &ValgrindRunner::valgrindExecuted,
+            this, [this](const QString &commandLine) {
+        appendMessage(commandLine, NormalMessageFormat);
+    });
+    connect(&m_runner, &ValgrindRunner::processErrorReceived,
+            this, &ValgrindToolRunner::receiveProcessError);
+    connect(&m_runner, &ValgrindRunner::finished,
+            this, &ValgrindToolRunner::runnerFinished);
 }
 
 void ValgrindToolRunner::start()
@@ -95,17 +106,6 @@ void ValgrindToolRunner::start()
 
     if (auto aspect = runControl()->aspect<TerminalAspect>())
         m_runner.setUseTerminal(aspect->useTerminal);
-
-    connect(&m_runner, &ValgrindRunner::processOutputReceived,
-            this, &ValgrindToolRunner::receiveProcessOutput);
-    connect(&m_runner, &ValgrindRunner::valgrindExecuted,
-            this, [this](const QString &commandLine) {
-        appendMessage(commandLine, NormalMessageFormat);
-    });
-    connect(&m_runner, &ValgrindRunner::processErrorReceived,
-            this, &ValgrindToolRunner::receiveProcessError);
-    connect(&m_runner, &ValgrindRunner::finished,
-            this, &ValgrindToolRunner::runnerFinished);
 
     if (!m_runner.start()) {
         m_progress.cancel();
@@ -160,11 +160,6 @@ void ValgrindToolRunner::runnerFinished()
     appendMessage(tr("Analyzing finished."), NormalMessageFormat);
 
     m_progress.reportFinished();
-
-    disconnect(&m_runner, &ValgrindRunner::processOutputReceived,
-               this, &ValgrindToolRunner::receiveProcessOutput);
-    disconnect(&m_runner, &ValgrindRunner::finished,
-               this, &ValgrindToolRunner::runnerFinished);
 
     reportStopped();
 }
