@@ -153,11 +153,18 @@ void TaskHub::addTask(Task::TaskType type, const QString &description, Utils::Id
 
 void TaskHub::addTask(Task task)
 {
+    if (QThread::currentThread() != qApp->thread()) {
+        QMetaObject::invokeMethod(qApp, [&task] {
+            TaskHub::addTask(task);
+        });
+
+        return;
+    }
+
     QTC_ASSERT(m_registeredCategories.contains(task.category), return);
     QTC_ASSERT(!task.description().isEmpty(), return);
     QTC_ASSERT(!task.isNull(), return);
     QTC_ASSERT(task.m_mark.isNull(), return);
-    QTC_ASSERT(QThread::currentThread() == qApp->thread(), return);
 
     if (task.file.isEmpty() || task.line <= 0)
         task.line = -1;
