@@ -202,6 +202,12 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     setRunnableModifier([](Runnable &r) {
         r.workingDirectory = r.workingDirectory.onDevice(r.command.executable());
     });
+
+    connect(PySideInstaller::instance(), &PySideInstaller::pySideInstalled, this,
+            [this](const FilePath &python) {
+                if (python == aspect<InterpreterAspect>()->currentInterpreter().command)
+                    checkForPySide(python);
+            });
 }
 
 PythonRunConfiguration::~PythonRunConfiguration()
@@ -209,9 +215,8 @@ PythonRunConfiguration::~PythonRunConfiguration()
     qDeleteAll(m_extraCompilers);
 }
 
-void PythonRunConfiguration::currentInterpreterChanged()
+void PythonRunConfiguration::checkForPySide(const FilePath &python)
 {
-    const FilePath python = aspect<InterpreterAspect>()->currentInterpreter().command;
     BuildStepList *buildSteps = target()->activeBuildConfiguration()->buildSteps();
 
     Utils::FilePath pySideProjectPath;
@@ -255,6 +260,12 @@ void PythonRunConfiguration::currentInterpreterChanged()
 
     if (auto pySideBuildStep = buildSteps->firstOfType<PySideBuildStep>())
         pySideBuildStep->updatePySideProjectPath(pySideProjectPath);
+}
+
+void PythonRunConfiguration::currentInterpreterChanged()
+{
+    const FilePath python = aspect<InterpreterAspect>()->currentInterpreter().command;
+    checkForPySide(python);
 
     for (FilePath &file : project()->files(Project::AllFiles)) {
         if (auto document = TextEditor::TextDocument::textDocumentForFilePath(file)) {
