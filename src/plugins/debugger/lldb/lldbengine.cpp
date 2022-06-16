@@ -189,16 +189,13 @@ void LldbEngine::shutdownInferior()
 void LldbEngine::shutdownEngine()
 {
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
-    if (m_lldbProc.isRunning())
-        m_lldbProc.terminate();
-    else
-        notifyEngineShutdownFinished();
+    abortDebuggerProcess();
 }
 
 void LldbEngine::abortDebuggerProcess()
 {
     if (m_lldbProc.isRunning())
-        m_lldbProc.kill();
+        m_lldbProc.stop();
     else
         notifyEngineShutdownFinished();
 }
@@ -799,7 +796,7 @@ void LldbEngine::handleLldbError(QProcess::ProcessError error)
     case QProcess::Timedout:
     default:
         //setState(EngineShutdownRequested, true);
-        m_lldbProc.kill();
+        m_lldbProc.stop();
         AsynchronousMessageBox::critical(tr("LLDB I/O Error"), errorMessage(error));
         break;
     }
