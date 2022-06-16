@@ -170,8 +170,11 @@ bool ExternalQtEditor::getEditorLaunchData(const Utils::FilePath &filePath,
     qtVersionsToCheck = Utils::filteredUnique(qtVersionsToCheck); // can still contain nullptr
     data->binary = findFirstCommand(qtVersionsToCheck, m_commandForQtVersion);
     // fallback
-    if (data->binary.isEmpty())
-        data->binary = Utils::QtcProcess::locateBinary(m_commandForQtVersion(nullptr));
+    if (data->binary.isEmpty()) {
+        const QString path = qEnvironmentVariable("PATH");
+        data->binary = Utils::QtcProcess::locateBinary(path, m_commandForQtVersion(nullptr));
+    }
+
     if (data->binary.isEmpty()) {
         *errorMessage = msgAppNotFound(id().toString());
         return false;

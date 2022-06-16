@@ -1617,12 +1617,6 @@ void QtcProcess::stop()
     d->m_killTimer.start(d->m_process->m_setup.m_reaperTimeout);
 }
 
-QString QtcProcess::locateBinary(const QString &binary)
-{
-    const QByteArray path = qgetenv("PATH");
-    return locateBinary(QString::fromLocal8Bit(path), binary);
-}
-
 /*!
     \class Utils::SynchronousProcess
 
