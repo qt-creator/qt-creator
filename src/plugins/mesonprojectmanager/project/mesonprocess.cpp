@@ -52,7 +52,7 @@ MesonProcess::MesonProcess()
 }
 
 bool MesonProcess::run(const Command &command,
-                       const Utils::Environment env,
+                       const Environment &env,
                        const QString &projectName,
                        bool captureStdo)
 {
@@ -97,58 +97,25 @@ void MesonProcess::setProgressValue(int p)
     m_future.setProgressValue(p);
 }
 
-void MesonProcess::handleProcessFinished(int code, QProcess::ExitStatus status)
+void MesonProcess::handleProcessDone()
 {
+    if (m_process->result() != ProcessResult::FinishedWithSuccess) {
+        ProjectExplorer::TaskHub::addTask(ProjectExplorer::BuildSystemTask{
+                ProjectExplorer::Task::TaskType::Error, m_process->exitMessage()});
+    }
     m_cancelTimer.stop();
     m_stdo = m_process->readAllStandardOutput();
     m_stderr = m_process->readAllStandardError();
-    if (status == QProcess::NormalExit) {
+    if (m_process->exitStatus() == QProcess::NormalExit) {
         m_future.setProgressValue(1);
         m_future.reportFinished();
     } else {
         m_future.reportCanceled();
         m_future.reportFinished();
     }
-    const QString elapsedTime = Utils::formatElapsedTime(m_elapsed.elapsed());
+    const QString elapsedTime = formatElapsedTime(m_elapsed.elapsed());
     Core::MessageManager::writeSilently(elapsedTime);
-    emit finished(code, status);
-}
-
-void MesonProcess::handleProcessError(QProcess::ProcessError error)
-{
-    QString message;
-    QString commandStr = m_currentCommand.toUserOutput();
-    switch (error) {
-    case QProcess::FailedToStart:
-        message = tr("The process failed to start.")
-                  + tr("Either the "
-                       "invoked program \"%1\" is missing, or you may have insufficient "
-                       "permissions to invoke the program.")
-                        .arg(m_currentCommand.executable().toUserOutput());
-        break;
-    case QProcess::Crashed:
-        message = tr("The process was ended forcefully.");
-        break;
-    case QProcess::Timedout:
-        message = tr("Process timed out.");
-        break;
-    case QProcess::WriteError:
-        message = tr("An error occurred when attempting to write "
-                     "to the process. For example, the process may not be running, "
-                     "or it may have closed its input channel.");
-        break;
-    case QProcess::ReadError:
-        message = tr("An error occurred when attempting to read from "
-                     "the process. For example, the process may not be running.");
-        break;
-    case QProcess::UnknownError:
-        message = tr("An unknown error in the process occurred.");
-        break;
-    }
-    ProjectExplorer::TaskHub::addTask(
-        ProjectExplorer::BuildSystemTask{ProjectExplorer::Task::TaskType::Error,
-                                         QString("%1\n%2").arg(message).arg(commandStr)});
-    handleProcessFinished(-1, QProcess::CrashExit);
+    emit finished(m_process->exitCode(), m_process->exitStatus());
 }
 
 void MesonProcess::checkForCancelled()
@@ -161,26 +128,16 @@ void MesonProcess::checkForCancelled()
 }
 
 void MesonProcess::setupProcess(const Command &command,
-                                const Utils::Environment env,
+                                const Environment env,
                                 bool captureStdo)
 {
-    if (m_process)
-        disconnect(m_process.get());
-    m_process = std::make_unique<Utils::QtcProcess>();
-    connect(m_process.get(), &QtcProcess::finished, this, [this] {
-        handleProcessFinished(m_process->exitCode(), m_process->exitStatus());
-    });
-    connect(m_process.get(), &QtcProcess::errorOccurred, this, &MesonProcess::handleProcessError);
+    m_process.reset(new QtcProcess);
+    connect(m_process.get(), &QtcProcess::done, this, &MesonProcess::handleProcessDone);
     if (!captureStdo) {
-        connect(m_process.get(),
-                &QtcProcess::readyReadStandardOutput,
-                this,
-                &MesonProcess::processStandardOutput);
-
-        connect(m_process.get(),
-                &QtcProcess::readyReadStandardError,
-                this,
-                &MesonProcess::processStandardError);
+        connect(m_process.get(), &QtcProcess::readyReadStandardOutput,
+                this, &MesonProcess::processStandardOutput);
+        connect(m_process.get(), &QtcProcess::readyReadStandardError,
+                this, &MesonProcess::processStandardError);
     }
 
     m_process->setWorkingDirectory(command.workDir());
@@ -213,17 +170,15 @@ bool MesonProcess::sanityCheck(const Command &command) const
 
 void MesonProcess::processStandardOutput()
 {
-    QTC_ASSERT(m_process, return );
-    auto data = m_process->readAllStandardOutput();
+    const auto data = m_process->readAllStandardOutput();
     Core::MessageManager::writeSilently(QString::fromLocal8Bit(data));
     emit readyReadStandardOutput(data);
 }
 
 void MesonProcess::processStandardError()
 {
-    QTC_ASSERT(m_process, return );
-
     Core::MessageManager::writeSilently(QString::fromLocal8Bit(m_process->readAllStandardError()));
 }
+
 } // namespace Internal
 } // namespace MesonProjectManager
