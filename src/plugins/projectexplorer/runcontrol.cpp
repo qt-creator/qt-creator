@@ -1379,7 +1379,7 @@ void SimpleTargetRunnerPrivate::handleStandardOutput()
     const QByteArray data = m_process.readAllStandardOutput();
     const QString msg = m_outputCodec->toUnicode(
                 data.constData(), data.length(), &m_outputCodecState);
-    q->appendMessage(msg, StdOutFormat, false);
+    q->appendMessageChunk(msg, StdOutFormat);
 }
 
 void SimpleTargetRunnerPrivate::handleStandardError()
@@ -1387,7 +1387,7 @@ void SimpleTargetRunnerPrivate::handleStandardError()
     const QByteArray data = m_process.readAllStandardError();
     const QString msg = m_outputCodec->toUnicode(
                 data.constData(), data.length(), &m_errorCodecState);
-    q->appendMessage(msg, StdErrFormat, false);
+    q->appendMessageChunk(msg, StdErrFormat);
 }
 
 void SimpleTargetRunnerPrivate::start()
@@ -1766,12 +1766,17 @@ void RunWorker::reportFailure(const QString &msg)
  * Appends a message in the specified \a format to
  * the owning RunControl's \uicontrol{Application Output} pane.
  */
-void RunWorker::appendMessage(const QString &msg, OutputFormat format, bool appendNewLine)
+void RunWorker::appendMessage(const QString &msg, OutputFormat format)
 {
-    if (!appendNewLine || msg.endsWith('\n'))
+    if (msg.endsWith('\n'))
         emit d->runControl->appendMessage(msg, format);
     else
         emit d->runControl->appendMessage(msg + '\n', format);
+}
+
+void RunWorker::appendMessageChunk(const QString &msg, OutputFormat format)
+{
+    emit d->runControl->appendMessage(msg, format);
 }
 
 IDevice::ConstPtr RunWorker::device() const
