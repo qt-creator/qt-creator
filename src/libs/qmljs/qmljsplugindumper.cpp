@@ -264,13 +264,20 @@ void PluginDumper::qmlPluginTypeDumpDone(QtcProcess *process)
         return;
     const Snapshot snapshot = m_modelManager->snapshot();
     LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
-    bool privatePlugin = libraryPath.endsWith(QLatin1String("private"));
+    const bool privatePlugin = libraryPath.endsWith(QLatin1String("private"));
 
-    if (process->exitCode() != 0) {
+    if (process->exitCode() || process->error() != QProcess::UnknownError) {
         const QString errorMessages = qmlPluginDumpErrorMessage(process);
         if (!privatePlugin)
             ModelManagerInterface::writeWarning(qmldumpErrorMessage(libraryPath, errorMessages));
-        libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError, qmldumpFailedMessage(libraryPath, errorMessages));
+        libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError,
+                                            qmldumpFailedMessage(libraryPath, errorMessages));
+
+        if (process->error() != QProcess::UnknownError) {
+            libraryInfo.updateFingerprint();
+            m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
+            return;
+        }
 
         const QByteArray output = process->readAllStandardOutput();
 
@@ -322,23 +329,6 @@ void PluginDumper::qmlPluginTypeDumpDone(QtcProcess *process)
         libraryInfo.updateFingerprint();
         m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
     }
-}
-
-void PluginDumper::qmlPluginTypeDumpError(QtcProcess *process)
-{
-    process->deleteLater();
-
-    const FilePath libraryPath = m_runningQmldumps.take(process);
-    if (libraryPath.isEmpty())
-        return;
-    const QString errorMessages = qmlPluginDumpErrorMessage(process);
-    const Snapshot snapshot = m_modelManager->snapshot();
-    LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
-    if (!libraryPath.path().endsWith(QLatin1String("private"), Qt::CaseInsensitive))
-        ModelManagerInterface::writeWarning(qmldumpErrorMessage(libraryPath, errorMessages));
-    libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError, qmldumpFailedMessage(libraryPath, errorMessages));
-    libraryInfo.updateFingerprint();
-    m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
 }
 
 void PluginDumper::pluginChanged(const QString &pluginLibrary)
@@ -628,8 +618,7 @@ void PluginDumper::runQmlDump(const ModelManagerInterface::ProjectInfo &info,
     process->setEnvironment(info.qmlDumpEnvironment);
     process->setWorkingDirectory(importPath);
     process->setCommand({info.qmlDumpPath, arguments});
-    connect(process, &QtcProcess::finished, this, [this, process] { qmlPluginTypeDumpDone(process); });
-    connect(process, &QtcProcess::errorOccurred, this, [this, process] { qmlPluginTypeDumpError(process); });
+    connect(process, &QtcProcess::done, this, [this, process] { qmlPluginTypeDumpDone(process); });
     process->start();
     m_runningQmldumps.insert(process, importPath);
 }
