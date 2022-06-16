@@ -294,7 +294,7 @@ bool DebuggerItem::addAndroidLldbPythonEnv(const Utils::FilePath &lldbCmd, Utils
             if (HostOsInfo::isAnyUnixHost()) {
                 const FilePath pythonLibDir = pythonDir.pathAppended("lib");
                 if (pythonLibDir.exists())
-                    env.prependOrSet("LD_LIBRARY_PATH", pythonLibDir.toString());
+                    env.prependOrSetLibrarySearchPath(pythonLibDir);
             }
 
             return true;
