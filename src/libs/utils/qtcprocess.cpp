@@ -1285,17 +1285,6 @@ void QtcProcess::setRemoteProcessHooks(const DeviceProcessHooks &hooks)
     s_deviceHooks = hooks;
 }
 
-void QtcProcess::stopProcess()
-{
-    if (state() == QProcess::NotRunning)
-        return;
-    terminate();
-    if (waitForFinished(300))
-        return;
-    kill();
-    waitForFinished(300);
-}
-
 static bool askToKill(const QString &command)
 {
 #ifdef QT_GUI_LIB
@@ -1940,7 +1929,8 @@ void QtcProcessPrivate::slotTimeout()
             || askToKill(m_setup.m_commandLine.executable().toString());
         m_waitingForUser = false;
         if (terminate) {
-            q->stopProcess();
+            q->stop();
+            q->waitForFinished();
             m_result = ProcessResult::Hang;
         } else {
             m_hangTimerCount = 0;
