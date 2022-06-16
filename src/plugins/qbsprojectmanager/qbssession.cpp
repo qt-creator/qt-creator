@@ -182,23 +182,12 @@ void QbsSession::initialize()
     connect(d->qbsProcess, &QtcProcess::readyReadStandardError, this, [this] {
         qCDebug(qbsPmLog) << "[qbs stderr]: " << d->qbsProcess->readAllStandardError();
     });
-    connect(d->qbsProcess, &QtcProcess::errorOccurred, this, [this](QProcess::ProcessError e) {
-        d->eventLoop.exit(1);
-        switch (e) {
-        case QProcess::FailedToStart:
+    connect(d->qbsProcess, &QtcProcess::done, this, [this] {
+        if (d->qbsProcess->result() == ProcessResult::StartFailed) {
+            d->eventLoop.exit(1);
             setError(Error::QbsFailedToStart);
-            break;
-        case QProcess::WriteError:
-        case QProcess::ReadError:
-            setError(Error::ProtocolError);
-            break;
-        case QProcess::Crashed:
-        case QProcess::Timedout:
-        case QProcess::UnknownError:
-            break;
+            return;
         }
-    });
-    connect(d->qbsProcess, &QtcProcess::finished, this, [this] {
         d->qbsProcess->deleteLater();
         switch (d->state) {
         case State::Inactive:
