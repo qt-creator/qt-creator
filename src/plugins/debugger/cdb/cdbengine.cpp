@@ -265,7 +265,7 @@ void CdbEngine::init()
     }
     // update source path maps from debugger start params
     mergeStartParametersSourcePathMap();
-    QTC_ASSERT(m_process.state() != QProcess::Running, m_process.stopProcess());
+    QTC_ASSERT(m_process.state() != QProcess::Running, m_process.stop());
 }
 
 CdbEngine::~CdbEngine() = default;
@@ -691,7 +691,7 @@ void CdbEngine::shutdownEngine()
         }
     } else {
         // Remote process. No can do, currently
-        m_process.stopProcess();
+        m_process.stop();
     }
 }
 

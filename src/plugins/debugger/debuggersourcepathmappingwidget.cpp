@@ -453,7 +453,6 @@ static QString findQtInstallPath(const FilePath &qmakePath)
         return QString();
     }
     if (!proc.waitForFinished()) {
-        proc.stopProcess();
         qWarning("%s: Timeout running '%s'.", Q_FUNC_INFO, qPrintable(qmakePath.toString()));
         return QString();
     }
