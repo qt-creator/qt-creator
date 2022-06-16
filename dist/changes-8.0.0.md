@@ -110,6 +110,7 @@ Analyzer
 ### Coco
 
 * Added experimental `Coco` integration
+* Added visualization of code coverage in code editor
 
 ### CppCheck
 
