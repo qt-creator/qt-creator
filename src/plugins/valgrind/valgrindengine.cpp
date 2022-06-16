@@ -61,8 +61,8 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
 
     m_settings.fromMap(runControl->settingsData(ANALYZER_VALGRIND_SETTINGS));
 
-    connect(&m_runner, &ValgrindRunner::processOutputReceived,
-            this, &ValgrindToolRunner::receiveProcessOutput);
+    connect(&m_runner, &ValgrindRunner::appendMessage,
+            this, &ValgrindToolRunner::appendMessage);
     connect(&m_runner, &ValgrindRunner::valgrindExecuted,
             this, [this](const QString &commandLine) {
         appendMessage(commandLine, NormalMessageFormat);
@@ -160,11 +160,6 @@ void ValgrindToolRunner::runnerFinished()
     m_progress.reportFinished();
 
     reportStopped();
-}
-
-void ValgrindToolRunner::receiveProcessOutput(const QString &output, OutputFormat format)
-{
-    appendMessage(output, format);
 }
 
 void ValgrindToolRunner::receiveProcessError(const QString &message, QProcess::ProcessError error)
