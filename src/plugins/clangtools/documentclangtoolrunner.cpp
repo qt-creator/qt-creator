@@ -251,6 +251,8 @@ QPair<FilePath, QString> getClangIncludeDirAndVersion(ClangToolRunner *runner)
 
 void DocumentClangToolRunner::runNext()
 {
+    if (m_currentRunner)
+        m_currentRunner.release()->deleteLater();
     m_currentRunner.reset(m_runnerCreators.isEmpty() ? nullptr : m_runnerCreators.takeFirst()());
     if (m_currentRunner) {
         auto [clangIncludeDir, clangVersion] = getClangIncludeDirAndVersion(m_currentRunner.get());
