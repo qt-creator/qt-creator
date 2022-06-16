@@ -194,7 +194,7 @@ public:
     }
 
 private:
-    void fontSettingsChanged(const TextEditor::FontSettings &fontSettings)
+    void fontSettingsChanged()
     {
         forAllMarks([](TextEditor::TextMark *mark){
             static_cast<CocoTextMark *>(mark)->updateAnnotationColor();
