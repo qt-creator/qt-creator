@@ -50,6 +50,7 @@ public:
     bool run();
 
     void processStarted();
+    void processDone();
     void localProcessStarted();
     void remoteProcessStarted();
     void findPidProcessDone();
@@ -65,7 +66,6 @@ public:
 
     QHostAddress localServerAddress;
     QProcess::ProcessChannelMode channelMode = QProcess::SeparateChannels;
-    bool m_finished = false;
 
     QTcpServer xmlServer;
     XmlProtocol::ThreadedParser parser;
@@ -116,12 +116,10 @@ bool ValgrindRunner::Private::run()
     // consider appending our options last so they override any interfering user-supplied options
     // -q as suggested by valgrind manual
 
-    connect(&m_valgrindProcess, &QtcProcess::finished,
-            q, &ValgrindRunner::processFinished);
     connect(&m_valgrindProcess, &QtcProcess::started,
             this, &ValgrindRunner::Private::processStarted);
-    connect(&m_valgrindProcess, &QtcProcess::errorOccurred,
-            q, &ValgrindRunner::processError);
+    connect(&m_valgrindProcess, &QtcProcess::done,
+            this, &ValgrindRunner::Private::processDone);
 
     connect(&m_valgrindProcess, &QtcProcess::readyReadStandardOutput, q, [this] {
         q->processOutputReceived(QString::fromUtf8(m_valgrindProcess.readAllStandardOutput()),
@@ -145,7 +143,6 @@ bool ValgrindRunner::Private::run()
     m_valgrindProcess.setWorkingDirectory(m_debuggee.workingDirectory);
     m_valgrindProcess.setEnvironment(m_debuggee.environment);
     m_valgrindProcess.start();
-
     return true;
 }
 
@@ -155,6 +152,17 @@ void ValgrindRunner::Private::processStarted()
         localProcessStarted();
     else
         remoteProcessStarted();
+}
+
+void ValgrindRunner::Private::processDone()
+{
+    emit q->extraProcessFinished();
+
+    if (m_valgrindProcess.result() != ProcessResult::FinishedWithSuccess)
+        emit q->processErrorReceived(m_valgrindProcess.errorString(), m_valgrindProcess.error());
+
+    // make sure we don't wait for the connection anymore
+    emit q->finished();
 }
 
 void ValgrindRunner::Private::localProcessStarted()
@@ -268,7 +276,7 @@ void ValgrindRunner::setUseTerminal(bool on)
 
 void ValgrindRunner::waitForFinished() const
 {
-    if (d->m_finished)
+    if (d->m_valgrindProcess.state() == QProcess::NotRunning)
         return;
 
     QEventLoop loop;
@@ -279,39 +287,6 @@ void ValgrindRunner::waitForFinished() const
 bool ValgrindRunner::start()
 {
     return d->run();
-}
-
-void ValgrindRunner::processError(QProcess::ProcessError e)
-{
-    if (d->m_finished)
-        return;
-
-    d->m_finished = true;
-
-    // make sure we don't wait for the connection anymore
-    emit processErrorReceived(errorString(), e);
-    emit finished();
-}
-
-void ValgrindRunner::processFinished()
-{
-    emit extraProcessFinished();
-
-    if (d->m_finished)
-        return;
-
-    d->m_finished = true;
-
-    // make sure we don't wait for the connection anymore
-    emit finished();
-
-    if (d->m_valgrindProcess.exitCode() != 0 || d->m_valgrindProcess.exitStatus() == QProcess::CrashExit)
-        emit processErrorReceived(errorString(), d->m_valgrindProcess.error());
-}
-
-QString ValgrindRunner::errorString() const
-{
-    return d->m_valgrindProcess.errorString();
 }
 
 void ValgrindRunner::stop()
