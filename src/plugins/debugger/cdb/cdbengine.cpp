@@ -185,6 +185,7 @@ CdbEngine::CdbEngine() :
     m_extensionCommandPrefix("!" QT_CREATOR_CDB_EXT ".")
 {
     m_process.setProcessMode(ProcessMode::Writer);
+    m_process.setUseCtrlCStub(true);
 
     setObjectName("CdbEngine");
     setDebuggerName("CDB");
