@@ -1145,7 +1145,7 @@ ToolChain::BuiltInHeaderPathsRunner MsvcToolChain::createBuiltInHeaderPathsRunne
 void MsvcToolChain::addToEnvironment(Utils::Environment &env) const
 {
     // We cache the full environment (incoming + modifications by setup script).
-    if (m_resultEnvironment.isValid() || env != m_lastEnvironment) {
+    if (!m_resultEnvironment.isValid() || env != m_lastEnvironment) {
         qCDebug(Log) << "addToEnvironment: " << displayName();
         m_lastEnvironment = env;
         m_resultEnvironment = readEnvironmentSetting(env);
