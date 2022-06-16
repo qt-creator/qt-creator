@@ -1809,7 +1809,6 @@ static QByteArray runQmakeQuery(const FilePath &binary, const Environment &env, 
         return {};
     }
     if (!process.waitForFinished(timeOutMS)) {
-        process.stopProcess();
         *error = QCoreApplication::translate("QtVersion", "Timeout running \"%1\" (%2 ms).")
                 .arg(binary.displayName()).arg(timeOutMS);
         return {};

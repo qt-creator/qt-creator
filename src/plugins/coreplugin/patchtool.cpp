@@ -112,7 +112,8 @@ static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirec
     QByteArray stdOut;
     QByteArray stdErr;
     if (!patchProcess.readDataFromProcess(30, &stdOut, &stdErr, true)) {
-        patchProcess.stopProcess();
+        patchProcess.stop();
+        patchProcess.waitForFinished();
         MessageManager::writeFlashing(
             QApplication::translate("Core::PatchTool", "A timeout occurred running \"%1\"")
                 .arg(patch.toUserOutput()));

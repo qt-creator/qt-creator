@@ -95,7 +95,8 @@ void PipInstallTask::run()
 
 void PipInstallTask::cancel()
 {
-    m_process.stopProcess();
+    m_process.stop();
+    m_process.waitForFinished();
     Core::MessageManager::writeFlashing(
         tr("The %1 installation was canceled by %2.")
             .arg(m_package.displayName, m_killTimer.isActive() ? tr("user") : tr("time out")));

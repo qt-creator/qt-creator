@@ -259,7 +259,8 @@ void FetchContext::checkout()
 
 void FetchContext::terminate()
 {
-    m_process.stopProcess();
+    m_process.stop();
+    m_process.waitForFinished();
 }
 
 

@@ -105,15 +105,13 @@ StdIOClientInterface::StdIOClientInterface()
 
 StdIOClientInterface::~StdIOClientInterface()
 {
-    if (m_process)
-        m_process->stopProcess();
     delete m_process;
 }
 
 void StdIOClientInterface::startImpl()
 {
     if (m_process) {
-        QTC_ASSERT(!m_process->isRunning(), m_process->stopProcess() );
+        QTC_CHECK(!m_process->isRunning());
         delete m_process;
     }
     m_process = new Utils::QtcProcess;

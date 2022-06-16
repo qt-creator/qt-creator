@@ -368,7 +368,10 @@ void ShellCommand::runFullySynchronous(QtcProcess &process, const FilePath &work
 
 void ShellCommand::runSynchronous(QtcProcess &process, const FilePath &workingDirectory)
 {
-    connect(this, &ShellCommand::terminate, &process, &QtcProcess::stopProcess);
+    connect(this, &ShellCommand::terminate, &process, [&process] {
+        process.stop();
+        process.waitForFinished();
+    });
     process.setEnvironment(processEnvironment());
     if (d->m_codec)
         process.setCodec(d->m_codec);

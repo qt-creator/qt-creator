@@ -1336,7 +1336,8 @@ void SimpleTargetRunnerPrivate::stop()
     if (m_isLocal) {
         if (!isRunning())
             return;
-        m_process.stopProcess();
+        m_process.stop();
+        m_process.waitForFinished();
         QTimer::singleShot(100, this, [this] { forwardDone(); });
     } else {
         if (m_stopRequested)

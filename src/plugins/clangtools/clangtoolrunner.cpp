@@ -71,7 +71,8 @@ ClangToolRunner::~ClangToolRunner()
             m_process->kill();
             m_process->waitForFinished(100);
         } else {
-            m_process->stopProcess();
+            m_process->stop();
+            m_process->waitForFinished();
         }
     }
 
