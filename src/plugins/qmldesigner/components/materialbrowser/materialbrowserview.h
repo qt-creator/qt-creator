@@ -62,7 +62,7 @@ public:
                             const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
 
 private:
-    void refreshModel();
+    void refreshModel(bool updateImages);
     bool isMaterial(const ModelNode &node) const;
 
     QPointer<MaterialBrowserWidget> m_widget;

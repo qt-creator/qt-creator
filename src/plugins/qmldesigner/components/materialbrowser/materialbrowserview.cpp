@@ -97,10 +97,12 @@ void MaterialBrowserView::modelAttached(Model *model)
 
     m_widget->clearSearchFilter();
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
-    QTimer::singleShot(0, this, &MaterialBrowserView::refreshModel);
+    QTimer::singleShot(0, this, [this]() {
+        refreshModel(true);
+    });
 }
 
-void MaterialBrowserView::refreshModel()
+void MaterialBrowserView::refreshModel(bool updateImages)
 {
     ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
     QList <ModelNode> materials;
@@ -115,8 +117,10 @@ void MaterialBrowserView::refreshModel()
 
     m_widget->materialBrowserModel()->setMaterials(materials, m_hasQuick3DImport);
 
-    for (const ModelNode &node : std::as_const(materials))
-        model()->nodeInstanceView()->previewImageDataForGenericNode(node, {});
+    if (updateImages) {
+        for (const ModelNode &node : std::as_const(materials))
+            model()->nodeInstanceView()->previewImageDataForGenericNode(node, {});
+    }
 }
 
 bool MaterialBrowserView::isMaterial(const ModelNode &node) const
@@ -204,8 +208,9 @@ void MaterialBrowserView::nodeReparented(const ModelNode &node,
     bool matRemoved = oldParentNode.isValid() && oldParentNode.id() == Constants::MATERIAL_LIB_ID;
 
     if (matAdded || matRemoved) {
-        refreshModel();
-
+        if (matAdded) // Workaround to fix various material issues all likely caused by QTBUG-103316
+            resetPuppet();
+        refreshModel(!matAdded);
         int idx = m_widget->materialBrowserModel()->materialIndex(node);
         m_widget->materialBrowserModel()->selectMaterial(idx);
     }
@@ -252,7 +257,7 @@ void MaterialBrowserView::importsChanged(const QList<Import> &addedImports, cons
         return;
 
     m_hasQuick3DImport = hasQuick3DImport;
-    refreshModel();
+    refreshModel(true);
 }
 
 void MaterialBrowserView::customNotification(const AbstractView *view, const QString &identifier,
@@ -267,6 +272,13 @@ void MaterialBrowserView::customNotification(const AbstractView *view, const QSt
         int idx = m_widget->materialBrowserModel()->materialIndex(nodeList.first());
         if (idx != -1)
             m_widget->materialBrowserModel()->selectMaterial(idx);
+    } else if (identifier == "reset QmlPuppet") {
+        // Little delay is needed to allow puppet reset to actually be done, as it is async as well
+        QTimer::singleShot(200, this, [this]() {
+            const QList<ModelNode> materials = m_widget->materialBrowserModel()->materials();
+            for (const ModelNode &node : materials)
+                model()->nodeInstanceView()->previewImageDataForGenericNode(node, {});
+        });
     }
 }
 
