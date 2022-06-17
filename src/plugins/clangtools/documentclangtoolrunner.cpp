@@ -364,10 +364,7 @@ void DocumentClangToolRunner::cancel()
     if (m_projectSettingsUpdate)
         disconnect(m_projectSettingsUpdate);
     m_runnerCreators.clear();
-    if (m_currentRunner) {
-        m_currentRunner->disconnect(this);
-        m_currentRunner.reset(nullptr);
-    }
+    m_currentRunner.reset(nullptr);
 }
 
 bool DocumentClangToolRunner::isSuppressed(const Diagnostic &diagnostic) const
