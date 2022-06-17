@@ -211,8 +211,7 @@ CdbEngine::CdbEngine() :
     DebuggerSettings *s = debuggerSettings();
     connect(s->createFullBacktrace.action(), &QAction::triggered,
             this, &CdbEngine::createFullBacktrace);
-    connect(&m_process, &QtcProcess::finished, this, &CdbEngine::processFinished);
-    connect(&m_process, &QtcProcess::errorOccurred, this, &CdbEngine::processError);
+    connect(&m_process, &QtcProcess::done, this, &CdbEngine::processDone);
     connect(&m_process, &QtcProcess::readyReadStandardOutput,
             this, &CdbEngine::readyReadStandardOut);
     connect(&m_process, &QtcProcess::readyReadStandardError,
@@ -354,7 +353,7 @@ void CdbEngine::setupEngine()
         return;
     }
 
-    bool cdbIs64Bit = Utils::is64BitWindowsBinary(sp.debugger.command.executable());
+    bool cdbIs64Bit = is64BitWindowsBinary(sp.debugger.command.executable());
     if (!cdbIs64Bit)
         m_wow64State = noWow64Stack;
     const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit));
@@ -702,12 +701,16 @@ void CdbEngine::abortDebuggerProcess()
     m_process.kill();
 }
 
-void CdbEngine::processFinished()
+void CdbEngine::processDone()
 {
-    if (debug)
+    if (m_process.error() != QProcess::UnknownError)
+        showMessage(m_process.errorString(), LogError);
+
+    if (debug) {
         qDebug("CdbEngine::processFinished %dms '%s' (exit state=%d, ex=%d)",
                elapsedLogTime(), qPrintable(stateName(state())),
                m_process.exitStatus(), m_process.exitCode());
+    }
 
     notifyDebuggerProcessFinished(m_process.resultData(), "CDB");
 }
@@ -1039,7 +1042,7 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
                 QList<QStringView> splittedArguments;
                 int maxArgumentSize = maxCommandLength - prefix.length() - maxTokenLength;
                 while (argumentSplitPos < arguments.size()) {
-                    splittedArguments << Utils::midView(arguments, argumentSplitPos, maxArgumentSize);
+                    splittedArguments << midView(arguments, argumentSplitPos, maxArgumentSize);
                     argumentSplitPos += splittedArguments.last().length();
                 }
                 QTC_CHECK(argumentSplitPos == arguments.size());
@@ -2446,11 +2449,6 @@ void CdbEngine::readyReadStandardError()
     showMessage(QString::fromLocal8Bit(m_process.readAllStandardError()), LogError);
 }
 
-void CdbEngine::processError()
-{
-    showMessage(m_process.errorString(), LogError);
-}
-
 #if 0
 // Join breakpoint ids for a multi-breakpoint id commands like 'bc', 'be', 'bd'
 static QByteArray multiBreakpointCommand(const char *cmdC, const Breakpoints &bps)
@@ -2498,14 +2496,14 @@ public:
                                          const CppEditor::WorkingCopy &workingCopy) :
         m_snapshot(s), m_workingCopy(workingCopy) {}
 
-    unsigned fixLineNumber(const Utils::FilePath &filePath, unsigned lineNumber) const;
+    unsigned fixLineNumber(const FilePath &filePath, unsigned lineNumber) const;
 
 private:
     const CPlusPlus::Snapshot m_snapshot;
     CppEditor::WorkingCopy m_workingCopy;
 };
 
-static CPlusPlus::Document::Ptr getParsedDocument(const Utils::FilePath &filePath,
+static CPlusPlus::Document::Ptr getParsedDocument(const FilePath &filePath,
                                                   const CppEditor::WorkingCopy &workingCopy,
                                                   const CPlusPlus::Snapshot &snapshot)
 {
@@ -2520,7 +2518,7 @@ static CPlusPlus::Document::Ptr getParsedDocument(const Utils::FilePath &filePat
     return doc;
 }
 
-unsigned BreakpointCorrectionContext::fixLineNumber(const Utils::FilePath &filePath,
+unsigned BreakpointCorrectionContext::fixLineNumber(const FilePath &filePath,
                                                     unsigned lineNumber) const
 {
     const CPlusPlus::Document::Ptr doc = getParsedDocument(filePath,
@@ -2677,7 +2675,7 @@ static StackFrames parseFrames(const GdbMi &gdbmi, bool *incomplete = nullptr)
         frame.level = QString::number(i);
         const GdbMi fullName = frameMi["fullname"];
         if (fullName.isValid()) {
-            frame.file = Utils::FilePath::fromString(fullName.data()).normalizedPathName();
+            frame.file = FilePath::fromString(fullName.data()).normalizedPathName();
             frame.line = frameMi["line"].data().toInt();
             frame.usable = false; // To be decided after source path mapping.
             const GdbMi languageMi = frameMi["language"];
