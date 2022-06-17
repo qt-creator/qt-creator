@@ -874,4 +874,18 @@ void McuSupportTest::test_createBoardSdk()
     verifyBoardSdk(boardSdk, environmentVariable, versions);
 }
 
+void McuSupportTest::test_legacy_createQtMCUsPackage()
+{
+    EXPECT_CALL(*settingsMockPtr,
+                getPath(QString{Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK}, _, _))
+        .WillRepeatedly(Return(FilePath::fromString(qtForMcuSdkPath)));
+
+    McuPackagePtr qtForMCUsSDK = Sdk::createQtForMCUsPackage(settingsMockPtr);
+
+    QVERIFY(qtForMCUsSDK);
+    QCOMPARE(qtForMCUsSDK->settingsKey(), Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK);
+    QCOMPARE(qtForMCUsSDK->detectionPath(), Constants::QT_FOR_MCUS_SDK_PACKAGE_VALIDATION_PATH);
+    QCOMPARE(qtForMCUsSDK->path().toString(), qtForMcuSdkPath);
+}
+
 } // namespace McuSupport::Internal::Test

@@ -63,6 +63,7 @@ private slots:
     void test_legacy_createTargetWithToolchainPackages();
     void test_createTargetWithToolchainPackages_data();
     void test_createTargetWithToolchainPackages();
+    void test_legacy_createQtMCUsPackage();
 
     void test_createFreeRtosPackageWithCorrectSetting_data();
     void test_createFreeRtosPackageWithCorrectSetting();

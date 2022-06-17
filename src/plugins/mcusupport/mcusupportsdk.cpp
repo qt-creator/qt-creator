@@ -82,8 +82,9 @@ McuPackagePtr createQtForMCUsPackage(const SettingsHandler::Ptr &settingsHandler
     return McuPackagePtr{
         new McuPackage(settingsHandler,
                        McuPackage::tr("Qt for MCUs SDK"),
-                       FileUtils::homePath(),                           // defaultPath
-                       FilePath("bin/qmltocpp").withExecutableSuffix(), // detectionPath
+                       FileUtils::homePath(), // defaultPath
+                       FilePath(Constants::QT_FOR_MCUS_SDK_PACKAGE_VALIDATION_PATH)
+                           .withExecutableSuffix(),                     // detectionPath
                        Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK, // settingsKey
                        QStringLiteral("Qul_ROOT"),                      // cmakeVarName
                        QStringLiteral("Qul_DIR"))};                     // envVarName

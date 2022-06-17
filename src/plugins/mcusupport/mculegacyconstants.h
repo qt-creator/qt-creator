@@ -27,6 +27,7 @@
 
 namespace McuSupport::Constants {
 
+const char QT_FOR_MCUS_SDK_PACKAGE_VALIDATION_PATH[] = "bin/qmltocpp";
 const char QUL_TOOLCHAIN_CMAKE_DIR[] = "lib/cmake/Qul/toolchain/";
 const char QUL_ENV_VAR[] = "Qul_ROOT";
 const char BOARD_SDK_CMAKE_VAR[] = "QUL_BOARD_SDK_DIR";
