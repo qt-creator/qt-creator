@@ -34,6 +34,7 @@
 #include <projectexplorer/session.h>
 
 #include <utils/algorithm.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/settingsutils.h>
@@ -81,6 +82,7 @@ static QString clangdSizeThresholdKey() { return QLatin1String("ClangdSizeThresh
 static QString clangdUseGlobalSettingsKey() { return QLatin1String("useGlobalSettings"); }
 static QString sessionsWithOneClangdKey() { return QLatin1String("SessionsWithOneClangd"); }
 static QString diagnosticConfigIdKey() { return QLatin1String("diagnosticConfigId"); }
+static QString checkedHardwareKey() { return QLatin1String("checkedHardware"); }
 
 static FilePath g_defaultClangdFilePath;
 static FilePath fallbackClangdFilePath()
@@ -204,6 +206,22 @@ ClangdSettings::ClangdSettings()
 bool ClangdSettings::useClangd() const
 {
     return m_data.useClangd && clangdVersion() >= QVersionNumber(14);
+}
+
+void ClangdSettings::setUseClangd(bool use) { instance().m_data.useClangd = use; }
+
+bool ClangdSettings::hardwareFulfillsRequirements()
+{
+    instance().m_data.haveCheckedHardwareReqirements = true;
+    instance().saveSettings();
+    const quint64 minRam = quint64(12) * 1024 * 1024 * 1024;
+    const Utils::optional<quint64> totalRam = Utils::HostOsInfo::totalMemoryInstalledInBytes();
+    return !totalRam || *totalRam >= minRam;
+}
+
+bool ClangdSettings::haveCheckedHardwareRequirements()
+{
+    return instance().data().haveCheckedHardwareReqirements;
 }
 
 void ClangdSettings::setDefaultClangdPath(const FilePath &filePath)
@@ -350,8 +368,6 @@ void ClangdSettings::saveSettings()
 }
 
 #ifdef WITH_TESTS
-void ClangdSettings::setUseClangd(bool use) { instance().m_data.useClangd = use; }
-
 void ClangdSettings::setClangdFilePath(const FilePath &filePath)
 {
     instance().m_data.executableFilePath = filePath;
@@ -435,6 +451,7 @@ QVariantMap ClangdSettings::Data::toMap() const
     map.insert(clangdSizeThresholdKey(), sizeThresholdInKb);
     map.insert(sessionsWithOneClangdKey(), sessionsWithOneClangd);
     map.insert(diagnosticConfigIdKey(), diagnosticConfigId.toSetting());
+    map.insert(checkedHardwareKey(), true);
     return map;
 }
 
@@ -451,6 +468,7 @@ void ClangdSettings::Data::fromMap(const QVariantMap &map)
     sessionsWithOneClangd = map.value(sessionsWithOneClangdKey()).toStringList();
     diagnosticConfigId = Id::fromSetting(map.value(diagnosticConfigIdKey(),
                                                    initialClangDiagnosticConfigId().toSetting()));
+    haveCheckedHardwareReqirements = map.value(checkedHardwareKey(), false).toBool();
 }
 
 } // namespace CppEditor

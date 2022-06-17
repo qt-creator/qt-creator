@@ -62,10 +62,12 @@
 #include <projectexplorer/taskhub.h>
 
 #include <utils/algorithm.h>
+#include <utils/infobar.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
 #include <QApplication>
+#include <QLabel>
 #include <QMenu>
 #include <QTextBlock>
 #include <QTimer>
@@ -124,6 +126,40 @@ static Client *clientForGeneratedFile(const Utils::FilePath &filePath)
     return nullptr;
 }
 
+static void checkSystemForClangdSuitability()
+{
+    if (ClangdSettings::haveCheckedHardwareRequirements())
+        return;
+    if (ClangdSettings::hardwareFulfillsRequirements())
+        return;
+
+    ClangdSettings::setUseClangd(false);
+    const QString warnStr = ClangModelManagerSupport::tr("The use of clangd for the C/C++ "
+            "code model was disabled, because it is likely that its memory requirements "
+            "would be higher than what your system can handle.");
+    const Utils::Id clangdWarningSetting("WarnAboutClangd");
+    Utils::InfoBarEntry info(clangdWarningSetting, warnStr);
+    info.setDetailsWidgetCreator([] {
+        const auto label = new QLabel(ClangModelManagerSupport::tr(
+            "With clangd enabled, Qt Creator fully supports modern C++ "
+            "when highlighting code, completing symbols and so on.<br>"
+            "This comes at a higher cost in terms of CPU load and memory usage compared "
+            "to the built-in code model, which therefore might be the better choice "
+            "on older machines and/or with legacy code.<br>"
+            "You can enable/disable and fine-tune clangd <a href=\"dummy\">here</a>."));
+        label->setWordWrap(true);
+        QObject::connect(label, &QLabel::linkActivated, [] {
+            Core::ICore::showOptionsDialog(CppEditor::Constants::CPP_CLANGD_SETTINGS_ID);
+        });
+        return label;
+    });
+    info.addCustomButton(ClangModelManagerSupport::tr("Enable Anyway"), [clangdWarningSetting] {
+        ClangdSettings::setUseClangd(true);
+        Core::ICore::infoBar()->removeInfo(clangdWarningSetting);
+    });
+    Core::ICore::infoBar()->addInfo(info);
+}
+
 ClangModelManagerSupport::ClangModelManagerSupport()
 {
     QTC_CHECK(!m_instance);
@@ -132,6 +168,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     watchForExternalChanges();
     watchForInternalChanges();
     setupClangdConfigFile();
+    checkSystemForClangdSuitability();
     cppModelManager()->setCurrentDocumentFilter(std::make_unique<ClangdCurrentDocumentFilter>());
     cppModelManager()->setLocatorFilter(std::make_unique<ClangGlobalSymbolFilter>());
     cppModelManager()->setClassesFilter(std::make_unique<ClangClassesFilter>());
