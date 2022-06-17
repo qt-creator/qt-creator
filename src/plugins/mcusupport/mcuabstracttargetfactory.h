@@ -38,9 +38,7 @@ class FilePath;
 
 namespace McuSupport::Internal {
 
-namespace Sdk {
 struct McuTargetDescription;
-} //namespace Sdk
 
 class McuAbstractTargetFactory
 {
@@ -48,7 +46,7 @@ public:
     using Ptr = std::unique_ptr<McuAbstractTargetFactory>;
     virtual ~McuAbstractTargetFactory() = default;
 
-    virtual QPair<Targets, Packages> createTargets(const Sdk::McuTargetDescription &,
+    virtual QPair<Targets, Packages> createTargets(const McuTargetDescription &,
                                                    const Utils::FilePath &qtForMcuPath)
         = 0;
     using AdditionalPackages

@@ -57,13 +57,26 @@
 
 using namespace Utils;
 
-namespace McuSupport {
-namespace Internal {
-namespace Sdk {
+namespace McuSupport::Internal {
 
 namespace {
 const char CMAKE_ENTRIES[]{"cmakeEntries"};
 } // namespace
+
+McuPackagePtr createQtForMCUsPackage(const SettingsHandler::Ptr &settingsHandler)
+{
+    return McuPackagePtr{
+        new McuPackage(settingsHandler,
+                       McuPackage::tr("Qt for MCUs SDK"),
+                       FileUtils::homePath(), // defaultPath
+                       FilePath(Legacy::Constants::QT_FOR_MCUS_SDK_PACKAGE_VALIDATION_PATH)
+                           .withExecutableSuffix(),                     // detectionPath
+                       Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK, // settingsKey
+                       QStringLiteral("Qul_ROOT"),                      // cmakeVarName
+                       QStringLiteral("Qul_DIR"))};                     // envVarName
+}
+
+namespace Legacy {
 
 static FilePath findInProgramFiles(const QString &folder)
 {
@@ -75,19 +88,6 @@ static FilePath findInProgramFiles(const QString &folder)
             return dir;
     }
     return {};
-}
-
-McuPackagePtr createQtForMCUsPackage(const SettingsHandler::Ptr &settingsHandler)
-{
-    return McuPackagePtr{
-        new McuPackage(settingsHandler,
-                       McuPackage::tr("Qt for MCUs SDK"),
-                       FileUtils::homePath(), // defaultPath
-                       FilePath(Constants::QT_FOR_MCUS_SDK_PACKAGE_VALIDATION_PATH)
-                           .withExecutableSuffix(),                     // detectionPath
-                       Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK, // settingsKey
-                       QStringLiteral("Qul_ROOT"),                      // cmakeVarName
-                       QStringLiteral("Qul_DIR"))};                     // envVarName
 }
 
 static McuPackageVersionDetector *generatePackageVersionDetector(const QString &envVar)
@@ -458,35 +458,38 @@ static McuPackagePtr createRenesasProgrammerPackage(const SettingsHandler::Ptr &
                                         envVar)};                        // env var
 }
 
+} // namespace Legacy
+
 static McuAbstractTargetFactory::Ptr createFactory(bool isLegacy,
                                                    const SettingsHandler::Ptr &settingsHandler,
                                                    const FilePath &qtMcuSdkPath)
 {
     McuAbstractTargetFactory::Ptr result;
     if (isLegacy) {
-        static const QHash<QString, ToolchainCompilerCreator> toolchainCreators = {
+        static const QHash<QString, Legacy::ToolchainCompilerCreator> toolchainCreators = {
             {{"armgcc"}, {[settingsHandler](const QStringList &versions) {
-                 return createArmGccToolchainPackage(settingsHandler, versions);
+                 return Legacy::createArmGccToolchainPackage(settingsHandler, versions);
              }}},
             {{"greenhills"},
              [settingsHandler](const QStringList &versions) {
-                 return createGhsToolchainPackage(settingsHandler, versions);
+                 return Legacy::createGhsToolchainPackage(settingsHandler, versions);
              }},
             {{"iar"}, {[settingsHandler](const QStringList &versions) {
-                 return createIarToolChainPackage(settingsHandler, versions);
+                 return Legacy::createIarToolChainPackage(settingsHandler, versions);
              }}},
             {{"msvc"}, {[settingsHandler](const QStringList &versions) {
-                 return createMsvcToolChainPackage(settingsHandler, versions);
+                 return Legacy::createMsvcToolChainPackage(settingsHandler, versions);
              }}},
             {{"gcc"}, {[settingsHandler](const QStringList &versions) {
-                 return createGccToolChainPackage(settingsHandler, versions);
+                 return Legacy::createGccToolChainPackage(settingsHandler, versions);
              }}},
             {{"arm-greenhills"}, {[settingsHandler](const QStringList &versions) {
-                 return createGhsArmToolchainPackage(settingsHandler, versions);
+                 return Legacy::createGhsArmToolchainPackage(settingsHandler, versions);
              }}},
         };
 
-        const FilePath toolchainFilePrefix = qtMcuSdkPath / Constants::QUL_TOOLCHAIN_CMAKE_DIR;
+        const FilePath toolchainFilePrefix = qtMcuSdkPath
+                                             / Legacy::Constants::QUL_TOOLCHAIN_CMAKE_DIR;
         static const QHash<QString, McuPackagePtr> toolchainFiles = {
             {{"armgcc"},
              McuPackagePtr{new McuPackage{settingsHandler,
@@ -494,7 +497,7 @@ static McuAbstractTargetFactory::Ptr createFactory(bool isLegacy,
                                           toolchainFilePrefix / "armgcc.cmake",
                                           {},
                                           {},
-                                          Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
+                                          Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
                                           {}}}},
 
             {{"iar"},
@@ -503,7 +506,7 @@ static McuAbstractTargetFactory::Ptr createFactory(bool isLegacy,
                                           toolchainFilePrefix / "iar.cmake",
                                           {},
                                           {},
-                                          Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
+                                          Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
                                           {}}}},
             {"greenhills",
              McuPackagePtr{new McuPackage{settingsHandler,
@@ -511,7 +514,7 @@ static McuAbstractTargetFactory::Ptr createFactory(bool isLegacy,
                                           toolchainFilePrefix / "ghs.cmake",
                                           {},
                                           {},
-                                          Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
+                                          Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
                                           {}}}},
             {"arm-greenhills",
              McuPackagePtr{new McuPackage{settingsHandler,
@@ -519,23 +522,23 @@ static McuAbstractTargetFactory::Ptr createFactory(bool isLegacy,
                                           toolchainFilePrefix / "arm-ghs.cmake",
                                           {},
                                           {},
-                                          Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
+                                          Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
                                           {}}}},
         };
 
         // Note: the vendor name (the key of the hash) is case-sensitive. It has to match the "platformVendor" key in the
         // json file.
         static const QHash<QString, McuPackagePtr> vendorPkgs = {
-            {{"ST"}, McuPackagePtr{createStm32CubeProgrammerPackage(settingsHandler)}},
-            {{"NXP"}, McuPackagePtr{createMcuXpressoIdePackage(settingsHandler)}},
-            {{"CYPRESS"}, McuPackagePtr{createCypressProgrammerPackage(settingsHandler)}},
-            {{"RENESAS"}, McuPackagePtr{createRenesasProgrammerPackage(settingsHandler)}},
+            {{"ST"}, McuPackagePtr{Legacy::createStm32CubeProgrammerPackage(settingsHandler)}},
+            {{"NXP"}, McuPackagePtr{Legacy::createMcuXpressoIdePackage(settingsHandler)}},
+            {{"CYPRESS"}, McuPackagePtr{Legacy::createCypressProgrammerPackage(settingsHandler)}},
+            {{"RENESAS"}, McuPackagePtr{Legacy::createRenesasProgrammerPackage(settingsHandler)}},
         };
 
-        result = std::make_unique<McuTargetFactoryLegacy>(toolchainCreators,
-                                                          toolchainFiles,
-                                                          vendorPkgs,
-                                                          settingsHandler);
+        result = std::make_unique<Legacy::McuTargetFactory>(toolchainCreators,
+                                                            toolchainFiles,
+                                                            vendorPkgs,
+                                                            settingsHandler);
     } else {
         result = std::make_unique<McuTargetFactory>(settingsHandler);
     }
@@ -779,6 +782,4 @@ McuSdkRepository targetsAndPackages(const Utils::FilePath &qtForMCUSdkPath,
     return repo;
 }
 
-} // namespace Sdk
-} // namespace Internal
-} // namespace McuSupport
+} // namespace McuSupport::Internal

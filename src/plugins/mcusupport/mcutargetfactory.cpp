@@ -38,9 +38,6 @@
 
 namespace McuSupport::Internal {
 
-using Sdk::McuTargetDescription;
-using Sdk::PackageDescription;
-
 bool isToolchainDescriptionValid(const McuTargetDescription::Toolchain &t)
 {
     return !t.id.isEmpty() && !t.compiler.cmakeVar.isEmpty() && !t.file.cmakeVar.isEmpty();

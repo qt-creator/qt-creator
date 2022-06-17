@@ -25,8 +25,7 @@
 
 #pragma once
 
-namespace McuSupport {
-namespace Constants {
+namespace McuSupport::Internal::Constants {
 
 const char DEVICE_TYPE[]{"McuSupport.DeviceType"};
 const char DEVICE_ID[]{"McuSupport.Device"};
@@ -43,12 +42,7 @@ const char KIT_MCUTARGET_TOOLCHAIN_KEY[]{"McuSupport.McuTargetToolchain"};
 
 const char SETTINGS_GROUP[]{"McuSupport"};
 const char SETTINGS_KEY_PACKAGE_PREFIX[]{"Package_"};
-const char SETTINGS_KEY_FREERTOS_PREFIX[]{"FreeRTOSSourcePackage_"};
 const char SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK[]{"QtForMCUsSdk"}; // Key known by SDK installer
 const char SETTINGS_KEY_AUTOMATIC_KIT_CREATION[]{"AutomaticKitCreation"};
 
-const char TOOLCHAIN_DIR_CMAKE_VARIABLE[]{"QUL_TARGET_TOOLCHAIN_DIR"};
-const char TOOLCHAIN_FILE_CMAKE_VARIABLE[]{"CMAKE_TOOLCHAIN_FILE"};
-
-} // namespace Constants
-} // namespace McuSupport
+} // namespace McuSupport::Internal::Constants

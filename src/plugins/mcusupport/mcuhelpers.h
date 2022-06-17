@@ -29,13 +29,11 @@
 
 #include <QRegularExpression>
 
-namespace McuSupport {
+namespace McuSupport::Internal {
 
-namespace Internal::Sdk {
 struct McuTargetDescription;
-}
 
-Internal::McuTarget::OS deduceOperatingSystem(const Internal::Sdk::McuTargetDescription &);
+McuTarget::OS deduceOperatingSystem(const McuTargetDescription &);
 QString removeRtosSuffix(const QString &environmentVariable);
 
-}; // namespace McuSupport
+} // namespace McuSupport::Internal

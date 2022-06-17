@@ -28,8 +28,6 @@
 #include "mcusupport_global.h"
 #include "settingshandler.h"
 
-#include <utils/filepath.h>
-
 namespace Utils {
 class FilePath;
 } // namespace Utils
@@ -43,9 +41,6 @@ class McuPackage;
 class McuSdkRepository;
 class McuTarget;
 class McuToolChainPackage;
-
-namespace Sdk {
-
 struct McuTargetDescription;
 
 McuPackagePtr createQtForMCUsPackage(const SettingsHandler::Ptr &);
@@ -61,6 +56,8 @@ McuSdkRepository targetsFromDescriptions(const QList<McuTargetDescription> &,
                                          bool isLegacy);
 
 Utils::FilePath kitsPath(const Utils::FilePath &dir);
+
+namespace Legacy {
 
 McuPackagePtr createUnsupportedToolChainFilePackage(const SettingsHandler::Ptr &,
                                                     const Utils::FilePath &qtMcuSdkPath);
@@ -80,5 +77,5 @@ McuPackagePtr createFreeRTOSSourcesPackage(const SettingsHandler::Ptr &settingsH
                                            const Utils::FilePath &boardSdkDir,
                                            const Utils::FilePath &freeRTOSBoardSdkSubDir);
 
-} // namespace Sdk
+} // namespace Legacy
 } // namespace McuSupport::Internal

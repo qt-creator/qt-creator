@@ -31,7 +31,7 @@
 #include <QVector>
 #include <QVersionNumber>
 
-namespace McuSupport::Internal::Sdk {
+namespace McuSupport::Internal {
 
 struct PackageDescription
 {
@@ -76,6 +76,6 @@ struct McuTargetDescription
     } freeRTOS;
 };
 
-} // namespace McuSupport::Internal::Sdk
+} // namespace McuSupport::Internal
 
-Q_DECLARE_METATYPE(McuSupport::Internal::Sdk::McuTargetDescription)
+Q_DECLARE_METATYPE(McuSupport::Internal::McuTargetDescription)

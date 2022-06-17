@@ -27,6 +27,7 @@
 
 #include "mcukitinformation.h"
 #include "mcukitmanager.h"
+#include "mculegacyconstants.h"
 #include "mcupackage.h"
 #include "mcusupportconstants.h"
 #include "mcusupportplugin.h"
@@ -46,14 +47,13 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace McuSupport::Internal {
 
 McuSupportOptions::McuSupportOptions(const SettingsHandler::Ptr &settingsHandler, QObject *parent)
     : QObject(parent)
-    , qtForMCUsSdkPackage(Sdk::createQtForMCUsPackage(settingsHandler))
+    , qtForMCUsSdkPackage(createQtForMCUsPackage(settingsHandler))
     , settingsHandler(settingsHandler)
 {
     connect(qtForMCUsSdkPackage.get(),
@@ -122,7 +122,7 @@ void McuSupportOptions::setQulDir(const FilePath &dir)
 {
     qtForMCUsSdkPackage->updateStatus();
     if (qtForMCUsSdkPackage->isValidStatus())
-        sdkRepository = Sdk::targetsAndPackages(dir, settingsHandler);
+        sdkRepository = targetsAndPackages(dir, settingsHandler);
     else
         sdkRepository = McuSdkRepository{};
     for (const auto &package : qAsConst(sdkRepository.packages))

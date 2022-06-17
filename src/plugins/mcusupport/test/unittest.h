@@ -102,9 +102,9 @@ private:
 
     QSharedPointer<SettingsHandlerMock> settingsMockPtr{new SettingsHandlerMock};
     McuTargetFactory targetFactory;
-    Sdk::PackageDescription compilerDescription;
-    Sdk::PackageDescription toochainFileDescription;
-    Sdk::McuTargetDescription targetDescription;
+    PackageDescription compilerDescription;
+    PackageDescription toochainFileDescription;
+    McuTargetDescription targetDescription;
     McuToolChainPackagePtr toolchainPackagePtr;
     McuToolChainPackagePtr armGccToolchainPackagePtr;
     McuToolChainPackagePtr iarToolchainPackagePtr;

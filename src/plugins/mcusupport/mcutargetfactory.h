@@ -31,19 +31,17 @@
 
 namespace McuSupport::Internal {
 
-namespace Sdk {
 struct PackageDescription;
-} // namespace Sdk
 
 class McuTargetFactory : public McuAbstractTargetFactory
 {
 public:
     explicit McuTargetFactory(const SettingsHandler::Ptr &);
-    QPair<Targets, Packages> createTargets(const Sdk::McuTargetDescription &,
+    QPair<Targets, Packages> createTargets(const McuTargetDescription &,
                                            const Utils::FilePath &qtForMCUSdkPath) override;
-    Packages createPackages(const Sdk::McuTargetDescription &);
-    McuToolChainPackage *createToolchain(const Sdk::McuTargetDescription::Toolchain &);
-    McuPackagePtr createPackage(const Sdk::PackageDescription &);
+    Packages createPackages(const McuTargetDescription &);
+    McuToolChainPackage *createToolchain(const McuTargetDescription::Toolchain &);
+    McuPackagePtr createPackage(const PackageDescription &);
 
 private:
     SettingsHandler::Ptr settingsHandler;

@@ -28,12 +28,12 @@
 
 #include <QRegularExpression>
 
-namespace McuSupport {
+namespace McuSupport::Internal {
 
-Internal::McuTarget::OS deduceOperatingSystem(const Internal::Sdk::McuTargetDescription &desc)
+McuTarget::OS deduceOperatingSystem(const McuTargetDescription &desc)
 {
-    using OS = Internal::McuTarget::OS;
-    using TargetType = Internal::Sdk::McuTargetDescription::TargetType;
+    using OS = McuTarget::OS;
+    using TargetType = McuTargetDescription::TargetType;
     if (desc.platform.type == TargetType::Desktop)
         return OS::Desktop;
     else if (!desc.freeRTOS.envVar.isEmpty())
@@ -48,4 +48,4 @@ QString removeRtosSuffix(const QString &environmentVariable)
     return result.replace(freeRtosSuffix, QString{});
 }
 
-} //namespace McuSupport
+} // namespace McuSupport::Internal

@@ -212,11 +212,11 @@ void McuSupportOptionsWidget::updateStatus()
             m_mcuTargetsInfoLabel->setType(Utils::InfoLabel::NotOk);
             const Utils::FilePath sdkPath = m_options.qtForMCUsSdkPackage->basePath();
             QString deprecationMessage;
-            if (Sdk::checkDeprecatedSdkError(sdkPath, deprecationMessage))
+            if (checkDeprecatedSdkError(sdkPath, deprecationMessage))
                 m_mcuTargetsInfoLabel->setText(deprecationMessage);
             else
                 m_mcuTargetsInfoLabel->setText(tr("No valid kit descriptions found at %1.")
-                                                   .arg(Sdk::kitsPath(sdkPath).toUserOutput()));
+                                                   .arg(kitsPath(sdkPath).toUserOutput()));
         }
     }
 

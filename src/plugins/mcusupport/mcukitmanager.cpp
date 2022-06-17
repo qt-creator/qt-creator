@@ -255,7 +255,7 @@ public:
         if (!mcuTarget->toolChainPackage()->isDesktopToolchain()) {
             const FilePath cMakeToolchainFile = mcuTarget->toolChainFilePackage()->path();
 
-            configMap.insert(Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
+            configMap.insert(Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
                              cMakeToolchainFile.toString().toUtf8());
             if (!cMakeToolchainFile.exists()) {
                 printMessage(
@@ -365,7 +365,7 @@ QString generateKitNameFromTarget(const McuTarget *mcuTarget)
 QVersionNumber kitQulVersion(const Kit *kit)
 {
     return QVersionNumber::fromString(
-        kit->value(McuSupport::Constants::KIT_MCUTARGET_SDKVERSION_KEY).toString());
+        kit->value(Constants::KIT_MCUTARGET_SDKVERSION_KEY).toString());
 }
 
 // Kit Information
@@ -449,7 +449,7 @@ QList<Kit *> outdatedKits()
 // Maintenance
 void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
 {
-    McuPackagePtr qtForMCUsPackage{Sdk::createQtForMCUsPackage(settingsHandler)};
+    McuPackagePtr qtForMCUsPackage{createQtForMCUsPackage(settingsHandler)};
 
     const auto createKits = [qtForMCUsPackage, settingsHandler]() {
         if (settingsHandler->isAutomaticKitCreationEnabled()) {
@@ -494,7 +494,7 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
             }
 
             FilePath dir = qtForMCUsPackage->path();
-            McuSdkRepository repo{Sdk::targetsAndPackages(dir, settingsHandler)};
+            McuSdkRepository repo{targetsAndPackages(dir, settingsHandler)};
 
             bool needsUpgrade = false;
             for (const auto &target : qAsConst(repo.mcuTargets)) {
@@ -530,10 +530,10 @@ void upgradeKitsByCreatingNewPackage(const SettingsHandler::Ptr &settingsHandler
     if (upgradeOption == UpgradeOption::Ignore)
         return;
 
-    McuPackagePtr qtForMCUsPackage{Sdk::createQtForMCUsPackage(settingsHandler)};
+    McuPackagePtr qtForMCUsPackage{createQtForMCUsPackage(settingsHandler)};
 
     auto dir = qtForMCUsPackage->path();
-    McuSdkRepository repo{Sdk::targetsAndPackages(dir, settingsHandler)};
+    McuSdkRepository repo{targetsAndPackages(dir, settingsHandler)};
 
     for (const auto &target : qAsConst(repo.mcuTargets)) {
         if (!matchingKits(target.get(), qtForMCUsPackage).empty())
@@ -572,10 +572,10 @@ void upgradeKitInPlace(ProjectExplorer::Kit *kit,
 // update the corresponding cmake variables in all existing kits
 void updatePathsInExistingKits(const SettingsHandler::Ptr &settingsHandler)
 {
-    McuPackagePtr qtForMCUsPackage{Sdk::createQtForMCUsPackage(settingsHandler)};
+    McuPackagePtr qtForMCUsPackage{createQtForMCUsPackage(settingsHandler)};
 
     FilePath dir = qtForMCUsPackage->path();
-    McuSdkRepository repo{Sdk::targetsAndPackages(dir, settingsHandler)};
+    McuSdkRepository repo{targetsAndPackages(dir, settingsHandler)};
     for (const auto &target : qAsConst(repo.mcuTargets)) {
         if (target->isValid()) {
             for (auto *kit : kitsWithMismatchedDependencies(target.get())) {
@@ -657,11 +657,11 @@ void fixExistingKits(const SettingsHandler::Ptr &settingsHandler)
     }
 
     // Fix kit dependencies for known targets
-    McuPackagePtr qtForMCUsPackage{Sdk::createQtForMCUsPackage(settingsHandler)};
+    McuPackagePtr qtForMCUsPackage{createQtForMCUsPackage(settingsHandler)};
     qtForMCUsPackage->updateStatus();
     if (qtForMCUsPackage->isValidStatus()) {
         FilePath dir = qtForMCUsPackage->path();
-        McuSdkRepository repo{Sdk::targetsAndPackages(dir, settingsHandler)};
+        McuSdkRepository repo{targetsAndPackages(dir, settingsHandler)};
         for (const auto &target : qAsConst(repo.mcuTargets))
             for (auto kit : existingKits(target.get())) {
                 if (McuDependenciesKitAspect::dependencies(kit).isEmpty()) {
