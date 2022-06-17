@@ -71,6 +71,7 @@ const char *nameForStyle(TextStyle style)
     case C_OVERLOADED_OPERATOR: return "Overloaded Operator";
     case C_PUNCTUATION:         return "Punctuation";
     case C_PREPROCESSOR:        return "Preprocessor";
+    case C_MACRO:               return "Macro";
     case C_LABEL:               return "Label";
     case C_COMMENT:             return "Comment";
     case C_DOXYGEN_COMMENT:     return "Doxygen.Comment";

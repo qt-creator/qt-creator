@@ -328,7 +328,7 @@ void SemanticHighlighter::updateFormatMapFromFontSettings()
     m_formatMap[EnumerationUse] = fs.toTextCharFormat(C_ENUMERATION);
     m_formatMap[VirtualMethodUse] = fs.toTextCharFormat(C_VIRTUAL_METHOD);
     m_formatMap[LabelUse] = fs.toTextCharFormat(C_LABEL);
-    m_formatMap[MacroUse] = fs.toTextCharFormat(C_PREPROCESSOR);
+    m_formatMap[MacroUse] = fs.toTextCharFormat(C_MACRO);
     m_formatMap[FunctionUse] = fs.toTextCharFormat(C_FUNCTION);
     m_formatMap[FunctionDeclarationUse] =
             fs.toTextCharFormat(TextStyles::mixinStyle(C_FUNCTION, C_DECLARATION));

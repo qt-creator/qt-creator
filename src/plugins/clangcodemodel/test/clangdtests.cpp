@@ -889,11 +889,11 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("closing angle bracket in class template declaration") << 261 << 18 << 261 << 19
         << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("macro definition") << 231 << 9 << 231 << 31
-        << QList<int>{C_PREPROCESSOR, C_DECLARATION} << 0;
+        << QList<int>{C_MACRO, C_DECLARATION} << 0;
     QTest::newRow("function-like macro definition") << 232 << 9 << 232 << 24
-        << QList<int>{C_PREPROCESSOR, C_DECLARATION} << 0;
+        << QList<int>{C_MACRO, C_DECLARATION} << 0;
     QTest::newRow("function-like macro call") << 236 << 5 << 236 << 20
-        << QList<int>{C_PREPROCESSOR} << 0;
+        << QList<int>{C_MACRO} << 0;
     QTest::newRow("function-like macro call argument 1") << 236 << 21 << 236 << 22
         << QList<int>{C_NUMBER} << 0;
     QTest::newRow("function-like macro call argument 2") << 236 << 24 << 236 << 25
@@ -1054,7 +1054,7 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("using declaration for function template") << 584 << 10 << 584 << 16
         << QList<int>{C_FUNCTION} << 0;
     QTest::newRow("Q_PROPERTY (macro name)") << 599 << 5 << 599 << 15
-        << QList<int>{C_PREPROCESSOR} << 0;
+        << QList<int>{C_MACRO} << 0;
     QTest::newRow("Q_PROPERTY (property name)") << 599 << 52 << 599 << 56
         << QList<int>{C_FIELD} << 0;
     QTest::newRow("Q_PROPERTY (READ keyword)") << 599 << 57 << 599 << 61
@@ -1078,7 +1078,7 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("Q_PROPERTY (REVISION keyword [new])") << 600 << 46 << 600 << 54
         << QList<int>{C_KEYWORD} << 0;
     QTest::newRow("multi-line Q_PROPERTY (macro name)") << 704 << 5 << 704 << 15
-        << QList<int>{C_PREPROCESSOR} << 0;
+        << QList<int>{C_MACRO} << 0;
     QTest::newRow("multi-line Q_PROPERTY (property name)") << 718 << 13 << 718 << 17
         << QList<int>{C_FIELD} << 0;
     QTest::newRow("multi-line Q_PROPERTY (getter)") << 722 << 13 << 722 << 20
@@ -1086,19 +1086,19 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("multi-line Q_PROPERTY (notifier)") << 730 << 13 << 730 << 24
         << QList<int>{C_FUNCTION} << 0;
     QTest::newRow("old-style signal (macro)") << 672 << 5 << 672 << 11
-        << QList<int>{C_PREPROCESSOR} << 0;
+        << QList<int>{C_MACRO} << 0;
     QTest::newRow("old-style signal (signal)") << 672 << 12 << 672 << 21
         << QList<int>{C_FUNCTION} << 0;
     QTest::newRow("old-style signal (signal parameter)") << 672 << 22 << 672 << 29
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("old-style slot (macro)") << 673 << 5 << 673 << 9
-        << QList<int>{C_PREPROCESSOR} << 0;
+        << QList<int>{C_MACRO} << 0;
     QTest::newRow("old-style slot (slot)") << 673 << 10 << 673 << 19
         << QList<int>{C_FUNCTION} << 0;
     QTest::newRow("old-style slot (slot parameter)") << 673 << 20 << 673 << 27
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("old-style signal with complex parameter (macro)") << 674 << 5 << 674 << 11
-        << QList<int>{C_PREPROCESSOR} << 0;
+        << QList<int>{C_MACRO} << 0;
     QTest::newRow("old-style signal with complex parameter (signal)") << 674 << 12 << 674 << 21
         << QList<int>{C_FUNCTION} << 0;
     QTest::newRow("old-style signal with complex parameter (signal parameter part 1)")
@@ -1246,7 +1246,7 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("cyrillic string") << 792 << 24 << 792 << 27 << QList<int>{C_STRING} << 0;
     QTest::newRow("macro in struct") << 795 << 9 << 795 << 14
-        << QList<int>{C_PREPROCESSOR, C_DECLARATION} << 0;
+        << QList<int>{C_MACRO, C_DECLARATION} << 0;
     QTest::newRow("#ifdef'ed out code") << 800 << 1 << 800 << 17
         << QList<int>{C_DISABLED_CODE} << 0;
     QTest::newRow("static function call (object)") << 819 << 5 << 819 << 6
@@ -1298,11 +1298,11 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("output arg") << 945 << 20 << 945 << 23
                                 << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
     QTest::newRow("built-in define 1") << 950 << 21 << 950 << 29
-                                << QList<int>{C_PREPROCESSOR} << 0;
+                                << QList<int>{C_MACRO} << 0;
     QTest::newRow("built-in define 2") << 951 << 21 << 951 << 33
-                                << QList<int>{C_PREPROCESSOR} << 0;
+                                << QList<int>{C_MACRO} << 0;
     QTest::newRow("built-in define 3") << 952 << 21 << 952 << 40
-                                << QList<int>{C_PREPROCESSOR} << 0;
+                                << QList<int>{C_MACRO} << 0;
     QTest::newRow("deref operator (object)") << 960 << 10 << 960 << 11 << QList<int>{C_LOCAL} << 0;
     QTest::newRow("deref operator (member)") << 960 << 12 << 960 << 13 << QList<int>{C_FIELD} << 0;
     QTest::newRow("nested call") << 979 << 20 << 979 << 21 << QList<int>{C_LOCAL} << 0;

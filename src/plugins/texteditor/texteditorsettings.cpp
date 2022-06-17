@@ -263,6 +263,8 @@ FormatDescriptions TextEditorSettingsPrivate::initialFormats()
                              FormatDescription::ShowAllControls);
     formatDescr.emplace_back(C_PREPROCESSOR, tr("Preprocessor"),
                              tr("Preprocessor directives."), Qt::darkBlue);
+    formatDescr.emplace_back(C_MACRO, tr("Macro"),
+                             tr("Macros."), functionFormat);
     formatDescr.emplace_back(C_LABEL, tr("Label"), tr("Labels for goto statements."),
                              Qt::darkRed);
     formatDescr.emplace_back(C_COMMENT, tr("Comment"),

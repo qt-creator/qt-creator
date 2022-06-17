@@ -342,7 +342,7 @@ void doSemanticHighlighting(
         } else if (token.type == "parameter") {
             styles.mainStyle = C_PARAMETER;
         } else if (token.type == "macro") {
-            styles.mainStyle = C_PREPROCESSOR;
+            styles.mainStyle = C_MACRO;
         } else if (token.type == "type") {
             styles.mainStyle = C_TYPE;
         } else if (token.type == "typeParameter") {
@@ -406,7 +406,7 @@ void ExtraHighlightingResultsCollector::collect()
 {
     for (int i = 0; i < m_results.length(); ++i) {
         const HighlightingResult res = m_results.at(i);
-        if (res.textStyles.mainStyle != C_PREPROCESSOR || res.length != 10)
+        if (res.textStyles.mainStyle != TextEditor::C_MACRO || res.length != 10)
             continue;
         const int pos = Utils::Text::positionInText(m_doc, res.line, res.column);
         if (subViewLen(m_docContent, pos, 10) != QLatin1String("Q_PROPERTY"))
@@ -478,7 +478,7 @@ void ExtraHighlightingResultsCollector::insertResult(const HighlightingResult &r
         // location, so it should occur right before the insertion position.
         if (it > m_results.begin() && (it - 1)->line == result.line
                 && (it - 1)->column == result.column
-                && (it - 1)->textStyles.mainStyle == C_PREPROCESSOR) {
+                && (it - 1)->textStyles.mainStyle == C_MACRO) {
             return;
         }
 
@@ -589,7 +589,7 @@ void ExtraHighlightingResultsCollector::collectFromNode(const ClangdAstNode &nod
 
     const bool isExpression = node.role() == "expression";
     if (isExpression && node.kind() == "Predefined") {
-        insertResult(node, C_PREPROCESSOR);
+        insertResult(node, C_MACRO);
         return;
     }
 

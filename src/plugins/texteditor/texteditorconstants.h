@@ -69,6 +69,7 @@ enum TextStyle : quint8 {
     C_OVERLOADED_OPERATOR,
     C_PUNCTUATION,
     C_PREPROCESSOR,
+    C_MACRO,
     C_LABEL,
     C_COMMENT,
     C_DOXYGEN_COMMENT,
