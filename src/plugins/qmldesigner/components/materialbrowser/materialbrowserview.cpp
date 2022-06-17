@@ -97,7 +97,10 @@ void MaterialBrowserView::modelAttached(Model *model)
 
     m_widget->clearSearchFilter();
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
-    QTimer::singleShot(0, this, [this]() {
+
+    // Project load is already very busy and may even trigger puppet reset, so let's wait a moment
+    // before refreshing the model
+    QTimer::singleShot(1000, this, [this]() {
         refreshModel(true);
     });
 }
@@ -257,7 +260,17 @@ void MaterialBrowserView::importsChanged(const QList<Import> &addedImports, cons
         return;
 
     m_hasQuick3DImport = hasQuick3DImport;
-    refreshModel(true);
+
+    if (m_hasQuick3DImport) {
+        // Import change will trigger puppet reset.
+        // However, it doesn't seem to trigger the notification about the reset, so wait here.
+        QTimer::singleShot(1000, this, [this]() {
+            refreshModel(true);
+        });
+    } else {
+        // No quick3d import, so we can refresh immediately to clear the browser
+        refreshModel(true);
+    }
 }
 
 void MaterialBrowserView::customNotification(const AbstractView *view, const QString &identifier,
