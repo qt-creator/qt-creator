@@ -71,15 +71,8 @@ signals:
     void valgrindExecuted(const QString &);
     void valgrindStarted(qint64 pid);
     void finished();
-    void extraProcessFinished();
 
 private:
-    bool startServers();
-
-    void xmlSocketConnected();
-    void logSocketConnected();
-    void readLogSocket();
-
     class Private;
     Private *d;
 };
