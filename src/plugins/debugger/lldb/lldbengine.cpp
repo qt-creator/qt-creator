@@ -92,21 +92,14 @@ LldbEngine::LldbEngine()
     setDebuggerName("LLDB");
 
     DebuggerSettings &ds = *debuggerSettings();
-    connect(&ds.autoDerefPointers, &BaseAspect::changed,
-            this, &LldbEngine::updateLocals);
+    connect(&ds.autoDerefPointers, &BaseAspect::changed, this, &LldbEngine::updateLocals);
     connect(ds.createFullBacktrace.action(), &QAction::triggered,
             this, &LldbEngine::fetchFullBacktrace);
-    connect(&ds.useDebuggingHelpers, &BaseAspect::changed,
-            this, &LldbEngine::updateLocals);
-    connect(&ds.useDynamicType, &BaseAspect::changed,
-            this, &LldbEngine::updateLocals);
-    connect(&ds.intelFlavor, &BaseAspect::changed,
-            this, &LldbEngine::updateAll);
+    connect(&ds.useDebuggingHelpers, &BaseAspect::changed, this, &LldbEngine::updateLocals);
+    connect(&ds.useDynamicType, &BaseAspect::changed, this, &LldbEngine::updateLocals);
+    connect(&ds.intelFlavor, &BaseAspect::changed, this, &LldbEngine::updateAll);
 
-    connect(&m_lldbProc, &QtcProcess::errorOccurred,
-            this, &LldbEngine::handleLldbError);
-    connect(&m_lldbProc, &QtcProcess::finished,
-            this, &LldbEngine::handleLldbFinished);
+    connect(&m_lldbProc, &QtcProcess::done, this, &LldbEngine::handleLldbDone);
     connect(&m_lldbProc, &QtcProcess::readyReadStandardOutput,
             this, &LldbEngine::readLldbStandardOutput);
     connect(&m_lldbProc, &QtcProcess::readyReadStandardError,
@@ -114,11 +107,6 @@ LldbEngine::LldbEngine()
 
     connect(this, &LldbEngine::outputReady,
             this, &LldbEngine::handleResponse, Qt::QueuedConnection);
-}
-
-LldbEngine::~LldbEngine()
-{
-    m_lldbProc.disconnect();
 }
 
 void LldbEngine::executeDebuggerCommand(const QString &command)
@@ -782,12 +770,17 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
     runCommand(cmd);
 }
 
-void LldbEngine::handleLldbError(QProcess::ProcessError error)
+void LldbEngine::handleLldbDone()
 {
+    if (m_lldbProc.error() == QProcess::UnknownError) {
+        notifyDebuggerProcessFinished(m_lldbProc.resultData(), "LLDB");
+        return;
+    }
+
+    const QProcess::ProcessError error = m_lldbProc.error();
     showMessage(QString("LLDB PROCESS ERROR: %1").arg(error));
     switch (error) {
     case QProcess::Crashed:
-        m_lldbProc.disconnect();
         notifyEngineShutdownFinished();
         break; // will get a processExited() as well
     // impossible case QProcess::FailedToStart:
@@ -796,7 +789,6 @@ void LldbEngine::handleLldbError(QProcess::ProcessError error)
     case QProcess::Timedout:
     default:
         //setState(EngineShutdownRequested, true);
-        m_lldbProc.stop();
         AsynchronousMessageBox::critical(tr("LLDB I/O Error"), errorMessage(error));
         break;
     }
@@ -827,11 +819,6 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
         default:
             return tr("An unknown error in the LLDB process occurred.") + ' ';
     }
-}
-
-void LldbEngine::handleLldbFinished()
-{
-    notifyDebuggerProcessFinished(m_lldbProc.resultData(), "LLDB");
 }
 
 void LldbEngine::readLldbStandardError()
@@ -921,7 +908,7 @@ void LldbEngine::handleStateNotification(const GdbMi &item)
 void LldbEngine::handleLocationNotification(const GdbMi &reportedLocation)
 {
     qulonglong address = reportedLocation["address"].toAddress();
-    Utils::FilePath fileName = FilePath::fromUserInput(reportedLocation["file"].data());
+    FilePath fileName = FilePath::fromUserInput(reportedLocation["file"].data());
     QString function = reportedLocation["function"].data();
     int lineNumber = reportedLocation["line"].toInt();
     Location loc = Location(fileName, lineNumber);
