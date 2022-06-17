@@ -83,17 +83,12 @@ constexpr auto iar_stm32f469i_metal_json = R"({
   },
   "boardSdk": {
     "envVar": "STM32Cube_FW_F4_SDK_PATH",
-    "versions": [
-      "1.25.0"
-    ],
-    "cmakeEntries": [
-      {
-        "id": "ST_SDK_DIR",
-        "label": "Board SDK for STM32F469I-Discovery",
-        "cmakeVar": "QUL_BOARD_SDK_DIR",
-        "type": "path",
-        "optional": false
-      }
-    ]
+    "setting": "STM32Cube_FW_F4_SDK_PATH",
+    "versions": [ "1.25.0" ],
+    "id": "ST_SDK_DIR",
+    "label": "Board SDK for STM32F469I-Discovery",
+    "cmakeVar": "QUL_BOARD_SDK_DIR",
+    "type": "path",
+    "optional": false
   }
 })";

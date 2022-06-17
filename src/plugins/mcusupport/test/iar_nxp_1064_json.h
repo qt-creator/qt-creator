@@ -29,18 +29,14 @@ constexpr auto iar_nxp_1064_json = R"({
     "compatVersion": "1",
     "qulVersion": "2.0.0",
     "boardSdk": {
-        "cmakeEntries": [
-            {
-                "cmakeVar": "QUL_BOARD_SDK_DIR",
-                "label": "Board SDK for MIMXRT1064-EVK",
-                "id": "NXP_SDK_DIR",
-                "optional": false,
-                "type": "path",
-                "versions": ["2.10.0"]
-            }
-         ],
+         "cmakeVar": "QUL_BOARD_SDK_DIR",
+         "label": "Board SDK for MIMXRT1064-EVK",
+         "id": "NXP_SDK_DIR",
+         "optional": false,
+         "type": "path",
+         "versions": ["2.11.0"],
          "envVar": "EVK_MIMXRT1064_SDK_PATH",
-         "versions": ["2.10.0"]
+         "setting": "EVK_MIMXRT1064_SDK_PATH"
     },
     "freeRTOS": {
         "cmakeEntries": [

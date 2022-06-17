@@ -120,8 +120,7 @@ McuPackagePtr createBoardSdkPackage(const SettingsHandler::Ptr &settingsHandler,
         const QString sdkName = postfixPos > 0 ? envVar.left(postfixPos) : envVar;
         return QString{"MCU SDK (%1)"}.arg(sdkName);
     };
-    const QString sdkName = desc.boardSdk.name.isEmpty() ? generateSdkName(desc.boardSdk.envVar)
-                                                         : desc.boardSdk.name;
+    const QString sdkName = generateSdkName(desc.boardSdk.envVar);
 
     const FilePath defaultPath = [&] {
         const auto envVar = desc.boardSdk.envVar.toLatin1();
@@ -141,10 +140,10 @@ McuPackagePtr createBoardSdkPackage(const SettingsHandler::Ptr &settingsHandler,
     return McuPackagePtr{new McuPackage(settingsHandler,
                                         sdkName,
                                         defaultPath,
-                                        {},                   // detection path
-                                        desc.boardSdk.envVar, // settings key
-                                        "QUL_BOARD_SDK_DIR",  // cmake var
-                                        desc.boardSdk.envVar, // env var
+                                        {},                             // detection path
+                                        desc.boardSdk.envVar,           // settings key
+                                        Constants::BOARD_SDK_CMAKE_VAR, // cmake var
+                                        desc.boardSdk.envVar,           // env var
                                         desc.boardSdk.versions,
                                         {}, // download URL
                                         versionDetector)};
@@ -625,8 +624,7 @@ McuTargetDescription parseDescriptionJson(const QByteArray &data)
 
     const PackageDescription toolchainPackage = parsePackage(compiler);
     const PackageDescription toolchainFilePackage = parsePackage(toolchainFile);
-    const QList<PackageDescription> boardSDKEntries = parsePackages(
-        boardSdk.value(CMAKE_ENTRIES).toArray());
+    const PackageDescription boardSdkPackage{parsePackage(boardSdk)};
     const QList<PackageDescription> freeRtosEntries = parsePackages(
         freeRTOS.value(CMAKE_ENTRIES).toArray());
 
@@ -662,13 +660,7 @@ McuTargetDescription parseDescriptionJson(const QByteArray &data)
              toolchainVersionsList,
              toolchainPackage,
              toolchainFilePackage},
-            {
-                boardSdk.value("name").toString(),
-                FilePath::fromString(boardSdk.value("defaultPath").toString()),
-                boardSdk.value("envVar").toString(),
-                boardSdkVersionsList,
-                boardSDKEntries,
-            },
+            boardSdkPackage,
             {
                 freeRTOS.value("envVar").toString(),
                 FilePath::fromString(freeRTOS.value("boardSdkSubDir").toString()),

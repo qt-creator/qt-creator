@@ -219,6 +219,18 @@ void verifyTargetToolchains(const Targets &targets,
     QCOMPARE(toolchainCompiler->versions(), versions);
 }
 
+void verifyBoardSdk(const McuPackagePtr &boardSdk,
+                    const QString &environmentVariable,
+                    const QStringList &versions)
+{
+    QVERIFY(boardSdk);
+    QCOMPARE(boardSdk->cmakeVariableName(), Constants::BOARD_SDK_CMAKE_VAR);
+    QCOMPARE(boardSdk->environmentVariableName(), environmentVariable);
+    QCOMPARE(boardSdk->settingsKey(), environmentVariable);
+    QCOMPARE(boardSdk->detectionPath().toString(), empty);
+    QCOMPARE(boardSdk->versions(), versions);
+}
+
 McuSupportTest::McuSupportTest()
     : targetFactory{settingsMockPtr}
     , toolchainPackagePtr{new McuToolChainPackage{
@@ -267,7 +279,7 @@ void McuSupportTest::initTestCase()
         "2",
         platformDescription,
         Sdk::McuTargetDescription::Toolchain{},
-        Sdk::McuTargetDescription::BoardSdk{},
+        Sdk::PackageDescription{},
         Sdk::McuTargetDescription::FreeRTOS{},
     };
 
@@ -811,6 +823,55 @@ void McuSupportTest::test_addToolchainFileInfoToKit()
     const auto &cmakeConfig{CMakeConfigurationKitAspect::configuration(&kit)};
     QVERIFY(!cmakeConfig.empty());
     QCOMPARE(cmakeConfig.valueOf(Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE), armGccToolchainFilePath);
+}
+
+void McuSupportTest::test_legacy_createBoardSdk_data()
+{
+    QTest::addColumn<QString>("json");
+    QTest::addColumn<QString>("environmentVariable");
+    QTest::addColumn<QStringList>("versions");
+
+    QTest::newRow("armgcc_nxp_1050_json")
+        << armgcc_nxp_1050_json << "EVKB_IMXRT1050_SDK_PATH" << boardSdkVersions;
+    QTest::newRow("stm32h750b") << armgcc_stm32h750b_metal_json << "STM32Cube_FW_H7_SDK_PATH"
+                                << QStringList{"1.5.0"};
+    QTest::newRow("stm32f769i") << armgcc_stm32f769i_freertos_json << "STM32Cube_FW_F7_SDK_PATH"
+                                << QStringList{"1.16.0"};
+    QTest::newRow("stm32f469i") << iar_stm32f469i_metal_json << "STM32Cube_FW_F4_SDK_PATH"
+                                << QStringList{"1.25.0"};
+    QTest::newRow("nxp1064") << iar_nxp_1064_json << "EVK_MIMXRT1064_SDK_PATH" << boardSdkVersions;
+    QTest::newRow("ghs_rh850_d1m1a_baremetal_json")
+        << ghs_rh850_d1m1a_baremetal_json << "RGL_DIR" << QStringList{"2.0.0a"};
+}
+
+void McuSupportTest::test_legacy_createBoardSdk()
+{
+    QFETCH(QString, json);
+    QFETCH(QString, environmentVariable);
+    QFETCH(QStringList, versions);
+
+    Sdk::McuTargetDescription target{Sdk::parseDescriptionJson(json.toLocal8Bit())};
+    McuPackagePtr boardSdk{Sdk::createBoardSdkPackage(settingsMockPtr, target)};
+
+    verifyBoardSdk(boardSdk, environmentVariable, versions);
+}
+
+void McuSupportTest::test_createBoardSdk_data()
+{
+    test_legacy_createBoardSdk_data();
+}
+
+void McuSupportTest::test_createBoardSdk()
+{
+    QFETCH(QString, json);
+    QFETCH(QString, environmentVariable);
+    QFETCH(QStringList, versions);
+
+    Sdk::McuTargetDescription target{Sdk::parseDescriptionJson(json.toLocal8Bit())};
+
+    McuPackagePtr boardSdk{targetFactory.createPackage(target.boardSdk)};
+
+    verifyBoardSdk(boardSdk, environmentVariable, versions);
 }
 
 } // namespace McuSupport::Internal::Test

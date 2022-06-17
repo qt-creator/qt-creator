@@ -85,18 +85,15 @@ constexpr auto armgcc_stm32f769i_freertos_json = R"({
   },
   "boardSdk": {
     "envVar": "STM32Cube_FW_F7_SDK_PATH",
+    "setting": "STM32Cube_FW_F7_SDK_PATH",
     "versions": [
       "1.16.0"
     ],
-    "cmakeEntries": [
-      {
-        "id": "ST_SDK_DIR",
-        "label": "Board SDK for STM32F769I-Discovery",
-        "cmakeVar": "QUL_BOARD_SDK_DIR",
-        "type": "path",
-        "optional": false
-      }
-    ]
+    "id": "ST_SDK_DIR",
+    "label": "Board SDK for STM32F769I-Discovery",
+    "cmakeVar": "QUL_BOARD_SDK_DIR",
+    "type": "path",
+    "optional": false
   },
   "freeRTOS": {
     "envVar": "STM32F7_FREERTOS_DIR",

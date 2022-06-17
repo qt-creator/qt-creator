@@ -67,14 +67,7 @@ struct McuTargetDescription
         PackageDescription compiler;
         PackageDescription file;
     } toolchain;
-    struct BoardSdk
-    {
-        QString name;
-        Utils::FilePath defaultPath;
-        QString envVar;
-        QStringList versions;
-        QList<PackageDescription> packages;
-    } boardSdk;
+    PackageDescription boardSdk;
     struct FreeRTOS
     {
         QString envVar;

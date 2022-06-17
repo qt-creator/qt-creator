@@ -87,6 +87,11 @@ private slots:
     void test_legacy_getPredefinedToolchainFilePackage();
     void test_legacy_createUnsupportedToolchainFilePackage();
 
+    void test_legacy_createBoardSdk_data();
+    void test_legacy_createBoardSdk();
+    void test_createBoardSdk_data();
+    void test_createBoardSdk();
+
 private:
     QVersionNumber currentQulVersion{2, 0};
     PackageMock *freeRtosPackage{new PackageMock};
