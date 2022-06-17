@@ -157,7 +157,7 @@ QString SubversionClient::synchronousTopic(const FilePath &repository) const
     if (proc.result() != ProcessResult::FinishedWithSuccess)
         return QString();
 
-    return proc.stdOut().trimmed();
+    return proc.cleanedStdOut().trimmed();
 }
 
 QString SubversionClient::escapeFile(const QString &file)

@@ -247,7 +247,7 @@ int GerritServer::testConnection()
     client->vcsFullySynchronousExec(proc, {}, {curlBinary, arguments},
                                     Core::ShellCommand::NoOutput);
     if (proc.result() == ProcessResult::FinishedWithSuccess) {
-        QString output = proc.stdOut();
+        QString output = proc.cleanedStdOut();
         // Gerrit returns an empty response for /p/qt-creator/a/accounts/self
         // so consider this as 404.
         if (output.isEmpty())
@@ -266,7 +266,7 @@ int GerritServer::testConnection()
     if (proc.exitCode() == CertificateError)
         return CertificateError;
     const QRegularExpression errorRegexp("returned error: (\\d+)");
-    QRegularExpressionMatch match = errorRegexp.match(proc.stdErr());
+    QRegularExpressionMatch match = errorRegexp.match(proc.cleanedStdErr());
     if (match.hasMatch())
         return match.captured(1).toInt();
     return UnknownError;
@@ -346,7 +346,7 @@ bool GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
             arguments << p.portFlag << QString::number(port);
         arguments << hostArgument() << "gerrit" << "version";
         client->vcsFullySynchronousExec(proc, {}, {p.ssh, arguments}, Core::ShellCommand::NoOutput);
-        QString stdOut = proc.stdOut().trimmed();
+        QString stdOut = proc.cleanedStdOut().trimmed();
         stdOut.remove("gerrit version ");
         version = stdOut;
         if (version.isEmpty())
@@ -359,7 +359,7 @@ bool GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
         // REST endpoint for version is only available from 2.8 and up. Do not consider invalid
         // if it fails.
         if (proc.result() == ProcessResult::FinishedWithSuccess) {
-            QString output = proc.stdOut();
+            QString output = proc.cleanedStdOut();
             if (output.isEmpty())
                 return false;
             output.remove(0, output.indexOf('\n')); // Strip first line

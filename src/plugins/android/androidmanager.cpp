@@ -787,8 +787,8 @@ SdkToolResult AndroidManager::runCommand(const CommandLine &command,
     qCDebug(androidManagerLog) << "Running command (sync):" << command.toUserOutput();
     cmdProc.setCommand(command);
     cmdProc.runBlocking(EventLoopMode::On);
-    cmdResult.m_stdOut = cmdProc.stdOut().trimmed();
-    cmdResult.m_stdErr = cmdProc.stdErr().trimmed();
+    cmdResult.m_stdOut = cmdProc.cleanedStdOut().trimmed();
+    cmdResult.m_stdErr = cmdProc.cleanedStdErr().trimmed();
     cmdResult.m_success = cmdProc.result() == ProcessResult::FinishedWithSuccess;
     qCDebug(androidManagerLog) << "Command finshed (sync):" << command.toUserOutput()
                                << "Success:" << cmdResult.m_success

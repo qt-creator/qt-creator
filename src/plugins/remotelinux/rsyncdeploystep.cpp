@@ -52,7 +52,7 @@ public:
         connect(&m_mkdir, &QtcProcess::done, this, [this] {
             if (m_mkdir.result() != ProcessResult::FinishedWithSuccess) {
                 QString finalMessage = m_mkdir.errorString();
-                const QString stdErr = m_mkdir.stdErr();
+                const QString stdErr = m_mkdir.cleanedStdErr();
                 if (!stdErr.isEmpty()) {
                     if (!finalMessage.isEmpty())
                         finalMessage += '\n';

@@ -1065,7 +1065,7 @@ QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
     if (keytoolProc.result() > ProcessResult::FinishedWithError)
         QMessageBox::critical(nullptr, tr("Error"), tr("Failed to run keytool."));
     else
-        model = new CertificatesModel(keytoolProc.stdOut(), this);
+        model = new CertificatesModel(keytoolProc.cleanedStdOut(), this);
 
     return model;
 }

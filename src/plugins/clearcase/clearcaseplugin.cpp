@@ -1676,8 +1676,8 @@ ClearCasePluginPrivate::runCleartool(const FilePath &workingDir,
     response.error = proc.result() != ProcessResult::FinishedWithSuccess;
     if (response.error)
         response.message = proc.exitMessage();
-    response.stdErr = proc.stdErr();
-    response.stdOut = proc.stdOut();
+    response.stdErr = proc.cleanedStdErr();
+    response.stdOut = proc.cleanedStdOut();
     return response;
 }
 

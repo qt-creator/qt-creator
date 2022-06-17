@@ -1590,7 +1590,7 @@ bool ClangToolChain::matchesCompilerCommand(const Utils::FilePath &command,
             std::unique_ptr<QtcProcess> xcrun(new QtcProcess);
             xcrun->setCommand({"/usr/bin/xcrun", {"-f", compilerCommand().fileName()}});
             xcrun->runBlocking();
-            const FilePath output = FilePath::fromString(xcrun->stdOut().trimmed());
+            const FilePath output = FilePath::fromString(xcrun->cleanedStdOut().trimmed());
             if (output.isExecutableFile() && output != compilerCommand())
                 m_resolvedCompilerCommand = output;
         }

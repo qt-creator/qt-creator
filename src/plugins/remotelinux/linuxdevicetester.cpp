@@ -183,7 +183,7 @@ void GenericLinuxDeviceTester::handleEchoDone()
         return;
     }
 
-    const QString reply = d->echoProcess.stdOut().chopped(1); // Remove trailing \n
+    const QString reply = d->echoProcess.cleanedStdOut().chopped(1); // Remove trailing \n
     if (reply != s_echoContents)
         emit errorMessage(tr("Device replied to echo with unexpected contents.") + '\n');
     else

@@ -1822,7 +1822,7 @@ static QByteArray runQmakeQuery(const FilePath &binary, const Environment &env, 
     const QByteArray out = process.readAllStandardOutput();
     if (out.isEmpty()) {
         *error = QCoreApplication::translate("QtVersion", "\"%1\" produced no output: %2.")
-                .arg(binary.displayName(), process.stdErr());
+                .arg(binary.displayName(), process.cleanedStdErr());
         return {};
     }
 

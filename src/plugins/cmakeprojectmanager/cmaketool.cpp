@@ -280,19 +280,19 @@ TextEditor::Keywords CMakeTool::keywords()
         QtcProcess proc;
         runCMake(proc, {"--help-command-list"}, 5);
         if (proc.result() == ProcessResult::FinishedWithSuccess)
-            m_introspection->m_functions = proc.stdOut().split('\n');
+            m_introspection->m_functions = proc.cleanedStdOut().split('\n');
 
         runCMake(proc, {"--help-commands"}, 5);
         if (proc.result() == ProcessResult::FinishedWithSuccess)
-            parseFunctionDetailsOutput(proc.stdOut());
+            parseFunctionDetailsOutput(proc.cleanedStdOut());
 
         runCMake(proc, {"--help-property-list"}, 5);
         if (proc.result() == ProcessResult::FinishedWithSuccess)
-            m_introspection->m_variables = parseVariableOutput(proc.stdOut());
+            m_introspection->m_variables = parseVariableOutput(proc.cleanedStdOut());
 
         runCMake(proc, {"--help-variable-list"}, 5);
         if (proc.result() == ProcessResult::FinishedWithSuccess) {
-            m_introspection->m_variables.append(parseVariableOutput(proc.stdOut()));
+            m_introspection->m_variables.append(parseVariableOutput(proc.cleanedStdOut()));
             m_introspection->m_variables = Utils::filteredUnique(m_introspection->m_variables);
             Utils::sort(m_introspection->m_variables);
         }
@@ -523,7 +523,7 @@ void CMakeTool::fetchFromCapabilities() const
 
     if (cmake.result() == ProcessResult::FinishedWithSuccess) {
         m_introspection->m_didRun = true;
-        parseFromCapabilities(cmake.stdOut());
+        parseFromCapabilities(cmake.cleanedStdOut());
     } else {
         qCCritical(cmakeToolLog) << "Fetching capabilities failed: " << cmake.allOutput() << cmake.error();
         m_introspection->m_didRun = false;

@@ -63,7 +63,7 @@ static QString runExecutable(const Utils::CommandLine &commandLine, QueryFailMod
         return {};
     }
 
-    return cpp.stdOut();
+    return cpp.cleanedStdOut();
 }
 
 static QStringList queryClangTidyChecks(const FilePath &executable,

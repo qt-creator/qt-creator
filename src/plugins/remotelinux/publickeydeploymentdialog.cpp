@@ -80,7 +80,7 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const IDevice::ConstPtr &de
         if (!succeeded) {
             QString errorMessage = d->m_process.errorString();
             if (errorMessage.isEmpty())
-                errorMessage = d->m_process.stdErr();
+                errorMessage = d->m_process.cleanedStdErr();
             if (errorMessage.endsWith('\n'))
                 errorMessage.chop(1);
             finalMessage = tr("Key deployment failed.");

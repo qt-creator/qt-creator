@@ -296,7 +296,7 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QSt
         return installations;
     }
 
-    QByteArray output = vsWhereProcess.stdOut().toUtf8();
+    QByteArray output = vsWhereProcess.cleanedStdOut().toUtf8();
     QJsonParseError error;
     const QJsonDocument doc = QJsonDocument::fromJson(output, &error);
     if (error.error != QJsonParseError::NoError || doc.isNull()) {
@@ -667,7 +667,7 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     if (cpp.result() != ProcessResult::FinishedWithSuccess)
         return predefinedMacros;
 
-    const QStringList output = Utils::filtered(cpp.stdOut().split('\n'),
+    const QStringList output = Utils::filtered(cpp.cleanedStdOut().split('\n'),
                                                [](const QString &s) { return s.startsWith('V'); });
     for (const QString &line : output)
         predefinedMacros.append(Macro::fromKeyValue(line.mid(1)));
@@ -1555,7 +1555,7 @@ static QVersionNumber clangClVersion(const FilePath &clangClPath)
         return {};
     const QRegularExpressionMatch match = QRegularExpression(
                                               QStringLiteral("clang version (\\d+(\\.\\d+)+)"))
-                                              .match(clangClProcess.stdOut());
+                                              .match(clangClProcess.cleanedStdOut());
     if (!match.hasMatch())
         return {};
     return QVersionNumber::fromString(match.captured(1));
@@ -2127,7 +2127,7 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
     run.runBlocking();
 
     if (run.result() != ProcessResult::FinishedWithSuccess) {
-        const QString message = !run.stdErr().isEmpty() ? run.stdErr() : run.exitMessage();
+        const QString message = !run.cleanedStdErr().isEmpty() ? run.cleanedStdErr() : run.exitMessage();
         qWarning().noquote() << message;
         QString command = QDir::toNativeSeparators(batchFile);
         if (!batchArgs.isEmpty())
@@ -2139,7 +2139,7 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
     }
 
     // The SDK/MSVC scripts do not return exit codes != 0. Check on stdout.
-    const QString stdOut = run.stdOut();
+    const QString stdOut = run.cleanedStdOut();
 
     //
     // Now parse the file to get the environment settings

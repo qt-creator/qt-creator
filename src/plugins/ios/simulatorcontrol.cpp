@@ -85,7 +85,7 @@ static bool runCommand(const CommandLine &command, QString *stdOutput, QString *
     p.setCommand(command);
     p.runBlocking();
     if (stdOutput)
-        *stdOutput = p.stdOut();
+        *stdOutput = p.cleanedStdOut();
     if (allOutput)
         *allOutput = p.allOutput();
     return p.result() == ProcessResult::FinishedWithSuccess;

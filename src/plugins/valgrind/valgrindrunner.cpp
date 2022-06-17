@@ -211,7 +211,7 @@ void ValgrindRunner::Private::findPidProcessDone()
         emit q->processOutputReceived(m_findPID.allOutput(), StdErrFormat);
         return;
     }
-    QString out = m_findPID.stdOut();
+    QString out = m_findPID.cleanedStdOut();
     if (out.isEmpty())
         return;
     bool ok;

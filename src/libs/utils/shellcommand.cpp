@@ -271,8 +271,8 @@ void ShellCommand::run(QFutureInterface<void> &future)
         proc.setExitCodeInterpreter(job.exitCodeInterpreter);
         proc.setTimeoutS(job.timeoutS);
         runCommand(proc, job.command, job.workingDirectory);
-        stdOut += proc.stdOut();
-        stdErr += proc.stdErr();
+        stdOut += proc.cleanedStdOut();
+        stdErr += proc.cleanedStdErr();
         d->m_lastExecExitCode = proc.exitCode();
         d->m_lastExecSuccess = proc.result() == ProcessResult::FinishedWithSuccess;
         if (!d->m_lastExecSuccess)
@@ -352,11 +352,11 @@ void ShellCommand::runFullySynchronous(QtcProcess &process, const FilePath &work
     process.runBlocking();
 
     if (!d->m_aborted) {
-        const QString stdErr = process.stdErr();
+        const QString stdErr = process.cleanedStdErr();
         if (!stdErr.isEmpty() && !(d->m_flags & SuppressStdErr))
             emit append(stdErr);
 
-        const QString stdOut = process.stdOut();
+        const QString stdOut = process.cleanedStdOut();
         if (!stdOut.isEmpty() && d->m_flags & ShowStdOut) {
             if (d->m_flags & SilentOutput)
                 emit appendSilently(stdOut);

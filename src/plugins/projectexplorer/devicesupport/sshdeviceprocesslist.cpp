@@ -68,12 +68,12 @@ void SshDeviceProcessList::doKillProcess(const ProcessInfo &process)
 void SshDeviceProcessList::handleProcessDone()
 {
     if (d->m_process.result() == ProcessResult::FinishedWithSuccess) {
-        reportProcessListUpdated(buildProcessList(d->m_process.stdOut()));
+        reportProcessListUpdated(buildProcessList(d->m_process.cleanedStdOut()));
     } else {
         const QString errorMessage = d->m_process.exitStatus() == QProcess::NormalExit
                 ? tr("Process listing command failed with exit code %1.").arg(d->m_process.exitCode())
                 : d->m_process.errorString();
-        const QString stdErr = d->m_process.stdErr();
+        const QString stdErr = d->m_process.cleanedStdErr();
         const QString fullMessage = stdErr.isEmpty()
                 ? errorMessage : errorMessage + '\n' + tr("Remote stderr was: %1").arg(stdErr);
         reportError(fullMessage);

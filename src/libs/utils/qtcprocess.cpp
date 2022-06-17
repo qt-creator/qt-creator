@@ -1051,17 +1051,17 @@ QtcProcess::QtcProcess(QObject *parent)
             qCDebug(processLog).nospace() << "Process " << number << " finished: "
                                           << "result=" << int(result())
                                           << ", ex=" << exitCode()
-                                          << ", " << stdOut().size() << " bytes stdout: "
-                                          << stdOut().left(20)
-                                          << ", " << stdErr().size() << " bytes stderr: "
-                                          << stdErr().left(1000)
+                                          << ", " << cleanedStdOut().size() << " bytes stdout: "
+                                          << cleanedStdOut().left(20)
+                                          << ", " << cleanedStdErr().size() << " bytes stderr: "
+                                          << cleanedStdErr().left(1000)
                                           << ", " << msElapsed << " ms elapsed";
-            if (processStdoutLog().isDebugEnabled() && !stdOut().isEmpty())
+            if (processStdoutLog().isDebugEnabled() && !cleanedStdOut().isEmpty())
                 qCDebug(processStdoutLog).nospace()
-                        << "Process " << number << " sdout: " << stdOut();
-            if (processStderrLog().isDebugEnabled() && !stdErr().isEmpty())
+                        << "Process " << number << " sdout: " << cleanedStdOut();
+            if (processStderrLog().isDebugEnabled() && !cleanedStdErr().isEmpty())
                 qCDebug(processStderrLog).nospace()
-                        << "Process " << number << " stderr: " << stdErr();
+                        << "Process " << number << " stderr: " << cleanedStdErr();
         });
     }
 }
@@ -1691,8 +1691,8 @@ QString QtcProcess::allOutput() const
 {
     QTC_CHECK(d->m_stdOut.keepRawData);
     QTC_CHECK(d->m_stdErr.keepRawData);
-    const QString out = stdOut();
-    const QString err = stdErr();
+    const QString out = cleanedStdOut();
+    const QString err = cleanedStdErr();
 
     if (!out.isEmpty() && !err.isEmpty()) {
         QString result = out;
@@ -1748,12 +1748,12 @@ static QStringList splitLines(const QString &text)
 
 const QStringList QtcProcess::stdOutLines() const
 {
-    return splitLines(stdOut());
+    return splitLines(cleanedStdOut());
 }
 
 const QStringList QtcProcess::stdErrLines() const
 {
-    return splitLines(stdErr());
+    return splitLines(cleanedStdErr());
 }
 
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const QtcProcess &r)

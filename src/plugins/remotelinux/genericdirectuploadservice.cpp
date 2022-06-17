@@ -146,7 +146,7 @@ QDateTime GenericDirectUploadService::timestampFromStat(const DeployableFile &fi
         error = tr("\"stat\" crashed.");
     } else if (statProc->exitCode() != 0) {
         error = tr("\"stat\" failed with exit code %1: %2")
-                .arg(statProc->exitCode()).arg(statProc->stdErr());
+                .arg(statProc->exitCode()).arg(statProc->cleanedStdErr());
     } else {
         succeeded = true;
     }

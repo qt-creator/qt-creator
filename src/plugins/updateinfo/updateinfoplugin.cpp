@@ -167,7 +167,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
         this,
         [this, futureIf]() mutable {
             if (d->m_maintenanceToolProcess->result() == ProcessResult::FinishedWithSuccess) {
-                d->m_updateOutput = d->m_maintenanceToolProcess->stdOut();
+                d->m_updateOutput = d->m_maintenanceToolProcess->cleanedStdOut();
                 if (d->m_settings.checkForQtVersions) {
                     d->m_maintenanceToolProcess.reset(new QtcProcess);
                     d->m_maintenanceToolProcess->setCommand(
@@ -181,7 +181,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
                         [this, futureIf]() mutable {
                             if (d->m_maintenanceToolProcess->result()
                                 == ProcessResult::FinishedWithSuccess) {
-                                d->m_packagesOutput = d->m_maintenanceToolProcess->stdOut();
+                                d->m_packagesOutput = d->m_maintenanceToolProcess->cleanedStdOut();
                                 d->m_maintenanceToolProcess.reset();
                                 futureIf.reportFinished();
                                 checkForUpdatesFinished();

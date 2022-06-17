@@ -1449,8 +1449,8 @@ CvsResponse CvsPluginPrivate::runCvs(const FilePath &workingDirectory,
     command.runCommand(proc, {executable, m_settings.addOptions(arguments)});
 
     response.result = CvsResponse::OtherError;
-    response.stdErr = proc.stdErr();
-    response.stdOut = proc.stdOut();
+    response.stdErr = proc.cleanedStdErr();
+    response.stdOut = proc.cleanedStdOut();
     switch (proc.result()) {
     case ProcessResult::FinishedWithSuccess:
         response.result = CvsResponse::Ok;

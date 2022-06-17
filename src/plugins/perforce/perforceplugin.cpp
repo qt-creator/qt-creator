@@ -1277,8 +1277,8 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
     PerforceResponse response;
     response.error = true;
     response.exitCode = process.exitCode();
-    response.stdErr = process.stdErr();
-    response.stdOut = process.stdOut();
+    response.stdErr = process.cleanedStdErr();
+    response.stdOut = process.cleanedStdOut();
     switch (process.result()) {
     case ProcessResult::FinishedWithSuccess:
         response.error = false;

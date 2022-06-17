@@ -162,7 +162,7 @@ void ChangeSelectionDialog::setDetails()
 
     QPalette palette;
     if (m_process->result() == ProcessResult::FinishedWithSuccess) {
-        m_ui->detailsText->setPlainText(m_process->stdOut());
+        m_ui->detailsText->setPlainText(m_process->cleanedStdOut());
         palette.setColor(QPalette::Text, theme->color(Theme::TextColorNormal));
         m_ui->changeNumberEdit->setPalette(palette);
     } else {
