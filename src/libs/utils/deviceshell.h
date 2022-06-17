@@ -36,6 +36,7 @@
 namespace Utils {
 
 class CommandLine;
+class ProcessResultData;
 class QtcProcess;
 
 class DeviceShellImpl;
@@ -69,8 +70,7 @@ public:
     State state() const;
 
 signals:
-    void done();
-    void errorOccurred(QProcess::ProcessError error);
+    void done(const ProcessResultData &resultData);
 
 protected:
     virtual void startupFailed(const CommandLine &cmdLine);
