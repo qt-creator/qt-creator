@@ -233,6 +233,16 @@ void verifyBoardSdk(const McuPackagePtr &boardSdk,
 
 McuSupportTest::McuSupportTest()
     : targetFactory{settingsMockPtr}
+    , compilerDescription{armGccLabel, armGccEnvVar, Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE, armGccLabel, armGccDirectorySetting, {}, {}, {}, false}
+     , toochainFileDescription{armGccLabel, armGccEnvVar, Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE, armGccLabel, armGccDirectorySetting, {}, {}, {}, false}
+    , targetDescription {
+        "2.0.1",
+        "2",
+        platformDescription,
+        Sdk::McuTargetDescription::Toolchain{armGcc, {}, compilerDescription, toochainFileDescription},
+        Sdk::PackageDescription{},
+        Sdk::McuTargetDescription::FreeRTOS{},
+    }
     , toolchainPackagePtr{new McuToolChainPackage{
           settingsMockPtr,
           {},                                              // label
@@ -274,15 +284,6 @@ McuSupportTest::McuSupportTest()
 
 void McuSupportTest::initTestCase()
 {
-    targetDescription = Sdk::McuTargetDescription{
-        "2.0.1",
-        "2",
-        platformDescription,
-        Sdk::McuTargetDescription::Toolchain{},
-        Sdk::PackageDescription{},
-        Sdk::McuTargetDescription::FreeRTOS{},
-    };
-
     EXPECT_CALL(*freeRtosPackage, environmentVariableName())
         .WillRepeatedly(Return(QString{freeRtosEnvVar}));
     EXPECT_CALL(*freeRtosPackage, cmakeVariableName())
@@ -573,15 +574,40 @@ void McuSupportTest::test_createTargets()
     targetDescription.toolchain.id = armGcc;
 
     const auto [targets, packages]{targetFactory.createTargets(targetDescription, qtForMcuSdkPath)};
-    QVERIFY(!targets.empty());
+    QCOMPARE(targets.size(), 1);
     const McuTargetPtr target{targets.at(0)};
-    QCOMPARE(target->colorDepth(), colorDepth);
-    const auto &tgtPackages{target->packages()};
-    QVERIFY(!tgtPackages.empty());
 
+    QCOMPARE(target->colorDepth(), colorDepth);
+
+    const auto &tgtPackages{target->packages()};
+    QCOMPARE(tgtPackages.size(), 4);
+
+    // target should contain freertos package
     QVERIFY(anyOf(tgtPackages, [](const McuPackagePtr &pkg) {
         return (pkg->environmentVariableName() == nxp1064FreeRtosEnvVar
                 && pkg->cmakeVariableName() == freeRtosCMakeVar && pkg->label() == id);
+    }));
+
+    // all packages should contain target's tooclhain compiler package.
+    QVERIFY(anyOf(packages, [](const McuPackagePtr &pkg) {
+        return (pkg->cmakeVariableName() == Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE);
+    }));
+
+    // target should contain tooclhain copmiler package.
+    QVERIFY(anyOf(tgtPackages, [](const McuPackagePtr &pkg) {
+        return (pkg->cmakeVariableName()
+                == Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE /*and pkg->disconnect*/);
+    }));
+
+    // all packages should contain target's tooclhain file package.
+    QVERIFY(anyOf(packages, [](const McuPackagePtr &pkg) {
+        return (pkg->cmakeVariableName() == Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE);
+    }));
+
+    // target should contain tooclhain file package.
+    QVERIFY(anyOf(tgtPackages, [](const McuPackagePtr &pkg) {
+        return (pkg->cmakeVariableName()
+                == Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE /*and pkg->disconnect*/);
     }));
 }
 

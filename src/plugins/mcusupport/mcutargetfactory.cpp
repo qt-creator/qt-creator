@@ -82,12 +82,15 @@ QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescript
         if (!toolchain || !toolchainFile)
             continue;
         Packages targetPackages = createPackages(desc);
+        McuToolChainPackagePtr toolchainPtr{toolchain};
+        targetPackages.insert({toolchainPtr});
+        targetPackages.unite({toolchainFile});
         packages.unite(targetPackages);
         mcuTargets.append(McuTargetPtr{new McuTarget{QVersionNumber::fromString(desc.qulVersion),
                                                      platform,
                                                      deduceOperatingSystem(desc),
                                                      targetPackages,
-                                                     McuToolChainPackagePtr{toolchain},
+                                                     toolchainPtr,
                                                      toolchainFile,
                                                      colorDepth}});
     }
