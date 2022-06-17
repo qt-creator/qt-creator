@@ -50,15 +50,10 @@ public:
 
     void processStarted();
     void processDone();
-    void localProcessStarted();
-    void remoteProcessStarted();
-    void findPidProcessDone();
 
     ValgrindRunner *q;
     Runnable m_debuggee;
     QtcProcess m_valgrindProcess;
-
-    QtcProcess m_findPID;
 
     CommandLine m_valgrindCommand;
 
@@ -146,10 +141,8 @@ bool ValgrindRunner::Private::run()
 
 void ValgrindRunner::Private::processStarted()
 {
-    if (!m_valgrindProcess.commandLine().executable().needsDevice())
-        localProcessStarted();
-    else
-        remoteProcessStarted();
+    const qint64 pid = m_valgrindProcess.processId();
+    emit q->valgrindStarted(pid);
 }
 
 void ValgrindRunner::Private::processDone()
@@ -161,70 +154,6 @@ void ValgrindRunner::Private::processDone()
 
     // make sure we don't wait for the connection anymore
     emit q->finished();
-}
-
-void ValgrindRunner::Private::localProcessStarted()
-{
-    qint64 pid = m_valgrindProcess.processId();
-    emit q->valgrindStarted(pid);
-}
-
-void ValgrindRunner::Private::remoteProcessStarted()
-{
-    // find out what PID our process has
-
-    // NOTE: valgrind cloaks its name,
-    // e.g.: valgrind --tool=memcheck foobar
-    // => ps aux, pidof will see valgrind.bin
-    // => pkill/killall/top... will see memcheck-amd64-linux or similar
-    // hence we need to do something more complex...
-
-    // plain path to exe, m_valgrindExe contains e.g. env vars etc. pp.
-    // FIXME: Really?
-    const QString proc = m_valgrindCommand.executable().toString().split(' ').last();
-    QString procEscaped = proc;
-    procEscaped.replace("/", "\\\\/");
-
-    const FilePath debuggee = m_debuggee.command.executable();
-    const CommandLine cmd(
-        debuggee.withNewPath("/bin/sh"),
-        // sleep required since otherwise we might only match "bash -c..." and not the actual
-        // valgrind run
-        QString("-c \""
-                "sleep 1; ps ax"        // list all processes with aliased name
-                " | grep '%1.*%2'"      // find valgrind process that runs with our exec
-                " | awk '\\$5 ~ /^%3/"  // 5th column must start with valgrind process
-                " {print \\$1;}'"       // print 1st then (with PID)
-                "\"").arg(proc, debuggee.fileName(), procEscaped),
-        CommandLine::Raw
-    );
-
-    m_findPID.setCommand(cmd);
-
-    connect(&m_findPID, &QtcProcess::done,
-            this, &ValgrindRunner::Private::findPidProcessDone);
-
-    m_findPID.start();
-}
-
-void ValgrindRunner::Private::findPidProcessDone()
-{
-    if (m_findPID.result() != ProcessResult::FinishedWithSuccess) {
-        emit q->appendMessage(m_findPID.allOutput(), StdErrFormat);
-        return;
-    }
-    QString out = m_findPID.cleanedStdOut();
-    if (out.isEmpty())
-        return;
-    bool ok;
-    const qint64 pid = out.trimmed().toLongLong(&ok);
-    if (!ok) {
-//        m_remote.m_errorString = tr("Could not determine remote PID.");
-//        emit ValgrindRunner::Private::error(QProcess::FailedToStart);
-//        close();
-    } else {
-        emit q->valgrindStarted(pid);
-    }
 }
 
 ValgrindRunner::ValgrindRunner(QObject *parent)
@@ -246,7 +175,7 @@ ValgrindRunner::~ValgrindRunner()
     d = nullptr;
 }
 
-void ValgrindRunner::setValgrindCommand(const Utils::CommandLine &command)
+void ValgrindRunner::setValgrindCommand(const CommandLine &command)
 {
     d->m_valgrindCommand = command;
 }
