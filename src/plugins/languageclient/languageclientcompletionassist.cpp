@@ -227,6 +227,15 @@ bool LanguageClientCompletionItem::isPerfectMatch(int pos, QTextDocument *doc) c
     return textToInsert == textAt(QTextCursor(doc), pos - length, length);
 }
 
+bool LanguageClientCompletionItem::isDeprecated() const
+{
+    if (const auto tags = m_item.tags(); tags && tags->contains(CompletionItem::Deprecated))
+        return true;
+    if (const auto deprecated = m_item.deprecated())
+        return *deprecated;
+    return false;
+}
+
 class LanguageClientCompletionModel : public GenericProposalModel
 {
 public:

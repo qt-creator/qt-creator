@@ -741,6 +741,7 @@ public:
 
 private:
     QIcon icon() const override;
+    QString text() const override;
 };
 
 class ClangdClient::ClangdCompletionAssistProcessor : public LanguageClientCompletionAssistProcessor
@@ -2551,6 +2552,8 @@ ClangdCompletionItem::SpecialQtType ClangdCompletionItem::getQtType(const Comple
 
 QIcon ClangdCompletionItem::icon() const
 {
+    if (isDeprecated())
+        return Utils::Icons::WARNING.icon();
     const SpecialQtType qtType = getQtType(item());
     switch (qtType) {
     case SpecialQtType::Signal:
@@ -2564,6 +2567,14 @@ QIcon ClangdCompletionItem::icon() const
     if (item().kind().value_or(CompletionItemKind::Text) == CompletionItemKind::Property)
         return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::VarPublicStatic);
     return LanguageClientCompletionItem::icon();
+}
+
+QString ClangdCompletionItem::text() const
+{
+    const QString clangdValue = LanguageClientCompletionItem::text();
+    if (isDeprecated())
+        return "[[deprecated]]" + clangdValue;
+    return clangdValue;
 }
 
 MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
