@@ -90,11 +90,10 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/documentmanager.h>
 #include <hdrimage.h>
+#include <edit3d/edit3dviewconfig.h>
 #endif
 
 #include <coreplugin/messagemanager.h>
-
-#include <edit3d/edit3dviewconfig.h>
 
 #include <projectexplorer/kit.h>
 #include <projectexplorer/target.h>
