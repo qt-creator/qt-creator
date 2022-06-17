@@ -34,6 +34,7 @@
 #include <utils/environment.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/qrcparser.h>
+#include <utils/filepath.h>
 
 #include <QFuture>
 #include <QHash>
@@ -149,6 +150,7 @@ public:
                                               ProjectExplorer::Project *project = nullptr,
                                               bool addDirs = false,
                                               QrcResourceSelector resources = AllQrcResources);
+    Utils::FilePath fileToSource(const Utils::FilePath &file);
 
     QList<ProjectInfo> projectInfos() const;
     bool containsProject(ProjectExplorer::Project *project) const;
@@ -254,6 +256,7 @@ private:
     QmlJS::Snapshot m_validSnapshot;
     QmlJS::Snapshot m_newestSnapshot;
     PathsAndLanguages m_allImportPaths;
+    QList<Utils::FilePath> m_applicationPaths;
     QStringList m_defaultImportPaths;
     QmlJS::QmlLanguageBundles m_activeBundles;
     QmlJS::QmlLanguageBundles m_extendedBundles;

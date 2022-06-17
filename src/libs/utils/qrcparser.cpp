@@ -57,6 +57,7 @@ public:
                             const QLocale *locale = nullptr) const;
     void collectResourceFilesForSourceFile(const QString &sourceFile, QStringList *res,
                                            const QLocale *locale = nullptr) const;
+    QrcParser::MatchResult longestReverseMatches(const QString &) const;
 
     QStringList errorMessages() const;
     QStringList languages() const;
@@ -65,6 +66,7 @@ private:
     const QStringList allUiLanguages(const QLocale *locale) const;
 
     SMap m_resources;
+    SMap m_reverseResources;
     SMap m_files;
     QStringList m_languages;
     QStringList m_errorMessages;
@@ -205,6 +207,11 @@ QString QrcParser::firstFileAtPath(const QString &path, const QLocale &locale) c
 void QrcParser::collectFilesAtPath(const QString &path, QStringList *res, const QLocale *locale) const
 {
     d->collectFilesAtPath(path, res, locale);
+}
+
+QrcParser::MatchResult QrcParser::longestReverseMatches(const QString &p) const
+{
+    return d->longestReverseMatches(p);
 }
 
 /*!
@@ -414,8 +421,14 @@ bool QrcParserPrivate::parseFile(const QString &path, const QString &contents)
             else
                 accessPath = language + prefix + fileName;
             QStringList &resources = m_resources[accessPath];
-            if (!resources.contains(filePath))
+            if (!resources.contains(filePath)) {
                 resources.append(filePath);
+                QString reversePath(accessPath);
+                std::reverse(reversePath.begin(), reversePath.end());
+                if (!reversePath.endsWith('/'))
+                    reversePath.append('/');
+                m_reverseResources[reversePath].append(filePath);
+            }
             QStringList &files = m_files[filePath];
             if (!files.contains(accessPath))
                 files.append(accessPath);
@@ -515,6 +528,37 @@ void QrcParserPrivate::collectResourceFilesForSourceFile(const QString &sourceFi
                 results->append(resource);
         }
     }
+}
+
+QrcParser::MatchResult QrcParserPrivate::longestReverseMatches(const QString &reversePath) const
+{
+    QrcParser::MatchResult res;
+    if (reversePath.length() == 1)
+        return res;
+    auto lastMatch = m_reverseResources.end();
+    qsizetype matchedUntil = 0;
+    for (qsizetype i = 1, j = 0; i < reversePath.size(); i = j + 1) {
+        j = reversePath.indexOf(u'/', i);
+        if (j == -1)
+            j = reversePath.size() - 1;
+        auto match = m_reverseResources.lowerBound(reversePath.mid(0, j + 1));
+        QString pNow = reversePath.left(j + 1);
+        if (match == m_reverseResources.end() || match.key().left(j + 1) != pNow)
+            break;
+        ++res.matchDepth;
+        matchedUntil = j + 1;
+        lastMatch = match;
+    }
+    res.reversedPaths.clear();
+    res.sourceFiles.clear();
+    for (auto it = lastMatch; it != m_reverseResources.end()
+                              && it.key().left(matchedUntil) == reversePath.left(matchedUntil);
+         ++it) {
+        res.reversedPaths.append(it.key());
+        for (const QString &filePath : it.value())
+            res.sourceFiles.append(Utils::FilePath::fromString(filePath));
+    }
+    return res;
 }
 
 QStringList QrcParserPrivate::errorMessages() const
