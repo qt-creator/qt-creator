@@ -44,7 +44,7 @@ public:
     Core::IVersionControl *currentVersionControl();
 
     // Returns the common path
-    void setFiles(const QStringList &files);
+    void setFiles(const Utils::FilePaths &files);
 
     bool runVersionControl(const QList<Core::GeneratedFile> &files, QString *errorMessage);
 
@@ -75,7 +75,7 @@ private:
     Utils::TreeModel<> m_model;
 
     QList<Core::IVersionControl*> m_activeVersionControls;
-    QString m_commonDirectory;
+    Utils::FilePath m_commonDirectory;
     bool m_repositoryExists = false;
 
     QLabel *m_projectLabel;

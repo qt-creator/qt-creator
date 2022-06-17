@@ -223,8 +223,9 @@ Node *JsonSummaryPage::findWizardContextNode(Node *contextNode) const
 void JsonSummaryPage::updateFileList()
 {
     m_fileList = m_wizard->generateFileList();
-    QStringList filePaths
-            = Utils::transform(m_fileList, [](const JsonWizard::GeneratorFile &f) { return f.file.path(); });
+    const FilePaths filePaths =
+            Utils::transform(m_fileList,
+                             [](const JsonWizard::GeneratorFile &f) { return f.file.filePath(); });
     setFiles(filePaths);
 }
 

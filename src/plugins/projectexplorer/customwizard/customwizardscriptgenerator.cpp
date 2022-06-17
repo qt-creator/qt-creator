@@ -157,7 +157,7 @@ Core::GeneratedFiles
                             fileInfo.isAbsolute() ?
                             token :
                             (targetPath + QLatin1Char('/') + token);
-                    file.setPath(fullPath);
+                    file.setFilePath(FilePath::fromString(fullPath).cleanPath());
                 }
             }
             file.setAttributes(attributes);
@@ -168,7 +168,7 @@ Core::GeneratedFiles
         QDebug nospace = qDebug().nospace();
         nospace << script << " generated:\n";
         for (const Core::GeneratedFile &f : qAsConst(files))
-            nospace << ' ' << f.path() << f.attributes() << '\n';
+            nospace << ' ' << f.filePath() << f.attributes() << '\n';
     }
     return files;
 }

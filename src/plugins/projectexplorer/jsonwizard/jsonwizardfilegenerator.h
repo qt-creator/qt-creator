@@ -17,7 +17,7 @@ public:
     bool setup(const QVariant &data, QString *errorMessage);
 
     Core::GeneratedFiles fileList(Utils::MacroExpander *expander,
-                                  const QString &wizardDir, const QString &projectDir,
+                                  const Utils::FilePath &wizardDir, const Utils::FilePath &projectDir,
                                   QString *errorMessage) override;
 
     bool writeFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage) override;
@@ -26,8 +26,8 @@ private:
     class File {
     public:
         bool keepExisting = false;
-        QString source;
-        QString target;
+        Utils::FilePath source;
+        Utils::FilePath target;
         QVariant condition = true;
         QVariant isBinary = false;
         QVariant overwrite = false;

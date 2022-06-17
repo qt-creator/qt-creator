@@ -91,11 +91,11 @@ public:
 
     int addTargetSetupPage(int id = -1);
 
-    bool writeUserFile(const QString &proFileName) const;
+    bool writeUserFile(const Utils::FilePath &proFile) const;
     QList<Utils::Id> selectedKits() const;
 
 private:
-    void generateProfileName(const QString &name, const QString &path);
+    void generateProfileName(const QString &name, const Utils::FilePath &path);
 
     ProjectExplorer::TargetSetupPage *m_targetSetupPage = nullptr;
     QList<Utils::Id> m_profileIds;

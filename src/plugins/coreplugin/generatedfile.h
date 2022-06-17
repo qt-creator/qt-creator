@@ -42,8 +42,6 @@ public:
     ~GeneratedFile();
 
     // Full path of the file should be created, or the suggested file name
-    QString path() const;
-    void setPath(const QString &p);
     void setFilePath(const Utils::FilePath &p);
     Utils::FilePath filePath() const;
 

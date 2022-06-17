@@ -253,7 +253,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
             const Core::GeneratedFile iconFile = generateIconFile(Utils::FilePath::fromFileInfo(qfi),
                                                                   newIcon,
                                                                   errorMessage);
-            if (iconFile.path().isEmpty())
+            if (iconFile.filePath().isEmpty())
                 return QList<Core::GeneratedFile>();
             rc.push_back(iconFile);
             icon = qfi.fileName();

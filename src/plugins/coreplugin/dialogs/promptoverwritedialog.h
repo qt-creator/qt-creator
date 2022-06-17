@@ -16,6 +16,8 @@ QT_END_NAMESPACE
 
 namespace Core {
 
+// TODO: Port to Utils::FilePaths
+
 // Documentation inside.
 class CORE_EXPORT PromptOverwriteDialog : public QDialog
 {

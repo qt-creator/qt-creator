@@ -27,11 +27,11 @@ using namespace Utils;
 
 namespace Core {
 
-static int indexOfFile(const GeneratedFiles &f, const QString &path)
+static int indexOfFile(const GeneratedFiles &f, const FilePath &path)
 {
     const int size = f.size();
     for (int i = 0; i < size; ++i)
-        if (f.at(i).path() == path)
+        if (f.at(i).filePath() == path)
             return i;
     return -1;
 }
@@ -166,9 +166,10 @@ bool BaseFileWizardFactory::postGenerateOpenEditors(const GeneratedFiles &l, QSt
 {
     for (const GeneratedFile &file : qAsConst(l)) {
         if (file.attributes() & GeneratedFile::OpenEditorAttribute) {
-            if (!EditorManager::openEditor(FilePath::fromString(file.path()), file.editorId())) {
+            if (!EditorManager::openEditor(file.filePath(), file.editorId())) {
                 if (errorMessage)
-                    *errorMessage = tr("Failed to open an editor for \"%1\".").arg(QDir::toNativeSeparators(file.path()));
+                    *errorMessage = tr("Failed to open an editor for \"%1\".").
+                        arg(file.filePath().toUserOutput());
                 return false;
             }
         }
@@ -197,9 +198,9 @@ BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(Ge
     static const QString symLinkMsg = tr("[symbolic link]");
 
     for (const GeneratedFile &file : qAsConst(*files)) {
-        const QString path = file.path();
-        if (QFileInfo::exists(path))
-            existingFiles.append(path);
+        const FilePath path = file.filePath();
+        if (path.exists())
+            existingFiles.append(path.toString());
     }
     if (existingFiles.isEmpty())
         return OverwriteOk;
@@ -244,7 +245,7 @@ BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(Ge
     overwriteDialog.setFiles(existingFiles);
     for (const GeneratedFile &file : qAsConst(*files))
         if (file.attributes() & GeneratedFile::CustomGeneratorAttribute)
-            overwriteDialog.setFileEnabled(file.path(), false);
+            overwriteDialog.setFileEnabled(file.filePath().toString(), false);
     if (overwriteDialog.exec() != QDialog::Accepted)
         return OverwriteCanceled;
     const QStringList existingFilesToKeep = overwriteDialog.uncheckedFiles();
@@ -252,7 +253,7 @@ BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(Ge
         return OverwriteCanceled;
     // Set 'keep' attribute in files
     for (const QString &keepFile : qAsConst(existingFilesToKeep)) {
-        const int i = indexOfFile(*files, keepFile);
+        const int i = indexOfFile(*files, FilePath::fromString(keepFile).cleanPath());
         QTC_ASSERT(i != -1, return OverwriteCanceled);
         GeneratedFile &file = (*files)[i];
         file.setAttributes(file.attributes() | GeneratedFile::KeepExistingFileAttribute);

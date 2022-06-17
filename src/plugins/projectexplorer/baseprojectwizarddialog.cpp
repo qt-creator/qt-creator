@@ -126,7 +126,7 @@ void BaseProjectWizardDialog::slotAccepted()
 bool BaseProjectWizardDialog::validateCurrentPage()
 {
     if (currentId() == d->introPageId)
-        emit projectParametersChanged(d->introPage->projectName(), d->introPage->filePath().toString());
+        emit projectParametersChanged(d->introPage->projectName(), d->introPage->filePath());
     return Core::BaseFileWizard::validateCurrentPage();
 }
 

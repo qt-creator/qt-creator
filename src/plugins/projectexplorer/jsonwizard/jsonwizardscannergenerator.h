@@ -19,11 +19,11 @@ public:
     bool setup(const QVariant &data, QString *errorMessage);
 
     Core::GeneratedFiles fileList(Utils::MacroExpander *expander,
-                                  const QString &wizardDir, const QString &projectDir,
+                                  const Utils::FilePath &wizardDir, const Utils::FilePath &projectDir,
                                   QString *errorMessage) override;
 private:
-    Core::GeneratedFiles scan(const QString &dir, const QDir &base);
-    bool matchesSubdirectoryPattern(const QString &path);
+    Core::GeneratedFiles scan(const Utils::FilePath &dir, const Utils::FilePath &base);
+    bool matchesSubdirectoryPattern(const Utils::FilePath &path);
 
     QString m_binaryPattern;
     QList<QRegularExpression> m_subDirectoryExpressions;

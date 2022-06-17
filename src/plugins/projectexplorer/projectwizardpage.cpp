@@ -123,14 +123,14 @@ Qt::ItemFlags AddNewTree::flags(int) const
 class BestNodeSelector
 {
 public:
-    BestNodeSelector(const QString &commonDirectory, const FilePaths &files);
+    BestNodeSelector(const FilePath &commonDirectory, const FilePaths &files);
     void inspect(AddNewTree *tree, bool isContextNode);
     AddNewTree *bestChoice() const;
     bool deploys();
     QString deployingProjects() const;
 
 private:
-    QString m_commonDirectory;
+    FilePath m_commonDirectory;
     FilePaths m_files;
     bool m_deploys = false;
     QString m_deployText;
@@ -139,7 +139,7 @@ private:
     int m_bestMatchPriority = -1;
 };
 
-BestNodeSelector::BestNodeSelector(const QString &commonDirectory, const FilePaths &files) :
+BestNodeSelector::BestNodeSelector(const FilePath &commonDirectory, const FilePaths &files) :
     m_commonDirectory(commonDirectory),
     m_files(files),
     m_deployText(QCoreApplication::translate("ProjectWizard", "The files are implicitly added to the projects:") + QLatin1Char('\n'))
@@ -154,7 +154,7 @@ void BestNodeSelector::inspect(AddNewTree *tree, bool isContextNode)
 {
     FolderNode *node = tree->node();
     if (node->isProjectNodeType()) {
-        if (static_cast<ProjectNode *>(node)->deploysFolder(m_commonDirectory)) {
+        if (static_cast<ProjectNode *>(node)->deploysFolder(m_commonDirectory.toString())) {
             m_deploys = true;
             m_deployText += tree->displayName() + QLatin1Char('\n');
         }
@@ -162,10 +162,11 @@ void BestNodeSelector::inspect(AddNewTree *tree, bool isContextNode)
     if (m_deploys)
         return;
 
-    const QString projectDirectory = node->directory().toString();
-    const int projectDirectorySize = projectDirectory.size();
+    const FilePath projectDirectory = node->directory();
+    const int projectDirectorySize = projectDirectory.toString().size();
     if (m_commonDirectory != projectDirectory
-            && !m_commonDirectory.startsWith(projectDirectory + QLatin1Char('/'))
+            && !m_commonDirectory.toString().startsWith(
+                projectDirectory.toString() + QLatin1Char('/')) // TODO: still required?
             && !isContextNode)
         return;
 
@@ -384,7 +385,7 @@ void ProjectWizardPage::initializeVersionControls()
     QStringList versionControlChoices = QStringList(tr("<None>"));
     if (!m_commonDirectory.isEmpty()) {
         IVersionControl *managingControl =
-                VcsManager::findVersionControlForDirectory(FilePath::fromString(m_commonDirectory));
+                VcsManager::findVersionControlForDirectory(m_commonDirectory);
         if (managingControl) {
             // Under VCS
             if (managingControl->supportsOperation(IVersionControl::AddOperation)) {
@@ -427,8 +428,10 @@ bool ProjectWizardPage::runVersionControl(const QList<GeneratedFile> &files, QSt
     // Create repository?
     if (!m_repositoryExists) {
         QTC_ASSERT(versionControl->supportsOperation(IVersionControl::CreateRepositoryOperation), return false);
-        if (!versionControl->vcsCreateRepository(FilePath::fromString(m_commonDirectory))) {
-            *errorMessage = tr("A version control system repository could not be created in \"%1\".").arg(m_commonDirectory);
+        if (!versionControl->vcsCreateRepository(m_commonDirectory)) {
+            *errorMessage =
+                    tr("A version control system repository could not be created in \"%1\".").
+                    arg(m_commonDirectory.toUserOutput());
             return false;
         }
     }
@@ -436,7 +439,8 @@ bool ProjectWizardPage::runVersionControl(const QList<GeneratedFile> &files, QSt
     if (versionControl->supportsOperation(IVersionControl::AddOperation)) {
         for (const GeneratedFile &generatedFile : files) {
             if (!versionControl->vcsAdd(generatedFile.filePath())) {
-                *errorMessage = tr("Failed to add \"%1\" to the version control system.").arg(generatedFile.path());
+                *errorMessage = tr("Failed to add \"%1\" to the version control system.").
+                        arg(generatedFile.filePath().toUserOutput());
                 return false;
             }
         }
@@ -517,12 +521,9 @@ IVersionControl *ProjectWizardPage::currentVersionControl()
     return m_activeVersionControls.at(index);
 }
 
-void ProjectWizardPage::setFiles(const QStringList &fileNames)
+void ProjectWizardPage::setFiles(const FilePaths &files)
 {
-    if (fileNames.count() == 1)
-        m_commonDirectory = QFileInfo(fileNames.first()).absolutePath();
-    else
-        m_commonDirectory = Utils::commonPath(fileNames);
+    m_commonDirectory = FileUtils::commonPath(files);
     QString fileMessage;
     {
         QTextStream str(&fileMessage);
@@ -532,14 +533,13 @@ void ProjectWizardPage::setFiles(const QStringList &fileNames)
 
         QStringList formattedFiles;
         if (m_commonDirectory.isEmpty()) {
-            formattedFiles = fileNames;
+            formattedFiles = Utils::transform(files, &FilePath::toString);
         } else {
-            str << QDir::toNativeSeparators(m_commonDirectory) << ":\n\n";
-            int prefixSize = m_commonDirectory.size();
-            if (!m_commonDirectory.endsWith('/'))
-                ++prefixSize;
-            formattedFiles = Utils::transform(fileNames, [prefixSize](const QString &f)
-                                                         { return f.mid(prefixSize); });
+            str << m_commonDirectory.toUserOutput() << ":\n\n";
+            int prefixSize = m_commonDirectory.toUserOutput().size();
+            formattedFiles = Utils::transform(files, [prefixSize] (const FilePath &f) {
+                return f.toUserOutput().mid(prefixSize + 1); // +1 skips the initial dir separator
+            });
         }
         // Alphabetically, and files in sub-directories first
         Utils::sort(formattedFiles, [](const QString &filePath1, const QString &filePath2) -> bool {
@@ -549,8 +549,7 @@ void ProjectWizardPage::setFiles(const QStringList &fileNames)
             if (filePath1HasDir == filePath2HasDir)
                 return FilePath::fromString(filePath1) < FilePath::fromString(filePath2);
             return filePath1HasDir;
-        }
-);
+        });
 
         for (const QString &f : qAsConst(formattedFiles))
             str << QDir::toNativeSeparators(f) << '\n';

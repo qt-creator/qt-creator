@@ -49,7 +49,7 @@ public:
     void setForceSubProject(bool force);
 
 signals:
-    void projectParametersChanged(const QString &projectName, const QString &path);
+    void projectParametersChanged(const QString &projectName, const Utils::FilePath &path);
 
 protected:
     Utils::ProjectIntroPage *introPage() const;

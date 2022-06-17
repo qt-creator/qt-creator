@@ -70,7 +70,7 @@ bool QtWizard::qt4ProjectPostGenerateFiles(const QWizard *w,
     // Generate user settings
     for (const Core::GeneratedFile &file : generatedFiles)
         if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute) {
-            dialog->writeUserFile(file.path());
+            dialog->writeUserFile(file.filePath());
             break;
         }
 
@@ -181,12 +181,12 @@ int BaseQmakeProjectWizardDialog::addTargetSetupPage(int id)
     return id;
 }
 
-bool BaseQmakeProjectWizardDialog::writeUserFile(const QString &proFileName) const
+bool BaseQmakeProjectWizardDialog::writeUserFile(const Utils::FilePath &proFile) const
 {
     if (!m_targetSetupPage)
         return false;
 
-    QmakeProject *pro = new QmakeProject(Utils::FilePath::fromString(proFileName));
+    QmakeProject *pro = new QmakeProject(proFile);
     bool success = m_targetSetupPage->setupProject(pro);
     if (success)
         pro->saveSettings();
@@ -201,14 +201,15 @@ QList<Utils::Id> BaseQmakeProjectWizardDialog::selectedKits() const
     return m_targetSetupPage->selectedKits();
 }
 
-void BaseQmakeProjectWizardDialog::generateProfileName(const QString &name, const QString &path)
+void BaseQmakeProjectWizardDialog::generateProfileName(const QString &name,
+                                                       const Utils::FilePath &path)
 {
     if (!m_targetSetupPage)
         return;
 
-    const QString proFile = QDir::cleanPath(path + '/' + name + '/' + name + ".pro");
+    const Utils::FilePath proFile = path / name / name + ".pro";
 
-    m_targetSetupPage->setProjectPath(Utils::FilePath::fromString(proFile));
+    m_targetSetupPage->setProjectPath(proFile);
 }
 
 } // Internal

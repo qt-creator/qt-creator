@@ -97,7 +97,7 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
     if (debugExtension)
         qDebug() << Q_FUNC_INFO << files.size();
 
-    QStringList fileNames = Utils::transform(files, &GeneratedFile::path);
+    const FilePaths fileNames = Utils::transform(files, &GeneratedFile::filePath);
     m_context->page->setFiles(fileNames);
 
     FilePaths filePaths;

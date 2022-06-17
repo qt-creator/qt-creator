@@ -110,7 +110,7 @@ public:
     static bool postGenerateOpen(const Core::GeneratedFiles &l, QString *errorMessage = nullptr);
 
 signals:
-    void projectLocationChanged(const QString &path);
+    void projectLocationChanged(const Utils::FilePath &path);
 
 protected:
     Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const override;
@@ -123,7 +123,7 @@ protected:
                                  const QList<QWizardPage *> &extensionPages) const;
 
 private:
-    void projectParametersChanged(const QString &project, const QString &path);
+    void handleProjectParametersChanged(const QString &project, const Utils::FilePath &path);
 };
 
 } // namespace ProjectExplorer

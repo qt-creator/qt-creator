@@ -58,7 +58,7 @@ private:
     {
         if (column != 0 || role != Qt::DisplayRole)
             return QVariant();
-        return QDir::toNativeSeparators(m_candidate->file.path());
+        return m_candidate->file.filePath().toUserOutput();
     }
 
     JsonWizard::GeneratorFile * const m_candidate;
@@ -167,15 +167,18 @@ JsonWizard::GeneratorFiles JsonWizard::generateFileList()
     QString errorMessage;
     GeneratorFiles list;
 
-    QString targetPath = stringValue(QLatin1String("TargetPath"));
+    const Utils::FilePath targetPath =
+            Utils::FilePath::fromString(stringValue(QLatin1String("TargetPath")));
     if (targetPath.isEmpty())
         errorMessage = tr("Could not determine target path. \"TargetPath\" was not set on any page.");
 
     if (m_files.isEmpty() && errorMessage.isEmpty()) {
         emit preGenerateFiles();
         for (JsonWizardGenerator *gen : qAsConst(m_generators)) {
-            Core::GeneratedFiles tmp = gen->fileList(&m_expander, stringValue(QStringLiteral("WizardDir")),
-                                                     targetPath, &errorMessage);
+            const Utils::FilePath wizardDir =
+                    Utils::FilePath::fromString(stringValue(QLatin1String("WizardDir")));
+            const Core::GeneratedFiles tmp =
+                    gen->fileList(&m_expander, wizardDir, targetPath, &errorMessage);
             if (!errorMessage.isEmpty())
                 break;
             list.append(Utils::transform(tmp, [&gen](const Core::GeneratedFile &f)
@@ -423,7 +426,7 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
     bool openedSomething = false;
     for (const JsonWizard::GeneratorFile &f : files) {
         const Core::GeneratedFile &file = f.file;
-        if (!QFileInfo::exists(file.path())) {
+        if (!file.filePath().exists()) {
             errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
                                                        "\"%1\" does not exist in the file system.")
                     .arg(file.filePath().toUserOutput());
@@ -445,8 +448,7 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
             openedSomething = true;
         }
         if (file.attributes() & Core::GeneratedFile::OpenEditorAttribute) {
-            Core::IEditor *editor = Core::EditorManager::openEditor(Utils::FilePath::fromString(
-                                                                        file.path()),
+            Core::IEditor *editor = Core::EditorManager::openEditor(file.filePath(),
                                                                     file.editorId());
             if (!editor) {
                 errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",

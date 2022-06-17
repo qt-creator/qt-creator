@@ -22,7 +22,7 @@ public:
     virtual ~JsonWizardGenerator() = default;
 
     virtual Core::GeneratedFiles fileList(Utils::MacroExpander *expander,
-                                          const QString &baseDir, const QString &projectDir,
+                                          const Utils::FilePath &wizardDir, const Utils::FilePath &projectDir,
                                           QString *errorMessage) = 0;
     virtual bool formatFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
     virtual bool writeFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);

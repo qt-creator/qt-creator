@@ -140,11 +140,10 @@ JsonWizardGenerator::OverwriteResult JsonWizardGenerator::promptForOverwrite(Jso
     bool oddStuffFound = false;
 
     for (const JsonWizard::GeneratorFile &f : qAsConst(*files)) {
-        const QFileInfo fi(f.file.path());
-        if (fi.exists()
+        if (f.file.filePath().exists()
                 && !(f.file.attributes() & GeneratedFile::ForceOverwrite)
                 && !(f.file.attributes() & GeneratedFile::KeepExistingFileAttribute))
-            existingFiles.append(f.file.path());
+            existingFiles.append(f.file.filePath().toString());
     }
     if (existingFiles.isEmpty())
         return OverwriteOk;
@@ -190,7 +189,7 @@ JsonWizardGenerator::OverwriteResult JsonWizardGenerator::promptForOverwrite(Jso
     overwriteDialog.setFiles(existingFiles);
     for (const JsonWizard::GeneratorFile &file : qAsConst(*files))
         if (!file.generator->canKeepExistingFiles())
-            overwriteDialog.setFileEnabled(file.file.path(), false);
+            overwriteDialog.setFileEnabled(file.file.filePath().toString(), false);
     if (overwriteDialog.exec() != QDialog::Accepted)
         return OverwriteCanceled;
 
@@ -200,7 +199,7 @@ JsonWizardGenerator::OverwriteResult JsonWizardGenerator::promptForOverwrite(Jso
 
     // Set 'keep' attribute in files
     for (JsonWizard::GeneratorFile &file : *files) {
-        if (!existingFilesToKeep.contains(file.file.path()))
+        if (!existingFilesToKeep.contains(file.file.filePath().toString()))
             continue;
 
         file.file.setAttributes(file.file.attributes() | GeneratedFile::KeepExistingFileAttribute);

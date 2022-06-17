@@ -96,21 +96,10 @@ GeneratedFile &GeneratedFile::operator=(const GeneratedFile &rhs)
 
 GeneratedFile::~GeneratedFile() = default;
 
-QString GeneratedFile::path() const
-{
-    return m_d->path.toString();
-}
-
 FilePath GeneratedFile::filePath() const
 {
     return m_d->path;
 }
-
-void GeneratedFile::setPath(const QString &p)
-{
-    m_d->path = Utils::FilePath::fromString(p).cleanPath();
-}
-
 
 void GeneratedFile::setFilePath(const Utils::FilePath &p)
 {
