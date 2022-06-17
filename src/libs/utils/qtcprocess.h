@@ -189,8 +189,8 @@ public:
     QString stdOut() const; // possibly with CR
     QString stdErr() const; // possibly with CR
 
-    QString cleanedStdOut() const; // with CR removed
-    QString cleanedStdErr() const; // with CR removed
+    QString cleanedStdOut() const; // with sequences of CR squashed and CR LF replaced by LF
+    QString cleanedStdErr() const; // with sequences of CR squashed and CR LF replaced by LF
 
     const QStringList stdOutLines() const; // split, CR removed
     const QStringList stdErrLines() const; // split, CR removed
