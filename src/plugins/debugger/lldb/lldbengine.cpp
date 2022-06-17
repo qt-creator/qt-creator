@@ -203,6 +203,22 @@ void LldbEngine::setupEngine()
     Environment environment = runParameters().debugger.environment;
     environment.appendOrSet("PYTHONUNBUFFERED", "1");  // avoid flushing problem on macOS
     DebuggerItem::addAndroidLldbPythonEnv(lldbCmd, environment);
+
+    if (lldbCmd.osType() == OsTypeLinux) {
+        // LLDB 14 installation on Ubuntu 22.04 is broken:
+        // https://bugs.launchpad.net/ubuntu/+source/llvm-defaults/+bug/1972855
+        // Brush over it:
+        QtcProcess lldbPythonPathFinder;
+        lldbPythonPathFinder.setCommand({lldbCmd, {"-P"}});
+        lldbPythonPathFinder.start();
+        lldbPythonPathFinder.waitForFinished();
+        QString lldbPythonPath = lldbPythonPathFinder.cleanedStdOut();
+        if (lldbPythonPath.endsWith('\n'))
+            lldbPythonPath.chop(1);
+        if (lldbPythonPath == "/usr/lib/local/lib/python3.10/dist-packages")
+            environment.appendOrSet("PYTHONPATH", "/usr/lib/llvm-14/lib/python3.10/dist-packages");
+    }
+
     m_lldbProc.setEnvironment(environment);
 
     if (runParameters().debugger.workingDirectory.isDir())
