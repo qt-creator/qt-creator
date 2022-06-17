@@ -26,7 +26,6 @@
 
 #include "valgrindengine.h"
 #include "valgrindsettings.h"
-#include "valgrindplugin.h"
 
 #include <debugger/analyzer/analyzermanager.h>
 
@@ -101,7 +100,6 @@ void ValgrindToolRunner::start()
     valgrind.addArgs(toolArguments());
 
     m_runner.setValgrindCommand(valgrind);
-    m_runner.setDevice(device());
     m_runner.setDebuggee(runControl()->runnable());
 
     if (auto aspect = runControl()->aspect<TerminalAspect>())

@@ -28,7 +28,6 @@
 
 #include "xmlprotocol/threadedparser.h"
 
-#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -58,7 +57,6 @@ public:
     ValgrindRunner *q;
     Runnable m_debuggee;
     QtcProcess m_valgrindProcess;
-    IDevice::ConstPtr m_device;
 
     QtcProcess m_findPID;
 
@@ -187,15 +185,19 @@ void ValgrindRunner::Private::remoteProcessStarted()
     QString procEscaped = proc;
     procEscaped.replace("/", "\\\\/");
 
-    CommandLine cmd(m_device->filePath("/bin/sh"), {});
-    // sleep required since otherwise we might only match "bash -c..." and not the actual
-    // valgrind run
-    cmd.setArguments(QString("-c \""
-           "sleep 1; ps ax"        // list all processes with aliased name
-           " | grep '%1.*%2'"      // find valgrind process that runs with our exec
-           " | awk '\\$5 ~ /^%3/"  // 5th column must start with valgrind process
-           " {print \\$1;}'"       // print 1st then (with PID)
-           "\"").arg(proc, m_debuggee.command.executable().fileName(), procEscaped));
+    const FilePath debuggee = m_debuggee.command.executable();
+    const CommandLine cmd(
+        debuggee.withNewPath("/bin/sh"),
+        // sleep required since otherwise we might only match "bash -c..." and not the actual
+        // valgrind run
+        QString("-c \""
+                "sleep 1; ps ax"        // list all processes with aliased name
+                " | grep '%1.*%2'"      // find valgrind process that runs with our exec
+                " | awk '\\$5 ~ /^%3/"  // 5th column must start with valgrind process
+                " {print \\$1;}'"       // print 1st then (with PID)
+                "\"").arg(proc, debuggee.fileName(), procEscaped),
+        CommandLine::Raw
+    );
 
     m_findPID.setCommand(cmd);
 
@@ -262,11 +264,6 @@ void ValgrindRunner::setProcessChannelMode(QProcess::ProcessChannelMode mode)
 void ValgrindRunner::setLocalServerAddress(const QHostAddress &localServerAddress)
 {
     d->localServerAddress = localServerAddress;
-}
-
-void ValgrindRunner::setDevice(const IDevice::ConstPtr &device)
-{
-    d->m_device = device;
 }
 
 void ValgrindRunner::setUseTerminal(bool on)
