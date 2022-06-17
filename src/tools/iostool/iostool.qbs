@@ -11,7 +11,7 @@ QtcTool {
     Depends { name: "app_version_header" }
 
     files: [
-        "cfutils.h"
+        "cfutils.h",
         "Info.plist",
         "gdbrunner.cpp",
         "gdbrunner.h",
