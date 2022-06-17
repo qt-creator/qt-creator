@@ -162,6 +162,8 @@
             the application from running until the debug client connects to the
             server. This enables debugging from the start.
 
+            \note Setting breakpoints is only possible if the application is started with block mode.
+
         \li Select \uicontrol Debug > \uicontrol {Start Debugging} >
             \uicontrol {Attach to QML Port}.
 

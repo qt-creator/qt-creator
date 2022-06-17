@@ -255,7 +255,6 @@ void GenerateResource::generateMenuEntry()
             QByteArray stdOut;
             QByteArray stdErr;
             if (!rccProcess.readDataFromProcess(30, &stdOut, &stdErr, true)) {
-                rccProcess.stopProcess();
                 Core::MessageManager::writeDisrupting(
                     QCoreApplication::translate("QmlDesigner::GenerateResource",
                                                 "A timeout occurred running \"%1\"")
@@ -415,7 +414,6 @@ void GenerateResource::generateMenuEntry()
                 QByteArray stdOut;
                 QByteArray stdErr;
                 if (!rccProcess.readDataFromProcess(30, &stdOut, &stdErr, true)) {
-                    rccProcess.stopProcess();
                     Core::MessageManager::writeDisrupting(
                         QCoreApplication::translate("QmlDesigner::GenerateResource",
                                                 "A timeout occurred running \"%1\"")
@@ -545,7 +543,6 @@ void GenerateResource::generateMenuEntry()
             QByteArray stdOut;
             QByteArray stdErr;
             if (!rccProcess.readDataFromProcess(30, &stdOut, &stdErr, true)) {
-                rccProcess.stopProcess();
                 Core::MessageManager::writeDisrupting(
                     QCoreApplication::translate("QmlDesigner::GenerateResource",
                                                 "A timeout occurred running \"%1\"")

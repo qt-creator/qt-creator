@@ -497,27 +497,6 @@ qint64 SshProcessInterface::write(const QByteArray &data)
     return d->m_process.writeRaw(data);
 }
 
-bool SshProcessInterface::waitForStarted(int msecs)
-{
-    Q_UNUSED(msecs)
-    QTC_CHECK(false);
-    return false;
-}
-
-bool SshProcessInterface::waitForReadyRead(int msecs)
-{
-    Q_UNUSED(msecs)
-    QTC_CHECK(false);
-    return false;
-}
-
-bool SshProcessInterface::waitForFinished(int msecs)
-{
-    Q_UNUSED(msecs)
-    QTC_CHECK(false);
-    return false;
-}
-
 LinuxProcessInterface::LinuxProcessInterface(const LinuxDevice *linuxDevice)
     : SshProcessInterface(linuxDevice)
 {
@@ -1123,20 +1102,6 @@ DeviceEnvironmentFetcher::Ptr LinuxDevice::environmentFetcher() const
 QString LinuxDevice::userAtHost() const
 {
     return sshParameters().userAtHost();
-}
-
-FilePath LinuxDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
-{
-    if (pathOnDevice.needsDevice()) {
-        // Already correct form, only sanity check it's ours...
-        QTC_CHECK(handlesFile(pathOnDevice));
-        return pathOnDevice;
-    }
-    FilePath result;
-    result.setScheme("device");
-    result.setHost(id().toString());
-    result.setPath(pathOnDevice.path());
-    return result;
 }
 
 bool LinuxDevice::handlesFile(const FilePath &filePath) const

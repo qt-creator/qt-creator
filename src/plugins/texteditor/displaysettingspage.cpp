@@ -102,6 +102,7 @@ void DisplaySettingsWidget::settingsFromUI(DisplaySettings &displaySettings,
     displaySettings.m_centerCursorOnScroll = m_ui.centerOnScroll->isChecked();
     displaySettings.m_openLinksInNextSplit = m_ui.openLinksInNextSplit->isChecked();
     displaySettings.m_displayFileEncoding = m_ui.displayFileEncoding->isChecked();
+    displaySettings.m_displayFileLineEnding = m_ui.displayFileLineEnding->isChecked();
     displaySettings.m_scrollBarHighlights = m_ui.scrollBarHighlights->isChecked();
     displaySettings.m_animateNavigationWithinFile = m_ui.animateNavigationWithinFile->isChecked();
     displaySettings.m_displayAnnotations = m_ui.displayAnnotations->isChecked();
@@ -135,6 +136,7 @@ void DisplaySettingsWidget::settingsToUI()
     m_ui.centerOnScroll->setChecked(displaySettings.m_centerCursorOnScroll);
     m_ui.openLinksInNextSplit->setChecked(displaySettings.m_openLinksInNextSplit);
     m_ui.displayFileEncoding->setChecked(displaySettings.m_displayFileEncoding);
+    m_ui.displayFileLineEnding->setChecked(displaySettings.m_displayFileLineEnding);
     m_ui.scrollBarHighlights->setChecked(displaySettings.m_scrollBarHighlights);
     m_ui.animateNavigationWithinFile->setChecked(displaySettings.m_animateNavigationWithinFile);
     m_ui.displayAnnotations->setChecked(displaySettings.m_displayAnnotations);

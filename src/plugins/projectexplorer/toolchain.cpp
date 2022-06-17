@@ -343,6 +343,11 @@ void ToolChain::setCompilerCommand(const FilePath &command)
     toolChainUpdated();
 }
 
+bool ToolChain::matchesCompilerCommand(const Utils::FilePath &command, const Environment &env) const
+{
+    return env.isSameExecutable(compilerCommand().toString(), command.toString());
+}
+
 void ToolChain::setCompilerCommandKey(const QString &commandKey)
 {
     d->m_compilerCommandKey = commandKey;

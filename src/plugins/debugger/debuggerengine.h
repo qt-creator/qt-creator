@@ -27,18 +27,17 @@
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
-#include "debuggeritem.h"
 #include "debuggerprotocol.h"
 #include "breakhandler.h"
+#include "projectexplorer/abi.h"
 #include "threadshandler.h"
 
 #include <coreplugin/icontext.h>
 #include <projectexplorer/devicesupport/idevicefwd.h>
 #include <projectexplorer/runcontrol.h>
 #include <texteditor/textmark.h>
-#include <utils/fileutils.h>
 
-#include <QProcess>
+#include <utils/filepath.h>
 
 QT_BEGIN_NAMESPACE
 class QDebug;
@@ -50,6 +49,7 @@ namespace Core { class IOptionsPage; }
 namespace Utils {
 class MacroExpander;
 class Perspective;
+class ProcessResultData;
 } // Utils
 
 namespace Debugger {
@@ -509,7 +509,7 @@ public:
 
 protected:
     void setDebuggerName(const QString &name);
-    void notifyDebuggerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus,
+    void notifyDebuggerProcessFinished(const Utils::ProcessResultData &resultData,
                                        const QString &backendName);
 
     virtual void setState(DebuggerState state, bool forced = false);

@@ -176,6 +176,14 @@ void DiagnosticManager::setExtraSelectionsId(const Utils::Id &extraSelectionsId)
     m_extraSelectionsId = extraSelectionsId;
 }
 
+void DiagnosticManager::forAllMarks(std::function<void (TextEditor::TextMark *)> func)
+{
+    for (const Marks &marks : qAsConst(m_marks)) {
+        for (TextEditor::TextMark *mark : marks.marks)
+            func(mark);
+    }
+}
+
 void DiagnosticManager::clearDiagnostics()
 {
     for (const DocumentUri &uri : m_diagnostics.keys())

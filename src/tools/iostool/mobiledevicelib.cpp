@@ -89,7 +89,15 @@ bool MobileDeviceLib::load()
     m_AMDSetLogLevel = reinterpret_cast<AMDSetLogLevelPtr>(lib.resolve("AMDSetLogLevel"));
     if (m_AMDSetLogLevel == 0)
         addError("MobileDeviceLib does not define AMDSetLogLevel");
-    m_AMDeviceNotificationSubscribe = reinterpret_cast<AMDeviceNotificationSubscribePtr>(lib.resolve("AMDeviceNotificationSubscribe"));
+
+    m_AMDeviceSecureInstallApplicationBundle
+        = reinterpret_cast<AMDeviceSecureInstallApplicationBundlePtr>(
+            lib.resolve("AMDeviceSecureInstallApplicationBundle"));
+    if (m_AMDeviceSecureInstallApplicationBundle == 0)
+        addError("MobileDeviceLib does not define m_AMDeviceSecureInstallApplicationBundle");
+
+    m_AMDeviceNotificationSubscribe = reinterpret_cast<AMDeviceNotificationSubscribePtr>(
+        lib.resolve("AMDeviceNotificationSubscribe"));
     if (m_AMDeviceNotificationSubscribe == 0)
         addError("MobileDeviceLib does not define AMDeviceNotificationSubscribe");
     m_AMDeviceNotificationUnsubscribe = reinterpret_cast<AMDeviceNotificationUnsubscribePtr>(lib.resolve("AMDeviceNotificationUnsubscribe"));
@@ -355,6 +363,21 @@ int MobileDeviceLib::deviceSecureTransferApplicationPath(int zero, AMDeviceRef d
     int returnCode = -1;
     if (m_AMDeviceSecureTransferPath)
         returnCode = m_AMDeviceSecureTransferPath(zero, device, url, dict, callback, args);
+    return returnCode;
+}
+
+int MobileDeviceLib::deviceSecureInstallApplicationBundle(
+    int zero,
+    AMDeviceRef device,
+    CFURLRef url,
+    CFDictionaryRef options,
+    AMDeviceSecureInstallApplicationCallback callback)
+{
+    int returnCode = -1;
+
+    if (m_AMDeviceSecureInstallApplicationBundle) {
+        returnCode = m_AMDeviceSecureInstallApplicationBundle(device, url, options, callback, zero);
+    }
     return returnCode;
 }
 

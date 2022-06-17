@@ -166,8 +166,10 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
     proc.setTimeoutS(timeout);
     proc.setStdOutCallback([offset, progressQuota, &proc, &assertionFound, &fi](const QString &out) {
         int progressPercent = parseProgress(out, assertionFound);
-        if (assertionFound)
-            proc.stopProcess();
+        if (assertionFound) {
+            proc.stop();
+            proc.waitForFinished();
+        }
         if (progressPercent != -1)
             fi.setProgressValue(offset + qRound((progressPercent / 100.0) * progressQuota));
     });
@@ -175,8 +177,10 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
         output.stdError = err;
     });
     if (interruptible) {
-        QObject::connect(&sdkManager, &AndroidSdkManager::cancelActiveOperations,
-                         &proc, &QtcProcess::stopProcess);
+        QObject::connect(&sdkManager, &AndroidSdkManager::cancelActiveOperations, &proc, [&proc] {
+           proc.stop();
+           proc.waitForFinished();
+        });
     }
     proc.setCommand({config.sdkManagerToolPath(), newArgs});
     proc.runBlocking(EventLoopMode::On);

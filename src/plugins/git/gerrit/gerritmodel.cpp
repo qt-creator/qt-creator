@@ -335,7 +335,8 @@ void QueryContext::errorTermination(const QString &msg)
 
 void QueryContext::terminate()
 {
-    m_process.stopProcess();
+    m_process.stop();
+    m_process.waitForFinished();
 }
 
 void QueryContext::processDone()

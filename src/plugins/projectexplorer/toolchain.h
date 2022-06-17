@@ -156,6 +156,9 @@ public:
 
     virtual Utils::FilePath compilerCommand() const; // FIXME: De-virtualize.
     void setCompilerCommand(const Utils::FilePath &command);
+    virtual bool matchesCompilerCommand(
+        const Utils::FilePath &command,
+        const Utils::Environment &env = Utils::Environment::systemEnvironment()) const;
 
     virtual QList<Utils::OutputLineParser *> createOutputParsers() const = 0;
 

@@ -26,16 +26,13 @@
 #include "cppeditordocument.h"
 
 #include "baseeditordocumentparser.h"
-#include "builtineditordocumentprocessor.h"
 #include "cppcodeformatter.h"
-#include "cppcodemodelsettings.h"
 #include "cppeditorconstants.h"
 #include "cppeditorplugin.h"
 #include "cppmodelmanager.h"
 #include "cppeditorconstants.h"
 #include "cppeditorplugin.h"
 #include "cpphighlighter.h"
-#include "cppqtstyleindenter.h"
 #include "cppquickfixassistant.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -58,19 +55,16 @@
 
 const char NO_PROJECT_CONFIGURATION[] = "NoProject";
 
-namespace {
-
-CppEditor::CppModelManager *mm()
-{
-    return CppEditor::CppModelManager::instance();
-}
-
-} // anonymous namespace
-
 using namespace TextEditor;
+using namespace Utils;
 
 namespace CppEditor {
 namespace Internal {
+
+static CppEditor::CppModelManager *mm()
+{
+    return CppEditor::CppModelManager::instance();
+}
 
 enum { processDocumentIntervalInMs = 150 };
 
@@ -150,22 +144,10 @@ void CppEditorDocument::setCompletionAssistProvider(TextEditor::CompletionAssist
     m_completionAssistProvider = nullptr;
 }
 
-void CppEditorDocument::setFunctionHintAssistProvider(TextEditor::CompletionAssistProvider *provider)
-{
-    TextDocument::setFunctionHintAssistProvider(provider);
-    m_functionHintAssistProvider = nullptr;
-}
-
 CompletionAssistProvider *CppEditorDocument::completionAssistProvider() const
 {
     return m_completionAssistProvider
             ? m_completionAssistProvider : TextDocument::completionAssistProvider();
-}
-
-CompletionAssistProvider *CppEditorDocument::functionHintAssistProvider() const
-{
-    return m_functionHintAssistProvider
-            ? m_functionHintAssistProvider : TextDocument::functionHintAssistProvider();
 }
 
 TextEditor::IAssistProvider *CppEditorDocument::quickFixAssistProvider() const
@@ -223,7 +205,6 @@ void CppEditorDocument::onMimeTypeChanged()
     m_isObjCEnabled = (mt == QLatin1String(Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
                        || mt == QLatin1String(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
     m_completionAssistProvider = mm()->completionAssistProvider();
-    m_functionHintAssistProvider = mm()->functionHintAssistProvider();
 
     initializeTimer();
 }
@@ -258,14 +239,13 @@ void CppEditorDocument::reparseWithPreferredParseContext(const QString &parseCon
     scheduleProcessDocument();
 }
 
-void CppEditorDocument::onFilePathChanged(const Utils::FilePath &oldPath,
-                                          const Utils::FilePath &newPath)
+void CppEditorDocument::onFilePathChanged(const FilePath &oldPath, const FilePath &newPath)
 {
     Q_UNUSED(oldPath)
 
     if (!newPath.isEmpty()) {
         indenter()->setFileName(newPath);
-        setMimeType(Utils::mimeTypeForFile(newPath.toFileInfo()).name());
+        setMimeType(mimeTypeForFile(newPath).name());
 
         connect(this, &Core::IDocument::contentsChanged,
                 this, &CppEditorDocument::scheduleProcessDocument,
@@ -376,13 +356,13 @@ void CppEditorDocument::releaseResources()
 
 void CppEditorDocument::showHideInfoBarAboutMultipleParseContexts(bool show)
 {
-    const Utils::Id id = Constants::MULTIPLE_PARSE_CONTEXTS_AVAILABLE;
+    const Id id = Constants::MULTIPLE_PARSE_CONTEXTS_AVAILABLE;
 
     if (show) {
-        Utils::InfoBarEntry info(id,
-                                 tr("Note: Multiple parse contexts are available for this file. "
-                                    "Choose the preferred one from the editor toolbar."),
-                                 Utils::InfoBarEntry::GlobalSuppression::Enabled);
+        InfoBarEntry info(id,
+                          tr("Note: Multiple parse contexts are available for this file. "
+                             "Choose the preferred one from the editor toolbar."),
+                          InfoBarEntry::GlobalSuppression::Enabled);
         info.removeCancelButton();
         if (infoBar()->canInfoBeAdded(id))
             infoBar()->addInfo(info);
@@ -457,9 +437,9 @@ TextEditor::TabSettings CppEditorDocument::tabSettings() const
     return indenter()->tabSettings().value_or(TextEditor::TextDocument::tabSettings());
 }
 
-bool CppEditorDocument::save(QString *errorString, const Utils::FilePath &filePath, bool autoSave)
+bool CppEditorDocument::save(QString *errorString, const FilePath &filePath, bool autoSave)
 {
-    Utils::ExecuteOnDestruction resetSettingsOnScopeExit;
+    ExecuteOnDestruction resetSettingsOnScopeExit;
 
     if (indenter()->formatOnSave() && !autoSave) {
         auto *layout = qobject_cast<TextEditor::TextDocumentLayout *>(document()->documentLayout());

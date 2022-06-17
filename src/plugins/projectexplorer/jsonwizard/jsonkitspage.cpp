@@ -112,10 +112,8 @@ void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
 {
     for (const JsonWizard::GeneratorFile &f : files) {
         if (f.file.attributes() & GeneratedFile::OpenProjectAttribute) {
-            const QFileInfo fi(f.file.path());
-            const QString path = fi.absoluteFilePath();
-            Project *project = ProjectManager::openProject(Utils::mimeTypeForFile(fi),
-                                                           Utils::FilePath::fromString(path));
+            Project *project = ProjectManager::openProject(Utils::mimeTypeForFile(f.file.filePath()),
+                                                           f.file.filePath().absoluteFilePath());
             if (project) {
                 if (setupProject(project))
                     project->saveSettings();

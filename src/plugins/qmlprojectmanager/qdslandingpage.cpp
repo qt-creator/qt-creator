@@ -103,12 +103,14 @@ QWidget *QdsLandingPage::widget()
 
 void QdsLandingPage::show()
 {
-    m_widget->rootObject()->setProperty(PROPERTY_QDSINSTALLED, m_qdsInstalled);
-    m_widget->rootObject()->setProperty(PROPERTY_PROJECTFILEEXISTS, m_projectFileExists);
-    m_widget->rootObject()->setProperty(PROPERTY_QTVERSION, m_qtVersion);
-    m_widget->rootObject()->setProperty(PROPERTY_QDSVERSION, m_qdsVersion);
-    m_widget->rootObject()->setProperty(PROPERTY_CMAKES, m_cmakeResources);
-    m_widget->rootObject()->setProperty(PROPERTY_REMEMBER, Qt::Unchecked);
+    if (m_widget->rootObject()) {
+        m_widget->rootObject()->setProperty(PROPERTY_QDSINSTALLED, m_qdsInstalled);
+        m_widget->rootObject()->setProperty(PROPERTY_PROJECTFILEEXISTS, m_projectFileExists);
+        m_widget->rootObject()->setProperty(PROPERTY_QTVERSION, m_qtVersion);
+        m_widget->rootObject()->setProperty(PROPERTY_QDSVERSION, m_qdsVersion);
+        m_widget->rootObject()->setProperty(PROPERTY_CMAKES, m_cmakeResources);
+        m_widget->rootObject()->setProperty(PROPERTY_REMEMBER, Qt::Unchecked);
+    }
     m_widget->show();
 }
 

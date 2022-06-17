@@ -131,6 +131,11 @@ bool BuildStepList::fromMap(const QVariantMap &map)
         }
         bool handled = false;
         Utils::Id stepId = idFromMap(bsData);
+
+        // pre-8.0 compat
+        if (stepId == "RemoteLinux.CheckForFreeDiskSpaceStep")
+            continue;
+
         for (BuildStepFactory *factory : factories) {
             if (factory->stepId() == stepId) {
                 if (factory->canHandle(this)) {
@@ -196,7 +201,7 @@ void BuildStepList::moveStepUp(int position)
     emit stepMoved(position, position - 1);
 }
 
-BuildStep *BuildStepList::at(int position)
+BuildStep *BuildStepList::at(int position) const
 {
     return m_steps.at(position);
 }

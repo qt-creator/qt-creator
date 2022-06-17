@@ -29,6 +29,7 @@
 #include "boosttesttreeitem.h"
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -41,7 +42,7 @@ namespace Internal {
 static Q_LOGGING_CATEGORY(orLog, "qtc.autotest.boost.outputreader", QtWarningMsg)
 
 BoostTestOutputReader::BoostTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                                             QProcess *testApplication,
+                                             Utils::QtcProcess *testApplication,
                                              const Utils::FilePath &buildDirectory,
                                              const Utils::FilePath &projectFile,
                                              LogLevel log, ReportLevel report)
@@ -51,7 +52,7 @@ BoostTestOutputReader::BoostTestOutputReader(const QFutureInterface<TestResultPt
     , m_reportLevel(report)
 {
     if (m_testApplication) {
-        connect(m_testApplication, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+        connect(m_testApplication, &Utils::QtcProcess::finished,
                 this, &BoostTestOutputReader::onFinished);
     }
 }
@@ -405,7 +406,8 @@ TestResultPtr BoostTestOutputReader::createDefaultResult() const
     return TestResultPtr(result);
 }
 
-void BoostTestOutputReader::onFinished(int exitCode, QProcess::ExitStatus /*exitState*/) {
+void BoostTestOutputReader::onFinished() {
+    int exitCode = m_testApplication->exitCode();
     if (m_reportLevel == ReportLevel::No && m_testCaseCount != -1) {
         int reportedFailsAndSkips = m_summary[ResultType::Fail] + m_summary[ResultType::Skip];
         m_summary.insert(ResultType::Pass, m_testCaseCount - reportedFailsAndSkips);

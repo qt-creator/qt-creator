@@ -185,11 +185,6 @@ CppEditor::CppCompletionAssistProvider *ClangModelManagerSupport::completionAssi
     return nullptr;
 }
 
-CppEditor::CppCompletionAssistProvider *ClangModelManagerSupport::functionHintAssistProvider()
-{
-    return nullptr;
-}
-
 void ClangModelManagerSupport::followSymbol(const CppEditor::CursorInEditor &data,
                   const Utils::LinkHandler &processLinkCallback, bool resolveTarget,
                   bool inNextSplit)

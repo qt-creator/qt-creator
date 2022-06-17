@@ -63,7 +63,6 @@ RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory()
     });
 
     addInitialStep(Constants::MakeInstallStepId, needsMakeInstall);
-    addInitialStep(Constants::CheckForFreeDiskSpaceId);
     addInitialStep(Constants::KillAppStepId);
     addInitialStep(Constants::RsyncDeployStepId, [](Target *target) {
         auto device = DeviceKitAspect::device(target->kit());

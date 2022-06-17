@@ -116,40 +116,4 @@ ProjectExplorer::DeploymentKnowledge CMakeProject::deploymentKnowledge() const
                : DeploymentKnowledge::Bad;
 }
 
-MakeInstallCommand CMakeProject::makeInstallCommand(const Target *target,
-                                                    const FilePath &installRoot)
-{
-    MakeInstallCommand cmd;
-    if (const BuildConfiguration * const bc = target->activeBuildConfiguration()) {
-        if (const auto cmakeStep = bc->buildSteps()->firstOfType<CMakeBuildStep>()) {
-            if (CMakeTool *tool = CMakeKitAspect::cmakeTool(target->kit()))
-                cmd.command.setExecutable(tool->cmakeExecutable());
-        }
-    }
-
-    QString installTarget = "install";
-    QStringList config;
-
-    auto bs = qobject_cast<CMakeBuildSystem*>(target->buildSystem());
-    QTC_ASSERT(bs, return {});
-
-    if (bs->usesAllCapsTargets())
-        installTarget = "INSTALL";
-    if (bs->isMultiConfigReader())
-        config << "--config" << bs->cmakeBuildType();
-
-    FilePath buildDirectory = ".";
-    if (auto bc = bs->buildConfiguration())
-        buildDirectory = bc->buildDirectory();
-
-    cmd.command.addArg("--build");
-    cmd.command.addArg(buildDirectory.onDevice(cmd.command.executable()).path());
-    cmd.command.addArg("--target");
-    cmd.command.addArg(installTarget);
-    cmd.command.addArgs(config);
-
-    cmd.environment.set("DESTDIR", installRoot.nativePath());
-    return cmd;
-}
-
 } // namespace CMakeProjectManager

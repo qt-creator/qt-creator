@@ -54,7 +54,6 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
-#include <remotelinux/checkforfreediskspacestep.h>
 #include <remotelinux/genericdirectuploadstep.h>
 #include <remotelinux/makeinstallstep.h>
 #include <remotelinux/remotelinux_constants.h>
@@ -105,7 +104,6 @@ public:
                     && prj->hasMakeInstallEquivalent();
         });
         addInitialStep(DeviceCheckBuildStep::stepId());
-        addInitialStep(RemoteLinux::Constants::CheckForFreeDiskSpaceId);
         addInitialStep(QnxUploadStep::stepId());
     }
 };
@@ -123,7 +121,6 @@ public:
     QnxDeviceFactory deviceFactory;
     QnxDeployConfigurationFactory deployConfigFactory;
     GenericQnxDeployStepFactory<QnxUploadStep> directUploadDeployFactory;
-    GenericQnxDeployStepFactory<RemoteLinux::CheckForFreeDiskSpaceStep> checkForFreeDiskSpaceDeployFactory;
     GenericQnxDeployStepFactory<RemoteLinux::MakeInstallStep> makeInstallDeployFactory;
     GenericQnxDeployStepFactory<DeviceCheckBuildStep> checkBuildDeployFactory;
     QnxRunConfigurationFactory runConfigFactory;

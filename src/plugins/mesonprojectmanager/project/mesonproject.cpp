@@ -77,14 +77,5 @@ ProjectExplorer::DeploymentKnowledge MesonProject::deploymentKnowledge() const
     return ProjectExplorer::DeploymentKnowledge::Bad;
 }
 
-ProjectExplorer::MakeInstallCommand MesonProject::makeInstallCommand(const ProjectExplorer::Target *target,
-                                                                     const Utils::FilePath &installRoot)
-{
-    Q_UNUSED(target)
-    Q_UNUSED(installRoot)
-    // TODO in next releases
-    return {};
-}
-
 } // namespace Internal
 } // namespace MesonProjectManager

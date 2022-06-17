@@ -25,18 +25,18 @@
 
 #include "iosdevicemanager.h"
 
+#include "cfutils.h"
 #include "mobiledevicelib.h"
 
-#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QHash>
 #include <QLibrary>
+#include <QLoggingCategory>
 #include <QMultiHash>
 #include <QMutex>
 #include <QMutexLocker>
 #include <QProcess>
-#include <QRegularExpression>
 #include <QRegularExpression>
 #include <QSettings>
 #include <QThread>
@@ -53,6 +53,10 @@ static const bool debugGdbServer = false;
 static const bool debugAll = false;
 static const bool verbose = true;
 static const bool noWifi = true;
+
+namespace {
+    Q_LOGGING_CATEGORY(loggingCategory, "qtc.iostool.iosdevicemanager", QtWarningMsg)
+}
 
 // ------- MobileDeviceLib interface --------
 namespace {
@@ -277,8 +281,12 @@ public:
     static IosDeviceManagerPrivate *instance();
     explicit IosDeviceManagerPrivate (IosDeviceManager *q);
     bool watchDevices();
-    void requestAppOp(const QString &bundlePath, const QStringList &extraArgs,
-                            Ios::IosDeviceManager::AppOp appOp, const QString &deviceId, int timeout);
+    void requestAppOp(const QString &bundlePath,
+                      const QStringList &extraArgs,
+                      Ios::IosDeviceManager::AppOp appOp,
+                      const QString &deviceId,
+                      int timeout,
+                      const QString &deltaPath);
     void requestDeviceInfo(const QString &deviceId, int timeout);
     QStringList errors();
     void addError(QString errorMsg);
@@ -321,13 +329,17 @@ public:
     QString bundlePath;
     QStringList extraArgs;
     Ios::IosDeviceManager::AppOp appOp;
+    QString deltaPath;
 
-
-    AppOpSession(const QString &deviceId, const QString &bundlePath,
-                        const QStringList &extraArgs, Ios::IosDeviceManager::AppOp appOp);
+    AppOpSession(const QString &deviceId,
+                 const QString &bundlePath,
+                 const QStringList &extraArgs,
+                 Ios::IosDeviceManager::AppOp appOp,
+                 const QString &deltaPath);
 
     void deviceCallbackReturned() override;
     bool installApp();
+    bool installAppNew();
     bool runApp();
     int qmljsDebugPort() const override;
     am_res_t appTransferCallback(CFDictionaryRef dict) override;
@@ -486,11 +498,13 @@ bool IosDeviceManagerPrivate::watchDevices()
 }
 
 void IosDeviceManagerPrivate::requestAppOp(const QString &bundlePath,
-                                                 const QStringList &extraArgs,
-                                                 IosDeviceManager::AppOp appOp,
-                                                 const QString &deviceId, int timeout)
+                                           const QStringList &extraArgs,
+                                           IosDeviceManager::AppOp appOp,
+                                           const QString &deviceId,
+                                           int timeout,
+                                           const QString &deltaPath)
 {
-    AppOpSession *session = new AppOpSession(deviceId, bundlePath, extraArgs, appOp);
+    AppOpSession *session = new AppOpSession(deviceId, bundlePath, extraArgs, appOp, deltaPath);
     session->startDeviceLookup(timeout);
 }
 
@@ -1205,10 +1219,17 @@ bool CommandSession::developerDiskImagePath(QString *path, QString *signaturePat
     return false;
 }
 
-AppOpSession::AppOpSession(const QString &deviceId, const QString &bundlePath,
-                                       const QStringList &extraArgs, IosDeviceManager::AppOp appOp):
-    CommandSession(deviceId), bundlePath(bundlePath), extraArgs(extraArgs), appOp(appOp)
-{ }
+AppOpSession::AppOpSession(const QString &deviceId,
+                           const QString &bundlePath,
+                           const QStringList &extraArgs,
+                           IosDeviceManager::AppOp appOp,
+                           const QString &deltaPath)
+    : CommandSession(deviceId)
+    , bundlePath(bundlePath)
+    , extraArgs(extraArgs)
+    , appOp(appOp)
+    , deltaPath(deltaPath)
+{}
 
 QString AppOpSession::commandName()
 {
@@ -1218,70 +1239,143 @@ QString AppOpSession::commandName()
 bool AppOpSession::installApp()
 {
     bool success = false;
-    if (device != 0) {
-        CFURLRef bundleUrl = QUrl::fromLocalFile(bundlePath).toCFURL();
-        CFStringRef key[1] = {CFSTR("PackageType")};
-        CFStringRef value[1] = {CFSTR("Developer")};
-        CFDictionaryRef options = CFDictionaryCreate(0, reinterpret_cast<const void**>(&key[0]),
-                reinterpret_cast<const void**>(&value[0]), 1,
-                                                     &kCFTypeDictionaryKeyCallBacks,
-                                                     &kCFTypeDictionaryValueCallBacks);
+    if (device) {
+        if (!installAppNew()) {
+            addError(QString::fromLatin1(
+                "Failed to transfer and install application, trying old way ..."));
 
-        MobileDeviceLib &mLib = MobileDeviceLib::instance();
-        // Transfer bundle with secure API AMDeviceTransferApplication.
-        if (int error = mLib.deviceSecureTransferApplicationPath(0, device, bundleUrl, options,
-                                                         &appSecureTransferSessionCallback,0)) {
-            addError(QString::fromLatin1("TransferAppSession(%1,%2) failed, AMDeviceTransferApplication returned %3 (0x%4)")
-                     .arg(bundlePath, deviceId).arg(mobileDeviceErrorString(error)).arg(error));
-            success = false;
-        } else {
-            // App is transferred. Try installing.
-            if (connectDevice()) {
-                // Secure install app api requires device to be connected.
-                if (am_res_t error = mLib.deviceSecureInstallApplication(0, device, bundleUrl, options,
-                                                                           &appSecureTransferSessionCallback,0)) {
-                    const QString errorString = mobileDeviceErrorString(error);
-                    if (!errorString.isEmpty()) {
-                        addError(errorString
-                                 + QStringLiteral(" (0x")
-                                 + QString::number(error, 16)
-                                 + QStringLiteral(")"));
+            const CFUrl_t bundleUrl(QUrl::fromLocalFile(bundlePath).toCFURL());
+            MobileDeviceLib &mLib = MobileDeviceLib::instance();
+
+            CFStringRef key[1] = {CFSTR("PackageType")};
+            CFStringRef value[1] = {CFSTR("Developer")};
+            const CFDictionary_t options(
+                CFDictionaryCreate(0,
+                                   reinterpret_cast<const void **>(&key[0]),
+                                   reinterpret_cast<const void **>(&value[0]),
+                                   1,
+                                   &kCFTypeDictionaryKeyCallBacks,
+                                   &kCFTypeDictionaryValueCallBacks));
+
+            // Transfer bundle with secure API AMDeviceTransferApplication.
+            if (int error
+                = mLib.deviceSecureTransferApplicationPath(0,
+                                                           device,
+                                                           bundleUrl.get(),
+                                                           options.get(),
+                                                           &appSecureTransferSessionCallback,
+                                                           0)) {
+                addError(QString::fromLatin1("TransferAppSession(%1,%2) failed, "
+                                             "AMDeviceTransferApplication returned %3 (0x%4)")
+                             .arg(bundlePath, deviceId)
+                             .arg(mobileDeviceErrorString(error))
+                             .arg(error));
+                success = false;
+            } else {
+                // App is transferred. Try installing.
+                if (connectDevice()) {
+                    // Secure install app api requires device to be connected.
+                    if (am_res_t error
+                        = mLib.deviceSecureInstallApplication(0,
+                                                              device,
+                                                              bundleUrl.get(),
+                                                              options.get(),
+                                                              &appSecureTransferSessionCallback,
+                                                              0)) {
+                        const QString errorString = mobileDeviceErrorString(error);
+                        if (!errorString.isEmpty()) {
+                            addError(errorString + QStringLiteral(" (0x")
+                                     + QString::number(error, 16) + QStringLiteral(")"));
+                        } else {
+                            addError(QString::fromLatin1("InstallAppSession(%1,%2) failed, "
+                                                         "AMDeviceInstallApplication returned 0x%3")
+                                         .arg(bundlePath, deviceId)
+                                         .arg(QString::number(error, 16)));
+                        }
+                        success = false;
                     } else {
-                        addError(QString::fromLatin1("InstallAppSession(%1,%2) failed, "
-                                                     "AMDeviceInstallApplication returned 0x%3")
-                                 .arg(bundlePath, deviceId).arg(QString::number(error, 16)));
+                        // App is installed.
+                        success = true;
                     }
-                    success = false;
-                } else {
-                    // App is installed.
-                    success = true;
+                    disconnectDevice();
                 }
-                disconnectDevice();
             }
+        } else {
+            success = true;
         }
 
-        if (debugAll) {
-            qDebug() << "AMDeviceSecureTransferApplication finished request with " << (success ? "Success" : "Failure");
-        }
-
-        CFRelease(options);
-        CFRelease(bundleUrl);
+        qCDebug(loggingCategory) << "AMDeviceSecureTransferApplication finished request with"
+                                 << (success ? "Success" : "Failure");
 
         progressBase += 100;
     }
-
 
     if (success) {
         sleep(5); // after installation the device needs a bit of quiet....
     }
 
-    if (debugAll) {
-        qDebug() << "AMDeviceSecureInstallApplication finished request with " << (success ? "Success" : "Failure");
+    qCDebug(loggingCategory) << "AMDeviceSecureInstallApplication finished request with"
+                             << (success ? "Success" : "Failure");
+
+    IosDeviceManagerPrivate::instance()->didTransferApp(bundlePath,
+                                                        deviceId,
+                                                        (success ? IosDeviceManager::Success
+                                                                 : IosDeviceManager::Failure));
+    return success;
+}
+
+bool AppOpSession::installAppNew()
+{
+    const CFUrl_t bundleUrl(QUrl::fromLocalFile(bundlePath).toCFURL());
+    MobileDeviceLib &mLib = MobileDeviceLib::instance();
+
+    CFBundle_t bundle(CFBundleCreate(kCFAllocatorDefault, bundleUrl.get()));
+
+    if (!bundle) {
+        addError(QString::fromLatin1("Failed to create bundle"));
+        return false;
     }
 
-    IosDeviceManagerPrivate::instance()->didTransferApp(bundlePath, deviceId,
-                (success ? IosDeviceManager::Success : IosDeviceManager::Failure));
-    return success;
+    const CFString_t bundleId(CFBundleGetIdentifier(bundle.get()));
+    if (!bundleId) {
+        addError(QString::fromLatin1("Failed to retrieve bundle id"));
+        return false;
+    }
+
+    CFUrl_t dpath(QUrl::fromLocalFile(deltaPath).toCFURL());
+
+    CFStringRef keys[] = {
+        CFSTR("CFBundleIdentifier"),
+        CFSTR("CloseOnInvalidate"),
+        CFSTR("InvalidateOnDetach"),
+        CFSTR("IsUserInitiated"),
+        CFSTR("PackageType"),
+        CFSTR("PreferWifi"),
+        CFSTR("ShadowParentKey"),
+    };
+    CFStringRef values[] = {bundleId.get(),
+                            CFSTR("1"),
+                            CFSTR("1"),
+                            CFSTR("1"),
+                            CFSTR("Developer"),
+                            CFSTR("1"),
+                            (CFStringRef)dpath.get()};
+
+    const CFDictionary_t options(CFDictionaryCreate(0,
+                                                 reinterpret_cast<const void **>(&keys[0]),
+                                                 reinterpret_cast<const void **>(&values[0]),
+                                                 7,
+                                                 &kCFTypeDictionaryKeyCallBacks,
+                                                 &kCFTypeDictionaryValueCallBacks));
+
+    if (int error = mLib.deviceSecureInstallApplicationBundle(0,
+                                                              device,
+                                                              bundleUrl.get(),
+                                                              options.get(),
+                                                              &appSecureTransferSessionCallback))
+        return false;
+
+    return true;
 }
 
 void AppOpSession::deviceCallbackReturned()
@@ -1575,9 +1669,14 @@ bool IosDeviceManager::watchDevices() {
     return d->watchDevices();
 }
 
-void IosDeviceManager::requestAppOp(const QString &bundlePath, const QStringList &extraArgs,
-                                          AppOp appOp, const QString &deviceId, int timeout) {
-    d->requestAppOp(bundlePath, extraArgs, appOp, deviceId, timeout);
+void IosDeviceManager::requestAppOp(const QString &bundlePath,
+                                    const QStringList &extraArgs,
+                                    AppOp appOp,
+                                    const QString &deviceId,
+                                    int timeout,
+                                    QString deltaPath)
+{
+    d->requestAppOp(bundlePath, extraArgs, appOp, deviceId, timeout, deltaPath);
 }
 
 void IosDeviceManager::requestDeviceInfo(const QString &deviceId, int timeout)

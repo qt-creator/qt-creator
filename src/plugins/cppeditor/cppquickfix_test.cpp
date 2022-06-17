@@ -1745,6 +1745,16 @@ void QuickfixTest::testGeneric_data()
         << CppQuickFixFactoryPtr(new EscapeStringLiteral)
         << _(R"(const char *str = @"\xc3\xa0""f23\xd0\xb1g\xd0\xb1""1";)")
         << _(R"(const char *str = "àf23бgб1";)");
+    QTest::newRow("AddLocalDeclaration_QTCREATORBUG-26004")
+        << CppQuickFixFactoryPtr(new AddLocalDeclaration)
+        << _("void func() {\n"
+             "  QStringList list;\n"
+             "  @it = list.cbegin();\n"
+             "}\n")
+        << _("void func() {\n"
+             "  QStringList list;\n"
+             "  auto it = list.cbegin();\n"
+             "}\n");
 }
 
 void QuickfixTest::testGeneric()

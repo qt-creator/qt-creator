@@ -52,7 +52,9 @@ const QString QtTestResult::outputString(bool selected) const
     case ResultType::UnexpectedPass:
     case ResultType::BlacklistedFail:
     case ResultType::BlacklistedPass:
-        output = className + "::" + m_function;
+        output = className;
+        if (!m_function.isEmpty())
+            output.append("::" + m_function);
         if (!m_dataTag.isEmpty())
             output.append(QString(" (%1)").arg(m_dataTag));
         if (selected && !desc.isEmpty()) {
@@ -60,7 +62,9 @@ const QString QtTestResult::outputString(bool selected) const
         }
         break;
     case ResultType::Benchmark:
-        output = className + "::" + m_function;
+        output = className;
+        if (!m_function.isEmpty())
+            output.append("::" + m_function);
         if (!m_dataTag.isEmpty())
             output.append(QString(" (%1)").arg(m_dataTag));
         if (!desc.isEmpty()) {

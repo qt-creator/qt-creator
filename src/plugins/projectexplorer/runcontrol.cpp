@@ -1257,7 +1257,6 @@ public:
 
     SimpleTargetRunner *q = nullptr;
 
-    bool m_isLocal = true;
     bool m_runAsRoot = false;
 
     QtcProcess m_process;
@@ -1266,10 +1265,6 @@ public:
     QTextCodec::ConverterState m_outputCodecState;
     QTextCodec::ConverterState m_errorCodecState;
 
-    // Keep track whether we need to emit a finished signal
-    bool m_processRunning = false;
-
-    // Remote
     State m_state = Inactive;
     bool m_stopRequested = false;
 
@@ -1333,10 +1328,13 @@ SimpleTargetRunnerPrivate::~SimpleTargetRunnerPrivate()
 void SimpleTargetRunnerPrivate::stop()
 {
     m_resultData.m_exitStatus = QProcess::CrashExit;
-    if (m_isLocal) {
+
+    const bool isLocal = !m_command.executable().needsDevice();
+    if (isLocal) {
         if (!isRunning())
             return;
-        m_process.stopProcess();
+        m_process.stop();
+        m_process.waitForFinished();
         QTimer::singleShot(100, this, [this] { forwardDone(); });
     } else {
         if (m_stopRequested)
@@ -1345,7 +1343,8 @@ void SimpleTargetRunnerPrivate::stop()
         q->appendMessage(tr("User requested stop. Shutting down..."), NormalMessageFormat);
         switch (m_state) {
             case Run:
-                m_process.terminate();
+                m_process.stop();
+                m_process.waitForFinished();
                 break;
             case Inactive:
                 break;
@@ -1369,48 +1368,9 @@ qint64 SimpleTargetRunnerPrivate::privateApplicationPID() const
 void SimpleTargetRunnerPrivate::handleDone()
 {
     m_resultData = m_process.resultData();
+    QTC_ASSERT(m_state == Run, forwardDone(); return);
 
-    if (m_isLocal) {
-        if (m_resultData.m_error == QProcess::UnknownError) {
-            forwardDone();
-            return;
-        }
-        // TODO: why below handlings are different?
-        if (m_process.usesTerminal()) {
-            q->appendMessage(m_process.errorString(), ErrorMessageFormat);
-            if (m_processRunning && m_process.processId() == 0) {
-                m_processRunning = false;
-                m_resultData.m_exitCode = -1; // FIXME: Why?
-            }
-        } else {
-            QString errorString;
-            switch (m_resultData.m_error) {
-            case QProcess::FailedToStart:
-                errorString = tr("Failed to start program. Path or permissions wrong?");
-                break;
-            case QProcess::Crashed:
-                m_resultData.m_exitStatus = QProcess::CrashExit;
-                break;
-            default:
-                errorString = tr("Some error has occurred while running the program.");
-            }
-            if (!errorString.isEmpty())
-                q->appendMessage(errorString, ErrorMessageFormat);
-            if (m_processRunning && !isRunning()) {
-                m_processRunning = false;
-                m_resultData.m_exitCode = -1;
-            }
-        }
-
-    } else {
-        QTC_ASSERT(m_state == Run, forwardDone(); return);
-        if (m_resultData.m_error == QProcess::FailedToStart) {
-            m_resultData.m_exitStatus = QProcess::CrashExit;
-        } else if (m_resultData.m_exitStatus == QProcess::CrashExit) {
-            m_resultData.m_error = QProcess::Crashed;
-        }
-        m_state = Inactive;
-    }
+    m_state = Inactive;
     forwardDone();
 }
 
@@ -1432,18 +1392,17 @@ void SimpleTargetRunnerPrivate::handleStandardError()
 
 void SimpleTargetRunnerPrivate::start()
 {
-    m_isLocal = !m_command.executable().needsDevice();
+    const bool isLocal = !m_command.executable().needsDevice();
 
     m_resultData = {};
+    QTC_ASSERT(m_state == Inactive, return);
 
-    if (m_isLocal) {
+    if (isLocal) {
         Environment env = m_environment;
         if (m_runAsRoot)
             RunControl::provideAskPassEntry(env);
 
         m_process.setEnvironment(env);
-
-        m_processRunning = true;
 
         WinDebugInterface::startIfNeeded();
 
@@ -1457,37 +1416,27 @@ void SimpleTargetRunnerPrivate::start()
 
         m_process.setRunAsRoot(m_runAsRoot);
         m_process.setCommand(cmdLine);
-    } else {
-        QTC_ASSERT(m_state == Inactive, return);
-
-        const IDevice::ConstPtr device = DeviceManager::deviceForPath(m_command.executable());
-        if (!device) {
-            m_resultData.m_errorString = tr("Cannot run: No device.");
-            m_resultData.m_error = QProcess::FailedToStart;
-            m_resultData.m_exitStatus = QProcess::CrashExit;
-            forwardDone();
-            return;
-        }
-
-        if (!device->isEmptyCommandAllowed() && m_command.isEmpty()) {
-            m_resultData.m_errorString = tr("Cannot run: No command given.");
-            m_resultData.m_error = QProcess::FailedToStart;
-            m_resultData.m_exitStatus = QProcess::CrashExit;
-            forwardDone();
-            return;
-        }
-
-        m_state = Run;
-        m_stopRequested = false;
-
-        m_process.setCommand(m_command);
-        m_process.setEnvironment(m_environment);
-        m_process.setExtraData(m_extraData);
     }
 
+    const IDevice::ConstPtr device = DeviceManager::deviceForPath(m_command.executable());
+    if (device && !device->isEmptyCommandAllowed() && m_command.isEmpty()) {
+        m_resultData.m_errorString = tr("Cannot run: No command given.");
+        m_resultData.m_error = QProcess::FailedToStart;
+        m_resultData.m_exitStatus = QProcess::CrashExit;
+        forwardDone();
+        return;
+    }
+
+    m_stopRequested = false;
+
+    m_process.setCommand(m_command);
+    m_process.setEnvironment(m_environment);
+    m_process.setExtraData(m_extraData);
+
+    m_state = Run;
     m_process.setWorkingDirectory(m_workingDirectory);
 
-    if (m_isLocal)
+    if (isLocal)
         m_outputCodec = QTextCodec::codecForLocale();
     else
         m_outputCodec = QTextCodec::codecForName("utf8");

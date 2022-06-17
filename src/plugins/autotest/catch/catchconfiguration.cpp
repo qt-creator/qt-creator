@@ -35,7 +35,8 @@
 namespace Autotest {
 namespace Internal {
 
-TestOutputReader *CatchConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi, QProcess *app) const
+TestOutputReader *CatchConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
+                                                   Utils::QtcProcess *app) const
 {
     return new CatchOutputReader(fi, app, buildDirectory(), projectFile());
 }
@@ -97,7 +98,7 @@ QStringList CatchConfiguration::argumentsForTestRunner(QStringList *omitted) con
 {
     QStringList arguments;
     if (testCaseCount())
-        arguments << "\"" + testCases().join("\",\"") + "\"";
+        arguments << "\"" + testCases().join("\", \"") + "\"";
     arguments << "--reporter" << "xml";
 
     if (AutotestPlugin::settings()->processArgs) {

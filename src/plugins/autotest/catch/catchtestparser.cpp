@@ -57,10 +57,11 @@ static bool isCatchTestCaseMacro(const QString &macroName)
 
 static bool isCatchMacro(const QString &macroName)
 {
+    QString unprefixed = macroName.startsWith("CATCH_") ? macroName.mid(6) : macroName;
     const QStringList validSectionMacros = {
         QStringLiteral("SECTION"), QStringLiteral("WHEN")
     };
-    return isCatchTestCaseMacro(macroName) || validSectionMacros.contains(macroName);
+    return isCatchTestCaseMacro(unprefixed) || validSectionMacros.contains(unprefixed);
 }
 
 static bool includesCatchHeader(const CPlusPlus::Document::Ptr &doc,
@@ -123,7 +124,8 @@ bool CatchTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futu
     const QByteArray &fileContent = getFileContent(fileName);
 
     if (!hasCatchNames(doc)) {
-        const QRegularExpression regex("\\b(SCENARIO|(TEMPLATE_(PRODUCT_)?)?TEST_CASE(_METHOD)?|"
+        const QRegularExpression regex("\\b(CATCH_)?"
+                                       "(SCENARIO|(TEMPLATE_(PRODUCT_)?)?TEST_CASE(_METHOD)?|"
                                        "TEMPLATE_TEST_CASE(_METHOD)?_SIG|"
                                        "TEMPLATE_PRODUCT_TEST_CASE(_METHOD)?_SIG|"
                                        "TEMPLATE_LIST_TEST_CASE_METHOD|METHOD_AS_TEST_CASE|"

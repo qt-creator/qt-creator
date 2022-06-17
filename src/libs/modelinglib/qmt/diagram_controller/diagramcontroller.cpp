@@ -557,9 +557,11 @@ void DiagramController::onBeginResetModel()
 void DiagramController::onEndResetModel()
 {
     updateAllDiagramsList();
-    foreach (MDiagram *diagram, m_allDiagrams) {
+    for (MDiagram *diagram : qAsConst(m_allDiagrams)) {
+        const QList<DElement *> elements = diagram->diagramElements();
         // remove all elements which are not longer part of the model
-        foreach (DElement *element, diagram->diagramElements()) {
+        for (int i = elements.size() - 1; i >= 0; --i) {
+            DElement *element = elements.at(i);
             if (element->modelUid().isValid()) {
                 MElement *modelElement = m_modelController->findElement(element->modelUid());
                 if (!modelElement)
@@ -567,7 +569,7 @@ void DiagramController::onEndResetModel()
             }
         }
         // update all remaining elements from model
-        foreach (DElement *element, diagram->diagramElements())
+        for (DElement *element : diagram->diagramElements())
             updateElementFromModel(element, diagram, false);
     }
     emit endResetAllDiagrams();

@@ -36,7 +36,7 @@ CTestConfiguration::CTestConfiguration(ITestBase *testBase)
 }
 
 TestOutputReader *CTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                                   QProcess *app) const
+                                                   Utils::QtcProcess *app) const
 {
     return new CTestOutputReader(fi, app, workingDirectory());
 }

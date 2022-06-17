@@ -896,8 +896,7 @@ void Client::setShadowDocument(const Utils::FilePath &filePath, const QString &c
         return;
     const auto uri = DocumentUri::fromFilePath(filePath);
     if (isNew) {
-        const QString mimeType = mimeTypeForFile(
-                    filePath.toString(), MimeMatchMode::MatchExtension).name();
+        const QString mimeType = mimeTypeForFile(filePath, MimeMatchMode::MatchExtension).name();
         d->sendOpenNotification(filePath, mimeType, content, 0);
     }
 

@@ -36,3 +36,5 @@ else()
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 @endif
+
+install(TARGETS %{ProjectName})

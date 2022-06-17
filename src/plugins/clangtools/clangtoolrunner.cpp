@@ -25,8 +25,6 @@
 
 #include "clangtoolrunner.h"
 
-#include "clangtoolsconstants.h"
-
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -60,32 +58,17 @@ static QString finishedWithBadExitCode(const QString &name, int exitCode)
 }
 
 ClangToolRunner::ClangToolRunner(QObject *parent)
-    : QObject(parent), m_process(new QtcProcess)
+    : QObject(parent)
 {}
-
-ClangToolRunner::~ClangToolRunner()
-{
-    if (m_process->state() != QProcess::NotRunning) {
-        // asking politly to terminate costs ~300 ms on windows so skip the courtasy and direct kill the process
-        if (HostOsInfo::isWindowsHost()) {
-            m_process->kill();
-            m_process->waitForFinished(100);
-        } else {
-            m_process->stopProcess();
-        }
-    }
-
-    m_process->deleteLater();
-}
 
 void ClangToolRunner::init(const FilePath &outputDirPath, const Environment &environment)
 {
     m_outputDirPath = outputDirPath;
     QTC_CHECK(!m_outputDirPath.isEmpty());
 
-    m_process->setEnvironment(environment);
-    m_process->setWorkingDirectory(m_outputDirPath); // Current clang-cl puts log file into working dir.
-    connect(m_process, &QtcProcess::done, this, &ClangToolRunner::onProcessDone);
+    m_process.setEnvironment(environment);
+    m_process.setWorkingDirectory(m_outputDirPath); // Current clang-cl puts log file into working dir.
+    connect(&m_process, &QtcProcess::done, this, &ClangToolRunner::onProcessDone);
 }
 
 QStringList ClangToolRunner::mainToolArguments() const
@@ -139,20 +122,20 @@ bool ClangToolRunner::run(const QString &fileToAnalyze, const QStringList &compi
     m_commandLine = {m_executable, m_argsCreator(compilerOptions)};
 
     qCDebug(LOG).noquote() << "Starting" << m_commandLine.toUserOutput();
-    m_process->setCommand(m_commandLine);
-    m_process->start();
+    m_process.setCommand(m_commandLine);
+    m_process.start();
     return true;
 }
 
 void ClangToolRunner::onProcessDone()
 {
-    if (m_process->result() == ProcessResult::StartFailed) {
+    if (m_process.result() == ProcessResult::StartFailed) {
         emit finishedWithFailure(generalProcessError(m_name), commandlineAndOutput());
-    } else if (m_process->result() == ProcessResult::FinishedWithSuccess) {
-        qCDebug(LOG).noquote() << "Output:\n" << m_process->stdOut();
+    } else if (m_process.result() == ProcessResult::FinishedWithSuccess) {
+        qCDebug(LOG).noquote() << "Output:\n" << m_process.stdOut();
         emit finishedWithSuccess(m_fileToAnalyze);
-    } else if (m_process->result() == ProcessResult::FinishedWithError) {
-        emit finishedWithFailure(finishedWithBadExitCode(m_name, m_process->exitCode()),
+    } else if (m_process.result() == ProcessResult::FinishedWithError) {
+        emit finishedWithFailure(finishedWithBadExitCode(m_name, m_process.exitCode()),
                                  commandlineAndOutput());
     } else { // == QProcess::CrashExit
         emit finishedWithFailure(finishedDueToCrash(m_name), commandlineAndOutput());
@@ -165,8 +148,8 @@ QString ClangToolRunner::commandlineAndOutput() const
               "Process Error: %2\n"
               "Output:\n%3")
         .arg(m_commandLine.toUserOutput())
-        .arg(m_process->error())
-        .arg(m_process->stdOut());
+        .arg(m_process.error())
+        .arg(m_process.stdOut());
 }
 
 } // namespace Internal

@@ -162,7 +162,6 @@ public:
 
     void activateClangCodeModel(ModelManagerSupportProvider *modelManagerSupportProvider);
     CppCompletionAssistProvider *completionAssistProvider() const;
-    CppCompletionAssistProvider *functionHintAssistProvider() const;
     BaseEditorDocumentProcessor *createEditorDocumentProcessor(
                     TextEditor::TextDocument *baseTextDocument) const;
     TextEditor::BaseHoverHandler *createHoverHandler() const;

@@ -3,13 +3,16 @@
     "supportedProjectTypes": [ ],
     "id": "Q.Qml.2",
     "category": "R.Qt",
-    "trDescription": "Creates a QML file with boilerplate code, starting with \"import QtQuick 2.0\".",
+    "trDescription": "Creates a QML file with boilerplate code, starting with \"import QtQuick\".",
     "trDisplayName": "QML File (Qt Quick 2)",
     "trDisplayCategory": "Qt",
     "iconText": "qml",
     "enabled": "%{JS: value('Plugins').indexOf('QmlJSEditor') >= 0}",
 
-    "options": { "key": "DefaultSuffix", "value": "%{JS: Util.preferredSuffix('text/x-qml')}" },
+    "options": [
+        {"key": "DefaultSuffix", "value": "%{JS: Util.preferredSuffix('text/x-qml')}"},
+        {"key": "QtQuickVersion", "value": "%{JS: Util.qtQuickVersion(value('TargetPath'))}"}
+    ],
 
     "pages" :
     [

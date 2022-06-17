@@ -28,12 +28,9 @@
 #include "clangtoolslogfilereader.h"
 
 #include <utils/commandline.h>
-
-#include <QProcess>
+#include <utils/qtcprocess.h>
 
 #include <memory>
-
-namespace Utils { class QtcProcess; }
 
 namespace ClangTools {
 namespace Internal {
@@ -46,7 +43,6 @@ class ClangToolRunner : public QObject
 
 public:
     ClangToolRunner(QObject *parent = nullptr);
-    ~ClangToolRunner() override;
 
     void init(const Utils::FilePath &outputDirPath, const Utils::Environment &environment);
     void setName(const QString &name) { m_name = name; }
@@ -83,7 +79,7 @@ private:
 
 private:
     Utils::FilePath m_outputDirPath;
-    Utils::QtcProcess *m_process = nullptr;
+    Utils::QtcProcess m_process;
 
     QString m_name;
     Utils::FilePath m_executable;

@@ -30,6 +30,7 @@
 #include "testtreeitem.h"
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QDir>
@@ -46,11 +47,12 @@ Utils::FilePath TestOutputReader::constructSourceFilePath(const Utils::FilePath 
 }
 
 TestOutputReader::TestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                                   QProcess *testApplication, const Utils::FilePath &buildDirectory)
+                                   Utils::QtcProcess *testApplication,
+                                   const Utils::FilePath &buildDirectory)
     : m_futureInterface(futureInterface)
     , m_testApplication(testApplication)
     , m_buildDir(buildDirectory)
-    , m_id(testApplication ? testApplication->program() : QString())
+    , m_id(testApplication ? testApplication->commandLine().executable().toUserOutput() : QString())
 {
     auto chopLineBreak = [](QByteArray line) {
         if (line.endsWith('\n'))
@@ -61,17 +63,11 @@ TestOutputReader::TestOutputReader(const QFutureInterface<TestResultPtr> &future
     };
 
     if (m_testApplication) {
-        connect(m_testApplication, &QProcess::readyReadStandardOutput,
-                this, [chopLineBreak, this] () {
-            m_testApplication->setReadChannel(QProcess::StandardOutput);
-            while (m_testApplication->canReadLine())
-                processStdOutput(chopLineBreak(m_testApplication->readLine()));
+        m_testApplication->setStdOutLineCallback([this, &chopLineBreak](const QString &line) {
+            processStdOutput(chopLineBreak(line.toUtf8()));
         });
-        connect(m_testApplication, &QProcess::readyReadStandardError,
-                this, [chopLineBreak, this] () {
-            m_testApplication->setReadChannel(QProcess::StandardError);
-            while (m_testApplication->canReadLine())
-                processStdError(chopLineBreak(m_testApplication->readLine()));
+        m_testApplication->setStdErrLineCallback([this, &chopLineBreak](const QString &line) {
+            processStdError(chopLineBreak(line.toUtf8()));
         });
     }
 }

@@ -373,46 +373,57 @@ FormatDescriptions TextEditorSettingsPrivate::initialFormats()
                              tr("Names of static fields or member functions."),
                              FormatDescription::ShowAllControls);
 
+    const auto cocoControls = FormatDescription::ShowControls(
+        FormatDescription::ShowAllAbsoluteControls | FormatDescription::ShowRelativeControls);
     formatDescr.emplace_back(C_COCO_CODE_ADDED,
                              tr("Code Coverage Added Code"),
                              tr("New code that was not checked for tests."),
-                             FormatDescription::ShowAllControls);
+                             cocoControls);
     formatDescr.emplace_back(C_COCO_PARTIALLY_COVERED,
                              tr("Partially Covered Code"),
                              tr("Partial branch/condition coverage."),
-                             FormatDescription::ShowAllControls);
+                             Qt::darkYellow,
+                             cocoControls);
     formatDescr.emplace_back(C_COCO_NOT_COVERED,
                              tr("Uncovered Code"),
                              tr("Not covered at all."),
-                             FormatDescription::ShowAllControls);
+                             Qt::red,
+                             cocoControls);
     formatDescr.emplace_back(C_COCO_FULLY_COVERED,
                              tr("Fully Covered Code"),
                              tr("Fully covered code."),
-                             FormatDescription::ShowAllControls);
+                             Qt::green,
+                             cocoControls);
     formatDescr.emplace_back(C_COCO_MANUALLY_VALIDATED,
                              tr("Manually Validated Code"),
                              tr("User added validation."),
-                             FormatDescription::ShowAllControls);
+                             Qt::blue,
+                             cocoControls);
     formatDescr.emplace_back(C_COCO_DEAD_CODE,
                              tr("Code Coverage Dead Code"),
                              tr("Unreachable code."),
-                             FormatDescription::ShowAllControls);
+                             Qt::magenta,
+                             cocoControls);
     formatDescr.emplace_back(C_COCO_EXECUTION_COUNT_TOO_LOW,
-                             tr("Code Coverage Execution Count To Low"),
+                             tr("Code Coverage Execution Count Too Low"),
                              tr("Minimum count not reached."),
-                             FormatDescription::ShowAllControls);
+                             Qt::red,
+                             cocoControls);
     formatDescr.emplace_back(C_COCO_NOT_COVERED_INFO,
                              tr("Implicitly Not Covered Code"),
                              tr("PLACEHOLDER"),
-                             FormatDescription::ShowAllControls);
+                             Qt::red,
+                             cocoControls);
     formatDescr.emplace_back(C_COCO_COVERED_INFO,
                              tr("Implicitly Covered Code"),
                              tr("PLACEHOLDER"),
-                             FormatDescription::ShowAllControls);
+                             Qt::green,
+                             cocoControls);
     formatDescr.emplace_back(C_COCO_MANUALLY_VALIDATED_INFO,
                              tr("Implicit Manual Coverage Validation"),
                              tr("PLACEHOLDER"),
-                             FormatDescription::ShowAllControls);
+                             Qt::blue,
+                             cocoControls);
 
     return formatDescr;
 }

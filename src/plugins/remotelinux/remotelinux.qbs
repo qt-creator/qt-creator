@@ -19,8 +19,6 @@ Project {
             "abstractremotelinuxdeploystep.h",
             "deploymenttimeinfo.cpp",
             "deploymenttimeinfo.h",
-            "checkforfreediskspacestep.cpp",
-            "checkforfreediskspacestep.h",
             "customcommanddeploystep.cpp",
             "customcommanddeploystep.h",
             "genericdirectuploadservice.cpp",

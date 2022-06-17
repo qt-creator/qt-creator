@@ -65,6 +65,7 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/winutils.h>
@@ -185,6 +186,7 @@ CdbEngine::CdbEngine() :
     m_extensionCommandPrefix("!" QT_CREATOR_CDB_EXT ".")
 {
     m_process.setProcessMode(ProcessMode::Writer);
+    m_process.setUseCtrlCStub(true);
 
     setObjectName("CdbEngine");
     setDebuggerName("CDB");
@@ -265,7 +267,7 @@ void CdbEngine::init()
     }
     // update source path maps from debugger start params
     mergeStartParametersSourcePathMap();
-    QTC_ASSERT(m_process.state() != QProcess::Running, m_process.stopProcess());
+    QTC_ASSERT(m_process.state() != QProcess::Running, m_process.stop());
 }
 
 CdbEngine::~CdbEngine() = default;
@@ -691,7 +693,7 @@ void CdbEngine::shutdownEngine()
         }
     } else {
         // Remote process. No can do, currently
-        m_process.stopProcess();
+        m_process.stop();
     }
 }
 
@@ -707,7 +709,7 @@ void CdbEngine::processFinished()
                elapsedLogTime(), qPrintable(stateName(state())),
                m_process.exitStatus(), m_process.exitCode());
 
-    notifyDebuggerProcessFinished(m_process.exitCode(), m_process.exitStatus(), "CDB");
+    notifyDebuggerProcessFinished(m_process.resultData(), "CDB");
 }
 
 void CdbEngine::detachDebugger()

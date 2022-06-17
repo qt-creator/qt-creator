@@ -154,15 +154,11 @@ class CocoTextMark : public TextEditor::TextMark
 public:
     CocoTextMark(const FilePath &fileName, const CocoDiagnostic &diag, const Id &clientId)
         : TextEditor::TextMark(fileName, diag.range().start().line() + 1, clientId)
+        , m_severity(diag.cocoSeverity())
     {
         setLineAnnotation(diag.message());
         setToolTip(diag.message());
-        if (optional<CocoDiagnosticSeverity> severity = diag.cocoSeverity()) {
-
-            const TextEditor::TextStyle style = styleForSeverity(*severity);
-            m_annotationColor =
-                    TextEditor::TextEditorSettings::fontSettings().formatFor(style).foreground();
-        }
+        updateAnnotationColor();
     }
 
     QColor annotationColor() const override
@@ -171,6 +167,16 @@ public:
                                            : TextEditor::TextMark::annotationColor();
     }
 
+    void updateAnnotationColor()
+    {
+        if (m_severity) {
+            const TextEditor::TextStyle style = styleForSeverity(*m_severity);
+            m_annotationColor =
+                    TextEditor::TextEditorSettings::fontSettings().formatFor(style).foreground();
+        }
+    }
+
+    optional<CocoDiagnosticSeverity> m_severity;
     QColor m_annotationColor;
 };
 
@@ -180,10 +186,22 @@ public:
     CocoDiagnosticManager(Client *client)
         : DiagnosticManager(client)
     {
+        connect(TextEditor::TextEditorSettings::instance(),
+                &TextEditor::TextEditorSettings::fontSettingsChanged,
+                this,
+                &CocoDiagnosticManager::fontSettingsChanged);
         setExtraSelectionsId("CocoExtraSelections");
     }
 
 private:
+    void fontSettingsChanged()
+    {
+        forAllMarks([](TextEditor::TextMark *mark){
+            static_cast<CocoTextMark *>(mark)->updateAnnotationColor();
+            mark->updateMarker();
+        });
+    }
+
     TextEditor::TextMark *createTextMark(const FilePath &filePath,
                                          const Diagnostic &diagnostic,
                                          bool /*isProjectFile*/) const override

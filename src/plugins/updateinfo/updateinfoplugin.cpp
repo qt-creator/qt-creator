@@ -254,9 +254,9 @@ static void showQtUpdateInfo(const QtPackage &package,
 {
     Utils::InfoBarEntry info(InstallQtUpdates,
                              UpdateInfoPlugin::tr(
-                                 "%1 is available. Check the <a "
-                                 "href=\"https://www.qt.io/blog\">Qt blog</a> for details.")
-                                 .arg(package.displayName));
+                                 "%1 is available. Check the <a %2>Qt blog</a> for details.")
+                                 .arg(package.displayName,
+                                      QString("href=\"https://www.qt.io/blog/tag/releases\"")));
     info.addCustomButton(UpdateInfoPlugin::tr("Start Package Manager"), [startPackageManager] {
         Core::ICore::infoBar()->removeInfo(InstallQtUpdates);
         startPackageManager();

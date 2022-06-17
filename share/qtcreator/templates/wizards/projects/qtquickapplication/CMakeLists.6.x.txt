@@ -27,3 +27,5 @@ set_target_properties(%{TargetName} PROPERTIES
 
 target_link_libraries(%{TargetName}
     PRIVATE Qt6::Quick)
+
+install(TARGETS %{TargetName} BUNDLE DESTINATION .)

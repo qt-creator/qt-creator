@@ -57,7 +57,6 @@ public:
     virtual ~ModelManagerSupport() = 0;
 
     virtual CppCompletionAssistProvider *completionAssistProvider() = 0;
-    virtual CppCompletionAssistProvider *functionHintAssistProvider() = 0;
     virtual TextEditor::BaseHoverHandler *createHoverHandler() = 0;
     virtual BaseEditorDocumentProcessor *createEditorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) = 0;

@@ -37,7 +37,9 @@ namespace Internal {
 
 QString CatchTreeItem::testCasesString() const
 {
-    return m_state & CatchTreeItem::Parameterized ? QString(name() + " -*") : name();
+    QString testcase = m_state & CatchTreeItem::Parameterized ? QString(name() + " -*") : name();
+    // mask comma if it is part of the test case name
+    return testcase.replace(',', "\\,");
 }
 
 static QString nonRootDisplayName(const CatchTreeItem *it)

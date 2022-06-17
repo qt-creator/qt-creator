@@ -107,7 +107,8 @@ void PerforceChecker::slotTimeOut()
     if (!isRunning())
         return;
     m_timedOut = true;
-    m_process.stopProcess();
+    m_process.stop();
+    m_process.waitForFinished();
     emitFailed(tr("\"%1\" timed out after %2 ms.").arg(m_binary.toUserOutput()).arg(m_timeOutMS));
 }
 

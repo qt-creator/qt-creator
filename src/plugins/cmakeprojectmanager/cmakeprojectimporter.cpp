@@ -337,13 +337,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                                        canonicalProjectDirectory.toUserOutput());
         }
 
-        // Determine QML debugging flags. This must match what we do in
-        // CMakeBuildSettingsWidget::getQmlDebugCxxFlags()
-        // such that in doubt we leave the QML Debugging setting at "Leave at default"
-        const QString cxxFlagsInit = config.stringValueOf("CMAKE_CXX_FLAGS_INIT");
-        const QString cxxFlags = config.stringValueOf("CMAKE_CXX_FLAGS");
-        data->hasQmlDebugging = cxxFlagsInit.contains("-DQT_QML_DEBUG")
-                                && cxxFlags.contains("-DQT_QML_DEBUG");
+        data->hasQmlDebugging = CMakeBuildConfiguration::hasQmlDebugging(config);
 
         data->buildDirectory = importPath;
         data->cmakeBuildType = buildType;
@@ -394,10 +388,7 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
         if (!Utils::contains(allLanguages, [&tcd](const Id& language) {return language == tcd.language;}))
             continue;
         ToolChain *tc = ToolChainKitAspect::toolChain(k, tcd.language);
-        if (!tc
-            || !Utils::Environment::systemEnvironment()
-                    .isSameExecutable(tc->compilerCommand().toString(),
-                                      tcd.compilerPath.toString())) {
+        if (!tc || !tc->matchesCompilerCommand(tcd.compilerPath)) {
             return false;
         }
     }

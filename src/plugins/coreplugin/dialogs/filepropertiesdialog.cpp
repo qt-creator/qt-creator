@@ -152,7 +152,7 @@ void FilePropertiesDialog::refresh()
         m_ui->name->setText(fileInfo.fileName());
         m_ui->path->setText(QDir::toNativeSeparators(fileInfo.canonicalPath()));
 
-        const Utils::MimeType mimeType = Utils::mimeTypeForFile(fileInfo);
+        const Utils::MimeType mimeType = Utils::mimeTypeForFile(m_filePath);
         m_ui->mimeType->setText(mimeType.name());
 
         const EditorTypeList factories = IEditorFactory::preferredEditorTypes(m_filePath);

@@ -137,7 +137,8 @@ void QueryRunner::start()
 
 void QueryRunner::terminate()
 {
-    m_process.stopProcess();
+    m_process.stop();
+    m_process.waitForFinished();
 }
 
 void QueryRunner::errorTermination(const QString &msg)

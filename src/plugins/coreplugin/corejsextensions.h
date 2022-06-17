@@ -76,6 +76,9 @@ public:
 
     // Generate a ascii-only string:
     Q_INVOKABLE QString asciify(const QString &input) const;
+
+    // Heuristic to find out which QtQuick import version to use for the given file.
+    Q_INVOKABLE QString qtQuickVersion(const QString &filePath) const;
 };
 
 } // namespace Internal

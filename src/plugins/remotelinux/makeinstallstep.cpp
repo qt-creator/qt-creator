@@ -31,6 +31,8 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
@@ -67,6 +69,18 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent
     jobCountAspect()->setVisible(false);
     disabledForSubdirsAspect()->setVisible(false);
 
+    // FIXME: Hack, Part#1: If the build device is not local, start with a temp dir
+    // inside the build dir. On Docker that's typically shared with the host.
+    const IDevice::ConstPtr device = BuildDeviceKitAspect::device(target()->kit());
+    const bool hack = device && device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+    FilePath rootPath;
+    if (hack) {
+        rootPath = buildDirectory().pathAppended(".tmp-root");
+    } else {
+        QTemporaryDir tmpDir;
+        rootPath = FilePath::fromString(tmpDir.path());
+    }
+
     const auto makeAspect = addAspect<ExecutableAspect>(parent->target(),
                                                         ExecutableAspect::BuildDevice);
     makeAspect->setId(MakeAspectId);
@@ -82,6 +96,7 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent
     installRootAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
     installRootAspect->setExpectedKind(PathChooser::Directory);
     installRootAspect->setLabelText(tr("Install root:"));
+    installRootAspect->setFilePath(rootPath);
     connect(installRootAspect, &StringAspect::changed,
             this, &MakeInstallStep::updateArgsFromAspect);
 
@@ -110,16 +125,14 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent
         updateArgsFromAspect();
         updateFromCustomCommandLineAspect();
     };
+
     connect(customCommandLineAspect, &StringAspect::checkedChanged, this, updateCommand);
     connect(customCommandLineAspect, &StringAspect::changed,
             this, &MakeInstallStep::updateFromCustomCommandLineAspect);
 
     connect(target(), &Target::buildSystemUpdated, this, updateCommand);
 
-    QTemporaryDir tmpDir;
-    installRootAspect->setFilePath(FilePath::fromString(tmpDir.path()));
-
-    const MakeInstallCommand cmd = target()->makeInstallCommand(FilePath::fromString(tmpDir.path()));
+    const MakeInstallCommand cmd = buildSystem()->makeInstallCommand(rootPath);
     QTC_ASSERT(!cmd.command.isEmpty(), return);
     makeAspect->setExecutable(cmd.command.executable());
 }
@@ -168,7 +181,8 @@ bool MakeInstallStep::init()
                                             "last in the list of deploy steps. "
                                             "Consider moving it up.")));
     }
-    const MakeInstallCommand cmd = target()->makeInstallCommand(rootDir);
+
+    const MakeInstallCommand cmd = buildSystem()->makeInstallCommand(rootDir);
     if (cmd.environment.isValid()) {
         Environment env = processParameters()->environment();
         for (auto it = cmd.environment.constBegin(); it != cmd.environment.constEnd(); ++it) {
@@ -192,6 +206,7 @@ bool MakeInstallStep::init()
 void MakeInstallStep::finish(bool success)
 {
     if (success) {
+        const bool hack = makeCommand().needsDevice();
         const FilePath rootDir = installRoot().onDevice(makeCommand());
 
         m_deploymentData = DeploymentData();
@@ -202,7 +217,7 @@ void MakeInstallStep::finish(bool success)
         const auto appFileNames = transform<QSet<QString>>(buildSystem()->applicationTargets(),
             [](const BuildTargetInfo &appTarget) { return appTarget.targetFilePath.fileName(); });
 
-        auto handleFile = [this, &appFileNames, startPos](const FilePath &filePath) {
+        auto handleFile = [this, &appFileNames, startPos, hack](const FilePath &filePath) {
             const DeployableFile::Type type = appFileNames.contains(filePath.fileName())
                 ? DeployableFile::TypeExecutable
                 : DeployableFile::TypeNormal;
@@ -210,7 +225,13 @@ void MakeInstallStep::finish(bool success)
             // FIXME: This is conceptually the wrong place, but currently "downstream" like
             // the rsync step doesn't handle full remote paths here.
             targetDir = FilePath::fromString(targetDir).path();
-            m_deploymentData.addFile(filePath, targetDir, type);
+
+            // FIXME: Hack, Part#2: If the build was indeed not local, drop the remoteness.
+            // As we rely on shared build directory, this "maps" to the host.
+            if (hack)
+                m_deploymentData.addFile(FilePath::fromString(filePath.path()), targetDir, type);
+            else
+                m_deploymentData.addFile(filePath, targetDir, type);
             return true;
         };
         rootDir.iterateDirectory(handleFile,
@@ -255,8 +276,7 @@ void MakeInstallStep::updateArgsFromAspect()
 {
     if (customCommandLineAspect()->isChecked())
         return;
-
-    const CommandLine cmd = target()->makeInstallCommand(installRoot()).command;
+    const CommandLine cmd = buildSystem()->makeInstallCommand(installRoot()).command;
     setUserArguments(cmd.arguments());
     updateFullCommandLine();
 }

@@ -71,7 +71,7 @@ class CORE_EXPORT EditorManager : public QObject
     Q_OBJECT
 
 public:
-    using WindowTitleHandler = std::function<QString (const QString &)>;
+    using WindowTitleHandler = std::function<QString (const Utils::FilePath &)>;
 
     static EditorManager *instance();
 

@@ -157,6 +157,10 @@ static QSet<Id> versionedIds(const QByteArray &prefix, int major, int minor)
         result.insert(Id::fromName(featureDotMajor + '.' + minorStr));
     }
 
+    // FIXME: Terrible hack. Get rid of using version numbers as tags!
+    if (major > 5)
+        result.unite(versionedIds(prefix, major - 1, 15));
+
     return result;
 }
 
@@ -1693,7 +1697,7 @@ void QtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Target 
     if (startupProject) {
         if (ProjectNode *rootNode = startupProject->rootProjectNode()) {
             rootNode->forEachNode([&](FileNode *node) {
-                if (auto resourceNode = dynamic_cast<ResourceEditor::ResourceFileNode *>(node))
+                if (auto resourceNode = dynamic_cast<ProjectExplorer::ResourceFileNode *>(node))
                     finder->addMappedPath(node->filePath(), ":" + resourceNode->qrcPath());
             });
         } else {
@@ -1805,7 +1809,6 @@ static QByteArray runQmakeQuery(const FilePath &binary, const Environment &env, 
         return {};
     }
     if (!process.waitForFinished(timeOutMS)) {
-        process.stopProcess();
         *error = QCoreApplication::translate("QtVersion", "Timeout running \"%1\" (%2 ms).")
                 .arg(binary.displayName()).arg(timeOutMS);
         return {};

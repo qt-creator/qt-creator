@@ -224,7 +224,7 @@ GeneratedFiles generateQmakeFiles(const SimpleProjectWizardDialog *wizard,
 
     for (const FilePath &fileName : wizard->selectedFiles()) {
         QString source = dir.relativeFilePath(fileName.toString());
-        MimeType mimeType = Utils::mimeTypeForFile(fileName.toFileInfo());
+        MimeType mimeType = Utils::mimeTypeForFile(fileName);
         if (mimeType.matchesName("text/x-chdr") || mimeType.matchesName("text/x-c++hdr"))
             proHeaders += "   $$PWD/" + source + " \\\n";
         else

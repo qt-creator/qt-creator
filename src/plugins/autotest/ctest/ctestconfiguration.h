@@ -36,7 +36,7 @@ public:
     explicit CTestConfiguration(ITestBase *testBase);
 
     TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                   QProcess *app) const final;
+                                   Utils::QtcProcess *app) const final;
 };
 
 } // namespace Internal

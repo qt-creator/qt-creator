@@ -199,7 +199,7 @@ public:
     explicit StateListener(QObject *parent);
     ~StateListener();
 
-    static QString windowTitleVcsTopic(const QString &filePath);
+    static QString windowTitleVcsTopic(const FilePath &filePath);
 
 signals:
     void stateChanged(const VcsBase::Internal::State &s, IVersionControl *vc);
@@ -230,11 +230,11 @@ StateListener::~StateListener()
     EditorManager::setWindowTitleVcsTopicHandler({});
 }
 
-QString StateListener::windowTitleVcsTopic(const QString &filePath)
+QString StateListener::windowTitleVcsTopic(const FilePath &filePath)
 {
     FilePath searchPath;
     if (!filePath.isEmpty()) {
-        searchPath = FilePath::fromString(filePath).absolutePath();
+        searchPath = filePath.absolutePath();
     } else {
         // use single project's information if there is only one loaded.
         const QList<Project *> projects = SessionManager::projects();

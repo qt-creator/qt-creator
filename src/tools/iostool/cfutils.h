@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,21 +25,31 @@
 
 #pragma once
 
-#include "remotelinux_export.h"
+#include <QString>
 
-#include "abstractremotelinuxdeploystep.h"
+#include <CoreFoundation/CoreFoundation.h>
 
-namespace RemoteLinux {
+namespace Ios {
 
-class REMOTELINUX_EXPORT CheckForFreeDiskSpaceStep : public AbstractRemoteLinuxDeployStep
+template<typename CFType>
+struct CFRefDeleter
 {
-    Q_OBJECT
-
-public:
-    CheckForFreeDiskSpaceStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
-
-    static Utils::Id stepId();
-    static QString displayName();
+    using pointer = CFType;
+    void operator()(CFType ref) { CFRelease(ref); }
 };
 
-} // namespace RemoteLinux
+inline QString toQStringRelease(CFStringRef str)
+{
+    QString result = QString::fromCFString(str);
+    CFRelease(str);
+    return result;
+}
+
+using CFString_t = std::unique_ptr<CFStringRef, CFRefDeleter<CFStringRef>>;
+using CFUrl_t = std::unique_ptr<CFURLRef, CFRefDeleter<CFURLRef>>;
+using CFPropertyList_t = std::unique_ptr<CFPropertyListRef, CFRefDeleter<CFPropertyListRef>>;
+using CFBundle_t = std::unique_ptr<CFBundleRef, CFRefDeleter<CFBundleRef>>;
+using CFDictionary_t = std::unique_ptr<CFDictionaryRef, CFRefDeleter<CFDictionaryRef>>;
+using CFArray_t = std::unique_ptr<CFArrayRef, CFRefDeleter<CFArrayRef>>;
+
+} // namespace Ios

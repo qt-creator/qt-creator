@@ -637,28 +637,4 @@ ResourceTopLevelNode *ResourceFolderNode::resourceNode() const
     return m_topLevelNode;
 }
 
-ResourceFileNode::ResourceFileNode(const FilePath &filePath, const QString &qrcPath, const QString &displayName)
-    : FileNode(filePath, FileNode::fileTypeForFileName(filePath))
-    , m_qrcPath(qrcPath)
-    , m_displayName(displayName)
-{
-}
-
-QString ResourceFileNode::displayName() const
-{
-    return m_displayName;
-}
-
-QString ResourceFileNode::qrcPath() const
-{
-    return m_qrcPath;
-}
-
-bool ResourceFileNode::supportsAction(ProjectAction action, const Node *node) const
-{
-    if (action == HidePathActions)
-        return false;
-    return parentFolderNode()->supportsAction(action, node);
-}
-
 } // ResourceEditor

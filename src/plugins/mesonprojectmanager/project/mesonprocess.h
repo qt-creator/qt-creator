@@ -47,7 +47,7 @@ class MesonProcess final : public QObject
 public:
     MesonProcess();
     bool run(const Command &command,
-             const Utils::Environment env,
+             const Utils::Environment &env,
              const QString &projectName,
              bool captureStdo = false);
 
@@ -66,8 +66,7 @@ signals:
     void readyReadStandardOutput(const QByteArray &data);
 
 private:
-    void handleProcessFinished(int code, QProcess::ExitStatus status);
-    void handleProcessError(QProcess::ProcessError error);
+    void handleProcessDone();
     void checkForCancelled();
     void setupProcess(const Command &command, const Utils::Environment env, bool captureStdo);
 

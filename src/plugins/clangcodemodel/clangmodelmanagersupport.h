@@ -63,7 +63,6 @@ public:
     ~ClangModelManagerSupport() override;
 
     CppEditor::CppCompletionAssistProvider *completionAssistProvider() override;
-    CppEditor::CppCompletionAssistProvider *functionHintAssistProvider() override;
     TextEditor::BaseHoverHandler *createHoverHandler() override { return nullptr; }
     CppEditor::BaseEditorDocumentProcessor *createEditorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) override;

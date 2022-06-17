@@ -669,7 +669,6 @@ bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
     QByteArray stdOutData;
     QByteArray stdErrData;
     if (!checkProcess.readDataFromProcess(30, &stdOutData, &stdErrData, false)) {
-        checkProcess.stopProcess();
         *errorMessage = tr("The check script \"%1\" timed out.").
                         arg(QDir::toNativeSeparators(checkScript));
         return false;

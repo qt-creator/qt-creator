@@ -27,6 +27,7 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
+#include <projectexplorer/devicesupport/sshsettings.h>
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
@@ -74,7 +75,7 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const IDevice::ConstPtr &de
     connect(this, &PublicKeyDeploymentDialog::canceled, this,
             [this] { d->m_done ? accept() : reject(); });
     connect(&d->m_process, &QtcProcess::done, this, [this] {
-        const bool succeeded = d->m_process.error() == QProcess::UnknownError;
+        const bool succeeded = d->m_process.result() == ProcessResult::FinishedWithSuccess;
         QString finalMessage;
         if (!succeeded) {
             QString errorMessage = d->m_process.errorString();
@@ -98,7 +99,33 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const IDevice::ConstPtr &de
     const QString command = "test -d .ssh || mkdir -p ~/.ssh && chmod 0700 .ssh && echo '"
             + QString::fromLocal8Bit(reader.data())
             + "' >> .ssh/authorized_keys && chmod 0600 .ssh/authorized_keys";
-    d->m_process.setCommand({deviceConfig->filePath("/bin/sh"), {"-c", command}});
+
+    const SshParameters params = deviceConfig->sshParameters();
+    const QString hostKeyCheckingString = params.hostKeyCheckingMode == SshHostKeyCheckingStrict
+            ? QLatin1String("yes") : QLatin1String("no");
+    const bool isWindows = HostOsInfo::isWindowsHost()
+            && SshSettings::sshFilePath().toString().toLower().contains("/system32/");
+    const bool useTimeout = (params.timeout != 0) && !isWindows;
+
+    Utils::CommandLine cmd{SshSettings::sshFilePath()};
+    QStringList args{"-q",
+                     "-o", "StrictHostKeyChecking=" + hostKeyCheckingString,
+                     "-o", "Port=" + QString::number(params.port())};
+    if (!params.userName().isEmpty())
+        args << "-o" << "User=" + params.userName();
+    args << "-o" << "BatchMode=no";
+    if (useTimeout)
+        args << "-o" << "ConnectTimeout=" + QString::number(params.timeout);
+    args << params.host();
+    cmd.addArgs(args);
+
+    CommandLine execCmd;
+    execCmd.addArg("exec");
+    execCmd.addCommandLineAsArgs({"/bin/sh", {"-c", command}}, CommandLine::Raw);
+
+    cmd.addArg(execCmd.arguments());
+    d->m_process.setCommand(cmd);
+    SshParameters::setupSshEnvironment(&d->m_process);
     d->m_process.start();
 }
 

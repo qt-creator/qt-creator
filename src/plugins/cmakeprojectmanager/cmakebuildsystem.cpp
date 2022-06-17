@@ -36,26 +36,31 @@
 #include "cmakeprojectplugin.h"
 #include "cmakespecificsettings.h"
 #include "projecttreehelper.h"
-#include "utils/algorithm.h"
 
 #include <android/androidconstants.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppprojectupdater.h>
 #include <cppeditor/generatedcodemodelsupport.h>
+
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
+
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qtsupport/qtcppkitinfo.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <app/app_version.h>
 
+#include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
@@ -1312,6 +1317,32 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
 
     if (!config.isEmpty())
         emit configurationChanged(config);
+}
+
+MakeInstallCommand CMakeBuildSystem::makeInstallCommand(const FilePath &installRoot) const
+{
+    MakeInstallCommand cmd;
+    if (CMakeTool *tool = CMakeKitAspect::cmakeTool(target()->kit()))
+        cmd.command.setExecutable(tool->cmakeExecutable());
+
+    QString installTarget = "install";
+    if (usesAllCapsTargets())
+        installTarget = "INSTALL";
+
+    FilePath buildDirectory = ".";
+    if (auto bc = buildConfiguration())
+        buildDirectory = bc->buildDirectory();
+
+    cmd.command.addArg("--build");
+    cmd.command.addArg(buildDirectory.onDevice(cmd.command.executable()).path());
+    cmd.command.addArg("--target");
+    cmd.command.addArg(installTarget);
+
+    if (isMultiConfigReader())
+        cmd.command.addArgs({"--config", cmakeBuildType()});
+
+    cmd.environment.set("DESTDIR", installRoot.nativePath());
+    return cmd;
 }
 
 } // namespace Internal

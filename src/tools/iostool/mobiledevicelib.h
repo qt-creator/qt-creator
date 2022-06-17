@@ -101,6 +101,7 @@ typedef am_res_t (MDEV_API *USBMuxConnectByPortPtr)(unsigned int, int, ServiceSo
 // secure Api's
 typedef am_res_t (MDEV_API *AMDeviceSecureStartServicePtr)(AMDeviceRef, CFStringRef, unsigned int *, ServiceConnRef *);
 typedef int (MDEV_API *AMDeviceSecureTransferPathPtr)(int, AMDeviceRef, CFURLRef, CFDictionaryRef, AMDeviceSecureInstallApplicationCallback, int);
+typedef int (MDEV_API *AMDeviceSecureInstallApplicationBundlePtr)(AMDeviceRef, CFURLRef, CFDictionaryRef, AMDeviceSecureInstallApplicationCallback, int zero);
 typedef int (MDEV_API *AMDeviceSecureInstallApplicationPtr)(int, AMDeviceRef, CFURLRef, CFDictionaryRef, AMDeviceSecureInstallApplicationCallback, int);
 typedef int (MDEV_API *AMDServiceConnectionGetSocketPtr)(ServiceConnRef);
 
@@ -158,6 +159,13 @@ public:
     int deviceSecureTransferApplicationPath(int, AMDeviceRef, CFURLRef,
                                             CFDictionaryRef,
                                             AMDeviceSecureInstallApplicationCallback callback, int);
+
+    int deviceSecureInstallApplicationBundle(int zero,
+                                             AMDeviceRef device,
+                                             CFURLRef url,
+                                             CFDictionaryRef options,
+                                             AMDeviceSecureInstallApplicationCallback callback);
+
     int deviceSecureInstallApplication(int zero, AMDeviceRef device, CFURLRef url,
                                        CFDictionaryRef options,
                                        AMDeviceSecureInstallApplicationCallback callback, int arg);
@@ -191,6 +199,7 @@ private:
     AMDeviceMountImagePtr m_AMDeviceMountImage;
     AMDeviceSecureStartServicePtr m_AMDeviceSecureStartService;
     AMDeviceSecureTransferPathPtr m_AMDeviceSecureTransferPath;
+    AMDeviceSecureInstallApplicationBundlePtr m_AMDeviceSecureInstallApplicationBundle;
     AMDeviceSecureInstallApplicationPtr m_AMDeviceSecureInstallApplication;
     AMDServiceConnectionGetSocketPtr m_AMDServiceConnectionGetSocket;
     AMDServiceConnectionSendPtr m_AMDServiceConnectionSend;

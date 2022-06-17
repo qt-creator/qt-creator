@@ -127,7 +127,7 @@ bool AndroidQmlPreviewWorker::isPreviewRunning(int lastKnownPid) const
 
 void AndroidQmlPreviewWorker::startPidWatcher()
 {
-    m_pidFutureWatcher.setFuture(Utils::runAsync([this]() {
+    m_pidFutureWatcher.setFuture(runAsync([this]() {
         // wait for started
         const int sleepTimeMs = 2000;
         QDeadlineTimer deadline(20000);
@@ -157,7 +157,7 @@ void AndroidQmlPreviewWorker::startLogcat()
     QString args = QString("logcat --pid=%1").arg(m_viewerPid);
     if (!m_logcatStartTimeStamp.isEmpty())
         args += QString(" -T '%1'").arg(m_logcatStartTimeStamp);
-    Utils::CommandLine cmd(AndroidConfigurations::currentConfig().adbToolPath());
+    CommandLine cmd(AndroidConfigurations::currentConfig().adbToolPath());
     cmd.setArguments(args);
     m_logcatProcess.setCommand(cmd);
     m_logcatProcess.setUseCtrlCStub(true);
@@ -190,7 +190,7 @@ AndroidQmlPreviewWorker::AndroidQmlPreviewWorker(ProjectExplorer::RunControl *ru
     connect(this, &AndroidQmlPreviewWorker::previewPidChanged,
             this, &AndroidQmlPreviewWorker::startLogcat);
 
-    connect(this, &RunWorker::stopped, &m_logcatProcess, &Utils::QtcProcess::stopProcess);
+    connect(this, &RunWorker::stopped, &m_logcatProcess, &QtcProcess::stop);
     m_logcatProcess.setStdOutCallback([this](const QString &stdOut) {
         filterLogcatAndAppendMessage(stdOut);
     });
@@ -314,7 +314,7 @@ bool AndroidQmlPreviewWorker::preparePreviewArtefacts()
         }
     } else {
         const FilePaths allFiles = m_rc->project()->files(m_rc->project()->SourceFiles);
-        const FilePaths filesToExport = Utils::filtered(allFiles,[](const FilePath &path) {
+        const FilePaths filesToExport = filtered(allFiles, [](const FilePath &path) {
             return path.suffix() == "qmlproject";
         });
 
@@ -363,7 +363,8 @@ FilePath AndroidQmlPreviewWorker::createQmlrcFile(const FilePath &workFolder,
         QByteArray stdOut;
         QByteArray stdErr;
         if (!rccProcess.readDataFromProcess(30, &stdOut, &stdErr, true)) {
-            rccProcess.stopProcess();
+            rccProcess.stop();
+            rccProcess.waitForFinished();
             appendMessage(tr("A timeout occurred running \"%1\"").
                           arg(rccProcess.commandLine().toUserOutput()), StdErrFormat);
             qrcPath.removeFile();

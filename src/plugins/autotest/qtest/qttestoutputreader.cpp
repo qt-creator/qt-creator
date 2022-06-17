@@ -126,7 +126,7 @@ static QString constructBenchmarkInformation(const QString &metric, double value
 }
 
 QtTestOutputReader::QtTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                                       QProcess *testApplication,
+                                       Utils::QtcProcess *testApplication,
                                        const Utils::FilePath &buildDirectory,
                                        const Utils::FilePath &projectFile,
                                        OutputMode mode, TestType type)

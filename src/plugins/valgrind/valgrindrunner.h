@@ -57,8 +57,6 @@ public:
 
     void waitForFinished() const;
 
-    QString errorString() const;
-
     bool start();
     void stop();
 
@@ -75,8 +73,6 @@ signals:
 
 private:
     bool startServers();
-    void processError(QProcess::ProcessError);
-    void processFinished();
 
     void xmlSocketConnected();
     void logSocketConnected();

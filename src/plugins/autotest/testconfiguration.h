@@ -35,9 +35,7 @@
 #include <QPointer>
 #include <QStringList>
 
-QT_BEGIN_NAMESPACE
-class QProcess;
-QT_END_NAMESPACE
+namespace Utils { class QtcProcess; }
 
 namespace Autotest {
 namespace Internal {
@@ -66,7 +64,7 @@ public:
     Utils::FilePath executableFilePath() const;
 
     virtual TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                           QProcess *app) const = 0;
+                                           Utils::QtcProcess *app) const = 0;
     virtual Utils::Environment filteredEnvironment(const Utils::Environment &original) const;
 
     ITestBase *testBase() const { return m_testBase; }

@@ -527,10 +527,11 @@ QString FilePath::fileNameWithPathComponents(int pathComponents) const
             ;
     }
 
-    // If there are no more slashes before the found one, return the entire string
     if (i > 0 && m_data.lastIndexOf(slash, i) != -1)
         return m_data.mid(component);
-    return m_data;
+
+    // If there are no more slashes before the found one, return the entire string
+    return displayName();
 }
 
 /// \returns the base name of the file without the path.

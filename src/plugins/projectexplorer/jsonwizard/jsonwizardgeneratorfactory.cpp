@@ -86,7 +86,7 @@ bool JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile *fi
     if (file->isBinary() || file->contents().isEmpty())
         return true; // nothing to do
 
-    Id languageId = TextEditorSettings::languageId(Utils::mimeTypeForFile(file->path()).name());
+    Id languageId = TextEditorSettings::languageId(Utils::mimeTypeForFile(file->filePath()).name());
 
     if (!languageId.isValid())
         return true; // don't modify files like *.ui, *.pro
@@ -99,7 +99,7 @@ bool JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile *fi
     Indenter *indenter = nullptr;
     if (factory) {
         indenter = factory->createIndenter(&doc);
-        indenter->setFileName(Utils::FilePath::fromString(file->path()));
+        indenter->setFileName(file->filePath());
     }
     if (!indenter)
         indenter = new TextIndenter(&doc);

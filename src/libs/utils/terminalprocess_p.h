@@ -50,12 +50,6 @@ private:
     qint64 write(const QByteArray &) final { QTC_CHECK(false); return -1; }
     void sendControlSignal(ControlSignal controlSignal) final;
 
-    // intentionally no-op without an assert
-    bool waitForStarted(int) final { return false; }
-    bool waitForReadyRead(int) final { QTC_CHECK(false); return false; }
-    // intentionally no-op without an assert
-    bool waitForFinished(int) final { return false; }
-
     // OK, however, impl looks a bit different (!= NotRunning vs == Running).
     // Most probably changing it into (== Running) should be OK.
     bool isRunning() const;

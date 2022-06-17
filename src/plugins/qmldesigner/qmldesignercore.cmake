@@ -49,6 +49,21 @@ function(extend_with_qmldesigner_core target_name)
       rewritertransaction.h
   )
 
+  # autouic gets confused when adding the ui files to tests in the qtquickdesigner repo,
+  # so manually add them for UIC
+  set(UI_FILES
+    ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/designercore/instances/puppetbuildprogressdialog.ui
+    ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/designercore/instances/puppetdialog.ui
+  )
+  qt_wrap_ui(UI_SOURCES ${UI_FILES})
+  extend_qtc_target(${target_name}
+    INCLUDES ${CMAKE_CURRENT_BINARY_DIR}
+    SOURCES
+      ${UI_SOURCES}
+      ${UI_FILES}
+  )
+  set_source_files_properties(${UI_FILES} PROPERTIES SKIP_AUTOUIC ON)
+
   extend_qtc_target(${target_name}
     INCLUDES
       ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/designercore/exceptions
@@ -204,12 +219,10 @@ function(extend_with_qmldesigner_core target_name)
       instances/nodeinstanceview.cpp
       instances/puppetbuildprogressdialog.cpp
       instances/puppetbuildprogressdialog.h
-      instances/puppetbuildprogressdialog.ui
       instances/puppetcreator.cpp
       instances/puppetcreator.h
       instances/puppetdialog.cpp
       instances/puppetdialog.h
-      instances/puppetdialog.ui
       instances/qprocessuniqueptr.h
 
       metainfo/itemlibraryinfo.cpp

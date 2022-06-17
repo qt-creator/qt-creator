@@ -48,7 +48,7 @@ public:
     };
 
     QtTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                       QProcess *testApplication, const Utils::FilePath &buildDirectory,
+                       Utils::QtcProcess *testApplication, const Utils::FilePath &buildDirectory,
                        const Utils::FilePath &projectFile, OutputMode mode, TestType type);
 protected:
     void processOutputLine(const QByteArray &outputLine) override;

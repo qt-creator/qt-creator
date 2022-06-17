@@ -1617,14 +1617,35 @@ public:
     {
         CppRefactoringChanges refactoring(snapshot());
         CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        QString declaration = getDeclaration();
+
+        if (!declaration.isEmpty()) {
+            ChangeSet changes;
+            changes.replace(currentFile->startOf(binaryAST),
+                            currentFile->endOf(simpleNameAST),
+                            declaration);
+            currentFile->setChangeSet(changes);
+            currentFile->apply();
+        }
+    }
+
+private:
+    QString getDeclaration()
+    {
+        CppRefactoringChanges refactoring(snapshot());
+        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
+
+        if (currentFile->cppDocument()->languageFeatures().cxx11Enabled)
+            return "auto " + oo.prettyName(simpleNameAST->name);
 
         TypeOfExpression typeOfExpression;
         typeOfExpression.init(semanticInfo().doc, snapshot(), context().bindings());
         Scope *scope = currentFile->scopeAt(binaryAST->firstToken());
         const QList<LookupItem> result =
-                typeOfExpression(currentFile->textOf(binaryAST->right_expression).toUtf8(),
-                                 scope,
-                                 TypeOfExpression::Preprocess);
+            typeOfExpression(currentFile->textOf(binaryAST->right_expression).toUtf8(),
+                             scope,
+                             TypeOfExpression::Preprocess);
 
         if (!result.isEmpty()) {
             SubstitutionEnvironment env;
@@ -1639,20 +1660,13 @@ public:
             Control *control = context().bindings()->control().data();
             FullySpecifiedType tn = rewriteType(result.first().type(), &env, control);
 
-            Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
-            QString ty = oo.prettyType(tn, simpleNameAST->name);
-            if (!ty.isEmpty()) {
-                ChangeSet changes;
-                changes.replace(currentFile->startOf(binaryAST),
-                                currentFile->endOf(simpleNameAST),
-                                ty);
-                currentFile->setChangeSet(changes);
-                currentFile->apply();
-            }
+            QString declaration = oo.prettyType(tn, simpleNameAST->name);
+            return declaration;
         }
+
+        return {};
     }
 
-private:
     const BinaryExpressionAST *binaryAST;
     const SimpleNameAST *simpleNameAST;
 };

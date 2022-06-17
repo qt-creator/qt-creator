@@ -5,13 +5,12 @@ Project {
     name: "QmlDesigner"
 
     QtcPlugin {
+        condition: Qt.quickwidgets.present && Qt.svg.present
         fileName: FileInfo.fileName(filePath)
 
         Depends {
-            name: "Qt";
-            submodules: [
-                "core-private", "quickwidgets", "xml", "svg"
-            ]
+            name: "Qt"; versionAtLeast: "6.2"; required: false
+            submodules: ["core-private", "quickwidgets", "xml", "svg"]
         }
         Depends { name: "AdvancedDockingSystem" }
         Depends { name: "Core" }

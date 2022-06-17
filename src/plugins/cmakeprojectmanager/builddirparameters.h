@@ -25,14 +25,10 @@
 
 #pragma once
 
-#include "cmakeconfigitem.h"
 #include "cmaketool.h"
 
 #include <utils/environment.h>
-#include <utils/fileutils.h>
-#include <utils/macroexpander.h>
-
-#include <QString>
+#include <utils/filepath.h>
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -44,8 +40,6 @@ class BuildDirParameters
 public:
     BuildDirParameters();
     explicit BuildDirParameters(CMakeBuildSystem *buildSystem);
-    BuildDirParameters(const BuildDirParameters &other);
-    BuildDirParameters &operator=(const BuildDirParameters &other);
 
     bool isValid() const;
     CMakeTool *cmakeTool() const;

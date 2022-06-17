@@ -27,7 +27,6 @@
 #include "formeditorfactory.h"
 #include "formeditorw.h"
 #include "formtemplatewizardpage.h"
-#include "formwindoweditor.h"
 
 #ifdef CPP_ENABLED
 #  include "cpp/formclasswizard.h"
@@ -58,6 +57,7 @@
 
 using namespace Core;
 using namespace Designer::Constants;
+using namespace Utils;
 
 namespace Designer {
 namespace Internal {
@@ -141,24 +141,24 @@ void FormEditorPlugin::extensionsInitialized()
 ////////////////////////////////////////////////////
 
 // Find out current existing editor file
-static QString currentFile()
+static FilePath currentFile()
 {
     if (const IDocument *document = EditorManager::currentDocument()) {
-        const QString fileName = document->filePath().toString();
-        if (!fileName.isEmpty() && QFileInfo(fileName).isFile())
-            return fileName;
+        const FilePath filePath = document->filePath();
+        if (!filePath.isEmpty() && filePath.isFile())
+            return filePath;
     }
-    return QString();
+    return {};
 }
 
 // Switch between form ('ui') and source file ('cpp'):
 // Find corresponding 'other' file, simply assuming it is in the same directory.
-static QString otherFile()
+static FilePath otherFile()
 {
     // Determine mime type of current file.
-    const QString current = currentFile();
+    const FilePath current = currentFile();
     if (current.isEmpty())
-        return QString();
+        return {};
     const Utils::MimeType currentMimeType = Utils::mimeTypeForFile(current);
     // Determine potential suffixes of candidate files
     // 'ui' -> 'cpp', 'cpp/h' -> 'ui'.
@@ -169,22 +169,21 @@ static QString otherFile()
                || currentMimeType.matchesName(CppEditor::Constants::CPP_HEADER_MIMETYPE)) {
         candidateSuffixes += Utils::mimeTypeForName(FORM_MIMETYPE).suffixes();
     } else {
-        return QString();
+        return {};
     }
     // Try to find existing file with desired suffix
-    const QFileInfo currentFI(current);
-    const QString currentBaseName = currentFI.path() + '/' + currentFI.baseName() + '.';
+    const FilePath currentBaseName = current.parentDir().pathAppended(current.baseName() + '.');
     for (const QString &candidateSuffix : qAsConst(candidateSuffixes)) {
-        const QFileInfo fi(currentBaseName + candidateSuffix);
-        if (fi.isFile())
-            return fi.absoluteFilePath();
+        const FilePath filePath = currentBaseName.stringAppended(candidateSuffix);
+        if (filePath.isFile())
+            return filePath.absoluteFilePath();
     }
-    return QString();
+    return {};
 }
 
 void FormEditorPlugin::switchSourceForm()
 {
-    const auto fileToOpen = Utils::FilePath::fromString(otherFile());
+    const FilePath fileToOpen = otherFile();
     if (!fileToOpen.isEmpty())
         EditorManager::openEditor(fileToOpen);
 }

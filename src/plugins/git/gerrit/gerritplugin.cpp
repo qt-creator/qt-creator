@@ -107,8 +107,7 @@ private:
         ErrorState
     };
 
-    void processError(QProcess::ProcessError);
-    void processFinished();
+    void processDone();
     void processReadyReadStandardError();
     void processReadyReadStandardOutput();
 
@@ -141,8 +140,7 @@ FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
     , m_server(server)
     , m_state(FetchState)
 {
-    connect(&m_process, &QtcProcess::errorOccurred, this, &FetchContext::processError);
-    connect(&m_process, &QtcProcess::finished, this, &FetchContext::processFinished);
+    connect(&m_process, &QtcProcess::done, this, &FetchContext::processDone);
     connect(&m_process, &QtcProcess::readyReadStandardError,
             this, &FetchContext::processReadyReadStandardError);
     connect(&m_process, &QtcProcess::readyReadStandardOutput,
@@ -175,29 +173,26 @@ void FetchContext::start()
     m_process.start();
 }
 
-void FetchContext::processFinished()
+void FetchContext::processDone()
 {
-    if (m_process.exitStatus() != QProcess::NormalExit) {
-        handleError(tr("%1 crashed.").arg(m_git.toUserOutput()));
+    if (m_process.result() != ProcessResult::FinishedWithSuccess) {
+        handleError(m_process.exitMessage());
         return;
     }
-    if (m_process.exitCode()) {
-        handleError(tr("%1 returned %2.").arg(m_git.toUserOutput()).arg(m_process.exitCode()));
+    if (m_state != FetchState)
         return;
-    }
-    if (m_state == FetchState) {
-        m_progress.setProgressValue(m_progress.progressValue() + 1);
-        if (m_fetchMode == FetchDisplay)
-            show();
-        else if (m_fetchMode == FetchCherryPick)
-            cherryPick();
-        else if (m_fetchMode == FetchCheckout)
-            checkout();
 
-        m_progress.reportFinished();
-        m_state = DoneState;
-        deleteLater();
-    }
+    m_progress.setProgressValue(m_progress.progressValue() + 1);
+    if (m_fetchMode == FetchDisplay)
+        show();
+    else if (m_fetchMode == FetchCherryPick)
+        cherryPick();
+    else if (m_fetchMode == FetchCheckout)
+        checkout();
+
+    m_progress.reportFinished();
+    m_state = DoneState;
+    deleteLater();
 }
 
 void FetchContext::processReadyReadStandardError()
@@ -226,17 +221,6 @@ void FetchContext::handleError(const QString &e)
     deleteLater();
 }
 
-void FetchContext::processError(QProcess::ProcessError e)
-{
-    if (m_progress.isCanceled())
-        return;
-    const QString msg = tr("Error running %1: %2").arg(m_git.toUserOutput(), m_process.errorString());
-    if (e == QProcess::FailedToStart)
-        handleError(msg);
-    else
-        VcsBase::VcsOutputWindow::appendError(msg);
-}
-
 void FetchContext::show()
 {
     const QString title = QString::number(m_change->number) + '/'
@@ -259,9 +243,9 @@ void FetchContext::checkout()
 
 void FetchContext::terminate()
 {
-    m_process.stopProcess();
+    m_process.stop();
+    m_process.waitForFinished();
 }
-
 
 GerritPlugin::GerritPlugin(QObject *parent)
     : QObject(parent)

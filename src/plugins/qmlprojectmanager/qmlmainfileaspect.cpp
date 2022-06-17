@@ -27,7 +27,6 @@
 
 #include "qmlproject.h"
 #include "qmlprojectmanagerconstants.h"
-#include "qmlprojectrunconfiguration.h"
 
 #include <qmljstools/qmljstoolsconstants.h>
 
@@ -75,7 +74,7 @@ QmlMainFileAspect::~QmlMainFileAspect()
     delete m_fileListCombo;
 }
 
-void QmlMainFileAspect::addToLayout(Utils::LayoutBuilder &builder)
+void QmlMainFileAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_ASSERT(!m_fileListCombo, delete m_fileListCombo);
     m_fileListCombo = new QComboBox;
@@ -238,7 +237,7 @@ bool QmlMainFileAspect::isQmlFilePresent()
     bool qmlFileFound = false;
     if (mainScriptSource() == FileInEditor) {
         IDocument *document = EditorManager::currentDocument();
-        Utils::MimeType mainScriptMimeType = Utils::mimeTypeForFile(mainScript());
+        const MimeType mainScriptMimeType = mimeTypeForFile(mainScript());
         if (document) {
             m_currentFileFilename = document->filePath().toString();
             if (mainScriptMimeType.matchesName(ProjectExplorer::Constants::QML_MIMETYPE)
@@ -251,11 +250,9 @@ bool QmlMainFileAspect::isQmlFilePresent()
             // find a qml file with lowercase filename. This is slow, but only done
             // in initialization/other border cases.
             const auto files = m_target->project()->files(Project::SourceFiles);
-            for (const Utils::FilePath &filename : files) {
-                const QFileInfo fi = filename.toFileInfo();
-
-                if (!filename.isEmpty() && fi.baseName().at(0).isLower()) {
-                    Utils::MimeType type = Utils::mimeTypeForFile(fi);
+            for (const FilePath &filename : files) {
+                if (!filename.isEmpty() && filename.baseName().at(0).isLower()) {
+                    const MimeType type = mimeTypeForFile(filename);
                     if (type.matchesName(ProjectExplorer::Constants::QML_MIMETYPE)
                             || type.matchesName(ProjectExplorer::Constants::QMLUI_MIMETYPE)) {
                         m_currentFileFilename = filename.toString();

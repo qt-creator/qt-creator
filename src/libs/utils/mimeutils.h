@@ -44,10 +44,6 @@
 #include <mimemagicrule_p.h>
 #include <mimetype.h>
 
-QT_BEGIN_NAMESPACE
-class QFileInfo;
-QT_END_NAMESPACE
-
 namespace Utils {
 
 class FilePath;
@@ -58,8 +54,6 @@ QTCREATOR_UTILS_EXPORT MimeType mimeTypeForName(const QString &nameOrAlias);
 enum class MimeMatchMode { MatchDefault = 0x0, MatchExtension = 0x1, MatchContent = 0x2 };
 
 QTCREATOR_UTILS_EXPORT MimeType mimeTypeForFile(const QString &fileName,
-                                                MimeMatchMode mode = MimeMatchMode::MatchDefault);
-QTCREATOR_UTILS_EXPORT MimeType mimeTypeForFile(const QFileInfo &fileInfo,
                                                 MimeMatchMode mode = MimeMatchMode::MatchDefault);
 QTCREATOR_UTILS_EXPORT MimeType mimeTypeForFile(const FilePath &filePath,
                                                 MimeMatchMode mode = MimeMatchMode::MatchDefault);

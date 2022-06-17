@@ -18,6 +18,7 @@ add_qtc_executable(iostool
     main.cpp
     mobiledevicelib.cpp mobiledevicelib.h
     relayserver.cpp relayserver.h
+    cfutils.h
 )
 
 if (TARGET iostool)

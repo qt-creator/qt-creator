@@ -205,11 +205,14 @@ void LiteHtmlHelpViewer::backward()
 {
     goBackward(1);
 }
+
 void LiteHtmlHelpViewer::goForward(int count)
 {
+    const int steps = qMin(count, int(m_forwardItems.size()));
+    if (steps == 0)
+        return;
     HistoryItem nextItem = currentHistoryItem();
-    for (int i = 0; i < count; ++i) {
-        QTC_ASSERT(!m_forwardItems.empty(), return );
+    for (int i = 0; i < steps; ++i) {
         m_backItems.push_back(nextItem);
         nextItem = m_forwardItems.front();
         m_forwardItems.erase(m_forwardItems.begin());
@@ -221,9 +224,11 @@ void LiteHtmlHelpViewer::goForward(int count)
 
 void LiteHtmlHelpViewer::goBackward(int count)
 {
+    const int steps = qMin(count, int(m_backItems.size()));
+    if (steps == 0)
+        return;
     HistoryItem previousItem = currentHistoryItem();
-    for (int i = 0; i < count; ++i) {
-        QTC_ASSERT(!m_backItems.empty(), return );
+    for (int i = 0; i < steps; ++i) {
         m_forwardItems.insert(m_forwardItems.begin(), previousItem);
         previousItem = m_backItems.back();
         m_backItems.pop_back();
@@ -245,6 +250,15 @@ bool LiteHtmlHelpViewer::eventFilter(QObject *src, QEvent *e)
         auto we = static_cast<QWheelEvent *>(e);
         if (we->modifiers() == Qt::ControlModifier) {
             e->ignore();
+            return true;
+        }
+    } else if (e->type() == QEvent::MouseButtonPress) {
+        auto me = static_cast<QMouseEvent *>(e);
+        if (me->button() == Qt::BackButton) {
+            goBackward(1);
+            return true;
+        } else if (me->button() == Qt::ForwardButton) {
+            goForward(1);
             return true;
         }
     }

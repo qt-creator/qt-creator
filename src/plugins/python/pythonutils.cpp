@@ -47,36 +47,42 @@ namespace Internal {
 
 FilePath detectPython(const FilePath &documentPath)
 {
-    FilePath python;
-
-    PythonProject *project = documentPath.isEmpty()
-                                 ? nullptr
-                                 : qobject_cast<PythonProject *>(
-                                     SessionManager::projectForFile(documentPath));
+    Project *project = documentPath.isEmpty() ? nullptr
+                                              : SessionManager::projectForFile(documentPath);
     if (!project)
-        project = qobject_cast<PythonProject *>(SessionManager::startupProject());
+        project = SessionManager::startupProject();
+
+    Environment env = Environment::systemEnvironment();
 
     if (project) {
         if (auto target = project->activeTarget()) {
             if (auto runConfig = target->activeRunConfiguration()) {
                 if (auto interpreter = runConfig->aspect<InterpreterAspect>())
-                    python = interpreter->currentInterpreter().command;
+                    return interpreter->currentInterpreter().command;
+                if (auto environmentAspect = runConfig->aspect<EnvironmentAspect>())
+                    env = environmentAspect->environment();
             }
         }
     }
 
     // check whether this file is inside a python virtual environment
-    QList<Interpreter> venvInterpreters = PythonSettings::detectPythonVenvs(documentPath);
-    if (!python.exists() && !venvInterpreters.isEmpty())
-        python = venvInterpreters.first().command;
+    const QList<Interpreter> venvInterpreters = PythonSettings::detectPythonVenvs(documentPath);
+    if (!venvInterpreters.isEmpty())
+        return venvInterpreters.first().command;
 
-    if (!python.exists())
-        python = PythonSettings::defaultInterpreter().command;
+    auto defaultInterpreter = PythonSettings::defaultInterpreter().command;
+    if (defaultInterpreter.exists())
+        return defaultInterpreter;
 
-    if (!python.exists() && !PythonSettings::interpreters().isEmpty())
-        python = PythonSettings::interpreters().constFirst().command;
+    const FilePath python3FromPath = env.searchInPath("python3");
+    if (python3FromPath.exists())
+        return python3FromPath;
 
-    return python;
+    const FilePath pythonFromPath = env.searchInPath("python");
+    if (pythonFromPath.exists())
+        return pythonFromPath;
+
+    return PythonSettings::interpreters().value(0).command;
 }
 
 static QStringList replImportArgs(const FilePath &pythonFile, ReplType type)

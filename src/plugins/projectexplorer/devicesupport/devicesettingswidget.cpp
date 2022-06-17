@@ -153,9 +153,9 @@ void DeviceSettingsWidget::addDevice()
     m_deviceManager->addDevice(device);
     m_ui->removeConfigButton->setEnabled(true);
     m_ui->configurationComboBox->setCurrentIndex(m_deviceManagerModel->indexOf(device));
+    saveSettings();
     if (device->hasDeviceTester())
         testDevice();
-    saveSettings();
 }
 
 void DeviceSettingsWidget::removeDevice()

@@ -85,6 +85,8 @@ protected:
 
     void setExtraSelectionsId(const Utils::Id &extraSelectionsId);
 
+    void forAllMarks(std::function<void (TextEditor::TextMark *)> func);
+
 private:
     struct VersionedDiagnostics
     {
