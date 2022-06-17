@@ -140,8 +140,8 @@ void RsyncDeployService::createRemoteDirectories()
         remoteDirs << file.m_target.parentDir().path();
     remoteDirs.sort();
     remoteDirs.removeDuplicates();
-    m_mkdir.setCommand({deviceConfiguration()->filePath("mkdir"),
-             {"-p", ProcessArgs::createUnixArgs(remoteDirs).toString()}});
+
+    m_mkdir.setCommand({deviceConfiguration()->filePath("mkdir"), QStringList("-p") + remoteDirs});
     m_mkdir.start();
 }
 
