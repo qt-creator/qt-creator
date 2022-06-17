@@ -442,6 +442,8 @@ static QStringList filteredFlags(const QStringList &allFlags, bool considerSysro
         } else if (a == "-arch") {
             if (++i < allFlags.length() && !filtered.contains(a))
                 filtered << a << allFlags.at(i);
+        }  else if (a == "-Xclang") {
+            filtered << a;
         } else if ((considerSysroot && (a == "--sysroot" || a == "-isysroot"))
                    || a == "-D" || a == "-U"
                    || a == "-gcc-toolchain" || a == "-target" || a == "-mllvm" || a == "-isystem") {
