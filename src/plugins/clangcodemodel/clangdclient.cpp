@@ -326,7 +326,8 @@ public:
         for (auto it = path.rbegin(); it != path.rend(); ++it) {
             if (it->role() == "declaration"
                     && (it->kind() == "CXXMethod" || it->kind() == "CXXConversion"
-                        || it->kind() == "CXXConstructor" || it->kind() == "CXXDestructor")) {
+                        || it->kind() == "CXXConstructor" || it->kind() == "CXXDestructor"
+                        || it->kind() == "Function")) {
                 return *it;
             }
         }
