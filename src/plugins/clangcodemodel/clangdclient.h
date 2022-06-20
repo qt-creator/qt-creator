@@ -51,6 +51,7 @@ namespace Internal {
 class ClangdAstNode;
 
 Q_DECLARE_LOGGING_CATEGORY(clangdLog);
+Q_DECLARE_LOGGING_CATEGORY(clangdLogAst);
 
 void setupClangdConfigFile();
 

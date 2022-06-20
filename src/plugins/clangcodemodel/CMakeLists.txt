@@ -22,6 +22,7 @@ add_qtc_plugin(ClangCodeModel
     clangdquickfixfactory.cpp clangdquickfixfactory.h
     clangdqpropertyhighlighter.cpp clangdqpropertyhighlighter.h
     clangdsemantichighlighting.cpp clangdsemantichighlighting.h
+    clangdswitchdecldef.cpp clangdswitchdecldef.h
     clangeditordocumentprocessor.cpp clangeditordocumentprocessor.h
     clangfixitoperation.cpp clangfixitoperation.h
     clangdlocatorfilters.cpp clangdlocatorfilters.h
