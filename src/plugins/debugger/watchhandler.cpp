@@ -60,7 +60,6 @@
 #include <utils/theme/theme.h>
 
 #include <QApplication>
-#include <QClipboard>
 #include <QDebug>
 #include <QFile>
 #include <QFloat16>
@@ -1663,14 +1662,6 @@ static QString removeWatchActionText(QString exp)
     return WatchModel::tr("Remove Expression Evaluator for \"%1\"").arg(Utils::quoteAmpersands(exp));
 }
 
-static void copyToClipboard(const QString &clipboardText)
-{
-    QClipboard *clipboard = QApplication::clipboard();
-    if (clipboard->supportsSelection())
-        clipboard->setText(clipboardText, QClipboard::Selection);
-    clipboard->setText(clipboardText, QClipboard::Clipboard);
-}
-
 void WatchModel::inputNewExpression()
 {
     QDialog dlg;
@@ -1788,19 +1779,19 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
 
     addAction(this, menu, tr("Copy View Contents to Clipboard"),
               true,
-              [this] { copyToClipboard(editorContents()); });
+              [this] { setClipboardAndSelection(editorContents()); });
 
     addAction(this, menu,
               tr("Copy Current Value to Clipboard"),
               item,
               [this, name = item ? item->iname : QString()] {
                   if (auto item = findItem(name))
-                      copyToClipboard(item->value);
+                      setClipboardAndSelection(item->value);
               });
 
     //    addAction(menu, tr("Copy Selected Rows to Clipboard"),
     //              selectionModel()->hasSelection(),
-    //              [this] { copyToClipboard(editorContents(selectionModel()->selectedRows())); });
+    //              [this] { setClipboardAndSelection(editorContents(selectionModel()->selectedRows())); });
 
     addAction(this, menu, tr("Open View Contents in Editor"),
               m_engine->debuggerActionsEnabled(),
