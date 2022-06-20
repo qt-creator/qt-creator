@@ -856,6 +856,7 @@ function(add_qtc_test name)
     DEFINES ${_arg_DEFINES} ${TEST_DEFINES} ${default_defines_copy}
     EXPLICIT_MOC ${_arg_EXPLICIT_MOC}
     SKIP_AUTOMOC ${_arg_SKIP_AUTOMOC}
+    CONDITION ${_arg_CONDITION}
   )
 
   set_target_properties(${name} PROPERTIES
