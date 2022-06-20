@@ -60,7 +60,7 @@ public:
     }
 
     enum HostArchitecture { HostArchitectureX86, HostArchitectureAMD64, HostArchitectureItanium,
-                            HostArchitectureArm, HostArchitectureUnknown };
+                            HostArchitectureArm, HostArchitectureArm64, HostArchitectureUnknown };
     static HostArchitecture hostArchitecture();
 
     static constexpr bool isWindowsHost() { return hostOs() == OsTypeWindows; }

@@ -147,6 +147,9 @@ static bool hostPrefersPlatform(MsvcToolChain::Platform platform)
                || platform == MsvcToolChain::x86_arm64;
     case HostOsInfo::HostArchitectureArm:
         return platform == MsvcToolChain::arm;
+    case HostOsInfo::HostArchitectureArm64:
+        return platform == MsvcToolChain::arm64
+               || platform == MsvcToolChain::arm64_x86 || platform == MsvcToolChain::arm64_amd64;
     case HostOsInfo::HostArchitectureItanium:
         return platform == MsvcToolChain::ia64;
     default:
@@ -167,7 +170,7 @@ static bool hostSupportsPlatform(MsvcToolChain::Platform platform)
                || platform == MsvcToolChain::x86_ia64 || platform == MsvcToolChain::x86_arm
                || platform == MsvcToolChain::x86_arm64;
     // The Arm64 host can run the cross-compilers via emulation of x86 and amd64
-    case HostOsInfo::HostArchitectureArm:
+    case HostOsInfo::HostArchitectureArm64:
         return platform == MsvcToolChain::x86_arm || platform == MsvcToolChain::x86_arm64
                || platform == MsvcToolChain::amd64_arm || platform == MsvcToolChain::amd64_arm64
                || platform == MsvcToolChain::x86 || platform == MsvcToolChain::x86_amd64
