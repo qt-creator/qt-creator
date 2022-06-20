@@ -132,16 +132,10 @@ void ExecuteFilter::accept(const LocatorFilterEntry &selection,
     p->runHeadCommand();
 }
 
-void ExecuteFilter::finished()
+void ExecuteFilter::done()
 {
     QTC_ASSERT(m_process, return);
-    const QString commandName = headCommand();
-    QString message;
-    if (m_process->result() == ProcessResult::FinishedWithSuccess)
-        message = tr("Command \"%1\" finished.").arg(commandName);
-    else
-        message = tr("Command \"%1\" failed.").arg(commandName);
-    MessageManager::writeFlashing(message);
+    MessageManager::writeFlashing(m_process->exitMessage());
 
     removeProcess();
     runHeadCommand();
@@ -180,12 +174,6 @@ void ExecuteFilter::runHeadCommand()
         m_process->setWorkingDirectory(d.workingDirectory);
         m_process->setCommand(d.command);
         m_process->start();
-        if (!m_process->waitForStarted(1000)) {
-            MessageManager::writeFlashing(
-                tr("Could not start process: %1.").arg(m_process->errorString()));
-            removeProcess();
-            runHeadCommand();
-        }
     }
 }
 
@@ -196,7 +184,7 @@ void ExecuteFilter::createProcess()
 
     m_process = new Utils::QtcProcess;
     m_process->setEnvironment(Utils::Environment::systemEnvironment());
-    connect(m_process, &QtcProcess::finished, this, &ExecuteFilter::finished);
+    connect(m_process, &QtcProcess::done, this, &ExecuteFilter::done);
     connect(m_process, &QtcProcess::readyReadStandardOutput, this, &ExecuteFilter::readStandardOutput);
     connect(m_process, &QtcProcess::readyReadStandardError, this, &ExecuteFilter::readStandardError);
 }
@@ -207,7 +195,7 @@ void ExecuteFilter::removeProcess()
         return;
 
     m_taskQueue.dequeue();
-    delete m_process;
+    m_process->deleteLater();
     m_process = nullptr;
 }
 
