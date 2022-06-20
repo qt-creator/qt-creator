@@ -31,7 +31,6 @@
 #include "projectexplorerconstants.h"
 #include "projectexplorersettings.h"
 #include "taskhub.h"
-#include "toolchainmanager.h"
 
 #include <coreplugin/icore.h>
 
@@ -106,7 +105,10 @@ const MsvcPlatform platforms[]
        {MsvcToolChain::amd64_arm, "amd64_arm", "/bin/amd64_arm", "vcvarsamd64_arm.bat"},
        {MsvcToolChain::amd64_x86, "amd64_x86", "/bin/amd64_x86", "vcvarsamd64_x86.bat"},
        {MsvcToolChain::x86_arm64, "x86_arm64", "/bin/x86_arm64", "vcvarsx86_arm64.bat"},
-       {MsvcToolChain::amd64_arm64, "amd64_arm64", "/bin/amd64_arm64", "vcvarsamd64_arm64.bat"}};
+       {MsvcToolChain::amd64_arm64, "amd64_arm64", "/bin/amd64_arm64", "vcvarsamd64_arm64.bat"},
+       {MsvcToolChain::arm64, "arm64", "/bin/arm64", "vcvarsarm64.bat"},
+       {MsvcToolChain::arm64_x86, "arm64_x86", "/bin/arm64_x86", "vcvarsarm64_x86.bat"},
+       {MsvcToolChain::arm64_amd64, "arm64_amd64", "/bin/arm64_amd64", "vcvarsarm64_amd64.bat"}};
 
 static QList<const MsvcToolChain *> g_availableMsvcToolchains;
 
@@ -397,6 +399,7 @@ static unsigned char wordWidthForPlatform(MsvcToolChain::Platform platform)
     case ProjectExplorer::Internal::MsvcToolChain::x86_arm:
     case ProjectExplorer::Internal::MsvcToolChain::amd64_arm:
     case ProjectExplorer::Internal::MsvcToolChain::amd64_x86:
+    case ProjectExplorer::Internal::MsvcToolChain::arm64_x86:
         return 32;
     case ProjectExplorer::Internal::MsvcToolChain::amd64:
     case ProjectExplorer::Internal::MsvcToolChain::x86_amd64:
@@ -404,6 +407,8 @@ static unsigned char wordWidthForPlatform(MsvcToolChain::Platform platform)
     case ProjectExplorer::Internal::MsvcToolChain::x86_ia64:
     case ProjectExplorer::Internal::MsvcToolChain::amd64_arm64:
     case ProjectExplorer::Internal::MsvcToolChain::x86_arm64:
+    case ProjectExplorer::Internal::MsvcToolChain::arm64:
+    case ProjectExplorer::Internal::MsvcToolChain::arm64_amd64:
         return 64;
     }
 
@@ -417,12 +422,15 @@ static Abi::Architecture archForPlatform(MsvcToolChain::Platform platform)
     case ProjectExplorer::Internal::MsvcToolChain::amd64:
     case ProjectExplorer::Internal::MsvcToolChain::x86_amd64:
     case ProjectExplorer::Internal::MsvcToolChain::amd64_x86:
+    case ProjectExplorer::Internal::MsvcToolChain::arm64_x86:
+    case ProjectExplorer::Internal::MsvcToolChain::arm64_amd64:
         return Abi::X86Architecture;
     case ProjectExplorer::Internal::MsvcToolChain::arm:
     case ProjectExplorer::Internal::MsvcToolChain::x86_arm:
     case ProjectExplorer::Internal::MsvcToolChain::amd64_arm:
     case ProjectExplorer::Internal::MsvcToolChain::x86_arm64:
     case ProjectExplorer::Internal::MsvcToolChain::amd64_arm64:
+    case ProjectExplorer::Internal::MsvcToolChain::arm64:
         return Abi::ArmArchitecture;
     case ProjectExplorer::Internal::MsvcToolChain::ia64:
     case ProjectExplorer::Internal::MsvcToolChain::x86_ia64:
@@ -1328,6 +1336,9 @@ MsvcToolChainConfigWidget::MsvcToolChainConfigWidget(ToolChain *tc)
     m_varsBatArchCombo->addItem("amd64_arm64", MsvcToolChain::amd64_arm64);
     m_varsBatArchCombo->addItem("ia64", MsvcToolChain::ia64);
     m_varsBatArchCombo->addItem("x86_ia64", MsvcToolChain::x86_ia64);
+    m_varsBatArchCombo->addItem("arm64", MsvcToolChain::arm64);
+    m_varsBatArchCombo->addItem("arm64_x86", MsvcToolChain::arm64_x86);
+    m_varsBatArchCombo->addItem("arm64_amd64", MsvcToolChain::arm64_amd64);
     m_varsBatArgumentsEdit->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     m_varsBatArgumentsEdit->setToolTip(tr("Additional arguments for the vcvarsall.bat call"));
     hLayout->addWidget(m_varsBatPathCombo);
@@ -1943,6 +1954,7 @@ Toolchains MsvcToolChainFactory::autoDetect(const ToolchainDetector &detector) c
                 {MsvcToolChain::x86, "x86"},
                 {MsvcToolChain::amd64, "x64"},
                 {MsvcToolChain::ia64, "ia64"},
+                {MsvcToolChain::arm64, "arm64"},
             };
             for (const auto &platform : platforms) {
                 tmp.append(findOrCreateToolchains(detector,
@@ -1978,7 +1990,10 @@ Toolchains MsvcToolChainFactory::autoDetect(const ToolchainDetector &detector) c
                                                  MsvcToolChain::x86_arm64,
                                                  MsvcToolChain::amd64_arm64,
                                                  MsvcToolChain::ia64,
-                                                 MsvcToolChain::x86_ia64};
+                                                 MsvcToolChain::x86_ia64,
+                                                 MsvcToolChain::arm64,
+                                                 MsvcToolChain::arm64_x86,
+                                                 MsvcToolChain::arm64_amd64};
 
     const QVector<VisualStudioInstallation> studios = detectVisualStudio();
     for (const VisualStudioInstallation &i : studios) {
