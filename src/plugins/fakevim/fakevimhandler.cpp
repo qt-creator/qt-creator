@@ -1237,7 +1237,7 @@ public:
             return '\n';
         if (m_key == Key_Escape)
             return QChar(27);
-        return QChar(m_xkey);
+        return QChar(m_xkey & 0xffff); // FIXME
     }
 
     QString toString() const
@@ -1254,7 +1254,7 @@ public:
             else if (m_xkey == '>')
                 key = "<GT>";
             else
-                key = QChar(m_xkey);
+                key = QChar(m_xkey & 0xffff);  // FIXME
         }
 
         bool shift = isShift();
