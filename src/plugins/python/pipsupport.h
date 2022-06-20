@@ -84,7 +84,7 @@ signals:
 
 private:
     void cancel();
-    void installFinished();
+    void handleDone();
     void handleOutput();
     void handleError();
 
