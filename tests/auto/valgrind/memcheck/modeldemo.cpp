@@ -24,6 +24,9 @@
 **
 ****************************************************************************/
 
+#include <utils/launcherinterface.h>
+#include <utils/temporarydirectory.h>
+
 #include <valgrind/xmlprotocol/frame.h>
 #include <valgrind/xmlprotocol/parser.h>
 #include <valgrind/xmlprotocol/stack.h>
@@ -41,12 +44,17 @@ using namespace Valgrind::XmlProtocol;
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+
+    Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/QtCreator-XXXXXX");
+    const QString libExecPath(qApp->applicationDirPath() + '/'
+                              + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
+    Utils::LauncherInterface::setPathToLauncher(libExecPath);
+
     qRegisterMetaType<Error>();
 
     ValgrindRunner runner;
     runner.setValgrindCommand({VALGRIND_FAKE_PATH,
                               {"-i", PARSERTESTS_DATA_DIR "/memcheck-output-sample1.xml"}});
-
     ModelDemo demo(&runner);
     QObject::connect(&runner, &ValgrindRunner::finished,
                      &demo, &ModelDemo::finished);
