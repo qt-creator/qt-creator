@@ -101,7 +101,7 @@ public:
     void loadAdditionalQmlStack() override;
     void listBreakpoints();
 
-    static QString extensionLibraryName(bool is64Bit);
+    static QString extensionLibraryName(bool is64Bit, bool isArm = false);
 
 private:
     void readyReadStandardOut();

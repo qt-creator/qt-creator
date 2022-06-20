@@ -56,6 +56,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
+#include <projectexplorer/abi.h>
 #include <projectexplorer/taskhub.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtversionmanager.h>
@@ -290,14 +291,13 @@ bool CdbEngine::canHandleToolTip(const DebuggerToolTipContext &context) const
 }
 
 // Determine full path to the CDB extension library.
-QString CdbEngine::extensionLibraryName(bool is64Bit)
+QString CdbEngine::extensionLibraryName(bool is64Bit, bool isArm)
 {
     // Determine extension lib name and path to use
-    QString rc;
-    QTextStream(&rc) << QFileInfo(QCoreApplication::applicationDirPath()).path()
-                     << "/lib/" << (is64Bit ? QT_CREATOR_CDB_EXT "64" : QT_CREATOR_CDB_EXT "32")
-                     << '/' << QT_CREATOR_CDB_EXT << ".dll";
-    return rc;
+    return QString("%1/lib/" QT_CREATOR_CDB_EXT "%2%3/" QT_CREATOR_CDB_EXT ".dll")
+        .arg(QFileInfo(QCoreApplication::applicationDirPath()).path())
+        .arg(isArm ? "arm" : QString())
+        .arg(is64Bit ? "64": "32");
 }
 
 int CdbEngine::elapsedLogTime()
@@ -353,10 +353,17 @@ void CdbEngine::setupEngine()
         return;
     }
 
-    bool cdbIs64Bit = is64BitWindowsBinary(sp.debugger.command.executable());
-    if (!cdbIs64Bit)
+    bool cdbIs64Bit = true;
+    bool cdbIsArm = false;
+    Abis abisOfCdb = Abi::abisOfBinary(sp.debugger.command.executable());
+    if (abisOfCdb.size() == 1) {
+        Abi abi = abisOfCdb.at(0);
+        cdbIs64Bit = abi.wordWidth() == 64;
+        cdbIsArm = abi.architecture() == Abi::Architecture::ArmArchitecture;
+    }
+    if (!cdbIs64Bit || cdbIsArm)
         m_wow64State = noWow64Stack;
-    const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit));
+    const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit, cdbIsArm));
     if (!extensionFi.isFile()) {
         handleSetupFailure(tr("Internal error: The extension %1 cannot be found.\n"
                            "If you have updated %2 via Maintenance Tool, you may "
