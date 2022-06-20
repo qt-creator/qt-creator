@@ -32,8 +32,7 @@ NimSuggest::NimSuggest(QObject *parent)
     : QObject(parent)
 {
     connect(&m_server, &NimSuggestServer::started, this, &NimSuggest::onServerStarted);
-    connect(&m_server, &NimSuggestServer::crashed, this, &NimSuggest::onServerCrashed);
-    connect(&m_server, &NimSuggestServer::finished, this, &NimSuggest::onServerFinished);
+    connect(&m_server, &NimSuggestServer::done, this, &NimSuggest::onServerDone);
 
     connect(&m_client, &NimSuggestClient::disconnected, this, &NimSuggest::onClientDisconnected);
     connect(&m_client, &NimSuggestClient::connected, this, &NimSuggest::onClientConnected);
@@ -134,14 +133,13 @@ void NimSuggest::disconnectClient()
 
 void NimSuggest::stopServer()
 {
-    m_server.kill();
+    m_server.stop();
 }
 
 void NimSuggest::startServer()
 {
-    if (!m_projectFile.isEmpty() && !m_executablePath.isEmpty()) {
+    if (!m_projectFile.isEmpty() && !m_executablePath.isEmpty())
         m_server.start(m_executablePath, m_projectFile);
-    }
 }
 
 void NimSuggest::onServerStarted()
@@ -150,16 +148,11 @@ void NimSuggest::onServerStarted()
     connectClient();
 }
 
-void NimSuggest::onServerCrashed()
+void NimSuggest::onServerDone()
 {
     setServerReady(false);
     disconnectClient();
     restart();
-}
-
-void NimSuggest::onServerFinished()
-{
-    onServerCrashed();
 }
 
 void NimSuggest::onClientConnected()
