@@ -47,13 +47,15 @@ LocatorData::LocatorData()
 
     // Force the updating of source file when updating a project (they could be cached, in such
     // case LocatorData::onDocumentUpdated will not be called.
-    connect(manager, &ModelManagerInterface::projectInfoUpdated,
+    connect(manager,
+            &ModelManagerInterface::projectInfoUpdated,
             [manager](const ModelManagerInterface::ProjectInfo &info) {
-        QStringList files;
-        for (const Utils::FilePath &f: info.project->files(ProjectExplorer::Project::SourceFiles))
-            files << f.toString();
-        manager->updateSourceFiles(files, true);
-    });
+                Utils::FilePaths files;
+                for (const Utils::FilePath &f :
+                     info.project->files(ProjectExplorer::Project::SourceFiles))
+                    files << f;
+                manager->updateSourceFiles(files, true);
+            });
 
     connect(manager, &ModelManagerInterface::documentUpdated,
             this, &LocatorData::onDocumentUpdated);
@@ -86,7 +88,7 @@ public:
         if (!doc->componentName().isEmpty())
             m_documentContext = doc->componentName();
         else
-            m_documentContext = Utils::FilePath::fromString(doc->fileName()).fileName();
+            m_documentContext = doc->fileName().fileName();
         accept(doc->ast(), m_documentContext);
         return m_entries;
     }
@@ -236,7 +238,7 @@ protected:
 };
 } // anonymous namespace
 
-QHash<QString, QList<LocatorData::Entry> > LocatorData::entries() const
+QHash<Utils::FilePath, QList<LocatorData::Entry>> LocatorData::entries() const
 {
     QMutexLocker l(&m_mutex);
     return m_entries;
@@ -249,10 +251,10 @@ void LocatorData::onDocumentUpdated(const Document::Ptr &doc)
     m_entries.insert(doc->fileName(), entries);
 }
 
-void LocatorData::onAboutToRemoveFiles(const QStringList &files)
+void LocatorData::onAboutToRemoveFiles(const Utils::FilePaths &files)
 {
     QMutexLocker l(&m_mutex);
-    for (const QString &file : files) {
+    for (const Utils::FilePath &file : files) {
         m_entries.remove(file);
     }
 }

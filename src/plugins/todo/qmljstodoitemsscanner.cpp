@@ -45,7 +45,7 @@ QmlJsTodoItemsScanner::QmlJsTodoItemsScanner(const KeywordList &keywordList, QOb
     setParams(keywordList);
 }
 
-bool QmlJsTodoItemsScanner::shouldProcessFile(const QString &fileName)
+bool QmlJsTodoItemsScanner::shouldProcessFile(const Utils::FilePath &fileName)
 {
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
     foreach (const QmlJS::ModelManagerInterface::ProjectInfo &info, modelManager->projectInfos()) {
@@ -63,8 +63,8 @@ void QmlJsTodoItemsScanner::scannerParamsChanged()
 
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
 
-    QStringList filesToBeUpdated;
-    foreach (const QmlJS::ModelManagerInterface::ProjectInfo &info, modelManager->projectInfos())
+    Utils::FilePaths filesToBeUpdated;
+    for (const QmlJS::ModelManagerInterface::ProjectInfo &info : modelManager->projectInfos())
         filesToBeUpdated << info.sourceFiles;
 
     modelManager->updateSourceFiles(filesToBeUpdated, false);
@@ -89,12 +89,12 @@ void QmlJsTodoItemsScanner::processDocument(QmlJS::Document::Ptr doc)
         quint32 startLine = sourceLocation.startLine;
         for (int j = 0; j < commentLines.count(); ++j) {
             const QString &commentLine = commentLines.at(j);
-            processCommentLine(doc->fileName(), commentLine, startLine + j, itemList);
+            processCommentLine(doc->fileName().toString(), commentLine, startLine + j, itemList);
         }
 
     }
 
-    emit itemsFetched(doc->fileName(), itemList);
+    emit itemsFetched(doc->fileName().toString(), itemList);
 }
 
 }

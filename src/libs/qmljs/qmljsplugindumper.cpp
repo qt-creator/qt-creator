@@ -71,7 +71,10 @@ void PluginDumper::loadBuiltinTypes(const QmlJS::ModelManagerInterface::ProjectI
     metaObject()->invokeMethod(this, [=] { onLoadBuiltinTypes(info); });
 }
 
-void PluginDumper::loadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri, const QString &importVersion)
+void PluginDumper::loadPluginTypes(const Utils::FilePath &libraryPath,
+                                   const Utils::FilePath &importPath,
+                                   const QString &importUri,
+                                   const QString &importVersion)
 {
     // move to the owning thread
     metaObject()->invokeMethod(this, [=] { onLoadPluginTypes(libraryPath, importPath,
@@ -113,9 +116,12 @@ void PluginDumper::onLoadBuiltinTypes(const QmlJS::ModelManagerInterface::Projec
     m_qtToInfo.insert(info.qtQmlPath.toString(), info);
 }
 
-void PluginDumper::onLoadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri, const QString &importVersion)
+void PluginDumper::onLoadPluginTypes(const Utils::FilePath &libraryPath,
+                                     const Utils::FilePath &importPath,
+                                     const QString &importUri,
+                                     const QString &importVersion)
 {
-    const FilePath canonicalLibraryPath = FilePath::fromUserInput(libraryPath).cleanPath();
+    const FilePath canonicalLibraryPath = libraryPath.cleanPath();
     if (m_runningQmldumps.values().contains(canonicalLibraryPath))
         return;
     const Snapshot snapshot = m_modelManager->snapshot();
@@ -389,7 +395,7 @@ QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(c
  * \sa QmlJs::modulePath
  * \sa LinkPrivate::importNonFile
  */
-QString PluginDumper::buildQmltypesPath(const QString &name) const
+Utils::FilePath PluginDumper::buildQmltypesPath(const QString &name) const
 {
     QString qualifiedName;
     QString version;
@@ -401,18 +407,19 @@ QString PluginDumper::buildQmltypesPath(const QString &name) const
         version = m.captured("major") + QLatin1Char('.') + m.captured("minor");
     }
 
-    const QStringList paths = modulePaths(qualifiedName, version, m_modelManager->importPathsNames());
+    const QList<Utils::FilePath> paths = modulePaths(qualifiedName,
+                                                     version,
+                                                     m_modelManager->importPathsNames());
 
     if (paths.isEmpty())
-        return QString();
+        return Utils::FilePath();
 
-    for (const QString &path : paths) {
-        QDirIterator it(path, QStringList { "*.qmltypes" }, QDir::Files);
-
-        if (it.hasNext())
-            return it.next();
+    for (const Utils::FilePath &path : paths) {
+        auto qmltypes = path.dirEntries(FileFilter(QStringList{"*.qmltypes"}, QDir::Files));
+        if (!qmltypes.isEmpty())
+            return qmltypes.first();
     }
-    return QString();
+    return Utils::FilePath();
 }
 
 /*!
@@ -434,11 +441,11 @@ QFuture<PluginDumper::DependencyInfo> PluginDumper::loadDependencies(const FileP
         visited = QSharedPointer<QSet<FilePath>>(new QSet<FilePath>());
 
     FilePaths dependenciesPaths;
-    QString path;
+    FilePath path;
     for (const FilePath &name : dependencies) {
         path = buildQmltypesPath(name.toString());
-        if (!path.isNull())
-            dependenciesPaths << FilePath::fromString(path);
+        if (!path.isEmpty())
+            dependenciesPaths << path;
         visited->insert(name);
     }
 
@@ -665,7 +672,8 @@ void PluginDumper::dump(const Plugin &plugin)
         args << QLatin1String("-nonrelocatable");
     args << plugin.importUri;
     args << plugin.importVersion;
-    args << (plugin.importPath.isEmpty() ? QLatin1String(".") : plugin.importPath);
+    args << (plugin.importPath.isEmpty() ? Utils::FilePath::fromString(".") : plugin.importPath)
+                .toString();
     runQmlDump(info, args, plugin.qmldirPath);
 }
 

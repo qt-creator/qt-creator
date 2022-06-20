@@ -284,7 +284,7 @@ void QmlProfilerModelManager::populateFileFinder(const ProjectExplorer::Target *
     d->detailsRewriter->populateFileFinder(target);
 }
 
-QString QmlProfilerModelManager::findLocalFile(const QString &remoteFile)
+Utils::FilePath QmlProfilerModelManager::findLocalFile(const QString &remoteFile)
 {
     return d->detailsRewriter->getLocalFile(remoteFile);
 }
@@ -323,8 +323,10 @@ int QmlProfilerModelManager::appendEventType(QmlEventType &&type)
     const QmlEventLocation &location = type.location();
     if (location.isValid()) {
         const RangeType rangeType = type.rangeType();
-        const QmlEventLocation localLocation(d->detailsRewriter->getLocalFile(location.filename()),
-                                             location.line(), location.column());
+        const QmlEventLocation localLocation(d->detailsRewriter->getLocalFile(location.filename())
+                                                 .toString(),
+                                             location.line(),
+                                             location.column());
 
         // location and type are invalid after this
         const int typeIndex = TimelineTraceManager::appendEventType(std::move(type));
@@ -350,9 +352,12 @@ void QmlProfilerModelManager::setEventType(int typeIndex, QmlEventType &&type)
         // Only bindings and signal handlers need rewriting
         if (type.rangeType() == Binding || type.rangeType() == HandlingSignal)
             d->detailsRewriter->requestDetailsForLocation(typeIndex, location);
-        d->textMarkModel->addTextMarkId(typeIndex, QmlEventLocation(
-                                            d->detailsRewriter->getLocalFile(location.filename()),
-                                            location.line(), location.column()));
+        d->textMarkModel->addTextMarkId(typeIndex,
+                                        QmlEventLocation(d->detailsRewriter
+                                                             ->getLocalFile(location.filename())
+                                                             .toString(),
+                                                         location.line(),
+                                                         location.column()));
     }
 
     TimelineTraceManager::setEventType(typeIndex, std::move(type));

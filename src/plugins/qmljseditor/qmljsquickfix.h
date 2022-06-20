@@ -66,7 +66,7 @@ protected:
     const Internal::QmlJSQuickFixAssistInterface *assistInterface() const;
 
     /// \returns The name of the file for for which this operation is invoked.
-    QString fileName() const;
+    Utils::FilePath fileName() const;
 
 private:
     QmlJSQuickFixInterface m_interface;

@@ -32,8 +32,8 @@
 
 using namespace QmlDesigner;
 
-FirstDefinitionFinder::FirstDefinitionFinder(const QString &text):
-        m_doc(QmlJS::Document::create(QLatin1String("<internal>"), QmlJS::Dialect::Qml))
+FirstDefinitionFinder::FirstDefinitionFinder(const QString &text)
+    : m_doc(QmlJS::Document::create(Utils::FilePath::fromString("<internal>"), QmlJS::Dialect::Qml))
 {
     m_doc->setSource(text);
     bool ok = m_doc->parseQml();

@@ -42,6 +42,7 @@
 #include <qmljstools/qmljsmodelmanager.h>
 #include <qmljstools/qmljsqtstylecodeformatter.h>
 
+#include <utils/fileutils.h>
 #include <utils/infobar.h>
 
 #include <QDebug>
@@ -512,7 +513,7 @@ QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *pare
     connect(&m_updateOutlineModelTimer, &QTimer::timeout,
             this, &QmlJSEditorDocumentPrivate::updateOutlineModel);
 
-    modelManager->updateSourceFiles(QStringList(parent->filePath().toString()), false);
+    modelManager->updateSourceFiles(Utils::FilePaths({parent->filePath()}), false);
 }
 
 QmlJSEditorDocumentPrivate::~QmlJSEditorDocumentPrivate()
@@ -533,13 +534,12 @@ void QmlJSEditorDocumentPrivate::invalidateFormatterCache()
 
 void QmlJSEditorDocumentPrivate::reparseDocument()
 {
-    ModelManagerInterface::instance()->updateSourceFiles(QStringList(q->filePath().toString()),
-                                                         false);
+    ModelManagerInterface::instance()->updateSourceFiles(Utils::FilePaths({q->filePath()}), false);
 }
 
 void QmlJSEditorDocumentPrivate::onDocumentUpdated(Document::Ptr doc)
 {
-    if (q->filePath().toString() != doc->fileName())
+    if (q->filePath() != doc->fileName())
         return;
 
     // text document has changed, simply wait for the next onDocumentUpdated

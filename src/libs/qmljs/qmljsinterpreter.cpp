@@ -712,7 +712,7 @@ Value::~Value()
 {
 }
 
-bool Value::getSourceLocation(QString *, int *, int *) const
+bool Value::getSourceLocation(Utils::FilePath *, int *, int *) const
 {
     return false;
 }
@@ -1872,7 +1872,7 @@ const ASTObjectValue *ASTObjectValue::asAstObjectValue() const
     return this;
 }
 
-bool ASTObjectValue::getSourceLocation(QString *fileName, int *line, int *column) const
+bool ASTObjectValue::getSourceLocation(Utils::FilePath *fileName, int *line, int *column) const
 {
     *fileName = m_doc->fileName();
     *line = m_typeName->identifierToken.startLine;
@@ -1962,7 +1962,7 @@ const Value *ASTVariableReference::value(ReferenceContext *referenceContext) con
     return res;
 }
 
-bool ASTVariableReference::getSourceLocation(QString *fileName, int *line, int *column) const
+bool ASTVariableReference::getSourceLocation(Utils::FilePath *fileName, int *line, int *column) const
 {
     *fileName = m_doc->fileName();
     *line = m_ast->identifierToken.startLine;
@@ -2053,7 +2053,7 @@ const ASTFunctionValue *ASTFunctionValue::asAstFunctionValue() const
     return this;
 }
 
-bool ASTFunctionValue::getSourceLocation(QString *fileName, int *line, int *column) const
+bool ASTFunctionValue::getSourceLocation(Utils::FilePath *fileName, int *line, int *column) const
 {
     *fileName = m_doc->fileName();
     *line = m_ast->identifierToken.startLine;
@@ -2110,7 +2110,7 @@ const ASTPropertyReference *ASTPropertyReference::asAstPropertyReference() const
     return this;
 }
 
-bool ASTPropertyReference::getSourceLocation(QString *fileName, int *line, int *column) const
+bool ASTPropertyReference::getSourceLocation(Utils::FilePath *fileName, int *line, int *column) const
 {
     *fileName = m_doc->fileName();
     *line = m_ast->identifierToken.startLine;
@@ -2205,7 +2205,7 @@ QString ASTSignal::argumentName(int index) const
     return param->name.toString();
 }
 
-bool ASTSignal::getSourceLocation(QString *fileName, int *line, int *column) const
+bool ASTSignal::getSourceLocation(Utils::FilePath *fileName, int *line, int *column) const
 {
     *fileName = m_doc->fileName();
     *line = m_ast->identifierToken.startLine;
@@ -2234,20 +2234,23 @@ ImportInfo ImportInfo::moduleImport(QString uri, ComponentVersion version,
     return info;
 }
 
-ImportInfo ImportInfo::pathImport(const QString &docPath, const QString &path,
-                                  ComponentVersion version, const QString &as, UiImport *ast)
+ImportInfo ImportInfo::pathImport(const Utils::FilePath &docPath,
+                                  const QString &path,
+                                  ComponentVersion version,
+                                  const QString &as,
+                                  UiImport *ast)
 {
     ImportInfo info;
     info.m_name = path;
 
-    QFileInfo importFileInfo(path);
-    if (!importFileInfo.isAbsolute())
-        importFileInfo = QFileInfo(docPath + QLatin1Char('/') + path);
-    info.m_path = importFileInfo.absoluteFilePath();
+    Utils::FilePath importFilePath = Utils::FilePath::fromString(path);
+    if (!importFilePath.isAbsolutePath())
+        importFilePath = docPath.pathAppended(path);
+    info.m_path = importFilePath.absoluteFilePath().path();
 
-    if (importFileInfo.isFile()) {
+    if (importFilePath.isFile()) {
         info.m_type = ImportType::File;
-    } else if (importFileInfo.isDir()) {
+    } else if (importFilePath.isDir()) {
         info.m_type = ImportType::Directory;
     } else if (path.startsWith(QLatin1String("qrc:"))) {
         ModelManagerInterface *model = ModelManagerInterface::instance();
@@ -2258,11 +2261,11 @@ ImportInfo ImportInfo::pathImport(const QString &docPath, const QString &path,
                   ? ImportType::QrcDirectory
                   : ImportType::QrcFile;
     } else {
-        QDir dir(docPath);
-        while (dir.dirName().startsWith("+"))
-            dir.cdUp();
+        Utils::FilePath dir = docPath;
+        while (dir.fileName().startsWith("+"))
+            dir = dir.parentDir();
 
-        const QString docPathStripped = dir.absolutePath();
+        const Utils::FilePath docPathStripped = dir.absolutePath();
         if (docPathStripped != docPath)
             return pathImport(docPathStripped, path, version, as, ast);
 

@@ -425,21 +425,23 @@ void QmakeBuildSystem::updateQmlJSCodeModel()
         }
         const QStringList &exactResources = file->variableValue(Variable::ExactResource);
         const QStringList &cumulativeResources = file->variableValue(Variable::CumulativeResource);
-        projectInfo.activeResourceFiles.append(exactResources);
-        projectInfo.allResourceFiles.append(exactResources);
-        projectInfo.allResourceFiles.append(cumulativeResources);
         QString errorMessage;
-        foreach (const QString &rc, exactResources) {
+        for (const QString &rc : exactResources) {
+            Utils::FilePath rcPath = Utils::FilePath::fromString(rc);
+            projectInfo.activeResourceFiles.append(rcPath);
+            projectInfo.allResourceFiles.append(rcPath);
             QString contents;
             int id = m_qmakeVfs->idForFileName(rc, QMakeVfs::VfsExact);
             if (m_qmakeVfs->readFile(id, &contents, &errorMessage) == QMakeVfs::ReadOk)
-                projectInfo.resourceFileContents[rc] = contents;
+                projectInfo.resourceFileContents[rcPath] = contents;
         }
-        foreach (const QString &rc, cumulativeResources) {
+        for (const QString &rc : cumulativeResources) {
+            Utils::FilePath rcPath = Utils::FilePath::fromString(rc);
+            projectInfo.allResourceFiles.append(rcPath);
             QString contents;
             int id = m_qmakeVfs->idForFileName(rc, QMakeVfs::VfsCumulative);
             if (m_qmakeVfs->readFile(id, &contents, &errorMessage) == QMakeVfs::ReadOk)
-                projectInfo.resourceFileContents[rc] = contents;
+                projectInfo.resourceFileContents[rcPath] = contents;
         }
         if (!hasQmlLib) {
             QStringList qtLibs = file->variableValue(Variable::Qt);
@@ -455,8 +457,8 @@ void QmakeBuildSystem::updateQmlJSCodeModel()
     // or QQmlEngine/QQuickView (QtQuick 2) instances.
     project()->setProjectLanguage(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID, hasQmlLib);
 
-    projectInfo.activeResourceFiles.removeDuplicates();
-    projectInfo.allResourceFiles.removeDuplicates();
+    projectInfo.activeResourceFiles = Utils::filteredUnique(projectInfo.activeResourceFiles);
+    projectInfo.allResourceFiles = Utils::filteredUnique(projectInfo.allResourceFiles);
 
     modelManager->updateProjectInfo(projectInfo, project());
 }

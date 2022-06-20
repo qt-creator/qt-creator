@@ -739,7 +739,7 @@ public:
         : context(context), name(name), scope(scope), future(future)
     { }
 
-    QList<Usage> operator()(const QString &fileName)
+    QList<Usage> operator()(const Utils::FilePath &fileName)
     {
         QList<Usage> usages;
         if (future->isPaused())
@@ -755,7 +755,11 @@ public:
         FindUsages findUsages(doc, context);
         const FindUsages::Result results = findUsages(name, scope);
         for (const SourceLocation &loc : results)
-            usages.append(Usage(modelManager->fileToSource(Utils::FilePath::fromString(fileName)).toString(), matchingLine(loc.offset, doc->source()), loc.startLine, loc.startColumn - 1, loc.length));
+            usages.append(Usage(modelManager->fileToSource(fileName),
+                                matchingLine(loc.offset, doc->source()),
+                                loc.startLine,
+                                loc.startColumn - 1,
+                                loc.length));
         if (future->isPaused())
             future->waitForResume();
         return usages;
@@ -782,7 +786,7 @@ public:
         : context(context), name(name), scope(scope), future(future)
     { }
 
-    QList<Usage> operator()(const QString &fileName)
+    QList<Usage> operator()(const Utils::FilePath &fileName)
     {
         QList<Usage> usages;
         if (future->isPaused())
@@ -842,7 +846,7 @@ FindReferences::~FindReferences() = default;
 static void find_helper(QFutureInterface<FindReferences::Usage> &future,
                         const ModelManagerInterface::WorkingCopy &workingCopy,
                         Snapshot snapshot,
-                        const QString &fileName,
+                        const Utils::FilePath &fileName,
                         quint32 offset,
                         QString replacement)
 {
@@ -851,7 +855,7 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     // ### this is a great candidate for map-reduce
     const ModelManagerInterface::WorkingCopy::Table &all = workingCopy.all();
     for (auto it = all.cbegin(), end = all.cend(); it != end; ++it) {
-        const QString fileName = it.key();
+        const Utils::FilePath fileName = it.key();
         Document::Ptr oldDoc = snapshot.document(fileName);
         if (oldDoc && oldDoc->editorRevision() == it.value().second)
             continue;
@@ -895,17 +899,17 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     if (!replacement.isNull() && replacement.isEmpty())
         replacement = name;
 
-    QStringList files;
+    Utils::FilePaths files;
     for (const Document::Ptr &doc : qAsConst(snapshot)) {
         // ### skip files that don't contain the name token
-        files.append(modelManager->fileToSource(Utils::FilePath::fromString(doc->fileName())).toString());
+        files.append(modelManager->fileToSource(doc->fileName()));
     }
     files = Utils::filteredUnique(files);
 
     future.setProgressRange(0, files.size());
 
     // report a dummy usage to indicate the search is starting
-    FindReferences::Usage searchStarting(replacement, name, 0, 0, 0);
+    FindReferences::Usage searchStarting(Utils::FilePath::fromString(replacement), name, 0, 0, 0);
 
     if (findTarget.typeKind() == findTarget.TypeKind){
         const ObjectValue *typeValue = value_cast<ObjectValue>(findTarget.targetValue());
@@ -936,7 +940,7 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     future.setProgressValue(files.size());
 }
 
-void FindReferences::findUsages(const QString &fileName, quint32 offset)
+void FindReferences::findUsages(const Utils::FilePath &fileName, quint32 offset)
 {
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
@@ -946,7 +950,8 @@ void FindReferences::findUsages(const QString &fileName, quint32 offset)
     m_synchronizer.addFuture(result);
 }
 
-void FindReferences::renameUsages(const QString &fileName, quint32 offset,
+void FindReferences::renameUsages(const Utils::FilePath &fileName,
+                                  quint32 offset,
                                   const QString &replacement)
 {
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
@@ -962,7 +967,8 @@ void FindReferences::renameUsages(const QString &fileName, quint32 offset,
     m_synchronizer.addFuture(result);
 }
 
-QList<FindReferences::Usage> FindReferences::findUsageOfType(const QString &fileName, const QString &typeName)
+QList<FindReferences::Usage> FindReferences::findUsageOfType(const Utils::FilePath &fileName,
+                                                             const QString &typeName)
 {
     QList<Usage> usages;
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
@@ -979,9 +985,9 @@ QList<FindReferences::Usage> FindReferences::findUsageOfType(const QString &file
 
     QmlJS::Snapshot snapshot =  modelManager->snapshot();
 
-    QSet<QString> docDone;
+    QSet<Utils::FilePath> docDone;
     for (const QmlJS::Document::Ptr &doc : qAsConst(snapshot)) {
-        QString sourceFile = modelManager->fileToSource(Utils::FilePath::fromString(doc->fileName())).toString();
+        Utils::FilePath sourceFile = modelManager->fileToSource(doc->fileName());
         if (docDone.contains(sourceFile))
             continue;
         docDone.insert(sourceFile);
@@ -1006,7 +1012,7 @@ void FindReferences::displayResults(int first, int last)
     // the first usage is always a dummy to indicate we now start searching
     if (first == 0) {
         Usage dummy = m_watcher.future().resultAt(0);
-        const QString replacement = dummy.path;
+        const QString replacement = dummy.path.toString();
         const QString symbolName = dummy.lineText;
         const QString label = tr("QML/JS Usages:");
 
@@ -1044,7 +1050,7 @@ void FindReferences::displayResults(int first, int last)
     for (int index = first; index != last; ++index) {
         Usage result = m_watcher.future().resultAt(index);
         SearchResultItem item;
-        item.setFilePath(Utils::FilePath::fromString(result.path));
+        item.setFilePath(result.path);
         item.setLineText(result.lineText);
         item.setMainRange(result.line, result.col, result.len);
         item.setUseTextEditorFont(true);
@@ -1078,13 +1084,13 @@ void FindReferences::onReplaceButtonClicked(const QString &text, const QList<Sea
                                                                             preserveCase);
 
     // files that are opened in an editor are changed, but not saved
-    QStringList changedOnDisk;
-    QStringList changedUnsavedEditors;
+    Utils::FilePaths changedOnDisk;
+    Utils::FilePaths changedUnsavedEditors;
     for (const Utils::FilePath &filePath : filePaths) {
         if (DocumentModel::documentForFilePath(filePath))
-            changedOnDisk += filePath.toString();
+            changedOnDisk += filePath;
         else
-            changedUnsavedEditors += filePath.toString();
+            changedUnsavedEditors += filePath;
     }
 
     if (!changedOnDisk.isEmpty())

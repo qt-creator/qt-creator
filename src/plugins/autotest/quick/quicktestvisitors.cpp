@@ -99,7 +99,7 @@ bool TestQmlVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
     m_objectIsTestStack.top() = true;
     const auto sourceLocation = ast->firstSourceLocation();
     QuickTestCaseSpec currentSpec;
-    currentSpec.m_locationAndType.m_filePath = Utils::FilePath::fromString(m_currentDoc->fileName());
+    currentSpec.m_locationAndType.m_filePath = m_currentDoc->fileName();
     currentSpec.m_locationAndType.m_line = sourceLocation.startLine;
     currentSpec.m_locationAndType.m_column = sourceLocation.startColumn - 1;
     currentSpec.m_locationAndType.m_type = TestTreeItem::TestCase;
@@ -143,7 +143,7 @@ bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
         const auto sourceLocation = ast->firstSourceLocation();
         TestCodeLocationAndType locationAndType;
         locationAndType.m_name = name;
-        locationAndType.m_filePath = Utils::FilePath::fromString(m_currentDoc->fileName());
+        locationAndType.m_filePath = m_currentDoc->fileName();
         locationAndType.m_line = sourceLocation.startLine;
         locationAndType.m_column = sourceLocation.startColumn - 1;
         if (specialFunctions.contains(name))

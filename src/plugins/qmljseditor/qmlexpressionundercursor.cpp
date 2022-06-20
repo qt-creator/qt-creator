@@ -126,8 +126,8 @@ ExpressionNode *QmlExpressionUnderCursor::operator()(const QTextCursor &cursor)
     ExpressionUnderCursor expressionUnderCursor;
     _text = expressionUnderCursor(cursor);
 
-    Document::MutablePtr newDoc = Document::create(
-                QLatin1String("<expression>"), Dialect::JavaScript);
+    Document::MutablePtr newDoc = Document::create(Utils::FilePath::fromString("<expression>"),
+                                                   Dialect::JavaScript);
     newDoc->setSource(_text);
     newDoc->parseExpression();
     exprDoc = newDoc;

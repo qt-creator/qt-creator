@@ -171,8 +171,8 @@ bool QmlProjectPlugin::checkIfEditorIsuiQml(Core::IEditor *editor)
         && (editor->document()->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID
             || editor->document()->id() == QmlJSEditor::Constants::C_QTQUICKDESIGNEREDITOR_ID)) {
         QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-        QmlJS::Document::Ptr document =
-                modelManager->ensuredGetDocumentForPath(editor->document()->filePath().toString());
+        QmlJS::Document::Ptr document = modelManager->ensuredGetDocumentForPath(
+            editor->document()->filePath());
         if (!document.isNull())
             return document->language() == QmlJS::Dialect::QmlQtQuick2Ui;
     }

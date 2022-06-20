@@ -261,7 +261,7 @@ void QmlJSEditorPluginPrivate::reformatFile()
         if (m_currentDocument->isSemanticInfoOutdated()) {
             QmlJS::Document::MutablePtr latestDocument;
 
-            const QString fileName = m_currentDocument->filePath().toString();
+            const Utils::FilePath fileName = m_currentDocument->filePath();
             latestDocument = snapshot.documentFromSource(QString::fromUtf8(m_currentDocument->contents()),
                                                          fileName,
                                                          QmlJS::ModelManagerInterface::guessLanguageOfFile(fileName));

@@ -506,8 +506,11 @@ void QmlPreviewPluginPrivate::checkFile(const QString &fileName)
     const QByteArray contents = m_fileLoader(fileName, &success);
 
     if (success) {
-        emit q->checkDocument(fileName, contents,
-                              QmlJS::ModelManagerInterface::guessLanguageOfFile(fileName).dialect());
+        emit q->checkDocument(fileName,
+                              contents,
+                              QmlJS::ModelManagerInterface::guessLanguageOfFile(
+                                  Utils::FilePath::fromUserInput(fileName))
+                                  .dialect());
     }
 }
 
@@ -533,7 +536,8 @@ void QmlPreviewParser::parse(const QString &name, const QByteArray &contents,
         return;
     }
 
-    QmlJS::Document::MutablePtr qmljsDoc = QmlJS::Document::create(name, dialect);
+    QmlJS::Document::MutablePtr qmljsDoc = QmlJS::Document::create(Utils::FilePath::fromString(name),
+                                                                   dialect);
     qmljsDoc->setSource(QString::fromUtf8(contents));
     if (qmljsDoc->parse())
         emit success(name, contents);

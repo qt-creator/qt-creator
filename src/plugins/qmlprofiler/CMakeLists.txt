@@ -73,7 +73,7 @@ set(QMLPROFILER_CPP_SOURCES
 
 if(${Qt5_VERSION} VERSION_LESS "6.2.0")
   add_qtc_plugin(QmlProfiler
-    DEPENDS QmlDebug QmlJS Tracing Qt5::QuickWidgets
+    DEPENDS QmlDebug QmlJS Tracing Qt5::QuickWidgets Utils
     PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport TextEditor
     SOURCES
       ${TEST_SOURCES}

@@ -90,7 +90,7 @@ public:
 
     void fileChanged(const Utils::FilePath &filePath) override
     {
-        m_modelManager->updateSourceFiles({filePath.toString()}, true);
+        m_modelManager->updateSourceFiles({filePath}, true);
     }
 
     ModelManagerInterface *m_modelManager;
@@ -129,7 +129,7 @@ QmlJSRefactoringFile::QmlJSRefactoringFile(
     : RefactoringFile(filePath, data)
 {
     // the RefactoringFile is invalid if its not for a file with qml or js code
-    if (ModelManagerInterface::guessLanguageOfFile(filePath.toString()) == Dialect::NoLanguage)
+    if (ModelManagerInterface::guessLanguageOfFile(filePath) == Dialect::NoLanguage)
         m_filePath.clear();
 }
 
@@ -138,18 +138,19 @@ QmlJSRefactoringFile::QmlJSRefactoringFile(TextEditor::TextEditorWidget *editor,
     , m_qmljsDocument(document)
 {
     if (document)
-        m_filePath = Utils::FilePath::fromString(document->fileName());
+        m_filePath = document->fileName();
 }
 
 Document::Ptr QmlJSRefactoringFile::qmljsDocument() const
 {
     if (!m_qmljsDocument) {
         const QString source = document()->toPlainText();
-        const QString name = filePath().toString();
         const Snapshot &snapshot = data()->m_snapshot;
 
-        Document::MutablePtr newDoc = snapshot.documentFromSource(source, name,
-                                                                  ModelManagerInterface::guessLanguageOfFile(name));
+        Document::MutablePtr newDoc
+            = snapshot.documentFromSource(source,
+                                          filePath(),
+                                          ModelManagerInterface::guessLanguageOfFile(filePath()));
         newDoc->parse();
         m_qmljsDocument = newDoc;
     }

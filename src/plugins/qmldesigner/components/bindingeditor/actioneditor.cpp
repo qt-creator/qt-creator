@@ -238,8 +238,9 @@ void ActionEditor::prepareConnections()
             if (slotName.startsWith("q_") || slotName.startsWith("_q_"))
                 continue;
 
-            QmlJS::Document::MutablePtr newDoc = QmlJS::Document::create(
-                        QLatin1String("<expression>"), QmlJS::Dialect::JavaScript);
+            QmlJS::Document::MutablePtr newDoc
+                = QmlJS::Document::create(Utils::FilePath::fromString("<expression>"),
+                                          QmlJS::Dialect::JavaScript);
             newDoc->setSource(modelNode.id() + "." + QLatin1String(slotName));
             newDoc->parseExpression();
 

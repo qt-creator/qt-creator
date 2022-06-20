@@ -47,6 +47,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljssemanticinfo.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/filepath.h>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
@@ -77,7 +78,7 @@ static TestData testData(const QString &path) {
     const QString content = QString::fromUtf8(file.readAll());
     file.close();
 
-    Document::MutablePtr doc = Document::create(path, Dialect::Qml);
+    Document::MutablePtr doc = Document::create(Utils::FilePath::fromString(path), Dialect::Qml);
     doc->setSource(content);
     doc->parse();
     const QString nSemantic = getValue(content, "//\\s*ExpectedSemanticMessages: (\\d+)");

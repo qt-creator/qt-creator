@@ -535,8 +535,14 @@ Export::Export()
     : intrinsic(false)
 { }
 
-Export::Export(ImportKey exportName, const QString &pathRequired, bool intrinsic, const QString &typeName)
-    : exportName(exportName), pathRequired(pathRequired), typeName(typeName), intrinsic(intrinsic)
+Export::Export(ImportKey exportName,
+               const Utils::FilePath &pathRequired,
+               bool intrinsic,
+               const QString &typeName)
+    : exportName(exportName)
+    , pathRequired(pathRequired)
+    , typeName(typeName)
+    , intrinsic(intrinsic)
 { }
 
 bool Export::visibleInVContext(const ViewerContext &vContext) const
@@ -783,7 +789,8 @@ void ImportDependencies::addCoreImport(const CoreImport &import)
     if (importsLog().isDebugEnabled()) {
         QString msg = QString::fromLatin1("added import %1 for").arg(newImport.importId);
         foreach (const Export &e, newImport.possibleExports)
-            msg += QString::fromLatin1("\n %1(%2)").arg(e.exportName.toString(), e.pathRequired);
+            msg += QString::fromLatin1("\n %1(%2)")
+                       .arg(e.exportName.toString(), e.pathRequired.toUserOutput());
         qCDebug(importsLog) << msg;
     }
 }
@@ -820,8 +827,10 @@ void ImportDependencies::removeImportCacheEntry(const ImportKey &importKey, cons
         m_importCache.remove(importKey);
 }
 
-void ImportDependencies::addExport(const QString &importId, const ImportKey &importKey,
-                                   const QString &requiredPath, const QString &typeName)
+void ImportDependencies::addExport(const QString &importId,
+                                   const ImportKey &importKey,
+                                   const Utils::FilePath &requiredPath,
+                                   const QString &typeName)
 {
     if (!m_coreImports.contains(importId)) {
         CoreImport newImport(importId);
@@ -838,8 +847,10 @@ void ImportDependencies::addExport(const QString &importId, const ImportKey &imp
                         << " (" << requiredPath << ")";
 }
 
-void ImportDependencies::removeExport(const QString &importId, const ImportKey &importKey,
-                                      const QString &requiredPath, const QString &typeName)
+void ImportDependencies::removeExport(const QString &importId,
+                                      const ImportKey &importKey,
+                                      const Utils::FilePath &requiredPath,
+                                      const QString &typeName)
 {
     if (!m_coreImports.contains(importId)) {
         qCWarning(importsLog) << "non existing core import for removeExport(" << importId << ", "

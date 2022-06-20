@@ -261,13 +261,14 @@ QString matchingLine(unsigned position, const QString &source)
 
 FindImplementation::FindImplementation() = default;
 
-QList<QmlJSEditor::FindReferences::Usage> FindImplementation::run(const QString &fileName,
+QList<QmlJSEditor::FindReferences::Usage> FindImplementation::run(const QString &fileNameStr,
                                                                   const QString &typeName,
                                                                   const QString &itemName)
 {
     QList<QmlJSEditor::FindReferences::Usage> usages;
 
     QmlJS::ModelManagerInterface *modelManager = ModelManagerInterface::instance();
+    Utils::FilePath fileName = Utils::FilePath::fromString(fileNameStr);
 
     //Parse always the latest version of document
     QmlJS::Dialect dialect = QmlJS::ModelManagerInterface::guessLanguageOfFile(fileName);

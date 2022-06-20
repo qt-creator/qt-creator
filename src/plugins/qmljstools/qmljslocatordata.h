@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <utils/filepath.h>
 #include <qmljs/qmljsdocument.h>
 
 #include <QObject>
@@ -53,19 +54,19 @@ public:
         QString symbolName;
         QString displayName;
         QString extraInfo;
-        QString fileName;
+        Utils::FilePath fileName;
         int line;
         int column;
     };
 
-    QHash<QString, QList<Entry> > entries() const;
+    QHash<Utils::FilePath, QList<Entry>> entries() const;
 
 private:
     void onDocumentUpdated(const QmlJS::Document::Ptr &doc);
-    void onAboutToRemoveFiles(const QStringList &files);
+    void onAboutToRemoveFiles(const Utils::FilePaths &files);
 
     mutable QMutex m_mutex;
-    QHash<QString, QList<Entry> > m_entries;
+    QHash<Utils::FilePath, QList<Entry>> m_entries;
 };
 
 } // namespace Internal

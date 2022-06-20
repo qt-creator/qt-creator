@@ -49,15 +49,19 @@ public:
 
 public:
     void loadBuiltinTypes(const QmlJS::ModelManagerInterface::ProjectInfo &info);
-    void loadPluginTypes(const QString &libraryPath, const QString &importPath,
-                         const QString &importUri, const QString &importVersion);
+    void loadPluginTypes(const Utils::FilePath &libraryPath,
+                         const Utils::FilePath &importPath,
+                         const QString &importUri,
+                         const QString &importVersion);
     void scheduleRedumpPlugins();
 
 private:
     Q_INVOKABLE void onLoadBuiltinTypes(const QmlJS::ModelManagerInterface::ProjectInfo &info,
                                         bool force = false);
-    Q_INVOKABLE void onLoadPluginTypes(const QString &libraryPath, const QString &importPath,
-                                       const QString &importUri, const QString &importVersion);
+    Q_INVOKABLE void onLoadPluginTypes(const Utils::FilePath &libraryPath,
+                                       const Utils::FilePath &importPath,
+                                       const QString &importUri,
+                                       const QString &importVersion);
     Q_INVOKABLE void dumpAllPlugins();
     void qmlPluginTypeDumpDone(Utils::QtcProcess *process);
     void pluginChanged(const QString &pluginLibrary);
@@ -66,7 +70,7 @@ private:
     class Plugin {
     public:
         Utils::FilePath qmldirPath;
-        QString importPath;
+        Utils::FilePath importPath;
         QString importUri;
         QString importVersion;
         Utils::FilePaths typeInfoPaths;
@@ -92,7 +96,7 @@ private:
                     const Utils::FilePath &importPath);
     void dump(const Plugin &plugin);
     QFuture<QmlTypeDescription> loadQmlTypeDescription(const Utils::FilePaths &path) const;
-    QString buildQmltypesPath(const QString &name) const;
+    Utils::FilePath buildQmltypesPath(const QString &name) const;
 
     QFuture<PluginDumper::DependencyInfo> loadDependencies(const Utils::FilePaths &dependencies,
                                                            QSharedPointer<QSet<Utils::FilePath> > visited) const;

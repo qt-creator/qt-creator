@@ -259,7 +259,7 @@ void QmlJSEditorWidget::foldAuxiliaryData()
 void QmlJSEditorWidget::updateModificationChange(bool changed)
 {
     if (!changed && m_modelManager)
-        m_modelManager->fileChangedOnDisk(textDocument()->filePath().toString());
+        m_modelManager->fileChangedOnDisk(textDocument()->filePath());
 }
 
 bool QmlJSEditorWidget::isOutlineCursorChangesBlocked()
@@ -789,12 +789,13 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
         Utils::Link link;
         link.linkTextStart = literal->literalToken.begin();
         link.linkTextEnd = literal->literalToken.end();
-        if (semanticInfo.snapshot.document(text)) {
-            link.targetFilePath = Utils::FilePath::fromString(text);
+        Utils::FilePath targetFilePath = Utils::FilePath::fromUserInput(text);
+        if (semanticInfo.snapshot.document(targetFilePath)) {
+            link.targetFilePath = targetFilePath;
             processLinkCallback(link);
             return;
         }
-        const Utils::FilePath relative = Utils::FilePath::fromString(semanticInfo.document->path()).pathAppended(text);
+        const Utils::FilePath relative = semanticInfo.document->path().pathAppended(text);
         if (relative.exists()) {
             link.targetFilePath = m_modelManager->fileToSource(relative);
             processLinkCallback(link);
@@ -806,14 +807,14 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
     Evaluate evaluator(&scopeChain);
     const Value *value = evaluator.reference(node);
 
-    QString fileName;
+    Utils::FilePath fileName;
     int line = 0, column = 0;
 
     if (! (value && value->getSourceLocation(&fileName, &line, &column)))
         return processLinkCallback(Utils::Link());
 
     Utils::Link link;
-    link.targetFilePath = m_modelManager->fileToSource(FilePath::fromString(fileName));
+    link.targetFilePath = m_modelManager->fileToSource(fileName);
     link.targetLine = line;
     link.targetColumn = column - 1; // adjust the column
 
@@ -845,12 +846,12 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
 
 void QmlJSEditorWidget::findUsages()
 {
-    m_findReferences->findUsages(textDocument()->filePath().toString(), textCursor().position());
+    m_findReferences->findUsages(textDocument()->filePath(), textCursor().position());
 }
 
 void QmlJSEditorWidget::renameSymbolUnderCursor()
 {
-    m_findReferences->renameUsages(textDocument()->filePath().toString(), textCursor().position());
+    m_findReferences->renameUsages(textDocument()->filePath(), textCursor().position());
 }
 
 void QmlJSEditorWidget::showContextPane()

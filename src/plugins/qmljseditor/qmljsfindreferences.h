@@ -27,6 +27,7 @@
 
 #include "qmljseditor_global.h"
 
+#include <utils/filepath.h>
 #include <utils/futuresynchronizer.h>
 
 #include <QObject>
@@ -49,11 +50,16 @@ public:
     class Usage
     {
     public:
-        Usage(const QString &path, const QString &lineText, int line, int col, int len)
-            : path(path), lineText(lineText), line(line), col(col), len(len) {}
+        Usage(const Utils::FilePath &path, const QString &lineText, int line, int col, int len)
+            : path(path)
+            , lineText(lineText)
+            , line(line)
+            , col(col)
+            , len(len)
+        {}
 
     public:
-        QString path;
+        Utils::FilePath path;
         QString lineText;
         int line = 0;
         int col = 0;
@@ -68,11 +74,12 @@ signals:
     void changed();
 
 public:
-    void findUsages(const QString &fileName, quint32 offset);
-    void renameUsages(const QString &fileName, quint32 offset,
+    void findUsages(const Utils::FilePath &fileName, quint32 offset);
+    void renameUsages(const Utils::FilePath &fileName,
+                      quint32 offset,
                       const QString &replacement = QString());
 
-    static QList<Usage> findUsageOfType(const QString &fileName, const QString &typeName);
+    static QList<Usage> findUsageOfType(const Utils::FilePath &fileName, const QString &typeName);
 
 private:
     void displayResults(int first, int last);

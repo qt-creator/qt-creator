@@ -219,7 +219,7 @@ void QuickToolBar::apply(TextEditor::TextEditorWidget *editorWidget, Document::P
             else
                 contextWidget()->rePosition(p3 , p1, p2, QmlJsEditingSettings::get().pinContextPane());
             contextWidget()->setOptions(QmlJsEditingSettings::get().enableContextPane(), QmlJsEditingSettings::get().pinContextPane());
-            contextWidget()->setPath(document->path());
+            contextWidget()->setPath(document->path().toString());
             contextWidget()->setProperties(&propertyReader);
             m_doc = document;
             m_node = node;

@@ -44,7 +44,7 @@ public:
 
     void clear();
     void requestDetailsForLocation(int typeId, const QmlEventLocation &location);
-    QString getLocalFile(const QString &remoteFile);
+    Utils::FilePath getLocalFile(const QString &remoteFile);
     void reloadDocuments();
     void populateFileFinder(const ProjectExplorer::Target *target);
 
@@ -58,7 +58,7 @@ private:
         int typeId;
     };
 
-    QMultiHash<QString, PendingEvent> m_pendingEvents;
+    QMultiHash<Utils::FilePath, PendingEvent> m_pendingEvents;
     Utils::FileInProjectFinder m_projectFinder;
 
     void rewriteDetailsForLocation(const QString &source, QmlJS::Document::Ptr doc, int typeId,

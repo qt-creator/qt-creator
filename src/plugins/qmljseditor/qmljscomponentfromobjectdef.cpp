@@ -107,8 +107,9 @@ public:
     {
         QString componentName = m_componentName;
 
-        const QString currentFileName = currentFile->qmljsDocument()->fileName();
-        QString path = QFileInfo(currentFileName).path();
+        const Utils::FilePath currentFileName = currentFile->qmljsDocument()->fileName();
+        Utils::FilePath path = currentFileName.parentDir();
+        QString pathStr = path.toUserOutput();
 
         QmlJS::PropertyReader propertyReader(currentFile->qmljsDocument(), m_initializer);
         QStringList result;
@@ -133,20 +134,23 @@ public:
         for (const QString &property : qAsConst(sortedPropertiesWithoutId))
             sourcePreview.append(QLatin1String("    ") + property + QLatin1String(": ") + propertyReader.readAstValue(property));
 
-        const bool confirm = ComponentNameDialog::go(&componentName, &path, &suffix,
-                                               sortedPropertiesWithoutId,
-                                               sourcePreview,
-                                               QFileInfo(currentFileName).fileName(),
-                                               &result,
-                                               Core::ICore::dialogParent());
+        const bool confirm = ComponentNameDialog::go(&componentName,
+                                                     &pathStr,
+                                                     &suffix,
+                                                     sortedPropertiesWithoutId,
+                                                     sourcePreview,
+                                                     currentFileName.fileName(),
+                                                     &result,
+                                                     Core::ICore::dialogParent());
         if (!confirm)
             return;
 
+        path = Utils::FilePath::fromUserInput(pathStr);
         if (componentName.isEmpty() || path.isEmpty())
             return;
 
-        const QString newFileName = path + QLatin1Char('/') + componentName
-                + QLatin1String(".") + suffix;
+        const Utils::FilePath newFileName = path.pathAppended(componentName + QLatin1String(".")
+                                                              + suffix);
 
         QString imports;
         UiProgram *prog = currentFile->qmljsDocument()->qmlProgram();
@@ -190,18 +194,18 @@ public:
         // stop if we can't create the new file
         const bool reindent = true;
         const bool openEditor = false;
-        const Utils::FilePath newFilePath = Utils::FilePath::fromString(newFileName);
-        if (!refactoring.createFile(newFilePath, newComponentSource, reindent, openEditor))
+        const Utils::FilePath newFilePath = newFileName;
+        if (!refactoring.createFile(newFileName, newComponentSource, reindent, openEditor))
             return;
 
-        if (path == QFileInfo(currentFileName).path()) {
+        if (path.toString() == currentFileName.toFileInfo().path()) {
             // hack for the common case, next version should use the wizard
-            ProjectExplorer::Node * oldFileNode =
-                    ProjectExplorer::ProjectTree::nodeForFile(Utils::FilePath::fromString(currentFileName));
+            ProjectExplorer::Node *oldFileNode = ProjectExplorer::ProjectTree::nodeForFile(
+                currentFileName);
             if (oldFileNode) {
                 ProjectExplorer::FolderNode *containingFolder = oldFileNode->parentFolderNode();
                 if (containingFolder)
-                    containingFolder->addFiles({FilePath::fromString(newFileName)});
+                    containingFolder->addFiles({newFileName});
             }
         }
 
@@ -218,20 +222,21 @@ public:
         currentFile->appendIndentRange(Range(start, end + 1));
         currentFile->apply();
 
-        Core::IVersionControl *versionControl =
-            Core::VcsManager::findVersionControlForDirectory(FilePath::fromString(path));
+        Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(
+            path);
         if (versionControl
                 && versionControl->supportsOperation(Core::IVersionControl::AddOperation)) {
             const QMessageBox::StandardButton button = QMessageBox::question(
                 Core::ICore::dialogParent(),
                 Core::VcsManager::msgAddToVcsTitle(),
-                Core::VcsManager::msgPromptToAddToVcs(QStringList(newFileName), versionControl),
+                Core::VcsManager::msgPromptToAddToVcs(QStringList(newFileName.toString()),
+                                                      versionControl),
                 QMessageBox::Yes | QMessageBox::No);
-            if (button == QMessageBox::Yes && !versionControl->vcsAdd(FilePath::fromString(newFileName))) {
+            if (button == QMessageBox::Yes && !versionControl->vcsAdd(newFileName)) {
                 QMessageBox::warning(Core::ICore::dialogParent(),
                                      Core::VcsManager::msgAddToVcsFailedTitle(),
-                                     Core::VcsManager::msgToAddToVcsFailed(QStringList(newFileName),
-                                                                           versionControl));
+                                     Core::VcsManager::msgToAddToVcsFailed(
+                                         QStringList(newFileName.toString()), versionControl));
             }
         }
     }

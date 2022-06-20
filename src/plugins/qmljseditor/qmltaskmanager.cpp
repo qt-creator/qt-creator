@@ -86,14 +86,14 @@ void QmlTaskManager::collectMessages(QFutureInterface<FileErrorMessages> &future
                                      bool updateSemantic)
 {
     for (const ModelManagerInterface::ProjectInfo &info : projectInfos) {
-        QHash<QString, QList<DiagnosticMessage> > linkMessages;
+        QHash<Utils::FilePath, QList<DiagnosticMessage>> linkMessages;
         ContextPtr context;
         if (updateSemantic) {
             QmlJS::Link link(snapshot, vContext, QmlJS::LibraryInfo());
             context = link(&linkMessages);
         }
 
-        for (const QString &fileName : qAsConst(info.sourceFiles)) {
+        for (const Utils::FilePath &fileName : qAsConst(info.sourceFiles)) {
             Document::Ptr document = snapshot.document(fileName);
             if (!document)
                 continue;
@@ -102,17 +102,17 @@ void QmlTaskManager::collectMessages(QFutureInterface<FileErrorMessages> &future
             result.fileName = fileName;
             if (document->language().isFullySupportedLanguage()) {
                 result.tasks = convertToTasks(document->diagnosticMessages(),
-                                              FilePath::fromString(fileName),
+                                              fileName,
                                               Constants::TASK_CATEGORY_QML);
 
                 if (updateSemantic) {
                     result.tasks += convertToTasks(linkMessages.value(fileName),
-                                                   FilePath::fromString(fileName),
+                                                   fileName,
                                                    Constants::TASK_CATEGORY_QML_ANALYSIS);
 
                     Check checker(document, context);
                     result.tasks += convertToTasks(checker(),
-                                                   FilePath::fromString(fileName),
+                                                   fileName,
                                                    Constants::TASK_CATEGORY_QML_ANALYSIS);
                 }
             }
@@ -156,9 +156,9 @@ void QmlTaskManager::updateMessagesNow(bool updateSemantic)
     m_messageCollector.setFuture(future);
 }
 
-void QmlTaskManager::documentsRemoved(const QStringList &path)
+void QmlTaskManager::documentsRemoved(const Utils::FilePaths &path)
 {
-    for (const QString &item : path)
+    for (const Utils::FilePath &item : path)
         removeTasksForFile(item);
 }
 
@@ -180,13 +180,13 @@ void QmlTaskManager::displayAllResults()
 
 void QmlTaskManager::insertTask(const Task &task)
 {
-    Tasks tasks = m_docsWithTasks.value(task.file.toString());
+    Tasks tasks = m_docsWithTasks.value(task.file);
     tasks.append(task);
-    m_docsWithTasks.insert(task.file.toString(), tasks);
+    m_docsWithTasks.insert(task.file, tasks);
     TaskHub::addTask(task);
 }
 
-void QmlTaskManager::removeTasksForFile(const QString &fileName)
+void QmlTaskManager::removeTasksForFile(const Utils::FilePath &fileName)
 {
     if (m_docsWithTasks.contains(fileName)) {
         const Tasks tasks = m_docsWithTasks.value(fileName);

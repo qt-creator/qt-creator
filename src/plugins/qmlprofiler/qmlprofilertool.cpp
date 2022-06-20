@@ -420,8 +420,7 @@ void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber,
     if (lineNumber < 0 || fileUrl.isEmpty())
         return;
 
-    const auto projectFileName = FilePath::fromString(
-        d->m_profilerModelManager->findLocalFile(fileUrl));
+    const auto projectFileName = d->m_profilerModelManager->findLocalFile(fileUrl);
 
     if (!projectFileName.exists() || !projectFileName.isReadableFile())
         return;

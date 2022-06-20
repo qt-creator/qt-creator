@@ -31,8 +31,9 @@
 
 using namespace QmlDesigner;
 
-ASTObjectTextExtractor::ASTObjectTextExtractor(const QString &text):
-        m_document(QmlJS::Document::create(QLatin1String("<ASTObjectTextExtractor>"), QmlJS::Dialect::Qml))
+ASTObjectTextExtractor::ASTObjectTextExtractor(const QString &text)
+    : m_document(QmlJS::Document::create(Utils::FilePath::fromString("<ASTObjectTextExtractor>"),
+                                         QmlJS::Dialect::Qml))
 {
     m_document->setSource(text);
     m_document->parseQml();

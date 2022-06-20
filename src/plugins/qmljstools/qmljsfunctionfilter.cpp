@@ -61,7 +61,7 @@ QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(
     if (!regexp.isValid())
         return {};
 
-    const QHash<QString, QList<LocatorData::Entry> > locatorEntries = m_data->entries();
+    const QHash<Utils::FilePath, QList<LocatorData::Entry>> locatorEntries = m_data->entries();
     for (const QList<LocatorData::Entry> &items : locatorEntries) {
         if (future.isCanceled())
             break;
@@ -102,6 +102,5 @@ void FunctionFilter::accept(const Core::LocatorFilterEntry &selection,
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
     const LocatorData::Entry entry = qvariant_cast<LocatorData::Entry>(selection.internalData);
-    Core::EditorManager::openEditorAt(
-        {Utils::FilePath::fromString(entry.fileName), entry.line, entry.column});
+    Core::EditorManager::openEditorAt({entry.fileName, entry.line, entry.column});
 }

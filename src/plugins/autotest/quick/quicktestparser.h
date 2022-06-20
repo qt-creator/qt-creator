@@ -57,7 +57,7 @@ private:
     void handleDirectoryChanged(const QString &directory);
     void doUpdateWatchPaths(const QStringList &directories);
     QString quickTestName(const CPlusPlus::Document::Ptr &doc) const;
-    QList<QmlJS::Document::Ptr> scanDirectoryForQuickTestQmlFiles(const QString &srcDir);
+    QList<QmlJS::Document::Ptr> scanDirectoryForQuickTestQmlFiles(const Utils::FilePath &srcDir);
     QmlJS::Snapshot m_qmlSnapshot;
     QHash<Utils::FilePath, Utils::FilePath> m_proFilesForQmlFiles;
     QFileSystemWatcher m_directoryWatcher;

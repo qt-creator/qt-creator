@@ -125,7 +125,7 @@ static inline QString getModuleName(const ScopeChain &scopeChain, const Document
                     + QString::number(minorVersion) ;
         } else if (importInfo.isValid() && importInfo.type() == ImportType::Directory) {
             const QString path = importInfo.path();
-            const QDir dir(qmlDocument->path());
+            const QDir dir = qmlDocument->path().toDir();
             // should probably try to make it relatve to some import path, not to the document path
             QString relativeDir = dir.relativeFilePath(path);
             const QString name = relativeDir.replace(QLatin1Char('/'), QLatin1Char('.'));
@@ -364,7 +364,7 @@ void QmlJSHoverHandler::handleImport(const ScopeChain &scopeChain, AST::UiImport
         if (import.info.ast() == node) {
             if (import.info.type() == ImportType::Library
                     && !import.libraryPath.isEmpty()) {
-                QString msg = tr("Library at %1").arg(import.libraryPath);
+                QString msg = tr("Library at %1").arg(import.libraryPath.toString());
                 const LibraryInfo &libraryInfo = scopeChain.context()->snapshot().libraryInfo(import.libraryPath);
                 if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::DumpDone) {
                     msg += QLatin1Char('\n');

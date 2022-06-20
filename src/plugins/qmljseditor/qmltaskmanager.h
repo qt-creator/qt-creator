@@ -49,7 +49,7 @@ public:
 
     void updateMessages();
     void updateSemanticMessagesNow();
-    void documentsRemoved(const QStringList &path);
+    void documentsRemoved(const Utils::FilePaths &path);
 
 private:
     void displayResults(int begin, int end);
@@ -57,14 +57,14 @@ private:
     void updateMessagesNow(bool updateSemantic = false);
 
     void insertTask(const ProjectExplorer::Task &task);
-    void removeTasksForFile(const QString &fileName);
+    void removeTasksForFile(const Utils::FilePath &fileName);
     void removeAllTasks(bool clearSemantic);
 
 private:
     class FileErrorMessages
     {
     public:
-        QString fileName;
+        Utils::FilePath fileName;
         ProjectExplorer::Tasks tasks;
     };
     static void collectMessages(QFutureInterface<FileErrorMessages> &future,
@@ -74,7 +74,7 @@ private:
                                 bool updateSemantic);
 
 private:
-    QHash<QString, ProjectExplorer::Tasks > m_docsWithTasks;
+    QHash<Utils::FilePath, ProjectExplorer::Tasks> m_docsWithTasks;
     QFutureWatcher<FileErrorMessages> m_messageCollector;
     QTimer m_updateDelay;
     bool m_updatingSemantic = false;

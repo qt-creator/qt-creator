@@ -127,12 +127,11 @@ void TestTreeModel::setupParsingConnections()
     QmlJS::ModelManagerInterface *qmlJsMM = QmlJS::ModelManagerInterface::instance();
     connect(qmlJsMM, &QmlJS::ModelManagerInterface::documentUpdated,
             m_parser, &TestCodeParser::onQmlDocumentUpdated, Qt::QueuedConnection);
-    connect(qmlJsMM, &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
-            this, [this](const QStringList files) {
-                const Utils::FilePaths filesToRemove
-                        = Utils::transform(files, &Utils::FilePath::fromString);
-                removeFiles(filesToRemove);
-            }, Qt::QueuedConnection);
+    connect(qmlJsMM,
+            &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
+            this,
+            &TestTreeModel::removeFiles,
+            Qt::QueuedConnection);
     connectionsInitialized = true;
 }
 

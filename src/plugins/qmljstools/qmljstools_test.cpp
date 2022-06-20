@@ -43,10 +43,9 @@ void QmlJSToolsPlugin::test_basic()
 {
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
-    const QString qmlFilePath = Core::ICore::resourcePath(
-                                        "qmldesigner/itemLibraryQmlSources/ItemDelegate.qml")
-                                    .toString();
-    modelManager->updateSourceFiles(QStringList(qmlFilePath), false);
+    const Utils::FilePath qmlFilePath = Core::ICore::resourcePath(
+                                        "qmldesigner/itemLibraryQmlSources/ItemDelegate.qml");
+    modelManager->updateSourceFiles(QList<Utils::FilePath>({qmlFilePath}), false);
     modelManager->test_joinAllThreads();
 
     Snapshot snapshot = modelManager->snapshot();

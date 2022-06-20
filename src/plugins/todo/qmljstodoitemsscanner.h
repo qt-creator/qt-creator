@@ -28,6 +28,7 @@
 
 #include "todoitemsscanner.h"
 
+#include <utils/filepath.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 namespace Todo {
@@ -39,7 +40,7 @@ public:
     explicit QmlJsTodoItemsScanner(const KeywordList &keywordList, QObject *parent = nullptr);
 
 protected:
-    bool shouldProcessFile(const QString &fileName);
+    bool shouldProcessFile(const Utils::FilePath &fileName);
     void scannerParamsChanged() override;
 
 private:

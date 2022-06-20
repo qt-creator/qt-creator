@@ -29,8 +29,8 @@
 
 using namespace QmlDesigner;
 
-ObjectLengthCalculator::ObjectLengthCalculator():
-        m_doc(QmlJS::Document::create(QLatin1String("<internal>"), QmlJS::Dialect::Qml))
+ObjectLengthCalculator::ObjectLengthCalculator()
+    : m_doc(QmlJS::Document::create(Utils::FilePath::fromString("<internal>"), QmlJS::Dialect::Qml))
 {
 }
 

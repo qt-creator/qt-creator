@@ -27,6 +27,8 @@
 
 #include "qtcassert.h"
 
+#include <utils/filepath.h>
+
 #include <QCoreApplication>
 #include <QDir>
 #include <QDomDocument>

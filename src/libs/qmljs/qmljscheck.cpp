@@ -119,11 +119,11 @@ public:
                 if (!url.isValid() && !url.isEmpty()) {
                     setMessage(ErrInvalidUrl);
                 } else {
-                    QString fileName = url.toLocalFile();
+                    Utils::FilePath fileName = Utils::FilePath::fromString(url.toLocalFile());
                     if (!fileName.isEmpty()) {
-                        if (QFileInfo(fileName).isRelative())
-                            fileName = QString("/%1%2").arg(_doc->path(), fileName);
-                        if (!QFileInfo::exists(fileName))
+                        if (fileName.isRelativePath())
+                            fileName = _doc->path().pathAppended(fileName.path());
+                        if (!fileName.exists())
                             setMessage(WarnFileOrDirectoryDoesNotExist);
                     }
                 }
@@ -967,7 +967,7 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
     if (checkTypeForDesignerSupport(typeId))
         addMessage(WarnUnsupportedTypeInVisualDesigner, typeErrorLocation, typeName);
 
-    if (typeId->next == nullptr && QFileInfo(_doc->fileName()).baseName() == typeName)
+    if (typeId->next == nullptr && _doc->fileName().baseName() == typeName)
         addMessage(ErrTypeIsInstantiatedRecursively, typeErrorLocation, typeName);
 
     if (checkTypeForQmlUiSupport(typeId))

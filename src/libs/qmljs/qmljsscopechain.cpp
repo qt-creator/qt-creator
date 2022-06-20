@@ -291,7 +291,7 @@ static void addInstantiatingComponents(ContextPtr context, QmlComponentChain *ch
         const QString &comment = chain->document()->source().mid(commentLoc.begin(), commentLoc.length);
 
         // find all @scope annotations
-        QStringList additionalScopes;
+        QList<Utils::FilePath> additionalScopes;
         int lastOffset = -1;
         QRegularExpressionMatch match;
         forever {
@@ -299,13 +299,16 @@ static void addInstantiatingComponents(ContextPtr context, QmlComponentChain *ch
             lastOffset = match.capturedStart();
             if (lastOffset == -1)
                 break;
-            additionalScopes << QFileInfo(chain->document()->path() + QLatin1Char('/') + match.captured(1).trimmed()).absoluteFilePath();
+            additionalScopes << chain->document()
+                                    ->path()
+                                    .pathAppended(match.captured(1).trimmed())
+                                    .absoluteFilePath();
         }
 
         foreach (const QmlComponentChain *c, chain->instantiatingComponents())
             additionalScopes.removeAll(c->document()->fileName());
 
-        foreach (const QString &scope, additionalScopes) {
+        foreach (const Utils::FilePath &scope, additionalScopes) {
             Document::Ptr doc = context->snapshot().document(scope);
             if (doc) {
                 QmlComponentChain *ch = new QmlComponentChain(doc);
@@ -343,10 +346,12 @@ void ScopeChain::initializeRootScope()
         if (!m_document->bind()->isJsLibrary()) {
             foreach (Document::Ptr otherDoc, snapshot) {
                 foreach (const ImportInfo &import, otherDoc->bind()->imports()) {
-                    if ((import.type() == ImportType::File && m_document->fileName() == import.path())
-                            || (import.type() == ImportType::QrcFile
-                                && ModelManagerInterface::instance()->filesAtQrcPath(import.path())
-                                .contains(m_document->fileName()))) {
+                    if ((import.type() == ImportType::File
+                         && m_document->fileName().toString() == import.path())
+                        || (import.type() == ImportType::QrcFile
+                            && ModelManagerInterface::instance()
+                                   ->filesAtQrcPath(import.path())
+                                   .contains(m_document->fileName().path()))) {
                         QmlComponentChain *component = new QmlComponentChain(otherDoc);
                         componentScopes.insert(otherDoc.data(), component);
                         chain->addInstantiatingComponent(component);

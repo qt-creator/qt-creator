@@ -75,11 +75,12 @@ struct TestData
 static TestData testData(const QString &path)
 {
     QFile file(path);
+    Utils::FilePath pathPath = Utils::FilePath::fromString(path);
     file.open(QFile::ReadOnly | QFile::Text);
     const QString content = QString::fromUtf8(file.readAll());
     file.close();
 
-    Document::MutablePtr doc = Document::create(path, Dialect::Qml);
+    Document::MutablePtr doc = Document::create(pathPath, Dialect::Qml);
     doc->setSource(content);
     doc->parse();
     const QString nSemantic = getValue(content, "//\\s*ExpectedSemanticMessages: (\\d+)");

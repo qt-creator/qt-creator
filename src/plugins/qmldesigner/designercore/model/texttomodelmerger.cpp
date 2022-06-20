@@ -493,7 +493,7 @@ public:
                 typeName.prepend(name + QLatin1Char('.'));
             } else if (importInfo.isValid() && importInfo.type() == ImportType::Directory) {
                 QString path = importInfo.path();
-                QDir dir(m_doc->path());
+                QDir dir = m_doc->path().toDir();
                 // should probably try to make it relatve to some import path, not to the document path
                 QString relativeDir = dir.relativeFilePath(path);
                 QString name = relativeDir.replace(QLatin1Char('/'), QLatin1Char('.'));
@@ -997,7 +997,8 @@ void TextToModelMerger::setupPossibleImports(const QmlJS::Snapshot &snapshot, co
     QList<QmlDesigner::Import> possibleImports = generatePossibleLibraryImports(filteredPossibleImportKeys);
 
     if (document()->fileName() != "<internal>")
-        possibleImports.append(generatePossibleFileImports(document()->path(), imports->all()));
+        possibleImports.append(
+            generatePossibleFileImports(document()->path().toString(), imports->all()));
 
     if (m_rewriterView->isAttached())
         m_rewriterView->model()->setPossibleImports(possibleImports);
@@ -1052,14 +1053,17 @@ Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url, co
         return {};
     }
 
-    const QString fileName = url.toLocalFile();
+    Utils::FilePath fileName = Utils::FilePath::fromString(url.toLocalFile());
 
     Dialect dialect = ModelManagerInterface::guessLanguageOfFile(fileName);
     if (dialect == Dialect::AnyLanguage
             || dialect == Dialect::NoLanguage)
         dialect = Dialect::Qml;
 
-    Document::MutablePtr doc = Document::create(fileName.isEmpty() ? QStringLiteral("<internal>") : fileName, dialect);
+    Document::MutablePtr doc = Document::create(fileName.isEmpty()
+                                                    ? Utils::FilePath::fromString("<internal>")
+                                                    : fileName,
+                                                dialect);
     doc->setSource(data);
     doc->parseQml();
 
@@ -1067,7 +1071,7 @@ Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url, co
         if (errors) {
             const QList<QmlJS::DiagnosticMessage> messages = doc->diagnosticMessages();
             for (const QmlJS::DiagnosticMessage &message : messages)
-                errors->append(DocumentMessage(message, QUrl::fromLocalFile(doc->fileName())));
+                errors->append(DocumentMessage(message, doc->fileName().toUrl()));
         }
         return Document::MutablePtr();
     }
@@ -2134,7 +2138,8 @@ void TextToModelMerger::collectLinkErrors(QList<DocumentMessage> *errors, const 
         if (diagnosticMessage.kind == QmlJS::Severity::ReadingTypeInfoWarning)
             m_rewriterView->setIncompleteTypeInformation(true);
 
-        errors->append(DocumentMessage(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName())));
+        errors->append(
+            DocumentMessage(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName().path())));
     }
 }
 
@@ -2142,7 +2147,8 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
 {
     if (m_rewriterView->model()->imports().isEmpty()) {
         const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found."));
-        errors->append(DocumentMessage(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName())));
+        errors->append(
+            DocumentMessage(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName().path())));
     }
 
     bool hasQtQuick = false;
@@ -2168,9 +2174,9 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
                                 QCoreApplication::translate(
                                     "QmlDesigner::TextToModelMerger",
                                     "Qt Quick 6 is not supported with a Qt 5 kit."));
-                            errors->prepend(
-                                DocumentMessage(diagnosticMessage,
-                                                QUrl::fromLocalFile(m_document->fileName())));
+                            errors->prepend(DocumentMessage(diagnosticMessage,
+                                                            QUrl::fromLocalFile(
+                                                                m_document->fileName().path())));
                         }
                     } else {
                         const QmlJS::DiagnosticMessage
@@ -2181,7 +2187,7 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
                                                   "The Design Mode requires a valid Qt kit."));
                         errors->prepend(
                             DocumentMessage(diagnosticMessage,
-                                            QUrl::fromLocalFile(m_document->fileName())));
+                                            QUrl::fromLocalFile(m_document->fileName().path())));
                     }
                 }
 #endif
@@ -2193,7 +2199,7 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
                                       QCoreApplication::translate("QmlDesigner::TextToModelMerger",
                                                                   "Unsupported Qt Quick version."));
                 errors->append(DocumentMessage(diagnosticMessage,
-                                               QUrl::fromLocalFile(m_document->fileName())));
+                                               QUrl::fromLocalFile(m_document->fileName().path())));
             }
         }
     }
@@ -2220,7 +2226,7 @@ void TextToModelMerger::collectSemanticErrorsAndWarnings(QList<DocumentMessage> 
 
     check.enableQmlDesignerChecks();
 
-    QUrl fileNameUrl = QUrl::fromLocalFile(m_document->fileName());
+    QUrl fileNameUrl = QUrl::fromLocalFile(m_document->fileName().toString());
     const QList<StaticAnalysis::Message> messages = check();
     for (const StaticAnalysis::Message &message : messages) {
         if (message.severity == Severity::Error) {

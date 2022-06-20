@@ -234,9 +234,15 @@ void QmlBuildSystem::parseProject(RefreshOptions options)
             if (m_projectItem->targetDirectory().isEmpty())
                 m_projectItem->setTargetDirectory(canonicalProjectDir().toString());
 
-            if (auto modelManager = QmlJS::ModelManagerInterface::instance())
-                modelManager->updateSourceFiles(m_projectItem->files(), true);
-
+            if (auto modelManager = QmlJS::ModelManagerInterface::instance()) {
+                QStringList files = m_projectItem->files();
+                Utils::FilePaths filePaths(files.size());
+                std::transform(files.cbegin(),
+                               files.cend(),
+                               filePaths.begin(),
+                               [](const QString &p) { return Utils::FilePath::fromString(p); });
+                modelManager->updateSourceFiles(filePaths, true);
+            }
             QString mainFilePath = m_projectItem->mainFile();
             if (!mainFilePath.isEmpty()) {
                 mainFilePath
@@ -522,8 +528,14 @@ void QmlBuildSystem::refreshFiles(const QSet<QString> &/*added*/, const QSet<QSt
     }
     refresh(Files);
     if (!removed.isEmpty()) {
-        if (auto modelManager = QmlJS::ModelManagerInterface::instance())
-            modelManager->removeFiles(Utils::toList(removed));
+        if (auto modelManager = QmlJS::ModelManagerInterface::instance()) {
+            Utils::FilePaths pathsRemoved(removed.size());
+            std::transform(removed.cbegin(),
+                           removed.cend(),
+                           pathsRemoved.begin(),
+                           [](const QString &s) { return Utils::FilePath::fromString(s); });
+            modelManager->removeFiles(pathsRemoved);
+        }
     }
     refreshTargetDirectory();
 }

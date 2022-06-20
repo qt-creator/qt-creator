@@ -33,6 +33,7 @@
 #include <QStringList>
 #include <QtTest>
 
+#include <utils/algorithm.h>
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljscheck.h>
 #include <qmljs/qmljscontext.h>
@@ -71,14 +72,15 @@ private:
 
 void scanDirectory(const QString &dir)
 {
+    auto dirPath = Utils::FilePath::fromString(dir);
     QFutureInterface<void> result;
     PathsAndLanguages paths;
-    paths.maybeInsert(Utils::FilePath::fromString(dir), Dialect::Qml);
+    paths.maybeInsert(dirPath, Dialect::Qml);
     ModelManagerInterface::importScan(result, ModelManagerInterface::workingCopy(), paths,
                                       ModelManagerInterface::instance(), false);
     ModelManagerInterface::instance()->test_joinAllThreads();
     ViewerContext vCtx;
-    vCtx.paths.append(dir);
+    vCtx.paths.append(dirPath);
     Snapshot snap = ModelManagerInterface::instance()->snapshot();
 
     ImportDependencies *iDeps = snap.importDependencies();
@@ -185,15 +187,18 @@ void tst_ImportCheck::test()
     QFETCH(QStringList, expectedLibraries);
     QFETCH(QStringList, expectedFiles);
 
+    const auto pathPaths = Utils::transform(paths, [](const QString &s) {
+        return Utils::FilePath::fromString(s);
+    });
     QFutureInterface<void> result;
     PathsAndLanguages lPaths;
-    foreach (const QString &path, paths)
-        lPaths.maybeInsert(Utils::FilePath::fromString(path), Dialect::Qml);
+    for (const Utils::FilePath &path : pathPaths)
+        lPaths.maybeInsert(path, Dialect::Qml);
     ModelManagerInterface::importScan(result, ModelManagerInterface::workingCopy(), lPaths,
                                       ModelManagerInterface::instance(), false);
     ModelManagerInterface::instance()->test_joinAllThreads();
     ViewerContext vCtx;
-    vCtx.paths.append(paths);
+    vCtx.paths.append(pathPaths);
     Snapshot snap = ModelManagerInterface::instance()->snapshot();
 
     ImportDependencies *iDeps = snap.importDependencies();
@@ -260,6 +265,7 @@ void tst_ImportCheck::importTypes()
     QFETCH(QString, qmlFile);
     QFETCH(QString, importPath);
     QFETCH(QStringList, expectedTypes);
+    auto qmlFilePath = Utils::FilePath::fromString(qmlFile);
 
     // full reset
     delete ModelManagerInterface::instance();
@@ -271,11 +277,11 @@ void tst_ImportCheck::importTypes()
     modelManager->setDefaultProject(defaultProject, nullptr);
     modelManager->activateScan();
 
-    modelManager->updateSourceFiles(QStringList(qmlFile), false);
+    modelManager->updateSourceFiles(Utils::FilePaths({qmlFilePath}), false);
     modelManager->test_joinAllThreads();
 
     Snapshot snapshot = modelManager->newestSnapshot();
-    Document::Ptr doc = snapshot.document(qmlFile);
+    Document::Ptr doc = snapshot.document(qmlFilePath);
 
     // It's unfortunate, but nowadays linking can trigger async module loads,
     // so do it once to start the process, then do it again for real once the
@@ -288,7 +294,7 @@ void tst_ImportCheck::importTypes()
     getContext();
     modelManager->test_joinAllThreads();
     snapshot = modelManager->newestSnapshot();
-    doc = snapshot.document(qmlFile);
+    doc = snapshot.document(qmlFilePath);
 
     ContextPtr context = getContext();
 
@@ -346,6 +352,7 @@ void tst_ImportCheck::moduleMapping()
     QFETCH(StrStrHash, moduleMappings);
     QFETCH(QStringList, expectedTypes);
     QFETCH(bool, expectedResult);
+    auto qmlFilePath = Utils::FilePath::fromString(qmlFile);
 
     // full reset
     delete ModelManagerInterface::instance();
@@ -363,11 +370,11 @@ void tst_ImportCheck::moduleMapping()
     scanDirectory(importPath);
     scanDirectory(qtQuickImportPath);
 
-    modelManager->updateSourceFiles(QStringList(qmlFile), false);
+    modelManager->updateSourceFiles(Utils::FilePaths({qmlFilePath}), false);
     modelManager->test_joinAllThreads();
 
     Snapshot snapshot = modelManager->newestSnapshot();
-    Document::Ptr doc = snapshot.document(qmlFile);
+    Document::Ptr doc = snapshot.document(qmlFilePath);
     QVERIFY(!doc.isNull());
 
     // It's unfortunate, but nowadays linking can trigger async module loads,
@@ -381,7 +388,7 @@ void tst_ImportCheck::moduleMapping()
     getContext();
     modelManager->test_joinAllThreads();
     snapshot = modelManager->newestSnapshot();
-    doc = snapshot.document(qmlFile);
+    doc = snapshot.document(qmlFilePath);
 
     ContextPtr context = getContext();
 

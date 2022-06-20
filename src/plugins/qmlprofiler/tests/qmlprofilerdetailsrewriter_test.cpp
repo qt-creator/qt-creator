@@ -34,6 +34,7 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <utils/filepath.h>
 
 #include <QLibraryInfo>
 #include <QTest>
@@ -165,16 +166,16 @@ void QmlProfilerDetailsRewriterTest::testGetLocalFile()
     Q_UNUSED(factory)
 
     seedRewriter();
-    QCOMPARE(m_rewriter.getLocalFile("notthere.qml"), QString());
+    QCOMPARE(m_rewriter.getLocalFile("notthere.qml"), Utils::FilePath());
     QCOMPARE(m_rewriter.getLocalFile("Test.qml"),
-             QString::fromLatin1(":/qmlprofiler/tests/Test.qml"));
-    QCOMPARE(m_rewriter.getLocalFile("qmlprofilerdetailsrewriter_test.cpp"), QString());
+             Utils::FilePath::fromString(":/qmlprofiler/tests/Test.qml"));
+    QCOMPARE(m_rewriter.getLocalFile("qmlprofilerdetailsrewriter_test.cpp"), Utils::FilePath());
 }
 
 void QmlProfilerDetailsRewriterTest::testPopulateFileFinder()
 {
     m_rewriter.populateFileFinder(nullptr);
-    QCOMPARE(m_rewriter.getLocalFile("Test.qml"), QString());
+    QCOMPARE(m_rewriter.getLocalFile("Test.qml"), Utils::FilePath());
 
     // Test that the rewriter will populate from available projects if given nullptr as parameter.
     DummyProject *project1 = new DummyProject(":/nix.nix");
@@ -183,7 +184,7 @@ void QmlProfilerDetailsRewriterTest::testPopulateFileFinder()
     ProjectExplorer::SessionManager::addProject(project2);
     m_rewriter.populateFileFinder(nullptr);
     QCOMPARE(m_rewriter.getLocalFile("Test.qml"),
-             QString::fromLatin1(":/qmlprofiler/tests/Test.qml"));
+             Utils::FilePath::fromString(":/qmlprofiler/tests/Test.qml"));
 
     ProjectExplorer::SessionManager::removeProject(project1);
     ProjectExplorer::SessionManager::removeProject(project2);
@@ -208,7 +209,7 @@ void QmlProfilerDetailsRewriterTest::seedRewriter()
     const QString content = QString::fromUtf8(file.readAll());
     file.close();
 
-    QmlJS::Document::MutablePtr doc = QmlJS::Document::create(filename, QmlJS::Dialect::Qml);
+    QmlJS::Document::MutablePtr doc = QmlJS::Document::create(Utils::FilePath::fromString(filename), QmlJS::Dialect::Qml);
     doc->setSource(content);
     doc->parse();
     QVERIFY(!doc->source().isEmpty());

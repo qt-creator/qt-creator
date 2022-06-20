@@ -35,6 +35,7 @@
 #include <qmljs/qmljsreformatter.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
+#include <utils/filepath.h>
 
 #include <QtTest>
 #include <algorithm>
@@ -74,9 +75,10 @@ void tst_Reformatter::test_data()
 void tst_Reformatter::test()
 {
     QFETCH(QString, path);
+    Utils::FilePath fPath = Utils::FilePath::fromString(path);
 
-    Document::MutablePtr doc = Document::create(path, ModelManagerInterface::guessLanguageOfFile(path));
-    QFile file(doc->fileName());
+    Document::MutablePtr doc = Document::create(fPath, ModelManagerInterface::guessLanguageOfFile(fPath));
+    QFile file(doc->fileName().toString());
     file.open(QFile::ReadOnly | QFile::Text);
     QString source = QString::fromUtf8(file.readAll());
     doc->setSource(source);

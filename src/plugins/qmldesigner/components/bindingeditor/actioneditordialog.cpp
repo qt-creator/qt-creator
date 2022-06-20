@@ -77,7 +77,8 @@ void ActionEditorDialog::adjustProperties()
 {
     // Analyze the current connection editor statement/expression
     const auto qmlJSDocument = bindingEditorWidget()->qmlJsEditorDocument();
-    auto doc = QmlJS::Document::create(QLatin1String("<expression>"), QmlJS::Dialect::JavaScript);
+    auto doc = QmlJS::Document::create(Utils::FilePath::fromString("<expression>"),
+                                       QmlJS::Dialect::JavaScript);
     doc->setSource(qmlJSDocument->plainText());
     bool parseResult = doc->parseExpression();
 

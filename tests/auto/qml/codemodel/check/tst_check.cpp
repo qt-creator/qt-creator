@@ -124,10 +124,11 @@ void tst_Check::test_data()
 void tst_Check::test()
 {
     QFETCH(QString, path);
+    Utils::FilePath pathPath = Utils::FilePath::fromString(path);
     auto mm = ModelManagerInterface::instance();
     Snapshot snapshot =  mm->snapshot();
-    Document::MutablePtr doc = Document::create(path, Dialect::Qml);
-    QFile file(doc->fileName());
+    Document::MutablePtr doc = Document::create(pathPath, Dialect::Qml);
+    QFile file(doc->fileName().toString());
     file.open(QFile::ReadOnly | QFile::Text);
     doc->setSource(QString::fromUtf8(file.readAll()));
     file.close();

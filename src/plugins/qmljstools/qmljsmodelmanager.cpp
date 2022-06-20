@@ -115,14 +115,14 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
                                              Constants::QMLPROJECT_MIMETYPE,
                                              Constants::QMLTYPES_MIMETYPE,
                                              Constants::QMLUI_MIMETYPE };
-        projectInfo.sourceFiles = Utils::transform(project->files([&qmlTypeNames](const Node *n) {
+        projectInfo.sourceFiles = project->files([&qmlTypeNames](const Node *n) {
             if (!Project::SourceFiles(n))
                 return false;
             const FileNode *fn = n->asFileNode();
             return fn && fn->fileType() == FileType::QML
                     && qmlTypeNames.contains(Utils::mimeTypeForFile(fn->filePath(),
                                                                     MimeMatchMode::MatchExtension).name());
-        }), &FilePath::toString);
+        });
         activeTarget = project->activeTarget();
     }
     Kit *activeKit = activeTarget ? activeTarget->kit() : KitManager::defaultKit();
@@ -131,15 +131,15 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
     projectInfo.tryQmlDump = false;
 
     if (activeTarget) {
-        QDir baseDir;
-        auto addAppDir = [&baseDir, & projectInfo](const QString &mdir) {
-            auto dir = QDir::cleanPath(mdir);
+        FilePath baseDir;
+        auto addAppDir = [&baseDir, &projectInfo](const FilePath &mdir) {
+            auto dir = mdir.cleanPath();
             if (!baseDir.path().isEmpty()) {
-                auto rDir = baseDir.relativeFilePath(dir);
+                auto rDir = dir.relativePath(baseDir);
                 // do not add directories outside the build directory
                 // this might happen for example when we think an executable path belongs to
                 // a bundle, and we need to remove extra directories, but that was not the case
-                if (rDir.split(u'/').contains(QStringLiteral(u"..")))
+                if (rDir.path().split(u'/').contains(QStringLiteral(u"..")))
                     return;
             }
             if (!projectInfo.applicationDirectories.contains(dir))
@@ -153,8 +153,8 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
             projectInfo.qmlDumpEnvironment.appendOrSet("QML2_IMPORT_PATH", bc->environment().expandedValueForKey("QML2_IMPORT_PATH"), ":");
             // Treat every target (library or application) in the build directory
 
-            QString dir = bc->buildDirectory().toString();
-            baseDir.setPath(QDir{dir}.absolutePath());
+            FilePath dir = bc->buildDirectory();
+            baseDir = dir.absoluteFilePath();
             addAppDir(dir);
         }
         // Qml loads modules from the following sources
@@ -169,24 +169,23 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
             if (target.targetFilePath.isEmpty())
                 continue;
             auto dir = target.targetFilePath.parentDir();
-            projectInfo.applicationDirectories.append(dir.toString());
+            projectInfo.applicationDirectories.append(dir);
             // unfortunately the build directory of the executable where cmake puts the qml
             // might be different than the directory of the executable:
-#if defined(Q_OS_WIN)
-            // On Windows systems QML type information is located one directory higher as we build
-            // in dedicated "debug" and "release" directories
-            addAppDir(
-                dir.parentDir().toString());
-#elif defined(Q_OS_MACOS)
-            // On macOS and iOS when building a bundle this is not the case and
-            // we have to go up up to three additional directories
-            // (BundleName.app/Contents/MacOS or BundleName.app/Contents for iOS)
-            if (dir.fileName() == u"MacOS")
-                dir = dir.parentDir();
-            if (dir.fileName() == u"Contents")
-                dir = dir.parentDir().parentDir();
-            addAppDir(dir.toString());
-#endif
+            if (HostOsInfo::isWindowsHost()) {
+                // On Windows systems QML type information is located one directory higher as we build
+                // in dedicated "debug" and "release" directories
+                addAppDir(dir.parentDir());
+            } else if (HostOsInfo::isMacHost()) {
+                // On macOS and iOS when building a bundle this is not the case and
+                // we have to go up up to three additional directories
+                // (BundleName.app/Contents/MacOS or BundleName.app/Contents for iOS)
+                if (dir.fileName() == u"MacOS")
+                    dir = dir.parentDir();
+                if (dir.fileName() == u"Contents")
+                    dir = dir.parentDir().parentDir();
+                addAppDir(dir);
+            }
         }
     }
     if (qtVersion && qtVersion->isValid()) {
@@ -271,7 +270,7 @@ void ModelManager::delayedInitialization()
 
     ViewerContext qbsVContext;
     qbsVContext.language = Dialect::QmlQbs;
-    qbsVContext.paths.append(ICore::resourcePath("qbs").toString());
+    qbsVContext.paths.append(ICore::resourcePath("qbs"));
     setDefaultVContext(qbsVContext);
 }
 
@@ -297,7 +296,7 @@ ModelManagerInterface::WorkingCopy ModelManager::workingCopyInternal() const
 
     const QList<IDocument *> documents = DocumentModel::openedDocuments();
     for (IDocument *document : documents) {
-        const QString key = document->filePath().toString();
+        const Utils::FilePath key = document->filePath();
         if (auto textDocument = qobject_cast<const TextEditor::TextDocument *>(document)) {
             // TODO the language should be a property on the document, not the editor
             if (DocumentModel::editorsForDocument(document).constFirst()

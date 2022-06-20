@@ -128,10 +128,12 @@ class QMLJS_EXPORT Export
 public:
     static QString libraryTypeName();
     Export();
-    Export(ImportKey exportName, const QString &pathRequired, bool intrinsic = false,
+    Export(ImportKey exportName,
+           const Utils::FilePath &pathRequired,
+           bool intrinsic = false,
            const QString &typeName = libraryTypeName());
     ImportKey exportName;
-    QString pathRequired;
+    Utils::FilePath pathRequired;
     QString typeName;
     bool intrinsic;
     bool visibleInVContext(const ViewerContext &vContext) const;
@@ -231,10 +233,14 @@ public:
     void addCoreImport(const CoreImport &import);
     void removeCoreImport(const QString &importId);
 
-    void addExport(const QString &importId, const ImportKey &importKey,
-                     const QString &requiredPath, const QString &typeName = Export::libraryTypeName());
-    void removeExport(const QString &importId, const ImportKey &importKey,
-                      const QString &requiredPath, const QString &typeName = Export::libraryTypeName());
+    void addExport(const QString &importId,
+                   const ImportKey &importKey,
+                   const Utils::FilePath &requiredPath,
+                   const QString &typeName = Export::libraryTypeName());
+    void removeExport(const QString &importId,
+                      const ImportKey &importKey,
+                      const Utils::FilePath &requiredPath,
+                      const QString &typeName = Export::libraryTypeName());
 
     void iterateOnLibraryImports(const ViewerContext &vContext,
                                  std::function<bool(const ImportMatchStrength &,

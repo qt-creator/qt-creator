@@ -70,7 +70,7 @@ public:
     void finalize() override;
 
     void populateFileFinder(const ProjectExplorer::Target *target = nullptr);
-    QString findLocalFile(const QString &remoteFile);
+    Utils::FilePath findLocalFile(const QString &remoteFile);
 
     static const char *featureName(ProfileFeature feature);
 

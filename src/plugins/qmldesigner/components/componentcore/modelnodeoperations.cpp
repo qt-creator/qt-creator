@@ -682,7 +682,8 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
 
     QStringList signalNames = cleanSignalNames(getSortedSignalNameList(selectionState.selectedModelNodes().constFirst()));
 
-    QList<QmlJSEditor::FindReferences::Usage> usages = QmlJSEditor::FindReferences::findUsageOfType(fileName, typeName);
+    QList<QmlJSEditor::FindReferences::Usage> usages
+        = QmlJSEditor::FindReferences::findUsageOfType(currentDesignDocument, typeName);
 
     if (usages.isEmpty()) {
         QString title = QCoreApplication::translate("ModelNodeOperations", "Go to Implementation");
@@ -691,14 +692,13 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
         return;
     }
 
-    usages = FindImplementation::run(usages.constFirst().path, typeName, itemId);
+    usages = FindImplementation::run(usages.constFirst().path.toString(), typeName, itemId);
 
     Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
 
     if (!usages.isEmpty() && (addAlwaysNewSlot || usages.count() < 2)  && (!isModelNodeRoot  || addAlwaysNewSlot)) {
-        Core::EditorManager::openEditorAt({Utils::FilePath::fromString(usages.constFirst().path),
-                                           usages.constFirst().line,
-                                           usages.constFirst().col});
+        Core::EditorManager::openEditorAt(
+            {usages.constFirst().path, usages.constFirst().line, usages.constFirst().col});
 
         if (!signalNames.isEmpty()) {
             auto dialog = new AddSignalHandlerDialog(Core::ICore::dialogParent());
@@ -730,9 +730,8 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
         return;
     }
 
-    Core::EditorManager::openEditorAt({Utils::FilePath::fromString(usages.constFirst().path),
-                                       usages.constFirst().line,
-                                       usages.constFirst().col + 1});
+    Core::EditorManager::openEditorAt(
+        {usages.constFirst().path, usages.constFirst().line, usages.constFirst().col + 1});
 }
 
 void removeLayout(const SelectionContext &selectionContext)

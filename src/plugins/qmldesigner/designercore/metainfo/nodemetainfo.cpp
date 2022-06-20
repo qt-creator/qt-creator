@@ -182,11 +182,10 @@ static QString qualifiedTypeNameForContext(const ObjectValue *objectValue,
                     // remove the search path prefix.
                     // this means that the same relative path wrt. different import paths will clash
                     QString filePath = e.exportName.path();
-                    for (const QString &path : qAsConst(vContext.paths)) {
-                        if (filePath.startsWith(path) && filePath.size() > path.size()
-                                && filePath.at(path.size()) == QLatin1Char('/'))
-                        {
-                            filePath = filePath.mid(path.size() + 1);
+                    for (const Utils::FilePath &path : qAsConst(vContext.paths)) {
+                        if (filePath.startsWith(path.path()) && filePath.size() > path.path().size()
+                            && filePath.at(path.path().size()) == QLatin1Char('/')) {
+                            filePath = filePath.mid(path.path().size() + 1);
                             break;
                         }
                     }
@@ -1157,11 +1156,11 @@ QString NodeMetaInfoPrivate::componentFileName() const
     if (isFileComponent()) {
         const ASTObjectValue * astObjectValue = value_cast<ASTObjectValue>(getObjectValue());
         if (astObjectValue) {
-            QString fileName;
+            Utils::FilePath fileName;
             int line;
             int column;
             if (astObjectValue->getSourceLocation(&fileName, &line, &column))
-                return fileName;
+                return fileName.toString();
         }
     }
     return QString();
