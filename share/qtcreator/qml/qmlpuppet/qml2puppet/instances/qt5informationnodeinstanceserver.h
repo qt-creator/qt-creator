@@ -154,6 +154,7 @@ private:
     void resetParticleSystem();
     void handleParticleSystemDeselected();
 #endif
+    void setSceneEnvironmentColor(const PropertyValueContainer &container);
 
     RenderViewData m_editView3DData;
     RenderViewData m_modelNode3DImageViewData;

@@ -338,6 +338,21 @@ Edit3DAction *Edit3DView::createResetColorAction()
         tooltip);
 }
 
+Edit3DAction *Edit3DView::createSyncBackgroundColorAction()
+{
+    QString description = QCoreApplication::translate("SyncEdit3DColorAction",
+                                                      "Use Scene Environment Color");
+    QString tooltip = QCoreApplication::translate("SyncEdit3DColorAction",
+                                                  "Sets the 3D Editor to use the Scene Environment "
+                                                  "color as background color.");
+
+    return new Edit3DAction(
+        QmlDesigner::Constants::EDIT3D_EDIT_SYNC_BACKGROUND_COLOR, View3DActionCommand::SyncBackgroundColor,
+        description,
+        {}, true, false, {}, {}, {},
+        tooltip);
+}
+
 void Edit3DView::createEdit3DActions()
 {
     m_selectionModeAction
@@ -569,6 +584,7 @@ void Edit3DView::createEdit3DActions()
 
     m_backgroundColorActions << createSelectBackgrounColorAction();
     m_backgroundColorActions << createGridColorSelectionAction();
+    m_backgroundColorActions << createSyncBackgroundColorAction();
     m_backgroundColorActions << createResetColorAction();
 }
 

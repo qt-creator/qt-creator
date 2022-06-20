@@ -547,6 +547,16 @@ void GeneralHelper::storeToolState(const QString &sceneId, const QString &tool, 
     }
 }
 
+void GeneralHelper::setSceneEnvironmentColor(const QString &sceneId, const QColor &color)
+{
+    m_sceneEnvironmentColor[sceneId] = color;
+}
+
+QColor GeneralHelper::sceneEnvironmentColor(const QString &sceneId) const
+{
+    return m_sceneEnvironmentColor[sceneId];
+}
+
 void GeneralHelper::initToolStates(const QString &sceneId, const QVariantMap &toolStates)
 {
     m_toolStates[sceneId] = toolStates;
