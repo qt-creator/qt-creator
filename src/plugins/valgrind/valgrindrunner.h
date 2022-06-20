@@ -56,6 +56,8 @@ public:
 
     void waitForFinished() const;
 
+    QString errorString() const;
+
     bool start();
     void stop();
 
