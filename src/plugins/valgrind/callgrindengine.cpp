@@ -224,7 +224,7 @@ void CallgrindToolRunner::run(Option option)
 #if CALLGRIND_CONTROL_DEBUG
     m_controllerProcess->setProcessChannelMode(QProcess::ForwardedChannels);
 #endif
-    connect(m_controllerProcess.get(), &QtcProcess::finished,
+    connect(m_controllerProcess.get(), &QtcProcess::done,
             this, &CallgrindToolRunner::controllerProcessDone);
 
     const FilePath control =
