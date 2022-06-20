@@ -90,7 +90,7 @@ private:
     void setUpProcessEnv();
     void scheduleNext();
     void cancelCurrent(CancelReason reason);
-    void onProcessFinished();
+    void onProcessDone();
     void resetInternalPointers();
 
     void runTests();
