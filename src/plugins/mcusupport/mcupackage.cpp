@@ -317,7 +317,7 @@ bool McuToolChainPackage::isDesktopToolchain() const
     return m_type == ToolChainType::MSVC || m_type == ToolChainType::GCC;
 }
 
-static ToolChain *msvcToolChain(Id language)
+ToolChain *McuToolChainPackage::msvcToolChain(Id language)
 {
     ToolChain *toolChain = ToolChainManager::toolChain([language](const ToolChain *t) {
         const Abi abi = t->targetAbi();
@@ -330,7 +330,7 @@ static ToolChain *msvcToolChain(Id language)
     return toolChain;
 }
 
-static ToolChain *gccToolChain(Id language)
+ToolChain *McuToolChainPackage::gccToolChain(Id language)
 {
     ToolChain *toolChain = ToolChainManager::toolChain([language](const ToolChain *t) {
         const Abi abi = t->targetAbi();
@@ -430,6 +430,10 @@ ToolChain *McuToolChainPackage::toolChain(Id language) const
 QString McuToolChainPackage::toolChainName() const
 {
     switch (m_type) {
+    case ToolChainType::MSVC:
+        return QLatin1String("msvc");
+    case ToolChainType::GCC:
+        return QLatin1String("gcc");
     case ToolChainType::ArmGcc:
         return QLatin1String("armgcc");
     case ToolChainType::IAR:

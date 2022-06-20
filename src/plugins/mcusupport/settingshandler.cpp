@@ -55,6 +55,10 @@ FilePath SettingsHandler::getPath(const QString &settingsKey,
                                   QSettings::Scope scope,
                                   const Utils::FilePath &defaultPath) const
 {
+    //Use the default value for empty keys
+    if (settingsKey.isEmpty())
+        return defaultPath;
+
     return packagePathFromSettings(settingsKey, *Core::ICore::settings(scope), defaultPath);
 }
 

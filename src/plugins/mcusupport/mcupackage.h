@@ -140,6 +140,9 @@ public:
     QString toolChainName() const;
     QVariant debuggerId() const;
 
+    static ProjectExplorer::ToolChain *msvcToolChain(Utils::Id language);
+    static ProjectExplorer::ToolChain *gccToolChain(Utils::Id language);
+
 private:
     const ToolChainType m_type;
 };

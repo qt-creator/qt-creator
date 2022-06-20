@@ -57,7 +57,7 @@ QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescript
     for (int colorDepth : desc.platform.colorDepths) {
         Packages required3rdPartyPkgs;
         // Desktop toolchains don't need any additional settings
-        if (toolchainPackage && !toolchainPackage->isDesktopToolchain()
+        if (toolchainPackage
             && toolchainPackage->toolchainType()
                    != McuToolChainPackage::ToolChainType::Unsupported) {
             required3rdPartyPkgs.insert(toolchainPackage);

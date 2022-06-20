@@ -43,6 +43,7 @@
 #include <debugger/debuggerkitinformation.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/toolchain.h>
 
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
@@ -250,14 +251,27 @@ public:
         auto configMap = cMakeConfigToMap(CMakeConfigurationKitAspect::configuration(k));
 
         // CMake ToolChain file for ghs handles CMAKE_*_COMPILER autonomously
-        if (mcuTarget->toolChainPackage()->toolchainType() != McuToolChainPackage::ToolChainType::GHS
-            && mcuTarget->toolChainPackage()->toolchainType()
-                   != McuToolChainPackage::ToolChainType::GHSArm) {
+        const QList autonomousCompilerDetectionToolchains{
+            McuToolChainPackage::ToolChainType::GHS,
+            McuToolChainPackage::ToolChainType::GHSArm,
+        };
+        if (!autonomousCompilerDetectionToolchains.contains(
+                mcuTarget->toolChainPackage()->toolchainType())) {
             configMap.insert("CMAKE_CXX_COMPILER", "%{Compiler:Executable:Cxx}");
             configMap.insert("CMAKE_C_COMPILER", "%{Compiler:Executable:C}");
         }
 
-        if (!mcuTarget->toolChainPackage()->isDesktopToolchain()) {
+        auto toolchainPackage = mcuTarget->toolChainPackage();
+        if (toolchainPackage->isDesktopToolchain()) {
+            auto cToolchain = toolchainPackage->toolChain(ProjectExplorer::Constants::C_LANGUAGE_ID);
+            auto cxxToolchain = toolchainPackage->toolChain(
+                ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+
+            configMap.insert("CMAKE_CXX_COMPILER",
+                             cxxToolchain->compilerCommand().toString().toLatin1());
+            configMap.insert("CMAKE_C_COMPILER",
+                             cToolchain->compilerCommand().toString().toLatin1());
+        } else {
             const FilePath cMakeToolchainFile = mcuTarget->toolChainFilePackage()->path();
 
             configMap.insert(Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
@@ -348,10 +362,9 @@ Kit *newKit(const McuTarget *mcuTarget, const McuPackagePtr &qtForMCUsSdk)
 QString generateKitNameFromTarget(const McuTarget *mcuTarget)
 {
     McuToolChainPackagePtr tcPkg = mcuTarget->toolChainPackage();
-    const QString compilerName = tcPkg && !tcPkg->isDesktopToolchain()
-                                     ? QString::fromLatin1(" (%1)").arg(
-                                         tcPkg->toolChainName().toUpper())
-                                     : "";
+    const QString compilerName = tcPkg ? QString::fromLatin1(" (%1)").arg(
+                                     tcPkg->toolChainName().toUpper())
+                                       : "";
     const QString colorDepth = mcuTarget->colorDepth() != McuTarget::UnspecifiedColorDepth
                                    ? QString::fromLatin1(" %1bpp").arg(mcuTarget->colorDepth())
                                    : "";

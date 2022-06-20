@@ -39,6 +39,7 @@
 
 #include <baremetal/baremetalconstants.h>
 #include <coreplugin/icore.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <utils/algorithm.h>
@@ -55,6 +56,7 @@
 
 #include <memory>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace McuSupport::Internal {
@@ -204,31 +206,54 @@ McuToolChainPackagePtr createUnsupportedToolChainPackage(const SettingsHandler::
 McuToolChainPackagePtr createMsvcToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
                                                   const QStringList &versions)
 {
+    ToolChain *toolChain = McuToolChainPackage::msvcToolChain(
+        ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+
+    const FilePath detectionPath = FilePath("cl").withExecutableSuffix();
+    const FilePath defaultPath = toolChain ? toolChain->compilerCommand().parentDir() : FilePath();
+
+    const auto versionDetector
+        = new McuPackageExecutableVersionDetector(detectionPath,
+                                                  {"--version"},
+                                                  "\\b(\\d+\\.\\d+)\\.\\d+\\b");
+
     return McuToolChainPackagePtr{new McuToolChainPackage(settingsHandler,
-                                                          {},
-                                                          {},
-                                                          {},
-                                                          {},
+                                                          McuPackage::tr("MSVC Binary directory"),
+                                                          defaultPath,
+                                                          detectionPath,
+                                                          "MsvcToolchain",
                                                           McuToolChainPackage::ToolChainType::MSVC,
                                                           versions,
                                                           {},
                                                           {},
-                                                          nullptr)};
+                                                          versionDetector)};
 }
 
 McuToolChainPackagePtr createGccToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
                                                  const QStringList &versions)
 {
+    ToolChain *toolChain = McuToolChainPackage::gccToolChain(
+        ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+
+    const FilePath detectionPath = FilePath("bin/g++").withExecutableSuffix();
+    const FilePath defaultPath = toolChain ? toolChain->compilerCommand().parentDir().parentDir()
+                                           : FilePath();
+
+    const auto versionDetector
+        = new McuPackageExecutableVersionDetector(detectionPath,
+                                                  {"--version"},
+                                                  "\\b(\\d+\\.\\d+\\.\\d+)\\b");
+
     return McuToolChainPackagePtr{new McuToolChainPackage(settingsHandler,
-                                                          {},
-                                                          {},
-                                                          {},
-                                                          {},
+                                                          McuPackage::tr("GCC Toolchain"),
+                                                          defaultPath,
+                                                          detectionPath,
+                                                          "GnuToolchain",
                                                           McuToolChainPackage::ToolChainType::GCC,
                                                           versions,
+                                                          Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE,
                                                           {},
-                                                          {},
-                                                          nullptr)};
+                                                          versionDetector)};
 }
 
 McuToolChainPackagePtr createArmGccToolchainPackage(const SettingsHandler::Ptr &settingsHandler,
@@ -250,7 +275,7 @@ McuToolChainPackagePtr createArmGccToolchainPackage(const SettingsHandler::Ptr &
         }
     }
 
-    const Utils::FilePath detectionPath = FilePath("bin/arm-none-eabi-g++").withExecutableSuffix();
+    const FilePath detectionPath = FilePath("bin/arm-none-eabi-g++").withExecutableSuffix();
     const auto versionDetector = new McuPackageExecutableVersionDetector(detectionPath,
                                                                          {"--version"},
                                                                          R"(\b(\d+\.\d+\.\d+)\b)");
@@ -511,41 +536,42 @@ static McuAbstractTargetFactory::Ptr createFactory(bool isLegacy,
 
         const FilePath toolchainFilePrefix = qtMcuSdkPath
                                              / Legacy::Constants::QUL_TOOLCHAIN_CMAKE_DIR;
-        static const QHash<QString, McuPackagePtr> toolchainFiles = {
-            {{"armgcc"},
-             McuPackagePtr{new McuPackage{settingsHandler,
-                                          {},
-                                          toolchainFilePrefix / "armgcc.cmake",
-                                          {},
-                                          {},
-                                          Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
-                                          {}}}},
+        static const QHash<QString, McuPackagePtr> toolchainFiles
+            = {{{"armgcc"},
+                McuPackagePtr{new McuPackage{settingsHandler,
+                                             {},
+                                             toolchainFilePrefix / "armgcc.cmake",
+                                             {},
+                                             {},
+                                             Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
+                                             {}}}},
 
-            {{"iar"},
-             McuPackagePtr{new McuPackage{settingsHandler,
-                                          {},
-                                          toolchainFilePrefix / "iar.cmake",
-                                          {},
-                                          {},
-                                          Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
-                                          {}}}},
-            {"greenhills",
-             McuPackagePtr{new McuPackage{settingsHandler,
-                                          {},
-                                          toolchainFilePrefix / "ghs.cmake",
-                                          {},
-                                          {},
-                                          Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
-                                          {}}}},
-            {"arm-greenhills",
-             McuPackagePtr{new McuPackage{settingsHandler,
-                                          {},
-                                          toolchainFilePrefix / "arm-ghs.cmake",
-                                          {},
-                                          {},
-                                          Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
-                                          {}}}},
-        };
+               {{"iar"},
+                McuPackagePtr{new McuPackage{settingsHandler,
+                                             {},
+                                             toolchainFilePrefix / "iar.cmake",
+                                             {},
+                                             {},
+                                             Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
+                                             {}}}},
+               {"greenhills",
+                McuPackagePtr{new McuPackage{settingsHandler,
+                                             {},
+                                             toolchainFilePrefix / "ghs.cmake",
+                                             {},
+                                             {},
+                                             Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
+                                             {}}}},
+               {"arm-greenhills",
+                McuPackagePtr{new McuPackage{settingsHandler,
+                                             {},
+                                             toolchainFilePrefix / "arm-ghs.cmake",
+                                             {},
+                                             {},
+                                             Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,
+                                             {}}}}
+
+            };
 
         // Note: the vendor name (the key of the hash) is case-sensitive. It has to match the "platformVendor" key in the
         // json file.
@@ -595,12 +621,12 @@ McuSdkRepository targetsFromDescriptions(const QList<McuTargetDescription> &desc
     return McuSdkRepository{mcuTargets, mcuPackages};
 }
 
-Utils::FilePath kitsPath(const Utils::FilePath &qtMcuSdkPath)
+FilePath kitsPath(const FilePath &qtMcuSdkPath)
 {
     return qtMcuSdkPath / "kits/";
 }
 
-static QFileInfoList targetDescriptionFiles(const Utils::FilePath &dir)
+static QFileInfoList targetDescriptionFiles(const FilePath &dir)
 {
     const QDir kitsDir(kitsPath(dir).toString(), "*.json");
     return kitsDir.entryInfoList();
@@ -721,7 +747,7 @@ static const QString legacySupportVersionFor(const QString &sdkVersion)
     return QString();
 }
 
-bool checkDeprecatedSdkError(const Utils::FilePath &qulDir, QString &message)
+bool checkDeprecatedSdkError(const FilePath &qulDir, QString &message)
 {
     const McuPackagePathVersionDetector versionDetector(R"((?<=\bQtMCUs.)(\d+\.\d+))");
     const QString sdkDetectedVersion = versionDetector.parseVersion(qulDir);
@@ -740,7 +766,7 @@ bool checkDeprecatedSdkError(const Utils::FilePath &qulDir, QString &message)
     return false;
 }
 
-McuSdkRepository targetsAndPackages(const Utils::FilePath &qtForMCUSdkPath,
+McuSdkRepository targetsAndPackages(const FilePath &qtForMCUSdkPath,
                                     const SettingsHandler::Ptr &settingsHandler)
 {
     QList<McuTargetDescription> descriptions;
@@ -752,7 +778,7 @@ McuSdkRepository targetsAndPackages(const Utils::FilePath &qtForMCUSdkPath,
         if (!file.open(QFile::ReadOnly))
             continue;
         const McuTargetDescription desc = parseDescriptionJson(file.readAll());
-        const auto pth = Utils::FilePath::fromString(fileInfo.filePath());
+        const auto pth = FilePath::fromString(fileInfo.filePath());
         bool ok = false;
         const int compatVersion = desc.compatVersion.toInt(&ok);
         if (!desc.compatVersion.isEmpty() && ok && compatVersion > MAX_COMPATIBILITY_VERSION) {
