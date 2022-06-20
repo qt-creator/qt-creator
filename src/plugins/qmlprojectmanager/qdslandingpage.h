@@ -60,14 +60,24 @@ class QdsLandingPage : public QObject
     Q_OBJECT
 
 public:
-    Q_PROPERTY(bool qdsInstalled MEMBER m_qdsInstalled READ qdsInstalled WRITE setQdsInstalled)
-    Q_PROPERTY(bool projectFileExists MEMBER m_projectFileExists READ projectFileExists WRITE setProjectFileExists)
-    Q_PROPERTY(QString qtVersion MEMBER m_qtVersion READ qtVersion WRITE setQtVersion)
-    Q_PROPERTY(QString qdsVersion MEMBER m_qdsVersion READ qdsVersion WRITE setQdsVersion)
+    Q_PROPERTY(bool qdsInstalled MEMBER m_qdsInstalled READ qdsInstalled WRITE setQdsInstalled
+                   NOTIFY qdsInstalledChanged)
+    Q_PROPERTY(bool projectFileExists MEMBER m_projectFileExists READ projectFileExists WRITE
+                   setProjectFileExists NOTIFY projectFileExistshanged)
+    Q_PROPERTY(QString qtVersion MEMBER m_qtVersion READ qtVersion WRITE setQtVersion NOTIFY
+                   qtVersionChanged)
+    Q_PROPERTY(QString qdsVersion MEMBER m_qdsVersion READ qdsVersion WRITE setQdsVersion NOTIFY
+                   qdsVersionChanged)
 
 public:
-    QdsLandingPage(QdsLandingPageWidget *widget, QWidget *parent = nullptr);
+    QdsLandingPage();
 
+    Q_INVOKABLE void openQtc(bool rememberSelection);
+    Q_INVOKABLE void openQds(bool rememberSelection);
+    Q_INVOKABLE void installQds();
+    Q_INVOKABLE void generateProjectFile();
+
+    void setWidget(QWidget *widget);
     QWidget *widget();
     void show();
     void hide();
@@ -85,19 +95,16 @@ public:
     void setCmakeResources(const QStringList &resources);
 
 signals:
-    void doNotShowChanged(bool doNotShow);
-    void openCreator(bool rememberSelection);
-    void openDesigner(bool rememberSelection);
-    void installDesigner();
-    void generateCmake();
-    void generateProjectFile();
+    void qdsInstalledChanged();
+    void projectFileExistshanged();
+    void qtVersionChanged();
+    void qdsVersionChanged();
 
 private:
-    QQuickWidget *m_widget = nullptr;
+    QWidget *m_widget = nullptr;
 
     bool m_qdsInstalled = false;
     bool m_projectFileExists = false;
-    Qt::CheckState m_doNotShow = Qt::Unchecked;
     QString m_qtVersion;
     QString m_qdsVersion;
     QStringList m_cmakeResources;

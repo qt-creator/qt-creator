@@ -33,167 +33,190 @@ It is supposed to be strictly declarative and only uses a subset of QML. If you 
 this file manually, you might introduce QML code that is not supported by Qt Design Studio.
 Check out https://doc.qt.io/qtcreator/creator-quick-ui-forms.html for details on .ui.qml files.
 */
+
 import QtQuick 2.15
 import QtQuick.Controls 6.2
-import LandingPage
+import QtQuick.Layouts 1.15
 import LandingPageApi
-import QdsLandingPageTheme as Theme
+import LandingPage as Theme
 
 Rectangle {
-    id: rectangle2
+    id: root
+
     width: 1024
     height: 768
-    color: Theme.Values.themeBackgroundColorNormal
-    property bool qdsInstalled: true
-    property alias openQtcButton: openQtc
-    property alias openQdsButton: openQds
-    property alias projectFileExists: projectInfoStatusBlock.projectFileExists
-    property alias installButton: installQdsStatusBlock.installButton
-    property alias generateCmakeButton: projectInfoStatusBlock.generateCmakeButton
-    property alias generateProjectFileButton: projectInfoStatusBlock.generateProjectFileButton
-    property alias qtVersion: projectInfoStatusBlock.qtVersion
-    property alias qdsVersion: projectInfoStatusBlock.qdsVersion
-    property alias cmakeLists: projectInfoStatusBlock.cmakeListText
-    property alias installQdsBlockVisible: installQdsStatusBlock.visible
-    property alias rememberCheckboxCheckState: rememberCheckbox.checkState
+    color: Theme.Colors.backgroundPrimary
 
-    Rectangle {
-        id: logoArea
-        width: parent.width
-        height: 180
-        color: Theme.Values.themeBackgroundColorNormal
-        anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
-
-        Image {
-            id: qdsLogo
-            source: "logo.png"
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: parent.top
-            anchors.topMargin: 30
-        }
-
-        Text {
-            id: qdsText
-            text: qsTr("Qt Design Studio")
-            font.pixelSize: Constants.fontSizeTitle
-            font.family: Theme.Values.baseFont
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 20
-        }
+    Connections {
+        target: openQds
+        function onClicked() { LandingPageApi.openQds(rememberCheckbox.checkState === Qt.Checked) }
     }
 
-    Item {
-        id: statusBox
-        anchors.top: logoArea.bottom
-        anchors.bottom: buttonBox.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.rightMargin: 0
-        anchors.leftMargin: 0
-
-        LandingSeparator {
-            id: topSeparator
-            anchors.top: parent.top
-            anchors.horizontalCenter: parent.horizontalCenter
-        }
-
-        InstallQdsStatusBlock {
-            id: installQdsStatusBlock
-            width: parent.width
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.verticalCenter: parent.verticalCenter
-            visible: !qdsInstalled
-        }
-
-        ProjectInfoStatusBlock {
-            id: projectInfoStatusBlock
-            width: parent.width
-            visible: !installQdsStatusBlock.visible
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.verticalCenter: parent.verticalCenter
-        }
-
-        LandingSeparator {
-            id: bottomSeparator
-            anchors.bottom: parent.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-        }
+    Connections {
+        target: openQtc
+        function onClicked() { LandingPageApi.openQtc(rememberCheckbox.checkState === Qt.Checked) }
     }
 
-    Rectangle {
-        id: buttonBox
-        width: parent.width
-        height: 220
-        anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        color: Theme.Values.themeBackgroundColorNormal
-
-        Item {
-            id: openQdsBox
-            width: parent.width / 2
-            height: parent.height
-            anchors.left: parent.left
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 0
-            anchors.leftMargin: 0
-
-            Text {
-                id: openQdsText
-                text: qsTr("Open with Qt Design Studio")
-                font.pixelSize: Constants.fontSizeSubtitle
-                font.family: Theme.Values.baseFont
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-                anchors.topMargin: 50
+    states: [
+        State {
+            name: "large"
+            when: root.width > Theme.Values.layoutBreakpointLG
+            PropertyChanges {
+                target: Theme.Values
+                fontSizeTitle: Theme.Values.fontSizeTitleLG
+                fontSizeSubtitle: Theme.Values.fontSizeSubtitleLG
             }
-
-            PushButton {
-                id: openQds
-                anchors.top: openQdsText.bottom
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: "Open"
-                anchors.topMargin: Constants.buttonSmallMargin
-                enabled: qdsInstalled
+            PropertyChanges {
+                target: buttonBoxGrid
+                columns: 2
             }
-        }
-
-        Item {
-            id: openQtcBox
-            width: parent.width / 2
-            height: parent.height
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 0
-            anchors.rightMargin: 0
-
-            Text {
-                id: openQtcText
-                text: qsTr("Open with Qt Creator - Text Mode")
-                font.pixelSize: Constants.fontSizeSubtitle
-                font.family: Theme.Values.baseFont
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-                anchors.topMargin: 50
+        },
+        State {
+            name: "medium"
+            when: root.width <= Theme.Values.layoutBreakpointLG
+                  && root.width > Theme.Values.layoutBreakpointMD
+            PropertyChanges {
+                target: Theme.Values
+                fontSizeTitle: Theme.Values.fontSizeTitleMD
+                fontSizeSubtitle: Theme.Values.fontSizeSubtitleMD
             }
-
-            PushButton {
-                id: openQtc
-                anchors.top: openQtcText.bottom
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.topMargin: Constants.buttonSmallMargin
-                text: "Open"
+            PropertyChanges {
+                target: buttonBoxGrid
+                columns: 2
+            }
+        },
+        State {
+            name: "small"
+            when: root.width <= Theme.Values.layoutBreakpointMD
+            PropertyChanges {
+                target: Theme.Values
+                fontSizeTitle: Theme.Values.fontSizeTitleSM
+                fontSizeSubtitle: Theme.Values.fontSizeSubtitleSM
+            }
+            PropertyChanges {
+                target: buttonBoxGrid
+                columns: 1
             }
         }
+    ]
 
-        CheckBox {
-            id: rememberCheckbox
-            text: qsTr("Remember my choice")
-            font.family: Theme.Values.baseFont
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 30
-            anchors.horizontalCenter: parent.horizontalCenter
+    ScrollView {
+        id: scrollView
+        anchors.fill: root
+
+        Column {
+            id: layout
+            spacing: 0
+            width: scrollView.width
+
+            Item {
+                width: layout.width
+                height: logoSection.childrenRect.height + (2 * Theme.Values.spacing)
+
+                Column {
+                    id: logoSection
+                    spacing: 10
+                    anchors.centerIn: parent
+
+                    Image {
+                        id: qdsLogo
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        source: "logo.png"
+                    }
+
+                    Text {
+                        id: qdsText
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: qsTr("Qt Design Studio")
+                        font.pixelSize: Theme.Values.fontSizeTitle
+                        font.family: Theme.Values.baseFont
+                        color: Theme.Colors.text
+                    }
+                }
+            }
+
+            InstallQdsStatusBlock {
+                id: installQdsStatusBlock
+                width: parent.width
+                visible: !LandingPageApi.qdsInstalled
+            }
+
+            ProjectInfoStatusBlock {
+                id: projectInfoStatusBlock
+                width: parent.width
+                visible: !installQdsStatusBlock.visible
+                projectFileExists: LandingPageApi.projectFileExists
+                qtVersion: LandingPageApi.qtVersion
+                qdsVersion: LandingPageApi.qdsVersion
+            }
+
+            GridLayout {
+                id: buttonBoxGrid
+                anchors.horizontalCenter: parent.horizontalCenter
+                columns: 2
+                rows: 2
+                columnSpacing: 3 * Theme.Values.spacing
+                rowSpacing: Theme.Values.spacing
+
+                property int tmpWidth: textMetrics.width
+
+                TextMetrics {
+                    id: textMetrics
+                    text: openQtcText.text.length > openQdsText.text.length ? openQtcText.text
+                                                                            : openQdsText.text
+                    font.pixelSize: Theme.Values.fontSizeSubtitle
+                    font.family: Theme.Values.baseFont
+                }
+
+                Column {
+                    id: openQdsBox
+                    Layout.alignment: Qt.AlignHCenter
+
+                    PageText {
+                        id: openQdsText
+                        width: buttonBoxGrid.tmpWidth
+                        padding: Theme.Values.spacing
+                        text: qsTr("Open with Qt Design Studio")
+                        wrapMode: Text.NoWrap
+                    }
+
+                    PushButton {
+                        id: openQds
+                        text: qsTr("Open")
+                        enabled: LandingPageApi.qdsInstalled
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+                }
+
+                Column {
+                    id: openQtcBox
+                    Layout.alignment: Qt.AlignHCenter
+
+                    PageText {
+                        id: openQtcText
+                        width: buttonBoxGrid.tmpWidth
+                        padding: Theme.Values.spacing
+                        text: qsTr("Open with Qt Creator - Text Mode")
+                        wrapMode: Text.NoWrap
+                    }
+
+                    PushButton {
+                        id: openQtc
+                        text: qsTr("Open")
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+                }
+
+                CustomCheckBox {
+                    id: rememberCheckbox
+                    text: qsTr("Remember my choice")
+                    font.family: Theme.Values.baseFont
+                    Layout.columnSpan: buttonBoxGrid.columns
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.topMargin: Theme.Values.spacing
+                    Layout.bottomMargin: Theme.Values.spacing
+                }
+            }
         }
     }
 }

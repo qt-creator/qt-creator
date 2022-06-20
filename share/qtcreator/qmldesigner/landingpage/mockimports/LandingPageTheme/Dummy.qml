@@ -28,13 +28,5 @@
 ****************************************************************************/
 
 import QtQuick 2.15
-import QtQuick.Controls 2.15
-import QdsLandingPageTheme as Theme
 
-Rectangle {
-    color: Theme.Values.themeControlBackground
-    width: parent.width
-    height: 2
-    z: 10
-    anchors.horizontalCenter: parent.horizontalCenter
-}
+QtObject {}

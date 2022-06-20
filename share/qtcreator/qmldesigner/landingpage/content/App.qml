@@ -28,35 +28,15 @@
 ****************************************************************************/
 
 import QtQuick 2.15
-import QtQuick.Window 2.15
 
 Item {
+    id: root
     width: 1024
     height: 768
-
     visible: true
-    property alias qtVersion: mainScreen.qtVersion
-    property alias qdsVersion: mainScreen.qdsVersion
-    property alias cmakeLists: mainScreen.cmakeLists
-    property alias qdsInstalled: mainScreen.qdsInstalled
-    property alias projectFileExists: mainScreen.projectFileExists
-    property alias rememberSelection: mainScreen.rememberCheckboxCheckState
-
-    signal openQtc(bool rememberSelection)
-    signal openQds(bool rememberSelection)
-    signal installQds()
-    signal generateCmake()
-    signal generateProjectFile()
 
     Screen01 {
         id: mainScreen
         anchors.fill: parent
-        openQtcButton.onClicked: openQtc(rememberSelection === Qt.Checked)
-        openQdsButton.onClicked: openQds(rememberSelection === Qt.Checked)
-        installButton.onClicked: installQds()
-        generateCmakeButton.onClicked: generateCmake()
-        generateProjectFileButton.onClicked: generateProjectFile()
     }
-
 }
-

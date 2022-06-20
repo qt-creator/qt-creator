@@ -30,4 +30,5 @@ add_qtc_plugin(QmlProjectManager
     qmlprojectnodes.cpp qmlprojectnodes.h
     qmlprojectplugin.cpp qmlprojectplugin.h
     qmlprojectrunconfiguration.cpp qmlprojectrunconfiguration.h
+    "${PROJECT_SOURCE_DIR}/src/share/3rdparty/studiofonts/studiofonts.qrc"
 )

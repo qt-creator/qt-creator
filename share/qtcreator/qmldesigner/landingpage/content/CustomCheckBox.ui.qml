@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -27,85 +27,100 @@ import QtQuick 2.15
 import QtQuick.Templates 2.15
 import LandingPage as Theme
 
-Button {
+CheckBox {
     id: control
+    autoExclusive: false
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
-                             implicitContentHeight + topPadding + bottomPadding)
-    leftPadding: 4
-    rightPadding: 4
+                             implicitContentHeight + topPadding + bottomPadding,
+                             implicitIndicatorHeight + topPadding + bottomPadding)
+
+    spacing: Theme.Values.checkBoxSpacing
     hoverEnabled: true
     font.family: Theme.Values.baseFont
-    font.pixelSize: 16
 
-    background: Rectangle {
-        id: buttonBackground
+    indicator: Rectangle {
+        id: checkBoxBackground
+        implicitWidth: Theme.Values.checkBoxSize
+        implicitHeight: Theme.Values.checkBoxSize
+        x: 0
+        y: parent.height / 2 - height / 2
         color: Theme.Colors.backgroundPrimary
-        implicitWidth: 100
-        implicitHeight: 35
         border.color: Theme.Colors.foregroundSecondary
-        anchors.fill: parent
+        border.width: Theme.Values.border
+
+        Rectangle {
+            id: checkBoxIndicator
+            width: Theme.Values.checkBoxIndicatorSize
+            height: Theme.Values.checkBoxIndicatorSize
+            x: (Theme.Values.checkBoxSize - Theme.Values.checkBoxIndicatorSize) * 0.5
+            y: (Theme.Values.checkBoxSize - Theme.Values.checkBoxIndicatorSize) * 0.5
+            color: Theme.Colors.accent
+            visible: control.checked
+        }
     }
 
     contentItem: Text {
-        id: textItem
+        id: checkBoxLabel
         text: control.text
         font: control.font
         color: Theme.Colors.text
-        horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-        rightPadding: 5
-        leftPadding: 5
+        leftPadding: control.indicator.width + control.spacing
     }
 
     states: [
         State {
             name: "default"
-            when: control.enabled && !control.hovered && !control.pressed && !control.checked
+            when: control.enabled && !control.hovered && !control.pressed
             PropertyChanges {
-                target: buttonBackground
+                target: checkBoxBackground
                 color: Theme.Colors.backgroundPrimary
+                border.color: Theme.Colors.foregroundSecondary
             }
             PropertyChanges {
-                target: textItem
+                target: checkBoxLabel
                 color: Theme.Colors.text
             }
         },
         State {
             name: "hover"
-            extend: "default"
             when: control.enabled && control.hovered && !control.pressed
             PropertyChanges {
-                target: buttonBackground
+                target: checkBoxBackground
                 color: Theme.Colors.hover
+                border.color: Theme.Colors.foregroundSecondary
             }
         },
         State {
             name: "press"
-            extend: "default"
             when: control.hovered && control.pressed
             PropertyChanges {
-                target: buttonBackground
-                color: Theme.Colors.accent
+                target: checkBoxBackground
+                color: Theme.Colors.hover
                 border.color: Theme.Colors.accent
             }
             PropertyChanges {
-                target: textItem
-                color: Theme.Colors.backgroundPrimary
+                target: checkBoxIndicator
+                color: Theme.Colors.backgroundSecondary
             }
         },
         State {
             name: "disable"
             when: !control.enabled
             PropertyChanges {
-                target: buttonBackground
+                target: checkBoxBackground
                 color: Theme.Colors.backgroundPrimary
                 border.color: Theme.Colors.disabledLink
             }
             PropertyChanges {
-                target: textItem
+                target: checkBoxIndicator
+                color: Theme.Colors.disabledLink
+            }
+            PropertyChanges {
+                target: checkBoxLabel
                 color: Theme.Colors.disabledLink
             }
         }

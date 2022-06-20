@@ -24,12 +24,33 @@
 ****************************************************************************/
 
 pragma Singleton
-import QtQuick 2.10
+import QtQuick 2.15
 
 QtObject {
-    readonly property int buttonDefaultMargin: 30
-    readonly property int buttonSmallMargin: 20
+    id: values
 
-    readonly property int fontSizeTitle: 55
-    readonly property int fontSizeSubtitle: 22
+    property string baseFont: "TitilliumWeb"
+
+    property real scaleFactor: 1.0
+    property real checkBoxSize: Math.round(26 * values.scaleFactor)
+    property real checkBoxIndicatorSize: Math.round(14 * values.scaleFactor)
+    property real checkBoxSpacing: Math.round(6 * values.scaleFactor)
+    property real border: 1
+
+    property int fontSizeTitle: values.fontSizeTitleLG
+    property int fontSizeSubtitle: values.fontSizeSubtitleLG
+
+    readonly property int fontSizeTitleSM: 20
+    readonly property int fontSizeTitleMD: 32
+    readonly property int fontSizeTitleLG: 50
+
+    readonly property int fontSizeSubtitleSM: 14
+    readonly property int fontSizeSubtitleMD: 18
+    readonly property int fontSizeSubtitleLG: 22
+
+    // LG > 1000, MD <= 1000 && > 720, SM <= 720
+    readonly property int layoutBreakpointLG: 1000
+    readonly property int layoutBreakpointMD: 720
+
+    readonly property int spacing: 20
 }

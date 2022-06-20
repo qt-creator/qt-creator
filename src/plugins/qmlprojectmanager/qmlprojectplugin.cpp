@@ -1,4 +1,4 @@
-/****************************************************************************
+﻿/****************************************************************************
 **
 ** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
@@ -76,9 +76,6 @@ using namespace ProjectExplorer;
 namespace QmlProjectManager {
 namespace Internal {
 
-const char alwaysOpenUiQmlMode[] = "J.QtQuick/QmlJSEditor.openUiQmlMode";
-const char installQdsUrl[] = "https://www.qt.io/product/ui-design-tools";
-
 static bool isQmlDesigner(const ExtensionSystem::PluginSpec *spec)
 {
     if (!spec)
@@ -96,17 +93,19 @@ static bool qmlDesignerEnabled()
 
 static QString alwaysOpenWithMode()
 {
-    return Core::ICore::settings()->value(alwaysOpenUiQmlMode, "").toString();
+    return Core::ICore::settings()
+        ->value(QmlProjectManager::Constants::ALWAYS_OPEN_UI_MODE, "")
+        .toString();
 }
 
 static void setAlwaysOpenWithMode(const QString &mode)
 {
-    Core::ICore::settings()->setValue(alwaysOpenUiQmlMode, mode);
+    Core::ICore::settings()->setValue(QmlProjectManager::Constants::ALWAYS_OPEN_UI_MODE, mode);
 }
 
 static void clearAlwaysOpenWithMode()
 {
-    Core::ICore::settings()->remove(alwaysOpenUiQmlMode);
+    Core::ICore::settings()->remove(QmlProjectManager::Constants::ALWAYS_OPEN_UI_MODE);
 }
 
 class QmlProjectPluginPrivate
@@ -203,7 +202,6 @@ const Utils::FilePath findQmlProjectUpwards(const Utils::FilePath &folder)
 
 static bool findAndOpenProject(const Utils::FilePath &filePath)
 {
-
     ProjectExplorer::Project *project
             = ProjectExplorer::SessionManager::projectForFile(filePath);
 
@@ -268,6 +266,14 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     d = new QmlProjectPluginPrivate;
 
     if (!qmlDesignerEnabled()) {
+        QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
+        d->landingPage = new QdsLandingPage();
+        qmlRegisterSingletonInstance<QdsLandingPage>("LandingPageApi",
+                                                     1,
+                                                     0,
+                                                     "LandingPageApi",
+                                                     d->landingPage);
+
         d->landingPageWidget = new QdsLandingPageWidget();
 
         const QStringList mimeTypes = {QmlJSTools::Constants::QMLUI_MIMETYPE};
@@ -279,7 +285,6 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
         connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged,
                 this, &QmlProjectPlugin::editorModeChanged);
     }
-
 
     ProjectManager::registerProjectType<QmlProject>(QmlJSTools::Constants::QMLPROJECT_MIMETYPE);
     Core::FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png",
@@ -379,20 +384,12 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     return true;
 }
 
-void QmlProjectPlugin::initializeQmlLandingPage()
-{
-    d->landingPage = new QdsLandingPage(d->landingPageWidget);
-    connect(d->landingPage, &QdsLandingPage::openCreator, this, &QmlProjectPlugin::openQtc);
-    connect(d->landingPage, &QdsLandingPage::openDesigner, this, &QmlProjectPlugin::openQds);
-    connect(d->landingPage, &QdsLandingPage::installDesigner, this, &QmlProjectPlugin::installQds);
-    connect(d->landingPage, &QdsLandingPage::generateCmake, this, &QmlProjectPlugin::generateCmake);
-    connect(d->landingPage, &QdsLandingPage::generateProjectFile, this, &QmlProjectPlugin::generateProjectFile);
-}
-
 void QmlProjectPlugin::displayQmlLandingPage()
 {
     if (!d->landingPage)
-        initializeQmlLandingPage();
+        return;
+
+    d->landingPage->setWidget(d->landingPageWidget->widget());
 
     updateQmlLandingPageProjectInfo(projectFilePath());
     d->landingPage->setQdsInstalled(qdsInstallationExists());
@@ -452,37 +449,16 @@ void QmlProjectPlugin::openQds(bool permanent)
         openInQDSWithProject(editor->document()->filePath());
 }
 
-void QmlProjectPlugin::installQds()
-{
-    QDesktopServices::openUrl(QUrl(installQdsUrl));
-    hideQmlLandingPage();
-}
-
-void QmlProjectPlugin::generateCmake()
-{
-    qWarning() << "TODO generate cmake";
-}
-
-void QmlProjectPlugin::generateProjectFile()
-{
-    GenerateQmlProject::QmlProjectFileGenerator generator;
-
-    Core::IEditor *editor = Core::EditorManager::currentEditor();
-    if (editor)
-        if (generator.prepareForUiQmlFile(editor->document()->filePath()))
-            if (generator.execute())
-                updateQmlLandingPageProjectInfo(generator.targetFile());
-}
-
 void QmlProjectPlugin::updateQmlLandingPageProjectInfo(const Utils::FilePath &projectFile)
 {
-    if (d->landingPage) {
-        const QString qtVersionString = ProjectFileContentTools::qtVersion(projectFile);
-        const QString qdsVersionString = ProjectFileContentTools::qdsVersion(projectFile);
-        d->landingPage->setProjectFileExists(projectFile.exists());
-        d->landingPage->setQtVersion(qtVersionString);
-        d->landingPage->setQdsVersion(qdsVersionString);
-    }
+    if (!d->landingPage)
+        return;
+
+    const QString qtVersionString = ProjectFileContentTools::qtVersion(projectFile);
+    const QString qdsVersionString = ProjectFileContentTools::qdsVersion(projectFile);
+    d->landingPage->setProjectFileExists(projectFile.exists());
+    d->landingPage->setQtVersion(qtVersionString);
+    d->landingPage->setQdsVersion(qdsVersionString);
 }
 
 Utils::FilePath QmlProjectPlugin::projectFilePath()

@@ -24,26 +24,27 @@
 ****************************************************************************/
 
 #include "qdslandingpage.h"
+#include "projectfilecontenttools.h"
 #include "qdslandingpagetheme.h"
+#include "qmlprojectconstants.h"
+#include "qmlprojectgen/qmlprojectgenerator.h"
+#include "qmlprojectplugin.h"
 #include "utils/algorithm.h"
 
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/modemanager.h>
 
-#include <QtQml/QQmlEngine>
+#include <QDesktopServices>
 #include <QHBoxLayout>
 #include <QQuickItem>
+#include <QtQml/QQmlEngine>
 
 namespace QmlProjectManager {
 namespace Internal {
 
-const char QMLRESOURCEPATH[] = "qmldesigner/propertyEditorQmlSources/imports";
-const char LANDINGPAGEPATH[] = "qmldesigner/landingpage";
-const char PROPERTY_QDSINSTALLED[] = "qdsInstalled";
-const char PROPERTY_PROJECTFILEEXISTS[] = "projectFileExists";
-const char PROPERTY_QTVERSION[] = "qtVersion";
-const char PROPERTY_QDSVERSION[] = "qdsVersion";
-const char PROPERTY_CMAKES[] = "cmakeLists";
-const char PROPERTY_REMEMBER[] = "rememberSelection";
+const char INSTALL_QDS_URL[] = "https://www.qt.io/product/ui-design-tools";
 
 QdsLandingPageWidget::QdsLandingPageWidget(QWidget* parent)
     : QWidget(parent)
@@ -62,38 +63,79 @@ QQuickWidget *QdsLandingPageWidget::widget()
 {
     if (!m_widget) {
         m_widget = new QQuickWidget();
+
+        const QString resourcePath
+            = Core::ICore::resourcePath(QmlProjectManager::Constants::QML_RESOURCE_PATH).toString();
+        const QString landingPath
+            = Core::ICore::resourcePath(QmlProjectManager::Constants::LANDING_PAGE_PATH).toString();
+
+        QdsLandingPageTheme::setupTheme(m_widget->engine());
+
+        m_widget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+        m_widget->engine()->addImportPath(landingPath + "/imports");
+        m_widget->engine()->addImportPath(resourcePath);
+        m_widget->setSource(QUrl::fromLocalFile(landingPath + "/main.qml"));
+        m_widget->hide();
+
         layout()->addWidget(m_widget);
     }
 
     return m_widget;
 }
 
-QdsLandingPage::QdsLandingPage(QdsLandingPageWidget *widget, QWidget *parent)
-    : m_widget{widget->widget()}
+QdsLandingPage::QdsLandingPage()
+    : m_widget{nullptr}
+{}
+
+void QdsLandingPage::openQtc(bool rememberSelection)
 {
-    Q_UNUSED(parent)
+    if (rememberSelection)
+        Core::ICore::settings()->setValue(QmlProjectManager::Constants::ALWAYS_OPEN_UI_MODE,
+                                          Core::Constants::MODE_EDIT);
 
-    setParent(m_widget);
+    hide();
 
-    const QString resourcePath = Core::ICore::resourcePath(QMLRESOURCEPATH).toString();
-    const QString landingPath = Core::ICore::resourcePath(LANDINGPAGEPATH).toString();
+    Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+}
 
-    qmlRegisterSingletonInstance<QdsLandingPage>("LandingPageApi", 1, 0, "LandingPageApi", this);
-    QdsLandingPageTheme::setupTheme(m_widget->engine());
+void QdsLandingPage::openQds(bool rememberSelection)
+{
+    if (rememberSelection)
+        Core::ICore::settings()->setValue(QmlProjectManager::Constants::ALWAYS_OPEN_UI_MODE,
+                                          Core::Constants::MODE_DESIGN);
 
-    m_widget->setResizeMode(QQuickWidget::SizeRootObjectToView);
-    m_widget->engine()->addImportPath(landingPath + "/imports");
-    m_widget->engine()->addImportPath(resourcePath);
-    m_widget->setSource(QUrl::fromLocalFile(landingPath + "/main.qml"));
+    auto editor = Core::EditorManager::currentEditor();
+    if (editor)
+        QmlProjectPlugin::openInQDSWithProject(editor->document()->filePath());
+}
 
-    if (m_widget->rootObject()) { // main.qml only works with Qt6
-        connect(m_widget->rootObject(), SIGNAL(openQtc(bool)), this, SIGNAL(openCreator(bool)));
-        connect(m_widget->rootObject(), SIGNAL(openQds(bool)), this, SIGNAL(openDesigner(bool)));
-        connect(m_widget->rootObject(), SIGNAL(installQds()), this, SIGNAL(installDesigner()));
-        connect(m_widget->rootObject(), SIGNAL(generateCmake()), this, SIGNAL(generateCmake()));
-        connect(m_widget->rootObject(), SIGNAL(generateProjectFile()), this, SIGNAL(generateProjectFile()));
+void QdsLandingPage::installQds()
+{
+    QDesktopServices::openUrl(QUrl(INSTALL_QDS_URL));
+}
+
+void QdsLandingPage::generateProjectFile()
+{
+    GenerateQmlProject::QmlProjectFileGenerator generator;
+
+    Core::IEditor *editor = Core::EditorManager::currentEditor();
+    if (!editor)
+        return;
+
+    if (generator.prepareForUiQmlFile(editor->document()->filePath())) {
+        if (generator.execute()) {
+            const QString qtVersion = ProjectFileContentTools::qtVersion(generator.targetFile());
+            const QString qdsVersion = ProjectFileContentTools::qdsVersion(generator.targetFile());
+            setProjectFileExists(generator.targetFile().exists());
+            setQtVersion(qtVersion);
+            setQdsVersion(qdsVersion);
+        }
     }
-    m_widget->hide();
+}
+
+void QdsLandingPage::setWidget(QWidget *widget)
+{
+    m_widget = widget;
 }
 
 QWidget *QdsLandingPage::widget()
@@ -103,19 +145,17 @@ QWidget *QdsLandingPage::widget()
 
 void QdsLandingPage::show()
 {
-    if (m_widget->rootObject()) {
-        m_widget->rootObject()->setProperty(PROPERTY_QDSINSTALLED, m_qdsInstalled);
-        m_widget->rootObject()->setProperty(PROPERTY_PROJECTFILEEXISTS, m_projectFileExists);
-        m_widget->rootObject()->setProperty(PROPERTY_QTVERSION, m_qtVersion);
-        m_widget->rootObject()->setProperty(PROPERTY_QDSVERSION, m_qdsVersion);
-        m_widget->rootObject()->setProperty(PROPERTY_CMAKES, m_cmakeResources);
-        m_widget->rootObject()->setProperty(PROPERTY_REMEMBER, Qt::Unchecked);
-    }
+    if (!m_widget)
+        return;
+
     m_widget->show();
 }
 
 void QdsLandingPage::hide()
 {
+    if (!m_widget)
+        return;
+
     m_widget->hide();
 }
 
@@ -126,9 +166,10 @@ bool QdsLandingPage::qdsInstalled() const
 
 void QdsLandingPage::setQdsInstalled(bool installed)
 {
-    m_qdsInstalled = installed;
-    if (m_widget->rootObject())
-        m_widget->rootObject()->setProperty(PROPERTY_QDSINSTALLED, installed);
+    if (m_qdsInstalled != installed) {
+        m_qdsInstalled = installed;
+        emit qdsInstalledChanged();
+    }
 }
 
 bool QdsLandingPage::projectFileExists() const
@@ -138,9 +179,10 @@ bool QdsLandingPage::projectFileExists() const
 
 void QdsLandingPage::setProjectFileExists(bool exists)
 {
-    m_projectFileExists = exists;
-    if (m_widget->rootObject())
-        m_widget->rootObject()->setProperty(PROPERTY_PROJECTFILEEXISTS, exists);
+    if (m_projectFileExists != exists) {
+        m_projectFileExists = exists;
+        emit projectFileExistshanged();
+    }
 }
 
 const QString QdsLandingPage::qtVersion() const
@@ -150,9 +192,10 @@ const QString QdsLandingPage::qtVersion() const
 
 void QdsLandingPage::setQtVersion(const QString &version)
 {
-    m_qtVersion = version;
-    if (m_widget->rootObject())
-        m_widget->rootObject()->setProperty(PROPERTY_QTVERSION, version);
+    if (m_qtVersion != version) {
+        m_qtVersion = version;
+        emit qtVersionChanged();
+    }
 }
 
 const QString QdsLandingPage::qdsVersion() const
@@ -162,9 +205,10 @@ const QString QdsLandingPage::qdsVersion() const
 
 void QdsLandingPage::setQdsVersion(const QString &version)
 {
-    m_qdsVersion = version;
-    if (m_widget->rootObject())
-        m_widget->rootObject()->setProperty(PROPERTY_QDSVERSION, version);
+    if (m_qdsVersion != version) {
+        m_qdsVersion = version;
+        emit qdsVersionChanged();
+    }
 }
 
 const QStringList QdsLandingPage::cmakeResources() const

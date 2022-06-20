@@ -36,45 +36,14 @@ Check out https://doc.qt.io/qtcreator/creator-quick-ui-forms.html for details on
 
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import LandingPageApi
+import QtQuick.Layouts 1.15
 import LandingPage as Theme
 
-Rectangle {
-    id: root
-
-    color: Theme.Colors.backgroundSecondary
-    height: column.childrenRect.height + (2 * Theme.Values.spacing)
-
-    Connections {
-        target: installButton
-        function onClicked() { LandingPageApi.installQds() }
-    }
-
-    Column {
-        id: column
-
-        width: parent.width
-        anchors.centerIn: parent
-
-        PageText {
-            id: statusText
-            width: parent.width
-            topPadding: 0
-            padding: Theme.Values.spacing
-            text: qsTr("No Qt Design Studio installation found")
-        }
-
-        PageText {
-            id: suggestionText
-            width: parent.width
-            padding: Theme.Values.spacing
-            text: qsTr("Would you like to install it now?")
-        }
-
-        PushButton {
-            id: installButton
-            text: qsTr("Install")
-            anchors.horizontalCenter: parent.horizontalCenter
-        }
-    }
+Text {
+    font.family: Theme.Values.baseFont
+    font.pixelSize: Theme.Values.fontSizeSubtitle
+    horizontalAlignment: Text.AlignHCenter
+    color: Theme.Colors.text
+    anchors.horizontalCenter: parent.horizontalCenter
+    wrapMode: Text.WordWrap
 }
