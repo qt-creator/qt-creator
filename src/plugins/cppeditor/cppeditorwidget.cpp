@@ -1163,22 +1163,43 @@ void CppEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo,
     updateFunctionDeclDefLink();
 }
 
+bool CppEditorWidget::isOldStyleSignalOrSlot() const
+{
+    QTextCursor tc(textCursor());
+    const QString content = textDocument()->plainText();
+
+    return CppEditor::CppModelManager::instance()
+               ->getSignalSlotType(textDocument()->filePath().toString(),
+                                        content.toUtf8(),
+                                        tc.position())
+           == CppEditor::SignalSlotType::OldStyleSignal;
+}
+
 AssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistReason reason) const
 {
     if (kind == Completion || kind == FunctionHint) {
         CppCompletionAssistProvider * const cap = kind == Completion
                 ? qobject_cast<CppCompletionAssistProvider *>(cppEditorDocument()->completionAssistProvider())
                 : qobject_cast<CppCompletionAssistProvider *>(cppEditorDocument()->functionHintAssistProvider());
-        if (cap) {
+
+        auto getFeatures = [this]() {
             LanguageFeatures features = LanguageFeatures::defaultFeatures();
             if (Document::Ptr doc = d->m_lastSemanticInfo.doc)
                 features = doc->languageFeatures();
             features.objCEnabled |= cppEditorDocument()->isObjCEnabled();
+            return features;
+        };
+
+        if (cap)
             return cap->createAssistInterface(textDocument()->filePath(),
                                               this,
-                                              features,
+                                              getFeatures(),
                                               reason);
-        } else {
+        else {
+            if (isOldStyleSignalOrSlot())
+                return CppModelManager::instance()
+                    ->completionAssistProvider()
+                    ->createAssistInterface(textDocument()->filePath(), this, getFeatures(), reason);
             return TextEditorWidget::createAssistInterface(kind, reason);
         }
     } else if (kind == QuickFix) {

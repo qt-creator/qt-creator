@@ -751,9 +751,8 @@ ClangdClient::ClangdCompletionAssistProcessor::generateCompletionItems(
         return itemGenerator(items);
     const QString content = doc->toPlainText();
     const bool requiresSignal = CppEditor::CppModelManager::instance()
-                                    ->positionRequiresSignal(filePath().toString(),
-                                                             content.toUtf8(),
-                                                             pos);
+                                    ->getSignalSlotType(filePath().toString(), content.toUtf8(), pos)
+                                == CppEditor::SignalSlotType::NewStyleSignal;
     if (requiresSignal)
         return itemGenerator(Utils::filtered(items, criterion));
     return itemGenerator(items);
@@ -2237,6 +2236,10 @@ IAssistProcessor *ClangdClient::ClangdCompletionAssistProvider::createProcessor(
                                          contextAnalyzer.positionEndOfExpression(),
                                          contextAnalyzer.completionOperator(),
                                          CustomAssistMode::Preprocessor);
+    case ClangCompletionContextAnalyzer::CompleteSignal:
+    case ClangCompletionContextAnalyzer::CompleteSlot:
+        if (!interface->isBaseObject())
+            return CppEditor::getCppCompletionAssistProcessor();
     default:
         break;
     }

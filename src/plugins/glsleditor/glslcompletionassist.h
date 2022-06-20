@@ -114,6 +114,7 @@ public:
 
     const QString &mimeType() const { return m_mimeType; }
     const Document::Ptr &glslDocument() const { return m_glslDoc; }
+    bool isBaseObject() const override { return false; }
 
 private:
     QString m_mimeType;

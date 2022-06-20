@@ -45,7 +45,11 @@ namespace Core {
 class IDocument;
 class IEditor;
 }
-namespace CPlusPlus { class LookupContext; }
+namespace CPlusPlus {
+class AST;
+class CallAST;
+class LookupContext;
+} // namespace CPlusPlus
 namespace ProjectExplorer { class Project; }
 namespace TextEditor {
 class BaseHoverHandler;
@@ -74,6 +78,12 @@ class CppModelManagerPrivate;
 }
 
 namespace Tests { class ModelManagerTestHelper; }
+
+enum class SignalSlotType {
+    OldStyleSignal,
+    NewStyleSignal,
+    None
+};
 
 class CPPEDITOR_EXPORT CppModelManager final : public CPlusPlus::CppModelManagerBase
 {
@@ -154,8 +164,9 @@ public:
 
     QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
-    bool positionRequiresSignal(const QString &filePath, const QByteArray &content,
-                                int position) const;
+    SignalSlotType getSignalSlotType(const QString &filePath,
+                                     const QByteArray &content,
+                                     int position) const;
 
     void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
                       const QString &replacement = QString());
