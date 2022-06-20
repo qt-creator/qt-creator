@@ -33,7 +33,11 @@
                     "name": "PySideVersion",
                     "trDisplayName": "PySide version:",
                     "type": "ComboBox",
-                    "data": { "items": [ "PySide2", "PySide6" ] }
+                    "data":
+                    {
+                        "index": 1,
+                        "items": [ "PySide2", "PySide6" ]
+                    }
                 }
             ]
         },
