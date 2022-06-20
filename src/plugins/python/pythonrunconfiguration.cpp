@@ -236,7 +236,12 @@ void PythonRunConfiguration::currentInterpreterChanged()
     // Workaround that pip might return an incomplete file list on windows
     if (HostOsInfo::isWindowsHost() && !python.needsDevice()
         && !info.location.isEmpty() && m_pySideUicPath.isEmpty()) {
-        const FilePath scripts = info.location.parentDir().pathAppended("Scripts");
+        // Scripts is next to the site-packages install dir for user installations
+        FilePath scripts = info.location.parentDir().pathAppended("Scripts");
+        if (!scripts.exists()) {
+            // in global/venv installations Scripts is next to Lib/site-packages
+            scripts = info.location.parentDir().parentDir().pathAppended("Scripts");
+        }
         auto userInstalledPySideTool = [&](const QString &toolName) {
             const FilePath tool = scripts.pathAppended(HostOsInfo::withExecutableSuffix(toolName));
             return tool.isExecutableFile() ? tool : FilePath();
