@@ -65,9 +65,11 @@ StudioControls.ComboBox {
 
         onDropped: function(drop) {
             drop.accepted = root.hasActiveHoverDrag
-            var fontLoader = root.createFontLoader("file:///" + dropArea.assetPath)
-            root.backendValue.value = fontLoader.name
-            root.currentIndex = root.find(root.backendValue.value)
+            var fontLoader = root.createFontLoader("file:" + dropArea.assetPath)
+            if (fontLoader.status === FontLoader.Ready) {
+                root.backendValue.value = fontLoader.name
+                root.currentIndex = root.find(root.backendValue.value)
+            }
             root.hasActiveHoverDrag = false
             root.backendValue.commitDrop(dropArea.assetPath)
         }
