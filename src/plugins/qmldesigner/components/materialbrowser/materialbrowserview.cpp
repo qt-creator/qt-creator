@@ -211,8 +211,11 @@ void MaterialBrowserView::nodeReparented(const ModelNode &node,
     bool matRemoved = oldParentNode.isValid() && oldParentNode.id() == Constants::MATERIAL_LIB_ID;
 
     if (matAdded || matRemoved) {
-        if (matAdded) // Workaround to fix various material issues all likely caused by QTBUG-103316
+        if (matAdded && !m_puppetResetPending) {
+            // Workaround to fix various material issues all likely caused by QTBUG-103316
             resetPuppet();
+            m_puppetResetPending = true;
+        }
         refreshModel(!matAdded);
         int idx = m_widget->materialBrowserModel()->materialIndex(node);
         m_widget->materialBrowserModel()->selectMaterial(idx);
@@ -261,16 +264,8 @@ void MaterialBrowserView::importsChanged(const QList<Import> &addedImports, cons
 
     m_hasQuick3DImport = hasQuick3DImport;
 
-    if (m_hasQuick3DImport) {
-        // Import change will trigger puppet reset.
-        // However, it doesn't seem to trigger the notification about the reset, so wait here.
-        QTimer::singleShot(1000, this, [this]() {
-            refreshModel(true);
-        });
-    } else {
-        // No quick3d import, so we can refresh immediately to clear the browser
-        refreshModel(true);
-    }
+    // Import change will trigger puppet reset, so we don't want to update previews immediately
+    refreshModel(false);
 }
 
 void MaterialBrowserView::customNotification(const AbstractView *view, const QString &identifier,
@@ -285,13 +280,22 @@ void MaterialBrowserView::customNotification(const AbstractView *view, const QSt
         int idx = m_widget->materialBrowserModel()->materialIndex(nodeList.first());
         if (idx != -1)
             m_widget->materialBrowserModel()->selectMaterial(idx);
-    } else if (identifier == "reset QmlPuppet") {
-        // Little delay is needed to allow puppet reset to actually be done, as it is async as well
-        QTimer::singleShot(200, this, [this]() {
-            const QList<ModelNode> materials = m_widget->materialBrowserModel()->materials();
-            for (const ModelNode &node : materials)
-                model()->nodeInstanceView()->previewImageDataForGenericNode(node, {});
-        });
+    }
+}
+
+void MaterialBrowserView::instancesCompleted(const QVector<ModelNode> &completedNodeList)
+{
+    for (const ModelNode &node : completedNodeList) {
+        // We use root node completion as indication of puppet reset
+        if (node.isRootNode()) {
+            m_puppetResetPending  = false;
+            QTimer::singleShot(1000, this, [this]() {
+                const QList<ModelNode> materials = m_widget->materialBrowserModel()->materials();
+                for (const ModelNode &node : materials)
+                    model()->nodeInstanceView()->previewImageDataForGenericNode(node, {});
+            });
+            break;
+        }
     }
 }
 
