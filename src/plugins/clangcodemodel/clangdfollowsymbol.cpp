@@ -134,6 +134,7 @@ public:
     SymbolDataList symbolsToDisplay;
     std::set<FilePath> openedFiles;
     VirtualFunctionAssistProcessor *virtualFuncAssistProcessor = nullptr;
+    QMetaObject::Connection focusChangedConnection;
     bool finished = false;
 };
 
@@ -151,8 +152,8 @@ ClangdFollowSymbol::ClangdFollowSymbol(ClangdClient *client, const QTextCursor &
         connect(editorWidget, &CppEditorWidget::cursorPositionChanged,
                 this, &ClangdFollowSymbol::done, Qt::QueuedConnection);
     }
-    connect(qApp, &QApplication::focusChanged,
-            this, &ClangdFollowSymbol::done, Qt::QueuedConnection);
+    d->focusChangedConnection = connect(qApp, &QApplication::focusChanged,
+                                        this, &ClangdFollowSymbol::done, Qt::QueuedConnection);
 
     // Step 1: Follow the symbol via "Go to Definition". At the same time, request the
     //         AST node corresponding to the cursor position, so we can find out whether
@@ -413,8 +414,10 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
 
     // As soon as we know that there is more than one candidate, we start the code assist
     // procedure, to let the user know that things are happening.
-    if (allLinks.size() > 1 && !virtualFuncAssistProcessor && editorWidget)
+    if (allLinks.size() > 1 && !virtualFuncAssistProcessor && editorWidget) {
+        QObject::disconnect(focusChangedConnection);
         editorWidget->invokeTextEditorWidgetAssist(FollowSymbol, &virtualFuncAssistProvider);
+    }
 
     if (!pendingGotoImplRequests.isEmpty())
         return;
