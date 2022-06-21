@@ -25,10 +25,7 @@
 
 #pragma once
 
-#ifdef SQLITE_STATIC_LIBRARY
-#include "config.h"
-#endif
-
+#include "sqlite3_fwd.h"
 #include "sqliteblob.h"
 #include "sqliteglobal.h"
 #include "sqlitevalue.h"
@@ -38,8 +35,6 @@
 #include <memory>
 #include <vector>
 #include <iosfwd>
-
-struct sqlite3_changeset_iter;
 
 namespace Sqlite {
 

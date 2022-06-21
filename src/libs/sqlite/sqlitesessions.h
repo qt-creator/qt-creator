@@ -25,16 +25,12 @@
 
 #pragma once
 
-#ifdef SQLITE_STATIC_LIBRARY
-#include "config.h"
-#endif
-
+#include "sqlite3_fwd.h"
 #include "sqlitedatabase.h"
 #include "sqlitesessionchangeset.h"
 #include "sqlitewritestatement.h"
 
 extern "C" {
-typedef struct sqlite3_session sqlite3_session;
 void sqlite3session_delete(sqlite3_session *pSession);
 };
 

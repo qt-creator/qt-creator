@@ -25,18 +25,13 @@
 
 #pragma once
 
-#ifdef SQLITE_STATIC_LIBRARY
-#include "config.h"
-#endif
-
+#include "sqlite3_fwd.h"
 #include "sqliteglobal.h"
 
 #include <utils/smallstringvector.h>
 
 #include <chrono>
 #include <functional>
-
-struct sqlite3;
 
 namespace Sqlite {
 
@@ -67,7 +62,7 @@ public:
     void close();
     void closeWithoutException();
 
-    sqlite3* sqliteDatabaseHandle() const;
+    struct sqlite3 *sqliteDatabaseHandle() const;
 
     void setJournalMode(JournalMode journalMode);
     JournalMode journalMode();

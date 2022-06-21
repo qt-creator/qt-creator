@@ -25,10 +25,7 @@
 
 #pragma once
 
-#ifdef SQLITE_STATIC_LIBRARY
-#include "config.h"
-#endif
-
+#include "sqlite3_fwd.h"
 #include "sqliteglobal.h"
 
 #include "sqliteblob.h"
@@ -49,9 +46,6 @@
 #include <type_traits>
 
 using std::int64_t;
-
-struct sqlite3_stmt;
-struct sqlite3;
 
 namespace Sqlite {
 
