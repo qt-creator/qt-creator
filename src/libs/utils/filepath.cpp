@@ -945,8 +945,30 @@ QString FilePath::displayName(const QString &args) const
             .arg(m_data, args, deviceName);
 }
 
-/// Constructs a FilePath from \a filename
-/// \a filename is not checked for validity.
+/*!
+   Constructs a FilePath from \a filepath
+
+   \a filepath is not checked for validity. It can be given in the following forms:
+
+   \list
+   \li  /some/absolute/local/path
+   \li  some/relative/path
+   \li  scheme://host/absolute/path
+   \li  scheme://host/./relative/path    \note the ./ is verbatim part of the path
+   \endlist
+
+   Some decoding happens when parsing the \a filepath
+   A sequence %25 present in the host part is replaced by % in the host name,
+   a sequence %2f present in the host part is replaced by / in the host name.
+
+   The path part might consist of several parts separated by /, independent
+   of the platform or file system.
+
+   To create FilePath objects from strings possibly containing backslashes as
+   path separator, use \c fromUserInput.
+
+   \sa toString, fromUserInput
+ */
 FilePath FilePath::fromString(const QString &filepath)
 {
     FilePath fn;
