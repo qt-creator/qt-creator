@@ -24,41 +24,53 @@
 ****************************************************************************/
 
 #include "formclasswizardpage.h"
-#include "ui_formclasswizardpage.h"
-#include "formclasswizardparameters.h"
 
-#include <utils/wizard.h>
+#include "formclasswizardparameters.h"
+#include "newclasswidget.h"
 
 #include <coreplugin/icore.h>
-#include <cppeditor/cppeditorconstants.h>
-#include <utils/mimeutils.h>
 
-#include <QDebug>
+#include <cppeditor/cppeditorconstants.h>
+
+#include <utils/mimeutils.h>
+#include <utils/wizard.h>
+
+#include <QGridLayout>
+#include <QGroupBox>
 #include <QMessageBox>
+#include <QVBoxLayout>
+#include <QVariant>
 
 namespace Designer {
 namespace Internal {
 
-// ----------------- FormClassWizardPage
-
-FormClassWizardPage::FormClassWizardPage(QWidget * parent) :
-    QWizardPage(parent),
-    m_ui(new Ui::FormClassWizardPage)
+FormClassWizardPage::FormClassWizardPage()
 {
-    m_ui->setupUi(this);
+    setTitle(tr("Choose a Class Name"));
 
-    connect(m_ui->newClassWidget, &NewClassWidget::validChanged, this,
-            &FormClassWizardPage::slotValidChanged);
+    auto classGroupBox = new QGroupBox(this);
+    classGroupBox->setTitle(tr("Class"));
 
-    initFileGenerationSettings();
+    m_newClassWidget = new NewClassWidget(classGroupBox);
+    m_newClassWidget->setHeaderExtension(
+            Utils::mimeTypeForName(CppEditor::Constants::CPP_HEADER_MIMETYPE).preferredSuffix());
+    m_newClassWidget->setSourceExtension(
+            Utils::mimeTypeForName(CppEditor::Constants::CPP_SOURCE_MIMETYPE).preferredSuffix());
+    m_newClassWidget->setLowerCaseFiles(lowercaseHeaderFiles());
+
+    connect(m_newClassWidget, &NewClassWidget::validChanged,
+            this, &FormClassWizardPage::slotValidChanged);
 
     setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Class Details"));
+
+    auto verticalLayout = new QVBoxLayout(classGroupBox);
+    verticalLayout->addWidget(m_newClassWidget);
+
+    auto gridLayout = new QGridLayout(this);
+    gridLayout->addWidget(classGroupBox, 0, 0, 1, 1);
 }
 
-FormClassWizardPage::~FormClassWizardPage()
-{
-    delete m_ui;
-}
+FormClassWizardPage::~FormClassWizardPage() = default;
 
 // Retrieve settings of CppEditor plugin.
 bool FormClassWizardPage::lowercaseHeaderFiles()
@@ -70,45 +82,35 @@ bool FormClassWizardPage::lowercaseHeaderFiles()
     return Core::ICore::settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
 }
 
-// Set up new class widget from settings
-void FormClassWizardPage::initFileGenerationSettings()
-{
-    m_ui->newClassWidget->setHeaderExtension(
-                Utils::mimeTypeForName(CppEditor::Constants::CPP_HEADER_MIMETYPE).preferredSuffix());
-    m_ui->newClassWidget->setSourceExtension(
-                Utils::mimeTypeForName(CppEditor::Constants::CPP_SOURCE_MIMETYPE).preferredSuffix());
-    m_ui->newClassWidget->setLowerCaseFiles(lowercaseHeaderFiles());
-}
-
 void FormClassWizardPage::setClassName(const QString &suggestedClassName)
 {
     // Is it valid, now?
-    m_ui->newClassWidget->setClassName(suggestedClassName);
+    m_newClassWidget->setClassName(suggestedClassName);
     slotValidChanged();
 }
 
 Utils::FilePath FormClassWizardPage::filePath() const
 {
-    return m_ui->newClassWidget->filePath();
+    return m_newClassWidget->filePath();
 }
 
 void FormClassWizardPage::setFilePath(const Utils::FilePath &p)
 {
-    m_ui->newClassWidget->setFilePath(p);
+    m_newClassWidget->setFilePath(p);
 }
 
 void FormClassWizardPage::getParameters(FormClassWizardParameters *p) const
 {
-    p->className = m_ui->newClassWidget->className();
+    p->className = m_newClassWidget->className();
     p->path = filePath();
-    p->sourceFile = m_ui->newClassWidget->sourceFileName();
-    p->headerFile = m_ui->newClassWidget->headerFileName();
-    p->uiFile = m_ui->newClassWidget-> formFileName();
+    p->sourceFile = m_newClassWidget->sourceFileName();
+    p->headerFile = m_newClassWidget->headerFileName();
+    p->uiFile = m_newClassWidget-> formFileName();
 }
 
 void FormClassWizardPage::slotValidChanged()
 {
-    const bool validNow = m_ui->newClassWidget->isValid();
+    const bool validNow = m_newClassWidget->isValid();
     if (m_isValid != validNow) {
         m_isValid = validNow;
         emit completeChanged();
@@ -123,7 +125,7 @@ bool FormClassWizardPage::isComplete() const
 bool FormClassWizardPage::validatePage()
 {
     QString errorMessage;
-    const bool rc = m_ui->newClassWidget->isValid(&errorMessage);
+    const bool rc = m_newClassWidget->isValid(&errorMessage);
     if (!rc)
         QMessageBox::warning(this, tr("%1 - Error").arg(title()), errorMessage);
     return rc;
