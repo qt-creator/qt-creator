@@ -375,7 +375,7 @@ void QueryContext::timeout()
                     arg(timeOutMS / 1000), QMessageBox::NoButton, parent);
     QPushButton *terminateButton = box.addButton(tr("Terminate"), QMessageBox::YesRole);
     box.addButton(tr("Keep Running"), QMessageBox::NoRole);
-    connect(&m_process, &QtcProcess::finished, &box, &QDialog::reject);
+    connect(&m_process, &QtcProcess::done, &box, &QDialog::reject);
     box.exec();
     if (m_process.state() != QProcess::Running)
         return;
