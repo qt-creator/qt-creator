@@ -40,11 +40,17 @@ public:
     ModelNode modelNode() { return {}; }
     const ModelNode modelNode() const { return {}; }
     bool hasModelNode() const { return {}; }
-    static bool isValidQmlModelNodeFacade(const ModelNode &modelNode) { return {}; }
+    static bool isValidQmlModelNodeFacade([[maybe_unused]] const ModelNode &modelNode)
+    {
+        return {};
+    }
     virtual bool isValid() const { return {}; }
 
     AbstractView *view() const { return {}; }
-    static NodeInstanceView *nodeInstanceView(const ModelNode &modelNode) { return {}; }
+    static NodeInstanceView *nodeInstanceView([[maybe_unused]] const ModelNode &modelNode)
+    {
+        return {};
+    }
     NodeInstanceView *nodeInstanceView() const { return {}; }
     bool isRootNode() const { return {}; }
 

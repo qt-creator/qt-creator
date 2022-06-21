@@ -586,6 +586,10 @@ const char *importKindToText(ImportKind kind)
         return "Import";
     case ImportKind::ModuleDependency:
         return "ModuleDependency";
+    case ImportKind::ModuleExportedImport:
+        return "ModuleExportedImport";
+    case ImportKind::ModuleExportedModuleDependency:
+        return "ModuleExportedModuleDependency";
     }
 
     return "";

@@ -281,8 +281,6 @@ protected:
 
 TEST_F(ProjectStorageUpdater, GetContentForQmlDirPathsIfFileStatusIsDifferent)
 {
-    SourceId qmlDir1PathSourceId = sourcePathCache.sourceId("/path/one/qmldir");
-    SourceId qmlDir2PathSourceId = sourcePathCache.sourceId("/path/two/qmldir");
     SourceId qmlDir3PathSourceId = sourcePathCache.sourceId("/path/three/qmldir");
     QStringList qmlDirs = {"/path/one/qmldir", "/path/two/qmldir", "/path/three/qmldir"};
     ON_CALL(fileSystemMock, fileStatus(_)).WillByDefault([](auto sourceId) {

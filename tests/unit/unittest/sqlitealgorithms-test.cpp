@@ -46,11 +46,6 @@ public:
     long long value = 0;
 };
 
-std::ostream &operator<<(std::ostream &out, KeyValueView keyValueView)
-{
-    return out << "(" << keyValueView.key << ", " << keyValueView.value << ")";
-}
-
 class KeyValue
 {
 public:
@@ -73,11 +68,6 @@ public:
     Utils::SmallString key;
     long long value = 0;
 };
-
-std::ostream &operator<<(std::ostream &out, KeyValue keyValue)
-{
-    return out << "(" << keyValue.key << ", " << keyValue.value << ")";
-}
 
 using KeyValues = std::vector<KeyValue>;
 

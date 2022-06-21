@@ -36,7 +36,7 @@ class QMLDESIGNERCORE_EXPORT QmlObjectNode : public QmlModelNodeFacade
 {
 public:
     QmlObjectNode() {}
-    QmlObjectNode(const ModelNode &modelNode){};
+    QmlObjectNode([[maybe_unused]] const ModelNode &modelNode){};
 };
 
 } // namespace QmlDesigner

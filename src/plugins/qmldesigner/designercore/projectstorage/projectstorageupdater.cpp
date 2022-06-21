@@ -289,7 +289,8 @@ void ProjectStorageUpdater::updateQmldirs(const QStringList &qmlDirs,
     }
 }
 
-void ProjectStorageUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &idPaths) {}
+void ProjectStorageUpdater::pathsWithIdsChanged([[maybe_unused]] const std::vector<IdPaths> &idPaths)
+{}
 
 void ProjectStorageUpdater::parseTypeInfos(const QStringList &typeInfos,
                                            const QList<QmlDirParser::Import> &qmldirDependencies,

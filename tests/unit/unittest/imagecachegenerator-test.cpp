@@ -347,7 +347,7 @@ TEST_F(ImageCacheGenerator, CallsCollectorWithAuxiliaryData)
                             {},
                             imageCallbackMock.AsStdFunction(),
                             {},
-                            FontCollectorSizesAuxiliaryData{sizes, "color"});
+                            FontCollectorSizesAuxiliaryData{sizes, "color", "text"});
     notification.wait();
 }
 

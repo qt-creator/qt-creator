@@ -410,7 +410,7 @@ TEST_F(AsynchronousImageCache, RequestImageWithAuxiliaryDataRequestImageFromGene
                        mockCaptureCallback.AsStdFunction(),
                        mockAbortCallback.AsStdFunction(),
                        "extraId1",
-                       FontCollectorSizesAuxiliaryData{sizes, "color"});
+                       FontCollectorSizesAuxiliaryData{sizes, "color", "text"});
     notification.wait();
 }
 
@@ -438,7 +438,7 @@ TEST_F(AsynchronousImageCache, RequestSmallImageWithAuxiliaryDataRequestImageFro
                             mockCaptureCallback.AsStdFunction(),
                             mockAbortCallback.AsStdFunction(),
                             "extraId1",
-                            FontCollectorSizesAuxiliaryData{sizes, "color"});
+                            FontCollectorSizesAuxiliaryData{sizes, "color", "text"});
     notification.wait();
 }
 

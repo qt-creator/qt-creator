@@ -38,7 +38,7 @@ public:
 
     bool isValid() const override { return {}; }
 
-    void toogleRecording(bool b) const {}
+    void toogleRecording(bool) const {}
 
     void resetGroupRecording() const {}
 };

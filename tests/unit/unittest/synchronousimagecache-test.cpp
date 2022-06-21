@@ -198,7 +198,7 @@ TEST_F(SynchronousImageCache, GetIconWithOutdatedTimeStampStored)
 
     auto icon = cache.icon("/path/to/Component.qml",
                            "extraId1",
-                           FontCollectorSizesAuxiliaryData{sizes, "color"});
+                           FontCollectorSizesAuxiliaryData{sizes, "color", "text"});
 }
 
 TEST_F(SynchronousImageCache, IconCallsCollectorWithAuxiliaryData)
@@ -219,7 +219,7 @@ TEST_F(SynchronousImageCache, IconCallsCollectorWithAuxiliaryData)
 
     auto icon = cache.icon("/path/to/Component.qml",
                            "extraId1",
-                           FontCollectorSizesAuxiliaryData{sizes, "color"});
+                           FontCollectorSizesAuxiliaryData{sizes, "color", "text"});
 }
 
 TEST_F(SynchronousImageCache, ImageCallsCollectorWithAuxiliaryData)
@@ -240,7 +240,7 @@ TEST_F(SynchronousImageCache, ImageCallsCollectorWithAuxiliaryData)
 
     auto icon = cache.image("/path/to/Component.qml",
                             "extraId1",
-                            FontCollectorSizesAuxiliaryData{sizes, "color"});
+                            FontCollectorSizesAuxiliaryData{sizes, "color", "text"});
 }
 
 TEST_F(SynchronousImageCache, SmallImageCallsCollectorWithAuxiliaryData)
@@ -261,7 +261,7 @@ TEST_F(SynchronousImageCache, SmallImageCallsCollectorWithAuxiliaryData)
 
     auto icon = cache.smallImage("/path/to/Component.qml",
                                  "extraId1",
-                                 FontCollectorSizesAuxiliaryData{sizes, "color"});
+                                 FontCollectorSizesAuxiliaryData{sizes, "color", "text"});
 }
 
 } // namespace

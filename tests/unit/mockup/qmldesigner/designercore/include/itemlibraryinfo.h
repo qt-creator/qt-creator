@@ -44,13 +44,13 @@ class ItemLibraryInfo
 {
 public:
     QList<ItemLibraryEntry> entries() const { return {}; }
-    QList<ItemLibraryEntry> entriesForType(const QByteArray &typeName,
-                                           int majorVersion,
-                                           int minorVersion) const
+    QList<ItemLibraryEntry> entriesForType([[maybe_unused]] const QByteArray &typeName,
+                                           [[maybe_unused]] int majorVersion,
+                                           [[maybe_unused]] int minorVersion) const
     {
         return {};
     }
-    ItemLibraryEntry entry(const QString &name) const { return {}; }
+    ItemLibraryEntry entry([[maybe_unused]] const QString &name) const { return {}; }
 };
 
 } // namespace QmlDesigner

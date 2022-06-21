@@ -1560,8 +1560,8 @@ private:
             insertSignalDeclarationStatement.write(&typeId, value.name, signature);
         };
 
-        auto update = [&](const Storage::SignalDeclarationView &view,
-                          const Storage::SignalDeclaration &value) {
+        auto update = [&]([[maybe_unused]] const Storage::SignalDeclarationView &view,
+                          [[maybe_unused]] const Storage::SignalDeclaration &value) {
             return Sqlite::UpdateChange::No;
         };
 

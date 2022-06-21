@@ -39,11 +39,11 @@ class ModelNode;
 class AbstractProperty;
 class ItemLibraryInfo;
 
-inline bool operator==(const MetaInfo &first, const MetaInfo &second)
+inline bool operator==([[maybe_unused]] const MetaInfo &first, [[maybe_unused]] const MetaInfo &second)
 {
     return {};
 }
-inline bool operator!=(const MetaInfo &first, const MetaInfo &second)
+inline bool operator!=([[maybe_unused]] const MetaInfo &first, [[maybe_unused]] const MetaInfo &second)
 {
     return {};
 }
@@ -57,7 +57,7 @@ public:
     static MetaInfo global() { return {}; }
     static void clearGlobal() {}
 
-    static void setPluginPaths(const QStringList &paths) {}
+    static void setPluginPaths([[maybe_unused]] const QStringList &paths) {}
 };
 
 } //namespace QmlDesigner

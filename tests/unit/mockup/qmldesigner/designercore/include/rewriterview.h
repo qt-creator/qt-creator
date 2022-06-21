@@ -108,7 +108,9 @@ public:
     void reactivateTextMofifierChangeSignals() {}
     void deactivateTextMofifierChangeSignals() {}
 
-    void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data) override
+    void auxiliaryDataChanged([[maybe_unused]] const ModelNode &node,
+                              [[maybe_unused]] const PropertyName &name,
+                              [[maybe_unused]] const QVariant &data) override
     {}
 
     Internal::ModelNodePositionStorage *positionStorage() const { return nullptr; }
