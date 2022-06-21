@@ -1,22 +1,26 @@
-set(SQLITE_SOURCES
-  ../3rdparty/sqlite/sqlite3.c
-  ../3rdparty/sqlite/sqlite3.h
-  ../3rdparty/sqlite/carray.c
-  ../3rdparty/sqlite/config.h
-  ../3rdparty/sqlite/sqlite.h
+add_qtc_library(SqliteC OBJECT
+    PROPERTIES AUTOMOC OFF AUTOUIC OFF QT_COMPILE_OPTIONS_DISABLE_WARNINGS ON POSITION_INDEPENDENT_CODE ON
+    CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.2.0
+    DEFINES SQLITE_CORE SQLITE_CUSTOM_INCLUDE=config.h
+    SOURCES
+      ../3rdparty/sqlite
+      ../3rdparty/sqlite/sqlite3.c
+      ../3rdparty/sqlite/sqlite3.h
+      ../3rdparty/sqlite/sqlite3ext.h
+      ../3rdparty/sqlite/carray.c
+      ../3rdparty/sqlite/config.h
+      ../3rdparty/sqlite/sqlite.h
 )
 
 add_qtc_library(Sqlite
   PROPERTIES AUTOMOC OFF AUTOUIC OFF
-  PUBLIC_DEFINES
-      SQLITE_CORE
-  DEPENDS Qt5::Core Threads::Threads ${CMAKE_DL_LIBS}
+  DEPENDS Qt5::Core Threads::Threads ${CMAKE_DL_LIBS} SqliteC
   CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.2.0
   PUBLIC_INCLUDES
     "${CMAKE_CURRENT_LIST_DIR}"
     ../3rdparty/sqlite
+  DEFINES SQLITE_LIBRARY SQLITE_CUSTOM_INCLUDE=config.h
   SOURCES
-    ${SQLITE_SOURCES}
     constraints.h
     createtablesqlstatementbuilder.h
     lastchangedrowid.h
@@ -46,16 +50,9 @@ add_qtc_library(Sqlite
     sqlitelibraryinitializer.cpp sqlitelibraryinitializer.h
 )
 
-set_source_files_properties(
-  ${SQLITE_SOURCES}
-  PROPERTIES
-    QT_COMPILE_OPTIONS_DISABLE_WARNINGS ON
-)
-
-extend_qtc_library(Sqlite DEFINES SQLITE_CUSTOM_INCLUDE=config.h)
-
 if (APPLE)
-  extend_qtc_library(Sqlite DEFINES _BSD_SOURCE)
+  extend_qtc_library(SqliteC DEFINES _BSD_SOURCE)
 elseif (UNIX)
-  extend_qtc_library(Sqlite DEFINES _POSIX_C_SOURCE=200809L _GNU_SOURCE _DEFAULT_SOURCE)
+  extend_qtc_library(SqliteC DEFINES _POSIX_C_SOURCE=200809L _GNU_SOURCE _DEFAULT_SOURCE)
 endif()
+

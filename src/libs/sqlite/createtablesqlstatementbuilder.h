@@ -34,7 +34,7 @@
 namespace Sqlite {
 
 template<typename ColumnType>
-class SQLITE_EXPORT CreateTableSqlStatementBuilder
+class CreateTableSqlStatementBuilder
 {
 public:
     CreateTableSqlStatementBuilder()
