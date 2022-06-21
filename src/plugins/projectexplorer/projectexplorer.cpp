@@ -92,6 +92,7 @@
 #include "showineditortaskhandler.h"
 #include "simpleprojectwizard.h"
 #include "target.h"
+#include "taskfile.h"
 #include "taskhub.h"
 #include "toolchainmanager.h"
 #include "toolchainoptionspage.h"
@@ -532,6 +533,7 @@ public:
     void currentModeChanged(Id mode, Id oldMode);
 
     void updateWelcomePage();
+    void loadSesssionTasks();
 
     void checkForShutdown();
     void timerEvent(QTimerEvent *) override;
@@ -717,6 +719,8 @@ public:
     DefaultDeployConfigurationFactory m_defaultDeployConfigFactory;
 
     IDocumentFactory m_documentFactory;
+    IDocumentFactory m_taskFileFactory;
+    StopMonitoringHandler closeTaskFile;
 
     DeviceTypeKitAspect deviceTypeKitAspect;
     DeviceKitAspect deviceKitAspect;
@@ -872,10 +876,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::updateActions);
     connect(sessionManager, &SessionManager::sessionLoaded,
             dd, &ProjectExplorerPluginPrivate::updateActions);
-    connect(sessionManager,
-            &SessionManager::sessionLoaded,
-            dd,
-            &ProjectExplorerPluginPrivate::updateWelcomePage);
+    connect(sessionManager, &SessionManager::sessionLoaded,
+            dd, &ProjectExplorerPluginPrivate::updateWelcomePage);
+    connect(sessionManager, &SessionManager::sessionLoaded,
+            dd, &ProjectExplorerPluginPrivate::loadSesssionTasks);
 
     connect(sessionManager, &SessionManager::projectAdded, dd, [](ProjectExplorer::Project *project) {
         dd->m_allProjectDirectoriesFilter.addDirectory(project->projectDirectory().toString());
@@ -2242,6 +2246,11 @@ void ProjectExplorerPlugin::extensionsInitialized()
         dd->m_profileMimeTypes += mimeType;
     }
 
+    dd->m_taskFileFactory.addMimeType("text/x-tasklist");
+    dd->m_taskFileFactory.setOpener([](const FilePath &filePath) {
+        return TaskFile::openTasks(filePath);
+    });
+
     QString allProjectsFilter = tr("All Projects");
     allProjectsFilter += QLatin1String(" (") + allGlobPatterns.join(QLatin1Char(' '))
             + QLatin1Char(')');
@@ -2251,6 +2260,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
     BuildManager::extensionsInitialized();
     TaskHub::addCategory(Constants::TASK_CATEGORY_SANITIZER,
                          tr("Sanitizer", "Category for sanitizer issues listed under 'Issues'"));
+    TaskHub::addCategory(Constants::TASK_CATEGORY_TASKLIST_ID, tr("My Tasks"));
 
     SshSettings::loadSettings(Core::ICore::settings());
     const auto searchPathRetriever = [] {
@@ -2592,6 +2602,14 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
 void ProjectExplorerPluginPrivate::updateWelcomePage()
 {
     m_welcomePage.reloadWelcomeScreenData();
+}
+
+void ProjectExplorerPluginPrivate::loadSesssionTasks()
+{
+    const FilePath filePath = FilePath::fromVariant(
+        SessionManager::value(Constants::SESSION_TASKFILE_KEY));
+    if (!filePath.isEmpty())
+        TaskFile::openTasks(filePath);
 }
 
 void ProjectExplorerPluginPrivate::currentModeChanged(Id mode, Id oldMode)

@@ -145,6 +145,7 @@ Project {
                 "targetsetuppage.cpp", "targetsetuppage.h",
                 "targetsetupwidget.cpp", "targetsetupwidget.h",
                 "task.cpp", "task.h",
+                "taskfile.cpp", "taskfile.h",
                 "taskhub.cpp", "taskhub.h",
                 "taskmodel.cpp", "taskmodel.h",
                 "taskwindow.cpp", "taskwindow.h",

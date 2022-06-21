@@ -34,5 +34,17 @@
             \"Description\" : \"Restore a saved session\"
         }
     ],
-    $$dependencyList
+    $$dependencyList,
+
+    \"Mimetypes\" : [
+        \"<?xml version=\'1.0\' encoding=\'UTF-8\'?>\",
+        \"<mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>\",
+        \"    <mime-type type=\'text/x-tasklist\'>\",
+        \"        <sub-class-of type=\'text/plain\'/>\",
+        \"        <comment>Qt Creator task list file</comment>\",
+        \"        <glob pattern=\'*.tasks\'/>\",
+        \"        <glob pattern=\'*.tasks.txt\'/>\",
+        \"    </mime-type>\",
+        \"</mime-info>\"
+    ]
 }

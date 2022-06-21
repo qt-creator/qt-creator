@@ -24,7 +24,6 @@ add_subdirectory(bookmarks)
 add_subdirectory(cppeditor)
 add_subdirectory(help)
 add_subdirectory(resourceeditor)
-add_subdirectory(tasklist)
 add_subdirectory(nim)
 add_subdirectory(conan)
 

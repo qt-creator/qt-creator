@@ -75,7 +75,6 @@ Project {
         "silversearcher/silversearcher.qbs",
         "studiowelcome/studiowelcome.qbs",
         "subversion/subversion.qbs",
-        "tasklist/tasklist.qbs",
         "texteditor/texteditor.qbs",
         "todo/todo.qbs",
         "updateinfo/updateinfo.qbs",
