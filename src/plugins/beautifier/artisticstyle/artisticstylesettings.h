@@ -29,9 +29,6 @@
 
 #include <utils/fileutils.h>
 
-#include <QFuture>
-#include <QFutureWatcher>
-
 namespace Beautifier {
 namespace Internal {
 
@@ -40,14 +37,7 @@ class ArtisticStyleSettings : public AbstractSettings
     Q_OBJECT
 
 public:
-    enum ArtisticStyleVersion {
-        Version_2_03 = 203,
-        Version_2_04 = 204
-    };
-
     ArtisticStyleSettings();
-
-    void updateVersion() override;
 
     bool useOtherFiles() const;
     void setUseOtherFiles(bool useOtherFiles);
@@ -69,11 +59,6 @@ public:
 
     QString documentationFilePath() const override;
     void createDocumentationFile() const override;
-
-private:
-    void helperSetVersion();
-    QFuture<int> m_versionFuture;
-    QFutureWatcher<int> m_versionWatcher;
 };
 
 } // namespace Internal

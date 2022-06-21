@@ -53,6 +53,7 @@
 
 #include <QAction>
 #include <QMenu>
+#include <QVersionNumber>
 
 using namespace TextEditor;
 
@@ -150,10 +151,10 @@ Command ArtisticStyle::command(const QString &cfgFile) const
     command.addOption("-q");
     command.addOption("--options=" + cfgFile);
 
-    const int version = m_settings.version();
-    if (version > ArtisticStyleSettings::Version_2_03) {
+    const QVersionNumber version = m_settings.version();
+    if (version > QVersionNumber(2, 3)) {
         command.setProcessing(Command::PipeProcessing);
-        if (version == ArtisticStyleSettings::Version_2_04)
+        if (version == QVersionNumber(2, 4))
             command.setPipeAddsNewline(true);
         command.setReturnsCRLF(Utils::HostOsInfo::isWindowsHost());
         command.addOption("-z2");
