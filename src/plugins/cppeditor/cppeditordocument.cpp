@@ -50,7 +50,9 @@
 #include <utils/minimizableinfobars.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
+#include <utils/utilsicons.h>
 
+#include <QApplication>
 #include <QTextDocument>
 
 const char NO_PROJECT_CONFIGURATION[] = "NoProject";
@@ -120,6 +122,9 @@ CppEditorDocument::CppEditorDocument()
             this, &CppEditorDocument::onReloadFinished);
     connect(this, &IDocument::filePathChanged,
             this, &CppEditorDocument::onFilePathChanged);
+
+    connect(mm(), &CppModelManager::diagnosticsChanged,
+            this, &CppEditorDocument::onDiagnosticsChanged);
 
     connect(&m_parseContextModel, &ParseContextModel::preferredParseContextChanged,
             this, &CppEditorDocument::reparseWithPreferredParseContext);
@@ -481,6 +486,52 @@ bool CppEditorDocument::save(QString *errorString, const FilePath &filePath, boo
     }
 
     return TextEditor::TextDocument::save(errorString, filePath, autoSave);
+}
+
+void CppEditorDocument::onDiagnosticsChanged(const QString &fileName, const QString &kind)
+{
+    if (FilePath::fromString(fileName) != filePath())
+        return;
+
+    TextMarks removedMarks = marks();
+
+    const Utils::Id category = Utils::Id::fromString(kind);
+
+    for (const auto &diagnostic : mm()->diagnosticMessages()) {
+        if (FilePath::fromString(diagnostic.fileName()) == filePath()) {
+            auto it = std::find_if(std::begin(removedMarks),
+                                   std::end(removedMarks),
+                                   [&category, &diagnostic](TextMark *existing) {
+                                       return (diagnostic.line() == existing->lineNumber()
+                                               && diagnostic.text() == existing->lineAnnotation()
+                                               && category == existing->category());
+                                   });
+
+            if (it != std::end(removedMarks)) {
+                removedMarks.erase(it);
+                continue;
+            }
+
+            auto mark = new TextMark(filePath(), diagnostic.line(), category);
+            mark->setLineAnnotation(diagnostic.text());
+            mark->setToolTip(diagnostic.text());
+
+            mark->setIcon(diagnostic.isWarning() ? Utils::Icons::CODEMODEL_WARNING.icon()
+                                                 : Utils::Icons::CODEMODEL_ERROR.icon());
+            mark->setColor(diagnostic.isWarning() ? Utils::Theme::CodeModel_Warning_TextMarkColor
+                                                  : Utils::Theme::CodeModel_Error_TextMarkColor);
+            mark->setPriority(diagnostic.isWarning() ? TextEditor::TextMark::NormalPriority
+                                                     : TextEditor::TextMark::HighPriority);
+            addMark(mark);
+        }
+    }
+
+    for (auto it = removedMarks.begin(); it != removedMarks.end(); ++it) {
+        if ((*it)->category() == category) {
+            removeMark(*it);
+            delete *it;
+        }
+    }
 }
 
 } // namespace Internal

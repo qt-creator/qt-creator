@@ -104,6 +104,12 @@ public:
     QByteArray codeModelConfiguration() const;
     CppLocatorData *locatorData() const;
 
+    bool setExtraDiagnostics(const QString &fileName,
+                             const QString &kind,
+                             const QList<Document::DiagnosticMessage> &diagnostics) override;
+
+    const QList<Document::DiagnosticMessage> diagnosticMessages();
+
     QList<ProjectInfo::ConstPtr> projectInfos() const;
     ProjectInfo::ConstPtr projectInfo(ProjectExplorer::Project *project) const;
     QFuture<void> updateProjectInfo(const ProjectInfo::ConstPtr &newProjectInfo,
@@ -255,6 +261,8 @@ signals:
                                               const QByteArray &contents);
     void abstractEditorSupportRemoved(const QString &filePath);
     void fallbackProjectPartUpdated();
+
+    void diagnosticsChanged(const QString &fileName, const QString &kind);
 
 public slots:
     void updateModifiedSourceFiles();
