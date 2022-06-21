@@ -1190,7 +1190,7 @@ void tst_QtcProcess::emitOneErrorOnCrash()
     QVERIFY(process.waitForStarted(1000));
 
     QEventLoop loop;
-    connect(&process, &QtcProcess::finished, &loop, &QEventLoop::quit);
+    connect(&process, &QtcProcess::done, &loop, &QEventLoop::quit);
     loop.exec();
 
     QCOMPARE(errorCount, 1);
