@@ -61,7 +61,8 @@ bool AndroidDeviceInfo::operator==(const AndroidDeviceInfo &other) const
 
 QDebug &operator<<(QDebug &stream, const AndroidDeviceInfo &device)
 {
-    stream << "Type:" << (device.type == ProjectExplorer::IDevice::Emulator ? "Emulator" : "Device")
+    stream.nospace()
+           << "Type:" << (device.type == ProjectExplorer::IDevice::Emulator ? "Emulator" : "Device")
            << ", ABI:" << device.cpuAbi << ", Serial:" << device.serialNumber
            << ", Name:" << device.avdName << ", API:" << device.sdk
            << ", Authorised:" << (device.state == IDevice::DeviceReadyToUse);
