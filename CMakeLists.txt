@@ -156,6 +156,7 @@ endif()
 
 add_subdirectory(src)
 add_subdirectory(share)
+add_subdirectory(dist)
 
 if (WITH_TESTS)
   add_subdirectory(tests)

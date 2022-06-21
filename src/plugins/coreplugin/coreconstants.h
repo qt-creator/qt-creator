@@ -136,6 +136,7 @@ const char GO_FORWARD[]            = "QtCreator.GoForward";
 const char GOTOLASTEDIT[]          = "QtCreator.GotoLastEdit";
 const char ABOUT_QTCREATOR[]       = "QtCreator.AboutQtCreator";
 const char ABOUT_PLUGINS[]         = "QtCreator.AboutPlugins";
+const char CHANGE_LOG[]            = "QtCreator.ChangeLog";
 const char S_RETURNTOEDITOR[]      = "QtCreator.ReturnToEditor";
 const char SHOWINGRAPHICALSHELL[]  = "QtCreator.ShowInGraphicalShell";
 const char SHOWINFILESYSTEMVIEW[]  = "QtCreator.ShowInFileSystemView";

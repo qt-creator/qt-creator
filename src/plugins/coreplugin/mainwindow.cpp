@@ -61,6 +61,9 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/editormanager_p.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/fileutils.h>
+#include <coreplugin/find/basetextfind.h>
+#include <coreplugin/findplaceholder.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 #include <coreplugin/iwizardfactory.h>
 #include <coreplugin/progressmanager/progressmanager_p.h>
@@ -83,7 +86,9 @@
 #include <QApplication>
 #include <QCloseEvent>
 #include <QColorDialog>
+#include <QComboBox>
 #include <QDebug>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QFileInfo>
 #include <QMenu>
@@ -93,8 +98,10 @@
 #include <QSettings>
 #include <QStatusBar>
 #include <QStyleFactory>
+#include <QTextEdit>
 #include <QToolButton>
 #include <QUrl>
+#include <QVersionNumber>
 #include <QWindow>
 
 using namespace ExtensionSystem;
@@ -830,11 +837,19 @@ void MainWindow::registerDefaultActions()
     tmpaction->setEnabled(true);
     connect(tmpaction, &QAction::triggered, this, &MainWindow::aboutPlugins);
     // About Qt Action
-//    tmpaction = new QAction(tr("About &Qt..."), this);
-//    cmd = ActionManager::registerAction(tmpaction, Constants:: ABOUT_QT);
-//    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
-//    tmpaction->setEnabled(true);
-//    connect(tmpaction, &QAction::triggered, qApp, &QApplication::aboutQt);
+    //    tmpaction = new QAction(tr("About &Qt..."), this);
+    //    cmd = ActionManager::registerAction(tmpaction, Constants:: ABOUT_QT);
+    //    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
+    //    tmpaction->setEnabled(true);
+    //    connect(tmpaction, &QAction::triggered, qApp, &QApplication::aboutQt);
+
+    // Change Log Action
+    tmpaction = new QAction(tr("Change Log..."), this);
+    tmpaction->setMenuRole(QAction::ApplicationSpecificRole);
+    cmd = ActionManager::registerAction(tmpaction, Constants::CHANGE_LOG);
+    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
+    tmpaction->setEnabled(true);
+    connect(tmpaction, &QAction::triggered, this, &MainWindow::changeLog);
 
     // Contact
     tmpaction = new QAction(tr("Contact..."), this);
@@ -1312,6 +1327,110 @@ void MainWindow::aboutPlugins()
 {
     PluginDialog dialog(this);
     dialog.exec();
+}
+
+class LogDialog : public QDialog
+{
+public:
+    LogDialog(QWidget *parent)
+        : QDialog(parent)
+    {}
+    bool event(QEvent *event) override
+    {
+        if (event->type() == QEvent::ShortcutOverride) {
+            auto ke = static_cast<QKeyEvent *>(event);
+            if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
+                ke->accept();
+                return true;
+            }
+        }
+        return QDialog::event(event);
+    }
+};
+
+void MainWindow::changeLog()
+{
+    static QPointer<LogDialog> dialog;
+    if (dialog) {
+        ICore::raiseWindow(dialog);
+        return;
+    }
+    const QList<FilePath> files = ICore::resourcePath("changelog")
+                                      .dirEntries({{"changes-*"}, QDir::Files});
+    static const QRegularExpression versionRegex("\\d+[.]\\d+[.]\\d+");
+    using VersionFilePair = std::pair<QVersionNumber, FilePath>;
+    QList<VersionFilePair> versionedFiles = Utils::transform(files, [](const FilePath &fp) {
+        const QRegularExpressionMatch match = versionRegex.match(fp.fileName());
+        const QVersionNumber version = match.hasMatch()
+                                           ? QVersionNumber::fromString(match.captured())
+                                           : QVersionNumber();
+        return std::make_pair(version, fp);
+    });
+    Utils::sort(versionedFiles, [](const VersionFilePair &a, const VersionFilePair &b) {
+        return a.first > b.first;
+    });
+
+    auto versionCombo = new QComboBox;
+    for (const VersionFilePair &f : versionedFiles)
+        versionCombo->addItem(f.first.toString());
+    dialog = new LogDialog(ICore::dialogParent());
+    auto versionLayout = new QHBoxLayout;
+    versionLayout->addWidget(new QLabel(tr("Version:")));
+    versionLayout->addWidget(versionCombo);
+    versionLayout->addStretch(1);
+    auto showInExplorer = new QPushButton(FileUtils::msgGraphicalShellAction());
+    versionLayout->addWidget(showInExplorer);
+    auto textEdit = new QTextEdit;
+    textEdit->setReadOnly(true);
+
+    auto aggregate = new Aggregation::Aggregate;
+    aggregate->add(textEdit);
+    aggregate->add(new Core::BaseTextFind(textEdit));
+
+    auto textEditWidget = new QFrame;
+    textEditWidget->setFrameStyle(QFrame::NoFrame);
+    auto findToolBar = new FindToolBarPlaceHolder(dialog);
+    findToolBar->setLightColored(true);
+    auto textEditLayout = new QVBoxLayout;
+    textEditLayout->setContentsMargins(0, 0, 0, 0);
+    textEditLayout->setSpacing(0);
+    textEditLayout->addWidget(textEdit);
+    textEditLayout->addWidget(findToolBar);
+    textEditWidget->setLayout(textEditLayout);
+    auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
+    auto dialogLayout = new QVBoxLayout;
+    dialogLayout->addLayout(versionLayout);
+    dialogLayout->addWidget(textEditWidget);
+    dialogLayout->addWidget(buttonBox);
+    dialog->setLayout(dialogLayout);
+    dialog->resize(700, 600);
+    dialog->setWindowTitle(tr("Change Log"));
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    ICore::registerWindow(dialog, Context("CorePlugin.VersionDialog"));
+
+    connect(buttonBox, &QDialogButtonBox::rejected, dialog, &QDialog::close);
+    QPushButton *closeButton = buttonBox->button(QDialogButtonBox::Close);
+    if (QTC_GUARD(closeButton))
+        closeButton->setDefault(true); // grab from "Open in Explorer" button
+
+    const auto showLog = [textEdit, versionedFiles](int index) {
+        if (index < 0 || index >= versionedFiles.size())
+            return;
+        const FilePath file = versionedFiles.at(index).second;
+        textEdit->setText(QString::fromUtf8(file.fileContents()));
+    };
+    connect(versionCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), textEdit, showLog);
+    showLog(versionCombo->currentIndex());
+
+    connect(showInExplorer, &QPushButton::clicked, [versionCombo, versionedFiles] {
+        const int index = versionCombo->currentIndex();
+        if (index >= 0 && index < versionedFiles.size())
+            FileUtils::showInGraphicalShell(ICore::dialogParent(), versionedFiles.at(index).second);
+        else
+            FileUtils::showInGraphicalShell(ICore::dialogParent(), ICore::resourcePath("changelog"));
+    });
+
+    dialog->show();
 }
 
 void MainWindow::contact()
