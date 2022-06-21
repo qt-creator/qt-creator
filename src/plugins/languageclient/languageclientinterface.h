@@ -97,7 +97,6 @@ protected:
 private:
     void readError();
     void readOutput();
-    void onProcessFinished();
 };
 
 } // namespace LanguageClient
