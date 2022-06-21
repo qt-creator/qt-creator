@@ -106,6 +106,7 @@ public:
 private:
     void readyReadStandardOut();
     void readyReadStandardError();
+    void processStarted();
     void processDone();
     void runCommand(const DebuggerCommand &cmd) override;
     void adjustOperateByInstruction(bool);
@@ -222,6 +223,7 @@ private:
         wow64Stack64Bit
     } m_wow64State = wow64Uninitialized;
     QElapsedTimer m_logTimer;
+    QString m_extensionFileName;
     QString m_extensionMessageBuffer;
     bool m_sourceStepInto = false;
     int m_watchPointX = 0;

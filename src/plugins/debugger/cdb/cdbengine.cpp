@@ -212,6 +212,7 @@ CdbEngine::CdbEngine() :
     DebuggerSettings *s = debuggerSettings();
     connect(s->createFullBacktrace.action(), &QAction::triggered,
             this, &CdbEngine::createFullBacktrace);
+    connect(&m_process, &QtcProcess::started, this, &CdbEngine::processStarted);
     connect(&m_process, &QtcProcess::done, this, &CdbEngine::processDone);
     connect(&m_process, &QtcProcess::readyReadStandardOutput,
             this, &CdbEngine::readyReadStandardOut);
@@ -382,12 +383,12 @@ void CdbEngine::setupEngine()
     // Prepare command line.
     CommandLine debugger{sp.debugger.command};
 
-    const QString extensionFileName = extensionFi.fileName();
+    m_extensionFileName = extensionFi.fileName();
     const bool isRemote = sp.startMode == AttachToRemoteServer;
     if (isRemote) { // Must be first
         debugger.addArgs({"-remote", sp.remoteChannel});
     } else {
-        debugger.addArg("-a" + extensionFileName);
+        debugger.addArg("-a" + m_extensionFileName);
     }
 
     // Source line info/No terminal breakpoint / Pull extension
@@ -469,20 +470,19 @@ void CdbEngine::setupEngine()
 
     m_process.setCommand(debugger);
     m_process.start();
-    if (!m_process.waitForStarted()) {
-        handleSetupFailure(QString("Internal error: Cannot start process %1: %2").
-                arg(debugger.toUserOutput(), m_process.errorString()));
-        return;
-    }
+}
 
+void CdbEngine::processStarted()
+{
     const qint64 pid = m_process.processId();
-    showMessage(QString("%1 running as %2").arg(debugger.executable().toUserOutput()).arg(pid),
-                LogMisc);
+    const FilePath execPath = runParameters().debugger.command.executable();
+    showMessage(QString("%1 running as %2").arg(execPath.toUserOutput()).arg(pid), LogMisc);
     m_hasDebuggee = true;
     m_initialSessionIdleHandled = false;
-    if (isRemote) { // We do not get an 'idle' in a remote session, but are accessible
+    if (runParameters().startMode == AttachToRemoteServer) {
+        // We do not get an 'idle' in a remote session, but are accessible
         m_accessible = true;
-        runCommand({".load " + extensionFileName, NoFlags});
+        runCommand({".load " + m_extensionFileName, NoFlags});
         handleInitialSessionIdle();
     }
 }
@@ -710,6 +710,11 @@ void CdbEngine::abortDebuggerProcess()
 
 void CdbEngine::processDone()
 {
+    if (m_process.result() == ProcessResult::StartFailed) {
+        handleSetupFailure(m_process.exitMessage());
+        return;
+    }
+
     if (m_process.error() != QProcess::UnknownError)
         showMessage(m_process.errorString(), LogError);
 
