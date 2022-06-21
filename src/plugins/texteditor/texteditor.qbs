@@ -30,7 +30,6 @@ Project {
             "behaviorsettings.h",
             "behaviorsettingspage.cpp",
             "behaviorsettingspage.h",
-            "behaviorsettingspage.ui",
             "behaviorsettingswidget.cpp",
             "behaviorsettingswidget.h",
             "behaviorsettingswidget.ui",

@@ -13,7 +13,7 @@ add_qtc_plugin(TextEditor
     basefilefind.cpp basefilefind.h
     basehoverhandler.cpp basehoverhandler.h
     behaviorsettings.cpp behaviorsettings.h
-    behaviorsettingspage.cpp behaviorsettingspage.h behaviorsettingspage.ui
+    behaviorsettingspage.cpp behaviorsettingspage.h
     behaviorsettingswidget.cpp behaviorsettingswidget.h behaviorsettingswidget.ui
     blockrange.h
     circularclipboard.cpp circularclipboard.h
