@@ -24,7 +24,7 @@ add_qtc_test(unittest GTEST
   DEPENDS
     Qt5::Core Qt5::Network Qt5::Widgets
     Qt5::Xml Qt5::Concurrent Qt5::Qml Qt5::Gui
-    Qt6Core5Compat QmlJS
+    Qt6Core5Compat QmlJS Sqlite
     Googletest
   CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.2.0
   DEFINES
@@ -121,19 +121,6 @@ function(extend_qtc_test_with_target_sources target)
       ${_arg_INCLUDES}
   )
 endfunction()
-
-if (NOT TARGET Sqlite)
-  add_subdirectory(../../../src/libs/sqlite ${CMAKE_CURRENT_BINARY_DIR}/sqlite)
-endif()
-extend_qtc_test_with_target_sources(Sqlite
-  DEFINES SQLITE_CUSTOM_INCLUDE=config.h SQLITE_STATIC_LIBRARY
-)
-
-if (APPLE)
-  extend_qtc_test(unittest DEFINES _BSD_SOURCE)
-elseif (UNIX)
-  extend_qtc_test(unittest DEFINES _POSIX_C_SOURCE=200809L _GNU_SOURCE _DEFAULT_SOURCE)
-endif()
 
 # Do not work on the source directory data
 add_custom_command(TARGET unittest POST_BUILD
