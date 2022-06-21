@@ -100,7 +100,7 @@ if(Googletest_FOUND AND NOT TARGET Googletest)
       GTEST_HAS_PARAM_TEST
       GTEST_HAS_DEATH_TEST
    )
-  set_target_properties(Googletest PROPERTIES AUTOMOC OFF AUTOUIC OFF)
+  set_target_properties(Googletest PROPERTIES AUTOMOC OFF AUTOUIC OFF QT_COMPILE_OPTIONS_DISABLE_WARNINGS ON)
   set_property(TARGET Googletest PROPERTY POSITION_INDEPENDENT_CODE ON)
   target_compile_definitions(Googletest PUBLIC GOOGLE_TEST_IS_FOUND)
 
