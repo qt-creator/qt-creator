@@ -111,14 +111,13 @@ fi
 
 # copy clang if needed
 if [ $LLVM_INSTALL_DIR ]; then
-    if [ "$LLVM_INSTALL_DIR"/lib/libclang-cpp.dylib -nt "$libexec_path"/clang/lib/libclang-cpp.dylib ]; then
+    if [ "$LLVM_INSTALL_DIR"/bin/clangd -nt "$libexec_path"/clang/bin/clangd ]; then
         echo "- Copying clang"
         mkdir -p "$app_path/Contents/Frameworks" || exit 1
         # use recursive copy to make it copy symlinks as symlinks
         mkdir -p "$libexec_path/clang/bin"
         mkdir -p "$libexec_path/clang/lib"
         cp -Rf "$LLVM_INSTALL_DIR"/lib/clang "$libexec_path/clang/lib/" || exit 1
-        cp -Rf "$LLVM_INSTALL_DIR"/lib/libclang-cpp.dylib "$libexec_path/clang/lib/" || exit 1
         cp -Rf "$LLVM_INSTALL_DIR"/lib/ClazyPlugin.dylib "$libexec_path/clang/lib/" || exit 1
         clangdsource="$LLVM_INSTALL_DIR"/bin/clangd
         cp -Rf "$clangdsource" "$libexec_path/clang/bin/" || exit 1
