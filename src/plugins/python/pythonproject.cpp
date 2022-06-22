@@ -261,6 +261,7 @@ void PythonBuildSystem::triggerParsing()
             bti.buildKey = f;
             bti.targetFilePath = filePath;
             bti.projectFilePath = projectFilePath();
+            bti.isQtcRunnable = filePath.fileName() == "main.py";
             appTargets.append(bti);
         }
     }
