@@ -25,11 +25,9 @@
 
 #include "buildsteplist.h"
 
-#include "buildconfiguration.h"
 #include "buildmanager.h"
 #include "buildstep.h"
-#include "deployconfiguration.h"
-#include "projectexplorer.h"
+#include "projectexplorerconstants.h"
 #include "target.h"
 
 #include <utils/algorithm.h>

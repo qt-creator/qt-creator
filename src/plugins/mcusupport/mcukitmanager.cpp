@@ -37,12 +37,17 @@
 #include <cmakeprojectmanager/cmakekitinformation.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>
 #include <coreplugin/icore.h>
+
 #include <debugger/debuggeritem.h>
 #include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggerkitinformation.h>
-#include <utils/algorithm.h>
+
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
+
+#include <utils/algorithm.h>
 
 #include <QMessageBox>
 #include <QPushButton>

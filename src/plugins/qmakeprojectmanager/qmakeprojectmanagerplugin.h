@@ -27,12 +27,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace ProjectExplorer { class Project; }
-
 namespace QmakeProjectManager {
-
-class QmakeProFileNode;
-
 namespace Internal {
 
 class QmakeProjectManagerPlugin final : public ExtensionSystem::IPlugin

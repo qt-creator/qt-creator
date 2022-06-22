@@ -28,7 +28,6 @@
 #include "qmlprofilerruncontrol.h"
 #include "qmlprofilersettings.h"
 #include "qmlprofilertool.h"
-#include "qmlprofilertimelinemodel.h"
 #include "qmlprofileractions.h"
 
 #ifdef WITH_TESTS
@@ -65,6 +64,7 @@
 
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 

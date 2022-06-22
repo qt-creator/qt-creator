@@ -25,11 +25,9 @@
 
 #include "mesonprojectplugin.h"
 
-#include "exewrappers/mesonwrapper.h"
 #include "machinefiles/machinefilemanager.h"
 #include "mesonactionsmanager/mesonactionsmanager.h"
 #include "project/mesonbuildconfiguration.h"
-#include "project/mesonbuildsystem.h"
 #include "project/mesonproject.h"
 #include "project/mesonrunconfiguration.h"
 #include "project/ninjabuildstep.h"
@@ -39,8 +37,10 @@
 #include "settings/tools/toolssettingsaccessor.h"
 #include "settings/tools/toolssettingspage.h"
 
+#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runcontrol.h>
 

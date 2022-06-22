@@ -24,12 +24,10 @@
 ****************************************************************************/
 
 #include "perfoptionspage.h"
-#include "perfprofilerconstants.h"
 #include "perfprofilerplugin.h"
 #include "perfprofilerruncontrol.h"
 #include "perfprofilertool.h"
 #include "perfrunconfigurationaspect.h"
-#include "perftimelinemodelmanager.h"
 
 #if WITH_TESTS
 //#  include "tests/perfprofilertracefile_test.h"    // FIXME has to be rewritten
@@ -44,8 +42,10 @@
 #include <coreplugin/icore.h>
 #include <debugger/analyzer/analyzermanager.h>
 #include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 

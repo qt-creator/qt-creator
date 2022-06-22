@@ -44,6 +44,7 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/infobar.h>
 

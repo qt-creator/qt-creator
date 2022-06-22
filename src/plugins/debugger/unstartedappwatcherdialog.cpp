@@ -26,29 +26,31 @@
 #include "unstartedappwatcherdialog.h"
 
 #include "debuggeritem.h"
-#include "debuggerdialogs.h"
 #include "debuggerkitinformation.h"
 
 #include <utils/pathchooser.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/project.h>
+#include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/runcontrol.h>
+#include <projectexplorer/target.h>
 
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QPushButton>
 #include <QCheckBox>
 #include <QDialogButtonBox>
+#include <QFileDialog>
+#include <QFormLayout>
+#include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QLabel>
-#include <QFormLayout>
 #include <QLineEdit>
-#include <QFileDialog>
+#include <QPushButton>
+#include <QVBoxLayout>
 
 using namespace ProjectExplorer;
 using namespace Utils;

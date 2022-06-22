@@ -23,16 +23,17 @@
 **
 ****************************************************************************/
 
+#include "miniprojecttargetselector.h"
+
 #include "buildconfiguration.h"
 #include "buildmanager.h"
 #include "deployconfiguration.h"
 #include "kit.h"
 #include "kitmanager.h"
-#include "miniprojecttargetselector.h"
-#include "projectexplorer.h"
-#include "projectexplorericons.h"
 #include "project.h"
-#include "projectmodels.h"
+#include "projectexplorer.h"
+#include "projectexplorerconstants.h"
+#include "projectexplorericons.h"
 #include "runconfiguration.h"
 #include "session.h"
 #include "target.h"
@@ -44,25 +45,26 @@
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
+#include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
-#include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 
+#include <QAction>
 #include <QGuiApplication>
-#include <QTimer>
-#include <QLayout>
+#include <QItemDelegate>
+#include <QKeyEvent>
 #include <QLabel>
+#include <QLayout>
 #include <QList>
 #include <QListWidget>
-#include <QStatusBar>
-#include <QKeyEvent>
 #include <QPainter>
 #include <QPixmap>
+#include <QStatusBar>
 #include <QStyleFactory>
-#include <QAction>
-#include <QItemDelegate>
+#include <QTimer>
 
 using namespace Utils;
 

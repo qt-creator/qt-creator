@@ -26,14 +26,16 @@
 #include "deployconfiguration.h"
 
 #include "buildsteplist.h"
-#include "buildconfiguration.h"
 #include "deploymentdataview.h"
 #include "kitinformation.h"
 #include "project.h"
-#include "projectexplorer.h"
+#include "projectexplorerconstants.h"
 #include "target.h"
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
+
+#include <QDebug>
 
 using namespace Utils;
 
@@ -44,7 +46,7 @@ const char BUILD_STEP_LIST_PREFIX[] = "ProjectExplorer.BuildConfiguration.BuildS
 const char USES_DEPLOYMENT_DATA[] = "ProjectExplorer.DeployConfiguration.CustomDataEnabled";
 const char DEPLOYMENT_DATA[] = "ProjectExplorer.DeployConfiguration.CustomData";
 
-DeployConfiguration::DeployConfiguration(Target *target, Utils::Id id)
+DeployConfiguration::DeployConfiguration(Target *target, Id id)
     : ProjectConfiguration(target, id),
       m_stepList(this, Constants::BUILDSTEPS_DEPLOY)
 {
@@ -135,7 +137,7 @@ DeployConfigurationFactory::~DeployConfigurationFactory()
     g_deployConfigurationFactories.removeOne(this);
 }
 
-Utils::Id DeployConfigurationFactory::creationId() const
+Id DeployConfigurationFactory::creationId() const
 {
     return m_deployConfigBaseId;
 }
@@ -176,7 +178,7 @@ void DeployConfigurationFactory::setUseDeploymentDataView()
     };
 }
 
-void DeployConfigurationFactory::setConfigBaseId(Utils::Id deployConfigBaseId)
+void DeployConfigurationFactory::setConfigBaseId(Id deployConfigBaseId)
 {
     m_deployConfigBaseId = deployConfigBaseId;
 }
@@ -210,7 +212,7 @@ DeployConfiguration *DeployConfigurationFactory::clone(Target *parent,
 
 DeployConfiguration *DeployConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
-    const Utils::Id id = idFromMap(map);
+    const Id id = idFromMap(map);
     DeployConfigurationFactory *factory = Utils::findOrDefault(g_deployConfigurationFactories,
         [parent, id](DeployConfigurationFactory *f) {
             if (!f->canHandle(parent))

@@ -27,7 +27,6 @@
 
 #include "buildtargetinfo.h"
 #include "projectconfiguration.h"
-#include "projectexplorerconstants.h"
 #include "task.h"
 
 #include <utils/aspects.h>

@@ -29,8 +29,6 @@
 
 #include <QList>
 
-#include <memory>
-
 namespace ProjectExplorer {
 
 class ToolChain;

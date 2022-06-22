@@ -32,19 +32,16 @@
 #include "cppcodemodelinspectordumper.h"
 #include "cppcurrentdocumentfilter.h"
 #include "cppeditorconstants.h"
-#include "cppeditorplugin.h"
 #include "cppfindreferences.h"
 #include "cppincludesfilter.h"
 #include "cppindexingsupport.h"
 #include "cpplocatordata.h"
 #include "cpplocatorfilter.h"
 #include "cppbuiltinmodelmanagersupport.h"
-#include "cpprefactoringchanges.h"
 #include "cppsourceprocessor.h"
 #include "cpptoolsjsextension.h"
 #include "cpptoolsreuse.h"
 #include "editordocumenthandle.h"
-#include "stringtable.h"
 #include "symbolfinder.h"
 #include "symbolsfindfilter.h"
 
@@ -57,13 +54,17 @@
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/session.h>
+
 #include <texteditor/textdocument.h>
+
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>

@@ -24,34 +24,36 @@
 ****************************************************************************/
 
 #include "projectfilewizardextension.h"
-#include "projectexplorer.h"
-#include "session.h"
+
+#include "editorconfiguration.h"
+#include "project.h"
+#include "projectexplorerconstants.h"
 #include "projectnodes.h"
 #include "projecttree.h"
+#include "projecttree.h"
 #include "projectwizardpage.h"
-
-#include <utils/algorithm.h>
-#include <utils/qtcassert.h>
-#include <utils/stringutils.h>
+#include "session.h"
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/editorconfiguration.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/projecttree.h>
+
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textindenter.h>
-#include <utils/mimeutils.h>
 
-#include <QPointer>
+#include <utils/algorithm.h>
+#include <utils/mimeutils.h>
+#include <utils/qtcassert.h>
+#include <utils/stringutils.h>
+
 #include <QDebug>
 #include <QFileInfo>
-#include <QTextDocument>
-#include <QTextCursor>
 #include <QMessageBox>
+#include <QPointer>
+#include <QTextCursor>
+#include <QTextDocument>
 
 using namespace TextEditor;
 using namespace Core;
@@ -76,7 +78,6 @@ using namespace Utils;
 enum { debugExtension = 0 };
 
 namespace ProjectExplorer {
-
 namespace Internal {
 
 // --------- ProjectWizardContext

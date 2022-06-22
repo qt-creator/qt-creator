@@ -28,6 +28,7 @@
 #include "qdbconstants.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 

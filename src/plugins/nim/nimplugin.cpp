@@ -27,7 +27,6 @@
 
 #include "nimconstants.h"
 #include "editor/nimeditorfactory.h"
-#include "editor/nimhighlighter.h"
 #include "project/nimblerunconfiguration.h"
 #include "project/nimblebuildconfiguration.h"
 #include "project/nimbuildconfiguration.h"
@@ -45,10 +44,13 @@
 #include "suggest/nimsuggestcache.h"
 
 #include <coreplugin/fileiconprovider.h>
+
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/taskhub.h>
+#include <projectexplorer/toolchainmanager.h>
+
 #include <texteditor/snippets/snippetprovider.h>
 
 using namespace Utils;

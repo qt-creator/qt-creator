@@ -47,6 +47,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>

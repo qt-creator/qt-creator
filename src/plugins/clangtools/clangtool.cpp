@@ -33,7 +33,6 @@
 #include "clangtoolsdiagnosticmodel.h"
 #include "clangtoolsdiagnosticview.h"
 #include "clangtoolslogfilereader.h"
-#include "clangtoolsplugin.h"
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolssettings.h"
 #include "clangtoolsutils.h"
@@ -54,6 +53,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>

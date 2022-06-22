@@ -26,7 +26,6 @@
 #pragma once
 
 #include "qmlprojectmanager_global.h"
-#include "qmlprojectnodes.h"
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>

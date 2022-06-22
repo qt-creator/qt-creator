@@ -25,15 +25,12 @@
 
 #pragma once
 
-#include "expanddata.h"
-
 #include <coreplugin/inavigationwidgetfactory.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QWidget>
 #include <QModelIndex>
-#include <QSet>
 
 QT_FORWARD_DECLARE_CLASS(QTreeView)
 

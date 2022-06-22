@@ -50,6 +50,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/mimeutils.h>
 
 using namespace Core;
 using namespace ProjectExplorer;

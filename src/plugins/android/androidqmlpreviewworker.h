@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #pragma once
+
 #include "androidconfigurations.h"
 
 #include <projectexplorer/runcontrol.h>

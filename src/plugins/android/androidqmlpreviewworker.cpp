@@ -28,7 +28,6 @@
 #include "androidavdmanager.h"
 #include "androiddevice.h"
 #include "androiddeviceinfo.h"
-#include "androidglobal.h"
 #include "androidmanager.h"
 
 #include <coreplugin/icore.h>
@@ -38,6 +37,7 @@
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
 #include <qmlprojectmanager/qmlprojectconstants.h>

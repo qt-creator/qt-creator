@@ -26,6 +26,7 @@
 #include "customexecutablerunconfiguration.h"
 
 #include "localenvironmentaspect.h"
+#include "projectexplorerconstants.h"
 #include "target.h"
 
 using namespace Utils;

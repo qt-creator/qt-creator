@@ -40,8 +40,10 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/welcomepagehelper.h>
-#include <projectexplorer/projectexplorer.h>
+
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QComboBox>
 #include <QDesktopServices>

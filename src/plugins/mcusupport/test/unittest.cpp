@@ -49,11 +49,14 @@
 #include <cmakeprojectmanager/cmakekitinformation.h>
 #include <gmock/gmock-actions.h>
 #include <gmock/gmock.h>
+
 #include <projectexplorer/customtoolchain.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
 

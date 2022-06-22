@@ -31,6 +31,7 @@
 #include "kit.h"
 #include "project.h"
 #include "projectexplorer.h"
+#include "projectexplorerconstants.h"
 #include "projectnodes.h"
 #include "target.h"
 
@@ -51,7 +52,6 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
-
 #include <QMessageBox>
 #include <QPushButton>
 

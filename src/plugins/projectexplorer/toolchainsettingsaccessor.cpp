@@ -25,6 +25,7 @@
 
 #include "toolchainsettingsaccessor.h"
 
+#include "projectexplorerconstants.h"
 #include "toolchain.h"
 
 #include <coreplugin/icore.h>
@@ -56,9 +57,9 @@ public:
 // Helpers:
 // --------------------------------------------------------------------
 
-static const char TOOLCHAIN_DATA_KEY[] = "ToolChain.";
-static const char TOOLCHAIN_COUNT_KEY[] = "ToolChain.Count";
-static const char TOOLCHAIN_FILENAME[] = "toolchains.xml";
+const char TOOLCHAIN_DATA_KEY[] = "ToolChain.";
+const char TOOLCHAIN_COUNT_KEY[] = "ToolChain.Count";
+const char TOOLCHAIN_FILENAME[] = "toolchains.xml";
 
 struct ToolChainOperations
 {
@@ -283,8 +284,6 @@ Toolchains ToolChainSettingsAccessor::toolChains(const QVariantMap &data) const
 
 #ifdef WITH_TESTS
 #include "projectexplorer.h"
-
-#include "headerpath.h"
 
 #include "abi.h"
 #include "toolchainconfigwidget.h"
