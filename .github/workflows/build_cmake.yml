@@ -435,6 +435,9 @@ jobs:
           file(READ artifacts.json artifacts_json)
 
           string(JSON artifacts_length LENGTH "${artifacts_json}" "artifacts")
+          if (artifacts_length LESS 1)
+            break()
+          endif()
           math(EXPR artifacts_length "${artifacts_length} - 1")
           foreach(idx RANGE 0 ${artifacts_length})
             string(JSON artifact_js GET "${artifacts_json}" "artifacts" ${idx})
