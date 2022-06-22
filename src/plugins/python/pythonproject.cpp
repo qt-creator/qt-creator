@@ -254,7 +254,8 @@ void PythonBuildSystem::triggerParsing()
         const FileType fileType = getFileType(filePath);
 
         newRoot->addNestedNode(std::make_unique<PythonFileNode>(filePath, displayName, fileType));
-        if (fileType == FileType::Source) {
+        const MimeType mt = mimeTypeForFile(filePath, MimeMatchMode::MatchExtension);
+        if (mt.matchesName(Constants::C_PY_MIMETYPE) || mt.matchesName(Constants::C_PY3_MIMETYPE)) {
             BuildTargetInfo bti;
             bti.displayName = displayName;
             bti.buildKey = f;
