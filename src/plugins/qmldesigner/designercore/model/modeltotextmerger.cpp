@@ -222,7 +222,7 @@ void ModelToTextMerger::applyChanges()
         return;
 
     dumpRewriteActions(QStringLiteral("Before compression"));
-    RewriteActionCompressor compress(propertyOrder());
+    RewriteActionCompressor compress(propertyOrder(), m_rewriterView->positionStorage());
     compress(m_rewriteActions, m_rewriterView->textModifier()->tabSettings());
     dumpRewriteActions(QStringLiteral("After compression"));
 
