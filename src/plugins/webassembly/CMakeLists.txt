@@ -4,6 +4,7 @@ add_qtc_plugin(WebAssembly
   SOURCES
     webassembly.qrc
     webassembly_global.h
+    webassemblytr.h
     webassemblyconstants.h
     webassemblydevice.cpp webassemblydevice.h
     webassemblyemsdk.cpp webassemblyemsdk.h

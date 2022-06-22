@@ -5,6 +5,7 @@ add_qtc_plugin(Android
     addnewavddialog.ui
     android.qrc
     android_global.h
+    androidtr.h
     androidavdmanager.cpp androidavdmanager.h
     androidbuildapkstep.cpp androidbuildapkstep.h
     androidconfigurations.cpp androidconfigurations.h

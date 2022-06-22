@@ -18,7 +18,7 @@ Project {
         Depends { name: "app_version_header" }
 
         files: [
-            "android_global.h",
+            "android_global.h", "androidtr.h",
             "android.qrc",
             "addnewavddialog.ui",
             "androidavdmanager.cpp",

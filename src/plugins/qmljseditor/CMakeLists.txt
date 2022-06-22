@@ -10,6 +10,7 @@ add_qtc_plugin(QmlJSEditor
     qmljseditingsettingspage.cpp qmljseditingsettingspage.h qmljseditingsettingspage.ui
     qmljseditor.cpp qmljseditor.h
     qmljseditor_global.h
+    qmljseditortr.h
     qmljseditorconstants.h
     qmljseditordocument.cpp qmljseditordocument.h qmljseditordocument_p.h
     qmljseditorplugin.cpp qmljseditorplugin.h

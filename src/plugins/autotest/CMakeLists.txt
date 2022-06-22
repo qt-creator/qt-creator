@@ -5,6 +5,7 @@ add_qtc_plugin(AutoTest
   SOURCES
     autotest.qrc
     autotest_global.h
+    autotesttr.h
     autotestconstants.h
     autotesticons.h
     autotestplugin.cpp autotestplugin.h

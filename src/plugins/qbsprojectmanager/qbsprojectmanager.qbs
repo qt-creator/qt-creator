@@ -52,7 +52,7 @@ QtcPlugin {
         "qbsprojectimporter.cpp",
         "qbsprojectimporter.h",
         "qbsprojectmanager.qrc",
-        "qbsprojectmanager_global.h",
+        "qbsprojectmanager_global.h", "qbsprojectmanagertr.h",
         "qbsprojectmanagerconstants.h",
         "qbsprojectmanagerplugin.cpp",
         "qbsprojectmanagerplugin.h",

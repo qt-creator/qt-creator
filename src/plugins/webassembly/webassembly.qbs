@@ -13,7 +13,7 @@ QtcPlugin {
 
     files: [
         "webassembly.qrc",
-        "webassembly_global.h",
+        "webassembly_global.h", "webassemblytr.h",
         "webassemblyconstants.h",
         "webassemblydevice.cpp",
         "webassemblydevice.h",

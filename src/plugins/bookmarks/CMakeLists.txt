@@ -5,5 +5,6 @@ add_qtc_plugin(Bookmarks
     bookmarkfilter.cpp bookmarkfilter.h
     bookmarkmanager.cpp bookmarkmanager.h
     bookmarks_global.h
+    bookmarkstr.h
     bookmarksplugin.cpp bookmarksplugin.h
 )

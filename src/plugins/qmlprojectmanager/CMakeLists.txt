@@ -26,6 +26,7 @@ add_qtc_plugin(QmlProjectManager
     qmlproject.qrc
     qmlprojectconstants.h
     qmlprojectmanager_global.h
+    qmlprojectmanagertr.h
     qmlprojectmanagerconstants.h
     qmlprojectnodes.cpp qmlprojectnodes.h
     qmlprojectplugin.cpp qmlprojectplugin.h

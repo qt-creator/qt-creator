@@ -131,7 +131,7 @@ Project {
             "texteditor.cpp",
             "texteditor.h",
             "texteditor.qrc",
-            "texteditor_global.h",
+            "texteditor_global.h", "texteditortr.h",
             "texteditor_p.h",
             "texteditoractionhandler.cpp",
             "texteditoractionhandler.h",

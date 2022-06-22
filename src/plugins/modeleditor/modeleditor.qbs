@@ -51,7 +51,7 @@ QtcPlugin {
         "modeleditor.cpp",
         "modeleditorfactory.cpp",
         "modeleditorfactory.h",
-        "modeleditor_global.h",
+        "modeleditor_global.h", "modeleditortr.h",
         "modeleditor.h",
         "modeleditor_plugin.cpp",
         "modeleditor_plugin.h",

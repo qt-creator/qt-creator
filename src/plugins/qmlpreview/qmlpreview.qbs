@@ -30,7 +30,7 @@ QtcPlugin {
             "qmlpreviewconnectionmanager.h",
             "qmlpreviewfileontargetfinder.cpp",
             "qmlpreviewfileontargetfinder.h",
-            "qmlpreview_global.h",
+            "qmlpreview_global.h", "qmlpreviewtr.h",
             "qmlpreviewplugin.cpp",
             "qmlpreviewplugin.h",
             "qmlpreviewruncontrol.cpp",

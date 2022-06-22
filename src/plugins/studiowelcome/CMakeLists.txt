@@ -9,6 +9,7 @@ add_qtc_plugin(StudioWelcome
     presetmodel.cpp presetmodel.h
     examplecheckout.cpp examplecheckout.h
     studiowelcome_global.h
+    studiowelcometr.h
     qdsnewdialog.cpp qdsnewdialog.h
     wizardfactories.cpp wizardfactories.h
     createproject.cpp createproject.h

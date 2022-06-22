@@ -41,7 +41,7 @@ Project {
                 "qmakenodetreebuilder.cpp", "qmakenodetreebuilder.h",
                 "qmakeproject.cpp", "qmakeproject.h",
                 "qmakeprojectmanager.qrc",
-                "qmakeprojectmanager_global.h",
+                "qmakeprojectmanager_global.h", "qmakeprojectmanagertr.h",
                 "qmakeprojectmanagerconstants.h",
                 "qmakeprojectmanagerplugin.cpp", "qmakeprojectmanagerplugin.h",
             ]

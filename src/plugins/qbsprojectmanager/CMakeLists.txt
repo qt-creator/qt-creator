@@ -23,6 +23,7 @@ add_qtc_plugin(QbsProjectManager
     qbsprojectimporter.cpp qbsprojectimporter.h
     qbsprojectmanager.qrc
     qbsprojectmanager_global.h
+    qbsprojectmanagertr.h
     qbsprojectmanagerconstants.h
     qbsprojectmanagerplugin.cpp qbsprojectmanagerplugin.h
     qbsprojectparser.cpp qbsprojectparser.h

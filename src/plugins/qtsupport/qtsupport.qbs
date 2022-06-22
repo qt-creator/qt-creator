@@ -88,7 +88,7 @@ Project {
             "qtoutputformatter.h",
             "qtparser.cpp",
             "qtparser.h",
-            "qtsupport_global.h",
+            "qtsupport_global.h", "qtsupporttr.h",
             "qtsupportconstants.h",
             "qtsupportplugin.cpp",
             "qtsupportplugin.h",

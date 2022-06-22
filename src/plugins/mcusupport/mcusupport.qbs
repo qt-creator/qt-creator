@@ -28,7 +28,7 @@ QtcPlugin {
         "mcutargetfactorylegacy.cpp",
         "mcutargetfactorylegacy.h",
         "mcusupport.qrc",
-        "mcusupport_global.h",
+        "mcusupport_global.h", "mcusupporttr.h",
         "mcusupportconstants.h",
         "mcusupportdevice.cpp",
         "mcusupportdevice.h",

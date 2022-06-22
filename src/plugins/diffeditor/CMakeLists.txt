@@ -5,6 +5,7 @@ add_qtc_plugin(DiffEditor
     diffeditor.cpp diffeditor.h
     diffeditor.qrc
     diffeditor_global.h
+    diffeditortr.h
     diffeditorconstants.h
     diffeditorcontroller.cpp diffeditorcontroller.h
     diffeditordocument.cpp diffeditordocument.h

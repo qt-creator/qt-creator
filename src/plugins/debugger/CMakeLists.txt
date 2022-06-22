@@ -29,6 +29,7 @@ add_qtc_plugin(Debugger
     console/consoleview.cpp console/consoleview.h
     debugger.qrc
     debugger_global.h
+    debuggertr.h
     debuggeractions.cpp debuggeractions.h
     debuggerconstants.h
     debuggercore.h

@@ -20,6 +20,7 @@ add_qtc_plugin(Git
     gerrit/gerritserver.cpp gerrit/gerritserver.h
     git.qrc
     git_global.h
+    gittr.h
     gitclient.cpp gitclient.h
     gitconstants.h
     giteditor.cpp giteditor.h

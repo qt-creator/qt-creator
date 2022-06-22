@@ -5,6 +5,7 @@ add_qtc_plugin(McuSupport
     mcukitinformation.cpp mcukitinformation.h
     mcusupport.qrc
     mcusupport_global.h
+    mcusupporttr.h
     mcusupportconstants.h
     mcusupportdevice.cpp mcusupportdevice.h
     mcusupportoptions.cpp mcusupportoptions.h mcuabstractpackage.h

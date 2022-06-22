@@ -16,6 +16,7 @@ add_qtc_plugin(ModelEditor
     modeleditor.cpp modeleditor.h
     modeleditor_constants.h
     modeleditor_global.h
+    modeleditortr.h
     modeleditor_plugin.cpp modeleditor_plugin.h
     modeleditorfactory.cpp modeleditorfactory.h
     modelindexer.cpp modelindexer.h

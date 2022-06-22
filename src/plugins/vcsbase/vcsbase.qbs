@@ -45,7 +45,7 @@ QtcPlugin {
         "submitfilemodel.cpp",
         "submitfilemodel.h",
         "vcsbase.qrc",
-        "vcsbase_global.h",
+        "vcsbase_global.h", "vcsbasetr.h",
         "vcsbaseclient.cpp",
         "vcsbaseclient.h",
         "vcsbaseclientsettings.cpp",

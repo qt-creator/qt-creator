@@ -30,7 +30,7 @@ QtcPlugin {
         "perfloaddialog.ui",
         "perfoptionspage.cpp",
         "perfoptionspage.h",
-        "perfprofiler_global.h",
+        "perfprofiler_global.h", "perfprofilertr.h",
         "perfprofilerconstants.h",
         "perfprofilerplugin.cpp",
         "perfprofilerplugin.h",

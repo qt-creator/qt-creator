@@ -20,6 +20,7 @@ add_qtc_plugin(LanguageClient
     languageclientsymbolsupport.cpp languageclientsymbolsupport.h
     languageclientutils.cpp languageclientutils.h
     languageclient_global.h
+    languageclienttr.h
     locatorfilter.cpp locatorfilter.h
     lspinspector.cpp lspinspector.h
     progressmanager.cpp progressmanager.h

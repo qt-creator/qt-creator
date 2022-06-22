@@ -32,7 +32,7 @@ QtcPlugin {
         "commitdata.cpp",
         "commitdata.h",
         "git.qrc",
-        "git_global.h",
+        "git_global.h", "gittr.h",
         "gitclient.cpp",
         "gitclient.h",
         "gitconstants.h",

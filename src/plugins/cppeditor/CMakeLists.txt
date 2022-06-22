@@ -40,6 +40,7 @@ add_qtc_plugin(CppEditor
     cppdoxygen.cpp cppdoxygen.h
     cppeditor.qrc
     cppeditor_global.h
+    cppeditortr.h
     cppeditorconstants.h
     cppeditordocument.cpp cppeditordocument.h
     cppeditoroutline.cpp cppeditoroutline.h

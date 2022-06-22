@@ -99,7 +99,7 @@ QtcPlugin {
         "cppeditorwidget.cpp",
         "cppeditorwidget.h",
         "cppeditor.qrc",
-        "cppeditor_global.h",
+        "cppeditor_global.h", "cppeditortr.h",
         "cppeditorconstants.h",
         "cppeditordocument.cpp",
         "cppeditordocument.h",

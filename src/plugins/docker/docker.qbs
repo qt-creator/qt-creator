@@ -11,7 +11,7 @@ QtcPlugin {
     Depends { name: "QtSupport" }
 
     files: [
-        "docker_global.h",
+        "docker_global.h", "dockertr.h",
         "dockerapi.cpp",
         "dockerapi.h",
         "dockerconstants.h",

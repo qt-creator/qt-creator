@@ -22,6 +22,7 @@ add_qtc_plugin(QtSupport
     qtprojectimporter.cpp qtprojectimporter.h
     qtsupport.qrc
     qtsupport_global.h
+    qtsupporttr.h
     qtsupportconstants.h
     qtsupportplugin.cpp qtsupportplugin.h
     qttestparser.cpp qttestparser.h

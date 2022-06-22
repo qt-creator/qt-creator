@@ -13,6 +13,7 @@ add_qtc_plugin(IncrediBuild
   ibconsolebuildstep.cpp
   ibconsolebuildstep.h
   incredibuild_global.h
+    incredibuildtr.h
   incredibuildconstants.h
   incredibuildplugin.cpp
   incredibuildplugin.h

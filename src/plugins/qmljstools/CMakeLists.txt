@@ -19,6 +19,7 @@ add_qtc_plugin(QmlJSTools
     qmljssemanticinfo.cpp qmljssemanticinfo.h
     qmljstools.qrc
     qmljstools_global.h
+    qmljstoolstr.h
     qmljstoolsconstants.h
     qmljstoolsplugin.cpp qmljstoolsplugin.h
     qmljstoolssettings.cpp qmljstoolssettings.h

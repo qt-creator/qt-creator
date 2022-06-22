@@ -38,6 +38,7 @@ set(QMLPROFILER_CPP_SOURCES
   qmleventtype.cpp qmleventtype.h
   qmlnote.cpp qmlnote.h
   qmlprofiler_global.h
+    qmlprofilertr.h
   qmlprofileractions.cpp qmlprofileractions.h
   qmlprofileranimationsmodel.cpp qmlprofileranimationsmodel.h
   qmlprofilerattachdialog.cpp qmlprofilerattachdialog.h

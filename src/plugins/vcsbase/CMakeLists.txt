@@ -16,6 +16,7 @@ add_qtc_plugin(VcsBase
     submitfilemodel.cpp submitfilemodel.h
     vcsbase.qrc
     vcsbase_global.h
+    vcsbasetr.h
     vcsbaseclient.cpp vcsbaseclient.h
     vcsbaseclientsettings.cpp vcsbaseclientsettings.h
     vcsbaseconstants.h

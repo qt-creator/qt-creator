@@ -37,7 +37,7 @@ QtcPlugin {
         "clangtoolruncontrol.h",
         "clangtoolrunner.cpp",
         "clangtoolrunner.h",
-        "clangtools_global.h",
+        "clangtools_global.h", "clangtoolstr.h",
         "clangtoolsconstants.h",
         "clangtoolsdiagnostic.cpp",
         "clangtoolsdiagnostic.h",

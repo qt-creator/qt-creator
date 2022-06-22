@@ -47,7 +47,7 @@ QtcPlugin {
         "qmljsrefactoringchanges.h",
         "qmljssemanticinfo.cpp",
         "qmljssemanticinfo.h",
-        "qmljstools_global.h",
+        "qmljstools_global.h", "qmljstoolstr.h",
         "qmljstoolsconstants.h",
         "qmljstoolsplugin.cpp",
         "qmljstoolsplugin.h",

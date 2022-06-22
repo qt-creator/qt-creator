@@ -29,7 +29,7 @@ QtcPlugin {
         "dynamiccapabilities.cpp",
         "dynamiccapabilities.h",
         "languageclient.qrc",
-        "languageclient_global.h",
+        "languageclient_global.h", "languageclienttr.h",
         "languageclientformatter.cpp",
         "languageclientformatter.h",
         "languageclienthoverhandler.cpp",

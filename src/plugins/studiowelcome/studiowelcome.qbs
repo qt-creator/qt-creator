@@ -28,7 +28,7 @@ QtcPlugin {
         "qdsnewdialog.cpp",
         "qdsnewdialog.h",
         "screensizemodel.h",
-        "studiowelcome_global.h",
+        "studiowelcome_global.h", "studiowelcometr.h",
         "studiowelcomeplugin.h",
         "studiowelcomeplugin.cpp",
         "studiowelcome.qrc",
