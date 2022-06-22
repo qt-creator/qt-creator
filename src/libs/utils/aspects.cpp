@@ -2442,6 +2442,10 @@ void AspectContainerData::append(const BaseAspect::Data::Ptr &data)
     m_data.append(data);
 }
 
+// BaseAspect::Data
+
+BaseAspect::Data::~Data() = default;
+
 void BaseAspect::Data::Ptr::operator=(const Ptr &other)
 {
     if (this == &other)

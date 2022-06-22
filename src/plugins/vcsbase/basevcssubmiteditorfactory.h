@@ -53,6 +53,8 @@ public:
                            const EditorCreator &editorCreator,
                            VcsBasePluginPrivate *plugin);
 
+    ~VcsSubmitEditorFactory();
+
 private:
     QAction m_submitAction;
     QAction m_diffAction;

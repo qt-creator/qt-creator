@@ -35,6 +35,7 @@ class QTCREATOR_UTILS_EXPORT TemporaryFile : public QTemporaryFile
 {
 public:
     explicit TemporaryFile(const QString &pattern);
+    ~TemporaryFile();
 };
 
 } // namespace Utils

@@ -74,4 +74,6 @@ VcsSubmitEditorFactory::VcsSubmitEditorFactory
     ActionManager::registerAction(&m_diffAction, DIFF_SELECTED, context);
 }
 
+VcsSubmitEditorFactory::~VcsSubmitEditorFactory() = default;
+
 } // namespace VcsBase
