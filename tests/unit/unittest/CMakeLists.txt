@@ -142,11 +142,6 @@ add_custom_command(TARGET unittest POST_BUILD
 )
 
 extend_qtc_test(unittest
-  SOURCES
-    readexporteddiagnostics-test.cpp
-)
-
-extend_qtc_test(unittest
   CONDITION TARGET GoogleBenchmark
   DEPENDS GoogleBenchmark
   SOURCES
@@ -326,27 +321,6 @@ if (NOT TARGET CPlusPlus)
 endif()
 
 extend_qtc_test(unittest DEPENDS Utils CPlusPlus)
-
-find_package(yaml-cpp QUIET MODULE)
-
-extend_qtc_test(unittest
-  DEPENDS yaml-cpp
-  DEFINES CLANGTOOLS_STATIC_LIBRARY
-  SOURCES_PREFIX ../../../src/plugins/clangtools
-  SOURCES
-    clangtoolsdiagnostic.cpp
-    clangtoolsdiagnostic.h
-    clangtoolslogfilereader.cpp
-    clangtoolslogfilereader.h
-)
-
-extend_qtc_test(unittest
-  DEFINES DEBUGGER_STATIC_LIBRARY
-  SOURCES_PREFIX ../../../src/plugins/debugger
-  SOURCES
-    analyzer/diagnosticlocation.cpp
-    analyzer/diagnosticlocation.h
-)
 
 extend_qtc_test(unittest
   SOURCES_PREFIX ../../../src/plugins/coreplugin

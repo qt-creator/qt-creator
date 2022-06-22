@@ -34,6 +34,7 @@
 #include "settingswidget.h"
 
 #ifdef WITH_TESTS
+#include "readexporteddiagnosticstest.h"
 #include "clangtoolspreconfiguredsessiontests.h"
 #include "clangtoolsunittests.h"
 #endif
@@ -193,6 +194,7 @@ QVector<QObject *> ClangToolsPlugin::createTestObjects() const
 #ifdef WITH_TESTS
     tests << new PreconfiguredSessionTests;
     tests << new ClangToolsUnitTests;
+    tests << new ReadExportedDiagnosticsTest;
 #endif
     return tests;
 }

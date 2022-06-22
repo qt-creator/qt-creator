@@ -23,7 +23,6 @@ Project {
         Depends { name: "sqlite_sources" }
         Depends { name: "Core" }
         Depends { name: "CPlusPlus" }
-        Depends { name: "yaml-cpp" }
 
         Depends { name: "Qt"; submodules: ["network", "widgets", "testlib"] }
 
@@ -40,9 +39,7 @@ Project {
                         "QT_RESTRICTED_CAST_FROM_ASCII",
                         "QT_USE_FAST_OPERATOR_PLUS",
                         "QT_USE_FAST_CONCATENATION",
-                        "CLANGTOOLS_STATIC_LIBRARY",
                         "CPPEDITOR_STATIC_LIBRARY",
-                        "DEBUGGER_STATIC_LIBRARY",
                         "UNIT_TESTS",
                         "DONT_CHECK_MESSAGE_COUNTER",
                         'QTC_RESOURCE_DIR="' + path + "/../../../share/qtcreator" + '"',
@@ -173,14 +170,6 @@ Project {
         ]
 
         Group {
-            name: "libclang tests"
-            condition: libclang.present && (!qbs.targetOS.contains("windows") || libclang.llvmBuildModeMatches)
-            files: [
-                "readexporteddiagnostics-test.cpp",
-            ]
-        }
-
-        Group {
             name: "benchmark test"
             condition: benchmark.present
             files: "smallstring-benchmark.cpp"
@@ -201,27 +190,6 @@ Project {
             files: [
                 "cppprojectfile.cpp",
                 "cppprojectfile.h",
-            ]
-        }
-
-        Group {
-            name: "sources from clangtools"
-            condition: libclang.present
-            prefix: "../../../src/plugins/clangtools/"
-            files: [
-                "clangtoolsdiagnostic.cpp",
-                "clangtoolsdiagnostic.h",
-                "clangtoolslogfilereader.cpp",
-                "clangtoolslogfilereader.h",
-            ]
-        }
-
-        Group {
-            name: "sources from Debugger"
-            prefix: "../../../src/plugins/debugger/analyzer/"
-            files: [
-                "diagnosticlocation.cpp",
-                "diagnosticlocation.h",
             ]
         }
     }
