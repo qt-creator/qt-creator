@@ -556,6 +556,7 @@ void MaterialEditorView::propertiesRemoved(const QList<AbstractProperty> &proper
     if (noValidSelection())
         return;
 
+    bool changed = false;
     for (const AbstractProperty &property : propertyList) {
         ModelNode node(property.parentModelNode());
 
@@ -564,8 +565,11 @@ void MaterialEditorView::propertiesRemoved(const QList<AbstractProperty> &proper
 
         if (node == m_selectedMaterial || QmlObjectNode(m_selectedMaterial).propertyChangeForCurrentState() == node) {
             setValue(m_selectedMaterial, property.name(), QmlObjectNode(m_selectedMaterial).instanceValue(property.name()));
+            changed = true;
         }
     }
+    if (changed)
+        requestPreviewRender();
 }
 
 void MaterialEditorView::variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags /*propertyChange*/)
@@ -670,6 +674,7 @@ void MaterialEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Pr
 
     m_locked = true;
 
+    bool changed = false;
     for (const QPair<ModelNode, PropertyName> &propertyPair : propertyList) {
         const ModelNode modelNode = propertyPair.first;
         const QmlObjectNode qmlObjectNode(modelNode);
@@ -681,8 +686,11 @@ void MaterialEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Pr
                 setValue(modelNode, property.name(), qmlObjectNode.instanceValue(property.name()));
             else
                 setValue(modelNode, property.name(), qmlObjectNode.modelValue(property.name()));
+            changed = true;
         }
     }
+    if (changed)
+        requestPreviewRender();
 
     m_locked = false;
 }
@@ -818,7 +826,6 @@ void MaterialEditorView::setValue(const QmlObjectNode &qmlObjectNode, const Prop
 {
     m_locked = true;
     m_qmlBackEnd->setValue(qmlObjectNode, name, value);
-    requestPreviewRender();
     m_locked = false;
 }
 
