@@ -35,6 +35,8 @@
 #include <QStringList>
 #include <QVector>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QRegularExpression;
 class QVersionNumber;
