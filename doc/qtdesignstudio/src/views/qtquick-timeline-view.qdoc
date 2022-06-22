@@ -38,9 +38,9 @@
     \image studio-timeline-empty.png "Empty Timeline view"
 
     Select the \inlineimage icons/plus.png
-    (\uicontrol {Add Timeline}) button to \l{Creating Timelines}
-    {create a timeline} and specify settings for it in the
-    \uicontrol {Timeline Settings} dialog.
+    (\uicontrol {Add Timeline}) button to
+    \l{Creating a Timeline}{create a timeline} and specify settings for it in
+    the \uicontrol {Timeline Settings} dialog.
 
     \image studio-timeline-settings.png "Timeline Settings dialog"
 
@@ -124,11 +124,11 @@
         \li \inlineimage icons/animation.png
         \li Opens the \uicontrol {Timeline Settings} dialog for editing
             timeline settings.
-        \li \l{Creating Timelines}
+        \li \l{Creating a Timeline}
     \row
         \li Timeline ID
         \li Displays the ID of the current timeline.
-        \li \l{Creating Timelines}
+        \li \l{Creating a Timeline}
     \row
         \li \inlineimage icons/to_first_frame.png
         \li \uicontrol {To Start (Home)} moves to the first frame on the
@@ -170,7 +170,7 @@
         \li Specifies the first frame of the timeline. Negative values are
             allowed. The difference between the start frame and the end frame
             determines the duration of the animation.
-        \li \l{Creating Timelines}
+        \li \l{Creating a Timeline}
     \row
         \li \inlineimage icons/zoom_small.png
         \li \uicontrol {Zoom Out} (\key Ctrl+-) zooms out of the view.
@@ -189,7 +189,7 @@
             the start frame and the end frame determines the duration of the
             animation, so if the start frame is 0, the end frame equals the
             duration.
-        \li \l{Creating Timelines}
+        \li \l{Creating a Timeline}
     \row
         \li State Name
         \li Displays the name of the current state.
