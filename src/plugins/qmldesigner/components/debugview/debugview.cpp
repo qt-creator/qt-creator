@@ -110,9 +110,11 @@ void DebugView::nodeCreated(const ModelNode &createdNode)
         QString string;
         message.setString(&string);
         message << createdNode;
+        message << createdNode.majorVersion() << "." << createdNode.minorVersion();
         message << createdNode.nodeSource();
-        message << "MetaInfo " << createdNode.metaInfo().isValid();
+        message << "MetaInfo " << createdNode.metaInfo().isValid() << " ";
         if (createdNode.metaInfo().isValid()) {
+            message << createdNode.metaInfo().majorVersion() << "." << createdNode.metaInfo().minorVersion();
             message << createdNode.metaInfo().componentFileName();
         }
         log("::nodeCreated:", message.readAll());
