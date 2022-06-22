@@ -1141,8 +1141,7 @@ void GitClient::diffBranch(const FilePath &workingDirectory, const QString &bran
 void GitClient::merge(const FilePath &workingDirectory, const QStringList &unmergedFileNames)
 {
     auto mergeTool = new MergeTool(this);
-    if (!mergeTool->start(workingDirectory, unmergedFileNames))
-        delete mergeTool;
+    mergeTool->start(workingDirectory, unmergedFileNames);
 }
 
 void GitClient::status(const FilePath &workingDirectory) const

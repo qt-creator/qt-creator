@@ -52,7 +52,7 @@ MergeTool::~MergeTool()
     delete m_process;
 }
 
-bool MergeTool::start(const FilePath &workingDirectory, const QStringList &files)
+void MergeTool::start(const FilePath &workingDirectory, const QStringList &files)
 {
     QStringList arguments;
     arguments << "mergetool" << "-y" << files;
@@ -60,6 +60,8 @@ bool MergeTool::start(const FilePath &workingDirectory, const QStringList &files
     env.set("LANG", "C");
     env.set("LANGUAGE", "C");
     m_process = new QtcProcess;
+    connect(m_process, &QtcProcess::done, this, &MergeTool::done);
+    connect(m_process, &QtcProcess::readyReadStandardOutput, this, &MergeTool::readData);
     m_process->setProcessMode(ProcessMode::Writer);
     m_process->setWorkingDirectory(workingDirectory);
     m_process->setEnvironment(env);
@@ -69,15 +71,6 @@ bool MergeTool::start(const FilePath &workingDirectory, const QStringList &files
     VcsOutputWindow::appendCommand(workingDirectory, cmd);
     m_process->setCommand(cmd);
     m_process->start();
-    if (m_process->waitForStarted()) {
-        connect(m_process, &QtcProcess::finished, this, &MergeTool::done);
-        connect(m_process, &QtcProcess::readyReadStandardOutput, this, &MergeTool::readData);
-    } else {
-        delete m_process;
-        m_process = nullptr;
-        return false;
-    }
-    return true;
 }
 
 MergeTool::FileState MergeTool::parseStatus(const QString &line, QString &extraInfo)
@@ -254,15 +247,14 @@ void MergeTool::readLine(const QString &line)
 
 void MergeTool::done()
 {
+    const bool success = m_process->result() == ProcessResult::FinishedWithSuccess;
+    if (success)
+        VcsOutputWindow::appendMessage(m_process->exitMessage());
+    else
+        VcsOutputWindow::appendError(m_process->exitMessage());
+
     const FilePath workingDirectory = m_process->workingDirectory();
-    int exitCode = m_process->exitCode();
-    if (!exitCode) {
-        VcsOutputWindow::appendMessage(tr("Merge tool process finished successfully."));
-    } else {
-        VcsOutputWindow::appendError(tr("Merge tool process terminated with exit code %1")
-                                  .arg(exitCode));
-    }
-    GitClient::instance()->continueCommandIfNeeded(workingDirectory, exitCode == 0);
+    GitClient::instance()->continueCommandIfNeeded(workingDirectory, success);
     GitPlugin::emitRepositoryChanged(workingDirectory);
     deleteLater();
 }

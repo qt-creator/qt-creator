@@ -57,7 +57,7 @@ class MergeTool : public QObject
 public:
     explicit MergeTool(QObject *parent = nullptr);
     ~MergeTool() override;
-    bool start(const Utils::FilePath &workingDirectory, const QStringList &files = {});
+    void start(const Utils::FilePath &workingDirectory, const QStringList &files = {});
 
     enum MergeType {
         NormalMerge,
