@@ -34,10 +34,10 @@ Rectangle {
     signal clicked()
 
     property alias icon: icon.text
-    property alias enabled: mouseArea.enabled
     property alias tooltip: toolTip.text
     property alias iconSize: icon.font.pixelSize
 
+    property bool enabled: true
     property int buttonSize: StudioTheme.Values.height
     property color normalColor: StudioTheme.Values.themeControlBackground
     property color hoverColor: StudioTheme.Values.themeControlBackgroundHover
@@ -46,9 +46,10 @@ Rectangle {
     width: buttonSize
     height: buttonSize
 
-    color: mouseArea.pressed ? pressColor
-                             : mouseArea.containsMouse ? hoverColor
-                                                       : normalColor
+    color: !enabled ? normalColor
+                    : mouseArea.pressed ? pressColor
+                                        : mouseArea.containsMouse ? hoverColor
+                                                                  : normalColor
 
     Behavior on color {
         ColorAnimation {
@@ -71,7 +72,11 @@ Rectangle {
 
         anchors.fill: parent
         hoverEnabled: true
-        onClicked: root.clicked()
+        onClicked: {
+            // We need to keep mouse area enabled even when button is disabled to make tooltip work
+            if (root.enabled)
+                root.clicked()
+        }
     }
 
     ToolTip {
