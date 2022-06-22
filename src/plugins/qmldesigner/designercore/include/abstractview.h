@@ -134,6 +134,8 @@ public:
 
     RewriterTransaction beginRewriterTransaction(const QByteArray &identifier);
 
+    ModelNode createModelNode(const TypeName &typeName);
+
     ModelNode createModelNode(const TypeName &typeName,
                          int majorVersion,
                          int minorVersion,

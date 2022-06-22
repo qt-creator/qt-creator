@@ -31,6 +31,7 @@
 #include "nodeinstanceview.h"
 #include <qmlstate.h>
 #include <qmltimeline.h>
+#include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
 #include <nodelistproperty.h>
 #include <variantproperty.h>
@@ -87,6 +88,12 @@ void AbstractView::setModel(Model *model)
 RewriterTransaction AbstractView::beginRewriterTransaction(const QByteArray &identifier)
 {
     return RewriterTransaction(this, identifier);
+}
+
+ModelNode AbstractView::createModelNode(const TypeName &typeName)
+{
+    const NodeMetaInfo metaInfo = model()->metaInfo(typeName);
+    return createModelNode(typeName, metaInfo.majorVersion(), metaInfo.minorVersion());
 }
 
 ModelNode AbstractView::createModelNode(const TypeName &typeName,
