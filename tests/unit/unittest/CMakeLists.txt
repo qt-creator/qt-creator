@@ -143,7 +143,6 @@ add_custom_command(TARGET unittest POST_BUILD
 
 extend_qtc_test(unittest
   SOURCES
-    activationsequenceprocessor-test.cpp
     readexporteddiagnostics-test.cpp
 )
 
@@ -327,12 +326,6 @@ if (NOT TARGET CPlusPlus)
 endif()
 
 extend_qtc_test(unittest DEPENDS Utils CPlusPlus)
-
-extend_qtc_test(unittest
-  SOURCES_PREFIX ../../../src/plugins/clangcodemodel
-  SOURCES
-    clangactivationsequenceprocessor.cpp clangactivationsequenceprocessor.h
-)
 
 find_package(yaml-cpp QUIET MODULE)
 

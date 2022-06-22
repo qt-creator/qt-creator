@@ -176,7 +176,6 @@ Project {
             name: "libclang tests"
             condition: libclang.present && (!qbs.targetOS.contains("windows") || libclang.llvmBuildModeMatches)
             files: [
-                "activationsequenceprocessor-test.cpp",
                 "readexporteddiagnostics-test.cpp",
             ]
         }
@@ -194,15 +193,6 @@ Project {
                 "data/include/*",
             ]
             fileTags: []
-        }
-
-        Group {
-            name: "sources from clangcodemodel"
-            prefix: "../../../src/plugins/clangcodemodel/"
-            files: [
-                "clangactivationsequenceprocessor.cpp",
-                "clangactivationsequenceprocessor.h",
-            ]
         }
 
         Group {

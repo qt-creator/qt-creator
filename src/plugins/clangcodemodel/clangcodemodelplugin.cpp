@@ -29,6 +29,7 @@
 #include "clangutils.h"
 
 #ifdef WITH_TESTS
+#  include "test/activationsequenceprocessortest.h"
 #  include "test/clangbatchfileprocessor.h"
 #  include "test/clangdtests.h"
 #  include "test/clangfixittest.h"
@@ -203,6 +204,7 @@ void ClangCodeModelPlugin::maybeHandleBatchFileAndExit() const
 QVector<QObject *> ClangCodeModelPlugin::createTestObjects() const
 {
     return {
+        new Tests::ActivationSequenceProcessorTest,
         new Tests::ClangdTestCompletion,
         new Tests::ClangdTestExternalChanges,
         new Tests::ClangdTestFindReferences,
@@ -214,7 +216,6 @@ QVector<QObject *> ClangCodeModelPlugin::createTestObjects() const
     };
 }
 #endif
-
 
 } // namespace Internal
 } // namespace Clang
