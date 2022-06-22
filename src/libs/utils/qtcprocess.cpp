@@ -726,13 +726,10 @@ public:
     void handleStarted(qint64 processId, qint64 applicationMainThreadId);
     void handleReadyRead(const QByteArray &outputData, const QByteArray &errorData);
     void handleDone(const ProcessResultData &data);
-    void handleError();
     void clearForRun();
 
     void emitStarted();
-    void emitFinished();
     void emitDone();
-    void emitErrorOccurred(QProcess::ProcessError error);
     void emitReadyReadStandardOutput();
     void emitReadyReadStandardError();
 
@@ -2031,9 +2028,8 @@ void QtcProcessPrivate::handleDone(const ProcessResultData &data)
     // HACK: See QIODevice::errorString() implementation.
     if (m_resultData.m_error == QProcess::UnknownError)
         m_resultData.m_errorString.clear();
-
-    if (m_resultData.m_error != QProcess::UnknownError)
-        handleError();
+    else if (m_result != ProcessResult::Hang)
+        m_result = ProcessResult::StartFailed;
 
     if (debug)
         qDebug() << Q_FUNC_INFO << m_resultData.m_exitCode << m_resultData.m_exitStatus;
@@ -2057,23 +2053,9 @@ void QtcProcessPrivate::handleDone(const ProcessResultData &data)
     m_stdOut.handleRest();
     m_stdErr.handleRest();
 
-    if (m_resultData.m_error != QProcess::FailedToStart)
-        emitFinished();
-
     emitDone();
     m_processId = 0;
     m_applicationMainThreadId = 0;
-}
-
-void QtcProcessPrivate::handleError()
-{
-    m_hangTimerCount = 0;
-    if (debug)
-        qDebug() << Q_FUNC_INFO << m_resultData.m_error;
-    // Was hang detected before and killed?
-    if (m_result != ProcessResult::Hang)
-        m_result = ProcessResult::StartFailed;
-    emitErrorOccurred(m_resultData.m_error);
 }
 
 void QtcProcessPrivate::emitStarted()
@@ -2082,22 +2064,10 @@ void QtcProcessPrivate::emitStarted()
     emit q->started();
 }
 
-void QtcProcessPrivate::emitFinished()
-{
-    GuardLocker locker(m_guard);
-    emit q->finished();
-}
-
 void QtcProcessPrivate::emitDone()
 {
     GuardLocker locker(m_guard);
     emit q->done();
-}
-
-void QtcProcessPrivate::emitErrorOccurred(QProcess::ProcessError error)
-{
-    GuardLocker locker(m_guard);
-    emit q->errorOccurred(error);
 }
 
 void QtcProcessPrivate::emitReadyReadStandardOutput()

@@ -201,10 +201,7 @@ public:
 
 signals:
     void started();
-    void finished();
-    void done(); // The same as finished() with the addition it's being also emitted after
-                 // FailedToStart error occurred.
-    void errorOccurred(QProcess::ProcessError error);
+    void done();
     void readyReadStandardOutput();
     void readyReadStandardError();
 
