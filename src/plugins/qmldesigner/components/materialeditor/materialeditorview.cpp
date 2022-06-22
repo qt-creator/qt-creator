@@ -74,8 +74,11 @@ MaterialEditorView::MaterialEditorView(QWidget *parent)
     connect(m_updateShortcut, &QShortcut::activated, this, &MaterialEditorView::reloadQml);
 
     m_ensureMatLibTimer.callOnTimeout([this] {
-        if (model() && model()->rewriterView() && !model()->rewriterView()->hasIncompleteTypeInformation()) {
-            materialLibraryNode(); // create the material library node
+        if (model() && model()->rewriterView() && !model()->rewriterView()->hasIncompleteTypeInformation()
+            && model()->rewriterView()->errors().isEmpty()) {
+            executeInTransaction("MaterialEditorView::MaterialEditorView", [this] {
+                ensureMaterialLibraryNode();
+            });
             m_ensureMatLibTimer.stop();
         }
     });

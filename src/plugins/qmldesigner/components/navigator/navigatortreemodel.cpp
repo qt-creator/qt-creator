@@ -697,17 +697,6 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                         newQmlObjectNode.destroy();
                         return;
                     }
-                    // We can't have material initially parented if material library is created in this
-                    // same transaction (rewriter will not allow it for some reason)
-                    ModelNode matLib = m_view->modelNodeForId(Constants::MATERIAL_LIB_ID);
-                    if (!matLib.isValid()) {
-                        newQmlObjectNode.destroy();
-                        newQmlObjectNode = QmlItemNode::createQmlObjectNode(
-                                    m_view, itemLibraryEntry, QPointF(), NodeAbstractProperty(), false);
-                        newModelNode = newQmlObjectNode.modelNode();
-                        if (!newModelNode.isValid())
-                            return;
-                    }
                     m_view->assignMaterialTo3dModel(targetNode, newModelNode);
                 }
 
