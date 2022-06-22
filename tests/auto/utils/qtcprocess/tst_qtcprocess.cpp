@@ -144,7 +144,7 @@ private slots:
     void destroyBlockingProcess_data();
     void destroyBlockingProcess();
     void flushFinishedWhileWaitingForReadyRead();
-    void emitOneErrorOnCrash();
+    void crash();
     void crashAfterOneSecond();
     void recursiveCrashingProcess();
     void recursiveBlockingProcess();
@@ -1012,11 +1012,10 @@ void tst_QtcProcess::notRunningAfterStartingNonExistingProgram()
     process.setCommand({ FilePath::fromString(
               "there_is_a_big_chance_that_executable_with_that_name_does_not_exists"), {} });
 
-    int errorCount = 0;
-    QObject::connect(&process, &QtcProcess::errorOccurred,
-                     [&errorCount](QProcess::ProcessError error) {
-        ++errorCount;
-        QCOMPARE(error, QProcess::FailedToStart);
+    int doneCount = 0;
+    QObject::connect(&process, &QtcProcess::done, [&process, &doneCount]() {
+        ++doneCount;
+        QCOMPARE(process.error(), QProcess::FailedToStart);
     });
 
     const int loopCount = 2;
@@ -1036,6 +1035,7 @@ void tst_QtcProcess::notRunningAfterStartingNonExistingProgram()
         QVERIFY(process.exitCode() != 0);
         QCOMPARE(process.result(), ProcessResult::StartFailed);
     }
+    QCOMPARE(doneCount, loopCount);
 }
 
 // Since we want to test whether the process forwards its channels or not, we can't just create
@@ -1178,23 +1178,22 @@ void tst_QtcProcess::flushFinishedWhileWaitingForReadyRead()
     QVERIFY(reply.contains(s_simpleTestData));
 }
 
-void tst_QtcProcess::emitOneErrorOnCrash()
+void tst_QtcProcess::crash()
 {
-    SubProcessConfig subConfig(ProcessTestApp::EmitOneErrorOnCrash::envVar(), {});
+    SubProcessConfig subConfig(ProcessTestApp::Crash::envVar(), {});
     QtcProcess process;
     subConfig.setupSubProcess(&process);
 
-    int errorCount = 0;
-    connect(&process, &QtcProcess::errorOccurred, this, [&errorCount] { ++errorCount; });
     process.start();
     QVERIFY(process.waitForStarted(1000));
+    QVERIFY(process.isRunning());
 
     QEventLoop loop;
     connect(&process, &QtcProcess::done, &loop, &QEventLoop::quit);
     loop.exec();
 
-    QCOMPARE(errorCount, 1);
     QCOMPARE(process.error(), QProcess::Crashed);
+    QCOMPARE(process.exitStatus(), QProcess::CrashExit);
 }
 
 void tst_QtcProcess::crashAfterOneSecond()
