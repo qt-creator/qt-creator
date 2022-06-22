@@ -30,7 +30,7 @@ def main():
         startQC()
         if not startedWithoutPluginError():
             return
-        invokeMenuItem("Tools", "Options...")
+        invokeMenuItem("Edit", "Preferences...")
         mouseClick(waitForObjectItem(":Options_QListView", "Environment"))
         clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Interface")
         languageName = testData.field(lang, "language")

@@ -131,7 +131,7 @@ def isIgnoredFile(fileName, ignoredFiles):
 
 
 def ignoredFilesFromSettings():
-    invokeMenuItem("Tools", "Options...")
+    invokeMenuItem("Edit", "Preferences...")
     mouseClick(waitForObjectItem(":Options_QListView", "Text Editor"))
     waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' "
                   "text='Behavior'}")

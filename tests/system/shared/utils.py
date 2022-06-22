@@ -180,7 +180,7 @@ def invokeMenuItem(menu, item, *subItems):
         except:
             nativeMouseClick(waitForObject(":Qt Creator_Core::Internal::MainWindow", 1000), 20, 20, 0, Qt.LeftButton)
     # Use Locator for menu items which wouldn't work on macOS
-    if menu == "Tools" and item == "Options..." or menu == "File" and item == "Exit":
+    if menu == "Edit" and item == "Preferences..." or menu == "File" and item == "Exit":
         selectFromLocator("t %s" % item, item)
         return
     menuObject = waitForObjectItem(":Qt Creator.QtCreator.MenuBar_QMenuBar", menu)
@@ -269,7 +269,7 @@ def selectFromFileDialog(fileName, waitForFile=False, ignoreFinalSnooze=False):
 # add Qt documentations from given paths
 # param which a list/tuple of the paths to the qch files to be added
 def addHelpDocumentation(which):
-    invokeMenuItem("Tools", "Options...")
+    invokeMenuItem("Edit", "Preferences...")
     mouseClick(waitForObjectItem(":Options_QListView", "Help"))
     waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' text='Documentation'}")
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Documentation")
@@ -295,7 +295,7 @@ def addCurrentCreatorDocumentation():
     if not os.path.exists(docPath):
         test.fatal("Missing current Qt Creator documentation (expected in %s)" % docPath)
         return
-    invokeMenuItem("Tools", "Options...")
+    invokeMenuItem("Edit", "Preferences...")
     mouseClick(waitForObjectItem(":Options_QListView", "Help"))
     waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' text='Documentation'}")
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Documentation")
@@ -398,7 +398,7 @@ def regexVerify(text, expectedTexts):
 # the function returns a list of the found Qt versions
 def iterateQtVersions():
     qtVersionNames = []
-    invokeMenuItem("Tools", "Options...")
+    invokeMenuItem("Edit", "Preferences...")
     mouseClick(waitForObjectItem(":Options_QListView", "Kits"))
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
     treeView = waitForObject(":qtdirList_QTreeView")
@@ -417,7 +417,7 @@ def iterateQtVersions():
 # param clickOkWhenDone set to True if the Options dialog should be closed by clicking the
 #       "OK" button. If False, the dialog will stay open
 # param alreadyOnOptionsDialog set to True if you already have opened the Options Dialog
-#       (if False this function will open it via the MenuBar -> Tools -> Options...)
+#       (if False this function will open it via the MenuBar -> Edit -> Preferences...)
 # param additionalFunction pass a function or name of a defined function to execute
 #       for each configured item on the list of Kits
 #       this function must take at least 2 parameters - the first is the full string
@@ -434,7 +434,7 @@ def iterateKits(clickOkWhenDone, alreadyOnOptionsDialog,
     result = []
     additionalResult = []
     if not alreadyOnOptionsDialog:
-        invokeMenuItem("Tools", "Options...")
+        invokeMenuItem("Edit", "Preferences...")
     mouseClick(waitForObjectItem(":Options_QListView", "Kits"))
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Kits")
     treeView = waitForObject(":BuildAndRun_QTreeView")
@@ -470,7 +470,7 @@ class HelpViewer:
     HELPMODE, SIDEBYSIDE, EXTERNALWINDOW = range(3)
 
 def setFixedHelpViewer(helpViewer):
-    invokeMenuItem("Tools", "Options...")
+    invokeMenuItem("Edit", "Preferences...")
     mouseClick(waitForObjectItem(":Options_QListView", "Help"))
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "General")
     mode = "Always Show "

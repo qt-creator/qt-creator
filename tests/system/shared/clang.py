@@ -52,7 +52,7 @@ def startCreatorVerifyingClang(useClang):
     return False
 
 def __openCodeModelOptions__():
-    invokeMenuItem("Tools", "Options...")
+    invokeMenuItem("Edit", "Preferences...")
     mouseClick(waitForObjectItem(":Options_QListView", "C++"))
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Code Model")
 

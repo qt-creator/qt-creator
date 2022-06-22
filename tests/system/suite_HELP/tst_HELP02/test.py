@@ -72,7 +72,7 @@ def _shortcutMatches_(shortcutEdit, expectedText):
 
 
 def setKeyboardShortcutForAboutQtC():
-    invokeMenuItem("Tools", "Options...")
+    invokeMenuItem("Edit", "Preferences...")
     mouseClick(waitForObjectItem(":Options_QListView", "Environment"))
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Keyboard")
     filter = waitForObject("{container={title='Keyboard Shortcuts' type='QGroupBox' unnamed='1' "
