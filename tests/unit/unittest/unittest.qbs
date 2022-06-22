@@ -177,8 +177,6 @@ Project {
             condition: libclang.present && (!qbs.targetOS.contains("windows") || libclang.llvmBuildModeMatches)
             files: [
                 "activationsequenceprocessor-test.cpp",
-                "clangcompareoperators.h",
-                "diagnosticcontainer-matcher.h",
                 "readexporteddiagnostics-test.cpp",
             ]
         }
