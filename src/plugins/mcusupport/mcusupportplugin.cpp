@@ -72,15 +72,12 @@ void printMessage(const QString &message, bool important)
 class McuSupportPluginPrivate
 {
 public:
-    explicit McuSupportPluginPrivate(const SettingsHandler::Ptr &settingsHandler)
-        : m_settingsHandler(settingsHandler)
-    {}
     McuSupportDeviceFactory deviceFactory;
     McuSupportRunConfigurationFactory runConfigurationFactory;
     RunWorkerFactory runWorkerFactory{makeFlashAndRunWorker(),
                                       {ProjectExplorer::Constants::NORMAL_RUN_MODE},
                                       {Constants::RUNCONFIGURATION}};
-    SettingsHandler::Ptr m_settingsHandler;
+    SettingsHandler::Ptr m_settingsHandler{new SettingsHandler};
     McuSupportOptions m_options{m_settingsHandler};
     McuSupportOptionsPage optionsPage{m_options, m_settingsHandler};
     McuDependenciesKitAspect environmentPathsKitAspect;
@@ -100,7 +97,7 @@ bool McuSupportPlugin::initialize(const QStringList &arguments, QString *errorSt
     Q_UNUSED(errorString)
 
     setObjectName("McuSupportPlugin");
-    dd = new McuSupportPluginPrivate(m_settingsHandler);
+    dd = new McuSupportPluginPrivate;
 
     dd->m_options.registerQchFiles();
     dd->m_options.registerExamples();
@@ -115,8 +112,8 @@ void McuSupportPlugin::extensionsInitialized()
 
     connect(KitManager::instance(), &KitManager::kitsLoaded, [this]() {
         McuKitManager::removeOutdatedKits();
-        McuKitManager::createAutomaticKits(m_settingsHandler);
-        McuKitManager::fixExistingKits(m_settingsHandler);
+        McuKitManager::createAutomaticKits(dd->m_settingsHandler);
+        McuKitManager::fixExistingKits(dd->m_settingsHandler);
         askUserAboutMcuSupportKitsSetup();
     });
 }
