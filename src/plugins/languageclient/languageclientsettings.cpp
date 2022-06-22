@@ -114,7 +114,7 @@ public:
     void reset(const QList<BaseSettings *> &settings);
     QList<BaseSettings *> settings() const { return m_settings; }
     int insertSettings(BaseSettings *settings);
-    void enableSetting(const QString &id);
+    void enableSetting(const QString &id, bool enable = true);
     QList<BaseSettings *> removed() const { return m_removed; }
     BaseSettings *settingForIndex(const QModelIndex &index) const;
     QModelIndex indexForSetting(BaseSettings *setting) const;
@@ -163,7 +163,7 @@ public:
     QList<BaseSettings *> settings() const;
     QList<BaseSettings *> changedSettings() const;
     void addSettings(BaseSettings *settings);
-    void enableSettings(const QString &id);
+    void enableSettings(const QString &id, bool enable = true);
 
 private:
     LanguageClientSettingsModel m_model;
@@ -368,9 +368,9 @@ void LanguageClientSettingsPage::addSettings(BaseSettings *settings)
     m_changedSettings << settings->m_id;
 }
 
-void LanguageClientSettingsPage::enableSettings(const QString &id)
+void LanguageClientSettingsPage::enableSettings(const QString &id, bool enable)
 {
-    m_model.enableSetting(id);
+    m_model.enableSetting(id, enable);
 }
 
 LanguageClientSettingsModel::~LanguageClientSettingsModel()
@@ -498,12 +498,14 @@ int LanguageClientSettingsModel::insertSettings(BaseSettings *settings)
     return row;
 }
 
-void LanguageClientSettingsModel::enableSetting(const QString &id)
+void LanguageClientSettingsModel::enableSetting(const QString &id, bool enable)
 {
     BaseSettings *setting = Utils::findOrDefault(m_settings, Utils::equal(&BaseSettings::m_id, id));
     if (!setting)
         return;
-    setting->m_enabled = true;
+    if (setting->m_enabled == enable)
+        return;
+    setting->m_enabled = enable;
     const QModelIndex &index = indexForSetting(setting);
     if (index.isValid())
         emit dataChanged(index, index, {Qt::CheckStateRole});
@@ -687,9 +689,9 @@ void LanguageClientSettings::addSettings(BaseSettings *settings)
     settingsPage().addSettings(settings);
 }
 
-void LanguageClientSettings::enableSettings(const QString &id)
+void LanguageClientSettings::enableSettings(const QString &id, bool enable)
 {
-    settingsPage().enableSettings(id);
+    settingsPage().enableSettings(id, enable);
 }
 
 void LanguageClientSettings::toSettings(QSettings *settings,

@@ -26,10 +26,14 @@
 #include "pythonsettings.h"
 
 #include "pythonconstants.h"
+#include "pythonplugin.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
+#include <extensionsystem/pluginmanager.h>
+#include <languageclient/languageclient_global.h>
 #include <languageclient/languageclientsettings.h>
+#include <languageclient/languageclientmanager.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
@@ -643,6 +647,33 @@ static QString defaultPylsConfiguration()
     return QString::fromUtf8(QJsonDocument(configuration).toJson());
 }
 
+static void disableOutdatedPylsNow()
+{
+    using namespace LanguageClient;
+    const QList<BaseSettings *>
+            settings = LanguageClientSettings::pageSettings();
+    for (const BaseSettings *setting : settings) {
+        if (setting->m_settingsTypeId != LanguageClient::Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID)
+            continue;
+        auto stdioSetting = static_cast<const StdIOSettings *>(setting);
+        if (stdioSetting->arguments().startsWith("-m pyls")
+                && stdioSetting->m_languageFilter.isSupported("foo.py", Constants::C_PY_MIMETYPE)) {
+            LanguageClientManager::enableClientSettings(stdioSetting->m_id, false);
+        }
+    }
+}
+
+static void disableOutdatedPyls()
+{
+    using namespace ExtensionSystem;
+    if (PluginManager::isInitializationDone()) {
+        disableOutdatedPylsNow();
+    } else {
+        QObject::connect(PluginManager::instance(), &PluginManager::initializationDone,
+                         PythonPlugin::instance(), &disableOutdatedPylsNow);
+    }
+}
+
 static SavedSettings fromSettings(QSettings *settings)
 {
     SavedSettings result;
@@ -674,7 +705,9 @@ static SavedSettings fromSettings(QSettings *settings)
     result.defaultId = settings->value(defaultKey).toString();
 
     QVariant pylsEnabled = settings->value(pylsEnabledKey);
-    if (!pylsEnabled.isNull())
+    if (pylsEnabled.isNull())
+        disableOutdatedPyls();
+    else
         result.pylsEnabled = pylsEnabled.toBool();
     const QVariant pylsConfiguration = settings->value(pylsConfigurationKey);
     if (!pylsConfiguration.isNull())

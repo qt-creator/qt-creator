@@ -349,10 +349,10 @@ void LanguageClientManager::registerClientSettings(BaseSettings *settings)
     managerInstance->applySettings();
 }
 
-void LanguageClientManager::enableClientSettings(const QString &settingsId)
+void LanguageClientManager::enableClientSettings(const QString &settingsId, bool enable)
 {
     QTC_ASSERT(managerInstance, return);
-    LanguageClientSettings::enableSettings(settingsId);
+    LanguageClientSettings::enableSettings(settingsId, enable);
     managerInstance->applySettings();
 }
 
