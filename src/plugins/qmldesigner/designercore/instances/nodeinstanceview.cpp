@@ -2135,7 +2135,7 @@ void NodeInstanceView::handleShaderChanges()
         QStringList args = baseArgs;
         args.append(outPath.toString());
         args.append(shader);
-        auto qsbProcess = new Utils::QtcProcess;
+        auto qsbProcess = new Utils::QtcProcess(this);
         connect(qsbProcess, &Utils::QtcProcess::done, this, [this, qsbProcess, shader] {
             handleQsbProcessExit(qsbProcess, shader);
         });
