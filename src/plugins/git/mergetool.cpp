@@ -30,9 +30,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
-#include <utils/commandline.h>
 #include <utils/environment.h>
-#include <utils/qtcprocess.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QMessageBox>
@@ -45,32 +43,26 @@ namespace Git {
 namespace Internal {
 
 MergeTool::MergeTool(QObject *parent) : QObject(parent)
-{ }
-
-MergeTool::~MergeTool()
 {
-    delete m_process;
+    connect(&m_process, &QtcProcess::done, this, &MergeTool::done);
+    connect(&m_process, &QtcProcess::readyReadStandardOutput, this, &MergeTool::readData);
+    Environment env = Environment::systemEnvironment();
+    env.set("LANG", "C");
+    env.set("LANGUAGE", "C");
+    m_process.setEnvironment(env);
+    m_process.setProcessMode(ProcessMode::Writer);
+    m_process.setProcessChannelMode(QProcess::MergedChannels);
 }
 
 void MergeTool::start(const FilePath &workingDirectory, const QStringList &files)
 {
     QStringList arguments;
     arguments << "mergetool" << "-y" << files;
-    Environment env = Environment::systemEnvironment();
-    env.set("LANG", "C");
-    env.set("LANGUAGE", "C");
-    m_process = new QtcProcess;
-    connect(m_process, &QtcProcess::done, this, &MergeTool::done);
-    connect(m_process, &QtcProcess::readyReadStandardOutput, this, &MergeTool::readData);
-    m_process->setProcessMode(ProcessMode::Writer);
-    m_process->setWorkingDirectory(workingDirectory);
-    m_process->setEnvironment(env);
-    m_process->setProcessChannelMode(QProcess::MergedChannels);
-    const Utils::FilePath binary = GitClient::instance()->vcsBinary();
-    const CommandLine cmd = {binary, arguments};
+    const CommandLine cmd = {GitClient::instance()->vcsBinary(), arguments};
     VcsOutputWindow::appendCommand(workingDirectory, cmd);
-    m_process->setCommand(cmd);
-    m_process->start();
+    m_process.setCommand(cmd);
+    m_process.setWorkingDirectory(workingDirectory);
+    m_process.start();
 }
 
 MergeTool::FileState MergeTool::parseStatus(const QString &line, QString &extraInfo)
@@ -141,8 +133,7 @@ QString MergeTool::stateName(MergeTool::FileState state, const QString &extraInf
 
 void MergeTool::chooseAction()
 {
-    m_merging = (m_mergeType == NormalMerge);
-    if (m_merging)
+    if (m_mergeType == NormalMerge)
         return;
     QMessageBox msgBox;
     msgBox.setWindowTitle(tr("Merge Conflict"));
@@ -199,7 +190,7 @@ void MergeTool::prompt(const QString &title, const QString &question)
 
 void MergeTool::readData()
 {
-    QString newData = QString::fromLocal8Bit(m_process->readAllStandardOutput());
+    QString newData = QString::fromLocal8Bit(m_process.readAllStandardOutput());
     newData.remove('\r');
     VcsOutputWindow::append(newData);
     QString data = m_unfinishedLine + newData;
@@ -223,7 +214,7 @@ void MergeTool::readData()
                         tr("Merge tool is not configured."),
                         tr("Run git config --global merge.tool &lt;tool&gt; "
                            "to configure it, then try again.")));
-        m_process->kill();
+        m_process.stop();
     } else {
         m_unfinishedLine = data;
     }
@@ -247,13 +238,13 @@ void MergeTool::readLine(const QString &line)
 
 void MergeTool::done()
 {
-    const bool success = m_process->result() == ProcessResult::FinishedWithSuccess;
+    const bool success = m_process.result() == ProcessResult::FinishedWithSuccess;
     if (success)
-        VcsOutputWindow::appendMessage(m_process->exitMessage());
+        VcsOutputWindow::appendMessage(m_process.exitMessage());
     else
-        VcsOutputWindow::appendError(m_process->exitMessage());
+        VcsOutputWindow::appendError(m_process.exitMessage());
 
-    const FilePath workingDirectory = m_process->workingDirectory();
+    const FilePath workingDirectory = m_process.workingDirectory();
     GitClient::instance()->continueCommandIfNeeded(workingDirectory, success);
     GitPlugin::emitRepositoryChanged(workingDirectory);
     deleteLater();
@@ -261,7 +252,7 @@ void MergeTool::done()
 
 void MergeTool::write(const QString &str)
 {
-    m_process->write(str);
+    m_process.write(str);
     VcsOutputWindow::append(str);
 }
 
