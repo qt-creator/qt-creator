@@ -60,7 +60,6 @@ add_qtc_test(unittest GTEST
     processevents-utilities.cpp processevents-utilities.h
     sizedarray-test.cpp
     smallstring-test.cpp
-    sourcerangecontainer-matcher.h
     spydummy.cpp spydummy.h
     sqlitealgorithms-test.cpp
     sqliteindex-test.cpp
@@ -329,13 +328,6 @@ extend_qtc_test(unittest
     coreicons.cpp coreicons.h
     find/ifindfilter.cpp find/ifindfilter.h
     locator/ilocatorfilter.cpp locator/ilocatorfilter.h
-)
-
-extend_qtc_test(unittest
-  SOURCES_PREFIX ../../../src/plugins/cppeditor
-  DEFINES CPPEDITOR_STATIC_LIBRARY
-  SOURCES
-    cppprojectfile.cpp cppprojectfile.h
 )
 
 get_filename_component(
