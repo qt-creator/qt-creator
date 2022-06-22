@@ -1034,7 +1034,7 @@ QtcProcess::QtcProcess(QObject *parent)
     Q_UNUSED(qProcessProcessErrorMeta)
 
     if (processLog().isDebugEnabled()) {
-        connect(this, &QtcProcess::finished, [this] {
+        connect(this, &QtcProcess::done, [this] {
             if (!d->m_process.get())
                 return;
             const QVariant n = d->m_process.get()->property(QTC_PROCESS_NUMBER);
