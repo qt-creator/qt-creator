@@ -213,11 +213,11 @@ bool AndroidDeployQtStep::init()
     m_serialNumber = info.serialNumber;
     qCDebug(deployStepLog) << "Selected device info:" << info;
 
-    gatherFilesToPull();
-
     AndroidManager::setDeviceSerialNumber(target(), m_serialNumber);
     AndroidManager::setDeviceApiLevel(target(), info.sdk);
     AndroidManager::setDeviceAbis(target(), info.cpuAbi);
+
+    gatherFilesToPull();
 
     emit addOutput(tr("Deploying to %1").arg(m_serialNumber), OutputFormat::NormalMessage);
 

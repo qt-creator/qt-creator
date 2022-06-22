@@ -140,10 +140,10 @@ void AndroidDebugSupport::start()
             solibSearchPath.append(qtVersion->qtSoPaths());
         solibSearchPath.append(uniquePaths(extraLibs));
 
+        FilePath buildDir = AndroidManager::buildDirectory(target);
         const RunConfiguration *activeRunConfig = target->activeRunConfiguration();
-        FilePath buildDir;
         if (activeRunConfig)
-            buildDir = activeRunConfig->buildTargetInfo().workingDirectory;
+            solibSearchPath.append(activeRunConfig->buildTargetInfo().workingDirectory.toString());
         solibSearchPath.append(buildDir.toString());
         solibSearchPath.removeDuplicates();
         setSolibSearchPath(solibSearchPath);
