@@ -99,6 +99,7 @@ LldbEngine::LldbEngine()
     connect(&ds.useDynamicType, &BaseAspect::changed, this, &LldbEngine::updateLocals);
     connect(&ds.intelFlavor, &BaseAspect::changed, this, &LldbEngine::updateAll);
 
+    connect(&m_lldbProc, &QtcProcess::started, this, &LldbEngine::handleLldbStarted);
     connect(&m_lldbProc, &QtcProcess::done, this, &LldbEngine::handleLldbDone);
     connect(&m_lldbProc, &QtcProcess::readyReadStandardOutput,
             this, &LldbEngine::readLldbStandardOutput);
@@ -230,16 +231,10 @@ void LldbEngine::setupEngine()
         m_lldbProc.setCommand(CommandLine(lldbCmd));
 
     m_lldbProc.start();
+}
 
-    if (!m_lldbProc.waitForStarted()) {
-        const QString msg = tr("Unable to start LLDB \"%1\": %2")
-            .arg(lldbCmd.toUserOutput(), m_lldbProc.errorString());
-        notifyEngineSetupFailed();
-        showMessage("ADAPTER START FAILED");
-        if (!msg.isEmpty())
-            ICore::showWarningWithOptions(adapterStartFailed(), msg);
-        return;
-    }
+void LldbEngine::handleLldbStarted()
+{
     m_lldbProc.waitForReadyRead(1000);
 
     showStatusMessage(tr("Setting up inferior..."));
@@ -788,6 +783,15 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
 
 void LldbEngine::handleLldbDone()
 {
+    if (m_lldbProc.result() == ProcessResult::StartFailed) {
+        notifyEngineSetupFailed();
+        showMessage("ADAPTER START FAILED");
+        ICore::showWarningWithOptions(adapterStartFailed(), tr("Unable to start LLDB \"%1\": %2")
+                 .arg(runParameters().debugger.command.executable().toUserOutput(),
+                 m_lldbProc.errorString()));
+        return;
+    }
+
     if (m_lldbProc.error() == QProcess::UnknownError) {
         notifyDebuggerProcessFinished(m_lldbProc.resultData(), "LLDB");
         return;
