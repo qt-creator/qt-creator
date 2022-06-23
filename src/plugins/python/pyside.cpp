@@ -106,6 +106,10 @@ void PySideInstaller::installPyside(const Utils::FilePath &python,
 
     auto install = new PipInstallTask(python);
     connect(install, &PipInstallTask::finished, install, &QObject::deleteLater);
+    connect(install, &PipInstallTask::finished, this, [=](bool success){
+        if (success)
+            emit pySideInstalled(python, pySide);
+    });
     install->setPackage(PipPackage(pySide));
     install->run();
 }

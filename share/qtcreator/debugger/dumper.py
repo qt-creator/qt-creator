@@ -29,7 +29,6 @@ import collections
 import glob
 import struct
 import sys
-import base64
 import re
 import time
 import inspect
@@ -45,6 +44,14 @@ except:
           "Native combined debugging might not work.")
     pass
 
+try:
+    # That fails on some QNX via Windows installations
+    import base64
+    def hexencode_(s):
+        return base64.b16encode(s).decode('utf8')
+except:
+    def hexencode_(s):
+        return ''.join(["%x" % c for c in s])
 
 if sys.version_info[0] >= 3:
     toInteger = int
@@ -550,7 +557,7 @@ class DumperBase():
             return s.encode('hex')
         if isinstance(s, str):
             s = s.encode('utf8')
-        return base64.b16encode(s).decode('utf8')
+        return hexencode_(s)
 
     def isQt3Support(self):
         # assume no Qt 3 support by default

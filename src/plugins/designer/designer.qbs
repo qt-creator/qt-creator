@@ -70,7 +70,7 @@ QtcPlugin {
         files: [
             "formclasswizard.cpp", "formclasswizard.h",
             "formclasswizarddialog.cpp", "formclasswizarddialog.h",
-            "formclasswizardpage.cpp", "formclasswizardpage.h", "formclasswizardpage.ui",
+            "formclasswizardpage.cpp", "formclasswizardpage.h",
             "formclasswizardparameters.cpp", "formclasswizardparameters.h",
             "newclasswidget.cpp", "newclasswidget.h", "newclasswidget.ui",
         ]

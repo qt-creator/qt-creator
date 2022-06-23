@@ -49,6 +49,16 @@ Utils::optional<CompletionItem::InsertTextFormat> CompletionItem::insertTextForm
     return Utils::nullopt;
 }
 
+Utils::optional<QList<CompletionItem::CompletionItemTag>> CompletionItem::tags() const
+{
+    if (const auto value = optionalValue<QJsonArray>(tagsKey)) {
+        QList<CompletionItemTag> tags;
+        for (auto it = value->cbegin(); it != value->cend(); ++it)
+            tags << static_cast<CompletionItemTag>(it->toInt());
+        return tags;
+    }
+    return {};
+}
 
 CompletionItemResolveRequest::CompletionItemResolveRequest(const CompletionItem &params)
     : Request(methodName, params)

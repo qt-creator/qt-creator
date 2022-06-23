@@ -97,7 +97,7 @@ static FormatTask format(FormatTask task)
                              .arg(process.exitMessage());
             return task;
         }
-        const QString output = process.stdErr();
+        const QString output = process.cleanedStdErr();
         if (!output.isEmpty())
             task.error = executable + QLatin1String(": ") + output;
 

@@ -91,8 +91,6 @@ QString ValgrindTestRunnerTest::runTestBinary(const QString &binary, const QStri
     m_runner->setLocalServerAddress(QHostAddress::LocalHost);
     m_runner->setValgrindCommand(valgrind);
     m_runner->setDebuggee(debuggee);
-    m_runner->setDevice(DeviceManager::instance()->defaultDevice(
-                            ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE));
     m_runner->start();
     m_runner->waitForFinished();
     return binPath;

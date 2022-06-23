@@ -77,7 +77,6 @@ signals:
     void parserDataReady(CallgrindToolRunner *engine);
 
 private:
-    void slotFinished();
     void showStatusMessage(const QString &message);
 
     /**

@@ -91,12 +91,12 @@ UvscServerProvider::UvscServerProvider(const UvscServerProvider &other)
     setEngineType(UvscEngineType);
 }
 
-void UvscServerProvider::setToolsIniFile(const Utils::FilePath &toolsIniFile)
+void UvscServerProvider::setToolsIniFile(const FilePath &toolsIniFile)
 {
     m_toolsIniFile = toolsIniFile;
 }
 
-Utils::FilePath UvscServerProvider::toolsIniFile() const
+FilePath UvscServerProvider::toolsIniFile() const
 {
     return m_toolsIniFile;
 }
@@ -251,8 +251,7 @@ bool UvscServerProvider::fromMap(const QVariantMap &data)
     return true;
 }
 
-Utils::FilePath UvscServerProvider::projectFilePath(DebuggerRunTool *runTool,
-                                                    QString &errorMessage) const
+FilePath UvscServerProvider::projectFilePath(DebuggerRunTool *runTool, QString &errorMessage) const
 {
     const FilePath projectPath = buildProjectFilePath(runTool);
     std::ofstream ofs(projectPath.toString().toStdString(), std::ofstream::out);
@@ -332,12 +331,12 @@ void UvscServerProviderConfigWidget::discard()
     IDebugServerProviderConfigWidget::discard();
 }
 
-void UvscServerProviderConfigWidget::setToolsIniFile(const Utils::FilePath &toolsIniFile)
+void UvscServerProviderConfigWidget::setToolsIniFile(const FilePath &toolsIniFile)
 {
     m_toolsIniChooser->setFilePath(toolsIniFile);
 }
 
-Utils::FilePath UvscServerProviderConfigWidget::toolsIniFile() const
+FilePath UvscServerProviderConfigWidget::toolsIniFile() const
 {
     return m_toolsIniChooser->filePath();
 }
@@ -386,21 +385,16 @@ UvscServerProviderRunner::UvscServerProviderRunner(ProjectExplorer::RunControl *
         this->runControl()->setApplicationProcessHandle(pid);
         reportStarted();
     });
-    connect(&m_process, &QtcProcess::finished, this, [this] {
-        const QProcess::ProcessError error = m_process.error();
-        const QString message = (error == QProcess::UnknownError)
-                ? m_process.exitMessage()
-                : userMessageForProcessError(error, m_process.commandLine().executable());
-        appendMessage(message, Utils::NormalMessageFormat);
+    connect(&m_process, &QtcProcess::done, this, [this] {
+        appendMessage(m_process.exitMessage(), NormalMessageFormat);
         reportStopped();
     });
 }
 
 void UvscServerProviderRunner::start()
 {
-    const QString msg = RunControl::tr("Starting %1 ...")
-            .arg(m_process.commandLine().toUserOutput());
-    appendMessage(msg, Utils::NormalMessageFormat);
+    const QString msg = RunControl::tr("Starting %1 ...").arg(m_process.commandLine().displayName());
+    appendMessage(msg, NormalMessageFormat);
 
     m_process.start();
 }

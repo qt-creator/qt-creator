@@ -47,7 +47,7 @@ protected:
     TestResultPtr createDefaultResult() const override;
 
 private:
-    void onFinished();
+    void onDone();
     void sendCompleteInformation();
     void handleMessageMatch(const QRegularExpressionMatch &match);
     void reportNoOutputFinish(const QString &description, ResultType type);

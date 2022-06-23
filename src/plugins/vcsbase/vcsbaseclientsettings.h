@@ -37,6 +37,7 @@ class VCSBASE_EXPORT VcsBaseSettings : public Utils::AspectContainer
 
 public:
     VcsBaseSettings();
+    ~VcsBaseSettings();
 
     Utils::StringAspect binaryPath;
     Utils::StringAspect userName;

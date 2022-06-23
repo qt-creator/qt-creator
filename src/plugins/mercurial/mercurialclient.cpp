@@ -103,7 +103,7 @@ bool MercurialClient::manifestSync(const FilePath &repository, const QString &re
     const QDir repositoryDir(repository.toString());
     const QFileInfo needle = QFileInfo(repositoryDir, relativeFilename);
 
-    const QStringList files = proc.stdOut().split(QLatin1Char('\n'));
+    const QStringList files = proc.cleanedStdOut().split(QLatin1Char('\n'));
     for (const QString &fileName : files) {
         const QFileInfo managedFile(repositoryDir, fileName);
         if (needle == managedFile)
@@ -186,7 +186,7 @@ bool MercurialClient::synchronousPull(const FilePath &workingDir, const QString 
 
     const bool ok = proc.result() == ProcessResult::FinishedWithSuccess;
 
-    parsePullOutput(proc.stdOut().trimmed());
+    parsePullOutput(proc.cleanedStdOut().trimmed());
     return ok;
 }
 
@@ -232,16 +232,16 @@ changeset:   0:031a48610fba
 user: ...
 \endcode   */
     // Obtain first line and split by blank-delimited tokens
-    const QStringList lines = proc.stdOut().split(QLatin1Char('\n'));
+    const QStringList lines = proc.cleanedStdOut().split(QLatin1Char('\n'));
     if (lines.size() < 1) {
         VcsOutputWindow::appendSilently(
-            msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(proc.stdOut())));
+            msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(proc.cleanedStdOut())));
         return QStringList();
     }
     QStringList changeSets = lines.front().simplified().split(QLatin1Char(' '));
     if (changeSets.size() < 2) {
         VcsOutputWindow::appendSilently(
-            msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(proc.stdOut())));
+            msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(proc.cleanedStdOut())));
         return QStringList();
     }
     // Remove revision numbers
@@ -270,7 +270,7 @@ QString MercurialClient::shortDescriptionSync(const FilePath &workingDirectory,
     vcsFullySynchronousExec(proc, workingDirectory, args);
     if (proc.result() != ProcessResult::FinishedWithSuccess)
         return revision;
-    return stripLastNewline(proc.stdOut());
+    return stripLastNewline(proc.cleanedStdOut());
 }
 
 // Default format: "SHA1 (author summmary)"
@@ -288,7 +288,7 @@ bool MercurialClient::managesFile(const FilePath &workingDirectory, const QStrin
     args << QLatin1String("status") << QLatin1String("--unknown") << fileName;
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
-    return proc.stdOut().isEmpty();
+    return proc.cleanedStdOut().isEmpty();
 }
 
 void MercurialClient::incoming(const FilePath &repositoryRoot, const QString &repository)

@@ -207,7 +207,7 @@ int ProcessTestApp::BlockingProcess::main()
     return 1;
 }
 
-int ProcessTestApp::EmitOneErrorOnCrash::main()
+int ProcessTestApp::Crash::main()
 {
     doCrash();
     return 1;

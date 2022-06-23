@@ -52,7 +52,7 @@ public:
         connect(&m_mkdir, &QtcProcess::done, this, [this] {
             if (m_mkdir.result() != ProcessResult::FinishedWithSuccess) {
                 QString finalMessage = m_mkdir.errorString();
-                const QString stdErr = m_mkdir.stdErr();
+                const QString stdErr = m_mkdir.cleanedStdErr();
                 if (!stdErr.isEmpty()) {
                     if (!finalMessage.isEmpty())
                         finalMessage += '\n';
@@ -140,8 +140,8 @@ void RsyncDeployService::createRemoteDirectories()
         remoteDirs << file.m_target.parentDir().path();
     remoteDirs.sort();
     remoteDirs.removeDuplicates();
-    m_mkdir.setCommand({deviceConfiguration()->filePath("mkdir"),
-             {"-p", ProcessArgs::createUnixArgs(remoteDirs).toString()}});
+
+    m_mkdir.setCommand({deviceConfiguration()->filePath("mkdir"), QStringList("-p") + remoteDirs});
     m_mkdir.start();
 }
 

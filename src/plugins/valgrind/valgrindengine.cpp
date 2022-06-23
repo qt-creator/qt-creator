@@ -26,7 +26,6 @@
 
 #include "valgrindengine.h"
 #include "valgrindsettings.h"
-#include "valgrindplugin.h"
 
 #include <debugger/analyzer/analyzermanager.h>
 
@@ -61,6 +60,17 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
     setSupportsReRunning(false);
 
     m_settings.fromMap(runControl->settingsData(ANALYZER_VALGRIND_SETTINGS));
+
+    connect(&m_runner, &ValgrindRunner::appendMessage,
+            this, &ValgrindToolRunner::appendMessage);
+    connect(&m_runner, &ValgrindRunner::valgrindExecuted,
+            this, [this](const QString &commandLine) {
+        appendMessage(commandLine, NormalMessageFormat);
+    });
+    connect(&m_runner, &ValgrindRunner::processErrorReceived,
+            this, &ValgrindToolRunner::receiveProcessError);
+    connect(&m_runner, &ValgrindRunner::finished,
+            this, &ValgrindToolRunner::runnerFinished);
 }
 
 void ValgrindToolRunner::start()
@@ -90,22 +100,10 @@ void ValgrindToolRunner::start()
     valgrind.addArgs(toolArguments());
 
     m_runner.setValgrindCommand(valgrind);
-    m_runner.setDevice(device());
     m_runner.setDebuggee(runControl()->runnable());
 
     if (auto aspect = runControl()->aspect<TerminalAspect>())
         m_runner.setUseTerminal(aspect->useTerminal);
-
-    connect(&m_runner, &ValgrindRunner::processOutputReceived,
-            this, &ValgrindToolRunner::receiveProcessOutput);
-    connect(&m_runner, &ValgrindRunner::valgrindExecuted,
-            this, [this](const QString &commandLine) {
-        appendMessage(commandLine, NormalMessageFormat);
-    });
-    connect(&m_runner, &ValgrindRunner::processErrorReceived,
-            this, &ValgrindToolRunner::receiveProcessError);
-    connect(&m_runner, &ValgrindRunner::finished,
-            this, &ValgrindToolRunner::runnerFinished);
 
     if (!m_runner.start()) {
         m_progress.cancel();
@@ -161,17 +159,7 @@ void ValgrindToolRunner::runnerFinished()
 
     m_progress.reportFinished();
 
-    disconnect(&m_runner, &ValgrindRunner::processOutputReceived,
-               this, &ValgrindToolRunner::receiveProcessOutput);
-    disconnect(&m_runner, &ValgrindRunner::finished,
-               this, &ValgrindToolRunner::runnerFinished);
-
     reportStopped();
-}
-
-void ValgrindToolRunner::receiveProcessOutput(const QString &output, OutputFormat format)
-{
-    appendMessage(output, format);
 }
 
 void ValgrindToolRunner::receiveProcessError(const QString &message, QProcess::ProcessError error)

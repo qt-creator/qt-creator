@@ -26,15 +26,15 @@
 #include "behaviorsettingspage.h"
 
 #include "behaviorsettings.h"
-#include "typingsettings.h"
+#include "behaviorsettingswidget.h"
+#include "codestylepool.h"
+#include "extraencodingsettings.h"
+#include "simplecodestylepreferences.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
-#include "extraencodingsettings.h"
-#include "ui_behaviorsettingspage.h"
-#include "simplecodestylepreferences.h"
 #include "texteditorconstants.h"
-#include "codestylepool.h"
 #include "texteditorsettings.h"
+#include "typingsettings.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -48,8 +48,10 @@
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljstools/qmljstoolsconstants.h>
 
+#include <QGridLayout>
 #include <QPointer>
 #include <QSettings>
+#include <QSpacerItem>
 
 namespace TextEditor {
 
@@ -59,7 +61,7 @@ struct BehaviorSettingsPage::BehaviorSettingsPagePrivate : public QObject
 
     const QString m_settingsPrefix{"text"};
     QPointer<QWidget> m_widget;
-    Internal::Ui::BehaviorSettingsPage *m_page = nullptr;
+    TextEditor::BehaviorSettingsWidget *m_behaviorWidget = nullptr;
 
     CodeStylePool *m_defaultCodeStylePool = nullptr;
     SimpleCodeStylePreferences *m_codeStyle = nullptr;
@@ -110,17 +112,23 @@ QWidget *BehaviorSettingsPage::widget()
 {
     if (!d->m_widget) {
         d->m_widget = new QWidget;
-        d->m_page = new Internal::Ui::BehaviorSettingsPage;
-        d->m_page->setupUi(d->m_widget);
+        d->m_behaviorWidget = new BehaviorSettingsWidget(d->m_widget);
+
+        auto verticalSpacer = new QSpacerItem(20, 13, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        auto gridLayout = new QGridLayout(d->m_widget);
         if (Utils::HostOsInfo::isMacHost())
-            d->m_page->gridLayout->setContentsMargins(-1, 0, -1, 0); // don't ask.
+            gridLayout->setContentsMargins(-1, 0, -1, 0); // don't ask.
+        gridLayout->addWidget(d->m_behaviorWidget, 0, 0, 1, 1);
+        gridLayout->addItem(verticalSpacer, 1, 0, 1, 1);
+
         d->m_pageCodeStyle = new SimpleCodeStylePreferences(d->m_widget);
         d->m_pageCodeStyle->setDelegatingPool(d->m_codeStyle->delegatingPool());
         d->m_pageCodeStyle->setTabSettings(d->m_codeStyle->tabSettings());
         d->m_pageCodeStyle->setCurrentDelegate(d->m_codeStyle->currentDelegate());
-        d->m_page->behaviorWidget->setCodeStyle(d->m_pageCodeStyle);
+        d->m_behaviorWidget->setCodeStyle(d->m_pageCodeStyle);
 
-        TabSettingsWidget *tabSettingsWidget = d->m_page->behaviorWidget->tabSettingsWidget();
+        TabSettingsWidget *tabSettingsWidget = d->m_behaviorWidget->tabSettingsWidget();
         tabSettingsWidget->setCodingStyleWarningVisible(true);
         connect(tabSettingsWidget, &TabSettingsWidget::codingStyleLinkClicked,
                 this, &BehaviorSettingsPage::openCodingStylePreferences);
@@ -132,7 +140,7 @@ QWidget *BehaviorSettingsPage::widget()
 
 void BehaviorSettingsPage::apply()
 {
-    if (!d->m_page) // page was never shown
+    if (!d->m_behaviorWidget) // page was never shown
         return;
 
     TypingSettings newTypingSettings;
@@ -185,9 +193,9 @@ void BehaviorSettingsPage::apply()
     }
 
     s->setValue(QLatin1String(Core::Constants::SETTINGS_DEFAULTTEXTENCODING),
-                d->m_page->behaviorWidget->assignedCodecName());
+                d->m_behaviorWidget->assignedCodecName());
     s->setValue(QLatin1String(Core::Constants::SETTINGS_DEFAULT_LINE_TERMINATOR),
-                d->m_page->behaviorWidget->assignedLineEnding());
+                d->m_behaviorWidget->assignedLineEnding());
 }
 
 void BehaviorSettingsPage::settingsFromUI(TypingSettings *typingSettings,
@@ -195,29 +203,25 @@ void BehaviorSettingsPage::settingsFromUI(TypingSettings *typingSettings,
                                           BehaviorSettings *behaviorSettings,
                                           ExtraEncodingSettings *extraEncodingSettings) const
 {
-    d->m_page->behaviorWidget->assignedTypingSettings(typingSettings);
-    d->m_page->behaviorWidget->assignedStorageSettings(storageSettings);
-    d->m_page->behaviorWidget->assignedBehaviorSettings(behaviorSettings);
-    d->m_page->behaviorWidget->assignedExtraEncodingSettings(extraEncodingSettings);
+    d->m_behaviorWidget->assignedTypingSettings(typingSettings);
+    d->m_behaviorWidget->assignedStorageSettings(storageSettings);
+    d->m_behaviorWidget->assignedBehaviorSettings(behaviorSettings);
+    d->m_behaviorWidget->assignedExtraEncodingSettings(extraEncodingSettings);
 }
 
 void BehaviorSettingsPage::settingsToUI()
 {
-    d->m_page->behaviorWidget->setAssignedTypingSettings(d->m_typingSettings);
-    d->m_page->behaviorWidget->setAssignedStorageSettings(d->m_storageSettings);
-    d->m_page->behaviorWidget->setAssignedBehaviorSettings(d->m_behaviorSettings);
-    d->m_page->behaviorWidget->setAssignedExtraEncodingSettings(d->m_extraEncodingSettings);
-    d->m_page->behaviorWidget->setAssignedCodec(Core::EditorManager::defaultTextCodec());
-    d->m_page->behaviorWidget->setAssignedLineEnding(Core::EditorManager::defaultLineEnding());
+    d->m_behaviorWidget->setAssignedTypingSettings(d->m_typingSettings);
+    d->m_behaviorWidget->setAssignedStorageSettings(d->m_storageSettings);
+    d->m_behaviorWidget->setAssignedBehaviorSettings(d->m_behaviorSettings);
+    d->m_behaviorWidget->setAssignedExtraEncodingSettings(d->m_extraEncodingSettings);
+    d->m_behaviorWidget->setAssignedCodec(Core::EditorManager::defaultTextCodec());
+    d->m_behaviorWidget->setAssignedLineEnding(Core::EditorManager::defaultLineEnding());
 }
 
 void BehaviorSettingsPage::finish()
 {
     delete d->m_widget;
-    if (!d->m_page) // page was never shown
-        return;
-    delete d->m_page;
-    d->m_page = nullptr;
 }
 
 ICodeStylePreferences *BehaviorSettingsPage::codeStyle() const

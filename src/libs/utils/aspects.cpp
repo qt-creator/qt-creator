@@ -1138,6 +1138,9 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
                         &FancyLineEdit::textEdited,
                         this,
                         &StringAspect::setValue);
+                connect(d->m_lineEditDisplay, &FancyLineEdit::editingFinished, this, [this] {
+                    setValue(d->m_lineEditDisplay->text());
+                });
             }
         }
         if (d->m_useResetButton) {
@@ -2441,6 +2444,10 @@ void AspectContainerData::append(const BaseAspect::Data::Ptr &data)
 {
     m_data.append(data);
 }
+
+// BaseAspect::Data
+
+BaseAspect::Data::~Data() = default;
 
 void BaseAspect::Data::Ptr::operator=(const Ptr &other)
 {

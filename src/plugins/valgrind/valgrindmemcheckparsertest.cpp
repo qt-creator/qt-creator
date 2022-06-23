@@ -31,7 +31,6 @@
 #include "xmlprotocol/stack.h"
 #include "xmlprotocol/suppression.h"
 
-#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runconfiguration.h>
 
@@ -483,8 +482,6 @@ void ValgrindMemcheckParserTest::testParserStop()
                                 "-i", dataFile("memcheck-output-sample1.xml"), "--wait", "5" }});
     runner.setProcessChannelMode(QProcess::ForwardedChannels);
 
-    runner.setDevice(ProjectExplorer::DeviceManager::instance()->defaultDevice(
-                         ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE));
     runner.start();
     QTest::qWait(500);
     runner.stop();
@@ -505,8 +502,6 @@ void ValgrindMemcheckParserTest::testRealValgrind()
     ValgrindRunner runner;
     runner.setValgrindCommand({"valgrind", {}});
     runner.setDebuggee(debuggee);
-    runner.setDevice(ProjectExplorer::DeviceManager::instance()->defaultDevice(
-                         ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE));
     RunnerDumper dumper(&runner);
     runner.start();
     runner.waitForFinished();
@@ -544,8 +539,6 @@ void ValgrindMemcheckParserTest::testValgrindStartError()
     ValgrindRunner runner;
     runner.setValgrindCommand({FilePath::fromString(valgrindExe), valgrindArgs});
     runner.setDebuggee(debuggeeExecutable);
-    runner.setDevice(ProjectExplorer::DeviceManager::instance()->defaultDevice(
-                         ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE));
     RunnerDumper dumper(&runner);
     runner.start();
     runner.waitForFinished();

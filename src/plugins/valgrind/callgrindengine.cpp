@@ -57,17 +57,15 @@ CallgrindToolRunner::CallgrindToolRunner(RunControl *runControl)
 {
     setId("CallgrindToolRunner");
 
-    connect(&m_runner, &ValgrindRunner::finished,
-            this, &CallgrindToolRunner::slotFinished);
-    connect(&m_parser, &Callgrind::Parser::parserDataReady,
-            this, &CallgrindToolRunner::slotFinished);
-
     connect(&m_runner, &ValgrindRunner::valgrindStarted, this, [this](qint64 pid) {
         m_pid = pid;
     });
-
-    connect(&m_runner, &ValgrindRunner::extraProcessFinished, this, [this] {
+    connect(&m_runner, &ValgrindRunner::finished, this, [this] {
         triggerParse();
+        emit parserDataReady(this);
+    });
+    connect(&m_parser, &Callgrind::Parser::parserDataReady, this, [this] {
+        emit parserDataReady(this);
     });
 
     m_valgrindRunnable = runControl->runnable();
@@ -152,11 +150,6 @@ Callgrind::ParseData *CallgrindToolRunner::takeParserData()
     return m_parser.takeData();
 }
 
-void CallgrindToolRunner::slotFinished()
-{
-    emit parserDataReady(this);
-}
-
 void CallgrindToolRunner::showStatusMessage(const QString &message)
 {
     Debugger::showPermanentStatusMessage(message);
@@ -224,7 +217,7 @@ void CallgrindToolRunner::run(Option option)
 #if CALLGRIND_CONTROL_DEBUG
     m_controllerProcess->setProcessChannelMode(QProcess::ForwardedChannels);
 #endif
-    connect(m_controllerProcess.get(), &QtcProcess::finished,
+    connect(m_controllerProcess.get(), &QtcProcess::done,
             this, &CallgrindToolRunner::controllerProcessDone);
 
     const FilePath control =

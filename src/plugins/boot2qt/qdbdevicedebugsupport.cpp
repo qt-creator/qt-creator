@@ -55,7 +55,7 @@ public:
         setId("QdbDebuggeeRunner");
 
         connect(&m_launcher, &QtcProcess::started, this, &RunWorker::reportStarted);
-        connect(&m_launcher, &QtcProcess::finished, this, &RunWorker::reportStopped);
+        connect(&m_launcher, &QtcProcess::done, this, &RunWorker::reportStopped);
 
         connect(&m_launcher, &QtcProcess::readyReadStandardOutput, [this] {
                 appendMessage(QString::fromUtf8(m_launcher.readAllStandardOutput()), StdOutFormat);

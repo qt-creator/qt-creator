@@ -281,7 +281,7 @@ QmlEngine::QmlEngine()
         showMessage(QString::fromUtf8(d->process.readAllStandardError()), AppOutput);
     });
 
-    connect(&d->process, &QtcProcess::finished, this, &QmlEngine::disconnected);
+    connect(&d->process, &QtcProcess::done, this, &QmlEngine::disconnected);
     connect(&d->process, &QtcProcess::started, this, &QmlEngine::handleLauncherStarted);
 
     debuggerConsole()->populateFileFinder();

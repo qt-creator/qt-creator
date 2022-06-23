@@ -47,10 +47,16 @@ namespace Internal {
 
 static constexpr char pipInstallTaskId[] = "Python::pipInstallTask";
 
-PipInstallTask::PipInstallTask(const Utils::FilePath &python)
+PipInstallTask::PipInstallTask(const FilePath &python)
     : m_python(python)
 {
     m_watcher.setFuture(m_future.future());
+
+    connect(&m_process, &QtcProcess::done, this, &PipInstallTask::handleDone);
+    connect(&m_process, &QtcProcess::readyReadStandardError, this, &PipInstallTask::handleError);
+    connect(&m_process, &QtcProcess::readyReadStandardOutput, this, &PipInstallTask::handleOutput);
+    connect(&m_killTimer, &QTimer::timeout, this, &PipInstallTask::cancel);
+    connect(&m_watcher, &QFutureWatcher<void>::canceled, this, &PipInstallTask::cancel);
 }
 
 void PipInstallTask::setPackage(const PipPackage &package)
@@ -66,13 +72,6 @@ void PipInstallTask::run()
     }
     const QString taskTitle = tr("Install %1").arg(m_package.displayName);
     Core::ProgressManager::addTask(m_future.future(), taskTitle, pipInstallTaskId);
-    connect(&m_process, &QtcProcess::finished, this, &PipInstallTask::installFinished);
-    connect(&m_process, &QtcProcess::readyReadStandardError, this, &PipInstallTask::handleError);
-    connect(&m_process, &QtcProcess::readyReadStandardOutput, this, &PipInstallTask::handleOutput);
-
-    connect(&m_killTimer, &QTimer::timeout, this, &PipInstallTask::cancel);
-    connect(&m_watcher, &QFutureWatcher<void>::canceled, this, &PipInstallTask::cancel);
-
     QString package = m_package.packageName;
     if (!m_package.version.isEmpty())
         package += "==" + m_package.version;
@@ -102,13 +101,12 @@ void PipInstallTask::cancel()
             .arg(m_package.displayName, m_killTimer.isActive() ? tr("user") : tr("time out")));
 }
 
-void PipInstallTask::installFinished()
+void PipInstallTask::handleDone()
 {
     m_future.reportFinished();
     const bool success = m_process.result() == ProcessResult::FinishedWithSuccess;
     if (!success) {
-        Core::MessageManager::writeFlashing(
-            tr("Installing the %1 failed with exit code %2")
+        Core::MessageManager::writeFlashing(tr("Installing the %1 failed with exit code %2")
                 .arg(m_package.displayName).arg(m_process.exitCode()));
     }
     emit finished(success);
@@ -128,7 +126,7 @@ void PipInstallTask::handleError()
         Core::MessageManager::writeSilently(stdErr);
 }
 
-PipPackageInfo PipPackage::info(const Utils::FilePath &python) const
+PipPackageInfo PipPackage::info(const FilePath &python) const
 {
     PipPackageInfo result;
 

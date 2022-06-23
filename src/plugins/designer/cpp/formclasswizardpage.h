@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <QCoreApplication>
 #include <QWizardPage>
 
 namespace Utils { class FilePath; }
@@ -36,21 +37,21 @@ class FormClassWizardGenerationParameters;
 
 namespace Internal {
 
-namespace Ui { class FormClassWizardPage; }
-
+class NewClassWidget;
 
 class FormClassWizardPage : public QWizardPage
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(Designer::Internal::FormClassWizardPage)
 
 public:
-    explicit FormClassWizardPage(QWidget *parent = nullptr);
+    FormClassWizardPage();
     ~FormClassWizardPage() override;
 
     bool isComplete () const override;
     bool validatePage() override;
 
     void setClassName(const QString &suggestedClassName);
+
     void setFilePath(const Utils::FilePath &);
     Utils::FilePath filePath() const;
 
@@ -65,11 +66,8 @@ public:
 private:
     void slotValidChanged();
 
-private:
-    void initFileGenerationSettings();
-
-    Ui::FormClassWizardPage *m_ui = nullptr;
     bool m_isValid = false;
+    Designer::Internal::NewClassWidget *m_newClassWidget;
 };
 
 } // namespace Internal

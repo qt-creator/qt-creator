@@ -50,7 +50,7 @@ FilePath BuildableHelperLibrary::qtChooserToQmakePath(const FilePath &qtChooser)
     proc.runBlocking();
     if (proc.result() != ProcessResult::FinishedWithSuccess)
         return {};
-    const QString output = proc.stdOut();
+    const QString output = proc.cleanedStdOut();
     int pos = output.indexOf(toolDir);
     if (pos == -1)
         return {};

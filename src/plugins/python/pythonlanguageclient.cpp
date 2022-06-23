@@ -181,9 +181,9 @@ PyLSClient *clientForPython(const FilePath &python)
     return client;
 }
 
-PyLSClient::PyLSClient(BaseClientInterface *interface)
+PyLSClient::PyLSClient(PyLSInterface *interface)
     : Client(interface)
-    , m_extraCompilerOutputDir(static_cast<PyLSInterface *>(interface)->m_extraPythonPath.path())
+    , m_extraCompilerOutputDir(interface->m_extraPythonPath.path())
 {
     connect(this, &Client::initialized, this, &PyLSClient::updateConfiguration);
     connect(PythonSettings::instance(), &PythonSettings::pylsConfigurationChanged,

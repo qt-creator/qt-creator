@@ -49,6 +49,7 @@
 
 #include <QAction>
 #include <QMenu>
+#include <QVersionNumber>
 
 using namespace TextEditor;
 
@@ -180,7 +181,7 @@ Command Uncrustify::command(const QString &cfgFile, bool fragment) const
     Command command;
     command.setExecutable(m_settings.command().toString());
     command.setProcessing(Command::PipeProcessing);
-    if (m_settings.version() >= 62) {
+    if (m_settings.version() >= QVersionNumber(0, 62)) {
         command.addOption("--assume");
         command.addOption("%file");
     } else {

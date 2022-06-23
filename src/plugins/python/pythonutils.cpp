@@ -74,13 +74,22 @@ FilePath detectPython(const FilePath &documentPath)
     if (defaultInterpreter.exists())
         return defaultInterpreter;
 
-    const FilePath python3FromPath = env.searchInPath("python3");
-    if (python3FromPath.exists())
-        return python3FromPath;
+    auto pythonFromPath = [=](const QString toCheck) {
+        for (const FilePath &python : env.findAllInPath(toCheck)) {
+            // Windows creates empty redirector files that may interfere
+            if (python.exists() && python.osType() == OsTypeWindows && python.fileSize() != 0)
+                return python;
+        }
+        return FilePath();
+    };
 
-    const FilePath pythonFromPath = env.searchInPath("python");
-    if (pythonFromPath.exists())
-        return pythonFromPath;
+    const FilePath fromPath3 = pythonFromPath("python3");
+    if (fromPath3.exists())
+        return fromPath3;
+
+    const FilePath fromPath = pythonFromPath("python");
+    if (fromPath.exists())
+        return fromPath;
 
     return PythonSettings::interpreters().value(0).command;
 }

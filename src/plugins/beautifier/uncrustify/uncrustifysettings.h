@@ -26,9 +26,6 @@
 #pragma once
 
 #include "../abstractsettings.h"
-#include <utils/fileutils.h>
-
-namespace Utils { class QtcProcess; }
 
 namespace Beautifier {
 namespace Internal {
@@ -59,16 +56,11 @@ public:
     QString documentationFilePath() const override;
     void createDocumentationFile() const override;
 
-    void updateVersion() override;
-
     Utils::FilePath specificConfigFile() const;
     void setSpecificConfigFile(const Utils::FilePath &filePath);
 
     bool useSpecificConfigFile() const;
     void setUseSpecificConfigFile(bool useConfigFile);
-
-private:
-    std::unique_ptr<Utils::QtcProcess> m_versionProcess;
 };
 
 } // namespace Internal

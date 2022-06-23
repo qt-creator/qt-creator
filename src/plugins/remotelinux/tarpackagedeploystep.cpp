@@ -77,7 +77,7 @@ TarPackageInstaller::TarPackageInstaller()
     connect(&m_installer, &QtcProcess::readyReadStandardError, this, [this] {
         emit stderrData(QString::fromUtf8(m_installer.readAllStandardError()));
     });
-    connect(&m_installer, &QtcProcess::finished, this, [this] {
+    connect(&m_installer, &QtcProcess::done, this, [this] {
         const QString errorMessage = m_installer.result() == ProcessResult::FinishedWithSuccess
                 ? QString() : tr("Installing package failed.") + m_installer.errorString();
         emit finished(errorMessage);

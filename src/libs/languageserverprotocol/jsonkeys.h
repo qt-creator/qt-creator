@@ -209,6 +209,7 @@ constexpr char symbolKindKey[] = "symbolKind";
 constexpr char syncKindKey[] = "syncKind";
 constexpr char synchronizationKey[] = "synchronization";
 constexpr char tabSizeKey[] = "tabSize";
+constexpr char tagsKey[] = "tags";
 constexpr char targetKey[] = "target";
 constexpr char textDocumentKey[] = "textDocument";
 constexpr char textDocumentSyncKey[] = "textDocumentSync";

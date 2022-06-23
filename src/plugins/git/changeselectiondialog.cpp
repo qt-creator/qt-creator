@@ -162,9 +162,11 @@ void ChangeSelectionDialog::setDetails()
 
     QPalette palette;
     if (m_process->result() == ProcessResult::FinishedWithSuccess) {
-        m_ui->detailsText->setPlainText(m_process->stdOut());
+        m_ui->detailsText->setPlainText(m_process->cleanedStdOut());
         palette.setColor(QPalette::Text, theme->color(Theme::TextColorNormal));
         m_ui->changeNumberEdit->setPalette(palette);
+    } else if (m_process->result() == ProcessResult::StartFailed) {
+        m_ui->detailsText->setPlainText(tr("Error: Could not start Git."));
     } else {
         m_ui->detailsText->setPlainText(tr("Error: Unknown reference"));
         palette.setColor(QPalette::Text, theme->color(Theme::TextColorError));
@@ -218,17 +220,12 @@ void ChangeSelectionDialog::recalculateDetails()
     }
 
     m_process.reset(new QtcProcess);
+    connect(m_process.get(), &QtcProcess::done, this, &ChangeSelectionDialog::setDetails);
     m_process->setWorkingDirectory(workingDir);
     m_process->setEnvironment(m_gitEnvironment);
     m_process->setCommand({m_gitExecutable, {"show", "--decorate", "--stat=80", ref}});
-
-    connect(m_process.get(), &QtcProcess::finished, this, &ChangeSelectionDialog::setDetails);
-
     m_process->start();
-    if (!m_process->waitForStarted())
-        m_ui->detailsText->setPlainText(tr("Error: Could not start Git."));
-    else
-        m_ui->detailsText->setPlainText(tr("Fetching commit data..."));
+    m_ui->detailsText->setPlainText(tr("Fetching commit data..."));
 }
 
 void ChangeSelectionDialog::changeTextChanged(const QString &text)

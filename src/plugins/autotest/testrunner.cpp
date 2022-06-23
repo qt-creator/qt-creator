@@ -197,7 +197,7 @@ bool TestRunner::currentConfigValid()
                 m_fakeFutureInterface->reportFinished();
             onFinished();
         } else {
-            onProcessFinished();
+            onProcessDone();
         }
         return false;
     }
@@ -263,21 +263,20 @@ void TestRunner::scheduleNext()
         return;
 
     if (!m_currentConfig->project())
-        onProcessFinished();
+        onProcessDone();
 
     setUpProcess();
-    QTC_ASSERT(m_currentProcess, onProcessFinished(); return);
+    QTC_ASSERT(m_currentProcess, onProcessDone(); return);
     QTC_ASSERT(!m_currentOutputReader, delete m_currentOutputReader);
     m_currentOutputReader = m_currentConfig->outputReader(*m_fakeFutureInterface, m_currentProcess);
-    QTC_ASSERT(m_currentOutputReader, onProcessFinished();return);
+    QTC_ASSERT(m_currentOutputReader, onProcessDone();return);
 
     connect(m_currentOutputReader, &TestOutputReader::newOutputLineAvailable,
             TestResultsPane::instance(), &TestResultsPane::addOutputLine);
 
     setUpProcessEnv();
 
-    connect(m_currentProcess, &Utils::QtcProcess::finished,
-            this, &TestRunner::onProcessFinished);
+    connect(m_currentProcess, &Utils::QtcProcess::done, this, &TestRunner::onProcessDone);
     const int timeout = AutotestPlugin::settings()->timeout;
     m_cancelTimer.setInterval(timeout);
     m_cancelTimer.start();
@@ -292,7 +291,7 @@ void TestRunner::scheduleNext()
         reportResult(ResultType::MessageFatal,
             tr("Failed to start test for project \"%1\".").arg(m_currentConfig->displayName())
                 + processInformation(m_currentProcess) + rcInfo(m_currentConfig));
-        onProcessFinished();
+        onProcessDone();
     }
 }
 
@@ -315,7 +314,7 @@ void TestRunner::cancelCurrent(TestRunner::CancelReason reason)
     }
 }
 
-void TestRunner::onProcessFinished()
+void TestRunner::onProcessDone()
 {
     if (m_executingTests && m_currentConfig) {
         QTC_CHECK(m_fakeFutureInterface);

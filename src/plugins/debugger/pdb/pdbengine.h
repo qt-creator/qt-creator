@@ -100,6 +100,7 @@ private:
     QString errorMessage(QProcess::ProcessError error) const;
     bool hasCapability(unsigned cap) const override;
 
+    void handlePdbStarted();
     void handlePdbDone();
     void readPdbStandardOutput();
     void readPdbStandardError();

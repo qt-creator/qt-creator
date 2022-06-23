@@ -214,6 +214,27 @@ public:
     void setData(const QJsonValue &data) { insert(dataKey, data); }
     void clearData() { remove(dataKey); }
 
+    /**
+     * Completion item tags are extra annotations that tweak the rendering of a
+     * completion item.
+     * @since 3.15.0
+     */
+    enum CompletionItemTag {
+        Deprecated = 1,
+    };
+
+    /**
+     * Tags for this completion item.
+     * @since 3.15.0
+     */
+    Utils::optional<QList<CompletionItemTag>> tags() const;
+
+    /**
+      * Indicates if this item is deprecated.
+      * @deprecated Use `tags` instead if supported.
+      */
+    Utils::optional<bool> deprecated() const { return optionalValue<bool>(deprecatedKey); }
+
     bool isValid() const override { return contains(labelKey); }
 };
 

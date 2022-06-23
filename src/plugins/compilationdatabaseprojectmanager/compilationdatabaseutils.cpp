@@ -206,7 +206,7 @@ void filteredFlags(const QString &fileName,
         }
 
         // Skip all remaining Windows flags except feature flags.
-        if (flag.startsWith("/") && !flag.startsWith("/Z"))
+        if (Utils::HostOsInfo::isWindowsHost() && flag.startsWith("/") && !flag.startsWith("/Z"))
             continue;
 
         filtered.push_back(flag);

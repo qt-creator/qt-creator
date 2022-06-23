@@ -277,8 +277,8 @@ void DeviceShell::startupFailed(const CommandLine &cmdLine)
 bool DeviceShell::start()
 {
     m_shellProcess = new QtcProcess();
-    connect(m_shellProcess, &QtcProcess::done, this, [this] { emit done(); });
-    connect(m_shellProcess, &QtcProcess::errorOccurred, this, &DeviceShell::errorOccurred);
+    connect(m_shellProcess, &QtcProcess::done, m_shellProcess,
+            [this] { emit done(m_shellProcess->resultData()); });
     connect(m_shellProcess, &QObject::destroyed, this, [this] { m_shellProcess = nullptr; });
     connect(&m_thread, &QThread::finished, m_shellProcess, [this] { closeShellProcess(); });
 

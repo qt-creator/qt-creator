@@ -251,6 +251,8 @@ QPair<FilePath, QString> getClangIncludeDirAndVersion(ClangToolRunner *runner)
 
 void DocumentClangToolRunner::runNext()
 {
+    if (m_currentRunner)
+        m_currentRunner.release()->deleteLater();
     m_currentRunner.reset(m_runnerCreators.isEmpty() ? nullptr : m_runnerCreators.takeFirst()());
     if (m_currentRunner) {
         auto [clangIncludeDir, clangVersion] = getClangIncludeDirAndVersion(m_currentRunner.get());
@@ -362,10 +364,7 @@ void DocumentClangToolRunner::cancel()
     if (m_projectSettingsUpdate)
         disconnect(m_projectSettingsUpdate);
     m_runnerCreators.clear();
-    if (m_currentRunner) {
-        m_currentRunner->disconnect(this);
-        m_currentRunner.reset(nullptr);
-    }
+    m_currentRunner.reset(nullptr);
 }
 
 bool DocumentClangToolRunner::isSuppressed(const Diagnostic &diagnostic) const

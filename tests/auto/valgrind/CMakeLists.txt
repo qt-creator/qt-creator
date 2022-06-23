@@ -1,2 +1,4 @@
 add_subdirectory(callgrind)
-# add_subdirectory(memcheck)
+if (UNIX)
+  add_subdirectory(memcheck)
+endif()

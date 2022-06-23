@@ -71,7 +71,7 @@ FilePath findFallbackDefinitionsLocation()
             process.setCommand({program, {"--prefix"}});
             process.runBlocking();
             if (process.result() == ProcessResult::FinishedWithSuccess) {
-                QString output = process.stdOut();
+                QString output = process.cleanedStdOut();
                 output.remove('\n');
                 const FilePath dir = FilePath::fromString(output);
                 for (auto &kateSyntaxPath : kateSyntaxPaths) {

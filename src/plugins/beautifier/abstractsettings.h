@@ -35,11 +35,20 @@
 #include <QStringList>
 #include <QVector>
 
+#include <memory>
+
+QT_BEGIN_NAMESPACE
+class QRegularExpression;
+class QVersionNumber;
+QT_END_NAMESPACE
+
 namespace Core { class IDocument; }
 namespace Utils { class FilePath; }
 
 namespace Beautifier {
 namespace Internal {
+
+class VersionUpdater;
 
 class AbstractSettings : public QObject
 {
@@ -66,9 +75,8 @@ public:
     virtual QString styleFileName(const QString &key) const;
 
     Utils::FilePath command() const;
-    void setCommand(const QString &command);
-    int version() const;
-    virtual void updateVersion();
+    void setCommand(const QString &cmd);
+    QVersionNumber version() const;
 
     QString supportedMimeTypesAsString() const;
     void setSupportedMimeTypes(const QString &mimes);
@@ -81,9 +89,10 @@ signals:
     void supportedMimeTypesChanged();
 
 protected:
+    void setVersionRegExp(const QRegularExpression &versionRegExp);
+
     QMap<QString, QString> m_styles;
     QMap<QString, QVariant> m_settings;
-    int m_version = 0;
     QString m_ending;
     QDir m_styleDir;
 
@@ -92,6 +101,7 @@ protected:
 
 private:
     QString m_name;
+    std::unique_ptr<VersionUpdater> m_versionUpdater;
     QStringList m_stylesToRemove;
     QSet<QString> m_changedStyles;
     QString m_command;

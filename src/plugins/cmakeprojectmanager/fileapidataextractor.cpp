@@ -402,18 +402,18 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
             const bool hasPchSource = anyOf(sources, [buildDirectory](const QString &path) {
                 return isPchFile(buildDirectory, FilePath::fromString(path));
             });
-            if (!hasPchSource) {
-                QString headerMimeType;
-                if (ci.language == "C")
-                    headerMimeType = CppEditor::Constants::C_HEADER_MIMETYPE;
-                else if (ci.language == "CXX")
-                    headerMimeType = CppEditor::Constants::CPP_HEADER_MIMETYPE;
 
+            QString headerMimeType;
+            if (ci.language == "C")
+                headerMimeType = CppEditor::Constants::C_HEADER_MIMETYPE;
+            else if (ci.language == "CXX")
+                headerMimeType = CppEditor::Constants::CPP_HEADER_MIMETYPE;
+            if (!hasPchSource) {
                 for (const SourceInfo &si : t.sources) {
                     if (si.isGenerated)
                         continue;
                     const auto mimeTypes = Utils::mimeTypesForFileName(si.path);
-                    for (auto mime : mimeTypes)
+                    for (const auto &mime : mimeTypes)
                         if (mime.name() == headerMimeType)
                             sources.push_back(sourceDir.absoluteFilePath(si.path));
                 }
@@ -421,8 +421,14 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
 
             // Set project files except pch files
             rpp.setFiles(Utils::filtered(sources, [buildDirectory](const QString &path) {
-                return !isPchFile(buildDirectory, FilePath::fromString(path));
-            }));
+                             return !isPchFile(buildDirectory, FilePath::fromString(path));
+                         }), {}, [headerMimeType](const QString &path) {
+                             // Similar to ProjectFile::classify but classify headers with language
+                             // of compile group instead of ambiguous header
+                             if (path.endsWith(".h"))
+                                 return headerMimeType;
+                             return Utils::mimeTypeForFile(path).name();
+                         });
 
             FilePath precompiled_header
                 = FilePath::fromString(findOrDefault(t.sources, [&ending](const SourceInfo &si) {

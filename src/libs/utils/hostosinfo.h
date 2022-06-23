@@ -27,6 +27,7 @@
 
 #include "utils_global.h"
 
+#include "optional.h"
 #include "osspecificaspects.h"
 
 QT_BEGIN_NAMESPACE
@@ -60,7 +61,7 @@ public:
     }
 
     enum HostArchitecture { HostArchitectureX86, HostArchitectureAMD64, HostArchitectureItanium,
-                            HostArchitectureArm, HostArchitectureUnknown };
+                            HostArchitectureArm, HostArchitectureArm64, HostArchitectureUnknown };
     static HostArchitecture hostArchitecture();
 
     static constexpr bool isWindowsHost() { return hostOs() == OsTypeWindows; }
@@ -103,6 +104,8 @@ public:
     }
 
     static bool canCreateOpenGLContext(QString *errorMessage);
+
+    static optional<quint64> totalMemoryInstalledInBytes();
 
 private:
     static Qt::CaseSensitivity m_overrideFileNameCaseSensitivity;

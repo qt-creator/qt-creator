@@ -57,7 +57,7 @@ public:
                 QString *newText, int *selectionStart, int *selectionLength) const override;
 
 private:
-    void finished();
+    void done();
     void readStandardOutput();
     void readStandardError();
     void runHeadCommand();

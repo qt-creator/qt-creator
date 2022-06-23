@@ -3,6 +3,7 @@ import "../common/common.qbs" as Common
 CppApplication {
     name: "Manual Test Tracing"
 
+    Depends { name: "qtc" }
     Depends { name: "Qt.quick" }
     Depends { name: "Tracing" }
     Depends { name: "Utils" }

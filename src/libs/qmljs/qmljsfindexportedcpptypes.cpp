@@ -334,7 +334,7 @@ protected:
                         _doc->fileName(),
                         line, column,
                         QmlJS::FindExportedCppTypes::tr(
-                            "The module URI cannot be determined by static analysis. The type will be available\n"
+                            "The module URI cannot be determined by static analysis. The type will not be available\n"
                             "globally in the QML editor. You can add a \"// @uri My.Module.Uri\" annotation to let\n"
                             "the QML editor know about a likely URI."));
         }

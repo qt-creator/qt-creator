@@ -34,10 +34,15 @@
 #include <utils/fileutils.h>
 #include <utils/genericconstants.h>
 #include <utils/mimeutils.h>
+#include <utils/qtcprocess.h>
 
 #include <QFile>
 #include <QFileInfo>
+#include <QRegularExpression>
+#include <QVersionNumber>
 #include <QXmlStreamReader>
+
+using namespace Utils;
 
 namespace Beautifier {
 namespace Internal {
@@ -47,12 +52,65 @@ const char COMMAND[]        = "command";
 const char SUPPORTED_MIME[] = "supportedMime";
 }
 
+class VersionUpdater
+{
+public:
+    VersionUpdater()
+    {
+        QObject::connect(&m_process, &QtcProcess::done, [this] {
+            if (m_process.result() != ProcessResult::FinishedWithSuccess)
+                return;
+
+            m_versionNumber = parseVersion(m_process.cleanedStdOut());
+            if (m_versionNumber.isNull())
+                m_versionNumber = parseVersion(m_process.cleanedStdErr());
+        });
+    }
+
+    void setVersionRegExp(const QRegularExpression &versionRegExp)
+    {
+        m_versionRegExp = versionRegExp;
+    }
+
+    void update(const FilePath &executable)
+    {
+        m_versionNumber = {};
+        if (m_versionRegExp.pattern().isEmpty())
+            return;
+        m_process.close();
+        m_process.setCommand({executable, {"--version"}});
+        m_process.start();
+    }
+
+    QVersionNumber version() const
+    {
+        if (m_process.state() != QProcess::NotRunning)
+            m_process.waitForFinished(-1);
+        return m_versionNumber;
+    }
+
+private:
+    QVersionNumber parseVersion(const QString &text) const
+    {
+        const QRegularExpressionMatch match = m_versionRegExp.match(text);
+        if (!match.hasMatch())
+            return {};
+
+        return {match.captured(1).toInt(), match.captured(2).toInt()};
+    }
+
+    QRegularExpression m_versionRegExp;
+    mutable QtcProcess m_process;
+    QVersionNumber m_versionNumber;
+};
+
 AbstractSettings::AbstractSettings(const QString &name, const QString &ending)
     : m_ending(ending)
     , m_styleDir(Core::ICore::userResourcePath(Beautifier::Constants::SETTINGS_DIRNAME)
                      .pathAppended(name)
                      .toString())
     , m_name(name)
+    , m_versionUpdater(new VersionUpdater)
 {
 }
 
@@ -122,29 +180,28 @@ QString AbstractSettings::styleFileName(const QString &key) const
     return m_styleDir.absoluteFilePath(key + m_ending);
 }
 
-Utils::FilePath AbstractSettings::command() const
+FilePath AbstractSettings::command() const
 {
-    return Utils::FilePath::fromString(m_command);
+    return FilePath::fromString(m_command);
 }
 
-void AbstractSettings::setCommand(const QString &command)
+void AbstractSettings::setCommand(const QString &cmd)
 {
-    if (command == m_command)
+    if (cmd == m_command)
         return;
 
-    m_command = command;
-    updateVersion();
+    m_command = cmd;
+    m_versionUpdater->update(command());
 }
 
-int AbstractSettings::version() const
+QVersionNumber AbstractSettings::version() const
 {
-    return m_version;
+    return m_versionUpdater->version();
 }
 
-void AbstractSettings::updateVersion()
+void AbstractSettings::setVersionRegExp(const QRegularExpression &versionRegExp)
 {
-    // If a beautifier needs to know the current tool's version, reimplement and store the version
-    // in m_version.
+    m_versionUpdater->setVersionRegExp(versionRegExp);
 }
 
 QString AbstractSettings::supportedMimeTypesAsString() const
@@ -157,7 +214,7 @@ void AbstractSettings::setSupportedMimeTypes(const QString &mimes)
     const QStringList stringTypes = mimes.split(';');
     QStringList types;
     for (const QString &type : stringTypes) {
-        const Utils::MimeType mime = Utils::mimeTypeForName(type.trimmed());
+        const MimeType mime = mimeTypeForName(type.trimmed());
         if (!mime.isValid())
             continue;
         const QString canonicalName = mime.name();
@@ -179,8 +236,8 @@ bool AbstractSettings::isApplicable(const Core::IDocument *document) const
     if (m_supportedMimeTypes.isEmpty())
         return true;
 
-    const Utils::MimeType documentMimeType = Utils::mimeTypeForName(document->mimeType());
-    return Utils::anyOf(m_supportedMimeTypes, [&documentMimeType](const QString &mime) {
+    const MimeType documentMimeType = mimeTypeForName(document->mimeType());
+    return anyOf(m_supportedMimeTypes, [&documentMimeType](const QString &mime) {
         return documentMimeType.inherits(mime);
     });
 }
@@ -246,7 +303,7 @@ void AbstractSettings::save()
             continue;
         }
 
-        Utils::FileSaver saver(Utils::FilePath::fromUserInput(fi.absoluteFilePath()));
+        FileSaver saver(FilePath::fromUserInput(fi.absoluteFilePath()));
         if (saver.hasError()) {
             BeautifierPlugin::showError(tr("Cannot open file \"%1\": %2.")
                                         .arg(saver.filePath().toUserOutput())

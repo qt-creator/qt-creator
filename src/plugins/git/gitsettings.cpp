@@ -141,11 +141,9 @@ FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
         errorMessage->clear();
 
     FilePath binPath = binaryPath.filePath();
-    if (!binPath.isAbsolutePath()) {
-        Environment env = Environment::systemEnvironment();
-        env.prependOrSetPath(path.filePath());
-        binPath = env.searchInPath(binPath.toString());
-    }
+    if (!binPath.isAbsolutePath())
+        binPath = binPath.searchInPath({path.filePath()}, FilePath::PrependToPath);
+
     if (binPath.isEmpty()) {
         if (ok)
             *ok = false;

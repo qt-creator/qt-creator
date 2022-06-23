@@ -132,7 +132,7 @@ void ClangToolRunner::onProcessDone()
     if (m_process.result() == ProcessResult::StartFailed) {
         emit finishedWithFailure(generalProcessError(m_name), commandlineAndOutput());
     } else if (m_process.result() == ProcessResult::FinishedWithSuccess) {
-        qCDebug(LOG).noquote() << "Output:\n" << m_process.stdOut();
+        qCDebug(LOG).noquote() << "Output:\n" << m_process.cleanedStdOut();
         emit finishedWithSuccess(m_fileToAnalyze);
     } else if (m_process.result() == ProcessResult::FinishedWithError) {
         emit finishedWithFailure(finishedWithBadExitCode(m_name, m_process.exitCode()),
@@ -149,7 +149,7 @@ QString ClangToolRunner::commandlineAndOutput() const
               "Output:\n%3")
         .arg(m_commandLine.toUserOutput())
         .arg(m_process.error())
-        .arg(m_process.stdOut());
+        .arg(m_process.cleanedStdOut());
 }
 
 } // namespace Internal

@@ -72,7 +72,7 @@ public:
     SUB_PROCESS(StandardOutputAndErrorWriter);
     SUB_PROCESS(ChannelForwarding);
     SUB_PROCESS(BlockingProcess);
-    SUB_PROCESS(EmitOneErrorOnCrash);
+    SUB_PROCESS(Crash);
     SUB_PROCESS(CrashAfterOneSecond);
     SUB_PROCESS(RecursiveCrashingProcess);
     SUB_PROCESS(RecursiveBlockingProcess);

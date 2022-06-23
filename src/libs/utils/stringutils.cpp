@@ -29,6 +29,11 @@
 #include "hostosinfo.h"
 #include "qtcassert.h"
 
+#ifdef QT_WIDGETS_LIB
+#include <QApplication>
+#include <QClipboard>
+#endif
+
 #include <QCoreApplication>
 #include <QDir>
 #include <QJsonArray>
@@ -468,5 +473,17 @@ QTCREATOR_UTILS_EXPORT QString languageNameFromLanguageCode(const QString &langu
         languageName += " - " + locale.nativeLanguageName();
     return languageName;
 }
+
+#ifdef QT_WIDGETS_LIB
+
+QTCREATOR_UTILS_EXPORT void setClipboardAndSelection(const QString &text)
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(text);
+    if (clipboard->supportsSelection())
+        clipboard->setText(text, QClipboard::Selection);
+}
+
+#endif
 
 } // namespace Utils

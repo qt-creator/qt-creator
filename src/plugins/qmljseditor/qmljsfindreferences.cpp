@@ -28,10 +28,11 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultwindow.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/basefilefind.h>
+#include <utils/algorithm.h>
 #include <utils/filesearch.h>
 #include <utils/runextensions.h>
 
@@ -745,6 +746,7 @@ public:
             future->waitForResume();
         if (future->isCanceled())
             return usages;
+        ModelManagerInterface *modelManager = ModelManagerInterface::instance();
         Document::Ptr doc = context->snapshot().document(fileName);
         if (!doc)
             return usages;
@@ -753,7 +755,7 @@ public:
         FindUsages findUsages(doc, context);
         const FindUsages::Result results = findUsages(name, scope);
         for (const SourceLocation &loc : results)
-            usages.append(Usage(fileName, matchingLine(loc.offset, doc->source()), loc.startLine, loc.startColumn - 1, loc.length));
+            usages.append(Usage(modelManager->fileToSource(Utils::FilePath::fromString(fileName)).toString(), matchingLine(loc.offset, doc->source()), loc.startLine, loc.startColumn - 1, loc.length));
         if (future->isPaused())
             future->waitForResume();
         return usages;
@@ -896,8 +898,9 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     QStringList files;
     for (const Document::Ptr &doc : qAsConst(snapshot)) {
         // ### skip files that don't contain the name token
-        files.append(doc->fileName());
+        files.append(modelManager->fileToSource(Utils::FilePath::fromString(doc->fileName())).toString());
     }
+    files = Utils::filteredUnique(files);
 
     future.setProgressRange(0, files.size());
 
@@ -976,11 +979,23 @@ QList<FindReferences::Usage> FindReferences::findUsageOfType(const QString &file
 
     QmlJS::Snapshot snapshot =  modelManager->snapshot();
 
+    QSet<QString> docDone;
     for (const QmlJS::Document::Ptr &doc : qAsConst(snapshot)) {
-        FindTypeUsages findUsages(doc, context);
+        QString sourceFile = modelManager->fileToSource(Utils::FilePath::fromString(doc->fileName())).toString();
+        if (docDone.contains(sourceFile))
+            continue;
+        docDone.insert(sourceFile);
+        QmlJS::Document::Ptr sourceDoc = doc;
+        if (sourceFile != doc->fileName())
+            sourceDoc = snapshot.document(sourceFile);
+        FindTypeUsages findUsages(sourceDoc, context);
         const FindTypeUsages::Result results = findUsages(typeName, targetValue);
         for (const SourceLocation &loc : results) {
-            usages.append(Usage(doc->fileName(), matchingLine(loc.offset, doc->source()), loc.startLine, loc.startColumn - 1, loc.length));
+            usages.append(Usage(sourceFile,
+                                matchingLine(loc.offset, doc->source()),
+                                loc.startLine,
+                                loc.startColumn - 1,
+                                loc.length));
         }
     }
     return usages;

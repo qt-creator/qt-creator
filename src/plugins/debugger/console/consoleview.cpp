@@ -30,14 +30,15 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/manhattanstyle.h>
 #include <qtsupport/baseqtversion.h>
+
 #include <utils/hostosinfo.h>
+#include <utils/stringutils.h>
 
 #include <QAction>
 #include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QApplication>
-#include <QClipboard>
 #include <QAbstractProxyModel>
 #include <QFileInfo>
 #include <QScrollBar>
@@ -204,8 +205,7 @@ void ConsoleView::copyToClipboard(const QModelIndex &index)
         contents = QString::fromLatin1("%1 %2: %3").arg(contents).arg(filePath).arg(
                     model()->data(index, ConsoleItem::LineRole).toString());
     }
-    QClipboard *cb = QApplication::clipboard();
-    cb->setText(contents);
+    Utils::setClipboardAndSelection(contents);
 }
 
 bool ConsoleView::canShowItemInTextEditor(const QModelIndex &index)

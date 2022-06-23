@@ -26,11 +26,10 @@
 #pragma once
 
 #include <utils/filepath.h>
+#include <utils/qtcprocess.h>
 
 #include <QHash>
 #include <QTimer>
-
-namespace Utils { class QtcProcess; }
 
 namespace Cppcheck {
 namespace Internal {
@@ -58,18 +57,16 @@ private:
     void checkQueued();
     void readOutput();
     void readError();
-    void handleStarted();
-    void handleFinished();
+    void handleDone();
 
     CppcheckTool &m_tool;
-    Utils::QtcProcess *m_process = nullptr;
+    Utils::QtcProcess m_process;
     Utils::FilePath m_binary;
     QString m_arguments;
     QHash<QString, Utils::FilePaths> m_queue;
     Utils::FilePaths m_currentFiles;
     QTimer m_queueTimer;
     int m_maxArgumentsLength = 32767;
-    bool m_isRunning = false;
 };
 
 } // namespace Internal

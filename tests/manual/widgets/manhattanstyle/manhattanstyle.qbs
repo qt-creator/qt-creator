@@ -3,6 +3,7 @@ import "../common/common.qbs" as Common
 CppApplication {
     name: "Manual Test Utils ManhattanStyle"
 
+    Depends { name: "qtc" }
     Depends { name: "Core" }
     Depends { name: "Utils" }
 

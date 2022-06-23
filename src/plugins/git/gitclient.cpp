@@ -761,8 +761,8 @@ public:
         // No conflicts => do nothing
         if (proc.result() == ProcessResult::FinishedWithSuccess)
             return;
-        handler.readStdOut(proc.stdOut());
-        handler.readStdErr(proc.stdErr());
+        handler.readStdOut(proc.cleanedStdOut());
+        handler.readStdErr(proc.cleanedStdErr());
     }
 
 private:
@@ -944,7 +944,7 @@ FilePaths GitClient::unmanagedFiles(const FilePaths &filePaths) const
         if (proc.result() != ProcessResult::FinishedWithSuccess)
             return filePaths;
         const QStringList managedFilePaths
-            = transform(proc.stdOut().split('\0', Qt::SkipEmptyParts),
+            = transform(proc.cleanedStdOut().split('\0', Qt::SkipEmptyParts),
                             [&wd](const QString &fp) { return wd.absoluteFilePath(fp); });
         const QStringList filtered = Utils::filtered(it.value(), [&managedFilePaths, &wd](const QString &fp) {
             return !managedFilePaths.contains(wd.absoluteFilePath(fp));
@@ -1141,8 +1141,7 @@ void GitClient::diffBranch(const FilePath &workingDirectory, const QString &bran
 void GitClient::merge(const FilePath &workingDirectory, const QStringList &unmergedFileNames)
 {
     auto mergeTool = new MergeTool(this);
-    if (!mergeTool->start(workingDirectory, unmergedFileNames))
-        delete mergeTool;
+    mergeTool->start(workingDirectory, unmergedFileNames);
 }
 
 void GitClient::status(const FilePath &workingDirectory) const
@@ -1515,7 +1514,7 @@ void GitClient::recoverDeletedFiles(const FilePath &workingDirectory)
     vcsFullySynchronousExec(proc, workingDirectory, {"ls-files", "--deleted"},
                             VcsCommand::SuppressCommandLogging);
     if (proc.result() == ProcessResult::FinishedWithSuccess) {
-        const QString stdOut = proc.stdOut().trimmed();
+        const QString stdOut = proc.cleanedStdOut().trimmed();
         if (stdOut.isEmpty()) {
             VcsOutputWindow::appendError(tr("Nothing to recover"));
             return;
@@ -1542,11 +1541,11 @@ bool GitClient::synchronousLog(const FilePath &workingDirectory, const QStringLi
     vcsFullySynchronousExec(proc, workingDirectory, allArguments, flags, vcsTimeoutS(),
                             encoding(workingDirectory, "i18n.logOutputEncoding"));
     if (proc.result() == ProcessResult::FinishedWithSuccess) {
-        *output = proc.stdOut();
+        *output = proc.cleanedStdOut();
         return true;
     } else {
         msgCannotRun(tr("Cannot obtain log of \"%1\": %2")
-            .arg(workingDirectory.toUserOutput(), proc.stdErr()), errorMessageIn);
+            .arg(workingDirectory.toUserOutput(), proc.cleanedStdErr()), errorMessageIn);
         return false;
     }
 }
@@ -1596,7 +1595,7 @@ bool GitClient::synchronousReset(const FilePath &workingDirectory,
 
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, arguments);
-    const QString stdOut = proc.stdOut();
+    const QString stdOut = proc.cleanedStdOut();
     VcsOutputWindow::append(stdOut);
     // Note that git exits with 1 even if the operation is successful
     // Assume real failure if the output does not contain "foo.cpp modified"
@@ -1604,10 +1603,10 @@ bool GitClient::synchronousReset(const FilePath &workingDirectory,
     if (proc.result() != ProcessResult::FinishedWithSuccess
         && (!stdOut.contains("modified") && !stdOut.contains("Unstaged changes after reset"))) {
         if (files.isEmpty()) {
-            msgCannotRun(arguments, workingDirectory, proc.stdErr(), errorMessage);
+            msgCannotRun(arguments, workingDirectory, proc.cleanedStdErr(), errorMessage);
         } else {
             msgCannotRun(tr("Cannot reset %n files in \"%1\": %2", nullptr, files.size())
-                .arg(workingDirectory.toUserOutput(), proc.stdErr()),
+                .arg(workingDirectory.toUserOutput(), proc.cleanedStdErr()),
                          errorMessage);
         }
         return false;
@@ -1621,7 +1620,7 @@ bool GitClient::synchronousInit(const FilePath &workingDirectory)
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, QStringList{"init"});
     // '[Re]Initialized...'
-    VcsOutputWindow::append(proc.stdOut());
+    VcsOutputWindow::append(proc.cleanedStdOut());
     if (proc.result() == ProcessResult::FinishedWithSuccess) {
         resetCachedVcsInfo(workingDirectory);
         return true;
@@ -1653,7 +1652,7 @@ bool GitClient::synchronousCheckoutFiles(const FilePath &workingDirectory, QStri
         //: Meaning of the arguments: %1: revision, %2: files, %3: repository,
         //: %4: Error message
         msgCannotRun(tr("Cannot checkout \"%1\" of %2 in \"%3\": %4")
-                         .arg(revision, fileArg, workingDirectory.toUserOutput(), proc.stdErr()),
+                         .arg(revision, fileArg, workingDirectory.toUserOutput(), proc.cleanedStdErr()),
                      errorMessage);
         return false;
     }
@@ -1701,10 +1700,10 @@ bool GitClient::synchronousRevListCmd(const FilePath &workingDirectory, const QS
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, arguments, silentFlags);
     if (proc.result() != ProcessResult::FinishedWithSuccess) {
-        msgCannotRun(arguments, workingDirectory, proc.stdErr(), errorMessage);
+        msgCannotRun(arguments, workingDirectory, proc.cleanedStdErr(), errorMessage);
         return false;
     }
-    *output = proc.stdOut();
+    *output = proc.cleanedStdOut();
     return true;
 }
 
@@ -1765,7 +1764,7 @@ QString GitClient::synchronousCurrentLocalBranch(const FilePath &workingDirector
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, {"symbolic-ref", HEAD}, silentFlags);
     if (proc.result() == ProcessResult::FinishedWithSuccess) {
-        branch = proc.stdOut().trimmed();
+        branch = proc.cleanedStdOut().trimmed();
     } else {
         const QString gitDir = findGitDirForRepository(workingDirectory);
         const QString rebaseHead = gitDir + "/rebase-merge/head-name";
@@ -1790,11 +1789,11 @@ bool GitClient::synchronousHeadRefs(const FilePath &workingDirectory, QStringLis
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, arguments, silentFlags);
     if (proc.result() != ProcessResult::FinishedWithSuccess) {
-        msgCannotRun(arguments, workingDirectory, proc.stdErr(), errorMessage);
+        msgCannotRun(arguments, workingDirectory, proc.cleanedStdErr(), errorMessage);
         return false;
     }
 
-    const QString stdOut = proc.stdOut();
+    const QString stdOut = proc.cleanedStdOut();
     const QString headSha = stdOut.left(10);
     QString rest = stdOut.mid(15);
 
@@ -1839,7 +1838,7 @@ QString GitClient::synchronousTopic(const FilePath &workingDirectory) const
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, QStringList{"describe"}, VcsCommand::NoOutput);
     if (proc.result() == ProcessResult::FinishedWithSuccess) {
-        const QString stdOut = proc.stdOut().trimmed();
+        const QString stdOut = proc.cleanedStdOut().trimmed();
         if (!stdOut.isEmpty())
             return stdOut;
     }
@@ -1852,9 +1851,9 @@ bool GitClient::synchronousRevParseCmd(const FilePath &workingDirectory, const Q
     const QStringList arguments = {"rev-parse", ref};
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, arguments, silentFlags);
-    *output = proc.stdOut().trimmed();
+    *output = proc.cleanedStdOut().trimmed();
     if (proc.result() != ProcessResult::FinishedWithSuccess) {
-        msgCannotRun(arguments, workingDirectory, proc.stdErr(), errorMessage);
+        msgCannotRun(arguments, workingDirectory, proc.cleanedStdErr(), errorMessage);
         return false;
     }
 
@@ -1869,7 +1868,7 @@ QString GitClient::synchronousTopRevision(const FilePath &workingDirectory, QDat
     vcsFullySynchronousExec(proc, workingDirectory, arguments, silentFlags);
     if (proc.result() != ProcessResult::FinishedWithSuccess)
         return QString();
-    const QStringList output = proc.stdOut().trimmed().split(':');
+    const QStringList output = proc.cleanedStdOut().trimmed().split(':');
     if (dateTime && output.size() > 1) {
         bool ok = false;
         const qint64 timeT = output.at(1).toLongLong(&ok);
@@ -1889,7 +1888,7 @@ bool GitClient::isFastForwardMerge(const FilePath &workingDirectory, const QStri
 {
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, {"merge-base", HEAD, branch}, silentFlags);
-    return proc.stdOut().trimmed() == synchronousTopRevision(workingDirectory);
+    return proc.cleanedStdOut().trimmed() == synchronousTopRevision(workingDirectory);
 }
 
 // Format an entry in a one-liner for selection list using git log.
@@ -1902,10 +1901,10 @@ QString GitClient::synchronousShortDescription(const FilePath &workingDirectory,
     vcsFullySynchronousExec(proc, workingDirectory, arguments, silentFlags);
     if (proc.result() != ProcessResult::FinishedWithSuccess) {
         VcsOutputWindow::appendSilently(tr("Cannot describe revision \"%1\" in \"%2\": %3")
-                                        .arg(revision, workingDirectory.toUserOutput(), proc.stdErr()));
+                                        .arg(revision, workingDirectory.toUserOutput(), proc.cleanedStdErr()));
         return revision;
     }
-    return stripLastNewline(proc.stdOut());
+    return stripLastNewline(proc.cleanedStdOut());
 }
 
 // Create a default message to be used for describing stashes
@@ -1982,7 +1981,7 @@ bool GitClient::executeSynchronousStash(const FilePath &workingDirectory,
     QtcProcess proc;
     vcsSynchronousExec(proc, workingDirectory, arguments, flags);
     if (proc.result() != ProcessResult::FinishedWithSuccess) {
-        msgCannotRun(arguments, workingDirectory, proc.stdErr(), errorMessage);
+        msgCannotRun(arguments, workingDirectory, proc.cleanedStdErr(), errorMessage);
         return false;
     }
 
@@ -2021,9 +2020,9 @@ bool GitClient::synchronousBranchCmd(const FilePath &workingDirectory, QStringLi
     branchArgs.push_front("branch");
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, branchArgs);
-    *output = proc.stdOut();
+    *output = proc.cleanedStdOut();
     if (proc.result() != ProcessResult::FinishedWithSuccess) {
-        msgCannotRun(branchArgs, workingDirectory, proc.stdErr(), errorMessage);
+        msgCannotRun(branchArgs, workingDirectory, proc.cleanedStdErr(), errorMessage);
         return false;
     }
     return true;
@@ -2035,9 +2034,9 @@ bool GitClient::synchronousTagCmd(const FilePath &workingDirectory, QStringList 
     tagArgs.push_front("tag");
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, tagArgs);
-    *output = proc.stdOut();
+    *output = proc.cleanedStdOut();
     if (proc.result() != ProcessResult::FinishedWithSuccess) {
-        msgCannotRun(tagArgs, workingDirectory, proc.stdErr(), errorMessage);
+        msgCannotRun(tagArgs, workingDirectory, proc.cleanedStdErr(), errorMessage);
         return false;
     }
     return true;
@@ -2049,9 +2048,9 @@ bool GitClient::synchronousForEachRefCmd(const FilePath &workingDirectory, QStri
     args.push_front("for-each-ref");
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args, silentFlags);
-    *output = proc.stdOut();
+    *output = proc.cleanedStdOut();
     if (proc.result() != ProcessResult::FinishedWithSuccess) {
-        msgCannotRun(args, workingDirectory, proc.stdErr(), errorMessage);
+        msgCannotRun(args, workingDirectory, proc.cleanedStdErr(), errorMessage);
         return false;
     }
     return true;
@@ -2070,9 +2069,9 @@ bool GitClient::synchronousRemoteCmd(const FilePath &workingDirectory, QStringLi
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, remoteArgs, silent ? silentFlags : 0);
 
-    const QString stdErr = proc.stdErr();
+    const QString stdErr = proc.cleanedStdErr();
     *errorMessage = stdErr;
-    *output = proc.stdOut();
+    *output = proc.cleanedStdOut();
 
     if (proc.result() != ProcessResult::FinishedWithSuccess) {
         msgCannotRun(remoteArgs, workingDirectory, stdErr, errorMessage);
@@ -2116,10 +2115,10 @@ QStringList GitClient::synchronousSubmoduleStatus(const FilePath &workingDirecto
 
     if (proc.result() != ProcessResult::FinishedWithSuccess) {
         msgCannotRun(tr("Cannot retrieve submodule status of \"%1\": %2")
-                     .arg(workingDirectory.toUserOutput(), proc.stdErr()), errorMessage);
+                     .arg(workingDirectory.toUserOutput(), proc.cleanedStdErr()), errorMessage);
         return QStringList();
     }
-    return splitLines(proc.stdOut());
+    return splitLines(proc.cleanedStdOut());
 }
 
 SubmoduleDataMap GitClient::submoduleList(const FilePath &workingDirectory) const
@@ -2195,7 +2194,7 @@ QByteArray GitClient::synchronousShow(const FilePath &workingDirectory, const QS
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, arguments, flags);
     if (proc.result() != ProcessResult::FinishedWithSuccess) {
-        msgCannotRun(arguments, workingDirectory, proc.stdErr(), nullptr);
+        msgCannotRun(arguments, workingDirectory, proc.cleanedStdErr(), nullptr);
         return {};
     }
     return proc.rawStdOut();
@@ -2211,7 +2210,7 @@ bool GitClient::cleanList(const FilePath &workingDirectory, const QString &modul
     QtcProcess proc;
     vcsFullySynchronousExec(proc, directory, arguments, VcsCommand::ForceCLocale);
     if (proc.result() != ProcessResult::FinishedWithSuccess) {
-        msgCannotRun(arguments, directory, proc.stdErr(), errorMessage);
+        msgCannotRun(arguments, directory, proc.cleanedStdErr(), errorMessage);
         return false;
     }
 
@@ -2219,7 +2218,7 @@ bool GitClient::cleanList(const FilePath &workingDirectory, const QString &modul
     const QString relativeBase = modulePath.isEmpty() ? QString() : modulePath + '/';
     const QString prefix = "Would remove ";
     const QStringList removeLines = Utils::filtered(
-                splitLines(proc.stdOut()), [](const QString &s) {
+                splitLines(proc.cleanedStdOut()), [](const QString &s) {
         return s.startsWith("Would remove ");
     });
     *files = Utils::transform(removeLines, [&relativeBase, &prefix](const QString &s) -> QString {
@@ -2257,7 +2256,7 @@ bool GitClient::synchronousApplyPatch(const FilePath &workingDirectory,
 
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, arguments);
-    const QString stdErr = proc.stdErr();
+    const QString stdErr = proc.cleanedStdErr();
     if (proc.result() == ProcessResult::FinishedWithSuccess) {
         if (!stdErr.isEmpty())
             *errorMessage = tr("There were warnings while applying \"%1\" to \"%2\":\n%3")
@@ -2394,7 +2393,7 @@ GitClient::StatusResult GitClient::gitStatus(const FilePath &workingDirectory, S
 
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, arguments, silentFlags);
-    const QString stdOut = proc.stdOut();
+    const QString stdOut = proc.cleanedStdOut();
 
     if (output)
         *output = stdOut;
@@ -2404,7 +2403,7 @@ GitClient::StatusResult GitClient::gitStatus(const FilePath &workingDirectory, S
     // Is it something really fatal?
     if (!statusRc && !branchKnown) {
         if (errorMessage) {
-            *errorMessage = tr("Cannot obtain status: %1").arg(proc.stdErr());
+            *errorMessage = tr("Cannot obtain status: %1").arg(proc.cleanedStdErr());
         }
         return StatusFailed;
     }
@@ -2547,7 +2546,7 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
     // split "82bfad2f51d34e98b18982211c82220b8db049b<tab>refs/heads/master"
     bool headFound = false;
     bool branchFound = false;
-    const QStringList lines = proc.stdOut().split('\n');
+    const QStringList lines = proc.cleanedStdOut().split('\n');
     for (const QString &line : lines) {
         if (line.endsWith("\tHEAD")) {
             QTC_CHECK(headSha.isNull());
@@ -3179,7 +3178,7 @@ void GitClient::synchronousAbortCommand(const FilePath &workingDir, const QStrin
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDir, {abortCommand, "--abort"},
                             VcsCommand::ExpectRepoChanges | VcsCommand::ShowSuccessMessage);
-    VcsOutputWindow::append(proc.stdOut());
+    VcsOutputWindow::append(proc.cleanedStdOut());
 }
 
 QString GitClient::synchronousTrackingBranch(const FilePath &workingDirectory, const QString &branch)
@@ -3529,12 +3528,12 @@ bool GitClient::synchronousStashRemove(const FilePath &workingDirectory, const Q
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, arguments);
     if (proc.result() == ProcessResult::FinishedWithSuccess) {
-        const QString output = proc.stdOut();
+        const QString output = proc.cleanedStdOut();
         if (!output.isEmpty())
             VcsOutputWindow::append(output);
         return true;
     } else {
-        msgCannotRun(arguments, workingDirectory, proc.stdErr(), errorMessage);
+        msgCannotRun(arguments, workingDirectory, proc.cleanedStdErr(), errorMessage);
         return false;
     }
 }
@@ -3548,11 +3547,11 @@ bool GitClient::synchronousStashList(const FilePath &workingDirectory, QList<Sta
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, arguments, VcsCommand::ForceCLocale);
     if (proc.result() != ProcessResult::FinishedWithSuccess) {
-        msgCannotRun(arguments, workingDirectory, proc.stdErr(), errorMessage);
+        msgCannotRun(arguments, workingDirectory, proc.cleanedStdErr(), errorMessage);
         return false;
     }
     Stash stash;
-    const QStringList lines = splitLines(proc.stdOut());
+    const QStringList lines = splitLines(proc.cleanedStdOut());
     for (const QString &line : lines) {
         if (stash.parseStashLine(line))
             stashes->push_back(stash);
@@ -3589,7 +3588,7 @@ QString GitClient::readOneLine(const FilePath &workingDirectory, const QStringLi
     vcsFullySynchronousExec(proc, workingDirectory, arguments, silentFlags, vcsTimeoutS(), codec);
     if (proc.result() != ProcessResult::FinishedWithSuccess)
         return QString();
-    return proc.stdOut().trimmed();
+    return proc.cleanedStdOut().trimmed();
 }
 
 // determine version as '(major << 16) + (minor << 8) + patch' or 0.
@@ -3615,13 +3614,13 @@ unsigned GitClient::synchronousGitVersion(QString *errorMessage) const
     QtcProcess proc;
     vcsSynchronousExec(proc, {}, {"--version"}, silentFlags);
     if (proc.result() != ProcessResult::FinishedWithSuccess) {
-        msgCannotRun(tr("Cannot determine Git version: %1").arg(proc.stdErr()), errorMessage);
+        msgCannotRun(tr("Cannot determine Git version: %1").arg(proc.cleanedStdErr()), errorMessage);
         return 0;
     }
 
     // cut 'git version 1.6.5.1.sha'
     // another form: 'git version 1.9.rc1'
-    const QString output = proc.stdOut();
+    const QString output = proc.cleanedStdOut();
     const QRegularExpression versionPattern("^[^\\d]+(\\d+)\\.(\\d+)\\.(\\d+|rc\\d).*$");
     QTC_ASSERT(versionPattern.isValid(), return 0);
     const QRegularExpressionMatch match = versionPattern.match(output);

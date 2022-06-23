@@ -465,7 +465,8 @@ Import LinkPrivate::importNonFile(const Document::Ptr &doc, const ImportInfo &im
                   "For Qbs projects, declare and set a qmlImportPaths property in your product "
                   "to add import paths.\n"
                   "For qmlproject projects, use the importPaths property to add import paths.\n"
-                  "For CMake projects, make sure QML_IMPORT_PATH variable is in CMakeCache.txt.\n")
+                  "For CMake projects, make sure QML_IMPORT_PATH variable is in CMakeCache.txt.\n"
+                  "For qmlRegister... calls, make sure that you define the Module URI as a string literal.\n")
               .arg(importInfo.name(), m_importPaths.join(QLatin1Char('\n'))));
     }
 

@@ -121,7 +121,8 @@ void PdbEngine::setupEngine()
     m_interpreter = runParameters().interpreter;
     QString bridge = ICore::resourcePath("debugger/pdbbridge.py").toString();
 
-    connect(&m_proc, &QtcProcess::finished, this, &PdbEngine::handlePdbDone);
+    connect(&m_proc, &QtcProcess::started, this, &PdbEngine::handlePdbStarted);
+    connect(&m_proc, &QtcProcess::done, this, &PdbEngine::handlePdbDone);
     connect(&m_proc, &QtcProcess::readyReadStandardOutput, this, &PdbEngine::readPdbStandardOutput);
     connect(&m_proc, &QtcProcess::readyReadStandardError, this, &PdbEngine::readPdbStandardError);
 
@@ -138,15 +139,10 @@ void PdbEngine::setupEngine()
     m_proc.setEnvironment(runParameters().debugger.environment);
     m_proc.setCommand(cmd);
     m_proc.start();
+}
 
-    if (!m_proc.waitForStarted()) {
-        notifyEngineSetupFailed();
-        showMessage("ADAPTER START FAILED");
-        ICore::showWarningWithOptions(tr("Adapter start failed"), m_proc.exitMessage());
-        notifyEngineSetupFailed();
-        return;
-    }
-
+void PdbEngine::handlePdbStarted()
+{
     notifyEngineSetupOk();
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 
@@ -416,6 +412,13 @@ QString PdbEngine::errorMessage(QProcess::ProcessError error) const
 
 void PdbEngine::handlePdbDone()
 {
+    if (m_proc.result() == ProcessResult::StartFailed) {
+        notifyEngineSetupFailed();
+        showMessage("ADAPTER START FAILED");
+        ICore::showWarningWithOptions(tr("Adapter start failed"), m_proc.exitMessage());
+        return;
+    }
+
     const QProcess::ProcessError error = m_proc.error();
     if (error != QProcess::UnknownError) {
         showMessage("HANDLE PDB ERROR");

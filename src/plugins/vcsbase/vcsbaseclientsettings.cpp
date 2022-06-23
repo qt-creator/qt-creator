@@ -75,6 +75,8 @@ VcsBaseSettings::VcsBaseSettings()
     timeout.setSuffix(tr("s"));
 }
 
+VcsBaseSettings::~VcsBaseSettings() = default;
+
 FilePaths VcsBaseSettings::searchPathList() const
 {
     return Utils::transform(path.value().split(HostOsInfo::pathListSeparator(), Qt::SkipEmptyParts),

@@ -446,6 +446,20 @@ bool pInfoLessThanImports(const ModelManagerInterface::ProjectInfo &p1,
 
 }
 
+static QList<Utils::FilePath> generatedQrc(QStringList applicationDirectories)
+{
+    QList<Utils::FilePath> res;
+    for (const QString &pathStr : applicationDirectories) {
+        Utils::FilePath path = Utils::FilePath::fromString(pathStr);
+        Utils::FilePath generatedQrcDir = path.pathAppended(".rcc");
+        if (generatedQrcDir.isReadableDir()) {
+            for (const Utils::FilePath & qrcPath: generatedQrcDir.dirEntries(FileFilter(QStringList({QStringLiteral(u"*.qrc")}), QDir::Files)))
+                res.append(qrcPath.canonicalPath());
+        }
+    }
+    return res;
+}
+
 void ModelManagerInterface::iterateQrcFiles(
         ProjectExplorer::Project *project, QrcResourceSelector resources,
         const std::function<void(QrcParser::ConstPtr)> &callback)
@@ -461,18 +475,21 @@ void ModelManagerInterface::iterateQrcFiles(
             Utils::sort(pInfos, &pInfoLessThanAll);
     }
 
-    QSet<QString> pathsChecked;
+    QSet<Utils::FilePath> pathsChecked;
     for (const ModelManagerInterface::ProjectInfo &pInfo : qAsConst(pInfos)) {
         QStringList qrcFilePaths;
         if (resources == ActiveQrcResources)
             qrcFilePaths = pInfo.activeResourceFiles;
         else
             qrcFilePaths = pInfo.allResourceFiles;
-        for (const QString &qrcFilePath : qAsConst(qrcFilePaths)) {
+        for (const Utils::FilePath &p : generatedQrc(pInfo.applicationDirectories))
+            qrcFilePaths.append(p.toString());
+        for (const QString &qrcFilePathStr : qAsConst(qrcFilePaths)) {
+            auto qrcFilePath = Utils::FilePath::fromString(qrcFilePathStr);
             if (pathsChecked.contains(qrcFilePath))
                 continue;
             pathsChecked.insert(qrcFilePath);
-            QrcParser::ConstPtr qrcFile = m_qrcCache.parsedPath(qrcFilePath);
+            QrcParser::ConstPtr qrcFile = m_qrcCache.parsedPath(qrcFilePath.toString());
             if (qrcFile.isNull())
                 continue;
             callback(qrcFile);
@@ -589,6 +606,8 @@ void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectE
     m_qrcContents = pinfo.resourceFileContents;
     for (const QString &newQrc : qAsConst(pinfo.allResourceFiles))
         m_qrcCache.addPath(newQrc, m_qrcContents.value(newQrc));
+    for (const Utils::FilePath &newQrc : generatedQrc(pinfo.applicationDirectories))
+        m_qrcCache.addPath(newQrc.toString(), m_qrcContents.value(newQrc.toString()));
     for (const QString &oldQrc : qAsConst(oldInfo.allResourceFiles))
         m_qrcCache.removePath(oldQrc);
 
@@ -1180,6 +1199,29 @@ void ModelManagerInterface::maybeScan(const PathsAndLanguages &importPaths)
     }
 }
 
+static QList<Utils::FilePath> minimalPrefixPaths(const QStringList &paths)
+{
+    QList<Utils::FilePath> sortedPaths;
+    // find minimal prefix, ensure '/' at end
+    for (const QString &pathStr : qAsConst(paths)) {
+        Utils::FilePath path = Utils::FilePath::fromString(pathStr);
+        if (!path.endsWith("/"))
+            path.setPath(path.path() + "/");
+        if (path.path().length() > 1)
+            sortedPaths.append(path);
+    }
+    std::sort(sortedPaths.begin(), sortedPaths.end());
+    QList<Utils::FilePath> res;
+    QString lastPrefix;
+    for (auto it = sortedPaths.begin(); it != sortedPaths.end(); ++it) {
+        if (lastPrefix.isEmpty() || !it->startsWith(lastPrefix)) {
+            lastPrefix = it->path();
+            res.append(*it);
+        }
+    }
+    return res;
+}
+
 void ModelManagerInterface::updateImportPaths()
 {
     if (m_indexerDisabled)
@@ -1243,6 +1285,7 @@ void ModelManagerInterface::updateImportPaths()
         m_allImportPaths = allImportPaths;
         m_activeBundles = activeBundles;
         m_extendedBundles = extendedBundles;
+        m_applicationPaths = minimalPrefixPaths(allApplicationDirectories);
     }
 
 
@@ -1253,10 +1296,13 @@ void ModelManagerInterface::updateImportPaths()
     QSet<QString> newLibraries;
     for (const Document::Ptr &doc : qAsConst(snapshot))
         findNewLibraryImports(doc, snapshot, this, &importedFiles, &scannedPaths, &newLibraries);
-    for (const QString &path : qAsConst(allApplicationDirectories)) {
-        allImportPaths.maybeInsert(FilePath::fromString(path), Dialect::Qml);
-        findNewQmlApplicationInPath(FilePath::fromString(path), snapshot, this, &newLibraries);
+    for (const QString &pathStr : qAsConst(allApplicationDirectories)) {
+        Utils::FilePath path = Utils::FilePath::fromString(pathStr);
+        allImportPaths.maybeInsert(path, Dialect::Qml);
+        findNewQmlApplicationInPath(path, snapshot, this, &newLibraries);
     }
+    for (const Utils::FilePath &qrcPath : generatedQrc(allApplicationDirectories))
+        updateQrcFile(qrcPath.toString());
 
     updateSourceFiles(importedFiles, true);
 
@@ -1666,6 +1712,49 @@ void ModelManagerInterface::resetCodeModel()
     // rescan import directories
     m_shouldScanImports = true;
     updateImportPaths();
+}
+
+Utils::FilePath ModelManagerInterface::fileToSource(const Utils::FilePath &path)
+{
+    if (!path.scheme().isEmpty())
+        return path;
+    for (const Utils::FilePath &p : m_applicationPaths) {
+        if (!p.isEmpty() && path.startsWith(p.path())) {
+            // if it is an applicationPath (i.e. in the build directory)
+            // try to use the path from the build dir as resource path
+            // and recover the path of the corresponding source file
+            QString reducedPath = path.path().mid(p.path().size());
+            QString reversePath(reducedPath);
+            std::reverse(reversePath.begin(), reversePath.end());
+            if (!reversePath.endsWith('/'))
+                reversePath.append('/');
+            QrcParser::MatchResult res;
+            iterateQrcFiles(nullptr,
+                            QrcResourceSelector::AllQrcResources,
+                            [&](const QrcParser::ConstPtr &qrcFile) {
+                                if (!qrcFile)
+                                    return;
+                                QrcParser::MatchResult matchNow = qrcFile->longestReverseMatches(
+                                    reversePath);
+
+                                if (matchNow.matchDepth < res.matchDepth)
+                                    return;
+                                if (matchNow.matchDepth == res.matchDepth) {
+                                    res.reversedPaths += matchNow.reversedPaths;
+                                    res.sourceFiles += matchNow.sourceFiles;
+                                } else {
+                                    res = matchNow;
+                                }
+                            });
+            std::sort(res.sourceFiles.begin(), res.sourceFiles.end());
+            if (!res.sourceFiles.isEmpty()) {
+                return res.sourceFiles.first();
+            }
+            qCWarning(qmljsLog) << "Could not find source file for file" << path
+                                << "in application path" << p;
+        }
+    }
+    return path;
 }
 
 } // namespace QmlJS

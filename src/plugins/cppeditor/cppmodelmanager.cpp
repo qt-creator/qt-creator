@@ -201,6 +201,8 @@ public:
     std::unique_ptr<Core::ILocatorFilter> m_functionsFilter;
     std::unique_ptr<Core::IFindFilter> m_symbolsFindFilter;
     std::unique_ptr<Core::ILocatorFilter> m_currentDocumentFilter;
+
+    QList<Document::DiagnosticMessage> m_diagnosticMessages;
 };
 
 } // namespace Internal
@@ -1702,6 +1704,20 @@ SymbolFinder *CppModelManager::symbolFinder()
 QThreadPool *CppModelManager::sharedThreadPool()
 {
     return &d->m_threadPool;
+}
+
+bool CppModelManager::setExtraDiagnostics(const QString &fileName,
+                                          const QString &kind,
+                                          const QList<Document::DiagnosticMessage> &diagnostics)
+{
+    d->m_diagnosticMessages = diagnostics;
+    emit diagnosticsChanged(fileName, kind);
+    return true;
+}
+
+const QList<Document::DiagnosticMessage> CppModelManager::diagnosticMessages()
+{
+    return d->m_diagnosticMessages;
 }
 
 } // namespace CppEditor

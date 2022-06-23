@@ -88,8 +88,8 @@ public:
 private:
     void handleDone()
     {
-        const QString stdOut = m_appRunner.stdOut();
-        const QString stdErr = m_appRunner.stdErr();
+        const QString stdOut = m_appRunner.cleanedStdOut();
+        const QString stdErr = m_appRunner.cleanedStdErr();
 
         // FIXME: Needed in a post-adb world?
         // adb does not forward exit codes and all stderr goes to stdout.

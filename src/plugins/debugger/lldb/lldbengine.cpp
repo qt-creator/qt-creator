@@ -92,21 +92,15 @@ LldbEngine::LldbEngine()
     setDebuggerName("LLDB");
 
     DebuggerSettings &ds = *debuggerSettings();
-    connect(&ds.autoDerefPointers, &BaseAspect::changed,
-            this, &LldbEngine::updateLocals);
+    connect(&ds.autoDerefPointers, &BaseAspect::changed, this, &LldbEngine::updateLocals);
     connect(ds.createFullBacktrace.action(), &QAction::triggered,
             this, &LldbEngine::fetchFullBacktrace);
-    connect(&ds.useDebuggingHelpers, &BaseAspect::changed,
-            this, &LldbEngine::updateLocals);
-    connect(&ds.useDynamicType, &BaseAspect::changed,
-            this, &LldbEngine::updateLocals);
-    connect(&ds.intelFlavor, &BaseAspect::changed,
-            this, &LldbEngine::updateAll);
+    connect(&ds.useDebuggingHelpers, &BaseAspect::changed, this, &LldbEngine::updateLocals);
+    connect(&ds.useDynamicType, &BaseAspect::changed, this, &LldbEngine::updateLocals);
+    connect(&ds.intelFlavor, &BaseAspect::changed, this, &LldbEngine::updateAll);
 
-    connect(&m_lldbProc, &QtcProcess::errorOccurred,
-            this, &LldbEngine::handleLldbError);
-    connect(&m_lldbProc, &QtcProcess::finished,
-            this, &LldbEngine::handleLldbFinished);
+    connect(&m_lldbProc, &QtcProcess::started, this, &LldbEngine::handleLldbStarted);
+    connect(&m_lldbProc, &QtcProcess::done, this, &LldbEngine::handleLldbDone);
     connect(&m_lldbProc, &QtcProcess::readyReadStandardOutput,
             this, &LldbEngine::readLldbStandardOutput);
     connect(&m_lldbProc, &QtcProcess::readyReadStandardError,
@@ -114,11 +108,6 @@ LldbEngine::LldbEngine()
 
     connect(this, &LldbEngine::outputReady,
             this, &LldbEngine::handleResponse, Qt::QueuedConnection);
-}
-
-LldbEngine::~LldbEngine()
-{
-    m_lldbProc.disconnect();
 }
 
 void LldbEngine::executeDebuggerCommand(const QString &command)
@@ -189,16 +178,13 @@ void LldbEngine::shutdownInferior()
 void LldbEngine::shutdownEngine()
 {
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
-    if (m_lldbProc.isRunning())
-        m_lldbProc.terminate();
-    else
-        notifyEngineShutdownFinished();
+    abortDebuggerProcess();
 }
 
 void LldbEngine::abortDebuggerProcess()
 {
     if (m_lldbProc.isRunning())
-        m_lldbProc.kill();
+        m_lldbProc.stop();
     else
         notifyEngineShutdownFinished();
 }
@@ -218,6 +204,22 @@ void LldbEngine::setupEngine()
     Environment environment = runParameters().debugger.environment;
     environment.appendOrSet("PYTHONUNBUFFERED", "1");  // avoid flushing problem on macOS
     DebuggerItem::addAndroidLldbPythonEnv(lldbCmd, environment);
+
+    if (lldbCmd.osType() == OsTypeLinux) {
+        // LLDB 14 installation on Ubuntu 22.04 is broken:
+        // https://bugs.launchpad.net/ubuntu/+source/llvm-defaults/+bug/1972855
+        // Brush over it:
+        QtcProcess lldbPythonPathFinder;
+        lldbPythonPathFinder.setCommand({lldbCmd, {"-P"}});
+        lldbPythonPathFinder.start();
+        lldbPythonPathFinder.waitForFinished();
+        QString lldbPythonPath = lldbPythonPathFinder.cleanedStdOut();
+        if (lldbPythonPath.endsWith('\n'))
+            lldbPythonPath.chop(1);
+        if (lldbPythonPath == "/usr/lib/local/lib/python3.10/dist-packages")
+            environment.appendOrSet("PYTHONPATH", "/usr/lib/llvm-14/lib/python3.10/dist-packages");
+    }
+
     m_lldbProc.setEnvironment(environment);
 
     if (runParameters().debugger.workingDirectory.isDir())
@@ -229,16 +231,10 @@ void LldbEngine::setupEngine()
         m_lldbProc.setCommand(CommandLine(lldbCmd));
 
     m_lldbProc.start();
+}
 
-    if (!m_lldbProc.waitForStarted()) {
-        const QString msg = tr("Unable to start LLDB \"%1\": %2")
-            .arg(lldbCmd.toUserOutput(), m_lldbProc.errorString());
-        notifyEngineSetupFailed();
-        showMessage("ADAPTER START FAILED");
-        if (!msg.isEmpty())
-            ICore::showWarningWithOptions(adapterStartFailed(), msg);
-        return;
-    }
+void LldbEngine::handleLldbStarted()
+{
     m_lldbProc.waitForReadyRead(1000);
 
     showStatusMessage(tr("Setting up inferior..."));
@@ -281,6 +277,9 @@ void LldbEngine::setupEngine()
         executeDebuggerCommand(
                     "settings append target.source-map " + it.key() + ' ' + expand(it.value()));
     }
+
+    for (const QString &path : rp.solibSearchPath)
+        executeDebuggerCommand("settings append target.exec-search-paths " + path);
 
     DebuggerCommand cmd2("setupInferior");
     cmd2.arg("executable", rp.inferior.command.executable().toString());
@@ -785,12 +784,26 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
     runCommand(cmd);
 }
 
-void LldbEngine::handleLldbError(QProcess::ProcessError error)
+void LldbEngine::handleLldbDone()
 {
+    if (m_lldbProc.result() == ProcessResult::StartFailed) {
+        notifyEngineSetupFailed();
+        showMessage("ADAPTER START FAILED");
+        ICore::showWarningWithOptions(adapterStartFailed(), tr("Unable to start LLDB \"%1\": %2")
+                 .arg(runParameters().debugger.command.executable().toUserOutput(),
+                 m_lldbProc.errorString()));
+        return;
+    }
+
+    if (m_lldbProc.error() == QProcess::UnknownError) {
+        notifyDebuggerProcessFinished(m_lldbProc.resultData(), "LLDB");
+        return;
+    }
+
+    const QProcess::ProcessError error = m_lldbProc.error();
     showMessage(QString("LLDB PROCESS ERROR: %1").arg(error));
     switch (error) {
     case QProcess::Crashed:
-        m_lldbProc.disconnect();
         notifyEngineShutdownFinished();
         break; // will get a processExited() as well
     // impossible case QProcess::FailedToStart:
@@ -799,7 +812,6 @@ void LldbEngine::handleLldbError(QProcess::ProcessError error)
     case QProcess::Timedout:
     default:
         //setState(EngineShutdownRequested, true);
-        m_lldbProc.kill();
         AsynchronousMessageBox::critical(tr("LLDB I/O Error"), errorMessage(error));
         break;
     }
@@ -830,11 +842,6 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
         default:
             return tr("An unknown error in the LLDB process occurred.") + ' ';
     }
-}
-
-void LldbEngine::handleLldbFinished()
-{
-    notifyDebuggerProcessFinished(m_lldbProc.resultData(), "LLDB");
 }
 
 void LldbEngine::readLldbStandardError()
@@ -924,7 +931,7 @@ void LldbEngine::handleStateNotification(const GdbMi &item)
 void LldbEngine::handleLocationNotification(const GdbMi &reportedLocation)
 {
     qulonglong address = reportedLocation["address"].toAddress();
-    Utils::FilePath fileName = FilePath::fromUserInput(reportedLocation["file"].data());
+    FilePath fileName = FilePath::fromUserInput(reportedLocation["file"].data());
     QString function = reportedLocation["function"].data();
     int lineNumber = reportedLocation["line"].toInt();
     Location loc = Location(fileName, lineNumber);

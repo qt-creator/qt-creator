@@ -2378,8 +2378,12 @@ const Value *TypeScope::lookupMember(const QString &name, const Context *context
             continue;
 
         if (const Value *v = import->lookupMember(name, context, foundInObject)) {
-            i.used = true;
-            return v;
+            // FIXME if we have multiple non-aliased imports containing this object we'd have to
+            // disambiguate (and inform the user) about this issue
+            if (info.as().isEmpty()) {
+                i.used = true;
+                return v;
+            }
         }
     }
     if (foundInObject)

@@ -26,7 +26,6 @@
 #include "debuggertooltipmanager.h"
 
 #include "debuggeractions.h"
-#include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
 #include "debuggermainwindow.h"
@@ -34,7 +33,6 @@
 #include "sourceutils.h"
 #include "stackhandler.h"
 #include "watchhandler.h"
-#include "watchwindow.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -53,6 +51,7 @@
 #include <utils/porting.h>
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
+#include <utils/stringutils.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
@@ -577,17 +576,14 @@ DebuggerToolTipWidget::DebuggerToolTipWidget()
     mainLayout->addWidget(toolBar);
     mainLayout->addWidget(treeView);
 
-    connect(copyButton, &QAbstractButton::clicked, [this] {
+    connect(copyButton, &QAbstractButton::clicked, this, [this] {
         QString text;
         QTextStream str(&text);
         model.forAllItems([&str](ToolTipWatchItem *item) {
             str << QString(item->level(), '\t')
                 << item->name << '\t' << item->value << '\t' << item->type << '\n';
         });
-        QClipboard *clipboard = QApplication::clipboard();
-        if (clipboard->supportsSelection())
-            clipboard->setText(text, QClipboard::Selection);
-        clipboard->setText(text, QClipboard::Clipboard);
+        setClipboardAndSelection(text);
     });
 
     connect(treeView, &QTreeView::expanded, &model, &ToolTipModel::expandNode);
