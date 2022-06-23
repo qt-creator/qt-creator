@@ -284,6 +284,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
             displayProposal(newProposal, reason);
             delete processor;
         } else if (!processor->running()) {
+            destroyContext();
             delete processor;
         } else { // ...async request was triggered
             if (IAssistProposal *newProposal = processor->immediateProposal(assistInterface))
@@ -354,6 +355,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
 
     clearAbortedPosition();
     m_proposal.reset(proposalCandidate.take());
+    m_proposal->setReason(reason);
 
     if (m_proposal->isCorrective(m_editorWidget))
         m_proposal->makeCorrection(m_editorWidget);
@@ -485,7 +487,7 @@ void CodeAssistantPrivate::notifyChange()
             if (!isDisplayingProposal())
                 requestActivationCharProposal();
         } else {
-            requestProposal(ExplicitlyInvoked, m_assistKind, m_requestProvider);
+            requestProposal(m_proposal->reason(), m_assistKind, m_requestProvider);
         }
     }
 }
