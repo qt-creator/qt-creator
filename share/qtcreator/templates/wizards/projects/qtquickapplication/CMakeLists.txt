@@ -71,7 +71,9 @@ set_target_properties(%{ProjectName} PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-install(TARGETS %{ProjectName} BUNDLE DESTINATION .)
+install(TARGETS %{ProjectName}
+    BUNDLE DESTINATION .
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_import_qml_plugins(%{ProjectName})
