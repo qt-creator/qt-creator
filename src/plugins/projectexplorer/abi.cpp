@@ -1197,8 +1197,14 @@ Abis Abi::abisOfBinary(const Utils::FilePath &path)
             offset += fileLength.toInt() + 60 /* header */;
 
             tmp.append(abiOf(data.mid(toSkip)));
-            if (tmp.isEmpty() && fileName == "/0              ")
+            if (tmp.isEmpty() && fileName == "/0              ") {
                 tmp = parseCoffHeader(data.mid(toSkip, 20)); // This might be windws...
+                if (tmp.isEmpty()) {
+                    // Qt 6.2 static builds have the coff headers for both MSVC and MinGW at offset 66
+                    toSkip = 66 + fileNameOffset;
+                    tmp = parseCoffHeader(data.mid(toSkip, 20));
+                }
+            }
 
             if (!tmp.isEmpty() && tmp.at(0).binaryFormat() != MachOFormat)
                 break;
