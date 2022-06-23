@@ -70,7 +70,7 @@ View3D {
 
         materials: [
             DefaultMaterial {
-                diffuseColor: "#4aee45"
+                diffuseColor: "#999999"
             }
         ]
     }
