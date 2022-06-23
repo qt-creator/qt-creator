@@ -439,12 +439,20 @@ bool PluginView::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enabl
                 return item->m_spec == spec;
         });
         QTC_ASSERT(item, continue);
+        if (m_affectedPlugins.find(spec) == m_affectedPlugins.end())
+            m_affectedPlugins[spec] = spec->d->enabledBySettings;
         spec->d->setEnabledBySettings(enable);
         item->updateColumn(LoadedColumn);
         item->parent()->updateColumn(LoadedColumn);
         emit pluginSettingsChanged(spec);
     }
     return true;
+}
+
+void PluginView::cancelChanges()
+{
+    for (auto element : m_affectedPlugins)
+        element.first->d->setEnabledBySettings(element.second);
 }
 
 } // namespace ExtensionSystem

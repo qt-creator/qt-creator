@@ -48,7 +48,6 @@ public:
     explicit PluginDialog(QWidget *parent);
 
 private:
-    void updateRestartRequired();
     void updateButtons();
     void openDetails(ExtensionSystem::PluginSpec *spec);
     void openErrorDetails();
@@ -60,8 +59,7 @@ private:
     QPushButton *m_detailsButton;
     QPushButton *m_errorDetailsButton;
     QPushButton *m_installButton;
-    QPushButton *m_closeButton;
-    QLabel *m_restartRequired;
+    bool m_isRestartRequired = false;
 };
 
 } // namespace Internal

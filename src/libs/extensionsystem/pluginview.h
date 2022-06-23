@@ -31,6 +31,8 @@
 
 #include <QWidget>
 
+#include <unordered_map>
+
 namespace Utils {
 class CategorySortFilterModel;
 class TreeView;
@@ -55,6 +57,7 @@ public:
 
     PluginSpec *currentPlugin() const;
     void setFilter(const QString &filter);
+    void cancelChanges();
 
 signals:
     void currentPluginChanged(ExtensionSystem::PluginSpec *spec);
@@ -69,6 +72,7 @@ private:
     Utils::TreeView *m_categoryView;
     Utils::TreeModel<Utils::TreeItem, Internal::CollectionItem, Internal::PluginItem> *m_model;
     Utils::CategorySortFilterModel *m_sortModel;
+    std::unordered_map<PluginSpec *, bool> m_affectedPlugins;
 
     friend class Internal::CollectionItem;
     friend class Internal::PluginItem;

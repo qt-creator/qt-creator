@@ -54,8 +54,6 @@ using namespace Utils;
 namespace Core {
 namespace Internal {
 
-static bool s_isRestartRequired = false;
-
 PluginDialog::PluginDialog(QWidget *parent)
     : QDialog(parent),
       m_view(new ExtensionSystem::PluginView(this))
@@ -74,27 +72,15 @@ PluginDialog::PluginDialog(QWidget *parent)
 
     m_detailsButton = new QPushButton(tr("Details"), this);
     m_errorDetailsButton = new QPushButton(tr("Error Details"), this);
-    m_closeButton = new QPushButton(tr("Close"), this);
     m_installButton = new QPushButton(tr("Install Plugin..."), this);
     m_detailsButton->setEnabled(false);
     m_errorDetailsButton->setEnabled(false);
-    m_closeButton->setEnabled(true);
-    m_closeButton->setDefault(true);
 
-    m_restartRequired = new QLabel(tr("Restart required."), this);
-    if (!s_isRestartRequired)
-        m_restartRequired->setVisible(false);
-
-    auto hl = new QHBoxLayout;
-    hl->addWidget(m_detailsButton);
-    hl->addWidget(m_errorDetailsButton);
-    hl->addWidget(m_installButton);
-    hl->addSpacing(10);
-    hl->addWidget(m_restartRequired);
-    hl->addStretch(5);
-    hl->addWidget(m_closeButton);
-
-    vl->addLayout(hl);
+    auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    buttonBox->addButton(m_detailsButton, QDialogButtonBox::ActionRole);
+    buttonBox->addButton(m_errorDetailsButton, QDialogButtonBox::ActionRole);
+    buttonBox->addButton(m_installButton, QDialogButtonBox::ActionRole);
+    vl->addWidget(buttonBox);
 
     resize(650, 400);
     setWindowTitle(tr("Installed Plugins"));
@@ -103,21 +89,24 @@ PluginDialog::PluginDialog(QWidget *parent)
             this, &PluginDialog::updateButtons);
     connect(m_view, &ExtensionSystem::PluginView::pluginActivated,
             this, &PluginDialog::openDetails);
-    connect(m_view, &ExtensionSystem::PluginView::pluginSettingsChanged,
-            this, &PluginDialog::updateRestartRequired);
-    connect(m_detailsButton, &QAbstractButton::clicked,
+    connect(m_view, &ExtensionSystem::PluginView::pluginSettingsChanged, this, [this] {
+        m_isRestartRequired = true;
+    });
+    connect(m_detailsButton, &QAbstractButton::clicked, this,
             [this]  { openDetails(m_view->currentPlugin()); });
     connect(m_errorDetailsButton, &QAbstractButton::clicked,
             this, &PluginDialog::openErrorDetails);
     connect(m_installButton, &QAbstractButton::clicked, this, &PluginDialog::showInstallWizard);
-    connect(m_closeButton, &QAbstractButton::clicked, this, &PluginDialog::closeDialog);
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &PluginDialog::closeDialog);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(this, &QDialog::rejected, m_view, &ExtensionSystem::PluginView::cancelChanges);
     updateButtons();
 }
 
 void PluginDialog::closeDialog()
 {
     ExtensionSystem::PluginManager::writeSettings();
-    if (s_isRestartRequired) {
+    if (m_isRestartRequired) {
         RestartDialog restartDialog(ICore::dialogParent(),
                                     tr("Plugin changes will take effect after restart."));
         restartDialog.exec();
@@ -128,14 +117,7 @@ void PluginDialog::closeDialog()
 void PluginDialog::showInstallWizard()
 {
     if (PluginInstallWizard::exec())
-        updateRestartRequired();
-}
-
-void PluginDialog::updateRestartRequired()
-{
-    // just display the notice all the time after once changing something
-    s_isRestartRequired = true;
-    m_restartRequired->setVisible(true);
+        m_isRestartRequired = true;
 }
 
 void PluginDialog::updateButtons()
