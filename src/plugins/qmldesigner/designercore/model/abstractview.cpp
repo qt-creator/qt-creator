@@ -873,7 +873,8 @@ void AbstractView::assignMaterialTo3dModel(const ModelNode &modelNode, const Mod
 
     ModelNode matLib = materialLibraryNode();
 
-    QTC_ASSERT(matLib.isValid(), return);
+    if (!matLib.isValid())
+        return;
 
     ModelNode newMaterialNode;
 
