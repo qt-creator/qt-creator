@@ -2270,6 +2270,7 @@ public:
     bool handleExHistoryCommand(const ExCommand &cmd);
     bool handleExRegisterCommand(const ExCommand &cmd);
     bool handleExMapCommand(const ExCommand &cmd);
+    bool handleExMultiRepeatCommand(const ExCommand &cmd);
     bool handleExNohlsearchCommand(const ExCommand &cmd);
     bool handleExNormalCommand(const ExCommand &cmd);
     bool handleExReadCommand(const ExCommand &cmd);
@@ -5907,7 +5908,7 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd)
 
 bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
 {
-    // :substitute
+    // :[range]s[ubstitute]/{pattern}/{string}/[flags] [count]
     if (!cmd.matches("s", "substitute")
         && !(cmd.cmd.isEmpty() && !cmd.args.isEmpty() && QString("&~").contains(cmd.args[0]))) {
         return false;
@@ -6504,6 +6505,61 @@ bool FakeVimHandler::Private::handleExShiftCommand(const ExCommand &cmd)
     return true;
 }
 
+bool FakeVimHandler::Private::handleExMultiRepeatCommand(const ExCommand &cmd)
+{
+    // :[range]g[lobal]/{pattern}/[cmd]
+    // :[range]g[lobal]!/{pattern}/[cmd]
+    // :[range]v[globa]!/{pattern}/[cmd]
+    const bool hasG = cmd.matches("g", "global");
+    const bool hasV = cmd.matches("v", "vglobal");
+    if (!hasG && !hasV)
+        return false;
+
+    // Force operation on full lines, and full document if only
+    // one line (the current one...) is specified
+    int beginLine = lineForPosition(cmd.range.beginPos);
+    int endLine = lineForPosition(cmd.range.endPos);
+    if (beginLine == endLine) {
+        beginLine = 0;
+        endLine = lineForPosition(lastPositionInDocument());
+    }
+
+    const bool negates = hasV || cmd.hasBang;
+
+    const QChar delim = cmd.args.front();
+    const QString pattern = cmd.args.section(delim, 1, 1);
+    const QRegularExpression re(pattern);
+
+    QString innerCmd = cmd.args.section(delim, 2, 2);
+    if (innerCmd.isEmpty())
+        innerCmd = "p";
+
+    QList<QTextCursor> matches;
+
+    for (int line = beginLine; line <= endLine; ++line) {
+        const int pos = firstPositionInLine(line);
+        const Range range(pos, pos, RangeLineMode);
+        const QString lineContents = selectText(range);
+        const QRegularExpressionMatch match = re.match(lineContents);
+        if (match.hasMatch() ^ negates) {
+            QTextCursor tc(document());
+            tc.setPosition(pos);
+            matches.append(tc);
+        }
+    }
+
+    beginEditBlock();
+
+    for (const QTextCursor &tc : qAsConst(matches)) {
+        setPosition(tc.position());
+        handleExCommand(innerCmd);
+    }
+
+    endEditBlock();
+
+    return true;
+}
+
 bool FakeVimHandler::Private::handleExSortCommand(const ExCommand &cmd)
 {
     // :[range]sor[t][!] [b][f][i][n][o][r][u][x] [/{pattern}/]
@@ -6683,6 +6739,7 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExMoveCommand(cmd)
         || handleExJoinCommand(cmd)
         || handleExMapCommand(cmd)
+        || handleExMultiRepeatCommand(cmd)
         || handleExNohlsearchCommand(cmd)
         || handleExNormalCommand(cmd)
         || handleExReadCommand(cmd)
