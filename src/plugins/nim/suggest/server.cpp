@@ -32,15 +32,9 @@ namespace Suggest {
 
 NimSuggestServer::NimSuggestServer(QObject *parent) : QObject(parent)
 {
-    connect(&m_process, &QtcProcess::finished, this, &NimSuggestServer::onFinished);
-    connect(&m_process, &QtcProcess::started, this, &NimSuggestServer::onStarted);
+    connect(&m_process, &QtcProcess::done, this, &NimSuggestServer::onDone);
     connect(&m_process, &QtcProcess::readyReadStandardOutput, this,
             &NimSuggestServer::onStandardOutputAvailable);
-}
-
-NimSuggestServer::~NimSuggestServer()
-{
-    kill();
 }
 
 QString NimSuggestServer::executablePath() const
@@ -61,7 +55,7 @@ bool NimSuggestServer::start(const QString &executablePath,
         return false;
     }
 
-    m_port = 0;
+    stop();
     m_executablePath = executablePath;
     m_projectFilePath = projectFilePath;
     m_process.setCommand({FilePath::fromString(executablePath), {"--epc", m_projectFilePath}});
@@ -69,11 +63,9 @@ bool NimSuggestServer::start(const QString &executablePath,
     return true;
 }
 
-void NimSuggestServer::kill()
+void NimSuggestServer::stop()
 {
-    disconnect(&m_process, &QtcProcess::finished, this, &NimSuggestServer::onFinished);
-    m_process.kill();
-    m_process.waitForFinished();
+    m_process.close();
     clearState();
 }
 
@@ -87,15 +79,10 @@ QString NimSuggestServer::projectFilePath() const
     return m_projectFilePath;
 }
 
-void NimSuggestServer::onStarted()
-{
-    m_started = true;
-}
-
 void NimSuggestServer::onStandardOutputAvailable()
 {
-    if (m_started && !m_portAvailable) {
-        auto output = QString::fromUtf8(m_process.readAllStandardOutput());
+    if (!m_portAvailable) {
+        const QString output = QString::fromUtf8(m_process.readAllStandardOutput());
         m_port = static_cast<uint16_t>(output.toUInt());
         m_portAvailable = true;
         emit started();
@@ -104,19 +91,14 @@ void NimSuggestServer::onStandardOutputAvailable()
     }
 }
 
-void NimSuggestServer::onFinished()
+void NimSuggestServer::onDone()
 {
     clearState();
-
-    if (m_process.exitStatus() == QProcess::CrashExit)
-        emit crashed();
-    else
-        emit finished();
+    emit done();
 }
 
 void NimSuggestServer::clearState()
 {
-    m_started = false;
     m_portAvailable = false;
     m_port = 0;
 }

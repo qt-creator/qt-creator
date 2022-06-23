@@ -217,7 +217,7 @@ void GenerateResource::generateMenuEntry()
         QTC_ASSERT(currentProject, return);
         const FilePath projectPath = currentProject->projectFilePath().parentDir();
 
-        auto projectFileName = Core::DocumentManager::getSaveFileName(
+        auto projectFileName = Core::DocumentManager::getSaveFileNameWithExtension(
             QCoreApplication::translate("QmlDesigner::GenerateResource", "Save Project as QRC File"),
             projectPath.pathAppended(currentProject->displayName() + ".qrc"),
             QCoreApplication::translate("QmlDesigner::GenerateResource",
@@ -366,7 +366,7 @@ void GenerateResource::generateMenuEntry()
         QTC_ASSERT(currentProject, return);
         const FilePath projectPath = currentProject->projectFilePath().parentDir();
 
-        const FilePath resourceFileName = Core::DocumentManager::getSaveFileName(
+        const FilePath resourceFileName = Core::DocumentManager::getSaveFileNameWithExtension(
             QCoreApplication::translate("QmlDesigner::GenerateResource", "Save Project as Resource"),
             projectPath.pathAppended(currentProject->displayName() + ".qmlrc"),
             QCoreApplication::translate("QmlDesigner::GenerateResource",

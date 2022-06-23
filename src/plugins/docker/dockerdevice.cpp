@@ -444,14 +444,17 @@ void DockerDevicePrivate::startContainer()
     if (createProcess.result() != ProcessResult::FinishedWithSuccess)
         return;
 
-    m_container = createProcess.stdOut().trimmed();
+    m_container = createProcess.cleanedStdOut().trimmed();
     if (m_container.isEmpty())
         return;
     LOG("Container via process: " << m_container);
 
     m_shell = std::make_unique<ContainerShell>(m_container);
-    connect(m_shell.get(), &DeviceShell::errorOccurred, this, [this] (QProcess::ProcessError error) {
-        qCWarning(dockerDeviceLog) << "Container shell encountered error:" << error;
+    connect(m_shell.get(), &DeviceShell::done, this, [this] (const ProcessResultData &resultData) {
+        if (resultData.m_error != QProcess::UnknownError)
+            return;
+
+        qCWarning(dockerDeviceLog) << "Container shell encountered error:" << resultData.m_error;
         m_shell.reset();
 
         DockerApi::recheckDockerDaemon();
@@ -988,11 +991,11 @@ void DockerDevicePrivate::fetchSystemEnviroment()
     proc.setCommand(q->withDockerExecCmd({"env", {}}));
     proc.start();
     proc.waitForFinished();
-    const QString remoteOutput = proc.stdOut();
+    const QString remoteOutput = proc.cleanedStdOut();
 
     m_cachedEnviroment = Environment(remoteOutput.split('\n', Qt::SkipEmptyParts), q->osType());
 
-    const QString remoteError = proc.stdErr();
+    const QString remoteError = proc.cleanedStdErr();
     if (!remoteError.isEmpty())
         qWarning("Cannot read container environment: %s\n", qPrintable(remoteError));
 }
@@ -1126,7 +1129,7 @@ public:
         });
 
         connect(m_process, &Utils::QtcProcess::readyReadStandardError, this, [this] {
-            const QString out = DockerDevice::tr("Error: %1").arg(m_process->stdErr());
+            const QString out = DockerDevice::tr("Error: %1").arg(m_process->cleanedStdErr());
             m_log->append(DockerDevice::tr("Error: %1").arg(out));
         });
 

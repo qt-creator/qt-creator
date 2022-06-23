@@ -771,7 +771,8 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
         const QList<ImportInfo> imports = semanticInfo.document->bind()->imports();
         for (const ImportInfo &import : imports) {
             if (import.ast() == importAst && import.type() == ImportType::File) {
-                Utils::Link link(Utils::FilePath::fromString(import.path()));
+                Utils::Link link(
+                    m_modelManager->fileToSource(FilePath::fromString(import.path())));
                 link.linkTextStart = importAst->firstSourceLocation().begin();
                 link.linkTextEnd = importAst->lastSourceLocation().end();
                 processLinkCallback(Utils::Link());
@@ -793,11 +794,9 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
             processLinkCallback(link);
             return;
         }
-        const QString relative = QString::fromLatin1("%1/%2").arg(
-                    semanticInfo.document->path(),
-                    text);
-        if (QFileInfo::exists(relative)) {
-            link.targetFilePath = Utils::FilePath::fromString(relative);
+        const Utils::FilePath relative = Utils::FilePath::fromString(semanticInfo.document->path()).pathAppended(text);
+        if (relative.exists()) {
+            link.targetFilePath = m_modelManager->fileToSource(relative);
             processLinkCallback(link);
             return;
         }
@@ -814,7 +813,7 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
         return processLinkCallback(Utils::Link());
 
     Utils::Link link;
-    link.targetFilePath = Utils::FilePath::fromString(fileName);
+    link.targetFilePath = m_modelManager->fileToSource(FilePath::fromString(fileName));
     link.targetLine = line;
     link.targetColumn = column - 1; // adjust the column
 

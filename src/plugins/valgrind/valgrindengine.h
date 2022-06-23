@@ -60,7 +60,6 @@ private:
     void handleProgressFinished();
     void runnerFinished();
 
-    void receiveProcessOutput(const QString &output, Utils::OutputFormat format);
     void receiveProcessError(const QString &message, QProcess::ProcessError error);
 
     QStringList genericToolArguments() const;

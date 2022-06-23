@@ -72,7 +72,7 @@ void XcodeProbe::detectDeveloperPaths()
         qCWarning(probeLog)
                 << QString::fromLatin1("Could not detect selected Xcode using xcode-select");
     else
-        addDeveloperPath(selectedXcode.stdOut().trimmed());
+        addDeveloperPath(selectedXcode.cleanedStdOut().trimmed());
     addDeveloperPath(defaultDeveloperPath);
 }
 

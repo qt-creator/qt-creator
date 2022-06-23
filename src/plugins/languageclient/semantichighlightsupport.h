@@ -32,6 +32,7 @@
 #include <texteditor/semantichighlighter.h>
 #include <texteditor/textdocument.h>
 
+#include <QSet>
 #include <QTextCharFormat>
 
 #include <functional>
@@ -86,6 +87,7 @@ public:
 private:
     void reloadSemanticTokensImpl(TextEditor::TextDocument *doc, int remainingRerequests = 3);
     void updateSemanticTokensImpl(TextEditor::TextDocument *doc, int remainingRerequests = 3);
+    void queueDocumentReload(TextEditor::TextDocument *doc);
     LanguageServerProtocol::SemanticRequestTypes supportedSemanticRequests(
         TextEditor::TextDocument *document) const;
     void handleSemanticTokens(const Utils::FilePath &filePath,
@@ -117,6 +119,7 @@ private:
     SemanticTokensHandler m_tokensHandler;
     QStringList m_tokenTypeStrings;
     QStringList m_tokenModifierStrings;
+    QSet<TextEditor::TextDocument *> m_docReloadQueue;
 };
 
 } // namespace LanguageClient

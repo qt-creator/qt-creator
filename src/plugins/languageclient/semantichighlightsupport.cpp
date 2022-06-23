@@ -68,12 +68,16 @@ void SemanticTokenSupport::refresh()
 
 void SemanticTokenSupport::reloadSemanticTokens(TextDocument *textDocument)
 {
-    reloadSemanticTokensImpl(textDocument);
+    if (m_client->reachable())
+        reloadSemanticTokensImpl(textDocument);
+    else
+        queueDocumentReload(textDocument);
 }
 
 void SemanticTokenSupport::reloadSemanticTokensImpl(TextDocument *textDocument,
                                                     int remainingRerequests)
 {
+    m_docReloadQueue.remove(textDocument);
     const SemanticRequestTypes supportedRequests = supportedSemanticRequests(textDocument);
     if (supportedRequests.testFlag(SemanticRequestType::None))
         return;
@@ -122,7 +126,10 @@ void SemanticTokenSupport::reloadSemanticTokensImpl(TextDocument *textDocument,
 
 void SemanticTokenSupport::updateSemanticTokens(TextDocument *textDocument)
 {
-    updateSemanticTokensImpl(textDocument);
+    if (m_client->reachable())
+        updateSemanticTokensImpl(textDocument);
+    else
+        queueDocumentReload(textDocument);
 }
 
 void SemanticTokenSupport::updateSemanticTokensImpl(TextDocument *textDocument,
@@ -166,6 +173,22 @@ void SemanticTokenSupport::updateSemanticTokensImpl(TextDocument *textDocument,
         }
     }
     reloadSemanticTokens(textDocument);
+}
+
+void SemanticTokenSupport::queueDocumentReload(TextEditor::TextDocument *doc)
+{
+    if (m_docReloadQueue.contains(doc))
+        return;
+    m_docReloadQueue << doc;
+    connect(
+        m_client,
+        &Client::initialized,
+        this,
+        [this, doc = QPointer<TextDocument>(doc)]() {
+            if (doc)
+                reloadSemanticTokensImpl(doc);
+        },
+        Qt::QueuedConnection);
 }
 
 void SemanticTokenSupport::clearHighlight(TextEditor::TextDocument *doc)

@@ -60,7 +60,6 @@ private:
                                        const QString &importUri, const QString &importVersion);
     Q_INVOKABLE void dumpAllPlugins();
     void qmlPluginTypeDumpDone(Utils::QtcProcess *process);
-    void qmlPluginTypeDumpError(Utils::QtcProcess *process);
     void pluginChanged(const QString &pluginLibrary);
 
 private:

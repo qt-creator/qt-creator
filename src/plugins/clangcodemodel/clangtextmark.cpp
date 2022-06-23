@@ -29,7 +29,6 @@
 #include "clangdclient.h"
 #include "clangdiagnostictooltipwidget.h"
 #include "clangeditordocumentprocessor.h"
-#include "clangmodelmanagersupport.h"
 #include "clangutils.h"
 
 #include <coreplugin/icore.h>
@@ -42,12 +41,11 @@
 
 #include <utils/fadingindicator.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
-#include <QApplication>
-#include <QClipboard>
 #include <QLayout>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
@@ -319,7 +317,7 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
     QObject::connect(action, &QAction::triggered, [diag = m_diagnostic]() {
         const QString text = ClangDiagnosticWidget::createText({diag},
                                                                ClangDiagnosticWidget::InfoBar);
-        QApplication::clipboard()->setText(text, QClipboard::Clipboard);
+        setClipboardAndSelection(text);
     });
     actions << action;
 

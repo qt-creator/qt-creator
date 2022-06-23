@@ -277,7 +277,7 @@ bool VcsBaseClient::synchronousCreateRepository(const FilePath &workingDirectory
     vcsFullySynchronousExec(proc, workingDirectory, args);
     if (proc.result() != ProcessResult::FinishedWithSuccess)
         return false;
-    VcsOutputWindow::append(proc.stdOut());
+    VcsOutputWindow::append(proc.cleanedStdOut());
 
     resetCachedVcsInfo(workingDirectory);
 

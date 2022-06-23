@@ -135,6 +135,7 @@ public:
     bool operator <(const LanguageClientCompletionItem &other) const;
 
     bool isPerfectMatch(int pos, QTextDocument *doc) const;
+    bool isDeprecated() const;
 
 private:
     LanguageServerProtocol::CompletionItem m_item;

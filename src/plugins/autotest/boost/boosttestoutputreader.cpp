@@ -51,10 +51,8 @@ BoostTestOutputReader::BoostTestOutputReader(const QFutureInterface<TestResultPt
     , m_logLevel(log)
     , m_reportLevel(report)
 {
-    if (m_testApplication) {
-        connect(m_testApplication, &Utils::QtcProcess::finished,
-                this, &BoostTestOutputReader::onFinished);
-    }
+    if (m_testApplication)
+        connect(m_testApplication, &Utils::QtcProcess::done, this, &BoostTestOutputReader::onDone);
 }
 
 // content of "error:..." / "info:..." / ... messages
@@ -406,7 +404,7 @@ TestResultPtr BoostTestOutputReader::createDefaultResult() const
     return TestResultPtr(result);
 }
 
-void BoostTestOutputReader::onFinished() {
+void BoostTestOutputReader::onDone() {
     int exitCode = m_testApplication->exitCode();
     if (m_reportLevel == ReportLevel::No && m_testCaseCount != -1) {
         int reportedFailsAndSkips = m_summary[ResultType::Fail] + m_summary[ResultType::Skip];

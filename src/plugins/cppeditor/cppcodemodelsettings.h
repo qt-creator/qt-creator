@@ -111,7 +111,8 @@ public:
                     && s1.autoIncludeHeaders == s2.autoIncludeHeaders
                     && s1.documentUpdateThreshold == s2.documentUpdateThreshold
                     && s1.sizeThresholdEnabled == s2.sizeThresholdEnabled
-                    && s1.sizeThresholdInKb == s2.sizeThresholdInKb;
+                    && s1.sizeThresholdInKb == s2.sizeThresholdInKb
+                    && s1.haveCheckedHardwareReqirements == s2.haveCheckedHardwareReqirements;
         }
         friend bool operator!=(const Data &s1, const Data &s2) { return !(s1 == s2); }
 
@@ -126,12 +127,17 @@ public:
         bool enableIndexing = true;
         bool autoIncludeHeaders = false;
         bool sizeThresholdEnabled = false;
+        bool haveCheckedHardwareReqirements = false;
     };
 
     ClangdSettings(const Data &data) : m_data(data) {}
 
     static ClangdSettings &instance();
     bool useClangd() const;
+    static void setUseClangd(bool use);
+
+    static bool hardwareFulfillsRequirements();
+    static bool haveCheckedHardwareRequirements();
 
     static void setDefaultClangdPath(const Utils::FilePath &filePath);
     static void setCustomDiagnosticConfigs(const ClangDiagnosticConfigs &configs);
@@ -159,7 +165,6 @@ public:
     static Utils::FilePath clangdUserConfigFilePath();
 
 #ifdef WITH_TESTS
-    static void setUseClangd(bool use);
     static void setClangdFilePath(const Utils::FilePath &filePath);
 #endif
 

@@ -238,7 +238,7 @@ def deploy_clang(install_dir, llvm_install_dir, chrpath_bin):
         clanglibdirtarget = os.path.join(install_dir, 'bin', 'clang', 'lib')
         if not os.path.exists(clanglibdirtarget):
             os.makedirs(clanglibdirtarget)
-        for binary in ['clang', 'clang-cl', 'clangd', 'clang-tidy', 'clazy-standalone']:
+        for binary in ['clangd', 'clang-tidy', 'clazy-standalone']:
             binary_filepath = os.path.join(llvm_install_dir, 'bin', binary + '.exe')
             if os.path.exists(binary_filepath):
                 deployinfo.append((binary_filepath, clangbindirtarget))
@@ -248,7 +248,7 @@ def deploy_clang(install_dir, llvm_install_dir, chrpath_bin):
         clangbinary_targetdir = os.path.join(install_dir, 'libexec', 'qtcreator', 'clang', 'bin')
         if not os.path.exists(clangbinary_targetdir):
             os.makedirs(clangbinary_targetdir)
-        for binary in ['clang', 'clangd', 'clang-tidy', 'clazy-standalone']:
+        for binary in ['clangd', 'clang-tidy', 'clazy-standalone']:
             binary_filepath = os.path.join(llvm_install_dir, 'bin', binary)
             if os.path.exists(binary_filepath):
                 deployinfo.append((binary_filepath, clangbinary_targetdir))
@@ -262,7 +262,7 @@ def deploy_clang(install_dir, llvm_install_dir, chrpath_bin):
         if not os.path.exists(clanglibs_targetdir):
             os.makedirs(clanglibs_targetdir)
         # on RHEL ClazyPlugin is in lib64
-        for lib_pattern in ['lib64/ClazyPlugin.so', 'lib/ClazyPlugin.so', 'lib/libclang-cpp.so*']:
+        for lib_pattern in ['lib64/ClazyPlugin.so', 'lib/ClazyPlugin.so']:
             for lib in glob(os.path.join(llvm_install_dir, lib_pattern)):
                 deployinfo.append((lib, clanglibs_targetdir))
         resourcetarget = os.path.join(install_dir, 'libexec', 'qtcreator', 'clang', 'lib', 'clang')

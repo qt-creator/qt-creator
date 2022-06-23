@@ -78,7 +78,7 @@ static Interpreter createInterpreter(const FilePath &python,
     pythonProcess.setCommand({python, {"--version"}});
     pythonProcess.runBlocking();
     if (pythonProcess.result() == ProcessResult::FinishedWithSuccess)
-        result.name = pythonProcess.stdOut().trimmed();
+        result.name = pythonProcess.cleanedStdOut().trimmed();
     if (result.name.isEmpty())
         result.name = defaultName;
     if (windowedSuffix)

@@ -53,7 +53,6 @@ class LldbEngine : public CppDebuggerEngine
 
 public:
     LldbEngine();
-    ~LldbEngine() override;
 
 signals:
     void outputReady(const QString &data);
@@ -111,8 +110,8 @@ private:
     QString errorMessage(QProcess::ProcessError error) const;
     bool hasCapability(unsigned cap) const override;
 
-    void handleLldbFinished();
-    void handleLldbError(QProcess::ProcessError error);
+    void handleLldbStarted();
+    void handleLldbDone();
     void readLldbStandardOutput();
     void readLldbStandardError();
 

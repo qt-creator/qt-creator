@@ -66,7 +66,7 @@ Version ToolWrapper::read_version(const Utils::FilePath &toolPath)
         process.setCommand({ toolPath, { "--version" } });
         process.start();
         if (process.waitForFinished())
-            return Version::fromString(process.stdOut());
+            return Version::fromString(process.cleanedStdOut());
     }
     return {};
 }

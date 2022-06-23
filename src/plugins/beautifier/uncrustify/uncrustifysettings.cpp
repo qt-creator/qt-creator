@@ -30,7 +30,6 @@
 #include "../beautifierconstants.h"
 
 #include <coreplugin/icore.h>
-
 #include <utils/qtcprocess.h>
 
 #include <QDateTime>
@@ -56,6 +55,7 @@ const char SETTINGS_NAME[]                 = "uncrustify";
 UncrustifySettings::UncrustifySettings() :
     AbstractSettings(SETTINGS_NAME, ".cfg")
 {
+    setVersionRegExp(QRegularExpression("([0-9]{1})\\.([0-9]{2})"));
     setCommand("uncrustify");
     m_settings.insert(USE_OTHER_FILES, QVariant(true));
     m_settings.insert(USE_HOME_FILE, QVariant(false));
@@ -208,34 +208,6 @@ void UncrustifySettings::createDocumentationFile() const
         file.close();
         file.remove();
     }
-}
-
-static bool parseVersion(const QString &text, int &version)
-{
-    // The version in Uncrustify is printed like "uncrustify 0.62"
-    const QRegularExpression rx("([0-9]{1})\\.([0-9]{2})");
-    const QRegularExpressionMatch match = rx.match(text);
-    if (!match.hasMatch())
-        return false;
-
-    const int major = match.captured(1).toInt() * 100;
-    const int minor = match.captured(2).toInt();
-    version = major + minor;
-    return true;
-}
-
-void UncrustifySettings::updateVersion()
-{
-    m_versionProcess.reset(new QtcProcess);
-    connect(m_versionProcess.get(), &QtcProcess::finished, this, [this] {
-        if (m_versionProcess->exitStatus() == QProcess::NormalExit) {
-            if (!parseVersion(QString::fromUtf8(m_versionProcess->readAllStandardOutput()), m_version))
-                parseVersion(QString::fromUtf8(m_versionProcess->readAllStandardError()), m_version);
-        }
-        m_versionProcess.release()->deleteLater();
-    });
-    m_versionProcess->setCommand({ command(), { "--version" } });
-    m_versionProcess->start();
 }
 
 } // namespace Internal

@@ -118,7 +118,7 @@ QVersionNumber WebAssemblyEmSdk::version(const FilePath &sdkRoot)
         emcc.setCommand(command);
         emcc.setEnvironment(env);
         emcc.runBlocking();
-        const QString version = emcc.stdOut();
+        const QString version = emcc.cleanedStdOut();
         emSdkVersionCache()->insert(cacheKey,
                                     new QVersionNumber(QVersionNumber::fromString(version)));
     }

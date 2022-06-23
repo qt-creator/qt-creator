@@ -31,6 +31,10 @@
 #include <QOpenGLContext>
 #endif
 
+#ifdef Q_OS_LINUX
+#include <sys/sysinfo.h>
+#endif
+
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
 #endif
@@ -65,8 +69,9 @@ HostOsInfo::HostArchitecture HostOsInfo::hostArchitecture()
     case PROCESSOR_ARCHITECTURE_IA64:
         return HostOsInfo::HostArchitectureItanium;
     case PROCESSOR_ARCHITECTURE_ARM:
-    case PROCESSOR_ARCHITECTURE_ARM64:
         return HostOsInfo::HostArchitectureArm;
+    case PROCESSOR_ARCHITECTURE_ARM64:
+        return HostOsInfo::HostArchitectureArm64;
     default:
         return HostOsInfo::HostArchitectureUnknown;
     }
@@ -109,4 +114,28 @@ bool HostOsInfo::canCreateOpenGLContext(QString *errorMessage)
                                                     "Cannot create OpenGL context.");
     return canCreate;
 #endif
+}
+
+optional<quint64> HostOsInfo::totalMemoryInstalledInBytes()
+{
+#ifdef Q_OS_LINUX
+    struct sysinfo info;
+    if (sysinfo(&info) == -1)
+        return {};
+    return info.totalram;
+#elif defined(Q_OS_WIN)
+    MEMORYSTATUSEX statex;
+    statex.dwLength = sizeof statex;
+    if (!GlobalMemoryStatusEx(&statex))
+        return {};
+    return statex.ullTotalPhys;
+#elif defined(Q_OS_MACOS)
+    int mib[] = {CTL_HW, HW_MEMSIZE};
+    int64_t ram;
+    size_t length = sizeof(int64_t);
+    if (sysctl(mib, 2, &ram, &length, nullptr, 0) == -1)
+        return {};
+    return ram;
+#endif
+    return {};
 }

@@ -30,10 +30,9 @@
 #include "diagnosticconfigswidget.h"
 
 #include <utils/utilsicons.h>
+#include <utils/stringutils.h>
 
 #include <QAction>
-#include <QApplication>
-#include <QClipboard>
 
 namespace ClangTools {
 namespace Internal {
@@ -65,7 +64,7 @@ DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic)
         const QString text = createFullLocationString(diagnostic.location)
                              + ": "
                              + diagnostic.description;
-        QApplication::clipboard()->setText(text);
+        Utils::setClipboardAndSelection(text);
     });
     actions << action;
 

@@ -25,18 +25,14 @@
 
 #pragma once
 
+#include <utils/qtcprocess.h>
+
 #include <QObject>
 #include <QStringList>
 
 QT_BEGIN_NAMESPACE
 class QMessageBox;
 QT_END_NAMESPACE
-
-namespace Utils
-{
-class FilePath;
-class QtcProcess;
-}
 
 namespace Git {
 namespace Internal {
@@ -56,8 +52,7 @@ class MergeTool : public QObject
 
 public:
     explicit MergeTool(QObject *parent = nullptr);
-    ~MergeTool() override;
-    bool start(const Utils::FilePath &workingDirectory, const QStringList &files = {});
+    void start(const Utils::FilePath &workingDirectory, const QStringList &files = {});
 
     enum MergeType {
         NormalMerge,
@@ -79,7 +74,7 @@ private:
     void chooseAction();
     void addButton(QMessageBox *msgBox, const QString &text, char key);
 
-    Utils::QtcProcess *m_process = nullptr;
+    Utils::QtcProcess m_process;
     MergeType m_mergeType = NormalMerge;
     QString m_fileName;
     FileState m_localState = UnknownState;
@@ -87,7 +82,6 @@ private:
     FileState m_remoteState = UnknownState;
     QString m_remoteInfo;
     QString m_unfinishedLine;
-    bool m_merging = false;
 };
 
 } // namespace Internal

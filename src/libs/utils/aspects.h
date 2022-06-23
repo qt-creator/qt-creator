@@ -145,7 +145,7 @@ public:
         // The (unique) address of the "owning" aspect's meta object is used as identifier.
         using ClassId = const void *;
 
-        virtual ~Data() = default;
+        virtual ~Data();
 
         Id id() const { return m_id; }
         ClassId classId() const { return m_classId; }

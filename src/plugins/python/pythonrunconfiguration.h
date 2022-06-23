@@ -43,6 +43,7 @@ public:
     QList<PySideUicExtraCompiler *> extraCompilers() const;
 
 private:
+    void checkForPySide(const Utils::FilePath &python);
     void updateExtraCompilers();
     Utils::FilePath m_pySideUicPath;
 

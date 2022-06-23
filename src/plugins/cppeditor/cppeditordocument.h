@@ -94,6 +94,8 @@ private:
 
     void onAboutToReload();
     void onReloadFinished();
+    void onDiagnosticsChanged(const QString &fileName, const QString &kind);
+
 
     void reparseWithPreferredParseContext(const QString &id);
 

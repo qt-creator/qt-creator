@@ -122,4 +122,12 @@ QTCREATOR_UTILS_EXPORT QString wildcardToRegularExpression(const QString &origin
 
 QTCREATOR_UTILS_EXPORT QString languageNameFromLanguageCode(const QString &languageCode);
 
+
+#ifdef QT_WIDGETS_LIB
+
+// Feeds the global clipboard and, when present, the primary selection
+QTCREATOR_UTILS_EXPORT void setClipboardAndSelection(const QString &text);
+
+#endif
+
 } // namespace Utils

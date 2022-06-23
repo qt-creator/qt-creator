@@ -40,9 +40,8 @@
 #include <utils/basetreeview.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
-#include <QApplication>
-#include <QClipboard>
 #include <QContextMenuEvent>
 #include <QDebug>
 #include <QDir>
@@ -410,14 +409,6 @@ static QString selectedText(QWidget *widget, bool useAll)
     return str;
 }
 
-static void copyTextToClipboard(const QString &str)
-{
-    QClipboard *clipboard = QApplication::clipboard();
-    if (clipboard->supportsSelection())
-        clipboard->setText(str, QClipboard::Selection);
-    clipboard->setText(str, QClipboard::Clipboard);
-}
-
 // Write stack frames as task file for displaying it in the build issues pane.
 void StackHandler::saveTaskFile()
 {
@@ -458,11 +449,11 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
     menu->addAction(debuggerSettings()->expandStack.action());
 
     addAction(this, menu, tr("Copy Contents to Clipboard"), true, [ev] {
-        copyTextToClipboard(selectedText(ev.view(), true));
+        setClipboardAndSelection(selectedText(ev.view(), true));
     });
 
     addAction(this, menu, tr("Copy Selection to Clipboard"), true, [ev] {
-        copyTextToClipboard(selectedText(ev.view(), false));
+        setClipboardAndSelection(selectedText(ev.view(), false));
     });
 
     addAction(this, menu, tr("Save as Task File..."), true, [this] { saveTaskFile(); });

@@ -92,7 +92,8 @@ public:
     QVariant recordedData(const QString &channel) const;
 
     // Part of read-only interface of RunControl for convenience.
-    void appendMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
+    void appendMessage(const QString &msg, Utils::OutputFormat format);
+    void appendMessageChunk(const QString &msg, Utils::OutputFormat format);
     IDeviceConstPtr device() const;
 
     // States

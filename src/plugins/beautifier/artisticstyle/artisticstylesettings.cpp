@@ -57,9 +57,7 @@ const char SETTINGS_NAME[]            = "artisticstyle";
 ArtisticStyleSettings::ArtisticStyleSettings() :
     AbstractSettings(SETTINGS_NAME, ".astyle")
 {
-    connect(&m_versionWatcher, &QFutureWatcherBase::finished,
-            this, &ArtisticStyleSettings::helperSetVersion);
-
+    setVersionRegExp(QRegularExpression("([2-9]{1})\\.([0-9]{1,2})(\\.[1-9]{1})?$"));
     setCommand("astyle");
     m_settings.insert(USE_OTHER_FILES, QVariant(true));
     m_settings.insert(USE_SPECIFIC_CONFIG_FILE, QVariant(false));
@@ -68,48 +66,6 @@ ArtisticStyleSettings::ArtisticStyleSettings() :
     m_settings.insert(USE_CUSTOM_STYLE, QVariant(false));
     m_settings.insert(CUSTOM_STYLE, QVariant());
     read();
-}
-
-static int parseVersion(const QString &text)
-{
-    // The version in Artistic Style is printed like "Artistic Style Version 2.04"
-    const QRegularExpression rx("([2-9]{1})\\.([0-9]{1,2})(\\.[1-9]{1})?$");
-    const QRegularExpressionMatch match = rx.match(text);
-    if (match.hasMatch()) {
-        const int major = match.captured(1).toInt() * 100;
-        const int minor = match.captured(2).toInt();
-        return major + minor;
-    }
-    return 0;
-}
-
-static int updateVersionHelper(const FilePath &command)
-{
-    QtcProcess process;
-    process.setCommand({command, {"--version"}});
-    process.runBlocking();
-    if (process.result() != ProcessResult::FinishedWithSuccess)
-        return 0;
-
-    // Astyle prints the version on stdout or stderr, depending on platform
-    const int version = parseVersion(process.stdOut().trimmed());
-    if (version != 0)
-        return version;
-    return parseVersion(process.stdErr().trimmed());
-}
-
-void ArtisticStyleSettings::updateVersion()
-{
-    if (m_versionFuture.isRunning())
-        m_versionFuture.cancel();
-
-    m_versionFuture = runAsync(updateVersionHelper, command());
-    m_versionWatcher.setFuture(m_versionFuture);
-}
-
-void ArtisticStyleSettings::helperSetVersion()
-{
-    m_version = m_versionWatcher.result();
 }
 
 bool ArtisticStyleSettings::useOtherFiles() const
@@ -132,12 +88,12 @@ void ArtisticStyleSettings::setUseSpecificConfigFile(bool useSpecificConfigFile)
     m_settings.insert(USE_SPECIFIC_CONFIG_FILE, QVariant(useSpecificConfigFile));
 }
 
-Utils::FilePath ArtisticStyleSettings::specificConfigFile() const
+FilePath ArtisticStyleSettings::specificConfigFile() const
 {
-    return Utils::FilePath::fromString(m_settings.value(SPECIFIC_CONFIG_FILE).toString());
+    return FilePath::fromString(m_settings.value(SPECIFIC_CONFIG_FILE).toString());
 }
 
-void ArtisticStyleSettings::setSpecificConfigFile(const Utils::FilePath &specificConfigFile)
+void ArtisticStyleSettings::setSpecificConfigFile(const FilePath &specificConfigFile)
 {
     m_settings.insert(SPECIFIC_CONFIG_FILE, QVariant(specificConfigFile.toString()));
 }
@@ -182,7 +138,7 @@ QString ArtisticStyleSettings::documentationFilePath() const
 
 void ArtisticStyleSettings::createDocumentationFile() const
 {
-    Utils::QtcProcess process;
+    QtcProcess process;
     process.setTimeoutS(2);
     process.setCommand({command(), {"-h"}});
     process.runBlocking();
@@ -204,7 +160,7 @@ void ArtisticStyleSettings::createDocumentationFile() const
     stream.writeStartElement(Constants::DOCUMENTATION_XMLROOT);
 
     // astyle writes its output to 'error'...
-    const QStringList lines = process.stdErr().split(QLatin1Char('\n'));
+    const QStringList lines = process.cleanedStdErr().split(QLatin1Char('\n'));
     QStringList keys;
     QStringList docu;
     for (QString line : lines) {

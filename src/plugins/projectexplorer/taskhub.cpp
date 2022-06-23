@@ -154,7 +154,7 @@ void TaskHub::addTask(Task::TaskType type, const QString &description, Utils::Id
 void TaskHub::addTask(Task task)
 {
     if (QThread::currentThread() != qApp->thread()) {
-        QMetaObject::invokeMethod(qApp, [&task] {
+        QMetaObject::invokeMethod(qApp, [task = std::move(task)] {
             TaskHub::addTask(task);
         });
 

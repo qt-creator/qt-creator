@@ -260,7 +260,7 @@ QString SshSharedConnection::fullProcessError() const
 {
     const QString errorString = m_masterProcess->exitStatus() == QProcess::CrashExit
             ? m_masterProcess->errorString() : QString();
-    const QString standardError = m_masterProcess->stdErr();
+    const QString standardError = m_masterProcess->cleanedStdErr();
     const QString errorPrefix = errorString.isEmpty() && standardError.isEmpty()
             ? tr("SSH connection failure.") : tr("SSH connection failure:");
     QStringList allErrors {errorPrefix, errorString, standardError};

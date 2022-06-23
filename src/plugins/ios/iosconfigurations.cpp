@@ -238,7 +238,7 @@ static QByteArray decodeProvisioningProfile(const QString &path)
     p.runBlocking();
     if (p.result() != ProcessResult::FinishedWithSuccess)
         qCDebug(iosCommonLog) << "Reading signed provisioning file failed" << path;
-    return p.stdOut().toLatin1();
+    return p.cleanedStdOut().toLatin1();
 }
 
 void IosConfigurations::updateAutomaticKitList()

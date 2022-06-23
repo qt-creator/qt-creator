@@ -90,7 +90,7 @@ bool isSilverSearcherAvailable()
     silverSearcherProcess.setCommand({"ag", {"--version"}});
     silverSearcherProcess.start();
     if (silverSearcherProcess.waitForFinished(1000)) {
-        if (silverSearcherProcess.stdOut().contains("ag version"))
+        if (silverSearcherProcess.cleanedStdOut().contains("ag version"))
             return true;
     }
 
@@ -145,7 +145,7 @@ void runSilverSeacher(FutureInterfaceType &fi, FileFindParameters parameters)
             regexp.setPattern(parameters.text);
             regexp.setPatternOptions(patternOptions);
         }
-        SilverSearcher::SilverSearcherOutputParser parser(process.stdOut(), regexp);
+        SilverSearcher::SilverSearcherOutputParser parser(process.cleanedStdOut(), regexp);
         FileSearchResultList items = parser.parse();
         if (!items.isEmpty())
             fi.reportResult(items);

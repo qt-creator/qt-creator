@@ -186,7 +186,7 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
     proc.runBlocking(EventLoopMode::On);
     if (assertionFound) {
         output.success = false;
-        output.stdOutput = proc.stdOut();
+        output.stdOutput = proc.cleanedStdOut();
         output.stdError = QCoreApplication::translate("Android::Internal::AndroidSdkManager",
                                                       "The operation requires user interaction. "
                                                       "Use the \"sdkmanager\" command-line tool.");

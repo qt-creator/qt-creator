@@ -611,9 +611,11 @@ bool AndroidBuildApkStep::init()
     QStringList argumentsPasswordConcealed = arguments;
 
     if (m_signPackage) {
-        arguments << "--sign" << m_keystorePath.toString() << m_certificateAlias
+        arguments << "--release"
+                  << "--sign" << m_keystorePath.toString() << m_certificateAlias
                   << "--storepass" << m_keystorePasswd;
-        argumentsPasswordConcealed << "--sign" << "******"
+        argumentsPasswordConcealed << "--release"
+                                   << "--sign" << "******"
                                    << "--storepass" << "******";
         if (!m_certificatePasswd.isEmpty()) {
             arguments << "--keypass" << m_certificatePasswd;
@@ -1065,7 +1067,7 @@ QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
     if (keytoolProc.result() > ProcessResult::FinishedWithError)
         QMessageBox::critical(nullptr, tr("Error"), tr("Failed to run keytool."));
     else
-        model = new CertificatesModel(keytoolProc.stdOut(), this);
+        model = new CertificatesModel(keytoolProc.cleanedStdOut(), this);
 
     return model;
 }

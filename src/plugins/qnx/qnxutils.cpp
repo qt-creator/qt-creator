@@ -125,7 +125,7 @@ EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const FilePath &filePath)
         return items;
 
     // parsing process output
-    const QString output = process.stdOut();
+    const QString output = process.cleanedStdOut();
     for (const QString &line : output.split('\n')) {
         int equalIndex = line.indexOf('=');
         if (equalIndex < 0)

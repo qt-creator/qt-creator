@@ -75,8 +75,7 @@ private:
     void startServer();
 
     void onServerStarted();
-    void onServerCrashed();
-    void onServerFinished();
+    void onServerDone();
 
     void onClientConnected();
     void onClientDisconnected();

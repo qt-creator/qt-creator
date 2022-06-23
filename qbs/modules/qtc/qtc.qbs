@@ -1,17 +1,20 @@
 import qbs
 import qbs.Environment
 import qbs.FileInfo
+import qbs.Utilities
 
 Module {
-    property string qtcreator_display_version: '8.0.0-beta1'
+    Depends { name: "cpp"; required: false }
+
+    property string qtcreator_display_version: '8.0.0-beta2'
     property string ide_version_major: '7'
-    property string ide_version_minor: '82'
+    property string ide_version_minor: '83'
     property string ide_version_release: '0'
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.'
                                        + ide_version_release
 
     property string ide_compat_version_major: '7'
-    property string ide_compat_version_minor: '82'
+    property string ide_compat_version_minor: '83'
     property string ide_compat_version_release: '0'
     property string qtcreator_compat_version: ide_compat_version_major + '.'
             + ide_compat_version_minor + '.' + ide_compat_version_release
@@ -92,4 +95,12 @@ Module {
         "QT_USE_QSTRINGBUILDER",
     ].concat(testsEnabled ? ["WITH_TESTS"] : [])
      .concat(qbs.toolchain.contains("msvc") ? ["_CRT_SECURE_NO_WARNINGS"] : [])
+
+    Properties {
+        condition: cpp.present && qbs.toolchain.contains("msvc") && product.Qt
+                   && Utilities.versionCompare(Qt.core.version, "6.3") >= 0
+                   && Utilities.versionCompare(cpp.compilerVersion, "19.10") >= 0
+                   && Utilities.versionCompare(qbs.version, "1.23") < 0
+        cpp.cxxFlags: "/permissive-"
+    }
 }

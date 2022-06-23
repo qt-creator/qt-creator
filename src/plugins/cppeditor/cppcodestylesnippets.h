@@ -135,6 +135,12 @@ static const char *DEFAULT_CODE_STYLE_SNIPPETS[]
        "private:\n"
        "    int _a;\n"
        "    };\n"
+       "enum class E\n"
+       "{\n"
+       "    V1,\n"
+       "    V2,\n"
+       "    V3\n"
+       "};\n"
        "}\n"
        "}\n",
        "#include \"bar.h\"\n"

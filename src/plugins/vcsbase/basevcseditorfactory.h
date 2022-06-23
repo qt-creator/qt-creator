@@ -41,6 +41,8 @@ public:
     VcsEditorFactory(const VcsBaseEditorParameters *parameters,
                      const EditorWidgetCreator editorWidgetCreator,
                      std::function<void(const Utils::FilePath &, const QString &)> describeFunc);
+
+    ~VcsEditorFactory();
 };
 
 } // namespace VcsBase

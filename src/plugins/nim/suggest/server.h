@@ -40,10 +40,9 @@ class NimSuggestServer : public QObject
 
 public:
     NimSuggestServer(QObject *parent = nullptr);
-    ~NimSuggestServer();
 
     bool start(const QString &executablePath, const QString &projectFilePath);
-    void kill();
+    void stop();
 
     quint16 port() const;
     QString executablePath() const;
@@ -51,16 +50,13 @@ public:
 
 signals:
     void started();
-    void finished();
-    void crashed();
+    void done();
 
 private:
-    void onStarted();
     void onStandardOutputAvailable();
-    void onFinished();
+    void onDone();
     void clearState();
 
-    bool m_started = false;
     bool m_portAvailable = false;
     Utils::QtcProcess m_process;
     quint16 m_port = 0;

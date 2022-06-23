@@ -2035,14 +2035,12 @@ void NodeInstanceView::handleQsbProcessExit(Utils::QtcProcess *qsbProcess, const
 {
     --m_remainingQsbTargets;
 
-    QString errStr = qsbProcess->errorString();
-    QByteArray stdErrStr = qsbProcess->readAllStandardError();
+    const QString errStr = qsbProcess->errorString();
+    const QByteArray stdErrStr = qsbProcess->readAllStandardError();
 
     if (!errStr.isEmpty() || !stdErrStr.isEmpty()) {
-        Core::MessageManager::writeSilently(
-            QCoreApplication::translate("QmlDesigner::NodeInstanceView",
-                                        "Failed to generate QSB file for: %1")
-                .arg(shader));
+        Core::MessageManager::writeSilently(QCoreApplication::translate(
+            "QmlDesigner::NodeInstanceView", "Failed to generate QSB file for: %1").arg(shader));
         if (!errStr.isEmpty())
             Core::MessageManager::writeSilently(errStr);
         if (!stdErrStr.isEmpty())
@@ -2137,27 +2135,13 @@ void NodeInstanceView::handleShaderChanges()
         QStringList args = baseArgs;
         args.append(outPath.toString());
         args.append(shader);
-        auto qsbProcess = new Utils::QtcProcess;
+        auto qsbProcess = new Utils::QtcProcess(this);
+        connect(qsbProcess, &Utils::QtcProcess::done, this, [this, qsbProcess, shader] {
+            handleQsbProcessExit(qsbProcess, shader);
+        });
         qsbProcess->setWorkingDirectory(srcPath);
         qsbProcess->setCommand({m_qsbPath, args});
         qsbProcess->start();
-
-        if (!qsbProcess->waitForStarted()) {
-            handleQsbProcessExit(qsbProcess, shader);
-            continue;
-        }
-
-        if (qsbProcess->state() == QProcess::Running) {
-            connect(qsbProcess, &Utils::QtcProcess::finished,
-                    [thisView = QPointer<NodeInstanceView>(this), qsbProcess, shader]() {
-                if (thisView)
-                    thisView->handleQsbProcessExit(qsbProcess, shader);
-                else
-                    qsbProcess->deleteLater();
-            });
-        } else {
-            handleQsbProcessExit(qsbProcess, shader);
-        }
     }
 }
 

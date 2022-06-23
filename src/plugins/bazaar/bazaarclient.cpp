@@ -153,7 +153,7 @@ bool BazaarClient::synchronousUncommit(const FilePath &workingDir,
 
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDir, args);
-    VcsOutputWindow::append(proc.stdOut());
+    VcsOutputWindow::append(proc.cleanedStdOut());
     return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 

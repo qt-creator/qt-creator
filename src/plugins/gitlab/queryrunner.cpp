@@ -37,6 +37,8 @@
 
 #include <QUrl>
 
+using namespace Utils;
+
 namespace GitLab {
 
 const char API_PREFIX[]                 = "/api/v4";
@@ -100,15 +102,13 @@ QString Query::toString() const
     return query;
 }
 
-QueryRunner::QueryRunner(const Query &query, const Utils::Id &id, QObject *parent)
+QueryRunner::QueryRunner(const Query &query, const Id &id, QObject *parent)
     : QObject(parent)
-    , m_serverId(id)
 {
     const GitLabParameters *p = GitLabPlugin::globalParameters();
-    const auto server = p->serverForId(m_serverId);
+    const auto server = p->serverForId(id);
     QStringList args = server.curlArguments();
-    m_paginated = query.hasPaginatedResults();
-    if (m_paginated)
+    if (query.hasPaginatedResults())
         args << "-i";
     if (!server.token.isEmpty())
         args << "--header" << "PRIVATE-TOKEN: " + server.token;
@@ -118,69 +118,31 @@ QueryRunner::QueryRunner(const Query &query, const Utils::Id &id, QObject *paren
     url += query.toString();
     args << url;
     m_process.setCommand({p->curl, args});
-    connect(&m_process, &Utils::QtcProcess::finished, this, &QueryRunner::processFinished);
-    connect(&m_process, &Utils::QtcProcess::errorOccurred, this, &QueryRunner::processError);
-}
-
-QueryRunner::~QueryRunner()
-{
-    m_process.disconnect();
-    terminate();
-}
-
-void QueryRunner::start()
-{
-    QTC_ASSERT(!m_running, return);
-    m_running = true;
-    m_process.start();
-}
-
-void QueryRunner::terminate()
-{
-    m_process.stop();
-    m_process.waitForFinished();
-}
-
-void QueryRunner::errorTermination(const QString &msg)
-{
-    if (!m_running)
-        return;
-    VcsBase::VcsOutputWindow::appendError(msg);
-    m_running = false;
-    emit finished();
-}
-
-void QueryRunner::processError(QProcess::ProcessError /*error*/)
-{
-    const QString msg = tr("Error running %1: %2")
-            .arg(m_process.commandLine().executable().toUserOutput(),
-                 m_process.errorString());
-    errorTermination(msg);
-}
-void QueryRunner::processFinished()
-{
-    const QString executable = m_process.commandLine().executable().toUserOutput();
-    if (m_process.exitStatus() != QProcess::NormalExit) {
-        errorTermination(tr("%1 crashed.").arg(executable));
-        return;
-    } else if (int exitCode = m_process.exitCode()) {
-        if (exitCode == 35 || exitCode == 60) { // common ssl certificate issues
-            if (GitLabPlugin::handleCertificateIssue(m_serverId)) {
-                m_running = false;
+    connect(&m_process, &QtcProcess::done, this, [this, id] {
+        if (m_process.result() != ProcessResult::FinishedWithSuccess) {
+            const int exitCode = m_process.exitCode();
+            if (m_process.exitStatus() == QProcess::NormalExit
+                    && (exitCode == 35 || exitCode == 60) // common ssl certificate issues
+                    && GitLabPlugin::handleCertificateIssue(id)) {
                 // prepend -k for re-requesting the same query
-                Utils::CommandLine cmdline = m_process.commandLine();
+                CommandLine cmdline = m_process.commandLine();
                 cmdline.prependArgs({"-k"});
                 m_process.setCommand(cmdline);
                 start();
                 return;
             }
+            VcsBase::VcsOutputWindow::appendError(m_process.exitMessage());
+        } else {
+            emit resultRetrieved(m_process.readAllStandardOutput());
         }
-        errorTermination(tr("%1 returned %2.").arg(executable).arg(m_process.exitCode()));
-        return;
-    }
-    m_running = false;
-    emit resultRetrieved(m_process.readAllStandardOutput());
-    emit finished();
+        emit finished();
+    });
+}
+
+void QueryRunner::start()
+{
+    QTC_ASSERT(!m_process.isRunning(), return);
+    m_process.start();
 }
 
 } // namespace GitLab

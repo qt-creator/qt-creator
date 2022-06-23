@@ -1,11 +1,10 @@
-if (LINUX) # Debug build only!
-  add_qtc_executable(qtcreatorcrashhandler
-    DEPENDS Utils Qt5::Widgets
-    SOURCES
-      backtracecollector.cpp backtracecollector.h
-      crashhandler.cpp crashhandler.h
-      crashhandlerdialog.cpp crashhandlerdialog.h crashhandlerdialog.ui
-      main.cpp
-      utils.cpp utils.h
-  )
-endif()
+add_qtc_executable(qtcreatorcrashhandler
+  CONDITION UNIX AND NOT APPLE AND (CMAKE_BUILD_TYPE STREQUAL "Debug")
+  DEPENDS app_version Utils Qt5::Widgets
+  SOURCES
+    backtracecollector.cpp backtracecollector.h
+    crashhandler.cpp crashhandler.h
+    crashhandlerdialog.cpp crashhandlerdialog.h crashhandlerdialog.ui
+    main.cpp
+    utils.cpp utils.h
+)

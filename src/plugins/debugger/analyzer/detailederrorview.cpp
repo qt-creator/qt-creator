@@ -30,12 +30,12 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
+#include <QApplication>
 #include <QAbstractTextDocumentLayout>
 #include <QAction>
-#include <QApplication>
-#include <QClipboard>
 #include <QContextMenuEvent>
 #include <QFileInfo>
 #include <QHeaderView>
@@ -54,12 +54,12 @@ DetailedErrorView::DetailedErrorView(QWidget *parent) :
     m_copyAction->setIcon(Utils::Icons::COPY.icon());
     m_copyAction->setShortcut(QKeySequence::Copy);
     m_copyAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    connect(m_copyAction, &QAction::triggered, [this] {
+    connect(m_copyAction, &QAction::triggered, this, [this] {
         const QModelIndexList selectedRows = selectionModel()->selectedRows();
         QStringList data;
         for (const QModelIndex &index : selectedRows)
             data << model()->data(index, FullTextRole).toString();
-        QApplication::clipboard()->setText(data.join('\n'));
+        Utils::setClipboardAndSelection(data.join('\n'));
     });
     connect(this, &QAbstractItemView::clicked, [](const QModelIndex &index) {
         if (index.column() == LocationColumn) {

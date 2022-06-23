@@ -56,6 +56,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
+#include <projectexplorer/abi.h>
 #include <projectexplorer/taskhub.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtversionmanager.h>
@@ -211,8 +212,8 @@ CdbEngine::CdbEngine() :
     DebuggerSettings *s = debuggerSettings();
     connect(s->createFullBacktrace.action(), &QAction::triggered,
             this, &CdbEngine::createFullBacktrace);
-    connect(&m_process, &QtcProcess::finished, this, &CdbEngine::processFinished);
-    connect(&m_process, &QtcProcess::errorOccurred, this, &CdbEngine::processError);
+    connect(&m_process, &QtcProcess::started, this, &CdbEngine::processStarted);
+    connect(&m_process, &QtcProcess::done, this, &CdbEngine::processDone);
     connect(&m_process, &QtcProcess::readyReadStandardOutput,
             this, &CdbEngine::readyReadStandardOut);
     connect(&m_process, &QtcProcess::readyReadStandardError,
@@ -291,14 +292,13 @@ bool CdbEngine::canHandleToolTip(const DebuggerToolTipContext &context) const
 }
 
 // Determine full path to the CDB extension library.
-QString CdbEngine::extensionLibraryName(bool is64Bit)
+QString CdbEngine::extensionLibraryName(bool is64Bit, bool isArm)
 {
     // Determine extension lib name and path to use
-    QString rc;
-    QTextStream(&rc) << QFileInfo(QCoreApplication::applicationDirPath()).path()
-                     << "/lib/" << (is64Bit ? QT_CREATOR_CDB_EXT "64" : QT_CREATOR_CDB_EXT "32")
-                     << '/' << QT_CREATOR_CDB_EXT << ".dll";
-    return rc;
+    return QString("%1/lib/" QT_CREATOR_CDB_EXT "%2%3/" QT_CREATOR_CDB_EXT ".dll")
+        .arg(QFileInfo(QCoreApplication::applicationDirPath()).path())
+        .arg(isArm ? "arm" : QString())
+        .arg(is64Bit ? "64": "32");
 }
 
 int CdbEngine::elapsedLogTime()
@@ -354,10 +354,17 @@ void CdbEngine::setupEngine()
         return;
     }
 
-    bool cdbIs64Bit = Utils::is64BitWindowsBinary(sp.debugger.command.executable());
-    if (!cdbIs64Bit)
+    bool cdbIs64Bit = true;
+    bool cdbIsArm = false;
+    Abis abisOfCdb = Abi::abisOfBinary(sp.debugger.command.executable());
+    if (abisOfCdb.size() == 1) {
+        Abi abi = abisOfCdb.at(0);
+        cdbIs64Bit = abi.wordWidth() == 64;
+        cdbIsArm = abi.architecture() == Abi::Architecture::ArmArchitecture;
+    }
+    if (!cdbIs64Bit || cdbIsArm)
         m_wow64State = noWow64Stack;
-    const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit));
+    const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit, cdbIsArm));
     if (!extensionFi.isFile()) {
         handleSetupFailure(tr("Internal error: The extension %1 cannot be found.\n"
                            "If you have updated %2 via Maintenance Tool, you may "
@@ -376,12 +383,12 @@ void CdbEngine::setupEngine()
     // Prepare command line.
     CommandLine debugger{sp.debugger.command};
 
-    const QString extensionFileName = extensionFi.fileName();
+    m_extensionFileName = extensionFi.fileName();
     const bool isRemote = sp.startMode == AttachToRemoteServer;
     if (isRemote) { // Must be first
         debugger.addArgs({"-remote", sp.remoteChannel});
     } else {
-        debugger.addArg("-a" + extensionFileName);
+        debugger.addArg("-a" + m_extensionFileName);
     }
 
     // Source line info/No terminal breakpoint / Pull extension
@@ -463,20 +470,19 @@ void CdbEngine::setupEngine()
 
     m_process.setCommand(debugger);
     m_process.start();
-    if (!m_process.waitForStarted()) {
-        handleSetupFailure(QString("Internal error: Cannot start process %1: %2").
-                arg(debugger.toUserOutput(), m_process.errorString()));
-        return;
-    }
+}
 
+void CdbEngine::processStarted()
+{
     const qint64 pid = m_process.processId();
-    showMessage(QString("%1 running as %2").arg(debugger.executable().toUserOutput()).arg(pid),
-                LogMisc);
+    const FilePath execPath = runParameters().debugger.command.executable();
+    showMessage(QString("%1 running as %2").arg(execPath.toUserOutput()).arg(pid), LogMisc);
     m_hasDebuggee = true;
     m_initialSessionIdleHandled = false;
-    if (isRemote) { // We do not get an 'idle' in a remote session, but are accessible
+    if (runParameters().startMode == AttachToRemoteServer) {
+        // We do not get an 'idle' in a remote session, but are accessible
         m_accessible = true;
-        runCommand({".load " + extensionFileName, NoFlags});
+        runCommand({".load " + m_extensionFileName, NoFlags});
         handleInitialSessionIdle();
     }
 }
@@ -702,12 +708,21 @@ void CdbEngine::abortDebuggerProcess()
     m_process.kill();
 }
 
-void CdbEngine::processFinished()
+void CdbEngine::processDone()
 {
-    if (debug)
+    if (m_process.result() == ProcessResult::StartFailed) {
+        handleSetupFailure(m_process.exitMessage());
+        return;
+    }
+
+    if (m_process.error() != QProcess::UnknownError)
+        showMessage(m_process.errorString(), LogError);
+
+    if (debug) {
         qDebug("CdbEngine::processFinished %dms '%s' (exit state=%d, ex=%d)",
                elapsedLogTime(), qPrintable(stateName(state())),
                m_process.exitStatus(), m_process.exitCode());
+    }
 
     notifyDebuggerProcessFinished(m_process.resultData(), "CDB");
 }
@@ -1039,7 +1054,7 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
                 QList<QStringView> splittedArguments;
                 int maxArgumentSize = maxCommandLength - prefix.length() - maxTokenLength;
                 while (argumentSplitPos < arguments.size()) {
-                    splittedArguments << Utils::midView(arguments, argumentSplitPos, maxArgumentSize);
+                    splittedArguments << midView(arguments, argumentSplitPos, maxArgumentSize);
                     argumentSplitPos += splittedArguments.last().length();
                 }
                 QTC_CHECK(argumentSplitPos == arguments.size());
@@ -2446,11 +2461,6 @@ void CdbEngine::readyReadStandardError()
     showMessage(QString::fromLocal8Bit(m_process.readAllStandardError()), LogError);
 }
 
-void CdbEngine::processError()
-{
-    showMessage(m_process.errorString(), LogError);
-}
-
 #if 0
 // Join breakpoint ids for a multi-breakpoint id commands like 'bc', 'be', 'bd'
 static QByteArray multiBreakpointCommand(const char *cmdC, const Breakpoints &bps)
@@ -2498,14 +2508,14 @@ public:
                                          const CppEditor::WorkingCopy &workingCopy) :
         m_snapshot(s), m_workingCopy(workingCopy) {}
 
-    unsigned fixLineNumber(const Utils::FilePath &filePath, unsigned lineNumber) const;
+    unsigned fixLineNumber(const FilePath &filePath, unsigned lineNumber) const;
 
 private:
     const CPlusPlus::Snapshot m_snapshot;
     CppEditor::WorkingCopy m_workingCopy;
 };
 
-static CPlusPlus::Document::Ptr getParsedDocument(const Utils::FilePath &filePath,
+static CPlusPlus::Document::Ptr getParsedDocument(const FilePath &filePath,
                                                   const CppEditor::WorkingCopy &workingCopy,
                                                   const CPlusPlus::Snapshot &snapshot)
 {
@@ -2520,7 +2530,7 @@ static CPlusPlus::Document::Ptr getParsedDocument(const Utils::FilePath &filePat
     return doc;
 }
 
-unsigned BreakpointCorrectionContext::fixLineNumber(const Utils::FilePath &filePath,
+unsigned BreakpointCorrectionContext::fixLineNumber(const FilePath &filePath,
                                                     unsigned lineNumber) const
 {
     const CPlusPlus::Document::Ptr doc = getParsedDocument(filePath,
@@ -2677,7 +2687,7 @@ static StackFrames parseFrames(const GdbMi &gdbmi, bool *incomplete = nullptr)
         frame.level = QString::number(i);
         const GdbMi fullName = frameMi["fullname"];
         if (fullName.isValid()) {
-            frame.file = Utils::FilePath::fromString(fullName.data()).normalizedPathName();
+            frame.file = FilePath::fromString(fullName.data()).normalizedPathName();
             frame.line = frameMi["line"].data().toInt();
             frame.usable = false; // To be decided after source path mapping.
             const GdbMi languageMi = frameMi["language"];

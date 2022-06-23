@@ -202,6 +202,12 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     setRunnableModifier([](Runnable &r) {
         r.workingDirectory = r.workingDirectory.onDevice(r.command.executable());
     });
+
+    connect(PySideInstaller::instance(), &PySideInstaller::pySideInstalled, this,
+            [this](const FilePath &python) {
+                if (python == aspect<InterpreterAspect>()->currentInterpreter().command)
+                    checkForPySide(python);
+            });
 }
 
 PythonRunConfiguration::~PythonRunConfiguration()
@@ -209,9 +215,8 @@ PythonRunConfiguration::~PythonRunConfiguration()
     qDeleteAll(m_extraCompilers);
 }
 
-void PythonRunConfiguration::currentInterpreterChanged()
+void PythonRunConfiguration::checkForPySide(const FilePath &python)
 {
-    const FilePath python = aspect<InterpreterAspect>()->currentInterpreter().command;
     BuildStepList *buildSteps = target()->activeBuildConfiguration()->buildSteps();
 
     Utils::FilePath pySideProjectPath;
@@ -236,7 +241,12 @@ void PythonRunConfiguration::currentInterpreterChanged()
     // Workaround that pip might return an incomplete file list on windows
     if (HostOsInfo::isWindowsHost() && !python.needsDevice()
         && !info.location.isEmpty() && m_pySideUicPath.isEmpty()) {
-        const FilePath scripts = info.location.parentDir().pathAppended("Scripts");
+        // Scripts is next to the site-packages install dir for user installations
+        FilePath scripts = info.location.parentDir().pathAppended("Scripts");
+        if (!scripts.exists()) {
+            // in global/venv installations Scripts is next to Lib/site-packages
+            scripts = info.location.parentDir().parentDir().pathAppended("Scripts");
+        }
         auto userInstalledPySideTool = [&](const QString &toolName) {
             const FilePath tool = scripts.pathAppended(HostOsInfo::withExecutableSuffix(toolName));
             return tool.isExecutableFile() ? tool : FilePath();
@@ -250,6 +260,12 @@ void PythonRunConfiguration::currentInterpreterChanged()
 
     if (auto pySideBuildStep = buildSteps->firstOfType<PySideBuildStep>())
         pySideBuildStep->updatePySideProjectPath(pySideProjectPath);
+}
+
+void PythonRunConfiguration::currentInterpreterChanged()
+{
+    const FilePath python = aspect<InterpreterAspect>()->currentInterpreter().command;
+    checkForPySide(python);
 
     for (FilePath &file : project()->files(Project::AllFiles)) {
         if (auto document = TextEditor::TextDocument::textDocumentForFilePath(file)) {

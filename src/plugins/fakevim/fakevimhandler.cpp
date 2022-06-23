@@ -864,15 +864,6 @@ static QByteArray toLocalEncoding(const QString &text)
 #endif
 }
 
-static QString fromLocalEncoding(const QByteArray &data)
-{
-#if defined(Q_OS_WIN)
-    return QString::fromLocal8Bit(data).replace("\n", "\r\n");
-#else
-    return QString::fromLocal8Bit(data);
-#endif
-}
-
 static QString getProcessOutput(const QString &command, const QString &input)
 {
     Utils::QtcProcess proc;
@@ -884,7 +875,7 @@ static QString getProcessOutput(const QString &command, const QString &input)
     //        Solution is to create a QObject for each process and emit finished state.
     proc.waitForFinished();
 
-    return fromLocalEncoding(proc.readAllStandardOutput());
+    return proc.cleanedStdOut();
 }
 
 static const QMap<QString, int> &vimKeyNames()
@@ -1246,7 +1237,7 @@ public:
             return '\n';
         if (m_key == Key_Escape)
             return QChar(27);
-        return QChar(m_xkey);
+        return QChar(m_xkey & 0xffff); // FIXME
     }
 
     QString toString() const
@@ -1263,7 +1254,7 @@ public:
             else if (m_xkey == '>')
                 key = "<GT>";
             else
-                key = QChar(m_xkey);
+                key = QChar(m_xkey & 0xffff);  // FIXME
         }
 
         bool shift = isShift();

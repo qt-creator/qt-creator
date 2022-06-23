@@ -31,7 +31,6 @@
 #include "projectexplorerconstants.h"
 #include "projectexplorersettings.h"
 #include "taskhub.h"
-#include "toolchainmanager.h"
 
 #include <coreplugin/icore.h>
 
@@ -106,7 +105,10 @@ const MsvcPlatform platforms[]
        {MsvcToolChain::amd64_arm, "amd64_arm", "/bin/amd64_arm", "vcvarsamd64_arm.bat"},
        {MsvcToolChain::amd64_x86, "amd64_x86", "/bin/amd64_x86", "vcvarsamd64_x86.bat"},
        {MsvcToolChain::x86_arm64, "x86_arm64", "/bin/x86_arm64", "vcvarsx86_arm64.bat"},
-       {MsvcToolChain::amd64_arm64, "amd64_arm64", "/bin/amd64_arm64", "vcvarsamd64_arm64.bat"}};
+       {MsvcToolChain::amd64_arm64, "amd64_arm64", "/bin/amd64_arm64", "vcvarsamd64_arm64.bat"},
+       {MsvcToolChain::arm64, "arm64", "/bin/arm64", "vcvarsarm64.bat"},
+       {MsvcToolChain::arm64_x86, "arm64_x86", "/bin/arm64_x86", "vcvarsarm64_x86.bat"},
+       {MsvcToolChain::arm64_amd64, "arm64_amd64", "/bin/arm64_amd64", "vcvarsarm64_amd64.bat"}};
 
 static QList<const MsvcToolChain *> g_availableMsvcToolchains;
 
@@ -147,6 +149,9 @@ static bool hostPrefersPlatform(MsvcToolChain::Platform platform)
                || platform == MsvcToolChain::x86_arm64;
     case HostOsInfo::HostArchitectureArm:
         return platform == MsvcToolChain::arm;
+    case HostOsInfo::HostArchitectureArm64:
+        return platform == MsvcToolChain::arm64
+               || platform == MsvcToolChain::arm64_x86 || platform == MsvcToolChain::arm64_amd64;
     case HostOsInfo::HostArchitectureItanium:
         return platform == MsvcToolChain::ia64;
     default:
@@ -167,7 +172,7 @@ static bool hostSupportsPlatform(MsvcToolChain::Platform platform)
                || platform == MsvcToolChain::x86_ia64 || platform == MsvcToolChain::x86_arm
                || platform == MsvcToolChain::x86_arm64;
     // The Arm64 host can run the cross-compilers via emulation of x86 and amd64
-    case HostOsInfo::HostArchitectureArm:
+    case HostOsInfo::HostArchitectureArm64:
         return platform == MsvcToolChain::x86_arm || platform == MsvcToolChain::x86_arm64
                || platform == MsvcToolChain::amd64_arm || platform == MsvcToolChain::amd64_arm64
                || platform == MsvcToolChain::x86 || platform == MsvcToolChain::x86_amd64
@@ -296,7 +301,7 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QSt
         return installations;
     }
 
-    QByteArray output = vsWhereProcess.stdOut().toUtf8();
+    QByteArray output = vsWhereProcess.cleanedStdOut().toUtf8();
     QJsonParseError error;
     const QJsonDocument doc = QJsonDocument::fromJson(output, &error);
     if (error.error != QJsonParseError::NoError || doc.isNull()) {
@@ -394,6 +399,7 @@ static unsigned char wordWidthForPlatform(MsvcToolChain::Platform platform)
     case ProjectExplorer::Internal::MsvcToolChain::x86_arm:
     case ProjectExplorer::Internal::MsvcToolChain::amd64_arm:
     case ProjectExplorer::Internal::MsvcToolChain::amd64_x86:
+    case ProjectExplorer::Internal::MsvcToolChain::arm64_x86:
         return 32;
     case ProjectExplorer::Internal::MsvcToolChain::amd64:
     case ProjectExplorer::Internal::MsvcToolChain::x86_amd64:
@@ -401,6 +407,8 @@ static unsigned char wordWidthForPlatform(MsvcToolChain::Platform platform)
     case ProjectExplorer::Internal::MsvcToolChain::x86_ia64:
     case ProjectExplorer::Internal::MsvcToolChain::amd64_arm64:
     case ProjectExplorer::Internal::MsvcToolChain::x86_arm64:
+    case ProjectExplorer::Internal::MsvcToolChain::arm64:
+    case ProjectExplorer::Internal::MsvcToolChain::arm64_amd64:
         return 64;
     }
 
@@ -414,12 +422,15 @@ static Abi::Architecture archForPlatform(MsvcToolChain::Platform platform)
     case ProjectExplorer::Internal::MsvcToolChain::amd64:
     case ProjectExplorer::Internal::MsvcToolChain::x86_amd64:
     case ProjectExplorer::Internal::MsvcToolChain::amd64_x86:
+    case ProjectExplorer::Internal::MsvcToolChain::arm64_x86:
+    case ProjectExplorer::Internal::MsvcToolChain::arm64_amd64:
         return Abi::X86Architecture;
     case ProjectExplorer::Internal::MsvcToolChain::arm:
     case ProjectExplorer::Internal::MsvcToolChain::x86_arm:
     case ProjectExplorer::Internal::MsvcToolChain::amd64_arm:
     case ProjectExplorer::Internal::MsvcToolChain::x86_arm64:
     case ProjectExplorer::Internal::MsvcToolChain::amd64_arm64:
+    case ProjectExplorer::Internal::MsvcToolChain::arm64:
         return Abi::ArmArchitecture;
     case ProjectExplorer::Internal::MsvcToolChain::ia64:
     case ProjectExplorer::Internal::MsvcToolChain::x86_ia64:
@@ -667,7 +678,7 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     if (cpp.result() != ProcessResult::FinishedWithSuccess)
         return predefinedMacros;
 
-    const QStringList output = Utils::filtered(cpp.stdOut().split('\n'),
+    const QStringList output = Utils::filtered(cpp.cleanedStdOut().split('\n'),
                                                [](const QString &s) { return s.startsWith('V'); });
     for (const QString &line : output)
         predefinedMacros.append(Macro::fromKeyValue(line.mid(1)));
@@ -1325,6 +1336,9 @@ MsvcToolChainConfigWidget::MsvcToolChainConfigWidget(ToolChain *tc)
     m_varsBatArchCombo->addItem("amd64_arm64", MsvcToolChain::amd64_arm64);
     m_varsBatArchCombo->addItem("ia64", MsvcToolChain::ia64);
     m_varsBatArchCombo->addItem("x86_ia64", MsvcToolChain::x86_ia64);
+    m_varsBatArchCombo->addItem("arm64", MsvcToolChain::arm64);
+    m_varsBatArchCombo->addItem("arm64_x86", MsvcToolChain::arm64_x86);
+    m_varsBatArchCombo->addItem("arm64_amd64", MsvcToolChain::arm64_amd64);
     m_varsBatArgumentsEdit->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     m_varsBatArgumentsEdit->setToolTip(tr("Additional arguments for the vcvarsall.bat call"));
     hLayout->addWidget(m_varsBatPathCombo);
@@ -1555,7 +1569,7 @@ static QVersionNumber clangClVersion(const FilePath &clangClPath)
         return {};
     const QRegularExpressionMatch match = QRegularExpression(
                                               QStringLiteral("clang version (\\d+(\\.\\d+)+)"))
-                                              .match(clangClProcess.stdOut());
+                                              .match(clangClProcess.cleanedStdOut());
     if (!match.hasMatch())
         return {};
     return QVersionNumber::fromString(match.captured(1));
@@ -1940,6 +1954,7 @@ Toolchains MsvcToolChainFactory::autoDetect(const ToolchainDetector &detector) c
                 {MsvcToolChain::x86, "x86"},
                 {MsvcToolChain::amd64, "x64"},
                 {MsvcToolChain::ia64, "ia64"},
+                {MsvcToolChain::arm64, "arm64"},
             };
             for (const auto &platform : platforms) {
                 tmp.append(findOrCreateToolchains(detector,
@@ -1975,7 +1990,10 @@ Toolchains MsvcToolChainFactory::autoDetect(const ToolchainDetector &detector) c
                                                  MsvcToolChain::x86_arm64,
                                                  MsvcToolChain::amd64_arm64,
                                                  MsvcToolChain::ia64,
-                                                 MsvcToolChain::x86_ia64};
+                                                 MsvcToolChain::x86_ia64,
+                                                 MsvcToolChain::arm64,
+                                                 MsvcToolChain::arm64_x86,
+                                                 MsvcToolChain::arm64_amd64};
 
     const QVector<VisualStudioInstallation> studios = detectVisualStudio();
     for (const VisualStudioInstallation &i : studios) {
@@ -2127,7 +2145,7 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
     run.runBlocking();
 
     if (run.result() != ProcessResult::FinishedWithSuccess) {
-        const QString message = !run.stdErr().isEmpty() ? run.stdErr() : run.exitMessage();
+        const QString message = !run.cleanedStdErr().isEmpty() ? run.cleanedStdErr() : run.exitMessage();
         qWarning().noquote() << message;
         QString command = QDir::toNativeSeparators(batchFile);
         if (!batchArgs.isEmpty())
@@ -2139,7 +2157,7 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
     }
 
     // The SDK/MSVC scripts do not return exit codes != 0. Check on stdout.
-    const QString stdOut = run.stdOut();
+    const QString stdOut = run.cleanedStdOut();
 
     //
     // Now parse the file to get the environment settings

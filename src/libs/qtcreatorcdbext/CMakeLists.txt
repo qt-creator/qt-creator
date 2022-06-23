@@ -20,9 +20,13 @@ endif()
 
 find_library(DbgEngLib dbgeng)
 
-set(ArchSuffix 32)
+set(ArchSuffix "32")
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-  set(ArchSuffix 64)
+  set(ArchSuffix "64")
+endif()
+
+if (MSVC_CXX_ARCHITECTURE_ID MATCHES "^ARM")
+  set(ArchSuffix "arm${ArchSuffix}")
 endif()
 
 add_qtc_library(qtcreatorcdbext SHARED

@@ -40,12 +40,13 @@ namespace Internal {
 
 class PySideUicExtraCompiler;
 class PythonLanguageServerState;
+class PyLSInterface;
 
 class PyLSClient : public LanguageClient::Client
 {
     Q_OBJECT
 public:
-    explicit PyLSClient(LanguageClient::BaseClientInterface *interface);
+    explicit PyLSClient(PyLSInterface *interface);
     ~PyLSClient();
 
     void openDocument(TextEditor::TextDocument *document) override;

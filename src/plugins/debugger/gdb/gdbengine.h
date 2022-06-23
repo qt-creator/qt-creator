@@ -111,6 +111,7 @@ private: ////////// General Interface //////////
     // The engine is still running just fine, but it failed to acquire a debuggee.
     void notifyInferiorSetupFailedHelper(const QString &msg);
 
+    void handleGdbStarted();
     void handleGdbDone();
     void readGdbStandardOutput();
     void readGdbStandardError();

@@ -82,4 +82,6 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
     setMarksVisible(false);
 }
 
+VcsEditorFactory::~VcsEditorFactory() = default;
+
 } // namespace VcsBase

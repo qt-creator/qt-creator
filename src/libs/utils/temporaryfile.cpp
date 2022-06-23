@@ -36,4 +36,6 @@ TemporaryFile::TemporaryFile(const QString &pattern) :
     QTC_CHECK(!QFileInfo(pattern).isAbsolute());
 }
 
+TemporaryFile::~TemporaryFile() = default;
+
 } // namespace Utils

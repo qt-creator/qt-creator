@@ -63,7 +63,7 @@ static std::vector<NimbleTask> parseTasks(const FilePath &nimblePath, const File
     std::vector<NimbleTask> result;
 
     if (process.exitCode() != 0) {
-        TaskHub::addTask(Task(Task::Error, process.stdOut(), {}, -1, Constants::C_NIMPARSE_ID));
+        TaskHub::addTask(Task(Task::Error, process.cleanedStdOut(), {}, -1, Constants::C_NIMPARSE_ID));
         return result;
     }
 
@@ -91,7 +91,7 @@ static NimbleMetadata parseMetadata(const FilePath &nimblePath, const FilePath &
     NimbleMetadata result = {};
 
     if (process.exitCode() != 0) {
-        TaskHub::addTask(Task(Task::Error, process.stdOut(), {}, -1, Constants::C_NIMPARSE_ID));
+        TaskHub::addTask(Task(Task::Error, process.cleanedStdOut(), {}, -1, Constants::C_NIMPARSE_ID));
         return result;
     }
     const QList<QByteArray> &lines = linesFromProcessOutput(&process);

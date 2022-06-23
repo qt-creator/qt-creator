@@ -32,6 +32,15 @@ instructions:
       property: host.os
       in_values: [MacOS, Linux, Windows]
   - type: ExecuteCommand
+    command: "pip3 install wget colorlog"
+    maxTimeInSeconds: 1200
+    maxTimeBetweenOutput: 120
+    userMessageOnFailure: "Failed to install Python packages, check logs."
+    enable_if:
+      condition: property
+      property: host.os
+      in_values: [MacOS, Linux]
+  - type: ExecuteCommand
     command: "python3 -u {{.AgentWorkingDir}}/build/qtsdk/packaging-tools/install_qt.py --qt-path {{.AgentWorkingDir}}/build/qt_install_dir --temp-path {{.AgentWorkingDir}}/build/qt_temp --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix={{.Env.QTC_QT_POSTFIX}} --icu7z http://master.qt.io/development_releases/prebuilt/icu/prebuilt/56.1/icu-linux-g++-Rhel7.2-x64.7z {{.Env.QTC_QT_MODULES}}"
     executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
     maxTimeInSeconds: 3600
@@ -52,10 +61,10 @@ instructions:
       property: host.os
       equals_value: MacOS
   - type: ExecuteCommand
-    command: "pip.exe install pywin32"
+    command: "pip.exe install pywin32 wget colorlog"
     maxTimeInSeconds: 1200
     maxTimeBetweenOutput: 120
-    userMessageOnFailure: "Failed to install win32api, check logs."
+    userMessageOnFailure: "Failed to install Python packages, check logs."
     enable_if:
       condition: property
       property: host.os

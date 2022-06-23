@@ -52,10 +52,11 @@ public:
     void setDebuggee(const ProjectExplorer::Runnable &debuggee);
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
     void setLocalServerAddress(const QHostAddress &localServerAddress);
-    void setDevice(const ProjectExplorer::IDeviceConstPtr &device);
     void setUseTerminal(bool on);
 
     void waitForFinished() const;
+
+    QString errorString() const;
 
     bool start();
     void stop();
@@ -63,21 +64,15 @@ public:
     XmlProtocol::ThreadedParser *parser() const;
 
 signals:
+    void appendMessage(const QString &, Utils::OutputFormat);
+
     void logMessageReceived(const QByteArray &);
-    void processOutputReceived(const QString &, Utils::OutputFormat);
     void processErrorReceived(const QString &, QProcess::ProcessError);
     void valgrindExecuted(const QString &);
     void valgrindStarted(qint64 pid);
     void finished();
-    void extraProcessFinished();
 
 private:
-    bool startServers();
-
-    void xmlSocketConnected();
-    void logSocketConnected();
-    void readLogSocket();
-
     class Private;
     Private *d;
 };
