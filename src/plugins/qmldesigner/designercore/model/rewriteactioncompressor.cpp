@@ -166,7 +166,10 @@ void RewriteActionCompressor::compressReparentIntoNewPropertyActions(QList<Rewri
             if (m_positionStore->nodeOffset(reparentAction->targetProperty().parentModelNode()) < 0) {
                 actionsToRemove.append(action);
 
-                removeActions.append(new RemoveNodeRewriteAction(reparentAction->reparentedNode()));
+                const ModelNode childNode = reparentAction->reparentedNode();
+
+                if (m_positionStore->nodeOffset(childNode) > 0)
+                    removeActions.append(new RemoveNodeRewriteAction(childNode));
             }
         }
     }

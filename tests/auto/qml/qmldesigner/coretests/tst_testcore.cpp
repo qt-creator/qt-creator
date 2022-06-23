@@ -1181,7 +1181,7 @@ void tst_TestCore::testRewriterReparentToNewNode()
 
     const QList<ModelNode> children = rootModelNode.directSubModelNodes();
 
-    ModelNode rectangle = testRewriterView->createModelNode("QtQuick.Rectangle", 2, 0);
+    ModelNode rectangle = testRewriterView->createModelNode("QtQuick.Rectangle");
     rootModelNode.nodeListProperty("data").reparentHere(rectangle);
 
     rectangle.setIdWithoutRefactoring("newParent");
@@ -1193,7 +1193,7 @@ void tst_TestCore::testRewriterReparentToNewNode()
 
     {
         RewriterTransaction transaction = testRewriterView->beginRewriterTransaction("TEST");
-        ModelNode rectangle = testRewriterView->createModelNode("QtQuick.Rectangle", 2, 0);
+        ModelNode rectangle = testRewriterView->createModelNode("QtQuick.Rectangle");
         rootModelNode.nodeListProperty("data").reparentHere(rectangle);
 
         rectangle.setIdWithoutRefactoring("newParent2");
@@ -1223,6 +1223,29 @@ void tst_TestCore::testRewriterReparentToNewNode()
 
 
     QCOMPARE(textEdit.toPlainText(), expectedOutcome);
+
+    rectangle.destroy();
+
+    QCOMPARE(testRewriterView->allModelNodes().count(), 6);
+
+    {
+        RewriterTransaction transaction = testRewriterView->beginRewriterTransaction("TEST");
+
+        ModelNode newChild = testRewriterView->createModelNode("QtQuick.Rectangle");
+        rootModelNode.nodeListProperty("data").reparentHere(newChild);
+        newChild.setIdWithoutRefactoring("newChild");
+        ModelNode newParent = testRewriterView->createModelNode("QtQuick.Rectangle");
+        rootModelNode.nodeListProperty("data").reparentHere(newParent);
+
+        newParent.setIdWithoutRefactoring("newParent3");
+
+        for (const ModelNode &child : children)
+            newParent.nodeListProperty("data").reparentHere(child);
+
+        newParent.nodeListProperty("data").reparentHere(newChild);
+    }
+
+    QCOMPARE(testRewriterView->allModelNodes().count(), 8);
 }
 
 void tst_TestCore::testRewriterForGradientMagic()
