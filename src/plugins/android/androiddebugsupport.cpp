@@ -145,6 +145,11 @@ void AndroidDebugSupport::start()
         if (activeRunConfig)
             solibSearchPath.append(activeRunConfig->buildTargetInfo().workingDirectory.toString());
         solibSearchPath.append(buildDir.toString());
+        const auto androidLibsPath = AndroidManager::androidBuildDirectory(target)
+                                         .pathAppended("libs")
+                                         .pathAppended(AndroidManager::apkDevicePreferredAbi(target))
+                                         .toString();
+        solibSearchPath.append(androidLibsPath);
         solibSearchPath.removeDuplicates();
         setSolibSearchPath(solibSearchPath);
         qCDebug(androidDebugSupportLog) << "SoLibSearchPath: "<<solibSearchPath;
