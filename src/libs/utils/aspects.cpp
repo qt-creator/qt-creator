@@ -1138,6 +1138,9 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
                         &FancyLineEdit::textEdited,
                         this,
                         &StringAspect::setValue);
+                connect(d->m_lineEditDisplay, &FancyLineEdit::editingFinished, this, [this] {
+                    setValue(d->m_lineEditDisplay->text());
+                });
             }
         }
         if (d->m_useResetButton) {
