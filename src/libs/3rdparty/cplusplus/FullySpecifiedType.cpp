@@ -33,17 +33,9 @@ FullySpecifiedType::FullySpecifiedType(Type *type) :
         _type = UndefinedType::instance();
 }
 
-FullySpecifiedType::~FullySpecifiedType()
-{ }
-
 bool FullySpecifiedType::isValid() const
 { return _type != UndefinedType::instance(); }
 
-Type *FullySpecifiedType::type() const
-{ return _type; }
-
-void FullySpecifiedType::setType(Type *type)
-{ _type = type; }
 
 FullySpecifiedType FullySpecifiedType::qualifiedType() const
 {
@@ -214,12 +206,6 @@ FullySpecifiedType FullySpecifiedType::simplified() const
 
     return *this;
 }
-
-unsigned FullySpecifiedType::flags() const
-{ return _flags; }
-
-void FullySpecifiedType::setFlags(unsigned flags)
-{ _flags = flags; }
 
 bool FullySpecifiedType::match(const FullySpecifiedType &otherTy, Matcher *matcher) const
 {

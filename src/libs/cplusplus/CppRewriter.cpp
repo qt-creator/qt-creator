@@ -458,8 +458,8 @@ FullySpecifiedType UseMinimalNames::apply(const Name *name, Rewrite *rewrite) co
     SubstitutionEnvironment *env = rewrite->env;
     Scope *scope = env->scope();
 
-    if (name->isTemplateNameId() ||
-            (name->isQualifiedNameId() && name->asQualifiedNameId()->name()->isTemplateNameId()))
+    if (name->asTemplateNameId() ||
+            (name->asQualifiedNameId() && name->asQualifiedNameId()->name()->asTemplateNameId()))
         return FullySpecifiedType();
 
     if (! scope)

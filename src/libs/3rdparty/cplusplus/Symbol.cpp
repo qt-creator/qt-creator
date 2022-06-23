@@ -142,23 +142,7 @@ void Symbol::visitSymbol(Symbol *symbol, SymbolVisitor *visitor)
     symbol->visitSymbol(visitor);
 }
 
-int Symbol::sourceLocation() const
-{ return _sourceLocation; }
 
-bool Symbol::isGenerated() const
-{ return _isGenerated; }
-
-bool Symbol::isDeprecated() const
-{ return _isDeprecated; }
-
-void Symbol::setDeprecated(bool isDeprecated)
-{ _isDeprecated = isDeprecated; }
-
-bool Symbol::isUnavailable() const
-{ return _isUnavailable; }
-
-void Symbol::setUnavailable(bool isUnavailable)
-{ _isUnavailable = isUnavailable; }
 
 void Symbol::setSourceLocation(int sourceLocation, TranslationUnit *translationUnit)
 {
@@ -174,21 +158,6 @@ void Symbol::setSourceLocation(int sourceLocation, TranslationUnit *translationU
         _column = 0;
         _fileId = nullptr;
     }
-}
-
-int Symbol::line() const
-{
-    return _line;
-}
-
-int Symbol::column() const
-{
-    return _column;
-}
-
-const StringLiteral *Symbol::fileId() const
-{
-    return _fileId;
 }
 
 const char *Symbol::fileName() const
@@ -207,9 +176,6 @@ const Name *Symbol::unqualifiedName() const
 
     return _name;
 }
-
-const Name *Symbol::name() const
-{ return _name; }
 
 void Symbol::setName(const Name *name)
 {
@@ -230,9 +196,6 @@ const Identifier *Symbol::identifier() const
 
     return nullptr;
 }
-
-Scope *Symbol::enclosingScope() const
-{ return _enclosingScope; }
 
 void Symbol::setEnclosingScope(Scope *scope)
 {
@@ -298,126 +261,6 @@ Block *Symbol::enclosingBlock() const
     }
     return nullptr;
 }
-
-unsigned Symbol::index() const
-{ return _index; }
-
-Symbol *Symbol::next() const
-{ return _next; }
-
-unsigned Symbol::hashCode() const
-{ return _hashCode; }
-
-int Symbol::storage() const
-{ return _storage; }
-
-void Symbol::setStorage(int storage)
-{ _storage = storage; }
-
-int Symbol::visibility() const
-{ return _visibility; }
-
-void Symbol::setVisibility(int visibility)
-{ _visibility = visibility; }
-
-bool Symbol::isFriend() const
-{ return _storage == Friend; }
-
-bool Symbol::isRegister() const
-{ return _storage == Register; }
-
-bool Symbol::isStatic() const
-{ return _storage == Static; }
-
-bool Symbol::isExtern() const
-{ return _storage == Extern; }
-
-bool Symbol::isMutable() const
-{ return _storage == Mutable; }
-
-bool Symbol::isTypedef() const
-{ return _storage == Typedef; }
-
-bool Symbol::isPublic() const
-{ return _visibility == Public; }
-
-bool Symbol::isProtected() const
-{ return _visibility == Protected; }
-
-bool Symbol::isPrivate() const
-{ return _visibility == Private; }
-
-bool Symbol::isScope() const
-{ return asScope() != nullptr; }
-
-bool Symbol::isEnum() const
-{ return asEnum()  != nullptr; }
-
-bool Symbol::isFunction() const
-{ return asFunction() != nullptr; }
-
-bool Symbol::isNamespace() const
-{ return asNamespace() != nullptr; }
-
-bool Symbol::isTemplate() const
-{ return asTemplate() != nullptr; }
-
-bool Symbol::isClass() const
-{ return asClass() != nullptr; }
-
-bool Symbol::isForwardClassDeclaration() const
-{ return asForwardClassDeclaration() != nullptr; }
-
-bool Symbol::isQtPropertyDeclaration() const
-{ return asQtPropertyDeclaration() != nullptr; }
-
-bool Symbol::isQtEnum() const
-{ return asQtEnum() != nullptr; }
-
-bool Symbol::isBlock() const
-{ return asBlock() != nullptr; }
-
-bool Symbol::isUsingNamespaceDirective() const
-{ return asUsingNamespaceDirective() != nullptr; }
-
-bool Symbol::isUsingDeclaration() const
-{ return asUsingDeclaration() != nullptr; }
-
-bool Symbol::isDeclaration() const
-{ return asDeclaration() != nullptr; }
-
-bool Symbol::isArgument() const
-{ return asArgument() != nullptr; }
-
-bool Symbol::isTypenameArgument() const
-{ return asTypenameArgument() != nullptr; }
-
-bool Symbol::isBaseClass() const
-{ return asBaseClass() != nullptr; }
-
-bool Symbol::isObjCBaseClass() const
-{ return asObjCBaseClass() != nullptr; }
-
-bool Symbol::isObjCBaseProtocol() const
-{ return asObjCBaseProtocol() != nullptr; }
-
-bool Symbol::isObjCClass() const
-{ return asObjCClass() != nullptr; }
-
-bool Symbol::isObjCForwardClassDeclaration() const
-{ return asObjCForwardClassDeclaration() != nullptr; }
-
-bool Symbol::isObjCProtocol() const
-{ return asObjCProtocol() != nullptr; }
-
-bool Symbol::isObjCForwardProtocolDeclaration() const
-{ return asObjCForwardProtocolDeclaration() != nullptr; }
-
-bool Symbol::isObjCMethod() const
-{ return asObjCMethod() != nullptr; }
-
-bool Symbol::isObjCPropertyDeclaration() const
-{ return asObjCPropertyDeclaration() != nullptr; }
 
 void Symbol::copy(Symbol *other)
 {

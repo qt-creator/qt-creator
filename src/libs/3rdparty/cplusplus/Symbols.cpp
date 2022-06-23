@@ -42,14 +42,12 @@ UsingNamespaceDirective::UsingNamespaceDirective(Clone *clone, Subst *subst, Usi
     : Symbol(clone, subst, original)
 { }
 
-UsingNamespaceDirective::~UsingNamespaceDirective()
-{ }
-
 FullySpecifiedType UsingNamespaceDirective::type() const
 { return FullySpecifiedType(); }
 
 void UsingNamespaceDirective::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
+
 
 NamespaceAlias::NamespaceAlias(TranslationUnit *translationUnit,
                                int sourceLocation, const Name *name)
@@ -60,15 +58,6 @@ NamespaceAlias::NamespaceAlias(Clone *clone, Subst *subst, NamespaceAlias *origi
     : Symbol(clone, subst, original)
     , _namespaceName(clone->name(original->_namespaceName, subst))
 { }
-
-NamespaceAlias::~NamespaceAlias()
-{ }
-
-const Name *NamespaceAlias::namespaceName() const
-{ return _namespaceName; }
-
-void NamespaceAlias::setNamespaceName(const Name *namespaceName)
-{ _namespaceName = namespaceName; }
 
 FullySpecifiedType NamespaceAlias::type() const
 { return FullySpecifiedType(); }
@@ -86,14 +75,12 @@ UsingDeclaration::UsingDeclaration(Clone *clone, Subst *subst, UsingDeclaration 
     : Symbol(clone, subst, original)
 { }
 
-UsingDeclaration::~UsingDeclaration()
-{ }
-
 FullySpecifiedType UsingDeclaration::type() const
 { return FullySpecifiedType(); }
 
-void UsingDeclaration::visitSymbol0(SymbolVisitor *visitor)
+void CPlusPlus::UsingDeclaration::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
+
 
 Declaration::Declaration(TranslationUnit *translationUnit, int sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name)
@@ -204,41 +191,16 @@ Declaration::Declaration(Clone *clone, Subst *subst, Declaration *original)
         _type = newType;
 }
 
-Declaration::~Declaration()
-{ }
-
-void Declaration::setType(const FullySpecifiedType &type)
-{ _type = type; }
-
-void Declaration::setInitializer(const StringLiteral *initializer)
-{
-    _initializer = initializer;
-}
-
-FullySpecifiedType Declaration::type() const
-{ return _type; }
-
-const StringLiteral *Declaration::getInitializer() const
-{
-    return _initializer;
-}
-
 void Declaration::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
+
 
 EnumeratorDeclaration::EnumeratorDeclaration(TranslationUnit *translationUnit, int sourceLocation, const Name *name)
     : Declaration(translationUnit, sourceLocation, name)
     , _constantValue(nullptr)
 {}
 
-EnumeratorDeclaration::~EnumeratorDeclaration()
-{}
 
-const StringLiteral *EnumeratorDeclaration::constantValue() const
-{ return _constantValue; }
-
-void EnumeratorDeclaration::setConstantValue(const StringLiteral *constantValue)
-{ _constantValue = constantValue; }
 
 Argument::Argument(TranslationUnit *translationUnit, int sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name),
@@ -251,26 +213,9 @@ Argument::Argument(Clone *clone, Subst *subst, Argument *original)
     , _type(clone->type(original->_type, subst))
 { }
 
-Argument::~Argument()
-{ }
-
-bool Argument::hasInitializer() const
-{ return _initializer != nullptr; }
-
-const StringLiteral *Argument::initializer() const
-{ return _initializer; }
-
-void Argument::setInitializer(const StringLiteral *initializer)
-{ _initializer = initializer; }
-
-void Argument::setType(const FullySpecifiedType &type)
-{ _type = type; }
-
-FullySpecifiedType Argument::type() const
-{ return _type; }
-
 void Argument::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
+
 
 TypenameArgument::TypenameArgument(TranslationUnit *translationUnit, int sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name)
@@ -283,17 +228,9 @@ TypenameArgument::TypenameArgument(Clone *clone, Subst *subst, TypenameArgument 
     , _isClassDeclarator(original->_isClassDeclarator)
 { }
 
-TypenameArgument::~TypenameArgument()
-{ }
-
-void TypenameArgument::setType(const FullySpecifiedType &type)
-{ _type = type; }
-
-FullySpecifiedType TypenameArgument::type() const
-{ return _type; }
-
 void TypenameArgument::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
+
 
 Function::Function(TranslationUnit *translationUnit, int sourceLocation, const Name *name)
     : Scope(translationUnit, sourceLocation, name),
@@ -306,27 +243,6 @@ Function::Function(Clone *clone, Subst *subst, Function *original)
     , _exceptionSpecification(original->_exceptionSpecification)
     , _flags(original->_flags)
 { }
-
-Function::~Function()
-{ }
-
-bool Function::isNormal() const
-{ return f._methodKey == NormalMethod; }
-
-bool Function::isSignal() const
-{ return f._methodKey == SignalMethod; }
-
-bool Function::isSlot() const
-{ return f._methodKey == SlotMethod; }
-
-bool Function::isInvokable() const
-{ return f._methodKey == InvokableMethod; }
-
-int Function::methodKey() const
-{ return f._methodKey; }
-
-void Function::setMethodKey(int key)
-{ f._methodKey = key; }
 
 bool Function::isSignatureEqualTo(const Function *other, Matcher *matcher) const
 {
@@ -409,12 +325,6 @@ FullySpecifiedType Function::type() const
     return ty;
 }
 
-FullySpecifiedType Function::returnType() const
-{ return _returnType; }
-
-void Function::setReturnType(const FullySpecifiedType &returnType)
-{ _returnType = returnType; }
-
 bool Function::hasReturnType() const
 {
     const FullySpecifiedType ty = returnType();
@@ -431,7 +341,7 @@ int Function::argumentCount() const
     // arguments with a lambda as default argument will also have more blocks.
     int argc = 0;
     for (int it = 0; it < memCnt; ++it)
-        if (memberAt(it)->isArgument())
+        if (memberAt(it)->asArgument())
             ++argc;
     return argc;
 }
@@ -469,66 +379,6 @@ int Function::minimumArgumentCount() const
 
     return index;
 }
-
-bool Function::isVirtual() const
-{ return f._isVirtual; }
-
-void Function::setVirtual(bool isVirtual)
-{ f._isVirtual = isVirtual; }
-
-bool Function::isOverride() const
-{ return f._isOverride; }
-
-void Function::setOverride(bool isOverride)
-{ f._isOverride = isOverride; }
-
-bool Function::isFinal() const
-{ return f._isFinal; }
-
-void Function::setFinal(bool isFinal)
-{ f._isFinal = isFinal; }
-
-bool Function::isVariadic() const
-{ return f._isVariadic; }
-
-void Function::setVariadic(bool isVariadic)
-{ f._isVariadic = isVariadic; }
-
-bool Function::isVariadicTemplate() const
-{ return f._isVariadicTemplate; }
-
-void Function::setVariadicTemplate(bool isVariadicTemplate)
-{ f._isVariadicTemplate = isVariadicTemplate; }
-
-bool Function::isConst() const
-{ return f._isConst; }
-
-void Function::setConst(bool isConst)
-{ f._isConst = isConst; }
-
-bool Function::isVolatile() const
-{ return f._isVolatile; }
-
-void Function::setVolatile(bool isVolatile)
-{ f._isVolatile = isVolatile; }
-
-bool Function::isPureVirtual() const
-{ return f._isPureVirtual; }
-
-void Function::setPureVirtual(bool isPureVirtual)
-{ f._isPureVirtual = isPureVirtual; }
-
-Function::RefQualifier Function::refQualifier() const
-{ return static_cast<RefQualifier>(f._refQualifier); }
-
-void Function::setRefQualifier(Function::RefQualifier refQualifier)
-{ f._refQualifier = refQualifier; }
-
-bool Function::isAmbiguous() const
-{ return f._isAmbiguous; }
-
-void Function::setAmbiguous(bool isAmbiguous)
-{ f._isAmbiguous = isAmbiguous; }
 
 void Function::visitSymbol0(SymbolVisitor *visitor)
 {
@@ -569,11 +419,6 @@ bool Function::maybeValidPrototype(int actualArgumentCount) const
     return true;
 }
 
-const StringLiteral *Function::exceptionSpecification()
-{ return _exceptionSpecification; }
-
-void Function::setExceptionSpecification(const StringLiteral *spec)
-{ _exceptionSpecification = spec; }
 
 Block::Block(TranslationUnit *translationUnit, int sourceLocation)
     : Scope(translationUnit, sourceLocation, /*name = */ nullptr)
@@ -581,9 +426,6 @@ Block::Block(TranslationUnit *translationUnit, int sourceLocation)
 
 Block::Block(Clone *clone, Subst *subst, Block *original)
     : Scope(clone, subst, original)
-{ }
-
-Block::~Block()
 { }
 
 FullySpecifiedType Block::type() const
@@ -608,21 +450,9 @@ Enum::Enum(Clone *clone, Subst *subst, Enum *original)
     , _isScoped(original->isScoped())
 { }
 
-Enum::~Enum()
-{ }
-
 FullySpecifiedType Enum::type() const
 { return FullySpecifiedType(const_cast<Enum *>(this)); }
 
-bool Enum::isScoped() const
-{
-    return _isScoped;
-}
-
-void Enum::setScoped(bool scoped)
-{
-    _isScoped = scoped;
-}
 
 void Enum::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
@@ -652,9 +482,6 @@ Template::Template(Clone *clone, Subst *subst, Template *original)
     : Scope(clone, subst, original)
 { }
 
-Template::~Template()
-{ }
-
 int Template::templateParameterCount() const
 {
     if (declaration() != nullptr)
@@ -663,17 +490,14 @@ int Template::templateParameterCount() const
     return 0;
 }
 
-Symbol *Template::templateParameterAt(int index) const
-{ return memberAt(index); }
-
 Symbol *Template::declaration() const
 {
     if (isEmpty())
         return nullptr;
 
     if (Symbol *s = memberAt(memberCount() - 1)) {
-        if (s->isClass() || s->isForwardClassDeclaration() ||
-            s->isTemplate() || s->isFunction() || s->isDeclaration())
+        if (s->asClass() || s->asForwardClassDeclaration() ||
+            s->asTemplate() || s->asFunction() || s->asDeclaration())
             return s;
     }
 
@@ -712,9 +536,6 @@ Namespace::Namespace(Clone *clone, Subst *subst, Namespace *original)
     , _isInline(original->_isInline)
 { }
 
-Namespace::~Namespace()
-{ }
-
 void Namespace::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
@@ -749,29 +570,9 @@ BaseClass::BaseClass(Clone *clone, Subst *subst, BaseClass *original)
     , _type(clone->type(original->_type, subst))
 { }
 
-BaseClass::~BaseClass()
-{ }
-
-FullySpecifiedType BaseClass::type() const
-{ return _type; }
-
-void BaseClass::setType(const FullySpecifiedType &type)
-{ _type = type; }
-
-bool BaseClass::isVirtual() const
-{ return _isVirtual; }
-
-void BaseClass::setVirtual(bool isVirtual)
-{ _isVirtual = isVirtual; }
-
-bool BaseClass::isVariadic() const
-{ return _isVariadic; }
-
-void BaseClass::setVariadic(bool isVariadic)
-{ _isVariadic = isVariadic; }
-
 void BaseClass::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
+
 
 ForwardClassDeclaration::ForwardClassDeclaration(TranslationUnit *translationUnit,
                                                  int sourceLocation, const Name *name)
@@ -780,9 +581,6 @@ ForwardClassDeclaration::ForwardClassDeclaration(TranslationUnit *translationUni
 
 ForwardClassDeclaration::ForwardClassDeclaration(Clone *clone, Subst *subst, ForwardClassDeclaration *original)
     : Symbol(clone, subst, original)
-{ }
-
-ForwardClassDeclaration::~ForwardClassDeclaration()
 { }
 
 FullySpecifiedType ForwardClassDeclaration::type() const
@@ -814,24 +612,6 @@ Class::Class(Clone *clone, Subst *subst, Class *original)
     for (size_t i = 0; i < original->_baseClasses.size(); ++i)
         addBaseClass(clone->symbol(original->_baseClasses.at(i), subst)->asBaseClass());
 }
-
-Class::~Class()
-{ }
-
-bool Class::isClass() const
-{ return _key == ClassKey; }
-
-bool Class::isStruct() const
-{ return _key == StructKey; }
-
-bool Class::isUnion() const
-{ return _key == UnionKey; }
-
-Class::Key Class::classKey() const
-{ return _key; }
-
-void Class::setClassKey(Key key)
-{ _key = key; }
 
 void Class::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
@@ -880,21 +660,6 @@ QtPropertyDeclaration::QtPropertyDeclaration(Clone *clone, Subst *subst, QtPrope
     , _flags(original->_flags)
 { }
 
-QtPropertyDeclaration::~QtPropertyDeclaration()
-{ }
-
-void QtPropertyDeclaration::setType(const FullySpecifiedType &type)
-{ _type = type; }
-
-void QtPropertyDeclaration::setFlags(int flags)
-{ _flags = flags; }
-
-int QtPropertyDeclaration::flags() const
-{ return _flags; }
-
-FullySpecifiedType QtPropertyDeclaration::type() const
-{ return _type; }
-
 void QtPropertyDeclaration::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
 
@@ -906,12 +671,6 @@ QtEnum::QtEnum(TranslationUnit *translationUnit, int sourceLocation, const Name 
 QtEnum::QtEnum(Clone *clone, Subst *subst, QtEnum *original)
     : Symbol(clone, subst, original)
 { }
-
-QtEnum::~QtEnum()
-{ }
-
-FullySpecifiedType QtEnum::type() const
-{ return FullySpecifiedType(); }
 
 void QtEnum::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
@@ -925,8 +684,6 @@ ObjCBaseClass::ObjCBaseClass(Clone *clone, Subst *subst, ObjCBaseClass *original
     : Symbol(clone, subst, original)
 { }
 
-ObjCBaseClass::~ObjCBaseClass()
-{ }
 
 FullySpecifiedType ObjCBaseClass::type() const
 { return FullySpecifiedType(); }
@@ -940,9 +697,6 @@ ObjCBaseProtocol::ObjCBaseProtocol(TranslationUnit *translationUnit, int sourceL
 
 ObjCBaseProtocol::ObjCBaseProtocol(Clone *clone, Subst *subst, ObjCBaseProtocol *original)
     : Symbol(clone, subst, original)
-{ }
-
-ObjCBaseProtocol::~ObjCBaseProtocol()
 { }
 
 FullySpecifiedType ObjCBaseProtocol::type() const
@@ -969,30 +723,6 @@ ObjCClass::ObjCClass(Clone *clone, Subst *subst, ObjCClass *original)
     for (size_t i = 0; i < original->_protocols.size(); ++i)
         addProtocol(clone->symbol(original->_protocols.at(i), subst)->asObjCBaseProtocol());
 }
-
-ObjCClass::~ObjCClass()
-{}
-
-bool ObjCClass::isInterface() const
-{ return _isInterface; }
-
-void ObjCClass::setInterface(bool isInterface)
-{ _isInterface = isInterface; }
-
-bool ObjCClass::isCategory() const
-{ return _categoryName != nullptr; }
-
-const Name *ObjCClass::categoryName() const
-{ return _categoryName; }
-
-void ObjCClass::setCategoryName(const Name *categoryName)
-{ _categoryName = categoryName; }
-
-ObjCBaseClass *ObjCClass::baseClass() const
-{ return _baseClass; }
-
-void ObjCClass::setBaseClass(ObjCBaseClass *baseClass)
-{ _baseClass = baseClass; }
 
 int ObjCClass::protocolCount() const
 { return int(_protocols.size()); }
@@ -1043,9 +773,6 @@ ObjCProtocol::ObjCProtocol(Clone *clone, Subst *subst, ObjCProtocol *original)
         addProtocol(clone->symbol(original->_protocols.at(i), subst)->asObjCBaseProtocol());
 }
 
-ObjCProtocol::~ObjCProtocol()
-{}
-
 int ObjCProtocol::protocolCount() const
 { return int(_protocols.size()); }
 
@@ -1087,9 +814,6 @@ ObjCForwardClassDeclaration::ObjCForwardClassDeclaration(Clone *clone, Subst *su
     : Symbol(clone, subst, original)
 { }
 
-ObjCForwardClassDeclaration::~ObjCForwardClassDeclaration()
-{}
-
 FullySpecifiedType ObjCForwardClassDeclaration::type() const
 { return FullySpecifiedType(); }
 
@@ -1116,9 +840,6 @@ ObjCForwardProtocolDeclaration::ObjCForwardProtocolDeclaration(TranslationUnit *
 ObjCForwardProtocolDeclaration::ObjCForwardProtocolDeclaration(Clone *clone, Subst *subst, ObjCForwardProtocolDeclaration *original)
     : Symbol(clone, subst, original)
 { }
-
-ObjCForwardProtocolDeclaration::~ObjCForwardProtocolDeclaration()
-{}
 
 FullySpecifiedType ObjCForwardProtocolDeclaration::type() const
 { return FullySpecifiedType(); }
@@ -1148,9 +869,6 @@ ObjCMethod::ObjCMethod(Clone *clone, Subst *subst, ObjCMethod *original)
     , _flags(original->_flags)
 { }
 
-ObjCMethod::~ObjCMethod()
-{ }
-
 void ObjCMethod::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
@@ -1165,12 +883,6 @@ bool ObjCMethod::match0(const Type *otherType, Matcher *matcher) const
 FullySpecifiedType ObjCMethod::type() const
 { return FullySpecifiedType(const_cast<ObjCMethod *>(this)); }
 
-FullySpecifiedType ObjCMethod::returnType() const
-{ return _returnType; }
-
-void ObjCMethod::setReturnType(const FullySpecifiedType &returnType)
-{ _returnType = returnType; }
-
 bool ObjCMethod::hasReturnType() const
 {
     const FullySpecifiedType ty = returnType();
@@ -1180,7 +892,7 @@ bool ObjCMethod::hasReturnType() const
 int ObjCMethod::argumentCount() const
 {
     const int c = memberCount();
-    if (c > 0 && memberAt(c - 1)->isBlock())
+    if (c > 0 && memberAt(c - 1)->asBlock())
         return c - 1;
     return c;
 }
@@ -1195,12 +907,6 @@ bool ObjCMethod::hasArguments() const
     return ! (argumentCount() == 0 ||
               (argumentCount() == 1 && argumentAt(0)->type()->isVoidType()));
 }
-
-bool ObjCMethod::isVariadic() const
-{ return f._isVariadic; }
-
-void ObjCMethod::setVariadic(bool isVariadic)
-{ f._isVariadic = isVariadic; }
 
 void ObjCMethod::visitSymbol0(SymbolVisitor *visitor)
 {
@@ -1227,39 +933,6 @@ ObjCPropertyDeclaration::ObjCPropertyDeclaration(Clone *clone, Subst *subst, Obj
     , _type(clone->type(original->_type, subst))
     , _propertyAttributes(original->_propertyAttributes)
 { }
-
-ObjCPropertyDeclaration::~ObjCPropertyDeclaration()
-{}
-
-bool ObjCPropertyDeclaration::hasAttribute(int attribute) const
-{ return _propertyAttributes & attribute; }
-
-void ObjCPropertyDeclaration::setAttributes(int attributes)
-{ _propertyAttributes = attributes; }
-
-bool ObjCPropertyDeclaration::hasGetter() const
-{ return hasAttribute(Getter); }
-
-bool ObjCPropertyDeclaration::hasSetter() const
-{ return hasAttribute(Setter); }
-
-const Name *ObjCPropertyDeclaration::getterName() const
-{ return _getterName; }
-
-void ObjCPropertyDeclaration::setGetterName(const Name *getterName)
-{ _getterName = getterName; }
-
-const Name *ObjCPropertyDeclaration::setterName() const
-{ return _setterName; }
-
-void ObjCPropertyDeclaration::setSetterName(const Name *setterName)
-{ _setterName = setterName; }
-
-void ObjCPropertyDeclaration::setType(const FullySpecifiedType &type)
-{ _type = type; }
-
-FullySpecifiedType ObjCPropertyDeclaration::type() const
-{ return _type; }
 
 void ObjCPropertyDeclaration::visitSymbol0(SymbolVisitor *visitor)
 {

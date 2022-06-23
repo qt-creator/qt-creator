@@ -864,7 +864,7 @@ void CallgrindToolPrivate::handleShowCostsOfFunction()
     if (!symbol)
         return;
 
-    if (!symbol->isFunction())
+    if (!symbol->asFunction())
         return;
 
     CPlusPlus::Overview view;

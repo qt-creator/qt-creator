@@ -232,7 +232,7 @@ void CppAssistProposalItem::applyContextualContent(TextDocumentManipulatorInterf
                 // except when it might take template parameters.
                 if (!function->hasReturnType()
                     && (function->unqualifiedName()
-                    && !function->unqualifiedName()->isDestructorNameId())) {
+                    && !function->unqualifiedName()->asDestructorNameId())) {
                     // Don't insert any magic, since the user might have just wanted to select the class
 
                     /// ### port me
@@ -488,7 +488,7 @@ public:
     AssistProposalItem *operator()(Symbol *symbol)
     {
         //using declaration can be qualified
-        if (!symbol || !symbol->name() || (symbol->name()->isQualifiedNameId()
+        if (!symbol || !symbol->name() || (symbol->name()->asQualifiedNameId()
                                            && !symbol->asUsingDeclaration()))
             return nullptr;
 
@@ -526,7 +526,7 @@ protected:
     void visit(const Identifier *name) override
     {
         _item = newCompletionItem(name);
-        if (!_symbol->isScope() || _symbol->isFunction())
+        if (!_symbol->asScope() || _symbol->asFunction())
             _item->setDetail(overview.prettyType(_symbol->type(), name));
     }
 
@@ -1441,7 +1441,7 @@ bool InternalCppCompletionAssistProcessor::globalCompletion(Scope *currentScope)
             if (ClassOrNamespace *binding = context.lookupType(scope)) {
                 for (int i = 0; i < scope->memberCount(); ++i) {
                     Symbol *member = scope->memberAt(i);
-                    if (member->isEnum()) {
+                    if (member->asEnum()) {
                         if (ClassOrNamespace *b = binding->findBlock(block))
                             completeNamespace(b);
                     }
@@ -1451,21 +1451,21 @@ bool InternalCppCompletionAssistProcessor::globalCompletion(Scope *currentScope)
                         if (ClassOrNamespace *b = binding->lookupType(u->name()))
                             usingBindings.append(b);
                     } else if (Class *c = member->asClass()) {
-                        if (c->name()->isAnonymousNameId()) {
+                        if (c->name()->asAnonymousNameId()) {
                             if (ClassOrNamespace *b = binding->findBlock(block))
                                 completeClass(b);
                         }
                     }
                 }
             }
-        } else if (scope->isFunction() || scope->isClass() || scope->isNamespace()) {
+        } else if (scope->asFunction() || scope->asClass() || scope->asNamespace()) {
             currentBinding = context.lookupType(scope);
             break;
         }
     }
 
     for (Scope *scope = currentScope; scope; scope = scope->enclosingScope()) {
-        if (scope->isBlock()) {
+        if (scope->asBlock()) {
             for (int i = 0; i < scope->memberCount(); ++i)
                 addCompletionItem(scope->memberAt(i), FunctionLocalsOrder);
         } else if (Function *fun = scope->asFunction()) {
@@ -1491,7 +1491,7 @@ bool InternalCppCompletionAssistProcessor::globalCompletion(Scope *currentScope)
         const QList<Symbol *> symbols = currentBinding->symbols();
 
         if (!symbols.isEmpty()) {
-            if (symbols.first()->isClass())
+            if (symbols.first()->asClass())
                 completeClass(currentBinding);
             else
                 completeNamespace(currentBinding);
@@ -1567,7 +1567,7 @@ bool InternalCppCompletionAssistProcessor::completeScope(const QList<LookupItem>
             }
 
             // it can be class defined inside a block
-            if (classTy->enclosingScope()->isBlock()) {
+            if (classTy->enclosingScope()->asBlock()) {
                 if (ClassOrNamespace *b = context.lookupType(classTy->name(), classTy->enclosingScope())) {
                     completeClass(b);
                     break;
@@ -1590,7 +1590,7 @@ bool InternalCppCompletionAssistProcessor::completeScope(const QList<LookupItem>
 
         } else if (Enum *e = ty->asEnumType()) {
             // it can be class defined inside a block
-            if (e->enclosingScope()->isBlock()) {
+            if (e->enclosingScope()->asBlock()) {
                 if (ClassOrNamespace *b = context.lookupType(e)) {
                     Block *block = e->enclosingScope()->asBlock();
                     if (ClassOrNamespace *bb = b->findBlock(block)) {
@@ -1708,18 +1708,18 @@ void InternalCppCompletionAssistProcessor::addClassMembersToCompletion(Scope *sc
     for (Scope::iterator it = scope->memberBegin(); it != scope->memberEnd(); ++it) {
         Symbol *member = *it;
         if (member->isFriend()
-                || member->isQtPropertyDeclaration()
-                || member->isQtEnum()) {
+                || member->asQtPropertyDeclaration()
+                || member->asQtEnum()) {
             continue;
         } else if (!staticLookup && (member->isTypedef() ||
-                                    member->isEnum()    ||
-                                    member->isClass())) {
+                                    member->asEnum()    ||
+                                    member->asClass())) {
             continue;
-        } else if (member->isClass() && member->name()->isAnonymousNameId()) {
+        } else if (member->asClass() && member->name()->asAnonymousNameId()) {
             nestedAnonymouses.insert(member->asClass());
-        } else if (member->isDeclaration()) {
+        } else if (member->asDeclaration()) {
             Class *declTypeAsClass = member->asDeclaration()->type()->asClassType();
-            if (declTypeAsClass && declTypeAsClass->name()->isAnonymousNameId())
+            if (declTypeAsClass && declTypeAsClass->name()->asAnonymousNameId())
                 nestedAnonymouses.erase(declTypeAsClass);
         }
 
@@ -1924,7 +1924,7 @@ bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const Q
                 if (!memberName)
                     continue; // skip anonymous member.
 
-                else if (memberName->isQualifiedNameId())
+                else if (memberName->asQualifiedNameId())
                     continue; // skip
 
                 if (Function *funTy = member->type()->asFunctionType()) {
@@ -2015,7 +2015,7 @@ bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const Q
 
         Scope *sc = context.thisDocument()->scopeAt(line, column);
 
-        if (sc && (sc->isClass() || sc->isNamespace())) {
+        if (sc && (sc->asClass() || sc->asNamespace())) {
             // It may still be a function call. If the whole line parses as a function
             // declaration, we should be certain that it isn't.
             bool autocompleteSignature = false;

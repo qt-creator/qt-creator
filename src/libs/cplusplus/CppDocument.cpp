@@ -174,7 +174,7 @@ protected:
     bool visit(Template *symbol) override
     {
         if (Symbol *decl = symbol->declaration()) {
-            if (decl->isFunction() || decl->isClass() || decl->isDeclaration())
+            if (decl->asFunction() || decl->asClass() || decl->asDeclaration())
                 return process(symbol);
         }
         return true;
@@ -522,7 +522,7 @@ QString Document::functionAt(int line, int column, int *lineOpeningDeclaratorPar
     if (!scope)
         scope = symbol->enclosingScope();
 
-    while (scope && !scope->isFunction() )
+    while (scope && !scope->asFunction() )
         scope = scope->enclosingScope();
 
     if (!scope)

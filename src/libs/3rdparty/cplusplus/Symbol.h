@@ -61,16 +61,16 @@ public:
     virtual ~Symbol();
 
     /// Returns this Symbol's source location.
-    int sourceLocation() const;
+    int sourceLocation() const { return _sourceLocation; }
 
     /// \returns this Symbol's line number. The line number is 1-based.
-    int line() const;
+    int line() const { return _line; }
 
     /// \returns this Symbol's column number. The column number is 1-based.
-    int column() const;
+    int column() const { return _column; }
 
     /// Returns this Symbol's file name.
-    const StringLiteral *fileId() const;
+    const StringLiteral *fileId() const { return _fileId; }
 
     /// Returns this Symbol's file name.
     const char *fileName() const;
@@ -79,7 +79,7 @@ public:
     int fileNameLength() const;
 
     /// Returns this Symbol's name.
-    const Name *name() const;
+    const Name *name() const { return _name; }
 
     /// Sets this Symbol's name.
     void setName(const Name *name); // ### dangerous
@@ -88,115 +88,46 @@ public:
     const Identifier *identifier() const;
 
     /// Returns this Symbol's storage class specifier.
-    int storage() const;
+    int storage() const { return _storage; }
 
     /// Sets this Symbol's storage class specifier.
-    void setStorage(int storage);
+    void setStorage(int storage) { _storage = storage; }
 
     /// Returns this Symbol's visibility.
-    int visibility() const;
+    int visibility() const { return _visibility; }
 
     /// Sets this Symbol's visibility.
-    void setVisibility(int visibility);
+    void setVisibility(int visibility) { _visibility = visibility; }
 
     /// Returns the next chained Symbol.
-    Symbol *next() const;
+    Symbol *next() const { return _next; }
 
     /// Returns true if this Symbol has friend storage specifier.
-    bool isFriend() const;
+    bool isFriend() const { return _storage == Friend; }
 
     /// Returns true if this Symbol has register storage specifier.
-    bool isRegister() const;
+    bool isRegister() const { return _storage == Register; }
 
     /// Returns true if this Symbol has static storage specifier.
-    bool isStatic() const;
+    bool isStatic() const { return _storage == Static; }
 
     /// Returns true if this Symbol has extern storage specifier.
-    bool isExtern() const;
+    bool isExtern() const { return _storage == Extern; }
 
     /// Returns true if this Symbol has mutable storage specifier.
-    bool isMutable() const;
+    bool isMutable() const { return _storage == Mutable; }
 
     /// Returns true if this Symbol has typedef storage specifier.
-    bool isTypedef() const;
+    bool isTypedef() const { return _storage == Typedef; }
 
     /// Returns true if this Symbol's visibility is public.
-    bool isPublic() const;
+    bool isPublic() const { return _visibility == Public; }
 
     /// Returns true if this Symbol's visibility is protected.
-    bool isProtected() const;
+    bool isProtected() const { return _visibility == Protected; }
 
     /// Returns true if this Symbol's visibility is private.
-    bool isPrivate() const;
-
-    /// Returns true if this Symbol is a Scope.
-    bool isScope() const;
-
-    /// Returns true if this Symbol is an Enum.
-    bool isEnum() const;
-
-    /// Returns true if this Symbol is an Function.
-    bool isFunction() const;
-
-    /// Returns true if this Symbol is a Namespace.
-    bool isNamespace() const;
-
-    /// Returns true if this Symbol is a Template.
-    bool isTemplate() const;
-
-    /// Returns true if this Symbol is a Class.
-    bool isClass() const;
-
-    /// Returns true if this Symbol is a Block.
-    bool isBlock() const;
-
-    /// Returns true if this Symbol is a UsingNamespaceDirective.
-    bool isUsingNamespaceDirective() const;
-
-    /// Returns true if this Symbol is a UsingDeclaration.
-    bool isUsingDeclaration() const;
-
-    /// Returns true if this Symbol is a Declaration.
-    bool isDeclaration() const;
-
-    /// Returns true if this Symbol is an Argument.
-    bool isArgument() const;
-
-    /// Returns true if this Symbol is a Typename argument.
-    bool isTypenameArgument() const;
-
-    /// Returns true if this Symbol is a BaseClass.
-    bool isBaseClass() const;
-
-    /// Returns true if this Symbol is a ForwardClassDeclaration.
-    bool isForwardClassDeclaration() const;
-
-    /// Returns true if this Symbol is a QtPropertyDeclaration.
-    bool isQtPropertyDeclaration() const;
-
-    /// Returns true if this Symbol is a QtEnum.
-    bool isQtEnum() const;
-
-    bool isObjCBaseClass() const;
-    bool isObjCBaseProtocol() const;
-
-    /// Returns true if this Symbol is an Objective-C Class declaration.
-    bool isObjCClass() const;
-
-    /// Returns true if this Symbol is an Objective-C Class forward declaration.
-    bool isObjCForwardClassDeclaration() const;
-
-    /// Returns true if this Symbol is an Objective-C Protocol declaration.
-    bool isObjCProtocol() const;
-
-    /// Returns true if this Symbol is an Objective-C Protocol forward declaration.
-    bool isObjCForwardProtocolDeclaration() const;
-
-    /// Returns true if this Symbol is an Objective-C method declaration.
-    bool isObjCMethod() const;
-
-    /// Returns true if this Symbol is an Objective-C @property declaration.
-    bool isObjCPropertyDeclaration() const;
+    bool isPrivate() const { return _visibility == Private; }
 
     Utils::Link toLink() const;
 
@@ -226,53 +157,98 @@ public:
     virtual const ObjCMethod *asObjCMethod() const { return nullptr; }
     virtual const ObjCPropertyDeclaration *asObjCPropertyDeclaration() const { return nullptr; }
 
+    /// Returns this Symbol as a Scope.
     virtual Scope *asScope() { return nullptr; }
+
+    /// Returns this Symbol as an Enum.
     virtual Enum *asEnum() { return nullptr; }
+
+    /// Returns this Symbol as an Function.
     virtual Function *asFunction() { return nullptr; }
+
+    /// Returns this Symbol as a Namespace.
     virtual Namespace *asNamespace() { return nullptr; }
+
+    /// Returns this Symbol as a Template.
     virtual Template *asTemplate() { return nullptr; }
+
     virtual NamespaceAlias *asNamespaceAlias() { return nullptr; }
+
+    /// Returns this Symbol as a Class.
     virtual Class *asClass() { return nullptr; }
+
+    /// Returns this Symbol as a Block.
     virtual Block *asBlock() { return nullptr; }
+
+    /// Returns this Symbol as a UsingNamespaceDirective.
     virtual UsingNamespaceDirective *asUsingNamespaceDirective() { return nullptr; }
+
+    /// Returns this Symbol as a UsingDeclaration.
     virtual UsingDeclaration *asUsingDeclaration() { return nullptr; }
+
+    /// Returns this Symbol as a Declaration.
     virtual Declaration *asDeclaration() { return nullptr; }
+
+    /// Returns this Symbol as an Argument.
     virtual Argument *asArgument() { return nullptr; }
+
+    /// Returns this Symbol as a Typename argument.
     virtual TypenameArgument *asTypenameArgument() { return nullptr; }
+
+    /// Returns this Symbol as a BaseClass.
     virtual BaseClass *asBaseClass() { return nullptr; }
+
+    /// Returns this Symbol as a ForwardClassDeclaration.
     virtual ForwardClassDeclaration *asForwardClassDeclaration() { return nullptr; }
+
+    /// Returns this Symbol as a QtPropertyDeclaration.
     virtual QtPropertyDeclaration *asQtPropertyDeclaration() { return nullptr; }
+
+    /// Returns this Symbol as a QtEnum.
     virtual QtEnum *asQtEnum() { return nullptr; }
+
     virtual ObjCBaseClass *asObjCBaseClass() { return nullptr; }
     virtual ObjCBaseProtocol *asObjCBaseProtocol() { return nullptr; }
+
+    /// Returns this Symbol as an Objective-C Class declaration.
     virtual ObjCClass *asObjCClass() { return nullptr; }
+
+    /// Returns this Symbol as an Objective-C Class forward declaration.
     virtual ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() { return nullptr; }
+
+    /// Returns this Symbol as an Objective-C Protocol declaration.
     virtual ObjCProtocol *asObjCProtocol() { return nullptr; }
+
+    /// Returns this Symbol as an Objective-C Protocol forward declaration.
     virtual ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() { return nullptr; }
+
+    /// Returns this Symbol as an Objective-C method declaration.
     virtual ObjCMethod *asObjCMethod() { return nullptr; }
+
+    /// Returns this Symbol as an Objective-C @property declaration.
     virtual ObjCPropertyDeclaration *asObjCPropertyDeclaration() { return nullptr; }
 
     /// Returns this Symbol's type.
     virtual FullySpecifiedType type() const = 0;
 
     /// Returns this Symbol's hash value.
-    unsigned hashCode() const;
+    unsigned hashCode() const { return _hashCode; }
 
     /// Returns this Symbol's index.
-    unsigned index() const;
+    unsigned index() const { return _index; }
 
     const Name *unqualifiedName() const;
 
-    bool isGenerated() const;
+    bool isGenerated() const { return _isGenerated; }
 
-    bool isDeprecated() const;
-    void setDeprecated(bool isDeprecated);
+    bool isDeprecated() const { return _isDeprecated; }
+    void setDeprecated(bool isDeprecated) { _isDeprecated = isDeprecated; }
 
-    bool isUnavailable() const;
-    void setUnavailable(bool isUnavailable);
+    bool isUnavailable() const { return _isUnavailable; }
+    void setUnavailable(bool isUnavailable) { _isUnavailable = isUnavailable; }
 
     /// Returns this Symbol's eclosing scope.
-    Scope *enclosingScope() const;
+    Scope *enclosingScope() const { return _enclosingScope; }
 
     /// Returns the eclosing namespace scope.
     Namespace *enclosingNamespace() const;

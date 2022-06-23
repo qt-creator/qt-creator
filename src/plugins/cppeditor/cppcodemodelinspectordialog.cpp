@@ -951,7 +951,7 @@ QVariant SymbolsModel::data(const QModelIndex &index, int role) const
         } else if (column == SymbolColumn) {
             QString name = Overview().prettyName(symbol->name());
             if (name.isEmpty())
-                name = QLatin1String(symbol->isBlock() ? "<block>" : "<no name>");
+                name = QLatin1String(symbol->asBlock() ? "<block>" : "<no name>");
             return name;
         }
     }

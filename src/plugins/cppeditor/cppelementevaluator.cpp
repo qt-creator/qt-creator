@@ -124,10 +124,10 @@ CppDeclarableElement::CppDeclarableElement(Symbol *declaration)
     overview.showReturnTypes = true;
     overview.showTemplateParameters = true;
     name = overview.prettyName(declaration->name());
-    if (declaration->enclosingScope()->isClass() ||
-        declaration->enclosingScope()->isNamespace() ||
-        declaration->enclosingScope()->isEnum() ||
-        declaration->enclosingScope()->isTemplate()) {
+    if (declaration->enclosingScope()->asClass() ||
+        declaration->enclosingScope()->asNamespace() ||
+        declaration->enclosingScope()->asEnum() ||
+        declaration->enclosingScope()->asTemplate()) {
         qualifiedName = overview.prettyName(LookupContext::fullyQualifiedName(declaration));
         helpIdCandidates = stripName(qualifiedName);
     } else {
@@ -187,7 +187,7 @@ void CppClass::lookupBases(QFutureInterfaceBase &futureInterface,
             for (ClassOrNamespace *baseClass : bases) {
                 const QList<Symbol *> &symbols = baseClass->symbols();
                 for (Symbol *symbol : symbols) {
-                    if (symbol->isClass() && (
+                    if (symbol->asClass() && (
                         clazz = context.lookupType(symbol)) &&
                         !visited.contains(clazz)) {
                         CppClass baseCppClass(symbol);
@@ -345,16 +345,16 @@ public:
 
 static bool isCppClass(Symbol *symbol)
 {
-    return symbol->isClass() || symbol->isForwardClassDeclaration()
-            || (symbol->isTemplate() && symbol->asTemplate()->declaration()
-                && (symbol->asTemplate()->declaration()->isClass()
-                    || symbol->asTemplate()->declaration()->isForwardClassDeclaration()));
+    return symbol->asClass() || symbol->asForwardClassDeclaration()
+            || (symbol->asTemplate() && symbol->asTemplate()->declaration()
+                && (symbol->asTemplate()->declaration()->asClass()
+                    || symbol->asTemplate()->declaration()->asForwardClassDeclaration()));
 }
 
 static Symbol *followClassDeclaration(Symbol *symbol, const Snapshot &snapshot, SymbolFinder symbolFinder,
                                LookupContext *context = nullptr)
 {
-    if (!symbol->isForwardClassDeclaration())
+    if (!symbol->asForwardClassDeclaration())
         return symbol;
 
     Symbol *classDeclaration = symbolFinder.findMatchingClassDeclaration(symbol, snapshot);
@@ -422,7 +422,7 @@ static QSharedPointer<CppElement> handleLookupItemMatch(const Snapshot &snapshot
         element = QSharedPointer<CppElement>(new Unknown(type));
     } else {
         const FullySpecifiedType &type = declaration->type();
-        if (declaration->isNamespace()) {
+        if (declaration->asNamespace()) {
             element = QSharedPointer<CppElement>(new CppNamespace(declaration));
         } else if (isCppClass(declaration)) {
             LookupContext contextToUse = context;
@@ -434,11 +434,11 @@ static QSharedPointer<CppElement> handleLookupItemMatch(const Snapshot &snapshot
             element = QSharedPointer<CppElement>(new CppEnumerator(enumerator));
         } else if (declaration->isTypedef()) {
             element = QSharedPointer<CppElement>(new CppTypedef(declaration));
-        } else if (declaration->isFunction()
+        } else if (declaration->asFunction()
                    || (type.isValid() && type->isFunctionType())
-                   || declaration->isTemplate()) {
+                   || declaration->asTemplate()) {
             element = QSharedPointer<CppElement>(new CppFunction(declaration));
-        } else if (declaration->isDeclaration() && type.isValid()) {
+        } else if (declaration->asDeclaration() && type.isValid()) {
             element = QSharedPointer<CppElement>(
                 new CppVariable(declaration, context, lookupItem.scope()));
         } else {
@@ -451,7 +451,7 @@ static QSharedPointer<CppElement> handleLookupItemMatch(const Snapshot &snapshot
 //  special case for bug QTCREATORBUG-4780
 static bool shouldOmitElement(const LookupItem &lookupItem, const Scope *scope)
 {
-    return !lookupItem.declaration() && scope && scope->isFunction()
+    return !lookupItem.declaration() && scope && scope->asFunction()
             && lookupItem.type().match(scope->asFunction()->returnType());
 }
 
@@ -484,8 +484,8 @@ static LookupItem findLookupItem(const CPlusPlus::Snapshot &snapshot, CPlusPlus:
         return LookupItem();
 
     auto isInteresting = [followTypedef](Symbol *symbol) {
-        return symbol && (!followTypedef || (symbol->isClass() || symbol->isTemplate()
-               || symbol->isForwardClassDeclaration() || symbol->isTypedef()));
+        return symbol && (!followTypedef || (symbol->asClass() || symbol->asTemplate()
+               || symbol->asForwardClassDeclaration() || symbol->isTypedef()));
     };
 
     for (const LookupItem &item : lookupItems) {
@@ -749,7 +749,7 @@ Utils::Link CppElementEvaluator::linkFromExpression(const QString &expression, c
         Symbol *symbol = item.declaration();
         if (!symbol)
             continue;
-        if (!symbol->isClass() && !symbol->isTemplate())
+        if (!symbol->asClass() && !symbol->asTemplate())
             continue;
         return symbol->toLink();
     }

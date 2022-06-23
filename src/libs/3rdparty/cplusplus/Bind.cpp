@@ -2024,7 +2024,7 @@ bool Bind::visit(SimpleDeclarationAST *ast)
                 decl->setInitializer(asStringLiteral(initializer));
         }
 
-        if (_scope->isClass()) {
+        if (_scope->asClass()) {
             decl->setVisibility(_visibility);
 
             if (Function *funTy = decl->type()->asFunctionType()) {
@@ -2050,7 +2050,7 @@ bool Bind::visit(EmptyDeclarationAST *ast)
 {
     (void) ast;
     int semicolon_token = ast->semicolon_token;
-    if (_scope && (_scope->isClass() || _scope->isNamespace())) {
+    if (_scope && (_scope->asClass() || _scope->asNamespace())) {
         const Token &tk = tokenAt(semicolon_token);
 
         if (! tk.generated())
@@ -2227,7 +2227,7 @@ bool Bind::visit(AliasDeclarationAST *ast)
     decl->setType(ty);
     decl->setStorage(Symbol::Typedef);
     ast->symbol = decl;
-    if (_scope->isClass())
+    if (_scope->asClass())
         decl->setVisibility(_visibility);
     _scope->addMember(decl);
 
@@ -2299,7 +2299,7 @@ bool Bind::visit(FunctionDefinitionAST *ast)
         setDeclSpecifiers(fun, declSpecifiers);
         fun->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
 
-        if (_scope->isClass()) {
+        if (_scope->asClass()) {
             fun->setVisibility(_visibility);
             fun->setMethodKey(methodKey);
         }
@@ -3147,7 +3147,7 @@ bool Bind::visit(ClassSpecifierAST *ast)
     klass->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
     _scope->addMember(klass);
 
-    if (_scope->isClass())
+    if (_scope->asClass())
         klass->setVisibility(_visibility);
 
     // set the class key
@@ -3210,7 +3210,7 @@ bool Bind::visit(EnumSpecifierAST *ast)
     ast->symbol = e;
     _scope->addMember(e);
 
-    if (_scope->isClass())
+    if (_scope->asClass())
         e->setVisibility(_visibility);
 
     Scope *previousScope = switchScope(e);
@@ -3398,7 +3398,7 @@ void Bind::ensureValidClassName(const Name **name, int sourceLocation)
     const QualifiedNameId *qName = (*name)->asQualifiedNameId();
     const Name *uqName = qName ? qName->name() : *name;
 
-    if (!uqName->isNameId() && !uqName->isTemplateNameId()) {
+    if (!uqName->asNameId() && !uqName->asTemplateNameId()) {
         translationUnit()->error(sourceLocation, "expected a class-name");
 
         *name = uqName->identifier();

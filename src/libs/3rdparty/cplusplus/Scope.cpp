@@ -154,7 +154,7 @@ Symbol *SymbolTable::lookat(const Identifier *id) const
         } else if (const DestructorNameId *d = identity->asDestructorNameId()) {
             if (d->identifier()->match(id))
                 break;
-        } else if (identity->isQualifiedNameId()) {
+        } else if (identity->asQualifiedNameId()) {
             return nullptr;
         } else if (const SelectorNameId *selectorNameId = identity->asSelectorNameId()) {
             if (selectorNameId->identifier()->match(id))

@@ -216,7 +216,7 @@ QString DoxygenGenerator::generate(QTextCursor cursor, DeclarationAST *decl)
         if (ClassSpecifierAST *classSpec = spec->asClassSpecifier()) {
             if (classSpec->name) {
                 QString aggregate;
-                if (classSpec->symbol->isClass())
+                if (classSpec->symbol->asClass())
                     aggregate = QLatin1String("class");
                 else if (classSpec->symbol->isStruct())
                     aggregate = QLatin1String("struct");

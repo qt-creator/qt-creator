@@ -1045,7 +1045,7 @@ ClassOrNamespace *ResolveExpression::findClass(const FullySpecifiedType &origina
     ClassOrNamespace *binding = nullptr;
 
     if (Class *klass = ty->asClassType()) {
-        if (scope->isBlock())
+        if (scope->asBlock())
             binding = _context.lookupType(klass->name(), scope, enclosingBinding);
         if (!binding)
             binding = _context.lookupType(klass, enclosingBinding);
@@ -1135,7 +1135,7 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                             instantiatedFunction = overloadTy->asFunctionType();
                         } else if (overloadType->isTemplateType()
                                    && overloadType->asTemplateType()->declaration()
-                                   && overloadType->asTemplateType()->declaration()->isFunction()) {
+                                   && overloadType->asTemplateType()->declaration()->asFunction()) {
                             instantiatedFunction = overloadType->asTemplateType()->declaration()->asFunction();
                         }
 

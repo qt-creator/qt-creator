@@ -412,9 +412,9 @@ void PointerDeclarationFormatter::checkAndRewrite(DeclaratorAST *declarator,
     QString rewrittenDeclaration;
     const Name *name = symbol->name();
     if (name) {
-        if (name->isOperatorNameId()
-                || (name->isQualifiedNameId()
-                    && name->asQualifiedNameId()->name()->isOperatorNameId())) {
+        if (name->asOperatorNameId()
+                || (name->asQualifiedNameId()
+                    && name->asQualifiedNameId()->name()->asOperatorNameId())) {
             const QString operatorText = m_cppRefactoringFile->textOf(declarator->core_declarator);
             m_overview.includeWhiteSpaceInOperatorName = operatorText.contains(QLatin1Char(' '));
         }

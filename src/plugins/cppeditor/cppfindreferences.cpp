@@ -413,11 +413,11 @@ static void find_helper(QFutureInterface<CPlusPlus::Usage> &future,
                                                                  symbol->fileNameLength());
     Utils::FilePaths files{sourceFile};
 
-    if (symbol->isClass()
-        || symbol->isForwardClassDeclaration()
+    if (symbol->asClass()
+        || symbol->asForwardClassDeclaration()
         || (symbol->enclosingScope()
             && !symbol->isStatic()
-            && symbol->enclosingScope()->isNamespace())) {
+            && symbol->enclosingScope()->asNamespace())) {
         const CPlusPlus::Snapshot snapshotFromContext = context.snapshot();
         for (auto i = snapshotFromContext.begin(), ei = snapshotFromContext.end(); i != ei; ++i) {
             if (i.key() == sourceFile)
@@ -479,7 +479,7 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
     parameters.symbolFileName = QByteArray(symbol->fileName());
     parameters.categorize = codeModelSettings()->categorizeFindReferences();
 
-    if (symbol->isClass() || symbol->isForwardClassDeclaration()) {
+    if (symbol->asClass() || symbol->asForwardClassDeclaration()) {
         CPlusPlus::Overview overview;
         parameters.prettySymbolName =
                 overview.prettyName(CPlusPlus::LookupContext::path(symbol).constLast());

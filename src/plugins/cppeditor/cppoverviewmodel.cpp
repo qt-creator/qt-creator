@@ -67,11 +67,11 @@ public:
             QString name = overviewModel->_overview.prettyName(symbol->name());
             if (name.isEmpty())
                 name = QLatin1String("anonymous");
-            if (symbol->isObjCForwardClassDeclaration())
+            if (symbol->asObjCForwardClassDeclaration())
                 name = QLatin1String("@class ") + name;
-            if (symbol->isObjCForwardProtocolDeclaration() || symbol->isObjCProtocol())
+            if (symbol->asObjCForwardProtocolDeclaration() || symbol->asObjCProtocol())
                 name = QLatin1String("@protocol ") + name;
-            if (symbol->isObjCClass()) {
+            if (symbol->asObjCClass()) {
                 ObjCClass *clazz = symbol->asObjCClass();
                 if (clazz->isInterface())
                     name = QLatin1String("@interface ") + name;
@@ -83,7 +83,7 @@ public:
                                                      clazz->categoryName()));
                 }
             }
-            if (symbol->isObjCPropertyDeclaration())
+            if (symbol->asObjCPropertyDeclaration())
                 name = QLatin1String("@property ") + name;
             // if symbol is a template we might change it now - so, use a copy instead as we're const
             Symbol *symbl = symbol;
@@ -98,13 +98,13 @@ public:
                     name += QString("<%1>").arg(parameters.join(QLatin1String(", ")));
                     symbl = templateDeclaration;
                 }
-            if (symbl->isObjCMethod()) {
+            if (symbl->asObjCMethod()) {
                 ObjCMethod *method = symbl->asObjCMethod();
                 if (method->isStatic())
                     name = QLatin1Char('+') + name;
                 else
                     name = QLatin1Char('-') + name;
-            } else if (! symbl->isScope() || symbl->isFunction()) {
+            } else if (! symbl->asScope() || symbl->asFunction()) {
                 QString type = overviewModel->_overview.prettyType(symbl->type());
                 if (Function *f = symbl->type()->asFunctionType()) {
                     name += type;

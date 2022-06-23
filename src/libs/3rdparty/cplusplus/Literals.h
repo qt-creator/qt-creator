@@ -105,7 +105,7 @@ private:
     };
 };
 
-class CPLUSPLUS_EXPORT Identifier: public Literal, public Name
+class CPLUSPLUS_EXPORT Identifier final : public Literal, public Name
 {
 public:
     Identifier(const char *chars, int size)
@@ -114,8 +114,7 @@ public:
 
     const Identifier *identifier() const override { return this; }
 
-    const Identifier *asNameId() const override
-    { return this; }
+    const Identifier *asNameId() const override { return this; }
 
 protected:
     void accept0(NameVisitor *visitor) const override;

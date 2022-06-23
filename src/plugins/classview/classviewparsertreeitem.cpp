@@ -105,17 +105,17 @@ void ParserTreeItemPrivate::mergeSymbol(const CPlusPlus::Symbol *symbol)
     // any symbol which does not contain :: in the name
 
     //! \todo collect statistics and reorder to optimize
-    if (symbol->isForwardClassDeclaration()
+    if (symbol->asForwardClassDeclaration()
         || symbol->isExtern()
         || symbol->isFriend()
         || symbol->isGenerated()
-        || symbol->isUsingNamespaceDirective()
-        || symbol->isUsingDeclaration()
+        || symbol->asUsingNamespaceDirective()
+        || symbol->asUsingDeclaration()
         )
         return;
 
     const CPlusPlus::Name *symbolName = symbol->name();
-    if (symbolName && symbolName->isQualifiedNameId())
+    if (symbolName && symbolName->asQualifiedNameId())
         return;
 
     QString name = g_overview.prettyName(symbolName).trimmed();
@@ -139,7 +139,7 @@ void ParserTreeItemPrivate::mergeSymbol(const CPlusPlus::Symbol *symbol)
     childItem->d->m_symbolLocations.insert(location);
 
     // prevent showing a content of the functions
-    if (!symbol->isFunction()) {
+    if (!symbol->asFunction()) {
         if (const CPlusPlus::Scope *scope = symbol->asScope()) {
             CPlusPlus::Scope::iterator cur = scope->memberBegin();
             CPlusPlus::Scope::iterator last = scope->memberEnd();
@@ -155,7 +155,7 @@ void ParserTreeItemPrivate::mergeSymbol(const CPlusPlus::Symbol *symbol)
     }
 
     // if item is empty and has not to be added
-    if (!symbol->isNamespace() || childItem->childCount())
+    if (!symbol->asNamespace() || childItem->childCount())
         m_symbolInformations.insert(information, childItem);
 }
 

@@ -1485,13 +1485,13 @@ QSet<QString> CppModelManager::symbolsInFiles(const QSet<Utils::FilePath> &files
 
                 const CPlusPlus::Identifier *symId = sym->identifier();
                 // Add any class, function or namespace identifiers
-                if ((sym->isClass() || sym->isFunction() || sym->isNamespace()) && symId
+                if ((sym->asClass() || sym->asFunction() || sym->asNamespace()) && symId
                     && symId->chars()) {
                     uniqueSymbols.insert(QString::fromUtf8(symId->chars()));
                 }
 
                 // Handle specific case : get "Foo" in "void Foo::function() {}"
-                if (sym->isFunction() && !sym->asFunction()->isDeclaration()) {
+                if (sym->asFunction() && !sym->asFunction()->asDeclaration()) {
                     const char *className = belongingClassName(sym->asFunction());
                     if (className)
                         uniqueSymbols.insert(QString::fromUtf8(className));
