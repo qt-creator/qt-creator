@@ -79,7 +79,6 @@ private:
 
     bool init() final;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) final;
-    void doRun() final;
     bool fromMap(const QVariantMap &map) final;
     QVariantMap toMap() const final;
 
@@ -247,11 +246,6 @@ QStringList IosBuildStep::defaultArguments() const
 FilePath IosBuildStep::buildCommand() const
 {
     return "xcodebuild"; // add path?
-}
-
-void IosBuildStep::doRun()
-{
-    AbstractProcessStep::doRun();
 }
 
 void IosBuildStep::setBaseArguments(const QStringList &args)
