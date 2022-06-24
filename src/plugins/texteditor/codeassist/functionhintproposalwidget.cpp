@@ -299,8 +299,6 @@ bool FunctionHintProposalWidget::eventFilter(QObject *obj, QEvent *e)
                 if (d->m_model && d->m_model->size() > 1)
                     return false;
             }
-            if (QTC_GUARD(d->m_assistant))
-                d->m_assistant->notifyChange();
         }
         break;
     case QEvent::WindowDeactivate:
