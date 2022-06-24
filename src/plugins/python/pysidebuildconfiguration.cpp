@@ -105,7 +105,7 @@ void PySideBuildStep::doRun()
 PySideBuildConfiguration::PySideBuildConfiguration(Target *target, Id id)
     : BuildConfiguration(target, id)
 {
-    setConfigWidgetDisplayName(tr("General"));
+    setConfigWidgetDisplayName(PySideBuildConfigurationFactory::tr("General"));
 
     setInitializer([this](const BuildInfo &) {
         buildSteps()->appendStep(pySideBuildStep);

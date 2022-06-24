@@ -64,27 +64,27 @@ GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
     : QWidget(parent)
     , m_mode(m)
 {
-    m_host.setLabelText(tr("Host:"));
+    m_host.setLabelText(GitLabOptionsPage::tr("Host:"));
     m_host.setDisplayStyle(m == Display ? Utils::StringAspect::LabelDisplay
                                         : Utils::StringAspect::LineEditDisplay);
     m_host.setValidationFunction([](Utils::FancyLineEdit *l, QString *) {
         return hostValid(l->text());
     });
 
-    m_description.setLabelText(tr("Description:"));
+    m_description.setLabelText(GitLabOptionsPage::tr("Description:"));
     m_description.setDisplayStyle(m == Display ? Utils::StringAspect::LabelDisplay
                                                : Utils::StringAspect::LineEditDisplay);
 
-    m_token.setLabelText(tr("Access token:"));
+    m_token.setLabelText(GitLabOptionsPage::tr("Access token:"));
     m_token.setDisplayStyle(m == Display ? Utils::StringAspect::LabelDisplay
                                          : Utils::StringAspect::LineEditDisplay);
     m_token.setVisible(m == Edit);
 
     m_port.setRange(1, 65535);
     m_port.setValue(GitLabServer::defaultPort);
-    auto portLabel = new QLabel(tr("Port:"), this);
+    auto portLabel = new QLabel(GitLabOptionsPage::tr("Port:"), this);
     m_port.setEnabled(m == Edit);
-    m_secure.setLabelText(tr("HTTPS:"));
+    m_secure.setLabelText(GitLabOptionsPage::tr("HTTPS:"));
     m_secure.setLabelPlacement(Utils::BoolAspect::LabelPlacement::InExtraLabel);
     m_secure.setDefaultValue(true);
     m_secure.setEnabled(m == Edit);

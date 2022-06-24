@@ -400,8 +400,8 @@ public:
     PyLSConfigureWidget()
         : m_editor(LanguageClient::jsonEditor())
         , m_advancedLabel(new QLabel)
-        , m_pluginsGroup(new QGroupBox(tr("Plugins:")))
-        , m_mainGroup(new QGroupBox(tr("Use Python Language Server")))
+        , m_pluginsGroup(new QGroupBox(PythonSettings::tr("Plugins:")))
+        , m_mainGroup(new QGroupBox(PythonSettings::tr("Use Python Language Server")))
 
     {
         m_mainGroup->setCheckable(true);
@@ -422,7 +422,7 @@ public:
 
         mainGroupLayout->addWidget(m_pluginsGroup);
 
-        const QString labelText = tr(
+        const QString labelText = PythonSettings::tr(
             "For a complete list of avilable options, consult the <a "
             "href=\"https://github.com/python-lsp/python-lsp-server/blob/develop/"
             "CONFIGURATION.md\">Python LSP Server configuration documentation</a>.");
@@ -436,7 +436,7 @@ public:
 
         mainGroupLayout->addStretch();
 
-        auto advanced = new QCheckBox(tr("Advanced"));
+        auto advanced = new QCheckBox(PythonSettings::tr("Advanced"));
         advanced->setChecked(false);
 
         connect(advanced,

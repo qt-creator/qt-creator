@@ -285,8 +285,10 @@ bool DefaultImpl::dissolveCommand(QString *program, QStringList *arguments)
         *arguments = QStringList();
     } else {
         if (!success) {
-            const ProcessResultData result = { 0, QProcess::NormalExit, QProcess::FailedToStart,
-                                               tr("Error in command line.") };
+            const ProcessResultData result = {0,
+                                              QProcess::NormalExit,
+                                              QProcess::FailedToStart,
+                                              QtcProcess::tr("Error in command line.")};
             emit done(result);
             return false;
         }
@@ -314,8 +316,8 @@ bool DefaultImpl::ensureProgramExists(const QString &program)
     if (programFilePath.exists() && programFilePath.isExecutableFile())
         return true;
 
-    const QString errorString = tr("The program \"%1\" does not exist or is not executable.")
-                                .arg(program);
+    const QString errorString
+        = QtcProcess::tr("The program \"%1\" does not exist or is not executable.").arg(program);
     const ProcessResultData result = { 0, QProcess::NormalExit, QProcess::FailedToStart,
                                        errorString };
     emit done(result);

@@ -84,7 +84,7 @@ CppcheckTextMark::CppcheckTextMark (const Diagnostic &diagnostic)
     // Copy to clipboard action
     QAction *action = new QAction();
     action->setIcon(QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon()));
-    action->setToolTip(tr("Copy to Clipboard"));
+    action->setToolTip(TextMark::tr("Copy to Clipboard"));
     QObject::connect(action, &QAction::triggered, [diagnostic]() {
         const QString text = QString("%1:%2: %3")
                 .arg(diagnostic.fileName.toUserOutput())
