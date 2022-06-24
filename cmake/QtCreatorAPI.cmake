@@ -832,7 +832,7 @@ function(add_qtc_test name)
   endif()
 
   foreach(dependency ${_arg_DEPENDS})
-    if (NOT TARGET ${dependency} AND NOT _arg_GTEST)
+    if (NOT TARGET ${dependency})
       if (WITH_DEBUG_CMAKE)
         message(STATUS  "'${dependency}' is not a target")
       endif()
