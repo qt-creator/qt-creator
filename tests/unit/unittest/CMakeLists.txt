@@ -147,7 +147,9 @@ extend_qtc_test(unittest
     smallstring-benchmark.cpp
 )
 
-finalize_qtc_gtest(unittest ".c$")
+finalize_qtc_gtest(unittest
+  EXCLUDE_SOURCES_REGEX ".c$"
+  EXCLUDE_ALL_FROM_PRECHECK)
 
 # Path needs to be before CppEditor
 target_include_directories(unittest

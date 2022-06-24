@@ -51,6 +51,7 @@ if (WITH_DEBUGGER_DUMPERS)
   get_target_property(qmake_binary Qt5::qmake IMPORTED_LOCATION)
 
   add_qtc_test(tst_debugger_dumpers
+    EXCLUDE_FROM_PRECHECK
     TIMEOUT 0
     DEPENDS Qt5::Network Utils
     DEFINES

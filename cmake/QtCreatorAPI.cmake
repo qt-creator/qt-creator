@@ -807,10 +807,10 @@ function(extend_qtc_executable name)
 endfunction()
 
 function(add_qtc_test name)
-  cmake_parse_arguments(_arg "GTEST;MANUALTEST" "TIMEOUT"
+  cmake_parse_arguments(_arg "GTEST;MANUALTEST;EXCLUDE_FROM_PRECHECK" "TIMEOUT"
       "DEFINES;DEPENDS;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;SKIP_PCH;CONDITION" ${ARGN})
 
-  if ($_arg_UNPARSED_ARGUMENTS)
+  if (${_arg_UNPARSED_ARGUMENTS})
     message(FATAL_ERROR "add_qtc_test had unparsed arguments!")
   endif()
 
@@ -871,6 +871,9 @@ function(add_qtc_test name)
 
   if (NOT _arg_GTEST AND NOT _arg_MANUALTEST)
     add_test(NAME ${name} COMMAND ${name})
+    if (_arg_EXCLUDE_FROM_PRECHECK)
+      set_tests_properties(${name} PROPERTIES LABELS exclude_from_precheck)
+    endif()
     if (DEFINED _arg_TIMEOUT)
       set(timeout_option TIMEOUT ${_arg_TIMEOUT})
     else()
@@ -880,17 +883,32 @@ function(add_qtc_test name)
   endif()
 endfunction()
 
-function(finalize_qtc_gtest test_name exclude_sources_regex)
+function(finalize_qtc_gtest test_name)
   if (NOT TARGET ${test_name})
     return()
   endif()
+
+  cmake_parse_arguments(_arg "EXCLUDE_ALL_FROM_PRECHECK" "EXCLUDE_SOURCES_REGEX"
+      "EXCLUDE_FROM_PRECHECK" ${ARGN})
+
+  if (${_arg_UNPARSED_ARGUMENTS})
+    message(FATAL_ERROR "finalize_qtc_gtest had unparsed arguments!")
+  endif()
+
   get_target_property(test_sources ${test_name} SOURCES)
-  if (exclude_sources_regex)
-    list(FILTER test_sources EXCLUDE REGEX "${exclude_sources_regex}")
+  if (_arg_EXCLUDE_SOURCES_REGEX)
+    list(FILTER test_sources EXCLUDE REGEX "${_arg_EXCLUDE_SOURCES_REGEX}")
   endif()
   include(GoogleTest)
   gtest_add_tests(TARGET ${test_name} SOURCES ${test_sources} TEST_LIST test_list SKIP_DEPENDENCY)
 
+  if(_arg_EXCLUDE_ALL_FROM_PRECHECK)
+    set_tests_properties(${test_list}
+      PROPERTIES LABELS exclude_from_precheck)
+  elseif(_arg_EXCLUDE_FROM_PRECHECK)
+    set_tests_properties(${_arg_EXCLUDE_FROM_PRECHECK}
+      PROPERTIES LABELS exclude_from_precheck)
+  endif()
   foreach(test IN LISTS test_list)
     finalize_test_setup(${test})
   endforeach()
