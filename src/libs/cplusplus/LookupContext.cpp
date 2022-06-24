@@ -1089,14 +1089,14 @@ ClassOrNamespace *ClassOrNamespace::findSpecialization(const TemplateNameId *tem
                         = specializationTemplateArgument.type().type()->asPointerType();
                 // specialization and initialization argument have to be a pointer
                 // additionally type of pointer argument of specialization has to be namedType
-                if (specPointer && initializationTemplateArgument.type().type()->isPointerType()
-                        && specPointer->elementType().type()->isNamedType()) {
+                if (specPointer && initializationTemplateArgument.type().type()->asPointerType()
+                        && specPointer->elementType().type()->asNamedType()) {
                     return cit->second;
                 }
 
                 ArrayType *specArray
                         = specializationTemplateArgument.type().type()->asArrayType();
-                if (specArray && initializationTemplateArgument.type().type()->isArrayType()) {
+                if (specArray && initializationTemplateArgument.type().type()->asArrayType()) {
                     if (const NamedType *argumentNamedType
                             = specArray->elementType().type()->asNamedType()) {
                         if (const Name *argumentName = argumentNamedType->name()) {
@@ -1340,7 +1340,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
                                 cloner.type(tParam->type(), &subst);
 
                     if (i < templSpecArgumentCount
-                            && templSpecId->templateArgumentAt(i).type()->isPointerType()) {
+                            && templSpecId->templateArgumentAt(i).type()->asPointerType()) {
                         if (PointerType *pointerType = ty->asPointerType())
                             ty = pointerType->elementType();
                     }

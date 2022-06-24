@@ -312,8 +312,8 @@ void TypePrettyPrinter::visit(PointerToMemberType *type)
 
 void TypePrettyPrinter::prependSpaceBeforeIndirection(const FullySpecifiedType &type)
 {
-    const bool elementTypeIsPointerOrReference = type.type()->isPointerType()
-        || type.type()->isReferenceType();
+    const bool elementTypeIsPointerOrReference = type.type()->asPointerType()
+        || type.type()->asReferenceType();
     const bool elementIsConstPointerOrReference = elementTypeIsPointerOrReference && type.isConst();
     const bool shouldBindToLeftSpecifier = _overview->starBindFlags & Overview::BindToLeftSpecifier;
     if (elementIsConstPointerOrReference && ! shouldBindToLeftSpecifier)
@@ -342,8 +342,8 @@ void TypePrettyPrinter::prependSpaceAfterIndirection(bool hasName)
 
 void TypePrettyPrinter::visit(PointerType *type)
 {
-    const bool isIndirectionToFunction = type->elementType().type()->isFunctionType();
-    const bool isIndirectionToArray = type->elementType().type()->isArrayType();
+    const bool isIndirectionToFunction = type->elementType().type()->asFunctionType();
+    const bool isIndirectionToArray = type->elementType().type()->asArrayType();
 
     visitIndirectionType(aPointerType, type->elementType(),
         isIndirectionToFunction || isIndirectionToArray);
@@ -351,8 +351,8 @@ void TypePrettyPrinter::visit(PointerType *type)
 
 void TypePrettyPrinter::visit(ReferenceType *type)
 {
-    const bool isIndirectionToFunction = type->elementType().type()->isFunctionType();
-    const bool isIndirectionToArray = type->elementType().type()->isArrayType();
+    const bool isIndirectionToFunction = type->elementType().type()->asFunctionType();
+    const bool isIndirectionToArray = type->elementType().type()->asArrayType();
     const IndirectionType indirectionType = type->isRvalueReference()
         ? aRvalueReferenceType : aReferenceType;
 

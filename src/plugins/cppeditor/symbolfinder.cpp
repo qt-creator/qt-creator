@@ -423,13 +423,13 @@ void SymbolFinder::findMatchingDeclaration(const LookupContext &context,
 
         if (funcId) {
             for (Symbol *s = scope->find(funcId); s; s = s->next()) {
-                if (!s->name() || !funcId->match(s->identifier()) || !s->type()->isFunctionType())
+                if (!s->name() || !funcId->match(s->identifier()) || !s->type()->asFunctionType())
                     continue;
                 findDeclarationOfSymbol(s, functionType, typeMatch, argumentCountMatch, nameMatch);
             }
         } else {
             for (Symbol *s = scope->find(operatorNameId); s; s = s->next()) {
-                if (!s->name() || !s->type()->isFunctionType())
+                if (!s->name() || !s->type()->asFunctionType())
                     continue;
                 findDeclarationOfSymbol(s, functionType, typeMatch, argumentCountMatch, nameMatch);
             }

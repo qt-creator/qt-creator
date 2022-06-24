@@ -190,12 +190,12 @@ protected:
         if (symbol->enclosingEnum() != nullptr)
             addStatic(symbol->name());
 
-        if (symbol->type()->isFunctionType())
+        if (symbol->type()->asFunctionType())
             addFunction(symbol->name());
 
         if (symbol->isTypedef())
             addType(symbol->name());
-        else if (!symbol->type()->isFunctionType() && symbol->enclosingScope()->asClass())
+        else if (!symbol->type()->asFunctionType() && symbol->enclosingScope()->asClass())
             addField(symbol->name());
 
         return true;
@@ -1313,7 +1313,7 @@ bool CheckSymbols::maybeAddField(const QList<LookupItem> &candidates, NameAST *a
             return false;
         if (!(c->enclosingScope() && c->enclosingScope()->asClass()))
             return false; // shadowed
-        if (c->isTypedef() || (c->type() && c->type()->isFunctionType()))
+        if (c->isTypedef() || (c->type() && c->type()->asFunctionType()))
             return false; // shadowed
 
         int line, column;

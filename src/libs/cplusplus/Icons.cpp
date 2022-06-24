@@ -58,7 +58,7 @@ Utils::CodeModelIcon::Type iconTypeForSymbol(const Symbol *symbol)
 
     FullySpecifiedType symbolType = symbol->type();
     if (symbol->asFunction() || (symbol->asDeclaration() && symbolType &&
-                                 symbolType->isFunctionType()))
+                                 symbolType->asFunctionType()))
     {
         const Function *function = symbol->asFunction();
         if (!function)

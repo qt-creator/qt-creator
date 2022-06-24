@@ -315,7 +315,7 @@ private:
             return Usage::Type::Other;
         if (const auto refType = type->asReferenceType())
             return refType->elementType().isConst() ? Usage::Type::Read : Usage::Type::WritableRef;
-        while (type->isPointerType()) {
+        while (type->asPointerType()) {
             type = type->asPointerType()->elementType();
             if (!type.isConst())
                 return Usage::Type::WritableRef;
@@ -434,7 +434,7 @@ private:
                 if (items.isEmpty())
                     return Usage::Type::Other;
                 for (const LookupItem &item : qAsConst(items)) {
-                    if (item.type()->isFunctionType()) {
+                    if (item.type()->asFunctionType()) {
                         if (item.type().isConst())
                             return Usage::Type::Read;
                         if (item.type().isStatic())

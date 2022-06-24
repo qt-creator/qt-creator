@@ -21,6 +21,7 @@
 #include "CoreTypes.h"
 #include "TypeVisitor.h"
 #include "Matcher.h"
+
 #include <algorithm>
 
 namespace CPlusPlus {
@@ -54,14 +55,6 @@ PointerToMemberType::PointerToMemberType(const Name *memberName, const FullySpec
       _elementType(elementType)
 { }
 
-PointerToMemberType::~PointerToMemberType()
-{ }
-
-const Name *PointerToMemberType::memberName() const
-{ return _memberName; }
-
-FullySpecifiedType PointerToMemberType::elementType() const
-{ return _elementType; }
 
 void PointerToMemberType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
@@ -74,12 +67,6 @@ bool PointerToMemberType::match0(const Type *otherType, Matcher *matcher) const
     return false;
 }
 
-PointerType::PointerType(const FullySpecifiedType &elementType)
-    : _elementType(elementType)
-{ }
-
-PointerType::~PointerType()
-{ }
 
 void PointerType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
@@ -92,14 +79,9 @@ bool PointerType::match0(const Type *otherType, Matcher *matcher) const
     return false;
 }
 
-FullySpecifiedType PointerType::elementType() const
-{ return _elementType; }
 
 ReferenceType::ReferenceType(const FullySpecifiedType &elementType, bool rvalueRef)
     : _elementType(elementType), _rvalueReference(rvalueRef)
-{ }
-
-ReferenceType::~ReferenceType()
 { }
 
 void ReferenceType::accept0(TypeVisitor *visitor)
@@ -113,19 +95,6 @@ bool ReferenceType::match0(const Type *otherType, Matcher *matcher) const
     return false;
 }
 
-FullySpecifiedType ReferenceType::elementType() const
-{ return _elementType; }
-
-bool ReferenceType::isRvalueReference() const
-{ return _rvalueReference; }
-
-IntegerType::IntegerType(int kind)
-    : _kind(kind)
-{ }
-
-IntegerType::~IntegerType()
-{ }
-
 void IntegerType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
@@ -137,15 +106,6 @@ bool IntegerType::match0(const Type *otherType, Matcher *matcher) const
     return false;
 }
 
-int IntegerType::kind() const
-{ return _kind; }
-
-FloatType::FloatType(int kind)
-    : _kind(kind)
-{ }
-
-FloatType::~FloatType()
-{ }
 
 void FloatType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
@@ -158,14 +118,9 @@ bool FloatType::match0(const Type *otherType, Matcher *matcher) const
     return false;
 }
 
-int FloatType::kind() const
-{ return _kind; }
 
 ArrayType::ArrayType(const FullySpecifiedType &elementType, unsigned size)
     : _elementType(elementType), _size(size)
-{ }
-
-ArrayType::~ArrayType()
 { }
 
 void ArrayType::accept0(TypeVisitor *visitor)
@@ -179,21 +134,8 @@ bool ArrayType::match0(const Type *otherType, Matcher *matcher) const
     return false;
 }
 
-FullySpecifiedType ArrayType::elementType() const
-{ return _elementType; }
 
-unsigned ArrayType::size() const
-{ return _size; }
 
-NamedType::NamedType(const Name *name)
-    : _name(name)
-{ }
-
-NamedType::~NamedType()
-{ }
-
-const Name *NamedType::name() const
-{ return _name; }
 
 void NamedType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }

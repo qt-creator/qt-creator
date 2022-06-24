@@ -355,7 +355,7 @@ void FunctionDeclDefLink::showMarker(CppEditorWidget *editor)
 static int declaredParameterCount(Function *function)
 {
     int argc = function->argumentCount();
-    if (argc == 0 && function->memberCount() > 0 && function->memberAt(0)->type().type()->isVoidType())
+    if (argc == 0 && function->memberCount() > 0 && function->memberAt(0)->type().type()->asVoidType())
         return 1;
     return argc;
 }

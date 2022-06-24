@@ -1343,7 +1343,7 @@ void TranslateStringLiteral::match(const CppQuickFixInterface &interface,
                 const QList<LookupItem> items = b->find(trName);
                 for (const LookupItem &r : items) {
                     Symbol *s = r.declaration();
-                    if (s->type()->isFunctionType()) {
+                    if (s->type()->asFunctionType()) {
                         // no context required for tr
                         result << new WrapStringLiteralOp(interface, path.size() - 1,
                                                           TranslateTrAction,
@@ -1692,7 +1692,7 @@ void AddLocalDeclaration::match(const CppQuickFixInterface &interface, QuickFixO
                         if (!r.declaration())
                             continue;
                         if (Declaration *d = r.declaration()->asDeclaration()) {
-                            if (!d->type()->isFunctionType()) {
+                            if (!d->type()->asFunctionType()) {
                                 decl = d;
                                 break;
                             }
@@ -2651,14 +2651,14 @@ void InsertDeclFromDef::match(const CppQuickFixInterface &interface, QuickFixOpe
             if (fun->enclosingScope()->asTemplate()) {
                 if (const Template *templ = s->type()->asTemplateType()) {
                     if (Symbol *decl = templ->declaration()) {
-                        if (decl->type()->isFunctionType())
+                        if (decl->type()->asFunctionType())
                             s = decl;
                     }
                 }
             }
             if (!s->name()
                     || !qName->identifier()->match(s->identifier())
-                    || !s->type()->isFunctionType())
+                    || !s->type()->asFunctionType())
                 continue;
 
             if (s->type().match(fun->type())) {
@@ -3591,10 +3591,10 @@ protected:
             *customValueType = false;
         // a type is a value type if it is one of the following
         const auto isTypeValueType = [](const FullySpecifiedType &t) {
-            return t->isPointerType() || t->isEnumType() || t->isIntegerType() || t->isFloatType()
-                   || t->isReferenceType();
+            return t->asPointerType() || t->asEnumType() || t->asIntegerType() || t->asFloatType()
+                   || t->asReferenceType();
         };
-        if (type->isNamedType()) {
+        if (type->asNamedType()) {
             // we need a recursive search and a lookup context
             LookupContext context(m_headerFile->cppDocument(), m_changes.snapshot());
             auto isValueType = [settings = m_settings,
@@ -3616,7 +3616,7 @@ protected:
                 for (auto &&i : localLookup) {
                     if (isTypeValueType(i.type()))
                         return true;
-                    if (i.type()->isNamedType()) { // check if we have to search recursively
+                    if (i.type()->asNamedType()) { // check if we have to search recursively
                         const Name *newName = i.type()->asNamedType()->name();
                         Scope *newScope = i.declaration()->enclosingScope();
                         if (Matcher::match(newName, name)
@@ -5465,7 +5465,7 @@ public:
             for (Symbol *s = matchingClass->find(qName->identifier()); s; s = s->next()) {
                 if (!s->name()
                         || !qName->identifier()->match(s->identifier())
-                        || !s->type()->isFunctionType()
+                        || !s->type()->asFunctionType()
                         || !s->type().match(func->type())
                         || s->asFunction()) {
                     continue;
@@ -6028,7 +6028,7 @@ void ConvertFromAndToPointer::match(const CppQuickFixInterface &interface,
         Scope *scope = file->scopeAt(declarator->firstToken());
         QList<LookupItem> result = typeOfExpression(file->textOf(declarator->initializer).toUtf8(),
                                                     scope, TypeOfExpression::Preprocess);
-        if (!result.isEmpty() && result.first().type()->isPointerType())
+        if (!result.isEmpty() && result.first().type()->asPointerType())
             mode = ConvertFromAndToPointerOp::FromPointer;
     } else if (declarator->ptr_operator_list) {
         for (PtrOperatorListAST *ops = declarator->ptr_operator_list; ops; ops = ops->next) {
@@ -6660,14 +6660,14 @@ void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
             if (func->enclosingScope()->asTemplate()) {
                 if (const Template *templ = s->type()->asTemplateType()) {
                     if (Symbol *decl = templ->declaration()) {
-                        if (decl->type()->isFunctionType())
+                        if (decl->type()->asFunctionType())
                                 s = decl;
                     }
                 }
             }
             if (!s->name()
                     || !qName->identifier()->match(s->identifier())
-                    || !s->type()->isFunctionType()
+                    || !s->type()->asFunctionType()
                     || !s->type().match(func->type())
                     || s->asFunction()) {
                 continue;
@@ -6937,11 +6937,11 @@ void AssignToLocalVariable::match(const CppQuickFixInterface &interface, QuickFi
                 continue;
 
             if (Function *func = item.declaration()->asFunction()) {
-                if (func->isSignal() || func->returnType()->isVoidType())
+                if (func->isSignal() || func->returnType()->asVoidType())
                     return;
             } else if (Declaration *dec = item.declaration()->asDeclaration()) {
                 if (Function *func = dec->type()->asFunctionType()) {
-                    if (func->isSignal() || func->returnType()->isVoidType())
+                    if (func->isSignal() || func->returnType()->asVoidType())
                       return;
                 }
             }
@@ -7349,7 +7349,7 @@ private:
 Symbol *skipForwardDeclarations(const QList<Symbol *> &symbols)
 {
     for (Symbol *symbol : symbols) {
-        if (!symbol->type()->isForwardClassDeclarationType())
+        if (!symbol->type()->asForwardClassDeclarationType())
             return symbol;
     }
 

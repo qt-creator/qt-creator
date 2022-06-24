@@ -285,7 +285,7 @@ public:
             }
 
             const FullySpecifiedType ty = rewrite->env->apply(name->identifier(), rewrite);
-            const Name * const minName = ty->isNamedType() ? ty->asNamedType()->name() : name;
+            const Name * const minName = ty->asNamedType() ? ty->asNamedType()->name() : name;
             const TemplateNameId * const newTemplateNameId = control()->templateNameId(
                         identifier(minName->identifier()), name->isSpecialization(), args.data(),
                         args.size());

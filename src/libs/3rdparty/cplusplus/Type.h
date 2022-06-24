@@ -27,29 +27,10 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT Type
 {
 public:
-    Type();
+    Type() = default;
     virtual ~Type();
 
     bool isUndefinedType() const;
-    bool isVoidType() const;
-    bool isIntegerType() const;
-    bool isFloatType() const;
-    bool isPointerType() const;
-    bool isPointerToMemberType() const;
-    bool isReferenceType() const;
-    bool isArrayType() const;
-    bool isNamedType() const;
-    bool isFunctionType() const;
-    bool isNamespaceType() const;
-    bool isTemplateType() const;
-    bool isClassType() const;
-    bool isEnumType() const;
-    bool isForwardClassDeclarationType() const;
-    bool isObjCClassType() const;
-    bool isObjCProtocolType() const;
-    bool isObjCMethodType() const;
-    bool isObjCForwardClassDeclarationType() const;
-    bool isObjCForwardProtocolDeclarationType() const;
 
     virtual const UndefinedType *asUndefinedType() const { return nullptr; }
     virtual const VoidType *asVoidType() const { return nullptr; }

@@ -371,7 +371,7 @@ FullySpecifiedType Bind::declarator(DeclaratorAST *ast, const FullySpecifiedType
         if (type.isAuto())
             isAuto = true;
     }
-    if (!type->isFunctionType()) {
+    if (!type->asFunctionType()) {
         ExpressionTy initializer = this->expression(ast->initializer);
         if (cxx11Enabled && isAuto) {
             type = initializer;
@@ -3249,7 +3249,7 @@ bool Bind::visit(PointerToMemberAST *ast)
 
 bool Bind::visit(PointerAST *ast)
 {
-    if (_type->isReferenceType())
+    if (_type->asReferenceType())
         translationUnit()->error(ast->firstToken(), "cannot declare pointer to a reference");
 
     FullySpecifiedType type(control()->pointerType(_type));
@@ -3264,7 +3264,7 @@ bool Bind::visit(ReferenceAST *ast)
 {
     const bool rvalueRef = (tokenKind(ast->reference_token) == T_AMPER_AMPER);
 
-    if (_type->isReferenceType())
+    if (_type->asReferenceType())
         translationUnit()->error(ast->firstToken(), "cannot declare reference to a reference");
 
     FullySpecifiedType type(control()->referenceType(_type, rvalueRef));

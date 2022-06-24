@@ -717,7 +717,7 @@ static LanguageUtils::FakeMetaObject::Ptr buildFakeMetaObject(
             const FullySpecifiedType &type = propDecl->type();
             const bool isList = false; // ### fixme
             const bool isWritable = propDecl->flags() & QtPropertyDeclaration::WriteFunction;
-            const bool isPointer = type.type() && type.type()->isPointerType();
+            const bool isPointer = type.type() && type.type()->asPointerType();
             const int revision = 0; // ### fixme
             FakeMetaProperty property(
                         namePrinter.prettyName(propDecl->name()),

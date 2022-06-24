@@ -258,7 +258,7 @@ void CppAssistProposalItem::applyContextualContent(TextDocumentManipulatorInterf
                     // unless we're doing a scope completion (then it might be function definition).
                     const QChar characterAtCursor = manipulator.characterAt(manipulator.currentPosition());
                     bool endWithSemicolon = m_typedChar == QLatin1Char(';')
-                            || (function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON);
+                            || (function->returnType()->asVoidType() && m_completionOperator != T_COLON_COLON);
                     const QChar semicolon = m_typedChar.isNull() ? QLatin1Char(';') : m_typedChar;
 
                     if (endWithSemicolon && characterAtCursor == semicolon) {
@@ -1106,7 +1106,7 @@ bool InternalCppCompletionAssistProcessor::tryObjCCompletion()
 
     for (const LookupItem &item : items) {
         FullySpecifiedType ty = item.type().simplified();
-        if (ty->isPointerType()) {
+        if (ty->asPointerType()) {
             ty = ty->asPointerType()->elementType().simplified();
 
             if (NamedType *namedTy = ty->asNamedType()) {
@@ -1354,7 +1354,7 @@ int InternalCppCompletionAssistProcessor::startCompletionInternal(const QString 
 
             // If it's a class, add completions for the constructors
             for (const LookupItem &result : results) {
-                if (result.type()->isClassType()) {
+                if (result.type()->asClassType()) {
                     if (completeConstructorOrFunction(results, endOfExpression, true))
                         return m_positionForProposal;
 

@@ -205,7 +205,7 @@ QString DoxygenGenerator::generate(QTextCursor cursor, DeclarationAST *decl)
             }
             if (funcDecltr->symbol
                     && funcDecltr->symbol->returnType().type()
-                    && !funcDecltr->symbol->returnType()->isVoidType()
+                    && !funcDecltr->symbol->returnType()->asVoidType()
                     && !funcDecltr->symbol->returnType()->isUndefinedType()) {
                 writeContinuation(&comment);
                 writeCommand(&comment, ReturnCommand);

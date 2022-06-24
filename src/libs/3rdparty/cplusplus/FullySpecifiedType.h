@@ -40,68 +40,68 @@ public:
 
     FullySpecifiedType qualifiedType() const;
 
-    bool isConst() const;
-    void setConst(bool isConst);
+    bool isConst() const { return f._isConst; }
+    void setConst(bool isConst) { f._isConst = isConst; }
 
-    bool isVolatile() const;
-    void setVolatile(bool isVolatile);
+    bool isVolatile() const { return f._isVolatile; }
+    void setVolatile(bool isVolatile) { f._isVolatile = isVolatile; }
 
-    bool isSigned() const;
-    void setSigned(bool isSigned);
+    bool isSigned() const { return f._isSigned; }
+    void setSigned(bool isSigned) { f._isSigned = isSigned; }
 
-    bool isUnsigned() const;
-    void setUnsigned(bool isUnsigned);
+    bool isUnsigned() const { return f._isUnsigned; }
+    void setUnsigned(bool isUnsigned) { f._isUnsigned = isUnsigned; }
 
-    bool isFriend() const;
-    void setFriend(bool isFriend);
+    bool isFriend() const { return f._isFriend; }
+    void setFriend(bool isFriend) { f._isFriend = isFriend; }
 
-    bool isAuto() const;
-    void setAuto(bool isAuto);
+    bool isAuto() const { return f._isAuto; }
+    void setAuto(bool isAuto) { f._isAuto = isAuto; }
 
-    bool isRegister() const;
-    void setRegister(bool isRegister);
+    bool isRegister() const { return f._isRegister; }
+    void setRegister(bool isRegister) { f._isRegister = isRegister; }
 
-    bool isStatic() const;
-    void setStatic(bool isStatic);
+    bool isStatic() const { return f._isStatic; }
+    void setStatic(bool isStatic) { f._isStatic = isStatic; }
 
-    bool isExtern() const;
-    void setExtern(bool isExtern);
+    bool isExtern() const { return f._isExtern; }
+    void setExtern(bool isExtern) { f._isExtern = isExtern; }
 
-    bool isMutable() const;
-    void setMutable(bool isMutable);
+    bool isMutable() const { return f._isMutable; }
+    void setMutable(bool isMutable) { f._isMutable = isMutable; }
 
-    bool isTypedef() const;
-    void setTypedef(bool isTypedef);
+    bool isTypedef() const { return f._isTypedef; }
+    void setTypedef(bool isTypedef) { f._isTypedef = isTypedef; }
 
-    bool isInline() const;
-    void setInline(bool isInline);
+    bool isInline() const { return f._isInline; }
+    void setInline(bool isInline) { f._isInline = isInline; }
 
-    bool isVirtual() const;
-    void setVirtual(bool isVirtual);
+    bool isVirtual() const { return f._isVirtual; }
+    void setVirtual(bool isVirtual) { f._isVirtual = isVirtual; }
 
-    bool isOverride() const;
-    void setOverride(bool isOverride);
+    bool isOverride() const { return f._isOverride; }
+    void setOverride(bool isOverride) { f._isOverride = isOverride; }
 
-    bool isFinal() const;
-    void setFinal(bool isFinal);
+    bool isFinal() const { return f._isFinal; }
+    void setFinal(bool isFinal) { f._isFinal = isFinal; }
 
-    bool isExplicit() const;
-    void setExplicit(bool isExplicit);
+    bool isExplicit() const { return f._isExplicit; }
+    void setExplicit(bool isExplicit) { f._isExplicit = isExplicit; }
 
-    bool isDeprecated() const;
-    void setDeprecated(bool isDeprecated);
+    bool isDeprecated() const { return f._isDeprecated; }
+    void setDeprecated(bool isDeprecated) { f._isDeprecated = isDeprecated; }
 
-    bool isUnavailable() const;
-    void setUnavailable(bool isUnavailable);
+    bool isUnavailable() const { return f._isUnavailable; }
+    void setUnavailable(bool isUnavailable) { f._isUnavailable = isUnavailable; }
 
-    Type &operator*();
-    const Type &operator*() const;
+    Type &operator*() { return *_type; }
+    const Type &operator*() const { return *_type; }
 
-    Type *operator->();
-    const Type *operator->() const;
+    Type *operator->() { return _type; }
+    const Type *operator->() const { return _type; }
 
     bool operator == (const FullySpecifiedType &other) const;
-    bool operator != (const FullySpecifiedType &other) const;
+    bool operator != (const FullySpecifiedType &other) const { return ! operator ==(other); }
     bool operator < (const FullySpecifiedType &other) const;
 
     size_t hash() const;

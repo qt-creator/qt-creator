@@ -22,75 +22,13 @@
 #include "Type.h"
 #include "TypeVisitor.h"
 #include "CoreTypes.h"
-#include "Symbols.h"
 
 using namespace CPlusPlus;
 
-Type::Type()
-{ }
-
-Type::~Type()
-{ }
+Type::~Type() = default;
 
 bool Type::isUndefinedType() const
 { return this == &UndefinedType::instance; }
-
-bool Type::isVoidType() const
-{ return asVoidType() != nullptr; }
-
-bool Type::isIntegerType() const
-{ return asIntegerType() != nullptr; }
-
-bool Type::isFloatType() const
-{ return asFloatType() != nullptr; }
-
-bool Type::isPointerType() const
-{ return asPointerType()  != nullptr; }
-
-bool Type::isPointerToMemberType() const
-{ return asPointerToMemberType() != nullptr; }
-
-bool Type::isReferenceType() const
-{ return asReferenceType() != nullptr; }
-
-bool Type::isArrayType() const
-{ return asArrayType() != nullptr; }
-
-bool Type::isNamedType() const
-{ return asNamedType() != nullptr; }
-
-bool Type::isFunctionType() const
-{ return asFunctionType() != nullptr; }
-
-bool Type::isNamespaceType() const
-{ return asNamespaceType() != nullptr; }
-
-bool Type::isTemplateType() const
-{ return asTemplateType() != nullptr; }
-
-bool Type::isClassType() const
-{ return asClassType() != nullptr; }
-
-bool Type::isEnumType() const
-{ return asEnumType() != nullptr; }
-
-bool Type::isForwardClassDeclarationType() const
-{ return asForwardClassDeclarationType() != nullptr; }
-
-bool Type::isObjCClassType() const
-{ return asObjCClassType() != nullptr; }
-
-bool Type::isObjCProtocolType() const
-{ return asObjCProtocolType() != nullptr; }
-
-bool Type::isObjCMethodType() const
-{ return asObjCMethodType() != nullptr; }
-
-bool Type::isObjCForwardClassDeclarationType() const
-{ return asObjCForwardClassDeclarationType() != nullptr; }
-
-bool Type::isObjCForwardProtocolDeclarationType() const
-{ return asObjCForwardProtocolDeclarationType() != nullptr; }
 
 void Type::accept(TypeVisitor *visitor)
 {

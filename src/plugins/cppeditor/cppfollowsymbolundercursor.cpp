@@ -151,7 +151,7 @@ bool VirtualFunctionHelper::canLookupVirtualFunctionOverrides(Function *function
                 if (!items.isEmpty()) {
                     const LookupItem item = items.first();
                     if (Symbol *declaration = item.declaration())
-                        result = declaration->type()->isReferenceType();
+                        result = declaration->type()->asReferenceType();
                 }
             }
         }
@@ -249,7 +249,7 @@ static bool isForwardClassDeclaration(Type *type)
     if (!type)
         return false;
 
-    if (type->isForwardClassDeclarationType()) {
+    if (type->asForwardClassDeclarationType()) {
         return true;
     } else if (Template *templ = type->asTemplateType()) {
         if (Symbol *declaration = templ->declaration()) {
@@ -279,22 +279,22 @@ inline LookupItem skipForwardDeclarations(const QList<LookupItem> &resolvedSymbo
         }
     }
 
-    if (ty->isObjCForwardClassDeclarationType()) {
+    if (ty->asObjCForwardClassDeclarationType()) {
         while (!candidates.isEmpty()) {
             LookupItem r = candidates.takeFirst();
 
-            if (!r.type()->isObjCForwardClassDeclarationType()) {
+            if (!r.type()->asObjCForwardClassDeclarationType()) {
                 result = r;
                 break;
             }
         }
     }
 
-    if (ty->isObjCForwardProtocolDeclarationType()) {
+    if (ty->asObjCForwardProtocolDeclarationType()) {
         while (!candidates.isEmpty()) {
             LookupItem r = candidates.takeFirst();
 
-            if (!r.type()->isObjCForwardProtocolDeclarationType()) {
+            if (!r.type()->asObjCForwardProtocolDeclarationType()) {
                 result = r;
                 break;
             }
@@ -387,7 +387,7 @@ Symbol *findDefinition(Symbol *symbol, const Snapshot &snapshot, SymbolFinder *s
     if (symbol->asFunction())
         return nullptr; // symbol is a function definition.
 
-    if (!symbol->type()->isFunctionType())
+    if (!symbol->type()->asFunctionType())
         return nullptr; // not a function declaration
 
     return symbolFinder->findMatchingDefinition(symbol, snapshot);
@@ -830,7 +830,7 @@ void FollowSymbolUnderCursor::switchDeclDef(
                 if (Symbol *symbol = symbols->value) {
                     if (symbol->asDeclaration()) {
                         declarationSymbol = symbol;
-                        if (symbol->type()->isFunctionType()) {
+                        if (symbol->type()->asFunctionType()) {
                             functionDeclarationSymbol = symbol;
                             break; // Function declaration found!
                         }

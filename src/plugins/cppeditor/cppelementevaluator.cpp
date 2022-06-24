@@ -282,15 +282,15 @@ public:
         const FullySpecifiedType &type = declaration->type();
 
         const Name *typeName = nullptr;
-        if (type->isNamedType()) {
+        if (type->asNamedType()) {
             typeName = type->asNamedType()->name();
-        } else if (type->isPointerType() || type->isReferenceType()) {
+        } else if (type->asPointerType() || type->asReferenceType()) {
             FullySpecifiedType associatedType;
-            if (type->isPointerType())
+            if (type->asPointerType())
                 associatedType = type->asPointerType()->elementType();
             else
                 associatedType = type->asReferenceType()->elementType();
-            if (associatedType->isNamedType())
+            if (associatedType->asNamedType())
                 typeName = associatedType->asNamedType()->name();
         }
 
@@ -435,7 +435,7 @@ static QSharedPointer<CppElement> handleLookupItemMatch(const Snapshot &snapshot
         } else if (declaration->isTypedef()) {
             element = QSharedPointer<CppElement>(new CppTypedef(declaration));
         } else if (declaration->asFunction()
-                   || (type.isValid() && type->isFunctionType())
+                   || (type.isValid() && type->asFunctionType())
                    || declaration->asTemplate()) {
             element = QSharedPointer<CppElement>(new CppFunction(declaration));
         } else if (declaration->asDeclaration() && type.isValid()) {

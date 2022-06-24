@@ -650,7 +650,7 @@ void tst_FindUsages::objc_args()
     Declaration *methodIface = iface->memberAt(0)->asDeclaration();
     QVERIFY(methodIface);
     QCOMPARE(methodIface->identifier()->chars(), "method");
-    QVERIFY(methodIface->type()->isObjCMethodType());
+    QVERIFY(methodIface->type()->asObjCMethodType());
 
     ObjCClass *impl = doc->globalSymbolAt(1)->asObjCClass();
     QVERIFY(impl);
