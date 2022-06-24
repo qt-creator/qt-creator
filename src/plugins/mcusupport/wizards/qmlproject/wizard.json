@@ -1,11 +1,11 @@
 {
     "version": 1,
     "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject" ],
-    "id": "M.McuSupportApplication",
+    "id": "M.McuSupportQmlprojectApplication",
     "category": "D.ApplicationMCU",
-    "trDescription": "Creates an Mcu Support application with an empty UI.",
-    "trDisplayName": "Mcu Support Application",
-    "trDisplayCategory": "Application (Qt for MCU)",
+    "trDescription": "Creates an Mcu Support application with an empty UI, based on qmlproject (Technical Preview).",
+    "trDisplayName": "Qt for MCUs QmlProject Application (Technical Preview)",
+    "trDisplayCategory": "QmlProject Application (Qt for MCU)",
     "icon": "../icon.png",
     "iconKind": "Themed",
     "enabled": true,
@@ -13,8 +13,11 @@
     "options":
     [
         { "key": "MainQmlFile", "value": "%{ProjectName}.qml" },
+        { "key": "QmlProjectFile", "value": "%{ProjectName}.qmlproject" },
         { "key": "RootItemName", "value": "%{ProjectName}" },
-        { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" }
+        { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
+        { "key": "ModuleFile", "value": "CustomModule.qmlproject"},
+        { "key": "QmlComponent", "value": "CustomComponent.qml"}
     ],
 
     "pages":
@@ -50,8 +53,23 @@
                     "openAsProject": true
                 },
                 {
+                    "source": "project.qmlproject.tpl",
+                    "target": "%{ProjectDirectory}/%{QmlProjectFile}",
+                    "openInEditor": true
+                },
+                {
                     "source": "main.qml.tpl",
                     "target": "%{ProjectDirectory}/%{MainQmlFile}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "component.qml.tpl",
+                    "target": "%{ProjectDirectory}/%{QmlComponent}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "module.qmlproject.tpl",
+                    "target": "%{ProjectDirectory}/%{ModuleFile}",
                     "openInEditor": true
                 },
                 {

@@ -7,8 +7,13 @@
         <file>wizards/icon.png</file>
         <file>wizards/icon@2x.png</file>
         <file>wizards/application/CMakeLists.txt</file>
-        <file>wizards/application/project.qmlproject.tpl</file>
         <file>wizards/application/main.qml.tpl</file>
         <file>wizards/application/wizard.json</file>
+        <file>wizards/qmlproject/CMakeLists.txt</file>
+        <file>wizards/qmlproject/main.qml.tpl</file>
+        <file>wizards/qmlproject/project.qmlproject.tpl</file>
+        <file>wizards/qmlproject/module.qmlproject.tpl</file>
+        <file>wizards/qmlproject/component.qml.tpl</file>
+        <file>wizards/qmlproject/wizard.json</file>
     </qresource>
 </RCC>
