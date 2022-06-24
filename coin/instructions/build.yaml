@@ -148,7 +148,7 @@ instructions:
       equals_value: Windows
 
   - type: UploadArtifact
-    archiveDirectory: "{{.AgentWorkingDir}}/qt-creator/qt-creator_build/install/"
+    archiveDirectory: "{{.AgentWorkingDir}}"
     transferType: UploadModuleBuildArtifact
     maxTimeInSeconds: 1800
     maxTimeBetweenOutput: 1800

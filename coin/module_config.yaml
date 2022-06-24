@@ -63,13 +63,18 @@ make_instructions: &make_instructions
     - !include "{{qt-creator/qt-creator}}/provision.yaml"
     - !include "{{qt-creator/qt-creator}}/build.yaml"
 
+test_instructions: &test_instructions
+  type: Group
+  instructions:
+    - !include "{{qt-creator/qt-creator}}/test.yaml"
 
 instructions:
   Build:
     - *common_environment
     - *make_instructions
 
-  Test: []
+  Test:
+    - *test_instructions
 
   LicenseCheck:
     - *run_license_check
