@@ -201,7 +201,6 @@ EnumeratorDeclaration::EnumeratorDeclaration(TranslationUnit *translationUnit, i
 {}
 
 
-
 Argument::Argument(TranslationUnit *translationUnit, int sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name),
       _initializer(nullptr)

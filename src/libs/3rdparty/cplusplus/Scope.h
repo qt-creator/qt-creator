@@ -26,7 +26,7 @@
 
 namespace CPlusPlus {
 
-class CPLUSPLUS_EXPORT Scope: public Symbol
+class CPLUSPLUS_EXPORT Scope : public Symbol
 {
 public:
     Scope(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
@@ -58,18 +58,17 @@ public:
     Symbol *find(const ConversionNameId *conv) const;
 
     /// Set the start offset of the scope
-    int startOffset() const;
-    void setStartOffset(int offset);
+    int startOffset() const { return _startOffset; }
+    /// Set the start offset of the scope
+    void setStartOffset(int offset) { _startOffset = offset; }
 
     /// Set the end offset of the scope
-    int endOffset() const;
-    void setEndOffset(int offset);
+    int endOffset() const { return _endOffset; }
+    /// Set the end offset of the scope
+    void setEndOffset(int offset) { _endOffset = offset; }
 
-    const Scope *asScope() const override
-    { return this; }
-
-    Scope *asScope() override
-    { return this; }
+    const Scope *asScope() const override { return this; }
+    Scope *asScope() override { return this; }
 
 private:
     SymbolTable *_members;
