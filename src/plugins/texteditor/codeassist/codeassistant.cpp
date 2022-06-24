@@ -64,7 +64,10 @@ public:
 
     void invoke(AssistKind kind, IAssistProvider *provider = nullptr);
     void process();
-    void requestProposal(AssistReason reason, AssistKind kind, IAssistProvider *provider = nullptr);
+    void requestProposal(AssistReason reason,
+                         AssistKind kind,
+                         IAssistProvider *provider = nullptr,
+                         bool isUpdate = false);
     void cancelCurrentRequest();
     void invalidateCurrentRequestData();
     void displayProposal(IAssistProposal *newProposal, AssistReason reason);
@@ -192,7 +195,8 @@ void CodeAssistantPrivate::process()
 
 void CodeAssistantPrivate::requestProposal(AssistReason reason,
                                            AssistKind kind,
-                                           IAssistProvider *provider)
+                                           IAssistProvider *provider,
+                                           bool isUpdate)
 {
     // make sure to cleanup old proposals if we cannot find a new assistant
     Utils::ExecuteOnDestruction earlyReturnContextClear([this]() { destroyContext(); });
@@ -284,7 +288,8 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
             displayProposal(newProposal, reason);
             delete processor;
         } else if (!processor->running()) {
-            destroyContext();
+            if (isUpdate)
+                destroyContext();
             delete processor;
         } else { // ...async request was triggered
             if (IAssistProposal *newProposal = processor->immediateProposal(assistInterface))
@@ -487,7 +492,7 @@ void CodeAssistantPrivate::notifyChange()
             if (!isDisplayingProposal())
                 requestActivationCharProposal();
         } else {
-            requestProposal(m_proposal->reason(), m_assistKind, m_requestProvider);
+            requestProposal(m_proposal->reason(), m_assistKind, m_requestProvider, true);
         }
     }
 }
