@@ -21,10 +21,11 @@
 #include "CoreTypes.h"
 #include "TypeVisitor.h"
 #include "Matcher.h"
-#include "Names.h"
 #include <algorithm>
 
-using namespace CPlusPlus;
+namespace CPlusPlus {
+
+UndefinedType UndefinedType::instance;
 
 void UndefinedType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
@@ -204,3 +205,5 @@ bool NamedType::match0(const Type *otherType, Matcher *matcher) const
 
     return false;
 }
+
+} // CPlusPlus

@@ -28,7 +28,8 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT FullySpecifiedType final
 {
 public:
-    FullySpecifiedType(Type *type = nullptr);
+    FullySpecifiedType();
+    FullySpecifiedType(Type *type);
     ~FullySpecifiedType() = default;
 
     bool isValid() const;
