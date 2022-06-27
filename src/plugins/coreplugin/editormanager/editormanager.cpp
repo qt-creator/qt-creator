@@ -2533,7 +2533,8 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
     if (absoluteFilePath.isEmpty())
         return false;
 
-    if (absoluteFilePath != document->filePath()) {
+    if (DocumentManager::filePathKey(absoluteFilePath, DocumentManager::ResolveLinks)
+        != DocumentManager::filePathKey(document->filePath(), DocumentManager::ResolveLinks)) {
         // close existing editors for the new file name
         IDocument *otherDocument = DocumentModel::documentForFilePath(absoluteFilePath);
         if (otherDocument)
