@@ -416,6 +416,8 @@ void MaterialEditorView::handleToolBarAction(int action)
     }
 
     case MaterialEditorContextObject::AddNewMaterial: {
+        if (!model())
+            break;
         executeInTransaction("MaterialEditorView:handleToolBarAction", [&] {
             NodeMetaInfo metaInfo = model()->metaInfo("QtQuick3D.DefaultMaterial");
             ModelNode newMatNode = createModelNode("QtQuick3D.DefaultMaterial", metaInfo.majorVersion(),
@@ -634,7 +636,7 @@ void MaterialEditorView::auxiliaryDataChanged(const ModelNode &node, const Prope
 // request render image for the selected material node
 void MaterialEditorView::requestPreviewRender()
 {
-    if (m_selectedMaterial.isValid())
+    if (model() && model()->nodeInstanceView() && m_selectedMaterial.isValid())
         model()->nodeInstanceView()->previewImageDataForGenericNode(m_selectedMaterial, {});
 }
 
@@ -739,6 +741,9 @@ void MaterialEditorView::renameMaterial(ModelNode &material, const QString &newN
 void MaterialEditorView::duplicateMaterial(const ModelNode &material)
 {
     QTC_ASSERT(material.isValid(), return);
+
+    if (!model())
+        return;
 
     TypeName matType = material.type();
     QmlObjectNode sourceMat(material);

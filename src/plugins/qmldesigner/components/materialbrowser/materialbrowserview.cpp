@@ -290,6 +290,8 @@ void MaterialBrowserView::instancesCompleted(const QVector<ModelNode> &completed
         if (node.isRootNode()) {
             m_puppetResetPending  = false;
             QTimer::singleShot(1000, this, [this]() {
+                if (!model() || !model()->nodeInstanceView())
+                    return;
                 const QList<ModelNode> materials = m_widget->materialBrowserModel()->materials();
                 for (const ModelNode &node : materials)
                     model()->nodeInstanceView()->previewImageDataForGenericNode(node, {});
