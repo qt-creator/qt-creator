@@ -15,15 +15,11 @@ Project {
                 FileInfo.relativePath(project.ide_source_tree, sourceDirectory))
         install: false
 
-        Depends { name: "libclang"; required: false }
-        Depends { name: "clang_defines" }
-
         Depends { name: "QmlDesigner"; required: false }
 
         Depends { name: "sqlite_sources" }
         Depends { name: "Core" }
         Depends { name: "CPlusPlus" }
-        Depends { name: "yaml-cpp" }
 
         Depends { name: "Qt"; submodules: ["network", "widgets", "testlib"] }
 
@@ -40,9 +36,6 @@ Project {
                         "QT_RESTRICTED_CAST_FROM_ASCII",
                         "QT_USE_FAST_OPERATOR_PLUS",
                         "QT_USE_FAST_CONCATENATION",
-                        "CLANGTOOLS_STATIC_LIBRARY",
-                        "CPPEDITOR_STATIC_LIBRARY",
-                        "DEBUGGER_STATIC_LIBRARY",
                         "UNIT_TESTS",
                         "DONT_CHECK_MESSAGE_COUNTER",
                         'QTC_RESOURCE_DIR="' + path + "/../../../share/qtcreator" + '"',
@@ -50,9 +43,6 @@ Project {
                         'RELATIVE_DATA_PATH="' + FileInfo.relativePath(destinationDirectory,
                                                                        FileInfo.joinPaths(project.sourceDirectory, "share", "qtcreator")) + '"',
                     ];
-            if (libclang.present) {
-                defines.push("CLANG_UNIT_TESTS");
-            }
             var absLibExecPath = FileInfo.joinPaths(qbs.installRoot, qbs.installPrefix,
                                                     qtc.ide_libexec_path);
             var relLibExecPath = FileInfo.relativePath(destinationDirectory, absLibExecPath);
@@ -79,47 +69,18 @@ Project {
             return flags;
         }
         cpp.cxxLanguageVersion: "c++17"
-        cpp.dynamicLibraries: {
-            var libs = [];
-            if (libclang.present) {
-                libs = libs.concat(libclang.llvmLibs);
-                if (libclang.llvmFormattingLibs.length
-                        && (!qbs.targetOS.contains("windows") || libclang.llvmBuildModeMatches)) {
-                    libs = libs.concat(libclang.llvmFormattingLibs);
-                }
-            }
-            return libs;
-        }
-        cpp.includePaths: {
-            var paths = [
-                        ".",
-                        "../mockup",
-                        "../../../src/libs",
-                        "../../../src/libs/3rdparty",
-                        "../../../src/plugins",
-                        "../../../src/plugins/clangcodemodel",
-                        "../../../share/qtcreator/qml/qmlpuppet/types",
-                    ];
-            if (libclang.present) {
-                paths.push(libclang.llvmIncludeDir);
-            }
-            return paths;
-        }
-        cpp.libraryPaths: {
-            var paths = [];
-            if (libclang.present)
-                paths.push(libclang.llvmLibDir);
-            return paths;
-        }
-        cpp.rpaths: {
-            var paths = [
-                        FileInfo.joinPaths(project.buildDirectory, qtc.ide_library_path),
-                        FileInfo.joinPaths(project.buildDirectory, qtc.ide_plugin_path)
-                    ];
-            if (libclang.present)
-                paths.push(libclang.llvmLibDir);
-            return paths;
-        }
+        cpp.includePaths: [
+            ".",
+            "../mockup",
+            "../../../src/libs",
+            "../../../src/libs/3rdparty",
+            "../../../src/plugins",
+            "../../../share/qtcreator/qml/qmlpuppet/types",
+        ]
+        cpp.rpaths: [
+            FileInfo.joinPaths(project.buildDirectory, qtc.ide_library_path),
+            FileInfo.joinPaths(project.buildDirectory, qtc.ide_plugin_path)
+        ]
 
         files: [
             "compare-operators.h",
@@ -150,7 +111,6 @@ Project {
             "processevents-utilities.h",
             "sizedarray-test.cpp",
             "smallstring-test.cpp",
-            "sourcerangecontainer-matcher.h",
             "spydummy.cpp",
             "spydummy.h",
             "sqlitecolumn-test.cpp",
@@ -173,17 +133,6 @@ Project {
         ]
 
         Group {
-            name: "libclang tests"
-            condition: libclang.present && (!qbs.targetOS.contains("windows") || libclang.llvmBuildModeMatches)
-            files: [
-                "activationsequenceprocessor-test.cpp",
-                "clangcompareoperators.h",
-                "diagnosticcontainer-matcher.h",
-                "readexporteddiagnostics-test.cpp",
-            ]
-        }
-
-        Group {
             name: "benchmark test"
             condition: benchmark.present
             files: "smallstring-benchmark.cpp"
@@ -193,48 +142,8 @@ Project {
             name: "data"
             files: [
                 "data/*",
-                "data/include/*",
             ]
             fileTags: []
-        }
-
-        Group {
-            name: "sources from clangcodemodel"
-            prefix: "../../../src/plugins/clangcodemodel/"
-            files: [
-                "clangactivationsequenceprocessor.cpp",
-                "clangactivationsequenceprocessor.h",
-            ]
-        }
-
-        Group {
-            name: "sources from cppeditor"
-            prefix: "../../../src/plugins/cppeditor/"
-            files: [
-                "cppprojectfile.cpp",
-                "cppprojectfile.h",
-            ]
-        }
-
-        Group {
-            name: "sources from clangtools"
-            condition: libclang.present
-            prefix: "../../../src/plugins/clangtools/"
-            files: [
-                "clangtoolsdiagnostic.cpp",
-                "clangtoolsdiagnostic.h",
-                "clangtoolslogfilereader.cpp",
-                "clangtoolslogfilereader.h",
-            ]
-        }
-
-        Group {
-            name: "sources from Debugger"
-            prefix: "../../../src/plugins/debugger/analyzer/"
-            files: [
-                "diagnosticlocation.cpp",
-                "diagnosticlocation.h",
-            ]
         }
     }
 }

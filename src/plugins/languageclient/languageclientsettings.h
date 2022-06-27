@@ -166,7 +166,7 @@ public:
      */
     static void registerClientType(const ClientType &type);
     static void addSettings(BaseSettings *settings);
-    static void enableSettings(const QString &id);
+    static void enableSettings(const QString &id, bool enable = true);
     static void toSettings(QSettings *settings, const QList<BaseSettings *> &languageClientSettings);
 
     static bool outlineComboBoxIsSorted();

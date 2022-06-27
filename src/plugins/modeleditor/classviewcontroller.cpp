@@ -76,7 +76,7 @@ void ClassViewController::appendClassDeclarationsFromSymbol(CPlusPlus::Symbol *s
                                                             int line, int column,
                                                             QSet<QString> *classNames)
 {
-    if (symbol->isClass()
+    if (symbol->asClass()
             && (line <= 0 || (symbol->line() == line && symbol->column() == column + 1)))
     {
         CPlusPlus::Overview overview;
@@ -87,7 +87,7 @@ void ClassViewController::appendClassDeclarationsFromSymbol(CPlusPlus::Symbol *s
             classNames->insert(className);
     }
 
-    if (symbol->isScope()) {
+    if (symbol->asScope()) {
         CPlusPlus::Scope *scope = symbol->asScope();
         int total = scope->memberCount();
         for (int i = 0; i < total; ++i) {

@@ -234,10 +234,8 @@ public:
 
     Kind kind() const;
 
-    const Identifier *identifier() const override;
-
-    const OperatorNameId *asOperatorNameId() const override
-    { return this; }
+    const Identifier *identifier() const override { return nullptr; }
+    const OperatorNameId *asOperatorNameId() const override { return this; }
 
 protected:
     void accept0(NameVisitor *visitor) const override;
@@ -253,12 +251,9 @@ public:
     ConversionNameId(const FullySpecifiedType &type);
     virtual ~ConversionNameId();
 
-    FullySpecifiedType type() const;
-
-    const Identifier *identifier() const override;
-
-    const ConversionNameId *asConversionNameId() const override
-    { return this; }
+    FullySpecifiedType type() const { return _type; }
+    const Identifier *identifier() const override { return nullptr; }
+    const ConversionNameId *asConversionNameId() const override { return this; }
 
 protected:
     void accept0(NameVisitor *visitor) const override;
@@ -300,7 +295,7 @@ private:
     bool _hasArguments;
 };
 
-class CPLUSPLUS_EXPORT AnonymousNameId: public Name
+class CPLUSPLUS_EXPORT AnonymousNameId final : public Name
 {
 public:
     AnonymousNameId(int classTokenIndex);
@@ -308,10 +303,9 @@ public:
 
     int classTokenIndex() const;
 
-    const Identifier *identifier() const override;
+    const Identifier *identifier() const override { return nullptr; }
 
-    const AnonymousNameId *asAnonymousNameId() const override
-    { return this; }
+    const AnonymousNameId *asAnonymousNameId() const override { return this; }
 
 protected:
     void accept0(NameVisitor *visitor) const override;

@@ -33,9 +33,8 @@
 #include <coreplugin/idocument.h>
 
 #include <utils/environmentfwd.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
-#include <QObject>
 #include <QFileSystemModel>
 
 #include <functional>

@@ -29,14 +29,10 @@
 #include "qmlprofilertraceview.h"
 #include "flamegraphview.h"
 
-#include <QObject>
-
 namespace Utils { class Perspective; }
 
 namespace QmlProfiler {
 namespace Internal {
-
-class QmlProfilerTool;
 
 class QmlProfilerViewManager : public QObject
 {

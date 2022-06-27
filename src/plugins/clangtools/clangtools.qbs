@@ -91,6 +91,8 @@ QtcPlugin {
             "clangtoolsunittests.cpp",
             "clangtoolsunittests.h",
             "clangtoolsunittests.qrc",
+            "readexporteddiagnosticstest.cpp",
+            "readexporteddiagnosticstest.h",
         ]
     }
 

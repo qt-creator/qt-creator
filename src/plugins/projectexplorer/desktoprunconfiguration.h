@@ -25,8 +25,7 @@
 
 #pragma once
 
-#include "runconfigurationaspects.h"
-#include "runcontrol.h"
+#include "runconfiguration.h"
 
 namespace ProjectExplorer {
 namespace Internal {

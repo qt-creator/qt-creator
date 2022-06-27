@@ -27,6 +27,8 @@
 
 #include <debugger/analyzer/analyzermanager.h>
 
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <qmlprofiler/qmlprofilerruncontrol.h>
 #include <qmlprofiler/qmlprofilertool.h>
 

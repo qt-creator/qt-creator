@@ -29,11 +29,7 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT UndefinedType : public Type
 {
 public:
-    static UndefinedType *instance()
-    {
-        static UndefinedType t;
-        return &t;
-    }
+    static UndefinedType instance;
 
     const UndefinedType *asUndefinedType() const override
     { return this; }

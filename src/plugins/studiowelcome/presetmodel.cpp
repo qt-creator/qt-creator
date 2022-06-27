@@ -34,8 +34,8 @@ constexpr int NameRole = Qt::UserRole;
 constexpr int ScreenSizeRole = Qt::UserRole + 1;
 constexpr int IsUserPresetRole = Qt::UserRole + 2;
 
-static const QString RecentsTabName = QObject::tr("Recents");
-static const QString CustomTabName = QObject::tr("Custom");
+static const QString RecentsTabName = ::StudioWelcome::PresetModel::tr("Recents");
+static const QString CustomTabName = ::StudioWelcome::PresetModel::tr("Custom");
 
 /****************** PresetData ******************/
 

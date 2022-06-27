@@ -26,24 +26,20 @@
 
 using namespace CPlusPlus;
 
+FullySpecifiedType::FullySpecifiedType() :
+    _type(&UndefinedType::instance), _flags(0)
+{}
+
 FullySpecifiedType::FullySpecifiedType(Type *type) :
     _type(type), _flags(0)
 {
     if (! type)
-        _type = UndefinedType::instance();
+        _type = &UndefinedType::instance;
 }
 
-FullySpecifiedType::~FullySpecifiedType()
-{ }
-
 bool FullySpecifiedType::isValid() const
-{ return _type != UndefinedType::instance(); }
+{ return _type != &UndefinedType::instance; }
 
-Type *FullySpecifiedType::type() const
-{ return _type; }
-
-void FullySpecifiedType::setType(Type *type)
-{ _type = type; }
 
 FullySpecifiedType FullySpecifiedType::qualifiedType() const
 {
@@ -178,7 +174,7 @@ Type &FullySpecifiedType::operator*()
 { return *_type; }
 
 FullySpecifiedType::operator bool() const
-{ return _type != UndefinedType::instance(); }
+{ return _type != &UndefinedType::instance; }
 
 const Type &FullySpecifiedType::operator*() const
 { return *_type; }
@@ -214,12 +210,6 @@ FullySpecifiedType FullySpecifiedType::simplified() const
 
     return *this;
 }
-
-unsigned FullySpecifiedType::flags() const
-{ return _flags; }
-
-void FullySpecifiedType::setFlags(unsigned flags)
-{ _flags = flags; }
 
 bool FullySpecifiedType::match(const FullySpecifiedType &otherTy, Matcher *matcher) const
 {

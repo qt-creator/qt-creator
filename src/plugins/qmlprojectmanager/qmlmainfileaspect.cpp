@@ -34,6 +34,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>

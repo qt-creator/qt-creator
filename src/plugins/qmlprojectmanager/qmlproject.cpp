@@ -30,8 +30,6 @@
 #include "qmlprojectconstants.h"
 #include "qmlprojectmanagerconstants.h"
 #include "qmlprojectnodes.h"
-#include "qmlprojectplugin.h"
-#include "qmlprojectrunconfiguration.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
@@ -45,6 +43,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/baseqtversion.h>
@@ -57,6 +56,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/infobar.h>
+#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QDebug>

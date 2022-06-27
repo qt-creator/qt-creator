@@ -76,8 +76,8 @@ protected:
             if (Symbol *member = scope->memberAt(i)) {
                 if (member->isTypedef())
                     continue;
-                if (!member->isGenerated() && (member->isDeclaration() || member->isArgument())) {
-                    if (member->name() && member->name()->isNameId()) {
+                if (!member->isGenerated() && (member->asDeclaration() || member->asArgument())) {
+                    if (member->name() && member->name()->asNameId()) {
                         const Token token = tokenAt(member->sourceLocation());
                         int line, column;
                         getPosition(token.utf16charsBegin(), &line, &column);
@@ -99,10 +99,10 @@ protected:
             const Identifier *id = identifier(simpleName->identifier_token);
             for (int i = _scopeStack.size() - 1; i != -1; --i) {
                 if (Symbol *member = _scopeStack.at(i)->find(id)) {
-                    if (member->isTypedef() || !(member->isDeclaration() || member->isArgument()))
+                    if (member->isTypedef() || !(member->asDeclaration() || member->asArgument()))
                         continue;
                     if (!member->isGenerated() && (member->sourceLocation() < firstToken
-                                                   || member->enclosingScope()->isFunction())) {
+                                                   || member->enclosingScope()->asFunction())) {
                         int line, column;
                         getTokenStartPosition(simpleName->identifier_token, &line, &column);
                         localUses[member].append(

@@ -228,9 +228,10 @@ QbsSession::~QbsSession()
         d->packetReader->disconnect(this);
     if (d->qbsProcess) {
         d->qbsProcess->disconnect(this);
-        sendQuitPacket();
-        if (d->qbsProcess->state() == QProcess::Running)
+        if (d->qbsProcess->state() == QProcess::Running) {
+            sendQuitPacket();
             d->qbsProcess->waitForFinished(10000);
+        }
         delete d->qbsProcess;
     }
     delete d;

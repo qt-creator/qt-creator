@@ -4,4 +4,5 @@ project(%{ProjectName} LANGUAGES C)
 
 add_executable(%{ProjectName} %{CFileName})
 
-install(TARGETS %{ProjectName})
+install(TARGETS %{ProjectName}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

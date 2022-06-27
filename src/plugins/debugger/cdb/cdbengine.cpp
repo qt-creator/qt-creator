@@ -298,7 +298,7 @@ QString CdbEngine::extensionLibraryName(bool is64Bit, bool isArm)
     return QString("%1/lib/" QT_CREATOR_CDB_EXT "%2%3/" QT_CREATOR_CDB_EXT ".dll")
         .arg(QFileInfo(QCoreApplication::applicationDirPath()).path())
         .arg(isArm ? "arm" : QString())
-        .arg(is64Bit ? "64": "32");
+        .arg(is64Bit ? QLatin1String("64") : QLatin1String("32"));
 }
 
 int CdbEngine::elapsedLogTime()

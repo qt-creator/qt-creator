@@ -109,7 +109,8 @@ static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools()
     for (const FilePath &command : qAsConst(suspects)) {
         auto item = std::make_unique<CMakeTool>(CMakeTool::AutoDetection, CMakeTool::createId());
         item->setFilePath(command);
-        item->setDisplayName(CMakeToolManager::tr("System CMake at %1").arg(command.toUserOutput()));
+        item->setDisplayName(::CMakeProjectManager::CMakeToolManager::tr("System CMake at %1")
+                                 .arg(command.toUserOutput()));
 
         found.emplace_back(std::move(item));
     }

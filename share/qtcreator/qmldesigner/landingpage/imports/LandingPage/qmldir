@@ -1,1 +1,2 @@
-singleton Constants 1.0 Constants.qml
+singleton Values 1.0 Values.qml
+singleton Colors 1.0 Colors.qml

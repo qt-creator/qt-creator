@@ -50,7 +50,6 @@ public:
 
 private:
     QVector<QObject *> createTestObjects() const final;
-    SettingsHandler::Ptr m_settingsHandler{new SettingsHandler};
 
 }; // class McuSupportPlugin
 

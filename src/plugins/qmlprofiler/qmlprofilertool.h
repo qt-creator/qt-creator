@@ -26,8 +26,6 @@
 #pragma once
 
 #include "qmlprofiler_global.h"
-#include "qmlprofilerconstants.h"
-#include "qmlprofilereventtypes.h"
 
 #include <QAction>
 #include <QObject>

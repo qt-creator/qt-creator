@@ -32,6 +32,8 @@
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitchooser.h>
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <utils/pathchooser.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>

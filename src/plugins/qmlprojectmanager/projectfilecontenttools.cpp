@@ -56,24 +56,37 @@ const QString qdsVersion(const Utils::FilePath &projectFilePath)
 {
     const QString projectFileContent = readFileContents(projectFilePath);
     QRegularExpressionMatch match = qdsVerRegexp.match(projectFileContent);
-    if (!match.hasMatch())
-        return {};
-    QString version = match.captured(1);
-    return version.isEmpty() ? QObject::tr("Unknown") : version;
+    if (match.hasMatch()) {
+        const QString version = match.captured(1);
+        if (!version.isEmpty())
+            return version;
+    }
+
+    return QObject::tr("Unknown");
 }
 
-QRegularExpression qt6Regexp("(qt6project:)\\s*\"*(true|false)\"*", QRegularExpression::CaseInsensitiveOption);
+QRegularExpression quickRegexp("(quickVersion:)\\s*\"(\\d+.\\d+)\"",
+                               QRegularExpression::CaseInsensitiveOption);
+QRegularExpression qt6Regexp("(qt6Project:)\\s*\"*(true|false)\"*",
+                             QRegularExpression::CaseInsensitiveOption);
 
 const QString qtVersion(const Utils::FilePath &projectFilePath)
 {
     const QString defaultReturn = QObject::tr("Unknown");
     const QString data = readFileContents(projectFilePath);
-    QRegularExpressionMatch match = qt6Regexp.match(data);
-    if (!match.hasMatch())
-        return defaultReturn;
-    return match.captured(2).contains("true", Qt::CaseInsensitive)
-            ? QObject::tr("Qt6 or later")
-            : QObject::tr("Qt5 or earlier");
+
+    // First check if quickVersion is contained in the project file
+    QRegularExpressionMatch match = quickRegexp.match(data);
+    if (match.hasMatch())
+        return QString("Qt %1").arg(match.captured(2));
+
+    // If quickVersion wasn't found check for qt6Project
+    match = qt6Regexp.match(data);
+    if (match.hasMatch())
+        return match.captured(2).contains("true", Qt::CaseInsensitive) ? QObject::tr("Qt 6")
+                                                                       : QObject::tr("Qt 5");
+
+    return defaultReturn;
 }
 
 bool isQt6Project(const Utils::FilePath &projectFilePath)

@@ -12,6 +12,10 @@ Project {
         directory: "imports"
     }
 
+    QmlFiles {
+        directory: "mockimports"
+    }
+
     JavaScriptFiles {
         directory: "content"
     }
@@ -69,11 +73,14 @@ Project {
        */
     }
 
-
     /* List of plugin directories passed to QML runtime */
-    importPaths: [ "imports", "../../../../share/3rdparty/studiofonts" ]
+    importPaths: [ "imports", "../../../../src/share/3rdparty/studiofonts", "mockimports" ]
+
+    fileSelectors: [ "QDS_theming" ]
 
     qt6Project: true
 
     qdsVersion: "3.2"
+
+    mainUiFile: "content/Screen01.ui.qml"
 }

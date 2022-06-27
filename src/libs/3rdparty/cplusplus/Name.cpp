@@ -35,30 +35,6 @@ Name::Name()
 Name::~Name()
 { }
 
-bool Name::isNameId() const
-{ return asNameId() != nullptr; }
-
-bool Name::isAnonymousNameId() const
-{ return asAnonymousNameId() != nullptr; }
-
-bool Name::isTemplateNameId() const
-{ return asTemplateNameId() != nullptr; }
-
-bool Name::isDestructorNameId() const
-{ return asDestructorNameId() != nullptr; }
-
-bool Name::isOperatorNameId() const
-{ return asOperatorNameId() != nullptr; }
-
-bool Name::isConversionNameId() const
-{ return asConversionNameId() != nullptr; }
-
-bool Name::isQualifiedNameId() const
-{ return asQualifiedNameId() != nullptr; }
-
-bool Name::isSelectorNameId() const
-{ return asSelectorNameId() != nullptr; }
-
 void Name::accept(NameVisitor *visitor) const
 {
     if (visitor->preVisit(this))

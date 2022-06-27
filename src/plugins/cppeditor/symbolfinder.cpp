@@ -378,7 +378,7 @@ void SymbolFinder::findMatchingDeclaration(const LookupContext &context,
         return;
 
     Scope *enclosingScope = functionType->enclosingScope();
-    while (!(enclosingScope->isNamespace() || enclosingScope->isClass()))
+    while (!(enclosingScope->asNamespace() || enclosingScope->asClass()))
         enclosingScope = enclosingScope->enclosingScope();
     QTC_ASSERT(enclosingScope != nullptr, return);
 
@@ -451,9 +451,9 @@ QList<Declaration *> SymbolFinder::findMatchingDeclaration(const LookupContext &
     // For member functions not defined inline, add fuzzy matches as fallbacks. We cannot do
     // this for free functions, because there is no guarantee that there's a separate declaration.
     QList<Declaration *> fuzzyMatches = argumentCountMatch + nameMatch;
-    if (!functionType->enclosingScope() || !functionType->enclosingScope()->isClass()) {
+    if (!functionType->enclosingScope() || !functionType->enclosingScope()->asClass()) {
         for (Declaration * const d : fuzzyMatches) {
-            if (d->enclosingScope() && d->enclosingScope()->isClass())
+            if (d->enclosingScope() && d->enclosingScope()->asClass())
                 result.append(d);
         }
     }

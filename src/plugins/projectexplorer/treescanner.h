@@ -28,7 +28,7 @@
 #include "projectexplorer_export.h"
 #include "projectnodes.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/mimeutils.h>
 
 #include <QObject>

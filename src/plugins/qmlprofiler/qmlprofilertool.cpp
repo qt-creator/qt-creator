@@ -31,8 +31,6 @@
 #include "qmlprofilerviewmanager.h"
 #include "qmlprofilerclientmanager.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilerdetailsrewriter.h"
-#include "qmlprofilernotesmodel.h"
 #include "qmlprofilerrunconfigurationaspect.h"
 #include "qmlprofilersettings.h"
 #include "qmlprofilerplugin.h"
@@ -59,8 +57,9 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/taskhub.h>

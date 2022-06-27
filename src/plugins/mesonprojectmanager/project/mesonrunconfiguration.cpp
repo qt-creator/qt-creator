@@ -31,7 +31,9 @@
 #include <projectexplorer/desktoprunconfiguration.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/localenvironmentaspect.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/target.h>
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>

@@ -51,4 +51,5 @@ extend_qtc_plugin(ClangTools
     clangtoolspreconfiguredsessiontests.cpp clangtoolspreconfiguredsessiontests.h
     clangtoolsunittests.cpp clangtoolsunittests.h
     clangtoolsunittests.qrc
+    readexporteddiagnosticstest.cpp readexporteddiagnosticstest.h
 )

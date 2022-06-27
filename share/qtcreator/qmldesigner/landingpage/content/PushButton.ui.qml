@@ -1,5 +1,3 @@
-
-
 /****************************************************************************
 **
 ** Copyright (C) 2021 The Qt Company Ltd.
@@ -24,49 +22,38 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 import QtQuick 2.15
 import QtQuick.Templates 2.15
-import QdsLandingPageTheme as Theme
+import LandingPage as Theme
 
 Button {
     id: control
 
-    implicitWidth: Math.max(
-                       buttonBackground ? buttonBackground.implicitWidth : 0,
-                       textItem.implicitWidth + leftPadding + rightPadding)
-    implicitHeight: Math.max(
-                        buttonBackground ? buttonBackground.implicitHeight : 0,
-                        textItem.implicitHeight + topPadding + bottomPadding)
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                            implicitContentWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             implicitContentHeight + topPadding + bottomPadding)
     leftPadding: 4
     rightPadding: 4
-
-    text: "My Button"
-    property alias fontpixelSize: textItem.font.pixelSize
-    property bool forceHover: false
     hoverEnabled: true
-    state: "normal"
+    font.family: Theme.Values.baseFont
+    font.pixelSize: 16
 
-    background: buttonBackground
-    Rectangle {
+    background: Rectangle {
         id: buttonBackground
-        color: Theme.Values.themeControlBackground
+        color: Theme.Colors.backgroundPrimary
         implicitWidth: 100
-        implicitHeight: 40
-        opacity: enabled ? 1 : 0.3
-        radius: 2
-        border.color: Theme.Values.themeControlOutline
+        implicitHeight: 35
+        border.color: Theme.Colors.foregroundSecondary
         anchors.fill: parent
     }
 
-    contentItem: textItem
-
-    Text {
+    contentItem: Text {
         id: textItem
         text: control.text
-        font.pixelSize: 18
-
-        opacity: enabled ? 1.0 : 0.3
-        color: Theme.Values.themeTextColor
+        font: control.font
+        color: Theme.Colors.text
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         rightPadding: 5
@@ -75,46 +62,51 @@ Button {
 
     states: [
         State {
-            name: "normal"
-            when: !control.down && !control.hovered && !control.forceHover
-
+            name: "default"
+            when: control.enabled && !control.hovered && !control.pressed && !control.checked
             PropertyChanges {
                 target: buttonBackground
-                color: Theme.Values.themeControlBackground
-                border.color: Theme.Values.themeControlOutline
+                color: Theme.Colors.backgroundPrimary
             }
-
             PropertyChanges {
                 target: textItem
-                color: Theme.Values.themeTextColor
+                color: Theme.Colors.text
             }
         },
         State {
             name: "hover"
-            when: (control.hovered || control.forceHover) && !control.down
-            PropertyChanges {
-                target: textItem
-                color: Theme.Values.themeTextColor
-            }
-
+            extend: "default"
+            when: control.enabled && control.hovered && !control.pressed
             PropertyChanges {
                 target: buttonBackground
-                color: Theme.Values.themeControlBackgroundHover
-                border.color: Theme.Values.themeControlBackgroundHover
+                color: Theme.Colors.hover
             }
         },
         State {
-            name: "activeQds"
-            when: control.down
-            PropertyChanges {
-                target: textItem
-                color: Theme.Values.themeTextColor
-            }
-
+            name: "press"
+            extend: "default"
+            when: control.hovered && control.pressed
             PropertyChanges {
                 target: buttonBackground
-                color: Theme.Values.themeControlBackgroundInteraction
-                border.color: Theme.Values.themeControlOutlineInteraction
+                color: Theme.Colors.accent
+                border.color: Theme.Colors.accent
+            }
+            PropertyChanges {
+                target: textItem
+                color: Theme.Colors.backgroundPrimary
+            }
+        },
+        State {
+            name: "disable"
+            when: !control.enabled
+            PropertyChanges {
+                target: buttonBackground
+                color: Theme.Colors.backgroundPrimary
+                border.color: Theme.Colors.disabledLink
+            }
+            PropertyChanges {
+                target: textItem
+                color: Theme.Colors.disabledLink
             }
         }
     ]

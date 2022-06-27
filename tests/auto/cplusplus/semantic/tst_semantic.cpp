@@ -210,7 +210,7 @@ void tst_Semantic::function_declaration_1()
     QCOMPARE(funTy->argumentCount(), 0);
     QCOMPARE(funTy->refQualifier(), Function::NoRefQualifier);
 
-    QVERIFY(decl->name()->isNameId());
+    QVERIFY(decl->name()->asNameId());
     const Identifier *funId = decl->name()->asNameId()->identifier();
     QVERIFY(funId);
 
@@ -261,7 +261,7 @@ void tst_Semantic::function_declaration_2()
     QCOMPARE(QByteArray(namedTypeId->chars(), namedTypeId->size()),
              QByteArray("QString"));
 
-    QVERIFY(decl->name()->isNameId());
+    QVERIFY(decl->name()->asNameId());
     const Identifier *funId = decl->name()->asNameId()->identifier();
     QVERIFY(funId);
 
@@ -378,7 +378,7 @@ void tst_Semantic::function_definition_1()
     QCOMPARE(funTy->argumentCount(), 0);
     QCOMPARE(funTy->refQualifier(), Function::NoRefQualifier);
 
-    QVERIFY(funTy->name()->isNameId());
+    QVERIFY(funTy->name()->asNameId());
     const Identifier *funId = funTy->name()->asNameId()->identifier();
     QVERIFY(funId);
 

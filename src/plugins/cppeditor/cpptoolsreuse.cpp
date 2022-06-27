@@ -178,7 +178,7 @@ bool isOwnershipRAIIType(Symbol *symbol, const LookupContext &context)
 
     // This is not a "real" comparison of types. What we do is to resolve the symbol
     // in question and then try to match its name with already known ones.
-    if (symbol->isDeclaration()) {
+    if (symbol->asDeclaration()) {
         Declaration *declaration = symbol->asDeclaration();
         const NamedType *namedType = declaration->type()->asNamedType();
         if (namedType) {

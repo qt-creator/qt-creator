@@ -45,6 +45,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 using namespace ProjectExplorer;
 

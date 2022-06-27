@@ -70,15 +70,15 @@ static void debugCppSymbolRecursion(QTextStream &str, const Overview &o,
     for (int i = 0; i < recursion; i++)
         str << "  ";
     str << "Symbol: " << o.prettyName(s.name()) << " at line " << s.line();
-    if (s.isFunction())
+    if (s.asFunction())
         str << " function";
-    if (s.isClass())
+    if (s.asClass())
         str << " class";
-    if (s.isDeclaration())
+    if (s.asDeclaration())
         str << " declaration";
-    if (s.isBlock())
+    if (s.asBlock())
         str << " block";
-    if (doRecurse && s.isScope()) {
+    if (doRecurse && s.asScope()) {
         const Scope *scoped = s.asScope();
         const int size =  scoped->memberCount();
         str << " scoped symbol of " << size << '\n';
@@ -106,17 +106,17 @@ QDebug operator<<(QDebug d, const Scope &scope)
     QTextStream str(&output);
     const int size =  scope.memberCount();
     str << "Scope of " << size;
-    if (scope.isNamespace())
+    if (scope.asNamespace())
         str << " namespace";
-    if (scope.isClass())
+    if (scope.asClass())
         str << " class";
-    if (scope.isEnum())
+    if (scope.asEnum())
         str << " enum";
-    if (scope.isBlock())
+    if (scope.asBlock())
         str << " block";
-    if (scope.isFunction())
+    if (scope.asFunction())
         str << " function";
-    if (scope.isDeclaration())
+    if (scope.asDeclaration())
         str << " prototype";
 #if 0 // ### port me
     if (const Symbol *owner = &scope) {
@@ -168,7 +168,7 @@ static void blockRecursion(const Overview &overview,
     // Fixme: loop variables or similar are currently seen in the outer scope
     for (int s = scope->memberCount() - 1; s >= 0; --s){
         const CPlusPlus::Symbol *symbol = scope->memberAt(s);
-        if (symbol->isDeclaration()) {
+        if (symbol->asDeclaration()) {
             // Find out about shadowed symbols by bookkeeping
             // the already seen occurrences in a hash.
             const QString name = overview.prettyName(symbol->name());
@@ -210,7 +210,7 @@ QStringList getUninitializedVariables(const Snapshot &snapshot,
     // and the innermost scope at cursor position
     const Function *function = nullptr;
     const Scope *innerMostScope = nullptr;
-    if (symbolAtLine->isFunction()) {
+    if (symbolAtLine->asFunction()) {
         function = symbolAtLine->asFunction();
         if (function->memberCount() == 1) // Skip over function block
             if (Block *block = function->memberAt(0)->asBlock())
@@ -218,7 +218,7 @@ QStringList getUninitializedVariables(const Snapshot &snapshot,
     } else {
         if (const Scope *functionScope = symbolAtLine->enclosingFunction()) {
             function = functionScope->asFunction();
-            innerMostScope = symbolAtLine->isBlock() ?
+            innerMostScope = symbolAtLine->asBlock() ?
                              symbolAtLine->asBlock() :
                              symbolAtLine->enclosingBlock();
         }
@@ -380,7 +380,7 @@ static int firstRelevantLine(const Document::Ptr document, int line, int column)
     if (!scope)
         scope = symbol->enclosingScope();
 
-    while (scope && !scope->isFunction() )
+    while (scope && !scope->asFunction() )
         scope = scope->enclosingScope();
 
     if (!scope)

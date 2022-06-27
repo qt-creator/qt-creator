@@ -1,3 +1,0 @@
-void function(int x)
-{
-}

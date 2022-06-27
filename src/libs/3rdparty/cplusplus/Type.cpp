@@ -33,7 +33,7 @@ Type::~Type()
 { }
 
 bool Type::isUndefinedType() const
-{ return this == UndefinedType::instance(); }
+{ return this == &UndefinedType::instance; }
 
 bool Type::isVoidType() const
 { return asVoidType() != nullptr; }

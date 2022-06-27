@@ -49,21 +49,16 @@ public:
     static Utils::FilePaths rootCmakeFiles();
     static QString qtVersion(const Utils::FilePath &projectFilePath);
     static QString qdsVersion(const Utils::FilePath &projectFilePath);
+    static void openInQDSWithProject(const Utils::FilePath &filePath);
+    static const QString readFileContents(const Utils::FilePath &filePath);
 
 public slots:
     void editorModeChanged(Utils::Id newMode, Utils::Id oldMode);
     void openQtc(bool permanent = false);
     void openQds(bool permanent = false);
-    void installQds();
-    void generateCmake();
-    void generateProjectFile();
 
 private:
-    static void openInQDSWithProject(const Utils::FilePath &filePath);
-    static const QString readFileContents(const Utils::FilePath &filePath);
-
     bool initialize(const QStringList &arguments, QString *errorString) final;
-    void initializeQmlLandingPage();
     void displayQmlLandingPage();
     void hideQmlLandingPage();
     void updateQmlLandingPageProjectInfo(const Utils::FilePath &projectFile);

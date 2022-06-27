@@ -57,7 +57,7 @@ Utils::CodeModelIcon::Type iconTypeForSymbol(const Symbol *symbol)
     }
 
     FullySpecifiedType symbolType = symbol->type();
-    if (symbol->isFunction() || (symbol->isDeclaration() && symbolType &&
+    if (symbol->asFunction() || (symbol->asDeclaration() && symbolType &&
                                  symbolType->isFunctionType()))
     {
         const Function *function = symbol->asFunction();
@@ -80,9 +80,9 @@ Utils::CodeModelIcon::Type iconTypeForSymbol(const Symbol *symbol)
         } else if (symbol->isPrivate()) {
             return symbol->isStatic() ? FuncPrivateStatic : FuncPrivate;
         }
-    } else if (symbol->enclosingScope() && symbol->enclosingScope()->isEnum()) {
+    } else if (symbol->enclosingScope() && symbol->enclosingScope()->asEnum()) {
         return Enumerator;
-    } else if (symbol->isDeclaration() || symbol->isArgument()) {
+    } else if (symbol->asDeclaration() || symbol->asArgument()) {
         if (symbol->isPublic()) {
             return symbol->isStatic() ? VarPublicStatic : VarPublic;
         } else if (symbol->isProtected()) {
@@ -90,26 +90,26 @@ Utils::CodeModelIcon::Type iconTypeForSymbol(const Symbol *symbol)
         } else if (symbol->isPrivate()) {
             return symbol->isStatic() ? VarPrivateStatic : VarPrivate;
         }
-    } else if (symbol->isEnum()) {
+    } else if (symbol->asEnum()) {
         return Utils::CodeModelIcon::Enum;
-    } else if (symbol->isForwardClassDeclaration()) {
+    } else if (symbol->asForwardClassDeclaration()) {
         return Utils::CodeModelIcon::Class; // TODO: Store class key in ForwardClassDeclaration
     } else if (const Class *klass = symbol->asClass()) {
         return klass->isStruct() ? Struct : Utils::CodeModelIcon::Class;
-    } else if (symbol->isObjCClass() || symbol->isObjCForwardClassDeclaration()) {
+    } else if (symbol->asObjCClass() || symbol->asObjCForwardClassDeclaration()) {
         return Utils::CodeModelIcon::Class;
-    } else if (symbol->isObjCProtocol() || symbol->isObjCForwardProtocolDeclaration()) {
+    } else if (symbol->asObjCProtocol() || symbol->asObjCForwardProtocolDeclaration()) {
         return Utils::CodeModelIcon::Class;
-    } else if (symbol->isObjCMethod()) {
+    } else if (symbol->asObjCMethod()) {
         return FuncPublic;
-    } else if (symbol->isNamespace()) {
+    } else if (symbol->asNamespace()) {
         return Utils::CodeModelIcon::Namespace;
-    } else if (symbol->isTypenameArgument()) {
+    } else if (symbol->asTypenameArgument()) {
         return Utils::CodeModelIcon::Class;
-    } else if (symbol->isQtPropertyDeclaration() || symbol->isObjCPropertyDeclaration()) {
+    } else if (symbol->asQtPropertyDeclaration() || symbol->asObjCPropertyDeclaration()) {
         return Property;
-    } else if (symbol->isUsingNamespaceDirective() ||
-               symbol->isUsingDeclaration()) {
+    } else if (symbol->asUsingNamespaceDirective() ||
+               symbol->asUsingDeclaration()) {
         // TODO: Might be nice to have a different icons for these things
         return Utils::CodeModelIcon::Namespace;
     }

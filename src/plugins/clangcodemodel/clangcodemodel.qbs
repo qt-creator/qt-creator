@@ -92,6 +92,8 @@ QtcPlugin {
         condition: qtc.testsEnabled
         prefix: "test/"
         files: [
+            "activationsequenceprocessortest.cpp",
+            "activationsequenceprocessortest.h",
             "clangbatchfileprocessor.cpp",
             "clangbatchfileprocessor.h",
             "clangdtests.cpp",

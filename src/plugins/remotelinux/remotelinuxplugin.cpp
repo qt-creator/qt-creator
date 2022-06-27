@@ -46,6 +46,7 @@
 #endif
 
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
 using namespace ProjectExplorer;

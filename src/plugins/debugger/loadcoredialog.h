@@ -35,8 +35,6 @@ namespace Utils { class FilePath; }
 namespace Debugger {
 namespace Internal {
 
-class AttachCoreDialogPrivate;
-
 class AttachCoreDialog : public QDialog
 {
     Q_OBJECT
@@ -71,9 +69,8 @@ private:
     void coreFileChanged(const QString &core);
     void selectRemoteCoreFile();
 
-    AttachCoreDialogPrivate *d;
+    class AttachCoreDialogPrivate *d;
 };
-
 
 } // namespace Debugger
 } // namespace Internal

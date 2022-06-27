@@ -171,9 +171,6 @@ bool OperatorNameId::match0(const Name *otherName, Matcher *matcher) const
 OperatorNameId::Kind OperatorNameId::kind() const
 { return _kind; }
 
-const Identifier *OperatorNameId::identifier() const
-{ return nullptr; }
-
 ConversionNameId::ConversionNameId(const FullySpecifiedType &type)
     : _type(type)
 { }
@@ -191,11 +188,7 @@ bool ConversionNameId::match0(const Name *otherName, Matcher *matcher) const
     return false;
 }
 
-FullySpecifiedType ConversionNameId::type() const
-{ return _type; }
 
-const Identifier *ConversionNameId::identifier() const
-{ return nullptr; }
 
 SelectorNameId::~SelectorNameId()
 { }
@@ -249,5 +242,4 @@ bool AnonymousNameId::match0(const Name *otherName, Matcher *matcher) const
     return false;
 }
 
-const Identifier *AnonymousNameId::identifier() const
-{ return nullptr; }
+

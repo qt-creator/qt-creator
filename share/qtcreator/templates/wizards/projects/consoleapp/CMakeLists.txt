@@ -37,4 +37,5 @@ else()
 endif()
 @endif
 
-install(TARGETS %{ProjectName})
+install(TARGETS %{ProjectName}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

@@ -29,7 +29,7 @@
 
 #include "buildtargetinfo.h"
 #include "project.h"
-#include "treescanner.h"
+#include "projectnodes.h"
 
 #include <QObject>
 

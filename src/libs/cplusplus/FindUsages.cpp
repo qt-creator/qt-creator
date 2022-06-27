@@ -514,7 +514,7 @@ QString FindUsages::matchingLine(const Token &tk) const
 bool FindUsages::isLocalScope(Scope *scope)
 {
     if (scope) {
-        if (scope->isBlock() || scope->isTemplate() || scope->isFunction())
+        if (scope->asBlock() || scope->asTemplate() || scope->asFunction())
             return true;
     }
 
@@ -527,7 +527,7 @@ bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
         const LookupItem &r = candidates.at(i);
 
         if (Symbol *s = r.declaration()) {
-            if (_declSymbol->isTypenameArgument()) {
+            if (_declSymbol->asTypenameArgument()) {
                 if (s != _declSymbol)
                     return false;
             }
@@ -535,8 +535,8 @@ bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
             Scope *declEnclosingScope = _declSymbol->enclosingScope();
             Scope *enclosingScope = s->enclosingScope();
             if (isLocalScope(declEnclosingScope) || isLocalScope(enclosingScope)) {
-                if (_declSymbol->isClass() && declEnclosingScope->isTemplate()
-                        && s->isClass() && enclosingScope->isTemplate()) {
+                if (_declSymbol->asClass() && declEnclosingScope->asTemplate()
+                        && s->asClass() && enclosingScope->asTemplate()) {
                     // for definition of functions of class defined outside the class definition
                     Scope *templEnclosingDeclSymbol = declEnclosingScope;
                     Scope *scopeOfTemplEnclosingDeclSymbol
@@ -547,9 +547,9 @@ bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
 
                     if (scopeOfTemplEnclosingCandidateSymbol != scopeOfTemplEnclosingDeclSymbol)
                         return false;
-                } else if (_declSymbol->isClass() && declEnclosingScope->isTemplate()
-                        && enclosingScope->isClass()
-                        && enclosingScope->enclosingScope()->isTemplate()) {
+                } else if (_declSymbol->asClass() && declEnclosingScope->asTemplate()
+                        && enclosingScope->asClass()
+                        && enclosingScope->enclosingScope()->asTemplate()) {
                     // for declaration inside template class
                     Scope *templEnclosingDeclSymbol = declEnclosingScope;
                     Scope *scopeOfTemplEnclosingDeclSymbol
@@ -560,18 +560,18 @@ bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
 
                     if (scopeOfTemplEnclosingCandidateSymbol !=  scopeOfTemplEnclosingDeclSymbol)
                         return false;
-                } else if (enclosingScope->isTemplate() && ! _declSymbol->isTypenameArgument()) {
-                    if (declEnclosingScope->isTemplate()) {
+                } else if (enclosingScope->asTemplate() && ! _declSymbol->asTypenameArgument()) {
+                    if (declEnclosingScope->asTemplate()) {
                         if (enclosingScope->enclosingScope() != declEnclosingScope->enclosingScope())
                             return false;
                     } else {
                         if (enclosingScope->enclosingScope() != declEnclosingScope)
                             return false;
                     }
-                } else if (declEnclosingScope->isTemplate() && s->isTemplate()) {
+                } else if (declEnclosingScope->asTemplate() && s->asTemplate()) {
                     if (declEnclosingScope->enclosingScope() != enclosingScope)
                         return false;
-                } else if (! s->isUsingDeclaration()
+                } else if (! s->asUsingDeclaration()
                            && enclosingScope != declEnclosingScope) {
                     return false;
                 }
@@ -854,7 +854,7 @@ void FindUsages::memInitializer(MemInitializerAST *ast)
     if (! ast)
         return;
 
-    if (_currentScope->isFunction()) {
+    if (_currentScope->asFunction()) {
         Class *classScope = _currentScope->enclosingClass();
         if (! classScope) {
             if (ClassOrNamespace *binding = _context.lookupType(_currentScope)) {

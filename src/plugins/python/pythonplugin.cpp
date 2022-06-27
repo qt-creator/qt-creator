@@ -26,9 +26,7 @@
 #include "pythonplugin.h"
 
 #include "pysidebuildconfiguration.h"
-#include "pythonconstants.h"
 #include "pythoneditor.h"
-#include "pythonlanguageclient.h"
 #include "pythonproject.h"
 #include "pythonsettings.h"
 #include "pythonrunconfiguration.h"
@@ -37,6 +35,7 @@
 
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/localenvironmentaspect.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/taskhub.h>

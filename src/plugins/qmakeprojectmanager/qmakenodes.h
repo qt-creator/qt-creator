@@ -31,9 +31,8 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectnodes.h>
 
-namespace Utils { class FilePath; }
-
 namespace QmakeProjectManager {
+
 class QmakeProFileNode;
 class QmakeProject;
 

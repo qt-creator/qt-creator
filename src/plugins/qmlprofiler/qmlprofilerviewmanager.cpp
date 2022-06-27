@@ -25,11 +25,14 @@
 
 #include "qmlprofilerviewmanager.h"
 
-#include "qmlprofilertool.h"
+#include "qmlprofilerconstants.h"
 #include "qmlprofilerstatewidget.h"
 
-#include <utils/qtcassert.h>
 #include <debugger/analyzer/analyzermanager.h>
+
+#include <projectexplorer/projectexplorerconstants.h>
+
+#include <utils/qtcassert.h>
 
 #include <QDockWidget>
 
@@ -51,7 +54,7 @@ QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
     QTC_ASSERT(m_profilerModelManager, return);
     QTC_ASSERT(m_profilerState, return);
 
-    m_perspective = new Utils::Perspective(Constants::QmlProfilerPerspectiveId, tr("QML Profiler"));
+    m_perspective = new Perspective(Constants::QmlProfilerPerspectiveId, tr("QML Profiler"));
     m_perspective->setAboutToActivateCallback([this]() { createViews(); });
 }
 

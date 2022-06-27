@@ -106,7 +106,7 @@ protected:
 
     void postVisit(Symbol *symbol)
     {
-        if (symbol->isClass())
+        if (symbol->asClass())
             m_currentClass.clear();
     }
 

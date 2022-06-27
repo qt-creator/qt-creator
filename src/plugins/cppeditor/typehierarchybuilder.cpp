@@ -159,7 +159,7 @@ LookupItem TypeHierarchyBuilder::followTypedef(const LookupContext &context, con
         Symbol *s = item.declaration();
         if (!s)
             continue;
-        if (!s->isClass() && !s->isTemplate() && !s->isTypedef())
+        if (!s->asClass() && !s->asTemplate() && !s->isTypedef())
             continue;
         if (!typedefs.insert(s).second)
             continue;

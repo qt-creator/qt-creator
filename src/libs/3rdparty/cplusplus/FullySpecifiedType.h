@@ -25,17 +25,18 @@
 
 namespace CPlusPlus {
 
-class CPLUSPLUS_EXPORT FullySpecifiedType
+class CPLUSPLUS_EXPORT FullySpecifiedType final
 {
 public:
-    FullySpecifiedType(Type *type = nullptr);
-    ~FullySpecifiedType();
+    FullySpecifiedType();
+    FullySpecifiedType(Type *type);
+    ~FullySpecifiedType() = default;
 
     bool isValid() const;
     explicit operator bool() const;
 
-    Type *type() const;
-    void setType(Type *type);
+    Type *type() const { return _type; }
+    void setType(Type *type) { _type = type; }
 
     FullySpecifiedType qualifiedType() const;
 
@@ -109,8 +110,8 @@ public:
 
     FullySpecifiedType simplified() const;
 
-    unsigned flags() const;
-    void setFlags(unsigned flags);
+    unsigned flags() const { return _flags; }
+    void setFlags(unsigned flags) { _flags = flags; }
 
 private:
     Type *_type;

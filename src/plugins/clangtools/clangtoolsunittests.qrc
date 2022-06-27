@@ -22,5 +22,17 @@
         <file>unit-tests/clangtidy_clazy/clangtidy_clazy.pro</file>
         <file>unit-tests/clangtidy_clazy/clazy_example.cpp</file>
         <file>unit-tests/clangtidy_clazy/tidy_example.cpp</file>
+        <file>unit-tests/exported-diagnostics/clang-analyzer.dividezero.cpp</file>
+        <file>unit-tests/exported-diagnostics/clang-analyzer.dividezero.yaml</file>
+        <file>unit-tests/exported-diagnostics/clang-analyzer.dividezero_win.yaml</file>
+        <file>unit-tests/exported-diagnostics/clazy.qgetenv.cpp</file>
+        <file>unit-tests/exported-diagnostics/clazy.qgetenv.yaml</file>
+        <file>unit-tests/exported-diagnostics/clazy.qgetenv_win.yaml</file>
+        <file>unit-tests/exported-diagnostics/CMakeLists.txt</file>
+        <file>unit-tests/exported-diagnostics/empty.yaml</file>
+        <file>unit-tests/exported-diagnostics/main.cpp</file>
+        <file>unit-tests/exported-diagnostics/tidy.modernize-use-nullptr.cpp</file>
+        <file>unit-tests/exported-diagnostics/tidy.modernize-use-nullptr.yaml</file>
+        <file>unit-tests/exported-diagnostics/tidy.modernize-use-nullptr_win.yaml</file>
     </qresource>
 </RCC>

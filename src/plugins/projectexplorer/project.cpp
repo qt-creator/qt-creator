@@ -33,6 +33,7 @@
 #include "kit.h"
 #include "kitinformation.h"
 #include "projectexplorer.h"
+#include "projectexplorerconstants.h"
 #include "projectnodes.h"
 #include "runconfiguration.h"
 #include "session.h"
@@ -54,6 +55,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>

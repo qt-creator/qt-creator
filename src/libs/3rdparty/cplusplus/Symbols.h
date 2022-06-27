@@ -31,64 +31,55 @@ namespace CPlusPlus {
 
 class StringLiteral;
 
-class CPLUSPLUS_EXPORT UsingNamespaceDirective: public Symbol
+class CPLUSPLUS_EXPORT UsingNamespaceDirective final : public Symbol
 {
 public:
     UsingNamespaceDirective(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     UsingNamespaceDirective(Clone *clone, Subst *subst, UsingNamespaceDirective *original);
-    virtual ~UsingNamespaceDirective();
+    ~UsingNamespaceDirective() override = default;
 
     // Symbol's interface
     FullySpecifiedType type() const override;
 
-    const UsingNamespaceDirective *asUsingNamespaceDirective() const override
-    { return this; }
-
-    UsingNamespaceDirective *asUsingNamespaceDirective() override
-    { return this; }
+    const UsingNamespaceDirective *asUsingNamespaceDirective() const override { return this; }
+    UsingNamespaceDirective *asUsingNamespaceDirective() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
 };
 
-class CPLUSPLUS_EXPORT UsingDeclaration: public Symbol
+class CPLUSPLUS_EXPORT UsingDeclaration final : public Symbol
 {
 public:
     UsingDeclaration(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     UsingDeclaration(Clone *clone, Subst *subst, UsingDeclaration *original);
-    virtual ~UsingDeclaration();
+    ~UsingDeclaration() override = default;
 
     // Symbol's interface
     FullySpecifiedType type() const override;
 
-    const UsingDeclaration *asUsingDeclaration() const override
-    { return this; }
-
-    UsingDeclaration *asUsingDeclaration() override
-    { return this; }
+    const UsingDeclaration *asUsingDeclaration() const override { return this; }
+    UsingDeclaration *asUsingDeclaration() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
 };
 
-class CPLUSPLUS_EXPORT NamespaceAlias: public Symbol
+class CPLUSPLUS_EXPORT NamespaceAlias final : public Symbol
 {
 public:
     NamespaceAlias(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     NamespaceAlias(Clone *clone, Subst *subst, NamespaceAlias *original);
-    virtual ~NamespaceAlias();
+    ~NamespaceAlias() override = default;
 
-    const Name *namespaceName() const;
-    void setNamespaceName(const Name *namespaceName);
+    const Name *namespaceName() const { return _namespaceName; }
+    void setNamespaceName(const Name *namespaceName) { _namespaceName = namespaceName; }
 
     // Symbol's interface
     FullySpecifiedType type() const override;
 
-    const NamespaceAlias *asNamespaceAlias() const override
-    { return this; }
-
-    NamespaceAlias *asNamespaceAlias() override
-    { return this; }
+    const NamespaceAlias *asNamespaceAlias() const override { return this; }
+    NamespaceAlias *asNamespaceAlias() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
@@ -97,31 +88,25 @@ private:
     const Name *_namespaceName;
 };
 
-class CPLUSPLUS_EXPORT Declaration: public Symbol
+class CPLUSPLUS_EXPORT Declaration : public Symbol
 {
 public:
     Declaration(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     Declaration(Clone *clone, Subst *subst, Declaration *original);
-    virtual ~Declaration();
+    ~Declaration() override = default;
 
-    void setType(const FullySpecifiedType &type);
-    void setInitializer(StringLiteral const* initializer);
+    void setType(const FullySpecifiedType &type) { _type = type; }
+    void setInitializer(StringLiteral const* initializer) { _initializer = initializer; }
 
     // Symbol's interface
-    FullySpecifiedType type() const override;
-    const StringLiteral *getInitializer() const;
+    FullySpecifiedType type() const override { return _type; }
+    const StringLiteral *getInitializer() const { return _initializer; }
 
-    const Declaration *asDeclaration() const override
-    { return this; }
+    const Declaration *asDeclaration() const override { return this; }
+    Declaration *asDeclaration() override { return this; }
 
-    Declaration *asDeclaration() override
-    { return this; }
-
-    virtual EnumeratorDeclaration *asEnumeratorDeclarator()
-    { return nullptr; }
-
-    virtual const EnumeratorDeclaration *asEnumeratorDeclarator() const
-    { return nullptr; }
+    virtual EnumeratorDeclaration *asEnumeratorDeclarator() { return nullptr; }
+    virtual const EnumeratorDeclaration *asEnumeratorDeclarator() const { return nullptr; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
@@ -131,47 +116,41 @@ private:
     const StringLiteral *_initializer;
 };
 
-class CPLUSPLUS_EXPORT EnumeratorDeclaration: public Declaration
+class CPLUSPLUS_EXPORT EnumeratorDeclaration final : public Declaration
 {
 public:
     EnumeratorDeclaration(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
-    virtual ~EnumeratorDeclaration();
+    ~EnumeratorDeclaration() override = default;
 
-    const StringLiteral *constantValue() const;
-    void setConstantValue(const StringLiteral *constantValue);
+    const StringLiteral *constantValue() const { return _constantValue; }
+    void setConstantValue(const StringLiteral *constantValue) { _constantValue = constantValue; }
 
-    EnumeratorDeclaration *asEnumeratorDeclarator() override
-    { return this; }
-
-    const EnumeratorDeclaration *asEnumeratorDeclarator() const override
-    { return this; }
+    EnumeratorDeclaration *asEnumeratorDeclarator() override { return this; }
+    const EnumeratorDeclaration *asEnumeratorDeclarator() const override { return this; }
 
 private:
     const StringLiteral *_constantValue;
 };
 
-class CPLUSPLUS_EXPORT Argument: public Symbol
+class CPLUSPLUS_EXPORT Argument final : public Symbol
 {
 public:
     Argument(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     Argument(Clone *clone, Subst *subst, Argument *original);
-    virtual ~Argument();
+    ~Argument() override = default;
 
-    void setType(const FullySpecifiedType &type);
+    void setType(const FullySpecifiedType &type) { _type = type; }
 
-    bool hasInitializer() const;
+    bool hasInitializer() const { return _initializer != nullptr; }
 
-    const StringLiteral *initializer() const;
-    void setInitializer(const StringLiteral *initializer);
+    const StringLiteral *initializer() const { return _initializer; }
+    void setInitializer(const StringLiteral *initializer) { _initializer = initializer; }
 
     // Symbol's interface
-    FullySpecifiedType type() const override;
+    FullySpecifiedType type() const override { return _type; }
 
-    const Argument *asArgument() const override
-    { return this; }
-
-    Argument *asArgument() override
-    { return this; }
+    const Argument *asArgument() const override { return this; }
+    Argument *asArgument() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
@@ -181,25 +160,22 @@ private:
     FullySpecifiedType _type;
 };
 
-class CPLUSPLUS_EXPORT TypenameArgument: public Symbol
+class CPLUSPLUS_EXPORT TypenameArgument final : public Symbol
 {
 public:
     TypenameArgument(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     TypenameArgument(Clone *clone, Subst *subst, TypenameArgument *original);
-    virtual ~TypenameArgument();
+    ~TypenameArgument() = default;
 
-    void setType(const FullySpecifiedType &type);
+    void setType(const FullySpecifiedType &type) { _type = type; }
     void setClassDeclarator(bool isClassDecl) { _isClassDeclarator = isClassDecl; }
     bool isClassDeclarator() const { return _isClassDeclarator; }
 
     // Symbol's interface
-    FullySpecifiedType type() const override;
+    FullySpecifiedType type() const override { return _type; }
 
-    const TypenameArgument *asTypenameArgument() const override
-    { return this; }
-
-    TypenameArgument *asTypenameArgument() override
-    { return this; }
+    const TypenameArgument *asTypenameArgument() const override { return this; }
+    TypenameArgument *asTypenameArgument() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
@@ -209,12 +185,12 @@ private:
     bool _isClassDeclarator;
 };
 
-class CPLUSPLUS_EXPORT Block: public Scope
+class CPLUSPLUS_EXPORT Block final : public Scope
 {
 public:
     Block(TranslationUnit *translationUnit, int sourceLocation);
     Block(Clone *clone, Subst *subst, Block *original);
-    virtual ~Block();
+    ~Block() override = default;
 
     // Symbol's interface
     FullySpecifiedType type() const override;
@@ -229,28 +205,22 @@ protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
 };
 
-class CPLUSPLUS_EXPORT ForwardClassDeclaration: public Symbol, public Type
+class CPLUSPLUS_EXPORT ForwardClassDeclaration final : public Symbol, public Type
 {
 public:
     ForwardClassDeclaration(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     ForwardClassDeclaration(Clone *clone, Subst *subst, ForwardClassDeclaration *original);
-    virtual ~ForwardClassDeclaration();
+    ~ForwardClassDeclaration() override = default;
 
     // Symbol's interface
     FullySpecifiedType type() const override;
 
-    const ForwardClassDeclaration *asForwardClassDeclaration() const override
-    { return this; }
-
-    ForwardClassDeclaration *asForwardClassDeclaration() override
-    { return this; }
+    const ForwardClassDeclaration *asForwardClassDeclaration() const override { return this; }
+    ForwardClassDeclaration *asForwardClassDeclaration() override { return this; }
 
     // Type's interface
-    const ForwardClassDeclaration *asForwardClassDeclarationType() const override
-    { return this; }
-
-    ForwardClassDeclaration *asForwardClassDeclarationType() override
-    { return this; }
+    const ForwardClassDeclaration *asForwardClassDeclarationType() const override { return this; }
+    ForwardClassDeclaration *asForwardClassDeclarationType() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
@@ -258,31 +228,25 @@ protected:
     bool match0(const Type *otherType, Matcher *matcher) const override;
 };
 
-class CPLUSPLUS_EXPORT Enum: public Scope, public Type
+class CPLUSPLUS_EXPORT Enum final : public Scope, public Type
 {
 public:
     Enum(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     Enum(Clone *clone, Subst *subst, Enum *original);
-    virtual ~Enum();
+    ~Enum() override = default;
 
-    bool isScoped() const;
-    void setScoped(bool scoped);
+    bool isScoped() const { return _isScoped; }
+    void setScoped(bool scoped) { _isScoped = scoped; }
 
     // Symbol's interface
     FullySpecifiedType type() const override;
 
-    const Enum *asEnum() const override
-    { return this; }
-
-    Enum *asEnum() override
-    { return this; }
+    const Enum *asEnum() const override { return this; }
+    Enum *asEnum() override { return this; }
 
     // Type's interface
-    const Enum *asEnumType() const override
-    { return this; }
-
-    Enum *asEnumType() override
-    { return this; }
+    const Enum *asEnumType() const override { return this; }
+    Enum *asEnumType() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
@@ -293,7 +257,7 @@ private:
     bool _isScoped;
 };
 
-class CPLUSPLUS_EXPORT Function: public Scope, public Type
+class CPLUSPLUS_EXPORT Function final : public Scope, public Type
 {
 public:
     enum MethodKey {
@@ -312,17 +276,18 @@ public:
 public:
     Function(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     Function(Clone *clone, Subst *subst, Function *original);
-    virtual ~Function();
+    ~Function() override = default;
 
-    bool isNormal() const;
-    bool isSignal() const;
-    bool isSlot() const;
-    bool isInvokable() const;
-    int methodKey() const;
-    void setMethodKey(int key);
+    bool isNormal() const { return f._methodKey == NormalMethod; }
+    bool isSignal() const { return f._methodKey == SignalMethod; }
+    bool isSlot() const { return f._methodKey == SlotMethod; }
+    bool isInvokable() const { return f._methodKey == InvokableMethod; }
 
-    FullySpecifiedType returnType() const;
-    void setReturnType(const FullySpecifiedType &returnType);
+    int methodKey() const { return f._methodKey; }
+    void setMethodKey(int key) { f._methodKey = key; }
+
+    FullySpecifiedType returnType() const { return _returnType; }
+    void setReturnType(const FullySpecifiedType &returnType) { _returnType = returnType; }
 
     /** Convenience function that returns whether the function returns something (including void). */
     bool hasReturnType() const;
@@ -334,61 +299,55 @@ public:
     bool hasArguments() const;
     int minimumArgumentCount() const;
 
-    bool isVirtual() const;
-    void setVirtual(bool isVirtual);
+    bool isVirtual() const { return f._isVirtual; }
+    void setVirtual(bool isVirtual) { f._isVirtual = isVirtual; }
 
-    bool isOverride() const;
-    void setOverride(bool isOverride);
+    bool isOverride() const { return f._isOverride; }
+    void setOverride(bool isOverride) { f._isOverride = isOverride; }
 
-    bool isFinal() const;
-    void setFinal(bool isFinal);
+    bool isFinal() const { return f._isFinal; }
+    void setFinal(bool isFinal) { f._isFinal = isFinal; }
 
-    bool isVariadic() const;
-    void setVariadic(bool isVariadic);
+    bool isVariadic() const { return f._isVariadic; }
+    void setVariadic(bool isVariadic) { f._isVariadic = isVariadic; }
 
-    bool isVariadicTemplate() const;
-    void setVariadicTemplate(bool isVariadicTemplate);
+    bool isVariadicTemplate() const { return f._isVariadicTemplate; }
+    void setVariadicTemplate(bool isVariadicTemplate) { f._isVariadicTemplate = isVariadicTemplate; }
 
-    bool isConst() const;
-    void setConst(bool isConst);
+    bool isConst() const { return f._isConst; }
+    void setConst(bool isConst) { f._isConst = isConst; }
 
     bool isStatic() const { return f._isStatic; }
     void setStatic(bool isStatic) { f._isStatic = isStatic; }
 
-    bool isVolatile() const;
-    void setVolatile(bool isVolatile);
+    bool isVolatile() const { return f._isVolatile; }
+    void setVolatile(bool isVolatile) { f._isVolatile = isVolatile; }
 
-    bool isPureVirtual() const;
-    void setPureVirtual(bool isPureVirtual);
+    bool isPureVirtual() const { return f._isPureVirtual; }
+    void setPureVirtual(bool isPureVirtual) { f._isPureVirtual = isPureVirtual; }
 
-    RefQualifier refQualifier() const;
-    void setRefQualifier(RefQualifier refQualifier);
+    RefQualifier refQualifier() const { return static_cast<RefQualifier>(f._refQualifier); }
+    void setRefQualifier(RefQualifier refQualifier) { f._refQualifier = refQualifier; }
 
     bool isSignatureEqualTo(const Function *other, Matcher *matcher = nullptr) const;
 
-    bool isAmbiguous() const; // internal
-    void setAmbiguous(bool isAmbiguous); // internal
+    bool isAmbiguous() const { return f._isAmbiguous; } // internal
+    void setAmbiguous(bool isAmbiguous) { f._isAmbiguous = isAmbiguous; } // internal
 
     bool maybeValidPrototype(int actualArgumentCount) const;
 
-    const StringLiteral *exceptionSpecification();
-    void setExceptionSpecification(const StringLiteral *spec);
+    const StringLiteral *exceptionSpecification() { return _exceptionSpecification; }
+    void setExceptionSpecification(const StringLiteral *spec) { _exceptionSpecification = spec; }
 
     // Symbol's interface
     FullySpecifiedType type() const override;
 
-    const Function *asFunction() const override
-    { return this; }
-
-    Function *asFunction() override
-    { return this; }
+    const Function *asFunction() const override { return this; }
+    Function *asFunction() override { return this; }
 
     // Type's interface
-    const Function *asFunctionType() const override
-    { return this; }
-
-    Function *asFunctionType() override
-    { return this; }
+    const Function *asFunctionType() const override { return this; }
+    Function *asFunctionType() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
@@ -418,32 +377,26 @@ private:
     };
 };
 
-class CPLUSPLUS_EXPORT Template: public Scope, public Type
+class CPLUSPLUS_EXPORT Template final : public Scope, public Type
 {
 public:
     Template(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     Template(Clone *clone, Subst *subst, Template *original);
-    virtual ~Template();
+    ~Template() override = default;
 
     int templateParameterCount() const;
-    Symbol *templateParameterAt(int index) const;
+    Symbol *templateParameterAt(int index) const { return memberAt(index); }
     Symbol *declaration() const;
 
     // Symbol's interface
     FullySpecifiedType type() const override;
 
-    const Template *asTemplate() const override
-    { return this; }
-
-    Template *asTemplate() override
-    { return this; }
+    const Template *asTemplate() const override { return this; }
+    Template *asTemplate() override { return this; }
 
     // Type's interface
-    const Template *asTemplateType() const override
-    { return this; }
-
-    Template *asTemplateType() override
-    { return this; }
+    const Template *asTemplateType() const override { return this; }
+    Template *asTemplateType() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
@@ -452,34 +405,25 @@ protected:
 };
 
 
-class CPLUSPLUS_EXPORT Namespace: public Scope, public Type
+class CPLUSPLUS_EXPORT Namespace final : public Scope, public Type
 {
 public:
     Namespace(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     Namespace(Clone *clone, Subst *subst, Namespace *original);
-    virtual ~Namespace();
+    ~Namespace() override = default;
 
     // Symbol's interface
     FullySpecifiedType type() const override;
 
-    const Namespace *asNamespace() const override
-    { return this; }
-
-    Namespace *asNamespace() override
-    { return this; }
+    const Namespace *asNamespace() const override { return this; }
+    Namespace *asNamespace() override { return this; }
 
     // Type's interface
-    const Namespace *asNamespaceType() const override
-    { return this; }
+    const Namespace *asNamespaceType() const override { return this; }
+    Namespace *asNamespaceType() override { return this; }
 
-    Namespace *asNamespaceType() override
-    { return this; }
-
-    bool isInline() const
-    { return _isInline; }
-
-    void setInline(bool onoff)
-    { _isInline = onoff; }
+    bool isInline() const { return _isInline; }
+    void setInline(bool onoff) { _isInline = onoff; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
@@ -490,28 +434,25 @@ private:
     bool _isInline;
 };
 
-class CPLUSPLUS_EXPORT BaseClass: public Symbol
+class CPLUSPLUS_EXPORT BaseClass final : public Symbol
 {
 public:
     BaseClass(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     BaseClass(Clone *clone, Subst *subst, BaseClass *original);
-    virtual ~BaseClass();
+    ~BaseClass() override = default;
 
-    bool isVirtual() const;
-    void setVirtual(bool isVirtual);
+    bool isVirtual() const { return _isVirtual; }
+    void setVirtual(bool isVirtual) { _isVirtual = isVirtual; }
 
-    bool isVariadic() const;
-    void setVariadic(bool isVariadic);
+    bool isVariadic() const { return _isVariadic; }
+    void setVariadic(bool isVariadic) { _isVariadic = isVariadic; }
 
     // Symbol's interface
-    FullySpecifiedType type() const override;
-    void setType(const FullySpecifiedType &type);
+    FullySpecifiedType type() const override { return _type; }
+    void setType(const FullySpecifiedType &type) { _type = type; }
 
-    const BaseClass *asBaseClass() const override
-    { return this; }
-
-    BaseClass *asBaseClass() override
-    { return this; }
+    const BaseClass *asBaseClass() const override { return this; }
+    BaseClass *asBaseClass() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
@@ -522,12 +463,12 @@ private:
     FullySpecifiedType _type;
 };
 
-class CPLUSPLUS_EXPORT Class: public Scope, public Type
+class CPLUSPLUS_EXPORT Class final : public Scope, public Type
 {
 public:
     Class(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     Class(Clone *clone, Subst *subst, Class *original);
-    virtual ~Class();
+    ~Class() override = default;
 
     enum Key {
         ClassKey,
@@ -535,11 +476,12 @@ public:
         UnionKey
     };
 
-    bool isClass() const;
-    bool isStruct() const;
-    bool isUnion() const;
-    Key classKey() const;
-    void setClassKey(Key key);
+    bool isClass() const { return _key == ClassKey; }
+    bool isStruct() const { return _key == StructKey; }
+    bool isUnion() const { return _key == UnionKey; }
+
+    Key classKey() const { return _key; }
+    void setClassKey(Key key) { _key = key; }
 
     int baseClassCount() const;
     BaseClass *baseClassAt(int index) const;
@@ -549,18 +491,12 @@ public:
     // Symbol's interface
     FullySpecifiedType type() const override;
 
-    const Class *asClass() const override
-    { return this; }
-
-    Class *asClass() override
-    { return this; }
+    const Class *asClass() const override { return this; }
+    Class *asClass() override { return this; }
 
     // Type's interface
-    const Class *asClassType() const override
-    { return this; }
-
-    Class *asClassType() override
-    { return this; }
+    const Class *asClassType() const override { return this; }
+    Class *asClassType() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
@@ -572,7 +508,7 @@ private:
     std::vector<BaseClass *> _baseClasses;
 };
 
-class CPLUSPLUS_EXPORT QtPropertyDeclaration: public Symbol
+class CPLUSPLUS_EXPORT QtPropertyDeclaration final : public Symbol
 {
 public:
     enum Flag {
@@ -597,21 +533,17 @@ public:
 public:
     QtPropertyDeclaration(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     QtPropertyDeclaration(Clone *clone, Subst *subst, QtPropertyDeclaration *original);
-    virtual ~QtPropertyDeclaration();
+    ~QtPropertyDeclaration() = default;
 
-    void setType(const FullySpecifiedType &type);
-
-    void setFlags(int flags);
-    int flags() const;
+    void setType(const FullySpecifiedType &type) { _type = type; }
+    void setFlags(int flags) { _flags = flags; }
+    int flags() const { return _flags; }
 
     // Symbol's interface
-    FullySpecifiedType type() const override;
+    FullySpecifiedType type() const override { return _type; }
 
-    const QtPropertyDeclaration *asQtPropertyDeclaration() const override
-    { return this; }
-
-    QtPropertyDeclaration *asQtPropertyDeclaration() override
-    { return this; }
+    const QtPropertyDeclaration *asQtPropertyDeclaration() const override { return this; }
+    QtPropertyDeclaration *asQtPropertyDeclaration() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
@@ -621,88 +553,73 @@ private:
     int _flags;
 };
 
-class CPLUSPLUS_EXPORT QtEnum: public Symbol
+class CPLUSPLUS_EXPORT QtEnum final : public Symbol
 {
 public:
     QtEnum(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     QtEnum(Clone *clone, Subst *subst, QtEnum *original);
-    virtual ~QtEnum();
+    ~QtEnum() override = default;
 
     // Symbol's interface
-    FullySpecifiedType type() const override;
+    FullySpecifiedType type() const override { return FullySpecifiedType(); }
 
-    const QtEnum *asQtEnum() const override
-    { return this; }
-
-    QtEnum *asQtEnum() override
-    { return this; }
+    const QtEnum *asQtEnum() const override { return this; }
+    QtEnum *asQtEnum() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
 };
 
-class CPLUSPLUS_EXPORT ObjCBaseClass: public Symbol
+class CPLUSPLUS_EXPORT ObjCBaseClass final : public Symbol
 {
 public:
     ObjCBaseClass(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     ObjCBaseClass(Clone *clone, Subst *subst, ObjCBaseClass *original);
-    virtual ~ObjCBaseClass();
+    ~ObjCBaseClass() override = default;
 
     // Symbol's interface
     FullySpecifiedType type() const override;
 
-    const ObjCBaseClass *asObjCBaseClass() const override
-    { return this; }
-
-    ObjCBaseClass *asObjCBaseClass() override
-    { return this; }
+    const ObjCBaseClass *asObjCBaseClass() const override { return this; }
+    ObjCBaseClass *asObjCBaseClass() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
 };
 
-class CPLUSPLUS_EXPORT ObjCBaseProtocol: public Symbol
+class CPLUSPLUS_EXPORT ObjCBaseProtocol final : public Symbol
 {
 public:
     ObjCBaseProtocol(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     ObjCBaseProtocol(Clone *clone, Subst *subst, ObjCBaseProtocol *original);
-    virtual ~ObjCBaseProtocol();
+    ~ObjCBaseProtocol() override = default;
 
     // Symbol's interface
     FullySpecifiedType type() const override;
 
-    const ObjCBaseProtocol *asObjCBaseProtocol() const override
-    { return this; }
-
-    ObjCBaseProtocol *asObjCBaseProtocol() override
-    { return this; }
+    const ObjCBaseProtocol *asObjCBaseProtocol() const override { return this; }
+    ObjCBaseProtocol *asObjCBaseProtocol() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
 };
 
-class CPLUSPLUS_EXPORT ObjCForwardProtocolDeclaration: public Symbol, public Type
+class CPLUSPLUS_EXPORT ObjCForwardProtocolDeclaration final : public Symbol, public Type
 {
 public:
     ObjCForwardProtocolDeclaration(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     ObjCForwardProtocolDeclaration(Clone *clone, Subst *subst, ObjCForwardProtocolDeclaration *original);
-    virtual ~ObjCForwardProtocolDeclaration();
+    ~ObjCForwardProtocolDeclaration() override = default;
 
     // Symbol's interface
     FullySpecifiedType type() const override;
 
-    const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() const override
-    { return this; }
-
-    ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() override
-    { return this; }
+    const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() const override { return this; }
+    ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() override { return this; }
 
     // Type's interface
-    const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclarationType() const override
-    { return this; }
-
-    ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclarationType() override
-    { return this; }
+    const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclarationType() const override { return this; }
+    ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclarationType() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
@@ -710,12 +627,12 @@ protected:
     bool match0(const Type *otherType, Matcher *matcher) const override;
 };
 
-class CPLUSPLUS_EXPORT ObjCProtocol: public Scope, public Type
+class CPLUSPLUS_EXPORT ObjCProtocol final : public Scope, public Type
 {
 public:
     ObjCProtocol(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     ObjCProtocol(Clone *clone, Subst *subst, ObjCProtocol *original);
-    virtual ~ObjCProtocol();
+    ~ObjCProtocol() override = default;
 
     int protocolCount() const;
     ObjCBaseProtocol *protocolAt(int index) const;
@@ -724,18 +641,12 @@ public:
     // Symbol's interface
     FullySpecifiedType type() const override;
 
-    const ObjCProtocol *asObjCProtocol() const override
-    { return this; }
-
-    ObjCProtocol *asObjCProtocol() override
-    { return this; }
+    const ObjCProtocol *asObjCProtocol() const override { return this; }
+    ObjCProtocol *asObjCProtocol() override { return this; }
 
     // Type's interface
-    const ObjCProtocol *asObjCProtocolType() const override
-    { return this; }
-
-    ObjCProtocol *asObjCProtocolType() override
-    { return this; }
+    const ObjCProtocol *asObjCProtocolType() const override { return this; }
+    ObjCProtocol *asObjCProtocolType() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
@@ -746,28 +657,22 @@ private:
     std::vector<ObjCBaseProtocol *> _protocols;
 };
 
-class CPLUSPLUS_EXPORT ObjCForwardClassDeclaration: public Symbol, public Type
+class CPLUSPLUS_EXPORT ObjCForwardClassDeclaration final : public Symbol, public Type
 {
 public:
     ObjCForwardClassDeclaration(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     ObjCForwardClassDeclaration(Clone *clone, Subst *subst, ObjCForwardClassDeclaration *original);
-    virtual ~ObjCForwardClassDeclaration();
+    ~ObjCForwardClassDeclaration() override = default;
 
     // Symbol's interface
     FullySpecifiedType type() const override;
 
-    const ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() const override
-    { return this; }
-
-    ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() override
-    { return this; }
+    const ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() const override { return this; }
+    ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() override { return this; }
 
     // Type's interface
-    const ObjCForwardClassDeclaration *asObjCForwardClassDeclarationType() const override
-    { return this; }
-
-    ObjCForwardClassDeclaration *asObjCForwardClassDeclarationType() override
-    { return this; }
+    const ObjCForwardClassDeclaration *asObjCForwardClassDeclarationType() const override { return this; }
+    ObjCForwardClassDeclaration *asObjCForwardClassDeclarationType() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
@@ -775,22 +680,22 @@ protected:
     bool match0(const Type *otherType, Matcher *matcher) const override;
 };
 
-class CPLUSPLUS_EXPORT ObjCClass: public Scope, public Type
+class CPLUSPLUS_EXPORT ObjCClass final : public Scope, public Type
 {
 public:
     ObjCClass(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     ObjCClass(Clone *clone, Subst *subst, ObjCClass *original);
-    virtual ~ObjCClass();
+    ~ObjCClass() override = default;
 
-    bool isInterface() const;
-    void setInterface(bool isInterface);
+    bool isInterface() const { return _isInterface; }
+    void setInterface(bool isInterface) { _isInterface = isInterface; }
 
-    bool isCategory() const;
-    const Name *categoryName() const;
-    void setCategoryName(const Name *categoryName);
+    bool isCategory() const { return _categoryName != nullptr; }
+    const Name *categoryName() const { return _categoryName; }
+    void setCategoryName(const Name *categoryName) { _categoryName = categoryName; }
 
-    ObjCBaseClass *baseClass() const;
-    void setBaseClass(ObjCBaseClass *baseClass);
+    ObjCBaseClass *baseClass() const { return _baseClass; }
+    void setBaseClass(ObjCBaseClass *baseClass) { _baseClass = baseClass; }
 
     int protocolCount() const;
     ObjCBaseProtocol *protocolAt(int index) const;
@@ -799,18 +704,12 @@ public:
     // Symbol's interface
     FullySpecifiedType type() const override;
 
-    const ObjCClass *asObjCClass() const override
-    { return this; }
-
-    ObjCClass *asObjCClass() override
-    { return this; }
+    const ObjCClass *asObjCClass() const override { return this; }
+    ObjCClass *asObjCClass() override { return this; }
 
     // Type's interface
-    const ObjCClass *asObjCClassType() const override
-    { return this; }
-
-    ObjCClass *asObjCClassType() override
-    { return this; }
+    const ObjCClass *asObjCClassType() const override { return this; }
+    ObjCClass *asObjCClassType() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
@@ -824,15 +723,15 @@ private:
     bool _isInterface;
 };
 
-class CPLUSPLUS_EXPORT ObjCMethod: public Scope, public Type
+class CPLUSPLUS_EXPORT ObjCMethod final : public Scope, public Type
 {
 public:
     ObjCMethod(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     ObjCMethod(Clone *clone, Subst *subst, ObjCMethod *original);
-    virtual ~ObjCMethod();
+    ~ObjCMethod() override = default;
 
-    FullySpecifiedType returnType() const;
-    void setReturnType(const FullySpecifiedType &returnType);
+    FullySpecifiedType returnType() const { return _returnType; }
+    void setReturnType(const FullySpecifiedType &returnType) { _returnType = returnType; }
 
     /** Convenience function that returns whether the function returns something (including void). */
     bool hasReturnType() const;
@@ -843,24 +742,18 @@ public:
     /** Convenience function that returns whether the function receives any arguments. */
     bool hasArguments() const;
 
-    bool isVariadic() const;
-    void setVariadic(bool isVariadic);
+    bool isVariadic() const { return f._isVariadic; }
+    void setVariadic(bool isVariadic) { f._isVariadic = isVariadic; }
 
     // Symbol's interface
     FullySpecifiedType type() const override;
 
-    const ObjCMethod *asObjCMethod() const override
-    { return this; }
-
-    ObjCMethod *asObjCMethod() override
-    { return this; }
+    const ObjCMethod *asObjCMethod() const override { return this; }
+    ObjCMethod *asObjCMethod() override { return this; }
 
     // Type's interface
-    const ObjCMethod *asObjCMethodType() const override
-    { return this; }
-
-    ObjCMethod *asObjCMethodType() override
-    { return this; }
+    const ObjCMethod *asObjCMethodType() const override { return this; }
+    ObjCMethod *asObjCMethodType() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
@@ -878,7 +771,7 @@ private:
     };
 };
 
-class CPLUSPLUS_EXPORT ObjCPropertyDeclaration: public Symbol
+class CPLUSPLUS_EXPORT ObjCPropertyDeclaration final : public Symbol
 {
 public:
     enum PropertyAttributes {
@@ -901,31 +794,27 @@ public:
                             int sourceLocation,
                             const Name *name);
     ObjCPropertyDeclaration(Clone *clone, Subst *subst, ObjCPropertyDeclaration *original);
-    virtual ~ObjCPropertyDeclaration();
+    ~ObjCPropertyDeclaration() override = default;
 
-    bool hasAttribute(int attribute) const;
-    void setAttributes(int attributes);
+    bool hasAttribute(int attribute) const { return _propertyAttributes & attribute; }
+    void setAttributes(int attributes) { _propertyAttributes = attributes; }
 
-    bool hasGetter() const;
-    bool hasSetter() const;
+    bool hasGetter() const { return hasAttribute(Getter); }
+    bool hasSetter() const { return hasAttribute(Setter); }
 
-    const Name *getterName() const;
+    const Name *getterName() const { return _getterName; }
+    void setGetterName(const Name *getterName) { _getterName = getterName; }
 
-    void setGetterName(const Name *getterName);
+    const Name *setterName() const { return _setterName; }
+    void setSetterName(const Name *setterName) { _setterName = setterName; }
 
-    const Name *setterName() const;
-    void setSetterName(const Name *setterName);
-
-    void setType(const FullySpecifiedType &type);
+    void setType(const FullySpecifiedType &type) { _type = type; }
 
     // Symbol's interface
-    FullySpecifiedType type() const override;
+    FullySpecifiedType type() const override { return _type; }
 
-    const ObjCPropertyDeclaration *asObjCPropertyDeclaration() const override
-    { return this; }
-
-    ObjCPropertyDeclaration *asObjCPropertyDeclaration() override
-    { return this; }
+    const ObjCPropertyDeclaration *asObjCPropertyDeclaration() const override { return this; }
+    ObjCPropertyDeclaration *asObjCPropertyDeclaration() override { return this; }
 
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;

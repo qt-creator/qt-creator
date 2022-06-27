@@ -61,7 +61,6 @@ add_qtc_test(unittest GTEST
     processevents-utilities.cpp processevents-utilities.h
     sizedarray-test.cpp
     smallstring-test.cpp
-    sourcerangecontainer-matcher.h
     spydummy.cpp spydummy.h
     sqlitealgorithms-test.cpp
     sqliteindex-test.cpp
@@ -127,12 +126,6 @@ add_custom_command(TARGET unittest POST_BUILD
   COMMAND "${CMAKE_COMMAND}" -E copy_directory
           "${CMAKE_CURRENT_SOURCE_DIR}/data"
           "${CMAKE_CURRENT_BINARY_DIR}/data"
-)
-
-extend_qtc_test(unittest
-  SOURCES
-    activationsequenceprocessor-test.cpp
-    readexporteddiagnostics-test.cpp
 )
 
 extend_qtc_test(unittest
@@ -315,46 +308,12 @@ endif()
 extend_qtc_test(unittest DEPENDS Utils CPlusPlus)
 
 extend_qtc_test(unittest
-  SOURCES_PREFIX ../../../src/plugins/clangcodemodel
-  SOURCES
-    clangactivationsequenceprocessor.cpp clangactivationsequenceprocessor.h
-)
-
-find_package(yaml-cpp QUIET MODULE)
-
-extend_qtc_test(unittest
-  DEPENDS yaml-cpp
-  DEFINES CLANGTOOLS_STATIC_LIBRARY
-  SOURCES_PREFIX ../../../src/plugins/clangtools
-  SOURCES
-    clangtoolsdiagnostic.cpp
-    clangtoolsdiagnostic.h
-    clangtoolslogfilereader.cpp
-    clangtoolslogfilereader.h
-)
-
-extend_qtc_test(unittest
-  DEFINES DEBUGGER_STATIC_LIBRARY
-  SOURCES_PREFIX ../../../src/plugins/debugger
-  SOURCES
-    analyzer/diagnosticlocation.cpp
-    analyzer/diagnosticlocation.h
-)
-
-extend_qtc_test(unittest
   SOURCES_PREFIX ../../../src/plugins/coreplugin
   DEFINES CORE_STATIC_LIBRARY
   SOURCES
     coreicons.cpp coreicons.h
     find/ifindfilter.cpp find/ifindfilter.h
     locator/ilocatorfilter.cpp locator/ilocatorfilter.h
-)
-
-extend_qtc_test(unittest
-  SOURCES_PREFIX ../../../src/plugins/cppeditor
-  DEFINES CPPEDITOR_STATIC_LIBRARY
-  SOURCES
-    cppprojectfile.cpp cppprojectfile.h
 )
 
 get_filename_component(

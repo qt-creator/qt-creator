@@ -267,9 +267,9 @@ QString SearchSymbols::scopeName(const QString &name, const Symbol *symbol) cons
     if (!name.isEmpty())
         return name;
 
-    if (symbol->isNamespace()) {
+    if (symbol->asNamespace()) {
         return QLatin1String("<anonymous namespace>");
-    } else if (symbol->isEnum()) {
+    } else if (symbol->asEnum()) {
         return QLatin1String("<anonymous enum>");
     } else if (const Class *c = symbol->asClass())  {
         if (c->isUnion())

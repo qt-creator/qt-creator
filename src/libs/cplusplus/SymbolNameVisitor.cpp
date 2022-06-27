@@ -41,7 +41,7 @@ void SymbolNameVisitor::accept(Symbol *symbol)
         if (Scope *scope = symbol->enclosingScope())
             accept(scope);
 
-        if (! symbol->isTemplate()) {
+        if (! symbol->asTemplate()) {
             if (const Name *name = symbol->name()) {
                 std::swap(_symbol, symbol);
                 accept(name);

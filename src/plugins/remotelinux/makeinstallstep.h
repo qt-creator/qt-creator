@@ -30,11 +30,6 @@
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/makestep.h>
 
-namespace Utils {
-class FilePath;
-class StringAspect;
-} // Utils
-
 namespace RemoteLinux {
 
 class REMOTELINUX_EXPORT MakeInstallStep : public ProjectExplorer::MakeStep

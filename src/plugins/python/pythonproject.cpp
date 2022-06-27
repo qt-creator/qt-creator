@@ -50,6 +50,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/mimeutils.h>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -254,12 +255,14 @@ void PythonBuildSystem::triggerParsing()
         const FileType fileType = getFileType(filePath);
 
         newRoot->addNestedNode(std::make_unique<PythonFileNode>(filePath, displayName, fileType));
-        if (fileType == FileType::Source) {
+        const MimeType mt = mimeTypeForFile(filePath, MimeMatchMode::MatchExtension);
+        if (mt.matchesName(Constants::C_PY_MIMETYPE) || mt.matchesName(Constants::C_PY3_MIMETYPE)) {
             BuildTargetInfo bti;
             bti.displayName = displayName;
             bti.buildKey = f;
             bti.targetFilePath = filePath;
             bti.projectFilePath = projectFilePath();
+            bti.isQtcRunnable = filePath.fileName() == "main.py";
             appTargets.append(bti);
         }
     }

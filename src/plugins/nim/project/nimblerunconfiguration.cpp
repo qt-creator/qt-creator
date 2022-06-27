@@ -25,11 +25,11 @@
 
 #include "nimblerunconfiguration.h"
 
-#include "nimblebuildsystem.h"
+#include "nimbuildsystem.h"
 #include "nimconstants.h"
-#include "nimbleproject.h"
 
 #include <projectexplorer/localenvironmentaspect.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>

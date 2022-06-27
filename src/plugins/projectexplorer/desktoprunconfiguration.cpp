@@ -27,7 +27,7 @@
 
 #include "buildsystem.h"
 #include "localenvironmentaspect.h"
-#include "project.h"
+#include "projectexplorerconstants.h"
 #include "runconfigurationaspects.h"
 #include "target.h"
 

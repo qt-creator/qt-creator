@@ -57,11 +57,15 @@ public:
 
     Utils::Id id() const { return m_id; }
 
+    AssistReason reason() const { return m_reason; }
+    void setReason(const AssistReason &reason) { m_reason = reason; }
+
 protected:
     Utils::Id m_id;
     int m_basePosition;
     bool m_isFragile = false;
     bool m_supportsPrefix = true;
+    AssistReason m_reason;
 };
 
 } // TextEditor

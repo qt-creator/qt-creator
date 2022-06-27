@@ -28,14 +28,13 @@
 #include <qmlprofiler/qmlprofilermodelmanager.h>
 #include <qmlprofiler/qmlprofilerruncontrol.h>
 
-#include <QUrl>
-
 namespace QmlProfiler {
 namespace Internal {
 
 class LocalQmlProfilerRunnerTest : public QObject
 {
     Q_OBJECT
+
 public:
     LocalQmlProfilerRunnerTest(QObject *parent = nullptr);
 

@@ -130,11 +130,11 @@ static bool isVirtualFunction_helper(const Function *function,
 
     const QList<LookupItem> results = context.lookup(function->name(), function->enclosingScope());
     if (!results.isEmpty()) {
-        const bool isDestructor = function->name()->isDestructorNameId();
+        const bool isDestructor = function->name()->asDestructorNameId();
         for (const LookupItem &item : results) {
             if (Symbol *symbol = item.declaration()) {
                 if (Function *functionType = symbol->type()->asFunctionType()) {
-                    if (functionType->name()->isDestructorNameId() != isDestructor)
+                    if ((functionType->name()->asDestructorNameId() != nullptr) != isDestructor)
                         continue;
                     if (functionType == function) // already tested
                         continue;

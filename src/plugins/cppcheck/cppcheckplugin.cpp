@@ -32,10 +32,11 @@
 #include "cppcheckdiagnosticsmodel.h"
 #include "cppcheckmanualrundialog.h"
 
-#include <projectexplorer/session.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>

@@ -978,8 +978,8 @@ private:
 LinuxDevice::LinuxDevice()
     : d(new LinuxDevicePrivate(this))
 {
-    setDisplayType(tr("Generic Linux"));
-    setDefaultDisplayName(tr("Generic Linux Device"));
+    setDisplayType(tr("Remote Linux"));
+    setDefaultDisplayName(tr("Remote Linux Device"));
     setOsType(OsTypeLinux);
 
     addDeviceAction({tr("Deploy Public Key..."), [](const IDevice::Ptr &device, QWidget *parent) {
@@ -1553,13 +1553,15 @@ private:
     {
         const FilePath sftpBinary = SshSettings::sftpFilePath();
         if (!sftpBinary.exists()) {
-            startFailed(tr("\"sftp\" binary \"%1\" does not exist.").arg(sftpBinary.toUserOutput()));
+            startFailed(SshTransferInterface::tr("\"sftp\" binary \"%1\" does not exist.")
+                            .arg(sftpBinary.toUserOutput()));
             return;
         }
 
         m_batchFile.reset(new QTemporaryFile(this));
         if (!m_batchFile->isOpen() && !m_batchFile->open()) {
-            startFailed(tr("Could not create temporary file: %1").arg(m_batchFile->errorString()));
+            startFailed(SshTransferInterface::tr("Could not create temporary file: %1")
+                            .arg(m_batchFile->errorString()));
             return;
         }
 
@@ -1570,8 +1572,8 @@ private:
                                 + '\n');
             } else if (direction() == FileTransferDirection::Download) {
                 if (!QDir::root().mkpath(dir.path())) {
-                    startFailed(tr("Failed to create local directory \"%1\".")
-                                .arg(QDir::toNativeSeparators(dir.path())));
+                    startFailed(SshTransferInterface::tr("Failed to create local directory \"%1\".")
+                                    .arg(QDir::toNativeSeparators(dir.path())));
                     return;
                 }
             }
@@ -1714,7 +1716,7 @@ namespace Internal {
 LinuxDeviceFactory::LinuxDeviceFactory()
     : IDeviceFactory(Constants::GenericLinuxOsType)
 {
-    setDisplayName(LinuxDevice::tr("Generic Linux Device"));
+    setDisplayName(LinuxDevice::tr("Remote Linux Device"));
     setIcon(QIcon());
     setConstructionFunction(&LinuxDevice::create);
     setCreator([] {

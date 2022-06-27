@@ -35,15 +35,6 @@ public:
 
     virtual const Identifier *identifier() const = 0;
 
-    bool isNameId() const;
-    bool isAnonymousNameId() const;
-    bool isTemplateNameId() const;
-    bool isDestructorNameId() const;
-    bool isOperatorNameId() const;
-    bool isConversionNameId() const;
-    bool isQualifiedNameId() const;
-    bool isSelectorNameId() const;
-
     virtual const Identifier *asNameId() const { return nullptr; }
     virtual const AnonymousNameId *asAnonymousNameId() const { return nullptr; }
     virtual const TemplateNameId *asTemplateNameId() const { return nullptr; }

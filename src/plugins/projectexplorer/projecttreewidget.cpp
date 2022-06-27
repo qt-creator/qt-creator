@@ -25,12 +25,12 @@
 
 #include "projecttreewidget.h"
 
-#include "projectexplorer.h"
-#include "projectnodes.h"
 #include "project.h"
-#include "session.h"
+#include "projectexplorerconstants.h"
 #include "projectmodels.h"
+#include "projectnodes.h"
 #include "projecttree.h"
+#include "session.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -44,19 +44,19 @@
 #include <utils/algorithm.h>
 #include <utils/navigationtreeview.h>
 #include <utils/progressindicator.h>
+#include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/utilsicons.h>
 
-#include <QApplication>
-#include <QSettings>
-
-#include <QStyledItemDelegate>
-#include <QVBoxLayout>
-#include <QToolButton>
-#include <QPainter>
 #include <QAction>
+#include <QApplication>
 #include <QLineEdit>
 #include <QMenu>
+#include <QPainter>
+#include <QSettings>
+#include <QStyledItemDelegate>
+#include <QToolButton>
+#include <QVBoxLayout>
 
 #include <memory>
 
@@ -469,11 +469,11 @@ void ProjectTreeWidget::editCurrentItem()
     const Node *node = m_model->nodeForIndex(currentIndex);
     if (!node)
         return;
-    auto *editor = qobject_cast<QLineEdit*>(m_view->indexWidget(currentIndex));
+    auto editor = qobject_cast<QLineEdit *>(m_view->indexWidget(currentIndex));
     if (!editor)
         return;
 
-    const int dotIndex = Utils::FilePath::fromString(editor->text()).completeBaseName().length();
+    const int dotIndex = FilePath::fromString(editor->text()).completeBaseName().length();
     if (dotIndex > 0)
         editor->setSelection(0, dotIndex);
 }

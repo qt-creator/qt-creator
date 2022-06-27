@@ -43,5 +43,9 @@ const char customImportPaths[] = "CustomImportPaths";
 const char canonicalProjectDir[] ="CanonicalProjectDir";
 
 const char enviromentLaunchedQDS[] = "QTC_LAUNCHED_QDS";
+
+const char ALWAYS_OPEN_UI_MODE[] = "J.QtQuick/QmlJSEditor.openUiQmlMode";
+const char QML_RESOURCE_PATH[] = "qmldesigner/propertyEditorQmlSources/imports";
+const char LANDING_PAGE_PATH[] = "qmldesigner/landingpage";
 } // namespace Constants
 } // namespace QmlProjectManager

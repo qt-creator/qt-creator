@@ -33,171 +33,78 @@ It is supposed to be strictly declarative and only uses a subset of QML. If you 
 this file manually, you might introduce QML code that is not supported by Qt Design Studio.
 Check out https://doc.qt.io/qtcreator/creator-quick-ui-forms.html for details on .ui.qml files.
 */
+
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import LandingPage
-import QdsLandingPageTheme as Theme
+import QtQuick.Layouts 1.15
+import LandingPageApi
+import LandingPage as Theme
 
 Rectangle {
-    id: projectInfo
-    height: 300
-    color: Theme.Values.themeBackgroundColorNormal
-    border.color: Theme.Values.themeBackgroundColorNormal
-    border.width: 0
+    id: root
+
     property bool qdsInstalled: qdsVersionText.text.length > 0
     property bool projectFileExists: false
-    property string qdsVersion: "UNKNOWN"
-    property string qtVersion: "UNKNOWN"
-    property alias cmakeListText: cmakeList.text
-    property alias generateCmakeButton: generateCmakeButton
+    property string qtVersion: qsTr("Unknown")
+    property string qdsVersion: qsTr("Unknown")
     property alias generateProjectFileButton: generateProjectFileButton
 
-    Item {
-        id: projectFileInfoBox
-        width: projectInfo.width
-        height: 150
-        anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.topMargin: 30
+    color: Theme.Colors.backgroundSecondary
+    height: column.childrenRect.height + (2 * Theme.Values.spacing)
 
-        Text {
+    Connections {
+        target: generateProjectFileButton
+        function onClicked() { LandingPageApi.generateProjectFile() }
+    }
+
+    Column {
+        id: column
+
+        width: parent.width
+        anchors.centerIn: parent
+        spacing: Theme.Values.spacing
+
+        PageText {
             id: projectFileInfoTitle
+            width: parent.width
             text: qsTr("QML PROJECT FILE INFO")
-            font.family: Theme.Values.baseFont
-            font.pixelSize: Constants.fontSizeSubtitle
-            anchors.top: parent.top
-            horizontalAlignment: Text.AlignHCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.topMargin: 10
         }
 
-        Item {
+        Column {
             id: projectFileInfoVersionBox
             width: parent.width
-            height: 150
-            visible: projectFileExists
-            anchors.top: projectFileInfoTitle.bottom
-            anchors.topMargin: 0
-            anchors.horizontalCenter: parent.horizontalCenter
+            visible: root.projectFileExists
 
-            Text {
+            PageText {
                 id: qtVersionText
-                text: qsTr("Qt Version - ") + qtVersion
-                font.family: Theme.Values.baseFont
-                font.pixelSize: Constants.fontSizeSubtitle
-                anchors.top: parent.top
-                horizontalAlignment: Text.AlignHCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.topMargin: 10
+                width: parent.width
+                padding: Theme.Values.spacing
+                text: qsTr("Qt Version - ") + root.qtVersion
             }
 
-            Text {
+            PageText {
                 id: qdsVersionText
-                text: qsTr("Qt Design Studio Version - ") + qdsVersion
-                font.family: Theme.Values.baseFont
-                font.pixelSize: Constants.fontSizeSubtitle
-                anchors.top: qtVersionText.bottom
-                horizontalAlignment: Text.AlignHCenter
-                anchors.topMargin: 10
-                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                padding: Theme.Values.spacing
+                text: qsTr("Qt Design Studio Version - ") + root.qdsVersion
             }
         }
 
-        Item {
+        Column {
             id: projectFileInfoMissingBox
             width: parent.width
-            height: 200
             visible: !projectFileInfoVersionBox.visible
-            anchors.top: projectFileInfoTitle.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.topMargin: 0
 
-            Text {
+            PageText {
                 id: projectFileInfoMissingText
+                width: parent.width
+                padding: Theme.Values.spacing
                 text: qsTr("No QML project file found - Would you like to create one?")
-                font.family: Theme.Values.baseFont
-                font.pixelSize: Constants.fontSizeSubtitle
-                anchors.top: parent.top
-                horizontalAlignment: Text.AlignHCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.topMargin: 10
             }
 
             PushButton {
                 id: generateProjectFileButton
-                anchors.top: projectFileInfoMissingText.bottom
-                text: "Generate"
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.topMargin: Constants.buttonDefaultMargin
-            }
-        }
-    }
-
-    Item {
-        id: cmakeInfoBox
-        width: projectInfo.width
-        height: 200
-        anchors.top: projectFileInfoBox.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.topMargin: 40
-
-        Text {
-            id: cmakeInfoTitle
-            text: qsTr("CMAKE RESOURCE FILES")
-            font.family: Theme.Values.baseFont
-            font.pixelSize: Constants.fontSizeSubtitle
-            anchors.top: parent.top
-            horizontalAlignment: Text.AlignHCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.topMargin: 10
-        }
-
-        Item {
-            id: cmakeListBox
-            width: 150
-            height: 40
-            visible: cmakeListText.length > 0
-            anchors.top: cmakeInfoTitle.bottom
-            anchors.topMargin: 10
-            anchors.horizontalCenter: parent.horizontalCenter
-
-            Text {
-                id: cmakeList
-                text: qsTr("")
-                font.family: "TitilliumWeb"
-                font.pixelSize: Constants.fontSizeSubtitle
-                anchors.top: parent.top
-                horizontalAlignment: Text.AlignHCenter
-                anchors.topMargin: 0
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
-        }
-
-        Item {
-            id: cmakeMissingBox
-            width: cmakeInfoBox.width
-            height: 200
-            visible: cmakeListText.length === 0
-            anchors.top: cmakeInfoTitle.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.topMargin: 10
-
-            Text {
-                id: cmakeMissingText
-                text: qsTr("No resource files found - Would you like to generate them?")
-                font.family: Theme.Values.baseFont
-                font.pixelSize: Constants.fontSizeSubtitle
-                anchors.top: parent.top
-                horizontalAlignment: Text.AlignHCenter
-                anchors.topMargin: 10
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
-
-            PushButton {
-                id: generateCmakeButton
-                anchors.top: cmakeMissingText.bottom
-                text: "Generate"
-                anchors.topMargin: Constants.buttonDefaultMargin
+                text: qsTr("Generate")
                 anchors.horizontalCenter: parent.horizontalCenter
             }
         }

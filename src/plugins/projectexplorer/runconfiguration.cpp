@@ -25,7 +25,6 @@
 
 #include "runconfiguration.h"
 
-#include "abi.h"
 #include "buildconfiguration.h"
 #include "buildsystem.h"
 #include "environmentaspect.h"
@@ -33,16 +32,19 @@
 #include "kitinformation.h"
 #include "project.h"
 #include "projectexplorer.h"
+#include "projectexplorerconstants.h"
 #include "projectnodes.h"
 #include "runconfigurationaspects.h"
 #include "runcontrol.h"
 #include "session.h"
 #include "target.h"
-#include "toolchain.h"
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/detailswidget.h>

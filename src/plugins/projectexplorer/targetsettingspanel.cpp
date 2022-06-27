@@ -289,7 +289,8 @@ public:
 
         case Qt::DecorationRole: {
             const Kit *k = KitManager::kit(m_kitId);
-            QTC_ASSERT(k, return QVariant());
+            if (!k)
+                break;
             if (m_kitErrorsForProject)
                 return kitIconWithOverlay(*k, IconOverlay::Error);
             if (!isEnabled())
@@ -317,7 +318,8 @@ public:
 
         case Qt::ToolTipRole: {
             Kit *k = KitManager::kit(m_kitId);
-            QTC_ASSERT(k, return QVariant());
+            if (!k)
+                break;
             const QString extraText = [this]() {
                 if (m_kitErrorsForProject)
                     return QString("<h3>" + tr("Kit is unsuited for project") + "</h3>");

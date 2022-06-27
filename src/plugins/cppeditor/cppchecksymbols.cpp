@@ -121,7 +121,7 @@ protected:
             addType(q->base());
             addType(q->name());
 
-        } else if (name->isNameId() || name->isTemplateNameId()) {
+        } else if (name->asNameId() || name->asTemplateNameId()) {
             addType(name->identifier());
 
         }
@@ -132,7 +132,7 @@ protected:
         if (!name) {
             return;
 
-        } else if (name->isNameId()) {
+        } else if (name->asNameId()) {
             const Identifier *id = name->identifier();
             _fields.insert(QByteArray::fromRawData(id->chars(), id->size()));
 
@@ -144,7 +144,7 @@ protected:
         if (!name) {
             return;
 
-        } else if (name->isNameId()) {
+        } else if (name->asNameId()) {
             const Identifier *id = name->identifier();
             _functions.insert(QByteArray::fromRawData(id->chars(), id->size()));
         }
@@ -155,7 +155,7 @@ protected:
         if (!name) {
             return;
 
-        } else if (name->isNameId() || name->isTemplateNameId()) {
+        } else if (name->asNameId() || name->asTemplateNameId()) {
             const Identifier *id = name->identifier();
             _statics.insert(QByteArray::fromRawData(id->chars(), id->size()));
 
@@ -195,7 +195,7 @@ protected:
 
         if (symbol->isTypedef())
             addType(symbol->name());
-        else if (!symbol->type()->isFunctionType() && symbol->enclosingScope()->isClass())
+        else if (!symbol->type()->isFunctionType() && symbol->enclosingScope()->asClass())
             addField(symbol->name());
 
         return true;
@@ -791,7 +791,7 @@ void CheckSymbols::checkNamespace(NameAST *name)
     if (ClassOrNamespace *b = _context.lookupType(name->name, enclosingScope())) {
         const QList<Symbol *> symbols = b->symbols();
         for (const Symbol *s : symbols) {
-            if (s->isNamespace())
+            if (s->asNamespace())
                 return;
         }
     }
@@ -812,7 +812,7 @@ bool CheckSymbols::hasVirtualDestructor(Class *klass) const
     for (Symbol *s = klass->find(id); s; s = s->next()) {
         if (!s->name())
             continue;
-        if (s->name()->isDestructorNameId()) {
+        if (s->name()->asDestructorNameId()) {
             if (Function *funTy = s->type()->asFunctionType()) {
                 if (funTy->isVirtual() && id->match(s->identifier()))
                     return true;
@@ -1229,7 +1229,7 @@ void CheckSymbols::addType(ClassOrNamespace *b, NameAST *ast)
     Kind kind = SemanticHighlighter::TypeUse;
     const QList<Symbol *> &symbols = b->symbols();
     for (const Symbol * const s : symbols) {
-        if (s->isNamespace()) {
+        if (s->asNamespace()) {
             kind = SemanticHighlighter::NamespaceUse;
             break;
         }
@@ -1243,8 +1243,8 @@ bool CheckSymbols::isTemplateClass(Symbol *symbol) const
     if (symbol) {
         if (Template *templ = symbol->asTemplate()) {
             if (Symbol *declaration = templ->declaration()) {
-                return declaration->isClass()
-                        || declaration->isForwardClassDeclaration()
+                return declaration->asClass()
+                        || declaration->asForwardClassDeclaration()
                         || declaration->isTypedef();
             }
         }
@@ -1264,14 +1264,14 @@ bool CheckSymbols::maybeAddTypeOrStatic(const QList<LookupItem> &candidates, Nam
 
     for (const LookupItem &r : candidates) {
         Symbol *c = r.declaration();
-        if (c->isUsingDeclaration()) // skip using declarations...
+        if (c->asUsingDeclaration()) // skip using declarations...
             continue;
-        if (c->isUsingNamespaceDirective()) // ... and using namespace directives.
+        if (c->asUsingNamespaceDirective()) // ... and using namespace directives.
             continue;
-        if (c->isTypedef() || c->isNamespace() ||
+        if (c->isTypedef() || c->asNamespace() ||
                 c->isStatic() || //consider also static variable
-                c->isClass() || c->isEnum() || isTemplateClass(c) ||
-                c->isForwardClassDeclaration() || c->isTypenameArgument() || c->enclosingEnum()) {
+                c->asClass() || c->asEnum() || isTemplateClass(c) ||
+                c->asForwardClassDeclaration() || c->asTypenameArgument() || c->enclosingEnum()) {
             int line, column;
             getTokenStartPosition(startToken, &line, &column);
             const unsigned length = tok.utf16chars();
@@ -1279,7 +1279,7 @@ bool CheckSymbols::maybeAddTypeOrStatic(const QList<LookupItem> &candidates, Nam
             Kind kind = SemanticHighlighter::TypeUse;
             if (c->enclosingEnum() != nullptr)
                 kind = SemanticHighlighter::EnumerationUse;
-            else if (c->isNamespace())
+            else if (c->asNamespace())
                 kind = SemanticHighlighter::NamespaceUse;
             else if (c->isStatic())
                 // treat static variable as a field(highlighting)
@@ -1309,9 +1309,9 @@ bool CheckSymbols::maybeAddField(const QList<LookupItem> &candidates, NameAST *a
         Symbol *c = r.declaration();
         if (!c)
             continue;
-        if (!c->isDeclaration())
+        if (!c->asDeclaration())
             return false;
-        if (!(c->enclosingScope() && c->enclosingScope()->isClass()))
+        if (!(c->enclosingScope() && c->enclosingScope()->asClass()))
             return false; // shadowed
         if (c->isTypedef() || (c->type() && c->type()->isFunctionType()))
             return false; // shadowed
@@ -1359,7 +1359,7 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
 
         // In addition check for destructors, since the leading ~ is not taken into consideration.
         // We don't want to compare destructors with something else or the other way around.
-        if (isDestructor != c->name()->isDestructorNameId())
+        if (isDestructor != (c->name()->asDestructorNameId() != nullptr))
             continue;
 
         isConstructor = isConstructorDeclaration(c);

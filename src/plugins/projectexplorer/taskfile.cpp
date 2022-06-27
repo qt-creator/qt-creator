@@ -26,6 +26,7 @@
 #include "taskfile.h"
 
 #include "projectexplorer.h"
+#include "projectexplorerconstants.h"
 #include "session.h"
 #include "taskhub.h"
 

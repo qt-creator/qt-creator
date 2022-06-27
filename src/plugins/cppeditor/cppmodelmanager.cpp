@@ -32,19 +32,16 @@
 #include "cppcodemodelinspectordumper.h"
 #include "cppcurrentdocumentfilter.h"
 #include "cppeditorconstants.h"
-#include "cppeditorplugin.h"
 #include "cppfindreferences.h"
 #include "cppincludesfilter.h"
 #include "cppindexingsupport.h"
 #include "cpplocatordata.h"
 #include "cpplocatorfilter.h"
 #include "cppbuiltinmodelmanagersupport.h"
-#include "cpprefactoringchanges.h"
 #include "cppsourceprocessor.h"
 #include "cpptoolsjsextension.h"
 #include "cpptoolsreuse.h"
 #include "editordocumenthandle.h"
-#include "stringtable.h"
 #include "symbolfinder.h"
 #include "symbolsfindfilter.h"
 
@@ -57,13 +54,17 @@
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/session.h>
+
 #include <texteditor/textdocument.h>
+
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -1485,13 +1486,13 @@ QSet<QString> CppModelManager::symbolsInFiles(const QSet<Utils::FilePath> &files
 
                 const CPlusPlus::Identifier *symId = sym->identifier();
                 // Add any class, function or namespace identifiers
-                if ((sym->isClass() || sym->isFunction() || sym->isNamespace()) && symId
+                if ((sym->asClass() || sym->asFunction() || sym->asNamespace()) && symId
                     && symId->chars()) {
                     uniqueSymbols.insert(QString::fromUtf8(symId->chars()));
                 }
 
                 // Handle specific case : get "Foo" in "void Foo::function() {}"
-                if (sym->isFunction() && !sym->asFunction()->isDeclaration()) {
+                if (sym->asFunction() && !sym->asFunction()->asDeclaration()) {
                     const char *className = belongingClassName(sym->asFunction());
                     if (className)
                         uniqueSymbols.insert(QString::fromUtf8(className));

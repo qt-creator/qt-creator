@@ -80,7 +80,7 @@ public:
     static void applySettings();
     static QList<BaseSettings *> currentSettings();
     static void registerClientSettings(BaseSettings *settings);
-    static void enableClientSettings(const QString &settingsId);
+    static void enableClientSettings(const QString &settingsId, bool enable = true);
     static QList<Client *> clientsForSetting(const BaseSettings *setting);
     static const BaseSettings *settingForClient(Client *setting);
     static Client *clientForDocument(TextEditor::TextDocument *document);

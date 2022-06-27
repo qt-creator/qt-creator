@@ -59,7 +59,7 @@ GenericLinuxDeviceConfigurationWizard::GenericLinuxDeviceConfigurationWizard(QWi
     : Utils::Wizard(parent),
       d(new Internal::GenericLinuxDeviceConfigurationWizardPrivate(this))
 {
-    setWindowTitle(tr("New Generic Linux Device Configuration Setup"));
+    setWindowTitle(tr("New Remote Linux Device Configuration Setup"));
     setPage(Internal::SetupPageId, &d->setupPage);
     setPage(Internal::KeyDeploymentPageId, &d->keyDeploymentPage);
     setPage(Internal::FinalPageId, &d->finalPage);

@@ -25,9 +25,7 @@
 
 #pragma once
 
-#include <projectexplorer/desktoprunconfiguration.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/target.h>
 
 namespace MesonProjectManager {
 namespace Internal {

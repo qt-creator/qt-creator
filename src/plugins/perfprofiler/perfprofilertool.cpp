@@ -26,9 +26,7 @@
 #include "perfconfigwidget.h"
 #include "perfloaddialog.h"
 #include "perfprofilerplugin.h"
-#include "perfprofilerruncontrol.h"
 #include "perfprofilertool.h"
-#include "perfrunconfigurationaspect.h"
 #include "perfsettings.h"
 #include "perftracepointdialog.h"
 
@@ -39,15 +37,20 @@
 #include <coreplugin/imode.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/modemanager.h>
+
 #include <debugger/analyzer/analyzerconstants.h>
 #include <debugger/analyzer/analyzermanager.h>
 #include <debugger/debuggericons.h>
+
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+
 #include <qtsupport/qtkitinformation.h>
+
 #include <utils/algorithm.h>
 #include <utils/fancymainwindow.h>
 #include <utils/utilsicons.h>

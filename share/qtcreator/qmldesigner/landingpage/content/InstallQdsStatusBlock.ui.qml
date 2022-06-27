@@ -33,46 +33,48 @@ It is supposed to be strictly declarative and only uses a subset of QML. If you 
 this file manually, you might introduce QML code that is not supported by Qt Design Studio.
 Check out https://doc.qt.io/qtcreator/creator-quick-ui-forms.html for details on .ui.qml files.
 */
+
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import LandingPage
-import QdsLandingPageTheme as Theme
+import LandingPageApi
+import LandingPage as Theme
 
 Rectangle {
-    id: installQdsBlock
-    color: Theme.Values.themeBackgroundColorNormal
-    border.width: 0
-    property alias installQdsBlockVisible: installQdsBlock.visible
-    property alias installButton: installButton
-    height: 200
+    id: root
 
-    Text {
-        id: statusText
-        text: qsTr("No Qt Design Studio installation found")
-        font.family: Theme.Values.baseFont
-        font.pixelSize: Constants.fontSizeSubtitle
-        anchors.top: parent.top
-        anchors.topMargin: 10
-        anchors.horizontalCenter: parent.horizontalCenter
+    color: Theme.Colors.backgroundSecondary
+    height: column.childrenRect.height + (2 * Theme.Values.spacing)
+
+    Connections {
+        target: installButton
+        function onClicked() { LandingPageApi.installQds() }
     }
 
-    Text {
-        id: suggestionText
-        text: qsTr("Would you like to install it now?")
-        font.family: Theme.Values.baseFont
-        font.pixelSize: Constants.fontSizeSubtitle
-        anchors.top: statusText.bottom
-        anchors.topMargin: 10
-        anchors.horizontalCenterOffset: 0
-        anchors.horizontalCenter: parent.horizontalCenter
-    }
+    Column {
+        id: column
 
-    PushButton {
-        id: installButton
-        anchors.top: suggestionText.bottom
-        text: "Install"
-        anchors.topMargin: Constants.buttonDefaultMargin
-        anchors.horizontalCenterOffset: 0
-        anchors.horizontalCenter: parent.horizontalCenter
+        width: parent.width
+        anchors.centerIn: parent
+
+        PageText {
+            id: statusText
+            width: parent.width
+            topPadding: 0
+            padding: Theme.Values.spacing
+            text: qsTr("No Qt Design Studio installation found")
+        }
+
+        PageText {
+            id: suggestionText
+            width: parent.width
+            padding: Theme.Values.spacing
+            text: qsTr("Would you like to install it now?")
+        }
+
+        PushButton {
+            id: installButton
+            text: qsTr("Install")
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
     }
 }
