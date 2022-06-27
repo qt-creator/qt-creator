@@ -81,11 +81,11 @@ enum ProjectDirectoryError {
 const QString MENU_ITEM_GENERATE = QCoreApplication::translate("QmlDesigner::GenerateCmake",
                                                                "Generate CMake Build Files");
 
-void generateMenuEntry()
+void generateMenuEntry(QObject *parent)
 {
     Core::ActionContainer *menu =
             Core::ActionManager::actionContainer(Core::Constants::M_FILE);
-    auto action = new QAction(MENU_ITEM_GENERATE);
+    auto action = new QAction(MENU_ITEM_GENERATE, parent);
     QObject::connect(action, &QAction::triggered, GenerateCmake::onGenerateCmakeLists);
     Core::Command *cmd = Core::ActionManager::registerAction(action, "QmlProject.CreateCMakeLists");
     menu->addAction(cmd, Core::Constants::G_FILE_EXPORT);

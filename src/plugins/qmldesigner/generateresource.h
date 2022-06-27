@@ -33,7 +33,7 @@ struct ResourceFile
     QString fileName;
     bool inProject;
 };
-    void generateMenuEntry();
+    void generateMenuEntry(QObject *parent);
     QStringList getFileList(const QList<ResourceFile> &);
     QTableWidget* createFilesTable(const QList<ResourceFile> &);
 }

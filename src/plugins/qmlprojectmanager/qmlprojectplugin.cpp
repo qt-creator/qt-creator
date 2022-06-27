@@ -378,8 +378,8 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
                 });
     }
 
-    GenerateCmake::generateMenuEntry();
-    GenerateCmake::CmakeProjectConverter::generateMenuEntry();
+    GenerateCmake::generateMenuEntry(this);
+    GenerateCmake::CmakeProjectConverter::generateMenuEntry(this);
 
     return true;
 }

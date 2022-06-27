@@ -237,7 +237,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
         return false;
     d = new QmlDesignerPluginPrivate;
     if (QmlProjectManager::QmlProject::isQtDesignStudio())
-        GenerateResource::generateMenuEntry();
+        GenerateResource::generateMenuEntry(this);
 
     const QString fontPath
         = Core::ICore::resourcePath(
