@@ -48,6 +48,23 @@ using namespace LanguageServerProtocol;
 
 namespace LanguageClient {
 
+const QList<SymbolInformation> sortedSymbols(const QList<SymbolInformation> &symbols)
+{
+    auto result = symbols;
+    Utils::sort(result, [](const SymbolInformation &a, const SymbolInformation &b){
+        return a.location().range().start() < b.location().range().start();
+    });
+    return result;
+}
+const QList<DocumentSymbol> sortedSymbols(const QList<DocumentSymbol> &symbols)
+{
+    auto result = symbols;
+    Utils::sort(result, [](const DocumentSymbol &a, const DocumentSymbol &b){
+        return a.range().start() < b.range().start();
+    });
+    return result;
+}
+
 class LanguageClientOutlineItem : public Utils::TypedTreeItem<LanguageClientOutlineItem>
 {
 public:
@@ -65,7 +82,9 @@ public:
         , m_symbolStringifier(stringifier)
         , m_type(info.kind())
     {
-        for (const DocumentSymbol &child : info.children().value_or(QList<DocumentSymbol>()))
+        const QList<LanguageServerProtocol::DocumentSymbol> children = sortedSymbols(
+                    info.children().value_or(QList<DocumentSymbol>()));
+        for (const DocumentSymbol &child : children)
             appendChild(new LanguageClientOutlineItem(child, stringifier));
     }
 
@@ -103,13 +122,13 @@ public:
     void setInfo(const QList<SymbolInformation> &info)
     {
         clear();
-        for (const SymbolInformation &symbol : info)
+        for (const SymbolInformation &symbol : sortedSymbols(info))
             rootItem()->appendChild(new LanguageClientOutlineItem(symbol));
     }
     void setInfo(const QList<DocumentSymbol> &info)
     {
         clear();
-        for (const DocumentSymbol &symbol : info)
+        for (const DocumentSymbol &symbol : sortedSymbols(info))
             rootItem()->appendChild(new LanguageClientOutlineItem(symbol, m_symbolStringifier));
     }
 
