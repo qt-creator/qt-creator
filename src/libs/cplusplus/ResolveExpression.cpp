@@ -1079,13 +1079,13 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
 
         if (Q_UNLIKELY(debug)) {
             qDebug("trying result #%d", ++i);
-            qDebug() << "- before typedef resolving we have:" << oo(ty);
+            qDebug() << "- before typedef resolving we have:" << oo.prettyType(ty);
         }
 
         typedefsResolver.resolve(&ty, &scope, r.binding());
 
         if (Q_UNLIKELY(debug))
-            qDebug() << "-  after typedef resolving:" << oo(ty);
+            qDebug() << "-  after typedef resolving:" << oo.prettyType(ty);
 
         if (accessOp == T_ARROW) {
             PointerType *ptrTy = ty->asPointerType();

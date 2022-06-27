@@ -396,7 +396,8 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
                     if (d->isTypedef() && d->type()) {
                         if (Q_UNLIKELY(debug)) {
                             Overview oo;
-                            qDebug() << "Looks like" << oo(name) << "is a typedef for" << oo(d->type());
+                            qDebug() << "Looks like" << oo.prettyName(name)
+                                     << "is a typedef for" << oo.prettyType(d->type());
                         }
                         if (const NamedType *namedTy = d->type()->asNamedType()) {
                             // Stop on recursive typedef declarations
@@ -835,7 +836,7 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
             if (Q_UNLIKELY(debug)) {
                 Overview oo;
                 qDebug() << "Found" << id->chars() << "in"
-                         << (binding ? oo(binding->_name) : QString::fromLatin1("<null>"));
+                         << (binding ? oo.prettyName(binding->_name) : QString::fromLatin1("<null>"));
             }
 
             LookupItem item;
@@ -974,7 +975,7 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
 {
     if (Q_UNLIKELY(debug)) {
         Overview oo;
-        qDebug() << "Looking up" << oo(name) << "in" << oo(_name);
+        qDebug() << "Looking up" << oo.prettyName(name) << "in" << oo.prettyName(_name);
     }
 
     if (const QualifiedNameId *q = name->asQualifiedNameId()) {
@@ -1358,14 +1359,14 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
                         oo.showFunctionSignatures = true;
                         oo.showReturnTypes = true;
                         oo.showTemplateParameters = true;
-                        qDebug() << "cloned" << oo(clone->type());
+                        qDebug() << "cloned" << oo.prettyType(clone->type());
                         if (Class *klass = clone->asClass()) {
                             const int klassMemberCount = klass->memberCount();
                             for (int i = 0; i < klassMemberCount; ++i){
                                 Symbol *klassMemberAsSymbol = klass->memberAt(i);
                                 if (klassMemberAsSymbol->isTypedef()) {
                                     if (Declaration *declaration = klassMemberAsSymbol->asDeclaration())
-                                        qDebug() << "Member: " << oo(declaration->type(), declaration->name());
+                                        qDebug() << "Member: " << oo.prettyType(declaration->type(), declaration->name());
                                 }
                             }
                         }

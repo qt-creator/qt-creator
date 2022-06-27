@@ -37,15 +37,6 @@ class CPLUSPLUS_EXPORT Overview
 public:
     Overview();
 
-    QString operator()(const Name *name) const
-    { return prettyName(name); }
-
-    QString operator()(const QList<const Name *> &fullyQualifiedName) const
-    { return prettyName(fullyQualifiedName); }
-
-    QString operator()(const FullySpecifiedType &type, const Name *name = nullptr) const
-    { return prettyType(type, name); }
-
     QString prettyName(const Name *name) const;
     QString prettyName(const QList<const Name *> &fullyQualifiedName) const;
     QString prettyType(const FullySpecifiedType &type, const Name *name = nullptr) const;

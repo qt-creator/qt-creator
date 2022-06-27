@@ -115,8 +115,7 @@ QString Overview::prettyType(const FullySpecifiedType &ty, const Name *name) con
     return prettyType(ty, prettyName(name));
 }
 
-QString Overview::prettyType(const FullySpecifiedType &ty,
-                             const QString &name) const
+QString Overview::prettyType(const FullySpecifiedType &ty, const QString &name) const
 {
     TypePrettyPrinter pp(this);
     return pp(ty, name);
