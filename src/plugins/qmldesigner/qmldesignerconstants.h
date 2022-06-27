@@ -92,6 +92,7 @@ const char MATERIAL_LIB_ID[] = "__materialLibrary__";
 
 const char MIME_TYPE_ITEM_LIBRARY_INFO[] = "application/vnd.qtdesignstudio.itemlibraryinfo";
 const char MIME_TYPE_ASSETS[]            = "application/vnd.qtdesignstudio.assets";
+const char MIME_TYPE_MATERIAL[]          = "application/vnd.qtdesignstudio.material";
 const char MIME_TYPE_ASSET_IMAGE[]       = "application/vnd.qtdesignstudio.asset.image";
 const char MIME_TYPE_ASSET_FONT[]        = "application/vnd.qtdesignstudio.asset.font";
 const char MIME_TYPE_ASSET_SHADER[]      = "application/vnd.qtdesignstudio.asset.shader";

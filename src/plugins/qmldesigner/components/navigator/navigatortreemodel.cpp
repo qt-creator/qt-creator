@@ -464,6 +464,7 @@ QStringList NavigatorTreeModel::mimeTypes() const
 {
     const static QStringList types({Constants::MIME_TYPE_MODELNODE_LIST,
                                     Constants::MIME_TYPE_ITEM_LIBRARY_INFO,
+                                    Constants::MIME_TYPE_MATERIAL,
                                     Constants::MIME_TYPE_ASSETS});
 
     return types;
@@ -559,6 +560,8 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
     if (dropModelIndex.model() == this) {
         if (mimeData->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)) {
             handleItemLibraryItemDrop(mimeData, rowNumber, dropModelIndex);
+        } else if (mimeData->hasFormat(Constants::MIME_TYPE_MATERIAL)) {
+            handleMaterialDrop(mimeData, rowNumber, dropModelIndex);
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_ASSETS)) {
             const QStringList assetsPaths = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS)).split(',');
             NodeAbstractProperty targetProperty;
@@ -777,6 +780,33 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
             }
         }
     }
+}
+
+void NavigatorTreeModel::handleMaterialDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex)
+{
+    QTC_ASSERT(m_view, return);
+
+    const QModelIndex rowModelIndex = dropModelIndex.sibling(dropModelIndex.row(), 0);
+    int targetRowNumber = rowNumber;
+    NodeAbstractProperty targetProperty;
+
+    bool foundTarget = findTargetProperty(rowModelIndex, this, &targetProperty, &targetRowNumber, "materials");
+    if (!foundTarget)
+        return;
+
+    ModelNode targetNode = targetProperty.parentModelNode();
+    if (!targetNode.isSubclassOf("QtQuick3D.Model"))
+        return;
+
+    QByteArray data = mimeData->data(Constants::MIME_TYPE_MATERIAL);
+    QDataStream stream(data);
+    qint32 internalId;
+    stream >> internalId;
+    ModelNode matNode = m_view->modelNodeForInternalId(internalId);
+
+    m_view->executeInTransaction(__FUNCTION__, [&] {
+        m_view->assignMaterialTo3dModel(targetNode, matNode);
+    });
 }
 
 ModelNode NavigatorTreeModel::handleItemLibraryImageDrop(const QString &imagePath,

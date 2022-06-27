@@ -115,6 +115,7 @@ private:
                               int targetIndex, bool executeInTransaction = true);
     void handleInternalDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
     void handleItemLibraryItemDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
+    void handleMaterialDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
     ModelNode handleItemLibraryImageDrop(const QString &imagePath, NodeAbstractProperty targetProperty,
                                          const QModelIndex &rowModelIndex, bool &outMoveNodesAfter);
     ModelNode handleItemLibraryFontDrop(const QString &fontFamily, NodeAbstractProperty targetProperty,
