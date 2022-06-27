@@ -42,10 +42,10 @@
 
     For the pop-up survey to appear, you must enable collecting statistics, and
     also allow collecting \uicontrol {4 - Detailed usage statistics} in
-    \uicontrol Tools > \uicontrol Options >  \uicontrol Telemetry >
+    \uicontrol Edit > \uicontrol Preferences >  \uicontrol Telemetry >
     \uicontrol {Usage Statistics} > \uicontrol {Telemetry mode}.
     You can review the submitted user feedback in
-    \uicontrol Tools > \uicontrol Options > \uicontrol Telemetry >
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol Telemetry >
     \uicontrol {Usage Statistics} > \uicontrol {Collected Data} by selecting
     \uicontrol {Qt Quick Designer Usage of views and actions} in
     \uicontrol {Data sources}.

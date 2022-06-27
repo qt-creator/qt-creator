@@ -55,7 +55,7 @@
 
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Meson >
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Meson >
             \uicontrol Tools > \uicontrol Add.
 
             \image qtcreator-mesonexecutable.png
@@ -70,7 +70,7 @@
     \endlist
 
     Select the
-    \uicontrol Tools > \uicontrol Options > \uicontrol Kits > \uicontrol Kits
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits > \uicontrol Kits
     tab to add the Meson and Ninja tools to a build and run kit:
 
     \image qtcreator-kits-meson.png "Setting Meson executable in Kit options"

@@ -48,7 +48,7 @@
     \image qtcreator-semanticerror.png
 
     To modify the colors used for underlining errors and warnings, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor} >
     \uicontrol {Font & Colors} > \uicontrol Copy, and select new colors for
     \uicontrol Error and \uicontrol Warning.
 
@@ -90,7 +90,7 @@
     \section2 Specifying Line Annotation Positions
 
     To specify the position where the annotations are displayed, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor} >
     \uicontrol Display > \uicontrol {Line annotations}, and then select
     whether to display the annotations directly next to the code, aligned
     to the right of the code, or in the right margin. Showing annotations
@@ -747,7 +747,7 @@
 
     \section1 Automatically Formatting QML/JS Files
 
-    To automatically format QML/JS files upon saving, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} >
+    To automatically format QML/JS files upon saving, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} >
     \uicontrol {Enable auto format on file save}.
 */

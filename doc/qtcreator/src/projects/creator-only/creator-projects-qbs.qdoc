@@ -39,8 +39,8 @@
     with the build and run kit. \QC automatically creates a Qbs profile for each
     kit. You can edit the build profiles by adding new keys and values.
 
-    To check which Qbs version is being used, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol Qbs > \uicontrol General.
+    To check which Qbs version is being used, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Qbs > \uicontrol General.
 
     \section1 Building Qbs
 
@@ -66,7 +66,7 @@
     To specify settings for Qbs:
 
     \list 1
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Qbs.
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Qbs.
             \image qtcreator-options-qbs.png
         \li Deselect the \uicontrol {Use \QC settings directory for Qbs} check
             box to store Qbs profiles in the Qbs settings directory.
@@ -81,7 +81,7 @@
             \image creator-qbs-profiles.png "Qbs Profiles tab"
         \li In the \uicontrol Kit field, select a build and run kit to view
             the properties of the associated profile. To modify the properties,
-            select \uicontrol Tools > \uicontrol Options > \uicontrol Kits.
+            select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits.
             For more information, see \l{Editing Qbs Profiles}.
     \endlist
 

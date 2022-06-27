@@ -117,7 +117,7 @@
 
     The locations of search hits, breakpoints, and bookmarks in your document
     are highlighted on the editor scroll bar. To turn highlighting off, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor} >
     \uicontrol Display > \uicontrol {Highlight search results on the scrollbar}.
 
     To search using more advanced options, select \uicontrol Advanced.
@@ -266,7 +266,7 @@
 
         \li If Silver Searcher is not found, you might have installed it in a
             location that is not found via the \c{PATH} environment variable.
-            Select \uicontrol Tools > \uicontrol Options > \uicontrol Environment >
+            Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Environment >
             \uicontrol System (or \uicontrol {\QC} > \uicontrol Preferences >
             \uicontrol Environment > \uicontrol System on macOS), then select
             \uicontrol Change in the \uicontrol Environment field and add an entry

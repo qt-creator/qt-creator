@@ -199,7 +199,7 @@
     Usually, you can use the external tool specification files to start the
     tool. If starting the tool and handling its output require more complex
     logic, you can add a menu item to \QC with a plugin. If you need a way to
-    configure the tool in \QC, you can add an \uicontrol Options page for it.
+    configure the tool in \QC, you can add an options page for it.
 
     \list
         \li \l{https://doc.qt.io/qtcreator/creator-editor-external.html}{Using External Tools}

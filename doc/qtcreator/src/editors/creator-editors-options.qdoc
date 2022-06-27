@@ -41,7 +41,7 @@
     \title Configuring the Editor
 
     You can configure the text editor to suit your specific needs by selecting
-    \uicontrol Tools > \uicontrol Options > \uicontrol{Text Editor}.
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol{Text Editor}.
 
     \image qtcreator-font-colors.png "Text Editor options"
 

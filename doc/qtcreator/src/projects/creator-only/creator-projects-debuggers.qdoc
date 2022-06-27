@@ -43,14 +43,14 @@
 
     The debugger plugin automatically selects a suitable native debugger for
     each \l{glossary-buildandrun-kit}{kit} from the ones found on your system.
-    To override this choice, select \uicontrol Tools > \uicontrol Options >
+    To override this choice, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Kits.
 
     To add debuggers:
 
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
             \uicontrol Debuggers > \uicontrol Add.
 
             \image qtcreator-options-build-run-debuggers.png

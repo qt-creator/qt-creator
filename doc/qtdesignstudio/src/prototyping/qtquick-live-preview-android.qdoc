@@ -104,7 +104,7 @@
     You need to install Android SDK packages in \QDS:
     \list 1
       \li Run \QDS.
-      \li Go to \uicontrol Tools > \uicontrol Options > \uicontrol{Devices}.
+      \li Go to \uicontrol Edit > \uicontrol Preferences > \uicontrol{Devices}.
       \li Select \uicontrol Yes on the \uicontrol{Missing Android SDK Packages} dialog.
       \image qtds-options-dialog-missing-packages.png
       \li Select \uicontrol OK on the \uicontrol{Android SDK Changes} dialog.
@@ -117,7 +117,7 @@
     have stopped working, try to restart \QDS and run the installation again.
 
     After completing these steps, you should no longer have any errors on the
-    \uicontrol Tools > \uicontrol Options > \uicontrol Devices page.
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol Devices page.
     \image qtds-options-accept-licenses.png
 
     \section2 Create Android Virtual Devices
@@ -140,7 +140,7 @@
 
     To create an AVD in \QDS:
     \list 1
-      \li Go to \uicontrol Tools > \uicontrol Options.
+      \li Go to \uicontrol Edit > \uicontrol Preferences.
       \li On the \uicontrol Devices tab, select \uicontrol Add and follow the wizard to finalize
       the creation. If there is no entry for \e{Android Device} in the
      \uicontrol{Available device types} list, try restarting \QDS.
@@ -176,7 +176,7 @@
       \image toolbar-show-live-preview.png
       \li Select \uicontrol Build > \uicontrol{QML Preview}.
       \note The \uicontrol Build menu option is not visible by default. To show
-      it, go to \uicontrol Tools > \uicontrol Options > \uicontrol Environment
+      it, go to \uicontrol Edit > \uicontrol Preferences > \uicontrol Environment
       > \uicontrol {Qt Design Studio Configuration}.
       \image menu-build-qml-preview.png
     \endlist

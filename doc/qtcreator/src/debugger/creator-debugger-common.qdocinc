@@ -148,8 +148,8 @@
     \if defined(qtcreator)
     \section2 Specifying Breakpoint Settings
 
-    You can specify settings for breakpoints in \uicontrol Tools >
-    \uicontrol Options > \uicontrol Debugger. For more information,
+    You can specify settings for breakpoints in \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Debugger. For more information,
     see \l{Specifying Debugger Settings}.
 
     To use a full absolute path in breakpoints, select the

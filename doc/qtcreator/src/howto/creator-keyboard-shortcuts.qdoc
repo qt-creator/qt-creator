@@ -50,7 +50,7 @@
 
     To view all functions available in \QC and the keyboard shortcuts defined
     for them, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol Environment >
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol Environment >
     \uicontrol Keyboard. The shortcuts are listed by category. To find a keyboard
     shortcut in the list, enter a function name or shortcut in the \uicontrol Filter
     field.
@@ -75,7 +75,7 @@
 
     To override the platform default value that determines whether
     keyboard shortcuts are shown in the labels of context menu items,
-    select \uicontrol Tools > \uicontrol Options > \uicontrol Environment >
+    select \uicontrol Edit > \uicontrol Preferences > \uicontrol Environment >
     \uicontrol Interface. The label of the \uicontrol {Show keyboard shortcuts
     in context menus} check box indicates whether the platform default value
     is \c on or \c off.
@@ -88,7 +88,7 @@
 
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Environment
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Environment
             > \uicontrol Keyboard.
 
         \li Select a command from the list.
@@ -290,7 +290,7 @@
                  By default, \QC exits without asking for confirmation, unless
                  there are unsaved changes in open files. To always be asked,
                  select the \uicontrol {Ask for confirmation before exiting}
-                 check box in \uicontrol Tools > \uicontrol Options >
+                 check box in \uicontrol Edit > \uicontrol Preferences >
                  \uicontrol Environment > \uicontrol System.
             \li  Ctrl+Q
     \endtable
@@ -388,8 +388,8 @@
             \li  Select the current block
 
                  The second press extends the selection to the parent block. To
-                 enable this behavior, select \uicontrol Tools >
-                 \uicontrol Options > \uicontrol {Text Editor} >
+                 enable this behavior, select \uicontrol Edit >
+                 \uicontrol Preferences > \uicontrol {Text Editor} >
                  \uicontrol Behavior >
                  \uicontrol {Enable smart selection changing}.
             \li  Ctrl+U

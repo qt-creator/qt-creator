@@ -82,7 +82,7 @@
     \section2 Specifying MCU Settings
 
     To configure a connection between \QC and your MCU board, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol Devices >
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol Devices >
     \uicontrol MCU:
 
     \image qtcreator-mcu-options.png "MCU options"
@@ -143,7 +143,7 @@
 
     \image qtcreator-mcu-device.png "MCU devices"
 
-    To add MCU devices, select \uicontrol Tools > \uicontrol Options >
+    To add MCU devices, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Devices > \uicontrol Add > \uicontrol {MCU Device} >
     \uicontrol {Start Wizard}:
 
@@ -163,8 +163,8 @@
 
     \image qtcreator-mcu-kit.png "MCU kits"
 
-    You can edit and/or remove individual kits in \uicontrol Tools >
-    \uicontrol Options > \uicontrol Kits.
+    You can edit and/or remove individual kits in \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Kits.
 
     However, for adding new kits you should use the \uicontrol {Create Kit}
     button in the {Qt for MCUs} settings tab. This method adds the paths to

@@ -33,8 +33,8 @@
     repositories. To allow access, make sure that the command line clients can
     be located using the \c{PATH} environment variable. Alternatively, specify
     the path to the command line client executable in the \uicontrol Command
-    field in the version control system specific tab in \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Version Control}.
+    field in the version control system specific tab in \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol {Version Control}.
 
     If authentication is required to access the repository, enter the user
     credentials in the \uicontrol Username and \uicontrol Password fields.
@@ -54,9 +54,8 @@
 
     \section1 Setting Up General Options
 
-    Select \uicontrol{Tools} > \uicontrol{Options} > \uicontrol{Version Control}
-    > \uicontrol{General}
-    to specify settings for submit messages:
+    Select \uicontrol Edit > \uicontrol Preferences > \uicontrol {Version Control}
+    > \uicontrol General to specify settings for submit messages:
 
     \list
         \li \uicontrol{Wrap submit messages at} limits the line length of a

@@ -64,7 +64,7 @@
 
     Typically, only a subset of the kit settings is relevant for a particular
     setup. Therefore, \QC plugins register sets of relevant settings that you
-    can view and modify in \uicontrol Tools > \uicontrol Options >
+    can view and modify in \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Kits. For example, if you use CMake to build all your projects,
     you can hide Qbs and qmake settings by default.
 
@@ -81,7 +81,7 @@
 
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
             \uicontrol Add.
 
             \image qtcreator-kits-add.png
@@ -195,8 +195,8 @@
 
     \section1 Editing Qbs Profiles
 
-    To view the Qbs profile associated with the kit, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol Qbs > \uicontrol Profiles.
+    To view the Qbs profile associated with the kit, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Qbs > \uicontrol Profiles.
 
     \image creator-qbs-profiles.png "Qbs Profiles tab"
 
@@ -209,7 +209,7 @@
 
     \list 1
 
-        \li In \uicontrol Tools > \uicontrol Options > \uicontrol Kits, select
+        \li In \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits, select
             the kit, and then select \uicontrol Change next to the
             \uicontrol {Additional Qbs Profile Settings} field to open the
             \uicontrol {Custom Properties} dialog.

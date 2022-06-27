@@ -276,7 +276,7 @@
 
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Options >
+        \li Select \uicontrol Edit > \uicontrol Preferences >
             \uicontrol Environment > \uicontrol Locator >
             \uicontrol {Web Search (prefix: r)} > \uicontrol Edit.
 
@@ -352,7 +352,7 @@
 
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Options >
+        \li Select \uicontrol Edit > \uicontrol Preferences >
             \uicontrol Environment > \uicontrol Locator.
 
         \li In \uicontrol {Refresh interval}, define new time in minutes.

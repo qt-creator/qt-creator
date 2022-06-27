@@ -76,7 +76,7 @@
     In addition, you can import and export code style settings.
 
     To automatically fix indentation according to the indentation settings
-    when you save the file, select \uicontrol Tools > \uicontrol Options >
+    when you save the file, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol {Text Editor} > \uicontrol Behavior >
     \uicontrol {Clean whitespace} > \uicontrol {Clean indentation}. Select
     the \uicontrol {Skip clean whitespace for file types} check box to
@@ -84,8 +84,8 @@
 
     \image qtcreator-options-text-editor-behavior.png "Text Editor Behavior options"
 
-    To visualize whitespace in the editor, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Text Editor} > \uicontrol Display >
+    To visualize whitespace in the editor, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol {Text Editor} > \uicontrol Display >
     \uicontrol {Visualize whitespace}.
 
     \image qtcreator-options-text-editor-display.png "Text Editor Display options"
@@ -103,7 +103,7 @@
     To specify indentation settings for the C++ editor:
 
     \list 1
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol {C++}.
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol {C++}.
         \li In the \uicontrol {Current settings} field, select the settings to
             modify and click \uicontrol Copy.
             \image qtcreator-options-code-style-cpp.png "C++ Code Style options"
@@ -139,7 +139,7 @@
     To specify settings for the Qt Quick editor:
 
     \list 1
-        \li Select \uicontrol Tools > \uicontrol Options >
+        \li Select \uicontrol Edit > \uicontrol Preferences >
             \uicontrol {Qt Quick}.
         \li In the \uicontrol {Current settings} field, select the settings to
             modify and click \uicontrol Copy.
@@ -161,7 +161,7 @@
     To specify settings for the Nim editor (experimental):
 
     \list 1
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Nim.
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Nim.
         \li In the \uicontrol {Current settings} field, select the settings to
             modify and click \uicontrol Copy.
             \image qtcreator-options-code-style-nim.png "Nim Code Style options"
@@ -180,8 +180,8 @@
     \section1 Indenting Other Text Files
 
     To specify indentation settings for text files that do not contain C++ or
-    QML code (such as Python code files), select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Text Editor} > \uicontrol Behavior.
+    QML code (such as Python code files), select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol {Text Editor} > \uicontrol Behavior.
 
     \image qtcreator-indentation.png "Text Editor Behavior options"
 
@@ -230,7 +230,7 @@
 
     When you type text or code, it is indented automatically according to the
     selected text editor or code style options. To specify typing options,
-    select \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
+    select \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor} >
     \uicontrol Behavior > \uicontrol Typing.
 
     To disable automatic indentation, deselect the

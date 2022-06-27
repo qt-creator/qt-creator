@@ -60,8 +60,8 @@
     \l {Using Common Functions}, you can select \uicontrol Tools >
     \uicontrol Perforce > \uicontrol {Edit File} to open a file for editing
     within the client workspace. By default, files are automatically opened for
-    editing. To disable this feature, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Version Control} > \uicontrol Perforce,
+    editing. To disable this feature, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol {Version Control} > \uicontrol Perforce,
     and then deselect the \uicontrol {Automatically open files when editing}
     check box.
 
@@ -75,7 +75,7 @@
     \uicontrol Tools > \uicontrol Perforce > \uicontrol Describe.
 
     By default, you are prompted to confirm that you want to submit changes.
-    To suppress the prompt, select \uicontrol Tools > \uicontrol Options >
+    To suppress the prompt, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol {Version Control} > \uicontrol Perforce, and then deselect the
     \uicontrol {Prompt on submit} check box.
 */

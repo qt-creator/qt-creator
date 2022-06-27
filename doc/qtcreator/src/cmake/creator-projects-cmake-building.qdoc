@@ -147,8 +147,8 @@
     stored in the CMakeLists.txt.user file, so deleting a build directory
     does not delete the initial configuration.
 
-    To be asked before \QC resets the changes, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Build & Run} > \uicontrol CMake >
+    To be asked before \QC resets the changes, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol {Build & Run} > \uicontrol CMake >
     \uicontrol {Ask before re-configuring with initial parameters}.
 
     \image qtcreator-build-run-options-cmake.png "CMake Build & Run options"
@@ -224,7 +224,7 @@
     \QC can automatically set up the \l {Setting Up Conan}
     {Conan package manager} for use with CMake.
 
-    Select \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
+    Select \uicontrol Edit > \uicontrol Preferences > \uicontrol {Build & Run} >
     \uicontrol CMake > \uicontrol {Package manager auto setup} to set the
     value of the \c CMAKE_PROJECT_INCLUDE_BEFORE variable to the path to a
     CMake script that installs dependencies from a \c conanfile.txt,

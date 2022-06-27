@@ -40,7 +40,7 @@
         \li \l{Completing Code}{Code completion}
         \li Sending document formatting requests to the language server to
             automatically format documents using the settings specified in
-            \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor}
+            \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor}
             > \uicontrol Behavior
         \li Highlighting the symbol under cursor
         \li \l{Viewing Function Tooltips}{Viewing function tooltips}
@@ -85,8 +85,8 @@
 
     \section2 Adding Language Servers
 
-    To view a list of language servers, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Language Client} (or
+    To view a list of language servers, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol {Language Client} (or
     \uicontrol {Qt Creator} > \uicontrol Preferences >
     \uicontrol {Language Client} > on \macos).
 
@@ -102,7 +102,7 @@
     To add a generic language server:
 
     \list 1
-        \li Select \uicontrol Tools > \uicontrol Options >
+        \li Select \uicontrol Edit > \uicontrol Preferences >
             \uicontrol {Language Client} > \uicontrol Add >
             \uicontrol {New Generic StdIO Language Server}
             to add a generic language server.
@@ -133,7 +133,7 @@
     To add a Java language server:
 
     \list 1
-        \li Select \uicontrol Tools > \uicontrol Options >
+        \li Select \uicontrol Edit > \uicontrol Preferences >
             \uicontrol {Language Client} > \uicontrol Add >
             \uicontrol {New Java Language Server} to add a Java language server.
             \image qtcreator-language-client-options-java.png "Java language server options"

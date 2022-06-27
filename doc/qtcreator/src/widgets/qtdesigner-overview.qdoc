@@ -73,7 +73,7 @@
 
     \list
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Designer.
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Designer.
 
         \li Specify settins for generating classes and code in \uicontrol {Class
             Generation}.
@@ -101,7 +101,7 @@
 
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Designer.
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Designer.
 
         \li Select the \uicontrol{Print/Preview Configuration} check box.
 

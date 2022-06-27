@@ -51,8 +51,8 @@
     To unedit files in the local directory, as well as recursively in all
     subdirectories, select \uicontrol {Unedit Repository}.
 
-    To specify the CVS root directory, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Version Control} > \uicontrol CVS, and then
+    To specify the CVS root directory, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol {Version Control} > \uicontrol CVS, and then
     specify the path to the directory in the \uicontrol {CVS root} field.
 
     You can specify settings for viewing diff output in the

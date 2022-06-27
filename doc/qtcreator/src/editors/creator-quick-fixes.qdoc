@@ -104,7 +104,7 @@
 
     You can specify settings for the refactoring actions either globally for
     all projects or separately for each project. To specify global options,
-    select \uicontrol Tools > \uicontrol Options > \uicontrol C++ >
+    select \uicontrol Edit > \uicontrol Preferences > \uicontrol C++ >
     \uicontrol {Quick Fixes}.
 
     To specify custom settings for a particular project, select

@@ -50,7 +50,7 @@
     \section1 Specifying Settings for Opening Files
 
     To specify settings for opening files and handling open files, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol Environment >
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol Environment >
     \uicontrol System:
 
     \image qtcreator-options-environment-system.png "Environment options System tab"

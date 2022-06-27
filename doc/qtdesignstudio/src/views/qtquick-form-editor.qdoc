@@ -179,7 +179,7 @@
     Only one snapping button can be selected at the time. Selecting
     one snapping button automatically deselects the others.
 
-    Choose \uicontrol Tools > \uicontrol Options > \uicontrol {Qt Quick} >
+    Choose \uicontrol Edit > \uicontrol Preferences > \uicontrol {Qt Quick} >
     \uicontrol {Qt Quick Designer} to specify settings for snapping. In the
     \uicontrol {Parent component padding} field, specify the distance in
     pixels between the parent and the snapping lines. In the
@@ -220,14 +220,14 @@
 
     \image qmldesigner-preview-size.png "Component width and height"
 
-    To set the initial size of the root component, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer}
+    To set the initial size of the root component, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer}
     and specify the component width and height in the
     \uicontrol {Root Component Init Size} group.
 
     \section1 Specifying Canvas Size
 
-    To change the canvas size, select \uicontrol Tools > \uicontrol Options >
+    To change the canvas size, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer} and
     specify the canvas width and height in the \uicontrol Canvas group.
 

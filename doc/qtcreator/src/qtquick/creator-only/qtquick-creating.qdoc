@@ -143,8 +143,8 @@
         \li Select \l{glossary-buildandrun-kit}{kits} for the platforms that
             you want to build the application for.
 
-            \note Kits are listed if they have been specified in \uicontrol
-            Tools > \uicontrol Options > \uicontrol Kits (on Windows and Linux)
+            \note Kits are listed if they have been specified in \uicontrol Edit
+            > \uicontrol Preferences > \uicontrol Kits (on Windows and Linux)
             or in \uicontrol {\QC} > \uicontrol Preferences >
             \uicontrol Kits (on \macos).
             For more information, see \l {Adding Kits}.
@@ -221,8 +221,8 @@
         \li Select \l{glossary-buildandrun-kit}{kits} for the platforms that
             you want to build the application for.
 
-            \note Kits are listed if they have been specified in \uicontrol
-            Tools > \uicontrol Options > \uicontrol Kits (on Windows and Linux)
+            \note Kits are listed if they have been specified in \uicontrol Edit
+            > \uicontrol Preferences > \uicontrol Kits (on Windows and Linux)
             or in \uicontrol {\QC} > \uicontrol Preferences >
             \uicontrol Kits (on \macos).
             For more information, see \l {Adding Kits}.

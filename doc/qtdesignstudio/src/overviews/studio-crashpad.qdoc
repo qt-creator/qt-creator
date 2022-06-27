@@ -43,8 +43,8 @@
     of the collected data, see \l {https://sentry.io/security/}
     {Security & Compliance} by Sentry.
 
-    To enable sending crash reports, select \uicontrol Tools > \uicontrol
-    Options > \uicontrol Environment > \uicontrol System
+    To enable sending crash reports, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Environment > \uicontrol System
     (\uicontrol {Qt Design Studio} > \uicontrol Preferences > \uicontrol
     Environment > \uicontrol System on \macos), and then select
     \uicontrol {Enable crash reporting}.
