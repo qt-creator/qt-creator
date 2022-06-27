@@ -32,6 +32,7 @@
 
 #include <QDebug>
 #include <QLabel>
+#include <QLayout>
 #include <QPainter>
 
 #include <utils/qtcassert.h>
