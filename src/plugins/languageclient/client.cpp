@@ -1867,13 +1867,13 @@ void ClientPrivate::initializeCallback(const InitializeRequest::Response &initRe
     if (const optional<InitializeResult> &result = initResponse.result()) {
         if (!result->isValid()) { // continue on ill formed result
             q->log(QJsonDocument(*result).toJson(QJsonDocument::Indented) + '\n'
-                + tr("Initialize result is not valid"));
+                + tr("Initialize result is invalid."));
         }
         const Utils::optional<ServerInfo> serverInfo = result->serverInfo();
         if (serverInfo) {
             if (!serverInfo->isValid()) {
                 q->log(QJsonDocument(*result).toJson(QJsonDocument::Indented) + '\n'
-                    + tr("Server Info is not valid"));
+                    + tr("Server Info is invalid."));
             } else {
                 m_serverName = serverInfo->name();
                 if (const Utils::optional<QString> version = serverInfo->version())

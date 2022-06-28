@@ -218,7 +218,7 @@ InterpreterOptionsWidget::InterpreterOptionsWidget(const QList<Interpreter> &int
     m_cleanButton = new QPushButton(PythonSettings::tr("&Clean Up"));
     connect(m_cleanButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::cleanUp);
     m_cleanButton->setToolTip(
-        PythonSettings::tr("Remove all python interpreters without a valid executable."));
+        PythonSettings::tr("Remove all Python interpreters without a valid executable."));
 
     updateCleanButton();
 

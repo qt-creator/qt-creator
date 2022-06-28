@@ -168,7 +168,7 @@ void CommandBuilderAspect::addToLayout(LayoutBuilder &builder)
 
     if (!d->label) {
         d->label = new QLabel(tr("Command Helper:"));
-        d->label->setToolTip(tr("Select an helper to establish the build command."));
+        d->label->setToolTip(tr("Select a helper to establish the build command."));
     }
 
     // On first creation of the step, attempt to detect and migrate from preceding steps

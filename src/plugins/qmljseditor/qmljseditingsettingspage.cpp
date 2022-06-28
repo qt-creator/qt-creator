@@ -169,7 +169,7 @@ public:
         m_ui.autoFormatOnSave->setChecked(s.autoFormatOnSave());
         m_ui.autoFormatOnlyCurrentProject->setChecked(s.autoFormatOnlyCurrentProject());
         m_ui.foldAuxDataCheckBox->setChecked(s.foldAuxData());
-        m_ui.uiQmlOpenComboBox->addItem(tr("Always ask"), "");
+        m_ui.uiQmlOpenComboBox->addItem(tr("Always Ask"), "");
         m_ui.uiQmlOpenComboBox->addItem(tr("Qt Design Studio"), Core::Constants::MODE_DESIGN);
         m_ui.uiQmlOpenComboBox->addItem(tr("Qt Creator"), Core::Constants::MODE_EDIT);
         int comboIndex = m_ui.uiQmlOpenComboBox->findData(s.uiQmlOpenMode());

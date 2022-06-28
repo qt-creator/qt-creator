@@ -93,7 +93,7 @@ void BaseClientInterface::parseCurrentMessage()
     if (m_currentMessage.mimeType == JsonRpcMessage::jsonRpcMimeType()) {
         emit messageReceived(JsonRpcMessage(m_currentMessage));
     } else {
-        emit error(tr("Cannot handle mimetype of message %1")
+        emit error(tr("Cannot handle MIME type of message %1")
                        .arg(QString::fromUtf8(m_currentMessage.mimeType)));
     }
     m_currentMessage = BaseMessage();
