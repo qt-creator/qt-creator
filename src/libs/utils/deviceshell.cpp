@@ -55,6 +55,19 @@ namespace {
  */
 const QLatin1String r_execScript = QLatin1String(R"SCRIPT(
 #!/bin/sh
+FINAL_OUT=$(mktemp -u)
+mkfifo "$FINAL_OUT"
+
+finalOutput() {
+    local fileInputBuffer
+    while read fileInputBuffer
+    do
+        cat $fileInputBuffer
+        rm $fileInputBuffer
+    done
+}
+
+finalOutput < $FINAL_OUT &
 
 readAndMark() {
     local buffer
@@ -82,6 +95,9 @@ executeAndMark()
     shift
     CMD="$@"
 
+    # LogFile
+    TMPFILE=$(mktemp)
+
     # Output Streams
     stdoutenc=$(mktemp -u)
     stderrenc=$(mktemp -u)
@@ -93,15 +109,15 @@ executeAndMark()
     mkfifo "$stdoutraw" "$stderrraw"
 
     # Cleanup
-    trap 'rm -f "$stdoutenc" "$stderrenc" "$stdoutraw" "$stderrraw" ' EXIT
+    trap 'rm -f "$stdoutenc" "$stderrenc" "$stdoutraw" "$stderrraw"' EXIT
 
     # Pipe all app output through base64, and then into the output streams
     cat $stdoutraw | base64encode > "$stdoutenc" &
     cat $stderrraw | base64encode > "$stderrenc" &
 
     # Mark the app's output streams
-    readAndMark $PID 'O' < "$stdoutenc" >&1 &
-    readAndMark $PID 'E' < "$stderrenc" >&1 &
+    readAndMark $PID 'O' < "$stdoutenc" >> $TMPFILE &
+    readAndMark $PID 'E' < "$stderrenc" >> $TMPFILE &
 
     # Start the app ...
     if [ -z "$INDATA" ]
@@ -112,19 +128,26 @@ executeAndMark()
     fi
 
     exitcode=$(echo $? | base64encode)
-
     wait
-    echo "$PID:R:$exitcode"
+    echo "$PID:R:$exitcode" >> $TMPFILE
+    echo $TMPFILE
 }
 
 execute()
 {
     PID="$1"
-    INDATA=$(eval echo "$2")
-    shift
-    shift
-    CMD=$@
-    executeAndMark $PID "$INDATA" "$CMD"
+
+    if [ "$#" -lt "3" ]; then
+        TMPFILE=$(mktemp)
+        echo "$PID:R:MjU1Cg==" > $TMPFILE
+        echo $TMPFILE
+    else
+        INDATA=$(eval echo "$2")
+        shift
+        shift
+        CMD=$@
+        executeAndMark $PID "$INDATA" "$CMD"
+    fi
 }
 
 cleanup()
@@ -143,12 +166,12 @@ trap cleanup 1 2 3 6
 
 echo SCRIPT_INSTALLED >&2
 
-while read -r id inData cmd; do
+(while read -r id inData cmd; do
     if [ "$id" = "exit" ]; then
         exit
     fi
-    execute $id $inData $cmd &
-done
+    execute $id $inData $cmd || echo "$id:R:255" &
+done) > $FINAL_OUT
 )SCRIPT");
 
 } // namespace
@@ -351,7 +374,7 @@ bool DeviceShell::installShellScript()
 {
     const QByteArray runScriptCmd = "scriptData=$(echo "
             + QByteArray(r_execScript.begin(), r_execScript.size()).toBase64()
-            + " | base64 -d) && /bin/sh -c \"$scriptData\" || echo ERROR_INSTALL_SCRIPT >&2\n";
+            + " | base64 -d 2>/dev/null ) && /bin/sh -c \"$scriptData\" || echo ERROR_INSTALL_SCRIPT >&2\n";
 
     qCDebug(deviceShellLog) << "Install shell script command:" << runScriptCmd;
     m_shellProcess->writeRaw(runScriptCmd);
