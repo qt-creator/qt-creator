@@ -65,7 +65,8 @@ Item {
     property alias actionIndicator: actionIndicator
 
     // This property is used to indicate the global hover state
-    property bool hover: actionIndicator.hover || textInput.hover || checkIndicator.hover
+    property bool hover: (actionIndicator.hover || textInput.hover || checkIndicator.hover)
+                         && root.enabled
     property alias edit: textInput.edit
     property alias open: popup.visible
 
@@ -514,6 +515,7 @@ Item {
                     PropertyChanges {
                         target: textInputBackground
                         color: StudioTheme.Values.themeControlBackgroundDisabled
+                        border.color: StudioTheme.Values.themeControlOutlineDisabled
                     }
                     PropertyChanges {
                         target: textInput

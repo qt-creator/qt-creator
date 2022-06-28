@@ -363,7 +363,8 @@ static inline bool isValueType(const TypeName &type)
                                                     "vector2d",
                                                     "vector3d",
                                                     "vector4d",
-                                                    "font"});
+                                                    "font",
+                                                    "QQuickIcon"});
     return objectValuesList.contains(type);
 }
 
@@ -380,7 +381,8 @@ static inline bool isValueType(const QString &type)
                                                "vector2d",
                                                "vector3d",
                                                "vector4d",
-                                               "font"});
+                                               "font",
+                                               "QQuickIcon"});
     return objectValuesList.contains(type);
 }
 

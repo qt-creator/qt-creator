@@ -165,7 +165,7 @@ VersionData {
     }
 
     QtQuick.Controls.AbstractButton {
-        bannedProperties: ["display", "autoExclusive"]
+        bannedProperties: ["display", "autoExclusive", "icon"]
     }
 
     QtQuick.Controls.ProgressBar {
