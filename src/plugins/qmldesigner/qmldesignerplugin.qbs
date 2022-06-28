@@ -449,6 +449,43 @@ Project {
         }
 
         Group {
+            prefix: "designercore/projectstorage/"
+            files: [
+                "directorypathcompressor.h",
+                "filestatus.h",
+                "filestatuscache.cpp",
+                "filestatuscache.h",
+                "filesystem.cpp",
+                "filesystem.h",
+                "filesysteminterface.h",
+                "nonlockingmutex.h",
+                "projectstorage.h",
+                "projectstorageinterface.h",
+                "projectstoragepathwatcher.h",
+                "projectstoragepathwatcherinterface.h",
+                "projectstoragepathwatchernotifierinterface.h",
+                "projectstoragepathwatchertypes.h",
+                "projectstorageprinting.h",
+                "projectstoragetypes.h",
+                "projectstorageupdater.cpp",
+                "projectstorageupdater.h",
+                "qmldocumentparser.cpp",
+                "qmldocumentparser.h",
+                "qmldocumentparserinterface.h",
+                "qmltypesparser.cpp",
+                "qmltypesparser.h",
+                "qmltypesparserinterface.h",
+                "sourcepath.h",
+                "sourcepathcache.h",
+                "sourcepathcachetypes.h",
+                "sourcepathview.h",
+                "storagecache.h",
+                "storagecacheentry.h",
+                "storagecachefwd.h",
+            ]
+        }
+
+        Group {
             prefix: "components/"
             files: [
                 "assetslibrary/assetslibrary.qrc",

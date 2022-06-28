@@ -28,7 +28,7 @@ Project {
 
         Depends { name: "qtc_gtest_gmock"; required: false }
 
-        sqlite_sources.buildSharedLib: false
+        sqlite_sources.buildSharedLib: true
 
         cpp.defines: {
             var defines = [
