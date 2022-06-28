@@ -119,7 +119,7 @@ static void askAboutQtInstallation()
         kLinkWithQtInstallationSetting,
         QtSupportPlugin::tr(
             "Link with a Qt installation to automatically register Qt versions and kits? To do "
-            "this later, select Options > Kits > Qt Versions > Link with Qt."),
+            "this later, select Edit > Preferences > Kits > Qt Versions > Link with Qt."),
         Utils::InfoBarEntry::GlobalSuppression::Enabled);
     info.addCustomButton(QtSupportPlugin::tr("Link with Qt"), [] {
         ICore::infoBar()->removeInfo(kLinkWithQtInstallationSetting);

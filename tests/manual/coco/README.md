@@ -22,7 +22,7 @@ the .csexe for the coverage scan (/path/to/squish/tutorial/hello.csexe)
 * Open a file that was part of the coverage scan (/path/to/squish/tutorial/tutorial.cpp)
 * Verify that there are sensible annotations added to editor
 * Close the document
-* Goto Tools > Options > TextEditor > Font & Colors and change some formats of
+* Goto Edit > Preferences > TextEditor > Font & Colors and change some formats of
     * Code Coverage Added Code
     * Partially Covered Code
     * Uncovered Code

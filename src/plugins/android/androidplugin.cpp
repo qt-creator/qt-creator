@@ -194,7 +194,7 @@ void AndroidPlugin::askUserAboutAndroidSetup()
         info(kSetupAndroidSetting,
              tr("Would you like to configure Android options? This will ensure "
                 "Android kits can be usable and all essential packages are installed. "
-                "To do it later, select Options > Devices > Android."),
+                "To do it later, select Edit > Preferences > Devices > Android."),
              Utils::InfoBarEntry::GlobalSuppression::Enabled);
     info.addCustomButton(tr("Configure Android"), [this] {
         Core::ICore::infoBar()->removeInfo(kSetupAndroidSetting);

@@ -106,7 +106,7 @@ void WebAssemblyPlugin::askUserAboutEmSdkSetup()
 
     InfoBarEntry info(setupWebAssemblyEmSdk,
                       tr("Setup Emscripten SDK for WebAssembly? "
-                         "To do it later, select Options > Devices > WebAssembly."),
+                         "To do it later, select Edit > Preferences > Devices > WebAssembly."),
                       InfoBarEntry::GlobalSuppression::Enabled);
     info.addCustomButton(tr("Setup Emscripten SDK"), [setupWebAssemblyEmSdk] {
         ICore::infoBar()->removeInfo(setupWebAssemblyEmSdk);

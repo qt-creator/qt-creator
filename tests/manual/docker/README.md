@@ -35,7 +35,7 @@ For testing:
 
   install similar docker images containing Qt, e.g.  darkmattercoder/qt-build
 
-- Go to Tools -> Options -> Devices, 'Add', 'Apply' for both images.
+- Go to Edit -> Preferences -> Devices, 'Add', 'Apply' for both images.
   Note that the Build container alone is sufficient also to run applications,
   but using the Run container gives a more restricted setup closer to a
   real world scenario.

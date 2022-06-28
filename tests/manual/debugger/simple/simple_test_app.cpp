@@ -58,7 +58,7 @@
 // a test after a BREAK_HERE failed
 // Default: 0
 // Before using this, make sure that "Show a message box when receiving a signal"
-// is disabled in "Tools" -> "Options..." -> "Debugger" -> "GDB".
+// is disabled in "Edit" -> "Preferences..." -> "Debugger" -> "GDB".
 #ifndef USE_AUTORUN
 #define USE_AUTORUN 0
 #endif
