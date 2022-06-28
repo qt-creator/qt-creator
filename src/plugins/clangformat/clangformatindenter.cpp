@@ -114,7 +114,13 @@ int ClangFormatIndenter::lastSaveRevision() const
 
 bool ClangFormatIndenter::formatOnSave() const
 {
-    return !isBeautifierOnSaveActivated() && formatCodeInsteadOfIndent();
+    return ClangFormatSettings::instance().formatOnSave() && !isBeautifierOnSaveActivated()
+           && formatCodeInsteadOfIndent();
+}
+
+bool ClangFormatIndenter::formatWhileTyping() const
+{
+    return ClangFormatSettings::instance().formatWhileTyping() && formatCodeInsteadOfIndent();
 }
 
 } // namespace ClangFormat

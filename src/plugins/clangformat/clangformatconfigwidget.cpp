@@ -85,6 +85,7 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
 
     initChecksAndPreview(!codeStyle->isReadOnly());
     initOverrideCheckBox();
+    initCheckBoxes();
     initIndentationOrFormattingCombobox();
 
     showOrHideWidgets();
@@ -126,6 +127,45 @@ void ClangFormatConfigWidget::initChecksAndPreview(bool enabled)
     }
 
     m_preview->textDocument()->indenter()->setFileName(fileName);
+}
+
+void ClangFormatConfigWidget::initCheckBoxes()
+{
+    if (m_project) {
+        m_ui->formatOnSave->hide();
+        m_ui->formatWhileTyping->hide();
+        return;
+    }
+
+    m_ui->formatOnSave->show();
+    m_ui->formatWhileTyping->show();
+
+    auto setEnableCheckBoxes = [this](int index) {
+        bool isFormatting = index == static_cast<int>(ClangFormatSettings::Mode::Formatting);
+
+        m_ui->formatOnSave->setEnabled(isFormatting);
+        m_ui->formatWhileTyping->setEnabled(isFormatting);
+    };
+    setEnableCheckBoxes(m_ui->indentingOrFormatting->currentIndex());
+    connect(m_ui->indentingOrFormatting, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, setEnableCheckBoxes);
+
+    m_ui->formatOnSave->setChecked(ClangFormatSettings::instance().formatOnSave());
+    m_ui->formatWhileTyping->setChecked(ClangFormatSettings::instance().formatWhileTyping());
+
+    connect(m_ui->formatOnSave, &QCheckBox::toggled,
+            this, [](bool checked) {
+                ClangFormatSettings &settings = ClangFormatSettings::instance();
+                settings.setFormatOnSave(checked);
+                settings.write();
+            });
+
+    connect(m_ui->formatWhileTyping, &QCheckBox::toggled,
+            this, [](bool checked) {
+                ClangFormatSettings &settings = ClangFormatSettings::instance();
+                settings.setFormatWhileTyping(checked);
+                settings.write();
+            });
 }
 
 void ClangFormatConfigWidget::initOverrideCheckBox()
@@ -190,7 +230,9 @@ void ClangFormatConfigWidget::initIndentationOrFormattingCombobox()
     m_ui->indentingOrFormatting->setCurrentIndex(
         static_cast<int>(ClangFormatSettings::instance().mode()));
 
-    m_ui->indentingOrFormatting->show();
+    const bool isGlobal = !m_project;
+    m_ui->indentingOrFormatting->setVisible(isGlobal);
+    m_ui->formattingModeLabel->setVisible(isGlobal);
 
     connect(m_ui->indentingOrFormatting, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, [](int index) {
@@ -219,6 +261,7 @@ void ClangFormatConfigWidget::showOrHideWidgets()
 
     if (!m_ui->overrideDefault->isChecked() && m_project) {
         // Show the fallback configuration only globally.
+        m_ui->fallbackConfig->hide();
         m_checksScrollArea->hide();
         m_preview->hide();
         m_ui->verticalLayout->addStretch(1);
@@ -226,6 +269,7 @@ void ClangFormatConfigWidget::showOrHideWidgets()
     }
 
     createStyleFileIfNeeded(!m_project);
+    m_ui->fallbackConfig->show();
     m_checksScrollArea->show();
     m_preview->show();
 

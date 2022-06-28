@@ -49,9 +49,17 @@ public:
     void setMode(Mode mode);
     Mode mode() const;
 
+    void setFormatWhileTyping(bool enable);
+    bool formatWhileTyping() const;
+
+    void setFormatOnSave(bool enable);
+    bool formatOnSave() const;
+
 private:
-    bool m_overrideDefaultFile = false;
     Mode m_mode;
+    bool m_overrideDefaultFile = false;
+    bool m_formatWhileTyping = false;
+    bool m_formatOnSave = false;
 };
 
 } // namespace ClangFormat
