@@ -91,6 +91,9 @@ static QStringList scanDirectory(const FilePath &path, const QString &prefix)
 
 static QString baseCMakeToolDisplayName(CMakeTool &tool)
 {
+    if (!tool.isValid())
+        return QString("CMake");
+
     CMakeTool::Version version = tool.version();
     return QString("CMake %1.%2.%3").arg(version.major).arg(version.minor).arg(version.patch);
 }
