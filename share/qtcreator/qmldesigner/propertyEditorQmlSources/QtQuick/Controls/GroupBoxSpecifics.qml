@@ -73,4 +73,6 @@ Column {
     FontSection {}
 
     PaddingSection {}
+
+    InsetSection {}
 }

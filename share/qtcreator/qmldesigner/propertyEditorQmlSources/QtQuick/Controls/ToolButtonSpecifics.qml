@@ -46,9 +46,11 @@ Column {
 
     AbstractButtonSection {}
 
-    ControlSection { }
+    ControlSection {}
 
     FontSection {}
 
     PaddingSection {}
+
+    InsetSection {}
 }

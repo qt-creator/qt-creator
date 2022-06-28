@@ -98,6 +98,8 @@ Column {
 
     PaddingSection {}
 
+    InsetSection {}
+
     FontSection {
         caption: qsTr("Font Inheritance")
         expanded: false
