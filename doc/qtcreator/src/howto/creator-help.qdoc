@@ -57,7 +57,7 @@
             space, in the fullscreen \uicontrol Help mode.
 
         \li To select and configure how the documentation is displayed in the
-            \uicontrol Help mode, select \uicontrol Tools > \uicontrol Options > \uicontrol Help.
+            \uicontrol Help mode, select \uicontrol Edit > \uicontrol Preferences > \uicontrol Help.
     \endlist
 
     The following image displays the context sensitive help in the \uicontrol Edit
@@ -66,7 +66,7 @@
     \image qtcreator-context-sensitive-help.png
 
     If the help HTML file does not use a style sheet, you can change the font
-    family, style, and size in \uicontrol Tools > \uicontrol Options >
+    family, style, and size in \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Help > \uicontrol General.
 
     \image qtcreator-help-options.png
@@ -87,8 +87,8 @@
 
     \section1 Viewing Function Tooltips
 
-    To hide function tooltips by default, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Text Editor} > \uicontrol Behavior >
+    To hide function tooltips by default, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol {Text Editor} > \uicontrol Behavior >
     \uicontrol {Show help tooltips using the mouse} >
     \uicontrol {On Shift+Mouseover}. You can still view the tooltips by pressing
     and holding down the \key Shift key.
@@ -103,7 +103,7 @@
 
     By default, \QC registers only the latest available version of the
     documentation for each installed Qt module. To register all installed
-    documentation, select \uicontrol Tools > \uicontrol Options >
+    documentation, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Kits > \uicontrol {Qt Versions} >
     \uicontrol {Register documentation}.
 
@@ -148,7 +148,7 @@
 
     \endlist
 
-    To import and export bookmarks, select \uicontrol Tools > \uicontrol Options
+    To import and export bookmarks, select \uicontrol Edit > \uicontrol Preferences
      > \uicontrol Help > \uicontrol General > \uicontrol {Import Bookmarks} or
      \uicontrol {Export Bookmarks}.
 
@@ -207,7 +207,7 @@
             For information on how to prepare your documentation and create a
             .qch file, see \l{The Qt Help Framework}.
 
-        \li To add the .qch file to \QC, select \uicontrol Tools > \uicontrol Options >
+        \li To add the .qch file to \QC, select \uicontrol Edit > \uicontrol Preferences >
             \uicontrol Help > \uicontrol Documentation > \uicontrol Add.
 
     \endlist
@@ -219,8 +219,8 @@
     space, the help opens in the full-screen help mode.
 
     You can specify that the help always opens in full-screen mode or
-    is detached to an external window. Select \uicontrol Tools >
-    \uicontrol Options > \uicontrol Help > \uicontrol General and specify
+    is detached to an external window. Select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Help > \uicontrol General and specify
     settings for displaying context-sensitive help
     in the \uicontrol {On context help} field. To detach the help window, select
     \uicontrol {Always Show in External Window}.
@@ -231,7 +231,7 @@
     \section1 Selecting the Start Page
 
     You can select the page to display when you open the \uicontrol Help mode in the
-    \uicontrol Tools > \uicontrol Options > \uicontrol Help > \uicontrol General
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol Help > \uicontrol General
     > \uicontrol {On help start} field.
     To display the page and help views that were open when you exited the mode,
     select the \uicontrol {Show My Tabs from Last Session} option. However, Web pages
@@ -261,7 +261,7 @@
 
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Help >
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Help >
             \uicontrol Filters.
 
             \image qtcreator-help-filter-attributes.png "Filters tab in Help options"

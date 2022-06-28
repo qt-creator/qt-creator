@@ -88,7 +88,7 @@
     \image qml-translate.png "Text marked for translation"
 
     If you use text IDs instead of plain text, change the default call to
-    \c qsTrId(). Select \uicontrol Tools > \uicontrol Options >
+    \c qsTrId(). Select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer}, and then select the
     \uicontrol {qsTrId()} radio button in the \uicontrol Internationalization
     group. For more information about text ID based translations, see

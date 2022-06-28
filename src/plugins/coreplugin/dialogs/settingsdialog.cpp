@@ -451,10 +451,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     m_filterLineEdit->setFiltering(true);
 
     createGui();
-    if (Utils::HostOsInfo::isMacHost())
-        setWindowTitle(QCoreApplication::translate("Core::Internal::SettingsDialog", "Preferences"));
-    else
-        setWindowTitle(QCoreApplication::translate("Core::Internal::SettingsDialog", "Options"));
+    setWindowTitle(QCoreApplication::translate("Core::Internal::SettingsDialog", "Preferences"));
 
     m_model.setPages(m_pages, IOptionsPageProvider::allOptionsPagesProviders());
 

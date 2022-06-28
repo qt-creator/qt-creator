@@ -83,9 +83,9 @@
             \li \l{Core::INavigationWidgetFactory}
 
         \row
-            \li Add an options page to the \uicontrol Options dialog.
+            \li Add a page to the \uicontrol Preferences dialog.
             \li Add a new page to existing or new category in
-                \uicontrol Tools > \uicontrol Options.
+                \uicontrol Edit > \uicontrol Preferences.
             \li \l{Core::IOptionsPage}
 
         \row

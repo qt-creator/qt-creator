@@ -586,7 +586,7 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::parseDeployErrors(
 
 void AndroidDeployQtStep::reportWarningOrError(const QString &message, Task::TaskType type)
 {
-    qCDebug(deployStepLog) << message;
+    qCDebug(deployStepLog).noquote() << message;
     emit addOutput(message, OutputFormat::ErrorMessage);
     TaskHub::addTask(DeploymentTask(type, message));
 }

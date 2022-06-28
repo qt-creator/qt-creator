@@ -411,7 +411,7 @@ void CorePlugin::warnAboutCrashReporing()
                               Core::Constants::IDE_DISPLAY_NAME + tr(" > Preferences > Environment > System"));
     } else {
         warnStr = warnStr.arg(QLatin1String(Core::Constants::IDE_DISPLAY_NAME),
-                              tr("Tools > Options > Environment > System"));
+                              tr("Edit > Preferences > Environment > System"));
     }
 
     Utils::InfoBarEntry info(kWarnCrashReportingSetting, warnStr,

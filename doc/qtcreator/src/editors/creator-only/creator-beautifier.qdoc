@@ -75,7 +75,7 @@
 
         \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
 
-        \li Select \uicontrol Tools > \uicontrol Options >
+        \li Select \uicontrol Edit > \uicontrol Preferences >
             \uicontrol Beautifier to specify settings for beautifying files.
 
         \li Select the \uicontrol {Enable auto format on file save} check box to
@@ -164,7 +164,7 @@
 
             \endlist
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Beautifier
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Beautifier
             > \uicontrol {Artistic Style}, \uicontrol ClangFormat, or
             \uicontrol Uncrustify > \uicontrol {Format Current File} to format
             the currently open file.

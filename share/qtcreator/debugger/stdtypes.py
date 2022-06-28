@@ -776,28 +776,54 @@ def qdumpHelper__std__string__MSVC(d, value, charType, format):
     d.putCharArrayHelper(data, size, charType, format)
 
 
+def qdump__std____1__string__alternateLayoutHelper(d, value):
+    try:
+        _d = value['__s']['__data_'].address()
+        alternateLayout = (_d - value.address()) == 0
+        if alternateLayout:
+            lastByte = value.split('b')[-1]
+            if int(lastByte & 0x80) == 0:
+                # Short/internal
+                size = value['__s']['__size_'].integer()
+                data = value.address()
+            else:
+                # Long/external
+                (data, size, _) = value.split('ppp')
+            return size, data
+        else:
+            return None, None
+    except:
+        return None, None
+
+
 def qdump__std____1__string(d, value):
-    firstByte = value.split('b')[0]
-    if int(firstByte & 1) == 0:
-        # Short/internal.
-        size = int(firstByte / 2)
-        data = value.address() + 1
-    else:
-        # Long/external.
-        (dummy, size, data) = value.split('ppp')
+    (size, data) = qdump__std____1__string__alternateLayoutHelper(d, value)
+    if size is None or data is None:
+        firstByte = value.split('b')[0]
+        if int(firstByte & 1) == 0:
+            # Short/internal.
+            size = int(firstByte / 2)
+            data = value.address() + 1
+        else:
+            # Long/external.
+            (_, size, data) = value.split('ppp')
+
     d.putCharArrayHelper(data, size, d.charType(), d.currentItemFormat())
     d.putType("std::string")
 
 
 def qdump__std____1__wstring(d, value):
-    firstByte = value.split('b')[0]
-    if int(firstByte & 1) == 0:
-        # Short/internal.
-        size = int(firstByte / 2)
-        data = value.address() + 4
-    else:
-        # Long/external.
-        (dummy, size, data) = value.split('ppp')
+    (size, data) = qdump__std____1__string__alternateLayoutHelper(d, value)
+    if size is None or data is None:
+        firstByte = value.split('b')[0]
+        if int(firstByte & 1) == 0:
+            # Short/internal.
+            size = int(firstByte / 2)
+            data = value.address() + 4
+        else:
+            # Long/external.
+            (_, size, data) = value.split('ppp')
+
     d.putCharArrayHelper(data, size, d.createType('wchar_t'))
     d.putType("std::wstring")
 

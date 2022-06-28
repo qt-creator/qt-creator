@@ -44,7 +44,7 @@
     for a revision.
 
     By default, you are prompted to confirm that you want to submit changes.
-    To suppress the prompt, select \uicontrol Tools > \uicontrol Options >
+    To suppress the prompt, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol {Version Control} > \uicontrol Subversion, and then deselect the
     \uicontrol {Prompt on submit} check box.
 

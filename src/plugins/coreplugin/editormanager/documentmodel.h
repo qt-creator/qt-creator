@@ -65,7 +65,7 @@ public:
         // This is typically the case for files that have not been opened yet,
         // but can also happen later after they have been opened.
         // The related setting for this is found in:
-        // Options > Environment > System > Auto-suspend unmodified files
+        // Edit > Preferences > Environment > System > Auto-suspend unmodified files
         bool isSuspended;
         // The entry has been pinned, which means that it should stick to
         // the top of any lists of open files, and that any actions that close

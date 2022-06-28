@@ -101,52 +101,48 @@ private:
 
     QPointer<QWidget> m_toolBar;
     QPointer<FancyLineEdit> m_filterOutputLineEdit;
-    QAction *m_clear;
-    QAction *m_filterActionRegexp;
-    QAction *m_filterActionCaseSensitive;
-    QAction *m_invertFilterAction;
-    QAction *m_zoomIn;
-    QAction *m_zoomOut;
+    QAction m_clear;
+    QAction m_filterActionRegexp;
+    QAction m_filterActionCaseSensitive;
+    QAction m_invertFilterAction;
+    QAction m_zoomIn;
+    QAction m_zoomOut;
 };
 
 BuildSystemOutputWindow::BuildSystemOutputWindow()
     : OutputWindow(Context(kBuildSystemOutputContext), "ProjectsMode.BuildSystemOutput.Zoom")
-    , m_clear(new QAction)
 {
     setReadOnly(true);
 
     Command *clearCommand = ActionManager::command(Core::Constants::OUTPUTPANE_CLEAR);
-    m_clear->setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
-    m_clear->setText(clearCommand->action()->text());
-    ActionManager::registerAction(m_clear,
+    m_clear.setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
+    m_clear.setText(clearCommand->action()->text());
+    ActionManager::registerAction(&m_clear,
                                   Core::Constants::OUTPUTPANE_CLEAR,
                                   Context(kBuildSystemOutputContext));
-    connect(m_clear, &QAction::triggered, this, [this] { clear(); });
+    connect(&m_clear, &QAction::triggered, this, &OutputWindow::clear);
 
-    m_filterActionRegexp = new QAction(this);
-    m_filterActionRegexp->setCheckable(true);
-    m_filterActionRegexp->setText(ProjectWindow::tr("Use Regular Expressions"));
-    connect(m_filterActionRegexp, &QAction::toggled, this, &BuildSystemOutputWindow::updateFilter);
-    Core::ActionManager::registerAction(m_filterActionRegexp,
+    m_filterActionRegexp.setCheckable(true);
+    m_filterActionRegexp.setText(ProjectWindow::tr("Use Regular Expressions"));
+    connect(&m_filterActionRegexp, &QAction::toggled, this, &BuildSystemOutputWindow::updateFilter);
+    Core::ActionManager::registerAction(&m_filterActionRegexp,
                                         kRegExpActionId,
                                         Context(Constants::C_PROJECTEXPLORER));
 
-    m_filterActionCaseSensitive = new QAction(this);
-    m_filterActionCaseSensitive->setCheckable(true);
-    m_filterActionCaseSensitive->setText(ProjectWindow::tr("Case Sensitive"));
-    connect(m_filterActionCaseSensitive,
+    m_filterActionCaseSensitive.setCheckable(true);
+    m_filterActionCaseSensitive.setText(ProjectWindow::tr("Case Sensitive"));
+    connect(&m_filterActionCaseSensitive,
             &QAction::toggled,
             this,
             &BuildSystemOutputWindow::updateFilter);
-    Core::ActionManager::registerAction(m_filterActionCaseSensitive,
+    Core::ActionManager::registerAction(&m_filterActionCaseSensitive,
                                         kCaseSensitiveActionId,
                                         Context(Constants::C_PROJECTEXPLORER));
 
-    m_invertFilterAction = new QAction(this);
-    m_invertFilterAction->setCheckable(true);
-    m_invertFilterAction->setText(ProjectWindow::tr("Show Non-matching Lines"));
-    connect(m_invertFilterAction, &QAction::toggled, this, &BuildSystemOutputWindow::updateFilter);
-    Core::ActionManager::registerAction(m_invertFilterAction,
+    m_invertFilterAction.setCheckable(true);
+    m_invertFilterAction.setText(ProjectWindow::tr("Show Non-matching Lines"));
+    connect(&m_invertFilterAction, &QAction::toggled, this, &BuildSystemOutputWindow::updateFilter);
+    Core::ActionManager::registerAction(&m_invertFilterAction,
                                         kInvertActionId,
                                         Context(Constants::C_PROJECTEXPLORER));
 
@@ -156,17 +152,15 @@ BuildSystemOutputWindow::BuildSystemOutputWindow()
             [this] { setBaseFont(TextEditor::TextEditorSettings::fontSettings().font()); });
     setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
 
-    m_zoomIn = new QAction;
-    m_zoomIn->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
-    connect(m_zoomIn, &QAction::triggered, this, [this] { zoomIn(); });
-    ActionManager::registerAction(m_zoomIn,
+    m_zoomIn.setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
+    connect(&m_zoomIn, &QAction::triggered, this, [this] { zoomIn(); });
+    ActionManager::registerAction(&m_zoomIn,
                                   Core::Constants::ZOOM_IN,
                                   Context(kBuildSystemOutputContext));
 
-    m_zoomOut = new QAction;
-    m_zoomOut->setIcon(Utils::Icons::MINUS.icon());
-    connect(m_zoomOut, &QAction::triggered, this, [this] { zoomOut(); });
-    ActionManager::registerAction(m_zoomOut,
+    m_zoomOut.setIcon(Utils::Icons::MINUS.icon());
+    connect(&m_zoomOut, &QAction::triggered, this, [this] { zoomOut(); });
+    ActionManager::registerAction(&m_zoomOut,
                                   Core::Constants::ZOOM_OUT,
                                   Context(kBuildSystemOutputContext));
 }
@@ -176,8 +170,8 @@ QWidget *BuildSystemOutputWindow::toolBar()
     if (!m_toolBar) {
         m_toolBar = new StyledBar(this);
         auto clearButton = new CommandButton(Core::Constants::OUTPUTPANE_CLEAR);
-        clearButton->setDefaultAction(m_clear);
-        clearButton->setToolTipBase(m_clear->text());
+        clearButton->setDefaultAction(&m_clear);
+        clearButton->setToolTipBase(m_clear.text());
 
         m_filterOutputLineEdit = new FancyLineEdit;
         m_filterOutputLineEdit->setButtonVisible(FancyLineEdit::Left, true);
@@ -201,9 +195,9 @@ QWidget *BuildSystemOutputWindow::toolBar()
         });
 
         auto zoomInButton = new CommandButton(Core::Constants::ZOOM_IN);
-        zoomInButton->setDefaultAction(m_zoomIn);
+        zoomInButton->setDefaultAction(&m_zoomIn);
         auto zoomOutButton = new CommandButton(Core::Constants::ZOOM_OUT);
-        zoomOutButton->setDefaultAction(m_zoomOut);
+        zoomOutButton->setDefaultAction(&m_zoomOut);
 
         auto layout = new QHBoxLayout;
         layout->setContentsMargins(0, 0, 0, 0);
@@ -223,10 +217,10 @@ void BuildSystemOutputWindow::updateFilter()
     if (!m_filterOutputLineEdit)
         return;
     updateFilterProperties(m_filterOutputLineEdit->text(),
-                           m_filterActionCaseSensitive->isChecked() ? Qt::CaseSensitive
+                           m_filterActionCaseSensitive.isChecked() ? Qt::CaseSensitive
                                                                     : Qt::CaseInsensitive,
-                           m_filterActionRegexp->isChecked(),
-                           m_invertFilterAction->isChecked());
+                           m_filterActionRegexp.isChecked(),
+                           m_invertFilterAction.isChecked());
 }
 
 // Standard third level for the generic case: i.e. all except for the Build/Run page

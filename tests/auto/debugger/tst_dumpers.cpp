@@ -710,6 +710,12 @@ struct Cxx11Profile : public Profile
     {}
 };
 
+struct NonArmProfile : public Profile
+{
+    NonArmProfile()
+        : Profile(QByteArray()) {}
+};
+
 struct BoostProfile : public Profile
 {
     BoostProfile()
@@ -1069,10 +1075,19 @@ public:
         return *this;
     }
 
+    const Data &operator+(const NonArmProfile &) const
+    {
+#if defined(__APPLE__) && defined(__aarch64__)
+        disabledOnARM = true;
+#endif
+        return *this;
+    }
+
 public:
     mutable bool useQt = false;
     mutable bool useQHash = false;
     mutable bool useBoost = false;
+    mutable bool disabledOnARM = false;
     mutable int engines = AllEngines;
     mutable int skipLevels = 0;              // Levels to go 'up' before dumping variables.
     mutable bool glibcxxDebug = false;
@@ -1338,6 +1353,9 @@ void tst_Dumpers::dumper()
             MSKIP_SINGLE(QByteArray("Need maximum LLDB version "
                 + QByteArray::number(data.neededLldbVersion.max)));
     }
+
+    if (data.disabledOnARM)
+        MSKIP_SINGLE(QByteArray("Test disabled on arm macOS"));
 
     QByteArray output;
     QByteArray error;
@@ -6594,6 +6612,7 @@ void tst_Dumpers::dumper_data()
                     "&i, &sseA, &sseB")
 
                + Profile("QMAKE_CXXFLAGS += -msse2")
+               + NonArmProfile()
 
                + Check("sseA", AnyValue, "__m128")
                + Check("sseA.2", "[2]", FloatValue("4"), "float")

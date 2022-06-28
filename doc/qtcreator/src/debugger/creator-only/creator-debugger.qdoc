@@ -120,7 +120,7 @@
 
     When using GDB or CDB as debug backend, you can specify additional commands
     to execute before and after the backend and debugged program are started or
-    attached in \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
+    attached in \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
     \uicontrol GDB and \uicontrol CDB. For more information, see
     \l{Specifying Debugger Settings}.
 
@@ -182,7 +182,7 @@
 
     If a console application does not start up properly in the configured
     console and the subsequent attach fails, you can diagnose the issue by
-    using CDB's native console. Select \uicontrol Tools > \uicontrol Options >
+    using CDB's native console. Select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Debugger > \uicontrol CDB > \uicontrol {Use CDB console} to
     override the console set in the Windows system environment variables.
     Note that the native console does not prompt on application exit.
@@ -336,7 +336,7 @@
 
     The \QC installation program asks you whether you want to register \QC as a
     post-mortem debugger. To change the setting, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
     \uicontrol General > \uicontrol {Use \QC for post-mortem debugging}.
 
     You can launch the debugger in the post-mortem mode if an application
@@ -424,7 +424,7 @@
 
     By default, a non-responsive GDB process is terminated after 20 seconds.
     To increase the timeout in the \uicontrol {GDB timeout} field, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
     \uicontrol GDB. For more information about settings that you can specify
     to manage the GDB process, see \l{Specifying GDB Settings} and
     \l{Specifying Extended GDB Settings}.
@@ -494,8 +494,8 @@
 
     \endlist
 
-    To specify settings for managing the CDB process, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol Debugger > \uicontrol CDB. For more
+    To specify settings for managing the CDB process, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Debugger > \uicontrol CDB. For more
     information, see \l{Specifying CDB Settings}.
 */
 
@@ -643,7 +643,7 @@
    \section2 Customizing Debug Views
 
     You can change the appearance and behavior of the debug views by specifying
-    settings in \uicontrol Options > \uicontrol Debugger. For example, you can:
+    settings in \uicontrol Preferences > \uicontrol Debugger. For example, you can:
 
     \list
         \li Use alternating row colors in debug views.
@@ -754,7 +754,7 @@
 
     When using CDB as debug backend, you can specify that the debugger should
     break when application modules are loaded or unloaded. To enable breaking
-    for the specified modules, select \uicontrol Tools > \uicontrol Options >
+    for the specified modules, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Debugger > \uicontrol CDB. For more information, see
     \l{Specifying CDB Settings}.
 
@@ -791,7 +791,7 @@
     (\uicontrol {Operate by Instruction}) tool button on the debugger tool bar.
 
     By default, GDB shows AT&T style disassembly. To switch to the Intel style,
-    select \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
+    select \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
     \uicontrol GDB > \uicontrol {Use Intel style disassembly}.
 
     \section2 Viewing and Editing Register State
@@ -861,7 +861,7 @@
     To give the user simple access also to these items, \QC employs Python
     scripts that are called \e {debugging helpers}.
     Debugging helpers are always automatically used. To force a plain C-like
-    display of structures, select \uicontrol Tools > \uicontrol Options >
+    display of structures, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Debugger > \uicontrol {Locals & Expressions}, and then deselect
     the \uicontrol {Use Debugging Helper} check box. This will still use the
     Python scripts, but generate more basic output. To force the plain display
@@ -888,7 +888,7 @@
     least one of the three supported backends is available.
 
     To use the default GDB pretty printers installed in your system or linked
-    to the libraries your application uses, select \uicontrol Options >
+    to the libraries your application uses, select \uicontrol Preferences >
     \uicontrol Debugger > \uicontrol GDB > \uicontrol {Load system GDB pretty
     printers}. For more information, see \l{Specifying GDB Settings}.
 
@@ -896,7 +896,7 @@
 
     You can have commands executed after built-in debugging helpers have
     been loaded and fully initialized. To load additional debugging helpers or
-    modify existing ones, select \uicontrol Tools > \uicontrol Options >
+    modify existing ones, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Debugger > \uicontrol {Locals & Expressions}, and enter the
     commands in the \uicontrol {Debugging Helper Customization} field.
 
@@ -918,7 +918,7 @@
     \endcode
 
     To display a message box as soon as your application receives a signal
-    during debugging, select \uicontrol Tools > \uicontrol Options >
+    during debugging, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Debugger > \uicontrol GDB > \uicontrol {Show a message box
     when receiving a signal}.
 
@@ -931,8 +931,8 @@
     To add debugging helpers for custom types, add debugging helper
     implementations to the startup file of the native debuggers (for example,
     \c{~/.gdbinit} or \c{~/.lldbinit}) or specify them directly in the
-    \uicontrol {Additional Startup Commands} in \uicontrol Tools >
-    \uicontrol Options > \uicontrol Debugger > \uicontrol GDB.
+    \uicontrol {Additional Startup Commands} in \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Debugger > \uicontrol GDB.
 
     To get started with implementing debugging helpers for your own data types,
     you can put their implementation into the file
@@ -965,7 +965,7 @@
             update your \QC installation (when updating your Qt installation,
             for example), copy it to a safe location outside the \QC
             installation in your file system and specify the location in
-            \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
+            \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
             \uicontrol {Locals & Expressions} >
             \uicontrol {Extra Debugging Helpers}.
     \endlist
@@ -1108,7 +1108,7 @@
     common situations.
 
     When using CDB as debugger backend, you can enable the Python dumper by
-    selecting \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
+    selecting \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
     \uicontrol CDB > \uicontrol {Use Python dumper}.
 
     \section3 Dumper Class
@@ -1544,8 +1544,8 @@
 
     When using GDB as backend, you can automatically save a copy of
     its symbol index in a cache on disk and retrieve it from there
-    when loading the same binary in the future. Select \uicontrol Tools
-    > \uicontrol Options > \uicontrol Debugger > \uicontrol GDB >
+    when loading the same binary in the future. Select \uicontrol Edit
+    > \uicontrol Preferences > \uicontrol Debugger > \uicontrol GDB >
     \uicontrol {Use automatic symbol cache}.
 
     Some slowness stems from maintaining breakpoints inside

@@ -93,7 +93,7 @@
     To configure \QC for building Qt apps for the web:
 
     \list 1
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Devices >
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Devices >
             \uicontrol WebAssembly.
         \li In the \uicontrol {Emscripten SDK path} field, enter the root
             directory where \c emsdk is installed.
@@ -101,7 +101,7 @@
             if the \c emsdk is supported by the Qt for WebAssembly version that
             you will use for developing the application.
             \image qtcreator-webassembly-options.png "Qt for WebAssembly device options"
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits.
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits.
             \image qtcreator-kit-webassembly.png "Qt for WebAssembly kit"
         \li In the \uicontrol Compiler group, \uicontrol {Emscripten Compiler}
             should have been automatically detected for both C++ and C. If not,
@@ -114,7 +114,7 @@
     to \QC. To add kits:
 
     \list 1
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
             \uicontrol Add.
         \li In the \uicontrol Name field, specify a name for the kit.
         \li In the \uicontrol {Device type} field, select

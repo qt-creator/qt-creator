@@ -49,7 +49,7 @@
     {kit}.
 
     You use a wizard to create the connections. You can edit the settings later
-    in \uicontrol Tools > \uicontrol Options > \uicontrol Devices >
+    in \uicontrol Edit > \uicontrol Preferences > \uicontrol Devices >
     \uicontrol Devices.
 
     \image qtcreator-linux-device-configurations.png "Devices dialog"
@@ -76,11 +76,11 @@
 
         \li Make sure that your device can be reached via an IP address.
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
             \uicontrol {Qt Versions} > \uicontrol Add to add the Qt version
             for embedded Linux.
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
             \uicontrol Compilers > \uicontrol Add to add the compiler for
             building the applications.
 
@@ -89,7 +89,7 @@
 
             \list a
 
-                \li Select \uicontrol Tools > \uicontrol Options >
+                \li Select \uicontrol Edit > \uicontrol Preferences >
                     \uicontrol Devices > \uicontrol Devices > \uicontrol Add >
                     \uicontrol {Generic Linux Device}
                     > \uicontrol {Start Wizard}.
@@ -133,7 +133,7 @@
             the SSH port number, which is available in the variable \c %{Device:SshPort}.
 
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
             \uicontrol Add to add a kit for building for the device. Select the
             Qt version, compiler, and device that you added above, and choose
             \uicontrol {Generic Linux Device} for the device type.

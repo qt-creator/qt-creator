@@ -94,6 +94,6 @@
     marks or annotations.
 
     To specify the settings above for the automatically run checks,
-    select \uicontrol Tools > \uicontrol Options > \uicontrol Analyzer
+    select \uicontrol Edit > \uicontrol Preferences > \uicontrol Analyzer
     > \uicontrol Cppcheck.
 */

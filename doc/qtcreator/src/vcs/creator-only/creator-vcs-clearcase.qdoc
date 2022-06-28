@@ -51,7 +51,7 @@
         \li Download \l{http://gnuwin32.sourceforge.net/packages/diffutils.htm}
             {Diffutils} and extract it to a directory in your PATH.
 
-        \li Select \uicontrol Tools > \uicontrol Options >
+        \li Select \uicontrol Edit > \uicontrol Preferences >
             \uicontrol {Version Control} > \uicontrol ClearCase.
 
         \li Select the \uicontrol External radio button. The radio button is
@@ -71,12 +71,12 @@
     \uicontrol ClearCase > \uicontrol {Check Out}. If you check out files in a
     Unified Change Management (UCM) view, they are added to the change set of
     a UCM activity. By default, the activities are automatically assigned names.
-    To disable this functionality, select \uicontrol Tools > \uicontrol Options
+    To disable this functionality, select \uicontrol Edit > \uicontrol Preferences
     > \uicontrol {Version Control} > \uicontrol ClearCase, and then deselect the
     \uicontrol {Automatically assign activity names} check box.
 
-    To automatically check out files when you edit them, select \uicontrol Tools
-    > \uicontrol Options > \uicontrol {Version Control} > \uicontrol ClearCase,
+    To automatically check out files when you edit them, select \uicontrol Edit
+    > \uicontrol Preferences > \uicontrol {Version Control} > \uicontrol ClearCase,
     and then select the \uicontrol {Automatically check out files on edit}
     check box.
 
@@ -91,12 +91,12 @@
     To create a permanent new version of the current file or all files in the
     versioned object base (VOB), select \uicontrol Tools >
     \uicontrol {ClearCase} > \uicontrol {Check In}. To be asked to confirm
-    that you want to check in the files, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Version Control} > \uicontrol ClearCase,
+    that you want to check in the files, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol {Version Control} > \uicontrol ClearCase,
     and then select the \uicontrol {Prompt on check-in} check box.
 
     By default, you are asked to enter a comment when checking files out or in.
-    To suppress this prompt, select \uicontrol Tools > \uicontrol Options >
+    To suppress this prompt, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol {Version Control} > \uicontrol ClearCase, and then select the
     \uicontrol {Do not prompt for comment during checkout or check-in} check
     box.
@@ -107,7 +107,7 @@
     \uicontrol Tools > \uicontrol ClearCase > \uicontrol {Undo Hijack}.
 
     By default, the files in the VOBs are indexed for quick access to their
-    statuses. To disable indexing, select \uicontrol Tools > \uicontrol Options
+    statuses. To disable indexing, select \uicontrol Edit > \uicontrol Preferences
     > \uicontrol {Version Control} > \uicontrol ClearCase, and then select the
     \uicontrol {Disable indexer} check box. To only have some VOBs indexed,
     specify them in the \uicontrol {Index only VOBs} field.

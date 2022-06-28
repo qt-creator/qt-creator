@@ -35,7 +35,7 @@
     for found patterns in \l Issues.
 
     To view or add custom output parsers, select
-    \uicontrol Tools > \uicontrol Options >
+    \uicontrol Edit > \uicontrol Preferences >
     \uicontrol {Build & Run} > \uicontrol {Custom Output Parsers}.
 
     \image qtcreator-custom-parser-list.png
@@ -62,7 +62,7 @@
     To create a custom output parser:
 
     \list 1
-        \li Select \uicontrol Tools > \uicontrol Options >
+        \li Select \uicontrol Edit > \uicontrol Preferences >
             \uicontrol {Build & Run} > \uicontrol {Custom Output Parsers}
             > \uicontrol Add.
         \li In the \uicontrol {Error message capture pattern} field, specify

@@ -52,7 +52,6 @@ public:
 
 private:
     void update(bool parsingSuccessful);
-    void doRun() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     QString defaultBuildTarget() const;
 

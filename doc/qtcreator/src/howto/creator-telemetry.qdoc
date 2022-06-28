@@ -106,7 +106,7 @@
     To determine what data is transmitted to the backend storage:
 
     \list 1
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Telemetry
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Telemetry
             > \uicontrol {Usage Statistics}.
             \image qtcreator-telemetry-settings.png "Telemetry settings"
         \li In the \uicontrol {Telemetry mode} list, select the mode that

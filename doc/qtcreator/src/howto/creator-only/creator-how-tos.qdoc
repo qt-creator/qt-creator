@@ -111,8 +111,8 @@
 
     \section1 Find a specific setting
 
-    To find specific settings in \uicontrol Tools > \uicontrol Options,
-    use the filter located at the top left of the \uicontrol Options dialog box.
+    To find specific settings in \uicontrol Edit > \uicontrol Preferences,
+    use the filter located at the top left of the \uicontrol Preferences dialog.
 
     \section1 View output
 
@@ -145,8 +145,8 @@
     You can see the keyboard shortcut for a menu command in the menu
     or the tooltip for a button.
 
-    To customize, import, or export keyboard shortcuts, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol Environment > \uicontrol Keyboard.
+    To customize, import, or export keyboard shortcuts, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Environment > \uicontrol Keyboard.
 
     \section1 Run \QC from the command line
 
@@ -194,7 +194,7 @@
 
     If an instance of a class is derived from QObject, and you would like to
     find all other objects connected to one of your object's slots using
-    Qt's signals and slots mechanism, select \uicontrol Tools > \uicontrol Options
+    Qt's signals and slots mechanism, select \uicontrol Edit > \uicontrol Preferences
     > \uicontrol{Debugger} > \uicontrol{Locals} > \uicontrol{Use Debugging Helper}.
 
     In the \uicontrol{Locals} view, expand the object's entry and open
@@ -213,7 +213,7 @@
     To switch off the debugging helpers:
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
             \uicontrol{Locals}.
 
         \li Uncheck the \uicontrol{Use Debugging Helper} checkbox.
@@ -227,7 +227,7 @@
 
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Options >
+        \li Select \uicontrol Edit > \uicontrol Preferences >
             \uicontrol Debugger > \uicontrol General.
 
         \li Select the \uicontrol {Use tooltips in main editor while debugging} check
@@ -253,7 +253,7 @@
     create your own locator filters. That way you can locate files in a
     directory structure you have defined.
 
-    To create locator filters, select \uicontrol Tools > \uicontrol Options >
+    To create locator filters, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Locator > \uicontrol Add.
 
     For more information, see \l{Creating Locator Filters}.
@@ -274,7 +274,7 @@
     \section1 Add a license header template for C++ code
 
     A file containing a license header for C++ can be specified under
-    \uicontrol Tools > \uicontrol Options > \uicontrol C++ >
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol C++ >
     \uicontrol {License Template}. It may contain special placeholders enclosed
     in \c{%%} that are replaced when generating a new file:
 
@@ -322,7 +322,7 @@
     \section1 Add my own code snippets to the auto-complete menu
 
     You can add, modify, and remove snippets in the snippet editor.
-    To open the editor, select \uicontrol Tools > \uicontrol Options
+    To open the editor, select \uicontrol Edit > \uicontrol Preferences
     > \uicontrol {Text Editor} > \uicontrol Snippets.
 
     For more information, see \l {Adding and Editing Snippets}.
@@ -344,7 +344,7 @@
 
     \section1 Configure the amount of recent files shown
 
-    Select \uicontrol Tools > \uicontrol Options, and change the value of the
+    Select \uicontrol Edit > \uicontrol Preferences, and change the value of the
     list under \uicontrol Environment > \uicontrol System
     > \uicontrol {Maximum number of entries in "Recent Files"}.
 

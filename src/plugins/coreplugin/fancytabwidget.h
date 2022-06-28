@@ -49,8 +49,9 @@ class FancyTab : public QObject
     Q_PROPERTY(qreal fader READ fader WRITE setFader)
 
 public:
-    FancyTab(QWidget *tabbar)
-        : m_tabbar(tabbar)
+    FancyTab(QWidget *parentTabBar)
+        : QObject(parentTabBar)
+        , m_tabbar(parentTabBar)
     {
         m_animator.setPropertyName("fader");
         m_animator.setTargetObject(this);

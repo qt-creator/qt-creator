@@ -58,10 +58,10 @@
     \image qtcreator-code-style-clang-format.png "Clang Format Code Style settings in Projects mode"
 
     To specify global code style settings sets for C++ files, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol C++.
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol C++.
 
-    To specify global code style settings sets for QML files, select \uicontrol {Tools
-    > Options > Qt Quick}.
+    To specify global code style settings sets for QML files, select
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Qt Quick}.
 
     To configure the editor behavior for the current project:
 

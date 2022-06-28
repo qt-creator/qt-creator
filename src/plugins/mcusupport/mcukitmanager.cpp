@@ -470,17 +470,18 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
                 }
                 case McuAbstractPackage::Status::InvalidPath: {
                     printMessage(McuPackage::tr(
-                                     "Path %1 does not exist. Add the path in Tools > Options > "
+                                     "Path %1 does not exist. Add the path in Edit > Preferences > "
                                      "Devices > MCU.")
                                      .arg(qtForMCUsPackage->path().toUserOutput()),
                                  true);
                     break;
                 }
                 case McuAbstractPackage::Status::EmptyPath: {
-                    printMessage(McuPackage::tr(
-                                     "Missing %1. Add the path in Tools > Options > Devices > MCU.")
-                                     .arg(qtForMCUsPackage->detectionPath().toUserOutput()),
-                                 true);
+                    printMessage(
+                        McuPackage::tr(
+                            "Missing %1. Add the path in Edit > Preferences > Devices > MCU.")
+                            .arg(qtForMCUsPackage->detectionPath().toUserOutput()),
+                        true);
                     return;
                 }
                 default:
@@ -492,7 +493,7 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
             if (CMakeProjectManager::CMakeToolManager::cmakeTools().isEmpty()) {
                 printMessage(
                     McuPackage::tr(
-                        "No CMake tool was detected. Add a CMake tool in Tools > Options > "
+                        "No CMake tool was detected. Add a CMake tool in Edit > Preferences > "
                         "Kits > CMake."),
                     true);
                 return;

@@ -83,6 +83,7 @@ enum ElfEndian
 
 enum ElfClass
 {
+    Elf_ELFCLASSNONE = 0,
     Elf_ELFCLASS32 = 1,
     Elf_ELFCLASS64 = 2
 };
@@ -98,6 +99,7 @@ enum ElfType
 
 enum ElfMachine
 {
+    Elf_EM_NONE   =  0,
     Elf_EM_386    =  3,
     Elf_EM_ARM    = 40,
     Elf_EM_X86_64 = 62
@@ -142,10 +144,10 @@ public:
     int indexOf(const QByteArray &name) const;
 
 public:
-    ElfEndian  endian;
-    ElfType    elftype;
-    ElfMachine elfmachine;
-    ElfClass   elfclass;
+    ElfEndian  endian = Elf_ELFDATANONE;
+    ElfType    elftype = Elf_ET_NONE;
+    ElfMachine elfmachine = Elf_EM_NONE;
+    ElfClass   elfclass = Elf_ELFCLASSNONE;
     quint64    entryPoint = 0;
     QByteArray debugLink;
     QByteArray buildId;

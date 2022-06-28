@@ -132,7 +132,7 @@
 
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Analyzer >
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Analyzer >
             \uicontrol {Clang Tools}.
 
             \image qtcreator-clang-tools-options.png "Clang Tools options tab"

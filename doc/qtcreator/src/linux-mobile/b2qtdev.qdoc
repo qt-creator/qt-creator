@@ -66,7 +66,7 @@
     \l{https://doc.qt.io/Boot2Qt/b2qt-requirements-x11.html#setting-up-usb-access-to-embedded-devices}
     {Boot2Qt: Setting Up USB Access to Embedded Devices}.
 
-    You can edit the settings later in \uicontrol Tools > \uicontrol Options >
+    You can edit the settings later in \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Devices > \uicontrol Devices.
 
     \image qtcreator-boot2qt-device-configurations.png "Devices dialog"
@@ -107,10 +107,10 @@
     \list 1
         \li Make sure that your device can be reached via an IP address or
             connect it with a USB connection.
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
             \uicontrol {Qt Versions} > \uicontrol Add to add the Qt version
             for Boot2Qt.
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
             \uicontrol Compilers > \uicontrol Add to add the compiler for
             building the applications.
         \li Select \uicontrol Tools > \uicontrol {Flash Boot to Qt Device}
@@ -119,7 +119,7 @@
             parameters for connecting to the devices over the network (\QC
             automatically detects devices connected with USB):
             \list 1
-                \li Select \uicontrol Tools > \uicontrol Options >
+                \li Select \uicontrol Edit > \uicontrol Preferences >
                     \uicontrol Devices > \uicontrol Devices > \uicontrol Add >
                     \uicontrol Boot2Qt > \uicontrol {Finish}.
                     \image qtcreator-devices-boot2qt.png "Boot2Qt Network Device Setup wizard"
@@ -136,7 +136,7 @@
                     these is the SSH port number, which is available in
                     the variable \c %{Device:SshPort}.
             \endlist
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
             \uicontrol Add to add a kit for building applications for the
             device. Select the Qt version, compiler, and device that you
             added above, and choose \uicontrol Boot2Qt as the device type.

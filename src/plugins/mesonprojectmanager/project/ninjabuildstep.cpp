@@ -185,11 +185,6 @@ QString NinjaBuildStep::defaultBuildTarget() const
     return {Constants::Targets::all};
 }
 
-void NinjaBuildStep::doRun()
-{
-    AbstractProcessStep::doRun();
-}
-
 void NinjaBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
 {
     auto mesonOutputParser = new MesonOutputParser;

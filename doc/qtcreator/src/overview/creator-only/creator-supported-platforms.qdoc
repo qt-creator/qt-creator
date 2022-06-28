@@ -91,7 +91,7 @@
     To develop for UWP using Qt 5, use \QC 7.0, or earlier.
 
     \QC automatically runs scheduled checks for updates based on the settings
-    specified in \uicontrol Tools > \uicontrol Options \uicontrol Environment >
+    specified in \uicontrol Edit > \uicontrol Preferences \uicontrol Environment >
     \uicontrol Update.
 
     For more information on the requirements for each platform, see:

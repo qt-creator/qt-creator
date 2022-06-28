@@ -34,6 +34,8 @@
 #include <QFile>
 #include <QFileInfo>
 
+#include <memory>
+
 /*!
     \class Core::IDocument
     \inheaderfile coreplugin/idocument.h
@@ -227,7 +229,7 @@ public:
     QString uniqueDisplayName;
     Utils::FilePath autoSavePath;
     Utils::InfoBar *infoBar = nullptr;
-    MinimizableInfoBars *minimizableInfoBars = nullptr;
+    std::unique_ptr<MinimizableInfoBars> minimizableInfoBars;
     Id id;
     optional<bool> fileIsReadOnly;
     bool temporary = false;
@@ -683,8 +685,8 @@ Utils::InfoBar *IDocument::infoBar()
 MinimizableInfoBars *IDocument::minimizableInfoBars()
 {
     if (!d->minimizableInfoBars)
-        d->minimizableInfoBars = new Utils::MinimizableInfoBars(*infoBar());
-    return d->minimizableInfoBars;
+        d->minimizableInfoBars.reset(new Utils::MinimizableInfoBars(*infoBar()));
+    return d->minimizableInfoBars.get();
 }
 
 /*!

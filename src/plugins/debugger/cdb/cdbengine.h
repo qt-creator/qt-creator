@@ -113,8 +113,6 @@ private:
 
     void createFullBacktrace();
 
-    void handleDoInterruptInferior(const QString &errorMessage);
-
     typedef QPair<QString, QString> SourcePathMapping;
     struct NormalizedSourceFileName // Struct for caching mapped/normalized source files.
     {
@@ -207,7 +205,6 @@ private:
     //! Debugger accessible (expecting commands)
     bool m_accessible = false;
     StopMode m_stopMode = NoStopRequested;
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr m_signalOperation;
     int m_nextCommandToken = 0;
     QHash<int, DebuggerCommand> m_commandForToken;
     QString m_currentBuiltinResponse;

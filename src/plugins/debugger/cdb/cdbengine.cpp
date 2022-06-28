@@ -805,30 +805,7 @@ void CdbEngine::interruptInferior()
     if (debug)
         qDebug() << "CdbEngine::interruptInferior()" << stateName(state());
 
-    if (!canInterruptInferior()) {
-        // Restore running state if inferior can't be stoped.
-        showMessage(tr("Interrupting is not possible in remote sessions."), LogError);
-        STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorStopOk")
-        notifyInferiorStopOk();
-        STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorRunRequested")
-        notifyInferiorRunRequested();
-        STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorRunOk")
-        notifyInferiorRunOk();
-        return;
-    }
     doInterruptInferior();
-}
-
-void CdbEngine::handleDoInterruptInferior(const QString &errorMessage)
-{
-    if (errorMessage.isEmpty()) {
-        showMessage("Interrupted " + QString::number(inferiorPid()));
-    } else {
-        showMessage(errorMessage, LogError);
-        notifyInferiorStopFailed();
-    }
-    m_signalOperation->disconnect(this);
-    m_signalOperation.clear();
 }
 
 void CdbEngine::doInterruptInferior(const InterruptCallback &callback)
@@ -847,15 +824,7 @@ void CdbEngine::doInterruptInferior(const InterruptCallback &callback)
     if (!requestInterrupt)
         return; // we already requested a stop no need to interrupt twice
     showMessage(QString("Interrupting process %1...").arg(inferiorPid()), LogMisc);
-    QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed(); return);
-    QTC_ASSERT(device(), notifyInferiorRunFailed(); return);
-    m_signalOperation = device()->signalOperation();
-    QTC_ASSERT(m_signalOperation, notifyInferiorStopFailed(); return;);
-    connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
-            this, &CdbEngine::handleDoInterruptInferior);
-
-    m_signalOperation->setDebuggerCommand(runParameters().debugger.command.executable());
-    m_signalOperation->interruptProcess(inferiorPid());
+    m_process.interrupt();
 }
 
 void CdbEngine::executeRunToLine(const ContextData &data)

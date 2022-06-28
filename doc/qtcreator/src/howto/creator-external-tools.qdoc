@@ -104,7 +104,7 @@
     \section1 Configuring External Tools
 
     You can change the configuration of preconfigured tools and configure
-    additional tools in \QC \uicontrol Options.
+    additional tools in \QC \uicontrol Preferences.
 
     \image qtcreator-external-tools.png
 
@@ -163,7 +163,7 @@
 
 
             To globally change the system environment from the one in which
-            \QC is started, select \uicontrol Tools > \uicontrol Options >
+            \QC is started, select \uicontrol Edit > \uicontrol Preferences >
             \uicontrol Environment > \uicontrol System, and then select
             \uicontrol Change in the \uicontrol Environment field.
             \if defined(qtcreator)

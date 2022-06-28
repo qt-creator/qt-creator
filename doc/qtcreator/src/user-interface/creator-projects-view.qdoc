@@ -97,8 +97,8 @@
         \endif
         \li Search from the selected directory.
         \li Open a terminal window in the project directory. To specify the
-            terminal to use on Linux and \macos, select \uicontrol Tools >
-            \uicontrol Options > \uicontrol Environment > \uicontrol System.
+            terminal to use on Linux and \macos, select \uicontrol Edit >
+            \uicontrol Preferences > \uicontrol Environment > \uicontrol System.
         \li Open a terminal window in the project directory that is configured
             for building or running the project.
         \li Expand or collapse the tree view to show or hide all files and
@@ -106,8 +106,8 @@
         \li Close all files in a project.
         \li Close the selected project or all projects except the selected
             one. By default, all files in the projects are also
-            closed. To keep them open, deselect the \uicontrol Tools >
-            \uicontrol Options > \uicontrol {Build & Run} > \uicontrol General
+            closed. To keep them open, deselect the \uicontrol Edit >
+            \uicontrol Preferences > \uicontrol {Build & Run} > \uicontrol General
             > \uicontrol {Close source files along with project} check box.
     \endlist
 

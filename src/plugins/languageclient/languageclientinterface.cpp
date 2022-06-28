@@ -99,10 +99,6 @@ void BaseClientInterface::parseCurrentMessage()
     m_currentMessage = BaseMessage();
 }
 
-StdIOClientInterface::StdIOClientInterface()
-    : m_env(Utils::Environment::systemEnvironment())
-{}
-
 StdIOClientInterface::~StdIOClientInterface()
 {
     delete m_process;
@@ -128,7 +124,8 @@ void StdIOClientInterface::startImpl()
     });
     m_process->setCommand(m_cmd);
     m_process->setWorkingDirectory(m_workingDirectory);
-    m_process->setEnvironment(m_env);
+    if (m_env.isValid())
+        m_process->setEnvironment(m_env);
     m_process->start();
 }
 

@@ -40,7 +40,7 @@
     The main debugger settings are associated with the
     \l{glossary-buildandrun-kit}{kit} you build and run your project with. To
     specify the debugger and compiler to use for each kit, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol Kits.
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits.
 
     You need to set up the debugger only if the automatic setup fails, because
     the native debugger is missing (as is usually the case for the CDB debugger
@@ -55,7 +55,7 @@
     kit for your project.
 
     If the debugger you want to use is not automatically detected, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
     \uicontrol Debuggers > \uicontrol Add to add it.
 
     \note To use the debugging tools for Windows, you must install them and add

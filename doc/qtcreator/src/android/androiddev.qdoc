@@ -80,7 +80,7 @@
     To set up the development environment for Android:
 
     \list 1
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Devices >
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Devices >
             \uicontrol Android on Windows and Linux or \uicontrol {\QC} >
             \uicontrol Preferences > \uicontrol Devices > \uicontrol Android on
             \macos.
@@ -171,8 +171,8 @@
 
     \section2 Managing Android NDK Packages
 
-    To view the installed \l{Android NDK} versions, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol Devices > \uicontrol Android on Windows and
+    To view the installed \l{Android NDK} versions, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Devices > \uicontrol Android on Windows and
     Linux or \uicontrol {\QC} > \uicontrol Preferences > \uicontrol Devices >
     \uicontrol Android on \macos.
 
@@ -201,8 +201,8 @@
     installing, updating, and removing SDK packages. You can still use
     sdkmanager for advanced SDK management.
 
-    To view the installed Android SDK packages, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol Devices > \uicontrol Android >
+    To view the installed Android SDK packages, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Devices > \uicontrol Android >
     \uicontrol {SDK Manager} on Windows and Linux or \uicontrol {\QC} >
     \uicontrol Preferences > \uicontrol Devices > \uicontrol Android >
     \uicontrol {SDK Manager} on \macos.
@@ -229,7 +229,7 @@
 
     \section1 Managing Android Virtual Devices (AVD)
 
-    The available AVDs are listed in \uicontrol Tools > \uicontrol Options
+    The available AVDs are listed in \uicontrol Edit > \uicontrol Preferences
     > \uicontrol Devices on Windows and Linux or \uicontrol {\QC} >
     \uicontrol Preferences > \uicontrol Devices > on \macos. You can add more
     AVDs.
@@ -268,7 +268,7 @@
     To create new virtual devices:
 
     \list 1
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Devices >
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Devices >
             \uicontrol Add > \uicontrol {Android Device} on Windows and Linux
             or \uicontrol {\QC} > \uicontrol Preferences > \uicontrol Devices >
             \uicontrol Add > \uicontrol {Android Device} on \macos to open the

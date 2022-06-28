@@ -70,8 +70,8 @@
             applications for mobile devices, select kits also for Android and
             iOS.
 
-            \note Kits are listed if they have been specified in \uicontrol
-            Tools > \uicontrol Options > \uicontrol Kits (on Windows and Linux)
+            \note Kits are listed if they have been specified in \uicontrol Edit
+            > \uicontrol Preferences > \uicontrol Kits (on Windows and Linux)
             or in \uicontrol {\QC} > \uicontrol Preferences >
             \uicontrol Kits (on \macos).
             For more information, see \l {Adding Kits}.

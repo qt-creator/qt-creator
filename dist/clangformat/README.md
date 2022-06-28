@@ -35,13 +35,13 @@ For more information about clang-format, see
   1. Enable the Beautifier plugin and restart to load it.
 
   2. Configure the plugin:
-     In Menu: Tools > Options > Beautifier > Tab: Clang Format
+     In Menu: Edit > Preferences > Beautifier > Tab: Clang Format
       * Select a valid clang-format executable
       * Use predefined style: File
           * Fallback style: None
 
   3. Set shortcuts for convenience:
-     In Menu: Tools > Options > Environment > Keyboard
+     In Menu: Edit > Preferences > Environment > Keyboard
       * ClangFormat / FormatFile - e.g. Alt+C, F
       * ClangFormat / FormatAtCursor - e.g. Alt+C, C
       * ClangFormat / DisableFormattingSelectedText - e.g. Alt+C, D

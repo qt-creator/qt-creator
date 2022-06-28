@@ -123,6 +123,8 @@ if [ $LLVM_INSTALL_DIR ]; then
         cp -Rf "$clangdsource" "$libexec_path/clang/bin/" || exit 1
         clangtidysource="$LLVM_INSTALL_DIR"/bin/clang-tidy
         cp -Rf "$clangtidysource" "$libexec_path/clang/bin/" || exit 1
+        clangformatsource="$LLVM_INSTALL_DIR"/bin/clang-format
+        cp -Rf "$clangformatsource" "$libexec_path/clang/bin/" || exit 1
         clazysource="$LLVM_INSTALL_DIR"/bin/clazy-standalone
         cp -Rf "$clazysource" "$libexec_path/clang/bin/" || exit 1
         install_name_tool -add_rpath "@executable_path/../lib" "$libexec_path/clang/bin/clazy-standalone" 2> /dev/null

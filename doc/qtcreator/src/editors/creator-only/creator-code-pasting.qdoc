@@ -45,7 +45,7 @@
     To specify settings for the code pasting service:
 
     \list 1
-        \li Select \uicontrol Tools > \uicontrol Options  >
+        \li Select \uicontrol Edit > \uicontrol Preferences  >
             \uicontrol {Code Pasting}.
             \image qtcreator-code-pasting-options.png "Code Pasting options"
         \li In the \uicontrol {Default protocol} field, select a code pasting

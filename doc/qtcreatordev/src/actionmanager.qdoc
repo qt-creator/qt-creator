@@ -28,7 +28,7 @@
     \title The Action Manager and Commands
 
     \QC provides a central options page for managing shortcuts for actions in
-    \uicontrol Tools > \uicontrol Options > \uicontrol Environment >
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol Environment >
     \uicontrol Keyboard. Plugins must tell \QC about the actions they provide,
     so they can appear in the options. Also some actions, like \uicontrol Edit >
     \uicontrol Undo, need to be dispatched to different plugins depending on the

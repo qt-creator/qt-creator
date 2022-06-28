@@ -43,8 +43,8 @@
     for and running it on a particular platform.
 
     \QC automatically detects the compilers that are registered by your
-    system or by the Qt Installer and lists them in \uicontrol Tools >
-    \uicontrol Options > \uicontrol Kits > \uicontrol Compilers:
+    system or by the Qt Installer and lists them in \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Kits > \uicontrol Compilers:
 
     \image qtcreator-toolchains.png
 
@@ -133,10 +133,10 @@
     these compilers, you also specify the path to the script that sets up the
     command prompt in the \uicontrol Initialization field.
 
-    You specify the compiler to use for each kit in \uicontrol Tools >
-    \uicontrol Options > \uicontrol Kits.
+    You specify the compiler to use for each kit in \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Kits.
 
-    To add a C or C++ compiler, select \uicontrol Tools > \uicontrol Options >
+    To add a C or C++ compiler, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Kits > \uicontrol Compilers > \uicontrol Add. Select a compiler
     in the list, and then select \uicontrol C or \uicontrol C++.
 
@@ -192,8 +192,8 @@
 
     \section1 Adding Nim Compilers
 
-    To build an application using the Nim Compiler, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol Kits > \uicontrol Compilers >
+    To build an application using the Nim Compiler, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Kits > \uicontrol Compilers >
     \uicontrol Add > \uicontrol Nim, and specify the path to the directory where
     the compiler is located.
 
@@ -209,7 +209,7 @@
 
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
             \uicontrol Compilers > \uicontrol Add > \uicontrol Custom >
             \uicontrol C or \uicontrol C++.
 

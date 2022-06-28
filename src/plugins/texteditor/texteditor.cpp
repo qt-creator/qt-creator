@@ -646,6 +646,8 @@ public:
     void updateSyntaxInfoBar(const Highlighter::Definitions &definitions, const QString &fileName);
     void removeSyntaxInfoBar();
     void configureGenericHighlighter(const KSyntaxHighlighting::Definition &definition);
+    void setupFromDefinition(const KSyntaxHighlighting::Definition &definition);
+    KSyntaxHighlighting::Definition currentDefinition();
     void rememberCurrentSyntaxDefinition();
     void openLinkUnderCursor(bool openInNextSplit);
 
@@ -1216,7 +1218,7 @@ void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
     connect(m_document->document(), &QTextDocument::modificationChanged,
             q, &TextEditorWidget::updateTextLineEndingLabel);
     q->updateTextLineEndingLabel();
-
+    setupFromDefinition(currentDefinition());
 }
 
 TextEditorWidget::~TextEditorWidget()
@@ -3293,10 +3295,7 @@ void TextEditorWidgetPrivate::configureGenericHighlighter(
 
     if (definition.isValid()) {
         highlighter->setDefinition(definition);
-        m_commentDefinition.singleLine = definition.singleLineCommentMarker();
-        m_commentDefinition.multiLineStart = definition.multiLineCommentMarker().first;
-        m_commentDefinition.multiLineEnd = definition.multiLineCommentMarker().second;
-        q->setCodeFoldingSupported(true);
+        setupFromDefinition(definition);
     } else {
         q->setCodeFoldingSupported(false);
     }
@@ -3304,12 +3303,26 @@ void TextEditorWidgetPrivate::configureGenericHighlighter(
     m_document->setFontSettings(TextEditorSettings::fontSettings());
 }
 
+void TextEditorWidgetPrivate::setupFromDefinition(const KSyntaxHighlighting::Definition &definition)
+{
+    if (!definition.isValid())
+        return;
+    m_commentDefinition.singleLine = definition.singleLineCommentMarker();
+    m_commentDefinition.multiLineStart = definition.multiLineCommentMarker().first;
+    m_commentDefinition.multiLineEnd = definition.multiLineCommentMarker().second;
+    q->setCodeFoldingSupported(true);
+}
+
+KSyntaxHighlighting::Definition TextEditorWidgetPrivate::currentDefinition()
+{
+    if (auto highlighter = qobject_cast<Highlighter *>(m_document->syntaxHighlighter()))
+        return highlighter->definition();
+    return {};
+}
+
 void TextEditorWidgetPrivate::rememberCurrentSyntaxDefinition()
 {
-    auto highlighter = qobject_cast<Highlighter *>(m_document->syntaxHighlighter());
-    if (!highlighter)
-        return;
-    const Highlighter::Definition &definition = highlighter->definition();
+    const Highlighter::Definition &definition = currentDefinition();
     if (definition.isValid())
         Highlighter::rememberDefinitionForDocument(definition, m_document.data());
 }

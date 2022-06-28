@@ -385,7 +385,7 @@ QWidget *AndroidBuildApkWidget::createAdditionalLibrariesGroup()
 
     m_openSslCheckBox = new QCheckBox(tr("Include prebuilt OpenSSL libraries"));
     m_openSslCheckBox->setToolTip(tr("This is useful for apps that use SSL operations. The path "
-                                     "can be defined in Tools > Options > Devices > Android."));
+                                     "can be defined in Edit > Preferences > Devices > Android."));
     connect(m_openSslCheckBox, &QAbstractButton::clicked, this,
             &AndroidBuildApkWidget::onOpenSslCheckBoxChanged);
 

@@ -1372,7 +1372,8 @@ void DebuggerEngine::notifyInferiorSpontaneousStop()
 {
     showMessage("NOTE: INFERIOR SPONTANEOUS STOP");
     QTC_ASSERT(state() == InferiorRunOk, qDebug() << this << state());
-    d->m_perspective->select();
+    if (QTC_GUARD(d->m_perspective))
+        d->m_perspective->select();
     showMessage(tr("Stopped."), StatusBar);
     setState(InferiorStopOk);
     if (debuggerSettings()->raiseOnInterrupt.value())
