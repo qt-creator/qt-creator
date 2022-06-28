@@ -107,6 +107,9 @@ void MaterialBrowserView::modelAttached(Model *model)
 
 void MaterialBrowserView::refreshModel(bool updateImages)
 {
+    if (!model() || !model()->nodeInstanceView())
+        return;
+
     ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
     QList <ModelNode> materials;
 
