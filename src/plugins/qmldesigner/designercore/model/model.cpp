@@ -1390,14 +1390,18 @@ void Model::changeImports(const QList<Import> &importsToBeAdded,
 
 void Model::setPossibleImports(const QList<Import> &possibleImports)
 {
-    d->m_possibleImportList = possibleImports;
-    d->notifyPossibleImportsChanged(possibleImports);
+    if (d->m_possibleImportList != possibleImports) {
+        d->m_possibleImportList = possibleImports;
+        d->notifyPossibleImportsChanged(possibleImports);
+    }
 }
 
 void Model::setUsedImports(const QList<Import> &usedImports)
 {
-    d->m_usedImportList = usedImports;
-    d->notifyUsedImportsChanged(usedImports);
+    if (d->m_usedImportList != usedImports) {
+        d->m_usedImportList = usedImports;
+        d->notifyUsedImportsChanged(usedImports);
+    }
 }
 
 static bool compareVersions(const QString &version1, const QString &version2, bool allowHigherVersion)
