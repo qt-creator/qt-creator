@@ -66,8 +66,14 @@ if(EXISTS ${QMLDOM_STANDALONE_CMAKELISTS} AND Qt6_FOUND AND NOT TARGET qmldomlib
     LIBRARY_OUTPUT_DIRECTORY "$<TARGET_PROPERTY:QmlJS,LIBRARY_OUTPUT_DIRECTORY>")
 endif()
 
+
+env_with_default("QDS_WITH_QMLDOM" ENV_QDS_WITH_QMLDOM OFF)
+option(WITH_QMLDOM "Build with QmlDom" ${ENV_QDS_WITH_QMLDOM})
+add_feature_info("Build with QmlDom" ${WITH_QMLDOM} "")
+
+
 extend_qtc_target(QmlDesigner
-    CONDITION TARGET qmldomlib
+    CONDITION TARGET qmldomlib AND WITH_QMLDOM
     DEFINES QDS_HAS_QMLDOM
     DEPENDS qmldomlib
 )

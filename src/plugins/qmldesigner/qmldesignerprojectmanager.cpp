@@ -263,7 +263,7 @@ void projectQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPa
         qmldirPaths.push_back(QDir::cleanPath(pojectDirectory.absoluteFilePath(importPath))
                               + "/qmldir");
 }
-
+#ifdef QDS_HAS_QMLDOM
 bool skipPath(const std::filesystem::path &path)
 {
     auto directory = path.filename();
@@ -278,9 +278,11 @@ bool skipPath(const std::filesystem::path &path)
 
     return skip;
 }
+#endif
 
 void qtQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
 {
+#ifdef QDS_HAS_QMLDOM
     const QString installDirectory = qmlPath(target).toString();
 
     const std::filesystem::path installDirectoryPath{installDirectory.toStdString()};
@@ -298,6 +300,7 @@ void qtQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
             qmldirPaths.push_back(QString::fromStdU16String(path.generic_u16string()));
         }
     }
+#endif
 }
 
 QStringList qmlDirs(::ProjectExplorer::Target *target)
