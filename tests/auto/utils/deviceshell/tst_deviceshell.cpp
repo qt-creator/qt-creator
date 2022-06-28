@@ -110,7 +110,18 @@ private slots:
             }
         }
 
-        if (!Utils::HostOsInfo::isWindowsHost()) {
+        // On older versions of macOS, base64 does not understand "-d" ( only "-D" ), so we skip the tests here.
+        const QVersionNumber osVersionNumber = QVersionNumber::fromString(
+            QSysInfo::productVersion());
+
+        const bool isOldMacOS = Utils::HostOsInfo::isMacHost()
+                                && osVersionNumber.majorVersion() <= 10
+                                && osVersionNumber.minorVersion() <= 14;
+
+        if (isOldMacOS)
+            qWarning() << "Skipping local tests, as macOS version is <= 10.14";
+
+        if (!Utils::HostOsInfo::isWindowsHost() && !isOldMacOS) {
             // Windows by default has bash.exe, which does not work unless a working wsl is installed.
             // Therefore we only test shells on linux / mac hosts.
             const auto shells = {"dash", "bash", "sh", "zsh"};
