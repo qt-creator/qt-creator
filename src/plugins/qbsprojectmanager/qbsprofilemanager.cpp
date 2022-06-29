@@ -247,7 +247,7 @@ QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, cons
     Utils::QtcProcess qbsConfig;
     qbsConfig.setCommand({qbsConfigExe, args});
     qbsConfig.start();
-    if (!qbsConfig.waitForStarted(3000) || !qbsConfig.waitForFinished(5000)) {
+    if (!qbsConfig.waitForFinished(5000)) {
         Core::MessageManager::writeFlashing(
             tr("Failed to run qbs config: %1").arg(qbsConfig.errorString()));
     } else if (qbsConfig.exitCode() != 0) {
