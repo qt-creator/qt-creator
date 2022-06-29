@@ -1074,11 +1074,6 @@ static bool isQnx(const Kit *k)
     return DeviceTypeKitAspect::deviceTypeId(k) == Qnx::Constants::QNX_QNX_OS_TYPE;
 }
 
-static bool isDocker(const Kit *k)
-{
-    return DeviceTypeKitAspect::deviceTypeId(k) == Docker::Constants::DOCKER_DEVICE_TYPE;
-}
-
 static bool isWindowsARM64(const Kit *k)
 {
     ToolChain *toolchain = ToolChainKitAspect::cxxToolChain(k);
@@ -1105,8 +1100,9 @@ static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString buildT
     Internal::CMakeSpecificSettings *settings
         = Internal::CMakeProjectPlugin::projectTypeSpecificSettings();
 
-    // Package manager
-    if (!isDocker(k) && settings->packageManagerAutoSetup.value()) {
+    // Package manager auto setup. The file auto-setup.cmake resides on the host,
+    // so it's not accessible for remotely running cmakes. We need to exclude that case.
+    if (!cmd.executable().needsDevice() && settings->packageManagerAutoSetup.value()) {
         cmd.addArg("-DCMAKE_PROJECT_INCLUDE_BEFORE:FILEPATH="
                    "%{IDE:ResourcePath}/package-manager/auto-setup.cmake");
     }
