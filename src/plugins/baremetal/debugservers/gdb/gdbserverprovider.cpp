@@ -77,7 +77,7 @@ GdbServerProvider::StartupMode GdbServerProvider::startupMode() const
     return m_startupMode;
 }
 
-Utils::FilePath GdbServerProvider::peripheralDescriptionFile() const
+FilePath GdbServerProvider::peripheralDescriptionFile() const
 {
     return m_peripheralDescriptionFile;
 }
@@ -227,8 +227,8 @@ GdbServerProviderConfigWidget::GdbServerProviderConfigWidget(
                                          "of the GDB server provider."));
     m_mainLayout->addRow(tr("Startup mode:"), m_startupModeComboBox);
 
-    m_peripheralDescriptionFileChooser = new Utils::PathChooser(this);
-    m_peripheralDescriptionFileChooser->setExpectedKind(Utils::PathChooser::File);
+    m_peripheralDescriptionFileChooser = new PathChooser(this);
+    m_peripheralDescriptionFileChooser->setExpectedKind(PathChooser::File);
     m_peripheralDescriptionFileChooser->setPromptDialogFilter(
                 tr("Peripheral description files (*.svd)"));
     m_peripheralDescriptionFileChooser->setPromptDialogTitle(
@@ -243,7 +243,7 @@ GdbServerProviderConfigWidget::GdbServerProviderConfigWidget(
             QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &GdbServerProviderConfigWidget::dirty);
 
-    connect(m_peripheralDescriptionFileChooser, &Utils::PathChooser::pathChanged,
+    connect(m_peripheralDescriptionFileChooser, &PathChooser::filePathChanged,
             this, &GdbServerProviderConfigWidget::dirty);
 }
 
@@ -304,12 +304,12 @@ void GdbServerProviderConfigWidget::populateStartupModes()
         m_startupModeComboBox->addItem(startupModeName(mode), mode);
 }
 
-Utils::FilePath GdbServerProviderConfigWidget::peripheralDescriptionFile() const
+FilePath GdbServerProviderConfigWidget::peripheralDescriptionFile() const
 {
     return m_peripheralDescriptionFileChooser->filePath();
 }
 
-void GdbServerProviderConfigWidget::setPeripheralDescriptionFile(const Utils::FilePath &file)
+void GdbServerProviderConfigWidget::setPeripheralDescriptionFile(const FilePath &file)
 {
     m_peripheralDescriptionFileChooser->setFilePath(file);
 }
@@ -338,7 +338,7 @@ QString GdbServerProviderConfigWidget::defaultResetCommandsTooltip()
 // GdbServerProviderRunner
 
 GdbServerProviderRunner::GdbServerProviderRunner(ProjectExplorer::RunControl *runControl,
-                                                 const Utils::CommandLine &commandLine)
+                                                 const CommandLine &commandLine)
     : SimpleTargetRunner(runControl)
 {
     setId("BareMetalGdbServer");

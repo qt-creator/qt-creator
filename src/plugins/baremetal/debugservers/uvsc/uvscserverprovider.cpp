@@ -299,20 +299,20 @@ UvscServerProviderConfigWidget::UvscServerProviderConfigWidget(UvscServerProvide
 
     connect(m_hostWidget, &HostWidget::dataChanged,
             this, &UvscServerProviderConfigWidget::dirty);
-    connect(m_toolsIniChooser, &PathChooser::pathChanged,
+    connect(m_toolsIniChooser, &PathChooser::filePathChanged,
             this, &UvscServerProviderConfigWidget::dirty);
     connect(m_deviceSelector, &DeviceSelector::selectionChanged,
             this, &UvscServerProviderConfigWidget::dirty);
     connect(m_driverSelector, &DriverSelector::selectionChanged,
             this, &UvscServerProviderConfigWidget::dirty);
 
-    auto updateSelectors = [this]() {
+    auto updateSelectors = [this] {
         const FilePath toolsIniFile = m_toolsIniChooser->filePath();
         m_deviceSelector->setToolsIniFile(toolsIniFile);
         m_driverSelector->setToolsIniFile(toolsIniFile);
     };
 
-    connect(m_toolsIniChooser, &PathChooser::pathChanged, updateSelectors);
+    connect(m_toolsIniChooser, &PathChooser::filePathChanged, this, updateSelectors);
     updateSelectors();
 }
 

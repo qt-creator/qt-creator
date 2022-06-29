@@ -105,7 +105,7 @@ DeviceSelectorDetailsPanel::DeviceSelectorDetailsPanel(DeviceSelection &selectio
             m_selection.algorithmIndex = index;
         emit selectionChanged();
     });
-    connect(m_peripheralDescriptionFileChooser, &Utils::PathChooser::pathChanged,
+    connect(m_peripheralDescriptionFileChooser, &Utils::PathChooser::filePathChanged,
             this, &DeviceSelectorDetailsPanel::selectionChanged);
 }
 
