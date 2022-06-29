@@ -1793,8 +1793,6 @@ static QByteArray runQmakeQuery(const FilePath &binary, const Environment &env, 
 {
     QTC_ASSERT(error, return QByteArray());
 
-    const int timeOutMS = 30000; // Might be slow on some machines.
-
     // Prevent e.g. qmake 4.x on MinGW to show annoying errors about missing dll's.
     WindowsCrashDialogBlocker crashDialogBlocker;
 
@@ -1803,14 +1801,9 @@ static QByteArray runQmakeQuery(const FilePath &binary, const Environment &env, 
     process.setCommand({binary, {"-query"}});
     process.start();
 
-    if (!process.waitForStarted()) {
-        *error = QCoreApplication::translate("QtVersion", "Cannot start \"%1\": %2")
-                .arg(binary.displayName()).arg(process.errorString());
-        return {};
-    }
-    if (!process.waitForFinished(timeOutMS)) {
-        *error = QCoreApplication::translate("QtVersion", "Timeout running \"%1\" (%2 ms).")
-                .arg(binary.displayName()).arg(timeOutMS);
+    if (!process.waitForFinished()) {
+        *error = QCoreApplication::translate("QtVersion", "Timeout running \"%1\".")
+                .arg(binary.displayName());
         return {};
     }
     if (process.exitStatus() != QProcess::NormalExit) {
