@@ -499,13 +499,8 @@ void TerminalImpl::stopProcess()
 {
     killProcess();
     killStub();
-    if (isRunning() && HostOsInfo::isAnyUnixHost()) {
-        d->m_process.terminate();
-        if (!d->m_process.waitForFinished(1000) && d->m_process.state() == QProcess::Running) {
-            d->m_process.kill();
-            d->m_process.waitForFinished();
-        }
-    }
+    if (isRunning() && HostOsInfo::isAnyUnixHost())
+        d->m_process.close();
 }
 
 bool TerminalImpl::isRunning() const
