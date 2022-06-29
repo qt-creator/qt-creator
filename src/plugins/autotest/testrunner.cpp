@@ -287,12 +287,6 @@ void TestRunner::scheduleNext()
     qCDebug(runnerLog) << "Environment:" << m_currentProcess->environment().toStringList();
 
     m_currentProcess->start();
-    if (!m_currentProcess->waitForStarted()) {
-        reportResult(ResultType::MessageFatal,
-            tr("Failed to start test for project \"%1\".").arg(m_currentConfig->displayName())
-                + processInformation(m_currentProcess) + rcInfo(m_currentConfig));
-        onProcessDone();
-    }
 }
 
 void TestRunner::cancelCurrent(TestRunner::CancelReason reason)
@@ -316,6 +310,12 @@ void TestRunner::cancelCurrent(TestRunner::CancelReason reason)
 
 void TestRunner::onProcessDone()
 {
+    if (m_currentProcess->result() == ProcessResult::StartFailed) {
+        reportResult(ResultType::MessageFatal,
+            tr("Failed to start test for project \"%1\".").arg(m_currentConfig->displayName())
+                + processInformation(m_currentProcess) + rcInfo(m_currentConfig));
+    }
+
     if (m_executingTests && m_currentConfig) {
         QTC_CHECK(m_fakeFutureInterface);
         m_fakeFutureInterface->setProgressValue(m_fakeFutureInterface->progressValue()
