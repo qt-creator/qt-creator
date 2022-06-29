@@ -416,9 +416,12 @@ QString AndroidManager::apkDevicePreferredAbi(const Target *target)
 {
     const FilePath libsPath = androidBuildDirectory(target).pathAppended("libs");
     if (!libsPath.exists()) {
-        if (const ProjectNode *node = currentProjectNode(target))
-            return preferredAbi(node->data(Android::Constants::AndroidAbis).toStringList(),
-                                target);
+        if (const ProjectNode *node = currentProjectNode(target)) {
+            const QString abi = preferredAbi(
+                        node->data(Android::Constants::AndroidAbis).toStringList(), target);
+            if (abi.isEmpty())
+                return node->data(Android::Constants::AndroidAbi).toString();
+        }
     }
     QStringList apkAbis;
     const FilePaths libsPaths = libsPath.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
