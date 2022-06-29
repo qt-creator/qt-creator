@@ -80,7 +80,7 @@ public:
         m_chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
         m_chooser->setHistoryCompleter(QLatin1String("PE.SysRoot.History"));
         m_chooser->setFilePath(SysRootKitAspect::sysRoot(k));
-        connect(m_chooser, &Utils::PathChooser::pathChanged,
+        connect(m_chooser, &PathChooser::filePathChanged,
                 this, &SysRootKitAspectWidget::pathWasChanged);
     }
 
