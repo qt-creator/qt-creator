@@ -67,7 +67,7 @@ void ExtPropertiesMView::visitMPackage(const qmt::MPackage *package)
             m_configPath->setInitialBrowsePathBackup(
                 Utils::FilePath::fromString(project->fileName()).absolutePath());
             addRow(tr("Config path:"), m_configPath, "configpath");
-            connect(m_configPath, &Utils::PathChooser::pathChanged,
+            connect(m_configPath, &Utils::PathChooser::filePathChanged,
                     this, &ExtPropertiesMView::onConfigPathChanged);
         }
         if (!m_configPath->hasFocus()) {
@@ -86,7 +86,7 @@ void ExtPropertiesMView::visitMPackage(const qmt::MPackage *package)
     }
 }
 
-void ExtPropertiesMView::onConfigPathChanged(const QString &path)
+void ExtPropertiesMView::onConfigPathChanged(const Utils::FilePath &path)
 {
     bool modified = false;
     qmt::Project *project = m_projectController->project();
@@ -98,7 +98,7 @@ void ExtPropertiesMView::onConfigPathChanged(const QString &path)
         }
     } else {
         // make path relative to current project's directory
-        QFileInfo absConfigPath(path);
+        QFileInfo absConfigPath = path.toFileInfo();
         absConfigPath.makeAbsolute();
         QDir projectDir = QFileInfo(project->fileName()).dir();
         QString configPath = projectDir.relativeFilePath(absConfigPath.filePath());

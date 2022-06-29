@@ -28,7 +28,11 @@
 #include "qmt/model_widgets_ui/propertiesviewmview.h"
 
 namespace qmt { class ProjectController; }
-namespace Utils { class PathChooser; }
+
+namespace Utils {
+class FilePath;
+class PathChooser;
+} // Utils
 
 namespace ModelEditor {
 namespace Internal {
@@ -46,7 +50,7 @@ public:
     void visitMPackage(const qmt::MPackage *package) override;
 
 private:
-    void onConfigPathChanged(const QString &path);
+    void onConfigPathChanged(const Utils::FilePath &path);
 
 private:
     qmt::ProjectController *m_projectController = nullptr;
