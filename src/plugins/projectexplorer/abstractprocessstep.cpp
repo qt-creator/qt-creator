@@ -232,15 +232,12 @@ void AbstractProcessStep::doRun()
             this, &AbstractProcessStep::processReadyReadStdOutput);
     connect(d->m_process.get(), &QtcProcess::readyReadStandardError,
             this, &AbstractProcessStep::processReadyReadStdError);
+    connect(d->m_process.get(), &QtcProcess::started,
+            this, &AbstractProcessStep::processStarted);
     connect(d->m_process.get(), &QtcProcess::done,
-            this, &AbstractProcessStep::slotProcessFinished);
+            this, &AbstractProcessStep::handleProcessDone);
 
     d->m_process->start();
-    if (!d->m_process->waitForStarted()) {
-        d->m_process.reset();
-        return;
-    }
-    processStarted();
 }
 
 void AbstractProcessStep::setLowPriority()
@@ -278,7 +275,7 @@ void AbstractProcessStep::setupProcessParameters(ProcessParameters *params) cons
 
 void AbstractProcessStep::Private::cleanUp(int exitCode, QProcess::ExitStatus status)
 {
-    // The process has finished, leftover data was read in slotProcessFinished
+    // The process has finished, leftover data was read in handleProcessDone
     q->processFinished(exitCode, status);
     const bool returnValue = q->processSucceeded(exitCode, status) || m_ignoreReturnValue;
 
@@ -394,11 +391,12 @@ void AbstractProcessStep::finish(bool success)
     emit finished(success);
 }
 
-void AbstractProcessStep::slotProcessFinished()
+void AbstractProcessStep::handleProcessDone()
 {
     QTC_ASSERT(d->m_process.get(), return);
     if (d->m_process->error() == QProcess::FailedToStart) {
         processStartupFailed();
+        d->m_process.release()->deleteLater();
         return;
     }
     stdError(d->stderrStream->toUnicode(d->m_process->readAllStandardError()));

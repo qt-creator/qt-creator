@@ -76,7 +76,7 @@ protected:
 private:
     void processReadyReadStdOutput();
     void processReadyReadStdError();
-    void slotProcessFinished();
+    void handleProcessDone();
 
     class Private;
     Private *d;
