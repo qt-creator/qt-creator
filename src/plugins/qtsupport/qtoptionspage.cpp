@@ -1011,7 +1011,7 @@ void QtOptionsPageWidget::linkWithQt()
 
     dialog.exec();
     if (dialog.result() == QDialog::Accepted) {
-        const Utils::optional<QString> settingsDir = settingsDirForQtDir(pathInput->rawPath());
+        const Utils::optional<QString> settingsDir = settingsDirForQtDir(pathInput->rawFilePath().toString());
         if (QTC_GUARD(settingsDir)) {
             QSettings(settingsFile(Core::ICore::resourcePath().toString()), QSettings::IniFormat)
                 .setValue(kInstallSettingsKey, *settingsDir);

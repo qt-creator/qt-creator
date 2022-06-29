@@ -93,7 +93,6 @@ public:
     FilePath filePath() const; // Close to what's in the line edit.
     FilePath absoluteFilePath() const; // Relative paths resolved wrt the specified base dir.
 
-    QString rawPath() const; // The raw unexpanded input.
     FilePath rawFilePath() const; // The raw unexpanded input as FilePath.
 
     static QString expandedDirectory(const QString &input, const Environment &env,
@@ -158,7 +157,9 @@ public:
     // input value during validation if the real value is empty
     // setting an empty QString will disable this and clear the placeHolderText
     void setDefaultValue(const QString &defaultValue);
+
 private:
+    QString rawPath() const; // The raw unexpanded input.
     bool validatePath(FancyLineEdit *edit, QString *errorMessage) const;
     // Returns overridden title or the one from <title>
     QString makeDialogTitle(const QString &title);

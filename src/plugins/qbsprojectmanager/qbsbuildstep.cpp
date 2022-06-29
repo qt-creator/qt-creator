@@ -796,7 +796,7 @@ void QbsBuildStepConfigWidget::changeUseDefaultInstallDir(bool useDefault)
     if (useDefault)
         config.remove(Constants::QBS_INSTALL_ROOT_KEY);
     else
-        config.insert(Constants::QBS_INSTALL_ROOT_KEY, installDirChooser->rawPath());
+        config.insert(Constants::QBS_INSTALL_ROOT_KEY, installDirChooser->rawFilePath().toString());
     m_qbsStep->setQbsConfiguration(config);
     m_ignoreChange = false;
 }

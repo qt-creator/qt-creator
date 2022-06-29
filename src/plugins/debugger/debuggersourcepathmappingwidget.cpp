@@ -334,7 +334,7 @@ QString DebuggerSourcePathMappingWidget::editSourceField() const
 
 QString DebuggerSourcePathMappingWidget::editTargetField() const
 {
-    return m_targetChooser->rawPath();
+    return m_targetChooser->rawFilePath().toString();
 }
 
 void DebuggerSourcePathMappingWidget::setEditFieldMapping(const Mapping &m)
