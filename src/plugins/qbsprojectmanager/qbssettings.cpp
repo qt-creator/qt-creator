@@ -56,10 +56,8 @@ static QString getQbsVersion(const FilePath &qbsExe)
     QtcProcess qbsProc;
     qbsProc.setCommand({qbsExe, {"--version"}});
     qbsProc.start();
-    if (!qbsProc.waitForStarted(3000) || !qbsProc.waitForFinished(5000)
-            || qbsProc.exitCode() != 0) {
+    if (!qbsProc.waitForFinished(5000) || qbsProc.exitCode() != 0)
         return {};
-    }
     return QString::fromLocal8Bit(qbsProc.readAllStandardOutput()).trimmed();
 }
 
