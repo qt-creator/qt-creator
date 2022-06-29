@@ -169,6 +169,8 @@
             \list
                 \li \l{Connecting Android Devices}
                 \li \l{Connecting Bare Metal Devices}
+                \li \l{Connecting Boot2Qt Devices}
+                \li \l{Adding Docker Devices}
                 \li \l{Connecting Generic Remote Linux Devices}
                 \li \l{Connecting iOS Devices}
                 \li \l{Connecting MCUs}

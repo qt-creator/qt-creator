@@ -29,7 +29,7 @@
     \previouspage creator-developing-android.html
     \nextpage studio-advanced.html
     \else
-    \previouspage creator-developing-b2qt.html
+    \previouspage creator-adding-docker-devices.html
     \nextpage creator-developing-ios.html
     \endif
 
