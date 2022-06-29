@@ -31,6 +31,8 @@
 #include <QRegularExpression>
 #include <QXmlStreamReader>
 
+using namespace Utils;
+
 namespace McuSupport {
 namespace Internal {
 
@@ -46,7 +48,7 @@ QString matchRegExp(const QString &text, const QString &regExp)
 McuPackageVersionDetector::McuPackageVersionDetector() {}
 
 McuPackageExecutableVersionDetector::McuPackageExecutableVersionDetector(
-    const Utils::FilePath &detectionPath,
+    const FilePath &detectionPath,
     const QStringList &detectionArgs,
     const QString &detectionRegExp)
     : McuPackageVersionDetector()
@@ -55,30 +57,25 @@ McuPackageExecutableVersionDetector::McuPackageExecutableVersionDetector(
     , m_detectionRegExp(detectionRegExp)
 {}
 
-QString McuPackageExecutableVersionDetector::parseVersion(const Utils::FilePath &packagePath) const
+QString McuPackageExecutableVersionDetector::parseVersion(const FilePath &packagePath) const
 {
     if (m_detectionPath.isEmpty() || m_detectionRegExp.isEmpty())
         return QString();
 
-    const Utils::FilePath binaryPath = packagePath / m_detectionPath.path();
+    const FilePath binaryPath = packagePath / m_detectionPath.path();
     if (!binaryPath.exists())
         return QString();
 
-    const int execTimeout = 3000; // usually runs below 1s, but we want to be on the safe side
-    Utils::QtcProcess binaryProcess;
-    binaryProcess.setCommand({binaryPath, m_detectionArgs});
-    binaryProcess.start();
-    if (!binaryProcess.waitForStarted())
+    const int timeout = 3000; // usually runs below 1s, but we want to be on the safe side
+    QtcProcess process;
+    process.setCommand({binaryPath, m_detectionArgs});
+    process.start();
+    if (!process.waitForFinished(timeout) || process.result() != ProcessResult::FinishedWithSuccess)
         return QString();
-    binaryProcess.waitForFinished(execTimeout);
-    if (binaryProcess.exitStatus() == QProcess::NormalExit) {
-        const QString processOutput = QString::fromUtf8(
-            binaryProcess.readAllStandardOutput().append(binaryProcess.readAllStandardError()));
-        return matchRegExp(processOutput, m_detectionRegExp);
-    }
 
-    // Fail gracefully: return empty string if execution failed
-    return QString();
+    const QString processOutput = QString::fromUtf8(
+                process.readAllStandardOutput().append(process.readAllStandardError()));
+    return matchRegExp(processOutput, m_detectionRegExp);
 }
 
 McuPackageXmlVersionDetector::McuPackageXmlVersionDetector(const QString &filePattern,
@@ -91,7 +88,7 @@ McuPackageXmlVersionDetector::McuPackageXmlVersionDetector(const QString &filePa
     , m_versionRegExp(versionRegExp)
 {}
 
-QString McuPackageXmlVersionDetector::parseVersion(const Utils::FilePath &packagePath) const
+QString McuPackageXmlVersionDetector::parseVersion(const FilePath &packagePath) const
 {
     const auto files = QDir(packagePath.toString(), m_filePattern).entryInfoList();
     for (const auto &xmlFile : files) {
@@ -119,7 +116,7 @@ McuPackageDirectoryVersionDetector::McuPackageDirectoryVersionDetector(const QSt
     , m_isFile(isFile)
 {}
 
-QString McuPackageDirectoryVersionDetector::parseVersion(const Utils::FilePath &packagePath) const
+QString McuPackageDirectoryVersionDetector::parseVersion(const FilePath &packagePath) const
 {
     const auto files = QDir(packagePath.toString(), m_filePattern)
                            .entryInfoList(m_isFile ? QDir::Filter::Files : QDir::Filter::Dirs);
@@ -135,7 +132,7 @@ McuPackagePathVersionDetector::McuPackagePathVersionDetector(const QString &vers
     : m_versionRegExp(versionRegExp)
 {}
 
-QString McuPackagePathVersionDetector::parseVersion(const Utils::FilePath &packagePath) const
+QString McuPackagePathVersionDetector::parseVersion(const FilePath &packagePath) const
 {
     if (!packagePath.exists())
         return QString();
