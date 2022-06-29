@@ -49,7 +49,7 @@ class CmakeProjectConverter {
 public:
     bool convertProject(const QmlProjectManager::QmlProject *project,
                         const Utils::FilePath &targetDir);
-    static void generateMenuEntry();
+    static void generateMenuEntry(QObject *parent);
     static void onConvertProject();
     static bool isProjectConvertable(const ProjectExplorer::Project *project);
     static bool isProjectCurrentFormat(const ProjectExplorer::Project *project);

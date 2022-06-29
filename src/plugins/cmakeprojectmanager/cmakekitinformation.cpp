@@ -261,7 +261,7 @@ Tasks CMakeKitAspect::validate(const Kit *k) const
 {
     Tasks result;
     CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
-    if (tool) {
+    if (tool && tool->isValid()) {
         CMakeTool::Version version = tool->version();
         if (version.major < 3 || (version.major == 3 && version.minor < 14)) {
             result << BuildSystemTask(Task::Warning, msgUnsupportedVersion(version.fullVersion));

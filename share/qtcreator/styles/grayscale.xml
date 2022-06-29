@@ -15,6 +15,7 @@
   <style name="Doxygen.Tag" foreground="#808080" italic="true"/>
   <style name="Field"/>
   <style name="Function"/>
+  <style name="Macro"/>
   <style name="Keyword" bold="true"/>
   <style name="PrimitiveType" bold="true"/>
   <style name="Label"/>

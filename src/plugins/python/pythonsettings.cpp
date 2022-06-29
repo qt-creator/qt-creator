@@ -218,7 +218,7 @@ InterpreterOptionsWidget::InterpreterOptionsWidget(const QList<Interpreter> &int
     m_cleanButton = new QPushButton(PythonSettings::tr("&Clean Up"));
     connect(m_cleanButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::cleanUp);
     m_cleanButton->setToolTip(
-        PythonSettings::tr("Remove all python interpreters without a valid executable."));
+        PythonSettings::tr("Remove all Python interpreters without a valid executable."));
 
     updateCleanButton();
 
@@ -423,7 +423,7 @@ public:
         mainGroupLayout->addWidget(m_pluginsGroup);
 
         const QString labelText = PythonSettings::tr(
-            "For a complete list of avilable options, consult the <a "
+            "For a complete list of available options, consult the <a "
             "href=\"https://github.com/python-lsp/python-lsp-server/blob/develop/"
             "CONFIGURATION.md\">Python LSP Server configuration documentation</a>.");
 

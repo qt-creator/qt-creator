@@ -1,0 +1,10 @@
+type: Group
+instructions:
+  - type: ChangeDirectory
+    directory: "{{.AgentWorkingDir}}/qt-creator/qt-creator_build/build"
+  - type: ExecuteCommand
+    command: "ctest -j 4 --timeout 60 --output-on-failure"
+    maxTimeInSeconds: 600
+    maxTimeBetweenOutput: 600
+    userMessageOnFailure: "Failed to run tests, check logs"
+    ignoreExitCode: true

@@ -66,6 +66,7 @@
 #include <utils/parameteraction.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
@@ -1367,20 +1368,22 @@ void GitPluginPrivate::startCommit(CommitType commitType)
 
 void GitPluginPrivate::updateVersionWarning()
 {
-    unsigned version = m_gitClient.gitVersion();
-    if (!version || version >= minimumRequiredVersion)
-        return;
-    IDocument *curDocument = EditorManager::currentDocument();
+    QPointer<IDocument> curDocument = EditorManager::currentDocument();
     if (!curDocument)
         return;
-    InfoBar *infoBar = curDocument->infoBar();
-    Id gitVersionWarning("GitVersionWarning");
-    if (!infoBar->canInfoBeAdded(gitVersionWarning))
-        return;
-    infoBar->addInfo(InfoBarEntry(gitVersionWarning,
-                        tr("Unsupported version of Git found. Git %1 or later required.")
-                        .arg(versionString(minimumRequiredVersion)),
-                        InfoBarEntry::GlobalSuppression::Enabled));
+    Utils::onResultReady(m_gitClient.gitVersion(), this, [curDocument](unsigned version) {
+        if (!curDocument || !version || version >= minimumRequiredVersion)
+            return;
+        InfoBar *infoBar = curDocument->infoBar();
+        Id gitVersionWarning("GitVersionWarning");
+        if (!infoBar->canInfoBeAdded(gitVersionWarning))
+            return;
+        infoBar->addInfo(
+            InfoBarEntry(gitVersionWarning,
+                         tr("Unsupported version of Git found. Git %1 or later required.")
+                             .arg(versionString(minimumRequiredVersion)),
+                         InfoBarEntry::GlobalSuppression::Enabled));
+    });
 }
 
 IEditor *GitPluginPrivate::openSubmitEditor(const QString &fileName, const CommitData &cd)

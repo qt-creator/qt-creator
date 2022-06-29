@@ -49,6 +49,7 @@ TestFrameworkManager::TestFrameworkManager()
 TestFrameworkManager::~TestFrameworkManager()
 {
     qDeleteAll(m_registeredFrameworks);
+    qDeleteAll(m_registeredTestTools);
     s_instance = nullptr;
 }
 

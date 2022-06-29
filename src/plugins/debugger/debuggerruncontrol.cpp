@@ -1059,7 +1059,7 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
         } else {
             cmd.setExecutable(runControl->device()->debugServerPath());
             if (cmd.isEmpty())
-                cmd.setExecutable("gdbserver");
+                cmd.setExecutable(runControl->device()->filePath("gdbserver"));
             args.clear();
             if (cmd.executable().toString().contains("lldb-server")) {
                 args.append("platform");

@@ -29,6 +29,7 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/launcherinterface.h>
+#include <utils/mapreduce.h>
 #include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 #include <utils/temporarydirectory.h>
@@ -110,7 +111,18 @@ private slots:
             }
         }
 
-        if (!Utils::HostOsInfo::isWindowsHost()) {
+        // On older versions of macOS, base64 does not understand "-d" ( only "-D" ), so we skip the tests here.
+        const QVersionNumber osVersionNumber = QVersionNumber::fromString(
+            QSysInfo::productVersion());
+
+        const bool isOldMacOS = Utils::HostOsInfo::isMacHost()
+                                && osVersionNumber.majorVersion() <= 10
+                                && osVersionNumber.minorVersion() <= 14;
+
+        if (isOldMacOS)
+            qWarning() << "Skipping local tests, as macOS version is <= 10.14";
+
+        if (!Utils::HostOsInfo::isWindowsHost() && !isOldMacOS) {
             // Windows by default has bash.exe, which does not work unless a working wsl is installed.
             // Therefore we only test shells on linux / mac hosts.
             const auto shells = {"dash", "bash", "sh", "zsh"};
@@ -276,6 +288,63 @@ private slots:
         const DeviceShell::RunResult result2 = shell.outputForRunInShell(
             {"cat", {"/tmp/i-do-not-exist.none"}});
         QVERIFY(!result2.stdErr.isEmpty());
+        QVERIFY(result2.exitCode != 0);
+    }
+
+    void testNoCommand_data()
+    {
+        QTest::addColumn<CommandLine>("cmdLine");
+        for (const auto &cmdLine : m_availableShells) {
+            QTest::newRow(cmdLine.executable().baseName().toUtf8()) << cmdLine;
+        }
+    }
+
+    void testNoCommand()
+    {
+        QFETCH(CommandLine, cmdLine);
+
+        if (cmdLine.executable().toString().contains("docker") && !m_dockerSetupCheckOk) {
+            QSKIP("Docker was found, but does not seem to be set up correctly, skipping.");
+        }
+
+        TestShell shell(cmdLine);
+        QCOMPARE(shell.state(), DeviceShell::State::Succeeded);
+
+        const DeviceShell::RunResult result = shell.outputForRunInShell({}, {});
+
+        QVERIFY(result.exitCode == 255);
+    }
+
+    void testMultiThreadedFind_data()
+    {
+        QTest::addColumn<CommandLine>("cmdLine");
+        for (const auto &cmdLine : m_availableShells) {
+            QTest::newRow(cmdLine.executable().baseName().toUtf8()) << cmdLine;
+        }
+    }
+
+    void testMultiThreadedFind()
+    {
+        QFETCH(CommandLine, cmdLine);
+
+        if (cmdLine.executable().toString().contains("docker") && !m_dockerSetupCheckOk) {
+            QSKIP("Docker was found, but does not seem to be set up correctly, skipping.");
+        }
+
+        TestShell shell(cmdLine);
+        QCOMPARE(shell.state(), DeviceShell::State::Succeeded);
+
+        QList<int> runs{1,2,3,4,5,6,7,8,9};
+
+        QList<QByteArray> results = Utils::mapped<QList>(runs, [&shell](const int i) -> QByteArray{
+            QElapsedTimer t;
+            t.start();
+            DeviceShell::RunResult result = shell.outputForRunInShell({"find", {"/usr", "-maxdepth", "4"}});
+            qDebug() << i << "took" << t.elapsed() << "ms";
+            return result.stdOut;
+        });
+
+        QVERIFY (!Utils::anyOf(results, [&results](const QByteArray r){ return r != results[0]; }));
     }
 };
 

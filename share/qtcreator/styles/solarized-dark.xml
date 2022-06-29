@@ -33,6 +33,7 @@
   <style name="Static" foreground="#b58900" italic="true"/>
   <style name="VirtualMethod" foreground="#839496" italic="true"/>
   <style name="Function" foreground="#839496"/>
+  <style name="Macro" foreground="#839496"/>
   <style name="Keyword" foreground="#709d06"/>
   <style name="PrimitiveType" foreground="#808000"/>
   <style name="Punctuation"/>

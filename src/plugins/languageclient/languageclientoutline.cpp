@@ -35,7 +35,9 @@
 #include <texteditor/outlinefactory.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+#include <utils/dropsupport.h>
 #include <utils/itemviews.h>
+#include <utils/navigationtreeview.h>
 #include <utils/treemodel.h>
 #include <utils/treeviewcombobox.h>
 #include <utils/utilsicons.h>
@@ -47,6 +49,23 @@
 using namespace LanguageServerProtocol;
 
 namespace LanguageClient {
+
+const QList<SymbolInformation> sortedSymbols(const QList<SymbolInformation> &symbols)
+{
+    auto result = symbols;
+    Utils::sort(result, [](const SymbolInformation &a, const SymbolInformation &b){
+        return a.location().range().start() < b.location().range().start();
+    });
+    return result;
+}
+const QList<DocumentSymbol> sortedSymbols(const QList<DocumentSymbol> &symbols)
+{
+    auto result = symbols;
+    Utils::sort(result, [](const DocumentSymbol &a, const DocumentSymbol &b){
+        return a.range().start() < b.range().start();
+    });
+    return result;
+}
 
 class LanguageClientOutlineItem : public Utils::TypedTreeItem<LanguageClientOutlineItem>
 {
@@ -65,7 +84,9 @@ public:
         , m_symbolStringifier(stringifier)
         , m_type(info.kind())
     {
-        for (const DocumentSymbol &child : info.children().value_or(QList<DocumentSymbol>()))
+        const QList<LanguageServerProtocol::DocumentSymbol> children = sortedSymbols(
+                    info.children().value_or(QList<DocumentSymbol>()));
+        for (const DocumentSymbol &child : children)
             appendChild(new LanguageClientOutlineItem(child, stringifier));
     }
 
@@ -84,6 +105,13 @@ public:
         }
     }
 
+    Qt::ItemFlags flags(int column) const override
+    {
+        Q_UNUSED(column)
+        return Utils::TypedTreeItem<LanguageClientOutlineItem>::flags(column)
+               | Qt::ItemIsDragEnabled;
+    }
+
     Range range() const { return m_range; }
     Position pos() const { return m_range.start(); }
     bool contains(const Position &pos) const { return m_range.contains(pos); }
@@ -100,16 +128,18 @@ class LanguageClientOutlineModel : public Utils::TreeModel<LanguageClientOutline
 {
 public:
     using Utils::TreeModel<LanguageClientOutlineItem>::TreeModel;
+    void setFilePath(const Utils::FilePath &filePath) { m_filePath = filePath; }
+
     void setInfo(const QList<SymbolInformation> &info)
     {
         clear();
-        for (const SymbolInformation &symbol : info)
+        for (const SymbolInformation &symbol : sortedSymbols(info))
             rootItem()->appendChild(new LanguageClientOutlineItem(symbol));
     }
     void setInfo(const QList<DocumentSymbol> &info)
     {
         clear();
-        for (const DocumentSymbol &symbol : info)
+        for (const DocumentSymbol &symbol : sortedSymbols(info))
             rootItem()->appendChild(new LanguageClientOutlineItem(symbol, m_symbolStringifier));
     }
 
@@ -118,8 +148,42 @@ public:
         m_symbolStringifier = stringifier;
     }
 
+    Qt::DropActions supportedDragActions() const override
+    {
+        return Qt::MoveAction;
+    }
+
+    QStringList mimeTypes() const override
+    {
+        return Utils::DropSupport::mimeTypesForFilePaths();
+    }
+
+    QMimeData *mimeData(const QModelIndexList &indexes) const override
+    {
+        auto mimeData = new Utils::DropMimeData;
+        for (const QModelIndex &index : indexes) {
+            if (LanguageClientOutlineItem *item = itemForIndex(index)) {
+                const LanguageServerProtocol::Position pos = item->pos();
+                mimeData->addFile(m_filePath, pos.line() + 1, pos.character());
+            }
+        }
+        return mimeData;
+    }
+
 private:
     SymbolStringifier m_symbolStringifier;
+    Utils::FilePath m_filePath;
+};
+
+class DragSortFilterProxyModel : public QSortFilterProxyModel
+{
+public:
+    using QSortFilterProxyModel::QSortFilterProxyModel;
+
+    Qt::DropActions supportedDragActions() const override
+    {
+        return sourceModel()->supportedDragActions();
+    }
 };
 
 class LanguageClientOutlineWidget : public TextEditor::IOutlineWidget
@@ -145,8 +209,8 @@ private:
     QPointer<Client> m_client;
     QPointer<TextEditor::BaseTextEditor> m_editor;
     LanguageClientOutlineModel m_model;
-    QSortFilterProxyModel m_proxyModel;
-    Utils::TreeView m_view;
+    DragSortFilterProxyModel m_proxyModel;
+    Utils::NavigationTreeView m_view;
     DocumentUri m_uri;
     bool m_sync = false;
     bool m_sorted = false;
@@ -176,11 +240,14 @@ LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
     layout->addWidget(Core::ItemViewFind::createSearchableWrapper(&m_view));
     setLayout(layout);
     m_model.setSymbolStringifier(m_client->symbolStringifier());
+    m_model.setFilePath(editor->textDocument()->filePath());
     m_proxyModel.setSourceModel(&m_model);
     m_view.setModel(&m_proxyModel);
     m_view.setHeaderHidden(true);
     m_view.setExpandsOnDoubleClick(false);
     m_view.setFrameStyle(QFrame::NoFrame);
+    m_view.setDragEnabled(true);
+    m_view.setDragDropMode(QAbstractItemView::DragOnly);
     connect(&m_view, &QAbstractItemView::activated,
             this, &LanguageClientOutlineWidget::onItemActivated);
     connect(m_editor->editorWidget(), &TextEditor::TextEditorWidget::cursorPositionChanged,

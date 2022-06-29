@@ -1,0 +1,11 @@
+# kate: hl toml;
+
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+click = "~= 8.0"
+jinja2 = "~= 3.0"
+PyYAML = "*"

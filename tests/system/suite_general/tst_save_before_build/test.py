@@ -27,7 +27,7 @@ source("../../shared/qtcreator.py")
 
 
 def __openBuildAndRunSettings__():
-    invokeMenuItem("Tools", "Options...")
+    invokeMenuItem("Edit", "Preferences...")
     mouseClick(waitForObjectItem(":Options_QListView", "Build & Run"))
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "General")
 

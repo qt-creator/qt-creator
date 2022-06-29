@@ -47,7 +47,7 @@ set_target_properties(KF5SyntaxHighlighting PROPERTIES
     SOVERSION ${SyntaxHighlighting_SOVERSION}
     EXPORT_NAME SyntaxHighlighting
 )
-target_include_directories(KF5SyntaxHighlighting INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF}/KSyntaxHighlighting;${KDE_INSTALL_INCLUDEDIR_KF}>")
+target_include_directories(KF5SyntaxHighlighting INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF}/KSyntaxHighlighting>")
 target_include_directories(KF5SyntaxHighlighting PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_CURRENT_BINARY_DIR};>")
 target_link_libraries(KF5SyntaxHighlighting
     PUBLIC
@@ -56,26 +56,38 @@ target_link_libraries(KF5SyntaxHighlighting
         Qt${QT_MAJOR_VERSION}::Network
 )
 
-ecm_generate_headers(SyntaxHighlighting_HEADERS
-    HEADER_NAMES
-        AbstractHighlighter
-        Definition
-        DefinitionDownloader
-        FoldingRegion
-        Format
-        Repository
-        State
-        SyntaxHighlighter
-        Theme
-        WildcardMatcher
+set(Forwarding_Header_Names
+    AbstractHighlighter
+    Definition
+    DefinitionDownloader
+    FoldingRegion
+    Format
+    Repository
+    State
+    SyntaxHighlighter
+    Theme
+    WildcardMatcher
+)
+
+ecm_generate_headers(CamelCase_HEADERS
+    HEADER_NAMES ${Forwarding_Header_Names}
     REQUIRED_HEADERS SyntaxHighlighting_HEADERS
+    # Avoid unprefixed headers in build dir (which is part of library's build interface include directories)
+    # and thus visible to anything linking it in the same build, incl. when used with CMake's FetchContent.
+    # E.g. there can be look-up clashes on case-insensitive filesystems with C++20's <format> file and
+    # the library's generated "Format" file.
+    # See BUG: 453759
+    OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/camelcaseheaders
 )
 
 install(TARGETS KF5SyntaxHighlighting EXPORT KF5SyntaxHighlightingTargets ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
+
 install(FILES
+    ${CamelCase_HEADERS}
     ${SyntaxHighlighting_HEADERS}
     ${CMAKE_CURRENT_BINARY_DIR}/ksyntaxhighlighting_export.h
-    DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF}/KSyntaxHighlighting)
+    DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF}/KSyntaxHighlighting/KSyntaxHighlighting
+)
 
 if(BUILD_QCH)
     ecm_add_qch(

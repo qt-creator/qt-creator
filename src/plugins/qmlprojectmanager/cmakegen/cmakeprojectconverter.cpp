@@ -56,11 +56,11 @@ const QString ERROR_TEXT = QCoreApplication::translate("QmlDesigner::CmakeProjec
 const QString SUCCESS_TEXT = QCoreApplication::translate("QmlDesigner::CmakeProjectConverter",
                                                          "Creating project succeeded.");
 
-void CmakeProjectConverter::generateMenuEntry()
+void CmakeProjectConverter::generateMenuEntry(QObject *parent)
 {
     Core::ActionContainer *menu =
             Core::ActionManager::actionContainer(Core::Constants::M_FILE);
-    auto action = new QAction(MENU_ITEM_CONVERT);
+    auto action = new QAction(MENU_ITEM_CONVERT, parent);
     QObject::connect(action, &QAction::triggered, CmakeProjectConverter::onConvertProject);
     Core::Command *cmd = Core::ActionManager::registerAction(action, "QmlProject.ConvertToCmakeProject");
     menu->addAction(cmd, Core::Constants::G_FILE_EXPORT);

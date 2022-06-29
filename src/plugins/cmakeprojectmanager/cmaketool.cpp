@@ -310,12 +310,12 @@ bool CMakeTool::hasFileApi() const
 
 CMakeTool::Version CMakeTool::version() const
 {
-    return m_introspection ? m_introspection->m_version : CMakeTool::Version();
+    return isValid() ? m_introspection->m_version : CMakeTool::Version();
 }
 
 QString CMakeTool::versionDisplay() const
 {
-    if (!m_introspection)
+    if (!isValid())
         return CMakeToolManager::tr("Version not parseable");
 
     const Version &version = m_introspection->m_version;

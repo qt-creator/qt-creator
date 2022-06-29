@@ -113,6 +113,7 @@ class GITSHARED_EXPORT GitClient : public VcsBase::VcsBaseClientImpl
 public:
     enum CommandInProgress { NoCommand, Revert, CherryPick,
                              Rebase, Merge, RebaseMerge };
+    enum GitKLaunchTrial { Bin, ParentOfBin, SystemPath, None };
 
     class StashInfo
     {
@@ -144,7 +145,7 @@ public:
     static GitSettings &settings();
 
     Utils::FilePath vcsBinary() const override;
-    unsigned gitVersion(QString *errorMessage = nullptr) const;
+    QFuture<unsigned> gitVersion() const;
 
     VcsBase::VcsCommand *vcsExecAbortable(const Utils::FilePath &workingDirectory,
                                           const QStringList &arguments,
@@ -386,9 +387,6 @@ private:
                        const Utils::FilePath &workingDirectory,
                        std::function<GitBaseDiffEditorController *(Core::IDocument *)> factory) const;
 
-    // determine version as '(major << 16) + (minor << 8) + patch' or 0.
-    unsigned synchronousGitVersion(QString *errorMessage = nullptr) const;
-
     QString readOneLine(const Utils::FilePath &workingDirectory, const QStringList &arguments) const;
 
     enum RevertResult { RevertOk, RevertUnchanged, RevertCanceled, RevertFailed };
@@ -399,10 +397,15 @@ private:
     void connectRepositoryChanged(const QString & repository, VcsBase::VcsCommand *cmd);
     bool executeAndHandleConflicts(const Utils::FilePath &workingDirectory, const QStringList &arguments,
                                    const QString &abortCommand = {}) const;
-    bool tryLauchingGitK(const Utils::Environment &env,
-                         const Utils::FilePath &workingDirectory,
-                         const QString &fileName,
-                         const Utils::FilePath &gitBinDirectory) const;
+    void tryLaunchingGitK(const Utils::Environment &env,
+                          const Utils::FilePath &workingDirectory,
+                          const QString &fileName,
+                          GitKLaunchTrial trial = GitKLaunchTrial::Bin) const;
+    void handleGitKFailedToStart(const Utils::Environment &env,
+                                 const Utils::FilePath &workingDirectory,
+                                 const QString &fileName,
+                                 const GitKLaunchTrial oldTrial,
+                                 const Utils::FilePath &oldGitBinDir) const;
     bool cleanList(const Utils::FilePath &workingDirectory, const QString &modulePath,
                    const QString &flag, QStringList *files, QString *errorMessage);
 

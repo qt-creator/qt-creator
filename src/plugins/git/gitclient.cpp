@@ -648,7 +648,7 @@ public:
 
 static bool gitHasRgbColors()
 {
-    const unsigned gitVersion = GitClient::instance()->gitVersion();
+    const unsigned gitVersion = GitClient::instance()->gitVersion().result();
     return gitVersion >= 0x020300U;
 }
 
@@ -2574,31 +2574,7 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
 
 void GitClient::launchGitK(const FilePath &workingDirectory, const QString &fileName) const
 {
-    FilePath foundBinDir = vcsBinary().parentDir();
-    Environment env = processEnvironment();
-    if (tryLauchingGitK(env, workingDirectory, fileName, foundBinDir))
-        return;
-
-    VcsOutputWindow::appendSilently(msgCannotLaunch(foundBinDir / "gitk"));
-
-    if (foundBinDir.fileName() == "bin") {
-        foundBinDir = foundBinDir.parentDir();
-        const QString binDirName = foundBinDir.fileName();
-        if (binDirName == "usr" || binDirName.startsWith("mingw"))
-            foundBinDir = foundBinDir.parentDir();
-        if (tryLauchingGitK(env, workingDirectory, fileName, foundBinDir / "cmd"))
-            return;
-
-        VcsOutputWindow::appendSilently(msgCannotLaunch(foundBinDir / "cmd/gitk"));
-    }
-
-    Environment sysEnv = Environment::systemEnvironment();
-    const FilePath exec = sysEnv.searchInPath("gitk");
-
-    if (!exec.isEmpty() && tryLauchingGitK(env, workingDirectory, fileName, exec.parentDir()))
-        return;
-
-    VcsOutputWindow::appendError(msgCannotLaunch("gitk"));
+    tryLaunchingGitK(processEnvironment(), workingDirectory, fileName);
 }
 
 void GitClient::launchRepositoryBrowser(const FilePath &workingDirectory) const
@@ -2608,16 +2584,35 @@ void GitClient::launchRepositoryBrowser(const FilePath &workingDirectory) const
         QtcProcess::startDetached({repBrowserBinary, {workingDirectory.toString()}}, workingDirectory);
 }
 
-bool GitClient::tryLauchingGitK(const Environment &env,
-                                const FilePath &workingDirectory,
-                                const QString &fileName,
-                                const FilePath &gitBinDirectory) const
+static FilePath gitBinDir(const GitClient::GitKLaunchTrial trial, const FilePath &parentDir)
 {
+    if (trial == GitClient::Bin)
+        return parentDir;
+    if (trial == GitClient::ParentOfBin) {
+        QTC_CHECK(parentDir.fileName() == "bin");
+        FilePath foundBinDir = parentDir.parentDir();
+        const QString binDirName = foundBinDir.fileName();
+        if (binDirName == "usr" || binDirName.startsWith("mingw"))
+            foundBinDir = foundBinDir.parentDir();
+        return foundBinDir / "cmd";
+    }
+    if (trial == GitClient::SystemPath)
+        return Environment::systemEnvironment().searchInPath("gitk").parentDir();
+    QTC_CHECK(false);
+    return FilePath();
+}
+
+void GitClient::tryLaunchingGitK(const Environment &env,
+                                 const FilePath &workingDirectory,
+                                 const QString &fileName,
+                                 GitClient::GitKLaunchTrial trial) const
+{
+    const FilePath gitBinDirectory = gitBinDir(trial, vcsBinary().parentDir());
     FilePath binary = gitBinDirectory.pathAppended("gitk").withExecutableSuffix();
     QStringList arguments;
     if (HostOsInfo::isWindowsHost()) {
         // If git/bin is in path, use 'wish' shell to run. Otherwise (git/cmd), directly run gitk
-        FilePath wish = gitBinDirectory.pathAppended("wish").withExecutableSuffix();
+        const FilePath wish = gitBinDirectory.pathAppended("wish").withExecutableSuffix();
         if (wish.withExecutableSuffix().exists()) {
             arguments << binary.toString();
             binary = wish;
@@ -2629,25 +2624,50 @@ bool GitClient::tryLauchingGitK(const Environment &env,
     if (!fileName.isEmpty())
         arguments << "--" << fileName;
     VcsOutputWindow::appendCommand(workingDirectory, {binary, arguments});
+
     // This should always use QtcProcess::startDetached (as not to kill
     // the child), but that does not have an environment parameter.
-    bool success = false;
     if (!settings().path.value().isEmpty()) {
-        auto process = new QtcProcess;
+        auto process = new QtcProcess(const_cast<GitClient*>(this));
         process->setWorkingDirectory(workingDirectory);
         process->setEnvironment(env);
         process->setCommand({binary, arguments});
+        connect(process, &QtcProcess::done, this, [=] {
+            if (process->result() == ProcessResult::StartFailed)
+                handleGitKFailedToStart(env, workingDirectory, fileName, trial, gitBinDirectory);
+            process->deleteLater();
+        });
         process->start();
-        success = process->waitForStarted();
-        if (success)
-            connect(process, &QtcProcess::finished, process, &QObject::deleteLater);
-        else
-            delete process;
     } else {
-        success = QtcProcess::startDetached({binary, arguments}, workingDirectory);
+        if (!QtcProcess::startDetached({binary, arguments}, workingDirectory))
+            handleGitKFailedToStart(env, workingDirectory, fileName, trial, gitBinDirectory);
+    }
+}
+
+void GitClient::handleGitKFailedToStart(const Environment &env,
+                                        const FilePath &workingDirectory,
+                                        const QString &fileName,
+                                        const GitClient::GitKLaunchTrial oldTrial,
+                                        const FilePath &oldGitBinDir) const
+{
+    QTC_ASSERT(oldTrial != None, return);
+    VcsOutputWindow::appendSilently(msgCannotLaunch(oldGitBinDir / "gitk"));
+
+    GitKLaunchTrial nextTrial = None;
+
+    if (oldTrial == Bin && vcsBinary().parentDir().fileName() == "bin") {
+        nextTrial = ParentOfBin;
+    } else if (oldTrial != SystemPath
+               && !Environment::systemEnvironment().searchInPath("gitk").isEmpty()) {
+        nextTrial = SystemPath;
     }
 
-    return success;
+    if (nextTrial == None) {
+        VcsOutputWindow::appendError(msgCannotLaunch("gitk"));
+        return;
+    }
+
+    tryLaunchingGitK(env, workingDirectory, fileName, nextTrial);
 }
 
 bool GitClient::launchGitGui(const FilePath &workingDirectory) {
@@ -3591,36 +3611,10 @@ QString GitClient::readOneLine(const FilePath &workingDirectory, const QStringLi
     return proc.cleanedStdOut().trimmed();
 }
 
-// determine version as '(major << 16) + (minor << 8) + patch' or 0.
-unsigned GitClient::gitVersion(QString *errorMessage) const
+static unsigned parseGitVersion(const QString &output)
 {
-    const FilePath newGitBinary = vcsBinary();
-    if (m_gitVersionForBinary != newGitBinary && !newGitBinary.isEmpty()) {
-        // Do not execute repeatedly if that fails (due to git
-        // not being installed) until settings are changed.
-        m_cachedGitVersion = synchronousGitVersion(errorMessage);
-        m_gitVersionForBinary = newGitBinary;
-    }
-    return m_cachedGitVersion;
-}
-
-// determine version as '(major << 16) + (minor << 8) + patch' or 0.
-unsigned GitClient::synchronousGitVersion(QString *errorMessage) const
-{
-    if (vcsBinary().isEmpty())
-        return 0;
-
-    // run git --version
-    QtcProcess proc;
-    vcsSynchronousExec(proc, {}, {"--version"}, silentFlags);
-    if (proc.result() != ProcessResult::FinishedWithSuccess) {
-        msgCannotRun(tr("Cannot determine Git version: %1").arg(proc.cleanedStdErr()), errorMessage);
-        return 0;
-    }
-
     // cut 'git version 1.6.5.1.sha'
     // another form: 'git version 1.9.rc1'
-    const QString output = proc.cleanedStdOut();
     const QRegularExpression versionPattern("^[^\\d]+(\\d+)\\.(\\d+)\\.(\\d+|rc\\d).*$");
     QTC_ASSERT(versionPattern.isValid(), return 0);
     const QRegularExpressionMatch match = versionPattern.match(output);
@@ -3629,6 +3623,41 @@ unsigned GitClient::synchronousGitVersion(QString *errorMessage) const
     const unsigned minorV = match.captured(2).toUInt(nullptr, 16);
     const unsigned patchV = match.captured(3).toUInt(nullptr, 16);
     return version(majorV, minorV, patchV);
+}
+
+// determine version as '(major << 16) + (minor << 8) + patch' or 0.
+QFuture<unsigned> GitClient::gitVersion() const
+{
+    QFutureInterface<unsigned> fi;
+    fi.reportStarted();
+
+    // Do not execute repeatedly if that fails (due to git
+    // not being installed) until settings are changed.
+    const FilePath newGitBinary = vcsBinary();
+    const bool needToRunGit = m_gitVersionForBinary != newGitBinary && !newGitBinary.isEmpty();
+    if (needToRunGit) {
+        auto proc = new QtcProcess(const_cast<GitClient *>(this));
+        connect(proc, &QtcProcess::done, this, [this, proc, fi, newGitBinary]() mutable {
+            if (proc->result() == ProcessResult::FinishedWithSuccess) {
+                m_cachedGitVersion = parseGitVersion(proc->cleanedStdOut());
+                m_gitVersionForBinary = newGitBinary;
+                fi.reportResult(m_cachedGitVersion);
+                fi.reportFinished();
+            }
+            proc->deleteLater();
+        });
+
+        proc->setTimeoutS(vcsTimeoutS());
+        proc->setEnvironment(processEnvironment());
+        proc->setCommand({newGitBinary, {"--version"}});
+        proc->start();
+    } else {
+        // already cached
+        fi.reportResult(m_cachedGitVersion);
+        fi.reportFinished();
+    }
+
+    return fi.future();
 }
 
 bool GitClient::StashInfo::init(const FilePath &workingDirectory, const QString &command,

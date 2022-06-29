@@ -195,7 +195,7 @@ QList<GenerateResource::ResourceFile> getFilesFromQrc(QFile *file, bool inProjec
     return fileList;
 }
 
-void GenerateResource::generateMenuEntry()
+void GenerateResource::generateMenuEntry(QObject *parent)
 {
     Core::ActionContainer *menu =
             Core::ActionManager::actionContainer(Core::Constants::M_FILE);
@@ -203,7 +203,7 @@ void GenerateResource::generateMenuEntry()
     const Core::Context projectContext(QmlProjectManager::Constants::QML_PROJECT_ID);
     // ToDo: move this to QtCreator and add tr to the string then
     auto action = new QAction(QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                                          "Generate QRC Resource File"));
+                                                          "Generate QRC Resource File"), parent);
     action->setEnabled(ProjectExplorer::SessionManager::startupProject() != nullptr);
     // todo make it more intelligent when it gets enabled
     QObject::connect(ProjectExplorer::SessionManager::instance(),
@@ -352,7 +352,7 @@ void GenerateResource::generateMenuEntry()
 
     // ToDo: move this to QtCreator and add tr to the string then
     auto rccAction = new QAction(QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                                             "Generate Deployable Package"));
+                                                             "Generate Deployable Package"), parent);
     rccAction->setEnabled(ProjectExplorer::SessionManager::startupProject() != nullptr);
     QObject::connect(ProjectExplorer::SessionManager::instance(),
         &ProjectExplorer::SessionManager::startupProjectChanged, [rccAction]() {

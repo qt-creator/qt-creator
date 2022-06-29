@@ -39,7 +39,7 @@ struct GeneratableFile {
 
 bool operator==(const GeneratableFile &left, const GeneratableFile &right);
 
-void generateMenuEntry();
+void generateMenuEntry(QObject *parent);
 void onGenerateCmakeLists();
 bool isErrorFatal(int error);
 int isProjectCorrectlyFormed(const Utils::FilePath &rootDir);

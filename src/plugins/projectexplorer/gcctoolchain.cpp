@@ -1299,8 +1299,8 @@ public:
         layout->setContentsMargins(0, 0, 0, 0);
         m_tripleLineEdit.setEnabled(false);
         m_overrideCheckBox.setText(tr("Override for code model"));
-        m_overrideCheckBox.setToolTip(tr("Check this button in the rare case that the code model\n"
-                "fails because clang does not understand the target architecture."));
+        m_overrideCheckBox.setToolTip(tr("Enable in the rare case that the code model\n"
+                "fails because Clang does not understand the target architecture."));
         layout->addWidget(&m_tripleLineEdit, 1);
         layout->addWidget(&m_overrideCheckBox);
         layout->addStretch(1);

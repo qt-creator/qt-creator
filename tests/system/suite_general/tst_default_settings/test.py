@@ -35,7 +35,7 @@ def main():
     appContext = startQC(['-settingspath', '"%s"' % emptySettings], False)
     if not startedWithoutPluginError():
         return
-    invokeMenuItem("Tools", "Options...")
+    invokeMenuItem("Edit", "Preferences...")
     __checkKits__()
     clickButton(waitForObject(":Options.Cancel_QPushButton"))
     invokeMenuItem("File", "Exit")
