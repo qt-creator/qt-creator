@@ -287,7 +287,7 @@ static QVersionNumber getClangdVersion(const FilePath &clangdFilePath)
     Utils::QtcProcess clangdProc;
     clangdProc.setCommand({clangdFilePath, {"--version"}});
     clangdProc.start();
-    if (!clangdProc.waitForStarted() || !clangdProc.waitForFinished())
+    if (!clangdProc.waitForFinished())
         return{};
     const QString output = clangdProc.allOutput();
     static const QString versionPrefix = "clangd version ";
