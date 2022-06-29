@@ -648,7 +648,7 @@ public:
 
 static bool gitHasRgbColors()
 {
-    const unsigned gitVersion = GitClient::instance()->gitVersion();
+    const unsigned gitVersion = GitClient::instance()->gitVersion().result();
     return gitVersion >= 0x020300U;
 }
 
@@ -3611,36 +3611,10 @@ QString GitClient::readOneLine(const FilePath &workingDirectory, const QStringLi
     return proc.cleanedStdOut().trimmed();
 }
 
-// determine version as '(major << 16) + (minor << 8) + patch' or 0.
-unsigned GitClient::gitVersion(QString *errorMessage) const
+static unsigned parseGitVersion(const QString &output)
 {
-    const FilePath newGitBinary = vcsBinary();
-    if (m_gitVersionForBinary != newGitBinary && !newGitBinary.isEmpty()) {
-        // Do not execute repeatedly if that fails (due to git
-        // not being installed) until settings are changed.
-        m_cachedGitVersion = synchronousGitVersion(errorMessage);
-        m_gitVersionForBinary = newGitBinary;
-    }
-    return m_cachedGitVersion;
-}
-
-// determine version as '(major << 16) + (minor << 8) + patch' or 0.
-unsigned GitClient::synchronousGitVersion(QString *errorMessage) const
-{
-    if (vcsBinary().isEmpty())
-        return 0;
-
-    // run git --version
-    QtcProcess proc;
-    vcsSynchronousExec(proc, {}, {"--version"}, silentFlags);
-    if (proc.result() != ProcessResult::FinishedWithSuccess) {
-        msgCannotRun(tr("Cannot determine Git version: %1").arg(proc.cleanedStdErr()), errorMessage);
-        return 0;
-    }
-
     // cut 'git version 1.6.5.1.sha'
     // another form: 'git version 1.9.rc1'
-    const QString output = proc.cleanedStdOut();
     const QRegularExpression versionPattern("^[^\\d]+(\\d+)\\.(\\d+)\\.(\\d+|rc\\d).*$");
     QTC_ASSERT(versionPattern.isValid(), return 0);
     const QRegularExpressionMatch match = versionPattern.match(output);
@@ -3649,6 +3623,41 @@ unsigned GitClient::synchronousGitVersion(QString *errorMessage) const
     const unsigned minorV = match.captured(2).toUInt(nullptr, 16);
     const unsigned patchV = match.captured(3).toUInt(nullptr, 16);
     return version(majorV, minorV, patchV);
+}
+
+// determine version as '(major << 16) + (minor << 8) + patch' or 0.
+QFuture<unsigned> GitClient::gitVersion() const
+{
+    QFutureInterface<unsigned> fi;
+    fi.reportStarted();
+
+    // Do not execute repeatedly if that fails (due to git
+    // not being installed) until settings are changed.
+    const FilePath newGitBinary = vcsBinary();
+    const bool needToRunGit = m_gitVersionForBinary != newGitBinary && !newGitBinary.isEmpty();
+    if (needToRunGit) {
+        auto proc = new QtcProcess(const_cast<GitClient *>(this));
+        connect(proc, &QtcProcess::done, this, [this, proc, fi, newGitBinary]() mutable {
+            if (proc->result() == ProcessResult::FinishedWithSuccess) {
+                m_cachedGitVersion = parseGitVersion(proc->cleanedStdOut());
+                m_gitVersionForBinary = newGitBinary;
+                fi.reportResult(m_cachedGitVersion);
+                fi.reportFinished();
+            }
+            proc->deleteLater();
+        });
+
+        proc->setTimeoutS(vcsTimeoutS());
+        proc->setEnvironment(processEnvironment());
+        proc->setCommand({newGitBinary, {"--version"}});
+        proc->start();
+    } else {
+        // already cached
+        fi.reportResult(m_cachedGitVersion);
+        fi.reportFinished();
+    }
+
+    return fi.future();
 }
 
 bool GitClient::StashInfo::init(const FilePath &workingDirectory, const QString &command,

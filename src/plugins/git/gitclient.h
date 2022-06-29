@@ -145,7 +145,7 @@ public:
     static GitSettings &settings();
 
     Utils::FilePath vcsBinary() const override;
-    unsigned gitVersion(QString *errorMessage = nullptr) const;
+    QFuture<unsigned> gitVersion() const;
 
     VcsBase::VcsCommand *vcsExecAbortable(const Utils::FilePath &workingDirectory,
                                           const QStringList &arguments,
@@ -386,9 +386,6 @@ private:
     void requestReload(const QString &documentId, const QString &source, const QString &title,
                        const Utils::FilePath &workingDirectory,
                        std::function<GitBaseDiffEditorController *(Core::IDocument *)> factory) const;
-
-    // determine version as '(major << 16) + (minor << 8) + patch' or 0.
-    unsigned synchronousGitVersion(QString *errorMessage = nullptr) const;
 
     QString readOneLine(const Utils::FilePath &workingDirectory, const QStringList &arguments) const;
 

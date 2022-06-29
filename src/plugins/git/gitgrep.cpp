@@ -247,10 +247,15 @@ GitGrep::GitGrep(GitClient *client)
     const QRegularExpression refExpression("[\\S]*");
     m_treeLineEdit->setValidator(new QRegularExpressionValidator(refExpression, this));
     layout->addWidget(m_treeLineEdit);
-    if (client->gitVersion() >= 0x021300) {
-        m_recurseSubmodules = new QCheckBox(tr("Recurse submodules"));
-        layout->addWidget(m_recurseSubmodules);
-    }
+    // asynchronously check git version, add "recurse submodules" option if available
+    Utils::onResultReady(client->gitVersion(),
+                         this,
+                         [this, pLayout = QPointer<QHBoxLayout>(layout)](unsigned version) {
+                             if (version >= 0x021300 && pLayout) {
+                                 m_recurseSubmodules = new QCheckBox(tr("Recurse submodules"));
+                                 pLayout->addWidget(m_recurseSubmodules);
+                             }
+                         });
     TextEditor::FindInFiles *findInFiles = TextEditor::FindInFiles::instance();
     QTC_ASSERT(findInFiles, return);
     connect(findInFiles, &TextEditor::FindInFiles::pathChanged,
