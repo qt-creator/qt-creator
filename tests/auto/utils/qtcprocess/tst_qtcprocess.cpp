@@ -32,6 +32,7 @@
 #include <utils/launcherinterface.h>
 #include <utils/porting.h>
 #include <utils/processinfo.h>
+#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/singleton.h>
@@ -136,6 +137,7 @@ private slots:
     void waitForStartedAfterStarted();
     void waitForStartedAfterStarted2();
     void waitForStartedAndFinished();
+    void notRunningAfterStartingNonExistingProgram_data();
     void notRunningAfterStartingNonExistingProgram();
     void channelForwarding_data();
     void channelForwarding();
@@ -1006,8 +1008,21 @@ void tst_QtcProcess::waitForStartedAndFinished()
     QCOMPARE(process.exitCode(), 0);
 }
 
+Q_DECLARE_METATYPE(ProcessSignalType)
+
+void tst_QtcProcess::notRunningAfterStartingNonExistingProgram_data()
+{
+    QTest::addColumn<ProcessSignalType>("signalType");
+
+    QTest::newRow("Started") << ProcessSignalType::Started;
+    QTest::newRow("ReadyRead") << ProcessSignalType::ReadyRead;
+    QTest::newRow("Done") << ProcessSignalType::Done;
+}
+
 void tst_QtcProcess::notRunningAfterStartingNonExistingProgram()
 {
+    QFETCH(ProcessSignalType, signalType);
+
     QtcProcess process;
     process.setCommand({ FilePath::fromString(
               "there_is_a_big_chance_that_executable_with_that_name_does_not_exists"), {} });
@@ -1027,7 +1042,12 @@ void tst_QtcProcess::notRunningAfterStartingNonExistingProgram()
         timer.start();
         const int maxWaitTimeMs = 1000;
 
-        QVERIFY(!process.waitForStarted(maxWaitTimeMs));
+        switch (signalType) {
+        case ProcessSignalType::Started: QVERIFY(!process.waitForStarted(maxWaitTimeMs)); break;
+        case ProcessSignalType::ReadyRead: QVERIFY(!process.waitForReadyRead(maxWaitTimeMs)); break;
+        case ProcessSignalType::Done: QVERIFY(!process.waitForFinished(maxWaitTimeMs)); break;
+        }
+
         QVERIFY(timer.elapsed() < maxWaitTimeMs); // shouldn't wait, should finish immediately
         QCOMPARE(process.state(), QProcess::NotRunning);
         QCOMPARE(process.exitStatus(), QProcess::NormalExit);
