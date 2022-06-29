@@ -85,8 +85,6 @@ Utils::Port IosSimulator::nextPort() const
         // to that port from this computer)
         portVerifier.setCommand({"lsof", {"-n", "-P", "-i", QString(":%1").arg(m_lastPort)}});
         portVerifier.start();
-        if (!portVerifier.waitForStarted())
-            break;
         if (!portVerifier.waitForFinished())
             break;
         if (portVerifier.exitStatus() != QProcess::NormalExit
