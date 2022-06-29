@@ -97,7 +97,7 @@ void SshKeyCreationDialog::generateKeys()
     QString errorMsg;
     keygen.setCommand({SshSettings::keygenFilePath(), args});
     keygen.start();
-    if (!keygen.waitForStarted() || !keygen.waitForFinished())
+    if (!keygen.waitForFinished())
         errorMsg = keygen.errorString();
     else if (keygen.exitCode() != 0)
         errorMsg = QString::fromLocal8Bit(keygen.readAllStandardError());
