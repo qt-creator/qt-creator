@@ -38,7 +38,7 @@ Changelog:
 
 -->
 
-<language name="CSS" version="12" kateversion="5.53" section="Markup" extensions="*.css" indenter="cstyle" mimetype="text/css" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
+<language name="CSS" version="13" kateversion="5.53" section="Markup" extensions="*.css" indenter="cstyle" mimetype="text/css" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
     <!-- https://www.w3.org/Style/CSS/current-work -->
 
     <highlighting>
@@ -665,6 +665,7 @@ Changelog:
         <list name="values">
             <item>none</item>
             <item>hidden</item>
+            <item>initial</item>
             <item>dotted</item>
             <item>dashed</item>
             <item>solid</item>
@@ -729,23 +730,9 @@ Changelog:
             <item>katakana</item>
             <item>hiragana-iroha</item>
             <item>katakana-iroha</item>
-            <item>inline</item>
-            <item>inline-block</item>
-            <item>block</item>
             <item>list-item</item>
-            <item>run-in</item>
             <item>compact</item>
             <item>marker</item>
-            <item>table</item>
-            <item>inline-table</item>
-            <item>table-row-group</item>
-            <item>table-header-group</item>
-            <item>table-footer-group</item>
-            <item>table-row</item>
-            <item>table-column-group</item>
-            <item>table-column</item>
-            <item>table-cell</item>
-            <item>table-caption</item>
             <item>crosshair</item>
             <item>default</item>
             <item>pointer</item>
@@ -765,15 +752,20 @@ Changelog:
             <item>absolute</item>
             <item>always</item>
             <item>avoid</item>
+            <item>avoid-page</item>
+            <item>avoid-column</item>
+            <item>avoid-region</item>
             <item>below</item>
             <item>bidi-override</item>
             <item>blink</item>
             <item>both</item>
+            <item>break-word</item>
             <item>capitalize</item>
             <item>caption</item>
             <item>clip</item>
             <item>close-quote</item>
             <item>collapse</item>
+            <item>column</item>
             <item>condensed</item>
             <item>crop</item>
             <item>cross</item>
@@ -842,6 +834,41 @@ Changelog:
             <item>-epub-hyphens</item>
             <item>contain</item>
             <item>cover</item>
+
+            <!-- display -->
+            <!-- https://developer.mozilla.org/fr/docs/Web/CSS/display -->
+            <item>block</item>
+            <item>inline</item>
+            <item>run-in</item>
+
+            <item>flow</item>
+            <item>flow-root</item>
+            <item>table</item>
+            <item>flex</item>
+            <item>grid</item>
+            <item>ruby</item>
+
+            <item>list-item</item>
+
+            <item>table-row-group</item>
+            <item>table-header-group</item>
+            <item>table-footer-group</item>
+            <item>table-row</item>
+            <item>table-cell</item>
+            <item>table-column-group</item>
+            <item>table-column</item>
+            <item>table-caption</item>
+            <item>ruby-base</item>
+            <item>ruby-text</item>
+            <item>ruby-base-container</item>
+            <item>ruby-text-container</item>
+
+            <item>contents</item>
+
+            <item>inline-block</item>
+            <item>inline-table</item>
+            <item>inline-flex</item>
+            <item>inline-grid</item>
 
             <!-- transition and animation -->
             <item>all</item>
@@ -991,6 +1018,7 @@ Changelog:
             <item>pink</item>
             <item>plum</item>
             <item>powderblue</item>
+            <item>rebeccapurple</item>
             <item>rosybrown</item>
             <item>royalblue</item>
             <item>saddlebrown</item>
@@ -1059,6 +1087,22 @@ Changelog:
             <item>rgba</item>
             <item>var</item>
             <item>url</item>
+
+            <!-- CSS4 -->
+            <item>min</item>
+            <item>max</item>
+            <item>clamp</item>
+            <item>toggle</item>
+            <item>hwb</item>
+            <item>device-cmyk</item>
+            <item>color</item>
+            <item>element</item>
+            <item>image</item>
+            <item>image-set</item>
+            <item>conic-gradient</item>
+
+            <!-- counter style -->
+            <item>symbols</item>
 
             <!-- clip -->
             <item>rect</item>
@@ -1678,6 +1722,7 @@ Changelog:
                 <DetectChar attribute="Function" context="#pop#pop" char=")" />
                 <IncludeRules context="FindComments" />
                 <IncludeRules context="FindStrings" />
+                <IncludeRules context="FindFunctions" />
                 <IncludeRules context="FindValues" />
                 <DetectChar attribute="Separator Symbol" context="#stay" char="," />
             </context>

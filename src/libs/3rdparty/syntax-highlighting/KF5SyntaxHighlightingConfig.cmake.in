@@ -1,8 +1,8 @@
 @PACKAGE_INIT@
 
 include(CMakeFindDependencyMacro)
-find_dependency(Qt5Core @REQUIRED_QT_VERSION@)
-find_dependency(Qt5Gui @REQUIRED_QT_VERSION@)
+find_dependency(Qt@QT_MAJOR_VERSION@Core @REQUIRED_QT_VERSION@)
+find_dependency(Qt@QT_MAJOR_VERSION@Gui @REQUIRED_QT_VERSION@)
 
 include("${CMAKE_CURRENT_LIST_DIR}/KF5SyntaxHighlightingTargets.cmake")
 @PACKAGE_INCLUDE_QCHTARGETS@

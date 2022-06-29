@@ -25,7 +25,7 @@
 
 <language
     name="CMake"
-    version="37"
+    version="38"
     kateversion="5.0"
     section="Other"
     extensions="CMakeLists.txt;*.cmake;*.cmake.in"
@@ -966,6 +966,7 @@
       <item>FULL_DOCS</item>
       <item>GLOBAL</item>
       <item>INHERITED</item>
+      <item>INITIALIZE_FROM_VARIABLE</item>
       <item>PROPERTY</item>
       <item>SOURCE</item>
       <item>TEST</item>
@@ -1034,6 +1035,7 @@
       <item>FILES</item>
       <item>FILES_MATCHING</item>
       <item>FILE_PERMISSIONS</item>
+      <item>FILE_SET</item>
       <item>FRAMEWORK</item>
       <item>IMPORTED_RUNTIME_ARTIFACTS</item>
       <item>INCLUDES</item>
@@ -1263,9 +1265,13 @@
       <item>REUSE_FROM</item>
     </list>
     <list name="target_sources_nargs">
+      <item>BASE_DIRS</item>
+      <item>FILES</item>
+      <item>FILE_SET</item>
       <item>INTERFACE</item>
       <item>PRIVATE</item>
       <item>PUBLIC</item>
+      <item>TYPE</item>
     </list>
     <list name="try_compile_nargs">
       <item>CMAKE_FLAGS</item>
@@ -1470,8 +1476,12 @@
     </list>
     <list name="check_pie_supported_sargs">
       <item>C</item>
+      <item>CUDA</item>
       <item>CXX</item>
       <item>Fortran</item>
+      <item>HIP</item>
+      <item>OBJC</item>
+      <item>OBJCXX</item>
     </list>
     <list name="check_source_compiles_nargs">
       <item>FAIL_REGEX</item>
@@ -1729,6 +1739,7 @@
       <item>USES_TERMINAL_CONFIGURE</item>
       <item>USES_TERMINAL_DOWNLOAD</item>
       <item>USES_TERMINAL_INSTALL</item>
+      <item>USES_TERMINAL_PATCH</item>
       <item>USES_TERMINAL_TEST</item>
       <item>USES_TERMINAL_UPDATE</item>
     </list>
@@ -2256,6 +2267,8 @@
       <item>CMAKE_CUDA_COMPILE_FEATURES</item>
       <item>CMAKE_CUDA_EXTENSIONS</item>
       <item>CMAKE_CUDA_HOST_COMPILER</item>
+      <item>CMAKE_CUDA_LINK_NO_PIE_SUPPORTED</item>
+      <item>CMAKE_CUDA_LINK_PIE_SUPPORTED</item>
       <item>CMAKE_CUDA_RESOLVE_DEVICE_SYMBOLS</item>
       <item>CMAKE_CUDA_RUNTIME_LIBRARY</item>
       <item>CMAKE_CUDA_SEPARABLE_COMPILATION</item>
@@ -2291,6 +2304,7 @@
       <item>CMAKE_DIRECTORY_LABELS</item>
       <item>CMAKE_DISABLE_PRECOMPILE_HEADERS</item>
       <item>CMAKE_DL_LIBS</item>
+      <item>CMAKE_DOTNET_SDK</item>
       <item>CMAKE_DOTNET_TARGET_FRAMEWORK</item>
       <item>CMAKE_DOTNET_TARGET_FRAMEWORK_VERSION</item>
       <item>CMAKE_ECLIPSE_GENERATE_LINKED_RESOURCES</item>
@@ -2370,6 +2384,8 @@
       <item>CMAKE_HAS_ANSI_STRING_STREAM</item>
       <item>CMAKE_HIP_ARCHITECTURES</item>
       <item>CMAKE_HIP_EXTENSIONS</item>
+      <item>CMAKE_HIP_LINK_NO_PIE_SUPPORTED</item>
+      <item>CMAKE_HIP_LINK_PIE_SUPPORTED</item>
       <item>CMAKE_HIP_STANDARD</item>
       <item>CMAKE_HIP_STANDARD_REQUIRED</item>
       <item>CMAKE_HOST_APPLE</item>
@@ -2382,6 +2398,7 @@
       <item>CMAKE_HOST_WIN32</item>
       <item>CMAKE_HP_PTHREADS_INIT</item>
       <item>CMAKE_IGNORE_PATH</item>
+      <item>CMAKE_IGNORE_PREFIX_PATH</item>
       <item>CMAKE_IMPORT_LIBRARY_PREFIX</item>
       <item>CMAKE_IMPORT_LIBRARY_SUFFIX</item>
       <item>CMAKE_INCLUDE_CURRENT_DIR</item>
@@ -2461,6 +2478,7 @@
       <item>CMAKE_LINK_DEPENDS_NO_SHARED</item>
       <item>CMAKE_LINK_DIRECTORIES_BEFORE</item>
       <item>CMAKE_LINK_INTERFACE_LIBRARIES</item>
+      <item>CMAKE_LINK_LIBRARIES_ONLY_TARGETS</item>
       <item>CMAKE_LINK_LIBRARY_FILE_FLAG</item>
       <item>CMAKE_LINK_LIBRARY_FLAG</item>
       <item>CMAKE_LINK_LIBRARY_SUFFIX</item>
@@ -2496,9 +2514,13 @@
       <item>CMAKE_NO_STD_NAMESPACE</item>
       <item>CMAKE_NO_SYSTEM_FROM_IMPORTED</item>
       <item>CMAKE_OBJCXX_EXTENSIONS</item>
+      <item>CMAKE_OBJCXX_LINK_NO_PIE_SUPPORTED</item>
+      <item>CMAKE_OBJCXX_LINK_PIE_SUPPORTED</item>
       <item>CMAKE_OBJCXX_STANDARD</item>
       <item>CMAKE_OBJCXX_STANDARD_REQUIRED</item>
       <item>CMAKE_OBJC_EXTENSIONS</item>
+      <item>CMAKE_OBJC_LINK_NO_PIE_SUPPORTED</item>
+      <item>CMAKE_OBJC_LINK_PIE_SUPPORTED</item>
       <item>CMAKE_OBJC_STANDARD</item>
       <item>CMAKE_OBJC_STANDARD_REQUIRED</item>
       <item>CMAKE_OBJECT_PATH_MAX</item>
@@ -2564,6 +2586,7 @@
       <item>CMAKE_SYSTEM_APPBUNDLE_PATH</item>
       <item>CMAKE_SYSTEM_FRAMEWORK_PATH</item>
       <item>CMAKE_SYSTEM_IGNORE_PATH</item>
+      <item>CMAKE_SYSTEM_IGNORE_PREFIX_PATH</item>
       <item>CMAKE_SYSTEM_INCLUDE_PATH</item>
       <item>CMAKE_SYSTEM_LIBRARY_PATH</item>
       <item>CMAKE_SYSTEM_NAME</item>
@@ -2596,6 +2619,7 @@
       <item>CMAKE_VS_INCLUDE_PACKAGE_TO_DEFAULT_BUILD</item>
       <item>CMAKE_VS_JUST_MY_CODE_DEBUGGING</item>
       <item>CMAKE_VS_MSBUILD_COMMAND</item>
+      <item>CMAKE_VS_NUGET_PACKAGE_RESTORE</item>
       <item>CMAKE_VS_NsightTegra_VERSION</item>
       <item>CMAKE_VS_PLATFORM_NAME</item>
       <item>CMAKE_VS_PLATFORM_TOOLSET</item>
@@ -2625,6 +2649,7 @@
       <item>CMAKE_XCODE_SCHEME_DISABLE_MAIN_THREAD_CHECKER</item>
       <item>CMAKE_XCODE_SCHEME_DYNAMIC_LIBRARY_LOADS</item>
       <item>CMAKE_XCODE_SCHEME_DYNAMIC_LINKER_API_USAGE</item>
+      <item>CMAKE_XCODE_SCHEME_ENABLE_GPU_FRAME_CAPTURE_MODE</item>
       <item>CMAKE_XCODE_SCHEME_ENVIRONMENT</item>
       <item>CMAKE_XCODE_SCHEME_GUARD_MALLOC</item>
       <item>CMAKE_XCODE_SCHEME_MAIN_THREAD_CHECKER_STOP</item>
@@ -2714,6 +2739,8 @@
       <item>CPACK_EXTERNAL_REQUESTED_VERSIONS</item>
       <item>CPACK_GENERATOR</item>
       <item>CPACK_IFW_ADMIN_TARGET_DIRECTORY</item>
+      <item>CPACK_IFW_ARCHIVE_COMPRESSION</item>
+      <item>CPACK_IFW_ARCHIVE_FORMAT</item>
       <item>CPACK_IFW_BINARYCREATOR_EXECUTABLE</item>
       <item>CPACK_IFW_DEVTOOL_EXECUTABLE</item>
       <item>CPACK_IFW_DOWNLOAD_ALL</item>
@@ -2725,15 +2752,21 @@
       <item>CPACK_IFW_PACKAGE_BACKGROUND</item>
       <item>CPACK_IFW_PACKAGE_BANNER</item>
       <item>CPACK_IFW_PACKAGE_CONTROL_SCRIPT</item>
+      <item>CPACK_IFW_PACKAGE_DISABLE_COMMAND_LINE_INTERFACE</item>
       <item>CPACK_IFW_PACKAGE_GROUP</item>
       <item>CPACK_IFW_PACKAGE_ICON</item>
       <item>CPACK_IFW_PACKAGE_LOGO</item>
       <item>CPACK_IFW_PACKAGE_MAINTENANCE_TOOL_INI_FILE</item>
       <item>CPACK_IFW_PACKAGE_MAINTENANCE_TOOL_NAME</item>
       <item>CPACK_IFW_PACKAGE_NAME</item>
+      <item>CPACK_IFW_PACKAGE_PRODUCT_IMAGES</item>
       <item>CPACK_IFW_PACKAGE_PUBLISHER</item>
       <item>CPACK_IFW_PACKAGE_REMOVE_TARGET_DIR</item>
       <item>CPACK_IFW_PACKAGE_RESOURCES</item>
+      <item>CPACK_IFW_PACKAGE_RUN_PROGRAM</item>
+      <item>CPACK_IFW_PACKAGE_RUN_PROGRAM_ARGUMENTS</item>
+      <item>CPACK_IFW_PACKAGE_RUN_PROGRAM_DESCRIPTION</item>
+      <item>CPACK_IFW_PACKAGE_SIGNING_IDENTITY</item>
       <item>CPACK_IFW_PACKAGE_START_MENU_DIRECTORY</item>
       <item>CPACK_IFW_PACKAGE_STYLE_SHEET</item>
       <item>CPACK_IFW_PACKAGE_TITLE</item>
@@ -2846,6 +2879,11 @@
       <item>CPACK_PRODUCTBUILD_BACKGROUND_MIME_TYPE</item>
       <item>CPACK_PRODUCTBUILD_BACKGROUND_SCALING</item>
       <item>CPACK_PRODUCTBUILD_BACKGROUND_UTI</item>
+      <item>CPACK_PRODUCTBUILD_DOMAINS</item>
+      <item>CPACK_PRODUCTBUILD_DOMAINS_ANYWHERE</item>
+      <item>CPACK_PRODUCTBUILD_DOMAINS_ROOT</item>
+      <item>CPACK_PRODUCTBUILD_DOMAINS_USER</item>
+      <item>CPACK_PRODUCTBUILD_IDENTIFIER</item>
       <item>CPACK_PRODUCTBUILD_IDENTITY_NAME</item>
       <item>CPACK_PRODUCTBUILD_KEYCHAIN_PATH</item>
       <item>CPACK_PRODUCTBUILD_RESOURCES_DIR</item>
@@ -2944,6 +2982,7 @@
       <item>CPACK_WIX_ROOT_FEATURE_TITLE</item>
       <item>CPACK_WIX_ROOT_FOLDER_ID</item>
       <item>CPACK_WIX_SKIP_PROGRAM_FOLDER</item>
+      <item>CPACK_WIX_SKIP_WIX_UI_EXTENSION</item>
       <item>CPACK_WIX_TEMPLATE</item>
       <item>CPACK_WIX_UI_BANNER</item>
       <item>CPACK_WIX_UI_DIALOG</item>
@@ -3010,6 +3049,7 @@
       <item>CTEST_SCP_COMMAND</item>
       <item>CTEST_SITE</item>
       <item>CTEST_SOURCE_DIRECTORY</item>
+      <item>CTEST_SUBMIT_INACTIVITY_TIMEOUT</item>
       <item>CTEST_SUBMIT_URL</item>
       <item>CTEST_SVN_COMMAND</item>
       <item>CTEST_SVN_OPTIONS</item>
@@ -3523,6 +3563,7 @@
       <item>LDFLAGS</item>
       <item>MACOSX_DEPLOYMENT_TARGET</item>
       <item>PATH</item>
+      <item>QTIFWDIR</item>
       <item>RC</item>
       <item>RCFLAGS</item>
       <item>SWIFTC</item>
@@ -3682,6 +3723,7 @@
       <item>DEPLOYMENT_REMOTE_DIRECTORY</item>
       <item>DEPRECATION</item>
       <item>DISABLE_PRECOMPILE_HEADERS</item>
+      <item>DOTNET_SDK</item>
       <item>DOTNET_TARGET_FRAMEWORK</item>
       <item>DOTNET_TARGET_FRAMEWORK_VERSION</item>
       <item>ENABLE_EXPORTS</item>
@@ -3700,6 +3742,13 @@
       <item>GENERATOR_FILE_NAME</item>
       <item>GNUtoMS</item>
       <item>HAS_CXX</item>
+      <item>HEADER_DIRS</item>
+      <item>HEADER_SET</item>
+      <item>HEADER_SETS</item>
+      <item>HIP_ARCHITECTURES</item>
+      <item>HIP_EXTENSIONS</item>
+      <item>HIP_STANDARD</item>
+      <item>HIP_STANDARD_REQUIRED</item>
       <item>IMPLICIT_DEPENDS_INCLUDE_TRANSFORM</item>
       <item>IMPORTED</item>
       <item>IMPORTED_COMMON_LANGUAGE_RUNTIME</item>
@@ -3713,6 +3762,7 @@
       <item>IMPORTED_LINK_INTERFACE_MULTIPLICITY</item>
       <item>IMPORTED_LOCATION</item>
       <item>IMPORTED_NO_SONAME</item>
+      <item>IMPORTED_NO_SYSTEM</item>
       <item>IMPORTED_OBJECTS</item>
       <item>IMPORTED_SONAME</item>
       <item>IMPORT_PREFIX</item>
@@ -3726,6 +3776,7 @@
       <item>INTERFACE_COMPILE_DEFINITIONS</item>
       <item>INTERFACE_COMPILE_FEATURES</item>
       <item>INTERFACE_COMPILE_OPTIONS</item>
+      <item>INTERFACE_HEADER_SETS</item>
       <item>INTERFACE_INCLUDE_DIRECTORIES</item>
       <item>INTERFACE_LINK_DEPENDS</item>
       <item>INTERFACE_LINK_DIRECTORIES</item>
@@ -3753,6 +3804,7 @@
       <item>LINK_INTERFACE_LIBRARIES</item>
       <item>LINK_INTERFACE_MULTIPLICITY</item>
       <item>LINK_LIBRARIES</item>
+      <item>LINK_LIBRARIES_ONLY_TARGETS</item>
       <item>LINK_OPTIONS</item>
       <item>LINK_SEARCH_END_STATIC</item>
       <item>LINK_SEARCH_START_STATIC</item>
@@ -3864,6 +3916,7 @@
       <item>XCODE_SCHEME_DISABLE_MAIN_THREAD_CHECKER</item>
       <item>XCODE_SCHEME_DYNAMIC_LIBRARY_LOADS</item>
       <item>XCODE_SCHEME_DYNAMIC_LINKER_API_USAGE</item>
+      <item>XCODE_SCHEME_ENABLE_GPU_FRAME_CAPTURE_MODE</item>
       <item>XCODE_SCHEME_ENVIRONMENT</item>
       <item>XCODE_SCHEME_EXECUTABLE</item>
       <item>XCODE_SCHEME_GUARD_MALLOC</item>
@@ -7284,7 +7337,7 @@
       </context>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect More target-properties">
-        <RegExpr attribute="Property" context="#stay" String="\b(?:XCODE_EMBED_&var_ref_re;_REMOVE_HEADERS_ON_COPY|XCODE_EMBED_&var_ref_re;_PATH|XCODE_EMBED_&var_ref_re;_CODE_SIGN_ON_COPY|XCODE_EMBED_&var_ref_re;|XCODE_ATTRIBUTE_&var_ref_re;|VS_SOURCE_SETTINGS_&var_ref_re;|VS_GLOBAL_&var_ref_re;|VS_DOTNET_REFERENCE_&var_ref_re;|VS_DOTNET_REFERENCEPROP_&var_ref_re;_TAG_&var_ref_re;|STATIC_LIBRARY_FLAGS_&var_ref_re;|RUNTIME_OUTPUT_NAME_&var_ref_re;|RUNTIME_OUTPUT_DIRECTORY_&var_ref_re;|PDB_OUTPUT_DIRECTORY_&var_ref_re;|PDB_NAME_&var_ref_re;|OUTPUT_NAME_&var_ref_re;|OSX_ARCHITECTURES_&var_ref_re;|MAP_IMPORTED_CONFIG_&var_ref_re;|LOCATION_&var_ref_re;|LINK_INTERFACE_MULTIPLICITY_&var_ref_re;|LINK_INTERFACE_LIBRARIES_&var_ref_re;|LINK_FLAGS_&var_ref_re;|LIBRARY_OUTPUT_NAME_&var_ref_re;|LIBRARY_OUTPUT_DIRECTORY_&var_ref_re;|INTERPROCEDURAL_OPTIMIZATION_&var_ref_re;|IMPORTED_SONAME_&var_ref_re;|IMPORTED_OBJECTS_&var_ref_re;|IMPORTED_NO_SONAME_&var_ref_re;|IMPORTED_LOCATION_&var_ref_re;|IMPORTED_LINK_INTERFACE_MULTIPLICITY_&var_ref_re;|IMPORTED_LINK_INTERFACE_LIBRARIES_&var_ref_re;|IMPORTED_LINK_INTERFACE_LANGUAGES_&var_ref_re;|IMPORTED_LINK_DEPENDENT_LIBRARIES_&var_ref_re;|IMPORTED_LIBNAME_&var_ref_re;|IMPORTED_IMPLIB_&var_ref_re;|FRAMEWORK_MULTI_CONFIG_POSTFIX_&var_ref_re;|EXCLUDE_FROM_DEFAULT_BUILD_&var_ref_re;|COMPILE_PDB_OUTPUT_DIRECTORY_&var_ref_re;|COMPILE_PDB_NAME_&var_ref_re;|ARCHIVE_OUTPUT_NAME_&var_ref_re;|ARCHIVE_OUTPUT_DIRECTORY_&var_ref_re;|&var_ref_re;_VISIBILITY_PRESET|&var_ref_re;_POSTFIX|&var_ref_re;_OUTPUT_NAME|&var_ref_re;_LINKER_LAUNCHER|&var_ref_re;_INCLUDE_WHAT_YOU_USE|&var_ref_re;_CPPLINT|&var_ref_re;_CPPCHECK|&var_ref_re;_COMPILER_LAUNCHER|&var_ref_re;_CLANG_TIDY)\b" />
+        <RegExpr attribute="Property" context="#stay" String="\b(?:XCODE_EMBED_&var_ref_re;_REMOVE_HEADERS_ON_COPY|XCODE_EMBED_&var_ref_re;_PATH|XCODE_EMBED_&var_ref_re;_CODE_SIGN_ON_COPY|XCODE_EMBED_&var_ref_re;|XCODE_ATTRIBUTE_&var_ref_re;|VS_SOURCE_SETTINGS_&var_ref_re;|VS_GLOBAL_&var_ref_re;|VS_DOTNET_REFERENCE_&var_ref_re;|VS_DOTNET_REFERENCEPROP_&var_ref_re;_TAG_&var_ref_re;|STATIC_LIBRARY_FLAGS_&var_ref_re;|RUNTIME_OUTPUT_NAME_&var_ref_re;|RUNTIME_OUTPUT_DIRECTORY_&var_ref_re;|PDB_OUTPUT_DIRECTORY_&var_ref_re;|PDB_NAME_&var_ref_re;|OUTPUT_NAME_&var_ref_re;|OSX_ARCHITECTURES_&var_ref_re;|MAP_IMPORTED_CONFIG_&var_ref_re;|LOCATION_&var_ref_re;|LINK_INTERFACE_MULTIPLICITY_&var_ref_re;|LINK_INTERFACE_LIBRARIES_&var_ref_re;|LINK_FLAGS_&var_ref_re;|LIBRARY_OUTPUT_NAME_&var_ref_re;|LIBRARY_OUTPUT_DIRECTORY_&var_ref_re;|INTERPROCEDURAL_OPTIMIZATION_&var_ref_re;|IMPORTED_SONAME_&var_ref_re;|IMPORTED_OBJECTS_&var_ref_re;|IMPORTED_NO_SONAME_&var_ref_re;|IMPORTED_LOCATION_&var_ref_re;|IMPORTED_LINK_INTERFACE_MULTIPLICITY_&var_ref_re;|IMPORTED_LINK_INTERFACE_LIBRARIES_&var_ref_re;|IMPORTED_LINK_INTERFACE_LANGUAGES_&var_ref_re;|IMPORTED_LINK_DEPENDENT_LIBRARIES_&var_ref_re;|IMPORTED_LIBNAME_&var_ref_re;|IMPORTED_IMPLIB_&var_ref_re;|HEADER_SET_&var_ref_re;|HEADER_DIRS_&var_ref_re;|FRAMEWORK_MULTI_CONFIG_POSTFIX_&var_ref_re;|EXCLUDE_FROM_DEFAULT_BUILD_&var_ref_re;|COMPILE_PDB_OUTPUT_DIRECTORY_&var_ref_re;|COMPILE_PDB_NAME_&var_ref_re;|ARCHIVE_OUTPUT_NAME_&var_ref_re;|ARCHIVE_OUTPUT_DIRECTORY_&var_ref_re;|&var_ref_re;_VISIBILITY_PRESET|&var_ref_re;_POSTFIX|&var_ref_re;_OUTPUT_NAME|&var_ref_re;_LINKER_LAUNCHER|&var_ref_re;_INCLUDE_WHAT_YOU_USE|&var_ref_re;_CPPLINT|&var_ref_re;_CPPCHECK|&var_ref_re;_COMPILER_LAUNCHER|&var_ref_re;_CLANG_TIDY)\b" />
       </context>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect More source-properties">

@@ -19,6 +19,7 @@ elseif(CMAKE_CROSSCOMPILING)
                         CMAKE_ARGS -DKSYNTAXHIGHLIGHTING_USE_GUI=OFF
                             -DECM_DIR=${ECM_DIR} -DCMAKE_PREFIX_PATH=${NATIVE_PREFIX}
                             -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}
+                            -DQT_MAJOR_VERSION=${QT_MAJOR_VERSION}
                         INSTALL_COMMAND ""
                         BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/native_katehighlightingindexer-prefix/src/native_katehighlightingindexer-build/bin/katehighlightingindexer
                     )

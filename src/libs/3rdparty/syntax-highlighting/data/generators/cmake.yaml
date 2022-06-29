@@ -1,4 +1,4 @@
-version: 37
+version: 38
 
 global-properties:
     - ALLOW_DUPLICATE_CUSTOM_TARGETS
@@ -168,6 +168,7 @@ target-properties:
     - DEPLOYMENT_REMOTE_DIRECTORY
     - DEPRECATION                                           # Since 3.17
     - DISABLE_PRECOMPILE_HEADERS                            # Since 3.16
+    - DOTNET_SDK                                            # Since 3.23
     - DOTNET_TARGET_FRAMEWORK                               # Since 3.17
     - DOTNET_TARGET_FRAMEWORK_VERSION                       # Since 3.12
     - EchoString
@@ -188,6 +189,15 @@ target-properties:
     - GENERATOR_FILE_NAME
     - GNUtoMS
     - HAS_CXX
+    - HEADER_DIRS                                           # Since 3.23
+    - HEADER_DIRS_<NAME>                                    # Since 3.23
+    - HEADER_SET                                            # Since 3.23
+    - HEADER_SET_<NAME>                                     # Since 3.23
+    - HEADER_SETS                                           # Since 3.23
+    - HIP_ARCHITECTURES                                     # Since 3.21
+    - HIP_EXTENSIONS                                        # Since 3.21
+    - HIP_STANDARD                                          # Since 3.21
+    - HIP_STANDARD_REQUIRED                                 # Since 3.21
     - IMPLICIT_DEPENDS_INCLUDE_TRANSFORM
     - IMPORTED_COMMON_LANGUAGE_RUNTIME                      # Since 3.12
     - IMPORTED_CONFIGURATIONS
@@ -208,6 +218,7 @@ target-properties:
     - IMPORTED_LOCATION
     - IMPORTED_NO_SONAME_<CONFIG>
     - IMPORTED_NO_SONAME
+    - IMPORTED_NO_SYSTEM                                    # Since 3.23
     - IMPORTED_OBJECTS_<CONFIG>
     - IMPORTED_OBJECTS
     - IMPORTED
@@ -224,6 +235,7 @@ target-properties:
     - INTERFACE_COMPILE_DEFINITIONS
     - INTERFACE_COMPILE_FEATURES
     - INTERFACE_COMPILE_OPTIONS
+    - INTERFACE_HEADER_SETS                                 # Since 3.23
     - INTERFACE_INCLUDE_DIRECTORIES
     - INTERFACE_LINK_DEPENDS                                # Since 3.13
     - INTERFACE_LINK_DIRECTORIES                            # Since 3.13
@@ -264,6 +276,7 @@ target-properties:
     - LINK_INTERFACE_MULTIPLICITY_<CONFIG>
     - LINK_INTERFACE_MULTIPLICITY
     - LINK_LIBRARIES
+    - LINK_LIBRARIES_ONLY_TARGETS                           # Since 3.23
     - LINK_OPTIONS                                          # Since 3.13
     - LINK_SEARCH_END_STATIC
     - LINK_SEARCH_START_STATIC
@@ -390,6 +403,7 @@ target-properties:
     - XCODE_SCHEME_ARGUMENTS                                # Since 3.13
     - XCODE_SCHEME_DEBUG_AS_ROOT                            # Since 3.15
     - XCODE_SCHEME_DEBUG_DOCUMENT_VERSIONING                # Since 3.16
+    - XCODE_SCHEME_ENABLE_GPU_FRAME_CAPTURE_MODE            # Since 3.23
     - XCODE_SCHEME_DISABLE_MAIN_THREAD_CHECKER              # Since 3.13
     - XCODE_SCHEME_DYNAMIC_LINKER_API_USAGE                 # Since 3.13
     - XCODE_SCHEME_DYNAMIC_LIBRARY_LOADS                    # Since 3.13
@@ -622,6 +636,7 @@ variables:
     - CMAKE_CURRENT_SOURCE_DIR
     - CMAKE_DIRECTORY_LABELS                                # Since 3.10
     - CMAKE_DL_LIBS
+    - CMAKE_DOTNET_SDK                                      # Since 3.23
     - CMAKE_DOTNET_TARGET_FRAMEWORK                         # Since 3.17
     - CMAKE_DOTNET_TARGET_FRAMEWORK_VERSION                 # Since 3.12
     - CMAKE_EDIT_COMMAND
@@ -690,6 +705,7 @@ variables:
     - CMAKE_VS_DEVENV_COMMAND
     - CMAKE_VS_MSBUILD_COMMAND
     - CMAKE_VS_NsightTegra_VERSION
+    - CMAKE_VS_NUGET_PACKAGE_RESTORE                        # Since 3.23
     - CMAKE_VS_PLATFORM_NAME
     - CMAKE_VS_PLATFORM_TOOLSET
     - CMAKE_VS_PLATFORM_TOOLSET_CUDA
@@ -771,6 +787,7 @@ variables:
     - CMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY                # Since 3.16
     - CMAKE_FRAMEWORK_PATH
     - CMAKE_IGNORE_PATH
+    - CMAKE_IGNORE_PREFIX_PATH                              # Since 3.23
     - CMAKE_INCLUDE_DIRECTORIES_BEFORE
     - CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE
     - CMAKE_INCLUDE_PATH
@@ -781,6 +798,7 @@ variables:
     - CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT
     - CMAKE_LIBRARY_PATH
     - CMAKE_LINK_DIRECTORIES_BEFORE                         # Since 3.13
+    - CMAKE_LINK_LIBRARIES_ONLY_TARGETS                     # Since 3.23
     - CMAKE_MAXIMUM_RECURSION_DEPTH                         # Since 3.14
     - CMAKE_MFC_FLAG
     - CMAKE_MODULE_PATH
@@ -803,6 +821,7 @@ variables:
     - CMAKE_SYSTEM_APPBUNDLE_PATH
     - CMAKE_SYSTEM_FRAMEWORK_PATH
     - CMAKE_SYSTEM_IGNORE_PATH
+    - CMAKE_SYSTEM_IGNORE_PREFIX_PATH                       # Since 3.23
     - CMAKE_SYSTEM_INCLUDE_PATH
     - CMAKE_SYSTEM_LIBRARY_PATH
     - CMAKE_SYSTEM_PREFIX_PATH
@@ -817,6 +836,7 @@ variables:
     - CMAKE_XCODE_SCHEME_ADDRESS_SANITIZER_USE_AFTER_RETURN # Since 3.13
     - CMAKE_XCODE_SCHEME_WORKING_DIRECTORY                  # Since 3.17
     - CMAKE_XCODE_SCHEME_DEBUG_DOCUMENT_VERSIONING          # Since 3.16
+    - CMAKE_XCODE_SCHEME_ENABLE_GPU_FRAME_CAPTURE_MODE      # Since 3.23
     - CMAKE_XCODE_SCHEME_DISABLE_MAIN_THREAD_CHECKER        # Since 3.13
     - CMAKE_XCODE_SCHEME_DYNAMIC_LINKER_API_USAGE           # Since 3.13
     - CMAKE_XCODE_SCHEME_DYNAMIC_LIBRARY_LOADS              # Since 3.13
@@ -1186,6 +1206,7 @@ variables:
     - CTEST_RUN_CURRENT_SCRIPT                              # Since 3.11
     - CTEST_SCP_COMMAND
     - CTEST_SITE
+    - CTEST_SUBMIT_INACTIVITY_TIMEOUT                       # Since 3.23
     - CTEST_SUBMIT_URL                                      # Since 3.14
     - CTEST_SOURCE_DIRECTORY
     - CTEST_SVN_COMMAND
@@ -1313,6 +1334,15 @@ variables:
     - CMAKE_C_LINK_NO_PIE_SUPPORTED
     - CMAKE_CXX_LINK_NO_PIE_SUPPORTED
     - CMAKE_Fortran_LINK_NO_PIE_SUPPORTED
+      # Since 3.23
+    - CMAKE_OBJC_LINK_PIE_SUPPORTED
+    - CMAKE_OBJC_LINK_NO_PIE_SUPPORTED
+    - CMAKE_OBJCXX_LINK_PIE_SUPPORTED
+    - CMAKE_OBJCXX_LINK_NO_PIE_SUPPORTED
+    - CMAKE_CUDA_LINK_PIE_SUPPORTED
+    - CMAKE_CUDA_LINK_NO_PIE_SUPPORTED
+    - CMAKE_HIP_LINK_PIE_SUPPORTED
+    - CMAKE_HIP_LINK_NO_PIE_SUPPORTED
     # - CheckPrototypeDefinition
     # - CheckStructHasMember
     # - CheckSymbolExists
@@ -1475,11 +1505,19 @@ variables:
     - CPACK_IFW_PACKAGE_MAINTENANCE_TOOL_INI_FILE
     - CPACK_IFW_PACKAGE_ALLOW_NON_ASCII_CHARACTERS
     - CPACK_IFW_PACKAGE_ALLOW_SPACE_IN_PATH
+    - CPACK_IFW_PACKAGE_DISABLE_COMMAND_LINE_INTERFACE      # Since 3.23
     - CPACK_IFW_PACKAGE_CONTROL_SCRIPT
     - CPACK_IFW_PACKAGE_REMOVE_TARGET_DIR                   # Since 3.11
     - CPACK_IFW_PACKAGE_RESOURCES
     - CPACK_IFW_REPOSITORIES_ALL
     - CPACK_IFW_DOWNLOAD_ALL
+    - CPACK_IFW_PACKAGE_PRODUCT_IMAGES                      # Since 3.23
+    - CPACK_IFW_PACKAGE_RUN_PROGRAM                         # Since 3.23
+    - CPACK_IFW_PACKAGE_RUN_PROGRAM_ARGUMENTS               # Since 3.23
+    - CPACK_IFW_PACKAGE_RUN_PROGRAM_DESCRIPTION             # Since 3.23
+    - CPACK_IFW_PACKAGE_SIGNING_IDENTITY                    # Since 3.23
+    - CPACK_IFW_ARCHIVE_FORMAT                              # Since 3.23
+    - CPACK_IFW_ARCHIVE_COMPRESSION                         # Since 3.23
     - CPACK_IFW_RESOLVE_DUPLICATE_NAMES
     - CPACK_IFW_PACKAGES_DIRECTORIES
     - CPACK_IFW_FRAMEWORK_VERSION
@@ -1567,6 +1605,7 @@ variables:
     # - CPackPackageMaker is deprecated and gonna be removed in next versions of CPack
     # - CPackProductBuild
     - CPACK_COMMAND_PRODUCTBUILD
+    - CPACK_PRODUCTBUILD_IDENTIFIER                         # Since 3.23
     - CPACK_PRODUCTBUILD_IDENTITY_NAME
     - CPACK_PRODUCTBUILD_KEYCHAIN_PATH
     - CPACK_COMMAND_PKGBUILD
@@ -1575,6 +1614,10 @@ variables:
     - CPACK_PREFLIGHT_<COMP>_SCRIPT                         # Since 3.1?
     - CPACK_POSTFLIGHT_<COMP>_SCRIPT                        # Since 3.1?
     - CPACK_PRODUCTBUILD_RESOURCES_DIR
+    - CPACK_PRODUCTBUILD_DOMAINS                            # Since 3.23
+    - CPACK_PRODUCTBUILD_DOMAINS_ANYWHERE                   # Since 3.23
+    - CPACK_PRODUCTBUILD_DOMAINS_USER                       # Since 3.23
+    - CPACK_PRODUCTBUILD_DOMAINS_ROOT                       # Since 3.23
     - CPACK_PRODUCTBUILD_BACKGROUND                         # Since 3.17
     - CPACK_PRODUCTBUILD_BACKGROUND_ALIGNMENT               # Since 3.17
     - CPACK_PRODUCTBUILD_BACKGROUND_SCALING                 # Since 3.17
@@ -1750,6 +1793,7 @@ variables:
     - CPACK_WIX_ROOT_FOLDER_ID
     - CPACK_WIX_ROOT
     - CPACK_WIX_CUSTOM_XMLNS                                # Since 3.19
+    - CPACK_WIX_SKIP_WIX_UI_EXTENSION                       # Since 3.23
     # - CTest
     # - Dart
     - BUILD_TESTING
@@ -2535,6 +2579,8 @@ environment-variables:
     - CMAKE_FRAMEWORK_PATH
     - CMAKE_APPBUNDLE_PATH
     - PATH
+    # Environment Variables recognized by some standard modules
+    - QTIFWDIR
 
 scripting-commands:
     -
@@ -3389,7 +3435,20 @@ project-commands:
         named-args: [EXTRA_INCLUDE, FUNCTION]
     -
         name: define_property
-        named-args: [GLOBAL, DIRECTORY, DIRECTORY, SOURCE, TEST, VARIABLE, CACHED_VARIABLE, PROPERTY, INHERITED, BRIEF_DOCS, FULL_DOCS]
+        named-args: [
+            GLOBAL
+          , DIRECTORY
+          , DIRECTORY
+          , SOURCE
+          , TEST
+          , VARIABLE
+          , CACHED_VARIABLE
+          , PROPERTY
+          , INHERITED
+          , BRIEF_DOCS
+          , FULL_DOCS
+          , INITIALIZE_FROM_VARIABLE                        # Since 3.23
+          ]
         property-args: *get-property
     -
         name: enable_language
@@ -3468,6 +3527,7 @@ project-commands:
           , PRIVATE_HEADER
           , PUBLIC_HEADER
           , RESOURCE
+          , FILE_SET                                        # Since 3.23
           , INCLUDES
           , NAMELINK_ONLY
           , NAMELINK_SKIP
@@ -3707,7 +3767,16 @@ project-commands:
         first-arg-is-target?: true
     -
         name: target_sources
-        named-args: *target_compile_definitions
+        named-args: [
+            INTERFACE
+          , PUBLIC
+          , PRIVATE
+            # Since 3.23
+          , FILE_SET
+          , TYPE
+          , BASE_DIRS
+          , FILES
+          ]
         first-arg-is-target?: true
     -
         name: try_compile
@@ -4230,7 +4299,11 @@ standard-module-commands:
     -
         name: check_pie_supported
         named-args: [OUTPUT_VARIABLE, LANGUAGES]
-        special-args: *ccxxf
+        special-args: [
+            C, CXX, Fortran,
+            # Since 3.23
+            OBJC, OBJCXX, CUDA, HIP
+          ]
     # CheckPrototypeDefinition
     - name: check_prototype_definition
     # CheckSourceCompiles
@@ -4536,6 +4609,7 @@ standard-module-commands:
             - LOG_OUTPUT_ON_FAILURE
             - USES_TERMINAL_DOWNLOAD
             - USES_TERMINAL_UPDATE
+            - USES_TERMINAL_PATCH                           # Since 3.23
             - USES_TERMINAL_CONFIGURE
             - USES_TERMINAL_BUILD
             - USES_TERMINAL_INSTALL

@@ -5,3 +5,8 @@ Dependencies:
 
 Options:
   test-before-installing: True
+  require-passing-tests-on: [ 'Linux', 'FreeBSD', 'Windows' ]
+
+  # exclude stuff from cppcheck that takes too long
+  cppcheck-ignore-files:
+  - 'src/lib/abstracthighlighter.cpp'
