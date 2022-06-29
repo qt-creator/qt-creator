@@ -120,12 +120,6 @@ static FormatTask format(FormatTask task)
         process.setCommand({FilePath::fromString(executable), options});
         process.setWriteData(task.sourceData.toUtf8());
         process.start();
-        if (!process.waitForStarted(3000)) {
-            task.error = QString(QT_TRANSLATE_NOOP("TextEditor",
-                                                   "Cannot call %1 or some other error occurred."))
-                    .arg(executable);
-            return task;
-        }
         if (!process.waitForFinished(5000)) {
             task.error = QString(QT_TRANSLATE_NOOP("TextEditor",
                                                    "Cannot call %1 or some other error occurred. Timeout "
