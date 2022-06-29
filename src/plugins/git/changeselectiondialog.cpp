@@ -68,9 +68,9 @@ ChangeSelectionDialog::ChangeSelectionDialog(const FilePath &workingDirectory, I
 
     connect(m_ui->changeNumberEdit, &CompletingLineEdit::textChanged,
             this, &ChangeSelectionDialog::changeTextChanged);
-    connect(m_ui->workingDirectoryChooser, &PathChooser::pathChanged,
+    connect(m_ui->workingDirectoryChooser, &PathChooser::filePathChanged,
             this, &ChangeSelectionDialog::recalculateDetails);
-    connect(m_ui->workingDirectoryChooser, &PathChooser::pathChanged,
+    connect(m_ui->workingDirectoryChooser, &PathChooser::filePathChanged,
             this, &ChangeSelectionDialog::recalculateCompletion);
     connect(m_ui->selectFromHistoryButton, &QPushButton::clicked,
             this, &ChangeSelectionDialog::selectCommitFromRecentHistory);

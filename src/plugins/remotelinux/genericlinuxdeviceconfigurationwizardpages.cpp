@@ -196,7 +196,7 @@ GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::GenericLinuxDeviceConfig
     deployLayout->addWidget(&d->iconLabel);
     deployLayout->addStretch();
     mainLayout->addLayout(deployLayout);
-    connect(&d->keyFileChooser, &PathChooser::pathChanged, this, [this, deployButton] {
+    connect(&d->keyFileChooser, &PathChooser::filePathChanged, this, [this, deployButton] {
         deployButton->setEnabled(d->keyFileChooser.filePath().exists());
         d->iconLabel.clear();
         emit completeChanged();

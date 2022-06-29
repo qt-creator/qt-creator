@@ -167,8 +167,8 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
             this, &UnstartedAppWatcherDialog::selectExecutable);
     connect(m_watchingPushButton, &QAbstractButton::toggled,
             this, &UnstartedAppWatcherDialog::startStopWatching);
-    connect(m_pathChooser, &Utils::PathChooser::pathChanged, this,
-            &UnstartedAppWatcherDialog::stopAndCheckExecutable);
+    connect(m_pathChooser, &Utils::PathChooser::filePathChanged,
+            this, &UnstartedAppWatcherDialog::stopAndCheckExecutable);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(&m_timer, &QTimer::timeout,
             this, &UnstartedAppWatcherDialog::findProcess);
