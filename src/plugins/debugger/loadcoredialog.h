@@ -66,7 +66,7 @@ public:
 
 private:
     void changed();
-    void coreFileChanged(const QString &core);
+    void coreFileChanged(const Utils::FilePath &core);
     void selectRemoteCoreFile();
 
     class AttachCoreDialogPrivate *d;

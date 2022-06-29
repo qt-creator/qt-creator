@@ -180,7 +180,7 @@ public:
     QLabel *forceLocalLabel;
     PathChooser *symbolFileName;
     PathChooser *localCoreFileName;
-    QLineEdit *remoteCoreFileName;
+    PathChooser *remoteCoreFileName;
     QPushButton *selectRemoteCoreButton;
 
     PathChooser *overrideStartScriptFileName;
@@ -238,7 +238,7 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     d->forceLocalLabel->setText(tr("Use local core file:"));
     d->forceLocalLabel->setBuddy(d->forceLocalCheckBox);
 
-    d->remoteCoreFileName = new QLineEdit(this);
+    d->remoteCoreFileName = new PathChooser(this);
     d->selectRemoteCoreButton = new QPushButton(PathChooser::browseButtonLabel(), this);
 
     d->localCoreFileName = new PathChooser(this);
@@ -304,9 +304,9 @@ AttachCoreDialog::~AttachCoreDialog()
 int AttachCoreDialog::exec()
 {
     connect(d->selectRemoteCoreButton, &QAbstractButton::clicked, this, &AttachCoreDialog::selectRemoteCoreFile);
-    connect(d->remoteCoreFileName, &QLineEdit::textChanged, this, &AttachCoreDialog::coreFileChanged);
-    connect(d->symbolFileName, &PathChooser::rawPathChanged, this, &AttachCoreDialog::changed);
-    connect(d->localCoreFileName, &PathChooser::rawPathChanged, this, &AttachCoreDialog::coreFileChanged);
+    connect(d->remoteCoreFileName, &PathChooser::filePathChanged, this, &AttachCoreDialog::coreFileChanged);
+    connect(d->symbolFileName, &PathChooser::filePathChanged, this, &AttachCoreDialog::changed);
+    connect(d->localCoreFileName, &PathChooser::filePathChanged, this, &AttachCoreDialog::coreFileChanged);
     connect(d->forceLocalCheckBox, &QCheckBox::stateChanged, this, &AttachCoreDialog::changed);
     connect(d->kitChooser, &KitChooser::currentIndexChanged, this, &AttachCoreDialog::changed);
     connect(d->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -342,9 +342,8 @@ bool AttachCoreDialog::useLocalCoreFile() const
     return isLocalKit() || d->forceLocalCheckBox->isChecked();
 }
 
-void AttachCoreDialog::coreFileChanged(const QString &core)
+void AttachCoreDialog::coreFileChanged(const FilePath &coreFile)
 {
-    const FilePath coreFile = FilePath::fromUserInput(core);
     if (coreFile.osType() != OsType::OsTypeWindows && coreFile.exists()) {
         Kit *k = d->kitChooser->currentKit();
         QTC_ASSERT(k, return);
@@ -387,7 +386,7 @@ void AttachCoreDialog::selectRemoteCoreFile()
     if (dlg.exec() == QDialog::Rejected)
         return;
     d->localCoreFileName->setFilePath(dlg.localFile());
-    d->remoteCoreFileName->setText(dlg.remoteFile().toUserOutput());
+    d->remoteCoreFileName->setFilePath(dlg.remoteFile());
     changed();
 }
 
@@ -413,12 +412,12 @@ void AttachCoreDialog::setLocalCoreFile(const FilePath &coreFilePath)
 
 void AttachCoreDialog::setRemoteCoreFile(const FilePath &coreFilePath)
 {
-    d->remoteCoreFileName->setText(coreFilePath.toUserOutput());
+    d->remoteCoreFileName->setFilePath(coreFilePath);
 }
 
 FilePath AttachCoreDialog::remoteCoreFile() const
 {
-    return FilePath::fromUserInput(d->remoteCoreFileName->text());
+    return d->remoteCoreFileName->filePath();
 }
 
 void AttachCoreDialog::setKitId(Id id)
