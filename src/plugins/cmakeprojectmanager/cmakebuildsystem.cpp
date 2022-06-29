@@ -931,11 +931,8 @@ void CMakeBuildSystem::runCTest()
         process.setWorkingDirectory(workingDirectory);
         process.setCommand(cmd);
         process.start();
-
-        if (!process.waitForStarted(1000) || !process.waitForFinished()
-                || process.exitCode() || process.exitStatus() != QProcess::NormalExit) {
+        if (!process.waitForFinished() || process.result() != ProcessResult::FinishedWithSuccess)
             return;
-        }
         futureInterface.reportResult(process.readAllStandardOutput());
     });
 
