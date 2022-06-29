@@ -447,11 +447,6 @@ static QString findQtInstallPath(const FilePath &qmakePath)
     QtcProcess proc;
     proc.setCommand({qmakePath, {"-query", "QT_INSTALL_HEADERS"}});
     proc.start();
-    if (!proc.waitForStarted()) {
-        qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(qmakePath.toString()),
-           qPrintable(proc.errorString()));
-        return QString();
-    }
     if (!proc.waitForFinished()) {
         qWarning("%s: Timeout running '%s'.", Q_FUNC_INFO, qPrintable(qmakePath.toString()));
         return QString();
