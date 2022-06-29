@@ -26,7 +26,6 @@
 #include "kitinformation.h"
 
 #include "abi.h"
-#include "devicesupport/desktopdevice.h"
 #include "devicesupport/devicemanager.h"
 #include "devicesupport/devicemanagermodel.h"
 #include "devicesupport/idevicefactory.h"
@@ -77,7 +76,7 @@ public:
     SysRootKitAspectWidget(Kit *k, const KitAspect *ki) : KitAspectWidget(k, ki)
     {
         m_chooser = createSubWidget<PathChooser>();
-        m_chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+        m_chooser->setExpectedKind(PathChooser::ExistingDirectory);
         m_chooser->setHistoryCompleter(QLatin1String("PE.SysRoot.History"));
         m_chooser->setFilePath(SysRootKitAspect::sysRoot(k));
         connect(m_chooser, &PathChooser::filePathChanged,
@@ -108,7 +107,7 @@ private:
         m_ignoreChange = false;
     }
 
-    Utils::PathChooser *m_chooser;
+    PathChooser *m_chooser;
     bool m_ignoreChange = false;
 };
 } // namespace Internal
@@ -126,7 +125,7 @@ SysRootKitAspect::SysRootKitAspect()
 Tasks SysRootKitAspect::validate(const Kit *k) const
 {
     Tasks result;
-    const Utils::FilePath dir = SysRootKitAspect::sysRoot(k);
+    const FilePath dir = SysRootKitAspect::sysRoot(k);
     if (dir.isEmpty())
         return result;
 
@@ -158,7 +157,7 @@ KitAspect::ItemList SysRootKitAspect::toUserOutput(const Kit *k) const
     return {{tr("Sys Root"), sysRoot(k).toUserOutput()}};
 }
 
-void SysRootKitAspect::addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const
+void SysRootKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
     QTC_ASSERT(kit, return);
 
@@ -167,28 +166,28 @@ void SysRootKitAspect::addToMacroExpander(Kit *kit, Utils::MacroExpander *expand
     });
 }
 
-Utils::Id SysRootKitAspect::id()
+Id SysRootKitAspect::id()
 {
     return "PE.Profile.SysRoot";
 }
 
-Utils::FilePath SysRootKitAspect::sysRoot(const Kit *k)
+FilePath SysRootKitAspect::sysRoot(const Kit *k)
 {
     if (!k)
-        return Utils::FilePath();
+        return FilePath();
 
     if (!k->value(SysRootKitAspect::id()).toString().isEmpty())
-        return Utils::FilePath::fromString(k->value(SysRootKitAspect::id()).toString());
+        return FilePath::fromString(k->value(SysRootKitAspect::id()).toString());
 
     for (ToolChain *tc : ToolChainKitAspect::toolChains(k)) {
         if (!tc->sysRoot().isEmpty())
-            return Utils::FilePath::fromString(tc->sysRoot());
+            return FilePath::fromString(tc->sysRoot());
     }
 
-    return Utils::FilePath();
+    return FilePath();
 }
 
-void SysRootKitAspect::setSysRoot(Kit *k, const Utils::FilePath &v)
+void SysRootKitAspect::setSysRoot(Kit *k, const FilePath &v)
 {
     if (!k)
         return;
@@ -225,14 +224,14 @@ public:
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setColumnStretch(1, 2);
 
-        QList<Utils::Id> languageList = ToolChainManager::allLanguages();
-        Utils::sort(languageList, [](Utils::Id l1, Utils::Id l2) {
+        QList<Id> languageList = ToolChainManager::allLanguages();
+        sort(languageList, [](Id l1, Id l2) {
             return ToolChainManager::displayNameOfLanguageId(l1)
                     < ToolChainManager::displayNameOfLanguageId(l2);
         });
         QTC_ASSERT(!languageList.isEmpty(), return);
         int row = 0;
-        for (Utils::Id l : qAsConst(languageList)) {
+        for (Id l : qAsConst(languageList)) {
             layout->addWidget(new QLabel(ToolChainManager::displayNameOfLanguageId(l) + ':'), row, 0);
             auto cb = new QComboBox;
             cb->setSizePolicy(QSizePolicy::Ignored, cb->sizePolicy().verticalPolicy());
@@ -268,10 +267,9 @@ private:
     void refresh() override
     {
         m_ignoreChanges = true;
-        const QList<Utils::Id> keys = m_languageComboboxMap.keys();
-        for (const Utils::Id l : keys) {
-            const Toolchains ltcList
-                    = ToolChainManager::toolchains(Utils::equal(&ToolChain::language, l));
+        const QList<Id> keys = m_languageComboboxMap.keys();
+        for (const Id l : keys) {
+            const Toolchains ltcList = ToolChainManager::toolchains(equal(&ToolChain::language, l));
 
             QComboBox *cb = m_languageComboboxMap.value(l);
             cb->clear();
@@ -290,13 +288,13 @@ private:
     void makeReadOnly() override
     {
         m_isReadOnly = true;
-        const QList<Utils::Id> keys = m_languageComboboxMap.keys();
-        for (const Utils::Id l : keys) {
+        const QList<Id> keys = m_languageComboboxMap.keys();
+        for (const Id l : keys) {
             m_languageComboboxMap.value(l)->setEnabled(false);
         }
     }
 
-    void currentToolChainChanged(Utils::Id language, int idx)
+    void currentToolChainChanged(Id language, int idx)
     {
         if (m_ignoreChanges || idx < 0)
             return;
@@ -322,7 +320,7 @@ private:
 
     QWidget *m_mainWidget = nullptr;
     QWidget *m_manageButton = nullptr;
-    QHash<Utils::Id, QComboBox *> m_languageComboboxMap;
+    QHash<Id, QComboBox *> m_languageComboboxMap;
     bool m_ignoreChanges = false;
     bool m_isReadOnly = false;
 };
@@ -343,14 +341,14 @@ ToolChainKitAspect::ToolChainKitAspect()
 }
 
 // language id -> tool chain id
-static QMap<Utils::Id, QByteArray> defaultToolChainIds()
+static QMap<Id, QByteArray> defaultToolChainIds()
 {
-    QMap<Utils::Id, QByteArray> toolChains;
+    QMap<Id, QByteArray> toolChains;
     const Abi abi = Abi::hostAbi();
-    const Toolchains tcList = ToolChainManager::toolchains(Utils::equal(&ToolChain::targetAbi, abi));
-    const QList<Utils::Id> languages = ToolChainManager::allLanguages();
-    for (Utils::Id l : languages) {
-        ToolChain *tc = Utils::findOrDefault(tcList, Utils::equal(&ToolChain::language, l));
+    const Toolchains tcList = ToolChainManager::toolchains(equal(&ToolChain::targetAbi, abi));
+    const QList<Id> languages = ToolChainManager::allLanguages();
+    for (Id l : languages) {
+        ToolChain *tc = findOrDefault(tcList, equal(&ToolChain::language, l));
         toolChains.insert(l, tc ? tc->id() : QByteArray());
     }
     return toolChains;
@@ -358,7 +356,7 @@ static QMap<Utils::Id, QByteArray> defaultToolChainIds()
 
 static QVariant defaultToolChainValue()
 {
-    const QMap<Utils::Id, QByteArray> toolChains = defaultToolChainIds();
+    const QMap<Id, QByteArray> toolChains = defaultToolChainIds();
     QVariantMap result;
     auto end = toolChains.end();
     for (auto it = toolChains.begin(); it != end; ++it) {
@@ -393,8 +391,8 @@ void ToolChainKitAspect::upgrade(Kit *k)
 {
     QTC_ASSERT(k, return);
 
-    const Utils::Id oldIdV1 = KITINFORMATION_ID_V1;
-    const Utils::Id oldIdV2 = KITINFORMATION_ID_V2;
+    const Id oldIdV1 = KITINFORMATION_ID_V1;
+    const Id oldIdV2 = KITINFORMATION_ID_V2;
 
     // upgrade <=4.1 to 4.2 (keep old settings around for now)
     {
@@ -409,11 +407,11 @@ void ToolChainKitAspect::upgrade(Kit *k)
                 // Used up to 4.1:
                 newValue.insert(Deprecated::Toolchain::languageId(Deprecated::Toolchain::Cxx), oldValue.toString());
 
-                const Utils::Id typeId = DeviceTypeKitAspect::deviceTypeId(k);
+                const Id typeId = DeviceTypeKitAspect::deviceTypeId(k);
                 if (typeId == Constants::DESKTOP_DEVICE_TYPE) {
                     // insert default C compiler which did not exist before
                     newValue.insert(Deprecated::Toolchain::languageId(Deprecated::Toolchain::C),
-                                    defaultToolChainIds().value(Utils::Id(Constants::C_LANGUAGE_ID)));
+                                    defaultToolChainIds().value(Id(Constants::C_LANGUAGE_ID)));
                 }
             }
             k->setValue(oldIdV2, newValue);
@@ -429,10 +427,10 @@ void ToolChainKitAspect::upgrade(Kit *k)
             QVariantMap newValue = oldValue.toMap();
             QVariantMap::iterator it = newValue.find(Deprecated::Toolchain::languageId(Deprecated::Toolchain::C));
             if (it != newValue.end())
-                newValue.insert(Utils::Id(Constants::C_LANGUAGE_ID).toString(), it.value());
+                newValue.insert(Id(Constants::C_LANGUAGE_ID).toString(), it.value());
             it = newValue.find(Deprecated::Toolchain::languageId(Deprecated::Toolchain::Cxx));
             if (it != newValue.end())
-                newValue.insert(Utils::Id(Constants::CXX_LANGUAGE_ID).toString(), it.value());
+                newValue.insert(Id(Constants::CXX_LANGUAGE_ID).toString(), it.value());
             k->setValue(ToolChainKitAspect::id(), newValue);
             k->setSticky(ToolChainKitAspect::id(), k->isSticky(oldIdV2));
         }
@@ -456,8 +454,8 @@ void ToolChainKitAspect::upgrade(Kit *k)
 void ToolChainKitAspect::fix(Kit *k)
 {
     QTC_ASSERT(ToolChainManager::isLoaded(), return);
-    const QList<Utils::Id> languages = ToolChainManager::allLanguages();
-    for (const Utils::Id l : languages) {
+    const QList<Id> languages = ToolChainManager::allLanguages();
+    for (const Id l : languages) {
         const QByteArray tcId = toolChainId(k, l);
         if (!tcId.isEmpty() && !ToolChainManager::findToolChain(tcId)) {
             qWarning("Tool chain set up in kit \"%s\" for \"%s\" not found.",
@@ -468,11 +466,11 @@ void ToolChainKitAspect::fix(Kit *k)
     }
 }
 
-static Utils::Id findLanguage(const QString &ls)
+static Id findLanguage(const QString &ls)
 {
     QString lsUpper = ls.toUpper();
     return Utils::findOrDefault(ToolChainManager::allLanguages(),
-                         [lsUpper](Utils::Id l) { return lsUpper == l.toString().toUpper(); });
+                         [lsUpper](Id l) { return lsUpper == l.toString().toUpper(); });
 }
 
 void ToolChainKitAspect::setup(Kit *k)
@@ -486,7 +484,7 @@ void ToolChainKitAspect::setup(Kit *k)
         value = defaultToolChainValue().toMap();
 
     for (auto i = value.constBegin(); i != value.constEnd(); ++i) {
-        Utils::Id l = findLanguage(i.key());
+        Id l = findLanguage(i.key());
 
         if (!l.isValid()) {
             lockToolchains = false;
@@ -537,14 +535,14 @@ KitAspect::ItemList ToolChainKitAspect::toUserOutput(const Kit *k) const
     return {{tr("Compiler"), tc ? tc->displayName() : tr("None")}};
 }
 
-void ToolChainKitAspect::addToBuildEnvironment(const Kit *k, Utils::Environment &env) const
+void ToolChainKitAspect::addToBuildEnvironment(const Kit *k, Environment &env) const
 {
     ToolChain *tc = cxxToolChain(k);
     if (tc)
         tc->addToEnvironment(env);
 }
 
-void ToolChainKitAspect::addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const
+void ToolChainKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
     QTC_ASSERT(kit, return);
 
@@ -574,29 +572,29 @@ void ToolChainKitAspect::addToMacroExpander(Kit *kit, Utils::MacroExpander *expa
                              });
 }
 
-QList<Utils::OutputLineParser *> ToolChainKitAspect::createOutputParsers(const Kit *k) const
+QList<OutputLineParser *> ToolChainKitAspect::createOutputParsers(const Kit *k) const
 {
-    for (const Utils::Id langId : {Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID}) {
+    for (const Id langId : {Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID}) {
         if (const ToolChain * const tc = toolChain(k, langId))
             return tc->createOutputParsers();
     }
     return {};
 }
 
-QSet<Utils::Id> ToolChainKitAspect::availableFeatures(const Kit *k) const
+QSet<Id> ToolChainKitAspect::availableFeatures(const Kit *k) const
 {
-    QSet<Utils::Id> result;
+    QSet<Id> result;
     for (ToolChain *tc : toolChains(k))
         result.insert(tc->typeId().withPrefix("ToolChain."));
     return result;
 }
 
-Utils::Id ToolChainKitAspect::id()
+Id ToolChainKitAspect::id()
 {
     return KITINFORMATION_ID_V3;
 }
 
-QByteArray ToolChainKitAspect::toolChainId(const Kit *k, Utils::Id language)
+QByteArray ToolChainKitAspect::toolChainId(const Kit *k, Id language)
 {
     QTC_ASSERT(ToolChainManager::isLoaded(), return nullptr);
     if (!k)
@@ -605,7 +603,7 @@ QByteArray ToolChainKitAspect::toolChainId(const Kit *k, Utils::Id language)
     return value.value(language.toString(), QByteArray()).toByteArray();
 }
 
-ToolChain *ToolChainKitAspect::toolChain(const Kit *k, Utils::Id language)
+ToolChain *ToolChainKitAspect::toolChain(const Kit *k, Id language)
 {
     return ToolChainManager::findToolChain(toolChainId(k, language));
 }
@@ -967,7 +965,7 @@ private:
     QComboBox *m_comboBox;
     QWidget *m_manageButton;
     DeviceManagerModel *m_model;
-    Utils::Id m_selectedId;
+    Id m_selectedId;
 };
 } // namespace Internal
 
@@ -985,7 +983,7 @@ DeviceKitAspect::DeviceKitAspect()
 
 QVariant DeviceKitAspect::defaultValue(const Kit *k) const
 {
-    Utils::Id type = DeviceTypeKitAspect::deviceTypeId(k);
+    Id type = DeviceTypeKitAspect::deviceTypeId(k);
     // Use default device if that is compatible:
     IDevice::ConstPtr dev = DeviceManager::instance()->defaultDevice(type);
     if (dev && dev->isCompatibleWith(k))
@@ -1021,7 +1019,7 @@ void DeviceKitAspect::fix(Kit *k)
     if (!dev.isNull() && !dev->isCompatibleWith(k)) {
         qWarning("Device is no longer compatible with kit \"%s\", removing it.",
                  qPrintable(k->displayName()));
-        setDeviceId(k, Utils::Id());
+        setDeviceId(k, Id());
     }
 }
 
@@ -1032,7 +1030,7 @@ void DeviceKitAspect::setup(Kit *k)
     if (!dev.isNull() && dev->isCompatibleWith(k))
         return;
 
-    setDeviceId(k, Utils::Id::fromSetting(defaultValue(k)));
+    setDeviceId(k, Id::fromSetting(defaultValue(k)));
 }
 
 KitAspectWidget *DeviceKitAspect::createConfigWidget(Kit *k) const
@@ -1053,7 +1051,7 @@ KitAspect::ItemList DeviceKitAspect::toUserOutput(const Kit *k) const
     return {{tr("Device"), dev.isNull() ? tr("Unconfigured") : dev->displayName()}};
 }
 
-void DeviceKitAspect::addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const
+void DeviceKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
     QTC_ASSERT(kit, return);
     expander->registerVariable("Device:HostAddress", tr("Host address"),
@@ -1083,7 +1081,7 @@ void DeviceKitAspect::addToMacroExpander(Kit *kit, Utils::MacroExpander *expande
     });
 }
 
-Utils::Id DeviceKitAspect::id()
+Id DeviceKitAspect::id()
 {
     return "PE.Profile.Device";
 }
@@ -1094,17 +1092,17 @@ IDevice::ConstPtr DeviceKitAspect::device(const Kit *k)
     return DeviceManager::instance()->find(deviceId(k));
 }
 
-Utils::Id DeviceKitAspect::deviceId(const Kit *k)
+Id DeviceKitAspect::deviceId(const Kit *k)
 {
-    return k ? Utils::Id::fromSetting(k->value(DeviceKitAspect::id())) : Utils::Id();
+    return k ? Id::fromSetting(k->value(DeviceKitAspect::id())) : Id();
 }
 
 void DeviceKitAspect::setDevice(Kit *k, IDevice::ConstPtr dev)
 {
-    setDeviceId(k, dev ? dev->id() : Utils::Id());
+    setDeviceId(k, dev ? dev->id() : Id());
 }
 
-void DeviceKitAspect::setDeviceId(Kit *k, Utils::Id id)
+void DeviceKitAspect::setDeviceId(Kit *k, Id id)
 {
     QTC_ASSERT(k, return);
     k->setValue(DeviceKitAspect::id(), id.toSetting());
@@ -1135,7 +1133,7 @@ void DeviceKitAspect::kitsWereLoaded()
             this, &DeviceKitAspect::kitUpdated);
 }
 
-void DeviceKitAspect::deviceUpdated(Utils::Id id)
+void DeviceKitAspect::deviceUpdated(Id id)
 {
     const QList<Kit *> kits = KitManager::kits();
     for (Kit *k : kits) {
@@ -1203,7 +1201,7 @@ private:
 
     void refresh() override
     {
-        QList<Utils::Id> blackList;
+        QList<Id> blackList;
         const DeviceManager *dm = DeviceManager::instance();
         for (int i = 0; i < dm->deviceCount(); ++i) {
             IDevice::ConstPtr device = dm->deviceAt(i);
@@ -1299,7 +1297,7 @@ KitAspect::ItemList BuildDeviceKitAspect::toUserOutput(const Kit *k) const
     return {{tr("Build device"), dev.isNull() ? tr("Unconfigured") : dev->displayName()}};
 }
 
-void BuildDeviceKitAspect::addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const
+void BuildDeviceKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
     QTC_ASSERT(kit, return);
     expander->registerVariable("BuildDevice:HostAddress", tr("Build host address"),
@@ -1329,7 +1327,7 @@ void BuildDeviceKitAspect::addToMacroExpander(Kit *kit, Utils::MacroExpander *ex
     });
 }
 
-Utils::Id BuildDeviceKitAspect::id()
+Id BuildDeviceKitAspect::id()
 {
     return "PE.Profile.BuildDevice";
 }
@@ -1343,17 +1341,17 @@ IDevice::ConstPtr BuildDeviceKitAspect::device(const Kit *k)
     return dev;
 }
 
-Utils::Id BuildDeviceKitAspect::deviceId(const Kit *k)
+Id BuildDeviceKitAspect::deviceId(const Kit *k)
 {
-    return k ? Utils::Id::fromSetting(k->value(BuildDeviceKitAspect::id())) : Utils::Id();
+    return k ? Id::fromSetting(k->value(BuildDeviceKitAspect::id())) : Id();
 }
 
 void BuildDeviceKitAspect::setDevice(Kit *k, IDevice::ConstPtr dev)
 {
-    setDeviceId(k, dev ? dev->id() : Utils::Id());
+    setDeviceId(k, dev ? dev->id() : Id());
 }
 
-void BuildDeviceKitAspect::setDeviceId(Kit *k, Utils::Id id)
+void BuildDeviceKitAspect::setDeviceId(Kit *k, Id id)
 {
     QTC_ASSERT(k, return);
     k->setValue(BuildDeviceKitAspect::id(), id.toSetting());
@@ -1377,7 +1375,7 @@ void BuildDeviceKitAspect::kitsWereLoaded()
             this, &BuildDeviceKitAspect::kitUpdated);
 }
 
-void BuildDeviceKitAspect::deviceUpdated(Utils::Id id)
+void BuildDeviceKitAspect::deviceUpdated(Id id)
 {
     const QList<Kit *> kits = KitManager::kits();
     for (Kit *k : kits) {
@@ -1409,14 +1407,14 @@ class EnvironmentKitAspectWidget final : public KitAspectWidget
 public:
     EnvironmentKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
         : KitAspectWidget(workingCopy, ki),
-          m_summaryLabel(createSubWidget<Utils::ElidingLabel>()),
+          m_summaryLabel(createSubWidget<ElidingLabel>()),
           m_manageButton(createSubWidget<QPushButton>()),
           m_mainWidget(createSubWidget<QWidget>())
     {
         auto *layout = new QVBoxLayout;
         layout->setContentsMargins(0, 0, 0, 0);
         layout->addWidget(m_summaryLabel);
-        if (Utils::HostOsInfo::isWindowsHost())
+        if (HostOsInfo::isWindowsHost())
             initMSVCOutputSwitch(layout);
         m_mainWidget->setLayout(layout);
         refresh();
@@ -1437,26 +1435,26 @@ private:
 
     void refresh() override
     {
-        const Utils::EnvironmentItems changes = currentEnvironment();
-        const QString shortSummary = Utils::EnvironmentItem::toStringList(changes).join("; ");
+        const EnvironmentItems changes = currentEnvironment();
+        const QString shortSummary = EnvironmentItem::toStringList(changes).join("; ");
         m_summaryLabel->setText(shortSummary.isEmpty() ? tr("No changes to apply.") : shortSummary);
     }
 
     void editEnvironmentChanges()
     {
-        Utils::MacroExpander *expander = m_kit->macroExpander();
-        Utils::EnvironmentDialog::Polisher polisher = [expander](QWidget *w) {
-            Utils::VariableChooser::addSupportForChildWidgets(w, expander);
+        MacroExpander *expander = m_kit->macroExpander();
+        EnvironmentDialog::Polisher polisher = [expander](QWidget *w) {
+            VariableChooser::addSupportForChildWidgets(w, expander);
         };
-        auto changes = Utils::EnvironmentDialog::getEnvironmentItems(m_summaryLabel,
-                                                                     currentEnvironment(),
-                                                                     QString(),
-                                                                     polisher);
+        auto changes = EnvironmentDialog::getEnvironmentItems(m_summaryLabel,
+                                                              currentEnvironment(),
+                                                              QString(),
+                                                              polisher);
         if (!changes)
             return;
 
-        if (Utils::HostOsInfo::isWindowsHost()) {
-            const Utils::EnvironmentItem forceMSVCEnglishItem("VSLANG", "1033");
+        if (HostOsInfo::isWindowsHost()) {
+            const EnvironmentItem forceMSVCEnglishItem("VSLANG", "1033");
             if (m_vslangCheckbox->isChecked() && changes->indexOf(forceMSVCEnglishItem) < 0)
                 changes->append(forceMSVCEnglishItem);
         }
@@ -1464,19 +1462,19 @@ private:
         EnvironmentKitAspect::setEnvironmentChanges(m_kit, *changes);
     }
 
-    Utils::EnvironmentItems currentEnvironment() const
+    EnvironmentItems currentEnvironment() const
     {
-        Utils::EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(m_kit);
+        EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(m_kit);
 
-        if (Utils::HostOsInfo::isWindowsHost()) {
-            const Utils::EnvironmentItem forceMSVCEnglishItem("VSLANG", "1033");
+        if (HostOsInfo::isWindowsHost()) {
+            const EnvironmentItem forceMSVCEnglishItem("VSLANG", "1033");
             if (changes.indexOf(forceMSVCEnglishItem) >= 0) {
                 m_vslangCheckbox->setCheckState(Qt::Checked);
                 changes.removeAll(forceMSVCEnglishItem);
             }
         }
 
-        Utils::sort(changes, [](const Utils::EnvironmentItem &lhs, const Utils::EnvironmentItem &rhs)
+        sort(changes, [](const EnvironmentItem &lhs, const EnvironmentItem &rhs)
         { return QString::localeAwareCompare(lhs.name, rhs.name) < 0; });
         return changes;
     }
@@ -1489,8 +1487,8 @@ private:
                                         "just forces UTF-8 output (may vary depending on the used MSVC "
                                         "compiler)."));
         connect(m_vslangCheckbox, &QCheckBox::toggled, this, [this](bool checked) {
-            Utils::EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(m_kit);
-            const Utils::EnvironmentItem forceMSVCEnglishItem("VSLANG", "1033");
+            EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(m_kit);
+            const EnvironmentItem forceMSVCEnglishItem("VSLANG", "1033");
             if (!checked && changes.indexOf(forceMSVCEnglishItem) >= 0)
                 changes.removeAll(forceMSVCEnglishItem);
             if (checked && changes.indexOf(forceMSVCEnglishItem) < 0)
@@ -1499,7 +1497,7 @@ private:
         });
     }
 
-    Utils::ElidingLabel *m_summaryLabel;
+    ElidingLabel *m_summaryLabel;
     QPushButton *m_manageButton;
     QCheckBox *m_vslangCheckbox;
     QWidget *m_mainWidget;
@@ -1534,16 +1532,16 @@ void EnvironmentKitAspect::fix(Kit *k)
     const QVariant variant = k->value(EnvironmentKitAspect::id());
     if (!variant.isNull() && !variant.canConvert(QVariant::List)) {
         qWarning("Kit \"%s\" has a wrong environment value set.", qPrintable(k->displayName()));
-        setEnvironmentChanges(k, Utils::EnvironmentItems());
+        setEnvironmentChanges(k, EnvironmentItems());
     }
 }
 
 void EnvironmentKitAspect::addToBuildEnvironment(const Kit *k, Environment &env) const
 {
     const QStringList values
-            = Utils::transform(Utils::EnvironmentItem::toStringList(environmentChanges(k)),
+            = transform(EnvironmentItem::toStringList(environmentChanges(k)),
                                [k](const QString &v) { return k->macroExpander()->expand(v); });
-    env.modify(Utils::EnvironmentItem::fromStringList(values));
+    env.modify(EnvironmentItem::fromStringList(values));
 }
 
 void EnvironmentKitAspect::addToRunEnvironment(const Kit *k, Environment &env) const
@@ -1560,25 +1558,25 @@ KitAspectWidget *EnvironmentKitAspect::createConfigWidget(Kit *k) const
 KitAspect::ItemList EnvironmentKitAspect::toUserOutput(const Kit *k) const
 {
     return { qMakePair(tr("Environment"),
-             Utils::EnvironmentItem::toStringList(environmentChanges(k)).join("<br>")) };
+             EnvironmentItem::toStringList(environmentChanges(k)).join("<br>")) };
 }
 
-Utils::Id EnvironmentKitAspect::id()
+Id EnvironmentKitAspect::id()
 {
     return "PE.Profile.Environment";
 }
 
-Utils::EnvironmentItems EnvironmentKitAspect::environmentChanges(const Kit *k)
+EnvironmentItems EnvironmentKitAspect::environmentChanges(const Kit *k)
 {
      if (k)
-         return Utils::EnvironmentItem::fromStringList(k->value(EnvironmentKitAspect::id()).toStringList());
-     return Utils::EnvironmentItems();
+         return EnvironmentItem::fromStringList(k->value(EnvironmentKitAspect::id()).toStringList());
+     return EnvironmentItems();
 }
 
-void EnvironmentKitAspect::setEnvironmentChanges(Kit *k, const Utils::EnvironmentItems &changes)
+void EnvironmentKitAspect::setEnvironmentChanges(Kit *k, const EnvironmentItems &changes)
 {
     if (k)
-        k->setValue(EnvironmentKitAspect::id(), Utils::EnvironmentItem::toStringList(changes));
+        k->setValue(EnvironmentKitAspect::id(), EnvironmentItem::toStringList(changes));
 }
 
 } // namespace ProjectExplorer
