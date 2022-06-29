@@ -60,22 +60,20 @@ McuPackageExecutableVersionDetector::McuPackageExecutableVersionDetector(
 QString McuPackageExecutableVersionDetector::parseVersion(const FilePath &packagePath) const
 {
     if (m_detectionPath.isEmpty() || m_detectionRegExp.isEmpty())
-        return QString();
+        return {};
 
     const FilePath binaryPath = packagePath / m_detectionPath.path();
     if (!binaryPath.exists())
-        return QString();
+        return {};
 
     const int timeout = 3000; // usually runs below 1s, but we want to be on the safe side
     QtcProcess process;
     process.setCommand({binaryPath, m_detectionArgs});
     process.start();
     if (!process.waitForFinished(timeout) || process.result() != ProcessResult::FinishedWithSuccess)
-        return QString();
+        return {};
 
-    const QString processOutput = QString::fromUtf8(
-                process.readAllStandardOutput().append(process.readAllStandardError()));
-    return matchRegExp(processOutput, m_detectionRegExp);
+    return matchRegExp(process.allOutput(), m_detectionRegExp);
 }
 
 McuPackageXmlVersionDetector::McuPackageXmlVersionDetector(const QString &filePattern,
