@@ -423,7 +423,7 @@ public:
         mainGroupLayout->addWidget(m_pluginsGroup);
 
         const QString labelText = PythonSettings::tr(
-            "For a complete list of avilable options, consult the <a "
+            "For a complete list of available options, consult the <a "
             "href=\"https://github.com/python-lsp/python-lsp-server/blob/develop/"
             "CONFIGURATION.md\">Python LSP Server configuration documentation</a>.");
 
