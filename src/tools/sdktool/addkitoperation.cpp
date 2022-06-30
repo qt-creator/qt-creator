@@ -541,7 +541,7 @@ void AddKitOperation::unittest()
     QVERIFY(data.contains(DEVICE_ID));
     QCOMPARE(data.value(DEVICE_ID).toString(), "{dev-id}");
     QVERIFY(data.contains(SYSROOT));
-    QCOMPARE(data.value(SYSROOT).toString(), "/sys/root//");
+    QCOMPARE(data.value(SYSROOT).toString(), "/sys/root");
     QVERIFY(data.contains(TOOLCHAIN));
     QVERIFY(data.contains(QT));
     QCOMPARE(data.value(QT).toString(), "SDK.{qt-id}");
