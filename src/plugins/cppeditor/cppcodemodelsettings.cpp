@@ -314,22 +314,59 @@ QVersionNumber ClangdSettings::clangdVersion(const FilePath &clangdFilePath)
     return it->second;
 }
 
-FilePath ClangdSettings::clangdIncludePath() const
+static FilePath getClangHeadersPathFromClang(const FilePath &clangdFilePath)
 {
-    QTC_ASSERT(useClangd(), return {});
-    FilePath clangdPath = clangdFilePath();
-    QTC_ASSERT(!clangdPath.isEmpty() && clangdPath.exists(), return {});
-    const QVersionNumber version = clangdVersion();
+    const FilePath clangFilePath = clangdFilePath.absolutePath().pathAppended("clang")
+            .withExecutableSuffix();
+    if (!clangFilePath.exists())
+        return {};
+    QtcProcess clang;
+    clang.setCommand({clangFilePath, {"-print-resource-dir"}});
+    clang.start();
+    if (!clang.waitForFinished())
+        return {};
+    const FilePath resourceDir = FilePath::fromUserInput(QString::fromLocal8Bit(
+            clang.readAllStandardOutput().trimmed()));
+    if (resourceDir.isEmpty() || !resourceDir.exists())
+        return {};
+    const FilePath includeDir = resourceDir.pathAppended("include");
+    if (!includeDir.exists())
+        return {};
+    return includeDir;
+}
+
+static FilePath getClangHeadersPath(const FilePath &clangdFilePath)
+{
+    const FilePath headersPath = getClangHeadersPathFromClang(clangdFilePath);
+    if (!headersPath.isEmpty())
+        return headersPath;
+
+    const QVersionNumber version = ClangdSettings::clangdVersion(clangdFilePath);
     QTC_ASSERT(!version.isNull(), return {});
     static const QStringList libDirs{"lib", "lib64"};
     for (const QString &libDir : libDirs) {
-        const FilePath includePath = clangdPath.absolutePath().parentDir().pathAppended(libDir)
+        const FilePath includePath = clangdFilePath.absolutePath().parentDir().pathAppended(libDir)
                 .pathAppended("clang").pathAppended(version.toString()).pathAppended("include");
         if (includePath.exists())
             return includePath;
     }
     QTC_CHECK(false);
     return {};
+}
+
+FilePath ClangdSettings::clangdIncludePath() const
+{
+    QTC_ASSERT(useClangd(), return {});
+    FilePath clangdPath = clangdFilePath();
+    QTC_ASSERT(!clangdPath.isEmpty() && clangdPath.exists(), return {});
+    static QHash<FilePath, FilePath> headersPathCache;
+    const auto it = headersPathCache.constFind(clangdPath);
+    if (it != headersPathCache.constEnd())
+        return *it;
+    const FilePath headersPath = getClangHeadersPath(clangdPath);
+    if (!headersPath.isEmpty())
+        headersPathCache.insert(clangdPath, headersPath);
+    return headersPath;
 }
 
 FilePath ClangdSettings::clangdUserConfigFilePath()
