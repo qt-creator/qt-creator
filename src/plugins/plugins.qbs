@@ -73,6 +73,7 @@ Project {
         "scxmleditor/scxmleditor.qbs",
         "serialterminal/serialterminal.qbs",
         "silversearcher/silversearcher.qbs",
+        "squish/squish.qbs",
         "studiowelcome/studiowelcome.qbs",
         "subversion/subversion.qbs",
         "texteditor/texteditor.qbs",

@@ -107,7 +107,7 @@ std::unique_ptr<QSettings> makeUserFeedbackSettings()
 {
     QStringList domain = QCoreApplication::organizationDomain().split(QLatin1Char('.'));
     std::reverse(domain.begin(), domain.end());
-    QString productId = domain.join(QLatin1String("."));
+    QString productId = domain.join('.');
     if (!productId.isEmpty())
         productId += ".";
     productId += QCoreApplication::applicationName();
