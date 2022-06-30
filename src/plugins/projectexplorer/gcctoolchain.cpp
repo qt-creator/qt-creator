@@ -277,7 +277,7 @@ static GccToolChain::DetectedAbisResult guessGccAbi(const FilePath &path,
 
     QStringList arguments = extraArgs;
     arguments << "-dumpmachine";
-    QString machine = QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
+    QString machine = QString::fromUtf8(runGcc(path, arguments, env)).trimmed().section('\n', 0, 0, QString::SectionSkipEmpty);
     if (machine.isEmpty()) {
         // ICC does not implement the -dumpmachine option on macOS.
         if (HostOsInfo::isMacHost() && (path.fileName() == "icc" || path.fileName() == "icpc"))
@@ -293,7 +293,7 @@ static QString gccVersion(const FilePath &path,
 {
     QStringList arguments = extraArgs;
     arguments << "-dumpversion";
-    return QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
+    return QString::fromUtf8(runGcc(path, arguments, env)).trimmed();
 }
 
 static FilePath gccInstallDir(const FilePath &compiler,
@@ -302,7 +302,7 @@ static FilePath gccInstallDir(const FilePath &compiler,
 {
     QStringList arguments = extraArgs;
     arguments << "-print-search-dirs";
-    QString output = QString::fromLocal8Bit(runGcc(compiler, arguments, env)).trimmed();
+    QString output = QString::fromUtf8(runGcc(compiler, arguments, env)).trimmed();
     // Expected output looks like this:
     //   install: /usr/lib/gcc/x86_64-linux-gnu/7/
     //   ...
@@ -1449,8 +1449,7 @@ void GccToolChainConfigWidget::handleCompilerCommandChange()
     Abis abiList;
 
     if (!path.isEmpty()) {
-        QFileInfo fi(path.toFileInfo());
-        haveCompiler = fi.isExecutable() && fi.isFile();
+        haveCompiler = path.isExecutableFile();
     }
     if (haveCompiler) {
         Environment env = path.deviceEnvironment();

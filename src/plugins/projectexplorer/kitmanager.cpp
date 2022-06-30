@@ -309,7 +309,18 @@ void KitManager::restoreKits()
         }
 
         static const auto isHostKit = [](const Kit *kit) {
-            return kitMatchesAbiList(kit, {Abi::hostAbi()});
+            const Abi hostAbi = Abi::hostAbi();
+            if (HostOsInfo::isMacHost() && hostAbi.architecture() == Abi::ArmArchitecture) {
+                const Abi x86Abi(Abi::X86Architecture,
+                                 hostAbi.os(),
+                                 hostAbi.osFlavor(),
+                                 hostAbi.binaryFormat(),
+                                 hostAbi.wordWidth());
+
+                return kitMatchesAbiList(kit, {hostAbi, x86Abi});
+            }
+
+            return kitMatchesAbiList(kit, {hostAbi});
         };
 
         static const auto deviceTypeForKit = [](const Kit *kit) {
