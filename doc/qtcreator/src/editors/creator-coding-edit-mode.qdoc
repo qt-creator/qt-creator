@@ -125,7 +125,9 @@
     \section2 Selecting Line Ending Style
 
     To switch between Windows line endings (CRLF) and Unix line endings (LF),
-    select the ending style on the editor toolbar (6).
+    select the ending style on the editor toolbar (6). To hide this field,
+    select \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor}
+    > \uicontrol Display, and deselect \uicontrol {Display file line ending}.
 
     To set the line endings to use for all projects by default, select
     \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor} >
