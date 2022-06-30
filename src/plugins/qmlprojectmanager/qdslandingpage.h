@@ -39,7 +39,7 @@ class DesignModeContext : public Core::IContext
     Q_OBJECT
 
 public:
-    DesignModeContext(QWidget *widget) { setWidget(widget); }
+    DesignModeContext(QWidget *widget) : Core::IContext(widget) { setWidget(widget); }
 };
 
 class QdsLandingPageWidget : public QWidget
