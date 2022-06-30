@@ -176,6 +176,9 @@
         \li In \uicontrol {Document update threshold}, specify the amount of
             time \QC waits before sending document changes to the server.
             If the document changes again while waiting, this timeout is reset.
+        \li Select \uicontrol {Ignore files greater than} to make parsing faster
+            by ignoring big files. Specify the maximum size of files to parse in
+            the field next to the check box.
         \li The \uicontrol {Diagnostic Configuration} field shows the Clang
             checks to perform. Click the value of the field to open the
             \uicontrol {Diagnostic Configurations} dialog, where you can
