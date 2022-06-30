@@ -42,6 +42,8 @@
 #include <qmljs/qmljsscopechain.h>
 #include <qmljs/qmljsvalueowner.h>
 
+#include <tuple>
+
 static Q_LOGGING_CATEGORY(ceLog, "qtc.qmldesigner.connectioneditor", QtWarningMsg)
 
 namespace QmlDesigner {
@@ -190,11 +192,8 @@ void ActionEditor::prepareConnections()
     const QmlJS::ContextPtr &context = semanticInfo.context;
     const QmlJS::ScopeChain &scopeChain = semanticInfo.scopeChain(path);
 
-    static QList<TypeName> typeWhiteList({"string",
-                                          "real", "int", "double",
-                                          "bool",
-                                          "QColor", "color",
-                                          "QtQuick.Item", "QQuickItem"});
+    constexpr auto typeWhiteList = std::make_tuple(
+        "string", "real", "int", "double", "bool", "QColor", "color", "QtQuick.Item", "QQuickItem");
 
     static QList<PropertyName> methodBlackList({"toString", "destroy"});
 
@@ -211,19 +210,18 @@ void ActionEditor::prepareConnections()
         ActionEditorDialog::ConnectionOption connection(modelNode.id());
 
         for (const auto &property : modelNode.metaInfo().properties()) {
-            const auto &propertyTypeName = property.propertyTypeName();
-            if (!typeWhiteList.contains(propertyTypeName))
+            if (!property.hasPropertyTypeName(typeWhiteList))
                 continue;
 
             connection.properties.append(
                 ActionEditorDialog::PropertyOption(QString::fromUtf8(property.name()),
-                                                   skipCpp(std::move(propertyTypeName)),
+                                                   skipCpp(std::move(property.propertyTypeName())),
                                                    property.isWritable()));
         }
 
         for (const VariantProperty &variantProperty : modelNode.variantProperties()) {
             if (variantProperty.isValid() && variantProperty.isDynamic()) {
-                if (!typeWhiteList.contains(variantProperty.dynamicTypeName()))
+                if (!variantProperty.hasDynamicTypeName(typeWhiteList))
                     continue;
 
                 const QString name = QString::fromUtf8(variantProperty.name());
@@ -271,14 +269,12 @@ void ActionEditor::prepareConnections()
                 if (metaInfo.isValid()) {
                     ActionEditorDialog::SingletonOption singelton;
                     for (const auto &property : metaInfo.properties()) {
-                        const TypeName &typeName = property.propertyTypeName();
-
-                        if (!typeWhiteList.contains(typeName))
+                        if (!property.hasPropertyTypeName(typeWhiteList))
                             continue;
 
                         singelton.properties.append(
                             ActionEditorDialog::PropertyOption(QString::fromUtf8(property.name()),
-                                                               skipCpp(typeName),
+                                                               skipCpp(property.propertyTypeName()),
                                                                property.isWritable()));
                     }
 

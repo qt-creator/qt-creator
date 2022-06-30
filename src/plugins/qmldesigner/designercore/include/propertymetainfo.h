@@ -59,6 +59,13 @@ public:
         return ((propertyTypeName_ == typeName) || ...);
     }
 
+    template<typename... TypeName>
+    bool hasPropertyTypeName(const std::tuple<TypeName...> &typeNames) const
+    {
+        return std::apply([&](auto... typeName) { return hasPropertyTypeName(typeName...); },
+                          typeNames);
+    }
+
     bool propertyTypeNameIsColor() const { return hasPropertyTypeName("QColor", "color"); }
     bool propertyTypeNameIsString() const { return hasPropertyTypeName("QString", "string"); }
     bool propertyTypeNameIsUrl() const { return hasPropertyTypeName("QUrl", "url"); }

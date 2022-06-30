@@ -99,6 +99,21 @@ public:
     bool isDynamic() const;
     TypeName dynamicTypeName() const;
 
+    template<typename... TypeName>
+    bool hasDynamicTypeName(const TypeName &...typeName) const
+    {
+        auto dynamicTypeName_ = dynamicTypeName();
+        return ((dynamicTypeName_ == typeName) || ...);
+    }
+
+    template<typename... TypeName>
+    bool hasDynamicTypeName(const std::tuple<TypeName...> &typeNames) const
+    {
+        auto dynamicTypeName_ = dynamicTypeName();
+        return std::apply([&](auto... typeName) { return hasDynamicTypeName(typeName...); },
+                          typeNames);
+    }
+
     Model *model() const;
     AbstractView *view() const;
 
