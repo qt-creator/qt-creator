@@ -36,6 +36,7 @@
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/extraencodingsettings.h>
 #include <utils/algorithm.h>
+#include <utils/hostosinfo.h>
 
 #include <QList>
 #include <QString>
@@ -122,6 +123,8 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
             this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
     connect(d->m_ui.smartSelectionChanging, &QAbstractButton::clicked,
             this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
+
+    d->m_ui.mouseHiding->setVisible(!Utils::HostOsInfo::isMacHost());
 }
 
 BehaviorSettingsWidget::~BehaviorSettingsWidget()
