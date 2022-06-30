@@ -55,14 +55,19 @@ def main():
         # skip non-configurable
         if "Import" in category:
             continue
+        # FIXME
+        if "Qt for Python" in category:
+            continue
         mouseClick(waitForObjectItem(categoriesView, "Projects." + category))
         templatesView = waitForObject("{name='templatesView' type='QListView' visible='1'}")
         # needed because categoriesView and templatesView using same model
         for template in dumpItems(templatesView.model(), templatesView.rootIndex()):
             template = template.replace(".", "\\.")
+            # FIXME this needs Qt6.2+
+            if template == "Qt Quick 2 Extension Plugin":
+                continue
             # skip non-configurable
-            if (template not in ["Qt Quick UI Prototype", "Auto Test Project", "Qt Creator Plugin"]
-                and "Qt for Python - " not in template): # FIXME
+            if template not in ["Qt Quick UI Prototype", "Auto Test Project", "Qt Creator Plugin"]:
                 availableProjectTypes.append({category:template})
     safeClickButton("Cancel")
     for current in availableProjectTypes:
