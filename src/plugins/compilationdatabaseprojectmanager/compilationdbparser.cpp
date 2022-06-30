@@ -25,6 +25,8 @@
 
 #include "compilationdbparser.h"
 
+#include "compilationdatabaseconstants.h"
+
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/treescanner.h>

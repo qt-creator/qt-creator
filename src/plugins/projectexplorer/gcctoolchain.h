@@ -151,7 +151,7 @@ protected:
                                           Utils::Id languageId,
                                           ExtraHeaderPathsFunction extraHeaderPathsFunction,
                                           const QStringList &flags,
-                                          const QString &sysRoot,
+                                          const Utils::FilePath &sysRoot,
                                           const QString &originalTargetTriple);
 
     static HeaderPaths gccHeaderPaths(const Utils::FilePath &gcc,
@@ -175,7 +175,7 @@ protected:
 private:
     void updateSupportedAbis() const;
     static QStringList gccPrepareArguments(const QStringList &flags,
-                                           const QString &sysRoot,
+                                           const Utils::FilePath &sysRoot,
                                            const QStringList &platformCodeGenFlags,
                                            Utils::Id languageId,
                                            OptionsReinterpreter reinterpretOptions);

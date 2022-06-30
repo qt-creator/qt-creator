@@ -38,6 +38,7 @@
 #include <QSet>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace CompilationDatabaseProjectManager {
 namespace Internal {
@@ -102,7 +103,7 @@ void filteredFlags(const QString &fileName,
                    HeaderPaths &headerPaths,
                    Macros &macros,
                    CppEditor::ProjectFile::Kind &fileKind,
-                   QString &sysRoot)
+                   Utils::FilePath &sysRoot)
 {
     if (flags.empty())
         return;
@@ -192,7 +193,7 @@ void filteredFlags(const QString &fileName,
 
         if (flag.startsWith("--sysroot=")) {
             if (sysRoot.isEmpty())
-                sysRoot = updatedPathFlag(flag.mid(10), workingDir);
+                sysRoot = FilePath::fromString(updatedPathFlag(flag.mid(10), workingDir));
             continue;
         }
 

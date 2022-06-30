@@ -596,15 +596,15 @@ QStringList GccToolChain::includedFiles(const QStringList &flags, const QString 
 }
 
 QStringList GccToolChain::gccPrepareArguments(const QStringList &flags,
-                                              const QString &sysRoot,
+                                              const FilePath &sysRoot,
                                               const QStringList &platformCodeGenFlags,
-                                              Utils::Id languageId,
+                                              Id languageId,
                                               OptionsReinterpreter reinterpretOptions)
 {
     QStringList arguments;
     const bool hasKitSysroot = !sysRoot.isEmpty();
     if (hasKitSysroot)
-        arguments.append(QString::fromLatin1("--sysroot=%1").arg(sysRoot));
+        arguments.append(QString("--sysroot=%1").arg(sysRoot.nativePath()));
 
     QStringList allFlags;
     allFlags << platformCodeGenFlags << flags;
@@ -629,7 +629,7 @@ HeaderPaths GccToolChain::builtInHeaderPaths(const Utils::Environment &env,
                                              Utils::Id languageId,
                                              ExtraHeaderPathsFunction extraHeaderPathsFunction,
                                              const QStringList &flags,
-                                             const QString &sysRoot,
+                                             const Utils::FilePath &sysRoot,
                                              const QString &originalTargetTriple)
 {
     QStringList arguments = gccPrepareArguments(flags,
@@ -677,7 +677,7 @@ ToolChain::BuiltInHeaderPathsRunner GccToolChain::createBuiltInHeaderPathsRunner
             headerCache = headerPathsCache(),
             languageId = language(),
             extraHeaderPathsFunction = m_extraHeaderPathsFunction](const QStringList &flags,
-                                                                   const QString &sysRoot,
+                                                                   const FilePath &sysRoot,
                                                                    const QString &) {
         return builtInHeaderPaths(fullEnv,
                                   compilerCommand,
@@ -1712,7 +1712,7 @@ ToolChain::BuiltInHeaderPathsRunner ClangToolChain::createBuiltInHeaderPathsRunn
             headerCache = headerPathsCache(),
             languageId = language(),
             extraHeaderPathsFunction = m_extraHeaderPathsFunction](const QStringList &flags,
-                                                                   const QString &sysRoot,
+                                                                   const FilePath &sysRoot,
                                                                    const QString &target) {
         return builtInHeaderPaths(fullEnv,
                                   compilerCommand,

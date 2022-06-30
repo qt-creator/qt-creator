@@ -347,10 +347,10 @@ ToolChain::BuiltInHeaderPathsRunner IarToolChain::createBuiltInHeaderPathsRunner
     HeaderPathsCache headerPaths = headerPathsCache();
 
     return [env, compiler, headerPaths, languageId](const QStringList &flags,
-                                                    const QString &fileName,
+                                                    const FilePath &sysRoot,
                                                     const QString &) {
         Q_UNUSED(flags)
-        Q_UNUSED(fileName)
+        Q_UNUSED(sysRoot)
 
         const HeaderPaths paths = dumpHeaderPaths(compiler, languageId, env);
         headerPaths->insert({}, paths);

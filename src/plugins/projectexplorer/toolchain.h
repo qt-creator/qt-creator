@@ -147,7 +147,7 @@ public:
 
     // A BuiltInHeaderPathsRunner is created in the ui thread and runs in another thread.
     using BuiltInHeaderPathsRunner = std::function<HeaderPaths(
-        const QStringList &cxxflags, const QString &sysRoot, const QString &originalTargetTriple)>;
+        const QStringList &cxxflags, const Utils::FilePath &sysRoot, const QString &originalTargetTriple)>;
     virtual BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Utils::Environment &env) const = 0;
     virtual void addToEnvironment(Utils::Environment &env) const = 0;
     virtual Utils::FilePath makeCommand(const Utils::Environment &env) const = 0;

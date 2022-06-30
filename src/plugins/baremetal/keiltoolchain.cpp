@@ -473,9 +473,9 @@ ToolChain::BuiltInHeaderPathsRunner KeilToolChain::createBuiltInHeaderPathsRunne
     const HeaderPathsCache headerPaths = headerPathsCache();
 
     return [compiler,
-            headerPaths](const QStringList &flags, const QString &fileName, const QString &) {
+            headerPaths](const QStringList &flags, const FilePath &sysRoot, const QString &) {
         Q_UNUSED(flags)
-        Q_UNUSED(fileName)
+        Q_UNUSED(sysRoot)
 
         const HeaderPaths paths = dumpHeaderPaths(compiler);
         headerPaths->insert({}, paths);
