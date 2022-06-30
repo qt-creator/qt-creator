@@ -63,7 +63,7 @@ QVariant PropertyEditorValue::value() const
     if (modelNode().isValid()) {
         if (auto metaInfo = modelNode().metaInfo();
             metaInfo.isValid() && metaInfo.hasProperty(name())
-            && metaInfo.property(name()).hasPropertyTypeName("QUrl", "url")) {
+            && metaInfo.property(name()).propertyTypeNameIsUrl()) {
             returnValue = returnValue.toUrl().toString();
         }
     }
@@ -106,7 +106,7 @@ static void fixAmbigousColorNames(const QmlDesigner::ModelNode &modelNode,
 {
     if (modelNode.isValid()) {
         if (auto metaInfo = modelNode.metaInfo();
-            metaInfo.isValid() && metaInfo.property(name).hasPropertyTypeName("QColor", "color")) {
+            metaInfo.isValid() && metaInfo.property(name).propertyTypeNameIsColor()) {
             if ((value->type() == QVariant::Color)) {
                 QColor color = value->value<QColor>();
                 int alpha = color.alpha();
@@ -124,7 +124,7 @@ static void fixUrl(const QmlDesigner::ModelNode &modelNode, const QmlDesigner::P
 {
     if (modelNode.isValid()) {
         if (auto metaInfo = modelNode.metaInfo();
-            metaInfo.isValid() && metaInfo.property(name).hasPropertyTypeName("QUrl", "url"))
+            metaInfo.isValid() && metaInfo.property(name).propertyTypeNameIsUrl())
 
             if (!value->isValid())
                 *value = QStringLiteral("");
@@ -149,7 +149,7 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
         if (modelNode().isValid()) {
             if (auto metaInfo = modelNode().metaInfo();
                 metaInfo.isValid() && metaInfo.hasProperty(name())
-                && metaInfo.property(name()).hasPropertyTypeName("QUrl")) {
+                && metaInfo.property(name()).propertyTypeNameIsUrl()) {
                 newValue = QUrl(newValue.toString());
             }
         }
@@ -268,7 +268,7 @@ bool PropertyEditorValue::isTranslated() const
     if (modelNode().isValid()) {
         if (auto metaInfo = modelNode().metaInfo();
             metaInfo.isValid() && metaInfo.hasProperty(name())
-            && metaInfo.property(name()).hasPropertyTypeName("QString", "string")) {
+            && metaInfo.property(name()).propertyTypeNameIsString()) {
             const QmlDesigner::QmlObjectNode objectNode(modelNode());
             if (objectNode.isValid() && objectNode.hasBindingProperty(name())) {
                 const QRegularExpression rx(
@@ -438,7 +438,7 @@ QString PropertyEditorValue::getTranslationContext() const
     if (modelNode().isValid()) {
         if (auto metaInfo = modelNode().metaInfo();
             metaInfo.isValid() && metaInfo.hasProperty(name())
-            && metaInfo.property(name()).hasPropertyTypeName("QString", "string")) {
+            && metaInfo.property(name()).propertyTypeNameIsString()) {
             const QmlDesigner::QmlObjectNode objectNode(modelNode());
             if (objectNode.isValid() && objectNode.hasBindingProperty(name())) {
                 const QRegularExpression rx(QRegularExpression::anchoredPattern(

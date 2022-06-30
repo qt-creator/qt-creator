@@ -54,7 +54,7 @@ bool modelNodeHasUrlSource(const QmlDesigner::ModelNode &modelNode)
 {
     QmlDesigner::NodeMetaInfo metaInfo = modelNode.metaInfo();
     return metaInfo.isValid() && metaInfo.hasProperty("source")
-           && metaInfo.property("source").hasPropertyTypeName("QUrl", "url");
+           && metaInfo.property("source").propertyTypeNameIsUrl();
 }
 
 } //namespace

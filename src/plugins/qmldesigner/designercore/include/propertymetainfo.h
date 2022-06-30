@@ -59,6 +59,10 @@ public:
         return ((propertyTypeName_ == typeName) || ...);
     }
 
+    bool propertyTypeNameIsColor() const { return hasPropertyTypeName("QColor", "color"); }
+    bool propertyTypeNameIsString() const { return hasPropertyTypeName("QString", "string"); }
+    bool propertyTypeNameIsUrl() const { return hasPropertyTypeName("QUrl", "url"); }
+
 private:
     QSharedPointer<class NodeMetaInfoPrivate> m_nodeMetaInfoPrivateData;
     PropertyName m_propertyName;

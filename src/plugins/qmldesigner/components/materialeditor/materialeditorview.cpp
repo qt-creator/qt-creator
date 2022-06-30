@@ -139,7 +139,7 @@ void MaterialEditorView::changeValue(const QString &name)
     bool propertyTypeUrl = false;
 
     if (metaInfo.isValid() && metaInfo.hasProperty(propertyName)) {
-        if (metaInfo.property(propertyName).hasPropertyTypeName("QUrl", "url")) {
+        if (metaInfo.property(propertyName).propertyTypeNameIsUrl()) {
             // turn absolute local file paths into relative paths
             propertyTypeUrl = true;
             QString filePath = castedValue.toUrl().toString();

@@ -62,6 +62,8 @@ public:
         auto propertyTypeName_ = propertyTypeName();
         return ((propertyTypeName_ == typeName) && ...);
     }
+
+    bool propertyTypeNameIsUrl() const { return hasPropertyTypeName("QUrl", "url"); }
 };
 
 using PropertyMetaInfos = std::vector<PropertyMetaInfo>;

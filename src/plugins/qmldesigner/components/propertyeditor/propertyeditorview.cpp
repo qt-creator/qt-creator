@@ -201,7 +201,7 @@ void PropertyEditorView::changeValue(const QString &name)
     bool propertyTypeUrl = false;
 
     if (metaInfo.isValid() && metaInfo.hasProperty(propertyName)
-        && metaInfo.property(propertyName).hasPropertyTypeName("QUrl", "url")) {
+        && metaInfo.property(propertyName).propertyTypeNameIsUrl()) {
         // turn absolute local file paths into relative paths
         propertyTypeUrl = true;
         QString filePath = castedValue.toUrl().toString();
