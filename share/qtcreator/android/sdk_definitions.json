@@ -22,7 +22,7 @@
             "ndk_path": "ndk/23.1.7779620"
         },
         {
-            "versions": ["6.3", "6.2", "5.15"],
+            "versions": ["6.3", "6.2", "5.15.[9-20]"],
             "sdk_essential_packages": ["build-tools;31.0.0", "ndk;22.1.7171670"],
             "ndk_path": "ndk/22.1.7171670"
         },
