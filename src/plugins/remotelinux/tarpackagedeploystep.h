@@ -5,8 +5,7 @@
 
 #include <projectexplorer/buildstep.h>
 
-namespace RemoteLinux {
-namespace Internal {
+namespace RemoteLinux::Internal {
 
 class TarPackageDeployStepFactory : public ProjectExplorer::BuildStepFactory
 {
@@ -14,5 +13,4 @@ public:
     TarPackageDeployStepFactory();
 };
 
-} // Internal
-} // RemoteLinux
+} // RemoteLinux::Internal
