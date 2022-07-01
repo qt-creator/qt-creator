@@ -403,6 +403,9 @@ void AbstractView::updateImport3DSupport(const QVariantMap & /*supportMap*/)
 {
 }
 
+// a Quick3DModel that is picked at the requested position in the 3D Editor
+void AbstractView::modelAtPosReady(const ModelNode & /*modelNode*/) {}
+
 void AbstractView::modelNodePreviewPixmapChanged(const ModelNode & /*node*/, const QPixmap & /*pixmap*/)
 {
 }
@@ -792,6 +795,12 @@ void AbstractView::emitImport3DSupportChanged(const QVariantMap &supportMap)
 {
     if (model())
         model()->d->notifyImport3DSupportChanged(supportMap);
+}
+
+void AbstractView::emitModelAtPosResult(const ModelNode &modelNode)
+{
+    if (model())
+        model()->d->notifyModelAtPosResult(modelNode);
 }
 
 void AbstractView::emitRewriterEndTransaction()

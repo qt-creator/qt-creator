@@ -589,6 +589,11 @@ void ModelPrivate::notifyImport3DSupportChanged(const QVariantMap &supportMap)
     notifyInstanceChanges([&](AbstractView *view) { view->updateImport3DSupport(supportMap); });
 }
 
+void ModelPrivate::notifyModelAtPosResult(const ModelNode &modelNode)
+{
+    notifyInstanceChanges([&](AbstractView *view) { view->modelAtPosReady(modelNode); });
+}
+
 void ModelPrivate::notifyDragStarted(QMimeData *mimeData)
 {
     notifyInstanceChanges([&](AbstractView *view) { view->dragStarted(mimeData); });

@@ -2319,6 +2319,32 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
         m_particleAnimationDriver->setSeekerPosition(static_cast<const View3DSeekActionCommand &>(command).position());
         break;
 #endif
+#ifdef QUICK3D_MODULE
+    case View3DActionCommand::GetModelAtPos: {
+        // pick a Quick3DModel at view position
+        auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
+        if (!helper)
+            return;
+
+        QQmlProperty editViewProp(m_editView3DData.rootItem, "editView", context());
+        QObject *obj = qvariant_cast<QObject *>(editViewProp.read());
+        QQuick3DViewport *editView = qobject_cast<QQuick3DViewport *>(obj);
+
+        QPointF pos = command.value().toPointF();
+        QQuick3DModel *hitModel = helper->pickViewAt(editView, pos.x(), pos.y()).objectHit();
+
+        // filter out picks of models created dynamically or inside components
+        QQuick3DModel *resolvedPick = qobject_cast<QQuick3DModel *>(helper->resolvePick(hitModel));
+
+        if (resolvedPick) {
+            ServerNodeInstance instance = instanceForObject(resolvedPick);
+            nodeInstanceClient()->handlePuppetToCreatorCommand(
+                        {PuppetToCreatorCommand::ModelAtPos, QVariant(instance.instanceId())});
+        }
+        return;
+    }
+#endif
+
     default:
         break;
     }

@@ -64,6 +64,7 @@ public:
     void modelAboutToBeDetached(Model *model) override;
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
+    void modelAtPosReady(const ModelNode &modelNode) override;
 
     void sendInputEvent(QInputEvent *e) const;
     void edit3DViewResized(const QSize &size) const;
@@ -78,8 +79,7 @@ public:
     void setSeeker(SeekerSlider *slider);
 
     void addQuick3DImport();
-
-protected:
+    void dropMaterial(const ModelNode &matNode, const QPointF &pos);
 
 private:
     void createEdit3DWidget();
@@ -118,6 +118,7 @@ private:
     SeekerSlider *m_seeker = nullptr;
     int particlemode;
     ModelCache<QImage> m_canvasCache;
+    ModelNode m_droppedMaterial;
 };
 
 } // namespace QmlDesigner

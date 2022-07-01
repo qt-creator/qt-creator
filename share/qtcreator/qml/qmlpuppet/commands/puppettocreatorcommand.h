@@ -40,6 +40,7 @@ public:
         ActiveSceneChanged,
         RenderModelNodePreviewImage,
         Import3DSupport,
+        ModelAtPos,
         None };
 
     PuppetToCreatorCommand(Type type, const QVariant &data);

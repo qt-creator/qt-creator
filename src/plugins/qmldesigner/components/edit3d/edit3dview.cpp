@@ -239,6 +239,16 @@ void Edit3DView::customNotification(const AbstractView *view, const QString &ide
         resetPuppet();
 }
 
+void Edit3DView::modelAtPosReady(const ModelNode &modelNode)
+{
+    if (!m_droppedMaterial.isValid() || !modelNode.isValid())
+        return;
+
+    executeInTransaction(__FUNCTION__, [&] {
+        assignMaterialTo3dModel(modelNode, m_droppedMaterial);
+    });
+}
+
 void Edit3DView::sendInputEvent(QInputEvent *e) const
 {
     if (nodeInstanceView())
@@ -605,5 +615,10 @@ void Edit3DView::addQuick3DImport()
                                           tr("Could not add QtQuick3D import to project."));
 }
 
+void Edit3DView::dropMaterial(const ModelNode &matNode, const QPointF &pos)
+{
+    m_droppedMaterial = matNode;
+    QmlDesignerPlugin::instance()->viewManager().nodeInstanceView()->view3DAction({View3DActionCommand::GetModelAtPos, pos});
 }
 
+} // namespace QmlDesigner
