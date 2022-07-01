@@ -204,10 +204,8 @@ CdbEngine::CdbEngine() :
             this, &CdbEngine::createFullBacktrace);
     connect(&m_process, &QtcProcess::started, this, &CdbEngine::processStarted);
     connect(&m_process, &QtcProcess::done, this, &CdbEngine::processDone);
-    connect(&m_process, &QtcProcess::readyReadStandardOutput,
-            this, &CdbEngine::readyReadStandardOut);
-    connect(&m_process, &QtcProcess::readyReadStandardError,
-            this, &CdbEngine::readyReadStandardOut);
+    m_process.setStdOutLineCallback([this](const QString &line) { parseOutputLine(line); });
+    m_process.setStdErrLineCallback([this](const QString &line) { parseOutputLine(line); });
     connect(&s->useDebuggingHelpers, &BaseAspect::changed,
             this, &CdbEngine::updateLocals);
 
@@ -230,7 +228,6 @@ void CdbEngine::init()
     m_autoBreakPointCorrection = false;
     m_wow64State = wow64Uninitialized;
 
-    m_outputBuffer.clear();
     m_commandForToken.clear();
     m_currentBuiltinResponse.clear();
     m_extensionMessageBuffer.clear();
@@ -434,7 +431,6 @@ void CdbEngine::setupEngine()
                                  QLocale::system().toString(extensionFi.lastModified(), QLocale::ShortFormat));
     showMessage(msg, LogMisc);
 
-    m_outputBuffer.clear();
     m_autoBreakPointCorrection = false;
 
     Environment inferiorEnvironment = sp.inferior.environment.isValid()
@@ -2282,6 +2278,8 @@ void CdbEngine::parseOutputLine(QString line)
     // it should happen only in initial and exit stages. Note however that
     // if the output is not hooked, sequences of prompts are possible which
     // can mix things up.
+    if (line.endsWith('\n'))
+        line.chop(1);
     while (isCdbPrompt(line))
         line.remove(0, CdbPromptLength);
     // An extension notification (potentially consisting of several chunks)
@@ -2392,32 +2390,6 @@ void CdbEngine::parseOutputLine(QString line)
     } else {
         showMessage(line, LogMisc);
     }
-}
-
-void CdbEngine::readyReadStandardOut()
-{
-    if (m_ignoreCdbOutput)
-        return;
-    m_outputBuffer += m_process.readAllStandardOutput();
-    // Split into lines and parse line by line.
-    while (true) {
-        const int endOfLinePos = m_outputBuffer.indexOf('\n');
-        if (endOfLinePos == -1) {
-            break;
-        } else {
-            // Check for '\r\n'
-            QByteArray line = m_outputBuffer.left(endOfLinePos);
-            if (!line.isEmpty() && line.at(line.size() - 1) == '\r')
-                line.truncate(line.size() - 1);
-            parseOutputLine(QString::fromLocal8Bit(line));
-            m_outputBuffer.remove(0, endOfLinePos + 1);
-        }
-    }
-}
-
-void CdbEngine::readyReadStandardError()
-{
-    showMessage(QString::fromLocal8Bit(m_process.readAllStandardError()), LogError);
 }
 
 #if 0

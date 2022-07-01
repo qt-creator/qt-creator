@@ -101,8 +101,6 @@ public:
     static QString extensionLibraryName(bool is64Bit, bool isArm = false);
 
 private:
-    void readyReadStandardOut();
-    void readyReadStandardError();
     void processStarted();
     void processDone();
     void runCommand(const DebuggerCommand &cmd) override;
@@ -198,7 +196,6 @@ private:
 
     Utils::QtcProcess m_process;
     DebuggerStartMode m_effectiveStartMode = NoStartMode;
-    QByteArray m_outputBuffer;
     //! Debugger accessible (expecting commands)
     bool m_accessible = false;
     StopMode m_stopMode = NoStopRequested;
