@@ -25,9 +25,13 @@
 
 #pragma once
 
-#include <QColorDialog>
+#include <QByteArray>
+#include <view3dactioncommand.h>
+
+QT_FORWARD_DECLARE_CLASS(QColorDialog)
 
 namespace QmlDesigner {
+
 class BackgroundColorSelection : public QObject
 {
     Q_OBJECT
@@ -37,10 +41,13 @@ public:
         : QObject{parent}
     {}
 
-    static void showBackgroundColorSelectionWidget(QWidget *parent);
+    static void showBackgroundColorSelectionWidget(QWidget *parent, const QByteArray &key,
+                                                   View3DActionCommand::Type cmdType);
 
 private:
-    static QColorDialog *createDialog(QWidget *parent);
+    static QColorDialog *createColorDialog(QWidget *parent, const QByteArray &key,
+                                           View3DActionCommand::Type cmdType);
+
     inline static QColorDialog *m_dialog = nullptr;
 };
 

@@ -33,17 +33,47 @@
 #include <QUrl>
 #include <QtQml>
 
+class FileResourcesItem
+{
+    Q_GADGET
+
+    Q_PROPERTY(QString absoluteFilePath READ absoluteFilePath CONSTANT)
+    Q_PROPERTY(QString relativeFilePath READ relativeFilePath CONSTANT)
+    Q_PROPERTY(QString fileName READ fileName CONSTANT)
+
+public:
+    FileResourcesItem(const QString &absoluteFilePath,
+                      const QString &relativeFilePath,
+                      const QString &fileName)
+        : m_absoluteFilePath(absoluteFilePath)
+        , m_relativeFilePath(relativeFilePath)
+        , m_fileName(fileName)
+    {}
+
+    FileResourcesItem() = default;
+    FileResourcesItem(const FileResourcesItem &other) = default;
+    FileResourcesItem &operator=(const FileResourcesItem &other) = default;
+
+    const QString &absoluteFilePath() const { return m_absoluteFilePath; }
+    const QString &relativeFilePath() const { return m_relativeFilePath; }
+    const QString &fileName() const { return m_fileName; }
+
+private:
+    QString m_absoluteFilePath;
+    QString m_relativeFilePath;
+    QString m_fileName;
+};
+
 class FileResourcesModel : public QObject
 {
     Q_OBJECT
 
     Q_PROPERTY(QString fileName READ fileName WRITE setFileNameStr NOTIFY fileNameChanged)
-    Q_PROPERTY(QString filter READ filter WRITE setFilter)
+    Q_PROPERTY(QString filter READ filter WRITE setFilter NOTIFY filterChanged)
     Q_PROPERTY(QVariant modelNodeBackendProperty READ modelNodeBackend WRITE setModelNodeBackend NOTIFY modelNodeBackendChanged)
-    Q_PROPERTY(QUrl path READ path WRITE setPath)
-    Q_PROPERTY(QUrl docPath READ docPath)
-    Q_PROPERTY(QStringList fullPathModel READ fullPathModel NOTIFY fullPathModelChanged)
-    Q_PROPERTY(QStringList fileNameModel READ fileNameModel NOTIFY fileNameModelChanged)
+    Q_PROPERTY(QUrl path READ path WRITE setPath NOTIFY pathChanged)
+    Q_PROPERTY(QUrl docPath READ docPath CONSTANT)
+    Q_PROPERTY(QList<FileResourcesItem> model READ model NOTIFY modelChanged)
 
 public:
     explicit FileResourcesModel(QObject *parent = nullptr);
@@ -57,20 +87,23 @@ public:
     QUrl docPath() const;
     void setFilter(const QString &filter);
     QString filter() const;
-    QStringList fullPathModel() const;
-    QStringList fileNameModel() const;
+    QList<FileResourcesItem> model() const;
+
     void setupModel();
     void refreshModel();
 
     Q_INVOKABLE void openFileDialog();
+    Q_INVOKABLE QString resolve(const QString &relative) const;
+    Q_INVOKABLE bool isLocal(const QString &path) const;
 
     static void registerDeclarativeType();
 
 signals:
     void fileNameChanged(const QUrl &fileName);
+    void filterChanged(const QString &filte);
     void modelNodeBackendChanged();
-    void fullPathModelChanged();
-    void fileNameModelChanged();
+    void pathChanged(const QUrl &path);
+    void modelChanged();
 
 private:
     QVariant modelNodeBackend() const;
@@ -83,8 +116,7 @@ private:
     QString m_filter;
     QString m_currentPath;
     QString m_lastResourcePath;
-    QStringList m_fullPathModel;
-    QStringList m_fileNameModel;
+    QList<FileResourcesItem> m_model;
 };
 
 QML_DECLARE_TYPE(FileResourcesModel)

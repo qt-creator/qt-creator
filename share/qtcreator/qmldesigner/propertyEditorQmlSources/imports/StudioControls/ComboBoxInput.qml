@@ -34,7 +34,6 @@ TextInput {
 
     property bool edit: textInput.activeFocus
     property bool hover: mouseArea.containsMouse && textInput.enabled
-    property int borderWidth: StudioTheme.Values.border
 
     z: 2
     font: myControl.font
@@ -56,11 +55,11 @@ TextInput {
 
     Rectangle {
         id: textInputBackground
-        x: textInput.borderWidth
-        y: textInput.borderWidth
+        x: StudioTheme.Values.border
+        y: StudioTheme.Values.border
         z: -1
         width: textInput.width
-        height: StudioTheme.Values.height - textInput.borderWidth * 2
+        height: StudioTheme.Values.height - StudioTheme.Values.border * 2
         color: StudioTheme.Values.themeControlBackground
         border.width: 0
     }
@@ -94,7 +93,7 @@ TextInput {
         State {
             name: "default"
             when: myControl.enabled && !textInput.edit && !textInput.hover && !myControl.hover
-                  && !myControl.open
+                  && !myControl.open && !myControl.hasActiveDrag
             PropertyChanges {
                 target: textInputBackground
                 color: StudioTheme.Values.themeControlBackground
@@ -103,6 +102,14 @@ TextInput {
                 target: mouseArea
                 cursorShape: Qt.PointingHandCursor
                 acceptedButtons: Qt.LeftButton
+            }
+        },
+        State {
+            name: "dragHover"
+            when: myControl.enabled && myControl.hasActiveHoverDrag
+            PropertyChanges {
+                target: textInputBackground
+                color: StudioTheme.Values.themeControlBackgroundInteraction
             }
         },
         State {

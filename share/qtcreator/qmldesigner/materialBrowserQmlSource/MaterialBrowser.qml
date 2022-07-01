@@ -128,7 +128,7 @@ Item {
         StudioControls.MenuSeparator {}
 
         StudioControls.MenuItem {
-            text: qsTr("New Material")
+            text: qsTr("Create New Material")
 
             onTriggered: materialBrowserModel.addNewMaterial()
         }
@@ -169,7 +169,8 @@ Item {
         }
 
         Text {
-            text: qsTr("No materials yet.\nClick '+' above to start.")
+            text: qsTr("There are no materials in this project.<br>Select '<b>+</b>' to create one.")
+            textFormat: Text.RichText
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.mediumFontSize
             horizontalAlignment: Text.AlignHCenter
@@ -179,7 +180,8 @@ Item {
         }
 
         Text {
-            text: qsTr("Add QtQuick3D module using the Components view to enable the Material Browser.");
+            text: qsTr("To use <b>Material Browser</b>, first add the QtQuick3D module in the <b>Components</b> view.");
+            textFormat: Text.RichText
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.mediumFontSize
             topPadding: 30

@@ -16,12 +16,6 @@ Rectangle {
 
     color: Constants.backgroundColor
 
-    Text {
-        text: qsTr("Hello %{ProjectName}")
-        anchors.centerIn: parent
-        font.family: Constants.font.family
-    }
-
     View3D {
         id: view3D
         anchors.fill: parent
@@ -62,5 +56,13 @@ Rectangle {
             objectName: "Default Material"
             diffuseColor: "#4aee45"
         }
+    }
+
+    Text {
+        text: qsTr("Hello %{ProjectName}")
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: 100
+        font.family: Constants.font.family
     }
 }

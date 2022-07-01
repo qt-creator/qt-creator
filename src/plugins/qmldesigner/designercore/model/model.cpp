@@ -1521,7 +1521,9 @@ void Model::startDrag(QMimeData *mimeData, const QPixmap &icon)
     auto drag = new QDrag(this);
     drag->setPixmap(icon);
     drag->setMimeData(mimeData);
-    drag->exec();
+    if (drag->exec() == Qt::IgnoreAction)
+        endDrag();
+
     drag->deleteLater();
 }
 

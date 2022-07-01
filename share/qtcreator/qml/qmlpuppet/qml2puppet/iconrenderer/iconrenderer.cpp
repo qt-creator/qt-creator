@@ -198,8 +198,7 @@ void IconRenderer::finishCreateIcon()
 
     render(saveFile);
 
-    // Allow little time for file operations to finish
-    QTimer::singleShot(1000, qGuiApp, &QGuiApplication::quit);
+    QTimer::singleShot(0, qGuiApp, &QGuiApplication::quit);
 }
 
 void IconRenderer::render(const QString &fileName)

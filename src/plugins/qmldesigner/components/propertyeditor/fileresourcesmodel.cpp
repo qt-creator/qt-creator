@@ -29,11 +29,11 @@
 
 #include <model.h>
 
-#include <utils/algorithm.h>
 #include <documentmanager.h>
+#include <utils/algorithm.h>
 
-#include <QFileDialog>
 #include <QDirIterator>
+#include <QFileDialog>
 #include <qmlmodelnodeproxy.h>
 
 #include <projectexplorer/project.h>
@@ -46,11 +46,13 @@ FileResourcesModel::FileResourcesModel(QObject *parent)
     , m_filter(QLatin1String("(*.*)"))
 {
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(
-                QmlDesigner::DocumentManager::currentFilePath());
+        QmlDesigner::DocumentManager::currentFilePath());
 
     if (project) {
-        connect(project, &ProjectExplorer::Project::fileListChanged,
-                this, &FileResourcesModel::refreshModel);
+        connect(project,
+                &ProjectExplorer::Project::fileListChanged,
+                this,
+                &FileResourcesModel::refreshModel);
     }
 }
 
@@ -58,14 +60,14 @@ void FileResourcesModel::setModelNodeBackend(const QVariant &modelNodeBackend)
 {
     auto modelNodeBackendObject = modelNodeBackend.value<QObject *>();
 
-    const auto backendObjectCasted =
-            qobject_cast<const QmlDesigner::QmlModelNodeProxy *>(modelNodeBackendObject);
+    const auto backendObjectCasted = qobject_cast<const QmlDesigner::QmlModelNodeProxy *>(
+        modelNodeBackendObject);
 
     if (backendObjectCasted) {
         QmlDesigner::Model *model = backendObjectCasted->qmlObjectNode().modelNode().model();
         m_docPath = QDir{QFileInfo{model->fileUrl().toLocalFile()}.absolutePath()};
-        m_path = QUrl::fromLocalFile(QmlDesigner::DocumentManager::currentProjectDirPath()
-                                     .toFileInfo().absoluteFilePath());
+        m_path = QUrl::fromLocalFile(
+            QmlDesigner::DocumentManager::currentProjectDirPath().toFileInfo().absoluteFilePath());
     }
 
     setupModel();
@@ -96,6 +98,8 @@ void FileResourcesModel::setPath(const QUrl &url)
 {
     m_path = url;
     setupModel();
+
+    emit pathChanged(url);
 }
 
 QUrl FileResourcesModel::path() const
@@ -110,10 +114,13 @@ QUrl FileResourcesModel::docPath() const
 
 void FileResourcesModel::setFilter(const QString &filter)
 {
-    if (m_filter != filter) {
-        m_filter = filter;
-        setupModel();
-    }
+    if (m_filter == filter)
+        return;
+
+    m_filter = filter;
+    setupModel();
+
+    emit filterChanged(filter);
 }
 
 QString FileResourcesModel::filter() const
@@ -121,14 +128,9 @@ QString FileResourcesModel::filter() const
     return m_filter;
 }
 
-QStringList FileResourcesModel::fullPathModel() const
+QList<FileResourcesItem> FileResourcesModel::model() const
 {
-    return m_fullPathModel;
-}
-
-QStringList FileResourcesModel::fileNameModel() const
-{
-    return m_fileNameModel;
+    return m_model;
 }
 
 void FileResourcesModel::openFileDialog()
@@ -162,6 +164,25 @@ void FileResourcesModel::openFileDialog()
         m_currentPath = QFileInfo(newFile).absolutePath();
         s_lastBrowserPath = m_currentPath;
     }
+}
+
+QString FileResourcesModel::resolve(const QString &relative) const
+{
+    if (relative.startsWith('#'))
+        return relative;
+
+    if (QDir::isAbsolutePath(relative))
+        return relative;
+
+    if (!QUrl::fromUserInput(relative, m_docPath.path()).isLocalFile())
+        return relative;
+
+    return QFileInfo(m_docPath, relative).absoluteFilePath();
+}
+
+bool FileResourcesModel::isLocal(const QString &path) const
+{
+    return QUrl::fromUserInput(path, m_docPath.path()).isLocalFile();
 }
 
 void FileResourcesModel::registerDeclarativeType()
@@ -207,8 +228,7 @@ void FileResourcesModel::setupModel()
 
 void FileResourcesModel::refreshModel()
 {
-    m_fullPathModel.clear();
-    m_fileNameModel.clear();
+    m_model.clear();
 
     QStringList filterList = m_filter.split(QLatin1Char(' '));
 
@@ -216,18 +236,17 @@ void FileResourcesModel::refreshModel()
     while (it.hasNext()) {
         QString absolutePath = it.next();
         if (filterMetaIcons(absolutePath)) {
-            QString filePath = m_docPath.relativeFilePath(absolutePath);
-            m_fullPathModel.append(filePath);
+            QString relativeFilePath = m_docPath.relativeFilePath(absolutePath);
+            m_model.append(
+                FileResourcesItem(absolutePath,
+                                  relativeFilePath,
+                                  relativeFilePath.mid(relativeFilePath.lastIndexOf('/') + 1)));
         }
     }
 
-    Utils::sort(m_fullPathModel, [](const QString &s1, const QString &s2) {
-        return s1.mid(s1.lastIndexOf('/') + 1).toLower() < s2.mid(s2.lastIndexOf('/') + 1).toLower();
+    Utils::sort(m_model, [](const FileResourcesItem &i1, const FileResourcesItem &i2) {
+        return i1.fileName().toLower() < i2.fileName().toLower();
     });
 
-    for (const QString &fullPath : qAsConst(m_fullPathModel))
-        m_fileNameModel.append(fullPath.mid(fullPath.lastIndexOf('/') + 1));
-
-    emit fullPathModelChanged();
-    emit fileNameModelChanged();
+    emit modelChanged();
 }

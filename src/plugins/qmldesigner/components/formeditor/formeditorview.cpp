@@ -471,7 +471,7 @@ void FormEditorView::documentMessagesChanged(const QList<DocumentMessage> &error
 
     if (!errors.isEmpty() && !model()->rewriterView()->hasIncompleteTypeInformation())
         m_formEditorWidget->showErrorMessageBox(errors);
-    else
+    else if (rewriterView()->errors().isEmpty())
         m_formEditorWidget->hideErrorMessageBox();
 
     checkRootModelNode();

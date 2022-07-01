@@ -1152,6 +1152,102 @@ void tst_TestCore::testRewriterTransactionAddingAfterReparenting()
     }
 }
 
+void tst_TestCore::testRewriterReparentToNewNode()
+{
+    const QLatin1String qmlString("\n"
+                                  "import QtQuick 2.0\n"
+                                  "\n"
+                                  "Item {\n"
+                                  "  Item {}\n"
+                                  "  Item {}\n"
+                                  "  Item {}\n"
+                                  "  Item {}\n"
+                                  "}\n");
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(qmlString);
+    NotIndentingTextEditModifier modifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle"));
+
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView(0, RewriterView::Amend));
+    testRewriterView->setTextModifier(&modifier);
+    model->attachView(testRewriterView.data());
+
+    QVERIFY(testRewriterView->errors().isEmpty());
+
+    ModelNode rootModelNode = testRewriterView->rootModelNode();
+    QVERIFY(rootModelNode.isValid());
+
+    const QList<ModelNode> children = rootModelNode.directSubModelNodes();
+
+    ModelNode rectangle = testRewriterView->createModelNode("QtQuick.Rectangle");
+    rootModelNode.nodeListProperty("data").reparentHere(rectangle);
+
+    rectangle.setIdWithoutRefactoring("newParent");
+
+    QVERIFY(rectangle.isValid());
+
+    for (const ModelNode &child : children)
+        rectangle.nodeListProperty("data").reparentHere(child);
+
+    {
+        RewriterTransaction transaction = testRewriterView->beginRewriterTransaction("TEST");
+        ModelNode rectangle = testRewriterView->createModelNode("QtQuick.Rectangle");
+        rootModelNode.nodeListProperty("data").reparentHere(rectangle);
+
+        rectangle.setIdWithoutRefactoring("newParent2");
+
+        for (const ModelNode &child : children)
+            rectangle.nodeListProperty("data").reparentHere(child);
+    }
+
+    QCOMPARE(testRewriterView->allModelNodes().count(), 7);
+
+    const QLatin1String expectedOutcome("\nimport QtQuick 2.0\n\n"
+                                        "Item {\n\n"
+                                        "  Rectangle {\n"
+                                        "  id: newParent\n"
+                                        "  }\n\n"
+                                        "  Rectangle {\n"
+                                        "  id: newParent2\n"
+                                        "  Item {\n"
+                                        "  }\n\n"
+                                        "  Item {\n"
+                                        "  }\n\n"
+                                        "  Item {\n"
+                                        "  }\n\n"
+                                        "  Item {\n"
+                                        "  }\n"
+                                        "  }\n}\n");
+
+
+    QCOMPARE(textEdit.toPlainText(), expectedOutcome);
+
+    rectangle.destroy();
+
+    QCOMPARE(testRewriterView->allModelNodes().count(), 6);
+
+    {
+        RewriterTransaction transaction = testRewriterView->beginRewriterTransaction("TEST");
+
+        ModelNode newChild = testRewriterView->createModelNode("QtQuick.Rectangle");
+        rootModelNode.nodeListProperty("data").reparentHere(newChild);
+        newChild.setIdWithoutRefactoring("newChild");
+        ModelNode newParent = testRewriterView->createModelNode("QtQuick.Rectangle");
+        rootModelNode.nodeListProperty("data").reparentHere(newParent);
+
+        newParent.setIdWithoutRefactoring("newParent3");
+
+        for (const ModelNode &child : children)
+            newParent.nodeListProperty("data").reparentHere(child);
+
+        newParent.nodeListProperty("data").reparentHere(newChild);
+    }
+
+    QCOMPARE(testRewriterView->allModelNodes().count(), 8);
+}
+
 void tst_TestCore::testRewriterForGradientMagic()
 {
     const QLatin1String qmlString("\n"

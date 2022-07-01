@@ -126,6 +126,50 @@ Item {
                 GradientStop { position: 1.0; color: "#222222" }
                 GradientStop { position: 0.0; color: "#999999" }
             }
+
+            // Use View3D instead of static image to make background look good on all resolutions
+            View3D {
+                anchors.fill: parent
+                environment: sceneEnv
+
+                SceneEnvironment {
+                    id: sceneEnv
+                    antialiasingMode: SceneEnvironment.MSAA
+                    antialiasingQuality: SceneEnvironment.High
+                }
+
+                DirectionalLight {
+                    eulerRotation.x: -26
+                    eulerRotation.y: -57
+                }
+
+                PerspectiveCamera {
+                    y: 125
+                    z: 120
+                    eulerRotation.x: -31
+                    clipNear: 1
+                    clipFar: 1000
+                }
+
+                Model {
+                    id: floorModel
+                    source: "#Rectangle"
+                    scale.y: 8
+                    scale.x: 8
+                    eulerRotation.x: -90
+                    materials: floorMaterial
+                    DefaultMaterial {
+                        id: floorMaterial
+                        diffuseMap: floorTex
+                        Texture {
+                            id: floorTex
+                            source: "../images/floor_tex.png"
+                            scaleU: floorModel.scale.x
+                            scaleV: floorModel.scale.y
+                        }
+                    }
+                }
+            }
         }
     }
 }

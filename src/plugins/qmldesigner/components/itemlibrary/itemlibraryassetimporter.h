@@ -74,7 +74,7 @@ signals:
     void importFinished();
 
 private slots:
-    void importProcessFinished(int exitCode, QProcess::ExitStatus exitStatus, int importId);
+    void importProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void iconProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
 private:
@@ -87,6 +87,8 @@ private:
         QString assetName;
         QString originalAssetName;
         int importId;
+        QString iconFile;
+        QString iconSource;
     };
 
     void notifyFinished();
@@ -96,7 +98,7 @@ private:
                     const QSet<QString> &preselectedFilesForOverwrite);
     bool preParseQuick3DAsset(const QString &file, ParseData &pd,
                               const QSet<QString> &preselectedFilesForOverwrite);
-    void postParseQuick3DAsset(const ParseData &pd);
+    void postParseQuick3DAsset(ParseData &pd);
     void copyImportedFiles();
 
     void notifyProgress(int value, const QString &text);
@@ -110,8 +112,8 @@ private:
     };
 
     OverwriteResult confirmAssetOverwrite(const QString &assetName);
-    bool startImportProcess(const ParseData &pd);
-    bool startIconProcess(int size, const QString &iconFile, const QString &iconSource);
+    void startNextImportProcess();
+    void startNextIconProcess();
     void postImport();
     void finalizeQuick3DImport();
     QString sourceSceneTargetFilePath(const ParseData &pd);
@@ -122,12 +124,12 @@ private:
     bool m_cancelled = false;
     QString m_importPath;
     QTemporaryDir *m_tempDir = nullptr;
-    std::vector<QProcessUniquePointer> m_qmlPuppetProcesses;
-    int m_qmlPuppetCount = 0;
-    int m_qmlImportFinishedCount = 0;
+    QProcessUniquePointer m_puppetProcess;
     int m_importIdCounter = 0;
+    int m_currentImportId = 0;
     QHash<int, ParseData> m_parseData;
     QString m_progressTitle;
     QList<Import> m_requiredImports;
+    QList<int> m_puppetQueue;
 };
 } // QmlDesigner

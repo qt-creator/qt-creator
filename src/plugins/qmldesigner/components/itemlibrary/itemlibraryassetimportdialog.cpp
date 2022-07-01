@@ -74,7 +74,7 @@ static void addFormattedMessage(Utils::OutputFormatter *formatter, const QString
                 formatter->plainTextEdit()->verticalScrollBar()->maximum());
 }
 
-static const int rowHeight = 28;
+static const int rowHeight = 32;
 static const int checkBoxColWidth = 18;
 static const int labelMinWidth = 130;
 static const int controlMinWidth = 65;
@@ -781,7 +781,7 @@ QGridLayout *ItemLibraryAssetImportDialog::createOptionsGrid(
     int &globalOptionsHeight = advanced ? m_advancedData.optionsHeight : m_simpleData.optionsHeight;
     globalOptionRows = qMax(globalOptionRows, optionRows);
     globalOptionsHeight = qMax(rowHeight * optionRows + 20, globalOptionsHeight);
-    layout->setContentsMargins(8, 8, 8, 0);
+    layout->setContentsMargins(8, 6, 8, 0);
 
     return layout;
 }

@@ -96,11 +96,19 @@ void MaterialBrowserView::modelAttached(Model *model)
 
     m_widget->clearSearchFilter();
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
-    QTimer::singleShot(0, this, &MaterialBrowserView::refreshModel);
+
+    // Project load is already very busy and may even trigger puppet reset, so let's wait a moment
+    // before refreshing the model
+    QTimer::singleShot(1000, this, [this]() {
+        refreshModel(true);
+    });
 }
 
-void MaterialBrowserView::refreshModel()
+void MaterialBrowserView::refreshModel(bool updateImages)
 {
+    if (!model() || !model()->nodeInstanceView())
+        return;
+
     ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
     QList <ModelNode> materials;
 
@@ -114,8 +122,10 @@ void MaterialBrowserView::refreshModel()
 
     m_widget->materialBrowserModel()->setMaterials(materials, m_hasQuick3DImport);
 
-    for (const ModelNode &node : std::as_const(materials))
-        model()->nodeInstanceView()->previewImageDataForGenericNode(node, {});
+    if (updateImages) {
+        for (const ModelNode &node : std::as_const(materials))
+            model()->nodeInstanceView()->previewImageDataForGenericNode(node, {});
+    }
 }
 
 bool MaterialBrowserView::isMaterial(const ModelNode &node) const
@@ -203,8 +213,12 @@ void MaterialBrowserView::nodeReparented(const ModelNode &node,
     bool matRemoved = oldParentNode.isValid() && oldParentNode.id() == Constants::MATERIAL_LIB_ID;
 
     if (matAdded || matRemoved) {
-        refreshModel();
-
+        if (matAdded && !m_puppetResetPending) {
+            // Workaround to fix various material issues all likely caused by QTBUG-103316
+            resetPuppet();
+            m_puppetResetPending = true;
+        }
+        refreshModel(!matAdded);
         int idx = m_widget->materialBrowserModel()->materialIndex(node);
         m_widget->materialBrowserModel()->selectMaterial(idx);
     }
@@ -251,7 +265,9 @@ void MaterialBrowserView::importsChanged(const QList<Import> &addedImports, cons
         return;
 
     m_hasQuick3DImport = hasQuick3DImport;
-    refreshModel();
+
+    // Import change will trigger puppet reset, so we don't want to update previews immediately
+    refreshModel(false);
 }
 
 void MaterialBrowserView::customNotification(const AbstractView *view, const QString &identifier,
@@ -266,6 +282,24 @@ void MaterialBrowserView::customNotification(const AbstractView *view, const QSt
         int idx = m_widget->materialBrowserModel()->materialIndex(nodeList.first());
         if (idx != -1)
             m_widget->materialBrowserModel()->selectMaterial(idx);
+    }
+}
+
+void MaterialBrowserView::instancesCompleted(const QVector<ModelNode> &completedNodeList)
+{
+    for (const ModelNode &node : completedNodeList) {
+        // We use root node completion as indication of puppet reset
+        if (node.isRootNode()) {
+            m_puppetResetPending  = false;
+            QTimer::singleShot(1000, this, [this]() {
+                if (!model() || !model()->nodeInstanceView())
+                    return;
+                const QList<ModelNode> materials = m_widget->materialBrowserModel()->materials();
+                for (const ModelNode &node : materials)
+                    model()->nodeInstanceView()->previewImageDataForGenericNode(node, {});
+            });
+            break;
+        }
     }
 }
 

@@ -26,8 +26,8 @@
 #include "propertyeditorview.h"
 
 #include "propertyeditorqmlbackend.h"
-#include "propertyeditorvalue.h"
 #include "propertyeditortransaction.h"
+#include "propertyeditorvalue.h"
 
 #include <qmldesignerconstants.h>
 #include <qmltimeline.h>
@@ -70,16 +70,16 @@ static bool propertyIsAttachedLayoutProperty(const PropertyName &propertyName)
     return propertyName.contains("Layout.");
 }
 
-PropertyEditorView::PropertyEditorView(QWidget *parent) :
-        AbstractView(parent),
-        m_parent(parent),
-        m_updateShortcut(nullptr),
-        m_timerId(0),
-        m_stackedWidget(new PropertyEditorWidget(parent)),
-        m_qmlBackEndForCurrentType(nullptr),
-        m_locked(false),
-        m_setupCompleted(false),
-        m_singleShotTimer(new QTimer(this))
+PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache)
+    : AbstractView()
+    , m_imageCache(imageCache)
+    , m_updateShortcut(nullptr)
+    , m_timerId(0)
+    , m_stackedWidget(new PropertyEditorWidget())
+    , m_qmlBackEndForCurrentType(nullptr)
+    , m_locked(false)
+    , m_setupCompleted(false)
+    , m_singleShotTimer(new QTimer(this))
 {
     m_qmlDir = PropertyEditorQmlBackend::propertyEditorResourcesPath();
 
@@ -118,7 +118,7 @@ void PropertyEditorView::setupPane(const TypeName &typeName)
     PropertyEditorQmlBackend *qmlBackend = m_qmlBackendHash.value(qmlFile.toString());
 
     if (!qmlBackend) {
-        qmlBackend = new PropertyEditorQmlBackend(this);
+        qmlBackend = new PropertyEditorQmlBackend(this, m_imageCache);
 
         qmlBackend->initialSetup(typeName, qmlSpecificsFile, this);
         qmlBackend->setSource(qmlFile);
@@ -486,7 +486,7 @@ void PropertyEditorView::setupQmlBackend()
     QString currentStateName = currentState().isBaseState() ? currentState().name() : QStringLiteral("invalid state");
 
     if (!currentQmlBackend) {
-        currentQmlBackend = new PropertyEditorQmlBackend(this);
+        currentQmlBackend = new PropertyEditorQmlBackend(this, m_imageCache);
 
         m_stackedWidget->addWidget(currentQmlBackend->widget());
         m_qmlBackendHash.insert(qmlFile.toString(), currentQmlBackend);
@@ -852,7 +852,26 @@ void PropertyEditorView::nodeReparented(const ModelNode &node,
         m_qmlBackEndForCurrentType->backendAnchorBinding().setup(QmlItemNode(m_selectedNode));
 }
 
-void PropertyEditorView::setValue(const QmlObjectNode &qmlObjectNode, const PropertyName &name, const QVariant &value)
+void PropertyEditorView::dragStarted(QMimeData *mimeData)
+{
+    if (!mimeData->hasFormat(Constants::MIME_TYPE_ASSETS))
+        return;
+
+    const QString assetPath = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS))
+                                  .split(',')[0];
+    const QString suffix = "*." + assetPath.split('.').last().toLower();
+
+    m_qmlBackEndForCurrentType->contextObject()->setActiveDragSuffix(suffix);
+}
+
+void PropertyEditorView::dragEnded()
+{
+    m_qmlBackEndForCurrentType->contextObject()->setActiveDragSuffix("");
+}
+
+void PropertyEditorView::setValue(const QmlObjectNode &qmlObjectNode,
+                                  const PropertyName &name,
+                                  const QVariant &value)
 {
     m_locked = true;
     m_qmlBackEndForCurrentType->setValue(qmlObjectNode, name, value);
@@ -871,6 +890,4 @@ void PropertyEditorView::reloadQml()
     resetView();
 }
 
-
-} //QmlDesigner
-
+} // namespace QmlDesigner

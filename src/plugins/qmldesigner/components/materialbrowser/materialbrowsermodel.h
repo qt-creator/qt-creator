@@ -58,6 +58,7 @@ public:
     bool hasModelSelection() const;
     void setHasModelSelection(bool b);
 
+    QList<ModelNode> materials() const;
     void setMaterials(const QList<ModelNode> &materials, bool hasQuick3DImport);
     void removeMaterial(const ModelNode &material);
     void updateMaterialName(const ModelNode &material);

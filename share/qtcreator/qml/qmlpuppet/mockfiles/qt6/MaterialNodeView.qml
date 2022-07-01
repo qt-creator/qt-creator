@@ -45,10 +45,6 @@ View3D {
 
     Node {
         DirectionalLight {
-            shadowMapQuality: Light.ShadowMapQualityMedium
-            shadowFilter: 20
-            shadowFactor: 21
-            castsShadow: true
             eulerRotation.x: -26
             eulerRotation.y: -57
         }
@@ -70,24 +66,5 @@ View3D {
             materials: previewMaterial
         }
 
-        Model {
-            id: floorModel
-            source: "#Rectangle"
-            scale.y: 8
-            scale.x: 8
-            eulerRotation.x: -90
-            materials: floorMaterial
-            DefaultMaterial {
-                id: floorMaterial
-                diffuseMap: floorTex
-
-                Texture {
-                    id: floorTex
-                    source: "../images/floor_tex.png"
-                    scaleU: floorModel.scale.x
-                    scaleV: floorModel.scale.y
-                }
-            }
-        }
     }
 }

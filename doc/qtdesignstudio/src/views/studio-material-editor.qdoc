@@ -1,0 +1,266 @@
+/****************************************************************************
+**
+** Copyright (C) 2022 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page studio-material-editor.html
+    \previouspage studio-3d-editor.html
+    \nextpage quick-components-view.html
+
+
+    \title Material Editor and Browser
+
+    In the \uicontrol {Material Editor} and \uicontrol {Material Browser} views,
+    you create and manage materials.
+
+    \image material-editor-browser.webp "Material Editor and Browser"
+
+    \section1 Creating a Material
+
+    To create a new material, do one of the following:
+
+    \list
+      \li In \uicontrol {Material Browser}, select \inlineimage icons/plus.png
+      .
+      \li In \uicontrol {Material Editor}, select \inlineimage icons/plus.png
+      .
+    \endlist
+
+    \section1 Editing a Material
+
+    To edit a material, select it in \uicontrol{Material Browser} and edit its
+    properties in \uicontrol{Material Editor}. If \uicontrol {Material Editor}
+    is closed, open it in one of the following ways:
+
+    \list
+      \li In \uicontrol{Navigator}, right-click an object that has the material
+      assigned to it and select \uicontrol {Edit Material}.
+      \li In \uicontrol{Material Browser}, double-click a material.
+    \endlist
+
+    \section1 Assigning a Material to an Object
+
+    To assign a material to a 3D object in your project, first select the object
+    in \uicontrol Navigator or \uicontrol {3D Editor}. Then, do one of the
+    following:
+
+    \list
+      \li In \uicontrol {Material Browser}, right-click the material and select
+      \uicontrol {Apply to Selected}. If there already is any material assigned
+      to the object, you can select whether to replace the material or to add
+      another material to the object.
+      \li In \uicontrol {Material Editor}, select
+      \inlineimage icons/apply-material.png
+      . This replaces any material already assigned to the object.
+    \endlist
+
+    \section1 Removing a Material from an Object
+
+    To remove an assigned material from an object:
+    \list 1
+      \li In \uicontrol{Navigator}, select the object.
+      \li In \uicontrol{Properties}, select
+      \inlineimage icons/close.png
+      next to the material.
+      \image materials-remove-material.png
+    \endlist
+
+    \section1 Using Texture Maps
+
+    In \QDS you can add many different texture maps to your material.
+
+    To add a texture map to a material:
+    \list 1
+      \li Select the material in \uicontrol{Material Browser}.
+      \li From \uicontrol {Assets}, drag an image to the correct map field
+      in \uicontrol {Material Editor}. For example, to add a diffuse map, drag
+      the image to \uicontrol{Diffuse Map} in \uicontrol{Material Editor}.
+    \endlist
+
+    \section2 Using a Reflection Map for Environmental Mapping
+
+    To use a texture for environmental mapping, you need to set the mapping
+    mode to \e {environment}.
+
+    To add a reflection map for environmental mapping to a material:
+
+    \list 1
+      \li Select the material in \uicontrol {Material Browser}.
+      \li From \uicontrol{Assets}, drag an image to
+      \uicontrol{Reflection Map}.
+      \li In \uicontrol {Navigator}, select
+      \inlineimage icons/filtericon.png
+      and then clear \uicontrol {Show Only Visible Components}. Now the
+      texture you just added to the material is visible in
+      \uicontrol {Navigator}.
+      \image navigator-material-texture.png
+      \li In \uicontrol {Navigator}, select the texture.
+      \li In \uicontrol {Properties}, set \uicontrol {Texture Mapping} to
+      \uicontrol {Environment}.
+    \endlist
+
+    \section1 Blending Colors
+
+    To determine how the colors of a model blend with the colors of the models
+    behind it, set the \uicontrol {Blend mode} property. To make opaque objects
+    occlude the objects behind them, select \uicontrol {SourceOver}.
+
+    For a lighter result, select \uicontrol Screen to blend colors using an
+    inverted multiply or \uicontrol ColorDodge to blend them by inverted
+    division. Color dodge produces an even lighter result than screen.
+
+    For a darker result, select \uicontrol Multiply to blend colors using a
+    multiply or \uicontrol ColorBurn to blend them by inverted division, where
+    the result also is inverted. Color burn produces an even darker result than
+    multiply.
+
+    The screen and multiply modes are order-independent, so select them to
+    avoid \e popping, which can happen when using semi-opaque objects and
+    sorting the back and front faces or models.
+
+    For a result with higher contrast, select \uicontrol Overlay, which is a mix
+    of the multiply and screen modes.
+
+    \section1 Lighting Materials
+
+    To set the lighting method for generating a material, use the
+    \uicontrol Lighting property. Select \uicontrol {Fragment lighting} to
+    calculate diffuse and specular lighting for each rendered pixel. Some
+    effects, such as Fresnel or a bump map, require fragment lighting.
+
+    To skip lighting calculation, select \uicontrol {No lighting}. This is very
+    fast and quite effective when using image maps that do not need to be shaded
+    by lighting.
+
+    To set the base color for the material, use the \uicontrol {Diffuse Color}
+    property. You can either use the color picker or specify a RBG value. Set
+    the diffuse color to black to create purely-specular materials, such as
+    metals or mirrors. To apply a texture to a material, set it as the value of
+    the \uicontrol {Diffuse map} property. Using a texture with transparency
+    also applies the alpha channel as an \uicontrol {Opacity map}. You can set
+    the opacity of the material independently of the model as the value of the
+    \uicontrol Opacity property.
+
+    \section1 Self-Illuminating Materials
+
+    To set the color and amount of self-illumination for a material, use the
+    \uicontrol {Emissive color} and \uicontrol {Emissive factor} properties. In
+    a scene with black ambient lighting, a material with an emissive factor of 0
+    is black where the light does not shine on it. Setting the emissive factor
+    to 1 shows the material in its diffuse color instead.
+
+    To use a Texture for specifying the emissive factor for different parts of
+    the material, set the \uicontrol {Emissive map} property. Using a grayscale
+    image does not affect the color of the result, while using a color image
+    produces glowing regions with the color affected by the emissive map.
+
+    \section1 Using Highlights and Reflections
+
+    You can control the highlights and reflections on a material by setting the
+    properties in the \uicontrol Specular group. You can use the color picker
+    or set a RGB value to specify the color used to adjust specular reflections.
+    Use white for no effect.
+
+    To use a color texture to modulate the amount and the color of specularity
+    across the surface of a material, set the \uicontrol {Specular map}
+    property. Set the \uicontrol {Specular amount} property to specify the
+    strength of specularity. This property does not affect the specular
+    reflection map, but it does affect the amount of reflections from a scene's
+    light probe.
+
+    \note Unless your mesh is high-resolution, you may need to use fragment
+    lighting to get good specular highlights from scene lights.
+
+    To determine how to calculate specular highlights for lights in the scene,
+    set the \uicontrol {Specular model}. In addition to the default mode, you
+    can use the GGX or Ward lighting model.
+
+    To use a Texture for specular highlighting on a material, set the
+    \uicontrol {Reflection map} property. When the texture is applied using
+    environmental mapping (not UV mapping), the map appears to be reflecting
+    from the environment as you rotate the model. Specular reflection maps are
+    an easy way to add a high-quality look at a relatively low cost.
+
+    To specify an image to use as the specular reflection map, set the
+    \uicontrol {Light probe} property.
+
+    Crisp images cause your material to look very glossy. The more you
+    blur your image, the softer your material appears.
+
+    To decrease head-on reflections (looking directly at the surface)
+    while maintaining reflections seen at grazing angles, set the
+    \uicontrol {Fresnel power} property. To select the angles to control,
+    set the \uicontrol {Index of refraction} property.
+
+    To control the size of the specular highlights generated from lights and the
+    clarity of reflections in general, set the \uicontrol {Specular roughness}
+    property. Larger values increase the roughness, while softening specular
+    highlights and blurring reflections. To control the specular roughness of
+    the material using a Texture, set the \uicontrol {Roughness map property}.
+
+    \section1 Simulating Geometry Displacement
+
+    Specify the properties in the \uicontrol {Bump/Normal} group to simulate
+    fine geometry displacement across the surface of the material. Set the
+    \uicontrol {Bump map} property to use a grayscale texture for the
+    simulation. Brighter pixels indicate raised regions.
+
+    To use an image for simulation, set the \uicontrol {Normal map} property.
+    The RGB channels indicate XYZ normal deviations.
+
+    The amount of displacement is controlled by the \uicontrol {Bump amount}
+    property.
+
+    Bump and normal maps do not affect the silhouette of a model. To affect the
+    silhouette, set the \uicontrol {Displacement map} property. It specifies a
+    grayscale image used to offset the vertices of geometry across the surface
+    of the material. The \uicontrol {Displacement amount} property specifies the
+    offset amount.
+
+    \section1 Specifying Material Translucency
+
+    Set the properties in the \uicontrol Translucency group to control how much
+    light can pass through the material from behind. To use a grayscale texture,
+    specify it as the value of the \uicontrol {Translucency map} property.
+
+    To specify the amount of light wrap for the translucency map, set the
+    \uicontrol {Diffuse light wrap} property. A value of 0 does not wrap the
+    light at all, while a value of 1 wraps the light all around the object.
+
+    To specify the amount of falloff for the translucency based on
+    the angle of the normals of the object to the light source, set
+    the \uicontrol {Translucency falloff} property.
+
+    \section1 Culling Faces
+
+    Set the \uicontrol {Culling mode} property to determine whether the front
+    and back faces of a model are rendered. Culling modes check whether the
+    points in the polygon appear in clockwise or counter-clockwise order when
+    projected onto the screen. If front-facing polygons have a clockwise
+    winding, but the polygon projected on the screen has a counter-clockwise
+    winding, the projected polygon is rotated to face away from the camera and
+    is not rendered. Culling makes rendering objects quicker and more efficient
+    by reducing the number of polygons to draw.
+
+*/

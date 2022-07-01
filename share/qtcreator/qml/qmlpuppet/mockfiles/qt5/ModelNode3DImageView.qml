@@ -123,14 +123,13 @@ Item {
             anchors.fill: parent
         }
 
-        Rectangle {
+        // We can use static image in Qt5 as only small previews will be generated
+        Image {
             id: backgroundRect
             anchors.fill: parent
             z: -1
-            gradient: Gradient {
-                GradientStop { position: 1.0; color: "#222222" }
-                GradientStop { position: 0.0; color: "#999999" }
-            }
+            source: "../images/static_floor.png"
+            fillMode: Image.Stretch
         }
     }
 }

@@ -99,6 +99,23 @@
           </property>
          </widget>
         </item>
+        <item row="2" column="1">
+         <widget class="QCheckBox" name="smoothRendering">
+          <property name="toolTip">
+           <string>Enable Smooth Rendering in Form Editor</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="smoothRenderingLabel">
+          <property name="text">
+           <string>Smooth Rendering:</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </item>

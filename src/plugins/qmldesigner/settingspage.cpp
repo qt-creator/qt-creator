@@ -182,6 +182,7 @@ DesignerSettings SettingsPageWidget::settings() const
                     m_ui.designerAlwaysDesignModeCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET,
                     m_ui.askBeforeDeletingAssetCheckBox->isChecked());
+    settings.insert(DesignerSettingsKey::SMOOTH_RENDERING, m_ui.smoothRendering->isChecked());
 
     return settings;
 }
@@ -264,6 +265,7 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
     m_ui.emulationGroupBox->setVisible(showAdvancedFeatures);
     m_ui.debugGroupBox->setVisible(showAdvancedFeatures);
     m_ui.featureTimelineEditorCheckBox->setVisible(standaloneMode);
+    m_ui.smoothRendering->setChecked(settings.value(DesignerSettingsKey::SMOOTH_RENDERING).toBool());
 }
 
 void SettingsPageWidget::apply()

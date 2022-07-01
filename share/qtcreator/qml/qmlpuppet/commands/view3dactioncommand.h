@@ -57,6 +57,7 @@ public:
                 ParticlesRestart,
                 ParticlesSeek,
                 SelectBackgroundColor,
+                SelectGridColor,
                 ResetBackgroundColor,
               };
 

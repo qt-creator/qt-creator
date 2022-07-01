@@ -505,6 +505,12 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
 #ifndef QMLDESIGNER_TEST
     const QString controlsStyle = m_designerSettings.value(DesignerSettingsKey::
             CONTROLS_STYLE).toString();
+
+    const bool smoothRendering = m_designerSettings.value(DesignerSettingsKey::SMOOTH_RENDERING)
+                                     .toBool();
+
+    if (smoothRendering)
+        environment.set("QMLPUPPET_SMOOTH_RENDERING", "true");
 #else
     const QString controlsStyle;
 #endif
