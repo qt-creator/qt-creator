@@ -25,9 +25,9 @@
 
 #include "cdbengine.h"
 
-#include "stringinputstream.h"
 #include "cdboptionspage.h"
 #include "cdbparsehelpers.h"
+#include "stringinputstream.h"
 
 #include <app/app_version.h>
 
@@ -35,8 +35,8 @@
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerinternalconstants.h>
-#include <debugger/debuggerprotocol.h>
 #include <debugger/debuggermainwindow.h>
+#include <debugger/debuggerprotocol.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/disassembleragent.h>
@@ -44,15 +44,15 @@
 #include <debugger/enginemanager.h>
 #include <debugger/memoryagent.h>
 #include <debugger/moduleshandler.h>
-#include <debugger/registerhandler.h>
-#include <debugger/stackhandler.h>
-#include <debugger/threadshandler.h>
-#include <debugger/watchhandler.h>
 #include <debugger/procinterrupt.h>
-#include <debugger/sourceutils.h>
+#include <debugger/registerhandler.h>
 #include <debugger/shared/cdbsymbolpathlisteditor.h>
 #include <debugger/shared/hostutils.h>
+#include <debugger/sourceutils.h>
+#include <debugger/stackhandler.h>
 #include <debugger/terminal.h>
+#include <debugger/threadshandler.h>
+#include <debugger/watchhandler.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
@@ -65,8 +65,8 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
 #include <utils/processinterface.h>
+#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/winutils.h>
