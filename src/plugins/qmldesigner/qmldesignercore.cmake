@@ -27,8 +27,6 @@ function(extend_with_qmldesigner_core target_name)
       QmlProjectManager
       QtSupport
       TextEditor
-    DEFINES
-      TEST_EXPORTS
     INCLUDES
       ${CMAKE_CURRENT_FUNCTION_LIST_DIR}
       ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/components
