@@ -210,8 +210,6 @@ void Edit3DView::modelAttached(Model *model)
 
 void Edit3DView::modelAboutToBeDetached(Model *model)
 {
-    QTC_ASSERT(edit3DWidget()->canvas(), return);
-
     // Hide the canvas when model is detached (i.e. changing documents)
     if (edit3DWidget() && edit3DWidget()->canvas()) {
         m_canvasCache.insert(model, edit3DWidget()->canvas()->renderImage());
