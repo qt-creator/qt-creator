@@ -51,7 +51,8 @@
 #include <imagecache/imagecacheconnectionmanager.h>
 #include <imagecache/imagecachegenerator.h>
 #include <imagecache/imagecachestorage.h>
-#include <imagecache/timestampproviderinterface.h>
+#include <imagecache/meshimagecachecollector.h>
+#include <imagecache/timestampprovider.h>
 
 #include <coreplugin/icore.h>
 
@@ -79,7 +80,7 @@ QString defaultImagePath()
     return qobject_cast<::QmlProjectManager::QmlBuildSystem *>(target->buildSystem());
 }
 
-class TimeStampProvider : public TimeStampProviderInterface
+class PreviewTimeStampProvider : public TimeStampProviderInterface
 {
 public:
     Sqlite::TimeStamp timeStamp(Utils::SmallStringView) const override
@@ -102,15 +103,18 @@ class QmlDesignerProjectManager::ImageCacheData
 {
 public:
     Sqlite::Database database{Utils::PathString{
-                                                Core::ICore::cacheResourcePath("imagecache-v2.db").toString()},
+                                  Core::ICore::cacheResourcePath("imagecache-v2.db").toString()},
                               Sqlite::JournalMode::Wal,
                               Sqlite::LockingMode::Normal};
     ImageCacheStorage<Sqlite::Database> storage{database};
     ImageCacheConnectionManager connectionManager;
-    ImageCacheCollector collector{connectionManager, QSize{300, 300}, QSize{600, 600}};
-    ImageCacheGenerator generator{collector, storage};
+    MeshImageCacheCollector meshImageCollector{connectionManager, QSize{300, 300}, QSize{600, 600}};
+    ImageCacheGenerator meshGenerator{meshImageCollector, storage};
+    ImageCacheCollector nodeInstanceCollector{connectionManager, QSize{300, 300}, QSize{600, 600}};
+    ImageCacheGenerator nodeInstanceGenerator{nodeInstanceCollector, storage};
     TimeStampProvider timeStampProvider;
-    AsynchronousImageCache asynchronousImageCache{storage, generator, timeStampProvider};
+    AsynchronousImageCache asynchronousImageCache{storage, nodeInstanceGenerator, timeStampProvider};
+    AsynchronousImageCache asynchronousMeshImageCache{storage, meshGenerator, timeStampProvider};
 };
 
 class QmlDesignerProjectManager::PreviewImageCacheData
@@ -135,9 +139,9 @@ public:
                                   QSize{300, 300},
                                   QSize{1000, 1000},
                                   ImageCacheCollectorNullImageHandling::DontCaptureNullImage};
-    TimeStampProvider timeStampProvider;
+    PreviewTimeStampProvider timeStampProvider;
     AsynchronousImageFactory factory;
-    ::ProjectExplorer::Target *activeTarget = nullptr;
+    QPointer<::ProjectExplorer::Target> activeTarget;
 };
 
 QmlDesignerProjectManager::QmlDesignerProjectManager()
@@ -180,6 +184,11 @@ AsynchronousImageCache &QmlDesignerProjectManager::asynchronousImageCache()
     return imageCacheData()->asynchronousImageCache;
 }
 
+AsynchronousImageCache &QmlDesignerProjectManager::asynchronousMeshImageCache()
+{
+    return imageCacheData()->asynchronousMeshImageCache;
+}
+
 void QmlDesignerProjectManager::editorOpened(::Core::IEditor *) {}
 
 void QmlDesignerProjectManager::currentEditorChanged(::Core::IEditor *)
@@ -218,17 +227,21 @@ QmlDesignerProjectManager::ImageCacheData *QmlDesignerProjectManager::imageCache
         m_imageCacheData = std::make_unique<ImageCacheData>();
         auto setTargetInImageCache =
             [imageCacheData = m_imageCacheData.get()](ProjectExplorer::Target *target) {
-                if (target == imageCacheData->collector.target())
+                if (target == imageCacheData->nodeInstanceCollector.target())
                     return;
 
                 if (target)
                     imageCacheData->asynchronousImageCache.clean();
 
-                imageCacheData->collector.setTarget(target);
+                // TODO wrap in function in image cache data
+                imageCacheData->meshImageCollector.setTarget(target);
+                imageCacheData->nodeInstanceCollector.setTarget(target);
             };
 
         if (auto project = ProjectExplorer::SessionManager::startupProject(); project) {
-            m_imageCacheData->collector.setTarget(project->activeTarget());
+            // TODO wrap in function in image cache data
+            m_imageCacheData->meshImageCollector.setTarget(project->activeTarget());
+            m_imageCacheData->nodeInstanceCollector.setTarget(project->activeTarget());
             QObject::connect(project,
                              &ProjectExplorer::Project::activeTargetChanged,
                              this,

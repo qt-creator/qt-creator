@@ -812,7 +812,7 @@ QVector3D GeneralHelper::pivotScenePosition(QQuick3DNode *node) const
 // Calculate bounds for given node, including all child nodes.
 // Returns true if the tree contains at least one Model node.
 bool GeneralHelper::getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVector3D &minBounds,
-                              QVector3D &maxBounds, bool recursive)
+                              QVector3D &maxBounds)
 {
     if (!node) {
         const float halfExtent = 100.f;
@@ -825,7 +825,7 @@ bool GeneralHelper::getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVec
     auto nodePriv = QQuick3DObjectPrivate::get(node);
     auto renderNode = static_cast<QSSGRenderNode *>(nodePriv->spatialNode);
 
-    if (recursive && renderNode) {
+    if (renderNode) {
 #if QT_VERSION < QT_VERSION_CHECK(6, 4, 0)
         if (renderNode->flags.testFlag(QSSGRenderNode::Flag::TransformDirty))
             renderNode->calculateLocalTransform();
@@ -850,7 +850,7 @@ bool GeneralHelper::getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVec
         if (auto childNode = qobject_cast<QQuick3DNode *>(child)) {
             QVector3D newMinBounds = minBounds;
             QVector3D newMaxBounds = maxBounds;
-            bool childHasModel = getBounds(view3D, childNode, newMinBounds, newMaxBounds, true);
+            bool childHasModel = getBounds(view3D, childNode, newMinBounds, newMaxBounds);
             // Ignore any subtrees that do not have Model in them as we don't need those
             // for visual bounds calculations
             if (childHasModel) {

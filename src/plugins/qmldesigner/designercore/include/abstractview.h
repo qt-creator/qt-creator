@@ -109,6 +109,8 @@ public:
 
     RewriterTransaction beginRewriterTransaction(const QByteArray &identifier);
 
+    ModelNode createModelNode(const TypeName &typeName);
+
     ModelNode createModelNode(const TypeName &typeName,
                          int majorVersion,
                          int minorVersion,
@@ -233,6 +235,10 @@ public:
     virtual void dragEnded();
 
     void changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion);
+
+    void ensureMaterialLibraryNode();
+    ModelNode materialLibraryNode();
+    void assignMaterialTo3dModel(const ModelNode &modelNode, const ModelNode &materialNode = {});
 
     NodeInstanceView *nodeInstanceView() const;
     RewriterView *rewriterView() const;

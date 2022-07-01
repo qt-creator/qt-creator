@@ -36,6 +36,7 @@
 #include "gradientpresetdefaultlistmodel.h"
 #include "itemfiltermodel.h"
 #include "propertyeditorcontextobject.h"
+#include "propertyeditorimageprovider.h"
 #include "propertyeditorqmlbackend.h"
 #include "propertyeditorvalue.h"
 #include "qmlanchorbindingproxy.h"
@@ -45,11 +46,13 @@
 
 namespace QmlDesigner {
 
-Quick2PropertyEditorView::Quick2PropertyEditorView(QWidget *parent) :
-    QQuickWidget(parent)
+Quick2PropertyEditorView::Quick2PropertyEditorView(AsynchronousImageCache &imageCache)
+    : QQuickWidget()
 {
     setResizeMode(QQuickWidget::SizeRootObjectToView);
     Theme::setupTheme(engine());
+    engine()->addImageProvider("qmldesigner_thumbnails",
+                               new PropertyEditorImageProvider(imageCache));
 }
 
 void Quick2PropertyEditorView::registerQmlTypes()

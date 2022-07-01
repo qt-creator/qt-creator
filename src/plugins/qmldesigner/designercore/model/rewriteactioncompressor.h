@@ -33,7 +33,10 @@ namespace Internal {
 class RewriteActionCompressor
 {
 public:
-    RewriteActionCompressor(const PropertyNameList &propertyOrder): m_propertyOrder(propertyOrder) {}
+    RewriteActionCompressor(const PropertyNameList &propertyOrder, ModelNodePositionStorage *positionStore) :
+        m_propertyOrder(propertyOrder),
+        m_positionStore(positionStore)
+    {}
 
     void operator()(QList<RewriteAction *> &actions, const TextEditor::TabSettings &tabSettings) const;
 
@@ -42,6 +45,7 @@ private:
 
     void compressRereparentActions(QList<RewriteAction *> &actions) const;
     void compressReparentIntoSamePropertyActions(QList<RewriteAction *> &actions) const;
+    void compressReparentIntoNewPropertyActions(QList<RewriteAction *> &actions) const;
     void compressAddEditRemoveNodeActions(QList<RewriteAction *> &actions) const;
     void compressPropertyActions(QList<RewriteAction *> &actions) const;
     void compressAddEditActions(QList<RewriteAction *> &actions, const TextEditor::TabSettings &tabSettings) const;
@@ -49,6 +53,7 @@ private:
 
 private:
     PropertyNameList m_propertyOrder;
+    ModelNodePositionStorage *m_positionStore;
 };
 
 } // namespace Internal

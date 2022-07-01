@@ -120,6 +120,11 @@ void MaterialBrowserModel::setHasModelSelection(bool b)
     emit hasModelSelectionChanged();
 }
 
+QList<ModelNode> MaterialBrowserModel::materials() const
+{
+    return m_materialList;
+}
+
 void MaterialBrowserModel::setSearchText(const QString &searchText)
 {
     QString lowerSearchText = searchText.toLower();

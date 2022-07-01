@@ -251,50 +251,54 @@ ModelNode TransitionEditorView::addNewTransition()
 
     if (!idPropertyList.isEmpty()) {
         executeInTransaction(
-            " TransitionEditorView::addNewTransition", [&transition, idPropertyList, root, this]() {
-                transition = createModelNode("QtQuick.Transition",
-                                             2,
-                                             0,
-                                             {{
-                                                  "from",
-                                                  "*",
-                                              },
-                                              {
-                                                  "to",
-                                                  "*",
-                                              }});
-                transition.setAuxiliaryData("transitionDuration", 2000);
-                transition.validId();
-                root.nodeListProperty("transitions").reparentHere(transition);
+                    " TransitionEditorView::addNewTransition", [&transition, idPropertyList, root, this]() {
 
-                for (auto it = idPropertyList.cbegin(); it != idPropertyList.cend(); ++it) {
-                    ModelNode parallelAnimation = createModelNode("QtQuick.ParallelAnimation",
-                                                                  2,
-                                                                  12);
-                    transition.defaultNodeAbstractProperty().reparentHere(parallelAnimation);
-                    for (const QString &property : it.value()) {
-                        ModelNode sequentialAnimation
-                            = createModelNode("QtQuick.SequentialAnimation", 2, 12);
-                        parallelAnimation.defaultNodeAbstractProperty().reparentHere(
-                            sequentialAnimation);
+            const NodeMetaInfo transitionMetaInfo = model()->metaInfo("QtQuick.Transition");
+            transition = createModelNode("QtQuick.Transition",
+                                         transitionMetaInfo.majorVersion(),
+                                         transitionMetaInfo.minorVersion(),
+                                         {{
+                                              "from",
+                                              "*",
+                                          },
+                                          {
+                                              "to",
+                                              "*",
+                                          }});
+            transition.setAuxiliaryData("transitionDuration", 2000);
+            transition.validId();
+            root.nodeListProperty("transitions").reparentHere(transition);
 
-                        ModelNode pauseAnimation = createModelNode("QtQuick.PauseAnimation",
-                                                                   2,
-                                                                   12,
-                                                                   {{"duration", 50}});
-                        sequentialAnimation.defaultNodeAbstractProperty().reparentHere(
-                            pauseAnimation);
+            for (auto it = idPropertyList.cbegin(); it != idPropertyList.cend(); ++it) {
+                ModelNode parallelAnimation = createModelNode("QtQuick.ParallelAnimation");
+                transition.defaultNodeAbstractProperty().reparentHere(parallelAnimation);
+                for (const QString &property : it.value()) {
+                    ModelNode sequentialAnimation
+                            = createModelNode("QtQuick.SequentialAnimation");
+                    parallelAnimation.defaultNodeAbstractProperty().reparentHere(
+                                sequentialAnimation);
 
-                        ModelNode propertyAnimation = createModelNode("QtQuick.PropertyAnimation",
-                                                                      2,
-                                                                      12,
-                                                                      {{"property", property},
-                                                                       {"duration", 150}});
-                        propertyAnimation.bindingProperty("target").setExpression(it.key());
-                        sequentialAnimation.defaultNodeAbstractProperty().reparentHere(
-                            propertyAnimation);
-                    }
+                    const NodeMetaInfo pauseMetaInfo = model()->metaInfo("QtQuick.PauseAnimation");
+
+                    ModelNode pauseAnimation = createModelNode("QtQuick.PauseAnimation",
+                                                               pauseMetaInfo.majorVersion(),
+                                                               pauseMetaInfo.minorVersion(),
+                                                               {{"duration", 50}});
+                    sequentialAnimation.defaultNodeAbstractProperty().reparentHere(
+                                pauseAnimation);
+
+                    const NodeMetaInfo propertyMetaInfo = model()->metaInfo("QtQuick.PauseAnimation");
+
+                    ModelNode propertyAnimation = createModelNode("QtQuick.PropertyAnimation",
+                                                                  propertyMetaInfo.majorVersion(),
+                                                                  propertyMetaInfo.minorVersion(),
+                                                                  {{"property", property},
+                                                                   {"duration", 150}});
+                    propertyAnimation.bindingProperty("target").setExpression(it.key());
+                    sequentialAnimation.defaultNodeAbstractProperty().reparentHere(
+                                propertyAnimation);
                 }
+            }
             });
     } else {
         QString properties;

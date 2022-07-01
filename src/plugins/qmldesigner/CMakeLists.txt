@@ -161,6 +161,7 @@ extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/edit3d
   SOURCES
   edit3dview.cpp edit3dview.h
+  edit3dviewconfig.h
   edit3dwidget.cpp edit3dwidget.h
   edit3dcanvas.cpp edit3dcanvas.h
   edit3dactions.cpp edit3dactions.h
@@ -305,6 +306,7 @@ extend_qtc_plugin(QmlDesigner
     gradientpresetitem.cpp gradientpresetitem.h
     gradientpresetlistmodel.cpp gradientpresetlistmodel.h
     propertyeditorcontextobject.cpp propertyeditorcontextobject.h
+    propertyeditorimageprovider.cpp propertyeditorimageprovider.h
     propertyeditorqmlbackend.cpp propertyeditorqmlbackend.h
     propertyeditortransaction.cpp propertyeditortransaction.h
     propertyeditorvalue.cpp propertyeditorvalue.h
@@ -392,7 +394,8 @@ extend_qtc_plugin(QmlDesigner
   SOURCES
     explicitimagecacheimageprovider.cpp
     explicitimagecacheimageprovider.h
-
+    smallimagecacheprovider.cpp
+    smallimagecacheprovider.h
 )
 
 extend_qtc_plugin(QmlDesigner

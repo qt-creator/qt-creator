@@ -61,7 +61,8 @@ public:
                                 QSize captureImageMinimumSize,
                                 QSize captureImageMaximumSize,
                                 qint32 stateInstanceId,
-                                const QList<QColor> &edit3dBackgroundColor)
+                                const QList<QColor> &edit3dBackgroundColor,
+                                const QColor &edit3dGridColor)
         : instances(instanceContainer)
         , reparentInstances(reparentContainer)
         , ids(idVector)
@@ -78,6 +79,7 @@ public:
         , captureImageMaximumSize(captureImageMaximumSize)
         , stateInstanceId{stateInstanceId}
         , edit3dBackgroundColor{edit3dBackgroundColor}
+        , edit3dGridColor{edit3dGridColor}
     {}
 
     friend QDataStream &operator<<(QDataStream &out, const CreateSceneCommand &command)
@@ -98,6 +100,7 @@ public:
         out << command.captureImageMinimumSize;
         out << command.captureImageMaximumSize;
         out << command.edit3dBackgroundColor;
+        out << command.edit3dGridColor;
 
         return out;
     }
@@ -120,6 +123,7 @@ public:
         in >> command.captureImageMinimumSize;
         in >> command.captureImageMaximumSize;
         in >> command.edit3dBackgroundColor;
+        in >> command.edit3dGridColor;
 
         return in;
     }
@@ -141,6 +145,7 @@ public:
     QSize captureImageMaximumSize;
     qint32 stateInstanceId = 0;
     QList<QColor> edit3dBackgroundColor;
+    QColor edit3dGridColor;
 };
 
 QDebug operator<<(QDebug debug, const CreateSceneCommand &command);

@@ -322,6 +322,19 @@ void PropertyEditorContextObject::insertKeyframe(const QString &propertyName)
     });
 }
 
+QString PropertyEditorContextObject::activeDragSuffix() const
+{
+    return m_activeDragSuffix;
+}
+
+void PropertyEditorContextObject::setActiveDragSuffix(const QString &suffix)
+{
+    if (m_activeDragSuffix != suffix) {
+        m_activeDragSuffix = suffix;
+        emit activeDragSuffixChanged();
+    }
+}
+
 int PropertyEditorContextObject::majorVersion() const
 {
     return m_majorVersion;

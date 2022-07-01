@@ -37,7 +37,7 @@ View3D {
     function fitToViewPort(closeUp)
     {
         // The magic number is the distance from camera default pos to origin
-        _generalHelper.calculateNodeBoundsAndFocusCamera(theCamera, sourceModel, root,
+        _generalHelper.calculateNodeBoundsAndFocusCamera(theCamera, model, root,
                                                          1040, closeUp);
     }
 
@@ -70,7 +70,7 @@ View3D {
 
         materials: [
             DefaultMaterial {
-                diffuseColor: "#4aee45"
+                diffuseColor: "#999999"
             }
         ]
     }

@@ -81,7 +81,7 @@ bool AssetExporterView::saveQmlFile(QString *error) const
 
 void AssetExporterView::modelAttached(Model *model)
 {
-    if (model->rewriterView() && model->rewriterView()->inErrorState())
+    if (model->rewriterView() && !model->rewriterView()->errors().isEmpty())
         setState(LoadState::QmlErrorState);
 
     AbstractView::modelAttached(model);

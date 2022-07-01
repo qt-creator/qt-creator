@@ -136,7 +136,7 @@ T.AbstractButton {
             when: myButton.globalHover && !myButton.hover && !myButton.pressed && myButton.enabled
             PropertyChanges {
                 target: buttonBackground
-                color: StudioTheme.Values.themeControlBackgroundGlobalHover
+                color: StudioTheme.Values.themeControlBackground
             }
         },
         State {

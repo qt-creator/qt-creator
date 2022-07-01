@@ -48,8 +48,9 @@ PropertyEditorPane {
             height: 150
 
             Text {
-                text: hasQuick3DImport ? qsTr("No materials yet.\nClick '+' above to start.")
-                                       : qsTr("Add QtQuick3D module using the Components view to enable the Material Editor.")
+                text: hasQuick3DImport ? qsTr("There are no materials in this project.<br>Select '<b>+</b>' to create one.")
+                                       : qsTr("To use <b>Material Editor</b>, first add the QtQuick3D module in the <b>Components</b> view.")
+                textFormat: Text.RichText
                 color: StudioTheme.Values.themeTextColor
                 font.pixelSize: StudioTheme.Values.mediumFontSize
                 horizontalAlignment: Text.AlignHCenter

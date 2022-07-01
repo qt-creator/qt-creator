@@ -28,11 +28,17 @@
 #include <QDateTime>
 #include <QFileInfo>
 
+#include <limits>
+
 namespace QmlDesigner {
 
 Sqlite::TimeStamp TimeStampProvider::timeStamp(Utils::SmallStringView name) const
 {
-    return QFileInfo{QString{name}}.lastModified().toSecsSinceEpoch();
+    QFileInfo info{QString{name}};
+    if (info.exists())
+        return info.lastModified().toSecsSinceEpoch();
+
+    return {std::numeric_limits<long long>::max()};
 }
 
 } // namespace QmlDesigner

@@ -69,6 +69,7 @@ public:
     void updateMaterialPreview(const ModelNode &node, const QPixmap &pixmap);
 
     Q_INVOKABLE void handleSearchfilterChanged(const QString &filterText);
+    Q_INVOKABLE void startDragMaterial(int index, const QPointF &mousePos);
 
     QQuickWidget *quickWidget() const;
 
@@ -86,6 +87,9 @@ private:
     PreviewImageProvider *m_previewImageProvider = nullptr;
 
     QString m_filterText;
+
+    ModelNode m_materialToDrag;
+    QPoint m_dragStartPoint;
 };
 
 } // namespace QmlDesigner

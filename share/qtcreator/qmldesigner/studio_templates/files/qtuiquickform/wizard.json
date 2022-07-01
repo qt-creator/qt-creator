@@ -1,0 +1,132 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ ],
+    "id": "Q.QtStudio.QmlUIForm.2",
+    "category": "B.StudioQtQuickFiles",
+    "trDescription": "Creates a UI file (.ui.qml) along with a matching QML file for implementation purposes.",
+    "trDisplayName": "QtQuick UI Form",
+    "trDisplayCategory": "Qt Quick Files",
+    "icon": "file_ui.png",
+    "platformIndependent": true,
+
+    "enabled": "%{JS: value('Plugins').indexOf('QmlJSEditor') >= 0}",
+    "options" : [
+        { "key": "QmlFile", "value": "%{Class}.%{JS: Util.preferredSuffix('text/x-qml')}" },
+        { "key": "UiFile", "value": "%{FormClass}.%{JS: Util.preferredSuffix('application/x-qt.ui+qml')}" },
+        { "key": "ApplicationImport", "value": "%{QmlProjectName} 1.0" },
+        { "key": "RootItem", "value": "%{JS: %{RootItemCB}.RootItem}" },
+        { "key": "UseImportDefault", "value": "%{JS: false}" },
+        { "key": "UseQtQuickControls2Default", "value": "%{JS: true}" }
+    ],
+    "pages" :
+    [
+        {
+            "trDisplayName": "Define Class",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data" :
+            [
+                {
+                    "name": "Class",
+                    "trDisplayName": "Component name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data": {
+                        "validator": "(?:[A-Z_][a-zA-Z_0-9]*|)",
+                        "fixup": "%{JS: '%{INPUT}'.charAt(0).toUpperCase() + '%{INPUT}'.slice(1) }"
+                    }
+                },
+                {
+                    "name": "Sp1",
+                    "type": "Spacer",
+                    "data": { "factor": 2 }
+                },
+                {
+                    "name": "FormClass",
+                    "trDisplayName": "Component form name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data": {
+                        "validator": "(?:[A-Z_][a-zA-Z_0-9]*|)",
+                        "fixup": "%{JS: '%{INPUT}'.charAt(0).toUpperCase() + '%{INPUT}'.slice(1) }",
+                        "trText": "%{Class}Form"
+                    }
+                },
+                {
+                    "name": "TargetPath",
+                    "type": "PathChooser",
+                    "trDisplayName": "Path:",
+                    "mandatory": true,
+                    "data":
+                    {
+                        "kind": "directory",
+                        "basePath": "%{InitialPath}",
+                        "path": "%{InitialPath}"
+                    }
+                },
+                {
+                    "name": "RootItemCB",
+                    "trDisplayName": "Root Item:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "index": 0,
+                        "items":
+                            [
+                            {
+                                "trKey": "Item",
+                                "value":
+                                "({
+                                    'RootItem': 'Item'
+                                })"
+                            },
+                            {
+                                "trKey": "Rectangle",
+                                "value":
+                                "({
+                                    'RootItem': 'Rectangle'
+                                })"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "UseImport",
+                    "trDisplayName": "Use Application Import",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checked": "%{UseImportDefault}"
+                    }
+                },
+                {
+                    "name": "UseQtQuickControls2",
+                    "trDisplayName": "Use QtQuick Controls 2",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checked": "%{UseQtQuickControls2Default}"
+                    }
+                }
+            ]
+        }
+    ],
+    "generators" :
+    [
+        {
+            "typeId": "File",
+            "data": [
+                {
+                    "source": "file.qml.tpl",
+                    "target": "%{TargetPath}/%{QmlFile}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "fileForm.ui.qml.tpl",
+                    "target": "%{TargetPath}/%{UiFile}",
+                    "openInEditor": true
+                }
+            ]
+        }
+    ]
+}

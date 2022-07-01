@@ -35,7 +35,7 @@ class Quick2PropertyEditorView : public QQuickWidget
     Q_OBJECT
 
 public:
-    explicit Quick2PropertyEditorView(QWidget *parent = nullptr);
+    explicit Quick2PropertyEditorView(class AsynchronousImageCache &imageCache);
 
     static void registerQmlTypes();
 };

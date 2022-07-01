@@ -32,6 +32,7 @@
 #include <designermcumanager.h>
 #include <documentmanager.h>
 #include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
 
 #include <utils/algorithm.h>
 #include <utils/stylehelper.h>
@@ -103,6 +104,27 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::FocusOut) {
         if (obj == m_quickWidget.data())
             QMetaObject::invokeMethod(m_quickWidget->rootObject(), "closeContextMenu");
+    } else if (event->type() == QMouseEvent::MouseMove) {
+        DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
+        QTC_ASSERT(document, return false);
+        Model *model = document->currentModel();
+        QTC_ASSERT(model, return false);
+
+        if (m_materialToDrag.isValid()) {
+            QMouseEvent *me = static_cast<QMouseEvent *>(event);
+            if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 10) {
+                QByteArray data;
+                QMimeData *mimeData = new QMimeData;
+                QDataStream stream(&data, QIODevice::WriteOnly);
+                stream << m_materialToDrag.internalId();
+                mimeData->setData(Constants::MIME_TYPE_MATERIAL, data);
+                mimeData->removeFormat("text/plain");
+
+                model->startDrag(mimeData, m_previewImageProvider->requestPixmap(
+                                 QString::number(m_materialToDrag.internalId()), nullptr, {128, 128}));
+                m_materialToDrag = {};
+            }
+        }
     }
 
     return QObject::eventFilter(obj, event);
@@ -164,6 +186,12 @@ void MaterialBrowserWidget::handleSearchfilterChanged(const QString &filterText)
         m_filterText = filterText;
         updateSearch();
     }
+}
+
+void MaterialBrowserWidget::startDragMaterial(int index, const QPointF &mousePos)
+{
+    m_materialToDrag = m_materialBrowserModel->materialAt(index);
+    m_dragStartPoint = mousePos.toPoint();
 }
 
 QString MaterialBrowserWidget::qmlSourcesPath()

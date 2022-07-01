@@ -75,7 +75,7 @@ QPixmap AssetsLibraryIconProvider::requestPixmap(const QString &id, QSize *size,
         pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/AssetsLibrary/images/assets_default.png");
 
     if (requestedSize.isValid())
-        return pixmap.scaled(requestedSize);
+        return pixmap.scaled(requestedSize, Qt::KeepAspectRatio);
 
     return pixmap;
 }

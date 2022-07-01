@@ -126,10 +126,6 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 m_itemToDrag = {};
             }
         }
-    } else if (event->type() == QMouseEvent::MouseButtonRelease) {
-        m_itemToDrag = {};
-        if (model)
-            model->endDrag();
     }
 
     return QObject::eventFilter(obj, event);

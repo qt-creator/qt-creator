@@ -33,7 +33,7 @@ PropertyEditorPane {
     id: itemPane
 
     ComponentSection {
-        showState: majorVersion >= 6
+        showState: majorQtQuickVersion >= 6
     }
 
     Column {

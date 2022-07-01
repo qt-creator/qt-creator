@@ -28,6 +28,8 @@
 #include "edit3dcanvas.h"
 #include "edit3dview.h"
 #include "edit3dwidget.h"
+#include "edit3dviewconfig.h"
+#include "backgroundcolorselection.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
@@ -41,8 +43,6 @@
 #include <viewmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
-
-#include <backgroundcolorselection.h>
 
 #include <QDebug>
 #include <QToolButton>
@@ -266,6 +266,70 @@ void Edit3DView::setSeeker(SeekerSlider *slider)
     m_seeker = slider;
 }
 
+Edit3DAction *Edit3DView::createSelectBackgrounColorAction()
+{
+    QString description = QCoreApplication::translate("SelectBackgroundColorAction",
+                                                      "Select Background Color");
+    QString tooltip = QCoreApplication::translate("SelectBackgroundColorAction",
+                                                  "Select a color for the background of the 3D Editor.");
+
+    auto operation = [this](const SelectionContext &) {
+        BackgroundColorSelection::showBackgroundColorSelectionWidget(
+            edit3DWidget(),
+            DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR,
+            View3DActionCommand::SelectBackgroundColor);
+    };
+
+    return new Edit3DAction(
+        Constants::EDIT3D_EDIT_SELECT_BACKGROUND_COLOR, View3DActionCommand::SelectBackgroundColor,
+        description,
+        {}, false, false, {}, {}, operation,
+        tooltip);
+}
+
+Edit3DAction *Edit3DView::createGridColorSelectionAction()
+{
+    QString description = QCoreApplication::translate("SelectGridColorAction", "Select Grid Color");
+    QString tooltip = QCoreApplication::translate("SelectGridColorAction",
+                                                  "Select a color for the grid lines of the 3D Editor.");
+
+    auto operation = [this](const SelectionContext &) {
+        BackgroundColorSelection::showBackgroundColorSelectionWidget(
+            edit3DWidget(),
+            DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR,
+            View3DActionCommand::SelectGridColor);
+    };
+
+    return new Edit3DAction(
+        Constants::EDIT3D_EDIT_SELECT_GRID_COLOR, View3DActionCommand::SelectGridColor,
+        description, {}, false, false, {}, {}, operation,
+        tooltip);
+}
+
+Edit3DAction *Edit3DView::createResetColorAction()
+{
+    QString description = QCoreApplication::translate("ResetEdit3DColorsAction", "Reset Colors");
+    QString tooltip = QCoreApplication::translate("ResetEdit3DColorsAction",
+                                                  "Reset the background color and the color of the "
+                                                  "grid lines of the 3D Editor to the default valus.");
+
+    auto operation = [](const SelectionContext &) {
+        QList<QColor> bgColors = {QRgb(0x222222), QRgb(0x999999)};
+        Edit3DViewConfig::set(View3DActionCommand::SelectBackgroundColor, bgColors);
+        Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR, bgColors);
+
+        QColor gridColor{0xaaaaaa};
+        Edit3DViewConfig::set(View3DActionCommand::SelectGridColor, gridColor);
+        Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR, gridColor);
+    };
+
+    return new Edit3DAction(
+        QmlDesigner::Constants::EDIT3D_EDIT_RESET_BACKGROUND_COLOR, View3DActionCommand::ResetBackgroundColor,
+        description,
+        {}, false, false, {}, {}, operation,
+        tooltip);
+}
+
 void Edit3DView::createEdit3DActions()
 {
     m_selectionModeAction
@@ -337,32 +401,6 @@ void Edit3DView::createEdit3DActions()
                 QCoreApplication::translate("ShowGridAction", "Show Grid"),
                 QKeySequence(Qt::Key_G), true, true, {}, {}, nullptr,
                 QCoreApplication::translate("ShowGridAction", "Toggle the visibility of the helper grid."));
-
-    SelectionContextOperation showBackgroundColorSelection = [this](const SelectionContext &) {
-        BackgroundColorSelection::showBackgroundColorSelectionWidget(edit3DWidget());
-    };
-
-    m_backgroundColorSelectionAction = new Edit3DAction(
-        QmlDesigner::Constants::EDIT3D_EDIT_SELECT_BACKGROUND_COLOR, View3DActionCommand::SelectBackgroundColor,
-        QCoreApplication::translate("SelectBackgroundColorAction", "Select Background Color"),
-        {}, false, false, {}, {}, showBackgroundColorSelection,
-        QCoreApplication::translate("SelectBackgroundColorAction", "Select a color for the background of the 3D Editor."));
-
-    m_resetBackgroundColorAction = new Edit3DAction(
-        QmlDesigner::Constants::EDIT3D_EDIT_RESET_BACKGROUND_COLOR, View3DActionCommand::ResetBackgroundColor,
-        QCoreApplication::translate("ResetBackgroundColorAction", "Reset Background Color"),
-        {}, false, false, {}, {}, [](const SelectionContext &) {
-            QList<QColor> colors = {QRgb(0x222222), QRgb(0x999999)};
-            auto view = QmlDesignerPlugin::instance()->viewManager().nodeInstanceView();
-            View3DActionCommand cmd(View3DActionCommand::SelectBackgroundColor, QVariant::fromValue(colors));
-            view->view3DAction(cmd);
-
-            QList<QString> colorsToSave = {colors[0].name(), colors[1].name()};
-            QmlDesigner::DesignerSettings::setValue(
-                QmlDesigner::DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR,
-                QVariant::fromValue(colorsToSave));
-        },
-        QCoreApplication::translate("ResetBackgroundColorAction", "Reset background color of the 3D Editor to the default value."));
 
     m_showSelectionBoxAction = new Edit3DAction(
                 QmlDesigner::Constants::EDIT3D_EDIT_SHOW_SELECTION_BOX, View3DActionCommand::ShowSelectionBox,
@@ -521,8 +559,9 @@ void Edit3DView::createEdit3DActions()
     m_visibilityToggleActions << m_showCameraFrustumAction;
     m_visibilityToggleActions << m_showParticleEmitterAction;
 
-    m_backgroundColorActions << m_backgroundColorSelectionAction;
-    m_backgroundColorActions << m_resetBackgroundColorAction;
+    m_backgroundColorActions << createSelectBackgrounColorAction();
+    m_backgroundColorActions << createGridColorSelectionAction();
+    m_backgroundColorActions << createResetColorAction();
 }
 
 QVector<Edit3DAction *> Edit3DView::leftActions() const

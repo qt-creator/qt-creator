@@ -28,7 +28,8 @@
 
 #include <utils/theme/theme.h>
 
-#include <QtGui/qpixmap.h>
+#include <QPainter>
+#include <QPixmap>
 
 namespace QmlDesigner {
 
@@ -43,6 +44,17 @@ PreviewToolTip::PreviewToolTip(QWidget *parent)
     m_ui->typeLabel->setElideMode(Qt::ElideLeft);
     m_ui->infoLabel->setElideMode(Qt::ElideLeft);
     setStyleSheet(QString("QWidget { background-color: %1 }").arg(Utils::creatorTheme()->color(Utils::Theme::BackgroundColorNormal).name()));
+    m_ui->imageLabel->setStyleSheet("background-color: rgba(0, 0, 0, 0)");
+
+    static QPixmap checkers;
+    if (checkers.isNull()) {
+        checkers = {150, 150};
+        QPainter painter(&checkers);
+        painter.setBrush(QPixmap(":/navigator/icon/checkers.png"));
+        painter.drawRect(0, 0, 150, 150);
+    }
+    m_ui->labelBackground->setPixmap(checkers);
+
 }
 
 PreviewToolTip::~PreviewToolTip()

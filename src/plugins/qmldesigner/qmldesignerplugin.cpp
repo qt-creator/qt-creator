@@ -135,7 +135,8 @@ class QmlDesignerPluginPrivate
 {
 public:
     QmlDesignerProjectManager projectManager;
-    ViewManager viewManager{projectManager.asynchronousImageCache()};
+    ViewManager viewManager{projectManager.asynchronousImageCache(),
+                            projectManager.asynchronousMeshImageCache()};
     DocumentManager documentManager;
     ShortCutManager shortCutManager;
     SettingsPage settingsPage;

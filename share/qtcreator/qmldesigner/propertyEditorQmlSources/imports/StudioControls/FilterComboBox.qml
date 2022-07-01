@@ -88,6 +88,9 @@ Item {
     property alias popupScrollBar: popupScrollBar
     property alias popupMouseArea: popupMouseArea
 
+    property bool hasActiveDrag: false // an item that can be dropped here is being dragged
+    property bool hasActiveHoverDrag: false // an item that can be dropped her is being hovered on top
+
     width: StudioTheme.Values.defaultControlWidth
     height: StudioTheme.Values.defaultControlHeight
     implicitHeight: StudioTheme.Values.defaultControlHeight
@@ -469,14 +472,33 @@ Item {
                 State {
                     name: "default"
                     when: root.enabled && !textInput.edit && !root.hover && !root.open
+                          && !root.hasActiveDrag
                     PropertyChanges {
                         target: textInputBackground
                         color: StudioTheme.Values.themeControlBackground
+                        border.color: StudioTheme.Values.themeControlOutline
                     }
                     PropertyChanges {
                         target: textInputMouseArea
                         cursorShape: Qt.PointingHandCursor
                         acceptedButtons: Qt.LeftButton
+                    }
+                },
+                State {
+                    name: "acceptsDrag"
+                    when: root.enabled && root.hasActiveDrag && !root.hasActiveHoverDrag
+                    PropertyChanges {
+                        target: textInputBackground
+                        border.color: StudioTheme.Values.themeInteraction
+                    }
+                },
+                State {
+                    name: "dragHover"
+                    when: root.enabled && root.hasActiveHoverDrag
+                    PropertyChanges {
+                        target: textInputBackground
+                        color: StudioTheme.Values.themeControlBackgroundInteraction
+                        border.color: StudioTheme.Values.themeInteraction
                     }
                 },
                 State {
@@ -587,10 +609,18 @@ Item {
                         name: "default"
                         when: root.enabled && checkIndicator.enabled && !root.edit
                               && !checkIndicator.hover && !root.hover
-                              && !checkIndicator.checked
+                              && !checkIndicator.checked && !root.hasActiveHoverDrag
                         PropertyChanges {
                             target: checkIndicator
                             color: StudioTheme.Values.themeControlBackground
+                        }
+                    },
+                    State {
+                        name: "dragHover"
+                        when: root.enabled && root.hasActiveHoverDrag
+                        PropertyChanges {
+                            target: checkIndicator
+                            color: StudioTheme.Values.themeControlBackgroundInteraction
                         }
                     },
                     State {

@@ -60,14 +60,16 @@ public:
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
     void customNotification(const AbstractView *view, const QString &identifier,
                             const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
+    void instancesCompleted(const QVector<ModelNode> &completedNodeList) override;
 
 private:
-    void refreshModel();
+    void refreshModel(bool updateImages);
     bool isMaterial(const ModelNode &node) const;
 
     QPointer<MaterialBrowserWidget> m_widget;
     bool m_hasQuick3DImport = false;
     bool m_autoSelectModelMaterial = false; // TODO: wire this to some action
+    bool m_puppetResetPending = false;
 };
 
 } // namespace QmlDesigner

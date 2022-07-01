@@ -72,9 +72,12 @@ Rectangle {
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
-        onClicked: (mouse) => {
+        onPressed: (mouse) => {
             materialBrowserModel.selectMaterial(index)
-            if (mouse.button === Qt.RightButton)
+
+            if (mouse.button === Qt.LeftButton)
+                rootView.startDragMaterial(index, mapToGlobal(mouse.x, mouse.y))
+            else if (mouse.button === Qt.RightButton)
                 root.showContextMenu()
         }
 

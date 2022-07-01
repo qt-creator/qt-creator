@@ -504,12 +504,12 @@ QImage QuickItemNodeInstance::renderImage() const
     if (s_unifiedRenderPath) {
         renderImage = nodeInstanceServer()->grabWindow();
         renderImage = renderImage.copy(renderBoundingRect.toRect());
+        /* When grabbing an offscren window the device pixel ratio is 1 */
+        renderImage.setDevicePixelRatio(1);
     } else {
         renderImage = nodeInstanceServer()->grabItem(quickItem());
     }
 
-    /* When grabbing an offscren window the device pixel ratio is 1 */
-    renderImage.setDevicePixelRatio(1);
 #endif
 
     return renderImage;

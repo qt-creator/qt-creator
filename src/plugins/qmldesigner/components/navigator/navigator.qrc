@@ -13,5 +13,6 @@
         <file>export_unchecked.png</file>
         <file>export_unchecked@2x.png</file>
         <file>tooltip_placeholder.png</file>
+        <file>checkers.png</file>
     </qresource>
 </RCC>
