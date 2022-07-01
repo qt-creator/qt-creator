@@ -52,6 +52,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsreformatter.h>
 #include <utils/changeset.h>
+#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QPair>
@@ -258,12 +259,7 @@ void TextEditorView::gotoCursorPosition(int line, int column)
 
 void TextEditorView::reformatFile()
 {
-    int oldLine = -1;
-
-    if (m_widget)
-        oldLine = m_widget->currentLine();
-
-    QByteArray editorState = m_widget->textEditor()->saveState();
+    QTC_ASSERT(!m_widget.isNull(), return);
 
     auto document =
             qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(Core::EditorManager::currentDocument());
@@ -292,16 +288,21 @@ void TextEditorView::reformatFile()
             return;
 
         const QString &newText = QmlJS::reformat(currentDocument);
-        QTextCursor tc(document->document());
+        if (currentDocument->source() == newText)
+            return;
+
+        QTextCursor tc = m_widget->textEditor()->textCursor();
+        int pos = m_widget->textEditor()->textCursor().position();
 
         Utils::ChangeSet changeSet;
         changeSet.replace(0, document->plainText().length(), newText);
+
+        tc.beginEditBlock();
         changeSet.apply(&tc);
+        tc.setPosition(pos);
+        tc.endEditBlock();
 
-        m_widget->textEditor()->restoreState(editorState);
-
-        if (m_widget)
-            m_widget->gotoCursorPosition(oldLine, 0);
+        m_widget->textEditor()->setTextCursor(tc);
     }
 }
 
