@@ -35,6 +35,7 @@
 #include <variantproperty.h>
 #include <qmlstate.h>
 #include <qmltimeline.h>
+#include <nodelistproperty.h>
 
 #include <cmath>
 
@@ -214,6 +215,9 @@ void CurveEditorView::propertiesRemoved(const QList<AbstractProperty> &propertyL
 
 QmlTimeline CurveEditorView::activeTimeline() const
 {
+    if (!isAttached())
+        return {};
+
     QmlModelState state = currentState();
     if (state.isBaseState()) {
         for (const ModelNode &node : allModelNodesOfType("QtQuick.Timeline.Timeline")) {
@@ -334,42 +338,56 @@ void commitAuxiliaryData(ModelNode &node, TreeItem *item)
 
 void CurveEditorView::commitKeyframes(TreeItem *item)
 {
+    if (!isAttached())
+        return;
+
     if (auto *nitem = item->asNodeItem()) {
         ModelNode node = modelNodeForId(nitem->name());
         commitAuxiliaryData(node, item);
 
     } else if (auto *pitem = item->asPropertyItem()) {
         QmlTimeline currentTimeline = activeTimeline();
+        if (!currentTimeline.isValid())
+            return;
+
         QmlTimelineKeyframeGroup group = timelineKeyframeGroup(currentTimeline, pitem);
 
         if (group.isValid()) {
             ModelNode groupNode = group.modelNode();
             commitAuxiliaryData(groupNode, item);
 
-            auto replaceKeyframes = [&group, pitem, this]() {
+            auto replaceKeyframes = [&group, pitem, this]() mutable {
                 m_block = true;
-                for (auto frame : group.keyframes())
+
+                for (auto& frame : group.keyframes())
                     frame.destroy();
 
-                Keyframe previous;
-                for (auto &&frame : pitem->curve().keyframes()) {
-                    QPointF pos = frame.position();
-                    group.setValue(QVariant(pos.y()), pos.x());
-
-                    if (previous.isValid()) {
-                        if (frame.interpolation() == Keyframe::Interpolation::Bezier ||
-                            frame.interpolation() == Keyframe::Interpolation::Step ) {
-                            CurveSegment segment(previous, frame);
-                            if (segment.isValid())
-                                attachEasingCurve(group, pos.x(), segment.easingCurve());
-                        } else if (frame.interpolation() == Keyframe::Interpolation::Easing) {
-                            QVariant data = frame.data();
-                            if (data.type() == static_cast<int>(QMetaType::QEasingCurve))
-                                attachEasingCurve(group, pos.x(), data.value<QEasingCurve>());
-                        }
+                AnimationCurve curve = pitem->curve();
+                if (curve.valueType() == AnimationCurve::ValueType::Bool) {
+                    for (const auto& frame : curve.keyframes()) {
+                        QPointF pos = frame.position();
+                        group.setValue(QVariant(pos.y()), pos.x());
                     }
+                } else {
+                    Keyframe previous;
+                    for (const auto& frame : curve.keyframes()) {
+                        QPointF pos = frame.position();
+                        group.setValue(QVariant(pos.y()), pos.x());
 
-                    previous = frame;
+                        if (previous.isValid()) {
+                            if (frame.interpolation() == Keyframe::Interpolation::Bezier ||
+                                frame.interpolation() == Keyframe::Interpolation::Step ) {
+                                CurveSegment segment(previous, frame);
+                                if (segment.isValid())
+                                    attachEasingCurve(group, pos.x(), segment.easingCurve());
+                            } else if (frame.interpolation() == Keyframe::Interpolation::Easing) {
+                                QVariant data = frame.data();
+                                if (data.type() == static_cast<int>(QMetaType::QEasingCurve))
+                                    attachEasingCurve(group, pos.x(), data.value<QEasingCurve>());
+                            }
+                        }
+                        previous = frame;
+                    }
                 }
                 m_block = false;
             };

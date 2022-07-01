@@ -83,6 +83,8 @@ GraphicsView::GraphicsView(CurveEditorModel *model, QWidget *parent)
 
     connect(&m_dialog, &CurveEditorStyleDialog::styleChanged, this, &GraphicsView::setStyle);
 
+    connect(m_scene, &GraphicsScene::curveMessage, m_model, &CurveEditorModel::setStatusLineMsg);
+
     auto itemSlot = [this](unsigned int id, const AnimationCurve &curve) {
         m_model->setCurve(id, curve);
         applyZoom(m_zoomX, m_zoomY);
@@ -560,7 +562,14 @@ void GraphicsView::applyZoom(double x, double y, const QPoint &pivot)
         scrollContent(mapTimeToX(deltaTransformed.x()), mapValueToY(deltaTransformed.y()));
     }
 
+    for (auto *curve : m_scene->curves()) {
+        if (curve->valueType() == AnimationCurve::ValueType::Bool) {
+            curve->remapValue(minValue, maxValue);
+        }
+    }
+
     m_scene->doNotMoveItems(false);
+    this->update();
 }
 
 void GraphicsView::drawGrid(QPainter *painter)

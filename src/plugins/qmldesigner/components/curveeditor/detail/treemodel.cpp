@@ -84,7 +84,6 @@ CurveItem *TreeModel::curveItem(TreeItem *item)
 {
     if (auto *pti = item->asPropertyItem()) {
         auto *citem = new CurveItem(pti->id(), pti->curve());
-        citem->setValueType(pti->valueType());
         citem->setComponent(pti->component());
         citem->setLocked(pti->locked() || item->implicitlyLocked());
         citem->setPinned(pti->pinned() || item->implicitlyPinned());

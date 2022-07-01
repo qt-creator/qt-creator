@@ -426,7 +426,7 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
         if (curve->isDirty()) {
             m_dirty = true;
             curve->setDirty(false);
-            emit curveChanged(curve->id(), curve->curve());
+            emit curveChanged(curve->id(), curve->curve(true));
         }
     }
 

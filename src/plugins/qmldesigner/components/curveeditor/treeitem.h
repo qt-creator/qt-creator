@@ -151,15 +151,10 @@ class PropertyTreeItem : public TreeItem
 public:
     enum class Component { Generic, R, G, B, A, X, Y, Z, W };
 
-    enum class ValueType {
-        Undefined,
-        Bool,
-        Integer,
-        Double,
-    };
+    using ValueType = AnimationCurve::ValueType;
 
 public:
-    PropertyTreeItem(const QString &name, const AnimationCurve &curve, const ValueType &type);
+    PropertyTreeItem(const QString &name, const AnimationCurve &curve);
 
     PropertyTreeItem *asPropertyItem() override;
 

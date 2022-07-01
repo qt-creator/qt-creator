@@ -44,11 +44,17 @@ namespace QmlDesigner {
 CurveEditorModel::CurveEditorModel(QObject *parent)
     : TreeModel(parent)
     , m_hasTimeline(false)
+    , m_currentFrame(0)
     , m_minTime(CurveEditorStyle::defaultTimeMin)
     , m_maxTime(CurveEditorStyle::defaultTimeMax)
 {}
 
 CurveEditorModel::~CurveEditorModel() {}
+
+int CurveEditorModel::currentFrame() const
+{
+    return m_currentFrame;
+}
 
 double CurveEditorModel::minimumTime() const
 {
@@ -102,6 +108,7 @@ void CurveEditorModel::setTimeline(const QmlDesigner::QmlTimeline &timeline)
     m_hasTimeline = timeline.isValid();
 
     if (m_hasTimeline) {
+        m_currentFrame = static_cast<int>(timeline.currentKeyframe());
         m_minTime = timeline.startKeyframe();
         m_maxTime = timeline.endKeyframe();
         std::vector<TreeItem *> items;
@@ -116,8 +123,8 @@ void CurveEditorModel::setTimeline(const QmlDesigner::QmlTimeline &timeline)
 
 void CurveEditorModel::setCurrentFrame(int frame)
 {
-    if (graphicsView())
-        graphicsView()->setCurrentFrame(frame, false);
+    m_currentFrame = frame;
+    emit commitCurrentFrame(m_currentFrame);
 }
 
 void CurveEditorModel::setMinimumTime(double time)
@@ -262,7 +269,7 @@ TreeItem *CurveEditorModel::createTopLevelItem(const QmlDesigner::QmlTimeline &t
             AnimationCurve curve = createAnimationCurve(grp);
             if (!curve.isEmpty()) {
                 QString name = QString::fromUtf8(grp.propertyName());
-                auto propertyItem = new PropertyTreeItem(name, curve, typeFrom(grp));
+                auto propertyItem = new PropertyTreeItem(name, curve);
 
                 QmlDesigner::ModelNode target = grp.modelNode();
                 if (target.hasAuxiliaryData("locked"))
@@ -288,7 +295,7 @@ AnimationCurve CurveEditorModel::createAnimationCurve(const QmlDesigner::QmlTime
 {
     switch (typeFrom(group)) {
     case PropertyTreeItem::ValueType::Bool:
-        return createDoubleCurve(group);
+        return createBooleanCurve(group);
 
     case PropertyTreeItem::ValueType::Integer:
         return createDoubleCurve(group);
@@ -346,7 +353,13 @@ std::vector<Keyframe> resolveSmallCurves(const std::vector<Keyframe> &frames)
                     continue;
                 }
 #endif
-                AnimationCurve acurve(curve, previous.position(), frame.position());
+                // This is just a temporary curve. ValueType does not matter
+                AnimationCurve acurve(
+                    AnimationCurve::ValueType::Undefined,
+                    curve,
+                    previous.position(),
+                    frame.position());
+
                 previous.setRightHandle(acurve.keyframeAt(0).rightHandle());
                 out.push_back(acurve.keyframeAt(1));
                 continue;
@@ -355,6 +368,17 @@ std::vector<Keyframe> resolveSmallCurves(const std::vector<Keyframe> &frames)
         out.push_back(frame);
     }
     return out;
+}
+
+
+AnimationCurve CurveEditorModel::createBooleanCurve(const QmlDesigner::QmlTimelineKeyframeGroup &group)
+{
+    std::vector<Keyframe> keyframes = createKeyframes(group.keyframePositions());
+
+    for (auto& keyframe : keyframes)
+        keyframe.setInterpolation(Keyframe::Interpolation::Step);
+
+    return AnimationCurve(typeFrom(group), keyframes);
 }
 
 AnimationCurve CurveEditorModel::createDoubleCurve(const QmlDesigner::QmlTimelineKeyframeGroup &group)
@@ -374,7 +398,7 @@ AnimationCurve CurveEditorModel::createDoubleCurve(const QmlDesigner::QmlTimelin
         }
     }
 
-    return AnimationCurve(keyframes);
+    return AnimationCurve(typeFrom(group), keyframes);
 }
 
 } // End namespace QmlDesigner.

@@ -321,11 +321,9 @@ std::vector<PropertyTreeItem *> NodeTreeItem::properties() const
     return out;
 }
 
-PropertyTreeItem::PropertyTreeItem(const QString &name,
-                                   const AnimationCurve &curve,
-                                   const ValueType &type)
+PropertyTreeItem::PropertyTreeItem(const QString &name, const AnimationCurve &curve)
     : TreeItem(name)
-    , m_type(type)
+    , m_type(curve.valueType())
     , m_component(Component::Generic)
     , m_curve(curve)
 {}

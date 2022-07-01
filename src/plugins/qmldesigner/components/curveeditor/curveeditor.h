@@ -59,7 +59,11 @@ protected:
     void hideEvent(QHideEvent *event) override;
 
 private:
+    void updateStatusLine();
+
     QLabel *m_infoText;
+
+    QLabel *m_statusLine;
 
     CurveEditorToolBar *m_toolbar;
 

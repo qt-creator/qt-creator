@@ -103,8 +103,16 @@ void KeyframeItem::lockedCallback()
 
 KeyframeItem::~KeyframeItem() {}
 
-Keyframe KeyframeItem::keyframe() const
+Keyframe KeyframeItem::keyframe(bool remap) const
 {
+    if (remap) {
+        auto frame = m_frame;
+        auto pos = frame.position();
+        auto center = m_min + ((m_max - m_min) / 2.0);
+        pos.ry() = pos.y() > center ? 1.0 : 0.0;
+        frame.setPosition(pos);
+        return frame;
+    }
     return m_frame;
 }
 
@@ -350,6 +358,18 @@ void KeyframeItem::moveHandle(HandleItem::Slot slot, double deltaAngle, double d
     emit redrawCurve();
 }
 
+void KeyframeItem::remapValue(double min, double max)
+{
+    auto center = m_min + ((m_max - m_min) / 2.0);
+    auto pos = m_frame.position();
+    pos.ry() = pos.y() > center ? max : min;
+    m_frame.setPosition(pos);
+
+    m_max = max;
+    m_min = min;
+    setKeyframe(m_frame);
+}
+
 void KeyframeItem::updateHandle(HandleItem *handle, bool emitChanged)
 {
     bool ok = false;
@@ -422,8 +442,10 @@ QVariant KeyframeItem::itemChange(QGraphicsItem::GraphicsItemChange change, cons
 
             if (curveItem->valueType() == PropertyTreeItem::ValueType::Integer)
                 position.setY(std::round(position.y()));
-            else if (curveItem->valueType() == PropertyTreeItem::ValueType::Bool)
-                position.setY(position.y() > 0.5 ? 1.0 : 0.0);
+            else if (curveItem->valueType() == PropertyTreeItem::ValueType::Bool) {
+                double center = m_min + ((m_max - m_min) / 2.0);
+                position.setY(position.y() > center ? m_max : m_min);
+            }
 
             if (!legalLeft() || !legalRight()) {
                 return QVariant(m_transform.map(position));

@@ -41,6 +41,8 @@ class GraphicsScene : public QGraphicsScene
     Q_OBJECT
 
 signals:
+    void curveMessage(const QString& msg);
+
     void curveChanged(unsigned int id, const AnimationCurve &curve);
 
 public:
