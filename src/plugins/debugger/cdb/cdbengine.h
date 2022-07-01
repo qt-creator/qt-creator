@@ -39,14 +39,11 @@
 namespace Debugger {
 namespace Internal {
 
-class CdbCommand;
-
 class CdbEngine : public CppDebuggerEngine
 {
     Q_OBJECT
 
 public:
-    using CdbCommandPtr = QSharedPointer<CdbCommand>;
     using CommandHandler = std::function<void (const DebuggerResponse &)>;
 
     explicit CdbEngine();

@@ -156,16 +156,6 @@ namespace Internal {
 
 static const char localsPrefixC[] = "local.";
 
-// Base data structure for command queue entries with callback
-class CdbCommand
-{
-public:
-    CdbCommand() = default;
-    CdbCommand(CdbEngine::CommandHandler h) : handler(h) {}
-
-    CdbEngine::CommandHandler handler;
-};
-
 // Accessed by DebuggerRunTool
 DebuggerEngine *createCdbEngine()
 {
