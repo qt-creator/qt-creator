@@ -795,6 +795,14 @@ void FilePath::iterateDirectory(const std::function<bool(const FilePath &item)> 
     }
 }
 
+void FilePath::iterateDirectories(const FilePaths &dirs,
+                                  const std::function<bool(const FilePath &)> &callBack,
+                                  const FileFilter &filter)
+{
+    for (const FilePath &dir : dirs)
+        dir.iterateDirectory(callBack, filter);
+}
+
 QByteArray FilePath::fileContents(qint64 maxSize, qint64 offset) const
 {
     if (needsDevice()) {

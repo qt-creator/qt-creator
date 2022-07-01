@@ -169,6 +169,9 @@ public:
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
     void iterateDirectory(const std::function<bool(const FilePath &item)> &callBack,
                           const FileFilter &filter) const;
+    static void iterateDirectories(const QList<FilePath> &dirs,
+                                   const std::function<bool(const FilePath &item)> &callBack,
+                                   const FileFilter &filter);
 
     enum PathAmending { AppendToPath, PrependToPath };
     [[nodiscard]] FilePath searchInPath(const QList<FilePath> &additionalDirs = {},
