@@ -1,5 +1,5 @@
 add_qtc_test(tst_qml_testcore
-  CONDITION TARGET QmlProjectManaer
+  CONDITION TARGET QmlProjectManager
   DEFINES
     QT_CREATOR
     QMLDESIGNER_TEST
