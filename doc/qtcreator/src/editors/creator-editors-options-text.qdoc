@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -40,8 +40,9 @@
 
     \title Specifying Text Editor Settings
 
-    Set the font preferences and apply color schemes for syntax highlighting in
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor} >
+    Set the font preferences and apply color schemes for syntax highlighting,
+    diff editor, and code analysis results in \uicontrol Edit >
+    \uicontrol Preferences\uicontrol Tools > \uicontrol {Text Editor} >
     \uicontrol {Font & Colors}.
 
     \image qtcreator-font-colors.png "Text editor options"
@@ -62,9 +63,8 @@
 
     \section2 Defining Color Schemes
 
-    You can select one of the predefined color schemes for syntax highlighting
-    or create customized color schemes. The color schemes apply to highlighting
-    both C++ and QML files and generic files.
+    You can select one of the predefined color schemes or create customized
+    color schemes.
 
     To create a color scheme:
 
@@ -77,20 +77,20 @@
         \li Enter a name for the color scheme and click \uicontrol OK.
 
         \li In the \uicontrol Foreground field, specify the color of the selected
-            code element.
+            code element or message.
 
         \li In the \uicontrol Background field, select the background
-            color for the code element.
+            color for the code element or message.
 
         The backgound of the \uicontrol Text element determines the background of the
         code editor.
 
         \li In \uicontrol Font, select \uicontrol Bold or \uicontrol Italic to
-            format the text of the selected code element by making it bold or
-            italic.
+            format the text of the selected code element or message by making it
+            bold or italic.
 
         \li In \uicontrol Underline, select the color and style to use for
-            underlining code elements.
+            underlining code elements or messages.
 
     \endlist
 

@@ -36,7 +36,7 @@
     \nextpage studio-advanced.html
     \else
     \previouspage creator-analyze-mode.html
-    \nextpage creator-valgrind-overview.html
+    \nextpage creator-coco.html
     \endif
 
     \title Profiling QML Applications
