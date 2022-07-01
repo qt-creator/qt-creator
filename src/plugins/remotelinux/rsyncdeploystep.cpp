@@ -5,6 +5,7 @@
 
 #include "abstractremotelinuxdeploystep.h"
 #include "abstractremotelinuxdeployservice.h"
+#include "abstractremotelinuxdeploystep.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
 
@@ -76,7 +77,6 @@ private:
     void doDeploy() override;
     void stopDeployment() override { setFinished(); };
 
-    void filterFiles() const;
     void createRemoteDirectories();
     void deployFiles();
     void setFinished();
@@ -96,21 +96,14 @@ void RsyncDeployService::setDeployableFiles(const QList<DeployableFile> &files)
 
 bool RsyncDeployService::isDeploymentNecessary() const
 {
-    filterFiles();
+    if (m_ignoreMissingFiles)
+        Utils::erase(m_files, [](const FileToTransfer &file) { return !file.m_source.exists(); });
     return !m_files.empty();
 }
 
 void RsyncDeployService::doDeploy()
 {
     createRemoteDirectories();
-}
-
-void RsyncDeployService::filterFiles() const
-{
-    if (!m_ignoreMissingFiles)
-        return;
-
-    Utils::erase(m_files, [](const FileToTransfer &file) { return !file.m_source.exists(); });
 }
 
 void RsyncDeployService::createRemoteDirectories()
