@@ -336,7 +336,7 @@ void AndroidConfig::parseDependenciesJson()
 
         if (HostOsInfo::isWindowsHost())
             appendEssentialsFromArray(commonEssentials[WindowsOsKey].toArray());
-        if (HostOsInfo::isMacHost())
+        else if (HostOsInfo::isMacHost())
             appendEssentialsFromArray(commonEssentials[macOsKey].toArray());
         else
             appendEssentialsFromArray(commonEssentials[LinuxOsKey].toArray());
