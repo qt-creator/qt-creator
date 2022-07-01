@@ -370,6 +370,9 @@ static bool isMcuRotationAllowed(QString itemName, bool hasChildren)
         if (manager.bannedProperties().contains(propName))
             return false;
     }
+#else
+    Q_UNUSED(itemName)
+    Q_UNUSED(hasChildren)
 #endif
 
     return true;
