@@ -25,23 +25,25 @@
 
 #include "killappstep.h"
 
+#include "abstractremotelinuxdeploystep.h"
 #include "abstractremotelinuxdeployservice.h"
 #include "remotelinux_constants.h"
+#include "remotelinuxtr.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
+
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace RemoteLinux {
-namespace Internal {
+namespace RemoteLinux::Internal {
 
 class KillAppService : public AbstractRemoteLinuxDeployService
 {
-    Q_OBJECT
 public:
     ~KillAppService() override;
 
@@ -61,7 +63,7 @@ private:
     void finishDeployment();
 
     QString m_remoteExecutable;
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr m_signalOperation;
+    DeviceProcessSignalOperation::Ptr m_signalOperation;
 };
 
 KillAppService::~KillAppService()
@@ -86,9 +88,9 @@ void KillAppService::doDeploy()
         handleDeploymentDone();
         return;
     }
-    connect(m_signalOperation.data(), &ProjectExplorer::DeviceProcessSignalOperation::finished,
+    connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
             this, &KillAppService::handleSignalOpFinished);
-    emit progressMessage(tr("Trying to kill \"%1\" on remote device...").arg(m_remoteExecutable));
+    emit progressMessage(Tr::tr("Trying to kill \"%1\" on remote device...").arg(m_remoteExecutable));
     m_signalOperation->killProcess(m_remoteExecutable);
 }
 
@@ -114,41 +116,38 @@ void KillAppService::stopDeployment()
 void KillAppService::handleSignalOpFinished(const QString &errorMessage)
 {
     if (errorMessage.isEmpty())
-        emit progressMessage(tr("Remote application killed."));
+        emit progressMessage(Tr::tr("Remote application killed."));
     else
-        emit progressMessage(tr("Failed to kill remote application. Assuming it was not running."));
+        emit progressMessage(Tr::tr("Failed to kill remote application. Assuming it was not running."));
     finishDeployment();
 }
 
-} // namespace Internal
-
-KillAppStep::KillAppStep(BuildStepList *bsl, Id id)
-        : AbstractRemoteLinuxDeployStep(bsl, id)
+class KillAppStep : public AbstractRemoteLinuxDeployStep
 {
-    auto service = createDeployService<Internal::KillAppService>();
+public:
+    KillAppStep(BuildStepList *bsl, Id id) : AbstractRemoteLinuxDeployStep(bsl, id)
+    {
+        auto service = createDeployService<Internal::KillAppService>();
 
-    setWidgetExpandedByDefault(false);
+        setWidgetExpandedByDefault(false);
 
-    setInternalInitializer([this, service] {
-        Target * const theTarget = target();
-        QTC_ASSERT(theTarget, return CheckResult::failure());
-        RunConfiguration * const rc = theTarget->activeRunConfiguration();
-        const QString remoteExe = rc ? rc->runnable().command.executable().toString() : QString();
-        service->setRemoteExecutable(remoteExe);
-        return CheckResult::success();
-    });
+        setInternalInitializer([this, service] {
+            Target * const theTarget = target();
+            QTC_ASSERT(theTarget, return CheckResult::failure());
+            RunConfiguration * const rc = theTarget->activeRunConfiguration();
+            const QString remoteExe = rc ? rc->runnable().command.executable().toString() : QString();
+            service->setRemoteExecutable(remoteExe);
+            return CheckResult::success();
+        });
+    }
+};
+
+KillAppStepFactory::KillAppStepFactory()
+{
+    registerStep<KillAppStep>(Constants::KillAppStepId);
+    setDisplayName(Tr::tr("Kill current application instance"));
+    setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
 }
 
-Id KillAppStep::stepId()
-{
-    return Constants::KillAppStepId;
-}
-
-QString KillAppStep::displayName()
-{
-    return tr("Kill current application instance");
-}
-
-} // namespace RemoteLinux
-
-#include "killappstep.moc"
+} // RemoteLinux::Internal

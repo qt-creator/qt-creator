@@ -79,7 +79,7 @@ public:
     GenericDeployStepFactory<GenericDirectUploadStep> genericDirectUploadStepFactory;
     GenericDeployStepFactory<RsyncDeployStep> rsyncDeployStepFactory;
     CustomCommandDeployStepFactory customCommandDeployStepFactory;
-    GenericDeployStepFactory<KillAppStep> killAppStepFactory;
+    KillAppStepFactory killAppStepFactory;
     GenericDeployStepFactory<MakeInstallStep> makeInstallStepFactory;
 
     const QList<Utils::Id> supportedRunConfigs {

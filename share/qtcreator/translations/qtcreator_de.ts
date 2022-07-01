@@ -42038,7 +42038,7 @@ Breche ausstehende Operationen ab...
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxKillAppService</name>
+    <name>RemoteLinux::Tr</name>
     <message>
         <source>Trying to kill &quot;%1&quot; on remote device...</source>
         <translation>Versuche &quot;%1&quot; auf anderem Gerät zu beenden...</translation>
@@ -42051,9 +42051,6 @@ Breche ausstehende Operationen ab...
         <source>Failed to kill remote application. Assuming it was not running.</source>
         <translation>Anwendung auf anderem Gerät konnte nicht beendet werden. Vermutlich lief sie nicht.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxKillAppStep</name>
     <message>
         <source>Kill current application instance</source>
         <translation>Aktuelle Instanz der Anwendung beenden</translation>

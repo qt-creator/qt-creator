@@ -58368,7 +58368,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxKillAppService</name>
+    <name>RemoteLinux::Tr</name>
     <message>
         <source>Trying to kill &quot;%1&quot; on remote device...</source>
         <translation>リモート・デバイス上の &quot;%1&quot; を終了中です...</translation>
@@ -58381,9 +58381,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Failed to kill remote application. Assuming it was not running.</source>
         <translation>リモートアプリケーションの強制終了に失敗しました。実行中ではないことと前提にしています。</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxKillAppStep</name>
     <message>
         <source>Kill current application instance</source>
         <translation>現在のアプリケーションのインスタンスを強制終了</translation>

@@ -45632,7 +45632,7 @@ Gemning mislykkedes.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxKillAppService</name>
+    <name>RemoteLinux::Tr</name>
     <message>
         <source>Trying to kill &quot;%1&quot; on remote device...</source>
         <translation>Prøver at dræbe &quot;%1&quot; på fjern-enhed...</translation>
@@ -45645,9 +45645,6 @@ Gemning mislykkedes.</translation>
         <source>Failed to kill remote application. Assuming it was not running.</source>
         <translation>Kunne ikke dræbe fjern-program. Formoder at den ikke kørte.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxKillAppStep</name>
     <message>
         <source>Kill current application instance</source>
         <translation>Dræb aktuelle programinstans</translation>

@@ -25,21 +25,14 @@
 
 #pragma once
 
-#include "remotelinux_export.h"
+#include <projectexplorer/buildstep.h>
 
-#include "abstractremotelinuxdeploystep.h"
+namespace RemoteLinux::Internal {
 
-namespace RemoteLinux {
-
-class REMOTELINUX_EXPORT KillAppStep : public AbstractRemoteLinuxDeployStep
+class KillAppStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
 public:
-    explicit KillAppStep(ProjectExplorer::BuildStepList *bsl,
-            Utils::Id id = stepId());
-
-    static Utils::Id stepId();
-    static QString displayName();
+    KillAppStepFactory();
 };
 
-} // namespace RemoteLinux
+} // RemoteLinux::Internal

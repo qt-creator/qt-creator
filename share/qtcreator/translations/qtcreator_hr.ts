@@ -42539,7 +42539,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxKillAppService</name>
+    <name>RemoteLinux::Tr</name>
     <message>
         <source>Trying to kill &quot;%1&quot; on remote device...</source>
         <translation type="unfinished"></translation>
@@ -42552,9 +42552,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Failed to kill remote application. Assuming it was not running.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxKillAppStep</name>
     <message>
         <source>Kill current application instance</source>
         <translation type="unfinished"></translation>
