@@ -33,7 +33,6 @@
 #include <utils/optional.h>
 #include <utils/qtcassert.h>
 
-#include <QFutureInterface>
 #include <QWidget>
 
 #include <atomic>
@@ -98,8 +97,6 @@ public:
     };
 
     enum OutputNewlineSetting { DoAppendNewline, DontAppendNewline };
-
-    static void reportRunResult(QFutureInterface<bool> &fi, bool success);
 
     bool widgetExpandedByDefault() const;
     void setWidgetExpandedByDefault(bool widgetExpandedByDefault);

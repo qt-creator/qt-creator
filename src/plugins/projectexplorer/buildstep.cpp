@@ -131,7 +131,7 @@ namespace ProjectExplorer {
 
 static QList<BuildStepFactory *> g_buildStepFactories;
 
-BuildStep::BuildStep(BuildStepList *bsl, Utils::Id id) :
+BuildStep::BuildStep(BuildStepList *bsl, Id id) :
     ProjectConfiguration(bsl, id)
 {
     QTC_CHECK(bsl->target() && bsl->target() == this->target());
@@ -262,11 +262,11 @@ BuildConfiguration::BuildType BuildStep::buildType() const
     return BuildConfiguration::Unknown;
 }
 
-Utils::MacroExpander *BuildStep::macroExpander() const
+MacroExpander *BuildStep::macroExpander() const
 {
     if (auto bc = buildConfiguration())
         return bc->macroExpander();
-    return Utils::globalMacroExpander();
+    return globalMacroExpander();
 }
 
 QString BuildStep::fallbackWorkingDirectory() const
@@ -279,7 +279,7 @@ QString BuildStep::fallbackWorkingDirectory() const
 void BuildStep::setupOutputFormatter(OutputFormatter *formatter)
 {
     if (qobject_cast<BuildConfiguration *>(parent()->parent())) {
-        for (const Utils::Id id : buildConfiguration()->customParsers()) {
+        for (const Id id : buildConfiguration()->customParsers()) {
             if (Internal::CustomParser * const parser = Internal::CustomParser::createFromId(id))
                 formatter->addLineParser(parser);
         }
@@ -287,16 +287,10 @@ void BuildStep::setupOutputFormatter(OutputFormatter *formatter)
         formatter->addLineParser(new Internal::SanitizerParser);
         formatter->setForwardStdOutToStdError(buildConfiguration()->parseStdOut());
     }
-    Utils::FileInProjectFinder fileFinder;
+    FileInProjectFinder fileFinder;
     fileFinder.setProjectDirectory(project()->projectDirectory());
     fileFinder.setProjectFiles(project()->files(Project::AllFiles));
     formatter->setFileFinder(fileFinder);
-}
-
-void BuildStep::reportRunResult(QFutureInterface<bool> &fi, bool success)
-{
-    fi.reportResult(success);
-    fi.reportFinished();
 }
 
 bool BuildStep::widgetExpandedByDefault() const
@@ -309,7 +303,7 @@ void BuildStep::setWidgetExpandedByDefault(bool widgetExpandedByDefault)
     m_widgetExpandedByDefault = widgetExpandedByDefault;
 }
 
-QVariant BuildStep::data(Utils::Id id) const
+QVariant BuildStep::data(Id id) const
 {
     Q_UNUSED(id)
     return {};
@@ -399,7 +393,7 @@ bool BuildStepFactory::canHandle(BuildStepList *bsl) const
     if (!m_supportedDeviceTypes.isEmpty()) {
         Target *target = bsl->target();
         QTC_ASSERT(target, return false);
-        Utils::Id deviceType = DeviceTypeKitAspect::deviceTypeId(target->kit());
+        Id deviceType = DeviceTypeKitAspect::deviceTypeId(target->kit());
         if (!m_supportedDeviceTypes.contains(deviceType))
             return false;
     }
@@ -407,7 +401,7 @@ bool BuildStepFactory::canHandle(BuildStepList *bsl) const
     if (m_supportedProjectType.isValid()) {
         if (!config)
             return false;
-        Utils::Id projectId = config->project()->id();
+        Id projectId = config->project()->id();
         if (projectId != m_supportedProjectType)
             return false;
     }
@@ -418,7 +412,7 @@ bool BuildStepFactory::canHandle(BuildStepList *bsl) const
     if (m_supportedConfiguration.isValid()) {
         if (!config)
             return false;
-        Utils::Id configId = config->id();
+        Id configId = config->id();
         if (configId != m_supportedConfiguration)
             return false;
     }
@@ -436,32 +430,32 @@ void BuildStepFactory::setFlags(BuildStepInfo::Flags flags)
     m_info.flags = flags;
 }
 
-void BuildStepFactory::setSupportedStepList(Utils::Id id)
+void BuildStepFactory::setSupportedStepList(Id id)
 {
     m_supportedStepLists = {id};
 }
 
-void BuildStepFactory::setSupportedStepLists(const QList<Utils::Id> &ids)
+void BuildStepFactory::setSupportedStepLists(const QList<Id> &ids)
 {
     m_supportedStepLists = ids;
 }
 
-void BuildStepFactory::setSupportedConfiguration(Utils::Id id)
+void BuildStepFactory::setSupportedConfiguration(Id id)
 {
     m_supportedConfiguration = id;
 }
 
-void BuildStepFactory::setSupportedProjectType(Utils::Id id)
+void BuildStepFactory::setSupportedProjectType(Id id)
 {
     m_supportedProjectType = id;
 }
 
-void BuildStepFactory::setSupportedDeviceType(Utils::Id id)
+void BuildStepFactory::setSupportedDeviceType(Id id)
 {
     m_supportedDeviceTypes = {id};
 }
 
-void BuildStepFactory::setSupportedDeviceTypes(const QList<Utils::Id> &ids)
+void BuildStepFactory::setSupportedDeviceTypes(const QList<Id> &ids)
 {
     m_supportedDeviceTypes = ids;
 }
@@ -471,7 +465,7 @@ BuildStepInfo BuildStepFactory::stepInfo() const
     return m_info;
 }
 
-Utils::Id BuildStepFactory::stepId() const
+Id BuildStepFactory::stepId() const
 {
     return m_info.id;
 }
