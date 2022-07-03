@@ -394,33 +394,6 @@ const CppComponentValue *findQmlPrototype(const ObjectValue *ov, const ContextPt
     return findQmlPrototype(ov->prototype(context), context);
 }
 
-QStringList prototypes(const ObjectValue *ov, const ContextPtr &context, bool versions = false)
-{
-    QStringList list;
-    if (!ov)
-        return list;
-    ov = ov->prototype(context);
-    while (ov) {
-        const CppComponentValue * qmlValue = value_cast<CppComponentValue>(ov);
-        if (qmlValue) {
-            if (versions) {
-                list << qmlValue->moduleName() + '.' + qmlValue->className() +
-                ' ' + QString::number(qmlValue->componentVersion().majorVersion()) +
-                '.' + QString::number(qmlValue->componentVersion().minorVersion());
-            } else {
-                list << qmlValue->moduleName() + QLatin1Char('.') + qmlValue->className();
-            }
-        } else {
-            if (versions)
-                list << ov->className() + QLatin1String(" -1.-1");
-            else
-                list << ov->className();
-        }
-        ov = ov->prototype(context);
-    }
-    return list;
-}
-
 QVector<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const ContextPtr &context, bool local = false, int rec = 0);
 
 QVector<PropertyInfo> getTypes(const ObjectValue *objectValue, const ContextPtr &context, bool local = false, int rec = 0)

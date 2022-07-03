@@ -246,7 +246,7 @@ QtSupport::QtVersion *getQtVersion(::ProjectExplorer::Target *target)
     return {};
 }
 
-QtSupport::QtVersion *getQtVersion(::ProjectExplorer::Project *project)
+[[maybe_unused]] QtSupport::QtVersion *getQtVersion(::ProjectExplorer::Project *project)
 {
     return getQtVersion(project->activeTarget());
 }
@@ -289,7 +289,8 @@ bool skipPath(const std::filesystem::path &path)
 }
 #endif
 
-void qtQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
+void qtQmldirPaths([[maybe_unused]] ::ProjectExplorer::Target *target,
+                   [[maybe_unused]] QStringList &qmldirPaths)
 {
 #ifdef QDS_HAS_QMLDOM
     const QString installDirectory = qmlPath(target).toString();

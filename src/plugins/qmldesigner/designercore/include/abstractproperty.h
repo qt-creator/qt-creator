@@ -35,11 +35,11 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
     namespace Internal {
-        class InternalNode;
-        class InternalProperty;
+    class InternalNode;
+    class InternalProperty;
 
-        using InternalNodePointer = QSharedPointer<InternalNode>;
-        using InternalPropertyPointer = QSharedPointer<InternalProperty>;
+    using InternalNodePointer = QSharedPointer<InternalNode>;
+    using InternalPropertyPointer = QSharedPointer<InternalProperty>;
     }
 
 class Model;
