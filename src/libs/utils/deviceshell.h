@@ -64,6 +64,8 @@ public:
     DeviceShell();
     virtual ~DeviceShell();
 
+    bool start();
+
     bool runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
     RunResult outputForRunInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
 
@@ -76,7 +78,6 @@ protected:
     virtual void startupFailed(const CommandLine &cmdLine);
     RunResult run(const CommandLine &cmd, const QByteArray &stdInData = {});
 
-    bool start();
     void close();
 
 private:

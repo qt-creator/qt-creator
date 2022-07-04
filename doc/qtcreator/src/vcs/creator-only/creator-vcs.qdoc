@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -73,6 +73,10 @@
 
                 Gerrit version 2.6, or later
         \row
+            \li \l{Using GitLab}{GitLab}
+            \li \l{http://gitlab.com/}
+            \li Experimental
+        \row
             \li \l{Using Mercurial}{Mercurial}
             \li \l{http://mercurial.selenic.com/}
             \li
@@ -124,6 +128,7 @@
         \li \l{https://doc.qt.io/qtcreator/creator-vcs-fossil.html}
             {Qt Creator Fossil Plugin Manual}
         \li \l{Using Git}
+        \li \l{Using GitLab}
         \li \l{Using Mercurial}
         \li \l{Using Perforce}
         \li \l{Using Subversion}

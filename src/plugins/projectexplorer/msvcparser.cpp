@@ -69,16 +69,19 @@ using namespace ProjectExplorer;
 // nmake/jom messages.
 static Task handleNmakeJomMessage(const QString &line)
 {
+    Task::TaskType type = Task::Unknown;
     int matchLength = 0;
-    if (line.startsWith("Error:"))
+    if (line.startsWith("Error:")) {
         matchLength = 6;
-    else if (line.startsWith("Warning:"))
+        type = Task::Error;
+    } else if (line.startsWith("Warning:")) {
         matchLength = 8;
-
-    if (!matchLength)
+        type = Task::Warning;
+    } else {
         return {};
+    }
 
-    CompileTask task(Task::Error, line.mid(matchLength).trimmed());
+    CompileTask task(type, line.mid(matchLength).trimmed());
     task.details << line;
     return std::move(task);
 }

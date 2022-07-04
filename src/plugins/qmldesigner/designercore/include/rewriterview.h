@@ -127,7 +127,6 @@ public:
     void addError(const DocumentMessage &error);
 
     void enterErrorState(const QString &errorMessage);
-    bool inErrorState() const { return !m_rewritingErrorMessage.isEmpty(); }
     void leaveErrorState() { m_rewritingErrorMessage.clear(); }
     void resetToLastCorrectQml();
 
@@ -202,6 +201,7 @@ private: //variables
     void setupCanonicalHashes() const;
     void handleLibraryInfoUpdate();
     void handleProjectUpdate();
+    bool inErrorState() const { return !m_rewritingErrorMessage.isEmpty(); }
 
     TextModifier *m_textModifier = nullptr;
     int transactionLevel = 0;

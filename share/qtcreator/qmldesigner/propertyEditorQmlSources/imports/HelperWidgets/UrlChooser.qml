@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -44,6 +44,9 @@ Row {
     // by QtQuick3D to add built-in primitives to the model.
     property var defaultItems
 
+    // Current item
+    property string absoluteFilePath: ""
+
     FileResourcesModel {
         id: fileModel
         modelNodeBackendProperty: modelNodeBackend
@@ -60,6 +63,7 @@ Row {
 
         property ListModel listModel: ListModel {}
 
+        hasActiveDrag: activeDragSuffix !== "" && root.filter.includes(activeDragSuffix)
         implicitWidth: StudioTheme.Values.singleControlColumnWidth
                         + StudioTheme.Values.actionIndicatorWidth
         width: implicitWidth
@@ -69,26 +73,99 @@ Row {
         // when the combobox is closed by focusing on some other control.
         property int hoverIndex: -1
 
+        DropArea {
+            id: dropArea
+
+            anchors.fill: parent
+
+            property string assetPath: ""
+
+            onEntered: function(drag) {
+                dropArea.assetPath = drag.getDataAsString(drag.keys[0]).split(",")[0]
+                drag.accepted = comboBox.hasActiveDrag
+                comboBox.hasActiveHoverDrag = drag.accepted
+            }
+
+            onExited: comboBox.hasActiveHoverDrag = false
+
+            onDropped: function(drop) {
+                drop.accepted = comboBox.hasActiveHoverDrag
+                comboBox.editText = dropArea.assetPath
+                comboBox.accepted()
+                comboBox.hasActiveHoverDrag = false
+                root.backendValue.commitDrop(dropArea.assetPath)
+            }
+        }
+
         ToolTip {
             id: toolTip
             visible: comboBox.hover && toolTip.text !== ""
             text: root.backendValue.valueToString
             delay: StudioTheme.Values.toolTipDelay
-            height: StudioTheme.Values.toolTipHeight
+
             background: Rectangle {
                 color: StudioTheme.Values.themeToolTipBackground
                 border.color: StudioTheme.Values.themeToolTipOutline
                 border.width: StudioTheme.Values.border
             }
-            contentItem: Text {
-                color: StudioTheme.Values.themeToolTipText
-                text: toolTip.text
-                verticalAlignment: Text.AlignVCenter
+
+            contentItem: RowLayout {
+                spacing: 10
+
+                Item {
+                    visible: thumbnail.status === Image.Ready
+                    Layout.preferredWidth: 100
+                    Layout.preferredHeight: 100
+
+                    Image {
+                        id: checker
+                        visible: !root.isMesh(root.absoluteFilePath)
+                        anchors.fill: parent
+                        fillMode: Image.Tile
+                        source: "images/checkers.png"
+                    }
+
+                    Image {
+                        id: thumbnail
+                        asynchronous: true
+                        anchors.fill: parent
+                        fillMode: Image.PreserveAspectFit
+                        source: {
+                            if (root.isBuiltInPrimitive(root.absoluteFilePath))
+                                return "image://qmldesigner_thumbnails/"
+                                    + root.absoluteFilePath.substring(1, root.absoluteFilePath.length)
+                                    + ".builtin"
+
+                            if (fileModel.isLocal(root.absoluteFilePath))
+                                return "image://qmldesigner_thumbnails/" + root.absoluteFilePath
+
+                            return root.absoluteFilePath
+                        }
+                    }
+                }
+
+                ColumnLayout {
+                    Text {
+                        text: root.fileName(toolTip.text)
+                        color: StudioTheme.Values.themeToolTipText
+                        font: toolTip.font
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: root.isBuiltInPrimitive(toolTip.text) ? qsTr("Built-in primitive")
+                                                                    : toolTip.text
+                        font: toolTip.font
+                        color: StudioTheme.Values.themeToolTipText
+                        wrapMode: Text.WordWrap
+                    }
+                }
             }
         }
 
         delegate: ItemDelegate {
-            required property string fullPath
+            required property string absoluteFilePath
+            required property string relativeFilePath
             required property string name
             required property int group
             required property int index
@@ -150,20 +227,66 @@ Row {
             }
 
             ToolTip {
-                id: itemToolTip
-                visible: delegateRoot.hovered && comboBox.highlightedIndex === index
-                text: fullPath
+                id: delegateToolTip
+                visible: delegateRoot.hovered
+                text: delegateRoot.relativeFilePath
                 delay: StudioTheme.Values.toolTipDelay
-                height: StudioTheme.Values.toolTipHeight
+
                 background: Rectangle {
                     color: StudioTheme.Values.themeToolTipBackground
                     border.color: StudioTheme.Values.themeToolTipOutline
                     border.width: StudioTheme.Values.border
                 }
-                contentItem: Text {
-                    color: StudioTheme.Values.themeToolTipText
-                    text: itemToolTip.text
-                    verticalAlignment: Text.AlignVCenter
+
+                contentItem: RowLayout {
+                    spacing: 10
+
+                    Item {
+                        visible: delegateThumbnail.status === Image.Ready
+                        Layout.preferredWidth: 100
+                        Layout.preferredHeight: 100
+
+                        Image {
+                            id: delegateChecker
+                            visible: !root.isMesh(delegateRoot.absoluteFilePath)
+                            anchors.fill: parent
+                            fillMode: Image.Tile
+                            source: "images/checkers.png"
+                        }
+
+                        Image {
+                            id: delegateThumbnail
+                            asynchronous: true
+                            anchors.fill: parent
+                            fillMode: Image.PreserveAspectFit
+                            source: {
+                                if (root.isBuiltInPrimitive(delegateRoot.name))
+                                    return "image://qmldesigner_thumbnails/"
+                                        + delegateRoot.name.substring(1, delegateRoot.name.length)
+                                        + ".builtin"
+
+                                return "image://qmldesigner_thumbnails/" + delegateRoot.absoluteFilePath
+                            }
+                        }
+                    }
+
+                    ColumnLayout {
+                        Text {
+                            text: delegateRoot.name
+                            color: StudioTheme.Values.themeToolTipText
+                            font: delegateToolTip.font
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: root.isBuiltInPrimitive(delegateToolTip.text)
+                                  ? qsTr("Built-in primitive")
+                                  : delegateToolTip.text
+                            font: delegateToolTip.font
+                            color: StudioTheme.Values.themeToolTipText
+                            wrapMode: Text.WordWrap
+                        }
+                    }
                 }
             }
         }
@@ -197,8 +320,9 @@ Row {
             if (root.backendValue.isBound) {
                 comboBox.textValue = root.backendValue.expression
             } else {
-                var fullPath = root.backendValue.valueToString
-                comboBox.textValue = fullPath.substr(fullPath.lastIndexOf('/') + 1)
+                // Can be absolute or relative file path
+                var filePath = root.backendValue.valueToString
+                comboBox.textValue = filePath.substr(filePath.lastIndexOf('/') + 1)
             }
 
             comboBox.setCurrentText(comboBox.textValue)
@@ -230,9 +354,13 @@ Row {
             // Check if value set by user matches with a name in the model then pick the full path
             let index = comboBox.find(inputValue)
             if (index !== -1)
-                inputValue = comboBox.items.get(index).model.fullPath
+                inputValue = comboBox.items.get(index).model.relativeFilePath
 
             root.backendValue.value = inputValue
+
+            if (!root.backendValue.isBound)
+                root.absoluteFilePath = fileModel.resolve(root.backendValue.value)
+
             comboBox.dirty = false
         }
 
@@ -252,10 +380,13 @@ Row {
             let inputValue = comboBox.editText
 
             if (index >= 0)
-                inputValue = comboBox.items.get(index).model.fullPath
+                inputValue = comboBox.items.get(index).model.relativeFilePath
 
             if (root.backendValue.value !== inputValue)
                 root.backendValue.value = inputValue
+
+            if (!root.backendValue.isBound)
+                root.absoluteFilePath = fileModel.resolve(root.backendValue.value)
 
             comboBox.dirty = false
         }
@@ -273,6 +404,23 @@ Row {
         }
     }
 
+    function isBuiltInPrimitive(value) {
+        return value.startsWith('#')
+    }
+
+    function isMesh(value) {
+        return root.isBuiltInPrimitive(value)
+                || root.hasFileExtension(root.fileName(value), "mesh")
+    }
+
+    function hasFileExtension(fileName, extension) {
+        return fileName.split('.').pop() === extension
+    }
+
+    function fileName(filePath) {
+        return filePath.substr(filePath.lastIndexOf('/') + 1)
+    }
+
     function createModel() {
         // Build the combobox model
         comboBox.listModel.clear()
@@ -284,17 +432,22 @@ Row {
         if (root.defaultItems !== undefined) {
             for (var i = 0; i < root.defaultItems.length; ++i) {
                 comboBox.listModel.append({
-                    fullPath: root.defaultItems[i],
+                    absoluteFilePath: "",
+                    relativeFilePath: root.defaultItems[i],
                     name: root.defaultItems[i],
                     group: 0
                 })
             }
         }
 
-        for (var j = 0; j < fileModel.fullPathModel.length; ++j) {
+        const myModel = fileModel.model
+        for (var j = 0; j < myModel.length; ++j) {
+            let item = myModel[j]
+
             comboBox.listModel.append({
-                fullPath: fileModel.fullPathModel[j],
-                name: fileModel.fileNameModel[j],
+                absoluteFilePath: item.absoluteFilePath,
+                relativeFilePath: item.relativeFilePath,
+                name: item.fileName,
                 group: 1
             })
         }
@@ -304,7 +457,7 @@ Row {
 
     Connections {
         target: fileModel
-        function onFullPathModelChanged() {
+        function onModelChanged() {
             root.createModel()
             comboBox.setCurrentText(comboBox.textValue)
         }
@@ -315,6 +468,9 @@ Row {
     Component.onCompleted: {
         root.createModel()
         comboBox.updateTextValue()
+
+        if (!root.backendValue.isBound)
+            root.absoluteFilePath = fileModel.resolve(root.backendValue.value)
     }
 
     function indexOf(model, criteria) {
@@ -333,7 +489,7 @@ Row {
             if (comboBox.popup.opened && !root.backendValue.isBound) {
                 var index = root.indexOf(comboBox.items,
                                                function(item) {
-                                                   return item.fullPath === root.backendValue.value
+                                                   return item.relativeFilePath === root.backendValue.value
                                                })
 
                 if (index !== -1) {
@@ -352,8 +508,10 @@ Row {
         iconColor: root.textColor
         onClicked: {
             fileModel.openFileDialog()
-            if (fileModel.fileName !== "")
+            if (fileModel.fileName !== "") {
                 root.backendValue.value = fileModel.fileName
+                root.absoluteFilePath = fileModel.resolve(root.backendValue.value)
+            }
         }
     }
 }

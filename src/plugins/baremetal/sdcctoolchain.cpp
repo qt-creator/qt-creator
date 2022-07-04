@@ -258,7 +258,7 @@ ToolChain::BuiltInHeaderPathsRunner SdccToolChain::createBuiltInHeaderPathsRunne
     const FilePath compiler = compilerCommand();
     const Abi abi = targetAbi();
 
-    return [env, compiler, abi](const QStringList &, const QString &, const QString &) {
+    return [env, compiler, abi](const QStringList &, const FilePath &, const QString &) {
         return dumpHeaderPaths(compiler, env, abi);
     };
 }

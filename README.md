@@ -43,10 +43,10 @@ Prerequisites:
     * Debugging Tools for Windows (optional, for MSVC debugging support with CDB)
 * On Mac OS X: latest Xcode
 * On Linux: GCC 7 or later
-* LLVM/Clang 10 or later (optional, LLVM/Clang 13 is recommended.
+* LLVM/Clang 10 or later (optional, LLVM/Clang 14 is recommended.
   See [instructions](#getting-llvmclang-for-the-clang-code-model) on how to
   get LLVM.
-  The ClangFormat, ClangPchManager and ClangRefactoring use the LLVM C++ API.
+  The ClangFormat plugin uses the LLVM C++ API.
   Since the LLVM C++ API provides no compatibility guarantee,
   if later versions don't compile we don't support that version.)
 * CMake
@@ -149,8 +149,8 @@ like Qt and LLVM, additionally run
 
 ## Getting LLVM/Clang for the Clang Code Model
 
-The Clang Code Model depends on the LLVM/Clang libraries. The currently
-recommended LLVM/Clang version is 13.0.
+The Clang code model uses `Clangd` and the ClangFormat plugin depends on the
+LLVM/Clang libraries. The currently recommended LLVM/Clang version is 14.0.
 
 ### Prebuilt LLVM/Clang packages
 

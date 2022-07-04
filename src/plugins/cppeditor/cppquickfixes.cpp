@@ -4189,9 +4189,12 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
 
     // member variable
     if (generateFlags & Flag::GenerateMemberVariable) {
-        const QString storageDeclaration = overview.prettyType(memberVariableType,
-                                                               data.memberVariableName)
-                                           + QLatin1String(";\n");
+        QString storageDeclaration = overview.prettyType(memberVariableType, data.memberVariableName);
+        if (memberVariableType->asPointerType()
+            && m_operation->semanticInfo().doc->translationUnit()->languageFeatures().cxx11Enabled) {
+            storageDeclaration.append(" = nullptr");
+        }
+        storageDeclaration.append(";\n");
         addHeaderCode(InsertionPointLocator::Private, storageDeclaration);
     }
 

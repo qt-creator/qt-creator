@@ -25,10 +25,8 @@
 
 #pragma once
 
-#include "compilationdatabaseconstants.h"
-
 #include <cppeditor/cppprojectfile.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QHash>
 #include <QStringList>
@@ -65,7 +63,7 @@ void filteredFlags(const QString &fileName,
                    QVector<ProjectExplorer::HeaderPath> &headerPaths,
                    QVector<ProjectExplorer::Macro> &macros,
                    CppEditor::ProjectFile::Kind &fileKind,
-                   QString &sysRoot);
+                   Utils::FilePath &sysRoot);
 
 QStringList splitCommandLine(QString commandLine, QSet<QString> &flagsCache);
 

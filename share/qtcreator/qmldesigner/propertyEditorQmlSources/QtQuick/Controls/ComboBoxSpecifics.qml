@@ -138,4 +138,6 @@ Column {
     FontSection {}
 
     PaddingSection {}
+
+    InsetSection {}
 }

@@ -220,6 +220,9 @@
 
         \li Export SVG images to pixmaps
 
+        \li Copy an image as a data URL, which enables you to include it in web
+            pages as if it were an external resource
+
         \li Switch between background and outline modes
 
         \li Zoom in and out

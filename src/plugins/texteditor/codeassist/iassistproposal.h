@@ -65,7 +65,7 @@ protected:
     int m_basePosition;
     bool m_isFragile = false;
     bool m_supportsPrefix = true;
-    AssistReason m_reason;
+    AssistReason m_reason = IdleEditor;
 };
 
 } // TextEditor

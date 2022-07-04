@@ -33,6 +33,21 @@
     to gain access to individual Qt modules, such as \l {Qt Core}, \l {Qt GUI},
     and \l {Qt Widgets}.
 
+    If you have not installed PySide6, \QC prompts you to install it after
+    the project is created. Further, it prompts you to install the
+    \l {Python Language Server}{Python language server} that provides services
+    such as code completion and annotations. Select \uicontrol Install to install
+    PySide6 and the language server.
+
+    To view and manage the available Python interpreters, select \uicontrol Edit
+    > \uicontrol Preferences > \uicontrol Python > \uicontrol Interpreters.
+
+    \image qtcreator-python-interpreters.png "Python Interpreters in Preferences"
+
+    You can add and remove interpreters and clean up references to interpreters
+    that have been uninstalled, but still appear in the list. In addition, you
+    can set the interpreter to use by default.
+
     The Qt for Python Application wizards generate a \c {.pyproject} file that
     lists the files in the Python project and a \c {.py} file that contains
     some boilerplate code. In addition, the widget based UI wizard creates a

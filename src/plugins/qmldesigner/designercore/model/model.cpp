@@ -589,6 +589,11 @@ void ModelPrivate::notifyImport3DSupportChanged(const QVariantMap &supportMap)
     notifyInstanceChanges([&](AbstractView *view) { view->updateImport3DSupport(supportMap); });
 }
 
+void ModelPrivate::notifyModelAtPosResult(const ModelNode &modelNode)
+{
+    notifyInstanceChanges([&](AbstractView *view) { view->modelAtPosReady(modelNode); });
+}
+
 void ModelPrivate::notifyDragStarted(QMimeData *mimeData)
 {
     notifyInstanceChanges([&](AbstractView *view) { view->dragStarted(mimeData); });
@@ -1390,14 +1395,18 @@ void Model::changeImports(const QList<Import> &importsToBeAdded,
 
 void Model::setPossibleImports(const QList<Import> &possibleImports)
 {
-    d->m_possibleImportList = possibleImports;
-    d->notifyPossibleImportsChanged(possibleImports);
+    if (d->m_possibleImportList != possibleImports) {
+        d->m_possibleImportList = possibleImports;
+        d->notifyPossibleImportsChanged(possibleImports);
+    }
 }
 
 void Model::setUsedImports(const QList<Import> &usedImports)
 {
-    d->m_usedImportList = usedImports;
-    d->notifyUsedImportsChanged(usedImports);
+    if (d->m_usedImportList != usedImports) {
+        d->m_usedImportList = usedImports;
+        d->notifyUsedImportsChanged(usedImports);
+    }
 }
 
 static bool compareVersions(const QString &version1, const QString &version2, bool allowHigherVersion)
@@ -1517,7 +1526,9 @@ void Model::startDrag(QMimeData *mimeData, const QPixmap &icon)
     auto drag = new QDrag(this);
     drag->setPixmap(icon);
     drag->setMimeData(mimeData);
-    drag->exec();
+    if (drag->exec() == Qt::IgnoreAction)
+        endDrag();
+
     drag->deleteLater();
 }
 

@@ -478,19 +478,16 @@ static void layoutHelperFunction(const SelectionContext &selectionContext,
         const QmlItemNode qmlItemNode = QmlItemNode(selectionContext.firstSelectedModelNode());
 
         if (qmlItemNode.hasInstanceParentItem()) {
-            ModelNode layoutNode;
-            selectionContext.view()->executeInTransaction("DesignerActionManager|layoutHelperFunction1",[=, &layoutNode](){
+
+            selectionContext.view()->executeInTransaction("DesignerActionManager|layoutHelperFunction",[=](){
 
                 QmlItemNode parentNode = qmlItemNode.instanceParentItem();
 
                 NodeMetaInfo metaInfo = selectionContext.view()->model()->metaInfo(layoutType);
 
-                layoutNode = selectionContext.view()->createModelNode(layoutType, metaInfo.majorVersion(), metaInfo.minorVersion());
+                const ModelNode layoutNode = selectionContext.view()->createModelNode(layoutType, metaInfo.majorVersion(), metaInfo.minorVersion());
 
                 reparentTo(layoutNode, parentNode);
-            });
-
-            selectionContext.view()->executeInTransaction("DesignerActionManager|layoutHelperFunction2",[=](){
 
                 QList<ModelNode> sortedSelectedNodes =  selectionContext.selectedModelNodes();
                 Utils::sort(sortedSelectedNodes, lessThan);

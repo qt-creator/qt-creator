@@ -513,7 +513,7 @@ public:
                                                                  ->currentModel();
 
                                        if (currentModel->rewriterView()
-                                           && currentModel->rewriterView()->inErrorState()) {
+                                           && !currentModel->rewriterView()->errors().isEmpty()) {
                                            throw DocumentError{};
                                        }
 

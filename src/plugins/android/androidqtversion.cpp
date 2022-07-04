@@ -28,6 +28,7 @@
 #include "androidconfigurations.h"
 #include "androidmanager.h"
 
+#include <utils/algorithm.h>>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
@@ -95,43 +96,7 @@ bool AndroidQtVersion::supportsMultipleQtAbis() const
 
 Abis AndroidQtVersion::detectQtAbis() const
 {
-    auto androidAbi2Abi = [](const QString &androidAbi) {
-        if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A) {
-            return Abi{Abi::Architecture::ArmArchitecture,
-                       Abi::OS::LinuxOS,
-                       Abi::OSFlavor::AndroidLinuxFlavor,
-                       Abi::BinaryFormat::ElfFormat,
-                       64, androidAbi};
-        } else if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A) {
-            return Abi{Abi::Architecture::ArmArchitecture,
-                       Abi::OS::LinuxOS,
-                       Abi::OSFlavor::AndroidLinuxFlavor,
-                       Abi::BinaryFormat::ElfFormat,
-                       32, androidAbi};
-        } else if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_X86_64) {
-            return Abi{Abi::Architecture::X86Architecture,
-                       Abi::OS::LinuxOS,
-                       Abi::OSFlavor::AndroidLinuxFlavor,
-                       Abi::BinaryFormat::ElfFormat,
-                       64, androidAbi};
-        } else if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_X86) {
-            return Abi{Abi::Architecture::X86Architecture,
-                       Abi::OS::LinuxOS,
-                       Abi::OSFlavor::AndroidLinuxFlavor,
-                       Abi::BinaryFormat::ElfFormat,
-                       32, androidAbi};
-        } else {
-            return Abi{Abi::Architecture::UnknownArchitecture,
-                       Abi::OS::LinuxOS,
-                       Abi::OSFlavor::AndroidLinuxFlavor,
-                       Abi::BinaryFormat::ElfFormat,
-                       0, androidAbi};
-        }
-    };
-    Abis abis;
-    for (const auto &abi : androidAbis())
-        abis << androidAbi2Abi(abi);
-    return abis;
+    return Utils::transform<Abis>(androidAbis(), &AndroidManager::androidAbi2Abi);
 }
 
 void AndroidQtVersion::addToEnvironment(const Kit *k, Utils::Environment &env) const

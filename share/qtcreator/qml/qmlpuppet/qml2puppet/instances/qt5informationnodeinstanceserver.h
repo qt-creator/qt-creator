@@ -114,7 +114,7 @@ private:
     void createEditView3D();
     void create3DPreviewView();
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList,
-                         const QHash<QString, QVariantMap> &toolStates);
+                         const CreateSceneCommand &command);
     void createCameraAndLightGizmos(const QList<ServerNodeInstance> &instanceList) const;
     void add3DViewPorts(const QList<ServerNodeInstance> &instanceList);
     void add3DScenes(const QList<ServerNodeInstance> &instanceList);
@@ -165,6 +165,7 @@ private:
     QSet<QObject *> m_view3Ds;
     QMultiHash<QObject *, QObject *> m_3DSceneMap; // key: scene root, value: node
     QObject *m_active3DView = nullptr;
+    QList<QObject *> m_priorityView3DsToRender;
     QObject *m_active3DScene = nullptr;
     QSet<ServerNodeInstance> m_parentChangedSet;
     QList<ServerNodeInstance> m_completedComponentList;

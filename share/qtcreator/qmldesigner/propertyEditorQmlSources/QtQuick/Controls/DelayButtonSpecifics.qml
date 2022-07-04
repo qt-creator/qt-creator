@@ -67,7 +67,10 @@ Column {
 
                 Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-                ControlLabel { text: "ms" }
+                ControlLabel {
+                    text: "ms"
+                    elide: Text.ElideNone
+                }
 
                 ExpandingSpacer {}
             }
@@ -76,9 +79,13 @@ Column {
 
     AbstractButtonSection {}
 
+    IconSection {}
+
     ControlSection {}
 
     FontSection {}
 
     PaddingSection {}
+
+    InsetSection {}
 }

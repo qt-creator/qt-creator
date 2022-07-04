@@ -47,6 +47,7 @@ Item {
     property alias contentItem: contentItem
     property color backgroundGradientColorStart: "#222222"
     property color backgroundGradientColorEnd: "#999999"
+    property color gridColor: "#aaaaaa"
 
     enum SelectionMode { Item, Group }
     enum TransformMode { Move, Rotate, Scale }
@@ -96,12 +97,14 @@ Item {
                                               {"usePerspective": usePerspective,
                                                "showSceneLight": showEditLight,
                                                "showGrid": showGrid,
+                                               "gridColor": gridColor,
                                                "importScene": activeScene,
                                                "cameraZoomFactor": cameraControl._zoomFactor,
                                                "z": 1});
             editView.usePerspective = Qt.binding(function() {return usePerspective;});
             editView.showSceneLight = Qt.binding(function() {return showEditLight;});
             editView.showGrid = Qt.binding(function() {return showGrid;});
+            editView.gridColor = Qt.binding(function() {return gridColor;});
             editView.cameraZoomFactor = Qt.binding(function() {return cameraControl._zoomFactor;});
 
             selectionBoxes.length = 0;
@@ -217,10 +220,19 @@ Item {
     function updateViewStates(viewStates)
     {
         if ("selectBackgroundColor" in viewStates) {
-            var color = viewStates.selectBackgroundColor
-            backgroundGradientColorStart = color[0];
-            backgroundGradientColorEnd = color[1];
+            if (Array.isArray(viewStates.selectBackgroundColor)) {
+                var colors = viewStates.selectBackgroundColor
+                backgroundGradientColorStart = colors[0];
+                backgroundGradientColorEnd = colors[1];
+            } else {
+                var color = viewStates.selectBackgroundColor
+                backgroundGradientColorStart = color;
+                backgroundGradientColorEnd = color;
+            }
         }
+
+        if ("selectGridColor" in viewStates)
+            viewRoot.gridColor = viewStates.selectGridColor
     }
 
     // If resetToDefault is true, tool states not specifically set to anything will be reset to

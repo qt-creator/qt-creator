@@ -1533,7 +1533,7 @@ void CppModelManager::setupFallbackProjectPart()
         if (sysroot.isEmpty())
             sysroot = Utils::FilePath::fromString(defaultTc->sysRoot());
         Utils::Environment env = defaultKit->buildEnvironment();
-        tcInfo = ToolChainInfo(defaultTc, sysroot.toString(), env);
+        tcInfo = ToolChainInfo(defaultTc, sysroot, env);
         const auto macroInspectionWrapper = [runner = tcInfo.macroInspectionRunner](
                 const QStringList &flags) {
             ToolChain::MacroInspectionReport report = runner(flags);

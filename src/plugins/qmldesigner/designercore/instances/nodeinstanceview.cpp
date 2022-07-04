@@ -90,6 +90,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/documentmanager.h>
 #include <hdrimage.h>
+#include <edit3d/edit3dviewconfig.h>
 #endif
 
 #include <coreplugin/messagemanager.h>
@@ -103,6 +104,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/theme/theme.h>
 
 #include <qtsupport/qtkitinformation.h>
 
@@ -985,17 +987,6 @@ QList<ModelNode> filterNodesForSkipItems(const QList<ModelNode> &nodeList)
     return filteredNodeList;
 }
 
-QList<QColor> readBackgroundColorConfiguration(const QVariant &var)
-{
-    if (!var.isValid())
-        return {};
-
-    auto colorNameList = var.value<QList<QString>>();
-    QTC_ASSERT(colorNameList.size() == 2, return {});
-
-    return {colorNameList[0], colorNameList[1]};
-}
-
 CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
 {
     QList<ModelNode> nodeList = allModelNodes();
@@ -1150,16 +1141,15 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     if (stateNode.isValid() && stateNode.metaInfo().isSubclassOf("QtQuick.State", 1, 0))
         stateInstanceId = stateNode.internalId();
 
-    QVariant value
+    QColor gridColor;
+    QList<QColor> backgroundColor;
+
 #ifndef QMLDESIGNER_TEST
-            = QmlDesigner::DesignerSettings::getValue(
-                QmlDesigner::DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR);
-#else
-            = {};
+    backgroundColor = Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR);
+    QList<QColor> gridColorList = Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR);
+    if (!gridColorList.isEmpty())
+        gridColor = gridColorList.at(0);
 #endif
-    QList<QColor> edit3dBackgroundColor;
-    if (value.isValid())
-        edit3dBackgroundColor = readBackgroundColorConfiguration(value);
 
     return CreateSceneCommand(
         instanceContainerList,
@@ -1182,7 +1172,8 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
         m_captureImageMinimumSize,
         m_captureImageMaximumSize,
         stateInstanceId,
-        edit3dBackgroundColor);
+        backgroundColor,
+        gridColor);
 }
 
 ClearSceneCommand NodeInstanceView::createClearSceneCommand() const
@@ -1700,6 +1691,10 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
     } else if (command.type() == PuppetToCreatorCommand::Import3DSupport) {
         const QVariantMap supportMap = qvariant_cast<QVariantMap>(command.data());
         emitImport3DSupportChanged(supportMap);
+    } else if (command.type() == PuppetToCreatorCommand::ModelAtPos) {
+        ModelNode modelNode = modelNodeForInternalId(command.data().toUInt());
+        if (modelNode.isValid())
+            emitModelAtPosResult(modelNode);
     }
 }
 
@@ -1727,7 +1722,7 @@ void NodeInstanceView::view3DAction(const View3DActionCommand &command)
 
 void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node, const ModelNode &renderNode)
 {
-    if (node.isValid()) {
+    if (m_nodeInstanceServer && node.isValid()) {
         auto instance = instanceForModelNode(node);
         if (instance.isValid()) {
             qint32 renderItemId = -1;
@@ -1767,7 +1762,16 @@ void NodeInstanceView::timerEvent(QTimerEvent *event)
 
 QVariant NodeInstanceView::modelNodePreviewImageDataToVariant(const ModelNodePreviewImageData &imageData)
 {
-    static const QPixmap placeHolder(":/navigator/icon/tooltip_placeholder.png");
+    static QPixmap placeHolder;
+    if (placeHolder.isNull()) {
+        QPixmap placeHolderSrc(":/navigator/icon/tooltip_placeholder.png");
+        placeHolder = {150, 150};
+        // Placeholder has transparency, but we don't want to show the checkerboard, so
+        // paint in the correct background color
+        placeHolder.fill(Utils::creatorTheme()->color(Utils::Theme::BackgroundColorNormal));
+        QPainter painter(&placeHolder);
+        painter.drawPixmap(0, 0, 150, 150, placeHolderSrc);
+    }
 
     QVariantMap map;
     map.insert("type", imageData.type);

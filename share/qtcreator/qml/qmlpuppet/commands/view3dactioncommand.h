@@ -57,10 +57,12 @@ public:
                 ParticlesRestart,
                 ParticlesSeek,
                 SelectBackgroundColor,
+                SelectGridColor,
                 ResetBackgroundColor,
+                GetModelAtPos
               };
 
-    explicit View3DActionCommand(Type type, const QVariant &value);
+    View3DActionCommand(Type type, const QVariant &value);
 
     View3DActionCommand() = default;
 

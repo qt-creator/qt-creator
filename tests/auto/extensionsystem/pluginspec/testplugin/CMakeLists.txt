@@ -4,7 +4,7 @@ if(APPLE)
 elseif(UNIX)
   set(plugin_output_name "libtest")
 else()
-  set(plugin_output_name "testd")
+  set(plugin_output_name "test$<$<CONFIG:Debug>:d>")
 endif()
 
 file(RELATIVE_PATH TEST_PLUGIN_PATH ${QtCreator_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR})

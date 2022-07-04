@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -36,6 +36,7 @@ StudioControls.ComboBox {
     property string fontFilter: "*.ttf *.otf"
     property bool showExtendedFunctionButton: true
 
+    hasActiveDrag: activeDragSuffix !== "" && root.fontFilter.includes(activeDragSuffix)
     labelColor: colorLogic.textColor
     editable: true
 
@@ -47,16 +48,45 @@ StudioControls.ComboBox {
         filter: root.fontFilter
     }
 
+    DropArea {
+        id: dropArea
+
+        anchors.fill: parent
+
+        property string assetPath: ""
+
+        onEntered: function(drag) {
+            dropArea.assetPath = drag.getDataAsString(drag.keys[0]).split(",")[0]
+            drag.accepted = root.hasActiveDrag
+            root.hasActiveHoverDrag = drag.accepted
+        }
+
+        onExited: root.hasActiveHoverDrag = false
+
+        onDropped: function(drop) {
+            drop.accepted = root.hasActiveHoverDrag
+            var fontLoader = root.createFontLoader("file:" + dropArea.assetPath)
+            if (fontLoader.status === FontLoader.Ready) {
+                root.backendValue.value = fontLoader.name
+                root.currentIndex = root.find(root.backendValue.value)
+            }
+            root.hasActiveHoverDrag = false
+            root.backendValue.commitDrop(dropArea.assetPath)
+        }
+    }
+
     function createFontLoader(fontUrl) {
         return Qt.createQmlObject('import QtQuick 2.0; FontLoader { source: "' + fontUrl + '"; }',
                                   root, "dynamicFontLoader")
     }
 
     function setupModel() {
-        var familyNames = ["Arial", "Times New Roman", "Courier", "Verdana", "Tahoma"] // default fonts
+        // default fonts
+        var familyNames = ["Arial", "Times New Roman", "Courier", "Verdana", "Tahoma"]
 
-        for (var i = 0; i < fileModel.fullPathModel.length; ++i) { // add custom fonts
-            var fontLoader = createFontLoader(fileModel.docPath + "/" + fileModel.fullPathModel[i])
+        for (var i = 0; i < fileModel.model.length; ++i) { // add custom fonts
+            var fontLoader = root.createFontLoader(fileModel.docPath + "/"
+                                                   + fileModel.model[i].relativeFilePath)
             familyNames.push(fontLoader.name)
         }
 

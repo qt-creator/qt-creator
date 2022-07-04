@@ -40,6 +40,7 @@ public:
 
 private:
     bool formatCodeInsteadOfIndent() const override;
+    bool formatWhileTyping() const override;
     int lastSaveRevision() const override;
 };
 

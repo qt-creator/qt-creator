@@ -242,12 +242,28 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
 {
     const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
                                                      ->viewManager().designerActionManager();
-    if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData()))
+    if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData())
+        || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL)) {
         dragEnterEvent->acceptProposedAction();
+    }
 }
 
 void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
 {
+    // handle dropping materials
+    if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL)) {
+        QByteArray data = dropEvent->mimeData()->data(Constants::MIME_TYPE_MATERIAL);
+        QDataStream stream(data);
+        qint32 internalId;
+        stream >> internalId;
+        ModelNode matNode = m_view->modelNodeForInternalId(internalId);
+
+        if (matNode.isValid())
+            m_view->dropMaterial(matNode, dropEvent->position());
+        return;
+    }
+
+    // handle dropping external assets
     const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
                                                      ->viewManager().designerActionManager();
     QHash<QString, QStringList> addedAssets = actionManager.handleExternalAssetsDrop(dropEvent->mimeData());

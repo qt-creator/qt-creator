@@ -72,6 +72,7 @@ public:
 
 protected:
     virtual bool formatCodeInsteadOfIndent() const { return false; }
+    virtual bool formatWhileTyping() const { return false; }
     virtual int lastSaveRevision() const { return 0; }
 
 private:

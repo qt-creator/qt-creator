@@ -37,6 +37,7 @@
 namespace QmlDesigner {
 
 enum FoundLicense {
+    noLicense,
     community,
     professional,
     enterprise
@@ -57,12 +58,28 @@ inline ExtensionSystem::IPlugin *licenseCheckerPlugin()
 
 inline FoundLicense checkLicense()
 {
+    static FoundLicense license = noLicense;
+
+    if (license != noLicense)
+        return license;
+
     if (auto plugin = Internal::licenseCheckerPlugin()) {
         bool retVal = false;
+
         bool success = QMetaObject::invokeMethod(plugin,
-                                                 "qdsEnterpriseLicense",
+                                                 "evaluationLicense",
                                                  Qt::DirectConnection,
                                                  Q_RETURN_ARG(bool, retVal));
+
+        if (success && retVal)
+            return enterprise;
+
+        retVal = false;
+
+        success = QMetaObject::invokeMethod(plugin,
+                                            "qdsEnterpriseLicense",
+                                            Qt::DirectConnection,
+                                            Q_RETURN_ARG(bool, retVal));
         if (success && retVal)
             return enterprise;
         else

@@ -65,6 +65,7 @@ private:
     void showOrHideWidgets();
     void initChecksAndPreview(bool enabled);
     void initOverrideCheckBox();
+    void initCheckBoxes();
     void connectChecks();
 
     void fillTable();

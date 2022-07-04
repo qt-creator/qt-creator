@@ -32,6 +32,7 @@ View3D {
     property bool usePerspective: false
     property alias showSceneLight: sceneLight.visible
     property alias showGrid: helperGrid.visible
+    property alias gridColor: helperGrid.gridColor
     property alias sceneHelpers: sceneHelpers
     property alias perspectiveCamera: scenePerspectiveCamera
     property alias orthoCamera: sceneOrthoCamera

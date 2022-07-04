@@ -130,7 +130,7 @@ void GenericLinuxDeviceConfigurationWidget::keyFileEditingFinished()
 
 void GenericLinuxDeviceConfigurationWidget::gdbServerEditingFinished()
 {
-    device()->setDebugServerPath(FilePath::fromString(m_ui->gdbServerLineEdit->text()));
+    device()->setDebugServerPath(device()->filePath(m_ui->gdbServerLineEdit->text()));
 }
 
 void GenericLinuxDeviceConfigurationWidget::handleFreePortsChanged()
@@ -213,6 +213,7 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
     m_ui->timeoutSpinBox->setValue(sshParams.timeout);
     m_ui->userLineEdit->setText(sshParams.userName());
     m_ui->keyFileLineEdit->setFilePath(sshParams.privateKeyFile);
-    m_ui->gdbServerLineEdit->setText(device()->debugServerPath().toString());
+    // FIXME: Use a remote executable line edit
+    m_ui->gdbServerLineEdit->setText(device()->debugServerPath().path());
     updatePortsWarningLabel();
 }

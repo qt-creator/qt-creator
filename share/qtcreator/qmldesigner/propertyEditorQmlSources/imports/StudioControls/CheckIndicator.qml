@@ -37,6 +37,9 @@ Rectangle {
     property bool pressed: checkIndicatorMouseArea.containsPress
     property bool checked: false
 
+    property bool hasActiveDrag: myControl.hasActiveDrag ?? false
+    property bool hasActiveHoverDrag: myControl.hasActiveHoverDrag ?? false
+
     color: StudioTheme.Values.themeControlBackground
     border.width: 0
 
@@ -79,10 +82,18 @@ Rectangle {
             name: "default"
             when: myControl.enabled && checkIndicator.enabled && !myControl.edit
                   && !checkIndicator.hover && !myControl.hover && !myControl.drag
-                  && !checkIndicator.checked
+                  && !checkIndicator.checked && !checkIndicator.hasActiveDrag
             PropertyChanges {
                 target: checkIndicator
                 color: StudioTheme.Values.themeControlBackground
+            }
+        },
+        State {
+            name: "dragHover"
+            when: myControl.enabled && checkIndicator.hasActiveHoverDrag
+            PropertyChanges {
+                target: checkIndicator
+                color: StudioTheme.Values.themeControlBackgroundInteraction
             }
         },
         State {

@@ -31,6 +31,11 @@
 #include "nodeinstanceview.h"
 #include <qmlstate.h>
 #include <qmltimeline.h>
+#include <nodemetainfo.h>
+#include <qmldesignerconstants.h>
+#include <nodelistproperty.h>
+#include <variantproperty.h>
+#include <bindingproperty.h>
 
 #ifndef QMLDESIGNER_TEST
 #include <qmldesignerplugin.h>
@@ -83,6 +88,12 @@ void AbstractView::setModel(Model *model)
 RewriterTransaction AbstractView::beginRewriterTransaction(const QByteArray &identifier)
 {
     return RewriterTransaction(this, identifier);
+}
+
+ModelNode AbstractView::createModelNode(const TypeName &typeName)
+{
+    const NodeMetaInfo metaInfo = model()->metaInfo(typeName);
+    return createModelNode(typeName, metaInfo.majorVersion(), metaInfo.minorVersion());
 }
 
 ModelNode AbstractView::createModelNode(const TypeName &typeName,
@@ -391,6 +402,9 @@ void AbstractView::updateActiveScene3D(const QVariantMap & /*sceneState*/)
 void AbstractView::updateImport3DSupport(const QVariantMap & /*supportMap*/)
 {
 }
+
+// a Quick3DModel that is picked at the requested position in the 3D Editor
+void AbstractView::modelAtPosReady(const ModelNode & /*modelNode*/) {}
 
 void AbstractView::modelNodePreviewPixmapChanged(const ModelNode & /*node*/, const QPixmap & /*pixmap*/)
 {
@@ -783,6 +797,12 @@ void AbstractView::emitImport3DSupportChanged(const QVariantMap &supportMap)
         model()->d->notifyImport3DSupportChanged(supportMap);
 }
 
+void AbstractView::emitModelAtPosResult(const ModelNode &modelNode)
+{
+    if (model())
+        model()->d->notifyModelAtPosResult(modelNode);
+}
+
 void AbstractView::emitRewriterEndTransaction()
 {
     if (model())
@@ -801,6 +821,104 @@ void AbstractView::changeRootNodeType(const TypeName &type, int majorVersion, in
     Internal::WriteLocker locker(m_model.data());
 
     m_model.data()->d->changeRootNodeType(type, majorVersion, minorVersion);
+}
+
+// Creates material library if it doesn't exist and moves any existing materials into it
+// This function should be called only from inside a transaction, as it potentially does many
+// changes to model, or undo stack should be cleared after the call.
+void AbstractView::ensureMaterialLibraryNode()
+{
+    ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
+    if (matLib.isValid())
+        return;
+
+    // Create material library node
+    TypeName nodeType = rootModelNode().isSubclassOf("QtQuick3D.Node") ? "QtQuick3D.Node"
+                                                                       : "QtQuick.Item";
+    NodeMetaInfo metaInfo = model()->metaInfo(nodeType);
+    matLib = createModelNode(nodeType, metaInfo.majorVersion(), metaInfo.minorVersion());
+
+    matLib.setIdWithoutRefactoring(Constants::MATERIAL_LIB_ID);
+    rootModelNode().defaultNodeListProperty().reparentHere(matLib);
+
+    const QList<ModelNode> materials = rootModelNode().subModelNodesOfType("QtQuick3D.Material");
+    if (!materials.isEmpty()) {
+        // Move all materials to under material library node
+        for (const ModelNode &node : materials) {
+            // If material has no name, set name to id
+            QString matName = node.variantProperty("objectName").value().toString();
+            if (matName.isEmpty()) {
+                VariantProperty objNameProp = node.variantProperty("objectName");
+                objNameProp.setValue(node.id());
+            }
+
+            matLib.defaultNodeListProperty().reparentHere(node);
+        }
+    }
+}
+
+// Returns ModelNode for project's material library.
+ModelNode AbstractView::materialLibraryNode()
+{
+    ensureMaterialLibraryNode();
+
+    ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
+    QTC_ASSERT(matLib.isValid(), return {});
+
+    return matLib;
+}
+
+// Assigns given material to a 3D model.
+// The assigned material is also inserted into material library if not already there.
+// If given material is not valid, first existing material from material library is used,
+// or if material library is empty, a new material is created.
+// This function should be called only from inside a transaction, as it potentially does many
+// changes to model.
+void AbstractView::assignMaterialTo3dModel(const ModelNode &modelNode, const ModelNode &materialNode)
+{
+    QTC_ASSERT(modelNode.isValid() && modelNode.isSubclassOf("QtQuick3D.Model"), return);
+
+    ModelNode matLib = materialLibraryNode();
+
+    if (!matLib.isValid())
+        return;
+
+    ModelNode newMaterialNode;
+
+    if (materialNode.isValid() && materialNode.isSubclassOf("QtQuick3D.Material")) {
+        newMaterialNode = materialNode;
+    } else {
+        const QList<ModelNode> materials = matLib.directSubModelNodes();
+        if (materials.size() > 0) {
+            for (const ModelNode &mat : materials) {
+                if (mat.isSubclassOf("QtQuick3D.Material")) {
+                    newMaterialNode = mat;
+                    break;
+                }
+            }
+        }
+
+        // if no valid material, create a new default material
+        if (!newMaterialNode.isValid()) {
+            NodeMetaInfo metaInfo = model()->metaInfo("QtQuick3D.DefaultMaterial");
+            newMaterialNode = createModelNode("QtQuick3D.DefaultMaterial", metaInfo.majorVersion(),
+                                              metaInfo.minorVersion());
+            newMaterialNode.validId();
+        }
+    }
+
+    QTC_ASSERT(newMaterialNode.isValid(), return);
+
+    VariantProperty matNameProp = newMaterialNode.variantProperty("objectName");
+    if (matNameProp.value().isNull())
+        matNameProp.setValue("New Material");
+
+    if (!newMaterialNode.hasParentProperty()
+            || newMaterialNode.parentProperty() != matLib.defaultNodeListProperty()) {
+        matLib.defaultNodeListProperty().reparentHere(newMaterialNode);
+    }
+    BindingProperty modelMatsProp = modelNode.bindingProperty("materials");
+    modelMatsProp.setExpression(newMaterialNode.id());
 }
 
 ModelNode AbstractView::currentStateNode() const

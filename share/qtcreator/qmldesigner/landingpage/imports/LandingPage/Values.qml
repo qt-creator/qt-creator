@@ -29,7 +29,7 @@ import QtQuick 2.15
 QtObject {
     id: values
 
-    property string baseFont: "TitilliumWeb"
+    property string baseFont: "Titillium Web"
 
     property real scaleFactor: 1.0
     property real checkBoxSize: Math.round(26 * values.scaleFactor)

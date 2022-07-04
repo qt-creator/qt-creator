@@ -126,18 +126,18 @@ using namespace Internal;
 // Helpers:
 // --------------------------------------------------------------------------
 
-static const char compilerPlatformCodeGenFlagsKeyC[] = "ProjectExplorer.GccToolChain.PlatformCodeGenFlags";
-static const char compilerPlatformLinkerFlagsKeyC[] = "ProjectExplorer.GccToolChain.PlatformLinkerFlags";
-static const char targetAbiKeyC[] = "ProjectExplorer.GccToolChain.TargetAbi";
-static const char originalTargetTripleKeyC[] = "ProjectExplorer.GccToolChain.OriginalTargetTriple";
-static const char supportedAbisKeyC[] = "ProjectExplorer.GccToolChain.SupportedAbis";
-static const char parentToolChainIdKeyC[] = "ProjectExplorer.ClangToolChain.ParentToolChainId";
-static const char binaryRegexp[] = "(?:^|-|\\b)(?:gcc|g\\+\\+|clang(?:\\+\\+)?)(?:-([\\d.]+))?$";
+const char compilerPlatformCodeGenFlagsKeyC[] = "ProjectExplorer.GccToolChain.PlatformCodeGenFlags";
+const char compilerPlatformLinkerFlagsKeyC[] = "ProjectExplorer.GccToolChain.PlatformLinkerFlags";
+const char targetAbiKeyC[] = "ProjectExplorer.GccToolChain.TargetAbi";
+const char originalTargetTripleKeyC[] = "ProjectExplorer.GccToolChain.OriginalTargetTriple";
+const char supportedAbisKeyC[] = "ProjectExplorer.GccToolChain.SupportedAbis";
+const char parentToolChainIdKeyC[] = "ProjectExplorer.ClangToolChain.ParentToolChainId";
+const char binaryRegexp[] = "(?:^|-|\\b)(?:gcc|g\\+\\+|clang(?:\\+\\+)?)(?:-([\\d.]+))?$";
 
-static QByteArray runGcc(const FilePath &gcc, const QStringList &arguments, const Environment &env)
+static QString runGcc(const FilePath &gcc, const QStringList &arguments, const Environment &env)
 {
     if (!gcc.isExecutableFile())
-        return QByteArray();
+        return {};
 
     QtcProcess cpp;
     Environment environment(env);
@@ -150,11 +150,11 @@ static QByteArray runGcc(const FilePath &gcc, const QStringList &arguments, cons
     if (cpp.result() != ProcessResult::FinishedWithSuccess || cpp.exitCode() != 0) {
         Core::MessageManager::writeFlashing({"Compiler feature detection failure!",
                                              cpp.exitMessage(),
-                                             QString::fromUtf8(cpp.allRawOutput())});
-        return QByteArray();
+                                             cpp.allOutput()});
+        return {};
     }
 
-    return cpp.allOutput().toUtf8();
+    return cpp.allOutput();
 }
 
 static ProjectExplorer::Macros gccPredefinedMacros(const FilePath &gcc,
@@ -164,7 +164,7 @@ static ProjectExplorer::Macros gccPredefinedMacros(const FilePath &gcc,
     QStringList arguments = args;
     arguments << "-";
 
-    ProjectExplorer::Macros  predefinedMacros = Macro::toMacros(runGcc(gcc, arguments, env));
+    ProjectExplorer::Macros  predefinedMacros = Macro::toMacros(runGcc(gcc, arguments, env).toUtf8());
     // Sanity check in case we get an error message instead of real output:
     QTC_CHECK(predefinedMacros.isEmpty()
               || predefinedMacros.front().type == ProjectExplorer::MacroType::Define);
@@ -189,7 +189,7 @@ HeaderPaths GccToolChain::gccHeaderPaths(const FilePath &gcc,
 {
     HeaderPaths builtInHeaderPaths;
     QByteArray line;
-    QByteArray data = runGcc(gcc, arguments, env);
+    QByteArray data = runGcc(gcc, arguments, env).toUtf8();
     QBuffer cpp(&data);
     cpp.open(QIODevice::ReadOnly);
     while (cpp.canReadLine()) {
@@ -277,7 +277,7 @@ static GccToolChain::DetectedAbisResult guessGccAbi(const FilePath &path,
 
     QStringList arguments = extraArgs;
     arguments << "-dumpmachine";
-    QString machine = QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
+    QString machine = runGcc(path, arguments, env).trimmed().section('\n', 0, 0, QString::SectionSkipEmpty);
     if (machine.isEmpty()) {
         // ICC does not implement the -dumpmachine option on macOS.
         if (HostOsInfo::isMacHost() && (path.fileName() == "icc" || path.fileName() == "icpc"))
@@ -293,7 +293,7 @@ static QString gccVersion(const FilePath &path,
 {
     QStringList arguments = extraArgs;
     arguments << "-dumpversion";
-    return QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
+    return runGcc(path, arguments, env).trimmed();
 }
 
 static FilePath gccInstallDir(const FilePath &compiler,
@@ -302,7 +302,7 @@ static FilePath gccInstallDir(const FilePath &compiler,
 {
     QStringList arguments = extraArgs;
     arguments << "-print-search-dirs";
-    QString output = QString::fromLocal8Bit(runGcc(compiler, arguments, env)).trimmed();
+    QString output = runGcc(compiler, arguments, env).trimmed();
     // Expected output looks like this:
     //   install: /usr/lib/gcc/x86_64-linux-gnu/7/
     //   ...
@@ -596,15 +596,15 @@ QStringList GccToolChain::includedFiles(const QStringList &flags, const QString 
 }
 
 QStringList GccToolChain::gccPrepareArguments(const QStringList &flags,
-                                              const QString &sysRoot,
+                                              const FilePath &sysRoot,
                                               const QStringList &platformCodeGenFlags,
-                                              Utils::Id languageId,
+                                              Id languageId,
                                               OptionsReinterpreter reinterpretOptions)
 {
     QStringList arguments;
     const bool hasKitSysroot = !sysRoot.isEmpty();
     if (hasKitSysroot)
-        arguments.append(QString::fromLatin1("--sysroot=%1").arg(sysRoot));
+        arguments.append(QString("--sysroot=%1").arg(sysRoot.nativePath()));
 
     QStringList allFlags;
     allFlags << platformCodeGenFlags << flags;
@@ -629,7 +629,7 @@ HeaderPaths GccToolChain::builtInHeaderPaths(const Utils::Environment &env,
                                              Utils::Id languageId,
                                              ExtraHeaderPathsFunction extraHeaderPathsFunction,
                                              const QStringList &flags,
-                                             const QString &sysRoot,
+                                             const Utils::FilePath &sysRoot,
                                              const QString &originalTargetTriple)
 {
     QStringList arguments = gccPrepareArguments(flags,
@@ -677,7 +677,7 @@ ToolChain::BuiltInHeaderPathsRunner GccToolChain::createBuiltInHeaderPathsRunner
             headerCache = headerPathsCache(),
             languageId = language(),
             extraHeaderPathsFunction = m_extraHeaderPathsFunction](const QStringList &flags,
-                                                                   const QString &sysRoot,
+                                                                   const FilePath &sysRoot,
                                                                    const QString &) {
         return builtInHeaderPaths(fullEnv,
                                   compilerCommand,
@@ -1449,8 +1449,7 @@ void GccToolChainConfigWidget::handleCompilerCommandChange()
     Abis abiList;
 
     if (!path.isEmpty()) {
-        QFileInfo fi(path.toFileInfo());
-        haveCompiler = fi.isExecutable() && fi.isFile();
+        haveCompiler = path.isExecutableFile();
     }
     if (haveCompiler) {
         Environment env = path.deviceEnvironment();
@@ -1712,7 +1711,7 @@ ToolChain::BuiltInHeaderPathsRunner ClangToolChain::createBuiltInHeaderPathsRunn
             headerCache = headerPathsCache(),
             languageId = language(),
             extraHeaderPathsFunction = m_extraHeaderPathsFunction](const QStringList &flags,
-                                                                   const QString &sysRoot,
+                                                                   const FilePath &sysRoot,
                                                                    const QString &target) {
         return builtInHeaderPaths(fullEnv,
                                   compilerCommand,

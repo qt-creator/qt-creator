@@ -30,12 +30,12 @@
 #include <QMetaObject>
 #include <QQuickImageResponse>
 
-namespace QmlDesigner {
+namespace {
 
-class ImageRespose : public QQuickImageResponse
+class ImageResponse : public QQuickImageResponse
 {
 public:
-    ImageRespose(const QImage &defaultImage)
+    ImageResponse(const QImage &defaultImage)
         : m_image(defaultImage)
     {}
 
@@ -57,14 +57,18 @@ private:
     QImage m_image;
 };
 
+} // namespace
+
+namespace QmlDesigner {
+
 QQuickImageResponse *ExplicitImageCacheImageProvider::requestImageResponse(const QString &id,
                                                                            const QSize &)
 {
-    auto response = std::make_unique<ImageRespose>(m_defaultImage);
+    auto response = std::make_unique<::ImageResponse>(m_defaultImage);
 
     m_cache.requestImage(
         id,
-        [response = QPointer<ImageRespose>(response.get())](const QImage &image) {
+        [response = QPointer<::ImageResponse>(response.get())](const QImage &image) {
             QMetaObject::invokeMethod(
                 response,
                 [response, image] {
@@ -73,7 +77,7 @@ QQuickImageResponse *ExplicitImageCacheImageProvider::requestImageResponse(const
                 },
                 Qt::QueuedConnection);
         },
-        [response = QPointer<ImageRespose>(response.get())](ImageCache::AbortReason abortReason) {
+        [response = QPointer<::ImageResponse>(response.get())](ImageCache::AbortReason abortReason) {
             QMetaObject::invokeMethod(
                 response,
                 [response, abortReason] {

@@ -109,6 +109,8 @@ public:
 
     RewriterTransaction beginRewriterTransaction(const QByteArray &identifier);
 
+    ModelNode createModelNode(const TypeName &typeName);
+
     ModelNode createModelNode(const TypeName &typeName,
                          int majorVersion,
                          int minorVersion,
@@ -163,6 +165,7 @@ public:
     void emitUpdateActiveScene3D(const QVariantMap &sceneState);
     void emitModelNodelPreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap);
     void emitImport3DSupportChanged(const QVariantMap &supportMap);
+    void emitModelAtPosResult(const ModelNode &modelNode);
 
     void sendTokenToInstances(const QString &token, int number, const QVector<ModelNode> &nodeVector);
 
@@ -227,12 +230,17 @@ public:
     virtual void renderImage3DChanged(const QImage &image);
     virtual void updateActiveScene3D(const QVariantMap &sceneState);
     virtual void updateImport3DSupport(const QVariantMap &supportMap);
+    virtual void modelAtPosReady(const ModelNode &modelNode);
     virtual void modelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap);
 
     virtual void dragStarted(QMimeData *mimeData);
     virtual void dragEnded();
 
     void changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion);
+
+    void ensureMaterialLibraryNode();
+    ModelNode materialLibraryNode();
+    void assignMaterialTo3dModel(const ModelNode &modelNode, const ModelNode &materialNode = {});
 
     NodeInstanceView *nodeInstanceView() const;
     RewriterView *rewriterView() const;

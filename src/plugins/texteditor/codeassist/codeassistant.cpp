@@ -270,13 +270,13 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
             if (processor != m_asyncProcessor)
                 return;
             invalidateCurrentRequestData();
-            if (processor && processor->needsRestart() && m_receivedContentWhileWaiting) {
+            if (processor->needsRestart() && m_receivedContentWhileWaiting) {
                 delete newProposal;
                 m_receivedContentWhileWaiting = false;
                 requestProposal(reason, m_assistKind, m_requestProvider);
             } else {
                 displayProposal(newProposal, reason);
-                if (processor && processor->running())
+                if (processor->running())
                     m_asyncProcessor = processor;
                 else
                     emit q->finished();

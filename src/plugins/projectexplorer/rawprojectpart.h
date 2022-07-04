@@ -138,7 +138,7 @@ public:
 
     Utils::QtMajorVersion projectPartQtVersion = Utils::QtMajorVersion::None;
 
-    QString sysRootPath;
+    Utils::FilePath sysRootPath;
 };
 
 class PROJECTEXPLORER_EXPORT ToolChainInfo
@@ -146,7 +146,7 @@ class PROJECTEXPLORER_EXPORT ToolChainInfo
 public:
     ToolChainInfo() = default;
     ToolChainInfo(const ProjectExplorer::ToolChain *toolChain,
-                  const QString &sysRootPath,
+                  const Utils::FilePath &sysRootPath,
                   const Utils::Environment &env);
 
     bool isValid() const { return type.isValid(); }
@@ -161,7 +161,7 @@ public:
     Utils::FilePath installDir;
     QStringList extraCodeModelFlags;
 
-    QString sysRootPath; // For headerPathsRunner.
+    Utils::FilePath sysRootPath; // For headerPathsRunner.
     ProjectExplorer::ToolChain::BuiltInHeaderPathsRunner headerPathsRunner;
     ProjectExplorer::ToolChain::MacroInspectionRunner macroInspectionRunner;
 };

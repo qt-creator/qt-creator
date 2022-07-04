@@ -44,9 +44,13 @@ Column {
 
     AbstractButtonSection {}
 
+    IconSection {}
+
     ControlSection {}
 
     FontSection {}
 
     PaddingSection {}
+
+    InsetSection {}
 }

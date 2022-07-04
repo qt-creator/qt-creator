@@ -48,7 +48,7 @@ def main():
     mBox = ("{text?='The file * has been changed on disk. Do you want to reload it?' "
             "type='QMessageBox' unnamed='1' visible='1'}")
     popupText = ("<p>The file <i>%s</i> has been changed on disk. Do you want to reload it?</p>"
-                 "<p>The default behavior can be set in Tools > Options > Environment > System.</p>")
+                 "<p>The default behavior can be set in Edit > Preferences > Environment > System.</p>")
     formerContent = None
 
     for i, currentFile in enumerate(files):

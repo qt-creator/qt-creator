@@ -53,6 +53,7 @@ public:
 
 private:
     bool formatCodeInsteadOfIndent() const override { return true; }
+    bool formatWhileTyping() const override { return true; }
 };
 
 ClangFormatTest::ClangFormatTest()

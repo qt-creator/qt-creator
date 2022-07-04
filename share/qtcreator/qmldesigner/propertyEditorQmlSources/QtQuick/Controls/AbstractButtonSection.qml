@@ -75,7 +75,7 @@ Section {
                                + StudioTheme.Values.actionIndicatorWidth
                 width: implicitWidth
                 backendValue: backendValues.display
-                model: [ "IconOnly", "TextOnly", "TextBesideIcon" ]
+                model: [ "IconOnly", "TextOnly", "TextBesideIcon", "TextUnderIcon" ]
                 scope: "AbstractButton"
                 enabled: backendValue.isAvailable
             }
@@ -140,10 +140,69 @@ Section {
 
         SecondColumnLayout {
             CheckBox {
+                id: autoRepeat
                 text: backendValues.autoRepeat.valueToString
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.autoRepeat
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            text: qsTr("Repeat delay")
+            tooltip: qsTr("Initial delay of auto-repetition in milliseconds.")
+            enabled: autoRepeat.checked
+        }
+
+        SecondColumnLayout {
+            SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                minimumValue: 0
+                maximumValue: 9999999
+                decimals: 0
+                backendValue: backendValues.autoRepeatDelay
+                enabled: autoRepeat.checked
+            }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            ControlLabel {
+                text: "ms"
+                elide: Text.ElideNone
+                enabled: autoRepeat.checked
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            text: qsTr("Repeat interval")
+            tooltip: qsTr("Interval of auto-repetition in milliseconds.")
+            enabled: autoRepeat.checked
+        }
+
+        SecondColumnLayout {
+            SpinBox {
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                minimumValue: 0
+                maximumValue: 9999999
+                decimals: 0
+                backendValue: backendValues.autoRepeatInterval
+                enabled: autoRepeat.checked
+            }
+
+            Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+            ControlLabel {
+                text: "ms"
+                elide: Text.ElideNone
+                enabled: autoRepeat.checked
             }
 
             ExpandingSpacer {}

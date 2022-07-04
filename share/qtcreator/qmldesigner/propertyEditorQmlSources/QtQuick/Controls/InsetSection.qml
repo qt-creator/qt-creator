@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the Qt Quick Controls 2 module of the Qt Toolkit.
@@ -35,8 +35,8 @@
 ****************************************************************************/
 
 import QtQuick 2.15
-import HelperWidgets 2.0
 import QtQuick.Layouts 1.15
+import HelperWidgets 2.0
 import StudioTheme 1.0 as StudioTheme
 
 Section {

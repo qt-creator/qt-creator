@@ -30,18 +30,19 @@
 
     \title Creating Timeline Animations
 
-    You can create timeline and keyframe based animations for linear
+    You can create timelines and keyframe-based animations for linear
     interpolation through intermediate values at specified keyframes
     instead of immediately changing to the target value.
 
-    \section1 Creating Timelines
+    You can also bind the timeline to a property value of a component such as
+    a slider and control the animation this way.
 
-    You specify settings for the timeline and for running the animation in the
-    \uicontrol {Timeline Settings} dialog. The \uicontrol Animation radio button
-    is selected for a timeline animation and the \uicontrol {Expression binding}
-    radio button for a \l{Setting Bindings}{property animation}.
+    \section1 Creating an Animation
 
-    \image studio-timeline-settings.png "Timeline Settings dialog"
+    To create an animation, whether it's a keyframe animation or an animation
+    bound to a property value, you first need to create a timeline.
+
+    \section2 Creating a Timeline
 
     To create a timeline to animate a UI component:
 
@@ -50,95 +51,97 @@
             (\uicontrol {Add Timeline}) button to specify settings
             for the timeline and running the animation
             in the \uicontrol {Timeline Settings} dialog.
-        \li In the \uicontrol {Timeline ID} field, enter an ID that describes
-            the animated component.
-        \li In the \uicontrol {Start frame} field, set the first frame of the
-            timeline. Negative values are allowed.
-        \li In the \uicontrol {End frame} field, set the last frame of the
-            timeline.
-        \li In the \uicontrol {Animation ID} field, enter an ID for the
-            animation.
-        \li Select the \uicontrol {Running in Base State} check box to run the
-            animation when the base state is applied. Deselect the check box
-            if you want to run the animation when some other state is applied.
-            For more information, see \l{Binding Animations to States}.
-        \li In the \uicontrol {Start frame} field, set the first frame of the
-            animation.
-        \li In the \uicontrol {End frame} field, set the last frame of the
-            animation.
-        \li In the \uicontrol {Duration} field, set the length of the
-            animation from the start frame to the end frame. If you set a
-            shorter duration than the number of frames, frames are left out
-            from the end of the animation when viewing it.
-        \li Select the \uicontrol Continuous check box to loop the animation
-            indefinitely.
-        \li In the \uicontrol Loops field, select the number of times to run
-            the animation as a loop. The default number of loops is one, which
-            means that you must restart the animation to see it again
-        \li Select the \uicontrol {Ping pong} check box to play the animation
-            backwards back to the beginning when it reaches the end.
-        \li In the \uicontrol Finished field, select the state
-            to apply when the animation finishes.
+        \li On the \uicontrol {Timeline Settings} tab:
+            \list
+                \li In the \uicontrol {Timeline ID} field, enter an id that
+                describes the timeline.
+                \li In the \uicontrol {Start frame} field, set the first frame
+                of the timeline. Negative values are allowed.
+                \li In the \uicontrol {End frame} field, set the last frame
+                of the timeline.
+                \image timeline-settings-dialog.png
+            \endlist
+        \li On the \uicontrol {Animation Settings} tab:
+            \list
+                \li In the \uicontrol {Animation ID} field, enter an ID for the
+                animation.
+                \li Optional. Select the \uicontrol {Running in Base State}
+                check box to run the animation when the base state is applied.
+                Clear the check box to run the animation when some other state
+                is applied. For more information, see
+                \l{Binding Animations to States}.
+                \li In the \uicontrol {Start frame} field, set the first frame
+                of the animation.
+                \li In the \uicontrol {End frame} field, set the last frame of
+                the animation.
+                \li In the \uicontrol {Duration} field, set the length of the
+                animation in milliseconds.
+                \li Optional. Select the \uicontrol Continuous check box to
+                loop the animation indefinitely.
+                \li Optional. In the \uicontrol Loops field, set the number of
+                times to run the animation. The default number of
+                loops is one, which means that you must restart the animation
+                to see it again.
+                \li Optional. Select the \uicontrol {Ping pong} check box to
+                play the animation backwards back to the beginning when it
+                reaches the end.
+                \li Optional. In the \uicontrol Finished field, select the state
+                to transition to when the animation finishes.
+            \endlist
         \li Select \uicontrol Close to close the dialog and save the settings.
     \endlist
 
-    To create additional timelines, select the \inlineimage icons/plus.png
-    (\uicontrol {Add Timeline}) button next to the
-    \uicontrol {Timeline Settings} tab.
+    Now, with the settings set for the timeline and the animation, you
+    set the keyframes for the properties to animate.
 
-    To specify settings for running timeline animations, select the
-    \inlineimage icons/plus.png
-    (\uicontrol {Add Animation}) button next to the
-    \uicontrol {Animation Settings} tab. For example, you could create
-    settings for running a part of the timeline animation between specified
-    frames or for running the animation backwards from the last frame to the
-    first.
+    \section3 Creating Additional Timelines
 
-    To modify the settings, select the \inlineimage icons/animation.png
-    (\uicontrol {Timeline Settings (S)}) button on the \l{Timeline Toolbar}
-    {toolbar} (or press \key S) in the \l Timeline view.
+    You can create more than one timeline. The purpose of several timelines is
+    to use different timelines in different states.
 
-    \section2 Binding Animations to States
+    To create a timeline for a second state:
 
-    The table at the bottom of the \uicontrol {Timeline Settings} dialog lists
-    the available states. Double-click the values in the \uicontrol Timeline
-    and \uicontrol Animation column to bind the states to animations. In the
-    \uicontrol {Fixed Frame} column, you can bind the states that don't have
-    animations to fixed frames.
+     \list 1
+       \li In \uicontrol {Timeline}, open the \uicontrol {Timeline Settings}
+       dialog.
+       \li Next to the \uicontrol {Timeline Settings} tab, select
+       \inlineimage icons/plus.png
+       . This creates another timeline.
+       \li In the table below the \uicontrol {Animation Settings} tab, set the
+       Timeline for the state where you want to use it.
+       \image timeline-settings-dialog-second.png
+    \endlist
+    To set the keyframe values for the timeline you created, first select the
+    state in \uicontrol {States} and the timeline is available in
+    \uicontrol{Timelines}.
 
-    \section1 Managing Keyframes
-
-    To animate components in the \l Timeline view, move to a frame
-    on the timeline and specify changes in the values of a property. \QC
-    automatically adds keyframes between two keyframes and sets their values
-    evenly to create an appearance of movement or transformation.
-
-    \image studio-timeline-with-tracks.png "Timeline view"
+    \image timeline-states.png
 
     \section2 Setting Keyframe Values
 
-    You can insert keyframes for all the properties of all the components that
-    you want to animate first, and then record the changes in their values by
-    selecting the \inlineimage icons/local_record_keyframes.png
-    (\uicontrol {Per Property Recording}) button for one property at a time.
-    For example, you can hide and show components by turning their visibility
-    off and on or by setting their opacity to 0 or 1.
+    When you create a timeline, \QDS creates one animation for the timeline.
+    You can create as many animations for a timeline as you want. For example,
+    you can create animations to run just a small section of the timeline or to
+    run the timeline backwards.
 
-    You can also select the \uicontrol {Auto Key (K)} button (or press \key K)
-    to record changes in property values, but you need to be more careful about
-    which property values you are changing to avoid surprises.
+    To animate components in the \l Timeline view, you set keyframe values for
+    the property to animate. \QDS automatically adds keyframes between two
+    keyframes and sets their values evenly to create, for example, movement or
+    transformation.
 
-    To record the changes of property values:
+    To set keyframe values for a component property:
 
     \list 1
         \li In the \l Navigator view, select the component to animate.
         \li In the \l Properties view, select \inlineimage icons/action-icon.png
             (\uicontrol Actions) > \uicontrol {Insert Keyframe} for the property
             that you want to animate.
+            \image timeline-insert-keyframe.png
         \li In the \l Timeline view, select the
             \uicontrol {Per Property Recording} button
             to start recording property changes.
-        \li Check that the playhead is in frame 0 and enter the value of the
+            \image timeline-per-property-recording.png
+        \li Ensure that the playhead is in frame 0 and enter the value of the
             property in the field next to the property name on the timeline.
             Press \key Enter to save the value.
         \li Move the playhead to another frame on the timeline and specify
@@ -148,11 +151,67 @@
             \uicontrol {Per Property Recording} again to stop recording.
     \endlist
 
+    \section2 Binding a Timeline to a Property
+
+    When you bind a timeline to a component property, the animation's
+    current frame is controlled by the value of the property.
+
+    In this example, you bind the timeline to a slider component.
+
+    With a timeline created and keyframe values set:
+
+    \list 1
+        \li From \uicontrol {Components}, drag a slider to
+        \uicontrol {Form Editor} or \uicontrol {Navigator}.
+        \li In \uicontrol {Navigator}, select \e slider and in
+        \uicontrol {Properties}, set:
+            \list
+              \li \uicontrol To to 1000.
+              \note The \uicontrol From and \uicontrol To values of the slider
+              should match the \uicontrol {Start Frame} and
+              \uicontrol {End Frame} values of the timeline if you want to
+              control the complete animation with the slider.
+            \endlist
+        \li In the \uicontrol {Timeline Settings} dialog, select
+        \inlineimage icons/minus.png
+        next to the \uicontrol {Animation Settings} tab to delete the
+        animation. If you have several animations, delete all.
+        \li In \uicontrol {Expression binding}, enter \c {slider.value}.
+        \image timeline-settings-property-binding.png
+    \endlist
+
+    \section2 Binding Animations to States
+
+    You can bind animations to states, this means that the animation will run
+    when you enter the state.
+
+    To bind an animation to a state:
+    \list 1
+      \li In the table at the bottom of the \uicontrol {Timeline Settings}
+      dialog lists:
+        \list
+          \li Double-click the value in the \uicontrol Timeline field and select
+          the timeline with the animation you want to bind to the state.
+          \li Double-click the value in the \uicontrol Animation field and
+          select the animation you want to bind to the state.
+          \image timeline-bind-animation-state.png
+        \endlist
+    \endlist
+    To bind a state to a certain keyframe in an animation without running the
+    animation, set the keyframe in the \uicontrol{Fixed Frame} field.
+
+    \section1 Managing Keyframes
+
+    \image studio-timeline-with-tracks.png "Timeline view"
+
+    \section2 Editing Keyframes
+
     To remove all the changes you recorded for a property, right-click the
     property name on the timeline and select \uicontrol {Remove Property}.
 
     To add keyframes to the keyframe track of a component at the current
-    position of the playhead, select \uicontrol {Add Keyframes at Current Frame}.
+    position of the playhead, right-click the component name on the timeline and
+    select \uicontrol {Add Keyframes at Current Frame}.
 
     Keyframes are marked on the timeline by using \l{keyframe_marker}{markers}
     of different colors and shapes, depending on whether they are active or
@@ -162,7 +221,7 @@
     \section2 Editing Keyframe Values
 
     To fine-tune the value of a keyframe, double-click a keyframe marker or
-    select \uicontrol {Edit Keyframe} in the context menu.
+    right-click it and select \uicontrol {Edit Keyframe} in the context menu.
 
     The \uicontrol {Edit Keyframe} dialog displays the name of the property
     you are animating and its current value at the frame specified in the
@@ -173,27 +232,36 @@
     \section2 Copying Keyframes
 
     You can copy the keyframes from the keyframe track for a component and
-    paste them to the keyframe track of another component. To copy all
-    keyframes from one track to another one, first right-click the component ID
-    and select \uicontrol {Copy All Keyframes} in the context menu.
-    Then right-click the other component ID, and select
-    \uicontrol {Paste Keyframes} in the context menu.
+    paste them to the keyframe track of another component.
+
+    To copy all keyframes from one track to another one:
+    \list 1
+      \li Right-click the component ID and select
+      \uicontrol {Copy All Keyframes} in the context menu.
+      \li Right-click the other component ID, and select
+      \uicontrol {Paste Keyframes} in the context menu.
+    \endlist
 
     \section2 Deleting Keyframes
 
-    To delete the selected keyframe, select \uicontrol {Delete Keyframe} in the
-    context menu.
+    To delete a keyframe, right-click it and select \uicontrol {Delete Keyframe}
+    in the context menu.
 
-    To delete all keyframes from the selected component, select
+    To delete all keyframes from the selected component, right-click the
+    component name in \uicontrol {Timeline} and select
     \uicontrol {Delete All Keyframes} in the context menu.
 
     \section1 Viewing the Animation
 
-    You can view the animation on the canvas by moving the playhead along the
-    timeline.
+    To preview your animation, do one of the following in the
+    \uicontrol{Timeline} view:
+    \list
+      \li Drag the playhead along the timeline.
+      \li Select \inlineimage icons/start_playback.png
+      button or press \key Space.
+    \endlist
 
-    To preview the animation, select the \uicontrol {Play (Space)}
-    button or press \key Space. To preview the whole UI, select the
+    To preview the whole UI, select the
     \inlineimage icons/live_preview.png
     (\uicontrol {Show Live Preview}) button on the canvas toolbar
     or press \key {Alt+P}.

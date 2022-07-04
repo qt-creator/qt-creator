@@ -727,7 +727,7 @@ void MainWindow::registerDefaultActions()
     medit->appendGroup(Constants::G_EDIT_PREFERENCES);
     medit->addSeparator(Constants::G_EDIT_PREFERENCES);
 
-    m_optionsAction = new QAction(tr("&Preferences..."), this);
+    m_optionsAction = new QAction(tr("Pr&eferences..."), this);
     m_optionsAction->setMenuRole(QAction::PreferencesRole);
     cmd = ActionManager::registerAction(m_optionsAction, Constants::OPTIONS);
     cmd->setDefaultKeySequence(QKeySequence::Preferences);

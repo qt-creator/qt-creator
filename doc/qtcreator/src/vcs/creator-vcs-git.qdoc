@@ -36,7 +36,7 @@
     \nextpage studio-porting-projects.html
     \else
     \previouspage creator-vcs-cvs.html
-    \nextpage creator-vcs-mercurial.html
+    \nextpage creator-vcs-gitlab.html
     \endif
 
     \title Using Git

@@ -60,7 +60,7 @@
         \li \l{Lists and Other Data Models}
     \row
         \li Timeline
-        \li \l{Creating Timelines}
+        \li \l{Creating a Timeline}
     \if defined(qtdesignstudio)
     \row
         \li Event List

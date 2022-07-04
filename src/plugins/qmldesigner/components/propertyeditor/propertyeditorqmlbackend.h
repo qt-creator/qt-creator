@@ -50,7 +50,8 @@ class PropertyEditorQmlBackend
 
 
 public:
-    PropertyEditorQmlBackend(PropertyEditorView *propertyEditor);
+    PropertyEditorQmlBackend(PropertyEditorView *propertyEditor,
+                             class AsynchronousImageCache &imageCache);
     ~PropertyEditorQmlBackend();
 
     void setup(const QmlObjectNode &fxObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile, PropertyEditorView *propertyEditor);

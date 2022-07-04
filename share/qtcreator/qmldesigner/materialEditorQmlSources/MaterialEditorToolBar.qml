@@ -63,7 +63,7 @@ Rectangle {
             buttonSize: root.height
             enabled: hasQuick3DImport
             onClicked: root.toolBarAction(ToolBarAction.AddNewMaterial)
-            tooltip: qsTr("Add a new material.")
+            tooltip: qsTr("Create new material.")
         }
 
         IconButton {

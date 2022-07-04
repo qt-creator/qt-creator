@@ -109,7 +109,7 @@
             \image qtcreator-options-code-style-cpp.png "C++ Code Style options"
         \li Give a name to the settings and click \uicontrol OK.
         \li Click \uicontrol Edit to specify code style settings for the project.
-            \image qtcreator-code-style-settings-edit-cpp.png "Edit Code Style Settings dialog"
+            \image qtcreator-code-style-settings-edit-cpp.png "Edit Code Style dialog"
     \endlist
 
     You can specify how to:
@@ -129,7 +129,7 @@
     You can use the live preview to see how the options change the indentation.
 
     To specify different settings for a particular project, select
-    \uicontrol Projects > \uicontrol {Code Style Settings}.
+    \uicontrol Projects > \uicontrol {Code Style}.
 
     \include creator-clangformat.qdocinc clang format
     \endif
@@ -146,14 +146,17 @@
             \image qtcreator-options-code-style-qml.png "QML Code Style options"
         \li Give a name to the settings and click \uicontrol OK.
         \li Click \uicontrol Edit to specify code style settings for the project.
-            \image qtcreator-code-style-settings-edit-qtquick.png "Edit Code Style Settings dialog"
+            \image qtcreator-code-style-settings-edit-qtquick.png "Edit Code Style dialog"
     \endlist
 
     You can specify how to interpret the \key Tab key presses and how to align
     continuation lines.
 
+    In \uicontrol {Line length}, you can adjust the maximum line length for
+    code lines.
+
     To specify different settings for a particular project, select
-    \uicontrol Projects > \uicontrol {Code Style Settings}.
+    \uicontrol Projects > \uicontrol {Code Style}.
 
     \if defined(qtcreator)
     \section1 Indenting Nim Files
@@ -167,7 +170,7 @@
             \image qtcreator-options-code-style-nim.png "Nim Code Style options"
         \li Give a name to the settings and click \uicontrol OK.
         \li Click \uicontrol Edit to specify code style settings for the project.
-            \image qtcreator-code-style-settings-edit-nim.png "Edit Code Style Settings dialog"
+            \image qtcreator-code-style-settings-edit-nim.png "Edit Code Style dialog"
     \endlist
 
     You can specify how to interpret the \key Tab key presses and how to align

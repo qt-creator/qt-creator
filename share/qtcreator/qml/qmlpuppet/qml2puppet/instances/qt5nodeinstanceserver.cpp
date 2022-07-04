@@ -405,6 +405,7 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
     QQuickItemPrivate *pItem = QQuickItemPrivate::get(item);
 
     const bool renderEffects = qEnvironmentVariableIsSet("QMLPUPPET_RENDER_EFFECTS");
+    const bool smoothRendering = qEnvironmentVariableIsSet("QMLPUPPET_SMOOTH_RENDERING");
 
     if (renderEffects) {
         if (parentEffectItem(item))
@@ -427,16 +428,19 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
 
     ServerNodeInstance instance = instanceForObject(item);
 
+    const bool rootIs3DObject = rootIsRenderable3DObject();
+
     // Setting layer enabled to false messes up the bounding rect.
     // Therefore we calculate it upfront.
     QRectF renderBoundingRect;
     if (instance.isValid())
         renderBoundingRect = instance.boundingRect();
-
-    else if (rootIsRenderable3DObject())
+    else if (rootIs3DObject)
         renderBoundingRect = item->boundingRect();
     else
         renderBoundingRect = ServerNodeInstance::effectAdjustedBoundingRect(item);
+
+    const int scaleFactor = (smoothRendering && !rootIs3DObject) ? 2 : 1;
 
     // Hide immediate children that have instances and are QQuickItems so we get only
     // the parent item's content, as compositing is handled on creator side.
@@ -470,6 +474,8 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
         // us to render it to a texture that we can grab to an image.
         QSGRenderContext *rc = QQuickWindowPrivate::get(m_viewData.window.data())->context;
         QSGLayer *layer = rc->sceneGraphContext()->createLayer(rc);
+        if (smoothRendering)
+            layer->setSamples(4);
         layer->setItem(pItem->itemNode());
 
         layer->setRect(QRectF(renderBoundingRect.x(),
@@ -478,8 +484,8 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
                               -renderBoundingRect.height()));
 
         const QSize minSize = rc->sceneGraphContext()->minimumFBOSize();
-        layer->setSize(QSize(qMax(minSize.width(), int(renderBoundingRect.width())),
-                             qMax(minSize.height(), int(renderBoundingRect.height()))));
+        layer->setSize(QSize(qMax(minSize.width(), int(renderBoundingRect.width() * scaleFactor)),
+                             qMax(minSize.height(), int(renderBoundingRect.height() * scaleFactor))));
         layer->scheduleUpdate();
 
         if (layer->updateTexture())
@@ -489,6 +495,8 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
 
         delete layer;
         layer = nullptr;
+
+        renderImage.setDevicePixelRatio(scaleFactor);
     });
 
     m_viewData.renderControl->render();
@@ -514,7 +522,6 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
 
     if (!isLayerEnabled(pItem))
         pItem->derefFromEffectItem(false);
-
 #else
     Q_UNUSED(item)
 #endif

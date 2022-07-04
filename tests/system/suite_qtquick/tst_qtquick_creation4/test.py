@@ -26,6 +26,10 @@
 source("../../shared/qtcreator.py")
 
 def main():
+    # FIXME
+    test.warning("Qt Quick 2 Extension Plugin needs Qt6.2+ nowadays.")
+    return
+
     startQC()
     if not startedWithoutPluginError():
         return

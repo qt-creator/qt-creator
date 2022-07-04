@@ -29,7 +29,6 @@
 #include "buildconfiguration.h"
 #include "kitinformation.h"
 #include "project.h"
-#include "projectexplorerconstants.h"
 #include "target.h"
 
 #include <utils/algorithm.h>
@@ -165,7 +164,7 @@ KitInfo::KitInfo(Kit *kit)
     }
 
     // Sysroot
-    sysRootPath = SysRootKitAspect::sysRoot(kit).toString();
+    sysRootPath = SysRootKitAspect::sysRoot(kit);
 }
 
 bool KitInfo::isValid() const
@@ -174,7 +173,7 @@ bool KitInfo::isValid() const
 }
 
 ToolChainInfo::ToolChainInfo(const ToolChain *toolChain,
-                             const QString &sysRootPath,
+                             const Utils::FilePath &sysRootPath,
                              const Utils::Environment &env)
 {
     if (toolChain) {

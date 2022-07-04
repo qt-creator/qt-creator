@@ -33,6 +33,8 @@
 #include <rewritingexception.h>
 #include "qmldesignerconstants.h"
 
+#include <utils/qtcassert.h>
+
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
 #include <QLoggingCategory>
@@ -405,9 +407,22 @@ void DragTool::move(const QPointF &scenePosition, const QList<QGraphicsItem *> &
 void DragTool::commitTransaction()
 {
     try {
+        handleView3dDrop();
         m_rewriterTransaction.commit();
     } catch (const RewritingException &e) {
         e.showException();
+    }
+}
+
+void DragTool::handleView3dDrop()
+{
+    // If a View3D is dropped, we need to assign material to the included model
+    for (const QmlItemNode &dragNode : qAsConst(m_dragNodes)) {
+        if (dragNode.modelNode().isSubclassOf("QtQuick3D.View3D")) {
+            const QList<ModelNode> models = dragNode.modelNode().subModelNodesOfType("QtQuick3D.Model");
+            QTC_ASSERT(models.size() == 1, return);
+            view()->assignMaterialTo3dModel(models.at(0));
+        }
     }
 }
 

@@ -64,6 +64,7 @@ public:
     void modelAboutToBeDetached(Model *model) override;
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
+    void modelAtPosReady(const ModelNode &modelNode) override;
 
     void sendInputEvent(QInputEvent *e) const;
     void edit3DViewResized(const QSize &size) const;
@@ -78,12 +79,15 @@ public:
     void setSeeker(SeekerSlider *slider);
 
     void addQuick3DImport();
-
-protected:
+    void dropMaterial(const ModelNode &matNode, const QPointF &pos);
 
 private:
     void createEdit3DWidget();
     void checkImports();
+
+    Edit3DAction *createSelectBackgrounColorAction();
+    Edit3DAction *createGridColorSelectionAction();
+    Edit3DAction *createResetColorAction();
 
     QPointer<Edit3DWidget> m_edit3DWidget;
     QVector<Edit3DAction *> m_leftActions;
@@ -101,8 +105,6 @@ private:
     Edit3DAction *m_orientationModeAction = nullptr;
     Edit3DAction *m_editLightAction = nullptr;
     Edit3DAction *m_showGridAction = nullptr;
-    Edit3DAction *m_backgroundColorSelectionAction = nullptr;
-    Edit3DAction *m_resetBackgroundColorAction = nullptr;
     Edit3DAction *m_showSelectionBoxAction = nullptr;
     Edit3DAction *m_showIconGizmoAction = nullptr;
     Edit3DAction *m_showCameraFrustumAction = nullptr;
@@ -116,6 +118,7 @@ private:
     SeekerSlider *m_seeker = nullptr;
     int particlemode;
     ModelCache<QImage> m_canvasCache;
+    ModelNode m_droppedMaterial;
 };
 
 } // namespace QmlDesigner

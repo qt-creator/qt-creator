@@ -59,6 +59,10 @@ Item {
             width: itemLibraryIconWidth  // to be set in Qml context
             height: itemLibraryIconHeight   // to be set in Qml context
             source: itemLibraryIconPath     // to be set by model
+
+            // Icons generated for components can change if the component is edited,
+            // so don't cache them locally at Image level.
+            cache: itemComponentSource === ""
         }
 
         Text {

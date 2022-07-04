@@ -106,4 +106,6 @@ Column {
     ControlSection {}
 
     PaddingSection {}
+
+    InsetSection {}
 }

@@ -1142,7 +1142,7 @@ ToolChain::BuiltInHeaderPathsRunner MsvcToolChain::createBuiltInHeaderPathsRunne
     Utils::Environment fullEnv = env;
     addToEnvironment(fullEnv);
 
-    return [this, fullEnv](const QStringList &, const QString &, const QString &) {
+    return [this, fullEnv](const QStringList &, const FilePath &, const QString &) {
         QMutexLocker locker(&m_headerPathsMutex);
         const auto envList = fullEnv.toStringList();
         const auto it = m_headerPathsPerEnv.constFind(envList);
