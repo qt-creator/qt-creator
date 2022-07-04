@@ -438,6 +438,7 @@ Project {
                 "imagecache/imagecachecollectorinterface.h",
                 "imagecache/imagecacheconnectionmanager.cpp",
                 "imagecache/imagecacheconnectionmanager.h",
+                "imagecache/imagecachedispatchcollector.h,
                 "imagecache/imagecachegeneratorinterface.h",
                 "imagecache/imagecachegenerator.cpp",
                 "imagecache/imagecachegenerator.h",

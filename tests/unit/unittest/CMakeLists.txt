@@ -81,6 +81,7 @@ add_qtc_test(unittest GTEST
     synchronousimagecache-test.cpp
     imagecachegenerator-test.cpp
     imagecachestorage-test.cpp
+    imagecachedispatchcollector-test.cpp
     sqlitedatabasemock.h
     sqlitereadstatementmock.cpp sqlitereadstatementmock.h
     sqlitereadwritestatementmock.cpp
@@ -191,6 +192,7 @@ extend_qtc_test(unittest
     imagecache/imagecachegenerator.h
     imagecache/imagecachegeneratorinterface.h
     imagecache/imagecachestorage.h
+    imagecache/imagecachedispatchcollector.h
     imagecache/imagecachestorageinterface.h
     imagecache/synchronousimagecache.cpp
     imagecache/timestampproviderinterface.h

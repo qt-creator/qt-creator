@@ -51,8 +51,7 @@ class ViewManagerData;
 class QMLDESIGNERCORE_EXPORT ViewManager
 {
 public:
-    ViewManager(class AsynchronousImageCache &imageCache,
-                class AsynchronousImageCache &meshImageCache);
+    ViewManager(class AsynchronousImageCache &imageCache);
     ~ViewManager();
 
     void attachRewriterView();

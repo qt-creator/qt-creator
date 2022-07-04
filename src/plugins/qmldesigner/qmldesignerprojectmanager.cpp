@@ -49,6 +49,7 @@
 #include <imagecache/explicitimagecacheimageprovider.h>
 #include <imagecache/imagecachecollector.h>
 #include <imagecache/imagecacheconnectionmanager.h>
+#include <imagecache/imagecachedispatchcollector.h>
 #include <imagecache/imagecachegenerator.h>
 #include <imagecache/imagecachestorage.h>
 #include <imagecache/meshimagecachecollector.h>
@@ -97,6 +98,23 @@ public:
     }
 };
 
+auto makeCollecterDispatcherChain(ImageCacheCollector &nodeInstanceCollector,
+                                  MeshImageCacheCollector &meshImageCollector)
+{
+    return std::make_tuple(
+        std::make_pair([](Utils::SmallStringView filePath,
+                          [[maybe_unused]] Utils::SmallStringView state,
+                          [[maybe_unused]] const QmlDesigner::ImageCache::AuxiliaryData
+                              &auxiliaryData) { return filePath.endsWith(".qml"); },
+                       &nodeInstanceCollector),
+        std::make_pair(
+            [](Utils::SmallStringView filePath,
+               [[maybe_unused]] Utils::SmallStringView state,
+               [[maybe_unused]] const QmlDesigner::ImageCache::AuxiliaryData &auxiliaryData) {
+                return filePath.endsWith(".mesh") || filePath.startsWith("#");
+            },
+            &meshImageCollector));
+}
 } // namespace
 
 class QmlDesignerProjectManager::ImageCacheData
@@ -109,12 +127,13 @@ public:
     ImageCacheStorage<Sqlite::Database> storage{database};
     ImageCacheConnectionManager connectionManager;
     MeshImageCacheCollector meshImageCollector{connectionManager, QSize{300, 300}, QSize{600, 600}};
-    ImageCacheGenerator meshGenerator{meshImageCollector, storage};
     ImageCacheCollector nodeInstanceCollector{connectionManager, QSize{300, 300}, QSize{600, 600}};
-    ImageCacheGenerator nodeInstanceGenerator{nodeInstanceCollector, storage};
+    ImageCacheDispatchCollector<decltype(makeCollecterDispatcherChain(nodeInstanceCollector,
+                                                                      meshImageCollector))>
+        dispatchCollector{makeCollecterDispatcherChain(nodeInstanceCollector, meshImageCollector)};
+    ImageCacheGenerator generator{dispatchCollector, storage};
     TimeStampProvider timeStampProvider;
-    AsynchronousImageCache asynchronousImageCache{storage, nodeInstanceGenerator, timeStampProvider};
-    AsynchronousImageCache asynchronousMeshImageCache{storage, meshGenerator, timeStampProvider};
+    AsynchronousImageCache asynchronousImageCache{storage, generator, timeStampProvider};
 };
 
 class QmlDesignerProjectManager::PreviewImageCacheData
@@ -211,11 +230,6 @@ void QmlDesignerProjectManager::registerPreviewImageProvider(QQmlEngine *engine)
 AsynchronousImageCache &QmlDesignerProjectManager::asynchronousImageCache()
 {
     return imageCacheData()->asynchronousImageCache;
-}
-
-AsynchronousImageCache &QmlDesignerProjectManager::asynchronousMeshImageCache()
-{
-    return imageCacheData()->asynchronousMeshImageCache;
 }
 
 void QmlDesignerProjectManager::editorOpened(::Core::IEditor *) {}

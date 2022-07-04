@@ -62,9 +62,9 @@ static Q_LOGGING_CATEGORY(viewBenchmark, "qtc.viewmanager.attach", QtWarningMsg)
 class ViewManagerData
 {
 public:
-    ViewManagerData(AsynchronousImageCache &imageCache, AsynchronousImageCache &meshImageCache)
+    ViewManagerData(AsynchronousImageCache &imageCache)
         : itemLibraryView(imageCache)
-        , propertyEditorView(meshImageCache)
+        , propertyEditorView(imageCache)
     {}
 
     InteractiveConnectionManager connectionManager;
@@ -95,8 +95,8 @@ static CrumbleBar *crumbleBar() {
     return QmlDesignerPlugin::instance()->mainWidget()->crumbleBar();
 }
 
-ViewManager::ViewManager(AsynchronousImageCache &imageCache, AsynchronousImageCache &meshImageCache)
-    : d(std::make_unique<ViewManagerData>(imageCache, meshImageCache))
+ViewManager::ViewManager(AsynchronousImageCache &imageCache)
+    : d(std::make_unique<ViewManagerData>(imageCache))
 {
     d->formEditorView.setGotoErrorCallback([this](int line, int column) {
         d->textEditorView.gotoCursorPosition(line, column);

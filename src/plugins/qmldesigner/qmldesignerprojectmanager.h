@@ -59,7 +59,6 @@ public:
     void registerPreviewImageProvider(QQmlEngine *engine) const;
 
     class AsynchronousImageCache &asynchronousImageCache();
-    class AsynchronousImageCache &asynchronousMeshImageCache();
 
 private:
     void editorOpened(::Core::IEditor *editor);
