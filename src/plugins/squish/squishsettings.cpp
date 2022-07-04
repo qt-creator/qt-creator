@@ -71,7 +71,7 @@ SquishSettings::SquishSettings()
     serverPort.setSettingsKey("ServerPort");
     serverPort.setLabel(tr("Server Port"));
     serverPort.setRange(1, 65535);
-    serverPort.setValue(9999);
+    serverPort.setDefaultValue(9999);
     serverPort.setEnabled(false);
 
 
