@@ -635,8 +635,28 @@ public:
         outputLayout->addWidget(m_buildSystemOutput->toolBar());
         outputLayout->addWidget(m_buildSystemOutput);
         outputLayout->addWidget(new FindToolBarPlaceHolder(m_buildSystemOutput));
-        auto outputDock = q->addDockForWidget(output, true);
-        q->addDockWidget(Qt::RightDockWidgetArea, outputDock);
+        m_outputDock = q->addDockForWidget(output, true);
+        q->addDockWidget(Qt::RightDockWidgetArea, m_outputDock);
+
+        m_toggleRightSidebarAction.setCheckable(true);
+        m_toggleRightSidebarAction.setChecked(true);
+        const auto toolTipText = [](bool checked) {
+            return checked
+                       ? QCoreApplication::translate("Core", Core::Constants::TR_HIDE_RIGHT_SIDEBAR)
+                       : QCoreApplication::translate("Core", Core::Constants::TR_SHOW_RIGHT_SIDEBAR);
+        };
+        m_toggleRightSidebarAction.setText(toolTipText(false)); // always "Show Right Sidebar"
+        m_toggleRightSidebarAction.setToolTip(toolTipText(m_toggleRightSidebarAction.isChecked()));
+        ActionManager::registerAction(&m_toggleRightSidebarAction,
+                                      Core::Constants::TOGGLE_RIGHT_SIDEBAR,
+                                      Context(Constants::C_PROJECTEXPLORER));
+        connect(&m_toggleRightSidebarAction,
+                &QAction::toggled,
+                this,
+                [this, toolTipText](bool checked) {
+                    m_toggleRightSidebarAction.setToolTip(toolTipText(checked));
+                    m_outputDock->setVisible(checked);
+                });
     }
 
     void updatePanel()
@@ -805,6 +825,8 @@ public:
     SelectorTree *m_selectorTree;
     QPushButton *m_importBuild;
     QPushButton *m_manageKits;
+    QAction m_toggleRightSidebarAction;
+    QDockWidget *m_outputDock;
     BuildSystemOutputWindow *m_buildSystemOutput;
 };
 
@@ -866,6 +888,7 @@ void ProjectWindow::loadPersistentSettings()
     settings->beginGroup(PROJECT_WINDOW_KEY);
     restoreSettings(settings);
     settings->endGroup();
+    d->m_toggleRightSidebarAction.setChecked(d->m_outputDock->isVisible());
 }
 
 QSize SelectorDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
