@@ -52,12 +52,14 @@
     \uicontrol Edit > \uicontrol {ClangFormat} >
     \uicontrol {Override Clang Format configuration file}.
 
-    \image qtcreator-code-style-clang-format.png "C++ Clang Format options"
+    \image qtcreator-code-style-clang-format.png "C++ Clang Format preferences"
 
     In \uicontrol {Formatting mode}, select \uicontrol {Indenting Only} to only
     indent code. Select \uicontrol {Full Formatting} to use the \key {Ctrl+I}
-    keyboard shortcut to format code instead of indenting it and to apply the
-    formatting to the edited code when you save the file.
+    keyboard shortcut to format code instead of indenting. To apply the
+    formatting while you type, select \uicontrol {Format while typing}. To apply
+    the formatting to the edited code when you save the file, select
+    \uicontrol {Format edited code on file save}.
 
     This creates a local configuration file that overrides the one stored in the
     file system.
