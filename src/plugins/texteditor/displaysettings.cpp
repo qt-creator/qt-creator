@@ -37,6 +37,7 @@
 static const char displayLineNumbersKey[] = "DisplayLineNumbers";
 static const char textWrappingKey[] = "TextWrapping";
 static const char visualizeWhitespaceKey[] = "VisualizeWhitespace";
+static const char visualizeIndentKey[] = "VisualizeIndent";
 static const char displayFoldingMarkersKey[] = "DisplayFoldingMarkers";
 static const char highlightCurrentLineKey[] = "HighlightCurrentLine2Key";
 static const char highlightBlocksKey[] = "HighlightBlocksKey";
@@ -67,6 +68,7 @@ void DisplaySettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(displayLineNumbersKey), m_displayLineNumbers);
     s->setValue(QLatin1String(textWrappingKey), m_textWrapping);
     s->setValue(QLatin1String(visualizeWhitespaceKey), m_visualizeWhitespace);
+    s->setValue(QLatin1String(visualizeIndentKey), m_visualizeIndent);
     s->setValue(QLatin1String(displayFoldingMarkersKey), m_displayFoldingMarkers);
     s->setValue(QLatin1String(highlightCurrentLineKey), m_highlightCurrentLine);
     s->setValue(QLatin1String(highlightBlocksKey), m_highlightBlocks);
@@ -97,6 +99,7 @@ void DisplaySettings::fromSettings(const QString &category, const QSettings *s)
     m_displayLineNumbers = s->value(group + QLatin1String(displayLineNumbersKey), m_displayLineNumbers).toBool();
     m_textWrapping = s->value(group + QLatin1String(textWrappingKey), m_textWrapping).toBool();
     m_visualizeWhitespace = s->value(group + QLatin1String(visualizeWhitespaceKey), m_visualizeWhitespace).toBool();
+    m_visualizeIndent = s->value(group + QLatin1String(visualizeIndentKey), m_visualizeIndent).toBool();
     m_displayFoldingMarkers = s->value(group + QLatin1String(displayFoldingMarkersKey), m_displayFoldingMarkers).toBool();
     m_highlightCurrentLine = s->value(group + QLatin1String(highlightCurrentLineKey), m_highlightCurrentLine).toBool();
     m_highlightBlocks = s->value(group + QLatin1String(highlightBlocksKey), m_highlightBlocks).toBool();
@@ -123,6 +126,7 @@ bool DisplaySettings::equals(const DisplaySettings &ds) const
     return m_displayLineNumbers == ds.m_displayLineNumbers
         && m_textWrapping == ds.m_textWrapping
         && m_visualizeWhitespace == ds.m_visualizeWhitespace
+        && m_visualizeIndent == ds.m_visualizeIndent
         && m_displayFoldingMarkers == ds.m_displayFoldingMarkers
         && m_highlightCurrentLine == ds.m_highlightCurrentLine
         && m_highlightBlocks == ds.m_highlightBlocks

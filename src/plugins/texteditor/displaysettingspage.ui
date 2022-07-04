@@ -90,20 +90,6 @@
       <string>Display</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="6" column="1">
-       <widget class="QCheckBox" name="displayFileEncoding">
-        <property name="text">
-         <string>Display file encoding</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1">
-       <widget class="QCheckBox" name="displayFileLineEnding">
-        <property name="text">
-         <string>Display file line ending</string>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="1">
        <widget class="QCheckBox" name="animateMatchingParentheses">
         <property name="text">
@@ -111,10 +97,10 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
-       <widget class="QCheckBox" name="centerOnScroll">
+      <item row="8" column="0">
+       <widget class="QCheckBox" name="scrollBarHighlights">
         <property name="text">
-         <string>Center &amp;cursor on scroll</string>
+         <string>Highlight search results on the scrollbar</string>
         </property>
        </widget>
       </item>
@@ -125,27 +111,10 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
-       <widget class="QCheckBox" name="highlightMatchingParentheses">
+      <item row="9" column="0">
+       <widget class="QCheckBox" name="animateNavigationWithinFile">
         <property name="text">
-         <string>&amp;Highlight matching parentheses</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QCheckBox" name="openLinksInNextSplit">
-        <property name="text">
-         <string>Always open links in another split</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QCheckBox" name="visualizeWhitespace">
-        <property name="toolTip">
-         <string>Shows tabs and spaces.</string>
-        </property>
-        <property name="text">
-         <string>&amp;Visualize whitespace</string>
+         <string>Animate navigation within file</string>
         </property>
        </widget>
       </item>
@@ -156,17 +125,24 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="0">
-       <widget class="QCheckBox" name="autoFoldFirstComment">
-        <property name="text">
-         <string>Auto-fold first &amp;comment</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="1">
        <widget class="QCheckBox" name="highlightBlocks">
         <property name="text">
          <string>Highlight &amp;blocks</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="markTextChanges">
+        <property name="text">
+         <string>Mark &amp;text changes</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QCheckBox" name="autoFoldFirstComment">
+        <property name="text">
+         <string>Auto-fold first &amp;comment</string>
         </property>
        </widget>
       </item>
@@ -177,24 +153,55 @@
         </property>
        </widget>
       </item>
-      <item row="8" column="0">
-       <widget class="QCheckBox" name="animateNavigationWithinFile">
+      <item row="6" column="0">
+       <widget class="QCheckBox" name="centerOnScroll">
         <property name="text">
-         <string>Animate navigation within file</string>
+         <string>Center &amp;cursor on scroll</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="0">
-       <widget class="QCheckBox" name="scrollBarHighlights">
+      <item row="3" column="1">
+       <widget class="QCheckBox" name="visualizeIndent">
         <property name="text">
-         <string>Highlight search results on the scrollbar</string>
+         <string>Visualize indent</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="markTextChanges">
+      <item row="9" column="1">
+       <widget class="QCheckBox" name="displayFileLineEnding">
         <property name="text">
-         <string>Mark &amp;text changes</string>
+         <string>Display file line ending</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QCheckBox" name="displayFileEncoding">
+        <property name="text">
+         <string>Display file encoding</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QCheckBox" name="openLinksInNextSplit">
+        <property name="text">
+         <string>Always open links in another split</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QCheckBox" name="highlightMatchingParentheses">
+        <property name="text">
+         <string>&amp;Highlight matching parentheses</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QCheckBox" name="visualizeWhitespace">
+        <property name="toolTip">
+         <string>Shows tabs and spaces.</string>
+        </property>
+        <property name="text">
+         <string>&amp;Visualize whitespace</string>
         </property>
        </widget>
       </item>
@@ -250,6 +257,7 @@
   <tabstop>enableTextWrapping</tabstop>
   <tabstop>showWrapColumn</tabstop>
   <tabstop>wrapColumn</tabstop>
+  <tabstop>useIndenter</tabstop>
   <tabstop>displayLineNumbers</tabstop>
   <tabstop>displayFoldingMarkers</tabstop>
   <tabstop>markTextChanges</tabstop>
@@ -257,13 +265,20 @@
   <tabstop>centerOnScroll</tabstop>
   <tabstop>autoFoldFirstComment</tabstop>
   <tabstop>scrollBarHighlights</tabstop>
+  <tabstop>animateNavigationWithinFile</tabstop>
   <tabstop>highlightCurrentLine</tabstop>
   <tabstop>highlightBlocks</tabstop>
   <tabstop>animateMatchingParentheses</tabstop>
+  <tabstop>visualizeIndent</tabstop>
   <tabstop>highlightMatchingParentheses</tabstop>
   <tabstop>openLinksInNextSplit</tabstop>
   <tabstop>displayFileEncoding</tabstop>
-  <tabstop>animateNavigationWithinFile</tabstop>
+  <tabstop>displayFileLineEnding</tabstop>
+  <tabstop>displayAnnotations</tabstop>
+  <tabstop>leftAligned</tabstop>
+  <tabstop>atMargin</tabstop>
+  <tabstop>rightAligned</tabstop>
+  <tabstop>betweenLines</tabstop>
  </tabstops>
  <resources/>
  <connections>

@@ -58,6 +58,7 @@ public:
     bool m_displayLineNumbers = true;
     bool m_textWrapping = false;
     bool m_visualizeWhitespace = false;
+    bool m_visualizeIndent = true;
     bool m_displayFoldingMarkers = true;
     bool m_highlightCurrentLine = false;
     bool m_highlightBlocks = false;

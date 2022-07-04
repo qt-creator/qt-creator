@@ -554,6 +554,7 @@ public:
     void paintCursorAsBlock(const PaintEventData &data, QPainter &painter,
                             PaintEventBlockData &blockData, int cursorPosition) const;
     void paintAdditionalVisualWhitespaces(PaintEventData &data, QPainter &painter, qreal top) const;
+    void paintIndentDepth(PaintEventData &data, QPainter &painter, const PaintEventBlockData &blockData) const;
     void paintReplacement(PaintEventData &data, QPainter &painter, qreal top) const;
     void paintWidgetBackground(const PaintEventData &data, QPainter &painter) const;
     void paintOverlays(const PaintEventData &data, QPainter &painter) const;
@@ -4343,6 +4344,47 @@ void TextEditorWidgetPrivate::paintAdditionalVisualWhitespaces(PaintEventData &d
     }
 }
 
+void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
+                                               QPainter &painter,
+                                               const PaintEventBlockData &blockData) const
+{
+    if (!m_displaySettings.m_visualizeIndent)
+        return;
+
+    const QString text = data.block.text();
+    const TabSettings &tabSettings = m_document->tabSettings();
+    const int currentDepth = tabSettings.indentationColumn(text);
+
+    if (currentDepth <= tabSettings.m_indentSize || blockData.layout->lineCount() < 1)
+        return;
+
+    const qreal horizontalAdvance = QFontMetricsF(q->font()).horizontalAdvance(
+        QString(tabSettings.m_indentSize, QChar(' ')));
+
+    painter.save();
+    painter.setPen(data.visualWhitespaceFormat.foreground().color());
+
+    const QTextLine textLine = blockData.layout->lineAt(0);
+    const QRectF rect = textLine.naturalTextRect();
+    qreal x = textLine.cursorToX(0) + data.offset.x();
+    int paintColumn = tabSettings.m_indentSize;
+
+    while (paintColumn < currentDepth) {
+        x += horizontalAdvance;
+        if (x >= 0) {
+            int paintPosition = tabSettings.positionAtColumn(text, paintColumn);
+            if (blockData.layout->lineForTextPosition(paintPosition).lineNumber() != 0)
+                break;
+            const QPointF top(x, blockData.boundingRect.top());
+            const QPointF bottom(x, blockData.boundingRect.top() + rect.height());
+            const QLineF line(top, bottom);
+            painter.drawLine(line);
+        }
+        paintColumn += tabSettings.m_indentSize;
+    }
+    painter.restore();
+}
+
 void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &painter,
                                                qreal top) const
 {
@@ -4645,7 +4687,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
 
             if (drawCursor && !drawCursorAsBlock)
                 d->addCursorsPosition(data, painter, blockData);
-
+            d->paintIndentDepth(data, painter, blockData);
             d->paintAdditionalVisualWhitespaces(data, painter, blockData.boundingRect.top());
             d->paintReplacement(data, painter, blockData.boundingRect.top());
             d->updateLineAnnotation(data, blockData, painter);

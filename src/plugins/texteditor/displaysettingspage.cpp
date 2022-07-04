@@ -92,6 +92,7 @@ void DisplaySettingsWidget::settingsFromUI(DisplaySettings &displaySettings,
     marginSettings.m_useIndenter = m_ui.useIndenter->isChecked();
     marginSettings.m_marginColumn = m_ui.wrapColumn->value();
     displaySettings.m_visualizeWhitespace = m_ui.visualizeWhitespace->isChecked();
+    displaySettings.m_visualizeIndent = m_ui.visualizeIndent->isChecked();
     displaySettings.m_displayFoldingMarkers = m_ui.displayFoldingMarkers->isChecked();
     displaySettings.m_highlightCurrentLine = m_ui.highlightCurrentLine->isChecked();
     displaySettings.m_highlightBlocks = m_ui.highlightBlocks->isChecked();
@@ -126,6 +127,7 @@ void DisplaySettingsWidget::settingsToUI()
     m_ui.useIndenter->setChecked(marginSettings.m_useIndenter);
     m_ui.wrapColumn->setValue(marginSettings.m_marginColumn);
     m_ui.visualizeWhitespace->setChecked(displaySettings.m_visualizeWhitespace);
+    m_ui.visualizeIndent->setChecked(displaySettings.m_visualizeIndent);
     m_ui.displayFoldingMarkers->setChecked(displaySettings.m_displayFoldingMarkers);
     m_ui.highlightCurrentLine->setChecked(displaySettings.m_highlightCurrentLine);
     m_ui.highlightBlocks->setChecked(displaySettings.m_highlightBlocks);
