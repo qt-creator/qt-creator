@@ -1091,6 +1091,9 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
             d->m_pathChooserDisplay->setDefaultValue(defaultValue().toString());
         else
             d->m_pathChooserDisplay->setFilePath(FilePath::fromUserInput(displayedString));
+        // do not override default value with placeholder, but use placeholder if default is empty
+        if (d->m_pathChooserDisplay->lineEdit()->placeholderText().isEmpty())
+            d->m_pathChooserDisplay->lineEdit()->setPlaceholderText(d->m_placeHolderText);
         d->updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
         addLabeledItem(builder, d->m_pathChooserDisplay);
         useMacroExpander(d->m_pathChooserDisplay->lineEdit());
