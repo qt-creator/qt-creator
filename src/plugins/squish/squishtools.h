@@ -25,8 +25,9 @@
 
 #pragma once
 
+#include <utils/environment.h>
+
 #include <QObject>
-#include <QProcess>
 #include <QStringList>
 #include <QWindowList>
 
@@ -34,6 +35,8 @@ QT_BEGIN_NAMESPACE
 class QFile;
 class QFileSystemWatcher;
 QT_END_NAMESPACE
+
+namespace Utils { class QtcProcess; }
 
 namespace Squish {
 namespace Internal {
@@ -88,9 +91,9 @@ private:
     void startSquishServer(Request request);
     void stopSquishServer();
     void startSquishRunner();
-    static QProcessEnvironment squishEnvironment();
-    Q_SLOT void onServerFinished(int exitCode, QProcess::ExitStatus status = QProcess::NormalExit);
-    Q_SLOT void onRunnerFinished(int exitCode, QProcess::ExitStatus status = QProcess::NormalExit);
+    static Utils::Environment squishEnvironment();
+    void onServerFinished();
+    void onRunnerFinished();
     void onServerOutput();
     void onServerErrorOutput();
     void onRunnerOutput();
@@ -100,24 +103,24 @@ private:
     void minimizeQtCreatorWindows();
     void restoreQtCreatorWindows();
 
-    QProcess *m_serverProcess;
-    QProcess *m_runnerProcess;
-    int m_serverPort;
+    Utils::QtcProcess *m_serverProcess = nullptr;
+    Utils::QtcProcess *m_runnerProcess = nullptr;
+    int m_serverPort = -1;
     QString m_serverHost;
-    Request m_request;
-    State m_state;
+    Request m_request = None;
+    State m_state = Idle;
     QString m_suitePath;
     QStringList m_testCases;
     QStringList m_reportFiles;
     QString m_currentResultsDirectory;
-    QFile *m_currentResultsXML;
-    QFileSystemWatcher *m_resultsFileWatcher;
+    QFile *m_currentResultsXML = nullptr;
+    QFileSystemWatcher *m_resultsFileWatcher = nullptr;
     QStringList m_additionalServerArguments;
     QStringList m_additionalRunnerArguments;
     QWindowList m_lastTopLevelWindows;
-    bool m_testRunning;
+    bool m_testRunning = false;
     qint64 m_readResultsCount;
-    SquishXmlOutputHandler *m_xmlOutputHandler;
+    SquishXmlOutputHandler *m_xmlOutputHandler = nullptr;
 };
 
 } // namespace Internal

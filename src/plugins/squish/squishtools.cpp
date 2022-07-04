@@ -36,6 +36,7 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QApplication>
 #include <QDateTime>
@@ -55,15 +56,6 @@ static const QString resultsDirectory = QFileInfo(QDir::home(), ".squishQC/Test 
 
 SquishTools::SquishTools(QObject *parent)
     : QObject(parent)
-    , m_serverProcess(nullptr)
-    , m_runnerProcess(nullptr)
-    , m_serverPort(-1)
-    , m_request(None)
-    , m_state(Idle)
-    , m_currentResultsXML(nullptr)
-    , m_resultsFileWatcher(nullptr)
-    , m_testRunning(false)
-    , m_xmlOutputHandler(nullptr)
 {
     SquishOutputPane *outputPane = SquishOutputPane::instance();
     connect(this,
@@ -330,8 +322,7 @@ void SquishTools::startSquishServer(Request request)
     else
         m_lastTopLevelWindows.clear();
 
-    m_serverProcess = new QProcess;
-    m_serverProcess->setProgram(toolsSettings.serverPath);
+    m_serverProcess = new Utils::QtcProcess;
     QStringList arguments;
     // TODO if isLocalServer is false we should start a squishserver on remote device
     if (toolsSettings.isLocalServer)
@@ -341,18 +332,15 @@ void SquishTools::startSquishServer(Request request)
     if (toolsSettings.verboseLog)
         arguments << "--verbose";
 
-    m_serverProcess->setArguments(arguments);
-    m_serverProcess->setProcessEnvironment(squishEnvironment());
+    m_serverProcess->setCommand({Utils::FilePath::fromString(toolsSettings.serverPath), arguments});
+    m_serverProcess->setEnvironment(squishEnvironment());
 
-    connect(m_serverProcess, &QProcess::readyReadStandardOutput, this, &SquishTools::onServerOutput);
-    connect(m_serverProcess,
-            &QProcess::readyReadStandardError,
-            this,
-            &SquishTools::onServerErrorOutput);
-    connect(m_serverProcess,
-            QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this,
-            &SquishTools::onServerFinished);
+    connect(m_serverProcess, &Utils::QtcProcess::readyReadStandardOutput,
+            this, &SquishTools::onServerOutput);
+    connect(m_serverProcess, &Utils::QtcProcess::readyReadStandardError,
+            this, &SquishTools::onServerErrorOutput);
+    connect(m_serverProcess, &Utils::QtcProcess::done,
+            this, &SquishTools::onServerFinished);
 
     setState(ServerStarting);
     m_serverProcess->start();
@@ -365,12 +353,11 @@ void SquishTools::startSquishServer(Request request)
 void SquishTools::stopSquishServer()
 {
     if (m_serverProcess && m_serverPort > 0) {
-        QProcess serverKiller;
-        serverKiller.setProgram(m_serverProcess->program());
+        Utils::QtcProcess serverKiller;
         QStringList args;
         args << "--stop" << "--port" << QString::number(m_serverPort);
-        serverKiller.setArguments(args);
-        serverKiller.setProcessEnvironment(m_serverProcess->processEnvironment());
+        serverKiller.setCommand({m_serverProcess->commandLine().executable(), args});
+        serverKiller.setEnvironment(m_serverProcess->environment());
         serverKiller.start();
         if (serverKiller.waitForStarted()) {
             if (!serverKiller.waitForFinished()) {
@@ -437,7 +424,7 @@ void SquishTools::startSquishRunner()
     }
     toolsSettings.runnerPath = squishRunner.toString();
 
-    m_runnerProcess = new QProcess;
+    m_runnerProcess = new Utils::QtcProcess;
 
     QStringList args;
     args << m_additionalServerArguments;
@@ -462,18 +449,13 @@ void SquishTools::startSquishRunner()
     args << "--reportgen"
          << QString::fromLatin1("xml2.2,%1").arg(caseReportFilePath);
 
-    m_runnerProcess->setProgram(toolsSettings.runnerPath);
-    m_runnerProcess->setArguments(args);
-    m_runnerProcess->setProcessEnvironment(squishEnvironment());
+    m_runnerProcess->setCommand({Utils::FilePath::fromString(toolsSettings.runnerPath), args});
+    m_runnerProcess->setEnvironment(squishEnvironment());
 
-    connect(m_runnerProcess,
-            &QProcess::readyReadStandardError,
-            this,
-            &SquishTools::onRunnerErrorOutput);
-    connect(m_runnerProcess,
-            QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this,
-            &SquishTools::onRunnerFinished);
+    connect(m_runnerProcess, &Utils::QtcProcess::readyReadStandardError,
+            this, &SquishTools::onRunnerErrorOutput);
+    connect(m_runnerProcess, &Utils::QtcProcess::done,
+            this, &SquishTools::onRunnerFinished);
 
     setState(RunnerStarting);
 
@@ -505,16 +487,16 @@ void SquishTools::startSquishRunner()
     m_currentResultsXML = new QFile(caseReportFilePath);
 }
 
-QProcessEnvironment SquishTools::squishEnvironment()
+Utils::Environment SquishTools::squishEnvironment()
 {
     Utils::Environment environment = Utils::Environment::systemEnvironment();
     if (!toolsSettings.licenseKeyPath.isEmpty())
         environment.prependOrSet("SQUISH_LICENSEKEY_DIR", toolsSettings.licenseKeyPath);
     environment.prependOrSet("SQUISH_PREFIX", toolsSettings.squishPath);
-    return environment.toProcessEnvironment();
+    return environment;
 }
 
-void SquishTools::onServerFinished(int, QProcess::ExitStatus)
+void SquishTools::onServerFinished()
 {
     delete m_serverProcess;
     m_serverProcess = nullptr;
@@ -522,7 +504,7 @@ void SquishTools::onServerFinished(int, QProcess::ExitStatus)
     setState(ServerStopped);
 }
 
-void SquishTools::onRunnerFinished(int, QProcess::ExitStatus)
+void SquishTools::onRunnerFinished()
 {
     delete m_runnerProcess;
     m_runnerProcess = nullptr;
