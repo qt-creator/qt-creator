@@ -35,6 +35,12 @@ constexpr auto iar_nxp_1064_json = R"({
          "optional": false,
          "type": "path",
          "versions": ["2.11.0"],
+         "versionDetection" : {
+             "filePattern": "*_manifest_*.xml",
+             "xmlElement": "ksdk",
+             "xmlAttribute": "version",
+             "regex": ".*"
+         },
          "envVar": "EVK_MIMXRT1064_SDK_PATH",
          "setting": "EVK_MIMXRT1064_SDK_PATH"
     },

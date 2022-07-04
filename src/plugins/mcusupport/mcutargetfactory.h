@@ -33,6 +33,8 @@ namespace McuSupport::Internal {
 
 struct PackageDescription;
 
+class McuPackageVersionDetector;
+
 class McuTargetFactory : public McuAbstractTargetFactory
 {
 public:

@@ -33,7 +33,7 @@ namespace McuSupport::Internal {
 class McuPackageVersionDetector
 {
 public:
-    McuPackageVersionDetector();
+    McuPackageVersionDetector() = default;
     virtual ~McuPackageVersionDetector() = default;
     virtual QString parseVersion(const Utils::FilePath &packagePath) const = 0;
 };

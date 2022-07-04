@@ -48,8 +48,6 @@ class Id;
 namespace McuSupport {
 namespace Internal {
 
-class McuPackageVersionDetector;
-
 class McuPackage : public McuAbstractPackage
 {
     Q_OBJECT
@@ -90,6 +88,7 @@ public:
     bool writeToSettings() const override;
 
     QWidget *widget() override;
+    const McuPackageVersionDetector *getVersionDetector() const override;
 
 private:
     void updatePath();
@@ -116,9 +115,9 @@ private:
     const bool m_addToSystemPath;
 
     Status m_status = Status::InvalidPath;
-};
+}; // class McuPackage
 
-class McuToolChainPackage : public McuPackage
+class McuToolChainPackage final : public McuPackage
 {
     Q_OBJECT
 public:
@@ -132,8 +131,8 @@ public:
                         ToolChainType toolchainType,
                         const QStringList &versions,
                         const QString &cmakeVarName,
-                        const QString &envVarName = {},
-                        const McuPackageVersionDetector *versionDetector = nullptr);
+                        const QString &envVarName,
+                        const McuPackageVersionDetector *versionDetector);
 
     ToolChainType toolchainType() const;
     bool isDesktopToolchain() const;

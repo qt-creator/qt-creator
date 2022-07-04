@@ -71,7 +71,12 @@ constexpr auto armgcc_stm32f769i_freertos_json = R"({
         "envVar": "ARMGCC_DIR",
         "setting": "GNUArmEmbeddedToolchain",
         "type": "path",
-        "optional": false
+        "optional": false,
+        "versionDetection" : {
+            "filePattern": "bin/arm-none-eabi-g++",
+            "executableArgs": "--version",
+            "regex": "\\bv(\\d+\\.\\d+\\.\\d+)\\b"
+        }
       },
       "file": {
         "id": "ARMGCC_CMAKE_TOOLCHAIN_FILE",
@@ -86,10 +91,13 @@ constexpr auto armgcc_stm32f769i_freertos_json = R"({
   "boardSdk": {
     "envVar": "STM32Cube_FW_F7_SDK_PATH",
     "setting": "STM32Cube_FW_F7_SDK_PATH",
-    "versions": [
-      "1.16.0"
-    ],
-    "id": "ST_SDK_DIR",
+    "versions": [ "1.16.0" ],
+    "versionDetection" : {
+        "filePattern": "package.xml",
+        "xmlElement": "PackDescription",
+        "xmlAttribute": "Release",
+        "regex": "\\b(\\d+\\.\\d+\\.\\d+)\\b"
+    },
     "label": "Board SDK for STM32F769I-Discovery",
     "cmakeVar": "QUL_BOARD_SDK_DIR",
     "type": "path",

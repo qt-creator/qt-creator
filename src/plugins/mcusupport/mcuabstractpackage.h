@@ -33,6 +33,8 @@ class FilePath;
 
 namespace McuSupport::Internal {
 
+class McuPackageVersionDetector;
+
 class McuAbstractPackage : public QObject
 {
     Q_OBJECT
@@ -67,6 +69,7 @@ public:
     virtual bool writeToSettings() const = 0;
 
     virtual QWidget *widget() = 0;
+    virtual const McuPackageVersionDetector *getVersionDetector() const = 0;
 
 signals:
     void changed();

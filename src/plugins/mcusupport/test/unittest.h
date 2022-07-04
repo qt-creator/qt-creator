@@ -87,6 +87,17 @@ private slots:
     void test_getFullToolchainFilePathFromTarget();
     void test_legacy_getPredefinedToolchainFilePackage();
     void test_legacy_createUnsupportedToolchainFilePackage();
+    void test_legacy_supportMultipleToolchainVersions();
+
+    void test_passExecutableVersionDetectorToToolchainPackage_data();
+    void test_passExecutableVersionDetectorToToolchainPackage();
+    void test_legacy_passExecutableVersionDetectorToToolchainPackage_data();
+    void test_legacy_passExecutableVersionDetectorToToolchainPackage();
+    void test_legacy_passXMLVersionDetectorToNxpAndStmBoardSdkPackage_data();
+    void test_legacy_passXMLVersionDetectorToNxpAndStmBoardSdkPackage();
+    void test_passXMLVersionDetectorToNxpAndStmBoardSdkPackage_data();
+    void test_passXMLVersionDetectorToNxpAndStmBoardSdkPackage();
+    void test_passDirectoryVersionDetectorToRenesasBoardSdkPackage();
 
     void test_legacy_createBoardSdk_data();
     void test_legacy_createBoardSdk();

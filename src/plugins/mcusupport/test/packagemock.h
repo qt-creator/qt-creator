@@ -53,5 +53,6 @@ public:
     MOCK_METHOD(QStringList, versions, (), (const));
 
     MOCK_METHOD(QWidget *, widget, ());
+    MOCK_METHOD(const McuPackageVersionDetector *, getVersionDetector, (), (const));
 }; // class PackageMock
 } // namespace McuSupport::Internal

@@ -108,6 +108,11 @@ QStringList McuPackage::versions() const
     return m_versions;
 }
 
+const McuPackageVersionDetector *McuPackage::getVersionDetector() const
+{
+    return m_versionDetector.get();
+}
+
 FilePath McuPackage::basePath() const
 {
     return m_fileChooser != nullptr ? m_fileChooser->filePath() : m_path;

@@ -45,12 +45,8 @@ QString matchRegExp(const QString &text, const QString &regExp)
     return QString();
 }
 
-McuPackageVersionDetector::McuPackageVersionDetector() {}
-
 McuPackageExecutableVersionDetector::McuPackageExecutableVersionDetector(
-    const FilePath &detectionPath,
-    const QStringList &detectionArgs,
-    const QString &detectionRegExp)
+    const FilePath &detectionPath, const QStringList &detectionArgs, const QString &detectionRegExp)
     : McuPackageVersionDetector()
     , m_detectionPath(detectionPath)
     , m_detectionArgs(detectionArgs)
@@ -133,7 +129,7 @@ McuPackagePathVersionDetector::McuPackagePathVersionDetector(const QString &vers
 QString McuPackagePathVersionDetector::parseVersion(const FilePath &packagePath) const
 {
     if (!packagePath.exists())
-        return QString();
+        return {};
     return matchRegExp(packagePath.toString(), m_versionRegExp);
 }
 

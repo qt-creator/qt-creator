@@ -26,7 +26,7 @@
 #pragma once
 
 constexpr auto armgcc_stm32h750b_metal_json = R"({
-  "qulVersion": "2.0.0",
+  "qulVersion": "2.3.0",
   "compatVersion": "1",
   "platform": {
     "id": "STM32H750B-DISCOVERY-BAREMETAL",
@@ -69,7 +69,12 @@ constexpr auto armgcc_stm32h750b_metal_json = R"({
         "envVar": "ARMGCC_DIR",
         "setting": "GNUArmEmbeddedToolchain",
         "type": "path",
-        "optional": false
+        "optional": false,
+        "versionDetection" : {
+            "filePattern": "bin/arm-none-eabi-g++",
+            "executableArgs": "--version",
+            "regex": "\\bv(\\d+\\.\\d+\\.\\d+)\\b"
+        }
       },
       "file" : {
         "id": "ARMGCC_CMAKE_TOOLCHAIN_FILE",
@@ -87,6 +92,12 @@ constexpr auto armgcc_stm32h750b_metal_json = R"({
     "versions": [
       "1.5.0"
     ],
+    "versionDetection" : {
+        "filePattern": "package.xml",
+        "xmlElement": "PackDescription",
+        "xmlAttribute": "Release",
+        "regex": "\\b(\\d+\\.\\d+\\.\\d+)\\b"
+    },
     "id": "ST_SDK_DIR",
     "label": "Board SDK for STM32H750B-Discovery",
     "cmakeVar": "QUL_BOARD_SDK_DIR",

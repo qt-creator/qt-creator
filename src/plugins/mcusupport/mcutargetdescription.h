@@ -33,6 +33,16 @@
 
 namespace McuSupport::Internal {
 
+struct VersionDetection
+{
+    QString regex;
+    QString filePattern;
+    QString executableArgs;
+    QString xmlElement;
+    QString xmlAttribute;
+    bool isFile;
+}; // struct VersionDetection
+
 struct PackageDescription
 {
     QString label;
@@ -43,6 +53,7 @@ struct PackageDescription
     Utils::FilePath defaultPath;
     Utils::FilePath validationPath;
     QStringList versions;
+    VersionDetection versionDetection;
     bool shouldAddToSystemPath;
 }; //struct PackageDescription
 

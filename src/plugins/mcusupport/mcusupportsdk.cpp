@@ -107,9 +107,6 @@ static McuPackageVersionDetector *generatePackageVersionDetector(const QString &
     return nullptr;
 }
 
-/// Create the McuPackage by checking the "boardSdk" property in the JSON file for the board.
-/// The name of the environment variable pointing to the the SDK for the board will be defined in the "envVar" property
-/// inside the "boardSdk".
 McuPackagePtr createBoardSdkPackage(const SettingsHandler::Ptr &settingsHandler,
                                     const McuTargetDescription &desc)
 {
@@ -191,22 +188,47 @@ McuPackagePtr createUnsupportedToolChainFilePackage(const SettingsHandler::Ptr &
 
 McuToolChainPackagePtr createUnsupportedToolChainPackage(const SettingsHandler::Ptr &settingsHandler)
 {
-    return McuToolChainPackagePtr{new McuToolChainPackage(
-        settingsHandler, {}, {}, {}, {}, McuToolChainPackage::ToolChainType::Unsupported, {}, {})};
+    return McuToolChainPackagePtr{
+        new McuToolChainPackage(settingsHandler,
+                                {},
+                                {},
+                                {},
+                                {},
+                                McuToolChainPackage::ToolChainType::Unsupported,
+                                {},
+                                {},
+                                {},
+                                nullptr)};
 }
 
 McuToolChainPackagePtr createMsvcToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
                                                   const QStringList &versions)
 {
-    return McuToolChainPackagePtr{new McuToolChainPackage(
-        settingsHandler, {}, {}, {}, {}, McuToolChainPackage::ToolChainType::MSVC, versions, {})};
+    return McuToolChainPackagePtr{new McuToolChainPackage(settingsHandler,
+                                                          {},
+                                                          {},
+                                                          {},
+                                                          {},
+                                                          McuToolChainPackage::ToolChainType::MSVC,
+                                                          versions,
+                                                          {},
+                                                          {},
+                                                          nullptr)};
 }
 
 McuToolChainPackagePtr createGccToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
                                                  const QStringList &versions)
 {
-    return McuToolChainPackagePtr{new McuToolChainPackage(
-        settingsHandler, {}, {}, {}, {}, McuToolChainPackage::ToolChainType::GCC, versions, {})};
+    return McuToolChainPackagePtr{new McuToolChainPackage(settingsHandler,
+                                                          {},
+                                                          {},
+                                                          {},
+                                                          {},
+                                                          McuToolChainPackage::ToolChainType::GCC,
+                                                          versions,
+                                                          {},
+                                                          {},
+                                                          nullptr)};
 }
 
 McuToolChainPackagePtr createArmGccToolchainPackage(const SettingsHandler::Ptr &settingsHandler,
@@ -229,10 +251,9 @@ McuToolChainPackagePtr createArmGccToolchainPackage(const SettingsHandler::Ptr &
     }
 
     const Utils::FilePath detectionPath = FilePath("bin/arm-none-eabi-g++").withExecutableSuffix();
-    const auto versionDetector
-        = new McuPackageExecutableVersionDetector(detectionPath,
-                                                  {"--version"},
-                                                  "\\b(\\d+\\.\\d+\\.\\d+)\\b");
+    const auto versionDetector = new McuPackageExecutableVersionDetector(detectionPath,
+                                                                         {"--version"},
+                                                                         R"(\b(\d+\.\d+\.\d+)\b)");
 
     return McuToolChainPackagePtr{
         new McuToolChainPackage(settingsHandler,
@@ -257,7 +278,7 @@ McuToolChainPackagePtr createGhsToolchainPackage(const SettingsHandler::Ptr &set
     const auto versionDetector
         = new McuPackageExecutableVersionDetector(FilePath("as850").withExecutableSuffix(),
                                                   {"-V"},
-                                                  "\\bv(\\d+\\.\\d+\\.\\d+)\\b");
+                                                  R"(\bv(\d+\.\d+\.\d+)\b)");
 
     return McuToolChainPackagePtr{
         new McuToolChainPackage(settingsHandler,
@@ -282,7 +303,7 @@ McuToolChainPackagePtr createGhsArmToolchainPackage(const SettingsHandler::Ptr &
     const auto versionDetector
         = new McuPackageExecutableVersionDetector(FilePath("asarm").withExecutableSuffix(),
                                                   {"-V"},
-                                                  "\\bv(\\d+\\.\\d+\\.\\d+)\\b");
+                                                  R"(\bv(\d+\.\d+\.\d+)\b)");
 
     return McuToolChainPackagePtr{
         new McuToolChainPackage(settingsHandler,
@@ -317,10 +338,10 @@ McuToolChainPackagePtr createIarToolChainPackage(const SettingsHandler::Ptr &set
     }
 
     const FilePath detectionPath = FilePath("bin/iccarm").withExecutableSuffix();
-    const auto versionDetector
+    const auto *versionDetector
         = new McuPackageExecutableVersionDetector(detectionPath,
                                                   {"--version"},
-                                                  "\\bV(\\d+\\.\\d+\\.\\d+)\\.\\d+\\b");
+                                                  R"(\bV(\d+\.\d+\.\d+)\.\d+\b)");
 
     return McuToolChainPackagePtr{
         new McuToolChainPackage(settingsHandler,
@@ -585,6 +606,19 @@ static QFileInfoList targetDescriptionFiles(const Utils::FilePath &dir)
     return kitsDir.entryInfoList();
 }
 
+VersionDetection parseVersionDetection(const QJsonObject &packageEntry)
+{
+    const QJsonObject versioning = packageEntry.value("versionDetection").toObject();
+    return {
+        versioning["regex"].toString(),
+        versioning["filePattern"].toString(),
+        versioning["executableArgs"].toString(),
+        versioning["xmlElement"].toString(),
+        versioning["xmlAttribute"].toString(),
+        versioning["isFile"].toBool(true),
+    };
+}
+
 static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
 {
     const QVariantList versionsVariantList = cmakeEntry["versions"].toArray().toVariantList();
@@ -600,6 +634,7 @@ static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
             FilePath::fromString(cmakeEntry["defaultValue"].toString()),
             FilePath::fromString(cmakeEntry["validation"].toString()),
             versions,
+            parseVersionDetection(cmakeEntry),
             false};
 }
 
@@ -688,7 +723,7 @@ static const QString legacySupportVersionFor(const QString &sdkVersion)
 
 bool checkDeprecatedSdkError(const Utils::FilePath &qulDir, QString &message)
 {
-    const McuPackagePathVersionDetector versionDetector("(?<=\\bQtMCUs.)(\\d+\\.\\d+)");
+    const McuPackagePathVersionDetector versionDetector(R"((?<=\bQtMCUs.)(\d+\.\d+))");
     const QString sdkDetectedVersion = versionDetector.parseVersion(qulDir);
     const QString legacyVersion = legacySupportVersionFor(sdkDetectedVersion);
 

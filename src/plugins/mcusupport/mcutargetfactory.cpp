@@ -59,6 +59,24 @@ const static QMap<QString, McuToolChainPackage::ToolChainType> toolchainTypeMapp
     {"ghsarm", McuToolChainPackage::ToolChainType::GHSArm},
 };
 
+McuPackageVersionDetector *createVersionDetection(const VersionDetection &versionDetection)
+{
+    if (!versionDetection.xmlElement.isEmpty() and !versionDetection.xmlAttribute.isEmpty())
+        return new McuPackageXmlVersionDetector{versionDetection.filePattern,
+                                                versionDetection.xmlElement,
+                                                versionDetection.xmlAttribute,
+                                                versionDetection.regex};
+    else if (!versionDetection.executableArgs.isEmpty())
+        return new McuPackageExecutableVersionDetector{Utils::FilePath::fromString(
+                                                           versionDetection.filePattern),
+                                                       QStringList{versionDetection.executableArgs},
+                                                       versionDetection.regex};
+    else
+        return new McuPackageDirectoryVersionDetector(versionDetection.filePattern,
+                                                      versionDetection.regex,
+                                                      versionDetection.isFile);
+}
+
 McuTargetFactory::McuTargetFactory(const SettingsHandler::Ptr &settingsHandler)
     : settingsHandler{settingsHandler}
 {}
@@ -116,16 +134,16 @@ Packages McuTargetFactory::createPackages(const McuTargetDescription &desc)
 
 McuPackagePtr McuTargetFactory::createPackage(const PackageDescription &pkgDesc)
 {
-    return McuPackagePtr{new McuPackage{
-        settingsHandler,
-        pkgDesc.label,
-        pkgDesc.defaultPath,
-        pkgDesc.validationPath,
-        pkgDesc.setting,
-        pkgDesc.cmakeVar,
-        pkgDesc.envVar,
-        pkgDesc.versions,
-    }};
+    return McuPackagePtr{new McuPackage{settingsHandler,
+                                        pkgDesc.label,
+                                        pkgDesc.defaultPath,
+                                        pkgDesc.validationPath,
+                                        pkgDesc.setting,
+                                        pkgDesc.cmakeVar,
+                                        pkgDesc.envVar,
+                                        pkgDesc.versions,
+                                        {},
+                                        createVersionDetection(pkgDesc.versionDetection)}};
 }
 
 McuToolChainPackage *McuTargetFactory::createToolchain(
@@ -144,22 +162,22 @@ McuToolChainPackage *McuTargetFactory::createToolchain(
                                        {},
                                        toolchainType,
                                        toolchain.versions,
-                                       compilerDescription.cmakeVar};
+                                       compilerDescription.cmakeVar,
+                                       {},
+                                       nullptr};
     else if (!isToolchainDescriptionValid(toolchain))
         toolchainType = McuToolChainPackage::ToolChainType::Unsupported;
 
-    return new McuToolChainPackage{
-        settingsHandler,
-        compilerDescription.label,
-        compilerDescription.defaultPath,
-        compilerDescription.validationPath,
-        compilerDescription.setting,
-        toolchainType,
-        toolchain.versions,
-        compilerDescription.cmakeVar,
-        compilerDescription.envVar,
-        nullptr, // McuPackageVersionDetector
-    };
+    return new McuToolChainPackage{settingsHandler,
+                                   compilerDescription.label,
+                                   compilerDescription.defaultPath,
+                                   compilerDescription.validationPath,
+                                   compilerDescription.setting,
+                                   toolchainType,
+                                   toolchain.versions,
+                                   compilerDescription.cmakeVar,
+                                   compilerDescription.envVar,
+                                   createVersionDetection(compilerDescription.versionDetection)};
 }
 
 } // namespace McuSupport::Internal

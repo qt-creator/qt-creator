@@ -77,6 +77,11 @@ constexpr auto ghs_rh850_d1m1a_baremetal_json = R"({
     "cmakeVar": "QUL_BOARD_SDK_DIR",
     "type": "path",
     "defaultValue": "/Renesas_Electronics/D1x_RGL/rgl_ghs_D1Mx_obj_V.2.0.0a",
+    "versionDetection": {
+       "filePattern" : "rgl_*_obj_*",
+       "regex" : "\\d+\\.\\d+\\.\\w+",
+       "isFile" : false
+    },
     "optional": false
   }
 })";

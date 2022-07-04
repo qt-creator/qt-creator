@@ -65,16 +65,19 @@ constexpr auto armgcc_nxp_1050_json = R"({
       "10.3.1"
     ],
     "compiler": {
-        "id": "ARMGCC_DIR",
         "label": "GNU Arm Embedded Toolchain",
         "cmakeVar": "QUL_TARGET_TOOLCHAIN_DIR",
         "envVar": "ARMGCC_DIR",
         "setting": "GNUArmEmbeddedToolchain",
         "type": "path",
-        "optional": false
+        "optional": false,
+        "versionDetection" : {
+            "filePattern": "bin/arm-none-eabi-g++",
+            "executableArgs": "--version",
+            "regex": "\\bv(\\d+\\.\\d+\\.\\d+)\\b"
+        }
       },
       "file": {
-        "id": "ARMGCC_CMAKE_TOOLCHAIN_FILE",
         "label": "CMake Toolchain File",
         "cmakeVar": "CMAKE_TOOLCHAIN_FILE",
         "type": "file",
@@ -84,13 +87,18 @@ constexpr auto armgcc_nxp_1050_json = R"({
       }
   },
   "boardSdk": {
-    "envVar": "EVKB_IMXRT1050_SDK_PATH",
     "versions": [ "2.11.0" ],
     "id": "NXP_SDK_DIR",
     "label": "Board SDK for MIMXRT1050-EVK",
     "cmakeVar": "QUL_BOARD_SDK_DIR",
     "envVar": "EVKB_IMXRT1050_SDK_PATH",
     "setting": "EVKB_IMXRT1050_SDK_PATH",
+    "versionDetection" : {
+        "filePattern": "*_manifest_*.xml",
+        "xmlElement": "ksdk",
+        "xmlAttribute": "version",
+        "regex": ".*"
+    },
     "type": "path",
     "optional": false
   },
