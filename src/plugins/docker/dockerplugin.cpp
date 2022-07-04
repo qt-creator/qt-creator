@@ -43,14 +43,14 @@ namespace Internal {
 class DockerPluginPrivate
 {
 public:
-    QSharedPointer<DockerSettings> m_settings{new DockerSettings};
-    DockerDeviceFactory deviceFactory{m_settings};
-    DockerSettingsPage m_settingPage{m_settings};
+    ~DockerPluginPrivate() {
+        m_deviceFactory.shutdownExistingDevices();
+    }
 
-    // DockerBuildStepFactory buildStepFactory;
-    Utils::optional<bool> daemonRunning;
-
-    DockerApi dockerApi{m_settings};
+    DockerSettings m_settings;
+    DockerDeviceFactory m_deviceFactory{&m_settings};
+    DockerSettingsPage m_settingPage{&m_settings};
+    DockerApi m_dockerApi{&m_settings};
 };
 
 static DockerPlugin *s_instance = nullptr;
@@ -63,7 +63,7 @@ DockerPlugin::DockerPlugin()
 DockerApi *DockerPlugin::dockerApi()
 {
     QTC_ASSERT(s_instance, return nullptr);
-    return &s_instance->d->dockerApi;
+    return &s_instance->d->m_dockerApi;
 }
 
 DockerPlugin::~DockerPlugin()

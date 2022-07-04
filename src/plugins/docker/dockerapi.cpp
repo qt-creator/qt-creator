@@ -43,7 +43,7 @@ using namespace Utils;
 
 DockerApi *s_instance{nullptr};
 
-DockerApi::DockerApi(QSharedPointer<DockerSettings> settings)
+DockerApi::DockerApi(DockerSettings *settings)
     : m_settings(settings)
 {
     s_instance = this;

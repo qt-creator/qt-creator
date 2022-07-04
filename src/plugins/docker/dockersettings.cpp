@@ -47,7 +47,7 @@ DockerSettings::DockerSettings()
     registerAspect(&dockerBinaryPath);
     dockerBinaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     dockerBinaryPath.setExpectedKind(PathChooser::ExistingCommand);
-    dockerBinaryPath.setDefaultValue(FilePath::fromString("docker").searchInPath().toString());
+    dockerBinaryPath.setDefaultValue(FilePath::fromString("docker").searchInPath({"/usr/local/bin"}).toString());
     dockerBinaryPath.setDisplayName(tr("Docker CLI"));
     dockerBinaryPath.setHistoryCompleter("Docker.Command.History");
     dockerBinaryPath.setLabelText(tr("Command:"));
@@ -58,14 +58,14 @@ DockerSettings::DockerSettings()
 
 // DockerSettingsPage
 
-DockerSettingsPage::DockerSettingsPage(QSharedPointer<DockerSettings> settings)
+DockerSettingsPage::DockerSettingsPage(DockerSettings *settings)
 {
     setId(Docker::Constants::DOCKER_SETTINGS_ID);
     setDisplayName(DockerSettings::tr("Docker"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
-    setSettings(settings.get());
+    setSettings(settings);
 
-    setLayouter([settings = settings.get()](QWidget *widget) {
+    setLayouter([settings](QWidget *widget) {
         DockerSettings &s = *settings;
         using namespace Layouting;
 

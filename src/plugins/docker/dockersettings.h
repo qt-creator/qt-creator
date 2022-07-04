@@ -44,7 +44,7 @@ public:
 class DockerSettingsPage final : public Core::IOptionsPage
 {
 public:
-    explicit DockerSettingsPage(QSharedPointer<DockerSettings> settings);
+    explicit DockerSettingsPage(DockerSettings *settings);
 };
 
 } // namespace Internal

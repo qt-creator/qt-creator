@@ -106,7 +106,7 @@ static Q_LOGGING_CATEGORY(dockerDeviceLog, "qtc.docker.device", QtWarningMsg);
 class ContainerShell : public Utils::DeviceShell
 {
 public:
-    ContainerShell(QSharedPointer<DockerSettings> settings, const QString &containerId)
+    ContainerShell(DockerSettings *settings, const QString &containerId)
         : m_settings(settings)
         , m_containerId(containerId)
     {
@@ -119,7 +119,7 @@ private:
     }
 
 private:
-    QSharedPointer<DockerSettings> m_settings;
+    DockerSettings *m_settings;
     QString m_containerId;
 };
 
@@ -128,7 +128,7 @@ class DockerDevicePrivate : public QObject
     Q_DECLARE_TR_FUNCTIONS(Docker::Internal::DockerDevice)
 
 public:
-    DockerDevicePrivate(DockerDevice *parent, QSharedPointer<DockerSettings> settings)
+    DockerDevicePrivate(DockerDevice *parent, DockerSettings *settings)
         : q(parent)
         , m_settings(settings)
     {}
@@ -147,7 +147,7 @@ public:
 
     DockerDevice *q;
     DockerDeviceData m_data;
-    QSharedPointer<DockerSettings> m_settings;
+    DockerSettings *m_settings;
 
     // For local file access
 
@@ -320,7 +320,7 @@ QString DockerDeviceData::repoAndTag() const
 
 // DockerDevice
 
-DockerDevice::DockerDevice(QSharedPointer<DockerSettings> settings, const DockerDeviceData &data)
+DockerDevice::DockerDevice(DockerSettings *settings, const DockerDeviceData &data)
     : d(new DockerDevicePrivate(this, settings))
 {
     d->m_data = data;
@@ -364,6 +364,12 @@ DockerDevice::~DockerDevice()
     delete d;
 }
 
+void DockerDevice::shutdown()
+{
+    d->stopCurrentContainer();
+    d->m_settings = nullptr;
+}
+
 const DockerDeviceData &DockerDevice::data() const
 {
     return d->m_data;
@@ -374,8 +380,6 @@ DockerDeviceData &DockerDevice::data()
     return d->m_data;
 }
 
-
-
 void DockerDevice::updateContainerAccess() const
 {
     d->updateContainerAccess();
@@ -383,7 +387,7 @@ void DockerDevice::updateContainerAccess() const
 
 void DockerDevicePrivate::stopCurrentContainer()
 {
-    if (m_container.isEmpty() || !DockerApi::isDockerDaemonAvailable(false).value_or(false))
+    if (!m_settings || m_container.isEmpty() || !DockerApi::isDockerDaemonAvailable(false).value_or(false))
         return;
 
     m_shell.reset();
@@ -412,6 +416,9 @@ static QString getLocalIPv4Address()
 
 void DockerDevicePrivate::startContainer()
 {
+    if (!m_settings)
+        return;
+
     const QString display = HostOsInfo::isLinuxHost() ? QString(":0")
                                                       : QString(getLocalIPv4Address() + ":0.0");
     CommandLine dockerCreate{m_settings->dockerBinaryPath.filePath(), {"create",
@@ -494,6 +501,9 @@ void DockerDevice::setMounts(const QStringList &mounts) const
 
 CommandLine DockerDevice::withDockerExecCmd(const Utils::CommandLine &cmd, bool interactive) const
 {
+    if (!d->m_settings)
+        return {};
+
     QStringList args;
 
     args << "exec";
@@ -1003,8 +1013,9 @@ void DockerDevicePrivate::fetchSystemEnviroment()
 
 bool DockerDevicePrivate::runInContainer(const CommandLine &cmd) const
 {
-    if (!DockerApi::isDockerDaemonAvailable(false).value_or(false))
+    if (!m_settings || !DockerApi::isDockerDaemonAvailable(false).value_or(false))
         return false;
+
     CommandLine dcmd{m_settings->dockerBinaryPath.filePath(), {"exec", m_container}};
     dcmd.addCommandLineAsArgs(cmd);
 
@@ -1066,7 +1077,7 @@ public:
 class DockerDeviceSetupWizard final : public QDialog
 {
 public:
-    DockerDeviceSetupWizard(QSharedPointer<DockerSettings> settings)
+    DockerDeviceSetupWizard(DockerSettings *settings)
         : QDialog(ICore::dialogParent())
         , m_settings(settings)
     {
@@ -1168,7 +1179,7 @@ public:
     TreeView *m_view = nullptr;
     QTextBrowser *m_log = nullptr;
     QDialogButtonBox *m_buttons;
-    QSharedPointer<DockerSettings> m_settings;
+    DockerSettings *m_settings;
 
     QtcProcess *m_process = nullptr;
     QString m_selectedId;
@@ -1176,7 +1187,7 @@ public:
 
 // Factory
 
-DockerDeviceFactory::DockerDeviceFactory(QSharedPointer<DockerSettings> settings)
+DockerDeviceFactory::DockerDeviceFactory(DockerSettings *settings)
     : IDeviceFactory(Constants::DOCKER_DEVICE_TYPE)
 {
     setDisplayName(DockerDevice::tr("Docker Device"));
@@ -1187,7 +1198,21 @@ DockerDeviceFactory::DockerDeviceFactory(QSharedPointer<DockerSettings> settings
             return IDevice::Ptr();
         return wizard.device();
     });
-    setConstructionFunction([settings] { return DockerDevice::create(settings, {}); });
+    setConstructionFunction([settings, this] {
+        auto device = DockerDevice::create(settings, {});
+        QMutexLocker lk(&m_deviceListMutex);
+        m_existingDevices.push_back(device);
+        return device;
+    });
+}
+
+void DockerDeviceFactory::shutdownExistingDevices()
+{
+    QMutexLocker lk(&m_deviceListMutex);
+    for (const auto &weakDevice : m_existingDevices) {
+        if (QSharedPointer<DockerDevice> device = weakDevice.lock())
+            device->shutdown();
+    }
 }
 
 } // Internal

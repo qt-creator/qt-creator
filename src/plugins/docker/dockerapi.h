@@ -42,7 +42,7 @@ class DockerApi : public QObject
     Q_OBJECT
 
 public:
-    DockerApi(QSharedPointer<DockerSettings> settings);
+    DockerApi(DockerSettings *settings);
 
     static DockerApi *instance();
 
@@ -63,7 +63,7 @@ private:
 private:
     Utils::optional<bool> m_dockerDaemonAvailable;
     QMutex m_daemonCheckGuard;
-    QSharedPointer<DockerSettings> m_settings;
+    DockerSettings *m_settings;
 };
 
 } // namespace Internal
