@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,36 +25,27 @@
 
 #pragma once
 
+#include "coreplugin/dialogs/ioptionspage.h"
 #include <utils/aspects.h>
-#include <utils/fileutils.h>
-
-#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace Docker {
 namespace Internal {
 
-class DockerSettings : public Utils::AspectContainer
+class DockerSettings final : public Utils::AspectContainer
 {
     Q_DECLARE_TR_FUNCTIONS(Docker::Internal::DockerSettings)
 
 public:
     DockerSettings();
-    static DockerSettings *instance();
 
-    void readSettings(const QSettings *settings);
-    void writeSettings(QSettings *settings) const;
-
-    void updateImageList();
-
-    Utils::StringAspect imageListFilter;
-    Utils::StringAspect imageList;
+    Utils::StringAspect dockerBinaryPath;
 };
 
-class DockerOptionsPage final : public Core::IOptionsPage
+class DockerSettingsPage final : public Core::IOptionsPage
 {
 public:
-    explicit DockerOptionsPage(DockerSettings *settings);
+    explicit DockerSettingsPage(QSharedPointer<DockerSettings> settings);
 };
 
-} // Internal
-} // Docker
+} // namespace Internal
+} // namespace Docker

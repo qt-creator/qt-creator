@@ -25,8 +25,6 @@
 
 #include "dockerplugin.h"
 
-#include "dockerconstants.h"
-
 #include "dockerapi.h"
 #include "dockerdevice.h"
 #include "dockersettings.h"
@@ -45,15 +43,14 @@ namespace Internal {
 class DockerPluginPrivate
 {
 public:
-    // DockerSettings settings;
-    // DockerOptionsPage optionsPage{&settings};
-
-    DockerDeviceFactory deviceFactory;
+    QSharedPointer<DockerSettings> m_settings{new DockerSettings};
+    DockerDeviceFactory deviceFactory{m_settings};
+    DockerSettingsPage m_settingPage{m_settings};
 
     // DockerBuildStepFactory buildStepFactory;
     Utils::optional<bool> daemonRunning;
 
-    DockerApi dockerApi;
+    DockerApi dockerApi{m_settings};
 };
 
 static DockerPlugin *s_instance = nullptr;

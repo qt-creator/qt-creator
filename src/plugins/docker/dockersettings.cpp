@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,107 +23,63 @@
 **
 ****************************************************************************/
 
-#include "dockerconstants.h"
 #include "dockersettings.h"
+
+#include "dockerconstants.h"
 
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
-#include <utils/qtcprocess.h>
-#include <utils/qtcsettings.h>
 
 using namespace Utils;
 
 namespace Docker {
 namespace Internal {
 
-// DockerSettings
-
-const char SETTINGS_KEY[] = "Docker";
-
-static DockerSettings *theSettings = nullptr;
-
 DockerSettings::DockerSettings()
 {
-    theSettings = this;
+    setSettingsGroup(Constants::DOCKER);
     setAutoApply(false);
+
+    registerAspect(&dockerBinaryPath);
+    dockerBinaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
+    dockerBinaryPath.setExpectedKind(PathChooser::ExistingCommand);
+    dockerBinaryPath.setDefaultValue(FilePath::fromString("docker").searchInPath().toString());
+    dockerBinaryPath.setDisplayName(tr("Docker CLI"));
+    dockerBinaryPath.setHistoryCompleter("Docker.Command.History");
+    dockerBinaryPath.setLabelText(tr("Command:"));
+    dockerBinaryPath.setSettingsKey("cli");
+
     readSettings(Core::ICore::settings());
-
-    imageListFilter.setSettingsKey("DockerListFilter");
-    imageListFilter.setPlaceHolderText(tr("<filter>"));
-    imageListFilter.setDisplayStyle(StringAspect::LineEditDisplay);
-    imageListFilter.setLabelText(tr("Filter:"));
-
-    imageList.setDisplayStyle(StringAspect::TextEditDisplay);
-    imageList.setLabelText(tr("Images:"));
-
-    connect(&imageListFilter, &BaseAspect::changed, this, &DockerSettings::updateImageList);
 }
 
-DockerSettings *DockerSettings::instance()
-{
-    return theSettings;
-}
+// DockerSettingsPage
 
-void DockerSettings::writeSettings(QSettings *settings) const
+DockerSettingsPage::DockerSettingsPage(QSharedPointer<DockerSettings> settings)
 {
-    settings->remove(SETTINGS_KEY);
-    settings->beginGroup(SETTINGS_KEY);
-    forEachAspect([settings](BaseAspect *aspect) {
-        QtcSettings::setValueWithDefault(settings, aspect->settingsKey(),
-                                         aspect->value(), aspect->defaultValue());
-    });
-    settings->endGroup();
-}
-
-void DockerSettings::updateImageList()
-{
-    QtcProcess process;
-    process.setCommand({"docker", {"search", imageListFilter.value()}});
-    process.start();
-    process.waitForFinished();
-    imageList.setValue(process.cleanedStdOut());
-}
-
-void DockerSettings::readSettings(const QSettings *settings)
-{
-    const QString keyRoot = QString(SETTINGS_KEY) + '/';
-    forEachAspect([settings, keyRoot](BaseAspect *aspect) {
-        QString key = aspect->settingsKey();
-        const QVariant value = settings->value(keyRoot + key, aspect->defaultValue());
-        aspect->setValue(value);
-    });
-}
-
-// DockerOptionsPage
-
-DockerOptionsPage::DockerOptionsPage(DockerSettings *settings)
-{
-    setId(Constants::DOCKER_SETTINGS_ID);
+    setId(Docker::Constants::DOCKER_SETTINGS_ID);
     setDisplayName(DockerSettings::tr("Docker"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("ProjectExplorer", "Devices"));
-    setCategoryIconPath(":/projectexplorer/images/settingscategory_devices.png");
-    setSettings(settings);
+    setSettings(settings.get());
 
-    setLayouter([settings](QWidget *widget) {
-        using namespace Layouting;
+    setLayouter([settings = settings.get()](QWidget *widget) {
         DockerSettings &s = *settings;
+        using namespace Layouting;
 
+        // clang-format off
         Column {
             Group {
-                Title(DockerSettings::tr("Search Images on Docker Hub")),
-                Form {
-                    s.imageListFilter,
-                    s.imageList
-                },
+                Title(DockerSettings::tr("Configuration")),
+                Row { s.dockerBinaryPath }
             },
             Stretch()
         }.attachTo(widget);
+        // clang-format on
     });
 }
 
-} // Internal
-} // Docker
+} // namespace Internal
+} // namespace Docker

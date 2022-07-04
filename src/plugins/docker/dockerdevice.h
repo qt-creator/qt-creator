@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "dockersettings.h"
+
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 #include <coreplugin/documentmanager.h>
@@ -56,10 +58,10 @@ public:
     using Ptr = QSharedPointer<DockerDevice>;
     using ConstPtr = QSharedPointer<const DockerDevice>;
 
-    explicit DockerDevice(const DockerDeviceData &data);
+    explicit DockerDevice(QSharedPointer<DockerSettings> settings, const DockerDeviceData &data);
     ~DockerDevice();
 
-    static Ptr create(const DockerDeviceData &data) { return Ptr(new DockerDevice(data)); }
+    static Ptr create(QSharedPointer<DockerSettings> settings, const DockerDeviceData &data) { return Ptr(new DockerDevice(settings, data)); }
 
     ProjectExplorer::IDeviceWidget *createWidget() override;
     QList<ProjectExplorer::Task> validate() const override;
@@ -133,7 +135,7 @@ private:
 class DockerDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
 public:
-    DockerDeviceFactory();
+    DockerDeviceFactory(QSharedPointer<DockerSettings> settings);
 };
 
 } // Internal

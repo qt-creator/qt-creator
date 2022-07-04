@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "dockersettings.h"
+
 #include <QMutex>
 #include <QObject>
 
@@ -40,7 +42,7 @@ class DockerApi : public QObject
     Q_OBJECT
 
 public:
-    DockerApi();
+    DockerApi(QSharedPointer<DockerSettings> settings);
 
     static DockerApi *instance();
 
@@ -56,12 +58,12 @@ public:
     static Utils::optional<bool> isDockerDaemonAvailable(bool async = true);
 
 private:
-    Utils::FilePath findDockerClient();
+    Utils::FilePath dockerClient();
 
 private:
-    Utils::FilePath m_dockerExecutable;
     Utils::optional<bool> m_dockerDaemonAvailable;
     QMutex m_daemonCheckGuard;
+    QSharedPointer<DockerSettings> m_settings;
 };
 
 } // namespace Internal

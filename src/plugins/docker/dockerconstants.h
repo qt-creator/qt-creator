@@ -29,6 +29,8 @@
 namespace Docker {
 namespace Constants {
 
+const char DOCKER[] = "docker";
+
 const char DOCKER_SETTINGS_ID[] = "Docker.Settings";
 const char DOCKER_DEVICE_TYPE[] = "DockerDeviceType";
 

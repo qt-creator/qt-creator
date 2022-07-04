@@ -43,7 +43,8 @@ using namespace Utils;
 
 DockerApi *s_instance{nullptr};
 
-DockerApi::DockerApi()
+DockerApi::DockerApi(QSharedPointer<DockerSettings> settings)
+    : m_settings(settings)
 {
     s_instance = this;
 }
@@ -56,7 +57,7 @@ DockerApi *DockerApi::instance()
 bool DockerApi::canConnect()
 {
     QtcProcess process;
-    FilePath dockerExe = findDockerClient();
+    FilePath dockerExe = dockerClient();
     if (dockerExe.isEmpty() || !dockerExe.isExecutableFile())
         return false;
 
@@ -83,11 +84,11 @@ void DockerApi::checkCanConnect(bool async)
             return;
 
         m_dockerDaemonAvailable = nullopt;
-        dockerDaemonAvailableChanged();
+        emit dockerDaemonAvailableChanged();
 
         auto future = Utils::runAsync([lk = std::move(lk), this] {
             m_dockerDaemonAvailable = canConnect();
-            dockerDaemonAvailableChanged();
+            emit dockerDaemonAvailableChanged();
         });
 
         Core::ProgressManager::addTask(future, tr("Checking docker daemon"), "DockerPlugin");
@@ -98,7 +99,7 @@ void DockerApi::checkCanConnect(bool async)
     bool isAvailable = canConnect();
     if (!m_dockerDaemonAvailable.has_value() || isAvailable != m_dockerDaemonAvailable) {
         m_dockerDaemonAvailable = isAvailable;
-        dockerDaemonAvailableChanged();
+        emit dockerDaemonAvailableChanged();
     }
 }
 
@@ -121,11 +122,9 @@ Utils::optional<bool> DockerApi::isDockerDaemonAvailable(bool async)
     return s_instance->dockerDaemonAvailable(async);
 }
 
-FilePath DockerApi::findDockerClient()
+FilePath DockerApi::dockerClient()
 {
-    if (m_dockerExecutable.isEmpty() || m_dockerExecutable.isExecutableFile())
-        m_dockerExecutable = FilePath::fromString("docker").searchInPath();
-    return m_dockerExecutable;
+    return FilePath::fromString(m_settings->dockerBinaryPath.value());
 }
 
 } // namespace Internal
