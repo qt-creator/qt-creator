@@ -90,6 +90,7 @@ Kit *QtProjectImporter::createTemporaryKit(const QtVersionData &versionData,
         }
 
         additionalSetup(k);
+        k->fix();
     });
 }
 

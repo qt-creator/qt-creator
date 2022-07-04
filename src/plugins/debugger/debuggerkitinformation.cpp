@@ -264,11 +264,21 @@ void DebuggerKitAspect::fix(Kit *k)
         return;
 
     if (rawId.type() == QVariant::String) {
-        if (!DebuggerItemManager::findById(rawId)) {
+        const DebuggerItem * const item = DebuggerItemManager::findById(rawId);
+        if (!item) {
             qWarning("Unknown debugger id %s in kit %s",
                      qPrintable(rawId.toString()), qPrintable(k->displayName()));
             k->setValue(DebuggerKitAspect::id(), QVariant());
+            setup(k);
+            return;
         }
+        const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
+        for (const Abi &abi : item->abis()) {
+            if (abi.isCompatibleWith(tcAbi))
+                return;
+        }
+        k->setValue(DebuggerKitAspect::id(), QVariant());
+        setup(k);
         return; // All fine (now).
     }
 
