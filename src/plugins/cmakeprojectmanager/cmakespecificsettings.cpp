@@ -72,6 +72,11 @@ CMakeSpecificSettings::CMakeSpecificSettings()
     askBeforeReConfigureInitialParams.setDefaultValue(true);
     askBeforeReConfigureInitialParams.setLabelText(tr("Ask before re-configuring with "
         "initial parameters"));
+
+    registerAspect(&showSourceSubFolders);
+    showSourceSubFolders.setSettingsKey("ShowSourceSubFolders");
+    showSourceSubFolders.setDefaultValue(true);
+    showSourceSubFolders.setLabelText(tr("Show subfolders inside source group folders"));
 }
 
 // CMakeSpecificSettingsPage
@@ -93,6 +98,7 @@ CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *sett
             },
             s.packageManagerAutoSetup,
             s.askBeforeReConfigureInitialParams,
+            s.showSourceSubFolders,
             Stretch(),
         }.attachTo(widget);
     });

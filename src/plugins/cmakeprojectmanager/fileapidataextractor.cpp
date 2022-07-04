@@ -25,6 +25,8 @@
 
 #include "fileapidataextractor.h"
 
+#include "cmakeprojectplugin.h"
+#include "cmakespecificsettings.h"
 #include "fileapiparser.h"
 #include "projecttreehelper.h"
 
@@ -548,6 +550,9 @@ void addCompileGroups(ProjectNode *targetRoot,
                       const Utils::FilePath &buildDirectory,
                       const TargetDetails &td)
 {
+    CMakeSpecificSettings *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
+    const bool showSourceFolders = settings->showSourceSubFolders.value();
+
     const bool inSourceBuild = (sourceDirectory == buildDirectory);
 
     std::vector<std::unique_ptr<FileNode>> toList;
@@ -580,9 +585,9 @@ void addCompileGroups(ProjectNode *targetRoot,
             node->setIsGenerated(true);
 
         // Where does the file node need to go?
-        if (sourcePath.isChildOf(buildDirectory) && !inSourceBuild) {
+        if (showSourceFolders && sourcePath.isChildOf(buildDirectory) && !inSourceBuild) {
             buildFileNodes.emplace_back(std::move(node));
-        } else if (sourcePath.isChildOf(sourceDirectory)) {
+        } else if (!showSourceFolders || sourcePath.isChildOf(sourceDirectory)) {
             sourceGroupFileNodes[si.sourceGroup].emplace_back(std::move(node));
         } else {
             otherFileNodes.emplace_back(std::move(node));
@@ -605,7 +610,14 @@ void addCompileGroups(ProjectNode *targetRoot,
         FolderNode *insertNode = createSourceGroupNode(td.sourceGroups[i],
                                                        baseDirectory,
                                                        targetRoot);
-        insertNode->addNestedNodes(std::move(current), baseDirectory);
+
+        if (showSourceFolders) {
+            insertNode->addNestedNodes(std::move(current), baseDirectory);
+        } else {
+            for (auto &fileNodes : current) {
+                insertNode->addNode(std::move(fileNodes));
+            }
+        }
     }
 
     addCMakeVFolder(targetRoot,

@@ -49,6 +49,7 @@ public:
     Utils::StringAspect ninjaPath;
     Utils::BoolAspect packageManagerAutoSetup;
     Utils::BoolAspect askBeforeReConfigureInitialParams;
+    Utils::BoolAspect showSourceSubFolders;
 };
 
 class CMakeSpecificSettingsPage final : public Core::IOptionsPage
