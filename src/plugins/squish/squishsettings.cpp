@@ -25,53 +25,93 @@
 
 #include "squishsettings.h"
 
+#include "squishconstants.h"
+
+#include <utils/icon.h>
+#include <utils/layoutbuilder.h>
+
 #include <QSettings>
+
+using namespace Utils;
 
 namespace Squish {
 namespace Internal {
 
-static const char group[] = "Squish";
-static const char squishPathKey[] = "SquishPath";
-static const char licensePathKey[] = "LicensePath";
-static const char localKey[] = "Local";
-static const char serverHostKey[] = "ServerHost";
-static const char serverPortKey[] = "ServerPort";
-static const char verboseKey[] = "Verbose";
-
-void SquishSettings::toSettings(QSettings *s) const
+SquishSettings::SquishSettings()
 {
-    s->beginGroup(group);
-    s->setValue(squishPathKey, squishPath.toString());
-    s->setValue(licensePathKey, licensePath.toString());
-    s->setValue(localKey, local);
-    s->setValue(serverHostKey, serverHost);
-    s->setValue(serverPortKey, serverPort);
-    s->setValue(verboseKey, verbose);
-    s->endGroup();
+    setSettingsGroup("Squish");
+    setAutoApply(false);
+
+    registerAspect(&squishPath);
+    squishPath.setSettingsKey("SquishPath");
+    squishPath.setLabelText(tr("Squish path:"));
+    squishPath.setDisplayStyle(StringAspect::PathChooserDisplay);
+    squishPath.setExpectedKind(PathChooser::ExistingDirectory);
+    squishPath.setPlaceHolderText(tr("Path to Squish installation"));
+
+    registerAspect(&licensePath);
+    licensePath.setSettingsKey("LicensePath");
+    licensePath.setLabelText(tr("License path:"));
+    licensePath.setDisplayStyle(StringAspect::PathChooserDisplay);
+    licensePath.setExpectedKind(PathChooser::ExistingDirectory);
+
+    registerAspect(&local);
+    local.setSettingsKey("Local");
+    local.setLabel(tr("Local Server"));
+    local.setDefaultValue(true);
+
+    registerAspect(&serverHost);
+    serverHost.setSettingsKey("ServerHost");
+    serverHost.setLabelText(tr("Server host:"));
+    serverHost.setDisplayStyle(StringAspect::LineEditDisplay);
+    serverHost.setDefaultValue("localhost");
+    serverHost.setEnabled(false);
+
+    registerAspect(&serverPort);
+    serverPort.setSettingsKey("ServerPort");
+    serverPort.setLabel(tr("Server Port"));
+    serverPort.setRange(1, 65535);
+    serverPort.setValue(9999);
+    serverPort.setEnabled(false);
+
+
+    registerAspect(&verbose);
+    verbose.setSettingsKey("Verbose");
+    verbose.setLabel(tr("Verbose log"));
+    verbose.setDefaultValue(false);
+
+    connect(&local, &BoolAspect::volatileValueChanged,
+            this, [this] (bool checked) {
+        serverHost.setEnabled(!checked);
+        serverPort.setEnabled(!checked);
+    });
 }
 
-void SquishSettings::fromSettings(QSettings *s)
+SquishSettingsPage::SquishSettingsPage(SquishSettings *settings)
 {
-    s->beginGroup(group);
-    squishPath = Utils::FilePath::fromVariant(s->value(squishPathKey));
-    licensePath = Utils::FilePath::fromVariant(s->value(licensePathKey));
-    local = s->value(localKey, true).toBool();
-    serverHost = s->value(serverHostKey, "localhost").toString();
-    serverPort = s->value(serverPortKey, 9999).toUInt();
-    verbose = s->value(verboseKey, false).toBool();
-    s->endGroup();
-}
+    setId("A.Squish.General");
+    setDisplayName(tr("General"));
+    setCategory(Constants::SQUISH_SETTINGS_CATEGORY);
+    setDisplayCategory("Squish");
+    setCategoryIcon(Icon({{":/squish/images/settingscategory_squish.png",
+                           Theme::PanelTextColorDark}}, Icon::Tint));
 
-bool SquishSettings::operator==(const SquishSettings &other) const
-{
-    return local == other.local && verbose == other.verbose && serverPort == other.serverPort
-           && squishPath == other.squishPath && licensePath == other.licensePath
-           && serverHost == other.serverHost;
-}
+    setSettings(settings);
 
-bool SquishSettings::operator!=(const SquishSettings &other) const
-{
-    return !(*this == other);
+    setLayouter([settings](QWidget *widget) {
+        SquishSettings &s = *settings;
+        using namespace Layouting;
+
+        const Break nl;
+
+        Grid grid {
+            s.squishPath, nl,
+            s.licensePath, nl,
+            Span {2, Row { s.local, s.serverHost, s.serverPort } }, nl,
+            s.verbose, nl,
+        };
+        Column { Row { grid }, Stretch() }.attachTo(widget);
+    });
 }
 
 } // namespace Internal

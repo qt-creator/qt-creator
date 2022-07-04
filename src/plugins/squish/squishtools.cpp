@@ -47,6 +47,8 @@
 #include <QTimer>
 #include <QWindow>
 
+using namespace Utils;
+
 namespace Squish {
 namespace Internal {
 
@@ -99,34 +101,34 @@ struct SquishToolsSettings
 {
     SquishToolsSettings() {}
 
-    QString squishPath;
-    QString serverPath = "squishserver";
-    QString runnerPath = "squishrunner";
+    FilePath squishPath;
+    FilePath serverPath;
+    FilePath runnerPath;
     bool isLocalServer = true;
     bool verboseLog = false;
     QString serverHost = "localhost";
     int serverPort = 9999;
-    QString licenseKeyPath;
+    FilePath licenseKeyPath;
 
     // populate members using current settings
     void setup()
     {
-        QSharedPointer<SquishSettings> squishSettings = SquishPlugin::instance()->squishSettings();
-        squishPath = squishSettings->squishPath.toString();
-        serverPath = Utils::HostOsInfo::withExecutableSuffix("squishserver");
-        runnerPath = Utils::HostOsInfo::withExecutableSuffix("squishrunner");
+        const SquishSettings *squishSettings = SquishPlugin::instance()->squishSettings();
+        squishPath = squishSettings->squishPath.filePath();
 
         if (!squishPath.isEmpty()) {
-            const QDir squishBin(squishPath + QDir::separator() + "bin");
-            serverPath = QFileInfo(squishBin, serverPath).absoluteFilePath();
-            runnerPath = QFileInfo(squishBin, runnerPath).absoluteFilePath();
+            const FilePath squishBin(squishPath.pathAppended("bin"));
+            serverPath = squishBin.pathAppended(
+                        HostOsInfo::withExecutableSuffix("squishserver")).absoluteFilePath();
+            runnerPath = squishBin.pathAppended(
+                        HostOsInfo::withExecutableSuffix("squishrunner")).absoluteFilePath();
         }
 
-        isLocalServer = squishSettings->local;
-        serverHost = squishSettings->serverHost;
-        serverPort = squishSettings->serverPort;
-        verboseLog = squishSettings->verbose;
-        licenseKeyPath = squishSettings->licensePath.toString();
+        isLocalServer = squishSettings->local.value();
+        serverHost = squishSettings->serverHost.value();
+        serverPort = squishSettings->serverPort.value();
+        verboseLog = squishSettings->verbose.value();
+        licenseKeyPath = squishSettings->licensePath.filePath();
     }
 };
 
@@ -304,25 +306,25 @@ void SquishTools::startSquishServer(Request request)
     toolsSettings.setup();
     m_serverPort = -1;
 
-    const Utils::FilePath squishServer = Utils::Environment::systemEnvironment().searchInPath(
-        toolsSettings.serverPath);
+    const FilePath squishServer = Environment::systemEnvironment().searchInPath(
+        toolsSettings.serverPath.toString());
     if (squishServer.isEmpty()) {
         QMessageBox::critical(Core::ICore::dialogParent(),
                               tr("Squish Server Error"),
                               tr("\"%1\" could not be found or is not executable.\n"
                                  "Check the settings.")
-                                  .arg(QDir::toNativeSeparators(toolsSettings.serverPath)));
+                                  .arg(toolsSettings.serverPath.toUserOutput()));
         setState(Idle);
         return;
     }
-    toolsSettings.serverPath = squishServer.toString();
+    toolsSettings.serverPath = squishServer;
 
     if (true) // TODO squish setting of minimize QC on squish run/record
         minimizeQtCreatorWindows();
     else
         m_lastTopLevelWindows.clear();
 
-    m_serverProcess = new Utils::QtcProcess;
+    m_serverProcess = new QtcProcess;
     QStringList arguments;
     // TODO if isLocalServer is false we should start a squishserver on remote device
     if (toolsSettings.isLocalServer)
@@ -332,14 +334,14 @@ void SquishTools::startSquishServer(Request request)
     if (toolsSettings.verboseLog)
         arguments << "--verbose";
 
-    m_serverProcess->setCommand({Utils::FilePath::fromString(toolsSettings.serverPath), arguments});
+    m_serverProcess->setCommand({toolsSettings.serverPath, arguments});
     m_serverProcess->setEnvironment(squishEnvironment());
 
-    connect(m_serverProcess, &Utils::QtcProcess::readyReadStandardOutput,
+    connect(m_serverProcess, &QtcProcess::readyReadStandardOutput,
             this, &SquishTools::onServerOutput);
-    connect(m_serverProcess, &Utils::QtcProcess::readyReadStandardError,
+    connect(m_serverProcess, &QtcProcess::readyReadStandardError,
             this, &SquishTools::onServerErrorOutput);
-    connect(m_serverProcess, &Utils::QtcProcess::done,
+    connect(m_serverProcess, &QtcProcess::done,
             this, &SquishTools::onServerFinished);
 
     setState(ServerStarting);
@@ -353,7 +355,7 @@ void SquishTools::startSquishServer(Request request)
 void SquishTools::stopSquishServer()
 {
     if (m_serverProcess && m_serverPort > 0) {
-        Utils::QtcProcess serverKiller;
+        QtcProcess serverKiller;
         QStringList args;
         args << "--stop" << "--port" << QString::number(m_serverPort);
         serverKiller.setCommand({m_serverProcess->commandLine().executable(), args});
@@ -411,20 +413,20 @@ void SquishTools::startSquishRunner()
         return;
     }
 
-    const Utils::FilePath squishRunner = Utils::Environment::systemEnvironment().searchInPath(
-        toolsSettings.runnerPath);
+    const FilePath squishRunner = Environment::systemEnvironment().searchInPath(
+        toolsSettings.runnerPath.toString());
     if (squishRunner.isEmpty()) {
         QMessageBox::critical(Core::ICore::dialogParent(),
                               tr("Squish Runner Error"),
                               tr("\"%1\" could not be found or is not executable.\n"
                                  "Check the settings.")
-                                  .arg(QDir::toNativeSeparators(toolsSettings.runnerPath)));
+                                  .arg(toolsSettings.runnerPath.toUserOutput()));
         setState(RunnerStopped);
         return;
     }
-    toolsSettings.runnerPath = squishRunner.toString();
+    toolsSettings.runnerPath = squishRunner;
 
-    m_runnerProcess = new Utils::QtcProcess;
+    m_runnerProcess = new QtcProcess;
 
     QStringList args;
     args << m_additionalServerArguments;
@@ -449,12 +451,12 @@ void SquishTools::startSquishRunner()
     args << "--reportgen"
          << QString::fromLatin1("xml2.2,%1").arg(caseReportFilePath);
 
-    m_runnerProcess->setCommand({Utils::FilePath::fromString(toolsSettings.runnerPath), args});
+    m_runnerProcess->setCommand({toolsSettings.runnerPath, args});
     m_runnerProcess->setEnvironment(squishEnvironment());
 
-    connect(m_runnerProcess, &Utils::QtcProcess::readyReadStandardError,
+    connect(m_runnerProcess, &QtcProcess::readyReadStandardError,
             this, &SquishTools::onRunnerErrorOutput);
-    connect(m_runnerProcess, &Utils::QtcProcess::done,
+    connect(m_runnerProcess, &QtcProcess::done,
             this, &SquishTools::onRunnerFinished);
 
     setState(RunnerStarting);
@@ -487,12 +489,12 @@ void SquishTools::startSquishRunner()
     m_currentResultsXML = new QFile(caseReportFilePath);
 }
 
-Utils::Environment SquishTools::squishEnvironment()
+Environment SquishTools::squishEnvironment()
 {
-    Utils::Environment environment = Utils::Environment::systemEnvironment();
+    Environment environment = Environment::systemEnvironment();
     if (!toolsSettings.licenseKeyPath.isEmpty())
-        environment.prependOrSet("SQUISH_LICENSEKEY_DIR", toolsSettings.licenseKeyPath);
-    environment.prependOrSet("SQUISH_PREFIX", toolsSettings.squishPath);
+        environment.prependOrSet("SQUISH_LICENSEKEY_DIR", toolsSettings.licenseKeyPath.nativePath());
+    environment.prependOrSet("SQUISH_PREFIX", toolsSettings.squishPath.nativePath());
     return environment;
 }
 

@@ -27,9 +27,9 @@
 
 #include "squishplugin_global.h"
 
-#include <extensionsystem/iplugin.h>
+#include "squishsettings.h"
 
-#include <QSharedPointer>
+#include <extensionsystem/iplugin.h>
 
 namespace Squish {
 namespace Internal {
@@ -37,8 +37,6 @@ namespace Internal {
 class ObjectsMapEditorFactory;
 class SquishNavigationWidgetFactory;
 class SquishOutputPane;
-struct SquishSettings;
-class SquishSettingsPage;
 class SquishTestTreeModel;
 
 class SquishPlugin : public ExtensionSystem::IPlugin
@@ -52,7 +50,7 @@ public:
 
     static SquishPlugin *instance();
 
-    QSharedPointer<SquishSettings> squishSettings() const;
+    SquishSettings *squishSettings();
 
     bool initialize(const QStringList &arguments, QString *errorString) override;
     void extensionsInitialized() override;
@@ -62,9 +60,9 @@ private:
     void initializeMenuEntries();
 
     SquishTestTreeModel *m_treeModel;
-    QSharedPointer<SquishSettings> m_squishSettings;
+    SquishSettings m_squishSettings;
 
-    SquishSettingsPage *m_settingsPage = nullptr;
+    SquishSettingsPage m_settingsPage{&m_squishSettings};
     SquishNavigationWidgetFactory *m_navigationWidgetFactory = nullptr;
     SquishOutputPane *m_outputPane = nullptr;
     ObjectsMapEditorFactory *m_objectsMapEditorFactory = nullptr;

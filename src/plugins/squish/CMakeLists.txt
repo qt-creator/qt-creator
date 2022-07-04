@@ -18,7 +18,6 @@ add_qtc_plugin(Squish
     squishplugin.cpp squishplugin.h
     squishresultmodel.cpp squishresultmodel.h
     squishsettings.cpp squishsettings.h
-    squishsettingspage.cpp squishsettingspage.h squishsettingspage.ui
     squishtesttreemodel.cpp squishtesttreemodel.h
     squishtesttreeview.cpp squishtesttreeview.h
     squishtools.cpp squishtools.h

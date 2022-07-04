@@ -25,10 +25,9 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QString>
-#include <QtGlobal>
+#include <utils/aspects.h>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -37,20 +36,28 @@ QT_END_NAMESPACE
 namespace Squish {
 namespace Internal {
 
-struct SquishSettings
+class SquishSettings : public Utils::AspectContainer
 {
+    Q_DECLARE_TR_FUNCTIONS(Squish::Internal::SquishSettings)
+public:
+    SquishSettings();
+
     void toSettings(QSettings *s) const;
     void fromSettings(QSettings *s);
 
-    bool operator==(const SquishSettings &other) const;
-    bool operator!=(const SquishSettings &other) const;
+    Utils::StringAspect squishPath;
+    Utils::StringAspect licensePath;
+    Utils::StringAspect serverHost;
+    Utils::IntegerAspect serverPort;
+    Utils::BoolAspect local;
+    Utils::BoolAspect verbose;
+};
 
-    Utils::FilePath squishPath;
-    Utils::FilePath licensePath;
-    QString serverHost;
-    quint16 serverPort;
-    bool local;
-    bool verbose;
+class SquishSettingsPage final : public Core::IOptionsPage
+{
+    Q_DECLARE_TR_FUNCTIONS(Squish::Internal::SquishSettings)
+public:
+    SquishSettingsPage(SquishSettings *settings);
 };
 
 } // namespace Internal

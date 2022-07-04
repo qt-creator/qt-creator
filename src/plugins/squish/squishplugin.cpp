@@ -24,11 +24,11 @@
 ****************************************************************************/
 
 #include "squishplugin.h"
+
 #include "objectsmapeditor.h"
 #include "squishnavigationwidget.h"
 #include "squishoutputpane.h"
 #include "squishsettings.h"
-#include "squishsettingspage.h"
 #include "squishtesttreemodel.h"
 
 #include <coreplugin/icore.h>
@@ -45,7 +45,6 @@ using namespace Core;
 static SquishPlugin *m_instance = nullptr;
 
 SquishPlugin::SquishPlugin()
-    : m_squishSettings(new SquishSettings)
 {
     m_instance = this;
 }
@@ -54,7 +53,6 @@ SquishPlugin::~SquishPlugin()
 {
     delete m_objectsMapEditorFactory;
     delete m_navigationWidgetFactory;
-    delete m_settingsPage;
     delete m_outputPane;
 }
 
@@ -63,9 +61,9 @@ SquishPlugin *SquishPlugin::instance()
     return m_instance;
 }
 
-QSharedPointer<SquishSettings> SquishPlugin::squishSettings() const
+SquishSettings *SquishPlugin::squishSettings()
 {
-    return m_squishSettings;
+    return &m_squishSettings;
 }
 
 void SquishPlugin::initializeMenuEntries() {}
@@ -75,12 +73,12 @@ bool SquishPlugin::initialize(const QStringList &arguments, QString *errorString
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
+    m_squishSettings.readSettings(ICore::settings());
+
     initializeMenuEntries();
 
-    m_squishSettings->fromSettings(ICore::settings());
     m_treeModel = new SquishTestTreeModel(this);
 
-    m_settingsPage = new SquishSettingsPage(m_squishSettings);
     m_navigationWidgetFactory = new SquishNavigationWidgetFactory;
     m_outputPane = SquishOutputPane::instance();
     m_objectsMapEditorFactory = new ObjectsMapEditorFactory;
