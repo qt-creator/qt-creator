@@ -1646,7 +1646,7 @@ void ClientPrivate::sendPostponedDocumentUpdates(Schedule semanticTokensSchedule
 
 void ClientPrivate::handleResponse(const MessageId &id, const JsonRpcMessage &message)
 {
-    if (auto handler = m_responseHandlers[id])
+    if (auto handler = m_responseHandlers.take(id))
         handler(message);
 }
 
