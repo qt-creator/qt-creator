@@ -78,6 +78,7 @@ SquishTools::SquishTools(QObject *parent)
 SquishTools::~SquishTools()
 {
     // TODO add confirmation dialog somewhere
+    // FIXME re-do to make it work
     if (m_runnerProcess) {
         m_runnerProcess->terminate();
         if (!m_runnerProcess->waitForFinished(5000))
@@ -500,7 +501,7 @@ Environment SquishTools::squishEnvironment()
 
 void SquishTools::onServerFinished()
 {
-    delete m_serverProcess;
+    m_serverProcess->deleteLater();
     m_serverProcess = nullptr;
     m_serverPort = -1;
     setState(ServerStopped);
@@ -508,7 +509,7 @@ void SquishTools::onServerFinished()
 
 void SquishTools::onRunnerFinished()
 {
-    delete m_runnerProcess;
+    m_runnerProcess->deleteLater();
     m_runnerProcess = nullptr;
 
     if (m_resultsFileWatcher) {
