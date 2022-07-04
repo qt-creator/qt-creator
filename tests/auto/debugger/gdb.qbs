@@ -7,7 +7,7 @@ QtcAutotest {
     Group {
         name: "Sources from Debugger plugin"
         prefix: project.debuggerDir
-        files: "debuggerprotocol.cpp"
+        files: [ "debuggerprotocol.cpp", "debuggertr.h" ]
     }
     Group {
         name: "Test sources"

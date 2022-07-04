@@ -18770,7 +18770,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Expression</source>
         <translation>Выражение</translation>
@@ -18868,16 +18868,9 @@ You can choose another communication channel here, such as a serial line or cust
         <translation>&lt;оптимизировано&gt;</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Имя</translation>
-    </message>
-    <message>
         <source>Debugger - %1</source>
         <translation>Отладчик - %1</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchItem</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>
@@ -18888,9 +18881,6 @@ You can choose another communication channel here, such as a serial line or cust
         <extracomment>Display of variables shadowed by variables of the same name in nested scopes: Variable %1 is the variable name, %2 is a simple count.</extracomment>
         <translation>%1 &lt;затеняет %2&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchModel</name>
     <message>
         <source>Locals</source>
         <translation>Локальные переменные</translation>
@@ -18918,10 +18908,6 @@ You can choose another communication channel here, such as a serial line or cust
     <message>
         <source>Name</source>
         <translation>Имя</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Значение</translation>
     </message>
     <message>
         <source>Type</source>
@@ -19293,9 +19279,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>Are you sure you want to remove all expression evaluators?</source>
         <translation>Удалить все вычисляемые выражения?</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchTreeView</name>
     <message>
         <source>Locals and Expressions</source>
         <translation>Переменные и выражения</translation>

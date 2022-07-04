@@ -9,6 +9,7 @@ QtcAutotest {
         name: "Sources from Debugger plugin"
         prefix: project.debuggerDir
         files: [
+            "debuggertr.h",
             "debuggerprotocol.h", "debuggerprotocol.cpp",
             "simplifytype.h", "simplifytype.cpp",
             "watchdata.h", "watchdata.cpp",

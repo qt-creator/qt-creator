@@ -25071,7 +25071,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchHandler</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;empty&gt;</source>
         <translation type="unfinished">&lt;prazno&gt;</translation>
@@ -25121,20 +25121,12 @@ Affected are breakpoints %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Naziv</translation>
-    </message>
-    <message>
         <source>Expression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Internal Type</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Vrijednost</translation>
     </message>
     <message>
         <source>... &lt;cut off&gt;</source>
@@ -26950,7 +26942,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchItem</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>
@@ -26961,9 +26953,6 @@ Do you want to retry?</source>
         <extracomment>Display of variables shadowed by variables of the same name in nested scopes: Variable %1 is the variable name, %2 is a simple count.</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchModel</name>
     <message>
         <source>Name</source>
         <translation>Naziv</translation>
@@ -27346,9 +27335,6 @@ Do you want to retry?</source>
         <source>Are you sure you want to remove all expression evaluators?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchTreeView</name>
     <message>
         <source>Locals and Expressions</source>
         <translation type="unfinished"></translation>

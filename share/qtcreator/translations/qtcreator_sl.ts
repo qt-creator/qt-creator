@@ -4547,7 +4547,7 @@ Ali želite ustaviti razhroščevani proces in naložiti izbrani posnetek?</tran
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchData</name>
+    <name>Debugger</name>
     <message>
         <location filename="../../../src/plugins/debugger/watchdata.cpp" line="+400"/>
         <location filename="../../../src/plugins/debugger/watchhandler.cpp" line="+75"/>
@@ -4563,9 +4563,6 @@ Ali želite ustaviti razhroščevani proces in naložiti izbrani posnetek?</tran
 </extracomment>
         <translation>%1 &lt;zakriva %2&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchHandler</name>
     <message>
         <location line="-39"/>
         <source>Expression</source>
@@ -4610,11 +4607,6 @@ Ali želite ustaviti razhroščevani proces in naložiti izbrani posnetek?</tran
         <location line="+1"/>
         <source>Generation</source>
         <translation>Ustvarjanje</translation>
-    </message>
-    <message>
-        <location filename="../../../src/plugins/debugger/watchhandler.cpp" line="+310"/>
-        <source>&lt;Edit&gt;</source>
-        <translation>&lt;urejanje&gt;</translation>
     </message>
     <message>
         <location line="-255"/>
@@ -4692,16 +4684,6 @@ Ali želite ustaviti razhroščevani proces in naložiti izbrani posnetek?</tran
         <translation>Opazovalci</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/debugger/watchdata.cpp" line="-10"/>
-        <source>Value</source>
-        <translation>Vrednost</translation>
-    </message>
-    <message>
-        <location line="-9"/>
-        <source>Name</source>
-        <translation>Ime</translation>
-    </message>
-    <message>
         <source>unknown address</source>
         <translation type="obsolete">neznan naslov</translation>
     </message>
@@ -4709,13 +4691,6 @@ Ali želite ustaviti razhroščevani proces in naložiti izbrani posnetek?</tran
         <source>%1 object at %2</source>
         <translation type="obsolete">Objekt %1 na %2</translation>
     </message>
-    <message>
-        <source>Type</source>
-        <translation type="obsolete">Vrsta</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchModel</name>
     <message>
         <location filename="../../../src/plugins/debugger/watchhandler.cpp" line="+505"/>
         <source>&lt;Edit&gt;</source>
@@ -4803,9 +4778,6 @@ Ali želite ustaviti razhroščevani proces in naložiti izbrani posnetek?</tran
         <source>Bald pointer</source>
         <translation type="obsolete">Surov kazalec</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchWindow</name>
     <message>
         <location filename="../../../src/plugins/debugger/watchwindow.cpp" line="+202"/>
         <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>

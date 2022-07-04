@@ -5815,22 +5815,6 @@ informacemi o ladění.</translation>
         <translation type="obsolete">Otevřít editor paměti u %1</translation>
     </message>
     <message>
-        <source>Hexadecimal</source>
-        <translation type="obsolete">Šestnáctkový</translation>
-    </message>
-    <message>
-        <source>Decimal</source>
-        <translation type="obsolete">Desítkový</translation>
-    </message>
-    <message>
-        <source>Octal</source>
-        <translation type="obsolete">Osmičkový</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation type="obsolete">Dvojkový</translation>
-    </message>
-    <message>
         <source>Adjust Column Widths to Contents</source>
         <translation type="obsolete">Přizpůsobit šířku sloupců obsahu</translation>
     </message>
@@ -6371,7 +6355,7 @@ informacemi o ladění.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchData</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>
@@ -6381,13 +6365,6 @@ informacemi o ladění.</translation>
         <source>%1 &lt;shadowed %2&gt;</source>
         <extracomment>Display of variables shadowed by variables of the same name in nested scopes: Variable %1 is the variable name, %2 is a simple count.</extracomment>
         <translation>%1 &lt;překryto %2&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchHandler</name>
-    <message>
-        <source>Name</source>
-        <translation>Název</translation>
     </message>
     <message>
         <source>Expression</source>
@@ -6458,22 +6435,6 @@ informacemi o ladění.</translation>
         <translation>&lt;Upravit&gt;</translation>
     </message>
     <message>
-        <source>Root</source>
-        <translation type="obsolete">Kořen (root)</translation>
-    </message>
-    <message>
-        <source>Return Value</source>
-        <translation type="obsolete">Návratová hodnota</translation>
-    </message>
-    <message>
-        <source>Locals</source>
-        <translation type="obsolete">Místní proměnné</translation>
-    </message>
-    <message>
-        <source>Tooltip</source>
-        <translation type="obsolete">Kontextová nápověda</translation>
-    </message>
-    <message>
         <source>Debugger - Qt Creator</source>
         <translation>Ladicí program - Qt Creator</translation>
     </message>
@@ -6510,46 +6471,6 @@ informacemi o ladění.</translation>
         </translation>
     </message>
     <message>
-        <source>Raw pointer</source>
-        <translation type="obsolete">Hodnota ukazatele</translation>
-    </message>
-    <message>
-        <source>Latin1 string</source>
-        <translation type="obsolete">Řetězec Latin1</translation>
-    </message>
-    <message>
-        <source>UTF8 string</source>
-        <translation type="obsolete">Řetězec UTF8</translation>
-    </message>
-    <message>
-        <source>Local 8bit string</source>
-        <translation type="obsolete">Řetězec znaků v místním 8bitovém kódování</translation>
-    </message>
-    <message>
-        <source>UTF16 string</source>
-        <translation type="obsolete">Řetězec UTF16</translation>
-    </message>
-    <message>
-        <source>UCS4 string</source>
-        <translation type="obsolete">Řetězec UCS4</translation>
-    </message>
-    <message>
-        <source>Decimal</source>
-        <translation type="obsolete">Desítkový</translation>
-    </message>
-    <message>
-        <source>Hexadecimal</source>
-        <translation type="obsolete">Šestnáctkový</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation type="obsolete">Dvojkový</translation>
-    </message>
-    <message>
-        <source>Octal</source>
-        <translation type="obsolete">Osmičkový</translation>
-    </message>
-    <message>
         <source>%1 Object at %2</source>
         <translation>Objekt typu %1 při %2</translation>
     </message>
@@ -6569,17 +6490,6 @@ informacemi o ladění.</translation>
         <source>Watchers</source>
         <translation type="obsolete">Sledované výrazy</translation>
     </message>
-    <message>
-        <source>Value</source>
-        <translation>Hodnota</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="obsolete">Typ</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchWindow</name>
     <message>
         <source>Locals and Watchers</source>
         <translation type="obsolete">Místní proměnné a sledované výrazy</translation>
@@ -6619,120 +6529,24 @@ informacemi o ladění.</translation>
         <translation type="obsolete">Registr &lt;i&gt;%1&lt;/i&gt;</translation>
     </message>
     <message>
-        <source>Memory Referenced by Pointer &apos;%1&apos; (0x%2)</source>
-        <translation type="obsolete">Paměť odkazovaná ukazatelem &apos;%1&apos; (0x%2)</translation>
-    </message>
-    <message>
         <source>Memory at Variable &apos;%1&apos; (0x%2)</source>
         <translation type="obsolete">Paměť při proměnné &apos;%1&apos; (0x%2)</translation>
     </message>
     <message>
         <source>Memory Referenced by Pointer &quot;%1&quot; (0x%2)</source>
-        <translation type="obsolete">Paměť odkazovaná ukazatelem &quot;%1&quot; (0x%2)</translation>
-    </message>
-    <message>
-        <source>Memory at Variable &quot;%1&quot; (0x%2)</source>
-        <translation type="obsolete">Paměť při proměnné &quot;%1&quot; (0x%2)</translation>
+        <translation>Paměť odkazovaná ukazatelem &quot;%1&quot; (0x%2)</translation>
     </message>
     <message>
         <source>Cannot Display Stack Layout</source>
         <translation type="obsolete">Nelze zobrazit rozvržení zásobníku</translation>
     </message>
     <message>
-        <source>Could not determine a suitable address range.</source>
-        <translation type="obsolete">Nepodařilo se určit žádný vhodný rozsah adresy.</translation>
-    </message>
-    <message>
-        <source>Memory Layout of Local Variables at 0x%1</source>
-        <translation type="obsolete">Rozložení paměti místní proměnné při 0x%1</translation>
-    </message>
-    <message>
-        <source>Locals and Expressions</source>
-        <translation>Místní proměnné a výrazy</translation>
-    </message>
-    <message>
         <source>Evaluate Expression</source>
         <translation type="obsolete">Vyhodnotit výraz</translation>
     </message>
     <message>
-        <source>Evaluate Expression &quot;%1&quot;</source>
-        <translation type="obsolete">Vyhodnotit výraz &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Remove Evaluated Expression</source>
-        <translation type="obsolete">Odstranit vyhodnocený výraz</translation>
-    </message>
-    <message>
-        <source>Remove Evaluated Expression &quot;%1&quot;</source>
-        <translation type="obsolete">Odstranit vyhodnocený výraz &quot;%1&quot;</translation>
-    </message>
-    <message>
         <source>Change Display Format...</source>
         <translation type="obsolete">Změnit formát zobrazení...</translation>
-    </message>
-    <message>
-        <source>Treat All Characters as Printable</source>
-        <translation type="obsolete">Považovat všechny znaky za tisknutelné</translation>
-    </message>
-    <message>
-        <source>Show Unprintable Characters as Escape Sequences</source>
-        <translation type="obsolete">Ukázat netisknutelné znaky jako únikové posloupnosti</translation>
-    </message>
-    <message>
-        <source>Show Unprintable Characters as Octal</source>
-        <translation type="obsolete">Ukázat netisknutelné znaky jako osmičkové</translation>
-    </message>
-    <message>
-        <source>Show Unprintable Characters as Hexadecimal</source>
-        <translation type="obsolete">Ukázat netisknutelné znaky jako šestnáctkové</translation>
-    </message>
-    <message>
-        <source>Change Display for Object Named &quot;%1&quot;:</source>
-        <translation type="obsolete">Změnit formát zobrazení pro objekt s názvem &quot;%1&quot;:</translation>
-    </message>
-    <message>
-        <source>Use Display Format Based on Type</source>
-        <translation type="obsolete">Použít formát zobrazení založený na typu</translation>
-    </message>
-    <message>
-        <source>Change Display for Type &quot;%1&quot;:</source>
-        <translation type="obsolete">Změnit zobrazení pro typ &apos;%1&apos;:</translation>
-    </message>
-    <message>
-        <source>Automatic</source>
-        <translation type="obsolete">Automaticky</translation>
-    </message>
-    <message>
-        <source>Change Display for Type or Item...</source>
-        <translation type="obsolete">Změnit zobrazení pro typ nebo prvek...</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint...</source>
-        <translation type="obsolete">Přidat bod přerušení dat...</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Object&apos;s Address (0x%1)</source>
-        <translation type="obsolete">Přidat bod přerušení dat na adrese objektu (0x%1)</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Referenced Address (0x%1)</source>
-        <translation type="obsolete">Přidat bod přerušení dat na odkazované adrese (0x%1)</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint</source>
-        <translation type="obsolete">Přidat bod přerušení dat</translation>
-    </message>
-    <message>
-        <source>Setting a data breakpoint on an address will cause the program to stop when the data at the address is modified.</source>
-        <translation type="obsolete">Nastavení bodu přerušení dat na určitou adresu způsobí, že program se zastaví, když jsou tam nacházející se data změněna.</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Expression &quot;%1&quot;</source>
-        <translation type="obsolete">Přidat bod přerušení dat při výrazu &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Setting a data breakpoint on an expression will cause the program to stop when the data at the address given by the expression is modified.</source>
-        <translation type="obsolete">Nastavení bodu přerušení dat na určitý výraz způsobí, že program se zastaví, když jsou změněna data nacházející se na adrese dané oním výrazem.</translation>
     </message>
     <message>
         <source>Insert New Evaluated Expression</source>
@@ -6751,88 +6565,8 @@ informacemi o ladění.</translation>
         <translation type="obsolete">Odstranit všechny sledované výrazy</translation>
     </message>
     <message>
-        <source>Change Local Display Format...</source>
-        <translation type="obsolete">Změnit místní formát zobrazení...</translation>
-    </message>
-    <message>
-        <source>Use Format for Type (Currently %1)</source>
-        <translation type="obsolete">Použít formát zobrazení na typ (nyní %1)</translation>
-    </message>
-    <message>
-        <source>Use Display Format Based on Type </source>
-        <translation type="obsolete">Použít formát zobrazení založený na typu</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Expression</source>
-        <translation type="obsolete">Přidat bod přerušení dat při výrazu</translation>
-    </message>
-    <message>
         <source>Change Global Display Formats...</source>
         <translation type="obsolete">Změnit celkové formáty zobrazení...</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor...</source>
-        <translation type="obsolete">Otevřít editor paměti...</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Object&apos;s Address (0x%1)</source>
-        <translation type="obsolete">Otevřít editor paměti na adrese objektu (0x%1)</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Object&apos;s Address (0x%1)</source>
-        <translation type="obsolete">Otevřít zobrazení paměti na adrese objektu (0x%1)</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Object&apos;s Address</source>
-        <translation type="obsolete">Otevřít editor paměti na adrese objektu</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Object&apos;s Address</source>
-        <translation type="obsolete">Otevřít zobrazení paměti na adrese objektu</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Referenced Address (0x%1)</source>
-        <translation type="obsolete">Otevřít editor paměti na odkazované adrese (0x%1)</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Referenced Address (0x%1)</source>
-        <translation type="obsolete">Otevřít zobrazení paměti na odkazované adrese (0x%1)</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Referenced Address</source>
-        <translation type="obsolete">Otevřít editor paměti na odkazované adrese</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Referenced Address</source>
-        <translation type="obsolete">Otevřít zobrazení paměti na odkazované adrese</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor Showing Stack Layout</source>
-        <translation type="obsolete">Otevřít editor paměti s ukázáním rozložení zásobníku</translation>
-    </message>
-    <message>
-        <source>Copy Contents to Clipboard</source>
-        <translation type="obsolete">Obsah kopírovat do schránky</translation>
-    </message>
-    <message>
-        <source>Copy Value to Clipboard</source>
-        <translation type="obsolete">Kopírovat hodnotu do schránky</translation>
-    </message>
-    <message>
-        <source>Show View Contents in Editor</source>
-        <translation type="obsolete">Ukázat obsah pohledu v editoru</translation>
-    </message>
-    <message>
-        <source>Close Editor Tooltips</source>
-        <translation type="obsolete">Zavřít vysvětlivky editoru</translation>
-    </message>
-    <message>
-        <source>Enter watch expression</source>
-        <translation type="obsolete">Zadat sledovaný výraz</translation>
-    </message>
-    <message>
-        <source>Expression:</source>
-        <translation type="obsolete">Výraz:</translation>
     </message>
     <message>
         <source>Locals &amp; Watchers</source>
@@ -6844,7 +6578,7 @@ informacemi o ladění.</translation>
     </message>
     <message>
         <source>Refresh Code Model Snapshot</source>
-        <translation type="obsolete">Obnovit stav modelu kódu</translation>
+        <translation>Obnovit stav modelu kódu</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
@@ -22236,7 +21970,7 @@ Chcete jej ukončit?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchModel</name>
+    <name>Debugger</name>
     <message>
         <source>decimal</source>
         <translation type="obsolete">Desítkový</translation>
@@ -22256,10 +21990,6 @@ Chcete jej ukončit?</translation>
     <message>
         <source>Bald pointer</source>
         <translation type="obsolete">Prosté ukazovátko</translation>
-    </message>
-    <message>
-        <source>&lt;Edit&gt;</source>
-        <translation>&lt;Upravit&gt;</translation>
     </message>
     <message numerus="yes">
         <source>Array of %n items</source>
@@ -56459,33 +56189,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchTreeView</name>
-    <message>
-        <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
-        <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
-        <translation>&lt;i&gt;%1&lt;/i&gt; %2 při #%3</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;%1&lt;/i&gt; %2</source>
-        <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
-        <translation>&lt;i&gt;%1&lt;/i&gt; %2</translation>
-    </message>
-    <message>
-        <source>Register &lt;i&gt;%1&lt;/i&gt;</source>
-        <translation>Registr &lt;i&gt;%1&lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>Memory Referenced by Pointer &quot;%1&quot; (0x%2)</source>
-        <translation type="obsolete">Paměť odkazovaná ukazatelem &quot;%1&quot; (0x%2)</translation>
-    </message>
-    <message>
-        <source>Memory at Variable &quot;%1&quot; (0x%2)</source>
-        <translation type="obsolete">Paměť při proměnné &quot;%1&quot; (0x%2)</translation>
-    </message>
-    <message>
-        <source>Cannot Display Stack Layout</source>
-        <translation>Nelze zobrazit rozvržení zásobníku</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Could not determine a suitable address range.</source>
         <translation>Nepodařilo se určit žádný vhodný rozsah adresy.</translation>
@@ -56499,20 +56203,16 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <translation>Místní proměnné a výrazy</translation>
     </message>
     <message>
-        <source>Evaluate Expression</source>
-        <translation type="obsolete">Vyhodnotit výraz</translation>
-    </message>
-    <message>
         <source>Evaluate Expression &quot;%1&quot;</source>
         <translation type="obsolete">Vyhodnotit výraz &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Remove Evaluated Expression</source>
-        <translation type="obsolete">Odstranit vyhodnocený výraz</translation>
+        <translation>Odstranit vyhodnocený výraz</translation>
     </message>
     <message>
         <source>Remove Evaluated Expression &quot;%1&quot;</source>
-        <translation type="obsolete">Odstranit vyhodnocený výraz &quot;%1&quot;</translation>
+        <translation>Odstranit vyhodnocený výraz &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Memory at Pointer&apos;s Address &quot;%1&quot; (0x%2)</source>
@@ -56659,22 +56359,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <translation>Místní proměnné a výrazy</translation>
     </message>
     <message>
-        <source>Insert New Evaluated Expression</source>
-        <translation type="obsolete">Vložit nový vyhodnocený výraz</translation>
-    </message>
-    <message>
-        <source>Select Widget to Watch</source>
-        <translation type="obsolete">Vybrat prvek za účelem sledování</translation>
-    </message>
-    <message>
-        <source>Change Global Display Formats...</source>
-        <translation type="obsolete">Změnit celkové formáty zobrazení...</translation>
-    </message>
-    <message>
-        <source>Remove All Evaluated Expressions</source>
-        <translation type="obsolete">Odstranit všechny vyhodnocené výrazy</translation>
-    </message>
-    <message>
         <source>Open Memory Editor...</source>
         <translation>Otevřít editor paměti...</translation>
     </message>
@@ -56696,19 +56380,19 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
     <message>
         <source>Open Memory Editor at Referenced Address (0x%1)</source>
-        <translation type="obsolete">Otevřít editor paměti na odkazované adrese (0x%1)</translation>
+        <translation>Otevřít editor paměti na odkazované adrese (0x%1)</translation>
     </message>
     <message>
         <source>Open Memory View at Referenced Address (0x%1)</source>
-        <translation type="obsolete">Otevřít zobrazení paměti na odkazované adrese (0x%1)</translation>
+        <translation>Otevřít zobrazení paměti na odkazované adrese (0x%1)</translation>
     </message>
     <message>
         <source>Open Memory Editor at Referenced Address</source>
-        <translation type="obsolete">Otevřít editor paměti na odkazované adrese</translation>
+        <translation>Otevřít editor paměti na odkazované adrese</translation>
     </message>
     <message>
         <source>Open Memory View at Referenced Address</source>
-        <translation type="obsolete">Otevřít zobrazení paměti na odkazované adrese</translation>
+        <translation>Otevřít zobrazení paměti na odkazované adrese</translation>
     </message>
     <message>
         <source>Open Memory Editor Showing Stack Layout</source>
@@ -56721,10 +56405,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     <message>
         <source>Copy Value to Clipboard</source>
         <translation>Kopírovat hodnotu do schránky</translation>
-    </message>
-    <message>
-        <source>Refresh Code Model Snapshot</source>
-        <translation type="obsolete">Obnovit stav modelu kódu</translation>
     </message>
     <message>
         <source>Show View Contents in Editor</source>
@@ -56741,10 +56421,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     <message>
         <source>Expression:</source>
         <translation>Výraz:</translation>
-    </message>
-    <message>
-        <source>Locals &amp; Watchers</source>
-        <translation type="obsolete">Místní proměnné a sledované výrazy</translation>
     </message>
 </context>
 <context>

@@ -8993,10 +8993,6 @@ preferShaping プロパティを false に設定すると、このような機�
         <translation type="vanished">このアイテムを、ルートアイテムのエイリアスプロパティとしてエクスポートします。</translation>
     </message>
     <message>
-        <source>Custom id</source>
-        <translation type="vanished">カスタムID</translation>
-    </message>
-    <message>
         <source>Component</source>
         <translation>コンポーネント</translation>
     </message>
@@ -9029,36 +9025,16 @@ preferShaping プロパティを false に設定すると、このような機�
         <translation type="vanished">このアイテムを、ルートアイテムのエイリアスプロパティとしてエクスポートします。</translation>
     </message>
     <message>
-        <source>Custom id</source>
-        <translation type="vanished">カスタムID</translation>
-    </message>
-    <message>
         <source>Component</source>
         <translation>コンポーネント</translation>
-    </message>
-    <message>
-        <source>Changes the type of this component.</source>
-        <translation>このアイテムの型を変更する。</translation>
     </message>
     <message>
         <source>ID</source>
         <translation>ID</translation>
     </message>
     <message>
-        <source>Exports this component as an alias property of the root component.</source>
-        <translation>このコンポーネントを、ルートコンポーネントのエイリアスプロパティとしてエクスポートします。</translation>
-    </message>
-    <message>
         <source>Custom ID</source>
         <translation>Custom ID</translation>
-    </message>
-    <message>
-        <source>customId</source>
-        <translation>customId</translation>
-    </message>
-    <message>
-        <source>Add Annotation</source>
-        <translation>アノテーションを追加する</translation>
     </message>
     <message>
         <source>Visibility</source>
@@ -9117,10 +9093,6 @@ preferShaping プロパティを false に設定すると、このような機�
     <message>
         <source>ID</source>
         <translation>ID</translation>
-    </message>
-    <message>
-        <source>Exports this component as an alias property of the root component.</source>
-        <translation>このコンポーネントを、ルートコンポーネントのエイリアスプロパティとしてエクスポートします。</translation>
     </message>
     <message>
         <source>Changes the type of this item.</source>
@@ -16981,10 +16953,6 @@ Flags: %3</source>
         <translation>ブレークポイント</translation>
     </message>
     <message>
-        <source>Internal ID:</source>
-        <translation>内部ID:</translation>
-    </message>
-    <message>
         <source>State:</source>
         <translation>状態:</translation>
     </message>
@@ -20561,10 +20529,6 @@ Do you want to retry?</source>
         <translation>%1ビット浮動小数点としての値</translation>
     </message>
     <message>
-        <source>Registers group</source>
-        <translation type="vanished">レジスタグループ</translation>
-    </message>
-    <message>
         <source>A group of registers.</source>
         <translation>レジスターのグループです。</translation>
     </message>
@@ -21092,7 +21056,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Name</source>
         <translation>名前</translation>
@@ -21196,10 +21160,6 @@ Do you want to retry?</source>
         <translation>&lt;最適化による省略&gt;</translation>
     </message>
     <message>
-        <source>Remove All Expression Evaluators</source>
-        <translation>すべての式エバリュエータを削除</translation>
-    </message>
-    <message>
         <source>Are you sure you want to remove all expression evaluators?</source>
         <translation>本当にすべての式エバリュエータを削除しますか？</translation>
     </message>
@@ -21207,9 +21167,6 @@ Do you want to retry?</source>
         <source>Debugger - %1</source>
         <translation>デバッガ - %1</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchModel</name>
     <message>
         <source>Locals</source>
         <translation>ローカル</translation>
@@ -21309,22 +21266,6 @@ Do you want to retry?</source>
         <translation>スタックレイアウトを表示できません</translation>
     </message>
     <message>
-        <source>Could not determine a suitable address range.</source>
-        <translation>適応するアドレス範囲が特定できません。</translation>
-    </message>
-    <message>
-        <source>Memory Layout of Local Variables at 0x%1</source>
-        <translation>0x%1 のローカル変数のメモリレイアウト</translation>
-    </message>
-    <message>
-        <source>Add Expression Evaluator</source>
-        <translation>式エバリュエータを追加</translation>
-    </message>
-    <message>
-        <source>Add Expression Evaluator for &quot;%1&quot;</source>
-        <translation>式エバリュエータ &quot;%1&quot; を追加</translation>
-    </message>
-    <message>
         <source>Remove Expression Evaluator</source>
         <translation>式エバリュエータを削除</translation>
     </message>
@@ -21335,14 +21276,6 @@ Do you want to retry?</source>
     <message>
         <source>Enter an expression to evaluate.</source>
         <translation>評価する式を入力してください。</translation>
-    </message>
-    <message>
-        <source>Note: Evaluators will be re-evaluated after each step. For details, see the &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debug-mode.html#locals-and-expressions&quot;&gt;documentation&lt;/a&gt;.</source>
-        <translation>注意: 式は各ステップ実行ごとに再評価されます。詳細は &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debug-mode.html#locals-and-expressions&quot;&gt;ドキュメント&lt;/a&gt; を参照してください。</translation>
-    </message>
-    <message>
-        <source>New Evaluated Expression</source>
-        <translation>新しい評価済み式</translation>
     </message>
     <message>
         <source>Add New Expression Evaluator...</source>
@@ -21365,10 +21298,6 @@ Do you want to retry?</source>
         <translation>すべての子プロセスを折りたたむ</translation>
     </message>
     <message>
-        <source>Close Editor Tooltips</source>
-        <translation>エディタのツールチップを閉じる</translation>
-    </message>
-    <message>
         <source>Copy View Contents to Clipboard</source>
         <translation>表示内容をクリップボードにコピー</translation>
     </message>
@@ -21385,48 +21314,12 @@ Do you want to retry?</source>
         <translation>ローカル変数と式</translation>
     </message>
     <message>
-        <source>Add Data Breakpoint</source>
-        <translation>データブレークポイントを追加</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Object&apos;s Address (0x%1)</source>
-        <translation>オブジェクトのアドレス (0x%1) にデータブレークポイントを追加</translation>
-    </message>
-    <message>
-        <source>Stop the program when the data at the address is modified.</source>
-        <translation>そのアドレスのデータが変更されたら、プログラムを停止します。</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Pointer&apos;s Address (0x%1)</source>
-        <translation>ポインタのアドレス (0x%1) にデータブレークポイントを追加</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Pointer&apos;s Address</source>
-        <translation>ポインタのアドレスにデータブレークポイントを追加</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Expression &quot;%1&quot;</source>
-        <translation>式 &quot;%1&quot; にデータブレークポイントを追加</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Expression</source>
-        <translation>式にデータブレークポイントを追加</translation>
-    </message>
-    <message>
         <source>Stop the program when the data at the address given by the expression is modified.</source>
         <translation>式で指定されたアドレスのデータが変更されたら、プログラムを停止します。</translation>
     </message>
     <message>
         <source>Open Memory Editor</source>
         <translation>メモリエディタを開く</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Object&apos;s Address (0x%1)</source>
-        <translation>オブジェクトのアドレス (0x%1) をメモリビューで開く</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Object&apos;s Address</source>
-        <translation>オブジェクトのアドレスをメモリビューで開く</translation>
     </message>
     <message>
         <source>Open Memory View at Pointer&apos;s Address (0x%1)</source>
@@ -21439,22 +21332,6 @@ Do you want to retry?</source>
     <message>
         <source>Open Memory View Showing Stack Layout</source>
         <translation>表示しているスタックレイアウトをメモリビューで開く</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Object&apos;s Address (0x%1)</source>
-        <translation>オブジェクトのアドレス (0x%1) をメモリエディタで開く</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Object&apos;s Address</source>
-        <translation>オブジェクトのアドレスをメモリエディタで開く</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Pointer&apos;s Address (0x%1)</source>
-        <translation>ポインタのアドレス (0x%1) をメモリエディタで開く</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Pointer&apos;s Address</source>
-        <translation>ポインタのアドレスをメモリエディタで開く</translation>
     </message>
     <message>
         <source>Open Memory Editor Showing Stack Layout</source>
@@ -21489,20 +21366,12 @@ Do you want to retry?</source>
         <translation>&quot;%1&quot; という名前のオブジェクトの表示形式を変更:</translation>
     </message>
     <message>
-        <source>Use Format for Type (Currently %1)</source>
-        <translation>型の表示形式を使う(現在は %1)</translation>
-    </message>
-    <message>
         <source>Use Display Format Based on Type</source>
         <translation>型に基づいたフォーマットで表示する</translation>
     </message>
     <message>
         <source>Reset All Individual Formats</source>
         <translation>すべてのフォーマットをリセットする</translation>
-    </message>
-    <message>
-        <source>Change Display for Type &quot;%1&quot;:</source>
-        <translation>型 &quot;%1&quot; の表示形式を変更:</translation>
     </message>
     <message>
         <source>Reset All Formats for Types</source>
@@ -21610,9 +21479,6 @@ Do you want to retry?</source>
             <numerusform>%n 個の配列</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchTreeView</name>
     <message>
         <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
         <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
@@ -21624,22 +21490,6 @@ Do you want to retry?</source>
         <translation>&lt;i&gt;%1&lt;/i&gt; %2</translation>
     </message>
     <message>
-        <source>Register &lt;i&gt;%1&lt;/i&gt;</source>
-        <translation>レジスタ &lt;i&gt;%1&lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>Memory at Pointer&apos;s Address &quot;%1&quot; (0x%2)</source>
-        <translation>ポインタのアドレス &quot;%1&quot; (0x%2) が指すメモリ</translation>
-    </message>
-    <message>
-        <source>Memory at Object&apos;s Address &quot;%1&quot; (0x%2)</source>
-        <translation>オブジェクトのアドレス &quot;%1&quot; (0x%2) が指すメモリ</translation>
-    </message>
-    <message>
-        <source>Cannot Display Stack Layout</source>
-        <translation>スタックレイアウトを表示できません</translation>
-    </message>
-    <message>
         <source>Could not determine a suitable address range.</source>
         <translation>適応するアドレス範囲が特定できません。</translation>
     </message>
@@ -21648,92 +21498,24 @@ Do you want to retry?</source>
         <translation>0x%1 のローカル変数のメモリレイアウト</translation>
     </message>
     <message>
-        <source>Locals and Expressions</source>
-        <translation>ローカル変数と式</translation>
-    </message>
-    <message>
-        <source>Add Expression Evaluator</source>
-        <translation>式エバリュエータを追加</translation>
-    </message>
-    <message>
         <source>Add Expression Evaluator for &quot;%1&quot;</source>
         <translation>式エバリュエータ &quot;%1&quot; を追加</translation>
-    </message>
-    <message>
-        <source>Remove Expression Evaluator</source>
-        <translation>式エバリュエータを削除</translation>
-    </message>
-    <message>
-        <source>Remove Expression Evaluator for &quot;%1&quot;</source>
-        <translation>式エバリュエータ &quot;%1&quot; を削除</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Pointer&apos;s Address</source>
-        <translation>ポインタのアドレスにデータブレークポイントを追加</translation>
-    </message>
-    <message>
-        <source>Add New Expression Evaluator...</source>
-        <translation>新しい式エバリュエータを追加...</translation>
-    </message>
-    <message>
-        <source>Remove All Expression Evaluators</source>
-        <translation>すべての式エバリュエータを削除</translation>
-    </message>
-    <message>
-        <source>Copy View Contents to Clipboard</source>
-        <translation>表示内容をクリップボードにコピー</translation>
-    </message>
-    <message>
-        <source>Copy Current Value to Clipboard</source>
-        <translation>現在の値をクリップボードにコピー</translation>
     </message>
     <message>
         <source>Copy Selected Rows to Clipboard</source>
         <translation>選択された行をクリップボードにコピー</translation>
     </message>
     <message>
-        <source>Open View Contents in Editor</source>
-        <translation>表示内容をエディタで開く</translation>
-    </message>
-    <message>
         <source>New Evaluated Expression</source>
         <translation>新しい評価済み式</translation>
-    </message>
-    <message>
-        <source>Enter an expression to evaluate.</source>
-        <translation>評価する式を入力してください。</translation>
     </message>
     <message>
         <source>Note: Evaluators will be re-evaluated after each step. For details check the &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debug-mode.html#locals-and-expressions&quot;&gt;documentation&lt;/a&gt;.</source>
         <translation>注意: 式は各ステップ実行ごとに再評価されます。詳細は &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debug-mode.html#locals-and-expressions&quot;&gt;ドキュメント&lt;/a&gt; を参照してください。</translation>
     </message>
     <message>
-        <source>Treat All Characters as Printable</source>
-        <translation>すべての文字を印刷可能文字として扱う</translation>
-    </message>
-    <message>
-        <source>Show Unprintable Characters as Escape Sequences</source>
-        <translation>印刷不可文字をエスケープシーケンスとして表示</translation>
-    </message>
-    <message>
-        <source>Show Unprintable Characters as Octal</source>
-        <translation>印刷不可文字を8進数の文字として表示</translation>
-    </message>
-    <message>
-        <source>Show Unprintable Characters as Hexadecimal</source>
-        <translation>印刷不可文字を16進数の文字として表示</translation>
-    </message>
-    <message>
-        <source>Change Display for Object Named &quot;%1&quot;:</source>
-        <translation>&quot;%1&quot; という名前のオブジェクトの表示形式を変更:</translation>
-    </message>
-    <message>
         <source>Use Format for Type (Currently %1)</source>
         <translation>型の表示形式を使う(現在は %1)</translation>
-    </message>
-    <message>
-        <source>Use Display Format Based on Type</source>
-        <translation>型に基づいたフォーマットで表示する</translation>
     </message>
     <message>
         <source>Change Display for Type &quot;%1&quot;:</source>
@@ -21742,14 +21524,6 @@ Do you want to retry?</source>
     <message>
         <source>Automatic</source>
         <translation>自動</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Object&apos;s Address (0x%1)</source>
-        <translation>オブジェクトのアドレス (0x%1) にデータブレークポイントを追加</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Pointer&apos;s Address (0x%1)</source>
-        <translation>ポインタのアドレス (0x%1) にデータブレークポイントを追加</translation>
     </message>
     <message>
         <source>Add Data Breakpoint</source>
@@ -21770,18 +21544,6 @@ Do you want to retry?</source>
     <message>
         <source>Setting a data breakpoint on an expression will cause the program to stop when the data at the address given by the expression is modified.</source>
         <translation>式にデータブレークポイントを設定すると、式によって得られるアドレスのデータが変更された時にプログラムが停止します。</translation>
-    </message>
-    <message>
-        <source>Select Widget to Add into Expression Evaluator</source>
-        <translation>式エバリュエータに追加するウィジェットの選択</translation>
-    </message>
-    <message>
-        <source>Change Value Display Format</source>
-        <translation>値の表示形式を変更</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor...</source>
-        <translation>メモリエディタを開く...</translation>
     </message>
     <message>
         <source>Open Memory Editor at Object&apos;s Address (0x%1)</source>
@@ -21814,10 +21576,6 @@ Do you want to retry?</source>
     <message>
         <source>Open Memory View at Pointer&apos;s Address</source>
         <translation>ポインタのアドレスをメモリビューで開く</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor Showing Stack Layout</source>
-        <translation>表示しているスタックレイアウトをメモリエディタで開く</translation>
     </message>
     <message>
         <source>Close Editor Tooltips</source>
@@ -31006,14 +30764,6 @@ Locked items cannot be modified or selected.</source>
         <source>Reverse Component Order</source>
         <translation>コンポーネントの順序を逆にする</translation>
     </message>
-    <message>
-        <source>Show only visible items.</source>
-        <translation type="vanished">可視化されたアイテムだけを表示する。</translation>
-    </message>
-    <message>
-        <source>Reverse item order.</source>
-        <translation type="vanished">アイテムの順序を逆にする。</translation>
-    </message>
 </context>
 <context>
     <name>WidgetPluginManager</name>
@@ -31248,13 +30998,6 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <source>Invalid or duplicate item library entry %1</source>
         <translation>無効あるいは重複したアイテムライブラリエントリー %1</translation>
-    </message>
-</context>
-<context>
-    <name>SubComponentManager::parseDirectory</name>
-    <message>
-        <source>Invalid meta info</source>
-        <translation>無効なメタ情報</translation>
     </message>
 </context>
 <context>
@@ -43119,10 +42862,6 @@ Do you want to check them out now?</source>
         <translation>ステップオーバー</translation>
     </message>
     <message>
-        <source>Add Expression Evaluator</source>
-        <translation>式エバリュエータを追加</translation>
-    </message>
-    <message>
         <source>Toggle Breakpoint</source>
         <translation>ブレークポイントの切替</translation>
     </message>
@@ -43798,7 +43537,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchItem</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>
@@ -45877,10 +45616,6 @@ Would you like to overwrite it?</source>
     <message>
         <source>New Package</source>
         <translation>新しいパッケージ</translation>
-    </message>
-    <message>
-        <source>Component</source>
-        <translation>コンポーネント</translation>
     </message>
     <message>
         <source>New Component</source>
@@ -49595,16 +49330,8 @@ Output:
 <context>
     <name>Object3DPane</name>
     <message>
-        <source>Component</source>
-        <translation type="unfinished">コンポーネント</translation>
-    </message>
-    <message>
         <source>ID</source>
-        <translation type="unfinished">ID</translation>
-    </message>
-    <message>
-        <source>id</source>
-        <translation type="vanished">ID</translation>
+        <translation>ID</translation>
     </message>
     <message>
         <source>Toggles whether this item is exported as an alias property of the root item.</source>
@@ -49616,10 +49343,6 @@ Output:
     <message>
         <source>Edit Annotation</source>
         <translation>アノテーションを編集する</translation>
-    </message>
-    <message>
-        <source>Add Annotation</source>
-        <translation>アノテーションを追加する</translation>
     </message>
     <message>
         <source>Remove Annotation</source>
@@ -50457,7 +50180,7 @@ Output:
     <name>ScxmlEditor::Common::Statistics</name>
     <message>
         <source>Time</source>
-        <translation type="unfinished">タイム</translation>
+        <translation>タイム</translation>
     </message>
     <message>
         <source>0</source>

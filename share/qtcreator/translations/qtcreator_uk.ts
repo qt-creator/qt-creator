@@ -6263,10 +6263,6 @@ Qt Creator не може під&apos;єднатись до нього.</translat
         <translation>Нитки</translation>
     </message>
     <message>
-        <source>Locals and Expressions</source>
-        <translation>Локальні змінні та вирази</translation>
-    </message>
-    <message>
         <source>Snapshots</source>
         <translation>Знімки</translation>
     </message>
@@ -7213,11 +7209,6 @@ You can choose between waiting longer or aborting debugging.</source>
     <message>
         <source>Custom dumper setup: %1</source>
         <translation type="vanished">Налаштування відображувача користувача: %1</translation>
-    </message>
-    <message>
-        <source>&lt;shadowed&gt;</source>
-        <extracomment>Type of local variable or parameter shadowed by another variable of the same name in a nested block.</extracomment>
-        <translation type="vanished">&lt;затінено&gt;</translation>
     </message>
     <message>
         <source>Disassembler failed: %1</source>
@@ -8172,20 +8163,12 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchData</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>
         <translation type="vanished">&lt;Поза областю видимості&gt;</translation>
     </message>
-    <message>
-        <source>%1 &lt;shadowed %2&gt;</source>
-        <extracomment>Display of variables shadowed by variables of the same name in nested scopes: Variable %1 is the variable name, %2 is a simple count.</extracomment>
-        <translation type="vanished">%1 &lt;затінено %2&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchHandler</name>
     <message>
         <source>Name</source>
         <translation>Назва</translation>
@@ -8247,10 +8230,6 @@ Do you want to retry?</source>
         <translation>Зневаджувач - Qt Creator</translation>
     </message>
     <message>
-        <source>&lt;Edit&gt;</source>
-        <translation type="vanished">&lt;Змініть&gt;</translation>
-    </message>
-    <message>
         <source>&lt;empty&gt;</source>
         <translation>&lt;порожнє&gt;</translation>
     </message>
@@ -8303,24 +8282,9 @@ Do you want to retry?</source>
         </translation>
     </message>
     <message>
-        <source>Remove All Expression Evaluators</source>
-        <translation>Видалити усі обчислювані вирази</translation>
-    </message>
-    <message>
         <source>Are you sure you want to remove all expression evaluators?</source>
         <translation>Ви впевнені, що бажаєте видалити усі обчислювані вирази?</translation>
     </message>
-    <message>
-        <source>%1 Object at %2</source>
-        <translation type="vanished">Об&apos;єкт %1 в %2</translation>
-    </message>
-    <message>
-        <source>%1 Object at Unknown Address</source>
-        <translation type="vanished">Об&apos;єкт %1 за невідомою адресою</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchModel</name>
     <message>
         <source>&lt;Edit&gt;</source>
         <translation type="vanished">&lt;Змінити&gt;</translation>
@@ -8408,14 +8372,6 @@ Do you want to retry?</source>
     <message>
         <source>Tooltip</source>
         <translation>Підказка</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Назва</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Значення</translation>
     </message>
     <message>
         <source>Type</source>
@@ -8516,13 +8472,6 @@ Do you want to retry?</source>
     <message>
         <source>%1 Object at Unknown Address</source>
         <translation>Об&apos;єкт %1 за невідомою адресою</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchWindow</name>
-    <message>
-        <source>Locals and Expressions</source>
-        <translation type="vanished">Локальні змінні та вирази</translation>
     </message>
 </context>
 <context>
@@ -34590,7 +34539,7 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchTreeView</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
         <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
@@ -34708,10 +34657,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     <message>
         <source>Change Display for Type &quot;%1&quot;:</source>
         <translation>Змінити формат відображення для типу &quot;%1&quot;:</translation>
-    </message>
-    <message>
-        <source>Automatic</source>
-        <translation>Автоматичний</translation>
     </message>
     <message>
         <source>Change Display for Type or Item...</source>
@@ -56984,12 +56929,7 @@ Please set a real Clang executable.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchItem</name>
-    <message>
-        <source>&lt;not in scope&gt;</source>
-        <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>
-        <translation>&lt;Поза областю видимості&gt;</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>%1 &lt;shadowed %2&gt;</source>
         <extracomment>Display of variables shadowed by variables of the same name in nested scopes: Variable %1 is the variable name, %2 is a simple count.</extracomment>

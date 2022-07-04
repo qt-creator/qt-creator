@@ -29,7 +29,6 @@
 
 #include <utils/treemodel.h>
 
-#include <QCoreApplication>
 #include <QMetaType>
 
 #include <vector>
@@ -72,9 +71,7 @@ public:
 
     QString toString() const;
 
-    static QString msgNotInScope();
     static QString shadowedName(const QString &name, int seen);
-    static const QString &shadowedNameFormat();
 
     QString hexAddress() const;
     QString key() const { return address ? hexAddress() : iname; }
@@ -106,7 +103,6 @@ public:
 
 private:
     void parseHelper(const GdbMi &input, bool maySort);
-    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::WatchHandler)
 };
 
 } // namespace Internal

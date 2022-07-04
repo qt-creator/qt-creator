@@ -14806,7 +14806,7 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchHandler</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;empty&gt;</source>
         <translation>&lt;tom&gt;</translation>
@@ -14854,20 +14854,12 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <translation>&lt;udenfor område&gt;</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Navn</translation>
-    </message>
-    <message>
         <source>Expression</source>
         <translation>Udtryk</translation>
     </message>
     <message>
         <source>Internal Type</source>
         <translation>Intern type</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Værdi</translation>
     </message>
     <message>
         <source>... &lt;cut off&gt;</source>
@@ -14904,9 +14896,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <source>Debugger - %1</source>
         <translation>Fejlretter - %1</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchItem</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>
@@ -14917,9 +14906,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <extracomment>Display of variables shadowed by variables of the same name in nested scopes: Variable %1 is the variable name, %2 is a simple count.</extracomment>
         <translation>%1 &lt;skygget %2&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchModel</name>
     <message>
         <source>Name</source>
         <translation>Navn</translation>
@@ -15297,9 +15283,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <source>Are you sure you want to remove all expression evaluators?</source>
         <translation>Er du sikker på, at du vil fjerne alle udtryksevaluerer?</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchTreeView</name>
     <message>
         <source>Locals and Expressions</source>
         <translation>Locals og expressions</translation>

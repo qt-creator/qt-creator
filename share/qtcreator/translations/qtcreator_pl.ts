@@ -4915,7 +4915,7 @@ receives a signal like SIGSEGV during debugging.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Expression</source>
         <translation>Wyrażenie</translation>
@@ -4947,10 +4947,6 @@ receives a signal like SIGSEGV during debugging.</source>
             <numerusform>%n bajty</numerusform>
             <numerusform>%n bajtów</numerusform>
         </translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Nazwa</translation>
     </message>
     <message>
         <source>Internal Type</source>
@@ -5016,9 +5012,6 @@ receives a signal like SIGSEGV during debugging.</source>
             <numerusform>&lt;%n elementów&gt;</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchModel</name>
     <message>
         <source>returned value</source>
         <translation>zwrócona wartość</translation>
@@ -5054,10 +5047,6 @@ receives a signal like SIGSEGV during debugging.</source>
     <message>
         <source>Tooltip</source>
         <translation>Podpowiedź</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Wartość</translation>
     </message>
     <message>
         <source>Type</source>
@@ -22352,7 +22341,7 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchTreeView</name>
+    <name>Debugger</name>
     <message>
         <source>Locals and Expressions</source>
         <translation>Zmienne lokalne i wyrażenia</translation>
@@ -39061,7 +39050,7 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchItem</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>

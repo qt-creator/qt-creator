@@ -29,7 +29,6 @@ add_qtc_plugin(Debugger
     console/consoleview.cpp console/consoleview.h
     debugger.qrc
     debugger_global.h
-    debuggertr.h
     debuggeractions.cpp debuggeractions.h
     debuggerconstants.h
     debuggercore.h
@@ -47,6 +46,7 @@ add_qtc_plugin(Debugger
     debuggerruncontrol.cpp debuggerruncontrol.h
     debuggersourcepathmappingwidget.cpp debuggersourcepathmappingwidget.h
     debuggertooltipmanager.cpp debuggertooltipmanager.h
+    debuggertr.h
     disassembleragent.cpp disassembleragent.h
     disassemblerlines.cpp disassemblerlines.h
     gdb/gdbengine.cpp gdb/gdbengine.h

@@ -56,13 +56,13 @@ signals:
     void updateFinished();
 };
 
-class WatchHandler : public QObject
+class WatchHandler
 {
-    Q_OBJECT
+    Q_DISABLE_COPY_MOVE(WatchHandler)
 
 public:
     explicit WatchHandler(DebuggerEngine *engine);
-    ~WatchHandler() override;
+    ~WatchHandler();
 
     WatchModelBase *model() const;
 

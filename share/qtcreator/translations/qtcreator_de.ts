@@ -3348,7 +3348,7 @@ markers in the source code editor.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Expression</source>
         <translation>Ausdruck</translation>
@@ -3435,24 +3435,13 @@ markers in the source code editor.</source>
         </translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Name</translation>
-    </message>
-    <message>
         <source>... &lt;cut off&gt;</source>
         <translation>... &lt;gekürzt&gt;</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Wert</translation>
     </message>
     <message>
         <source>Debugger - %1</source>
         <translation>Debugger - %1</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchModel</name>
     <message>
         <source>Locals</source>
         <translation>Lokale Variablen</translation>
@@ -19817,7 +19806,7 @@ manuellen Herunterladen im Browser des System zu öffnen.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchTreeView</name>
+    <name>Debugger</name>
     <message>
         <source>Locals and Expressions</source>
         <translation>Lokale Variablen und Ausdrücke</translation>
@@ -35906,7 +35895,7 @@ Dies könnte Probleme während der Ausführung verursachen.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchItem</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>

@@ -941,10 +941,6 @@
         <translation type="obsolete">图形界面行为</translation>
     </message>
     <message>
-        <source>Register Qt Creator for debugging crashed applications.</source>
-        <translation type="obsolete">注册 Qt Creator 来调试崩溃的应用.</translation>
-    </message>
-    <message>
         <source>Use Creator for post-mortem debugging</source>
         <translation type="obsolete">使用Creator进行崩溃后调试</translation>
     </message>
@@ -3897,10 +3893,6 @@ Qt Creator 无法附属到进程.</translation>
         <translation type="obsolete">添加断点</translation>
     </message>
     <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">总是按内容调整列宽</translation>
-    </message>
-    <message>
         <source>Edit Breakpoint...</source>
         <translation type="obsolete">编辑断点...</translation>
     </message>
@@ -4614,10 +4606,6 @@ Qt Creator 无法附属到进程.</translation>
     <message>
         <source>Watch Expression &quot;%1&quot;</source>
         <translation type="obsolete">监视表达式 &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Remove Watch Expression &quot;%1&quot;</source>
-        <translation type="obsolete">删除监视表达式&quot;%1&quot;</translation>
     </message>
     <message>
         <source>Watch Expression &quot;%1&quot; in Separate Window</source>
@@ -6074,10 +6062,6 @@ markers in the source code editor.</source>
         <translation type="obsolete">按内容调整列宽</translation>
     </message>
     <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">总是按内容调整列宽</translation>
-    </message>
-    <message>
         <source>Adjust column widths to contents</source>
         <translation type="obsolete">按内容调整列宽</translation>
     </message>
@@ -6494,7 +6478,7 @@ markers in the source code editor.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchData</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>
@@ -6505,9 +6489,6 @@ markers in the source code editor.</source>
         <extracomment>Display of variables shadowed by variables of the same name in nested scopes: Variable %1 is the variable name, %2 is a simple count.</extracomment>
         <translation>%1 &lt;隐藏了 %2&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchHandler</name>
     <message>
         <source>Expression</source>
         <translation>表达式</translation>
@@ -6559,38 +6540,6 @@ markers in the source code editor.</source>
         <translation type="obsolete">创建</translation>
     </message>
     <message>
-        <source>unknown address</source>
-        <translation type="obsolete">未知地址</translation>
-    </message>
-    <message>
-        <source>%1 object at %2</source>
-        <translation type="obsolete">在 %2 的 %1 对象</translation>
-    </message>
-    <message>
-        <source>&lt;Edit&gt;</source>
-        <translation>&lt;编辑&gt;</translation>
-    </message>
-    <message>
-        <source>Root</source>
-        <translation type="obsolete">根</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>名称</translation>
-    </message>
-    <message>
-        <source>Return Value</source>
-        <translation type="obsolete">返回值</translation>
-    </message>
-    <message>
-        <source>Locals</source>
-        <translation type="obsolete">局部的</translation>
-    </message>
-    <message>
-        <source>Tooltip</source>
-        <translation type="obsolete">工具提示</translation>
-    </message>
-    <message>
         <source>&lt;empty&gt;</source>
         <translation>&lt;空&gt;</translation>
     </message>
@@ -6625,41 +6574,6 @@ markers in the source code editor.</source>
     <message>
         <source>%1 Object at Unknown Address</source>
         <translation>未知地址处的 %1对象</translation>
-    </message>
-    <message>
-        <source>Locals &amp; Watchers</source>
-        <translation type="obsolete">局部变量和监视器</translation>
-    </message>
-    <message>
-        <source>Watchers</source>
-        <translation type="obsolete">监视器</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>值</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="obsolete">类型</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchModel</name>
-    <message>
-        <source>decimal</source>
-        <translation type="obsolete">10进制</translation>
-    </message>
-    <message>
-        <source>hexadecimal</source>
-        <translation type="obsolete">16进制</translation>
-    </message>
-    <message>
-        <source>binary</source>
-        <translation type="obsolete">2进制</translation>
-    </message>
-    <message>
-        <source>octal</source>
-        <translation type="obsolete">8进制</translation>
     </message>
     <message>
         <source>Bald pointer</source>
@@ -6750,9 +6664,6 @@ markers in the source code editor.</source>
         <source>Type</source>
         <translation>类型</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchWindow</name>
     <message>
         <source>Locals and Watchers</source>
         <translation type="obsolete">局部变量和监视器</translation>
@@ -6760,10 +6671,6 @@ markers in the source code editor.</source>
     <message>
         <source>Change Format for Type &quot;%1&quot;</source>
         <translation type="obsolete">根据类型 &quot;%1&quot; 改变格式</translation>
-    </message>
-    <message>
-        <source>Automatic</source>
-        <translation type="obsolete">自动</translation>
     </message>
     <message>
         <source>Change Format for Type</source>
@@ -6806,10 +6713,6 @@ markers in the source code editor.</source>
         <translation type="obsolete">删除所有监控项目</translation>
     </message>
     <message>
-        <source>Open Memory Editor...</source>
-        <translation type="obsolete">打开内存编辑器...</translation>
-    </message>
-    <message>
         <source>Open Memory Editor at %1</source>
         <translation type="obsolete">在 %1 处打开内存编辑器</translation>
     </message>
@@ -6824,18 +6727,6 @@ markers in the source code editor.</source>
     <message>
         <source>Change Format for Object Named &quot;%1&quot;</source>
         <translation type="obsolete">改变名为&quot;%1&quot;的对象的格式</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Object&apos;s Address (0x%1)</source>
-        <translation type="obsolete">在对象的地址 (0x%1)处打开内存编辑器</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Object&apos;s Address</source>
-        <translation type="obsolete">在对象的地址 打开内存编辑器</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Referenced Address (0x%1)</source>
-        <translation type="obsolete">在参考地址(0x%1)处打开内存编辑器</translation>
     </message>
     <message>
         <source>Break on Changes at Object&apos;s Address (0x%1)</source>
@@ -6870,63 +6761,6 @@ markers in the source code editor.</source>
         <translation type="obsolete">改变显示格式...</translation>
     </message>
     <message>
-        <source>Treat All Characters as Printable</source>
-        <translation type="obsolete">所有字符可打印</translation>
-    </message>
-    <message>
-        <source>Show Unprintable Characters as Octal</source>
-        <translation type="obsolete">显示所有不可打印的字符为八进制</translation>
-    </message>
-    <message>
-        <source>Show Unprintable Characters as Hexadecimal</source>
-        <translation type="obsolete">显示所有不可打印的字符为十六进制</translation>
-    </message>
-    <message>
-        <source>Change Display for Type &quot;%1&quot;:</source>
-        <translation type="obsolete">为类型&quot;%1&quot;改变显示:</translation>
-    </message>
-    <message>
-        <source>Change Display for Object Named &quot;%1&quot;:</source>
-        <translation type="obsolete">为对象名称为&quot;%1&quot;改变显示:</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
-        <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
-        <translation type="obsolete">&lt;i&gt;%1&lt;/i&gt; %2 在 #%3</translation>
-    </message>
-    <message>
-        <source>Register &lt;i&gt;%1&lt;/i&gt;</source>
-        <translation type="obsolete">注册&lt;i&gt;%1&lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>Memory Referenced by Pointer &apos;%1&apos; (0x%2)</source>
-        <translation type="obsolete">内存被指针&apos;%1&apos;引用 (0x%2)</translation>
-    </message>
-    <message>
-        <source>Memory at Variable &apos;%1&apos; (0x%2)</source>
-        <translation type="obsolete">可变内存&apos;%1&apos; (0x%2)</translation>
-    </message>
-    <message>
-        <source>Memory Referenced by Pointer &quot;%1&quot; (0x%2)</source>
-        <translation type="obsolete">内存被指针&apos;%1&apos;引用 (0x%2)</translation>
-    </message>
-    <message>
-        <source>Memory at Variable &quot;%1&quot; (0x%2)</source>
-        <translation type="obsolete">可变内存&apos;%1&apos; (0x%2)</translation>
-    </message>
-    <message>
-        <source>Cannot Display Stack Layout</source>
-        <translation type="obsolete">无法显示堆栈布局</translation>
-    </message>
-    <message>
-        <source>Could not determine a suitable address range.</source>
-        <translation type="obsolete">无法绝对一个合适的地址范围.</translation>
-    </message>
-    <message>
-        <source>Memory Layout of Local Variables at 0x%1</source>
-        <translation type="obsolete">局部变量的内存布局在0x%1</translation>
-    </message>
-    <message>
         <source>Locals and Expressions</source>
         <translation>局部变量和表达式</translation>
     </message>
@@ -6947,44 +6781,8 @@ markers in the source code editor.</source>
         <translation type="obsolete">移除计算表达式&quot;%1&quot;</translation>
     </message>
     <message>
-        <source>Show Unprintable Characters as Escape Sequences</source>
-        <translation type="obsolete">显示所有不可打印的字符为转义序列</translation>
-    </message>
-    <message>
         <source>Use Display Format Based on Type</source>
         <translation type="obsolete">使用基于类型的显示格式</translation>
-    </message>
-    <message>
-        <source>Change Display for Type or Item...</source>
-        <translation type="obsolete">为类型或项改变显示...</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint...</source>
-        <translation type="obsolete">添加数据断点...</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Object&apos;s Address (0x%1)</source>
-        <translation type="obsolete">在对象地址(0x%1)添加数据断点</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Referenced Address (0x%1)</source>
-        <translation type="obsolete">在引用地址(0x%1)添加数据断点</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint</source>
-        <translation type="obsolete">添加数据断点</translation>
-    </message>
-    <message>
-        <source>Setting a data breakpoint on an address will cause the program to stop when the data at the address is modified.</source>
-        <translation type="obsolete">在一个地址上设置数据断点,当数据在这个地址上被修改将会导致程序停止.</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Expression &quot;%1&quot;</source>
-        <translation type="obsolete">在表达式&quot;%1&quot;处添加数据断点</translation>
-    </message>
-    <message>
-        <source>Setting a data breakpoint on an expression will cause the program to stop when the data at the address given by the expression is modified.</source>
-        <translation type="obsolete">在一个表达式地址上设置数据断点,当数据在这个表达式地址上被修改将会导致程序停止.</translation>
     </message>
     <message>
         <source>Insert New Evaluated Expression</source>
@@ -6995,48 +6793,8 @@ markers in the source code editor.</source>
         <translation type="obsolete">移除所有计算表达式</translation>
     </message>
     <message>
-        <source>Open Memory View at Object&apos;s Address (0x%1)</source>
-        <translation type="obsolete">在对象地址(0x%1)处打开内存监视器</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Object&apos;s Address</source>
-        <translation type="obsolete">在对象地址打开内存监视器</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Referenced Address (0x%1)</source>
-        <translation type="obsolete">在引用地址(0x%1)处打开内存监视器</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Referenced Address</source>
-        <translation type="obsolete">在引用的地址 打开内存编辑器</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Referenced Address</source>
-        <translation type="obsolete">在引用地址打开内存监视器</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor Showing Stack Layout</source>
-        <translation type="obsolete">打开内存编辑器显示堆栈布局</translation>
-    </message>
-    <message>
-        <source>Copy Contents to Clipboard</source>
-        <translation type="obsolete">复制内容到剪贴板</translation>
-    </message>
-    <message>
-        <source>Copy Value to Clipboard</source>
-        <translation type="obsolete">复制数值到剪贴板</translation>
-    </message>
-    <message>
-        <source>Close Editor Tooltips</source>
-        <translation type="obsolete">关闭编辑器工具提示</translation>
-    </message>
-    <message>
         <source>Enter watch expression</source>
         <translation type="obsolete">输入监控表达式</translation>
-    </message>
-    <message>
-        <source>Expression:</source>
-        <translation type="obsolete">表达式:</translation>
     </message>
     <message>
         <source>Locals &amp; Watchers</source>
@@ -7045,10 +6803,6 @@ markers in the source code editor.</source>
     <message>
         <source>Always Adjust Column Widths to Contents</source>
         <translation type="obsolete">总是按内容调整列宽</translation>
-    </message>
-    <message>
-        <source>Show View Contents in Editor</source>
-        <translation type="obsolete">在编辑器中显示视图内容</translation>
     </message>
     <message>
         <source>Change format for type &apos;%1&apos;</source>
@@ -54394,7 +54148,7 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchTreeView</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
         <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
@@ -54428,10 +54182,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     <message>
         <source>Memory Layout of Local Variables at 0x%1</source>
         <translation>局部变量在0x%1处的内存布局</translation>
-    </message>
-    <message>
-        <source>Locals and Expressions</source>
-        <translation>局部变量和表达式</translation>
     </message>
     <message>
         <source>Add Expression Evaluator</source>

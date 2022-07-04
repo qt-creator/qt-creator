@@ -7603,7 +7603,7 @@ at debugger startup.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchData</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>
@@ -7614,20 +7614,9 @@ at debugger startup.</source>
         <extracomment>Display of variables shadowed by variables of the same name in nested scopes: Variable %1 is the variable name, %2 is a simple count.</extracomment>
         <translation>%1 &lt;shadowed %2&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchHandler</name>
-    <message>
-        <source>Name</source>
-        <translation>Nom</translation>
-    </message>
     <message>
         <source>Expression</source>
         <translation>Expression</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="obsolete">Type</translation>
     </message>
     <message>
         <source>Internal Type</source>
@@ -7644,10 +7633,6 @@ at debugger startup.</source>
     <message>
         <source>... &lt;cut off&gt;</source>
         <translation>... &lt;coupé&gt;</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Valeur</translation>
     </message>
     <message>
         <source>Object Address</source>
@@ -7680,26 +7665,6 @@ at debugger startup.</source>
     <message>
         <source>Stored Address</source>
         <translation type="obsolete">Adresse stockée</translation>
-    </message>
-    <message>
-        <source>Root</source>
-        <translation type="obsolete">Racine</translation>
-    </message>
-    <message>
-        <source>Return Value</source>
-        <translation type="obsolete">Valeur de retour</translation>
-    </message>
-    <message>
-        <source>Locals</source>
-        <translation type="obsolete">Variables locales</translation>
-    </message>
-    <message>
-        <source>Watchers</source>
-        <translation type="obsolete">Observateurs</translation>
-    </message>
-    <message>
-        <source>Tooltip</source>
-        <translation type="obsolete">Info-bulle</translation>
     </message>
     <message>
         <source>Debugger - Qt Creator</source>
@@ -7737,46 +7702,6 @@ at debugger startup.</source>
         </translation>
     </message>
     <message>
-        <source>Raw pointer</source>
-        <translation type="obsolete">Pointeur simple</translation>
-    </message>
-    <message>
-        <source>Latin1 string</source>
-        <translation type="obsolete">Chaîne de caractères latin1</translation>
-    </message>
-    <message>
-        <source>UTF8 string</source>
-        <translation type="obsolete">Chaîne de caractères UTF8</translation>
-    </message>
-    <message>
-        <source>Local 8bit string</source>
-        <translation type="obsolete">Chaîne de caractères locale au format 8 bits</translation>
-    </message>
-    <message>
-        <source>UTF16 string</source>
-        <translation type="obsolete">Chaîne de caractères UTF16</translation>
-    </message>
-    <message>
-        <source>UCS4 string</source>
-        <translation type="obsolete">Chaîne de caractères UCS4</translation>
-    </message>
-    <message>
-        <source>Decimal</source>
-        <translation type="obsolete">Décimal</translation>
-    </message>
-    <message>
-        <source>Hexadecimal</source>
-        <translation type="obsolete">Hexadécimal</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation type="obsolete">Binaire</translation>
-    </message>
-    <message>
-        <source>Octal</source>
-        <translation type="obsolete">Octal</translation>
-    </message>
-    <message>
         <source>%1 Object at %2</source>
         <translation>Objet %1 à %2</translation>
     </message>
@@ -7786,20 +7711,8 @@ at debugger startup.</source>
         <translation>Objet %1 à une adresse inconnue</translation>
     </message>
     <message>
-        <source>Locals &amp; Watchers</source>
-        <translation type="obsolete">Variables locales et observateurs</translation>
-    </message>
-    <message>
         <source>unknown address</source>
         <translation type="obsolete">adresse inconnue</translation>
-    </message>
-    <message>
-        <source>%1 object at %2</source>
-        <translation type="obsolete">%1 objet à %2</translation>
-    </message>
-    <message>
-        <source>&lt;Edit&gt;</source>
-        <translation>&lt;Éditer&gt;</translation>
     </message>
     <message>
         <source>Internal ID</source>
@@ -7809,9 +7722,6 @@ at debugger startup.</source>
         <source>Generation</source>
         <translation type="obsolete">Génération</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchModel</name>
     <message>
         <source>decimal</source>
         <translation type="obsolete">décimal</translation>
@@ -7924,9 +7834,6 @@ at debugger startup.</source>
         <source>Type</source>
         <translation>Type</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchWindow</name>
     <message>
         <source>Locals and Watchers</source>
         <translation type="obsolete">Variables locales et observateurs</translation>
@@ -7977,18 +7884,6 @@ at debugger startup.</source>
         <translation type="obsolete">Enlever toutes les expressions évaluées</translation>
     </message>
     <message>
-        <source>Open Memory Editor...</source>
-        <translation type="obsolete">Ouvrir l&apos;éditeur de mémoire...</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Object&apos;s Address (0x%1)</source>
-        <translation type="obsolete">Ouvrir l&apos;éditeur de mémoire à l&apos;adresse de l&apos;objet (0x%1)</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Referenced Address (0x%1)</source>
-        <translation type="obsolete">Ouvrir l&apos;éditeur de mémoire à l&apos;adresse référencée (0x%1)</translation>
-    </message>
-    <message>
         <source>Break on Changes at Object&apos;s Address (0x%1)</source>
         <translation type="obsolete">Arrêter lors de changements à l&apos;adresse de l&apos;objet (0x%1)</translation>
     </message>
@@ -8021,74 +7916,12 @@ at debugger startup.</source>
         <translation type="obsolete">Changer le format d&apos;affichage... </translation>
     </message>
     <message>
-        <source>Treat All Characters as Printable</source>
-        <translation type="obsolete">Traiter tous les caractères comme imprimables</translation>
-    </message>
-    <message>
-        <source>Show Unprintable Characters as Octal</source>
-        <translation type="obsolete">Montrer les caractères non imprimables comme octaux</translation>
-    </message>
-    <message>
-        <source>Show Unprintable Characters as Hexadecimal</source>
-        <translation type="obsolete">Montrer les caractères non imprimables comme hexadécimaux</translation>
-    </message>
-    <message>
-        <source>Use Format for Type (Currently %1)</source>
-        <translation type="obsolete">Utiliser le format pour le type (actuellement %1)</translation>
-    </message>
-    <message>
-        <source>Use Display Format Based on Type </source>
-        <translation type="obsolete">Utiliser le format d&apos;affichage basé sur le type</translation>
-    </message>
-    <message>
-        <source>Change Display for Type &quot;%1&quot;:</source>
-        <translation type="obsolete">Changer l&apos;affichage du type &quot;%1&quot; : </translation>
-    </message>
-    <message>
-        <source>Change Display for Object Named &quot;%1&quot;:</source>
-        <translation type="obsolete">Changer l&apos;affichage de l&apos;objet nommé &quot;%1&quot; : </translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
-        <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
-        <translation type="obsolete">&lt;i&gt;%1&lt;/i&gt; %2 à #%3</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;%1&lt;/i&gt; %2</source>
-        <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
-        <translation type="obsolete">&lt;i&gt;%1&lt;/i&gt; %2</translation>
-    </message>
-    <message>
-        <source>Register &lt;i&gt;%1&lt;/i&gt;</source>
-        <translation type="obsolete">Registre &lt;i&gt;%1&lt;/i&gt;</translation>
-    </message>
-    <message>
         <source>Memory Referenced by Pointer &apos;%1&apos; (0x%2)</source>
         <translation type="obsolete">Mémoire référencée par le pointeur &quot;%1&quot; (0x%2)</translation>
     </message>
     <message>
-        <source>Memory at Variable &apos;%1&apos; (0x%2)</source>
-        <translation type="obsolete">Mémoire à la variable &quot;%1&quot; (0x%2)</translation>
-    </message>
-    <message>
         <source>Memory Referenced by Pointer &quot;%1&quot; (0x%2)</source>
         <translation type="obsolete">Mémoire référencée par le pointeur &quot;%1&quot; (0x%2)</translation>
-    </message>
-    <message>
-        <source>Memory at Variable &quot;%1&quot; (0x%2)</source>
-        <translation type="obsolete">Mémoire à la variable &quot;%1&quot; (0x%2)</translation>
-    </message>
-    <message>
-        <source>Cannot Display Stack Layout</source>
-        <translation type="obsolete">Impossible d&apos;afficher la disposition de la pile</translation>
-    </message>
-    <message>
-        <source>Could not determine a suitable address range.</source>
-        <translation type="obsolete">Impossible de déterminer une plage d&apos;adresses convenable. </translation>
-    </message>
-    <message>
-        <source>Memory Layout of Local Variables at 0x%1</source>
-        <translation type="obsolete">Disposition de la mémoire des variables locales à 0x%1</translation>
     </message>
     <message>
         <source>Locals and Expressions</source>
@@ -8111,61 +7944,8 @@ at debugger startup.</source>
         <translation type="obsolete">Enlever l&apos;expression &quot;%1&quot; évaluée</translation>
     </message>
     <message>
-        <source>Change Local Display Format...</source>
-        <translation type="obsolete">Changer le format d&apos;affichage local... </translation>
-    </message>
-    <message>
-        <source>Show Unprintable Characters as Escape Sequences</source>
-        <translation type="obsolete">Montrer les caractères non imprimables comme des séquences d&apos;échappement</translation>
-    </message>
-    <message>
-        <source>Use Display Format Based on Type</source>
-        <translation type="obsolete">Utiliser le format d&apos;affichage basé sur le type</translation>
-    </message>
-    <message>
-        <source>Change Display for Type or Item...</source>
-        <translation type="obsolete">Changer l&apos;affichage du type ou de l&apos;item... </translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint...</source>
-        <translatorcomment>???</translatorcomment>
-        <translation type="obsolete">Ajouter un point d&apos;arrêt sur les données...</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Object&apos;s Address (0x%1)</source>
-        <translation type="obsolete">Ajouter un point d&apos;arrêt sur les données à l&apos;adresse de l&apos;objet (0x%1)</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Referenced Address (0x%1)</source>
-        <translation type="obsolete">Ajouter un point d&apos;arrêt sur les données à l&apos;adresse référencée (0x%1)</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint</source>
-        <translation type="obsolete">Ajouter un point d&apos;arrêt sur les données</translation>
-    </message>
-    <message>
-        <source>Setting a data breakpoint on an address will cause the program to stop when the data at the address is modified.</source>
-        <translation type="obsolete">Définir un point d&apos;arrêt sur les données à une adresse fera que le programme s&apos;arrêtera quand les données à cette adresse seront modifiées. </translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Expression</source>
-        <translation type="obsolete">Ajouter un point d&apos;arrêt de donnée sur l&apos;expression</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Expression &quot;%1&quot;</source>
-        <translation type="obsolete">Ajouter un point d&apos;arrêt sur les données à l&apos;expression &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Setting a data breakpoint on an expression will cause the program to stop when the data at the address given by the expression is modified.</source>
-        <translation type="obsolete">Définir un point d&apos;arrêt sur les données à une adresse fera que le programme s&apos;arrêtera quand les données à cette adresse fournies par l&apos;expression seront modifiées. </translation>
-    </message>
-    <message>
-        <source>Insert New Evaluated Expression</source>
-        <translation type="obsolete">Insérer une nouvelle expression évaluée</translation>
-    </message>
-    <message>
         <source>Add Watchpoint at Object&apos;s Address (0x%1)</source>
-        <translation type="obsolete">Ajouter un point d&apos;observation à l&apos;adresse de l&apos;objet (0x%1)</translation>
+        <translation>Ajouter un point d&apos;observation à l&apos;adresse de l&apos;objet (0x%1)</translation>
     </message>
     <message>
         <source>Add Watchpoint at Referenced Address (0x%1)</source>
@@ -8184,52 +7964,16 @@ at debugger startup.</source>
         <translation type="obsolete">Supprimer tous les éléments observés</translation>
     </message>
     <message>
-        <source>Open Memory View at Object&apos;s Address (0x%1)</source>
-        <translation type="obsolete">Ouvrir la vue mémoire à l&apos;adresse de l&apos;objet (0x%1)</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Object&apos;s Address</source>
-        <translation type="obsolete">Ouvrir l&apos;éditeur mémoire à l&apos;adresse de l&apos;objet</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Object&apos;s Address</source>
-        <translation type="obsolete">Ouvrir la vue mémoire à l&apos;adresse de l&apos;objet</translation>
-    </message>
-    <message>
         <source>Open Memory View at Referenced Address (0x%1)</source>
-        <translation type="obsolete">Ouvrir la vue mémoire à l&apos;adresse référencée (0x%1)</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Referenced Address</source>
-        <translation type="obsolete">Ouvrir l&apos;éditeur mémoire à l&apos;adresse référencée</translation>
+        <translation>Ouvrir la vue mémoire à l&apos;adresse référencée (0x%1)</translation>
     </message>
     <message>
         <source>Open Memory View at Referenced Address</source>
-        <translation type="obsolete">Ouvrir la vue mémoire à l&apos;adresse référencée</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor Showing Stack Layout</source>
-        <translation type="obsolete">Ouvrir l&apos;éditeur mémoire montrant la pile (stack)</translation>
-    </message>
-    <message>
-        <source>Copy Contents to Clipboard</source>
-        <translation type="obsolete">Copier le contenu dans le presse papier</translation>
-    </message>
-    <message>
-        <source>Copy Value to Clipboard</source>
-        <translation type="obsolete">Copier la valeur dans le presse papier</translation>
+        <translation>Ouvrir la vue mémoire à l&apos;adresse référencée</translation>
     </message>
     <message>
         <source>Refresh Code Model Snapshot</source>
         <translation type="obsolete">Rafraîchir le snapshot du modèle de code</translation>
-    </message>
-    <message>
-        <source>Show View Contents in Editor</source>
-        <translation type="obsolete">Ouvrir le contenu de la vue dans l&apos;éditeur</translation>
-    </message>
-    <message>
-        <source>Close Editor Tooltips</source>
-        <translation type="obsolete">Fermer l&apos;éditeur d&apos;info-bulles</translation>
     </message>
     <message>
         <source>Enter watch expression</source>
@@ -8246,10 +7990,6 @@ at debugger startup.</source>
     <message>
         <source>Adjust Column Widths to Contents</source>
         <translation type="obsolete">Ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Automatic</source>
-        <translation type="obsolete">Automatique</translation>
     </message>
     <message>
         <source>Always Adjust Column Widths to Contents</source>
@@ -62840,7 +62580,7 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchTreeView</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
         <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
@@ -62854,14 +62594,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
     <message>
         <source>Register &lt;i&gt;%1&lt;/i&gt;</source>
         <translation>Registre &lt;i&gt;%1&lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>Memory Referenced by Pointer &quot;%1&quot; (0x%2)</source>
-        <translation type="obsolete">Mémoire référencée par le pointeur &quot;%1&quot; (0x%2)</translation>
-    </message>
-    <message>
-        <source>Memory at Variable &quot;%1&quot; (0x%2)</source>
-        <translation type="obsolete">Mémoire à la variable &quot;%1&quot; (0x%2)</translation>
     </message>
     <message>
         <source>Memory at Pointer&apos;s Address &quot;%1&quot; (0x%2)</source>
@@ -62882,10 +62614,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
     <message>
         <source>Memory Layout of Local Variables at 0x%1</source>
         <translation>Disposition de la mémoire des variables locales à 0x%1</translation>
-    </message>
-    <message>
-        <source>Locals and Expressions</source>
-        <translation>Locales et expressions</translation>
     </message>
     <message>
         <source>Add Expression Evaluator</source>
@@ -63040,16 +62768,8 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <translation type="obsolete">Ouvrir l&apos;éditeur de mémoire à l&apos;adresse référencée (0x%1)</translation>
     </message>
     <message>
-        <source>Open Memory View at Referenced Address (0x%1)</source>
-        <translation type="obsolete">Ouvrir la vue mémoire à l&apos;adresse référencée (0x%1)</translation>
-    </message>
-    <message>
         <source>Open Memory Editor at Referenced Address</source>
         <translation type="obsolete">Ouvrir l&apos;éditeur mémoire à l&apos;adresse référencée</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Referenced Address</source>
-        <translation type="obsolete">Ouvrir la vue mémoire à l&apos;adresse référencée</translation>
     </message>
     <message>
         <source>Open Memory Editor Showing Stack Layout</source>
@@ -63074,10 +62794,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
     <message>
         <source>Enter Expression for Evaluator</source>
         <translation>Entrer une expression pour l&apos;évaluateur</translation>
-    </message>
-    <message>
-        <source>Expression:</source>
-        <translation>Expression :</translation>
     </message>
     <message>
         <source>Locals &amp; Expressions</source>

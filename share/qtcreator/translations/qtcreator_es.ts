@@ -5097,15 +5097,12 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchData</name>
+    <name>Debugger</name>
     <message>
         <location filename="../../../src/plugins/debugger/watchhandler.cpp" line="+70"/>
         <source>&lt;not in scope&gt;</source>
         <translation>&lt;fuera de alcance&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchHandler</name>
     <message>
         <location line="+224"/>
         <source>Expression</source>
@@ -5188,9 +5185,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>&lt;No Watchers&gt;</source>
         <translation type="obsolete">&lt;Sin observadores&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchModel</name>
     <message>
         <location line="+443"/>
         <source>decimal</source>
@@ -5226,9 +5220,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Type</source>
         <translation type="unfinished">Tipo</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchWindow</name>
     <message>
         <location filename="../../../src/plugins/debugger/watchwindow.cpp" line="+128"/>
         <source>Locals and Watchers</source>

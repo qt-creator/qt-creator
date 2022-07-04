@@ -34,6 +34,7 @@
 #include "debuggermainwindow.h"
 #include "debuggerprotocol.h"
 #include "debuggertooltipmanager.h"
+#include "debuggertr.h"
 #include "imageviewer.h"
 #include "memoryagent.h"
 #include "registerhandler.h"
@@ -289,7 +290,7 @@ public:
                 this, &SeparatedView::tabBarContextMenuRequested);
         tabBar()->setContextMenuPolicy(Qt::CustomContextMenu);
         setWindowFlags(windowFlags() | Qt::Window);
-        setWindowTitle(WatchHandler::tr("Debugger - %1").arg(Core::Constants::IDE_DISPLAY_NAME));
+        setWindowTitle(Tr::tr("Debugger - %1").arg(Core::Constants::IDE_DISPLAY_NAME));
 
         QVariant geometry = SessionManager::value("DebuggerSeparateWidgetGeometry");
         if (geometry.isValid()) {
@@ -416,8 +417,8 @@ public:
 
 class WatchModel : public WatchModelBase
 {
-    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::WatchModel)
     typedef QSet<WatchItem *> WatchItemSet;
+
 public:
     WatchModel(WatchHandler *handler, DebuggerEngine *engine);
 
@@ -507,22 +508,22 @@ WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
 
     m_contentsValid = true;
 
-    setHeader({tr("Name"), tr("Time"), tr("Value"), tr("Type")});
+    setHeader({Tr::tr("Name"), Tr::tr("Time"), Tr::tr("Value"), Tr::tr("Type")});
     m_localsRoot = new WatchItem;
     m_localsRoot->iname = "local";
-    m_localsRoot->name = tr("Locals");
+    m_localsRoot->name = Tr::tr("Locals");
     m_inspectorRoot = new WatchItem;
     m_inspectorRoot->iname = "inspect";
-    m_inspectorRoot->name = tr("Inspector");
+    m_inspectorRoot->name = Tr::tr("Inspector");
     m_watchRoot = new WatchItem;
     m_watchRoot->iname = "watch";
-    m_watchRoot->name = tr("Expressions");
+    m_watchRoot->name = Tr::tr("Expressions");
     m_returnRoot = new WatchItem;
     m_returnRoot->iname = "return";
-    m_returnRoot->name = tr("Return Value");
+    m_returnRoot->name = Tr::tr("Return Value");
     m_tooltipRoot = new WatchItem;
     m_tooltipRoot->iname = "tooltip";
-    m_tooltipRoot->name = tr("Tooltip");
+    m_tooltipRoot->name = Tr::tr("Tooltip");
     auto root = new WatchItem;
     root->appendChild(m_localsRoot);
     root->appendChild(m_inspectorRoot);
@@ -908,7 +909,7 @@ static QString displayName(const WatchItem *item)
         return result;
     }
     if (item->iname.startsWith("return") && item->name.startsWith('$'))
-        result = WatchModel::tr("returned value");
+        result = Tr::tr("returned value");
     else if (item->name == "*")
         result = '*' + p->name;
     else
@@ -1359,9 +1360,9 @@ static QString variableToolTip(const QString &name, const QString &type, quint64
 {
     return offset
         ? //: HTML tooltip of a variable in the memory editor
-          WatchModel::tr("<i>%1</i> %2 at #%3").arg(type, name).arg(offset)
+          Tr::tr("<i>%1</i> %2 at #%3").arg(type, name).arg(offset)
         : //: HTML tooltip of a variable in the memory editor
-          WatchModel::tr("<i>%1</i> %2").arg(type, name);
+          Tr::tr("<i>%1</i> %2").arg(type, name);
 }
 
 void WatchModel::grabWidget()
@@ -1378,15 +1379,15 @@ void WatchModel::timerEvent(QTimerEvent *event)
         Qt::KeyboardModifiers mods = QApplication::queryKeyboardModifiers();
         QString msg;
         if (mods == Qt::NoModifier) {
-            msg = tr("Press Ctrl to select widget at (%1, %2). "
+            msg = Tr::tr("Press Ctrl to select widget at (%1, %2). "
                      "Press any other keyboard modifier to stop selection.")
                         .arg(pnt.x()).arg(pnt.y());
         } else {
             if (mods == Qt::CTRL) {
-                msg = tr("Selecting widget at (%1, %2).").arg(pnt.x()).arg(pnt.y());
+                msg = Tr::tr("Selecting widget at (%1, %2).").arg(pnt.x()).arg(pnt.y());
                 m_engine->watchPoint(pnt);
             } else {
-                msg = tr("Selection aborted.");
+                msg = Tr::tr("Selection aborted.");
             }
             ungrabWidget();
         }
@@ -1501,7 +1502,7 @@ MemoryMarkupList WatchModel::variableMemoryMarkup(WatchItem *item,
             const quint64 offset = it.key() - address;
             if (offset < size) {
                 ranges[offset] = ColorNumberToolTip(registerColorNumber,
-                           WatchModel::tr("Register <i>%1</i>").arg(it.value()));
+                           Tr::tr("Register <i>%1</i>").arg(it.value()));
             } else {
                 break; // Sorted.
             }
@@ -1577,8 +1578,8 @@ void WatchModel::addVariableMemoryView(bool separateView,
     data.separateView = separateView;
     data.readOnly = separateView;
     QString pat = atPointerAddress
-        ? tr("Memory at Pointer's Address \"%1\" (0x%2)")
-        : tr("Memory at Object's Address \"%1\" (0x%2)");
+        ? Tr::tr("Memory at Pointer's Address \"%1\" (0x%2)")
+        : Tr::tr("Memory at Object's Address \"%1\" (0x%2)");
     data.title = pat.arg(item->name).arg(data.startAddress, 0, 16);
     data.pos = pos;
     m_engine->openMemoryView(data);
@@ -1611,8 +1612,8 @@ void WatchModel::addStackLayoutMemoryView(bool separateView, const QPoint &p)
     // Anything found and everything in a sensible range (static data in-between)?
     if (end <= start || end - start > 100 * 1024) {
         AsynchronousMessageBox::information(
-            tr("Cannot Display Stack Layout"),
-            tr("Could not determine a suitable address range."));
+            Tr::tr("Cannot Display Stack Layout"),
+            Tr::tr("Could not determine a suitable address range."));
         return;
     }
     // Take a look at the register values. Extend the range a bit if suitable
@@ -1633,7 +1634,7 @@ void WatchModel::addStackLayoutMemoryView(bool separateView, const QPoint &p)
                                        regMap, true);
     data.separateView  = separateView;
     data.readOnly = separateView;
-    data.title = tr("Memory Layout of Local Variables at 0x%1").arg(start, 0, 16);
+    data.title = Tr::tr("Memory Layout of Local Variables at 0x%1").arg(start, 0, 16);
     data.pos = p;
     m_engine->openMemoryView(data);
 }
@@ -1642,34 +1643,34 @@ void WatchModel::addStackLayoutMemoryView(bool separateView, const QPoint &p)
 static QString addWatchActionText(QString exp)
 {
     if (exp.isEmpty())
-        return WatchModel::tr("Add Expression Evaluator");
+        return Tr::tr("Add Expression Evaluator");
     if (exp.size() > 30) {
         exp.truncate(30);
         exp.append("...");
     }
-    return WatchModel::tr("Add Expression Evaluator for \"%1\"").arg(exp);
+    return Tr::tr("Add Expression Evaluator for \"%1\"").arg(exp);
 }
 
 // Text for add watch action with truncated expression.
 static QString removeWatchActionText(QString exp)
 {
     if (exp.isEmpty())
-        return WatchModel::tr("Remove Expression Evaluator");
+        return Tr::tr("Remove Expression Evaluator");
     if (exp.size() > 30) {
         exp.truncate(30);
         exp.append("...");
     }
-    return WatchModel::tr("Remove Expression Evaluator for \"%1\"").arg(Utils::quoteAmpersands(exp));
+    return Tr::tr("Remove Expression Evaluator for \"%1\"").arg(Utils::quoteAmpersands(exp));
 }
 
 void WatchModel::inputNewExpression()
 {
     QDialog dlg;
 
-    auto label = new QLabel(tr("Enter an expression to evaluate."), &dlg);
+    auto label = new QLabel(Tr::tr("Enter an expression to evaluate."), &dlg);
 
     auto hint = new QLabel(QString("<html>%1</html>").arg(
-                    tr("Note: Evaluators will be re-evaluated after each step. "
+                    Tr::tr("Note: Evaluators will be re-evaluated after each step. "
                        "For details, see the <a href=\""
                        "qthelp://org.qt-project.qtcreator/doc/creator-debug-mode.html#locals-and-expressions"
                        "\">documentation</a>.")), &dlg);
@@ -1688,7 +1689,7 @@ void WatchModel::inputNewExpression()
     layout->addWidget(buttons);
     dlg.setLayout(layout);
 
-    dlg.setWindowTitle(tr("New Evaluated Expression"));
+    dlg.setWindowTitle(Tr::tr("New Evaluated Expression"));
 
     connect(buttons, &QDialogButtonBox::accepted, lineEdit, &FancyLineEdit::onEditingFinished);
     connect(buttons, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
@@ -1719,7 +1720,7 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
 
     auto menu = new QMenu;
 
-    addAction(this, menu, tr("Add New Expression Evaluator..."),
+    addAction(this, menu, Tr::tr("Add New Expression Evaluator..."),
               canHandleWatches && canInsertWatches,
               [this] { inputNewExpression(); });
 
@@ -1732,11 +1733,11 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
               canRemoveWatches && !exp.isEmpty() && item && item->isWatcher(),
               [this, item] { removeWatchItem(item); });
 
-    addAction(this, menu, tr("Remove All Expression Evaluators"),
+    addAction(this, menu, Tr::tr("Remove All Expression Evaluators"),
               canRemoveWatches && !WatchHandler::watchedExpressions().isEmpty(),
               [this] { clearWatches(); });
 
-    addAction(this, menu, tr("Select Widget to Add into Expression Evaluator"),
+    addAction(this, menu, Tr::tr("Select Widget to Add into Expression Evaluator"),
               state == InferiorRunOk && m_engine->hasCapability(WatchWidgetsCapability),
               [this] { grabWidget(); });
 
@@ -1756,7 +1757,7 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
     menu->addMenu(createBreakpointMenu(item, menu));
     menu->addSeparator();
 
-    addAction(this, menu, tr("Expand All Children"), item, [this, name = item ? item->iname : QString()] {
+    addAction(this, menu, Tr::tr("Expand All Children"), item, [this, name = item ? item->iname : QString()] {
         m_expandedINames.insert(name);
         if (auto item = findItem(name)) {
             item->forFirstLevelChildren(
@@ -1765,7 +1766,7 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
         }
     });
 
-    addAction(this, menu, tr("Collapse All Children"), item, [this, name = item ? item->iname : QString()] {
+    addAction(this, menu, Tr::tr("Collapse All Children"), item, [this, name = item ? item->iname : QString()] {
         if (auto item = findItem(name)) {
             item->forFirstLevelChildren(
                 [this](WatchItem *child) { m_expandedINames.remove(child->iname); });
@@ -1773,29 +1774,29 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
         }
     });
 
-    addAction(this, menu, tr("Close Editor Tooltips"),
+    addAction(this, menu, Tr::tr("Close Editor Tooltips"),
               m_engine->toolTipManager()->hasToolTips(),
               [this] { m_engine->toolTipManager()->closeAllToolTips(); });
 
-    addAction(this, menu, tr("Copy View Contents to Clipboard"),
+    addAction(this, menu, Tr::tr("Copy View Contents to Clipboard"),
               true,
               [this] { setClipboardAndSelection(editorContents()); });
 
     addAction(this, menu,
-              tr("Copy Current Value to Clipboard"),
+              Tr::tr("Copy Current Value to Clipboard"),
               item,
               [this, name = item ? item->iname : QString()] {
                   if (auto item = findItem(name))
                       setClipboardAndSelection(item->value);
               });
 
-    //    addAction(menu, tr("Copy Selected Rows to Clipboard"),
+    //    addAction(menu, Tr::tr("Copy Selected Rows to Clipboard"),
     //              selectionModel()->hasSelection(),
     //              [this] { setClipboardAndSelection(editorContents(selectionModel()->selectedRows())); });
 
-    addAction(this, menu, tr("Open View Contents in Editor"),
+    addAction(this, menu, Tr::tr("Open View Contents in Editor"),
               m_engine->debuggerActionsEnabled(),
-              [this] { Internal::openTextEditor(tr("Locals & Expressions"), editorContents()); });
+              [this] { Internal::openTextEditor(Tr::tr("Locals & Expressions"), editorContents()); });
 
     menu->addSeparator();
 
@@ -1814,7 +1815,7 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
 
 QMenu *WatchModel::createBreakpointMenu(WatchItem *item, QWidget *parent)
 {
-    auto menu = new QMenu(tr("Add Data Breakpoint"), parent);
+    auto menu = new QMenu(Tr::tr("Add Data Breakpoint"), parent);
     if (!item) {
         menu->setEnabled(false);
         return menu;
@@ -1826,17 +1827,17 @@ QMenu *WatchModel::createBreakpointMenu(WatchItem *item, QWidget *parent)
     const bool canSetWatchpoint = m_engine->hasCapability(WatchpointByAddressCapability);
     const bool createPointerActions = item->origaddr && item->origaddr != item->address;
 
-    act = addAction(this, menu, tr("Add Data Breakpoint at Object's Address (0x%1)").arg(item->address, 0, 16),
-                     tr("Add Data Breakpoint"),
+    act = addAction(this, menu, Tr::tr("Add Data Breakpoint at Object's Address (0x%1)").arg(item->address, 0, 16),
+                     Tr::tr("Add Data Breakpoint"),
                      canSetWatchpoint && item->address,
                      [bh, item] { bh->setWatchpointAtAddress(item->address, item->size); });
     BreakpointParameters bp(WatchpointAtAddress);
     bp.address = item->address;
     act->setChecked(bh->findWatchpoint(bp));
-    act->setToolTip(tr("Stop the program when the data at the address is modified."));
+    act->setToolTip(Tr::tr("Stop the program when the data at the address is modified."));
 
-    act = addAction(this, menu, tr("Add Data Breakpoint at Pointer's Address (0x%1)").arg(item->origaddr, 0, 16),
-                     tr("Add Data Breakpoint at Pointer's Address"),
+    act = addAction(this, menu, Tr::tr("Add Data Breakpoint at Pointer's Address (0x%1)").arg(item->origaddr, 0, 16),
+                     Tr::tr("Add Data Breakpoint at Pointer's Address"),
                      canSetWatchpoint && item->address && createPointerActions,
                      // FIXME: an approximation. This should be target's sizeof(void)
                      [bh, item] { bh->setWatchpointAtAddress(item->origaddr, sizeof(void *)); });
@@ -1846,11 +1847,11 @@ QMenu *WatchModel::createBreakpointMenu(WatchItem *item, QWidget *parent)
         act->setChecked(bh->findWatchpoint(bp));
     }
 
-    act = addAction(this, menu, tr("Add Data Breakpoint at Expression \"%1\"").arg(item->name),
-                     tr("Add Data Breakpoint at Expression"),
+    act = addAction(this, menu, Tr::tr("Add Data Breakpoint at Expression \"%1\"").arg(item->name),
+                     Tr::tr("Add Data Breakpoint at Expression"),
                      m_engine->hasCapability(WatchpointByExpressionCapability) && !item->name.isEmpty(),
                      [bh, item] { bh->setWatchpointAtExpression(item->name); });
-    act->setToolTip(tr("Stop the program when the data at the address given by the expression "
+    act->setToolTip(Tr::tr("Stop the program when the data at the address given by the expression "
                        "is modified."));
 
     return menu;
@@ -1858,7 +1859,7 @@ QMenu *WatchModel::createBreakpointMenu(WatchItem *item, QWidget *parent)
 
 QMenu *WatchModel::createMemoryMenu(WatchItem *item, QWidget *parent)
 {
-    auto menu = new QMenu(tr("Open Memory Editor"), parent);
+    auto menu = new QMenu(Tr::tr("Open Memory Editor"), parent);
     if (!item || !m_engine->hasCapability(ShowMemoryCapability)) {
         menu->setEnabled(false);
         return menu;
@@ -1868,37 +1869,37 @@ QMenu *WatchModel::createMemoryMenu(WatchItem *item, QWidget *parent)
 
     QPoint pos = QPoint(100, 100); // ev->globalPos
 
-    addAction(this, menu, tr("Open Memory View at Object's Address (0x%1)").arg(item->address, 0, 16),
-               tr("Open Memory View at Object's Address"),
+    addAction(this, menu, Tr::tr("Open Memory View at Object's Address (0x%1)").arg(item->address, 0, 16),
+               Tr::tr("Open Memory View at Object's Address"),
                item->address,
                [this, item, pos] { addVariableMemoryView(true, item, false, pos); });
 
-    addAction(this, menu, tr("Open Memory View at Pointer's Address (0x%1)").arg(item->origaddr, 0, 16),
-               tr("Open Memory View at Pointer's Address"),
+    addAction(this, menu, Tr::tr("Open Memory View at Pointer's Address (0x%1)").arg(item->origaddr, 0, 16),
+               Tr::tr("Open Memory View at Pointer's Address"),
                createPointerActions,
                [this, item, pos] { addVariableMemoryView(true, item, true, pos); });
 
-    addAction(this, menu, tr("Open Memory View Showing Stack Layout"),
+    addAction(this, menu, Tr::tr("Open Memory View Showing Stack Layout"),
               true,
               [this, pos] { addStackLayoutMemoryView(true, pos); });
 
     menu->addSeparator();
 
-    addAction(this, menu, tr("Open Memory Editor at Object's Address (0x%1)").arg(item->address, 0, 16),
-               tr("Open Memory Editor at Object's Address"),
+    addAction(this, menu, Tr::tr("Open Memory Editor at Object's Address (0x%1)").arg(item->address, 0, 16),
+               Tr::tr("Open Memory Editor at Object's Address"),
                item->address,
                [this, item, pos] { addVariableMemoryView(false, item, false, pos); });
 
-    addAction(this, menu, tr("Open Memory Editor at Pointer's Address (0x%1)").arg(item->origaddr, 0, 16),
-               tr("Open Memory Editor at Pointer's Address"),
+    addAction(this, menu, Tr::tr("Open Memory Editor at Pointer's Address (0x%1)").arg(item->origaddr, 0, 16),
+               Tr::tr("Open Memory Editor at Pointer's Address"),
                createPointerActions,
                [this, item, pos] { addVariableMemoryView(false, item, true, pos); });
 
-    addAction(this, menu, tr("Open Memory Editor Showing Stack Layout"),
+    addAction(this, menu, Tr::tr("Open Memory Editor Showing Stack Layout"),
               true,
               [this, pos] { addStackLayoutMemoryView(false, pos); });
 
-    addAction(this, menu, tr("Open Memory Editor..."),
+    addAction(this, menu, Tr::tr("Open Memory Editor..."),
               true,
               [this, item] {
                     AddressDialog dialog;
@@ -1922,10 +1923,10 @@ void WatchModel::addCharsPrintableMenu(QMenu *menu)
             emit layoutChanged(); // FIXME
         });
     };
-    addBaseChangeAction(tr("Treat All Characters as Printable"), 0);
-    addBaseChangeAction(tr("Show Unprintable Characters as Escape Sequences"), -1);
-    addBaseChangeAction(tr("Show Unprintable Characters as Octal"), 8);
-    addBaseChangeAction(tr("Show Unprintable Characters as Hexadecimal"), 16);
+    addBaseChangeAction(Tr::tr("Treat All Characters as Printable"), 0);
+    addBaseChangeAction(Tr::tr("Show Unprintable Characters as Escape Sequences"), -1);
+    addBaseChangeAction(Tr::tr("Show Unprintable Characters as Octal"), 8);
+    addBaseChangeAction(Tr::tr("Show Unprintable Characters as Hexadecimal"), 16);
 }
 
 void WatchModel::separatedViewTabBarContextMenuRequested(const QPoint &point, const QString &iname)
@@ -1936,7 +1937,7 @@ void WatchModel::separatedViewTabBarContextMenuRequested(const QPoint &point, co
 
 QMenu *WatchModel::createFormatMenu(WatchItem *item, QWidget *parent)
 {
-    auto menu = new QMenu(tr("Change Value Display Format"), parent);
+    auto menu = new QMenu(Tr::tr("Change Value Display Format"), parent);
     if (!item) {
         menu->setEnabled(false);
         return menu;
@@ -1953,11 +1954,11 @@ QMenu *WatchModel::createFormatMenu(WatchItem *item, QWidget *parent)
     const QString spacer = "     ";
     menu->addSeparator();
 
-    addAction(this, menu, tr("Change Display for Object Named \"%1\":").arg(iname), false);
+    addAction(this, menu, Tr::tr("Change Display for Object Named \"%1\":").arg(iname), false);
 
     QString msg = (individualFormat == AutomaticFormat && typeFormat != AutomaticFormat)
-        ? tr("Use Format for Type (Currently %1)").arg(nameForFormat(typeFormat))
-        : QString(tr("Use Display Format Based on Type") + ' ');
+        ? Tr::tr("Use Format for Type (Currently %1)").arg(nameForFormat(typeFormat))
+        : QString(Tr::tr("Use Display Format Based on Type") + ' ');
 
     addCheckableAction(this, menu, spacer + msg, true, individualFormat == AutomaticFormat,
                        [this, iname] {
@@ -1977,16 +1978,16 @@ QMenu *WatchModel::createFormatMenu(WatchItem *item, QWidget *parent)
                            });
     }
 
-    addAction(this, menu, tr("Reset All Individual Formats"), true, [this]() {
+    addAction(this, menu, Tr::tr("Reset All Individual Formats"), true, [this]() {
         theIndividualFormats.clear();
         saveFormats();
         m_engine->updateLocals();
     });
 
     menu->addSeparator();
-    addAction(this, menu, tr("Change Display for Type \"%1\":").arg(item->type), false);
+    addAction(this, menu, Tr::tr("Change Display for Type \"%1\":").arg(item->type), false);
 
-    addCheckableAction(this, menu, spacer + tr("Automatic"), true, typeFormat == AutomaticFormat,
+    addCheckableAction(this, menu, spacer + Tr::tr("Automatic"), true, typeFormat == AutomaticFormat,
                        [this, item] {
                            //const QModelIndexList active = activeRows();
                            //for (const QModelIndex &idx : active)
@@ -2003,7 +2004,7 @@ QMenu *WatchModel::createFormatMenu(WatchItem *item, QWidget *parent)
                            });
     }
 
-    addAction(this, menu, tr("Reset All Formats for Types"), true, [this]() {
+    addAction(this, menu, Tr::tr("Reset All Formats for Types"), true, [this]() {
         theTypeFormats.clear();
         saveFormats();
         m_engine->updateLocals();
@@ -2026,7 +2027,7 @@ void WatchModel::setItemsFormat(const WatchItemSet &items, const DisplayFormat &
 
 QMenu *WatchModel::createFormatMenuForManySelected(const WatchItemSet &items, QWidget *parent)
 {
-    auto menu = new QMenu(tr("Change Display Format for Selected Values"), parent);
+    auto menu = new QMenu(Tr::tr("Change Display Format for Selected Values"), parent);
 
     addCharsPrintableMenu(menu);
 
@@ -2045,8 +2046,8 @@ QMenu *WatchModel::createFormatMenuForManySelected(const WatchItemSet &items, QW
     const QString spacer = "     ";
     menu->addSeparator();
 
-    addAction(this, menu, tr("Change Display for Objects"), false);
-    QString msg = QString(tr("Use Display Format Based on Type"));
+    addAction(this, menu, Tr::tr("Change Display for Objects"), false);
+    QString msg = QString(Tr::tr("Use Display Format Based on Type"));
     addCheckableAction(this, menu, spacer + msg, true, false,
                        [this, items] {
                             setItemsFormat(items, AutomaticFormat);
@@ -2073,50 +2074,50 @@ QMenu *WatchModel::createFormatMenuForManySelected(const WatchItemSet &items, QW
 
 static inline QString msgArrayFormat(int n)
 {
-    return WatchModel::tr("Array of %n items", nullptr, n);
+    return Tr::tr("Array of %n items", nullptr, n);
 }
 
 QString WatchModel::nameForFormat(int format)
 {
     switch (format) {
-        case AutomaticFormat: return tr("Automatic");
+        case AutomaticFormat: return Tr::tr("Automatic");
 
-        case RawFormat: return tr("Raw Data");
-        case SimpleFormat: return tr("Normal");
-        case EnhancedFormat: return tr("Enhanced");
-        case SeparateFormat: return tr("Separate Window");
+        case RawFormat: return Tr::tr("Raw Data");
+        case SimpleFormat: return Tr::tr("Normal");
+        case EnhancedFormat: return Tr::tr("Enhanced");
+        case SeparateFormat: return Tr::tr("Separate Window");
 
-        case Latin1StringFormat: return tr("Latin1 String");
-        case SeparateLatin1StringFormat: return tr("Latin1 String in Separate Window");
-        case Utf8StringFormat: return tr("UTF-8 String");
-        case SeparateUtf8StringFormat: return tr("UTF-8 String in Separate Window");
-        case Local8BitStringFormat: return tr("Local 8-Bit String");
-        case Utf16StringFormat: return tr("UTF-16 String");
-        case Ucs4StringFormat: return tr("UCS-4 String");
+        case Latin1StringFormat: return Tr::tr("Latin1 String");
+        case SeparateLatin1StringFormat: return Tr::tr("Latin1 String in Separate Window");
+        case Utf8StringFormat: return Tr::tr("UTF-8 String");
+        case SeparateUtf8StringFormat: return Tr::tr("UTF-8 String in Separate Window");
+        case Local8BitStringFormat: return Tr::tr("Local 8-Bit String");
+        case Utf16StringFormat: return Tr::tr("UTF-16 String");
+        case Ucs4StringFormat: return Tr::tr("UCS-4 String");
 
         case Array10Format: return msgArrayFormat(10);
         case Array100Format: return msgArrayFormat(100);
         case Array1000Format: return msgArrayFormat(1000);
         case Array10000Format: return msgArrayFormat(10000);
-        case ArrayPlotFormat: return tr("Plot in Separate Window");
+        case ArrayPlotFormat: return Tr::tr("Plot in Separate Window");
 
-        case CompactMapFormat: return tr("Display Keys and Values Side by Side");
-        case DirectQListStorageFormat: return tr("Force Display as Direct Storage Form");
-        case IndirectQListStorageFormat: return tr("Force Display as Indirect Storage Form");
+        case CompactMapFormat: return Tr::tr("Display Keys and Values Side by Side");
+        case DirectQListStorageFormat: return Tr::tr("Force Display as Direct Storage Form");
+        case IndirectQListStorageFormat: return Tr::tr("Force Display as Indirect Storage Form");
 
-        case BoolTextFormat: return tr("Display Boolean Values as True or False");
-        case BoolIntegerFormat: return tr("Display Boolean Values as 1 or 0");
+        case BoolTextFormat: return Tr::tr("Display Boolean Values as True or False");
+        case BoolIntegerFormat: return Tr::tr("Display Boolean Values as 1 or 0");
 
-        case DecimalIntegerFormat: return tr("Decimal Integer");
-        case HexadecimalIntegerFormat: return tr("Hexadecimal Integer");
-        case BinaryIntegerFormat: return tr("Binary Integer");
-        case OctalIntegerFormat: return tr("Octal Integer");
-        case CharCodeIntegerFormat: return tr("Char Code Integer");
+        case DecimalIntegerFormat: return Tr::tr("Decimal Integer");
+        case HexadecimalIntegerFormat: return Tr::tr("Hexadecimal Integer");
+        case BinaryIntegerFormat: return Tr::tr("Binary Integer");
+        case OctalIntegerFormat: return Tr::tr("Octal Integer");
+        case CharCodeIntegerFormat: return Tr::tr("Char Code Integer");
 
-        case CompactFloatFormat: return tr("Compact Float");
-        case ScientificFloatFormat: return tr("Scientific Float");
-        case HexFloatFormat: return tr("Hexadecimal Float");
-        case NormalizedTwoFloatFormat: return tr("Normalized, with Power-of-Two Exponent");
+        case CompactFloatFormat: return Tr::tr("Compact Float");
+        case ScientificFloatFormat: return Tr::tr("Scientific Float");
+        case HexFloatFormat: return Tr::tr("Hexadecimal Float");
+        case NormalizedTwoFloatFormat: return Tr::tr("Normalized, with Power-of-Two Exponent");
     }
 
     QTC_CHECK(false);
@@ -2469,8 +2470,8 @@ void WatchModel::showEditValue(const WatchItem *item)
             std::memcpy(im.bits(), bits, nbytes);
             auto v = m_separatedView->prepareObject<ImageViewer>(item);
             v->setInfo(item->address ?
-                               tr("%1 Object at %2").arg(item->type, item->hexAddress()) :
-                               tr("%1 Object at Unknown Address").arg(item->type) + "    " +
+                               Tr::tr("%1 Object at %2").arg(item->type, item->hexAddress()) :
+                               Tr::tr("%1 Object at Unknown Address").arg(item->type) + "    " +
                                ImageViewer::tr("Size: %1x%2, %3 byte, format: %4, depth: %5")
                                .arg(width).arg(height).arg(nbytes).arg(im.format()).arg(im.depth())
                                );
@@ -2543,8 +2544,8 @@ void WatchModel::clearWatches()
         return;
 
     const QDialogButtonBox::StandardButton ret = CheckableMessageBox::doNotAskAgainQuestion(
-                ICore::dialogParent(), tr("Remove All Expression Evaluators"),
-                tr("Are you sure you want to remove all expression evaluators?"),
+                ICore::dialogParent(), Tr::tr("Remove All Expression Evaluators"),
+                Tr::tr("Are you sure you want to remove all expression evaluators?"),
                 ICore::settings(), "RemoveAllWatchers");
     if (ret != QDialogButtonBox::Yes)
         return;

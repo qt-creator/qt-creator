@@ -27,8 +27,10 @@
 // This is used in the debugger auto-tests.
 
 #include "watchdata.h"
+
 #include "watchutils.h"
 #include "debuggerprotocol.h"
+#include "debuggertr.h"
 
 #include <QDebug>
 
@@ -201,30 +203,14 @@ QString WatchItem::toString() const
     return res + '}';
 }
 
-QString WatchItem::msgNotInScope()
-{
-    //: Value of variable in Debugger Locals display for variables out
-    //: of scope (stopped above initialization).
-    static const QString rc =
-        QCoreApplication::translate("Debugger::Internal::WatchItem", "<not in scope>");
-    return rc;
-}
-
-const QString &WatchItem::shadowedNameFormat()
-{
-    //: Display of variables shadowed by variables of the same name
-    //: in nested scopes: Variable %1 is the variable name, %2 is a
-    //: simple count.
-    static const QString format =
-        QCoreApplication::translate("Debugger::Internal::WatchItem", "%1 <shadowed %2>");
-    return format;
-}
-
 QString WatchItem::shadowedName(const QString &name, int seen)
 {
     if (seen <= 0)
         return name;
-    return shadowedNameFormat().arg(name).arg(seen);
+    //: Display of variables shadowed by variables of the same name
+    //: in nested scopes: Variable %1 is the variable name, %2 is a
+    //: simple count.
+    return Tr::tr("%1 <shadowed %2>").arg(name).arg(seen);
 }
 
 QString WatchItem::hexAddress() const
@@ -515,13 +501,13 @@ QString WatchItem::toToolTip() const
     QString res;
     QTextStream str(&res);
     str << "<html><body><table>";
-    formatToolTipRow(str, tr("Name"), name);
-    formatToolTipRow(str, tr("Expression"), expression());
-    formatToolTipRow(str, tr("Internal Type"), type);
+    formatToolTipRow(str, Tr::tr("Name"), name);
+    formatToolTipRow(str, Tr::tr("Expression"), expression());
+    formatToolTipRow(str, Tr::tr("Internal Type"), type);
     bool ok;
     const quint64 intValue = value.toULongLong(&ok);
     if (ok && intValue) {
-        formatToolTipRow(str, tr("Value"), "(dec)  " + value);
+        formatToolTipRow(str, Tr::tr("Value"), "(dec)  " + value);
         formatToolTipRow(str, QString(), "(hex)  " + QString::number(intValue, 16));
         formatToolTipRow(str, QString(), "(oct)  " + QString::number(intValue, 8));
         formatToolTipRow(str, QString(), "(bin)  " + QString::number(intValue, 2));
@@ -530,21 +516,21 @@ QString WatchItem::toToolTip() const
         if (val.size() > 1000) {
             val.truncate(1000);
             val += ' ';
-            val += tr("... <cut off>");
+            val += Tr::tr("... <cut off>");
         }
-        formatToolTipRow(str, tr("Value"), val);
+        formatToolTipRow(str, Tr::tr("Value"), val);
     }
     if (address)
-        formatToolTipRow(str, tr("Object Address"), formatToolTipAddress(address));
+        formatToolTipRow(str, Tr::tr("Object Address"), formatToolTipAddress(address));
     if (origaddr)
-        formatToolTipRow(str, tr("Pointer Address"), formatToolTipAddress(origaddr));
+        formatToolTipRow(str, Tr::tr("Pointer Address"), formatToolTipAddress(origaddr));
     if (arrayIndex >= 0)
-        formatToolTipRow(str, tr("Array Index"), QString::number(arrayIndex));
+        formatToolTipRow(str, Tr::tr("Array Index"), QString::number(arrayIndex));
     if (size)
-        formatToolTipRow(str, tr("Static Object Size"), tr("%n bytes", nullptr, size));
-    formatToolTipRow(str, tr("Internal ID"), internalName());
-    formatToolTipRow(str, tr("Creation Time in ms"), QString::number(int(time * 1000)));
-    formatToolTipRow(str, tr("Source"), sourceExpression());
+        formatToolTipRow(str, Tr::tr("Static Object Size"), Tr::tr("%n bytes", nullptr, size));
+    formatToolTipRow(str, Tr::tr("Internal ID"), internalName());
+    formatToolTipRow(str, Tr::tr("Creation Time in ms"), QString::number(int(time * 1000)));
+    formatToolTipRow(str, Tr::tr("Source"), sourceExpression());
     str << "</table></body></html>";
     return res;
 }

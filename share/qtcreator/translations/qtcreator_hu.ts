@@ -6791,7 +6791,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchData</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <translation>&lt;nem a hatókörben&gt;</translation>
@@ -6800,9 +6800,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>%1 &lt;shadowed %2&gt;</source>
         <translation>%1 &lt;árnyékolt %2&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchHandler</name>
     <message>
         <source>Expression</source>
         <translation>Kifejezés</translation>
@@ -6855,9 +6852,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>&lt;Edit&gt;</source>
         <translation>&lt;Szerkesztés&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchModel</name>
     <message>
         <source>decimal</source>
         <translation></translation>
@@ -6886,9 +6880,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Type</source>
         <translation>Típus</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchWindow</name>
     <message>
         <source>Locals and Watchers</source>
         <translation>Helyi és őrzők</translation>

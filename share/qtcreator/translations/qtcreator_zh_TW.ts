@@ -3988,10 +3988,6 @@ at debugger startup.</source>
         <translation type="obsolete">反組譯函式</translation>
     </message>
     <message>
-        <source>Copy Contents to Clipboard</source>
-        <translation type="obsolete">複製內容到剪貼簿</translation>
-    </message>
-    <message>
         <source>Open Memory Editor</source>
         <translation type="obsolete">開啟記憶體編輯器</translation>
     </message>
@@ -4154,7 +4150,7 @@ at debugger startup.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchData</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>
@@ -4165,9 +4161,6 @@ at debugger startup.</source>
         <extracomment>Display of variables shadowed by variables of the same name in nested scopes: Variable %1 is the variable name, %2 is a simple count.</extracomment>
         <translation>%1 &lt;遮蔽了 %2&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchHandler</name>
     <message>
         <source>Expression</source>
         <translation>表示式</translation>
@@ -4220,23 +4213,19 @@ at debugger startup.</source>
     </message>
     <message>
         <source>Root</source>
-        <translation type="obsolete">根</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>名稱</translation>
+        <translation>根</translation>
     </message>
     <message>
         <source>Return Value</source>
-        <translation type="obsolete">回傳值</translation>
+        <translation>回傳值</translation>
     </message>
     <message>
         <source>Locals</source>
-        <translation type="obsolete">局部</translation>
+        <translation>局部</translation>
     </message>
     <message>
         <source>Tooltip</source>
-        <translation type="obsolete">工具提示</translation>
+        <translation>工具提示</translation>
     </message>
     <message>
         <source>&lt;empty&gt;</source>
@@ -4272,39 +4261,39 @@ at debugger startup.</source>
     </message>
     <message>
         <source>Latin1 string</source>
-        <translation type="obsolete">Latin1 字串</translation>
+        <translation>Latin1 字串</translation>
     </message>
     <message>
         <source>UTF8 string</source>
-        <translation type="obsolete">UTF8 字串</translation>
+        <translation>UTF8 字串</translation>
     </message>
     <message>
         <source>Local 8bit string</source>
-        <translation type="obsolete">本地 8 位元字串</translation>
+        <translation>本地 8 位元字串</translation>
     </message>
     <message>
         <source>UTF16 string</source>
-        <translation type="obsolete">UTF16 字串</translation>
+        <translation>UTF16 字串</translation>
     </message>
     <message>
         <source>UCS4 string</source>
-        <translation type="obsolete">UCS4 字串</translation>
+        <translation>UCS4 字串</translation>
     </message>
     <message>
         <source>Decimal</source>
-        <translation type="obsolete">十進位</translation>
+        <translation>十進位</translation>
     </message>
     <message>
         <source>Hexadecimal</source>
-        <translation type="obsolete">十六進位</translation>
+        <translation>十六進位</translation>
     </message>
     <message>
         <source>Binary</source>
-        <translation type="obsolete">二進位</translation>
+        <translation>二進位</translation>
     </message>
     <message>
         <source>Octal</source>
-        <translation type="obsolete">八進位</translation>
+        <translation>八進位</translation>
     </message>
     <message>
         <source>%1 Object at %2</source>
@@ -4322,17 +4311,6 @@ at debugger startup.</source>
         <source>Value</source>
         <translation>值</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchModel</name>
-    <message>
-        <source>Root</source>
-        <translation type="unfinished">根</translation>
-    </message>
-    <message>
-        <source>Locals</source>
-        <translation type="unfinished">局部</translation>
-    </message>
     <message>
         <source>Inspector</source>
         <translation type="unfinished"></translation>
@@ -4340,18 +4318,6 @@ at debugger startup.</source>
     <message>
         <source>Expressions</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Return Value</source>
-        <translation type="unfinished">回傳值</translation>
-    </message>
-    <message>
-        <source>Tooltip</source>
-        <translation type="unfinished">工具提示</translation>
-    </message>
-    <message>
-        <source>&lt;Edit&gt;</source>
-        <translation>&lt;編輯&gt;</translation>
     </message>
     <message>
         <source>returned value</source>
@@ -4362,145 +4328,76 @@ at debugger startup.</source>
         <translation>名稱</translation>
     </message>
     <message>
-        <source>Value</source>
-        <translation>值</translation>
-    </message>
-    <message>
         <source>Type</source>
         <translation>型態</translation>
     </message>
     <message>
-        <source>Raw pointer</source>
-        <translation type="unfinished">原始指標</translation>
-    </message>
-    <message>
-        <source>Latin1 string</source>
-        <translation type="unfinished">Latin1 字串</translation>
-    </message>
-    <message>
-        <source>UTF8 string</source>
-        <translation type="unfinished">UTF8 字串</translation>
-    </message>
-    <message>
-        <source>Local 8bit string</source>
-        <translation type="unfinished">本地 8 位元字串</translation>
-    </message>
-    <message>
-        <source>UTF16 string</source>
-        <translation type="unfinished">UTF16 字串</translation>
-    </message>
-    <message>
-        <source>UCS4 string</source>
-        <translation type="unfinished">UCS4 字串</translation>
-    </message>
-    <message>
-        <source>Decimal</source>
-        <translation type="unfinished">十進位</translation>
-    </message>
-    <message>
-        <source>Hexadecimal</source>
-        <translation type="unfinished">十六進位</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation type="unfinished">二進位</translation>
-    </message>
-    <message>
-        <source>Octal</source>
-        <translation type="unfinished">八進位</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::WatchWindow</name>
-    <message>
         <source>Automatic</source>
-        <translation type="obsolete">自動</translation>
+        <translation>自動</translation>
     </message>
     <message>
         <source>Select Widget to Watch</source>
         <translation type="obsolete">選擇要監視的元件</translation>
     </message>
     <message>
-        <source>Open Memory Editor...</source>
-        <translation type="obsolete">開啟記憶體編輯器...</translation>
-    </message>
-    <message>
         <source>Refresh Code Model Snapshot</source>
-        <translation type="obsolete">更新代碼模型快照</translation>
+        <translation>更新代碼模型快照</translation>
     </message>
     <message>
         <source>Open Memory Editor at Object&apos;s Address (0x%1)</source>
-        <translation type="obsolete">在物件位址 (0x%1) 處開啟記憶體編輯器</translation>
+        <translation>在物件位址 (0x%1) 處開啟記憶體編輯器</translation>
     </message>
     <message>
         <source>Open Memory Editor at Object&apos;s Address</source>
-        <translation type="obsolete">在物件位址處開啟記憶體編輯器</translation>
+        <translation>在物件位址處開啟記憶體編輯器</translation>
     </message>
     <message>
         <source>Open Memory Editor at Referenced Address (0x%1)</source>
-        <translation type="obsolete">在參考位址 (0x%1) 處開啟記憶體編輯器</translation>
+        <translation>在參考位址 (0x%1) 處開啟記憶體編輯器</translation>
     </message>
     <message>
         <source>Treat All Characters as Printable</source>
-        <translation type="obsolete">將所有字元視為可列印字元</translation>
+        <translation >將所有字元視為可列印字元</translation>
     </message>
     <message>
         <source>Show Unprintable Characters as Octal</source>
-        <translation type="obsolete">將所有不可列印的字元以八進位數值顯示</translation>
+        <translation>將所有不可列印的字元以八進位數值顯示</translation>
     </message>
     <message>
         <source>Show Unprintable Characters as Hexadecimal</source>
-        <translation type="obsolete">將所有不可列印的字元以十六進位數值顯示</translation>
+        <translation>將所有不可列印的字元以十六進位數值顯示</translation>
     </message>
     <message>
         <source>Use Format for Type (Currently %1)</source>
-        <translation type="obsolete">此型態使用格式 (目前為 %1)</translation>
+        <translation>此型態使用格式 (目前為 %1)</translation>
     </message>
     <message>
         <source>Use Display Format Based on Type </source>
-        <translation type="obsolete">依據型態使用顯示格式</translation>
-    </message>
-    <message>
-        <source>Change Display for Type &quot;%1&quot;:</source>
-        <translation type="obsolete">變更型態 &quot;%1&quot; 的顯示：</translation>
+        <translation>依據型態使用顯示格式</translation>
     </message>
     <message>
         <source>Change Display for Object Named &quot;%1&quot;:</source>
-        <translation type="obsolete">變更物件名稱 &quot;%1&quot; 的顯示：</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
-        <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
-        <translation type="obsolete">&lt;i&gt;%1&lt;/i&gt; %2 於 #%3</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;%1&lt;/i&gt; %2</source>
-        <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
-        <translation type="obsolete">&lt;i&gt;%1&lt;/i&gt; %2</translation>
+        <translation>變更物件名稱 &quot;%1&quot; 的顯示：</translation>
     </message>
     <message>
         <source>Register &lt;i&gt;%1&lt;/i&gt;</source>
-        <translation type="obsolete">暫存器 &lt;i&gt;%1&lt;/i&gt;</translation>
+        <translation>暫存器 &lt;i&gt;%1&lt;/i&gt;</translation>
     </message>
     <message>
         <source>Memory Referenced by Pointer &quot;%1&quot; (0x%2)</source>
-        <translation type="obsolete">指標 &quot;%1&quot; 參考的記憶體 (0x%2)</translation>
+        <translation>指標 &quot;%1&quot; 參考的記憶體 (0x%2)</translation>
     </message>
     <message>
         <source>Memory at Variable &quot;%1&quot; (0x%2)</source>
-        <translation type="obsolete">變數 &quot;%1&quot; 的記憶體 (0x%2)</translation>
+        <translation>變數 &quot;%1&quot; 的記憶體 (0x%2)</translation>
     </message>
     <message>
         <source>Cannot Display Stack Layout</source>
-        <translation type="obsolete">無法顯示堆疊佈局</translation>
-    </message>
-    <message>
-        <source>Could not determine a suitable address range.</source>
-        <translation type="obsolete">無法決定一個適合的位址範圍。</translation>
+        <translation>無法顯示堆疊佈局</translation>
     </message>
     <message>
         <source>Memory Layout of Local Variables at 0x%1</source>
-        <translation type="obsolete">局部變數於 0x%1 的記憶體佈局</translation>
+        <translation>局部變數於 0x%1 的記憶體佈局</translation>
     </message>
     <message>
         <source>Locals and Expressions</source>
@@ -4516,51 +4413,47 @@ at debugger startup.</source>
     </message>
     <message>
         <source>Remove Evaluated Expression</source>
-        <translation type="obsolete">移除已計算表示式</translation>
+        <translation>移除已計算表示式</translation>
     </message>
     <message>
         <source>Remove Evaluated Expression &quot;%1&quot;</source>
-        <translation type="obsolete">移除已計算表示式&quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Change Local Display Format...</source>
-        <translation type="obsolete">變更本地顯示格式...</translation>
+        <translation>移除已計算表示式&quot;%1&quot;</translation>
     </message>
     <message>
         <source>Show Unprintable Characters as Escape Sequences</source>
-        <translation type="obsolete">將所有不可列印的字元以脫逸序列顯示</translation>
+        <translation>將所有不可列印的字元以脫逸序列顯示</translation>
     </message>
     <message>
         <source>Change Display for Type or Item...</source>
-        <translation type="obsolete">變更型態或項目的顯示...</translation>
+        <translation>變更型態或項目的顯示...</translation>
     </message>
     <message>
         <source>Add Data Breakpoint...</source>
-        <translation type="obsolete">新增資料中斷點...</translation>
+        <translation>新增資料中斷點...</translation>
     </message>
     <message>
         <source>Add Data Breakpoint at Object&apos;s Address (0x%1)</source>
-        <translation type="obsolete">於物件位址 (0x%1) 新增資料中斷點</translation>
+        <translation>於物件位址 (0x%1) 新增資料中斷點</translation>
     </message>
     <message>
         <source>Add Data Breakpoint at Referenced Address (0x%1)</source>
-        <translation type="obsolete">於參考位址 (0x%1) 新增資料中斷點</translation>
+        <translation>於參考位址 (0x%1) 新增資料中斷點</translation>
     </message>
     <message>
         <source>Add Data Breakpoint</source>
-        <translation type="obsolete">新增資料中斷點</translation>
+        <translation>新增資料中斷點</translation>
     </message>
     <message>
         <source>Setting a data breakpoint on an address will cause the program to stop when the data at the address is modified.</source>
-        <translation type="obsolete">在某個位址上設定資料中斷點時，該位址上的資料被變更時程式會被中斷。</translation>
+        <translation>在某個位址上設定資料中斷點時，該位址上的資料被變更時程式會被中斷。</translation>
     </message>
     <message>
         <source>Add Data Breakpoint at Expression</source>
-        <translation type="obsolete">在表示式處新增資料中斷點</translation>
+        <translation>在表示式處新增資料中斷點</translation>
     </message>
     <message>
         <source>Add Data Breakpoint at Expression &quot;%1&quot;</source>
-        <translation type="obsolete">在表示式 &quot;%1&quot; 處新增資料中斷點</translation>
+        <translation>在表示式 &quot;%1&quot; 處新增資料中斷點</translation>
     </message>
     <message>
         <source>Setting a data breakpoint on an expression will cause the program to stop when the data at the address given by the expression is modified.</source>
@@ -4579,56 +4472,36 @@ at debugger startup.</source>
         <translation type="obsolete">移除所有已計算表示式</translation>
     </message>
     <message>
-        <source>Open Memory View at Object&apos;s Address (0x%1)</source>
-        <translation type="obsolete">在物件地址 (0x%1) 處開啟記憶體檢視</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Object&apos;s Address</source>
-        <translation type="obsolete">在物件地址開啟記憶體檢視</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Referenced Address (0x%1)</source>
-        <translation type="obsolete">在參考地址 (0x%1) 處開啟記憶體檢視</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Referenced Address</source>
-        <translation type="obsolete">在引用位址處開啟記憶體編輯器</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Referenced Address</source>
-        <translation type="obsolete">在引用位址處開啟記憶體檢視</translation>
-    </message>
-    <message>
         <source>Open Memory Editor Showing Stack Layout</source>
-        <translation type="obsolete">開啟記憶體編輯器顯示堆疊佈局</translation>
+        <translation>開啟記憶體編輯器顯示堆疊佈局</translation>
     </message>
     <message>
         <source>Copy Contents to Clipboard</source>
-        <translation type="obsolete">複製內容到剪貼簿</translation>
+        <translation>複製內容到剪貼簿</translation>
     </message>
     <message>
         <source>Copy Value to Clipboard</source>
-        <translation type="obsolete">複製數值到剪貼簿</translation>
+        <translation>複製數值到剪貼簿</translation>
     </message>
     <message>
         <source>Close Editor Tooltips</source>
-        <translation type="obsolete">關閉編輯器工具提示</translation>
+        <translation>關閉編輯器工具提示</translation>
     </message>
     <message>
         <source>Enter watch expression</source>
-        <translation type="obsolete">輸入監視表示式</translation>
+        <translation>輸入監視表示式</translation>
     </message>
     <message>
         <source>Expression:</source>
-        <translation type="obsolete">表示式：</translation>
+        <translation>表示式：</translation>
     </message>
     <message>
         <source>Locals &amp; Watchers</source>
-        <translation type="obsolete">局部變數和監視器</translation>
+        <translation>局部變數和監視器</translation>
     </message>
     <message>
         <source>Show View Contents in Editor</source>
-        <translation type="obsolete">在編輯器中顯示檢視內容</translation>
+        <translation>在編輯器中顯示檢視內容</translation>
     </message>
 </context>
 <context>
@@ -35490,10 +35363,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <translation type="unfinished">反組譯函式</translation>
     </message>
     <message>
-        <source>Copy Contents to Clipboard</source>
-        <translation type="unfinished">複製內容到剪貼簿</translation>
-    </message>
-    <message>
         <source>Open Memory Editor</source>
         <translation type="unfinished">開啟記憶體編輯器</translation>
     </message>
@@ -35531,44 +35400,20 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::WatchTreeView</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
         <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
-        <translation type="unfinished">&lt;i&gt;%1&lt;/i&gt; %2 於 #%3</translation>
+        <translation>&lt;i&gt;%1&lt;/i&gt; %2 於 #%3</translation>
     </message>
     <message>
         <source>&lt;i&gt;%1&lt;/i&gt; %2</source>
         <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
-        <translation type="unfinished">&lt;i&gt;%1&lt;/i&gt; %2</translation>
-    </message>
-    <message>
-        <source>Register &lt;i&gt;%1&lt;/i&gt;</source>
-        <translation type="unfinished">暫存器 &lt;i&gt;%1&lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>Memory Referenced by Pointer &quot;%1&quot; (0x%2)</source>
-        <translation type="unfinished">指標 &quot;%1&quot; 參考的記憶體 (0x%2)</translation>
-    </message>
-    <message>
-        <source>Memory at Variable &quot;%1&quot; (0x%2)</source>
-        <translation type="unfinished">變數 &quot;%1&quot; 的記憶體 (0x%2)</translation>
-    </message>
-    <message>
-        <source>Cannot Display Stack Layout</source>
-        <translation type="unfinished">無法顯示堆疊佈局</translation>
+        <translation>&lt;i&gt;%1&lt;/i&gt; %2</translation>
     </message>
     <message>
         <source>Could not determine a suitable address range.</source>
-        <translation type="unfinished">無法決定一個適合的位址範圍。</translation>
-    </message>
-    <message>
-        <source>Memory Layout of Local Variables at 0x%1</source>
-        <translation type="unfinished">局部變數於 0x%1 的記憶體佈局</translation>
-    </message>
-    <message>
-        <source>Locals and Expressions</source>
-        <translation type="unfinished">局部變數與表示式</translation>
+        <translation>無法決定一個適合的位址範圍。</translation>
     </message>
     <message>
         <source>Add Expression Evaluator</source>
@@ -35588,79 +35433,11 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
     <message>
         <source>Change Local Display Format...</source>
-        <translation type="unfinished">變更本地顯示格式...</translation>
-    </message>
-    <message>
-        <source>Treat All Characters as Printable</source>
-        <translation type="unfinished">將所有字元視為可列印字元</translation>
-    </message>
-    <message>
-        <source>Show Unprintable Characters as Escape Sequences</source>
-        <translation type="unfinished">將所有不可列印的字元以脫逸序列顯示</translation>
-    </message>
-    <message>
-        <source>Show Unprintable Characters as Octal</source>
-        <translation type="unfinished">將所有不可列印的字元以八進位數值顯示</translation>
-    </message>
-    <message>
-        <source>Show Unprintable Characters as Hexadecimal</source>
-        <translation type="unfinished">將所有不可列印的字元以十六進位數值顯示</translation>
-    </message>
-    <message>
-        <source>Change Display for Object Named &quot;%1&quot;:</source>
-        <translation type="unfinished">變更物件名稱 &quot;%1&quot; 的顯示：</translation>
-    </message>
-    <message>
-        <source>Use Format for Type (Currently %1)</source>
-        <translation type="unfinished">此型態使用格式 (目前為 %1)</translation>
-    </message>
-    <message>
-        <source>Use Display Format Based on Type </source>
-        <translation type="unfinished">依據型態使用顯示格式</translation>
+        <translation>變更本地顯示格式...</translation>
     </message>
     <message>
         <source>Change Display for Type &quot;%1&quot;:</source>
         <translation type="unfinished">變更型態 &quot;%1&quot; 的顯示：</translation>
-    </message>
-    <message>
-        <source>Automatic</source>
-        <translation type="unfinished">自動</translation>
-    </message>
-    <message>
-        <source>Change Display for Type or Item...</source>
-        <translation type="unfinished">變更型態或項目的顯示...</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint...</source>
-        <translation type="unfinished">新增資料中斷點...</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Object&apos;s Address (0x%1)</source>
-        <translation type="unfinished">於物件位址 (0x%1) 新增資料中斷點</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Referenced Address (0x%1)</source>
-        <translation type="unfinished">於參考位址 (0x%1) 新增資料中斷點</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint</source>
-        <translation type="unfinished">新增資料中斷點</translation>
-    </message>
-    <message>
-        <source>Setting a data breakpoint on an address will cause the program to stop when the data at the address is modified.</source>
-        <translation type="unfinished">在某個位址上設定資料中斷點時，該位址上的資料被變更時程式會被中斷。</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Expression</source>
-        <translation type="unfinished">在表示式處新增資料中斷點</translation>
-    </message>
-    <message>
-        <source>Add Data Breakpoint at Expression &quot;%1&quot;</source>
-        <translation type="unfinished">在表示式 &quot;%1&quot; 處新增資料中斷點</translation>
-    </message>
-    <message>
-        <source>Setting a data breakpoint on an expression will cause the program to stop when the data at the address given by the expression is modified.</source>
-        <translation type="unfinished">在某個表示式上設定資料中斷點時，該表示式所給的位址上的資料被變更時程式會被中斷。</translation>
     </message>
     <message>
         <source>Insert New Expression Evaluator</source>
@@ -35679,24 +35456,8 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <translation type="unfinished">開啟記憶體編輯器...</translation>
     </message>
     <message>
-        <source>Open Memory Editor at Object&apos;s Address (0x%1)</source>
-        <translation type="unfinished">在物件位址 (0x%1) 處開啟記憶體編輯器</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Object&apos;s Address (0x%1)</source>
-        <translation type="unfinished">在物件地址 (0x%1) 處開啟記憶體檢視</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Object&apos;s Address</source>
-        <translation type="unfinished">在物件位址處開啟記憶體編輯器</translation>
-    </message>
-    <message>
         <source>Open Memory View at Object&apos;s Address</source>
         <translation type="unfinished">在物件地址開啟記憶體檢視</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at Referenced Address (0x%1)</source>
-        <translation type="unfinished">在參考位址 (0x%1) 處開啟記憶體編輯器</translation>
     </message>
     <message>
         <source>Open Memory View at Referenced Address (0x%1)</source>
@@ -35711,35 +35472,7 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <translation type="unfinished">在引用位址處開啟記憶體檢視</translation>
     </message>
     <message>
-        <source>Open Memory Editor Showing Stack Layout</source>
-        <translation type="unfinished">開啟記憶體編輯器顯示堆疊佈局</translation>
-    </message>
-    <message>
-        <source>Copy Contents to Clipboard</source>
-        <translation type="unfinished">複製內容到剪貼簿</translation>
-    </message>
-    <message>
-        <source>Copy Value to Clipboard</source>
-        <translation type="unfinished">複製數值到剪貼簿</translation>
-    </message>
-    <message>
-        <source>Show View Contents in Editor</source>
-        <translation type="unfinished">在編輯器中顯示檢視內容</translation>
-    </message>
-    <message>
-        <source>Close Editor Tooltips</source>
-        <translation type="unfinished">關閉編輯器工具提示</translation>
-    </message>
-    <message>
         <source>Enter Expression for Evaluator</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Expression:</source>
-        <translation type="unfinished">表示式：</translation>
-    </message>
-    <message>
-        <source>Locals &amp; Expressions</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -27,7 +27,7 @@
 
 #include "debuggeractions.h"
 #include "debuggerinternalconstants.h"
-#include "debuggercore.h"
+#include "debuggertr.h"
 #include "watchhandler.h"
 
 #include <utils/aspects.h>
@@ -44,7 +44,7 @@ WatchTreeView::WatchTreeView(WatchType type)
   : m_type(type)
 {
     setObjectName("WatchWindow");
-    setWindowTitle(tr("Locals and Expressions"));
+    setWindowTitle(Tr::tr("Locals and Expressions"));
     setIndentation(indentation() * 9/10);
     setUniformRowHeights(true);
     setDragEnabled(true);

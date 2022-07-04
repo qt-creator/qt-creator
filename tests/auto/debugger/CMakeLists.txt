@@ -59,6 +59,7 @@ if (WITH_DEBUGGER_DUMPERS)
     INCLUDES
       "${DEBUGGERDIR}"
     SOURCES
+      "${DEBUGGERDIR}/debuggertr.h"
       "${DEBUGGERDIR}/debuggerprotocol.cpp" "${DEBUGGERDIR}/debuggerprotocol.h"
       "${DEBUGGERDIR}/simplifytype.cpp" "${DEBUGGERDIR}/simplifytype.h"
       "${DEBUGGERDIR}/watchdata.cpp" "${DEBUGGERDIR}/watchdata.h"
@@ -72,6 +73,7 @@ add_qtc_test(tst_debugger_gdb
   INCLUDES "${DEBUGGERDIR}"
   SOURCES
     tst_gdb.cpp
+    "${DEBUGGERDIR}/debuggertr.h"
     "${DEBUGGERDIR}/debuggerprotocol.cpp" "${DEBUGGERDIR}/debuggerprotocol.h"
 )
 
@@ -80,6 +82,7 @@ add_qtc_test(tst_debugger_protocol
   INCLUDES
     "${DEBUGGERDIR}"
   SOURCES
+    "${DEBUGGERDIR}/debuggertr.h"
     "${DEBUGGERDIR}/debuggerprotocol.cpp" "${DEBUGGERDIR}/debuggerprotocol.h"
     tst_protocol.cpp
 )
@@ -96,5 +99,6 @@ add_qtc_test(tst_debugger_simplifytypes
   DEFINES DUMPERDIR="${PROJECT_SOURCE_DIR}/share/qtcreator/debugger"
   SOURCES
     tst_simplifytypes.cpp
+    "${DEBUGGERDIR}/debuggertr.h"
     "${DEBUGGERDIR}/simplifytype.cpp" "${DEBUGGERDIR}/simplifytype.h"
 )
