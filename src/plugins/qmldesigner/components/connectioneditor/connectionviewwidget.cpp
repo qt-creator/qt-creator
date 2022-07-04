@@ -70,7 +70,7 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
     editorForDynamic();
 
 
-    setWindowTitle(tr("Connections", "Title of connection view"));
+    setWindowTitle(tr("Connections", "Title of connections window"));
     ui->setupUi(this);
 
     QStyle *style = QStyleFactory::create("fusion");
@@ -81,9 +81,9 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
     ui->tabBar->setUsesScrollButtons(true);
     ui->tabBar->setElideMode(Qt::ElideRight);
 
-    ui->tabBar->addTab(tr("Connections", "Title of connection view"));
-    ui->tabBar->addTab(tr("Bindings", "Title of connection view"));
-    ui->tabBar->addTab(tr("Properties", "Title of dynamic properties view"));
+    ui->tabBar->addTab(tr("Connections", "Title of connection tab"));
+    ui->tabBar->addTab(tr("Bindings", "Title of connection tab"));
+    ui->tabBar->addTab(tr("Properties", "Title of dynamic properties tab"));
 
     const Qt::Alignment headerAlignment = Qt::AlignLeft | Qt::AlignVCenter;
     ui->connectionView->horizontalHeader()->setDefaultAlignment(headerAlignment);
