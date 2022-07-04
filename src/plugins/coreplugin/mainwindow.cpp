@@ -98,7 +98,7 @@
 #include <QSettings>
 #include <QStatusBar>
 #include <QStyleFactory>
-#include <QTextEdit>
+#include <QTextBrowser>
 #include <QToolButton>
 #include <QUrl>
 #include <QVersionNumber>
@@ -1380,8 +1380,12 @@ void MainWindow::changeLog()
     versionLayout->addStretch(1);
     auto showInExplorer = new QPushButton(FileUtils::msgGraphicalShellAction());
     versionLayout->addWidget(showInExplorer);
-    auto textEdit = new QTextEdit;
-    textEdit->setReadOnly(true);
+    auto textEdit = new QTextBrowser;
+    textEdit->setOpenExternalLinks(true);
+    auto font = textEdit->font();
+    font.setFamily("monospace");
+    font.setStyleHint(QFont::Monospace);
+    textEdit->setFont(font);
 
     auto aggregate = new Aggregation::Aggregate;
     aggregate->add(textEdit);
@@ -1417,7 +1421,11 @@ void MainWindow::changeLog()
         if (index < 0 || index >= versionedFiles.size())
             return;
         const FilePath file = versionedFiles.at(index).second;
-        textEdit->setText(QString::fromUtf8(file.fileContents()));
+        QString contents = QString::fromUtf8(file.fileContents());
+        contents.replace('\n', "<br/>");
+        contents.replace(QRegularExpression("(QT(CREATOR)?BUG-[0-9]+)"),
+                         "<a href=\"https://bugreports.qt.io/browse/\\1\">\\1</a>");
+        textEdit->setHtml(contents);
     };
     connect(versionCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), textEdit, showLog);
     showLog(versionCombo->currentIndex());
