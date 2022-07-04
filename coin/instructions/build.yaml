@@ -153,3 +153,7 @@ instructions:
     maxTimeInSeconds: 1800
     maxTimeBetweenOutput: 1800
 
+enable_if:
+  condition: property
+  property: features
+  not_contains_value: "Qt5"

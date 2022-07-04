@@ -3,7 +3,7 @@ if(QT_CREATOR_API_DEFINED)
 endif()
 set(QT_CREATOR_API_DEFINED TRUE)
 
-set(IDE_QT_VERSION_MIN "5.15.2")
+set(IDE_QT_VERSION_MIN "6.2.0")
 
 include(${CMAKE_CURRENT_LIST_DIR}/QtCreatorAPIInternal.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/QtcSeparateDebugInfo.cmake)

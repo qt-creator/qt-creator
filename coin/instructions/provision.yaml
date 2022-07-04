@@ -85,3 +85,7 @@ instructions:
           property: target.arch
           equals_value: X86_64
 
+enable_if:
+  condition: property
+  property: features
+  not_contains_value: "Qt5"

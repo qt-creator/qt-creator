@@ -17,7 +17,6 @@ Product {
             FileInfo.relativePath(FileInfo.joinPaths('/', qtc.ide_qbs_imports_path),
                                   FileInfo.joinPaths('/', qtc.ide_shared_sources_path)))
     property bool sanitizable: true
-    property bool usesQt6: Utilities.versionCompare(Qt.core.version, "6") >= 0
 
     Depends { name: "cpp" }
     Depends { name: "qtc" }
@@ -29,11 +28,8 @@ Product {
             enableFallback: false
         }
     }
-    Depends { name: "Qt.core"; versionAtLeast: "5.15.2" }
-    Depends {
-        name: "Qt.core5compat"
-        condition: usesQt6
-    }
+    Depends { name: "Qt.core"; versionAtLeast: "6.2.0" }
+    Depends { name: "Qt.core5compat" }
 
     // TODO: Should fall back to what came from Qt.core for Qt < 5.7, but we cannot express that
     //       atm. Conditionally pulling in a module that sets the property is also not possible,
