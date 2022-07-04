@@ -92,9 +92,8 @@ WebAssemblyOptionsWidget::WebAssemblyOptionsWidget()
     mainLayout->addStretch();
 
     {
-        const QString minimumSupportedQtVersion = QString::fromLatin1("%1.%2")
-                .arg(WebAssemblyQtVersion::minimumSupportedQtVersion().majorVersion)
-                .arg(WebAssemblyQtVersion::minimumSupportedQtVersion().minorVersion);
+        const QString minimumSupportedQtVersion =
+                WebAssemblyQtVersion::minimumSupportedQtVersion().toString();
         m_qtVersionDisplay = new InfoLabel(
                     tr("Note: %1 supports Qt %2 for WebAssembly and higher. "
                        "Your installed lower version(s) are not supported.")

@@ -1157,7 +1157,7 @@ Tasks CMakeConfigurationKitAspect::validate(const Kit *k) const
     const ToolChain *const tcCxx = ToolChainKitAspect::cxxToolChain(k);
     const CMakeConfig config = configuration(k);
 
-    const bool isQt4 = version && version->qtVersion() < QtSupport::QtVersionNumber(5, 0, 0);
+    const bool isQt4 = version && version->qtVersion() < QVersionNumber(5, 0, 0);
     FilePath qmakePath; // This is relative to the cmake used for building.
     QStringList qtInstallDirs; // This is relativ to the cmake used for building.
     FilePath tcCPath;

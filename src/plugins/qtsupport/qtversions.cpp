@@ -36,7 +36,7 @@ public:
 QStringList DesktopQtVersion::warningReason() const
 {
     QStringList ret = QtVersion::warningReason();
-    if (qtVersion() >= QtVersionNumber(5, 0, 0)) {
+    if (qtVersion() >= QVersionNumber(5, 0, 0)) {
         if (qmlRuntimeFilePath().isEmpty())
             ret << Tr::tr("No QML utility installed.");
     }

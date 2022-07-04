@@ -532,7 +532,7 @@ Tasks QmlProject::projectIssues(const Kit *k) const
     if (dev.isNull())
         result.append(createProjectTask(Task::TaskType::Error, tr("Kit has no device.")));
 
-    if (version && version->qtVersion() < QtSupport::QtVersionNumber(5, 0, 0))
+    if (version && version->qtVersion() < QVersionNumber(5, 0, 0))
         result.append(createProjectTask(Task::TaskType::Error, tr("Qt version is too old.")));
 
     if (dev.isNull() || !version)
@@ -593,7 +593,7 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
                           if (k->isReplacementKit())
                               return false;
                           QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
-                          return (version && version->qtVersion().majorVersion == qtMajorVersion);
+                          return (version && version->qtVersion().majorVersion() == qtMajorVersion);
                       });
                 if (!qtVersionkits.isEmpty()) {
                     if (qtVersionkits.contains(KitManager::defaultKit()))

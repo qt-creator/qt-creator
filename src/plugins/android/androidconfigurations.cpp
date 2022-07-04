@@ -318,14 +318,14 @@ void AndroidConfig::parseDependenciesJson()
     }
 
     auto fillQtVersionsRange = [](const QString &shortVersion) {
-        QList<QtVersionNumber> versions;
+        QList<QVersionNumber> versions;
         const QRegularExpression re(R"(([0-9]\.[0-9]+\.)\[([0-9]+)\-([0-9]+)\])");
         QRegularExpressionMatch match = re.match(shortVersion);
         if (match.hasMatch() && match.lastCapturedIndex() == 3)
             for (int i = match.captured(2).toInt(); i <= match.captured(3).toInt(); ++i)
-                versions.append(QtVersionNumber(match.captured(1) + QString::number(i)));
+                versions.append(QVersionNumber::fromString(match.captured(1) + QString::number(i)));
         else
-            versions.append(QtVersionNumber(shortVersion + ".-1"));
+            versions.append(QVersionNumber::fromString(shortVersion + ".-1"));
 
         return versions;
     };
@@ -1010,7 +1010,7 @@ bool AndroidConfig::sdkToolsOk() const
 
 QStringList AndroidConfig::essentialsFromQtVersion(const QtVersion &version) const
 {
-    QtVersionNumber qtVersion = version.qtVersion();
+    QVersionNumber qtVersion = version.qtVersion();
     for (const SdkForQtVersions &item : m_specificQtVersions)
         if (item.containsVersion(qtVersion))
             return item.essentialPackages;
@@ -1020,9 +1020,8 @@ QStringList AndroidConfig::essentialsFromQtVersion(const QtVersion &version) con
 
 QString AndroidConfig::ndkPathFromQtVersion(const QtVersion &version) const
 {
-    QtVersionNumber qtVersion(version.qtVersionString());
     for (const SdkForQtVersions &item : m_specificQtVersions)
-        if (item.containsVersion(qtVersion))
+        if (item.containsVersion(version.qtVersion()))
             return item.ndkPath;
 
     return m_defaultSdkDepends.ndkPath;
@@ -1033,10 +1032,11 @@ QStringList AndroidConfig::defaultEssentials() const
     return m_defaultSdkDepends.essentialPackages + m_commonEssentialPkgs;
 }
 
-bool SdkForQtVersions::containsVersion(const QtVersionNumber &qtVersion) const
+bool SdkForQtVersions::containsVersion(const QVersionNumber &qtVersion) const
 {
     return versions.contains(qtVersion)
-           || versions.contains(QtVersionNumber(qtVersion.majorVersion, qtVersion.minorVersion));
+            || versions.contains(QVersionNumber(qtVersion.majorVersion(),
+                                                qtVersion.minorVersion()));
 }
 
 FilePath AndroidConfig::openJDKLocation() const

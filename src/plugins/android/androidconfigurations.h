@@ -49,12 +49,12 @@ public:
 
 struct SdkForQtVersions
 {
-    QList<QtSupport::QtVersionNumber> versions;
+    QList<QVersionNumber> versions;
     QStringList essentialPackages;
     QString ndkPath;
 
 public:
-    bool containsVersion(const QtSupport::QtVersionNumber &qtVersion) const;
+    bool containsVersion(const QVersionNumber &qtVersion) const;
 };
 
 class ANDROID_EXPORT AndroidConfig

@@ -4,6 +4,7 @@
 #pragma once
 
 #include "qtsupport_global.h"
+#include "qversionnumber.h"
 
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
@@ -35,28 +36,6 @@ namespace QtSupport {
 
 class QtConfigWidget;
 class QtVersion;
-
-class QTSUPPORT_EXPORT QtVersionNumber
-{
-public:
-    QtVersionNumber(int ma = -1, int mi = -1, int p = -1);
-    QtVersionNumber(const QString &versionString);
-
-    QSet<Utils::Id> features() const;
-
-    int majorVersion;
-    int minorVersion;
-    int patchVersion;
-
-    bool matches(int major = -1, int minor = -1, int patch = -1) const;
-
-    bool operator <(const QtVersionNumber &b) const;
-    bool operator <=(const QtVersionNumber &b) const;
-    bool operator >(const QtVersionNumber &b) const;
-    bool operator >=(const QtVersionNumber &b) const;
-    bool operator !=(const QtVersionNumber &b) const;
-    bool operator ==(const QtVersionNumber &b) const;
-};
 
 namespace Internal {
 class QtOptionsPageWidget;
@@ -118,7 +97,7 @@ public:
     Utils::FilePath qmlplugindumpFilePath() const;
 
     QString qtVersionString() const;
-    QtVersionNumber qtVersion() const;
+    QVersionNumber qtVersion() const;
 
     QStringList qtSoPaths() const;
 

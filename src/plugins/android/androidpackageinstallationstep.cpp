@@ -144,8 +144,8 @@ void AndroidPackageInstallationStep::doRun()
     // Needed for Qt 5.15.0 and Qt 5.14.x versions
     if (buildType() == BuildConfiguration::BuildType::Debug) {
         QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
-        if (version && version->qtVersion() >= QtSupport::QtVersionNumber{5, 14}
-            && version->qtVersion() <= QtSupport::QtVersionNumber{5, 15, 0}) {
+        if (version && version->qtVersion() >= QVersionNumber(5, 14)
+            && version->qtVersion() <= QVersionNumber(5, 15, 0)) {
             const QString assetsDebugDir = nativeAndroidBuildPath().append(
                 "/assets/--Added-by-androiddeployqt--/");
             QDir dir;

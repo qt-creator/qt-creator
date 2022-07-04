@@ -120,7 +120,7 @@ QString QMakeStep::allArguments(const QtVersion *v, ArgumentFlags flags) const
     else
         arguments << project()->projectFilePath().toUserOutput();
 
-    if (v->qtVersion() < QtVersionNumber(5, 0, 0))
+    if (v->qtVersion() < QVersionNumber(5, 0, 0))
         arguments << "-r";
     bool userProvidedMkspec = false;
     for (ProcessArgs::ConstArgIterator ait(userArguments()); ait.next(); ) {
@@ -194,7 +194,7 @@ bool QMakeStep::init()
         workingDirectory = qmakeBc->buildDirectory();
 
     m_qmakeCommand = CommandLine{qtVersion->qmakeFilePath(), allArguments(qtVersion), CommandLine::Raw};
-    m_runMakeQmake = (qtVersion->qtVersion() >= QtVersionNumber(5, 0 ,0));
+    m_runMakeQmake = (qtVersion->qtVersion() >= QVersionNumber(5, 0 ,0));
 
     // The Makefile is used by qmake and make on the build device, from that
     // perspective it is local.
@@ -427,7 +427,7 @@ QString QMakeStep::effectiveQMakeCall() const
         QmakeBuildConfiguration *qmakeBc = qmakeBuildConfiguration();
         const FilePath makefile = qmakeBc ? qmakeBc->makefile() : FilePath();
         result += ' ' + allArguments(qtVersion, ArgumentFlag::Expand);
-        if (qtVersion->qtVersion() >= QtVersionNumber(5, 0, 0))
+        if (qtVersion->qtVersion() >= QVersionNumber(5, 0, 0))
             result.append(QString(" && %1 %2").arg(make.path()).arg(makeArguments(makefile.path())));
     }
     return result;

@@ -781,7 +781,7 @@ QmakeBuildConfigurationFactory::QmakeBuildConfigurationFactory()
 
         addBuild(BuildConfiguration::Debug);
         addBuild(BuildConfiguration::Release);
-        if (qtVersion && qtVersion->qtVersion().majorVersion > 4)
+        if (qtVersion && qtVersion->qtVersion().majorVersion() > 4)
             addBuild(BuildConfiguration::Profile);
 
         return result;

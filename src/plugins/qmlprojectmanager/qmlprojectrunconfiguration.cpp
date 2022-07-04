@@ -245,7 +245,7 @@ void QmlProjectRunConfiguration::createQtVersionAspect()
             m_qtversionAspect->addOption(tr("Qt 5"));
             m_qtversionAspect->addOption(tr("Qt 6"));
 
-            const int valueForVersion = version->qtVersion().majorVersion == 6 ? 1 : 0;
+            const int valueForVersion = version->qtVersion().majorVersion() == 6 ? 1 : 0;
 
             m_qtversionAspect->setValue(valueForVersion);
 
@@ -260,7 +260,7 @@ void QmlProjectRunConfiguration::createQtVersionAspect()
 
                 const QList<Kit *> kits = Utils::filtered(KitManager::kits(), [&](const Kit *k) {
                     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
-                    return (version && version->qtVersion().majorVersion == preferedQtVersion)
+                    return (version && version->qtVersion().majorVersion() == preferedQtVersion)
                            && DeviceTypeKitAspect::deviceTypeId(k)
                                   == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
                 });

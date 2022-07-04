@@ -232,7 +232,7 @@ CreateAndroidManifestWizard::CreateAndroidManifestWizard(BuildSystem *buildSyste
 
     const QList<BuildTargetInfo> buildTargets = buildSystem->applicationTargets();
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(buildSystem->kit());
-    m_copyGradle = version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
+    m_copyGradle = version && version->qtVersion() >= QVersionNumber(5, 4, 0);
 
     if (buildTargets.isEmpty()) {
         // oh uhm can't create anything
@@ -281,7 +281,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (!version)
         return;
-    if (version->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0)) {
+    if (version->qtVersion() < QVersionNumber(5, 4, 0)) {
         FileUtils::copyRecursively(version->prefix() / "src/android/java/AndroidManifest.xml",
                                    m_directory / "AndroidManifest.xml",
                                    nullptr,

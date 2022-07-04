@@ -253,7 +253,7 @@ void TestQtProjectImporter::deleteDirectoryData(void *directoryData) const
 static QStringList additionalFilesToCopy(const QtVersion *qt)
 {
     // This is a hack and only works with local, "standard" installations of Qt
-    const int major = qt->qtVersion().majorVersion;
+    const int major = qt->qtVersion().majorVersion();
     if (major >= 6) {
         if (HostOsInfo::isMacHost()) {
             return {"lib/QtCore.framework/Versions/A/QtCore"};

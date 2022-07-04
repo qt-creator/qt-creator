@@ -232,7 +232,7 @@ FilePath AndroidManager::androidBuildDirectory(const Target *target)
 bool AndroidManager::isQt5CmakeProject(const ProjectExplorer::Target *target)
 {
     const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
-    const bool isQt5 = qt && qt->qtVersion() < QtSupport::QtVersionNumber{6, 0, 0};
+    const bool isQt5 = qt && qt->qtVersion() < QVersionNumber(6, 0, 0);
     const Core::Context cmakeCtx = Core::Context(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
     const bool isCmakeProject = (target->project()->projectContext() == cmakeCtx);
     return isQt5 && isCmakeProject;
@@ -429,9 +429,9 @@ void AndroidManager::setDeviceApiLevel(Target *target, int level)
 
 int AndroidManager::defaultMinimumSDK(const QtSupport::QtVersion *qtVersion)
 {
-    if (qtVersion && qtVersion->qtVersion() >= QtSupport::QtVersionNumber{6, 0})
+    if (qtVersion && qtVersion->qtVersion() >= QVersionNumber(6, 0))
         return 23;
-    else if (qtVersion && qtVersion->qtVersion() >= QtSupport::QtVersionNumber{5, 13})
+    else if (qtVersion && qtVersion->qtVersion() >= QVersionNumber(5, 13))
         return 21;
     else
         return 16;

@@ -1469,9 +1469,9 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
             auto sdkLocation = bs->data(Android::Constants::SdkLocation).value<FilePath>();
 
-            if (qt && qt->qtVersion() >= QtSupport::QtVersionNumber{6, 0, 0}) {
+            if (qt && qt->qtVersion() >= QVersionNumber(6, 0, 0)) {
                 // Don't build apk under ALL target because Qt Creator will handle it
-                if (qt->qtVersion() >= QtSupport::QtVersionNumber{6, 1, 0})
+                if (qt->qtVersion() >= QVersionNumber(6, 1, 0))
                     cmd.addArg("-DQT_NO_GLOBAL_APK_TARGET_PART_OF_ALL:BOOL=ON");
                 cmd.addArg("-DQT_HOST_PATH:PATH=%{Qt:QT_HOST_PREFIX}");
                 cmd.addArg("-DANDROID_SDK_ROOT:PATH=" + sdkLocation.path());
@@ -1482,7 +1482,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
         const IDevice::ConstPtr device = DeviceKitAspect::device(k);
         if (CMakeBuildConfiguration::isIos(k)) {
-            if (qt && qt->qtVersion().majorVersion >= 6) {
+            if (qt && qt->qtVersion().majorVersion() >= 6) {
                 // TODO it would be better if we could set
                 // CMAKE_SYSTEM_NAME=iOS and CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH=YES
                 // and build with "cmake --build . -- -arch <arch>" instead of setting the architecture
@@ -1507,7 +1507,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         }
 
         if (isWebAssembly(k) || isQnx(k) || isWindowsARM64(k)) {
-            if (qt && qt->qtVersion().majorVersion >= 6)
+            if (qt && qt->qtVersion().majorVersion() >= 6)
                 cmd.addArg(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
         }
 

@@ -1204,7 +1204,7 @@ void AndroidManifestEditorWidget::addServiceMetadata(QXmlStreamWriter &writer)
     const Target *target = androidTarget(m_textEditorWidget->textDocument()->filePath());
     if (target) {
         const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
-        if (qt && qt->qtVersion() >= QtSupport::QtVersionNumber(6, 2))
+        if (qt && qt->qtVersion() >= QVersionNumber(6, 2))
             return;
     }
     writeMetadataElement("android.app.qt_sources_resource_id", "android:resource", "@array/qt_sources", writer);

@@ -487,7 +487,7 @@ static QStringList documentationFiles(const QtVersions &vs, bool highestOnly = f
     QSet<QString> filePaths;
     const QtVersions versions = highestOnly ? QtVersionManager::sortVersions(vs) : vs;
     for (QtVersion *v : versions) {
-        const int majorVersion = v->qtVersion().majorVersion;
+        const int majorVersion = v->qtVersion().majorVersion();
         QSet<QString> &majorVersionFileNames = includedFileNames[majorVersion];
         for (const std::pair<Path, FileName> &file : documentationFiles(v)) {
             if (!highestOnly || !majorVersionFileNames.contains(file.second)) {

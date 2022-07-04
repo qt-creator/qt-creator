@@ -36,7 +36,7 @@ void MeshImageCacheCollector::start(Utils::SmallStringView name,
         QString qtQuickVersion;
         QString qtQuick3DVersion;
         QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target()->kit());
-        if (qtVersion && qtVersion->qtVersion() < QtSupport::QtVersionNumber(6, 0, 0)) {
+        if (qtVersion && qtVersion->qtVersion() < QVersionNumber(6, 0, 0)) {
             qtQuickVersion = "2.15";
             qtQuick3DVersion = "1.15";
         }

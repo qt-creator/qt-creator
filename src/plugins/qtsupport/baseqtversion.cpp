@@ -144,6 +144,12 @@ static QSet<Id> versionedIds(const QByteArray &prefix, int major, int minor)
     return result;
 }
 
+static QSet<Id> versionedIds(const QVersionNumber &version)
+{
+    return versionedIds(Constants::FEATURE_QT_PREFIX,
+                        version.majorVersion(), version.minorVersion());
+}
+
 // Wrapper to make the std::unique_ptr<Utils::MacroExpander> "copyable":
 class MacroExpanderWrapper
 {
@@ -243,78 +249,6 @@ MacroExpander *MacroExpanderWrapper::macroExpander(const QtVersion *qtversion) c
 } // Internal
 
 ///////////////
-// QtVersionNumber
-///////////////
-QtVersionNumber::QtVersionNumber(int ma, int mi, int p)
-    : majorVersion(ma), minorVersion(mi), patchVersion(p)
-{ }
-
-QtVersionNumber::QtVersionNumber(const QString &versionString)
-{
-    if (::sscanf(versionString.toLatin1().constData(), "%d.%d.%d",
-           &majorVersion, &minorVersion, &patchVersion) != 3)
-        majorVersion = minorVersion = patchVersion = -1;
-}
-
-QSet<Id> QtVersionNumber::features() const
-{
-    return versionedIds(Constants::FEATURE_QT_PREFIX, majorVersion, minorVersion);
-}
-
-bool QtVersionNumber::matches(int major, int minor, int patch) const
-{
-    if (major < 0)
-        return true;
-    if (major != majorVersion)
-        return false;
-
-    if (minor < 0)
-        return true;
-    if (minor != minorVersion)
-        return false;
-
-    if (patch < 0)
-        return true;
-    return (patch == patchVersion);
-}
-
-bool QtVersionNumber::operator <(const QtVersionNumber &b) const
-{
-    if (majorVersion != b.majorVersion)
-        return majorVersion < b.majorVersion;
-    if (minorVersion != b.minorVersion)
-        return minorVersion < b.minorVersion;
-    return patchVersion < b.patchVersion;
-}
-
-bool QtVersionNumber::operator >(const QtVersionNumber &b) const
-{
-    return b < *this;
-}
-
-bool QtVersionNumber::operator ==(const QtVersionNumber &b) const
-{
-    return majorVersion == b.majorVersion
-            && minorVersion == b.minorVersion
-            && patchVersion == b.patchVersion;
-}
-
-bool QtVersionNumber::operator !=(const QtVersionNumber &b) const
-{
-    return !(*this == b);
-}
-
-bool QtVersionNumber::operator <=(const QtVersionNumber &b) const
-{
-    return !(*this > b);
-}
-
-bool QtVersionNumber::operator >=(const QtVersionNumber &b) const
-{
-    return b <= *this;
-}
-
-///////////////
 // QtVersion
 ///////////////
 
@@ -358,46 +292,46 @@ QString QtVersion::defaultUnexpandedDisplayName() const
 
 QSet<Id> QtVersion::availableFeatures() const
 {
-    QSet<Id> features = qtVersion().features(); // Qt Version features
+    QSet<Id> features = versionedIds(qtVersion()); // Qt Version features
 
     features.insert(Constants::FEATURE_QWIDGETS);
     features.insert(Constants::FEATURE_QT_WEBKIT);
     features.insert(Constants::FEATURE_QT_CONSOLE);
 
-    if (qtVersion() < QtVersionNumber(4, 7, 0))
+    if (qtVersion() < QVersionNumber(4, 7, 0))
         return features;
 
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 1, 0));
 
-    if (qtVersion().matches(4, 7, 0))
+    if (qtVersion() == QVersionNumber(4, 7, 0))
         return features;
 
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 1, 1));
 
-    if (qtVersion().matches(4))
+    if (QVersionNumber(4).isPrefixOf(qtVersion()))
         return features;
 
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 0));
 
-    if (qtVersion().matches(5, 0))
+    if (QVersionNumber(5, 0).isPrefixOf(qtVersion()))
         return features;
 
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 1));
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 0));
 
-    if (qtVersion().matches(5, 1))
+    if (QVersionNumber(5, 1).isPrefixOf(qtVersion()))
         return features;
 
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 2));
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 1));
 
-    if (qtVersion().matches(5, 2))
+    if (QVersionNumber(5, 2).isPrefixOf(qtVersion()))
         return features;
 
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 3));
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 2));
 
-    if (qtVersion().matches(5, 3))
+    if (QVersionNumber(5, 3).isPrefixOf(qtVersion()))
         return features;
 
     features.insert(Constants::FEATURE_QT_QUICK_UI_FILES);
@@ -405,7 +339,7 @@ QSet<Id> QtVersion::availableFeatures() const
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 4));
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 3));
 
-    if (qtVersion().matches(5, 4))
+    if (QVersionNumber(5, 4).isPrefixOf(qtVersion()))
         return features;
 
     features.insert(Constants::FEATURE_QT_3D);
@@ -414,7 +348,7 @@ QSet<Id> QtVersion::availableFeatures() const
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 4));
     features.unite(versionedIds(Constants::FEATURE_QT_CANVAS3D_PREFIX, 1, 0));
 
-    if (qtVersion().matches(5, 5))
+    if (QVersionNumber(5, 5).isPrefixOf(qtVersion()))
         return features;
 
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 6));
@@ -422,62 +356,62 @@ QSet<Id> QtVersion::availableFeatures() const
     features.unite(versionedIds(Constants::FEATURE_QT_LABS_CONTROLS_PREFIX, 1, 0));
     features.unite(versionedIds(Constants::FEATURE_QT_CANVAS3D_PREFIX, 1, 1));
 
-    if (qtVersion().matches(5, 6))
+    if (QVersionNumber(5, 6).isPrefixOf(qtVersion()))
         return features;
 
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 7));
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_2_PREFIX, 2, 0));
     features.subtract(versionedIds(Constants::FEATURE_QT_LABS_CONTROLS_PREFIX, 1, 0));
 
-    if (qtVersion().matches(5, 7))
+    if (QVersionNumber(5, 7).isPrefixOf(qtVersion()))
         return features;
 
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 8));
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_2_PREFIX, 2, 1));
 
-    if (qtVersion().matches(5, 8))
+    if (QVersionNumber(5, 8).isPrefixOf(qtVersion()))
         return features;
 
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 9));
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_2_PREFIX, 2, 2));
 
-    if (qtVersion().matches(5, 9))
+    if (QVersionNumber(5, 9).isPrefixOf(qtVersion()))
         return features;
 
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 10));
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_2_PREFIX, 2, 3));
 
-    if (qtVersion().matches(5, 10))
+    if (QVersionNumber(5, 10).isPrefixOf(qtVersion()))
         return features;
 
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 11));
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_2_PREFIX, 2, 4));
 
-    if (qtVersion().matches(5, 11))
+    if (QVersionNumber(5, 11).isPrefixOf(qtVersion()))
         return features;
 
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 12));
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_2_PREFIX, 2, 5));
 
-    if (qtVersion().matches(5, 12))
+    if (QVersionNumber(5, 12).isPrefixOf(qtVersion()))
         return features;
 
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 13));
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_2_PREFIX, 2, 13));
 
-    if (qtVersion().matches(5, 13))
+    if (QVersionNumber(5, 13).isPrefixOf(qtVersion()))
         return features;
 
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 14));
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_2_PREFIX, 2, 14));
 
-    if (qtVersion().matches(5, 14))
+    if (QVersionNumber(5, 14).isPrefixOf(qtVersion()))
         return features;
 
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 15));
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_2_PREFIX, 2, 15));
 
-    if (qtVersion().matches(5, 15))
+    if (QVersionNumber(5, 15).isPrefixOf(qtVersion()))
         return features;
 
     // Qt 6 uses versionless imports
@@ -1026,7 +960,7 @@ FilePath QtVersion::qmlRuntimeFilePath() const
         return d->m_qmlRuntimePath;
 
     FilePath path = binPath();
-    if (qtVersion() >= QtVersionNumber(6, 2, 0))
+    if (qtVersion() >= QVersionNumber(6, 2, 0))
         path = path.pathAppended("qml").withExecutableSuffix();
     else
         path = path.pathAppended("qmlscene").withExecutableSuffix();
@@ -1053,7 +987,7 @@ FilePath QtVersion::qmlplugindumpFilePath() const
 FilePath QtVersionPrivate::findHostBinary(HostBinaries binary) const
 {
     FilePath baseDir;
-    if (q->qtVersion() < QtVersionNumber(5, 0, 0)) {
+    if (q->qtVersion() < QVersionNumber(5, 0, 0)) {
         baseDir = q->binPath();
     } else {
         switch (binary) {
@@ -1064,7 +998,7 @@ FilePath QtVersionPrivate::findHostBinary(HostBinaries binary) const
             break;
         case Rcc:
         case Uic:
-            if (q->qtVersion() >= QtVersionNumber(6, 1))
+            if (q->qtVersion() >= QVersionNumber(6, 1))
                 baseDir = q->hostLibexecPath();
             else
                 baseDir = q->hostBinPath();
@@ -1096,7 +1030,7 @@ FilePath QtVersionPrivate::findHostBinary(HostBinaries binary) const
         if (HostOsInfo::isWindowsHost()) {
             possibleCommands << "rcc.exe";
         } else {
-            const QString majorString = QString::number(q->qtVersion().majorVersion);
+            const QString majorString = QString::number(q->qtVersion().majorVersion());
             possibleCommands << ("rcc-qt" + majorString) << ("rcc" + majorString) << "rcc";
         }
         break;
@@ -1104,7 +1038,7 @@ FilePath QtVersionPrivate::findHostBinary(HostBinaries binary) const
         if (HostOsInfo::isWindowsHost()) {
             possibleCommands << "uic.exe";
         } else {
-            const QString majorString = QString::number(q->qtVersion().majorVersion);
+            const QString majorString = QString::number(q->qtVersion().majorVersion());
             possibleCommands << ("uic-qt" + majorString) << ("uic" + majorString) << "uic";
         }
         break;
@@ -1287,9 +1221,9 @@ QString QtVersion::qtVersionString() const
     return d->m_data.qtVersionString;
 }
 
-QtVersionNumber QtVersion::qtVersion() const
+QVersionNumber QtVersion::qtVersion() const
 {
-    return QtVersionNumber(qtVersionString());
+    return QVersionNumber::fromString(qtVersionString());
 }
 
 void QtVersionPrivate::updateVersionInfo()
@@ -1687,7 +1621,7 @@ void QtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Target 
 QSet<Id> QtVersion::features() const
 {
     if (d->m_overrideFeatures.isEmpty())
-        return availableFeatures();
+        return versionedIds(qtVersion());
     return d->m_overrideFeatures;
 }
 
@@ -1717,8 +1651,8 @@ void QtVersion::setupQmakeRunEnvironment(Environment &env) const
 
 bool QtVersion::hasQmlDumpWithRelocatableFlag() const
 {
-    return ((qtVersion() > QtVersionNumber(4, 8, 4) && qtVersion() < QtVersionNumber(5, 0, 0))
-            || qtVersion() >= QtVersionNumber(5, 1, 0));
+    return ((qtVersion() > QVersionNumber(4, 8, 4) && qtVersion() < QVersionNumber(5, 0, 0))
+            || qtVersion() >= QVersionNumber(5, 1, 0));
 }
 
 Tasks QtVersion::reportIssuesImpl(const QString &proFile, const QString &buildDir) const
@@ -2019,7 +1953,7 @@ bool QtVersion::isQmlDebuggingSupported(QString *reason) const
         return false;
     }
 
-    if (qtVersion() < QtVersionNumber(5, 0, 0)) {
+    if (qtVersion() < QVersionNumber(5, 0, 0)) {
         if (reason)
             *reason = Tr::tr("Requires Qt 5.0.0 or newer.");
         return false;
@@ -2048,7 +1982,7 @@ bool QtVersion::isQtQuickCompilerSupported(QString *reason) const
         return false;
     }
 
-    if (qtVersion() < QtVersionNumber(5, 3, 0)) {
+    if (qtVersion() < QVersionNumber(5, 3, 0)) {
         if (reason)
             *reason = Tr::tr("Requires Qt 5.3.0 or newer.");
         return false;

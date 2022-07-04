@@ -666,9 +666,9 @@ bool PuppetCreator::checkPuppetIsReady(const QString &puppetPath) const
     return false;
 }
 
-static bool nonEarlyQt5Version(const QtSupport::QtVersionNumber &currentQtVersionNumber)
+static bool nonEarlyQt5Version(const QVersionNumber &currentQtVersionNumber)
 {
-    return currentQtVersionNumber >= QtSupport::QtVersionNumber(5, 2, 0) || currentQtVersionNumber < QtSupport::QtVersionNumber(5, 0, 0);
+    return currentQtVersionNumber >= QVersionNumber(5, 2, 0) || currentQtVersionNumber < QVersionNumber(5, 0, 0);
 }
 
 bool PuppetCreator::qtIsSupported() const

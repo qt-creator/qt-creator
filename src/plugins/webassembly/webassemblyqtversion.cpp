@@ -61,13 +61,12 @@ QString WebAssemblyQtVersion::invalidReason() const
 
     return tr("%1 does not support Qt for WebAssembly below version %2.")
             .arg(Core::ICore::versionString())
-            .arg(QVersionNumber(minimumSupportedQtVersion().majorVersion,
-                                minimumSupportedQtVersion().minorVersion).toString());
+            .arg(minimumSupportedQtVersion().toString());
 }
 
-const QtVersionNumber &WebAssemblyQtVersion::minimumSupportedQtVersion()
+const QVersionNumber &WebAssemblyQtVersion::minimumSupportedQtVersion()
 {
-    const static QtVersionNumber number(5, 15);
+    const static QVersionNumber number(5, 15);
     return number;
 }
 

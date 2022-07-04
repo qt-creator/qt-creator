@@ -290,7 +290,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
                                            << ", Debug server path:" << m_debugServerPath;
 
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
-    m_useAppParamsForQmlDebugger = version->qtVersion() >= QtSupport::QtVersionNumber(5, 12);
+    m_useAppParamsForQmlDebugger = version->qtVersion() >= QVersionNumber(5, 12);
 }
 
 AndroidRunnerWorker::~AndroidRunnerWorker()

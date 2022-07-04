@@ -23,7 +23,7 @@ public:
     bool isValid() const override;
     QString invalidReason() const override;
 
-    static const QtSupport::QtVersionNumber &minimumSupportedQtVersion();
+    static const QVersionNumber &minimumSupportedQtVersion();
     static bool isQtVersionInstalled();
     static bool isUnsupportedQtVersionInstalled();
 };

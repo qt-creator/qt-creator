@@ -395,17 +395,17 @@ Kit::Predicate QtKitAspect::platformPredicate(Id platform)
 }
 
 Kit::Predicate QtKitAspect::qtVersionPredicate(const QSet<Id> &required,
-                                               const QtVersionNumber &min,
-                                               const QtVersionNumber &max)
+                                               const QVersionNumber &min,
+                                               const QVersionNumber &max)
 {
     return [required, min, max](const Kit *kit) -> bool {
         QtVersion *version = QtKitAspect::qtVersion(kit);
         if (!version)
             return false;
-        QtVersionNumber current = version->qtVersion();
-        if (min.majorVersion > -1 && current < min)
+        const QVersionNumber current = version->qtVersion();
+        if (min.majorVersion() > -1 && current < min)
             return false;
-        if (max.majorVersion > -1 && current > max)
+        if (max.majorVersion() > -1 && current > max)
             return false;
         return version->features().contains(required);
     };

@@ -68,8 +68,7 @@ QString AndroidQtVersion::invalidReason() const
 
 bool AndroidQtVersion::supportsMultipleQtAbis() const
 {
-    return qtVersion() >= QtSupport::QtVersionNumber{5, 14}
-           && qtVersion() < QtSupport::QtVersionNumber{6, 0};
+    return qtVersion() >= QVersionNumber(5, 14) && qtVersion() < QVersionNumber(6, 0);
 }
 
 Abis AndroidQtVersion::detectQtAbis() const

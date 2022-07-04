@@ -287,7 +287,7 @@ QWidget *AndroidBuildApkWidget::createAdvancedGroup()
 
     auto vbox = new QVBoxLayout(group);
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(m_step->kit());
-    if (version && version->qtVersion() >= QtSupport::QtVersionNumber{5, 14}) {
+    if (version && version->qtVersion() >= QVersionNumber(5, 14)) {
         auto buildAAB = new QCheckBox(tr("Build Android App Bundle (*.aab)"), group);
         buildAAB->setChecked(m_step->buildAAB());
         connect(buildAAB, &QAbstractButton::toggled, m_step, &AndroidBuildApkStep::setBuildAAB);
@@ -505,7 +505,7 @@ bool AndroidBuildApkStep::init()
             reportWarningOrError(error, Task::Error);
             return false;
         }
-    } else if (version->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0)) {
+    } else if (version->qtVersion() < QVersionNumber(5, 4, 0)) {
         const QString error = tr("The minimum Qt version required for Gradle build to work is %1. "
                                  "It is recommended to install the latest Qt version.")
                                   .arg("5.4.0");
@@ -585,7 +585,7 @@ bool AndroidBuildApkStep::init()
 
     // Must be the last option, otherwise androiddeployqt might use the other
     // params (e.g. --sign) to choose not to add gdbserver
-    if (version->qtVersion() >= QtSupport::QtVersionNumber(5, 6, 0)) {
+    if (version->qtVersion() >= QVersionNumber(5, 6, 0)) {
         if (m_addDebugger || buildType() == ProjectExplorer::BuildConfiguration::Debug)
             arguments << "--gdbserver";
         else
@@ -729,8 +729,8 @@ void AndroidBuildApkStep::doRun()
                                             "not be created.").arg(androidLibsDir.toUserOutput()),
                                          Task::Error);
                     return false;
-                } else if (version->qtVersion() >= QtSupport::QtVersionNumber{6, 0, 0}
-                           && version->qtVersion() <= QtSupport::QtVersionNumber{6, 1, 1}) {
+                } else if (version->qtVersion() >= QVersionNumber(6, 0, 0)
+                           && version->qtVersion() <= QVersionNumber(6, 1, 1)) {
                     // 6.0.x <= Qt <= 6.1.1 used to need a manaul call to _prepare_apk_dir target,
                     // and now it's made directly with ALL target, so this code below ensures
                     // these versions are not broken.

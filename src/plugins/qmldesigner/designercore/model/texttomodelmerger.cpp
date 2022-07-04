@@ -2250,7 +2250,7 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
                     if (currentQtVersion && currentQtVersion->isValid()) {
                         const bool qt6import = import.version().startsWith("6");
 
-                        if (currentQtVersion->qtVersion().majorVersion == 5
+                        if (currentQtVersion->qtVersion().majorVersion() == 5
                             && (m_hasVersionlessImport || qt6import)) {
                             const QmlJS::DiagnosticMessage diagnosticMessage(
                                 QmlJS::Severity::Error,

@@ -75,7 +75,7 @@ AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Utils::Id id)
     m_uninstallPreviousPackage->setValue(false);
 
     const QtSupport::QtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());
-    const bool forced = qt && qt->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0);
+    const bool forced = qt && qt->qtVersion() < QVersionNumber(5, 4, 0);
     if (forced) {
         m_uninstallPreviousPackage->setValue(true);
         m_uninstallPreviousPackage->setEnabled(false);
@@ -203,7 +203,7 @@ bool AndroidDeployQtStep::init()
     if (m_uninstallPreviousPackageRun)
         m_manifestName = AndroidManager::manifestPath(target());
 
-    m_useAndroiddeployqt = version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
+    m_useAndroiddeployqt = version->qtVersion() >= QVersionNumber(5, 4, 0);
     if (m_useAndroiddeployqt) {
         const QString buildKey = target()->activeBuildKey();
         const ProjectNode *node = target()->project()->findNodeForBuildKey(buildKey);

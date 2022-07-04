@@ -46,8 +46,8 @@ public:
     static ProjectExplorer::Kit::Predicate platformPredicate(Utils::Id availablePlatforms);
     static ProjectExplorer::Kit::Predicate
     qtVersionPredicate(const QSet<Utils::Id> &required = QSet<Utils::Id>(),
-                       const QtVersionNumber &min = QtVersionNumber(0, 0, 0),
-                       const QtVersionNumber &max = QtVersionNumber(INT_MAX, INT_MAX, INT_MAX));
+                       const QVersionNumber &min = QVersionNumber(0, 0, 0),
+                       const QVersionNumber &max = QVersionNumber(INT_MAX, INT_MAX, INT_MAX));
 
     QSet<Utils::Id> supportedPlatforms(const ProjectExplorer::Kit *k) const override;
     QSet<Utils::Id> availableFeatures(const ProjectExplorer::Kit *k) const override;
