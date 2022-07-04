@@ -58,7 +58,9 @@ SquishNavigationWidget::SquishNavigationWidget(QWidget *parent)
     m_view->setItemDelegate(new SquishTestTreeItemDelegate(this));
     QHeaderView *header = new QHeaderView(Qt::Horizontal, m_view);
     header->setModel(m_model);
-    header->setDefaultSectionSize(0);
+    header->setStretchLastSection(false);
+    header->setMinimumSectionSize(16);
+    header->setDefaultSectionSize(16);
     header->setSectionResizeMode(0, QHeaderView::Stretch);
     header->setSectionResizeMode(1, QHeaderView::Fixed);
     header->setSectionResizeMode(2, QHeaderView::Fixed);

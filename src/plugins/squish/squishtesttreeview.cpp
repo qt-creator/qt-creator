@@ -46,7 +46,7 @@ SquishTestTreeView::SquishTestTreeView(QWidget *parent)
 void SquishTestTreeView::resizeEvent(QResizeEvent *event)
 {
     // override derived behavior of Utils::NavigationTreeView as we have more than 1 column
-    Utils::NavigationTreeView::resizeEvent(event);
+    Utils::TreeView::resizeEvent(event);
 }
 
 void SquishTestTreeView::mousePressEvent(QMouseEvent *event)
