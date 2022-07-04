@@ -64,6 +64,7 @@ QWidget *ConfigModelItemDelegate::createEditor(QWidget *parent, const QStyleOpti
             auto edit = new QComboBox(parent);
             edit->setAttribute(Qt::WA_MacSmallSize);
             edit->setFocusPolicy(Qt::StrongFocus);
+            edit->setAutoFillBackground(true);
             for (const QString &s : qAsConst(data.values))
                 edit->addItem(s);
             return edit;
