@@ -147,6 +147,16 @@ like Qt and LLVM, additionally run
 
     cmake --install . --prefix /path/to/qtcreator_install --component Dependencies
 
+### Performance Analyzer
+
+If you have not installed Qt with the Maintenance Tool, you must
+either set the path to the `perfparser` executable as a value of
+the `PERFPROFILER_PARSER_FILEPATH` environment variable or copy
+the executable to from the Qt Creator installation directory to
+the build directory. That is, copy it from
+`/path/to/qtcreator_install/Tools/QtCreator/libexec/qtcreator/` to
+/path/to/qtcreator_buid/libexec/qtcreator/`.
+
 ## Getting LLVM/Clang for the Clang Code Model
 
 The Clang code model uses `Clangd` and the ClangFormat plugin depends on the
