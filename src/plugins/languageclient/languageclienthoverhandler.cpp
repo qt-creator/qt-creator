@@ -49,9 +49,10 @@ HoverHandler::~HoverHandler()
 
 void HoverHandler::abort()
 {
-    if (m_client && m_client->reachable() && m_currentRequest.has_value())
+    if (m_client && m_currentRequest.has_value()) {
         m_client->cancelRequest(*m_currentRequest);
-    m_currentRequest.reset();
+        m_currentRequest.reset();
+    }
     m_response = {};
 }
 
