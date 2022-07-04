@@ -255,6 +255,8 @@ void DesignModeWidget::setup()
     // First get all navigation views
     QList<Core::INavigationWidgetFactory *> factories = Core::INavigationWidgetFactory::allNavigationFactories();
 
+    QList<Core::Command*> viewCommands;
+
     for (Core::INavigationWidgetFactory *factory : factories) {
         Core::NavigationView navigationView;
         navigationView.widget = nullptr;
@@ -304,7 +306,7 @@ void DesignModeWidget::setup()
                                                                actionToggle.withSuffix(uniqueId + "Widget"),
                                                                designContext);
             command->setAttribute(Core::Command::CA_Hide);
-            mviews->addAction(command);
+            viewCommands.append(command);
         }
     }
 
@@ -327,7 +329,7 @@ void DesignModeWidget::setup()
                                                            actionToggle.withSuffix(widgetInfo.uniqueId + "Widget"),
                                                            designContext);
         command->setAttribute(Core::Command::CA_Hide);
-        mviews->addAction(command);
+        viewCommands.append(command);
     }
 
     // Finally the output pane
@@ -347,11 +349,18 @@ void DesignModeWidget::setup()
                                                            actionToggle.withSuffix("OutputPaneWidget"),
                                                            designContext);
         command->setAttribute(Core::Command::CA_Hide);
-        mviews->addAction(command);
+        viewCommands.append(command);
 
         connect(outputPanePlaceholder, &Core::OutputPanePlaceHolder::visibilityChangeRequested,
                 m_outputPaneDockWidget, &ADS::DockWidget::toggleView);
     }
+
+    std::sort(viewCommands.begin(), viewCommands.end(), [](Core::Command *first, Core::Command *second){
+        return first->description() < second->description();
+    });
+
+    for (Core::Command *command : viewCommands)
+        mviews->addAction(command);
 
     // Create toolbars
     auto toolBar = new QToolBar();
