@@ -34,6 +34,8 @@
 
 #include <memory>
 
+#include <QDebug>
+
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QLabel;
