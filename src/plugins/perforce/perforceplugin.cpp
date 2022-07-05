@@ -1328,7 +1328,7 @@ PerforceResponse PerforcePluginPrivate::fullySynchronousProcess(const FilePath &
     QByteArray stdOut;
     QByteArray stdErr;
     const int timeOutS = (flags & LongTimeOut) ? m_settings.longTimeOutS() : m_settings.timeOutS.value();
-    if (!process.readDataFromProcess(timeOutS, &stdOut, &stdErr)) {
+    if (!process.readDataFromProcess(&stdOut, &stdErr, timeOutS)) {
         process.stop();
         process.waitForFinished();
         response.error = true;

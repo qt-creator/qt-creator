@@ -111,7 +111,7 @@ static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirec
 
     QByteArray stdOut;
     QByteArray stdErr;
-    if (!patchProcess.readDataFromProcess(30, &stdOut, &stdErr)) {
+    if (!patchProcess.readDataFromProcess(&stdOut, &stdErr)) {
         patchProcess.stop();
         patchProcess.waitForFinished();
         MessageManager::writeFlashing(
