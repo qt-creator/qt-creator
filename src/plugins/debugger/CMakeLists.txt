@@ -73,7 +73,7 @@ add_qtc_plugin(Debugger
     shared/cdbsymbolpathlisteditor.cpp shared/cdbsymbolpathlisteditor.h
     shared/hostutils.cpp shared/hostutils.h
     shared/peutils.cpp shared/peutils.h
-    shared/symbolpathsdialog.cpp shared/symbolpathsdialog.h shared/symbolpathsdialog.ui
+    shared/symbolpathsdialog.cpp shared/symbolpathsdialog.h
     simplifytype.cpp simplifytype.h
     sourceagent.cpp sourceagent.h
     sourcefileshandler.cpp sourcefileshandler.h

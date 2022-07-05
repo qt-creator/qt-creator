@@ -25,15 +25,14 @@
 
 #pragma once
 
+#include <QCheckBox>
 #include <QDialog>
+#include <QLabel>
 #include <QString>
 
-namespace Utils { class FilePath; }
+#include <utils/pathchooser.h>
 
-namespace Debugger {
-namespace Internal {
-
-namespace Ui { class SymbolPathsDialog; }
+namespace Debugger::Internal {
 
 class SymbolPathsDialog : public QDialog
 {
@@ -56,8 +55,11 @@ public:
     static bool useCommonSymbolPaths(bool &useSymbolCache, bool &useSymbolServer, Utils::FilePath &path);
 
 private:
-    Ui::SymbolPathsDialog *ui;
+    QLabel *m_pixmapLabel;
+    QLabel *m_msgLabel;
+    QCheckBox *m_useLocalSymbolCache;
+    QCheckBox *m_useSymbolServer;
+    Utils::PathChooser *m_pathChooser;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

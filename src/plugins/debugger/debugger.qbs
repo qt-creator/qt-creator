@@ -168,7 +168,7 @@ Project {
                 "cdbsymbolpathlisteditor.h",
                 "hostutils.cpp", "hostutils.h",
                 "peutils.cpp", "peutils.h",
-                "symbolpathsdialog.ui", "symbolpathsdialog.cpp", "symbolpathsdialog.h"
+                "symbolpathsdialog.cpp", "symbolpathsdialog.h"
             ]
         }
 
