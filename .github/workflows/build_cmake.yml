@@ -585,7 +585,6 @@ jobs:
         execute_process(COMMAND ccache -s)
 
     - name: Run tests
-      if: matrix.config.artifact == 'running-of-tests-is-disabled'
       shell: cmake -P {0}
       run: |
         include(ProcessorCount)
@@ -598,7 +597,7 @@ jobs:
         endif()
 
         execute_process(
-          COMMAND ctest -j ${N} --timeout 5
+          COMMAND ctest -j ${N} --timeout 60 --label-exclude exclude_from_precheck --exclude-regex tst_perfdata
           WORKING_DIRECTORY build/build
           RESULT_VARIABLE result
           OUTPUT_VARIABLE output
