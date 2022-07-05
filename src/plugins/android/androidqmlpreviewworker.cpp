@@ -362,7 +362,7 @@ FilePath AndroidQmlPreviewWorker::createQmlrcFile(const FilePath &workFolder,
         }
         QByteArray stdOut;
         QByteArray stdErr;
-        if (!rccProcess.readDataFromProcess(30, &stdOut, &stdErr, true)) {
+        if (!rccProcess.readDataFromProcess(30, &stdOut, &stdErr)) {
             rccProcess.stop();
             rccProcess.waitForFinished();
             appendMessage(tr("A timeout occurred running \"%1\"").

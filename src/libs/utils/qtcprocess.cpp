@@ -1315,10 +1315,7 @@ static bool askToKill(const QString &command)
 // occurs on stderr/stdout as opposed to waitForFinished()). Returns false if a timeout
 // occurs. Checking of the process' exit state/code still has to be done.
 
-bool QtcProcess::readDataFromProcess(int timeoutS,
-                                     QByteArray *stdOut,
-                                     QByteArray *stdErr,
-                                     bool showTimeOutMessageBox)
+bool QtcProcess::readDataFromProcess(int timeoutS, QByteArray *stdOut, QByteArray *stdErr)
 {
     enum { syncDebug = 0 };
     if (syncDebug)
@@ -1351,7 +1348,7 @@ bool QtcProcess::readDataFromProcess(int timeoutS,
         }
         // Prompt user, pretend we have data if says 'No'.
         const bool hang = !hasData && !finished;
-        hasData = hang && showTimeOutMessageBox && !askToKill(d->m_setup.m_commandLine.executable().path());
+        hasData = hang && !askToKill(d->m_setup.m_commandLine.executable().path());
     } while (hasData && !finished);
     if (syncDebug)
         qDebug() << "<readDataFromProcess" << finished;
