@@ -54,6 +54,8 @@ namespace Internal {
 static const QString resultsDirectory = QFileInfo(QDir::home(), ".squishQC/Test Results")
                                             .absoluteFilePath();
 
+static SquishTools *s_instance = nullptr;
+
 SquishTools::SquishTools(QObject *parent)
     : QObject(parent)
 {
@@ -76,9 +78,16 @@ SquishTools::SquishTools(QObject *parent)
             this, &SquishTools::onServerErrorOutput);
     connect(&m_serverProcess, &QtcProcess::done,
             this, &SquishTools::onServerFinished);
+    s_instance = this;
 }
 
 SquishTools::~SquishTools() = default;
+
+SquishTools *SquishTools::instance()
+{
+    QTC_CHECK(s_instance);
+    return s_instance;
+}
 
 struct SquishToolsSettings
 {
@@ -153,9 +162,23 @@ void SquishTools::runTestCases(const QString &suitePath,
             m_xmlOutputHandler.get(), &SquishXmlOutputHandler::outputAvailable,
             Qt::QueuedConnection);
 
-    m_testRunning = true;
+    m_squishRunnerMode = TestingMode;
     emit squishTestRunStarted();
     startSquishServer(RunTestRequested);
+}
+
+void SquishTools::queryServerSettings()
+{
+    if (m_state != Idle) {
+        QMessageBox::critical(Core::ICore::dialogParent(),
+                              tr("Error"),
+                              tr("Squish Tools in unexpected state (%1).\n"
+                                 "Refusing to run a test case.")
+                                  .arg(m_state));
+        return;
+    }
+    m_squishRunnerMode = QueryMode;
+    startSquishServer(RunnerQueryRequested);
 }
 
 void SquishTools::setState(SquishTools::State state)
@@ -171,7 +194,7 @@ void SquishTools::setState(SquishTools::State state)
         m_reportFiles.clear();
         m_additionalRunnerArguments.clear();
         m_additionalServerArguments.clear();
-        m_testRunning = false;
+        m_squishRunnerMode = NoMode;
         m_currentResultsDirectory.clear();
         m_lastTopLevelWindows.clear();
         break;
@@ -180,6 +203,7 @@ void SquishTools::setState(SquishTools::State state)
             startSquishRunner();
         } else if (m_request == RecordTestRequested) {
         } else if (m_request == RunnerQueryRequested) {
+            executeRunnerQuery();
         } else {
             QTC_ASSERT(false, qDebug() << m_state << m_request);
         }
@@ -187,9 +211,9 @@ void SquishTools::setState(SquishTools::State state)
     case ServerStartFailed:
         m_state = Idle;
         m_request = None;
-        if (m_testRunning) {
+        if (m_squishRunnerMode == TestingMode) {
             emit squishTestRunFinished();
-            m_testRunning = false;
+            m_squishRunnerMode = NoMode;
         }
         restoreQtCreatorWindows();
         break;
@@ -197,9 +221,9 @@ void SquishTools::setState(SquishTools::State state)
         m_state = Idle;
         if (m_request == ServerStopRequested) {
             m_request = None;
-            if (m_testRunning) {
+            if (m_squishRunnerMode == TestingMode) {
                 emit squishTestRunFinished();
-                m_testRunning = false;
+                m_squishRunnerMode = NoMode;
             }
             restoreQtCreatorWindows();
         } else if (m_request == KillOldBeforeRunRunner) {
@@ -218,7 +242,10 @@ void SquishTools::setState(SquishTools::State state)
         break;
     case RunnerStartFailed:
     case RunnerStopped:
-        if (m_testCases.isEmpty()) {
+        if (m_squishRunnerMode == QueryMode) {
+            m_request = ServerStopRequested;
+            stopSquishServer();
+        } else if (m_testCases.isEmpty()) {
             m_request = ServerStopRequested;
             stopSquishServer();
             QString error;
@@ -292,10 +319,12 @@ void SquishTools::startSquishServer(Request request)
     }
     toolsSettings.serverPath = squishServer;
 
-    if (true) // TODO squish setting of minimize QC on squish run/record
-        minimizeQtCreatorWindows();
-    else
-        m_lastTopLevelWindows.clear();
+    if (m_squishRunnerMode == TestingMode) {
+        if (true) // TODO squish setting of minimize QC on squish run/record
+            minimizeQtCreatorWindows();
+        else
+            m_lastTopLevelWindows.clear();
+    }
 
     QStringList arguments;
     // TODO if isLocalServer is false we should start a squishserver on remote device
@@ -368,6 +397,14 @@ void SquishTools::startSquishRunner()
     setupAndStartSquishRunnerProcess(args, caseReportFilePath);
 }
 
+void SquishTools::executeRunnerQuery()
+{
+    if (!isValidToStartRunner() || !setupRunnerPath())
+        return;
+
+    setupAndStartSquishRunnerProcess({ "--port", QString::number(m_serverPort), "--info", "all"});
+}
+
 Environment SquishTools::squishEnvironment()
 {
     Environment environment = Environment::systemEnvironment();
@@ -385,6 +422,12 @@ void SquishTools::onServerFinished()
 
 void SquishTools::onRunnerFinished()
 {
+    if (m_squishRunnerMode == QueryMode) {
+        emit queryFinished(m_runnerProcess.readAllStandardOutput());
+        setState(RunnerStopped);
+        return;
+    }
+
     if (m_resultsFileWatcher) {
         delete m_resultsFileWatcher;
         m_resultsFileWatcher = nullptr;
@@ -480,6 +523,9 @@ static int positionAfterLastClosingTag(const QByteArray &text)
 
 void SquishTools::onRunnerOutput()
 {
+    if (m_request == RunnerQueryRequested) // only handle test runs here, query is handled on done
+        return;
+
     // buffer for already read, but not processed content
     static QByteArray buffer;
     const qint64 currentSize = m_currentResultsXML->size();

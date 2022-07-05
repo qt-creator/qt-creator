@@ -51,6 +51,8 @@ public:
     explicit SquishTools(QObject *parent = nullptr);
     ~SquishTools() override;
 
+    static SquishTools *instance();
+
     enum State {
         Idle,
         ServerStarting,
@@ -69,11 +71,14 @@ public:
                       const QStringList &testCases = QStringList(),
                       const QStringList &additionalServerArgs = QStringList(),
                       const QStringList &additionalRunnerArgs = QStringList());
+    void queryServerSettings();
+
 signals:
     void logOutputReceived(const QString &output);
     void squishTestRunStarted();
     void squishTestRunFinished();
     void resultOutputCreated(const QByteArray &output);
+    void queryFinished(const QByteArray &output);
 
 private:
     enum Request {
@@ -92,6 +97,7 @@ private:
     void startSquishServer(Request request);
     void stopSquishServer();
     void startSquishRunner();
+    void executeRunnerQuery();
     static Utils::Environment squishEnvironment();
     void onServerFinished();
     void onRunnerFinished();
@@ -124,7 +130,7 @@ private:
     QStringList m_additionalServerArguments;
     QStringList m_additionalRunnerArguments;
     QWindowList m_lastTopLevelWindows;
-    bool m_testRunning = false;
+    enum RunnerMode { NoMode, TestingMode, QueryMode} m_squishRunnerMode = NoMode;
     qint64 m_readResultsCount;
 };
 
