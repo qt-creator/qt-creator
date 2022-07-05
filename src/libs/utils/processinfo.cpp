@@ -119,24 +119,20 @@ static QList<ProcessInfo> getLocalProcessesUsingProc()
 // Determine UNIX processes by running ps
 static QMap<qint64, QString> getLocalProcessDataUsingPs(const QString &column)
 {
+    QtcProcess process;
+    process.setCommand({"ps", {"-e", "-o", "pid," + column}});
+    process.start();
+    if (!process.waitForFinished())
+        return {};
+
+    // Split "457 /Users/foo.app arg1 arg2"
+    const QStringList lines = process.stdOut().split(QLatin1Char('\n'));
     QMap<qint64, QString> result;
-    Utils::QtcProcess psProcess;
-    psProcess.setCommand({"ps", {"-e", "-o", "pid," + column}});
-    psProcess.start();
-    if (psProcess.waitForStarted()) {
-        QByteArray output;
-        if (psProcess.readDataFromProcess(30, &output, nullptr, false)) {
-            // Split "457 /Users/foo.app arg1 arg2"
-            const QStringList lines = QString::fromLocal8Bit(output).split(QLatin1Char('\n'));
-            const int lineCount = lines.size();
-            const QChar blank = QLatin1Char(' ');
-            for (int l = 1; l < lineCount; l++) { // Skip header
-                const QString line = lines.at(l).trimmed();
-                const int pidSep = line.indexOf(blank);
-                const qint64 pid = line.left(pidSep).toLongLong();
-                result[pid] = line.mid(pidSep + 1);
-            }
-        }
+    for (int i = 1; i < lines.size(); ++i) { // Skip header
+        const QString line = lines.at(i).trimmed();
+        const int pidSep = line.indexOf(QChar::Space);
+        const qint64 pid = line.left(pidSep).toLongLong();
+        result.insert(pid, line.mid(pidSep + 1));
     }
     return result;
 }
