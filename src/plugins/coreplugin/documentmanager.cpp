@@ -25,10 +25,11 @@
 
 #include "documentmanager.h"
 
+#include "coreconstants.h"
+#include "coreplugintr.h"
 #include "icore.h"
 #include "idocument.h"
 #include "idocumentfactory.h"
-#include "coreconstants.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -790,7 +791,7 @@ static struct {const char *source; const char *comment; } ALL_FILES_FILTER = QT_
 
 QString DocumentManager::allFilesFilterString()
 {
-    return QCoreApplication::translate("Core", ALL_FILES_FILTER.source, ALL_FILES_FILTER.comment);
+    return Tr::tr(ALL_FILES_FILTER.source, ALL_FILES_FILTER.comment);
 }
 
 QString DocumentManager::allDocumentFactoryFiltersString(QString *allFilesFilter = nullptr)

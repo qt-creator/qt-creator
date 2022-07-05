@@ -45,6 +45,7 @@ Project {
                 "corejsextensions.h",
                 "coreplugin.cpp",
                 "coreplugin.h",
+                "coreplugintr.h",
                 "designmode.cpp",
                 "designmode.h",
                 "diffservice.cpp",

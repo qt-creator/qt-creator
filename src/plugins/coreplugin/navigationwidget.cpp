@@ -24,14 +24,15 @@
 ****************************************************************************/
 
 #include "navigationwidget.h"
-#include "navigationsubwidget.h"
-#include "icontext.h"
-#include "icore.h"
-#include "inavigationwidgetfactory.h"
-#include "modemanager.h"
 #include "actionmanager/actionmanager.h"
 #include "actionmanager/command.h"
+#include "coreplugintr.h"
+#include "icontext.h"
+#include "icore.h"
 #include "imode.h"
+#include "inavigationwidgetfactory.h"
+#include "modemanager.h"
+#include "navigationsubwidget.h"
 
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -297,7 +298,7 @@ void NavigationWidget::updateToggleText()
                                 ? (isShown() ? Constants::TR_HIDE_LEFT_SIDEBAR : Constants::TR_SHOW_LEFT_SIDEBAR)
                                 : (isShown() ? Constants::TR_HIDE_RIGHT_SIDEBAR : Constants::TR_SHOW_RIGHT_SIDEBAR);
 
-    d->m_toggleSideBarAction->setToolTip(QCoreApplication::translate("Core", trToolTip));
+    d->m_toggleSideBarAction->setToolTip(Tr::tr(trToolTip));
 }
 
 void NavigationWidget::placeHolderChanged(NavigationWidgetPlaceHolder *holder)

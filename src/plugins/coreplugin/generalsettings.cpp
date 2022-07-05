@@ -25,6 +25,7 @@
 
 #include "generalsettings.h"
 #include "coreconstants.h"
+#include "coreplugintr.h"
 #include "icore.h"
 
 #include "ui_generalsettings.h"
@@ -256,7 +257,7 @@ GeneralSettings::GeneralSettings()
     setId(Constants::SETTINGS_ID_INTERFACE);
     setDisplayName(GeneralSettingsWidget::tr("Interface"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayCategory(QCoreApplication::translate("Core", "Environment"));
+    setDisplayCategory(Tr::tr("Environment"));
     setCategoryIconPath(":/core/images/settingscategory_core.png");
     setWidgetCreator([this] { return new GeneralSettingsWidget(this); });
 

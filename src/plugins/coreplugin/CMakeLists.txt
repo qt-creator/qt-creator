@@ -22,6 +22,7 @@ add_qtc_plugin(Core
     coreicons.cpp coreicons.h
     corejsextensions.cpp corejsextensions.h
     coreplugin.cpp coreplugin.h
+    coreplugintr.h
     designmode.cpp designmode.h
     dialogs/addtovcsdialog.cpp dialogs/addtovcsdialog.h dialogs/addtovcsdialog.ui
     dialogs/codecselector.cpp dialogs/codecselector.h

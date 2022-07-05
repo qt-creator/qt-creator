@@ -25,30 +25,31 @@
 
 #include "mainwindow.h"
 
-#include "icore.h"
-#include "jsexpander.h"
-#include "mimetypesettings.h"
-#include "fancytabwidget.h"
+#include "coreicons.h"
+#include "coreplugintr.h"
 #include "documentmanager.h"
+#include "editormanager/ieditorfactory.h"
+#include "editormanager/systemeditor.h"
+#include "externaltoolmanager.h"
+#include "fancytabwidget.h"
 #include "generalsettings.h"
+#include "icore.h"
 #include "idocumentfactory.h"
+#include "jsexpander.h"
 #include "loggingviewer.h"
+#include "manhattanstyle.h"
 #include "messagemanager.h"
+#include "mimetypesettings.h"
 #include "modemanager.h"
+#include "navigationwidget.h"
 #include "outputpanemanager.h"
 #include "plugindialog.h"
+#include "rightpane.h"
+#include "statusbarmanager.h"
+#include "systemsettings.h"
 #include "vcsmanager.h"
 #include "versiondialog.h"
-#include "statusbarmanager.h"
-#include "manhattanstyle.h"
-#include "navigationwidget.h"
-#include "rightpane.h"
-#include "editormanager/ieditorfactory.h"
-#include "systemsettings.h"
-#include "externaltoolmanager.h"
-#include "editormanager/systemeditor.h"
 #include "windowsupport.h"
-#include "coreicons.h"
 
 #include <app/app_version.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -775,7 +776,7 @@ void MainWindow::registerDefaultActions()
 
     // Show Left Sidebar Action
     m_toggleLeftSideBarAction = new QAction(Utils::Icons::TOGGLE_LEFT_SIDEBAR.icon(),
-                                            QCoreApplication::translate("Core", Constants::TR_SHOW_LEFT_SIDEBAR),
+                                            Tr::tr(Constants::TR_SHOW_LEFT_SIDEBAR),
                                             this);
     m_toggleLeftSideBarAction->setCheckable(true);
     cmd = ActionManager::registerAction(m_toggleLeftSideBarAction, Constants::TOGGLE_LEFT_SIDEBAR);
@@ -791,7 +792,7 @@ void MainWindow::registerDefaultActions()
 
     // Show Right Sidebar Action
     m_toggleRightSideBarAction = new QAction(Utils::Icons::TOGGLE_RIGHT_SIDEBAR.icon(),
-                                             QCoreApplication::translate("Core", Constants::TR_SHOW_RIGHT_SIDEBAR),
+                                             Tr::tr(Constants::TR_SHOW_RIGHT_SIDEBAR),
                                              this);
     m_toggleRightSideBarAction->setCheckable(true);
     cmd = ActionManager::registerAction(m_toggleRightSideBarAction, Constants::TOGGLE_RIGHT_SIDEBAR);
@@ -1295,8 +1296,7 @@ void MainWindow::aboutToShowRecentFiles()
     // add the Clear Menu item
     if (hasRecentFiles) {
         menu->addSeparator();
-        QAction *action = menu->addAction(QCoreApplication::translate(
-                                                     "Core", Constants::TR_CLEAR_MENU));
+        QAction *action = menu->addAction(Tr::tr(Constants::TR_CLEAR_MENU));
         connect(action, &QAction::triggered,
                 DocumentManager::instance(), &DocumentManager::clearRecentFiles);
     }

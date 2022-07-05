@@ -25,8 +25,9 @@
 
 #include "icore.h"
 
-#include "windowsupport.h"
+#include "coreplugintr.h"
 #include "dialogs/settingsdialog.h"
+#include "windowsupport.h"
 
 #include <app/app_version.h>
 #include <extensionsystem/pluginmanager.h>
@@ -306,7 +307,7 @@ bool ICore::showOptionsDialog(const Id page, QWidget *parent)
 */
 QString ICore::msgShowOptionsDialog()
 {
-    return QCoreApplication::translate("Core", "Configure...", "msgShowOptionsDialog");
+    return Tr::tr("Configure...", "msgShowOptionsDialog");
 }
 
 /*!
@@ -318,11 +319,9 @@ QString ICore::msgShowOptionsDialog()
 QString ICore::msgShowOptionsDialogToolTip()
 {
     if (Utils::HostOsInfo::isMacHost())
-        return QCoreApplication::translate("Core", "Open Preferences dialog.",
-                                           "msgShowOptionsDialogToolTip (mac version)");
+        return Tr::tr("Open Preferences dialog.", "msgShowOptionsDialogToolTip (mac version)");
     else
-        return QCoreApplication::translate("Core", "Open Options dialog.",
-                                           "msgShowOptionsDialogToolTip (non-mac version)");
+        return Tr::tr("Open Options dialog.", "msgShowOptionsDialogToolTip (non-mac version)");
 }
 
 /*!
