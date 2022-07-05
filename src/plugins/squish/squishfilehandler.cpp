@@ -108,7 +108,7 @@ void SquishFileHandler::openTestSuites()
                     = QMessageBox::question(Core::ICore::dialogParent(),
                                             tr("Suite Already Open"),
                                             tr("A test suite with the name \"%1\" is already open."
-                                               "\nClose the opened test suite and replac it "
+                                               "\nClose the opened test suite and replace it "
                                                "with the new one?")
                                                 .arg(suiteName),
                                             QMessageBox::Yes | QMessageBox::YesToAll
