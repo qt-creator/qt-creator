@@ -281,12 +281,15 @@ static QStringList additionalFilesToCopy(const QtVersion *qt)
         } else if (HostOsInfo::isWindowsHost()) {
             const QString release = QString("bin/Qt%1Core.dll").arg(major);
             const QString debug = QString("bin/Qt%1Cored.dll").arg(major);
+            const QString mingwGcc("bin/libgcc_s_seh-1.dll");
+            const QString mingwStd("bin/libstdc++-6.dll");
+            const QString mingwPthread("bin/libwinpthread-1.dll");
             const FilePath base = qt->qmakeFilePath().parentDir().parentDir();
-            if (base.pathAppended(release).exists())
-                return {release};
-            if (base.pathAppended(debug).exists())
-                return {debug};
-            return {release};
+            const QStringList allFiles = {release, debug, mingwGcc, mingwStd, mingwPthread};
+            const QStringList existingFiles = Utils::filtered(allFiles, [&base](const QString &f) {
+                return base.pathAppended(f).exists();
+            });
+            return !existingFiles.empty() ? existingFiles : QStringList(release);
         } else if (HostOsInfo::isLinuxHost()) {
             const QString core = QString("lib/libQt%1Core.so.%1").arg(major);
             const QDir base(qt->qmakeFilePath().parentDir().parentDir().pathAppended("lib").toString());
