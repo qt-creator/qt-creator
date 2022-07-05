@@ -42,9 +42,6 @@ class SquishSettings : public Utils::AspectContainer
 public:
     SquishSettings();
 
-    void toSettings(QSettings *s) const;
-    void fromSettings(QSettings *s);
-
     Utils::StringAspect squishPath;
     Utils::StringAspect licensePath;
     Utils::StringAspect serverHost;
