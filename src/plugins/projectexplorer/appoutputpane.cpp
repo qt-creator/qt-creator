@@ -259,42 +259,44 @@ AppOutputPane::~AppOutputPane()
     delete m_handler;
 }
 
-int AppOutputPane::currentIndex() const
+AppOutputPane::RunControlTab *AppOutputPane::currentTab()
 {
-    if (const QWidget *w = m_tabWidget->currentWidget())
-        return indexOf(w);
-    return -1;
+    return tabFor(m_tabWidget->currentWidget());
+}
+
+const AppOutputPane::RunControlTab *AppOutputPane::currentTab() const
+{
+    return tabFor(m_tabWidget->currentWidget());
 }
 
 RunControl *AppOutputPane::currentRunControl() const
 {
-    const int index = currentIndex();
-    if (index != -1)
-        return m_runControlTabs.at(index).runControl;
+    if (const RunControlTab * const tab = currentTab())
+        return tab->runControl;
     return nullptr;
 }
 
-int AppOutputPane::indexOf(const RunControl *rc) const
+AppOutputPane::RunControlTab *AppOutputPane::tabFor(const RunControl *rc)
 {
-    for (int i = m_runControlTabs.size() - 1; i >= 0; i--)
-        if (m_runControlTabs.at(i).runControl == rc)
-            return i;
-    return -1;
+    const auto it = std::find_if(m_runControlTabs.begin(), m_runControlTabs.end(),
+                                 [rc](RunControlTab &t) { return t.runControl == rc; });
+    if (it == m_runControlTabs.end())
+        return nullptr;
+    return it;
 }
 
-int AppOutputPane::indexOf(const QWidget *outputWindow) const
+AppOutputPane::RunControlTab *AppOutputPane::tabFor(const QWidget *outputWindow)
 {
-    for (int i = m_runControlTabs.size() - 1; i >= 0; i--)
-        if (m_runControlTabs.at(i).window == outputWindow)
-            return i;
-    return -1;
+    const auto it = std::find_if(m_runControlTabs.begin(), m_runControlTabs.end(),
+            [outputWindow](RunControlTab &t) { return t.window == outputWindow; });
+    if (it == m_runControlTabs.end())
+        return nullptr;
+    return it;
 }
 
-int AppOutputPane::tabWidgetIndexOf(int runControlIndex) const
+const AppOutputPane::RunControlTab *AppOutputPane::tabFor(const QWidget *outputWindow) const
 {
-    if (runControlIndex >= 0 && runControlIndex < m_runControlTabs.size())
-        return m_tabWidget->indexOf(m_runControlTabs.at(runControlIndex).window);
-    return -1;
+    return const_cast<AppOutputPane *>(this)->tabFor(outputWindow);
 }
 
 void AppOutputPane::updateCloseActions()
@@ -366,10 +368,9 @@ void AppOutputPane::setFocus()
 
 void AppOutputPane::updateFilter()
 {
-    const int index = currentIndex();
-    if (index != -1) {
-        m_runControlTabs.at(index).window->updateFilterProperties(
-                    filterText(), filterCaseSensitivity(), filterUsesRegexp(), filterIsInverted());
+    if (RunControlTab * const tab = currentTab()) {
+        tab->window->updateFilterProperties(filterText(), filterCaseSensitivity(),
+                                            filterUsesRegexp(), filterIsInverted());
     }
 }
 
@@ -409,28 +410,30 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     const CommandLine thisCommand = rc->commandLine();
     const FilePath thisWorkingDirectory = rc->workingDirectory();
     const Environment thisEnvironment = rc->environment();
-    const int tabIndex = Utils::indexOf(m_runControlTabs, [&](const RunControlTab &tab) {
+    const auto tab = std::find_if(m_runControlTabs.begin(), m_runControlTabs.end(),
+                                  [&](const RunControlTab &tab) {
         if (!tab.runControl || tab.runControl->isRunning())
             return false;
         return thisCommand == tab.runControl->commandLine()
                 && thisWorkingDirectory == tab.runControl->workingDirectory()
                 && thisEnvironment == tab.runControl->environment();
     });
-    if (tabIndex != -1) {
-        RunControlTab &tab = m_runControlTabs[tabIndex];
+    if (tab != m_runControlTabs.end()) {
         // Reuse this tab
-        if (tab.runControl)
-            tab.runControl->initiateFinish();
-        tab.runControl = rc;
-        tab.window->reset();
-        rc->setupFormatter(tab.window->outputFormatter());
+        if (tab->runControl)
+            tab->runControl->initiateFinish();
+        tab->runControl = rc;
+        tab->window->reset();
+        rc->setupFormatter(tab->window->outputFormatter());
 
-        handleOldOutput(tab.window);
+        handleOldOutput(tab->window);
 
         // Update the title.
+        const int tabIndex = m_tabWidget->indexOf(tab->window);
+        QTC_ASSERT(tabIndex != -1, return);
         m_tabWidget->setTabText(tabIndex, rc->displayName());
 
-        tab.window->scrollToBottom();
+        tab->window->scrollToBottom();
         qCDebug(appOutputLog) << "AppOutputPane::createNewOutputWindow: Reusing tab"
                               << tabIndex << "for" << rc;
         return;
@@ -492,29 +495,29 @@ void AppOutputPane::updateFromSettings()
 
 void AppOutputPane::appendMessage(RunControl *rc, const QString &out, OutputFormat format)
 {
-    const int index = indexOf(rc);
-    if (index != -1) {
-        Core::OutputWindow *window = m_runControlTabs.at(index).window;
-        QString stringToWrite;
-        if (format == NormalMessageFormat || format == ErrorMessageFormat) {
-            stringToWrite = QTime::currentTime().toString();
-            stringToWrite += ": ";
-        }
-        stringToWrite += out;
-        window->appendMessage(stringToWrite, format);
-        if (format != NormalMessageFormat) {
-            RunControlTab &tab = m_runControlTabs[index];
-            switch (tab.behaviorOnOutput) {
-            case AppOutputPaneMode::FlashOnOutput:
-                flash();
-                break;
-            case AppOutputPaneMode::PopupOnFirstOutput:
-                tab.behaviorOnOutput = AppOutputPaneMode::FlashOnOutput;
-                Q_FALLTHROUGH();
-            case AppOutputPaneMode::PopupOnOutput:
-                popup(NoModeSwitch);
-                break;
-            }
+    RunControlTab * const tab = tabFor(rc);
+    if (!tab)
+        return;
+
+    QString stringToWrite;
+    if (format == NormalMessageFormat || format == ErrorMessageFormat) {
+        stringToWrite = QTime::currentTime().toString();
+        stringToWrite += ": ";
+    }
+    stringToWrite += out;
+    tab->window->appendMessage(stringToWrite, format);
+
+    if (format != NormalMessageFormat) {
+        switch (tab->behaviorOnOutput) {
+        case AppOutputPaneMode::FlashOnOutput:
+            flash();
+            break;
+        case AppOutputPaneMode::PopupOnFirstOutput:
+            tab->behaviorOnOutput = AppOutputPaneMode::FlashOnOutput;
+            Q_FALLTHROUGH();
+        case AppOutputPaneMode::PopupOnOutput:
+            popup(NoModeSwitch);
+            break;
         }
     }
 }
@@ -567,42 +570,39 @@ void AppOutputPane::loadSettings()
 
 void AppOutputPane::showTabFor(RunControl *rc)
 {
-    m_tabWidget->setCurrentIndex(tabWidgetIndexOf(indexOf(rc)));
+    if (RunControlTab * const tab = tabFor(rc))
+        m_tabWidget->setCurrentWidget(tab->window);
 }
 
 void AppOutputPane::setBehaviorOnOutput(RunControl *rc, AppOutputPaneMode mode)
 {
-    const int index = indexOf(rc);
-    if (index != -1)
-        m_runControlTabs[index].behaviorOnOutput = mode;
+    if (RunControlTab * const tab = tabFor(rc))
+        tab->behaviorOnOutput = mode;
 }
 
 void AppOutputPane::reRunRunControl()
 {
-    const int index = currentIndex();
-    const RunControlTab &tab = m_runControlTabs.at(index);
-    QTC_ASSERT(tab.runControl, return);
-    QTC_ASSERT(index != -1 && !tab.runControl->isRunning(), return);
+    RunControlTab * const tab = currentTab();
+    QTC_ASSERT(tab, return);
+    QTC_ASSERT(tab->runControl, return);
+    QTC_ASSERT(!tab->runControl->isRunning(), return);
 
-    handleOldOutput(tab.window);
-    tab.window->scrollToBottom();
-    tab.runControl->initiateReStart();
+    handleOldOutput(tab->window);
+    tab->window->scrollToBottom();
+    tab->runControl->initiateReStart();
 }
 
 void AppOutputPane::attachToRunControl()
 {
-    const int index = currentIndex();
-    QTC_ASSERT(index != -1, return);
-    RunControl *rc = m_runControlTabs.at(index).runControl;
-    QTC_ASSERT(rc && rc->isRunning(), return);
+    RunControl * const rc = currentRunControl();
+    QTC_ASSERT(rc, return);
+    QTC_ASSERT(rc->isRunning(), return);
     ExtensionSystem::Invoker<void>(debuggerPlugin(), "attachExternalApplication", rc);
 }
 
 void AppOutputPane::stopRunControl()
 {
-    const int index = currentIndex();
-    QTC_ASSERT(index != -1, return);
-    RunControl *rc = m_runControlTabs.at(index).runControl;
+    RunControl * const rc = currentRunControl();
     QTC_ASSERT(rc, return);
 
     if (rc->isRunning()) {
@@ -632,22 +632,22 @@ QList<RunControl *> AppOutputPane::allRunControls() const
 
 void AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
 {
-    int index = indexOf(m_tabWidget->widget(tabIndex));
-    QTC_ASSERT(index != -1, return);
+    QWidget * const tabWidget = m_tabWidget->widget(tabIndex);
+    RunControlTab *tab = tabFor(tabWidget);
+    QTC_ASSERT(tab, return);
 
-    RunControl *runControl = m_runControlTabs[index].runControl;
-    Core::OutputWindow *window = m_runControlTabs[index].window;
+    RunControl *runControl = tab->runControl;
+    Core::OutputWindow *window = tab->window;
     qCDebug(appOutputLog) << "AppOutputPane::closeTab tab" << tabIndex << runControl << window;
     // Prompt user to stop
     if (closeTabMode == CloseTabWithPrompt) {
-        QWidget *tabWidget = m_tabWidget->widget(tabIndex);
         if (runControl && runControl->isRunning() && !runControl->promptToStop())
             return;
         // The event loop has run, thus the ordering might have changed, a tab might
         // have been closed, so do some strange things...
         tabIndex = m_tabWidget->indexOf(tabWidget);
-        index = indexOf(tabWidget);
-        if (tabIndex == -1 || index == -1)
+        tab = tabFor(tabWidget);
+        if (tabIndex == -1 || !tab)
             return;
     }
 
@@ -656,7 +656,8 @@ void AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
 
     if (runControl)
         runControl->initiateFinish(); // Will self-destruct.
-    m_runControlTabs.removeAt(index);
+    Utils::erase(m_runControlTabs, [tab](const RunControlTab &t) {
+        return t.runControl == tab->runControl; });
     updateCloseActions();
     setFilteringEnabled(m_tabWidget->count() > 0);
 
@@ -732,12 +733,11 @@ void AppOutputPane::enableButtons(const RunControl *rc)
 
 void AppOutputPane::tabChanged(int i)
 {
-    const int index = indexOf(m_tabWidget->widget(i));
-    if (i != -1 && index != -1) {
-        const RunControlTab &controlTab = m_runControlTabs[index];
-        controlTab.window->updateFilterProperties(filterText(), filterCaseSensitivity(),
-                                                  filterUsesRegexp(), filterIsInverted());
-        enableButtons(controlTab.runControl);
+    RunControlTab * const controlTab = tabFor(m_tabWidget->widget(i));
+    if (i != -1 && controlTab) {
+        controlTab->window->updateFilterProperties(filterText(), filterCaseSensitivity(),
+                                                   filterUsesRegexp(), filterIsInverted());
+        enableButtons(controlTab->runControl);
     } else {
         enableDefaultButtons();
     }
@@ -747,12 +747,15 @@ void AppOutputPane::contextMenuRequested(const QPoint &pos, int index)
 {
     const QList<QAction *> actions = {m_closeCurrentTabAction, m_closeAllTabsAction, m_closeOtherTabsAction};
     QAction *action = QMenu::exec(actions, m_tabWidget->mapToGlobal(pos), nullptr, m_tabWidget);
-    const int currentIdx = index != -1 ? index : currentIndex();
+    if (action == m_closeAllTabsAction) {
+        closeTabs(AppOutputPane::CloseTabWithPrompt);
+        return;
+    }
+
+    const int currentIdx = index != -1 ? index : m_tabWidget->currentIndex();
     if (action == m_closeCurrentTabAction) {
         if (currentIdx >= 0)
             closeTab(currentIdx);
-    } else if (action == m_closeAllTabsAction) {
-        closeTabs(AppOutputPane::CloseTabWithPrompt);
     } else if (action == m_closeOtherTabsAction) {
         for (int t = m_tabWidget->count() - 1; t >= 0; t--)
             if (t != currentIdx)
@@ -781,16 +784,17 @@ void AppOutputPane::slotRunControlFinished()
 
 void AppOutputPane::slotRunControlFinished2(RunControl *sender)
 {
-    const int senderIndex = indexOf(sender);
+    const RunControlTab * const tab = tabFor(sender);
 
     // This slot is queued, so the stop() call in closeTab might lead to this slot, after closeTab already cleaned up
-    if (senderIndex == -1)
+    if (!tab)
         return;
 
     // Enable buttons for current
     RunControl *current = currentRunControl();
 
-    qCDebug(appOutputLog) << "AppOutputPane::runControlFinished"  << sender << senderIndex
+    qCDebug(appOutputLog) << "AppOutputPane::runControlFinished"  << sender
+                          << m_tabWidget->indexOf(tab->window)
                           << "current" << current << m_runControlTabs.size();
 
     if (current && current == sender)

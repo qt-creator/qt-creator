@@ -132,11 +132,12 @@ private:
     void closeTab(int index, CloseTabMode cm = CloseTabWithPrompt);
     bool optionallyPromptToStop(RunControl *runControl);
 
-    int indexOf(const RunControl *) const;
-    int indexOf(const QWidget *outputWindow) const;
-    int currentIndex() const;
+    RunControlTab *tabFor(const RunControl *rc);
+    RunControlTab *tabFor(const QWidget *outputWindow);
+    const RunControlTab *tabFor(const QWidget *outputWindow) const;
+    RunControlTab *currentTab();
+    const RunControlTab *currentTab() const;
     RunControl *currentRunControl() const;
-    int tabWidgetIndexOf(int runControlIndex) const;
     void handleOldOutput(Core::OutputWindow *window) const;
     void updateCloseActions();
     void updateFilter() override;
