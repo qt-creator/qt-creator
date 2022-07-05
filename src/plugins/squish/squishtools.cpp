@@ -281,7 +281,7 @@ void SquishTools::startSquishServer(Request request)
 
     const FilePath squishServer = Environment::systemEnvironment().searchInPath(
         toolsSettings.serverPath.toString());
-    if (squishServer.isEmpty()) {
+    if (!squishServer.isExecutableFile()) {
         QMessageBox::critical(Core::ICore::dialogParent(),
                               tr("Squish Server Error"),
                               tr("\"%1\" could not be found or is not executable.\n"
@@ -339,53 +339,8 @@ void SquishTools::stopSquishServer()
 
 void SquishTools::startSquishRunner()
 {
-    if (!m_serverProcess.isRunning()) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              tr("No Squish Server"),
-                              tr("Squish server does not seem to be running.\n"
-                                 "(state: %1, request: %2)\n"
-                                 "Try again.")
-                                  .arg(m_state)
-                                  .arg(m_request));
-        setState(Idle);
+    if (!isValidToStartRunner() || !setupRunnerPath())
         return;
-    }
-    if (m_serverPort == -1) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              tr("No Squish Server Port"),
-                              tr("Failed to get the server port.\n"
-                                 "(state: %1, request: %2)\n"
-                                 "Try again.")
-                                  .arg(m_state)
-                                  .arg(m_request));
-        // setting state to ServerStartFailed will terminate/kill the current unusable server
-        setState(ServerStartFailed);
-        return;
-    }
-
-    if (m_runnerProcess.state() != QProcess::NotRunning) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              tr("Squish Runner Running"),
-                              tr("Squish runner seems to be running already.\n"
-                                 "(state: %1, request: %2)\n"
-                                 "Wait until it has finished and try again.")
-                                  .arg(m_state)
-                                  .arg(m_request));
-        return;
-    }
-
-    const FilePath squishRunner = Environment::systemEnvironment().searchInPath(
-        toolsSettings.runnerPath.toString());
-    if (squishRunner.isEmpty()) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              tr("Squish Runner Error"),
-                              tr("\"%1\" could not be found or is not executable.\n"
-                                 "Check the settings.")
-                                  .arg(toolsSettings.runnerPath.toUserOutput()));
-        setState(RunnerStopped);
-        return;
-    }
-    toolsSettings.runnerPath = squishRunner;
 
     QStringList args;
     args << m_additionalServerArguments;
@@ -410,38 +365,7 @@ void SquishTools::startSquishRunner()
     args << "--reportgen"
          << QString::fromLatin1("xml2.2,%1").arg(caseReportFilePath);
 
-    m_runnerProcess.setCommand({toolsSettings.runnerPath, args});
-    m_runnerProcess.setEnvironment(squishEnvironment());
-
-    setState(RunnerStarting);
-
-    // set up the file system watcher for being able to read the results.xml file
-    m_resultsFileWatcher = new QFileSystemWatcher;
-    // on second run this directory exists and won't emit changes, so use the current subdirectory
-    if (QDir(m_currentResultsDirectory).exists())
-        m_resultsFileWatcher->addPath(m_currentResultsDirectory + QDir::separator()
-                                      + QDir(m_suitePath).dirName());
-    else
-        m_resultsFileWatcher->addPath(QFileInfo(m_currentResultsDirectory).absolutePath());
-
-    connect(m_resultsFileWatcher,
-            &QFileSystemWatcher::directoryChanged,
-            this,
-            &SquishTools::onResultsDirChanged);
-
-    m_runnerProcess.start();
-    if (!m_runnerProcess.waitForStarted()) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              tr("Squish Runner Error"),
-                              tr("Squish runner failed to start within given timeframe."));
-        delete m_resultsFileWatcher;
-        m_resultsFileWatcher = nullptr;
-        setState(RunnerStartFailed);
-        m_runnerProcess.close();
-        return;
-    }
-    setState(RunnerStarted);
-    m_currentResultsXML = new QFile(caseReportFilePath);
+    setupAndStartSquishRunnerProcess(args, caseReportFilePath);
 }
 
 Environment SquishTools::squishEnvironment()
@@ -671,6 +595,102 @@ void SquishTools::restoreQtCreatorWindows()
         window->requestActivate();
         window->showNormal();
     }
+}
+
+bool SquishTools::isValidToStartRunner()
+{
+    if (!m_serverProcess.isRunning()) {
+        QMessageBox::critical(Core::ICore::dialogParent(),
+                              tr("No Squish Server"),
+                              tr("Squish server does not seem to be running.\n"
+                                 "(state: %1, request: %2)\n"
+                                 "Try again.")
+                                  .arg(m_state)
+                                  .arg(m_request));
+        setState(Idle);
+        return false;
+    }
+    if (m_serverPort == -1) {
+        QMessageBox::critical(Core::ICore::dialogParent(),
+                              tr("No Squish Server Port"),
+                              tr("Failed to get the server port.\n"
+                                 "(state: %1, request: %2)\n"
+                                 "Try again.")
+                                  .arg(m_state)
+                                  .arg(m_request));
+        // setting state to ServerStartFailed will terminate/kill the current unusable server
+        setState(ServerStartFailed);
+        return false;
+    }
+
+    if (m_runnerProcess.state() != QProcess::NotRunning) {
+        QMessageBox::critical(Core::ICore::dialogParent(),
+                              tr("Squish Runner Running"),
+                              tr("Squish runner seems to be running already.\n"
+                                 "(state: %1, request: %2)\n"
+                                 "Wait until it has finished and try again.")
+                                  .arg(m_state)
+                                  .arg(m_request));
+        return false;
+    }
+    return true;
+}
+
+bool SquishTools::setupRunnerPath()
+{
+    const FilePath squishRunner = Environment::systemEnvironment().searchInPath(
+        toolsSettings.runnerPath.toString());
+    if (!squishRunner.isExecutableFile()) {
+        QMessageBox::critical(Core::ICore::dialogParent(),
+                              tr("Squish Runner Error"),
+                              tr("\"%1\" could not be found or is not executable.\n"
+                                 "Check the settings.")
+                                  .arg(toolsSettings.runnerPath.toUserOutput()));
+        setState(RunnerStopped);
+        return false;
+    }
+    toolsSettings.runnerPath = squishRunner;
+    return true;
+}
+
+void SquishTools::setupAndStartSquishRunnerProcess(const QStringList &args,
+                                                   const QString &caseReportFilePath)
+{
+    m_runnerProcess.setCommand({toolsSettings.runnerPath, args});
+    m_runnerProcess.setEnvironment(squishEnvironment());
+
+    setState(RunnerStarting);
+
+    if (m_request == RunTestRequested) {
+        // set up the file system watcher for being able to read the results.xml file
+        m_resultsFileWatcher = new QFileSystemWatcher;
+        // on 2nd run this directory exists and won't emit changes, so use the current subdirectory
+        if (QDir(m_currentResultsDirectory).exists())
+            m_resultsFileWatcher->addPath(m_currentResultsDirectory + QDir::separator()
+                                          + QDir(m_suitePath).dirName());
+        else
+            m_resultsFileWatcher->addPath(QFileInfo(m_currentResultsDirectory).absolutePath());
+
+        connect(m_resultsFileWatcher,
+                &QFileSystemWatcher::directoryChanged,
+                this,
+                &SquishTools::onResultsDirChanged);
+    }
+
+    m_runnerProcess.start();
+    if (!m_runnerProcess.waitForStarted()) {
+        QMessageBox::critical(Core::ICore::dialogParent(),
+                              tr("Squish Runner Error"),
+                              tr("Squish runner failed to start within given timeframe."));
+        delete m_resultsFileWatcher;
+        m_resultsFileWatcher = nullptr;
+        setState(RunnerStartFailed);
+        m_runnerProcess.close();
+        return;
+    }
+    setState(RunnerStarted);
+    if (m_request == RunTestRequested)
+        m_currentResultsXML = new QFile(caseReportFilePath);
 }
 
 } // namespace Internal

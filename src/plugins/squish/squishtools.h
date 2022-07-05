@@ -103,6 +103,10 @@ private:
     static void logrotateTestResults();
     void minimizeQtCreatorWindows();
     void restoreQtCreatorWindows();
+    bool isValidToStartRunner();
+    bool setupRunnerPath();
+    void setupAndStartSquishRunnerProcess(const QStringList &arg,
+                                          const QString &caseReportFilePath = {});
 
     std::unique_ptr<SquishXmlOutputHandler> m_xmlOutputHandler;
     Utils::QtcProcess m_serverProcess;
