@@ -655,4 +655,74 @@ void ClangFormatTest::testClassIndentStructure()
              (std::vector<QString>{"class test {", "    Q_OBJECT", "public:", "};"}));
 }
 
+void ClangFormatTest::testIndentInitializeVector()
+{
+    insertLines({
+        "class Test {",
+        "public:",
+        "    Test();",
+        "};",
+        "",
+        "Test::Test()",
+        "{",
+        "    QVector<int> list = {",
+        "        1,",
+        "        2,",
+        "        3,",
+        "    };",
+        "    QVector<int> list_2 = {",
+        "        1,",
+        "        2,",
+        "        3,",
+        "    };",
+        "}",
+        "",
+        "int main()",
+        "{",
+        "}"
+    });
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    QCOMPARE(documentLines(),
+             (std::vector<QString>{
+                 "class Test {",
+                 "public:",
+                 "    Test();",
+                 "};",
+                 "",
+                 "Test::Test()",
+                 "{",
+                 "    QVector<int> list = {",
+                 "        1,",
+                 "        2,",
+                 "        3,",
+                 "    };",
+                 "    QVector<int> list_2 = {",
+                 "        1,",
+                 "        2,",
+                 "        3,",
+                 "    };",
+                 "}",
+                 "",
+                 "int main()",
+                 "{",
+                 "}"
+             }));
+}
+
+void ClangFormatTest::testIndentFunctionArgumentOnNewLine()
+{
+    insertLines(
+        {"Bar foo(",
+         "a,",
+         ")"
+        });
+    m_indenter->indentBlock(m_doc->findBlockByNumber(1), QChar::Null, TextEditor::TabSettings());
+    QCOMPARE(documentLines(),
+             (std::vector<QString>{
+                "Bar foo(",
+                "    a,",
+                ")"
+              }));
+}
+
 } // namespace ClangFormat::Internal

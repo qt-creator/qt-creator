@@ -156,6 +156,16 @@ QTextBlock reverseFindLastEmptyBlock(QTextBlock start)
     return start;
 }
 
+QTextBlock reverseFindLastBlockWithSymbol(QTextBlock start, QChar ch)
+{
+    if (start.position() > 0) {
+        start = start.previous();
+        while (start.position() > 0 && !start.text().contains(ch))
+            start = start.previous();
+    }
+    return start;
+}
+
 enum class CharacterContext {
     AfterComma,
     LastAfterComma,
@@ -202,18 +212,30 @@ bool comesDirectlyAfterIf(const QTextDocument *doc, int pos)
     return pos > 0 && doc->characterAt(pos) == 'f' && doc->characterAt(pos - 1) == 'i';
 }
 
-CharacterContext characterContext(const QTextBlock &currentBlock,
-                                  const QTextBlock &previousNonEmptyBlock)
+CharacterContext characterContext(const QTextBlock &currentBlock)
 {
+    QTextBlock previousNonEmptyBlock = reverseFindLastEmptyBlock(currentBlock);
+    if (previousNonEmptyBlock.position() > 0)
+        previousNonEmptyBlock = previousNonEmptyBlock.previous();
+
     const QString prevLineText = previousNonEmptyBlock.text().trimmed();
     if (prevLineText.isEmpty())
         return CharacterContext::NewStatementOrContinuation;
 
     const QChar firstNonWhitespaceChar = findFirstNonWhitespaceCharacter(currentBlock);
     if (prevLineText.endsWith(',')) {
-        // We don't need to add comma in case it's the last argument.
-        if (firstNonWhitespaceChar == '}' || firstNonWhitespaceChar == ')')
+        if (firstNonWhitespaceChar == '}') {
+            if (reverseFindLastBlockWithSymbol(currentBlock, '{').text().trimmed().last(1) == '{')
+                return CharacterContext::NewStatementOrContinuation;
             return CharacterContext::LastAfterComma;
+        }
+
+        if (firstNonWhitespaceChar == ')') {
+            if (reverseFindLastBlockWithSymbol(currentBlock, '(').text().trimmed().last(1) == '(')
+                return CharacterContext::NewStatementOrContinuation;
+            return CharacterContext::LastAfterComma;
+        }
+
         return CharacterContext::AfterComma;
     }
 
@@ -267,6 +289,14 @@ int forceIndentWithExtraText(QByteArray &buffer,
     if (!block.isValid())
         return 0;
 
+    auto tmpcharContext = characterContext(block);
+    if (charContext == CharacterContext::LastAfterComma
+        && tmpcharContext == CharacterContext::LastAfterComma) {
+        charContext = CharacterContext::AfterComma;
+    } else {
+        charContext = tmpcharContext;
+    }
+
     const QString blockText = block.text();
     int firstNonWhitespace = Utils::indexOf(blockText,
                                             [](const QChar &ch) { return !ch.isSpace(); });
@@ -290,17 +320,6 @@ int forceIndentWithExtraText(QByteArray &buffer,
         // If the next line is also empty it's safer to use a comment line.
         dummyText = "//";
     } else if (firstNonWhitespace < 0 || closingParenBlock || closingBraceBlock) {
-        if (charContext == CharacterContext::LastAfterComma) {
-            charContext = CharacterContext::AfterComma;
-        } else if (charContext == CharacterContext::Unknown || firstNonWhitespace >= 0) {
-            QTextBlock lastBlock = reverseFindLastEmptyBlock(block);
-            if (lastBlock.position() > 0)
-                lastBlock = lastBlock.previous();
-
-            // If we don't know yet the dummy text, let's guess it and use for this line and before.
-            charContext = characterContext(block, lastBlock);
-        }
-
         dummyText = dummyTextForContext(charContext, closingBraceBlock);
     }
 

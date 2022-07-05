@@ -110,6 +110,8 @@ private slots:
     void testChainedMemberFunctionCalls();
     void testCommentBlock();
     void testClassIndentStructure();
+    void testIndentInitializeVector();
+    void testIndentFunctionArgumentOnNewLine();
 
 private:
     void insertLines(const std::vector<QString> &lines);
