@@ -662,38 +662,19 @@ bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
         checkProcess.setWorkingDirectory(d->m_checkScriptWorkingDirectory);
     checkProcess.setCommand({FilePath::fromString(checkScript), {saver.filePath().toString()}});
     checkProcess.start();
-    if (!checkProcess.waitForStarted()) {
-        *errorMessage = tr("The check script \"%1\" could not be started: %2").arg(checkScript, checkProcess.errorString());
-        return false;
-    }
-    QByteArray stdOutData;
-    QByteArray stdErrData;
-    if (!checkProcess.readDataFromProcess(30, &stdOutData, &stdErrData, false)) {
-        *errorMessage = tr("The check script \"%1\" timed out.").
-                        arg(QDir::toNativeSeparators(checkScript));
-        return false;
-    }
-    if (checkProcess.exitStatus() != QProcess::NormalExit) {
-        *errorMessage = tr("The check script \"%1\" crashed.").
-                        arg(QDir::toNativeSeparators(checkScript));
-        return false;
-    }
-    if (!stdOutData.isEmpty())
-        VcsOutputWindow::appendSilently(QString::fromLocal8Bit(stdOutData));
-    const QString stdErr = QString::fromLocal8Bit(stdErrData);
+    const bool succeeded = checkProcess.waitForFinished();
+
+    const QString stdOut = checkProcess.stdOut();
+    if (!stdOut.isEmpty())
+        VcsOutputWindow::appendSilently(stdOut);
+    const QString stdErr = checkProcess.stdErr();
     if (!stdErr.isEmpty())
         VcsOutputWindow::appendSilently(stdErr);
-    const int exitCode = checkProcess.exitCode();
-    if (exitCode != 0) {
-        const QString exMessage = tr("The check script returned exit code %1.").
-                                  arg(exitCode);
-        VcsOutputWindow::appendError(exMessage);
-        *errorMessage = stdErr;
-        if (errorMessage->isEmpty())
-            *errorMessage = exMessage;
-        return false;
-    }
-    return true;
+
+    if (!succeeded)
+        *errorMessage = checkProcess.exitMessage();
+
+    return succeeded;
 }
 
 QIcon VcsBaseSubmitEditor::diffIcon()
