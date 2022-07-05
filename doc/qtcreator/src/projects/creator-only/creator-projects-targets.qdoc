@@ -84,21 +84,42 @@
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
             \uicontrol Add.
 
-            \image qtcreator-kits-add.png
-
             To clone the selected kit, select \uicontrol Clone.
 
-        \li In the \uicontrol Name column, enter a name for the kit.
+        \li Specify kit settings. The settings to specify depend on the build
+            system and device type.
 
-        \li Select the \inlineimage icons/qtcreator-desktopdevice-button.png
-            button to select an image to use as an icon for the kit.
+        \li Select \uicontrol OK to create the kit.
 
-        \li In the \uicontrol {File system name} field, enter a name for the kit
-            to use as a part of directory names. This value is used for the
-            \e CurrentKit:FileSystemName variable, which determines the name of
-            the shadow build directory, for example.
+    \endlist
 
-        \li In the \uicontrol{Device type} field, select the type of the device.
+    \QC uses the \e {default kit} if it does not have enough information to
+    choose the kit to use. To set the selected kit as the default kit,
+    select \uicontrol {Make Default}.
+
+    \section2 Kit Settings
+
+    The following table summarizes the available kit settings.
+
+    \table
+    \header
+        \li Setting
+        \li Value
+    \row
+        \li \uicontrol Name
+        \li Name of the kit. You can use variables to generate the kit name
+            based on the values you set in the other fields.
+    \row
+        \li \inlineimage icons/qtcreator-desktopdevice-button.png
+        \li Image to use as an icon for the kit.
+    \row
+        \li \uicontrol {File system name}
+        \li Name for the kit to use as a part of directory names. This value is
+            used for the \c CurrentKit:FileSystemName variable, which determines
+            the name of the shadow build directory, for example.
+    \row
+        \li \uicontrol{Device type}
+        \li Type of the device.
 
             Double-click the icon next to the field to select the image that is
             displayed in the kit selector for this kit. You can use any
@@ -106,92 +127,96 @@
             scaled to the size 64x64 pixels. For example, using the compiler
             logo as an icon allows you to easily see, which compiler is used to
             build the project for the selected kit.
+    \row
+        \li \uicontrol Device
+        \li The device to run applications on.
+    \row
+        \li \uicontrol {Build device}
+        \li The device to build applications on.
 
-        \li In the \uicontrol Device field, select a device.
+    \row
+        \li \uicontrol Sysroot
+        \li Directory where the device image is located. If you are not
+            cross-compiling, leave this field empty.
+    \row
+        \li \uicontrol {Emulator skin}
+        \li Skin to use for the \l {Emulator}{Boot2Qt Emulator Device}.
+    \row
+        \li \uicontrol {Compiler}
+        \li C or C++ compiler that you use to build the project. You can add
+            compilers to the list if they are installed on the development PC,
+            but were not detected automatically. For more information, see
+            \l{Adding Compilers}.
 
-        \li In the \uicontrol Sysroot field, specify the directory where the device
-            image is located. If you are not cross-compiling, leave this field
-            empty.
-
-        \li In the \uicontrol {Emulator skin} field, select the skin to use for
-            the \l {Emulator}{Boot2Qt Emulator Device}.
-
-        \li In the \uicontrol {Compiler} field, select the C or C++ compiler
-            that you use to build the project. You can add compilers to the list
-            if they are installed on the development PC, but were not detected
-            automatically. For more information, see \l{Adding Compilers}.
             This setting is used to tell the code model which compiler is used.
             If your project type and build tool support it, \QC also tells the
             build tool to use this compiler for building the project.
-
-        \li In the \uicontrol Environment field, select \uicontrol Change to modify
-            environment variable values for build environments in
-            the \uicontrol {Edit Environment Changes} dialog. For more information
-            about how to add and remove variable values, see \l{Batch Editing}.
-
-        \li Select the \uicontrol {Force UTF-8 MSVC compiler output} check box
-            to either switch the language of MSVC to English or to keep the
-            language setting and just force UTF-8 output, depending on the
+    \row
+        \li \uicontrol Environment
+        \li Select \uicontrol Change to modify environment variable values for
+            build environments in the \uicontrol {Edit Environment Changes}
+            dialog. For more information about how to add and remove variable
+            values, see \l{Batch Editing}.
+    \row
+        \li \uicontrol {Force UTF-8 MSVC compiler output}
+        \li Either switches the language of MSVC to English or keeps the
+            language setting and just forces UTF-8 output, depending on the
             MSVC compiler used.
-
-        \li In the \uicontrol Debugger field, select the debugger to debug the project
-            on the target platform. \QC automatically detects available
-            debuggers and displays a suitable debugger in the field. You can
-            add debuggers to the list. For more information, see
-            \l{Adding Debuggers}.
+    \row
+        \li \uicontrol Debugger
+        \li Debugger to debug the project on the target platform. \QC
+            automatically detects available debuggers and displays a
+            suitable debugger in the field. You can add debuggers to the list.
+            For more information, see \l{Adding Debuggers}.
 
             For Android kits, the \uicontrol {Android GDB server} field will
             display the path to GDB server executable.
-
-        \li In the \uicontrol {Qt version} field, select the Qt version to use for
-            building the project. You can add Qt versions to the list if they
-            are installed on the development PC, but were not detected
-            automatically. For more information, see \l{Adding Qt Versions}.
+    \row
+        \li \uicontrol {Qt version}
+        \li Qt version to use for building the project. You can add Qt versions
+            to the list if they are installed on the development PC, but were not
+            detected automatically. For more information, see \l{Adding Qt Versions}.
 
             \QC checks the directories listed in the \c{PATH} environment
             variable for the qmake executable. If a qmake executable is found,
             it is referred to as \b{Qt in PATH} and selected as the Qt
             version to use for the \uicontrol Desktop kit that is created by default.
-
-        \li In the \uicontrol {Qt mkspec} field, specify the name of the mkspec
-            configuration that should be used by qmake. If you leave this field
-            empty, the default mkspec of the selected Qt version is used.
-
-        \li In the \uicontrol {Additional Qbs profile settings} field, select
-            \uicontrol Change to add settings to Qbs build profiles. For more
-            information, see \l {Editing Qbs Profiles}.
-
-        \li In the \uicontrol {CMake Tool} field, select the CMake executable
-            to use for building the project. Select \uicontrol Manage to add
-            installed CMake executables to the list. For more information, see
-            \l{Adding CMake Tools}.
-
-        \li In the \uicontrol {CMake generator} field, select \uicontrol Change
-            to edit the CMake
-            Generator to use for producing project files. Only the generators
+    \row
+        \li \uicontrol {Qt mkspec}
+        \li Name of the mkspec configuration that should be used by qmake. If
+            you leave this field empty, the default mkspec of the selected Qt
+            version is used.
+    \row
+        \li \uicontrol {Additional Qbs profile settings}
+        \li Select \uicontrol Change to add settings to Qbs build profiles.
+            For more information, see \l {Editing Qbs Profiles}.
+    \row
+        \li \uicontrol {CMake Tool}
+        \li CMake executable to use for building the project. Select
+            \uicontrol Manage to add installed CMake executables to
+            the list. For more information, see \l{Adding CMake Tools}.
+    \row
+        \li \uicontrol {CMake generator}
+        \li Select \uicontrol Change to edit the CMake Generator to use for
+            producing project files. Only the generators
             with names beginning with the string \uicontrol CodeBlocks produce
             all the necessary data for the \QC code model. \QC displays a
             warning if you select a generator that is not supported.
             For more information, see \l{Using Ninja as a CMake Generator}.
-
-        \li In the \uicontrol {CMake configuration} field, select
-            \uicontrol Change to edit the parameters of the CMake configuration
-            for the kit.
-
-        \li In the \uicontrol {Meson tool} field, select the Meson tool to use
-            for building the project. Select \uicontrol Manage to add installed
-            Meson tools to the list. For more information, see
+    \row
+        \li \uicontrol {CMake configuration}
+        \li Select \uicontrol Change to edit the parameters of the CMake
+            configuration for the kit.
+    \row
+        \li \uicontrol {Meson tool}
+        \li Meson tool to use for building the project. Select \uicontrol Manage
+            to add installed Meson tools to the list. For more information, see
             \l{Adding Meson Tools}.
-
-        \li In the \uicontrol {Ninja tool} field, select the Ninja tool to use
-            for building the project with Meson. Select \uicontrol Manage to add installed
-            Ninja tools to the list.
-
-    \endlist
-
-    \QC uses the \e {default kit} if it does not have enough information to
-    choose the kit to use. To set the selected kit as the default kit,
-    select \uicontrol {Make Default}.
+    \row
+        \li \uicontrol {Ninja tool}
+        \li Ninja tool to use for building the project with Meson. Select
+            \uicontrol Manage to add installed Ninja tools to the list.
+    \endtable
 
     \section1 Editing Qbs Profiles
 
