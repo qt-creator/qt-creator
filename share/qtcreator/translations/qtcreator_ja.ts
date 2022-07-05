@@ -8169,10 +8169,6 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
         <translation>グリッドがキーナビゲーションをラップするかどうか。</translation>
     </message>
     <message>
-        <source>Whether the grid wraps key navigation.</source>
-        <translation>グリッドがキーナビゲーションをラップするかどうか。</translation>
-    </message>
-    <message>
         <source>Orientation</source>
         <translation>方向</translation>
     </message>
@@ -9025,42 +9021,6 @@ preferShaping プロパティを false に設定すると、このような機�
         <translation>アノテーションを追加する</translation>
     </message>
     <message>
-        <source>Exports this item as an alias property of the root item.</source>
-        <translation type="vanished">このアイテムを、ルートアイテムのエイリアスプロパティとしてエクスポートします。</translation>
-    </message>
-    <message>
-        <source>Custom id</source>
-        <translation type="vanished">カスタムID</translation>
-    </message>
-    <message>
-        <source>Component</source>
-        <translation>コンポーネント</translation>
-    </message>
-    <message>
-        <source>Changes the type of this component.</source>
-        <translation>このアイテムの型を変更する。</translation>
-    </message>
-    <message>
-        <source>ID</source>
-        <translation>ID</translation>
-    </message>
-    <message>
-        <source>Exports this component as an alias property of the root component.</source>
-        <translation>このコンポーネントを、ルートコンポーネントのエイリアスプロパティとしてエクスポートします。</translation>
-    </message>
-    <message>
-        <source>Custom ID</source>
-        <translation>Custom ID</translation>
-    </message>
-    <message>
-        <source>customId</source>
-        <translation>customId</translation>
-    </message>
-    <message>
-        <source>Add Annotation</source>
-        <translation>アノテーションを追加する</translation>
-    </message>
-    <message>
         <source>Visibility</source>
         <translation>可視性</translation>
     </message>
@@ -9129,10 +9089,6 @@ preferShaping プロパティを false に設定すると、このような機�
     <message>
         <source>id</source>
         <translation>ID</translation>
-    </message>
-    <message>
-        <source>Exports this item as an alias property of the root item.</source>
-        <translation type="vanished">このアイテムを、ルートアイテムのエイリアスプロパティとしてエクスポートします。</translation>
     </message>
     <message>
         <source>Exports this item as an alias property of the root item.</source>
@@ -15883,10 +15839,6 @@ to version control (%2)
         <translation>型階層を評価する</translation>
     </message>
     <message>
-        <source>Derived</source>
-        <translation>派生</translation>
-    </message>
-    <message>
         <source>Evaluating type hierarchy...</source>
         <translation>型階層を評価する...</translation>
     </message>
@@ -20497,10 +20449,6 @@ Do you want to retry?</source>
     <message>
         <source>Cannot evaluate %1 in current stack frame.</source>
         <translation>現在のスタック・フレームでは、%1 を評価できません。</translation>
-    </message>
-    <message>
-        <source>QML Debugger disconnected.</source>
-        <translation>QML デバッガは切断しました。</translation>
     </message>
     <message>
         <source>Context:</source>
@@ -27926,10 +27874,6 @@ to project &quot;%2&quot;.</source>
         <translation>ビルドをインポートする</translation>
     </message>
     <message>
-        <source>%1 - temporary</source>
-        <translation>%1 - テンポラリ</translation>
-    </message>
-    <message>
         <source>Imported Kit</source>
         <translation>インポートされたキット</translation>
     </message>
@@ -30889,22 +30833,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>プロジェクトに %1 を追加できませんでした。</translation>
     </message>
     <message>
-        <source>All Files (%1)</source>
-        <translation>すべてのファイル (%1)</translation>
-    </message>
-    <message>
-        <source>Add Assets</source>
-        <translation>アセットを追加する</translation>
-    </message>
-    <message>
-        <source>Failed to Add Files</source>
-        <translation>ファイルの追加に失敗しました</translation>
-    </message>
-    <message>
-        <source>Could not add %1 to project.</source>
-        <translation>プロジェクトに %1 を追加できませんでした。</translation>
-    </message>
-    <message>
         <source>Resources</source>
         <comment>Title of library resources view</comment>
         <translation>リソース</translation>
@@ -31061,14 +30989,6 @@ Locked items cannot be modified or selected.</source>
     </message>
     <message>
         <source>%1 is an invalid id.</source>
-        <translation>%1 は無効な id です。</translation>
-    </message>
-    <message>
-        <source>Invalid ID</source>
-        <translation>無効な ID</translation>
-    </message>
-    <message>
-        <source>%1 is an invalid ID.</source>
         <translation>%1 は無効な id です。</translation>
     </message>
     <message>
@@ -31448,10 +31368,6 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <source>&amp;Go into Component</source>
         <translation>コンポーネント内へ移動(&amp;G)</translation>
-    </message>
-    <message>
-        <source>&amp;Go into Component</source>
-        <translation type="vanished">コンポーネント内へ移動(&amp;G)</translation>
     </message>
     <message>
         <source>Export as &amp;Image...</source>
@@ -32166,10 +32082,6 @@ Do you want to save the data first?</source>
     <message>
         <source>Kit has no device.</source>
         <translation>キットにデバイスがありません。</translation>
-    </message>
-    <message>
-        <source>Qt version is too old.</source>
-        <translation>Qt のバージョンが古すぎます。</translation>
     </message>
     <message>
         <source>Qt version has no qmlscene command.</source>
