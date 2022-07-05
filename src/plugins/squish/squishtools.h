@@ -26,17 +26,18 @@
 #pragma once
 
 #include <utils/environment.h>
+#include <utils/qtcprocess.h>
 
 #include <QObject>
 #include <QStringList>
 #include <QWindowList>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QFile;
 class QFileSystemWatcher;
 QT_END_NAMESPACE
-
-namespace Utils { class QtcProcess; }
 
 namespace Squish {
 namespace Internal {
@@ -103,8 +104,9 @@ private:
     void minimizeQtCreatorWindows();
     void restoreQtCreatorWindows();
 
-    Utils::QtcProcess *m_serverProcess = nullptr;
-    Utils::QtcProcess *m_runnerProcess = nullptr;
+    std::unique_ptr<SquishXmlOutputHandler> m_xmlOutputHandler;
+    Utils::QtcProcess m_serverProcess;
+    Utils::QtcProcess m_runnerProcess;
     int m_serverPort = -1;
     QString m_serverHost;
     Request m_request = None;
@@ -120,7 +122,6 @@ private:
     QWindowList m_lastTopLevelWindows;
     bool m_testRunning = false;
     qint64 m_readResultsCount;
-    SquishXmlOutputHandler *m_xmlOutputHandler = nullptr;
 };
 
 } // namespace Internal
