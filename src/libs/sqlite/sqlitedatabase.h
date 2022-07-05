@@ -154,14 +154,28 @@ public:
 
     bool isLocked() const
     {
-#ifdef UNIT_TESTS
+#ifdef QT_DEBUG
         return m_isLocked;
 #else
         return true;
 #endif
     }
-    void lock() override;
-    void unlock() override;
+
+    void lock() override
+    {
+        m_databaseMutex.lock();
+#ifdef QT_DEBUG
+        m_isLocked = true;
+#endif
+    }
+
+    void unlock() override
+    {
+#ifdef QT_DEBUG
+        m_isLocked = false;
+#endif
+        m_databaseMutex.unlock();
+    }
 
     void deferredBegin() override;
     void immediateBegin() override;

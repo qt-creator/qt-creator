@@ -127,11 +127,12 @@ TEST_F(SqliteDatabase, CreateDatabaseWithLockingModeNormal)
 
 TEST_F(SqliteDatabase, ExclusivelyLockedDatabaseIsLockedForSecondConnection)
 {
+    using namespace std::chrono_literals;
     Utils::PathString path{Utils::TemporaryDirectory::masterDirectoryPath()
                            + "/database_exclusive_locked.db"};
     Sqlite::Database database{path};
 
-    ASSERT_THROW(Sqlite::Database database2{path}, Sqlite::StatementIsBusy);
+    ASSERT_THROW(Sqlite::Database database2(path, 1ms), Sqlite::StatementIsBusy);
 }
 
 TEST_F(SqliteDatabase, NormalLockedDatabaseCanBeReopened)

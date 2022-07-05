@@ -238,22 +238,6 @@ void Database::sessionRollback()
     m_statements->rollbackBegin.execute();
 }
 
-void Database::lock()
-{
-    m_databaseMutex.lock();
-#ifdef UNIT_TESTS
-    m_isLocked = true;
-#endif
-}
-
-void Database::unlock()
-{
-#ifdef UNIT_TESTS
-    m_isLocked = false;
-#endif
-    m_databaseMutex.unlock();
-}
-
 DatabaseBackend &Database::backend()
 {
     return m_databaseBackend;
