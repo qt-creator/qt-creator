@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator
@@ -47,18 +47,18 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-
 #include "textfinder.h"
 
 //! [1]
+#include "./ui_textfinder.h"
 #include <QFile>
 #include <QTextStream>
 //! [1]
-#include <QMessageBox>
 
 //! [3]
 TextFinder::TextFinder(QWidget *parent)
-    : QWidget(parent), ui(new Ui::TextFinder)
+    : QWidget(parent)
+    , ui(new Ui::TextFinder)
 {
     ui->setupUi(this);
     loadTextFile();

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -68,9 +68,8 @@
 
             \image qtcreator-new-project-build-system-qt-gui.png "Define Build System dialog"
 
-        \li In the \uicontrol {Build system} field, select the build system to
-            use for building and running the project: \l qmake,
-            \l {Setting Up CMake}{CMake}, or \l {Setting Up Qbs}{Qbs}.
+        \li In the \uicontrol {Build system} field, select \l {Setting Up CMake}
+            {CMake} as the build system to use for building the project.
 
         \li Select \uicontrol Next or \uicontrol Continue to open the
             \uicontrol{Class Information} dialog.
@@ -117,8 +116,7 @@
     \note The project opens in the \uicontrol Edit mode, and these instructions are
     hidden. To return to these instructions, open the \uicontrol Help mode.
 
-    If you selected qmake as the build system, the TextFinder project now
-    contains the following files:
+    The TextFinder project now contains the following files:
 
     \list
 
@@ -126,14 +124,13 @@
         \li textfinder.h
         \li textfinder.cpp
         \li textfinder.ui
-        \li textfinder.pro
+        \li CMakeLists.txt
 
     \endlist
 
     \image qtcreator-textfinder-contents.png "TextFinder project contents"
 
     The .h and .cpp files come with the necessary boiler plate code.
-    The .pro file is complete.
 
     If you selected CMake as the build system, \QC created a CMakeLists.txt
     project file for you.
@@ -312,7 +309,7 @@
 
         \li In the \uicontrol{Name} field, enter \b{textfinder}.
 
-        \li In the \uicontrol{Path} field, enter \c{C:\Qt\examples\TextFinder},
+        \li In the \uicontrol{Path} field, enter the path to the project,
             and select \uicontrol Next or \uicontrol Continue.
 
             The \uicontrol{Project Management} dialog opens.
@@ -320,9 +317,15 @@
             \image qtcreator-add-resource-wizard3.png "Project Management dialog"
 
 
-        \li In the \uicontrol{Add to project} field, select \b{TextFinder.pro}
+        \li In the \uicontrol{Add to project} field, select \b{TextFinder}
             and select \uicontrol{Finish} or \uicontrol Done to open the file
             in the code editor.
+
+        \li In the \uicontrol Copy to Clipboard dialog, select \uicontrol Yes to
+            copy the path to the resource file to the clipboard for adding it
+            to the CMakeLists.txt file.
+
+            \image qtcreator-add-resource-wizard4.png "Copy to Clipboard dialog"
 
         \li Select \uicontrol Add > \uicontrol {Add Prefix}.
 
@@ -336,10 +339,20 @@
 
     \endlist
 
-    \section1 Compiling and Running Your Program
+    \section1 Adding Resources to Project File
+
+    For the text file to appear when you run the application, you must specify
+    the resource file as a source file in the \e CMakeLists.txt file that the
+    wizard created for you:
+
+    \quotefromfile TextFinder/CMakeLists.txt
+    \skipto set(PROJECT_SOURCES
+    \printuntil )
+
+    \section1 Compiling and Running Your Application
 
     Now that you have all the necessary files, select the
     \inlineimage icons/run_small.png
-    button to compile and run your program.
+    button to compile and run your Application.
 
 */
