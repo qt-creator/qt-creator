@@ -106,6 +106,11 @@ public:
     {
         return *begin() == characterToSearch;
     }
+
+    constexpr bool endsWith(SmallStringView ending) const noexcept
+    {
+        return size() >= ending.size() && std::equal(ending.rbegin(), ending.rend(), rbegin());
+    }
 };
 
 constexpr bool operator==(SmallStringView first, SmallStringView second) noexcept

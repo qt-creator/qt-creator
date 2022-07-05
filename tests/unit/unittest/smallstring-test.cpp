@@ -1296,6 +1296,15 @@ TEST(SmallString, EndsWith)
     ASSERT_FALSE(text.endsWith('x'));
 }
 
+TEST(SmallString, EndsWithStringView)
+{
+    SmallStringView text("/my/path");
+
+    ASSERT_TRUE(text.endsWith("/my/path"));
+    ASSERT_TRUE(text.endsWith("path"));
+    ASSERT_FALSE(text.endsWith("paths"));
+}
+
 TEST(SmallString, EndsWithSmallString)
 {
     SmallString text("/my/path");
