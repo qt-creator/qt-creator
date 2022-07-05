@@ -85,6 +85,7 @@
 
 #include <QActionGroup>
 #include <QApplication>
+#include <QBrush>
 #include <QCloseEvent>
 #include <QColorDialog>
 #include <QComboBox>
@@ -99,7 +100,9 @@
 #include <QSettings>
 #include <QStatusBar>
 #include <QStyleFactory>
+#include <QSyntaxHighlighter>
 #include <QTextBrowser>
+#include <QTextList>
 #include <QToolButton>
 #include <QUrl>
 #include <QVersionNumber>
@@ -1348,6 +1351,67 @@ public:
     }
 };
 
+class MarkdownHighlighter : public QSyntaxHighlighter
+{
+    QBrush h2Brush;
+public:
+    MarkdownHighlighter(QTextDocument *parent)
+        : QSyntaxHighlighter(parent)
+        , h2Brush(Qt::NoBrush)
+    {
+        parent->setIndentWidth(30); // default value is 40
+    }
+
+    void highlightBlock(const QString &text)
+    {
+        if (text.isEmpty())
+            return;
+
+        QTextBlockFormat fmt = currentBlock().blockFormat();
+        QTextCursor cur(currentBlock());
+        if (fmt.hasProperty(QTextFormat::HeadingLevel)) {
+            fmt.setTopMargin(10);
+            fmt.setBottomMargin(10);
+
+            // Draw an underline for Heading 2, by creating a texture brush
+            // with the last pixel visible
+            if (fmt.property(QTextFormat::HeadingLevel) == 2) {
+                QTextCharFormat charFmt = currentBlock().charFormat();
+                charFmt.setBaselineOffset(15);
+                setFormat(0, text.length(), charFmt);
+
+                if (h2Brush.style() == Qt::NoBrush) {
+                    const int height = QFontMetrics(charFmt.font()).height();
+                    QImage image(1, height, QImage::Format_ARGB32);
+
+                    image.fill(QColor(0, 0, 0, 0).rgba());
+                    image.setPixel(0,
+                                   height - 1,
+                                   Utils::creatorTheme()->color(Theme::TextColorDisabled).rgba());
+
+                    h2Brush = QBrush(image);
+                }
+                fmt.setBackground(h2Brush);
+            }
+            cur.setBlockFormat(fmt);
+        } else if (fmt.hasProperty(QTextFormat::BlockCodeLanguage) && fmt.indent() == 0) {
+            // set identation for code blocks
+            fmt.setIndent(1);
+            cur.setBlockFormat(fmt);
+        }
+
+        // Show the bulet points as filled circles
+        QTextList *list = cur.currentList();
+        if (list) {
+            QTextListFormat listFmt = list->format();
+            if (listFmt.indent() == 1 && listFmt.style() == QTextListFormat::ListCircle) {
+                listFmt.setStyle(QTextListFormat::ListDisc);
+                list->setFormat(listFmt);
+            }
+        }
+    }
+};
+
 void MainWindow::changeLog()
 {
     static QPointer<LogDialog> dialog;
@@ -1382,14 +1446,13 @@ void MainWindow::changeLog()
     versionLayout->addWidget(showInExplorer);
     auto textEdit = new QTextBrowser;
     textEdit->setOpenExternalLinks(true);
-    auto font = textEdit->font();
-    font.setFamily("monospace");
-    font.setStyleHint(QFont::Monospace);
-    textEdit->setFont(font);
 
     auto aggregate = new Aggregation::Aggregate;
     aggregate->add(textEdit);
     aggregate->add(new Core::BaseTextFind(textEdit));
+
+    auto highlighter = new MarkdownHighlighter(textEdit->document());
+    (void)highlighter;
 
     auto textEditWidget = new QFrame;
     textEditWidget->setFrameStyle(QFrame::NoFrame);
@@ -1422,10 +1485,9 @@ void MainWindow::changeLog()
             return;
         const FilePath file = versionedFiles.at(index).second;
         QString contents = QString::fromUtf8(file.fileContents());
-        contents.replace('\n', "<br/>");
         contents.replace(QRegularExpression("(QT(CREATOR)?BUG-[0-9]+)"),
-                         "<a href=\"https://bugreports.qt.io/browse/\\1\">\\1</a>");
-        textEdit->setHtml(contents);
+                         "[\\1](https://bugreports.qt.io/browse/\\1)");
+        textEdit->setMarkdown(contents);
     };
     connect(versionCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), textEdit, showLog);
     showLog(versionCombo->currentIndex());
