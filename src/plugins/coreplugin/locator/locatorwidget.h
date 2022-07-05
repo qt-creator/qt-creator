@@ -103,6 +103,7 @@ private:
     static LocatorWidget *m_sharedFutureOrigin;
 
     QMenu *m_filterMenu = nullptr;
+    QAction *m_centeredPopupAction = nullptr;
     QAction *m_refreshAction = nullptr;
     QAction *m_configureAction = nullptr;
     Utils::FancyLineEdit *m_fileLineEdit = nullptr;

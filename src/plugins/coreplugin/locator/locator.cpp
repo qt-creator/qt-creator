@@ -70,6 +70,7 @@ static Locator *m_instance = nullptr;
 
 const char kDirectoryFilterPrefix[] = "directory";
 const char kUrlFilterPrefix[] = "url";
+const char kUseCenteredPopup[] = "UseCenteredPopupForShortcut";
 
 class LocatorData
 {
@@ -189,8 +190,10 @@ void Locator::loadSettings()
     // TOOD remove a few versions after 4.15
     const QString settingsGroup = settings->contains("Locator") ? QString("Locator")
                                                                 : QString("QuickOpen");
+    const Settings def;
     settings->beginGroup(settingsGroup);
     m_refreshTimer.setInterval(settings->value("RefreshInterval", 60).toInt() * 60000);
+    m_settings.useCenteredPopup = settings->value(kUseCenteredPopup, def.useCenteredPopup).toBool();
 
     for (ILocatorFilter *filter : qAsConst(m_filters)) {
         if (settings->contains(filter->id().toString())) {
@@ -313,11 +316,13 @@ void Locator::saveSettings() const
     if (!m_settingsInitialized)
         return;
 
+    const Settings def;
     SettingsDatabase *s = ICore::settingsDatabase();
     s->beginTransaction();
     s->beginGroup("Locator");
     s->remove(QString());
     s->setValue("RefreshInterval", refreshInterval());
+    s->setValueWithDefault(kUseCenteredPopup, m_settings.useCenteredPopup, def.useCenteredPopup);
     for (ILocatorFilter *filter : m_filters) {
         if (!m_customFilters.contains(filter) && filter->id().isValid()) {
             const QByteArray state = filter->saveState();
@@ -386,6 +391,16 @@ void Locator::setRefreshInterval(int interval)
     m_refreshTimer.start();
 }
 
+bool Locator::useCenteredPopupForShortcut()
+{
+    return m_instance->m_settings.useCenteredPopup;
+}
+
+void Locator::setUseCenteredPopupForShortcut(bool center)
+{
+    m_instance->m_settings.useCenteredPopup = center;
+}
+
 void Locator::refresh(QList<ILocatorFilter *> filters)
 {
     if (m_shuttingDown)
@@ -408,6 +423,28 @@ void Locator::refresh(QList<ILocatorFilter *> filters)
             m_refreshTask = QFuture<void>();
         }
     });
+}
+
+void Locator::showFilter(ILocatorFilter *filter, LocatorWidget *widget)
+{
+    QTC_ASSERT(filter, return );
+    QTC_ASSERT(widget, return );
+    QString searchText = LocatorManager::tr("<type here>");
+    const QString currentText = widget->currentText().trimmed();
+    // add shortcut string at front or replace existing shortcut string
+    if (!currentText.isEmpty()) {
+        searchText = currentText;
+        const QList<ILocatorFilter *> allFilters = Locator::filters();
+        for (ILocatorFilter *otherfilter : allFilters) {
+            if (currentText.startsWith(otherfilter->shortcutString() + ' ')) {
+                searchText = currentText.mid(otherfilter->shortcutString().length() + 1);
+                break;
+            }
+        }
+    }
+    widget->showText(filter->shortcutString() + ' ' + searchText,
+                     filter->shortcutString().length() + 1,
+                     searchText.length());
 }
 
 } // namespace Internal

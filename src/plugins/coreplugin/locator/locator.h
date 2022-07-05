@@ -26,7 +26,6 @@
 #pragma once
 
 #include "ilocatorfilter.h"
-#include "locatorconstants.h"
 
 #include <coreplugin/actionmanager/command.h>
 #include <extensionsystem/iplugin.h>
@@ -41,6 +40,7 @@ namespace Core {
 namespace Internal {
 
 class LocatorData;
+class LocatorWidget;
 
 class Locator : public QObject
 {
@@ -65,6 +65,11 @@ public:
     int refreshInterval() const;
     void setRefreshInterval(int interval);
 
+    static bool useCenteredPopupForShortcut();
+    static void setUseCenteredPopupForShortcut(bool center);
+
+    static void showFilter(ILocatorFilter *filter, LocatorWidget *widget);
+
 signals:
     void filtersChanged();
 
@@ -79,8 +84,14 @@ private:
 
     LocatorData *m_locatorData = nullptr;
 
+    struct Settings
+    {
+        bool useCenteredPopup = false;
+    };
+
     bool m_shuttingDown = false;
     bool m_settingsInitialized = false;
+    Settings m_settings;
     QList<ILocatorFilter *> m_filters;
     QList<ILocatorFilter *> m_customFilters;
     QMap<Utils::Id, QAction *> m_filterActionMap;

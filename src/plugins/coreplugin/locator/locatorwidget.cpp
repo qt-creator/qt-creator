@@ -28,6 +28,7 @@
 #include "ilocatorfilter.h"
 #include "locator.h"
 #include "locatorconstants.h"
+#include "locatormanager.h"
 #include "locatorsearchutils.h"
 
 #include <coreplugin/icore.h>
@@ -328,7 +329,7 @@ void CenteredLocatorPopup::doUpdateGeometry()
     const QSize size = preferredSize();
     const QSize parentSize = parentWidget()->size();
     const QPoint local((parentSize.width() - size.width()) / 2,
-                        parentSize.height() / 2 - size.height());
+                       (parentSize.height() - size.height()) / 2);
     const QPoint pos = parentWidget()->mapToGlobal(local);
     QRect rect(pos, size);
     // invisible widget doesn't have the right screen set yet, so use the parent widget to
@@ -568,12 +569,13 @@ bool CompletionList::eventFilter(QObject *watched, QEvent *event)
 
 // =========== LocatorWidget ===========
 
-LocatorWidget::LocatorWidget(Locator *locator) :
-    m_locatorModel(new LocatorModel(this)),
-    m_filterMenu(new QMenu(this)),
-    m_refreshAction(new QAction(tr("Refresh"), this)),
-    m_configureAction(new QAction(ICore::msgShowOptionsDialog(), this)),
-    m_fileLineEdit(new Utils::FancyLineEdit)
+LocatorWidget::LocatorWidget(Locator *locator)
+    : m_locatorModel(new LocatorModel(this))
+    , m_filterMenu(new QMenu(this))
+    , m_centeredPopupAction(new QAction(tr("Open as Centered Popup")))
+    , m_refreshAction(new QAction(tr("Refresh"), this))
+    , m_configureAction(new QAction(ICore::msgShowOptionsDialog(), this))
+    , m_fileLineEdit(new Utils::FancyLineEdit)
 {
     setAttribute(Qt::WA_Hover);
     setFocusProxy(m_fileLineEdit);
@@ -602,6 +604,19 @@ LocatorWidget::LocatorWidget(Locator *locator) :
     m_fileLineEdit->installEventFilter(this);
     this->installEventFilter(this);
 
+    m_centeredPopupAction->setCheckable(true);
+    m_centeredPopupAction->setChecked(Locator::useCenteredPopupForShortcut());
+    connect(m_filterMenu, &QMenu::aboutToShow, this, [this] {
+        m_centeredPopupAction->setChecked(Locator::useCenteredPopupForShortcut());
+    });
+    connect(m_centeredPopupAction, &QAction::toggled, locator, [locator](bool toggled) {
+        if (toggled != Locator::useCenteredPopupForShortcut()) {
+            Locator::setUseCenteredPopupForShortcut(toggled);
+            QMetaObject::invokeMethod(locator, [] { LocatorManager::show({}); });
+        }
+    });
+
+    m_filterMenu->addAction(m_centeredPopupAction);
     m_filterMenu->addAction(m_refreshAction);
     m_filterMenu->addAction(m_configureAction);
 
@@ -669,11 +684,16 @@ void LocatorWidget::updateFilterList()
     m_filterMenu->clear();
     const QList<ILocatorFilter *> filters = Locator::filters();
     for (ILocatorFilter *filter : filters) {
-        Command *cmd = ActionManager::command(filter->actionId());
-        if (cmd)
-            m_filterMenu->addAction(cmd->action());
+        if (filter->shortcutString().isEmpty() || filter->isHidden())
+            continue;
+        QAction *action = m_filterMenu->addAction(filter->displayName());
+        action->setToolTip(filter->description());
+        connect(action, &QAction::triggered, this, [this, filter] {
+            Locator::showFilter(filter, this);
+        });
     }
     m_filterMenu->addSeparator();
+    m_filterMenu->addAction(m_centeredPopupAction);
     m_filterMenu->addAction(m_refreshAction);
     m_filterMenu->addAction(m_configureAction);
 }
@@ -1038,7 +1058,11 @@ LocatorPopup *createLocatorPopup(Locator *locator, QWidget *parent)
 {
     auto widget = new LocatorWidget(locator);
     auto popup = new CenteredLocatorPopup(widget, parent);
-    popup->layout()->addWidget(widget);
+    auto layout = qobject_cast<QVBoxLayout *>(popup->layout());
+    if (QTC_GUARD(layout))
+        layout->insertWidget(0, widget);
+    else
+        popup->layout()->addWidget(widget);
     popup->setWindowFlags(Qt::Popup);
     popup->setAttribute(Qt::WA_DeleteOnClose);
     return popup;

@@ -57,10 +57,12 @@ static LocatorWidget *locatorWidget()
     // if that is a popup, try to find a better one
     if (window->windowFlags() & Qt::Popup && window->parentWidget())
         window = window->parentWidget()->window();
-    if (auto *widget = Aggregation::query<LocatorWidget>(window)) {
-        if (popup)
-            popup->close();
-        return widget;
+    if (!Locator::useCenteredPopupForShortcut()) {
+        if (auto *widget = Aggregation::query<LocatorWidget>(window)) {
+            if (popup)
+                popup->close();
+            return widget;
+        }
     }
     if (!popup) {
         popup = createLocatorPopup(Locator::instance(), window);
@@ -71,23 +73,7 @@ static LocatorWidget *locatorWidget()
 
 void LocatorManager::showFilter(ILocatorFilter *filter)
 {
-    QTC_ASSERT(filter, return);
-    QString searchText = tr("<type here>");
-    const QString currentText = locatorWidget()->currentText().trimmed();
-    // add shortcut string at front or replace existing shortcut string
-    if (!currentText.isEmpty()) {
-        searchText = currentText;
-        const QList<ILocatorFilter *> allFilters = Locator::filters();
-        for (ILocatorFilter *otherfilter : allFilters) {
-            if (currentText.startsWith(otherfilter->shortcutString() + ' ')) {
-                searchText = currentText.mid(otherfilter->shortcutString().length() + 1);
-                break;
-            }
-        }
-    }
-    show(filter->shortcutString() + ' ' + searchText,
-         filter->shortcutString().length() + 1,
-         searchText.length());
+    Locator::showFilter(filter, locatorWidget());
 }
 
 void LocatorManager::show(const QString &text,
