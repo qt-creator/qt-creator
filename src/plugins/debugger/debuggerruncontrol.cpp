@@ -23,22 +23,20 @@
 **
 ****************************************************************************/
 
-#include "debuggermainwindow.h"
 #include "debuggerruncontrol.h"
+
+#include "debuggermainwindow.h"
+#include "debuggertr.h"
 #include "terminal.h"
 
-#include "analyzer/analyzermanager.h"
 #include "console/console.h"
 #include "debuggeractions.h"
-#include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
 #include "debuggerkitinformation.h"
-#include "debuggerplugin.h"
 #include "debuggerrunconfigurationaspect.h"
 #include "breakhandler.h"
 #include "enginemanager.h"
-#include "shared/peutils.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
@@ -95,12 +93,12 @@ DebuggerEngine *createUvscEngine();
 
 static QString noEngineMessage()
 {
-   return DebuggerPlugin::tr("Unable to create a debugging engine.");
+   return Tr::tr("Unable to create a debugging engine.");
 }
 
 static QString noDebuggerInKitMessage()
 {
-   return DebuggerPlugin::tr("The kit does not have a debugger set.");
+   return Tr::tr("The kit does not have a debugger set.");
 }
 
 class CoreUnpacker final : public RunWorker
@@ -138,7 +136,7 @@ private:
             reportFailure("Error unpacking " + m_coreFilePath.toUserOutput());
         });
 
-        const QString msg = DebuggerRunTool::tr("Unpacking core file to %1");
+        const QString msg = Tr::tr("Unpacking core file to %1");
         appendMessage(msg.arg(m_tempCoreFilePath.toUserOutput()), LogMessageFormat);
 
         if (m_coreFilePath.endsWith(".lzo")) {
@@ -244,7 +242,7 @@ void DebuggerRunTool::setSysRoot(const Utils::FilePath &sysRoot)
 void DebuggerRunTool::setSymbolFile(const FilePath &symbolFile)
 {
     if (symbolFile.isEmpty())
-        reportFailure(tr("Cannot debug: Local executable is not set."));
+        reportFailure(Tr::tr("Cannot debug: Local executable is not set."));
     m_runParameters.symbolFile = symbolFile;
 }
 
@@ -469,7 +467,7 @@ void DebuggerRunTool::start()
     if (m_runParameters.startMode == StartInternal
             && m_runParameters.inferior.command.isEmpty()
             && m_runParameters.interpreter.isEmpty()) {
-        reportFailure(tr("No executable specified."));
+        reportFailure(Tr::tr("No executable specified."));
         return;
     }
 
@@ -479,7 +477,7 @@ void DebuggerRunTool::start()
     // FIXME: Disabled due to Android. Make Android device report available ports instead.
 //    int portsUsed = portsUsedByDebugger();
 //    if (portsUsed > device()->freePorts().count()) {
-//        reportFailure(tr("Cannot debug: Not enough free ports available."));
+//        reportFailure(Tr::tr("Cannot debug: Not enough free ports available."));
 //        return;
 //    }
 
@@ -493,7 +491,7 @@ void DebuggerRunTool::start()
             && Utils::is64BitWindowsBinary(m_runParameters.inferior.command.executable())
             && !Utils::is64BitWindowsBinary(m_runParameters.debugger.command.executable())) {
         reportFailure(
-            DebuggerPlugin::tr(
+            Tr::tr(
                 "%1 is a 64 bit executable which can not be debugged by a 32 bit Debugger.\n"
                 "Please select a 64 bit Debugger in the kit settings for this kit.")
                 .arg(m_runParameters.inferior.command.executable().toUserOutput()));
@@ -501,7 +499,7 @@ void DebuggerRunTool::start()
     }
 
     Utils::globalMacroExpander()->registerFileVariables(
-                "DebuggedExecutable", tr("Debugged executable"),
+                "DebuggedExecutable", Tr::tr("Debugged executable"),
                 [this] { return m_runParameters.inferior.command.executable(); }
     );
 
@@ -515,7 +513,7 @@ void DebuggerRunTool::start()
                 break;
             case CdbEngineType:
                 if (!HostOsInfo::isWindowsHost()) {
-                    reportFailure(tr("Unsupported CDB host system."));
+                    reportFailure(Tr::tr("Unsupported CDB host system."));
                     return;
                 }
                 m_engine = createCdbEngine();
@@ -533,7 +531,7 @@ void DebuggerRunTool::start()
             default:
                 if (!m_runParameters.isQmlDebugging) {
                     reportFailure(noEngineMessage() + '\n' +
-                        DebuggerPlugin::tr("Specify Debugger settings in Projects > Run."));
+                        Tr::tr("Specify Debugger settings in Projects > Run."));
                     return;
                 }
                 // Can happen for pure Qml.
@@ -578,7 +576,7 @@ void DebuggerRunTool::start()
     connect(m_engine, &DebuggerEngine::attachToCoreRequested, this, [this](const QString &coreFile) {
         auto rc = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         rc->copyDataFromRunControl(runControl());
-        auto name = QString(tr("%1 - Snapshot %2").arg(runControl()->displayName()).arg(++d->snapshotCounter));
+        auto name = QString(Tr::tr("%1 - Snapshot %2").arg(runControl()->displayName()).arg(++d->snapshotCounter));
         auto debugger = new DebuggerRunTool(rc);
         debugger->setStartMode(AttachToCore);
         debugger->setRunControlName(name);
@@ -621,14 +619,14 @@ void DebuggerRunTool::start()
         }
         if (!unhandledIds.isEmpty()) {
             QString warningMessage =
-                    DebuggerPlugin::tr("Some breakpoints cannot be handled by the debugger "
+                    Tr::tr("Some breakpoints cannot be handled by the debugger "
                                        "languages currently active, and will be ignored.<p>"
                                        "Affected are breakpoints %1")
                     .arg(unhandledIds.join(", "));
 
             if (hasQmlBreakpoints) {
                 warningMessage += "<p>" +
-                    DebuggerPlugin::tr("QML debugging needs to be enabled both in the Build "
+                    Tr::tr("QML debugging needs to be enabled both in the Build "
                                        "and the Run settings.");
             }
 
@@ -637,20 +635,20 @@ void DebuggerRunTool::start()
             static bool checked = true;
             if (checked)
                 CheckableMessageBox::information(Core::ICore::dialogParent(),
-                                                 tr("Debugger"),
+                                                 Tr::tr("Debugger"),
                                                  warningMessage,
-                                                 tr("&Show this message again."),
+                                                 Tr::tr("&Show this message again."),
                                                  &checked, QDialogButtonBox::Ok);
         }
     }
 
-    appendMessage(tr("Debugging %1 ...").arg(m_runParameters.inferior.command.toUserOutput()),
+    appendMessage(Tr::tr("Debugging %1 ...").arg(m_runParameters.inferior.command.toUserOutput()),
                   NormalMessageFormat);
     QString debuggerName = m_engine->objectName();
     if (m_engine2)
         debuggerName += ' ' + m_engine2->objectName();
 
-    const QString message = tr("Starting debugger \"%1\" for ABI \"%2\"...")
+    const QString message = Tr::tr("Starting debugger \"%1\" for ABI \"%2\"...")
             .arg(debuggerName).arg(m_runParameters.toolChainAbi.toString());
     DebuggerMainWindow::showStatusMessage(message, 10000);
 
@@ -691,9 +689,9 @@ void DebuggerRunTool::handleEngineFinished(DebuggerEngine *engine)
     if (--d->engineStopsNeeded == 0) {
         QString cmd = m_runParameters.inferior.command.toUserOutput();
         QString msg = engine->runParameters().exitCode // Main engine.
-            ? tr("Debugging of %1 has finished with exit code %2.")
+            ? Tr::tr("Debugging of %1 has finished with exit code %2.")
                 .arg(cmd).arg(engine->runParameters().exitCode.value())
-            : tr("Debugging of %1 has finished.").arg(cmd);
+            : Tr::tr("Debugging of %1 has finished.").arg(cmd);
         appendMessage(msg, NormalMessageFormat);
         reportStopped();
     }
@@ -756,7 +754,7 @@ bool DebuggerRunTool::fixupParameters()
             if (rp.qmlServer.port() <= 0) {
                 rp.qmlServer = Utils::urlFromLocalHostAndFreePort();
                 if (rp.qmlServer.port() <= 0) {
-                    reportFailure(DebuggerPlugin::tr("Not enough free ports for QML debugging."));
+                    reportFailure(Tr::tr("Not enough free ports for QML debugging."));
                     return false;
                 }
             }
@@ -816,8 +814,8 @@ bool DebuggerRunTool::fixupParameters()
         if (perr != ProcessArgs::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809
-            reportFailure(DebuggerPlugin::tr("Debugging complex command lines "
-                                             "is currently not supported on Windows."));
+            reportFailure(Tr::tr("Debugging complex command lines "
+                                 "is currently not supported on Windows."));
             return false;
         }
     }
@@ -857,8 +855,8 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     runControl->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
     runControl->setPromptToStop([](bool *optionalPrompt) {
         return RunControl::showPromptToStopDialog(
-            DebuggerRunTool::tr("Close Debugging Session"),
-            DebuggerRunTool::tr("A debugging session is still in progress. "
+            Tr::tr("Close Debugging Session"),
+            Tr::tr("A debugging session is still in progress. "
                                 "Terminating the session in the current"
                                 " state can leave the target in an inconsistent state."
                                 " Would you still like to terminate it?"),

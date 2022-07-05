@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "imageviewer.h"
+
 #include "debuggerinternalconstants.h"
+#include "debuggertr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -43,6 +45,8 @@
 #include <QApplication>
 #include <QPainter>
 #include <QDir>
+
+namespace Debugger::Internal {
 
 // Widget showing the image in a 1-pixel frame with context menu.
 class ImageWidget : public QWidget
@@ -80,7 +84,7 @@ void ImageWidget::mousePressEvent(QMouseEvent *ev)
     } else {
         const QRgb color = m_image.pixel(imagePos);
         const QString message =
-            ImageViewer::tr("Color at %1,%2: red: %3 green: %4 blue: %5 alpha: %6").
+            Tr::tr("Color at %1,%2: red: %3 green: %4 blue: %5 alpha: %6").
             arg(imagePos.x()).arg(imagePos.y()).
             arg(qRed(color)).arg(qGreen(color)).arg(qBlue(color)).arg(qAlpha(color));
         emit clicked(message);
@@ -125,7 +129,7 @@ void ImageViewer::setInfo(const QString &info)
 void ImageViewer::clicked(const QString &message)
 {
     const QString text = m_info + '\n'
-        + (message.isEmpty() ? tr("<Click to display color>") : message);
+        + (message.isEmpty() ? Tr::tr("<Click to display color>") : message);
     m_infoLabel->setText(text);
 }
 
@@ -150,9 +154,9 @@ void ImageViewer::contextMenuEvent(QContextMenuEvent *ev)
     const QImage &image = m_imageWidget->image();
     const bool hasImage = !image.isNull();
     QMenu menu;
-    QAction *copyAction = menu.addAction(tr("Copy Image"));
+    QAction *copyAction = menu.addAction(Tr::tr("Copy Image"));
     copyAction->setShortcut(QKeySequence::Copy);
-    QAction *imageViewerAction = menu.addAction(tr("Open Image Viewer"));
+    QAction *imageViewerAction = menu.addAction(Tr::tr("Open Image Viewer"));
     copyAction->setEnabled(hasImage);
     imageViewerAction->setEnabled(hasImage);
     QAction *action = menu.exec(ev->globalPos());
@@ -234,5 +238,7 @@ void PlotViewer::paintEvent(QPaintEvent *)
         QString::fromLatin1("Container is empty"));
     }
 }
+
+} // Debugger::Internal
 
 #include "imageviewer.moc"

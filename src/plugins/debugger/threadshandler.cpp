@@ -26,10 +26,10 @@
 #include "threadshandler.h"
 
 #include "debuggeractions.h"
-#include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggericons.h"
 #include "debuggerprotocol.h"
+#include "debuggertr.h"
 #include "watchutils.h"
 
 #include <utils/algorithm.h>
@@ -43,14 +43,7 @@
 
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
-
-////////////////////////////////////////////////////////////////////////
-//
-// ThreadItem
-//
-///////////////////////////////////////////////////////////////////////
+namespace Debugger::Internal {
 
 // ThreadItem
 
@@ -86,25 +79,25 @@ QString ThreadItem::threadToolTip() const
     QString rc;
     QTextStream str(&rc);
     str << "<html><head/><body><table>"
-        << start << ThreadsHandler::tr("Thread&nbsp;id:")
+        << start << Tr::tr("Thread&nbsp;id:")
         << sep << threadData.id << end;
     if (!threadData.targetId.isEmpty())
-        str << start << ThreadsHandler::tr("Target&nbsp;id:")
+        str << start << Tr::tr("Target&nbsp;id:")
             << sep << threadData.targetId << end;
     if (!threadData.groupId.isEmpty())
-        str << start << ThreadsHandler::tr("Group&nbsp;id:")
+        str << start << Tr::tr("Group&nbsp;id:")
             << sep << threadData.groupId << end;
     if (!threadData.name.isEmpty())
-        str << start << ThreadsHandler::tr("Name:")
+        str << start << Tr::tr("Name:")
             << sep << threadData.name << end;
     if (!threadData.state.isEmpty())
-        str << start << ThreadsHandler::tr("State:")
+        str << start << Tr::tr("State:")
             << sep << threadData.state << end;
     if (!threadData.core.isEmpty())
-        str << start << ThreadsHandler::tr("Core:")
+        str << start << Tr::tr("Core:")
             << sep << threadData.core << end;
     if (threadData.address) {
-        str << start << ThreadsHandler::tr("Stopped&nbsp;at:") << sep;
+        str << start << Tr::tr("Stopped&nbsp;at:") << sep;
         if (!threadData.function.isEmpty())
             str << threadData.function << "<br>";
         if (!threadData.fileName.isEmpty())
@@ -215,10 +208,9 @@ ThreadsHandler::ThreadsHandler(DebuggerEngine *engine)
     : m_engine(engine)
 {
     setObjectName("ThreadsModel");
-    setHeader({
-                  "  " + tr("ID") + "  ",
-                  tr("Address"), tr("Function"), tr("File"), tr("Line"), tr("State"),
-                  tr("Name"), tr("Target ID"), tr("Details"), tr("Core"),
+    setHeader({"  " + Tr::tr("ID") + "  ",
+               Tr::tr("Address"), Tr::tr("Function"), Tr::tr("File"), Tr::tr("Line"), Tr::tr("State"),
+               Tr::tr("Name"), Tr::tr("Target ID"), Tr::tr("Details"), Tr::tr("Core"),
               });
 }
 
@@ -419,5 +411,4 @@ QAbstractItemModel *ThreadsHandler::model()
     return this;
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

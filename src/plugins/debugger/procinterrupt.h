@@ -27,11 +27,9 @@
 
 #include <QString>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 bool interruptProcess(qint64 pID, int engineType, QString *errorMessage,
                       const bool engineExecutableIs64Bit = false);
 
-} // Internal
-} // GdbDebugger
+} // Debugger::Internal

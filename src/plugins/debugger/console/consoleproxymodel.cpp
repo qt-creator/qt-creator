@@ -24,10 +24,8 @@
 ****************************************************************************/
 
 #include "consoleproxymodel.h"
-#include "consoleitemmodel.h"
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 ConsoleProxyModel::ConsoleProxyModel(QObject *parent) :
     QSortFilterProxyModel(parent),
@@ -81,5 +79,4 @@ void ConsoleProxyModel::onRowsInserted(const QModelIndex &index, int start, int 
     } while (--rowIndex >= start);
 }
 
-} // Internal
-} // Debugger
+} // Debugger::Internal

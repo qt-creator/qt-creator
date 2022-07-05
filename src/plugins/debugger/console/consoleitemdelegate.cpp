@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "consoleitemdelegate.h"
+
 #include "consoleedit.h"
 
 #include <coreplugin/coreconstants.h>
@@ -39,14 +40,7 @@
 
 const int ELLIPSIS_GRADIENT_WIDTH = 16;
 
-namespace Debugger {
-namespace Internal {
-
-///////////////////////////////////////////////////////////////////////
-//
-// ConsoleItemDelegate
-//
-///////////////////////////////////////////////////////////////////////
+namespace Debugger::Internal {
 
 ConsoleItemDelegate::ConsoleItemDelegate(ConsoleItemModel *model, QObject *parent) :
     QStyledItemDelegate(parent),
@@ -328,5 +322,4 @@ qreal ConsoleItemDelegate::layoutText(QTextLayout &tl, int width,
     return height;
 }
 
-} // Internal
-} // Debugger
+} // Debugger::Internal

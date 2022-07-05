@@ -134,8 +134,7 @@ QDebug operator<<(QDebug d, const Scope &scope)
 
 } // namespace CPlusPlus
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 /* getUninitializedVariables(): Get variables that are not initialized
  * at a certain line of a function from the code model to be able to
@@ -439,5 +438,4 @@ void setValueAnnotations(const Location &loc, const QMap<QString, QString> &valu
     }
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

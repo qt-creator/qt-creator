@@ -27,11 +27,7 @@
 
 #include <utils/treemodel.h>
 
-#include <QString>
-#include <functional>
-
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class ConsoleItem : public Utils::TreeItem
 {
@@ -80,5 +76,4 @@ private:
     std::function<void(ConsoleItem *)> m_doFetch;
 };
 
-} // Internal
-} // Debugger
+} // Debugger::Internal

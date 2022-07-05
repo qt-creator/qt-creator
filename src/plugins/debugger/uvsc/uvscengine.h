@@ -29,13 +29,10 @@
 
 #include <debugger/debuggerengine.h>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class UvscEngine final : public CppDebuggerEngine
 {
-    Q_OBJECT
-
 public:
     explicit UvscEngine();
 
@@ -76,7 +73,7 @@ public:
 
     void reloadFullStack() final;
 
-private slots:
+private:
     void handleProjectClosed();
     void handleUpdateLocation(quint64 address);
 
@@ -101,7 +98,6 @@ private slots:
     void handleFetchMemory(MemoryAgent *agent, quint64 address, const QByteArray &data);
     void handleChangeMemory(MemoryAgent *agent, quint64 address, const QByteArray &data);
 
-private:
     void doUpdateLocals(const UpdateParameters &params) final;
     void updateAll() final;
 
@@ -119,5 +115,4 @@ private:
     std::unique_ptr<UvscClient> m_client;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

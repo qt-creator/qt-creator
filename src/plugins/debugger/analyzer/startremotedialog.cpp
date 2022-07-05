@@ -25,6 +25,8 @@
 
 #include "startremotedialog.h"
 
+#include "debuggertr.h"
+
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
@@ -60,7 +62,7 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
     : QDialog(parent)
     , d(new Internal::StartRemoteDialogPrivate)
 {
-    setWindowTitle(tr("Start Remote Analysis"));
+    setWindowTitle(Tr::tr("Start Remote Analysis"));
 
     d->kitChooser = new KitChooser(this);
     d->kitChooser->setKitPredicate([](const Kit *kit) {
@@ -77,10 +79,10 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
 
     auto formLayout = new QFormLayout;
     formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    formLayout->addRow(tr("Kit:"), d->kitChooser);
-    formLayout->addRow(tr("Executable:"), d->executable);
-    formLayout->addRow(tr("Arguments:"), d->arguments);
-    formLayout->addRow(tr("Working directory:"), d->workingDirectory);
+    formLayout->addRow(Tr::tr("Kit:"), d->kitChooser);
+    formLayout->addRow(Tr::tr("Executable:"), d->executable);
+    formLayout->addRow(Tr::tr("Arguments:"), d->arguments);
+    formLayout->addRow(Tr::tr("Working directory:"), d->workingDirectory);
 
     auto verticalLayout = new QVBoxLayout(this);
     verticalLayout->addLayout(formLayout);
@@ -89,7 +91,7 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup("AnalyzerStartRemoteDialog");
     d->kitChooser->populate();
-    d->kitChooser->setCurrentKitId(Utils::Id::fromSetting(settings->value("profile")));
+    d->kitChooser->setCurrentKitId(Id::fromSetting(settings->value("profile")));
     d->executable->setText(settings->value("executable").toString());
     d->workingDirectory->setText(settings->value("workingDirectory").toString());
     d->arguments->setText(settings->value("arguments").toString());
@@ -141,4 +143,4 @@ FilePath StartRemoteDialog::workingDirectory() const
     return FilePath::fromString(d->workingDirectory->text());
 }
 
-} // namespace Debugger
+} // Debugger

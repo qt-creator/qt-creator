@@ -2606,7 +2606,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbOptionsPageWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Startup</source>
         <extracomment>Placeholder</extracomment>
@@ -2674,7 +2674,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::SymbolPathsDialog</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The debugger is not configured to use the public Microsoft Symbol Server.&lt;br/&gt;This is recommended for retrieval of the symbols of the operating system libraries.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note:&lt;/span&gt; It is recommended, that if you use the Microsoft Symbol Server, to also use a local symbol cache.&lt;br/&gt;A fast internet connection is required for this to work smoothly,&lt;br/&gt;and a delay might occur when connecting for the first time and caching the symbols.&lt;/p&gt;&lt;p&gt;What would you like to set up?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;このデバッガは Microsoft の公開シンボルサーバーを利用する設定ではありません。&lt;br/&gt;オペレーティングシステムのライブラリのシンボルはサーバーから取得することが推奨されています。&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;注意:&lt;/span&gt; Microsoft のシンボルサーバーを用いる場合、ローカルにシンボルキャッシュを持つことも推奨されています。&lt;br/&gt;快適な作業には高速なインターネット回線が必要です。&lt;br/&gt;また、初めて接続しシンボルをキャッシュする際には遅延が生じるでしょう。&lt;/p&gt;&lt;p&gt;どのように設定しますか？&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -7982,15 +7982,6 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
         <translation>移動の折り返し</translation>
     </message>
     <message>
-        <source>Determines whether the grid wraps key navigation.</source>
-        <translation>キーボードでの移動時に折り返すかどうかを指定します。</translation>
-        <translation type="vanished">キーボードでの移動時に折り返すかどうかを指定します。</translation>
-    </message>
-    <message>
-        <source>Whether the grid wraps key navigation.</source>
-        <translation>グリッドがキーナビゲーションをラップするかどうか。</translation>
-    </message>
-    <message>
         <source>Layout direction</source>
         <translation>レイアウト方向</translation>
     </message>
@@ -8985,28 +8976,12 @@ preferShaping プロパティを false に設定すると、このような機�
         <translation>ID</translation>
     </message>
     <message>
-        <source>Exports this item as an alias property of the root item.</source>
-        <translation type="vanished">このアイテムを、ルートアイテムのエイリアスプロパティとしてエクスポートします。</translation>
-    </message>
-    <message>
-        <source>Component</source>
-        <translation>コンポーネント</translation>
-    </message>
-    <message>
         <source>Changes the type of this component.</source>
         <translation>このアイテムの型を変更する。</translation>
     </message>
     <message>
-        <source>ID</source>
-        <translation>ID</translation>
-    </message>
-    <message>
         <source>Exports this component as an alias property of the root component.</source>
         <translation>このコンポーネントを、ルートコンポーネントのエイリアスプロパティとしてエクスポートします。</translation>
-    </message>
-    <message>
-        <source>Custom ID</source>
-        <translation>Custom ID</translation>
     </message>
     <message>
         <source>customId</source>
@@ -16566,7 +16541,7 @@ Flags: %3</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BreakHandler</name>
+    <name>Debugger</name>
     <message>
         <source>New</source>
         <translation>新規作成</translation>
@@ -16649,10 +16624,6 @@ Flags: %3</source>
         <translation>未知のブレークポイントの種類</translation>
     </message>
     <message>
-        <source>Edit Breakpoint Properties</source>
-        <translation>ブレークポイントのプロパティを編集</translation>
-    </message>
-    <message>
         <source>Basic</source>
         <translation>基本</translation>
     </message>
@@ -16707,14 +16678,6 @@ Flags: %3</source>
     <message>
         <source>Break When JavaScript Exception Is Thrown</source>
         <translation>JavaScript 例外が throw された時にブレーク</translation>
-    </message>
-    <message>
-        <source>Breakpoint &amp;type:</source>
-        <translation>ブレークポイントの種類(&amp;T):</translation>
-    </message>
-    <message>
-        <source>&amp;File name:</source>
-        <translation>ファイル名(&amp;F):</translation>
     </message>
     <message>
         <source>&amp;Line number:</source>
@@ -16813,32 +16776,12 @@ Flags: %3</source>
         <translation>番号</translation>
     </message>
     <message>
-        <source>Function</source>
-        <translation>関数</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>ファイル</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>行番号</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>アドレス</translation>
-    </message>
-    <message>
         <source>Condition</source>
         <translation>条件</translation>
     </message>
     <message>
         <source>Ignore</source>
         <translation>無視</translation>
-    </message>
-    <message>
-        <source>Threads</source>
-        <translation>スレッド</translation>
     </message>
     <message>
         <source>(all)</source>
@@ -16907,18 +16850,6 @@ Flags: %3</source>
     <message>
         <source>Enable Location</source>
         <translation>ロケーションの有効化</translation>
-    </message>
-    <message>
-        <source>Delete All Breakpoints</source>
-        <translation>すべてのブレークポイントを削除する</translation>
-    </message>
-    <message>
-        <source>Delete Breakpoints of &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; のブレークポイントを削除する</translation>
-    </message>
-    <message>
-        <source>Delete Breakpoints of File</source>
-        <translation>ファイル内のブレークポイントを削除する</translation>
     </message>
     <message>
         <source>Breakpoint</source>
@@ -17025,14 +16956,6 @@ Flags: %3</source>
         <translation>複数アドレス:</translation>
     </message>
     <message>
-        <source>Command:</source>
-        <translation>コマンド:</translation>
-    </message>
-    <message>
-        <source>Message:</source>
-        <translation>メッセージ:</translation>
-    </message>
-    <message>
         <source>Condition:</source>
         <translation>条件:</translation>
     </message>
@@ -17083,17 +17006,6 @@ Flags: %3</source>
     <message>
         <source>Stopped at internal breakpoint %1 in thread %2.</source>
         <translation>スレッド %2 において内部ブレークポイント %1 で停止しました。</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::BreakpointDialog</name>
-    <message>
-        <source>Edit Breakpoint Properties</source>
-        <translation>ブレークポイントのプロパティを編集</translation>
-    </message>
-    <message>
-        <source>Basic</source>
-        <translation>基本</translation>
     </message>
     <message>
         <source>File name and line number</source>
@@ -17152,118 +17064,16 @@ Flags: %3</source>
         <translation>ブレークポイントの種類(&amp;T):</translation>
     </message>
     <message>
-        <source>&amp;File name:</source>
-        <translation>ファイル名(&amp;F):</translation>
-    </message>
-    <message>
-        <source>&amp;Line number:</source>
-        <translation>行番号(&amp;L):</translation>
-    </message>
-    <message>
-        <source>&amp;Enabled:</source>
-        <translation>有効(&amp;E):</translation>
-    </message>
-    <message>
-        <source>&amp;Address:</source>
-        <translation>アドレス(&amp;A):</translation>
-    </message>
-    <message>
-        <source>&amp;Expression:</source>
-        <translation>式 (&amp;E):</translation>
-    </message>
-    <message>
-        <source>Fun&amp;ction:</source>
-        <translation>関数(&amp;C):</translation>
-    </message>
-    <message>
-        <source>Advanced</source>
-        <translation>拡張</translation>
-    </message>
-    <message>
-        <source>T&amp;racepoint only:</source>
-        <translation>トレースポイントのみ(&amp;R):</translation>
-    </message>
-    <message>
-        <source>&amp;One shot only:</source>
-        <translation>1回だけ(&amp;O):</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;Determines how the path is specified when setting breakpoints:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;i&gt;Use Engine Default&lt;/i&gt;: Preferred setting of the debugger engine.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Use Full Path&lt;/i&gt;: Pass full path, avoiding ambiguities should files of the same name exist in several modules. This is the engine default for CDB and LLDB.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Use File Name&lt;/i&gt;: Pass the file name only. This is useful when using a source tree whose location does not match the one used when building the modules. It is the engine default for GDB as using full paths can be slow with this engine.&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation>&lt;p&gt;ブレークポイント設定時のパス指定方法の決定:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;i&gt;エンジン既定の方法を使用&lt;/i&gt;: デバッグエンジン既定の方法を使用します。&lt;/li&gt;&lt;li&gt;&lt;i&gt;フルパスを使用&lt;/i&gt;: フルパスを使用します。複数のモジュールに同名のファイルが存在する場合の曖昧性を回避できます。CDB と LLDB デバッグエンジンの既定値です。&lt;/li&gt;&lt;li&gt;&lt;i&gt;ファイル名を使用&lt;/i&gt;: ファイル名のみを使用します。この方法はモジュールビルド時に使用されたパスに合致しないソースツリーでは便利です。GDB デバッグエンジンはフルパス使用時に遅くなる可能性があるため、この値が既定値となります。&lt;/li&gt;&lt;/ul&gt;</translation>
-    </message>
-    <message>
-        <source>Use Engine Default</source>
-        <translation>エンジン既定の方法を使用</translation>
-    </message>
-    <message>
-        <source>Use Full Path</source>
-        <translation>フルパスを使用</translation>
-    </message>
-    <message>
-        <source>Use File Name</source>
-        <translation>ファイル名を使用</translation>
-    </message>
-    <message>
-        <source>Pat&amp;h:</source>
-        <translation>パス(&amp;H):</translation>
-    </message>
-    <message>
         <source>&lt;p&gt;Specifying the module (base name of the library or executable) for function or file type breakpoints can significantly speed up debugger start-up times (CDB, LLDB).</source>
         <translation>&lt;p&gt;関数名やファイル名で指定するブレークポイントはモジュール(ライブラリや実行ファイルのベース名)を指定することで大幅に高速化します(CDB, LLDB)。</translation>
-    </message>
-    <message>
-        <source>&amp;Module:</source>
-        <translation>モジュール(&amp;M):</translation>
     </message>
     <message>
         <source>&lt;p&gt;Debugger commands to be executed when the breakpoint is hit. This feature is only available for GDB.</source>
         <translation>&lt;p&gt;ブレークポイントに到達した際に実行されるデバッガのコマンドです。この機能は GDB のみ対応しています。</translation>
     </message>
     <message>
-        <source>&amp;Commands:</source>
-        <translation>コマンド(&amp;C):</translation>
-    </message>
-    <message>
-        <source>&amp;Message:</source>
-        <translation>メッセージ(&amp;M):</translation>
-    </message>
-    <message>
-        <source>C&amp;ondition:</source>
-        <translation>条件(&amp;O):</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore count:</source>
-        <translation>無視する回数(&amp;I):</translation>
-    </message>
-    <message>
-        <source>&amp;Thread specification:</source>
-        <translation>スレッド指定(&amp;T):</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::MultiBreakPointsDialog</name>
-    <message>
         <source>Edit Breakpoint Properties</source>
         <translation>ブレークポイントのプロパティを編集</translation>
-    </message>
-    <message>
-        <source>&amp;Condition:</source>
-        <translation>条件(&amp;C):</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore count:</source>
-        <translation>無視する回数(&amp;I):</translation>
-    </message>
-    <message>
-        <source>&amp;Thread specification:</source>
-        <translation>スレッド指定 (&amp;T):</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::BreakTreeView</name>
-    <message>
-        <source>Delete Selected Breakpoints</source>
-        <translation>選択されたブレークポイントの削除</translation>
     </message>
     <message>
         <source>Delete All Breakpoints</source>
@@ -17290,34 +17100,6 @@ Flags: %3</source>
         <translation>ブレークポイントをスレッド %1 と関連付ける</translation>
     </message>
     <message>
-        <source>Synchronize Breakpoints</source>
-        <translation>ブレークポイントの同期</translation>
-    </message>
-    <message>
-        <source>Disable Selected Breakpoints</source>
-        <translation>選択されたブレークポイントの無効化</translation>
-    </message>
-    <message>
-        <source>Enable Selected Breakpoints</source>
-        <translation>選択されたブレークポイントの有効化</translation>
-    </message>
-    <message>
-        <source>Disable Breakpoint</source>
-        <translation>ブレークポイントの無効化</translation>
-    </message>
-    <message>
-        <source>Enable Breakpoint</source>
-        <translation>ブレークポイントの有効化</translation>
-    </message>
-    <message>
-        <source>Add Breakpoint...</source>
-        <translation>ブレークポイントを追加...</translation>
-    </message>
-    <message>
-        <source>Remove All Breakpoints</source>
-        <translation>すべてのブレークポイントの削除</translation>
-    </message>
-    <message>
         <source>Are you sure you want to remove all breakpoints from all files in the current session?</source>
         <translation>現在のセッションのすべてのファイルからすべてのブレークポイントを本当に削除しますか？</translation>
     </message>
@@ -17327,7 +17109,7 @@ Flags: %3</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbEngine</name>
+    <name>Debugger</name>
     <message>
         <source>The console process &quot;%1&quot; could not be started.</source>
         <translation>コンソールプロセス &quot;%1&quot; を起動できませんでした。</translation>
@@ -17418,7 +17200,7 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbBreakEventWidget</name>
+    <name>Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>C++ 例外</translation>
@@ -17445,14 +17227,7 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbOptionsPage</name>
-    <message>
-        <source>CDB</source>
-        <translation>CDB</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CdbPathsPageWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Symbol Paths</source>
         <translation>シンボルのパス</translation>
@@ -17467,14 +17242,7 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbPathsPage</name>
-    <message>
-        <source>CDB Paths</source>
-        <translation>CDB のパス</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CommonOptionsPageWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Behavior</source>
         <translation>動作</translation>
@@ -17603,9 +17371,6 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
         <source>Always adds a breakpoint on the &lt;i&gt;%1()&lt;/i&gt; function.</source>
         <translation>常に &lt;i&gt;%1()&lt;/i&gt; 関数にブレークポイントを追加する。</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>General</source>
         <translation>一般</translation>
@@ -17620,27 +17385,9 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
         <translation>Ctrl+Shift+F11</translation>
     </message>
     <message>
-        <source>Debugger</source>
-        <translation>デバッガ</translation>
-    </message>
-    <message>
         <source>&lt;Encoding error&gt;</source>
         <translation>&lt;エンコーディングエラー&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::CommonOptionsPage</name>
-    <message>
-        <source>Stop when %1() is called</source>
-        <translation>%1() が呼び出されたら停止する</translation>
-    </message>
-    <message>
-        <source>Always adds a breakpoint on the &lt;i&gt;%1()&lt;/i&gt; function.</source>
-        <translation>常に &lt;i&gt;%1()&lt;/i&gt; 関数にブレークポイントを追加する。</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerSettings</name>
     <message>
         <source>Configure Debugger...</source>
         <translation>デバッガの設定...</translation>
@@ -17668,10 +17415,6 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
     <message>
         <source>Log Time Stamps</source>
         <translation>タイムスタンプの表示</translation>
-    </message>
-    <message>
-        <source>Operate by Instruction</source>
-        <translation>命令で操作</translation>
     </message>
     <message>
         <source>Dereference Pointers Automatically</source>
@@ -17879,7 +17622,7 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::StartApplicationDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>デバッガ起動</translation>
@@ -17930,10 +17673,6 @@ You can choose another communication channel here, such as a serial line or cust
     <message>
         <source>&amp;Server start script:</source>
         <translation>サーバー起動スクリプト(&amp;S):</translation>
-    </message>
-    <message>
-        <source>Select SysRoot Directory</source>
-        <translation>SysRoot ディレクトリを選択する</translation>
     </message>
     <message>
         <source>This option can be used to override the kit&apos;s SysRoot setting.</source>
@@ -18005,11 +17744,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AttachToQmlPortDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation>デバッガ起動</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Kit:</source>
         <translation>キット:</translation>
@@ -18020,7 +17755,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::StartRemoteCdbDialog</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching Qt Creator CDB extension (&lt;code&gt;%1&lt;/code&gt; or &lt;code&gt;%2&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%3&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt; to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;リモート CDB には対応する Qt Creator CDB エクステンション(&lt;code&gt;%1&lt;/code&gt; か &lt;code&gt;%2&lt;/code&gt;)が必要です。&lt;/p&gt;&lt;p&gt;エクステンションをリモートマシンにコピーして、環境変数 &lt;code&gt;%3&lt;/code&gt; にそのフォルダを設定してください。&lt;/p&gt;&lt;p&gt;リモート CDB は TCP/IP を接続プロトコルとして使用するように &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt; と実行してください。&lt;/p&gt;&lt;p&gt;接続パラメータには以下を使用してください:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -18039,7 +17774,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AddressDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Select Start Address</source>
         <translation>開始アドレスの選択</translation>
@@ -18050,7 +17785,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::StartRemoteEngineDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Start Remote Engine</source>
         <translation>リモートエンジン開始</translation>
@@ -18077,11 +17812,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::TypeFormatsDialog</name>
-    <message>
-        <source>Reset</source>
-        <translation>リセット</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Type Formats</source>
         <translation>型の表示形式</translation>
@@ -18097,45 +17828,6 @@ You can choose another communication channel here, such as a serial line or cust
     <message>
         <source>Misc Types</source>
         <translation>その他の型</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::DebuggerItemManager</name>
-    <message>
-        <source>Unknown</source>
-        <translation>不明</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>名前:</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>パス:</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation>タイプ:</translation>
-    </message>
-    <message>
-        <source>ABIs:</source>
-        <translation>ABI:</translation>
-    </message>
-    <message>
-        <source>Version:</source>
-        <translation>バージョン:</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation>作業ディレクトリ:</translation>
-    </message>
-    <message>
-        <source>64-bit version</source>
-        <translation>64 bit バージョン</translation>
-    </message>
-    <message>
-        <source>32-bit version</source>
-        <translation>32 bit バージョン</translation>
     </message>
     <message>
         <source>Specify the path to the &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger executable&lt;/a&gt; (%2) here.</source>
@@ -18158,62 +17850,8 @@ You can choose another communication channel here, such as a serial line or cust
         <translation>%1 で自動検出された uVersion</translation>
     </message>
     <message>
-        <source>Extracted from Kit %1</source>
-        <translation type="vanished">キット %1 から抽出しました</translation>
-    </message>
-    <message>
-        <source>Not recognized</source>
-        <translation>不明</translation>
-    </message>
-    <message>
-        <source>Could not determine debugger type</source>
-        <translation>デバッガの種類が識別できませんでした</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerKitConfigWidget</name>
-    <message>
-        <source>None</source>
-        <translation>なし</translation>
-    </message>
-    <message>
-        <source>The debugger to use for this kit.</source>
-        <translation>このキットで使用するデバッガです。</translation>
-    </message>
-    <message>
         <source>Debugger:</source>
         <translation>デバッガ:</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::DebuggerKitInformation</name>
-    <message>
-        <source>No debugger set up.</source>
-        <translation>デバッガが設定されていません。</translation>
-    </message>
-    <message>
-        <source>Debugger &quot;%1&quot; not found.</source>
-        <translation>デバッガ &quot;%1&quot; が見つかりませんでした。</translation>
-    </message>
-    <message>
-        <source>Debugger &quot;%1&quot; not executable.</source>
-        <translation>デバッガ &quot;%1&quot; は実行可能ではありません。</translation>
-    </message>
-    <message>
-        <source>The debugger location must be given as an absolute path (%1).</source>
-        <translation>デバッガのパスは絶対パスを指定する必要があります (%1)。</translation>
-    </message>
-    <message>
-        <source>The ABI of the selected debugger does not match the toolchain ABI.</source>
-        <translation>選択されたデバッガの ABI がツールチェインの ABI と合致しません。</translation>
-    </message>
-    <message>
-        <source>Name of Debugger</source>
-        <translation>デバッガの名前</translation>
-    </message>
-    <message>
-        <source>Unknown debugger</source>
-        <translation>未知のデバッガ</translation>
     </message>
     <message>
         <source>Unknown debugger type</source>
@@ -18232,29 +17870,6 @@ You can choose another communication channel here, such as a serial line or cust
         <translation>未知なデバッガ ABI</translation>
     </message>
     <message>
-        <source>Debugger</source>
-        <translation>デバッガ</translation>
-    </message>
-    <message>
-        <source>No Debugger</source>
-        <translation>デバッガなし</translation>
-    </message>
-    <message>
-        <source>%1 Engine</source>
-        <translation>%1 エンジン</translation>
-    </message>
-    <message>
-        <source>%1 &lt;None&gt;</source>
-        <translation>%1 &lt;なし&gt;</translation>
-    </message>
-    <message>
-        <source>%1 using &quot;%2&quot;</source>
-        <translation>%1 (&quot;%2&quot; を使用)</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerPluginPrivate</name>
-    <message>
         <source>0x%1 hit</source>
         <extracomment>Message tracepoint: Address hit.</extracomment>
         <translation>0x%1 でヒット</translation>
@@ -18271,14 +17886,6 @@ You can choose another communication channel here, such as a serial line or cust
     <message>
         <source>Message:</source>
         <translation>メッセージ:</translation>
-    </message>
-    <message>
-        <source>No function selected.</source>
-        <translation>関数が選択されていません。</translation>
-    </message>
-    <message>
-        <source>Running to function &quot;%1&quot;.</source>
-        <translation>関数 &quot;%1&quot; を実行しています。</translation>
     </message>
     <message>
         <source>Process %1</source>
@@ -18333,16 +17940,8 @@ You can choose another communication channel here, such as a serial line or cust
         <translation>デバッガランタイム</translation>
     </message>
     <message>
-        <source>Debugger</source>
-        <translation>デバッガ</translation>
-    </message>
-    <message>
         <source>Start debugging of startup project</source>
         <translation>起動プロジェクトのデバッグを開始する</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>警告</translation>
     </message>
     <message>
         <source>Cannot attach to process with PID 0</source>
@@ -18411,10 +18010,6 @@ Qt Creator はアタッチできません。</translation>
         <translation>デバッガログの保存</translation>
     </message>
     <message>
-        <source>Starting debugger &quot;%1&quot; for ABI &quot;%2&quot;...</source>
-        <translation>ABI &quot;%2&quot; のデバッガ &quot;%1&quot; を開始しています...</translation>
-    </message>
-    <message>
         <source>Debugger finished.</source>
         <translation>デバッガは終了しました。</translation>
     </message>
@@ -18447,10 +18042,6 @@ Qt Creator はアタッチできません。</translation>
         <translation>レジスタ</translation>
     </message>
     <message>
-        <source>Stack</source>
-        <translation>スタック</translation>
-    </message>
-    <message>
         <source>Source Files</source>
         <translation>ソースファイル</translation>
     </message>
@@ -18461,10 +18052,6 @@ Qt Creator はアタッチできません。</translation>
     <message>
         <source>Locals and Expressions</source>
         <translation>ローカル変数と式</translation>
-    </message>
-    <message>
-        <source>Snapshots</source>
-        <translation>スナップショット</translation>
     </message>
     <message>
         <source>Continue</source>
@@ -18483,10 +18070,6 @@ Qt Creator はアタッチできません。</translation>
         <translation>デバッガはビジーです</translation>
     </message>
     <message>
-        <source>Abort Debugging</source>
-        <translation>デバッグ中止</translation>
-    </message>
-    <message>
         <source>Aborts debugging and resets the debugger to the initial state.</source>
         <translation>デバッグを中止して、初期状態に戻します。</translation>
     </message>
@@ -18499,44 +18082,12 @@ Qt Creator はアタッチできません。</translation>
         <translation>デバッグセッションを再開します。</translation>
     </message>
     <message>
-        <source>Step Over</source>
-        <translation>ステップオーバー</translation>
-    </message>
-    <message>
-        <source>Step Into</source>
-        <translation>ステップイン</translation>
-    </message>
-    <message>
-        <source>Step Out</source>
-        <translation>ステップアウト</translation>
-    </message>
-    <message>
-        <source>Run to Line</source>
-        <translation>この行まで実行</translation>
-    </message>
-    <message>
-        <source>Run to Selected Function</source>
-        <translation>選択した関数まで実行</translation>
-    </message>
-    <message>
-        <source>Immediately Return From Inner Function</source>
-        <translation>内部関数からすぐに抜ける</translation>
-    </message>
-    <message>
-        <source>Jump to Line</source>
-        <translation>指定行にジャンプ</translation>
-    </message>
-    <message>
         <source>Toggle Breakpoint</source>
         <translation>ブレークポイントの切替</translation>
     </message>
     <message>
         <source>Add Expression Evaluator</source>
         <translation>式エバリュエータを追加</translation>
-    </message>
-    <message>
-        <source>Reverse Direction</source>
-        <translation>逆方向</translation>
     </message>
     <message>
         <source>Move to Called Frame</source>
@@ -18685,18 +18236,6 @@ Qt Creator はアタッチできません。</translation>
         <translation>ブレークポイントを削除する</translation>
     </message>
     <message>
-        <source>Disable Breakpoint</source>
-        <translation>ブレークポイントの無効化</translation>
-    </message>
-    <message>
-        <source>Enable Breakpoint</source>
-        <translation>ブレークポイントの有効化</translation>
-    </message>
-    <message>
-        <source>Edit Breakpoint...</source>
-        <translation>ブレークポイントを編集...</translation>
-    </message>
-    <message>
         <source>F12</source>
         <translation>F12</translation>
     </message>
@@ -18715,10 +18254,6 @@ Qt Creator はアタッチできません。</translation>
     <message>
         <source>Select</source>
         <translation>選択</translation>
-    </message>
-    <message>
-        <source>Threads:</source>
-        <translation>スレッド:</translation>
     </message>
 </context>
 <context>
@@ -18751,9 +18286,6 @@ Qt Creator はアタッチできません。</translation>
         <source>&amp;Filter:</source>
         <translation>フィルタ(&amp;F):</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::DebuggerRunConfigurationAspect</name>
     <message>
         <source>Debugger settings</source>
         <translation>デバッガ設定</translation>
@@ -18778,9 +18310,6 @@ Qt Creator はアタッチできません。</translation>
         <source>Additional startup commands:</source>
         <translation>追加の起動コマンド:</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::DebuggerRunControl</name>
     <message>
         <source>Debugger</source>
         <translation>デバッガ</translation>
@@ -18815,7 +18344,7 @@ Qt Creator はアタッチできません。</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerSourcePathMappingWidget</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;new source&gt;</source>
         <translation>&lt;ソース&gt;</translation>
@@ -18833,16 +18362,8 @@ Qt Creator はアタッチできません。</translation>
         <translation>ターゲットのパス</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>追加</translation>
-    </message>
-    <message>
         <source>Add Qt sources...</source>
         <translation>Qt ソースの追加...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>削除</translation>
     </message>
     <message>
         <source>Source Paths Mapping</source>
@@ -18882,25 +18403,6 @@ Qt Creator はアタッチできません。</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbAttachEngine</name>
-    <message>
-        <source>Attaching to process %1.</source>
-        <translation>プロセス %1 にアタッチします。</translation>
-    </message>
-    <message>
-        <source>Attached to running application</source>
-        <translation>実行中のアプリケーションにアタッチ</translation>
-    </message>
-    <message>
-        <source>Failed to attach to application: %1</source>
-        <translation>アプリケーションへのアタッチに失敗しました: %1</translation>
-    </message>
-    <message>
-        <source>Debugger Error</source>
-        <translation>デバッガエラー</translation>
-    </message>
-</context>
-<context>
     <name>QtDumperHelper</name>
     <message>
         <source>ptrace: Operation not permitted.
@@ -18936,7 +18438,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbEngine</name>
+    <name>Debugger</name>
     <message>
         <source>The gdb process failed to start. Either the invoked program &quot;%1&quot; is missing, or you may have insufficient permissions to invoke the program.
 %2</source>
@@ -19017,10 +18519,6 @@ Try: %2</source>
         <source>Stop requested...</source>
         <translation>停止させようとしています...</translation>
     </message>
-    <message>
-        <source>Stopping temporarily</source>
-        <translation>一時停止しています</translation>
-    </message>
     <message numerus="yes">
         <source>The gdb process has not responded to a command within %n second(s). This could mean it is stuck in an endless loop or taking longer than expected to perform the operation.
 You can choose between waiting longer or aborting debugging.</source>
@@ -19048,10 +18546,6 @@ You can choose between waiting longer or aborting debugging.</source>
     <message>
         <source>Process failed to start</source>
         <translation>プロセスの開始に失敗しました</translation>
-    </message>
-    <message>
-        <source>Setting breakpoints failed</source>
-        <translation>ブレークポイントの設定に失敗</translation>
     </message>
     <message>
         <source>Executable Failed</source>
@@ -19094,10 +18588,6 @@ You can choose between waiting longer or aborting debugging.</source>
         <translation>選択された GDB バイナリは Python スクリプトをサポートしていますが、使用する Python のバージョンが %1.%2 となっており、Qt Creator が対応している Python 2.7 や 3.x ではありません。</translation>
     </message>
     <message>
-        <source>Execution Error</source>
-        <translation>実行エラー</translation>
-    </message>
-    <message>
         <source>Cannot continue debugged process:</source>
         <translation>デバッグプロセスが継続できません:</translation>
     </message>
@@ -19116,10 +18606,6 @@ You can choose between waiting longer or aborting debugging.</source>
     <message>
         <source>The debugger settings point to a script file at &quot;%1&quot; which is not accessible. If a script file is not needed, consider clearing that entry to avoid this warning. </source>
         <translation>デバッガに設定されたスクリプトファイル &quot;%1&quot; にアクセスできません。スクリプトが不要な場合、スクリプトファイルの設定を消去してみてください。そうすればこの警告が出るのを回避できます。 </translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation>実行しようとしています...</translation>
     </message>
     <message>
         <source>Step requested...</source>
@@ -19172,10 +18658,6 @@ You can choose between waiting longer or aborting debugging.</source>
     <message>
         <source>Thread %1 selected.</source>
         <translation>スレッド %1 を選択しました。</translation>
-    </message>
-    <message>
-        <source>Stopping temporarily.</source>
-        <translation>一時停止しています。</translation>
     </message>
     <message numerus="yes">
         <source>The gdb process has not responded to a command within %n seconds. This could mean it is stuck in an endless loop or taking longer than expected to perform the operation.
@@ -19317,10 +18799,6 @@ You can choose between waiting longer or aborting debugging.</source>
         <translation>アプリケーションへのアタッチに失敗しました: %1</translation>
     </message>
     <message>
-        <source>Debugger Error</source>
-        <translation>デバッガエラー</translation>
-    </message>
-    <message>
         <source>Interrupting not possible.</source>
         <translation>割り込み不可。</translation>
     </message>
@@ -19339,18 +18817,6 @@ You can choose between waiting longer or aborting debugging.</source>
     <message>
         <source>Try to specify the binary in Debug &gt; Start Debugging &gt; Load Core File.</source>
         <translation>デバッグ&gt;デバッグ開始&gt;コアファイルを読み込みでバイナリファイルを指定してください。</translation>
-    </message>
-    <message>
-        <source>Starting executable failed:</source>
-        <translation>実行ファイルの起動に失敗しました:</translation>
-    </message>
-    <message>
-        <source>No Remote Executable or Process ID Specified</source>
-        <translation>リモートの実行ファイルまたはプロセスIDが指定されていません</translation>
-    </message>
-    <message>
-        <source>No remote executable could be determined from your build system files.&lt;p&gt;In case you use qmake, consider adding&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;target.path = /tmp/your_executable # path on device&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;INSTALLS += target&lt;/p&gt;to your .pro file.</source>
-        <translation>ビルドシステムファイルからリモート実行可能なファイルを特定できませんでした。&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;target.path = /tmp/your_executable # path on device &lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;INSTALLS += target&lt;/p&gt;qmake を使用している場合は、.pro ファイルに以下の行を追加してください。</translation>
     </message>
     <message>
         <source>Continue Debugging</source>
@@ -19421,14 +18887,6 @@ You can choose between waiting longer or aborting debugging.</source>
         <translation>GDB I/O エラー</translation>
     </message>
     <message>
-        <source>Adapter start failed</source>
-        <translation>アダプタの開始に失敗しました</translation>
-    </message>
-    <message>
-        <source>Setting breakpoints...</source>
-        <translation>ブレークポイントの設定...</translation>
-    </message>
-    <message>
         <source>Failed to start application:</source>
         <translation>アプリケーションの開始に失敗しました:</translation>
     </message>
@@ -19469,67 +18927,6 @@ You can choose between waiting longer or aborting debugging.</source>
 %1</source>
         <translation>リモートサーバーへの接続に失敗しました:
 %1</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbCoreEngine</name>
-    <message>
-        <source>Error Loading Symbols</source>
-        <translation>シンボルの読込に失敗</translation>
-    </message>
-    <message>
-        <source>No executable to load symbols from specified core.</source>
-        <translation>指定されたコアからシンボルをロードする実行ファイルが見つかりません。</translation>
-    </message>
-    <message>
-        <source>Error Loading Core File</source>
-        <translation>コアファイルの読込に失敗</translation>
-    </message>
-    <message>
-        <source>The specified file does not appear to be a core file.</source>
-        <translation>指定されたファイルはコアファイルではないようです。</translation>
-    </message>
-    <message>
-        <source>Symbols found.</source>
-        <translation>シンボルが見つかりました。</translation>
-    </message>
-    <message>
-        <source>No symbols found in core file &lt;i&gt;%1&lt;/i&gt;.</source>
-        <translation>コアファイル &lt;i&gt;%1&lt;/i&gt; にシンボルが見つかりません。</translation>
-    </message>
-    <message>
-        <source>This can be caused by a path length limitation in the core file.</source>
-        <translation>コアファイルのパスの長さが原因の可能性があります。</translation>
-    </message>
-    <message>
-        <source>Try to specify the binary using the &lt;i&gt;Debug-&gt;Start Debugging-&gt;Attach to Core&lt;/i&gt; dialog.</source>
-        <translation>&lt;i&gt;デバッグ-&gt;デバッグ開始-&gt;コアファイルにアタッチ&lt;/i&gt; ダイアログでバイナリファイルを指定してください。</translation>
-    </message>
-    <message>
-        <source>Attached to core.</source>
-        <translation>コアファイルにアタッチしました。</translation>
-    </message>
-    <message>
-        <source>Attach to core &quot;%1&quot; failed:</source>
-        <translation>core &quot;%1&quot; へのあった智に失敗しました:</translation>
-    </message>
-    <message>
-        <source>Continuing nevertheless.</source>
-        <translation>デバッグを継続します。</translation>
-    </message>
-</context>
-<context>
-    <name>DebuggerEngine</name>
-    <message>
-        <source>Debugging complex command lines is currently not supported on Windows.</source>
-        <translation>現在、WIndows 上での複雑なコマンドラインのデバッグはサポートされていません。</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbOptionsPage</name>
-    <message>
-        <source>General</source>
-        <translation>一般</translation>
     </message>
     <message>
         <source>GDB timeout:</source>
@@ -19744,27 +19141,10 @@ markers in the source code editor.</source>
         <source>Debug all children</source>
         <translation>すべての子プロセスをデバッグする</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbOptionsPage2</name>
-    <message>
-        <source>GDB Extended</source>
-        <translation>GDB 拡張</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbPlainEngine</name>
     <message>
         <source>Starting executable failed:</source>
         <translation>実行ファイルの起動に失敗しました:</translation>
     </message>
-    <message>
-        <source>Cannot set up communication with child process: %1</source>
-        <translation>子プロセスとの通信を設定できません: %1</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbRemoteServerEngine</name>
     <message>
         <source>The upload process failed to start. Shell missing?</source>
         <translation>アップロードプロセスの開始に失敗しました。シェルが失われていませんか？</translation>
@@ -19772,10 +19152,6 @@ markers in the source code editor.</source>
     <message>
         <source>The upload process crashed some time after starting successfully.</source>
         <translation>アップロードプロセス起動が成功した後に、クラッシュしました。</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>直前の waitFor...() 関数はタイムアウトしました。QProcess の状態に変化がないため、再度 waitFor...() を呼び出せます。</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -19794,10 +19170,6 @@ markers in the source code editor.</source>
         <translation>エラー</translation>
     </message>
     <message>
-        <source>No symbol file given.</source>
-        <translation>シンボルファイルがありません。</translation>
-    </message>
-    <message>
         <source>Reading debug information failed:</source>
         <translation>デバッグ情報の読込に失敗しました:</translation>
     </message>
@@ -19810,20 +19182,12 @@ markers in the source code editor.</source>
         <translation>ビルドシステムのファイルからリモートの実行ファイルを特定できませんでした。&lt;p&gt;qmake を使用している場合は、.pro ファイルに以下の行を追加してください。&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;target.path = /tmp/your_executable # デバイス上のパス&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;INSTALLS += target&lt;/p&gt;</translation>
     </message>
     <message>
-        <source>Continue Debugging</source>
-        <translation>デバッグの続行</translation>
-    </message>
-    <message>
-        <source>Stop Debugging</source>
-        <translation>デバッグを停止</translation>
-    </message>
-    <message>
         <source>Interrupting not possible</source>
         <translation>割り込み不可</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbServerStarter</name>
+    <name>Debugger</name>
     <message>
         <source>Remote Error</source>
         <translation>リモートエラー</translation>
@@ -19857,10 +19221,6 @@ markers in the source code editor.</source>
         <translation>%1:%2 でサーバーが開始されました</translation>
     </message>
     <message>
-        <source>Warning</source>
-        <translation>警告</translation>
-    </message>
-    <message>
         <source>Cannot find local executable for remote process &quot;%1&quot;.</source>
         <translation>リモートプロセス &quot;%1&quot; を実行する為のローカル実行ファイルが見つかりません。</translation>
     </message>
@@ -19875,13 +19235,6 @@ markers in the source code editor.</source>
     <message>
         <source>Process gdbserver finished. Status: %1</source>
         <translation>gdbserver プロセスは終了しました。 ステータス: %1</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbTermEngine</name>
-    <message>
-        <source>Debugger Error</source>
-        <translation>デバッガエラー</translation>
     </message>
 </context>
 <context>
@@ -19908,7 +19261,7 @@ markers in the source code editor.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::LldbEngine</name>
+    <name>Debugger</name>
     <message>
         <source>Run in Terminal is not supported with the LLDB backend.</source>
         <translation>LLDB バックエンドでは「ターミナルで実行」オプションはサポートされていません。</translation>
@@ -19918,16 +19271,8 @@ markers in the source code editor.</source>
         <translation>LLDB &quot;%1&quot; を開始できません: %2</translation>
     </message>
     <message>
-        <source>Adapter start failed.</source>
-        <translation>アダプタの開始に失敗しました。</translation>
-    </message>
-    <message>
         <source>Stopping temporarily</source>
         <translation>一時停止しています</translation>
-    </message>
-    <message>
-        <source>Setting up inferior...</source>
-        <translation>プログラムの準備中...</translation>
     </message>
     <message>
         <source>Running requested...</source>
@@ -19950,10 +19295,6 @@ markers in the source code editor.</source>
         <translation>LLDB プロセスは起動に成功した後、クラッシュしました。</translation>
     </message>
     <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>直前の waitFor...() 関数はタイムアウトしました。QProcess の状態に変化がないため、再度 waitFor...() を呼び出せます。</translation>
-    </message>
-    <message>
         <source>An error occurred when attempting to write to the LLDB process. For example, the process may not be running, or it may have closed its input channel.</source>
         <translation>LLDB プロセスへの要求送信時にエラーが発生しました。プロセスが既に終了しているか、入力チャネルが閉じられてしまっている可能性があります。</translation>
     </message>
@@ -19965,24 +19306,16 @@ markers in the source code editor.</source>
         <source>An unknown error in the LLDB process occurred.</source>
         <translation>LLDB プロセスにて未知のエラーが発生しました。</translation>
     </message>
-    <message>
-        <source>Adapter start failed</source>
-        <translation>アダプタの開始に失敗しました</translation>
-    </message>
-    <message>
-        <source>Debugger Error</source>
-        <translation>デバッガエラー</translation>
-    </message>
 </context>
 <context>
-    <name>Debugger::Internal::SelectRemoteFileDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Download of remote file succeeded.</source>
         <translation>リモートファイルのダウンロードが成功しました。</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AttachCoreDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Load Core File</source>
         <translation>コアファイルを読み込み</translation>
@@ -19990,10 +19323,6 @@ markers in the source code editor.</source>
     <message>
         <source>Use local core file:</source>
         <translation>ローカルの core ファイルを使用:</translation>
-    </message>
-    <message>
-        <source>Select Executable</source>
-        <translation>実行ファイルの選択</translation>
     </message>
     <message>
         <source>Select Core File</source>
@@ -20020,10 +19349,6 @@ markers in the source code editor.</source>
         <translation>このオプションを使用すると、キットの SysRoot 設定を上書きすることができます</translation>
     </message>
     <message>
-        <source>Kit:</source>
-        <translation>キット:</translation>
-    </message>
-    <message>
         <source>&amp;Executable:</source>
         <translation>実行ファイル(&amp;E):</translation>
     </message>
@@ -20040,16 +19365,12 @@ markers in the source code editor.</source>
         <translation>起動スクリプトを上書き(&amp;S):</translation>
     </message>
     <message>
-        <source>Override S&amp;ysRoot:</source>
-        <translation>S&amp;ysRoot を上書きします:</translation>
-    </message>
-    <message>
         <source>Select Remote Core File</source>
         <translation>リモートコアファイルの選択</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerPane</name>
+    <name>Debugger</name>
     <message>
         <source>Clear Contents</source>
         <translation>内容をクリア</translation>
@@ -20064,14 +19385,14 @@ markers in the source code editor.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::InputPane</name>
+    <name>Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>1行だけ実行するには、Ctrl+&lt;リターン&gt;キーを押してください。</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::LogWindow</name>
+    <name>Debugger</name>
     <message>
         <source>Debugger Log</source>
         <translation>デバッガログ</translation>
@@ -20118,7 +19439,7 @@ You may be asked to share the contents of this log when reporting bugs related t
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::MemoryAgent</name>
+    <name>Debugger</name>
     <message>
         <source>Memory at Register &quot;%1&quot; (0x%2)</source>
         <translation>レジスタ &quot;%1&quot; (0x%2) の指すメモリ</translation>
@@ -20131,28 +19452,6 @@ You may be asked to share the contents of this log when reporting bugs related t
         <source>Memory at 0x%1</source>
         <translation>0x%1 のメモリ</translation>
     </message>
-    <message>
-        <source>No Memory Viewer Available</source>
-        <translation>利用可能なメモリビューアがありません</translation>
-    </message>
-    <message>
-        <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
-        <translation>バイナリデータを表示する為のビューアプラグインが読み込まれていない為、メモリの内容を表示できません。</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::RegisterMemoryView</name>
-    <message>
-        <source>Memory at Register &quot;%1&quot; (0x%2)</source>
-        <translation>レジスタ &quot;%1&quot; (0x%2) の指すメモリ</translation>
-    </message>
-    <message>
-        <source>Register &quot;%1&quot;</source>
-        <translation>レジスタ &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::ModulesHandler</name>
     <message>
         <source>Module Name</source>
         <translation>モジュール名</translation>
@@ -20178,127 +19477,16 @@ You may be asked to share the contents of this log when reporting bugs related t
         <translation>終端アドレス</translation>
     </message>
     <message>
-        <source>Unknown</source>
-        <translation>不明</translation>
-    </message>
-    <message>
         <source>No</source>
         <translation>いいえ</translation>
-    </message>
-    <message>
-        <source>Yes</source>
-        <translation>はい</translation>
     </message>
     <message>
         <source>None</source>
         <translation>シンボルなし</translation>
     </message>
-    <message>
-        <source>Plain</source>
-        <translation>プレーン</translation>
-    </message>
-    <message>
-        <source>Fast</source>
-        <translation>高速</translation>
-    </message>
-    <message>
-        <source>debuglnk</source>
-        <translation>debuglnk</translation>
-    </message>
-    <message>
-        <source>buildid</source>
-        <translation>buildid</translation>
-    </message>
-    <message>
-        <source>It is unknown whether this module contains debug information.
-Use &quot;Examine Symbols&quot; from the context menu to initiate a check.</source>
-        <translation>このモジュールにデバッグ情報が含まれているかは不明です。
-コンテキストメニューから &quot;すべてのモジュールを調査&quot; を実行して確認してください。</translation>
-    </message>
-    <message>
-        <source>This module neither contains nor references debug information.
-Stepping into the module or setting breakpoints by file and line will not work.</source>
-        <translation>このモジュールにはデバッグ情報が含まれていません。
-ステップ実行や、ファイルと行番号によるブレークポイントの設定は正しく動作しないでしょう。</translation>
-    </message>
-    <message>
-        <source>This module contains debug information.
-Stepping into the module or setting breakpoints by file and line is expected to work.</source>
-        <translation>このモジュールにはデバッグ情報が含まれています。
-ステップ実行や、ファイルと行番号によるブレークポイントの設定も期待通りに動作します。</translation>
-    </message>
-    <message>
-        <source>This module does not contain debug information itself, but contains a reference to external debug information.</source>
-        <translation>このモジュール自体にはデバッグ情報が含まれていませんが、外部のデバッグ情報への参照が含まれています。</translation>
-    </message>
-    <message>
-        <source>&lt;unknown&gt;</source>
-        <comment>address</comment>
-        <extracomment>End address of loaded module</extracomment>
-        <translation>&lt;不明&gt;</translation>
-    </message>
 </context>
 <context>
-    <name>Debugger::Internal::ModulesTreeView</name>
-    <message>
-        <source>Update Module List</source>
-        <translation>モジュールリストを更新</translation>
-    </message>
-    <message>
-        <source>Show Source Files for Module &quot;%1&quot;</source>
-        <translation>モジュール &quot;%1&quot; のソースファイルを表示</translation>
-    </message>
-    <message>
-        <source>Load Symbols for All Modules</source>
-        <translation>すべてのモジュールのシンボルの読込</translation>
-    </message>
-    <message>
-        <source>Examine All Modules</source>
-        <translation>すべてのモジュールを調査</translation>
-    </message>
-    <message>
-        <source>Load Symbols for Module</source>
-        <translation>モジュールのシンボルの読込</translation>
-    </message>
-    <message>
-        <source>Edit File</source>
-        <translation>ファイルを編集</translation>
-    </message>
-    <message>
-        <source>Show Symbols</source>
-        <translation>シンボルを表示</translation>
-    </message>
-    <message>
-        <source>Show Sections</source>
-        <translation>セクションを表示</translation>
-    </message>
-    <message>
-        <source>Show Dependencies</source>
-        <translation>依存関係を表示</translation>
-    </message>
-    <message>
-        <source>Load Symbols for Module &quot;%1&quot;</source>
-        <translation>モジュール &quot;%1&quot; のシンボルの読込</translation>
-    </message>
-    <message>
-        <source>Edit File &quot;%1&quot;</source>
-        <translation>ファイル &quot;%1&quot; を編集</translation>
-    </message>
-    <message>
-        <source>Show Symbols in File &quot;%1&quot;</source>
-        <translation>ファイル &quot;%1&quot; のシンボルを表示する</translation>
-    </message>
-    <message>
-        <source>Show Sections in File &quot;%1&quot;</source>
-        <translation>ファイル &quot;%1&quot; のセクションを表示する</translation>
-    </message>
-    <message>
-        <source>Show Dependencies of &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; の依存関係を表示</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::OutputCollector</name>
+    <name>Debugger</name>
     <message>
         <source>Cannot create temporary file: %1</source>
         <translation>一時ファイルを作成できません: %1</translation>
@@ -20313,7 +19501,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::PdbEngine</name>
+    <name>Debugger</name>
     <message>
         <source>Adapter start failed</source>
         <translation>アダプタの開始に失敗しました</translation>
@@ -20321,10 +19509,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     <message>
         <source>Python Error</source>
         <translation>Python エラー</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation>実行しようとしています...</translation>
     </message>
     <message>
         <source>Pdb I/O Error</source>
@@ -20343,10 +19527,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <translation>Pdb プロセスは起動に成功した後、クラッシュしました。</translation>
     </message>
     <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>直前の waitFor...() 関数はタイムアウトしました。QProcess の状態に変化がないため、再度 waitFor...() を呼び出せます。</translation>
-    </message>
-    <message>
         <source>An error occurred when attempting to write to the Pdb process. For example, the process may not be running, or it may have closed its input channel.</source>
         <translation>Pdb プロセスへの要求送信時にエラーが発生しました。プロセスが既に終了しているか、入力チャネルが閉じられてしまっている可能性があります。</translation>
     </message>
@@ -20360,7 +19540,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QmlCppEngine</name>
+    <name>Debugger</name>
     <message>
         <source>The slave debugging engine required for combined QML/C++-Debugging could not be created: %1</source>
         <translation>QML と C++ の同時デバッグに必要なスレーブ側のデバッグエンジンが作成できませんでした: %1</translation>
@@ -20375,7 +19555,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QmlEngine</name>
+    <name>Debugger</name>
     <message>
         <source>No application output received in time</source>
         <translation>時間内にアプリケーション出力を受信できません</translation>
@@ -20405,10 +19585,6 @@ Do you want to retry?</source>
     <message>
         <source>Starting %1 %2</source>
         <translation>%1 %2 を起動中</translation>
-    </message>
-    <message>
-        <source>Failed to start application</source>
-        <translation>アプリケーションの開始に失敗しました</translation>
     </message>
     <message>
         <source>Application startup failed: %1</source>
@@ -20452,7 +19628,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QmlInspectorAgent</name>
+    <name>Debugger</name>
     <message>
         <source>Success:</source>
         <translation>成功:</translation>
@@ -20467,7 +19643,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::RegisterHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Content as ASCII Characters</source>
         <translation>ASCII 文字列としての値</translation>
@@ -20501,14 +19677,6 @@ Do you want to retry?</source>
         <translation>レジスターのグループです。</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>名前</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>値</translation>
-    </message>
-    <message>
         <source>Reload Register Listing</source>
         <translation>レジスタのリストの再読込</translation>
     </message>
@@ -20519,22 +19687,6 @@ Do you want to retry?</source>
     <message>
         <source>Open Memory View at Value of Register</source>
         <translation>レジスタの値をメモリビューで開く</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at 0x%1</source>
-        <translation>アドレス 0x%1 をメモリエディタで開く</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor</source>
-        <translation>メモリエディタを開く</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at 0x%1</source>
-        <translation>アドレス 0x%1 を逆アセンブラで開く</translation>
-    </message>
-    <message>
-        <source>Open Disassembler</source>
-        <translation>逆アセンブラを開く</translation>
     </message>
     <message>
         <source>Open Disassembler...</source>
@@ -20560,67 +19712,9 @@ Do you want to retry?</source>
         <source>Edit bits %1...%2 of register %3</source>
         <translation>レジスタ %3 の %1..%2 ビットの編集</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::RegisterTreeView</name>
-    <message>
-        <source>Reload Register Listing</source>
-        <translation>レジスタのリストの再読込</translation>
-    </message>
-    <message>
-        <source>Open Disassembler...</source>
-        <translation>逆アセンブラを開く...</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at 0x%1</source>
-        <translation>アドレス 0x%1 をメモリエディタで開く</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Value of Register %1 0x%2</source>
-        <translation>レジスタ %1 0x%2 の値をメモリビューで開く</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at 0x%1</source>
-        <translation>アドレス 0x%1 を逆アセンブラで開く</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor</source>
-        <translation>メモリエディタを開く</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Value of Register</source>
-        <translation>レジスタの値をメモリビューで開く</translation>
-    </message>
-    <message>
-        <source>Open Disassembler</source>
-        <translation>逆アセンブラを開く</translation>
-    </message>
-    <message>
-        <source>Hexadecimal</source>
-        <translation>16進数</translation>
-    </message>
-    <message>
-        <source>Decimal</source>
-        <translation>10進数</translation>
-    </message>
-    <message>
-        <source>Octal</source>
-        <translation>8進数</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation>2進数</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CacheDirectoryDialog</name>
     <message>
         <source>Select Local Cache Folder</source>
         <translation>ローカルのキャッシュディレクトリを選択</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>パス:</translation>
     </message>
     <message>
         <source>Already Exists</source>
@@ -20640,7 +19734,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbSymbolPathListEditor</name>
+    <name>Debugger</name>
     <message>
         <source>Insert Symbol Server...</source>
         <translation>シンボルサーバーの挿入...</translation>
@@ -20665,20 +19759,6 @@ Do you want to retry?</source>
         <source>Configure Symbol paths that are used to locate debug symbol files.</source>
         <translation>ローカルなデバッグシンボルファイルの配置に使用するシンボルパスを設定します。</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::SnapshotHandler</name>
-    <message>
-        <source>Name</source>
-        <translation>名前</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>ファイル</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::SnapshotTreeView</name>
     <message>
         <source>Snapshots</source>
         <translation>スナップショット</translation>
@@ -20693,7 +19773,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::SourceFilesHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Internal Name</source>
         <translation>内部名</translation>
@@ -20714,24 +19794,6 @@ Do you want to retry?</source>
         <source>Open File &quot;%1&quot;</source>
         <translation>ファイル &quot;%1&quot; を開く</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::SourceFilesTreeView</name>
-    <message>
-        <source>Reload Data</source>
-        <translation>データの再読込</translation>
-    </message>
-    <message>
-        <source>Open File</source>
-        <translation>ファイルを開く</translation>
-    </message>
-    <message>
-        <source>Open File &quot;%1&quot;&apos;</source>
-        <translation>ファイル &quot;%1&quot; を開く</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::StackHandler</name>
     <message>
         <source>Address:</source>
         <translation>アドレス:</translation>
@@ -20809,89 +19871,14 @@ Do you want to retry?</source>
         <translation>行番号</translation>
     </message>
     <message>
-        <source>Address</source>
-        <translation>アドレス</translation>
-    </message>
-    <message>
-        <source>Disassemble Function</source>
-        <translation>関数を逆アセンブル</translation>
-    </message>
-    <message>
-        <source>Cannot open &quot;%1&quot;: %2</source>
-        <translation>&quot;%1&quot; を開けません: %2</translation>
-    </message>
-    <message>
-        <source>Cannot Open Task File</source>
-        <translation>タスクファイルを開けません</translation>
-    </message>
-    <message>
-        <source>Copy Contents to Clipboard</source>
-        <translation>内容をクリップボードにコピー</translation>
-    </message>
-    <message>
-        <source>Copy Selection to Clipboard</source>
-        <translation>選択範囲をクリップボードにコピーする</translation>
-    </message>
-    <message>
-        <source>Save as Task File...</source>
-        <translation>名前を付けてタスクファイルを保存...</translation>
-    </message>
-    <message>
-        <source>Load QML Stack</source>
-        <translation>QML スタックの読込</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at 0x%1</source>
-        <translation>アドレス 0x%1 をメモリエディタで開く</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor</source>
-        <translation>メモリエディタを開く</translation>
-    </message>
-    <message>
         <source>Memory at Frame #%1 (%2) 0x%3</source>
         <translation>フレーム番号 #%1 (%2) 0x%3 のメモリ内容</translation>
     </message>
-    <message>
-        <source>Frame #%1 (%2)</source>
-        <translation>フレーム番号 #%1 (%2)</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at 0x%1</source>
-        <translation>アドレス 0x%1 を逆アセンブラで開く</translation>
-    </message>
-    <message>
-        <source>Open Disassembler</source>
-        <translation>逆アセンブラを開く</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at Address...</source>
-        <translation>アドレスを逆アセンブラで開く...</translation>
-    </message>
-    <message>
-        <source>Disassemble Function...</source>
-        <translation>関数を逆アセンブル...</translation>
-    </message>
-    <message>
-        <source>Try to Load Unknown Symbols</source>
-        <translation>不明なシンボルの読み込みを行う</translation>
-    </message>
-    <message>
-        <source>Module:</source>
-        <translation>モジュール:</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::StackTreeView</name>
     <message>
         <source>Stack</source>
         <translation>スタック</translation>
     </message>
     <message>
-        <source>Function:</source>
-        <translation>関数:</translation>
-    </message>
-    <message>
         <source>Disassemble Function</source>
         <translation>関数を逆アセンブル</translation>
     </message>
@@ -20904,20 +19891,12 @@ Do you want to retry?</source>
         <translation>&quot;%1&quot; を開けません: %2</translation>
     </message>
     <message>
-        <source>Copy Contents to Clipboard</source>
-        <translation>内容をクリップボードにコピー</translation>
-    </message>
-    <message>
         <source>Save as Task File...</source>
         <translation>名前を付けてタスクファイルを保存...</translation>
     </message>
     <message>
         <source>Load QML Stack</source>
         <translation>QML スタックの読込</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor</source>
-        <translation>メモリエディタを開く</translation>
     </message>
     <message>
         <source>Open Memory Editor at 0x%1</source>
@@ -20944,16 +19923,9 @@ Do you want to retry?</source>
         <translation>不明なシンボルの読み込みを行う</translation>
     </message>
     <message>
-        <source>Memory at Frame #%1 (%2) 0x%3</source>
-        <translation>フレーム番号 #%1 (%2) 0x%3 のメモリ内容</translation>
-    </message>
-    <message>
         <source>Frame #%1 (%2)</source>
         <translation>フレーム番号 #%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::ThreadsHandler</name>
     <message>
         <source>Thread&amp;nbsp;id:</source>
         <translation>スレッド ID:</translation>
@@ -20967,14 +19939,6 @@ Do you want to retry?</source>
         <translation>グループ ID:</translation>
     </message>
     <message>
-        <source>Name:</source>
-        <translation>名前:</translation>
-    </message>
-    <message>
-        <source>State:</source>
-        <translation>状態:</translation>
-    </message>
-    <message>
         <source>Core:</source>
         <translation>コア:</translation>
     </message>
@@ -20985,22 +19949,6 @@ Do you want to retry?</source>
     <message>
         <source>ID</source>
         <translation>ID</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>関数</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>ファイル</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>行番号</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>アドレス</translation>
     </message>
     <message>
         <source>Core</source>
@@ -21017,17 +19965,6 @@ Do you want to retry?</source>
     <message>
         <source>Details</source>
         <translation>詳細</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>名前</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger</name>
-    <message>
-        <source>Name</source>
-        <translation>名前</translation>
     </message>
     <message>
         <source>Expression</source>
@@ -21156,10 +20093,6 @@ Do you want to retry?</source>
         <translation>ツールチップ</translation>
     </message>
     <message>
-        <source>Automatic</source>
-        <translation>自動</translation>
-    </message>
-    <message>
         <source>Raw Data</source>
         <translation>生データ</translation>
     </message>
@@ -21284,10 +20217,6 @@ Do you want to retry?</source>
     <message>
         <source>Stop the program when the data at the address given by the expression is modified.</source>
         <translation>式で指定されたアドレスのデータが変更されたら、プログラムを停止します。</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor</source>
-        <translation>メモリエディタを開く</translation>
     </message>
     <message>
         <source>Open Memory View at Pointer&apos;s Address (0x%1)</source>
@@ -21422,40 +20351,14 @@ Do you want to retry?</source>
         <translation>不明なアドレスの %1 型のオブジェクト</translation>
     </message>
     <message>
-        <source>Are you sure you want to remove all expression evaluators?</source>
-        <translation>本当にすべての式エバリュエータを削除しますか？</translation>
-    </message>
-    <message>
         <source>returned value</source>
         <translation>戻り値</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>名前</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>値</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>型</translation>
     </message>
     <message numerus="yes">
         <source>Array of %n items</source>
         <translation>
             <numerusform>%n 個の配列</numerusform>
         </translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
-        <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
-        <translation>#%3 の &lt;i&gt;%1&lt;/i&gt; %2</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;%1&lt;/i&gt; %2</source>
-        <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
-        <translation>&lt;i&gt;%1&lt;/i&gt; %2</translation>
     </message>
     <message>
         <source>Could not determine a suitable address range.</source>
@@ -21534,24 +20437,12 @@ Do you want to retry?</source>
         <translation>ポインタのアドレス (0x%1) をメモリエディタで開く</translation>
     </message>
     <message>
-        <source>Open Memory View at Pointer&apos;s Address (0x%1)</source>
-        <translation>ポインタのアドレス (0x%1) をメモリビューで開く</translation>
-    </message>
-    <message>
         <source>Open Memory Editor at Pointer&apos;s Address</source>
         <translation>ポインタのアドレスをメモリエディタで開く</translation>
     </message>
     <message>
-        <source>Open Memory View at Pointer&apos;s Address</source>
-        <translation>ポインタのアドレスをメモリビューで開く</translation>
-    </message>
-    <message>
         <source>Close Editor Tooltips</source>
         <translation>エディタのツールチップを閉じる</translation>
-    </message>
-    <message>
-        <source>Locals &amp; Expressions</source>
-        <translation>ローカル変数と式</translation>
     </message>
     <message>
         <source>Open Memory Editor</source>
@@ -30669,10 +29560,6 @@ Locked items cannot be modified or selected.</source>
         <translation type="vanished">無効な ID</translation>
     </message>
     <message>
-        <source>%1 is an invalid id.</source>
-        <translation type="vanished">%1 は無効な id です。</translation>
-    </message>
-    <message>
         <source>%1 already exists.</source>
         <translation type="vanished">%1 は既に存在しています。</translation>
     </message>
@@ -37053,7 +35940,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::UnstartedAppWatcherDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Attach to Process Not Yet Started</source>
         <translation>開始前のプロセスにアタッチ</translation>
@@ -37910,7 +36797,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::LocalsAndExpressionsOptionsPage</name>
+    <name>Debugger</name>
     <message>
         <source>Use Debugging Helper</source>
         <translation>デバッグヘルパを使用する</translation>
@@ -37918,22 +36805,6 @@ API バージョンが %1 以上の SDK をインストールしてください�
     <message>
         <source>The debugging helpers are used to produce a nice display of objects of certain types like QString or std::map in the &amp;quot;Locals and Expressions&amp;quot; view. </source>
         <translation>デバッグヘルパは &amp;quot;ローカル変数と式&amp;quot; において QString や std::map のような特定の型をわかりやすくに表示する為に使われます。</translation>
-    </message>
-    <message>
-        <source>Debugging Helper Customization</source>
-        <translation>デバッグヘルパのカスタマイズ</translation>
-    </message>
-    <message>
-        <source>Extra Debugging Helpers</source>
-        <translation>追加のデバッグヘルパ</translation>
-    </message>
-    <message>
-        <source>Path to a Python file containing additional data dumpers.</source>
-        <translation>追加するデータ表示機能を持つ Python ファイルへのパスです。</translation>
-    </message>
-    <message>
-        <source>&lt;unlimited&gt;</source>
-        <translation>&lt;無制限&gt;</translation>
     </message>
     <message>
         <source>Maximum string length:</source>
@@ -42657,7 +41528,7 @@ Do you want to check them out now?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::AnalyzerRunConfigWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Use Customized Settings</source>
         <translation>カスタム設定を使用する</translation>
@@ -42666,23 +41537,13 @@ Do you want to check them out now?</source>
         <source>Use Global Settings</source>
         <translation>グローバル設定を使用する</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::DetailedErrorView</name>
     <message>
         <source>Copy</source>
         <translation>コピー</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::StartRemoteDialog</name>
     <message>
         <source>Start Remote Analysis</source>
         <translation>リモート解析の開始</translation>
-    </message>
-    <message>
-        <source>Kit:</source>
-        <translation>キット:</translation>
     </message>
     <message>
         <source>Executable:</source>
@@ -42696,9 +41557,6 @@ Do you want to check them out now?</source>
         <source>Working directory:</source>
         <translation>作業ディレクトリ:</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::Console</name>
     <message>
         <source>Show debug, log, and info messages.</source>
         <translation>デバッグ、ログ、インフォメーションメッセージを表示します。</translation>
@@ -42719,9 +41577,6 @@ Do you want to check them out now?</source>
         <source>Debugger Console</source>
         <translation>デバッガコンソール</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::ConsoleView</name>
     <message>
         <source>&amp;Copy</source>
         <translation>コピー(&amp;C)</translation>
@@ -42734,9 +41589,6 @@ Do you want to check them out now?</source>
         <source>C&amp;lear</source>
         <translation>クリア(&amp;L)</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerEnginePrivate</name>
     <message>
         <source>Debugged executable</source>
         <translation>デバッグする実行ファイル</translation>
@@ -42746,60 +41598,8 @@ Do you want to check them out now?</source>
         <translation>中断しようとしています。</translation>
     </message>
     <message>
-        <source>Debugger finished.</source>
-        <translation>デバッガは終了しました。</translation>
-    </message>
-    <message>
-        <source>Continue</source>
-        <translation>続行</translation>
-    </message>
-    <message>
-        <source>Stop Debugger</source>
-        <translation>デバッガを停止</translation>
-    </message>
-    <message>
-        <source>Interrupt</source>
-        <translation>割り込み</translation>
-    </message>
-    <message>
-        <source>Abort Debugging</source>
-        <translation>デバッグ中止</translation>
-    </message>
-    <message>
-        <source>Step Into</source>
-        <translation>ステップイン</translation>
-    </message>
-    <message>
-        <source>Step Out</source>
-        <translation>ステップアウト</translation>
-    </message>
-    <message>
-        <source>Run to Line</source>
-        <translation>この行まで実行</translation>
-    </message>
-    <message>
-        <source>Run to Selected Function</source>
-        <translation>選択した関数まで実行</translation>
-    </message>
-    <message>
-        <source>Jump to Line</source>
-        <translation>指定行にジャンプ</translation>
-    </message>
-    <message>
         <source>Immediately Return From Inner Function</source>
         <translation>内部関数からすぐに抜ける</translation>
-    </message>
-    <message>
-        <source>Step Over</source>
-        <translation>ステップオーバー</translation>
-    </message>
-    <message>
-        <source>Toggle Breakpoint</source>
-        <translation>ブレークポイントの切替</translation>
-    </message>
-    <message>
-        <source>Restart Debugging</source>
-        <translation>デバッグの再開</translation>
     </message>
     <message>
         <source>Operate by Instruction</source>
@@ -42814,27 +41614,8 @@ Do you want to check them out now?</source>
         <translation>デバッガの起動中</translation>
     </message>
     <message>
-        <source>Source Files</source>
-        <translation>ソースファイル</translation>
-    </message>
-    <message>
-        <source>Locals</source>
-        <translation>ローカル</translation>
-    </message>
-    <message>
-        <source>Aborts debugging and resets the debugger to the initial state.</source>
-        <translation>デバッグを中止して、初期状態に戻します。</translation>
-    </message>
-    <message>
         <source>Threads:</source>
         <translation>スレッド:</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerEngine</name>
-    <message>
-        <source>Launching Debugger</source>
-        <translation>デバッガの起動中</translation>
     </message>
     <message>
         <source>Setup failed.</source>
@@ -42849,10 +41630,6 @@ Do you want to check them out now?</source>
         <translation>バイナリデータを表示する為のビューアプラグインが読み込まれていない為、メモリの内容を表示できません。</translation>
     </message>
     <message>
-        <source>Debugger</source>
-        <translation>デバッガ</translation>
-    </message>
-    <message>
         <source>Loading finished.</source>
         <translation>読み込みは完了しました。</translation>
     </message>
@@ -42863,10 +41640,6 @@ Do you want to check them out now?</source>
     <message>
         <source>Running.</source>
         <translation>実行しています。</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <translation>停止しました。</translation>
     </message>
     <message>
         <source>Run requested...</source>
@@ -42887,14 +41660,6 @@ Do you want to check them out now?</source>
     <message>
         <source>Taking notice of pid %1</source>
         <translation>PID %1 の通知を受ける</translation>
-    </message>
-    <message>
-        <source>Attempting to interrupt.</source>
-        <translation>中断しようとしています。</translation>
-    </message>
-    <message>
-        <source>Could not find a widget.</source>
-        <translation>ウィジェットが見つかりませんでした。</translation>
     </message>
     <message>
         <source>This debugger cannot handle user input.</source>
@@ -43053,7 +41818,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::DebuggerOptionsPage</name>
+    <name>Debugger</name>
     <message>
         <source>Not recognized</source>
         <translation>不明</translation>
@@ -43061,10 +41826,6 @@ Setting breakpoints by file name and line number may fail.</source>
     <message>
         <source>Could not determine debugger type</source>
         <translation>デバッガの種類が識別できませんでした</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>名前</translation>
     </message>
     <message>
         <source>Location</source>
@@ -43081,10 +41842,6 @@ Setting breakpoints by file name and line number may fail.</source>
     <message>
         <source>Manual</source>
         <translation>手動</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation>不明</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -43113,11 +41870,6 @@ Setting breakpoints by file name and line number may fail.</source>
     <message>
         <source>32-bit version</source>
         <translation>32 bit バージョン</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger executable&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
-        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;%1&quot;&gt;Windows コマンドラインデバッガの実行ファイル&lt;/a&gt; (%2) のパスを指定してください。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Add</source>
@@ -43180,11 +41932,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerPlugin</name>
-    <message>
-        <source>Debug</source>
-        <translation>デバッグ</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Option &quot;%1&quot; is missing the parameter.</source>
         <translation>オプション &quot;%1&quot; に必要なパラメータが不足しています。</translation>
@@ -43202,14 +41950,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <translation>無効なデバッガオプション: %1</translation>
     </message>
     <message>
-        <source>Process %1</source>
-        <translation>プロセス %1</translation>
-    </message>
-    <message>
-        <source>Cannot start %1 without a project. Please open the project and try again.</source>
-        <translation>プロジェクト無しでは %1 を開始できません。プロジェクトを開いた後に再度試してください。</translation>
-    </message>
-    <message>
         <source>in Debug mode</source>
         <translation>デバッグモード</translation>
     </message>
@@ -43220,62 +41960,6 @@ Setting breakpoints by file name and line number may fail.</source>
     <message>
         <source>in Release mode</source>
         <translation>リリースモード</translation>
-    </message>
-    <message>
-        <source>with debug symbols (Debug or Profile mode)</source>
-        <translation>デバッグシンボル込み(デバッグあるいはプロファイルモード)</translation>
-    </message>
-    <message>
-        <source>on optimized code (Profile or Release mode)</source>
-        <translation>最適化済みコード(プロファイルあるいはリリースモード)</translation>
-    </message>
-    <message>
-        <source>Run %1 in %2 Mode?</source>
-        <translation>%1 を%2モードで実行しますか？</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. The tool is designed to be used %3.&lt;/p&gt;&lt;p&gt;Run-time characteristics differ significantly between optimized and non-optimized binaries. Analytical findings for one mode may or may not be relevant for the other.&lt;/p&gt;&lt;p&gt;Running tools that need debug symbols on binaries that don&apos;t provide any may lead to missing function names or otherwise insufficient output.&lt;/p&gt;&lt;p&gt;Do you want to continue and run the tool in %2 mode?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;%2モードのアプリケーションに対してツール &quot;%1&quot; を実行しようとしています。このツールは%3モードでの利用を想定しています。&lt;/p&gt;&lt;p&gt;バイナリが最適化済みかどうかによって実行時の特性は大きく異なります。あるモードでの解析結果が別のモードには当てはまらない場合もあります。&lt;/p&gt;&lt;p&gt;デバッグシンボルが含まれないバイナリに対してデバッグシンボルが必要なツールを実行する場合には関数名が取得できなかったり結果が不十分なものになることもあります。&lt;/p&gt;&lt;p&gt;%2モードでのツールの実行を継続しますか？&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Symbol</source>
-        <translation>シンボル</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>アドレス</translation>
-    </message>
-    <message>
-        <source>Code</source>
-        <translation>コード</translation>
-    </message>
-    <message>
-        <source>Section</source>
-        <translation>セクション</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>名前</translation>
-    </message>
-    <message>
-        <source>Symbols in &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; のシンボル</translation>
-    </message>
-    <message>
-        <source>From</source>
-        <translation>From</translation>
-    </message>
-    <message>
-        <source>To</source>
-        <translation>To</translation>
-    </message>
-    <message>
-        <source>Flags</source>
-        <translation>フラグ</translation>
-    </message>
-    <message>
-        <source>Sections in &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; のセクション</translation>
     </message>
     <message>
         <source>Debugger</source>
@@ -43314,7 +41998,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>Debugger::AnalyzerAction</name>
+    <name>Debugger</name>
     <message>
         <source>Cannot start %1 without a project. Please open the project and try again.</source>
         <translation>プロジェクト無しでは %1 を開始できません。プロジェクトを開いた後に再度試してください。</translation>
@@ -43330,18 +42014,6 @@ Affected are breakpoints %1</source>
     <message>
         <source>Release</source>
         <translation>リリース</translation>
-    </message>
-    <message>
-        <source>in Debug mode</source>
-        <translation>デバッグモード</translation>
-    </message>
-    <message>
-        <source>in Profile mode</source>
-        <translation>プロファイルモード</translation>
-    </message>
-    <message>
-        <source>in Release mode</source>
-        <translation>リリースモード</translation>
     </message>
     <message>
         <source>with debug symbols (Debug or Profile mode)</source>
@@ -43361,7 +42033,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::RunConfigWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Debugger Settings</source>
         <translation>デバッガ設定</translation>
@@ -43382,28 +42054,12 @@ Affected are breakpoints %1</source>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;前提条件は？&lt;/a&gt;</translation>
     </message>
-    <message>
-        <source>Enable Debugging of Subprocesses</source>
-        <translation>サブプロセスのデバッグを有効にする</translation>
-    </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerToolTipManager</name>
+    <name>Debugger</name>
     <message>
         <source>%1 (Previous)</source>
         <translation>%1 (直前)</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>名前</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>値</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>タイプ</translation>
     </message>
     <message>
         <source>Copy Contents to Clipboard</source>
@@ -43438,7 +42094,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::Terminal</name>
+    <name>Debugger</name>
     <message>
         <source>Terminal: Cannot open /dev/ptmx: %1</source>
         <translation>ターミナル: /dev/ptmx を開けません: %1</translation>
@@ -53888,117 +52544,7 @@ Continue?</source>
     </message>
 </context>
 <context>
-    <name>BreakHandler</name>
-    <message>
-        <source>Breakpoint</source>
-        <translation>ブレークポイント</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::BreakpointManager</name>
-    <message>
-        <source>Function</source>
-        <translation>関数</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>ファイル</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>行番号</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>アドレス</translation>
-    </message>
-    <message>
-        <source>Condition</source>
-        <translation>条件</translation>
-    </message>
-    <message>
-        <source>Ignore</source>
-        <translation>無視</translation>
-    </message>
-    <message>
-        <source>Threads</source>
-        <translation>スレッド</translation>
-    </message>
-    <message>
-        <source>Add Breakpoint</source>
-        <translation>ブレークポイントを追加</translation>
-    </message>
-    <message>
-        <source>Add Breakpoint...</source>
-        <translation>ブレークポイントを追加...</translation>
-    </message>
-    <message>
-        <source>Delete Selected Breakpoints</source>
-        <translation>選択したブレークポイントを削除する</translation>
-    </message>
-    <message>
-        <source>Edit Selected Breakpoints...</source>
-        <translation>選択したブレークポイントを編集する...</translation>
-    </message>
-    <message>
-        <source>Disable Selected Breakpoints</source>
-        <translation>選択したブレークポイントの無効化</translation>
-    </message>
-    <message>
-        <source>Enable Selected Breakpoints</source>
-        <translation>選択したブレークポイントの有効化</translation>
-    </message>
-    <message>
-        <source>Disable Breakpoint</source>
-        <translation>ブレークポイントの無効化</translation>
-    </message>
-    <message>
-        <source>Enable Breakpoint</source>
-        <translation>ブレークポイントの有効化</translation>
-    </message>
-    <message>
-        <source>Delete All Breakpoints</source>
-        <translation>すべてのブレークポイントを削除する</translation>
-    </message>
-    <message>
-        <source>Delete Breakpoints of &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; のブレークポイントを削除する</translation>
-    </message>
-    <message>
-        <source>Delete Breakpoints of File</source>
-        <translation>ファイル内のブレークポイントを削除する</translation>
-    </message>
-    <message>
-        <source>Remove All Breakpoints</source>
-        <translation>すべてのブレークポイントを削除する</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to remove all breakpoints from all files in the current session?</source>
-        <translation>現在のセッションのすべてのファイルからすべてのブレークポイントを本当に削除しますか？</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::DebuggerKitAspect</name>
-    <message>
-        <source>Type of Debugger Backend</source>
-        <translation>デバッガバックエンドの種類</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation>デバッガ</translation>
-    </message>
-    <message>
-        <source>Unknown debugger version</source>
-        <translation>未知なデバッガバージョン</translation>
-    </message>
-    <message>
-        <source>Unknown debugger ABI</source>
-        <translation>未知なデバッガ ABI</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>しない</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>The debugger to use for this kit.</source>
         <translation>このキットで使用するデバッガです。</translation>
@@ -54032,10 +52578,6 @@ Continue?</source>
         <translation>未知のデバッガ</translation>
     </message>
     <message>
-        <source>Unknown debugger type</source>
-        <translation>不明なデバッガ種類</translation>
-    </message>
-    <message>
         <source>No Debugger</source>
         <translation>デバッガなし</translation>
     </message>
@@ -54060,73 +52602,14 @@ Continue?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::LocalProcessRunner</name>
-    <message>
-        <source>The upload process failed to start. Shell missing?</source>
-        <translation>アップロードプロセスの開始に失敗しました。シェルが失われていませんか？</translation>
-    </message>
-    <message>
-        <source>The upload process crashed some time after starting successfully.</source>
-        <translation>アップロードプロセス起動が成功した後に、クラッシュしました。</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>直前の waitFor...() 関数はタイムアウトしました。QProcess の状態に変化がないため、再度 waitFor...() を呼び出せます。</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation>アップロードプロセスへの書き込み時にエラーが発生しました。プロセスが動作していないか、入力チャネルが閉じられている可能性があります。</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to read from the upload process. For example, the process may not be running.</source>
-        <translation>アップロードプロセスからの読み込み時にエラーが発生しました。アップロードプロセスが動作していない可能性があります。</translation>
-    </message>
-    <message>
-        <source>An unknown error in the upload process occurred. This is the default return value of error().</source>
-        <translation>アップロードプロセスで不明なエラーが発生しました。error() の既定の返り値です。</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>エラー</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::DebuggerRunTool</name>
+    <name>Debugger</name>
     <message>
         <source>Cannot debug: Local executable is not set.</source>
         <translation>デバッグエラー: ローカル実行ファイルが設定されていません。</translation>
     </message>
     <message>
-        <source>No executable specified.</source>
-        <translation>実行ファイルが指定されていません。</translation>
-    </message>
-    <message>
-        <source>Debugged executable</source>
-        <translation>デバッグする実行ファイル</translation>
-    </message>
-    <message>
-        <source>Unsupported CDB host system.</source>
-        <translation>サポート対象外の CDB ホストシステムです。</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation>デバッガ</translation>
-    </message>
-    <message>
-        <source>&amp;Show this message again.</source>
-        <translation>このメッセージを再び表示する(&amp;S)。</translation>
-    </message>
-    <message>
-        <source>Debugging starts</source>
-        <translation type="vanished">デバッグを開始</translation>
-    </message>
-    <message>
         <source>Starting debugger &quot;%1&quot; for ABI &quot;%2&quot;...</source>
         <translation>ABI &quot;%2&quot; のデバッガ &quot;%1&quot; を開始しています...</translation>
-    </message>
-    <message>
-        <source>Debugging has finished</source>
-        <translation type="vanished">デバッグが終了しました</translation>
     </message>
     <message>
         <source>Close Debugging Session</source>
@@ -54136,16 +52619,6 @@ Continue?</source>
         <source>A debugging session is still in progress. Terminating the session in the current state can leave the target in an inconsistent state. Would you still like to terminate it?</source>
         <translation>デバッグセッションは、まだ実行中です。終了しようとしているセッションの状態で、終了すると不整合状態になる可能性があります。それでもデバッグセッションを終了しますか？</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::EngineManager</name>
-    <message>
-        <source>Create Snapshot</source>
-        <translation>スナップショットを作成</translation>
-    </message>
-</context>
-<context>
-    <name>Debuggger::Internal::ModulesHandler</name>
     <message>
         <source>Unknown</source>
         <translation>不明</translation>
@@ -54256,18 +52729,10 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::PeripheralRegisterHandler</name>
+    <name>Debugger</name>
     <message>
         <source>N/A</source>
         <translation>N/A</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>名前</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>値</translation>
     </message>
     <message>
         <source>Access</source>
@@ -54278,25 +52743,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <translation>フォーマット</translation>
     </message>
     <message>
-        <source>Hexadecimal</source>
-        <translation>16進数</translation>
-    </message>
-    <message>
-        <source>Decimal</source>
-        <translation>10進数</translation>
-    </message>
-    <message>
-        <source>Octal</source>
-        <translation>8進数</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation>2進数</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::UvscClient</name>
-    <message>
         <source>%1.%2</source>
         <translation>%1.%2</translation>
     </message>
@@ -54304,24 +52750,9 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Unknown error.</source>
         <translation>不明なエラーです。</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::UvscEngine</name>
-    <message>
-        <source>Application started.</source>
-        <translation>アプリケーションが起動しました。</translation>
-    </message>
     <message>
         <source>Setting breakpoints...</source>
         <translation>ブレークポイントの設定...</translation>
-    </message>
-    <message>
-        <source>Failed to Shut Down Application</source>
-        <translation>アプリケーションの終了に失敗しました</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation>実行しようとしています...</translation>
     </message>
     <message>
         <source>Execution Error</source>

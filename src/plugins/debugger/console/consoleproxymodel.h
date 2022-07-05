@@ -30,8 +30,7 @@
 #include <QSortFilterProxyModel>
 #include <QItemSelectionModel>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class ConsoleProxyModel : public QSortFilterProxyModel
 {
@@ -59,5 +58,4 @@ private:
     QFlags<ConsoleItem::ItemType> m_filter;
 };
 
-} // Internal
-} // Debugger
+} // Debugger::Internal

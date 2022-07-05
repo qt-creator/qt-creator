@@ -3765,16 +3765,9 @@ p {
         <translation>Közös</translation>
     </message>
     <message>
-        <source>Debugger</source>
-        <translation>Debugger</translation>
-    </message>
-    <message>
         <source>&lt;Encoding error&gt;</source>
         <translation>&lt;Kódolási hiba&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::DebuggerManager</name>
     <message>
         <source>Continue</source>
         <translation>Folytatás</translation>
@@ -3852,10 +3845,6 @@ p {
         <translation>Nem lehet debuggolni a(z) &apos;%1&apos;-t (eszköz lánc: &apos;%2&apos;): %3</translation>
     </message>
     <message>
-        <source>Warning</source>
-        <translation>Figyelmeztetés</translation>
-    </message>
-    <message>
         <source>Save Debugger Log</source>
         <translation>Debugger Log elmentése</translation>
     </message>
@@ -3893,1268 +3882,7 @@ p {
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::0</name>
-    <message>
-        <source>Select Executable</source>
-        <translation type="obsolete">Futtatható fájl kiválasztása</translation>
-    </message>
-    <message>
-        <source>Select Core File</source>
-        <translation type="obsolete">Mag fájlok kiválasztása</translation>
-    </message>
-    <message>
-        <source>Process ID</source>
-        <translation type="obsolete">Folyamat azonosító</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="obsolete">Név</translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation type="obsolete">Státusz</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Felfrissítés</translation>
-    </message>
-    <message>
-        <source>Marker File:</source>
-        <translation type="obsolete">Megjelölt fájl:</translation>
-    </message>
-    <message>
-        <source>Marker Line:</source>
-        <translation type="obsolete">Megjelölt sor:</translation>
-    </message>
-    <message>
-        <source>Breakpoint Number:</source>
-        <translation type="obsolete">Töréspont szám:</translation>
-    </message>
-    <message>
-        <source>Breakpoint Address:</source>
-        <translation type="obsolete">Töréspont cím:</translation>
-    </message>
-    <message>
-        <source>Property</source>
-        <translation type="obsolete">Tulajdonságok</translation>
-    </message>
-    <message>
-        <source>Requested</source>
-        <translation type="obsolete">Igényelt</translation>
-    </message>
-    <message>
-        <source>Obtained</source>
-        <translation type="obsolete">Elnyert</translation>
-    </message>
-    <message>
-        <source>Internal Number:</source>
-        <translation type="obsolete">Belső szám:</translation>
-    </message>
-    <message>
-        <source>File Name:</source>
-        <translation type="obsolete">Fájl név:</translation>
-    </message>
-    <message>
-        <source>Function Name:</source>
-        <translation type="obsolete">Függvény név:</translation>
-    </message>
-    <message>
-        <source>Line Number:</source>
-        <translation type="obsolete">Sor szám:</translation>
-    </message>
-    <message>
-        <source>Condition:</source>
-        <translation type="obsolete">Feltétel:</translation>
-    </message>
-    <message>
-        <source>Ignore Count:</source>
-        <translation type="obsolete">Mellőzés számlálás:</translation>
-    </message>
-    <message>
-        <source>Number</source>
-        <translation type="obsolete">Szám</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation type="obsolete">Függvény</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation type="obsolete">Fájl</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation type="obsolete">Sor</translation>
-    </message>
-    <message>
-        <source>Condition</source>
-        <translation type="obsolete">Feltétel</translation>
-    </message>
-    <message>
-        <source>Ignore</source>
-        <translation type="obsolete">Mellőzés</translation>
-    </message>
-    <message>
-        <source>Breakpoint will only be hit if this condition is met.</source>
-        <translation type="obsolete">A töréspont csak akkor lesz leütve ha ez a feltétel teljesül.</translation>
-    </message>
-    <message>
-        <source>Breakpoint will only be hit after being ignored so many times.</source>
-        <translation type="obsolete">A töréspont sok alkalommal való mellőzés után lesz csak leütve.</translation>
-    </message>
-    <message>
-        <source>Breakpoints</source>
-        <translation type="obsolete">Töréspontok</translation>
-    </message>
-    <message>
-        <source>Delete breakpoint</source>
-        <translation type="obsolete">Töréspont törlése</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">Oszlop szélesség tartalomhoz igazítása</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">Mindig igazítsa az oszlopszélességet a tartalomhoz</translation>
-    </message>
-    <message>
-        <source>Edit condition...</source>
-        <translation type="obsolete">Feltétel szerkesztése...</translation>
-    </message>
-    <message>
-        <source>Synchronize breakpoints</source>
-        <translation type="obsolete">Töréspontok szinkronizálása</translation>
-    </message>
-    <message>
-        <source>Disable breakpoint</source>
-        <translation type="obsolete">Töréspont tiltása</translation>
-    </message>
-    <message>
-        <source>Enable breakpoint</source>
-        <translation type="obsolete">Töréspont engedélyezése</translation>
-    </message>
-    <message>
-        <source>Use short path</source>
-        <translation type="obsolete">Rövid útvonal használata</translation>
-    </message>
-    <message>
-        <source>Use full path</source>
-        <translation type="obsolete">Teljes útvonal használata</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at Function...</source>
-        <translation type="obsolete">Töréspont függvényre állítása...</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at Function &quot;main&quot;</source>
-        <translation type="obsolete">Töréspont &quot;main&quot; függvényre állítása</translation>
-    </message>
-    <message>
-        <source>Conditions on Breakpoint %1</source>
-        <translation type="obsolete">Feltételek a(z) %1 törésponton</translation>
-    </message>
-    <message>
-        <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Nem lehet betölteni a debugger engine könytárat &apos;%1&apos; nicht geladen werden: %2</translation>
-    </message>
-    <message>
-        <source>The function &quot;%1()&quot; failed: %2</source>
-        <translation type="obsolete">A függvény  &quot;%1()&quot; meghiúsult: %2</translation>
-    </message>
-    <message>
-        <source>Unable to resolve &apos;%1&apos; in the debugger engine library &apos;%2&apos;</source>
-        <translation type="obsolete">Nem lehet megfejteni a(z) &apos;%1&apos;-t a debugger engine könyvtárban &apos;%2&apos;</translation>
-    </message>
-    <message>
-        <source>The dumper library &apos;%1&apos; does not exist.</source>
-        <translation type="obsolete">A(z) &apos;%1&apos; dömper könyvtár nem létezik.</translation>
-    </message>
-    <message>
-        <source>The console stub process was unable to start &apos;%1&apos;.</source>
-        <translation type="obsolete">Nem lehetett elindítani a csonka konzol folyamatot &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Attaching to core files is not supported!</source>
-        <translation type="obsolete">Mag fájlokhoz való hozzácsatolás nem támogatott!</translation>
-    </message>
-    <message>
-        <source>Debugger running</source>
-        <translation type="obsolete">Debugger futtatása</translation>
-    </message>
-    <message>
-        <source>Attaching to a process failed for process id %1: %2</source>
-        <translation type="obsolete">Der Debugger konnte sich nicht an den Prozess %1 anhängen: %2</translation>
-    </message>
-    <message>
-        <source>Attaching to  a process failed for process id %1: %2</source>
-        <translation type="obsolete">Der Debugger konnte sich nicht an den Prozess %1 anhängen: %2</translation>
-    </message>
-    <message>
-        <source>Unable to create a process &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Nem lehet létrehozni egy &apos;%1&apos; folyamatot: %2</translation>
-    </message>
-    <message>
-        <source>Debugger Running</source>
-        <translation type="obsolete">Debugger futtatása</translation>
-    </message>
-    <message>
-        <source>AttachProcess failed for pid %1: %2</source>
-        <translation type="obsolete">Nem sikerült hozzáadni a folyamatot a(z) %1 pidhez: %2</translation>
-    </message>
-    <message>
-        <source>Unable to assign the value &apos;%1&apos; to &apos;%2&apos;: %3</source>
-        <translation type="obsolete">Nem lehet a(z) &apos;%1&apos; értéket hozzárendelni &apos;%2&apos;-höz.: %3</translation>
-    </message>
-    <message>
-        <source>Cannot retrieve symbols while the debuggee is running.</source>
-        <translation type="obsolete">Nem sikerült kinyerni a szimbólumokat a debugger futása közben.</translation>
-    </message>
-    <message>
-        <source>Debugger Error</source>
-        <translation type="obsolete">Debugger hiba</translation>
-    </message>
-    <message>
-        <source>injection</source>
-        <translation type="obsolete">Injekció</translation>
-    </message>
-    <message>
-        <source>debugger call</source>
-        <translation type="obsolete">Debugger hívás</translation>
-    </message>
-    <message>
-        <source>Loading the custom dumper library &apos;%1&apos; (%2) ...</source>
-        <translation type="obsolete">Szokásos dömper könyvtár betöltése &apos;%1&apos; (%2)...</translation>
-    </message>
-    <message>
-        <source>Loading of the custom dumper library &apos;%1&apos; (%2) failed: %3</source>
-        <translation type="obsolete">Szokásos dömper könyvtár betöltése &apos;%1&apos; (%2) nem sikerült: %3</translation>
-    </message>
-    <message>
-        <source>Loaded the custom dumper library &apos;%1&apos; (%2).</source>
-        <translation type="obsolete">A szokásos dömper könyvár betöltése &apos;%1&apos; (%2).</translation>
-    </message>
-    <message>
-        <source>Disabling dumpers due to debuggee crash...</source>
-        <translation type="obsolete">Dömper tiltása a debugger összeomlásnak köszönhetően...</translation>
-    </message>
-    <message>
-        <source>The debuggee does not appear to be Qt application.</source>
-        <translation type="obsolete">A debuggeer nem tűnik úgy, mintha egy Qt alkalmazás lenne.</translation>
-    </message>
-    <message>
-        <source>Initializing dumpers...</source>
-        <translation type="obsolete">Dömperek inicializálása...</translation>
-    </message>
-    <message>
-        <source>Custom dumper library initialized.</source>
-        <translation type="obsolete">Szoksásos dömper könyvtár inicializálva.</translation>
-    </message>
-    <message>
-        <source>The custom dumper library could not be initialized: %1</source>
-        <translation type="obsolete">Nem sikerült inicializálni a szoksásos dömper könyvtárat: %1</translation>
-    </message>
-    <message>
-        <source>Querying dumpers for &apos;%1&apos;/&apos;%2&apos; (%3)</source>
-        <translation type="obsolete">Dömperek kérése &apos;%1&apos;/&apos;%2&apos; (%3)</translation>
-    </message>
-    <message>
-        <source>Cdb</source>
-        <translation type="obsolete">Cdb</translation>
-    </message>
-    <message>
-        <source>Autodetect</source>
-        <translation type="obsolete">Automatikus észlelés</translation>
-    </message>
-    <message>
-        <source>&quot;Debugging Tools for Windows&quot; could not be found.</source>
-        <translation type="obsolete">&quot;Debuggolási Eszközöt Windows-ra&quot; nem található.</translation>
-    </message>
-    <message>
-        <source>Checked:
-%1</source>
-        <translation type="obsolete">Ellenőrizve:
-%1</translation>
-    </message>
-    <message>
-        <source>Autodetection</source>
-        <translation type="obsolete">Automatikus észlelés</translation>
-    </message>
-    <message>
-        <source>Symbol Server...</source>
-        <translation type="obsolete">Szimbólum szerver...</translation>
-    </message>
-    <message>
-        <source>Adds the Microsoft symbol server providing symbols for operating system libraries.Requires specifying a local cache directory.</source>
-        <translation type="obsolete">Microsoft szimbólum szervert biztosító szimbólumok hozzáadása az operáció rendszer könyvtár számára. A helyi gyorsítótár könyvtár meghatározását igényli.</translation>
-    </message>
-    <message>
-        <source>Pick a local cache directory</source>
-        <translation type="obsolete">Egy helyi gyorsítótár könyvtárra szedés</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation type="obsolete">Debuggolás</translation>
-    </message>
-    <message>
-        <source>Continue</source>
-        <translation type="obsolete">Folytatás</translation>
-    </message>
-    <message>
-        <source>Interrupt</source>
-        <translation type="obsolete">Megszakítás</translation>
-    </message>
-    <message>
-        <source>Reset Debugger</source>
-        <translation type="obsolete">Debugger újraindítása</translation>
-    </message>
-    <message>
-        <source>Step Over</source>
-        <translation type="obsolete">Átlépés</translation>
-    </message>
-    <message>
-        <source>Step Into</source>
-        <translation type="obsolete">Belelépés</translation>
-    </message>
-    <message>
-        <source>Step Over Instruction</source>
-        <translation type="obsolete">Utasítás átlépése</translation>
-    </message>
-    <message>
-        <source>Step One Instruction</source>
-        <translation type="obsolete">Lépjen egy utasítást</translation>
-    </message>
-    <message>
-        <source>Step Out</source>
-        <translation type="obsolete">Kilépés</translation>
-    </message>
-    <message>
-        <source>Run to Line</source>
-        <translation type="obsolete">Sorra futás</translation>
-    </message>
-    <message>
-        <source>Run to Outermost Function</source>
-        <translation type="obsolete">Legkülső függvényre futásAusführen bis zu äußerster Funktion</translation>
-    </message>
-    <message>
-        <source>Jump to Line</source>
-        <translation type="obsolete">Sorra ugrás</translation>
-    </message>
-    <message>
-        <source>Toggle Breakpoint</source>
-        <translation type="obsolete">Töréspont kapcsolgatása</translation>
-    </message>
-    <message>
-        <source>Add to Watch Window</source>
-        <translation type="obsolete">Figyelő ablakhoz hozzáadás</translation>
-    </message>
-    <message>
-        <source>Reverse Direction</source>
-        <translation type="obsolete">Fordított irány</translation>
-    </message>
-    <message>
-        <source>Stop requested...</source>
-        <translation type="obsolete">Leállítás kérve...</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <translation type="obsolete">Leállítva.</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation type="obsolete">Futtatás kérve...</translation>
-    </message>
-    <message>
-        <source>Running...</source>
-        <translation type="obsolete">Futtatás...</translation>
-    </message>
-    <message>
-        <source>Changing breakpoint state requires either a fully running or fully stopped application.</source>
-        <translation type="obsolete">A töréspont helyzetének megváltoztatása teljesen futó vagy leállított alkalmazást igényel.</translation>
-    </message>
-    <message>
-        <source>Debugging VS executables is currently not enabled.</source>
-        <translation type="obsolete">VS futtatható fájlok debuggolása jelen pillanatban nem engedélyezett.</translation>
-    </message>
-    <message>
-        <source>Debugging VS executables is not supported.</source>
-        <translation type="obsolete">VS futtatható fájlok debuggolása nem támogatott.</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="obsolete">Figyelmeztetés</translation>
-    </message>
-    <message>
-        <source>Cannot attach to PID 0</source>
-        <translation type="obsolete">Nem sikerült hozzácsatolni a PID 0-hoz.</translation>
-    </message>
-    <message>
-        <source>Cannot debug &apos;%1&apos;: %2</source>
-        <translation type="obsolete">&apos;%1&apos;-est nem lehet debuggolni: %2</translation>
-    </message>
-    <message>
-        <source>Settings...</source>
-        <translation type="obsolete">Beállítások...</translation>
-    </message>
-    <message>
-        <source>Save Debugger Log</source>
-        <translation type="obsolete">Debugger Log elmentése</translation>
-    </message>
-    <message>
-        <source>Stop Debugger</source>
-        <translation type="obsolete">Debugger leállítása</translation>
-    </message>
-    <message>
-        <source>Open Qt preferences</source>
-        <translation type="obsolete">Qt beállítások megnyitása</translation>
-    </message>
-    <message>
-        <source>Turn helper usage off</source>
-        <translation type="obsolete">Segítő használatának kikapcsolása</translation>
-    </message>
-    <message>
-        <source>Continue anyway</source>
-        <translation type="obsolete">Folytatás akárhogyan is</translation>
-    </message>
-    <message>
-        <source>Debugging helper missing</source>
-        <translation type="obsolete">Debuggolás segítő hiányzik</translation>
-    </message>
-    <message>
-        <source>The debugger did not find the debugging helper library.</source>
-        <translation type="obsolete">A debugger nem találta meg a debuggolást segítő könyvtárat.</translation>
-    </message>
-    <message>
-        <source>The debugging helper is used to nicely format the values of Qt data types and some STL data types. It must be compiled for each Qt version which you can do in the Qt preferences page by selecting a Qt installation and clicking on &apos;Rebuild&apos; for the debugging helper.</source>
-        <translation type="obsolete">A debuggolást segítőt Qt adattípus vagy STL adattípus helyes leformázására használják. Mindegyik Qt verzióra le kell fordítani a Qt beállítási lapon a Qt telepítésének kiválasztásával és a debuggolás segítő &apos;Újraépítés&apos;-re való kattintáskor. </translation>
-    </message>
-    <message>
-        <source>The debugging helper is used to nicely format the values of Qt data types and some STL data types. It must be compiled for each Qt version, you can do this in the Qt preferences page by selecting a Qt installation and clicking on &apos;Rebuild&apos; for the debugging helper.</source>
-        <translation type="obsolete">A debuggolást segítőt Qt adattípus vagy ST adattípus helyes leformázására használják. Mindegyik Qt verzióra le kell fordítani a Qt beállítási lapon a Qt beállítási lapon a Qt telepítésének kiválasztásával es a debuggolás segítő &apos;Újratelepítés&apos;-re való kattintáskor. </translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation type="obsolete">Debugger</translation>
-    </message>
-    <message>
-        <source>Option &apos;%1&apos; is missing the parameter.</source>
-        <translation type="obsolete">%1 opció egy hiányzó paraméter.</translation>
-    </message>
-    <message>
-        <source>The parameter &apos;%1&apos; of option &apos;%2&apos; is not a number.</source>
-        <translation type="obsolete">A(z) &apos;%2&apos;-es opció &apos;%1&apos;-es paramétere nem szám.</translation>
-    </message>
-    <message>
-        <source>Invalid debugger option: %1</source>
-        <translation type="obsolete">Érvénytelen debugger opció: %1</translation>
-    </message>
-    <message>
-        <source>Error evaluating command line arguments: %1</source>
-        <translation type="obsolete">Hiba történt a parancs sori argumentum kiértékelése közben: %1</translation>
-    </message>
-    <message>
-        <source>Start and Debug External Application...</source>
-        <translation type="obsolete">Külső alkalmazás indítása és debuggolása...</translation>
-    </message>
-    <message>
-        <source>Attach to Running External Application...</source>
-        <translation type="obsolete">Futó külső alkalmazáshoz való hozzácsatolás...</translation>
-    </message>
-    <message>
-        <source>Attach to Core...</source>
-        <translation type="obsolete">Maghoz való hozzácsatolás...</translation>
-    </message>
-    <message>
-        <source>Attach to Running Tcf Agent...</source>
-        <translation type="obsolete">Futó Tcf ügynökhöz való hozzácsatolás...</translation>
-    </message>
-    <message>
-        <source>This attaches to a running &apos;Target Communication Framework&apos; agent.</source>
-        <translation type="obsolete">Ez hozzácsatolja a futó &apos;Cél Kommunikációs Keretrendszer&apos; ügynökhöz.</translation>
-    </message>
-    <message>
-        <source>Start and Attach to Remote Application...</source>
-        <translation type="obsolete">Távoli alkalmazás indítása és ahhoz való hozzácsatolása...</translation>
-    </message>
-    <message>
-        <source>Detach debugger</source>
-        <translation type="obsolete">Elkülönített debugger</translation>
-    </message>
-    <message>
-        <source>Detach Debugger</source>
-        <translation type="obsolete">Elkülönített debugger</translation>
-    </message>
-    <message>
-        <source>Stop Debugger/Interrupt Debugger</source>
-        <translation type="obsolete">Debugger/Megszakítás debugger leállítása</translation>
-    </message>
-    <message>
-        <source>&amp;Views</source>
-        <translation type="obsolete">&amp;Nézet</translation>
-    </message>
-    <message>
-        <source>Locked</source>
-        <translation type="obsolete">Zárolva</translation>
-    </message>
-    <message>
-        <source>Reset to default layout</source>
-        <translation type="obsolete">Alapértelmezett szerkezet újraindítása</translation>
-    </message>
-    <message>
-        <source>Threads:</source>
-        <translation type="obsolete">Szálak:</translation>
-    </message>
-    <message>
-        <source>Attaching to PID %1.</source>
-        <translation type="obsolete">%1 PID-hez való hozzácsatolás.</translation>
-    </message>
-    <message>
-        <source>Remove Breakpoint</source>
-        <translation type="obsolete">Töréspontok eltávolítása</translation>
-    </message>
-    <message>
-        <source>Disable Breakpoint</source>
-        <translation type="obsolete">Töréspont eltávolítása</translation>
-    </message>
-    <message>
-        <source>Enable Breakpoint</source>
-        <translation type="obsolete">Töréspont engedélyezése</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint</source>
-        <translation type="obsolete">Töréspont beállítása</translation>
-    </message>
-    <message>
-        <source>Debugger properties...</source>
-        <translation type="obsolete">Debugger beállítások...</translation>
-    </message>
-    <message>
-        <source>Use alternating row colors</source>
-        <translation type="obsolete">Váltakozó sor színek használata</translation>
-    </message>
-    <message>
-        <source>Watch expression &quot;%1&quot;</source>
-        <translation type="obsolete">&quot;%1&quot; kifejezés figyelése</translation>
-    </message>
-    <message>
-        <source>Remove watch expression &quot;%1&quot;</source>
-        <translation type="obsolete">&quot;%1&quot; kifejezés figyelésének eltávolítása</translation>
-    </message>
-    <message>
-        <source>Watch expression &quot;%1&quot; in separate window</source>
-        <translation type="obsolete">&quot;%1&quot; kifejezés figyelése külön ablakban</translation>
-    </message>
-    <message>
-        <source>Expand item</source>
-        <translation type="obsolete">Elem kiterjesztés</translation>
-    </message>
-    <message>
-        <source>Collapse item</source>
-        <translation type="obsolete">Elem összeomlás</translation>
-    </message>
-    <message>
-        <source>Use debugging helper</source>
-        <translation type="obsolete">Debuggolás segítő használata</translation>
-    </message>
-    <message>
-        <source>Debug debugging helper</source>
-        <translation type="obsolete">Debuggolás segítő debuggolása</translation>
-    </message>
-    <message>
-        <source>Recheck debugging helper availability</source>
-        <translation type="obsolete">Debuggolás segítő érvényességének újraellenőrzése</translation>
-    </message>
-    <message>
-        <source>Hexadecimal</source>
-        <translation type="obsolete">Hexadecimális</translation>
-    </message>
-    <message>
-        <source>Decimal</source>
-        <translation type="obsolete">Decimális</translation>
-    </message>
-    <message>
-        <source>Octal</source>
-        <translation type="obsolete">Oktális</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation type="obsolete">Binäris</translation>
-    </message>
-    <message>
-        <source>Raw</source>
-        <translation type="obsolete">Feldolgozatlan</translation>
-    </message>
-    <message>
-        <source>Natural</source>
-        <translation type="obsolete">Természetes</translation>
-    </message>
-    <message>
-        <source>Automatically quit debugger</source>
-        <translation type="obsolete">Automatikus kilépés a debuggerből</translation>
-    </message>
-    <message>
-        <source>Use tooltips when debugging</source>
-        <translation type="obsolete">Eszköz tippek használata debuggoláskor</translation>
-    </message>
-    <message>
-        <source>List source files</source>
-        <translation type="obsolete">Forrás fájlok kilistázása</translation>
-    </message>
-    <message>
-        <source>Skip known frames</source>
-        <translation type="obsolete">Ismert szerkezetek kihagyása</translation>
-    </message>
-    <message>
-        <source>Enable reverse debugging</source>
-        <translation type="obsolete">Fordított debuggolás engedélyezése</translation>
-    </message>
-    <message>
-        <source>Reload full stack</source>
-        <translation type="obsolete">Az egész verem újratöltése</translation>
-    </message>
-    <message>
-        <source>Execute line</source>
-        <translation type="obsolete">Sor végrehajtása</translation>
-    </message>
-    <message>
-        <source>Debugging Helper</source>
-        <translation type="obsolete">Debuggolást segítő</translation>
-    </message>
-    <message>
-        <source>Choose DebuggingHelper Location</source>
-        <translation type="obsolete">DebuggolásSegítő helyének kiválasztása</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+F11</source>
-        <translation type="obsolete">Ctrl+Shift+F11</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="obsolete">Cím</translation>
-    </message>
-    <message>
-        <source>Symbol</source>
-        <translation type="obsolete">Szimbólum</translation>
-    </message>
-    <message>
-        <source>Mnemonic</source>
-        <translation type="obsolete">Mnemonic</translation>
-    </message>
-    <message>
-        <source>Disassembler</source>
-        <translation type="obsolete">Disassembler</translation>
-    </message>
-    <message>
-        <source>Reload disassembler listing</source>
-        <translation type="obsolete">Dissambler listázás újratöltése</translation>
-    </message>
-    <message>
-        <source>Always reload disassembler listing</source>
-        <translation type="obsolete">Mindig töltse újra a disassembler listázást</translation>
-    </message>
-    <message>
-        <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
-        <translation type="obsolete">Nem sikerült elindítani a Gdb folyamatot. Vagy a(z) &apos;%1&apos; felhasznált program hiányzik, vagy nincsenek meg a megfelelő jogai a program felhasználására.</translation>
-    </message>
-    <message>
-        <source>The Gdb process crashed some time after starting successfully.</source>
-        <translation type="obsolete">A Gdb folyamat néha összeomlik sikeres elindítás után.</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation type="obsolete">Időtúllépés történt a legutolsó waitFor...() függvénykor. A QProcess helyzete változatlan, és megpróbálhatja újra meghívni a waitFor...()-t.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to write to the Gdb process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation type="obsolete">Hiba történt Gdb folyamat írásának megpróbálása közben. Lehet, hogy például a folyamat nem fut, vagy bezárta a bemeneti csatornáját.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to read from the Gdb process. For example, the process may not be running.</source>
-        <translation type="obsolete">Hiba történt a Gdb folyamat olvasásának megpróbálásakor. Lehet, hogy például a folyamat nem is fut.</translation>
-    </message>
-    <message>
-        <source>An unknown error in the Gdb process occurred. This is the default return value of error().</source>
-        <translation type="obsolete">Ismeretlen hiba történt a Gdb folyamat közben. Ez az alapértelmezett visszatérési értéke az error()-nak.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="obsolete">Hiba</translation>
-    </message>
-    <message>
-        <source>Library %1 loaded.</source>
-        <translation type="obsolete">%1 könyvtár betöltve.</translation>
-    </message>
-    <message>
-        <source>Library %1 unloaded.</source>
-        <translation type="obsolete">%1 könyvtár kirakva.</translation>
-    </message>
-    <message>
-        <source>Thread group %1 created.</source>
-        <translation type="obsolete">%1 szál csoport létrehozva.</translation>
-    </message>
-    <message>
-        <source>Thread %1 created.</source>
-        <translation type="obsolete">%1 szál létrehozva.</translation>
-    </message>
-    <message>
-        <source>Thread group %1 exited.</source>
-        <translation type="obsolete">%1 szál csoportból kilépve.</translation>
-    </message>
-    <message>
-        <source>Thread %1 in group %2 exited.</source>
-        <translation type="obsolete">A(z) %2 csoportban található %1 szálból kilépve.</translation>
-    </message>
-    <message>
-        <source>Thread %1 selected.</source>
-        <translation type="obsolete">%1 szál kiválasztva.</translation>
-    </message>
-    <message>
-        <source>Stopping temporarily.</source>
-        <translation type="obsolete">Átmenetileg leállítva.</translation>
-    </message>
-    <message>
-        <source>Continuing after temporary stop.</source>
-        <translation type="obsolete">Folytatás átmeneti leállítás után.</translation>
-    </message>
-    <message>
-        <source>Core file loaded.</source>
-        <translation type="obsolete">Mag fájl betöltve.</translation>
-    </message>
-    <message>
-        <source>The upload process failed to start. Either the invoked script &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
-        <translation type="obsolete">Nem sikerült elindítani a feltöltési folyamatot. Vagy a(z) &apos;%1&apos; felhasználni kívánt szkript hiányzik vagy nincsenek meg a megfelelő jogosultságai a szkript felhasználásához.</translation>
-    </message>
-    <message>
-        <source>The upload process crashed some time after starting successfully.</source>
-        <translation type="obsolete">A feltöltési folyamat néha összeomlik sikeresen elindítás után.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation type="obsolete">Hiba történt a feltöltési folyamat írásának megpróbálásakor. Például lehet, hogy a folyamat nem fut, vagy az bezárta a beviteli csatornáját.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to read from the upload process. For example, the process may not be running.</source>
-        <translation type="obsolete">Hiba történt a feltöltési folyamatból való olvasás kipróbálásakor. Például lehet, hogy egy folyamat nem fut.</translation>
-    </message>
-    <message>
-        <source>An unknown error in the upload process occurred. This is the default return value of error().</source>
-        <translation type="obsolete">Ismeretlen hiba történt a feltöltési folyamatban. Ez az alapértelmezett visszatérési értéke az error()-nak.</translation>
-    </message>
-    <message>
-        <source>Reading %1...</source>
-        <translation type="obsolete">%1 olvasása...</translation>
-    </message>
-    <message>
-        <source>Jumped. Stopped.</source>
-        <translation type="obsolete">Sprung ausgeführt/ Angehalten.</translation>
-    </message>
-    <message>
-        <source>Run to Function finished. Stopped.</source>
-        <translation type="obsolete">Futtatás a függvény befejezéséig. Leállítva.</translation>
-    </message>
-    <message>
-        <source>Program exited with exit code %1</source>
-        <translation type="obsolete">A program %1 kóddal lépekk ki</translation>
-    </message>
-    <message>
-        <source>Program exited after receiving signal %1</source>
-        <translation type="obsolete">A program kilépett a(z) %1 jel beérkezése után</translation>
-    </message>
-    <message>
-        <source>Program exited normally</source>
-        <translation type="obsolete">A program normálisan lépett ki</translation>
-    </message>
-    <message>
-        <source>Loading %1...</source>
-        <translation type="obsolete">%1 betöltése...</translation>
-    </message>
-    <message>
-        <source>Stopped at breakpoint.</source>
-        <translation type="obsolete">Leállítva a töréspontnál.</translation>
-    </message>
-    <message>
-        <source>Stopped: &quot;%1&quot;</source>
-        <translation type="obsolete">Leállítva: &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>The debugger you are using identifies itself as:</source>
-        <translation type="obsolete">A debugger, amit használ, a következőképpen azonosította magát:</translation>
-    </message>
-    <message>
-        <source>This version is not officially supported by Qt Creator.
-Debugging will most likely not work well.
-Using gdb 6.7 or later is strongly recommended.</source>
-        <translation type="obsolete">Ezt a verziót hivatalosan nem támogatja a Qt Creator.
-A debuggolás valószínűleg nem fog megfelelően működni.
-Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
-    </message>
-    <message>
-        <source>Starting executable failed:
-</source>
-        <translation type="obsolete">A futtatható elindítása nem sikerült:
-</translation>
-    </message>
-    <message>
-        <source>Processing queued commands.</source>
-        <translation type="obsolete">Sor parancsok feldolgozása.</translation>
-    </message>
-    <message>
-        <source>Debugger Startup Failure</source>
-        <translation type="obsolete">Nem sikerült a debugger betöltése</translation>
-    </message>
-    <message>
-        <source>Cannot set up communication with child process: %1</source>
-        <translation type="obsolete">Nem sikerült beállítani a kommunikációs a gyermek folyamattal: %1</translation>
-    </message>
-    <message>
-        <source>Starting Debugger: </source>
-        <translation type="obsolete">Debugger elindítása: </translation>
-    </message>
-    <message>
-        <source>Cannot start debugger: %1</source>
-        <translation type="obsolete">Nem sikerült elindítani a debuggert: %1</translation>
-    </message>
-    <message>
-        <source>Gdb Running...</source>
-        <translation type="obsolete">Gdb fut...</translation>
-    </message>
-    <message>
-        <source>Cannot find debugger initialization script</source>
-        <translation type="obsolete">Nem található a debuggoló inicializálós szkriptje</translation>
-    </message>
-    <message>
-        <source>The debugger settings point to a script file at &apos;%1&apos; which is not accessible. If a script file is not needed, consider clearing that entry to avoid this warning. </source>
-        <translation type="obsolete">A debugger beállítások egy &apos;%1&apos;-en elhelyezkedő szkript fájlra mutat, amelyik nem hozzáférhető. Ha egy szkriptre nincs szükség, fontolja meg azon belépési pont törlését ezen figyelmeztetések elkerülésére. </translation>
-    </message>
-    <message>
-        <source>Attached to running process. Stopped.</source>
-        <translation type="obsolete">A futó folyamathoz történő hozzácsatolás. Leállítva.</translation>
-    </message>
-    <message>
-        <source>Connecting to remote server failed:</source>
-        <translation type="obsolete">A távoli szerverhez való csatlakozás nem sikerült:</translation>
-    </message>
-    <message>
-        <source>Debugger exited.</source>
-        <translation type="obsolete">Debugger kilépett.</translation>
-    </message>
-    <message>
-        <source>&lt;could not retreive module information&gt;</source>
-        <translation type="obsolete">&lt;nem sikerült a modul információk kinyerése&gt;</translation>
-    </message>
-    <message>
-        <source>Unable to run &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Nem lehet &apos;%1&apos;-t futtatni: %2</translation>
-    </message>
-    <message>
-        <source>&lt;unknown&gt;</source>
-        <translation type="obsolete">&lt;ismeretlen&gt;</translation>
-    </message>
-    <message>
-        <source>Retrieving data for stack view...</source>
-        <translation type="obsolete">Adatok kinyerése a verem nézetre...</translation>
-    </message>
-    <message>
-        <source>&apos;%1&apos; contains no identifier</source>
-        <translation type="obsolete">&apos;%1&apos; nem tartalmaz azonosítót</translation>
-    </message>
-    <message>
-        <source>String literal %1</source>
-        <translation type="obsolete">Szó szerinti %1</translation>
-    </message>
-    <message>
-        <source>Cowardly refusing to evaluate expression &apos;%1&apos; with potential side effects</source>
-        <translation type="obsolete">A(z) &apos;%1&apos; kifejezés kiértékelése gyáván elutasítva potenciális mellékhatásaival együtt.</translation>
-    </message>
-    <message>
-        <source>&lt;not in scope&gt;</source>
-        <translation type="obsolete">&lt;nem a hatókörben&gt;</translation>
-    </message>
-    <message>
-        <source>Retrieving data for watch view (%n requests pending)...</source>
-        <translation type="obsolete">Adatok kinyerése őrző nézetre (%n kérés függőben)...</translation>
-    </message>
-    <message>
-        <source>%n custom dumpers found.</source>
-        <translation type="obsolete">%n szokásos dömper találat.</translation>
-    </message>
-    <message>
-        <source>&lt;%n items&gt;</source>
-        <translation type="obsolete">&lt;%n elem&gt;</translation>
-    </message>
-    <message>
-        <source>Retrieving data for watch view (%1 requests pending)...</source>
-        <translation type="obsolete">Adatok megszerzése őrző nézetre (%1 kérés függőben)...Daten der für die Anzeige der lokalen Variablen werden empfangen (noch %1 austehende Anfragen) ...</translation>
-    </message>
-    <message>
-        <source>Finished retrieving data.</source>
-        <translation type="obsolete">Befejezett kinyert adatok.</translation>
-    </message>
-    <message>
-        <source>Cannot evaluate expression: %1</source>
-        <translation type="obsolete">Nem lehet kiértékelni a kifejezést: %1</translation>
-    </message>
-    <message>
-        <source>Debugging helpers not found.</source>
-        <translation type="obsolete">Nem található a debbugolás segítő.</translation>
-    </message>
-    <message>
-        <source>Custom dumper setup: %1</source>
-        <translation type="obsolete">Szokásos dömper beállítás: %1</translation>
-    </message>
-    <message>
-        <source>&lt;0 items&gt;</source>
-        <translation type="obsolete">&lt;0 elem&gt;</translation>
-    </message>
-    <message>
-        <source>%1 &lt;shadowed %2&gt;</source>
-        <translation type="obsolete">%1 &lt;árnyékolt %2&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;shadowed&gt;</source>
-        <translation type="obsolete">&lt;árnyékolt&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;n/a&gt;</source>
-        <translation type="obsolete">&lt;n/a&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;anonymous union&gt;</source>
-        <translation type="obsolete">&lt;névtelen egyesülés&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;no information&gt;</source>
-        <translation type="obsolete">&lt;nincs információ&gt;</translation>
-    </message>
-    <message>
-        <source>Unknown error: </source>
-        <translation type="obsolete">Ismeretlen hiba: </translation>
-    </message>
-    <message>
-        <source>%1 is a typedef.</source>
-        <translation type="obsolete">%1 egy típus definíció.</translation>
-    </message>
-    <message>
-        <source>Retrieving data for tooltip...</source>
-        <translation type="obsolete">Adatok megszerzése az eszköz tippre...</translation>
-    </message>
-    <message>
-        <source>Dumper injection loading triggered (%1)...</source>
-        <translation type="obsolete">Dömper injekció betöltés előidézve (%1)...</translation>
-    </message>
-    <message>
-        <source>Dumper loading (%1) failed: %2</source>
-        <translation type="obsolete">(%1) Dömper betöltése nem sikerült: %2</translation>
-    </message>
-    <message>
-        <source>Loading dumpers via debugger call (%1)...</source>
-        <translation type="obsolete">Dömperek betöltése (%1) debugger híváson keresztül...</translation>
-    </message>
-    <message>
-        <source>Gdb</source>
-        <translation type="obsolete">Gdb</translation>
-    </message>
-    <message>
-        <source>Choose Gdb Location</source>
-        <translation type="obsolete">Gdb elhelyezkedésének kiválasztása</translation>
-    </message>
-    <message>
-        <source>Choose Location of Startup Script File</source>
-        <translation type="obsolete">Betöltési szkript fájl helyének kiválasztása</translation>
-    </message>
-    <message>
-        <source>Module name</source>
-        <translation type="obsolete">Modul név</translation>
-    </message>
-    <message>
-        <source>Symbols read</source>
-        <translation type="obsolete">Szimbólum olvasás</translation>
-    </message>
-    <message>
-        <source>Start address</source>
-        <translation type="obsolete">Start cím</translation>
-    </message>
-    <message>
-        <source>End address</source>
-        <translation type="obsolete">Vég cím</translation>
-    </message>
-    <message>
-        <source>End addAress</source>
-        <translation type="obsolete">Vég cím</translation>
-    </message>
-    <message>
-        <source>Modules</source>
-        <translation type="obsolete">Modul</translation>
-    </message>
-    <message>
-        <source>Update module list</source>
-        <translation type="obsolete">Modul lista frissítése</translation>
-    </message>
-    <message>
-        <source>Show source files for module &quot;%1&quot;</source>
-        <translation type="obsolete">Forrás fájl mutatása a(z) &quot;%1&quot; modulra</translation>
-    </message>
-    <message>
-        <source>Load symbols for all modules</source>
-        <translation type="obsolete">Szimbólum betöltés az összes modulra</translation>
-    </message>
-    <message>
-        <source>Load symbols for module</source>
-        <translation type="obsolete">Szimbólumok betöltése a modulokra</translation>
-    </message>
-    <message>
-        <source>Edit file</source>
-        <translation type="obsolete">Fájl szerkesztése</translation>
-    </message>
-    <message>
-        <source>Show symbols</source>
-        <translation type="obsolete">Szimbólumok mutatása</translation>
-    </message>
-    <message>
-        <source>Load symbols for module &quot;%1&quot;</source>
-        <translation type="obsolete">Szimbólum mutatása a(z) &quot;%1&quot; modulra</translation>
-    </message>
-    <message>
-        <source>Edit file &quot;%1&quot;</source>
-        <translation type="obsolete">&quot;%1&quot; fájl szerkesztése</translation>
-    </message>
-    <message>
-        <source>Show symbols in file &quot;%1&quot;</source>
-        <translation type="obsolete">Szimbólumok mutatása a &quot;%1&quot; fájlban</translation>
-    </message>
-    <message>
-        <source>Code</source>
-        <translation type="obsolete">Kód</translation>
-    </message>
-    <message>
-        <source>Symbols in &quot;%1&quot;</source>
-        <translation type="obsolete">Szimbólum &quot;%1&quot;-ben</translation>
-    </message>
-    <message>
-        <source>Cannot create temporary file: %2</source>
-        <translation type="obsolete">Nem sikerült az átmeneti fájl létrehozása: %1</translation>
-    </message>
-    <message>
-        <source>Cannot create FiFo %1: %2</source>
-        <translation type="obsolete">Nem sikerült a(z) %1 FiFo létrehozása: %2</translation>
-    </message>
-    <message>
-        <source>Cannot open FiFo %1: %2</source>
-        <translation type="obsolete">Nem sikerült a(z) FiFo megnyitása: %2</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation type="obsolete">Érték</translation>
-    </message>
-    <message>
-        <source>Registers</source>
-        <translation type="obsolete">Regiszterek</translation>
-    </message>
-    <message>
-        <source>Reload register listing</source>
-        <translation type="obsolete">Regiszter listázás újratöltése</translation>
-    </message>
-    <message>
-        <source>Always reload register listing</source>
-        <translation type="obsolete">Mindig töltse újra a regiszter listázást</translation>
-    </message>
-    <message>
-        <source>Internal name</source>
-        <translation type="obsolete">Belső név</translation>
-    </message>
-    <message>
-        <source>Full name</source>
-        <translation type="obsolete">Teljes név</translation>
-    </message>
-    <message>
-        <source>Source Files</source>
-        <translation type="obsolete">Forrás fájlok</translation>
-    </message>
-    <message>
-        <source>Reload data</source>
-        <translation type="obsolete">Adat újratöltése</translation>
-    </message>
-    <message>
-        <source>Open file</source>
-        <translation type="obsolete">Fájl megnyitása</translation>
-    </message>
-    <message>
-        <source>Open file &quot;%1&quot;&apos;</source>
-        <translation type="obsolete">A(z) &apos;&quot;%1&quot; fájl megnyitása</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation type="obsolete">...</translation>
-    </message>
-    <message>
-        <source>&lt;More&gt;</source>
-        <translation type="obsolete">&lt;Több&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;table&gt;&lt;tr&gt;&lt;td&gt;Address:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Function: &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;File: &lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Line: &lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;From: &lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;tr&gt;&lt;td&gt;To: &lt;/td&gt;&lt;td&gt;%6&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation type="obsolete">&lt;table&gt;&lt;tr&gt;&lt;td&gt;Cím:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Függvény: &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Fájl: &lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Sor: &lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Ettől: &lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;tr&gt;&lt;td&gt;Eddig: &lt;/td&gt;&lt;td&gt;%6&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
-    </message>
-    <message>
-        <source>Address:</source>
-        <translation type="obsolete">Cím:</translation>
-    </message>
-    <message>
-        <source>Function:</source>
-        <translation type="obsolete">Függvény:</translation>
-    </message>
-    <message>
-        <source>File:</source>
-        <translation type="obsolete">Fájl:</translation>
-    </message>
-    <message>
-        <source>Line:</source>
-        <translation type="obsolete">Sor:</translation>
-    </message>
-    <message>
-        <source>From:</source>
-        <translation type="obsolete">Ettől:</translation>
-    </message>
-    <message>
-        <source>To:</source>
-        <translation type="obsolete">Eddig:</translation>
-    </message>
-    <message>
-        <source>Level</source>
-        <translation type="obsolete">Szint</translation>
-    </message>
-    <message>
-        <source>Stack</source>
-        <translation type="obsolete">Verem</translation>
-    </message>
-    <message>
-        <source>Copy contents to clipboard</source>
-        <translation type="obsolete">Tartalom vágólapra másolása</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation type="obsolete">Futtatható:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">Argumentumok:</translation>
-    </message>
-    <message>
-        <source>%1.</source>
-        <translation type="obsolete">%1.</translation>
-    </message>
-    <message>
-        <source>Thread: %1</source>
-        <translation type="obsolete">Szál: %1</translation>
-    </message>
-    <message>
-        <source>Thread ID</source>
-        <translation type="obsolete">Szál azonosító</translation>
-    </message>
-    <message>
-        <source>Thread</source>
-        <translation type="obsolete">Szál</translation>
-    </message>
-    <message>
-        <source>Expression</source>
-        <translation type="obsolete">Kifejezés</translation>
-    </message>
-    <message>
-        <source> ... &lt;cut off&gt;</source>
-        <translation type="obsolete">...&lt;megszakítva&gt;</translation>
-    </message>
-    <message>
-        <source>Object Address</source>
-        <translation type="obsolete">Objektum cím</translation>
-    </message>
-    <message>
-        <source>Stored Address</source>
-        <translation type="obsolete">Tárolt cím</translation>
-    </message>
-    <message>
-        <source>iname</source>
-        <translation type="obsolete">inév</translation>
-    </message>
-    <message>
-        <source>Root</source>
-        <translation type="obsolete">Rendszergazda</translation>
-    </message>
-    <message>
-        <source>Locals</source>
-        <translation type="obsolete">Helyiek</translation>
-    </message>
-    <message>
-        <source>Tooltip</source>
-        <translation type="obsolete">Eszköz tipp</translation>
-    </message>
-    <message>
-        <source>Watchers</source>
-        <translation type="obsolete">Őrzők</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="obsolete">Típus</translation>
-    </message>
-    <message>
-        <source>&lt;No Locals&gt;</source>
-        <translation type="obsolete">&lt;Nincsen helyi&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;No Tooltip&gt;</source>
-        <translation type="obsolete">&lt;Nincsen eszköztipp&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;No Watchers&gt;</source>
-        <translation type="obsolete">&lt;Nincsenek őrzők&gt;</translation>
-    </message>
-    <message>
-        <source>Locals and Watchers</source>
-        <translation type="obsolete">Helyi és őrzők</translation>
-    </message>
-    <message>
-        <source>Insert new watch item</source>
-        <translation type="obsolete">Új figyelő elem beszúrása</translation>
-    </message>
-    <message>
-        <source>&lt;Edit&gt;</source>
-        <translation type="obsolete">&lt;Szerkesztés&gt;</translation>
-    </message>
-    <message>
-        <source>Symbian TRK</source>
-        <translation type="obsolete">Symbian TRK</translation>
-    </message>
-    <message>
-        <source>The Gdb process could not be stopped:
-%1</source>
-        <translation type="obsolete">Nem sikerült leállítani a Gdb folyamatot:
-%1</translation>
-    </message>
-    <message>
-        <source>Inferior process could not be stopped:
-%1</source>
-        <translation type="obsolete">Nem sikerült leállítani az alárendelt folyamatot:
-%1</translation>
-    </message>
-    <message>
-        <source>Inferior started.</source>
-        <translation type="obsolete">Alárendelt elindítva.</translation>
-    </message>
-    <message>
-        <source>Inferior running.</source>
-        <translation type="obsolete">Alárendelt futtatása.</translation>
-    </message>
-    <message>
-        <source>Attached to stopped inferior.</source>
-        <translation type="obsolete">Hozzácsatolás leállított alárendelthez.</translation>
-    </message>
-    <message>
-        <source>Connecting to remote server failed:
-%1</source>
-        <translation type="obsolete">A távoli szerverhez történő csatlakozás nem sikerült:
-%1</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::AbstractGdbAdapter</name>
+    <name>Debugger</name>
     <message>
         <source>The Gdb process could not be stopped:
 %1</source>
@@ -5187,7 +3915,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AddressDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Select start address</source>
         <translation>Start cím kiválasztása</translation>
@@ -5198,7 +3926,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AttachCoreDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Select Executable</source>
         <translation>Futtatható fájl kiválasztása</translation>
@@ -5209,7 +3937,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AttachExternalDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Process ID</source>
         <translation>Folyamat azonosító</translation>
@@ -5228,7 +3956,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BreakHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Marker File:</source>
         <translation>Megjelölt fájl:</translation>
@@ -5286,28 +4014,12 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <translation>Szám</translation>
     </message>
     <message>
-        <source>Function</source>
-        <translation>Függvény</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Fájl</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>Sor</translation>
-    </message>
-    <message>
         <source>Condition</source>
         <translation>Feltétel</translation>
     </message>
     <message>
         <source>Ignore</source>
         <translation>Mellőzés</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Cím</translation>
     </message>
     <message>
         <source>Breakpoint will only be hit if this condition is met.</source>
@@ -5319,7 +4031,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BreakWindow</name>
+    <name>Debugger</name>
     <message>
         <source>Breakpoints</source>
         <translation>Töréspontok</translation>
@@ -5386,7 +4098,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbDebugEngine</name>
+    <name>Debugger</name>
     <message>
         <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
         <translation>Nem lehet betölteni a debugger engine könytárat &apos;%1&apos; nicht geladen werden: %2</translation>
@@ -5517,7 +4229,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbDumperHelper</name>
+    <name>Debugger</name>
     <message>
         <source>injection</source>
         <translation>Injekció</translation>
@@ -5564,7 +4276,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbOptionsPageWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Cdb</source>
         <translation>Cdb</translation>
@@ -5589,7 +4301,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbSymbolPathListEditor</name>
+    <name>Debugger</name>
     <message>
         <source>Symbol Server...</source>
         <translation>Szimbólum szerver...</translation>
@@ -5604,7 +4316,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CoreGdbAdapter</name>
+    <name>Debugger</name>
     <message>
         <source>Error Loading Symbols</source>
         <translation>Hiba történt a szimbólumok betöltésekor</translation>
@@ -5641,14 +4353,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebugMode</name>
-    <message>
-        <source>Debug</source>
-        <translation>Debuggolás</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerListener</name>
+    <name>Debugger</name>
     <message>
         <source>Close Debugging Session</source>
         <translation>Debug szakasz bezárása</translation>
@@ -5663,14 +4368,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerOutputWindow</name>
-    <message>
-        <source>Debugger</source>
-        <translation>Debugger</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerPlugin</name>
+    <name>Debugger</name>
     <message>
         <source>Option &apos;%1&apos; is missing the parameter.</source>
         <translation>%1 opció egy hiányzó paraméter.</translation>
@@ -5710,10 +4408,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     <message>
         <source>Stop Debugger/Interrupt Debugger</source>
         <translation>Debugger/Megszakítás debugger leállítása</translation>
-    </message>
-    <message>
-        <source>Reset Debugger</source>
-        <translation>Debugger újraindítása</translation>
     </message>
     <message>
         <source>&amp;Views</source>
@@ -5765,32 +4459,17 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerRunControl</name>
-    <message>
-        <source>Debugger</source>
-        <translation>Debugger</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerRunControlFactory</name>
+    <name>Debugger</name>
     <message>
         <source>Debug</source>
         <translation>Debuggolás</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerSettings</name>
+    <name>Debugger</name>
     <message>
         <source>Debugger properties...</source>
         <translation>Debugger beállítások...</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation>Oszlop szélesség tartalomhoz igazítása</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation>Mindig igazítsa az oszlopszélességet a tartalomhoz</translation>
     </message>
     <message>
         <source>Use alternating row colors</source>
@@ -5847,10 +4526,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     <message>
         <source>Recheck debugging helper availability</source>
         <translation>Debuggolás segítő érvényességének újraellenőrzése</translation>
-    </message>
-    <message>
-        <source>Synchronize breakpoints</source>
-        <translation>Töréspontok szinkronizálása</translation>
     </message>
     <message>
         <source>Use precise breakpoints</source>
@@ -5922,7 +4597,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggingHelperOptionPage</name>
+    <name>Debugger</name>
     <message>
         <source>Debugging Helper</source>
         <translation>Debuggolást segítő</translation>
@@ -5937,7 +4612,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbEngine</name>
+    <name>Debugger</name>
     <message>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
         <translation>Nem sikerült elindítani a Gdb folyamatot. Vagy a(z) &apos;%1&apos; felhasznált program hiányzik, vagy nincsenek meg a megfelelő jogai a program felhasználására.</translation>
@@ -5945,10 +4620,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     <message>
         <source>The Gdb process crashed some time after starting successfully.</source>
         <translation>A Gdb folyamat néha összeomlik sikeres elindítás után.</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>Időtúllépés történt a legutolsó waitFor...() függvénykor. A QProcess helyzete változatlan, és megpróbálhatja újra meghívni a waitFor...()-t.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the Gdb process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -5993,10 +4664,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     <message>
         <source>Reading %1...</source>
         <translation>%1 olvasása...</translation>
-    </message>
-    <message>
-        <source>Running...</source>
-        <translation>Futtatás...</translation>
     </message>
     <message>
         <source>Stop requested...</source>
@@ -6083,10 +4750,6 @@ Válaszhat a tovább várakozás vagy debuggolás megszakítása között.</tran
         <translation>Jel megérkezett</translation>
     </message>
     <message>
-        <source>Stopped.</source>
-        <translation>Leállítva.</translation>
-    </message>
-    <message>
         <source>Stopped: &quot;%1&quot;</source>
         <translation>Leállítva: &quot;%1&quot;</translation>
     </message>
@@ -6118,10 +4781,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     <message>
         <source>Continuing after temporary stop...</source>
         <translation>Folytatás az átmeneti leállítás után...</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation>Futtatás kérve...</translation>
     </message>
     <message>
         <source>Step requested...</source>
@@ -6277,7 +4936,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbOptionsPage</name>
+    <name>Debugger</name>
     <message>
         <source>Gdb</source>
         <translation>Gdb</translation>
@@ -6292,7 +4951,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::MemoryViewAgent</name>
+    <name>Debugger</name>
     <message>
         <source>Memory $</source>
         <translation>Memória $</translation>
@@ -6307,7 +4966,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::ModulesModel</name>
+    <name>Debugger</name>
     <message>
         <source>Module name</source>
         <translation>Modul név</translation>
@@ -6326,7 +4985,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::ModulesWindow</name>
+    <name>Debugger</name>
     <message>
         <source>Modules</source>
         <translation>Modul</translation>
@@ -6368,18 +5027,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <translation>Szimbólumok mutatása a &quot;%1&quot; fájlban</translation>
     </message>
     <message>
-        <source>Adjust column widths to contents</source>
-        <translation>Oszlop szélesség tartalomhoz igazítása</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation>Mindig igazítsa az oszlopszélességet a tartalomhoz</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Cím</translation>
-    </message>
-    <message>
         <source>Code</source>
         <translation>Kód</translation>
     </message>
@@ -6393,7 +5040,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::OutputCollector</name>
+    <name>Debugger</name>
     <message>
         <source>Cannot create temporary file: %1</source>
         <translation>Nem lehet átmeneti fájlt létrehozni: %1</translation>
@@ -6408,7 +5055,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::PlainGdbAdapter</name>
+    <name>Debugger</name>
     <message>
         <source>Cannot set up communication with child process: %1</source>
         <translation>Nem sikerült beállítani a kommunikációs a gyermek folyamattal: %1</translation>
@@ -6421,18 +5068,14 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::RegisterHandler</name>
-    <message>
-        <source>Name</source>
-        <translation>Név</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Value (base %1)</source>
         <translation></translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::RegisterWindow</name>
+    <name>Debugger</name>
     <message>
         <source>Registers</source>
         <translation>Regiszterek</translation>
@@ -6443,10 +5086,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
     <message>
         <source>Open memory editor</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Open memory editor at %1</source>
         <translation></translation>
     </message>
     <message>
@@ -6465,17 +5104,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Binary</source>
         <translation>Binäris</translation>
     </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation>Oszlop szélesség tartalomhoz igazítása</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation>Mindig igazítsa az oszlopszélességet a tartalomhoz</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::RemoteGdbAdapter</name>
     <message>
         <source>The upload process failed to start. Shell missing?</source>
         <translation>A feltöltési folyamatot nem sikerült elindítani. Shell hiányozna?</translation>
@@ -6515,11 +5143,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::ScriptEngine</name>
-    <message>
-        <source>Running requested...</source>
-        <translation>Futtatás kérve...</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>&apos;%1&apos; contains no identifier</source>
         <translation>&apos;%1&apos; nem tartalmaz azonosítót</translation>
@@ -6533,13 +5157,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <translation>A(z) &apos;%1&apos; kifejezés kiértékelése gyáván elutasítva potenciális mellékhatásaival együtt</translation>
     </message>
     <message>
-        <source>Stopped.</source>
-        <translation>Leállítva.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::SourceFilesModel</name>
-    <message>
         <source>Internal name</source>
         <translation>Belső név</translation>
     </message>
@@ -6549,7 +5166,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::SourceFilesWindow</name>
+    <name>Debugger</name>
     <message>
         <source>Source Files</source>
         <translation>Forrás fájlok</translation>
@@ -6568,7 +5185,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::StackHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Address:</source>
         <translation>Cím:</translation>
@@ -6606,39 +5223,12 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <translation>Szint</translation>
     </message>
     <message>
-        <source>Function</source>
-        <translation>Függvény</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Fájl</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>Sor</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Cím</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::StackWindow</name>
-    <message>
         <source>Stack</source>
         <translation>Verem</translation>
     </message>
     <message>
         <source>Copy contents to clipboard</source>
         <translation>Tartalom vágólapra másolása</translation>
-    </message>
-    <message>
-        <source>Open memory editor</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Open memory editor at %1</source>
-        <translation>Memória szerkesztő megnyitása %1-nél</translation>
     </message>
     <message>
         <source>Open disassembler</source>
@@ -6648,21 +5238,9 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Open disassembler at %1</source>
         <translation>Disassembler megnyitása %1-nél</translation>
     </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation>Oszlop szélesség tartalomhoz igazítása</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation>Mindig igazítsa az oszlopszélességet a tartalomhoz</translation>
-    </message>
 </context>
 <context>
-    <name>Debugger::Internal::StartExternalDialog</name>
-    <message>
-        <source>Select Executable</source>
-        <translation>Futtatható fájl kiválasztása</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Executable:</source>
         <translation>Futtatható:</translation>
@@ -6673,21 +5251,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::StartRemoteDialog</name>
-    <message>
-        <source>Select Executable</source>
-        <translation>Futtatható fájl kiválasztása</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::TermGdbAdapter</name>
-    <message>
-        <source>Debugger Error</source>
-        <translation>Debugger hiba</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::ThreadsHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Thread: %1</source>
         <translation>Szál: %1</translation>
@@ -6722,22 +5286,11 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::ThreadsWindow</name>
+    <name>Debugger</name>
     <message>
         <source>Thread</source>
         <translation>Szál</translation>
     </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation>Oszlop szélesség tartalomhoz igazítása</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation>Mindig igazítsa az oszlopszélességet a tartalomhoz</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::TrkGdbAdapter</name>
     <message>
         <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
         <translation>Folyamat elindítva, PID: 0x%1, szál azonosító: 0x%2, kód szegmens: 0x%3, adat szegmens: 0x%4.</translation>
@@ -6749,21 +5302,10 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::TrkOptionsPage</name>
-    <message>
-        <source>Symbian TRK</source>
-        <translation>Symbian TRK</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::TrkOptionsWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
-    </message>
-    <message>
-        <source>Gdb</source>
-        <translation>Gdb</translation>
     </message>
     <message>
         <source>Symbian ARM gdb location:</source>
@@ -6805,16 +5347,8 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <translation>Kifejezés</translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Típus</translation>
-    </message>
-    <message>
         <source> ... &lt;cut off&gt;</source>
         <translation>...&lt;megszakítva&gt;</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Érték</translation>
     </message>
     <message>
         <source>Object Address</source>
@@ -6869,10 +5403,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <translation>oktális</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Név</translation>
-    </message>
-    <message>
         <source>Value</source>
         <translation>Érték</translation>
     </message>
@@ -6924,17 +5454,9 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Refresh code model snapshot</source>
         <translation>Kód modell fénykép felfrissítése</translation>
     </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation>Oszlop szélesség tartalomhoz igazítása</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation>Mindig igazítsa az oszlopszélességet a tartalomhoz</translation>
-    </message>
 </context>
 <context>
-    <name>DebuggerPane</name>
+    <name>Debugger</name>
     <message>
         <source>Clear contents</source>
         <translation>Tartalom kitisztítása</translation>
@@ -6945,7 +5467,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>DebuggingHelperOptionPage</name>
+    <name>Debugger</name>
     <message>
         <source>Debugging helper</source>
         <translation>Debuggolást segítő</translation>
@@ -6953,10 +5475,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     <message>
         <source>This will enable nice display of Qt and Standard Library objects in the Locals&amp;Watchers view</source>
         <translation>Ez engedélyezni fogja a Qt és Standard Library objektumok helyes kijelzését a Helyi változók&amp;Figyelés nézetben</translation>
-    </message>
-    <message>
-        <source>Use debugging helper</source>
-        <translation>Debuggolás segítő használata</translation>
     </message>
     <message>
         <source>This will load a dumper library</source>
@@ -6973,14 +5491,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     <message>
         <source>Makes use of Qt Creator&apos;s code model to find out if a variable has already been assigned a value at the point the debugger interrupts.</source>
         <translation>Qt Creator kód modellének használata annak kitalálásához, hogy egy változó már hozzá lett rendelve egy értékhez a debugger megszakítás egy pontján.</translation>
-    </message>
-    <message>
-        <source>Use code model</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Debug debugging helper</source>
-        <translation>Debuggolás segítő debuggolása</translation>
     </message>
 </context>
 <context>

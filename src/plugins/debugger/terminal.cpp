@@ -25,6 +25,8 @@
 
 #include "terminal.h"
 
+#include "debuggertr.h"
+
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/runconfiguration.h>
@@ -55,8 +57,7 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 static QString currentError()
 {
@@ -77,13 +78,13 @@ void Terminal::setup()
 
     m_masterFd = ::open("/dev/ptmx", O_RDWR);
     if (m_masterFd < 0) {
-        error(tr("Terminal: Cannot open /dev/ptmx: %1").arg(currentError()));
+        error(Tr::tr("Terminal: Cannot open /dev/ptmx: %1").arg(currentError()));
         return;
     }
 
     const char *sName = ptsname(m_masterFd);
     if (!sName) {
-        error(tr("Terminal: ptsname failed: %1").arg(currentError()));
+        error(Tr::tr("Terminal: ptsname failed: %1").arg(currentError()));
         return;
     }
     m_slaveName = sName;
@@ -91,11 +92,11 @@ void Terminal::setup()
     struct stat s;
     int r = ::stat(m_slaveName.constData(), &s);
     if (r != 0) {
-        error(tr("Terminal: Error: %1").arg(currentError()));
+        error(Tr::tr("Terminal: Error: %1").arg(currentError()));
         return;
     }
     if (!S_ISCHR(s.st_mode)) {
-        error(tr("Terminal: Slave is no character device."));
+        error(Tr::tr("Terminal: Slave is no character device."));
         return;
     }
 
@@ -105,13 +106,13 @@ void Terminal::setup()
 
     r = grantpt(m_masterFd);
     if (r != 0) {
-        error(tr("Terminal: grantpt failed: %1").arg(currentError()));
+        error(Tr::tr("Terminal: grantpt failed: %1").arg(currentError()));
         return;
     }
 
     r = unlockpt(m_masterFd);
     if (r != 0) {
-        error(tr("Terminal: unlock failed: %1").arg(currentError()));
+        error(Tr::tr("Terminal: unlock failed: %1").arg(currentError()));
         return;
     }
 
@@ -158,7 +159,7 @@ void Terminal::onSlaveReaderActivated(int fd)
     ssize_t got = ::read(fd, buffer.data(), available);
     int err = errno;
     if (got < 0) {
-        error(tr("Terminal: Read failed: %1").arg(QString::fromLatin1(strerror(err))));
+        error(Tr::tr("Terminal: Read failed: %1").arg(QString::fromLatin1(strerror(err))));
         return;
     }
     buffer.resize(got);
@@ -235,6 +236,5 @@ void TerminalRunner::stubDone()
         reportDone();
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal
 

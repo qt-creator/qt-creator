@@ -25,26 +25,26 @@
 
 #include "cdbsymbolpathlisteditor.h"
 
+#include "debuggertr.h"
+#include "symbolpathsdialog.h"
+
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
-#include <utils/pathchooser.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/pathchooser.h>
 #include <utils/temporarydirectory.h>
 
-#include "symbolpathsdialog.h"
-
+#include <QAction>
 #include <QCheckBox>
 #include <QDebug>
-#include <QAction>
 #include <QFormLayout>
 #include <QLabel>
 #include <QPushButton>
 
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 // Internal helper dialog prompting for a cache directory using a PathChooser.
 //
@@ -55,8 +55,6 @@ namespace Internal {
 
 class CacheDirectoryDialog : public QDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::CaheDirectoryDialog)
-
 public:
     explicit CacheDirectoryDialog(QWidget *parent);
 
@@ -74,14 +72,14 @@ CacheDirectoryDialog::CacheDirectoryDialog(QWidget *parent) :
     QDialog(parent), m_chooser(new PathChooser),
     m_buttonBox(new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel))
 {
-    setWindowTitle(tr("Select Local Cache Folder"));
+    setWindowTitle(Tr::tr("Select Local Cache Folder"));
     setModal(true);
 
     auto formLayout = new QFormLayout;
     m_chooser->setExpectedKind(PathChooser::ExistingDirectory);
     m_chooser->setHistoryCompleter("Debugger.CdbCacheDir.History");
     m_chooser->setMinimumWidth(400);
-    formLayout->addRow(tr("Path:"), m_chooser);
+    formLayout->addRow(Tr::tr("Path:"), m_chooser);
 
     auto mainLayout = new QVBoxLayout;
     mainLayout->addLayout(formLayout);
@@ -109,14 +107,14 @@ void CacheDirectoryDialog::accept()
     }
     // Does a file of the same name exist?
     if (cache.exists()) {
-        Core::AsynchronousMessageBox::warning(tr("Already Exists"),
-                                              tr("A file named \"%1\" already exists.").arg(cache.toUserOutput()));
+        Core::AsynchronousMessageBox::warning(Tr::tr("Already Exists"),
+                                              Tr::tr("A file named \"%1\" already exists.").arg(cache.toUserOutput()));
         return;
     }
     // Create
     if (!cache.ensureWritableDir()) {
-        Core::AsynchronousMessageBox::warning(tr("Cannot Create"),
-                                              tr("The folder \"%1\" could not be created.").arg(cache.toUserOutput()));
+        Core::AsynchronousMessageBox::warning(Tr::tr("Cannot Create"),
+                                              Tr::tr("The folder \"%1\" could not be created.").arg(cache.toUserOutput()));
         return;
     }
     QDialog::accept();
@@ -133,21 +131,21 @@ CdbSymbolPathListEditor::CdbSymbolPathListEditor(QWidget *parent) :
     PathListEditor(parent)
 {
     QPushButton *button = insertButton(lastInsertButtonIndex + 1,
-                                       tr("Insert Symbol Server..."), this, [this](){
+                                       Tr::tr("Insert Symbol Server..."), this, [this] {
         addSymbolPath(SymbolServerPath);
     });
-    button->setToolTip(tr("Adds the Microsoft symbol server providing symbols for operating system "
-                          "libraries. Requires specifying a local cache directory."));
+    button->setToolTip(Tr::tr("Adds the Microsoft symbol server providing symbols for operating system "
+                              "libraries. Requires specifying a local cache directory."));
 
-    button = insertButton(lastInsertButtonIndex + 1, tr("Insert Symbol Cache..."), this, [this]() {
+    button = insertButton(lastInsertButtonIndex + 1, Tr::tr("Insert Symbol Cache..."), this, [this] {
         addSymbolPath(SymbolCachePath);
     });
-    button->setToolTip(tr("Uses a directory to cache symbols used by the debugger."));
+    button->setToolTip(Tr::tr("Uses a directory to cache symbols used by the debugger."));
 
-    button = insertButton(lastInsertButtonIndex + 1, tr("Set up Symbol Paths..."), this, [this](){
+    button = insertButton(lastInsertButtonIndex + 1, Tr::tr("Set up Symbol Paths..."), this, [this] {
         setupSymbolPaths();
     });
-    button->setToolTip(tr("Configure Symbol paths that are used to locate debug symbol files."));
+    button->setToolTip(Tr::tr("Configure Symbol paths that are used to locate debug symbol files."));
 }
 
 bool CdbSymbolPathListEditor::promptCacheDirectory(QWidget *parent, FilePath *cacheDirectory)
@@ -252,5 +250,4 @@ int CdbSymbolPathListEditor::indexOfSymbolPath(const QStringList &paths,
     return -1;
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

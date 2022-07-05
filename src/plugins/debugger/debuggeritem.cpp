@@ -24,14 +24,14 @@
 ****************************************************************************/
 
 #include "debuggeritem.h"
-#include "debuggeritemmanager.h"
-#include "debuggerkitinformation.h"
+
 #include "debuggerprotocol.h"
+#include "debuggertr.h"
 
 #include <projectexplorer/abi.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
@@ -40,13 +40,7 @@
 #include <utils/utilsicons.h>
 #include <utils/winutils.h>
 
-#include <QFileInfo>
 #include <QUuid>
-
-#ifdef WITH_TESTS
-#    include <QTest>
-#    include "debuggerplugin.h"
-#endif
 
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
@@ -307,7 +301,7 @@ QString DebuggerItem::engineTypeName() const
 {
     switch (m_engineType) {
     case NoEngineType:
-        return DebuggerItemManager::tr("Not recognized");
+        return Tr::tr("Not recognized");
     case GdbEngineType:
         return QLatin1String("GDB");
     case CdbEngineType:
@@ -348,7 +342,7 @@ QIcon DebuggerItem::decoration() const
 QString DebuggerItem::validityMessage() const
 {
     if (m_engineType == NoEngineType)
-        return DebuggerItemManager::tr("Could not determine debugger type");
+        return Tr::tr("Could not determine debugger type");
     return QString();
 }
 
@@ -384,14 +378,12 @@ QString DebuggerItem::displayName() const
         return m_unexpandedDisplayName;
 
     MacroExpander expander;
-    expander.registerVariable("Debugger:Type", DebuggerKitAspect::tr("Type of Debugger Backend"),
+    expander.registerVariable("Debugger:Type", Tr::tr("Type of Debugger Backend"),
         [this] { return engineTypeName(); });
-    expander.registerVariable("Debugger:Version", DebuggerKitAspect::tr("Debugger"),
-        [this] { return !m_version.isEmpty() ? m_version :
-                                               DebuggerKitAspect::tr("Unknown debugger version"); });
-    expander.registerVariable("Debugger:Abi", DebuggerKitAspect::tr("Debugger"),
-        [this] { return !m_abis.isEmpty() ? abiNames().join(' ') :
-                                            DebuggerKitAspect::tr("Unknown debugger ABI"); });
+    expander.registerVariable("Debugger:Version", Tr::tr("Debugger"),
+        [this] { return !m_version.isEmpty() ? m_version : Tr::tr("Unknown debugger version"); });
+    expander.registerVariable("Debugger:Abi", Tr::tr("Debugger"),
+        [this] { return !m_abis.isEmpty() ? abiNames().join(' ') : Tr::tr("Unknown debugger ABI"); });
     return expander.expand(m_unexpandedDisplayName);
 }
 
@@ -494,4 +486,4 @@ bool DebuggerItem::isValid() const
     return !m_id.isNull();
 }
 
-} // namespace Debugger;
+} // namespace Debugger

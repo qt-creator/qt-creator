@@ -30,8 +30,8 @@
 
 #include <QVariant>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
+
 class DebuggerCommand;
 class GdbMi;
 
@@ -41,8 +41,6 @@ class GdbMi;
 
 class PdbEngine : public DebuggerEngine
 {
-    Q_OBJECT
-
 public:
     PdbEngine();
 
@@ -115,5 +113,4 @@ private:
     Utils::FilePath m_interpreter;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

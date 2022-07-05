@@ -29,8 +29,7 @@
 
 #include <QPointer>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class DebuggerEngine;
 
@@ -64,5 +63,4 @@ signals:
     void currentEngineChanged();
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

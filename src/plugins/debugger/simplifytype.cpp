@@ -35,8 +35,7 @@
 #define QTC_ASSERT_STRING(cond) qDebug("SOFT ASSERT: \"" cond"\" in file " __FILE__ ", line " QTC_ASSERT_STRINGIFY(__LINE__))
 #define QTC_ASSERT(cond, action) if (cond) {} else { QTC_ASSERT_STRING(#cond); action; } do {} while (0)
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 // Simplify complicated STL template types,
 // such as 'std::basic_string<char,std::char_traits<char>,std::allocator<char> >'
@@ -316,5 +315,4 @@ QString simplifyType(const QString &typeIn)
     return type;
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

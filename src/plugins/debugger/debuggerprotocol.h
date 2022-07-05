@@ -32,12 +32,11 @@
 #include <QJsonObject>
 #include <QVector>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 namespace Utils { class ProcessHandle; }
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class DebuggerResponse;
 
@@ -349,7 +348,6 @@ public:
     quint64 address = 0;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Debugger::Internal::DebuggerCommand::CommandFlags)

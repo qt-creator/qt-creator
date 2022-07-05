@@ -28,15 +28,12 @@
 #include <utils/fileinprojectfinder.h>
 #include <utils/itemviews.h>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class ConsoleItemModel;
 
 class ConsoleView : public Utils::TreeView
 {
-    Q_OBJECT
-
 public:
     ConsoleView(ConsoleItemModel *model, QWidget *parent);
 
@@ -60,5 +57,4 @@ private:
     Utils::FileInProjectFinder m_finder;
 };
 
-} // Internal
-} // Debugger
+} // Debugger::Internal

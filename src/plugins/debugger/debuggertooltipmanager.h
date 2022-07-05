@@ -33,8 +33,7 @@
 #include <QDate>
 #include <QPoint>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class DebuggerEngine;
 class StackFrame;
@@ -66,13 +65,13 @@ public:
 
 using DebuggerToolTipContexts = QList<DebuggerToolTipContext>;
 
-class DebuggerToolTipManager : public QObject
+class DebuggerToolTipManager
 {
-    Q_OBJECT
+    Q_DISABLE_COPY_MOVE(DebuggerToolTipManager)
 
 public:
     explicit DebuggerToolTipManager(DebuggerEngine *engine);
-    ~DebuggerToolTipManager() override;
+    ~DebuggerToolTipManager();
 
     void deregisterEngine();
     void updateToolTips();
@@ -87,5 +86,4 @@ private:
     class DebuggerToolTipManagerPrivate *d;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

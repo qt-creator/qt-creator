@@ -28,13 +28,11 @@
 #include <qmldebug/qdebugmessageclient.h>
 #include <qmldebug/qmloutputparser.h>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 void appendDebugOutput(QtMsgType type, const QString &message, const QmlDebug::QDebugContextInfo &info);
 
 void clearExceptionSelection();
 QStringList highlightExceptionCode(int lineNumber, const QString &filePath, const QString &errorMessage);
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

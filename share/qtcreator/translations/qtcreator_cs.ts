@@ -33,80 +33,6 @@
     </message>
 </context>
 <context>
-    <name>AttachCoreDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation type="obsolete">Spustit ladicí program</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation type="obsolete">Spustitelný soubor:</translation>
-    </message>
-    <message>
-        <source>Core File:</source>
-        <translation type="obsolete">Soubor &apos;core&apos;:</translation>
-    </message>
-    <message>
-        <source>&amp;Executable:</source>
-        <translation type="obsolete">&amp;Spustitelný soubor:</translation>
-    </message>
-    <message>
-        <source>&amp;Core file:</source>
-        <translation type="obsolete">Soubor &amp;core:</translation>
-    </message>
-    <message>
-        <source>&amp;Tool chain:</source>
-        <translation type="obsolete">Sada &amp;nástrojů:</translation>
-    </message>
-    <message>
-        <source>Sysroot</source>
-        <translation type="obsolete">Sysroot</translation>
-    </message>
-    <message>
-        <source>Override &amp;Start script:</source>
-        <translation type="obsolete">Přepsat &amp;spouštěcí skript:</translation>
-    </message>
-    <message>
-        <source>Sys&amp;root:</source>
-        <translation type="obsolete">Sys&amp;root:</translation>
-    </message>
-    <message>
-        <source>Override &amp;start script:</source>
-        <translation type="obsolete">Přepsat &amp;spouštěcí skript:</translation>
-    </message>
-</context>
-<context>
-    <name>AttachExternalDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation type="obsolete">Spustit ladicí program</translation>
-    </message>
-    <message>
-        <source>Attach to Process ID:</source>
-        <translation type="obsolete">Připojit k ID procesu:</translation>
-    </message>
-    <message>
-        <source>Filter:</source>
-        <translation type="obsolete">Filtr:</translation>
-    </message>
-    <message>
-        <source>Clear</source>
-        <translation type="obsolete">Smazat</translation>
-    </message>
-    <message>
-        <source>Attach to process ID:</source>
-        <translation type="obsolete">Připojit k ID procesu:</translation>
-    </message>
-    <message>
-        <source>Attach to &amp;process ID:</source>
-        <translation type="obsolete">Připojit k ID &amp;procesu:</translation>
-    </message>
-    <message>
-        <source>&amp;Tool chain:</source>
-        <translation type="obsolete">Sada &amp;nástrojů:</translation>
-    </message>
-</context>
-<context>
     <name>BINEditor::Internal::BinEditorPlugin</name>
     <message>
         <source>&amp;Undo</source>
@@ -686,72 +612,6 @@
     </message>
 </context>
 <context>
-    <name>CdbOptionsPageWidget</name>
-    <message>
-        <source>These options take effect at the next start of Qt Creator.</source>
-        <translation type="obsolete">Tato nastavení začnou působit při dalším spuštění Qt Creatoru.</translation>
-    </message>
-    <message>
-        <source>Cdb</source>
-        <extracomment>Placeholder</extracomment>
-        <translation type="obsolete">Cdb</translation>
-    </message>
-    <message>
-        <source>Debugger Paths</source>
-        <translation type="obsolete">Cesty k ladícím programům</translation>
-    </message>
-    <message>
-        <source>Symbol paths:</source>
-        <translation type="obsolete">Cesty k symbolům:</translation>
-    </message>
-    <message>
-        <source>Source paths:</source>
-        <translation type="obsolete">Cesty ke zdrojovému textu:</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation type="obsolete">Cesta:</translation>
-    </message>
-    <message>
-        <source>Other options</source>
-        <translation type="obsolete">Jiné volby</translation>
-    </message>
-    <message>
-        <source>Verbose Symbol Loading</source>
-        <translation type="obsolete">Mnohomluvné nahrávání symbolu</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; Restarting Qt Creator is required for these settings to take effect.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
-        <translation type="obsolete">&lt;html&gt;&lt;body&gt;&lt;p&gt;Zadejte cestu k &lt;a href=&quot;%1&quot;&gt;nástrojům pro ladění Windows&lt;/a&gt; (%2).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Poznámka:&lt;/b&gt; Změny začnou působit až při dalším spuštění Qt Creatoru.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>64-bit version</source>
-        <translation type="obsolete">64 bitová verze</translation>
-    </message>
-    <message>
-        <source>32-bit version</source>
-        <translation type="obsolete">32 bitová verze</translation>
-    </message>
-    <message>
-        <source>CDB</source>
-        <extracomment>Placeholder</extracomment>
-        <translation type="obsolete">CDB</translation>
-    </message>
-    <message>
-        <source>Other Options</source>
-        <translation type="obsolete">Jiné volby</translation>
-    </message>
-    <message>
-        <source>Verbose symbol loading</source>
-        <translation type="obsolete">Mnohomluvné nahrávání symbolu</translation>
-    </message>
-    <message>
-        <source>fast loading of debugging helpers</source>
-        <translation type="obsolete">rychlé nahrávání pomocných knihoven pro výstup dat o ladění</translation>
-    </message>
-</context>
-<context>
     <name>ChangeSelectionDialog</name>
     <message>
         <source>Repository Location:</source>
@@ -937,10 +797,6 @@
     <message>
         <source>Use alternating row colors in debug views</source>
         <translation type="obsolete">Používat pro pohledy na ladění střídavých barev řádků</translation>
-    </message>
-    <message>
-        <source>Enable reverse debugging</source>
-        <translation type="obsolete">Zapnout obrácené ladění</translation>
     </message>
     <message>
         <source>Show a message box when receiving a signal</source>
@@ -1441,10 +1297,6 @@ Chcete je nechat přepsat?</translation>
         <translation type="obsolete">Soubor &apos;%1&apos; nelze otevřít!</translation>
     </message>
     <message>
-        <source>Open File</source>
-        <translation type="obsolete">Otevřít soubor</translation>
-    </message>
-    <message>
         <source>File is Read Only</source>
         <translation type="obsolete">Soubor je pouze pro čtení</translation>
     </message>
@@ -1598,10 +1450,6 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>Save File As</source>
         <translation type="obsolete">Uložit soubor jako</translation>
-    </message>
-    <message>
-        <source>Open File</source>
-        <translation type="obsolete">Otevřít soubor</translation>
     </message>
     <message>
         <source>File is Read Only</source>
@@ -2982,138 +2830,9 @@ Chcete je nechat přepsat?</translation>
         <translation>&lt;Chyba v kódování&gt;</translation>
     </message>
     <message>
-        <source>Error Loading Symbols</source>
-        <translation type="obsolete">Chyba při nahrávání symbolů</translation>
-    </message>
-    <message>
-        <source>No executable to load symbols from specified.</source>
-        <translation type="obsolete">Nebyl zadán žádný spustitelný soubor pro nahrání symbolů.</translation>
-    </message>
-    <message>
-        <source>Symbols found.</source>
-        <translation type="obsolete">Symboly byly nalezeny.</translation>
-    </message>
-    <message>
-        <source>Loading symbols from &quot;%1&quot; failed:
-</source>
-        <translation type="obsolete">Nahrání symbolů z &quot;%1&quot; se nepodařilo:
-</translation>
-    </message>
-    <message>
-        <source>Attached to core temporarily.</source>
-        <translation type="obsolete">Dočasně připojeno k &apos;core&apos; souboru.</translation>
-    </message>
-    <message>
-        <source>Unable to determine executable from core file.</source>
-        <translation type="obsolete">Ze souboru &apos;core&apos; se nepodařilo určit spustitelný soubor.</translation>
-    </message>
-    <message>
-        <source>The name of the binary file cannot be extracted from this core file.</source>
-        <translation type="obsolete">Název spustitelného souboru nelze určit z tohoto &apos;core&apos; souboru.</translation>
-    </message>
-    <message>
-        <source>Try to specify the binary using the &lt;i&gt;Debug-&gt;Start Debugging-&gt;Attach to Core&lt;/i&gt; dialog.</source>
-        <translation type="obsolete">Zadejte, prosím, název spustitelného souboru v dialogu &lt;i&gt;Ladění-&gt;Spustit ladění-&gt;Připojit do core&lt;/i&gt;.</translation>
-    </message>
-    <message>
-        <source>Loading core file failed</source>
-        <translation type="obsolete">Nahrání souboru &apos;core&apos; se nezdařilo</translation>
-    </message>
-    <message>
-        <source>Attach to core failed.</source>
-        <translation type="obsolete">Připojení ke core se nezdařilo.</translation>
-    </message>
-    <message>
-        <source>No symbols found in core file &lt;i&gt;%1&lt;/i&gt;.</source>
-        <translation type="obsolete">V souboru &apos;core&apos; nebyly nalezeny žádné symboly &lt;i&gt;%1&lt;/i&gt;.</translation>
-    </message>
-    <message>
-        <source>This can be caused by a path length limitation in the core file.</source>
-        <translation type="obsolete">Možnou příčinou je omezení délky cesty v souboru core.</translation>
-    </message>
-    <message>
-        <source>Attached to core.</source>
-        <translation type="obsolete">Připojeno k souboru &apos;core&apos;.</translation>
-    </message>
-    <message>
-        <source>Attach to core &quot;%1&quot; failed:
-</source>
-        <translation type="obsolete">Připojení k souboru &apos;core&apos; &quot;%1&quot; se nezdařilo:
-</translation>
-    </message>
-    <message>
-        <source>Cannot set up communication with child process: %1</source>
-        <translation type="obsolete">Spojení s podřízeným procesem se nepodařilo zřídit: %1</translation>
-    </message>
-    <message>
-        <source>Starting executable failed:
-</source>
-        <translation type="obsolete">Nepodařilo se spustit spustitelný soubor:
-</translation>
-    </message>
-    <message>
-        <source>The upload process failed to start. Shell missing?</source>
-        <translation type="obsolete">Nahrání procesu se nepodařilo spustit. Možnou příčinou by mohl být chybějící shellový program?</translation>
-    </message>
-    <message>
-        <source>The upload process crashed some time after starting successfully.</source>
-        <translation type="obsolete">Proces nahrávání po určité době od úspěšného spuštění spadl.</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation type="obsolete">Došlo k překročení času u poslední funkce waitFor...(). Stav QProcess je nezměněn, a tak se můžete pokusit zavolat waitFor...() ještě jednou.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation type="obsolete">Při pokusu o zápis do procesu nahrávání se vyskytla chyba. Pravděpodobně proces neběží, nebo zavřel svůj vstupní kanál.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to read from the upload process. For example, the process may not be running.</source>
-        <translation type="obsolete">Při pokusu o čtení z procesu nahrávání se vyskytla chyba. Pravděpodobně proces neběží.</translation>
-    </message>
-    <message>
-        <source>An unknown error in the upload process occurred. This is the default return value of error().</source>
-        <translation type="obsolete">V procesu nahrávání se vyskytla neznámá chyba. Je to výchozí zpětná hodnota error().</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="obsolete">Chyba</translation>
-    </message>
-    <message>
-        <source>No symbol file given.</source>
-        <translation type="obsolete">Nebyl zadán žádný symbolický soubor.</translation>
-    </message>
-    <message>
-        <source>Reading debug information failed:
-</source>
-        <translation type="obsolete">Čtení informací o ladění se nezdařilo:
-</translation>
-    </message>
-    <message>
-        <source>Starting remote executable failed:
-</source>
-        <translation type="obsolete">Nepodařilo se spustit spustitelný soubor na vzdáleném počítači:
-</translation>
-    </message>
-    <message>
-        <source>Debugger Error</source>
-        <translation type="obsolete">Chyba v ladicím programu</translation>
-    </message>
-    <message>
-        <source>Debugging Helper</source>
-        <translation type="obsolete">Pomocný ladicí program</translation>
-    </message>
-    <message>
         <source>Ctrl+Shift+F11</source>
         <translation>Ctrl+Shift+F11</translation>
     </message>
-    <message>
-        <source>Attached to process %1.</source>
-        <translation type="obsolete">Připojeno k procesu %1.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::AttachCoreDialog</name>
     <message>
         <source>Load Core File</source>
         <translation>Nahrát soubor core</translation>
@@ -3125,10 +2844,6 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>Use local core file:</source>
         <translation>Použít místní soubor core</translation>
-    </message>
-    <message>
-        <source>Select Executable</source>
-        <translation>Vybrat spustitelný soubor</translation>
     </message>
     <message>
         <source>Kit:</source>
@@ -3147,81 +2862,13 @@ Chcete je nechat přepsat?</translation>
         <translation>Vybrat hlavní soubor</translation>
     </message>
     <message>
-        <source>Select Sysroot</source>
-        <translation type="obsolete">Vybrat Sysroot</translation>
-    </message>
-    <message>
         <source>Select Startup Script</source>
         <translation>Vybrat spouštěcí skript</translation>
-    </message>
-    <message>
-        <source>Start Debugger</source>
-        <translation type="obsolete">Spustit ladicí program</translation>
-    </message>
-    <message>
-        <source>&amp;Executable:</source>
-        <translation>&amp;Spustitelný soubor:</translation>
-    </message>
-    <message>
-        <source>&amp;Core file:</source>
-        <translation type="obsolete">Soubor &amp;core:</translation>
-    </message>
-    <message>
-        <source>&amp;Tool chain:</source>
-        <translation type="obsolete">Sada &amp;nástrojů:</translation>
-    </message>
-    <message>
-        <source>Sys&amp;root:</source>
-        <translation type="obsolete">Sys&amp;root:</translation>
     </message>
     <message>
         <source>Override &amp;start script:</source>
         <translation>Přepsat &amp;spouštěcí skript:</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::AttachExternalDialog</name>
-    <message>
-        <source>Process ID</source>
-        <translation type="obsolete">ID procesu</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="obsolete">Název</translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation type="obsolete">Stav</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Obnovit</translation>
-    </message>
-    <message>
-        <source>Process Already Under Debugger Control</source>
-        <translation type="obsolete">Proces již pod řízením ladiče</translation>
-    </message>
-    <message>
-        <source>The process %1 is already under the control of a debugger.
-Qt Creator cannot attach to it.</source>
-        <translation type="obsolete">Proces %1 je již pod řízením ladiče.
-Qt Creator se k němu nemůže připojit.</translation>
-    </message>
-    <message>
-        <source>Start Debugger</source>
-        <translation type="obsolete">Spustit ladicí program</translation>
-    </message>
-    <message>
-        <source>Attach to &amp;process ID:</source>
-        <translation type="obsolete">Připojit k ID &amp;procesu:</translation>
-    </message>
-    <message>
-        <source>&amp;Tool chain:</source>
-        <translation type="obsolete">Sada &amp;nástrojů:</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::BreakHandler</name>
     <message>
         <source>Marker File:</source>
         <translation>Značkovací soubor:</translation>
@@ -3309,10 +2956,6 @@ Qt Creator se k němu nemůže připojit.</translation>
     <message>
         <source>Multiple Addresses:</source>
         <translation>Více adres:</translation>
-    </message>
-    <message>
-        <source>Command:</source>
-        <translation>Příkaz:</translation>
     </message>
     <message>
         <source>Message:</source>
@@ -3412,28 +3055,12 @@ Qt Creator se k němu nemůže připojit.</translation>
         <translation>Neznámý typ bodu přerušení</translation>
     </message>
     <message>
-        <source>Function</source>
-        <translation>Funkce</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Soubor</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>Řádek</translation>
-    </message>
-    <message>
         <source>Condition</source>
         <translation>Podmínka</translation>
     </message>
     <message>
         <source>Ignore</source>
         <translation>Přehlížet</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adresa</translation>
     </message>
     <message>
         <source>Threads</source>
@@ -3463,260 +3090,9 @@ Qt Creator se k němu nemůže připojit.</translation>
         <source>Thread Specification:</source>
         <translation>Přesný popis vlákna:</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::BreakWindow</name>
     <message>
         <source>Breakpoints</source>
         <translation>Body přerušení</translation>
-    </message>
-    <message>
-        <source>Delete breakpoint</source>
-        <translation type="obsolete">Smazat bod přerušení</translation>
-    </message>
-    <message>
-        <source>Delete all breakpoints</source>
-        <translation type="obsolete">Smazat všechny body přerušení</translation>
-    </message>
-    <message>
-        <source>Delete breakpoints of &quot;%1&quot;</source>
-        <translation type="obsolete">Smazat body přerušení &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Delete breakpoints of file</source>
-        <translation type="obsolete">Smazat body přerušení souboru</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">Přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">Vždy přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Edit condition...</source>
-        <translation type="obsolete">Upravit podmínku...</translation>
-    </message>
-    <message>
-        <source>Synchronize breakpoints</source>
-        <translation type="obsolete">Seřídit body přerušení</translation>
-    </message>
-    <message>
-        <source>Disable breakpoint</source>
-        <translation type="obsolete">Vypnout bod přerušení</translation>
-    </message>
-    <message>
-        <source>Enable breakpoint</source>
-        <translation type="obsolete">Zapnout bod přerušení</translation>
-    </message>
-    <message>
-        <source>Use short path</source>
-        <translation type="obsolete">Použít zkrácenou cestu</translation>
-    </message>
-    <message>
-        <source>Use full path</source>
-        <translation type="obsolete">Použít úplnou cestu</translation>
-    </message>
-    <message>
-        <source>Delete Breakpoint</source>
-        <translation type="obsolete">Smazat bod přerušení</translation>
-    </message>
-    <message>
-        <source>Delete All Breakpoints</source>
-        <translation type="obsolete">Smazat všechny body přerušení</translation>
-    </message>
-    <message>
-        <source>Delete Breakpoints of &quot;%1&quot;</source>
-        <translation type="obsolete">Smazat body přerušení v &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Delete Breakpoints of File</source>
-        <translation type="obsolete">Smazat body přerušení v souboru</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Edit Breakpoint...</source>
-        <translation type="obsolete">Upravit bod přerušení...</translation>
-    </message>
-    <message>
-        <source>Associate Breakpoint With All Threads</source>
-        <translation type="obsolete">Dát bod přerušení pro všechna vlákna</translation>
-    </message>
-    <message>
-        <source>Associate Breakpoint With Thread %1</source>
-        <translation type="obsolete">Dát bod přerušení pro vlákno %1</translation>
-    </message>
-    <message>
-        <source>Add Breakpoint...</source>
-        <translation type="obsolete">Přidat bod přerušení...</translation>
-    </message>
-    <message>
-        <source>Add Breakpoint</source>
-        <translation type="obsolete">Přidat bod přerušení</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Vždy přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Edit Condition...</source>
-        <translation type="obsolete">Upravit podmínku...</translation>
-    </message>
-    <message>
-        <source>Synchronize Breakpoints</source>
-        <translation type="obsolete">Seřídit body přerušení</translation>
-    </message>
-    <message>
-        <source>Disable Selected Breakpoints</source>
-        <translation type="obsolete">Vypnout vybrané body přerušení</translation>
-    </message>
-    <message>
-        <source>Enable Selected Breakpoints</source>
-        <translation type="obsolete">Zapnout vybrané body přerušení</translation>
-    </message>
-    <message>
-        <source>Disable Breakpoint</source>
-        <translation type="obsolete">Vypnout bod přerušení</translation>
-    </message>
-    <message>
-        <source>Enable Breakpoint</source>
-        <translation type="obsolete">Zapnout bod přerušení</translation>
-    </message>
-    <message>
-        <source>Use Short Path</source>
-        <translation type="obsolete">Použít zkrácenou cestu</translation>
-    </message>
-    <message>
-        <source>Use Full Path</source>
-        <translation type="obsolete">Použít úplnou cestu</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at Function...</source>
-        <translation type="obsolete">Nastavit bod přerušení u funkce...</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at Function &quot;main&quot;</source>
-        <translation type="obsolete">Nastavit bod přerušení u funkce main()</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at &quot;throw&quot;</source>
-        <translation type="obsolete">Nastavit bod přerušení při &quot;throw&quot;</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at &quot;catch&quot;</source>
-        <translation type="obsolete">Nastavit bod přerušení při &quot;catch&quot;</translation>
-    </message>
-    <message>
-        <source>Conditions on Breakpoint %1</source>
-        <translation type="obsolete">Podmínky pro bod přerušení %1</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CdbDebugEngine</name>
-    <message>
-        <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Nepodařilo se nahrát knihovnu pro stroj ladicího programu &apos;%1&apos;: %2</translation>
-    </message>
-    <message>
-        <source>The function &quot;%1()&quot; failed: %2</source>
-        <extracomment>Function call failed</extracomment>
-        <translation type="obsolete">Vyvolání funkce &quot;%1()&quot; se nezdařilo: %2</translation>
-    </message>
-    <message>
-        <source>Unable to resolve &apos;%1&apos; in the debugger engine library &apos;%2&apos;</source>
-        <translation type="obsolete">&apos;%1&apos; se v knihovně pro stroj ladicího programu nepodařlo nalézt &apos;%2&apos;</translation>
-    </message>
-    <message>
-        <source>Version: %1</source>
-        <translation type="obsolete">Verze: %1</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;The installed version of the &lt;i&gt;Debugging Tools for Windows&lt;/i&gt; (%1) is rather old. Upgrading to version %2 is recommended for the proper display of Qt&apos;s data types.&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;Nainstalovaná verze &lt;i&gt;Nástroje ladění pro Windows&lt;/i&gt; (%1) je poněkud stará. Vylepšení na verzi %2 se doporučuje kvůli správnému zobrazení datových typů Qt.&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation type="obsolete">Ladič</translation>
-    </message>
-    <message>
-        <source>The dumper library was not found at %1.</source>
-        <translation type="obsolete">Pomocná knihovna pro výstup nebyla nalezena v &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Unable to set the image path to %1: %2</source>
-        <translation type="obsolete">Cestu k obázku nelze nastavit na %1: %2</translation>
-    </message>
-    <message>
-        <source>The process exited with exit code %1.</source>
-        <translation type="obsolete">Proces byl ukončen. Vrácená hodnota %1.</translation>
-    </message>
-    <message>
-        <source>Continuing with &apos;%1&apos;...</source>
-        <translation type="obsolete">Pokračuje se s &apos;%1&apos;...</translation>
-    </message>
-    <message>
-        <source>Unable to continue: %1</source>
-        <translation type="obsolete">Nelze pokračovat: %1</translation>
-    </message>
-    <message>
-        <source>Reverse stepping is not implemented.</source>
-        <translation type="obsolete">Obrácené stupňování není provedeno.</translation>
-    </message>
-    <message>
-        <source>Thread %1 cannot be stepped.</source>
-        <translation type="obsolete">Vlákno %1 nelze stupňovat.</translation>
-    </message>
-    <message>
-        <source>Stepping %1</source>
-        <translation type="obsolete">Stupňování %1</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation type="obsolete">Požadováno pokračování...</translation>
-    </message>
-    <message>
-        <source>Running up to %1:%2...</source>
-        <translation type="obsolete">Pokračuje se až po %1:%2...</translation>
-    </message>
-    <message>
-        <source>Running up to function &apos;%1()&apos;...</source>
-        <translation type="obsolete">Pokračuje se až po funkci &apos;%1()&apos;...</translation>
-    </message>
-    <message>
-        <source>Jump to line is not implemented</source>
-        <translation type="obsolete">Funkčnost &apos;Skočit na řádek&apos;není provedena</translation>
-    </message>
-    <message>
-        <source>Ignoring initial breakpoint...</source>
-        <translation type="obsolete">Vynechává se počáteční bod přerušení...</translation>
-    </message>
-    <message>
-        <source>Interrupted in thread %1, current thread: %2</source>
-        <translation type="obsolete">Přerušeno u vlákna: %1, současné vlákno: %2</translation>
-    </message>
-    <message>
-        <source>Stopped, current thread: %1</source>
-        <translation type="obsolete">Zastaveno, vlákno: %1</translation>
-    </message>
-    <message>
-        <source>Changing threads: %1 -&gt; %2</source>
-        <translation type="obsolete">Změna vláken: %1 -&gt; %2</translation>
-    </message>
-    <message>
-        <source>Stopped at %1:%2 in thread %3.</source>
-        <translation type="obsolete">Zastaveno při %1:%2 ve vlákně %3.</translation>
-    </message>
-    <message>
-        <source>Stopped at %1 in thread %2 (missing debug information).</source>
-        <translation type="obsolete">Zastaveno při %1 ve vlákně %2 (chybí informace o ladění).</translation>
-    </message>
-    <message>
-        <source>Stopped at %1 (%2) in thread %3 (missing debug information).</source>
-        <translation type="obsolete">Zastaveno při %1  (%2) ve vlákně %3 (chybí informace o ladění).</translation>
     </message>
     <message>
         <source>Stopped in thread %1 (missing debug information).</source>
@@ -3743,14 +3119,6 @@ Qt Creator se k němu nemůže připojit.</translation>
         <translation type="obsolete">Připojení (ladění) hlavních souborů není podporováno!</translation>
     </message>
     <message>
-        <source>Attaching to a process failed for process id %1: %2</source>
-        <translation type="obsolete">Ladicímu programu se nepodařilo připojit k procesu s ID %1: %2</translation>
-    </message>
-    <message>
-        <source>Unable to create a process &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Nepodařilo se spustit žádný proces &apos;%1&apos;: %2</translation>
-    </message>
-    <message>
         <source>Unable to assign the value &apos;%1&apos; to &apos;%2&apos;: %3</source>
         <translation type="obsolete">Hodnotu &apos;%1&apos; se nepodařilo přiřadit k &apos;%2&apos;: %3</translation>
     </message>
@@ -3762,13 +3130,6 @@ Qt Creator se k němu nemůže připojit.</translation>
         <source>Cannot retrieve symbols while the debuggee is running.</source>
         <translation type="obsolete">Symboly nelze určit, dokud běží program k ladění.</translation>
     </message>
-    <message>
-        <source>Debugger Error</source>
-        <translation type="obsolete">Chyba v ladicím programu</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CdbDumperHelper</name>
     <message>
         <source>injection</source>
         <translation type="obsolete">Vstříknutí</translation>
@@ -3813,44 +3174,6 @@ Qt Creator se k němu nemůže připojit.</translation>
         <source>Querying dumpers for &apos;%1&apos;/&apos;%2&apos; (%3)</source>
         <translation type="obsolete">Vyhledávájí se pomocné knihovny pro výstup dat &apos;%1&apos;/&apos;%2&apos; (%3)</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::CdbOptionsPageWidget</name>
-    <message>
-        <source>Cdb</source>
-        <translation type="obsolete">Cdb</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; Restarting Qt Creator is required for these settings to take effect.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
-        <translation type="obsolete">&lt;html&gt;&lt;body&gt;&lt;p&gt;Zadejte cestu k &lt;a href=&quot;%1&quot;&gt;nástrojům pro ladění Windows&lt;/a&gt; (%2).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Poznámka:&lt;/b&gt; Změny zapůsobí teprve při dalším spuštění Qt Creatoru.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>64-bit version</source>
-        <translation type="obsolete">64 bitová verze</translation>
-    </message>
-    <message>
-        <source>32-bit version</source>
-        <translation type="obsolete">32 bitová verze</translation>
-    </message>
-    <message>
-        <source>Autodetect</source>
-        <translation type="obsolete">Zjistit</translation>
-    </message>
-    <message>
-        <source>&quot;Debugging Tools for Windows&quot; could not be found.</source>
-        <translation type="obsolete">Nepodařilo se nalézt &quot;Ladicí nástroje pro Windows&quot;.</translation>
-    </message>
-    <message>
-        <source>Checked:
-%1</source>
-        <translation type="obsolete">Prohledané adresáře:
-%1</translation>
-    </message>
-    <message>
-        <source>Autodetection</source>
-        <translation type="obsolete">Zjištění</translation>
-    </message>
     <message>
         <source>Startup</source>
         <extracomment>Placeholder</extracomment>
@@ -3869,24 +3192,8 @@ Qt Creator se k němu nemůže připojit.</translation>
         <translation>Použít &amp;konzoli CDB</translation>
     </message>
     <message>
-        <source>Debugger Paths</source>
-        <translation type="obsolete">Cesty k ladicím programům</translation>
-    </message>
-    <message>
-        <source>&amp;Symbol paths:</source>
-        <translation type="obsolete">&amp;Cesty k symbolům:</translation>
-    </message>
-    <message>
-        <source>S&amp;ource paths:</source>
-        <translation type="obsolete">Cesty ke &amp;zdrojovému textu:</translation>
-    </message>
-    <message>
         <source>Break on:</source>
         <translation>Přerušit při:</translation>
-    </message>
-    <message>
-        <source>Breakpoints</source>
-        <translation type="obsolete">Body přerušení</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attempt to correct the location of a breakpoint based on file and line number should it be in a comment or in a line for which no code is generated. The correction is based on the code model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -3921,10 +3228,6 @@ Qt Creator se k němu nemůže připojit.</translation>
         <translation type="obsolete">Cesty</translation>
     </message>
     <message>
-        <source>Edit...</source>
-        <translation type="obsolete">Upravit...</translation>
-    </message>
-    <message>
         <source>Various</source>
         <translation>Různé</translation>
     </message>
@@ -3940,9 +3243,6 @@ Qt Creator se k němu nemůže připojit.</translation>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attempts to correct the location of a breakpoint based on file and line number should it be in a comment or in a line for which no code is generated. The correction is based on the code model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Použije model kódu k tomu, aby se bod přerušení vložil na řádek programu, který obsahuje nějaký příkaz. Hodí se, pokud původně zvolený řádek je prázdný, případně obsahuje jenom poznámku apod.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::CdbSymbolPathListEditor</name>
     <message>
         <source>Symbol Server...</source>
         <translation>Symbolický server...</translation>
@@ -3968,188 +3268,12 @@ Qt Creator se k němu nemůže připojit.</translation>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ladič není zařízen k používání veřejného &lt;a href=&quot;%1&quot;&gt;Microsoft Symbol Serveru&lt;/a&gt;. Toto se doporučuje k vyhledávání symbolů knihoven operačních systémů.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Poznámka:&lt;/i&gt; Je požadováno rychle internetové spojení. Při prvním spuštění se může vyskytnout zpoždění.&lt;/p&gt;&lt;p&gt;Chcete zřídit symbolický server?&lt;/p&gt;&lt;/br&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Symbol Server</source>
-        <translation type="obsolete">Symbolický server</translation>
-    </message>
-    <message>
-        <source>Do not ask again</source>
-        <translation type="obsolete">Neptat se znovu</translation>
-    </message>
-    <message>
-        <source>Pick a local cache directory</source>
-        <translation type="obsolete">Vyberte adresář s místní vyrovnávací pamětí</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebugMode</name>
-    <message>
-        <source>Debug</source>
-        <translation type="obsolete">Ladění</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerOutputWindow</name>
-    <message>
-        <source>Debugger</source>
-        <translation type="obsolete">Ladič</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerPlugin</name>
-    <message>
-        <source>Option &apos;%1&apos; is missing the parameter.</source>
-        <translation type="obsolete">Volba příkazového řádku %1 vyžaduje parametr.</translation>
-    </message>
-    <message>
-        <source>The parameter &apos;%1&apos; of option &apos;%2&apos; is not a number.</source>
-        <translation type="obsolete">Parameter &apos;%1&apos; volby příkazového řádku &apos;%2&apos; není číslem.</translation>
-    </message>
-    <message>
-        <source>Invalid debugger option: %1</source>
-        <translation type="obsolete">Neplatná volba příkazového řádku pro ladicí program: %1</translation>
-    </message>
-    <message>
-        <source>Error evaluating command line arguments: %1</source>
-        <translation type="obsolete">Chyba při vyhodnocení argumentu příkazového řádku: %1</translation>
-    </message>
-    <message>
-        <source>Start and Debug External Application...</source>
-        <translation type="obsolete">Spustit vnější uživatelský program a provádět u něj ladění...</translation>
-    </message>
-    <message>
-        <source>Attach to Running External Application...</source>
-        <translation type="obsolete">Připojit se k běžícímu vnějšímu uživatelskému programu...</translation>
-    </message>
-    <message>
-        <source>Attach to Core...</source>
-        <translation type="obsolete">Připojit se k hlavnímu souboru...</translation>
-    </message>
-    <message>
-        <source>Start and Attach to Remote Application...</source>
-        <translation type="obsolete">Spustit vzdálený uživatelský program a připojit se k němu...</translation>
-    </message>
-    <message>
-        <source>Detach Debugger</source>
-        <translation type="obsolete">Odpojit ladicí program</translation>
-    </message>
-    <message>
-        <source>Stop Debugger/Interrupt Debugger</source>
-        <translation type="obsolete">Zastavit/Přerušit ladicí program</translation>
-    </message>
-    <message>
-        <source>Reset Debugger</source>
-        <translation type="obsolete">Nastavit znovu ladicí program</translation>
-    </message>
-    <message>
-        <source>&amp;Views</source>
-        <translation type="obsolete">&amp;Pohledy</translation>
-    </message>
-    <message>
-        <source>Locked</source>
-        <translation type="obsolete">Ukotveno</translation>
-    </message>
-    <message>
-        <source>Reset to default layout</source>
-        <translation type="obsolete">Nastavit znovu výchozí rozvržení</translation>
-    </message>
-    <message>
-        <source>Threads:</source>
-        <translation type="obsolete">Vlákna:</translation>
-    </message>
-    <message>
-        <source>Attaching to PID %1.</source>
-        <translation type="obsolete">Připojuje se k procesu s ID (PID) %1.</translation>
-    </message>
-    <message>
-        <source>Remove Breakpoint</source>
-        <translation type="obsolete">Odstranit bod přerušení</translation>
-    </message>
-    <message>
-        <source>Disable Breakpoint</source>
-        <translation type="obsolete">Vypnout bod přerušení</translation>
-    </message>
-    <message>
-        <source>Enable Breakpoint</source>
-        <translation type="obsolete">Zapnout bod přerušení</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint</source>
-        <translation type="obsolete">Nastavit bod přerušení</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="obsolete">Varování</translation>
-    </message>
-    <message>
-        <source>Cannot attach to PID 0</source>
-        <translation type="obsolete">Ladicí program nelze připojit k procesu s ID 0</translation>
-    </message>
-    <message>
-        <source>Attaching to core %1.</source>
-        <translation type="obsolete">Připojuje se k hlavnímu %1.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerSettings</name>
-    <message>
-        <source>Debugger properties...</source>
-        <translation type="obsolete">Nastavení ladicího programu...</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">Přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">Vždy přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Use alternating row colors</source>
-        <translation type="obsolete">Používat střídavých barev řádků</translation>
-    </message>
-    <message>
-        <source>Show a message box when receiving a signal</source>
-        <translation type="obsolete">Při obdržení signálu ukázat okno se zprávami</translation>
-    </message>
-    <message>
-        <source>Operate by instruction</source>
-        <translation type="obsolete">Pracovat na úrovni příkazu</translation>
-    </message>
-    <message>
         <source>This switches the debugger to instruction-wise operation mode. In this mode, stepping operates on single instructions and the source location view also shows the disassembled instructions.</source>
         <translation>Přikáže ladicímu programu, aby pracoval na úrovni instrukce. V tomto režimu se krokuje po jednotlivých instrukcích a pohled na zdrojový text také ukazuje instrukce z disasembleru.</translation>
     </message>
     <message>
-        <source>Dereference pointers automatically</source>
-        <translation type="obsolete">Zrušit automaticky odkazování u ukazovátek</translation>
-    </message>
-    <message>
-        <source>This switches the Locals&amp;Watchers view to automatically derefence pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
-        <translation type="obsolete">Způsobí, že u ukazovátka v okně &quot;Místní &amp;proměnné a sledované výrazy&quot; je automaticky zrušeno odkazování. Tím se zjednoduší stromové zobrazení, ale zase ovšem chybí informace o nyní nepřítomné mezilehlé úrovni.</translation>
-    </message>
-    <message>
-        <source>Watch expression &quot;%1&quot;</source>
-        <translation type="obsolete">Sledovaný výraz &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Remove watch expression &quot;%1&quot;</source>
-        <translation type="obsolete">Odstranit sledovaný výraz &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Watch expression &quot;%1&quot; in separate window</source>
-        <translation type="obsolete">Sledovaný výraz &quot;%1&quot; v odděleném okně</translation>
-    </message>
-    <message>
-        <source>Use precise breakpoints</source>
-        <translation type="obsolete">Použít přesné body přerušení</translation>
-    </message>
-    <message>
         <source>Debugger Properties...</source>
         <translation>Nastavení ladicího programu...</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Přizpůsobit šířku sloupců obsahu</translation>
     </message>
     <message>
         <source>Configure Debugger...</source>
@@ -4220,10 +3344,6 @@ Qt Creator se k němu nemůže připojit.</translation>
         <translation type="obsolete">Ukázat program v popředí</translation>
     </message>
     <message>
-        <source>Apply Changes on Save</source>
-        <translation type="obsolete">Použít změny při uložení</translation>
-    </message>
-    <message>
         <source>Watch Expression &quot;%1&quot;</source>
         <translation type="obsolete">Sledovaný výraz &quot;%1&quot;</translation>
     </message>
@@ -4262,10 +3382,6 @@ Qt Creator se k němu nemůže připojit.</translation>
     <message>
         <source>Recheck Debugging Helper Availability</source>
         <translation type="obsolete">Prověřit dostupnost pomocné knihovny pro výstup dat o ladění</translation>
-    </message>
-    <message>
-        <source>Synchronize Breakpoints</source>
-        <translation>Seřídit body přerušení</translation>
     </message>
     <message>
         <source>Use Precise Breakpoints</source>
@@ -4416,74 +3532,11 @@ Qt Creator se k němu nemůže připojit.</translation>
         <translation>Při ladění ukáže v okně zásobníku sloupec s adresami.</translation>
     </message>
     <message>
-        <source>Use debugging helper</source>
-        <translation type="obsolete">Používat pomocnou knihovnu pro výstup dat</translation>
-    </message>
-    <message>
-        <source>Debug debugging helper</source>
-        <translation type="obsolete">Verze ladění pomocné knihovny pro výstup dat o ladění</translation>
-    </message>
-    <message>
-        <source>Use code model</source>
-        <translation type="obsolete">Použít model kódu</translation>
-    </message>
-    <message>
-        <source>Recheck debugging helper availability</source>
-        <translation type="obsolete">Prověřit dostupnost pomocné knihovny pro výstup dat o ladění</translation>
-    </message>
-    <message>
-        <source>Synchronize breakpoints</source>
-        <translation type="obsolete">Seřídit body přerušení</translation>
-    </message>
-    <message>
-        <source>Automatically quit debugger</source>
-        <translation type="obsolete">Automaticky ukončit ladicí program</translation>
-    </message>
-    <message>
-        <source>List source files</source>
-        <translation type="obsolete">Ukázat zdrojové soubory</translation>
-    </message>
-    <message>
-        <source>Skip known frames</source>
-        <translation type="obsolete">Přeskočit známá místa</translation>
-    </message>
-    <message>
-        <source>Enable reverse debugging</source>
-        <translation type="obsolete">Zapnout obrácené ladění</translation>
-    </message>
-    <message>
-        <source>Reload full stack</source>
-        <translation type="obsolete">Nahrát znovu úplný zásobník</translation>
-    </message>
-    <message>
-        <source>Execute line</source>
-        <translation type="obsolete">Provést řádek</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggingHelperOptionPage</name>
-    <message>
-        <source>Debugging Helper</source>
-        <translation type="obsolete">Pomocná knihovna pro výstup dat o ladění</translation>
-    </message>
-    <message>
-        <source>Choose DebuggingHelper Location</source>
-        <translation type="obsolete">Vybrat umístění pro pomocnou knihovnu pro výstup dat o ladění</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+F11</source>
-        <translation type="obsolete">Ctrl+Shift+F11</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;The debugging helper is only used to produce a nice display of objects of certain types like QString or std::map in the &amp;quot;Locals and Expressions&amp;quot; view. It is not strictly necessary for debugging with Qt Creator. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;Pomocný ladicí program slouží pouze pro přehledné zobrazení objektů určitého typu jako QString nebo std::map v okně &quot;Místní proměnné a sledované výrazy&quot;.&lt;/p&gt;
 &lt;p&gt; K ladění s Qt Creatorem však není bezpodmínečně požadován. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Use Debugging Helper</source>
-        <translation>Používat pomocný ladicí program</translation>
     </message>
     <message>
         <source>Makes use of Qt Creator&apos;s code model to find out if a variable has already been assigned a value at the point the debugger interrupts.</source>
@@ -4525,89 +3578,9 @@ Qt Creator se k němu nemůže připojit.</translation>
         <source>Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with &apos;-qtnamespace&apos;.</source>
         <translation>Ukázat předponu jmenného prostoru Qt pro datové typy Qt. Toto má význam jen tehdy, když Qt bylo nastaveno s &apos;-qtnamespace&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbEngine</name>
     <message>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
         <translation type="obsolete">Spuštění procesu Gdb se nezdařilo. Buď chybí spustitelný soubor &apos;%1&apos;, nebo nemáte dostatečná oprávnění pro spuštění programu.</translation>
-    </message>
-    <message>
-        <source>The Gdb process crashed some time after starting successfully.</source>
-        <translation type="obsolete">
-Proces Gdb po úspěšném spuštění za nějakou dobu spadl.</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>Došlo k překročení času u poslední funkce waitFor...(). Stav QProcess je nezměněn, a tak se můžete pokusit zavolat waitFor...() ještě jednou.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to write to the Gdb process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation type="obsolete">Při pokusu o zápis do procesu Gdb se vyskytla chyba. Pravděpodobně proces neběží, nebo zavřel svůj vstupní kanál.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to read from the Gdb process. For example, the process may not be running.</source>
-        <translation type="obsolete">Při pokusu o čtení z procesu Gdb se vyskytla chyba. Pravděpodobně proces neběží.</translation>
-    </message>
-    <message>
-        <source>An unknown error in the Gdb process occurred. </source>
-        <translation type="obsolete">V Gdb procesu se vyskytla neznámá chyba.</translation>
-    </message>
-    <message>
-        <source>Library %1 loaded.</source>
-        <translation type="obsolete">Knihovna %1 nahrána.</translation>
-    </message>
-    <message>
-        <source>Library %1 unloaded.</source>
-        <translation type="obsolete">Knihovna %1 vyložena.</translation>
-    </message>
-    <message>
-        <source>Thread group %1 created.</source>
-        <translation type="obsolete">Skupina vlákna %1 vytvořena.</translation>
-    </message>
-    <message>
-        <source>Thread %1 created.</source>
-        <translation type="obsolete">Vlákno %1 vytvořeno.</translation>
-    </message>
-    <message>
-        <source>Thread group %1 exited.</source>
-        <translation type="obsolete">Skupina vlákna %1 ukončena.</translation>
-    </message>
-    <message>
-        <source>Thread %1 in group %2 exited.</source>
-        <translation type="obsolete">Vlákno %1 ve skupině %2 ukončeno.</translation>
-    </message>
-    <message>
-        <source>Thread %1 selected.</source>
-        <translation type="obsolete">Vlákno %1 vybráno.</translation>
-    </message>
-    <message>
-        <source>Stopping temporarily.</source>
-        <translation type="obsolete">Dočasně se zastavuje.</translation>
-    </message>
-    <message>
-        <source>Reading %1...</source>
-        <translation>Probíhá čtení %1...</translation>
-    </message>
-    <message>
-        <source>Jumped. Stopped.</source>
-        <translation type="obsolete">Proveden skok. Zastaveno.</translation>
-    </message>
-    <message>
-        <source>Loading %1...</source>
-        <translation type="obsolete">Nahrává se %1...</translation>
-    </message>
-    <message>
-        <source>Stopped at breakpoint.</source>
-        <translation type="obsolete">Zastaveno na bodu přerušení.</translation>
-    </message>
-    <message>
-        <source>Stopped: &quot;%1&quot;</source>
-        <translation type="obsolete">Zastaveno: &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>The debugger you are using identifies itself as:</source>
-        <translation type="obsolete">Používaným ladicím programem je:</translation>
     </message>
     <message>
         <source>This version is not officially supported by Qt Creator.
@@ -4660,36 +3633,6 @@ Můžete si vybrat mezi delším čekáním nebo přerušením ladění.</transl
         <translation>Chyba při provádění: %1</translation>
     </message>
     <message>
-        <source>Program exited with exit code %1.</source>
-        <translation type="obsolete">Program byl ukončen. Vrácená hodnota %1.</translation>
-    </message>
-    <message>
-        <source>Program exited after receiving signal %1.</source>
-        <translation type="obsolete">Program byl ukončen po obdržení signálu %1.</translation>
-    </message>
-    <message>
-        <source>Program exited normally.</source>
-        <translation type="obsolete">Program byl ukončen obvyklým způsobem.</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;The inferior stopped because it received a signal from the Operating System.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation type="obsolete">&lt;p&gt;Proces byl po obdržení signálu z operačního systému zastaven&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Název signálu: &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Význam signálu: &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
-    </message>
-    <message>
-        <source> &lt;Unknown&gt; </source>
-        <comment>name</comment>
-        <translation type="obsolete"> &lt;Neznámý&gt; </translation>
-    </message>
-    <message>
-        <source> &lt;Unknown&gt; </source>
-        <comment>meaning</comment>
-        <translation type="obsolete"> &lt;Neznámý&gt; </translation>
-    </message>
-    <message>
-        <source>Signal received</source>
-        <translation type="obsolete">Signál obdržen</translation>
-    </message>
-    <message>
         <source>Stopped.</source>
         <translation>Zastaveno.</translation>
     </message>
@@ -4710,10 +3653,6 @@ Můžete si vybrat mezi delším čekáním nebo přerušením ladění.</transl
     <message>
         <source>Continuing after temporary stop...</source>
         <translation>Pokračuje se po dočasném zastavení...</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation>Požadováno pokračování...</translation>
     </message>
     <message>
         <source>The gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.
@@ -4770,31 +3709,6 @@ Zkuste: %2</translation>
     <message>
         <source>The gdb process terminated unexpectedly (code %1)</source>
         <translation>Proces gdb byl neočekávaně ukončen (kód %1)</translation>
-    </message>
-    <message>
-        <source>This does not seem to be a &quot;Debug&quot; build.
-Setting breakpoints by file name and line number may fail.
-</source>
-        <translation type="obsolete">Zdá se, že toto není sestavení &quot;Debug&quot;.
-Nastavení bodů přerušení podle názvů souborů a čísel řádků může selhat.</translation>
-    </message>
-    <message>
-        <source>Found.</source>
-        <translation type="obsolete">Nalezeno.</translation>
-    </message>
-    <message>
-        <source>Not Found.</source>
-        <translation type="obsolete">Nenalezeno.</translation>
-    </message>
-    <message>
-        <source>
-Section %1: %2</source>
-        <translation type="obsolete">
-Část %1: %2</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="obsolete">Varování</translation>
     </message>
     <message>
         <source>The gdb process could not be stopped:
@@ -4927,12 +3841,6 @@ Můžete si vybrat mezi delším čekáním nebo přerušením ladění.</numeru
         <translation>Nastavuje se laděný proces...</translation>
     </message>
     <message>
-        <source>&lt;unknown&gt;</source>
-        <comment>address</comment>
-        <extracomment>End address of loaded module</extracomment>
-        <translation type="obsolete"> &lt;Neznámý&gt; </translation>
-    </message>
-    <message>
         <source>Jumping out of bogus frame...</source>
         <translation type="obsolete">Opouští se neplatný rámeček zásobníku...</translation>
     </message>
@@ -4997,10 +3905,6 @@ Můžete si vybrat mezi delším čekáním nebo přerušením ladění.</numeru
         <translation>Vlákno %1 vybráno</translation>
     </message>
     <message>
-        <source>&lt;unknown&gt;</source>
-        <translation type="obsolete">&lt;Neznámá&gt;</translation>
-    </message>
-    <message>
         <source>Jumped. Stopped</source>
         <translation>Proveden skok. Zastaveno</translation>
     </message>
@@ -5035,10 +3939,6 @@ Můžete si vybrat mezi delším čekáním nebo přerušením ladění.</numeru
     <message>
         <source>There is no gdb binary available for &apos;%1&apos;</source>
         <translation type="obsolete">Gdb: Nebyl uveden žádný spustitelný soubor pro &apos;%1&apos;</translation>
-    </message>
-    <message>
-        <source>Launching</source>
-        <translation type="obsolete">Spouští se</translation>
     </message>
     <message>
         <source>Immediate return from function requested...</source>
@@ -5077,18 +3977,6 @@ Chcete zastavit laděný proces a nahrát vybraný snímek?</translation>
         <translation>Obdržena všechna data</translation>
     </message>
     <message>
-        <source>crashed</source>
-        <translation type="obsolete">spadl</translation>
-    </message>
-    <message>
-        <source>code %1</source>
-        <translation type="obsolete">Vrácená hodnota %1</translation>
-    </message>
-    <message>
-        <source>Adapter start failed</source>
-        <translation>Spuštění adaptéru se nepodařilo</translation>
-    </message>
-    <message>
         <source>Starting inferior...</source>
         <translation type="obsolete">Spouští se laděný proces...</translation>
     </message>
@@ -5099,10 +3987,6 @@ Chcete zastavit laděný proces a nahrát vybraný snímek?</translation>
     <message>
         <source>Failed to start application: </source>
         <translation>Program se nepodařilo spustit: </translation>
-    </message>
-    <message>
-        <source>Failed to start application</source>
-        <translation>Program se nepodařilo spustit</translation>
     </message>
     <message>
         <source>Inferior start failed</source>
@@ -5193,10 +4077,6 @@ Můžete nastavit proměnnou prostředí PYTHONPATH, aby ukazovala na vaši inst
         <translation>Není přístupný souboru se skriptem jenž je podle nastaveních ladicího programu umístěn na &apos;%1&apos;. Pokud není potřeba žádný skript, zvažte navrácení nastavení zpět, aby se předešlo tomuto upozornění.</translation>
     </message>
     <message>
-        <source>Unable to run &apos;%1&apos;: %2</source>
-        <translation type="obsolete">&apos;%1&apos; nelze spustit: %2</translation>
-    </message>
-    <message>
         <source>Retrieving data for stack view...</source>
         <translation>Přijímají se data s údaji o zásobníku...</translation>
     </message>
@@ -5206,15 +4086,6 @@ Můžete nastavit proměnnou prostředí PYTHONPATH, aby ukazovala na vaši inst
             <numerusform>Přijímají se data pro zobrazení místních proměnných (ještě jeden zbývající dotaz)...</numerusform>
             <numerusform>Přijímají se data pro zobrazení místních proměnných (%n zbývající dotazy)...</numerusform>
             <numerusform>Přijímají se data pro zobrazení místních proměnných (%n zbývající dotazy)...</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>&lt;%n items&gt;</source>
-        <extracomment>In string list</extracomment>
-        <translation>
-            <numerusform>&lt;Jeden prvek&gt;</numerusform>
-            <numerusform>&lt;%n prvky&gt;</numerusform>
-            <numerusform>&lt;%n prvky&gt;</numerusform>
         </translation>
     </message>
     <message>
@@ -5261,9 +4132,6 @@ To může dávat nesprávné výsledky.</translation>
         <extracomment>About variable&apos;s value</extracomment>
         <translation>&lt;žádné údaje&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbOptionsPage</name>
     <message>
         <source>Gdb</source>
         <translation type="obsolete">Gdb</translation>
@@ -5271,10 +4139,6 @@ To může dávat nesprávné výsledky.</translation>
     <message>
         <source>Choose Gdb Location</source>
         <translation type="obsolete">Vybrat umístění Gdb</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation>Obecné</translation>
     </message>
     <message>
         <source>GDB timeout:</source>
@@ -5425,14 +4289,6 @@ souboru .gdbinit při spuštění ladicího programu.</translation>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Pokračuje v ladění všech potomků po rozvětvení procesu - fork().&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Warn when debugging &quot;Release&quot; builds</source>
-        <translation type="obsolete">Varovat při ladění sestavení, která představují vydání (Release)</translation>
-    </message>
-    <message>
-        <source>Show a warning when starting the debugger on a binary with insufficient debug information.</source>
-        <translation type="obsolete">Ukázat varování při spuštění ladění pro spustitelný soubor s nedostatečnými ladicími informacemi.</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Add common paths to locations of debug information such as &lt;i&gt;/usr/src/debug&lt;/i&gt; when starting GDB.&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Přidat při spuštění GDB obvyklou cestu k umístěním s ladicími informacemi, jako např. &lt;i&gt;/usr/src/debug&lt;/i&gt;.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -5557,62 +4413,6 @@ informacemi o ladění.</translation>
         <source>Choose Location of Startup Script File</source>
         <translation type="obsolete">Vybrat umístění souboru se spouštěcím skriptem</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::ModulesModel</name>
-    <message>
-        <source>yes</source>
-        <translation type="obsolete">Ano</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="obsolete">Ne</translation>
-    </message>
-    <message>
-        <source>Module name</source>
-        <translation type="obsolete">Název modulu</translation>
-    </message>
-    <message>
-        <source>Module path</source>
-        <translation type="obsolete">Cesta k modulu</translation>
-    </message>
-    <message>
-        <source>Symbols read</source>
-        <translation type="obsolete">Symboly přečteny</translation>
-    </message>
-    <message>
-        <source>Symbols type</source>
-        <translation type="obsolete">Typ symbolu</translation>
-    </message>
-    <message>
-        <source>Start address</source>
-        <translation type="obsolete">Počáteční adresa</translation>
-    </message>
-    <message>
-        <source>End address</source>
-        <translation type="obsolete">Koncová adresa</translation>
-    </message>
-    <message>
-        <source>unknown</source>
-        <translation type="obsolete">Neznámý</translation>
-    </message>
-    <message>
-        <source>plain</source>
-        <translation type="obsolete">Prostá</translation>
-    </message>
-    <message>
-        <source>fast</source>
-        <translation type="obsolete">Rychlá</translation>
-    </message>
-    <message>
-        <source>&lt;unknown&gt;</source>
-        <comment>address</comment>
-        <extracomment>End address of loaded module</extracomment>
-        <translation type="obsolete">&lt;Neznámá&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::ModulesWindow</name>
     <message>
         <source>Modules</source>
         <translation>Moduly</translation>
@@ -5620,14 +4420,6 @@ informacemi o ladění.</translation>
     <message>
         <source>Update module list</source>
         <translation type="obsolete">Obnovit seznam s moduly</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">Přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">Vždy přizpůsobit šířku sloupců obsahu</translation>
     </message>
     <message>
         <source>Show source files for module &quot;%1&quot;</source>
@@ -5662,81 +4454,6 @@ informacemi o ladění.</translation>
         <translation type="obsolete">Ukázat symboly v souboru &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>Update Module List</source>
-        <translation type="obsolete">Obnovit seznam modulů</translation>
-    </message>
-    <message>
-        <source>Show Source Files for Module &quot;%1&quot;</source>
-        <translation type="obsolete">Ukázat zdrojové soubory k modulu &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Load Symbols for All Modules</source>
-        <translation type="obsolete">Nahrát symboly ke všem modulům</translation>
-    </message>
-    <message>
-        <source>Examine All Modules</source>
-        <translation type="obsolete">Vyšetřit všechny moduly</translation>
-    </message>
-    <message>
-        <source>Load Symbols for Module</source>
-        <translation type="obsolete">Nahrát symboly k modulu</translation>
-    </message>
-    <message>
-        <source>Edit File</source>
-        <translation type="obsolete">Upravit soubor</translation>
-    </message>
-    <message>
-        <source>Show Symbols</source>
-        <translation type="obsolete">Ukázat symboly</translation>
-    </message>
-    <message>
-        <source>Show Dependencies</source>
-        <translation type="obsolete">Ukázat závislosti</translation>
-    </message>
-    <message>
-        <source>Load Symbols for Module &quot;%1&quot;</source>
-        <translation type="obsolete">Nahrát symboly k modulu &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Edit File &quot;%1&quot;</source>
-        <translation type="obsolete">Upravit soubor &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Show Symbols in File &quot;%1&quot;</source>
-        <translation type="obsolete">Ukázat symboly v souboru &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Show Dependencies of &quot;%1&quot;</source>
-        <translation type="obsolete">Ukázat závislosti &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Vždy přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="obsolete">Adresa</translation>
-    </message>
-    <message>
-        <source>Code</source>
-        <translation type="obsolete">Kód</translation>
-    </message>
-    <message>
-        <source>Symbol</source>
-        <translation type="obsolete">Symbol</translation>
-    </message>
-    <message>
-        <source>Symbols in &quot;%1&quot;</source>
-        <translation type="obsolete">Symboly v &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::OutputCollector</name>
-    <message>
         <source>Cannot create temporary file: %1</source>
         <translation>Nepodařilo se vytvořit žádný dočasný soubor: %1</translation>
     </message>
@@ -5748,102 +4465,17 @@ informacemi o ladění.</translation>
         <source>Cannot open FiFo %1: %2</source>
         <translation>FiFo %1 se nepodařilo otevřít: %2</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::RegisterHandler</name>
-    <message>
-        <source>Name</source>
-        <translation>Název</translation>
-    </message>
     <message>
         <source>Value (Base %1)</source>
         <translation>Hodnota (základ %1)</translation>
     </message>
     <message>
-        <source>Value (base %1)</source>
-        <translation type="obsolete">Hodnota (základ %1)</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::RegisterWindow</name>
-    <message>
         <source>Registers</source>
         <translation>Registry</translation>
     </message>
     <message>
-        <source>Open memory editor</source>
-        <translation type="obsolete">Otevřít editor paměti</translation>
-    </message>
-    <message>
-        <source>Open memory editor at %1</source>
-        <translation type="obsolete">Otevřít editor paměti u %1</translation>
-    </message>
-    <message>
-        <source>Reload Register Listing</source>
-        <translation type="obsolete">Registry nahrát znovu</translation>
-    </message>
-    <message>
-        <source>Open Disassembler...</source>
-        <translation type="obsolete">Otevřít disasembler...</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at 0x%1</source>
-        <translation type="obsolete">Otevřít editor paměti při 0x%1</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Value of Register %1 0x%2</source>
-        <translation type="obsolete">Otevřít náhled paměti při hodnotě registru %1 0x%2</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at 0x%1</source>
-        <translation type="obsolete">Otevřít disasembler při %1</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor</source>
-        <translation type="obsolete">Otevřít editor paměti</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Value of Register</source>
-        <translation type="obsolete">Otevřít náhled paměti při hodnotě registru</translation>
-    </message>
-    <message>
-        <source>Open Disassembler</source>
-        <translation type="obsolete">Otevřít disasembler</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at %1</source>
-        <translation type="obsolete">Otevřít editor paměti u %1</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Vždy přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">Přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">Vždy přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Reload register listing</source>
-        <translation type="obsolete">Registry nahrát znovu</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::ScriptEngine</name>
-    <message>
         <source>Error:</source>
         <translation>Chyba:</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation>Požadováno pokračování...</translation>
     </message>
     <message>
         <source>&apos;%1&apos; contains no identifier.</source>
@@ -5854,32 +4486,9 @@ informacemi o ladění.</translation>
         <translation>Řetězec znaků tvořený písmeny %1.</translation>
     </message>
     <message>
-        <source>Cowardly refusing to evaluate expression &apos;%1&apos; with potential side effects.</source>
-        <translation>Nevyhodnocovat výraz &apos;%1&apos; s možnými postranními účinky.</translation>
-    </message>
-    <message>
-        <source>&apos;%1&apos; contains no identifier</source>
-        <translation type="obsolete">&apos;%1&apos; neobsahuje žádný identifikátor</translation>
-    </message>
-    <message>
-        <source>String literal %1</source>
-        <translation type="obsolete">Řetězec znaků tvořený písmeny %1</translation>
-    </message>
-    <message>
-        <source>Cowardly refusing to evaluate expression &apos;%1&apos; with potential side effects</source>
-        <translation type="obsolete">Nevyhodnocovat výraz &apos;%1&apos; s možnými postranními účinky</translation>
-    </message>
-    <message>
         <source>Stopped at %1:%2.</source>
         <translation>Zastaveno při %1:%2.</translation>
     </message>
-    <message>
-        <source>Stopped.</source>
-        <translation>Zastaveno.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::SourceFilesModel</name>
     <message>
         <source>Internal name</source>
         <translation type="obsolete">Vnitřní název</translation>
@@ -5888,40 +4497,10 @@ informacemi o ladění.</translation>
         <source>Full name</source>
         <translation type="obsolete">Úplný název</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::SourceFilesWindow</name>
     <message>
         <source>Source Files</source>
         <translation>Zdrojové soubory</translation>
     </message>
-    <message>
-        <source>Reload Data</source>
-        <translation type="obsolete">Data nahrát znovu</translation>
-    </message>
-    <message>
-        <source>Open File</source>
-        <translation type="obsolete">Otevřít soubor</translation>
-    </message>
-    <message>
-        <source>Open File &quot;%1&quot;&apos;</source>
-        <translation type="obsolete">Otevřít soubor &quot;%1&quot;&apos;</translation>
-    </message>
-    <message>
-        <source>Reload data</source>
-        <translation type="obsolete">Data nahrát znovu</translation>
-    </message>
-    <message>
-        <source>Open file</source>
-        <translation type="obsolete">Otevřít soubor</translation>
-    </message>
-    <message>
-        <source>Open file &quot;%1&quot;&apos;</source>
-        <translation type="obsolete">Otevřít soubor &quot;%1&quot;&apos;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::StackHandler</name>
     <message>
         <source>...</source>
         <translation>...</translation>
@@ -5933,14 +4512,6 @@ informacemi o ladění.</translation>
     <message>
         <source>Address:</source>
         <translation>Adresa:</translation>
-    </message>
-    <message>
-        <source>Function:</source>
-        <translation>Funkce:</translation>
-    </message>
-    <message>
-        <source>File:</source>
-        <translation>Soubor:</translation>
     </message>
     <message>
         <source>Line:</source>
@@ -5991,270 +4562,6 @@ informacemi o ladění.</translation>
         <translation>Úroveň</translation>
     </message>
     <message>
-        <source>Function</source>
-        <translation>Funkce</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Soubor</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>Řádek</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adresa</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::StackWindow</name>
-    <message>
-        <source>Stack</source>
-        <translation>Zásobník</translation>
-    </message>
-    <message>
-        <source>Function:</source>
-        <translation type="obsolete">Funkce:</translation>
-    </message>
-    <message>
-        <source>Disassemble Function</source>
-        <translation type="obsolete">Rozložit funkci (disassemble)</translation>
-    </message>
-    <message>
-        <source>Copy Contents to Clipboard</source>
-        <translation type="obsolete">Obsah kopírovat do schránky</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor</source>
-        <translation type="obsolete">Otevřít editor paměti</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at 0x%1</source>
-        <translation type="obsolete">Otevřít editor paměti při 0x%1</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at Address...</source>
-        <translation type="obsolete">Otevřít disasembler na adrese...</translation>
-    </message>
-    <message>
-        <source>Disassemble Function...</source>
-        <translation type="obsolete">Rozložit funkci (disassemble)...</translation>
-    </message>
-    <message>
-        <source>Open Disassembler...</source>
-        <translation type="obsolete">Otevřít překladač ze strojového jazyka do asembleru...</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at 0x%1</source>
-        <translation type="obsolete">Otevřít disasembler při %1</translation>
-    </message>
-    <message>
-        <source>Try to Load Unknown Symbols</source>
-        <translation type="obsolete">Nahrát neznámé symboly</translation>
-    </message>
-    <message>
-        <source>Memory at Frame #%1 (%2) 0x%3</source>
-        <translation type="obsolete">Paměť při snímku #%1 (%2) 0x%3</translation>
-    </message>
-    <message>
-        <source>Frame #%1 (%2)</source>
-        <translation type="obsolete">Snímek #%1 (%2)</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at %1</source>
-        <translation type="obsolete">Otevřít editor paměti u %1</translation>
-    </message>
-    <message>
-        <source>Open Disassembler</source>
-        <translation type="obsolete">Otevřít disasembler</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at %1</source>
-        <translation type="obsolete">Otevřít překladač ze strojového jazyka do asembleru v %1</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Vždy přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Copy contents to clipboard</source>
-        <translation type="obsolete">Obsah kopírovat do schránky</translation>
-    </message>
-    <message>
-        <source>Open memory editor</source>
-        <translation type="obsolete">Otevřít editor paměti</translation>
-    </message>
-    <message>
-        <source>Open memory editor at %1</source>
-        <translation type="obsolete">Otevřít editor paměti u %1</translation>
-    </message>
-    <message>
-        <source>Open disassembler</source>
-        <translation type="obsolete">Otevřít překladač ze strojového jazyka do asembleru</translation>
-    </message>
-    <message>
-        <source>Open disassembler at %1</source>
-        <translation type="obsolete">Otevřít překladač ze strojového jazyka do asembleru v %1</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">Přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">Vždy přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::StartExternalDialog</name>
-    <message>
-        <source>Select Executable</source>
-        <translation type="obsolete">Vybrat spustitelný soubor</translation>
-    </message>
-    <message>
-        <source>Select Working Directory</source>
-        <translation type="obsolete">Vyberte pracovní adresář</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation type="obsolete">Spustitelný soubor:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">Argumenty:</translation>
-    </message>
-    <message>
-        <source>Start Debugger</source>
-        <translation type="obsolete">Spustit ladicí program</translation>
-    </message>
-    <message>
-        <source>&amp;Executable:</source>
-        <translation type="obsolete">&amp;Spustitelný soubor:</translation>
-    </message>
-    <message>
-        <source>&amp;Arguments:</source>
-        <translation type="obsolete">&amp;Argumenty:</translation>
-    </message>
-    <message>
-        <source>Run in &amp;terminal:</source>
-        <translation type="obsolete">Spustit v &amp;terminálu:</translation>
-    </message>
-    <message>
-        <source>&amp;Working directory:</source>
-        <translation type="obsolete">&amp;Pracovní adresář:</translation>
-    </message>
-    <message>
-        <source>&amp;Tool chain:</source>
-        <translation type="obsolete">Sada &amp;nástrojů:</translation>
-    </message>
-    <message>
-        <source>Break at &apos;&amp;main&apos;:</source>
-        <translation type="obsolete">Bod přerušení při &apos;&amp;main&apos;:</translation>
-    </message>
-    <message>
-        <source>&amp;Recent:</source>
-        <translation type="obsolete">&amp;Poslední:</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::StartRemoteDialog</name>
-    <message>
-        <source>Select Debugger</source>
-        <translation type="obsolete">Vybrat ladicí program</translation>
-    </message>
-    <message>
-        <source>Select Location of Debugging Information</source>
-        <translation type="obsolete">Vybrat umístění informací o ladění</translation>
-    </message>
-    <message>
-        <source>Select Executable</source>
-        <translation type="obsolete">Vybrat spustitelný soubor</translation>
-    </message>
-    <message>
-        <source>Select Sysroot</source>
-        <translation type="obsolete">Vybrat Sysroot</translation>
-    </message>
-    <message>
-        <source>Select GDB Start Script</source>
-        <translation type="obsolete">Vybrat spouštěcí skript GDB</translation>
-    </message>
-    <message>
-        <source>Select Server Start Script</source>
-        <translation type="obsolete">Vybrat spouštěcí skript k serveru</translation>
-    </message>
-    <message>
-        <source>Remote: &quot;%1&quot;</source>
-        <translation type="obsolete">Vzdálený: &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Select Start Script</source>
-        <translation type="obsolete">Vybrat spouštěcí skript</translation>
-    </message>
-    <message>
-        <source>Start Debugger</source>
-        <translation type="obsolete">Spustit ladicí program</translation>
-    </message>
-    <message>
-        <source>Tool &amp;chain:</source>
-        <translation type="obsolete">S&amp;ada nástrojů:</translation>
-    </message>
-    <message>
-        <source>Local &amp;executable:</source>
-        <translation type="obsolete">&amp;Místní spustitelný soubor:</translation>
-    </message>
-    <message>
-        <source>&amp;Host and port:</source>
-        <translation type="obsolete">&amp;Hostitelský počítač a číslo portu:</translation>
-    </message>
-    <message>
-        <source>&amp;Architecture:</source>
-        <translation type="obsolete">&amp;Architektura:</translation>
-    </message>
-    <message>
-        <source>Sys&amp;root:</source>
-        <translation type="obsolete">Sys&amp;root:</translation>
-    </message>
-    <message>
-        <source>Location of debugging &amp;information:</source>
-        <translation type="obsolete">Umístění &amp;informací o ladění:</translation>
-    </message>
-    <message>
-        <source>Override host GDB s&amp;tart script:</source>
-        <translation type="obsolete">Přepsat &amp;spouštěcí skript GDB na hostiteli:</translation>
-    </message>
-    <message>
-        <source>&amp;Use server start script:</source>
-        <translation type="obsolete">&amp;Použít spouštěcí skript k serveru:</translation>
-    </message>
-    <message>
-        <source>&amp;Server start script:</source>
-        <translation type="obsolete">Spouštěcí skript k &amp;serveru:</translation>
-    </message>
-    <message>
-        <source>&amp;Recent:</source>
-        <translation type="obsolete">&amp;Poslední:</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::ThreadsHandler</name>
-    <message>
-        <source>Thread: %1</source>
-        <translation type="obsolete">Vlákno: %1</translation>
-    </message>
-    <message>
-        <source>Thread: %1 at %2 (0x%3)</source>
-        <translation type="obsolete">Vlákno: %1 u %2 (0x%3)</translation>
-    </message>
-    <message>
-        <source>Thread: %1 at %2, %3:%4 (0x%5)</source>
-        <translation type="obsolete">Vlákno: %1 u %2, %3:%4 (0x%5)</translation>
-    </message>
-    <message>
         <source>Thread&amp;nbsp;id:</source>
         <translation>ID vlákna:</translation>
     </message>
@@ -6265,14 +4572,6 @@ informacemi o ladění.</translation>
     <message>
         <source>Group&amp;nbsp;id:</source>
         <translation>ID&amp;nbsp;skupiny:</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Název:</translation>
-    </message>
-    <message>
-        <source>State:</source>
-        <translation>Stav:</translation>
     </message>
     <message>
         <source>Core:</source>
@@ -6295,16 +4594,8 @@ informacemi o ladění.</translation>
         <translation>Funkce</translation>
     </message>
     <message>
-        <source>File</source>
-        <translation>Soubor</translation>
-    </message>
-    <message>
         <source>Line</source>
         <translation>Řádek</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adresa</translation>
     </message>
     <message>
         <source>Core</source>
@@ -6326,36 +4617,6 @@ informacemi o ladění.</translation>
         <source>Name</source>
         <translation>Název</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::ThreadsWindow</name>
-    <message>
-        <source>Thread</source>
-        <translation type="obsolete">Vlákno</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Vždy přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">Přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">Vždy přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Threads</source>
-        <translation>Vlákna</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>
@@ -6581,14 +4842,6 @@ informacemi o ladění.</translation>
         <translation>Obnovit stav modelu kódu</translation>
     </message>
     <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Vždy přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
         <source>Change format for type &apos;%1&apos;</source>
         <translation type="obsolete">Změnit formát pro typ &apos;%1&apos;</translation>
     </message>
@@ -6625,20 +4878,9 @@ informacemi o ladění.</translation>
         <translation type="obsolete">Obnovit stav modelu kódu</translation>
     </message>
     <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">Přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">Vždy přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
         <source>Insert new watch item</source>
         <translation type="obsolete">Vložit nový sledovaný výraz</translation>
     </message>
-</context>
-<context>
-    <name>DebuggerPane</name>
     <message>
         <source>Clear contents</source>
         <translation type="obsolete">Smazat obsah</translation>
@@ -6648,78 +4890,8 @@ informacemi o ladění.</translation>
         <translation type="obsolete">Uložit obsah</translation>
     </message>
     <message>
-        <source>Clear Contents</source>
-        <translation type="obsolete">Smazat obsah</translation>
-    </message>
-    <message>
-        <source>Save Contents</source>
-        <translation type="obsolete">Uložit obsah</translation>
-    </message>
-</context>
-<context>
-    <name>DebuggingHelperOptionPage</name>
-    <message>
         <source>This will enable nice display of Qt and Standard Library objects in the Locals&amp;Watchers view</source>
         <translation type="obsolete">Toto nastavení umožní hezké zobrazení Qt a běžných knihovních předmětů v pohledu &quot;Místní proměnné a &amp;sledované výrazy&quot;</translation>
-    </message>
-    <message>
-        <source>Use debugging helper</source>
-        <translation type="obsolete">Používat pomocnou knihovnu pro výstup dat</translation>
-    </message>
-    <message>
-        <source>This will load a dumper library</source>
-        <translation type="obsolete">Nahraje pomocnou knihovnu pro výstup dat</translation>
-    </message>
-    <message>
-        <source>Use debugging helper from custom location</source>
-        <translation type="obsolete">Používat pomocnou knihovnu pro výstup dat o ladění z vlastního umístění</translation>
-    </message>
-    <message>
-        <source>Location: </source>
-        <translation type="obsolete">Umístění:</translation>
-    </message>
-    <message>
-        <source>Debug debugging helper</source>
-        <translation type="obsolete">Verze ladění pomocné knihovny pro výstup dat o ladění</translation>
-    </message>
-    <message>
-        <source>Debugging helper</source>
-        <translation type="obsolete">Pomocná knihovna pro výstup dat o ladění</translation>
-    </message>
-    <message>
-        <source>Makes use of Qt Creator&apos;s code model to find out if a variable has already been assigned a value at the point the debugger interrupts.</source>
-        <translation type="obsolete">Používá kódový model Qt Creatoru, aby našel, zda proměnná již má nějakou hodnotu na místě přerušení ladicím programem.</translation>
-    </message>
-    <message>
-        <source>Use code model</source>
-        <translation type="obsolete">Použít model kódu</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;The debugging helper is only used to produce a nice display of objects of certain types like QString or std::map in the &amp;quot;Locals and Watchers&amp;quot; view.&lt;/p&gt;
-&lt;p&gt; It is not strictly necessary for debugging with Qt Creator. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;Pomocná knihovna pro výstup dat slouží pouze pro hezké zobrazení předmětů určitého typu jako QString nebo std::map v okně &amp;quot;Místní proměnné a sledované výrazy&amp;quot;.&lt;/p&gt;
-&lt;p&gt; K ladění s Qt Creatorem však není bezpodmínečně požadována. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Use Debugging Helper</source>
-        <translation type="obsolete">Používat pomocnou knihovnu pro výstup dat</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;The debugging helper is only used to produce a nice display of objects of certain types like QString or std::map in the &amp;quot;Locals and Expressions&amp;quot; view. It is not strictly necessary for debugging with Qt Creator. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;Pomocná knihovna pro výstup dat slouží pouze pro hezké zobrazení objektů určitého typu jako QString nebo std::map v okně &amp;quot;Místní proměnné a sledované výrazy&amp;quot;.&lt;/p&gt;
-&lt;p&gt; K ladění s Qt Creatorem však není bezpodmínečně požadována. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Displays names of QThread based threads.</source>
-        <translation type="obsolete">Zobrazí názvy vláken založených na QThread.</translation>
-    </message>
-    <message>
-        <source>Display thread names</source>
-        <translation type="obsolete">Zobrazit názvy vláken</translation>
     </message>
 </context>
 <context>
@@ -8407,10 +6579,6 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <translation type="obsolete">Gdb</translation>
     </message>
     <message>
-        <source>Enable reverse debugging</source>
-        <translation type="obsolete">Zapnout obrácené ladění</translation>
-    </message>
-    <message>
         <source>When this option is checked, &apos;Step Into&apos; compresses several steps into one in certain situations, leading to &apos;less noisy&apos; debugging. So will, e.g., the atomic
  reference counting code be skipped, and a single &apos;Step Into&apos; for a signal emission will end up directly in the slot connected to it.</source>
         <translation type="obsolete">Tato volba má za následek, že v určitých situacích sloučí &apos;Jednotlivý krok do&apos; více kroků do jednoho, čímž se ladění uspíší. Například se přeskočí kód počítání atomárních odkazů; a jednotlivý &apos;Krok do&apos; pro vyslání signálu skončí přímo v otvoru s ním spojeném.</translation>
@@ -8856,10 +7024,6 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     <message>
         <source>Select Git Repository</source>
         <translation type="obsolete">Vyberte skladiště Git</translation>
-    </message>
-    <message>
-        <source>Select Working Directory</source>
-        <translation type="obsolete">Vybrat pracovní adresář</translation>
     </message>
     <message>
         <source>Error</source>
@@ -11294,10 +9458,6 @@ Soubory</translation>
     <message>
         <source>The current startup project can not be run.</source>
         <translation type="obsolete">Nynější spustitelný projekt nelze spustit.</translation>
-    </message>
-    <message>
-        <source>Open File</source>
-        <translation type="obsolete">Otevřít soubor</translation>
     </message>
     <message>
         <source>Cannot find special data dumpers</source>
@@ -14207,10 +12367,6 @@ přidat do správy verzí (%2)?</translation>
         <translation type="obsolete">Očekávané projití</translation>
     </message>
     <message>
-        <source>Warning</source>
-        <translation type="obsolete">Varování</translation>
-    </message>
-    <message>
         <source>Qt Warning</source>
         <translation type="obsolete">Varování Qt</translation>
     </message>
@@ -16297,10 +14453,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>Remove Item</source>
         <translation type="obsolete">Odstranit prvek</translation>
-    </message>
-    <message>
-        <source>Open File</source>
-        <translation type="obsolete">Otevřít soubor</translation>
     </message>
     <message>
         <source>Input prefix:</source>
@@ -18843,10 +16995,6 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Formulářový soubor:</translation>
     </message>
     <message>
-        <source>Path:</source>
-        <translation type="obsolete">Cesta:</translation>
-    </message>
-    <message>
         <source>Invalid base class name</source>
         <translation>Název základní třídy je neplatný</translation>
     </message>
@@ -19109,41 +17257,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>s</source>
         <translation>s</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::TrkOptionsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
-    <message>
-        <source>Gdb</source>
-        <translation type="obsolete">Gdb</translation>
-    </message>
-    <message>
-        <source>Symbian ARM gdb location:</source>
-        <translation type="obsolete">Umístění Gdb Symbian ARM:</translation>
-    </message>
-    <message>
-        <source>Communication</source>
-        <translation type="obsolete">Spojení</translation>
-    </message>
-    <message>
-        <source>Serial Port</source>
-        <translation type="obsolete">Sériová přípojka</translation>
-    </message>
-    <message>
-        <source>Bluetooth</source>
-        <translation type="obsolete">Modrozub (Bluetooth)</translation>
-    </message>
-    <message>
-        <source>Port:</source>
-        <translation type="obsolete">Přípojka:</translation>
-    </message>
-    <message>
-        <source>Device:</source>
-        <translation type="obsolete">Zařízení:</translation>
     </message>
 </context>
 <context>
@@ -20014,10 +18127,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation type="obsolete">&amp;Zachovat projekt a otevřít</translation>
     </message>
     <message>
-        <source>Warning</source>
-        <translation type="obsolete">Varování</translation>
-    </message>
-    <message>
         <source>The specified location already exists. Please specify a valid location.</source>
         <translation type="obsolete">Zadané umístění již existuje. Zadejte, prosím, platné umístění.</translation>
     </message>
@@ -20224,10 +18333,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     <message>
         <source>Checkout Directory:</source>
         <translation type="obsolete">Adresář pro přezkoušení (checkout; dostat kopii):</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation type="obsolete">Cesta:</translation>
     </message>
     <message>
         <source>Repository</source>
@@ -21385,48 +19490,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>CdbStackFrameContext</name>
-    <message>
-        <source>&lt;Unknown Type&gt;</source>
-        <translation type="obsolete">&lt;Neznámý typ&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;Unknown Value&gt;</source>
-        <translation type="obsolete">&lt;Neznámá hodnota&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;Unknown&gt;</source>
-        <translation type="obsolete">&lt;Neznámý&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>SymbolGroup</name>
-    <message>
-        <source>Out of scope</source>
-        <translation type="obsolete">Mimo oblast</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::MemoryViewAgent</name>
-    <message>
-        <source>Memory $</source>
-        <translation type="obsolete">Paměť $</translation>
-    </message>
-    <message>
-        <source>No memory viewer available</source>
-        <translation type="obsolete">Není dostupný žádný modul pro prohlížení paměti</translation>
-    </message>
-    <message>
-        <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
-        <translation type="obsolete">Obsah paměti nelze ukázat, protože nebyl nahrán žádný prohlížecí přídavný modul binárních dat.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::AddressDialog</name>
-    <message>
-        <source>Select start address</source>
-        <translation type="obsolete">Vybrat počáteční adresu</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Select Start Address</source>
         <translation>Vybrat počáteční adresu</translation>
@@ -21438,558 +19502,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     <message>
         <source>Enter an address: </source>
         <translation>Zadat adresu: </translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::DebuggerManager</name>
-    <message>
-        <source>Continue</source>
-        <translation type="obsolete">Pokračovat</translation>
-    </message>
-    <message>
-        <source>Interrupt</source>
-        <translation type="obsolete">Přerušit</translation>
-    </message>
-    <message>
-        <source>Reset Debugger</source>
-        <translation type="obsolete">Nastavit znovu ladicí program</translation>
-    </message>
-    <message>
-        <source>Step Over</source>
-        <translation type="obsolete">Krok přes</translation>
-    </message>
-    <message>
-        <source>Step Into</source>
-        <translation type="obsolete">Krok do</translation>
-    </message>
-    <message>
-        <source>Step Out</source>
-        <translation type="obsolete">Krok ven</translation>
-    </message>
-    <message>
-        <source>Run to Line</source>
-        <translation type="obsolete">Provést po řádek</translation>
-    </message>
-    <message>
-        <source>Run to Outermost Function</source>
-        <translation type="obsolete">Provést po nejvzdálenější funkci</translation>
-    </message>
-    <message>
-        <source>Jump to Line</source>
-        <translation type="obsolete">Skočit na řádek</translation>
-    </message>
-    <message>
-        <source>Toggle Breakpoint</source>
-        <translation type="obsolete">Přepnout bod přerušení</translation>
-    </message>
-    <message>
-        <source>Add to Watch Window</source>
-        <translation type="obsolete">Přidat ke sledovaným výrazům</translation>
-    </message>
-    <message>
-        <source>Reverse Direction</source>
-        <translation type="obsolete">Obrácený směr</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <translation type="obsolete">Zastaveno.</translation>
-    </message>
-    <message>
-        <source>Running...</source>
-        <translation type="obsolete">Běží...</translation>
-    </message>
-    <message>
-        <source>Exited.</source>
-        <translation type="obsolete">Ukončeno.</translation>
-    </message>
-    <message>
-        <source>Abort Debugging</source>
-        <translation type="obsolete">Zrušit ladění</translation>
-    </message>
-    <message>
-        <source>Aborts debugging and resets the debugger to the initial state.</source>
-        <translation type="obsolete">Zruší ladění a nastaví ladič znovu na počáteční stav.</translation>
-    </message>
-    <message>
-        <source>Immediately Return From Inner Function</source>
-        <translation type="obsolete">Okamžitý návrat z vnitřní funkce</translation>
-    </message>
-    <message>
-        <source>Snapshot</source>
-        <translation type="obsolete">Snímek</translation>
-    </message>
-    <message>
-        <source>Stopped</source>
-        <translation type="obsolete">Zastaveno</translation>
-    </message>
-    <message>
-        <source>Exited</source>
-        <translation type="obsolete">Ukončeno</translation>
-    </message>
-    <message>
-        <source>Changing breakpoint state requires either a fully running or fully stopped application.</source>
-        <translation type="obsolete">Změna bodu přerušení vyžaduje, aby uživatelský program běžel, nebo byl zcela zastaven.</translation>
-    </message>
-    <message>
-        <source>The application requires the debugger engine &apos;%1&apos;, which is disabled.</source>
-        <translation type="obsolete">Tato aplikace vyžaduje stroj ladicího programu &apos;%1&apos;, který je nyní vypnut.</translation>
-    </message>
-    <message>
-        <source>Starting debugger for tool chain &apos;%1&apos;...</source>
-        <translation type="obsolete">Spouští se ladicí program pro řetěz nástrojů &apos;%1&apos;...</translation>
-    </message>
-    <message>
-        <source>Cannot debug &apos;%1&apos; (tool chain: &apos;%2&apos;): %3</source>
-        <translation type="obsolete">Ladicí program nelze spustit s &apos;%1&apos; (řetěz nástrojů &apos;%2&apos;): %3</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="obsolete">Varování</translation>
-    </message>
-    <message>
-        <source>Save Debugger Log</source>
-        <translation type="obsolete">Uložit zápis o ladění</translation>
-    </message>
-    <message>
-        <source>%1 (explicitly set in the Debugger Options)</source>
-        <translation type="obsolete">%1 (nastaveno přímo ve volbách k ladicímu programu)</translation>
-    </message>
-    <message>
-        <source>Open Qt preferences</source>
-        <translation type="obsolete">Otevřít nastavení Qt</translation>
-    </message>
-    <message>
-        <source>Turn off helper usage</source>
-        <translation type="obsolete">Vypnout pomocnou knihovnu pro výstup dat</translation>
-    </message>
-    <message>
-        <source>Continue anyway</source>
-        <translation type="obsolete">Přesto pokračovat</translation>
-    </message>
-    <message>
-        <source>Debugging helper missing</source>
-        <translation type="obsolete">Pomocná knihovna pro výstup dat o ladění nebyla nalezena</translation>
-    </message>
-    <message>
-        <source>The debugger could not load the debugging helper library.</source>
-        <translation type="obsolete">Ladicí program nemohl nahrát pomocnou knihovnu pro výstup dat o ladění.</translation>
-    </message>
-    <message>
-        <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. This can be done in the Qt preferences page by selecting a Qt installation and clicking on &apos;Rebuild&apos; in the &apos;Debugging Helper&apos; row.</source>
-        <translation type="obsolete">Pomocná knihovna pro výstup dat o ladění slouží k výstupu hodnot některých datových typů z Qt a standardních knihoven. Musí být sestavena pro každou používanou verzi Qt, což se děje na stránce s nastavením Qt výběrem instalace Qt a klepnutím na &apos;Sestavit znovu&apos; v řádku pro pomocnou knihovnu pro výstup dat o ladění.</translation>
-    </message>
-    <message>
-        <source>Stop Debugger</source>
-        <translation type="obsolete">Zastavit ladicí program</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerListener</name>
-    <message>
-        <source>A debugging session is still in progress.
-Would you like to terminate it?</source>
-        <translation type="obsolete">Ladicí program ještě běží.
-Chcete jej ukončit?</translation>
-    </message>
-    <message>
-        <source>Close Debugging Session</source>
-        <translation type="obsolete">Ukončit ladicí program</translation>
-    </message>
-    <message>
-        <source>A debugging session is still in progress. Would you like to terminate it?</source>
-        <translation type="obsolete">Ladicí program ještě běží. Chcete jej ukončit?</translation>
-    </message>
-    <message>
-        <source>A debugging session is still in progress. Terminating the session in the current state (%1) can leave the target in an inconsistent state. Would you still like to terminate it?</source>
-        <translation type="obsolete">Ladicí program ještě běží. Ukončení sezení při současném stavu (%1) by mohlo vést ke kolísavému stavu vyšetřovaných procesů. Přesto jej chcete ukončit?</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerRunControlFactory</name>
-    <message>
-        <source>Debug</source>
-        <translation type="obsolete">Ladění</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerRunControl</name>
-    <message>
-        <source>Debugger</source>
-        <translation type="obsolete">Ladič</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::AbstractGdbAdapter</name>
-    <message>
-        <source>The Gdb process could not be stopped:
-%1</source>
-        <translation type="obsolete">Proces Gdb se nepodařilo zastavit:
-%1</translation>
-    </message>
-    <message>
-        <source>The gdb process could not be stopped:
-%1</source>
-        <translation type="obsolete">Proces Gdb se nepodařilo zastavit:
-%1</translation>
-    </message>
-    <message>
-        <source>Application process could not be stopped:
-%1</source>
-        <translation type="obsolete">Proces programu se nepodařilo zastavit:
-%1</translation>
-    </message>
-    <message>
-        <source>Application started</source>
-        <translation type="obsolete">Program spuštěn</translation>
-    </message>
-    <message>
-        <source>Application running</source>
-        <translation type="obsolete">Program běží</translation>
-    </message>
-    <message>
-        <source>Attached to stopped application</source>
-        <translation type="obsolete">Ladicí program připojen k zastavenému programu</translation>
-    </message>
-    <message>
-        <source>Inferior process could not be stopped:
-%1</source>
-        <translation type="obsolete">Laděný proces se nepodařilo zastavit:
-%1</translation>
-    </message>
-    <message>
-        <source>Inferior started.</source>
-        <translation type="obsolete">Laděný proces byl spuštěn.</translation>
-    </message>
-    <message>
-        <source>Inferior running.</source>
-        <translation type="obsolete">Laděný proces běží.</translation>
-    </message>
-    <message>
-        <source>Attached to stopped inferior.</source>
-        <translation type="obsolete">Připojeno k zastavenému laděnému procesu.</translation>
-    </message>
-    <message>
-        <source>Connecting to remote server failed:
-%1</source>
-        <translation type="obsolete">Spojení se vzdáleným serverem se nepodařilo vytvořit:
-%1</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CoreGdbAdapter</name>
-    <message>
-        <source>Error Loading Symbols</source>
-        <translation type="obsolete">Chyba při nahrávání symbolů</translation>
-    </message>
-    <message>
-        <source>No executable to load symbols from specified.</source>
-        <translation type="obsolete">Nebyl zadán žádný spustitelný soubor pro nahrání symbolů.</translation>
-    </message>
-    <message>
-        <source>Symbols found.</source>
-        <translation type="obsolete">Symboly byly nalezeny.</translation>
-    </message>
-    <message>
-        <source>Loading symbols from &quot;%1&quot; failed:
-</source>
-        <translation type="obsolete">Nahrání symbolů z &quot;%1&quot; se nepodařilo:
-</translation>
-    </message>
-    <message>
-        <source>Attached to core temporarily.</source>
-        <translation type="obsolete">Dočasně připojeno k &apos;core&apos; souboru.</translation>
-    </message>
-    <message>
-        <source>Unable to determine executable from core file.</source>
-        <translation type="obsolete">Ze souboru &apos;core&apos; se nepodařilo určit žádný spustitelný soubor.</translation>
-    </message>
-    <message>
-        <source>The name of the binary file cannot be extracted from this core file.</source>
-        <translation type="obsolete">Název spustitelného souboru nelze určit z tohoto &apos;core&apos; souboru.</translation>
-    </message>
-    <message>
-        <source>Try to specify the binary using the &lt;i&gt;Debug-&gt;Start Debugging-&gt;Attach to Core&lt;/i&gt; dialog.</source>
-        <translation type="obsolete">Zadejte, prosím, název spustitelného souboru v dialogu &lt;i&gt;Ladění-&gt;Spustit ladění-&gt;Připojit do core&lt;/i&gt;.</translation>
-    </message>
-    <message>
-        <source>Loading core file failed</source>
-        <translation type="obsolete">Nahrání souboru &apos;core&apos; se nezdařilo</translation>
-    </message>
-    <message>
-        <source>Attach to core failed.</source>
-        <translation type="obsolete">Připojení ke core se nezdařilo.</translation>
-    </message>
-    <message>
-        <source>No symbols found in core file &lt;i&gt;%1&lt;/i&gt;.</source>
-        <translation type="obsolete">V souboru &apos;core&apos; nebyly nalezeny žádné symboly &lt;i&gt;%1&lt;/i&gt;.</translation>
-    </message>
-    <message>
-        <source>This can be caused by a path length limitation in the core file.</source>
-        <translation type="obsolete">Možnou příčinou je omezení délky cesty v souboru core.</translation>
-    </message>
-    <message>
-        <source>Attached to core.</source>
-        <translation type="obsolete">Připojeno k souboru &apos;core&apos;.</translation>
-    </message>
-    <message>
-        <source>Attach to core &quot;%1&quot; failed:
-</source>
-        <translation type="obsolete">Ladění souboru &apos;core&apos; &quot;%1&quot; se nezdařilo:</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::PlainGdbAdapter</name>
-    <message>
-        <source>Cannot set up communication with child process: %1</source>
-        <translation type="obsolete">Spojení s podřízeným procesem se nepodařilo zřídit: %1</translation>
-    </message>
-    <message>
-        <source>Starting executable failed:
-</source>
-        <translation type="obsolete">Nepodařilo se spustit spustitelný soubor:
-</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::RemoteGdbAdapter</name>
-    <message>
-        <source>The upload process failed to start. Shell missing?</source>
-        <translation type="obsolete">Nahrání procesu se nepodařilo spustit. Možnou příčinou by mohl být chybějící shellový program.</translation>
-    </message>
-    <message>
-        <source>The upload process crashed some time after starting successfully.</source>
-        <translation type="obsolete">Proces nahrávání po určité době od úspěšného spuštění spadl.</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation type="obsolete">Došlo k překročení času u poslední funkce waitFor...(). Stav QProcess je nezměněn, a tak se můžete pokusit zavolat waitFor...() ještě jednou.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation type="obsolete">Při pokusu o zápis do procesu nahrávání se vyskytla chyba. Pravděpodobně proces neběží, nebo zavřel svůj vstupní kanál.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to read from the upload process. For example, the process may not be running.</source>
-        <translation type="obsolete">Při pokusu o čtení z procesu nahrávání se vyskytla chyba. Pravděpodobně proces neběží.</translation>
-    </message>
-    <message>
-        <source>An unknown error in the upload process occurred. This is the default return value of error().</source>
-        <translation type="obsolete">V procesu nahrávání se vyskytla neznámá chyba. Je to výchozí zpětná hodnota error().</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="obsolete">Chyba</translation>
-    </message>
-    <message>
-        <source>Adapter too old: does not support asynchronous mode.</source>
-        <translation type="obsolete">Adaptér je zastaralý; nepodporuje asynchronní režim.</translation>
-    </message>
-    <message>
-        <source>Starting remote executable failed:
-</source>
-        <translation type="obsolete">Nepodařilo se spustit spustitelný soubor na vzdáleném počítači:
-</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::TermGdbAdapter</name>
-    <message>
-        <source>Debugger Error</source>
-        <translation type="obsolete">Chyba v ladicím programu</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::TrkGdbAdapter</name>
-    <message>
-        <source>Port specification missing.</source>
-        <translation type="obsolete">Nebyla zadána žádná přípojka.</translation>
-    </message>
-    <message>
-        <source>Unable to acquire a device on &apos;%1&apos;. It appears to be in use.</source>
-        <translation type="obsolete">Nelze přistoupit k zařízení &apos;%1&apos;. Zdá se, že se již používá.</translation>
-    </message>
-    <message>
-        <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
-        <translation type="obsolete">Proces byl spuštěn, PID: 0x%1, Vlákno s ID: 0x%2, Část kódu: 0x%3, Datová část: 0x%4.</translation>
-    </message>
-    <message>
-        <source>Connecting to TRK server adapter failed:
-</source>
-        <translation type="obsolete">Připojení k adaptéru Trk serveru se nezdařilo:
-</translation>
-    </message>
-</context>
-<context>
-    <name>TrkOptions</name>
-    <message>
-        <source>No Symbian gdb executable specified.</source>
-        <translation type="obsolete">Nebyl zadán žádný spustitelný soubor pro Symbian gdb!
-</translation>
-    </message>
-    <message>
-        <source>The Symbian gdb executable &apos;%1&apos; could not be found in the search path.</source>
-        <translation type="obsolete">Spustitelný soubor pro Symbian gdb &apos;%1&apos; se v cestě pro hledání nepodařilo najít.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::TrkOptionsPage</name>
-    <message>
-        <source>Symbian TRK</source>
-        <translation type="obsolete">Symbian TRK</translation>
-    </message>
-</context>
-<context>
-    <name>NameDemanglerPrivate</name>
-    <message>
-        <source>Premature end of input</source>
-        <translation type="obsolete">Předčasný konec vstupu</translation>
-    </message>
-    <message>
-        <source>Invalid encoding</source>
-        <translation type="obsolete">Neplatné kódování</translation>
-    </message>
-    <message>
-        <source>Invalid name</source>
-        <translation type="obsolete">Neplatný název</translation>
-    </message>
-    <message>
-        <source>Invalid nested-name</source>
-        <translation type="obsolete">Neplatný hnízdní název</translation>
-    </message>
-    <message>
-        <source>Invalid template args</source>
-        <translation type="obsolete">Neplatné argumenty předlohy</translation>
-    </message>
-    <message>
-        <source>Invalid template-param</source>
-        <translation type="obsolete">Neplatné parametry předlohy</translation>
-    </message>
-    <message>
-        <source>Invalid qualifiers: unexpected &apos;volatile&apos;</source>
-        <translation type="obsolete">Neplatné modifikátory: neočekávané (&apos;volatile&apos;)</translation>
-    </message>
-    <message>
-        <source>Invalid qualifiers: &apos;const&apos; appears twice</source>
-        <translation type="obsolete">Neplatné modifikátory: &apos;const&apos; se objevuje dvakrát</translation>
-    </message>
-    <message>
-        <source>Invalid non-negative number</source>
-        <translation type="obsolete">Neplatné ne-záporné číslo</translation>
-    </message>
-    <message>
-        <source>Invalid template-arg</source>
-        <translation type="obsolete">Neplatný argument předlohy</translation>
-    </message>
-    <message>
-        <source>Invalid expression</source>
-        <translation type="obsolete">Neplatný výraz</translation>
-    </message>
-    <message>
-        <source>Invalid primary expression</source>
-        <translation type="obsolete">Neplatný prvořadý výraz</translation>
-    </message>
-    <message>
-        <source>Invalid expr-primary</source>
-        <translation type="obsolete">Neplatný prvořadý výraz</translation>
-    </message>
-    <message>
-        <source>Invalid type</source>
-        <translation type="obsolete">Neplatný typ</translation>
-    </message>
-    <message>
-        <source>Invalid built-in type</source>
-        <translation type="obsolete">Neplatný vestavěný typ</translation>
-    </message>
-    <message>
-        <source>Invalid builtin-type</source>
-        <translation type="obsolete">Neplatný vestavěný typ</translation>
-    </message>
-    <message>
-        <source>Invalid function type</source>
-        <translation type="obsolete">Neplatný typ funkce</translation>
-    </message>
-    <message>
-        <source>Invalid unqualified-name</source>
-        <translation type="obsolete">Neplatný nezpůsobilý název</translation>
-    </message>
-    <message>
-        <source>Invalid operator-name &apos;%s&apos;</source>
-        <translation type="obsolete">Neplatný název operátoru &apos;%s&apos;</translation>
-    </message>
-    <message>
-        <source>Invalid array-type</source>
-        <translation type="obsolete">Neplatný typ pole</translation>
-    </message>
-    <message>
-        <source>Invalid pointer-to-member-type</source>
-        <translation type="obsolete">Neplatný typ ukazovátka na člena</translation>
-    </message>
-    <message>
-        <source>Invalid substitution</source>
-        <translation type="obsolete">Neplatné nahrazení</translation>
-    </message>
-    <message>
-        <source>Invalid substitution: element %1 was requested, but there are only %2</source>
-        <translation type="obsolete">Neplatné nahrazení: byl požadován prvek %1, ale jsou jen %2</translation>
-    </message>
-    <message>
-        <source>Invalid substitution: There are no elements</source>
-        <translation type="obsolete">Neplatné nahrazení: Nejsou žádné prvky</translation>
-    </message>
-    <message>
-        <source>Invalid special-name</source>
-        <translation type="obsolete">Neplatný zvláštní název</translation>
-    </message>
-    <message>
-        <source>Invalid local-name</source>
-        <translation type="obsolete">Neplatný místní název</translation>
-    </message>
-    <message>
-        <source>Invalid discriminator</source>
-        <translation type="obsolete">Neplatný diskriminátor</translation>
-    </message>
-    <message>
-        <source>Invalid ctor-dtor-name</source>
-        <translation type="obsolete">Neplatný ctor-dtor název</translation>
-    </message>
-    <message>
-        <source>Invalid call-offset</source>
-        <translation type="obsolete">Neplatný posun volání</translation>
-    </message>
-    <message>
-        <source>Invalid v-offset</source>
-        <translation type="obsolete">Neplatný v-posun</translation>
-    </message>
-    <message>
-        <source>Invalid digit</source>
-        <translation type="obsolete">Neplatná číslice</translation>
-    </message>
-    <message>
-        <source>At position %1: </source>
-        <translation type="obsolete">V poloze %1: </translation>
-    </message>
-</context>
-<context>
-    <name>Debugger</name>
-    <message>
-        <source>decimal</source>
-        <translation type="obsolete">Desítkový</translation>
-    </message>
-    <message>
-        <source>hexadecimal</source>
-        <translation type="obsolete">Šestnáctkový</translation>
-    </message>
-    <message>
-        <source>binary</source>
-        <translation type="obsolete">Dvojkový</translation>
-    </message>
-    <message>
-        <source>octal</source>
-        <translation type="obsolete">Osmičkový</translation>
-    </message>
-    <message>
-        <source>Bald pointer</source>
-        <translation type="obsolete">Prosté ukazovátko</translation>
     </message>
     <message numerus="yes">
         <source>Array of %n items</source>
@@ -22074,10 +19586,6 @@ Chcete jej ukončit?</translation>
     <message>
         <source>Tooltip</source>
         <translation>Vysvětlivka</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Název</translation>
     </message>
     <message>
         <source>Value</source>
@@ -23910,10 +21418,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <translation type="obsolete">%1: Spouští se modrozubí proces %2...</translation>
     </message>
     <message>
-        <source>Unable to run &apos;%1&apos;: %2</source>
-        <translation type="obsolete">&apos;%1&apos; nelze spustit: %2</translation>
-    </message>
-    <message>
         <source>%1: Bluetooth listener running (%2).</source>
         <translation type="obsolete">%1: Běží modrozubí proces (%2).</translation>
     </message>
@@ -24310,10 +21814,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>Form</source>
         <translation type="obsolete">Formulář</translation>
-    </message>
-    <message>
-        <source>&amp;Path:</source>
-        <translation type="obsolete">&amp;Cesta:</translation>
     </message>
     <message>
         <source>&amp;Display:</source>
@@ -25553,34 +23053,6 @@ a předpokladem je, že vzdálený spustitelný soubor bude v adresáři zmiňov
     <message>
         <source>Connection timeout:</source>
         <translation type="obsolete">Časové omezení pro spojení:</translation>
-    </message>
-    <message>
-        <source>s</source>
-        <translation type="obsolete">s</translation>
-    </message>
-    <message>
-        <source>Username:</source>
-        <translation type="obsolete">Uživatelské jméno:</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation type="obsolete">Heslo:</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation type="obsolete">Soubor se soukromým klíčem:</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Přidat</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Odstranit</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation type="obsolete">Vyzkoušet</translation>
     </message>
     <message>
         <source>Generate SSH Key ...</source>
@@ -27820,33 +25292,19 @@ heslem, jež můžete zadat níže.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbOptionsPage</name>
-    <message>
-        <source>Cdb</source>
-        <translation type="obsolete">Cdb</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>CDB</source>
         <translation>CDB</translation>
     </message>
-</context>
-<context>
-    <name>CdbSymbolGroupContext</name>
     <message>
         <source>&lt;Unknown Type&gt;</source>
         <translation type="obsolete">&lt;Neznámý typ&gt;</translation>
     </message>
     <message>
-        <source>&lt;Unknown Value&gt;</source>
-        <translation type="obsolete">&lt;Neznámá hodnota&gt;</translation>
-    </message>
-    <message>
         <source>&lt;Unknown&gt;</source>
         <translation type="obsolete">&lt;Neznámý&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Cdb</name>
     <message>
         <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
         <translation type="obsolete">Nepodařilo se nahrát knihovnu pro stroj ladicího programu &apos;%1&apos;: %2</translation>
@@ -27855,9 +25313,6 @@ heslem, jež můžete zadat níže.</translation>
         <source>Unable to resolve &apos;%1&apos; in the debugger engine library &apos;%2&apos;</source>
         <translation type="obsolete">&apos;%1&apos; se v knihovně pro stroj ladicího programu nepodařilo nalézt &apos;%2&apos;</translation>
     </message>
-</context>
-<context>
-    <name>CdbCore::CoreEngine</name>
     <message>
         <source>Unable to set the image path to %1: %2</source>
         <translation type="obsolete">Cestu k obázku nelze nastavit na %1: %2</translation>
@@ -27870,38 +25325,9 @@ heslem, jež můžete zadat níže.</translation>
         <source>Attaching to a process failed for process id %1: %2</source>
         <translation type="obsolete">Ladicímu programu se nepodařilo připojit k procesu s ID %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::DebuggerUISwitcher</name>
-    <message>
-        <source>&amp;Languages</source>
-        <translation type="obsolete">&amp;Jazyky</translation>
-    </message>
-    <message>
-        <source>Alt+L</source>
-        <translation type="obsolete">Alt+L</translation>
-    </message>
-    <message>
-        <source>Language</source>
-        <translation type="obsolete">Jazyk</translation>
-    </message>
-</context>
-<context>
-    <name>GdbChooserWidget</name>
     <message>
         <source>Unable to run &apos;%1&apos;: %2</source>
         <translation type="obsolete">&apos;%1&apos; nelze spustit: %2</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbChooserWidget</name>
-    <message>
-        <source>Unable to run &apos;%1&apos;: %2</source>
-        <translation type="obsolete">&apos;%1&apos; nelze spustit: %2</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation type="obsolete">Spustitelný soubor</translation>
     </message>
     <message>
         <source>Toolchains</source>
@@ -27914,43 +25340,6 @@ heslem, jež můžete zadat níže.</translation>
     <message>
         <source>The binary &apos;%1&apos; already exists.</source>
         <translation type="obsolete">Spustitelný soubor &apos;%1&apos; již existuje.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::ToolChainSelectorWidget</name>
-    <message>
-        <source>Desktop/General</source>
-        <translation type="obsolete">Desktop/Obecné</translation>
-    </message>
-    <message>
-        <source>Symbian</source>
-        <translation type="obsolete">Symbian</translation>
-    </message>
-    <message>
-        <source>Maemo</source>
-        <translation type="obsolete">Maemo</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::BinaryToolChainDialog</name>
-    <message>
-        <source>Select binary and toolchains</source>
-        <translation type="obsolete">Vyberte spustitelný soubor a řetězec nástrojů</translation>
-    </message>
-    <message>
-        <source>Gdb binary</source>
-        <translation type="obsolete">Spustitelný soubor pro Gdb</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation type="obsolete">Cesta:</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::PdbEngine</name>
-    <message>
-        <source>Running requested...</source>
-        <translation>Požadováno pokračování...</translation>
     </message>
     <message>
         <source>Unable to start pdb &apos;%1&apos;: %2</source>
@@ -27973,10 +25362,6 @@ heslem, jež můžete zadat níže.</translation>
         <translation>Řetězec znaků tvořený písmeny %1</translation>
     </message>
     <message>
-        <source>Cowardly refusing to evaluate expression &apos;%1&apos; with potential side effects</source>
-        <translation>Nevyhodnocovat výraz &apos;%1&apos; s možnými postranními účinky</translation>
-    </message>
-    <message>
         <source>Pdb I/O Error</source>
         <translation>Vstupní/Výstupní chyba Pdb</translation>
     </message>
@@ -27988,10 +25373,6 @@ heslem, jež můžete zadat níže.</translation>
         <source>The Pdb process crashed some time after starting successfully.</source>
         <translation>
 Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>Došlo k překročení času u poslední funkce waitFor...(). Stav QProcess je nezměněn, a tak se můžete pokusit zavolat waitFor...() ještě jednou.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the Pdb process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -28009,71 +25390,9 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>An unknown error in the Pdb process occurred. </source>
         <translation>V Pdb procesu se vyskytla neznámá chyba.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::SnapshotHandler</name>
-    <message>
-        <source>Function:</source>
-        <translation type="obsolete">Funkce:</translation>
-    </message>
-    <message>
-        <source>File:</source>
-        <translation type="obsolete">Soubor:</translation>
-    </message>
-    <message>
-        <source>Date:</source>
-        <translation type="obsolete">Datum:</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation type="obsolete">...</translation>
-    </message>
-    <message>
-        <source>&lt;More&gt;</source>
-        <translation type="obsolete">&lt;Více&gt;</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation type="obsolete">Funkce</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation type="obsolete">Datum</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation type="obsolete">Umístění</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Název</translation>
-    </message>
     <message>
         <source>File</source>
         <translation>Soubor</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::SnapshotWindow</name>
-    <message>
-        <source>Snapshots</source>
-        <translation>Snímky</translation>
-    </message>
-    <message>
-        <source>Create Snapshot</source>
-        <translation type="obsolete">Vytvořit snímek</translation>
-    </message>
-    <message>
-        <source>Remove Snapshot</source>
-        <translation type="obsolete">Odstranit snímek</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Vždy přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Vždy přizpůsobit šířku sloupců obsahu</translation>
     </message>
 </context>
 <context>
@@ -33334,22 +30653,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BreakCondition</name>
-    <message>
-        <source>&amp;Condition:</source>
-        <translation type="obsolete">&amp;Podmínka:</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore count:</source>
-        <translation type="obsolete">Zastavit &amp;teprve po:</translation>
-    </message>
-    <message>
-        <source>&amp;Thread specification:</source>
-        <translation type="obsolete">&amp;Vlákno:</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::BreakpointDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Edit Breakpoint Properties</source>
         <translation>Upravit vlastnosti bodu přerušení</translation>
@@ -33405,10 +30709,6 @@ if (a &amp;&amp;
     <message>
         <source>&amp;Module:</source>
         <translation>&amp;Modul:</translation>
-    </message>
-    <message>
-        <source>&amp;Command:</source>
-        <translation type="obsolete">&amp;Příkaz:</translation>
     </message>
     <message>
         <source>Use Engine Default</source>
@@ -33855,10 +31155,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
         <translation type="obsolete">Název součástky:</translation>
     </message>
     <message>
-        <source>Path:</source>
-        <translation type="obsolete">Cesta:</translation>
-    </message>
-    <message>
         <source>Choose...</source>
         <translation type="obsolete">Vybrat...</translation>
     </message>
@@ -33921,10 +31217,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Dialog</translation>
-    </message>
-    <message>
-        <source>Address:</source>
-        <translation type="obsolete">Adresa:</translation>
     </message>
     <message>
         <source>127.0.0.1</source>
@@ -37956,26 +35248,11 @@ Příznaky: %3</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::MultiBreakPointsDialog</name>
-    <message>
-        <source>Edit Breakpoint Properties</source>
-        <translation>Upravit vlastnosti bodu přerušení</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>&amp;Condition:</source>
         <translation>&amp;Podmínka:</translation>
     </message>
-    <message>
-        <source>&amp;Ignore count:</source>
-        <translation>Zastavit &amp;teprve po:</translation>
-    </message>
-    <message>
-        <source>&amp;Thread specification:</source>
-        <translation>&amp;Vlákno:</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CdbEngine</name>
     <message>
         <source>There is no CDB binary available for binaries in format &apos;%1&apos;</source>
         <translation type="obsolete">Pro spustitelný soubor pro &apos;%1&apos; není dostupný žádný spustitelný soubor CDB</translation>
@@ -38001,16 +35278,8 @@ Příznaky: %3</translation>
         <translation>Konzolový proces &apos;%1 se nepodařilo spustit.</translation>
     </message>
     <message>
-        <source>Debugger Error</source>
-        <translation>Chyba v ladicím programu</translation>
-    </message>
-    <message>
         <source>Failed to Start the Debugger</source>
         <translation>Nepodařilo se spustit ladicí program</translation>
-    </message>
-    <message>
-        <source>Normal</source>
-        <translation>Normální</translation>
     </message>
     <message>
         <source>Separate Window</source>
@@ -38072,58 +35341,6 @@ Příznaky: %3</translation>
         <source>&quot;Select Widget to Watch&quot;: Not supported in state &apos;%1&apos;.</source>
         <translation>&quot;Vybrat prvek ke sledování&quot;: Nepodporováno ve stavu &apos;%1&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Cdb::CdbBreakEventWidget</name>
-    <message>
-        <source>C++ exception</source>
-        <translation type="obsolete">Výjimka C++</translation>
-    </message>
-    <message>
-        <source>Thread creation</source>
-        <translation type="obsolete">Vytvoření vlákna</translation>
-    </message>
-    <message>
-        <source>Thread exit</source>
-        <translation type="obsolete">Ukončení vlákna</translation>
-    </message>
-    <message>
-        <source>Load module:</source>
-        <translation type="obsolete">Nahrát modul:</translation>
-    </message>
-    <message>
-        <source>Unload module:</source>
-        <translation type="obsolete">Zrušit nahrání modulu:</translation>
-    </message>
-    <message>
-        <source>Output:</source>
-        <translation type="obsolete">Výstup:</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::Console</name>
-    <message>
-        <source>Clear Contents</source>
-        <translation type="obsolete">Smazat obsah</translation>
-    </message>
-    <message>
-        <source>Save Contents</source>
-        <translation type="obsolete">Uložit obsah</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::ConsoleWindow</name>
-    <message>
-        <source>Console</source>
-        <translation type="obsolete">Konzole</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::StartRemoteCdbDialog</name>
-    <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching Qt Creator CDB extension (&lt;code&gt;%1&lt;/code&gt; or &lt;code&gt;%2&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%3&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt;  to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;body&gt;&lt;p&gt;Vzdálený CDB musí nahrát odpovídající rozšiřující knihovnu CDB pro Qt Creator (&lt;code&gt;%1&lt;/code&gt; nebo &lt;code&gt;%2&lt;/code&gt;).&lt;/p&gt;&lt;p&gt;Zkopírujte ji na vzdálený počítač a proměnnou prostředí nastavte na &lt;code&gt;%3&lt;/code&gt;, aby ukazovala na její složku.&lt;/p&gt;&lt;p&gt;Spusťte vzdálený CDB jako &lt;code&gt;%4 &amp;lt;spustitelný soubor&amp;gt;&lt;/code&gt; pro použití TCP/IP jako komunikačního protokolu.&lt;/p&gt;&lt;p&gt;Zadejte parametry spojení, jak následuje:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching Qt Creator CDB extension (&lt;code&gt;%1&lt;/code&gt; or &lt;code&gt;%2&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%3&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt; to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Vzdálený CDB musí nahrát odpovídající rozšiřující knihovnu CDB pro Qt Creator (&lt;code&gt;%1&lt;/code&gt; nebo &lt;code&gt;%2&lt;/code&gt;).&lt;/p&gt;&lt;p&gt;Zkopírujte ji na vzdálený počítač a proměnnou prostředí nastavte na &lt;code&gt;%3&lt;/code&gt;, aby ukazovala na její složku.&lt;/p&gt;&lt;p&gt;Spusťte vzdálený CDB jako &lt;code&gt;%4 &amp;lt;spustitelný soubor&amp;gt;&lt;/code&gt; pro použití TCP/IP jako komunikačního protokolu.&lt;/p&gt;&lt;p&gt;Zadejte parametry spojení, jak následuje:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -38136,9 +35353,6 @@ Příznaky: %3</translation>
         <source>&amp;Connection:</source>
         <translation>&amp;Spojení:</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::DebuggerEngine</name>
     <message>
         <source>Launching</source>
         <translation>Spouští se</translation>
@@ -38240,10 +35454,6 @@ Section %1: %2</source>
 Část %1: %2</translation>
     </message>
     <message>
-        <source>Warning</source>
-        <translation>Varování</translation>
-    </message>
-    <message>
         <source>This does not seem to be a &quot;Debug&quot; build.
 Setting breakpoints by file name and line number may fail.</source>
         <translation>Zdá se, že toto není sestavení &quot;Debug&quot;.
@@ -38255,10 +35465,6 @@ Setting breakpoints by file name and line number may fail.
 </source>
         <translation>Zdá se, že toto není sestavení &quot;Debug&quot;.
 Nastavení bodů přerušení podle názvů souborů a čísel řádků může selhat.</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <translation>Zastaveno.</translation>
     </message>
     <message>
         <source>Stopped: &quot;%1&quot;</source>
@@ -38318,9 +35524,6 @@ Nastavení bodů přerušení podle názvů souborů a čísel řádků může s
         <source>Jump to Line %1</source>
         <translation>Jít na řádek %1</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerMainWindowPrivate</name>
     <message>
         <source>Memory...</source>
         <translation>Paměť...</translation>
@@ -38329,9 +35532,6 @@ Nastavení bodů přerušení podle názvů souborů a čísel řádků může s
         <source>Debugger Toolbar</source>
         <translation>Nástrojový pruh pro ladicí program</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::DebuggerPlugin</name>
     <message>
         <source>Debug</source>
         <translation>Ladění</translation>
@@ -38378,30 +35578,6 @@ Affected are breakpoints %1</source>
         <translation>Není dostatek volných portů pro ladění QML. </translation>
     </message>
     <message>
-        <source>The debugger engine &apos;%1&apos; is disabled.</source>
-        <translation type="obsolete">Stroj ladiče &apos;%1&apos; je vypnut.</translation>
-    </message>
-    <message>
-        <source>The debugger engine &apos;%1&apos; required for debugging binaries of the type &apos;%2&apos; is not configured correctly.</source>
-        <translation type="obsolete">K ladění spustitelných souborů typu &apos;%2&apos; požadovaný stroj ladiče &apos;%1&apos; není nastaven správně.</translation>
-    </message>
-    <message>
-        <source>None of the debugger engines &apos;%1&apos; capable of debugging binaries of the type &apos;%2&apos; is configured correctly.</source>
-        <translation type="obsolete">Žádný z k ladění spustitelných souborů typu &apos;%2&apos; schopných strojů ladiče &apos;%1&apos; není nastaven správně.</translation>
-    </message>
-    <message>
-        <source>The preferred debugger engine for debugging binaries of type &apos;%1&apos; is not available.
-The debugger engine &apos;%2&apos; will be used as a fallback.
-Details: %3</source>
-        <translation type="obsolete">K ladění spustitelných souborů typu &apos;%1&apos; upřednostňovaný stroj ladiče není dostupný.
-Místo toho se bude používat stroj ladiče &apos;%2&apos;.
-Podrobnosti: %3</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="obsolete">Varování</translation>
-    </message>
-    <message>
         <source>Install &amp;Debug Information</source>
         <translation>Instalace informací o &amp;ladění</translation>
     </message>
@@ -38409,13 +35585,6 @@ Podrobnosti: %3</translation>
         <source>Tries to install missing debug information.</source>
         <translation>Toto se pokusí o instalaci chybějících informací o ladění.</translation>
     </message>
-    <message>
-        <source>This tries to install missing debug information.</source>
-        <translation type="obsolete">Toto se pokusí o instalaci chybějících informací o ladění.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerPluginPrivate</name>
     <message>
         <source>0x%1 hit</source>
         <extracomment>Message tracepoint: Address hit.</extracomment>
@@ -38429,10 +35598,6 @@ Podrobnosti: %3</translation>
     <message>
         <source>Add Message Tracepoint</source>
         <translation>Přidat trasovací bod se zprávou</translation>
-    </message>
-    <message>
-        <source>Message:</source>
-        <translation>Zpráva:</translation>
     </message>
     <message>
         <source>No function selected.</source>
@@ -38483,28 +35648,8 @@ Podrobnosti: %3</translation>
         <translation>Připojuje se ke spadlému procesu %1</translation>
     </message>
     <message>
-        <source>Warning</source>
-        <translation>Varování</translation>
-    </message>
-    <message>
         <source>Cannot attach to process with PID 0</source>
         <translation>Nelze se připojit k procesu s ID 0</translation>
-    </message>
-    <message>
-        <source>Debugger attached to %1</source>
-        <translation type="obsolete">Ladič připojen k %1</translation>
-    </message>
-    <message>
-        <source>gdbserver is now listening at %1</source>
-        <translation type="obsolete">gdbserver nyní naslouchá na %1</translation>
-    </message>
-    <message>
-        <source>Cannot find local executable for remote process &quot;%1&quot;.</source>
-        <translation type="obsolete">Nelze najít místní spustitelný soubor pro vzdálený proces &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Cannot find ABI for remote process &quot;%1&quot;.</source>
-        <translation type="obsolete">Nelze najít ABI pro vzdálený proces &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Remove Breakpoint %1</source>
@@ -38547,48 +35692,8 @@ Podrobnosti: %3</translation>
         <translation>Uložit záznam o ladění</translation>
     </message>
     <message>
-        <source>User commands are not accepted in the current state.</source>
-        <translation>Vstup uživatelských příkazů není v tomto stavu možný.</translation>
-    </message>
-    <message>
-        <source>Open Qt4 Options</source>
-        <translation type="obsolete">Otevřít nastavení pro knihovnu Qt4</translation>
-    </message>
-    <message>
-        <source>Open Qt Options</source>
-        <translation type="obsolete">Otevřít nastavení pro knihovnu Qt</translation>
-    </message>
-    <message>
-        <source>Turn off Helper Usage</source>
-        <translation type="obsolete">Vypnout pomocnou knihovnu pro výstup dat</translation>
-    </message>
-    <message>
-        <source>Continue Anyway</source>
-        <translation type="obsolete">Přesto pokračovat</translation>
-    </message>
-    <message>
-        <source>Debugging Helper Missing</source>
-        <translation type="obsolete">Pomocný ladicí program nebyl nalezen</translation>
-    </message>
-    <message>
-        <source>The debugger could not load the debugging helper library.</source>
-        <translation type="obsolete">Ladicí program nemohl nahrát pomocnou ladicí knihovnu.</translation>
-    </message>
-    <message>
-        <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. On the Qt4 options page, select a Qt installation and click Rebuild.</source>
-        <translation type="obsolete">Pomocná knihovna pro výstup dat o ladění se používá pro výstup některých datových typů z Qt a standardních knihoven. Musí být pro každou verzi Qt sestavena odděleně. To se děje na stránce &apos;Nastavení Qt&apos; pomocí výběru instalace Qt a klepnutí na &apos;Sestavit znovu&apos; pro pomocnou knihovnu pro výstup dat o ladění.</translation>
-    </message>
-    <message>
-        <source>Starting debugger &apos;%1&apos; for ABI &apos;%2&apos;...</source>
-        <translation type="obsolete">Spouští se ladicí program &apos;%1&apos; pro ABI &apos;%2&apos;...</translation>
-    </message>
-    <message>
         <source>Debugger finished.</source>
         <translation>Ladění dokončeno.</translation>
-    </message>
-    <message>
-        <source>QML Script Console</source>
-        <translation type="obsolete">Skriptovací konzole QML</translation>
     </message>
     <message>
         <source>Set Breakpoint at Line %1</source>
@@ -38603,20 +35708,12 @@ Podrobnosti: %3</translation>
         <translation>Rozložit funkci &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. In the Qt Creator Build and Run preferences page, select a Qt version, expand the Details section and click Build All.</source>
-        <translation type="obsolete">Pomocný ladicí program slouží k výstupu hodnot některých datových typů z Qt a standardních knihoven. Musí být sestaven pro každou používanou verzi Qt. Na stránce nastavení &apos;Sestavení a spuštění&apos; vyberte verzi Qt, rozbalte Podrobnosti a klepněte na &apos;Sestavit vše&apos;.</translation>
-    </message>
-    <message>
         <source>Starting debugger &quot;%1&quot; for ABI &quot;%2&quot;...</source>
         <translation>Spouští se ladicí program &apos;%1&apos; pro ABI &apos;%2&apos;...</translation>
     </message>
     <message>
         <source>Continue</source>
         <translation>Pokračovat</translation>
-    </message>
-    <message>
-        <source>Exit Debugger</source>
-        <translation type="obsolete">Ukončit ladicí program</translation>
     </message>
     <message>
         <source>Interrupt</source>
@@ -38667,10 +35764,6 @@ Podrobnosti: %3</translation>
         <translation>Přepnout bod přerušení</translation>
     </message>
     <message>
-        <source>Add to Watch Window</source>
-        <translation type="obsolete">Přidat ke sledovaným výrazům</translation>
-    </message>
-    <message>
         <source>Reverse Direction</source>
         <translation>Obrácený směr</translation>
     </message>
@@ -38713,14 +35806,6 @@ Podrobnosti: %3</translation>
     <message>
         <source>Attach to Running External Application...</source>
         <translation type="obsolete">Připojit se k běžícímu vnějšímu uživatelskému programu...</translation>
-    </message>
-    <message>
-        <source>Attach to Core...</source>
-        <translation type="obsolete">Připojit se k hlavnímu souboru...</translation>
-    </message>
-    <message>
-        <source>Start and Debug Remote Application...</source>
-        <translation type="obsolete">Spustit vzdálený program a provádět u něj ladění...</translation>
     </message>
     <message>
         <source>Attach to Remote Debug Server...</source>
@@ -38783,10 +35868,6 @@ Qt Creator se k němu nemůže připojit.</translation>
     <message>
         <source>F5</source>
         <translation>F5</translation>
-    </message>
-    <message>
-        <source>Add Expression Evaluator</source>
-        <translation>Přidat hodnotitele výrazu</translation>
     </message>
     <message>
         <source>Select</source>
@@ -38917,10 +35998,6 @@ Qt Creator se k němu nemůže připojit.</translation>
         <translation>Část</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Název</translation>
-    </message>
-    <message>
         <source>Symbols in &quot;%1&quot;</source>
         <translation>Symboly v &quot;%1&quot;</translation>
     </message>
@@ -38939,13 +36016,6 @@ Qt Creator se k němu nemůže připojit.</translation>
     <message>
         <source>Sections in &quot;%1&quot;</source>
         <translation>Výběry v &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::DebuggerRunControl</name>
-    <message>
-        <source>Debugger</source>
-        <translation>Ladicí program</translation>
     </message>
     <message>
         <source>No executable specified.
@@ -38999,24 +36069,6 @@ Qt Creator se k němu nemůže připojit.</translation>
         <source>Close Debugging Session</source>
         <translation>Ukončit ladicí program</translation>
     </message>
-</context>
-<context>
-    <name>DebuggerRunControl</name>
-    <message>
-        <source>Debug</source>
-        <translation type="obsolete">Ladění</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation type="obsolete">Ladič</translation>
-    </message>
-    <message>
-        <source>Unable to create a debugger engine of the type &apos;%1&apos;</source>
-        <translation type="obsolete">Nepodařilo se vytvořit žádný ladicí stroj typu &apos;%1&apos;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerSourcePathMappingWidget</name>
     <message>
         <source>&lt;new source&gt;</source>
         <translation>&lt;nový zdroj&gt;</translation>
@@ -39034,16 +36086,8 @@ Qt Creator se k němu nemůže připojit.</translation>
         <translation>Cesta k cíli</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
         <source>Add Qt sources...</source>
         <translation>Přidat zdroje Qt...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
     </message>
     <message>
         <source>Source Paths Mapping</source>
@@ -39077,68 +36121,14 @@ Qt Creator se k němu nemůže připojit.</translation>
         <source>Qt Sources</source>
         <translation>Zdroje Qt</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerToolChainComboBox</name>
-    <message>
-        <source>%1 (%2)</source>
-        <translation type="obsolete">%1 (%2)</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI:&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI:&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Ladič:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerToolTipWidget</name>
     <message>
         <source>Previous</source>
         <translation>Předchozí</translation>
     </message>
-</context>
-<context>
-    <name>DebuggerEngine</name>
     <message>
         <source>Debugging complex command lines is currently not supported on Windows.</source>
         <translation>Ladění složitých příkazů ve Windows nyní není podporováno.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::CodaGdbAdapter</name>
-    <message>
-        <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
-        <translation type="obsolete">Proces byl spuštěn, PID: 0x%1, Vlákno s ID: 0x%2, Část kódu: 0x%3, Datová část: 0x%4.</translation>
-    </message>
-    <message>
-        <source>Connecting to CODA server adapter failed:
-</source>
-        <translation type="obsolete">Připojení k adaptéru CODA serveru se nezdařilo:
-</translation>
-    </message>
-    <message>
-        <source>Could not obtain device.</source>
-        <translation type="obsolete">Nepodařilo se obdržet žádné zařízení.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::LocalPlainGdbAdapter</name>
-    <message>
-        <source>Cannot set up communication with child process: %1</source>
-        <translation type="obsolete">Spojení s podřízeným procesem se nepodařilo zřídit: %1</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="obsolete">Varování</translation>
-    </message>
-    <message>
-        <source>This does not seem to be a &quot;Debug&quot; build.
-Setting breakpoints by file name and line number may fail.</source>
-        <translation type="obsolete">Zdá se, že toto není sestavení &quot;Debug&quot;.
-Nastavení bodů přerušení podle názvů souborů a čísel řádků může selhat.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::RemoteGdbProcess</name>
     <message>
         <source>Connection failure: %1.</source>
         <translation>Chyba při vytváření spojení: %1.</translation>
@@ -39159,16 +36149,10 @@ Nastavení bodů přerušení podle názvů souborů a čísel řádků může s
         <source>Remote GDB crashed.</source>
         <translation>Vzdálený proces GDB spadl.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::IPCEngineHost</name>
     <message>
         <source>Fatal engine shutdown. Incompatible binary or IPC error.</source>
         <translation>Stroj byl kvůli vážné chybě zastaven (neslučitelný spustitelný soubor nebo chyba IPC).</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::LldbEngineHost</name>
     <message>
         <source>qtcreator-lldb failed to start: %1</source>
         <translation>qtcreator-lldb se nepodařilo spustit: %1</translation>
@@ -39181,16 +36165,10 @@ Nastavení bodů přerušení podle názvů souborů a čísel řádků může s
         <source>SSH connection error: %1</source>
         <translation>Chyba ve spojení SSH: %1</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::LldbOptionsPage</name>
     <message>
         <source>LLDB</source>
         <translation>LLDB</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerPane</name>
     <message>
         <source>Clear Contents</source>
         <translation>Smazat obsah</translation>
@@ -39203,16 +36181,10 @@ Nastavení bodů přerušení podle názvů souborů a čísel řádků může s
         <source>Reload Debugging Helpers</source>
         <translation>Nahrát pomocné ladicí programy znovu</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::InputPane</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Řádek můžete provést pomocí &lt;Ctrl-Return&gt;.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::LogWindow</name>
     <message>
         <source>Debugger Log</source>
         <translation>Záznam ladicího programu</translation>
@@ -39233,9 +36205,6 @@ Nastavení bodů přerušení podle názvů souborů a čísel řádků může s
         <source>Log File</source>
         <translation>Soubor se záznamem</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::MemoryAgent</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Paměť při 0x%1</translation>
@@ -39248,9 +36217,6 @@ Nastavení bodů přerušení podle názvů souborů a čísel řádků může s
         <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
         <translation>Obsah paměti nelze ukázat, protože nebyl nahrán žádný prohlížecí přídavný modul binárních dat.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::RegisterMemoryView</name>
     <message>
         <source>Memory at Register &apos;%1&apos; (0x%2)</source>
         <translation>Paměť při registru &apos;%1&apos; (0x%2)</translation>
@@ -39258,44 +36224,6 @@ Nastavení bodů přerušení podle názvů souborů a čísel řádků může s
     <message>
         <source>Register &apos;%1&apos;</source>
         <translation>Registr &apos;%1&apos;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::QmlAdapter</name>
-    <message>
-        <source>Connecting to debug server on %1</source>
-        <translation type="obsolete">Spojuje se s ladicím serverem %1</translation>
-    </message>
-    <message>
-        <source>Connecting to debug server %1:%2</source>
-        <translation type="obsolete">Spojuje se s ladicím serverem %1:%2</translation>
-    </message>
-    <message>
-        <source>Error: (%1) %2</source>
-        <comment>%1=error code, %2=error message</comment>
-        <translation type="obsolete">Chyba: (%1) %2</translation>
-    </message>
-    <message>
-        <source>disconnected.
-
-</source>
-        <translation type="obsolete">odpojeno.
-
-</translation>
-    </message>
-    <message>
-        <source>resolving host...</source>
-        <translation type="obsolete">Řeší se název hostitele...</translation>
-    </message>
-    <message>
-        <source>connecting to debug server...</source>
-        <translation type="obsolete">Spojuje se s ladicím serverem...</translation>
-    </message>
-    <message>
-        <source>connected.
-</source>
-        <translation type="obsolete">spojeno.
-</translation>
     </message>
     <message>
         <source>closing...</source>
@@ -39337,9 +36265,6 @@ Nastavení bodů přerušení podle názvů souborů a čísel řádků může s
         <source>Not connected to debug service &apos;%1&apos;.</source>
         <translation type="obsolete">Nepodařilo se vytvořit žádné spojení se službou ladění &apos;%1&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::QmlCppEngine</name>
     <message>
         <source>The slave debugging engine required for combined QML/C++-Debugging could not be created: %1</source>
         <translation>Pro kombinované ladění QML/C++ požadovaný druhý stroj pro ladění se nepodařilo vytvořit: %1</translation>
@@ -39356,9 +36281,6 @@ Nastavení bodů přerušení podle názvů souborů a čísel řádků může s
         <source>%1 debugger activated</source>
         <translation type="obsolete">Ladič %1 zapnut</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::QmlEngine</name>
     <message>
         <source>QML Debugger connected.</source>
         <translation type="obsolete">Ladič QML spojen.</translation>
@@ -39449,28 +36371,9 @@ Má se to zkusit ještě jednou?</translation>
         <translation type="obsolete">Požadováno provedení až po řádek %1 (%2)...</translation>
     </message>
     <message>
-        <source>Stopped.</source>
-        <translation type="obsolete">Zastaveno.</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;An uncaught exception occurred:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;p&gt;Vyskytla se nezpracovaná výjimka:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;An uncaught exception occurred in &lt;i&gt;%1&lt;/i&gt;:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;p&gt;V &lt;i&gt;%1&lt;/i&gt; se vyskytla nezpracovaná výjimka:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Uncaught Exception</source>
-        <translation type="obsolete">Nezpracovaná výjimka</translation>
-    </message>
-    <message>
         <source>QML Debugger disconnected.</source>
         <translation>Ladicí program QML odpojen.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::ScriptConsole</name>
     <message>
         <source>&lt;Type expression to evaluate&gt;</source>
         <translation type="obsolete">&lt;Zadejte výraz pro vyhodnocení&gt;</translation>
@@ -39485,16 +36388,9 @@ Má se to zkusit ještě jednou?</translation>
         <translation type="obsolete">Skriptovací konzole
 </translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::CacheDirectoryDialog</name>
     <message>
         <source>Select Local Cache Folder</source>
         <translation>Vyberte adresář s místní vyrovnávací pamětí</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>Cesta:</translation>
     </message>
     <message>
         <source>Already Exists</source>
@@ -39512,17 +36408,6 @@ Má se to zkusit ještě jednou?</translation>
         <source>The folder &apos;%1&apos; could not be created.</source>
         <translation>Složku &apos;%1&apos; se nepodařilo vytvořit.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::SourceFilesHandler</name>
-    <message>
-        <source>Internal name</source>
-        <translation type="obsolete">Vnitřní název</translation>
-    </message>
-    <message>
-        <source>Full name</source>
-        <translation type="obsolete">Úplný název</translation>
-    </message>
     <message>
         <source>Internal Name</source>
         <translation>Vnitřní název</translation>
@@ -39530,49 +36415,6 @@ Má se to zkusit ještě jednou?</translation>
     <message>
         <source>Full Name</source>
         <translation>Úplný název</translation>
-    </message>
-</context>
-<context>
-    <name>StackHandler</name>
-    <message>
-        <source>Address:</source>
-        <translation type="obsolete">Adresa:</translation>
-    </message>
-    <message>
-        <source>Function:</source>
-        <translation type="obsolete">Funkce:</translation>
-    </message>
-    <message>
-        <source>File:</source>
-        <translation type="obsolete">Soubor:</translation>
-    </message>
-    <message>
-        <source>Line:</source>
-        <translation type="obsolete">Řádek:</translation>
-    </message>
-    <message>
-        <source>From:</source>
-        <translation type="obsolete">Od:</translation>
-    </message>
-    <message>
-        <source>To:</source>
-        <translation type="obsolete">Do:</translation>
-    </message>
-    <message>
-        <source>Note:</source>
-        <translation type="obsolete">Poznámka:</translation>
-    </message>
-    <message>
-        <source>Sources for this frame are available.&lt;br&gt;Double-click on the file name to open an editor.</source>
-        <translation type="obsolete">Zdroje pro tento snímek jsou dostupné.&lt;br&gt;Dvojité klepnutí na název souboru pro otevření editoru.</translation>
-    </message>
-    <message>
-        <source>Binary debug information is not accessible for this frame. This either means the core was not compiled with debug information, or the debug information is not accessible. Note that most distributions ship debug information in separate packages.</source>
-        <translation type="obsolete">Informace o ladění spustitelného souboru nejsou pro tento snímek přístupné. To buď znamená, že core nebyl sestaven s informacemi o ladění, nebo že informace o ladění nejsou přístupné. Uvědomte si, že většina distribucí vede informace o ladění v oddělených balíčcích. </translation>
-    </message>
-    <message>
-        <source>Binary debug information is accessible for this frame. However, matching sources have not been found. Note that some distributions ship debug sources in in separate packages.</source>
-        <translation type="obsolete">Informace o ladění spustitelného souboru jsou pro tento snímek přístupné. Nicméně odpovídající zdroje nebyly nalezeny. Uvědomte si, že většina distribucí vede informace o ladění v oddělených balíčcích.</translation>
     </message>
 </context>
 <context>
@@ -40284,22 +37126,6 @@ když bude zavolán mimo git bash.</translation>
     <message>
         <source>MSVC</source>
         <translation>MSVC</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcDebuggerConfigLabel</name>
-    <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger executable&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
-        <translation type="obsolete">&lt;html&gt;&lt;body&gt;&lt;p&gt;Zadejte cestu ke spustitelnému souboru &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger&lt;/a&gt; (%2).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>64-bit version</source>
-        <translation type="obsolete">64 bitová verze</translation>
-    </message>
-    <message>
-        <source>32-bit version</source>
-        <translation type="obsolete">32 bitová verze</translation>
     </message>
 </context>
 <context>
@@ -41027,10 +37853,6 @@ a vlastností součástek QML přímo.</translation>
 <context>
     <name>QmlJSInspector::Internal::QmlJsInspectorToolBar</name>
     <message>
-        <source>Apply Changes on Save</source>
-        <translation type="obsolete">Použít změny při uložení</translation>
-    </message>
-    <message>
         <source>Show application on top</source>
         <translation type="obsolete">Ukázat program v popředí</translation>
     </message>
@@ -41096,10 +37918,6 @@ a vlastností součástek QML přímo.</translation>
 </context>
 <context>
     <name>QmlJSInspector::Internal::QmlJSPropertyInspector</name>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Vždy přizpůsobit šířku sloupců obsahu</translation>
-    </message>
     <message>
         <source>Enter expression</source>
         <translation type="obsolete">Zadat výraz</translation>
@@ -42259,10 +39077,6 @@ Použitím vývojářského certifikátu nebo jakékoliv jiné podoby podpisu se
     <message>
         <source>Communication Channel</source>
         <translation type="obsolete">Komunikační protokol</translation>
-    </message>
-    <message>
-        <source>Address:</source>
-        <translation type="obsolete">Adresa:</translation>
     </message>
     <message>
         <source>Connecting</source>
@@ -47842,14 +44656,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BaseWindow</name>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Přizpůsobit šířku sloupců obsahu</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CdbBreakEventWidget</name>
+    <name>Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>Výjimka C++</translation>
@@ -47874,70 +44681,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Output:</source>
         <translation>Výstup:</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::AbstractPlainGdbAdapter</name>
-    <message>
-        <source>Starting executable failed:
-</source>
-        <translation type="obsolete">Nepodařilo se spustit spustitelný soubor:
-</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::AttachGdbAdapter</name>
-    <message>
-        <source>Attached to process %1.</source>
-        <translation type="obsolete">Připojeno k procesu %1.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::RemoteGdbServerAdapter</name>
-    <message>
-        <source>The upload process failed to start. Shell missing?</source>
-        <translation type="obsolete">Nahrání procesu se nepodařilo spustit. Možnou příčinou by mohl být chybějící shellový program?</translation>
-    </message>
-    <message>
-        <source>The upload process crashed some time after starting successfully.</source>
-        <translation type="obsolete">Proces nahrávání po určité době od úspěšného spuštění spadl.</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation type="obsolete">Došlo k překročení času u poslední funkce waitFor...(). Stav QProcess je nezměněn, a tak se můžete pokusit zavolat waitFor...() ještě jednou.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation type="obsolete">Při pokusu o zápis do procesu nahrávání se vyskytla chyba. Pravděpodobně proces neběží, nebo zavřel svůj vstupní kanál.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to read from the upload process. For example, the process may not be running.</source>
-        <translation type="obsolete">Při pokusu o čtení z procesu nahrávání se vyskytla chyba. Pravděpodobně proces neběží.</translation>
-    </message>
-    <message>
-        <source>An unknown error in the upload process occurred. This is the default return value of error().</source>
-        <translation type="obsolete">V procesu nahrávání se vyskytla neznámá chyba. Je to výchozí zpětná hodnota error().</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="obsolete">Chyba</translation>
-    </message>
-    <message>
-        <source>No symbol file given.</source>
-        <translation type="obsolete">Nebyl zadán žádný symbolický soubor.</translation>
-    </message>
-    <message>
-        <source>Reading debug information failed:
-</source>
-        <translation type="obsolete">Čtení informací o ladění se nezdařilo:
-</translation>
-    </message>
-    <message>
-        <source>Interrupting not possible</source>
-        <translation type="obsolete">Přerušení není možné</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::QScriptDebuggerClient</name>
     <message>
         <source>&lt;p&gt;An uncaught exception occurred:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</source>
         <translation>&lt;p&gt;Vyskytla se nezpracovaná výjimka:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</translation>
@@ -50705,10 +47448,6 @@ Filtr: %2
         <source>Arguments:</source>
         <translation type="obsolete">Argumenty:</translation>
     </message>
-    <message>
-        <source>Working directory:</source>
-        <translation type="obsolete">Pracovní adresář:</translation>
-    </message>
 </context>
 <context>
     <name>AddNewAVDDialog</name>
@@ -52273,101 +49012,14 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AttachToQmlPortDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>Spustit ladicí program</translation>
     </message>
     <message>
-        <source>Kit:</source>
-        <translation>Sada:</translation>
-    </message>
-    <message>
-        <source>&amp;Host:</source>
-        <translation type="obsolete">&amp;Hostitel:</translation>
-    </message>
-    <message>
         <source>&amp;Port:</source>
         <translation>&amp;Port:</translation>
-    </message>
-    <message>
-        <source>Sys&amp;root:</source>
-        <translation type="obsolete">Sys&amp;root:</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CommonOptionsPage</name>
-    <message>
-        <source>Behavior</source>
-        <translation type="obsolete">Chování</translation>
-    </message>
-    <message>
-        <source>Use alternating row colors in debug views</source>
-        <translation type="obsolete">V pohledech na ladění užít střídavých barev řádků</translation>
-    </message>
-    <message>
-        <source>Change the font size in the debugger views when the font size in the main editor changes.</source>
-        <translation type="obsolete">Změnit velikost písma v oknech pro ladění, když se velikost písma změní v hlavním editoru.</translation>
-    </message>
-    <message>
-        <source>Debugger font size follows main editor</source>
-        <translation type="obsolete">Velikost písma ladiče následuje hlavní editor</translation>
-    </message>
-    <message>
-        <source>Use tooltips in main editor while debugging</source>
-        <translation type="obsolete">Při ladění použít vysvětlivky v hlavním editoru</translation>
-    </message>
-    <message>
-        <source>Populate the source file view automatically. This might slow down debugger startup considerably.</source>
-        <translation type="obsolete">Aktualizovat pohled na zdrojový soubor automaticky. Toto může spuštění ladiče výrazně zpomalit.</translation>
-    </message>
-    <message>
-        <source>Populate source file view automatically</source>
-        <translation type="obsolete">Aktualizovat pohled na zdrojový soubor automaticky</translation>
-    </message>
-    <message>
-        <source>Close temporary buffers on debugger exit</source>
-        <translation type="obsolete">Při ukončení ladění zavřít editory</translation>
-    </message>
-    <message>
-        <source>Switch to previous mode on debugger exit</source>
-        <translation type="obsolete">Režim činný na začátku při ukončení ladění obnovit</translation>
-    </message>
-    <message>
-        <source>Maximum stack depth:</source>
-        <translation type="obsolete">Největší hloubka zásobníku:</translation>
-    </message>
-    <message>
-        <source>&lt;unlimited&gt;</source>
-        <translation type="obsolete">&lt;neomezená&gt;</translation>
-    </message>
-    <message>
-        <source>Register Qt Creator for debugging crashed applications.</source>
-        <translation type="obsolete">Přihlásit Qt Creator pro ladění spadlých programů.</translation>
-    </message>
-    <message>
-        <source>Use Qt Creator for post-mortem debugging</source>
-        <translation type="obsolete">Použít Qt Creator pro ladění - následný rozbor</translation>
-    </message>
-    <message>
-        <source>Bring Qt Creator to foreground when application interrupts</source>
-        <translation type="obsolete">Přivést Qt Creator do popředí, když dojde k přerušení programu</translation>
-    </message>
-    <message>
-        <source>Show QML object tree in Locals &amp; Expressions when connected and not stepping.</source>
-        <translation type="obsolete">Ukázat strom objektu QML v místních proměnných a výrazech, když je připojen a nezasahuje.</translation>
-    </message>
-    <message>
-        <source>Show QML object tree</source>
-        <translation type="obsolete">Ukázat strom objektu QML</translation>
-    </message>
-    <message>
-        <source>Enable a full file path in breakpoints by default also for the GDB</source>
-        <translation type="obsolete">Povolit úplnou souborovou cestu k bodu přerušení ve výchozím nastavení i pro GDB</translation>
-    </message>
-    <message>
-        <source>Breakpoints full path by default</source>
-        <translation type="obsolete">Úplná cesta k bodu přerušení jako výchozí</translation>
     </message>
     <message>
         <source>Stop when %1() is called</source>
@@ -52381,9 +49033,6 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
         <source>Always add a breakpoint on the &lt;i&gt;%1()&lt;/i&gt; function.</source>
         <translation>Vždy přidat bod přerušení při funkci &lt;i&gt;%1()&lt;/i&gt;.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::LldbOptionsPageWidget</name>
     <message>
         <source>Enable LLDB</source>
         <translation>Povolit LLDB</translation>
@@ -52392,9 +49041,6 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
         <source>Use GDB Python dumpers</source>
         <translation>Použít pomocné knihovny pro výstup dat Python GDB</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::StartRemoteEngineDialog</name>
     <message>
         <source>Start Remote Engine</source>
         <translation>Spustit vzdálený stroj</translation>
@@ -55312,10 +51958,6 @@ Please install at least one SDK.</source>
 Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
     <message>
-        <source>Warning</source>
-        <translation type="obsolete">Varování</translation>
-    </message>
-    <message>
         <source>Android files have been updated automatically</source>
         <translation type="obsolete">Soubory Android byly zaktualizovány automaticky</translation>
     </message>
@@ -55735,7 +52377,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BreakTreeView</name>
+    <name>Debugger</name>
     <message>
         <source>Delete Breakpoint</source>
         <translation>Smazat bod přerušení</translation>
@@ -55804,9 +52446,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Add Breakpoint</source>
         <translation>Přidat bod přerušení</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::TypeFormatsDialog</name>
     <message>
         <source>Reset</source>
         <translation>Nastavit znovu</translation>
@@ -55827,28 +52466,14 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Misc Types</source>
         <translation>Různé typy</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::DebuggerEnginePrivate</name>
     <message>
         <source>Attempting to interrupt.</source>
         <translation>Pokus o přerušení.</translation>
     </message>
     <message>
-        <source>Debug Information</source>
-        <translation>Informace o ladění</translation>
-    </message>
-    <message>
         <source>Debugger Test</source>
         <translation>Zkouška ladění</translation>
     </message>
-    <message>
-        <source>Debugger Runtime</source>
-        <translation>Běhové prostředí ladicího nástroje</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerRunConfigWidget</name>
     <message>
         <source>Debugger Settings</source>
         <translation>Nastavení ladicího programu</translation>
@@ -55873,32 +52498,10 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Enable Debugging of Subprocesses</source>
         <translation>Povolit ladění podřízených procesů</translation>
     </message>
-</context>
-<context>
-    <name>DebuggerPlugin</name>
-    <message>
-        <source>Debug</source>
-        <translation type="obsolete">Ladění</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation type="obsolete">Ladič</translation>
-    </message>
     <message>
         <source>Unable to create a debugger engine of the type &apos;%1&apos;</source>
         <translation>Nepodařilo se vytvořit žádný ladicí stroj typu &apos;%1&apos;</translation>
     </message>
-    <message>
-        <source>Install &amp;Debug Information</source>
-        <translation>Instalace informací o &amp;ladění</translation>
-    </message>
-    <message>
-        <source>Tries to install missing debug information.</source>
-        <translation>Toto se pokusí o instalaci chybějících informací o ladění.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::ModulesTreeView</name>
     <message>
         <source>Update Module List</source>
         <translation>Obnovit seznam modulů</translation>
@@ -55955,89 +52558,10 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Show Dependencies of &quot;%1&quot;</source>
         <translation>Ukázat závislosti &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::QmlV8DebuggerClient</name>
-    <message>
-        <source>anonymous function</source>
-        <translation type="obsolete">Anonymní funkce</translation>
-    </message>
     <message>
         <source>Anonymous Function</source>
         <translation>Anonymní funkce</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::QtMessageLogEditor</name>
-    <message>
-        <source>Cu&amp;t</source>
-        <translation type="obsolete">Vyj&amp;mout</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="obsolete">&amp;Kopírovat</translation>
-    </message>
-    <message>
-        <source>&amp;Paste</source>
-        <translation type="obsolete">&amp;Vložit</translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="obsolete">Vybrat &amp;vše</translation>
-    </message>
-    <message>
-        <source>C&amp;lear</source>
-        <translation type="obsolete">Sma&amp;zat</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::QtMessageLogView</name>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="obsolete">&amp;Kopírovat</translation>
-    </message>
-    <message>
-        <source>&amp;Show in Editor</source>
-        <translation type="obsolete">&amp;Ukázat v editoru</translation>
-    </message>
-    <message>
-        <source>C&amp;lear</source>
-        <translation type="obsolete">Sma&amp;zat</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::QtMessageLogWindow</name>
-    <message>
-        <source>Log</source>
-        <translation type="obsolete">Záznamy</translation>
-    </message>
-    <message>
-        <source>Show debug, log, and info messages.</source>
-        <translation type="obsolete">Ukázat ladění, záznamy a informační zprávy.</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="obsolete">Varování</translation>
-    </message>
-    <message>
-        <source>Show warning messages.</source>
-        <translation type="obsolete">Ukázat varovné zprávy.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="obsolete">Chyba</translation>
-    </message>
-    <message>
-        <source>Show error and fatal messages.</source>
-        <translation type="obsolete">Ukázat chybové a kritické zprávy.</translation>
-    </message>
-    <message>
-        <source>Clear Console</source>
-        <translation type="obsolete">Smazat konzoli</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::RegisterTreeView</name>
     <message>
         <source>Reload Register Listing</source>
         <translation>Registry nahrát znovu</translation>
@@ -56067,29 +52591,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <translation>Otevřít náhled paměti při hodnotě registru</translation>
     </message>
     <message>
-        <source>Open Disassembler</source>
-        <translation>Otevřít disasembler</translation>
-    </message>
-    <message>
-        <source>Hexadecimal</source>
-        <translation>Šestnáctková</translation>
-    </message>
-    <message>
-        <source>Decimal</source>
-        <translation>Desítková</translation>
-    </message>
-    <message>
-        <source>Octal</source>
-        <translation>Osmičková</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation>Dvojková</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::SnapshotTreeView</name>
-    <message>
         <source>Snapshots</source>
         <translation>Snímky</translation>
     </message>
@@ -56101,9 +52602,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Remove Snapshot</source>
         <translation>Odstranit snímek</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::SourceFilesTreeView</name>
     <message>
         <source>Reload Data</source>
         <translation>Data nahrát znovu</translation>
@@ -56116,9 +52614,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Open File &quot;%1&quot;&apos;</source>
         <translation>Otevřít soubor &quot;%1&quot;&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::StackTreeView</name>
     <message>
         <source>Stack</source>
         <translation>Zásobník</translation>
@@ -56140,24 +52635,12 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <translation>Nelze otevřít &quot;%1&quot;: %2</translation>
     </message>
     <message>
-        <source>Copy Contents to Clipboard</source>
-        <translation>Kopírovat obsah do schránky</translation>
-    </message>
-    <message>
         <source>Save as Task File...</source>
         <translation>Uložit jako úkolový soubor...</translation>
     </message>
     <message>
         <source>Load QML Stack</source>
         <translation>Nahrát zásobník QML</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor</source>
-        <translation>Otevřít editor paměti</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at 0x%1</source>
-        <translation>Otevřít editor paměti při 0x%1</translation>
     </message>
     <message>
         <source>Open Disassembler at Address...</source>
@@ -56172,10 +52655,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <translation>Otevřít disasembler</translation>
     </message>
     <message>
-        <source>Open Disassembler at 0x%1</source>
-        <translation>Otevřít disasembler při %1</translation>
-    </message>
-    <message>
         <source>Try to Load Unknown Symbols</source>
         <translation>Nahrát neznámé symboly</translation>
     </message>
@@ -56187,9 +52666,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Frame #%1 (%2)</source>
         <translation>Snímek #%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Could not determine a suitable address range.</source>
         <translation>Nepodařilo se určit žádný vhodný rozsah adresy.</translation>
@@ -57568,10 +54044,6 @@ reference k prvkům v jiných souborech, smyčkách atd.)</translation>
     <message>
         <source>Communication Channel</source>
         <translation type="obsolete">Komunikační protokol</translation>
-    </message>
-    <message>
-        <source>Address:</source>
-        <translation type="obsolete">Adresa:</translation>
     </message>
     <message>
         <source>Connecting</source>
@@ -59462,11 +55934,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::StartApplicationDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation>Spustit ladicí program</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Select Executable</source>
         <translation>Vybrat spustitelný soubor</translation>
@@ -59535,9 +56003,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>&amp;Recent:</source>
         <translation>&amp;Poslední:</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerKitConfigWidget</name>
     <message>
         <source>None</source>
         <translation>Žádný</translation>
@@ -59566,9 +56031,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Debugger for &quot;%1&quot;</source>
         <translation>Ladicí program pro &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerKitConfigDialog</name>
     <message>
         <source>&amp;Engine:</source>
         <translation>&amp;Stroj:</translation>
@@ -59578,21 +56040,10 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <translation>&amp;Spustitelný soubor:</translation>
     </message>
     <message>
-        <source>64-bit version</source>
-        <translation>64 bitová verze</translation>
-    </message>
-    <message>
-        <source>32-bit version</source>
-        <translation>32 bitová verze</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger executable&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Zadejte cestu ke spustitelnému souboru &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger&lt;/a&gt; (%2).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::DebuggerKitInformation</name>
     <message>
         <source>No debugger set up.</source>
         <translation>Nenastaven žádný ladicí program.</translation>
@@ -59626,10 +56077,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <translation>%1 používá &quot;%2&quot;</translation>
     </message>
     <message>
-        <source>Debugger</source>
-        <translation>Ladicí program</translation>
-    </message>
-    <message>
         <source>GDB Engine</source>
         <translation>Stroj GDB</translation>
     </message>
@@ -59654,23 +56101,17 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbAbstractPlainEngine</name>
+    <name>Debugger</name>
     <message>
         <source>Starting executable failed:
 </source>
         <translation>Nepodařilo se spustit spustitelný soubor:
 </translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbAttachEngine</name>
     <message>
         <source>Attached to process %1.</source>
         <translation>Připojeno k procesu %1.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerCore</name>
     <message>
         <source>Open Qt Options</source>
         <translation>Otevřít nastavení pro knihovnu Qt</translation>
@@ -59688,16 +56129,9 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <translation>Pomocný ladicí program nebyl nalezen</translation>
     </message>
     <message>
-        <source>The debugger could not load the debugging helper library.</source>
-        <translation>Ladicí program nemohl nahrát pomocnou ladicí knihovnu.</translation>
-    </message>
-    <message>
         <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. In the Qt Creator Build and Run preferences page, select a Qt version, expand the Details section and click Build All.</source>
         <translation>Pomocný ladicí program slouží k výstupu hodnot některých datových typů z Qt a standardních knihoven. Musí být sestaven pro každou používanou verzi Qt. Na stránce nastavení &apos;Sestavení a spuštění&apos; vyberte verzi Qt, rozbalte Podrobnosti a klepněte na &apos;Sestavit vše&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbCoreEngine</name>
     <message>
         <source>Error Loading Core File</source>
         <translation>Chyba při nahrávání souboru core</translation>
@@ -59743,16 +56177,10 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
 </source>
         <translation>Ladění souboru &apos;core&apos; &quot;%1&quot; se nezdařilo:</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbLocalPlainEngine</name>
     <message>
         <source>Cannot set up communication with child process: %1</source>
         <translation>Spojení s podřízeným procesem se nepodařilo zřídit: %1</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbRemoteServerEngine</name>
     <message>
         <source>The upload process failed to start. Shell missing?</source>
         <translation>Nahrání procesu se nepodařilo spustit. Možnou příčinou by mohl být chybějící shellový program?</translation>
@@ -59760,10 +56188,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     <message>
         <source>The upload process crashed some time after starting successfully.</source>
         <translation>Proces nahrávání po určité době od úspěšného spuštění spadl.</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>Došlo k překročení času u poslední funkce waitFor...(). Stav QProcess je nezměněn, a tak se můžete pokusit zavolat waitFor...() ještě jednou.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -59799,9 +56223,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Interrupting not possible</source>
         <translation>Přerušení není možné</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbServerStarter</name>
     <message>
         <source>Remote Error</source>
         <translation>Vzdálená chyba</translation>
@@ -59854,23 +56275,14 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Process gdbserver finished. Status: %1</source>
         <translation>Proces gdbserver ukončen. Stav: %1</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbTermEngine</name>
     <message>
         <source>Debugger Error</source>
         <translation>Chyba v ladicím programu</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::SelectRemoteFileDialog</name>
     <message>
         <source>Download of remote file succeeded.</source>
         <translation>Stažení vzdáleného souboru se podařilo.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::ModulesHandler</name>
     <message>
         <source>Module Name</source>
         <translation>Název modulu</translation>
@@ -59906,10 +56318,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     <message>
         <source>Yes</source>
         <translation>Ano</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Žádný</translation>
     </message>
     <message>
         <source>Plain</source>
@@ -59961,9 +56369,6 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
         <extracomment>End address of loaded module</extracomment>
         <translation>&lt;Neznámá&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::QmlAdapter</name>
     <message>
         <source>Connecting to debug server %1:%2</source>
         <translation>Spojuje se s ladicím serverem %1:%2</translation>
@@ -60007,9 +56412,6 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
         <source>Closing.</source>
         <translation>Zavírá se spojení.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::QmlInspectorAgent</name>
     <message>
         <source>Success: </source>
         <translation>Úspěch: </translation>
@@ -60022,9 +56424,6 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
         <source>Properties</source>
         <translation>Vlastnosti</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::QmlLiveTextPreview</name>
     <message>
         <source>The %1 attribute at line %2, column %3 cannot be changed without reloading the QML application. </source>
         <translation>Vlastnost %1 na řádku %2, sloupec %3 nelze změnit bez nového nahrání programu QML.</translation>
@@ -63526,7 +59925,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbPathDialog</name>
+    <name>Debugger</name>
     <message>
         <source>CDB Symbol Paths</source>
         <translation type="obsolete">Cesty k symbolům CDB</translation>
@@ -63535,9 +59934,6 @@ nelze najít v cestě.</translation>
         <source>CDB Source Paths</source>
         <translation type="obsolete">Cesty ke zdroji CDB</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::CommonOptionsPageWidget</name>
     <message>
         <source>Behavior</source>
         <translation>Chování</translation>
@@ -65155,7 +61551,7 @@ Chcete je nyní načíst?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::SymbolPathsDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -66299,7 +62695,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbPathsPageWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Symbol Paths</source>
         <translation>Cesty k symbolům</translation>
@@ -66308,30 +62704,18 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>Source Paths</source>
         <translation>Cesty ke zdrojovému textu</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::CdbPathsPage</name>
     <message>
         <source>CDB Paths</source>
         <translation>Cesty CDB</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::DebuggerRunConfigurationAspect</name>
     <message>
         <source>Debugger settings</source>
         <translation>Nastavení ladicího programu</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbOptionsPage2</name>
     <message>
         <source>GDB Extended</source>
         <translation>Rozšířené GDB</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::LldbEngine</name>
     <message>
         <source>Unable to start lldb &apos;%1&apos;: %2</source>
         <translation>lldb &apos;%1&apos; se nepodařilo spustit: %2</translation>
@@ -66339,10 +62723,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     <message>
         <source>Unable to start LLDB &quot;%1&quot;: %2</source>
         <translation>LLDB &apos;%1&apos; se nepodařilo spustit: %2</translation>
-    </message>
-    <message>
-        <source>Adapter start failed.</source>
-        <translation>Spuštění adaptéru se nepodařilo.</translation>
     </message>
     <message>
         <source>Running requested...</source>
@@ -66371,22 +62751,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     <message>
         <source>An unknown error in the LLDB process occurred.</source>
         <translation>V LLDB procesu se vyskytla neznámá chyba.</translation>
-    </message>
-    <message>
-        <source>Adapter start failed</source>
-        <translation>Spuštění adaptéru se nepodařilo</translation>
-    </message>
-    <message>
-        <source>Debugger Error</source>
-        <translation>Chyba v ladicím programu</translation>
-    </message>
-    <message>
-        <source>&apos;%1&apos; contains no identifier.</source>
-        <translation>&apos;%1&apos; neobsahuje žádný identifikátor.</translation>
-    </message>
-    <message>
-        <source>String literal %1</source>
-        <translation>Řetězec znaků tvořený písmeny %1</translation>
     </message>
     <message>
         <source>Cowardly refusing to evaluate expression &apos;%1&apos; with potential side effects.</source>
@@ -68752,7 +65116,7 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerOptionsPage</name>
+    <name>Debugger</name>
     <message>
         <source>Not recognized</source>
         <translation>Nerozpoznáno</translation>
@@ -68781,9 +65145,6 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>New Debugger</source>
         <translation>Nový ladicí program</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::DebuggerItemManager</name>
     <message>
         <source>Auto-detected CDB at %1</source>
         <translation>Automaticky zjištěno CDB při %1</translation>
@@ -68797,9 +65158,6 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>Extracted from Kit %1</source>
         <translation>Vytaženo ze sady %1</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerItemModel</name>
     <message>
         <source>Auto-detected</source>
         <translation>Automaticky zjištěno</translation>
@@ -68809,20 +65167,9 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <translation>Ručně</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Název</translation>
-    </message>
-    <message>
         <source>Path</source>
         <translation>Cesta</translation>
     </message>
-    <message>
-        <source>Type</source>
-        <translation>Typ</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerItemConfigWidget</name>
     <message>
         <source>Name:</source>
         <translation>Název:</translation>
@@ -68844,47 +65191,12 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <translation>32 bitová verze</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger executable&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
-        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Zadejte cestu ke spustitelnému souboru &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger&lt;/a&gt; (%2).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>DebuggerCore</name>
-    <message>
-        <source>Open Qt Options</source>
-        <translation>Otevřít nastavení pro knihovnu Qt</translation>
-    </message>
-    <message>
-        <source>Turn off Helper Usage</source>
-        <translation>Vypnout pomocnou knihovnu pro výstup dat</translation>
-    </message>
-    <message>
-        <source>Continue Anyway</source>
-        <translation>Přesto pokračovat</translation>
-    </message>
-    <message>
-        <source>Debugging Helper Missing</source>
-        <translation>Pomocný ladicí program nebyl nalezen</translation>
-    </message>
-    <message>
         <source>The debugger could not load the debugging helper library.</source>
         <translation>Ladicí program nemohl nahrát pomocnou ladicí knihovnu.</translation>
     </message>
     <message>
-        <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. In the Qt Creator Build and Run preferences page, select a Qt version, expand the Details section and click Build All.</source>
-        <translation>Pomocný ladicí program slouží k výstupu hodnot některých datových typů z Qt a standardních knihoven. Musí být sestaven pro každou používanou verzi Qt. Na stránce nastavení &apos;Sestavení a spuštění&apos; vyberte verzi Qt, rozbalte Podrobnosti a klepněte na &apos;Sestavit vše&apos;.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbPlainEngine</name>
-    <message>
         <source>Starting executable failed:</source>
         <translation>Nepodařilo se spustit spustitelný soubor:</translation>
-    </message>
-    <message>
-        <source>Cannot set up communication with child process: %1</source>
-        <translation>Spojení s podřízeným procesem se nepodařilo zřídit: %1</translation>
     </message>
 </context>
 <context>
@@ -71585,7 +67897,7 @@ Chcete jej ukončit?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::UnstartedAppWatcherDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Attach to Process Not Yet Started</source>
         <translation>Připojit k procesu ještě nezapočato</translation>

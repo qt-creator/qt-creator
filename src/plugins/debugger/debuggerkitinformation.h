@@ -36,8 +36,6 @@ class DebuggerItem;
 
 class DEBUGGER_EXPORT DebuggerKitAspect : public ProjectExplorer::KitAspect
 {
-    Q_OBJECT
-
 public:
     DebuggerKitAspect();
 
@@ -76,4 +74,4 @@ public:
     static QString displayString(const ProjectExplorer::Kit *k);
 };
 
-} // namespace Debugger
+} // Debugger

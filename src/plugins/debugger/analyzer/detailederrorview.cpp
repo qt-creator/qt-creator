@@ -25,6 +25,7 @@
 
 #include "detailederrorview.h"
 
+#include "debuggertr.h"
 #include "diagnosticlocation.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -50,7 +51,7 @@ DetailedErrorView::DetailedErrorView(QWidget *parent) :
 {
     header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-    m_copyAction->setText(tr("Copy"));
+    m_copyAction->setText(Tr::tr("Copy"));
     m_copyAction->setIcon(Utils::Icons::COPY.icon());
     m_copyAction->setShortcut(QKeySequence::Copy);
     m_copyAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
@@ -169,4 +170,4 @@ void DetailedErrorView::setCurrentRow(int row)
     selectIndex(model()->index(row, 0));
 }
 
-} // namespace Debugger
+} // Debugger

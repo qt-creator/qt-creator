@@ -32,8 +32,7 @@
 
 namespace ProjectExplorer { class RunControl; }
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class DebuggerPlugin : public ExtensionSystem::IPlugin
 {
@@ -69,7 +68,6 @@ private:
     QVector<QObject *> createTestObjects() const override;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal
 
 Q_DECLARE_METATYPE(QString *)

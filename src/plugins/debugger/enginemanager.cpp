@@ -25,13 +25,11 @@
 
 #include "enginemanager.h"
 
-#include "analyzer/analyzermanager.h"
-#include "debuggeractions.h"
+#include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
 #include "debuggericons.h"
-#include "debuggercore.h"
-#include "debuggerruncontrol.h"
-#include "stackhandler.h"
+#include "debuggermainwindow.h"
+#include "debuggertr.h"
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -41,6 +39,7 @@
 #include <utils/treemodel.h>
 #include <utils/qtcassert.h>
 
+#include <QComboBox>
 #include <QDebug>
 #include <QMenu>
 #include <QTimer>
@@ -48,8 +47,7 @@
 using namespace Core;
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 const bool hideSwitcherUnlessNeeded = false;
 
@@ -76,9 +74,9 @@ QString SnapshotData::toString() const
 {
     QString res;
     QTextStream str(&res);
-/*    str << SnapshotHandler::tr("Function:") << ' ' << function() << ' '
-        << SnapshotHandler::tr("File:") << ' ' << m_location << ' '
-        << SnapshotHandler::tr("Date:") << ' ' << m_date.toString(); */
+/*    str << Tr::tr("Function:") << ' ' << function() << ' '
+        << Tr::tr("File:") << ' ' << m_location << ' '
+        << Tr::tr("Date:") << ' ' << m_date.toString(); */
     return res;
 }
 
@@ -88,9 +86,9 @@ QString SnapshotData::toToolTip() const
     QTextStream str(&res);
     str << "<html><body><table>"
 /*
-        << "<tr><td>" << SnapshotHandler::tr("Function:")
+        << "<tr><td>" << Tr::tr("Function:")
             << "</td><td>" << function() << "</td></tr>"
-        << "<tr><td>" << SnapshotHandler::tr("File:")
+        << "<tr><td>" << Tr::tr("File:")
             << "</td><td>" << QDir::toNativeSeparators(m_location) << "</td></tr>"
         << "</table></body></html>"; */
     return res;
@@ -132,8 +130,8 @@ class EngineManagerPrivate : public QObject
 public:
     EngineManagerPrivate()
     {
-        m_engineModel.setHeader({EngineManager::tr("Perspective"),
-                                 EngineManager::tr("Debugged Application")});
+        m_engineModel.setHeader({Tr::tr("Perspective"), Tr::tr("Debugged Application")});
+
         // The preset case:
         auto preset = new EngineItem;
         m_engineModel.rootItem()->appendChild(preset);
@@ -264,7 +262,7 @@ QVariant EngineItem::data(int column, int role) const
         switch (role) {
         case Qt::DisplayRole:
             if (column == 0)
-                return EngineManager::tr("Debugger Preset");
+                return Tr::tr("Debugger Preset");
             return QString("-");
         default:
             break;
@@ -292,11 +290,11 @@ bool EngineItem::setData(int row, const QVariant &value, int role)
 
             auto menu = new QMenu(ev.view());
 
-            QAction *actCreate = menu->addAction(EngineManager::tr("Create Snapshot"));
+            QAction *actCreate = menu->addAction(Tr::tr("Create Snapshot"));
             actCreate->setEnabled(m_engine->hasCapability(SnapshotCapabilityRole));
             menu->addSeparator();
 
-            QAction *actRemove = menu->addAction(EngineManager::tr("Abort Debugger"));
+            QAction *actRemove = menu->addAction(Tr::tr("Abort Debugger"));
             actRemove->setEnabled(true);
 
             QAction *act = menu->exec(cmev->globalPos());
@@ -502,5 +500,4 @@ bool EngineManager::shutDown()
     return anyEngineAborting;
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

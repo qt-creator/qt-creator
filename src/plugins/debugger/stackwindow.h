@@ -27,10 +27,7 @@
 
 #include <utils/basetreeview.h>
 
-#include <QCoreApplication>
-
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class StackTreeView : public Utils::BaseTreeView
 {
@@ -46,5 +43,4 @@ private:
     bool m_contentsAdjusted = false;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

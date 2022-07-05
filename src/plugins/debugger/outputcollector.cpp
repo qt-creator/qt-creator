@@ -25,6 +25,8 @@
 
 #include "outputcollector.h"
 
+#include "debuggertr.h"
+
 #ifdef Q_OS_WIN
 
 #include <QLocalServer>
@@ -52,8 +54,7 @@
 
 #endif
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 OutputCollector::~OutputCollector()
 {
@@ -78,7 +79,7 @@ bool OutputCollector::listen()
         {
             Utils::TemporaryFile tf("outputcollector");
             if (!tf.open()) {
-                m_errorString = tr("Cannot create temporary file: %1").arg(tf.errorString());
+                m_errorString = Tr::tr("Cannot create temporary file: %1").arg(tf.errorString());
                 m_serverPath.clear();
                 return false;
             }
@@ -89,14 +90,14 @@ bool OutputCollector::listen()
         if (!::mkfifo(codedServerPath.constData(), 0600))
             break;
         if (errno != EEXIST) {
-            m_errorString = tr("Cannot create FiFo %1: %2").
+            m_errorString = Tr::tr("Cannot create FiFo %1: %2").
                             arg(m_serverPath, QString::fromLocal8Bit(strerror(errno)));
             m_serverPath.clear();
             return false;
         }
     }
     if ((m_serverFd = ::open(codedServerPath.constData(), O_RDONLY|O_NONBLOCK)) < 0) {
-        m_errorString = tr("Cannot open FiFo %1: %2").
+        m_errorString = Tr::tr("Cannot open FiFo %1: %2").
                         arg(m_serverPath, QString::fromLocal8Bit(strerror(errno)));
         m_serverPath.clear();
         return false;
@@ -170,5 +171,4 @@ void OutputCollector::bytesAvailable()
 #endif
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

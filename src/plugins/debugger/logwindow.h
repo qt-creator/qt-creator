@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "debuggerconstants.h"
-
 #include <QWidget>
 #include <QTimer>
 
@@ -37,8 +35,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class FancyLineEdit; }
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class DebuggerEngine;
 class DebuggerPane;
@@ -87,8 +84,6 @@ private:
 
 class GlobalLogWindow final : public QWidget
 {
-    Q_OBJECT
-
 public:
     explicit GlobalLogWindow();
     ~GlobalLogWindow() final;
@@ -105,5 +100,4 @@ private:
     DebuggerPane *m_leftPane;  // combined input
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internla

@@ -31,6 +31,7 @@
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggerruncontrol.h>
+#include <debugger/debuggertr.h>
 #include <debugger/watchhandler.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -55,8 +56,7 @@
 using namespace QmlDebug;
 using namespace QmlDebug::Constants;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 static Q_LOGGING_CATEGORY(qmlInspectorLog, "qtc.dbg.qmlinspector", QtWarningMsg)
 
@@ -231,7 +231,7 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
                || type == "RESET_BINDING_R"
                || type == "SET_METHOD_BODY_R") {
         // FIXME: This is not supported anymore.
-        QString msg = type + tr("Success:");
+        QString msg = type + Tr::tr("Success:");
         msg += ' ';
         msg += value.toBool() ? '1' : '0';
         // if (!value.toBool())
@@ -608,7 +608,7 @@ void QmlInspectorAgent::addWatchData(const ObjectReference &obj,
         }
 
         if (name.isEmpty())
-            name = tr("<anonymous>");
+            name = Tr::tr("<anonymous>");
 
         // object
         auto objWatch = new WatchItem;
@@ -644,7 +644,7 @@ void QmlInspectorAgent::addWatchData(const ObjectReference &obj,
         QString iname = objIname + ".[properties]";
         auto propertiesWatch = new WatchItem;
         propertiesWatch->iname = iname;
-        propertiesWatch->name = tr("Properties");
+        propertiesWatch->name = Tr::tr("Properties");
         propertiesWatch->id = objDebugId;
         propertiesWatch->value = "list";
         propertiesWatch->wantsChildren = true;
@@ -780,5 +780,4 @@ void QmlInspectorAgent::onReloaded()
     reloadEngines();
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

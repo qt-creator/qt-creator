@@ -27,7 +27,7 @@
 
 #include <debugger/debugger_global.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QDebug>
 #include <QMetaType>

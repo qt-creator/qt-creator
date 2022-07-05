@@ -34,8 +34,7 @@
 
 namespace BinEditor { class EditorService; }
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class DebuggerEngine;
 
@@ -70,8 +69,6 @@ public:
 
 class MemoryAgent : public QObject
 {
-    Q_OBJECT
-
 public:
     MemoryAgent(const MemoryViewSetupData &data, DebuggerEngine *engine);
     ~MemoryAgent() override;
@@ -94,5 +91,4 @@ private:
 QList<MemoryMarkup> registerViewMarkup(quint64 address, const QString &regName);
 QString registerViewTitle(const QString &registerName, quint64 address = 0);
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Intenal

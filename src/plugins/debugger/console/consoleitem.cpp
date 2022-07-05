@@ -25,8 +25,7 @@
 
 #include "consoleitem.h"
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 static QString addZeroWidthSpace(QString text)
 {
@@ -157,5 +156,4 @@ QString ConsoleItem::expression() const
     return text().remove(QChar(0x200b));  // ZERO WIDTH SPACE
 }
 
-} // Internal
-} // Debugger
+} // Debugger::Internal

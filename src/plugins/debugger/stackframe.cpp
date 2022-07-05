@@ -27,6 +27,7 @@
 
 #include "debuggerengine.h"
 #include "debuggerprotocol.h"
+#include "debuggertr.h"
 #include "watchutils.h"
 
 #include <QDebug>
@@ -37,8 +38,7 @@
 
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -67,16 +67,16 @@ QString StackFrame::toString() const
 {
     QString res;
     QTextStream str(&res);
-    str << tr("Address:") << ' ';
+    str << Tr::tr("Address:") << ' ';
     str.setIntegerBase(16);
     str << address;
     str.setIntegerBase(10);
     str << ' '
-        << tr("Function:") << ' ' << function << ' '
-        << tr("File:") << ' ' << file << ' '
-        << tr("Line:") << ' ' << line << ' '
-        << tr("From:") << ' ' << module << ' '
-        << tr("To:") << ' ' << receiver;
+        << Tr::tr("Function:") << ' ' << function << ' '
+        << Tr::tr("File:") << ' ' << file << ' '
+        << Tr::tr("Line:") << ' ' << line << ' '
+        << Tr::tr("From:") << ' ' << module << ' '
+        << Tr::tr("To:") << ' ' << receiver;
     return res;
 }
 
@@ -121,40 +121,40 @@ QString StackFrame::toToolTip() const
     QTextStream str(&res);
     str << "<html><body><table>";
     if (address)
-        str << "<tr><td>" << tr("Address:") << "</td><td>"
+        str << "<tr><td>" << Tr::tr("Address:") << "</td><td>"
             << formatToolTipAddress(address) << "</td></tr>";
     if (!function.isEmpty())
         str << "<tr><td>"
-            << (language == CppLanguage ? tr("Function:") : tr("JS-Function:"))
+            << (language == CppLanguage ? Tr::tr("Function:") : Tr::tr("JS-Function:"))
             << "</td><td>" << function << "</td></tr>";
     if (!file.isEmpty())
-        str << "<tr><td>" << tr("File:") << "</td><td>" << filePath << "</td></tr>";
+        str << "<tr><td>" << Tr::tr("File:") << "</td><td>" << filePath << "</td></tr>";
     if (line != -1)
-        str << "<tr><td>" << tr("Line:") << "</td><td>" << line << "</td></tr>";
+        str << "<tr><td>" << Tr::tr("Line:") << "</td><td>" << line << "</td></tr>";
     if (!module.isEmpty())
-        str << "<tr><td>" << tr("Module:") << "</td><td>" << module << "</td></tr>";
+        str << "<tr><td>" << Tr::tr("Module:") << "</td><td>" << module << "</td></tr>";
     if (!receiver.isEmpty())
-        str << "<tr><td>" << tr("Receiver:") << "</td><td>" << receiver << "</td></tr>";
+        str << "<tr><td>" << Tr::tr("Receiver:") << "</td><td>" << receiver << "</td></tr>";
     str << "</table>";
 
-    str <<"<br> <br><i>" << tr("Note:") << " </i> ";
+    str <<"<br> <br><i>" << Tr::tr("Note:") << " </i> ";
     bool showDistributionNote = false;
     if (isUsable()) {
-        str << tr("Sources for this frame are available.<br>Double-click on "
+        str << Tr::tr("Sources for this frame are available.<br>Double-click on "
             "the file name to open an editor.");
     } else if (line <= 0) {
-        str << tr("Binary debug information is not accessible for this "
+        str << Tr::tr("Binary debug information is not accessible for this "
             "frame. This either means the core was not compiled "
             "with debug information, or the debug information is not "
             "accessible.");
         showDistributionNote = true;
     } else {
-        str << tr("Binary debug information is accessible for this "
+        str << Tr::tr("Binary debug information is accessible for this "
             "frame. However, matching sources have not been found.");
         showDistributionNote = true;
     }
     if (file.osType() != OsTypeWindows  && showDistributionNote) {
-        str << ' ' << tr("Note that most distributions ship debug information "
+        str << ' ' << Tr::tr("Note that most distributions ship debug information "
                          "in separate packages.");
     }
 
@@ -218,5 +218,4 @@ QDebug operator<<(QDebug d, const  StackFrame &f)
     return d;
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

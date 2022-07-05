@@ -24,22 +24,15 @@
 ****************************************************************************/
 
 #include "consoleedit.h"
-#include "consoleitemmodel.h"
 #include "console.h"
+
 #include <utils/qtcassert.h>
 
 #include <QUrl>
 #include <QMenu>
 #include <QKeyEvent>
 
-namespace Debugger {
-namespace Internal {
-
-///////////////////////////////////////////////////////////////////////
-//
-// ConsoleEdit
-//
-///////////////////////////////////////////////////////////////////////
+namespace Debugger::Internal {
 
 ConsoleEdit::ConsoleEdit(const QModelIndex &index, QWidget *parent) :
     QTextEdit(parent),
@@ -154,5 +147,4 @@ void ConsoleEdit::replaceCurrentScript(const QString &script)
     setTextCursor(cursor);
 }
 
-} // Internal
-} // Debugger
+} // Debugger::Internal

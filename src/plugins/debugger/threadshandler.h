@@ -38,8 +38,7 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class DebuggerEngine;
 class GdbMi;
@@ -47,8 +46,6 @@ class ThreadsHandler;
 
 class ThreadItem : public QObject, public Utils::TreeItem
 {
-    Q_OBJECT
-
 public:
     ThreadItem(const ThreadData &data = ThreadData());
 
@@ -73,8 +70,6 @@ using ThreadsHandlerModel = Utils::TreeModel<Utils::TypedTreeItem<ThreadItem>, T
 
 class ThreadsHandler : public ThreadsHandlerModel
 {
-    Q_OBJECT
-
 public:
     explicit ThreadsHandler(DebuggerEngine *engine);
     ~ThreadsHandler();
@@ -109,5 +104,4 @@ private:
     QPointer<QComboBox> m_comboBox;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

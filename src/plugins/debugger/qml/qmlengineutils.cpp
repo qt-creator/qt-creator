@@ -23,11 +23,10 @@
 **
 ****************************************************************************/
 
-#include "qmlengine.h"
-
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <debugger/console/console.h>
+#include <qmldebug/qdebugmessageclient.h>
 
 #include <coreplugin/editormanager/documentmodel.h>
 
@@ -44,8 +43,7 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace TextEditor;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class ASTWalker : public Visitor
 {
@@ -228,8 +226,6 @@ void appendDebugOutput(QtMsgType type, const QString &message, const QDebugConte
         break;
     }
 
-    QTC_ASSERT(itemType != ConsoleItem::DefaultType, return);
-
     debuggerConsole()->printItem(new ConsoleItem(itemType, message, info.file, info.line));
 }
 
@@ -282,5 +278,4 @@ QStringList highlightExceptionCode(int lineNumber, const QString &filePath, cons
     return messages;
 }
 
-} // Internal
-} // Debugger
+} // Debugger::Internal

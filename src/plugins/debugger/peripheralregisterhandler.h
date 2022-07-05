@@ -37,8 +37,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class ItemViewEvent; }
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class DebuggerEngine;
 
@@ -152,7 +151,6 @@ using PeripheralRegisterModel = Utils::TreeModel<PeripheralRegisterRootItem,
 
 class PeripheralRegisterHandler final : public PeripheralRegisterModel
 {
-    Q_OBJECT
 public:
     explicit PeripheralRegisterHandler(DebuggerEngine *engine);
 
@@ -181,5 +179,4 @@ private:
     DebuggerEngine * const m_engine;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

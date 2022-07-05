@@ -27,7 +27,6 @@
 
 #include "breakhandler.h"
 #include "debuggeractions.h"
-#include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
 #include "disassemblerlines.h"
@@ -52,8 +51,7 @@
 using namespace Core;
 using namespace TextEditor;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -410,5 +408,4 @@ quint64 DisassemblerAgent::address() const
     return d->location.address();
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

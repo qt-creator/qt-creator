@@ -42,8 +42,7 @@ class Kit;
 
 namespace Utils { class PathChooser; }
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class UnstartedAppWatcherDialog : public QDialog
 {
@@ -93,5 +92,4 @@ private:
     QTimer m_timer;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

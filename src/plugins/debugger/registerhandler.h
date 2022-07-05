@@ -32,8 +32,7 @@
 
 namespace Utils { class ItemViewEvent; }
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class DebuggerEngine;
 
@@ -134,5 +133,4 @@ private:
     DebuggerEngine * const m_engine;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

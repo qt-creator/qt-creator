@@ -24,9 +24,10 @@
 ****************************************************************************/
 
 #include <debugger/debuggeractions.h>
+#include <debugger/debuggerconstants.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerinternalconstants.h>
-#include <debugger/debuggerconstants.h>
+#include <debugger/debuggertr.h>
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -35,8 +36,7 @@
 using namespace Core;
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 /////////////////////////////////////////////////////////////////////////
 //
@@ -46,13 +46,11 @@ namespace Internal {
 
 class GdbOptionsPage : public Core::IOptionsPage
 {
-    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::GdbOptionsPage)
-
 public:
     GdbOptionsPage()
     {
         setId("M.Gdb");
-        setDisplayName(tr("GDB"));
+        setDisplayName(Tr::tr("GDB"));
         setCategory(Constants::DEBUGGER_SETTINGS_CATEGORY);
         setSettings(&debuggerSettings()->page2);
 
@@ -61,7 +59,7 @@ public:
             DebuggerSettings &s = *debuggerSettings();
 
             Group general {
-                Title { tr("General") },
+                Title { Tr::tr("General") },
                 Row { s.gdbWatchdogTimeout, Stretch() },
                 s.skipKnownFrames,
                 s.useMessageBoxForSignals,
@@ -76,8 +74,8 @@ public:
             };
 
             Column commands {
-                Group { Title { tr("Additional Startup Commands") }, s.gdbStartupCommands },
-                Group { Title { tr("Additional Attach Commands") }, s.gdbPostAttachCommands },
+                Group { Title { Tr::tr("Additional Startup Commands") }, s.gdbStartupCommands },
+                Group { Title { Tr::tr("Additional Attach Commands") }, s.gdbPostAttachCommands },
                 Stretch()
             };
 
@@ -99,13 +97,13 @@ public:
     GdbOptionsPage2()
     {
         setId("M.Gdb2");
-        setDisplayName(GdbOptionsPage::tr("GDB Extended"));
+        setDisplayName(Tr::tr("GDB Extended"));
         setCategory(Constants::DEBUGGER_SETTINGS_CATEGORY);
         setSettings(&debuggerSettings()->page3);
 
         setLayouter([](QWidget *w) {
             auto labelDangerous = new QLabel("<html><head/><body><i>" +
-                GdbOptionsPage::tr("The options below give access to advanced "
+                Tr::tr("The options below give access to advanced "
                 "or experimental functions of GDB.<br>Enabling them may negatively "
                 "impact your debugging experience.") + "</i></body></html>");
 
@@ -113,7 +111,7 @@ public:
             DebuggerSettings &s = *debuggerSettings();
 
             Group extended {
-                Title(GdbOptionsPage::tr("Extended")),
+                Title(Tr::tr("Extended")),
                 labelDangerous,
                 s.targetAsync,
                 s.autoEnrichParameters,
@@ -137,5 +135,4 @@ void addGdbOptionPages(QList<IOptionsPage *> *opts)
     opts->push_back(new GdbOptionsPage2);
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

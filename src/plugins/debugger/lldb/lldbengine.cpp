@@ -25,23 +25,23 @@
 
 #include "lldbengine.h"
 
+#include <debugger/breakhandler.h>
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerdialogs.h>
 #include <debugger/debuggerinternalconstants.h>
+#include <debugger/debuggeritem.h>
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerprotocol.h>
-#include <debugger/debuggertooltipmanager.h>
-#include <debugger/terminal.h>
-
-#include <debugger/breakhandler.h>
-#include <debugger/debuggeritem.h>
 #include <debugger/debuggersourcepathmappingwidget.h>
+#include <debugger/debuggertooltipmanager.h>
+#include <debugger/debuggertr.h>
 #include <debugger/disassemblerlines.h>
 #include <debugger/moduleshandler.h>
 #include <debugger/registerhandler.h>
-#include <debugger/stackhandler.h>
 #include <debugger/sourceutils.h>
+#include <debugger/stackhandler.h>
+#include <debugger/terminal.h>
 #include <debugger/threadshandler.h>
 #include <debugger/watchhandler.h>
 #include <debugger/watchutils.h>
@@ -68,8 +68,7 @@
 using namespace Core;
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 static int &currentToken()
 {
@@ -137,7 +136,7 @@ void LldbEngine::runCommand(const DebuggerCommand &command)
     if (cmd.flags == NeedsFullStop) {
         cmd.flags &= ~NeedsFullStop;
         if (state() == InferiorRunOk) {
-            showStatusMessage(tr("Stopping temporarily"), 1000);
+            showStatusMessage(Tr::tr("Stopping temporarily"), 1000);
             m_onStop.append(cmd, false);
             interruptInferior();
             return;
@@ -191,7 +190,7 @@ void LldbEngine::abortDebuggerProcess()
 
 static QString adapterStartFailed()
 {
-    return LldbEngine::tr("Adapter start failed.");
+    return Tr::tr("Adapter start failed.");
 }
 
 void LldbEngine::setupEngine()
@@ -237,7 +236,7 @@ void LldbEngine::handleLldbStarted()
 {
     m_lldbProc.waitForReadyRead(1000);
 
-    showStatusMessage(tr("Setting up inferior..."));
+    showStatusMessage(Tr::tr("Setting up inferior..."));
 
     const DebuggerRunParameters &rp = runParameters();
 
@@ -351,7 +350,7 @@ void LldbEngine::runEngine()
 {
     const DebuggerRunParameters &rp = runParameters();
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state(); return);
-    showStatusMessage(tr("Running requested..."), 5000);
+    showStatusMessage(Tr::tr("Running requested..."), 5000);
     DebuggerCommand cmd("runEngine");
     if (rp.startMode == AttachToCore)
         cmd.arg("coreFile", rp.coreFile);
@@ -360,7 +359,7 @@ void LldbEngine::runEngine()
 
 void LldbEngine::interruptInferior()
 {
-    showStatusMessage(tr("Interrupt requested..."), 5000);
+    showStatusMessage(Tr::tr("Interrupt requested..."), 5000);
     runCommand({"interruptInferior"});
 }
 
@@ -789,7 +788,7 @@ void LldbEngine::handleLldbDone()
     if (m_lldbProc.result() == ProcessResult::StartFailed) {
         notifyEngineSetupFailed();
         showMessage("ADAPTER START FAILED");
-        ICore::showWarningWithOptions(adapterStartFailed(), tr("Unable to start LLDB \"%1\": %2")
+        ICore::showWarningWithOptions(adapterStartFailed(), Tr::tr("Unable to start LLDB \"%1\": %2")
                  .arg(runParameters().debugger.command.executable().toUserOutput(),
                  m_lldbProc.errorString()));
         return;
@@ -812,7 +811,7 @@ void LldbEngine::handleLldbDone()
     case QProcess::Timedout:
     default:
         //setState(EngineShutdownRequested, true);
-        AsynchronousMessageBox::critical(tr("LLDB I/O Error"), errorMessage(error));
+        AsynchronousMessageBox::critical(Tr::tr("LLDB I/O Error"), errorMessage(error));
         break;
     }
 }
@@ -821,26 +820,26 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
 {
     switch (error) {
         case QProcess::FailedToStart:
-            return tr("The LLDB process failed to start. Either the "
+            return Tr::tr("The LLDB process failed to start. Either the "
                 "invoked program \"%1\" is missing, or you may have insufficient "
                 "permissions to invoke the program.")
                 .arg(runParameters().debugger.command.executable().toUserOutput());
         case QProcess::Crashed:
-            return tr("The LLDB process crashed some time after starting "
+            return Tr::tr("The LLDB process crashed some time after starting "
                 "successfully.");
         case QProcess::Timedout:
-            return tr("The last waitFor...() function timed out. "
+            return Tr::tr("The last waitFor...() function timed out. "
                 "The state of QProcess is unchanged, and you can try calling "
                 "waitFor...() again.");
         case QProcess::WriteError:
-            return tr("An error occurred when attempting to write "
+            return Tr::tr("An error occurred when attempting to write "
                 "to the LLDB process. For example, the process may not be running, "
                 "or it may have closed its input channel.");
         case QProcess::ReadError:
-            return tr("An error occurred when attempting to read from "
+            return Tr::tr("An error occurred when attempting to read from "
                 "the Lldb process. For example, the process may not be running.");
         default:
-            return tr("An unknown error in the LLDB process occurred.") + ' ';
+            return Tr::tr("An unknown error in the LLDB process occurred.") + ' ';
     }
 }
 
@@ -1131,5 +1130,4 @@ DebuggerEngine *createLldbEngine()
     return new LldbEngine;
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

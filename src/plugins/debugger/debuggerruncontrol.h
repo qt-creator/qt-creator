@@ -46,8 +46,6 @@ class DebugServerPortsGatherer;
 
 class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::RunWorker
 {
-    Q_OBJECT
-
 public:
     enum AllowTerminal { DoAllowTerminal, DoNotAllowTerminal };
     explicit DebuggerRunTool(ProjectExplorer::RunControl *runControl,
@@ -146,8 +144,6 @@ private:
 
 class DEBUGGER_EXPORT DebugServerPortsGatherer : public ProjectExplorer::ChannelProvider
 {
-    Q_OBJECT
-
 public:
     explicit DebugServerPortsGatherer(ProjectExplorer::RunControl *runControl);
     ~DebugServerPortsGatherer() override;
@@ -167,8 +163,6 @@ private:
 
 class DEBUGGER_EXPORT DebugServerRunner : public ProjectExplorer::SimpleTargetRunner
 {
-    Q_OBJECT
-
 public:
     explicit DebugServerRunner(ProjectExplorer::RunControl *runControl,
                                DebugServerPortsGatherer *portsGatherer);

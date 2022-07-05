@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "uvscclient.h"
+
 #include "uvscutils.h"
+#include "../debuggertr.h"
 
 #include <QMutexLocker>
 
@@ -33,8 +35,7 @@
 
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 constexpr int kMaximumAflmapSize = 65536;
 constexpr int kMaximumTaskEnumsCount = 512;
@@ -155,8 +156,8 @@ void UvscClient::version(QString &uvscVersion, QString &uvsockVersion)
     quint32 uvsc = 0;
     quint32 uvsock = 0;
     ::UVSC_Version(&uvsc, &uvsock);
-    uvscVersion = tr("%1.%2").arg(uvsc / 100).arg(uvsc % 100);
-    uvsockVersion = tr("%1.%2").arg(uvsock / 100).arg(uvsock % 100);
+    uvscVersion = Tr::tr("%1.%2").arg(uvsc / 100).arg(uvsc % 100);
+    uvsockVersion = Tr::tr("%1.%2").arg(uvsock / 100).arg(uvsock % 100);
 }
 
 bool UvscClient::connectSession(qint32 uvscPort)
@@ -1087,7 +1088,7 @@ void UvscClient::setError(UvscError error, const QString &errorString)
                                                    reinterpret_cast<qint8 *>(buffer.data()),
                                                    buffer.size());
         m_errorString = (st == UVSC_STATUS_SUCCESS)
-                ? QString::fromLocal8Bit(buffer) : tr("Unknown error.");
+                ? QString::fromLocal8Bit(buffer) : Tr::tr("Unknown error.");
     } else {
         m_errorString = errorString;
     }
@@ -1116,7 +1117,7 @@ void UvscClient::customEvent(QEvent *event)
 bool UvscClient::checkConnection()
 {
     if (m_descriptor == -1) {
-        setError(ConfigurationError, tr("Connection is not open."));
+        setError(ConfigurationError, Tr::tr("Connection is not open."));
         return false;
     }
     return true;
@@ -1230,5 +1231,4 @@ bool UvscClient::executeCommand(const QString &cmd, QString &output)
     return true;
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

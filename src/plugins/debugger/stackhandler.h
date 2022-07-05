@@ -30,8 +30,7 @@
 #include <utils/basetreeview.h>
 #include <utils/treemodel.h>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class DebuggerEngine;
 class StackHandler;
@@ -136,5 +135,4 @@ private:
     bool m_contentsValid = false;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

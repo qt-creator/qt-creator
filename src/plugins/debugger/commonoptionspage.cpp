@@ -27,6 +27,7 @@
 
 #include "debuggeractions.h"
 #include "debuggerinternalconstants.h"
+#include "debuggertr.h"
 
 #include <coreplugin/icore.h>
 
@@ -47,8 +48,6 @@ namespace Internal {
 
 class CommonOptionsPageWidget : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::CommonOptionsPageWidget)
-
 public:
     explicit CommonOptionsPageWidget()
     {
@@ -107,23 +106,23 @@ void CommonOptionsPageWidget::apply()
 CommonOptionsPage::CommonOptionsPage()
 {
     setId(DEBUGGER_COMMON_SETTINGS_ID);
-    setDisplayName(QCoreApplication::translate("Debugger", "General"));
+    setDisplayName(Tr::tr("General"));
     setCategory(DEBUGGER_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Debugger", "Debugger"));
+    setDisplayCategory(Tr::tr("Debugger"));
     setCategoryIconPath(":/debugger/images/settingscategory_debugger.png");
     setWidgetCreator([] { return new CommonOptionsPageWidget; });
 }
 
 QString CommonOptionsPage::msgSetBreakpointAtFunction(const char *function)
 {
-    return CommonOptionsPageWidget::tr("Stop when %1() is called").arg(QLatin1String(function));
+    return Tr::tr("Stop when %1() is called").arg(QLatin1String(function));
 }
 
 QString CommonOptionsPage::msgSetBreakpointAtFunctionToolTip(const char *function,
                                                              const QString &hint)
 {
     QString result = "<html><head/><body>";
-    result += CommonOptionsPageWidget::tr("Always adds a breakpoint on the <i>%1()</i> function.")
+    result += Tr::tr("Always adds a breakpoint on the <i>%1()</i> function.")
             .arg(QLatin1String(function));
     if (!hint.isEmpty()) {
         result += "<br>";
@@ -142,8 +141,6 @@ QString CommonOptionsPage::msgSetBreakpointAtFunctionToolTip(const char *functio
 
 class LocalsAndExpressionsOptionsPageWidget : public IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::LocalsAndExpressionsOptionsPage)
-
 public:
     LocalsAndExpressionsOptionsPageWidget()
     {
@@ -154,7 +151,7 @@ public:
         label->setTextFormat(Qt::AutoText);
         label->setWordWrap(true);
         label->setText("<html><head/><body>\n<p>"
-           + tr("The debugging helpers are used to produce a nice "
+           + Tr::tr("The debugging helpers are used to produce a nice "
                 "display of objects of certain types like QString or "
                 "std::map in the &quot;Locals&quot; and &quot;Expressions&quot; views.")
             + "</p></body></html>");
@@ -163,13 +160,13 @@ public:
             label,
             s.useCodeModel,
             s.showThreadNames,
-            Group { Title(tr("Extra Debugging Helper")), s.extraDumperFile }
+            Group { Title(Tr::tr("Extra Debugging Helper")), s.extraDumperFile }
         };
 
         Group useHelper {
             Row {
                 left,
-                Group { Title(tr("Debugging Helper Customization")), s.extraDumperCommands }
+                Group { Title(Tr::tr("Debugging Helper Customization")), s.extraDumperCommands }
             }
         };
 
@@ -203,7 +200,7 @@ LocalsAndExpressionsOptionsPage::LocalsAndExpressionsOptionsPage()
 {
     setId("Z.Debugger.LocalsAndExpressions");
     //: '&&' will appear as one (one is marking keyboard shortcut)
-    setDisplayName(QCoreApplication::translate("Debugger", "Locals && Expressions"));
+    setDisplayName(Tr::tr("Locals && Expressions"));
     setCategory(DEBUGGER_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new LocalsAndExpressionsOptionsPageWidget; });
 }

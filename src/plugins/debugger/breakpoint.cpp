@@ -25,11 +25,11 @@
 
 #include "breakpoint.h"
 
-#include "debuggeractions.h"
-#include "debuggercore.h"
 #include "debuggerprotocol.h"
 
 #include <projectexplorer/abi.h>
+
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 

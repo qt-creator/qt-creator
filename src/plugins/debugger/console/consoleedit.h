@@ -29,8 +29,7 @@
 #include <QString>
 #include <QTextEdit>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class ConsoleEdit : public QTextEdit
 {
@@ -57,5 +56,4 @@ private:
     QString m_cachedScript;
 };
 
-} // Debugger
-} // Internal
+} // Debugger::Internal

@@ -31,16 +31,13 @@
 #include <qmldebug/qmloutputparser.h>
 #include <qmljs/qmljsdocument.h>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class QmlEnginePrivate;
 class QmlInspectorAgent;
 
 class QmlEngine : public DebuggerEngine
 {
-    Q_OBJECT
-
 public:
     QmlEngine();
     ~QmlEngine() override;
@@ -137,5 +134,4 @@ private:
     QmlEnginePrivate *d;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

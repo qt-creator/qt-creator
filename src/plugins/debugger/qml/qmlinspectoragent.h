@@ -41,16 +41,13 @@ class FileReference;
 class QmlDebugConnection;
 }
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class DebuggerEngine;
 class QmlEngine;
 
 class QmlInspectorAgent : public QObject
 {
-    Q_OBJECT
-
 public:
     QmlInspectorAgent(QmlEngine *engine, QmlDebug::QmlDebugConnection *connection);
 
@@ -129,5 +126,4 @@ private:
     QAction *m_showAppOnTopAction = nullptr;
 };
 
-} // Internal
-} // Debugger
+} // Debugger::Internal

@@ -28,8 +28,7 @@
 #include <QWidget>
 #include <QTimer>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class LocalsAndInspectorWindow : public QWidget
 {
@@ -44,5 +43,4 @@ private:
     bool m_showLocals = false;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

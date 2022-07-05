@@ -26,6 +26,8 @@
 
 #include "analyzerrunconfigwidget.h"
 
+#include "debuggertr.h"
+
 #include <utils/detailswidget.h>
 #include <utils/layoutbuilder.h>
 
@@ -42,10 +44,10 @@ AnalyzerRunConfigWidget::AnalyzerRunConfigWidget(ProjectExplorer::GlobalOrProjec
     using namespace Layouting;
 
     auto settingsCombo = new QComboBox;
-    settingsCombo->addItem(tr("Global"));
-    settingsCombo->addItem(tr("Custom"));
+    settingsCombo->addItem(Tr::tr("Global"));
+    settingsCombo->addItem(Tr::tr("Custom"));
 
-    auto restoreButton = new QPushButton(tr("Restore Global"));
+    auto restoreButton = new QPushButton(Tr::tr("Restore Global"));
 
     auto innerPane = new QWidget;
     auto configWidget = aspect->projectSettings()->createConfigWidget();
@@ -72,8 +74,8 @@ AnalyzerRunConfigWidget::AnalyzerRunConfigWidget(ProjectExplorer::GlobalOrProjec
         configWidget->setEnabled(isCustom);
         restoreButton->setEnabled(isCustom);
         details->setSummaryText(isCustom
-                                  ? tr("Use Customized Settings")
-                                  : tr("Use Global Settings"));
+                                  ? Tr::tr("Use Customized Settings")
+                                  : Tr::tr("Use Global Settings"));
     };
 
     chooseSettings(aspect->isUsingGlobalSettings() ? 0 : 1);

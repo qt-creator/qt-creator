@@ -26,8 +26,8 @@
 #include "sourcefileshandler.h"
 
 #include "debuggeractions.h"
-#include "debuggercore.h"
 #include "debuggerengine.h"
+#include "debuggertr.h"
 
 #include <utils/basetreeview.h>
 
@@ -38,8 +38,7 @@
 
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 SourceFilesHandler::SourceFilesHandler(DebuggerEngine *engine)
     : m_engine(engine)
@@ -66,8 +65,8 @@ QVariant SourceFilesHandler::headerData(int section,
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         static QString headers[] = {
-            tr("Internal Name") + "        ",
-            tr("Full Name") + "        ",
+            Tr::tr("Internal Name") + "        ",
+            Tr::tr("Full Name") + "        ",
         };
         return headers[section];
     }
@@ -128,13 +127,13 @@ bool SourceFilesHandler::setData(const QModelIndex &idx, const QVariant &data, i
                     return act;
                 };
 
-            addAction(tr("Reload Data"), m_engine->debuggerActionsEnabled(),
+            addAction(Tr::tr("Reload Data"), m_engine->debuggerActionsEnabled(),
                       [this] { m_engine->reloadSourceFiles(); });
 
             if (name.isEmpty())
-                addAction(tr("Open File"), false, {});
+                addAction(Tr::tr("Open File"), false, {});
             else
-                addAction(tr("Open File \"%1\"").arg(name), true,
+                addAction(Tr::tr("Open File \"%1\"").arg(name), true,
                           [this, name] { m_engine->gotoLocation(FilePath::fromString(name)); });
 
             menu->addAction(debuggerSettings()->settingsDialog.action());
@@ -166,5 +165,4 @@ void SourceFilesHandler::removeAll()
     //header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

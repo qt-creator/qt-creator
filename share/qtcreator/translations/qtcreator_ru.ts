@@ -14506,25 +14506,14 @@ Do you want to display them anyway?</source>
 <context>
     <name>Debugger</name>
     <message>
-        <source>General</source>
-        <translation>Основное</translation>
-    </message>
-    <message>
         <source>Locals &amp;&amp; Expressions</source>
         <extracomment>&apos;&amp;&amp;&apos; will appear as one (one is marking keyboard shortcut)</extracomment>
         <translation>Переменные и выражения</translation>
     </message>
     <message>
-        <source>Debugger</source>
-        <translation>Отладчик</translation>
-    </message>
-    <message>
         <source>&lt;Encoding error&gt;</source>
         <translation>&lt;Ошибка кодировки&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::AnalyzerRunConfigWidget</name>
     <message>
         <source>Use Customized Settings</source>
         <translation>Используются особые настройки</translation>
@@ -14533,9 +14522,6 @@ Do you want to display them anyway?</source>
         <source>Use Global Settings</source>
         <translation>Используются глобальные настройки</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::DebuggerItemManager</name>
     <message>
         <source>Not recognized</source>
         <translation>Не определён</translation>
@@ -14569,10 +14555,6 @@ Do you want to display them anyway?</source>
         <translation>Версия:</translation>
     </message>
     <message>
-        <source>Working directory:</source>
-        <translation>Рабочий каталог:</translation>
-    </message>
-    <message>
         <source>64-bit version</source>
         <translation>64-х битная версия</translation>
     </message>
@@ -14600,14 +14582,10 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::DebuggerKitAspect</name>
+    <name>Debugger</name>
     <message>
         <source>Type of Debugger Backend</source>
         <translation>Тип отладчика</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation>Отладчик</translation>
     </message>
     <message>
         <source>Unknown debugger version</source>
@@ -14675,18 +14653,10 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::DebuggerOptionsPage</name>
-    <message>
-        <source>Add</source>
-        <translation>Добавить</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Clone</source>
         <translation>Копировать</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Удалить</translation>
     </message>
     <message>
         <source>Clone of %1</source>
@@ -14699,10 +14669,6 @@ Do you want to display them anyway?</source>
     <message>
         <source>Location</source>
         <translation>Размещение</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Тип</translation>
     </message>
     <message>
         <source>Auto-detected</source>
@@ -14726,7 +14692,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::DebuggerRunConfigurationAspect</name>
+    <name>Debugger</name>
     <message>
         <source>Debugger settings</source>
         <translation>Настройки отладчика</translation>
@@ -14753,7 +14719,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::DebuggerRunTool</name>
+    <name>Debugger</name>
     <message>
         <source>Unpacking core file to %1</source>
         <translation>Распаковка файла дампа в %1</translation>
@@ -14773,10 +14739,6 @@ Do you want to display them anyway?</source>
     <message>
         <source>%1 - Snapshot %2</source>
         <translation>%1 - Снимок %2</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation>Отладчик</translation>
     </message>
     <message>
         <source>&amp;Show this message again.</source>
@@ -14808,14 +14770,14 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::DetailedErrorView</name>
+    <name>Debugger</name>
     <message>
         <source>Copy</source>
         <translation>Копировать</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AddressDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Select Start Address</source>
         <translation>Выбор начального адреса</translation>
@@ -14824,9 +14786,6 @@ Do you want to display them anyway?</source>
         <source>Enter an address:</source>
         <translation>Введите адрес:</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::AttachCoreDialog</name>
     <message>
         <source>Load Core File</source>
         <translation>Загрузить файл дампа</translation>
@@ -14842,10 +14801,6 @@ Do you want to display them anyway?</source>
     <message>
         <source>&amp;Executable or symbol file:</source>
         <translation>&amp;Исполняемый или файл символов:</translation>
-    </message>
-    <message>
-        <source>Override S&amp;ysRoot:</source>
-        <translation>Переопределение S&amp;ysRoot:</translation>
     </message>
     <message>
         <source>Select Remote Core File</source>
@@ -14868,31 +14823,12 @@ Do you want to display them anyway?</source>
         <translation>Выбор сценария запуска</translation>
     </message>
     <message>
-        <source>Select SysRoot Directory</source>
-        <translation>Выбор каталога SysRoot</translation>
-    </message>
-    <message>
         <source>This option can be used to override the kit&apos;s SysRoot setting</source>
         <translation>Используется для переопределения настройки SysRoot комплекта</translation>
     </message>
     <message>
-        <source>Kit:</source>
-        <translation>Комплект:</translation>
-    </message>
-    <message>
         <source>Override &amp;start script:</source>
         <translation>Особый сценарий &amp;запуска:</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::AttachToQmlPortDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation>Запуск отладчика</translation>
-    </message>
-    <message>
-        <source>Kit:</source>
-        <translation>Комплект:</translation>
     </message>
     <message>
         <source>&amp;Port:</source>
@@ -14900,7 +14836,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BreakHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Marker File:</source>
         <translation>Отмеченный файл:</translation>
@@ -15102,34 +15038,6 @@ Do you want to display them anyway?</source>
         <translation>Данные с %1</translation>
     </message>
     <message>
-        <source>Add Breakpoint...</source>
-        <translation>Установить точку останова...</translation>
-    </message>
-    <message>
-        <source>Delete Selected Breakpoints</source>
-        <translation>Удалить выбранные точки останова</translation>
-    </message>
-    <message>
-        <source>Edit Selected Breakpoints...</source>
-        <translation>Изменить выбранные точки останова...</translation>
-    </message>
-    <message>
-        <source>Disable Selected Breakpoints</source>
-        <translation>Выключить выбранные точки останова</translation>
-    </message>
-    <message>
-        <source>Enable Selected Breakpoints</source>
-        <translation>Включить выбранные точки останова</translation>
-    </message>
-    <message>
-        <source>Disable Breakpoint</source>
-        <translation>Выключить точку останова</translation>
-    </message>
-    <message>
-        <source>Enable Breakpoint</source>
-        <translation>Включить точку останова</translation>
-    </message>
-    <message>
         <source>Disable Selected Locations</source>
         <translation>Выключить выбранные места</translation>
     </message>
@@ -15144,18 +15052,6 @@ Do you want to display them anyway?</source>
     <message>
         <source>Enable Location</source>
         <translation>Включить место</translation>
-    </message>
-    <message>
-        <source>Delete All Breakpoints</source>
-        <translation>Убрать все точки останова</translation>
-    </message>
-    <message>
-        <source>Delete Breakpoints of &quot;%1&quot;</source>
-        <translation>Убрать все точки останова из файла «%1»</translation>
-    </message>
-    <message>
-        <source>Delete Breakpoints of File</source>
-        <translation>Убрать точки останова в файле</translation>
     </message>
     <message>
         <source>Stopped at breakpoint %1 in thread %2.</source>
@@ -15250,16 +15146,8 @@ Do you want to display them anyway?</source>
         <translation>Номер строки:</translation>
     </message>
     <message>
-        <source>Module:</source>
-        <translation>Модуль:</translation>
-    </message>
-    <message>
         <source>Command:</source>
         <translation>Команда:</translation>
-    </message>
-    <message>
-        <source>Message:</source>
-        <translation>Сообщение:</translation>
     </message>
     <message>
         <source>Condition:</source>
@@ -15334,30 +15222,6 @@ Do you want to display them anyway?</source>
         <translation>Остановиться при возникновении исключения JavaScript</translation>
     </message>
     <message>
-        <source>Function</source>
-        <translation>Функция</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Файл</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>Строка</translation>
-    </message>
-    <message>
-        <source>Condition</source>
-        <translation>Условие</translation>
-    </message>
-    <message>
-        <source>Ignore</source>
-        <translation>Пропуски</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Адрес</translation>
-    </message>
-    <message>
         <source>Threads</source>
         <translation>Потоки</translation>
     </message>
@@ -15379,26 +15243,10 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BreakpointManager</name>
+    <name>Debugger</name>
     <message>
         <source>Debuggee</source>
         <translation>Отлаживаемая программа</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>Функция</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Файл</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>Строка</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Адрес</translation>
     </message>
     <message>
         <source>Condition</source>
@@ -15407,10 +15255,6 @@ Do you want to display them anyway?</source>
     <message>
         <source>Ignore</source>
         <translation>Пропуски</translation>
-    </message>
-    <message>
-        <source>Threads</source>
-        <translation>Потоки</translation>
     </message>
     <message>
         <source>Add Breakpoint</source>
@@ -15437,14 +15281,6 @@ Do you want to display them anyway?</source>
         <translation>Включить выбранные точки останова</translation>
     </message>
     <message>
-        <source>Disable Breakpoint</source>
-        <translation>Выключить точку останова</translation>
-    </message>
-    <message>
-        <source>Enable Breakpoint</source>
-        <translation>Включить точку останова</translation>
-    </message>
-    <message>
         <source>Delete All Breakpoints</source>
         <translation>Убрать все точки останова</translation>
     </message>
@@ -15466,14 +15302,10 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CacheDirectoryDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Select Local Cache Folder</source>
         <translation>Выбор каталога локального кэша</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>Путь:</translation>
     </message>
     <message>
         <source>Already Exists</source>
@@ -15493,7 +15325,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbBreakEventWidget</name>
+    <name>Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>Исключение C++</translation>
@@ -15520,7 +15352,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbEngine</name>
+    <name>Debugger</name>
     <message>
         <source>Failed to Start the Debugger</source>
         <translation>Не удалось запустить отладчик</translation>
@@ -15575,7 +15407,7 @@ If you build %2 from sources and want to use a CDB executable with another bitne
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbOptionsPageWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Break on:</source>
         <translation>Остановка на:</translation>
@@ -15639,7 +15471,7 @@ If you build %2 from sources and want to use a CDB executable with another bitne
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbPathsPageWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Symbol Paths</source>
         <translation>Пути к символам</translation>
@@ -15654,7 +15486,7 @@ If you build %2 from sources and want to use a CDB executable with another bitne
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbSymbolPathListEditor</name>
+    <name>Debugger</name>
     <message>
         <source>Insert Symbol Server...</source>
         <translation>Вставить сервер символов...</translation>
@@ -15681,7 +15513,7 @@ If you build %2 from sources and want to use a CDB executable with another bitne
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CommonOptionsPageWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Behavior</source>
         <translation>Поведение</translation>
@@ -15775,10 +15607,6 @@ If you build %2 from sources and want to use a CDB executable with another bitne
         <translation>Максимальная глубина стека:</translation>
     </message>
     <message>
-        <source>&lt;unlimited&gt;</source>
-        <translation>&lt;бесконечна&gt;</translation>
-    </message>
-    <message>
         <source>Stop when %1() is called</source>
         <translation>Остановиться на вызове %1()</translation>
     </message>
@@ -15788,7 +15616,7 @@ If you build %2 from sources and want to use a CDB executable with another bitne
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::Console</name>
+    <name>Debugger</name>
     <message>
         <source>Show debug, log, and info messages.</source>
         <translation>Показывать сообщения уровней: отладка, журнал и информация.</translation>
@@ -15811,7 +15639,7 @@ If you build %2 from sources and want to use a CDB executable with another bitne
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::ConsoleView</name>
+    <name>Debugger</name>
     <message>
         <source>&amp;Copy</source>
         <translation>&amp;Копировать</translation>
@@ -15826,7 +15654,7 @@ If you build %2 from sources and want to use a CDB executable with another bitne
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerEngine</name>
+    <name>Debugger</name>
     <message>
         <source>Loading finished.</source>
         <translation>Загрузка завершена.</translation>
@@ -15838,10 +15666,6 @@ If you build %2 from sources and want to use a CDB executable with another bitne
     <message>
         <source>Running.</source>
         <translation>Выполняется.</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <translation>Остановлено.</translation>
     </message>
     <message>
         <source>Run requested...</source>
@@ -15882,10 +15706,6 @@ If you build %2 from sources and want to use a CDB executable with another bitne
     <message>
         <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
         <translation>Невозможно отобразить содержимое памяти, так как модуль просмотра двоичных данных не загружен.</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation>Отладчик</translation>
     </message>
     <message>
         <source>Current debugger location of %1</source>
@@ -15975,20 +15795,12 @@ If you build %2 from sources and want to use a CDB executable with another bitne
         <translation>Символ</translation>
     </message>
     <message>
-        <source>Address</source>
-        <translation>Адрес</translation>
-    </message>
-    <message>
         <source>Code</source>
         <translation>Код</translation>
     </message>
     <message>
         <source>Section</source>
         <translation>Секция</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Имя</translation>
     </message>
     <message>
         <source>Symbols in &quot;%1&quot;</source>
@@ -16070,7 +15882,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerEnginePrivate</name>
+    <name>Debugger</name>
     <message>
         <source>Continue %1</source>
         <translation>Продолжить %1</translation>
@@ -16082,62 +15894,6 @@ Setting breakpoints by file name and line number may fail.</source>
     <message>
         <source>Debugger finished.</source>
         <translation>Отладчик завершился.</translation>
-    </message>
-    <message>
-        <source>Continue</source>
-        <translation>Продолжить</translation>
-    </message>
-    <message>
-        <source>Stop Debugger</source>
-        <translation>Завершить отладку</translation>
-    </message>
-    <message>
-        <source>Interrupt</source>
-        <translation>Приостановить</translation>
-    </message>
-    <message>
-        <source>Abort Debugging</source>
-        <translation>Прервать отладку</translation>
-    </message>
-    <message>
-        <source>Step Into</source>
-        <translation>Войти в</translation>
-    </message>
-    <message>
-        <source>Step Out</source>
-        <translation>Выйти из функции</translation>
-    </message>
-    <message>
-        <source>Run to Line</source>
-        <translation>Выполнить до строки</translation>
-    </message>
-    <message>
-        <source>Run to Selected Function</source>
-        <translation>Выполнить до выбранной функции</translation>
-    </message>
-    <message>
-        <source>Jump to Line</source>
-        <translation>Перейти на строку</translation>
-    </message>
-    <message>
-        <source>Immediately Return From Inner Function</source>
-        <translation>Немедленно выйти из функции</translation>
-    </message>
-    <message>
-        <source>Step Over</source>
-        <translation>Перейти через</translation>
-    </message>
-    <message>
-        <source>Add Expression Evaluator</source>
-        <translation>Добавить вычисляемое выражение</translation>
-    </message>
-    <message>
-        <source>Toggle Breakpoint</source>
-        <translation>Поставить/снять точку останова</translation>
-    </message>
-    <message>
-        <source>Restart Debugging</source>
-        <translation>Перезапустить отладку</translation>
     </message>
     <message>
         <source>Operate by Instruction</source>
@@ -16188,10 +15944,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <translation>&amp;Потоки</translation>
     </message>
     <message>
-        <source>Locals</source>
-        <translation>Локальные переменные</translation>
-    </message>
-    <message>
         <source>&amp;Expressions</source>
         <translation>Выра&amp;жения</translation>
     </message>
@@ -16225,7 +15977,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerPane</name>
+    <name>Debugger</name>
     <message>
         <source>Clear Contents</source>
         <translation>Очистить содержимое</translation>
@@ -16240,7 +15992,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerPlugin</name>
+    <name>Debugger</name>
     <message>
         <source>Show %1 Column</source>
         <translation>Показать столбец %1</translation>
@@ -16264,10 +16016,6 @@ Setting breakpoints by file name and line number may fail.</source>
     <message>
         <source>Invalid debugger option: %1</source>
         <translation>Некорректный параметр отладчика: %1</translation>
-    </message>
-    <message>
-        <source>Process %1</source>
-        <translation>Процесс %1</translation>
     </message>
     <message>
         <source>Cannot start %1 without a project. Please open the project and try again.</source>
@@ -16339,7 +16087,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerPluginPrivate</name>
+    <name>Debugger</name>
     <message>
         <source>Continue</source>
         <translation>Продолжить</translation>
@@ -16486,10 +16234,6 @@ Affected are breakpoints %1</source>
         <translation>Сбросить отладчик</translation>
     </message>
     <message>
-        <source>Warning</source>
-        <translation>Предупреждение</translation>
-    </message>
-    <message>
         <source>Process %1</source>
         <extracomment>%1: PID</extracomment>
         <translation>Процесс %1</translation>
@@ -16583,10 +16327,6 @@ Affected are breakpoints %1</source>
     <message>
         <source>F5</source>
         <translation>F5</translation>
-    </message>
-    <message>
-        <source>Add Expression Evaluator</source>
-        <translation>Добавить вычисляемое выражение</translation>
     </message>
     <message>
         <source>Attach to Running Debug Server...</source>
@@ -16710,7 +16450,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerSettings</name>
+    <name>Debugger</name>
     <message>
         <source>Use Alternating Row Colors</source>
         <translation>Использовать чередующиеся цвета строк</translation>
@@ -16909,7 +16649,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerSourcePathMappingWidget</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;new source&gt;</source>
         <translation>&lt;новый путь к исходникам&gt;</translation>
@@ -16972,26 +16712,10 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerToolTipManager</name>
+    <name>Debugger</name>
     <message>
         <source>%1 (Previous)</source>
         <translation>%1 (предыдущее)</translation>
-    </message>
-    <message>
-        <source>Copy Contents to Clipboard</source>
-        <translation>Скопировать содержимое в буфер обмена</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Имя</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Значение</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Тип</translation>
     </message>
     <message>
         <source>Expression %1 in function %2 from line %3 to %4</source>
@@ -17009,9 +16733,6 @@ Affected are breakpoints %1</source>
         <source>Expression too complex</source>
         <translation>Выражение слишком сложное</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::EngineManager</name>
     <message>
         <source>Perspective</source>
         <translatorcomment>Может лучше Обзор?</translatorcomment>
@@ -17035,7 +16756,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbEngine</name>
+    <name>Debugger</name>
     <message>
         <source>Reading %1...</source>
         <translation>Чтение %1...</translation>
@@ -17339,14 +17060,6 @@ You can choose between waiting longer or aborting debugging.</source>
         <translation>Значение изменилось с %1 на %2.</translation>
     </message>
     <message>
-        <source>Execution Error</source>
-        <translation>Ошибка выполнения</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation>Потребован запуск...</translation>
-    </message>
-    <message>
         <source>Step requested...</source>
         <translation>Потребован шаг...</translation>
     </message>
@@ -17396,7 +17109,7 @@ You can choose between waiting longer or aborting debugging.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbOptionsPage</name>
+    <name>Debugger</name>
     <message>
         <source>General</source>
         <translation>Основное</translation>
@@ -17566,32 +17279,24 @@ In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GlobalLogWindow</name>
+    <name>Debugger</name>
     <message>
         <source>Global Debugger &amp;Log</source>
         <translation>Общий &amp;журнал отладки</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::InputPane</name>
+    <name>Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Нажмите Ctrl-&lt;Ввод&gt; для выполнения строки.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::LldbEngine</name>
+    <name>Debugger</name>
     <message>
         <source>Adapter start failed.</source>
         <translation>Не удалось запустить адаптер.</translation>
-    </message>
-    <message>
-        <source>Setting up inferior...</source>
-        <translation>Настройка подчинённого...</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation>Потребован запуск...</translation>
     </message>
     <message>
         <source>Interrupt requested...</source>
@@ -17614,10 +17319,6 @@ In this case, the value should be increased.</source>
         <translation>У процесса LLDB возникла неопознанная ошибка.</translation>
     </message>
     <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>У последней функции waitFor...() истекло время ожидания. Состояние QProcess не изменилось, и вы можете попробовать вызвать waitFor...() снова.</translation>
-    </message>
-    <message>
         <source>Stopping temporarily</source>
         <translation>Временно остановлено</translation>
     </message>
@@ -17635,7 +17336,7 @@ In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::LocalProcessRunner</name>
+    <name>Debugger</name>
     <message>
         <source>Upload failed: %1</source>
         <translation>Не удалось выгрузить: %1</translation>
@@ -17670,7 +17371,7 @@ In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::LocalsAndExpressionsOptionsPage</name>
+    <name>Debugger</name>
     <message>
         <source>Use Debugging Helper</source>
         <translation>Использовать помощник отладчика</translation>
@@ -17709,7 +17410,7 @@ In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::LogWindow</name>
+    <name>Debugger</name>
     <message>
         <source>Debugger &amp;Log</source>
         <translation>&amp;Журнал отладки</translation>
@@ -17717,10 +17418,6 @@ In this case, the value should be increased.</source>
     <message>
         <source>Repeat last command for debug reasons.</source>
         <translation>Повторить последнюю команду в целях отладки.</translation>
-    </message>
-    <message>
-        <source>Command:</source>
-        <translation>Команда:</translation>
     </message>
     <message>
         <source>Note: This log contains possibly confidential information about your machine, environment variables, in-memory data of the processes you are debugging, and more. It is never transferred over the internet by %1, and only stored to disk if you manually use the respective option from the context menu, or through mechanisms that are not under the control of %1&apos;s Debugger plugin, for instance in swap files, or other plugins you might use.
@@ -17742,7 +17439,7 @@ You may be asked to share the contents of this log when reporting bugs related t
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::MemoryAgent</name>
+    <name>Debugger</name>
     <message>
         <source>Memory at Register &quot;%1&quot; (0x%2)</source>
         <translation>Память по регистру «%1» (0x%2)</translation>
@@ -17757,7 +17454,7 @@ You may be asked to share the contents of this log when reporting bugs related t
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::ModulesHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Module Name</source>
         <translation>Название модуля</translation>
@@ -17784,7 +17481,7 @@ You may be asked to share the contents of this log when reporting bugs related t
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::OutputCollector</name>
+    <name>Debugger</name>
     <message>
         <source>Cannot create temporary file: %1</source>
         <translation>Не удалось создать временный файл: %1</translation>
@@ -17799,7 +17496,7 @@ You may be asked to share the contents of this log when reporting bugs related t
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::PdbEngine</name>
+    <name>Debugger</name>
     <message>
         <source>Running requested...</source>
         <translation>Потребовано выполнение...</translation>
@@ -17829,10 +17526,6 @@ You may be asked to share the contents of this log when reporting bugs related t
         <translation>Процесс Pdb вылетел через некоторое время после успешного запуска.</translation>
     </message>
     <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>У последней функции waitFor...() истекло время ожидания. Состояние QProcess не изменилось, и вы можете попробовать вызвать waitFor...() снова.</translation>
-    </message>
-    <message>
         <source>An error occurred when attempting to write to the Pdb process. For example, the process may not be running, or it may have closed its input channel.</source>
         <translation>Ошибка при отправке данных процессу Pdb. Например, процесс уже перестал работать или закрыл свой входной канал.</translation>
     </message>
@@ -17846,7 +17539,7 @@ You may be asked to share the contents of this log when reporting bugs related t
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::PeripheralRegisterHandler</name>
+    <name>Debugger</name>
     <message>
         <source>RO</source>
         <translation>RO</translation>
@@ -17868,14 +17561,6 @@ You may be asked to share the contents of this log when reporting bugs related t
         <translation>[%1..%2]</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Имя</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Значение</translation>
-    </message>
-    <message>
         <source>Access</source>
         <translation>Доступ</translation>
     </message>
@@ -17887,25 +17572,9 @@ You may be asked to share the contents of this log when reporting bugs related t
         <source>Format</source>
         <translation>Формат</translation>
     </message>
-    <message>
-        <source>Hexadecimal</source>
-        <translation>Шестнадцатеричный</translation>
-    </message>
-    <message>
-        <source>Decimal</source>
-        <translation>Десятичный</translation>
-    </message>
-    <message>
-        <source>Octal</source>
-        <translation>Восьмеричный</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation>Двоичный</translation>
-    </message>
 </context>
 <context>
-    <name>Debugger::Internal::QmlEngine</name>
+    <name>Debugger</name>
     <message>
         <source>No application output received in time</source>
         <translation>Вывод приложения не получен вовремя</translation>
@@ -17958,7 +17627,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QmlInspectorAgent</name>
+    <name>Debugger</name>
     <message>
         <source>Success:</source>
         <translation>Успешно:</translation>
@@ -17973,7 +17642,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::RegisterHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Content as ASCII Characters</source>
         <translation>В виде ASCII символов</translation>
@@ -18003,14 +17672,6 @@ Do you want to retry?</source>
         <translation>В виде %1-битных действительных</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Имя</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Значение</translation>
-    </message>
-    <message>
         <source>Reload Register Listing</source>
         <translation>Перезагрузить список регистров</translation>
     </message>
@@ -18021,22 +17682,6 @@ Do you want to retry?</source>
     <message>
         <source>Open Memory View at Value of Register</source>
         <translation>Открыть просмотрщик памяти начиная со значения регистра</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at 0x%1</source>
-        <translation>Открыть редактор памяти с 0x%1</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor</source>
-        <translation>Открыть редактор памяти</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at 0x%1</source>
-        <translation>Открыть дизассемблер с 0x%1</translation>
-    </message>
-    <message>
-        <source>Open Disassembler</source>
-        <translation>Открыть дизассемблер</translation>
     </message>
     <message>
         <source>Open Disassembler...</source>
@@ -18064,14 +17709,14 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::SelectRemoteFileDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Download of remote file succeeded.</source>
         <translation>Загрузка внешнего файла успешно завершена.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::SourceFilesHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Internal Name</source>
         <translation>Внутреннее имя</translation>
@@ -18094,7 +17739,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::StackHandler</name>
+    <name>Debugger</name>
     <message>
         <source>...</source>
         <translation>...</translation>
@@ -18106,22 +17751,6 @@ Do you want to retry?</source>
     <message>
         <source>Level</source>
         <translation>Уровень</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>Функция</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Файл</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>Строка</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Адрес</translation>
     </message>
     <message>
         <source>Disassemble Function</source>
@@ -18150,10 +17779,6 @@ Do you want to retry?</source>
     <message>
         <source>Open Memory Editor at 0x%1</source>
         <translation>Открыть редактор памяти с 0x%1</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor</source>
-        <translation>Открыть редактор памяти</translation>
     </message>
     <message>
         <source>Memory at Frame #%1 (%2) 0x%3</source>
@@ -18241,7 +17866,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::StartApplicationDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>Запуск отладчика</translation>
@@ -18359,7 +17984,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::StartRemoteCdbDialog</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching %1 CDB extension (&lt;code&gt;%2&lt;/code&gt; or &lt;code&gt;%3&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%4&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%5 &amp;lt;executable&amp;gt;&lt;/code&gt; to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%6&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Удалённый CDB должен загрузить подходящее %1 расширение (&lt;code&gt;%2&lt;/code&gt; или &lt;code&gt;%3&lt;/code&gt;, соответственно).&lt;/p&gt;&lt;p&gt;Скопируйте его на удалённую машину и задайте переменной среды &lt;code&gt;%4&lt;/code&gt; путь к каталогу с расширением.&lt;/p&gt;&lt;p&gt;Запустите удалённых CDB так: &lt;code&gt;%5 &amp;lt;программа&amp;gt;&lt;/code&gt; при использовании протокола TCP/IP.&lt;/p&gt;&lt;p&gt;Введите следующие параметры соединения:&lt;/p&gt;&lt;pre&gt;%6&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -18374,7 +17999,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::StartRemoteEngineDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Start Remote Engine</source>
         <translation>Запустить внешний отладчик</translation>
@@ -18401,7 +18026,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::SymbolPathsDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Use Local Symbol Cache</source>
         <translation>Использовать локальный кэш символов</translation>
@@ -18420,7 +18045,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::Terminal</name>
+    <name>Debugger</name>
     <message>
         <source>Terminal: Cannot open /dev/ptmx: %1</source>
         <translation>Терминал: не удалось открыть /dev/ptmx: %1</translation>
@@ -18451,7 +18076,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::ThreadsHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Thread&amp;nbsp;id:</source>
         <translation>Id&amp;nbsp;потока:</translation>
@@ -18463,14 +18088,6 @@ You can choose another communication channel here, such as a serial line or cust
     <message>
         <source>Group&amp;nbsp;id:</source>
         <translation>Id&amp;nbsp;группы:</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Название:</translation>
-    </message>
-    <message>
-        <source>State:</source>
-        <translation>Состояние:</translation>
     </message>
     <message>
         <source>Core:</source>
@@ -18517,17 +18134,6 @@ You can choose another communication channel here, such as a serial line or cust
         <translation>Подробнее</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Имя</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::TypeFormatsDialog</name>
-    <message>
-        <source>Reset</source>
-        <translation>Сбросить</translation>
-    </message>
-    <message>
         <source>Type Formats</source>
         <translation>Форматы типов</translation>
     </message>
@@ -18545,7 +18151,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::UnstartedAppWatcherDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Attach to Process Not Yet Started</source>
         <translation>Подключение процессу ещё не началось</translation>
@@ -18604,7 +18210,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::UvscClient</name>
+    <name>Debugger</name>
     <message>
         <source>%1.%2</source>
         <translation>%1,%2</translation>
@@ -18619,7 +18225,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::UvscEngine</name>
+    <name>Debugger</name>
     <message>
         <source>Internal error: Invalid TCP/IP port specified %1.</source>
         <translation>Внутренняя ошибка: указан недопустимый порт TCP/IP %1.</translation>
@@ -18647,22 +18253,6 @@ You can choose another communication channel here, such as a serial line or cust
     <message>
         <source>Internal error: Failed to start the debugger: %1</source>
         <translation>Внутренняя ошибка: не удалось запустить отладчик: %1</translation>
-    </message>
-    <message>
-        <source>Application started.</source>
-        <translation>Приложение запущено.</translation>
-    </message>
-    <message>
-        <source>Setting breakpoints...</source>
-        <translation>Установка точек останова...</translation>
-    </message>
-    <message>
-        <source>Failed to Shut Down Application</source>
-        <translation>Не удалось закрыть приложение</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation>Затребован запуск...</translation>
     </message>
     <message>
         <source>UVSC: Starting execution failed.</source>
@@ -18904,10 +18494,6 @@ You can choose another communication channel here, such as a serial line or cust
     <message>
         <source>returned value</source>
         <translation>возвращённое значение</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Имя</translation>
     </message>
     <message>
         <source>Type</source>
@@ -19285,7 +18871,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Debugger::StartRemoteDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Start Remote Analysis</source>
         <translation>Запуск удалённой отладки</translation>
@@ -29811,10 +29397,6 @@ You might find further explanations in the Application Output view.</source>
     <message>
         <source> (guessed from context)</source>
         <translation> (оценено по контексту)</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Адрес</translation>
     </message>
     <message>
         <source>Source</source>

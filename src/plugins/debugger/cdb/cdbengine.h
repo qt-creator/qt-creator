@@ -36,8 +36,7 @@
 
 #include <QElapsedTimer>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class CdbEngine : public CppDebuggerEngine
 {
@@ -231,5 +230,4 @@ private:
     mutable CPlusPlus::Snapshot m_codeModelSnapshot;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

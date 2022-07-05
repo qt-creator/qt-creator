@@ -36,8 +36,6 @@ namespace Debugger::Internal {
 
 class SymbolPathsDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     explicit SymbolPathsDialog(QWidget *parent = nullptr);
     ~SymbolPathsDialog() override;

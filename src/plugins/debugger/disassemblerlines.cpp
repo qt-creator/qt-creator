@@ -24,14 +24,12 @@
 ****************************************************************************/
 
 #include "disassemblerlines.h"
-#include "sourceutils.h"
 
 #include <QDebug>
 #include <QFile>
 #include <QTextStream>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 void DisassemblerLine::fromString(const QString &unparsed)
 {
@@ -248,5 +246,4 @@ QString DisassemblerLines::toString() const
     return str;
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

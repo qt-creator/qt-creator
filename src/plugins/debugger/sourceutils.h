@@ -36,8 +36,7 @@ class TextEditorWidget;
 namespace Utils { class FilePath; }
 namespace CPlusPlus { class Snapshot; }
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class ContextData;
 class Location;
@@ -59,5 +58,4 @@ ContextData getLocationContext(TextEditor::TextDocument *document, int lineNumbe
 
 void setValueAnnotations(const Location &loc, const QMap<QString, QString> &values);
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

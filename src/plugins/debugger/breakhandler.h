@@ -28,16 +28,14 @@
 #include "breakpoint.h"
 #include "debuggerprotocol.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/treemodel.h>
 
-#include <QCoreApplication>
 #include <QPointer>
 
 namespace Utils { class ItemViewEvent; }
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class BreakHandler;
 class BreakpointItem;
@@ -64,8 +62,6 @@ using SubBreakpoint = QPointer<SubBreakpointItem>;
 
 class GlobalBreakpointItem : public QObject, public Utils::TreeItem
 {
-    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::BreakHandler)
-
 public:
     explicit GlobalBreakpointItem();
     ~GlobalBreakpointItem() override;
@@ -115,8 +111,6 @@ using GlobalBreakpoints = QList<GlobalBreakpoint>;
 
 class BreakpointItem final : public QObject, public Utils::TypedTreeItem<SubBreakpointItem>
 {
-    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::BreakHandler)
-
 public:
     explicit BreakpointItem(const GlobalBreakpoint &gbp);
     ~BreakpointItem() final;
@@ -229,8 +223,6 @@ inline auto qHash(const Debugger::Internal::GlobalBreakpoint &b) { return qHash(
 
 class BreakHandler : public BreakHandlerModel
 {
-    Q_OBJECT
-
 public:
     explicit BreakHandler(DebuggerEngine *engine);
 
@@ -291,8 +283,6 @@ private:
 
 class BreakpointManager : public BreakpointManagerModel
 {
-    Q_OBJECT
-
 public:
     BreakpointManager();
 
@@ -328,6 +318,4 @@ private:
     void editBreakpoints(const GlobalBreakpoints &gbps, QWidget *parent);
 };
 
-} // namespace Internal
-} // namespace Debugger
-
+} // Debugger::Internal

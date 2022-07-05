@@ -43,8 +43,7 @@
 #include <QTextCodec>
 #include <QTimer>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class BreakpointParameters;
 class DebugInfoTask;
@@ -66,8 +65,6 @@ struct CoreInfo
 
 class GdbEngine final : public CppDebuggerEngine
 {
-    Q_OBJECT
-
 public:
     GdbEngine();
     ~GdbEngine() final;
@@ -434,5 +431,4 @@ private: ////////// General Interface //////////
     QString m_errorString;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

@@ -40,8 +40,7 @@
 #include <QMap>
 #include <QVariant>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 /* A debugger engine interfacing the LLDB debugger
  * using its Python interface.
@@ -147,7 +146,6 @@ private:
     DebuggerCommandSequence m_onStop;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal
 
 #endif // DEBUGGER_LLDBENGINE

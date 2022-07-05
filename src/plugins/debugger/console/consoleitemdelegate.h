@@ -26,18 +26,15 @@
 #pragma once
 
 #include "consoleitemmodel.h"
-#include "console.h"
 
 #include <QStyledItemDelegate>
 
 QT_FORWARD_DECLARE_CLASS(QTextLayout)
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class ConsoleItemDelegate : public QStyledItemDelegate
 {
-    Q_OBJECT
 public:
     ConsoleItemDelegate(ConsoleItemModel *model, QObject *parent);
 
@@ -164,5 +161,4 @@ public:
     static const int ITEM_SPACING = 4;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

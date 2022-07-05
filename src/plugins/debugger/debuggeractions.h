@@ -32,8 +32,7 @@
 
 #include <utils/aspects.h>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class SourcePathMapAspectPrivate;
 
@@ -75,8 +74,6 @@ class GeneralSettings
 
 class DebuggerSettings
 {
-    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::DebuggerSettings)
-
 public:
     explicit DebuggerSettings();
     ~DebuggerSettings();
@@ -203,9 +200,6 @@ private:
 
 DebuggerSettings *debuggerSettings();
 
-///////////////////////////////////////////////////////////
-
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal
 
 Q_DECLARE_METATYPE(Debugger::Internal::SourcePathMap)

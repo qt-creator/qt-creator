@@ -26,10 +26,10 @@
 #include "logwindow.h"
 
 #include "debuggeractions.h"
-#include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggericons.h"
 #include "debuggerinternalconstants.h"
+#include "debuggertr.h"
 
 #include <QDebug>
 #include <QTime>
@@ -58,8 +58,7 @@
 
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 GlobalLogWindow *theGlobalLog = nullptr;
 
@@ -96,7 +95,7 @@ static bool writeLogContents(const QPlainTextEdit *editor, QWidget *parent)
 {
     bool success = false;
     while (!success) {
-        const FilePath filePath = FileUtils::getSaveFilePath(parent, LogWindow::tr("Log File"));
+        const FilePath filePath = FileUtils::getSaveFilePath(parent, Tr::tr("Log File"));
         if (filePath.isEmpty())
             break;
         FileSaver saver(filePath, QIODevice::Text);
@@ -195,8 +194,6 @@ private:
 
 class DebuggerPane : public QPlainTextEdit
 {
-    Q_OBJECT
-
 public:
     explicit DebuggerPane()
     {
@@ -204,11 +201,11 @@ public:
         setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
         m_clearContentsAction = new QAction(this);
-        m_clearContentsAction->setText(tr("Clear Contents"));
+        m_clearContentsAction->setText(Tr::tr("Clear Contents"));
         m_clearContentsAction->setEnabled(true);
 
         m_saveContentsAction = new QAction(this);
-        m_saveContentsAction->setText(tr("Save Contents"));
+        m_saveContentsAction->setText(Tr::tr("Save Contents"));
         m_saveContentsAction->setEnabled(true);
         connect(m_saveContentsAction, &QAction::triggered,
                 this, &DebuggerPane::saveContents);
@@ -320,7 +317,7 @@ private:
 
     void focusInEvent(QFocusEvent *ev) override
     {
-        emit statusMessageRequested(tr("Type Ctrl-<Return> to execute a line."), -1);
+        emit statusMessageRequested(Tr::tr("Type Ctrl-<Return> to execute a line."), -1);
         QPlainTextEdit::focusInEvent(ev);
     }
 
@@ -340,7 +337,6 @@ private:
 
 class CombinedPane : public DebuggerPane
 {
-    Q_OBJECT
 public:
     CombinedPane(LogWindow *logWindow)
     {
@@ -386,7 +382,7 @@ public:
 LogWindow::LogWindow(DebuggerEngine *engine)
     : m_engine(engine)
 {
-    setWindowTitle(tr("Debugger &Log"));
+    setWindowTitle(Tr::tr("Debugger &Log"));
     setObjectName("Log");
 
     m_ignoreNextInputEcho = false;
@@ -410,11 +406,11 @@ LogWindow::LogWindow(DebuggerEngine *engine)
     auto repeatButton = new QToolButton(this);
     repeatButton->setIcon(Icons::STEP_OVER.icon());
     repeatButton->setFixedSize(QSize(18, 18));
-    repeatButton->setToolTip(tr("Repeat last command for debug reasons."));
+    repeatButton->setToolTip(Tr::tr("Repeat last command for debug reasons."));
 
     auto commandBox = new QHBoxLayout;
     commandBox->addWidget(repeatButton);
-    commandBox->addWidget(new QLabel(tr("Command:"), this));
+    commandBox->addWidget(new QLabel(Tr::tr("Command:"), this));
     commandBox->addWidget(m_commandEdit);
     commandBox->setContentsMargins(2, 2, 2, 2);
     commandBox->setSpacing(6);
@@ -465,7 +461,7 @@ LogWindow::LogWindow(DebuggerEngine *engine)
     setMinimumHeight(60);
 
     showOutput(LogWarning,
-        tr("Note: This log contains possibly confidential information about your machine, "
+        Tr::tr("Note: This log contains possibly confidential information about your machine, "
            "environment variables, in-memory data of the processes you are debugging, and more. "
            "It is never transferred over the internet by %1, and only stored "
            "to disk if you manually use the respective option from the context menu, or through "
@@ -505,7 +501,7 @@ void LogWindow::sendCommand()
     if (m_engine->acceptsDebuggerCommands())
         m_engine->executeDebuggerCommand(m_commandEdit->text());
     else
-        showOutput(LogError, tr("User commands are not accepted in the current state."));
+        showOutput(LogError, Tr::tr("User commands are not accepted in the current state."));
 }
 
 void LogWindow::showOutput(int channel, const QString &output)
@@ -660,7 +656,7 @@ GlobalLogWindow::GlobalLogWindow()
 {
     theGlobalLog = this;
 
-    setWindowTitle(tr("Global Debugger &Log"));
+    setWindowTitle(Tr::tr("Global Debugger &Log"));
     setObjectName("GlobalLog");
 
     auto m_splitter = new Core::MiniSplitter(Qt::Horizontal);
@@ -747,7 +743,6 @@ void GlobalLogWindow::clearUndoRedoStacks()
     m_rightPane->clearUndoRedoStacks();
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal
 
 #include "logwindow.moc"

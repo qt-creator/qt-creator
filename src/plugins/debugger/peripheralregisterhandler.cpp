@@ -27,7 +27,7 @@
 
 #include "debuggeractions.h"
 #include "debuggercore.h"
-#include "debuggerdialogs.h"
+#include "debuggertr.h"
 
 #include <utils/basetreeview.h>
 
@@ -41,10 +41,8 @@
 
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
-namespace {
 // Keys of a properties in SVD file.
 constexpr char kAccess[] = "access";
 constexpr char kAddressOffset[] = "addressOffset";
@@ -71,7 +69,6 @@ constexpr char kRegisters[] = "registers";
 constexpr char kResetvalue[] = "resetValue";
 constexpr char kSize[] = "size";
 constexpr char kWritOnlye[] = "write-only";
-} // namespace
 
 enum PeripheralRegisterColumns
 {
@@ -90,13 +87,13 @@ static QString accessName(PeripheralRegisterAccess access)
 {
     switch (access) {
     case PeripheralRegisterAccess::ReadOnly:
-        return PeripheralRegisterHandler::tr("RO");
+        return Tr::tr("RO");
     case PeripheralRegisterAccess::WriteOnly:
-        return PeripheralRegisterHandler::tr("WO");
+        return Tr::tr("WO");
     case PeripheralRegisterAccess::ReadWrite:
-        return PeripheralRegisterHandler::tr("RW");
+        return Tr::tr("RW");
     default:
-        return PeripheralRegisterHandler::tr("N/A");
+        return Tr::tr("N/A");
     }
 }
 
@@ -173,7 +170,7 @@ QString PeripheralRegisterField::bitRangeString() const
 {
     const int from = bitOffset;
     const int to = bitOffset + bitWidth - 1;
-    return PeripheralRegisterHandler::tr("[%1..%2]").arg(to).arg(from);
+    return Tr::tr("[%1..%2]").arg(to).arg(from);
 }
 
 QString PeripheralRegisterField::bitValueString(quint64 regValue) const
@@ -562,7 +559,7 @@ PeripheralRegisterHandler::PeripheralRegisterHandler(DebuggerEngine *engine)
     : m_engine(engine)
 {
     setObjectName("PeripheralRegisterModel");
-    setHeader({tr("Name"), tr("Value"), tr("Access")});
+    setHeader({Tr::tr("Name"), Tr::tr("Value"), Tr::tr("Access")});
 }
 
 static void handleField(QXmlStreamReader &in, PeripheralRegister &reg)
@@ -804,7 +801,7 @@ bool PeripheralRegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
 
 QMenu *PeripheralRegisterHandler::createRegisterGroupsMenu(DebuggerState state) const
 {
-    const auto groupMenu = new QMenu(tr("View Groups"));
+    const auto groupMenu = new QMenu(Tr::tr("View Groups"));
     const auto actionGroup = new QActionGroup(groupMenu);
     bool hasActions = false;
     for (const PeripheralRegisterGroup &group : qAsConst(m_peripheralRegisterGroups)) {
@@ -830,7 +827,7 @@ QMenu *PeripheralRegisterHandler::createRegisterGroupsMenu(DebuggerState state) 
 QMenu *PeripheralRegisterHandler::createRegisterFormatMenu(
         DebuggerState state, PeripheralRegisterItem *item) const
 {
-    const auto fmtMenu = new QMenu(tr("Format"));
+    const auto fmtMenu = new QMenu(Tr::tr("Format"));
     const auto actionGroup = new QActionGroup(fmtMenu);
 
     const bool on = m_engine->hasCapability(RegisterCapability)
@@ -840,7 +837,7 @@ QMenu *PeripheralRegisterHandler::createRegisterFormatMenu(
 
     // Hexadecimal action.
     const auto hexAct = addCheckableAction(
-                this, fmtMenu, tr("Hexadecimal"), on,
+                this, fmtMenu, Tr::tr("Hexadecimal"), on,
                 fmt == PeripheralRegisterFormat::Hexadecimal,
                 [item] {
         item->m_reg.format = PeripheralRegisterFormat::Hexadecimal;
@@ -850,7 +847,7 @@ QMenu *PeripheralRegisterHandler::createRegisterFormatMenu(
 
     // Decimal action.
     const auto decAct = addCheckableAction(
-                this, fmtMenu, tr("Decimal"), on,
+                this, fmtMenu, Tr::tr("Decimal"), on,
                 fmt == PeripheralRegisterFormat::Decimal,
                 [item] {
         item->m_reg.format = PeripheralRegisterFormat::Decimal;
@@ -860,7 +857,7 @@ QMenu *PeripheralRegisterHandler::createRegisterFormatMenu(
 
     // Octal action.
     const auto octAct = addCheckableAction(
-                this, fmtMenu, tr("Octal"), on,
+                this, fmtMenu, Tr::tr("Octal"), on,
                 fmt == PeripheralRegisterFormat::Octal,
                 [item] {
         item->m_reg.format = PeripheralRegisterFormat::Octal;
@@ -870,7 +867,7 @@ QMenu *PeripheralRegisterHandler::createRegisterFormatMenu(
 
     // Binary action.
     const auto binAct = addCheckableAction(
-                this, fmtMenu, tr("Binary"), on,
+                this, fmtMenu, Tr::tr("Binary"), on,
                 fmt == PeripheralRegisterFormat::Binary,
                 [item] {
         item->m_reg.format = PeripheralRegisterFormat::Binary;
@@ -884,7 +881,7 @@ QMenu *PeripheralRegisterHandler::createRegisterFormatMenu(
 QMenu *PeripheralRegisterHandler::createRegisterFieldFormatMenu(
         DebuggerState state, PeripheralRegisterFieldItem *item) const
 {
-    const auto fmtMenu = new QMenu(tr("Format"));
+    const auto fmtMenu = new QMenu(Tr::tr("Format"));
     const auto actionGroup = new QActionGroup(fmtMenu);
 
     const bool on = m_engine->hasCapability(RegisterCapability)
@@ -894,7 +891,7 @@ QMenu *PeripheralRegisterHandler::createRegisterFieldFormatMenu(
 
     // Hexadecimal action.
     const auto hexAct = addCheckableAction(
-                this, fmtMenu, tr("Hexadecimal"), on,
+                this, fmtMenu, Tr::tr("Hexadecimal"), on,
                 fmt == PeripheralRegisterFormat::Hexadecimal,
                 [item] {
         item->m_fld.format = PeripheralRegisterFormat::Hexadecimal;
@@ -904,7 +901,7 @@ QMenu *PeripheralRegisterHandler::createRegisterFieldFormatMenu(
 
     // Decimal action.
     const auto decAct = addCheckableAction(
-                this, fmtMenu, tr("Decimal"), on,
+                this, fmtMenu, Tr::tr("Decimal"), on,
                 fmt == PeripheralRegisterFormat::Decimal,
                 [item] {
         item->m_fld.format = PeripheralRegisterFormat::Decimal;
@@ -914,7 +911,7 @@ QMenu *PeripheralRegisterHandler::createRegisterFieldFormatMenu(
 
     // Octal action.
     const auto octAct = addCheckableAction(
-                this, fmtMenu, tr("Octal"), on,
+                this, fmtMenu, Tr::tr("Octal"), on,
                 fmt == PeripheralRegisterFormat::Octal,
                 [item] {
         item->m_fld.format = PeripheralRegisterFormat::Octal;
@@ -924,7 +921,7 @@ QMenu *PeripheralRegisterHandler::createRegisterFieldFormatMenu(
 
     // Binary action.
     const auto binAct = addCheckableAction(
-                this, fmtMenu, tr("Binary"), on,
+                this, fmtMenu, Tr::tr("Binary"), on,
                 fmt == PeripheralRegisterFormat::Binary,
                 [item] {
         item->m_fld.format = PeripheralRegisterFormat::Binary;
@@ -977,5 +974,4 @@ void PeripheralRegisterHandler::deactivateGroups()
     m_activeRegisters.clear();
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

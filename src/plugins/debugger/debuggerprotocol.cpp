@@ -44,8 +44,7 @@
 #define QTC_ASSERT(cond, action) if (cond) {} else { QTC_ASSERT_STRING(#cond); action; } do {} while (0)
 #define QTC_CHECK(cond) if (cond) {} else { QTC_ASSERT_STRING(#cond); } do {} while (0)
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 static uchar fromhex(uchar c)
 {
@@ -983,5 +982,4 @@ QString toHex(const QString &str)
     return QString::fromUtf8(str.toUtf8().toHex());
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

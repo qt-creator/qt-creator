@@ -25,6 +25,8 @@
 
 #include "symbolpathsdialog.h"
 
+#include "debuggertr.h"
+
 #include <QDialogButtonBox>
 #include <QHBoxLayout>
 #include <QMessageBox>
@@ -32,13 +34,12 @@
 
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 SymbolPathsDialog::SymbolPathsDialog(QWidget *parent) :
     QDialog(parent)
 {
-    setWindowTitle(tr("Set up Symbol Paths", nullptr));
+    setWindowTitle(Tr::tr("Set up Symbol Paths", nullptr));
 
     m_pixmapLabel = new QLabel(this);
     m_pixmapLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -46,7 +47,7 @@ SymbolPathsDialog::SymbolPathsDialog(QWidget *parent) :
     m_pixmapLabel->setMargin(5);
     m_pixmapLabel->setPixmap(QMessageBox::standardIcon(QMessageBox::Question));
 
-    m_msgLabel = new QLabel(tr("<html><head/><body><p>The debugger is not configured to use the "
+    m_msgLabel = new QLabel(Tr::tr("<html><head/><body><p>The debugger is not configured to use the "
         "public Microsoft Symbol Server.<br/>This is recommended for retrieval of the symbols "
         "of the operating system libraries.</p>"
         "<p><span style=\" font-style:italic;\">Note:</span> It is recommended, that if you use "
@@ -58,9 +59,9 @@ SymbolPathsDialog::SymbolPathsDialog(QWidget *parent) :
     m_msgLabel->setTextFormat(Qt::RichText);
     m_msgLabel->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
 
-    m_useLocalSymbolCache = new QCheckBox(tr("Use Local Symbol Cache"));
+    m_useLocalSymbolCache = new QCheckBox(Tr::tr("Use Local Symbol Cache"));
 
-    m_useSymbolServer = new QCheckBox(tr("Use Microsoft Symbol Server"));
+    m_useSymbolServer = new QCheckBox(Tr::tr("Use Microsoft Symbol Server"));
 
     m_pathChooser = new PathChooser;
 
@@ -130,5 +131,4 @@ bool SymbolPathsDialog::useCommonSymbolPaths(bool &useSymbolCache,
     return ret == QDialog::Accepted;
 }
 
-} // Internal
-} // Debugger
+} // Debugger::Internal

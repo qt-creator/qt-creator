@@ -34,8 +34,7 @@ QT_BEGIN_NAMESPACE
 class QFont;
 QT_END_NAMESPACE
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class ConsoleItemModel : public Utils::TreeModel<>
 {
@@ -64,5 +63,4 @@ private:
     bool m_canFetchMore = false;
 };
 
-} // Internal
-} // Debugger
+} // Debugger::Internal

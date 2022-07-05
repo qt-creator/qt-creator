@@ -29,8 +29,7 @@
 
 #include <QObject>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class DebuggerEngine;
 class DisassemblerAgentPrivate;
@@ -73,5 +72,4 @@ private:
     DisassemblerAgentPrivate *d;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

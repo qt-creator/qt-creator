@@ -31,17 +31,18 @@
 #include "qmlengineutils.h"
 
 #include <debugger/breakhandler.h>
+#include <debugger/console/console.h>
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggertooltipmanager.h>
+#include <debugger/debuggertr.h>
 #include <debugger/sourcefileshandler.h>
 #include <debugger/stackhandler.h>
 #include <debugger/threaddata.h>
 #include <debugger/watchhandler.h>
 #include <debugger/watchwindow.h>
-#include <debugger/console/console.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
@@ -98,8 +99,7 @@ using namespace QmlJS;
 using namespace TextEditor;
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 enum Exceptions
 {
@@ -353,7 +353,7 @@ void QmlEngine::tryToConnect()
     if (state() == EngineRunRequested) {
         if (isDying()) {
             // Probably cpp is being debugged and hence we did not get the output yet.
-            appStartupFailed(tr("No application output received in time"));
+            appStartupFailed(Tr::tr("No application output received in time"));
         } else {
             beginConnection();
         }
@@ -410,7 +410,7 @@ void QmlEngine::connectionStartupFailed()
     auto infoBox = new QMessageBox(ICore::dialogParent());
     infoBox->setIcon(QMessageBox::Critical);
     infoBox->setWindowTitle(Core::Constants::IDE_DISPLAY_NAME);
-    infoBox->setText(tr("Could not connect to the in-process QML debugger."
+    infoBox->setText(Tr::tr("Could not connect to the in-process QML debugger."
                         "\nDo you want to retry?"));
     infoBox->setStandardButtons(QMessageBox::Retry | QMessageBox::Cancel |
                                 QMessageBox::Help);
@@ -425,7 +425,7 @@ void QmlEngine::connectionStartupFailed()
 
 void QmlEngine::appStartupFailed(const QString &errorMessage)
 {
-    QString error = tr("Could not connect to the in-process QML debugger. %1").arg(errorMessage);
+    QString error = Tr::tr("Could not connect to the in-process QML debugger. %1").arg(errorMessage);
 
     if (companionEngine()) {
         auto infoBox = new QMessageBox(ICore::dialogParent());
@@ -473,7 +473,7 @@ void QmlEngine::gotoLocation(const Location &location)
         // internal file from source files -> show generated .js
         QTC_ASSERT(d->sourceDocuments.contains(fileName), return);
 
-        QString titlePattern = tr("JS Source for %1").arg(fileName);
+        QString titlePattern = Tr::tr("JS Source for %1").arg(fileName);
         //Check if there are open documents with the same title
         const QList<IDocument *> documents = DocumentModel::openedDocuments();
         for (IDocument *document: documents) {
@@ -513,7 +513,7 @@ void QmlEngine::startProcess()
     d->process.setCommand(runParameters().inferior.command);
     d->process.setWorkingDirectory(runParameters().inferior.workingDirectory);
     d->process.setEnvironment(runParameters().inferior.environment);
-    showMessage(tr("Starting %1").arg(d->process.commandLine().toUserOutput()),
+    showMessage(Tr::tr("Starting %1").arg(d->process.commandLine().toUserOutput()),
         NormalMessageFormat);
     d->process.start();
 }
@@ -595,7 +595,7 @@ void QmlEngine::interruptInferior()
 {
     showMessage(INTERRUPT, LogInput);
     d->runDirectCommand(INTERRUPT);
-    showStatusMessage(tr("Waiting for JavaScript engine to interrupt on next statement."));
+    showStatusMessage(Tr::tr("Waiting for JavaScript engine to interrupt on next statement."));
 }
 
 void QmlEngine::executeStepIn(bool)
@@ -625,7 +625,7 @@ void QmlEngine::executeStepOver(bool)
 void QmlEngine::executeRunToLine(const ContextData &data)
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
-    showStatusMessage(tr("Run to line %1 (%2) requested...")
+    showStatusMessage(Tr::tr("Run to line %1 (%2) requested...")
                           .arg(data.lineNumber)
                           .arg(data.fileName.toString()),
                       5000);
@@ -817,7 +817,7 @@ void QmlEngine::assignValueInDebugger(WatchItem *item,
             if (handler->isContentsValid() && handler->currentFrame().isUsable()) {
                 d->evaluate(exp, -1, [this](const QVariantMap &) { d->updateLocals(); });
             } else {
-                showMessage(tr("Cannot evaluate %1 in current stack frame.")
+                showMessage(Tr::tr("Cannot evaluate %1 in current stack frame.")
                             .arg(expression), ConsoleOutput);
             }
         }
@@ -977,7 +977,7 @@ Context QmlEngine::languageContext() const
 
 void QmlEngine::disconnected()
 {
-    showMessage(tr("QML Debugger disconnected."), StatusBar);
+    showMessage(Tr::tr("QML Debugger disconnected."), StatusBar);
     notifyInferiorExited();
 }
 
@@ -1014,8 +1014,8 @@ void QmlEngine::updateCurrentContext()
         return;
     }
 
-    debuggerConsole()->setContext(tr("Context:") + ' '
-                                  + (context.isEmpty() ? tr("Global QML Context") : context));
+    debuggerConsole()->setContext(Tr::tr("Context:") + ' '
+                                  + (context.isEmpty() ? Tr::tr("Global QML Context") : context));
 }
 
 void QmlEngine::executeDebuggerCommand(const QString &command)
@@ -1124,7 +1124,7 @@ void QmlEngine::connectionFailed()
 {
     // this is only an error if we are already connected and something goes wrong.
     if (isConnected()) {
-        showMessage(tr("QML Debugger: Connection failed."), StatusBar);
+        showMessage(Tr::tr("QML Debugger: Connection failed."), StatusBar);
         notifyInferiorSpontaneousStop();
         notifyInferiorIll();
     } else {
@@ -2483,5 +2483,4 @@ DebuggerEngine *createQmlEngine()
     return new QmlEngine;
 }
 
-} // Internal
-} // Debugger
+} // Debugger::Internal

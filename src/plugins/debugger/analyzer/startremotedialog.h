@@ -40,8 +40,6 @@ namespace Internal { class StartRemoteDialogPrivate; }
 
 class DEBUGGER_EXPORT StartRemoteDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     explicit StartRemoteDialog(QWidget *parent = nullptr);
     ~StartRemoteDialog() override;
@@ -56,4 +54,4 @@ private:
     Internal::StartRemoteDialogPrivate *d;
 };
 
-} // namespace Debugger
+} // Debugger

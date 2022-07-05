@@ -31,21 +31,18 @@
 #include <utils/filepath.h>
 
 #include <QList>
-#include <QObject>
-#include <QString>
-#include <QCoreApplication>
 
 namespace Debugger {
 
 class DebuggerItem;
 
-class DEBUGGER_EXPORT DebuggerItemManager : public QObject
+class DEBUGGER_EXPORT DebuggerItemManager
 {
-    Q_DECLARE_TR_FUNCTIONS(Debugger::DebuggerItemManager)
+    Q_DISABLE_COPY_MOVE(DebuggerItemManager)
 
 public:
     DebuggerItemManager();
-    ~DebuggerItemManager() override;
+    ~DebuggerItemManager();
 
     static const QList<DebuggerItem> debuggers();
 

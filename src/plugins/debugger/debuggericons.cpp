@@ -27,8 +27,7 @@
 
 using namespace Utils;
 
-namespace Debugger {
-namespace Icons {
+namespace Debugger::Icons {
 
 const Icon BREAKPOINT({
         {":/utils/images/filledcircle.png", Theme::IconsErrorColor}}, Icon::Tint);
@@ -158,5 +157,5 @@ const Icon MACOS_TOUCHBAR_DEBUG_STEP_INTO(
         ":/debugger/images/macos_touchbar_debug_step_into.png");
 const Icon MACOS_TOUCHBAR_DEBUG_STEP_OUT(
         ":/debugger/images/macos_touchbar_debug_step_out.png");
-} // namespace Icons
-} // namespace Debugger
+
+} // Debugger::Icons

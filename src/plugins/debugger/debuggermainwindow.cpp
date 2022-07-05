@@ -25,7 +25,7 @@
 
 #include "debuggermainwindow.h"
 #include "debuggerconstants.h"
-#include "debuggerinternalconstants.h"
+#include "debuggertr.h"
 #include "enginemanager.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -216,11 +216,11 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     });
 
     auto viewButton = new QToolButton;
-    viewButton->setText(DebuggerMainWindow::tr("&Views"));
+    viewButton->setText(Tr::tr("&Views"));
 
     auto closeButton = new QToolButton();
     closeButton->setIcon(Utils::Icons::CLOSE_SPLIT_BOTTOM.icon());
-    closeButton->setToolTip(DebuggerMainWindow::tr("Leave Debug Mode"));
+    closeButton->setToolTip(Tr::tr("Leave Debug Mode"));
 
     auto toolbar = new Utils::StyledBar;
     toolbar->setProperty("topBorder", true);
@@ -258,7 +258,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     scrolledToolbar->setFixedHeight(StyleHelper::navigationWidgetHeight());
     scrolledToolbar->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    auto dock = new QDockWidget(DebuggerMainWindow::tr("Toolbar"), q);
+    auto dock = new QDockWidget(Tr::tr("Toolbar"), q);
     dock->setObjectName("Toolbar");
     dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
     dock->setAllowedAreas(Qt::BottomDockWidgetArea);
@@ -585,7 +585,7 @@ void DebuggerMainWindowPrivate::setCentralWidget(QWidget *widget)
         q->showCentralWidgetAction()->setText(widget->windowTitle());
     } else {
         m_centralWidgetStack->addWidget(m_editorPlaceHolder);
-        q->showCentralWidgetAction()->setText(DebuggerMainWindow::tr("Editor"));
+        q->showCentralWidgetAction()->setText(Tr::tr("Editor"));
     }
 }
 
@@ -755,7 +755,7 @@ void PerspectivePrivate::populatePerspective()
         theMainWindow->showCentralWidgetAction()->setText(m_centralWidget->windowTitle());
     } else {
         theMainWindow->d->m_centralWidgetStack->addWidget(theMainWindow->d->m_editorPlaceHolder);
-        theMainWindow->showCentralWidgetAction()->setText(DebuggerMainWindow::tr("Editor"));
+        theMainWindow->showCentralWidgetAction()->setText(Tr::tr("Editor"));
     }
 
     ICore::addAdditionalContext(context());
@@ -875,11 +875,11 @@ void Perspective::registerNextPrevShortcuts(QAction *next, QAction *prev)
     static const char nextId[] = "Analyzer.nextitem";
     static const char prevId[] = "Analyzer.previtem";
 
-    next->setText(DebuggerMainWindow::tr("Next Item"));
+    next->setText(Tr::tr("Next Item"));
     Command * const nextCmd = ActionManager::registerAction(next, nextId,
                                                             Context(Id::fromString(id())));
     nextCmd->augmentActionWithShortcutToolTip(next);
-    prev->setText(DebuggerMainWindow::tr("Previous Item"));
+    prev->setText(Tr::tr("Previous Item"));
     Command * const prevCmd = ActionManager::registerAction(prev, prevId,
                                                             Context(Id::fromString(id())));
     prevCmd->augmentActionWithShortcutToolTip(prev);

@@ -34,8 +34,7 @@
 
 #include <QDebug>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 bool isPointerType(const QString &type)
 {
@@ -627,6 +626,5 @@ int WatchItem::guessSize() const
     return 0;
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal
 

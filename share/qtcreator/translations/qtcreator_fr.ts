@@ -37,103 +37,6 @@
     </message>
 </context>
 <context>
-    <name>AttachCoreDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation type="obsolete">Lancer le débogueur</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation type="obsolete">Exécutable :</translation>
-    </message>
-    <message>
-        <source>Core File:</source>
-        <translation type="obsolete">Fichier core :</translation>
-    </message>
-    <message>
-        <source>Core file:</source>
-        <translation type="obsolete">Fichier core :</translation>
-    </message>
-    <message>
-        <source>&amp;Executable:</source>
-        <translation type="obsolete">&amp;Exécutable :</translation>
-    </message>
-    <message>
-        <source>&amp;Core file:</source>
-        <translation type="obsolete">Fichier &amp;core :</translation>
-    </message>
-    <message>
-        <source>&amp;Tool chain:</source>
-        <translation type="obsolete">Chaîne d&apos;ou&amp;tils :</translation>
-    </message>
-    <message>
-        <source>Sysroot</source>
-        <translation type="obsolete">Racine système</translation>
-    </message>
-    <message>
-        <source>Override &amp;Start script:</source>
-        <translation type="obsolete">Surcharger le &amp;script de démarrage :</translation>
-    </message>
-    <message>
-        <source>Sys&amp;root:</source>
-        <translation type="obsolete">&amp;Racine système : </translation>
-    </message>
-</context>
-<context>
-    <name>AttachExternalDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation type="obsolete">Lancer le débogueur</translation>
-    </message>
-    <message>
-        <source>Attach to Process ID:</source>
-        <translation type="obsolete">Attacher au processus de PID :</translation>
-    </message>
-    <message>
-        <source>Filter:</source>
-        <translation type="obsolete">Filtre :</translation>
-    </message>
-    <message>
-        <source>Clear</source>
-        <translation type="obsolete">Effacer</translation>
-    </message>
-    <message>
-        <source>Attach to process ID:</source>
-        <translation type="obsolete">Attacher au processus de PID :</translation>
-    </message>
-    <message>
-        <source>Attach to &amp;process ID:</source>
-        <translation type="obsolete">Attacher au &amp;processus de PID :</translation>
-    </message>
-    <message>
-        <source>&amp;Tool chain:</source>
-        <translation type="obsolete">Chaîne d&apos;ou&amp;tils :</translation>
-    </message>
-</context>
-<context>
-    <name>AttachTcfDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation type="obsolete">Lancer le débogueur</translation>
-    </message>
-    <message>
-        <source>Host and port:</source>
-        <translation type="obsolete">Hôte et port :</translation>
-    </message>
-    <message>
-        <source>Architecture:</source>
-        <translation type="obsolete">Architecture :</translation>
-    </message>
-    <message>
-        <source>Use server start script:</source>
-        <translation type="obsolete">Utiliser le script de démarrage du serveur :</translation>
-    </message>
-    <message>
-        <source>Server start script:</source>
-        <translation type="obsolete">Script de démarrage du serveur :</translation>
-    </message>
-</context>
-<context>
     <name>BINEditor::Internal::BinEditorPlugin</name>
     <message>
         <source>&amp;Undo</source>
@@ -372,7 +275,7 @@
     </message>
 </context>
 <context>
-    <name>BreakByFunctionDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Set Breakpoint at Function</source>
         <translation type="obsolete">Placer un point d&apos;arrêt à la fonction</translation>
@@ -380,33 +283,6 @@
     <message>
         <source>Function to break on:</source>
         <translation type="obsolete">Fonction à interrompre :</translation>
-    </message>
-</context>
-<context>
-    <name>BreakCondition</name>
-    <message>
-        <source>Condition:</source>
-        <translation type="obsolete">Condition :</translation>
-    </message>
-    <message>
-        <source>Ignore count:</source>
-        <translation type="obsolete">Nombre de passages à ignorer :</translation>
-    </message>
-    <message>
-        <source>File name:</source>
-        <translation type="obsolete">Nom du fichier :</translation>
-    </message>
-    <message>
-        <source>Line number:</source>
-        <translation type="obsolete">Numéro de ligne :</translation>
-    </message>
-    <message>
-        <source>Function:</source>
-        <translation type="obsolete">Fonction :</translation>
-    </message>
-    <message>
-        <source>Thread specification:</source>
-        <translation type="obsolete">Spécification de thread :</translation>
     </message>
 </context>
 <context>
@@ -798,80 +674,6 @@
     </message>
 </context>
 <context>
-    <name>CdbOptionsPageWidget</name>
-    <message>
-        <source>These options take effect at the next start of Qt Creator.</source>
-        <translation type="obsolete">Ces options prendront effet au prochain démarrage de Qt Creator.</translation>
-    </message>
-    <message>
-        <source>Cdb</source>
-        <extracomment>Placeholder</extracomment>
-        <translation type="obsolete">Cdb</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation type="obsolete">Chemin :</translation>
-    </message>
-    <message>
-        <source>Debugger Paths</source>
-        <translation type="obsolete">Chemins du débogueur</translation>
-    </message>
-    <message>
-        <source>Symbol paths:</source>
-        <translation type="obsolete">Chemins des symboles :</translation>
-    </message>
-    <message>
-        <source>Source paths:</source>
-        <translation type="obsolete">Chemins des sources :</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; Restarting Qt Creator is required for these settings to take effect.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
-        <translation type="obsolete">&lt;html&gt;&lt;body&gt;&lt;p&gt;Spécifiez le chemin vers l&apos;&lt;a href=&quot;%1&quot;&gt;outil de débogage Windows&lt;/a&gt; (%2) ici.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; Il est nécessaire de redémarrer Qt Creator pour que ces changements prennent effet.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>64-bit version</source>
-        <translation type="obsolete">version 64-bits</translation>
-    </message>
-    <message>
-        <source>32-bit version</source>
-        <translation type="obsolete">version 32-bits</translation>
-    </message>
-    <message>
-        <source>Other options</source>
-        <translation type="obsolete">Autres options</translation>
-    </message>
-    <message>
-        <source>Verbose Symbol Loading</source>
-        <translation type="obsolete">Chargement verbeux des symboles</translation>
-    </message>
-    <message>
-        <source>CDB</source>
-        <extracomment>Placeholder</extracomment>
-        <translation type="obsolete">CDB</translation>
-    </message>
-    <message>
-        <source>Other Options</source>
-        <translation type="obsolete">Autres options</translation>
-    </message>
-    <message>
-        <source>Verbose symbol loading</source>
-        <translation type="obsolete">Chargement verbeux des symboles</translation>
-    </message>
-    <message>
-        <source>fast loading of debugging helpers</source>
-        <translation type="obsolete">chargement rapide des assistants de débogage</translation>
-    </message>
-    <message>
-        <source>Fast loading of debugging helpers</source>
-        <translation type="obsolete">Chargement rapide des assistants de débogage</translation>
-    </message>
-    <message>
-        <source>Break on exception</source>
-        <translation type="obsolete">Arrêt sur exception</translation>
-    </message>
-</context>
-<context>
     <name>ChangeSelectionDialog</name>
     <message>
         <source>Repository Location:</source>
@@ -1053,125 +855,6 @@
     <message>
         <source>Default protocol:</source>
         <translation type="obsolete">Protocole par défaut :</translation>
-    </message>
-</context>
-<context>
-    <name>CommonOptionsPage</name>
-    <message>
-        <source>User interface</source>
-        <translation type="obsolete">Interface utilisateur</translation>
-    </message>
-    <message>
-        <source>Checking this will populate the source file view automatically but might slow down debugger startup considerably.</source>
-        <translation type="obsolete">Cocher cette case peuplera automatiquement la vue du fichier source mais risque de ralentir considérablement le lancement du débogueur.</translation>
-    </message>
-    <message>
-        <source>Populate source file view automatically</source>
-        <translation type="obsolete">Peupler la vue du fichier source automatiquement</translation>
-    </message>
-    <message>
-        <source>Use alternating row colors in debug views</source>
-        <translation type="obsolete">Alterner la couleur de ligne dans le débogueur visuel</translation>
-    </message>
-    <message>
-        <source>When this option is checked, &apos;Step Into&apos; compresses several steps into one in certain situations, leading to &apos;less noisy&apos; debugging. So will, e.g., the atomic
- reference counting code be skipped, and a single &apos;Step Into&apos; for a signal emission will end up directly in the slot connected to it.</source>
-        <translation type="obsolete">Lorsque cette option est cochée, « Entrer dans » compresse plusieurs étapes en une dans certains cas, afin d&apos;éviter une &apos;pollution&apos; du débogage. Cela conduit par exemple
- à passer le comptage de référence atomique et un simple « Entrer dans » depuis une émission de signal conduit directement au slot qui y est connecté.</translation>
-    </message>
-    <message>
-        <source>Skip known frames when stepping</source>
-        <translation type="obsolete">Passer les trames connues en pas à pas</translation>
-    </message>
-    <message>
-        <source>Checking this will enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</source>
-        <translatorcomment>shunté le coup de la &quot;scope information&quot;... :/</translatorcomment>
-        <translation type="obsolete">Active les info-bulles sur les variables pendant le débogage. Comme ceci peut ralentir le débogage et ne fournit pas nécessairement des valeurs fiables, cette option est désactivée par défaut.</translation>
-    </message>
-    <message>
-        <source>Use tooltips while debugging</source>
-        <translation type="obsolete">Utiliser les info-bulles lors du débogage</translation>
-    </message>
-    <message>
-        <source>Enable reverse debugging</source>
-        <translation type="obsolete">Activer le débogage inversé</translation>
-    </message>
-    <message>
-        <source>Maximal stack depth:</source>
-        <translation type="obsolete">Profondeur maximale de la pile :</translation>
-    </message>
-    <message>
-        <source>&lt;unlimited&gt;</source>
-        <translation type="obsolete">&lt;illimitée&gt;</translation>
-    </message>
-    <message>
-        <source>Show a message box when receiving a signal</source>
-        <translatorcomment>message box -&gt; message, boîte de message, fenêtre de message ?</translatorcomment>
-        <translation type="obsolete">Afficher un message à la réception d&apos;un signal</translation>
-    </message>
-    <message>
-        <source>Use tooltips in main editor while debugging</source>
-        <translation type="obsolete">Utiliser les info-bulles dans l&apos;éditeur principal lors du débogage</translation>
-    </message>
-    <message>
-        <source>Language</source>
-        <translation type="obsolete">Langage</translation>
-    </message>
-    <message>
-        <source>Changes the debugger language according to the currently opened file.</source>
-        <translation type="obsolete">Changer le langage du débogueur en fonction du fichier ouvert.</translation>
-    </message>
-    <message>
-        <source>Change debugger language automatically</source>
-        <translation type="obsolete">Changer le langage du débogueur automatiquement</translation>
-    </message>
-    <message>
-        <source>GUI Behavior</source>
-        <translation type="obsolete">Comportement de l&apos;Interface Utilisateur</translation>
-    </message>
-    <message>
-        <source>Register Qt Creator for debugging crashed applications.</source>
-        <translation type="obsolete">Enregistrer Qt Creator pour déboguer les applications crashées.</translation>
-    </message>
-    <message>
-        <source>Use Qt Creator for post-mortem debugging</source>
-        <translation type="obsolete">Utiliser Qt Creator pour le débogage post-mortem</translation>
-    </message>
-    <message>
-        <source>Close temporary buffers on debugger exit.</source>
-        <translation type="obsolete">Fermer les tampons temporaires à l&apos;arrêt du débogueur.</translation>
-    </message>
-    <message>
-        <source>Close temporary buffers on debugger exit</source>
-        <translation type="obsolete">Fermer les tampons temporaires à l&apos;arrêt du débogueur</translation>
-    </message>
-    <message>
-        <source>Switch to previous mode on debugger exit.</source>
-        <translation type="obsolete">Retourner au mode précédent à l&apos;arrêt du débogueur.</translation>
-    </message>
-    <message>
-        <source>Switch to previous mode on debugger exit</source>
-        <translation type="obsolete">Retourner au mode précédent à l&apos;arrêt du débogueur</translation>
-    </message>
-    <message>
-        <source>Behavior</source>
-        <translation type="obsolete">Comportement</translation>
-    </message>
-    <message>
-        <source>Change the font size in the debugger views when the font size in the main editor changes.</source>
-        <translation type="obsolete">Changer la taille de la police dans les vues du débogueur quand la taille de police dans l&apos;éditeur principal change. </translation>
-    </message>
-    <message>
-        <source>Debugger font size follows main editor</source>
-        <translation type="obsolete">La taille de police du débogueur suit celle de l&apos;éditeur principal</translation>
-    </message>
-    <message>
-        <source>Populate the source file view automatically. This might slow down debugger startup considerably.</source>
-        <translation type="obsolete">Remplir la vue du fichier source automatiquement. Ceci pourrait ralentir considérablement le lancement du débogueur. </translation>
-    </message>
-    <message>
-        <source>Maximum stack depth:</source>
-        <translation type="obsolete">Profondeur maximale de la pile :</translation>
     </message>
 </context>
 <context>
@@ -3925,10 +3608,6 @@ Voulez vous les écraser ?</translation>
 <context>
     <name>Debugger</name>
     <message>
-        <source>Common</source>
-        <translation type="obsolete">Commun</translation>
-    </message>
-    <message>
         <source>General</source>
         <translation>Général</translation>
     </message>
@@ -3938,118 +3617,8 @@ Voulez vous les écraser ?</translation>
         <translation>Locales et expressions</translation>
     </message>
     <message>
-        <source>Debugger</source>
-        <translation>Débogueur</translation>
-    </message>
-    <message>
         <source>&lt;Encoding error&gt;</source>
         <translation>&lt;Erreur d&apos;encodage&gt;</translation>
-    </message>
-    <message>
-        <source>Starting executable failed:
-</source>
-        <translation type="obsolete">Échec du lancement de l&apos;exécutable :
-</translation>
-    </message>
-    <message>
-        <source>Attached to process %1.</source>
-        <translation type="obsolete">Attaché au processus de PID %1.</translation>
-    </message>
-    <message>
-        <source>The name of the binary file cannot be extracted from this core file.</source>
-        <translation type="obsolete">Le nom du fichier binaire ne peut être extrait de ce fichier core.</translation>
-    </message>
-    <message>
-        <source>Try to specify the binary using the &lt;i&gt;Debug-&gt;Start Debugging-&gt;Attach to Core&lt;/i&gt; dialog.</source>
-        <translatorcomment>core ? pas sur des menus</translatorcomment>
-        <translation type="obsolete">Essayez de spécifier le binaire en utilisant la boîte de dialogue &lt;i&gt;Débogage &gt; Démarrer le débogage &gt; Attacher au core&lt;/i&gt;.</translation>
-    </message>
-    <message>
-        <source>Loading core file failed</source>
-        <translation type="obsolete">Le chargement du fichier core a échoué</translation>
-    </message>
-    <message>
-        <source>Attach to core failed.</source>
-        <translation type="obsolete">Échec de liaison au core.</translation>
-    </message>
-    <message>
-        <source>Attached to core temporarily.</source>
-        <translation type="obsolete">Attaché au core temporairement.</translation>
-    </message>
-    <message>
-        <source>Symbols found.</source>
-        <translation type="obsolete">Symboles trouvés.</translation>
-    </message>
-    <message>
-        <source>No symbols found in core file &lt;i&gt;%1&lt;/i&gt;.</source>
-        <translation type="obsolete">Pas de symbole trouvé dans le fichier core &lt;i&gt;%1&lt;/i&gt;.</translation>
-    </message>
-    <message>
-        <source>This can be caused by a path length limitation in the core file.</source>
-        <translation type="obsolete">Cela peut être lié à une limitation de la taille du chemin dans le fichier core.</translation>
-    </message>
-    <message>
-        <source>Attached to core.</source>
-        <translation type="obsolete">Attaché au core.</translation>
-    </message>
-    <message>
-        <source>Attach to core &quot;%1&quot; failed:
-</source>
-        <translation type="obsolete">Échec de liaison au core &quot;%1&quot; :
-</translation>
-    </message>
-    <message>
-        <source>The upload process failed to start. Shell missing?</source>
-        <translation type="obsolete">Le processus d&apos;upload n&apos;a pas pu démarrer. Le shell serait-il manquant ?</translation>
-    </message>
-    <message>
-        <source>The upload process crashed some time after starting successfully.</source>
-        <translation type="obsolete">Le processus d&apos;upload a crashé après avoir démarré.</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation type="obsolete">La dernière fonction waitFor...() est arrivé à échéance. Le statut de QProcess est inchangé, vous pouvez essayer d&apos;appeler waitFor...() à nouveau.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation type="obsolete">Une erreur est survenue lors d&apos;une tentative d&apos;écriture sur l&apos;entrée du processus d&apos;upload. Le processus peut ne pas être lancé ou il a fermé son entrée.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to read from the upload process. For example, the process may not be running.</source>
-        <translation type="obsolete">Une erreur est survenue lors d&apos;une tentative de lecture depuis le processus d&apos;upload. Il est probable que le processus n&apos;est pas en cours d&apos;exécution.</translation>
-    </message>
-    <message>
-        <source>An unknown error in the upload process occurred. This is the default return value of error().</source>
-        <translation type="obsolete">Une erreur inconnue est survenue dans le processus d&apos;upload. Ceci est la valeur de retour par défaut de error().</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="obsolete">Erreur</translation>
-    </message>
-    <message>
-        <source>No symbol file given.</source>
-        <translation type="obsolete">Pas de fichier de symboles donné.</translation>
-    </message>
-    <message>
-        <source>Reading debug information failed:
-</source>
-        <translation type="obsolete">La lecture des informations de débogage a échoué : </translation>
-    </message>
-    <message>
-        <source>Debugger Error</source>
-        <translation type="obsolete">Erreur du débogueur</translation>
-    </message>
-    <message>
-        <source>Debugging Helper</source>
-        <translation type="obsolete">Assistance au débogage</translation>
-    </message>
-    <message>
-        <source>Choose DebuggingHelper Location</source>
-        <translation type="obsolete">Choisir l&apos;emplacement de l&apos;assistance au débogage</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+F11</source>
-        <translation>Ctrl+Maj+F11</translation>
     </message>
 </context>
 <context>
@@ -4137,7 +3706,7 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AttachCoreDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Load Core File</source>
         <translation>Charger un fichier core</translation>
@@ -4149,14 +3718,6 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf</translation>
     <message>
         <source>Use local core file:</source>
         <translation>Utiliser un fichier core local :</translation>
-    </message>
-    <message>
-        <source>Select Executable</source>
-        <translation>Sélectionner l&apos;exécutable</translation>
-    </message>
-    <message>
-        <source>Kit:</source>
-        <translation>Kit :</translation>
     </message>
     <message>
         <source>Core file:</source>
@@ -4180,10 +3741,6 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf</translation>
         <translation>Sélectionner le script de démarrage</translation>
     </message>
     <message>
-        <source>Start Debugger</source>
-        <translation type="obsolete">Lancer le débogueur</translation>
-    </message>
-    <message>
         <source>&amp;Executable:</source>
         <translation>&amp;Exécutable :</translation>
     </message>
@@ -4205,48 +3762,7 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AttachExternalDialog</name>
-    <message>
-        <source>Process ID</source>
-        <translation type="obsolete">ID du processus</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="obsolete">Nom</translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation type="obsolete">État</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Rafraîchir</translation>
-    </message>
-    <message>
-        <source>Process Already Under Debugger Control</source>
-        <translation type="obsolete">Processus déjà sous contrôle d&apos;un débogueur</translation>
-    </message>
-    <message>
-        <source>The process %1 is already under the control of a debugger.
-Qt Creator cannot attach to it.</source>
-        <translation type="obsolete">Le processus %1 est déjà sous contrôle d&apos;un débogueur. 
-Qt Creator ne peut pas s&apos;y attacher. </translation>
-    </message>
-    <message>
-        <source>Start Debugger</source>
-        <translation type="obsolete">Lancer le débogueur</translation>
-    </message>
-    <message>
-        <source>Attach to &amp;process ID:</source>
-        <translation type="obsolete">Attacher au &amp;processus de PID :</translation>
-    </message>
-    <message>
-        <source>&amp;Tool chain:</source>
-        <translation type="obsolete">Chaîne de &amp;compilation :</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::AddressDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Select start address</source>
         <translation type="obsolete">Sélectionner l&apos;adresse de départ</translation>
@@ -4265,14 +3781,7 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AttachTcfDialog</name>
-    <message>
-        <source>Select Executable</source>
-        <translation type="obsolete">Selectionner l&apos;exécutable</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::BreakHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Marker File:</source>
         <translatorcomment>Alternative &quot;Fichier ayant le marqueur&quot;</translatorcomment>
@@ -4310,10 +3819,6 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
     <message>
         <source>Unknown breakpoint type</source>
         <translation type="obsolete">Type de point d&apos;arrêt inconnu</translation>
-    </message>
-    <message>
-        <source>State:</source>
-        <translation>État :</translation>
     </message>
     <message>
         <source>Requested</source>
@@ -4510,14 +4015,6 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
         <translation>Ignorer</translation>
     </message>
     <message>
-        <source>Address</source>
-        <translation>Adresse</translation>
-    </message>
-    <message>
-        <source>Threads</source>
-        <translation>Threads</translation>
-    </message>
-    <message>
         <source>Watchpoint at 0x%1</source>
         <translation type="obsolete">Point d&apos;observation à 0x%1</translation>
     </message>
@@ -4539,324 +4036,11 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BreakWindow</name>
+    <name>Debugger</name>
     <message>
         <source>Breakpoints</source>
         <translation>Points d&apos;arrêt</translation>
     </message>
-    <message>
-        <source>Delete breakpoint</source>
-        <translation type="obsolete">Supprimer le point d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Delete all breakpoints</source>
-        <translation type="obsolete">Supprimer tous les points d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Delete breakpoints of &quot;%1&quot;</source>
-        <translation type="obsolete">Supprimer les points d&apos;arrêt de &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Delete breakpoints of file</source>
-        <translation type="obsolete">Supprimer les points d&apos;arrêt du fichier</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">Ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">Toujours ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Edit condition...</source>
-        <translation type="obsolete">Modifier la condition...</translation>
-    </message>
-    <message>
-        <source>Synchronize breakpoints</source>
-        <translation type="obsolete">Synchroniser les points d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Disable breakpoint</source>
-        <translation type="obsolete">Désactiver le point d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Enable breakpoint</source>
-        <translation type="obsolete">Activer le point d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Use short path</source>
-        <translation type="obsolete">Utiliser le chemin court</translation>
-    </message>
-    <message>
-        <source>Use full path</source>
-        <translation type="obsolete">Utiliser le chemin complet</translation>
-    </message>
-    <message>
-        <source>Delete Breakpoint</source>
-        <translation type="obsolete">Supprimer le point d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Delete All Breakpoints</source>
-        <translation type="obsolete">Supprimer tous les points d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Delete Breakpoints of &quot;%1&quot;</source>
-        <translation type="obsolete">Supprimer les points d&apos;arrêt de &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Delete Breakpoints of File</source>
-        <translation type="obsolete">Supprimer les points d&apos;arrêt du fichier</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Add Breakpoint</source>
-        <translation type="obsolete">Ajouter un point d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Toujours ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Edit Breakpoint...</source>
-        <translation type="obsolete">Editer le point d&apos;arrêt...</translation>
-    </message>
-    <message>
-        <source>Associate Breakpoint With All Threads</source>
-        <translation type="obsolete">Associer le point d&apos;arrêt à tous les threads</translation>
-    </message>
-    <message>
-        <source>Associate Breakpoint With Thread %1</source>
-        <translation type="obsolete">Associer le point d&apos;arrêt avec le thread %1</translation>
-    </message>
-    <message>
-        <source>Add Breakpoint...</source>
-        <translation type="obsolete">Ajouter un point d&apos;arrêt...</translation>
-    </message>
-    <message>
-        <source>Edit Breakpoint Properties</source>
-        <translation type="obsolete">Editer les propriétés du point d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Edit Condition...</source>
-        <translation type="obsolete">Modifier la condition...</translation>
-    </message>
-    <message>
-        <source>Synchronize Breakpoints</source>
-        <translation type="obsolete">Synchroniser les points d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Disable Selected Breakpoints</source>
-        <translation type="obsolete">Supprimer les points d&apos;arrêt du fichier</translation>
-    </message>
-    <message>
-        <source>Enable Selected Breakpoints</source>
-        <translation type="obsolete">Activer les points d&apos;arrêt sélectionnés</translation>
-    </message>
-    <message>
-        <source>Disable Breakpoint</source>
-        <translation type="obsolete">Désactiver le point d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Enable Breakpoint</source>
-        <translation type="obsolete">Activer le point d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Use Short Path</source>
-        <translation type="obsolete">Utiliser le chemin court</translation>
-    </message>
-    <message>
-        <source>Use Full Path</source>
-        <translation type="obsolete">Utiliser le chemin complet</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at Function...</source>
-        <translation type="obsolete">Placer un point d&apos;arrêt à la fonction...</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at Function &quot;main&quot;</source>
-        <translation type="obsolete">Placer un point d&apos;arrêt à la fonction &quot;main&quot;</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at &quot;throw&quot;</source>
-        <translation type="obsolete">Placer un point d&apos;arrêt au &quot;throw&quot;</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at &quot;catch&quot;</source>
-        <translation type="obsolete">Placer un point d&apos;arrêt au &quot;catch&quot;</translation>
-    </message>
-    <message>
-        <source>Conditions on Breakpoint %1</source>
-        <translation type="obsolete">Condition au point d&apos;arrêt %1</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CdbDebugEngine</name>
-    <message>
-        <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible de charger la bibliothèque de débogage &quot;%1&quot;: %2</translation>
-    </message>
-    <message>
-        <source>The function &quot;%1()&quot; failed: %2</source>
-        <extracomment>Function call failed</extracomment>
-        <translation type="obsolete">La fonction &quot;%1()&quot; a échoué : %2</translation>
-    </message>
-    <message>
-        <source>Unable to resolve &apos;%1&apos; in the debugger engine library &apos;%2&apos;</source>
-        <translation type="obsolete">Impossible de résoudre &apos;%1&apos; dans la bibliothèque de débogage &quot;%2&quot;</translation>
-    </message>
-    <message>
-        <source>Version: %1</source>
-        <translation type="obsolete">Version : %1</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;The installed version of the &lt;i&gt;Debugging Tools for Windows&lt;/i&gt; (%1) is rather old. Upgrading to version %2 is recommended for the proper display of Qt&apos;s data types.&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;La version installée des &lt;i&gt;outils de débogage pour Windows&lt;/i&gt; (%1) est relativement ancienne. Une mise à jour vers la version %2 est recommandée pour un affichage correct des types Qt.&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation type="obsolete">Débogueur</translation>
-    </message>
-    <message>
-        <source>The dumper library was not found at %1.</source>
-        <translation type="obsolete">La bibliothèque de collection de données n&apos;a pas été trouvée en %1.</translation>
-    </message>
-    <message>
-        <source>The console stub process was unable to start &apos;%1&apos;.</source>
-        <translation type="obsolete">Le processus de console n&apos;a pas pu lancer &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Attaching to core files is not supported!</source>
-        <translatorcomment>A noun could be better instead of Attacher ← attachement ?</translatorcomment>
-        <translation type="obsolete">Attacher le débogueur à un fichier core n&apos;est pas supporté !</translation>
-    </message>
-    <message>
-        <source>Debugger running</source>
-        <translation type="obsolete">Débogueur en fonctionnement</translation>
-    </message>
-    <message>
-        <source>Attaching to a process failed for process id %1: %2</source>
-        <translation type="obsolete">Impossible d&apos;attacher au processsus d&apos;id %1 : %2</translation>
-    </message>
-    <message>
-        <source>Unable to set the image path to %1: %2</source>
-        <translation type="obsolete">Impossible de définir le chemin de l&apos;image %1 : %2</translation>
-    </message>
-    <message>
-        <source>Unable to create a process &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible de créer un processus &quot;%1&quot;: %2</translation>
-    </message>
-    <message>
-        <source>The process exited with exit code %1.</source>
-        <translation type="obsolete">Le processus s&apos;est terminé avec le code de sortie %1.</translation>
-    </message>
-    <message>
-        <source>Continuing with &apos;%1&apos;...</source>
-        <translation type="obsolete">Continue avec &quot;%1&quot;...</translation>
-    </message>
-    <message>
-        <source>Unable to continue: %1</source>
-        <translation type="obsolete">Impossible de continuer : %1</translation>
-    </message>
-    <message>
-        <source>Reverse stepping is not implemented.</source>
-        <translation type="obsolete">Le déplacement inversé n&apos;est pas implémenté.</translation>
-    </message>
-    <message>
-        <source>Thread %1 cannot be stepped.</source>
-        <translation type="obsolete">Le thread %1 ne peut pas être parcouru pas à pas.</translation>
-    </message>
-    <message>
-        <source>Stepping %1</source>
-        <translation type="obsolete">Pas à pas %1</translation>
-    </message>
-    <message>
-        <source>Running to 0x%1...</source>
-        <translation type="obsolete">Lancement à l&apos;adresse 0x%1…</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation type="obsolete">Exécution demandée…</translation>
-    </message>
-    <message>
-        <source>Running up to %1:%2...</source>
-        <translation type="obsolete">Exécution jusqu&apos;à %1 : %2…</translation>
-    </message>
-    <message>
-        <source>Running up to function &apos;%1()&apos;...</source>
-        <translation type="obsolete">Exécution jusqu&apos;à la fonction &quot;%1()&quot;…</translation>
-    </message>
-    <message>
-        <source>Jump to line is not implemented</source>
-        <translation type="obsolete">Aller à la ligne n&apos;est pas implémenté</translation>
-    </message>
-    <message>
-        <source>Unable to assign the value &apos;%1&apos; to &apos;%2&apos;: %3</source>
-        <translation type="obsolete">Impossible d&apos;assigner la valeur &apos;%1&apos; à &quot;%2&quot;: %3</translation>
-    </message>
-    <message>
-        <source>Unable to retrieve %1 bytes of memory at 0x%2: %3</source>
-        <translation type="obsolete">Impossible de récupérer %1 octets de mémoire sur 0x%2 : %3</translation>
-    </message>
-    <message>
-        <source>Cannot retrieve symbols while the debuggee is running.</source>
-        <translatorcomment>note: debuggee is not a typo</translatorcomment>
-        <translation type="obsolete">Les symboles ne peuvent pas être obtenus lorsque le processus débogué est en fonctionnement.</translation>
-    </message>
-    <message>
-        <source>Debugger Error</source>
-        <translation type="obsolete">Erreur du débogueur</translation>
-    </message>
-    <message>
-        <source>Ignoring initial breakpoint...</source>
-        <translation type="obsolete">Point d&apos;arrêt initial ignoré…</translation>
-    </message>
-    <message>
-        <source>Interrupted in thread %1, current thread: %2</source>
-        <translation type="obsolete">Interruption dans le thread %1, thread courant : %2</translation>
-    </message>
-    <message>
-        <source>Stopped, current thread: %1</source>
-        <translation type="obsolete">Arrêté, thread courant : %1</translation>
-    </message>
-    <message>
-        <source>Changing threads: %1 -&gt; %2</source>
-        <translation type="obsolete">Changement de thread:%1 -&gt;%2</translation>
-    </message>
-    <message>
-        <source>Stopped at %1:%2 in thread %3.</source>
-        <translation type="obsolete">Arrêté a %1 : %2dans le thread %3.</translation>
-    </message>
-    <message>
-        <source>Stopped at %1 in thread %2 (missing debug information).</source>
-        <translation type="obsolete">Arrêté a %1 dans le thread %2 (information de débogage manquante).</translation>
-    </message>
-    <message>
-        <source>Stopped at %1 (%2) in thread %3 (missing debug information).</source>
-        <translation type="obsolete">Arrêté a %1 (%2) dans le thread %3 (information de débogage manquante).</translation>
-    </message>
-    <message>
-        <source>Stopped in thread %1 (missing debug information).</source>
-        <translation type="obsolete">Arrêté dans le thread %1 (information de débogage manquante).</translation>
-    </message>
-    <message>
-        <source>Breakpoint: %1</source>
-        <translation type="obsolete">Point d&apos;arrêt : %1</translation>
-    </message>
-    <message>
-        <source>Thread %1: Missing debug information for top stack frame (%2).</source>
-        <translation type="obsolete">Thread %1 : informations de débogage manquantes sur la frame en haut de la pile (%2).</translation>
-    </message>
-    <message>
-        <source>Thread %1: No debug information available (%2).</source>
-        <translation type="obsolete">Thread %1 : aucune information de débogage disponible (%2).</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CdbDumperHelper</name>
     <message>
         <source>injection</source>
         <translation type="obsolete">injection</translation>
@@ -4904,41 +4088,10 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbOptionsPageWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Cdb</source>
         <translation type="obsolete">Cdb</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; Restarting Qt Creator is required for these settings to take effect.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
-        <translation type="obsolete">&lt;html&gt;&lt;body&gt;&lt;p&gt;Spécifiez le chemin vers l&apos;&lt;a href=&quot;%1&quot;&gt;outil de débogage Windows&lt;/a&gt; (%2) ici.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; Il est nécessaire de redémarrer Qt Creator pour que ces changements prennent effet.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>64-bit version</source>
-        <translation type="obsolete">version 64-bits</translation>
-    </message>
-    <message>
-        <source>32-bit version</source>
-        <translation type="obsolete">version 32-bits</translation>
-    </message>
-    <message>
-        <source>Autodetect</source>
-        <translation type="obsolete">Autodétecter</translation>
-    </message>
-    <message>
-        <source>&quot;Debugging Tools for Windows&quot; could not be found.</source>
-        <translation type="obsolete">&quot;L&apos;outil de débogage pour Windows&quot; ne peut pas être trouvé.</translation>
-    </message>
-    <message>
-        <source>Checked:
-%1</source>
-        <translation type="obsolete">Coché :
-%1</translation>
-    </message>
-    <message>
-        <source>Autodetection</source>
-        <translation type="obsolete">Autodétection</translation>
     </message>
     <message>
         <source>Startup</source>
@@ -4974,10 +4127,6 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
         <translation>Utiliser la &amp;console CDB</translation>
     </message>
     <message>
-        <source>Breakpoints</source>
-        <translation type="obsolete">Points d&apos;arrêt</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attempt to correct the location of a breakpoint based on file and line number should it be in a comment or in a line for which no code is generated. The correction is based on the code model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Essaie de corriger l&apos;emplacement d&apos;un point d&apos;arrêt selon le fichier et la ligne du fichier s&apos;il est placé dans un commentaire ou une ligne ne générant pas de code. La correction est basée sur le modèle de code.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -5003,7 +4152,7 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbSymbolPathListEditor</name>
+    <name>Debugger</name>
     <message>
         <source>Symbol Server...</source>
         <translation>Serveur de symboles...</translation>
@@ -5033,416 +4182,8 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
         <translation type="obsolete">Serveur de symbole</translation>
     </message>
     <message>
-        <source>Do not ask again</source>
-        <translation type="obsolete">Ne plus me demander</translation>
-    </message>
-    <message>
         <source>Pick a local cache directory</source>
         <translation type="obsolete">Sélectionner un répertoire local de cache</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebugMode</name>
-    <message>
-        <source>Debug</source>
-        <translation type="obsolete">Déboguer</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::DebuggerManager</name>
-    <message>
-        <source>Continue</source>
-        <translation type="obsolete">Continue</translation>
-    </message>
-    <message>
-        <source>Interrupt</source>
-        <translation type="obsolete">Interrompre</translation>
-    </message>
-    <message>
-        <source>Reset Debugger</source>
-        <translation type="obsolete">Réinitialiser le débogueur</translation>
-    </message>
-    <message>
-        <source>Step Over</source>
-        <translation type="obsolete">Passer</translation>
-    </message>
-    <message>
-        <source>Step Into</source>
-        <translatorcomment>check all the instances of &quot;Step Into&quot; if you modify this one</translatorcomment>
-        <translation type="obsolete">Entrer dans</translation>
-    </message>
-    <message>
-        <source>Step Out</source>
-        <translatorcomment>Pas sur ???</translatorcomment>
-        <translation type="obsolete">Sortir de</translation>
-    </message>
-    <message>
-        <source>Run to Line</source>
-        <translation type="obsolete">Exécuter jusqu&apos;à la ligne</translation>
-    </message>
-    <message>
-        <source>Run to Outermost Function</source>
-        <translation type="obsolete">Exécuter jusqu&apos;à la fonction la plus éloignée</translation>
-    </message>
-    <message>
-        <source>Immediately Return From Inner Function</source>
-        <translatorcomment>Pas très francais... Mais je n&apos;arrive pas à saisir le sens de la phrase.
-francis : nouvelle proposition.
-cédric : Je pense que &quot;retourner immédiatement&quot; est mieux que dans l&apos;autre sens non ?
-john: je pense que c&apos;est dans le sens return ce qui ne comprends pas toujours une valeur, j&apos;ai simplifié la phrase.
-(globalement on a le problème de trad de return en retourne qui ce dit moyen...)</translatorcomment>
-        <translation type="obsolete">Retourne immédiatement d&apos;une fonction interne</translation>
-    </message>
-    <message>
-        <source>Jump to Line</source>
-        <translation type="obsolete">Sauter à la ligne</translation>
-    </message>
-    <message>
-        <source>Toggle Breakpoint</source>
-        <translation type="obsolete">Basculer le point d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Add to Watch Window</source>
-        <translation type="obsolete">Ajouter à la fenêtre d&apos;observateurs</translation>
-    </message>
-    <message>
-        <source>Snapshot</source>
-        <translatorcomment>mieux que cliché ou instantané non ?</translatorcomment>
-        <translation type="obsolete">Snapshot</translation>
-    </message>
-    <message>
-        <source>Reverse Direction</source>
-        <translation type="obsolete">Inverser la direction</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <translation type="obsolete">Arrêté.</translation>
-    </message>
-    <message>
-        <source>Running...</source>
-        <translation type="obsolete">En cours d&apos;éxecution...</translation>
-    </message>
-    <message>
-        <source>Exited.</source>
-        <translation type="obsolete">Sorti.</translation>
-    </message>
-    <message>
-        <source>Changing breakpoint state requires either a fully running or fully stopped application.</source>
-        <translatorcomment>fully ?</translatorcomment>
-        <translation type="obsolete">Changer l&apos;état d&apos;un point d&apos;arrêt nécessite soit une application en cours d&apos;éxecution soit une application totalement arrêté.</translation>
-    </message>
-    <message>
-        <source>The application requires the debugger engine &apos;%1&apos;, which is disabled.</source>
-        <translatorcomment>On traduit engine ou pas ?</translatorcomment>
-        <translation type="obsolete">L&apos;application nécessite le débogueur &quot;%1&quot; qui est desactivé.</translation>
-    </message>
-    <message>
-        <source>Debugging VS executables is currently not enabled.</source>
-        <translatorcomment>On traduit VS ?</translatorcomment>
-        <translation type="obsolete">Le débogage contre l&apos;exécutable n&apos;est actuellement pas activé.</translation>
-    </message>
-    <message>
-        <source>Starting debugger for tool chain &apos;%1&apos;...</source>
-        <translation type="obsolete">Lancer le débogueur pour la chaîne d&apos;outils &quot;%1&quot;...</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="obsolete">Avertissement</translation>
-    </message>
-    <message>
-        <source>Cannot debug &apos;%1&apos; (tool chain: &apos;%2&apos;): %3</source>
-        <translation type="obsolete">Impossible de déboguer &apos;%1&apos; (chaîne d&apos;outils : &quot;%2&quot;) : %3</translation>
-    </message>
-    <message>
-        <source>Save Debugger Log</source>
-        <translation type="obsolete">Sauvegarder le log du débogueur</translation>
-    </message>
-    <message>
-        <source>Turn helper usage off</source>
-        <translation type="obsolete">Arrêter l&apos;utilisation de l&apos;assistant</translation>
-    </message>
-    <message>
-        <source>The debugger did not find the debugging helper library.</source>
-        <translation type="obsolete">Le débogueur n&apos;a pas trouvé la bibliothèqe de l&apos;assistant au débogage.</translation>
-    </message>
-    <message>
-        <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each Qt version which you can do in the Qt preferences page by selecting a Qt installation and clicking on &apos;Rebuild&apos; for the debugging helper.</source>
-        <translation type="obsolete">L&apos;assistant au débogage est utilisé pour bien formater la valeur des types de données Qt et des bibliothèques standards.Il doit être compilé pour chaque version de Qt ce qui peut être fait dans les préférences de Qt en sélectionnant une installation de Qt et en cliquant sur &apos;Reconstruire&apos; pour l&apos;assistant de débogage.</translation>
-    </message>
-    <message>
-        <source>Turn off helper usage</source>
-        <translation type="obsolete">Désactiver cet avertissement</translation>
-    </message>
-    <message>
-        <source>The debugger could not load the debugging helper library.</source>
-        <translation type="obsolete">Le débogueur n&apos;a pas pu charger la bibliothèque d&apos;assistance au débogage.</translation>
-    </message>
-    <message>
-        <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. This can be done in the Qt preferences page by selecting a Qt installation and clicking on &apos;Rebuild&apos; in the &apos;Debugging Helper&apos; row.</source>
-        <translation type="obsolete">L&apos;assistance au débogage est utilisée pour visualiser facilement les valeurs de certains types de Qt et de la bibliothèque standard C++. Elle doit être compilée séparément pour chaque version de Qt. Ceci peut être fait dans la page de préférences de Qt en sélectionnant une version de Qt et en cliquant sur &quot;Recompiler&quot; à la ligne &quot;Assistance au débogage&quot;.</translation>
-    </message>
-    <message>
-        <source>Stop Debugger</source>
-        <translation type="obsolete">Arrêter le débogueur</translation>
-    </message>
-    <message>
-        <source>Open Qt preferences</source>
-        <translation type="obsolete">Ouvrir les préférences Qt</translation>
-    </message>
-    <message>
-        <source>Abort Debugging</source>
-        <translation type="obsolete">Annuler le débogage</translation>
-    </message>
-    <message>
-        <source>Aborts debugging and resets the debugger to the initial state.</source>
-        <translation type="obsolete">Annuler le débogage et réinitialiser le débogueur a son état initial.</translation>
-    </message>
-    <message>
-        <source>Stopped</source>
-        <translation type="obsolete">Arrêté</translation>
-    </message>
-    <message>
-        <source>Exited</source>
-        <translation type="obsolete">Sorti</translation>
-    </message>
-    <message>
-        <source>Symbol</source>
-        <translation type="obsolete">Symbole</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="obsolete">Adresse</translation>
-    </message>
-    <message>
-        <source>Code</source>
-        <translation type="obsolete">Code</translation>
-    </message>
-    <message>
-        <source>Symbols in &quot;%1&quot;</source>
-        <translation type="obsolete">Symboles dans &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>%1 (explicitly set in the Debugger Options)</source>
-        <translation type="obsolete">%1 (définie explicitement dans les options du débogueur)</translation>
-    </message>
-    <message>
-        <source>Continue anyway</source>
-        <translation type="obsolete">Continuer malgré tout</translation>
-    </message>
-    <message>
-        <source>Debugging helper missing</source>
-        <translation type="obsolete">Assistance au débogage manquante</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerOutputWindow</name>
-    <message>
-        <source>Debugger</source>
-        <translation type="obsolete">Débogueur</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerListener</name>
-    <message>
-        <source>A debugging session is still in progress.
-Would you like to terminate it?</source>
-        <translation type="obsolete">Une session de débogage est en cours. 
-Voulez vous la terminer ?</translation>
-    </message>
-    <message>
-        <source>Close Debugging Session</source>
-        <translation type="obsolete">Fermer la session de débogage</translation>
-    </message>
-    <message>
-        <source>A debugging session is still in progress. Would you like to terminate it?</source>
-        <translation type="obsolete">Une session de débogage est en cours. Voulez vous la terminer ?</translation>
-    </message>
-    <message>
-        <source>A debugging session is still in progress. Terminating the session in the current state (%1) can leave the target in an inconsistent state. Would you still like to terminate it?</source>
-        <translation type="obsolete">Une session de débogage est en cours. Terminer la session dans l&apos;état courant (%1) risque de laisser la cible dans un état incohérent. Êtes-vous sûr de vouloir terminer la session ?</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerPlugin</name>
-    <message>
-        <source>Option &apos;%1&apos; is missing the parameter.</source>
-        <translation type="obsolete">Option &quot;%1&quot; : le paramètre est manquant.</translation>
-    </message>
-    <message>
-        <source>The parameter &apos;%1&apos; of option &apos;%2&apos; is not a number.</source>
-        <translation type="obsolete">Le paramètre &apos;%1&apos; de l&apos;option &quot;%2&apos; n&quot;est pas un nombre.</translation>
-    </message>
-    <message>
-        <source>Invalid debugger option: %1</source>
-        <translation type="obsolete">Option du débogueur invalide : %1</translation>
-    </message>
-    <message>
-        <source>Error evaluating command line arguments: %1</source>
-        <translation type="obsolete">Erreur durant l&apos;évaluation des arguments de la ligne de commande : %1</translation>
-    </message>
-    <message>
-        <source>Start and Debug External Application...</source>
-        <translation type="obsolete">Déboguer une application externe...</translation>
-    </message>
-    <message>
-        <source>Attach to Running External Application...</source>
-        <translation type="obsolete">Attacher à une application externe en cours d&apos;éxecution...</translation>
-    </message>
-    <message>
-        <source>Attach to Core...</source>
-        <translatorcomment>idem, core?</translatorcomment>
-        <translation type="obsolete">Attacher au core...</translation>
-    </message>
-    <message>
-        <source>Start and Attach to Remote Application...</source>
-        <translation type="obsolete">Démarrer et attacher sur une application à distance...</translation>
-    </message>
-    <message>
-        <source>Detach Debugger</source>
-        <translation type="obsolete">Détacher le débogueur</translation>
-    </message>
-    <message>
-        <source>Stop Debugger/Interrupt Debugger</source>
-        <translation type="obsolete">Arrêter le débogueur/Interrompre le débogueur</translation>
-    </message>
-    <message>
-        <source>Reset Debugger</source>
-        <translation type="obsolete">Remise à zéro du débogueur</translation>
-    </message>
-    <message>
-        <source>&amp;Views</source>
-        <translation type="obsolete">&amp;Vues</translation>
-    </message>
-    <message>
-        <source>Locked</source>
-        <translation type="obsolete">Verrouillé</translation>
-    </message>
-    <message>
-        <source>Reset to default layout</source>
-        <translation type="obsolete">Restaurer la disposition par défaut</translation>
-    </message>
-    <message>
-        <source>Threads:</source>
-        <translation type="obsolete">Threads :</translation>
-    </message>
-    <message>
-        <source>Attaching to PID %1.</source>
-        <translatorcomment>Attachement ?</translatorcomment>
-        <translation type="obsolete">Attachement au PID %1.</translation>
-    </message>
-    <message>
-        <source>Remove Breakpoint</source>
-        <translation type="obsolete">Supprimer le point d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Disable Breakpoint</source>
-        <translation type="obsolete">Désactiver le point d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Enable Breakpoint</source>
-        <translation type="obsolete">Activer le point d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint</source>
-        <translation type="obsolete">Définir un point d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translatorcomment>Alerte?</translatorcomment>
-        <translation type="obsolete">Avertissement</translation>
-    </message>
-    <message>
-        <source>Cannot attach to PID 0</source>
-        <translatorcomment>de s&apos;attacher ? Pas sur</translatorcomment>
-        <translation type="obsolete">Impossible de s&apos;attacher au PID 0</translation>
-    </message>
-    <message>
-        <source>Attaching to core %1.</source>
-        <translatorcomment>core, toujours?</translatorcomment>
-        <translation type="obsolete">Attachement au core %1.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerSettings</name>
-    <message>
-        <source>Debugger properties...</source>
-        <translation type="obsolete">Propriétés du débogueur…</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">Ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">Toujours ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Use alternating row colors</source>
-        <translation type="obsolete">Utiliser des couleurs de lignes alternées</translation>
-    </message>
-    <message>
-        <source>Show a message box when receiving a signal</source>
-        <translation type="obsolete">Afficher un message à la réception d&apos;un signal</translation>
-    </message>
-    <message>
-        <source>Log time stamps</source>
-        <translation type="obsolete">Horodater le journal</translation>
-    </message>
-    <message>
-        <source>Operate by instruction</source>
-        <translation type="obsolete">Opérer par instruction</translation>
-    </message>
-    <message>
-        <source>This switches the debugger to instruction-wise operation mode. In this mode, stepping operates on single instructions and the source location view also shows the disassembled instructions.</source>
-        <translation>Ceci passe le débogueur en mode instruction par instruction. Dans ce mode, avancer pas à pas agit sur une seul instruction et la vue des sources affiche aussi les instructions désassemblés.</translation>
-    </message>
-    <message>
-        <source>Dereference pointers automatically</source>
-        <translation type="obsolete">Déréférencer les pointeurs automatiquement</translation>
-    </message>
-    <message>
-        <source>This switches the Locals&amp;Watchers view to automatically derefence pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
-        <translation type="obsolete">Ceci active le déférencement automatique des pointeurs dans les vues &quot;Variables locales&quot; et &quot;&amp;Observateur&quot;. Ceci réduit l&apos;arbre d&apos;un niveau mais certaines données sont cachées.</translation>
-    </message>
-    <message>
-        <source>Watch expression &quot;%1&quot;</source>
-        <translation type="obsolete">Observer l&apos;expression &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Remove watch expression &quot;%1&quot;</source>
-        <translation type="obsolete">Retirer &quot;%1&quot; des expressions observées</translation>
-    </message>
-    <message>
-        <source>Watch expression &quot;%1&quot; in separate window</source>
-        <translation type="obsolete">Observer l&apos;expression &quot;%1&quot; dans une fenêtre séparée</translation>
-    </message>
-    <message>
-        <source>Use debugging helper</source>
-        <translation type="obsolete">Utiliser l&apos;assistance au débogage</translation>
-    </message>
-    <message>
-        <source>Debug debugging helper</source>
-        <translation type="obsolete">Déboguer l&apos;assistance au débogage</translation>
-    </message>
-    <message>
-        <source>Use code model</source>
-        <translation type="obsolete">Utiliser le modèle de code</translation>
-    </message>
-    <message>
-        <source>Recheck debugging helper availability</source>
-        <translation type="obsolete">Revérifier la disponibilité de l&apos;assistance au débogage</translation>
-    </message>
-    <message>
-        <source>Synchronize breakpoints</source>
-        <translation type="obsolete">Synchroniser les points d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Debugger Properties...</source>
-        <translation>Propriétés du débogueur…</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Ajuster la largeur des colonnes au contenu</translation>
     </message>
     <message>
         <source>Always Adjust Column Widths to Contents</source>
@@ -5539,14 +4280,6 @@ Voulez vous la terminer ?</translation>
     <message>
         <source>Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
         <translation>Selectionner cette option fait que l&apos;information de contexte de la variable est demandée au modèle de code C++. Ceci peut résulter en des opérations de débogueur légèrement plus rapides mais risque d&apos;échouer dans le cas de code optimisé.</translation>
-    </message>
-    <message>
-        <source>Recheck Debugging Helper Availability</source>
-        <translation type="obsolete">Revérifier la disponibilité de l&apos;assistance au débogage</translation>
-    </message>
-    <message>
-        <source>Synchronize Breakpoints</source>
-        <translation>Synchroniser les points d&apos;arrêt</translation>
     </message>
     <message>
         <source>Use Precise Breakpoints</source>
@@ -5709,10 +4442,6 @@ Voulez vous la terminer ?</translation>
         <translation type="obsolete">Sauter les frames connues</translation>
     </message>
     <message>
-        <source>Enable reverse debugging</source>
-        <translation type="obsolete">Activer le débogage inversé</translation>
-    </message>
-    <message>
         <source>Reload full stack</source>
         <translation type="obsolete">Recharger l&apos;intégralité de la pile</translation>
     </message>
@@ -5722,7 +4451,7 @@ Voulez vous la terminer ?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggingHelperOptionPage</name>
+    <name>Debugger</name>
     <message>
         <source>Debugging Helper</source>
         <translation type="obsolete">Assistance au débogage</translation>
@@ -5778,7 +4507,7 @@ Voulez vous la terminer ?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbEngine</name>
+    <name>Debugger</name>
     <message>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
         <translation type="obsolete">Échec du démarrage du processus Gdb. Soit le programme &quot;%1&quot; est manquant, soit les droits sont insuffisants pour exécuter le programme.</translation>
@@ -5786,11 +4515,6 @@ Voulez vous la terminer ?</translation>
     <message>
         <source>The Gdb process crashed some time after starting successfully.</source>
         <translation type="obsolete">Le processus Gdb a crashé après avoir démarré correctement.</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translatorcomment>this string appear twice in the translation</translatorcomment>
-        <translation>La dernière fonction waitFor...() est arrivée à échéance. Le statut de QProcess est inchangé, vous pouvez essayer d&apos;appeler waitFor...() à nouveau.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the Gdb process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -5853,10 +4577,6 @@ Voulez vous la terminer ?</translation>
         <translation type="obsolete">Arrêté au point d&apos;arrêt.</translation>
     </message>
     <message>
-        <source>Stopped.</source>
-        <translation>Arrêté.</translation>
-    </message>
-    <message>
         <source>An unknown error in the Gdb process occurred. </source>
         <translation type="obsolete">Une erreur inconnue est survenue dans le processus Gdb. </translation>
     </message>
@@ -5893,22 +4613,6 @@ Voulez vous la terminer ?</translation>
         <translation type="obsolete">Le programme s&apos;est terminé normallement.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;The inferior stopped because it received a signal from the Operating System.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation type="obsolete">&lt;p&gt;L&apos;inférieur a stoppé car il a reçu un signal du système d&apos;exploitation.&lt;/p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Nom du signal : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signification du signal : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
-    </message>
-    <message>
-        <source> &lt;Unknown&gt; </source>
-        <translation type="obsolete"> &lt;inconnu&gt; </translation>
-    </message>
-    <message>
-        <source>Signal received</source>
-        <translation type="obsolete">Signal reçu</translation>
-    </message>
-    <message>
-        <source>Stopped: &quot;%1&quot;</source>
-        <translation type="obsolete">Arrêté : &quot;%1&quot;</translation>
-    </message>
-    <message>
         <source>The debugger you are using identifies itself as:</source>
         <translation type="obsolete">Le débogueur que vous utilisez s&apos;identifie comme :</translation>
     </message>
@@ -5919,10 +4623,6 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation type="obsolete">Cette version n&apos;est pas supportée officiellement par Qt Creator.
 Le débogage ne fonctionnera probablement pas parfaitement.
 L&apos;utilisation de gdb 6.7 ou supérieur est recommandée.</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation>Exécution demandée...</translation>
     </message>
     <message>
         <source>Step requested...</source>
@@ -5961,12 +4661,6 @@ L&apos;utilisation de gdb 6.7 ou supérieur est recommandée.</translation>
         <translation type="obsolete">ATTEMPT BREAKPOINT SYNC</translation>
     </message>
     <message>
-        <source>&lt;unknown&gt;</source>
-        <comment>address</comment>
-        <extracomment>End address of loaded module</extracomment>
-        <translation type="obsolete">&lt;inconnue&gt;</translation>
-    </message>
-    <message>
         <source>Jumping out of bogus frame...</source>
         <translation type="obsolete">Sauter hors des frames buggées...</translation>
     </message>
@@ -5986,26 +4680,12 @@ L&apos;utilisation de gdb 6.7 ou supérieur est recommandée.</translation>
         <translation>Erreur d&apos;E/S GDB</translation>
     </message>
     <message>
-        <source>Adapter start failed</source>
-        <translation>Démarrage de l&apos;adaptateur échoué</translation>
-    </message>
-    <message>
         <source>Setting breakpoints...</source>
         <translation>Définit les points d&apos;arrêts...</translation>
     </message>
     <message>
         <source>Starting inferior...</source>
         <translation type="obsolete">Démarrage de l&apos;inférieur...</translation>
-    </message>
-    <message>
-        <source> &lt;Unknown&gt; </source>
-        <comment>name</comment>
-        <translation type="obsolete"> &lt;Inconnu&gt; </translation>
-    </message>
-    <message>
-        <source> &lt;Unknown&gt; </source>
-        <comment>meaning</comment>
-        <translation type="obsolete"> &lt;inconnue&gt; </translation>
     </message>
     <message>
         <source>The debugging helper library was not found at %1.</source>
@@ -6210,32 +4890,6 @@ Essayez : %2</translation>
         <translation>Impossible de démarrer l&apos;application :</translation>
     </message>
     <message>
-        <source>This does not seem to be a &quot;Debug&quot; build.
-Setting breakpoints by file name and line number may fail.
-</source>
-        <translatorcomment>J&apos;aurais dit &quot;selon&quot; ou &quot;suivant&quot; et non &quot;par&quot;</translatorcomment>
-        <translation type="obsolete">Ceci ne semble pas être une compilation en mode débogage. 
-Mettre des points d&apos;arrêt par nom de fichier et numéro de ligne pourrait échouer.</translation>
-    </message>
-    <message>
-        <source>Found.</source>
-        <translation type="obsolete">Trouvé.</translation>
-    </message>
-    <message>
-        <source>Not Found.</source>
-        <translation type="obsolete">Non trouvé.</translation>
-    </message>
-    <message>
-        <source>
-Section %1: %2</source>
-        <translation type="obsolete">
-Section %1 : %2</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="obsolete">Avertissement</translation>
-    </message>
-    <message>
         <source>The gdb process could not be stopped:
 %1</source>
         <translation>Le processus gdb ne peut être arrêté : %1</translation>
@@ -6355,10 +5009,6 @@ Vous pouvez décider entre attendre plus longtemps ou mettre fin au débogage.</
     <message>
         <source>There is no gdb binary available for &apos;%1&apos;</source>
         <translation type="obsolete">Il n&apos;y a pas de binaire de gdb disponible pour &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Launching</source>
-        <translation type="obsolete">Lancement</translation>
     </message>
     <message>
         <source>Continuing after temporary stop...</source>
@@ -6493,14 +5143,6 @@ Vous pouvez décider d&apos;attendre plus longtemps ou mettre fin au débogage.<
         <source>&lt;0 items&gt;</source>
         <translation>&lt;0 éléments&gt;</translation>
     </message>
-    <message numerus="yes">
-        <source>&lt;%n items&gt;</source>
-        <extracomment>In string list</extracomment>
-        <translation>
-            <numerusform>&lt;%n élément&gt;</numerusform>
-            <numerusform>&lt;%n éléments&gt;</numerusform>
-        </translation>
-    </message>
     <message>
         <source>&lt;shadowed&gt;</source>
         <extracomment>Type of local variable or parameter shadowed by another variable of the same name in a nested block.</extracomment>
@@ -6531,19 +5173,7 @@ Ceci pourrait amener à des résultats incorrects.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbOptionsPage</name>
-    <message>
-        <source>Gdb</source>
-        <translation type="obsolete">Gdb</translation>
-    </message>
-    <message>
-        <source>Choose Gdb Location</source>
-        <translation type="obsolete">Choisir l&apos;emplacement de Gdb</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation>Général</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>GDB timeout:</source>
         <translation>Délai GDB :</translation>
@@ -6698,14 +5328,6 @@ par défaut de l&apos;utilisateur au démarrage du débogueur.</translation>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Continuer le débogage tous les enfants après un fork.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Warn when debugging &quot;Release&quot; builds</source>
-        <translation type="obsolete">Avertir lors du débogage en mode &quot;Release&quot;</translation>
-    </message>
-    <message>
-        <source>Show a warning when starting the debugger on a binary with insufficient debug information.</source>
-        <translation type="obsolete">Afficher un avertissement lors du démarrage du débogueur sur un binaire ayant insuffisamment d&apos;informations de débogage.</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Add common paths to locations of debug information such as &lt;i&gt;/usr/src/debug&lt;/i&gt; when starting GDB.&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Ajouter les chemins habituels de localisation des informations de débogage, tels que &lt;i&gt;/usr/src/debug&lt;/i&gt; lors du démarrage de GDB.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -6793,183 +5415,11 @@ at debugger startup.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::ModulesModel</name>
-    <message>
-        <source>yes</source>
-        <translation type="obsolete">oui</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="obsolete">non</translation>
-    </message>
-    <message>
-        <source>Module name</source>
-        <translation type="obsolete">Nom du module</translation>
-    </message>
-    <message>
-        <source>Module path</source>
-        <translation type="obsolete">Chemin du module</translation>
-    </message>
-    <message>
-        <source>Symbols read</source>
-        <translation type="obsolete">Symboles lus</translation>
-    </message>
-    <message>
-        <source>Symbols type</source>
-        <translation type="obsolete">Type des symboles</translation>
-    </message>
-    <message>
-        <source>Start address</source>
-        <translation type="obsolete">Adresse de démarrage</translation>
-    </message>
-    <message>
-        <source>End address</source>
-        <translation type="obsolete">Adresse de fin</translation>
-    </message>
-    <message>
-        <source>unknown</source>
-        <translation type="obsolete">inconnue</translation>
-    </message>
-    <message>
-        <source>plain</source>
-        <translation type="obsolete">simple</translation>
-    </message>
-    <message>
-        <source>fast</source>
-        <translation type="obsolete">rapide</translation>
-    </message>
-    <message>
-        <source>&lt;unknown&gt;</source>
-        <comment>address</comment>
-        <extracomment>End address of loaded module</extracomment>
-        <translation type="obsolete">&lt;inconnue&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::ModulesWindow</name>
+    <name>Debugger</name>
     <message>
         <source>Modules</source>
         <translation>Modules</translation>
     </message>
-    <message>
-        <source>Update Module List</source>
-        <translation type="obsolete">Mettre à jour la liste des modules</translation>
-    </message>
-    <message>
-        <source>Show Source Files for Module &quot;%1&quot;</source>
-        <translation type="obsolete">Afficher les fichiers source du module &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Load Symbols for All Modules</source>
-        <translation type="obsolete">Charger les symboles pour tous les modules</translation>
-    </message>
-    <message>
-        <source>Examine All Modules</source>
-        <translation type="obsolete">Examiner tous les modules</translation>
-    </message>
-    <message>
-        <source>Load Symbols for Module</source>
-        <translation type="obsolete">Charcher les symboles pour le module</translation>
-    </message>
-    <message>
-        <source>Edit File</source>
-        <translation type="obsolete">Éditer le fichier</translation>
-    </message>
-    <message>
-        <source>Show Symbols</source>
-        <translation type="obsolete">Afficher les symboles</translation>
-    </message>
-    <message>
-        <source>Show Dependencies</source>
-        <translation type="obsolete">Montrer les dépendances</translation>
-    </message>
-    <message>
-        <source>Load Symbols for Module &quot;%1&quot;</source>
-        <translation type="obsolete">Charger les symboles pour le module &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Edit File &quot;%1&quot;</source>
-        <translation type="obsolete">Éditer le fichier &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Show Symbols in File &quot;%1&quot;</source>
-        <translation type="obsolete">Afficher les symboles dans le fichier &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Show Dependencies of &quot;%1&quot;</source>
-        <translation type="obsolete">Montrer les dépendances de &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Toujours ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Update module list</source>
-        <translation type="obsolete">Mettre à jour la liste des modules</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">Ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">Toujours ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Show source files for module &quot;%1&quot;</source>
-        <translation type="obsolete">Afficher les fichiers source du module &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Load symbols for all modules</source>
-        <translation type="obsolete">Charger les symboles pour tous les modules</translation>
-    </message>
-    <message>
-        <source>Load symbols for module</source>
-        <translation type="obsolete">Charcher les symboles pour le module</translation>
-    </message>
-    <message>
-        <source>Edit file</source>
-        <translation type="obsolete">Éditer le fichier</translation>
-    </message>
-    <message>
-        <source>Show symbols</source>
-        <translation type="obsolete">Afficher les symboles</translation>
-    </message>
-    <message>
-        <source>Load symbols for module &quot;%1&quot;</source>
-        <translation type="obsolete">Charger les symboles pour le module &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Edit file &quot;%1&quot;</source>
-        <translation type="obsolete">Éditer le fichier &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Show symbols in file &quot;%1&quot;</source>
-        <translation type="obsolete">Affichier les symboles dans le fichier &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="obsolete">Adresse</translation>
-    </message>
-    <message>
-        <source>Code</source>
-        <translation type="obsolete">Code</translation>
-    </message>
-    <message>
-        <source>Symbol</source>
-        <translation type="obsolete">Symbole</translation>
-    </message>
-    <message>
-        <source>Symbols in &quot;%1&quot;</source>
-        <translation type="obsolete">Symboles dans &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::OutputCollector</name>
     <message>
         <source>Cannot create temporary file: %1</source>
         <translation>Impossible de créer le fichier temporaire : %1</translation>
@@ -6982,142 +5432,21 @@ at debugger startup.</source>
         <source>Cannot open FiFo %1: %2</source>
         <translation>Impossible d&apos;ouvrir le FiFo %1 : %2</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::RegisterHandler</name>
-    <message>
-        <source>Name</source>
-        <translation>Nom</translation>
-    </message>
     <message>
         <source>Value (Base %1)</source>
         <translation>Valeur (base %1)</translation>
     </message>
     <message>
-        <source>Value (base %1)</source>
-        <translation type="obsolete">Valeur (base %1)</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::RegisterWindow</name>
-    <message>
         <source>Registers</source>
         <translation>Registres</translation>
-    </message>
-    <message>
-        <source>Open memory editor</source>
-        <translation type="obsolete">Ouvrir l&apos;éditeur de mémoire</translation>
-    </message>
-    <message>
-        <source>Open memory editor at %1</source>
-        <translation type="obsolete">Ouvrir l&apos;éditeur de mémoire à l&apos;adresse %1</translation>
-    </message>
-    <message>
-        <source>Reload Register Listing</source>
-        <translation type="obsolete">Recharger la liste des registres</translation>
-    </message>
-    <message>
-        <source>Open Disassembler...</source>
-        <translation type="obsolete">Ouvrir le désassembleur... </translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at 0x%1</source>
-        <translation type="obsolete">Ouvrir l&apos;éditeur de mémoire à l&apos;adresse 0x%1</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Value of Register %1 0x%2</source>
-        <translation type="obsolete">Ouvrir la vue mémoire à la valeur du registre %1 0x%2</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at 0x%1</source>
-        <translation type="obsolete">Ouvrir le désassembleur à l&apos;adresse 0x%1</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor</source>
-        <translation type="obsolete">Ouvrir l&apos;éditeur de mémoire</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Value of Register</source>
-        <translation type="obsolete">Ouvrir la vue mémoire à la valeur du registre</translation>
-    </message>
-    <message>
-        <source>Open Disassembler</source>
-        <translation type="obsolete">Ouvrir le désassembleur</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at %1</source>
-        <translation type="obsolete">Ouvrir l&apos;éditeur de mémoire à l&apos;adresse %1</translation>
-    </message>
-    <message>
-        <source>Hexadecimal</source>
-        <translation type="obsolete">Hexadécimal</translation>
-    </message>
-    <message>
-        <source>Decimal</source>
-        <translation type="obsolete">Décimal</translation>
-    </message>
-    <message>
-        <source>Octal</source>
-        <translation type="obsolete">Octal</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation type="obsolete">Binaire</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Toujours ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">Ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">Toujours ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Reload register listing</source>
-        <translation type="obsolete">Recharger la liste des registres</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::ScriptEngine</name>
-    <message>
-        <source>Error:</source>
-        <translation>Erreur : </translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation>Exécution...</translation>
     </message>
     <message>
         <source>&apos;%1&apos; contains no identifier.</source>
         <translation>&apos;%1&apos; ne contient pas d&apos;identifiant.</translation>
     </message>
     <message>
-        <source>String literal %1.</source>
-        <translation>Chaîne de caractères %1.</translation>
-    </message>
-    <message>
         <source>Cowardly refusing to evaluate expression &apos;%1&apos; with potential side effects.</source>
         <translation>Refuse lâchement d&apos;évaluer l&apos;expression &apos;%1&apos; qui pourrait avoir des effets de bord.</translation>
-    </message>
-    <message>
-        <source>&apos;%1&apos; contains no identifier</source>
-        <translation type="obsolete">&quot;%1&apos; ne contient pas d&quot;identifiant</translation>
-    </message>
-    <message>
-        <source>String literal %1</source>
-        <translation type="obsolete">Chaîne de caractères %1</translation>
-    </message>
-    <message>
-        <source>Cowardly refusing to evaluate expression &apos;%1&apos; with potential side effects</source>
-        <translation type="obsolete">Refuse lâchement d&apos;évaluer l&apos;expression &quot;%1&quot; avec des effects secondaires potentiels</translation>
     </message>
     <message>
         <source>Stopped at %1:%2.</source>
@@ -7127,62 +5456,13 @@ at debugger startup.</source>
         <source>Stopped.</source>
         <translation>Arrêté.</translation>
     </message>
-</context>
-<context>
-    <name>SourceFilesModel</name>
-    <message>
-        <source>Internal name</source>
-        <translation type="obsolete">Nom interne</translation>
-    </message>
-    <message>
-        <source>Full name</source>
-        <translation type="obsolete">Nom complet</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::SourceFilesWindow</name>
     <message>
         <source>Source Files</source>
         <translation>Fichiers source</translation>
     </message>
     <message>
-        <source>Reload Data</source>
-        <translation type="obsolete">Recharger les données</translation>
-    </message>
-    <message>
-        <source>Open File</source>
-        <translation type="obsolete">Ouvrir le Fichier</translation>
-    </message>
-    <message>
-        <source>Open File &quot;%1&quot;&apos;</source>
-        <translation type="obsolete">Ouvrir le fichier &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Reload data</source>
-        <translation type="obsolete">Recharger les données</translation>
-    </message>
-    <message>
-        <source>Open file</source>
-        <translation type="obsolete">Ouvrir le fichier</translation>
-    </message>
-    <message>
-        <source>Open file &quot;%1&quot;&apos;</source>
-        <translation type="obsolete">Ouvrir le fichier &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::StackHandler</name>
-    <message>
         <source>Address:</source>
         <translation>Adresse :</translation>
-    </message>
-    <message>
-        <source>Function:</source>
-        <translation>Fonction :</translation>
-    </message>
-    <message>
-        <source>File:</source>
-        <translation>Fichier :</translation>
     </message>
     <message>
         <source>Line:</source>
@@ -7238,25 +5518,9 @@ at debugger startup.</source>
         <source>Level</source>
         <translation>Niveau</translation>
     </message>
-    <message>
-        <source>Function</source>
-        <translation>Fonction</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Fichier</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>Ligne</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adresse</translation>
-    </message>
 </context>
 <context>
-    <name>Debugger::Internal::ThreadsHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Thread id:</source>
         <translation>ID du thread : </translation>
@@ -7290,22 +5554,6 @@ at debugger startup.</source>
         <translation>Identifiant</translation>
     </message>
     <message>
-        <source>Function</source>
-        <translation>Fonction</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Fichier</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>Ligne</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adresse</translation>
-    </message>
-    <message>
         <source>Core</source>
         <translation>Core</translation>
     </message>
@@ -7322,288 +5570,13 @@ at debugger startup.</source>
         <translation>Détails</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Nom</translation>
-    </message>
-    <message>
-        <source>Thread: %1</source>
-        <translation type="obsolete">Thread: %1</translation>
-    </message>
-    <message>
-        <source>Thread: %1 at %2 (0x%3)</source>
-        <translation type="obsolete">Thread: %1 à %2 (0x%3)</translation>
-    </message>
-    <message>
-        <source>Thread: %1 at %2, %3:%4 (0x%5)</source>
-        <translation type="obsolete">Thread: %1 à %2, %3:%4 (0x%5)</translation>
-    </message>
-    <message>
-        <source>Thread ID</source>
-        <translation type="obsolete">ID du Thread</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::StackWindow</name>
-    <message>
         <source>Stack</source>
         <translation>Pile</translation>
-    </message>
-    <message>
-        <source>Function:</source>
-        <translation type="obsolete">Fonction :</translation>
-    </message>
-    <message>
-        <source>Disassemble Function</source>
-        <translation type="obsolete">Désassemble la fonction</translation>
-    </message>
-    <message>
-        <source>Copy Contents to Clipboard</source>
-        <translation type="obsolete">Copier le contenu dans le presse papier</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor</source>
-        <translation type="obsolete">Ouvrir l&apos;éditeur de mémoire</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at 0x%1</source>
-        <translation type="obsolete">Ouvrir l&apos;éditeur de mémoire à l&apos;adresse 0x%1</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at Address...</source>
-        <translation type="obsolete">Ouvrir le désassembleur à l&apos;adresse...</translation>
-    </message>
-    <message>
-        <source>Disassemble Function...</source>
-        <translation type="obsolete">Désassemble la fonction...</translation>
-    </message>
-    <message>
-        <source>Open Disassembler...</source>
-        <translation type="obsolete">Ouvrir le désassembleur...</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at 0x%1</source>
-        <translation type="obsolete">Ouvrir le désassembleur à l&apos;adresse 0x%1</translation>
-    </message>
-    <message>
-        <source>Try to Load Unknown Symbols</source>
-        <translation type="obsolete">Essayer de charger les symboles inconnus</translation>
-    </message>
-    <message>
-        <source>Memory at Frame #%1 (%2) 0x%3</source>
-        <translation type="obsolete">Mémoire à la frame #%1 (%2) 0x%3</translation>
-    </message>
-    <message>
-        <source>Frame #%1 (%2)</source>
-        <translation type="obsolete">Frame #%1 (%2)</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at %1</source>
-        <translation type="obsolete">Ouvrir l&apos;éditeur de mémoire à l&apos;adresse %1</translation>
-    </message>
-    <message>
-        <source>Open Disassembler</source>
-        <translation type="obsolete">Ouvrir le désassembleur</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at %1</source>
-        <translation type="obsolete">Ouvrir le désassembleur à l&apos;adresse %1</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Toujours ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Copy contents to clipboard</source>
-        <translation type="obsolete">Copier le contenu dans le presse papier</translation>
-    </message>
-    <message>
-        <source>Open memory editor</source>
-        <translation type="obsolete">Ouvrir l&apos;éditeur de mémoire</translation>
-    </message>
-    <message>
-        <source>Open memory editor at %1</source>
-        <translation type="obsolete">Ouvrir l&apos;éditeur de mémoire à l&apos;adresse %1</translation>
-    </message>
-    <message>
-        <source>Open disassembler</source>
-        <translation type="obsolete">Ouvrir le désassembleur</translation>
-    </message>
-    <message>
-        <source>Open disassembler at %1</source>
-        <translation type="obsolete">Ouvrir le désassembleur à l&apos;adresse %1</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">Ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">Toujours ajuster la largeur des colonnes au contenu</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::StartExternalDialog</name>
-    <message>
-        <source>Select Executable</source>
-        <translation type="obsolete">Selectionner l&apos;exécutable</translation>
-    </message>
-    <message>
-        <source>Select Working Directory</source>
-        <translation type="obsolete">Sélectionner le répertoire de travail</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation type="obsolete">Exécutable :</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">Arguments :</translation>
-    </message>
-    <message>
-        <source>Start Debugger</source>
-        <translation type="obsolete">Lancer le débogueur</translation>
-    </message>
-    <message>
-        <source>&amp;Executable:</source>
-        <translation type="obsolete">&amp;Exécutable :</translation>
-    </message>
-    <message>
-        <source>&amp;Arguments:</source>
-        <translation type="obsolete">&amp;Arguments : </translation>
-    </message>
-    <message>
-        <source>Run in &amp;terminal:</source>
-        <translation type="obsolete">Lancer en &amp;terminal : </translation>
-    </message>
-    <message>
-        <source>&amp;Working directory:</source>
-        <translation type="obsolete">&amp;Répertoire de travail : </translation>
-    </message>
-    <message>
-        <source>&amp;Tool chain:</source>
-        <translation type="obsolete">Chaîne de &amp;compilation :</translation>
-    </message>
-    <message>
-        <source>Break at &apos;&amp;main&apos;:</source>
-        <translation type="obsolete">Arrêt à &apos;&amp;main&apos; : </translation>
-    </message>
-    <message>
-        <source>&amp;Recent:</source>
-        <translation type="obsolete">&amp;Récent :</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::StartRemoteDialog</name>
-    <message>
-        <source>Select Debugger</source>
-        <translation type="obsolete">Lancer le débogueur</translation>
-    </message>
-    <message>
-        <source>Select Location of Debugging Information</source>
-        <translation type="obsolete">Sélectionner l&apos;emplacement des informations de débogage</translation>
-    </message>
-    <message>
-        <source>Select Executable</source>
-        <translation type="obsolete">Selectionner l&apos;exécutable</translation>
-    </message>
-    <message>
-        <source>Select Sysroot</source>
-        <translation type="obsolete">Sectionner Sysroot</translation>
-    </message>
-    <message>
-        <source>Select GDB Start Script</source>
-        <translation type="obsolete">Sélectionner le script de démarrage GDB</translation>
-    </message>
-    <message>
-        <source>Select Server Start Script</source>
-        <translation type="obsolete">Sélectionner le script de démarrage du serveur</translation>
-    </message>
-    <message>
-        <source>Remote: &quot;%1&quot;</source>
-        <translation type="obsolete">Distant : &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Select Start Script</source>
-        <translation type="obsolete">Sélectionner le script de démarrage</translation>
-    </message>
-    <message>
-        <source>Start Debugger</source>
-        <translation type="obsolete">Lancer le débogueur</translation>
-    </message>
-    <message>
-        <source>Tool &amp;chain:</source>
-        <translation type="obsolete">Chaîne d&apos;ou&amp;tils :</translation>
-    </message>
-    <message>
-        <source>Local &amp;executable:</source>
-        <translation type="obsolete">&amp;Exécutable local : </translation>
-    </message>
-    <message>
-        <source>&amp;Host and port:</source>
-        <translation type="obsolete">&amp;Hôte et port : </translation>
-    </message>
-    <message>
-        <source>&amp;Architecture:</source>
-        <translation type="obsolete">&amp;Architecture : </translation>
-    </message>
-    <message>
-        <source>Sys&amp;root:</source>
-        <translation type="obsolete">&amp;Racine système : </translation>
-    </message>
-    <message>
-        <source>Location of debugging &amp;information:</source>
-        <translation type="obsolete">Emplacement des &amp;informations de débogage :</translation>
-    </message>
-    <message>
-        <source>Override host GDB s&amp;tart script:</source>
-        <translation type="obsolete">Surchager le &amp;script de démarrage du GDB hôte :</translation>
-    </message>
-    <message>
-        <source>&amp;Use server start script:</source>
-        <translation type="obsolete">&amp;Utiliser le script de démarrage du serveur :</translation>
-    </message>
-    <message>
-        <source>&amp;Server start script:</source>
-        <translation type="obsolete">&amp;Script de démarrage du serveur :</translation>
-    </message>
-    <message>
-        <source>&amp;Recent:</source>
-        <translation type="obsolete">&amp;Récent :</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::ThreadsWindow</name>
-    <message>
-        <source>Thread</source>
-        <translation type="obsolete">Thread</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Toujours ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">Ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">Toujours ajuster la largeur des colonnes au contenu</translation>
     </message>
     <message>
         <source>Threads</source>
         <translation>Threads</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>
@@ -7779,22 +5752,6 @@ at debugger startup.</source>
         <translation>Tableau de 1000 éléments</translation>
     </message>
     <message>
-        <source>Decimal</source>
-        <translation>Décimal</translation>
-    </message>
-    <message>
-        <source>Hexadecimal</source>
-        <translation>Hexadécimal</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation>Binaire</translation>
-    </message>
-    <message>
-        <source>Octal</source>
-        <translation>Octal</translation>
-    </message>
-    <message>
         <source>returned value</source>
         <translation>valeur de retour</translation>
     </message>
@@ -7831,119 +5788,6 @@ at debugger startup.</source>
         <translation>Valeur</translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Type</translation>
-    </message>
-    <message>
-        <source>Locals and Watchers</source>
-        <translation type="obsolete">Variables locales et observateurs</translation>
-    </message>
-    <message>
-        <source>Change Format for Type &quot;%1&quot;</source>
-        <translation type="obsolete">Modifier le format pour le type &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Change Format for Object at %1</source>
-        <translation type="obsolete">Modifier le format pour l&apos;objet à &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Clear</source>
-        <translation type="obsolete">Effacer</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at %1</source>
-        <translation type="obsolete">Ouvrir l&apos;éditeur de mémoire à l&apos;adresse %1</translation>
-    </message>
-    <message>
-        <source>Change Format for Type</source>
-        <translation type="obsolete">Modifier le format pour le type</translation>
-    </message>
-    <message>
-        <source>Change Format for Object Named &quot;%1&quot;</source>
-        <translation type="obsolete">Modifier le format pour l&apos;objet à &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Change Format for Object</source>
-        <translation type="obsolete">Modifier le format pour l&apos;objet</translation>
-    </message>
-    <message>
-        <source>Insert New Watch Item</source>
-        <translation type="obsolete">Insérer un nouvel élément observé</translation>
-    </message>
-    <message>
-        <source>Select Widget to Watch</source>
-        <translation type="obsolete">Sélectionner le widget à observer</translation>
-    </message>
-    <message>
-        <source>Change Global Display Formats...</source>
-        <translatorcomment>format globaux ou affichage global ? [Pierre] Je pense qu&apos;il s&apos;agit des formats, on va voir si quelqu&apos;un râle... :)</translatorcomment>
-        <translation type="obsolete">Changer les formats d&apos;affichage globaux...</translation>
-    </message>
-    <message>
-        <source>Remove All Evaluated Expressions</source>
-        <translation type="obsolete">Enlever toutes les expressions évaluées</translation>
-    </message>
-    <message>
-        <source>Break on Changes at Object&apos;s Address (0x%1)</source>
-        <translation type="obsolete">Arrêter lors de changements à l&apos;adresse de l&apos;objet (0x%1)</translation>
-    </message>
-    <message>
-        <source>Break on Changes at Referenced Address (0x%1)</source>
-        <translation type="obsolete">Arrêter lors de changements à l&apos;adresse réferencée (0x%1)</translation>
-    </message>
-    <message>
-        <source>Break on Changing Contents</source>
-        <translation type="obsolete">Arrêter lors de changements de contenu</translation>
-    </message>
-    <message>
-        <source>Watch Expression</source>
-        <translation type="obsolete">Ajouter un point d&apos;observation sur l&apos;expression</translation>
-    </message>
-    <message>
-        <source>Watch Expression &quot;%1&quot;</source>
-        <translation type="obsolete">Observer l&apos;expression &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Remove Watch Expression</source>
-        <translation type="obsolete">Retirer des expressions observées</translation>
-    </message>
-    <message>
-        <source>Remove Watch Expression &quot;%1&quot;</source>
-        <translation type="obsolete">Retirer &quot;%1&quot; des expressions observées</translation>
-    </message>
-    <message>
-        <source>Change Display Format...</source>
-        <translation type="obsolete">Changer le format d&apos;affichage... </translation>
-    </message>
-    <message>
-        <source>Memory Referenced by Pointer &apos;%1&apos; (0x%2)</source>
-        <translation type="obsolete">Mémoire référencée par le pointeur &quot;%1&quot; (0x%2)</translation>
-    </message>
-    <message>
-        <source>Memory Referenced by Pointer &quot;%1&quot; (0x%2)</source>
-        <translation type="obsolete">Mémoire référencée par le pointeur &quot;%1&quot; (0x%2)</translation>
-    </message>
-    <message>
-        <source>Locals and Expressions</source>
-        <translation>Locales et expressions</translation>
-    </message>
-    <message>
-        <source>Evaluate Expression</source>
-        <translation type="obsolete">Évaluer l&apos;expression</translation>
-    </message>
-    <message>
-        <source>Evaluate Expression &quot;%1&quot;</source>
-        <translation type="obsolete">Évaluer l&apos;expression &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Remove Evaluated Expression</source>
-        <translation type="obsolete">Enlever l&apos;expression évaluée</translation>
-    </message>
-    <message>
-        <source>Remove Evaluated Expression &quot;%1&quot;</source>
-        <translation type="obsolete">Enlever l&apos;expression &quot;%1&quot; évaluée</translation>
-    </message>
-    <message>
         <source>Add Watchpoint at Object&apos;s Address (0x%1)</source>
         <translation>Ajouter un point d&apos;observation à l&apos;adresse de l&apos;objet (0x%1)</translation>
     </message>
@@ -7974,165 +5818,6 @@ at debugger startup.</source>
     <message>
         <source>Refresh Code Model Snapshot</source>
         <translation type="obsolete">Rafraîchir le snapshot du modèle de code</translation>
-    </message>
-    <message>
-        <source>Enter watch expression</source>
-        <translation type="obsolete">Entrer l&apos;expression à observer</translation>
-    </message>
-    <message>
-        <source>Expression:</source>
-        <translation type="obsolete">Expression :</translation>
-    </message>
-    <message>
-        <source>Locals &amp; Watchers</source>
-        <translation type="obsolete">Variables locales et observateurs</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Toujours ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Change format for type &apos;%1&apos;</source>
-        <translation type="obsolete">Modifier le format pour le type &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Change format for expression &apos;%1&apos;</source>
-        <translation type="obsolete">Modifier le format pour l&apos;expression &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Change format for type</source>
-        <translation type="obsolete">Modifier le format pour le type</translation>
-    </message>
-    <message>
-        <source>Change format for expression</source>
-        <translation type="obsolete">Modifier le format pour l&apos;expression</translation>
-    </message>
-    <message>
-        <source>Select widget to watch</source>
-        <translation type="obsolete">Sélectionner le widget à observer</translation>
-    </message>
-    <message>
-        <source>Open memory editor...</source>
-        <translation type="obsolete">Ouvrir l&apos;éditeur de mémoire...</translation>
-    </message>
-    <message>
-        <source>Open memory editor at %1</source>
-        <translation type="obsolete">Ouvrir l&apos;éditeur de mémoire à l&apos;adresse %1</translation>
-    </message>
-    <message>
-        <source>Refresh code model snapshot</source>
-        <translation type="obsolete">Rafraîchir l&apos;instantané du code</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">Ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">Toujours ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Insert new watch item</source>
-        <translation type="obsolete">Insérer un nouvel élémen observé</translation>
-    </message>
-</context>
-<context>
-    <name>DebuggerPane</name>
-    <message>
-        <source>Clear contents</source>
-        <translation type="obsolete">Effacer le contenu</translation>
-    </message>
-    <message>
-        <source>Save contents</source>
-        <translation type="obsolete">Sauver le contenu</translation>
-    </message>
-    <message>
-        <source>Clear Contents</source>
-        <translation type="obsolete">Effacer le contenu</translation>
-    </message>
-    <message>
-        <source>Save Contents</source>
-        <translation type="obsolete">Sauver le contenu</translation>
-    </message>
-    <message>
-        <source>Log File</source>
-        <translation type="obsolete">Réaliser un log du fichier</translation>
-    </message>
-</context>
-<context>
-    <name>DebuggingHelperOptionPage</name>
-    <message>
-        <source>Debugging helper</source>
-        <translation type="obsolete">Assistance au débogage</translation>
-    </message>
-    <message>
-        <source>This will enable nice display of Qt and Standard Library objects in the Locals&amp;Watchers view</source>
-        <translatorcomment>Traduction de  Locals&amp;Watchers ?</translatorcomment>
-        <translation type="obsolete">Cela permettra un affichage correct des objets de Qt et de la bibliothèque standard dans a vue Variables locales et observateurs</translation>
-    </message>
-    <message>
-        <source>Use debugging helper</source>
-        <translation type="obsolete">Utiliser l&apos;assistance au débogage</translation>
-    </message>
-    <message>
-        <source>This will load a dumper library</source>
-        <translation type="obsolete">Ceci cherchera une bibliothèque de collecte de données</translation>
-    </message>
-    <message>
-        <source>Use debugging helper from custom location</source>
-        <translation type="obsolete">Utiliser un collecteur de données à partir d&apos;un emplacement personnalisé</translation>
-    </message>
-    <message>
-        <source>Location: </source>
-        <translation type="obsolete">Emplacement :</translation>
-    </message>
-    <message>
-        <source>Debug debugging helper</source>
-        <translation type="obsolete">Déboguer l&apos;assistance au débogage</translation>
-    </message>
-    <message>
-        <source>Makes use of Qt Creator&apos;s code model to find out if a variable has already been assigned a value at the point the debugger interrupts.</source>
-        <translation type="obsolete">Utilise le modèle de code de Qt Creator pour trouver si une valeur à déjà été assignée à une variable au point où le débogueur interrompt l&apos;exécution.</translation>
-    </message>
-    <message>
-        <source>Use code model</source>
-        <translatorcomment>pas exactement ça ?</translatorcomment>
-        <translation type="obsolete">Utiliser le modèle de code</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;The debugging helper is only used to produce a nice display of objects of certain types like QString or std::map in the &amp;quot;Locals and Watchers&amp;quot; view.&lt;/p&gt;
-&lt;p&gt; It is not strictly necessary for debugging with Qt Creator. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;L&apos;assistant au débogage est seulementt utilisé pour afficher correctement des objects de certains types tels que QString ou std::map dans la vue “Variables locales et observateurs”&lt;/p&gt;
-&lt;p&gt;Il n&apos;est pas nécessaire pour déboguer avec Qt Creator&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Use Debugging Helper</source>
-        <translation type="obsolete">Utiliser l&apos;assistance au débogage</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;The debugging helper is only used to produce a nice display of objects of certain types like QString or std::map in the &amp;quot;Locals and Watchers&amp;quot; view. It is not strictly necessary for debugging with Qt Creator. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;L&apos;assistant au débogage est seulementt utilisé pour afficher correctement des objects de certains types tels que QString ou std::map dans la vue “Variables locales et observateurs”. Il n&apos;est pas nécessaire pour déboguer avec Qt Creator&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Displays names of QThread based threads.</source>
-        <translation type="obsolete">Affiche les noms des threads basés sur QThread. </translation>
-    </message>
-    <message>
-        <source>Display thread names</source>
-        <translation type="obsolete">Affiches les noms des threads</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;The debugging helper is only used to produce a nice display of objects of certain types like QString or std::map in the &amp;quot;Locals and Expressions&amp;quot; view. It is not strictly necessary for debugging with Qt Creator. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;L&apos;assistant de débogage est utilisé uniquement pour un affichage amélioré de certains types d&apos;objets comme QString ou std::map dans la vue &quot;Locales et expressions&quot;. Il n&apos;est pas strictement nécessaire pour le débogage avec Qt Creator. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -9692,214 +7377,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     <message>
         <source>Search Results</source>
         <translation>Résultat de la recherche</translation>
-    </message>
-</context>
-<context>
-    <name>GdbOptionsPage</name>
-    <message>
-        <source>Gdb interaction</source>
-        <translation type="obsolete">Interaction avec Gdb</translation>
-    </message>
-    <message>
-        <source>This is either a full absolute path leading to the gdb binary you intend to use or the name of a gdb binary that will be searched in your PATH.</source>
-        <translation type="obsolete">Ceci est soit un chemin absolu menant au binaire de gdb que vous désirez utiliser, soit le nom d&apos;un binaire de gdb qui sera recherché dans le PATH.</translation>
-    </message>
-    <message>
-        <source>Gdb location:</source>
-        <translation type="obsolete">Emplacement de GDB :</translation>
-    </message>
-    <message>
-        <source>Environment:</source>
-        <translation type="obsolete">Environnement :</translation>
-    </message>
-    <message>
-        <source>This is either empty or points to a file containing gdb commands that will be executed immediately after gdb starts up.</source>
-        <translation type="obsolete">Ceci est soit vide, soit pointe vers un fichier contenant les commandes gdb qui seront exécutées immédiatement après le démarrage de gdb.</translation>
-    </message>
-    <message>
-        <source>Gdb startup script:</source>
-        <translation type="obsolete">Script de démarrage de Gdb :</translation>
-    </message>
-    <message>
-        <source>Behaviour of breakpoint setting in plugins</source>
-        <translation type="obsolete">Comportement des paramètres des points d&apos;arrêt dans les plug-ins</translation>
-    </message>
-    <message>
-        <source>This is the slowest but safest option.</source>
-        <translation type="obsolete">Ceci est l&apos;option la plus lente mais la plus sûre.</translation>
-    </message>
-    <message>
-        <source>Try to set breakpoints in plugins always automatically.</source>
-        <translation type="obsolete">Essayer de définir les points d&apos;arrêt dans les plug-ins automatiquement.</translation>
-    </message>
-    <message>
-        <source>Try to set breakpoints in selected plugins</source>
-        <translation type="obsolete">Essayer de définir les points d&apos;arrêt dans les plug-ins sélectionnés</translation>
-    </message>
-    <message>
-        <source>Matching regular expression: </source>
-        <translation type="obsolete">Correspond à l&apos;expression régulière : </translation>
-    </message>
-    <message>
-        <source>Never set breakpoints in plugins automatically</source>
-        <translation type="obsolete">Ne jamais définir les points d&apos;arrêt dans les plug-ins automatiquement</translation>
-    </message>
-    <message>
-        <source>Gdb</source>
-        <translation type="obsolete">Gdb</translation>
-    </message>
-    <message>
-        <source>Gdb timeout:</source>
-        <translation type="obsolete">Timeout Gdb :</translation>
-    </message>
-    <message>
-        <source>This is the number of seconds Qt Creator will wait before
-it terminates non-responsive gdb process. The default value of 20 seconds
-should be sufficient for most applications, but there are situations when
-loading big libraries or listing source files takes much longer than that
-on slow machines. In this case, the value should be increased.</source>
-        <translation type="obsolete">Ceci est le nombre de secondes que Qt Creator attendra avant
-de clore un processus gdb qui ne répond pas. La valeur par défaut de 20
-secondes devrait suffire pour la plupart des applications mais il peut arriver
-que le chargement de grosses bibliothèques ou le listage de fichiers sources
-prenne plus longtemps sur des machines lentes. Dans ce cas, cette valeur
-devrait être augmentée.</translation>
-    </message>
-    <message>
-        <source>When this option is checked, the debugger plugin attempts
-to extract full path information for all source files from gdb. This is a
-slow process but enables setting breakpoints in files with the same file
-name in different directories.</source>
-        <translation type="obsolete">Lorsque cette option est cochée, le plug-in de débogage tente
-d&apos;extraire le chemin complet pour les fichiers sources depuis gdb.
-C&apos;est un procédé lent mais qui permet de placer des points d&apos;arrêt
-dans des fichiers ayant le même nom dans des répertoires différents.</translation>
-    </message>
-    <message>
-        <source>Use full path information to set breakpoints</source>
-        <translation type="obsolete">Utiliser le chemin complet pour placer les points d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Enable reverse debugging</source>
-        <translation type="obsolete">Activer le débogage inversé</translation>
-    </message>
-    <message>
-        <source>When this option is checked, &apos;Step Into&apos; compresses several steps into one in certain situations, leading to &apos;less noisy&apos; debugging. So will, e.g., the atomic
- reference counting code be skipped, and a single &apos;Step Into&apos; for a signal emission will end up directly in the slot connected to it.</source>
-        <translation type="obsolete">Lorsque cette option est cochée, « Entrer dans » compresse plusieurs étapes en une dans certains cas, afin d&apos;éviter une &apos;pollution&apos; du débogage. Cela conduit par exemple
- à passer le comptage de référence atomique et un simple « Entrer dans » depuis une émission de signal conduit directement au slot qui y est connecté.</translation>
-    </message>
-    <message>
-        <source>Skip known frames when stepping</source>
-        <translation type="obsolete">Passer les trames connues en pas à pas</translation>
-    </message>
-    <message>
-        <source>Show a message box when receiving a signal</source>
-        <translation type="obsolete">Afficher un message à la réception d&apos;un signal</translation>
-    </message>
-    <message>
-        <source>Behavior of Breakpoint Setting in Plugins</source>
-        <translatorcomment>Pierre : pour le coup c&apos;est &quot;breakpoint setting&quot; qui se traduirait par &quot;pose des points d&apos;arrêt&quot; ou qqchose du style mais je trouvais ça pompeux
-francis: je propose &quot;l&apos;ajout&quot; tout simplement ?</translatorcomment>
-        <translation type="obsolete">Comportement lors de l&apos;ajout des points d&apos;arrêt dans les plug-ins</translation>
-    </message>
-    <message>
-        <source>Adjust Breakpoint Locations</source>
-        <translation type="obsolete">Ajuster les emplacements des points d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Adjust breakpoint locations</source>
-        <translation type="obsolete">Ajuster les emplacements des points d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Load .gdbinit file on startup</source>
-        <translation type="obsolete">Charger .gdbinit au chargement</translation>
-    </message>
-    <message>
-        <source>Use asynchronous mode to control the inferior</source>
-        <translation type="obsolete">Utiliser un mode asynchrone pour contrôler l&apos;inférieur</translation>
-    </message>
-    <message>
-        <source>GDB</source>
-        <translation type="obsolete">GDB</translation>
-    </message>
-    <message>
-        <source>This is either empty or points to a file containing GDB commands that will be executed immediately after GDB starts up.</source>
-        <translation type="obsolete">Ceci est vide ou pointe sur un fichier contenant des commandes GDB qui seront exécutées immédiatement après que GDB démarre. </translation>
-    </message>
-    <message>
-        <source>GDB startup script:</source>
-        <translation type="obsolete">Script de démarrage de GDB : </translation>
-    </message>
-    <message>
-        <source>This is the number of seconds Qt Creator will wait before
-it terminates a non-responsive GDB process. The default value of 20 seconds
-should be sufficient for most applications, but there are situations when
-loading big libraries or listing source files takes much longer than that
-on slow machines. In this case, the value should be increased.</source>
-        <translation type="obsolete">Ceci est le nombre de secondes que Qt Creator attendra avec de terminer un processus GDB qui ne répond pas. La valeur par défaut est de vingt secondes et elle devrait suffire pour la plupart des applications, mais il y a des situations où le chargement de grosses bibliothèques ou le listing des fichiers source prend beaucoup de temps. Dans ce cas, cette valeur devrait être augmentée. </translation>
-    </message>
-    <message>
-        <source>GDB timeout:</source>
-        <translation type="obsolete">Délai GDB :</translation>
-    </message>
-    <message>
-        <source>Allows &apos;Step Into&apos; to compress several steps into one step for less noisy debugging. For example, the atomic reference
- counting code is skipped, and a single &apos;Step Into&apos; for a signal emission ends up directly in the slot connected to it.</source>
-        <translation type="obsolete">Permet à &apos;Entrer dans&apos; de compresser plusieurs étapes en une seule pour un débogage moins nuisible. Par exemple, le contage de code atomique 
-est ignorée, et un seul &apos;Entrer dans&apos; pour l&apos;émission d&apos;un signal terminera directement dans le slot connecté à celui-ci.</translation>
-    </message>
-    <message>
-        <source>This will show a message box as soon as your application receives a signal like SIGSEGV during debugging.</source>
-        <translation type="obsolete">Ceci affichera un message dès que votre application reçoit un signal comme SIGSEGV pendant le débogage. </translation>
-    </message>
-    <message>
-        <source>GDB allows setting breakpoints on source lines for which no code was generated. In such situations the breakpoint is shifted to the next source code line for which code was actually generated. This option reflects such temporary change by moving the breakpoint markers in the source code editor.</source>
-        <translation type="obsolete">GDB autorise la définition de points d&apos;arrêt sur des lignes de source pour lesquelles aucun code n&apos;a été généré. Dans de telles situations, le point d&apos;arrêt est décalé à la ligne de code suivant pour laquelle du code a bien été généré. Cette option reflète ces changements temporaires en déplaçant le marqueur dans l&apos;éditeur de code source. </translation>
-    </message>
-    <message>
-        <source>This allows or inhibits reading the user&apos;s default .gdbinit file on debugger startup.</source>
-        <translation type="obsolete">Ceci autorise ou interdit la lecture des paramètres par défaut de l&apos;utilisateur au démarrage du débogueur. </translation>
-    </message>
-    <message>
-        <source>Enable reverse debugging Selecting this enables reverse debugging. NOTE: This feature is very slow and unstable on the GDB side. It exhibits unpredictable behaviour when going backwards over system calls and is very likely to destroy your debugging session.</source>
-        <translation type="obsolete">Active le débogage inversé. Sélectionner cette option active le débogage inversé. Note : cette fonction est très lente et instable du côté de GDB. Elle montre un comportement imprédictible lors du retour en arrière d&apos;appels système et détruira très probablement votre session de débogage. </translation>
-    </message>
-    <message>
-        <source>Try to set breakpoints in plugins always automatically</source>
-        <translation type="obsolete">Essayer de mettre des points d&apos;arrêt dans les plug-ins automatiquement</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;/body&gt;&lt;p&gt;GDB allows setting breakpoints on source lines for which no code was generated. In such situations the breakpoint is shifted to the next source code line for which code was actually generated. This option reflects such temporary change by moving the breakpoint markers in the source code editor.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;/body&gt;&lt;p&gt;GDB autorise la définition de points d&apos;arrêt sur des lignes de source pour lesquelles aucun code n&apos;a été généré. Dans de telles situations, le point d&apos;arrêt est décalé à la ligne de code suivant pour laquelle du code a bien été généré. Cette option reflète ces changements temporaires en déplaçant le marqueur dans l&apos;éditeur de code source. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Stop when a qWarning is issued</source>
-        <translation type="obsolete">Arrête quand un qWarning est atteint</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecting this enables reverse debugging.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Note:&lt;/b&gt;This feature is very slow and unstable on the GDB side. It exhibits unpredictable behaviour when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sélectionner ceci active le débogage inversé.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Note : &lt;/b&gt;cette fonctionnalité est très lente et non stable avec GDB. Elle montre des comportements non prédictibles lorsque vous revenez en arrière sur des appels systèmes et détruirera très certainement votre session de débogage.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Always try to set breakpoints in plugins automatically</source>
-        <translation type="obsolete">Toujours essayer de définir les points d&apos;arrêt dans les plug-ins automatiquement</translation>
-    </message>
-    <message>
-        <source>Stop when a qFatal is issued</source>
-        <translation type="obsolete">Arrête quand un qWarning est atteint</translation>
-    </message>
-    <message>
-        <source>This adds common paths to locations of debug information at debugger startup.</source>
-        <translation type="obsolete">Ajoute les chemins communs des emplacements des informations de débogage au démarrage du débogueur.</translation>
-    </message>
-    <message>
-        <source>Use common locations for debug information automatically</source>
-        <translation type="obsolete">Utilise automatiquement les emplacements communs pour les informations de débogage</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecting this enables reverse debugging.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Note:&lt;/b&gt; This feature is very slow and unstable on the GDB side. It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Active le débogage inversé.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Note:&lt;/b&gt; Cette fonctionnalité est très lente et instable avec GDB. Cela expose des comportements impondérables lors de retour en arrière d&apos;appels système et entraînera très probablement la destruction de votre session de débogage.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -18386,132 +15863,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>StartExternalDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation type="obsolete">Lancer le débogueur</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation type="obsolete">Nom de l&apos;exécutable :</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">Arguments :</translation>
-    </message>
-    <message>
-        <source>Break at &apos;main&apos;:</source>
-        <translation type="obsolete">S&apos;arrêter sur &apos;main&apos;:</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation type="obsolete">Répertoire de travail :</translation>
-    </message>
-    <message>
-        <source>&amp;Executable:</source>
-        <translation type="obsolete">&amp;Exécutable :</translation>
-    </message>
-    <message>
-        <source>&amp;Arguments:</source>
-        <translation type="obsolete">&amp;Arguments : </translation>
-    </message>
-    <message>
-        <source>&amp;Working directory:</source>
-        <translation type="obsolete">&amp;Répertoire de travail : </translation>
-    </message>
-    <message>
-        <source>Break at &apos;&amp;main&apos;:</source>
-        <translation type="obsolete">Arrêt à &apos;&amp;main&apos; : </translation>
-    </message>
-    <message>
-        <source>&amp;Tool chain:</source>
-        <translation type="obsolete">Chaîne d&apos;ou&amp;tils :</translation>
-    </message>
-    <message>
-        <source>Run in &amp;terminal:</source>
-        <translation type="obsolete">Lancer en &amp;terminal : </translation>
-    </message>
-</context>
-<context>
-    <name>StartRemoteDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation type="obsolete">Lancer le débogueur</translation>
-    </message>
-    <message>
-        <source>Host and port:</source>
-        <translation type="obsolete">Hôte et port :</translation>
-    </message>
-    <message>
-        <source>Architecture:</source>
-        <translation type="obsolete">Architecture :</translation>
-    </message>
-    <message>
-        <source>Use server start script:</source>
-        <translation type="obsolete">Utiliser le script de démarrage du serveur :</translation>
-    </message>
-    <message>
-        <source>Server start script:</source>
-        <translation type="obsolete">Script de démarrage du serveur :</translation>
-    </message>
-    <message>
-        <source>Debugger:</source>
-        <translation type="obsolete">Débogueur :</translation>
-    </message>
-    <message>
-        <source>Local executable:</source>
-        <translation type="obsolete">Exécutable locale:</translation>
-    </message>
-    <message>
-        <source>Sysroot:</source>
-        <translation type="obsolete">Sysroot :</translation>
-    </message>
-    <message>
-        <source>&amp;Debugger:</source>
-        <translation type="obsolete">&amp;Débogueur :</translation>
-    </message>
-    <message>
-        <source>Local &amp;executable:</source>
-        <translation type="obsolete">&amp;Exécutable local : </translation>
-    </message>
-    <message>
-        <source>&amp;Host and port:</source>
-        <translation type="obsolete">&amp;Hôte et port : </translation>
-    </message>
-    <message>
-        <source>&amp;Architecture:</source>
-        <translation type="obsolete">&amp;Architecture : </translation>
-    </message>
-    <message>
-        <source>Sys&amp;root:</source>
-        <translation type="obsolete">&amp;Racine système : </translation>
-    </message>
-    <message>
-        <source>&amp;Use server start script:</source>
-        <translation type="obsolete">&amp;Utiliser le script de démarrage du serveur :</translation>
-    </message>
-    <message>
-        <source>&amp;GNU target:</source>
-        <translation type="obsolete">Cible &amp;GNU : </translation>
-    </message>
-    <message>
-        <source>&amp;Server start script:</source>
-        <translation type="obsolete">&amp;Script de démarrage du serveur :</translation>
-    </message>
-    <message>
-        <source>Override s&amp;tart script:</source>
-        <translation type="obsolete">Surcharger le &amp;script de démarrage :</translation>
-    </message>
-    <message>
-        <source>Location of debugging information:</source>
-        <translation type="obsolete">Emplacement des informations de débogage :</translation>
-    </message>
-    <message>
-        <source>Override host GDB s&amp;tart script:</source>
-        <translation type="obsolete">Surchager le &amp;script de démarrage du GDB hôte :</translation>
-    </message>
-</context>
-<context>
     <name>Subversion::Internal::SettingsPage</name>
     <message>
         <source>Prompt to submit</source>
@@ -21160,14 +18511,10 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::TrkOptionsWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Form</source>
         <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Gdb</source>
-        <translation type="obsolete">Gdb</translation>
     </message>
     <message>
         <source>Symbian ARM gdb location:</source>
@@ -21943,10 +19290,6 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">&amp;Conserver l&apos;emplacement et ouvrir</translation>
     </message>
     <message>
-        <source>Warning</source>
-        <translation type="obsolete">Avertissement</translation>
-    </message>
-    <message>
         <source>The specified location already exists. Please specify a valid location.</source>
         <translation type="obsolete">L&apos;emplacement spécifié existe déjà. Veuillez spécifier un autre emplacement.</translation>
     </message>
@@ -22116,49 +19459,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Featured</source>
         <translation type="obsolete">À la une</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DevicesPreferencePane</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Installed S60 SDKs:</source>
-        <translation type="obsolete">SDKs S60 installés :</translation>
-    </message>
-    <message>
-        <source>SDK Location</source>
-        <translation type="obsolete">Emplacement du SDK</translation>
-    </message>
-    <message>
-        <source>Qt Location</source>
-        <translation type="obsolete">Emplacement de Qt</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Rafraîchir</translation>
-    </message>
-    <message>
-        <source>S60 SDKs</source>
-        <translation type="obsolete">SDKs S60</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Ajouter</translation>
-    </message>
-    <message>
-        <source>Change Qt version</source>
-        <translation type="obsolete">Modifier la version de Qt</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="obsolete">Erreur</translation>
     </message>
 </context>
 <context>
@@ -22951,211 +20251,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>CVS Command</source>
         <translation>CVS Command</translation>
-    </message>
-</context>
-<context>
-    <name>CdbStackFrameContext</name>
-    <message>
-        <source>&lt;Unknown Type&gt;</source>
-        <translation type="obsolete">&lt;type inconnu&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;Unknown Value&gt;</source>
-        <translation type="obsolete">&lt;valeur inconnue&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;Unknown&gt;</source>
-        <translation type="obsolete">&lt;Inconnu&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>SymbolGroup</name>
-    <message>
-        <source>Out of scope</source>
-        <translation type="obsolete">Hors de la portée</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::MemoryViewAgent</name>
-    <message>
-        <source>Memory $</source>
-        <translation type="obsolete">Mémoire $</translation>
-    </message>
-    <message>
-        <source>No memory viewer available</source>
-        <translation type="obsolete">Aucun visualiseur de mémoire disponible</translation>
-    </message>
-    <message>
-        <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
-        <translation type="obsolete">Le contenu de la mémoire ne peut pas être affiché car aucun éditeur pour des données binaires n&apos;a pu être chargé.</translation>
-    </message>
-    <message>
-        <source>The memory contents cannot be shown as no viewer plugin not the BinEditor plugin could be loaded.</source>
-        <translatorcomment>La phrase d&apos;origine a l&apos;air louche...</translatorcomment>
-        <translation type="obsolete">Le contenu de la mémoire ne peut pas être affiché car ni l&apos;éditeur binaire, ni aucun plug-in de visualisation n&apos;ont pu être chargés.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerRunControlFactory</name>
-    <message>
-        <source>Debug</source>
-        <translation type="obsolete">Déboguer</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerRunControl</name>
-    <message>
-        <source>Debugger</source>
-        <translation type="obsolete">Débogueur</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CoreGdbAdapter</name>
-    <message>
-        <source>Error Loading Symbols</source>
-        <translation type="obsolete">Érreur de chargement des symboles</translation>
-    </message>
-    <message>
-        <source>No executable to load symbols from specified.</source>
-        <translation type="obsolete">Pas d&apos;exécutable spécifié pour lire les symboles.</translation>
-    </message>
-    <message>
-        <source>Loading symbols from &quot;%1&quot; failed:
-</source>
-        <translation type="obsolete">Échec de chargement des symboles depuis &quot;%1&quot; :
-</translation>
-    </message>
-    <message>
-        <source>Attached to core temporarily.</source>
-        <translation type="obsolete">Attaché au core temporairement.</translation>
-    </message>
-    <message>
-        <source>Unable to determine executable from core file.</source>
-        <translation type="obsolete">Impossible de déterminer l&apos;exécutable à partir du fichier core.</translation>
-    </message>
-    <message>
-        <source>Attach to core &quot;%1&quot; failed:
-</source>
-        <translation type="obsolete">Échec de liaison au core &quot;%1&quot; :
-</translation>
-    </message>
-    <message>
-        <source>Symbols found.</source>
-        <translation type="obsolete">Symboles trouvés.</translation>
-    </message>
-    <message>
-        <source>The name of the binary file cannot be extracted from this core file.</source>
-        <translation type="obsolete">Le nom du fichier binaire ne peut être extrait de ce fichier core.</translation>
-    </message>
-    <message>
-        <source>Try to specify the binary using the &lt;i&gt;Debug-&gt;Start Debugging-&gt;Attach to Core&lt;/i&gt; dialog.</source>
-        <translation type="obsolete">Essayez de spécifier le binaire en utilisant la boîte de dialogue &lt;i&gt;Débogage -&gt; Démarrer le débogage -&gt; Attacher au core&lt;/i&gt;.</translation>
-    </message>
-    <message>
-        <source>Loading core file failed</source>
-        <translation type="obsolete">Le chargement du fichier core a échoué</translation>
-    </message>
-    <message>
-        <source>Attach to core failed.</source>
-        <translation type="obsolete">Échec de liaison au core.</translation>
-    </message>
-    <message>
-        <source>No symbols found in core file &lt;i&gt;%1&lt;/i&gt;.</source>
-        <translation type="obsolete">Pas de symbole trouvé dans le fichier core &lt;i&gt;%1&lt;/i&gt;.</translation>
-    </message>
-    <message>
-        <source>This can be caused by a path length limitation in the core file.</source>
-        <translation type="obsolete">Cela peut être lié à une limitation de la taille du chemin dans le fichier core.</translation>
-    </message>
-    <message>
-        <source>Attached to core.</source>
-        <translation type="obsolete">Attaché au core.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::PlainGdbAdapter</name>
-    <message>
-        <source>Cannot set up communication with child process: %1</source>
-        <translation type="obsolete">Impossible de mettre en place la communication avec le processus enfant : %1</translation>
-    </message>
-    <message>
-        <source>Starting executable failed:
-</source>
-        <translation type="obsolete">Échec du lancement de l&apos;exécutable :
-</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::RemoteGdbAdapter</name>
-    <message>
-        <source>The upload process failed to start. Shell missing?</source>
-        <translation type="obsolete">Le processus d&apos;upload n&apos;a pas pu démarrer. Le shell est manquant ?</translation>
-    </message>
-    <message>
-        <source>The upload process crashed some time after starting successfully.</source>
-        <translation type="obsolete">Le processus d&apos;upload a crashé après avoir démarré.</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translatorcomment>this string appear twice in the translation</translatorcomment>
-        <translation type="obsolete">La dernière fonction waitFor...() est arrivée à échéance. Le statut de QProcess est inchangé, vous pouvez essayer d&apos;appeler waitFor...() à nouveau.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation type="obsolete">Une erreur est survenue lors d&apos;une tentative d&apos;écriture sur l&apos;entrée du processus d&apos;upload. Le processus peut ne pas être lancé ou il a fermé son entrée.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to read from the upload process. For example, the process may not be running.</source>
-        <translation type="obsolete">Une erreur est survenue lors d&apos;une tentative de lecture depuis le processus d&apos;upload. Il est probable que le processus n&apos;est pas en cours d&apos;exécution.</translation>
-    </message>
-    <message>
-        <source>An unknown error in the upload process occurred. This is the default return value of error().</source>
-        <translation type="obsolete">Une erreur inconnue est survenue dans le processus d&apos;upload. Ceci est la valeur de retour par défaut de error().</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="obsolete">Erreur</translation>
-    </message>
-    <message>
-        <source>Adapter too old: does not support asynchronous mode.</source>
-        <translation type="obsolete">Adaptateur trop ancien : aucun support du mode asynchrone.</translation>
-    </message>
-    <message>
-        <source>Starting remote executable failed:
-</source>
-        <translation type="obsolete">Le démarrage de l&apos;exécutable distant a échoué :
-</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::TrkGdbAdapter</name>
-    <message>
-        <source>Port specification missing.</source>
-        <translation type="obsolete">Spécification du port manquante.</translation>
-    </message>
-    <message>
-        <source>Unable to acquire a device on &apos;%1&apos;. It appears to be in use.</source>
-        <translation type="obsolete">Impossible d&apos;acquérir un device pour le port &quot;%1&quot;. Il semble être utilisé.</translation>
-    </message>
-    <message>
-        <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
-        <translation type="obsolete">Processus démarré, PID : 0x%1, id du thread : 0x%2, segment de code : 0x%3, segment de données : 0x%4.</translation>
-    </message>
-    <message>
-        <source>The reported code segment address (0x%1) might be invalid. Symbol resolution or setting breakoints may not work.</source>
-        <translation type="obsolete">L&apos;adresse du segment de code reportée (0x%1) pourrait être invalide. La résolution de symbole ou la mise en place de points d&apos;arrêt pourrait ne pas fonctionner. </translation>
-    </message>
-    <message>
-        <source>Connecting to TRK server adapter failed:
-</source>
-        <translation type="obsolete">La connection à l&apos;adaptateur du serveur TRK a échoué :
-</translation>
-    </message>
-    <message>
-        <source>Connecting to trk server adapter failed:
-</source>
-        <translation type="obsolete">Échec de la connexion à l&apos;adapteur au serveur TRK :
-</translation>
     </message>
 </context>
 <context>
@@ -24127,67 +21222,6 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunControl</name>
-    <message>
-        <source>Launching</source>
-        <translation type="obsolete">Lancement</translation>
-    </message>
-    <message>
-        <source>There is no device plugged in.</source>
-        <translation type="obsolete">Il n&apos;y a aucun appareil mobile connecté.</translation>
-    </message>
-    <message>
-        <source>Executable file: %1</source>
-        <translation type="obsolete">Fichier exécutable : %1</translation>
-    </message>
-    <message>
-        <source>Debugger for Symbian Platform</source>
-        <translation type="obsolete">Débogueur pour plateforme Symbian</translation>
-    </message>
-    <message>
-        <source>Could not connect to phone on port &apos;%1&apos;: %2
-Check if the phone is connected and App TRK is running.</source>
-        <translation type="obsolete">Impossible de connecter le téléphone sur le port &apos;%1&apos; : %2
-Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</translation>
-    </message>
-    <message>
-        <source>Could not connect to App TRK on device: %1. Restarting App TRK might help.</source>
-        <translation type="obsolete">Impossible de se connecter à App TRK sur l&apos;appareil mobile : %1. Redémarrer App TRK pourrait résoudre le problème.</translation>
-    </message>
-    <message>
-        <source>Waiting for App TRK</source>
-        <translation type="obsolete">En attente d&apos;App TRK</translation>
-    </message>
-    <message>
-        <source>Qt Creator is waiting for the TRK application to connect.&lt;br&gt;Please make sure the application is running on your mobile phone and the right port is configured in the project settings.</source>
-        <translation type="obsolete">Qt Creator attend que l&apos;application TRK se connecte. &lt;br&gt; Veuillez vous assurer que l&apos;application est exécutée sur votre téléphone mobile et que le bon port est configuré dans les paramètres du projet. </translation>
-    </message>
-    <message>
-        <source>Canceled.</source>
-        <translation type="obsolete">Annulé.</translation>
-    </message>
-    <message>
-        <source>The device &apos;%1&apos; has been disconnected</source>
-        <translation type="obsolete">L&apos;appareil mobile &quot;%1&quot; a été déconnecté</translation>
-    </message>
-    <message>
-        <source>Finished.</source>
-        <translation type="obsolete">Terminé.</translation>
-    </message>
-    <message>
-        <source>Starting application...</source>
-        <translation type="obsolete">Démarrage de l&apos;application...</translation>
-    </message>
-    <message>
-        <source>Application running with pid %1.</source>
-        <translation type="obsolete">Application en cours d&apos;éxecution avec le pid %1.</translation>
-    </message>
-    <message>
-        <source>Could not start application: %1</source>
-        <translation type="obsolete">Impossible de démarrer l&apos;application : %1</translation>
-    </message>
-</context>
-<context>
     <name>QmakeProjectManager::Internal::S60DeviceDebugRunControl</name>
     <message>
         <source>Warning: Cannot locate the symbol file belonging to %1.</source>
@@ -24790,92 +21824,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AbstractGdbAdapter</name>
-    <message>
-        <source>The Gdb process could not be stopped:
-%1</source>
-        <translation type="obsolete">Le processus Gdb ne peut pas être arrêté :
-%1</translation>
-    </message>
-    <message>
-        <source>The gdb process could not be stopped:
-%1</source>
-        <translation type="obsolete">Le processus gdb n&apos;a pas pu être arrêté : 
-%1</translation>
-    </message>
-    <message>
-        <source>Application process could not be stopped:
-%1</source>
-        <translation type="obsolete">Le processus de l&apos;application ne peut être arrêté :
-%1</translation>
-    </message>
-    <message>
-        <source>Application started</source>
-        <translation type="obsolete">Démarrage de l&apos;application</translation>
-    </message>
-    <message>
-        <source>Application running</source>
-        <translation type="obsolete">Application en cours d&apos;exécution</translation>
-    </message>
-    <message>
-        <source>Attached to stopped application</source>
-        <translation type="obsolete">Attachés à l&apos;application arrêtée</translation>
-    </message>
-    <message>
-        <source>Inferior process could not be stopped:
-%1</source>
-        <translation type="obsolete">Le processus inférieur ne peut pas être arrêté :
-%1</translation>
-    </message>
-    <message>
-        <source>Inferior started.</source>
-        <translation type="obsolete">Processus inférieur démarré.</translation>
-    </message>
-    <message>
-        <source>Inferior running.</source>
-        <translation type="obsolete">Processus inférieur en fonctionnement.</translation>
-    </message>
-    <message>
-        <source>Attached to stopped inferior.</source>
-        <translation type="obsolete">Attaché au processus inférieur.</translation>
-    </message>
-    <message>
-        <source>Connecting to remote server failed:
-%1</source>
-        <translation type="obsolete">La connexion au serveur distant a échoué :
-%1</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::TermGdbAdapter</name>
-    <message>
-        <source>Debugger Error</source>
-        <translation type="obsolete">Erreur du débogueur</translation>
-    </message>
-</context>
-<context>
-    <name>TrkOptions</name>
-    <message>
-        <source>No Symbian gdb executable specified.</source>
-        <translation type="obsolete">L&apos;exécutable Symbian gdb n&apos;est pas spécifié.</translation>
-    </message>
-    <message>
-        <source>The Symbian gdb executable &apos;%1&apos; could not be found in the search path.</source>
-        <translation type="obsolete">L&apos;exécutable Symbian gdb &quot;%1&quot; ne peut pas être trouvé dans le chemin de recherche.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::TrkOptionsPage</name>
-    <message>
-        <source>Symbian Trk</source>
-        <translation type="obsolete">TRK Symbian</translation>
-    </message>
-    <message>
-        <source>Symbian TRK</source>
-        <translation type="obsolete">TRK Symbian</translation>
-    </message>
-</context>
-<context>
     <name>QmlParser</name>
     <message>
         <source>Illegal character</source>
@@ -25073,7 +22021,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::SourceFilesModel</name>
+    <name>Debugger</name>
     <message>
         <source>Internal name</source>
         <translation type="obsolete">Nom interne</translation>
@@ -26399,200 +23347,6 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
     <message>
         <source>Edit...</source>
         <translation type="obsolete">Modifier...</translation>
-    </message>
-</context>
-<context>
-    <name>MaemoSettingsWidget</name>
-    <message>
-        <source>Maemo Device Configurations</source>
-        <translation type="obsolete">Configurations du périphérique Maemo</translation>
-    </message>
-    <message>
-        <source>Configuration:</source>
-        <translation type="obsolete">Configuration :</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="obsolete">Nom</translation>
-    </message>
-    <message>
-        <source>Device type:</source>
-        <translation type="obsolete">Type de périphérique :</translation>
-    </message>
-    <message>
-        <source>Remote device</source>
-        <translation type="obsolete">Périphérique distant</translation>
-    </message>
-    <message>
-        <source>Maemo emulator</source>
-        <translation type="obsolete">Émulateur Maemo</translation>
-    </message>
-    <message>
-        <source>Authentication type:</source>
-        <translation type="obsolete">Type d&apos;identification :</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation type="obsolete">Mot de passe</translation>
-    </message>
-    <message>
-        <source>Key</source>
-        <translation type="obsolete">Clé</translation>
-    </message>
-    <message>
-        <source>Host name:</source>
-        <translation type="obsolete">Nom de l&apos;hôte :</translation>
-    </message>
-    <message>
-        <source>IP or host name of the device</source>
-        <translation type="obsolete">IP ou nom de l&apos;hôte du périphérique</translation>
-    </message>
-    <message>
-        <source>Ports:</source>
-        <translation type="obsolete">Ports :</translation>
-    </message>
-    <message>
-        <source>SSH:</source>
-        <translation type="obsolete">SSH :</translation>
-    </message>
-    <message>
-        <source>Gdb server:</source>
-        <translation type="obsolete">Serveur Gdb :</translation>
-    </message>
-    <message>
-        <source>Connection timeout:</source>
-        <translation type="obsolete">Timeout de la connection :</translation>
-    </message>
-    <message>
-        <source>s</source>
-        <translation type="obsolete">s</translation>
-    </message>
-    <message>
-        <source>Username:</source>
-        <translation type="obsolete">Nom d&apos;utilisateur :</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation type="obsolete">Mot de passe :</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation type="obsolete">Fichier de clé privée :</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Ajouter</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation type="obsolete">Test</translation>
-    </message>
-    <message>
-        <source>Generate SSH Key ...</source>
-        <translation type="obsolete">Générer la clé SSH...</translation>
-    </message>
-    <message>
-        <source>Deploy Public Key ...</source>
-        <translation type="obsolete">Déployer la clé publique...</translation>
-    </message>
-    <message>
-        <source>SSH port:</source>
-        <translation type="obsolete">Port SSH : </translation>
-    </message>
-    <message>
-        <source>Free ports:</source>
-        <translation type="obsolete">Ports libres : </translation>
-    </message>
-    <message>
-        <source>You can enter lists and ranges like this: 1024,1026-1028,1030</source>
-        <translation type="obsolete">Vous pouvez entrer des listes et des intervalles comme ceci : 1024,1026-1028,1030</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation type="obsolete">Label de texte</translation>
-    </message>
-    <message>
-        <source>Show password</source>
-        <translation type="obsolete">Montrer le mot de passe</translation>
-    </message>
-</context>
-<context>
-    <name>MaemoSshConfigDialog</name>
-    <message>
-        <source>SSH Key Configuration</source>
-        <translation type="obsolete">Configuration de la slé SSH</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation type="obsolete">Options</translation>
-    </message>
-    <message>
-        <source>Key size:</source>
-        <translation type="obsolete">Taille de clé :</translation>
-    </message>
-    <message>
-        <source>Key algorithm:</source>
-        <translation type="obsolete">Algorithme de la clé :</translation>
-    </message>
-    <message>
-        <source>RSA</source>
-        <translation type="obsolete">RSA</translation>
-    </message>
-    <message>
-        <source>DSA</source>
-        <translation type="obsolete">DSA</translation>
-    </message>
-    <message>
-        <source>Key</source>
-        <translation type="obsolete">Clé</translation>
-    </message>
-    <message>
-        <source>Generate SSH Key</source>
-        <translation type="obsolete">Générer la clé SSH</translation>
-    </message>
-    <message>
-        <source>Save Public Key...</source>
-        <translation type="obsolete">Enregistrer la clé publique...</translation>
-    </message>
-    <message>
-        <source>Save Private Key...</source>
-        <translation type="obsolete">Enregistrer la clé privée...</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Fermer</translation>
-    </message>
-    <message>
-        <source>Key &amp;size:</source>
-        <translation type="obsolete">Taille de la clé (&amp;S) : </translation>
-    </message>
-    <message>
-        <source>&amp;RSA</source>
-        <translation type="obsolete">&amp;RSA</translation>
-    </message>
-    <message>
-        <source>&amp;DSA</source>
-        <translation type="obsolete">&amp;DSA</translation>
-    </message>
-    <message>
-        <source>&amp;Generate SSH Key</source>
-        <translation type="obsolete">&amp;Générer une clé SSH</translation>
-    </message>
-    <message>
-        <source>Save P&amp;ublic Key...</source>
-        <translation type="obsolete">Sauver la clé &amp;publique...</translation>
-    </message>
-    <message>
-        <source>Save Pr&amp;ivate Key...</source>
-        <translation type="obsolete">Sauver la clé p&amp;rivée...</translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
-        <translation type="obsolete">&amp;Fermer</translation>
     </message>
 </context>
 <context>
@@ -28821,40 +25575,14 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbOptionsPage</name>
-    <message>
-        <source>Cdb</source>
-        <translation type="obsolete">Cdb</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>CDB</source>
         <translation>CDB</translation>
     </message>
-</context>
-<context>
-    <name>CdbSymbolGroupContext</name>
-    <message>
-        <source>&lt;Unknown Type&gt;</source>
-        <translation type="obsolete">&lt;type inconnu&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;Unknown Value&gt;</source>
-        <translation type="obsolete">&lt;valeur inconnue&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;Unknown&gt;</source>
-        <translation type="obsolete">&lt;Inconnu&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CacheDirectoryDialog</name>
     <message>
         <source>Select Local Cache Folder</source>
         <translation>Sélectionner un dossier de cache local</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>Chemin :</translation>
     </message>
     <message>
         <source>Already Exists</source>
@@ -28874,192 +25602,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Cdb</name>
-    <message>
-        <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible de charger la bibliothèque de débogage &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Unable to resolve &apos;%1&apos; in the debugger engine library &apos;%2&apos;</source>
-        <translation type="obsolete">Impossible de résoudre &quot;%1&quot; dans la bibliothèque de débogage &quot;%2&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>CdbCore::CoreEngine</name>
-    <message>
-        <source>Unable to set the image path to %1: %2</source>
-        <translation type="obsolete">Impossible de définir le chemin de l&apos;image %1 : %2</translation>
-    </message>
-    <message>
-        <source>Unable to create a process &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible de créer un processus &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Attaching to a process failed for process id %1: %2</source>
-        <translation type="obsolete">Impossible d&apos;attacher au processsus identifié par %1 : %2</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::DebuggerUISwitcher</name>
-    <message>
-        <source>&amp;Languages</source>
-        <translation type="obsolete">&amp;Langages</translation>
-    </message>
-    <message>
-        <source>Alt+L</source>
-        <translation type="obsolete">Alt+L</translation>
-    </message>
-    <message>
-        <source>Language</source>
-        <translation type="obsolete">Langage</translation>
-    </message>
-    <message>
-        <source>Memory...</source>
-        <translation type="obsolete">Mémoire...</translation>
-    </message>
-    <message>
-        <source>Debugger Toolbar</source>
-        <translation type="obsolete">Barre d&apos;outils du débogueur</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::AbstractPlainGdbAdapter</name>
-    <message>
-        <source>Starting executable failed:
-</source>
-        <translation type="obsolete">Échec du lancement de l&apos;exécutable :
-</translation>
-    </message>
-</context>
-<context>
-    <name>GdbChooserWidget</name>
-    <message>
-        <source>Unable to run &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible d&apos;exécuter &quot;%1&quot; : %2</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbChooserWidget</name>
-    <message>
-        <source>Unable to run &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible d&apos;exécuter &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation type="obsolete">Binaire</translation>
-    </message>
-    <message>
-        <source>Toolchains</source>
-        <translation type="obsolete">Chaîne d&apos;outils</translation>
-    </message>
-    <message>
-        <source>Duplicate binary</source>
-        <translation type="obsolete">Fichier binaire en doublon</translation>
-    </message>
-    <message>
-        <source>The binary &apos;%1&apos; already exists.</source>
-        <translation type="obsolete">Le fichier binaire &quot;%1&quot; existe déjà.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::ToolChainSelectorWidget</name>
-    <message>
-        <source>Desktop/General</source>
-        <translation type="obsolete">Desktop/Générale</translation>
-    </message>
-    <message>
-        <source>Symbian</source>
-        <translation type="obsolete">Symbian</translation>
-    </message>
-    <message>
-        <source>Maemo</source>
-        <translation type="obsolete">Maemo</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::BinaryToolChainDialog</name>
-    <message>
-        <source>Select binary and toolchains</source>
-        <translation type="obsolete">Sélectionner un binaire et les chaînes de compilation</translation>
-    </message>
-    <message>
-        <source>Gdb binary</source>
-        <translation type="obsolete">Binaire Gdb</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation type="obsolete">Chemin :</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::LocalPlainGdbAdapter</name>
-    <message>
-        <source>Cannot set up communication with child process: %1</source>
-        <translation type="obsolete">Impossible de mettre en place la communication avec le processus enfant : %1</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="obsolete">Avertissement</translation>
-    </message>
-    <message>
-        <source>This does not seem to be a &quot;Debug&quot; build.
-Setting breakpoints by file name and line number may fail.</source>
-        <translation type="obsolete">Ceci ne semble pas être une compilation en mode débogage. 
-Mettre des points d&apos;arrêt par nom de fichier et numéro de ligne pourrait échouer. </translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::RemoteGdbServerAdapter</name>
-    <message>
-        <source>The upload process failed to start. Shell missing?</source>
-        <translation type="obsolete">Le processus d&apos;upload n&apos;a pas pu démarrer. Shell manquant ?</translation>
-    </message>
-    <message>
-        <source>The upload process crashed some time after starting successfully.</source>
-        <translation type="obsolete">Le processus d&apos;upload a crashé après avoir démarré correctement.</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation type="obsolete">La dernière fonction waitFor...() est arrivé à échéance. Le statut de QProcess est inchangé, vous pouvez essayer d&apos;appeler waitFor...() à nouveau.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation type="obsolete">Une erreur est survenue lors d&apos;une tentative d&apos;écriture sur l&apos;entrée du processus d&apos;upload. Le processus peut ne pas être lancé ou il a fermé son entrée.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to read from the upload process. For example, the process may not be running.</source>
-        <translation type="obsolete">Une erreur est survenue lors d&apos;une tentative de lecture depuis le processus d&apos;upload. Il est probable que le processus ne soit pas en cours d&apos;exécution.</translation>
-    </message>
-    <message>
-        <source>An unknown error in the upload process occurred. This is the default return value of error().</source>
-        <translation type="obsolete">Une erreur inconnue est survenue dans le processus d&apos;upload. Ceci est la valeur de retour par défaut de error().</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="obsolete">Erreur</translation>
-    </message>
-    <message>
-        <source>No symbol file given.</source>
-        <translation type="obsolete">Pas de fichier de symboles donné.</translation>
-    </message>
-    <message>
-        <source>Reading debug information failed:
-</source>
-        <translation type="obsolete">La lecture des informations de débogage a échoué : </translation>
-    </message>
-    <message>
-        <source>Interrupting not possible</source>
-        <translation type="obsolete">Interruption impossible</translation>
-    </message>
-    <message>
-        <source>Starting remote executable failed:
-</source>
-        <translation type="obsolete">Le démarrage de l&apos;exécutable distant a échoué :
-</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::PdbEngine</name>
+    <name>Debugger</name>
     <message>
         <source>Running requested...</source>
         <translation>Exécution demandée…</translation>
@@ -29069,24 +25612,12 @@ Mettre des points d&apos;arrêt par nom de fichier et numéro de ligne pourrait 
         <translation>Impossible de démarrer pdb &quot;%1&quot; : %2</translation>
     </message>
     <message>
-        <source>Adapter start failed</source>
-        <translation>Démarrage de l&apos;adaptateur a échoué</translation>
-    </message>
-    <message>
         <source>Python Error</source>
         <translation>Erreur Python</translation>
     </message>
     <message>
         <source>&apos;%1&apos; contains no identifier</source>
         <translation>&quot;%1&quot; ne contient pas d&apos;identifiant</translation>
-    </message>
-    <message>
-        <source>String literal %1</source>
-        <translation>Chaîne de caractères %1</translation>
-    </message>
-    <message>
-        <source>Cowardly refusing to evaluate expression &apos;%1&apos; with potential side effects</source>
-        <translation>Refuse lâchement d&apos;évaluer l&apos;expression &quot;%1&quot; avec des effects secondaires potentiels</translation>
     </message>
     <message>
         <source>Pdb I/O Error</source>
@@ -29120,86 +25651,9 @@ Mettre des points d&apos;arrêt par nom de fichier et numéro de ligne pourrait 
         <source>An unknown error in the Pdb process occurred. </source>
         <translation>Une erreur inconnue est survenue dans le processus Pdb. </translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::SnapshotHandler</name>
-    <message>
-        <source>Function:</source>
-        <translation type="obsolete">Fonction :</translation>
-    </message>
-    <message>
-        <source>File:</source>
-        <translation type="obsolete">Fichier :</translation>
-    </message>
-    <message>
-        <source>Date:</source>
-        <translation type="obsolete">Date :</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation type="obsolete">...</translation>
-    </message>
-    <message>
-        <source>&lt;More&gt;</source>
-        <translation type="obsolete">&lt;plus&gt;</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation type="obsolete">Fonction</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation type="obsolete">Date</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation type="obsolete">Emplacement</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Nom</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Fichier</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::SnapshotWindow</name>
-    <message>
-        <source>Snapshots</source>
-        <translation>Snapshots</translation>
-    </message>
-    <message>
-        <source>Create Snapshot</source>
-        <translation type="obsolete">Créer un snapshot</translation>
-    </message>
-    <message>
-        <source>Remove Snapshot</source>
-        <translation type="obsolete">Supprimer un snapshot</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Ajuster la largeur des colonnes au contenu</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Toujours ajuster la largeur des colonnes au contenu</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::TcfEngine</name>
     <message>
         <source>%1.</source>
         <translation type="obsolete">%1.</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation type="obsolete">Exécution demandée…</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <translation type="obsolete">Arrêté.</translation>
     </message>
 </context>
 <context>
@@ -30483,10 +26937,6 @@ Mettre des points d&apos;arrêt par nom de fichier et numéro de ligne pourrait 
     <message>
         <source>&lt;b&gt;Run:&lt;/b&gt; %1</source>
         <translation>&lt;b&gt;Exécution :&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>%1</source>
-        <translation>%1</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;nobr&gt;%1&lt;/html&gt;</source>
@@ -33901,49 +30351,6 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>BreakpointDialog</name>
-    <message>
-        <source>Edit Breakpoint Properties</source>
-        <translation type="obsolete">Editer les propriétés du point d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Breakpoint type:</source>
-        <translation type="obsolete">Type de point d&apos;arrêt : </translation>
-    </message>
-    <message>
-        <source>File name:</source>
-        <translation type="obsolete">Nom du fichier :</translation>
-    </message>
-    <message>
-        <source>Line number:</source>
-        <translation type="obsolete">Numéro de ligne :</translation>
-    </message>
-    <message>
-        <source>Use full path:</source>
-        <translation type="obsolete">Utiliser le chemin complet :</translation>
-    </message>
-    <message>
-        <source>Address:</source>
-        <translation type="obsolete">Adresse :</translation>
-    </message>
-    <message>
-        <source>Function:</source>
-        <translation type="obsolete">Fonction :</translation>
-    </message>
-    <message>
-        <source>Condition:</source>
-        <translation type="obsolete">Condition :</translation>
-    </message>
-    <message>
-        <source>Ignore count:</source>
-        <translation type="obsolete">Nombre de passages à ignorer :</translation>
-    </message>
-    <message>
-        <source>Thread specification:</source>
-        <translation type="obsolete">Spécification de thread :</translation>
-    </message>
-</context>
-<context>
     <name>Help::Internal::RemoteFilterOptions</name>
     <message>
         <source>Filter configuration</source>
@@ -34847,7 +31254,7 @@ Indicateurs : %3</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BreakpointDialog</name>
+    <name>Debugger</name>
     <message>
         <source>File and Line Number</source>
         <translation type="obsolete">Fichier et numéro de ligne</translation>
@@ -34956,10 +31363,6 @@ debugger start-up times (CDB, LLDB).</source>
         <translation>Spécifier le module (nom de base de la bibliothèque ou de l&apos;exécutable) pour la fonction ou les points d&apos;arrêt du type de fichier peut grandement améliorer les performances au démarrage du débogueur (CDB, LLDB). </translation>
     </message>
     <message>
-        <source>Address</source>
-        <translation type="obsolete">Adresse</translation>
-    </message>
-    <message>
         <source>Edit Breakpoint Properties</source>
         <translation>Editer les propriétés du point d&apos;arrêt</translation>
     </message>
@@ -35063,138 +31466,7 @@ Cette fonctionnalité n&apos;est disponible que pour GDB.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbEngine</name>
-    <message>
-        <source>The function &quot;%1()&quot; failed: %2</source>
-        <extracomment>Function call failed</extracomment>
-        <translation type="obsolete">La fonction &quot;%1()&quot; a échoué : %2</translation>
-    </message>
-    <message>
-        <source>Version: %1</source>
-        <translation type="obsolete">Version : %1</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;The installed version of the &lt;i&gt;Debugging Tools for Windows&lt;/i&gt; (%1) is rather old. Upgrading to version %2 is recommended for the proper display of Qt&apos;s data types.&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;La version installée des &lt;i&gt;outils de débogage pour Windows&lt;/i&gt; (%1) est relativement ancienne. Une mise à jour vers la version %2 est recommandée pour un affichage correct des types Qt.&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation type="obsolete">Débogueur</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The debugger is not configured to use the public &lt;a href=&quot;%1&quot;&gt;Microsoft Symbol Server&lt;/a&gt;. This is recommended for retrieval of the symbols of the operating system libraries.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Note:&lt;/i&gt; A fast internet connection is required for this to work smoothly. Also, a delay might occur when connecting for the first time.&lt;/p&gt;&lt;p&gt;Would you like to set it up?&lt;/p&gt;&lt;/br&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Le débogueur n&apos;est pas configuré pour utiliser le &lt;a href=&quot;%1&quot;&gt;serveur de symbole Microsoft&lt;/a&gt; public. Ceci est recommandé pour récupérer les symboles des bibliothèques du système d&apos;exploitation.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Note :&lt;/i&gt; une connexion internet rapide est requise pour que cela fonctione en douceur. Une attente peut également avoir lieu lors de la première connexion.&lt;/p&gt;&lt;p&gt;Souhaitez-vous le configurer ?&lt;/p&gt;&lt;/br&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Symbol Server</source>
-        <translation type="obsolete">Serveur de symbole</translation>
-    </message>
-    <message>
-        <source>Do not ask again</source>
-        <translation type="obsolete">Ne plus me demander</translation>
-    </message>
-    <message>
-        <source>The dumper library was not found at %1.</source>
-        <translation type="obsolete">La bibliothèque de collection de données n&apos;a pas été trouvée en %1.</translation>
-    </message>
-    <message>
-        <source>The console stub process was unable to start &apos;%1&apos;.</source>
-        <translation type="obsolete">Le processus de console n&apos;a pas pu lancer &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Attaching to core files is not supported.</source>
-        <translation type="obsolete">Attacher le débogueur à un fichier core n&apos;est pas supporté.</translation>
-    </message>
-    <message>
-        <source>The process exited with exit code %1.</source>
-        <translation type="obsolete">Le processus s&apos;est terminé avec le code de sortie %1.</translation>
-    </message>
-    <message>
-        <source>&lt;not supported&gt;</source>
-        <translation type="obsolete">&lt;non supporté&gt;</translation>
-    </message>
-    <message>
-        <source>Continuing with &apos;%1&apos;...</source>
-        <translation type="obsolete">Continue avec &quot;%1&quot;...</translation>
-    </message>
-    <message>
-        <source>Unable to continue: %1</source>
-        <translation type="obsolete">Impossible de continuer : %1</translation>
-    </message>
-    <message>
-        <source>Reverse stepping is not implemented.</source>
-        <translation type="obsolete">Le déplacement inversé n&apos;est pas implémenté.</translation>
-    </message>
-    <message>
-        <source>Thread %1 cannot be stepped.</source>
-        <translation type="obsolete">Le thread %1 ne peut pas être parcouru pas à pas.</translation>
-    </message>
-    <message>
-        <source>Stepping %1</source>
-        <translation type="obsolete">Pas à pas %1</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation type="obsolete">Exécution demandée…</translation>
-    </message>
-    <message>
-        <source>Running up to %1:%2...</source>
-        <translation type="obsolete">Exécution jusqu&apos;à %1 : %2…</translation>
-    </message>
-    <message>
-        <source>Running up to function &apos;%1()&apos;...</source>
-        <translation type="obsolete">Exécution jusqu&apos;à la fonction &quot;%1()&quot;…</translation>
-    </message>
-    <message>
-        <source>Jump to line is not implemented</source>
-        <translation type="obsolete">Aller à la ligne n&apos;est pas implémenté</translation>
-    </message>
-    <message>
-        <source>Assigning &apos;%1&apos; to &apos;%2&apos; (%3)...</source>
-        <extracomment>Arguments: New value, name, (type)</extracomment>
-        <translation type="obsolete">Assignement de &apos;%1&apos; à &quot;%2&quot; (%3)...</translation>
-    </message>
-    <message>
-        <source>Can assign only scalar values.</source>
-        <translation type="obsolete">Ne peut assigner que des valeurs scalaires.</translation>
-    </message>
-    <message>
-        <source>Cannot assign values of type &apos;%1&apos;. Only POD-types can be assigned.</source>
-        <translation type="obsolete">Impossible d&apos;assigner les valeurs du type &quot;%1&quot;. Seul les types POD peuvent être assignés.</translation>
-    </message>
-    <message>
-        <source>Unable to assign the value &apos;%1&apos; to &apos;%2&apos; (%3): %4</source>
-        <extracomment>Arguments: New value, name, (type): Error</extracomment>
-        <translation type="obsolete">Impossible d&apos;assigner la valeur &apos;%1&apos; à &quot;%2&quot; (%3) : %4</translation>
-    </message>
-    <message>
-        <source>Unable to retrieve %1 bytes of memory at 0x%2: %3</source>
-        <translation type="obsolete">Impossible de récupérer %1 octets de mémoire sur 0x%2 : %3</translation>
-    </message>
-    <message>
-        <source>Cannot retrieve symbols while the debuggee is running.</source>
-        <translation type="obsolete">Les symboles ne peuvent pas être obtenus lorsque le processus débogué est en fonctionnement.</translation>
-    </message>
-    <message>
-        <source>There is no CDB binary available for binaries in format &apos;%1&apos;</source>
-        <translation type="obsolete">Il n&apos;y a pas de binaire CDB disponible pour les binaires au format &quot;%1&quot; </translation>
-    </message>
-    <message>
-        <source>The CDB debug engine required for %1 is currently disabled.</source>
-        <translation type="obsolete">Le moteur de débogage CDB requis pour %1 est actuellement désactivé. </translation>
-    </message>
-    <message>
-        <source>The CDB engine does not support start mode %1.</source>
-        <translation type="obsolete">Le moteur CDB ne supporte pas le mode de démarrage %1. </translation>
-    </message>
-    <message>
-        <source>The CDB debug engine does not support the %1 ABI.</source>
-        <translation type="obsolete">Le moteur de débogage CDB ne supporte pas l&apos;ABI %1. </translation>
-    </message>
-    <message>
-        <source>The CDB debug engine cannot debug gdb core files.</source>
-        <translation type="obsolete">Le moteur de débogage CDB ne peut pas déboguer des fichiers cœur gdb.</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>The console process &apos;%1&apos; could not be started.</source>
         <translation>Le processus de la console &quot;%1&apos; n&quot;a pas pu être démarré. </translation>
@@ -35206,10 +31478,6 @@ Cette fonctionnalité n&apos;est disponible que pour GDB.</translation>
     <message>
         <source>Failed to Start the Debugger</source>
         <translation>Échec lors du démarrage du débogueur</translation>
-    </message>
-    <message>
-        <source>Normal</source>
-        <translation>Normal</translation>
     </message>
     <message>
         <source>Separate Window</source>
@@ -35275,151 +31543,20 @@ Cette fonctionnalité n&apos;est disponible que pour GDB.</translation>
         <source>Ignoring initial breakpoint...</source>
         <translation type="obsolete">Point d&apos;arrêt initial ignoré…</translation>
     </message>
-    <message>
-        <source>&lt;interrupt thread&gt;</source>
-        <translation type="obsolete">&lt;interrompre le thread&gt;</translation>
-    </message>
-    <message>
-        <source>Breakpoint</source>
-        <translation type="obsolete">Point d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Interrupted in thread %1, current thread: %2</source>
-        <translation type="obsolete">Interruption dans le thread %1, thread courant : %2</translation>
-    </message>
-    <message>
-        <source>Stopped, current thread: %1</source>
-        <translation type="obsolete">Arrêté, thread courant : %1</translation>
-    </message>
-    <message>
-        <source>Changing threads: %1 -&gt; %2</source>
-        <translation type="obsolete">Changement de thread:%1 -&gt;%2</translation>
-    </message>
-    <message>
-        <source>stopped</source>
-        <translation type="obsolete">arrêté</translation>
-    </message>
-    <message>
-        <source>Stopped at %1:%2 in thread %3.</source>
-        <translation type="obsolete">Arrêté a %1 : %2 dans le thread %3.</translation>
-    </message>
-    <message>
-        <source>Stopped at %1 in thread %2 (missing debug information).</source>
-        <translation type="obsolete">Arrêté a %1 dans le thread %2 (information de débogage manquante).</translation>
-    </message>
-    <message>
-        <source>Stopped at %1 (%2) in thread %3 (missing debug information).</source>
-        <translation type="obsolete">Arrêté a %1 (%2) dans le thread %3 (information de débogage manquante).</translation>
-    </message>
-    <message>
-        <source>Stopped in thread %1 (missing debug information).</source>
-        <translation type="obsolete">Arrêté dans le thread %1 (information de débogage manquante).</translation>
-    </message>
-    <message>
-        <source>Breakpoint: %1</source>
-        <translation type="obsolete">Point d&apos;arrêt : %1</translation>
-    </message>
-    <message>
-        <source>Watchpoint: %1</source>
-        <translation type="obsolete">Point d&apos;observation : %1</translation>
-    </message>
-    <message>
-        <source>The CDB debug engine does not support the %1 toolchain.</source>
-        <extracomment>%1 is something like &quot;GCCE&quot; or &quot;Intel C++ Compiler (Linux)&quot; (see ToolChain context)</extracomment>
-        <translation type="obsolete">Le moteur de débogage CDB ne supporte pas la chaîne de compilation %1.</translation>
-    </message>
 </context>
 <context>
-    <name>Debugger::Internal::Console</name>
-    <message>
-        <source>Clear Contents</source>
-        <translation type="obsolete">Effacer le contenu</translation>
-    </message>
-    <message>
-        <source>Save Contents</source>
-        <translation type="obsolete">Sauver le contenu</translation>
-    </message>
-    <message>
-        <source>Log File</source>
-        <translation type="obsolete">Réaliser un log du fichier</translation>
-    </message>
-    <message>
-        <source>Write Failure</source>
-        <translation type="obsolete">Échec de l&apos;écriture</translation>
-    </message>
-    <message>
-        <source>Unable to write log contents to &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible d&apos;écrire le contenu du journal d&apos;événements dans &quot;%1&quot; : %2</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::ConsoleWindow</name>
-    <message>
-        <source>Console</source>
-        <translation type="obsolete">Console</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::DebuggerEnginePrivate</name>
-    <message>
-        <source>Remove Breakpoint %1</source>
-        <translation type="obsolete">Supprimer le point d&apos;arrêt %1</translation>
-    </message>
-    <message>
-        <source>Disable Breakpoint %1</source>
-        <translation type="obsolete">Désactiver le point d&apos;arrêt %1</translation>
-    </message>
-    <message>
-        <source>Enable Breakpoint %1</source>
-        <translation type="obsolete">Activer le point d&apos;arrêt %1</translation>
-    </message>
-    <message>
-        <source>Edit Breakpoint %1...</source>
-        <translation type="obsolete">Editer le point d&apos;arrêt %1...</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at 0x%1</source>
-        <translation type="obsolete">Placer un point d&apos;arrêt à 0x%1</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at line %1</source>
-        <translation type="obsolete">Placer un point d&apos;arrêt à la ligne %1</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Attempting to interrupt.</source>
         <translation>Tentative d&apos;interruption.</translation>
     </message>
     <message>
-        <source>Debug Information</source>
-        <translation>Information de débogage</translation>
-    </message>
-    <message>
         <source>Debugger Test</source>
         <translation>Test du débogueur</translation>
     </message>
-    <message>
-        <source>Debugger Runtime</source>
-        <translation>Exécution du débogueur</translation>
-    </message>
 </context>
 <context>
-    <name>Debugger::DebuggerEngine</name>
-    <message>
-        <source>Symbol</source>
-        <translation type="obsolete">Symbole</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="obsolete">Adresse</translation>
-    </message>
-    <message>
-        <source>Code</source>
-        <translation type="obsolete">Code</translation>
-    </message>
-    <message>
-        <source>Symbols in &quot;%1&quot;</source>
-        <translation type="obsolete">Symboles dans &quot;%1&quot;</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Launching</source>
         <translation>Lancement</translation>
@@ -35509,10 +31646,6 @@ Setting breakpoints by file name and line number may fail.</source>
 Mettre des points d&apos;arrêt par nom de fichier et numéro de ligne pourrait échouer.</translation>
     </message>
     <message>
-        <source>Stopped.</source>
-        <translation>Arrêté.</translation>
-    </message>
-    <message>
         <source>Setup failed.</source>
         <translation>L&apos;installation a échouée.</translation>
     </message>
@@ -35585,41 +31718,6 @@ Section %1: %2</source>
 Section %1 : %2</translation>
     </message>
     <message>
-        <source>Warning</source>
-        <translation>Avertissement</translation>
-    </message>
-    <message>
-        <source>This does not seem to be a &quot;Debug&quot; build.
-Setting breakpoints by file name and line number may fail.
-</source>
-        <translation>Ceci ne semble pas être une compilation en mode débogage.
-Mettre des points d&apos;arrêt par nom de fichier et numéro de ligne pourrait échouer.</translation>
-    </message>
-    <message>
-        <source>Open Qt4 Options</source>
-        <translation type="obsolete">Ouvrir les options de Qt4</translation>
-    </message>
-    <message>
-        <source>Turn off Helper Usage</source>
-        <translation type="obsolete">Arrêter l&apos;utilisation de l&apos;assistant</translation>
-    </message>
-    <message>
-        <source>Continue Anyway</source>
-        <translation type="obsolete">Continuer malgré tout</translation>
-    </message>
-    <message>
-        <source>Debugging Helper Missing</source>
-        <translation type="obsolete">Assistance au débogage manquante</translation>
-    </message>
-    <message>
-        <source>The debugger could not load the debugging helper library.</source>
-        <translation type="obsolete">Le débogueur n&apos;a pas pu charger la bibliothèque d&apos;assistance au débogage.</translation>
-    </message>
-    <message>
-        <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. On the Qt4 options page, select a Qt installation and click Rebuild.</source>
-        <translation type="obsolete">L&apos;assistant au débogage est utilisé pour bien formater la valeur des types de données Qt et des bibliothèques standards.Il doit être compilé pour chaque version de Qt ce qui peut être fait dans les préférences de Qt en sélectionnant une installation de Qt et en cliquant sur &apos;Recompiler&apos;.</translation>
-    </message>
-    <message>
         <source>Taking notice of pid %1</source>
         <translatorcomment>Pas sur de la traduction...</translatorcomment>
         <translation>Prends note du pid %1</translation>
@@ -35642,7 +31740,7 @@ Mettre des points d&apos;arrêt par nom de fichier et numéro de ligne pourrait 
     </message>
 </context>
 <context>
-    <name>Debugger::DebuggerPlugin</name>
+    <name>Debugger</name>
     <message>
         <source>Debug</source>
         <translation>Débogage</translation>
@@ -35706,202 +31804,8 @@ Details: %3</source>
         <translation type="obsolete">Le moteur de débogage préféré pour les binaires de type &apos;%1&apos; n&apos;est pas disponible. Le moteur de débogage &quot;%2&quot; sera utilisé. Détails : %3</translation>
     </message>
     <message>
-        <source>Warning</source>
-        <translation type="obsolete">Avertissement</translation>
-    </message>
-    <message>
-        <source>Install &amp;Debug Information</source>
-        <translation>Installation des informations de &amp;débogage</translation>
-    </message>
-    <message>
-        <source>Tries to install missing debug information.</source>
-        <translation>Essayer d&apos;installer les informations de débogage manquantes.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::DebuggerPluginPrivate</name>
-    <message>
-        <source>QML Script Console</source>
-        <translation type="obsolete">Console de script QML</translation>
-    </message>
-    <message>
-        <source>Continue</source>
-        <translation type="obsolete">Continue</translation>
-    </message>
-    <message>
-        <source>Stop Debugger</source>
-        <translation type="obsolete">Arrêter le débogueur</translation>
-    </message>
-    <message>
-        <source>Interrupt</source>
-        <translation type="obsolete">Interrompre</translation>
-    </message>
-    <message>
-        <source>Debugger is Busy</source>
-        <translation type="obsolete">Le débogeur est occupé</translation>
-    </message>
-    <message>
-        <source>Abort Debugging</source>
-        <translation type="obsolete">Annuler le débogage</translation>
-    </message>
-    <message>
-        <source>Aborts debugging and resets the debugger to the initial state.</source>
-        <translation type="obsolete">Annuler le débogage et réinitialiser le débogueur a son état initial.</translation>
-    </message>
-    <message>
-        <source>Step Over</source>
-        <translation type="obsolete">Passer</translation>
-    </message>
-    <message>
-        <source>Step Into</source>
-        <translation type="obsolete">Entrer dans</translation>
-    </message>
-    <message>
-        <source>Step Out</source>
-        <translation type="obsolete">Sortir de</translation>
-    </message>
-    <message>
-        <source>Run to Line</source>
-        <translation type="obsolete">Exécuter jusqu&apos;à la ligne</translation>
-    </message>
-    <message>
-        <source>Run to Outermost Function</source>
-        <translation type="obsolete">Exécuter jusqu&apos;à la fonction la plus éloignée</translation>
-    </message>
-    <message>
-        <source>Immediately Return From Inner Function</source>
-        <translation type="obsolete">Retourne immédiatement d&apos;une fonction interne</translation>
-    </message>
-    <message>
-        <source>Jump to Line</source>
-        <translation type="obsolete">Sauter à la ligne</translation>
-    </message>
-    <message>
-        <source>Toggle Breakpoint</source>
-        <translation type="obsolete">Basculer le point d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Add to Watch Window</source>
-        <translation type="obsolete">Ajouter à la fenêtre d&apos;observateurs</translation>
-    </message>
-    <message>
-        <source>Create Snapshot</source>
-        <translation type="obsolete">Créer un snapshot</translation>
-    </message>
-    <message>
-        <source>Reverse Direction</source>
-        <translation type="obsolete">Inverser la direction</translation>
-    </message>
-    <message>
-        <source>Move to Called Frame</source>
-        <translation type="obsolete">Se déplacer sur la frame appelée</translation>
-    </message>
-    <message>
-        <source>Move to Calling Frame</source>
-        <translation type="obsolete">Se déplacer sur la frame appelante</translation>
-    </message>
-    <message>
-        <source>Error evaluating command line arguments: %1</source>
-        <translation type="obsolete">Erreur durant l&apos;évaluation des arguments de la ligne de commande : %1</translation>
-    </message>
-    <message>
-        <source>Start and Debug External Application...</source>
-        <translation type="obsolete">Déboguer une application externe...</translation>
-    </message>
-    <message>
-        <source>Attach to Running External Application...</source>
-        <translation type="obsolete">Attacher à une application externe en cours d&apos;éxecution...</translation>
-    </message>
-    <message>
-        <source>Attach to Core...</source>
-        <translation type="obsolete">Attacher au core...</translation>
-    </message>
-    <message>
-        <source>Attach to Running Tcf Agent...</source>
-        <translation type="obsolete">Attacher à un agent Tcf en cours d&apos;éxecution...</translation>
-    </message>
-    <message>
-        <source>This attaches to a running &apos;Target Communication Framework&apos; agent.</source>
-        <translatorcomment>Traduction de This attaches ?</translatorcomment>
-        <translation type="obsolete">Ceci attache à un agent &apos;Target Communication Framework&apos; en cours d&apos;éxecution.</translation>
-    </message>
-    <message>
-        <source>Start and Attach to Remote Application...</source>
-        <translation type="obsolete">Démarrer et attacher sur une application à distance...</translation>
-    </message>
-    <message>
-        <source>Detach Debugger</source>
-        <translation type="obsolete">Détacher le débogueur</translation>
-    </message>
-    <message>
-        <source>Interrupt Debugger</source>
-        <translation type="obsolete">Interrompre le débogueur</translation>
-    </message>
-    <message>
-        <source>Reset Debugger</source>
-        <translation type="obsolete">Réinitialiser le débogueur</translation>
-    </message>
-    <message>
-        <source>Threads:</source>
-        <translation type="obsolete">Threads :</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="obsolete">Avertissement</translation>
-    </message>
-    <message>
-        <source>Cannot attach to PID 0</source>
-        <translation type="obsolete">Impossible de s&apos;attacher au PID 0</translation>
-    </message>
-    <message>
-        <source>Process %1</source>
-        <translation type="obsolete">Processus %1</translation>
-    </message>
-    <message>
-        <source>Core file &quot;%1&quot;</source>
-        <translation type="obsolete">Fichier core &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Remote: &quot;%1&quot;</source>
-        <translation type="obsolete">Distant : &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Attaching to PID %1.</source>
-        <translation type="obsolete">Attachement au PID %1.</translation>
-    </message>
-    <message>
-        <source>Attaching to remote server %1.</source>
-        <translation type="obsolete">Attachement au serveur distant %1.</translation>
-    </message>
-    <message>
-        <source>Attaching to core %1.</source>
-        <translation type="obsolete">Attachement au core %1.</translation>
-    </message>
-    <message>
-        <source>Save Debugger Log</source>
-        <translation type="obsolete">Sauvegarder le log du débogueur</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::DebuggerRunControlFactory</name>
-    <message>
-        <source>Debug</source>
-        <translation type="obsolete">Debug</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::DebuggerRunControl</name>
-    <message>
         <source>Cannot debug &apos;%1&apos; (tool chain: &apos;%2&apos;): %3</source>
         <translation type="obsolete">Impossible de déboguer &apos;%1&apos; (chaîne d&apos;outils : &quot;%2&quot;) : %3</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="obsolete">Avertissement</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation>Débogueur</translation>
     </message>
     <message>
         <source>Starting debugger &apos;%1&apos; for tool chain &apos;%2&apos;...</source>
@@ -35960,7 +31864,7 @@ Details: %3</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::RemoteGdbProcess</name>
+    <name>Debugger</name>
     <message>
         <source>Connection could not be established.</source>
         <translation type="obsolete">La connexion ne peut être établie.</translation>
@@ -35993,26 +31897,6 @@ Details: %3</source>
         <source>Remote gdb crashed.</source>
         <translation type="obsolete">Gdb distant a crashé.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::TcfTrkGdbAdapter</name>
-    <message>
-        <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
-        <translation type="obsolete">Processus démarré, PID : 0x%1, id du thread : 0x%2, segment de code : 0x%3, segment de données : 0x%4.</translation>
-    </message>
-    <message>
-        <source>The reported code segment address (0x%1) might be invalid. Symbol resolution or setting breakoints may not work.</source>
-        <translation type="obsolete">L&apos;adresse du segment de code reportée (0x%1) pourrait être invalide. La résolution de symbole ou la mise en place de points d&apos;arrêt pourrait ne pas fonctionner. </translation>
-    </message>
-    <message>
-        <source>Connecting to TRK server adapter failed:
-</source>
-        <translation type="obsolete">La connection à l&apos;adaptateur du serveur TRK a échoué :
-</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerPane</name>
     <message>
         <source>Clear Contents</source>
         <translation>Effacer le contenu</translation>
@@ -36026,10 +31910,6 @@ Details: %3</source>
         <translation>Recharger les aides au débogage</translation>
     </message>
     <message>
-        <source>Log File</source>
-        <translation type="obsolete">Réaliser un log du fichier</translation>
-    </message>
-    <message>
         <source>Write Failure</source>
         <translation type="obsolete">Échec de l&apos;écriture</translation>
     </message>
@@ -36039,14 +31919,14 @@ Details: %3</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::InputPane</name>
+    <name>Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Taper Ctrl-&lt;Retour&gt; pour exécuter une ligne.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::LogWindow</name>
+    <name>Debugger</name>
     <message>
         <source>Debugger Log</source>
         <translation>Journal de débogage</translation>
@@ -36056,186 +31936,8 @@ Details: %3</source>
         <translation>Répétition de la dernière commande pour des raisons de débogage.</translation>
     </message>
     <message>
-        <source>Command:</source>
-        <translation>Commande :</translation>
-    </message>
-    <message>
         <source>Log File</source>
         <translation>Réaliser un log du fichier</translation>
-    </message>
-    <message>
-        <source>Write Failure</source>
-        <translation type="obsolete">Échec de l&apos;écriture</translation>
-    </message>
-    <message>
-        <source>Unable to write log contents to &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible d&apos;écrire le contenu du journal d&apos;événements dans &quot;%1&quot; : %2</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::QmlAdapter</name>
-    <message>
-        <source>Connect to debug server %1:%2</source>
-        <translation type="obsolete">Connexion au serveur de débogage %1 : %2</translation>
-    </message>
-    <message>
-        <source>Connecting to debug server on %1</source>
-        <translation type="obsolete">Connexion au serveur de débogage sur %1</translation>
-    </message>
-    <message>
-        <source>Connecting to debug server %1:%2</source>
-        <translation type="obsolete">Connexion au serveur de débogage %1 : %2</translation>
-    </message>
-    <message>
-        <source>Error: (%1) %2</source>
-        <comment>%1=error code, %2=error message</comment>
-        <translation type="obsolete">Erreur : (%1) %2</translation>
-    </message>
-    <message>
-        <source>disconnected.
-
-</source>
-        <translation type="obsolete">déconnecté.
-
-</translation>
-    </message>
-    <message>
-        <source>resolving host...</source>
-        <translation type="obsolete">résolution de l&apos;hôte...</translation>
-    </message>
-    <message>
-        <source>connecting to debug server...</source>
-        <translation type="obsolete">connexion au serveur de débogage... </translation>
-    </message>
-    <message>
-        <source>connected.
-</source>
-        <translation type="obsolete">connecté.
-</translation>
-    </message>
-    <message>
-        <source>closing...</source>
-        <translation type="obsolete">fermeture... </translation>
-    </message>
-    <message>
-        <source>Status of &apos;%1&apos; changed to &apos;unavailable&apos;.</source>
-        <translatorcomment>Do we need to translate &apos;unavailable&apos; ?</translatorcomment>
-        <translation type="obsolete">Statut de &apos;%1&apos; a changé à &apos;indisponible&apos;.</translation>
-    </message>
-    <message>
-        <source>Status of &apos;%1&apos; changed to &apos;enabled&apos;.</source>
-        <translatorcomment>Statut de &apos;%1&apos; a changé à &apos;enabled&apos;.</translatorcomment>
-        <translation type="obsolete">Statut de &apos;%1&apos; a changé à &apos;activé&apos;.</translation>
-    </message>
-    <message>
-        <source>Status of &apos;%1&apos; changed to &apos;not connected&apos;.</source>
-        <translatorcomment>Statut de &apos;%1&apos; a changé à &apos;not connected&apos;.</translatorcomment>
-        <translation type="obsolete">Statut de &apos;%1&apos; a changé à &apos;non connecté&apos;.</translation>
-    </message>
-    <message>
-        <source>Debug service &apos;%1&apos; became unavailable.</source>
-        <translation type="obsolete">Le service de débogage &quot;%1&quot; est devenu indisponible. </translation>
-    </message>
-    <message>
-        <source>Error: Cannot connect to debug service &apos;%1&apos;. Debugging functionality will be limited.</source>
-        <translation type="obsolete">Erreur : impossible de se connecteur au service de débogage &quot;%1&quot;. Les fonctionnalités de débogage seront limitées. </translation>
-    </message>
-    <message>
-        <source>Connected to debug service &apos;%1&apos;.</source>
-        <translation type="obsolete">Connecté au service de débogage &quot;%1&quot;. </translation>
-    </message>
-    <message>
-        <source>Not connected to debug service &apos;%1&apos;.</source>
-        <translation type="obsolete">Non connecté au service de débogage &quot;%1&quot;. </translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::QmlCppEngine</name>
-    <message>
-        <source>%1 debugger activated</source>
-        <translation type="obsolete">Débogueur %1 activé</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::QmlEngine</name>
-    <message>
-        <source>QML Debugger connected.</source>
-        <translation type="obsolete">Débogueur QML connecté. </translation>
-    </message>
-    <message>
-        <source>Failed to connect to debugger</source>
-        <translation type="obsolete">Échec lors de la connection au débogeur</translation>
-    </message>
-    <message>
-        <source>Could not connect to QML debugger server at %1:%2.</source>
-        <translation type="obsolete">Impossible de se connecter au serveur de débogage QML %1 : %2. </translation>
-    </message>
-    <message>
-        <source>QML Debugger: Remote host closed connection.</source>
-        <translation type="obsolete">Débogueur QML : l&apos;hôte distant a fermé la connexion. </translation>
-    </message>
-    <message>
-        <source>QML Debugger: Could not connect to service &apos;%1&apos;.</source>
-        <translation type="obsolete">Débogueur QML : impossible de se connecter au service &quot;%1&quot;. </translation>
-    </message>
-    <message>
-        <source>QML Debugger connecting...</source>
-        <translation type="obsolete">Connexion du débogueur QML...</translation>
-    </message>
-    <message>
-        <source>Failed to start application</source>
-        <translation type="obsolete">Impossible de démarrer l&apos;application</translation>
-    </message>
-    <message>
-        <source>Application startup failed: %1</source>
-        <translation type="obsolete">Échec du démarrage de l&apos;application : %1</translation>
-    </message>
-    <message>
-        <source>Trying to stop while process is no longer running.</source>
-        <translation type="obsolete">Tentative d&apos;arrêt alors que le processus n&apos;est plus en cours d&apos;exécution.</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <translation type="obsolete">Arrêté.</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;An Uncaught Exception occured in &lt;i&gt;%1&lt;/i&gt;:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;p&gt;Une exception non gérée a eu lieu dans &lt;i&gt;%1&lt;/i&gt; : &lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Uncaught Exception</source>
-        <translation type="obsolete">Exception non gérée</translation>
-    </message>
-    <message>
-        <source>QML Debugger disconnected.</source>
-        <translation type="obsolete">Débogueur QML déconnecté. </translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::ScriptConsole</name>
-    <message>
-        <source>&lt;Type expression to evaluate&gt;</source>
-        <translation type="obsolete">&lt;Type expression à évaluer&gt;</translation>
-    </message>
-    <message>
-        <source>Write and evaluate QtScript expressions.</source>
-        <translation type="obsolete">Ecrire et évaluer des expressions QtScript.</translation>
-    </message>
-    <message>
-        <source>Script Console
-</source>
-        <translation type="obsolete">Console de scripte</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::SourceFilesHandler</name>
-    <message>
-        <source>Internal name</source>
-        <translation type="obsolete">Nom interne</translation>
-    </message>
-    <message>
-        <source>Full name</source>
-        <translation type="obsolete">Nom complet</translation>
     </message>
     <message>
         <source>Internal Name</source>
@@ -39209,59 +34911,6 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BreakCondition</name>
-    <message>
-        <source>&amp;Condition:</source>
-        <translation type="obsolete">&amp;Condition : </translation>
-    </message>
-    <message>
-        <source>&amp;Ignore count:</source>
-        <translation type="obsolete">Nombre de passages à &amp;ignorer :</translation>
-    </message>
-    <message>
-        <source>&amp;Thread specification:</source>
-        <translation type="obsolete">Spécification de &amp;thread :</translation>
-    </message>
-</context>
-<context>
-    <name>LldbOptionsPageWidget</name>
-    <message>
-        <source>Enable LLDB</source>
-        <translation type="obsolete">Activer LLDB</translation>
-    </message>
-    <message>
-        <source>Use GDB Python dumpers</source>
-        <translation type="obsolete">Utiliser les collecteurs Python GDB</translation>
-    </message>
-</context>
-<context>
-    <name>StartRemoteEngineDialog</name>
-    <message>
-        <source>Start Remote Engine</source>
-        <translation type="obsolete">Démarrer le moteur distant</translation>
-    </message>
-    <message>
-        <source>&amp;Host:</source>
-        <translation type="obsolete">&amp;Hôte : </translation>
-    </message>
-    <message>
-        <source>&amp;Username:</source>
-        <translation type="obsolete">&amp;Utilisateur :</translation>
-    </message>
-    <message>
-        <source>&amp;Password:</source>
-        <translation type="obsolete">Mot de &amp;passe :</translation>
-    </message>
-    <message>
-        <source>&amp;Engine path:</source>
-        <translation type="obsolete">Chemin du mot&amp;eur : </translation>
-    </message>
-    <message>
-        <source>&amp;Inferior path:</source>
-        <translation type="obsolete">Chemin &amp;inférieur : </translation>
-    </message>
-</context>
-<context>
     <name>Macros::Internal::MacroOptionsWidget</name>
     <message>
         <source>Form</source>
@@ -41839,108 +37488,10 @@ au gestionnaire de version (%2)</translation>
     </message>
 </context>
 <context>
-    <name>BreakHandler</name>
-    <message>
-        <source>New</source>
-        <translation type="obsolete">Nouveau</translation>
-    </message>
-    <message>
-        <source>Insertion requested</source>
-        <translation type="obsolete">Insertion  demandée</translation>
-    </message>
-    <message>
-        <source>Insertion proceeding</source>
-        <translation type="obsolete">Insertion en cours</translation>
-    </message>
-    <message>
-        <source>Change requested</source>
-        <translation type="obsolete">Changement  demandé</translation>
-    </message>
-    <message>
-        <source>Change proceeding</source>
-        <translation type="obsolete">Changement en cours</translation>
-    </message>
-    <message>
-        <source>Breakpoint inserted</source>
-        <translation type="obsolete">Point d&apos;arrêt inséré</translation>
-    </message>
-    <message>
-        <source>Removal requested</source>
-        <translation type="obsolete">Suppression demandée</translation>
-    </message>
-    <message>
-        <source>Removal proceeding</source>
-        <translation type="obsolete">Suppression en cours</translation>
-    </message>
-    <message>
-        <source>Dead</source>
-        <translation type="obsolete">Mort</translation>
-    </message>
-    <message>
-        <source>&lt;invalid state&gt;</source>
-        <extracomment>Invalid breakpoint state.</extracomment>
-        <translation type="obsolete">&lt;état invalide&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::MultiBreakPointsDialog</name>
-    <message>
-        <source>Edit Breakpoint Properties</source>
-        <translation>Editer les propriétés du point d&apos;arrêt</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>&amp;Condition:</source>
         <translation>&amp;Condition :</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore count:</source>
-        <translation>Nombre de passages à &amp;ignorer :</translation>
-    </message>
-    <message>
-        <source>&amp;Thread specification:</source>
-        <translation>Spécification de &amp;thread :</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Cdb::CdbBreakEventWidget</name>
-    <message>
-        <source>C++ exception</source>
-        <translation type="obsolete">Exception C++</translation>
-    </message>
-    <message>
-        <source>Thread creation</source>
-        <translation type="obsolete">Création de thread</translation>
-    </message>
-    <message>
-        <source>Thread exit</source>
-        <translation type="obsolete">Sortie de thread</translation>
-    </message>
-    <message>
-        <source>Load module:</source>
-        <translation type="obsolete">Charger le module :</translation>
-    </message>
-    <message>
-        <source>Unload module:</source>
-        <translation type="obsolete">Décharger le module : </translation>
-    </message>
-    <message>
-        <source>Load Module:</source>
-        <translation type="obsolete">Charger le module : </translation>
-    </message>
-    <message>
-        <source>Unload Module:</source>
-        <translation type="obsolete">Décharger le module : </translation>
-    </message>
-    <message>
-        <source>Output:</source>
-        <translation type="obsolete">Sortie : </translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::StartRemoteCdbDialog</name>
-    <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching Qt Creator CDB extension (&lt;code&gt;%1&lt;/code&gt; or &lt;code&gt;%2&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%3&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt;  to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;body&gt;&lt;p&gt;Le CDB distant doit charger l&apos;extension correspondante de Qt Creator (&lt;code&gt;%1&lt;/code&gt; ou &lt;code&gt;%2&lt;/code&gt;, respectivement).&lt;/p&gt;&lt;p&gt;Copiez-la sur la machine distante et définissez la variable d&apos;environnement &lt;code&gt;%3&lt;/code&gt; pour qu&apos;elle pointe sur son dossier.&lt;/p&gt;&lt;p&gt;Lancez le CDB distant comme &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt; pour utiliser TCP/IP comme protocole de communication.&lt;/p&gt;&lt;p&gt;Entrez les paramètres de connexion comme ceci : &lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching Qt Creator CDB extension (&lt;code&gt;%1&lt;/code&gt; or &lt;code&gt;%2&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%3&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt; to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -41954,9 +37505,6 @@ au gestionnaire de version (%2)</translation>
         <source>&amp;Connection:</source>
         <translation>&amp;Connexion : </translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerMainWindowPrivate</name>
     <message>
         <source>Memory...</source>
         <translation>Mémoire...</translation>
@@ -41965,9 +37513,6 @@ au gestionnaire de version (%2)</translation>
         <source>Debugger Toolbar</source>
         <translation>Barre d&apos;outils du débogueur</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerPluginPrivate</name>
     <message>
         <source>No function selected.</source>
         <translation>Pas de fonction sélectionnée. </translation>
@@ -42009,10 +37554,6 @@ au gestionnaire de version (%2)</translation>
         <translation>Attacher au processus crashé %1</translation>
     </message>
     <message>
-        <source>Warning</source>
-        <translation>Avertissement</translation>
-    </message>
-    <message>
         <source>Cannot attach to PID 0</source>
         <translation type="obsolete">Impossible de s&apos;attacher au PID 0</translation>
     </message>
@@ -42031,10 +37572,6 @@ au gestionnaire de version (%2)</translation>
         <translation>Ajouter un message de traçage</translation>
     </message>
     <message>
-        <source>Message:</source>
-        <translation>Message :</translation>
-    </message>
-    <message>
         <source>Executable file &quot;%1&quot;</source>
         <translation>Fichier exécutable &quot;%1&quot;</translation>
     </message>
@@ -42045,22 +37582,6 @@ au gestionnaire de version (%2)</translation>
     <message>
         <source>Cannot attach to process with PID 0</source>
         <translation>Impossible de s&apos;attacher au processus avec PID 0</translation>
-    </message>
-    <message>
-        <source>Debugger attached to %1</source>
-        <translation type="obsolete">Débogueur attaché à %1</translation>
-    </message>
-    <message>
-        <source>gdbserver is now listening at %1</source>
-        <translation type="obsolete">gbdserver surveille actuellement %1</translation>
-    </message>
-    <message>
-        <source>Cannot find local executable for remote process &quot;%1&quot;.</source>
-        <translation type="obsolete">Impossible de trouver l&apos;exécutable local pour le processus distant &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Cannot find ABI for remote process &quot;%1&quot;.</source>
-        <translation type="obsolete">Impossible de trouver l&apos;ABI pour le processus distant &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Remove Breakpoint %1</source>
@@ -42107,44 +37628,8 @@ au gestionnaire de version (%2)</translation>
         <translation>Les commandes utilisateur ne sont pas acceptées dans l&apos;état courant. </translation>
     </message>
     <message>
-        <source>Open Qt4 Options</source>
-        <translation type="obsolete">Ouvrir les options de Qt4</translation>
-    </message>
-    <message>
-        <source>Open Qt Options</source>
-        <translation type="obsolete">Ouvrir les options de Qt</translation>
-    </message>
-    <message>
-        <source>Turn off Helper Usage</source>
-        <translation type="obsolete">Arrêter l&apos;utilisation de l&apos;assistant</translation>
-    </message>
-    <message>
-        <source>Continue Anyway</source>
-        <translation type="obsolete">Continuer malgré tout</translation>
-    </message>
-    <message>
-        <source>Debugging Helper Missing</source>
-        <translation type="obsolete">Assistance au débogage manquante</translation>
-    </message>
-    <message>
-        <source>The debugger could not load the debugging helper library.</source>
-        <translation type="obsolete">Le débogueur n&apos;a pas pu charger la bibliothèque d&apos;assistance au débogage.</translation>
-    </message>
-    <message>
-        <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. On the Qt4 options page, select a Qt installation and click Rebuild.</source>
-        <translation type="obsolete">L&apos;assistant au débogage est utilisé pour bien formater la valeur des types de données Qt et des bibliothèques standards.Il doit être compilé pour chaque version de Qt ce qui peut être fait dans les préférences de Qt en sélectionnant une installation de Qt et en cliquant sur &apos;Recompiler&apos;.</translation>
-    </message>
-    <message>
-        <source>Starting debugger &apos;%1&apos; for ABI &apos;%2&apos;...</source>
-        <translation type="obsolete">Lancer le débogueur &apos;%1&apos; pour l&apos;ABI &quot;%2&quot;...</translation>
-    </message>
-    <message>
         <source>Debugger finished.</source>
         <translation>Débogage terminé.</translation>
-    </message>
-    <message>
-        <source>QML Script Console</source>
-        <translation type="obsolete">Console de script QML</translation>
     </message>
     <message>
         <source>Set Breakpoint at Line %1</source>
@@ -42157,11 +37642,6 @@ au gestionnaire de version (%2)</translation>
     <message>
         <source>Disassemble Function &quot;%1&quot;</source>
         <translation>Désassembler la fonction &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. In the Qt Creator Build and Run preferences page, select a Qt version, expand the Details section and click Build All.</source>
-        <translatorcomment>pour moi, il manque des guillemets</translatorcomment>
-        <translation type="obsolete">L&apos;assistant au débogage est utilisé pour bien formater la valeur des types de données Qt et des bibliothèques standards. Il doit être compilé pour chaque versions de Qt séparément. Dans la page de préférences Compiler et Exécuter de Qt Creator, sélectionnez une version de Qt, développez la section Détails et cliquez sur Tout Construire.</translation>
     </message>
     <message>
         <source>Starting debugger &quot;%1&quot; for ABI &quot;%2&quot;...</source>
@@ -42358,10 +37838,6 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
         <translation>F5</translation>
     </message>
     <message>
-        <source>Add Expression Evaluator</source>
-        <translation>Ajoute un évaluateur d&apos;expression</translation>
-    </message>
-    <message>
         <source>Attach to Running Application...</source>
         <translation>Attacher à l&apos;application en cours d&apos;exécution...</translation>
     </message>
@@ -42486,31 +37962,9 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
         <translation>Section</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Nom</translation>
-    </message>
-    <message>
         <source>Symbols in &quot;%1&quot;</source>
         <translation>Symboles dans &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>DebuggerRunControl</name>
-    <message>
-        <source>Debug</source>
-        <translation type="obsolete">Déboguer</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation type="obsolete">Débogueur</translation>
-    </message>
-    <message>
-        <source>Unable to create a debugger engine of the type &apos;%1&apos;</source>
-        <translation type="obsolete">Impossible de créer un moteur de débogage du type &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerSourcePathMappingWidget</name>
     <message>
         <source>&lt;new source&gt;</source>
         <translation>&lt;nouvelle source&gt;</translation>
@@ -42526,10 +37980,6 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
     <message>
         <source>Target path</source>
         <translation>Chemin de destination</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Ajouter</translation>
     </message>
     <message>
         <source>Add Qt sources...</source>
@@ -42577,7 +38027,7 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerToolChainComboBox</name>
+    <name>Debugger</name>
     <message>
         <source>%1 (%2)</source>
         <translation type="obsolete">%1 (%2)</translation>
@@ -42588,14 +38038,7 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AbstractDebuggerToolTipWidget</name>
-    <message>
-        <source>Previous</source>
-        <translation type="obsolete">Précédent</translation>
-    </message>
-</context>
-<context>
-    <name>DebuggerEngine</name>
+    <name>Debugger</name>
     <message>
         <source>Debugging complex command lines is currently not supported under Windows</source>
         <translation type="obsolete">Débogueur des lignes de commande complexes n&apos;est pas actuellement supporté sous Windows</translation>
@@ -42606,44 +38049,11 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AttachGdbAdapter</name>
-    <message>
-        <source>Attached to process %1.</source>
-        <translation type="obsolete">Attaché au processus de PID %1.</translation>
-    </message>
-</context>
-<context>
-    <name>CodaGdbAdapter</name>
-    <message>
-        <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
-        <translation type="obsolete">Processus démarré, PID : 0x%1, id du thread : 0x%2, segment de code : 0x%3, segment de données : 0x%4.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CodaGdbAdapter</name>
-    <message>
-        <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
-        <translation type="obsolete">Processus démarré, PID : 0x%1, id du thread : 0x%2, segment de code : 0x%3, segment de données : 0x%4.</translation>
-    </message>
-    <message>
-        <source>Connecting to CODA server adapter failed:
-</source>
-        <translation type="obsolete">La connexion au serveur CODA a échoué : </translation>
-    </message>
-    <message>
-        <source>Could not obtain device.</source>
-        <translation type="obsolete">Impossible d&apos;obtenir le périphérique. </translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::IPCEngineHost</name>
+    <name>Debugger</name>
     <message>
         <source>Fatal engine shutdown. Incompatible binary or IPC error.</source>
         <translation>Arrêt fatal du moteur. Erreur de compatibilité des binaires ou &apos;IPC.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::LldbEngineHost</name>
     <message>
         <source>qtcreator-lldb failed to start: %1</source>
         <translation>qtcreator-lldb n&apos;a pas pu démarrer : %1</translation>
@@ -42658,14 +38068,14 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::LldbOptionsPage</name>
+    <name>Debugger</name>
     <message>
         <source>LLDB</source>
         <translation>LLDB</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::MemoryAgent</name>
+    <name>Debugger</name>
     <message>
         <source>Memory $</source>
         <translation type="obsolete">Mémoire $</translation>
@@ -42688,7 +38098,7 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QmlCppEngine</name>
+    <name>Debugger</name>
     <message>
         <source>The slave debugging engine required for combined QML/C++-Debugging could not be created: %1</source>
         <translation>Le moteur de débogage esclave requis pour le débogage combiné QML/C++ n&apos;a pas pu être créé : %1</translation>
@@ -42717,7 +38127,7 @@ Suggestions : déplacer le point d&apos;arrêt après l&apos;instanciation de Qm
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QmlEngine</name>
+    <name>Debugger</name>
     <message>
         <source>QML Debugger connected.</source>
         <translation type="obsolete">Débogueur QML connecté. </translation>
@@ -42793,90 +38203,12 @@ Do you want to retry?</source>
         <translation>Démarrer %1 %2</translation>
     </message>
     <message>
-        <source>Failed to start application</source>
-        <translation>Impossible de démarrer l&apos;application</translation>
-    </message>
-    <message>
         <source>Application startup failed: %1</source>
         <translation>Échec du démarrage de l&apos;application : %1</translation>
     </message>
     <message>
-        <source>Run to line  %1 (%2) requested...</source>
-        <translation type="obsolete">Exécution jusqu&apos;à la ligne %1 (%2) demandée...</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <translation type="obsolete">Arrêté.</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;An uncaught exception occurred:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;p&gt;Une exception non gérée a eu lieu : &lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;An uncaught exception occurred in &lt;i&gt;%1&lt;/i&gt;:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;p&gt;Une exception non gérée a eu lieu dans &lt;i&gt;%1&lt;/i&gt; : &lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Uncaught Exception</source>
-        <translation type="obsolete">Exception non gérée</translation>
-    </message>
-    <message>
         <source>QML Debugger disconnected.</source>
         <translation>Débogueur QML déconnecté. </translation>
-    </message>
-</context>
-<context>
-    <name>StackHandler</name>
-    <message>
-        <source>Address:</source>
-        <translation type="obsolete">Adresse :</translation>
-    </message>
-    <message>
-        <source>Function:</source>
-        <translation type="obsolete">Fonction :</translation>
-    </message>
-    <message>
-        <source>File:</source>
-        <translation type="obsolete">Fichier :</translation>
-    </message>
-    <message>
-        <source>Line:</source>
-        <translation type="obsolete">Ligne :</translation>
-    </message>
-    <message>
-        <source>From:</source>
-        <translation type="obsolete">À partir de :</translation>
-    </message>
-    <message>
-        <source>To:</source>
-        <translation type="obsolete">Vers :</translation>
-    </message>
-</context>
-<context>
-    <name>ThreadsHandler</name>
-    <message>
-        <source>Thread id:</source>
-        <translation type="obsolete">ID du thread :</translation>
-    </message>
-    <message>
-        <source>Target id:</source>
-        <translation type="obsolete">Identifiant de la cible :</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Nom :</translation>
-    </message>
-    <message>
-        <source>State:</source>
-        <translation type="obsolete">État :</translation>
-    </message>
-    <message>
-        <source>Core:</source>
-        <translation type="obsolete">Core :</translation>
-    </message>
-    <message>
-        <source>Stopped at:</source>
-        <translation type="obsolete">Arrêté à :</translation>
     </message>
 </context>
 <context>
@@ -45087,37 +40419,6 @@ Votre application peut aussi être rejeté par l&apos;assurance qualité du Noki
     <message>
         <source>Creating an Uploadable SIS File</source>
         <translation type="obsolete">Créer un fichier SIS téléversable</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60RunControlBase</name>
-    <message>
-        <source>Launching</source>
-        <translation type="obsolete">Lancement</translation>
-    </message>
-    <message>
-        <source>Please finalise the installation on your device.</source>
-        <translation type="obsolete">Veuillez finaliser l&apos;installation sur votre périphérique. </translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; is still running on the device.&lt;/center&gt;&lt;center&gt;Terminating it can leave the target in an inconsistent state.&lt;/center&gt;&lt;center&gt;Would you still like to terminate it?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; est toujours en cours d&apos;exécution sur le périphérique.&lt;/center&gt;&lt;center&gt;Le terminer peut laisser la cible dans un état incohérent.&lt;/center&gt;&lt;center&gt;Voulez-vous toujours le terminer ?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Application Still Running</source>
-        <translation type="obsolete">Application toujours en cours d&apos;exécution</translation>
-    </message>
-    <message>
-        <source>Force Quit</source>
-        <translation type="obsolete">Forcer  quitter</translation>
-    </message>
-    <message>
-        <source>Keep Running</source>
-        <translation type="obsolete">Continuer l&apos;exécution</translation>
-    </message>
-    <message>
-        <source>Finished.</source>
-        <translation type="obsolete">Terminé.</translation>
     </message>
 </context>
 <context>
@@ -48011,14 +43312,14 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerToolTipWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Previous</source>
         <translation>Précédent</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::RegisterMemoryView</name>
+    <name>Debugger</name>
     <message>
         <source>Memory at Register &apos;%1&apos; (0x%2)</source>
         <translation>Mémoire au registre &quot;%1&quot; (0x%2)</translation>
@@ -49082,50 +44383,6 @@ Souhaitez-vous réessayer ?</translation>
 Previous Qt versions have limitations in building suitable SIS files.</source>
         <translation type="obsolete">Seules les versions de Qt plus récentes que la 4.6.3 sont disponibles dans cet assistant. 
 Les version de Qt précédentes ont des limitations lors de la compilation des fichiers SIS. </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::S60RunControlBase</name>
-    <message>
-        <source>Launching</source>
-        <translation type="obsolete">Lancement</translation>
-    </message>
-    <message>
-        <source>Please finalise the installation on your device.
-</source>
-        <translation type="obsolete">Veuillez finaliser l&apos;installation sur votre périphérique. </translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; is still running on the device.&lt;/center&gt;&lt;center&gt;Terminating it can leave the target in an inconsistent state.&lt;/center&gt;&lt;center&gt;Would you still like to terminate it?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; est toujours en cours d&apos;exécution sur le périphérique.&lt;/center&gt;&lt;center&gt;Le terminer peut laisser la cible dans un état incohérent.&lt;/center&gt;&lt;center&gt;Voulez-vous toujours le terminer ?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Application Still Running</source>
-        <translation type="obsolete">Application toujours en cours d&apos;exécution</translation>
-    </message>
-    <message>
-        <source>Force Quit</source>
-        <translation type="obsolete">Forcer à quitter</translation>
-    </message>
-    <message>
-        <source>Keep Running</source>
-        <translation type="obsolete">Continuer l&apos;exécution</translation>
-    </message>
-    <message>
-        <source>Finished.
-</source>
-        <translation type="obsolete">Fini. </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SymbianQtConfigWidget</name>
-    <message>
-        <source>S60 SDK:</source>
-        <translation type="obsolete">SDK S60 :</translation>
-    </message>
-    <message>
-        <source>SBS v2 directory:</source>
-        <translation type="obsolete">Répertoire SBS v2 : </translation>
     </message>
 </context>
 <context>
@@ -51679,10 +46936,6 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
         <translation>Dont coûts</translation>
     </message>
     <message>
-        <source>%1</source>
-        <translation type="obsolete">%1</translation>
-    </message>
-    <message>
         <source>(%1%)</source>
         <translation>(%1%)</translation>
     </message>
@@ -52141,21 +47394,6 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     <message>
         <source>Details:</source>
         <translation>Détails :</translation>
-    </message>
-</context>
-<context>
-    <name>AttachToQmlPortDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation type="obsolete">Lancer le débogueur</translation>
-    </message>
-    <message>
-        <source>&amp;Host:</source>
-        <translation type="obsolete">&amp;Hôte : </translation>
-    </message>
-    <message>
-        <source>&amp;Port:</source>
-        <translation type="obsolete">&amp;Port :</translation>
     </message>
 </context>
 <context>
@@ -52832,14 +48070,7 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BaseWindow</name>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Ajuster la largeur des colonnes au contenu</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CdbBreakEventWidget</name>
+    <name>Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>Exception C++</translation>
@@ -52864,9 +48095,6 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
         <source>Output:</source>
         <translation>Sortie : </translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::QScriptDebuggerClient</name>
     <message>
         <source>&lt;p&gt;An uncaught exception occurred:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</source>
         <translation>&lt;p&gt;Une exception non gérée a eu lieu : &lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</translation>
@@ -55932,7 +51160,7 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AttachToQmlPortDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>Lancer le débogueur</translation>
@@ -55942,92 +51170,8 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
         <translation>Kit :</translation>
     </message>
     <message>
-        <source>&amp;Host:</source>
-        <translation type="obsolete">&amp;Hôte : </translation>
-    </message>
-    <message>
         <source>&amp;Port:</source>
         <translation>&amp;Port :</translation>
-    </message>
-    <message>
-        <source>Sys&amp;root:</source>
-        <translation type="obsolete">&amp;Racine système : </translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CommonOptionsPage</name>
-    <message>
-        <source>Behavior</source>
-        <translation type="obsolete">Comportement</translation>
-    </message>
-    <message>
-        <source>Use alternating row colors in debug views</source>
-        <translation type="obsolete">Alterner la couleur de ligne dans le débogueur visuel</translation>
-    </message>
-    <message>
-        <source>Change the font size in the debugger views when the font size in the main editor changes.</source>
-        <translation type="obsolete">Changer la taille de la police dans les vues du débogueur quand la taille de police dans l&apos;éditeur principal change. </translation>
-    </message>
-    <message>
-        <source>Debugger font size follows main editor</source>
-        <translation type="obsolete">La taille de police du débogueur suit celle de l&apos;éditeur principal</translation>
-    </message>
-    <message>
-        <source>Use tooltips in main editor while debugging</source>
-        <translation type="obsolete">Utiliser les info-bulles dans l&apos;éditeur principal lors du débogage</translation>
-    </message>
-    <message>
-        <source>Populate the source file view automatically. This might slow down debugger startup considerably.</source>
-        <translation type="obsolete">Remplir la vue du fichier source automatiquement. Ceci pourrait ralentir considérablement le lancement du débogueur. </translation>
-    </message>
-    <message>
-        <source>Populate source file view automatically</source>
-        <translation type="obsolete">Peupler la vue du fichier source automatiquement</translation>
-    </message>
-    <message>
-        <source>Close temporary buffers on debugger exit</source>
-        <translation type="obsolete">Fermer les tampons temporaires à l&apos;arrêt du débogueur</translation>
-    </message>
-    <message>
-        <source>Switch to previous mode on debugger exit</source>
-        <translation type="obsolete">Retourner au mode précédent à l&apos;arrêt du débogueur</translation>
-    </message>
-    <message>
-        <source>Register Qt Creator for debugging crashed applications.</source>
-        <translation type="obsolete">Enregistrer Qt Creator pour déboguer les applications crashées.</translation>
-    </message>
-    <message>
-        <source>Use Qt Creator for post-mortem debugging</source>
-        <translation type="obsolete">Utiliser Qt Creator pour le débogage post-mortem</translation>
-    </message>
-    <message>
-        <source>Maximum stack depth:</source>
-        <translation type="obsolete">Profondeur maximale de la pile :</translation>
-    </message>
-    <message>
-        <source>&lt;unlimited&gt;</source>
-        <translation type="obsolete">&lt;illimitée&gt;</translation>
-    </message>
-    <message>
-        <source>Bring Qt Creator to foreground when application interrupts</source>
-        <translation type="obsolete">Afficher Qt Creator au premier plan lorsque l&apos;application s&apos;interrompt</translation>
-    </message>
-    <message>
-        <source>Show QML object tree in Locals &amp; Expressions when connected and not stepping.</source>
-        <translatorcomment>Locales &amp; Expressions &gt; à traduire</translatorcomment>
-        <translation type="obsolete">Afficher l&apos;arbre d&apos;objets QML dans Locales et expressions lorsqu&apos;il est connecté et non à l&apos;arrêt.</translation>
-    </message>
-    <message>
-        <source>Show QML object tree</source>
-        <translation type="obsolete">Afficher l&apos;arbre d&apos;objets QML</translation>
-    </message>
-    <message>
-        <source>Enable a full file path in breakpoints by default also for the GDB</source>
-        <translation type="obsolete">Activer par défaut les chemins de fichier complets aussi pour GDB </translation>
-    </message>
-    <message>
-        <source>Breakpoints full path by default</source>
-        <translation type="obsolete">Points d&apos;arrêt sur les chemins complets par défaut</translation>
     </message>
     <message>
         <source>Stop when %1() is called</source>
@@ -56037,9 +51181,6 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
         <source>Always add a breakpoint on the &lt;i&gt;%1()&lt;/i&gt; function.</source>
         <translation>Toujours ajouter un point d&apos;arrêt sur la fonction &lt;i&gt;%1()&lt;/i&gt;.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::LldbOptionsPageWidget</name>
     <message>
         <source>Enable LLDB</source>
         <translation>Activer LLDB</translation>
@@ -56048,9 +51189,6 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
         <source>Use GDB Python dumpers</source>
         <translation>Utiliser les collecteurs Python GDB</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::StartRemoteEngineDialog</name>
     <message>
         <source>Start Remote Engine</source>
         <translation>Démarrer le moteur distant</translation>
@@ -58312,7 +53450,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::TypeFormatsDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Reset</source>
         <translation>Réinitialiser</translation>
@@ -58335,7 +53473,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerRunConfigWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Debugger Settings</source>
         <translation>Paramètres du débogueur</translation>
@@ -58357,65 +53495,16 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;Quels sont les prérequis ?&lt;/a&gt;</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;Quels sont les prérequis?&lt;/a&gt;</translation>
-    </message>
-    <message>
         <source>Enable Debugging of Subprocesses</source>
         <translation>Activer le débogage des sous-processus</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QmlV8DebuggerClient</name>
-    <message>
-        <source>anonymous function</source>
-        <translation type="obsolete">Fonction anonyme</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Anonymous Function</source>
         <translation>Fonction anonyme</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::QtMessageLogEditor</name>
-    <message>
-        <source>Cu&amp;t</source>
-        <translation type="obsolete">Co&amp;uper</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="obsolete">&amp;Copier</translation>
-    </message>
-    <message>
-        <source>&amp;Paste</source>
-        <translation type="obsolete">C&amp;oller</translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="obsolete">Tout &amp;sélectionner</translation>
-    </message>
-    <message>
-        <source>C&amp;lear</source>
-        <translation type="obsolete">&amp;Effacer</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::QtMessageLogView</name>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="obsolete">&amp;Copier</translation>
-    </message>
-    <message>
-        <source>&amp;Show in Editor</source>
-        <translation type="obsolete">Montrer dans l&apos;éditeur (&amp;S)</translation>
-    </message>
-    <message>
-        <source>C&amp;lear</source>
-        <translation type="obsolete">&amp;Effacer</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::QtMessageLogWindow</name>
     <message>
         <source>Log</source>
         <translation type="obsolete">Log</translation>
@@ -58425,16 +53514,8 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <translation type="obsolete">Montrer les messages de débogage, des journaux et d&apos;informations.</translation>
     </message>
     <message>
-        <source>Warning</source>
-        <translation type="obsolete">Avertissement</translation>
-    </message>
-    <message>
         <source>Show warning messages.</source>
         <translation type="obsolete">Montrer les messages d&apos;avertissement.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="obsolete">Erreur</translation>
     </message>
     <message>
         <source>Show error and fatal messages.</source>
@@ -61712,7 +56793,7 @@ Oui :)</translatorcomment>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BreakTreeView</name>
+    <name>Debugger</name>
     <message>
         <source>Delete Breakpoint</source>
         <translation>Supprimer le point d&apos;arrêt</translation>
@@ -61783,11 +56864,7 @@ Oui :)</translatorcomment>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::StartApplicationDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation>Lancer le débogueur</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Select Executable</source>
         <translation>Sélectionner l&apos;exécutable</translation>
@@ -61858,11 +56935,7 @@ Oui :)</translatorcomment>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerKitConfigWidget</name>
-    <message>
-        <source>None</source>
-        <translation>Aucune</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Manage...</source>
         <translation>Gérer...</translation>
@@ -61889,7 +56962,7 @@ Oui :)</translatorcomment>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerKitConfigDialog</name>
+    <name>Debugger</name>
     <message>
         <source>&amp;Engine:</source>
         <translation>&amp;Moteur :</translation>
@@ -61899,21 +56972,13 @@ Oui :)</translatorcomment>
         <translation>&amp;Binaire :</translation>
     </message>
     <message>
-        <source>64-bit version</source>
-        <translation>Version 64 bits</translation>
-    </message>
-    <message>
-        <source>32-bit version</source>
-        <translation>Version 32 bits</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger executable&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Spécifier le chemin à &lt;a href=&quot;%1&quot;&gt;l&apos;exécutable du débogueur en console de Windows&lt;/a&gt; (%2) ici.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::DebuggerKitInformation</name>
+    <name>Debugger</name>
     <message>
         <source>No debugger set up.</source>
         <translation>Aucun débogueur n&apos;a été configuré.</translation>
@@ -61976,11 +57041,7 @@ Oui :)</translatorcomment>
     </message>
 </context>
 <context>
-    <name>DebuggerPlugin</name>
-    <message>
-        <source>Debug</source>
-        <translation type="obsolete">Déboguer</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Unable to create a debugger engine of the type &apos;%1&apos;</source>
         <translation>Impossible de créer un moteur de débogage du type &quot;%1&quot;</translation>
@@ -61993,51 +57054,10 @@ Oui :)</translatorcomment>
         <source>Tries to install missing debug information.</source>
         <translation>Essayer d&apos;installer les informations de débogage manquantes.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbAbstractPlainEngine</name>
-    <message>
-        <source>Starting executable failed:
-</source>
-        <translation>Échec du lancement de l&apos;exécutable :</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbAttachEngine</name>
     <message>
         <source>Attached to process %1.</source>
         <translation>Attaché au processus de PID %1.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerCore</name>
-    <message>
-        <source>Open Qt Options</source>
-        <translation>Ouvrir les options de Qt</translation>
-    </message>
-    <message>
-        <source>Turn off Helper Usage</source>
-        <translation>Arrêter l&apos;utilisation de l&apos;assistant</translation>
-    </message>
-    <message>
-        <source>Continue Anyway</source>
-        <translation>Continuer malgré tout</translation>
-    </message>
-    <message>
-        <source>Debugging Helper Missing</source>
-        <translation>Assistant au débogage manquant</translation>
-    </message>
-    <message>
-        <source>The debugger could not load the debugging helper library.</source>
-        <translation>Le débogueur n&apos;a pas pu charger la bibliothèque d&apos;assistance au débogage.</translation>
-    </message>
-    <message>
-        <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. In the Qt Creator Build and Run preferences page, select a Qt version, expand the Details section and click Build All.</source>
-        <translation>L&apos;assistant au débogage est utilisé pour bien formater la valeur des types de données Qt et des bibliothèques standards. Il doit être compilé pour chaque version de Qt séparément. Dans la page de préférences Compiler et Exécuter de Qt Creator, sélectionnez une version de Qt, développez la section Détails et cliquez sur Tout compiler.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbCoreEngine</name>
     <message>
         <source>Error Loading Core File</source>
         <translatorcomment>Core ? coeur ? Les anciennes chaînes utilisent core</translatorcomment>
@@ -62084,16 +57104,6 @@ Oui :)</translatorcomment>
 </source>
         <translation>Échec de liaison au core &quot;%1&quot; :</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbLocalPlainEngine</name>
-    <message>
-        <source>Cannot set up communication with child process: %1</source>
-        <translation>Impossible de mettre en place la communication avec le processus enfant : %1</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbRemoteServerEngine</name>
     <message>
         <source>The upload process failed to start. Shell missing?</source>
         <translation>Le processus d&apos;upload n&apos;a pas pu démarrer. Shell manquant ?</translation>
@@ -62101,10 +57111,6 @@ Oui :)</translatorcomment>
     <message>
         <source>The upload process crashed some time after starting successfully.</source>
         <translation>Le processus d&apos;upload a crashé peu après avoir démarré avec succès.</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>L&apos;exécution de la dernière fonction waitFor...() est arrivée à échéance. Le statut de QProcess est inchangé, vous pouvez essayer d&apos;appeler waitFor...() à nouveau.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -62141,7 +57147,7 @@ Oui :)</translatorcomment>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbServerStarter</name>
+    <name>Debugger</name>
     <message>
         <source>Remote Error</source>
         <translation>Erreur distante</translation>
@@ -62196,21 +57202,14 @@ Oui :)</translatorcomment>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbTermEngine</name>
-    <message>
-        <source>Debugger Error</source>
-        <translation>Erreur du débogueur</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::SelectRemoteFileDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Download of remote file succeeded.</source>
         <translation>Téléchargement du fichier distant réussi.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::ModulesHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Module Name</source>
         <translation>Nom du module</translation>
@@ -62297,7 +57296,7 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::ModulesTreeView</name>
+    <name>Debugger</name>
     <message>
         <source>Update Module List</source>
         <translation>Mettre à jour la liste des modules</translation>
@@ -62356,7 +57355,7 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QmlAdapter</name>
+    <name>Debugger</name>
     <message>
         <source>Connecting to debug server %1:%2</source>
         <translation>Connexion au serveur de débogage %1:%2</translation>
@@ -62402,7 +57401,7 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QmlInspectorAgent</name>
+    <name>Debugger</name>
     <message>
         <source>Success: </source>
         <translation>Réussite :</translation>
@@ -62417,7 +57416,7 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QmlLiveTextPreview</name>
+    <name>Debugger</name>
     <message>
         <source>The %1 attribute at line %2, column %3 cannot be changed without reloading the QML application. </source>
         <translation>L&apos;attribut %1 à la ligne %2, colonne %3 ne peut pas être modifié sans redémarrer l&apos;application QML.</translation>
@@ -62444,7 +57443,7 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::RegisterTreeView</name>
+    <name>Debugger</name>
     <message>
         <source>Reload Register Listing</source>
         <translation>Recharger la liste des registres</translation>
@@ -62495,7 +57494,7 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::SnapshotTreeView</name>
+    <name>Debugger</name>
     <message>
         <source>Snapshots</source>
         <translation>Snapshots</translation>
@@ -62510,7 +57509,7 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::SourceFilesTreeView</name>
+    <name>Debugger</name>
     <message>
         <source>Reload Data</source>
         <translation>Recharger les données</translation>
@@ -62525,11 +57524,7 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::StackTreeView</name>
-    <message>
-        <source>Stack</source>
-        <translation>Pile</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Function:</source>
         <translation>Fonction :</translation>
@@ -62543,28 +57538,12 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <translation>Copier le contenu dans le presse-papier</translation>
     </message>
     <message>
-        <source>Open Memory Editor</source>
-        <translation>Ouvrir l&apos;éditeur de mémoire</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at 0x%1</source>
-        <translation>Ouvrir l&apos;éditeur de mémoire à l&apos;adresse 0x%1</translation>
-    </message>
-    <message>
         <source>Open Disassembler at Address...</source>
         <translation>Ouvrir le désassembleur à l&apos;adresse...</translation>
     </message>
     <message>
         <source>Disassemble Function...</source>
         <translation>Désassembler la fonction...</translation>
-    </message>
-    <message>
-        <source>Open Disassembler</source>
-        <translation>Ouvrir le désassembleur</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at 0x%1</source>
-        <translation>Ouvrir le désassembleur à l&apos;adresse 0x%1</translation>
     </message>
     <message>
         <source>Try to Load Unknown Symbols</source>
@@ -62774,10 +57753,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
     <message>
         <source>Open Memory Editor Showing Stack Layout</source>
         <translation>Ouvrir l&apos;éditeur mémoire montrant la pile</translation>
-    </message>
-    <message>
-        <source>Copy Contents to Clipboard</source>
-        <translation>Copier le contenu dans le presse-papier</translation>
     </message>
     <message>
         <source>Copy Value to Clipboard</source>
@@ -64831,7 +59806,7 @@ Souhaitez-vous les importer maintenant ?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::SymbolPathsDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Dialog</source>
         <translation>Boîte de dialogue</translation>
@@ -67438,7 +62413,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbPathsPageWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Symbol Paths</source>
         <translation>Chemins des symboles</translation>
@@ -67449,14 +62424,14 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbPathsPage</name>
+    <name>Debugger</name>
     <message>
         <source>CDB Paths</source>
         <translation>Chemins CDB</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CommonOptionsPageWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Behavior</source>
         <translation>Comportement</translation>
@@ -67547,14 +62522,14 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Debugger::DebuggerRunConfigurationAspect</name>
+    <name>Debugger</name>
     <message>
         <source>Debugger settings</source>
         <translation>Paramètres du débogueur</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbOptionsPage2</name>
+    <name>Debugger</name>
     <message>
         <source>GDB Extended</source>
         <translation>GDB étendu</translation>
@@ -67584,7 +62559,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::LldbEngine</name>
+    <name>Debugger</name>
     <message>
         <source>Unable to start lldb &apos;%1&apos;: %2</source>
         <translatorcomment>LLDB au lieu de lldb, comme sur le site http://lldb.llvm.org/</translatorcomment>
@@ -67593,14 +62568,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     <message>
         <source>Unable to start LLDB &quot;%1&quot;: %2</source>
         <translation>Impossible de démarrer LLDB &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Adapter start failed.</source>
-        <translation>Démarrage de l&apos;adaptateur a échoué.</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation>Exécution demandée…</translation>
     </message>
     <message>
         <source>Interrupt requested...</source>
@@ -67631,16 +62598,8 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <translation>Le démarrage de l&apos;adaptateur a échoué</translation>
     </message>
     <message>
-        <source>&apos;%1&apos; contains no identifier.</source>
-        <translation>&quot;%1&quot; ne contient pas d&apos;identifiant.</translation>
-    </message>
-    <message>
         <source>String literal %1</source>
         <translation>Chaîne de caractères %1</translation>
-    </message>
-    <message>
-        <source>Cowardly refusing to evaluate expression &apos;%1&apos; with potential side effects.</source>
-        <translation>Refuse lâchement d&apos;évaluer l&apos;expression &quot;%1&quot;, qui pourrait avoir des effets de bord.</translation>
     </message>
     <message>
         <source>Lldb I/O Error</source>
@@ -67653,10 +62612,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     <message>
         <source>The Lldb process crashed some time after starting successfully.</source>
         <translation>Le processus LLDB a crashé après avoir démarré correctement.</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>La dernière fonction waitFor...() est arrivé à échéance. Le statut de QProcess est inchangé, vous pouvez essayer d&apos;appeler waitFor...() à nouveau.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the Lldb process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -71042,7 +65997,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerOptionsPage</name>
+    <name>Debugger</name>
     <message>
         <source>Not recognized</source>
         <translation>Non reconnu</translation>
@@ -71060,10 +66015,6 @@ réinitialisation du moniteur</translation>
         <translation>Cloner</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
-    </message>
-    <message>
         <source>Clone of %1</source>
         <translation>Clone de %1</translation>
     </message>
@@ -71071,9 +66022,6 @@ réinitialisation du moniteur</translation>
         <source>New Debugger</source>
         <translation>Nouveau débogueur</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::DebuggerItemManager</name>
     <message>
         <source>Auto-detected CDB at %1</source>
         <translation>Autodétection CDB à %1</translation>
@@ -71087,9 +66035,6 @@ réinitialisation du moniteur</translation>
         <source>Extracted from Kit %1</source>
         <translation>Extrait depuis le kit %1</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerItemModel</name>
     <message>
         <source>Auto-detected</source>
         <translation>Autodétecté</translation>
@@ -71097,10 +66042,6 @@ réinitialisation du moniteur</translation>
     <message>
         <source>Manual</source>
         <translation>Manuel</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Nom</translation>
     </message>
     <message>
         <source>Path</source>
@@ -71112,11 +66053,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerItemConfigWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation>Nom :</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Path:</source>
         <translation>Chemin :</translation>
@@ -71133,14 +66070,6 @@ réinitialisation du moniteur</translation>
         <source>32-bit version</source>
         <translation>Version 32 bits</translation>
     </message>
-    <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger executable&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
-        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Spécifier le chemin de &lt;a href=&quot;%1&quot;&gt;l&apos;exécutable du débogueur en console de Windows&lt;/a&gt; (%2) ici.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>DebuggerCore</name>
     <message>
         <source>Open Qt Options</source>
         <translation>Ouvrir les options de Qt</translation>
@@ -71167,7 +66096,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbPlainEngine</name>
+    <name>Debugger</name>
     <message>
         <source>Starting executable failed:</source>
         <translation>Échec du lancement de l&apos;exécutable :</translation>

@@ -26,7 +26,6 @@
 #pragma once
 
 #include "debugger_global.h"
-#include "debuggerconstants.h"
 
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -38,8 +37,6 @@ namespace Internal { class DebuggerLanguageAspect; }
 class DEBUGGER_EXPORT DebuggerRunConfigurationAspect
     : public ProjectExplorer::GlobalOrProjectAspect
 {
-    Q_OBJECT
-
 public:
     DebuggerRunConfigurationAspect(ProjectExplorer::Target *target);
     ~DebuggerRunConfigurationAspect();

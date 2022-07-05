@@ -28,14 +28,13 @@
 #include <QMap>
 #include <QString>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class DebuggerRunParameters;
 using SourcePathMap = QMap<QString, QString>;
+
 /* Merge settings for an installed Qt (unless another setting
  * is already in the map. */
 SourcePathMap mergePlatformQtPath(const DebuggerRunParameters &sp, const SourcePathMap &in);
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

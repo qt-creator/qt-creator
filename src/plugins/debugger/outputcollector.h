@@ -33,14 +33,7 @@ class QLocalSocket;
 class QSocketNotifier;
 QT_END_NAMESPACE
 
-namespace Debugger {
-namespace Internal {
-
-///////////////////////////////////////////////////////////////////////
-//
-// OutputCollector
-//
-///////////////////////////////////////////////////////////////////////
+namespace Debugger::Internal {
 
 class OutputCollector : public QObject
 {
@@ -71,5 +64,4 @@ private:
 #endif
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

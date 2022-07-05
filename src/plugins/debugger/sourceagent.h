@@ -27,11 +27,9 @@
 
 #include <QString>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class DebuggerEngine;
-class SourceAgentPrivate;
 
 class SourceAgent
 {
@@ -42,9 +40,9 @@ public:
     void resetLocation();
     void setContent(const QString &name, const QString &content);
     void updateLocationMarker();
+
 private:
-    SourceAgentPrivate *d;
+    class SourceAgentPrivate *d;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

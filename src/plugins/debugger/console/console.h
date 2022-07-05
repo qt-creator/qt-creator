@@ -41,8 +41,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class BoolAspect; }
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 using ScriptEvaluator = std::function<void (QString)>;
 
@@ -51,15 +50,13 @@ class ConsoleView;
 
 class Console final : public Core::IOutputPane
 {
-    Q_OBJECT
-
 public:
     Console();
     ~Console() override;
 
     QWidget *outputWidget(QWidget *) override;
     QList<QWidget *> toolBarWidgets() const override;
-    QString displayName() const override { return tr("QML Debugger Console"); }
+    QString displayName() const override;
     int priorityInStatusBar() const override;
     void clearContents() override;
     bool canFocus() const override;
@@ -101,5 +98,4 @@ private:
 
 Console *debuggerConsole();
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

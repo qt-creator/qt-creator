@@ -25,15 +25,12 @@
 
 #include "stackwindow.h"
 
-#include "debuggeractions.h"
-#include "debuggercore.h"
 #include "stackhandler.h"
 
 #include <QAction>
 #include <QHeaderView>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 StackTreeView::StackTreeView(QWidget *parent)
     : BaseTreeView(parent)
@@ -80,5 +77,4 @@ void StackTreeView::adjustForContents(bool refreshSpan)
     m_contentsAdjusted = true;
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

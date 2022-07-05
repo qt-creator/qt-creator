@@ -28,14 +28,7 @@
 #include <QFontMetrics>
 #include <QFont>
 
-namespace Debugger {
-namespace Internal {
-
-///////////////////////////////////////////////////////////////////////
-//
-// ConsoleItemModel
-//
-///////////////////////////////////////////////////////////////////////
+namespace Debugger::Internal {
 
 ConsoleItemModel::ConsoleItemModel(QObject *parent) :
     Utils::TreeModel<>(new ConsoleItem, parent)
@@ -103,5 +96,4 @@ int ConsoleItemModel::sizeOfLineNumber(const QFont &font)
     return fm.horizontalAdvance("88888");
 }
 
-} // Internal
-} // Debugger
+} // Debugger::Internal

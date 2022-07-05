@@ -31,6 +31,7 @@
 #include "debuggerengine.h"
 #include "debuggericons.h"
 #include "debuggerprotocol.h"
+#include "debuggertr.h"
 #include "memoryagent.h"
 #include "simplifytype.h"
 
@@ -54,8 +55,7 @@
 
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 /*!
     \class Debugger::Internal::StackHandler
@@ -67,7 +67,7 @@ StackHandler::StackHandler(DebuggerEngine *engine)
   : m_engine(engine)
 {
     setObjectName("StackModel");
-    setHeader({tr("Level"), tr("Function"), tr("File"), tr("Line"), tr("Address") });
+    setHeader({Tr::tr("Level"), Tr::tr("Function"), Tr::tr("File"), Tr::tr("Line"), Tr::tr("Address") });
 
     connect(debuggerSettings()->expandStack.action(), &QAction::triggered,
             this, &StackHandler::reloadFullStack);
@@ -83,9 +83,9 @@ StackHandler::~StackHandler() = default;
 QVariant SpecialStackItem::data(int column, int role) const
 {
     if (role == Qt::DisplayRole && column == StackLevelColumn)
-        return StackHandler::tr("...");
+        return Tr::tr("...");
     if (role == Qt::DisplayRole && column == StackFunctionNameColumn)
-        return StackHandler::tr("<More>");
+        return Tr::tr("<More>");
     if (role == Qt::DecorationRole && column == StackLevelColumn)
         return Icons::EMPTY.icon();
     return QVariant();
@@ -334,8 +334,8 @@ static StackFrame inputFunctionForDisassembly()
     StackFrame frame;
     QInputDialog dialog;
     dialog.setInputMode(QInputDialog::TextInput);
-    dialog.setLabelText(StackHandler::tr("Function:"));
-    dialog.setWindowTitle(StackHandler::tr("Disassemble Function"));
+    dialog.setLabelText(Tr::tr("Function:"));
+    dialog.setWindowTitle(Tr::tr("Disassemble Function"));
     if (dialog.exec() != QDialog::Accepted)
         return frame;
     const QString function = dialog.textValue();
@@ -422,9 +422,9 @@ void StackHandler::saveTaskFile()
         const QString fileName = fileDialog.selectedFiles().constFirst();
         file.setFileName(fileName);
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            QString msg = tr("Cannot open \"%1\": %2")
+            QString msg = Tr::tr("Cannot open \"%1\": %2")
                     .arg(QDir::toNativeSeparators(fileName), file.errorString());
-            Core::AsynchronousMessageBox::warning(tr("Cannot Open Task File"), msg);
+            Core::AsynchronousMessageBox::warning(Tr::tr("Cannot Open Task File"), msg);
         }
     }
 
@@ -448,43 +448,43 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
 
     menu->addAction(debuggerSettings()->expandStack.action());
 
-    addAction(this, menu, tr("Copy Contents to Clipboard"), true, [ev] {
+    addAction(this, menu, Tr::tr("Copy Contents to Clipboard"), true, [ev] {
         setClipboardAndSelection(selectedText(ev.view(), true));
     });
 
-    addAction(this, menu, tr("Copy Selection to Clipboard"), true, [ev] {
+    addAction(this, menu, Tr::tr("Copy Selection to Clipboard"), true, [ev] {
         setClipboardAndSelection(selectedText(ev.view(), false));
     });
 
-    addAction(this, menu, tr("Save as Task File..."), true, [this] { saveTaskFile(); });
+    addAction(this, menu, Tr::tr("Save as Task File..."), true, [this] { saveTaskFile(); });
 
     if (m_engine->hasCapability(CreateFullBacktraceCapability))
         menu->addAction(debuggerSettings()->createFullBacktrace.action());
 
     if (m_engine->hasCapability(AdditionalQmlStackCapability))
-        addAction(this, menu, tr("Load QML Stack"), true, [this] { m_engine->loadAdditionalQmlStack(); });
+        addAction(this, menu, Tr::tr("Load QML Stack"), true, [this] { m_engine->loadAdditionalQmlStack(); });
 
     if (m_engine->hasCapability(ShowMemoryCapability))
-        addAction(this, menu, tr("Open Memory Editor at 0x%1").arg(address, 0, 16),
-                  tr("Open Memory Editor"),
+        addAction(this, menu, Tr::tr("Open Memory Editor at 0x%1").arg(address, 0, 16),
+                  Tr::tr("Open Memory Editor"),
                   address,
                   [this, row, frame, address] {
                         MemoryViewSetupData data;
                         data.startAddress = address;
-                        data.title = tr("Memory at Frame #%1 (%2) 0x%3")
+                        data.title = Tr::tr("Memory at Frame #%1 (%2) 0x%3")
                                         .arg(row).arg(frame.function).arg(address, 0, 16);
                         data.markup.push_back(MemoryMarkup(address, 1, QColor(Qt::blue).lighter(),
-                                                  tr("Frame #%1 (%2)").arg(row).arg(frame.function)));
+                                                  Tr::tr("Frame #%1 (%2)").arg(row).arg(frame.function)));
                         m_engine->openMemoryView(data);
                    });
 
     if (m_engine->hasCapability(DisassemblerCapability)) {
-        addAction(this, menu, tr("Open Disassembler at 0x%1").arg(address, 0, 16),
-                  tr("Open Disassembler"),
+        addAction(this, menu, Tr::tr("Open Disassembler at 0x%1").arg(address, 0, 16),
+                  Tr::tr("Open Disassembler"),
                   address,
                   [this, frame] { m_engine->openDisassemblerView(frame); });
 
-        addAction(this, menu, tr("Open Disassembler at Address..."), true,
+        addAction(this, menu, Tr::tr("Open Disassembler at Address..."), true,
                   [this, address] {
                         AddressDialog dialog;
                         if (address)
@@ -493,7 +493,7 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
                             m_engine->openDisassemblerView(Location(dialog.address()));
                    });
 
-        addAction(this, menu, tr("Disassemble Function..."), true,
+        addAction(this, menu, Tr::tr("Disassemble Function..."), true,
                   [this] {
                         const StackFrame frame = inputFunctionForDisassembly();
                         if (!frame.function.isEmpty())
@@ -502,7 +502,7 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
     }
 
     if (m_engine->hasCapability(ShowModuleSymbolsCapability)) {
-        addAction(this, menu, tr("Try to Load Unknown Symbols"), true,
+        addAction(this, menu, Tr::tr("Try to Load Unknown Symbols"), true,
                   [this] { m_engine->loadSymbolsForStack(); });
     }
 
@@ -519,5 +519,4 @@ void StackHandler::reloadFullStack()
     m_engine->reloadFullStack();
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

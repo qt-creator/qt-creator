@@ -32,8 +32,7 @@
 
 enum { debug = 0 };
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 // Basic watch line edit.
 WatchLineEdit::WatchLineEdit(QWidget *parent)
@@ -337,5 +336,4 @@ void BooleanComboBox::setModelData(const QVariant &v)
     setCurrentIndex(value ? 1 : 0);
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

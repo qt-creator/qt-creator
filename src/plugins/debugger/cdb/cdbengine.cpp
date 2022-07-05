@@ -39,6 +39,7 @@
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggertooltipmanager.h>
+#include <debugger/debuggertr.h>
 #include <debugger/disassembleragent.h>
 #include <debugger/disassemblerlines.h>
 #include <debugger/enginemanager.h>
@@ -303,7 +304,7 @@ void CdbEngine::createFullBacktrace()
 void CdbEngine::handleSetupFailure(const QString &errorMessage)
 {
     showMessage(errorMessage, LogError);
-    Core::AsynchronousMessageBox::critical(tr("Failed to Start the Debugger"), errorMessage);
+    Core::AsynchronousMessageBox::critical(Tr::tr("Failed to Start the Debugger"), errorMessage);
     notifyEngineSetupFailed();
 }
 
@@ -337,7 +338,7 @@ void CdbEngine::setupEngine()
     // The extension is passed as relative name with the path variable set
     //(does not work with absolute path names)
     if (sp.debugger.command.isEmpty()) {
-        handleSetupFailure(tr("There is no CDB executable specified."));
+        handleSetupFailure(Tr::tr("There is no CDB executable specified."));
         return;
     }
 
@@ -353,7 +354,7 @@ void CdbEngine::setupEngine()
         m_wow64State = noWow64Stack;
     const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit, cdbIsArm));
     if (!extensionFi.isFile()) {
-        handleSetupFailure(tr("Internal error: The extension %1 cannot be found.\n"
+        handleSetupFailure(Tr::tr("Internal error: The extension %1 cannot be found.\n"
                            "If you have updated %2 via Maintenance Tool, you may "
                            "need to rerun the Tool and select \"Add or remove components\" "
                            "and then select the "
@@ -1638,14 +1639,14 @@ enum StopActionFlags
 static inline QString msgTracePointTriggered(const Breakpoint &, const QString &displayName,
                                              const QString &threadId)
 {
-    return CdbEngine::tr("Trace point %1 in thread %2 triggered.")
+    return Tr::tr("Trace point %1 in thread %2 triggered.")
             .arg(displayName).arg(threadId);
 }
 
 static inline QString msgCheckingConditionalBreakPoint(const Breakpoint &bp, const QString &displayName,
                                                        const QString &threadId)
 {
-    return CdbEngine::tr("Conditional breakpoint %1 in thread %2 triggered, examining expression \"%3\".")
+    return Tr::tr("Conditional breakpoint %1 in thread %2 triggered, examining expression \"%3\".")
             .arg(displayName).arg(threadId, bp->condition());
 }
 
@@ -1662,7 +1663,7 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
         qDebug("%s", qPrintable(stopReason.toString(true, 4)));
     const QString reason = stopReason["reason"].data();
     if (reason.isEmpty()) {
-        *message = tr("Malformed stop response received.");
+        *message = Tr::tr("Malformed stop response received.");
         rc |= StopReportParseError|StopNotifyStop;
         return rc;
     }
@@ -1806,7 +1807,7 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
         m_sourceStepInto = false;
         // Start sequence to get all relevant data.
         if (stopFlags & StopInArtificialThread) {
-            showMessage(tr("Switching to main thread..."), LogMisc);
+            showMessage(Tr::tr("Switching to main thread..."), LogMisc);
             runCommand({"~0 s", NoFlags});
             forcedThread = true;
             // Re-fetch stack again.
@@ -2169,7 +2170,7 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, c
             const Task::TaskType type =
                     isFatalWinException(exception.exceptionCode) ? Task::Error : Task::Warning;
             const FilePath fileName = FilePath::fromUserInput(exception.file);
-            const QString taskEntry = tr("Debugger encountered an exception: %1").arg(
+            const QString taskEntry = Tr::tr("Debugger encountered an exception: %1").arg(
                         exception.toString(false).trimmed());
             TaskHub::addTask(Task(type, taskEntry,
                                   fileName, exception.lineNumber,
@@ -2251,7 +2252,7 @@ void CdbEngine::checkQtSdkPdbFiles(const QString &module)
             return;
 
         const QString message
-            = tr("The installed %1 is missing debug information files.\n"
+            = Tr::tr("The installed %1 is missing debug information files.\n"
                  "Locals and Expression might not be able to display all Qt Types in a "
                  "human readable format.\n\n"
                  "Please install the \"Qt Debug Information Files\" Package from the "
@@ -2261,7 +2262,7 @@ void CdbEngine::checkQtSdkPdbFiles(const QString &module)
 
         CheckableMessageBox::doNotShowAgainInformation(
             Core::ICore::dialogParent(),
-            tr("Missing Qt Debug Information"),
+            Tr::tr("Missing Qt Debug Information"),
             message,
             Core::ICore::settings(),
             "CdbQtSdkPdbHint");
@@ -2384,7 +2385,7 @@ void CdbEngine::parseOutputLine(QString line)
         const QRegularExpressionMatch match = moduleRegExp.match(line);
         if (match.hasMatch()) {
             const QString module = match.captured(3).trimmed();
-            showStatusMessage(tr("Module loaded: %1").arg(module), 3000);
+            showStatusMessage(Tr::tr("Module loaded: %1").arg(module), 3000);
             checkQtSdkPdbFiles(module);
         }
     } else {
@@ -2818,9 +2819,9 @@ void CdbEngine::handleExpression(const DebuggerResponse &response, const Breakpo
         showMessage(response.data["msg"].data(), LogError);
     // Is this a conditional breakpoint?
     const QString message = value ?
-        tr("Value %1 obtained from evaluating the condition of breakpoint %2, stopping.").
+        Tr::tr("Value %1 obtained from evaluating the condition of breakpoint %2, stopping.").
         arg(value).arg(bp->displayName()) :
-        tr("Value 0 obtained from evaluating the condition of breakpoint %1, continuing.").
+        Tr::tr("Value 0 obtained from evaluating the condition of breakpoint %1, continuing.").
         arg(bp->displayName());
     showMessage(message, LogMisc);
     // Stop if evaluation is true, else continue

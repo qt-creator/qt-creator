@@ -27,13 +27,11 @@
 
 #include <QString>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 // Simplify complicated STL template types, such as
 // 'std::basic_string<char,std::char_traits<char>,std::allocator<char> > '->
 // 'std::string'.
 QString simplifyType(const QString &typeIn);
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

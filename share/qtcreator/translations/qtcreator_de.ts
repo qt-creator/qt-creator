@@ -1616,17 +1616,9 @@ Trotzdem fortfahren?</translation>
 <context>
     <name>Debugger</name>
     <message>
-        <source>General</source>
-        <translation>Allgemein</translation>
-    </message>
-    <message>
         <source>Locals &amp;&amp; Expressions</source>
         <extracomment>&apos;&amp;&amp;&apos; will appear as one (one is marking keyboard shortcut)</extracomment>
         <translation>Lokale Variablen &amp;&amp; Ausdrücke</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation>Debugger</translation>
     </message>
     <message>
         <source>&lt;Encoding error&gt;</source>
@@ -1668,7 +1660,7 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AddressDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Select Start Address</source>
         <translation>Startadresse</translation>
@@ -1677,9 +1669,6 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
         <source>Enter an address:</source>
         <translation>Adresse:</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::AttachCoreDialog</name>
     <message>
         <source>Load Core File</source>
         <translation>Core-Datei laden</translation>
@@ -1695,10 +1684,6 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>&amp;Executable or symbol file:</source>
         <translation>&amp;Ausführbare Datei oder Symboldatei:</translation>
-    </message>
-    <message>
-        <source>Override S&amp;ysRoot:</source>
-        <translation>S&amp;ysRoot überschreiben:</translation>
     </message>
     <message>
         <source>Select Remote Core File</source>
@@ -1721,10 +1706,6 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
         <translation>Startskript auswählen</translation>
     </message>
     <message>
-        <source>Select SysRoot Directory</source>
-        <translation>SysRoot-Verzeichnis auswählen</translation>
-    </message>
-    <message>
         <source>This option can be used to override the kit&apos;s SysRoot setting</source>
         <translation>Diese Option kann verwendet werden, um die SysRoot-Einstellung des Kits zu überschreiben</translation>
     </message>
@@ -1738,7 +1719,7 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BreakHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Marker File:</source>
         <translation>Marker-Datei:</translation>
@@ -2018,38 +1999,6 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
         <translation>Breakpoint-Änderungen auch für nächsten Lauf verwenden</translation>
     </message>
     <message>
-        <source>&amp;Condition:</source>
-        <translation>&amp;Bedingung:</translation>
-    </message>
-    <message>
-        <source>Add Breakpoint...</source>
-        <translation>Haltepunkt setzen...</translation>
-    </message>
-    <message>
-        <source>Delete Selected Breakpoints</source>
-        <translation>Ausgewählte Haltepunkte löschen</translation>
-    </message>
-    <message>
-        <source>Edit Selected Breakpoints...</source>
-        <translation>Ausgewählte Haltepunkte bearbeiten...</translation>
-    </message>
-    <message>
-        <source>Disable Selected Breakpoints</source>
-        <translation>Ausgewählte Haltepunkte deaktivieren</translation>
-    </message>
-    <message>
-        <source>Enable Selected Breakpoints</source>
-        <translation>Ausgewählte Haltepunkte aktivieren</translation>
-    </message>
-    <message>
-        <source>Disable Breakpoint</source>
-        <translation>Haltepunkt deaktivieren</translation>
-    </message>
-    <message>
-        <source>Enable Breakpoint</source>
-        <translation>Haltepunkt aktivieren</translation>
-    </message>
-    <message>
         <source>Disable Selected Locations</source>
         <translation>Ausgewählte Adressen deaktivieren</translation>
     </message>
@@ -2106,18 +2055,6 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
         <translation>Zeilennummer:</translation>
     </message>
     <message>
-        <source>Module:</source>
-        <translation>Modul:</translation>
-    </message>
-    <message>
-        <source>Command:</source>
-        <translation>Kommando:</translation>
-    </message>
-    <message>
-        <source>Message:</source>
-        <translation>Meldung:</translation>
-    </message>
-    <message>
         <source>Condition:</source>
         <translation>Bedingung:</translation>
     </message>
@@ -2162,28 +2099,12 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
         <translation>Debugger-Kommandos, die beim Auslösen eines Haltepunkts ausgeführt werden (nur GDB).</translation>
     </message>
     <message>
-        <source>Function</source>
-        <translation>Funktion</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Datei</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>Zeile</translation>
-    </message>
-    <message>
         <source>Condition</source>
         <translation>Bedingung</translation>
     </message>
     <message>
         <source>Ignore</source>
         <translation>Anhalten nach</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adresse</translation>
     </message>
     <message>
         <source>Threads</source>
@@ -2215,7 +2136,7 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbOptionsPageWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Additional &amp;arguments:</source>
         <translation>Zusätzliche &amp;Argumente:</translation>
@@ -2279,7 +2200,7 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbSymbolPathListEditor</name>
+    <name>Debugger</name>
     <message>
         <source>Insert Symbol Server...</source>
         <translation>Symbol-Server einfügen...</translation>
@@ -2306,7 +2227,7 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerSettings</name>
+    <name>Debugger</name>
     <message>
         <source>Use Alternating Row Colors</source>
         <translation>Alternierende Farben für Zeilen benutzen</translation>
@@ -2505,7 +2426,7 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbEngine</name>
+    <name>Debugger</name>
     <message>
         <source>Reading %1...</source>
         <translation>Lese %1...</translation>
@@ -2693,10 +2614,6 @@ Sie haben die Wahl zu warten oder das Debuggen abzubrechen.</numerusform>
         <translation>Trotzdem fortsetzen.</translation>
     </message>
     <message>
-        <source>Stopped.</source>
-        <translation>Angehalten.</translation>
-    </message>
-    <message>
         <source>Execution Error</source>
         <translation>Fehler bei der Ausführung</translation>
     </message>
@@ -2864,7 +2781,7 @@ Sie haben die Wahl zu warten oder das Debuggen abzubrechen.</numerusform>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbOptionsPage</name>
+    <name>Debugger</name>
     <message>
         <source>General</source>
         <translation>Allgemein</translation>
@@ -3024,7 +2941,7 @@ markers in the source code editor.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::OutputCollector</name>
+    <name>Debugger</name>
     <message>
         <source>Cannot create temporary file: %1</source>
         <translation>Es konnte keine temporäre Datei erstellt werden: %1</translation>
@@ -3039,7 +2956,7 @@ markers in the source code editor.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::RegisterHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Content as ASCII Characters</source>
         <translation>Inhalt als ASCII-Zeichen</translation>
@@ -3069,10 +2986,6 @@ markers in the source code editor.</source>
         <translation>Inhalt als %1&amp;nbsp;bit&amp;nbsp;Gleitkommazahlen</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Name</translation>
-    </message>
-    <message>
         <source>Value</source>
         <translation>Wert</translation>
     </message>
@@ -3087,22 +3000,6 @@ markers in the source code editor.</source>
     <message>
         <source>Open Memory View at Value of Register</source>
         <translation>Speicheranzeige bei Wert von Register öffnen</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at 0x%1</source>
-        <translation>Speichereditor bei 0x%1 öffnen</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor</source>
-        <translation>Speichereditor öffnen</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at 0x%1</source>
-        <translation>Disassembler bei 0x%1 öffnen</translation>
-    </message>
-    <message>
-        <source>Open Disassembler</source>
-        <translation>Disassembler öffnen</translation>
     </message>
     <message>
         <source>Open Disassembler...</source>
@@ -3130,7 +3027,7 @@ markers in the source code editor.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::StackHandler</name>
+    <name>Debugger</name>
     <message>
         <source>...</source>
         <translation>...</translation>
@@ -3277,7 +3174,7 @@ markers in the source code editor.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::ThreadsHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Thread&amp;nbsp;id:</source>
         <translation>Thread-ID:</translation>
@@ -3289,14 +3186,6 @@ markers in the source code editor.</source>
     <message>
         <source>Group&amp;nbsp;id:</source>
         <translation>Gruppen-ID:</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Name:</translation>
-    </message>
-    <message>
-        <source>State:</source>
-        <translation>Status:</translation>
     </message>
     <message>
         <source>Core:</source>
@@ -3315,22 +3204,6 @@ markers in the source code editor.</source>
         <translation>Ziel-ID</translation>
     </message>
     <message>
-        <source>Function</source>
-        <translation>Funktion</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Datei</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>Zeile</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adresse</translation>
-    </message>
-    <message>
         <source>Core</source>
         <translation>Prozessorkern</translation>
     </message>
@@ -3342,13 +3215,6 @@ markers in the source code editor.</source>
         <source>Details</source>
         <translation>Details</translation>
     </message>
-    <message>
-        <source>Name</source>
-        <translation>Name</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Expression</source>
         <translation>Ausdruck</translation>
@@ -3441,10 +3307,6 @@ markers in the source code editor.</source>
     <message>
         <source>Debugger - %1</source>
         <translation>Debugger - %1</translation>
-    </message>
-    <message>
-        <source>Locals</source>
-        <translation>Lokale Variablen</translation>
     </message>
     <message>
         <source>Inspector</source>
@@ -3649,10 +3511,6 @@ markers in the source code editor.</source>
         <translation>Das Programm anhalten, wenn Daten an der von diesem Ausdruck angegebenen Adresse verändert werden.</translation>
     </message>
     <message>
-        <source>Open Memory Editor</source>
-        <translation>Speichereditor öffnen</translation>
-    </message>
-    <message>
         <source>Open Memory View at Object&apos;s Address (0x%1)</source>
         <translation>Speicheranzeige an der Adresse des Objekts (0x%1) öffnen</translation>
     </message>
@@ -3823,18 +3681,6 @@ markers in the source code editor.</source>
     <message>
         <source>returned value</source>
         <translation>Rückgabewert</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Name</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Wert</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Typ</translation>
     </message>
     <message numerus="yes">
         <source>Array of %n items</source>
@@ -11096,11 +10942,7 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::PdbEngine</name>
-    <message>
-        <source>Running requested...</source>
-        <translation>Fortsetzung angefordert...</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Adapter start failed</source>
         <translation>Der Start des Adapters schlug fehl</translation>
@@ -11124,10 +10966,6 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
     <message>
         <source>The Pdb process crashed some time after starting successfully.</source>
         <translation>Der Pdb-Prozess ist einige Zeit nach dem Start abgestürzt.</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>Zeitüberschreitung bei der letzten waitFor...()-Funktion. Der Status des QProcess ist unverändert, und waitFor...() kann noch einmal gerufen werden.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the Pdb process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -11768,7 +11606,7 @@ Flags: %3</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbEngine</name>
+    <name>Debugger</name>
     <message>
         <source>Failed to Start the Debugger</source>
         <translation>Der Debugger konnte nicht gestartet werden</translation>
@@ -11823,14 +11661,10 @@ Wenn Sie %2 aus den Quelltexten erstellen und eine ausführbare CDB-Datei mit ei
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CacheDirectoryDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Select Local Cache Folder</source>
         <translation>Wählen Sie ein lokales Cache-Verzeichnis aus</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>Pfad:</translation>
     </message>
     <message>
         <source>Already Exists</source>
@@ -11850,7 +11684,7 @@ Wenn Sie %2 aus den Quelltexten erstellen und eine ausführbare CDB-Datei mit ei
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::SourceFilesHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Internal Name</source>
         <translation>Interner Name</translation>
@@ -12189,7 +12023,7 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerPane</name>
+    <name>Debugger</name>
     <message>
         <source>Clear Contents</source>
         <translation>Inhalt löschen</translation>
@@ -12204,14 +12038,14 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::InputPane</name>
+    <name>Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Sie können eine Zeile mittels &lt;Strg+Return&gt; ausführen.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::LogWindow</name>
+    <name>Debugger</name>
     <message>
         <source>Debugger &amp;Log</source>
         <translation>Debugger-&amp;Log</translation>
@@ -12636,7 +12470,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::StartRemoteCdbDialog</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching %1 CDB extension (&lt;code&gt;%2&lt;/code&gt; or &lt;code&gt;%3&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%4&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%5 &amp;lt;executable&amp;gt;&lt;/code&gt; to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%6&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Der entfernte CDB muss die passende CDB-Erweiterungsbibliothek von %1 (&lt;code&gt;%2&lt;/code&gt; beziehungsweise &lt;code&gt;%3&lt;/code&gt;) laden.&lt;/p&gt;&lt;p&gt;Kopieren Sie sie auf den entfernten Rechner und setzen Sie die Umgebungsvariable &lt;code&gt;%4&lt;/code&gt; auf das Verzeichnis.&lt;/p&gt;&lt;p&gt;Starten Sie den entfernten CDB als &lt;code&gt;%5 &amp;lt;ausführbare Datei&amp;gt;&lt;/code&gt; um TCP/IP als Kommunikationsprotokoll zu verwenden.&lt;/p&gt;&lt;p&gt;Geben Sie die Verbindungsparameter wie folgt an:&lt;/p&gt;&lt;pre&gt;%6&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -12651,7 +12485,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerPluginPrivate</name>
+    <name>Debugger</name>
     <message>
         <source>Process %1</source>
         <extracomment>%1: PID</extracomment>
@@ -12722,16 +12556,8 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
         <translation>Funktion &quot;%1&quot; disassemblieren</translation>
     </message>
     <message>
-        <source>Add Expression Evaluator</source>
-        <translation>Ausdruck auswerten</translation>
-    </message>
-    <message>
         <source>Error evaluating command line arguments: %1</source>
         <translation>Fehler beim Auswerten der Kommandozeilenargumente: %1</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>Warnung</translation>
     </message>
     <message>
         <source>0x%1 hit</source>
@@ -12793,50 +12619,6 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     <message>
         <source>F5</source>
         <translation>F5</translation>
-    </message>
-    <message>
-        <source>Continue</source>
-        <translation>Fortsetzen</translation>
-    </message>
-    <message>
-        <source>Interrupt</source>
-        <translation>Anhalten</translation>
-    </message>
-    <message>
-        <source>Abort Debugging</source>
-        <translation>Debuggen abbrechen</translation>
-    </message>
-    <message>
-        <source>Step Over</source>
-        <translation>Einzelschritt über</translation>
-    </message>
-    <message>
-        <source>Step Into</source>
-        <translation>Einzelschritt herein</translation>
-    </message>
-    <message>
-        <source>Step Out</source>
-        <translation>Einzelschritt heraus</translation>
-    </message>
-    <message>
-        <source>Run to Line</source>
-        <translation>Ausführen bis Zeile</translation>
-    </message>
-    <message>
-        <source>Run to Selected Function</source>
-        <translation>Bis zu ausgewählter Funktion laufen</translation>
-    </message>
-    <message>
-        <source>Immediately Return From Inner Function</source>
-        <translation>Sofortiges Herausspringen aus innerer Funktion</translation>
-    </message>
-    <message>
-        <source>Jump to Line</source>
-        <translation>Zeile anspringen</translation>
-    </message>
-    <message>
-        <source>Toggle Breakpoint</source>
-        <translation>Haltepunkt umschalten</translation>
     </message>
     <message>
         <source>Move to Called Frame</source>
@@ -13020,7 +12802,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::MemoryAgent</name>
+    <name>Debugger</name>
     <message>
         <source>Memory at Register &quot;%1&quot; (0x%2)</source>
         <translation>Speicher bei Register &quot;%1&quot; (0x%2)</translation>
@@ -13035,7 +12817,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QmlEngine</name>
+    <name>Debugger</name>
     <message>
         <source>No application output received in time</source>
         <translation>In der gegebenen Zeit wurde keine Ausgabe der Anwendung empfangen</translation>
@@ -14339,7 +14121,7 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerSourcePathMappingWidget</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;new source&gt;</source>
         <translation>&lt;neue Quelle&gt;</translation>
@@ -14355,10 +14137,6 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     <message>
         <source>Target path</source>
         <translation>Zielpfad</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Hinzufügen</translation>
     </message>
     <message>
         <source>Add Qt sources...</source>
@@ -17426,7 +17204,7 @@ Außer: %3
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbBreakEventWidget</name>
+    <name>Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>C++-Ausnahme</translation>
@@ -17749,22 +17527,14 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AttachToQmlPortDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation>Debugger starten</translation>
-    </message>
-    <message>
-        <source>Kit:</source>
-        <translation>Kit:</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>&amp;Port:</source>
         <translation>&amp;Port:</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::StartRemoteEngineDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Start Remote Engine</source>
         <translation>Entfernte Engine starten</translation>
@@ -18605,11 +18375,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::TypeFormatsDialog</name>
-    <message>
-        <source>Reset</source>
-        <translation>Zurücksetzen</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Type Formats</source>
         <translation>Formate der Datentypen</translation>
@@ -19757,14 +19523,14 @@ manuellen Herunterladen im Browser des System zu öffnen.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::SelectRemoteFileDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Download of remote file succeeded.</source>
         <translation>Die Datei wurde erfolgreich heruntergeladen.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::ModulesHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Module Name</source>
         <translation>Modulname</translation>
@@ -19791,7 +19557,7 @@ manuellen Herunterladen im Browser des System zu öffnen.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QmlInspectorAgent</name>
+    <name>Debugger</name>
     <message>
         <source>Success:</source>
         <translation>Erfolg:</translation>
@@ -20812,7 +20578,7 @@ hinzufügen, um dem QML-Editor den wahrscheinlichen URI mitzuteilen.</translatio
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::StartApplicationDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>Debugger starten</translation>
@@ -20897,10 +20663,6 @@ hinzufügen, um dem QML-Editor den wahrscheinlichen URI mitzuteilen.</translatio
     <message>
         <source>Command line &amp;arguments:</source>
         <translation>Kommandozeilen&amp;argumente:</translation>
-    </message>
-    <message>
-        <source>&amp;Working directory:</source>
-        <translation>Arbeits&amp;verzeichnis:</translation>
     </message>
     <message>
         <source>Run in &amp;terminal:</source>
@@ -23107,7 +22869,7 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::DebuggerRunConfigurationAspect</name>
+    <name>Debugger</name>
     <message>
         <source>Debugger settings</source>
         <translation>Debuggereinstellungen</translation>
@@ -23132,20 +22894,9 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
         <source>Additional startup commands:</source>
         <translation>Zusätzliche Kommandos beim Start:</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::LldbEngine</name>
     <message>
         <source>Unable to start LLDB &quot;%1&quot;: %2</source>
         <translation>LLDB &quot;%1&quot; konnte nicht gestartet werden: %2</translation>
-    </message>
-    <message>
-        <source>Setting up inferior...</source>
-        <translation>Bereite zu debuggenden Prozess vor...</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation>Fortsetzung angefordert...</translation>
     </message>
     <message>
         <source>Interrupt requested...</source>
@@ -23178,10 +22929,6 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     <message>
         <source>An error occurred when attempting to write to the LLDB process. For example, the process may not be running, or it may have closed its input channel.</source>
         <translation>Ein Fehler trat beim Versuch zum LLDB-Prozess zu schreiben auf. Möglicherweise läuft der Prozess nicht oder hat seinen Eingabekanal geschlossen.</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>Zeitüberschreitung bei der letzten waitFor...()-Funktion. Der Status des QProcess ist unverändert und waitFor...() kann noch einmal aufgerufen werden.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to read from the Lldb process. For example, the process may not be running.</source>
@@ -23547,7 +23294,7 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::SymbolPathsDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Use Local Symbol Cache</source>
         <translation>Lokalen Symbolcache verwenden</translation>
@@ -23724,7 +23471,7 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbPathsPageWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Symbol Paths</source>
         <translation>Symbolpfade</translation>
@@ -25629,7 +25376,7 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
     </message>
 </context>
 <context>
-    <name>Debugger::DebuggerItemManager</name>
+    <name>Debugger</name>
     <message>
         <source>Auto-detected CDB at %1</source>
         <translation>Automatisch bestimmter CDB bei %1</translation>
@@ -25670,10 +25417,6 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
     <message>
         <source>Version:</source>
         <translation>Version:</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation>Arbeitsverzeichnis:</translation>
     </message>
     <message>
         <source>64-bit version</source>
@@ -27165,7 +26908,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::UnstartedAppWatcherDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Attach to Process Not Yet Started</source>
         <translation>An noch nicht gestarteten Prozess anhängen</translation>
@@ -27940,7 +27683,7 @@ Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translati
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::LocalsAndExpressionsOptionsPage</name>
+    <name>Debugger</name>
     <message>
         <source>Use Debugging Helper</source>
         <translation>Ausgabe-Hilfsbibliothek benutzen</translation>
@@ -27966,10 +27709,6 @@ Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translati
         <translation>Pfad zu einer Python-Datei für zusätzliche Datenausgabe.</translation>
     </message>
     <message>
-        <source>&lt;unlimited&gt;</source>
-        <translation>&lt;unbegrenzt&gt;</translation>
-    </message>
-    <message>
         <source>Maximum string length:</source>
         <translation>Maximale Zeichenkettenlänge:</translation>
     </message>
@@ -27979,26 +27718,10 @@ Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translati
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerToolTipManager</name>
+    <name>Debugger</name>
     <message>
         <source>%1 (Previous)</source>
         <translation>%1 (Vorherig)</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Name</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Wert</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Typ</translation>
-    </message>
-    <message>
-        <source>Copy Contents to Clipboard</source>
-        <translation>Inhalt in Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Expression %1 in function %2 from line %3 to %4</source>
@@ -29352,7 +29075,7 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerPlugin</name>
+    <name>Debugger</name>
     <message>
         <source>Debug</source>
         <translation>Debug</translation>
@@ -29372,10 +29095,6 @@ Möchten Sie sie jetzt auschecken?</translation>
     <message>
         <source>Invalid debugger option: %1</source>
         <translation>Ungültiger Debugger-Kommandozeilenparameter: %1</translation>
-    </message>
-    <message>
-        <source>Process %1</source>
-        <translation>Prozess %1</translation>
     </message>
     <message>
         <source>Show %1 Column</source>
@@ -32755,7 +32474,7 @@ Senden selbst auch Zeit benötigt.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerEnginePrivate</name>
+    <name>Debugger</name>
     <message>
         <source>Debugger finished.</source>
         <translation>Debuggen beendet.</translation>
@@ -32763,10 +32482,6 @@ Senden selbst auch Zeit benötigt.</translation>
     <message>
         <source>Continue</source>
         <translation>Fortsetzen</translation>
-    </message>
-    <message>
-        <source>Stop Debugger</source>
-        <translation>Debugger anhalten</translation>
     </message>
     <message>
         <source>Interrupt</source>
@@ -32805,16 +32520,8 @@ Senden selbst auch Zeit benötigt.</translation>
         <translation>Einzelschritt über</translation>
     </message>
     <message>
-        <source>Add Expression Evaluator</source>
-        <translation>Ausdruck auswerten</translation>
-    </message>
-    <message>
         <source>Toggle Breakpoint</source>
         <translation>Haltepunkt umschalten</translation>
-    </message>
-    <message>
-        <source>Restart Debugging</source>
-        <translation>Debuggen neu starten</translation>
     </message>
     <message>
         <source>Operate by Instruction</source>
@@ -32910,7 +32617,7 @@ Senden selbst auch Zeit benötigt.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerEngine</name>
+    <name>Debugger</name>
     <message>
         <source>No Memory Viewer Available</source>
         <translation>Es ist kein Speicher-Anzeigemodul verfügbar</translation>
@@ -33039,10 +32746,6 @@ Senden selbst auch Zeit benötigt.</translation>
         <translation>Symbol</translation>
     </message>
     <message>
-        <source>Address</source>
-        <translation>Adresse</translation>
-    </message>
-    <message>
         <source>Code</source>
         <translation>Code</translation>
     </message>
@@ -33093,10 +32796,6 @@ Vielleicht können Symbole nicht untersucht werden oder Haltepunkte nicht anhand
 Selecting GDB or LLDB as debugger would improve the debugging experience for this binary format.</source>
         <translation>Der zu debuggende Prozess hat das ELF-Format.
 Für dieses Binärformat wären GDB oder LLDB besser als Debugger geeignet.</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation>Debugger</translation>
     </message>
     <message>
         <source>Current debugger location of %1</source>
@@ -33152,13 +32851,6 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
         <source>Jump to Line %1</source>
         <translation>Zu Zeile %1 springen</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::DebuggerOptionsPage</name>
-    <message>
-        <source>Name</source>
-        <translation>Name</translation>
-    </message>
     <message>
         <source>Location</source>
         <translation>Pfad</translation>
@@ -33182,10 +32874,6 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     <message>
         <source>Clone</source>
         <translation>Klonen</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Clone of %1</source>
@@ -33216,7 +32904,7 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::Terminal</name>
+    <name>Debugger</name>
     <message>
         <source>Terminal: Cannot open /dev/ptmx: %1</source>
         <translation>Terminal: /dev/ptmx kann nicht geöffnet werden: %1</translation>
@@ -35789,7 +35477,7 @@ Dies könnte Probleme während der Ausführung verursachen.
     </message>
 </context>
 <context>
-    <name>Debugger::AnalyzerRunConfigWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Use Customized Settings</source>
         <translation>Benutzerdefinierte Einstellungen verwenden</translation>
@@ -35800,21 +35488,17 @@ Dies könnte Probleme während der Ausführung verursachen.
     </message>
 </context>
 <context>
-    <name>Debugger::DetailedErrorView</name>
+    <name>Debugger</name>
     <message>
         <source>Copy</source>
         <translation>Kopieren</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::StartRemoteDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Start Remote Analysis</source>
         <translation>Entfernte Analyse starten</translation>
-    </message>
-    <message>
-        <source>Kit:</source>
-        <translation>Kit:</translation>
     </message>
     <message>
         <source>Executable:</source>
@@ -35830,7 +35514,7 @@ Dies könnte Probleme während der Ausführung verursachen.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::Console</name>
+    <name>Debugger</name>
     <message>
         <source>Show debug, log, and info messages.</source>
         <translation>Zeige Debug-, Log- und informative Nachrichten.</translation>
@@ -35853,7 +35537,7 @@ Dies könnte Probleme während der Ausführung verursachen.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::ConsoleView</name>
+    <name>Debugger</name>
     <message>
         <source>&amp;Copy</source>
         <translation>&amp;Kopieren</translation>
@@ -38905,7 +38589,7 @@ Fehler: %5</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::DebuggerRunTool</name>
+    <name>Debugger</name>
     <message>
         <source>Unpacking core file to %1</source>
         <translation>Entpacke Core-Datei nach %1</translation>
@@ -38925,10 +38609,6 @@ Fehler: %5</translation>
     <message>
         <source>%1 - Snapshot %2</source>
         <translation>%1 - Snapshot %2</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation>Debugger</translation>
     </message>
     <message>
         <source>&amp;Show this message again.</source>
@@ -41698,7 +41378,7 @@ Breche ausstehende Operationen ab...
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::LocalProcessRunner</name>
+    <name>Debugger</name>
     <message>
         <source>Upload failed: %1</source>
         <translation>Hochladen gescheitert: %1</translation>
@@ -43513,38 +43193,10 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BreakpointManager</name>
+    <name>Debugger</name>
     <message>
         <source>Debuggee</source>
         <translation>Untersuchtes Programm</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>Funktion</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Datei</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>Zeile</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adresse</translation>
-    </message>
-    <message>
-        <source>Condition</source>
-        <translation>Bedingung</translation>
-    </message>
-    <message>
-        <source>Ignore</source>
-        <translation>Ignorieren</translation>
-    </message>
-    <message>
-        <source>Threads</source>
-        <translation>Threads</translation>
     </message>
     <message>
         <source>Add Breakpoint</source>
@@ -43571,26 +43223,6 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         <translation>Ausgewählte Haltepunkte aktivieren</translation>
     </message>
     <message>
-        <source>Disable Breakpoint</source>
-        <translation>Haltepunkt deaktivieren</translation>
-    </message>
-    <message>
-        <source>Enable Breakpoint</source>
-        <translation>Haltepunkt aktivieren</translation>
-    </message>
-    <message>
-        <source>Delete All Breakpoints</source>
-        <translation>Alle Haltepunkte löschen</translation>
-    </message>
-    <message>
-        <source>Delete Breakpoints of &quot;%1&quot;</source>
-        <translation>Haltepunkte in Datei &quot;%1&quot; löschen</translation>
-    </message>
-    <message>
-        <source>Delete Breakpoints of File</source>
-        <translation>Haltepunkte in Datei löschen</translation>
-    </message>
-    <message>
         <source>Remove All Breakpoints</source>
         <translation>Alle Haltepunkte löschen</translation>
     </message>
@@ -43600,7 +43232,7 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::EngineManager</name>
+    <name>Debugger</name>
     <message>
         <source>Perspective</source>
         <translation>Perspektive</translation>
@@ -43623,7 +43255,7 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GlobalLogWindow</name>
+    <name>Debugger</name>
     <message>
         <source>Global Debugger &amp;Log</source>
         <translation>Globales Debugger-&amp;Log</translation>
@@ -47832,7 +47464,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CommonOptionsPageWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Behavior</source>
         <translation>Verhalten</translation>
@@ -47939,14 +47571,10 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Debugger::DebuggerKitAspect</name>
+    <name>Debugger</name>
     <message>
         <source>Type of Debugger Backend</source>
         <translation>Typ des Debugger-Backends</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation>Debugger</translation>
     </message>
     <message>
         <source>Unknown debugger version</source>
@@ -48014,18 +47642,10 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::PeripheralRegisterHandler</name>
+    <name>Debugger</name>
     <message>
         <source>N/A</source>
         <translation>N/A</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Name</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Wert</translation>
     </message>
     <message>
         <source>Access</source>
@@ -48036,50 +47656,8 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <translation>Format</translation>
     </message>
     <message>
-        <source>Hexadecimal</source>
-        <translation>Hexadezimal</translation>
-    </message>
-    <message>
-        <source>Decimal</source>
-        <translation>Dezimal</translation>
-    </message>
-    <message>
-        <source>Octal</source>
-        <translation>Oktal</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation>Binär</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::UvscClient</name>
-    <message>
         <source>%1.%2</source>
         <translation>%1.%2</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::UvscEngine</name>
-    <message>
-        <source>Application started.</source>
-        <translation>Anwendung gestartet.</translation>
-    </message>
-    <message>
-        <source>Setting breakpoints...</source>
-        <translation>Setze Haltepunkte...</translation>
-    </message>
-    <message>
-        <source>Failed to Shut Down Application</source>
-        <translation>Die Anwendung konnte nicht beendet werden</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation>Fortsetzung angefordert...</translation>
-    </message>
-    <message>
-        <source>Execution Error</source>
-        <translation>Fehler bei der Ausführung</translation>
     </message>
 </context>
 <context>

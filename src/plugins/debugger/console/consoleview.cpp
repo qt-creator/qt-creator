@@ -24,8 +24,10 @@
 ****************************************************************************/
 
 #include "consoleview.h"
+
 #include "consoleitemdelegate.h"
 #include "consoleitemmodel.h"
+#include "../debuggertr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/manhattanstyle.h>
@@ -145,14 +147,14 @@ void ConsoleView::contextMenuEvent(QContextMenuEvent *event)
     QModelIndex itemIndex = indexAt(event->pos());
     QMenu menu;
 
-    auto copy = new QAction(tr("&Copy"), this);
+    auto copy = new QAction(Tr::tr("&Copy"), this);
     copy->setEnabled(itemIndex.isValid());
     menu.addAction(copy);
-    auto show = new QAction(tr("&Show in Editor"), this);
+    auto show = new QAction(Tr::tr("&Show in Editor"), this);
     show->setEnabled(canShowItemInTextEditor(itemIndex));
     menu.addAction(show);
     menu.addSeparator();
-    auto clear = new QAction(tr("C&lear"), this);
+    auto clear = new QAction(Tr::tr("C&lear"), this);
     menu.addAction(clear);
 
     QAction *a = menu.exec(event->globalPos());

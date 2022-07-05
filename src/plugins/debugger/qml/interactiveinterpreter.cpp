@@ -25,8 +25,7 @@
 
 #include "interactiveinterpreter.h"
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 bool InteractiveInterpreter::canEvaluate()
 {
@@ -80,5 +79,4 @@ again:
     return false;
 }
 
-}
-}
+} // Debugger::Internal

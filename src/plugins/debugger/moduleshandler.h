@@ -33,8 +33,7 @@ class QAbstractItemModel;
 class QSortFilterProxyModel;
 QT_END_NAMESPACE
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class DebuggerEngine;
 class ModuleItem;
@@ -138,5 +137,4 @@ private:
     QSortFilterProxyModel *m_proxyModel;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

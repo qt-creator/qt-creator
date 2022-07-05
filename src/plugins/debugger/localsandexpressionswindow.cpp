@@ -30,8 +30,7 @@
 #include <QVBoxLayout>
 #include <QStackedWidget>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 enum { LocalsIndex = 0, InspectorIndex = 1 };
 
@@ -72,5 +71,4 @@ void LocalsAndInspectorWindow::setShowLocals(bool showLocals)
     m_timer.start();
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

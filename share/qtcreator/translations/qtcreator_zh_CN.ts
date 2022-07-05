@@ -313,7 +313,7 @@
     </message>
 </context>
 <context>
-    <name>BreakByFunctionDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Function to break on:</source>
         <translation type="obsolete">设断点的函数:</translation>
@@ -321,17 +321,6 @@
     <message>
         <source>Set Breakpoint at Function</source>
         <translation type="obsolete">在函数处设定断点</translation>
-    </message>
-</context>
-<context>
-    <name>BreakCondition</name>
-    <message>
-        <source>Condition:</source>
-        <translation type="obsolete">条件:</translation>
-    </message>
-    <message>
-        <source>Thread specification:</source>
-        <translation type="obsolete">线程信息:</translation>
     </message>
 </context>
 <context>
@@ -671,15 +660,6 @@
         <translation type="obsolete">这些选项将在Qt Creator 下次启动时生效。</translation>
     </message>
     <message>
-        <source>Cdb</source>
-        <extracomment>Placeholder</extracomment>
-        <translation type="obsolete">Cdb</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation type="obsolete">路径:</translation>
-    </message>
-    <message>
         <source>Debugger Paths</source>
         <translation type="obsolete">调试器路径</translation>
     </message>
@@ -695,14 +675,6 @@
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; Restarting Qt Creator is required for these settings to take effect.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
         <translation type="obsolete">&lt;html&gt;&lt;body&gt;&lt;p&gt;在这里指定到 &lt;a href=&quot;%1&quot;&gt;windows下的调试工具&lt;/a&gt; (%2) 的路径.&lt;/p&gt;&lt;p&gt;&lt;b&gt;注意:&lt;/b&gt; 使配置生效需要重启动 Qt Creator 。&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>64-bit version</source>
-        <translation type="obsolete">64 bit 版本</translation>
-    </message>
-    <message>
-        <source>32-bit version</source>
-        <translation type="obsolete">32 bit 版本</translation>
     </message>
     <message>
         <source>Other options</source>
@@ -875,118 +847,6 @@
     <message>
         <source>Copy-paste URL to clipboard</source>
         <translation type="obsolete">复制/粘帖URL到剪贴板</translation>
-    </message>
-</context>
-<context>
-    <name>CommonOptionsPage</name>
-    <message>
-        <source>User interface</source>
-        <translation type="obsolete">用户界面</translation>
-    </message>
-    <message>
-        <source>Checking this will populate the source file view automatically but might slow down debugger startup considerably.</source>
-        <translation type="obsolete">选中此项将自动显示源文件视图，但是会大大减慢调试器的启动速度。</translation>
-    </message>
-    <message>
-        <source>Populate source file view automatically</source>
-        <translation type="obsolete">自动显示源文件视图</translation>
-    </message>
-    <message>
-        <source>When this option is checked, &apos;Step Into&apos; compresses several steps into one in certain situations, leading to &apos;less noisy&apos; debugging. So will, e.g., the atomic
- reference counting code be skipped, and a single &apos;Step Into&apos; for a signal emission will end up directly in the slot connected to it.</source>
-        <translation type="obsolete">当此项被选中，&quot;Step Into&quot;某些情况下将把几步压缩成为一步，以简化调试。因此像原子操作计数等代码会被跳过，到信号发送的&quot;Step Into&quot;会直接调到连接的槽函数。</translation>
-    </message>
-    <message>
-        <source>Skip known frames when stepping</source>
-        <translation type="obsolete">当stepping时跳过已知的frames</translation>
-    </message>
-    <message>
-        <source>Maximal stack depth:</source>
-        <translation type="obsolete">最大堆栈深度:</translation>
-    </message>
-    <message>
-        <source>&lt;unlimited&gt;</source>
-        <translation type="obsolete">&lt;无限制&gt;</translation>
-    </message>
-    <message>
-        <source>Use alternating row colors in debug views</source>
-        <translation type="obsolete">在调试视图交替行的颜色</translation>
-    </message>
-    <message>
-        <source>Enable reverse debugging</source>
-        <translation type="obsolete">打开反向调试</translation>
-    </message>
-    <message>
-        <source>Show a message box when receiving a signal</source>
-        <translation type="obsolete">当接受到一个信号时显示一个消息窗口</translation>
-    </message>
-    <message>
-        <source>Use tooltips in main editor while debugging</source>
-        <translation type="obsolete">当调试时在主编辑器中启用工具提示</translation>
-    </message>
-    <message>
-        <source>Language</source>
-        <translation type="obsolete">语言</translation>
-    </message>
-    <message>
-        <source>Changes the debugger language according to the currently opened file.</source>
-        <translation type="obsolete">根据所打开文件改变调试器语言。</translation>
-    </message>
-    <message>
-        <source>Change debugger language automatically</source>
-        <translation type="obsolete">自动改变调试器语言</translation>
-    </message>
-    <message>
-        <source>Gui behavior</source>
-        <translation type="obsolete">图形界面行为</translation>
-    </message>
-    <message>
-        <source>Use Creator for post-mortem debugging</source>
-        <translation type="obsolete">使用Creator进行崩溃后调试</translation>
-    </message>
-    <message>
-        <source>GUI Behavior</source>
-        <translation type="obsolete">图形界面行为</translation>
-    </message>
-    <message>
-        <source>Use Qt Creator for post-mortem debugging</source>
-        <translation type="obsolete">使用 Qt Creator 进行崩溃后(post-mortem)调试</translation>
-    </message>
-    <message>
-        <source>Close temporary buffers on debugger exit.</source>
-        <translation type="obsolete">在调试器退出时关闭临时缓冲区。</translation>
-    </message>
-    <message>
-        <source>Close temporary buffers on debugger exit</source>
-        <translation type="obsolete">在调试器退出时关闭临时缓冲区</translation>
-    </message>
-    <message>
-        <source>Switch to previous mode on debugger exit.</source>
-        <translation type="obsolete">在调试器退出时切换到上一个模式。</translation>
-    </message>
-    <message>
-        <source>Switch to previous mode on debugger exit</source>
-        <translation type="obsolete">在调试器退出时切换到上一个模式</translation>
-    </message>
-    <message>
-        <source>Behavior</source>
-        <translation type="obsolete">行为</translation>
-    </message>
-    <message>
-        <source>Change the font size in the debugger views when the font size in the main editor changes.</source>
-        <translation type="obsolete">当主编辑器的字体改变时,在调试器中监视器中自动调整字体大小.</translation>
-    </message>
-    <message>
-        <source>Debugger font size follows main editor</source>
-        <translation type="obsolete">调试器字体和主编辑器一致</translation>
-    </message>
-    <message>
-        <source>Populate the source file view automatically. This might slow down debugger startup considerably.</source>
-        <translation type="obsolete">自动填充源文件视图.这将延缓调试器的启动.</translation>
-    </message>
-    <message>
-        <source>Maximum stack depth:</source>
-        <translation type="obsolete">最大堆栈深度:</translation>
     </message>
 </context>
 <context>
@@ -3326,84 +3186,6 @@ Would you like to overwrite them?</source>
         <translation>&lt;编码错误&gt;</translation>
     </message>
     <message>
-        <source>Error Loading Symbols</source>
-        <translation type="obsolete">载入符号错误</translation>
-    </message>
-    <message>
-        <source>No executable to load symbols from specified.</source>
-        <translation type="obsolete">没有指定可运行的程序来载入符号.</translation>
-    </message>
-    <message>
-        <source>Symbols found.</source>
-        <translation type="obsolete">找到符号。</translation>
-    </message>
-    <message>
-        <source>Loading symbols from &quot;%1&quot; failed:
-</source>
-        <translation type="obsolete">从 &quot;%1&quot; 载入符号失败:
-</translation>
-    </message>
-    <message>
-        <source>Unable to determine executable from core file.</source>
-        <translation type="obsolete">从核心文件无法定位可执行文件。</translation>
-    </message>
-    <message>
-        <source>Cannot set up communication with child process: %1</source>
-        <translation type="obsolete">无法与子进程建立通信: %1</translation>
-    </message>
-    <message>
-        <source>Starting executable failed:
-</source>
-        <translation type="obsolete">启动执行档失败:
-</translation>
-    </message>
-    <message>
-        <source>The upload process failed to start. Shell missing?</source>
-        <translation type="obsolete">上载进程启动失败，缺少Shell?</translation>
-    </message>
-    <message>
-        <source>The upload process crashed some time after starting successfully.</source>
-        <translation type="obsolete">上载进程成功启动后崩溃。</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation type="obsolete">最近的 waitFor...() 函数超时. QProcess 的状态未改变, 您可以尝试再次调用 waitFor...() .</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation type="obsolete">当尝试向上载进程写入时发生错误. 比如, 进程没有运行或者它关闭了自己的输入通道.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to read from the upload process. For example, the process may not be running.</source>
-        <translation type="obsolete">当尝试从上载进程读取时发生错误. 比如, 进程没有运行.</translation>
-    </message>
-    <message>
-        <source>An unknown error in the upload process occurred. This is the default return value of error().</source>
-        <translation type="obsolete">上载进程发生未知错误，这是error()的默认返回值。</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="obsolete">错误</translation>
-    </message>
-    <message>
-        <source>Starting remote executable failed:
-</source>
-        <translation type="obsolete">启动远程执行档失败:
-</translation>
-    </message>
-    <message>
-        <source>Debugger Error</source>
-        <translation type="obsolete">调试器错误</translation>
-    </message>
-    <message>
-        <source>Debugging Helper</source>
-        <translation type="obsolete">调试助手</translation>
-    </message>
-    <message>
-        <source>Choose DebuggingHelper Location</source>
-        <translation type="obsolete">选择调试助手位置</translation>
-    </message>
-    <message>
         <source>Ctrl+Shift+F11</source>
         <translation>Ctrl+Shift+F11</translation>
     </message>
@@ -3460,7 +3242,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AttachCoreDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Load Core File</source>
         <translation>载入核心文件</translation>
@@ -3511,36 +3293,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AttachExternalDialog</name>
-    <message>
-        <source>Process ID</source>
-        <translation type="obsolete">进程ID</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="obsolete">名称</translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation type="obsolete">状态</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">刷新</translation>
-    </message>
-    <message>
-        <source>Process Already Under Debugger Control</source>
-        <translation type="obsolete">进程已在调试器控制之下</translation>
-    </message>
-    <message>
-        <source>The process %1 is already under the control of a debugger.
-Qt Creator cannot attach to it.</source>
-        <translation type="obsolete">进程%1 已经运行在调试器之下.
-Qt Creator 无法附属到进程.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::AddressDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Select start address</source>
         <translation type="obsolete">选择开始地址</translation>
@@ -3555,7 +3308,7 @@ Qt Creator 无法附属到进程.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BreakHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Marker File:</source>
         <translation>标记文件:</translation>
@@ -3591,10 +3344,6 @@ Qt Creator 无法附属到进程.</translation>
     <message>
         <source>Unknown breakpoint type</source>
         <translation type="obsolete">未知的断点类型</translation>
-    </message>
-    <message>
-        <source>State:</source>
-        <translation>状态:</translation>
     </message>
     <message>
         <source>Requested</source>
@@ -3663,10 +3412,6 @@ Qt Creator 无法附属到进程.</translation>
     <message>
         <source>Multiple Addresses:</source>
         <translation>多个地址:</translation>
-    </message>
-    <message>
-        <source>Command:</source>
-        <translation>命令:</translation>
     </message>
     <message>
         <source>Message:</source>
@@ -3790,14 +3535,6 @@ Qt Creator 无法附属到进程.</translation>
         <translation>忽略</translation>
     </message>
     <message>
-        <source>Address</source>
-        <translation>地址</translation>
-    </message>
-    <message>
-        <source>Threads</source>
-        <translation>线程</translation>
-    </message>
-    <message>
         <source>Watchpoint at 0x%1</source>
         <translation type="obsolete">监视点在 0x%1</translation>
     </message>
@@ -3819,150 +3556,7 @@ Qt Creator 无法附属到进程.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BreakWindow</name>
-    <message>
-        <source>Breakpoints</source>
-        <translation>断点</translation>
-    </message>
-    <message>
-        <source>Delete breakpoint</source>
-        <translation type="obsolete">删除断点</translation>
-    </message>
-    <message>
-        <source>Delete all breakpoints</source>
-        <translation type="obsolete">删除所有断点</translation>
-    </message>
-    <message>
-        <source>Delete breakpoints of &quot;%1&quot;</source>
-        <translation type="obsolete">删除断点&quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Delete breakpoints of file</source>
-        <translation type="obsolete">删除文件断点</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">按内容调整宽度</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">总是按内容调整列的宽度</translation>
-    </message>
-    <message>
-        <source>Edit condition...</source>
-        <translation type="obsolete">编辑条件...</translation>
-    </message>
-    <message>
-        <source>Synchronize breakpoints</source>
-        <translation type="obsolete">同步断点</translation>
-    </message>
-    <message>
-        <source>Disable breakpoint</source>
-        <translation type="obsolete">禁止断点</translation>
-    </message>
-    <message>
-        <source>Enable breakpoint</source>
-        <translation type="obsolete">开启断点</translation>
-    </message>
-    <message>
-        <source>Use short path</source>
-        <translation type="obsolete">使用短路径</translation>
-    </message>
-    <message>
-        <source>Delete Breakpoint</source>
-        <translation type="obsolete">删除断点</translation>
-    </message>
-    <message>
-        <source>Delete All Breakpoints</source>
-        <translation type="obsolete">删除所有断点</translation>
-    </message>
-    <message>
-        <source>Delete Breakpoints of &quot;%1&quot;</source>
-        <translation type="obsolete">删除 &quot;%1&quot; 的断点</translation>
-    </message>
-    <message>
-        <source>Delete Breakpoints of File</source>
-        <translation type="obsolete">删除文件的断点</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">按内容调整列宽</translation>
-    </message>
-    <message>
-        <source>Add Breakpoint</source>
-        <translation type="obsolete">添加断点</translation>
-    </message>
-    <message>
-        <source>Edit Breakpoint...</source>
-        <translation type="obsolete">编辑断点...</translation>
-    </message>
-    <message>
-        <source>Associate Breakpoint With All Threads</source>
-        <translation type="obsolete">关联断点到所有线程</translation>
-    </message>
-    <message>
-        <source>Associate Breakpoint With Thread %1</source>
-        <translation type="obsolete">关联断点到线程 %1</translation>
-    </message>
-    <message>
-        <source>Add Breakpoint...</source>
-        <translation type="obsolete">添加断点...</translation>
-    </message>
-    <message>
-        <source>Edit Breakpoint Properties</source>
-        <translation type="obsolete">编辑断点属性</translation>
-    </message>
-    <message>
-        <source>Edit Condition...</source>
-        <translation type="obsolete">编辑条件...</translation>
-    </message>
-    <message>
-        <source>Synchronize Breakpoints</source>
-        <translation type="obsolete">同步断点</translation>
-    </message>
-    <message>
-        <source>Disable Selected Breakpoints</source>
-        <translation type="obsolete">禁用选择的断点</translation>
-    </message>
-    <message>
-        <source>Enable Selected Breakpoints</source>
-        <translation type="obsolete">启用选择的断点</translation>
-    </message>
-    <message>
-        <source>Disable Breakpoint</source>
-        <translation type="obsolete">禁用断点</translation>
-    </message>
-    <message>
-        <source>Enable Breakpoint</source>
-        <translation type="obsolete">启用断点</translation>
-    </message>
-    <message>
-        <source>Use Short Path</source>
-        <translation type="obsolete">使用短路径</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at Function...</source>
-        <translation type="obsolete">在函数位置设置断点...</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at Function &quot;main&quot;</source>
-        <translation type="obsolete">在&quot;main&quot;函数设置断点</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at &quot;throw&quot;</source>
-        <translation type="obsolete">在抛出点(throw)设置断点</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at &quot;catch&quot;</source>
-        <translation type="obsolete">在捕获点(catch)设置断点</translation>
-    </message>
-    <message>
-        <source>Conditions on Breakpoint %1</source>
-        <translation type="obsolete">断点%1 的条件</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CdbDebugEngine</name>
+    <name>Debugger</name>
     <message>
         <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
         <translation type="obsolete">无法载入调试引擎库 &apos;%1&apos;: %2</translation>
@@ -3979,10 +3573,6 @@ Qt Creator 无法附属到进程.</translation>
     <message>
         <source>Version: %1</source>
         <translation type="obsolete">版本: %1</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation type="obsolete">调试器</translation>
     </message>
     <message>
         <source>The dumper library was not found at %1.</source>
@@ -4037,10 +3627,6 @@ Qt Creator 无法附属到进程.</translation>
         <translation type="obsolete">单步 %1</translation>
     </message>
     <message>
-        <source>Running requested...</source>
-        <translation type="obsolete">执行请求...</translation>
-    </message>
-    <message>
         <source>Jump to line is not implemented</source>
         <translation type="obsolete">跳转到行没有实现</translation>
     </message>
@@ -4055,10 +3641,6 @@ Qt Creator 无法附属到进程.</translation>
     <message>
         <source>Cannot retrieve symbols while the debuggee is running.</source>
         <translation type="obsolete">当被调试程序运行时无法获取符号信息。</translation>
-    </message>
-    <message>
-        <source>Debugger Error</source>
-        <translation type="obsolete">调试器错误</translation>
     </message>
     <message>
         <source>Ignoring initial breakpoint...</source>
@@ -4106,7 +3688,7 @@ Qt Creator 无法附属到进程.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbDumperHelper</name>
+    <name>Debugger</name>
     <message>
         <source>injection</source>
         <translation type="obsolete">注入</translation>
@@ -4153,23 +3735,11 @@ Qt Creator 无法附属到进程.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbOptionsPageWidget</name>
-    <message>
-        <source>Cdb</source>
-        <translation type="obsolete">Cdb</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; Restarting Qt Creator is required for these settings to take effect.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
         <translation type="obsolete">&lt;html&gt;&lt;body&gt;&lt;p&gt;在这里指定到 &lt;a href=&quot;%1&quot;&gt;Windows下的调试工具&lt;/a&gt; (%2) 的路径.&lt;/p&gt;&lt;p&gt;&lt;b&gt;注意:&lt;/b&gt; 使配置生效需要重启动 Qt Creator 。&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>64-bit version</source>
-        <translation type="obsolete">64 bit 版本</translation>
-    </message>
-    <message>
-        <source>32-bit version</source>
-        <translation type="obsolete">32 bit 版本</translation>
     </message>
     <message>
         <source>Autodetect</source>
@@ -4183,10 +3753,6 @@ Qt Creator 无法附属到进程.</translation>
         <source>Checked:
 %1</source>
         <translation type="obsolete">已选择:\n%1</translation>
-    </message>
-    <message>
-        <source>Autodetection</source>
-        <translation type="obsolete">自动检测</translation>
     </message>
     <message>
         <source>Startup</source>
@@ -4243,7 +3809,7 @@ Qt Creator 无法附属到进程.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbSymbolPathListEditor</name>
+    <name>Debugger</name>
     <message>
         <source>Symbol Server...</source>
         <translation>符号服务器...</translation>
@@ -4274,259 +3840,7 @@ Qt Creator 无法附属到进程.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebugMode</name>
-    <message>
-        <source>Debug</source>
-        <translation type="obsolete">调试</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::DebuggerManager</name>
-    <message>
-        <source>Continue</source>
-        <translation type="obsolete">继续</translation>
-    </message>
-    <message>
-        <source>Interrupt</source>
-        <translation type="obsolete">中断</translation>
-    </message>
-    <message>
-        <source>Reset Debugger</source>
-        <translation type="obsolete">重置调试器</translation>
-    </message>
-    <message>
-        <source>Abort Debugging</source>
-        <translation type="obsolete">终止调试</translation>
-    </message>
-    <message>
-        <source>Aborts debugging and resets the debugger to the initial state.</source>
-        <translation type="obsolete">终止调试并重置调试器到初始状态。</translation>
-    </message>
-    <message>
-        <source>Step Over</source>
-        <translation type="obsolete">单步跳过</translation>
-    </message>
-    <message>
-        <source>Step Into</source>
-        <translation type="obsolete">单步进入</translation>
-    </message>
-    <message>
-        <source>Step Out</source>
-        <translation type="obsolete">单步跳出</translation>
-    </message>
-    <message>
-        <source>Run to Line</source>
-        <translation type="obsolete">执行到行</translation>
-    </message>
-    <message>
-        <source>Immediately Return From Inner Function</source>
-        <translation type="obsolete">从内部函数立即返回</translation>
-    </message>
-    <message>
-        <source>Jump to Line</source>
-        <translation type="obsolete">跳到指定行</translation>
-    </message>
-    <message>
-        <source>Toggle Breakpoint</source>
-        <translation type="obsolete">切换断点</translation>
-    </message>
-    <message>
-        <source>Add to Watch Window</source>
-        <translation type="obsolete">添加到监视窗口</translation>
-    </message>
-    <message>
-        <source>Snapshot</source>
-        <translation type="obsolete">快照</translation>
-    </message>
-    <message>
-        <source>Reverse Direction</source>
-        <translation type="obsolete">转变方向</translation>
-    </message>
-    <message>
-        <source>Stopped</source>
-        <translation type="obsolete">停止</translation>
-    </message>
-    <message>
-        <source>Exited</source>
-        <translation type="obsolete">退出</translation>
-    </message>
-    <message>
-        <source>Turn off helper usage</source>
-        <translation type="obsolete">关闭助手应用</translation>
-    </message>
-    <message>
-        <source>The debugger could not load the debugging helper library.</source>
-        <translation type="obsolete">调试器无法装载调试帮助库。</translation>
-    </message>
-    <message>
-        <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. This can be done in the Qt preferences page by selecting a Qt installation and clicking on &apos;Rebuild&apos; in the &apos;Debugging Helper&apos; row.</source>
-        <translation type="obsolete">调试助手用于格式化Qt和标准库数据类型的值，必须为每个Qt版本单独编译。可以在Qt首选项页面选择Qt安装，然后点击“调试助手”行的&quot;重建&quot;按钮。</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <translation type="obsolete">停止。</translation>
-    </message>
-    <message>
-        <source>Running...</source>
-        <translation type="obsolete">执行中...</translation>
-    </message>
-    <message>
-        <source>Changing breakpoint state requires either a fully running or fully stopped application.</source>
-        <translation type="obsolete">只有在程序完全运行或完全停止的状态下方能修改断点状态。</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="obsolete">警告</translation>
-    </message>
-    <message>
-        <source>Save Debugger Log</source>
-        <translation type="obsolete">保存调试器日志</translation>
-    </message>
-    <message>
-        <source>Stop Debugger</source>
-        <translation type="obsolete">停止调试</translation>
-    </message>
-    <message>
-        <source>Open Qt preferences</source>
-        <translation type="obsolete">打开Qt首选项</translation>
-    </message>
-    <message>
-        <source>Exited.</source>
-        <translation type="obsolete">已退出。</translation>
-    </message>
-    <message>
-        <source>The application requires the debugger engine &apos;%1&apos;, which is disabled.</source>
-        <translation type="obsolete">程序需要调试器引擎 &quot;%1&quot;，而其被禁用。</translation>
-    </message>
-    <message>
-        <source>Starting debugger for tool chain &apos;%1&apos;...</source>
-        <translation type="obsolete">正在为编译工具链 &quot;%1&quot; 启动调试器...</translation>
-    </message>
-    <message>
-        <source>Cannot debug &apos;%1&apos; (tool chain: &apos;%2&apos;): %3</source>
-        <translation type="obsolete">无法调试 &quot;%1&quot; (工具链: &quot;%2&quot;) : %3</translation>
-    </message>
-    <message>
-        <source>%1 (explicitly set in the Debugger Options)</source>
-        <translation type="obsolete">%1 (在调试器选项中设定)</translation>
-    </message>
-    <message>
-        <source>Continue anyway</source>
-        <translation type="obsolete">无论如何继续</translation>
-    </message>
-    <message>
-        <source>Debugging helper missing</source>
-        <translation type="obsolete">缺少调试助手</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerOutputWindow</name>
-    <message>
-        <source>Debugger</source>
-        <translation type="obsolete">调试器</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerPlugin</name>
-    <message>
-        <source>Option &apos;%1&apos; is missing the parameter.</source>
-        <translation type="obsolete">选项 &apos;%1&apos; 缺少参数.</translation>
-    </message>
-    <message>
-        <source>The parameter &apos;%1&apos; of option &apos;%2&apos; is not a number.</source>
-        <translation type="obsolete">选项 &apos;%2&apos; 的参数 &apos;%1&apos; 不是一个数字.</translation>
-    </message>
-    <message>
-        <source>Invalid debugger option: %1</source>
-        <translation type="obsolete">无效的调试选项: %1</translation>
-    </message>
-    <message>
-        <source>Error evaluating command line arguments: %1</source>
-        <translation type="obsolete">命令行参数赋值错误: %1</translation>
-    </message>
-    <message>
-        <source>Start and Debug External Application...</source>
-        <translation type="obsolete">启动和调试外部应用程序...</translation>
-    </message>
-    <message>
-        <source>&amp;Views</source>
-        <translation type="obsolete">视图(&amp;V)</translation>
-    </message>
-    <message>
-        <source>Locked</source>
-        <translation type="obsolete">锁定</translation>
-    </message>
-    <message>
-        <source>Reset to default layout</source>
-        <translation type="obsolete">重置为默认布局</translation>
-    </message>
-    <message>
-        <source>Threads:</source>
-        <translation type="obsolete">线程:</translation>
-    </message>
-    <message>
-        <source>Remove Breakpoint</source>
-        <translation type="obsolete">删除断点</translation>
-    </message>
-    <message>
-        <source>Disable Breakpoint</source>
-        <translation type="obsolete">禁用断点</translation>
-    </message>
-    <message>
-        <source>Enable Breakpoint</source>
-        <translation type="obsolete">启用断点</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint</source>
-        <translation type="obsolete">设置断点</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="obsolete">警告</translation>
-    </message>
-    <message>
-        <source>Stop Debugger/Interrupt Debugger</source>
-        <translation type="obsolete">停止/中断调试</translation>
-    </message>
-    <message>
-        <source>Detach Debugger</source>
-        <translation type="obsolete">脱离调试器</translation>
-    </message>
-    <message>
-        <source>Reset Debugger</source>
-        <translation type="obsolete">重置调试器</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerSettings</name>
-    <message>
-        <source>Debugger properties...</source>
-        <translation type="obsolete">调试器属性...</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">根据内容调整列宽</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">总是按内容调整列宽</translation>
-    </message>
-    <message>
-        <source>Use alternating row colors</source>
-        <translation type="obsolete">使用交替行颜色</translation>
-    </message>
-    <message>
-        <source>Show a message box when receiving a signal</source>
-        <translation type="obsolete">当接受到信号时显示消息窗口</translation>
-    </message>
-    <message>
-        <source>Log time stamps</source>
-        <translation type="obsolete">记录时间戳</translation>
-    </message>
-    <message>
-        <source>Operate by instruction</source>
-        <translation type="obsolete">依照命令操作</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>This switches the debugger to instruction-wise operation mode. In this mode, stepping operates on single instructions and the source location view also shows the disassembled instructions.</source>
         <translation>切换调试器到&quot;wise operation&quot;模式，该模式下单步调试可以操作单一指令，而且源码位置视图显示汇编指令。</translation>
@@ -4534,10 +3848,6 @@ Qt Creator 无法附属到进程.</translation>
     <message>
         <source>This switches the Locals&amp;Watchers view to automatically derefence pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
         <translation type="obsolete">切换本地变量&amp;监视器视图到“自动去除指针引用”模式。这将减少树形视图中的层次，但同时也减少了数据 － 缺少中间层次。</translation>
-    </message>
-    <message>
-        <source>Watch expression &quot;%1&quot;</source>
-        <translation type="obsolete">监视表达式 &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Remove watch expression &quot;%1&quot;</source>
@@ -4552,24 +3862,12 @@ Qt Creator 无法附属到进程.</translation>
         <translation type="obsolete">显示类型的std::命名空间</translation>
     </message>
     <message>
-        <source>Show Qt&apos;s namespace for types</source>
-        <translation type="obsolete">显示类型的Qt命名空间</translation>
-    </message>
-    <message>
-        <source>Use code model</source>
-        <translation type="obsolete">使用代码模式</translation>
-    </message>
-    <message>
         <source>Use precise breakpoints</source>
         <translation type="obsolete">使用精确的断点</translation>
     </message>
     <message>
         <source>Debugger Properties...</source>
         <translation>调试器属性...</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">按内容调整列宽</translation>
     </message>
     <message>
         <source>Always Adjust Column Widths to Contents</source>
@@ -4604,10 +3902,6 @@ Qt Creator 无法附属到进程.</translation>
         <translation>自动去除对指针的引用</translation>
     </message>
     <message>
-        <source>Watch Expression &quot;%1&quot;</source>
-        <translation type="obsolete">监视表达式 &quot;%1&quot;</translation>
-    </message>
-    <message>
         <source>Watch Expression &quot;%1&quot; in Separate Window</source>
         <translation type="obsolete">在独立窗口中监视表达式 &quot;%1&quot;</translation>
     </message>
@@ -4638,10 +3932,6 @@ Qt Creator 无法附属到进程.</translation>
     <message>
         <source>Recheck Debugging Helper Availability</source>
         <translation type="obsolete">重新检查调试助手是否可用</translation>
-    </message>
-    <message>
-        <source>Synchronize Breakpoints</source>
-        <translation>同步断点</translation>
     </message>
     <message>
         <source>Use Precise Breakpoints</source>
@@ -4815,49 +4105,9 @@ Qt Creator 无法附属到进程.</translation>
         <source>Checking this will show a column with address information in the stack view during debugging.</source>
         <translation>选中此项后调试时将在堆栈视图显示地址信息列。</translation>
     </message>
-    <message>
-        <source>Use debugging helper</source>
-        <translation type="obsolete">使用调试助手</translation>
-    </message>
-    <message>
-        <source>Debug debugging helper</source>
-        <translation type="obsolete">调试调试助手</translation>
-    </message>
-    <message>
-        <source>Recheck debugging helper availability</source>
-        <translation type="obsolete">重新检查调试助手是否可用</translation>
-    </message>
-    <message>
-        <source>Synchronize breakpoints</source>
-        <translation type="obsolete">同步断点</translation>
-    </message>
-    <message>
-        <source>Automatically quit debugger</source>
-        <translation type="obsolete">自动退出调试器</translation>
-    </message>
-    <message>
-        <source>List source files</source>
-        <translation type="obsolete">列出源文件</translation>
-    </message>
-    <message>
-        <source>Skip known frames</source>
-        <translation type="obsolete">跳过已知帧</translation>
-    </message>
-    <message>
-        <source>Enable reverse debugging</source>
-        <translation type="obsolete">启用反向调试</translation>
-    </message>
-    <message>
-        <source>Reload full stack</source>
-        <translation type="obsolete">重新载入完整堆栈</translation>
-    </message>
-    <message>
-        <source>Execute line</source>
-        <translation type="obsolete">执行此行</translation>
-    </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggingHelperOptionPage</name>
+    <name>Debugger</name>
     <message>
         <source>Debugging Helper</source>
         <translation type="obsolete">调试助手</translation>
@@ -4865,10 +4115,6 @@ Qt Creator 无法附属到进程.</translation>
     <message>
         <source>Choose DebuggingHelper Location</source>
         <translation type="obsolete">选择调试助手位置</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+F11</source>
-        <translation type="obsolete">Ctrl+Shift+F11</translation>
     </message>
     <message>
         <source>Use Debugging Helper</source>
@@ -4914,7 +4160,7 @@ Qt Creator 无法附属到进程.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbEngine</name>
+    <name>Debugger</name>
     <message>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
         <translation type="obsolete">Gdb 进程启动失败. 调用程序 &apos;%1&apos; 缺失, 或者您没有足够的权限调用此程序.</translation>
@@ -4922,10 +4168,6 @@ Qt Creator 无法附属到进程.</translation>
     <message>
         <source>The Gdb process crashed some time after starting successfully.</source>
         <translation type="obsolete">Gdb进程在正常启动后崩溃。</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>最近的 waitFor...() 函数超时。QProcess 的状态未改变，您可以尝试再次调用 waitFor...()。</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the Gdb process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -4988,10 +4230,6 @@ You can choose between waiting longer or abort debugging.</source>
     <message>
         <source>Executable Failed</source>
         <translation>执行失败</translation>
-    </message>
-    <message>
-        <source>&lt;unknown&gt;</source>
-        <translation type="obsolete">&lt;未知&gt;</translation>
     </message>
     <message>
         <source>Jumped. Stopped.</source>
@@ -5211,18 +4449,6 @@ You have a choice of waiting longer or abort debugging.</source>
         <translation type="obsolete">在断点处停止。</translation>
     </message>
     <message>
-        <source>&lt;p&gt;The inferior stopped because it received a signal from the Operating System.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation type="obsolete">&lt;p&gt;底层由于接收到操作系统的信号而停止 .&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;信号名称 : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;信号意义 : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
-    </message>
-    <message>
-        <source>Signal received</source>
-        <translation type="obsolete">接收到信号</translation>
-    </message>
-    <message>
-        <source>Stopped: &quot;%1&quot;</source>
-        <translation type="obsolete">停止: &quot;%1&quot;</translation>
-    </message>
-    <message>
         <source>The debugger you are using identifies itself as:</source>
         <translation type="obsolete">您正在使用的调试器标识自身为:</translation>
     </message>
@@ -5237,10 +4463,6 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <source>Continuing after temporary stop...</source>
         <translation>暂停后继续...</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation>请求执行...</translation>
     </message>
     <message>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.
@@ -5330,10 +4552,6 @@ Section %1: %2</source>
 段 %1: %2</translation>
     </message>
     <message>
-        <source>Warning</source>
-        <translation>警告</translation>
-    </message>
-    <message>
         <source>The gdb process could not be stopped:
 %1</source>
         <translation>Gdb 进程无法停止:
@@ -5362,16 +4580,6 @@ Section %1: %2</source>
 %1</source>
         <translation>连接远程服务器失败:
 %1</translation>
-    </message>
-    <message>
-        <source>ATTEMPT BREAKPOINT SYNC</source>
-        <translation type="obsolete">尝试同步断点</translation>
-    </message>
-    <message>
-        <source>&lt;unknown&gt;</source>
-        <comment>address</comment>
-        <extracomment>End address of loaded module</extracomment>
-        <translation type="obsolete">&lt;未知&gt;</translation>
     </message>
     <message>
         <source>Jumping out of bogus frame...</source>
@@ -5432,10 +4640,6 @@ Using gdb 7.1 or later is strongly recommended.</source>
         <translation type="obsolete">没有为 &apos;%1&apos; 可用的 gdb 二进制档</translation>
     </message>
     <message>
-        <source>Launching</source>
-        <translation type="obsolete">正在启动</translation>
-    </message>
-    <message>
         <source>Snapshot Creation Error</source>
         <translation>快照生成错误</translation>
     </message>
@@ -5458,18 +4662,6 @@ Using gdb 7.1 or later is strongly recommended.</source>
         <translation>获取数据完成</translation>
     </message>
     <message>
-        <source>crashed</source>
-        <translation type="obsolete">崩溃</translation>
-    </message>
-    <message>
-        <source>code %1</source>
-        <translation type="obsolete">代码%1</translation>
-    </message>
-    <message>
-        <source>Adapter start failed</source>
-        <translation>适配器启动失败</translation>
-    </message>
-    <message>
         <source>Setting breakpoints...</source>
         <translation>正在设置断点...</translation>
     </message>
@@ -5484,16 +4676,6 @@ Using gdb 7.1 or later is strongly recommended.</source>
     <message>
         <source>Target line hit. Stopped</source>
         <translation>目标行到达。停止</translation>
-    </message>
-    <message>
-        <source> &lt;Unknown&gt; </source>
-        <comment>name</comment>
-        <translation type="obsolete">&lt;未知&gt;</translation>
-    </message>
-    <message>
-        <source> &lt;Unknown&gt; </source>
-        <comment>meaning</comment>
-        <translation type="obsolete">&lt;未知&gt;</translation>
     </message>
     <message>
         <source>Execution Error</source>
@@ -5552,10 +4734,6 @@ Using gdb 7.1 or later is strongly recommended.</source>
     <message>
         <source>Processing queued commands.</source>
         <translation type="obsolete">处理队列中的命令。</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <translation>停止。</translation>
     </message>
     <message>
         <source>The GDB installed at %1 cannot find a valid python installation in its %2 subdirectory.
@@ -5638,18 +4816,10 @@ This might yield incorrect results.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbOptionsPage</name>
-    <message>
-        <source>Gdb</source>
-        <translation type="obsolete">Gdb</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Choose Gdb Location</source>
         <translation type="obsolete">选择Gdb 位置</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation>概要</translation>
     </message>
     <message>
         <source>GDB timeout:</source>
@@ -5786,7 +4956,7 @@ markers in the source code editor.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::ModulesModel</name>
+    <name>Debugger</name>
     <message>
         <source>yes</source>
         <translation type="obsolete">是</translation>
@@ -5831,138 +5001,13 @@ markers in the source code editor.</source>
         <source>fast</source>
         <translation type="obsolete">快速</translation>
     </message>
-    <message>
-        <source>&lt;unknown&gt;</source>
-        <comment>address</comment>
-        <extracomment>End address of loaded module</extracomment>
-        <translation type="obsolete">&lt;未知&gt;</translation>
-    </message>
 </context>
 <context>
-    <name>Debugger::Internal::ModulesWindow</name>
+    <name>Debugger</name>
     <message>
         <source>Modules</source>
         <translation>模块</translation>
     </message>
-    <message>
-        <source>Update module list</source>
-        <translation type="obsolete">更新模块列表</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">按内容调整列宽</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">总是按内容调整列宽</translation>
-    </message>
-    <message>
-        <source>Show source files for module &quot;%1&quot;</source>
-        <translation type="obsolete">为模块 &quot;%1&quot; 显示源文件</translation>
-    </message>
-    <message>
-        <source>Load symbols for all modules</source>
-        <translation type="obsolete">为所有模块载入符号</translation>
-    </message>
-    <message>
-        <source>Load symbols for module</source>
-        <translation type="obsolete">为模块载入符号</translation>
-    </message>
-    <message>
-        <source>Edit file</source>
-        <translation type="obsolete">编辑文件</translation>
-    </message>
-    <message>
-        <source>Show symbols</source>
-        <translation type="obsolete">显示符号</translation>
-    </message>
-    <message>
-        <source>Load symbols for module &quot;%1&quot;</source>
-        <translation type="obsolete">为模块 &quot;%1&quot; 载入符号</translation>
-    </message>
-    <message>
-        <source>Edit file &quot;%1&quot;</source>
-        <translation type="obsolete">编辑文件 &quot;%1&quot; </translation>
-    </message>
-    <message>
-        <source>Show symbols in file &quot;%1&quot;</source>
-        <translation type="obsolete">显示文件 &quot;%1&quot;中的符号</translation>
-    </message>
-    <message>
-        <source>Update Module List</source>
-        <translation type="obsolete">更新模块列表</translation>
-    </message>
-    <message>
-        <source>Show Source Files for Module &quot;%1&quot;</source>
-        <translation type="obsolete">为模块 &quot;%1&quot; 显示源文件</translation>
-    </message>
-    <message>
-        <source>Load Symbols for All Modules</source>
-        <translation type="obsolete">为所有模块载入符号</translation>
-    </message>
-    <message>
-        <source>Examine All Modules</source>
-        <translation type="obsolete">检查所有模块</translation>
-    </message>
-    <message>
-        <source>Load Symbols for Module</source>
-        <translation type="obsolete">为模块载入符号</translation>
-    </message>
-    <message>
-        <source>Edit File</source>
-        <translation type="obsolete">编辑文件</translation>
-    </message>
-    <message>
-        <source>Show Symbols</source>
-        <translation type="obsolete">显示符号</translation>
-    </message>
-    <message>
-        <source>Show Dependencies</source>
-        <translation type="obsolete">显示依赖</translation>
-    </message>
-    <message>
-        <source>Load Symbols for Module &quot;%1&quot;</source>
-        <translation type="obsolete">为模块 &quot;%1&quot; 载入符号</translation>
-    </message>
-    <message>
-        <source>Edit File &quot;%1&quot;</source>
-        <translation type="obsolete">编辑文件 &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Show Symbols in File &quot;%1&quot;</source>
-        <translation type="obsolete">显示文件 &quot;%1&quot; 中的符号</translation>
-    </message>
-    <message>
-        <source>Show Dependencies of &quot;%1&quot;</source>
-        <translation type="obsolete">显示&quot;%1&quot;的依赖</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">按内容调整列宽</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">总是按内容调整列宽</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="obsolete">地址</translation>
-    </message>
-    <message>
-        <source>Code</source>
-        <translation type="obsolete">代码</translation>
-    </message>
-    <message>
-        <source>Symbol</source>
-        <translation type="obsolete">符号</translation>
-    </message>
-    <message>
-        <source>Symbols in &quot;%1&quot;</source>
-        <translation type="obsolete">&quot;%1&quot; 中的符号</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::OutputCollector</name>
     <message>
         <source>Cannot create temporary file: %1</source>
         <translation>无法创建临时文件: %1</translation>
@@ -5977,105 +5022,14 @@ markers in the source code editor.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::RegisterHandler</name>
-    <message>
-        <source>Name</source>
-        <translation>名称</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Value (Base %1)</source>
         <translation>值 (%1进制)</translation>
     </message>
-    <message>
-        <source>Value (base %1)</source>
-        <translation type="obsolete">值 (%1进制)</translation>
-    </message>
 </context>
 <context>
-    <name>Debugger::Internal::RegisterWindow</name>
-    <message>
-        <source>Registers</source>
-        <translation>寄存器</translation>
-    </message>
-    <message>
-        <source>Open memory editor</source>
-        <translation type="obsolete">打开内存编辑器</translation>
-    </message>
-    <message>
-        <source>Open memory editor at %1</source>
-        <translation type="obsolete">在 %1打开内存编辑器</translation>
-    </message>
-    <message>
-        <source>Reload Register Listing</source>
-        <translation type="obsolete">重新载入寄存器列表</translation>
-    </message>
-    <message>
-        <source>Open Disassembler...</source>
-        <translation type="obsolete">打开反汇编程序...</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at 0x%1</source>
-        <translation type="obsolete">在 0x%1 处打开内存编辑器</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Value of Register %1 0x%2</source>
-        <translation type="obsolete">打开内存监视器在内存注册值%1 0x%2</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at 0x%1</source>
-        <translation type="obsolete">在0x %1 处打开反汇编程序</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor</source>
-        <translation type="obsolete">打开内存编辑器</translation>
-    </message>
-    <message>
-        <source>Open Memory View at Value of Register</source>
-        <translation type="obsolete">打开内存监视器在内存注册值</translation>
-    </message>
-    <message>
-        <source>Open Disassembler</source>
-        <translation type="obsolete">打开反汇编程序</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at %1</source>
-        <translation type="obsolete">在 %1 处打开内存编辑器</translation>
-    </message>
-    <message>
-        <source>Hexadecimal</source>
-        <translation type="obsolete">16进制</translation>
-    </message>
-    <message>
-        <source>Decimal</source>
-        <translation type="obsolete">10进制</translation>
-    </message>
-    <message>
-        <source>Octal</source>
-        <translation type="obsolete">8进制</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation type="obsolete">2进制</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">按内容调整列宽</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">按内容调整列宽</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">总是按内容调整列宽</translation>
-    </message>
-    <message>
-        <source>Reload register listing</source>
-        <translation type="obsolete">重新载入寄存器列表</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::ScriptEngine</name>
+    <name>Debugger</name>
     <message>
         <source>Error:</source>
         <translation>错误:</translation>
@@ -6097,18 +5051,6 @@ markers in the source code editor.</source>
         <translation>表达式 &quot;%1&quot; 有潜在的副作用所以无法计算其值。</translation>
     </message>
     <message>
-        <source>&apos;%1&apos; contains no identifier</source>
-        <translation type="obsolete">&apos;%1&apos; 不包含标识符</translation>
-    </message>
-    <message>
-        <source>String literal %1</source>
-        <translation type="obsolete">字符串 %1</translation>
-    </message>
-    <message>
-        <source>Cowardly refusing to evaluate expression &apos;%1&apos; with potential side effects</source>
-        <translation type="obsolete">表达式 &quot;%1&quot; 有潜在的副作用所以无法计算其值</translation>
-    </message>
-    <message>
         <source>Stopped at %1:%2.</source>
         <translation>在 %1处停止:%2 。</translation>
     </message>
@@ -6116,51 +5058,10 @@ markers in the source code editor.</source>
         <source>Stopped.</source>
         <translation>已停止。</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::SourceFilesModel</name>
-    <message>
-        <source>Internal name</source>
-        <translation type="obsolete">内部名称</translation>
-    </message>
-    <message>
-        <source>Full name</source>
-        <translation type="obsolete">全名</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::SourceFilesWindow</name>
     <message>
         <source>Source Files</source>
         <translation>源文件</translation>
     </message>
-    <message>
-        <source>Reload Data</source>
-        <translation type="obsolete">重新载入数据</translation>
-    </message>
-    <message>
-        <source>Open File</source>
-        <translation type="obsolete">打开文件</translation>
-    </message>
-    <message>
-        <source>Open File &quot;%1&quot;&apos;</source>
-        <translation type="obsolete">打开文件 &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Reload data</source>
-        <translation type="obsolete">重新载入数据</translation>
-    </message>
-    <message>
-        <source>Open file</source>
-        <translation type="obsolete">打开文件</translation>
-    </message>
-    <message>
-        <source>Open file &quot;%1&quot;&apos;</source>
-        <translation type="obsolete">打开文件&quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::StackHandler</name>
     <message>
         <source>...</source>
         <translation>...</translation>
@@ -6186,14 +5087,6 @@ markers in the source code editor.</source>
         <translation>行号:</translation>
     </message>
     <message>
-        <source>From:</source>
-        <translation>从:</translation>
-    </message>
-    <message>
-        <source>To:</source>
-        <translation>到:</translation>
-    </message>
-    <message>
         <source>Note:</source>
         <translation>注意：</translation>
     </message>
@@ -6213,25 +5106,9 @@ markers in the source code editor.</source>
         <source>Level</source>
         <translation>级别</translation>
     </message>
-    <message>
-        <source>Function</source>
-        <translation>函数</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>文件</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>行号</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>地址</translation>
-    </message>
 </context>
 <context>
-    <name>Debugger::Internal::ThreadsHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Thread&amp;nbsp;id:</source>
         <translation>线程&amp;nbsp;id:</translation>
@@ -6259,22 +5136,6 @@ markers in the source code editor.</source>
     <message>
         <source>ID</source>
         <translation>ID</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>函数</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>文件</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>行号</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>地址</translation>
     </message>
     <message>
         <source>Core</source>
@@ -6312,103 +5173,9 @@ markers in the source code editor.</source>
         <source>Thread ID</source>
         <translation type="obsolete">线程ID</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::StackWindow</name>
     <message>
         <source>Stack</source>
         <translation>栈</translation>
-    </message>
-    <message>
-        <source>Copy Contents to Clipboard</source>
-        <translation type="obsolete">复制内容到剪贴板</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor</source>
-        <translation type="obsolete">打开内存编辑器</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at 0x%1</source>
-        <translation type="obsolete">在 0x%1 处打开内存编辑器</translation>
-    </message>
-    <message>
-        <source>Open Disassembler...</source>
-        <translation type="obsolete">打开反汇编程序...</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at 0x%1</source>
-        <translation type="obsolete">在0x %1 处打开反汇编程序</translation>
-    </message>
-    <message>
-        <source>Try to Load Unknown Symbols</source>
-        <translation type="obsolete">尝试载入未知符号</translation>
-    </message>
-    <message>
-        <source>Memory at Frame #%1 (%2) 0x%3</source>
-        <translation type="obsolete">帧存储器 #%1 (%2) 0x%3</translation>
-    </message>
-    <message>
-        <source>Frame #%1 (%2)</source>
-        <translation type="obsolete">帧#%1 (%2)</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at %1</source>
-        <translation type="obsolete">在 %1 处打开内存编辑器</translation>
-    </message>
-    <message>
-        <source>Open Disassembler</source>
-        <translation type="obsolete">打开反汇编程序</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at %1</source>
-        <translation type="obsolete">在 %1 处打开反汇编程序</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">按内容调整列宽</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">总是按内容调整列宽</translation>
-    </message>
-    <message>
-        <source>Copy contents to clipboard</source>
-        <translation type="obsolete">复制内容到剪贴板</translation>
-    </message>
-    <message>
-        <source>Open memory editor</source>
-        <translation type="obsolete">打开内存编辑器</translation>
-    </message>
-    <message>
-        <source>Open memory editor at %1</source>
-        <translation type="obsolete">在 %1 处打开内存编辑器</translation>
-    </message>
-    <message>
-        <source>Open disassembler</source>
-        <translation type="obsolete">打开反汇编程序</translation>
-    </message>
-    <message>
-        <source>Open disassembler at %1</source>
-        <translation type="obsolete">在 %1 打开反汇编程序</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">按内容调整列宽</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">总是按内容调整列宽</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::StartExternalDialog</name>
-    <message>
-        <source>Select Executable</source>
-        <translation type="obsolete">选择执行档</translation>
-    </message>
-    <message>
-        <source>Select Working Directory</source>
-        <translation type="obsolete">选择工作目录</translation>
     </message>
     <message>
         <source>Executable:</source>
@@ -6420,30 +5187,14 @@ markers in the source code editor.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::StartRemoteDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Select Debugger</source>
         <translation type="obsolete">选择调试器</translation>
     </message>
     <message>
-        <source>Select Location of Debugging Information</source>
-        <translation type="obsolete">选择调试信息的位置</translation>
-    </message>
-    <message>
-        <source>Select Executable</source>
-        <translation type="obsolete">选择执行档</translation>
-    </message>
-    <message>
-        <source>Select Sysroot</source>
-        <translation type="obsolete">选择Sysroot</translation>
-    </message>
-    <message>
         <source>Select GDB Start Script</source>
         <translation type="obsolete">选择GDB启动脚本</translation>
-    </message>
-    <message>
-        <source>Select Server Start Script</source>
-        <translation type="obsolete">选择服务器启动脚本</translation>
     </message>
     <message>
         <source>Select Start Script</source>
@@ -6451,26 +5202,10 @@ markers in the source code editor.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::ThreadsWindow</name>
+    <name>Debugger</name>
     <message>
         <source>Thread</source>
         <translation type="obsolete">线程</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">按内容调整列宽</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">总是按内容调整列宽</translation>
-    </message>
-    <message>
-        <source>Adjust column widths to contents</source>
-        <translation type="obsolete">按内容调整列宽</translation>
-    </message>
-    <message>
-        <source>Always adjust column widths to contents</source>
-        <translation type="obsolete">总是按内容调整列宽</translation>
     </message>
     <message>
         <source>Threads</source>
@@ -6561,12 +5296,6 @@ markers in the source code editor.</source>
             <numerusform>&lt;多于%n 个项&gt;</numerusform>
         </translation>
     </message>
-    <message numerus="yes">
-        <source>&lt;%n items&gt;</source>
-        <translation>
-            <numerusform>&lt;%n 个项&gt;</numerusform>
-        </translation>
-    </message>
     <message>
         <source>%1 Object at %2</source>
         <translation>在 %2 的 %1 对象</translation>
@@ -6613,26 +5342,6 @@ markers in the source code editor.</source>
         <translation>UCS4字符串</translation>
     </message>
     <message>
-        <source>Decimal</source>
-        <translation>10进制</translation>
-    </message>
-    <message>
-        <source>Hexadecimal</source>
-        <translation>16进制</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation>二进制</translation>
-    </message>
-    <message>
-        <source>Octal</source>
-        <translation>8进制</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>名称</translation>
-    </message>
-    <message>
         <source>Root</source>
         <translation>根</translation>
     </message>
@@ -6655,14 +5364,6 @@ markers in the source code editor.</source>
     <message>
         <source>Tooltip</source>
         <translation>工具提示</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>值</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>类型</translation>
     </message>
     <message>
         <source>Locals and Watchers</source>
@@ -6719,10 +5420,6 @@ markers in the source code editor.</source>
     <message>
         <source>Refresh Code Model Snapshot</source>
         <translation type="obsolete">更新代码模型快照</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">按内容调整列宽</translation>
     </message>
     <message>
         <source>Change Format for Object Named &quot;%1&quot;</source>
@@ -6801,10 +5498,6 @@ markers in the source code editor.</source>
         <translation type="obsolete">局部变量和监视器</translation>
     </message>
     <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">总是按内容调整列宽</translation>
-    </message>
-    <message>
         <source>Change format for type &apos;%1&apos;</source>
         <translation type="obsolete">根据&apos;%1&apos; 型改变格式</translation>
     </message>
@@ -6854,7 +5547,7 @@ markers in the source code editor.</source>
     </message>
 </context>
 <context>
-    <name>DebuggerPane</name>
+    <name>Debugger</name>
     <message>
         <source>Clear contents</source>
         <translation type="obsolete">清空内容</translation>
@@ -18312,7 +17005,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::TrkOptionsWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Form</source>
         <translation type="obsolete">界面</translation>
@@ -19036,10 +17729,6 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>&amp;Keep Project and Open</source>
         <translation type="obsolete">保留项目并且打开(&amp;K)</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="obsolete">警告</translation>
     </message>
     <message>
         <source>The specified location already exists. Please specify a valid location.</source>
@@ -19962,173 +18651,6 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>CVS Command</source>
         <translation>CVS 命令</translation>
-    </message>
-</context>
-<context>
-    <name>CdbStackFrameContext</name>
-    <message>
-        <source>&lt;Unknown Type&gt;</source>
-        <translation type="obsolete">&lt;未知类型&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;Unknown Value&gt;</source>
-        <translation type="obsolete">&lt;未知数值&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;Unknown&gt;</source>
-        <translation type="obsolete">&lt;未知&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>SymbolGroup</name>
-    <message>
-        <source>Out of scope</source>
-        <translation type="obsolete">超出范围</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::MemoryViewAgent</name>
-    <message>
-        <source>Memory $</source>
-        <translation type="obsolete">内存 $</translation>
-    </message>
-    <message>
-        <source>No memory viewer available</source>
-        <translation type="obsolete">没有可用的内存查看器</translation>
-    </message>
-    <message>
-        <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
-        <translation type="obsolete">没有载入二进制数据查看器插件，无法显示内存内容。</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerRunControlFactory</name>
-    <message>
-        <source>Debug</source>
-        <translation type="obsolete">调试</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerRunControl</name>
-    <message>
-        <source>Debugger</source>
-        <translation type="obsolete">调试器</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CoreGdbAdapter</name>
-    <message>
-        <source>Error Loading Symbols</source>
-        <translation type="obsolete">载入符号错误</translation>
-    </message>
-    <message>
-        <source>No executable to load symbols from specified.</source>
-        <translation type="obsolete">没有指定可运行的程序来载入符号。</translation>
-    </message>
-    <message>
-        <source>Loading symbols from &quot;%1&quot; failed:
-</source>
-        <translation type="obsolete">从 &quot;%1&quot; 载入符号失败:
-</translation>
-    </message>
-    <message>
-        <source>Unable to determine executable from core file.</source>
-        <translation type="obsolete">无法从核心文件决定可执行文件。</translation>
-    </message>
-    <message>
-        <source>Symbols found.</source>
-        <translation type="obsolete">找到符号。</translation>
-    </message>
-    <message>
-        <source>The name of the binary file cannot be extracted from this core file.</source>
-        <translation type="obsolete">无法从核心文件中提取二进制文件名。</translation>
-    </message>
-    <message>
-        <source>Try to specify the binary using the &lt;i&gt;Debug-&gt;Start Debugging-&gt;Attach to Core&lt;/i&gt; dialog.</source>
-        <translation type="obsolete">尝试用&lt;i&gt;调试-&gt;开始调试-&gt;关联到核心&lt;/i&gt;对话框指定二进制文件。</translation>
-    </message>
-    <message>
-        <source>Loading core file failed</source>
-        <translation type="obsolete">载入核心文件失败</translation>
-    </message>
-    <message>
-        <source>No symbols found in core file &lt;i&gt;%1&lt;/i&gt;.</source>
-        <translation type="obsolete">核心文件中找不到符号 &lt;i&gt;%1&lt;/i&gt;。</translation>
-    </message>
-    <message>
-        <source>This can be caused by a path length limitation in the core file.</source>
-        <translation type="obsolete">此问题可能是由核心文件中的路径长度限制引起.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::PlainGdbAdapter</name>
-    <message>
-        <source>Cannot set up communication with child process: %1</source>
-        <translation type="obsolete">无法与子进程进行通信: %1</translation>
-    </message>
-    <message>
-        <source>Starting executable failed:
-</source>
-        <translation type="obsolete">启动执行档失败:
-</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::RemoteGdbAdapter</name>
-    <message>
-        <source>The upload process failed to start. Shell missing?</source>
-        <translation type="obsolete">上载进程启动失败，Shell缺失?</translation>
-    </message>
-    <message>
-        <source>The upload process crashed some time after starting successfully.</source>
-        <translation type="obsolete">上载进程成功启动后崩溃。</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation type="obsolete">当尝试写入上载进程时发生错误。比如，进程没有运行或者它关闭了自己的输入通道。</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to read from the upload process. For example, the process may not be running.</source>
-        <translation type="obsolete">当尝试读取上载进程时发生错误。比如，进程没有运行。</translation>
-    </message>
-    <message>
-        <source>An unknown error in the upload process occurred. This is the default return value of error().</source>
-        <translation type="obsolete">上载进程发生未知错误。这是error()的默认返回值。</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="obsolete">错误</translation>
-    </message>
-    <message>
-        <source>Adapter too old: does not support asynchronous mode.</source>
-        <translation type="obsolete">适配器太旧：不支持异步模式</translation>
-    </message>
-    <message>
-        <source>Starting remote executable failed:
-</source>
-        <translation type="obsolete">启动远程执行档失败:
-</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::TrkGdbAdapter</name>
-    <message>
-        <source>Port specification missing.</source>
-        <translation type="obsolete">缺少端口说明。</translation>
-    </message>
-    <message>
-        <source>Unable to acquire a device on &apos;%1&apos;. It appears to be in use.</source>
-        <translation type="obsolete">无法在 &apos;%1&apos; 获得设备。看起来此设备正在被使用。</translation>
-    </message>
-    <message>
-        <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
-        <translation type="obsolete">进程启动, PID: 0x%1, 线程 id: 0x%2, 代码段: 0x%3, 数据段: 0x%4.</translation>
-    </message>
-    <message>
-        <source>Connecting to TRK server adapter failed:
-</source>
-        <translation type="obsolete">连接TRK 服务器适配器失败:
-</translation>
     </message>
 </context>
 <context>
@@ -21660,65 +20182,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AbstractGdbAdapter</name>
-    <message>
-        <source>The Gdb process could not be stopped:
-%1</source>
-        <translation type="obsolete">Gdb 进程无法停止:
-%1</translation>
-    </message>
-    <message>
-        <source>The gdb process could not be stopped:
-%1</source>
-        <translation type="obsolete">Gdb 进程无法停止:
-%1</translation>
-    </message>
-    <message>
-        <source>Application process could not be stopped:
-%1</source>
-        <translation type="obsolete">应用进程无法被停止:
-%1</translation>
-    </message>
-    <message>
-        <source>Application started</source>
-        <translation type="obsolete">应用已启动</translation>
-    </message>
-    <message>
-        <source>Application running</source>
-        <translation type="obsolete">应用运行中</translation>
-    </message>
-    <message>
-        <source>Attached to stopped application</source>
-        <translation type="obsolete">关联到已停止的程序</translation>
-    </message>
-    <message>
-        <source>Inferior process could not be stopped:
-%1</source>
-        <translation type="obsolete">Inferior 不可以被停止:
-%1</translation>
-    </message>
-    <message>
-        <source>Connecting to remote server failed:
-%1</source>
-        <translation type="obsolete">连接远程服务器失败:
-%1</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::TermGdbAdapter</name>
-    <message>
-        <source>Debugger Error</source>
-        <translation type="obsolete">调试器错误</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::TrkOptionsPage</name>
-    <message>
-        <source>Symbian TRK</source>
-        <translation type="obsolete">Symbian TRK</translation>
-    </message>
-</context>
-<context>
     <name>QmlParser</name>
     <message>
         <source>Illegal character</source>
@@ -22163,7 +20626,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CdbOptionsPage</name>
+    <name>Debugger</name>
     <message>
         <source>Cdb</source>
         <translation type="obsolete">Cdb</translation>
@@ -24689,94 +23152,7 @@ Previous decimal signed value (big endian): %4</source>
     </message>
 </context>
 <context>
-    <name>CdbSymbolGroupContext</name>
-    <message>
-        <source>&lt;Unknown Type&gt;</source>
-        <translation type="obsolete">&lt;未知类型&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;Unknown Value&gt;</source>
-        <translation type="obsolete">&lt;未知数值&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;Unknown&gt;</source>
-        <translation type="obsolete">&lt;未知&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Cdb</name>
-    <message>
-        <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
-        <translation type="obsolete">无法载入调试引擎库 &apos;%1&apos;: %2</translation>
-    </message>
-    <message>
-        <source>Unable to resolve &apos;%1&apos; in the debugger engine library &apos;%2&apos;</source>
-        <translation type="obsolete">在调试引擎库中 &apos;%2&apos;无法解析符号 &apos;%1&apos;</translation>
-    </message>
-</context>
-<context>
-    <name>CdbCore::CoreEngine</name>
-    <message>
-        <source>Unable to set the image path to %1: %2</source>
-        <translation type="obsolete">无法设置图像路径到 %1: %2</translation>
-    </message>
-    <message>
-        <source>Unable to create a process &apos;%1&apos;: %2</source>
-        <translation type="obsolete">无法创建进程 &apos;%1&apos;: %2</translation>
-    </message>
-    <message>
-        <source>Attaching to a process failed for process id %1: %2</source>
-        <translation type="obsolete">关联进程失败，进程 ID %1: %2</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::DebuggerUISwitcher</name>
-    <message>
-        <source>Locked</source>
-        <translation type="obsolete">锁定</translation>
-    </message>
-    <message>
-        <source>&amp;Languages</source>
-        <translation type="obsolete">语言(&amp;L)</translation>
-    </message>
-    <message>
-        <source>&amp;Views</source>
-        <translation type="obsolete">视图(&amp;V)</translation>
-    </message>
-    <message>
-        <source>Reset to default layout</source>
-        <translation type="obsolete">重置为默认布局</translation>
-    </message>
-    <message>
-        <source>Language</source>
-        <translation type="obsolete">语言</translation>
-    </message>
-    <message>
-        <source>Memory...</source>
-        <translation type="obsolete">内存...</translation>
-    </message>
-    <message>
-        <source>Debugger Toolbar</source>
-        <translation type="obsolete">调试器工具栏</translation>
-    </message>
-</context>
-<context>
-    <name>GdbChooserWidget</name>
-    <message>
-        <source>Unable to run &apos;%1&apos;: %2</source>
-        <translation type="obsolete">无法执行%1&apos;: %2</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbChooserWidget</name>
-    <message>
-        <source>Unable to run &apos;%1&apos;: %2</source>
-        <translation type="obsolete">无法执行 &apos;%1&apos;: %2</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation type="obsolete">二进制档</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Toolchains</source>
         <translation type="obsolete">工具链</translation>
@@ -24789,20 +23165,6 @@ Previous decimal signed value (big endian): %4</source>
         <source>The binary &apos;%1&apos; already exists.</source>
         <translation type="obsolete">二进制档 &apos;%1&apos; 已经存在。</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::ToolChainSelectorWidget</name>
-    <message>
-        <source>Desktop/General</source>
-        <translation type="obsolete">桌面/概要</translation>
-    </message>
-    <message>
-        <source>Symbian</source>
-        <translation type="obsolete">塞班</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::BinaryToolChainDialog</name>
     <message>
         <source>Select binary and toolchains</source>
         <translation type="obsolete">选择二进制和工具链</translation>
@@ -24812,35 +23174,8 @@ Previous decimal signed value (big endian): %4</source>
         <translation type="obsolete">Gdb 二进制</translation>
     </message>
     <message>
-        <source>Path:</source>
-        <translation type="obsolete">路径:</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::SnapshotHandler</name>
-    <message>
-        <source>Function:</source>
-        <translation type="obsolete">函数:</translation>
-    </message>
-    <message>
-        <source>File:</source>
-        <translation type="obsolete">文件:</translation>
-    </message>
-    <message>
         <source>Date:</source>
         <translation type="obsolete">日期:</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation type="obsolete">...</translation>
-    </message>
-    <message>
-        <source>&lt;More&gt;</source>
-        <translation type="obsolete">&lt;更多&gt;</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation type="obsolete">函数</translation>
     </message>
     <message>
         <source>Date</source>
@@ -24849,37 +23184,6 @@ Previous decimal signed value (big endian): %4</source>
     <message>
         <source>Location</source>
         <translation type="obsolete">位置</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>名称</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>文件</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::SnapshotWindow</name>
-    <message>
-        <source>Snapshots</source>
-        <translation>快照</translation>
-    </message>
-    <message>
-        <source>Create Snapshot</source>
-        <translation type="obsolete">创建快照</translation>
-    </message>
-    <message>
-        <source>Remove Snapshot</source>
-        <translation type="obsolete">移除快照</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">按内容调整列宽</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation type="obsolete">总是按内容调整列宽</translation>
     </message>
 </context>
 <context>
@@ -26392,10 +24696,6 @@ Ids must begin with a lowercase letter.</source>
         <translation type="obsolete">
             <numerusform>&lt;%n 个项&gt;</numerusform>
         </translation>
-    </message>
-    <message>
-        <source>Watch expression &apos;%1&apos;</source>
-        <translation type="obsolete">监视表达式 &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Hide unwatchable properties</source>
@@ -28656,11 +26956,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::PdbEngine</name>
-    <message>
-        <source>Running requested...</source>
-        <translation>执行请求...</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Unable to start pdb &apos;%1&apos;: %2</source>
         <translation>无法启动 pdb &apos;%1&apos;: %2</translation>
@@ -28696,10 +26992,6 @@ with a password, which you can enter below.</source>
     <message>
         <source>The Pdb process crashed some time after starting successfully.</source>
         <translation>Pdb 进程在正常启动后崩溃。</translation>
-    </message>
-    <message>
-        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>最近的 waitFor...() 函数超时。QProcess 的状态未改变, 您可以尝试再次调用 waitFor...() 。</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the Pdb process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -30820,7 +29112,7 @@ Flags: %3</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BreakpointDialog</name>
+    <name>Debugger</name>
     <message>
         <source>File and Line Number</source>
         <translation type="obsolete">文件和行号</translation>
@@ -30926,14 +29218,6 @@ debugger start-up times (CDB, LLDB).</source>
         <translation type="obsolete">&quot;main()&quot;函数</translation>
     </message>
     <message>
-        <source>Address</source>
-        <translation type="obsolete">地址</translation>
-    </message>
-    <message>
-        <source>Edit Breakpoint Properties</source>
-        <translation>编辑断点属性</translation>
-    </message>
-    <message>
         <source>Basic</source>
         <translation>基础</translation>
     </message>
@@ -31020,130 +29304,12 @@ This feature is only available for GDB.</source>
         <translation>忽略次数(&amp;i):</translation>
     </message>
     <message>
-        <source>&amp;Thread specification:</source>
-        <translation>线程信息(&amp;T):</translation>
-    </message>
-    <message>
         <source>&amp;Expression:</source>
         <translation>表达式(&amp;E):</translation>
     </message>
     <message>
         <source>&amp;Message:</source>
         <translation>消息(&amp;M):</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CdbEngine</name>
-    <message>
-        <source>The function &quot;%1()&quot; failed: %2</source>
-        <extracomment>Function call failed</extracomment>
-        <translation type="obsolete">函数 &quot;%1()&quot; 执行失败: %2</translation>
-    </message>
-    <message>
-        <source>Version: %1</source>
-        <translation type="obsolete">版本: %1</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation type="obsolete">调试器</translation>
-    </message>
-    <message>
-        <source>Symbol Server</source>
-        <translation type="obsolete">符号服务器</translation>
-    </message>
-    <message>
-        <source>The dumper library was not found at %1.</source>
-        <translation type="obsolete">在%1 未找到dumper库.</translation>
-    </message>
-    <message>
-        <source>The console stub process was unable to start &apos;%1&apos;.</source>
-        <translation type="obsolete">无法启动控制台根进程&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Attaching to core files is not supported.</source>
-        <translation type="obsolete">不支持关联到核心文件.</translation>
-    </message>
-    <message>
-        <source>The process exited with exit code %1.</source>
-        <translation type="obsolete">进程退出，退出代码 %1 。</translation>
-    </message>
-    <message>
-        <source>&lt;not supported&gt;</source>
-        <translation type="obsolete">&lt;未支持&gt;</translation>
-    </message>
-    <message>
-        <source>Continuing with &apos;%1&apos;...</source>
-        <translation type="obsolete">继续&apos;%1&apos;...</translation>
-    </message>
-    <message>
-        <source>Unable to continue: %1</source>
-        <translation type="obsolete">无法继续执行: %1</translation>
-    </message>
-    <message>
-        <source>Reverse stepping is not implemented.</source>
-        <translation type="obsolete">逆向单步执行没有实现.</translation>
-    </message>
-    <message>
-        <source>Thread %1 cannot be stepped.</source>
-        <translation type="obsolete">线程 %1 无法单步执行。</translation>
-    </message>
-    <message>
-        <source>Stepping %1</source>
-        <translation type="obsolete">单步 %1</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation type="obsolete">执行请求...</translation>
-    </message>
-    <message>
-        <source>Jump to line is not implemented</source>
-        <translation type="obsolete">跳转到行没有实现</translation>
-    </message>
-    <message>
-        <source>Assigning &apos;%1&apos; to &apos;%2&apos; (%3)...</source>
-        <extracomment>Arguments: New value, name, (type)</extracomment>
-        <translation type="obsolete">分配 &apos;%1&apos; 到 &apos;%2&apos; (%3)...</translation>
-    </message>
-    <message>
-        <source>Can assign only scalar values.</source>
-        <translation type="obsolete">只可分配标量.</translation>
-    </message>
-    <message>
-        <source>Cannot assign values of type &apos;%1&apos;. Only POD-types can be assigned.</source>
-        <translation type="obsolete">不可分配类型数据&apos;%1&apos;.只有类型POD可以被分配.</translation>
-    </message>
-    <message>
-        <source>Unable to assign the value &apos;%1&apos; to &apos;%2&apos; (%3): %4</source>
-        <extracomment>Arguments: New value, name, (type): Error</extracomment>
-        <translation type="obsolete">无法分配值 &apos;%1&apos; 到 &apos;%2&apos; (%3): %4</translation>
-    </message>
-    <message>
-        <source>Unable to retrieve %1 bytes of memory at 0x%2: %3</source>
-        <translation type="obsolete">无法获取内存地址0x%2 处的 %1 字节: %3</translation>
-    </message>
-    <message>
-        <source>Cannot retrieve symbols while the debuggee is running.</source>
-        <translation type="obsolete">当被调试程序运行时无法获取符号信息。</translation>
-    </message>
-    <message>
-        <source>There is no CDB binary available for binaries in format &apos;%1&apos;</source>
-        <translation type="obsolete">没有 CDB 二进制档可用为二进制格式&apos;%1&apos;</translation>
-    </message>
-    <message>
-        <source>The CDB debug engine required for %1 is currently disabled.</source>
-        <translation type="obsolete">CDB 调试引擎被%1 需要，目前被关闭.</translation>
-    </message>
-    <message>
-        <source>The CDB engine does not support start mode %1.</source>
-        <translation type="obsolete">CDB 引擎不支持启动模式%1.</translation>
-    </message>
-    <message>
-        <source>The CDB debug engine does not support the %1 ABI.</source>
-        <translation type="obsolete">CDB 调试引擎不支持%1 ABI.</translation>
-    </message>
-    <message>
-        <source>The CDB debug engine cannot debug gdb core files.</source>
-        <translation type="obsolete">CDB调试引擎无法调试gdb核心文件.</translation>
     </message>
     <message>
         <source>The console process &apos;%1&apos; could not be started.</source>
@@ -31205,65 +29371,9 @@ This feature is only available for GDB.</source>
         <source>&quot;Select Widget to Watch&quot;: Not supported in state &apos;%1&apos;.</source>
         <translation>&quot;选择监视的控件&quot;:在状态&apos;%1&apos;下不支持。</translation>
     </message>
-    <message>
-        <source>Ignoring initial breakpoint...</source>
-        <translation type="obsolete">忽略初始状态的断点...</translation>
-    </message>
-    <message>
-        <source>&lt;interrupt thread&gt;</source>
-        <translation type="obsolete">&lt;中断线程&gt;</translation>
-    </message>
-    <message>
-        <source>Breakpoint</source>
-        <translation type="obsolete">断点</translation>
-    </message>
-    <message>
-        <source>Interrupted in thread %1, current thread: %2</source>
-        <translation type="obsolete">线程 %1 中断，当前线程: %2</translation>
-    </message>
-    <message>
-        <source>Stopped, current thread: %1</source>
-        <translation type="obsolete">停止，当前线程: %1</translation>
-    </message>
-    <message>
-        <source>Changing threads: %1 -&gt; %2</source>
-        <translation type="obsolete">改变线程: %1 -&gt; %2</translation>
-    </message>
-    <message>
-        <source>stopped</source>
-        <translation type="obsolete">已停止</translation>
-    </message>
-    <message>
-        <source>Stopped at %1:%2 in thread %3.</source>
-        <translation type="obsolete">在线程%3中停止在 %1:%2 .</translation>
-    </message>
-    <message>
-        <source>Stopped at %1 in thread %2 (missing debug information).</source>
-        <translation type="obsolete">在线程%2中停止在 %1(缺少调试信息).</translation>
-    </message>
-    <message>
-        <source>Stopped at %1 (%2) in thread %3 (missing debug information).</source>
-        <translation type="obsolete">在线程%3中停止在%1 (%2)(缺少调试信息).</translation>
-    </message>
-    <message>
-        <source>Stopped in thread %1 (missing debug information).</source>
-        <translation type="obsolete">在线程%1中停止(缺少调试信息).</translation>
-    </message>
-    <message>
-        <source>Breakpoint: %1</source>
-        <translation type="obsolete">断点:%1</translation>
-    </message>
-    <message>
-        <source>Watchpoint: %1</source>
-        <translation type="obsolete">监视点:%1</translation>
-    </message>
-    <message>
-        <source>The CDB debug engine does not support the &apos;%1</source>
-        <translation type="obsolete">CDB调试引擎不支持%1</translation>
-    </message>
 </context>
 <context>
-    <name>Debugger::Internal::CacheDirectoryDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Select Local Cache Folder</source>
         <translation>选择本地缓存目录</translation>
@@ -31288,85 +29398,13 @@ This feature is only available for GDB.</source>
         <source>The folder &apos;%1&apos; could not be created.</source>
         <translation>目录&apos;%1&apos;无法被创建。</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::Console</name>
-    <message>
-        <source>Clear Contents</source>
-        <translation type="obsolete">清空内容</translation>
-    </message>
-    <message>
-        <source>Save Contents</source>
-        <translation type="obsolete">保存内容</translation>
-    </message>
-    <message>
-        <source>Log File</source>
-        <translation type="obsolete">日志文件</translation>
-    </message>
-    <message>
-        <source>Write Failure</source>
-        <translation type="obsolete">写失败</translation>
-    </message>
-    <message>
-        <source>Unable to write log contents to &apos;%1&apos;: %2</source>
-        <translation type="obsolete">无法将日志内容写到&apos;%1&apos;:%2</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::ConsoleWindow</name>
     <message>
         <source>Console</source>
         <translation type="obsolete">控制台</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::AttachTcfDialog</name>
-    <message>
-        <source>Select Executable</source>
-        <translation type="obsolete">选择执行档</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::DebuggerEnginePrivate</name>
     <message>
         <source>Remove Breakpoint</source>
         <translation type="obsolete">删除断点</translation>
-    </message>
-    <message>
-        <source>Remove Breakpoint %1</source>
-        <translation type="obsolete">移除断点%1</translation>
-    </message>
-    <message>
-        <source>Disable Breakpoint</source>
-        <translation type="obsolete">禁用断点</translation>
-    </message>
-    <message>
-        <source>Disable Breakpoint %1</source>
-        <translation type="obsolete">禁用断点 %1</translation>
-    </message>
-    <message>
-        <source>Enable Breakpoint</source>
-        <translation type="obsolete">启用断点</translation>
-    </message>
-    <message>
-        <source>Enable Breakpoint %1</source>
-        <translation type="obsolete">启用断点 %1</translation>
-    </message>
-    <message>
-        <source>Edit Breakpoint...</source>
-        <translation type="obsolete">编辑断点...</translation>
-    </message>
-    <message>
-        <source>Edit Breakpoint %1...</source>
-        <translation type="obsolete">编辑断点%1...</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at 0x%1</source>
-        <translation type="obsolete">在0x%1设置断点</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at line %1</source>
-        <translation type="obsolete">在第%1行设置断点</translation>
     </message>
     <message>
         <source>Attempting to interrupt.</source>
@@ -31379,25 +29417,6 @@ This feature is only available for GDB.</source>
     <message>
         <source>Debugger Test</source>
         <translation>调试器测试</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::DebuggerEngine</name>
-    <message>
-        <source>Symbol</source>
-        <translation type="obsolete">符号</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="obsolete">地址</translation>
-    </message>
-    <message>
-        <source>Code</source>
-        <translation type="obsolete">代码</translation>
-    </message>
-    <message>
-        <source>Symbols in &quot;%1&quot;</source>
-        <translation type="obsolete">&quot;%1&quot; 中的符号</translation>
     </message>
     <message>
         <source>Launching</source>
@@ -31468,10 +29487,6 @@ This feature is only available for GDB.</source>
         <translation>在线程%2的内部断点%1处停止。</translation>
     </message>
     <message>
-        <source>Stopped.</source>
-        <translation>已停止。</translation>
-    </message>
-    <message>
         <source>Setup failed.</source>
         <translation>设置失败。</translation>
     </message>
@@ -31534,30 +29549,6 @@ This feature is only available for GDB.</source>
         <translation>异常被触发</translation>
     </message>
     <message>
-        <source>Open Qt4 Options</source>
-        <translation type="obsolete">打开Qt4选项</translation>
-    </message>
-    <message>
-        <source>Turn off Helper Usage</source>
-        <translation type="obsolete">关闭助手应用</translation>
-    </message>
-    <message>
-        <source>Continue Anyway</source>
-        <translation type="obsolete">依然继续</translation>
-    </message>
-    <message>
-        <source>Debugging Helper Missing</source>
-        <translation type="obsolete">调试助手丢失</translation>
-    </message>
-    <message>
-        <source>The debugger could not load the debugging helper library.</source>
-        <translation type="obsolete">调试器无法装载调试帮助库。</translation>
-    </message>
-    <message>
-        <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. On the Qt4 options page, select a Qt installation and click Rebuild.</source>
-        <translation type="obsolete">调试助手是用来格式化Qt和标准库数据类型的。他必须分别被每个使用中的Qt版本进行编译。在Qt4选项页面，选择Qt安装页面并且单击重新构建。</translation>
-    </message>
-    <message>
         <source>Taking notice of pid %1</source>
         <translation>注意pid %1</translation>
     </message>
@@ -31579,11 +29570,7 @@ This feature is only available for GDB.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::DebuggerPlugin</name>
-    <message>
-        <source>Debug</source>
-        <translation>Debug</translation>
-    </message>
+    <name>Debugger</name>
     <message>
         <source>Option &apos;%1&apos; is missing the parameter.</source>
         <translation>选项 &apos;%1&apos; 缺少参数。</translation>
@@ -31637,10 +29624,6 @@ Details: %3</source>
 详细: %3</translation>
     </message>
     <message>
-        <source>Warning</source>
-        <translation type="obsolete">警告</translation>
-    </message>
-    <message>
         <source>Install &amp;Debug Information</source>
         <translation>安装调试信息(&amp;D)</translation>
     </message>
@@ -31650,152 +29633,10 @@ Details: %3</source>
     </message>
 </context>
 <context>
-    <name>Debugger::DebuggerPluginPrivate</name>
-    <message>
-        <source>QML Script Console</source>
-        <translation type="obsolete">QML脚本命令行</translation>
-    </message>
-    <message>
-        <source>Continue</source>
-        <translation type="obsolete">继续</translation>
-    </message>
-    <message>
-        <source>Stop Debugger</source>
-        <translation type="obsolete">停止调试</translation>
-    </message>
-    <message>
-        <source>Interrupt</source>
-        <translation type="obsolete">中断</translation>
-    </message>
-    <message>
-        <source>Debugger is Busy</source>
-        <translation type="obsolete">调试器忙</translation>
-    </message>
-    <message>
-        <source>Abort Debugging</source>
-        <translation type="obsolete">终止调试</translation>
-    </message>
-    <message>
-        <source>Aborts debugging and resets the debugger to the initial state.</source>
-        <translation type="obsolete">终止调试并重置调试器到初始状态。</translation>
-    </message>
-    <message>
-        <source>Step Over</source>
-        <translation type="obsolete">单步跳过</translation>
-    </message>
-    <message>
-        <source>Step Into</source>
-        <translation type="obsolete">单步进入</translation>
-    </message>
-    <message>
-        <source>Step Out</source>
-        <translation type="obsolete">单步跳出</translation>
-    </message>
-    <message>
-        <source>Run to Line</source>
-        <translation type="obsolete">执行到行</translation>
-    </message>
-    <message>
-        <source>Immediately Return From Inner Function</source>
-        <translation type="obsolete">从内部函数立即返回</translation>
-    </message>
-    <message>
-        <source>Jump to Line</source>
-        <translation type="obsolete">跳到指定行</translation>
-    </message>
-    <message>
-        <source>Toggle Breakpoint</source>
-        <translation type="obsolete">切换断点状态</translation>
-    </message>
-    <message>
-        <source>Add to Watch Window</source>
-        <translation type="obsolete">添加到监视窗口</translation>
-    </message>
-    <message>
-        <source>Create Snapshot</source>
-        <translation type="obsolete">创建快照</translation>
-    </message>
-    <message>
-        <source>Reverse Direction</source>
-        <translation type="obsolete">转变方向</translation>
-    </message>
-    <message>
-        <source>Move to Called Frame</source>
-        <translation type="obsolete">移动到被调用的帧</translation>
-    </message>
-    <message>
-        <source>Move to Calling Frame</source>
-        <translation type="obsolete">移动到调用帧</translation>
-    </message>
-    <message>
-        <source>Error evaluating command line arguments: %1</source>
-        <translation type="obsolete">命令行参数赋值错误: %1</translation>
-    </message>
-    <message>
-        <source>Start and Debug External Application...</source>
-        <translation type="obsolete">启动和调试外部应用程序...</translation>
-    </message>
-    <message>
-        <source>This attaches to a running &apos;Target Communication Framework&apos; agent.</source>
-        <translation type="obsolete">这将附加到运行中的&apos;目标通信框架&apos;协议.</translation>
-    </message>
-    <message>
-        <source>Detach Debugger</source>
-        <translation type="obsolete">脱离调试器</translation>
-    </message>
-    <message>
-        <source>Interrupt Debugger</source>
-        <translation type="obsolete">中断调试器</translation>
-    </message>
-    <message>
-        <source>Reset Debugger</source>
-        <translation type="obsolete">重置调试器</translation>
-    </message>
-    <message>
-        <source>Threads:</source>
-        <translation type="obsolete">线程:</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="obsolete">警告</translation>
-    </message>
-    <message>
-        <source>Process %1</source>
-        <translation type="obsolete">进程%1</translation>
-    </message>
-    <message>
-        <source>Core file &quot;%1&quot;</source>
-        <translation type="obsolete">核心文件&apos;%1&apos;</translation>
-    </message>
-    <message>
-        <source>Remote: &quot;%1&quot;</source>
-        <translation type="obsolete">远程:&apos;%1&apos;</translation>
-    </message>
-    <message>
-        <source>Save Debugger Log</source>
-        <translation type="obsolete">保存调试器日志</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::DebuggerRunControlFactory</name>
-    <message>
-        <source>Debug</source>
-        <translation type="obsolete">调试</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::DebuggerRunControl</name>
+    <name>Debugger</name>
     <message>
         <source>Cannot debug &apos;%1&apos; (tool chain: &apos;%2&apos;): %3</source>
         <translation type="obsolete">无法调试 &quot;%1&quot; (工具链: &quot;%2&quot;) : %3</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="obsolete">警告</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation>调试器</translation>
     </message>
     <message>
         <source>Starting debugger &apos;%1&apos; for tool chain &apos;%2&apos;...</source>
@@ -31845,29 +29686,6 @@ Details: %3</source>
         <source>Close Debugging Session</source>
         <translation>关闭调试会话</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::AbstractPlainGdbAdapter</name>
-    <message>
-        <source>Starting executable failed:
-</source>
-        <translation type="obsolete">启动执行档失败:
-</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::AttachGdbAdapter</name>
-    <message>
-        <source>Attached to process %1.</source>
-        <translation type="obsolete">挂接进程%1.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::LocalPlainGdbAdapter</name>
-    <message>
-        <source>Cannot set up communication with child process: %1</source>
-        <translation type="obsolete">无法与子进程%1建立通信</translation>
-    </message>
     <message>
         <source>This does not seem to be a &quot;Debug&quot; build.
 Setting breakpoints by file name and line number may fail.</source>
@@ -31875,7 +29693,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::RemoteGdbProcess</name>
+    <name>Debugger</name>
     <message>
         <source>Connection could not be established.</source>
         <translation type="obsolete">无法建立连接.</translation>
@@ -31910,84 +29728,14 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::RemoteGdbServerAdapter</name>
-    <message>
-        <source>The upload process failed to start. Shell missing?</source>
-        <translation type="obsolete">上传进程启动失败.没有可用的Shell么?</translation>
-    </message>
-    <message>
-        <source>The upload process crashed some time after starting successfully.</source>
-        <translation type="obsolete">上载进程成功启动后崩溃。</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation type="obsolete">尝试写入上传进程时遇到错误.可能是上传进程未启动或关闭了输入通道.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to read from the upload process. For example, the process may not be running.</source>
-        <translation type="obsolete">尝试从上传进程读取时遇到错误.可能是进程未启动.</translation>
-    </message>
-    <message>
-        <source>An unknown error in the upload process occurred. This is the default return value of error().</source>
-        <translation type="obsolete">上传进程中发生未知错误.这是因为错误返回了默认值.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="obsolete">错误</translation>
-    </message>
-    <message>
-        <source>No symbol file given.</source>
-        <translation type="obsolete">无符号文件.</translation>
-    </message>
-    <message>
-        <source>Reading debug information failed:
-</source>
-        <translation type="obsolete">读取debug信息时失败:</translation>
-    </message>
-    <message>
-        <source>Interrupting not possible</source>
-        <translation type="obsolete">不可中断</translation>
-    </message>
-</context>
-<context>
-    <name>TcfTrkGdbAdapter</name>
-    <message>
-        <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
-        <translation type="obsolete">进程启动, PID: 0x%1, 线程 id: 0x%2, 代码段: 0x%3, 数据段: 0x%4.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerPane</name>
-    <message>
-        <source>Clear Contents</source>
-        <translation>清空内容</translation>
-    </message>
-    <message>
-        <source>Save Contents</source>
-        <translation>保存内容</translation>
-    </message>
-    <message>
-        <source>Log File</source>
-        <translation type="obsolete">Log 文件</translation>
-    </message>
-    <message>
-        <source>Write Failure</source>
-        <translation type="obsolete">写失败</translation>
-    </message>
-    <message>
-        <source>Unable to write log contents to &apos;%1&apos;: %2</source>
-        <translation type="obsolete">无法将日志内容写到&apos;%1&apos;:%2</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::InputPane</name>
+    <name>Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>键入Ctrl-&lt;Return&gt; 执行一行。</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::LogWindow</name>
+    <name>Debugger</name>
     <message>
         <source>Debugger Log</source>
         <translation>调试器日志</translation>
@@ -32010,20 +29758,10 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::QmlAdapter</name>
+    <name>Debugger</name>
     <message>
         <source>Connecting to debug server on %1</source>
         <translation type="obsolete">连接到调试服务器%1</translation>
-    </message>
-    <message>
-        <source>Connecting to debug server %1:%2</source>
-        <translation type="obsolete">连接到调试服务器%1:%2</translation>
-    </message>
-    <message>
-        <source>disconnected.
-
-</source>
-        <translation type="obsolete">断开连接.</translation>
     </message>
     <message>
         <source>resolving host...</source>
@@ -32067,67 +29805,14 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Not connected to debug service &apos;%1&apos;.</source>
         <translation type="obsolete">未连接到调试服务器 &apos;%1&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::QmlCppEngine</name>
-    <message>
-        <source>%1 debugger activated</source>
-        <translation type="obsolete">已激活%1调试器</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::QmlEngine</name>
-    <message>
-        <source>QML Debugger connected.</source>
-        <translation type="obsolete">QML调试器已连接.</translation>
-    </message>
     <message>
         <source>Failed to connect to debugger</source>
         <translation type="obsolete">连接调试器失败</translation>
     </message>
     <message>
-        <source>QML Debugger: Remote host closed connection.</source>
-        <translation type="obsolete">QML调试器:连接被远端主机关闭.</translation>
-    </message>
-    <message>
-        <source>QML Debugger: Could not connect to service &apos;%1&apos;.</source>
-        <translation type="obsolete">QML调试器:无法连接到服务 &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>QML Debugger connecting...</source>
-        <translation type="obsolete">正在连接QML调试器...</translation>
-    </message>
-    <message>
-        <source>Failed to start application</source>
-        <translation type="obsolete">程序启动失败</translation>
-    </message>
-    <message>
-        <source>Application startup failed: %1</source>
-        <translation type="obsolete">应用程序启动失败:%1</translation>
-    </message>
-    <message>
         <source>Trying to stop while process is no longer running.</source>
         <translation type="obsolete">当进程不再继续运行时尝试终止.</translation>
     </message>
-    <message>
-        <source>Stopped.</source>
-        <translation type="obsolete">停止。</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;An Uncaught Exception occured in &lt;i&gt;%1&lt;/i&gt;:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;p&gt;发生未被捕捉到的异常,位置在&lt;i&gt;%1&lt;/i&gt;:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Uncaught Exception</source>
-        <translation type="obsolete">未捕捉的异常</translation>
-    </message>
-    <message>
-        <source>QML Debugger disconnected.</source>
-        <translation type="obsolete">QML调试器连接已断开.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::ScriptConsole</name>
     <message>
         <source>&lt;Type expression to evaluate&gt;</source>
         <translation type="obsolete">&lt;输入表达式用于求值&gt;</translation>
@@ -32142,9 +29827,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <translation type="obsolete">脚本控制台
 </translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::SourceFilesHandler</name>
     <message>
         <source>Internal name</source>
         <translation type="obsolete">内部名称</translation>
@@ -32160,21 +29842,6 @@ Setting breakpoints by file name and line number may fail.</source>
     <message>
         <source>Full Name</source>
         <translation>全名</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::TcfEngine</name>
-    <message>
-        <source>%1.</source>
-        <translation type="obsolete">%1.</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation type="obsolete">执行请求...</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <translation type="obsolete">已停止.</translation>
     </message>
 </context>
 <context>
@@ -34589,17 +32256,6 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BreakCondition</name>
-    <message>
-        <source>&amp;Condition:</source>
-        <translation type="obsolete">条件(&amp;C):</translation>
-    </message>
-    <message>
-        <source>&amp;Thread specification:</source>
-        <translation type="obsolete">线程信息(&amp;T):</translation>
-    </message>
-</context>
-<context>
     <name>LldbOptionsPageWidget</name>
     <message>
         <source>Enable LLDB</source>
@@ -36903,51 +34559,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>BreakHandler</name>
-    <message>
-        <source>New</source>
-        <translation type="obsolete">新建</translation>
-    </message>
-    <message>
-        <source>Insertion requested</source>
-        <translation type="obsolete">请求插入</translation>
-    </message>
-    <message>
-        <source>Insertion proceeding</source>
-        <translation type="obsolete">执行插入</translation>
-    </message>
-    <message>
-        <source>Change requested</source>
-        <translation type="obsolete">请求改变</translation>
-    </message>
-    <message>
-        <source>Change proceeding</source>
-        <translation type="obsolete">执行改变</translation>
-    </message>
-    <message>
-        <source>Breakpoint inserted</source>
-        <translation type="obsolete">加入断点</translation>
-    </message>
-    <message>
-        <source>Removal requested</source>
-        <translation type="obsolete">移除请求</translation>
-    </message>
-    <message>
-        <source>Removal proceeding</source>
-        <translation type="obsolete">移除执行</translation>
-    </message>
-    <message>
-        <source>Dead</source>
-        <translation type="obsolete">死亡</translation>
-    </message>
-    <message>
-        <source>&lt;invalid state&gt;</source>
-        <extracomment>Invalid breakpoint state.</extracomment>
-        <translation type="obsolete">&lt;不可用状态&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::MultiBreakPointsDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Edit Breakpoint Properties</source>
         <translation>编辑断点属性</translation>
@@ -36957,51 +34569,12 @@ to version control (%2)
         <translation>条件(&amp;C):</translation>
     </message>
     <message>
-        <source>&amp;Ignore count:</source>
-        <translation>忽略次数(&amp;i):</translation>
-    </message>
-    <message>
         <source>&amp;Thread specification:</source>
         <translation>线程信息(&amp;T):</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Cdb::CdbBreakEventWidget</name>
-    <message>
-        <source>C++ exception</source>
-        <translation type="obsolete">C++ 例外</translation>
-    </message>
-    <message>
-        <source>Thread creation</source>
-        <translation type="obsolete">线程创建</translation>
-    </message>
-    <message>
-        <source>Thread exit</source>
-        <translation type="obsolete">退出线程</translation>
-    </message>
-    <message>
-        <source>Load module:</source>
-        <translation type="obsolete">载入模块:</translation>
-    </message>
-    <message>
-        <source>Unload module:</source>
-        <translation type="obsolete">卸载模块:</translation>
-    </message>
-    <message>
-        <source>Load Module:</source>
-        <translation type="obsolete">载入模块:</translation>
-    </message>
-    <message>
-        <source>Unload Module:</source>
-        <translation type="obsolete">卸载模块:</translation>
-    </message>
-    <message>
-        <source>Output:</source>
-        <translation type="obsolete">输出:</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::StartRemoteCdbDialog</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching Qt Creator CDB extension (&lt;code&gt;%1&lt;/code&gt; or &lt;code&gt;%2&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%3&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt;  to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;body&gt;&lt;p&gt;远程CDB 需要载入匹配的Qt Creator CDB 插件(&lt;code&gt;%1&lt;/code&gt; or &lt;code&gt;%2&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;复制到远程机器然后设置环境变量&lt;code&gt;%3&lt;/code&gt; 指向这个文件夹.&lt;/p&gt;&lt;p&gt;启动远程CDB 作为 &lt;code&gt;%4 &amp;lt;执行档&amp;gt;&lt;/code&gt;  来使用TCP/IP 作为通信协议.&lt;/p&gt;&lt;p&gt;输入连接参数如:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -37020,7 +34593,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerMainWindowPrivate</name>
+    <name>Debugger</name>
     <message>
         <source>Memory...</source>
         <translation>内存...</translation>
@@ -37031,7 +34604,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerPluginPrivate</name>
+    <name>Debugger</name>
     <message>
         <source>No function selected.</source>
         <translation>没有选择函数。</translation>
@@ -37073,10 +34646,6 @@ to version control (%2)
         <translation>attach到崩溃的进程%1</translation>
     </message>
     <message>
-        <source>Warning</source>
-        <translation>警告</translation>
-    </message>
-    <message>
         <source>0x%1 hit</source>
         <extracomment>Message tracepoint: Address hit.</extracomment>
         <translation>命中地址0x%1 </translation>
@@ -37089,10 +34658,6 @@ to version control (%2)
     <message>
         <source>Add Message Tracepoint</source>
         <translation>添加消息追踪点</translation>
-    </message>
-    <message>
-        <source>Message:</source>
-        <translation>消息:</translation>
     </message>
     <message>
         <source>Executable file &quot;%1&quot;</source>
@@ -37153,38 +34718,6 @@ to version control (%2)
     <message>
         <source>User commands are not accepted in the current state.</source>
         <translation>在当前状态下不能接收用户的命令。</translation>
-    </message>
-    <message>
-        <source>Open Qt4 Options</source>
-        <translation type="obsolete">打开Qt4选项</translation>
-    </message>
-    <message>
-        <source>Open Qt Options</source>
-        <translation type="obsolete">打开Qt选项</translation>
-    </message>
-    <message>
-        <source>Turn off Helper Usage</source>
-        <translation type="obsolete">关闭助手应用</translation>
-    </message>
-    <message>
-        <source>Continue Anyway</source>
-        <translation type="obsolete">依然继续</translation>
-    </message>
-    <message>
-        <source>Debugging Helper Missing</source>
-        <translation type="obsolete">调试助手丢失</translation>
-    </message>
-    <message>
-        <source>The debugger could not load the debugging helper library.</source>
-        <translation type="obsolete">调试器无法装载调试帮助库。</translation>
-    </message>
-    <message>
-        <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. On the Qt4 options page, select a Qt installation and click Rebuild.</source>
-        <translation type="obsolete">调试助手是用来格式化Qt和标准库数据类型的。他必须分别被每个使用中的Qt版本进行编译。在Qt4选项页面，选择Qt安装页面并且单击重新构建。</translation>
-    </message>
-    <message>
-        <source>Starting debugger &apos;%1&apos; for ABI &apos;%2&apos;...</source>
-        <translation type="obsolete">启动调试器&apos;%1&apos; 为 ABI &apos;%2&apos;...</translation>
     </message>
     <message>
         <source>Debugger finished.</source>
@@ -37349,10 +34882,6 @@ Qt Creator 无法attach到进程。</translation>
         <translation>F5</translation>
     </message>
     <message>
-        <source>Add Expression Evaluator</source>
-        <translation>添加表达式求值器</translation>
-    </message>
-    <message>
         <source>Select</source>
         <translation>选择</translation>
     </message>
@@ -37465,31 +34994,9 @@ Qt Creator 无法attach到进程。</translation>
         <translation>段</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>名称</translation>
-    </message>
-    <message>
         <source>Symbols in &quot;%1&quot;</source>
         <translation>&quot;%1&quot; 中的符号</translation>
     </message>
-</context>
-<context>
-    <name>DebuggerRunControl</name>
-    <message>
-        <source>Debug</source>
-        <translation type="obsolete">调试</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation type="obsolete">调试器</translation>
-    </message>
-    <message>
-        <source>Unable to create a debugger engine of the type &apos;%1&apos;</source>
-        <translation type="obsolete">无法载入调试引擎库 为类型&apos;%1&apos;</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerSourcePathMappingWidget</name>
     <message>
         <source>&lt;new source&gt;</source>
         <translation>&lt;新源&gt;</translation>
@@ -37556,7 +35063,7 @@ Qt Creator 无法attach到进程。</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerToolChainComboBox</name>
+    <name>Debugger</name>
     <message>
         <source>%1 (%2)</source>
         <translation type="obsolete">%1 (%2)</translation>
@@ -37565,16 +35072,6 @@ Qt Creator 无法attach到进程。</translation>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI:&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI:&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;调试器:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::AbstractDebuggerToolTipWidget</name>
-    <message>
-        <source>Previous</source>
-        <translation type="obsolete">上一个</translation>
-    </message>
-</context>
-<context>
-    <name>DebuggerEngine</name>
     <message>
         <source>Debugging complex command lines is currently not supported under Windows</source>
         <translation type="obsolete">调试复杂的命令行目前在windows下尚不支持</translation>
@@ -37585,31 +35082,7 @@ Qt Creator 无法attach到进程。</translation>
     </message>
 </context>
 <context>
-    <name>CodaGdbAdapter</name>
-    <message>
-        <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
-        <translation type="obsolete">进程启动, PID: 0x%1, 线程 id: 0x%2, 代码段: 0x%3, 数据段: 0x%4.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CodaGdbAdapter</name>
-    <message>
-        <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
-        <translation type="obsolete">进程启动, PID: 0x%1, 线程 id: 0x%2, 代码段: 0x%3, 数据段: 0x%4.</translation>
-    </message>
-    <message>
-        <source>Connecting to CODA server adapter failed:
-</source>
-        <translation type="obsolete">连接CODA 服务器适配器失败:
-</translation>
-    </message>
-    <message>
-        <source>Could not obtain device.</source>
-        <translation type="obsolete">无法获得设备.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::IPCEngineHost</name>
+    <name>Debugger</name>
     <message>
         <source>Fatal engine shutdown. Incompatible binary or IPC error.</source>
         <translation>致命引擎关闭。不匹配的二进制或IPC错误。</translation>
@@ -37620,7 +35093,7 @@ Qt Creator 无法attach到进程。</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::LldbEngineHost</name>
+    <name>Debugger</name>
     <message>
         <source>qtcreator-lldb failed to start: %1</source>
         <translation>qtcreator-lldb 无法启动: %1</translation>
@@ -37635,14 +35108,14 @@ Qt Creator 无法attach到进程。</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::LldbOptionsPage</name>
+    <name>Debugger</name>
     <message>
         <source>LLDB</source>
         <translation>LLDB</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::MemoryAgent</name>
+    <name>Debugger</name>
     <message>
         <source>Memory $</source>
         <translation type="obsolete">内存 $</translation>
@@ -37665,7 +35138,7 @@ Qt Creator 无法attach到进程。</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QmlCppEngine</name>
+    <name>Debugger</name>
     <message>
         <source>The slave debugging engine required for combined QML/C++-Debugging could not be created: %1</source>
         <translation>整合QML/C++-调试需要的从属调试引擎无法被创建: %1</translation>
@@ -37694,7 +35167,7 @@ Suggestions: Move the breakpoint after QmlApplicationViewer instantiation or swi
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QmlEngine</name>
+    <name>Debugger</name>
     <message>
         <source>QML Debugger connected.</source>
         <translation type="obsolete">QML调试器已连接.</translation>
@@ -37765,51 +35238,12 @@ Do you want to retry?</source>
         <translation>正在启动 %1 %2</translation>
     </message>
     <message>
-        <source>Failed to start application</source>
-        <translation>程序启动失败</translation>
-    </message>
-    <message>
         <source>Application startup failed: %1</source>
         <translation>应用程序启动失败:%1</translation>
     </message>
     <message>
-        <source>Stopped.</source>
-        <translation type="obsolete">停止。</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;An uncaught exception occurred:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;p&gt;发生了一个未被捕获的异常:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;An uncaught exception occurred in &lt;i&gt;%1&lt;/i&gt;:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;p&gt;发生未被捕捉到的异常,位置在&lt;i&gt;%1&lt;/i&gt;:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Uncaught Exception</source>
-        <translation type="obsolete">未捕捉的异常</translation>
-    </message>
-    <message>
         <source>QML Debugger disconnected.</source>
         <translation>QML调试器连接已断开。</translation>
-    </message>
-</context>
-<context>
-    <name>StackHandler</name>
-    <message>
-        <source>Address:</source>
-        <translation type="obsolete">地址:</translation>
-    </message>
-    <message>
-        <source>Function:</source>
-        <translation type="obsolete">函数:</translation>
-    </message>
-    <message>
-        <source>File:</source>
-        <translation type="obsolete">文件:</translation>
-    </message>
-    <message>
-        <source>Line:</source>
-        <translation type="obsolete">行号:</translation>
     </message>
     <message>
         <source>From:</source>
@@ -37818,33 +35252,6 @@ Do you want to retry?</source>
     <message>
         <source>To:</source>
         <translation type="obsolete">到:</translation>
-    </message>
-</context>
-<context>
-    <name>ThreadsHandler</name>
-    <message>
-        <source>Thread&amp;nbsp;id:</source>
-        <translation type="obsolete">线程&amp;nbsp;id:</translation>
-    </message>
-    <message>
-        <source>Target&amp;nbsp;id:</source>
-        <translation type="obsolete">目标&amp;nbsp;id:</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">名称:</translation>
-    </message>
-    <message>
-        <source>State:</source>
-        <translation type="obsolete">状态:</translation>
-    </message>
-    <message>
-        <source>Core:</source>
-        <translation type="obsolete">核心:</translation>
-    </message>
-    <message>
-        <source>Stopped&amp;nbsp;at:</source>
-        <translation type="obsolete">停止&amp;nbsp;于:</translation>
     </message>
 </context>
 <context>
@@ -41695,14 +39102,14 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerToolTipWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Previous</source>
         <translation>上一个</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::RegisterMemoryView</name>
+    <name>Debugger</name>
     <message>
         <source>Memory at Register &apos;%1&apos; (0x%2)</source>
         <translation>注册内存&apos;%1&apos; (0x%2)</translation>
@@ -46412,14 +43819,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BaseWindow</name>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">按内容调整列宽</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::CdbBreakEventWidget</name>
+    <name>Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>C++ 异常</translation>
@@ -46446,7 +43846,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QScriptDebuggerClient</name>
+    <name>Debugger</name>
     <message>
         <source>&lt;p&gt;An uncaught exception occurred:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</source>
         <translation>&lt;p&gt;发生了一个未被捕获的异常:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</translation>
@@ -49758,7 +47158,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::CommonOptionsPage</name>
+    <name>Debugger</name>
     <message>
         <source>Behavior</source>
         <translation>行为</translation>
@@ -49841,7 +47241,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::LldbOptionsPageWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Enable LLDB</source>
         <translation>启用LLDB</translation>
@@ -53240,7 +50640,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BreakTreeView</name>
+    <name>Debugger</name>
     <message>
         <source>Delete Breakpoint</source>
         <translation>删除断点</translation>
@@ -53303,14 +50703,10 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::StartApplicationDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>启动调试器</translation>
-    </message>
-    <message>
-        <source>Select Executable</source>
-        <translation>选择执行档</translation>
     </message>
     <message>
         <source>Server port:</source>
@@ -53372,24 +50768,10 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>&amp;Recent:</source>
         <translation>最近历史(&amp;R):</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::AttachToQmlPortDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation>启动调试器</translation>
-    </message>
-    <message>
-        <source>Kit:</source>
-        <translation>构建套件(Kit):</translation>
-    </message>
     <message>
         <source>&amp;Port:</source>
         <translation>端口(&amp;P):</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::StartRemoteEngineDialog</name>
     <message>
         <source>Start Remote Engine</source>
         <translation>启动远程引擎</translation>
@@ -53414,9 +50796,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>&amp;Inferior path:</source>
         <translation>底层(&amp;Inferior)路径:</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::TypeFormatsDialog</name>
     <message>
         <source>Reset</source>
         <translation>重置</translation>
@@ -53439,7 +50818,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerKitConfigWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Manage...</source>
         <translation>管理...</translation>
@@ -53466,7 +50845,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerKitConfigDialog</name>
+    <name>Debugger</name>
     <message>
         <source>&amp;Engine:</source>
         <translation>引擎(&amp;E):</translation>
@@ -53490,7 +50869,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>Debugger::DebuggerKitInformation</name>
+    <name>Debugger</name>
     <message>
         <source>No debugger set up.</source>
         <translation>调试器未设置。</translation>
@@ -53514,10 +50893,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     <message>
         <source>%1 using &quot;%2&quot;</source>
         <translation>%1使用&quot;%2&quot;</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation>调试器</translation>
     </message>
     <message>
         <source>GDB Engine</source>
@@ -53544,7 +50919,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerRunConfigWidget</name>
+    <name>Debugger</name>
     <message>
         <source>Debugger Settings</source>
         <translation>调试器的设置</translation>
@@ -53569,9 +50944,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Enable Debugging of Subprocesses</source>
         <translation>打开子进程的调试功能</translation>
     </message>
-</context>
-<context>
-    <name>DebuggerPlugin</name>
     <message>
         <source>Debug</source>
         <translation>调试</translation>
@@ -53580,25 +50952,16 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Unable to create a debugger engine of the type &apos;%1&apos;</source>
         <translation>无法为类型&apos;%1&apos;创建调试引擎</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbAbstractPlainEngine</name>
     <message>
         <source>Starting executable failed:
 </source>
         <translation>启动执行档失败:
 </translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbAttachEngine</name>
     <message>
         <source>Attached to process %1.</source>
         <translation>attach到进程%1。</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerCore</name>
     <message>
         <source>Open Qt Options</source>
         <translation>打开Qt选项</translation>
@@ -53625,7 +50988,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbCoreEngine</name>
+    <name>Debugger</name>
     <message>
         <source>Error Loading Core File</source>
         <translation>载入核心文件出错</translation>
@@ -53670,14 +51033,14 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbLocalPlainEngine</name>
+    <name>Debugger</name>
     <message>
         <source>Cannot set up communication with child process: %1</source>
         <translation>无法设置与子进程的通讯: %1</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbRemoteServerEngine</name>
+    <name>Debugger</name>
     <message>
         <source>The upload process failed to start. Shell missing?</source>
         <translation>上载进程启动失败，缺少Shell?</translation>
@@ -53703,10 +51066,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <translation>上传程序发生了一个未知错误。这是error()的默认返回值。</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>错误</translation>
-    </message>
-    <message>
         <source>No symbol file given.</source>
         <translation>未给出符号文件。</translation>
     </message>
@@ -53722,7 +51081,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbServerStarter</name>
+    <name>Debugger</name>
     <message>
         <source>Remote Error</source>
         <translation>远程错误</translation>
@@ -53756,10 +51115,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <translation>服务器在 %1启动: %2</translation>
     </message>
     <message>
-        <source>Warning</source>
-        <translation>警告</translation>
-    </message>
-    <message>
         <source>Cannot find local executable for remote process &quot;%1&quot;.</source>
         <translation>找不到远程进程 %1的本地执行档。</translation>
     </message>
@@ -53777,21 +51132,14 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbTermEngine</name>
-    <message>
-        <source>Debugger Error</source>
-        <translation>调试器错误</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::SelectRemoteFileDialog</name>
+    <name>Debugger</name>
     <message>
         <source>Download of remote file succeeded.</source>
         <translation>远程文件下载成功。</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::ModulesHandler</name>
+    <name>Debugger</name>
     <message>
         <source>Module Name</source>
         <translation>模块名称</translation>
@@ -53878,7 +51226,7 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::ModulesTreeView</name>
+    <name>Debugger</name>
     <message>
         <source>Update Module List</source>
         <translation>更新模块列表</translation>
@@ -53929,7 +51277,7 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QmlAdapter</name>
+    <name>Debugger</name>
     <message>
         <source>Connecting to debug server %1:%2</source>
         <translation>连接到调试服务器%1:%2</translation>
@@ -53967,7 +51315,7 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QmlInspectorAgent</name>
+    <name>Debugger</name>
     <message>
         <source>Success: </source>
         <translation>成功:</translation>
@@ -53978,7 +51326,7 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QmlLiveTextPreview</name>
+    <name>Debugger</name>
     <message>
         <source>The %1 attribute at line %2, column %3 cannot be changed without reloading the QML application. </source>
         <translation>要想更改第%2行第%3列的%1属性，必须重新载入QML应用。</translation>
@@ -54005,14 +51353,14 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QmlV8DebuggerClient</name>
+    <name>Debugger</name>
     <message>
         <source>Anonymous Function</source>
         <translation>匿名函数</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::RegisterTreeView</name>
+    <name>Debugger</name>
     <message>
         <source>Reload Register Listing</source>
         <translation>重新载入寄存器列表</translation>
@@ -54063,7 +51411,7 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::SnapshotTreeView</name>
+    <name>Debugger</name>
     <message>
         <source>Snapshots</source>
         <translation>快照</translation>
@@ -54078,7 +51426,7 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::SourceFilesTreeView</name>
+    <name>Debugger</name>
     <message>
         <source>Reload Data</source>
         <translation>重新载入数据</translation>
@@ -54091,32 +51439,9 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Open File &quot;%1&quot;&apos;</source>
         <translation>打开文件 &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger::Internal::StackTreeView</name>
-    <message>
-        <source>Stack</source>
-        <translation>栈</translation>
-    </message>
-    <message>
-        <source>Function:</source>
-        <translation>函数:</translation>
-    </message>
     <message>
         <source>Disassemble Function</source>
         <translation>反汇编函数</translation>
-    </message>
-    <message>
-        <source>Copy Contents to Clipboard</source>
-        <translation>复制内容到剪贴板</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor</source>
-        <translation>打开内存编辑器</translation>
-    </message>
-    <message>
-        <source>Open Memory Editor at 0x%1</source>
-        <translation>在 0x%1 处打开内存编辑器</translation>
     </message>
     <message>
         <source>Open Disassembler at Address...</source>
@@ -54125,14 +51450,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     <message>
         <source>Disassemble Function...</source>
         <translation>反汇编函数...</translation>
-    </message>
-    <message>
-        <source>Open Disassembler</source>
-        <translation>打开反汇编程序</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at 0x%1</source>
-        <translation>在0x %1 处打开反汇编程序</translation>
     </message>
     <message>
         <source>Try to Load Unknown Symbols</source>
@@ -56476,7 +53793,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QtMessageLogEditor</name>
+    <name>Debugger</name>
     <message>
         <source>Cu&amp;t</source>
         <translation>剪切(&amp;T)</translation>
@@ -56494,17 +53811,6 @@ cannot be found in the path.</source>
         <translation>全选(&amp;A)</translation>
     </message>
     <message>
-        <source>C&amp;lear</source>
-        <translation>清空(&amp;L)</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::QtMessageLogView</name>
-    <message>
-        <source>&amp;Copy</source>
-        <translation>复制(&amp;C)</translation>
-    </message>
-    <message>
         <source>&amp;Show in Editor</source>
         <translation>在编辑器中显示(&amp;S)</translation>
     </message>
@@ -56515,7 +53821,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::QtMessageLogWindow</name>
+    <name>Debugger</name>
     <message>
         <source>Log</source>
         <translation>日志</translation>

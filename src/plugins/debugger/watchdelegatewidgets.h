@@ -28,8 +28,8 @@
 #include <QLineEdit>
 #include <QComboBox>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
+
 class IntegerValidator;
 
 /* Watch edit widgets. The logic is based on the QVariant 'modelData' property,
@@ -105,5 +105,4 @@ public:
     virtual void setModelData(const QVariant &);
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

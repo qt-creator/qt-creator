@@ -25,20 +25,20 @@
 
 #include "pdbengine.h"
 
+#include <debugger/breakhandler.h>
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerdialogs.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggertooltipmanager.h>
-#include <debugger/threaddata.h>
-
-#include <debugger/breakhandler.h>
+#include <debugger/debuggertr.h>
 #include <debugger/moduleshandler.h>
 #include <debugger/procinterrupt.h>
 #include <debugger/registerhandler.h>
-#include <debugger/stackhandler.h>
 #include <debugger/sourceutils.h>
+#include <debugger/stackhandler.h>
+#include <debugger/threaddata.h>
 #include <debugger/watchhandler.h>
 #include <debugger/watchutils.h>
 
@@ -61,8 +61,7 @@
 using namespace Core;
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 PdbEngine::PdbEngine()
 {
@@ -128,8 +127,9 @@ void PdbEngine::setupEngine()
 
     const FilePath scriptFile = runParameters().mainScript;
     if (!scriptFile.isReadableFile()) {
-        AsynchronousMessageBox::critical(tr("Python Error"),
-            QString("Cannot open script file %1").arg(scriptFile.toUserOutput()));
+        AsynchronousMessageBox::critical(Tr::tr("Python Error"),
+                                         QString("Cannot open script file %1")
+                                             .arg(scriptFile.toUserOutput()));
         notifyEngineSetupFailed();
     }
 
@@ -146,7 +146,7 @@ void PdbEngine::handlePdbStarted()
     notifyEngineSetupOk();
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 
-    showStatusMessage(tr("Running requested..."), 5000);
+    showStatusMessage(Tr::tr("Running requested..."), 5000);
     BreakpointManager::claimBreakpointsForEngine(this);
     notifyEngineRunAndInferiorStopOk();
     updateAll();
@@ -387,26 +387,26 @@ QString PdbEngine::errorMessage(QProcess::ProcessError error) const
 {
     switch (error) {
         case QProcess::FailedToStart:
-            return tr("The Pdb process failed to start. Either the "
+            return Tr::tr("The Pdb process failed to start. Either the "
                 "invoked program \"%1\" is missing, or you may have insufficient "
                 "permissions to invoke the program.")
                 .arg(m_interpreter.toUserOutput());
         case QProcess::Crashed:
-            return tr("The Pdb process crashed some time after starting "
+            return Tr::tr("The Pdb process crashed some time after starting "
                 "successfully.");
         case QProcess::Timedout:
-            return tr("The last waitFor...() function timed out. "
+            return Tr::tr("The last waitFor...() function timed out. "
                 "The state of QProcess is unchanged, and you can try calling "
                 "waitFor...() again.");
         case QProcess::WriteError:
-            return tr("An error occurred when attempting to write "
+            return Tr::tr("An error occurred when attempting to write "
                 "to the Pdb process. For example, the process may not be running, "
                 "or it may have closed its input channel.");
         case QProcess::ReadError:
-            return tr("An error occurred when attempting to read from "
+            return Tr::tr("An error occurred when attempting to read from "
                 "the Pdb process. For example, the process may not be running.");
         default:
-            return tr("An unknown error in the Pdb process occurred.") + ' ';
+            return Tr::tr("An unknown error in the Pdb process occurred.") + ' ';
     }
 }
 
@@ -415,7 +415,7 @@ void PdbEngine::handlePdbDone()
     if (m_proc.result() == ProcessResult::StartFailed) {
         notifyEngineSetupFailed();
         showMessage("ADAPTER START FAILED");
-        ICore::showWarningWithOptions(tr("Adapter start failed"), m_proc.exitMessage());
+        ICore::showWarningWithOptions(Tr::tr("Adapter start failed"), m_proc.exitMessage());
         return;
     }
 
@@ -423,7 +423,7 @@ void PdbEngine::handlePdbDone()
     if (error != QProcess::UnknownError) {
         showMessage("HANDLE PDB ERROR");
         if (error != QProcess::Crashed)
-            AsynchronousMessageBox::critical(tr("Pdb I/O Error"), errorMessage(error));
+            AsynchronousMessageBox::critical(Tr::tr("Pdb I/O Error"), errorMessage(error));
         if (error == QProcess::FailedToStart)
             return;
     }
@@ -585,5 +585,4 @@ DebuggerEngine *createPdbEngine()
     return new PdbEngine;
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

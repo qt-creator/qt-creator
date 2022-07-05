@@ -30,6 +30,7 @@
 #include "debuggerinternalconstants.h"
 #include "debuggermainwindow.h"
 #include "debuggerprotocol.h"
+#include "debuggertr.h"
 #include "sourceutils.h"
 #include "stackhandler.h"
 #include "watchhandler.h"
@@ -77,8 +78,7 @@ using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 //#define DEBUG(x) qDebug() << x
 #define DEBUG(x)
@@ -280,9 +280,7 @@ class ToolTipModel : public TreeModel<ToolTipWatchItem>
 public:
     ToolTipModel()
     {
-        setHeader({DebuggerToolTipManager::tr("Name"),
-                   DebuggerToolTipManager::tr("Value"),
-                   DebuggerToolTipManager::tr("Type")});
+        setHeader({Tr::tr("Name"), Tr::tr("Value"), Tr::tr("Type")});
         m_enabled = true;
         auto item = new ToolTipWatchItem;
         item->expandable = true;
@@ -550,7 +548,7 @@ DebuggerToolTipWidget::DebuggerToolTipWidget()
     pinButton->setIcon(pinIcon);
 
     auto copyButton = new QToolButton;
-    copyButton->setToolTip(DebuggerToolTipManager::tr("Copy Contents to Clipboard"));
+    copyButton->setToolTip(Tr::tr("Copy Contents to Clipboard"));
     copyButton->setIcon(Utils::Icons::COPY.icon());
 
     titleLabel = new DraggableLabel(this);
@@ -736,7 +734,7 @@ bool DebuggerToolTipContext::isSame(const DebuggerToolTipContext &other) const
 
 QString DebuggerToolTipContext::toolTip() const
 {
-    return DebuggerToolTipManager::tr("Expression %1 in function %2 from line %3 to %4")
+    return Tr::tr("Expression %1 in function %2 from line %3 to %4")
             .arg(expression).arg(function).arg(scopeFromLine).arg(scopeToLine);
 }
 
@@ -884,7 +882,7 @@ void DebuggerToolTipHolder::releaseEngine()
         // a valid expression but can't be resolved by the debugger backend.
         // (Out of scope items, keywords, ...)
         ToolTip::show(context.mousePosition,
-                      DebuggerToolTipManager::tr("No valid expression"),
+                      Tr::tr("No valid expression"),
                       DebuggerMainWindow::instance());
         widget->deleteLater();
         return;
@@ -893,7 +891,7 @@ void DebuggerToolTipHolder::releaseEngine()
     setState(Released);
     widget->model.m_enabled = false;
     emit widget->model.layoutChanged();
-    widget->titleLabel->setText(DebuggerToolTipManager::tr("%1 (Previous)").arg(context.expression));
+    widget->titleLabel->setText(Tr::tr("%1 (Previous)").arg(context.expression));
 }
 
 void DebuggerToolTipHolder::positionShow(const TextEditorWidget *editorWidget)
@@ -1115,7 +1113,7 @@ void DebuggerToolTipManagerPrivate::loadSessionData()
                     m_tooltips.push_back(tw);
                     tw->widget->model.restoreTreeModel(r);
                     tw->widget->pin();
-                    tw->widget->titleLabel->setText(DebuggerToolTipManager::tr("%1 (Restored)").arg(context.expression));
+                    tw->widget->titleLabel->setText(Tr::tr("%1 (Restored)").arg(context.expression));
                     tw->widget->treeView->expandAll();
                 } else {
                     r.readElementText(QXmlStreamReader::SkipChildElements); // Skip
@@ -1203,7 +1201,7 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
                             != CppEditor::ProjectFile::Unsupported;
 
     if (context.expression.isEmpty()) {
-        ToolTip::show(point, DebuggerToolTipManager::tr("No valid expression"),
+        ToolTip::show(point, Tr::tr("No valid expression"),
                              DebuggerMainWindow::instance());
         *handled = true;
         return;
@@ -1259,7 +1257,7 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
             if (m_engine->canHandleToolTip(context)) {
                 m_engine->updateItem(context.iname);
             } else {
-                ToolTip::show(point, DebuggerToolTipManager::tr("Expression too complex"),
+                ToolTip::show(point, Tr::tr("Expression too complex"),
                               DebuggerMainWindow::instance());
                 tooltip->destroy();
             }
@@ -1382,5 +1380,4 @@ void DebuggerToolTipManagerPrivate::purgeClosedToolTips()
     }
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

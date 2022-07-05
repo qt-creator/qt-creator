@@ -29,8 +29,7 @@
 
 #include <utils/icon.h>
 
-namespace Debugger {
-namespace Icons {
+namespace Debugger::Icons {
 
 // Used in QmlProfiler.
 DEBUGGER_EXPORT extern const Utils::Icon RECORD_ON;
@@ -90,5 +89,4 @@ extern const Utils::Icon MACOS_TOUCHBAR_DEBUG_STEP_OVER;
 extern const Utils::Icon MACOS_TOUCHBAR_DEBUG_STEP_INTO;
 extern const Utils::Icon MACOS_TOUCHBAR_DEBUG_STEP_OUT;
 
-} // namespace Icons
-} // namespace Debugger
+} // namespace Debugger::Icons

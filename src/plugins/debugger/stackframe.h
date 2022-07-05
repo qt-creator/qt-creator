@@ -29,15 +29,9 @@
 
 #include <utils/filepath.h>
 
-#include <QCoreApplication>
 #include <QMetaType>
 
-QT_BEGIN_NAMESPACE
-class QDebug;
-QT_END_NAMESPACE
-
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class DebuggerRunParameters;
 class GdbMi;
@@ -65,13 +59,10 @@ public:
     quint64 address = 0;
     bool usable = false;
     QString context;  // Opaque value produced and consumed by the native backends.
-
-    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::StackHandler)
 };
 
 using StackFrames = QList<StackFrame>;
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal
 
 Q_DECLARE_METATYPE(Debugger::Internal::StackFrame)

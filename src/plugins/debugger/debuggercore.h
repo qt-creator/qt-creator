@@ -40,8 +40,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class BaseTreeView; }
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 enum TestCases
 {
@@ -66,5 +65,4 @@ QStringList qtBuildPaths();
 
 QWidget *addSearch(Utils::BaseTreeView *treeView);
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

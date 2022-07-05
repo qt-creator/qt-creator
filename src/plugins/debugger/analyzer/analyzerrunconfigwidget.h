@@ -30,14 +30,10 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-#include <QCoreApplication>
-
 namespace Debugger {
 
 class DEBUGGER_EXPORT AnalyzerRunConfigWidget : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::EditorSettingsPropertiesPage);
-
 public:
     AnalyzerRunConfigWidget(ProjectExplorer::GlobalOrProjectAspect *aspect);
 };

@@ -28,15 +28,12 @@
 #include <QAbstractItemModel>
 #include <QStringList>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class DebuggerEngine;
 
 class SourceFilesHandler : public QAbstractItemModel
 {
-    Q_OBJECT
-
 public:
     explicit SourceFilesHandler(DebuggerEngine *engine);
 
@@ -66,5 +63,4 @@ private:
     QAbstractItemModel *m_proxyModel;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

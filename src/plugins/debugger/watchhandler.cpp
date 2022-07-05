@@ -2469,12 +2469,15 @@ void WatchModel::showEditValue(const WatchItem *item)
         if (size == nbytes) {
             std::memcpy(im.bits(), bits, nbytes);
             auto v = m_separatedView->prepareObject<ImageViewer>(item);
-            v->setInfo(item->address ?
-                               Tr::tr("%1 Object at %2").arg(item->type, item->hexAddress()) :
-                               Tr::tr("%1 Object at Unknown Address").arg(item->type) + "    " +
-                               ImageViewer::tr("Size: %1x%2, %3 byte, format: %4, depth: %5")
-                               .arg(width).arg(height).arg(nbytes).arg(im.format()).arg(im.depth())
-                               );
+            v->setInfo(item->address
+                           ? Tr::tr("%1 Object at %2").arg(item->type, item->hexAddress())
+                           : Tr::tr("%1 Object at Unknown Address").arg(item->type) + "    "
+                                 + Tr::tr("Size: %1x%2, %3 byte, format: %4, depth: %5")
+                                       .arg(width)
+                                       .arg(height)
+                                       .arg(nbytes)
+                                       .arg(im.format())
+                                       .arg(im.depth()));
             v->setImage(im);
         }
     } else if (format == DisplayLatin1String

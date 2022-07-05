@@ -27,8 +27,8 @@
 
 #include "breakhandler.h"
 #include "debuggerengine.h"
-#include "debuggercore.h"
 #include "debuggerinternalconstants.h"
+#include "debuggertr.h"
 #include "registerhandler.h"
 
 #include <bineditor/bineditorservice.h>
@@ -51,8 +51,7 @@
 using namespace Core;
 using namespace ProjectExplorer;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 enum { BinBlockSize = 1024 };
 enum { DataRange = 1024 * 1024 };
@@ -155,13 +154,12 @@ private:
 
 QString registerViewTitle(const QString &registerName, quint64 addr)
 {
-    return MemoryAgent::tr("Memory at Register \"%1\" (0x%2)").arg(registerName).arg(addr, 0, 16);
+    return Tr::tr("Memory at Register \"%1\" (0x%2)").arg(registerName).arg(addr, 0, 16);
 }
 
 QList<MemoryMarkup> registerViewMarkup(quint64 a, const QString &regName)
 {
-    return {MemoryMarkup(a, 1, QColor(Qt::blue).lighter(),
-                         MemoryAgent::tr("Register \"%1\"").arg(regName))};
+    return {MemoryMarkup(a, 1, QColor(Qt::blue).lighter(), Tr::tr("Register \"%1\"").arg(regName))};
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -213,7 +211,7 @@ MemoryAgent::MemoryAgent(const MemoryViewSetupData &data, DebuggerEngine *engine
     if (!factory)
         return;
 
-    QString title = data.title.isEmpty() ? tr("Memory at 0x%1").arg(data.startAddress, 0, 16) : data.title;
+    QString title = data.title.isEmpty() ? Tr::tr("Memory at 0x%1").arg(data.startAddress, 0, 16) : data.title;
     if (!data.separateView && !title.endsWith('$'))
         title.append(" $");
 
@@ -314,6 +312,5 @@ bool MemoryAgent::isUsable()
     return m_service != nullptr;
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal
 

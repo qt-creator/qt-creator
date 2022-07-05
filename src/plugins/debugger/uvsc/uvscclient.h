@@ -40,8 +40,7 @@ struct BKRSP;
 
 namespace Utils { class FilePath; }
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 // UvscClient
 
@@ -152,5 +151,4 @@ private:
     QString m_errorString;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

@@ -36,8 +36,6 @@ class DiagnosticLocation;
 
 class DEBUGGER_EXPORT DetailedErrorView : public QTreeView
 {
-    Q_OBJECT
-
 public:
     DetailedErrorView(QWidget *parent = nullptr);
     ~DetailedErrorView() override;

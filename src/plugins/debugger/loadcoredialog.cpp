@@ -26,6 +26,7 @@
 #include "loadcoredialog.h"
 
 #include "debuggerkitinformation.h"
+#include "debuggertr.h"
 #include "gdb/gdbengine.h"
 
 #include <projectexplorer/devicesupport/devicefilesystemmodel.h>
@@ -54,8 +55,7 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -65,8 +65,6 @@ namespace Internal {
 
 class SelectRemoteFileDialog : public QDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::SelectRemoteFileDialog)
-
 public:
     explicit SelectRemoteFileDialog(QWidget *parent);
 
@@ -123,10 +121,10 @@ SelectRemoteFileDialog::SelectRemoteFileDialog(QWidget *parent)
                           && result.m_exitStatus == QProcess::NormalExit
                           && result.m_exitCode == 0;
         if (success) {
-            m_textBrowser->append(tr("Download of remote file succeeded."));
+            m_textBrowser->append(Tr::tr("Download of remote file succeeded."));
             accept();
         } else {
-            m_textBrowser->append(tr("Download of remote file failed: %1")
+            m_textBrowser->append(Tr::tr("Download of remote file failed: %1")
                                   .arg(result.m_errorString));
             m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
             m_fileSystemView->setEnabled(true);
@@ -222,7 +220,7 @@ public:
 AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     : QDialog(parent), d(new AttachCoreDialogPrivate)
 {
-    setWindowTitle(tr("Load Core File"));
+    setWindowTitle(Tr::tr("Load Core File"));
 
     d->buttonBox = new QDialogButtonBox(this);
     d->buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
@@ -235,7 +233,7 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
 
     d->forceLocalCheckBox = new QCheckBox(this);
     d->forceLocalLabel = new QLabel(this);
-    d->forceLocalLabel->setText(tr("Use local core file:"));
+    d->forceLocalLabel->setText(Tr::tr("Use local core file:"));
     d->forceLocalLabel->setBuddy(d->forceLocalCheckBox);
 
     d->remoteCoreFileName = new PathChooser(this);
@@ -244,27 +242,27 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     d->localCoreFileName = new PathChooser(this);
     d->localCoreFileName->setHistoryCompleter("Debugger.CoreFile.History");
     d->localCoreFileName->setExpectedKind(PathChooser::File);
-    d->localCoreFileName->setPromptDialogTitle(tr("Select Core File"));
+    d->localCoreFileName->setPromptDialogTitle(Tr::tr("Select Core File"));
 
     d->symbolFileName = new PathChooser(this);
     d->symbolFileName->setHistoryCompleter("LocalExecutable");
     d->symbolFileName->setExpectedKind(PathChooser::File);
-    d->symbolFileName->setPromptDialogTitle(tr("Select Executable or Symbol File"));
+    d->symbolFileName->setPromptDialogTitle(Tr::tr("Select Executable or Symbol File"));
     d->symbolFileName->setToolTip(
-        tr("Select a file containing debug information corresponding to the core file. "
+        Tr::tr("Select a file containing debug information corresponding to the core file. "
            "Typically, this is the executable or a *.debug file if the debug "
            "information is stored separately from the executable."));
 
     d->overrideStartScriptFileName = new PathChooser(this);
     d->overrideStartScriptFileName->setHistoryCompleter("Debugger.StartupScript.History");
     d->overrideStartScriptFileName->setExpectedKind(PathChooser::File);
-    d->overrideStartScriptFileName->setPromptDialogTitle(tr("Select Startup Script"));
+    d->overrideStartScriptFileName->setPromptDialogTitle(Tr::tr("Select Startup Script"));
 
     d->sysRootDirectory = new PathChooser(this);
     d->sysRootDirectory->setHistoryCompleter("Debugger.SysRoot.History");
     d->sysRootDirectory->setExpectedKind(PathChooser::Directory);
-    d->sysRootDirectory->setPromptDialogTitle(tr("Select SysRoot Directory"));
-    d->sysRootDirectory->setToolTip(tr(
+    d->sysRootDirectory->setPromptDialogTitle(Tr::tr("Select SysRoot Directory"));
+    d->sysRootDirectory->setToolTip(Tr::tr(
         "This option can be used to override the kit's SysRoot setting"));
 
     auto coreLayout = new QHBoxLayout;
@@ -276,12 +274,12 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     formLayout->setContentsMargins(0, 0, 0, 0);
     formLayout->setHorizontalSpacing(6);
     formLayout->setVerticalSpacing(6);
-    formLayout->addRow(tr("Kit:"), d->kitChooser);
+    formLayout->addRow(Tr::tr("Kit:"), d->kitChooser);
     formLayout->addRow(d->forceLocalLabel, d->forceLocalCheckBox);
-    formLayout->addRow(tr("Core file:"), coreLayout);
-    formLayout->addRow(tr("&Executable or symbol file:"), d->symbolFileName);
-    formLayout->addRow(tr("Override &start script:"), d->overrideStartScriptFileName);
-    formLayout->addRow(tr("Override S&ysRoot:"), d->sysRootDirectory);
+    formLayout->addRow(Tr::tr("Core file:"), coreLayout);
+    formLayout->addRow(Tr::tr("&Executable or symbol file:"), d->symbolFileName);
+    formLayout->addRow(Tr::tr("Override &start script:"), d->overrideStartScriptFileName);
+    formLayout->addRow(Tr::tr("Override S&ysRoot:"), d->sysRootDirectory);
 
     auto line = new QFrame(this);
     line->setFrameShape(QFrame::HLine);
@@ -381,7 +379,7 @@ void AttachCoreDialog::selectRemoteCoreFile()
     changed();
     QTC_ASSERT(!isLocalKit(), return);
     SelectRemoteFileDialog dlg(this);
-    dlg.setWindowTitle(tr("Select Remote Core File"));
+    dlg.setWindowTitle(Tr::tr("Select Remote Core File"));
     dlg.attachToDevice(d->kitChooser->currentKit());
     if (dlg.exec() == QDialog::Rejected)
         return;
@@ -460,5 +458,4 @@ void AttachCoreDialog::setSysRoot(const FilePath &sysRoot)
     d->sysRootDirectory->setFilePath(sysRoot);
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

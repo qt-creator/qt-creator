@@ -28,6 +28,7 @@
 
 #include <debugger/breakhandler.h>
 #include <debugger/debuggercore.h>
+#include <debugger/debuggertr.h>
 #include <debugger/disassembleragent.h>
 #include <debugger/disassemblerlines.h>
 #include <debugger/memoryagent.h>
@@ -56,8 +57,7 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 constexpr int kRootStackFrameLevel = 1;
 
@@ -104,24 +104,24 @@ void UvscEngine::setupEngine()
     const QUrl channel(rp.remoteChannel);
     const int port = channel.port();
     if (port <= 0) {
-        handleSetupFailure(tr("Internal error: Invalid TCP/IP port specified %1.")
+        handleSetupFailure(Tr::tr("Internal error: Invalid TCP/IP port specified %1.")
                            .arg(port));
         return;
     }
 
     // Check for valid uVision executable.
     if (rp.debugger.command.isEmpty()) {
-        handleSetupFailure(tr("Internal error: No uVision executable specified."));
+        handleSetupFailure(Tr::tr("Internal error: No uVision executable specified."));
         return;
     } else if (!rp.debugger.command.executable().exists()) {
-        handleSetupFailure(tr("Internal error: The specified uVision executable does not exist."));
+        handleSetupFailure(Tr::tr("Internal error: The specified uVision executable does not exist."));
         return;
     }
 
     showMessage("UVSC: RESOLVING LIBRARY SYMBOLS...");
     m_client.reset(new UvscClient(rp.debugger.command.executable().parentDir().toString()));
     if (m_client->error() != UvscClient::NoError) {
-        handleSetupFailure(tr("Internal error: Cannot resolve the library: %1.")
+        handleSetupFailure(Tr::tr("Internal error: Cannot resolve the library: %1.")
                            .arg(m_client->errorString()));
         return;
     } else {
@@ -129,7 +129,7 @@ void UvscEngine::setupEngine()
         QString uvscVersion;
         QString uvsockVersion;
         m_client->version(uvscVersion, uvsockVersion);
-        const QString msg = tr("UVSC Version: %1, UVSOCK Version: %2.")
+        const QString msg = Tr::tr("UVSC Version: %1, UVSOCK Version: %2.")
                 .arg(uvscVersion, uvsockVersion);
         showMessage(msg, LogMisc);
 
@@ -152,7 +152,7 @@ void UvscEngine::setupEngine()
 
     showMessage("UVSC: CONNECTING SESSION...");
     if (!m_client->connectSession(port)) {
-        handleSetupFailure(tr("Internal error: Cannot open the session: %1.")
+        handleSetupFailure(Tr::tr("Internal error: Cannot open the session: %1.")
                            .arg(m_client->errorString()));
         return;
     } else {
@@ -172,18 +172,18 @@ void UvscEngine::runEngine()
 {
     showMessage("UVSC: STARTING DEBUGGER...");
     if (!m_client->startSession(true)) {
-        showStatusMessage(tr("Internal error: Failed to start the debugger: %1")
+        showStatusMessage(Tr::tr("Internal error: Failed to start the debugger: %1")
                           .arg(m_client->errorString()));
         notifyEngineRunFailed();
         return;
     } else {
         showMessage("UVSC: DEBUGGER STARTED");
-        showMessage(tr("Application started."), StatusBar);
+        showMessage(Tr::tr("Application started."), StatusBar);
     }
 
     // Initial attempt to set breakpoints.
-    showStatusMessage(tr("Setting breakpoints..."));
-    showMessage(tr("Setting breakpoints..."));
+    showStatusMessage(Tr::tr("Setting breakpoints..."));
+    showMessage(Tr::tr("Setting breakpoints..."));
     BreakpointManager::claimBreakpointsForEngine(this);
 
     showMessage("UVSC RUNNING SUCCESSFULLY.");
@@ -194,7 +194,7 @@ void UvscEngine::shutdownInferior()
 {
     showMessage("UVSC: STOPPING DEBUGGER...");
     if (!m_client->stopSession()) {
-        AsynchronousMessageBox::critical(tr("Failed to Shut Down Application"),
+        AsynchronousMessageBox::critical(Tr::tr("Failed to Shut Down Application"),
                                          m_client->errorString());
     } else {
         showMessage("UVSC: DEBUGGER STOPPED");
@@ -285,10 +285,10 @@ void UvscEngine::continueInferior()
         return;
 
     notifyInferiorRunRequested();
-    showStatusMessage(tr("Running requested..."), 5000);
+    showStatusMessage(Tr::tr("Running requested..."), 5000);
 
     if (!m_client->startExecution()) {
-        showMessage(tr("UVSC: Starting execution failed."), LogMisc);
+        showMessage(Tr::tr("UVSC: Starting execution failed."), LogMisc);
         handleExecutionFailure(m_client->errorString());
     }
 }
@@ -299,7 +299,7 @@ void UvscEngine::interruptInferior()
         return;
 
     if (!m_client->stopExecution()) {
-        showMessage(tr("UVSC: Stopping execution failed."), LogMisc);
+        showMessage(Tr::tr("UVSC: Stopping execution failed."), LogMisc);
         handleStoppingFailure(m_client->errorString());
     }
 }
@@ -313,10 +313,10 @@ void UvscEngine::assignValueInDebugger(WatchItem *item, const QString &expr,
         const int taskId = currentThreadId();
         const int frameId = currentFrameLevel();
         if (!m_client->setLocalValue(item->id, taskId, frameId, value.toString()))
-            showMessage(tr("UVSC: Setting local value failed."), LogMisc);
+            showMessage(Tr::tr("UVSC: Setting local value failed."), LogMisc);
     } else if (item->isWatcher()) {
         if (!m_client->setWatcherValue(item->id, value.toString()))
-            showMessage(tr("UVSC: Setting watcher value failed."), LogMisc);
+            showMessage(Tr::tr("UVSC: Setting watcher value failed."), LogMisc);
     }
 
     updateLocals();
@@ -415,7 +415,7 @@ void UvscEngine::fetchDisassembler(DisassemblerAgent *agent)
     const Location location = agent->location();
     if (const quint64 address = location.address()) {
         if (!m_client->disassemblyAddress(address, data))
-            showMessage(tr("UVSC: Disassembling by address failed."), LogMisc);
+            showMessage(Tr::tr("UVSC: Disassembling by address failed."), LogMisc);
     }
 
     DisassemblerLines result;
@@ -468,7 +468,7 @@ void UvscEngine::changeMemory(MemoryAgent *agent, quint64 address, const QByteAr
 {
     QTC_ASSERT(!data.isEmpty(), return);
     if (!m_client->changeMemory(address, data))
-        showMessage(tr("UVSC: Changing memory at address 0x%1 failed.").arg(address, 0, 16), LogMisc);
+        showMessage(Tr::tr("UVSC: Changing memory at address 0x%1 failed.").arg(address, 0, 16), LogMisc);
     else
         handleChangeMemory(agent, address, data);
 }
@@ -477,7 +477,7 @@ void UvscEngine::fetchMemory(MemoryAgent *agent, quint64 address, quint64 length
 {
     QByteArray data(int(length), 0);
     if (!m_client->fetchMemory(address, data))
-        showMessage(tr("UVSC: Fetching memory at address 0x%1 failed.").arg(address, 0, 16), LogMisc);
+        showMessage(Tr::tr("UVSC: Fetching memory at address 0x%1 failed.").arg(address, 0, 16), LogMisc);
 
     handleFetchMemory(agent, address, data);
 }
@@ -541,13 +541,13 @@ bool UvscEngine::configureProject(const DebuggerRunParameters &rp)
 
     showMessage("UVSC: LOADING PROJECT...");
     if (!optionsPath.exists()) {
-        handleSetupFailure(tr("Internal error: The specified uVision project options file does not exist."));
+        handleSetupFailure(Tr::tr("Internal error: The specified uVision project options file does not exist."));
         return false;
     } else if (!projectPath.exists()) {
-        handleSetupFailure(tr("Internal error: The specified uVision project file does not exist."));
+        handleSetupFailure(Tr::tr("Internal error: The specified uVision project file does not exist."));
         return false;
     } else if (!m_client->openProject(projectPath)) {
-        handleSetupFailure(tr("Internal error: Unable to open the uVision project %1: %2.")
+        handleSetupFailure(Tr::tr("Internal error: Unable to open the uVision project %1: %2.")
                            .arg(projectPath.toString(), m_client->errorString()));
         return false;
     } else {
@@ -557,7 +557,7 @@ bool UvscEngine::configureProject(const DebuggerRunParameters &rp)
     showMessage("UVSC: SETTING PROJECT DEBUG TARGET...");
     m_simulator = rp.uVisionSimulator;
     if (!m_client->setProjectDebugTarget(m_simulator)) {
-        handleSetupFailure(tr("Internal error: Unable to set the uVision debug target: %1.")
+        handleSetupFailure(Tr::tr("Internal error: Unable to set the uVision debug target: %1.")
                            .arg(m_client->errorString()));
         return false;
     } else {
@@ -568,10 +568,10 @@ bool UvscEngine::configureProject(const DebuggerRunParameters &rp)
     showMessage("UVSC: SETTING PROJECT OUTPUT TARGET...");
     const FilePath targetPath = rp.inferior.command.executable().relativeChildPath(projectPath.parentDir());
     if (!rp.inferior.command.executable().exists()) {
-        handleSetupFailure(tr("Internal error: The specified output file does not exist."));
+        handleSetupFailure(Tr::tr("Internal error: The specified output file does not exist."));
         return false;
     } else if (!m_client->setProjectOutputTarget(targetPath)) {
-        handleSetupFailure(tr("Internal error: Unable to set the uVision output file %1: %2.")
+        handleSetupFailure(Tr::tr("Internal error: Unable to set the uVision output file %1: %2.")
                            .arg(targetPath.toString(), m_client->errorString()));
         return false;
     } else {
@@ -613,7 +613,7 @@ void UvscEngine::handleProjectClosed()
 
     // Re-open the project again.
     if (!m_client->openProject(projectPath)) {
-        handleSetupFailure(tr("Internal error: Unable to open the uVision project %1: %2.")
+        handleSetupFailure(Tr::tr("Internal error: Unable to open the uVision project %1: %2.")
                            .arg(projectPath.toString(), m_client->errorString()));
         return;
     }
@@ -703,7 +703,7 @@ void UvscEngine::handleReloadRegisters()
 {
     m_registers.clear();
     if (!m_client->fetchRegisters(m_registers)) {
-        showMessage(tr("UVSC: Reading registers failed."), LogMisc);
+        showMessage(Tr::tr("UVSC: Reading registers failed."), LogMisc);
     } else {
         RegisterHandler *handler = registerHandler();
         for (const auto &reg : qAsConst(m_registers))
@@ -717,7 +717,7 @@ void UvscEngine::handleReloadPeripheralRegisters(const QList<quint64> &addresses
     for (const quint64 address : addresses) {
         QByteArray data = UvscUtils::encodeU32(0);
         if (!m_client->fetchMemory(address, data)) {
-            showMessage(tr("UVSC: Fetching peripheral register failed."), LogMisc);
+            showMessage(Tr::tr("UVSC: Fetching peripheral register failed."), LogMisc);
         } else {
             const quint32 value = UvscUtils::decodeU32(data);
             peripheralRegisterHandler()->updateRegister(address, value);
@@ -774,9 +774,9 @@ void UvscEngine::handleUpdateLocals(bool partial)
     }
 
     if (!m_client->fetchLocals(expandedLocalINames, taskId, frameId, data))
-        showMessage(tr("UVSC: Locals enumeration failed."), LogMisc);
+        showMessage(Tr::tr("UVSC: Locals enumeration failed."), LogMisc);
     if (!m_client->fetchWatchers(expandedWatcherINames, rootWatchers, data))
-        showMessage(tr("UVSC: Watchers enumeration failed."), LogMisc);
+        showMessage(Tr::tr("UVSC: Watchers enumeration failed."), LogMisc);
 
     all.addChild(data);
 
@@ -793,7 +793,7 @@ void UvscEngine::handleInsertBreakpoint(const QString &exp, const Breakpoint &bp
     QString function;
     QString fileName;
     if (!m_client->createBreakpoint(exp, tickMark, address, line, function, fileName)) {
-        showMessage(tr("UVSC: Inserting breakpoint failed."), LogMisc);
+        showMessage(Tr::tr("UVSC: Inserting breakpoint failed."), LogMisc);
         notifyBreakpointInsertFailed(bp);
     } else {
         bp->setPending(false);
@@ -810,7 +810,7 @@ void UvscEngine::handleRemoveBreakpoint(const Breakpoint &bp)
 {
     const quint32 tickMark = bp->responseId().toULong();
     if (!m_client->deleteBreakpoint(tickMark)) {
-        showMessage(tr("UVSC: Removing breakpoint failed."), LogMisc);
+        showMessage(Tr::tr("UVSC: Removing breakpoint failed."), LogMisc);
         notifyBreakpointRemoveFailed(bp);
     } else {
         notifyBreakpointRemoveOk(bp);
@@ -823,13 +823,13 @@ void UvscEngine::handleChangeBreakpoint(const Breakpoint &bp)
     const BreakpointParameters &requested = bp->requestedParameters();
     if (requested.enabled && !bp->isEnabled()) {
         if (!m_client->enableBreakpoint(tickMark)) {
-            showMessage(tr("UVSC: Enabling breakpoint failed."), LogMisc);
+            showMessage(Tr::tr("UVSC: Enabling breakpoint failed."), LogMisc);
             notifyBreakpointChangeFailed(bp);
             return;
         }
     } else if (!requested.enabled && bp->isEnabled()) {
         if (!m_client->disableBreakpoint(tickMark)) {
-            showMessage(tr("UVSC: Disabling breakpoint failed."), LogMisc);
+            showMessage(Tr::tr("UVSC: Disabling breakpoint failed."), LogMisc);
             notifyBreakpointChangeFailed(bp);
             return;
         }
@@ -841,34 +841,34 @@ void UvscEngine::handleChangeBreakpoint(const Breakpoint &bp)
 void UvscEngine::handleSetupFailure(const QString &errorMessage)
 {
     showMessage("UVSC INITIALIZATION FAILED");
-    AsynchronousMessageBox::critical(tr("Failed to initialize the UVSC."), errorMessage);
+    AsynchronousMessageBox::critical(Tr::tr("Failed to initialize the UVSC."), errorMessage);
     notifyEngineSetupFailed();
 }
 
 void UvscEngine::handleShutdownFailure(const QString &errorMessage)
 {
     showMessage("UVSC SHUTDOWN FAILED");
-    AsynchronousMessageBox::critical(tr("Failed to de-initialize the UVSC."), errorMessage);
+    AsynchronousMessageBox::critical(Tr::tr("Failed to de-initialize the UVSC."), errorMessage);
 }
 
 void UvscEngine::handleRunFailure(const QString &errorMessage)
 {
     showMessage("UVSC RUN FAILED");
-    AsynchronousMessageBox::critical(tr("Failed to run the UVSC."), errorMessage);
+    AsynchronousMessageBox::critical(Tr::tr("Failed to run the UVSC."), errorMessage);
     notifyEngineSetupFailed();
 }
 
 void UvscEngine::handleExecutionFailure(const QString &errorMessage)
 {
-    AsynchronousMessageBox::critical(tr("Execution Error"),
-                                     tr("Cannot continue debugged process:\n") + errorMessage);
+    AsynchronousMessageBox::critical(Tr::tr("Execution Error"),
+                                     Tr::tr("Cannot continue debugged process:\n") + errorMessage);
     notifyInferiorRunFailed();
 }
 
 void UvscEngine::handleStoppingFailure(const QString &errorMessage)
 {
-    AsynchronousMessageBox::critical(tr("Execution Error"),
-                                     tr("Cannot stop debugged process:\n") + errorMessage);
+    AsynchronousMessageBox::critical(Tr::tr("Execution Error"),
+                                     Tr::tr("Cannot stop debugged process:\n") + errorMessage);
     notifyInferiorStopFailed();
 }
 
@@ -888,5 +888,4 @@ void UvscEngine::handleChangeMemory(MemoryAgent *agent, quint64 address, const Q
     reloadPeripheralRegisters();
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

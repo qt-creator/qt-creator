@@ -33,8 +33,7 @@
 
 #include <vector>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class GdbMi;
 
@@ -105,5 +104,4 @@ private:
     void parseHelper(const GdbMi &input, bool maySort);
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

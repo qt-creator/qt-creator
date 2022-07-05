@@ -29,8 +29,7 @@
 
 namespace Utils { class FilePath; }
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 // Internal helper dialog prompting for a cache directory
 // using a PathChooser.
@@ -41,7 +40,6 @@ namespace Internal {
 
 class CdbSymbolPathListEditor : public Utils::PathListEditor
 {
-    Q_OBJECT
 public:
     enum SymbolPathMode{
         SymbolServerPath,
@@ -66,5 +64,4 @@ private:
     void setupSymbolPaths();
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

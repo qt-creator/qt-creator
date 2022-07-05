@@ -36,12 +36,15 @@ class QImage;
 class QContextMenuEvent;
 QT_END_NAMESPACE
 
+namespace Debugger::Internal {
+
 class ImageWidget;
 
 // Image viewer showing images in scroll area, displays color on click.
 class ImageViewer : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit ImageViewer(QWidget *parent = nullptr);
 
@@ -61,6 +64,7 @@ private:
 class PlotViewer : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit PlotViewer(QWidget *parent = nullptr);
 
@@ -74,3 +78,5 @@ private:
     Data m_data;
     QString m_info;
 };
+
+} // Debugger::Internal

@@ -27,8 +27,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class CommonOptionsPage final : public Core::IOptionsPage
 {
@@ -46,5 +45,4 @@ public:
     LocalsAndExpressionsOptionsPage();
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

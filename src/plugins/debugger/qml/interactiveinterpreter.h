@@ -28,8 +28,7 @@
 #include <qmljs/parser/qmljslexer_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class InteractiveInterpreter: QmlJS::Lexer
 {
@@ -54,5 +53,4 @@ private:
     QString m_code;
 };
 
-}
-}
+} // Debugger::Internal

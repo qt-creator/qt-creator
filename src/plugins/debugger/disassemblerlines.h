@@ -29,8 +29,7 @@
 #include <QHash>
 #include <QVector>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 // A DisassemblerLine represents either
 //  - an assembler instruction (address, offset, function, data fields), or
@@ -89,5 +88,4 @@ private:
     QHash<quint64, int> m_rowCache;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

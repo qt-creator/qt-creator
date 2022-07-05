@@ -50,8 +50,7 @@
 using namespace Core;
 using namespace TextEditor;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class SourceAgentPrivate
 {
@@ -151,5 +150,4 @@ void SourceAgent::updateLocationMarker()
     }
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

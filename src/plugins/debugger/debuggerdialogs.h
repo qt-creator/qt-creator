@@ -38,8 +38,7 @@ class QLineEdit;
 class QDialogButtonBox;
 QT_END_NAMESPACE
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class AttachToQmlPortDialogPrivate;
 class DebuggerRunParameters;
@@ -49,8 +48,6 @@ class StartRemoteEngineDialogPrivate;
 
 class StartApplicationDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     explicit StartApplicationDialog(QWidget *parent);
     ~StartApplicationDialog() override;
@@ -72,8 +69,6 @@ private:
 
 class AttachToQmlPortDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     explicit AttachToQmlPortDialog(QWidget *parent);
     ~AttachToQmlPortDialog() override;
@@ -90,8 +85,6 @@ private:
 
 class StartRemoteCdbDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     explicit StartRemoteCdbDialog(QWidget *parent);
     ~StartRemoteCdbDialog() override;
@@ -109,8 +102,6 @@ private:
 
 class AddressDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
      explicit AddressDialog(QWidget *parent = nullptr);
 
@@ -132,8 +123,6 @@ private:
 
 class StartRemoteEngineDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     explicit StartRemoteEngineDialog(QWidget *parent);
     ~StartRemoteEngineDialog() override;
@@ -151,8 +140,6 @@ class TypeFormatsDialogUi;
 
 class TypeFormatsDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     explicit TypeFormatsDialog(QWidget *parent);
     ~TypeFormatsDialog() override;
@@ -164,5 +151,4 @@ private:
     TypeFormatsDialogUi *m_ui;
 };
 
-} // namespace Debugger
-} // namespace Internal
+} // Debugger::Internal
