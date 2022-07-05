@@ -32,14 +32,11 @@
 #include "androidsdkdownloader.h"
 #include "androidsdkmanager.h"
 #include "androidsdkmanagerwidget.h"
-#include "androidtoolchain.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/infolabel.h>
-#include <utils/listmodel.h>
 #include <utils/pathchooser.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
@@ -49,16 +46,10 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QFileDialog>
-#include <QFutureWatcher>
-#include <QInputDialog>
 #include <QList>
 #include <QLoggingCategory>
 #include <QMessageBox>
-#include <QModelIndex>
-#include <QScrollArea>
-#include <QSettings>
 #include <QStandardPaths>
-#include <QString>
 #include <QTimer>
 #include <QUrl>
 #include <QWidget>
