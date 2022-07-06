@@ -786,7 +786,7 @@ static QString formattedValue(const WatchItem *item)
         std::ostringstream ss;
         ss << std::hexfloat;
         switch (item->guessSize()) {
-            case 2: ss << qfloat16(dd); break;
+            case 2: ss << float(qfloat16(dd)); break;
             case 4: ss << float(dd); break;
             default: ss << dd; break;
         }
