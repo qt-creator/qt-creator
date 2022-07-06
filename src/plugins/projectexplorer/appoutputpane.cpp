@@ -606,8 +606,10 @@ void AppOutputPane::stopRunControl()
     QTC_ASSERT(rc, return);
 
     if (rc->isRunning()) {
-        if (optionallyPromptToStop(rc))
+        if (optionallyPromptToStop(rc)) {
             rc->initiateStop();
+            enableButtons(rc);
+        }
     } else {
         QTC_CHECK(false);
         rc->forceStop();
