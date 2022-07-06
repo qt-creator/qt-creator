@@ -29,6 +29,8 @@
 
 #include <utils/aspects.h>
 
+#include <QDialog>
+
 QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
@@ -55,6 +57,15 @@ class SquishSettingsPage final : public Core::IOptionsPage
     Q_DECLARE_TR_FUNCTIONS(Squish::Internal::SquishSettings)
 public:
     SquishSettingsPage(SquishSettings *settings);
+};
+
+class SquishServerSettingsDialog : public QDialog
+{
+    Q_DECLARE_TR_FUNCTIONS(Squish::Internal::SquishSettings)
+public:
+    explicit SquishServerSettingsDialog(QWidget *parent = nullptr);
+private:
+    void onApply();
 };
 
 } // namespace Internal

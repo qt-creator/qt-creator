@@ -32,12 +32,15 @@
 #include "squishtesttreemodel.h"
 #include "squishtools.h"
 
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/mimetypes/mimedatabase.h>
 
+#include <QMenu>
 #include <QtPlugin>
 
 using namespace Squish::Internal;
@@ -68,7 +71,23 @@ SquishSettings *SquishPlugin::squishSettings()
     return &m_squishSettings;
 }
 
-void SquishPlugin::initializeMenuEntries() {}
+void SquishPlugin::initializeMenuEntries()
+{
+    ActionContainer *menu = ActionManager::createMenu("Squish.Menu");
+    menu->menu()->setTitle(tr("&Squish"));
+    menu->setOnAllDisabledBehavior(ActionContainer::Show);
+
+    QAction *action = new QAction(tr("&Server Settings..."), this);
+    Command *command = ActionManager::registerAction(action, "Squish.ServerSettings");
+    menu->addAction(command);
+    connect(action, &QAction::triggered, this, [this] {
+        SquishServerSettingsDialog dialog;
+        dialog.exec();
+    });
+
+    ActionContainer *toolsMenu = ActionManager::actionContainer(Core::Constants::M_TOOLS);
+    toolsMenu->addMenu(menu);
+}
 
 bool SquishPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
