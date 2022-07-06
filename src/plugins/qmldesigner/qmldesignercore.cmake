@@ -443,3 +443,7 @@ function(extend_with_qmldesigner_core target_name)
   extend_qtc_target(${target_name} ${export_symbol_declaration})
 
 endfunction()
+
+file(GLOB PROJECTSTORAGE_EXCLUDED_SOURCES designercore/projectstorage/*.cpp)
+set_property(SOURCE ${PROJECTSTORAGE_EXCLUDED_SOURCES} PROPERTY SKIP_AUTOMOC ON)
+

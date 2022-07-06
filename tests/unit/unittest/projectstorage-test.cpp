@@ -25,14 +25,14 @@
 
 #include "googletest.h"
 
-#include "sqlitedatabasemock.h"
-
 #include <modelnode.h>
 #include <projectstorage/projectstorage.h>
 #include <projectstorage/sourcepathcache.h>
 #include <sqlitedatabase.h>
 #include <sqlitereadstatement.h>
 #include <sqlitewritestatement.h>
+
+#include <random>
 
 namespace {
 
@@ -522,6 +522,15 @@ protected:
         return package;
     }
 
+    template<typename Container>
+    static void shuffle(Container &container)
+    {
+        std::random_device randomDevice;
+        std::mt19937 generator(randomDevice());
+
+        std::shuffle(container.begin(), container.end(), generator);
+    }
+
     auto createSynchronizationPackageWithVersions()
     {
         SynchronizationPackage package;
@@ -562,6 +571,8 @@ protected:
                            Storage::ExportedType{qmlNativeModuleId, "QObject4"}}});
 
         package.updatedSourceIds.push_back(sourceId1);
+
+        shuffle(package.types);
 
         return package;
     }
@@ -4885,4 +4896,155 @@ TEST_F(ProjectStorage, SynchronizeTypesRemovePropertyDeclarationAndIndirectAlias
                                              TypeAccessSemantics::Reference),
                                Field(&Storage::Type::propertyDeclarations, IsEmpty()))));
 }
+
+TEST_F(ProjectStorage, GetTypeId)
+{
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
+
+    auto typeId = storage.typeId(qmlModuleId, "Object", Storage::Version{});
+
+    ASSERT_THAT(typeId, fetchTypeId(sourceId1, "QObject4"));
+}
+
+TEST_F(ProjectStorage, GetNoTypeIdForNonExistingTypeName)
+{
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
+
+    auto typeId = storage.typeId(qmlModuleId, "Object2", Storage::Version{});
+
+    ASSERT_FALSE(typeId);
+}
+
+TEST_F(ProjectStorage, GetNoTypeIdForInvalidModuleId)
+{
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
+
+    auto typeId = storage.typeId(ModuleId{}, "Object", Storage::Version{});
+
+    ASSERT_FALSE(typeId);
+}
+
+TEST_F(ProjectStorage, GetNoTypeIdForWrongModuleId)
+{
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
+
+    auto typeId = storage.typeId(qtQuick3DModuleId, "Object", Storage::Version{});
+
+    ASSERT_FALSE(typeId);
+}
+
+TEST_F(ProjectStorage, GetTypeIdWithMajorVersion)
+{
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
+
+    auto typeId = storage.typeId(qmlModuleId, "Object", Storage::Version{2});
+
+    ASSERT_THAT(typeId, fetchTypeId(sourceId1, "QObject3"));
+}
+
+TEST_F(ProjectStorage, GetNoTypeIdWithMajorVersionForNonExistingTypeName)
+{
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
+
+    auto typeId = storage.typeId(qmlModuleId, "Object2", Storage::Version{2});
+
+    ASSERT_FALSE(typeId);
+}
+
+TEST_F(ProjectStorage, GetNoTypeIdWithMajorVersionForInvalidModuleId)
+{
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
+
+    auto typeId = storage.typeId(ModuleId{}, "Object", Storage::Version{2});
+
+    ASSERT_FALSE(typeId);
+}
+
+TEST_F(ProjectStorage, GetNoTypeIdWithMajorVersionForWrongModuleId)
+{
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
+
+    auto typeId = storage.typeId(qtQuick3DModuleId, "Object", Storage::Version{2});
+
+    ASSERT_FALSE(typeId);
+}
+
+TEST_F(ProjectStorage, GetNoTypeIdWithMajorVersionForWrongVersion)
+{
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
+
+    auto typeId = storage.typeId(qmlModuleId, "Object", Storage::Version{4});
+
+    ASSERT_FALSE(typeId);
+}
+
+TEST_F(ProjectStorage, GetTypeIdWithCompleteVersion)
+{
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
+
+    auto typeId = storage.typeId(qmlModuleId, "Object", Storage::Version{2, 0});
+
+    ASSERT_THAT(typeId, fetchTypeId(sourceId1, "QObject2"));
+}
+
+TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionWithHigherMinorVersion)
+{
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
+
+    auto typeId = storage.typeId(qmlModuleId, "Object", Storage::Version{2, 12});
+
+    ASSERT_THAT(typeId, fetchTypeId(sourceId1, "QObject3"));
+}
+
+TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionForNonExistingTypeName)
+{
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
+
+    auto typeId = storage.typeId(qmlModuleId, "Object2", Storage::Version{2, 0});
+
+    ASSERT_FALSE(typeId);
+}
+
+TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionForInvalidModuleId)
+{
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
+
+    auto typeId = storage.typeId(ModuleId{}, "Object", Storage::Version{2, 0});
+
+    ASSERT_FALSE(typeId);
+}
+
+TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionForWrongModuleId)
+{
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
+
+    auto typeId = storage.typeId(qtQuick3DModuleId, "Object", Storage::Version{2, 0});
+
+    ASSERT_FALSE(typeId);
+}
+
+TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionForWrongMajorVersion)
+{
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
+
+    auto typeId = storage.typeId(qmlModuleId, "Object", Storage::Version{4, 0});
+
+    ASSERT_FALSE(typeId);
+}
+
 } // namespace

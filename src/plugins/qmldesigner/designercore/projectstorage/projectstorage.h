@@ -131,6 +131,23 @@ public:
         return moduleCache.value(moduleId);
     }
 
+    TypeId typeId(ModuleId moduleId, Utils::SmallStringView exportedTypeName, Storage::Version version)
+    {
+        if (version.minor)
+            return selectTypeIdByModuleIdAndExportedNameAndVersionStatement
+                .template valueWithTransaction<TypeId>(&moduleId,
+                                                       exportedTypeName,
+                                                       version.major.value,
+                                                       version.minor.value);
+
+        if (version.major)
+            return selectTypeIdByModuleIdAndExportedNameAndMajorVersionStatement
+                .template valueWithTransaction<TypeId>(&moduleId, exportedTypeName, version.major.value);
+
+        return selectTypeIdByModuleIdAndExportedNameStatement
+            .template valueWithTransaction<TypeId>(&moduleId, exportedTypeName);
+    }
+
     PropertyDeclarationId fetchPropertyDeclarationByTypeIdAndName(TypeId typeId,
                                                                   Utils::SmallStringView name)
     {
@@ -2351,6 +2368,25 @@ public:
         database};
     mutable ReadStatement<1, 1> selectTypeIdByExportedNameStatement{
         "SELECT typeId FROM exportedTypeNames WHERE name=?1", database};
+    mutable ReadStatement<1, 2> selectTypeIdByModuleIdAndExportedNameStatement{
+        "SELECT typeId FROM exportedTypeNames "
+        "WHERE moduleId=?1 AND name=?2 "
+        "ORDER BY majorVersion DESC, minorVersion DESC "
+        "LIMIT 1",
+        database};
+    mutable ReadStatement<1, 3> selectTypeIdByModuleIdAndExportedNameAndMajorVersionStatement{
+        "SELECT typeId FROM exportedTypeNames "
+        "WHERE moduleId=?1 AND name=?2 AND majorVersion=?3"
+        "ORDER BY minorVersion DESC "
+        "LIMIT 1",
+        database};
+    mutable ReadStatement<1, 4> selectTypeIdByModuleIdAndExportedNameAndVersionStatement{
+        "SELECT typeId FROM exportedTypeNames "
+        "WHERE moduleId=?1 AND name=?2 AND majorVersion=?3 AND minorVersion<=?4"
+        "ORDER BY minorVersion DESC "
+        "LIMIT 1",
+        database};
+
     mutable ReadStatement<1, 2> selectPrototypeIdStatement{
         "WITH RECURSIVE "
         "  typeSelection(typeId) AS ("

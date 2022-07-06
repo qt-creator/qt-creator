@@ -352,3 +352,9 @@ extend_qtc_test(unittest
     projectstorage/qmldocumentparser.cpp projectstorage/qmldocumentparser.h
     projectstorage/qmltypesparser.cpp projectstorage/qmltypesparser.h
 )
+
+file(GLOB PROJECTSTORAGE_EXCLUDED_SOURCES ${QmlDesignerDir}/designercore/projectstorage/*.cpp)
+set_property(SOURCE ${PROJECTSTORAGE_EXCLUDED_SOURCES} PROPERTY SKIP_AUTOMOC ON)
+
+file(GLOB UNITTEST_EXCLUDED_SOURCES *.cpp)
+set_property(SOURCE ${UNITTEST_EXCLUDED_SOURCES} PROPERTY SKIP_AUTOMOC ON)
