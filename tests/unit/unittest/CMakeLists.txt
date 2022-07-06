@@ -250,7 +250,7 @@ extend_qtc_test(unittest
     projectstorage/filestatuscache.cpp projectstorage/filestatuscache.h
     projectstorage/nonlockingmutex.h
     projectstorage/projectstorageinterface.h
-    projectstorage/projectstorage.h
+    projectstorage/projectstorage.cpp projectstorage/projectstorage.h
     projectstorage/projectstoragepathwatcher.h
     projectstorage/projectstoragepathwatcherinterface.h
     projectstorage/projectstoragepathwatchernotifierinterface.h

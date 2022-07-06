@@ -31,6 +31,7 @@
 #include "storagecache.h"
 
 #include <sqlitealgorithms.h>
+#include <sqlitedatabase.h>
 #include <sqlitetable.h>
 #include <sqlitetransaction.h>
 
@@ -826,29 +827,6 @@ private:
 
         selectAliasPropertiesDeclarationForPropertiesWithTypeIdStatement.readCallback(callback,
                                                                                       &typeId);
-    }
-
-    void prepareLinkingOfAliasPropertiesDeclarationsWithAliasId(
-        PropertyDeclarationId aliasId, AliasPropertyDeclarations &relinkableAliasPropertyDeclarations)
-    {
-        auto callback = [&](long long propertyDeclarationId,
-                            long long propertyImportedTypeNameId,
-                            long long aliasPropertyDeclarationId) {
-            auto aliasPropertyName = selectPropertyNameStatement.template value<Utils::SmallString>(
-                aliasPropertyDeclarationId);
-
-            relinkableAliasPropertyDeclarations
-                .emplace_back(PropertyDeclarationId{propertyDeclarationId},
-                              ImportedTypeNameId{propertyImportedTypeNameId},
-                              std::move(aliasPropertyName));
-
-            updateAliasPropertyDeclarationToNullStatement.write(propertyDeclarationId);
-
-            return Sqlite::CallbackControl::Continue;
-        };
-
-        selectAliasPropertiesDeclarationForPropertiesWithAliasIdStatement.readCallback(callback,
-                                                                                       &aliasId);
     }
 
     void handlePropertyDeclarationWithPropertyType(TypeId typeId,
@@ -2870,5 +2848,5 @@ public:
         "FROM imports",
         database};
 };
-
+extern template class ProjectStorage<Sqlite::Database>;
 } // namespace QmlDesigner

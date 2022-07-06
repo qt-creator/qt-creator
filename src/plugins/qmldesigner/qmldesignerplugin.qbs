@@ -466,6 +466,7 @@ Project {
                 "filesystem.h",
                 "filesysteminterface.h",
                 "nonlockingmutex.h",
+                "projectstorage.cpp",
                 "projectstorage.h",
                 "projectstorageinterface.h",
                 "projectstoragepathwatcher.h",

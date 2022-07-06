@@ -420,7 +420,7 @@ extend_qtc_plugin(QmlDesigner
     filestatuscache.cpp filestatuscache.h
     nonlockingmutex.h
     projectstorageinterface.h
-    projectstorage.h
+    projectstorage.cpp projectstorage.h
     projectstoragepathwatcher.h
     projectstoragepathwatcherinterface.h
     projectstoragepathwatchernotifierinterface.h
