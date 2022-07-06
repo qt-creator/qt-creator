@@ -256,7 +256,8 @@ void AndroidConfig::load(const QSettings &settings)
     m_customNdkList.removeAll("");
     if (!m_defaultNdk.isEmpty() && ndkVersion(m_defaultNdk).isNull()) {
         if (avdConfigLog().isDebugEnabled())
-            qCDebug(avdConfigLog) << "Clearing invalid default NDK setting:" << m_defaultNdk.path();
+            qCDebug(avdConfigLog).noquote() << "Clearing invalid default NDK setting:"
+                                            << m_defaultNdk.toUserOutput();
         m_defaultNdk.clear();
     }
     parseDependenciesJson();
@@ -950,8 +951,8 @@ QVersionNumber AndroidConfig::ndkVersion(const FilePath &ndkPath)
 {
     QVersionNumber version;
     if (!ndkPath.exists()) {
-        qCDebug(avdConfigLog) << "Cannot find ndk version. Check NDK path."
-                              << ndkPath.toString();
+        qCDebug(avdConfigLog).noquote() << "Cannot find ndk version. Check NDK path."
+                                        << ndkPath.toUserOutput();
         return version;
     }
 

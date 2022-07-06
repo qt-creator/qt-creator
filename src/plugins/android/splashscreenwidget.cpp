@@ -181,7 +181,8 @@ void SplashScreenWidget::setImageFromPath(const FilePath &imagePath, bool resize
         emit imageChanged();
     }
     else {
-        qCDebug(androidManifestEditorLog) << "Cannot save image.";
+        qCDebug(androidManifestEditorLog).noquote()
+                << "Cannot save image." << targetPath.toUserOutput();
     }
 }
 
@@ -231,7 +232,8 @@ void SplashScreenWidget::loadImage()
     }
     QImage image = QImage(targetPath.toString());
     if (image.isNull()) {
-        qCDebug(androidManifestEditorLog) << "Cannot load image.";
+        qCDebug(androidManifestEditorLog).noquote()
+                << "Cannot load image." << targetPath.toUserOutput();
         return;
     }
     if (m_showImageFullScreen) {

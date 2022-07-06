@@ -271,8 +271,8 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     m_apiLevel = AndroidManager::deviceApiLevel(target);
 
     m_extraEnvVars = runControl->aspect<EnvironmentAspect>()->environment;
-    qCDebug(androidRunWorkerLog) << "Environment variables for the app"
-                                 << m_extraEnvVars.toStringList();
+    qCDebug(androidRunWorkerLog).noquote() << "Environment variables for the app"
+                                           << m_extraEnvVars.toStringList();
 
     if (target->buildConfigurations().first()->buildType() != BuildConfiguration::BuildType::Release)
         m_extraAppParams = runControl->commandLine().arguments();
@@ -304,12 +304,12 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
         m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
 
     m_debugServerPath = debugServer(m_useLldb, target).toString();
-    qCDebug(androidRunWorkerLog) << "Device Serial:" << m_deviceSerialNumber
-                                 << ", API level:" << m_apiLevel
-                                 << ", Extra Start Args:" << m_amStartExtraArgs
-                                 << ", Before Start ADB cmds:" << m_beforeStartAdbCommands
-                                 << ", After finish ADB cmds:" << m_afterFinishAdbCommands
-                                 << ", Debug server path:" << m_debugServerPath;
+    qCDebug(androidRunWorkerLog).noquote() << "Device Serial:" << m_deviceSerialNumber
+                                           << ", API level:" << m_apiLevel
+                                           << ", Extra Start Args:" << m_amStartExtraArgs
+                                           << ", Before Start ADB cmds:" << m_beforeStartAdbCommands
+                                           << ", After finish ADB cmds:" << m_afterFinishAdbCommands
+                                           << ", Debug server path:" << m_debugServerPath;
 
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
     m_useAppParamsForQmlDebugger = version->qtVersion() >= QtSupport::QtVersionNumber(5, 12);
@@ -536,8 +536,8 @@ void Android::Internal::AndroidRunnerWorker::asyncStartLogcat()
 
     const QStringList logcatArgs = selector() << "logcat" << timeArg;
     const FilePath adb = AndroidConfigurations::currentConfig().adbToolPath();
-    qCDebug(androidRunWorkerLog) << "Running logcat command (async):"
-                                 << CommandLine(adb, logcatArgs).toUserOutput();
+    qCDebug(androidRunWorkerLog).noquote() << "Running logcat command (async):"
+                                           << CommandLine(adb, logcatArgs).toUserOutput();
     m_adbLogcatProcess->start(adb.toString(), logcatArgs);
     if (m_adbLogcatProcess->waitForStarted(500) && m_adbLogcatProcess->state() == QProcess::Running)
         m_adbLogcatProcess->setObjectName("AdbLogcatProcess");
@@ -640,7 +640,7 @@ void AndroidRunnerWorker::asyncStartHelper()
     if (!m_extraAppParams.isEmpty()) {
         QStringList appArgs =
                 Utils::ProcessArgs::splitArgs(m_extraAppParams, Utils::OsType::OsTypeLinux);
-        qCDebug(androidRunWorkerLog) << "Using application arguments: " << appArgs;
+        qCDebug(androidRunWorkerLog).noquote() << "Using application arguments: " << appArgs;
         args << "-e" << "extraappparams"
              << QString::fromLatin1(appArgs.join(' ').toUtf8().toBase64());
     }
@@ -758,7 +758,8 @@ void AndroidRunnerWorker::handleJdbWaiting()
     QStringList jdbArgs("-connect");
     jdbArgs << QString("com.sun.jdi.SocketAttach:hostname=localhost,port=%1")
                .arg(m_localJdbServerPort.toString());
-    qCDebug(androidRunWorkerLog) << "Starting JDB:" << CommandLine(jdbPath, jdbArgs).toUserOutput();
+    qCDebug(androidRunWorkerLog).noquote()
+            << "Starting JDB:" << CommandLine(jdbPath, jdbArgs).toUserOutput();
     std::unique_ptr<QProcess, Deleter> jdbProcess(new QProcess, &deleter);
     jdbProcess->setProcessChannelMode(QProcess::MergedChannels);
     jdbProcess->start(jdbPath.toString(), jdbArgs);

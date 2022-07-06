@@ -69,7 +69,7 @@ bool AndroidAvdManager::avdManagerCommand(const AndroidConfig &config, const QSt
     QtcProcess proc;
     Environment env = AndroidConfigurations::toolsEnvironment(config);
     proc.setEnvironment(env);
-    qCDebug(avdManagerLog) << "Running AVD Manager command:" << cmd.toUserOutput();
+    qCDebug(avdManagerLog).noquote() << "Running AVD Manager command:" << cmd.toUserOutput();
     proc.setCommand(cmd);
     proc.runBlocking();
     if (proc.result() == ProcessResult::FinishedWithSuccess) {
@@ -116,7 +116,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
         arguments << "-f";
 
     const FilePath avdManagerTool = config.avdManagerToolPath();
-    qCDebug(avdManagerLog)
+    qCDebug(avdManagerLog).noquote()
             << "Running AVD Manager command:" << CommandLine(avdManagerTool, arguments).toUserOutput();
     QtcProcess proc;
     proc.setProcessMode(ProcessMode::Writer);
@@ -182,7 +182,7 @@ QFuture<CreateAvdInfo> AndroidAvdManager::createAvd(CreateAvdInfo info) const
 bool AndroidAvdManager::removeAvd(const QString &name) const
 {
     const CommandLine command(m_config.avdManagerToolPath(), {"delete", "avd", "-n", name});
-    qCDebug(avdManagerLog) << "Running command (removeAvd):" << command.toUserOutput();
+    qCDebug(avdManagerLog).noquote() << "Running command (removeAvd):" << command.toUserOutput();
     QtcProcess proc;
     proc.setTimeoutS(5);
     proc.setEnvironment(AndroidConfigurations::toolsEnvironment(m_config));
@@ -298,7 +298,7 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
 
     cmd.addArgs(m_config.emulatorArgs(), CommandLine::Raw);
     cmd.addArgs({"-avd", avdName});
-    qCDebug(avdManagerLog) << "Running command (startAvdAsync):" << cmd.toUserOutput();
+    qCDebug(avdManagerLog).noquote() << "Running command (startAvdAsync):" << cmd.toUserOutput();
     avdProcess->setCommand(cmd);
     avdProcess->start();
     return avdProcess->waitForStarted(-1);
@@ -339,7 +339,7 @@ bool AndroidAvdManager::isAvdBooted(const QString &device) const
     arguments << "shell" << "getprop" << "init.svc.bootanim";
 
     const CommandLine command({m_config.adbToolPath(), arguments});
-    qCDebug(avdManagerLog) << "Running command (isAvdBooted):" << command.toUserOutput();
+    qCDebug(avdManagerLog).noquote() << "Running command (isAvdBooted):" << command.toUserOutput();
     QtcProcess adbProc;
     adbProc.setTimeoutS(10);
     adbProc.setCommand(command);

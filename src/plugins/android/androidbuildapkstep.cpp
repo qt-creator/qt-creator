@@ -576,7 +576,7 @@ bool AndroidBuildApkStep::init()
         m_packagePath = AndroidManager::apkPath(target());
     }
 
-    qCDebug(buildapkstepLog) << "APK or AAB path:" << m_packagePath;
+    qCDebug(buildapkstepLog).noquote() << "APK or AAB path:" << m_packagePath.toUserOutput();
 
     FilePath command = version->hostBinPath().pathAppended("androiddeployqt").withExecutableSuffix();
 

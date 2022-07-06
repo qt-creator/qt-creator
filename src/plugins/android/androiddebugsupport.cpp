@@ -152,7 +152,7 @@ void AndroidDebugSupport::start()
         solibSearchPath.append(androidLibsPath);
         solibSearchPath.removeDuplicates();
         setSolibSearchPath(solibSearchPath);
-        qCDebug(androidDebugSupportLog) << "SoLibSearchPath: "<<solibSearchPath;
+        qCDebug(androidDebugSupportLog).noquote() << "SoLibSearchPath: " << solibSearchPath;
         setSymbolFile(buildDir.pathAppended("app_process"));
         setSkipExecutableValidation(true);
         setUseExtendedRemote(true);
@@ -183,7 +183,7 @@ void AndroidDebugSupport::start()
             if (!sysRoot.exists())
                 sysRoot = AndroidConfig::toolchainPathFromNdk(ndkLocation) / "sysroot";
             setSysRoot(sysRoot);
-            qCDebug(androidDebugSupportLog) << "Sysroot: " << sysRoot;
+            qCDebug(androidDebugSupportLog).noquote() << "Sysroot: " << sysRoot.toUserOutput();
         }
     }
     if (isQmlDebugging()) {

@@ -761,7 +761,8 @@ QProcess *AndroidManager::runAdbCommandDetached(const QStringList &args, QString
 {
     std::unique_ptr<QProcess> p(new QProcess);
     const FilePath adb = AndroidConfigurations::currentConfig().adbToolPath();
-    qCDebug(androidManagerLog) << "Running command (async):" << CommandLine(adb, args).toUserOutput();
+    qCDebug(androidManagerLog).noquote() << "Running command (async):"
+                                         << CommandLine(adb, args).toUserOutput();
     p->start(adb.toString(), args);
     if (p->waitForStarted(500) && p->state() == QProcess::Running) {
         if (deleteOnFinish) {
@@ -772,9 +773,9 @@ QProcess *AndroidManager::runAdbCommandDetached(const QStringList &args, QString
     }
 
     QString errorStr = QString::fromUtf8(p->readAllStandardError());
-    qCDebug(androidManagerLog) << "Running command (async) failed:"
-                               << CommandLine(adb, args).toUserOutput()
-                               << "Output:" << errorStr;
+    qCDebug(androidManagerLog).noquote() << "Running command (async) failed:"
+                                         << CommandLine(adb, args).toUserOutput()
+                                         << "Output:" << errorStr;
     if (err)
         *err = errorStr;
     return nullptr;

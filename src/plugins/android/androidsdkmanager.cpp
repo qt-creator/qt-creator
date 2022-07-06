@@ -130,9 +130,9 @@ static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
 {
     QStringList newArgs = args;
     newArgs.append(sdkRootArg(config));
-    qCDebug(sdkManagerLog) << "Running SDK Manager command (sync):"
-                           << CommandLine(config.sdkManagerToolPath(), newArgs)
-                                  .toUserOutput();
+    qCDebug(sdkManagerLog).noquote() << "Running SDK Manager command (sync):"
+                                     << CommandLine(config.sdkManagerToolPath(), newArgs)
+                                        .toUserOutput();
     QtcProcess proc;
     proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
     proc.setTimeoutS(timeout);
@@ -157,8 +157,9 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
 {
     QStringList newArgs = args;
     newArgs.append(sdkRootArg(config));
-    qCDebug(sdkManagerLog) << "Running SDK Manager command (async):"
-                           << CommandLine(config.sdkManagerToolPath(), newArgs).toUserOutput();
+    qCDebug(sdkManagerLog).noquote() << "Running SDK Manager command (async):"
+                                     << CommandLine(config.sdkManagerToolPath(), newArgs)
+                                        .toUserOutput();
     int offset = fi.progressValue();
     QtcProcess proc;
     proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));

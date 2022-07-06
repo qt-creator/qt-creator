@@ -498,7 +498,8 @@ void AndroidDeployQtStep::gatherFilesToPull()
     m_filesToPull["/system/" + libDirName + "/libc.so"] = buildDir + "libc.so";
 
     for (auto itr = m_filesToPull.constBegin(); itr != m_filesToPull.constEnd(); ++itr)
-        qCDebug(deployStepLog) << "Pulling file from device:" << itr.key() << "to:" << itr.value();
+        qCDebug(deployStepLog).noquote() << "Pulling file from device:" << itr.key()
+                                         << "to:" << itr.value();
 }
 
 void AndroidDeployQtStep::doRun()
