@@ -192,7 +192,7 @@ void CompilerOptionsBuilderTest::testLanguageVersionIsExplicitlySetIfNotProvided
                 UseTweakedHeaderPaths::No, UseLanguageDefines::Yes};
     compilerOptionsBuilder.build(ProjectFile::CXXSource, UsePrecompiledHeaders::No);
 
-    QVERIFY(compilerOptionsBuilder.options().contains("/std:c++17"));
+    QVERIFY(compilerOptionsBuilder.options().contains("-clang:std=c++17"));
 }
 
 void CompilerOptionsBuilderTest::testAddWordWidth()
@@ -633,7 +633,7 @@ void CompilerOptionsBuilderTest::testBuildAllOptionsMsvc()
             [&t](const QString &o) { return o.contains(t.toNative("wrappedQtHeaders/QtCore")); });
     QCOMPARE(compilerOptionsBuilder.options(),
              (QStringList{"-nostdinc", "-nostdinc++", "--driver-mode=cl", "/Zs", "-m64",
-                          "--target=x86_64-apple-darwin10", "/TP", "/std:c++17",
+                          "--target=x86_64-apple-darwin10", "/TP", "-clang:std=c++17",
                           "-fms-compatibility-version=19.00", "-DprojectFoo=projectBar",
                           "-D__FUNCSIG__=\"void __cdecl someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580(void)\"",
                           "-D__FUNCTION__=\"someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580\"",
@@ -662,7 +662,7 @@ void CompilerOptionsBuilderTest::testBuildAllOptionsMsvcWithExceptions()
             [&t](const QString &o) { return o.contains(t.toNative("wrappedQtHeaders/QtCore")); });
     QCOMPARE(compilerOptionsBuilder.options(),
              (QStringList{"-nostdinc", "-nostdinc++", "--driver-mode=cl", "/Zs", "-m64",
-                          "--target=x86_64-apple-darwin10", "/TP", "/std:c++17", "-fcxx-exceptions",
+                          "--target=x86_64-apple-darwin10", "/TP", "-clang:std=c++17", "-fcxx-exceptions",
                           "-fexceptions", "-fms-compatibility-version=19.00",
                           "-DprojectFoo=projectBar",
                           "-D__FUNCSIG__=\"void __cdecl someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580(void)\"",
