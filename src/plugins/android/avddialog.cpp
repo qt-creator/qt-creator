@@ -117,8 +117,10 @@ int AvdDialog::exec()
         loop.exec(QEventLoop::ExcludeUserInputEvents);
 
         const QFuture<CreateAvdInfo> future = createAvdFutureWatcher.future();
-        if (future.isResultReadyAt(0))
+        if (future.isResultReadyAt(0)) {
             m_createdAvdInfo = future.result();
+            AndroidDeviceManager::instance()->updateAvdsList();
+        }
     }
 
     return execResult;
