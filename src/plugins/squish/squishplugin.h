@@ -38,6 +38,7 @@ class ObjectsMapEditorFactory;
 class SquishNavigationWidgetFactory;
 class SquishOutputPane;
 class SquishTestTreeModel;
+class SquishTools;
 
 class SquishPlugin : public ExtensionSystem::IPlugin
 {
@@ -59,7 +60,8 @@ public:
 private:
     void initializeMenuEntries();
 
-    SquishTestTreeModel *m_treeModel;
+    SquishTools * m_squishTools = nullptr;
+    SquishTestTreeModel *m_treeModel = nullptr;
     SquishSettings m_squishSettings;
 
     SquishSettingsPage m_settingsPage{&m_squishSettings};

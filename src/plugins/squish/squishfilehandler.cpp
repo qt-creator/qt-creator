@@ -46,14 +46,8 @@ static SquishFileHandler *m_instance = nullptr;
 
 SquishFileHandler::SquishFileHandler(QObject *parent)
     : QObject(parent)
-    , m_squishTools(new SquishTools)
 {
     m_instance = this;
-}
-
-SquishFileHandler::~SquishFileHandler()
-{
-    delete m_squishTools;
 }
 
 SquishFileHandler *SquishFileHandler::instance()
@@ -154,7 +148,7 @@ void SquishFileHandler::runTestCase(const QString &suiteName, const QString &tes
 {
     QTC_ASSERT(!suiteName.isEmpty() && !testCaseName.isEmpty(), return );
 
-    if (m_squishTools->state() != SquishTools::Idle)
+    if (SquishTools::instance()->state() != SquishTools::Idle)
         return;
 
     const QDir suitePath = QFileInfo(m_suites.value(suiteName)).absoluteDir();
@@ -168,14 +162,14 @@ void SquishFileHandler::runTestCase(const QString &suiteName, const QString &tes
         return;
     }
 
-    m_squishTools->runTestCases(suitePath.absolutePath(), QStringList(testCaseName));
+    SquishTools::instance()->runTestCases(suitePath.absolutePath(), QStringList(testCaseName));
 }
 
 void SquishFileHandler::runTestSuite(const QString &suiteName)
 {
     QTC_ASSERT(!suiteName.isEmpty(), return );
 
-    if (m_squishTools->state() != SquishTools::Idle)
+    if (SquishTools::instance()->state() != SquishTools::Idle)
         return;
 
     const QString suiteConf = m_suites.value(suiteName);
@@ -190,7 +184,7 @@ void SquishFileHandler::runTestSuite(const QString &suiteName)
     }
 
     QStringList testCases = SquishTestTreeModel::instance()->getSelectedSquishTestCases(suiteConf);
-    m_squishTools->runTestCases(suitePath.absolutePath(), testCases);
+    SquishTools::instance()->runTestCases(suitePath.absolutePath(), testCases);
 }
 
 void addAllEntriesRecursively(SquishTestTreeItem *item)

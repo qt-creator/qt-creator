@@ -30,6 +30,7 @@
 #include "squishoutputpane.h"
 #include "squishsettings.h"
 #include "squishtesttreemodel.h"
+#include "squishtools.h"
 
 #include <coreplugin/icore.h>
 
@@ -54,6 +55,7 @@ SquishPlugin::~SquishPlugin()
     delete m_objectsMapEditorFactory;
     delete m_navigationWidgetFactory;
     delete m_outputPane;
+    delete m_squishTools;
 }
 
 SquishPlugin *SquishPlugin::instance()
@@ -74,6 +76,7 @@ bool SquishPlugin::initialize(const QStringList &arguments, QString *errorString
     Q_UNUSED(errorString)
 
     m_squishSettings.readSettings(ICore::settings());
+    m_squishTools = new SquishTools;
 
     initializeMenuEntries();
 

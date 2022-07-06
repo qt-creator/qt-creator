@@ -34,14 +34,12 @@
 namespace Squish {
 namespace Internal {
 
-class SquishTools;
-
 class SquishFileHandler : public QObject
 {
     Q_OBJECT
 public:
     explicit SquishFileHandler(QObject *parent = nullptr);
-    ~SquishFileHandler() override;
+    ~SquishFileHandler() override = default;
     static SquishFileHandler *instance();
     void openTestSuites();
     void closeTestSuite(const QString &suiteName);
@@ -62,7 +60,6 @@ signals:
 private:
     QMap<QString, QString> m_suites;
     QStringList m_sharedFolders;
-    SquishTools *m_squishTools;
 
     void modifySuiteItem(const QString &suiteName,
                          const QString &filePath,
