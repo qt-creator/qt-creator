@@ -130,7 +130,8 @@ static QJsonObject createFileObject(const FilePath &buildDir,
                                     const ProjectFile &projFile,
                                     CompilationDbPurpose purpose,
                                     const QJsonArray &projectPartOptions,
-                                    UsePrecompiledHeaders usePch)
+                                    UsePrecompiledHeaders usePch,
+                                    bool clStyle)
 {
     QJsonObject fileObject;
     fileObject["file"] = projFile.path;
@@ -155,7 +156,7 @@ static QJsonObject createFileObject(const FilePath &buildDir,
                 args.append(langOptionPart);
         }
     } else {
-        args = clangOptionsForFile(projFile, projectPart, projectPartOptions, usePch);
+        args = clangOptionsForFile(projFile, projectPart, projectPartOptions, usePch, clStyle);
         args.prepend("clang"); // TODO: clang-cl for MSVC targets? Does it matter at all what we put here?
     }
 
@@ -200,7 +201,8 @@ GenerateCompilationDbResult generateCompilationDB(const CppEditor::ProjectInfo::
         }
         for (const ProjectFile &projFile : projectPart->files) {
             const QJsonObject json = createFileObject(baseDir, args, *projectPart, projFile,
-                                                      purpose, ppOptions, usePch);
+                                                      purpose, ppOptions, usePch,
+                                                      optionsBuilder.isClStyle());
             if (compileCommandsFile.size() > 1)
                 compileCommandsFile.write(",");
             compileCommandsFile.write('\n' + QJsonDocument(json).toJson().trimmed());
@@ -274,9 +276,11 @@ QString DiagnosticTextInfo::clazyCheckName(const QString &option)
 
 
 QJsonArray clangOptionsForFile(const ProjectFile &file, const ProjectPart &projectPart,
-                               const QJsonArray &generalOptions, UsePrecompiledHeaders usePch)
+                               const QJsonArray &generalOptions, UsePrecompiledHeaders usePch,
+                               bool clStyle)
 {
     CompilerOptionsBuilder optionsBuilder(projectPart);
+    optionsBuilder.setClStyle(clStyle);
     ProjectFile::Kind fileKind = file.kind;
     if (fileKind == ProjectFile::AmbiguousHeader) {
         fileKind = projectPart.languageVersion <= LanguageVersion::LatestC

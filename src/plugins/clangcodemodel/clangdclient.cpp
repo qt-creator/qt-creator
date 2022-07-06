@@ -845,9 +845,11 @@ static void addToCompilationDb(QJsonObject &cdb,
                                CppEditor::UsePrecompiledHeaders usePch,
                                const QJsonArray &projectPartOptions,
                                const Utils::FilePath &workingDir,
-                               const CppEditor::ProjectFile &sourceFile)
+                               const CppEditor::ProjectFile &sourceFile,
+                               bool clStyle)
 {
-    QJsonArray args = clangOptionsForFile(sourceFile, projectPart, projectPartOptions, usePch);
+    QJsonArray args = clangOptionsForFile(sourceFile, projectPart, projectPartOptions, usePch,
+                                          clStyle);
 
     // TODO: clangd seems to apply some heuristics depending on what we put here.
     //       Should we make use of them or keep using our own?
@@ -889,7 +891,8 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
         const QJsonArray projectPartOptions = fullProjectPartOptions(
                     optionsBuilder, globalClangOptions());
         const QJsonArray clangOptions = clangOptionsForFile({}, optionsBuilder.projectPart(),
-                                                            projectPartOptions, usePch);
+                                                            projectPartOptions, usePch,
+                                                            optionsBuilder.isClStyle());
         initOptions.insert("fallbackFlags", clangOptions);
         setInitializationOptions(initOptions);
     }
@@ -1328,7 +1331,7 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     const QJsonArray projectPartOptions = fullProjectPartOptions(
                 optionsBuilder, globalClangOptions());
     addToCompilationDb(cdbChanges, *projectPart, CppEditor::getPchUsage(), projectPartOptions,
-                       filePath.parentDir(), file);
+                       filePath.parentDir(), file, optionsBuilder.isClStyle());
     QJsonObject settings;
     addCompilationDb(settings, cdbChanges);
     DidChangeConfigurationParams configChangeParams;

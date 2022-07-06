@@ -66,7 +66,7 @@ QJsonArray fullProjectPartOptions(const QJsonArray &projectPartOptions,
 QJsonArray clangOptionsForFile(const CppEditor::ProjectFile &file,
                                const CppEditor::ProjectPart &projectPart,
                                const QJsonArray &generalOptions,
-                               CppEditor::UsePrecompiledHeaders usePch);
+                               CppEditor::UsePrecompiledHeaders usePch, bool clStyle);
 
 CppEditor::ProjectPart::ConstPtr projectPartForFile(const QString &filePath);
 
