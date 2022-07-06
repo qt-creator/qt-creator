@@ -49,14 +49,12 @@ public:
 
     DisplaySettings m_displaySettings;
     MarginSettings m_marginSettings;
-    QString m_settingsPrefix;
 };
 
 DisplaySettingsPagePrivate::DisplaySettingsPagePrivate()
 {
-    m_settingsPrefix = QLatin1String("text");
-    m_displaySettings.fromSettings(m_settingsPrefix, Core::ICore::settings());
-    m_marginSettings.fromSettings(m_settingsPrefix, Core::ICore::settings());
+    m_displaySettings.fromSettings(Core::ICore::settings());
+    m_marginSettings.fromSettings(Core::ICore::settings());
 }
 
 class DisplaySettingsWidget final : public Core::IOptionsPageWidget
@@ -287,14 +285,14 @@ void DisplaySettingsWidget::setDisplaySettings(const DisplaySettings &newDisplay
 {
     if (newDisplaySettings != m_data->m_displaySettings) {
         m_data->m_displaySettings = newDisplaySettings;
-        m_data->m_displaySettings.toSettings(m_data->m_settingsPrefix, Core::ICore::settings());
+        m_data->m_displaySettings.toSettings(Core::ICore::settings());
 
         emit TextEditorSettings::instance()->displaySettingsChanged(newDisplaySettings);
     }
 
     if (newMarginSettings != m_data->m_marginSettings) {
         m_data->m_marginSettings = newMarginSettings;
-        m_data->m_marginSettings.toSettings(m_data->m_settingsPrefix, Core::ICore::settings());
+        m_data->m_marginSettings.toSettings(Core::ICore::settings());
 
         emit TextEditorSettings::instance()->marginSettingsChanged(newMarginSettings);
     }

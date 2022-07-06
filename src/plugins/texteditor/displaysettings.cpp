@@ -55,16 +55,13 @@ static const char animateWithinFileTimeMaxKey[] = "AnimateWithinFileTimeMax";
 static const char displayAnnotationsKey[] = "DisplayAnnotations";
 static const char annotationAlignmentKey[] = "AnnotationAlignment";
 static const char minimalAnnotationContentKey[] = "MinimalAnnotationContent";
-static const char groupPostfix[] = "DisplaySettings";
+static const char groupPostfix[] = "textDisplaySettings";
 
 namespace TextEditor {
 
-void DisplaySettings::toSettings(const QString &category, QSettings *s) const
+void DisplaySettings::toSettings(QSettings *s) const
 {
-    QString group = QLatin1String(groupPostfix);
-    if (!category.isEmpty())
-        group.insert(0, category);
-    s->beginGroup(group);
+    s->beginGroup(groupPostfix);
     s->setValue(QLatin1String(displayLineNumbersKey), m_displayLineNumbers);
     s->setValue(QLatin1String(textWrappingKey), m_textWrapping);
     s->setValue(QLatin1String(visualizeWhitespaceKey), m_visualizeWhitespace);
@@ -87,38 +84,35 @@ void DisplaySettings::toSettings(const QString &category, QSettings *s) const
     s->endGroup();
 }
 
-void DisplaySettings::fromSettings(const QString &category, const QSettings *s)
+void DisplaySettings::fromSettings(QSettings *s)
 {
-    QString group = QLatin1String(groupPostfix);
-    if (!category.isEmpty())
-        group.insert(0, category);
-    group += QLatin1Char('/');
-
+    s->beginGroup(groupPostfix);
     *this = DisplaySettings(); // Assign defaults
 
-    m_displayLineNumbers = s->value(group + QLatin1String(displayLineNumbersKey), m_displayLineNumbers).toBool();
-    m_textWrapping = s->value(group + QLatin1String(textWrappingKey), m_textWrapping).toBool();
-    m_visualizeWhitespace = s->value(group + QLatin1String(visualizeWhitespaceKey), m_visualizeWhitespace).toBool();
-    m_visualizeIndent = s->value(group + QLatin1String(visualizeIndentKey), m_visualizeIndent).toBool();
-    m_displayFoldingMarkers = s->value(group + QLatin1String(displayFoldingMarkersKey), m_displayFoldingMarkers).toBool();
-    m_highlightCurrentLine = s->value(group + QLatin1String(highlightCurrentLineKey), m_highlightCurrentLine).toBool();
-    m_highlightBlocks = s->value(group + QLatin1String(highlightBlocksKey), m_highlightBlocks).toBool();
-    m_animateMatchingParentheses = s->value(group + QLatin1String(animateMatchingParenthesesKey), m_animateMatchingParentheses).toBool();
-    m_highlightMatchingParentheses = s->value(group + QLatin1String(highlightMatchingParenthesesKey), m_highlightMatchingParentheses).toBool();
-    m_markTextChanges = s->value(group + QLatin1String(markTextChangesKey), m_markTextChanges).toBool();
-    m_autoFoldFirstComment = s->value(group + QLatin1String(autoFoldFirstCommentKey), m_autoFoldFirstComment).toBool();
-    m_centerCursorOnScroll = s->value(group + QLatin1String(centerCursorOnScrollKey), m_centerCursorOnScroll).toBool();
-    m_openLinksInNextSplit = s->value(group + QLatin1String(openLinksInNextSplitKey), m_openLinksInNextSplit).toBool();
-    m_displayFileEncoding = s->value(group + QLatin1String(displayFileEncodingKey), m_displayFileEncoding).toBool();
-    m_displayFileLineEnding = s->value(group + QLatin1String(displayFileLineEndingKey), m_displayFileLineEnding).toBool();
-    m_scrollBarHighlights = s->value(group + QLatin1String(scrollBarHighlightsKey), m_scrollBarHighlights).toBool();
-    m_animateNavigationWithinFile = s->value(group + QLatin1String(animateNavigationWithinFileKey), m_animateNavigationWithinFile).toBool();
-    m_animateWithinFileTimeMax = s->value(group + QLatin1String(animateWithinFileTimeMaxKey), m_animateWithinFileTimeMax).toInt();
-    m_displayAnnotations = s->value(group + QLatin1String(displayAnnotationsKey), m_displayAnnotations).toBool();
+    m_displayLineNumbers = s->value(QLatin1String(displayLineNumbersKey), m_displayLineNumbers).toBool();
+    m_textWrapping = s->value(QLatin1String(textWrappingKey), m_textWrapping).toBool();
+    m_visualizeWhitespace = s->value(QLatin1String(visualizeWhitespaceKey), m_visualizeWhitespace).toBool();
+    m_visualizeIndent = s->value(QLatin1String(visualizeIndentKey), m_visualizeIndent).toBool();
+    m_displayFoldingMarkers = s->value(QLatin1String(displayFoldingMarkersKey), m_displayFoldingMarkers).toBool();
+    m_highlightCurrentLine = s->value(QLatin1String(highlightCurrentLineKey), m_highlightCurrentLine).toBool();
+    m_highlightBlocks = s->value(QLatin1String(highlightBlocksKey), m_highlightBlocks).toBool();
+    m_animateMatchingParentheses = s->value(QLatin1String(animateMatchingParenthesesKey), m_animateMatchingParentheses).toBool();
+    m_highlightMatchingParentheses = s->value(QLatin1String(highlightMatchingParenthesesKey), m_highlightMatchingParentheses).toBool();
+    m_markTextChanges = s->value(QLatin1String(markTextChangesKey), m_markTextChanges).toBool();
+    m_autoFoldFirstComment = s->value(QLatin1String(autoFoldFirstCommentKey), m_autoFoldFirstComment).toBool();
+    m_centerCursorOnScroll = s->value(QLatin1String(centerCursorOnScrollKey), m_centerCursorOnScroll).toBool();
+    m_openLinksInNextSplit = s->value(QLatin1String(openLinksInNextSplitKey), m_openLinksInNextSplit).toBool();
+    m_displayFileEncoding = s->value(QLatin1String(displayFileEncodingKey), m_displayFileEncoding).toBool();
+    m_displayFileLineEnding = s->value(QLatin1String(displayFileLineEndingKey), m_displayFileLineEnding).toBool();
+    m_scrollBarHighlights = s->value(QLatin1String(scrollBarHighlightsKey), m_scrollBarHighlights).toBool();
+    m_animateNavigationWithinFile = s->value(QLatin1String(animateNavigationWithinFileKey), m_animateNavigationWithinFile).toBool();
+    m_animateWithinFileTimeMax = s->value(QLatin1String(animateWithinFileTimeMaxKey), m_animateWithinFileTimeMax).toInt();
+    m_displayAnnotations = s->value(QLatin1String(displayAnnotationsKey), m_displayAnnotations).toBool();
     m_annotationAlignment = static_cast<TextEditor::AnnotationAlignment>(
-                s->value(group + QLatin1String(annotationAlignmentKey),
+                s->value(QLatin1String(annotationAlignmentKey),
                          static_cast<int>(m_annotationAlignment)).toInt());
-    m_minimalAnnotationContent = s->value(group + QLatin1String(minimalAnnotationContentKey), m_minimalAnnotationContent).toInt();
+    m_minimalAnnotationContent = s->value(QLatin1String(minimalAnnotationContentKey), m_minimalAnnotationContent).toInt();
+    s->endGroup();
 }
 
 bool DisplaySettings::equals(const DisplaySettings &ds) const

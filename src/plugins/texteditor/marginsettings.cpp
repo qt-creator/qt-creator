@@ -31,7 +31,7 @@
 
 static const char showWrapColumnKey[] = "ShowMargin";
 static const char wrapColumnKey[] = "MarginColumn";
-static const char groupPostfix[] = "MarginSettings";
+static const char groupPostfix[] = "textMarginSettings";
 static const char useIndenterColumnKey[] = "UseIndenter";
 
 using namespace TextEditor;
@@ -43,30 +43,24 @@ MarginSettings::MarginSettings()
 {
 }
 
-void MarginSettings::toSettings(const QString &category, QSettings *s) const
+void MarginSettings::toSettings(QSettings *s) const
 {
-    QString group = QLatin1String(groupPostfix);
-    if (!category.isEmpty())
-        group.insert(0, category);
-    s->beginGroup(group);
+    s->beginGroup(groupPostfix);
     s->setValue(QLatin1String(showWrapColumnKey), m_showMargin);
     s->setValue(QLatin1String(useIndenterColumnKey), m_useIndenter);
     s->setValue(QLatin1String(wrapColumnKey), m_marginColumn);
     s->endGroup();
 }
 
-void MarginSettings::fromSettings(const QString &category, const QSettings *s)
+void MarginSettings::fromSettings(QSettings *s)
 {
-    QString group = QLatin1String(groupPostfix);
-    if (!category.isEmpty())
-        group.insert(0, category);
-    group += QLatin1Char('/');
-
+    s->beginGroup(groupPostfix);
     *this = MarginSettings(); // Assign defaults
 
-    m_showMargin = s->value(group + QLatin1String(showWrapColumnKey), m_showMargin).toBool();
-    m_useIndenter = s->value(group + QLatin1String(useIndenterColumnKey), m_useIndenter).toBool();
-    m_marginColumn = s->value(group + QLatin1String(wrapColumnKey), m_marginColumn).toInt();
+    m_showMargin = s->value(QLatin1String(showWrapColumnKey), m_showMargin).toBool();
+    m_useIndenter = s->value(QLatin1String(useIndenterColumnKey), m_useIndenter).toBool();
+    m_marginColumn = s->value(QLatin1String(wrapColumnKey), m_marginColumn).toInt();
+    s->endGroup();
 }
 
 QVariantMap MarginSettings::toMap() const

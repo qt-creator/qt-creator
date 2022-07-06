@@ -40,8 +40,8 @@ class TEXTEDITOR_EXPORT MarginSettings
 public:
     MarginSettings();
 
-    void toSettings(const QString &category, QSettings *s) const;
-    void fromSettings(const QString &category, const QSettings *s);
+    void toSettings(QSettings *s) const;
+    void fromSettings(QSettings *s);
 
     QVariantMap toMap() const;
     void fromMap(const QVariantMap &map);
