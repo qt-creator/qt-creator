@@ -1825,7 +1825,15 @@ qint64 IntegerAspect::value() const
 
 void IntegerAspect::setValue(qint64 value)
 {
-    BaseAspect::setValue(value);
+    if (BaseAspect::setValueQuietly(value)) {
+        if (d->m_spinBox)
+            d->m_spinBox->setValue(value);
+        //qDebug() << "SetValue: Changing" << labelText() << " to " << value;
+        emit changed();
+        //QTC_CHECK(!labelText().isEmpty());
+        emit valueChanged(value);
+        //qDebug() << "SetValue: Changed" << labelText() << " to " << value;
+    }
 }
 
 void IntegerAspect::setRange(qint64 min, qint64 max)

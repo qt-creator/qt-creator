@@ -448,6 +448,9 @@ public:
 
     struct Data : BaseAspect::Data { qint64 value = 0; };
 
+signals:
+    void valueChanged(int newValue);
+
 private:
     std::unique_ptr<Internal::IntegerAspectPrivate> d;
 };
