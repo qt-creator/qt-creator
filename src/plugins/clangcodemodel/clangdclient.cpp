@@ -1608,7 +1608,7 @@ void ClangdClient::followSymbol(TextDocument *document,
     d->followSymbol = new ClangdFollowSymbol(this, adjustedCursor, editorWidget, document, callback,
                                              openInSplit);
     connect(d->followSymbol, &ClangdFollowSymbol::done, this, [this] {
-        delete d->followSymbol;
+        d->followSymbol->deleteLater();
         d->followSymbol = nullptr;
     });
 }
@@ -1625,7 +1625,7 @@ void ClangdClient::switchDeclDef(TextDocument *document, const QTextCursor &curs
         delete d->switchDeclDef;
     d->switchDeclDef = new ClangdSwitchDeclDef(this, document, cursor, editorWidget, callback);
     connect(d->switchDeclDef, &ClangdSwitchDeclDef::done, this, [this] {
-        delete d->switchDeclDef;
+        d->switchDeclDef->deleteLater();
         d->switchDeclDef = nullptr;
     });
 }
