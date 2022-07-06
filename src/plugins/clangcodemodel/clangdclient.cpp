@@ -1021,7 +1021,7 @@ void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
     // Otherwise get the proper spelling of the search term from clang, so we can put it into the
     // search widget.
     const auto symbolInfoHandler = [this, doc = QPointer(document), adjustedCursor, replacement, categorize]
-            (const QString &, const QString &name, const MessageId &) {
+            (const QString &name, const QString &, const MessageId &) {
         if (!doc)
             return;
         if (name.isEmpty())
