@@ -80,9 +80,9 @@ GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
                                          : Utils::StringAspect::LineEditDisplay);
     m_token.setVisible(m == Edit);
 
+    m_port.setLabelText(GitLabOptionsPage::tr("Port:"));
     m_port.setRange(1, 65535);
     m_port.setValue(GitLabServer::defaultPort);
-    auto portLabel = new QLabel(GitLabOptionsPage::tr("Port:"), this);
     m_port.setEnabled(m == Edit);
     m_secure.setLabelText(GitLabOptionsPage::tr("HTTPS:"));
     m_secure.setLabelPlacement(Utils::BoolAspect::LabelPlacement::InExtraLabel);
@@ -90,17 +90,15 @@ GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
     m_secure.setEnabled(m == Edit);
 
     using namespace Utils::Layouting;
-    const Break nl;
 
     Row {
         Form {
             m_host,
             m_description,
             m_token,
-            portLabel, &m_port, nl,
+            m_port,
             m_secure
         },
-        Stretch()
     }.attachTo(this, m == Edit);
 }
 
@@ -209,7 +207,6 @@ void GitLabOptionsWidget::showEditServerDialog()
     connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked, &d, &QDialog::reject);
     layout->addWidget(buttons);
     d.setLayout(layout);
-    d.resize(300, 200);
     if (d.exec() != QDialog::Accepted)
         return;
 
@@ -231,7 +228,6 @@ void GitLabOptionsWidget::showAddServerDialog()
     connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked, &d, &QDialog::reject);
     layout->addWidget(buttons);
     d.setLayout(layout);
-    d.resize(300, 200);
     if (d.exec() != QDialog::Accepted)
         return;
 
