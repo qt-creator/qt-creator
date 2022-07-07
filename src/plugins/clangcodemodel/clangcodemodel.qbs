@@ -36,6 +36,8 @@ QtcPlugin {
         "clangdclient.h",
         "clangdcompletion.cpp",
         "clangdcompletion.h",
+        "clangdfindreferences.cpp",
+        "clangdfindreferences.h",
         "clangdfollowsymbol.cpp",
         "clangdfollowsymbol.h",
         "clangdiagnostictooltipwidget.cpp",

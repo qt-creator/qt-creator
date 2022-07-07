@@ -28,6 +28,7 @@
 #include "clangconstants.h"
 #include "clangdast.h"
 #include "clangdcompletion.h"
+#include "clangdfindreferences.h"
 #include "clangdfollowsymbol.h"
 #include "clangdlocatorfilters.h"
 #include "clangdquickfixes.h"
@@ -38,15 +39,11 @@
 #include "tasktimers.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/find/searchresultitem.h>
-#include <coreplugin/find/searchresultwindow.h>
 #include <cplusplus/AST.h>
 #include <cplusplus/ASTPath.h>
-#include <cplusplus/FindUsages.h>
 #include <cplusplus/Icons.h>
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppeditorwidget.h>
-#include <cppeditor/cppfindreferences.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cpprefactoringchanges.h>
 #include <cppeditor/cpptoolsreuse.h>
@@ -64,9 +61,7 @@
 #include <languageserverprotocol/progresssupport.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/taskhub.h>
-#include <texteditor/basefilefind.h>
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/iassistprovider.h>
@@ -80,7 +75,6 @@
 #include <utils/utilsicons.h>
 
 #include <QAction>
-#include <QCheckBox>
 #include <QElapsedTimer>
 #include <QFile>
 #include <QHash>
@@ -111,95 +105,6 @@ Q_LOGGING_CATEGORY(clangdLog, "qtc.clangcodemodel.clangd", QtWarningMsg);
 Q_LOGGING_CATEGORY(clangdLogAst, "qtc.clangcodemodel.clangd.ast", QtWarningMsg);
 static Q_LOGGING_CATEGORY(clangdLogServer, "qtc.clangcodemodel.clangd.server", QtWarningMsg);
 static QString indexingToken() { return "backgroundIndexProgress"; }
-
-static Usage::Type getUsageType(const ClangdAstPath &path)
-{
-    bool potentialWrite = false;
-    bool isFunction = false;
-    const bool symbolIsDataType = path.last().role() == "type" && path.last().kind() == "Record";
-    const auto isPotentialWrite = [&] { return potentialWrite && !isFunction; };
-    for (auto pathIt = path.rbegin(); pathIt != path.rend(); ++pathIt) {
-        if (pathIt->arcanaContains("non_odr_use_unevaluated"))
-            return Usage::Type::Other;
-        if (pathIt->kind() == "CXXDelete")
-            return Usage::Type::Write;
-        if (pathIt->kind() == "CXXNew")
-            return Usage::Type::Other;
-        if (pathIt->kind() == "Switch" || pathIt->kind() == "If")
-            return Usage::Type::Read;
-        if (pathIt->kind() == "Call")
-            return isFunction ? Usage::Type::Other
-                              : potentialWrite ? Usage::Type::WritableRef : Usage::Type::Read;
-        if (pathIt->kind() == "CXXMemberCall") {
-            const auto children = pathIt->children();
-            if (children && children->size() == 1
-                    && children->first() == path.last()
-                    && children->first().arcanaContains("bound member function")) {
-                return Usage::Type::Other;
-            }
-            return isPotentialWrite() ? Usage::Type::WritableRef : Usage::Type::Read;
-        }
-        if ((pathIt->kind() == "DeclRef" || pathIt->kind() == "Member")
-                && pathIt->arcanaContains("lvalue")) {
-            if (pathIt->arcanaContains(" Function "))
-                isFunction = true;
-            else
-                potentialWrite = true;
-        }
-        if (pathIt->role() == "declaration") {
-            if (symbolIsDataType)
-                return Usage::Type::Other;
-            if (pathIt->arcanaContains("cinit")) {
-                if (pathIt == path.rbegin())
-                    return Usage::Type::Initialization;
-                if (pathIt->childContainsRange(0, path.last().range()))
-                    return Usage::Type::Initialization;
-                if (isFunction)
-                    return Usage::Type::Read;
-                if (!pathIt->hasConstType())
-                    return Usage::Type::WritableRef;
-                return Usage::Type::Read;
-            }
-            return Usage::Type::Declaration;
-        }
-        if (pathIt->kind() == "MemberInitializer")
-            return pathIt == path.rbegin() ? Usage::Type::Write : Usage::Type::Read;
-        if (pathIt->kind() == "UnaryOperator"
-                && (pathIt->detailIs("++") || pathIt->detailIs("--"))) {
-            return Usage::Type::Write;
-        }
-
-        // LLVM uses BinaryOperator only for built-in types; for classes, CXXOperatorCall
-        // is used. The latter has an additional node at index 0, so the left-hand side
-        // of an assignment is at index 1.
-        const bool isBinaryOp = pathIt->kind() == "BinaryOperator";
-        const bool isOpCall = pathIt->kind() == "CXXOperatorCall";
-        if (isBinaryOp || isOpCall) {
-            if (isOpCall && symbolIsDataType) // Constructor invocation.
-                return Usage::Type::Other;
-
-            const QString op = pathIt->operatorString();
-            if (op.endsWith("=") && op != "==") { // Assignment.
-                const int lhsIndex = isBinaryOp ? 0 : 1;
-                if (pathIt->childContainsRange(lhsIndex, path.last().range()))
-                    return Usage::Type::Write;
-                return isPotentialWrite() ? Usage::Type::WritableRef : Usage::Type::Read;
-            }
-            return Usage::Type::Read;
-        }
-
-        if (pathIt->kind() == "ImplicitCast") {
-            if (pathIt->detailIs("FunctionToPointerDecay"))
-                return Usage::Type::Other;
-            if (pathIt->hasConstType())
-                return Usage::Type::Read;
-            potentialWrite = true;
-            continue;
-        }
-    }
-
-    return Usage::Type::Other;
-}
 
 class SymbolDetails : public JsonObject
 {
@@ -286,29 +191,6 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
     interface->setCommandLine(cmd);
     return interface;
 }
-
-class ReferencesFileData {
-public:
-    QList<QPair<Range, QString>> rangesAndLineText;
-    QString fileContent;
-    ClangdAstNode ast;
-};
-class ReplacementData {
-public:
-    QString oldSymbolName;
-    QString newSymbolName;
-    QSet<Utils::FilePath> fileRenameCandidates;
-};
-class ReferencesData {
-public:
-    QMap<DocumentUri, ReferencesFileData> fileData;
-    QList<MessageId> pendingAstRequests;
-    QPointer<SearchResult> search;
-    Utils::optional<ReplacementData> replacementData;
-    quint64 key;
-    bool canceled = false;
-    bool categorize = CppEditor::codeModelSettings()->categorizeFindReferences();
-};
 
 class LocalRefsData {
 public:
@@ -442,20 +324,8 @@ public:
     void findUsages(TextDocument *document, const QTextCursor &cursor,
                     const QString &searchTerm, const Utils::optional<QString> &replacement,
                     bool categorize);
-    void handleFindUsagesResult(quint64 key, const QList<Location> &locations);
-    static void handleRenameRequest(const SearchResult *search,
-                                    const ReplacementData &replacementData,
-                                    const QString &newSymbolName,
-                                    const QList<Core::SearchResultItem> &checkedItems,
-                                    bool preserveCase);
-    void addSearchResultsForFile(ReferencesData &refData, const Utils::FilePath &file,
-                                 const ReferencesFileData &fileData);
-    void reportAllSearchResultsAndFinish(ReferencesData &data);
-    void finishSearch(const ReferencesData &refData, bool canceled);
 
     void handleDeclDefSwitchReplies();
-
-    Utils::optional<QString> getContainingFunctionName(const ClangdAstPath &astPath, const Range& range);
 
     static CppEditor::CppEditorWidget *widgetFromDocument(const TextDocument *doc);
     QString searchTermFromCursor(const QTextCursor &cursor) const;
@@ -473,7 +343,6 @@ public:
 
     ClangdClient * const q;
     const CppEditor::ClangdSettings::Data settings;
-    QHash<quint64, ReferencesData> runningFindUsages;
     ClangdFollowSymbol *followSymbol = nullptr;
     ClangdSwitchDeclDef *switchDeclDef = nullptr;
     Utils::optional<LocalRefsData> localRefsData;
@@ -608,13 +477,6 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
         auto currentDocumentFilter = static_cast<ClangdCurrentDocumentFilter *>(
             CppEditor::CppModelManager::instance()->currentDocumentFilter());
         currentDocumentFilter->updateCurrentClient();
-        // If we get this signal while there are pending searches, it means that
-        // the client was re-initialized, i.e. clangd crashed.
-
-        // Report all search results found so far.
-        for (quint64 key : d->runningFindUsages.keys())
-            d->reportAllSearchResultsAndFinish(d->runningFindUsages[key]);
-        QTC_CHECK(d->runningFindUsages.isEmpty());
     });
 
     start();
@@ -819,66 +681,13 @@ void ClangdClient::Private::findUsages(TextDocument *document,
         const QTextCursor &cursor, const QString &searchTerm,
         const Utils::optional<QString> &replacement, bool categorize)
 {
-    ReferencesData refData;
-    refData.key = nextJobId++;
-    refData.categorize = categorize;
-    if (replacement) {
-        ReplacementData replacementData;
-        replacementData.oldSymbolName = searchTerm;
-        replacementData.newSymbolName = *replacement;
-        if (replacementData.newSymbolName.isEmpty())
-            replacementData.newSymbolName = replacementData.oldSymbolName;
-        refData.replacementData = replacementData;
+    const auto findRefs = new ClangdFindReferences(q, document, cursor, searchTerm, replacement,
+                                                   categorize);
+    if (isTesting) {
+        connect(findRefs, &ClangdFindReferences::foundReferences,
+                q, &ClangdClient::foundReferences);
+        connect(findRefs, &ClangdFindReferences::done, q, &ClangdClient::findUsagesDone);
     }
-
-    refData.search = SearchResultWindow::instance()->startNewSearch(
-                tr("C++ Usages:"),
-                {},
-                searchTerm,
-                replacement ? SearchResultWindow::SearchAndReplace : SearchResultWindow::SearchOnly,
-                SearchResultWindow::PreserveCaseDisabled,
-                "CppEditor");
-    if (refData.categorize)
-        refData.search->setFilter(new CppEditor::CppSearchResultFilter);
-    if (refData.replacementData) {
-        refData.search->setTextToReplace(refData.replacementData->newSymbolName);
-        const auto renameFilesCheckBox = new QCheckBox;
-        renameFilesCheckBox->setVisible(false);
-        refData.search->setAdditionalReplaceWidget(renameFilesCheckBox);
-        const auto renameHandler =
-                [search = refData.search](const QString &newSymbolName,
-                                          const QList<SearchResultItem> &checkedItems,
-                                          bool preserveCase) {
-            const auto replacementData = search->userData().value<ReplacementData>();
-            Private::handleRenameRequest(search, replacementData, newSymbolName, checkedItems,
-                                         preserveCase);
-        };
-        connect(refData.search, &SearchResult::replaceButtonClicked, renameHandler);
-    }
-    connect(refData.search, &SearchResult::activated, [](const SearchResultItem& item) {
-        Core::EditorManager::openEditorAtSearchResult(item);
-    });
-    SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
-    runningFindUsages.insert(refData.key, refData);
-
-    const Utils::optional<MessageId> requestId = q->symbolSupport().findUsages(
-                document, cursor, [this, key = refData.key](const QList<Location> &locations) {
-        handleFindUsagesResult(key, locations);
-    });
-
-    if (!requestId) {
-        finishSearch(refData, false);
-        return;
-    }
-    QObject::connect(refData.search, &SearchResult::canceled, q, [this, requestId, key = refData.key] {
-        const auto refData = runningFindUsages.find(key);
-        if (refData == runningFindUsages.end())
-            return;
-        q->cancelRequest(*requestId);
-        refData->canceled = true;
-        refData->search->disconnect(q);
-        finishSearch(*refData, true);
-    });
 }
 
 void ClangdClient::enableTesting()
@@ -1056,187 +865,6 @@ MessageId ClangdClient::requestSymbolInfo(const Utils::FilePath &filePath, const
     return symReq.id();
 }
 
-void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Location> &locations)
-{
-    const auto refData = runningFindUsages.find(key);
-    if (refData == runningFindUsages.end())
-        return;
-    if (!refData->search || refData->canceled) {
-        finishSearch(*refData, true);
-        return;
-    }
-    refData->search->disconnect(q);
-
-    qCDebug(clangdLog) << "found" << locations.size() << "locations";
-    if (locations.isEmpty()) {
-        finishSearch(*refData, false);
-        return;
-    }
-
-    QObject::connect(refData->search, &SearchResult::canceled, q, [this, key] {
-        const auto refData = runningFindUsages.find(key);
-        if (refData == runningFindUsages.end())
-            return;
-        refData->canceled = true;
-        refData->search->disconnect(q);
-        for (const MessageId &id : qAsConst(refData->pendingAstRequests))
-            q->cancelRequest(id);
-        refData->pendingAstRequests.clear();
-        finishSearch(*refData, true);
-    });
-
-    for (const Location &loc : locations)
-        refData->fileData[loc.uri()].rangesAndLineText << qMakePair(loc.range(), QString());
-    for (auto it = refData->fileData.begin(); it != refData->fileData.end();) {
-        const Utils::FilePath filePath = it.key().toFilePath();
-        if (!filePath.exists()) { // https://github.com/clangd/clangd/issues/935
-            it = refData->fileData.erase(it);
-            continue;
-        }
-        const QStringList lines = SymbolSupport::getFileContents(filePath);
-        it->fileContent = lines.join('\n');
-        for (auto &rangeWithText : it.value().rangesAndLineText) {
-            const int lineNo = rangeWithText.first.start().line();
-            if (lineNo >= 0 && lineNo < lines.size())
-                rangeWithText.second = lines.at(lineNo);
-        }
-        ++it;
-    }
-
-    qCDebug(clangdLog) << "document count is" << refData->fileData.size();
-    if (refData->replacementData || !refData->categorize) {
-        qCDebug(clangdLog) << "skipping AST retrieval";
-        reportAllSearchResultsAndFinish(*refData);
-        return;
-    }
-
-    for (auto it = refData->fileData.begin(); it != refData->fileData.end(); ++it) {
-        const TextDocument * const doc = q->documentForFilePath(it.key().toFilePath());
-        if (!doc)
-            q->openExtraFile(it.key().toFilePath(), it->fileContent);
-        it->fileContent.clear();
-        const auto docVariant = doc ? TextDocOrFile(doc) : TextDocOrFile(it.key().toFilePath());
-        const auto astHandler = [this, key, loc = it.key()](const ClangdAstNode &ast,
-                                                            const MessageId &reqId) {
-            qCDebug(clangdLog) << "AST for" << loc.toFilePath();
-            const auto refData = runningFindUsages.find(key);
-            if (refData == runningFindUsages.end())
-                return;
-            if (!refData->search || refData->canceled)
-                return;
-            ReferencesFileData &data = refData->fileData[loc];
-            data.ast = ast;
-            refData->pendingAstRequests.removeOne(reqId);
-            qCDebug(clangdLog) << refData->pendingAstRequests.size()
-                               << "AST requests still pending";
-            addSearchResultsForFile(*refData, loc.toFilePath(), data);
-            refData->fileData.remove(loc);
-            if (refData->pendingAstRequests.isEmpty()) {
-                qDebug(clangdLog) << "retrieved all ASTs";
-                finishSearch(*refData, false);
-            }
-        };
-        const MessageId reqId = getAndHandleAst(docVariant, astHandler,
-                                                AstCallbackMode::AlwaysAsync);
-        refData->pendingAstRequests << reqId;
-        if (!doc)
-            q->closeExtraFile(it.key().toFilePath());
-    }
-}
-
-void ClangdClient::Private::handleRenameRequest(const SearchResult *search,
-                                                const ReplacementData &replacementData,
-                                                const QString &newSymbolName,
-                                                const QList<SearchResultItem> &checkedItems,
-                                                bool preserveCase)
-{
-    const Utils::FilePaths filePaths = BaseFileFind::replaceAll(newSymbolName, checkedItems,
-                                                                preserveCase);
-    if (!filePaths.isEmpty())
-        SearchResultWindow::instance()->hide();
-
-    const auto renameFilesCheckBox = qobject_cast<QCheckBox *>(search->additionalReplaceWidget());
-    QTC_ASSERT(renameFilesCheckBox, return);
-    if (!renameFilesCheckBox->isChecked())
-        return;
-
-    QVector<Node *> fileNodes;
-    for (const Utils::FilePath &file : replacementData.fileRenameCandidates) {
-        Node * const node = ProjectTree::nodeForFile(file);
-        if (node)
-            fileNodes << node;
-    }
-    if (!fileNodes.isEmpty())
-        CppEditor::renameFilesForSymbol(replacementData.oldSymbolName, newSymbolName, fileNodes);
-}
-
-void ClangdClient::Private::addSearchResultsForFile(ReferencesData &refData,
-        const Utils::FilePath &file,
-        const ReferencesFileData &fileData)
-{
-    QList<SearchResultItem> items;
-    qCDebug(clangdLog) << file << "has valid AST:" << fileData.ast.isValid();
-    for (const auto &rangeWithText : fileData.rangesAndLineText) {
-        const Range &range = rangeWithText.first;
-        const ClangdAstPath astPath = getAstPath(fileData.ast, range);
-        const Usage::Type usageType = fileData.ast.isValid() ? getUsageType(astPath)
-                                                             : Usage::Type::Other;
-
-        SearchResultItem item;
-        item.setUserData(int(usageType));
-        item.setStyle(CppEditor::colorStyleForUsageType(usageType));
-        item.setFilePath(file);
-        item.setMainRange(SymbolSupport::convertRange(range));
-        item.setUseTextEditorFont(true);
-        item.setLineText(rangeWithText.second);
-        item.setContainingFunctionName(getContainingFunctionName(astPath, range));
-
-        if (refData.search->supportsReplace()) {
-            const bool fileInSession = SessionManager::projectForFile(file);
-            item.setSelectForReplacement(fileInSession);
-            if (fileInSession && file.baseName().compare(
-                        refData.replacementData->oldSymbolName,
-                        Qt::CaseInsensitive) == 0) {
-                refData.replacementData->fileRenameCandidates << file;
-            }
-        }
-        items << item;
-    }
-    if (isTesting)
-        emit q->foundReferences(items);
-    else
-        refData.search->addResults(items, SearchResult::AddOrdered);
-}
-
-void ClangdClient::Private::reportAllSearchResultsAndFinish(ReferencesData &refData)
-{
-    for (auto it = refData.fileData.begin(); it != refData.fileData.end(); ++it)
-        addSearchResultsForFile(refData, it.key().toFilePath(), it.value());
-    finishSearch(refData, refData.canceled);
-}
-
-void ClangdClient::Private::finishSearch(const ReferencesData &refData, bool canceled)
-{
-    if (isTesting) {
-        emit q->findUsagesDone();
-    } else if (refData.search) {
-        refData.search->finishSearch(canceled);
-        refData.search->disconnect(q);
-        if (refData.replacementData) {
-            const auto renameCheckBox = qobject_cast<QCheckBox *>(
-                        refData.search->additionalReplaceWidget());
-            QTC_CHECK(renameCheckBox);
-            const QSet<Utils::FilePath> files = refData.replacementData->fileRenameCandidates;
-            renameCheckBox->setText(tr("Re&name %n files", nullptr, files.size()));
-            const QStringList filesForUser = Utils::transform<QStringList>(files,
-                        [](const Utils::FilePath &fp) { return fp.toUserOutput(); });
-            renameCheckBox->setToolTip(tr("Files:\n%1").arg(filesForUser.join('\n')));
-            renameCheckBox->setVisible(true);
-            refData.search->setUserData(QVariant::fromValue(*refData.replacementData));
-        }
-    }
-    runningFindUsages.remove(refData.key);
-}
 
 void ClangdClient::followSymbol(TextDocument *document,
         const QTextCursor &cursor,
@@ -1557,31 +1185,6 @@ void ClangdClient::setVirtualRanges(const Utils::FilePath &filePath, const QList
     TextDocument * const doc = documentForFilePath(filePath);
     if (doc && doc->document()->revision() == revision)
         d->highlightingData[doc].virtualRanges = {ranges, revision};
-}
-
-Utils::optional<QString> ClangdClient::Private::getContainingFunctionName(
-    const ClangdAstPath &astPath, const Range& range)
-{
-    const ClangdAstNode* containingFuncNode{nullptr};
-    const ClangdAstNode* lastCompoundStmtNode{nullptr};
-
-    for (auto it = astPath.crbegin(); it != astPath.crend(); ++it) {
-        if (it->arcanaContains("CompoundStmt"))
-            lastCompoundStmtNode = &*it;
-
-        if (it->isFunction()) {
-            if (lastCompoundStmtNode && lastCompoundStmtNode->hasRange()
-                && lastCompoundStmtNode->range().contains(range)) {
-                containingFuncNode = &*it;
-                break;
-            }
-        }
-    }
-
-    if (!containingFuncNode || !containingFuncNode->isValid())
-        return Utils::nullopt;
-
-    return containingFuncNode->detail();
 }
 
 CppEditor::CppEditorWidget *ClangdClient::Private::widgetFromDocument(const TextDocument *doc)
@@ -2017,5 +1620,3 @@ void MemoryUsageWidget::getMemoryTree()
 
 } // namespace Internal
 } // namespace ClangCodeModel
-
-Q_DECLARE_METATYPE(ClangCodeModel::Internal::ReplacementData)
