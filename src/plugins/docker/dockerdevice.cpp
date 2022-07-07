@@ -451,8 +451,12 @@ void DockerDevicePrivate::startContainer()
     createProcess.setCommand(dockerCreate);
     createProcess.runBlocking();
 
-    if (createProcess.result() != ProcessResult::FinishedWithSuccess)
+    if (createProcess.result() != ProcessResult::FinishedWithSuccess) {
+        qCWarning(dockerDeviceLog) << "Failed creating docker container:";
+        qCWarning(dockerDeviceLog) << "Exit Code:" << createProcess.exitCode();
+        qCWarning(dockerDeviceLog) << createProcess.allOutput();
         return;
+    }
 
     m_container = createProcess.cleanedStdOut().trimmed();
     if (m_container.isEmpty())
@@ -1094,7 +1098,7 @@ public:
         m_view->setSelectionMode(QAbstractItemView::SingleSelection);
 
         m_log = new QTextBrowser;
-        m_log->setVisible(false);
+        m_log->setVisible(dockerDeviceLog().isDebugEnabled());
 
         const QString fail = QString{"Docker: "}
                 + QCoreApplication::translate("Debugger::Internal::GdbEngine",

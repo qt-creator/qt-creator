@@ -1196,12 +1196,18 @@ QVariant StringAspect::volatileValue() const
     switch (d->m_displayStyle) {
     case PathChooserDisplay:
         QTC_ASSERT(d->m_pathChooserDisplay, return {});
+        if (d->m_pathChooserDisplay->filePath().isEmpty())
+            return defaultValue().toString();
         return d->m_pathChooserDisplay->filePath().toString();
     case LineEditDisplay:
         QTC_ASSERT(d->m_lineEditDisplay, return {});
+        if (d->m_lineEditDisplay->text().isEmpty())
+            return defaultValue().toString();
         return d->m_lineEditDisplay->text();
     case TextEditDisplay:
         QTC_ASSERT(d->m_textEditDisplay, return {});
+        if (d->m_textEditDisplay->document()->isEmpty())
+            return defaultValue().toString();
         return d->m_textEditDisplay->document()->toPlainText();
     case LabelDisplay:
         break;
