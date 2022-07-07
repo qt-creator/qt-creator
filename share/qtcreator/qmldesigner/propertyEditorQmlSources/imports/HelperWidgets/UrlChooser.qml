@@ -47,6 +47,9 @@ Row {
     // Current item
     property string absoluteFilePath: ""
 
+    property alias comboBox: comboBox
+    property alias spacer: spacer
+
     FileResourcesModel {
         id: fileModel
         modelNodeBackendProperty: modelNodeBackend
@@ -501,7 +504,9 @@ Row {
         }
     }
 
-    Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
+    Spacer { id: spacer
+        implicitWidth: StudioTheme.Values.twoControlColumnGap
+    }
 
     IconIndicator {
         icon: StudioTheme.Constants.addFile
