@@ -403,7 +403,7 @@ protected:
         if (Symbol *s = klass->find(accept0)) {
             if (Function *meth = s->type()->asFunctionType()) {
                 if (! meth->isPureVirtual()) {
-                    for (const ClassOrNamespace *u : b->usings()) {
+                    for (ClassOrNamespace *u : b->usings()) {
                         if (interfaces.contains(u)) {
                             // qDebug() << oo(klass->name()) << "implements" << oo(u->symbols().first()->name());
                         } else {
