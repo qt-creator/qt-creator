@@ -187,4 +187,3 @@ private:
 
 QML_DECLARE_TYPE(PropertyEditorValue)
 QML_DECLARE_TYPE(PropertyEditorNodeWrapper)
-QML_DECLARE_TYPE(QQmlPropertyMap)
