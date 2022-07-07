@@ -34,7 +34,7 @@
 
 namespace QmlDesigner {
 
-class PropertyMetaInfo
+class QMLDESIGNERCORE_EXPORT PropertyMetaInfo
 {
 public:
     PropertyMetaInfo(QSharedPointer<class NodeMetaInfoPrivate> nodeMetaInfoPrivateData,

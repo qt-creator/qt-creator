@@ -561,7 +561,7 @@ void QbsBuildSystem::handleQbsParsingDone(bool success)
         m_qbsUpdateFutureInterface->reportCanceled();
     }
 
-    delete m_qbsProjectParser;
+    m_qbsProjectParser->deleteLater();
     m_qbsProjectParser = nullptr;
     m_qbsUpdateFutureInterface->reportFinished();
     delete m_qbsUpdateFutureInterface;

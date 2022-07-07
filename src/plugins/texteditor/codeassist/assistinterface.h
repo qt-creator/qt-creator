@@ -54,6 +54,7 @@ public:
     virtual void prepareForAsyncUse();
     virtual void recreateTextDocument();
     virtual AssistReason reason() const;
+    virtual bool isBaseObject() const { return true; }
 
 private:
     QTextDocument *m_textDocument;

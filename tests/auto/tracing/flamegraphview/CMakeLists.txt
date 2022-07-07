@@ -5,6 +5,7 @@ set(TSTFLAMEGRAPHVIEW_CPP_SOURCES
 
 if(${Qt5_VERSION} VERSION_LESS "6.2.0")
   add_qtc_test(tst_tracing_flamegraphview
+    EXCLUDE_FROM_PRECHECK
     DEPENDS Tracing Qt5::QuickWidgets Qt5::Quick Utils
     SOURCES
       ${TSTFLAMEGRAPHVIEW_CPP_SOURCES}
@@ -12,6 +13,7 @@ if(${Qt5_VERSION} VERSION_LESS "6.2.0")
   )
 else() # < Qt 6.2
   add_qtc_test(tst_tracing_flamegraphview
+    EXCLUDE_FROM_PRECHECK
     DEPENDS Tracing Qt5::QuickWidgets Qt5::Quick Utils
   )
 

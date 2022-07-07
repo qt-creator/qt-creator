@@ -28,7 +28,7 @@
 #include "androidconfigurations.h"
 #include "androidmanager.h"
 
-#include <utils/algorithm.h>>
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 

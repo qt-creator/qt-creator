@@ -91,6 +91,7 @@ file(RELATIVE_PATH TEST_RELATIVE_LIBEXEC_PATH "/${RELATIVE_TEST_PATH}" "/${IDE_L
 
 if(WITH_TESTS)
 add_qtc_test(tst_mesonwrapper
+  EXCLUDE_FROM_PRECHECK
   INCLUDES
     BEFORE "."
   DEPENDS
@@ -111,6 +112,7 @@ add_qtc_test(tst_mesonwrapper
 )
 
 add_qtc_test(tst_mesoninfoparser
+  EXCLUDE_FROM_PRECHECK
   INCLUDES
     BEFORE "."
   DEPENDS

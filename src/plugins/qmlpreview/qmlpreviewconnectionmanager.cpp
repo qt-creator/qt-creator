@@ -202,7 +202,7 @@ void QmlPreviewConnectionManager::createPreviewClient()
             &QmlPreviewClient::errorReported,
             this,
             [](const QString &error) {
-                Core::MessageManager::writeDisrupting("Error loading QML Live Preview:");
+                Core::MessageManager::writeFlashing("Error loading QML Live Preview:");
                 Core::MessageManager::writeSilently(error);
             });
 

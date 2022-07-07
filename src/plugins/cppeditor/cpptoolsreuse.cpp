@@ -28,6 +28,7 @@
 #include "clangdiagnosticconfigsmodel.h"
 #include "cppautocompleter.h"
 #include "cppcodemodelsettings.h"
+#include "cppcompletionassist.h"
 #include "cppeditorconstants.h"
 #include "cppeditorplugin.h"
 #include "cpphighlighter.h"
@@ -334,6 +335,11 @@ bool isInCommentOrString(const TextEditor::AssistInterface *interface,
 TextEditor::QuickFixOperations quickFixOperations(const TextEditor::AssistInterface *interface)
 {
     return Internal::quickFixOperations(interface);
+}
+
+CppCompletionAssistProcessor *getCppCompletionAssistProcessor()
+{
+    return new Internal::InternalCppCompletionAssistProcessor();
 }
 
 CppCodeModelSettings *codeModelSettings()

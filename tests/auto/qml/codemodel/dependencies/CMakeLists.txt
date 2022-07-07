@@ -1,4 +1,5 @@
 add_qtc_test(tst_qml_dependencies
+  EXCLUDE_FROM_PRECHECK
   DEPENDS QmlJS QmlJSTools ExtensionSystem Utils
   INCLUDES "${PROJECT_SOURCE_DIR}/src/plugins"
   DEFINES

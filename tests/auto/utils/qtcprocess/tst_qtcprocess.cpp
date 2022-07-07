@@ -1228,8 +1228,8 @@ void tst_QtcProcess::crashAfterOneSecond()
     timer.start();
     // Please note that QProcess documentation says it should return false, but apparently
     // it doesn't (try running this test with QTC_USE_QPROCESS=)
-    QVERIFY(process.waitForFinished(2000));
-    QVERIFY(timer.elapsed() < 2000);
+    QVERIFY(process.waitForFinished(30000));
+    QVERIFY(timer.elapsed() < 30000);
     QCOMPARE(process.state(), QProcess::NotRunning);
     QCOMPARE(process.error(), QProcess::Crashed);
 }

@@ -61,7 +61,6 @@ public:
 
     QByteArray toByteArray() const;
     static QByteArray toByteArray(const Macros &macros);
-    static QByteArray toByteArray(const QVector<Macros> &macross);
 
     static Macros toMacros(const QByteArray &text);
 

@@ -107,18 +107,20 @@ int AvdDialog::exec()
 
         const AndroidAvdManager avdManager = AndroidAvdManager(m_androidConfig);
         QFutureWatcher<CreateAvdInfo> createAvdFutureWatcher;
-        createAvdFutureWatcher.setFuture(avdManager.createAvd(result));
 
         QEventLoop loop;
         QObject::connect(&createAvdFutureWatcher, &QFutureWatcher<CreateAvdInfo>::finished,
                          &loop, &QEventLoop::quit);
         QObject::connect(&createAvdFutureWatcher, &QFutureWatcher<CreateAvdInfo>::canceled,
                          &loop, &QEventLoop::quit);
+        createAvdFutureWatcher.setFuture(avdManager.createAvd(result));
         loop.exec(QEventLoop::ExcludeUserInputEvents);
 
         const QFuture<CreateAvdInfo> future = createAvdFutureWatcher.future();
-        if (future.isResultReadyAt(0))
+        if (future.isResultReadyAt(0)) {
             m_createdAvdInfo = future.result();
+            AndroidDeviceManager::instance()->updateAvdsList();
+        }
     }
 
     return execResult;

@@ -146,6 +146,7 @@ private:
     void finalizeInitializationAfterDuplication(TextEditorWidget *other) override;
 
     unsigned documentRevision() const;
+    bool isOldStyleSignalOrSlot() const;
 
     QMenu *createRefactorMenu(QWidget *parent) const;
 

@@ -45,6 +45,7 @@ public:
 
     const QmlJSTools::SemanticInfo &semanticInfo() const;
     QmlJSTools::QmlJSRefactoringFilePtr currentFile() const;
+    bool isBaseObject() const override { return false; }
 
 private:
     QmlJSTools::SemanticInfo m_semanticInfo;

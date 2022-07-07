@@ -226,6 +226,27 @@ using namespace Utils;
 
 static ProgressManagerPrivate *m_instance = nullptr;
 
+const int RASTER = 20;
+
+class StatusDetailsWidgetContainer : public QWidget
+{
+public:
+    StatusDetailsWidgetContainer(QWidget *parent)
+        : QWidget(parent)
+    {}
+
+    QSize sizeHint() const override
+    {
+        // make size fit on raster, to avoid flickering in status bar
+        // because the output pane buttons resize, if the widget changes a lot (like it is the case for
+        // the language server indexing)
+        const QSize preferredSize = layout()->sizeHint();
+        const int preferredWidth = preferredSize.width();
+        const int width = preferredWidth + (RASTER - preferredWidth % RASTER);
+        return {width, preferredSize.height()};
+    }
+};
+
 ProgressManagerPrivate::ProgressManagerPrivate()
     : m_opacityEffect(new QGraphicsOpacityEffect(this))
 {
@@ -273,13 +294,13 @@ void ProgressManagerPrivate::init()
     summaryProgressLayout->setContentsMargins(0, 0, 0, 2);
     summaryProgressLayout->setSpacing(0);
     m_summaryProgressWidget->setLayout(summaryProgressLayout);
-    m_statusDetailsWidgetContainer = new QWidget(m_summaryProgressWidget);
-    m_statusDetailsWidgetLayout = new QHBoxLayout(m_statusDetailsWidgetContainer);
+    auto statusDetailsWidgetContainer = new StatusDetailsWidgetContainer(m_summaryProgressWidget);
+    m_statusDetailsWidgetLayout = new QHBoxLayout(statusDetailsWidgetContainer);
     m_statusDetailsWidgetLayout->setContentsMargins(0, 0, 0, 0);
     m_statusDetailsWidgetLayout->setSpacing(0);
     m_statusDetailsWidgetLayout->addStretch(1);
-    m_statusDetailsWidgetContainer->setLayout(m_statusDetailsWidgetLayout);
-    summaryProgressLayout->addWidget(m_statusDetailsWidgetContainer);
+    statusDetailsWidgetContainer->setLayout(m_statusDetailsWidgetLayout);
+    summaryProgressLayout->addWidget(statusDetailsWidgetContainer);
     m_summaryProgressBar = new ProgressBar(m_summaryProgressWidget);
     m_summaryProgressBar->setMinimumWidth(70);
     m_summaryProgressBar->setTitleVisible(false);
@@ -616,8 +637,6 @@ void ProgressManagerPrivate::updateVisibilityWithDelay()
     QTimer::singleShot(150, this, &ProgressManagerPrivate::updateVisibility);
 }
 
-const int RASTER = 20;
-
 void ProgressManagerPrivate::updateStatusDetailsWidget()
 {
     QWidget *candidateWidget = nullptr;
@@ -643,15 +662,6 @@ void ProgressManagerPrivate::updateStatusDetailsWidget()
             m_currentStatusDetailsProgress = progress;
             break;
         }
-    }
-
-    // make size fit on raster, to avoid flickering in status bar
-    // because the output pane buttons resize, if the widget changes a lot (like it is the case for
-    // the language server indexing)
-    if (candidateWidget) {
-        const int preferredWidth = candidateWidget->sizeHint().width();
-        const int width = preferredWidth + (RASTER - preferredWidth % RASTER);
-        m_statusDetailsWidgetContainer->setFixedWidth(width);
     }
 
     if (candidateWidget == m_currentStatusDetailsWidget)

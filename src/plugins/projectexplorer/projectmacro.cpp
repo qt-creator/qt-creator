@@ -63,16 +63,6 @@ QByteArray Macro::toByteArray(const Macros &macros)
     return  text;
 }
 
-QByteArray Macro::toByteArray(const QVector<Macros> &macrosVector)
-{
-    QByteArray text;
-
-    for (const Macros &macros : macrosVector)
-            text += toByteArray(macros);
-
-    return  text;
-}
-
 Macros Macro::toMacros(const QByteArray &text)
 {
     return tokensLinesToMacros(tokenizeLines(splitLines(text)));

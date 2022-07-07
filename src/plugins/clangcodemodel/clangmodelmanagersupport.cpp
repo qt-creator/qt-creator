@@ -431,9 +431,13 @@ void ClangModelManagerSupport::updateLanguageClient(
                 const Client * const currentClient = LanguageClientManager::clientForDocument(doc);
                 if (!settings.sizeIsOkay(doc->filePath()))
                     continue;
-                if (!currentClient || !currentClient->project()
-                        || currentClient->state() != Client::Initialized
-                        || project->isKnownFile(doc->filePath())) {
+                if (currentClient && currentClient->project()
+                        && currentClient->project() != project) {
+                    continue;
+                }
+                if (const Project * const docProject
+                        = SessionManager::projectForFile(doc->filePath());
+                        !docProject || docProject == project) {
                     LanguageClientManager::openDocumentWithClient(doc, client);
                     hasDocuments = true;
                 }
@@ -546,7 +550,8 @@ void ClangModelManagerSupport::claimNonProjectSources(ClangdClient *client)
         }
         if (!ClangdSettings::instance().sizeIsOkay(doc->filePath()))
             continue;
-        client->openDocument(doc);
+        if (!ProjectExplorer::SessionManager::projectForFile(doc->filePath()))
+            LanguageClientManager::openDocumentWithClient(doc, client);
     }
 }
 

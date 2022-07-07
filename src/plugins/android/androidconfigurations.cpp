@@ -344,13 +344,13 @@ void AndroidConfig::parseDependenciesJson()
 
     auto fillQtVersionsRange = [](const QString &shortVersion) {
         QList<QtVersionNumber> versions;
-        QRegularExpression re("([0-9]\\.[0-9]*\\.)\\[([0-9])\\-([0-9])\\]");
+        const QRegularExpression re(R"(([0-9]\.[0-9]+\.)\[([0-9]+)\-([0-9]+)\])");
         QRegularExpressionMatch match = re.match(shortVersion);
         if (match.hasMatch() && match.lastCapturedIndex() == 3)
             for (int i = match.captured(2).toInt(); i <= match.captured(3).toInt(); ++i)
                 versions.append(QtVersionNumber(match.captured(1) + QString::number(i)));
         else
-            versions.append(QtVersionNumber(shortVersion));
+            versions.append(QtVersionNumber(shortVersion + ".-1"));
 
         return versions;
     };

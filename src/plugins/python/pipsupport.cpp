@@ -50,13 +50,12 @@ static constexpr char pipInstallTaskId[] = "Python::pipInstallTask";
 PipInstallTask::PipInstallTask(const FilePath &python)
     : m_python(python)
 {
-    m_watcher.setFuture(m_future.future());
-
     connect(&m_process, &QtcProcess::done, this, &PipInstallTask::handleDone);
     connect(&m_process, &QtcProcess::readyReadStandardError, this, &PipInstallTask::handleError);
     connect(&m_process, &QtcProcess::readyReadStandardOutput, this, &PipInstallTask::handleOutput);
     connect(&m_killTimer, &QTimer::timeout, this, &PipInstallTask::cancel);
     connect(&m_watcher, &QFutureWatcher<void>::canceled, this, &PipInstallTask::cancel);
+    m_watcher.setFuture(m_future.future());
 }
 
 void PipInstallTask::setPackage(const PipPackage &package)

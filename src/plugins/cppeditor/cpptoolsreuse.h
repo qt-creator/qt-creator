@@ -55,6 +55,7 @@ namespace TextEditor { class AssistInterface; }
 namespace CppEditor {
 class CppRefactoringFile;
 class ProjectInfo;
+class CppCompletionAssistProcessor;
 
 void CPPEDITOR_EXPORT moveCursorToEndOfIdentifier(QTextCursor *tc);
 void CPPEDITOR_EXPORT moveCursorToStartOfIdentifier(QTextCursor *tc);
@@ -79,6 +80,8 @@ bool CPPEDITOR_EXPORT isInCommentOrString(const TextEditor::AssistInterface *int
                                           CPlusPlus::LanguageFeatures features);
 TextEditor::QuickFixOperations CPPEDITOR_EXPORT
 quickFixOperations(const TextEditor::AssistInterface *interface);
+
+CppCompletionAssistProcessor CPPEDITOR_EXPORT *getCppCompletionAssistProcessor();
 
 enum class CacheUsage { ReadWrite, ReadOnly };
 

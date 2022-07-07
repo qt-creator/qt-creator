@@ -210,7 +210,7 @@ WidgetInfo ConnectionView::widgetInfo()
                             QLatin1String("ConnectionView"),
                             WidgetInfo::LeftPane,
                             0,
-                            tr("Connection View"));
+                            tr("Connections"));
 }
 
 bool ConnectionView::hasWidget() const

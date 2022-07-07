@@ -744,7 +744,7 @@ Item {
 
             anchors.fill: parent
             enabled: popup.visible && popupMouseArea.active
-            hoverEnabled: true
+            hoverEnabled: popupMouseArea.enabled
             onPositionChanged: { popupMouseArea.active = false }
         }
     }

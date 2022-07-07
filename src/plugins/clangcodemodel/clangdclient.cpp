@@ -751,9 +751,8 @@ ClangdClient::ClangdCompletionAssistProcessor::generateCompletionItems(
         return itemGenerator(items);
     const QString content = doc->toPlainText();
     const bool requiresSignal = CppEditor::CppModelManager::instance()
-                                    ->positionRequiresSignal(filePath().toString(),
-                                                             content.toUtf8(),
-                                                             pos);
+                                    ->getSignalSlotType(filePath().toString(), content.toUtf8(), pos)
+                                == CppEditor::SignalSlotType::NewStyleSignal;
     if (requiresSignal)
         return itemGenerator(Utils::filtered(items, criterion));
     return itemGenerator(items);
@@ -846,9 +845,11 @@ static void addToCompilationDb(QJsonObject &cdb,
                                CppEditor::UsePrecompiledHeaders usePch,
                                const QJsonArray &projectPartOptions,
                                const Utils::FilePath &workingDir,
-                               const CppEditor::ProjectFile &sourceFile)
+                               const CppEditor::ProjectFile &sourceFile,
+                               bool clStyle)
 {
-    QJsonArray args = clangOptionsForFile(sourceFile, projectPart, projectPartOptions, usePch);
+    QJsonArray args = clangOptionsForFile(sourceFile, projectPart, projectPartOptions, usePch,
+                                          clStyle);
 
     // TODO: clangd seems to apply some heuristics depending on what we put here.
     //       Should we make use of them or keep using our own?
@@ -890,7 +891,8 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
         const QJsonArray projectPartOptions = fullProjectPartOptions(
                     optionsBuilder, globalClangOptions());
         const QJsonArray clangOptions = clangOptionsForFile({}, optionsBuilder.projectPart(),
-                                                            projectPartOptions, usePch);
+                                                            projectPartOptions, usePch,
+                                                            optionsBuilder.isClStyle());
         initOptions.insert("fallbackFlags", clangOptions);
         setInitializationOptions(initOptions);
     }
@@ -1019,7 +1021,7 @@ void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
     // Otherwise get the proper spelling of the search term from clang, so we can put it into the
     // search widget.
     const auto symbolInfoHandler = [this, doc = QPointer(document), adjustedCursor, replacement, categorize]
-            (const QString &, const QString &name, const MessageId &) {
+            (const QString &name, const QString &, const MessageId &) {
         if (!doc)
             return;
         if (name.isEmpty())
@@ -1329,7 +1331,7 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     const QJsonArray projectPartOptions = fullProjectPartOptions(
                 optionsBuilder, globalClangOptions());
     addToCompilationDb(cdbChanges, *projectPart, CppEditor::getPchUsage(), projectPartOptions,
-                       filePath.parentDir(), file);
+                       filePath.parentDir(), file, optionsBuilder.isClStyle());
     QJsonObject settings;
     addCompilationDb(settings, cdbChanges);
     DidChangeConfigurationParams configChangeParams;
@@ -1609,7 +1611,7 @@ void ClangdClient::followSymbol(TextDocument *document,
     d->followSymbol = new ClangdFollowSymbol(this, adjustedCursor, editorWidget, document, callback,
                                              openInSplit);
     connect(d->followSymbol, &ClangdFollowSymbol::done, this, [this] {
-        delete d->followSymbol;
+        d->followSymbol->deleteLater();
         d->followSymbol = nullptr;
     });
 }
@@ -1626,7 +1628,7 @@ void ClangdClient::switchDeclDef(TextDocument *document, const QTextCursor &curs
         delete d->switchDeclDef;
     d->switchDeclDef = new ClangdSwitchDeclDef(this, document, cursor, editorWidget, callback);
     connect(d->switchDeclDef, &ClangdSwitchDeclDef::done, this, [this] {
-        delete d->switchDeclDef;
+        d->switchDeclDef->deleteLater();
         d->switchDeclDef = nullptr;
     });
 }
@@ -2237,6 +2239,10 @@ IAssistProcessor *ClangdClient::ClangdCompletionAssistProvider::createProcessor(
                                          contextAnalyzer.positionEndOfExpression(),
                                          contextAnalyzer.completionOperator(),
                                          CustomAssistMode::Preprocessor);
+    case ClangCompletionContextAnalyzer::CompleteSignal:
+    case ClangCompletionContextAnalyzer::CompleteSlot:
+        if (!interface->isBaseObject())
+            return CppEditor::getCppCompletionAssistProcessor();
     default:
         break;
     }

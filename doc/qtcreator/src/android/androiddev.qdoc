@@ -111,8 +111,8 @@
         \li The installed NDK versions are listed in
             \uicontrol {Android NDK list}.
             The locked items were installed by the SDK Manager,
-            and can only be modified from the \uicontrol {SDK Manager} tab.
-            For more information, see \l{Managing Android NDK Packages}.
+            and can only be modified from the \uicontrol {Android SDK Manager}
+            dialog. For more information, see \l{Managing Android NDK Packages}.
         \li Select the \uicontrol {Automatically create kits for Android tool chains}
             check box to allow \QC to create the kits for you. \QC displays a
             warning if it cannot find a suitable Qt version.
@@ -179,8 +179,8 @@
     \image qtcreator-options-android-sdk-tools.png "Android NDK and SDK checks"
 
     The locked versions were installed by the SDK Manager, and can only
-    be modified from the SDK Manager tab. For more information, see
-    \l{Managing Android SDK Packages}.
+    be modified from the \uicontrol {Android SDK Manager} dialog.
+    For more information, see \l{Managing Android SDK Packages}.
 
     To manually download NDKs, select \inlineimage icons/online.png
     .

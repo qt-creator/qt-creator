@@ -95,6 +95,7 @@ public:
 
     void evaluateCompilerFlags();
     bool isClStyle() const;
+    void setClStyle(bool clStyle) { m_clStyle = clStyle; }
 
     const ProjectPart &projectPart() const { return m_projectPart; }
 

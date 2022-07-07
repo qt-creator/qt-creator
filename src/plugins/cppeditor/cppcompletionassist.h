@@ -194,6 +194,7 @@ public:
     { getCppSpecifics(); return m_headerPaths; }
     CPlusPlus::LanguageFeatures languageFeatures() const
     { getCppSpecifics(); return m_languageFeatures; }
+    bool isBaseObject() const override { return false; }
 
 private:
     void getCppSpecifics() const;

@@ -483,24 +483,26 @@ void TerminalImpl::killProcess()
 
 void TerminalImpl::killStub()
 {
+    if (!isRunning())
+        return;
+
 #ifdef Q_OS_WIN
-    if (d->m_pid) {
-        TerminateProcess(d->m_pid->hProcess, (unsigned)-1);
-        WaitForSingleObject(d->m_pid->hProcess, INFINITE);
-        cleanupStub();
-    }
+    TerminateProcess(d->m_pid->hProcess, (unsigned)-1);
+    WaitForSingleObject(d->m_pid->hProcess, INFINITE);
+    cleanupStub();
 #else
     sendCommand('s');
     stubServerShutdown();
+    d->m_process.waitForFinished();
 #endif
+
+    emitFinished(-1, QProcess::CrashExit);
 }
 
 void TerminalImpl::stopProcess()
 {
     killProcess();
     killStub();
-    if (isRunning() && HostOsInfo::isAnyUnixHost())
-        d->m_process.close();
 }
 
 bool TerminalImpl::isRunning() const

@@ -639,7 +639,8 @@ void Client::sendMessage(const JsonRpcMessage &message, SendDocUpdates sendUpdat
 void Client::cancelRequest(const MessageId &id)
 {
     d->m_responseHandlers.remove(id);
-    sendMessage(CancelRequest(CancelParameter(id)), SendDocUpdates::Ignore);
+    if (reachable())
+        sendMessage(CancelRequest(CancelParameter(id)), SendDocUpdates::Ignore);
 }
 
 void Client::closeDocument(TextEditor::TextDocument *document)
@@ -1646,7 +1647,7 @@ void ClientPrivate::sendPostponedDocumentUpdates(Schedule semanticTokensSchedule
 
 void ClientPrivate::handleResponse(const MessageId &id, const JsonRpcMessage &message)
 {
-    if (auto handler = m_responseHandlers[id])
+    if (auto handler = m_responseHandlers.take(id))
         handler(message);
 }
 
