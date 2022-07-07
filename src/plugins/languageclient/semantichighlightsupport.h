@@ -120,6 +120,7 @@ private:
     QStringList m_tokenTypeStrings;
     QStringList m_tokenModifierStrings;
     QSet<TextEditor::TextDocument *> m_docReloadQueue;
+    QHash<Utils::FilePath, LanguageServerProtocol::MessageId> m_runningRequests;
 };
 
 } // namespace LanguageClient
