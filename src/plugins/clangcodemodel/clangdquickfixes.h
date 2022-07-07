@@ -26,9 +26,11 @@
 #pragma once
 
 #include <cppeditor/cppquickfix.h>
+#include <languageclient/languageclientquickfix.h>
 
 namespace ClangCodeModel {
 namespace Internal {
+class ClangdClient;
 
 class ClangdQuickFixFactory : public CppEditor::CppQuickFixFactory
 {
@@ -37,6 +39,16 @@ public:
 
     void match(const CppEditor::Internal::CppQuickFixInterface &interface,
                QuickFixOperations &result) override;
+};
+
+class ClangdQuickFixProvider : public LanguageClient::LanguageClientQuickFixProvider
+{
+public:
+    ClangdQuickFixProvider(ClangdClient *client);
+
+private:
+    TextEditor::IAssistProcessor *createProcessor(
+            const TextEditor::AssistInterface *) const override;
 };
 
 } // namespace Internal

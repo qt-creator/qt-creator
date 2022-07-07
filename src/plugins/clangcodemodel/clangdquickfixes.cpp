@@ -23,14 +23,16 @@
 **
 ****************************************************************************/
 
-#include "clangdquickfixfactory.h"
+#include "clangdquickfixes.h"
 
 #include "clangdclient.h"
 #include "clangmodelmanagersupport.h"
 
-#include <languageclient/languageclientquickfix.h>
+#include <texteditor/codeassist/genericproposal.h>
 
+using namespace LanguageClient;
 using namespace LanguageServerProtocol;
+using namespace TextEditor;
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -56,6 +58,67 @@ void ClangdQuickFixFactory::match(const CppEditor::Internal::CppQuickFixInterfac
                 result << new LanguageClient::CodeActionQuickFixOperation(action, client);
         }
     }
+}
+
+class ClangdQuickFixProcessor : public LanguageClientQuickFixAssistProcessor
+{
+public:
+    ClangdQuickFixProcessor(LanguageClient::Client *client)
+        : LanguageClientQuickFixAssistProcessor(client)
+    {
+    }
+
+private:
+    IAssistProposal *perform(const AssistInterface *interface) override
+    {
+        m_interface = interface;
+
+        // Step 1: Collect clangd code actions asynchronously
+        LanguageClientQuickFixAssistProcessor::perform(interface);
+
+        // Step 2: Collect built-in quickfixes synchronously
+        m_builtinOps = CppEditor::quickFixOperations(interface);
+
+        return nullptr;
+    }
+
+    TextEditor::GenericProposal *handleCodeActionResult(const CodeActionResult &result) override
+    {
+        auto toOperation =
+            [=](const Utils::variant<Command, CodeAction> &item) -> QuickFixOperation * {
+            if (auto action = Utils::get_if<CodeAction>(&item)) {
+                const Utils::optional<QList<Diagnostic>> diagnostics = action->diagnostics();
+                if (!diagnostics.has_value() || diagnostics->isEmpty())
+                    return new CodeActionQuickFixOperation(*action, client());
+            }
+            if (auto command = Utils::get_if<Command>(&item))
+                return new CommandQuickFixOperation(*command, client());
+            return nullptr;
+        };
+
+        if (auto list = Utils::get_if<QList<Utils::variant<Command, CodeAction>>>(&result)) {
+            QuickFixOperations ops;
+            for (const Utils::variant<Command, CodeAction> &item : *list) {
+                if (QuickFixOperation *op = toOperation(item)) {
+                    op->setDescription("clangd: " + op->description());
+                    ops << op;
+                }
+            }
+            return GenericProposal::createProposal(m_interface, ops + m_builtinOps);
+        }
+        return nullptr;
+    }
+
+    QuickFixOperations m_builtinOps;
+    const AssistInterface *m_interface = nullptr;
+};
+
+ClangdQuickFixProvider::ClangdQuickFixProvider(ClangdClient *client)
+    : LanguageClientQuickFixProvider(client) {}
+
+IAssistProcessor *ClangdQuickFixProvider::createProcessor(const AssistInterface *) const
+{
+    return new ClangdQuickFixProcessor(client());
 }
 
 } // namespace Internal

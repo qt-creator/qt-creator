@@ -27,7 +27,7 @@
 
 #include "clangconstants.h"
 #include "clangdclient.h"
-#include "clangdquickfixfactory.h"
+#include "clangdquickfixes.h"
 #include "clangeditordocumentprocessor.h"
 #include "clangdlocatorfilters.h"
 #include "clangutils.h"
