@@ -417,16 +417,18 @@ QStringList DynamicPropertiesModel::possibleSourceProperties(const BindingProper
 
 void DynamicPropertiesModel::deleteDynamicPropertyByRow(int rowNumber)
 {
-    BindingProperty bindingProperty = bindingPropertyForRow(rowNumber);
-    if (bindingProperty.isValid()) {
-        bindingProperty.parentModelNode().removeProperty(bindingProperty.name());
-    }
+    connectionView()->executeInTransaction("DynamicPropertiesModel::deleteDynamicPropertyByRow", [this, rowNumber]() {
+        BindingProperty bindingProperty = bindingPropertyForRow(rowNumber);
+        if (bindingProperty.isValid()) {
+            bindingProperty.parentModelNode().removeProperty(bindingProperty.name());
+        }
 
-    VariantProperty variantProperty = variantPropertyForRow(rowNumber);
+        VariantProperty variantProperty = variantPropertyForRow(rowNumber);
 
-    if (variantProperty.isValid()) {
-        variantProperty.parentModelNode().removeProperty(variantProperty.name());
-    }
+        if (variantProperty.isValid()) {
+            variantProperty.parentModelNode().removeProperty(variantProperty.name());
+        }
+    });
 
     resetModel();
 }
