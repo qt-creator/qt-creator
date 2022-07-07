@@ -282,9 +282,10 @@ void NameItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) 
     lineEdit->setText(value);
 }
 
-void NameItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+void NameItemDelegate::setModelData(QWidget *editor,
+                                    [[maybe_unused]] QAbstractItemModel *model,
+                                    const QModelIndex &index) const
 {
-    Q_UNUSED(model)
     auto lineEdit = static_cast<QLineEdit*>(editor);
     setId(index, lineEdit->text());
     lineEdit->clearFocus();

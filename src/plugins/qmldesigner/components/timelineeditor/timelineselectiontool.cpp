@@ -67,21 +67,16 @@ SelectionMode TimelineSelectionTool::selectionMode(QGraphicsSceneMouseEvent *eve
     return SelectionMode::New;
 }
 
-void TimelineSelectionTool::mousePressEvent(TimelineMovableAbstractItem *item,
-                                            QGraphicsSceneMouseEvent *event)
+void TimelineSelectionTool::mousePressEvent([[maybe_unused]] TimelineMovableAbstractItem *item,
+                                            [[maybe_unused]] QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(item)
-    Q_UNUSED(event)
-
     if (event->buttons() == Qt::LeftButton && selectionMode(event) == SelectionMode::New)
         deselect();
 }
 
-void TimelineSelectionTool::mouseMoveEvent(TimelineMovableAbstractItem *item,
+void TimelineSelectionTool::mouseMoveEvent([[maybe_unused]] TimelineMovableAbstractItem *item,
                                            QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(item)
-
     if (event->buttons() == Qt::LeftButton) {
         auto endPoint = event->scenePos();
 
@@ -103,36 +98,26 @@ void TimelineSelectionTool::mouseMoveEvent(TimelineMovableAbstractItem *item,
     }
 }
 
-void TimelineSelectionTool::mouseReleaseEvent(TimelineMovableAbstractItem *item,
+void TimelineSelectionTool::mouseReleaseEvent([[maybe_unused]] TimelineMovableAbstractItem *item,
                                               QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(item)
-
     commitSelection(selectionMode(event));
 
     reset();
 }
 
 void TimelineSelectionTool::mouseDoubleClickEvent(TimelineMovableAbstractItem *item,
-                                                  QGraphicsSceneMouseEvent *event)
+                                                  [[maybe_unused]] QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(event)
-
     if (item)
         item->itemDoubleClicked();
 
     reset();
 }
 
-void TimelineSelectionTool::keyPressEvent(QKeyEvent *keyEvent)
-{
-    Q_UNUSED(keyEvent)
-}
+void TimelineSelectionTool::keyPressEvent([[maybe_unused]] QKeyEvent *keyEvent) {}
 
-void TimelineSelectionTool::keyReleaseEvent(QKeyEvent *keyEvent)
-{
-    Q_UNUSED(keyEvent)
-}
+void TimelineSelectionTool::keyReleaseEvent([[maybe_unused]] QKeyEvent *keyEvent) {}
 
 void TimelineSelectionTool::deselect()
 {

@@ -293,13 +293,11 @@ void NavigatorView::dragEnded()
     m_widget->update();
 }
 
-void NavigatorView::customNotification(const AbstractView *view, const QString &identifier,
-                                       const QList<ModelNode> &nodeList, const QList<QVariant> &data)
+void NavigatorView::customNotification([[maybe_unused]] const AbstractView *view,
+                                       const QString &identifier,
+                                       [[maybe_unused]] const QList<ModelNode> &nodeList,
+                                       [[maybe_unused]] const QList<QVariant> &data)
 {
-    Q_UNUSED(view)
-    Q_UNUSED(nodeList)
-    Q_UNUSED(data)
-
     if (identifier == "asset_import_update")
         m_currentModelInterface->notifyIconsChanged();
 }
@@ -405,11 +403,9 @@ void NavigatorView::nodeTypeChanged(const ModelNode &modelNode, const TypeName &
 }
 
 void NavigatorView::auxiliaryDataChanged(const ModelNode &modelNode,
-                                         const PropertyName &name,
-                                         const QVariant &data)
+                                         [[maybe_unused]] const PropertyName &name,
+                                         [[maybe_unused]] const QVariant &data)
 {
-    Q_UNUSED(name)
-    Q_UNUSED(data)
 
     m_currentModelInterface->notifyDataChanged(modelNode);
 }

@@ -496,10 +496,8 @@ void TimelineToolBar::setupCurrentFrameValidator()
                                                      m_lastFrame->text().toInt());
 }
 
-void TimelineToolBar::resizeEvent(QResizeEvent *event)
+void TimelineToolBar::resizeEvent([[maybe_unused]] QResizeEvent *event)
 {
-    Q_UNUSED(event)
-
     int width = 0;
     QWidget *spacer = nullptr;
     for (auto *object : qAsConst(m_grp)) {

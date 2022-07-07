@@ -51,9 +51,8 @@ void RichTextEditorDialog::setFormEditorItem(FormEditorItem* formEditorItem)
     m_formEditorItem = formEditorItem;
 }
 
-void RichTextEditorDialog::onTextChanged(QString text)
+void RichTextEditorDialog::onTextChanged([[maybe_unused]] QString text)
 {
-    Q_UNUSED(text);
     // TODO: try adding following and make it react faster
     // setTextToFormEditorItem(text);
 }

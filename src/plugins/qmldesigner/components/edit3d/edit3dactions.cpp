@@ -93,9 +93,8 @@ QByteArray Edit3DAction::category() const
     return QByteArray();
 }
 
-bool Edit3DAction::isVisible(const SelectionContext &selectionContext) const
+bool Edit3DAction::isVisible([[maybe_unused]] const SelectionContext &selectionContext) const
 {
-    Q_UNUSED(selectionContext)
     return true;
 }
 

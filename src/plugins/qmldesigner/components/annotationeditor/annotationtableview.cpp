@@ -83,9 +83,8 @@ QCompleter *CommentDelegate::completer() const
 
 void CommentDelegate::updateEditorGeometry(QWidget *editor,
                                            const QStyleOptionViewItem &option,
-                                           const QModelIndex &index) const
+                                           [[maybe_unused]] const QModelIndex &index) const
 {
-    Q_UNUSED(index)
     editor->setGeometry(option.rect);
 }
 
@@ -102,12 +101,9 @@ CommentTitleDelegate::CommentTitleDelegate(QObject *parent)
 CommentTitleDelegate::~CommentTitleDelegate() {}
 
 QWidget *CommentTitleDelegate::createEditor(QWidget *parent,
-                                            const QStyleOptionViewItem &option,
-                                            const QModelIndex &index) const
+                                            [[maybe_unused]] const QStyleOptionViewItem &option,
+                                            [[maybe_unused]] const QModelIndex &index) const
 {
-    Q_UNUSED(option)
-    Q_UNUSED(index)
-
     auto *editor = new QComboBox(parent);
     editor->setEditable(true);
     editor->setCompleter(completer());

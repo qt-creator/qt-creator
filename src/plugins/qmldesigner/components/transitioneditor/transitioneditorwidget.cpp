@@ -415,10 +415,8 @@ void TransitionEditorWidget::setupScrollbar(int min, int max, int current)
     m_scrollbar->blockSignals(b);
 }
 
-void TransitionEditorWidget::showEvent(QShowEvent *event)
+void TransitionEditorWidget::showEvent([[maybe_unused]] QShowEvent *event)
 {
-    Q_UNUSED(event)
-
     m_transitionEditorView->setEnabled(true);
 
     if (m_transitionEditorView->model())

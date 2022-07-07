@@ -132,10 +132,10 @@ ChooseFromPropertyListDialog::ChooseFromPropertyListDialog(const QStringList &pr
         m_selectedProperty = item->isSelected() ? item->data(Qt::DisplayRole).toByteArray() : QByteArray();
     });
 
-    connect(m_ui->listProps, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem *item) {
-        Q_UNUSED(item)
-        QDialog::accept();
-    });
+    connect(m_ui->listProps,
+            &QListWidget::itemDoubleClicked,
+            this,
+            [this]([[maybe_unused]] QListWidgetItem *item) { QDialog::accept(); });
 
     fillList(propNames);
 }

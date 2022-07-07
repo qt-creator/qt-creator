@@ -56,9 +56,8 @@ bool QmlDesigner::ItemNodeDumper::isExportable() const
     return lineage().contains("QtQuick.Item");
 }
 
-QJsonObject QmlDesigner::ItemNodeDumper::json(QmlDesigner::Component &component) const
+QJsonObject QmlDesigner::ItemNodeDumper::json([[maybe_unused]] QmlDesigner::Component &component) const
 {
-    Q_UNUSED(component);
     const QmlObjectNode &qmlObjectNode = objectNode();
     QJsonObject jsonObject;
 

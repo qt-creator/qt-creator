@@ -139,10 +139,11 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
 
     // If project directory contents change, or one of the asset files is modified, we must
     // reconstruct the model to update the icons
-    connect(m_fileSystemWatcher, &Utils::FileSystemWatcher::directoryChanged, [this](const QString & changedDirPath) {
-        Q_UNUSED(changedDirPath)
-        m_assetCompressionTimer.start();
-    });
+    connect(m_fileSystemWatcher,
+            &Utils::FileSystemWatcher::directoryChanged,
+            [this]([[maybe_unused]] const QString &changedDirPath) {
+                m_assetCompressionTimer.start();
+            });
 
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins({});

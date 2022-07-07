@@ -449,7 +449,7 @@ QString PuppetCreator::defaultPuppetFallbackDirectory()
         return Core::ICore::libexecPath().toString();
 }
 
-QString PuppetCreator::qmlPuppetFallbackDirectory(const DesignerSettings &settings)
+QString PuppetCreator::qmlPuppetFallbackDirectory([[maybe_unused]] const DesignerSettings &settings)
 {
 #ifndef QMLDESIGNER_TEST
     QString puppetFallbackDirectory = settings.value(
@@ -458,7 +458,6 @@ QString PuppetCreator::qmlPuppetFallbackDirectory(const DesignerSettings &settin
         return defaultPuppetFallbackDirectory();
     return puppetFallbackDirectory;
 #else
-    Q_UNUSED(settings)
     return QString();
 #endif
 }

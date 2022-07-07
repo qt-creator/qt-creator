@@ -130,7 +130,7 @@ bool NodeListView::removeEventIds(int nodeId, const QStringList &eventIds)
     if (auto node = compatibleModelNode(nodeId); node.isValid()) {
         QStringList events = eventIdsFromVariant(node.variantProperty("eventIds").value());
         for (auto &&remove : eventIds)
-            Q_UNUSED(events.removeOne(remove));
+            events.removeOne(remove);
 
         return setEventIds(node, events);
     }
@@ -227,7 +227,7 @@ bool setEventIdsInModelNode(AbstractView *view, const ModelNode &node, const QSt
         }
     } else {
         QStringList copy(events);
-        Q_UNUSED(copy.removeDuplicates());
+        copy.removeDuplicates();
         QString value = events.join(", ");
         return view->executeInTransaction("NodeListView::setEventIds", [=]() {
             node.variantProperty("eventIds").setValue(value);

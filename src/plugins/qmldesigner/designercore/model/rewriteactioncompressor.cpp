@@ -249,11 +249,8 @@ void RewriteActionCompressor::compressPropertyActions(QList<RewriteAction *> &ac
 
         if (RemovePropertyRewriteAction *removeAction = action->asRemovePropertyRewriteAction()) {
             const AbstractProperty property = removeAction->property();
-            if (AddPropertyRewriteAction *addAction = addedProperties.value(property, 0)) {
-                Q_UNUSED(addAction)
-            } else {
+            if (AddPropertyRewriteAction *addAction = addedProperties.value(property, 0); !addAction)
                 removedProperties.insert(property, action);
-            }
         } else if (ChangePropertyRewriteAction *changeAction = action->asChangePropertyRewriteAction()) {
             const AbstractProperty property = changeAction->property();
 

@@ -142,10 +142,8 @@ void MaterialBrowserView::modelAboutToBeDetached(Model *model)
 }
 
 void MaterialBrowserView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
-                                               const QList<ModelNode> &lastSelectedNodeList)
+                                               [[maybe_unused]] const QList<ModelNode> &lastSelectedNodeList)
 {
-    Q_UNUSED(lastSelectedNodeList)
-
     ModelNode selectedModel;
 
     for (const ModelNode &node : selectedNodeList) {
@@ -185,10 +183,8 @@ void MaterialBrowserView::modelNodePreviewPixmapChanged(const ModelNode &node, c
 }
 
 void MaterialBrowserView::variantPropertiesChanged(const QList<VariantProperty> &propertyList,
-                                                   PropertyChangeFlags propertyChange)
+                                                   [[maybe_unused]] PropertyChangeFlags propertyChange)
 {
-    Q_UNUSED(propertyChange)
-
     for (const VariantProperty &property : propertyList) {
         ModelNode node(property.parentModelNode());
 
@@ -200,10 +196,8 @@ void MaterialBrowserView::variantPropertiesChanged(const QList<VariantProperty> 
 void MaterialBrowserView::nodeReparented(const ModelNode &node,
                                          const NodeAbstractProperty &newPropertyParent,
                                          const NodeAbstractProperty &oldPropertyParent,
-                                         PropertyChangeFlags propertyChange)
+                                         [[maybe_unused]] PropertyChangeFlags propertyChange)
 {
-    Q_UNUSED(propertyChange)
-
     if (!isMaterial(node))
         return;
 
@@ -241,24 +235,19 @@ void MaterialBrowserView::nodeAboutToBeRemoved(const ModelNode &removedNode)
     m_widget->materialBrowserModel()->removeMaterial(removedNode);
 }
 
-void MaterialBrowserView::nodeRemoved(const ModelNode &removedNode,
+void MaterialBrowserView::nodeRemoved([[maybe_unused]] const ModelNode &removedNode,
                                       const NodeAbstractProperty &parentProperty,
-                                      PropertyChangeFlags propertyChange)
+                                      [[maybe_unused]] PropertyChangeFlags propertyChange)
 {
-    Q_UNUSED(removedNode)
-    Q_UNUSED(propertyChange)
-
     if (parentProperty.parentModelNode().id() != Constants::MATERIAL_LIB_ID)
         return;
 
     m_widget->materialBrowserModel()->updateSelectedMaterial();
 }
 
-void MaterialBrowserView::importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
+void MaterialBrowserView::importsChanged([[maybe_unused]] const QList<Import> &addedImports,
+                                         [[maybe_unused]] const QList<Import> &removedImports)
 {
-    Q_UNUSED(addedImports)
-    Q_UNUSED(removedImports)
-
     bool hasQuick3DImport = model()->hasImport("QtQuick3D");
 
     if (hasQuick3DImport == m_hasQuick3DImport)
@@ -270,11 +259,11 @@ void MaterialBrowserView::importsChanged(const QList<Import> &addedImports, cons
     refreshModel(false);
 }
 
-void MaterialBrowserView::customNotification(const AbstractView *view, const QString &identifier,
-                                             const QList<ModelNode> &nodeList, const QList<QVariant> &data)
+void MaterialBrowserView::customNotification(const AbstractView *view,
+                                             const QString &identifier,
+                                             const QList<ModelNode> &nodeList,
+                                             [[maybe_unused]] const QList<QVariant> &data)
 {
-    Q_UNUSED(data)
-
     if (view == this)
         return;
 

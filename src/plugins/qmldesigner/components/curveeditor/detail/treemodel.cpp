@@ -182,9 +182,8 @@ int TreeModel::rowCount(const QModelIndex &parent) const
     return parentItem->rowCount();
 }
 
-int TreeModel::columnCount(const QModelIndex &parent) const
+int TreeModel::columnCount([[maybe_unused]] const QModelIndex &parent) const
 {
-    Q_UNUSED(parent)
     return m_root->columnCount();
 }
 

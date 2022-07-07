@@ -296,8 +296,8 @@ TimelineWidget::TimelineWidget(TimelineView *view)
     };
     connect(graphicsScene()->layoutRuler(), &TimelineRulerSectionItem::playbackLoopValuesChanged, updatePlaybackLoopValues);
 
-    auto setPlaybackState = [this](QAbstractAnimation::State newState, QAbstractAnimation::State oldState) {
-        Q_UNUSED(oldState)
+    auto setPlaybackState = [this](QAbstractAnimation::State newState,
+                                   [[maybe_unused]] QAbstractAnimation::State oldState) {
         m_toolbar->setPlayState(newState == QAbstractAnimation::State::Running);
     };
     connect(m_playbackAnimation, &QVariantAnimation::stateChanged, setPlaybackState);
@@ -616,10 +616,8 @@ void TimelineWidget::setFocus()
     m_graphicsView->setFocus();
 }
 
-void TimelineWidget::showEvent(QShowEvent *event)
+void TimelineWidget::showEvent([[maybe_unused]] QShowEvent *event)
 {
-    Q_UNUSED(event)
-
     int zoom = m_toolbar->scaleFactor();
 
     m_timelineView->setEnabled(true);

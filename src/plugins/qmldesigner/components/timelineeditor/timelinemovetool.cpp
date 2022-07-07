@@ -65,11 +65,9 @@ TimelineMoveTool::TimelineMoveTool(AbstractScrollGraphicsScene *scene, TimelineT
     : TimelineAbstractTool(scene, delegate)
 {}
 
-void TimelineMoveTool::mousePressEvent(TimelineMovableAbstractItem *item,
+void TimelineMoveTool::mousePressEvent([[maybe_unused]] TimelineMovableAbstractItem *item,
                                        QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(item)
-
     if (currentItem() && currentItem()->isLocked())
         return;
 
@@ -95,11 +93,9 @@ void TimelineMoveTool::mousePressEvent(TimelineMovableAbstractItem *item,
     }
 }
 
-void TimelineMoveTool::mouseMoveEvent(TimelineMovableAbstractItem *item,
+void TimelineMoveTool::mouseMoveEvent([[maybe_unused]] TimelineMovableAbstractItem *item,
                                       QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(item)
-
     if (!currentItem())
         return;
 
@@ -151,11 +147,9 @@ void TimelineMoveTool::mouseMoveEvent(TimelineMovableAbstractItem *item,
     }
 }
 
-void TimelineMoveTool::mouseReleaseEvent(TimelineMovableAbstractItem *item,
+void TimelineMoveTool::mouseReleaseEvent([[maybe_unused]] TimelineMovableAbstractItem *item,
                                          QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(item)
-
     if (auto *current = currentItem()) {
         if (current->asTimelineFrameHandle()) {
             double mousePos = event->scenePos().x();
@@ -197,21 +191,13 @@ void TimelineMoveTool::mouseReleaseEvent(TimelineMovableAbstractItem *item,
     }
 }
 
-void TimelineMoveTool::mouseDoubleClickEvent(TimelineMovableAbstractItem *item,
-                                             QGraphicsSceneMouseEvent *event)
+void TimelineMoveTool::mouseDoubleClickEvent([[maybe_unused]] TimelineMovableAbstractItem *item,
+                                             [[maybe_unused]] QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(item)
-    Q_UNUSED(event)
 }
 
-void TimelineMoveTool::keyPressEvent(QKeyEvent *keyEvent)
-{
-    Q_UNUSED(keyEvent)
-}
+void TimelineMoveTool::keyPressEvent([[maybe_unused]] QKeyEvent *keyEvent) {}
 
-void TimelineMoveTool::keyReleaseEvent(QKeyEvent *keyEvent)
-{
-    Q_UNUSED(keyEvent)
-}
+void TimelineMoveTool::keyReleaseEvent([[maybe_unused]] QKeyEvent *keyEvent) {}
 
 } // namespace QmlDesigner

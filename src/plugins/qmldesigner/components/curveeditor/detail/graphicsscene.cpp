@@ -257,7 +257,7 @@ void GraphicsScene::removeCurveItem(unsigned int id)
     }
 
     if (tmp) {
-        Q_UNUSED(m_curves.removeOne(tmp));
+        m_curves.removeOne(tmp);
         delete tmp;
     }
 

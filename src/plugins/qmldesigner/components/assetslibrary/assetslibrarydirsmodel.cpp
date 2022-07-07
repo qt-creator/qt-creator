@@ -70,10 +70,8 @@ bool AssetsLibraryDirsModel::setData(const QModelIndex &index, const QVariant &v
     return false;
 }
 
-int AssetsLibraryDirsModel::rowCount(const QModelIndex &parent) const
+int AssetsLibraryDirsModel::rowCount([[maybe_unused]] const QModelIndex &parent) const
 {
-    Q_UNUSED(parent)
-
     return m_dirs.size();
 }
 

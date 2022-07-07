@@ -107,9 +107,10 @@ void AnnotationListModel::fillModel()
     }
 }
 
-QModelIndex AnnotationListModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex AnnotationListModel::index(int row,
+                                       int column,
+                                       [[maybe_unused]] const QModelIndex &parent) const
 {
-    Q_UNUSED(parent)
     return createIndex(row, column);
 }
 

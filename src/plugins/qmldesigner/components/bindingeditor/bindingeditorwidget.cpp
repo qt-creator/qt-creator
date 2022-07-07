@@ -99,9 +99,8 @@ bool BindingEditorWidget::event(QEvent *event)
 }
 
 TextEditor::AssistInterface *BindingEditorWidget::createAssistInterface(
-        TextEditor::AssistKind assistKind, TextEditor::AssistReason assistReason) const
+    [[maybe_unused]] TextEditor::AssistKind assistKind, TextEditor::AssistReason assistReason) const
 {
-    Q_UNUSED(assistKind)
     return new QmlJSEditor::QmlJSCompletionAssistInterface(
                 textCursor(), Utils::FilePath(),
                 assistReason, qmljsdocument->semanticInfo());

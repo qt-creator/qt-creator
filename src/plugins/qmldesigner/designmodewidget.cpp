@@ -427,11 +427,12 @@ void DesignModeWidget::setup()
                 workspaceComboBox->setCurrentText(m_dockManager->activeWorkspace());
     });
     connect(m_dockManager, &ADS::DockManager::workspaceLoaded, workspaceComboBox, &QComboBox::setCurrentText);
-    connect(workspaceComboBox, QOverload<int>::of(&QComboBox::activated),
-            m_dockManager, [this, workspaceComboBox] (int index) {
-            Q_UNUSED(index)
-            m_dockManager->openWorkspace(workspaceComboBox->currentText());
-    });
+    connect(workspaceComboBox,
+            QOverload<int>::of(&QComboBox::activated),
+            m_dockManager,
+            [this, workspaceComboBox]([[maybe_unused]] int index) {
+                m_dockManager->openWorkspace(workspaceComboBox->currentText());
+            });
 
     const QIcon gaIcon = Utils::StyleHelper::getIconFromIconFont(
                 fontName, Theme::getIconUnicode(Theme::Icon::annotationBubble),

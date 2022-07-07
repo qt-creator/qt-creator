@@ -119,13 +119,12 @@ void HandleItem::underMouseCallback()
         gscene->handleUnderMouse(this);
 }
 
-void HandleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void HandleItem::paint(QPainter *painter,
+                       [[maybe_unused]] const QStyleOptionGraphicsItem *option,
+                       [[maybe_unused]] QWidget *widget)
 {
     if (locked())
         return;
-
-    Q_UNUSED(option)
-    Q_UNUSED(widget)
 
     QColor handleColor(selected() ? m_style.selectionColor : m_style.color);
 

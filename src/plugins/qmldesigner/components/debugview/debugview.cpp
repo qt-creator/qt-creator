@@ -522,9 +522,8 @@ void DebugView::currentStateChanged(const ModelNode &/*node*/)
 
 }
 
-void DebugView::nodeOrderChanged(const NodeListProperty &listProperty)
+void DebugView::nodeOrderChanged([[maybe_unused]] const NodeListProperty &listProperty)
 {
-    Q_UNUSED(listProperty)
     if (isDebugViewEnabled()) {
         QTextStream message;
         QString string;

@@ -145,9 +145,8 @@ void EventListDialog::initialize(EventList &events)
     m_table->setColumnHidden(EventListModel::connectColumn, true);
 }
 
-void EventListDialog::closeEvent(QCloseEvent *event)
+void EventListDialog::closeEvent([[maybe_unused]] QCloseEvent *event)
 {
-    Q_UNUSED(event);
     if (auto *view = EventList::nodeListView())
         view->reset();
 }

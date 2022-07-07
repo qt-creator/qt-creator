@@ -73,10 +73,10 @@ public:
         m_previewPixmap = pixmap;
     }
 
-    QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize) override
+    QPixmap requestPixmap(const QString &id,
+                          QSize *size,
+                          [[maybe_unused]] const QSize &requestedSize) override
     {
-        Q_UNUSED(requestedSize)
-
         static QPixmap defaultPreview = QPixmap::fromImage(QImage(":/materialeditor/images/defaultmaterialpreview.png"));
 
         QPixmap pixmap{150, 150};

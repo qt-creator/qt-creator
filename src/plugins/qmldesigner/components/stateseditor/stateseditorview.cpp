@@ -544,10 +544,10 @@ void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty)
         resetModel();
 }
 
-void StatesEditorView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList, AbstractView::PropertyChangeFlags propertyChange)
+void StatesEditorView::bindingPropertiesChanged(
+    const QList<BindingProperty> &propertyList,
+    [[maybe_unused]] AbstractView::PropertyChangeFlags propertyChange)
 {
-    Q_UNUSED(propertyChange)
-
     for (const BindingProperty &property : propertyList) {
         if (property.name() == "when" && QmlModelState::isValidQmlModelState(property.parentModelNode()))
             resetModel();

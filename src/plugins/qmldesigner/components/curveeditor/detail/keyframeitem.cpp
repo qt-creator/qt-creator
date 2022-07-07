@@ -66,11 +66,10 @@ QRectF KeyframeItem::boundingRect() const
     return QRectF(topLeft, -topLeft);
 }
 
-void KeyframeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void KeyframeItem::paint(QPainter *painter,
+                         [[maybe_unused]] const QStyleOptionGraphicsItem *option,
+                         [[maybe_unused]] QWidget *widget)
 {
-    Q_UNUSED(option)
-    Q_UNUSED(widget)
-
     QColor mainColor = selected() ? m_style.selectionColor : m_style.color;
     QColor borderColor = isUnified() ? m_style.unifiedColor : m_style.splitColor;
 

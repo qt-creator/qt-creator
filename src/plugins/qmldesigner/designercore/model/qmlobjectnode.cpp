@@ -635,7 +635,7 @@ QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, const Property
     return modelNode.view()->nodeInstanceView()->instanceForModelNode(modelNode).property(name);
 }
 
-QString QmlObjectNode::generateTranslatableText(const QString &text)
+QString QmlObjectNode::generateTranslatableText([[maybe_unused]] const QString &text)
 {
 #ifndef QMLDESIGNER_TEST
 
@@ -653,7 +653,6 @@ QString QmlObjectNode::generateTranslatableText(const QString &text)
         }
     return QString(QStringLiteral("qsTr(\"%1\")")).arg(text);
 #else
-    Q_UNUSED(text)
     return QString();
 #endif
 }
@@ -824,9 +823,8 @@ QmlObjectNode *QmlObjectNode::getQmlObjectNodeOfCorrectType(const ModelNode &mod
     return new QmlObjectNode(modelNode);
 }
 
-bool QmlObjectNode::isBlocked(const PropertyName &propName) const
+bool QmlObjectNode::isBlocked([[maybe_unused]] const PropertyName &propName) const
 {
-    Q_UNUSED(propName)
     return false;
 }
 

@@ -348,7 +348,7 @@ bool QmlItemNode::modelIsResizable() const
             && !modelIsInLayout();
 }
 
-static bool isMcuRotationAllowed(QString itemName, bool hasChildren)
+static bool isMcuRotationAllowed([[maybe_unused]] QString itemName, [[maybe_unused]] bool hasChildren)
 {
 #ifndef QMLDESIGNER_TEST
     const QString propName = "rotation";
@@ -370,9 +370,6 @@ static bool isMcuRotationAllowed(QString itemName, bool hasChildren)
         if (manager.bannedProperties().contains(propName))
             return false;
     }
-#else
-    Q_UNUSED(itemName)
-    Q_UNUSED(hasChildren)
 #endif
 
     return true;

@@ -147,9 +147,8 @@ void Playhead::mouseMoveOutOfBounds(GraphicsView *view)
     m_timer.start();
 }
 
-void Playhead::mouseRelease(GraphicsView *view)
+void Playhead::mouseRelease([[maybe_unused]] GraphicsView *view)
 {
-    Q_UNUSED(view);
     m_moving = false;
 }
 

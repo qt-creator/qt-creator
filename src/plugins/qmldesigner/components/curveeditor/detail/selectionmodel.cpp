@@ -121,10 +121,9 @@ void SelectionModel::selectPaths(const std::vector<TreeItem::Path> &selection)
     }
 }
 
-void SelectionModel::changeSelection(const QItemSelection &selected, const QItemSelection &deselected)
+void SelectionModel::changeSelection([[maybe_unused]] const QItemSelection &selected,
+                                     [[maybe_unused]] const QItemSelection &deselected)
 {
-    Q_UNUSED(selected)
-    Q_UNUSED(deselected)
     emit curvesSelected();
 }
 

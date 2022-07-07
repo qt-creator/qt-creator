@@ -312,10 +312,8 @@ void TransitionEditorToolBar::addSpacing(int width)
     addWidget(widget);
 }
 
-void TransitionEditorToolBar::resizeEvent(QResizeEvent *event)
+void TransitionEditorToolBar::resizeEvent([[maybe_unused]] QResizeEvent *event)
 {
-    Q_UNUSED(event)
-
     int width = 0;
     QWidget *spacer = nullptr;
     for (auto *object : qAsConst(m_grp)) {

@@ -229,10 +229,8 @@ void ActionEditorDialog::setAllConnections(const QList<ConnectionOption> &connec
     m_lock = false;
 }
 
-void ActionEditorDialog::updateComboBoxes(int index, ComboBox type)
+void ActionEditorDialog::updateComboBoxes([[maybe_unused]] int index, ComboBox type)
 {
-    Q_UNUSED(index)
-
     const int currentType = m_comboBoxType->currentIndex();
     const int currentStack = m_stackedLayout->currentIndex();
     bool typeChanged = false;

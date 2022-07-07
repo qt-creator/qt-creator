@@ -138,10 +138,9 @@ void ItemLibraryAssetImporter::addInfo(const QString &infoMsg, const QString &sr
     emit infoReported(infoMsg, srcPath);
 }
 
-void ItemLibraryAssetImporter::importProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void ItemLibraryAssetImporter::importProcessFinished([[maybe_unused]] int exitCode,
+                                                     QProcess::ExitStatus exitStatus)
 {
-    Q_UNUSED(exitCode)
-
     m_puppetProcess.reset();
 
     if (m_parseData.contains(m_currentImportId)) {
@@ -184,11 +183,9 @@ void ItemLibraryAssetImporter::importProcessFinished(int exitCode, QProcess::Exi
     }
 }
 
-void ItemLibraryAssetImporter::iconProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void ItemLibraryAssetImporter::iconProcessFinished([[maybe_unused]] int exitCode,
+                                                   [[maybe_unused]] QProcess::ExitStatus exitStatus)
 {
-    Q_UNUSED(exitCode)
-    Q_UNUSED(exitStatus)
-
     m_puppetProcess.reset();
 
     int finishedCount = m_parseData.size() - m_puppetQueue.size();

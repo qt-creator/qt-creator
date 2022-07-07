@@ -626,12 +626,9 @@ void TransitionEditorBarItem::scrollOffsetChanged()
 }
 
 void TransitionEditorBarItem::paint(QPainter *painter,
-                                    const QStyleOptionGraphicsItem *option,
-                                    QWidget *widget)
+                                    [[maybe_unused]] const QStyleOptionGraphicsItem *option,
+                                    [[maybe_unused]] QWidget *widget)
 {
-    Q_UNUSED(option)
-    Q_UNUSED(widget)
-
     QColor brushColor = Theme::getColor(Theme::QmlDesigner_HighlightColor);
     QColor brushColorSection = Theme::getColor(Theme::QmlDesigner_HighlightColor).darker(120);
     QColor penColor = Theme::getColor(Theme::QmlDesigner_HighlightColor).lighter(140);

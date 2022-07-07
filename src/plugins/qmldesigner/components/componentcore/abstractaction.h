@@ -40,7 +40,7 @@ public:
     DefaultAction(const QString &description);
 
     // virtual function instead of slot
-    virtual void actionTriggered(bool enable) { Q_UNUSED(enable) }
+    virtual void actionTriggered([[maybe_unused]] bool enable) {}
     void setSelectionContext(const SelectionContext &selectionContext);
 
 protected:

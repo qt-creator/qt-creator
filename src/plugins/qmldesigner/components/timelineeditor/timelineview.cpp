@@ -222,9 +222,8 @@ void TimelineView::variantPropertiesChanged(const QList<VariantProperty> &proper
 }
 
 void TimelineView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList,
-                                            AbstractView::PropertyChangeFlags propertyChange)
+                                            [[maybe_unused]] AbstractView::PropertyChangeFlags propertyChange)
 {
-    Q_UNUSED(propertyChange)
     for (const auto &property : propertyList) {
         if (property.name() == "easing.bezierCurve") {
             updateAnimationCurveEditor();
@@ -465,11 +464,9 @@ void TimelineView::setTimelineRecording(bool value)
 
 void TimelineView::customNotification(const AbstractView * /*view*/,
                                       const QString &identifier,
-                                      const QList<ModelNode> &nodeList,
-                                      const QList<QVariant> &data)
+                                      [[maybe_unused]] const QList<ModelNode> &nodeList,
+                                      [[maybe_unused]] const QList<QVariant> &data)
 {
-    Q_UNUSED(nodeList)
-    Q_UNUSED(data)
     if (identifier == QStringLiteral("reset QmlPuppet")) {
         QmlTimeline timeline = widget()->graphicsScene()->currentTimeline();
         if (timeline.isValid())

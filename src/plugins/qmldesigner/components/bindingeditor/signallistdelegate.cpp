@@ -77,12 +77,10 @@ void SignalListDelegate::paint(QPainter *painter,
 }
 
 bool SignalListDelegate::editorEvent(QEvent *event,
-                                     QAbstractItemModel *model,
+                                     [[maybe_unused]] QAbstractItemModel *model,
                                      const QStyleOptionViewItem &option,
                                      const QModelIndex &index)
 {
-    Q_UNUSED(model)
-
     if (index.column() == SignalListModel::ButtonColumn
         && event->type() == QEvent::MouseButtonRelease) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);

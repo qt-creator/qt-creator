@@ -123,10 +123,8 @@ void Selector::mouseMove(QMouseEvent *event,
     }
 }
 
-void Selector::mouseRelease(QMouseEvent *event, GraphicsScene *scene)
+void Selector::mouseRelease([[maybe_unused]] QMouseEvent *event, GraphicsScene *scene)
 {
-    Q_UNUSED(event)
-
     applyPreSelection(scene);
 
     m_shortcut = Shortcut();

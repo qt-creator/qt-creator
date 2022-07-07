@@ -176,12 +176,10 @@ void ConnectionView::selectedNodesChanged(const QList<ModelNode> & selectedNodeL
         emit connectionViewWidget()->setEnabledAddButton(selectedNodeList.count() == 1);
 }
 
-void ConnectionView::auxiliaryDataChanged(const ModelNode &node,
+void ConnectionView::auxiliaryDataChanged([[maybe_unused]] const ModelNode &node,
                                           const PropertyName &name,
                                           const QVariant &data)
 {
-    Q_UNUSED(node)
-
     // Check if the auxiliary data is actually the locked property or if it is unlocked
     if (name != QmlDesigner::lockedProperty || !data.toBool())
         return;

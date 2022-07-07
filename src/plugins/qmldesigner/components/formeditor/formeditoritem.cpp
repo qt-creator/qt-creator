@@ -2075,10 +2075,10 @@ void FormEditorFlowDecisionItem::updateGeometry()
     setTransform(QTransform::fromTranslate(pos.x(), pos.y()));
 }
 
-void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void FormEditorFlowDecisionItem::paint(QPainter *painter,
+                                       [[maybe_unused]] const QStyleOptionGraphicsItem *option,
+                                       [[maybe_unused]] QWidget *widget)
 {
-    Q_UNUSED(option)
-    Q_UNUSED(widget)
     if (!painter->isActive())
         return;
 
@@ -2215,9 +2215,8 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
     painter->restore();
 }
 
-bool FormEditorFlowDecisionItem::flowHitTest(const QPointF &point) const
+bool FormEditorFlowDecisionItem::flowHitTest([[maybe_unused]] const QPointF &point) const
 {
-    Q_UNUSED(point)
     return true;
 }
 
@@ -2244,12 +2243,9 @@ QPointF FormEditor3dPreview::instancePosition() const
 }
 
 void FormEditor3dPreview::paint(QPainter *painter,
-                                const QStyleOptionGraphicsItem *option,
-                                QWidget *widget)
+                                [[maybe_unused]] const QStyleOptionGraphicsItem *option,
+                                [[maybe_unused]] QWidget *widget)
 {
-    Q_UNUSED(option)
-    Q_UNUSED(widget)
-
     if (!painter->isActive())
         return;
 

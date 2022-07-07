@@ -103,9 +103,8 @@ instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &inform
         handleMaybeDone();
 }
 
-void AssetExporterView::instancesPreviewImageChanged(const QVector<ModelNode> &nodeList)
+void AssetExporterView::instancesPreviewImageChanged([[maybe_unused]] const QVector<ModelNode> &nodeList)
 {
-    Q_UNUSED(nodeList);
     emit previewChanged();
 }
 

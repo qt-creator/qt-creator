@@ -350,9 +350,9 @@ void FormEditorView::nodeReparented(const ModelNode &node, const NodeAbstractPro
     addOrRemoveFormEditorItem(node);
 }
 
-void FormEditorView::nodeSourceChanged(const ModelNode &node, const QString &newNodeSource)
+void FormEditorView::nodeSourceChanged(const ModelNode &node,
+                                       [[maybe_unused]] const QString &newNodeSource)
 {
-    Q_UNUSED(newNodeSource)
     addOrRemoveFormEditorItem(node);
 }
 
@@ -416,10 +416,10 @@ void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
    }
 }
 
-void FormEditorView::variantPropertiesChanged(const QList<VariantProperty> &propertyList,
-                                              AbstractView::PropertyChangeFlags propertyChange)
+void FormEditorView::variantPropertiesChanged(
+    const QList<VariantProperty> &propertyList,
+    [[maybe_unused]] AbstractView::PropertyChangeFlags propertyChange)
 {
-    Q_UNUSED(propertyChange)
     for (const VariantProperty &property : propertyList) {
         QmlVisualNode node(property.parentModelNode());
         if (node.isFlowTransition() || node.isFlowDecision()) {
@@ -431,10 +431,10 @@ void FormEditorView::variantPropertiesChanged(const QList<VariantProperty> &prop
     }
 }
 
-void FormEditorView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList,
-                                              AbstractView::PropertyChangeFlags propertyChange)
+void FormEditorView::bindingPropertiesChanged(
+    const QList<BindingProperty> &propertyList,
+    [[maybe_unused]] AbstractView::PropertyChangeFlags propertyChange)
 {
-    Q_UNUSED(propertyChange)
     for (const BindingProperty &property : propertyList) {
         QmlVisualNode node(property.parentModelNode());
         if (node.isFlowTransition()) {

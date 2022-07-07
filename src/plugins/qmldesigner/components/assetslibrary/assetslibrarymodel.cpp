@@ -283,10 +283,8 @@ QVariant AssetsLibraryModel::data(const QModelIndex &index, int role) const
     return {};
 }
 
-int AssetsLibraryModel::rowCount(const QModelIndex &parent) const
+int AssetsLibraryModel::rowCount([[maybe_unused]] const QModelIndex &parent) const
 {
-    Q_UNUSED(parent)
-
     return 1;
 }
 

@@ -221,9 +221,8 @@ void Edit3DWidget::showBackgroundColorMenu(bool show, const QPoint &pos)
         m_backgroundColorMenu->close();
 }
 
-void Edit3DWidget::linkActivated(const QString &link)
+void Edit3DWidget::linkActivated([[maybe_unused]] const QString &link)
 {
-    Q_UNUSED(link)
     if (m_view)
         m_view->addQuick3DImport();
 }

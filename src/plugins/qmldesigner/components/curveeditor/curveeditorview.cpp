@@ -40,13 +40,12 @@
 
 namespace QmlDesigner {
 
-CurveEditorView::CurveEditorView(QObject *parent)
+CurveEditorView::CurveEditorView([[maybe_unused]] QObject *parent)
     : AbstractView(parent)
     , m_block(false)
     , m_model(new CurveEditorModel())
     , m_editor(new CurveEditor(m_model))
 {
-    Q_UNUSED(parent);
     connect(m_model, &CurveEditorModel::commitCurrentFrame, this, &CurveEditorView::commitCurrentFrame);
     connect(m_model, &CurveEditorModel::commitStartFrame, this, &CurveEditorView::commitStartFrame);
     connect(m_model, &CurveEditorModel::commitEndFrame, this, &CurveEditorView::commitEndFrame);
@@ -92,13 +91,10 @@ bool dirtyfiesView(const ModelNode &node)
            || QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(node);
 }
 
-void CurveEditorView::nodeRemoved(const ModelNode &removedNode,
+void CurveEditorView::nodeRemoved([[maybe_unused]] const ModelNode &removedNode,
                                   const NodeAbstractProperty &parentProperty,
-                                  PropertyChangeFlags propertyChange)
+                                  [[maybe_unused]] PropertyChangeFlags propertyChange)
 {
-    Q_UNUSED(removedNode);
-    Q_UNUSED(propertyChange);
-
     if (!parentProperty.isValid())
         return;
 
@@ -110,16 +106,11 @@ void CurveEditorView::nodeRemoved(const ModelNode &removedNode,
         m_model->reset({});
 }
 
-void CurveEditorView::nodeReparented(const ModelNode &node,
-                                     const NodeAbstractProperty &newPropertyParent,
-                                     const NodeAbstractProperty &oldPropertyParent,
-                                     PropertyChangeFlags propertyChange)
+void CurveEditorView::nodeReparented([[maybe_unused]] const ModelNode &node,
+                                     [[maybe_unused]] const NodeAbstractProperty &newPropertyParent,
+                                     [[maybe_unused]] const NodeAbstractProperty &oldPropertyParent,
+                                     [[maybe_unused]] PropertyChangeFlags propertyChange)
 {
-    Q_UNUSED(node);
-    Q_UNUSED(newPropertyParent);
-    Q_UNUSED(oldPropertyParent);
-    Q_UNUSED(propertyChange);
-
     ModelNode parent = newPropertyParent.parentModelNode();
     if (newPropertyParent.isValid() && dirtyfiesView(parent))
         updateKeyframes();
@@ -144,10 +135,9 @@ void CurveEditorView::auxiliaryDataChanged(const ModelNode &node,
     }
 }
 
-void CurveEditorView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName>> &propertyList)
+void CurveEditorView::instancePropertyChanged(
+    [[maybe_unused]] const QList<QPair<ModelNode, PropertyName>> &propertyList)
 {
-    Q_UNUSED(propertyList);
-
     if (auto timeline = activeTimeline(); timeline.isValid()) {
 
         auto timelineNode = timeline.modelNode();
@@ -168,12 +158,9 @@ void CurveEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Prope
     }
 }
 
-void CurveEditorView::variantPropertiesChanged(const QList<VariantProperty> &propertyList,
-                                               PropertyChangeFlags propertyChange)
+void CurveEditorView::variantPropertiesChanged([[maybe_unused]] const QList<VariantProperty> &propertyList,
+                                               [[maybe_unused]] PropertyChangeFlags propertyChange)
 {
-    Q_UNUSED(propertyList);
-    Q_UNUSED(propertyChange);
-
     for (const auto &property : propertyList) {
         if ((property.name() == "frame" || property.name() == "value")
             && property.parentModelNode().type() == "QtQuick.Timeline.Keyframe"
@@ -186,12 +173,9 @@ void CurveEditorView::variantPropertiesChanged(const QList<VariantProperty> &pro
     }
 }
 
-void CurveEditorView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList,
-                                               PropertyChangeFlags propertyChange)
+void CurveEditorView::bindingPropertiesChanged([[maybe_unused]] const QList<BindingProperty> &propertyList,
+                                               [[maybe_unused]] PropertyChangeFlags propertyChange)
 {
-    Q_UNUSED(propertyList);
-    Q_UNUSED(propertyChange);
-
     for (const auto &property : propertyList) {
         if (property.name() == "easing.bezierCurve") {
             updateKeyframes();
@@ -199,10 +183,8 @@ void CurveEditorView::bindingPropertiesChanged(const QList<BindingProperty> &pro
     }
 }
 
-void CurveEditorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
+void CurveEditorView::propertiesRemoved([[maybe_unused]] const QList<AbstractProperty> &propertyList)
 {
-    Q_UNUSED(propertyList);
-
     for (const auto &property : propertyList) {
         if (property.name() == "keyframes" && property.parentModelNode().isValid()) {
             ModelNode parent = property.parentModelNode();

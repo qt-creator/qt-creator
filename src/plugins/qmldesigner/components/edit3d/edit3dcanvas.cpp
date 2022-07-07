@@ -142,10 +142,8 @@ void Edit3DCanvas::keyReleaseEvent(QKeyEvent *e)
     QWidget::keyReleaseEvent(e);
 }
 
-void Edit3DCanvas::paintEvent(QPaintEvent *e)
+void Edit3DCanvas::paintEvent([[maybe_unused]] QPaintEvent *e)
 {
-    Q_UNUSED(e)
-
     QWidget::paintEvent(e);
 
     QPainter painter(this);

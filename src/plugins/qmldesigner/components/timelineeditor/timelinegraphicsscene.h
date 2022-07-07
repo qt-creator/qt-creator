@@ -88,11 +88,7 @@ public:
 
     virtual void invalidateScrollbar() = 0;
 
-    virtual qreal snap(qreal frame, bool snapToPlayhead = true)
-    {
-        Q_UNUSED(snapToPlayhead);
-        return frame;
-    }
+    virtual qreal snap(qreal frame, [[maybe_unused]] bool snapToPlayhead = true) { return frame; }
 
     QGraphicsView *graphicsView() const;
     QGraphicsView *rulerView() const;

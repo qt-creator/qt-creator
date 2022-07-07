@@ -38,9 +38,8 @@ namespace QmlDesigner {
 void BaseConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServer,
                                   const QString &,
                                   ProjectExplorer::Target *,
-                                  AbstractView *view)
+                                  [[maybe_unused]] AbstractView *view)
 {
-    Q_UNUSED(view)
     m_nodeInstanceServer = nodeInstanceServer;
     m_isActive = true;
 }

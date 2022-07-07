@@ -48,10 +48,10 @@ static Utils::FilePath iconPath()
         "qmldesigner/propertyEditorQmlSources/imports/HelperWidgets/images/");
 }
 
-QPixmap QmlDesignerIconProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
+QPixmap QmlDesignerIconProvider::requestPixmap(const QString &id,
+                                               QSize *size,
+                                               [[maybe_unused]] const QSize &requestedSize)
 {
-    Q_UNUSED(requestedSize)
-
     QPixmap result = getPixmap(id);
 
     if (size)

@@ -263,12 +263,13 @@ void TreeItem::setPinned(bool pinned)
     m_pinned = pinned;
 }
 
-NodeTreeItem::NodeTreeItem(const QString &name, const QIcon &icon, const std::vector<QString> &parentIds)
+NodeTreeItem::NodeTreeItem(const QString &name,
+                           [[maybe_unused]] const QIcon &icon,
+                           const std::vector<QString> &parentIds)
     : TreeItem(name)
     , m_icon(icon)
     , m_parentIds(parentIds)
 {
-    Q_UNUSED(icon)
 }
 
 NodeTreeItem *NodeTreeItem::asNodeItem()

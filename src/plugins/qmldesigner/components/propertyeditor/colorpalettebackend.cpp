@@ -206,11 +206,10 @@ const QStringList &ColorPaletteBackend::currentPaletteColors() const
 
 void ColorPaletteBackend::registerDeclarativeType()
 {
-    static const int typeIndex = qmlRegisterSingletonType<ColorPaletteBackend>(
+    [[maybe_unused]] static const int typeIndex = qmlRegisterSingletonType<ColorPaletteBackend>(
         "QtQuickDesignerColorPalette", 1, 0, "ColorPaletteBackend", [](QQmlEngine *, QJSEngine *) {
             return new ColorPaletteBackend();
-    });
-    Q_UNUSED(typeIndex)
+        });
 }
 
 void ColorPaletteBackend::showDialog(QColor color)

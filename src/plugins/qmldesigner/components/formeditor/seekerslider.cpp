@@ -55,9 +55,8 @@ SeekerSlider::SeekerSlider(QWidget *parentWidget)
     setProperty("panelwidget_singlerow", true);
 }
 
-void SeekerSlider::paintEvent(QPaintEvent *event)
+void SeekerSlider::paintEvent([[maybe_unused]] QPaintEvent *event)
 {
-    Q_UNUSED(event)
     QPainter painter(this);
     {
         QStyleOptionToolBar option;

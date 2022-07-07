@@ -85,10 +85,9 @@ Edit3DWidget *Edit3DView::edit3DWidget() const
     return m_edit3DWidget.data();
 }
 
-void Edit3DView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList)
+void Edit3DView::selectedNodesChanged([[maybe_unused]] const QList<ModelNode> &selectedNodeList,
+                                      [[maybe_unused]] const QList<ModelNode> &lastSelectedNodeList)
 {
-    Q_UNUSED(selectedNodeList)
-    Q_UNUSED(lastSelectedNodeList)
     SelectionContext selectionContext(this);
     selectionContext.setUpdateMode(SelectionContext::UpdateMode::Fast);
     if (m_alignCamerasAction)
@@ -219,22 +218,17 @@ void Edit3DView::modelAboutToBeDetached(Model *model)
     AbstractView::modelAboutToBeDetached(model);
 }
 
-void Edit3DView::importsChanged(const QList<Import> &addedImports,
-                                const QList<Import> &removedImports)
+void Edit3DView::importsChanged([[maybe_unused]] const QList<Import> &addedImports,
+                                [[maybe_unused]] const QList<Import> &removedImports)
 {
-    Q_UNUSED(addedImports)
-    Q_UNUSED(removedImports)
-
     checkImports();
 }
 
-void Edit3DView::customNotification(const AbstractView *view, const QString &identifier,
-                                    const QList<ModelNode> &nodeList, const QList<QVariant> &data)
+void Edit3DView::customNotification([[maybe_unused]] const AbstractView *view,
+                                    const QString &identifier,
+                                    [[maybe_unused]] const QList<ModelNode> &nodeList,
+                                    [[maybe_unused]] const QList<QVariant> &data)
 {
-    Q_UNUSED(view)
-    Q_UNUSED(nodeList)
-    Q_UNUSED(data)
-
     if (identifier == "asset_import_update")
         resetPuppet();
 }

@@ -71,9 +71,8 @@ bool TextNodeDumper::isExportable() const
     });
 }
 
-QJsonObject TextNodeDumper::json(Component &component) const
+QJsonObject TextNodeDumper::json([[maybe_unused]] Component &component) const
 {
-    Q_UNUSED(component);
     QJsonObject jsonObject = ItemNodeDumper::json(component);
 
     QJsonObject textDetails;

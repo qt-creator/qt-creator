@@ -125,11 +125,10 @@ QString Theme::replaceCssColors(const QString &input)
 
 void Theme::setupTheme(QQmlEngine *engine)
 {
-    static const int typeIndex = qmlRegisterSingletonType<Theme>(
+    [[maybe_unused]] static const int typeIndex = qmlRegisterSingletonType<Theme>(
         "QtQuickDesignerTheme", 1, 0, "Theme", [](QQmlEngine *, QJSEngine *) {
             return new Theme(Utils::creatorTheme(), nullptr);
         });
-    Q_UNUSED(typeIndex)
 
     engine->addImageProvider(QLatin1String("icons"), new QmlDesignerIconProvider());
 }

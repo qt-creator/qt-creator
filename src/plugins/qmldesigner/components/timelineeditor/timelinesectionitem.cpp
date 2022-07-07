@@ -1002,11 +1002,10 @@ void TimelineBarItem::scrollOffsetChanged()
     sectionItem()->invalidateBar();
 }
 
-void TimelineBarItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void TimelineBarItem::paint(QPainter *painter,
+                            [[maybe_unused]] const QStyleOptionGraphicsItem *option,
+                            [[maybe_unused]] QWidget *widget)
 {
-    Q_UNUSED(option)
-    Q_UNUSED(widget)
-
     QColor brushColorSelected = Theme::getColor(Theme::QmlDesigner_HighlightColor);
     QColor brushColor = Theme::getColor(Theme::QmlDesigner_HighlightColor).darker(120);
     const QColor indicatorColor = Theme::getColor(Theme::PanelTextColorLight);
