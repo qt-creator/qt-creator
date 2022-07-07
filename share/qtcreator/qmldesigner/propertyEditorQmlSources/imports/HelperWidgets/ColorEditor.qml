@@ -1312,16 +1312,6 @@ SecondColumnLayout {
         }
     }
 
-    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-    ControlLabel {
-        text: "Hex"
-        horizontalAlignment: Text.AlignLeft
-        width: StudioTheme.Values.controlLabelWidth
-               + StudioTheme.Values.controlGap
-               + StudioTheme.Values.linkControlWidth
-    }
-
     ExpandingSpacer { id: spacer}
 
     StudioControls.Menu {
