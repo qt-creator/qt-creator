@@ -75,8 +75,8 @@ const QByteArray s_pidMarker = "__qtc";
 const char Delimiter0[] = "x--";
 const char Delimiter1[] = "---";
 
-static Q_LOGGING_CATEGORY(linuxDeviceLog, "qtc.remotelinux.device", QtWarningMsg);
-#define LOG(x) qCDebug(linuxDeviceLog) << x << '\n'
+//static Q_LOGGING_CATEGORY(linuxDeviceLog, "qtc.remotelinux.device", QtWarningMsg);
+//#define LOG(x) qCDebug(linuxDeviceLog) << x << '\n'
 //#define DEBUG(x) qDebug() << x;
 //#define DEBUG(x) LOG(x)
 #define DEBUG(x)
