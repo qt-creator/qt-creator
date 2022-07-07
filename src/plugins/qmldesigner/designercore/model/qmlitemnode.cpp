@@ -995,7 +995,7 @@ QList<ModelNode> QmlFlowViewNode::transitionsForProperty(const PropertyName &pro
 
 PropertyNameList QmlFlowViewNode::s_mouseSignals = []() {
     PropertyNameList mouseSignals = {
-        "clicked", "doubleClicked", "pressed", "pressAndHold", "released", "wheel"};
+        "clicked", "doubleClicked", "pressAndHold", "pressed", "released", "wheel"};
 
     Q_ASSERT(std::is_sorted(mouseSignals.begin(), mouseSignals.end()));
 
