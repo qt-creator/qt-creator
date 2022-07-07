@@ -1377,7 +1377,11 @@ public:
             // with the last pixel visible
             if (fmt.property(QTextFormat::HeadingLevel) == 2) {
                 QTextCharFormat charFmt = currentBlock().charFormat();
+#if QT_VERSION <= QT_VERSION_CHECK(6, 0, 0)
+                charFmt.setVerticalAlignment(QTextCharFormat::AlignSuperScript);
+#else
                 charFmt.setBaselineOffset(15);
+#endif
                 setFormat(0, text.length(), charFmt);
 
                 if (h2Brush.style() == Qt::NoBrush) {
