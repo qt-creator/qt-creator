@@ -96,7 +96,8 @@ bool AndroidQtVersion::supportsMultipleQtAbis() const
 
 Abis AndroidQtVersion::detectQtAbis() const
 {
-    return Utils::transform<Abis>(androidAbis(), &AndroidManager::androidAbi2Abi);
+    const bool conf = AndroidConfigurations::currentConfig().sdkFullyConfigured();
+    return conf ? Utils::transform<Abis>(androidAbis(), &AndroidManager::androidAbi2Abi) : Abis();
 }
 
 void AndroidQtVersion::addToEnvironment(const Kit *k, Utils::Environment &env) const
