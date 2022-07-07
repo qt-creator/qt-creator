@@ -55,6 +55,8 @@ SecondColumnLayout {
     property color originalColor
     property bool isVector3D: false
 
+    property alias spacer: spacer
+
     function isNotInGradientMode() {
         return ceMode.currentValue === "Solid"
     }
@@ -1320,7 +1322,7 @@ SecondColumnLayout {
                + StudioTheme.Values.linkControlWidth
     }
 
-    ExpandingSpacer {}
+    ExpandingSpacer { id: spacer}
 
     StudioControls.Menu {
         id: contextMenu
