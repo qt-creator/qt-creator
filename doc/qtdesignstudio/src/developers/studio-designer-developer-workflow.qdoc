@@ -70,8 +70,8 @@
 
     \QDS can generate \e CMakeLists.txt and other related files to use with \QC and to compile into
     an executable application but only if the project has a certain folder structure. If you have a
-    \QDS QML project that doesn't have the CMake configuration, follow these steps to convert it's
-    file structure to correct format.
+    \QDS QML project that doesn't have the CMake configuration, follow these steps to convert its
+    file structure to the correct format.
 
     \list 1
     \li Create a folder named \e content in the project's folder. This folder contains the
