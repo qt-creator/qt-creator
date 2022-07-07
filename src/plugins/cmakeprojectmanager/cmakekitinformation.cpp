@@ -93,7 +93,7 @@ class CMakeKitAspectWidget final : public KitAspectWidget
 public:
     CMakeKitAspectWidget(Kit *kit, const KitAspect *ki) : KitAspectWidget(kit, ki),
         m_comboBox(createSubWidget<QComboBox>()),
-        m_manageButton(createManageButton(Constants::CMAKE_SETTINGS_PAGE_ID))
+        m_manageButton(createManageButton(Constants::Settings::TOOLS_ID))
     {
         m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
         m_comboBox->setEnabled(false);

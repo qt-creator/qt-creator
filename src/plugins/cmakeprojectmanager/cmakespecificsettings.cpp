@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "cmakespecificsettings.h"
+#include "cmakeprojectconstants.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -83,9 +84,11 @@ CMakeSpecificSettings::CMakeSpecificSettings()
 
 CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *settings)
 {
-    setId("CMakeSpecificSettings");
-    setDisplayName(::CMakeProjectManager::Internal::CMakeSpecificSettings::tr("CMake"));
-    setCategory(ProjectExplorer::Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
+    setId(Constants::Settings::GENERAL_ID);
+    setDisplayName(tr("General"));
+    setDisplayCategory("CMake");
+    setCategory(Constants::Settings::CATEGORY);
+    setCategoryIconPath(Constants::Icons::LOGO_BW);
     setSettings(settings);
 
     setLayouter([settings](QWidget *widget) {

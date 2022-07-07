@@ -48,14 +48,20 @@ const char CMAKE_BUILDCONFIGURATION_ID[] = "CMakeProjectManager.CMakeBuildConfig
 // Menu
 const char M_CONTEXT[] = "CMakeEditor.ContextMenu";
 
-// Settings page
-const char CMAKE_SETTINGS_PAGE_ID[] = "Z.CMake";
+namespace Settings {
+const char GENERAL_ID[] = "CMakeSpecifcSettings";
+const char TOOLS_ID[] = "K.CMake.Tools";
+const char CATEGORY[] = "K.CMake";
+} // namespace Settings
 
 // Snippets
 const char CMAKE_SNIPPETS_GROUP_ID[] = "CMake";
 
-// Icons
-const char FILE_OVERLAY_CMAKE[] = ":/cmakeproject/images/fileoverlay_cmake.png";
+namespace Icons {
+const char FILE_OVERLAY[] = ":/cmakeproject/images/fileoverlay_cmake.png";
+const char LOGO_BW[] = ":/cmakeproject/images/logo_cmake_bw.png";
+const char LOGO_BW_2X[] = ":/cmakeproject/images/logo_cmake_bw@2x.png";
+} // namespace Icons
 
 // Actions
 const char BUILD_TARGET_CONTEXT_MENU[] = "CMake.BuildTargetContextMenu";

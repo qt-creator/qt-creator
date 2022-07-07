@@ -103,8 +103,8 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
 
     const Context projectContext{CMakeProjectManager::Constants::CMAKE_PROJECT_ID};
 
-    FileIconProvider::registerIconOverlayForSuffix(Constants::FILE_OVERLAY_CMAKE, "cmake");
-    FileIconProvider::registerIconOverlayForFilename(Constants::FILE_OVERLAY_CMAKE,
+    FileIconProvider::registerIconOverlayForSuffix(Constants::Icons::FILE_OVERLAY, "cmake");
+    FileIconProvider::registerIconOverlayForFilename(Constants::Icons::FILE_OVERLAY,
                                                      "CMakeLists.txt");
 
     TextEditor::SnippetProvider::registerGroup(Constants::CMAKE_SNIPPETS_GROUP_ID,

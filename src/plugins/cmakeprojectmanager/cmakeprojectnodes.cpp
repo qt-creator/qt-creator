@@ -53,7 +53,7 @@ CMakeInputsNode::CMakeInputsNode(const Utils::FilePath &cmakeLists) :
 CMakeListsNode::CMakeListsNode(const Utils::FilePath &cmakeListPath) :
     ProjectExplorer::ProjectNode(cmakeListPath)
 {
-    setIcon(DirectoryIcon(Constants::FILE_OVERLAY_CMAKE));
+    setIcon(DirectoryIcon(Constants::Icons::FILE_OVERLAY));
     setListInProject(false);
 }
 

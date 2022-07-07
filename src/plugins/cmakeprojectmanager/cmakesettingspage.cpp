@@ -701,9 +701,10 @@ void CMakeToolConfigWidget::currentCMakeToolChanged(const QModelIndex &newCurren
 
 CMakeSettingsPage::CMakeSettingsPage()
 {
-    setId(Constants::CMAKE_SETTINGS_PAGE_ID);
-    setDisplayName(CMakeToolConfigWidget::tr("CMake"));
-    setCategory(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY);
+    setId(Constants::Settings::TOOLS_ID);
+    setDisplayName(tr("Tools"));
+    setDisplayCategory("CMake");
+    setCategory(Constants::Settings::CATEGORY);
     setWidgetCreator([] { return new CMakeToolConfigWidget; });
 }
 
