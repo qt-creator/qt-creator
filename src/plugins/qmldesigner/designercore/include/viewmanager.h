@@ -106,6 +106,7 @@ public:
 
     void disableStandardViews();
     void enableStandardViews();
+    QList<AbstractView *> views() const;
 
 private: // functions
     Q_DISABLE_COPY(ViewManager)
@@ -123,7 +124,6 @@ private: // functions
 
     void switchStateEditorViewToBaseState();
     void switchStateEditorViewToSavedState();
-    QList<AbstractView *> views() const;
     QList<AbstractView *> standardViews() const;
 
 private: // variables
