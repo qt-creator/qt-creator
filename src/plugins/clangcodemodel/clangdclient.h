@@ -149,9 +149,6 @@ private:
     class Private;
     class VirtualFunctionAssistProcessor;
     class VirtualFunctionAssistProvider;
-    class ClangdFunctionHintProcessor;
-    class ClangdCompletionAssistProcessor;
-    class ClangdCompletionAssistProvider;
     Private * const d;
 };
 
