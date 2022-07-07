@@ -68,6 +68,7 @@ public:
     const LinkHandler callback;
     optional<ClangdAstNode> ast;
     optional<DocumentSymbolsResult> docSymbols;
+    bool done = false;
 };
 
 ClangdSwitchDeclDef::ClangdSwitchDeclDef(ClangdClient *client, TextDocument *doc,
@@ -75,14 +76,14 @@ ClangdSwitchDeclDef::ClangdSwitchDeclDef(ClangdClient *client, TextDocument *doc
     : QObject(client), d(new Private(this, client, doc, cursor, editorWidget, callback))
 {
     // Abort if the user does something else with the document in the meantime.
-    connect(doc, &TextDocument::contentsChanged, this, &ClangdSwitchDeclDef::done,
+    connect(doc, &TextDocument::contentsChanged, this, &ClangdSwitchDeclDef::emitDone,
             Qt::QueuedConnection);
     if (editorWidget) {
         connect(editorWidget, &CppEditorWidget::cursorPositionChanged,
-                this, &ClangdSwitchDeclDef::done, Qt::QueuedConnection);
+                this, &ClangdSwitchDeclDef::emitDone, Qt::QueuedConnection);
     }
     connect(qApp, &QApplication::focusChanged,
-            this, &ClangdSwitchDeclDef::done, Qt::QueuedConnection);
+            this, &ClangdSwitchDeclDef::emitDone, Qt::QueuedConnection);
 
     connect(client->documentSymbolCache(), &DocumentSymbolCache::gotSymbols, this,
             [this](const DocumentUri &uri, const DocumentSymbolsResult &symbols) {
@@ -101,11 +102,11 @@ ClangdSwitchDeclDef::ClangdSwitchDeclDef(ClangdClient *client, TextDocument *doc
         if (!self)
             return;
          if (!d->document) {
-             emit done();
+             emitDone();
              return;
          }
         if (!ast.isValid()) {
-            emit done();
+            emitDone();
             return;
         }
         d->ast = ast;
@@ -120,6 +121,15 @@ ClangdSwitchDeclDef::ClangdSwitchDeclDef(ClangdClient *client, TextDocument *doc
 ClangdSwitchDeclDef::~ClangdSwitchDeclDef()
 {
     delete d;
+}
+
+void ClangdSwitchDeclDef::emitDone()
+{
+    if (d->done)
+        return;
+
+    d->done = true;
+    emit done();
 }
 
 optional<ClangdAstNode> ClangdSwitchDeclDef::Private::getFunctionNode() const
@@ -160,7 +170,7 @@ QTextCursor ClangdSwitchDeclDef::Private::cursorForFunctionName(const ClangdAstN
 void ClangdSwitchDeclDef::Private::handleDeclDefSwitchReplies()
 {
     if (!document) {
-        emit q->done();
+        q->emitDone();
         return;
     }
 
@@ -171,7 +181,7 @@ void ClangdSwitchDeclDef::Private::handleDeclDefSwitchReplies()
         ast->print(0);
     const Utils::optional<ClangdAstNode> functionNode = getFunctionNode();
     if (!functionNode) {
-        emit q->done();
+        q->emitDone();
         return;
     }
 
@@ -182,7 +192,7 @@ void ClangdSwitchDeclDef::Private::handleDeclDefSwitchReplies()
         client->followSymbol(document.data(), funcNameCursor, editorWidget, callback,
                              true, false);
     }
-    emit q->done();
+    q->emitDone();
 }
 
 } // namespace ClangCodeModel::Internal

@@ -52,6 +52,7 @@ signals:
     void done();
 
 private:
+    void emitDone();
     class Private;
     Private * const d;
 };

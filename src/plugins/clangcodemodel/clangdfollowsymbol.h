@@ -55,6 +55,7 @@ signals:
     void done();
 
 private:
+    void emitDone();
     class VirtualFunctionAssistProcessor;
     class VirtualFunctionAssistProvider;
 
