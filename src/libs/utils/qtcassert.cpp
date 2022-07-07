@@ -38,11 +38,12 @@ namespace Utils {
 
 void dumpBacktrace(int maxdepth)
 {
-    if (maxdepth == -1)
-        maxdepth = 1000;
+    const int ArraySize = 1000;
+    if (maxdepth < 0 || maxdepth > ArraySize)
+        maxdepth = ArraySize;
 #if defined(Q_OS_UNIX)
-    void *bt[1000] = {nullptr};
-    int size = backtrace(bt, sizeof(bt) / sizeof(bt[0]));
+    void *bt[ArraySize] = {nullptr};
+    int size = backtrace(bt, maxdepth);
     char **lines = backtrace_symbols(bt, size);
     for (int i = 0; i < size; ++i)
         qDebug() << "0x" + QByteArray::number(quintptr(bt[i]), 16) << lines[i];
