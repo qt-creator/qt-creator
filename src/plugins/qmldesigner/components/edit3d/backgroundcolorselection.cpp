@@ -23,8 +23,6 @@
 **
 ****************************************************************************/
 
-#pragma once
-
 #include <QColorDialog>
 
 #include <utils/qtcassert.h>
