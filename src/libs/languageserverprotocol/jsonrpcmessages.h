@@ -48,17 +48,15 @@ class JsonRpcMessage;
 class LANGUAGESERVERPROTOCOL_EXPORT MessageId : public Utils::variant<int, QString>
 {
 public:
-    MessageId() = default;
+    MessageId() : variant(QString()) {}
     explicit MessageId(int id) : variant(id) {}
     explicit MessageId(const QString &id) : variant(id) {}
     explicit MessageId(const QJsonValue &value)
     {
         if (value.isDouble())
-            *this = MessageId(value.toInt());
-        else if (value.isString())
-            *this = MessageId(value.toString());
+            emplace<int>(value.toInt());
         else
-            m_valid = false;
+            emplace<QString>(value.toString());
     }
 
     operator QJsonValue() const
@@ -70,7 +68,14 @@ public:
         return QJsonValue();
     }
 
-    bool isValid() const { return m_valid; }
+    bool isValid() const
+    {
+        if (Utils::holds_alternative<int>(*this))
+            return true;
+        const QString *id = Utils::get_if<QString>(this);
+        QTC_ASSERT(id, return false);
+        return !id->isEmpty();
+    }
 
     QString toString() const
     {
@@ -89,9 +94,6 @@ public:
             return QT_PREPEND_NAMESPACE(qHash(Utils::get<QString>(id)));
         return QT_PREPEND_NAMESPACE(qHash(0));
     }
-
-private:
-    bool m_valid = true;
 };
 
 template <typename Error>
