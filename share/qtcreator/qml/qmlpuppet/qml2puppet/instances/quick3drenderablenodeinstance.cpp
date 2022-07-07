@@ -110,7 +110,8 @@ QImage Quick3DRenderableNodeInstance::renderImage() const
     return {};
 }
 
-QImage Quick3DRenderableNodeInstance::renderPreviewImage(const QSize &previewImageSize) const
+QImage Quick3DRenderableNodeInstance::renderPreviewImage(
+    [[maybe_unused]] const QSize &previewImageSize) const
 {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     if (!isRootNodeInstance() || !m_dummyRootView)
@@ -140,8 +141,6 @@ QImage Quick3DRenderableNodeInstance::renderPreviewImage(const QSize &previewIma
             return transparentImage;
         }
     }
-#else
-    Q_UNUSED(previewImageSize)
 #endif
     return {};
 }

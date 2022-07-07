@@ -38,10 +38,9 @@ AnimationDriver::~AnimationDriver()
 
 }
 
-void AnimationDriver::timerEvent(QTimerEvent *e)
+void AnimationDriver::timerEvent([[maybe_unused]] QTimerEvent *e)
 {
     Q_ASSERT(e->timerId() == m_timer.timerId());
-    Q_UNUSED(e);
 
     quint32 old = elapsed();
     // Provide same time for all users

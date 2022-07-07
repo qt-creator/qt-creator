@@ -54,11 +54,9 @@ QmlStateNodeInstance::Pointer
     return instance;
 }
 
-void setAllNodesDirtyRecursive(QQuickItem *parentItem)
+void setAllNodesDirtyRecursive([[maybe_unused]] QQuickItem *parentItem)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    Q_UNUSED(parentItem)
-#else
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     if (!parentItem)
         return;
     const QList<QQuickItem *> children = parentItem->childItems();

@@ -208,7 +208,7 @@ bool Qt5NodeInstanceServer::rootIsRenderable3DObject() const
             || rootNodeInstance().isSubclassOf("QQuick3DMaterial");
 }
 
-bool Qt5NodeInstanceServer::initRhi(RenderViewData &viewData)
+bool Qt5NodeInstanceServer::initRhi([[maybe_unused]] RenderViewData &viewData)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     if (!viewData.renderControl) {
@@ -286,13 +286,11 @@ bool Qt5NodeInstanceServer::initRhi(RenderViewData &viewData)
     viewData.window->setRenderTarget(QQuickRenderTarget::fromRhiRenderTarget(viewData.texTarget));
 
     viewData.bufferDirty = false;
-#else
-    Q_UNUSED(viewData)
 #endif
     return true;
 }
 
-QImage Qt5NodeInstanceServer::grabRenderControl(RenderViewData &viewData)
+QImage Qt5NodeInstanceServer::grabRenderControl([[maybe_unused]] RenderViewData &viewData)
 {
     NANOTRACE_SCOPE("Update", "GrabRenderControl");
 
@@ -325,8 +323,6 @@ QImage Qt5NodeInstanceServer::grabRenderControl(RenderViewData &viewData)
     rd->cb->resourceUpdate(readbackBatch);
 
     viewData.renderControl->endFrame();
-#else
-    Q_UNUSED(viewData)
 #endif
     return renderImage;
 }
@@ -395,7 +391,7 @@ static bool isLayerEnabled(QQuickItemPrivate *item)
 }
 #endif // QT_VERSION check
 
-QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
+QImage Qt5NodeInstanceServer::grabItem([[maybe_unused]] QQuickItem *item)
 {
     QImage renderImage;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -522,8 +518,6 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
 
     if (!isLayerEnabled(pItem))
         pItem->derefFromEffectItem(false);
-#else
-    Q_UNUSED(item)
 #endif
     return renderImage;
 }

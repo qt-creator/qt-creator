@@ -163,9 +163,13 @@ QVector3D GeneralHelper::panCamera(QQuick3DCamera *camera, const QMatrix4x4 star
     return startLookAt + delta;
 }
 
-float GeneralHelper::zoomCamera(QQuick3DViewport *viewPort, QQuick3DCamera *camera, float distance,
-                                float defaultLookAtDistance, const QVector3D &lookAt,
-                                float zoomFactor, bool relative)
+float GeneralHelper::zoomCamera([[maybe_unused]] QQuick3DViewport *viewPort,
+                                QQuick3DCamera *camera,
+                                float distance,
+                                float defaultLookAtDistance,
+                                const QVector3D &lookAt,
+                                float zoomFactor,
+                                bool relative)
 {
     // Emprically determined divisor for nice zoom
     float multiplier = 1.f + (distance / 40.f);
@@ -180,8 +184,6 @@ float GeneralHelper::zoomCamera(QQuick3DViewport *viewPort, QQuick3DCamera *came
             if (const QQuickWindow *w = viewPort->window())
                 orthoFactor *= w->devicePixelRatio();
         }
-#else
-    Q_UNUSED(viewPort)
 #endif
         camera->setScale(QVector3D(orthoFactor, orthoFactor, orthoFactor));
     } else if (qobject_cast<QQuick3DPerspectiveCamera *>(camera)) {

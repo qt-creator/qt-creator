@@ -336,9 +336,7 @@ void registerNodeInstanceMetaObject(QObject *object, QQmlEngine *engine)
 
 QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context)
 {
-    ComponentCompleteDisabler disableComponentComplete;
-
-    Q_UNUSED(disableComponentComplete)
+    [[maybe_unused]] ComponentCompleteDisabler disableComponentComplete;
 
     QObject *object = 0;
     QQmlType *type = getQmlType(typeName, majorNumber, minorNumber);
@@ -431,8 +429,7 @@ QVariant fixResourcePaths(const QVariant &value)
 
 QObject *createComponent(const QUrl &componentUrl, QQmlContext *context)
 {
-    ComponentCompleteDisabler disableComponentComplete;
-    Q_UNUSED(disableComponentComplete)
+    [[maybe_unused]] ComponentCompleteDisabler disableComponentComplete;
 
     QQmlComponent component(context->engine(), componentUrl);
 

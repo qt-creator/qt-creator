@@ -275,13 +275,10 @@ void DesignerCustomObjectData::setPropertyBinding(QQmlContext *context, const Pr
     }
 }
 
-void DesignerCustomObjectData::keepBindingFromGettingDeleted(QQmlContext *context, const PropertyName &propertyName)
+void DesignerCustomObjectData::keepBindingFromGettingDeleted(
+    [[maybe_unused]] QQmlContext *context, [[maybe_unused]] const PropertyName &propertyName)
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
-    //Refcounting is taking care
-    Q_UNUSED(context)
-    Q_UNUSED(propertyName)
-#else
+#if (QT_VERSION < QT_VERSION_CHECK(5, 6, 0))
     QQmlProperty property(object(), QString::fromUtf8(propertyName), context);
     QQmlPropertyPrivate::setBinding(property, 0, QQmlPropertyPrivate::BypassInterceptor
                                     | QQmlPropertyPrivate::DontRemoveBinding);

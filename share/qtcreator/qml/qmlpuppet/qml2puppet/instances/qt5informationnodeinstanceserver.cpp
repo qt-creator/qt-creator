@@ -338,7 +338,8 @@ void Qt5InformationNodeInstanceServer::resolveImportSupport()
 #endif
 }
 
-void Qt5InformationNodeInstanceServer::updateRotationBlocks(const QVector<PropertyValueContainer> &valueChanges)
+void Qt5InformationNodeInstanceServer::updateRotationBlocks(
+    [[maybe_unused]] const QVector<PropertyValueContainer> &valueChanges)
 {
 #ifdef QUICK3D_MODULE
     auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
@@ -363,12 +364,11 @@ void Qt5InformationNodeInstanceServer::updateRotationBlocks(const QVector<Proper
         helper->addRotationBlocks(blockedNodes);
         helper->removeRotationBlocks(unblockedNodes);
     }
-#else
-    Q_UNUSED(valueChanges)
 #endif
 }
 
-void Qt5InformationNodeInstanceServer::removeRotationBlocks(const QVector<qint32> &instanceIds)
+void Qt5InformationNodeInstanceServer::removeRotationBlocks(
+    [[maybe_unused]] const QVector<qint32> &instanceIds)
 {
 #ifdef QUICK3D_MODULE
     auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
@@ -384,8 +384,6 @@ void Qt5InformationNodeInstanceServer::removeRotationBlocks(const QVector<qint32
         }
         helper->removeRotationBlocks(unblockedNodes);
     }
-#else
-    Q_UNUSED(instanceIds)
 #endif
 }
 
@@ -770,7 +768,7 @@ void Qt5InformationNodeInstanceServer::handleView3DSizeChange()
         updateView3DRect(view3D);
 }
 
-void Qt5InformationNodeInstanceServer::handleView3DDestroyed(QObject *obj)
+void Qt5InformationNodeInstanceServer::handleView3DDestroyed([[maybe_unused]] QObject *obj)
 {
 #ifdef QUICK3D_MODULE
     auto view = qobject_cast<QQuick3DViewport *>(obj);
@@ -778,12 +776,10 @@ void Qt5InformationNodeInstanceServer::handleView3DDestroyed(QObject *obj)
     removeNode3D(view->scene());
     if (view && view == m_active3DView)
         m_active3DView = nullptr;
-#else
-    Q_UNUSED(obj)
 #endif
 }
 
-void Qt5InformationNodeInstanceServer::handleNode3DDestroyed(QObject *obj)
+void Qt5InformationNodeInstanceServer::handleNode3DDestroyed([[maybe_unused]] QObject *obj)
 {
 #ifdef QUICK3D_MODULE
     if (qobject_cast<QQuick3DCamera *>(obj)) {
@@ -804,8 +800,6 @@ void Qt5InformationNodeInstanceServer::handleNode3DDestroyed(QObject *obj)
 #endif
     }
     removeNode3D(obj);
-#else
-    Q_UNUSED(obj)
 #endif
 }
 
@@ -820,7 +814,7 @@ void Qt5InformationNodeInstanceServer::updateView3DRect(QObject *view3D)
     viewPortProperty.write(viewPortrect);
 }
 
-void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D(bool timerCall)
+void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D([[maybe_unused]] bool timerCall)
 {
 #ifdef QUICK3D_MODULE
     if (!m_editView3DSetupDone)
@@ -869,8 +863,6 @@ void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D(bool timerC
     auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
     if (helper)
         helper->storeToolState(helper->globalStateId(), helper->lastSceneIdKey(), QVariant(sceneId), 0);
-#else
-    Q_UNUSED(timerCall)
 #endif
 }
 
@@ -1115,7 +1107,8 @@ void Qt5InformationNodeInstanceServer::doRenderModelNodeImageView()
 #endif
 }
 
-void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView(const RequestModelNodePreviewImageCommand &cmd)
+void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView(
+    [[maybe_unused]] const RequestModelNodePreviewImageCommand &cmd)
 {
 #ifdef QUICK3D_MODULE
     if (m_modelNode3DImageViewData.rootItem) {
@@ -1217,8 +1210,6 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView(const Reques
                     {PuppetToCreatorCommand::RenderModelNodePreviewImage,
                      QVariant::fromValue(imgContainer)});
     }
-#else
-    Q_UNUSED(cmd)
 #endif
 }
 
@@ -1644,7 +1635,8 @@ void Qt5InformationNodeInstanceServer::add3DScenes(const QList<ServerNodeInstanc
     }
 }
 
-QObject *Qt5InformationNodeInstanceServer::findView3DForInstance(const ServerNodeInstance &instance) const
+QObject *Qt5InformationNodeInstanceServer::findView3DForInstance(
+    [[maybe_unused]] const ServerNodeInstance &instance) const
 {
 #ifdef QUICK3D_MODULE
     if (!instance.isValid())
@@ -1669,13 +1661,12 @@ QObject *Qt5InformationNodeInstanceServer::findView3DForInstance(const ServerNod
         if (view && sceneRoot == view->importScene())
             return view3D;
     }
-#else
-    Q_UNUSED(instance)
 #endif
     return {};
 }
 
-QObject *Qt5InformationNodeInstanceServer::findView3DForSceneRoot(QObject *sceneRoot) const
+QObject *Qt5InformationNodeInstanceServer::findView3DForSceneRoot(
+    [[maybe_unused]] QObject *sceneRoot) const
 {
 #ifdef QUICK3D_MODULE
     if (!sceneRoot)
@@ -1691,13 +1682,12 @@ QObject *Qt5InformationNodeInstanceServer::findView3DForSceneRoot(QObject *scene
                 return view3D;
         }
     }
-#else
-    Q_UNUSED(sceneRoot)
 #endif
     return {};
 }
 
-QObject *Qt5InformationNodeInstanceServer::find3DSceneRoot(const ServerNodeInstance &instance) const
+QObject *Qt5InformationNodeInstanceServer::find3DSceneRoot(
+    [[maybe_unused]] const ServerNodeInstance &instance) const
 {
 #ifdef QUICK3D_MODULE
     // The root of a 3D scene is any QQuick3DNode that doesn't have QQuick3DNode as parent.
@@ -1760,13 +1750,11 @@ QObject *Qt5InformationNodeInstanceServer::find3DSceneRoot(const ServerNodeInsta
             }
         }
     }
-#else
-    Q_UNUSED(instance)
 #endif
     return nullptr;
 }
 
-QObject *Qt5InformationNodeInstanceServer::find3DSceneRoot(QObject *obj) const
+QObject *Qt5InformationNodeInstanceServer::find3DSceneRoot([[maybe_unused]] QObject *obj) const
 {
 #ifdef QUICK3D_MODULE
     if (hasInstanceForObject(obj))
@@ -1778,15 +1766,14 @@ QObject *Qt5InformationNodeInstanceServer::find3DSceneRoot(QObject *obj) const
         if (view && view->scene() == obj)
             return obj;
     }
-#else
-    Q_UNUSED(obj)
 #endif
     // Some other non-instance object, assume it's not part of any scene
     return nullptr;
 }
 
-void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeInstance> &instanceList,
-                                                       const CreateSceneCommand &command)
+void Qt5InformationNodeInstanceServer::setup3DEditView(
+    [[maybe_unused]] const QList<ServerNodeInstance> &instanceList,
+    [[maybe_unused]] const CreateSceneCommand &command)
 {
 #ifdef QUICK3D_MODULE
     if (!m_editView3DData.rootItem)
@@ -1887,9 +1874,6 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
 
     // Queue two renders to make sure icon gizmos update properly
     render3DEditView(2);
-#else
-    Q_UNUSED(instanceList)
-    Q_UNUSED(command)
 #endif
 }
 
@@ -2423,8 +2407,10 @@ void Qt5InformationNodeInstanceServer::removeProperties(const RemovePropertiesCo
     render3DEditView();
 }
 
-void Qt5InformationNodeInstanceServer::handleInstanceLocked(const ServerNodeInstance &instance,
-                                                            bool enable, bool checkAncestors)
+void Qt5InformationNodeInstanceServer::handleInstanceLocked(
+    [[maybe_unused]] const ServerNodeInstance &instance,
+    [[maybe_unused]] bool enable,
+    [[maybe_unused]] bool checkAncestors)
 {
 #ifdef QUICK3D_MODULE
     if (!ViewConfig::isQuick3DMode())
@@ -2458,15 +2444,13 @@ void Qt5InformationNodeInstanceServer::handleInstanceLocked(const ServerNodeInst
             }
         }
     }
-#else
-    Q_UNUSED(instance)
-    Q_UNUSED(enable)
-    Q_UNUSED(checkAncestors)
 #endif
 }
 
-void Qt5InformationNodeInstanceServer::handleInstanceHidden(const ServerNodeInstance &instance,
-                                                            bool enable, bool checkAncestors)
+void Qt5InformationNodeInstanceServer::handleInstanceHidden(
+    [[maybe_unused]] const ServerNodeInstance &instance,
+    [[maybe_unused]] bool enable,
+    [[maybe_unused]] bool checkAncestors)
 {
 #ifdef QUICK3D_MODULE
     if (!ViewConfig::isQuick3DMode())
@@ -2566,14 +2550,11 @@ void Qt5InformationNodeInstanceServer::handleInstanceHidden(const ServerNodeInst
             }
         }
     }
-#else
-    Q_UNUSED(instance)
-    Q_UNUSED(enable)
-    Q_UNUSED(checkAncestors)
 #endif
 }
 
-void Qt5InformationNodeInstanceServer::handlePickTarget(const ServerNodeInstance &instance)
+void Qt5InformationNodeInstanceServer::handlePickTarget(
+    [[maybe_unused]] const ServerNodeInstance &instance)
 {
 #if defined(QUICK3D_MODULE) && (QT_VERSION >= QT_VERSION_CHECK(6, 2, 1))
     // Picking is dependent on hidden status prior to global picking support (<6.2.1), so it is
@@ -2656,8 +2637,6 @@ void Qt5InformationNodeInstanceServer::handlePickTarget(const ServerNodeInstance
                 checkChildren(childNode);
         }
     }
-#else
-    Q_UNUSED(instance)
 #endif
 }
 
@@ -2675,7 +2654,8 @@ void Qt5InformationNodeInstanceServer::handleDynamicAddObject()
 }
 
 // update 3D view size when it changes in creator side
-void Qt5InformationNodeInstanceServer::update3DViewState(const Update3dViewStateCommand &command)
+void Qt5InformationNodeInstanceServer::update3DViewState(
+    [[maybe_unused]] const Update3dViewStateCommand &command)
 {
 #ifdef QUICK3D_MODULE
     if (command.type() == Update3dViewStateCommand::SizeChange) {
@@ -2694,8 +2674,6 @@ void Qt5InformationNodeInstanceServer::update3DViewState(const Update3dViewState
             render3DEditView(2);
         }
     }
-#else
-    Q_UNUSED(command)
 #endif
 }
 

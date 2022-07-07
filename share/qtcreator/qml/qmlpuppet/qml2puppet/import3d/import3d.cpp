@@ -41,7 +41,9 @@
 namespace Import3D
 {
 
-void import3D(const QString &sourceAsset, const QString &outDir, const QString &options)
+void import3D([[maybe_unused]] const QString &sourceAsset,
+              [[maybe_unused]] const QString &outDir,
+              [[maybe_unused]] const QString &options)
 {
     QString errorStr;
 #ifdef IMPORT_QUICK3D_ASSETS
@@ -63,11 +65,6 @@ void import3D(const QString &sourceAsset, const QString &outDir, const QString &
     } else {
         errorStr = QObject::tr("Failed to parse import options: %1").arg(error.errorString());
     }
-#else
-    errorStr = QObject::tr("QtQuick3D is not available.");
-    Q_UNUSED(sourceAsset)
-    Q_UNUSED(outDir)
-    Q_UNUSED(options)
 #endif
     if (!errorStr.isEmpty()) {
         qWarning() << __FUNCTION__ << "Failed to import asset:" << errorStr << outDir;

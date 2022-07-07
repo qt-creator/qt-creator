@@ -1479,19 +1479,13 @@ QStringList NodeInstanceServer::dummyDataDirectories(const QString &directoryPat
     }
 }
 
-void NodeInstanceServer::inputEvent(const InputEventCommand &command)
-{
-    Q_UNUSED(command)
-}
+void NodeInstanceServer::inputEvent([[maybe_unused]] const InputEventCommand &command) {}
 
-void NodeInstanceServer::view3DAction(const View3DActionCommand &command)
-{
-    Q_UNUSED(command)
-}
+void NodeInstanceServer::view3DAction([[maybe_unused]] const View3DActionCommand &command) {}
 
-void NodeInstanceServer::requestModelNodePreviewImage(const RequestModelNodePreviewImageCommand &command)
+void NodeInstanceServer::requestModelNodePreviewImage(
+    [[maybe_unused]] const RequestModelNodePreviewImageCommand &command)
 {
-    Q_UNUSED(command)
 }
 
 void NodeInstanceServer::changeLanguage(const ChangeLanguageCommand &command)

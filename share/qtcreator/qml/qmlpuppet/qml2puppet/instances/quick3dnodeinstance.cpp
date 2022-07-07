@@ -50,8 +50,9 @@ Quick3DNodeInstance::~Quick3DNodeInstance()
 {
 }
 
-void Quick3DNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance,
-                                     InstanceContainer::NodeFlags flags)
+void Quick3DNodeInstance::initialize(
+    [[maybe_unused]] const ObjectNodeInstance::Pointer &objectNodeInstance,
+    [[maybe_unused]] InstanceContainer::NodeFlags flags)
 {
 #ifdef QUICK3D_MODULE
     QObject *obj = object();
@@ -82,9 +83,6 @@ void Quick3DNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNo
     m_dummyRootViewCreateFunction = "createViewForNode";
 
     Quick3DRenderableNodeInstance::initialize(objectNodeInstance, flags);
-#else
-    Q_UNUSED(objectNodeInstance)
-    Q_UNUSED(flags)
 #endif // QUICK3D_MODULE
 }
 

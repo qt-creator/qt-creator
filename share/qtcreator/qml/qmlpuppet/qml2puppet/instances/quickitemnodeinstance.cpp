@@ -172,7 +172,7 @@ void QuickItemNodeInstance::enableUnifiedRenderPath(bool unifiedRenderPath)
     s_unifiedRenderPath = unifiedRenderPath;
 }
 
-bool QuickItemNodeInstance::checkIfRefFromEffect(qint32 id)
+bool QuickItemNodeInstance::checkIfRefFromEffect([[maybe_unused]] qint32 id)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     if (s_unifiedRenderPath)
@@ -180,7 +180,6 @@ bool QuickItemNodeInstance::checkIfRefFromEffect(qint32 id)
 
     return (s_createEffectItem || id == 0);
 #else
-    Q_UNUSED(id)
     return false;
 #endif
 }
@@ -273,14 +272,12 @@ QStringList QuickItemNodeInstance::allStates() const
     return list;
 }
 
-void QuickItemNodeInstance::updateDirtyNode(QQuickItem *item)
+void QuickItemNodeInstance::updateDirtyNode([[maybe_unused]] QQuickItem *item)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     if (s_unifiedRenderPath)
         return;
     DesignerSupport::updateDirtyNode(item);
-#else
-    Q_UNUSED(item)
 #endif
 }
 
@@ -639,11 +636,9 @@ void QuickItemNodeInstance::updateAllDirtyNodesRecursive(QQuickItem *parentItem)
     updateDirtyNode(parentItem);
 }
 
-void QuickItemNodeInstance::setAllNodesDirtyRecursive(QQuickItem *parentItem) const
+void QuickItemNodeInstance::setAllNodesDirtyRecursive([[maybe_unused]] QQuickItem *parentItem) const
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    Q_UNUSED(parentItem)
-#else
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     const QList<QQuickItem *> children = parentItem->childItems();
     for (QQuickItem *childItem : children)
         setAllNodesDirtyRecursive(childItem);
@@ -656,10 +651,9 @@ static inline bool isRectangleSane(const QRectF &rect)
     return rect.isValid() && (rect.width() < 10000) && (rect.height() < 10000);
 }
 
-static bool isEffectItem(QQuickItem *item)
+static bool isEffectItem([[maybe_unused]] QQuickItem *item)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    Q_UNUSED(item)
     return false;
 #else
     if (qobject_cast<QQuickShaderEffectSource *>(item))

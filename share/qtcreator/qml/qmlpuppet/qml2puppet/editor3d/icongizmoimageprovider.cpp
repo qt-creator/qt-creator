@@ -33,11 +33,10 @@ IconGizmoImageProvider::IconGizmoImageProvider()
 {
 }
 
-QImage IconGizmoImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
+QImage IconGizmoImageProvider::requestImage(const QString &id,
+                                            [[maybe_unused]] QSize *size,
+                                            [[maybe_unused]] const QSize &requestedSize)
 {
-    Q_UNUSED(size)
-    Q_UNUSED(requestedSize)
-
     // id format: <file name>:<color name>
     QStringList parts = id.split(':');
     if (parts.size() == 2) {

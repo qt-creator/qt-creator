@@ -562,12 +562,11 @@ bool isSubclassOf(QObject *object, const QByteArray &superTypeName)
     return QQuickDesignerSupportMetaInfo::isSubclassOf(object, superTypeName);
 }
 
-void getPropertyCache(QObject *object, QQmlEngine *engine)
+void getPropertyCache(QObject *object, [[maybe_unused]] QQmlEngine *engine)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 4, 0)
     QQuickDesignerSupportProperties::getPropertyCache(object, engine);
 #else
-    Q_UNUSED(engine);
     QQuickDesignerSupportProperties::getPropertyCache(object);
 #endif
 }

@@ -69,9 +69,8 @@ PositionerNodeInstance::Pointer PositionerNodeInstance::create(QObject *object)
 
 void PositionerNodeInstance::refreshLayoutable()
 {
-    bool success = QMetaObject::invokeMethod(object(), "prePositioning");
+    [[maybe_unused]] bool success = QMetaObject::invokeMethod(object(), "prePositioning");
     Q_ASSERT(success);
-    Q_UNUSED(success)
 }
 
 PropertyNameList PositionerNodeInstance::ignoredProperties() const

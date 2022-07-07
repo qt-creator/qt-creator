@@ -741,8 +741,7 @@ QObject *ObjectNodeInstance::createPrimitiveFromSource(const QString &typeName, 
 
 QObject *ObjectNodeInstance::createComponentWrap(const QString &nodeSource, const QByteArray &importCode, QQmlContext *context)
 {
-    QmlPrivateGate::ComponentCompleteDisabler disableComponentComplete;
-    Q_UNUSED(disableComponentComplete)
+    [[maybe_unused]] QmlPrivateGate::ComponentCompleteDisabler disableComponentComplete;
 
     QQmlComponent *component = new QQmlComponent(context->engine());
 
@@ -794,11 +793,10 @@ static inline QString fixComponentPathForIncompatibleQt(const QString &component
     return result;
 }
 
-QObject *ObjectNodeInstance::createComponent(const QString &componentPath, QQmlContext *context)
+QObject *ObjectNodeInstance::createComponent([[maybe_unused]] const QString &componentPath,
+                                             QQmlContext *context)
 {
     QmlPrivateGate::ComponentCompleteDisabler disableComponentComplete;
-
-    Q_UNUSED(disableComponentComplete)
 
     QQmlComponent component(context->engine(), fixComponentPathForIncompatibleQt(componentPath));
 
@@ -831,8 +829,7 @@ QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource,
                                                       const QByteArray &importCode,
                                                       QQmlContext *context)
 {
-    QmlPrivateGate::ComponentCompleteDisabler disableComponentComplete;
-    Q_UNUSED(disableComponentComplete)
+    [[maybe_unused]] QmlPrivateGate::ComponentCompleteDisabler disableComponentComplete;
 
     QQmlComponent component(context->engine());
 
