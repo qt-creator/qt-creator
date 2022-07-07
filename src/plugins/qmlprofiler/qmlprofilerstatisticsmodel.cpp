@@ -360,7 +360,8 @@ QVariant QmlProfilerStatisticsModel::data(const QModelIndex &index, int role) co
             return type.data().isEmpty() ? tr("Source code not available")
                                          : type.data();
         default:
-            QTC_ASSERT(false, return QVariant());
+            QTC_CHECK(false);
+            return {};
         }
     default:
         return QVariant();
@@ -649,7 +650,8 @@ QVariant QmlProfilerStatisticsRelativesModel::data(const QModelIndex &index, int
             return type.data().isEmpty() ? tr("Source code not available")
                                          : type.data();
         default:
-            QTC_ASSERT(false, return QVariant());
+            QTC_CHECK(false);
+            return {};
         }
     default:
         return QVariant();
