@@ -569,8 +569,7 @@
         ...
         using namespace Utils;
 
-        namespace Foo {
-        namespace Internal {
+        namespace Foo::Internal {
 
         void SomeThing::bar()
         {
@@ -578,8 +577,7 @@
             ...
         }
         ...
-        } // namespace Internal      // or only // Internal
-        } // namespace Foo           // or only // Foo
+        } // Foo::Internal           // or // namespace Foo::Internal
 
         -NOT-
 
