@@ -736,4 +736,6 @@
     To automatically format QML/JS files upon saving, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} >
     \uicontrol {Enable auto format on file save}.
+
+    \image qtcreator-qml-js-editing.png "QML/JS Editing preferences"
 */
