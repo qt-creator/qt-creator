@@ -26,9 +26,10 @@
 
 #include "imageviewer.h"
 
-#include "imageviewerfile.h"
-#include "imageviewerconstants.h"
 #include "imageview.h"
+#include "imageviewerconstants.h"
+#include "imageviewerfile.h"
+#include "imageviewertr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -42,22 +43,21 @@
 #include <utils/styledbar.h>
 
 #include <QAction>
-#include <QMap>
-#include <QFileInfo>
-#include <QDir>
-#include <QWidget>
 #include <QDebug>
-#include <QVariant>
+#include <QDir>
+#include <QFileInfo>
 #include <QHBoxLayout>
+#include <QImageReader>
 #include <QLabel>
+#include <QMap>
 #include <QSpacerItem>
+#include <QWidget>
 #include <QWidget>
 
 using namespace Core;
 using namespace Utils;
 
-namespace ImageViewer {
-namespace Internal {
+namespace ImageViewer::Internal{
 
 struct ImageViewerPrivate
 {
@@ -145,13 +145,13 @@ void ImageViewer::ctor()
 
     d->toolButtonZoomOut->setAutoRepeat(true);
 
-    d->toolButtonExportImage->setToolTipBase(tr("Export as Image"));
-    d->toolButtonMultiExportImages->setToolTipBase(tr("Export Images of Multiple Sizes"));
-    d->toolButtonOutline->setToolTipBase(tr("Show Outline"));
-    d->toolButtonFitToScreen->setToolTipBase(tr("Fit to Screen"));
-    d->toolButtonOriginalSize->setToolTipBase(tr("Original Size"));
-    d->toolButtonZoomIn->setToolTipBase(tr("Zoom In"));
-    d->toolButtonZoomOut->setToolTipBase(tr("Zoom Out"));
+    d->toolButtonExportImage->setToolTipBase(Tr::tr("Export as Image"));
+    d->toolButtonMultiExportImages->setToolTipBase(Tr::tr("Export Images of Multiple Sizes"));
+    d->toolButtonOutline->setToolTipBase(Tr::tr("Show Outline"));
+    d->toolButtonFitToScreen->setToolTipBase(Tr::tr("Fit to Screen"));
+    d->toolButtonOriginalSize->setToolTipBase(Tr::tr("Original Size"));
+    d->toolButtonZoomIn->setToolTipBase(Tr::tr("Zoom In"));
+    d->toolButtonZoomOut->setToolTipBase(Tr::tr("Zoom Out"));
 
     d->toolButtonExportImage->setIcon(Icons::EXPORTFILE_TOOLBAR.icon());
     d->toolButtonMultiExportImages->setIcon(Icons::MULTIEXPORTFILE_TOOLBAR.icon());
@@ -359,14 +359,26 @@ void ImageViewer::updatePauseAction()
 {
     bool isMovie = d->file->type() == ImageViewerFile::TypeMovie;
     if (isMovie && !d->file->isPaused()) {
-        d->toolButtonPlayPause->setToolTipBase(tr("Pause Animation"));
+        d->toolButtonPlayPause->setToolTipBase(Tr::tr("Pause Animation"));
         d->toolButtonPlayPause->setIcon(Icons::INTERRUPT_SMALL_TOOLBAR.icon());
     } else {
-        d->toolButtonPlayPause->setToolTipBase(tr("Play Animation"));
+        d->toolButtonPlayPause->setToolTipBase(Tr::tr("Play Animation"));
         d->toolButtonPlayPause->setIcon(Icons::RUN_SMALL_TOOLBAR.icon());
         d->toolButtonPlayPause->setEnabled(isMovie);
     }
 }
 
-} // namespace Internal
-} // namespace ImageViewer
+// Factory
+
+ImageViewerFactory::ImageViewerFactory()
+{
+    setId(Constants::IMAGEVIEWER_ID);
+    setDisplayName(Tr::tr("Image Viewer"));
+    setEditorCreator([] { return new ImageViewer; });
+
+    const QList<QByteArray> supportedMimeTypes = QImageReader::supportedMimeTypes();
+    for (const QByteArray &format : supportedMimeTypes)
+        addMimeType(QString::fromLatin1(format));
+}
+
+} // ImageViewer::Internal

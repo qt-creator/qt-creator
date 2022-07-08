@@ -5240,10 +5240,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>Ressourceneditor</translation>
     </message>
     <message>
-        <source>Image Viewer</source>
-        <translation>Bildbetrachter</translation>
-    </message>
-    <message>
         <source>GLSL Editor</source>
         <translation>GLSL Editor</translation>
     </message>
@@ -11371,7 +11367,11 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewerToolbar</name>
+    <name>ImageViewer</name>
+    <message>
+        <source>Image Viewer</source>
+        <translation>Bildbetrachter</translation>
+    </message>
     <message>
         <source>Zoom In</source>
         <translation>Vergrößern</translation>
@@ -15270,7 +15270,7 @@ Bei vollständiger Cache-Simulation werden weitere Ereigniszähler aktiviert:
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewer</name>
+    <name>ImageViewer</name>
     <message>
         <source>Play Animation</source>
         <translation>Animation abspielen</translation>
@@ -33034,7 +33034,7 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewerFile</name>
+    <name>ImageViewer</name>
     <message>
         <source>Image format not supported.</source>
         <translation>Bildformat nicht unterstützt.</translation>
@@ -36042,11 +36042,7 @@ Sie werden erhalten.</numerusform>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ExportDialog</name>
-    <message>
-        <source>File:</source>
-        <translation>Datei:</translation>
-    </message>
+    <name>ImageViewer</name>
     <message>
         <source>x</source>
         <extracomment>Multiplication, as in 32x32</extracomment>
@@ -36064,7 +36060,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageView</name>
+    <name>ImageViewer</name>
     <message>
         <source>Export %1</source>
         <translation>%1 exportieren</translation>
@@ -42231,7 +42227,7 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::MultiExportDialog</name>
+    <name>ImageViewer</name>
     <message>
         <source>Enter a file name containing place holders %1 which will be replaced by the width and height of the image, respectively.</source>
         <translation>Geben Sie einen Dateinamen ein, der die Platzhalter %1 enthält, die durch Breite und Höhe des Bilds ersetzt werden.</translation>

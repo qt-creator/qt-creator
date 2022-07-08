@@ -11,7 +11,6 @@ add_qtc_plugin(ImageViewer
     imageview.cpp imageview.h
     imageviewer.cpp imageviewer.h
     imageviewerconstants.h
-    imageviewerfactory.cpp imageviewerfactory.h
     imageviewerfile.cpp imageviewerfile.h
     imageviewerplugin.cpp imageviewerplugin.h
     multiexportdialog.cpp multiexportdialog.h

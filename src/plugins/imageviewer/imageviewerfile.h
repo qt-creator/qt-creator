@@ -39,8 +39,7 @@ class QGraphicsSvgItem;
 
 QT_END_NAMESPACE
 
-namespace ImageViewer {
-namespace Internal {
+namespace ImageViewer::Internal {
 
 class ImageViewerFile : public Core::IDocument
 {
@@ -89,5 +88,4 @@ private:
     bool m_isPaused = false;
 };
 
-} // namespace Internal
-} // namespace ImageViewer
+} // ImageViewer::Internal

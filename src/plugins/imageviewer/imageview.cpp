@@ -27,8 +27,9 @@
 #include "imageview.h"
 
 #include "exportdialog.h"
-#include "multiexportdialog.h"
 #include "imageviewerfile.h"
+#include "imageviewertr.h"
+#include "multiexportdialog.h"
 #include "utils/mimeutils.h"
 
 #include <coreplugin/messagemanager.h>
@@ -36,19 +37,17 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QMessageBox>
-#include <QGraphicsRectItem>
-
-#include <QWheelEvent>
-#include <QMouseEvent>
-#include <QImage>
-#include <QPainter>
-#include <QPixmap>
 #include <QClipboard>
-#include <QGuiApplication>
-
 #include <QDir>
 #include <QFileInfo>
+#include <QGraphicsRectItem>
+#include <QGuiApplication>
+#include <QImage>
+#include <QMessageBox>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QPixmap>
+#include <QWheelEvent>
 
 #include <qmath.h>
 
@@ -176,14 +175,14 @@ bool ImageView::exportSvg(const ExportData &ed)
 {
     const bool result = renderSvg(ed.size).save(ed.fileName);
     if (result) {
-        const QString message = tr("Exported \"%1\", %2x%3, %4 bytes")
+        const QString message = Tr::tr("Exported \"%1\", %2x%3, %4 bytes")
             .arg(QDir::toNativeSeparators(ed.fileName))
             .arg(ed.size.width()).arg(ed.size.height())
             .arg(QFileInfo(ed.fileName).size());
         Core::MessageManager::writeDisrupting(message);
     } else {
-        const QString message = tr("Could not write file \"%1\".").arg(QDir::toNativeSeparators(ed.fileName));
-        QMessageBox::critical(this, tr("Export Image"), message);
+        const QString message = Tr::tr("Could not write file \"%1\".").arg(QDir::toNativeSeparators(ed.fileName));
+        QMessageBox::critical(this, Tr::tr("Export Image"), message);
     }
     return result;
 }
@@ -214,7 +213,7 @@ void ImageView::exportImage()
 
     const QFileInfo origFi = m_file->filePath().toFileInfo();
     ExportDialog exportDialog(this);
-    exportDialog.setWindowTitle(tr("Export %1").arg(origFi.fileName()));
+    exportDialog.setWindowTitle(Tr::tr("Export %1").arg(origFi.fileName()));
     exportDialog.setExportSize(svgSize());
     exportDialog.setExportFileName(suggestedExportFileName(origFi));
 
@@ -230,7 +229,7 @@ void ImageView::exportMultiImages()
     const QFileInfo origFi = m_file->filePath().toFileInfo();
     const QSize size = svgSize();
     const QString title =
-        tr("Export a Series of Images from %1 (%2x%3)")
+        Tr::tr("Export a Series of Images from %1 (%2x%3)")
           .arg(origFi.fileName()).arg(size.width()).arg(size.height());
     MultiExportDialog multiExportDialog;
     multiExportDialog.setWindowTitle(title);

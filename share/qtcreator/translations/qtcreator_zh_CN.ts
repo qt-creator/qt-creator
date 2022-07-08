@@ -18096,10 +18096,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>资源编辑器</translation>
     </message>
     <message>
-        <source>Image Viewer</source>
-        <translation>图像查看器</translation>
-    </message>
-    <message>
         <source>GLSL Editor</source>
         <translation>GLSL 编辑器</translation>
     </message>
@@ -28228,7 +28224,11 @@ Id必须以小写字母开头。</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewerToolbar</name>
+    <name>ImageViewer</name>
+    <message>
+        <source>Image Viewer</source>
+        <translation>图像查看器</translation>
+    </message>
     <message>
         <source>Show background</source>
         <translation type="obsolete">显示背景</translation>
@@ -28246,14 +28246,6 @@ Id必须以小写字母开头。</translation>
         <translation type="obsolete">原始大小</translation>
     </message>
     <message>
-        <source>Zoom In</source>
-        <translation>放大</translation>
-    </message>
-    <message>
-        <source>Zoom Out</source>
-        <translation>缩小</translation>
-    </message>
-    <message>
         <source>Show Background</source>
         <translation>显示背景</translation>
     </message>
@@ -28264,10 +28256,6 @@ Id必须以小写字母开头。</translation>
     <message>
         <source>Fit to Screen</source>
         <translation>适应屏幕</translation>
-    </message>
-    <message>
-        <source>Original Size</source>
-        <translation>原始大小</translation>
     </message>
 </context>
 <context>
@@ -29923,7 +29911,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewerActionHandler</name>
+    <name>ImageViewer</name>
     <message>
         <source>Zoom In</source>
         <translation>放大</translation>
@@ -39137,7 +39125,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewer</name>
+    <name>ImageViewer</name>
     <message>
         <source>Cannot open image file %1</source>
         <translation type="obsolete">无法打开图形文件 %1</translation>

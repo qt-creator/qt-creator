@@ -30,8 +30,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QImage)
 
-namespace ImageViewer {
-namespace Internal {
+namespace ImageViewer::Internal {
 
 class ImageViewerFile;
 
@@ -85,5 +84,4 @@ private:
     bool m_showOutline = true;
 };
 
-} // namespace Internal
-} // namespace ImageViewer
+} // ImageViewer::Internal

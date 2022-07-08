@@ -24,8 +24,10 @@
 ****************************************************************************/
 
 #include "multiexportdialog.h"
+
 #include "exportdialog.h"
 #include "imageview.h" // ExportData
+#include "imageviewertr.h"
 
 #include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
@@ -47,8 +49,7 @@
 #include <QToolButton>
 #include <QWidgetAction>
 
-namespace ImageViewer {
-namespace Internal {
+namespace ImageViewer::Internal {
 
 static const int standardIconSizesValues[] = {16, 24, 32, 48, 64, 128, 256};
 
@@ -180,11 +181,11 @@ MultiExportDialog::MultiExportDialog(QWidget *parent)
     m_pathChooser->setExpectedKind(Utils::PathChooser::SaveFile);
     m_pathChooser->setPromptDialogFilter(ExportDialog::imageNameFilterString());
     const QString pathChooserToolTip =
-        tr("Enter a file name containing place holders %1 "
+        Tr::tr("Enter a file name containing place holders %1 "
            "which will be replaced by the width and height of the image, respectively.")
           .arg("%1, %2");
     m_pathChooser->setToolTip(pathChooserToolTip);
-    QLabel *pathChooserLabel = new QLabel(tr("File:"));
+    QLabel *pathChooserLabel = new QLabel(Tr::tr("File:"));
     pathChooserLabel->setToolTip(pathChooserToolTip);
     formLayout->addRow(pathChooserLabel, m_pathChooser);
 
@@ -192,18 +193,18 @@ MultiExportDialog::MultiExportDialog(QWidget *parent)
     sizeEditButton->setFocusPolicy(Qt::NoFocus);
     sizeEditButton->setIcon(Utils::Icons::ARROW_DOWN.icon());
     auto sizeEditMenu = new QMenu(this);
-    sizeEditMenu->addAction(tr("Clear"),
+    sizeEditMenu->addAction(Tr::tr("Clear"),
                             m_sizesLineEdit, &QLineEdit::clear);
-    sizeEditMenu->addAction(tr("Set Standard Icon Sizes"), this,
+    sizeEditMenu->addAction(Tr::tr("Set Standard Icon Sizes"), this,
                             &MultiExportDialog::setStandardIconSizes);
-    sizeEditMenu->addAction(tr("Generate Sizes"), this,
+    sizeEditMenu->addAction(Tr::tr("Generate Sizes"), this,
                             &MultiExportDialog::setGeneratedSizes);
     sizeEditButton->setMenu(sizeEditMenu);
     sizeEditButton->setPopupMode(QToolButton::InstantPopup);
 
     const QString sizesToolTip =
-        tr("A comma-separated list of size specifications of the form \"<width>x<height>\".");
-    auto sizesLabel = new QLabel(tr("Sizes:"));
+        Tr::tr("A comma-separated list of size specifications of the form \"<width>x<height>\".");
+    auto sizesLabel = new QLabel(Tr::tr("Sizes:"));
     sizesLabel->setToolTip(sizesToolTip);
     formLayout->addRow(sizesLabel, m_sizesLineEdit);
     m_sizesLineEdit->setToolTip(sizesToolTip);
@@ -279,19 +280,19 @@ void MultiExportDialog::accept()
 
     const QString &sizeSpec = sizesSpecification();
     if (sizeSpec.isEmpty()) {
-        QMessageBox::warning(this, windowTitle(), tr("Please specify some sizes."));
+        QMessageBox::warning(this, windowTitle(), Tr::tr("Please specify some sizes."));
         return;
     }
 
     const QVector<ExportData> &data = exportData();
     if (data.isEmpty()) {
         QMessageBox::warning(this, windowTitle(),
-                             tr("Invalid size specification: %1").arg(sizeSpec));
+                             Tr::tr("Invalid size specification: %1").arg(sizeSpec));
         return;
     }
     if (data.size() > 1 && data.at(0).fileName == data.at(1).fileName) {
         QMessageBox::warning(this, windowTitle(),
-                             tr("The file name must contain one of the placeholders %1, %2.")
+                             Tr::tr("The file name must contain one of the placeholders %1, %2.")
                                 .arg(QString("%1"), QString("%2")));
         return;
     }
@@ -305,9 +306,9 @@ void MultiExportDialog::accept()
     }
     if (!existingFiles.isEmpty()) {
         const QString message = existingFiles.size() == 1
-            ? tr("The file %1 already exists.\nWould you like to overwrite it?")
+            ? Tr::tr("The file %1 already exists.\nWould you like to overwrite it?")
                 .arg(QDir::toNativeSeparators(existingFiles.constFirst()))
-            : tr("The files %1 already exist.\nWould you like to overwrite them?")
+            : Tr::tr("The files %1 already exist.\nWould you like to overwrite them?")
                 .arg(QDir::toNativeSeparators(existingFiles.join(", ")));
         QMessageBox messageBox(QMessageBox::Question, windowTitle(), message,
                                QMessageBox::Yes | QMessageBox::No, this);
@@ -331,5 +332,4 @@ void MultiExportDialog::setExportFileName(QString f)
     m_pathChooser->setFilePath(Utils::FilePath::fromString(f));
 }
 
-} // namespace Internal
-} // namespace ImageViewer
+} // ImageViewer:Internal

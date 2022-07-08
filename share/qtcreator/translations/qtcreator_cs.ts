@@ -18897,10 +18897,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation>Editor GLSL</translation>
     </message>
     <message>
-        <source>Image Viewer</source>
-        <translation>Prohlížeč obrázků</translation>
-    </message>
-    <message>
         <source>Python Editor</source>
         <translation>Editor Pythonu</translation>
     </message>
@@ -30963,7 +30959,11 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewerToolbar</name>
+    <name>ImageViewer</name>
+    <message>
+        <source>Image Viewer</source>
+        <translation>Prohlížeč obrázků</translation>
+    </message>
     <message>
         <source>Show background</source>
         <translation type="obsolete">Ukázat pozadí</translation>
@@ -30977,18 +30977,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
         <translation type="obsolete">Přizpůsobit obrázek velikosti obrazovky</translation>
     </message>
     <message>
-        <source>Original size</source>
-        <translation type="obsolete">Původní velikost</translation>
-    </message>
-    <message>
-        <source>Zoom In</source>
-        <translation>Přiblížit</translation>
-    </message>
-    <message>
-        <source>Zoom Out</source>
-        <translation>Oddálit</translation>
-    </message>
-    <message>
         <source>Show Background</source>
         <translation>Ukázat pozadí</translation>
     </message>
@@ -30999,10 +30987,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     <message>
         <source>Fit to Screen</source>
         <translation>Přizpůsobit obrazovce</translation>
-    </message>
-    <message>
-        <source>Original Size</source>
-        <translation>Původní velikost</translation>
     </message>
 </context>
 <context>
@@ -36694,7 +36678,7 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewer</name>
+    <name>ImageViewer</name>
     <message>
         <source>Cannot open image file %1</source>
         <translation type="obsolete">Nelze otevřít soubor s obrázkem %1</translation>
@@ -36713,7 +36697,7 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewerActionHandler</name>
+    <name>ImageViewer</name>
     <message>
         <source>Zoom In</source>
         <translation>Přiblížit</translation>

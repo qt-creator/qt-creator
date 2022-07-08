@@ -31,14 +31,12 @@ QT_FORWARD_DECLARE_CLASS(QSpinBox)
 
 namespace Utils { class PathChooser; }
 
-namespace ImageViewer {
-namespace Internal {
+namespace ImageViewer::Internal {
 
 struct ExportData;
 
 class ExportDialog : public QDialog
 {
-    Q_OBJECT
 public:
     explicit ExportDialog(QWidget *parent = nullptr);
 
@@ -69,5 +67,4 @@ private:
     qreal m_aspectRatio;
 };
 
-} // namespace Internal
-} // namespace ImageViewer
+} // ImageViewer::Internal

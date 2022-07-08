@@ -12255,7 +12255,11 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewer</name>
+    <name>ImageViewer</name>
+    <message>
+        <source>Image Viewer</source>
+        <translation>Переглядач зображень</translation>
+    </message>
     <message>
         <source>Cannot open image file %1.</source>
         <translation type="vanished">Неможливо відкрити файл зображення %1.</translation>
@@ -12270,74 +12274,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewerActionHandler</name>
-    <message>
-        <source>Zoom In</source>
-        <translation type="vanished">Збільшити</translation>
-    </message>
-    <message>
-        <source>Ctrl++</source>
-        <translation type="vanished">Ctrl++</translation>
-    </message>
-    <message>
-        <source>Zoom Out</source>
-        <translation type="vanished">Зменшити</translation>
-    </message>
-    <message>
-        <source>Ctrl+-</source>
-        <translation type="vanished">Ctrl+-</translation>
-    </message>
-    <message>
-        <source>Original Size</source>
-        <translation type="vanished">Початковий розмір</translation>
-    </message>
-    <message>
-        <source>Ctrl+0</source>
-        <translation type="vanished">Ctrl+0</translation>
-    </message>
-    <message>
-        <source>Meta+0</source>
-        <translation type="vanished">Meta+0</translation>
-    </message>
-    <message>
-        <source>Fit To Screen</source>
-        <translation type="vanished">Вмістити на екрані</translation>
-    </message>
-    <message>
-        <source>Ctrl+=</source>
-        <translation type="vanished">Ctrl+=</translation>
-    </message>
-    <message>
-        <source>Switch Background</source>
-        <translation type="vanished">Увімкнути/вимкнути тло</translation>
-    </message>
-    <message>
-        <source>Switch Outline</source>
-        <translation type="vanished">Увімкнути/вимкнути огляд</translation>
-    </message>
-    <message>
-        <source>Toggle Animation</source>
-        <translation type="vanished">Відтворити/призупинити анімацію</translation>
-    </message>
-    <message>
-        <source>Ctrl+[</source>
-        <translation type="vanished">Ctrl+[</translation>
-    </message>
-    <message>
-        <source>Ctrl+]</source>
-        <translation type="vanished">Ctrl+]</translation>
-    </message>
-</context>
-<context>
-    <name>ImageViewer::Internal::ImageViewerToolbar</name>
-    <message>
-        <source>Zoom In</source>
-        <translation>Збільшити</translation>
-    </message>
-    <message>
-        <source>Zoom Out</source>
-        <translation>Зменшити</translation>
-    </message>
+    <name>ImageViewer</name>
     <message>
         <source>Show Background</source>
         <translation>Показувати тло</translation>
@@ -12345,14 +12282,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Show Outline</source>
         <translation>Показувати огляд</translation>
-    </message>
-    <message>
-        <source>Fit to Screen</source>
-        <translation>Вмістити на екрані</translation>
-    </message>
-    <message>
-        <source>Original Size</source>
-        <translation>Початковий розмір</translation>
     </message>
     <message>
         <source>Export as Image</source>
@@ -14908,10 +14837,6 @@ stderr був: %1</translation>
     <message>
         <source>Resource Editor</source>
         <translation>Редактор ресурсів</translation>
-    </message>
-    <message>
-        <source>Image Viewer</source>
-        <translation>Переглядач зображень</translation>
     </message>
     <message>
         <source>GLSL Editor</source>
@@ -52625,7 +52550,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewerFile</name>
+    <name>ImageViewer</name>
     <message>
         <source>Image format not supported.</source>
         <translation>Формат зображення не підтримується.</translation>
@@ -55752,7 +55677,7 @@ Leave empty to search through the file system.</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ExportDialog</name>
+    <name>ImageViewer</name>
     <message>
         <source>File:</source>
         <translation>Файл:</translation>
@@ -55774,7 +55699,7 @@ Would you like to overwrite it?</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageView</name>
+    <name>ImageViewer</name>
     <message>
         <source>Export %1</source>
         <translation>Експортувати %1</translation>
@@ -55793,7 +55718,7 @@ Would you like to overwrite it?</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewerPlugin</name>
+    <name>ImageViewer</name>
     <message>
         <source>Zoom In</source>
         <translation>Збільшити</translation>
@@ -55849,10 +55774,6 @@ Would you like to overwrite it?</source>
     <message>
         <source>Toggle Animation</source>
         <translation>Відтворити/призупинити анімацію</translation>
-    </message>
-    <message>
-        <source>Export Image</source>
-        <translation>Експортувати зображення</translation>
     </message>
 </context>
 <context>

@@ -23,8 +23,6 @@ QtcPlugin {
         "imageviewer.cpp",
         "imageviewer.h",
         "imageviewerconstants.h",
-        "imageviewerfactory.cpp",
-        "imageviewerfactory.h",
         "imageviewerfile.cpp",
         "imageviewerfile.h",
         "imageviewerplugin.cpp",

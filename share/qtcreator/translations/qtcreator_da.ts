@@ -19945,6 +19945,10 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
 <context>
     <name>ImageViewer</name>
     <message>
+        <source>Image Viewer</source>
+        <translation>Billedfremviser</translation>
+    </message>
+    <message>
         <source>Color at %1,%2: red: %3 green: %4 blue: %5 alpha: %6</source>
         <translation>Farve ved %1,%2: rød: %3 grøn: %4 blå: %5 alfa: %6</translation>
     </message>
@@ -19966,7 +19970,7 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ExportDialog</name>
+    <name>ImageViewer</name>
     <message>
         <source>File:</source>
         <translation>Fil:</translation>
@@ -19988,7 +19992,7 @@ Vil du overskrive den?</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageView</name>
+    <name>ImageViewer</name>
     <message>
         <source>Export %1</source>
         <translation>Eksportér %1</translation>
@@ -20011,7 +20015,7 @@ Vil du overskrive den?</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewer</name>
+    <name>ImageViewer</name>
     <message>
         <source>Pause Animation</source>
         <translation>Pause animation</translation>
@@ -20022,7 +20026,7 @@ Vil du overskrive den?</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewerFile</name>
+    <name>ImageViewer</name>
     <message>
         <source>Image format not supported.</source>
         <translation>Billedformat understøttes ikke.</translation>
@@ -20037,7 +20041,7 @@ Vil du overskrive den?</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewerPlugin</name>
+    <name>ImageViewer</name>
     <message>
         <source>Fit to Screen</source>
         <translation>Tilpas til skærm</translation>
@@ -20067,16 +20071,9 @@ Vil du overskrive den?</translation>
         <translation>Animation til/fra</translation>
     </message>
     <message>
-        <source>Export Image</source>
-        <translation>Eksportér billede</translation>
-    </message>
-    <message>
         <source>Export Multiple Images</source>
         <translation>Eksportér flere billeder</translation>
     </message>
-</context>
-<context>
-    <name>ImageViewer::Internal::ImageViewerToolbar</name>
     <message>
         <source>Export as Image</source>
         <translation>Eksportér som billede</translation>
@@ -20088,10 +20085,6 @@ Vil du overskrive den?</translation>
     <message>
         <source>Show Outline</source>
         <translation>Vis omrids</translation>
-    </message>
-    <message>
-        <source>Fit to Screen</source>
-        <translation>Tilpas til skærm</translation>
     </message>
     <message>
         <source>Original Size</source>
@@ -22376,10 +22369,6 @@ Fejl: %5</translation>
     <message>
         <source>GLSL Editor</source>
         <translation>GLSL-redigering</translation>
-    </message>
-    <message>
-        <source>Image Viewer</source>
-        <translation>Billedfremviser</translation>
     </message>
     <message>
         <source>Model Editor</source>
@@ -44951,14 +44940,10 @@ Kopiér stien til kildefilerne til udklipsholderen?</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::MultiExportDialog</name>
+    <name>ImageViewer</name>
     <message>
         <source>Enter a file name containing place holders %1 which will be replaced by the width and height of the image, respectively.</source>
         <translation>Indtast et filnavn som indeholder pladsholderne %1 som erstattes af henholdsvis bredden og højden på billedet.</translation>
-    </message>
-    <message>
-        <source>File:</source>
-        <translation>Fil:</translation>
     </message>
     <message>
         <source>Clear</source>

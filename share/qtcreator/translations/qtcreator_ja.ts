@@ -3845,7 +3845,11 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewerToolbar</name>
+    <name>ImageViewer</name>
+    <message>
+        <source>Image Viewer</source>
+        <translation>画像ビューア</translation>
+    </message>
     <message>
         <source>Show Background</source>
         <translation>背景を表示</translation>
@@ -13119,10 +13123,6 @@ in the system&apos;s browser for manual download.</source>
     <message>
         <source>GLSL Editor</source>
         <translation>GLSL エディタ</translation>
-    </message>
-    <message>
-        <source>Image Viewer</source>
-        <translation>画像ビューア</translation>
     </message>
     <message>
         <source>Python Editor</source>
@@ -22571,7 +22571,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewer</name>
+    <name>ImageViewer</name>
     <message>
         <source>Play Animation</source>
         <translation>アニメーション再生</translation>
@@ -43856,11 +43856,7 @@ Leave empty to search through the file system.</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ExportDialog</name>
-    <message>
-        <source>File:</source>
-        <translation>ファイル:</translation>
-    </message>
+    <name>ImageViewer</name>
     <message>
         <source>x</source>
         <extracomment>Multiplication, as in 32x32</extracomment>
@@ -43878,7 +43874,7 @@ Would you like to overwrite it?</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageView</name>
+    <name>ImageViewer</name>
     <message>
         <source>Export %1</source>
         <translation>%1 のエクスポート</translation>
@@ -43895,9 +43891,6 @@ Would you like to overwrite it?</source>
         <source>Could not write file &quot;%1&quot;.</source>
         <translation>ファイル &quot;%1&quot; を書き込みできませんでした。</translation>
     </message>
-</context>
-<context>
-    <name>ImageViewer::Internal::ImageViewerFile</name>
     <message>
         <source>Image format not supported.</source>
         <translation>未対応の画像形式です。</translation>
@@ -43910,28 +43903,13 @@ Would you like to overwrite it?</source>
         <source>Failed to read image.</source>
         <translation>画像の読込に失敗しました。</translation>
     </message>
-</context>
-<context>
-    <name>ImageViewer::Internal::ImageViewerPlugin</name>
-    <message>
-        <source>Zoom In</source>
-        <translation>拡大</translation>
-    </message>
     <message>
         <source>Ctrl++</source>
         <translation>Ctrl++</translation>
     </message>
     <message>
-        <source>Zoom Out</source>
-        <translation>縮小</translation>
-    </message>
-    <message>
         <source>Ctrl+-</source>
         <translation>Ctrl+-</translation>
-    </message>
-    <message>
-        <source>Original Size</source>
-        <translation>オリジナルサイズ</translation>
     </message>
     <message>
         <source>Meta+0</source>
@@ -43940,10 +43918,6 @@ Would you like to overwrite it?</source>
     <message>
         <source>Ctrl+0</source>
         <translation>Ctrl+0</translation>
-    </message>
-    <message>
-        <source>Fit to Screen</source>
-        <translation>画面内に収める</translation>
     </message>
     <message>
         <source>Ctrl+=</source>
@@ -43968,10 +43942,6 @@ Would you like to overwrite it?</source>
     <message>
         <source>Toggle Animation</source>
         <translation>アニメーションの切替</translation>
-    </message>
-    <message>
-        <source>Export Image</source>
-        <translation>画像のエクスポート</translation>
     </message>
 </context>
 <context>
@@ -53268,11 +53238,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Imageviewer::Internal::ImageViewerPlugin</name>
-    <message>
-        <source>Fit to Screen</source>
-        <translation>画面内に収める</translation>
-    </message>
+    <name>Imageviewer</name>
     <message>
         <source>Ctrl+=</source>
         <translation>Ctrl+=</translation>
@@ -53303,7 +53269,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::MultiExportDialog</name>
+    <name>ImageViewer</name>
     <message>
         <source>File:</source>
         <translation>ファイル:</translation>

@@ -28,8 +28,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace ImageViewer {
-namespace Internal {
+namespace ImageViewer::Internal {
 
 class ImageViewerPlugin : public ExtensionSystem::IPlugin
 {
@@ -46,5 +45,4 @@ private:
     class ImageViewerPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace ImageViewer
+} // ImageViewer::Internal

@@ -35,8 +35,7 @@ QT_FORWARD_DECLARE_CLASS(QLineEdit)
 
 namespace Utils { class PathChooser; }
 
-namespace ImageViewer {
-namespace Internal {
+namespace ImageViewer::Internal {
 
 struct ExportData;
 
@@ -61,12 +60,12 @@ public:
     QSize svgSize() const { return m_svgSize; }
     void setSvgSize(const QSize &svgSize) { m_svgSize = svgSize; }
 
-public slots:
-    void setStandardIconSizes();
-    void setGeneratedSizes();
     void suggestSizes();
 
 private:
+    void setStandardIconSizes();
+    void setGeneratedSizes();
+
     QString sizesSpecification() const;
 
     Utils::PathChooser *m_pathChooser;
@@ -75,5 +74,4 @@ private:
 
 };
 
-} // namespace Internal
-} // namespace ImageViewer
+} // ImageViewer::Internal

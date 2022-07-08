@@ -10955,10 +10955,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>資源編輯器</translation>
     </message>
     <message>
-        <source>Image Viewer</source>
-        <translation>影像檢視器</translation>
-    </message>
-    <message>
         <source>GLSL Editor</source>
         <translation>GLSL 編輯器</translation>
     </message>
@@ -16196,14 +16192,10 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewerToolbar</name>
+    <name>ImageViewer</name>
     <message>
-        <source>Zoom In</source>
-        <translation>放大</translation>
-    </message>
-    <message>
-        <source>Zoom Out</source>
-        <translation>縮小</translation>
+        <source>Image Viewer</source>
+        <translation>影像檢視器</translation>
     </message>
     <message>
         <source>Show Background</source>
@@ -16216,10 +16208,6 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <source>Fit to Screen</source>
         <translation>適合螢幕</translation>
-    </message>
-    <message>
-        <source>Original Size</source>
-        <translation>原始大小</translation>
     </message>
 </context>
 <context>
@@ -17383,7 +17371,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewerActionHandler</name>
+    <name>ImageViewer</name>
     <message>
         <source>Zoom In</source>
         <translation>放大</translation>
@@ -23166,7 +23154,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewer</name>
+    <name>ImageViewer</name>
     <message>
         <source>Cannot open image file %1.</source>
         <translation>無法開啟影像檔 %1。</translation>

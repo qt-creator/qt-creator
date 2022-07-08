@@ -2192,10 +2192,6 @@ Przyczyna: %3</translation>
         <translation>Edytor zasobów</translation>
     </message>
     <message>
-        <source>Image Viewer</source>
-        <translation>Przeglądarka plików graficznych</translation>
-    </message>
-    <message>
         <source>GLSL Editor</source>
         <translation>Edytor GLSL</translation>
     </message>
@@ -13104,7 +13100,11 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewerToolbar</name>
+    <name>ImageViewer</name>
+    <message>
+        <source>Image Viewer</source>
+        <translation>Przeglądarka plików graficznych</translation>
+    </message>
     <message>
         <source>Zoom In</source>
         <translation>Powiększ</translation>
@@ -17625,7 +17625,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewer</name>
+    <name>ImageViewer</name>
     <message>
         <source>Play Animation</source>
         <translation>Odtwórz animację</translation>
@@ -35325,7 +35325,7 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewerFile</name>
+    <name>ImageViewer</name>
     <message>
         <source>Image format not supported.</source>
         <translation>Nieobsługiwany format pliku graficznego.</translation>
@@ -38776,7 +38776,7 @@ Może pozostać puste w celu wyszukania w systemie plików.</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ExportDialog</name>
+    <name>ImageViewer</name>
     <message>
         <source>File:</source>
         <translation>Plik:</translation>
@@ -38798,7 +38798,7 @@ Czy nadpisać go?</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageView</name>
+    <name>ImageViewer</name>
     <message>
         <source>Export %1</source>
         <translation>Wyeksportuj %1</translation>
@@ -38815,28 +38815,13 @@ Czy nadpisać go?</translation>
         <source>Could not write file &quot;%1&quot;.</source>
         <translation>Nie można zapisać pliku &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>ImageViewer::Internal::ImageViewerPlugin</name>
-    <message>
-        <source>Zoom In</source>
-        <translation>Powiększ</translation>
-    </message>
     <message>
         <source>Ctrl++</source>
         <translation>Ctrl++</translation>
     </message>
     <message>
-        <source>Zoom Out</source>
-        <translation>Pomniejsz</translation>
-    </message>
-    <message>
         <source>Ctrl+-</source>
         <translation>Ctrl+-</translation>
-    </message>
-    <message>
-        <source>Original Size</source>
-        <translation>Oryginalny rozmiar</translation>
     </message>
     <message>
         <source>Meta+0</source>
@@ -38845,10 +38830,6 @@ Czy nadpisać go?</translation>
     <message>
         <source>Ctrl+0</source>
         <translation>Ctrl+0</translation>
-    </message>
-    <message>
-        <source>Fit to Screen</source>
-        <translation>Dopasuj do ekranu</translation>
     </message>
     <message>
         <source>Ctrl+=</source>
@@ -38873,10 +38854,6 @@ Czy nadpisać go?</translation>
     <message>
         <source>Toggle Animation</source>
         <translation>Przełącz animację</translation>
-    </message>
-    <message>
-        <source>Export Image</source>
-        <translation>Wyeksportuj plik graficzny</translation>
     </message>
 </context>
 <context>

@@ -19718,10 +19718,6 @@ p, li { white-space: pre-wrap; }
         <translation>Éditeur de ressources</translation>
     </message>
     <message>
-        <source>Image Viewer</source>
-        <translation>Visualisateur d&apos;image</translation>
-    </message>
-    <message>
         <source>GLSL Editor</source>
         <translation>Éditeur GLSL</translation>
     </message>
@@ -30379,7 +30375,11 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewerToolbar</name>
+    <name>ImageViewer</name>
+    <message>
+        <source>Image Viewer</source>
+        <translation>Visualisateur d&apos;image</translation>
+    </message>
     <message>
         <source>Show background</source>
         <translation type="obsolete">Afficher l&apos;arrière plan</translation>
@@ -30391,10 +30391,6 @@ Preselects Qt for Simulator and mobile targets if available</source>
     <message>
         <source>Fit image in the screen</source>
         <translation type="obsolete">Ajuster l&apos;image à la taille de l&apos;écran</translation>
-    </message>
-    <message>
-        <source>Original size</source>
-        <translation type="obsolete">Taille réelle</translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -32027,26 +32023,14 @@ plutôt que dans le répertoire d&apos;installation lors d&apos;une exècution e
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewerActionHandler</name>
-    <message>
-        <source>Zoom In</source>
-        <translation>Zoom avant</translation>
-    </message>
+    <name>ImageViewer</name>
     <message>
         <source>Ctrl++</source>
         <translation>Ctrl++</translation>
     </message>
     <message>
-        <source>Zoom Out</source>
-        <translation>Zoom arrière</translation>
-    </message>
-    <message>
         <source>Ctrl+-</source>
         <translation>Ctrl+-</translation>
-    </message>
-    <message>
-        <source>Original Size</source>
-        <translation>Taille réelle</translation>
     </message>
     <message>
         <source>Ctrl+0</source>
@@ -43243,7 +43227,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewer</name>
+    <name>ImageViewer</name>
     <message>
         <source>Cannot open image file %1</source>
         <translation type="obsolete">Impossible d&apos;ouvrir le fichier d&apos;image %1</translation>

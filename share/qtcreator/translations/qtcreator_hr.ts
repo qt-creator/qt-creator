@@ -4750,7 +4750,11 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewerToolbar</name>
+    <name>ImageViewer</name>
+    <message>
+        <source>Image Viewer</source>
+        <translation>Prikazivač slika</translation>
+    </message>
     <message>
         <source>Export as Image</source>
         <translation>Izvezi kao sliku</translation>
@@ -16921,10 +16925,6 @@ Check the test environment.</source>
         <translation>GLSL uređivač</translation>
     </message>
     <message>
-        <source>Image Viewer</source>
-        <translation>Prikazivač slika</translation>
-    </message>
-    <message>
         <source>Model Editor</source>
         <translation>Model uređivač</translation>
     </message>
@@ -27278,7 +27278,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ExportDialog</name>
+    <name>ImageViewer</name>
     <message>
         <source>File:</source>
         <translation>Datoteka:</translation>
@@ -27300,7 +27300,7 @@ Would you like to overwrite it?</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageView</name>
+    <name>ImageViewer</name>
     <message>
         <source>Exported &quot;%1&quot;, %2x%3, %4 bytes</source>
         <translation>Izvezeno &quot;%1&quot;, %2x%3, %4 bajta</translation>
@@ -27310,10 +27310,6 @@ Would you like to overwrite it?</source>
         <translation>Nije bilo moguće pisati datoteku &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>Export Image</source>
-        <translation>Izvezi sliku</translation>
-    </message>
-    <message>
         <source>Export %1</source>
         <translation>Izvezi %1</translation>
     </message>
@@ -27321,9 +27317,6 @@ Would you like to overwrite it?</source>
         <source>Export a Series of Images from %1 (%2x%3)</source>
         <translation>Izvezi seriju slika od %1 (%2x%3)</translation>
     </message>
-</context>
-<context>
-    <name>ImageViewer::Internal::ImageViewer</name>
     <message>
         <source>Pause Animation</source>
         <translation>Zaustavi animaciju</translation>
@@ -27334,7 +27327,7 @@ Would you like to overwrite it?</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer::Internal::ImageViewerFile</name>
+    <name>ImageViewer</name>
     <message>
         <source>Image format not supported.</source>
         <translation>Slikovni format nije podržan.</translation>
@@ -27346,13 +27339,6 @@ Would you like to overwrite it?</source>
     <message>
         <source>Failed to read image.</source>
         <translation>Neuspjelo čitanje slike.</translation>
-    </message>
-</context>
-<context>
-    <name>ImageViewer::Internal::ImageViewerPlugin</name>
-    <message>
-        <source>Fit to Screen</source>
-        <translation>Prilagodi veličini ekrana</translation>
     </message>
     <message>
         <source>Ctrl+=</source>
@@ -27386,16 +27372,9 @@ Would you like to overwrite it?</source>
         <source>Export Multiple Images</source>
         <translation>Izvezi višestruke slike</translation>
     </message>
-</context>
-<context>
-    <name>ImageViewer::Internal::MultiExportDialog</name>
     <message>
         <source>Enter a file name containing place holders %1 which will be replaced by the width and height of the image, respectively.</source>
         <translation>Upiši naziv datoteke koji sadrži rezervirana mjesta %1, koja će biti zamijenjena širinom, odnosno visinom slike.</translation>
-    </message>
-    <message>
-        <source>File:</source>
-        <translation>Datoteka:</translation>
     </message>
     <message>
         <source>Clear</source>

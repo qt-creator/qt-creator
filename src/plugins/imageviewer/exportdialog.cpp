@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "exportdialog.h"
+
 #include "imageview.h" // ExportData
+#include "imageviewertr.h"
 
 #include <coreplugin/coreicons.h>
 
@@ -54,7 +56,7 @@ QString ExportDialog::imageNameFilterString()
     static QString result;
     if (result.isEmpty()) {
         QMimeDatabase mimeDatabase;
-        const QString separator = QStringLiteral(";;");
+        const QString separator = ";;";
         foreach (const QByteArray &mimeType, QImageWriter::supportedMimeTypes()) {
             const QString filter = mimeDatabase.mimeTypeForName(QLatin1String(mimeType)).filterString();
             if (!filter.isEmpty()) {
@@ -85,7 +87,7 @@ ExportDialog::ExportDialog(QWidget *parent)
     m_pathChooser->setMinimumWidth(screen()->availableGeometry().width() / 5);
     m_pathChooser->setExpectedKind(Utils::PathChooser::SaveFile);
     m_pathChooser->setPromptDialogFilter(imageNameFilterString());
-    formLayout->addRow(tr("File:"), m_pathChooser);
+    formLayout->addRow(Tr::tr("File:"), m_pathChooser);
 
     auto sizeLayout = new QHBoxLayout;
     m_widthSpinBox->setMinimum(exportMinimumSize);
@@ -94,18 +96,18 @@ ExportDialog::ExportDialog(QWidget *parent)
             this, &ExportDialog::exportWidthChanged);
     sizeLayout->addWidget(m_widthSpinBox);
     //: Multiplication, as in 32x32
-    sizeLayout->addWidget(new QLabel(tr("x")));
+    sizeLayout->addWidget(new QLabel(Tr::tr("x")));
     m_heightSpinBox->setMinimum(exportMinimumSize);
     m_heightSpinBox->setMaximum(exportMaximumSize);
     connect(m_heightSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
             this, &ExportDialog::exportHeightChanged);
     sizeLayout->addWidget(m_heightSpinBox);
     auto resetButton = new QToolButton(this);
-    resetButton->setIcon(QIcon(QStringLiteral(":/qt-project.org/styles/commonstyle/images/refresh-32.png")));
+    resetButton->setIcon(QIcon(":/qt-project.org/styles/commonstyle/images/refresh-32.png"));
     sizeLayout->addWidget(resetButton);
     sizeLayout->addStretch();
     connect(resetButton, &QAbstractButton::clicked, this, &ExportDialog::resetExportSize);
-    formLayout->addRow(tr("Size:"), sizeLayout);
+    formLayout->addRow(Tr::tr("Size:"), sizeLayout);
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -121,7 +123,7 @@ void ExportDialog::accept()
     }
     const QString fileName = exportFileName();
     if (QFileInfo::exists(fileName)) {
-        const QString question = tr("%1 already exists.\nWould you like to overwrite it?")
+        const QString question = Tr::tr("%1 already exists.\nWould you like to overwrite it?")
             .arg(QDir::toNativeSeparators(fileName));
         if (QMessageBox::question(this, windowTitle(), question, QMessageBox::Yes | QMessageBox::No) !=  QMessageBox::Yes)
             return;

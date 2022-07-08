@@ -27,15 +27,8 @@
 #pragma once
 
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/idocument.h>
-
-#include <QScopedPointer>
-#include <QStringList>
-
-QT_BEGIN_NAMESPACE
-class QAbstractButton;
-class QAction;
-QT_END_NAMESPACE
 
 namespace ImageViewer::Internal {
 
@@ -76,6 +69,12 @@ private:
     void updatePauseAction();
 
     struct ImageViewerPrivate *d;
+};
+
+class ImageViewerFactory final : public Core::IEditorFactory
+{
+public:
+    ImageViewerFactory();
 };
 
 } // ImageViewer::Internal
