@@ -11758,102 +11758,6 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunConfigurationWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">參數：</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceDebugRunControl</name>
-    <message>
-        <source>Warning: Cannot locate the symbol file belonging to %1.
-</source>
-        <translation type="obsolete">警告：無法定位屬於 %1 的符號檔案。</translation>
-    </message>
-    <message>
-        <source>Launching debugger...
-</source>
-        <translation type="obsolete">啟動除錯工具中...
-</translation>
-    </message>
-    <message>
-        <source>Debugger for Symbian Platform</source>
-        <translation type="obsolete">Symbian 平台的除錯工具</translation>
-    </message>
-    <message>
-        <source>Debug on Device</source>
-        <translation type="obsolete">在裝置上除錯</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfigurationWidget</name>
-    <message>
-        <source>Executable:</source>
-        <translation type="obsolete">執行檔：</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfiguration</name>
-    <message>
-        <source>%1 in Symbian Emulator</source>
-        <extracomment>S60 emulator run configuration default display name, %1 is base pro-File name
-----------
-S60 emulator run configuration default display name, %1 is base pro-File name</extracomment>
-        <translation type="obsolete">%1 於 Symbian 模擬器中</translation>
-    </message>
-    <message>
-        <source>Run on Symbian Emulator</source>
-        <extracomment>S60 emulator run configuration default display name (no pro-file name)</extracomment>
-        <translation type="obsolete">在 Symbian 模擬器中執行</translation>
-    </message>
-    <message>
-        <source>The .pro file is currently being parsed.</source>
-        <translation type="obsolete">.pro 檔案正在被剖析中。</translation>
-    </message>
-    <message>
-        <source>The .pro file could not be parsed.</source>
-        <translation type="obsolete">無法剖析 .pro 檔案。</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfigurationFactory</name>
-    <message>
-        <source>%1 in Symbian Emulator</source>
-        <translation type="obsolete">%1 於 Symbian 模擬器中</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunControl</name>
-    <message>
-        <source>Starting %1...
-</source>
-        <translation type="obsolete">%1 啟動中...
-</translation>
-    </message>
-    <message>
-        <source>[Qt Message]</source>
-        <translation type="obsolete">[Qt 訊息]</translation>
-    </message>
-    <message>
-        <source>%1 exited with code %2
-</source>
-        <translation type="obsolete">%1 已離開，離開代碼為 %2
-</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60Manager</name>
-    <message>
-        <source>Run in Emulator</source>
-        <translation type="obsolete">在模擬器中執行</translation>
-    </message>
-    <message>
-        <source>Run on Device</source>
-        <translation type="obsolete">在裝置上執行</translation>
-    </message>
-</context>
-<context>
     <name>QmakeProjectManager::QmakeBuildConfigurationFactory</name>
     <message>
         <source>Using Qt Version &quot;%1&quot;</source>
@@ -19360,7 +19264,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::ErrorListModel</name>
+    <name>Valgrind</name>
     <message>
         <source>No errors found</source>
         <translation>沒有找到錯誤</translation>
@@ -19368,18 +19272,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>What</source>
         <translation>什麼</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>位置</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>檔案</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>行號</translation>
     </message>
     <message>
         <source>Unique</source>
@@ -19407,11 +19299,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol</name>
-    <message>
-        <source>Function:</source>
-        <translation>函式：</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Location:</source>
         <translation>位置：</translation>
@@ -19420,13 +19308,9 @@ Local pulls are not applied to the master branch.</source>
         <source>Instruction pointer:</source>
         <translation>指令指標：</translation>
     </message>
-    <message>
-        <source>Object:</source>
-        <translation>物件：</translation>
-    </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::Parser</name>
+    <name>Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>無法剖析從&quot;%1&quot; (%2) 來的十六進位數</translation>
@@ -19481,7 +19365,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::StackModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Description</source>
         <translation>描述</translation>
@@ -19493,10 +19377,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Object</source>
         <translation>物件</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>函式</translation>
     </message>
     <message>
         <source>Directory</source>
@@ -22815,7 +22695,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::SuppressionDialog</name>
+    <name>Valgrind</name>
     <message>
         <source>Suppression File:</source>
         <translation type="unfinished">Suppression 檔案:</translation>
@@ -22834,7 +22714,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindConfigWidget</name>
+    <name>Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>一般設定</translation>
@@ -24562,7 +24442,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindEngine</name>
+    <name>Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>效能分析中</translation>
@@ -24575,7 +24455,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindTool</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind Function Profiler</source>
         <translation>Valgrind 函式效能分析器</translation>
@@ -24590,7 +24470,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindToolPrivate</name>
+    <name>Valgrind</name>
     <message>
         <source>Callers</source>
         <translation>呼叫者</translation>
@@ -24709,14 +24589,14 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::Visualisation</name>
+    <name>Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation type="unfinished">所有功能包含一個成本比%1高的 (%2 被隱藏)</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckEngine</name>
+    <name>Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>記憶體分析中</translation>
@@ -24729,18 +24609,14 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal</name>
-    <message>
-        <source>%1 in %2</source>
-        <translation>於 %2 中的 %1</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>in %1</source>
         <translation>於 %1</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckErrorView</name>
+    <name>Valgrind</name>
     <message>
         <source>Copy Selection</source>
         <translation>複製選擇</translation>
@@ -24751,7 +24627,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckTool</name>
+    <name>Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation>外部錯誤</translation>
@@ -24818,7 +24694,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>被呼叫者</translation>
@@ -24837,7 +24713,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallgrindController</name>
+    <name>Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation type="unfinished">之前的命令還沒有完成.</translation>
@@ -24872,7 +24748,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::DataModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>函式：</translation>
@@ -24949,7 +24825,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::Function</name>
+    <name>Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>於 %2 中的 %1</translation>
@@ -24960,7 +24836,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::ParseData</name>
+    <name>Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>最後等級</translation>
@@ -25019,14 +24895,14 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallgrindRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>Parsing Profile Data...</source>
         <translation>正在剖析效能分析資料...</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Memcheck::MemcheckRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>No network interface found for remote analysis.</source>
         <translation type="obsolete">找不到用於遠端分析的網路介面。</translation>
@@ -25045,14 +24921,14 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::RemoteValgrindProcess</name>
+    <name>Valgrind</name>
     <message>
         <source>Could not determine remote PID.</source>
         <translation>無法決定遠端的行程代碼。</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindEngine</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Valgrind 選項：%1</translation>
@@ -25177,13 +25053,6 @@ In addition, device connectivity will be tested.</source>
 
 To compile QML Observer, go to the Qt Versions page, select the current Qt version, and click Build in the Helpers section.</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::Internal::ValgrindBaseSettings</name>
-    <message>
-        <source>Valgrind</source>
-        <translation>Valgrind</translation>
     </message>
 </context>
 <context>

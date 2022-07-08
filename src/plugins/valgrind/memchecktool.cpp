@@ -27,10 +27,11 @@
 #include "memchecktool.h"
 
 #include "memcheckerrorview.h"
-#include "valgrindsettings.h"
 #include "valgrindengine.h"
-#include "valgrindsettings.h"
 #include "valgrindrunner.h"
+#include "valgrindsettings.h"
+#include "valgrindsettings.h"
+#include "valgrindtr.h"
 
 #include "xmlprotocol/error.h"
 #include "xmlprotocol/error.h"
@@ -188,7 +189,7 @@ private:
 
 QString MemcheckToolRunner::progressTitle() const
 {
-    return MemcheckTool::tr("Analyzing Memory");
+    return Tr::tr("Analyzing Memory");
 }
 
 void MemcheckToolRunner::start()
@@ -454,7 +455,7 @@ private:
     bool m_toolBusy = false;
 
     QString m_exitMsg;
-    Perspective m_perspective{"Memcheck.Perspective", MemcheckTool::tr("Memcheck")};
+    Perspective m_perspective{"Memcheck.Perspective", Tr::tr("Memcheck")};
 
     RunWorkerFactory memcheckToolRunnerFactory{
         RunWorkerFactory::make<MemcheckToolRunner>(),
@@ -544,31 +545,31 @@ MemcheckToolPrivate::MemcheckToolPrivate()
 
     setObjectName("MemcheckTool");
 
-    m_filterProjectAction = new QAction(MemcheckTool::tr("External Errors"), this);
+    m_filterProjectAction = new QAction(Tr::tr("External Errors"), this);
     m_filterProjectAction->setToolTip(
-        MemcheckTool::tr("Show issues originating outside currently opened projects."));
+        Tr::tr("Show issues originating outside currently opened projects."));
     m_filterProjectAction->setCheckable(true);
 
-    m_suppressionSeparator = new QAction(MemcheckTool::tr("Suppressions"), this);
+    m_suppressionSeparator = new QAction(Tr::tr("Suppressions"), this);
     m_suppressionSeparator->setSeparator(true);
     m_suppressionSeparator->setToolTip(
-        MemcheckTool::tr("These suppression files were used in the last memory analyzer run."));
+        Tr::tr("These suppression files were used in the last memory analyzer run."));
 
-    QAction *a = new QAction(MemcheckTool::tr("Definite Memory Leaks"), this);
+    QAction *a = new QAction(Tr::tr("Definite Memory Leaks"), this);
     initKindFilterAction(a, {Leak_DefinitelyLost, Leak_IndirectlyLost});
     m_errorFilterActions.append(a);
 
-    a = new QAction(MemcheckTool::tr("Possible Memory Leaks"), this);
+    a = new QAction(Tr::tr("Possible Memory Leaks"), this);
     initKindFilterAction(a, {Leak_PossiblyLost, Leak_StillReachable});
     m_errorFilterActions.append(a);
 
-    a = new QAction(MemcheckTool::tr("Use of Uninitialized Memory"), this);
+    a = new QAction(Tr::tr("Use of Uninitialized Memory"), this);
     initKindFilterAction(a, {InvalidRead, InvalidWrite, InvalidJump, Overlap,
                              InvalidMemPool, UninitCondition, UninitValue,
                              SyscallParam, ClientCheck});
     m_errorFilterActions.append(a);
 
-    a = new QAction(MemcheckTool::tr("Invalid Calls to \"free()\""), this);
+    a = new QAction(Tr::tr("Invalid Calls to \"free()\""), this);
     initKindFilterAction(a, { InvalidFree,  MismatchedFree });
     m_errorFilterActions.append(a);
 
@@ -586,7 +587,7 @@ MemcheckToolPrivate::MemcheckToolPrivate()
     m_errorView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     m_errorView->setAutoScroll(false);
     m_errorView->setObjectName("Valgrind.MemcheckTool.ErrorView");
-    m_errorView->setWindowTitle(MemcheckTool::tr("Memory Issues"));
+    m_errorView->setWindowTitle(Tr::tr("Memory Issues"));
 
     m_perspective.addWindow(m_errorView, Perspective::SplitVertical, nullptr);
 
@@ -604,7 +605,7 @@ MemcheckToolPrivate::MemcheckToolPrivate()
     // Load external XML log file
     auto action = new QAction(this);
     action->setIcon(Icons::OPENFILE_TOOLBAR.icon());
-    action->setToolTip(MemcheckTool::tr("Load External XML Log File"));
+    action->setToolTip(Tr::tr("Load External XML Log File"));
     connect(action, &QAction::triggered, this, &MemcheckToolPrivate::loadExternalXmlLogFile);
     m_loadExternalLogFile = action;
 
@@ -612,7 +613,7 @@ MemcheckToolPrivate::MemcheckToolPrivate()
     action = new QAction(this);
     action->setDisabled(true);
     action->setIcon(Icons::PREV_TOOLBAR.icon());
-    action->setToolTip(MemcheckTool::tr("Go to previous leak."));
+    action->setToolTip(Tr::tr("Go to previous leak."));
     connect(action, &QAction::triggered, m_errorView, &MemcheckErrorView::goBack);
     m_goBack = action;
 
@@ -620,13 +621,13 @@ MemcheckToolPrivate::MemcheckToolPrivate()
     action = new QAction(this);
     action->setDisabled(true);
     action->setIcon(Icons::NEXT_TOOLBAR.icon());
-    action->setToolTip(MemcheckTool::tr("Go to next leak."));
+    action->setToolTip(Tr::tr("Go to next leak."));
     connect(action, &QAction::triggered, m_errorView, &MemcheckErrorView::goNext);
     m_goNext = action;
 
     auto filterButton = new QToolButton;
     filterButton->setIcon(Icons::FILTER.icon());
-    filterButton->setText(MemcheckTool::tr("Error Filter"));
+    filterButton->setText(Tr::tr("Error Filter"));
     filterButton->setPopupMode(QToolButton::InstantPopup);
     filterButton->setProperty("noArrow", true);
 
@@ -640,11 +641,11 @@ MemcheckToolPrivate::MemcheckToolPrivate()
     filterButton->setMenu(m_filterMenu);
 
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
-    QString toolTip = MemcheckTool::tr("Valgrind Analyze Memory uses the Memcheck tool to find memory leaks.");
+    QString toolTip = Tr::tr("Valgrind Analyze Memory uses the Memcheck tool to find memory leaks.");
 
     if (!HostOsInfo::isWindowsHost()) {
         action = new QAction(this);
-        action->setText(MemcheckTool::tr("Valgrind Memory Analyzer"));
+        action->setText(Tr::tr("Valgrind Memory Analyzer"));
         action->setToolTip(toolTip);
         menu->addAction(ActionManager::registerAction(action, "Memcheck.Local"),
                         Debugger::Constants::G_ANALYZER_TOOLS);
@@ -661,8 +662,8 @@ MemcheckToolPrivate::MemcheckToolPrivate()
         });
 
         action = new QAction(this);
-        action->setText(MemcheckTool::tr("Valgrind Memory Analyzer with GDB"));
-        action->setToolTip(MemcheckTool::tr("Valgrind Analyze Memory with GDB uses the "
+        action->setText(Tr::tr("Valgrind Memory Analyzer with GDB"));
+        action->setToolTip(Tr::tr("Valgrind Analyze Memory with GDB uses the "
             "Memcheck tool to find memory leaks.\nWhen a problem is detected, "
             "the application is interrupted and can be debugged."));
         menu->addAction(ActionManager::registerAction(action, "MemcheckWithGdb.Local"),
@@ -679,9 +680,9 @@ MemcheckToolPrivate::MemcheckToolPrivate()
             action->setEnabled(m_startWithGdbAction->isEnabled());
         });
     } else {
-        action = new QAction(MemcheckTool::tr("Heob"), this);
+        action = new QAction(Tr::tr("Heob"), this);
         Core::Command *cmd = Core::ActionManager::registerAction(action, "Memcheck.Local");
-        cmd->setDefaultKeySequence(QKeySequence(MemcheckTool::tr("Ctrl+Alt+H")));
+        cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Alt+H")));
         connect(action, &QAction::triggered, this, &MemcheckToolPrivate::heobAction);
         menu->addAction(cmd, Debugger::Constants::G_ANALYZER_TOOLS);
         connect(m_startAction, &QAction::changed, action, [action, this] {
@@ -690,7 +691,7 @@ MemcheckToolPrivate::MemcheckToolPrivate()
     }
 
     action = new QAction(this);
-    action->setText(MemcheckTool::tr("Valgrind Memory Analyzer (External Application)"));
+    action->setText(Tr::tr("Valgrind Memory Analyzer (External Application)"));
     action->setToolTip(toolTip);
     menu->addAction(ActionManager::registerAction(action, "Memcheck.Remote"),
                     Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
@@ -752,7 +753,7 @@ void MemcheckToolPrivate::heobAction()
         }
     }
     if (!hasLocalRc) {
-        const QString msg = MemcheckTool::tr("Heob: No local run configuration available.");
+        const QString msg = Tr::tr("Heob: No local run configuration available.");
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;
@@ -761,7 +762,7 @@ void MemcheckToolPrivate::heobAction()
             || abi.os() != Abi::WindowsOS
             || abi.binaryFormat() != Abi::PEFormat
             || (abi.wordWidth() != 32 && abi.wordWidth() != 64)) {
-        const QString msg = MemcheckTool::tr("Heob: No toolchain available.");
+        const QString msg = Tr::tr("Heob: No toolchain available.");
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;
@@ -774,7 +775,7 @@ void MemcheckToolPrivate::heobAction()
 
     // target executable
     if (executable.isEmpty()) {
-        const QString msg = MemcheckTool::tr("Heob: No executable set.");
+        const QString msg = Tr::tr("Heob: No executable set.");
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;
@@ -782,7 +783,7 @@ void MemcheckToolPrivate::heobAction()
     if (!executable.exists())
         executable = executable.withExecutableSuffix();
     if (!executable.exists()) {
-        const QString msg = MemcheckTool::tr("Heob: Cannot find %1.").arg(executable.toUserOutput());
+        const QString msg = Tr::tr("Heob: Cannot find %1.").arg(executable.toUserOutput());
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;
@@ -808,8 +809,8 @@ void MemcheckToolPrivate::heobAction()
     if (!QFile::exists(heobPath)) {
         QMessageBox::critical(
             Core::ICore::dialogParent(),
-            MemcheckTool::tr("Heob"),
-            MemcheckTool::tr("The %1 executables must be in the appropriate location.")
+            Tr::tr("Heob"),
+            Tr::tr("The %1 executables must be in the appropriate location.")
                 .arg("<a href=\"https://github.com/ssbssa/heob/releases\">Heob</a>"));
         return;
     }
@@ -821,8 +822,8 @@ void MemcheckToolPrivate::heobAction()
         if (!QFile::exists(dwarfstackPath)
             && CheckableMessageBox::doNotShowAgainInformation(
                    Core::ICore::dialogParent(),
-                   MemcheckTool::tr("Heob"),
-                   MemcheckTool::tr("Heob used with MinGW projects needs the %1 DLLs for proper "
+                   Tr::tr("Heob"),
+                   Tr::tr("Heob used with MinGW projects needs the %1 DLLs for proper "
                                     "stacktrace resolution.")
                        .arg(
                            "<a "
@@ -877,7 +878,7 @@ void MemcheckToolPrivate::heobAction()
                        CREATE_UNICODE_ENVIRONMENT | CREATE_SUSPENDED | CREATE_NEW_CONSOLE, envPtr,
                        reinterpret_cast<LPCWSTR>(workingDirectory.utf16()), &si, &pi)) {
         DWORD e = GetLastError();
-        const QString msg = MemcheckTool::tr("Heob: Cannot create %1 process (%2).")
+        const QString msg = Tr::tr("Heob: Cannot create %1 process (%2).")
                                 .arg(heob)
                                 .arg(qt_error_string(e));
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
@@ -905,16 +906,16 @@ void MemcheckToolPrivate::updateRunActions()
 {
     if (m_toolBusy) {
         m_startAction->setEnabled(false);
-        m_startAction->setToolTip(MemcheckTool::tr("A Valgrind Memcheck analysis is still in progress."));
+        m_startAction->setToolTip(Tr::tr("A Valgrind Memcheck analysis is still in progress."));
         m_startWithGdbAction->setEnabled(false);
-        m_startWithGdbAction->setToolTip(MemcheckTool::tr("A Valgrind Memcheck analysis is still in progress."));
+        m_startWithGdbAction->setToolTip(Tr::tr("A Valgrind Memcheck analysis is still in progress."));
         m_stopAction->setEnabled(true);
     } else {
-        QString whyNot = MemcheckTool::tr("Start a Valgrind Memcheck analysis.");
+        QString whyNot = Tr::tr("Start a Valgrind Memcheck analysis.");
         bool canRun = ProjectExplorerPlugin::canRunStartupProject(MEMCHECK_RUN_MODE, &whyNot);
         m_startAction->setToolTip(whyNot);
         m_startAction->setEnabled(canRun);
-        whyNot = MemcheckTool::tr("Start a Valgrind Memcheck with GDB analysis.");
+        whyNot = Tr::tr("Start a Valgrind Memcheck with GDB analysis.");
         canRun = ProjectExplorerPlugin::canRunStartupProject(MEMCHECK_WITH_GDB_RUN_MODE, &whyNot);
         m_startWithGdbAction->setToolTip(whyNot);
         m_startWithGdbAction->setEnabled(canRun);
@@ -1040,9 +1041,9 @@ void MemcheckToolPrivate::loadExternalXmlLogFile()
 {
     const FilePath filePath = FileUtils::getOpenFilePath(
                 nullptr,
-                MemcheckTool::tr("Open Memcheck XML Log File"),
+                Tr::tr("Open Memcheck XML Log File"),
                 {},
-                MemcheckTool::tr("XML Files (*.xml);;All Files (*)"));
+                Tr::tr("XML Files (*.xml);;All Files (*)"));
     if (filePath.isEmpty())
         return;
 
@@ -1055,7 +1056,7 @@ void MemcheckToolPrivate::loadXmlLogFile(const QString &filePath)
     auto logFile = new QFile(filePath);
     if (!logFile->open(QIODevice::ReadOnly | QIODevice::Text)) {
         delete logFile;
-        QString msg = MemcheckTool::tr("Memcheck: Failed to open file for reading: %1").arg(filePath);
+        QString msg = Tr::tr("Memcheck: Failed to open file for reading: %1").arg(filePath);
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         if (!m_exitMsg.isEmpty())
@@ -1093,7 +1094,7 @@ void MemcheckToolPrivate::parserError(const Error &error)
 
 void MemcheckToolPrivate::internalParserError(const QString &errorString)
 {
-    QString msg = MemcheckTool::tr("Memcheck: Error occurred parsing Valgrind output: %1").arg(errorString);
+    QString msg = Tr::tr("Memcheck: Error occurred parsing Valgrind output: %1").arg(errorString);
     TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
     TaskHub::requestPopup();
 }
@@ -1147,13 +1148,13 @@ void MemcheckToolPrivate::engineFinished()
 
     const int issuesFound = updateUiAfterFinishedHelper();
     Debugger::showPermanentStatusMessage(
-        MemcheckTool::tr("Memory Analyzer Tool finished. %n issues were found.", nullptr, issuesFound));
+        Tr::tr("Memory Analyzer Tool finished. %n issues were found.", nullptr, issuesFound));
 }
 
 void MemcheckToolPrivate::loadingExternalXmlLogFileFinished()
 {
     const int issuesFound = updateUiAfterFinishedHelper();
-    QString statusMessage = MemcheckTool::tr("Log file processed. %n issues were found.", nullptr, issuesFound);
+    QString statusMessage = Tr::tr("Log file processed. %n issues were found.", nullptr, issuesFound);
     if (!m_exitMsg.isEmpty())
         statusMessage += ' ' + m_exitMsg;
     Debugger::showPermanentStatusMessage(statusMessage);

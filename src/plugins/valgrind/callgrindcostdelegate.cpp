@@ -25,11 +25,9 @@
 
 #include "callgrindcostdelegate.h"
 
-#include "callgrindcostview.h"
 #include "callgrindhelper.h"
 
 #include "callgrind/callgrindabstractmodel.h"
-#include "callgrind/callgrindparsedata.h"
 
 #include <utils/qtcassert.h>
 

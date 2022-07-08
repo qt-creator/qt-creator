@@ -52276,7 +52276,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>Вызываемое</translation>
@@ -52295,7 +52295,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallgrindController</name>
+    <name>Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>Предыдущая команда ещё не завершена.</translation>
@@ -52330,7 +52330,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::DataModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>Функция:</translation>
@@ -52405,7 +52405,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::Function</name>
+    <name>Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 в %2</translation>
@@ -52416,7 +52416,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::ParseData</name>
+    <name>Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>Последний уровень</translation>
@@ -52475,7 +52475,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal</name>
+    <name>Valgrind</name>
     <message>
         <source>%1%2</source>
         <translation>%1%2</translation>
@@ -52486,7 +52486,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindTool</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind Function Profiler uses the Callgrind tool to record function calls when a program runs.</source>
         <translation>Профайлер функций Valgrind использует утилиту Callgrind для записи вызовов функций при работе программы.</translation>
@@ -52657,7 +52657,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindToolRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>Профилирование</translation>
@@ -52666,20 +52666,16 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Profiling %1</source>
         <translation>Профилирование %1</translation>
     </message>
-    <message>
-        <source>Parsing Profile Data...</source>
-        <translation>Обработка данных профилирования...</translation>
-    </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckErrorView</name>
+    <name>Valgrind</name>
     <message>
         <source>Suppress Error</source>
         <translation>Игнорировать ошибку</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckTool</name>
+    <name>Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation>Внешние ошибки</translation>
@@ -52844,7 +52840,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::SuppressionDialog</name>
+    <name>Valgrind</name>
     <message>
         <source>Suppression File:</source>
         <translation>Список исключений:</translation>
@@ -52863,7 +52859,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindConfigWidget</name>
+    <name>Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>Общие настройки</translation>
@@ -53043,14 +53039,14 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindRunConfigurationAspect</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Настройки Valgrind</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindToolRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Параметры Valgrind: %1</translation>
@@ -53087,14 +53083,14 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::Visualization</name>
+    <name>Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>Все функции с полной ценой более %1 (%2 скрыто)</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::ValgrindRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>XmlServer on %1:</source>
         <translation>XmlServer на %1:</translation>
@@ -53105,11 +53101,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol</name>
-    <message>
-        <source>Function:</source>
-        <translation>Функция:</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Location:</source>
         <translation>Размещение:</translation>
@@ -53118,17 +53110,9 @@ With cache simulation, further event counters are enabled:
         <source>Instruction pointer:</source>
         <translation>Указатель инструкций:</translation>
     </message>
-    <message>
-        <source>Object:</source>
-        <translation>Объект:</translation>
-    </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::ErrorListModel</name>
-    <message>
-        <source>Location</source>
-        <translation>Размещение</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Issue</source>
         <translation>Проблема</translation>
@@ -53139,7 +53123,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::Parser</name>
+    <name>Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>Не удалось разобрать шестнадцатеричное число из «%1» (%2)</translation>
@@ -53194,7 +53178,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::StackModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Описание</translation>
@@ -53206,10 +53190,6 @@ With cache simulation, further event counters are enabled:
     <message>
         <source>Object</source>
         <translation>Объект</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>Функция</translation>
     </message>
     <message>
         <source>Directory</source>

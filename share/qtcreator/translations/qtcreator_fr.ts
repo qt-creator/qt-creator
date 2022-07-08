@@ -10169,10 +10169,6 @@ Ajouter, modifier et supprimer des filtres de documents, lesquels déterminent l
         <translation type="obsolete">Fichiers</translation>
     </message>
     <message>
-        <source>File</source>
-        <translation type="obsolete">Fichier</translation>
-    </message>
-    <message>
         <source>Debug</source>
         <translation type="obsolete">Déboguer</translation>
     </message>
@@ -36122,14 +36118,10 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     </message>
 </context>
 <context>
-    <name>ValgrindConfigWidget</name>
+    <name>Valgrind</name>
     <message>
         <source>Common Valgrind Options</source>
         <translation type="obsolete">Options communes de Valgrind</translation>
-    </message>
-    <message>
-        <source>Valgrind executable:</source>
-        <translation type="obsolete">Exécutable Valgrind : </translation>
     </message>
 </context>
 <context>
@@ -36503,7 +36495,7 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::ErrorListModel</name>
+    <name>Valgrind</name>
     <message>
         <source>No errors found</source>
         <translation>Aucune erreur trouvée</translation>
@@ -36515,14 +36507,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     <message>
         <source>Location</source>
         <translation>Emplacement</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Fichier</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>Ligne</translation>
     </message>
     <message>
         <source>Unique</source>
@@ -36550,11 +36534,7 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol</name>
-    <message>
-        <source>Function:</source>
-        <translation>Fonction :</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Location:</source>
         <translation>Emplacement :</translation>
@@ -36563,13 +36543,9 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <source>Instruction pointer:</source>
         <translation>Pointeur d&apos;instruction : </translation>
     </message>
-    <message>
-        <source>Object:</source>
-        <translation>Objet : </translation>
-    </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::Parser</name>
+    <name>Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>Impossible de parser le nombre hexadécimal depuis &quot;%1&quot; (%2)</translation>
@@ -36624,7 +36600,7 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::StackModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Description</translation>
@@ -36636,10 +36612,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     <message>
         <source>Object</source>
         <translation>Objet</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>Fonction</translation>
     </message>
     <message>
         <source>Directory</source>
@@ -38429,126 +38401,6 @@ Do you want to retry?</source>
     <message>
         <source>Save Last Macro</source>
         <translation>Sauvegarder la dernière macro</translation>
-    </message>
-</context>
-<context>
-    <name>Analyzer::Internal::MemcheckConfigWidget</name>
-    <message>
-        <source>Valgrind Suppression File (*.supp);;All Files (*)</source>
-        <translation type="obsolete">Fichier de suppression de Valgind (*.supp);;Tous les fichiers (*)</translation>
-    </message>
-</context>
-<context>
-    <name>Analyzer::Internal::MemcheckEngine</name>
-    <message>
-        <source>Analyzing Memory</source>
-        <translatorcomment>Peut être ajouter &quot;en cours...&quot;</translatorcomment>
-        <translation type="obsolete">Analyse de la mémoire</translation>
-    </message>
-    <message>
-        <source>Analyzing memory of %1</source>
-        <translation type="obsolete">Analyse de la mémoire de %1</translation>
-    </message>
-</context>
-<context>
-    <name>Analyzer::Internal</name>
-    <message>
-        <source>%1 in %2</source>
-        <translation type="obsolete">%1 dans %2</translation>
-    </message>
-    <message>
-        <source>in %1</source>
-        <translation type="obsolete">dans %1</translation>
-    </message>
-</context>
-<context>
-    <name>Analyzer::Internal::MemcheckErrorView</name>
-    <message>
-        <source>Copy Selection</source>
-        <translation type="obsolete">Copier la sélection</translation>
-    </message>
-    <message>
-        <source>Suppress Error</source>
-        <translation type="obsolete">Cacher les erreurs</translation>
-    </message>
-</context>
-<context>
-    <name>Analyzer::Internal::AbstractMemcheckSettings</name>
-    <message>
-        <source>Memory Analysis</source>
-        <translation type="obsolete">Analyse de la mémoire</translation>
-    </message>
-</context>
-<context>
-    <name>Analyzer::Internal::MemcheckTool</name>
-    <message>
-        <source>External Errors</source>
-        <translation type="obsolete">Erreurs externe</translation>
-    </message>
-    <message>
-        <source>Suppressions</source>
-        <translatorcomment>erreur cachées ?</translatorcomment>
-        <translation type="obsolete">Suppressions</translation>
-    </message>
-    <message>
-        <source>Definite Memory Leaks</source>
-        <translation type="obsolete">Fuites mémoire trouvées</translation>
-    </message>
-    <message>
-        <source>Possible Memory Leaks</source>
-        <translation type="obsolete">Fuites mémoire possibles</translation>
-    </message>
-    <message>
-        <source>Use of Uninitialized Memory</source>
-        <translation type="obsolete">Utilisation de mémoire non initialisée</translation>
-    </message>
-    <message>
-        <source>Invalid Frees</source>
-        <translatorcomment>peut être mettre au pluriel?</translatorcomment>
-        <translation type="obsolete">Libération mémoire invalide</translation>
-    </message>
-    <message>
-        <source>Show issues originating outside currently opened projects.</source>
-        <translation type="obsolete">Afficher les problèmes provenant de l&apos;extérieur des projets actuellement ouvert.</translation>
-    </message>
-    <message>
-        <source>These suppression files were used in the last memory analyzer run.</source>
-        <translatorcomment>Ces listes &quot;d&apos;erreur cachées&quot; ont été utilisées pendant la dernière analyse mémoire.</translatorcomment>
-        <translation type="obsolete">Ces fichiers de suppression ont été utilisés pendant la dernière analyse mémoire.</translation>
-    </message>
-    <message>
-        <source>These suppression files where used in the last memory analyzer run.</source>
-        <translatorcomment>Ces listes &quot;d&apos;erreur cachées&quot; ont été utilisées pendant la dernière analyse mémoire.</translatorcomment>
-        <translation type="obsolete">Ces fichiers de suppression ont été utilisés pendant la dernière analyse mémoire.</translation>
-    </message>
-    <message>
-        <source>Analyze Memory</source>
-        <translation type="obsolete">Analyser la mémoire</translation>
-    </message>
-    <message>
-        <source>Error Filter</source>
-        <translation type="obsolete">Filtre d&apos;erreur</translation>
-    </message>
-    <message>
-        <source>Internal Error</source>
-        <translation type="obsolete">Erreur interne</translation>
-    </message>
-    <message>
-        <source>Error occurred parsing valgrind output: %1</source>
-        <translation type="obsolete">Erreur d&apos;analyse de la sortie de Valgring : &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>Analyzer::Internal::SuppressionDialog</name>
-    <message>
-        <source>Select Suppression File</source>
-        <translatorcomment>??</translatorcomment>
-        <translation type="obsolete">Sélectionner le fichier de suppresion</translation>
-    </message>
-    <message>
-        <source>Save Suppression</source>
-        <translatorcomment>??</translatorcomment>
-        <translation type="obsolete">Sauvegarder la suppression</translation>
     </message>
 </context>
 <context>
@@ -40942,41 +40794,6 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     </message>
 </context>
 <context>
-    <name>Analyzer::Internal::ValgrindEngine</name>
-    <message>
-        <source>Valgrind options: %1</source>
-        <translation type="obsolete">Options de Valgrind : %1</translation>
-    </message>
-    <message>
-        <source>Working directory: %1</source>
-        <translation type="obsolete">Répertoire de travail : %1</translation>
-    </message>
-    <message>
-        <source>Command-line arguments: %1</source>
-        <translation type="obsolete">Arguments de la commande : %1</translation>
-    </message>
-    <message>
-        <source>** Analysing finished **</source>
-        <translation type="obsolete">** Analyse terminée **</translation>
-    </message>
-    <message>
-        <source>** Error: &quot;%1&quot; could not be started: %2 **</source>
-        <translation type="obsolete">** Erreur: &quot;%1&quot; ne peux pas démarrer: %2 **</translation>
-    </message>
-    <message>
-        <source>** Error: no valgrind executable set **</source>
-        <translation type="obsolete">** Erreur : acun éxécutable de Valgring défini **</translation>
-    </message>
-    <message>
-        <source>** Process Terminated **</source>
-        <translation type="obsolete">** Processus terminé **</translation>
-    </message>
-    <message>
-        <source>Application Output</source>
-        <translation type="obsolete">Sortie de l&apos;application</translation>
-    </message>
-</context>
-<context>
     <name>Analyzer::Internal::ValgrindSettings</name>
     <message>
         <source>Generic Settings</source>
@@ -42203,7 +42020,7 @@ Influence l&apos;indentation des lignes de continuation.
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::SuppressionDialog</name>
+    <name>Valgrind</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Boîte de dialogue</translation>
@@ -42226,7 +42043,7 @@ Influence l&apos;indentation des lignes de continuation.
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindConfigWidget</name>
+    <name>Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>Paramètres génériques</translation>
@@ -46524,7 +46341,7 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindEngine</name>
+    <name>Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>Profilage</translation>
@@ -46536,7 +46353,7 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindTool</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind Function Profiler</source>
         <translation>Profileur de fonction de Valgrind</translation>
@@ -46551,7 +46368,7 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindToolPrivate</name>
+    <name>Valgrind</name>
     <message>
         <source>Callers</source>
         <translatorcomment>ou -ants ?</translatorcomment>
@@ -46630,16 +46447,8 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
         <translation>Ouvrir un fichier de log XML de Callgrind</translation>
     </message>
     <message>
-        <source>XML Files (*.xml);;All Files (*)</source>
-        <translation>Fichiers XML (*.xml);;Tous les fichiers (*)</translation>
-    </message>
-    <message>
         <source>Internal Error</source>
         <translation>Erreur interne</translation>
-    </message>
-    <message>
-        <source>Failed to open file for reading: %1</source>
-        <translation>Échec lors de l&apos;ouverture en écriture du fichier : %1</translation>
     </message>
     <message>
         <source>Parsing Profile Data...</source>
@@ -46696,18 +46505,14 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::Visualisation</name>
+    <name>Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>Toutes les fonctions avec un ratio de coût inclusif supérieur à %1 (%2 sont cachés)</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckEngine</name>
-    <message>
-        <source>Analyzing Memory</source>
-        <translation>Analyse de la mémoire</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Analyzing memory of %1
 </source>
@@ -46716,18 +46521,14 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal</name>
-    <message>
-        <source>%1 in %2</source>
-        <translation>%1 dans %2</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>in %1</source>
         <translation>dans %1</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckErrorView</name>
+    <name>Valgrind</name>
     <message>
         <source>Copy Selection</source>
         <translation>Copier la sélection</translation>
@@ -46738,7 +46539,7 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckTool</name>
+    <name>Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation>Erreurs externe</translation>
@@ -46780,20 +46581,12 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
         <translation>Erreur d&apos;analyse de la sortie de Valgring : %1</translation>
     </message>
     <message>
-        <source>Valgrind Memory Analyzer</source>
-        <translation>Analyseur de mémoire Valgrind</translation>
-    </message>
-    <message>
         <source>Valgrind Analyze Memory uses the &quot;memcheck&quot; tool to find memory leaks</source>
         <translation>L&apos;analyseur de mémoire Valgrind utilise l&apos;outil &quot;memcheck&quot; pour trouver les fuites mémoires</translation>
     </message>
     <message>
         <source>Memory Issues</source>
         <translation>Problème de mémoire</translation>
-    </message>
-    <message>
-        <source>Load External XML Log File</source>
-        <translation>Charger un fichier de log XML externe</translation>
     </message>
     <message>
         <source>Go to previous leak.</source>
@@ -46816,16 +46609,12 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
         <translation>Fichiers XML (*.xml);;Tous les fichiers (*)</translation>
     </message>
     <message>
-        <source>Internal Error</source>
-        <translation>Erreur interne</translation>
-    </message>
-    <message>
         <source>Error occurred parsing valgrind output: %1</source>
         <translation>Erreur d&apos;analyse de la sortie de Valgring : %1</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>Appelé</translation>
@@ -46844,7 +46633,7 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallgrindController</name>
+    <name>Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>La commande précédente n&apos;a pas fini. </translation>
@@ -46883,7 +46672,7 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::DataModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>Fonction :</translation>
@@ -46941,10 +46730,6 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
         <translation>Fonction</translation>
     </message>
     <message>
-        <source>Location</source>
-        <translation>Emplacement</translation>
-    </message>
-    <message>
         <source>Called</source>
         <translation>Appelé</translation>
     </message>
@@ -46959,7 +46744,7 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::Function</name>
+    <name>Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 dans %2</translation>
@@ -46970,7 +46755,7 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::ParseData</name>
+    <name>Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>Dernier niveau</translation>
@@ -47029,14 +46814,7 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallgrindRunner</name>
-    <message>
-        <source>Parsing Profile Data...</source>
-        <translation>Analyse des données du profil... </translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::Memcheck::MemcheckRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>No network interface found for remote analysis.</source>
         <translation>Pas d&apos;interface réseau trouvée pour l&apos;analyse à distance.</translation>
@@ -47071,14 +46849,7 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::RemoteValgrindProcess</name>
-    <message>
-        <source>Could not determine remote PID.</source>
-        <translation>Impossible de déterminer le PID distant. </translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::Internal::ValgrindEngine</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Options de Valgrind : %1</translation>
@@ -47121,17 +46892,10 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindRunControlFactory</name>
+    <name>Valgrind</name>
     <message>
         <source>Analyzer</source>
         <translation type="obsolete">Analyseur</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::Internal::ValgrindBaseSettings</name>
-    <message>
-        <source>Valgrind</source>
-        <translation>Valgrind</translation>
     </message>
 </context>
 <context>
@@ -67195,18 +66959,14 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindRunControl</name>
-    <message>
-        <source>Profiling</source>
-        <translation>Profilage</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Profiling %1</source>
         <translation>Profilage de %1</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckRunControl</name>
+    <name>Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>Analyse de la mémoire</translation>
@@ -67262,15 +67022,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindRunControl</name>
-    <message>
-        <source>Valgrind options: %1</source>
-        <translation>Options de Valgrind : %1</translation>
-    </message>
-    <message>
-        <source>Working directory: %1</source>
-        <translation>Répertoire de travail : %1</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Command line arguments: %1</source>
         <translation>Arguments de la commande : %1</translation>
@@ -67293,14 +67045,14 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindOptionsPage</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind</source>
         <translation>Valgrind</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindPlugin</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind Function Profile uses the &quot;callgrind&quot; tool to record function calls when a program runs.</source>
         <translation>Le profileur Valgrind utilise l&apos;outil &quot;callgrind&quot; pour enregistrer les appels de fonction quand un programme est lancé. </translation>
@@ -67312,10 +67064,6 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     <message>
         <source>Valgrind Memory Analyzer</source>
         <translation>Analyseur de mémoire Valgrind</translation>
-    </message>
-    <message>
-        <source>Valgrind Function Profiler</source>
-        <translation>Profileur de fonction de Valgrind</translation>
     </message>
     <message>
         <source>Valgrind Memory Analyzer (Remote)</source>
@@ -67331,14 +67079,14 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Valgrind::ValgrindProcess</name>
+    <name>Valgrind</name>
     <message>
         <source>Could not determine remote PID.</source>
         <translation>Impossible de déterminer le PID distant.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindRunConfigurationAspect</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Paramètres de Valgrind</translation>

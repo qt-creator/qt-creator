@@ -39,8 +39,6 @@ class ValgrindBaseSettings;
 
 class MemcheckErrorView : public Debugger::DetailedErrorView
 {
-    Q_OBJECT
-
 public:
     MemcheckErrorView(QWidget *parent = nullptr);
     ~MemcheckErrorView() override;

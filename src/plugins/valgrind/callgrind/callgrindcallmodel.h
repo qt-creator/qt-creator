@@ -25,12 +25,11 @@
 
 #pragma once
 
-#include <QAbstractItemModel>
-
 #include "callgrindabstractmodel.h"
 
-namespace Valgrind {
-namespace Callgrind {
+#include <QAbstractItemModel>
+
+namespace Valgrind::Callgrind {
 
 class FunctionCall;
 class Function;
@@ -83,5 +82,4 @@ private:
     Private *d;
 };
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // Valgrind::Callgrind

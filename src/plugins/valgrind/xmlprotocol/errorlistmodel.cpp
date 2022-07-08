@@ -29,6 +29,7 @@
 #include "frame.h"
 #include "stack.h"
 #include "modelhelpers.h"
+#include "../valgrindtr.h"
 
 #include <debugger/analyzer/diagnosticlocation.h>
 #include <utils/qtcassert.h>
@@ -87,7 +88,7 @@ private:
 ErrorListModel::ErrorListModel(QObject *parent)
     : Utils::TreeModel<>(parent)
 {
-    setHeader(QStringList() << tr("Issue") << tr("Location"));
+    setHeader({Tr::tr("Issue"), Tr::tr("Location")});
 }
 
 Frame ErrorListModel::findRelevantFrame(const Error &error) const
@@ -126,7 +127,7 @@ static QString makeFrameName(const Frame &frame, bool withLocation)
     if (!fn.isEmpty()) {
         const QString location = withLocation || path == frame.object()
                 ? QString::fromLatin1(" in %2").arg(path) : QString();
-        return QCoreApplication::translate("Valgrind::Internal", "%1%2").arg(fn, location);
+        return QCoreApplication::translate("Valgrind", "%1%2").arg(fn, location);
     }
     if (!path.isEmpty())
         return path;
@@ -135,8 +136,8 @@ static QString makeFrameName(const Frame &frame, bool withLocation)
 
 QString ErrorListModel::errorLocation(const Error &error) const
 {
-    return QCoreApplication::translate("Valgrind::Internal", "in %1").
-            arg(makeFrameName(findRelevantFrame(error), true));
+    return QCoreApplication::translate("Valgrind", "in %1")
+        .arg(makeFrameName(findRelevantFrame(error), true));
 }
 
 void ErrorListModel::addError(const Error &error)
@@ -221,7 +222,7 @@ QVariant ErrorItem::data(int column, int role) const
                 || m_error.stacks().constFirst().frames().constFirst().functionName().isEmpty()) {
             return m_error.what();
         }
-        return ErrorListModel::tr("%1 in function %2")
+        return Tr::tr("%1 in function %2")
                 .arg(m_error.what(), m_error.stacks().constFirst().frames().constFirst().functionName());
     case Qt::ToolTipRole:
         return toolTipForFrame(m_model->findRelevantFrame(m_error));

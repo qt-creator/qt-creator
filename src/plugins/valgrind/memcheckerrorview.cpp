@@ -28,18 +28,17 @@
 
 #include "suppressiondialog.h"
 #include "valgrindsettings.h"
+#include "valgrindtr.h"
 
 #include "xmlprotocol/error.h"
 #include "xmlprotocol/errorlistmodel.h"
-#include "xmlprotocol/frame.h"
-#include "xmlprotocol/stack.h"
-#include "xmlprotocol/modelhelpers.h"
 #include "xmlprotocol/suppression.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+
 #include <utils/qtcassert.h>
 #include <utils/icon.h>
 #include <utils/theme/theme.h>
@@ -56,7 +55,7 @@ MemcheckErrorView::MemcheckErrorView(QWidget *parent)
     : Debugger::DetailedErrorView(parent)
 {
     m_suppressAction = new QAction(this);
-    m_suppressAction->setText(tr("Suppress Error"));
+    m_suppressAction->setText(Tr::tr("Suppress Error"));
     const QIcon icon = Icon({
             {":/utils/images/eye_open.png", Theme::TextColorNormal},
             {":/valgrind/images/suppressoverlay.png", Theme::IconsErrorColor}},

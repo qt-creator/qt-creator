@@ -7289,7 +7289,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindConfigWidget</name>
+    <name>Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>一般設定</translation>
@@ -33740,7 +33740,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>呼び出し先</translation>
@@ -33759,7 +33759,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallgrindController</name>
+    <name>Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>前のコマンドが完了していません。</translation>
@@ -33798,7 +33798,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::DataModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>関数:</translation>
@@ -33871,7 +33871,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::Function</name>
+    <name>Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%2 の %1</translation>
@@ -33882,7 +33882,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::ParseData</name>
+    <name>Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>最終レベル</translation>
@@ -33941,32 +33941,14 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallgrindRunner</name>
-    <message>
-        <source>Parsing Profile Data...</source>
-        <translation>プロファイルデータを解析中...</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::Internal::CallgrindRunControl</name>
-    <message>
-        <source>Profiling</source>
-        <translation>プロファイル中</translation>
-    </message>
-    <message>
-        <source>Profiling %1</source>
-        <translation>%1 のプロファイル中</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::Internal::Visualisation</name>
+    <name>Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>全体のコスト率が %1 より高いすべての関数 (%2 個の関数が非表示)</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Memcheck::MemcheckRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>XmlServer on %1:</source>
         <translation>%1 の XmlServer:</translation>
@@ -33977,18 +33959,14 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckRunControl</name>
-    <message>
-        <source>Analyzing Memory</source>
-        <translation>メモリ解析中</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Analyzing memory of %1</source>
         <translation>%1 のメモリ解析中</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal</name>
+    <name>Valgrind</name>
     <message>
         <source>in %1</source>
         <translation>%1</translation>
@@ -33999,14 +33977,14 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckErrorView</name>
+    <name>Valgrind</name>
     <message>
         <source>Suppress Error</source>
         <translation>エラーを抑制</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckTool</name>
+    <name>Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation>外部エラー</translation>
@@ -34131,7 +34109,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::SuppressionDialog</name>
+    <name>Valgrind</name>
     <message>
         <source>Save Suppression</source>
         <translation>抑制ファイルの保存</translation>
@@ -34150,7 +34128,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindRunControl</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Valgrind オプション: %1</translation>
@@ -34162,10 +34140,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
     <message>
         <source>Command line arguments: %1</source>
         <translation>コマンドライン引数: %1</translation>
-    </message>
-    <message>
-        <source>Analyzing finished.</source>
-        <translation>解析が終了しました。</translation>
     </message>
     <message>
         <source>Error: &quot;%1&quot; could not be started: %2</source>
@@ -34181,13 +34155,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindOptionsPage</name>
-    <message>
-        <source>Valgrind</source>
-        <translation>Valgrind</translation>
-    </message>
-</context>
-<context>
     <name>Analyzer</name>
     <message>
         <source>Analyzer</source>
@@ -34195,25 +34162,21 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind::ValgrindProcess</name>
+    <name>Valgrind</name>
     <message>
         <source>Could not determine remote PID.</source>
         <translation>リモートの PID が取得できませんでした。</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindRunConfigurationAspect</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Valgrind の設定</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::ErrorListModel</name>
-    <message>
-        <source>Location</source>
-        <translation>パス</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Issue</source>
         <translation>問題</translation>
@@ -34224,11 +34187,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol</name>
-    <message>
-        <source>Function:</source>
-        <translation>関数:</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Location:</source>
         <translation>パス:</translation>
@@ -34237,13 +34196,9 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Instruction pointer:</source>
         <translation>命令ポインタ:</translation>
     </message>
-    <message>
-        <source>Object:</source>
-        <translation>オブジェクト:</translation>
-    </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::Parser</name>
+    <name>Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>&quot;%1&quot; (%2) からの16進数を解析できません</translation>
@@ -34298,7 +34253,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::StackModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Description</source>
         <translation>説明</translation>
@@ -34310,10 +34265,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
     <message>
         <source>Object</source>
         <translation>オブジェクト</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>関数</translation>
     </message>
     <message>
         <source>Directory</source>
@@ -46463,7 +46414,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindTool</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind Function Profiler uses the Callgrind tool to record function calls when a program runs.</source>
         <translation>Valgrind 関数プロファイラでは Callgrind ツールを使用してプログラム実行時の関数呼び出しを記録します。</translation>
@@ -57756,7 +57707,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindToolRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>プロファイル中</translation>
@@ -57764,13 +57715,6 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>Profiling %1</source>
         <translation>%1 のプロファイル中</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::Internal::Visualization</name>
-    <message>
-        <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
-        <translation>全体のコスト率が %1 より高いすべての関数 (%2 個の関数が非表示)</translation>
     </message>
 </context>
 <context>
@@ -57804,19 +57748,6 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindToolRunner</name>
-    <message>
-        <source>Valgrind options: %1</source>
-        <translation>Valgrind オプション: %1</translation>
-    </message>
-    <message>
-        <source>Working directory: %1</source>
-        <translation>作業ディレクトリ: %1</translation>
-    </message>
-    <message>
-        <source>Command line arguments: %1</source>
-        <translation>コマンドライン引数: %1</translation>
-    </message>
     <message>
         <source>Analyzing finished.</source>
         <translation>解析が終了しました。</translation>
@@ -57832,17 +57763,6 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>Process terminated.</source>
         <translation>プロセスが終了しました。</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::ValgrindRunner</name>
-    <message>
-        <source>XmlServer on %1:</source>
-        <translation>%1 の XmlServer:</translation>
-    </message>
-    <message>
-        <source>LogServer on %1:</source>
-        <translation>%1 の LogServer:</translation>
     </message>
 </context>
 <context>

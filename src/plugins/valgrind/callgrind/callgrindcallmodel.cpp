@@ -28,13 +28,13 @@
 #include "callgrindfunctioncall.h"
 #include "callgrindfunction.h"
 #include "callgrindparsedata.h"
+#include "valgrindtr.h"
 
 #include <utils/qtcassert.h>
 
 #include <QVector>
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 class CallModel::Private
 {
@@ -205,16 +205,15 @@ QVariant CallModel::headerData(int section, Qt::Orientation orientation, int rol
     }
 
     if (section == CalleeColumn)
-        return tr("Callee");
+        return Tr::tr("Callee");
     else if (section == CallerColumn)
-        return tr("Caller");
+        return Tr::tr("Caller");
     else if (section == CostColumn)
-        return tr("Cost");
+        return Tr::tr("Cost");
     else if (section == CallsColumn)
-        return tr("Calls");
+        return Tr::tr("Calls");
 
     return QVariant();
 }
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // Valgrind::Callgrind

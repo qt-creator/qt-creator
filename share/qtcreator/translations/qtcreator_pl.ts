@@ -14840,7 +14840,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::ErrorListModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Location</source>
         <translation>Położenie</translation>
@@ -14855,11 +14855,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol</name>
-    <message>
-        <source>Function:</source>
-        <translation>Funkcja:</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Location:</source>
         <translation>Położenie:</translation>
@@ -14868,13 +14864,9 @@ Local pulls are not applied to the master branch.</source>
         <source>Instruction pointer:</source>
         <translation>Wskaźnik do instrukcji:</translation>
     </message>
-    <message>
-        <source>Object:</source>
-        <translation>Obiekt:</translation>
-    </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::Parser</name>
+    <name>Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>Błąd parsowania liczby szesnastkowej z &quot;%1&quot; (%2)</translation>
@@ -14929,7 +14921,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::StackModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Opis</translation>
@@ -14941,10 +14933,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Object</source>
         <translation>Obiekt</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>Funkcja</translation>
     </message>
     <message>
         <source>Directory</source>
@@ -16799,7 +16787,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::SuppressionDialog</name>
+    <name>Valgrind</name>
     <message>
         <source>Suppression File:</source>
         <translation>Plik tłumienia:</translation>
@@ -16818,7 +16806,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindConfigWidget</name>
+    <name>Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>Ustawienia ogólne</translation>
@@ -17400,7 +17388,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>Zawołana</translation>
@@ -17419,7 +17407,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallgrindController</name>
+    <name>Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>Poprzednia komenda jeszcze się nie zakończyła.</translation>
@@ -17454,7 +17442,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::DataModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>Funkcja:</translation>
@@ -17512,10 +17500,6 @@ With cache simulation, further event counters are enabled:
         <translation>Funkcja</translation>
     </message>
     <message>
-        <source>Location</source>
-        <translation>Położenie</translation>
-    </message>
-    <message>
         <source>Called</source>
         <translation>Zawołano</translation>
     </message>
@@ -17529,7 +17513,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::Function</name>
+    <name>Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 w %2</translation>
@@ -17540,7 +17524,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::ParseData</name>
+    <name>Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>Ostatni poziom</translation>
@@ -18133,14 +18117,14 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::Visualisation</name>
+    <name>Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>Wszystkie funkcje ze współczynnikiem łącznego kosztu wyższym niż %1 (ilość ukrytych: %2)</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal</name>
+    <name>Valgrind</name>
     <message>
         <source>%1%2</source>
         <translation>%1%2</translation>
@@ -18151,14 +18135,14 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckErrorView</name>
+    <name>Valgrind</name>
     <message>
         <source>Suppress Error</source>
         <translation>Wytłum błąd</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckTool</name>
+    <name>Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation>Błędy zewnętrzne</translation>
@@ -28787,14 +28771,14 @@ Proszę zamknąć wszystkie instancje tej aplikacji przed uruchomieniem budowani
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindOptionsPage</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind</source>
         <translation>Valgrind</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindRunConfigurationAspect</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Ustawienia Valgrinda</translation>
@@ -39047,7 +39031,7 @@ Czy nadpisać go?</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindTool</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind Function Profiler uses the Callgrind tool to record function calls when a program runs.</source>
         <translation>Valgrind Function Profiler używa narzędzia Callgrind do śledzenia wywołań funkcji w trakcie działania programu.</translation>
@@ -44257,7 +44241,7 @@ Błąd: %5</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindToolRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>Profilowanie</translation>
@@ -44266,20 +44250,16 @@ Błąd: %5</translation>
         <source>Profiling %1</source>
         <translation>Profilowanie %1</translation>
     </message>
-    <message>
-        <source>Parsing Profile Data...</source>
-        <translation>Parsowanie danych profilera...</translation>
-    </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckToolRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>Analiza pamięci</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindToolRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Opcje valgrinda: %1</translation>
@@ -44310,7 +44290,7 @@ Błąd: %5</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::ValgrindRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>XmlServer on %1:</source>
         <translation>XmlServer na %1:</translation>

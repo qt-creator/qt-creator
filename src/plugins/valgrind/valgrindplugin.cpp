@@ -28,8 +28,9 @@
 
 #include "callgrindtool.h"
 #include "memchecktool.h"
-#include "valgrindsettings.h"
 #include "valgrindconfigwidget.h"
+#include "valgrindsettings.h"
+#include "valgrindtr.h"
 
 #ifdef WITH_TESTS
 #   include "valgrindmemcheckparsertest.h"
@@ -61,8 +62,7 @@ public:
         setProjectSettings(new ValgrindProjectSettings);
         setGlobalSettings(ValgrindGlobalSettings::instance());
         setId(ANALYZER_VALGRIND_SETTINGS);
-        setDisplayName(QCoreApplication::translate("Valgrind::Internal::ValgrindRunConfigurationAspect",
-                                                   "Valgrind Settings"));
+        setDisplayName(Tr::tr("Valgrind Settings"));
         setUsingGlobalSettings(true);
         resetProjectToGlobalSettings();
         setConfigWidgetCreator([this] { return new Debugger::AnalyzerRunConfigWidget(this); });

@@ -26166,7 +26166,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Callee</source>
         <translation type="unfinished"></translation>
@@ -26185,7 +26185,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallgrindController</name>
+    <name>Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>Попередня команда ще не завершилась.</translation>
@@ -26224,25 +26224,17 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallgrindRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>Parsing Profile Data...</source>
         <translation>Розбір даних профілювання...</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::DataModel</name>
-    <message>
-        <source>Function:</source>
-        <translation>Функція:</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>File:</source>
         <translation>Файл:</translation>
-    </message>
-    <message>
-        <source>Object:</source>
-        <translation>Об&apos;єкт:</translation>
     </message>
     <message>
         <source>Called:</source>
@@ -26306,7 +26298,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::Function</name>
+    <name>Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 в %2</translation>
@@ -26317,7 +26309,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::ParseData</name>
+    <name>Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation type="unfinished"></translation>
@@ -26330,83 +26322,23 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Cache</source>
         <translation>Кеш</translation>
     </message>
-    <message>
-        <source>Conditional branches</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Indirect branches</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>level %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>read</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>write</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>mispredicted</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>executed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>miss</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>access</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Line:</source>
-        <translation>Рядок:</translation>
-    </message>
-    <message>
-        <source>Position:</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
-    <name>Valgrind::Internal</name>
-    <message>
-        <source>%1 in %2</source>
-        <translation type="vanished">%1 в %2</translation>
-    </message>
-    <message>
-        <source>%1%2</source>
-        <translation>%1%2%</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>in %1</source>
         <translation>в %1</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindToolPrivate</name>
-    <message>
-        <source>Functions</source>
-        <translation type="vanished">Функції</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Filter...</source>
         <translation type="vanished">Фільтр...</translation>
     </message>
-    <message>
-        <source>Parsing Profile Data...</source>
-        <translation type="vanished">Розбір даних профілювання...</translation>
-    </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckErrorView</name>
+    <name>Valgrind</name>
     <message>
         <source>Copy Selection</source>
         <translation type="vanished">Копіювати обране</translation>
@@ -26417,7 +26349,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckTool</name>
+    <name>Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation type="unfinished"></translation>
@@ -26541,7 +26473,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::SuppressionDialog</name>
+    <name>Valgrind</name>
     <message>
         <source>Suppression File:</source>
         <translation type="unfinished"></translation>
@@ -26558,16 +26490,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Save Suppression</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Valgrind::Internal::ValgrindBaseSettings</name>
-    <message>
-        <source>Valgrind</source>
-        <translation type="vanished">Valgrind</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::Internal::ValgrindConfigWidget</name>
     <message>
         <source>Generic Settings</source>
         <translation>Загальні налаштування</translation>
@@ -26722,22 +26644,14 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::Visualisation</name>
+    <name>Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol</name>
-    <message>
-        <source>Function:</source>
-        <translation>Функція:</translation>
-    </message>
-    <message>
-        <source>Location:</source>
-        <translation>Розташування:</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Instruction pointer:</source>
         <translation type="unfinished"></translation>
@@ -26748,11 +26662,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::ErrorListModel</name>
-    <message>
-        <source>Location</source>
-        <translation>Розташування</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Issue</source>
         <translation type="unfinished"></translation>
@@ -26762,20 +26672,12 @@ With cache simulation, further event counters are enabled:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File</source>
-        <translation type="vanished">Файл</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation type="vanished">Рядок</translation>
-    </message>
-    <message>
         <source>Thread ID</source>
         <translation type="vanished">ID нитки</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::Parser</name>
+    <name>Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation type="unfinished"></translation>
@@ -26830,7 +26732,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::StackModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Опис</translation>
@@ -26842,10 +26744,6 @@ With cache simulation, further event counters are enabled:
     <message>
         <source>Object</source>
         <translation>Об&apos;єкт</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>Функція</translation>
     </message>
     <message>
         <source>Directory</source>
@@ -43124,7 +43022,7 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindRunControl</name>
+    <name>Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation type="unfinished"></translation>
@@ -43135,7 +43033,7 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>Valgrind::Memcheck::MemcheckRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>XmlServer on %1:</source>
         <translation>XmlServer на %1:</translation>
@@ -43146,7 +43044,7 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckRunControl</name>
+    <name>Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>Аналіз пам&apos;яті</translation>
@@ -43204,7 +43102,7 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindRunControl</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation type="unfinished"></translation>
@@ -43235,21 +43133,21 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindOptionsPage</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind</source>
         <translation>Valgrind</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::ValgrindProcess</name>
+    <name>Valgrind</name>
     <message>
         <source>Could not determine remote PID.</source>
         <translation>Не вдалось визначити віддалений PID.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindRunConfigurationAspect</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Налаштування Valgrind</translation>
@@ -56412,7 +56310,7 @@ references to elements in other files, loops, and so on.)</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindTool</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind Function Profiler uses the Callgrind tool to record function calls when a program runs.</source>
         <translation type="unfinished"></translation>
@@ -56518,10 +56416,6 @@ references to elements in other files, loops, and so on.)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Filter...</source>
-        <translation>Фільтр...</translation>
-    </message>
-    <message>
         <source>Callgrind</source>
         <translation>Callgrind</translation>
     </message>
@@ -56568,10 +56462,6 @@ references to elements in other files, loops, and so on.)</source>
     <message>
         <source>Callgrind: Failed to open file for reading: %1</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Parsing Profile Data...</source>
-        <translation>Розбір даних профілювання...</translation>
     </message>
 </context>
 </TS>

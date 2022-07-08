@@ -34,9 +34,7 @@
 
 #include <QDebug>
 
-namespace Valgrind {
-namespace Callgrind {
-namespace Internal {
+namespace Valgrind::Callgrind::Internal {
 
 CycleDetection::CycleDetection(ParseData *data)
     : m_data(data)
@@ -110,6 +108,4 @@ void CycleDetection::tarjanForChildNode(Node *node, Node *childNode)
     }
 }
 
-} // namespace Internal
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind::Internal

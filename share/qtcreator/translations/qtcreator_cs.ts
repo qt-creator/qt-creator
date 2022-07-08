@@ -32643,7 +32643,7 @@ Určuje chování odsazení se zřetelem k navazujícím řádkům.
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::SuppressionDialog</name>
+    <name>Valgrind</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Dialog</translation>
@@ -32666,7 +32666,7 @@ Určuje chování odsazení se zřetelem k navazujícím řádkům.
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindConfigWidget</name>
+    <name>Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>Obecná nastavení</translation>
@@ -42913,11 +42913,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindEngine</name>
-    <message>
-        <source>Profiling</source>
-        <translation>Profiler</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Profiling %1
 </source>
@@ -42926,11 +42922,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindTool</name>
-    <message>
-        <source>Valgrind Function Profiler</source>
-        <translation>Profilování funkcí pomocí Valgrind</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind Profile uses the &quot;callgrind&quot; tool to record function calls when a program runs.</source>
         <translation>Profilování Valgrind používá nástroj &quot;callgrind&quot; pro záznam volání funkcí během spuštění programu.</translation>
@@ -42941,7 +42933,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindToolPrivate</name>
+    <name>Valgrind</name>
     <message>
         <source>Callers</source>
         <translation>Volající</translation>
@@ -43035,14 +43027,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <translation>Soubory XML (*.xml);;Všechny soubory (*)</translation>
     </message>
     <message>
-        <source>Internal Error</source>
-        <translation>Vnitřní chyba</translation>
-    </message>
-    <message>
-        <source>Failed to open file for reading: %1</source>
-        <translation>Nepodařilo se otevřít soubor pro čtení: %1</translation>
-    </message>
-    <message>
         <source>Parsing Profile Data...</source>
         <translation>Zpracovávají se data profilování...</translation>
     </message>
@@ -43096,17 +43080,10 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::Visualisation</name>
+    <name>Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>Všechny funkce s poměrem zahrnutým nákladů větším než %1 (%2 jsou skryty)</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::Internal::MemcheckEngine</name>
-    <message>
-        <source>Analyzing Memory</source>
-        <translation>Provádí se rozbor paměti</translation>
     </message>
     <message>
         <source>Analyzing memory of %1
@@ -43114,20 +43091,10 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <translation>Provádí se rozbor paměti %1
 </translation>
     </message>
-</context>
-<context>
-    <name>Valgrind::Internal</name>
-    <message>
-        <source>%1 in %2</source>
-        <translation>%1 v %2</translation>
-    </message>
     <message>
         <source>in %1</source>
         <translation>v %1</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind::Internal::MemcheckErrorView</name>
     <message>
         <source>Copy Selection</source>
         <translation>Kopírovat výběr</translation>
@@ -43136,9 +43103,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Suppress Error</source>
         <translation>Potlačit chybu</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind::Internal::MemcheckTool</name>
     <message>
         <source>External Errors</source>
         <translation>Externí chyby</translation>
@@ -43192,10 +43156,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <translation>Potíže s pamětí</translation>
     </message>
     <message>
-        <source>Load External XML Log File</source>
-        <translation>Nahrát externí soubor se záznamem XML</translation>
-    </message>
-    <message>
         <source>Go to previous leak.</source>
         <translation>Jít na předchozí únik.</translation>
     </message>
@@ -43212,10 +43172,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <translation>Otevřít soubor se záznamem XML Memcheck</translation>
     </message>
     <message>
-        <source>XML Files (*.xml);;All Files (*)</source>
-        <translation>Soubory XML (*.xml);;Všechny soubory (*)</translation>
-    </message>
-    <message>
         <source>Internal Error</source>
         <translation>Vnitřní chyba</translation>
     </message>
@@ -43225,7 +43181,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>Volaná funkce</translation>
@@ -43244,7 +43200,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallgrindController</name>
+    <name>Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>Předchozí příkaz ještě není ukončen.</translation>
@@ -43283,7 +43239,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::DataModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>Funkce:</translation>
@@ -43291,10 +43247,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     <message>
         <source>File:</source>
         <translation>Soubor:</translation>
-    </message>
-    <message>
-        <source>Object:</source>
-        <translation>Objekt:</translation>
     </message>
     <message>
         <source>Called:</source>
@@ -43345,10 +43297,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <translation>Funkce</translation>
     </message>
     <message>
-        <source>Location</source>
-        <translation>Umístění</translation>
-    </message>
-    <message>
         <source>Called</source>
         <translation>Voláno</translation>
     </message>
@@ -43362,7 +43310,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::Function</name>
+    <name>Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 v %2</translation>
@@ -43373,7 +43321,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::ParseData</name>
+    <name>Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>Poslední úroveň</translation>
@@ -43432,14 +43380,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallgrindRunner</name>
-    <message>
-        <source>Parsing Profile Data...</source>
-        <translation>Zpracovávají se data profilování...</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::Memcheck::MemcheckRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>No network interface found for remote analysis.</source>
         <translation>Nebylo nalezeno žádné síťové rozhraní pro vzdálenou analýzu.</translation>
@@ -43474,14 +43415,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::RemoteValgrindProcess</name>
-    <message>
-        <source>Could not determine remote PID.</source>
-        <translation>Nepodařilo se určit PID vzdáleného procesu.</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::XmlProtocol::ErrorListModel</name>
+    <name>Valgrind</name>
     <message>
         <source>No errors found</source>
         <translation>Nenalezeny žádné chyby</translation>
@@ -43493,10 +43427,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     <message>
         <source>Location</source>
         <translation>Umístění</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Soubor</translation>
     </message>
     <message>
         <source>Line</source>
@@ -43528,11 +43458,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol</name>
-    <message>
-        <source>Function:</source>
-        <translation>Funkce:</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Location:</source>
         <translation>Umístění:</translation>
@@ -43547,7 +43473,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::Parser</name>
+    <name>Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>Nepodařilo se zpracovat šestnáctkové číslo (hexadecimální) z &quot;%1&quot; (%2); není platné</translation>
@@ -43602,7 +43528,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::StackModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Popis</translation>
@@ -43616,10 +43542,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <translation>Objekt</translation>
     </message>
     <message>
-        <source>Function</source>
-        <translation>Funkce</translation>
-    </message>
-    <message>
         <source>Directory</source>
         <translation>Adresář</translation>
     </message>
@@ -43627,21 +43549,9 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>File</source>
         <translation>Soubor</translation>
     </message>
-    <message>
-        <source>Line</source>
-        <translation>Řádek</translation>
-    </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindEngine</name>
-    <message>
-        <source>Valgrind options: %1</source>
-        <translation>Obecné volby pro Valgrind: %1</translation>
-    </message>
-    <message>
-        <source>Working directory: %1</source>
-        <translation>Pracovní adresář: %1</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Command-line arguments: %1</source>
         <translation type="obsolete">Argumenty příkazového řádku: %1</translation>
@@ -43680,17 +43590,10 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindRunControlFactory</name>
+    <name>Valgrind</name>
     <message>
         <source>Analyzer</source>
         <translation type="obsolete">Analyzátor</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::Internal::ValgrindBaseSettings</name>
-    <message>
-        <source>Valgrind</source>
-        <translation>Valgrind</translation>
     </message>
 </context>
 <context>
@@ -66404,7 +66307,7 @@ se vyskytla chyba</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindRunControl</name>
+    <name>Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>Profiler</translation>
@@ -66415,7 +66318,7 @@ se vyskytla chyba</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckRunControl</name>
+    <name>Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>Provádí se rozbor paměti</translation>
@@ -66473,7 +66376,7 @@ se vyskytla chyba</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindRunControl</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Obecné volby pro Valgrind: %1</translation>
@@ -66504,14 +66407,14 @@ se vyskytla chyba</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindOptionsPage</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind</source>
         <translation>Valgrind</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindPlugin</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind Function Profile uses the &quot;callgrind&quot; tool to record function calls when a program runs.</source>
         <translation>Profilování funkcí s Valgrind používá nástroj &quot;callgrind&quot; pro záznam volání funkcí během spuštění programu.</translation>
@@ -66519,10 +66422,6 @@ se vyskytla chyba</translation>
     <message>
         <source>Valgrind Analyze Memory uses the &quot;memcheck&quot; tool to find memory leaks.</source>
         <translation>Rozbor paměti s Valgrind používá nástroj &quot;memcheck&quot; pro nalezení úniků paměti.</translation>
-    </message>
-    <message>
-        <source>Valgrind Memory Analyzer</source>
-        <translation>Rozbor paměti s Valgrind</translation>
     </message>
     <message>
         <source>Valgrind Function Profiler</source>
@@ -66542,14 +66441,14 @@ se vyskytla chyba</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::ValgrindProcess</name>
+    <name>Valgrind</name>
     <message>
         <source>Could not determine remote PID.</source>
         <translation>Nepodařilo se určit PID vzdáleného procesu.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindRunConfigurationAspect</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Nastavení Valgrind</translation>

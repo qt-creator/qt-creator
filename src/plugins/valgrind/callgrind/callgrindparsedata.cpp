@@ -28,6 +28,7 @@
 #include "callgrindfunction.h"
 #include "callgrindcycledetection.h"
 #include "callgrindfunctioncycle.h"
+#include "valgrindtr.h"
 
 #include <utils/qtcassert.h>
 
@@ -39,10 +40,8 @@
 namespace Valgrind {
 namespace Callgrind {
 
-//BEGIN ParseData::Private
-
-class ParseData::Private {
-    Q_DECLARE_TR_FUNCTIONS(Valgrind::Callgrind::ParseData)
+class ParseData::Private
+{
 public:
     Private(ParseData *q, const QString &fileName)
         : m_fileName(fileName)
@@ -177,27 +176,27 @@ QString ParseData::prettyStringForEvent(const QString &event)
 
     QString type;
     if (event.contains('L'))
-        type = ParseData::Private::tr("Last-level"); // first, "L" overwrites the others
+        type = Tr::tr("Last-level"); // first, "L" overwrites the others
     else if (event.at(0) == 'I')
-        type = ParseData::Private::tr("Instruction");
+        type = Tr::tr("Instruction");
     else if (event.at(0) == 'D')
-        type = ParseData::Private::tr("Cache");
+        type = Tr::tr("Cache");
     else if (event.left(2) == "Bc")
-        type = ParseData::Private::tr("Conditional branches");
+        type = Tr::tr("Conditional branches");
     else if (event.left(2) == "Bi")
-        type = ParseData::Private::tr("Indirect branches");
+        type = Tr::tr("Indirect branches");
 
     QStringList prettyString;
     prettyString << type;
 
     if (event.at(1).isNumber())
-        prettyString << ParseData::Private::tr("level %1").arg(event.at(1));
-    prettyString << (isRead ? ParseData::Private::tr("read") : ParseData::Private::tr("write"));
+        prettyString << Tr::tr("level %1").arg(event.at(1));
+    prettyString << (isRead ? Tr::tr("read") : Tr::tr("write"));
 
     if (event.at(0) == 'B')
-        prettyString << (isMiss ? ParseData::Private::tr("mispredicted") : ParseData::Private::tr("executed"));
+        prettyString << (isMiss ? Tr::tr("mispredicted") : Tr::tr("executed"));
     else
-        prettyString << (isMiss ? ParseData::Private::tr("miss") : ParseData::Private::tr("access"));
+        prettyString << (isMiss ? Tr::tr("miss") : Tr::tr("access"));
 
     // add original abbreviation
     prettyString << '(' + event + ')';
@@ -218,10 +217,10 @@ void ParseData::setEvents(const QStringList &events)
 QString ParseData::prettyStringForPosition(const QString &position)
 {
     if (position == "line")
-        return ParseData::Private::tr("Line:"); // as in: "line number"
-    else if (position == "instr")
-        return ParseData::Private::tr("Instruction"); // as in: "instruction address"
-    return ParseData::Private::tr("Position:"); // never reached, in theory
+        return Tr::tr("Line:"); // as in: "line number"
+    if (position == "instr")
+        return Tr::tr("Instruction"); // as in: "instruction address"
+    return Tr::tr("Position:"); // never reached, in theory
 }
 
 QStringList ParseData::positions() const

@@ -26,13 +26,10 @@
 
 #pragma once
 
-#include "callgrindcostdelegate.h"
-
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runconfigurationaspects.h>
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 const char ANALYZER_VALGRIND_SETTINGS[] = "Analyzer.Valgrind.Settings";
 
@@ -40,7 +37,7 @@ class SuppressionAspectPrivate;
 
 class SuppressionAspect final : public Utils::BaseAspect
 {
-    Q_DECLARE_TR_FUNCTIONS(Valgrind::Internal::SuppressionAspect)
+    Q_OBJECT
 
 public:
     explicit SuppressionAspect(bool global);
@@ -176,5 +173,4 @@ public:
     ValgrindProjectSettings();
 };
 
-} // namespace Internal
-} // namespace Valgrind
+} // Valgrind::Internal

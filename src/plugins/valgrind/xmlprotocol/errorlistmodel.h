@@ -39,8 +39,6 @@ class Frame;
 
 class ErrorListModel : public Utils::TreeModel<>
 {
-    Q_OBJECT
-
 public:
     enum Role {
         ErrorRole = Debugger::DetailedErrorView::FullTextRole + 1,

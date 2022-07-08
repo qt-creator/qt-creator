@@ -28,6 +28,7 @@
 
 #include "memcheckerrorview.h"
 #include "valgrindsettings.h"
+#include "valgrindtr.h"
 
 #include "xmlprotocol/suppression.h"
 #include "xmlprotocol/errorlistmodel.h"
@@ -121,11 +122,11 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, const QList<Error>
     m_fileChooser(new PathChooser(this)),
     m_suppressionEdit(new QPlainTextEdit(this))
 {
-    setWindowTitle(tr("Save Suppression"));
+    setWindowTitle(Tr::tr("Save Suppression"));
 
-    auto fileLabel = new QLabel(tr("Suppression File:"), this);
+    auto fileLabel = new QLabel(Tr::tr("Suppression File:"), this);
 
-    auto suppressionsLabel = new QLabel(tr("Suppression:"), this);
+    auto suppressionsLabel = new QLabel(Tr::tr("Suppression:"), this);
     suppressionsLabel->setBuddy(m_suppressionEdit);
 
     QFont font;
@@ -149,7 +150,7 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, const QList<Error>
     m_fileChooser->setHistoryCompleter("Valgrind.Suppression.History");
     m_fileChooser->setPath(defaultSuppFile.fileName());
     m_fileChooser->setPromptDialogFilter("*.supp");
-    m_fileChooser->setPromptDialogTitle(tr("Select Suppression File"));
+    m_fileChooser->setPromptDialogTitle(Tr::tr("Select Suppression File"));
 
     QString suppressions;
     for (const Error &error : qAsConst(m_errors))

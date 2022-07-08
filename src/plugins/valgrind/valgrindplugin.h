@@ -29,8 +29,7 @@
 #include <extensionsystem/iplugin.h>
 #include <projectexplorer/projectexplorer.h>
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 class ValgrindPlugin final : public ExtensionSystem::IPlugin
 {
@@ -49,5 +48,4 @@ private:
     class ValgrindPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace Valgrind
+} // Valgrind::Internal

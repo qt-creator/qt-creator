@@ -25,19 +25,17 @@
 
 #include "callgrindcostitem.h"
 
+#include "callgrindparsedata.h"
+#include "callgrindfunctioncall.h"
+
 #include <QString>
 #include <QStringList>
 #include <QVector>
 
-#include "callgrindparsedata.h"
-#include "callgrindfunctioncall.h"
+namespace Valgrind::Callgrind {
 
-namespace Valgrind {
-namespace Callgrind {
-
-//BEGIN CostItem::Private
-
-class CostItem::Private {
+class CostItem::Private
+{
 public:
     Private(ParseData *data);
     ~Private();
@@ -132,5 +130,4 @@ void CostItem::setDifferingFile(qint64 fileId)
     d->m_differingFileId = fileId;
 }
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // Valgrind::Callgrind

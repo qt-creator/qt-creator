@@ -26,7 +26,7 @@
 
 #include "valgrindconfigwidget.h"
 #include "valgrindsettings.h"
-#include "valgrindplugin.h"
+#include "valgrindtr.h"
 
 #include <debugger/analyzer/analyzericons.h>
 
@@ -43,8 +43,6 @@ namespace Internal {
 
 class ValgrindConfigWidget : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Valgrind::Internal::ValgrindConfigWidget)
-
 public:
     explicit ValgrindConfigWidget(ValgrindBaseSettings *settings);
 
@@ -100,9 +98,9 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings)
     };
 
     Column {
-        Group { Title(tr("Valgrind Generic Settings")), generic },
-        Group { Title(tr("MemCheck Memory Analysis Options")), memcheck },
-        Group { Title(tr("CallGrind Profiling Options")), callgrind },
+        Group { Title(Tr::tr("Valgrind Generic Settings")), generic },
+        Group { Title(Tr::tr("MemCheck Memory Analysis Options")), memcheck },
+        Group { Title(Tr::tr("CallGrind Profiling Options")), callgrind },
         Stretch(),
     }.attachTo(this);
 }
@@ -112,9 +110,9 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings)
 ValgrindOptionsPage::ValgrindOptionsPage()
 {
     setId(ANALYZER_VALGRIND_SETTINGS);
-    setDisplayName(ValgrindConfigWidget::tr("Valgrind"));
+    setDisplayName(Tr::tr("Valgrind"));
     setCategory("T.Analyzer");
-    setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
+    setDisplayCategory(Tr::tr("Analyzer"));
     setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
     setWidgetCreator([] { return new ValgrindConfigWidget(ValgrindGlobalSettings::instance()); });
 }

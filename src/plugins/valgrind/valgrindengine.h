@@ -34,13 +34,10 @@
 
 #include <QFutureInterface>
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 class ValgrindToolRunner : public ProjectExplorer::RunWorker
 {
-    Q_OBJECT
-
 public:
     explicit ValgrindToolRunner(ProjectExplorer::RunControl *runControl);
 
@@ -68,5 +65,4 @@ private:
     bool m_isStopping = false;
 };
 
-} // namespace Internal
-} // namespace Valgrind
+} // Valgrind::Internal

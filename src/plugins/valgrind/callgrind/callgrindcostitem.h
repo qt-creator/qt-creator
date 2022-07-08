@@ -27,8 +27,7 @@
 
 #include <QVector>
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 class FunctionCall;
 class ParseData;
@@ -84,5 +83,4 @@ private:
     Private *d;
 };
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // Valgrind::Callgrind

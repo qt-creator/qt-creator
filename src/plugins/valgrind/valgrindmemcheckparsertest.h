@@ -51,7 +51,6 @@ void dumpError(const Valgrind::XmlProtocol::Error &e);
 
 class Recorder : public QObject
 {
-    Q_OBJECT
 public:
     explicit Recorder(XmlProtocol::Parser *parser)
     {
@@ -87,8 +86,6 @@ public:
 
 class RunnerDumper : public QObject
 {
-    Q_OBJECT
-
 public:
     explicit RunnerDumper(ValgrindRunner *runner)
     {

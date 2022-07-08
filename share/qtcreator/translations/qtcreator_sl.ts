@@ -21776,7 +21776,7 @@ Vpliva na zamik nadaljevalnih vrstic.
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::SuppressionDialog</name>
+    <name>Valgrind</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -21801,7 +21801,7 @@ Vpliva na zamik nadaljevalnih vrstic.
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindConfigWidget</name>
+    <name>Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>Splošne nastavitve</translation>
@@ -30254,7 +30254,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindEngine</name>
+    <name>Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>Profiliranje</translation>
@@ -30267,7 +30267,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindTool</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind Function Profiler</source>
         <translation>Valgrindov profilirnik funkcij</translation>
@@ -30282,7 +30282,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindToolPrivate</name>
+    <name>Valgrind</name>
     <message>
         <source>Callers</source>
         <translation>Klicatelji</translation>
@@ -30397,14 +30397,14 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::Visualisation</name>
+    <name>Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>Vse funkcije, ki imajo razmerje skupnega stroška višje kot %1 (%2 je skritih)</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckEngine</name>
+    <name>Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>Analiziranje pomnilnika</translation>
@@ -30417,18 +30417,14 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal</name>
-    <message>
-        <source>%1 in %2</source>
-        <translation>%1 v %2</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>in %1</source>
         <translation>v %1</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckErrorView</name>
+    <name>Valgrind</name>
     <message>
         <source>Copy Selection</source>
         <translation>Skopiraj izbor</translation>
@@ -30439,7 +30435,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckTool</name>
+    <name>Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation>Zunanje napake</translation>
@@ -30506,7 +30502,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>Klicani</translation>
@@ -30525,7 +30521,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallgrindController</name>
+    <name>Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>Predhodni ukaz še ni zaključil.</translation>
@@ -30560,18 +30556,10 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::DataModel</name>
-    <message>
-        <source>Function:</source>
-        <translation>Funkcija:</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>File:</source>
         <translation>Datoteka:</translation>
-    </message>
-    <message>
-        <source>Object:</source>
-        <translation>Objekt:</translation>
     </message>
     <message>
         <source>Called:</source>
@@ -30640,7 +30628,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::Function</name>
+    <name>Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 v %2</translation>
@@ -30651,7 +30639,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::ParseData</name>
+    <name>Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>Zadnja-stopnja</translation>
@@ -30710,14 +30698,14 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallgrindRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>Parsing Profile Data...</source>
         <translation>Razčlenjevanje podatkov profiliranja ...</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Memcheck::MemcheckRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>No network interface found for remote analysis.</source>
         <translation>Za oddaljeno analiziranje ni bil najden noben omrežni vmesnik.</translation>
@@ -30732,29 +30720,17 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::RemoteValgrindProcess</name>
+    <name>Valgrind</name>
     <message>
         <source>Could not determine remote PID.</source>
         <translation>Oddaljenega PID-a ni bilo moč ugotoviti.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::ErrorListModel</name>
+    <name>Valgrind</name>
     <message>
         <source>What</source>
         <translation>Kaj</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Mesto</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Datoteka</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>Vrstica</translation>
     </message>
     <message>
         <source>Unique</source>
@@ -30782,7 +30758,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol</name>
+    <name>Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>Funkcija:</translation>
@@ -30801,7 +30777,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::Parser</name>
+    <name>Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>Šestnajstiškega števila iz »%1« (%2) ni bilo moč razčleniti</translation>
@@ -30856,7 +30832,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::StackModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Opis</translation>
@@ -30868,10 +30844,6 @@ Preverite pravice za dostop do mape.</translation>
     <message>
         <source>Object</source>
         <translation>Objekt</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>Funkcija</translation>
     </message>
     <message>
         <source>Directory</source>
@@ -30887,7 +30859,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindEngine</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Možnosti za Valgrind: %1</translation>
@@ -30930,14 +30902,14 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindRunControlFactory</name>
+    <name>Valgrind</name>
     <message>
         <source>Analyzer</source>
         <translation>Analizator</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindBaseSettings</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind</source>
         <translation>Valgrind</translation>

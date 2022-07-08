@@ -27,8 +27,7 @@
 
 #include <QAbstractItemView>
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 class ParseData;
 
@@ -40,5 +39,4 @@ enum AbstractModelRoles
     NextCustomRole
 };
 
-} // Callgrind
-} // Valgrind
+} // Valgrind::Internal

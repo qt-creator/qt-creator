@@ -45,8 +45,6 @@ class ValgrindBaseSettings;
 
 class SuppressionDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     SuppressionDialog(MemcheckErrorView *view,
                       const QList<XmlProtocol::Error> &errors);

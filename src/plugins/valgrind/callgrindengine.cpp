@@ -29,6 +29,7 @@
 
 #include <valgrind/callgrind/callgrindparser.h>
 #include <valgrind/valgrindrunner.h>
+#include <valgrind/valgrindtr.h>
 
 #include <debugger/analyzer/analyzermanager.h>
 
@@ -113,13 +114,13 @@ QStringList CallgrindToolRunner::toolArguments() const
 
 QString CallgrindToolRunner::progressTitle() const
 {
-    return tr("Profiling");
+    return Tr::tr("Profiling");
 }
 
 void CallgrindToolRunner::start()
 {
     const FilePath executable = runControl()->commandLine().executable();
-    appendMessage(tr("Profiling %1").arg(executable.toUserOutput()), NormalMessageFormat);
+    appendMessage(Tr::tr("Profiling %1").arg(executable.toUserOutput()), NormalMessageFormat);
     return ValgrindToolRunner::start();
 }
 
@@ -188,7 +189,7 @@ static QString toOptionString(CallgrindToolRunner::Option option)
 void CallgrindToolRunner::run(Option option)
 {
     if (m_controllerProcess) {
-        showStatusMessage(tr("Previous command has not yet finished."));
+        showStatusMessage(Tr::tr("Previous command has not yet finished."));
         return;
     }
 
@@ -199,16 +200,16 @@ void CallgrindToolRunner::run(Option option)
 
     switch (option) {
         case CallgrindToolRunner::Dump:
-            showStatusMessage(tr("Dumping profile data..."));
+            showStatusMessage(Tr::tr("Dumping profile data..."));
             break;
         case CallgrindToolRunner::ResetEventCounters:
-            showStatusMessage(tr("Resetting event counters..."));
+            showStatusMessage(Tr::tr("Resetting event counters..."));
             break;
         case CallgrindToolRunner::Pause:
-            showStatusMessage(tr("Pausing instrumentation..."));
+            showStatusMessage(Tr::tr("Pausing instrumentation..."));
             break;
         case CallgrindToolRunner::UnPause:
-            showStatusMessage(tr("Unpausing instrumentation..."));
+            showStatusMessage(Tr::tr("Unpausing instrumentation..."));
             break;
         default:
             break;
@@ -236,7 +237,7 @@ void CallgrindToolRunner::controllerProcessDone()
     m_controllerProcess.release()->deleteLater();
 
     if (result != ProcessResult::FinishedWithSuccess) {
-        showStatusMessage(tr("An error occurred while trying to run %1: %2").arg(CALLGRIND_CONTROL_BINARY).arg(error));
+        showStatusMessage(Tr::tr("An error occurred while trying to run %1: %2").arg(CALLGRIND_CONTROL_BINARY).arg(error));
         qWarning() << "Controller exited abnormally:" << error;
         return;
     }
@@ -251,12 +252,12 @@ void CallgrindToolRunner::controllerProcessDone()
             m_paused = true;
             break;
         case Dump:
-            showStatusMessage(tr("Callgrind dumped profiling info"));
+            showStatusMessage(Tr::tr("Callgrind dumped profiling info"));
             triggerParse();
             break;
         case UnPause:
             m_paused = false;
-            showStatusMessage(tr("Callgrind unpaused."));
+            showStatusMessage(Tr::tr("Callgrind unpaused."));
             break;
         default:
             break;
@@ -271,7 +272,7 @@ void CallgrindToolRunner::triggerParse()
     {
         TemporaryFile dataFile("callgrind.out");
         if (!dataFile.open()) {
-            showStatusMessage(tr("Failed opening temp file..."));
+            showStatusMessage(Tr::tr("Failed opening temp file..."));
             return;
         }
         m_hostOutputFile = FilePath::fromString(dataFile.fileName());
@@ -280,7 +281,7 @@ void CallgrindToolRunner::triggerParse()
     const auto afterCopy = [this](bool res) {
         QTC_CHECK(res);
         QTC_ASSERT(m_hostOutputFile.exists(), return);
-        showStatusMessage(tr("Parsing Profile Data..."));
+        showStatusMessage(Tr::tr("Parsing Profile Data..."));
         m_parser.parse(m_hostOutputFile);
     };
     m_valgrindOutputFile.asyncCopyFile(afterCopy, m_hostOutputFile);

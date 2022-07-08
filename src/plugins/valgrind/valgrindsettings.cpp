@@ -25,7 +25,10 @@
 ****************************************************************************/
 
 #include "valgrindsettings.h"
+
+#include "callgrindcostdelegate.h"
 #include "valgrindconfigwidget.h"
+#include "valgrindtr.h"
 
 #include <coreplugin/icore.h>
 
@@ -45,8 +48,7 @@
 
 using namespace Utils;
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 //
 // SuppressionAspect
@@ -54,8 +56,6 @@ namespace Internal {
 
 class SuppressionAspectPrivate : public QObject
 {
-    Q_DECLARE_TR_FUNCTIONS(Valgrind::Internal::ValgrindConfigWidget)
-
 public:
     SuppressionAspectPrivate(SuppressionAspect *q, bool global) : q(q), isGlobal(global) {}
 
@@ -86,9 +86,9 @@ void SuppressionAspectPrivate::slotAddSuppression()
     QTC_ASSERT(conf, return);
     const FilePaths files =
             FileUtils::getOpenFilePaths(nullptr,
-                      tr("Valgrind Suppression Files"),
+                      Tr::tr("Valgrind Suppression Files"),
                       conf->lastSuppressionDirectory.filePath(),
-                      tr("Valgrind Suppression File (*.supp);;All Files (*)"));
+                      Tr::tr("Valgrind Suppression File (*.supp);;All Files (*)"));
     //dialog.setHistory(conf->lastSuppressionDialogHistory());
     if (!files.isEmpty()) {
         for (const FilePath &file : files)
@@ -159,8 +159,8 @@ void SuppressionAspect::addToLayout(LayoutBuilder &builder)
 
     using namespace Layouting;
 
-    d->addEntry = new QPushButton(tr("Add..."));
-    d->removeEntry = new QPushButton(tr("Remove"));
+    d->addEntry = new QPushButton(Tr::tr("Add..."));
+    d->removeEntry = new QPushButton(Tr::tr("Remove"));
 
     d->entryList = createSubWidget<QListView>();
     d->entryList->setModel(&d->m_model);
@@ -173,7 +173,7 @@ void SuppressionAspect::addToLayout(LayoutBuilder &builder)
     connect(d->entryList->selectionModel(), &QItemSelectionModel::selectionChanged,
             d, &SuppressionAspectPrivate::slotSuppressionSelectionChanged);
 
-    builder.addItem(Column { new QLabel(tr("Suppression files:")), Stretch() });
+    builder.addItem(Column { new QLabel(Tr::tr("Suppression files:")), Stretch() });
     Row group {
         d->entryList.data(),
         Column { d->addEntry.data(), d->removeEntry.data(), Stretch() }
@@ -233,8 +233,8 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
     valgrindExecutable.setDisplayStyle(StringAspect::PathChooserDisplay);
     valgrindExecutable.setExpectedKind(PathChooser::Command);
     valgrindExecutable.setHistoryCompleter("Valgrind.Command.History");
-    valgrindExecutable.setDisplayName(tr("Valgrind Command"));
-    valgrindExecutable.setLabelText(tr("Valgrind executable:"));
+    valgrindExecutable.setDisplayName(Tr::tr("Valgrind Command"));
+    valgrindExecutable.setLabelText(Tr::tr("Valgrind executable:"));
     if (Utils::HostOsInfo::isWindowsHost()) {
         // On Window we know that we don't have a local valgrind
         // executable, so having the "Browse" button in the path chooser
@@ -246,7 +246,7 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
     registerAspect(&valgrindArguments);
     valgrindArguments.setSettingsKey(base + "ValgrindArguments");
     valgrindArguments.setDisplayStyle(StringAspect::LineEditDisplay);
-    valgrindArguments.setLabelText(tr("Valgrind arguments:"));
+    valgrindArguments.setLabelText(Tr::tr("Valgrind arguments:"));
 
     registerAspect(&selfModifyingCodeDetection);
     selfModifyingCodeDetection.setSettingsKey(base + "SelfModifyingCodeDetection");
@@ -256,46 +256,46 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
     selfModifyingCodeDetection.addOption("Only on Stack");
     selfModifyingCodeDetection.addOption("Everywhere");
     selfModifyingCodeDetection.addOption("Everywhere Except in File-backend Mappings");
-    selfModifyingCodeDetection.setLabelText(tr("Detect self-modifying code:"));
+    selfModifyingCodeDetection.setLabelText(Tr::tr("Detect self-modifying code:"));
 
     // Memcheck
     registerAspect(&memcheckArguments);
     memcheckArguments.setSettingsKey(base + "Memcheck.Arguments");
     memcheckArguments.setDisplayStyle(StringAspect::LineEditDisplay);
-    memcheckArguments.setLabelText(tr("Extra MemCheck arguments:"));
+    memcheckArguments.setLabelText(Tr::tr("Extra MemCheck arguments:"));
 
     registerAspect(&filterExternalIssues);
     filterExternalIssues.setSettingsKey(base + "FilterExternalIssues");
     filterExternalIssues.setDefaultValue(true);
     filterExternalIssues.setIcon(Icons::FILTER.icon());
     filterExternalIssues.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
-    filterExternalIssues.setLabelText(tr("Show Project Costs Only"));
-    filterExternalIssues.setToolTip(tr("Show only profiling info that originated from this project source."));
+    filterExternalIssues.setLabelText(Tr::tr("Show Project Costs Only"));
+    filterExternalIssues.setToolTip(Tr::tr("Show only profiling info that originated from this project source."));
 
     registerAspect(&trackOrigins);
     trackOrigins.setSettingsKey(base + "TrackOrigins");
     trackOrigins.setDefaultValue(true);
     trackOrigins.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
-    trackOrigins.setLabelText(tr("Track origins of uninitialized memory"));
+    trackOrigins.setLabelText(Tr::tr("Track origins of uninitialized memory"));
 
     registerAspect(&showReachable);
     showReachable.setSettingsKey(base + "ShowReachable");
     showReachable.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
-    showReachable.setLabelText(tr("Show reachable and indirectly lost blocks"));
+    showReachable.setLabelText(Tr::tr("Show reachable and indirectly lost blocks"));
 
     registerAspect(&leakCheckOnFinish);
     leakCheckOnFinish.setSettingsKey(base + "LeakCheckOnFinish");
     leakCheckOnFinish.setDefaultValue(LeakCheckOnFinishSummaryOnly);
     leakCheckOnFinish.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-    leakCheckOnFinish.addOption(tr("No"));
-    leakCheckOnFinish.addOption(tr("Summary Only"));
-    leakCheckOnFinish.addOption(tr("Full"));
-    leakCheckOnFinish.setLabelText(tr("Check for leaks on finish:"));
+    leakCheckOnFinish.addOption(Tr::tr("No"));
+    leakCheckOnFinish.addOption(Tr::tr("Summary Only"));
+    leakCheckOnFinish.addOption(Tr::tr("Full"));
+    leakCheckOnFinish.setLabelText(Tr::tr("Check for leaks on finish:"));
 
     registerAspect(&numCallers);
     numCallers.setSettingsKey(base + "NumCallers");
     numCallers.setDefaultValue(25);
-    numCallers.setLabelText(tr("Backtrace frame count:"));
+    numCallers.setLabelText(Tr::tr("Backtrace frame count:"));
 
     // Callgrind
 
@@ -303,26 +303,26 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
     kcachegrindExecutable.setSettingsKey(base + "KCachegrindExecutable");
     kcachegrindExecutable.setDefaultValue("kcachegrind");
     kcachegrindExecutable.setDisplayStyle(StringAspect::PathChooserDisplay);
-    kcachegrindExecutable.setLabelText(tr("KCachegrind executable:"));
+    kcachegrindExecutable.setLabelText(Tr::tr("KCachegrind executable:"));
     kcachegrindExecutable.setExpectedKind(Utils::PathChooser::Command);
-    kcachegrindExecutable.setDisplayName(tr("KCachegrind Command"));
+    kcachegrindExecutable.setDisplayName(Tr::tr("KCachegrind Command"));
 
     registerAspect(&callgrindArguments);
     callgrindArguments.setSettingsKey(base + "Callgrind.Arguments");
     callgrindArguments.setDisplayStyle(StringAspect::LineEditDisplay);
-    callgrindArguments.setLabelText(tr("Extra CallGrind arguments:"));
+    callgrindArguments.setLabelText(Tr::tr("Extra CallGrind arguments:"));
 
     registerAspect(&enableEventToolTips);
     enableEventToolTips.setDefaultValue(true);
     enableEventToolTips.setSettingsKey(base + "Callgrind.EnableEventToolTips");
     enableEventToolTips.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
-    enableEventToolTips.setLabelText(tr("Show additional information for events in tooltips"));
+    enableEventToolTips.setLabelText(Tr::tr("Show additional information for events in tooltips"));
 
     registerAspect(&enableCacheSim);
     enableCacheSim.setSettingsKey(base + "Callgrind.EnableCacheSim");
     enableCacheSim.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
-    enableCacheSim.setLabelText(tr("Enable cache simulation"));
-    enableCacheSim.setToolTip("<html><head/><body>" + tr(
+    enableCacheSim.setLabelText(Tr::tr("Enable cache simulation"));
+    enableCacheSim.setToolTip("<html><head/><body>" + Tr::tr(
         "<p>Does full cache simulation.</p>\n"
         "<p>By default, only instruction read accesses will be counted (\"Ir\").</p>\n"
         "<p>\n"
@@ -335,8 +335,8 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
     registerAspect(&enableBranchSim);
     enableBranchSim.setSettingsKey(base + "Callgrind.EnableBranchSim");
     enableBranchSim.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
-    enableBranchSim.setLabelText(tr("Enable branch prediction simulation"));
-    enableBranchSim.setToolTip("<html><head/><body>\n" + tr(
+    enableBranchSim.setLabelText(Tr::tr("Enable branch prediction simulation"));
+    enableBranchSim.setToolTip("<html><head/><body>\n" + Tr::tr(
         "<p>Does branch prediction simulation.</p>\n"
         "<p>Further event counters are enabled: </p>\n"
         "<ul><li>Number of executed conditional branches and related predictor misses (\n"
@@ -347,29 +347,29 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
     registerAspect(&collectSystime);
     collectSystime.setSettingsKey(base + "Callgrind.CollectSystime");
     collectSystime.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
-    collectSystime.setLabelText(tr("Collect system call time"));
-    collectSystime.setToolTip(tr("Collects information for system call times."));
+    collectSystime.setLabelText(Tr::tr("Collect system call time"));
+    collectSystime.setToolTip(Tr::tr("Collects information for system call times."));
 
     registerAspect(&collectBusEvents);
     collectBusEvents.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
     collectBusEvents.setSettingsKey(base + "Callgrind.CollectBusEvents");
-    collectBusEvents.setLabelText(tr("Collect global bus events"));
-    collectBusEvents.setToolTip(tr("Collect the number of global bus events that are executed. "
+    collectBusEvents.setLabelText(Tr::tr("Collect global bus events"));
+    collectBusEvents.setToolTip(Tr::tr("Collect the number of global bus events that are executed. "
         "The event type \"Ge\" is used for these events."));
 
     registerAspect(&minimumInclusiveCostRatio);
     minimumInclusiveCostRatio.setSettingsKey(base + "Callgrind.MinimumCostRatio");
     minimumInclusiveCostRatio.setDefaultValue(0.01);
-    minimumInclusiveCostRatio.setSuffix(tr("%"));
-    minimumInclusiveCostRatio.setLabelText(tr("Result view: Minimum event cost:"));
-    minimumInclusiveCostRatio.setToolTip(tr("Limits the amount of results the profiler gives you. "
+    minimumInclusiveCostRatio.setSuffix(Tr::tr("%"));
+    minimumInclusiveCostRatio.setLabelText(Tr::tr("Result view: Minimum event cost:"));
+    minimumInclusiveCostRatio.setToolTip(Tr::tr("Limits the amount of results the profiler gives you. "
          "A lower limit will likely increase performance."));
 
     registerAspect(&visualizationMinimumInclusiveCostRatio);
     visualizationMinimumInclusiveCostRatio.setSettingsKey(base + "Callgrind.VisualisationMinimumCostRatio");
     visualizationMinimumInclusiveCostRatio.setDefaultValue(10.0);
-    visualizationMinimumInclusiveCostRatio.setLabelText(tr("Visualization: Minimum event cost:"));
-    visualizationMinimumInclusiveCostRatio.setSuffix(tr("%"));
+    visualizationMinimumInclusiveCostRatio.setLabelText(Tr::tr("Visualization: Minimum event cost:"));
+    visualizationMinimumInclusiveCostRatio.setSuffix(Tr::tr("%"));
 
     registerAspect(&visibleErrorKinds);
     visibleErrorKinds.setSettingsKey(base + "VisibleErrorKinds");
@@ -405,7 +405,7 @@ ValgrindGlobalSettings::ValgrindGlobalSettings()
     detectCycles.setSettingsKey(base + "Callgrind.CycleDetection");
     detectCycles.setDefaultValue(true);
     detectCycles.setLabelText("O"); // FIXME: Create a real icon
-    detectCycles.setToolTip(tr("Enable cycle detection to properly handle recursive "
+    detectCycles.setToolTip(Tr::tr("Enable cycle detection to properly handle recursive "
         "or circular function calls."));
 
     registerAspect(&costFormat);
@@ -417,7 +417,7 @@ ValgrindGlobalSettings::ValgrindGlobalSettings()
     shortenTemplates.setSettingsKey(base + "Callgrind.ShortenTemplates");
     shortenTemplates.setDefaultValue(true);
     shortenTemplates.setLabelText("<>"); // FIXME: Create a real icon
-    shortenTemplates.setToolTip(tr("Remove template parameter lists when displaying function names."));
+    shortenTemplates.setToolTip(Tr::tr("Remove template parameter lists when displaying function names."));
 
     setConfigWidgetCreator([this] { return ValgrindOptionsPage::createSettingsWidget(this); });
     readSettings();
@@ -493,5 +493,4 @@ ValgrindProjectSettings::ValgrindProjectSettings()
     });
 }
 
-} // namespace Internal
-} // namespace Valgrind
+} // Valgrind::Internal

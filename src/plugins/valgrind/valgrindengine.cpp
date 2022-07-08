@@ -25,7 +25,9 @@
 ****************************************************************************/
 
 #include "valgrindengine.h"
+
 #include "valgrindsettings.h"
+#include "valgrindtr.h"
 
 #include <debugger/analyzer/analyzermanager.h>
 
@@ -50,8 +52,7 @@ using namespace Core;
 using namespace Utils;
 using namespace ProjectExplorer;
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
     : RunWorker(runControl)
@@ -84,9 +85,9 @@ void ValgrindToolRunner::start()
     m_progress.reportStarted();
 
 #if VALGRIND_DEBUG_OUTPUT
-    emit outputReceived(tr("Valgrind options: %1").arg(toolArguments().join(' ')), LogMessageFormat);
-    emit outputReceived(tr("Working directory: %1").arg(runnable().workingDirectory), LogMessageFormat);
-    emit outputReceived(tr("Command line arguments: %1").arg(runnable().debuggeeArgs), LogMessageFormat);
+    emit outputReceived(Tr::tr("Valgrind options: %1").arg(toolArguments().join(' ')), LogMessageFormat);
+    emit outputReceived(Tr::tr("Working directory: %1").arg(runnable().workingDirectory), LogMessageFormat);
+    emit outputReceived(Tr::tr("Command line arguments: %1").arg(runnable().debuggeeArgs), LogMessageFormat);
 #endif
 
 
@@ -155,7 +156,7 @@ void ValgrindToolRunner::handleProgressFinished()
 
 void ValgrindToolRunner::runnerFinished()
 {
-    appendMessage(tr("Analyzing finished."), NormalMessageFormat);
+    appendMessage(Tr::tr("Analyzing finished."), NormalMessageFormat);
 
     m_progress.reportFinished();
 
@@ -167,13 +168,13 @@ void ValgrindToolRunner::receiveProcessError(const QString &message, QProcess::P
     if (error == QProcess::FailedToStart) {
         const QString valgrind = m_settings.valgrindExecutable.value();
         if (!valgrind.isEmpty())
-            appendMessage(tr("Error: \"%1\" could not be started: %2").arg(valgrind, message), ErrorMessageFormat);
+            appendMessage(Tr::tr("Error: \"%1\" could not be started: %2").arg(valgrind, message), ErrorMessageFormat);
         else
-            appendMessage(tr("Error: no Valgrind executable set."), ErrorMessageFormat);
+            appendMessage(Tr::tr("Error: no Valgrind executable set."), ErrorMessageFormat);
     } else if (m_isStopping && error == QProcess::Crashed) { // process gets killed on stop
-        appendMessage(tr("Process terminated."), ErrorMessageFormat);
+        appendMessage(Tr::tr("Process terminated."), ErrorMessageFormat);
     } else {
-        appendMessage(tr("Process exited with return value %1\n").arg(message), NormalMessageFormat);
+        appendMessage(Tr::tr("Process exited with return value %1\n").arg(message), NormalMessageFormat);
     }
 
     if (m_isStopping)
@@ -184,5 +185,4 @@ void ValgrindToolRunner::receiveProcessError(const QString &message, QProcess::P
         pane->popup(IOutputPane::NoModeSwitch);
 }
 
-} // namespace Internal
-} // namepsace Valgrind
+} // Valgrid::Internal

@@ -13991,11 +13991,7 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::ErrorListModel</name>
-    <message>
-        <source>Location</source>
-        <translation>Ort</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Issue</source>
         <translation>Problem</translation>
@@ -14006,11 +14002,7 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol</name>
-    <message>
-        <source>Function:</source>
-        <translation>Funktion:</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Location:</source>
         <translation>Ort:</translation>
@@ -14019,13 +14011,9 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
         <source>Instruction pointer:</source>
         <translation>Instruktionszeiger:</translation>
     </message>
-    <message>
-        <source>Object:</source>
-        <translation>Objekt:</translation>
-    </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::Parser</name>
+    <name>Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>&quot;%1&quot; (%2) ist keine gültige Hexadezimalzahl</translation>
@@ -14080,7 +14068,7 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::StackModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Beschreibung</translation>
@@ -14092,10 +14080,6 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     <message>
         <source>Object</source>
         <translation>Objekt</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>Funktion</translation>
     </message>
     <message>
         <source>Directory</source>
@@ -14548,7 +14532,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::SuppressionDialog</name>
+    <name>Valgrind</name>
     <message>
         <source>Suppression File:</source>
         <translation>Ausschluss-Datei:</translation>
@@ -14567,7 +14551,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindConfigWidget</name>
+    <name>Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>Allgemeine Einstellungen</translation>
@@ -15122,7 +15106,7 @@ Bei vollständiger Cache-Simulation werden weitere Ereigniszähler aktiviert:
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>Aufgerufene Funktion</translation>
@@ -15141,7 +15125,7 @@ Bei vollständiger Cache-Simulation werden weitere Ereigniszähler aktiviert:
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallgrindController</name>
+    <name>Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>Das vorangegangene Kommando ist noch nicht beendet.</translation>
@@ -15176,7 +15160,7 @@ Bei vollständiger Cache-Simulation werden weitere Ereigniszähler aktiviert:
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::DataModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>Funktion:</translation>
@@ -15748,7 +15732,7 @@ Wollen Sie die Daten vorher speichern?</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal</name>
+    <name>Valgrind</name>
     <message>
         <source>%1%2</source>
         <translation>%1%2</translation>
@@ -15759,14 +15743,14 @@ Wollen Sie die Daten vorher speichern?</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckErrorView</name>
+    <name>Valgrind</name>
     <message>
         <source>Suppress Error</source>
         <translation>Fehler unterdrücken</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckTool</name>
+    <name>Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation>Externe Fehler</translation>
@@ -15937,7 +15921,7 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::ParseData</name>
+    <name>Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>Letzte Ebene</translation>
@@ -16067,7 +16051,7 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::Function</name>
+    <name>Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 in %2</translation>
@@ -23872,7 +23856,7 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindRunConfigurationAspect</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Einstellungen von Valgrind</translation>
@@ -35785,7 +35769,7 @@ Sie werden erhalten.</numerusform>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindTool</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind Function Profiler uses the Callgrind tool to record function calls when a program runs.</source>
         <translation>Das Profiling von Funktionen mit Valgrind verwendet das Programm &quot;callgrind&quot;, um Funktionsaufrufe während der Programmausführung aufzuzeichnen.</translation>
@@ -40880,7 +40864,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindToolRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>Profiling</translation>
@@ -40889,13 +40873,9 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
         <source>Profiling %1</source>
         <translation>Profiling von %1</translation>
     </message>
-    <message>
-        <source>Parsing Profile Data...</source>
-        <translation>Werte Profilerdaten aus...</translation>
-    </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindToolRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Valgrind-Optionen: %1</translation>
@@ -40932,7 +40912,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::ValgrindRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>XmlServer on %1:</source>
         <translation>XmlServer an %1:</translation>
@@ -43535,7 +43515,7 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::Visualization</name>
+    <name>Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>Alle Funktionen mit einem einschließlichen Kostenfaktor größer als %1 (%2 nicht gezeigt)</translation>

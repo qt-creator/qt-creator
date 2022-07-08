@@ -33440,14 +33440,10 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>ValgrindConfigWidget</name>
+    <name>Valgrind</name>
     <message>
         <source>Common Valgrind Options</source>
         <translation type="obsolete">常用Valgrind 命令</translation>
-    </message>
-    <message>
-        <source>Valgrind executable:</source>
-        <translation type="obsolete">Valgrind 可执行:</translation>
     </message>
 </context>
 <context>
@@ -33673,7 +33669,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::ErrorListModel</name>
+    <name>Valgrind</name>
     <message>
         <source>No errors found</source>
         <translation>没有找到错误</translation>
@@ -33681,18 +33677,6 @@ Specifies how backspace interacts with indentation.
     <message>
         <source>What</source>
         <translation>什么</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>位置</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>文件</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation>行号</translation>
     </message>
     <message>
         <source>Unique</source>
@@ -33720,7 +33704,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol</name>
+    <name>Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>函数:</translation>
@@ -33739,7 +33723,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::Parser</name>
+    <name>Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>无法从&quot;%1&quot; (%2) 解析出十六进制数字</translation>
@@ -33794,7 +33778,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>Valgrind::XmlProtocol::StackModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Description</source>
         <translation>说明</translation>
@@ -33806,10 +33790,6 @@ Specifies how backspace interacts with indentation.
     <message>
         <source>Object</source>
         <translation>对象</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>函数</translation>
     </message>
     <message>
         <source>Directory</source>
@@ -35490,17 +35470,6 @@ Do you want to retry?</source>
     <message>
         <source>Analyzing memory of %1</source>
         <translation type="obsolete">内存分析中%1</translation>
-    </message>
-</context>
-<context>
-    <name>Analyzer::Internal</name>
-    <message>
-        <source>%1 in %2</source>
-        <translation type="obsolete">%1 在 %2</translation>
-    </message>
-    <message>
-        <source>in %1</source>
-        <translation type="obsolete">在 %1</translation>
     </message>
 </context>
 <context>
@@ -38637,34 +38606,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckConfigWidget</name>
-    <message>
-        <source>Memory Analysis Options</source>
-        <translation type="obsolete">内存分析选项</translation>
-    </message>
-    <message>
-        <source>Backtrace frame count:</source>
-        <translation type="obsolete">回溯帧数:</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation type="obsolete">添加...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">删除</translation>
-    </message>
-    <message>
-        <source>Track origins of uninitialized memory</source>
-        <translation type="obsolete">跟踪原始未初始化的内存</translation>
-    </message>
-    <message>
-        <source>Valgrind Suppression File (*.supp);;All Files (*)</source>
-        <translation type="obsolete">Valgrind 配置文件 (*.supp);;所有文件 (*)</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::Internal::SuppressionDialog</name>
+    <name>Valgrind</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">对话框</translation>
@@ -38687,11 +38629,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindConfigWidget</name>
-    <message>
-        <source>Generic Settings</source>
-        <translation>一般设置</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind executable:</source>
         <translation>Valgrind 执行档:</translation>
@@ -41849,7 +41787,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindEngine</name>
+    <name>Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>正在分析</translation>
@@ -41862,7 +41800,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindTool</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind Function Profiler</source>
         <translation>Valgrind 功能分析器</translation>
@@ -41877,7 +41815,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindToolPrivate</name>
+    <name>Valgrind</name>
     <message>
         <source>Callers</source>
         <translation>调用者</translation>
@@ -41996,14 +41934,14 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::Visualisation</name>
+    <name>Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>包含成本比%1高的所有函数 (%2 被隐藏)</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckEngine</name>
+    <name>Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>内存分析中</translation>
@@ -42016,7 +41954,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal</name>
+    <name>Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translatorcomment>%1 function, %2 path</translatorcomment>
@@ -42028,7 +41966,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckErrorView</name>
+    <name>Valgrind</name>
     <message>
         <source>Copy Selection</source>
         <translation>复制选择</translation>
@@ -42039,14 +41977,14 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::AbstractMemcheckSettings</name>
+    <name>Valgrind</name>
     <message>
         <source>Memory Analysis</source>
         <translation type="obsolete">内存分析</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::MemcheckTool</name>
+    <name>Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation>外部错误</translation>
@@ -42113,7 +42051,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallModel</name>
+    <name>Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>被调用者</translation>
@@ -42132,7 +42070,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallgrindController</name>
+    <name>Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>之前的命令还没有完成。</translation>
@@ -42167,18 +42105,10 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::DataModel</name>
-    <message>
-        <source>Function:</source>
-        <translation>函数:</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>File:</source>
         <translation>文件:</translation>
-    </message>
-    <message>
-        <source>Object:</source>
-        <translation>对象:</translation>
     </message>
     <message>
         <source>Called:</source>
@@ -42244,18 +42174,14 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::Function</name>
-    <message>
-        <source>%1 in %2</source>
-        <translation>在 %2 中的%1</translation>
-    </message>
+    <name>Valgrind</name>
     <message>
         <source>%1:%2 in %3</source>
         <translation>%1: 在 %3 中的%2</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::ParseData</name>
+    <name>Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>最后一级</translation>
@@ -42314,14 +42240,14 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Callgrind::CallgrindRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>Parsing Profile Data...</source>
         <translation>解析分析数据...</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Memcheck::MemcheckRunner</name>
+    <name>Valgrind</name>
     <message>
         <source>No network interface found for remote analysis.</source>
         <translation type="obsolete">没有找到用于远程分析的网络接口.</translation>
@@ -42332,14 +42258,14 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::RemoteValgrindProcess</name>
+    <name>Valgrind</name>
     <message>
         <source>Could not determine remote PID.</source>
         <translation>无法确定远程的PID。</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindEngine</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Valgrind 选项: %1</translation>
@@ -42382,14 +42308,14 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindRunControlFactory</name>
+    <name>Valgrind</name>
     <message>
         <source>Analyzer</source>
         <translation type="obsolete">分析器</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindSettings</name>
+    <name>Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation type="obsolete">一般设置</translation>
@@ -42514,7 +42440,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindBaseSettings</name>
+    <name>Valgrind</name>
     <message>
         <source>Valgrind</source>
         <translation>Valgrind</translation>

@@ -31,10 +31,11 @@
 #include "stack.h"
 #include "status.h"
 #include "suppression.h"
+#include "../valgrindtr.h"
+
 #include <utils/qtcassert.h>
 
 #include <QAbstractSocket>
-#include <QCoreApplication>
 #include <QHash>
 #include <QIODevice>
 #include <QPair>
@@ -173,8 +174,7 @@ static quint64 parseHex(const QString &str, const QString &context)
     bool ok;
     const quint64 v = str.toULongLong(&ok, 16);
     if (!ok)
-        throw ParserException(QCoreApplication::translate("Valgrind::XmlProtocol::Parser",
-                                                          "Could not parse hex number from \"%1\" (%2)").arg(str, context));
+        throw ParserException(Tr::tr("Could not parse hex number from \"%1\" (%2)").arg(str, context));
     return v;
 }
 
@@ -183,8 +183,7 @@ static qint64 parseInt64(const QString &str, const QString &context)
     bool ok;
     const quint64 v = str.toLongLong(&ok);
     if (!ok)
-        throw ParserException(QCoreApplication::translate("Valgrind::XmlProtocol::Parser",
-                                                          "Could not parse hex number from \"%1\" (%2)").arg(str, context));
+        throw ParserException(Tr::tr("Could not parse hex number from \"%1\" (%2)").arg(str, context));
     return v;
 }
 
@@ -242,8 +241,7 @@ QString Parser::Private::blockingReadElementText()
     //affects at least Qt <= 4.7.1. Reported as QTBUG-14661.
 
     if (!reader.isStartElement())
-        throw ParserException(QCoreApplication::translate("Valgrind::XmlProtocol::Parser",
-                                                          "trying to read element text although current position is not start of element"));
+        throw ParserException(Tr::tr("trying to read element text although current position is not start of element"));
 
     QString result;
 
@@ -260,12 +258,10 @@ QString Parser::Private::blockingReadElementText()
         case QXmlStreamReader::Comment:
             break;
         case QXmlStreamReader::StartElement:
-            throw ParserException(QCoreApplication::translate("Valgrind::XmlProtocol::Parser",
-                                                              "Unexpected child element while reading element text"));
+            throw ParserException(Tr::tr("Unexpected child element while reading element text"));
         default:
             //TODO handle
-            throw ParserException(QCoreApplication::translate("Valgrind::XmlProtocol::Parser",
-                                                              "Unexpected token type %1").arg(type));
+            throw ParserException(Tr::tr("Unexpected token type %1").arg(type));
             break;
         }
     }
@@ -277,11 +273,9 @@ void Parser::Private::checkProtocolVersion(const QString &versionStr)
     bool ok;
     const int version = versionStr.toInt(&ok);
     if (!ok)
-        throw ParserException(QCoreApplication::translate("Valgrind::XmlProtocol::Parser",
-                                                          "Could not parse protocol version from \"%1\"").arg(versionStr));
+        throw ParserException(Tr::tr("Could not parse protocol version from \"%1\"").arg(versionStr));
     if (version != 4)
-        throw ParserException(QCoreApplication::translate("Valgrind::XmlProtocol::Parser",
-                                                          "XmlProtocol version %1 not supported (supported version: 4)").arg(version));
+        throw ParserException(Tr::tr("XmlProtocol version %1 not supported (supported version: 4)").arg(version));
 }
 
 void Parser::Private::checkTool(const QString &reportedStr)
@@ -289,8 +283,7 @@ void Parser::Private::checkTool(const QString &reportedStr)
     const QHash<QString,Parser::Tool>::ConstIterator reported = toolsByName.constFind(reportedStr);
 
     if (reported == toolsByName.constEnd())
-        throw ParserException(QCoreApplication::translate("Valgrind::XmlProtocol::Parser",
-                                                          "Valgrind tool \"%1\" not supported").arg(reportedStr));
+        throw ParserException(Tr::tr("Valgrind tool \"%1\" not supported").arg(reportedStr));
 
     tool = reported.value();
 }
@@ -349,8 +342,7 @@ MemcheckErrorKind Parser::Private::parseMemcheckErrorKind(const QString &kind)
     if (it != errorKindsByName_memcheck.constEnd())
         return *it;
     else
-        throw ParserException(QCoreApplication::translate("Valgrind::XmlProtocol::Parser",
-                                                          "Unknown memcheck error kind \"%1\"").arg(kind));
+        throw ParserException(Tr::tr("Unknown memcheck error kind \"%1\"").arg(kind));
 }
 
 HelgrindErrorKind Parser::Private::parseHelgrindErrorKind(const QString &kind)
@@ -359,8 +351,7 @@ HelgrindErrorKind Parser::Private::parseHelgrindErrorKind(const QString &kind)
     if (it != errorKindsByName_helgrind.constEnd())
         return *it;
     else
-        throw ParserException(QCoreApplication::translate("Valgrind::XmlProtocol::Parser",
-                                                          "Unknown helgrind error kind \"%1\"").arg(kind));
+        throw ParserException(Tr::tr("Unknown helgrind error kind \"%1\"").arg(kind));
 }
 
 PtrcheckErrorKind Parser::Private::parsePtrcheckErrorKind(const QString &kind)
@@ -369,8 +360,7 @@ PtrcheckErrorKind Parser::Private::parsePtrcheckErrorKind(const QString &kind)
     if (it != errorKindsByName_ptrcheck.constEnd())
         return *it;
     else
-        throw ParserException(QCoreApplication::translate("Valgrind::XmlProtocol::Parser",
-                                                          "Unknown ptrcheck error kind \"%1\"").arg(kind));
+        throw ParserException(Tr::tr("Unknown ptrcheck error kind \"%1\"").arg(kind));
 }
 
 int Parser::Private::parseErrorKind(const QString &kind)
@@ -386,8 +376,7 @@ int Parser::Private::parseErrorKind(const QString &kind)
     default:
         break;
     }
-    throw ParserException(QCoreApplication::translate("Valgrind::XmlProtocol::Parser",
-                                                      "Could not parse error kind, tool not yet set."));
+    throw ParserException(Tr::tr("Could not parse error kind, tool not yet set."));
 }
 
 static Status::State parseState(const QString &state)
@@ -396,8 +385,7 @@ static Status::State parseState(const QString &state)
         return Status::Running;
     if (state == "FINISHED")
         return Status::Finished;
-    throw ParserException(QCoreApplication::translate("Valgrind::XmlProtocol::Parser",
-                                                      "Unknown state \"%1\"").arg(state));
+    throw ParserException(Tr::tr("Unknown state \"%1\"").arg(state));
 }
 
 void Parser::Private::reportInternalError(const QString &e)
@@ -723,8 +711,7 @@ void Parser::Private::parse(QIODevice *device)
     } catch (const ParserException &e) {
         reportInternalError(e.message());
     } catch (...) {
-        reportInternalError(QCoreApplication::translate("Valgrind::XmlProtocol::Parser",
-                                                        "Unexpected exception caught during parsing."));
+        reportInternalError(Tr::tr("Unexpected exception caught during parsing."));
     }
     emit q->finished();
 }

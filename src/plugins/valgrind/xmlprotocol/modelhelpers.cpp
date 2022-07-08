@@ -26,11 +26,11 @@
 
 #include "modelhelpers.h"
 #include "frame.h"
+#include "../valgrindtr.h"
 
 #include <QString>
 #include <QDir>
 #include <QPair>
-#include <QCoreApplication>
 
 namespace Valgrind {
 namespace XmlProtocol {
@@ -48,17 +48,14 @@ QString toolTipForFrame(const Frame &frame)
     QList<StringPair> lines;
 
     if (!frame.functionName().isEmpty())
-        lines << qMakePair(QCoreApplication::translate("Valgrind::XmlProtocol", "Function:"),
-                           frame.functionName());
+        lines << qMakePair(Tr::tr("Function:"), frame.functionName());
     if (!location.isEmpty())
-        lines << qMakePair(QCoreApplication::translate("Valgrind::XmlProtocol", "Location:"),
-                           location);
+        lines << qMakePair(Tr::tr("Location:"), location);
     if (frame.instructionPointer())
-        lines << qMakePair(QCoreApplication::translate("Valgrind::XmlProtocol",
-                                                       "Instruction pointer:"),
-                           QString::fromLatin1("0x%1").arg(frame.instructionPointer(), 0, 16));
+        lines << qMakePair(Tr::tr("Instruction pointer:"),
+                           QString("0x%1").arg(frame.instructionPointer(), 0, 16));
     if (!frame.object().isEmpty())
-        lines << qMakePair(QCoreApplication::translate("Valgrind::XmlProtocol", "Object:"), frame.object());
+        lines << qMakePair(Tr::tr("Object:"), frame.object());
 
     QString html = "<html><head>"
                    "<style>dt { font-weight:bold; } dd { font-family: monospace; }</style>\n"

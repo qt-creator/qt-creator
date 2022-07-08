@@ -27,9 +27,8 @@
 #include "threadedparser.h"
 #include "parser.h"
 #include "error.h"
-#include "frame.h"
 #include "status.h"
-#include "suppression.h"
+
 #include <utils/qtcassert.h>
 
 #include <QIODevice>

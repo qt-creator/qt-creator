@@ -28,8 +28,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 class ValgrindOptionsPage final : public Core::IOptionsPage
 {
@@ -39,5 +38,4 @@ public:
     static QWidget *createSettingsWidget(class ValgrindBaseSettings *settings);
 };
 
-} // namespace Internal
-} // namespace Valgrind
+} // Valgrind::Internal

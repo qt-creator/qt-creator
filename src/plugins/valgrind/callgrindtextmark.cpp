@@ -29,13 +29,14 @@
 
 #include "callgrind/callgrinddatamodel.h"
 #include "callgrind/callgrindfunction.h"
+#include "valgrindtr.h"
+
+#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QLabel>
 #include <QLayout>
 #include <QPainter>
-
-#include <utils/qtcassert.h>
 
 using namespace Utils;
 using namespace Valgrind::Internal;
@@ -51,7 +52,7 @@ CallgrindTextMark::CallgrindTextMark(const QPersistentModelIndex &index,
     setPriority(TextEditor::TextMark::HighPriority);
     const Function *f = function();
     const QString inclusiveCost = QLocale::system().toString(f->inclusiveCost(0));
-    setLineAnnotation(tr("%1 (Called: %2; Incl. Cost: %3)")
+    setLineAnnotation(Tr::tr("%1 (Called: %2; Incl. Cost: %3)")
                       .arg(CallgrindHelper::toPercent(costs() * 100.0f))
                       .arg(f->called())
                       .arg(inclusiveCost));

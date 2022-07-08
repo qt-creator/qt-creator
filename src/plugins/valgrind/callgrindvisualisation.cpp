@@ -26,11 +26,13 @@
 #include "callgrindvisualisation.h"
 
 #include "callgrindhelper.h"
+#include "valgrindtr.h"
 
 #include <valgrind/callgrind/callgrindabstractmodel.h>
 #include <valgrind/callgrind/callgrinddatamodel.h>
 #include <valgrind/callgrind/callgrindfunction.h>
 #include <valgrind/callgrind/callgrindproxymodel.h>
+
 #include <utils/qtcassert.h>
 
 #include <QAbstractItemModel>
@@ -387,7 +389,7 @@ void Visualization::populateScene()
             QString ratioPercentString = QString::number(ratioPercent);
             ratioPercentString.append(QLocale::system().percent());
             const int hiddenFunctions = d->m_model->sourceModel()->rowCount() - d->m_model->rowCount();
-            text = tr("All functions with an inclusive cost ratio higher than %1 (%2 are hidden)")
+            text = Tr::tr("All functions with an inclusive cost ratio higher than %1 (%2 are hidden)")
                     .arg(ratioPercentString, hiddenFunctions);
         }
 

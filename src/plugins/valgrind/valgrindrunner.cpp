@@ -26,6 +26,7 @@
 
 #include "valgrindrunner.h"
 
+#include "valgrindtr.h"
 #include "xmlprotocol/threadedparser.h"
 
 #include <utils/hostosinfo.h>
@@ -107,14 +108,14 @@ bool ValgrindRunner::Private::startServers()
     const bool xmlOK = m_xmlServer.listen(m_localServerAddress);
     const QString ip = m_localServerAddress.toString();
     if (!xmlOK) {
-        emit q->processErrorReceived(tr("XmlServer on %1:").arg(ip) + ' '
+        emit q->processErrorReceived(Tr::tr("XmlServer on %1:").arg(ip) + ' '
                                      + m_xmlServer.errorString(), QProcess::FailedToStart );
         return false;
     }
     m_xmlServer.setMaxPendingConnections(1);
     const bool logOK = m_logServer.listen(m_localServerAddress);
     if (!logOK) {
-        emit q->processErrorReceived(tr("LogServer on %1:").arg(ip) + ' '
+        emit q->processErrorReceived(Tr::tr("LogServer on %1:").arg(ip) + ' '
                                      + m_logServer.errorString(), QProcess::FailedToStart );
         return false;
     }

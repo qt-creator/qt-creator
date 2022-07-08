@@ -28,8 +28,7 @@
 #include <QHash>
 #include <QStack>
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 class Function;
 class ParseData;
@@ -72,5 +71,4 @@ private:
 
 } // namespace Internal
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind

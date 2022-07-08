@@ -29,6 +29,7 @@
 #include "frame.h"
 #include "stack.h"
 #include "modelhelpers.h"
+#include "../valgrindtr.h"
 
 #include <utils/qtcassert.h>
 
@@ -155,19 +156,19 @@ QVariant StackModel::headerData(int section, Qt::Orientation orientation, int ro
 
     switch (section) {
     case NameColumn:
-        return tr("Description");
+        return Tr::tr("Description");
     case InstructionPointerColumn:
-        return tr("Instruction Pointer");
+        return Tr::tr("Instruction Pointer");
     case ObjectColumn:
-        return tr("Object");
+        return Tr::tr("Object");
     case FunctionNameColumn:
-        return tr("Function");
+        return Tr::tr("Function");
     case DirectoryColumn:
-        return tr("Directory");
+        return Tr::tr("Directory");
     case FileColumn:
-        return tr("File");
+        return Tr::tr("File");
     case LineColumn:
-        return tr("Line");
+        return Tr::tr("Line");
     }
 
     return QVariant();
