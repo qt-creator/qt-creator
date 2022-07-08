@@ -34,6 +34,7 @@
 
 #include <utils/detailswidget.h>
 #include <utils/fileutils.h>
+#include <utils/headerviewstretcher.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -569,6 +570,7 @@ public:
         header->setStretchLastSection(false);
         header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
         header->setSectionResizeMode(1, QHeaderView::Stretch);
+        (void) new HeaderViewStretcher(header, 0);
 
         auto buttonLayout = new QVBoxLayout();
         buttonLayout->setContentsMargins(0, 0, 0, 0);
