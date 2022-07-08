@@ -625,6 +625,7 @@ void TimelineWidget::showEvent(QShowEvent *event)
     m_timelineView->setEnabled(true);
 
     graphicsScene()->setWidth(m_graphicsView->viewport()->width());
+    graphicsScene()->invalidateScene();
     graphicsScene()->invalidateLayout();
     graphicsScene()->invalidate();
     graphicsScene()->onShow();

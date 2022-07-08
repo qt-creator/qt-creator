@@ -444,10 +444,12 @@ void TimelineGraphicsScene::invalidateHeightForTarget(const ModelNode &target)
 
 void TimelineGraphicsScene::invalidateScene()
 {
-    ModelNode node = timelineView()->modelNodeForId(
-        timelineWidget()->toolBar()->currentTimelineId());
-    setTimeline(QmlTimeline(node));
-    invalidateScrollbar();
+    if (timelineView()->isAttached()) {
+        ModelNode node = timelineView()->modelNodeForId(
+            timelineWidget()->toolBar()->currentTimelineId());
+        setTimeline(QmlTimeline(node));
+        invalidateScrollbar();
+    }
 }
 
 void TimelineGraphicsScene::invalidateScrollbar()
