@@ -7464,7 +7464,7 @@ QMimeData *TextEditorWidget::createMimeDataFromSelection() const
                             tempCursor.setCharFormat(range.format);
                         }
                     } else {
-                        const int startPosition = current.position() - start.position()
+                        const int startPosition = current.position() - selectionStart
                                                   - removedCount;
                         int endPosition = startPosition + current.text().count();
                         if (current != last)
