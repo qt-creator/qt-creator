@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -75,9 +75,6 @@
 
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Designer.
 
-        \li Specify settins for generating classes and code in \uicontrol {Class
-            Generation}.
-
         \li Specify embedded device profiles, that determine style, font, and
             screen resolution, for example, in \uicontrol{Embedded Design}.
 
@@ -91,28 +88,39 @@
     To preview the settings, select \uicontrol Tools > \uicontrol{Form Editor} >
     \uicontrol Preview, or press \key Alt+Shift+R.
 
-    \section1 Previewing Forms Using Device Skins
+    \section1 Previewing Forms Using Device Profiles
 
-    A \e {device skin} is a set of configuration files that describe a mobile
+    A \e {device profile} is a set of configuration files that describe a mobile
     device. It includes a border image that surrounds the form and depicts a
     mobile device with its buttons.
 
-    To preview your form using device skins:
+    To preview your form using device profiles, select \uicontrol Tools >
+    \uicontrol {Form Editor} > \uicontrol {Preview In}, and then select a
+    device profile.
+
+    \section2 Adding Device Profiles
+
+    To add device profiles:
 
     \list 1
 
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Designer.
-
-        \li Select the \uicontrol{Print/Preview Configuration} check box.
-
-        \li In the \uicontrol {Device skin} field, select a device skin.
-
-        \li When the form is open in \uicontrol Design mode, press \key Alt+Shift+R.
-
-        \li To end the preview, right-click the skin and select \uicontrol Close in
-            the context menu.
-
+        \li \uicontrol Edit > \uicontrol Preferences > \uicontrol Designer.
+            \image qtdesigner-embedded-design.png "Qt Designer Embedded Design preferences"
+        \li In \uicontrol {Embedded Design}, select \inlineimage icons/plus.png
+            to open the \uicontrol {Add Profile} dialog.
+            \image qtdesigner-add-profile.png "Add Profile dialog"
+        \li In \uicontrol Name, enter a name for the device. The name is
+            displayed as an option in \uicontrol {Preview In}.
+        \li In \uicontrol Family, select the font to use.
+        \li In \uicontrol {Point Size}, select the font size.
+        \li In \uicontrol Style, select one of the predefined styles.
+        \li In \uicontrol {Device DPI}, select one of the predefined DPI
+            values or \uicontrol {User defined} to specify a custom value.
+        \li Select \uicontrol OK to add the device profile to the list.
     \endlist
+
+    To import device profiles from .qdp files, select \uicontrol Open. To save
+    them as .qdp files, select \uicontrol Save.
 
     \section1 Adding Widgets
 
