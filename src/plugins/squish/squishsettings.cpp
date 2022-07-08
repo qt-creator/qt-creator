@@ -30,6 +30,7 @@
 #include "squishtr.h"
 
 #include <utils/basetreeview.h>
+#include <utils/fileutils.h>
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
 #include <utils/progressindicator.h>
@@ -141,8 +142,6 @@ public:
 
 SquishServerSettings::SquishServerSettings()
 {
-    setAutoApply(false);
-
     registerAspect(&autTimeout);
     autTimeout.setLabel(Tr::tr("Maximum startup time:"));
     autTimeout.setToolTip(Tr::tr("Specifies how many seconds Squish should wait for a reply from the "
@@ -259,6 +258,7 @@ class SquishServerItem : public TreeItem
 public:
     explicit SquishServerItem(const QString &col1 = {}, const QString &col2 = {});
     QVariant data(int column, int role) const override;
+    bool setData(int column, const QVariant &value, int role) override;
 private:
     QString m_first;
     QString m_second;
@@ -282,6 +282,55 @@ QVariant SquishServerItem::data(int column, int role) const
     return QVariant();
 }
 
+bool SquishServerItem::setData(int column, const QVariant &value, int role)
+{
+    if (column != 1 || role != Qt::EditRole)
+        return TreeItem::setData(column, value, role);
+    m_second = value.toString();
+    return true;
+}
+
+class AttachableAutDialog : public QDialog
+{
+public:
+    AttachableAutDialog()
+    {
+        executable.setLabelText(Tr::tr("Name:"));
+        executable.setDisplayStyle(StringAspect::LineEditDisplay);
+        host.setLabelText(Tr::tr("Host:"));
+        host.setDisplayStyle(StringAspect::LineEditDisplay);
+        host.setDefaultValue("localhost");
+        port.setLabelText(Tr::tr("Port:"));
+        port.setRange(1, 65535);
+        port.setDefaultValue(12345);
+
+        QWidget *widget = new QWidget(this);
+        auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel, this);
+        using namespace Layouting;
+        Form {
+            executable,
+            host,
+            port,
+            st
+        }.attachTo(widget);
+
+        QVBoxLayout *layout = new QVBoxLayout(this);
+        layout->addWidget(widget);
+        layout->addWidget(buttons);
+        setLayout(layout);
+
+        connect(buttons->button(QDialogButtonBox::Ok), &QPushButton::clicked,
+                this, &QDialog::accept);
+        connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked,
+                this, &QDialog::reject);
+        setWindowTitle(Tr::tr("Add Attachable AUT"));
+    }
+
+    StringAspect executable;
+    StringAspect host;
+    IntegerAspect port;
+};
+
 class SquishServerSettingsWidget : public QWidget
 {
 public:
@@ -289,14 +338,22 @@ public:
 
 private:
     void repopulateApplicationView();
-
+    void addApplicationOrPath();
+    void addMappedAut(TreeItem *categoryItem, SquishServerItem *original);
+    void addAutPath(TreeItem *categoryItem, SquishServerItem *original);
+    void addAttachableAut(TreeItem *categoryItem, SquishServerItem *original);
+    void editApplicationOrPath();
+    void removeApplicationOrPath();
     SquishServerSettings m_serverSettings;
     BaseTreeView m_applicationsView;
+    TreeModel<SquishServerItem> m_model;
 };
 
 SquishServerSettingsWidget::SquishServerSettingsWidget(QWidget *parent)
     : QWidget(parent)
 {
+    m_model.setHeader({QString(), QString()}); // enforce 2 columns
+    m_applicationsView.setModel(&m_model);
     m_applicationsView.setHeaderHidden(true);
     m_applicationsView.setAttribute(Qt::WA_MacShowFocusRect, false);
     m_applicationsView.setFrameStyle(QFrame::NoFrame);
@@ -307,6 +364,18 @@ SquishServerSettingsWidget::SquishServerSettingsWidget(QWidget *parent)
     m_applicationsView.setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_applicationsView.setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
+    auto add = new QPushButton(Tr::tr("Add"), this);
+    auto edit = new QPushButton(Tr::tr("Edit"), this);
+    auto remove = new QPushButton(Tr::tr("Remove"), this);
+
+    auto updateButtons = [add, edit, remove] (const QModelIndex &idx) {
+        add->setEnabled(idx.isValid());
+        bool enabled = idx.isValid() && idx.parent() != QModelIndex();
+        edit->setEnabled(enabled);
+        remove->setEnabled(enabled);
+    };
+    updateButtons(QModelIndex());
+
     using namespace Layouting;
     Form grid {
         &m_applicationsView, br,
@@ -315,10 +384,25 @@ SquishServerSettingsWidget::SquishServerSettingsWidget(QWidget *parent)
         &m_serverSettings.postMortemWaitTime,
         &m_serverSettings.animatedCursor,
     };
-    // TODO buttons for add, edit, remove
-    Column { Row { grid }, st }.attachTo(this);
+    Column buttonCol {
+        add,
+        edit,
+        remove,
+        st
+    };
+
+    Column { Row { grid, buttonCol }, st }.attachTo(this);
 
     repopulateApplicationView(); // initial
+
+    connect(&m_applicationsView, &QAbstractItemView::clicked,
+            this, updateButtons);
+    connect(add, &QPushButton::clicked,
+            this, &SquishServerSettingsWidget::addApplicationOrPath);
+    connect(edit, &QPushButton::clicked,
+            this, &SquishServerSettingsWidget::editApplicationOrPath);
+    connect(remove, &QPushButton::clicked,
+            this, &SquishServerSettingsWidget::removeApplicationOrPath);
 
     auto progress = new ProgressIndicator(ProgressIndicatorSize::Large, this);
     progress->attachToWidget(this);
@@ -339,31 +423,179 @@ SquishServerSettingsWidget::SquishServerSettingsWidget(QWidget *parent)
 
 void SquishServerSettingsWidget::repopulateApplicationView()
 {
-    TreeModel<SquishServerItem> *model = new TreeModel<SquishServerItem>;
-    model->setHeader({QString(), QString()}); // enforce 2 columns
-
+    m_model.clear();
     SquishServerItem *mapped = new SquishServerItem(Tr::tr("Mapped AUTs"));
-    model->rootItem()->appendChild(mapped);
+    m_model.rootItem()->appendChild(mapped);
     for (auto it = m_serverSettings.mappedAuts.begin(),
          end = m_serverSettings.mappedAuts.end(); it != end; ++it) {
         mapped->appendChild(new SquishServerItem(it.key(), it.value()));
     }
 
     SquishServerItem *autPaths = new SquishServerItem(Tr::tr("AUT Paths"));
-    model->rootItem()->appendChild(autPaths);
+    m_model.rootItem()->appendChild(autPaths);
     for (const QString &path : qAsConst(m_serverSettings.autPaths))
         autPaths->appendChild(new SquishServerItem(path, ""));
 
     SquishServerItem *attachable = new SquishServerItem(Tr::tr("Attachable AUTs"));
-    model->rootItem()->appendChild(attachable);
+    m_model.rootItem()->appendChild(attachable);
     for (auto it = m_serverSettings.attachableAuts.begin(),
          end = m_serverSettings.attachableAuts.end(); it != end; ++it) {
         attachable->appendChild(new SquishServerItem(it.key(), it.value()));
     }
+}
 
-    auto oldModel = m_applicationsView.model();
-    m_applicationsView.setModel(model);
-    delete oldModel;
+enum Category { MappedAutCategory, AutPathCategory, AttachableAutCategory };
+
+void SquishServerSettingsWidget::addApplicationOrPath()
+{
+    const QModelIndex &idx = m_applicationsView.currentIndex();
+    QTC_ASSERT(idx.isValid(), return);
+    const SquishServerItem *item = m_model.itemForIndex(idx);
+    QTC_ASSERT(item, return);
+    const int category = (item->level() == 2) ? idx.parent().row() : idx.row();
+    QTC_ASSERT(category >= 0 && category <= 2, return);
+    TreeItem *categoryItem = m_model.rootItem()->childAt(category);
+    switch (category) {
+    case MappedAutCategory:
+        addMappedAut(categoryItem, nullptr);
+        break;
+    case AutPathCategory:
+        addAutPath(categoryItem, nullptr);
+        break;
+    case AttachableAutCategory:
+        addAttachableAut(categoryItem, nullptr);
+        break;
+    }
+}
+
+void SquishServerSettingsWidget::addMappedAut(TreeItem *categoryItem, SquishServerItem *original)
+{
+    FilePath entry = original ? FilePath::fromString(original->data(1, Qt::DisplayRole).toString())
+                              : FilePath();
+    const FilePath aut = FileUtils::getOpenFilePath(nullptr, Tr::tr("Select Application to test"),
+                                                    entry);
+    if (aut.isEmpty())
+        return;
+    const QString fileName = aut.completeBaseName();
+    if (original) {
+        const QString originalFileName = original->data(0, Qt::DisplayRole).toString();
+        if (originalFileName != fileName) {
+            m_serverSettings.mappedAuts.remove(originalFileName);
+            m_model.destroyItem(original);
+        }
+    }
+    m_serverSettings.mappedAuts.insert(fileName, aut.parentDir().path());
+    TreeItem *found = categoryItem->findAnyChild([&fileName](TreeItem *it) {
+        return it->data(0, Qt::DisplayRole).toString() == fileName;
+    });
+    if (found)
+        found->setData(1, aut.path(), Qt::EditRole);
+    else
+        categoryItem->appendChild(new SquishServerItem(fileName, aut.parentDir().path()));
+}
+
+void SquishServerSettingsWidget::addAutPath(TreeItem *categoryItem, SquishServerItem *original)
+{
+    const QString originalPathStr = original ? original->data(0, Qt::DisplayRole).toString()
+                                             : QString();
+    FilePath entry = FilePath::fromString(originalPathStr);
+    const FilePath path = FileUtils::getExistingDirectory(nullptr,
+                                                          Tr::tr("Select Application Path"), entry);
+    if (path.isEmpty() || path == entry)
+        return;
+    const QString pathStr = path.toString();
+    if (original) {
+        m_serverSettings.autPaths.removeOne(originalPathStr);
+        m_model.destroyItem(original);
+    }
+    int index = m_serverSettings.autPaths.indexOf(pathStr);
+    if (index != -1)
+        return;
+    m_serverSettings.autPaths.append(pathStr);
+    categoryItem->appendChild(new SquishServerItem(pathStr));
+}
+
+void SquishServerSettingsWidget::addAttachableAut(TreeItem *categoryItem, SquishServerItem *original)
+{
+    AttachableAutDialog dialog;
+    const QString originalExecutable = original ? original->data(0, Qt::DisplayRole).toString()
+                                                : QString();
+    const QString originalHostAndPort = original ? original->data(1, Qt::DisplayRole).toString()
+                                                 : QString();
+    if (original) {
+        dialog.executable.setValue(originalExecutable);
+        QStringList hostAndPortList = originalHostAndPort.split(':');
+        QTC_ASSERT(hostAndPortList.size() == 2, return);
+        dialog.host.setValue(hostAndPortList.first());
+        dialog.port.setValue(hostAndPortList.last().toInt());
+    }
+    if (dialog.exec() != QDialog::Accepted)
+        return;
+
+    const QString executableStr = dialog.executable.value();
+    const QString hostStr = dialog.host.value();
+    if (executableStr.isEmpty() || hostStr.isEmpty())
+        return;
+
+    if (original && executableStr != originalExecutable) {
+        m_serverSettings.attachableAuts.remove(originalExecutable);
+        m_model.destroyItem(original);
+    }
+
+    const QString hostAndPort = hostStr + ':' + QString::number(dialog.port.value());
+    m_serverSettings.attachableAuts.insert(executableStr, hostAndPort);
+    TreeItem *found = categoryItem->findAnyChild([&executableStr](TreeItem *it) {
+        return it->data(0, Qt::DisplayRole).toString() == executableStr;
+    });
+    if (found)
+        found->setData(1, hostAndPort, Qt::EditRole);
+    else
+        categoryItem->appendChild(new SquishServerItem(executableStr, hostAndPort));
+}
+
+void SquishServerSettingsWidget::removeApplicationOrPath()
+{
+    const QModelIndex &idx = m_applicationsView.currentIndex();
+    QTC_ASSERT(idx.isValid(), return);
+    SquishServerItem *item = m_model.itemForIndex(idx);
+    QTC_ASSERT(item, return);
+    QTC_ASSERT(item->level() == 2, return);
+    int row = idx.parent().row();
+    QTC_ASSERT(row >= 0 && row <= 2, return);
+    switch (row) {
+    case MappedAutCategory:
+        m_serverSettings.mappedAuts.remove(item->data(0, Qt::DisplayRole).toString());
+        break;
+    case AutPathCategory:
+        m_serverSettings.autPaths.removeOne(item->data(0, Qt::DisplayRole).toString());
+        break;
+    case AttachableAutCategory:
+        m_serverSettings.attachableAuts.remove(item->data(0, Qt::DisplayRole).toString());
+        break;
+    }
+    m_model.destroyItem(item);
+}
+
+void SquishServerSettingsWidget::editApplicationOrPath()
+{
+    const QModelIndex &idx = m_applicationsView.currentIndex();
+    QTC_ASSERT(idx.isValid(), return);
+    SquishServerItem *item = m_model.itemForIndex(idx);
+    QTC_ASSERT(item && item->level() == 2, return);
+    const int category = idx.parent().row();
+    QTC_ASSERT(category >= 0 && category <= 2, return);
+    TreeItem *categoryItem = m_model.rootItem()->childAt(category);
+    switch (category) {
+    case MappedAutCategory:
+        addMappedAut(categoryItem, item);
+        break;
+    case AutPathCategory:
+        addAutPath(categoryItem, item);
+        break;
+    case AttachableAutCategory:
+        addAttachableAut(categoryItem, item);
+        break;
+    }
 }
 
 SquishServerSettingsDialog::SquishServerSettingsDialog(QWidget *parent)
