@@ -351,6 +351,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
         && basePosition == proposalCandidate->basePosition()
         && m_proposalWidget->supportsModelUpdate(proposalCandidate->id())) {
         m_proposal.reset(proposalCandidate.take());
+        m_proposal->setReason(reason);
         m_proposalWidget->updateModel(m_proposal->model());
         m_proposalWidget->updateProposal(prefix);
         return;
