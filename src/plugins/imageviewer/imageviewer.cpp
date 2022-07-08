@@ -25,18 +25,21 @@
 ****************************************************************************/
 
 #include "imageviewer.h"
+
 #include "imageviewerfile.h"
 #include "imageviewerconstants.h"
 #include "imageview.h"
-#include "ui_imageviewertoolbar.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <utils/fileutils.h>
+#include <coreplugin/actionmanager/commandbutton.h>
+
+#include <utils/filepath.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
+#include <utils/styledbar.h>
 
 #include <QAction>
 #include <QMap>
@@ -44,6 +47,14 @@
 #include <QDir>
 #include <QWidget>
 #include <QDebug>
+#include <QVariant>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QSpacerItem>
+#include <QWidget>
+
+using namespace Core;
+using namespace Utils;
 
 namespace ImageViewer {
 namespace Internal {
@@ -54,7 +65,19 @@ struct ImageViewerPrivate
     QSharedPointer<ImageViewerFile> file;
     ImageView *imageView;
     QWidget *toolbar;
-    Ui::ImageViewerToolbar ui_toolbar;
+
+    CommandButton *toolButtonExportImage;
+    CommandButton *toolButtonMultiExportImages;
+    CommandButton *toolButtonCopyDataUrl;
+    CommandButton *toolButtonBackground;
+    CommandButton *toolButtonOutline;
+    CommandButton *toolButtonFitToScreen;
+    CommandButton *toolButtonOriginalSize;
+    CommandButton *toolButtonZoomIn;
+    CommandButton *toolButtonZoomOut;
+    CommandButton *toolButtonPlayPause;
+    QLabel *labelImageSize;
+    QLabel *labelInfo;
 };
 
 /*!
@@ -64,7 +87,6 @@ struct ImageViewerPrivate
 */
 static bool updateButtonIconByTheme(QAbstractButton *button, const QString &name)
 {
-    QTC_ASSERT(button, return false);
     QTC_ASSERT(!name.isEmpty(), return false);
 
     if (QIcon::hasThemeIcon(name)) {
@@ -98,61 +120,116 @@ void ImageViewer::ctor()
     setDuplicateSupported(true);
 
     // toolbar
-    d->toolbar = new QWidget();
-    d->ui_toolbar.setupUi(d->toolbar);
-    d->ui_toolbar.toolButtonExportImage->setIcon(Utils::Icons::EXPORTFILE_TOOLBAR.icon());
-    d->ui_toolbar.toolButtonMultiExportImages->setIcon(Utils::Icons::MULTIEXPORTFILE_TOOLBAR.icon());
-    d->ui_toolbar.toolButtonCopyDataUrl->setIcon(Utils::Icons::COPY_TOOLBAR.icon());
-    const Utils::Icon backgroundIcon({
-            {":/utils/images/desktopdevicesmall.png", Utils::Theme::IconsBaseColor}});
-    d->ui_toolbar.toolButtonBackground->setIcon(backgroundIcon.icon());
-    d->ui_toolbar.toolButtonOutline->setIcon(Utils::Icons::BOUNDING_RECT.icon());
-    d->ui_toolbar.toolButtonZoomIn->setIcon(
-        Core::ActionManager::command(Core::Constants::ZOOM_IN)->action()->icon());
-    d->ui_toolbar.toolButtonZoomOut->setIcon(
-        Core::ActionManager::command(Core::Constants::ZOOM_OUT)->action()->icon());
-    d->ui_toolbar.toolButtonOriginalSize->setIcon(
-        Core::ActionManager::command(Core::Constants::ZOOM_RESET)->action()->icon());
-    d->ui_toolbar.toolButtonFitToScreen->setIcon(Utils::Icons::FITTOVIEW_TOOLBAR.icon());
+    d->toolbar = new QWidget;
+
+    d->toolButtonExportImage = new CommandButton;
+    d->toolButtonMultiExportImages = new CommandButton;
+    d->toolButtonCopyDataUrl = new CommandButton;
+    d->toolButtonBackground = new CommandButton;
+    d->toolButtonOutline = new CommandButton;
+    d->toolButtonFitToScreen = new CommandButton;
+    d->toolButtonOriginalSize = new CommandButton;
+    d->toolButtonZoomIn = new CommandButton;
+    d->toolButtonZoomOut = new CommandButton;
+    d->toolButtonPlayPause = new CommandButton;
+
+    d->toolButtonBackground->setCheckable(true);
+    d->toolButtonBackground->setChecked(false);
+
+    d->toolButtonOutline->setCheckable(true);
+    d->toolButtonOutline->setChecked(true);
+
+    d->toolButtonFitToScreen->setCheckable(false);
+
+    d->toolButtonZoomIn->setAutoRepeat(true);
+
+    d->toolButtonZoomOut->setAutoRepeat(true);
+
+    d->toolButtonExportImage->setToolTipBase(tr("Export as Image"));
+    d->toolButtonMultiExportImages->setToolTipBase(tr("Export Images of Multiple Sizes"));
+    d->toolButtonOutline->setToolTipBase(tr("Show Outline"));
+    d->toolButtonFitToScreen->setToolTipBase(tr("Fit to Screen"));
+    d->toolButtonOriginalSize->setToolTipBase(tr("Original Size"));
+    d->toolButtonZoomIn->setToolTipBase(tr("Zoom In"));
+    d->toolButtonZoomOut->setToolTipBase(tr("Zoom Out"));
+
+    d->toolButtonExportImage->setIcon(Icons::EXPORTFILE_TOOLBAR.icon());
+    d->toolButtonMultiExportImages->setIcon(Icons::MULTIEXPORTFILE_TOOLBAR.icon());
+    d->toolButtonCopyDataUrl->setIcon(Icons::COPY_TOOLBAR.icon());
+    const Icon backgroundIcon({{":/utils/images/desktopdevicesmall.png", Theme::IconsBaseColor}});
+    d->toolButtonBackground->setIcon(backgroundIcon.icon());
+    d->toolButtonOutline->setIcon(Icons::BOUNDING_RECT.icon());
+    d->toolButtonZoomIn->setIcon(
+                ActionManager::command(Core::Constants::ZOOM_IN)->action()->icon());
+    d->toolButtonZoomOut->setIcon(
+                ActionManager::command(Core::Constants::ZOOM_OUT)->action()->icon());
+    d->toolButtonOriginalSize->setIcon(
+                ActionManager::command(Core::Constants::ZOOM_RESET)->action()->icon());
+    d->toolButtonFitToScreen->setIcon(Icons::FITTOVIEW_TOOLBAR.icon());
+
     // icons update - try to use system theme
-    updateButtonIconByTheme(d->ui_toolbar.toolButtonFitToScreen, QLatin1String("zoom-fit-best"));
+    updateButtonIconByTheme(d->toolButtonFitToScreen, QLatin1String("zoom-fit-best"));
     // a display - something is on the background
-    updateButtonIconByTheme(d->ui_toolbar.toolButtonBackground, QLatin1String("video-display"));
+    updateButtonIconByTheme(d->toolButtonBackground, QLatin1String("video-display"));
     // "emblem to specify the directory where the user stores photographs"
     // (photograph has outline - piece of paper)
-    updateButtonIconByTheme(d->ui_toolbar.toolButtonOutline, QLatin1String("emblem-photos"));
+    updateButtonIconByTheme(d->toolButtonOutline, QLatin1String("emblem-photos"));
 
-    d->ui_toolbar.toolButtonExportImage->setCommandId(Constants::ACTION_EXPORT_IMAGE);
-    d->ui_toolbar.toolButtonMultiExportImages->setCommandId(Constants::ACTION_EXPORT_MULTI_IMAGES);
-    d->ui_toolbar.toolButtonCopyDataUrl->setCommandId(Constants::ACTION_COPY_DATA_URL);
-    d->ui_toolbar.toolButtonZoomIn->setCommandId(Core::Constants::ZOOM_IN);
-    d->ui_toolbar.toolButtonZoomOut->setCommandId(Core::Constants::ZOOM_OUT);
-    d->ui_toolbar.toolButtonOriginalSize->setCommandId(Core::Constants::ZOOM_RESET);
-    d->ui_toolbar.toolButtonFitToScreen->setCommandId(Constants::ACTION_FIT_TO_SCREEN);
-    d->ui_toolbar.toolButtonBackground->setCommandId(Constants::ACTION_BACKGROUND);
-    d->ui_toolbar.toolButtonOutline->setCommandId(Constants::ACTION_OUTLINE);
-    d->ui_toolbar.toolButtonPlayPause->setCommandId(Constants::ACTION_TOGGLE_ANIMATION);
+    d->toolButtonExportImage->setCommandId(Constants::ACTION_EXPORT_IMAGE);
+    d->toolButtonMultiExportImages->setCommandId(Constants::ACTION_EXPORT_MULTI_IMAGES);
+    d->toolButtonCopyDataUrl->setCommandId(Constants::ACTION_COPY_DATA_URL);
+    d->toolButtonZoomIn->setCommandId(Core::Constants::ZOOM_IN);
+    d->toolButtonZoomOut->setCommandId(Core::Constants::ZOOM_OUT);
+    d->toolButtonOriginalSize->setCommandId(Core::Constants::ZOOM_RESET);
+    d->toolButtonFitToScreen->setCommandId(Constants::ACTION_FIT_TO_SCREEN);
+    d->toolButtonBackground->setCommandId(Constants::ACTION_BACKGROUND);
+    d->toolButtonOutline->setCommandId(Constants::ACTION_OUTLINE);
+    d->toolButtonPlayPause->setCommandId(Constants::ACTION_TOGGLE_ANIMATION);
+
+    d->labelImageSize = new QLabel;
+    d->labelInfo = new QLabel;
+
+    auto horizontalLayout = new QHBoxLayout(d->toolbar);
+    horizontalLayout->setSpacing(0);
+    horizontalLayout->setContentsMargins(0, 0, 0, 0);
+    horizontalLayout->addWidget(d->toolButtonExportImage);
+    horizontalLayout->addWidget(d->toolButtonMultiExportImages);
+    horizontalLayout->addWidget(d->toolButtonCopyDataUrl);
+    horizontalLayout->addWidget(d->toolButtonBackground);
+    horizontalLayout->addWidget(d->toolButtonOutline);
+    horizontalLayout->addWidget(d->toolButtonFitToScreen);
+    horizontalLayout->addWidget(d->toolButtonOriginalSize);
+    horizontalLayout->addWidget(d->toolButtonZoomIn);
+    horizontalLayout->addWidget(d->toolButtonZoomOut);
+    horizontalLayout->addWidget(d->toolButtonPlayPause);
+    horizontalLayout->addWidget(d->toolButtonPlayPause);
+    horizontalLayout->addWidget(new StyledSeparator);
+    horizontalLayout->addItem(new QSpacerItem(315, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
+    horizontalLayout->addWidget(new StyledSeparator);
+    horizontalLayout->addWidget(d->labelImageSize);
+    horizontalLayout->addWidget(new StyledSeparator);
+    horizontalLayout->addWidget(d->labelInfo);
 
     // connections
-    connect(d->ui_toolbar.toolButtonExportImage, &QAbstractButton::clicked,
+    connect(d->toolButtonExportImage, &QAbstractButton::clicked,
             d->imageView, &ImageView::exportImage);
-    connect(d->ui_toolbar.toolButtonMultiExportImages, &QAbstractButton::clicked,
+    connect(d->toolButtonMultiExportImages, &QAbstractButton::clicked,
             d->imageView, &ImageView::exportMultiImages);
-    connect(d->ui_toolbar.toolButtonCopyDataUrl, &QAbstractButton::clicked,
+    connect(d->toolButtonCopyDataUrl, &QAbstractButton::clicked,
             d->imageView, &ImageView::copyDataUrl);
-    connect(d->ui_toolbar.toolButtonZoomIn, &QAbstractButton::clicked,
+    connect(d->toolButtonZoomIn, &QAbstractButton::clicked,
             d->imageView, &ImageView::zoomIn);
-    connect(d->ui_toolbar.toolButtonZoomOut, &QAbstractButton::clicked,
+    connect(d->toolButtonZoomOut, &QAbstractButton::clicked,
             d->imageView, &ImageView::zoomOut);
-    connect(d->ui_toolbar.toolButtonFitToScreen, &QAbstractButton::clicked,
+    connect(d->toolButtonFitToScreen, &QAbstractButton::clicked,
             d->imageView, &ImageView::fitToScreen);
-    connect(d->ui_toolbar.toolButtonOriginalSize, &QAbstractButton::clicked,
+    connect(d->toolButtonOriginalSize, &QAbstractButton::clicked,
             d->imageView, &ImageView::resetToOriginalSize);
-    connect(d->ui_toolbar.toolButtonBackground, &QAbstractButton::toggled,
+    connect(d->toolButtonBackground, &QAbstractButton::toggled,
             d->imageView, &ImageView::setViewBackground);
-    connect(d->ui_toolbar.toolButtonOutline, &QAbstractButton::toggled,
+    connect(d->toolButtonOutline, &QAbstractButton::toggled,
             d->imageView, &ImageView::setViewOutline);
-    connect(d->ui_toolbar.toolButtonPlayPause, &Core::CommandButton::clicked,
+    connect(d->toolButtonPlayPause, &CommandButton::clicked,
             this, &ImageViewer::playToggled);
     connect(d->file.data(), &ImageViewerFile::imageSizeChanged,
             this, &ImageViewer::imageSizeUpdated);
@@ -177,7 +254,7 @@ ImageViewer::~ImageViewer()
     delete d;
 }
 
-Core::IDocument *ImageViewer::document() const
+IDocument *ImageViewer::document() const
 {
     return d->file.data();
 }
@@ -187,12 +264,12 @@ QWidget *ImageViewer::toolBar()
     return d->toolbar;
 }
 
-Core::IEditor *ImageViewer::duplicate()
+IEditor *ImageViewer::duplicate()
 {
     auto other = new ImageViewer(d->file);
     other->d->imageView->createScene();
     other->updateToolButtons();
-    other->d->ui_toolbar.labelImageSize->setText(d->ui_toolbar.labelImageSize->text());
+    other->d->labelImageSize->setText(d->labelImageSize->text());
 
     emit editorDuplicated(other);
 
@@ -202,18 +279,18 @@ Core::IEditor *ImageViewer::duplicate()
 void ImageViewer::exportImage()
 {
     if (d->file->type() == ImageViewerFile::TypeSvg)
-        d->ui_toolbar.toolButtonExportImage->click();
+        d->toolButtonExportImage->click();
 }
 
 void ImageViewer::exportMultiImages()
 {
     if (d->file->type() == ImageViewerFile::TypeSvg)
-        d->ui_toolbar.toolButtonMultiExportImages->click();
+        d->toolButtonMultiExportImages->click();
 }
 
 void ImageViewer::copyDataUrl()
 {
-    d->ui_toolbar.toolButtonCopyDataUrl->click();
+    d->toolButtonCopyDataUrl->click();
 }
 
 void ImageViewer::imageSizeUpdated(const QSize &size)
@@ -221,56 +298,56 @@ void ImageViewer::imageSizeUpdated(const QSize &size)
     QString imageSizeText;
     if (size.isValid())
         imageSizeText = QString::fromLatin1("%1x%2").arg(size.width()).arg(size.height());
-    d->ui_toolbar.labelImageSize->setText(imageSizeText);
+    d->labelImageSize->setText(imageSizeText);
 }
 
 void ImageViewer::scaleFactorUpdate(qreal factor)
 {
     const QString info = QString::number(factor * 100, 'f', 2) + QLatin1Char('%');
-    d->ui_toolbar.labelInfo->setText(info);
+    d->labelInfo->setText(info);
 }
 
 void ImageViewer::switchViewBackground()
 {
-    d->ui_toolbar.toolButtonBackground->click();
+    d->toolButtonBackground->click();
 }
 
 void ImageViewer::switchViewOutline()
 {
-    d->ui_toolbar.toolButtonOutline->click();
+    d->toolButtonOutline->click();
 }
 
 void ImageViewer::zoomIn()
 {
-    d->ui_toolbar.toolButtonZoomIn->click();
+    d->toolButtonZoomIn->click();
 }
 
 void ImageViewer::zoomOut()
 {
-    d->ui_toolbar.toolButtonZoomOut->click();
+    d->toolButtonZoomOut->click();
 }
 
 void ImageViewer::resetToOriginalSize()
 {
-    d->ui_toolbar.toolButtonOriginalSize->click();
+    d->toolButtonOriginalSize->click();
 }
 
 void ImageViewer::fitToScreen()
 {
-    d->ui_toolbar.toolButtonFitToScreen->click();
+    d->toolButtonFitToScreen->click();
 }
 
 void ImageViewer::updateToolButtons()
 {
     const bool isSvg = d->file->type() == ImageViewerFile::TypeSvg;
-    d->ui_toolbar.toolButtonExportImage->setEnabled(isSvg);
-    d->ui_toolbar.toolButtonMultiExportImages->setEnabled(isSvg);
+    d->toolButtonExportImage->setEnabled(isSvg);
+    d->toolButtonMultiExportImages->setEnabled(isSvg);
     updatePauseAction();
 }
 
 void ImageViewer::togglePlay()
 {
-    d->ui_toolbar.toolButtonPlayPause->click();
+    d->toolButtonPlayPause->click();
 }
 
 void ImageViewer::playToggled()
@@ -282,12 +359,12 @@ void ImageViewer::updatePauseAction()
 {
     bool isMovie = d->file->type() == ImageViewerFile::TypeMovie;
     if (isMovie && !d->file->isPaused()) {
-        d->ui_toolbar.toolButtonPlayPause->setToolTipBase(tr("Pause Animation"));
-        d->ui_toolbar.toolButtonPlayPause->setIcon(Utils::Icons::INTERRUPT_SMALL_TOOLBAR.icon());
+        d->toolButtonPlayPause->setToolTipBase(tr("Pause Animation"));
+        d->toolButtonPlayPause->setIcon(Icons::INTERRUPT_SMALL_TOOLBAR.icon());
     } else {
-        d->ui_toolbar.toolButtonPlayPause->setToolTipBase(tr("Play Animation"));
-        d->ui_toolbar.toolButtonPlayPause->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR.icon());
-        d->ui_toolbar.toolButtonPlayPause->setEnabled(isMovie);
+        d->toolButtonPlayPause->setToolTipBase(tr("Play Animation"));
+        d->toolButtonPlayPause->setIcon(Icons::RUN_SMALL_TOOLBAR.icon());
+        d->toolButtonPlayPause->setEnabled(isMovie);
     }
 }
 

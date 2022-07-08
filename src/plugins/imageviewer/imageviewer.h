@@ -37,8 +37,8 @@ class QAbstractButton;
 class QAction;
 QT_END_NAMESPACE
 
-namespace ImageViewer {
-namespace Internal {
+namespace ImageViewer::Internal {
+
 class ImageViewerFile;
 
 class ImageViewer : public Core::IEditor
@@ -78,5 +78,4 @@ private:
     struct ImageViewerPrivate *d;
 };
 
-} // namespace Internal
-} // namespace ImageViewer
+} // ImageViewer::Internal
