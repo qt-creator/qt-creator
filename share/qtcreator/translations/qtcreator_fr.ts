@@ -157,7 +157,7 @@
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkView</name>
+    <name>Bookmarks</name>
     <message>
         <source>Bookmarks</source>
         <translation>Signets</translation>
@@ -202,9 +202,6 @@
         <source>Remove all Bookmarks</source>
         <translation type="obsolete">Supprimer tous les signets</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarksPlugin</name>
     <message>
         <source>&amp;Bookmarks</source>
         <translation>&amp;Signets</translation>
@@ -220,14 +217,6 @@
     <message>
         <source>Meta+M</source>
         <translation>Meta+M</translation>
-    </message>
-    <message>
-        <source>Move Up</source>
-        <translation type="obsolete">Déplacer vers le haut</translation>
-    </message>
-    <message>
-        <source>Move Down</source>
-        <translation type="obsolete">Déplacer vers le bas</translation>
     </message>
     <message>
         <source>Previous Bookmark</source>
@@ -56255,7 +56244,7 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkViewFactory</name>
+    <name>Bookmarks</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation>Alt+Meta+M</translation>
@@ -62118,11 +62107,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkManager</name>
-    <message>
-        <source>Edit Note</source>
-        <translation>Éditer une note</translation>
-    </message>
+    <name>Bookmarks</name>
     <message>
         <source>Note text:</source>
         <translation>Note :</translation>

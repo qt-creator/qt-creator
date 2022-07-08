@@ -13178,7 +13178,7 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkView</name>
+    <name>Bookmarks</name>
     <message>
         <source>Bookmarks</source>
         <translation>ブックマーク</translation>
@@ -13211,9 +13211,6 @@ in the system&apos;s browser for manual download.</source>
         <source>Are you sure you want to remove all bookmarks from all files in the current session?</source>
         <translation>現在のセッションのすべてのファイルからすべてのブックマークを本当に削除しますか？</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarkManager</name>
     <message>
         <source>Edit Bookmark</source>
         <translation>ブックマークの編集</translation>
@@ -13226,9 +13223,6 @@ in the system&apos;s browser for manual download.</source>
         <source>Line number:</source>
         <translation>行番号:</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarkViewFactory</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation>Alt+Meta+M</translation>
@@ -13237,9 +13231,6 @@ in the system&apos;s browser for manual download.</source>
         <source>Alt+M</source>
         <translation>Alt+M</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarksPlugin</name>
     <message>
         <source>&amp;Bookmarks</source>
         <translation>ブックマーク(&amp;B)</translation>
@@ -13287,10 +13278,6 @@ in the system&apos;s browser for manual download.</source>
     <message>
         <source>Next Bookmark in Document</source>
         <translation>ドキュメント内の次のブックマークに移動</translation>
-    </message>
-    <message>
-        <source>Edit Bookmark</source>
-        <translation>ブックマークの編集</translation>
     </message>
 </context>
 <context>
@@ -51114,13 +51101,6 @@ The name of the release build configuration created by default for a qmake proje
     <message>
         <source>Zoom: %1%</source>
         <translation>拡大率: %1%</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarkFilter</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>ブックマーク</translation>
     </message>
 </context>
 <context>

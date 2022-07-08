@@ -190,7 +190,7 @@
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkView</name>
+    <name>Bookmarks</name>
     <message>
         <source>Bookmarks</source>
         <translation>Marcadores</translation>
@@ -203,9 +203,6 @@
         <source>Remove all Bookmarks</source>
         <translation>Suprimir todos los marcadores</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarksPlugin</name>
     <message>
         <source>&amp;Bookmarks</source>
         <translation>&amp;Marcadores</translation>

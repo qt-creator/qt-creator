@@ -27,6 +27,7 @@
 
 #include "bookmark.h"
 #include "bookmarkmanager.h"
+#include "bookmarkstr.h"
 
 #include <utils/algorithm.h>
 
@@ -38,8 +39,8 @@ BookmarkFilter::BookmarkFilter(BookmarkManager *manager)
     : m_manager(manager)
 {
     setId("Bookmarks");
-    setDisplayName(tr("Bookmarks"));
-    setDescription(tr("Matches all bookmarks. Filter by file name, by the text on the line of the "
+    setDisplayName(Tr::tr("Bookmarks"));
+    setDescription(Tr::tr("Matches all bookmarks. Filter by file name, by the text on the line of the "
                       "bookmark, or by the bookmark's note text."));
     setPriority(Medium);
     setDefaultShortcutString("b");

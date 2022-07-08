@@ -211,7 +211,7 @@
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkView</name>
+    <name>Bookmarks</name>
     <message>
         <source>Bookmarks</source>
         <translation>书签</translation>
@@ -240,9 +240,6 @@
         <source>Remove all Bookmarks</source>
         <translation type="obsolete">删除所有书签</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarksPlugin</name>
     <message>
         <source>&amp;Bookmarks</source>
         <translation>书签(&amp;B)</translation>
@@ -258,14 +255,6 @@
     <message>
         <source>Meta+M</source>
         <translation>Meta+M</translation>
-    </message>
-    <message>
-        <source>Move Up</source>
-        <translation type="obsolete">上移</translation>
-    </message>
-    <message>
-        <source>Move Down</source>
-        <translation type="obsolete">下移</translation>
     </message>
     <message>
         <source>Previous Bookmark</source>
@@ -50117,7 +50106,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkViewFactory</name>
+    <name>Bookmarks</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation>Alt+Meta+M</translation>

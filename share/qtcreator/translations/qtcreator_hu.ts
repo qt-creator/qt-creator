@@ -170,7 +170,7 @@
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::0</name>
+    <name>Bookmarks</name>
     <message>
         <source>Bookmarks</source>
         <translation type="obsolete">Könyvjelzők</translation>
@@ -239,9 +239,6 @@
         <source>Next Bookmark In Document</source>
         <translation type="obsolete">Következő könyvjelző a dokumentumban</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarkView</name>
     <message>
         <source>Bookmarks</source>
         <translation>Könyvjelzők</translation>
@@ -254,9 +251,6 @@
         <source>Remove all Bookmarks</source>
         <translation>Az összes könyvjelző eltávolítása</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarksPlugin</name>
     <message>
         <source>&amp;Bookmarks</source>
         <translation>&amp;Könyvjelzők</translation>

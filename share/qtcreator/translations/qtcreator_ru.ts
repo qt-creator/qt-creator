@@ -5747,14 +5747,11 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkFilter</name>
+    <name>Bookmarks</name>
     <message>
         <source>Bookmarks</source>
         <translation>Закладки</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarkManager</name>
     <message>
         <source>Edit Bookmark</source>
         <translation>Изменение закладки</translation>
@@ -5766,13 +5763,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     <message>
         <source>Line number:</source>
         <translation>Номер строки:</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarkView</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Закладки</translation>
     </message>
     <message>
         <source>Move Up</source>
@@ -5802,9 +5792,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Are you sure you want to remove all bookmarks from all files in the current session?</source>
         <translation>Желаете удалить все закладки из всех файлов текущей сессии?</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarkViewFactory</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation>Alt+Meta+M</translation>
@@ -5813,9 +5800,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Alt+M</source>
         <translation>Alt+M</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarksPlugin</name>
     <message>
         <source>&amp;Bookmarks</source>
         <translation>&amp;Закладки</translation>
@@ -5863,10 +5847,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     <message>
         <source>Next Bookmark in Document</source>
         <translation>Следующая закладка в документе</translation>
-    </message>
-    <message>
-        <source>Edit Bookmark</source>
-        <translation>Изменить закладку</translation>
     </message>
 </context>
 <context>

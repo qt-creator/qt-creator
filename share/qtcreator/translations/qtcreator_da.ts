@@ -4096,7 +4096,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkManager</name>
+    <name>Bookmarks</name>
     <message>
         <source>Edit Bookmark</source>
         <translation>Rediger bogmærke</translation>
@@ -4109,9 +4109,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Line number:</source>
         <translation>Linjenummer:</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarkView</name>
     <message>
         <source>Bookmarks</source>
         <translation>Bogmærker</translation>
@@ -4144,9 +4141,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Are you sure you want to remove all bookmarks from all files in the current session?</source>
         <translation>Er du sikker på, at du fjerne alle bogmærker fra alle filer i den aktuelle session?</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarkViewFactory</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation>Alt+Meta+M</translation>
@@ -4155,9 +4149,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Alt+M</source>
         <translation>Alt+M</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarksPlugin</name>
     <message>
         <source>&amp;Bookmarks</source>
         <translation>&amp;Bogmærker</translation>
@@ -4205,10 +4196,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     <message>
         <source>Next Bookmark in Document</source>
         <translation>Næste bogmærke i dokument</translation>
-    </message>
-    <message>
-        <source>Edit Bookmark</source>
-        <translation>Rediger bogmærke</translation>
     </message>
 </context>
 <context>
@@ -44479,13 +44466,6 @@ Spordataene er tabt.</translation>
     <message>
         <source>&amp;Redo</source>
         <translation>&amp;Omgør</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarkFilter</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Bogmærker</translation>
     </message>
 </context>
 <context>

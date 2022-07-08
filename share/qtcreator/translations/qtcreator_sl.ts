@@ -209,7 +209,7 @@
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkView</name>
+    <name>Bookmarks</name>
     <message>
         <source>Bookmarks</source>
         <translation>Zaznamki</translation>
@@ -230,9 +230,6 @@
         <source>Remove All</source>
         <translation>Odstrani vse</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarksPlugin</name>
     <message>
         <source>&amp;Bookmarks</source>
         <translation>&amp;Zaznamki</translation>
@@ -31007,7 +31004,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
     <message>
         <source>Timed out after %1s waiting for the process %2 to finish.</source>
-        <translation>Po %1 s čakanja na zaključek procesa %2 je potekel čas.</translation>
+        <translation>Po %1 s čakanja na zaključek procesa %2 je potekel čas.</translation>
     </message>
 </context>
 <context>
@@ -33737,7 +33734,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
     <message>
         <source>Timed out after %1s waiting for mercurial process to finish.</source>
-        <translation type="obsolete">Po %1 s čakanja na zaključek procesa mercurial je potekel čas.</translation>
+        <translation type="obsolete">Po %1 s čakanja na zaključek procesa mercurial je potekel čas.</translation>
     </message>
 </context>
 <context>

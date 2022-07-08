@@ -958,7 +958,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkView</name>
+    <name>Bookmarks</name>
     <message>
         <source>Bookmarks</source>
         <translation>Закладки</translation>
@@ -999,9 +999,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Edit Note</source>
         <translation type="vanished">Редагувати примітку</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarksPlugin</name>
     <message>
         <source>&amp;Bookmarks</source>
         <translation>&amp;Закладки</translation>
@@ -32369,7 +32366,7 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkViewFactory</name>
+    <name>Bookmarks</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation>Alt+Meta+M</translation>
@@ -36978,15 +36975,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkManager</name>
-    <message>
-        <source>Edit Note</source>
-        <translation type="vanished">Редагувати примітку</translation>
-    </message>
-    <message>
-        <source>Edit Bookmark</source>
-        <translation>Редагування закладки</translation>
-    </message>
+    <name>Bookmarks</name>
     <message>
         <source>Note text:</source>
         <translation>Текст примітки:</translation>

@@ -26,8 +26,8 @@
 #include "bookmarkmanager.h"
 
 #include "bookmark.h"
-#include "bookmarksplugin.h"
 #include "bookmarks_global.h"
+#include "bookmarkstr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -188,7 +188,7 @@ BookmarkView::BookmarkView(BookmarkManager *manager)  :
     m_bookmarkContext(new IContext(this)),
     m_manager(manager)
 {
-    setWindowTitle(tr("Bookmarks"));
+    setWindowTitle(Tr::tr("Bookmarks"));
 
     m_bookmarkContext->setWidget(this);
     m_bookmarkContext->setContext(Context(Constants::BOOKMARKS_CONTEXT));
@@ -228,13 +228,13 @@ QList<QToolButton *> BookmarkView::createToolBarWidgets()
 void BookmarkView::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu menu;
-    QAction *moveUp = menu.addAction(tr("Move Up"));
-    QAction *moveDown = menu.addAction(tr("Move Down"));
-    QAction *edit = menu.addAction(tr("&Edit"));
+    QAction *moveUp = menu.addAction(Tr::tr("Move Up"));
+    QAction *moveDown = menu.addAction(Tr::tr("Move Down"));
+    QAction *edit = menu.addAction(Tr::tr("&Edit"));
     menu.addSeparator();
-    QAction *remove = menu.addAction(tr("&Remove"));
+    QAction *remove = menu.addAction(Tr::tr("&Remove"));
     menu.addSeparator();
-    QAction *removeAll = menu.addAction(tr("Remove All"));
+    QAction *removeAll = menu.addAction(Tr::tr("Remove All"));
 
     m_contextMenuIndex = indexAt(event->pos());
     if (!m_contextMenuIndex.isValid()) {
@@ -280,8 +280,8 @@ void BookmarkView::keyPressEvent(QKeyEvent *event)
 void BookmarkView::removeAll()
 {
     if (CheckableMessageBox::doNotAskAgainQuestion(this,
-            tr("Remove All Bookmarks"),
-            tr("Are you sure you want to remove all bookmarks from all files in the current session?"),
+            Tr::tr("Remove All Bookmarks"),
+            Tr::tr("Are you sure you want to remove all bookmarks from all files in the current session?"),
             ICore::settings(),
             QLatin1String("RemoveAllBookmarks")) != QDialogButtonBox::Yes)
         return;
@@ -676,7 +676,7 @@ void BookmarkManager::edit()
     Bookmark *b = m_bookmarksList.at(current.row());
 
     QDialog dlg;
-    dlg.setWindowTitle(tr("Edit Bookmark"));
+    dlg.setWindowTitle(Tr::tr("Edit Bookmark"));
     auto layout = new QFormLayout(&dlg);
     auto noteEdit = new QLineEdit(b->note());
     noteEdit->setMinimumWidth(300);
@@ -687,8 +687,8 @@ void BookmarkManager::edit()
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     connect(buttonBox, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
-    layout->addRow(tr("Note text:"), noteEdit);
-    layout->addRow(tr("Line number:"), lineNumberSpinbox);
+    layout->addRow(Tr::tr("Note text:"), noteEdit);
+    layout->addRow(Tr::tr("Line number:"), lineNumberSpinbox);
     layout->addWidget(buttonBox);
     if (dlg.exec() == QDialog::Accepted) {
         b->move(lineNumberSpinbox->value());
@@ -804,10 +804,10 @@ bool BookmarkManager::isAtCurrentBookmark() const
 BookmarkViewFactory::BookmarkViewFactory(BookmarkManager *bm)
     : m_manager(bm)
 {
-    setDisplayName(BookmarkView::tr("Bookmarks"));
+    setDisplayName(Tr::tr("Bookmarks"));
     setPriority(300);
     setId("Bookmarks");
-    setActivationSequence(QKeySequence(useMacShortcuts ? tr("Alt+Meta+M") : tr("Alt+M")));
+    setActivationSequence(QKeySequence(useMacShortcuts ? Tr::tr("Alt+Meta+M") : Tr::tr("Alt+M")));
 }
 
 NavigationView BookmarkViewFactory::createWidget()

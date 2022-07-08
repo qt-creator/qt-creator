@@ -121,7 +121,7 @@
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkView</name>
+    <name>Bookmarks</name>
     <message>
         <source>Bookmarks</source>
         <translation>書籤</translation>
@@ -142,9 +142,6 @@
         <source>Remove All</source>
         <translation>全部移除</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarksPlugin</name>
     <message>
         <source>&amp;Bookmarks</source>
         <translation>書籤(&amp;B)</translation>
@@ -33347,7 +33344,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkViewFactory</name>
+    <name>Bookmarks</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation type="unfinished"></translation>

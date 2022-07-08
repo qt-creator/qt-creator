@@ -110,7 +110,7 @@
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkView</name>
+    <name>Bookmarks</name>
     <message>
         <source>Bookmarks</source>
         <translation>Lesezeichen</translation>
@@ -143,9 +143,6 @@
         <source>Are you sure you want to remove all bookmarks from all files in the current session?</source>
         <translation>Möchten Sie wirklich alle Lesezeichen aus allen Dateien der aktuellen Sitzung löschen?</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarksPlugin</name>
     <message>
         <source>&amp;Bookmarks</source>
         <translation>&amp;Lesezeichen</translation>
@@ -19512,7 +19509,7 @@ manuellen Herunterladen im Browser des System zu öffnen.</translation>
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkViewFactory</name>
+    <name>Bookmarks</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation>Alt+Meta+M</translation>
@@ -21057,11 +21054,7 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkManager</name>
-    <message>
-        <source>Edit Bookmark</source>
-        <translation>Lesezeichen bearbeiten</translation>
-    </message>
+    <name>Bookmarks</name>
     <message>
         <source>Note text:</source>
         <translation>Anmerkungstext:</translation>
@@ -41515,13 +41508,6 @@ Breche ausstehende Operationen ab...
     <message>
         <source>Deploy to device</source>
         <translation>Deployment auf Gerät</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarkFilter</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Lesezeichen</translation>
     </message>
 </context>
 <context>

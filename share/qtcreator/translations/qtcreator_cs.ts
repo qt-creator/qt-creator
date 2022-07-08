@@ -149,7 +149,7 @@
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkView</name>
+    <name>Bookmarks</name>
     <message>
         <source>Bookmarks</source>
         <translation>Záložky</translation>
@@ -194,9 +194,6 @@
         <source>Remove all Bookmarks</source>
         <translation type="obsolete">Odstranit všechny záložky</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarksPlugin</name>
     <message>
         <source>&amp;Bookmarks</source>
         <translation>&amp;Záložky</translation>
@@ -212,14 +209,6 @@
     <message>
         <source>Meta+M</source>
         <translation>Meta+M</translation>
-    </message>
-    <message>
-        <source>Move Up</source>
-        <translation type="obsolete">Posunout nahoru</translation>
-    </message>
-    <message>
-        <source>Move Down</source>
-        <translation type="obsolete">Posunout dolů</translation>
     </message>
     <message>
         <source>Previous Bookmark</source>
@@ -55443,7 +55432,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkViewFactory</name>
+    <name>Bookmarks</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation>Alt+Meta+M</translation>
@@ -59832,11 +59821,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkManager</name>
-    <message>
-        <source>Edit Note</source>
-        <translation>Upravit poznámku</translation>
-    </message>
+    <name>Bookmarks</name>
     <message>
         <source>Note text:</source>
         <translation>Text poznámky:</translation>

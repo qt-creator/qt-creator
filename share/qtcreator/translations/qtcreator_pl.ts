@@ -1994,7 +1994,7 @@ Przyczyna: %3</translation>
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkView</name>
+    <name>Bookmarks</name>
     <message>
         <source>Bookmarks</source>
         <translation>Zakładki</translation>
@@ -2027,9 +2027,6 @@ Przyczyna: %3</translation>
         <source>Are you sure you want to remove all bookmarks from all files in the current session?</source>
         <translation>Czy usunąć wszystkie zakładki ze wszystkich plików w bieżącej sesji?</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks::Internal::BookmarksPlugin</name>
     <message>
         <source>&amp;Bookmarks</source>
         <translation>&amp;Zakładki</translation>
@@ -21731,7 +21728,7 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkViewFactory</name>
+    <name>Bookmarks</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation>Alt+Meta+M</translation>
@@ -25547,11 +25544,7 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
     </message>
 </context>
 <context>
-    <name>Bookmarks::Internal::BookmarkManager</name>
-    <message>
-        <source>Edit Bookmark</source>
-        <translation>Zmodyfikuj zakładkę</translation>
-    </message>
+    <name>Bookmarks</name>
     <message>
         <source>Note text:</source>
         <translation>Tekst notatki:</translation>
