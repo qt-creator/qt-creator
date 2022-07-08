@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -99,4 +99,7 @@
         \li Select custom parsers to activate them for building or running
             the project.
     \endlist
+
+    Select \uicontrol {Parse standard output during build} to make output
+    parsers look for diagnostics on \c stdout in addition to \c stderr.
 */
