@@ -18,6 +18,9 @@ function(_extract_ts_data_from_targets outprefix)
 
       if (NOT _skip_translation)
         if(_include_dirs)
+          list(FILTER _include_dirs EXCLUDE REGEX "\\$<TARGET_PROPERTY")
+          list(FILTER _include_dirs EXCLUDE REGEX "\\$<INSTALL_INTERFACE")
+          list(TRANSFORM _include_dirs REPLACE "\\$<BUILD_INTERFACE:([^>]+)>" "\\1")
           list(APPEND _includes ${_include_dirs})
         endif()
 
