@@ -447,7 +447,6 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
                                                                                       model);
     proposal->m_document = m_document;
     proposal->m_pos = m_pos;
-    proposal->setFragile(true);
     proposal->setSupportsPrefix(false);
     setAsyncProposalAvailable(proposal);
     m_client->removeAssistProcessor(this);
