@@ -791,6 +791,7 @@ class Dumper(DumperBase):
 
     def lookupNativeType(self, name):
         #DumperBase.warn('LOOKUP TYPE NAME: %s' % name)
+
         typeobj = self.typeCache.get(name)
         if typeobj is not None:
             #DumperBase.warn('CACHED: %s' % name)
@@ -845,6 +846,15 @@ class Dumper(DumperBase):
             typeobj = self.lookupNativeType(name[6:])
             if typeobj is not None:
                 return typeobj
+
+        # For QMetaType based typenames we have to re-format the type name.
+        # Converts "T<A,B<C,D>>"" to "T<A, B<C, D> >" since FindFirstType
+        # expects it that way.
+        name = name.replace(',', ', ').replace('>>', '> >')
+        typeobj = self.target.FindFirstType(name)
+        if typeobj.IsValid():
+            self.typeCache[name] = typeobj
+            return typeobj
 
         return lldb.SBType()
 

@@ -69,6 +69,8 @@ public:
     BindingProperty replaceVariantWithBinding(const PropertyName &name, bool copyValue = false);
     void resetProperty(const PropertyName &name);
 
+    QmlDesigner::PropertyName unusedProperty(const QmlDesigner::ModelNode &modelNode);
+
 protected:
     void addProperty(const QVariant &propertyValue,
                      const QString &propertyType,

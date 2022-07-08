@@ -83,13 +83,14 @@ public:
     QTableView *dynamicPropertiesTableView() const;
     QTableView *backendView() const;
 
-protected:
+    DynamicPropertiesModel *dynamicPropertiesModel() const;
+
     ConnectionViewWidget *connectionViewWidget() const;
     ConnectionModel *connectionModel() const;
     BindingModel *bindingModel() const;
-    DynamicPropertiesModel *dynamicPropertiesModel() const;
     BackendModel *backendModel() const;
 
+    static ConnectionView *instance();
 
 private: //variables
     QPointer<ConnectionViewWidget> m_connectionViewWidget;

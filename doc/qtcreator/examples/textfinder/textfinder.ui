@@ -6,33 +6,30 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>378</width>
-    <height>158</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Find Text</string>
+   <string>TextFinder</string>
   </property>
-  <layout class="QVBoxLayout">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QGridLayout">
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="lineEdit"/>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="searchLabel">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="label">
        <property name="text">
-        <string>&amp;Keyword:</string>
-       </property>
-       <property name="buddy">
-        <cstring>lineEdit</cstring>
+        <string>Keyword</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
+     <item>
+      <widget class="QLineEdit" name="lineEdit"/>
+     </item>
+     <item>
       <widget class="QPushButton" name="findButton">
        <property name="text">
-        <string>&amp;Find</string>
+        <string>Find</string>
        </property>
       </widget>
      </item>
@@ -41,38 +38,8 @@
    <item>
     <widget class="QTextEdit" name="textEdit"/>
    </item>
-   <item>
-    <spacer>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>16</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>lineEdit</sender>
-   <signal>returnPressed()</signal>
-   <receiver>findButton</receiver>
-   <slot>animateClick()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>261</x>
-     <y>17</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>320</x>
-     <y>17</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

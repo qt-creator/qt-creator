@@ -135,7 +135,7 @@ public:
     std::set<FilePath> openedFiles;
     VirtualFunctionAssistProcessor *virtualFuncAssistProcessor = nullptr;
     QMetaObject::Connection focusChangedConnection;
-    bool finished = false;
+    bool done = false;
 };
 
 ClangdFollowSymbol::ClangdFollowSymbol(ClangdClient *client, const QTextCursor &cursor,
@@ -146,14 +146,14 @@ ClangdFollowSymbol::ClangdFollowSymbol(ClangdClient *client, const QTextCursor &
                     openInSplit))
 {
     // Abort if the user does something else with the document in the meantime.
-    connect(document, &TextDocument::contentsChanged, this, &ClangdFollowSymbol::done,
+    connect(document, &TextDocument::contentsChanged, this, &ClangdFollowSymbol::emitDone,
             Qt::QueuedConnection);
     if (editorWidget) {
         connect(editorWidget, &CppEditorWidget::cursorPositionChanged,
-                this, &ClangdFollowSymbol::done, Qt::QueuedConnection);
+                this, &ClangdFollowSymbol::emitDone, Qt::QueuedConnection);
     }
     d->focusChangedConnection = connect(qApp, &QApplication::focusChanged,
-                                        this, &ClangdFollowSymbol::done, Qt::QueuedConnection);
+                                        this, &ClangdFollowSymbol::emitDone, Qt::QueuedConnection);
 
     // Step 1: Follow the symbol via "Go to Definition". At the same time, request the
     //         AST node corresponding to the cursor position, so we can find out whether
@@ -163,7 +163,7 @@ ClangdFollowSymbol::ClangdFollowSymbol(ClangdClient *client, const QTextCursor &
         if (!self)
             return;
         if (!link.hasValidTarget()) {
-            emit self->done();
+            self->emitDone();
             return;
         }
         self->d->defLink = link;
@@ -205,6 +205,15 @@ void ClangdFollowSymbol::clear()
     d->pendingGotoDefRequests.clear();
 }
 
+void ClangdFollowSymbol::emitDone()
+{
+    if (d->done)
+        return;
+
+    d->done = true;
+    emit done();
+}
+
 bool ClangdFollowSymbol::Private::defLinkIsAmbiguous() const
 {
     // Even if the call is to a virtual function, it might not be ambiguous:
@@ -238,18 +247,18 @@ void ClangdFollowSymbol::Private::handleDocumentInfoResults()
     // If something went wrong, we just follow the original link.
     if (symbolsToDisplay.isEmpty()) {
         callback(defLink);
-        emit q->done();
+        q->emitDone();
         return;
     }
 
     if (symbolsToDisplay.size() == 1) {
         callback(symbolsToDisplay.first().second);
-        emit q->done();
+        q->emitDone();
         return;
     }
 
     QTC_ASSERT(virtualFuncAssistProcessor && virtualFuncAssistProcessor->running(),
-               emit q->done(); return);
+               q->emitDone(); return);
     virtualFuncAssistProcessor->finalize();
 }
 
@@ -301,7 +310,7 @@ void ClangdFollowSymbol::VirtualFunctionAssistProcessor::resetData(bool resetFol
         return;
     m_followSymbol->d->virtualFuncAssistProcessor = nullptr;
     if (resetFollowSymbolData)
-        emit m_followSymbol->done();
+        m_followSymbol->emitDone();
     m_followSymbol = nullptr;
 }
 
@@ -374,7 +383,7 @@ void ClangdFollowSymbol::Private::handleGotoDefinitionResult()
     // No dis-ambiguation necessary. Call back with the link and finish.
     if (!defLinkIsAmbiguous()) {
         callback(defLink);
-        emit q->done();
+        q->emitDone();
         return;
     }
 
@@ -408,7 +417,7 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
     // We didn't find any further candidates, so jump to the original definition link.
     if (allLinks.size() == 1 && pendingGotoImplRequests.isEmpty()) {
         callback(allLinks.first());
-        emit q->done();
+        q->emitDone();
         return;
     }
 

@@ -63,22 +63,6 @@ QString idOrTypeNameForNode(const QmlDesigner::ModelNode &modelNode)
     return idLabel;
 }
 
-QmlDesigner::PropertyName unusedProperty(const QmlDesigner::ModelNode &modelNode)
-{
-    QmlDesigner::PropertyName propertyName = "property";
-    int i = 0;
-    if (modelNode.metaInfo().isValid()) {
-        while (true) {
-            const QmlDesigner::PropertyName currentPropertyName = propertyName + QString::number(i).toLatin1();
-            if (!modelNode.hasProperty(currentPropertyName) && !modelNode.metaInfo().hasProperty(currentPropertyName))
-                return currentPropertyName;
-            i++;
-        }
-    }
-
-    return propertyName;
-}
-
 QVariant convertVariantForTypeName(const QVariant &variant, const QmlDesigner::TypeName &typeName)
 {
     QVariant returnValue = variant;
@@ -119,6 +103,22 @@ QVariant convertVariantForTypeName(const QVariant &variant, const QmlDesigner::T
 namespace QmlDesigner {
 
 namespace Internal {
+
+QmlDesigner::PropertyName DynamicPropertiesModel::unusedProperty(const QmlDesigner::ModelNode &modelNode)
+{
+    QmlDesigner::PropertyName propertyName = "property";
+    int i = 0;
+    if (modelNode.metaInfo().isValid()) {
+        while (true) {
+            const QmlDesigner::PropertyName currentPropertyName = propertyName + QString::number(i).toLatin1();
+            if (!modelNode.hasProperty(currentPropertyName) && !modelNode.metaInfo().hasProperty(currentPropertyName))
+                return currentPropertyName;
+            i++;
+        }
+    }
+
+    return propertyName;
+}
 
 DynamicPropertiesModel::DynamicPropertiesModel(ConnectionView *parent)
     : QStandardItemModel(parent)

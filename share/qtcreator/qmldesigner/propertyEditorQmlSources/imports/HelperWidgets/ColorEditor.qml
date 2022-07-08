@@ -55,6 +55,8 @@ SecondColumnLayout {
     property color originalColor
     property bool isVector3D: false
 
+    property alias spacer: spacer
+
     function isNotInGradientMode() {
         return ceMode.currentValue === "Solid"
     }
@@ -1310,17 +1312,7 @@ SecondColumnLayout {
         }
     }
 
-    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-    ControlLabel {
-        text: "Hex"
-        horizontalAlignment: Text.AlignLeft
-        width: StudioTheme.Values.controlLabelWidth
-               + StudioTheme.Values.controlGap
-               + StudioTheme.Values.linkControlWidth
-    }
-
-    ExpandingSpacer {}
+    ExpandingSpacer { id: spacer}
 
     StudioControls.Menu {
         id: contextMenu
