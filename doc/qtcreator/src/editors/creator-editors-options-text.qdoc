@@ -42,7 +42,7 @@
 
     Set the font preferences and apply color schemes for syntax highlighting,
     diff editor, and code analysis results in \uicontrol Edit >
-    \uicontrol Preferences\uicontrol Tools > \uicontrol {Text Editor} >
+    \uicontrol Preferences > \uicontrol {Text Editor} >
     \uicontrol {Font & Colors}.
 
     \image qtcreator-font-colors.png "Text editor options"
