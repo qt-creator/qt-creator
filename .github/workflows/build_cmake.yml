@@ -129,6 +129,18 @@ jobs:
           endif()
         endif()
 
+        if ("${{ runner.os }}" STREQUAL "Windows")
+          file(MAKE_DIRECTORY build/build/bin)
+          foreach(retry RANGE 10)
+            file(DOWNLOAD "https://download.qt.io/development_releases/prebuilt/llvmpipe/windows/opengl32sw-64.7z" ./opengl32sw-64.7z SHOW_PROGRESS)
+            file(SIZE ./opengl32sw-64.7z fileSize)
+            if (fileSize GREATER 0)
+              break()
+            endif()
+          endforeach()
+          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ../../../opengl32sw-64.7z WORKING_DIRECTORY build/build/bin)
+        endif()
+
         if (NOT "x${{ matrix.config.toolchain }}" STREQUAL "x")
           foreach(retry RANGE 10)
             file(DOWNLOAD "${{ matrix.config.toolchain }}" ./toolchain.7z SHOW_PROGRESS)
@@ -594,6 +606,9 @@ jobs:
 
         if ("${{ runner.os }}" STREQUAL "Linux")
           set(ENV{QT_QPA_PLATFORM} "offscreen")
+        elseif ("${{ runner.os }}" STREQUAL "Windows")
+          set(ENV{QT_OPENGL} "software")
+          set(ENV{QT_ASSUME_STDERR_HAS_CONSOLE} "1")
         endif()
 
         execute_process(
