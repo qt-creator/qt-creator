@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-#include "cmakespecificsettings.h"
 #include "cmakeprojectconstants.h"
+#include "cmakespecificsettings.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>

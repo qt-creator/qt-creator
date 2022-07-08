@@ -26,7 +26,6 @@
 #include "cmakeprojectimporter.h"
 
 #include "cmakebuildconfiguration.h"
-#include "cmakebuildsystem.h"
 #include "cmakekitinformation.h"
 #include "cmakeprojectconstants.h"
 #include "cmaketoolmanager.h"
@@ -44,6 +43,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
+#include <utils/temporarydirectory.h>
 
 #include <QDir>
 #include <QLoggingCategory>

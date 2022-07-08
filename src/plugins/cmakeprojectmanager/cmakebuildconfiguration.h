@@ -27,7 +27,6 @@
 
 #include "cmake_global.h"
 #include "cmakeconfigitem.h"
-#include "configmodel.h"
 
 #include <projectexplorer/buildaspects.h>
 #include <projectexplorer/buildconfiguration.h>

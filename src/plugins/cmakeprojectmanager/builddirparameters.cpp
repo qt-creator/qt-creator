@@ -28,8 +28,6 @@
 #include "cmakebuildconfiguration.h"
 #include "cmakebuildsystem.h"
 #include "cmakekitinformation.h"
-#include "cmakeprojectplugin.h"
-#include "cmakespecificsettings.h"
 #include "cmaketoolmanager.h"
 
 #include <projectexplorer/kitinformation.h>

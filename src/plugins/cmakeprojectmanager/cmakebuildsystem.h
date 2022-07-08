@@ -27,7 +27,6 @@
 
 #include "builddirparameters.h"
 #include "cmakebuildtarget.h"
-#include "cmakeprojectnodes.h"
 #include "fileapireader.h"
 
 #include <projectexplorer/buildconfiguration.h>

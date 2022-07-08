@@ -29,10 +29,10 @@
 #include "cmakeprojectconstants.h"
 #include "cmaketool.h"
 
-#include <texteditor/codeassist/assistinterface.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+#include <texteditor/codeassist/assistinterface.h>
 
 #include <QFileInfo>
 

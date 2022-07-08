@@ -36,9 +36,9 @@
 #include <utils/filesystemwatcher.h>
 #include <utils/optional.h>
 
+#include <QDateTime>
 #include <QFuture>
 #include <QObject>
-#include <QDateTime>
 
 #include <memory>
 

@@ -25,10 +25,10 @@
 
 #include "cmakeeditor.h"
 
-#include "cmakefilecompletionassist.h"
-#include "cmakeprojectconstants.h"
-#include "cmakeindenter.h"
 #include "cmakeautocompleter.h"
+#include "cmakefilecompletionassist.h"
+#include "cmakeindenter.h"
+#include "cmakeprojectconstants.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
