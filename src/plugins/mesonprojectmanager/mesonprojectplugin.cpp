@@ -84,6 +84,7 @@ private:
     void saveAll()
     {
         m_toolsSettings.saveMesonTools(MesonTools::tools(), ICore::dialogParent());
+        Settings::instance()->writeSettings(ICore::settings());
     }
 };
 
@@ -101,6 +102,7 @@ bool MesonProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     ProjectManager::registerProjectType<MesonProject>(Constants::Project::MIMETYPE);
     FileIconProvider::registerIconOverlayForFilename(Constants::Icons::MESON, "meson.build");
     FileIconProvider::registerIconOverlayForFilename(Constants::Icons::MESON, "meson_options.txt");
+    Settings::instance()->readSettings(ICore::settings());
     return true;
 }
 
