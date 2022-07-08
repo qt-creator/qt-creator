@@ -105,7 +105,8 @@ struct SquishToolsSettings
     // populate members using current settings
     void setup()
     {
-        const SquishSettings *squishSettings = SquishPlugin::instance()->squishSettings();
+        const SquishSettings *squishSettings = SquishPlugin::squishSettings();
+        QTC_ASSERT(squishSettings, return);
         squishPath = squishSettings->squishPath.filePath();
 
         if (!squishPath.isEmpty()) {

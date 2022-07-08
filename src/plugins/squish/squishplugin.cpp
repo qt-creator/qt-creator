@@ -39,39 +39,62 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/mimetypes/mimedatabase.h>
+#include <utils/qtcassert.h>
 
 #include <QMenu>
 #include <QtPlugin>
 
-using namespace Squish::Internal;
 using namespace Core;
 
-static SquishPlugin *m_instance = nullptr;
+namespace Squish {
+namespace Internal {
 
-SquishPlugin::SquishPlugin()
+class SquishPluginPrivate : public QObject
 {
-    m_instance = this;
+public:
+    SquishPluginPrivate();
+    ~SquishPluginPrivate();
+
+    void initializeMenuEntries();
+
+    SquishSettings m_squishSettings;
+    SquishSettingsPage m_settingsPage{&m_squishSettings};
+    SquishTestTreeModel m_treeModel;
+    SquishNavigationWidgetFactory m_navigationWidgetFactory;
+    ObjectsMapEditorFactory m_objectsMapEditorFactory;
+    SquishOutputPane *m_outputPane = nullptr;
+    SquishTools * m_squishTools = nullptr;
+};
+
+static SquishPluginPrivate *dd = nullptr;
+
+SquishPluginPrivate::SquishPluginPrivate()
+{
+    m_squishSettings.readSettings(ICore::settings());
+    m_outputPane = SquishOutputPane::instance();
+    m_squishTools = new SquishTools;
+    initializeMenuEntries();
 }
 
-SquishPlugin::~SquishPlugin()
+SquishPluginPrivate::~SquishPluginPrivate()
 {
-    delete m_objectsMapEditorFactory;
-    delete m_navigationWidgetFactory;
     delete m_outputPane;
     delete m_squishTools;
 }
 
-SquishPlugin *SquishPlugin::instance()
+SquishPlugin::~SquishPlugin()
 {
-    return m_instance;
+    delete dd;
+    dd = nullptr;
 }
 
 SquishSettings *SquishPlugin::squishSettings()
 {
-    return &m_squishSettings;
+    QTC_ASSERT(dd, return nullptr);
+    return &dd->m_squishSettings;
 }
 
-void SquishPlugin::initializeMenuEntries()
+void SquishPluginPrivate::initializeMenuEntries()
 {
     ActionContainer *menu = ActionManager::createMenu("Squish.Menu");
     menu->menu()->setTitle(tr("&Squish"));
@@ -89,27 +112,16 @@ void SquishPlugin::initializeMenuEntries()
     toolsMenu->addMenu(menu);
 }
 
-bool SquishPlugin::initialize(const QStringList &arguments, QString *errorString)
+bool SquishPlugin::initialize(const QStringList &, QString *)
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
-    m_squishSettings.readSettings(ICore::settings());
-    m_squishTools = new SquishTools;
-
-    initializeMenuEntries();
-
-    m_treeModel = new SquishTestTreeModel(this);
-
-    m_navigationWidgetFactory = new SquishNavigationWidgetFactory;
-    m_outputPane = SquishOutputPane::instance();
-    m_objectsMapEditorFactory = new ObjectsMapEditorFactory;
+    dd = new SquishPluginPrivate;
     return true;
 }
-
-void SquishPlugin::extensionsInitialized() {}
 
 ExtensionSystem::IPlugin::ShutdownFlag SquishPlugin::aboutToShutdown()
 {
     return SynchronousShutdown;
 }
+
+} // namespace Internal
+} // namespace Squish

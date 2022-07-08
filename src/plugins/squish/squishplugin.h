@@ -27,47 +27,25 @@
 
 #include "squishplugin_global.h"
 
-#include "squishsettings.h"
-
 #include <extensionsystem/iplugin.h>
 
 namespace Squish {
 namespace Internal {
 
-class ObjectsMapEditorFactory;
-class SquishNavigationWidgetFactory;
-class SquishOutputPane;
-class SquishTestTreeModel;
-class SquishTools;
+class SquishSettings;
 
 class SquishPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Squish.json")
-
 public:
-    SquishPlugin();
+    SquishPlugin() = default;
     ~SquishPlugin() override;
 
-    static SquishPlugin *instance();
-
-    SquishSettings *squishSettings();
+    static SquishSettings *squishSettings();
 
     bool initialize(const QStringList &arguments, QString *errorString) override;
-    void extensionsInitialized() override;
     ShutdownFlag aboutToShutdown() override;
-
-private:
-    void initializeMenuEntries();
-
-    SquishTools * m_squishTools = nullptr;
-    SquishTestTreeModel *m_treeModel = nullptr;
-    SquishSettings m_squishSettings;
-
-    SquishSettingsPage m_settingsPage{&m_squishSettings};
-    SquishNavigationWidgetFactory *m_navigationWidgetFactory = nullptr;
-    SquishOutputPane *m_outputPane = nullptr;
-    ObjectsMapEditorFactory *m_objectsMapEditorFactory = nullptr;
 };
 
 } // namespace Internal
