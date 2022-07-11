@@ -172,80 +172,12 @@
 <context>
     <name>Bookmarks</name>
     <message>
-        <source>Bookmarks</source>
-        <translation type="obsolete">Könyvjelzők</translation>
-    </message>
-    <message>
         <source>&amp;Remove Bookmark</source>
         <translation type="obsolete">Könyvjelző &amp;eltávolítása</translation>
     </message>
     <message>
-        <source>Remove all Bookmarks</source>
-        <translation type="obsolete">Az összes könyvjelző eltávolítása</translation>
-    </message>
-    <message>
-        <source>&amp;Bookmarks</source>
-        <translation type="obsolete">&amp;Könyvjelzők</translation>
-    </message>
-    <message>
-        <source>Toggle Bookmark</source>
-        <translation type="obsolete">Könyvjelző kapcsolgatása</translation>
-    </message>
-    <message>
-        <source>Ctrl+M</source>
-        <translation type="obsolete">Ctrl+M</translation>
-    </message>
-    <message>
-        <source>Meta+M</source>
-        <translation type="obsolete">Meta+M</translation>
-    </message>
-    <message>
-        <source>Move Up</source>
-        <translation type="obsolete">Felfelé mozgás</translation>
-    </message>
-    <message>
-        <source>Move Down</source>
-        <translation type="obsolete">Lefelé mozgás</translation>
-    </message>
-    <message>
-        <source>Previous Bookmark</source>
-        <translation type="obsolete">Előző könyvjelző</translation>
-    </message>
-    <message>
-        <source>Ctrl+,</source>
-        <translation type="obsolete">Ctrl+,</translation>
-    </message>
-    <message>
-        <source>Meta+,</source>
-        <translation type="obsolete">Meta+,</translation>
-    </message>
-    <message>
-        <source>Next Bookmark</source>
-        <translation type="obsolete">Következő könyvjelző</translation>
-    </message>
-    <message>
-        <source>Ctrl+.</source>
-        <translation type="obsolete">Ctrl+.</translation>
-    </message>
-    <message>
-        <source>Meta+.</source>
-        <translation type="obsolete">MEta+.</translation>
-    </message>
-    <message>
-        <source>Previous Bookmark In Document</source>
-        <translation type="obsolete">Előző könyvjelző a dokumentumban</translation>
-    </message>
-    <message>
-        <source>Next Bookmark In Document</source>
-        <translation type="obsolete">Következő könyvjelző a dokumentumban</translation>
-    </message>
-    <message>
         <source>Bookmarks</source>
         <translation>Könyvjelzők</translation>
-    </message>
-    <message>
-        <source>&amp;Remove Bookmark</source>
-        <translation>Könyvjelző &amp;eltávolítása</translation>
     </message>
     <message>
         <source>Remove all Bookmarks</source>
