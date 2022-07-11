@@ -29,10 +29,17 @@
 #include <QDialog>
 #include <QSet>
 
+QT_BEGIN_NAMESPACE
+class QDialogButtonBox;
+class QLabel;
+class QLineEdit;
+class QListWidget;
+QT_END_NAMESPACE
+
+namespace Utils { class QtColorButton; }
+
 namespace Todo {
 namespace Internal {
-
-namespace Ui { class KeywordDialog; }
 
 class Keyword;
 enum class IconType;
@@ -58,8 +65,14 @@ private:
     void showError(const QString &text);
     QString keywordName();
 
-    Ui::KeywordDialog *ui;
     QSet<QString> m_alreadyUsedKeywordNames;
+
+    QListWidget *m_listWidget;
+    QLineEdit *m_colorEdit;
+    Utils::QtColorButton *m_colorButton;
+    QLineEdit *m_keywordNameEdit;
+    QLabel *m_errorLabel;
+    QDialogButtonBox *m_buttonBox;
 };
 
 } // namespace Internal

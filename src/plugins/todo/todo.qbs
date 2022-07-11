@@ -20,7 +20,6 @@ QtcPlugin {
         "keyword.h",
         "keyworddialog.cpp",
         "keyworddialog.h",
-        "keyworddialog.ui",
         "lineparser.cpp",
         "lineparser.h",
         "optionsdialog.cpp",

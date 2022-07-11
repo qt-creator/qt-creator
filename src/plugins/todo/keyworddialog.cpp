@@ -25,12 +25,18 @@
 ****************************************************************************/
 
 #include "keyworddialog.h"
+
 #include "keyword.h"
-#include "ui_keyworddialog.h"
-#include "constants.h"
 #include "lineparser.h"
 
+#include <utils/layoutbuilder.h>
+#include <utils/qtcolorbutton.h>
+
 #include <QColorDialog>
+#include <QDialogButtonBox>
+#include <QLabel>
+#include <QLineEdit>
+#include <QListWidget>
 
 namespace Todo {
 namespace Internal {
@@ -38,37 +44,72 @@ namespace Internal {
 KeywordDialog::KeywordDialog(const Keyword &keyword, const QSet<QString> &alreadyUsedKeywordNames,
                              QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::KeywordDialog),
     m_alreadyUsedKeywordNames(alreadyUsedKeywordNames)
 {
-    ui->setupUi(this);
+    setWindowTitle(tr("Keyword"));
+
+    m_listWidget = new QListWidget(this);
+
+    m_colorEdit = new QLineEdit;
+    m_colorEdit->setInputMask(QString::fromUtf8("\\#HHHHHH; "));
+    m_colorEdit->setText(QString::fromUtf8("#000000"));
+
+    m_colorButton = new Utils::QtColorButton;
+    m_colorButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    m_colorButton->setMinimumSize(QSize(64, 0));
+
+    m_keywordNameEdit = new QLineEdit(keyword.name);
+
+    m_errorLabel = new QLabel(tr("errorLabel"), this);
+    m_errorLabel->setStyleSheet(QString::fromUtf8("color: red;"));
+    m_errorLabel->hide();
+
+    m_buttonBox = new QDialogButtonBox(this);
+    m_buttonBox->setOrientation(Qt::Horizontal);
+    m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+
+    using namespace Utils::Layouting;
+
+    Column {
+        new QLabel(tr("Icon")),
+        m_listWidget,
+        Row {
+            Group {
+                Title(tr("Color")),
+                Row { m_colorEdit, m_colorButton }
+            },
+            Group {
+                Title(tr("Keyword")),
+                m_keywordNameEdit
+            }
+        },
+        m_errorLabel,
+        m_buttonBox
+    }.attachTo(this);
+
     setupListWidget(keyword.iconType);
     setupColorWidgets(keyword.color);
-    ui->keywordNameEdit->setText(keyword.name);
-    ui->errorLabel->hide();
 
-    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &KeywordDialog::acceptButtonClicked);
-    connect(ui->keywordNameEdit, &QLineEdit::textChanged, ui->errorLabel, &QWidget::hide);
+    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(m_buttonBox, &QDialogButtonBox::accepted, this, &KeywordDialog::acceptButtonClicked);
+    connect(m_keywordNameEdit, &QLineEdit::textChanged, m_errorLabel, &QWidget::hide);
 }
 
-KeywordDialog::~KeywordDialog()
-{
-    delete ui;
-}
+KeywordDialog::~KeywordDialog() = default;
 
 Keyword KeywordDialog::keyword()
 {
     Keyword result;
     result.name = keywordName();
-    result.iconType = static_cast<IconType>(ui->listWidget->currentItem()->data(Qt::UserRole).toInt());
-    result.color = ui->colorEdit->text();
+    result.iconType = static_cast<IconType>(m_listWidget->currentItem()->data(Qt::UserRole).toInt());
+    result.color = m_colorEdit->text();
 
     return result;
 }
 
 void KeywordDialog::colorSelected(const QColor &color)
 {
-    ui->colorEdit->setText(color.name());
+    m_colorEdit->setText(color.name());
 }
 
 void KeywordDialog::acceptButtonClicked()
@@ -79,33 +120,33 @@ void KeywordDialog::acceptButtonClicked()
 
 void KeywordDialog::setupListWidget(IconType selectedIcon)
 {
-    ui->listWidget->setViewMode(QListWidget::IconMode);
-    ui->listWidget->setDragEnabled(false);
+    m_listWidget->setViewMode(QListWidget::IconMode);
+    m_listWidget->setDragEnabled(false);
 
     QListWidgetItem *item = new QListWidgetItem(icon(IconType::Info), "information");
     item->setData(Qt::UserRole, static_cast<int>(IconType::Info));
-    ui->listWidget->addItem(item);
+    m_listWidget->addItem(item);
 
     item = new QListWidgetItem(icon(IconType::Warning), "warning");
     item->setData(Qt::UserRole, static_cast<int>(IconType::Warning));
-    ui->listWidget->addItem(item);
+    m_listWidget->addItem(item);
 
     item = new QListWidgetItem(icon(IconType::Error), "error");
     item->setData(Qt::UserRole, static_cast<int>(IconType::Error));
-    ui->listWidget->addItem(item);
+    m_listWidget->addItem(item);
 
     item = new QListWidgetItem(icon(IconType::Bug), "bug");
     item->setData(Qt::UserRole, static_cast<int>(IconType::Bug));
-    ui->listWidget->addItem(item);
+    m_listWidget->addItem(item);
 
     item = new QListWidgetItem(icon(IconType::Todo), "todo");
     item->setData(Qt::UserRole, static_cast<int>(IconType::Todo));
-    ui->listWidget->addItem(item);
+    m_listWidget->addItem(item);
 
-    for (int i = 0; i < ui->listWidget->count(); ++i) {
-        item = ui->listWidget->item(i);
+    for (int i = 0; i < m_listWidget->count(); ++i) {
+        item = m_listWidget->item(i);
         if (static_cast<IconType>(item->data(Qt::UserRole).toInt()) == selectedIcon) {
-            ui->listWidget->setCurrentItem(item);
+            m_listWidget->setCurrentItem(item);
             break;
         }
     }
@@ -113,9 +154,9 @@ void KeywordDialog::setupListWidget(IconType selectedIcon)
 
 void KeywordDialog::setupColorWidgets(const QColor &color)
 {
-    ui->colorButton->setColor(color);
-    ui->colorEdit->setText(color.name());
-    connect(ui->colorButton, &Utils::QtColorButton::colorChanged, this, &KeywordDialog::colorSelected);
+    m_colorButton->setColor(color);
+    m_colorEdit->setText(color.name());
+    connect(m_colorButton, &Utils::QtColorButton::colorChanged, this, &KeywordDialog::colorSelected);
 }
 
 bool KeywordDialog::canAccept()
@@ -156,13 +197,13 @@ bool KeywordDialog::isKeywordNameAlreadyUsed()
 
 void KeywordDialog::showError(const QString &text)
 {
-    ui->errorLabel->setText(text);
-    ui->errorLabel->show();
+    m_errorLabel->setText(text);
+    m_errorLabel->show();
 }
 
 QString KeywordDialog::keywordName()
 {
-    return ui->keywordNameEdit->text().trimmed();
+    return m_keywordNameEdit->text().trimmed();
 }
 
 } // namespace Internal
