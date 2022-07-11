@@ -25,7 +25,7 @@
 
 #include "cdbsymbolpathlisteditor.h"
 
-#include "debuggertr.h"
+#include "../debuggertr.h"
 #include "symbolpathsdialog.h"
 
 #include <coreplugin/icore.h>

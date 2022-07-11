@@ -25,7 +25,7 @@
 
 #include "startremotedialog.h"
 
-#include "debuggertr.h"
+#include "../debuggertr.h"
 
 #include <coreplugin/icore.h>
 

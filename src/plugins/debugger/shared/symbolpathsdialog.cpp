@@ -25,7 +25,7 @@
 
 #include "symbolpathsdialog.h"
 
-#include "debuggertr.h"
+#include "../debuggertr.h"
 
 #include <QDialogButtonBox>
 #include <QHBoxLayout>

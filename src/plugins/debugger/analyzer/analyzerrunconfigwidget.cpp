@@ -26,7 +26,7 @@
 
 #include "analyzerrunconfigwidget.h"
 
-#include "debuggertr.h"
+#include "../debuggertr.h"
 
 #include <utils/detailswidget.h>
 #include <utils/layoutbuilder.h>

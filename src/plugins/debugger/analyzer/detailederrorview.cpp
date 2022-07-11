@@ -25,7 +25,7 @@
 
 #include "detailederrorview.h"
 
-#include "debuggertr.h"
+#include "../debuggertr.h"
 #include "diagnosticlocation.h"
 
 #include <coreplugin/editormanager/editormanager.h>
