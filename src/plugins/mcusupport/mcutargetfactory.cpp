@@ -61,7 +61,7 @@ const static QMap<QString, McuToolChainPackage::ToolChainType> toolchainTypeMapp
 
 McuPackageVersionDetector *createVersionDetection(const VersionDetection &versionDetection)
 {
-    if (!versionDetection.xmlElement.isEmpty() and !versionDetection.xmlAttribute.isEmpty())
+    if (!versionDetection.xmlElement.isEmpty() && !versionDetection.xmlAttribute.isEmpty())
         return new McuPackageXmlVersionDetector{versionDetection.filePattern,
                                                 versionDetection.xmlElement,
                                                 versionDetection.xmlAttribute,
