@@ -50,33 +50,70 @@ add_qtc_plugin(QmlDesigner
 include(qmldesignercore.cmake)
 extend_with_qmldesigner_core(QmlDesigner)
 
-get_filename_component(
-    QMLDOM_STANDALONE_CMAKELISTS
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../../../qmldom_standalone/src/qmldom/standalone/"
-    ABSOLUTE
-)
-
-if(EXISTS ${QMLDOM_STANDALONE_CMAKELISTS} AND Qt6_FOUND AND NOT TARGET qmldomlib)
-  add_subdirectory(
-    ../../../../qmldom_standalone/src/qmldom/standalone
-    ${CMAKE_BINARY_DIR}/qmldom_standalone)
-
-  set_target_properties(qmldomlib PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "$<TARGET_PROPERTY:QmlJS,RUNTIME_OUTPUT_DIRECTORY>"
-    LIBRARY_OUTPUT_DIRECTORY "$<TARGET_PROPERTY:QmlJS,LIBRARY_OUTPUT_DIRECTORY>")
-endif()
-
-
 env_with_default("QDS_WITH_QMLDOM" ENV_QDS_WITH_QMLDOM OFF)
 option(WITH_QMLDOM "Build with QmlDom" ${ENV_QDS_WITH_QMLDOM})
 add_feature_info("Build with QmlDom" ${WITH_QMLDOM} "")
 
+function(get_and_add_as_subdirectory name repository git_tag build_dir source_dir source_subdir)
+    # make the configuration in the build dir
+    file(MAKE_DIRECTORY ${build_dir}/${name})
+    file(WRITE ${build_dir}/${name}/CMakeLists.txt
+    "    cmake_minimum_required(VERSION 3.16)\n"
+    "    project(${name}-download NONE)\n"
+    "    \n"
+    "    include(ExternalProject)\n"
+    "    ExternalProject_Add(${name}\n"
+    "                        UPDATE_DISCONNECTED FALSE\n"
+    "                        GIT_REPOSITORY \"${repository}\"\n"
+    "                        GIT_SUBMODULES \"\"\n"
+    "                        GIT_TAG \"${git_tag}\"\n"
+    "                        SOURCE_SUBDIR \"\"\n"
+    "                        GIT_SHALLOW TRUE\n"
+    "                        GIT_PROGRESS TRUE\n"
+    "                        SOURCE_DIR \"${source_dir}/${name}\"\n"
+    "                        CONFIGURE_COMMAND \"\"\n"
+    "                        BUILD_COMMAND \"\"\n"
+    "                        INSTALL_COMMAND \"\"\n"
+    "                        TEST_COMMAND \"\"\n"
+    "                        USES_TERMINAL_DOWNLOAD YES\n"
+    "                        USES_TERMINAL_UPDATE YES\n"
+    "    )\n"
+    )
+    execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" "${build_dir}/${name}"
+        WORKING_DIRECTORY "${build_dir}/${name}"
+        COMMAND_ERROR_IS_FATAL ANY
+    )
+    execute_process(COMMAND "${CMAKE_COMMAND}" --build "${build_dir}/${name}"
+        COMMAND_ERROR_IS_FATAL ANY
+    )
+    add_subdirectory(${source_dir}/${name}/${source_subdir} ${name})
+endfunction()
 
-extend_qtc_target(QmlDesigner
-    CONDITION TARGET qmldomlib AND WITH_QMLDOM
-    DEFINES QDS_HAS_QMLDOM
-    DEPENDS qmldomlib
-)
+if (WITH_QMLDOM)
+  if (Qt5_VERSION VERSION_LESS 6.3.2)
+    message(FATAL_ERROR "You need Qt 6.3.2 or newer to enable WITH_QMLDOM feature.")
+  endif()
+
+
+  get_and_add_as_subdirectory("qmldom_standalone"
+                              "https://codereview.qt-project.org/qt/qtdeclarative"
+                              "origin/dev"
+                              "${CMAKE_BINARY_DIR}"
+                              "${CMAKE_CURRENT_SOURCE_DIR}/../.."
+                              "src/qmldom/standalone"
+                              )
+
+  set_target_properties(qmldomlib PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "$<TARGET_PROPERTY:QmlJS,RUNTIME_OUTPUT_DIRECTORY>"
+    LIBRARY_OUTPUT_DIRECTORY "$<TARGET_PROPERTY:QmlJS,LIBRARY_OUTPUT_DIRECTORY>")
+
+  extend_qtc_target(QmlDesigner
+      CONDITION TARGET qmldomlib
+      DEFINES QDS_HAS_QMLDOM
+      DEPENDS qmldomlib
+  )
+endif()
+
 
 if (QTC_STATIC_BUILD AND TARGET QmlDesigner)
   get_target_property(_designerType Qt5::Designer TYPE)

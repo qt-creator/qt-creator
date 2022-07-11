@@ -320,22 +320,6 @@ extend_qtc_test(unittest
     locator/ilocatorfilter.cpp locator/ilocatorfilter.h
 )
 
-get_filename_component(
-    QMLDOM_STANDALONE_CMAKELISTS
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../../../qmldom_standalone/src/qmldom/standalone/"
-    ABSOLUTE
-)
-
-if(EXISTS ${QMLDOM_STANDALONE_CMAKELISTS} AND Qt6_FOUND AND NOT TARGET qmldomlib)
-  add_subdirectory(
-    ../../../../qmldom_standalone/src/qmldom/standalone
-    ${CMAKE_BINARY_DIR}/qmldom_standalone)
-
-  set_target_properties(qmldomlib PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "$<TARGET_PROPERTY:QmlJS,RUNTIME_OUTPUT_DIRECTORY>"
-    LIBRARY_OUTPUT_DIRECTORY "$<TARGET_PROPERTY:QmlJS,LIBRARY_OUTPUT_DIRECTORY>")
-endif()
-
 extend_qtc_test(unittest
   CONDITION TARGET qmldomlib
   DEPENDS qmldomlib
