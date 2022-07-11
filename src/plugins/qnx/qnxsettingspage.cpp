@@ -25,7 +25,6 @@
 
 #include "qnxsettingspage.h"
 
-#include "ui_qnxsettingswidget.h"
 #include "qnxconfiguration.h"
 #include "qnxconfigurationmanager.h"
 
@@ -35,7 +34,18 @@
 
 #include <qtsupport/qtversionmanager.h>
 
+#include <QApplication>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QLabel>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QSpacerItem>
+#include <QVBoxLayout>
+#include <QVariant>
+#include <QWidget>
 
 using namespace Utils;
 
@@ -78,7 +88,16 @@ public:
     void setConfigState(QnxConfiguration *config, State state);
 
 private:
-    Ui_QnxSettingsWidget m_ui;
+    QComboBox *m_configsCombo;
+    QCheckBox *m_generateKitsCheckBox;
+    QGroupBox *m_groupBox;
+    QLabel *m_configName;
+    QLabel *m_configVersion;
+    QLabel *m_configHost;
+    QLabel *m_configTarget;
+    QPushButton *m_addButton;
+    QPushButton *m_removeButton;
+
     QnxConfigurationManager *m_qnxConfigManager;
     QList<ConfigState> m_changedConfigs;
 };
@@ -86,16 +105,68 @@ private:
 QnxSettingsWidget::QnxSettingsWidget() :
     m_qnxConfigManager(QnxConfigurationManager::instance())
 {
-    m_ui.setupUi(this);
+    m_configsCombo = new QComboBox(this);
+
+    m_generateKitsCheckBox = new QCheckBox(this);
+    m_generateKitsCheckBox->setText(tr("Generate kits"));
+
+    m_groupBox = new QGroupBox(this);
+    m_groupBox->setMinimumSize(QSize(0, 0));
+    m_groupBox->setTitle(tr("Configuration Information:"));
+
+    m_configName = new QLabel(m_groupBox);
+    m_configVersion = new QLabel(m_groupBox);
+    m_configTarget = new QLabel(m_groupBox);
+    m_configHost = new QLabel(m_groupBox);
+
+    m_addButton = new QPushButton(tr("Add..."));
+    m_removeButton = new QPushButton(tr("Remove"));
+
+    auto verticalLayout_3 = new QVBoxLayout();
+    verticalLayout_3->addWidget(new QLabel(tr("Name:")));
+    verticalLayout_3->addWidget(new QLabel(tr("Version:")));
+    verticalLayout_3->addWidget(new QLabel(tr("Host:")));
+    verticalLayout_3->addWidget(new QLabel(tr("Target:")));
+    verticalLayout_3->addItem(new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
+
+    auto verticalLayout_4 = new QVBoxLayout();
+    verticalLayout_4->addWidget(m_configName);
+    verticalLayout_4->addWidget(m_configVersion);
+    verticalLayout_4->addWidget(m_configHost);
+    verticalLayout_4->addWidget(m_configTarget);
+    verticalLayout_4->addItem(new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
+
+    auto horizontalLayout_3 = new QHBoxLayout(m_groupBox);
+    horizontalLayout_3->addLayout(verticalLayout_3);
+    horizontalLayout_3->addLayout(verticalLayout_4);
+    horizontalLayout_3->addItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
+
+    auto verticalLayout_2 = new QVBoxLayout();
+    verticalLayout_2->addWidget(m_configsCombo);
+    verticalLayout_2->addWidget(m_generateKitsCheckBox);
+    verticalLayout_2->addWidget(m_groupBox);
+
+    auto verticalLayout = new QVBoxLayout();
+    verticalLayout->setSizeConstraint(QLayout::SetMaximumSize);
+    verticalLayout->addWidget(m_addButton);
+    verticalLayout->addWidget(m_removeButton);
+    verticalLayout->addItem(new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
+
+    auto horizontalLayout = new QHBoxLayout();
+    horizontalLayout->addLayout(verticalLayout_2);
+    horizontalLayout->addLayout(verticalLayout);
+
+    auto horizontalLayout_2 = new QHBoxLayout(this);
+    horizontalLayout_2->addLayout(horizontalLayout);
 
     populateConfigsCombo();
-    connect(m_ui.addButton, &QAbstractButton::clicked,
+    connect(m_addButton, &QAbstractButton::clicked,
             this, &QnxSettingsWidget::addConfiguration);
-    connect(m_ui.removeButton, &QAbstractButton::clicked,
+    connect(m_removeButton, &QAbstractButton::clicked,
             this, &QnxSettingsWidget::removeConfiguration);
-    connect(m_ui.configsCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_configsCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &QnxSettingsWidget::updateInformation);
-    connect(m_ui.generateKitsCheckBox, &QAbstractButton::toggled,
+    connect(m_generateKitsCheckBox, &QAbstractButton::toggled,
             this, &QnxSettingsWidget::generateKits);
     connect(m_qnxConfigManager, &QnxConfigurationManager::configurationsListUpdated,
             this, &QnxSettingsWidget::populateConfigsCombo);
@@ -128,15 +199,15 @@ void QnxSettingsWidget::addConfiguration()
     }
 
     setConfigState(config, Added);
-    m_ui.configsCombo->addItem(config->displayName(),
-                                   QVariant::fromValue(static_cast<void*>(config)));
+    m_configsCombo->addItem(config->displayName(),
+                            QVariant::fromValue(static_cast<void*>(config)));
 }
 
 void QnxSettingsWidget::removeConfiguration()
 {
-    const int currentIndex = m_ui.configsCombo->currentIndex();
+    const int currentIndex = m_configsCombo->currentIndex();
     auto config = static_cast<QnxConfiguration*>(
-            m_ui.configsCombo->itemData(currentIndex).value<void*>());
+            m_configsCombo->itemData(currentIndex).value<void*>());
 
     if (!config)
         return;
@@ -149,15 +220,15 @@ void QnxSettingsWidget::removeConfiguration()
 
     if (button == QMessageBox::Yes) {
         setConfigState(config, Removed);
-        m_ui.configsCombo->removeItem(currentIndex);
+        m_configsCombo->removeItem(currentIndex);
     }
 }
 
 void QnxSettingsWidget::generateKits(bool checked)
 {
-    const int currentIndex = m_ui.configsCombo->currentIndex();
+    const int currentIndex = m_configsCombo->currentIndex();
     auto config = static_cast<QnxConfiguration*>(
-                m_ui.configsCombo->itemData(currentIndex).value<void*>());
+                m_configsCombo->itemData(currentIndex).value<void*>());
     if (!config)
         return;
 
@@ -166,27 +237,27 @@ void QnxSettingsWidget::generateKits(bool checked)
 
 void QnxSettingsWidget::updateInformation()
 {
-    const int currentIndex = m_ui.configsCombo->currentIndex();
+    const int currentIndex = m_configsCombo->currentIndex();
 
     auto config = static_cast<QnxConfiguration*>(
-            m_ui.configsCombo->itemData(currentIndex).value<void*>());
+            m_configsCombo->itemData(currentIndex).value<void*>());
 
     // update the checkbox
-    m_ui.generateKitsCheckBox->setEnabled(config ? config->canCreateKits() : false);
-    m_ui.generateKitsCheckBox->setChecked(config ? config->isActive() : false);
+    m_generateKitsCheckBox->setEnabled(config ? config->canCreateKits() : false);
+    m_generateKitsCheckBox->setChecked(config ? config->isActive() : false);
 
     // update information
-    m_ui.configName->setText(config ? config->displayName() : QString());
-    m_ui.configVersion->setText(config ? config->version().toString() : QString());
-    m_ui.configHost->setText(config ? config->qnxHost().toString() : QString());
-    m_ui.configTarget->setText(config ? config->qnxTarget().toString() : QString());
+    m_configName->setText(config ? config->displayName() : QString());
+    m_configVersion->setText(config ? config->version().toString() : QString());
+    m_configHost->setText(config ? config->qnxHost().toString() : QString());
+    m_configTarget->setText(config ? config->qnxTarget().toString() : QString());
 }
 
 void QnxSettingsWidget::populateConfigsCombo()
 {
-    m_ui.configsCombo->clear();
+    m_configsCombo->clear();
     foreach (QnxConfiguration *config, m_qnxConfigManager->configurations()) {
-        m_ui.configsCombo->addItem(config->displayName(),
+        m_configsCombo->addItem(config->displayName(),
                                        QVariant::fromValue(static_cast<void*>(config)));
     }
 
