@@ -41,6 +41,7 @@ excludedirs  += ../../qtcreator/examples/accelbubble \
                 ../../qtcreator/src/cmake \
                 ../../qtcreator/src/conan \
                 ../../qtcreator/src/debugger/creator-only \
+                ../../qtcreator/src/docker \
                 ../../qtcreator/src/editors/creator-only \
                 ../../qtcreator/src/howto/creator-only \
                 ../../qtcreator/src/incredibuild \
