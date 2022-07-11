@@ -42,8 +42,6 @@ class CORE_EXPORT ShellCommand : public Utils::ShellCommand
 public:
     ShellCommand(const Utils::FilePath &workingDirectory, const Utils::Environment &environment);
 
-    FutureProgress *futureProgress() const;
-
 protected:
     void addTask(QFuture<void> &future) override;
 

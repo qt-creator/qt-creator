@@ -42,11 +42,6 @@ ShellCommand::ShellCommand(const FilePath &workingDirectory, const Environment &
             this, &ShellCommand::coreAboutToClose);
 }
 
-FutureProgress *ShellCommand::futureProgress() const
-{
-    return m_progress.data();
-}
-
 void ShellCommand::addTask(QFuture<void> &future)
 {
     const QString name = displayName();
