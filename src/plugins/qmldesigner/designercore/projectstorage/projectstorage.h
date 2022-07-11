@@ -149,6 +149,18 @@ public:
             .template valueWithTransaction<TypeId>(&moduleId, exportedTypeName);
     }
 
+    PropertyDeclarationIds propertyIds(TypeId typeId) const
+    {
+        return selectPropertyDeclarationIdsForTypeStatement
+            .template valuesWithTransaction<PropertyDeclarationId>(32, &typeId);
+    }
+
+    Utils::optional<Utils::SmallString> propertyName(PropertyDeclarationId propertyDeclarationId) const
+    {
+        return selectPropertyNameStatement.template optionalValueWithTransaction<Utils::SmallString>(
+            &propertyDeclarationId);
+    }
+
     PropertyDeclarationId fetchPropertyDeclarationByTypeIdAndName(TypeId typeId,
                                                                   Utils::SmallStringView name)
     {
@@ -2658,7 +2670,7 @@ public:
         "aliasPropertyDeclarationId IS NULL RETURNING typeId, propertyDeclarationId, "
         "propertyImportedTypeNameId",
         database};
-    ReadStatement<1, 1> selectPropertyNameStatement{
+    mutable ReadStatement<1, 1> selectPropertyNameStatement{
         "SELECT name FROM propertyDeclarations WHERE propertyDeclarationId=?", database};
     WriteStatement<2> updatePropertyDeclarationTypeStatement{
         "UPDATE propertyDeclarations SET propertyTypeId=?2 WHERE propertyDeclarationId=?1", database};
@@ -2844,6 +2856,16 @@ public:
         "SELECT DISTINCT moduleId, ifnull(majorVersion, -1), ifnull(minorVersion, -1), "
         "       moduleExportedImportId "
         "FROM imports",
+        database};
+    mutable ReadStatement<1, 1> selectPropertyDeclarationIdsForTypeStatement{
+        "WITH RECURSIVE "
+        "  typeChain(typeId) AS ("
+        "      VALUES(?1)"
+        "    UNION ALL "
+        "      SELECT prototypeId FROM types JOIN typeChain "
+        "        USING(typeId) WHERE prototypeId IS NOT NULL)"
+        "SELECT propertyDeclarationId FROM typeChain JOIN propertyDeclarations "
+        "  USING(typeId) ORDER BY propertyDeclarationId",
         database};
 };
 extern template class ProjectStorage<Sqlite::Database>;

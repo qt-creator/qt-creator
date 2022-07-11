@@ -176,6 +176,51 @@ MATCHER_P4(IsPropertyDeclaration,
            && propertyDeclaration.traits == traits;
 }
 
+class HasNameMatcher
+{
+public:
+    using is_gtest_matcher = void;
+
+    HasNameMatcher(const QmlDesigner::ProjectStorage<Sqlite::Database> &storage,
+                   Utils::SmallStringView name)
+        : storage{storage}
+        , name{name}
+    {}
+
+    bool MatchAndExplain(QmlDesigner::PropertyDeclarationId id, std::ostream *listener) const
+    {
+        auto propertyName = storage.propertyName(id);
+        bool success = propertyName && *propertyName == name;
+
+        if (success)
+            return true;
+
+        if (listener) {
+            if (propertyName)
+                *listener << "name is '" << *propertyName << "', not '" << name << "'";
+            else
+                *listener << "there is no '" << name << "'";
+        }
+
+        return false;
+    }
+
+    void DescribeTo(std::ostream *os) const { *os << "is '" << name << "'"; }
+
+    void DescribeNegationTo(std::ostream *os) const { *os << "is not '" << name << "'"; }
+
+private:
+    const QmlDesigner::ProjectStorage<Sqlite::Database> &storage;
+    Utils::SmallStringView name;
+};
+
+#define HasName(name) Matcher<QmlDesigner::PropertyDeclarationId>(HasNameMatcher{storage, name})
+
+MATCHER(IsSorted, std::string(negation ? "isn't sorted" : "is sorted"))
+{
+    return std::is_sorted(begin(arg), end(arg));
+}
+
 class ProjectStorage : public testing::Test
 {
 protected:
@@ -569,6 +614,59 @@ protected:
                            Storage::ExportedType{qmlModuleId, "Obj", Storage::Version{3, 4}},
                            Storage::ExportedType{qmlModuleId, "BuiltInObj", Storage::Version{3, 4}},
                            Storage::ExportedType{qmlNativeModuleId, "QObject4"}}});
+
+        package.updatedSourceIds.push_back(sourceId1);
+
+        shuffle(package.types);
+
+        return package;
+    }
+
+    auto createPackageWithProperties()
+    {
+        SynchronizationPackage package;
+
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId1);
+
+        package.types.push_back(Storage::Type{
+            "QObject",
+            Storage::ImportedType{},
+            TypeAccessSemantics::Reference,
+            sourceId1,
+            {Storage::ExportedType{qmlModuleId, "Object", Storage::Version{}}},
+            {Storage::PropertyDeclaration{"data",
+                                          Storage::ImportedType{"Object"},
+                                          Storage::PropertyDeclarationTraits::IsList},
+             Storage::PropertyDeclaration{"children",
+                                          Storage::ImportedType{"Object"},
+                                          Storage::PropertyDeclarationTraits::IsList
+                                              | Storage::PropertyDeclarationTraits::IsReadOnly}}});
+        package.types.push_back(Storage::Type{
+            "QObject2",
+            Storage::ImportedType{"Object"},
+            TypeAccessSemantics::Reference,
+            sourceId1,
+            {Storage::ExportedType{qmlModuleId, "Object2", Storage::Version{}}},
+            {Storage::PropertyDeclaration{"data2",
+                                          Storage::ImportedType{"Object3"},
+                                          Storage::PropertyDeclarationTraits::IsList},
+             Storage::PropertyDeclaration{"children2",
+                                          Storage::ImportedType{"Object3"},
+                                          Storage::PropertyDeclarationTraits::IsList
+                                              | Storage::PropertyDeclarationTraits::IsReadOnly}}});
+        package.types.push_back(Storage::Type{
+            "QObject3",
+            Storage::ImportedType{"Object2"},
+            TypeAccessSemantics::Reference,
+            sourceId1,
+            {Storage::ExportedType{qmlModuleId, "Object3", Storage::Version{}}},
+            {Storage::PropertyDeclaration{"data3",
+                                          Storage::ImportedType{"Object2"},
+                                          Storage::PropertyDeclarationTraits::IsList},
+             Storage::PropertyDeclaration{"children3",
+                                          Storage::ImportedType{"Object2"},
+                                          Storage::PropertyDeclarationTraits::IsList
+                                              | Storage::PropertyDeclarationTraits::IsReadOnly}}});
 
         package.updatedSourceIds.push_back(sourceId1);
 
@@ -5045,6 +5143,60 @@ TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionForWrongMajorVersion)
     auto typeId = storage.typeId(qmlModuleId, "Object", Storage::Version{4, 0});
 
     ASSERT_FALSE(typeId);
+}
+
+TEST_F(ProjectStorage, GetProperties)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto itemTypeId = fetchTypeId(sourceId1, "QObject3");
+
+    auto propertyIds = storage.propertyIds(itemTypeId);
+
+    ASSERT_THAT(propertyIds,
+                UnorderedElementsAre(HasName("data"),
+                                     HasName("children"),
+                                     HasName("data2"),
+                                     HasName("children2"),
+                                     HasName("data3"),
+                                     HasName("children3")));
+}
+
+TEST_F(ProjectStorage, GetPropertiesAreReturnedSorted)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto itemTypeId = fetchTypeId(sourceId1, "QObject3");
+
+    auto propertyIds = storage.propertyIds(itemTypeId);
+
+    ASSERT_THAT(propertyIds, IsSorted());
+}
+
+TEST_F(ProjectStorage, GetNoPropertiesPropertiesFromDerivedTypes)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto itemTypeId = fetchTypeId(sourceId1, "QObject2");
+
+    auto propertyIds = storage.propertyIds(itemTypeId);
+
+    ASSERT_THAT(propertyIds,
+                UnorderedElementsAre(HasName("data"),
+                                     HasName("children"),
+                                     HasName("data2"),
+                                     HasName("children2")));
+}
+
+TEST_F(ProjectStorage, GetNoPropertiesForWrongTypeId)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto itemTypeId = fetchTypeId(sourceId1, "WrongObject");
+
+    auto propertyIds = storage.propertyIds(itemTypeId);
+
+    ASSERT_THAT(propertyIds, IsEmpty());
 }
 
 } // namespace
