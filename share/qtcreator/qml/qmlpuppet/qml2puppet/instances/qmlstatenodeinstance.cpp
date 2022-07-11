@@ -28,7 +28,7 @@
 #include "qmlpropertychangesnodeinstance.h"
 
 #include <qmlprivategate.h>
-#include <designersupportdelegate.h>
+#include <private/qquickdesignersupport_p.h>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -62,7 +62,7 @@ void setAllNodesDirtyRecursive([[maybe_unused]] QQuickItem *parentItem)
     const QList<QQuickItem *> children = parentItem->childItems();
     for (QQuickItem *childItem : children)
         setAllNodesDirtyRecursive(childItem);
-    DesignerSupport::addDirty(parentItem, QQuickDesignerSupport::Content);
+    QQuickDesignerSupport::addDirty(parentItem, QQuickDesignerSupport::Content);
 #endif
 }
 

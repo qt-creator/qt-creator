@@ -80,7 +80,6 @@
 #define NANOTRACE_SCOPE(cat, name)
 #endif
 
-#include <designersupportdelegate.h>
 #include <QAbstractAnimation>
 #include <QDebug>
 #include <QDir>

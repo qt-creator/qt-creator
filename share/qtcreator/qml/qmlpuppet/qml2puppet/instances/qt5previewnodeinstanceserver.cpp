@@ -33,7 +33,7 @@
 
 #include <QQuickView>
 #include <QQuickItem>
-#include <designersupportdelegate.h>
+#include <private/qquickdesignersupport_p.h>
 
 namespace QmlDesigner {
 
@@ -72,7 +72,7 @@ void Qt5PreviewNodeInstanceServer::collectItemChangesAndSendChangeCommands()
     if (!inFunction && nodeInstanceClient()->bytesToWrite() < 10000) {
         inFunction = true;
 
-        DesignerSupport::polishItems(quickWindow());
+        QQuickDesignerSupport::polishItems(quickWindow());
 
         QVector<ImageContainer> imageContainerVector;
         imageContainerVector.append(ImageContainer(0, renderPreviewImage(), -1));

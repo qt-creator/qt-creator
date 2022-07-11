@@ -25,15 +25,25 @@
 
 #include "qmlprivategate.h"
 
-#include "metaobject.h"
-#include "designercustomobjectdata.h"
-
 #include <objectnodeinstance.h>
 #include <nodeinstanceserver.h>
 
 #include <QQuickItem>
 #include <QQmlComponent>
 #include <QFileInfo>
+#include <QProcessEnvironment>
+
+#include <private/qabstractfileengine_p.h>
+#include <private/qfsfileengine_p.h>
+
+#include <private/qquickdesignersupport_p.h>
+#include <private/qquickdesignersupportmetainfo_p.h>
+#include <private/qquickdesignersupportitems_p.h>
+#include <private/qquickdesignersupportproperties_p.h>
+#include <private/qquickdesignersupportpropertychanges_p.h>
+#include <private/qquickdesignersupportstates_p.h>
+#include <private/qqmldata_p.h>
+#include <private/qqmlcomponentattached_p.h>
 
 #include <private/qabstractanimation_p.h>
 #include <private/qobject_p.h>
@@ -42,18 +52,16 @@
 #include <private/qquicktextinput_p.h>
 #include <private/qquicktextedit_p.h>
 #include <private/qquicktransition_p.h>
+#include <private/qquickloader_p.h>
 
 #include <private/qquickanimation_p.h>
 #include <private/qqmlmetatype_p.h>
 #include <private/qqmltimer_p.h>
 
-#include <private/qquickstategroup_p.h>
-#include <private/qquickpropertychanges_p.h>
-#include <private/qquickstateoperations_p.h>
-
-
-#include <designersupportdelegate.h>
-#include <cstring>
+#ifdef QUICK3D_MODULE
+#include <private/qquick3dobject_p.h>
+#include <private/qquick3drepeater_p.h>
+#endif
 
 namespace QmlDesigner {
 
@@ -63,176 +71,158 @@ namespace QmlPrivateGate {
 
 bool isPropertyBlackListed(const QmlDesigner::PropertyName &propertyName)
 {
-    if (propertyName.contains(".") && propertyName.contains("__"))
-        return true;
+    return QQuickDesignerSupportProperties::isPropertyBlackListed(propertyName);
+}
 
-    if (propertyName.count(".") > 1)
-        return true;
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0)) && (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
+
+static void addToPropertyNameListIfNotBlackListed(
+    PropertyNameList *propertyNameList, const QQuickQQuickDesignerSupport::PropertyName &propertyName)
+{
+    if (!QQuickDesignerSupportProperties::isPropertyBlackListed(propertyName))
+        propertyNameList->append(propertyName);
+}
+
+PropertyNameList allPropertyNamesInline(QObject *object,
+                                        const PropertyName &baseName = {},
+                                        QObjectList *inspectedObjects = nullptr,
+                                        int depth = 0)
+{
+    QQuickQQuickDesignerSupport::PropertyNameList propertyNameList;
+
+    QObjectList localObjectList;
+
+    if (inspectedObjects == nullptr)
+        inspectedObjects = &localObjectList;
+
+    if (depth > 2)
+        return propertyNameList;
+
+    if (!inspectedObjects->contains(object))
+        inspectedObjects->append(object);
+
+    const QMetaObject *metaObject = object->metaObject();
+
+    QStringList deferredPropertyNames;
+    const int namesIndex = metaObject->indexOfClassInfo("DeferredPropertyNames");
+    if (namesIndex != -1) {
+        QMetaClassInfo classInfo = metaObject->classInfo(namesIndex);
+        deferredPropertyNames = QString::fromUtf8(classInfo.value()).split(QLatin1Char(','));
+    }
+
+    for (int index = 0; index < metaObject->propertyCount(); ++index) {
+        QMetaProperty metaProperty = metaObject->property(index);
+        QQmlProperty declarativeProperty(object, QString::fromUtf8(metaProperty.name()));
+        if (declarativeProperty.isValid()
+            && declarativeProperty.propertyTypeCategory() == QQmlProperty::Object) {
+            if (declarativeProperty.name() != QLatin1String("parent")
+                && !deferredPropertyNames.contains(declarativeProperty.name())) {
+                QObject *childObject = QQmlMetaType::toQObject(declarativeProperty.read());
+                if (childObject)
+                    propertyNameList.append(
+                        allPropertyNamesInline(childObject,
+                                               baseName
+                                                   + QQuickQQuickDesignerSupport::PropertyName(
+                                                       metaProperty.name())
+                                                   + '.',
+                                               inspectedObjects,
+                                               depth + 1));
+            }
+        } else if (QQmlGadgetPtrWrapper *valueType
+                   = QQmlGadgetPtrWrapper::instance(qmlEngine(object), metaProperty.userType())) {
+            valueType->setValue(metaProperty.read(object));
+            propertyNameList.append(baseName
+                                    + QQuickQQuickDesignerSupport::PropertyName(metaProperty.name()));
+            propertyNameList.append(
+                allPropertyNamesInline(valueType,
+                                       baseName
+                                           + QQuickQQuickDesignerSupport::PropertyName(metaProperty.name())
+                                           + '.',
+                                       inspectedObjects,
+                                       depth + 1));
+        } else {
+            addToPropertyNameListIfNotBlackListed(&propertyNameList,
+                                                  baseName
+                                                      + QQuickQQuickDesignerSupport::PropertyName(
+                                                          metaProperty.name()));
+        }
+    }
+
+    return propertyNameList;
+}
+#endif
+
+PropertyNameList allPropertyNames(QObject *object)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return QQuickDesignerSupportProperties::allPropertyNames(object);
+#elif QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+    return allPropertyNamesInline(object);
+#else
+    return QQuickDesignerSupportProperties::allPropertyNames(object);
+#endif
+}
+
+PropertyNameList propertyNameListForWritableProperties(QObject *object)
+{
+    return QQuickDesignerSupportProperties::propertyNameListForWritableProperties(object);
+}
+
+void tweakObjects(QObject *object)
+{
+    QQuickDesignerSupportItems::tweakObjects(object);
+}
+
+void createNewDynamicProperty(QObject *object,  QQmlEngine *engine, const QString &name)
+{
+    QQuickDesignerSupportProperties::createNewDynamicProperty(object, engine, name);
+}
+
+void registerNodeInstanceMetaObject(QObject *object, QQmlEngine *engine)
+{
+    QQuickDesignerSupportProperties::registerNodeInstanceMetaObject(object, engine);
+}
+
+static bool isMetaObjectofType(const QMetaObject *metaObject, const QByteArray &type)
+{
+    if (metaObject) {
+        if (metaObject->className() == type)
+            return true;
+
+        return isMetaObjectofType(metaObject->superClass(), type);
+    }
 
     return false;
 }
 
-static void addToPropertyNameListIfNotBlackListed(PropertyNameList *propertyNameList, const PropertyName &propertyName)
+static bool isQuickStyleItem(QObject *object)
 {
-    if (!isPropertyBlackListed(propertyName))
-        propertyNameList->append(propertyName);
+    if (object)
+        return isMetaObjectofType(object->metaObject(), "QQuickStyleItem");
+
+    return false;
 }
 
-PropertyNameList allPropertyNames(QObject *object,
-                                  const PropertyName &baseName,
-                                  QObjectList *inspectedObjects)
+static bool isDelegateModel(QObject *object)
 {
-    PropertyNameList propertyNameList;
+    if (object)
+        return isMetaObjectofType(object->metaObject(), "QQmlDelegateModel");
 
-    QObjectList localObjectList;
-
-    if (inspectedObjects == 0)
-        inspectedObjects = &localObjectList;
-
-
-    if (inspectedObjects->contains(object))
-        return propertyNameList;
-
-    inspectedObjects->append(object);
-
-
-    const QMetaObject *metaObject = object->metaObject();
-    for (int index = 0; index < metaObject->propertyCount(); ++index) {
-        QMetaProperty metaProperty = metaObject->property(index);
-        QQmlProperty declarativeProperty(object, QLatin1String(metaProperty.name()));
-        if (declarativeProperty.isValid() && declarativeProperty.propertyTypeCategory() == QQmlProperty::Object) {
-            if (declarativeProperty.name() != "parent") {
-                QObject *childObject = QQmlMetaType::toQObject(declarativeProperty.read());
-                if (childObject)
-                    propertyNameList.append(allPropertyNames(childObject, baseName +  PropertyName(metaProperty.name()) + '.', inspectedObjects));
-            }
-        } else if (QQmlValueTypeFactory::valueType(metaProperty.userType())) {
-            QQmlValueType *valueType = QQmlValueTypeFactory::valueType(metaProperty.userType());
-            valueType->setValue(metaProperty.read(object));
-            propertyNameList.append(baseName + PropertyName(metaProperty.name()));
-            propertyNameList.append(allPropertyNames(valueType, baseName +  PropertyName(metaProperty.name()) + '.', inspectedObjects));
-        } else  {
-            propertyNameList.append(baseName + PropertyName(metaProperty.name()));
-        }
-    }
-
-    return propertyNameList;
+    return false;
 }
 
-PropertyNameList propertyNameListForWritableProperties(QObject *object,
-                                                       const PropertyName &baseName,
-                                                       QObjectList *inspectedObjects)
+// This is used in share/qtcreator/qml/qmlpuppet/qml2puppet/instances/objectnodeinstance.cpp
+QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context)
 {
-    PropertyNameList propertyNameList;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 
-    QObjectList localObjectList;
-
-    if (inspectedObjects == 0)
-        inspectedObjects = &localObjectList;
-
-
-    if (inspectedObjects->contains(object))
-        return propertyNameList;
-
-    inspectedObjects->append(object);
-
-    const QMetaObject *metaObject = object->metaObject();
-    for (int index = 0; index < metaObject->propertyCount(); ++index) {
-        QMetaProperty metaProperty = metaObject->property(index);
-        QQmlProperty declarativeProperty(object, QLatin1String(metaProperty.name()));
-        if (declarativeProperty.isValid() && !declarativeProperty.isWritable() && declarativeProperty.propertyTypeCategory() == QQmlProperty::Object) {
-            if (declarativeProperty.name() != "parent") {
-                QObject *childObject = QQmlMetaType::toQObject(declarativeProperty.read());
-                if (childObject)
-                    propertyNameList.append(propertyNameListForWritableProperties(childObject, baseName +  PropertyName(metaProperty.name()) + '.', inspectedObjects));
-            }
-        } else if (QQmlValueTypeFactory::valueType(metaProperty.userType())) {
-            QQmlValueType *valueType = QQmlValueTypeFactory::valueType(metaProperty.userType());
-            valueType->setValue(metaProperty.read(object));
-            propertyNameList.append(propertyNameListForWritableProperties(valueType, baseName +  PropertyName(metaProperty.name()) + '.', inspectedObjects));
-        }
-
-        if (metaProperty.isReadable() && metaProperty.isWritable()) {
-            addToPropertyNameListIfNotBlackListed(&propertyNameList, baseName + PropertyName(metaProperty.name()));
-        }
-    }
-
-    return propertyNameList;
-}
-
-static void stopAnimation(QObject *object)
-{
-    if (object == 0)
-        return;
-
-    QQuickTransition *transition = qobject_cast<QQuickTransition*>(object);
-    QQuickAbstractAnimation *animation = qobject_cast<QQuickAbstractAnimation*>(object);
-    QQmlTimer *timer = qobject_cast<QQmlTimer*>(object);
-    if (transition) {
-       transition->setFromState("");
-       transition->setToState("");
-    } else if (animation) {
-//        QQuickScriptAction *scriptAimation = qobject_cast<QQuickScriptAction*>(animation);
-//        if (scriptAimation) FIXME
-//            scriptAimation->setScript(QQmlScriptString());
-        animation->setLoops(1);
-        animation->complete();
-        animation->setDisableUserControl();
-    } else if (timer) {
-        timer->blockSignals(true);
-    }
-}
-
-static void allSubObject(QObject *object, QObjectList &objectList)
-{
-    // don't add null pointer and stop if the object is already in the list
-    if (!object || objectList.contains(object))
-        return;
-
-    objectList.append(object);
-
-    for (int index = QObject::staticMetaObject.propertyOffset();
-         index < object->metaObject()->propertyCount();
-         index++) {
-        QMetaProperty metaProperty = object->metaObject()->property(index);
-
-        // search recursive in property objects
-        if (metaProperty.isReadable()
-                && metaProperty.isWritable()
-                && QQmlMetaType::isQObject(metaProperty.userType())) {
-            if (strcmp(metaProperty.name(), "parent") != 0) {
-                QObject *propertyObject = QQmlMetaType::toQObject(metaProperty.read(object));
-                allSubObject(propertyObject, objectList);
-            }
-
-        }
-
-        // search recursive in property object lists
-        if (metaProperty.isReadable()
-                && QQmlMetaType::isList(metaProperty.userType())) {
-            QQmlListReference list(object, metaProperty.name());
-            if (list.canCount() && list.canAt()) {
-                for (int i = 0; i < list.count(); i++) {
-                    QObject *propertyObject = list.at(i);
-                    allSubObject(propertyObject, objectList);
-
-                }
-            }
-        }
-    }
-
-    // search recursive in object children list
-    foreach (QObject *childObject, object->children()) {
-        allSubObject(childObject, objectList);
-    }
-
-    // search recursive in quick item childItems list
-    QQuickItem *quickItem = qobject_cast<QQuickItem*>(object);
-    if (quickItem) {
-        foreach (QQuickItem *childItem, quickItem->childItems()) {
-            allSubObject(childItem, objectList);
-        }
-    }
+    QTypeRevision revision = QTypeRevision::zero();
+    if (majorNumber > 0)
+        revision = QTypeRevision::fromVersion(majorNumber, minorNumber);
+    return QQuickDesignerSupportItems::createPrimitive(typeName, revision, context);
+#else
+    return QQuickDesignerSupportItems::createPrimitive(typeName, majorNumber, minorNumber, context);
+#endif
 }
 
 static QString qmlDesignerRCPath()
@@ -242,147 +232,10 @@ static QString qmlDesignerRCPath()
     return qmlDesignerRcPathsString;
 }
 
-static void fixResourcePathsForObject(QObject *object)
-{
-    static const bool qmlDesignerRcPathsIsEmpty = qmlDesignerRCPath().isEmpty();
-    if (qmlDesignerRcPathsIsEmpty)
-        return;
-
-    PropertyNameList propertyNameList = propertyNameListForWritableProperties(object);
-
-    foreach (const PropertyName &propertyName, propertyNameList) {
-        QQmlProperty property(object, QString::fromUtf8(propertyName), QQmlEngine::contextForObject(object));
-
-        const QVariant value  = property.read();
-        const QVariant fixedValue = fixResourcePaths(value);
-        if (value != fixedValue) {
-            property.write(fixedValue);
-        }
-    }
-}
-
-void tweakObjects(QObject *object)
-{
-    QObjectList objectList;
-    allSubObject(object, objectList);
-    foreach (QObject* childObject, objectList) {
-        stopAnimation(childObject);
-        fixResourcePathsForObject(childObject);
-    }
-}
-
-static QObject *createDummyWindow(QQmlEngine *engine)
-{
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/qtquickplugin/mockfiles/Window.qml")));
-    return component.create();
-}
-
-static bool isWindowMetaObject(const QMetaObject *metaObject)
-{
-    if (metaObject) {
-        if (metaObject->className() == QByteArrayLiteral("QWindow"))
-            return true;
-
-        return isWindowMetaObject(metaObject->superClass());
-    }
-
-    return false;
-}
-
-static bool isWindow(QObject *object) {
-    if (object)
-        return isWindowMetaObject(object->metaObject());
-
-    return false;
-}
-
-static QQmlType *getQmlType(const QString &typeName, int majorNumber, int minorNumber)
-{
-     return QQmlMetaType::qmlType(typeName, majorNumber, minorNumber);
-}
-
-static bool isCrashingType(QQmlType *type)
-{
-    if (type) {
-        if (type->qmlTypeName() == QStringLiteral("QtMultimedia/MediaPlayer"))
-            return true;
-
-        if (type->qmlTypeName() == QStringLiteral("QtMultimedia/Audio"))
-            return true;
-
-        if (type->qmlTypeName() == QStringLiteral("QtQuick.Controls/MenuItem"))
-            return true;
-
-        if (type->qmlTypeName() == QStringLiteral("QtQuick.Controls/Menu"))
-            return true;
-
-        if (type->qmlTypeName() == QStringLiteral("QtQuick/Timer"))
-            return true;
-    }
-
-    return false;
-}
-
-void createNewDynamicProperty(QObject *object,  QQmlEngine *engine, const QString &name)
-{
-    MetaObject::getNodeInstanceMetaObject(object, engine)->createNewDynamicProperty(name);
-}
-
-void registerNodeInstanceMetaObject(QObject *object, QQmlEngine *engine)
-{
-    // we just create one and the ownership goes automatically to the object in nodeinstance see init method
-    MetaObject::getNodeInstanceMetaObject(object, engine);
-}
-
-QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context)
-{
-    [[maybe_unused]] ComponentCompleteDisabler disableComponentComplete;
-
-    QObject *object = 0;
-    QQmlType *type = getQmlType(typeName, majorNumber, minorNumber);
-
-    if (isCrashingType(type)) {
-        object = new QObject;
-    } else if (type) {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)) // TODO remove hack later if we only support >= 5.2
-        if ( type->isComposite()) {
-             object = createComponent(type->sourceUrl(), context);
-        } else
-#endif
-        {
-            if (type->typeName() == "QQmlComponent") {
-                object = new QQmlComponent(context->engine(), 0);
-            } else  {
-                object = type->create();
-            }
-        }
-
-        if (isWindow(object)) {
-            delete object;
-            object = createDummyWindow(context->engine());
-        }
-
-    }
-
-    if (!object) {
-        qWarning() << "QuickDesigner: Cannot create an object of type"
-                   << QString("%1 %2,%3").arg(typeName).arg(majorNumber).arg(minorNumber)
-                   << "- type isn't known to declarative meta type system";
-    }
-
-    tweakObjects(object);
-
-    if (object && QQmlEngine::contextForObject(object) == 0)
-        QQmlEngine::setContextForObject(object, context);
-
-    QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
-
-    return object;
-}
-
 QVariant fixResourcePaths(const QVariant &value)
 {
-    if (value.type() == QVariant::Url) {
+    if (value.type() == QVariant::Url)
+    {
         const QUrl url = value.toUrl();
         if (url.scheme() == QLatin1String("qrc")) {
             const QString path = QLatin1String("qrc:") +  url.path();
@@ -416,7 +269,7 @@ QVariant fixResourcePaths(const QVariant &value)
                         if (QFileInfo::exists(fixedPath)) {
                             fixedPath.replace(QLatin1String("//"), QLatin1String("/"));
                             fixedPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
-                            return fixedPath;
+                            return QUrl::fromLocalFile(fixedPath);
                         }
                     }
                 }
@@ -426,24 +279,9 @@ QVariant fixResourcePaths(const QVariant &value)
     return value;
 }
 
-
 QObject *createComponent(const QUrl &componentUrl, QQmlContext *context)
 {
-    [[maybe_unused]] ComponentCompleteDisabler disableComponentComplete;
-
-    QQmlComponent component(context->engine(), componentUrl);
-
-    QObject *object = component.beginCreate(context);
-    QmlPrivateGate::tweakObjects(object);
-    component.completeCreate();
-    QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
-
-    if (component.isError()) {
-        qWarning() << "Error in:" << Q_FUNC_INFO << componentUrl;
-        foreach (const QQmlError &error, component.errors())
-            qWarning() << error;
-    }
-    return object;
+    return QQuickDesignerSupportItems::createComponent(componentUrl, context);
 }
 
 bool hasFullImplementedListInterface(const QQmlListReference &list)
@@ -453,32 +291,90 @@ bool hasFullImplementedListInterface(const QQmlListReference &list)
 
 void registerCustomData(QObject *object)
 {
-    DesignerCustomObjectData::registerData(object);
+    QQuickDesignerSupportProperties::registerCustomData(object);
 }
 
 QVariant getResetValue(QObject *object, const PropertyName &propertyName)
 {
-    return DesignerCustomObjectData::getResetValue(object, propertyName);
+    if (propertyName == "Layout.rowSpan")
+        return 1;
+    else if (propertyName == "Layout.columnSpan")
+        return 1;
+    else if (propertyName == "Layout.fillHeight")
+        return false;
+    else if (propertyName == "Layout.fillWidth")
+        return false;
+    else
+        return QQuickDesignerSupportProperties::getResetValue(object, propertyName);
+}
+
+static void setProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName, const QVariant &value)
+{
+    QQmlProperty property(object, QString::fromUtf8(propertyName), context);
+    property.write(value);
 }
 
 void doResetProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName)
 {
-    DesignerCustomObjectData::doResetProperty(object, context, propertyName);
+    if (propertyName == "Layout.rowSpan")
+        setProperty(object, context, propertyName, getResetValue(object, propertyName));
+    else if (propertyName == "Layout.columnSpan")
+        setProperty(object, context, propertyName, getResetValue(object, propertyName));
+    else if (propertyName == "Layout.fillHeight")
+        setProperty(object, context, propertyName, getResetValue(object, propertyName));
+    else if (propertyName == "Layout.fillWidth")
+        setProperty(object, context, propertyName, getResetValue(object, propertyName));
+    else
+        QQuickDesignerSupportProperties::doResetProperty(object, context, propertyName);
 }
 
 bool hasValidResetBinding(QObject *object, const PropertyName &propertyName)
 {
-    return DesignerCustomObjectData::hasValidResetBinding(object, propertyName);
+    if (propertyName == "Layout.rowSpan")
+        return true;
+    else if (propertyName == "Layout.columnSpan")
+        return true;
+    else if (propertyName == "Layout.fillHeight")
+        return true;
+    else if (propertyName == "Layout.fillWidth")
+        return true;
+    return QQuickDesignerSupportProperties::hasValidResetBinding(object, propertyName);
 }
 
 bool hasBindingForProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName, bool *hasChanged)
 {
-    return DesignerCustomObjectData::hasBindingForProperty(object, context, propertyName, hasChanged);
+    return QQuickDesignerSupportProperties::hasBindingForProperty(object, context, propertyName, hasChanged);
 }
 
 void setPropertyBinding(QObject *object, QQmlContext *context, const PropertyName &propertyName, const QString &expression)
 {
-    DesignerCustomObjectData::setPropertyBinding(object, context, propertyName, expression);
+    QQuickDesignerSupportProperties::setPropertyBinding(object, context, propertyName, expression);
+}
+
+void emitComponentComplete(QObject *item)
+{
+    if (!item)
+        return;
+
+    QQmlData *data = QQmlData::get(item);
+    if (data && data->context) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        QQmlComponentAttached *componentAttached = data->context->componentAttached;
+#else
+        QQmlComponentAttached *componentAttached = data->context->componentAttacheds();
+#endif
+        while (componentAttached) {
+            if (componentAttached->parent())
+                if (componentAttached->parent() == item)
+                    emit componentAttached->completed();
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+            componentAttached = componentAttached->next;
+#else
+            componentAttached = componentAttached->next();
+#endif
+        }
+    }
 }
 
 void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInstanceServer)
@@ -486,9 +382,16 @@ void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInsta
     if (object) {
         QQuickItem *item = qobject_cast<QQuickItem*>(object);
 
-        if (item && DesignerSupport::isComponentComplete(item))
+        if (item && QQuickDesignerSupport::isComponentComplete(item))
             return;
+#ifdef QUICK3D_MODULE
+        auto obj3d = qobject_cast<QQuick3DRepeater *>(object);
+        if (obj3d && QQuick3DObjectPrivate::get(obj3d)->componentComplete)
+            return;
+#endif
 
+        if (!nodeInstanceServer->hasInstanceForObject(item))
+            emitComponentComplete(object);
         QList<QObject*> childList = object->children();
 
         if (item) {
@@ -503,12 +406,21 @@ void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInsta
                 doComponentCompleteRecursive(child, nodeInstanceServer);
         }
 
-        if (item) {
-            static_cast<QQmlParserStatus*>(item)->componentComplete();
-        } else {
-            QQmlParserStatus *qmlParserStatus = dynamic_cast< QQmlParserStatus*>(object);
-            if (qmlParserStatus)
-                qmlParserStatus->componentComplete();
+        if (!isQuickStyleItem(object) && !isDelegateModel(object)) {
+            if (item) {
+                static_cast<QQmlParserStatus *>(item)->componentComplete();
+            } else {
+                QQmlParserStatus *qmlParserStatus = dynamic_cast<QQmlParserStatus *>(object);
+                if (qmlParserStatus) {
+                    qmlParserStatus->componentComplete();
+                    auto *anim = dynamic_cast<QQuickAbstractAnimation *>(object);
+                    if (anim && ViewConfig::isParticleViewMode()) {
+                        nodeInstanceServer->addAnimation(anim);
+                        anim->setEnableUserControl();
+                        anim->stop();
+                    }
+                }
+            }
         }
     }
 }
@@ -516,145 +428,80 @@ void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInsta
 
 void keepBindingFromGettingDeleted(QObject *object, QQmlContext *context, const PropertyName &propertyName)
 {
-    DesignerCustomObjectData::keepBindingFromGettingDeleted(object, context, propertyName);
+    QQuickDesignerSupportProperties::keepBindingFromGettingDeleted(object, context, propertyName);
 }
 
 bool objectWasDeleted(QObject *object)
 {
-    return QObjectPrivate::get(object)->wasDeleted;
+    return QQuickDesignerSupportItems::objectWasDeleted(object);
 }
 
 void disableNativeTextRendering(QQuickItem *item)
 {
-    QQuickText *text = qobject_cast<QQuickText*>(item);
-    if (text)
-        text->setRenderType(QQuickText::QtRendering);
-
-    QQuickTextInput *textInput = qobject_cast<QQuickTextInput*>(item);
-    if (textInput)
-        textInput->setRenderType(QQuickTextInput::QtRendering);
-
-    QQuickTextEdit *textEdit = qobject_cast<QQuickTextEdit*>(item);
-    if (textEdit)
-        textEdit->setRenderType(QQuickTextEdit::QtRendering);
+    QQuickDesignerSupportItems::disableNativeTextRendering(item);
 }
 
 void disableTextCursor(QQuickItem *item)
 {
-    foreach (QQuickItem *childItem, item->childItems())
-        disableTextCursor(childItem);
-
-    QQuickTextInput *textInput = qobject_cast<QQuickTextInput*>(item);
-    if (textInput)
-        textInput->setCursorVisible(false);
-
-    QQuickTextEdit *textEdit = qobject_cast<QQuickTextEdit*>(item);
-    if (textEdit)
-        textEdit->setCursorVisible(false);
+    QQuickDesignerSupportItems::disableTextCursor(item);
 }
 
 void disableTransition(QObject *object)
 {
-    QQuickTransition *transition = qobject_cast<QQuickTransition*>(object);
-    Q_ASSERT(transition);
-    transition->setToState("invalidState");
-    transition->setFromState("invalidState");
+    QQuickDesignerSupportItems::disableTransition(object);
 }
 
 void disableBehaivour(QObject *object)
 {
-    QQuickBehavior* behavior = qobject_cast<QQuickBehavior*>(object);
-    Q_ASSERT(behavior);
-    behavior->setEnabled(false);
+    QQuickDesignerSupportItems::disableBehaivour(object);
 }
 
 void stopUnifiedTimer()
 {
-    QUnifiedTimer::instance()->setSlowdownFactor(0.00001);
-    QUnifiedTimer::instance()->setSlowModeEnabled(true);
+    QQuickDesignerSupportItems::stopUnifiedTimer();
 }
 
 bool isPropertyQObject(const QMetaProperty &metaProperty)
 {
-    return QQmlMetaType::isQObject(metaProperty.userType());
+    return QQuickDesignerSupportProperties::isPropertyQObject(metaProperty);
 }
 
 QObject *readQObjectProperty(const QMetaProperty &metaProperty, QObject *object)
 {
-    return QQmlMetaType::toQObject(metaProperty.read(object));
+    return QQuickDesignerSupportProperties::readQObjectProperty(metaProperty, object);
 }
 
 namespace States {
 
 bool isStateActive(QObject *object, QQmlContext *context)
 {
-    QQuickState *stateObject  = qobject_cast<QQuickState*>(object);
 
-    if (!stateObject)
-        return false;
-
-    QQuickStateGroup *stateGroup = stateObject->stateGroup();
-
-    QQmlProperty property(object, "name", context);
-
-    return stateObject && stateGroup && stateGroup->state() == property.read();
+    return QQuickDesignerSupportStates::isStateActive(object, context);
 }
 
 void activateState(QObject *object, QQmlContext *context)
 {
-    QQuickState *stateObject  = qobject_cast<QQuickState*>(object);
-
-    if (!stateObject)
-        return;
-
-    QQuickStateGroup *stateGroup = stateObject->stateGroup();
-
-    QQmlProperty property(object, "name", context);
-
-    stateGroup->setState(property.read().toString());
+    QQuickDesignerSupportStates::activateState(object, context);
 }
 
 void deactivateState(QObject *object)
 {
-    QQuickState *stateObject  = qobject_cast<QQuickState*>(object);
-
-    if (!stateObject)
-        return;
-
-    QQuickStateGroup *stateGroup = stateObject->stateGroup();
-
-    if (stateGroup)
-        stateGroup->setState(QString());
+    QQuickDesignerSupportStates::deactivateState(object);
 }
 
 bool changeValueInRevertList(QObject *state, QObject *target, const PropertyName &propertyName, const QVariant &value)
 {
-    QQuickState *stateObject  = qobject_cast<QQuickState*>(state);
-
-    if (!stateObject)
-        return false;
-
-    return stateObject->changeValueInRevertList(target, QString::fromUtf8(propertyName), value);
+    return QQuickDesignerSupportStates::changeValueInRevertList(state, target, propertyName, value);
 }
 
 bool updateStateBinding(QObject *state, QObject *target, const PropertyName &propertyName, const QString &expression)
 {
-    QQuickState *stateObject  = qobject_cast<QQuickState*>(state);
-
-    if (!stateObject)
-        return false;
-
-    return stateObject->changeValueInRevertList(target, QString::fromUtf8(propertyName), expression);
+    return QQuickDesignerSupportStates::updateStateBinding(state, target, propertyName, expression);
 }
 
-bool resetStateProperty(QObject *state, QObject *target, const PropertyName &propertyName, const QVariant & /* resetValue */)
+bool resetStateProperty(QObject *state, QObject *target, const PropertyName &propertyName, const QVariant &value)
 {
-    QQuickState *stateObject  = qobject_cast<QQuickState*>(state);
-
-    if (!stateObject)
-        return false;
-
-    return stateObject->removeEntryFromRevertList(target, QString::fromUtf8(propertyName));
+    return QQuickDesignerSupportStates::resetStateProperty(state, target, propertyName, value);
 }
 
 } //namespace States
@@ -663,137 +510,135 @@ namespace PropertyChanges {
 
 void detachFromState(QObject *propertyChanges)
 {
-    QQuickPropertyChanges *propertyChange = qobject_cast<QQuickPropertyChanges*>(propertyChanges);
-
-    if (!propertyChange)
-        return;
-
-    propertyChange->detachFromState();
+    return QQuickDesignerSupportPropertyChanges::detachFromState(propertyChanges);
 }
 
 void attachToState(QObject *propertyChanges)
 {
-    QQuickPropertyChanges *propertyChange = qobject_cast<QQuickPropertyChanges*>(propertyChanges);
-
-    if (!propertyChange)
-        return;
-
-    propertyChange->attachToState();
+    return QQuickDesignerSupportPropertyChanges::attachToState(propertyChanges);
 }
 
 QObject *targetObject(QObject *propertyChanges)
 {
-    QQuickPropertyChanges *propertyChange = qobject_cast<QQuickPropertyChanges*>(propertyChanges);
-
-    if (!propertyChange)
-        return 0;
-
-    return propertyChange->object();
+    return QQuickDesignerSupportPropertyChanges::targetObject(propertyChanges);
 }
 
 void removeProperty(QObject *propertyChanges, const PropertyName &propertyName)
 {
-    QQuickPropertyChanges *propertyChange = qobject_cast<QQuickPropertyChanges*>(propertyChanges);
-
-    if (!propertyChange)
-        return;
-
-    propertyChange->removeProperty(QString::fromUtf8(propertyName));
+    QQuickDesignerSupportPropertyChanges::removeProperty(propertyChanges, propertyName);
 }
 
 QVariant getProperty(QObject *propertyChanges, const PropertyName &propertyName)
 {
-    QQuickPropertyChanges *propertyChange = qobject_cast<QQuickPropertyChanges*>(propertyChanges);
-
-    if (!propertyChange)
-        return QVariant();
-
-    return propertyChange->property(QString::fromUtf8(propertyName));
+    return QQuickDesignerSupportPropertyChanges::getProperty(propertyChanges, propertyName);
 }
 
 void changeValue(QObject *propertyChanges, const PropertyName &propertyName, const QVariant &value)
 {
-    QQuickPropertyChanges *propertyChange = qobject_cast<QQuickPropertyChanges*>(propertyChanges);
-
-    if (!propertyChange)
-        return;
-
-    propertyChange->changeValue(QString::fromUtf8(propertyName), value);
+    QQuickDesignerSupportPropertyChanges::changeValue(propertyChanges, propertyName, value);
 }
 
 void changeExpression(QObject *propertyChanges, const PropertyName &propertyName, const QString &expression)
 {
-    QQuickPropertyChanges *propertyChange = qobject_cast<QQuickPropertyChanges*>(propertyChanges);
-
-    if (!propertyChange)
-        return;
-
-    propertyChange->changeExpression(QString::fromUtf8(propertyName), expression);
+    QQuickDesignerSupportPropertyChanges::changeExpression(propertyChanges, propertyName, expression);
 }
 
 QObject *stateObject(QObject *propertyChanges)
 {
-    QQuickPropertyChanges *propertyChange = qobject_cast<QQuickPropertyChanges*>(propertyChanges);
-
-    if (!propertyChange)
-        return 0;
-
-    return propertyChange->state();
+    return QQuickDesignerSupportPropertyChanges::stateObject(propertyChanges);
 }
 
 bool isNormalProperty(const PropertyName &propertyName)
 {
-    QMetaObject metaObject = QQuickPropertyChanges::staticMetaObject;
-
-    return (metaObject.indexOfProperty(propertyName) > 0); // 'restoreEntryValues', 'explicit'
+    return QQuickDesignerSupportPropertyChanges::isNormalProperty(propertyName);
 }
-
 
 } // namespace PropertyChanges
 
 bool isSubclassOf(QObject *object, const QByteArray &superTypeName)
 {
-    if (object == 0)
-        return false;
-
-    const QMetaObject *metaObject = object->metaObject();
-
-    while (metaObject) {
-         QQmlType *qmlType =  QQmlMetaType::qmlType(metaObject);
-         if (qmlType && qmlType->qmlTypeName() == superTypeName) // ignore version numbers
-             return true;
-
-         if (metaObject->className() == superTypeName)
-             return true;
-
-         metaObject = metaObject->superClass();
-    }
-
-    return false;
+    return QQuickDesignerSupportMetaInfo::isSubclassOf(object, superTypeName);
 }
 
 void getPropertyCache(QObject *object, QQmlEngine *engine)
 {
-    QQmlEnginePrivate::get(engine)->cache(object->metaObject());
+#if QT_VERSION < QT_VERSION_CHECK(6, 4, 0)
+    QQuickDesignerSupportProperties::getPropertyCache(object, engine);
+#else
+    Q_UNUSED(engine);
+    QQuickDesignerSupportProperties::getPropertyCache(object);
+#endif
 }
 
 void registerNotifyPropertyChangeCallBack(void (*callback)(QObject *, const PropertyName &))
 {
-    MetaObject::registerNotifyPropertyChangeCallBack(callback);
+    QQuickDesignerSupportMetaInfo::registerNotifyPropertyChangeCallBack(callback);
 }
 
 ComponentCompleteDisabler::ComponentCompleteDisabler()
 {
-    DesignerSupport::disableComponentComplete();
+    QQuickDesignerSupport::disableComponentComplete();
 }
 
 ComponentCompleteDisabler::~ComponentCompleteDisabler()
 {
-    DesignerSupport::enableComponentComplete();
+    QQuickDesignerSupport::enableComponentComplete();
 }
+
+class QrcEngineHandler : public QAbstractFileEngineHandler
+{
+public:
+    QAbstractFileEngine *create(const QString &fileName) const final;
+};
+
+QAbstractFileEngine *QrcEngineHandler::create(const QString &fileName) const
+{
+    if (fileName.startsWith(":/qt-project.org"))
+        return nullptr;
+
+    if (fileName.startsWith(":/qtquickplugin"))
+        return nullptr;
+
+    if (fileName.startsWith(":/")) {
+        const QStringList searchPaths = qmlDesignerRCPath().split(';');
+        foreach (const QString &qrcPath, searchPaths) {
+            const QStringList qrcDefintion = qrcPath.split('=');
+            if (qrcDefintion.count() == 2) {
+                QString fixedPath = fileName;
+                fixedPath.replace(":" + qrcDefintion.first(), qrcDefintion.last() + '/');
+
+                if (fileName == fixedPath)
+                    return nullptr;
+
+                if (QFileInfo::exists(fixedPath)) {
+                    fixedPath.replace("//", "/");
+                    fixedPath.replace('\\', '/');
+                    return new QFSFileEngine(fixedPath);
+                }
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+static QrcEngineHandler* s_qrcEngineHandler = nullptr;
+
+class EngineHandlerDeleter
+{
+public:
+    EngineHandlerDeleter()
+    {}
+    ~EngineHandlerDeleter()
+    { delete s_qrcEngineHandler; }
+};
 
 void registerFixResourcePathsForObjectCallBack()
 {
+    static EngineHandlerDeleter deleter;
+
+    if (!s_qrcEngineHandler)
+        s_qrcEngineHandler = new QrcEngineHandler();
 }
 
 } // namespace QmlPrivateGate

@@ -30,7 +30,10 @@
 #include "objectnodeinstance.h"
 
 #include <QQuickItem>
-#include <designersupportdelegate.h>
+
+QT_BEGIN_NAMESPACE
+class QQuickDesignerSupport;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 namespace Internal {
@@ -115,7 +118,7 @@ protected:
     void setMovable(bool movable);
     void setResizable(bool resizable);
     void setHasContent(bool hasContent);
-    DesignerSupport *designerSupport() const;
+    QQuickDesignerSupport *designerSupport() const;
     Qt5NodeInstanceServer *qt5NodeInstanceServer() const;
     void updateDirtyNodesRecursive(QQuickItem *parentItem) const;
     void updateAllDirtyNodesRecursive(QQuickItem *parentItem) const;

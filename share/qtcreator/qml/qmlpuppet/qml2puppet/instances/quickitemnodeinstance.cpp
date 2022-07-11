@@ -31,6 +31,8 @@
 #include <QtQuick/private/qquickitem_p.h>
 #include <QtQuick/private/qquickshadereffectsource_p.h>
 
+#include <private/qquickdesignersupport_p.h>
+
 #include <QQmlProperty>
 #include <QQmlExpression>
 #include <QQuickView>
@@ -86,7 +88,7 @@ static QTransform transformForItem(QQuickItem *item, NodeInstanceServer *nodeIns
     if (isContentItem(item, nodeInstanceServer))
         return QTransform();
 
-    QTransform toParentTransform = DesignerSupport::parentTransform(item);
+    QTransform toParentTransform = QQuickDesignerSupport::parentTransform(item);
     if (item->parentItem() && !nodeInstanceServer->hasInstanceForObject(item->parentItem())) {
 
         return transformForItem(item->parentItem(), nodeInstanceServer) * toParentTransform;
@@ -97,7 +99,7 @@ static QTransform transformForItem(QQuickItem *item, NodeInstanceServer *nodeIns
 
 QTransform QuickItemNodeInstance::transform() const
 {   if (quickItem()->parentItem())
-        return DesignerSupport::parentTransform(quickItem());
+        return QQuickDesignerSupport::parentTransform(quickItem());
 
     return QTransform();
 }
@@ -262,7 +264,7 @@ QStringList QuickItemNodeInstance::allStates() const
 {
     QStringList list;
 
-    QList<QObject*> stateList = DesignerSupport::statesForItem(quickItem());
+    QList<QObject*> stateList = QQuickDesignerSupport::statesForItem(quickItem());
     for (QObject *state : stateList) {
         QQmlProperty property(state, "name");
         if (property.isValid())
@@ -277,7 +279,7 @@ void QuickItemNodeInstance::updateDirtyNode([[maybe_unused]] QQuickItem *item)
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     if (s_unifiedRenderPath)
         return;
-    DesignerSupport::updateDirtyNode(item);
+    QQuickDesignerSupport::updateDirtyNode(item);
 #endif
 }
 
@@ -319,7 +321,7 @@ void QuickItemNodeInstance::setHiddenInEditor(bool hide)
 QRectF QuickItemNodeInstance::contentItemBoundingBox() const
 {
     if (contentItem()) {
-        QTransform contentItemTransform = DesignerSupport::parentTransform(contentItem());
+        QTransform contentItemTransform = QQuickDesignerSupport::parentTransform(contentItem());
         return contentItemTransform.mapRect(contentItem()->boundingRect());
     }
 
@@ -367,7 +369,7 @@ static QTransform contentTransformForItem(QQuickItem *item, NodeInstanceServer *
 {
     QTransform contentTransform;
     if (item->parentItem() && !nodeInstanceServer->hasInstanceForObject(item->parentItem())) {
-        contentTransform = DesignerSupport::parentTransform(item->parentItem());
+        contentTransform = QQuickDesignerSupport::parentTransform(item->parentItem());
         return contentTransformForItem(item->parentItem(), nodeInstanceServer) * contentTransform;
     }
 
@@ -381,7 +383,7 @@ QTransform QuickItemNodeInstance::contentTransform() const
 
 QTransform QuickItemNodeInstance::sceneTransform() const
 {
-    return DesignerSupport::windowTransform(quickItem());
+    return QQuickDesignerSupport::windowTransform(quickItem());
 }
 
 double QuickItemNodeInstance::opacity() const
@@ -418,7 +420,7 @@ QSizeF QuickItemNodeInstance::size() const
 {
     double width;
 
-    if (DesignerSupport::isValidHeight(quickItem())) { // isValidHeight is QQuickItemPrivate::get(item)->widthValid
+    if (QQuickDesignerSupport::isValidHeight(quickItem())) { // isValidHeight is QQuickItemPrivate::get(item)->widthValid
         width = quickItem()->width();
     } else {
         width = quickItem()->implicitWidth();
@@ -426,7 +428,7 @@ QSizeF QuickItemNodeInstance::size() const
 
     double height;
 
-    if (DesignerSupport::isValidWidth(quickItem())) { // isValidWidth is QQuickItemPrivate::get(item)->heightValid
+    if (QQuickDesignerSupport::isValidWidth(quickItem())) { // isValidWidth is QQuickItemPrivate::get(item)->heightValid
         height = quickItem()->height();
     } else {
         height = quickItem()->implicitHeight();
@@ -438,7 +440,7 @@ QSizeF QuickItemNodeInstance::size() const
 
 static QTransform contentItemTransformForItem(QQuickItem *item, NodeInstanceServer *nodeInstanceServer)
 {
-    QTransform toParentTransform = DesignerSupport::parentTransform(item);
+    QTransform toParentTransform = QQuickDesignerSupport::parentTransform(item);
     if (item->parentItem() && !nodeInstanceServer->hasInstanceForObject(item->parentItem())) {
 
         return transformForItem(item->parentItem(), nodeInstanceServer) * toParentTransform;
@@ -457,7 +459,7 @@ QTransform QuickItemNodeInstance::contentItemTransform() const
 
 int QuickItemNodeInstance::penWidth() const
 {
-    return DesignerSupport::borderWidth(quickItem());
+    return QQuickDesignerSupport::borderWidth(quickItem());
 }
 
 double QuickItemNodeInstance::x() const
@@ -576,7 +578,7 @@ bool QuickItemNodeInstance::isRenderable() const
 QList<ServerNodeInstance> QuickItemNodeInstance::stateInstances() const
 {
     QList<ServerNodeInstance> instanceList;
-    QList<QObject*> stateList = DesignerSupport::statesForItem(quickItem());
+    QList<QObject*> stateList = QQuickDesignerSupport::statesForItem(quickItem());
     foreach (QObject *state, stateList)
     {
         if (state && nodeInstanceServer()->hasInstanceForObject(state))
@@ -604,7 +606,7 @@ void QuickItemNodeInstance::setHasContent(bool hasContent)
     m_hasContent = hasContent;
 }
 
-DesignerSupport *QuickItemNodeInstance::designerSupport() const
+QQuickDesignerSupport *QuickItemNodeInstance::designerSupport() const
 {
     return qt5NodeInstanceServer()->designerSupport();
 }
@@ -623,7 +625,7 @@ void QuickItemNodeInstance::updateDirtyNodesRecursive(QQuickItem *parentItem) co
 
     QmlPrivateGate::disableNativeTextRendering(parentItem);
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    DesignerSupport::updateDirtyNode(parentItem);
+    QQuickDesignerSupport::updateDirtyNode(parentItem);
 #endif
 }
 
@@ -642,7 +644,7 @@ void QuickItemNodeInstance::setAllNodesDirtyRecursive([[maybe_unused]] QQuickIte
     const QList<QQuickItem *> children = parentItem->childItems();
     for (QQuickItem *childItem : children)
         setAllNodesDirtyRecursive(childItem);
-    DesignerSupport::addDirty(parentItem, QQuickDesignerSupport::Content);
+    QQuickDesignerSupport::addDirty(parentItem, QQuickDesignerSupport::Content);
 #endif
 }
 
@@ -930,7 +932,7 @@ void QuickItemNodeInstance::resetProperty(const PropertyName &name)
     if (name == "layer.enabled" || name == "layer.effect")
         setAllNodesDirtyRecursive(quickItem());
 
-    DesignerSupport::resetAnchor(quickItem(), QString::fromUtf8(name));
+    QQuickDesignerSupport::resetAnchor(quickItem(), QString::fromUtf8(name));
 
     if (name == "anchors.fill") {
         resetHorizontal();
@@ -964,12 +966,12 @@ void QuickItemNodeInstance::resetProperty(const PropertyName &name)
 
 bool QuickItemNodeInstance::isAnchoredByChildren() const
 {
-    return DesignerSupport::areChildrenAnchoredTo(quickItem(), quickItem());
+    return QQuickDesignerSupport::areChildrenAnchoredTo(quickItem(), quickItem());
 }
 
 bool QuickItemNodeInstance::hasAnchor(const PropertyName &name) const
 {
-    return DesignerSupport::hasAnchor(quickItem(), QString::fromUtf8(name));
+    return QQuickDesignerSupport::hasAnchor(quickItem(), QString::fromUtf8(name));
 }
 
 static bool isValidAnchorName(const PropertyName &name)
@@ -989,11 +991,11 @@ static bool isValidAnchorName(const PropertyName &name)
 
 QPair<PropertyName, ServerNodeInstance> QuickItemNodeInstance::anchor(const PropertyName &name) const
 {
-    if (!isValidAnchorName(name) || !DesignerSupport::hasAnchor(quickItem(), QString::fromUtf8(name)))
+    if (!isValidAnchorName(name) || !QQuickDesignerSupport::hasAnchor(quickItem(), QString::fromUtf8(name)))
         return ObjectNodeInstance::anchor(name);
 
     QPair<QString, QObject*> nameObjectPair =
-            DesignerSupport::anchorLineTarget(quickItem(), QString::fromUtf8(name), context());
+            QQuickDesignerSupport::anchorLineTarget(quickItem(), QString::fromUtf8(name), context());
 
     QObject *targetObject = nameObjectPair.second;
     PropertyName targetName = nameObjectPair.first.toUtf8();
@@ -1013,7 +1015,7 @@ bool QuickItemNodeInstance::isAnchoredBySibling() const
     if (quickItem()->parentItem()) {
         foreach (QQuickItem *siblingItem, quickItem()->parentItem()->childItems()) { // search in siblings for a anchor to this item
             if (siblingItem) {
-                if (DesignerSupport::isAnchoredTo(siblingItem, quickItem()))
+                if (QQuickDesignerSupport::isAnchoredTo(siblingItem, quickItem()))
                     return true;
             }
         }
@@ -1049,13 +1051,13 @@ void QuickItemNodeInstance::markRepeaterParentDirty() const
     // If a Repeater instance was changed in any way, the parent must be marked dirty to rerender it
     const QByteArray type("QQuickRepeater");
     if (ServerNodeInstance::isSubclassOf(item, type))
-        DesignerSupport::addDirty(parentItem, QQuickDesignerSupport::Content);
+        QQuickDesignerSupport::addDirty(parentItem, QQuickDesignerSupport::Content);
 
     // Repeater's parent must also be dirtied when a child of a repeater was changed
     if (ServerNodeInstance::isSubclassOf(parentItem, type)) {
         QQuickItem *parentsParent = parentItem->parentItem();
         if (parentsParent)
-            DesignerSupport::addDirty(parentsParent, QQuickDesignerSupport::Content);
+            QQuickDesignerSupport::addDirty(parentsParent, QQuickDesignerSupport::Content);
     }
 }
 

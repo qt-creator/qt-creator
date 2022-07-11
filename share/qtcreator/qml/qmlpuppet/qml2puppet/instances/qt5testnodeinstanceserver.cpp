@@ -25,9 +25,6 @@
 
 #include "qt5testnodeinstanceserver.h"
 
-#include <QQuickItem>
-#include <QQuickView>
-
 #include "servernodeinstance.h"
 #include "childrenchangeeventfilter.h"
 #include "propertyabstractcontainer.h"
@@ -60,7 +57,10 @@
 
 #include "dummycontextobject.h"
 
-#include <designersupportdelegate.h>
+#include <QQuickItem>
+#include <QQuickView>
+
+#include <private/qquickdesignersupport_p.h>
 
 namespace QmlDesigner {
 
@@ -257,7 +257,7 @@ void Qt5TestNodeInstanceServer::removeSharedMemory(const RemoveSharedMemoryComma
 
 void QmlDesigner::Qt5TestNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 {
-    DesignerSupport::polishItems(quickWindow());
+    QQuickDesignerSupport::polishItems(quickWindow());
 
     QSet<ServerNodeInstance> informationChangedInstanceSet;
     QVector<InstancePropertyPair> propertyChangedList;
@@ -272,7 +272,7 @@ void QmlDesigner::Qt5TestNodeInstanceServer::collectItemChangesAndSendChangeComm
                     informationChangedInstanceSet.insert(instance);
 
 
-                if (DesignerSupport::isDirty(item, DesignerSupport::ParentChanged)) {
+                if (QQuickDesignerSupport::isDirty(item, QQuickDesignerSupport::ParentChanged)) {
                     parentChangedSet.insert(instance);
                     informationChangedInstanceSet.insert(instance);
                 }
@@ -342,18 +342,18 @@ void Qt5TestNodeInstanceServer::sendChildrenChangedCommand(const QList<ServerNod
 
 bool Qt5TestNodeInstanceServer::isDirtyRecursiveForNonInstanceItems(QQuickItem *item) const
 {
-    static DesignerSupport::DirtyType informationsDirty = DesignerSupport::DirtyType(DesignerSupport::TransformUpdateMask
-                                                                              | DesignerSupport::ContentUpdateMask
-                                                                              | DesignerSupport::Visible
-                                                                              | DesignerSupport::ZValue
-                                                                              | DesignerSupport::OpacityValue);
+    static QQuickDesignerSupport::DirtyType informationsDirty = QQuickDesignerSupport::DirtyType(QQuickDesignerSupport::TransformUpdateMask
+                                                                              | QQuickDesignerSupport::ContentUpdateMask
+                                                                              | QQuickDesignerSupport::Visible
+                                                                              | QQuickDesignerSupport::ZValue
+                                                                              | QQuickDesignerSupport::OpacityValue);
 
-    if (DesignerSupport::isDirty(item, informationsDirty))
+    if (QQuickDesignerSupport::isDirty(item, informationsDirty))
         return true;
 
     foreach (QQuickItem *childItem, item->childItems()) {
         if (!hasInstanceForObject(childItem)) {
-            if (DesignerSupport::isDirty(childItem, informationsDirty))
+            if (QQuickDesignerSupport::isDirty(childItem, informationsDirty))
                 return true;
             else if (isDirtyRecursiveForNonInstanceItems(childItem))
                 return true;

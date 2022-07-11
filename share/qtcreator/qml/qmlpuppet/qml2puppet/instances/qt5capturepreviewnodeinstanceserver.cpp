@@ -33,6 +33,8 @@
 #include <QImage>
 #include <QQuickView>
 
+#include <private/qquickdesignersupport_p.h>
+
 namespace QmlDesigner {
 
 namespace {
@@ -92,7 +94,7 @@ void Qt5CapturePreviewNodeInstanceServer::collectItemChangesAndSendChangeCommand
     if (!inFunction) {
         inFunction = true;
 
-        DesignerSupport::polishItems(quickWindow());
+        QQuickDesignerSupport::polishItems(quickWindow());
 
         QVector<CapturedDataCommand::StateData> stateDatas;
         stateDatas.push_back(collectStateData(rootNodeInstance(), nodeInstances(), 0));

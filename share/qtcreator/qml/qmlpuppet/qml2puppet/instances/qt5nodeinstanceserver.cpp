@@ -33,7 +33,7 @@
 #include <QQuickView>
 #include <QQuickWindow>
 
-#include <designersupportdelegate.h>
+#include <private/qquickdesignersupport_p.h>
 #include <addimportcontainer.h>
 #include <createscenecommand.h>
 #include <reparentinstancescommand.h>
@@ -69,7 +69,7 @@ Qt5NodeInstanceServer::Qt5NodeInstanceServer(NodeInstanceClientInterface *nodeIn
     : NodeInstanceServer(nodeInstanceClient)
 {
     if (!ViewConfig::isParticleViewMode())
-        DesignerSupport::activateDesignerMode();
+        QQuickDesignerSupport::activateDesignerMode();
 }
 
 Qt5NodeInstanceServer::~Qt5NodeInstanceServer()
@@ -106,7 +106,7 @@ void Qt5NodeInstanceServer::initializeView()
     QSurfaceFormat::setDefaultFormat(surfaceFormat);
     view->setFormat(surfaceFormat);
 
-    DesignerSupport::createOpenGLContext(view);
+    QQuickDesignerSupport::createOpenGLContext(view);
     m_qmlEngine = view->engine();
 #else
     m_viewData.renderControl = new QQuickRenderControl;
@@ -138,7 +138,7 @@ void Qt5NodeInstanceServer::setRootItem(QQuickItem *item)
 {
     m_viewData.rootItem = item;
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    DesignerSupport::setRootItem(quickView(), item);
+    QQuickDesignerSupport::setRootItem(quickView(), item);
 #else
     quickWindow()->setGeometry(0, 0, item->width(), item->height());
     // Insert an extra item above the root to adjust root item position to 0,0 to make entire
@@ -163,13 +163,13 @@ void Qt5NodeInstanceServer::resizeCanvasToRootItem()
         m_viewData.contentItem->setPosition(-m_viewData.rootItem->position());
 #endif
     quickWindow()->resize(rootNodeInstance().boundingRect().size().toSize());
-    DesignerSupport::addDirty(rootNodeInstance().rootQuickItem(), QQuickDesignerSupport::Size);
+    QQuickDesignerSupport::addDirty(rootNodeInstance().rootQuickItem(), QQuickDesignerSupport::Size);
 }
 
 void Qt5NodeInstanceServer::resetAllItems()
 {
     foreach (QQuickItem *item, allItems())
-        DesignerSupport::resetDirty(item);
+        QQuickDesignerSupport::resetDirty(item);
 }
 
 void Qt5NodeInstanceServer::setupScene(const CreateSceneCommand &command)
@@ -524,12 +524,12 @@ QImage Qt5NodeInstanceServer::grabItem([[maybe_unused]] QQuickItem *item)
 
 void Qt5NodeInstanceServer::refreshBindings()
 {
-    DesignerSupport::refreshExpressions(context());
+    QQuickDesignerSupport::refreshExpressions(context());
 }
 
-DesignerSupport *Qt5NodeInstanceServer::designerSupport()
+QQuickDesignerSupport *Qt5NodeInstanceServer::designerSupport()
 {
-    return &m_designerSupport;
+    return m_designerSupport.get();
 }
 
 void Qt5NodeInstanceServer::createScene(const CreateSceneCommand &command)

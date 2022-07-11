@@ -24,9 +24,11 @@
 ****************************************************************************/
 
 #include "iconrenderer.h"
+
 #include "../editor3d/selectionboxgeometry.h"
 #include "../editor3d/generalhelper.h"
 
+#include <private/qquickdesignersupport_p.h>
 #include <QtQml/qqmlcomponent.h>
 #include <QtQml/qqmlengine.h>
 #include <QtQml/qqmlproperty.h>
@@ -63,7 +65,7 @@ IconRenderer::IconRenderer(int size, const QString &filePath, const QString &sou
 
 void IconRenderer::setupRender()
 {
-    DesignerSupport::activateDesignerMode();
+    QQuickDesignerSupport::activateDesignerMode();
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     DesignerSupport::activateDesignerWindowManager();
 #endif

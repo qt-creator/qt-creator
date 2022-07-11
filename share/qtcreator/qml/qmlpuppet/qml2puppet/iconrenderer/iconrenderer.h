@@ -28,11 +28,10 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qstring.h>
 
-#include <designersupportdelegate.h>
-
 QT_BEGIN_NAMESPACE
 class QQuickWindow;
 class QQuickItem;
+class QQuickDesignerSupport;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 class QQuickRenderControl;
 class QRhi;
@@ -66,7 +65,7 @@ private:
     QQuickWindow *m_window = nullptr;
     QQuickItem *m_contentItem = nullptr;
     QQuickItem *m_containerItem = nullptr;
-    DesignerSupport m_designerSupport;
+    std::unique_ptr<QQuickDesignerSupport> m_designerSupport;
     bool m_is3D = false;
     int m_focusStep = 0;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)

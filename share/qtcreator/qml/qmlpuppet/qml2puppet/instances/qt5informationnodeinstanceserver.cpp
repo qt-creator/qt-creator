@@ -75,7 +75,7 @@
 #include "../editor3d/linegeometry.h"
 #include "../editor3d/icongizmoimageprovider.h"
 
-#include <designersupportdelegate.h>
+#include <private/qquickdesignersupport_p.h>
 #include <qmlprivategate.h>
 #include <quickitemnodeinstance.h>
 
@@ -195,7 +195,7 @@ void Qt5InformationNodeInstanceServer::createAuxiliaryQuickView(const QUrl &url,
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     viewData.window = new QQuickView(quickView()->engine(), quickView());
     viewData.window->setFormat(quickView()->format());
-    DesignerSupport::createOpenGLContext(static_cast<QQuickView *>(viewData.window.data()));
+    QQuickDesignerSupport::createOpenGLContext(static_cast<QQuickView *>(viewData.window.data()));
 #else
     viewData.renderControl = new QQuickRenderControl;
     viewData.window = new QQuickWindow(viewData.renderControl);
@@ -211,7 +211,7 @@ void Qt5InformationNodeInstanceServer::createAuxiliaryQuickView(const QUrl &url,
     }
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    DesignerSupport::setRootItem(static_cast<QQuickView *>(viewData.window.data()), viewData.rootItem);
+    QQuickDesignerSupport::setRootItem(static_cast<QQuickView *>(viewData.window.data()), viewData.rootItem);
 #else
     viewData.window->contentItem()->setSize(viewData.rootItem->size());
     viewData.window->setGeometry(0, 0, viewData.rootItem->width(), viewData.rootItem->height());
@@ -957,7 +957,7 @@ void Qt5InformationNodeInstanceServer::updateNodesRecursive(QQuickItem *item)
         if (item->flags() & QQuickItem::ItemHasContents)
             item->update();
     } else {
-        DesignerSupport::updateDirtyNode(item);
+        QQuickDesignerSupport::updateDirtyNode(item);
     }
 }
 
@@ -1394,18 +1394,18 @@ void Qt5InformationNodeInstanceServer::token(const TokenCommand &command)
 
 bool Qt5InformationNodeInstanceServer::isDirtyRecursiveForNonInstanceItems(QQuickItem *item) const
 {
-    static DesignerSupport::DirtyType informationsDirty = DesignerSupport::DirtyType(DesignerSupport::TransformUpdateMask
-                                                                              | DesignerSupport::ContentUpdateMask
-                                                                              | DesignerSupport::Visible
-                                                                              | DesignerSupport::ZValue
-                                                                              | DesignerSupport::OpacityValue);
+    static QQuickDesignerSupport::DirtyType informationsDirty = QQuickDesignerSupport::DirtyType(QQuickDesignerSupport::TransformUpdateMask
+                                                                              | QQuickDesignerSupport::ContentUpdateMask
+                                                                              | QQuickDesignerSupport::Visible
+                                                                              | QQuickDesignerSupport::ZValue
+                                                                              | QQuickDesignerSupport::OpacityValue);
 
-    if (DesignerSupport::isDirty(item, informationsDirty))
+    if (QQuickDesignerSupport::isDirty(item, informationsDirty))
         return true;
 
     foreach (QQuickItem *childItem, item->childItems()) {
         if (!hasInstanceForObject(childItem)) {
-            if (DesignerSupport::isDirty(childItem, informationsDirty))
+            if (QQuickDesignerSupport::isDirty(childItem, informationsDirty))
                 return true;
             else if (isDirtyRecursiveForNonInstanceItems(childItem))
                 return true;
@@ -1417,7 +1417,7 @@ bool Qt5InformationNodeInstanceServer::isDirtyRecursiveForNonInstanceItems(QQuic
 
 bool Qt5InformationNodeInstanceServer::isDirtyRecursiveForParentInstances(QQuickItem *item) const
 {
-    if (DesignerSupport::isDirty(item,  DesignerSupport::TransformUpdateMask))
+    if (QQuickDesignerSupport::isDirty(item,  QQuickDesignerSupport::TransformUpdateMask))
         return true;
 
     QQuickItem *parentItem = item->parentItem();
@@ -1883,7 +1883,7 @@ void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
     if (!inFunction) {
         inFunction = true;
 
-        DesignerSupport::polishItems(quickWindow());
+        QQuickDesignerSupport::polishItems(quickWindow());
 
         QSet<ServerNodeInstance> informationChangedInstanceSet;
         QVector<InstancePropertyPair> propertyChangedList;
@@ -1898,7 +1898,7 @@ void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
                     else if (isDirtyRecursiveForParentInstances(item))
                         informationChangedInstanceSet.insert(instance);
 
-                    if (DesignerSupport::isDirty(item, DesignerSupport::ParentChanged)) {
+                    if (QQuickDesignerSupport::isDirty(item, QQuickDesignerSupport::ParentChanged)) {
                         m_parentChangedSet.insert(instance);
                         informationChangedInstanceSet.insert(instance);
                     }

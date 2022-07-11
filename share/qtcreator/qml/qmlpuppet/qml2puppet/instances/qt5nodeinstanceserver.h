@@ -29,11 +29,11 @@
 #include <QtQuick/qquickwindow.h>
 
 #include "nodeinstanceserver.h"
-#include <designersupportdelegate.h>
 
 QT_BEGIN_NAMESPACE
 class QQuickItem;
 class QQmlEngine;
+class QQuickDesignerSupport;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 class QQuickRenderControl;
 class QRhi;
@@ -62,7 +62,7 @@ public:
     QQmlEngine *engine() const override;
     void refreshBindings() override;
 
-    DesignerSupport *designerSupport();
+    QQuickDesignerSupport *designerSupport();
 
     void createScene(const CreateSceneCommand &command) override;
     void clearScene(const ClearSceneCommand &command) override;
@@ -102,7 +102,7 @@ protected:
 
 private:
     RenderViewData m_viewData;
-    DesignerSupport m_designerSupport;
+    std::unique_ptr<QQuickDesignerSupport> m_designerSupport;
     QQmlEngine *m_qmlEngine = nullptr;
 };
 

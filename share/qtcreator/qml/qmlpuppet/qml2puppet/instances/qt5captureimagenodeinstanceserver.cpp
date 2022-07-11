@@ -34,6 +34,8 @@
 #include <QQuickItem>
 #include <QQuickView>
 
+#include <private/qquickdesignersupport_p.h>
+
 namespace QmlDesigner {
 
 namespace {
@@ -77,7 +79,7 @@ void Qt5CaptureImageNodeInstanceServer::collectItemChangesAndSendChangeCommands(
         if (QQuickItem *qitem = rooNodeInstance.rootQuickItem())
             qitem->setClip(true);
 
-        DesignerSupport::polishItems(quickWindow());
+        QQuickDesignerSupport::polishItems(quickWindow());
 
         QImage image = renderImage(rooNodeInstance, m_minimumSize, m_maximumSize);
 

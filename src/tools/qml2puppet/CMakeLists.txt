@@ -254,8 +254,7 @@ extend_qtc_executable(qml2puppet
 extend_qtc_executable(qml2puppet
   SOURCES_PREFIX "${SRCDIR}/qmlprivategate"
   SOURCES
-    designersupportdelegate.h
-    qmlprivategate_56.cpp qmlprivategate.h
+    qmlprivategate.cpp qmlprivategate.h
 )
 
 if(DEFINED MULTILANGUAGE_SUPPORT_SUBDIRECTORY AND Qt6_VERSION VERSION_GREATER_EQUAL 6.2.1)

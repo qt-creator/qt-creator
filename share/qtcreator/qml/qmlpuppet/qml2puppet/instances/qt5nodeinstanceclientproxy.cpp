@@ -36,8 +36,6 @@
 #include "qt5testnodeinstanceserver.h"
 #include "quickitemnodeinstance.h"
 
-#include <designersupportdelegate.h>
-
 #if defined(Q_OS_UNIX)
 #include <unistd.h>
 #elif defined(Q_OS_WIN)

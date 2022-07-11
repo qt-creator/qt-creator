@@ -58,7 +58,7 @@
 
 #include "dummycontextobject.h"
 
-#include <designersupportdelegate.h>
+#include <private/qquickdesignersupport_p.h>
 
 namespace QmlDesigner {
 
@@ -74,33 +74,33 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
     if (!inFunction) {
         inFunction = true;
 
-        DesignerSupport::polishItems(quickWindow());
+        QQuickDesignerSupport::polishItems(quickWindow());
 
         if (quickWindow() && nodeInstanceClient()->bytesToWrite() < 10000) {
             bool windowDirty = false;
             foreach (QQuickItem *item, allItems()) {
                 if (item) {
                     if (Internal::QuickItemNodeInstance::unifiedRenderPath()) {
-                        if (DesignerSupport::isDirty(item, DesignerSupport::AllMask)) {
+                        if (QQuickDesignerSupport::isDirty(item, QQuickDesignerSupport::AllMask)) {
                             windowDirty = true;
                             break;
                         }
                     } else {
                         if (hasInstanceForObject(item)) {
-                            if (DesignerSupport::isDirty(item, DesignerSupport::ContentUpdateMask))
+                            if (QQuickDesignerSupport::isDirty(item, QQuickDesignerSupport::ContentUpdateMask))
                                 m_dirtyInstanceSet.insert(instanceForObject(item));
                             if (QQuickItem *effectParent = parentEffectItem(item)) {
-                                if ((DesignerSupport::isDirty(
+                                if ((QQuickDesignerSupport::isDirty(
                                         item,
-                                        DesignerSupport::DirtyType(
-                                            DesignerSupport::TransformUpdateMask
-                                            | DesignerSupport::Visible
-                                            | DesignerSupport::ContentUpdateMask)))
+                                        QQuickDesignerSupport::DirtyType(
+                                            QQuickDesignerSupport::TransformUpdateMask
+                                            | QQuickDesignerSupport::Visible
+                                            | QQuickDesignerSupport::ContentUpdateMask)))
                                     && hasInstanceForObject(effectParent)) {
                                     m_dirtyInstanceSet.insert(instanceForObject(effectParent));
                                 }
                             }
-                        } else if (DesignerSupport::isDirty(item, DesignerSupport::AllMask)) {
+                        } else if (QQuickDesignerSupport::isDirty(item, QQuickDesignerSupport::AllMask)) {
                             ServerNodeInstance ancestorInstance = findNodeInstanceForItem(
                                 item->parentItem());
                             if (ancestorInstance.isValid())

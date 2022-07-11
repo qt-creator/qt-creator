@@ -304,19 +304,6 @@ QtcTool {
         condition: QtcFunctions.versionIsAtLeast(Qt.core.version, "5.6.0")
         prefix: puppetDir + "/qmlprivategate/"
         files: [
-            "qmlprivategate_56.cpp",
-        ]
-    }
-
-    Group {
-        name: "qmlprivategate (old)"
-        condition: !QtcFunctions.versionIsAtLeast(Qt.core.version, "5.6.0")
-        prefix: puppetDir + "/qmlprivategate/"
-        files: [
-            "designercustomobjectdata.cpp",
-            "designercustomobjectdata.h",
-            "metaobject.cpp",
-            "metaobject.h",
             "qmlprivategate.cpp",
         ]
     }
