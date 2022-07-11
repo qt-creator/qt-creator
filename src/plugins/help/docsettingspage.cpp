@@ -27,6 +27,7 @@
 
 #include "helpconstants.h"
 #include "helpmanager.h"
+#include "helptr.h"
 
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
@@ -89,8 +90,6 @@ private:
 
 class DocSettingsPageWidget : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Help::DocSettingsPageWidget)
-
 public:
     DocSettingsPageWidget();
 
@@ -119,8 +118,7 @@ private:
 static DocEntry createEntry(const QString &nameSpace, const QString &fileName, bool userManaged)
 {
     DocEntry result;
-    result.name = userManaged ? nameSpace
-                              : DocSettingsPageWidget::tr("%1 (auto-detected)").arg(nameSpace);
+    result.name = userManaged ? nameSpace : Tr::tr("%1 (auto-detected)").arg(nameSpace);
     result.fileName = fileName;
     result.nameSpace = nameSpace;
     return result;
@@ -196,13 +194,10 @@ DocSettingsPageWidget::DocSettingsPageWidget()
     setLayout(new QVBoxLayout);
     layout()->addWidget(groupBox);
 
-    setToolTip(QCoreApplication::translate("Help::Internal::DocSettingsPage",
-                                           "Add and remove compressed help files, .qch.",
-                                           nullptr));
-    groupBox->setTitle(
-        QCoreApplication::translate("Help::Internal::DocSettingsPage", "Registered Documentation"));
-    addButton->setText(QCoreApplication::translate("Help::Internal::DocSettingsPage", "Add..."));
-    removeButton->setText(QCoreApplication::translate("Help::Internal::DocSettingsPage", "Remove"));
+    setToolTip(Tr::tr("Add and remove compressed help files, .qch."));
+    groupBox->setTitle(Tr::tr("Registered Documentation"));
+    addButton->setText(Tr::tr("Add..."));
+    removeButton->setText(Tr::tr("Remove"));
 
     const QStringList nameSpaces = HelpManager::registeredNamespaces();
     const QSet<QString> userDocumentationPaths = HelpManager::userDocumentationPaths();
@@ -238,9 +233,9 @@ DocSettingsPageWidget::DocSettingsPageWidget()
 void DocSettingsPageWidget::addDocumentation()
 {
     const FilePaths files = FileUtils::getOpenFilePaths(Core::ICore::dialogParent(),
-                                                        tr("Add Documentation"),
+                                                        Tr::tr("Add Documentation"),
                                                         m_recentDialogPath,
-                                                        tr("Qt Help Files (*.qch)"));
+                                                        Tr::tr("Qt Help Files (*.qch)"));
 
     if (files.isEmpty())
         return;
@@ -284,7 +279,8 @@ void DocSettingsPageWidget::addDocumentation()
 
     QString formatedFail;
     if (docsUnableToRegister.contains("UnknownNamespace")) {
-        formatedFail += QString::fromLatin1("<ul><li><b>%1</b>").arg(tr("Invalid documentation file:"));
+        formatedFail += QString::fromLatin1("<ul><li><b>%1</b>")
+                            .arg(Tr::tr("Invalid documentation file:"));
         foreach (const QString &value, docsUnableToRegister.values("UnknownNamespace"))
             formatedFail += QString::fromLatin1("<ul><li>%2</li></ul>").arg(value);
         formatedFail += "</li></ul>";
@@ -292,7 +288,8 @@ void DocSettingsPageWidget::addDocumentation()
     }
 
     if (!docsUnableToRegister.isEmpty()) {
-        formatedFail += QString::fromLatin1("<ul><li><b>%1</b>").arg(tr("Namespace already registered:"));
+        formatedFail += QString::fromLatin1("<ul><li><b>%1</b>")
+                            .arg(Tr::tr("Namespace already registered:"));
         const NameSpaceToPathHash::ConstIterator cend = docsUnableToRegister.constEnd();
         for (NameSpaceToPathHash::ConstIterator it = docsUnableToRegister.constBegin(); it != cend; ++it) {
             formatedFail += QString::fromLatin1("<ul><li>%1 - %2</li></ul>").arg(it.key(), it.value());
@@ -302,8 +299,8 @@ void DocSettingsPageWidget::addDocumentation()
 
     if (!formatedFail.isEmpty()) {
         QMessageBox::information(Core::ICore::dialogParent(),
-                                 tr("Registration Failed"),
-                                 tr("Unable to register documentation.") + formatedFail,
+                                 Tr::tr("Registration Failed"),
+                                 Tr::tr("Unable to register documentation.") + formatedFail,
                                  QMessageBox::Ok);
     }
 }
@@ -378,7 +375,7 @@ QList<QModelIndex> DocSettingsPageWidget::currentSelection() const
 DocSettingsPage::DocSettingsPage()
 {
     setId("B.Documentation");
-    setDisplayName(DocSettingsPageWidget::tr("Documentation"));
+    setDisplayName(Tr::tr("Documentation"));
     setCategory(Help::Constants::HELP_CATEGORY);
     setWidgetCreator([] { return new DocSettingsPageWidget; });
 }

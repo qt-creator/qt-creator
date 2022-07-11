@@ -35,6 +35,7 @@
 #include "helpindexfilter.h"
 #include "helpmanager.h"
 #include "helpmode.h"
+#include "helptr.h"
 #include "helpviewer.h"
 #include "helpwidget.h"
 #include "localhelpmanager.h"
@@ -225,18 +226,17 @@ HelpPluginPrivate::HelpPluginPrivate()
     QAction *action;
 
     // Add Contents, Index, and Context menu items
-    action = new QAction(QIcon::fromTheme("help-contents"),
-                         HelpPlugin::tr(Constants::SB_CONTENTS), this);
+    action = new QAction(QIcon::fromTheme("help-contents"), Tr::tr(Constants::SB_CONTENTS), this);
     cmd = ActionManager::registerAction(action, "Help.ContentsMenu");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, &QAction::triggered, this, &HelpPluginPrivate::activateContents);
 
-    action = new QAction(HelpPlugin::tr(Constants::SB_INDEX), this);
+    action = new QAction(Tr::tr(Constants::SB_INDEX), this);
     cmd = ActionManager::registerAction(action, "Help.IndexMenu");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, &QAction::triggered, this, &HelpPluginPrivate::activateIndex);
 
-    action = new QAction(HelpPlugin::tr("Context Help"), this);
+    action = new QAction(Tr::tr("Context Help"), this);
     cmd = ActionManager::registerAction(action, Help::Constants::CONTEXT_HELP,
                                         Context(kToolTipHelpContext, Core::Constants::C_GLOBAL));
     cmd->setTouchBarIcon(Icons::MACOS_TOUCHBAR_HELP.icon());
@@ -254,7 +254,7 @@ HelpPluginPrivate::HelpPluginPrivate()
         textEditorContextMenu->addAction(cmd, Core::Constants::G_HELP);
     }
 
-    action = new QAction(HelpPlugin::tr("Technical Support..."), this);
+    action = new QAction(Tr::tr("Technical Support..."), this);
     cmd = ActionManager::registerAction(action, "Help.TechSupport");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
     connect(action, &QAction::triggered, this, [this] {
@@ -265,7 +265,7 @@ HelpPluginPrivate::HelpPluginPrivate()
     const QString qdsStandaloneEntry = "QML/Designer/StandAloneMode"; //entry from designer settings
     const bool isDesigner = Core::ICore::settings()->value(qdsStandaloneEntry, false).toBool();
 
-    action = new QAction(HelpPlugin::tr("Report Bug..."), this);
+    action = new QAction(Tr::tr("Report Bug..."), this);
     cmd = ActionManager::registerAction(action, "Help.ReportBug");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
     connect(action, &QAction::triggered, this, [isDesigner] {
@@ -274,7 +274,7 @@ HelpPluginPrivate::HelpPluginPrivate()
         QDesktopServices::openUrl(bugreportUrl);
     });
 
-    action = new QAction(HelpPlugin::tr("System Information..."), this);
+    action = new QAction(Tr::tr("System Information..."), this);
     cmd = ActionManager::registerAction(action, "Help.SystemInformation");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
     connect(action, &QAction::triggered, this, &HelpPluginPrivate::slotSystemInformation);
@@ -539,11 +539,11 @@ void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
                                     "<font color=\"%3\"><b>%4</b></font><br/>"
                                     "<font color=\"%3\">%5</font>"
                                     "</center></body></html>")
-                                .arg(HelpPlugin::tr("No Documentation"))
+                                .arg(Tr::tr("No Documentation"))
                                 .arg(creatorTheme()->color(Theme::BackgroundColorNormal).name())
                                 .arg(creatorTheme()->color(Theme::TextColorNormal).name())
                                 .arg(contextHelp.helpIds().join(", "))
-                                .arg(HelpPlugin::tr("No documentation available.")));
+                                .arg(Tr::tr("No documentation available.")));
         }
     } else if (links.size() == 1 && !contextHelp.isFuzzyMatch()) {
         showHelpUrl(links.front().second, LocalHelpManager::contextHelpOption());
@@ -622,10 +622,11 @@ void HelpPluginPrivate::slotSystemInformation()
     auto dialog = new DialogClosingOnEscape(ICore::dialogParent());
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setModal(true);
-    dialog->setWindowTitle(HelpPlugin::tr("System Information"));
+    dialog->setWindowTitle(Tr::tr("System Information"));
     auto layout = new QVBoxLayout;
     dialog->setLayout(layout);
-    auto intro = new QLabel(HelpPlugin::tr("Use the following to provide more detailed information about your system to bug reports:"));
+    auto intro = new QLabel(Tr::tr("Use the following to provide more detailed information about "
+                                   "your system to bug reports:"));
     intro->setWordWrap(true);
     layout->addWidget(intro);
     const QString text = "{noformat}\n" + ICore::systemInformation() + "\n{noformat}";
@@ -638,7 +639,7 @@ void HelpPluginPrivate::slotSystemInformation()
     layout->addWidget(info);
     auto buttonBox = new QDialogButtonBox;
     buttonBox->addButton(QDialogButtonBox::Cancel);
-    buttonBox->addButton(HelpPlugin::tr("Copy to Clipboard"), QDialogButtonBox::AcceptRole);
+    buttonBox->addButton(Tr::tr("Copy to Clipboard"), QDialogButtonBox::AcceptRole);
     connect(buttonBox, &QDialogButtonBox::accepted, dialog, &QDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
     layout->addWidget(buttonBox);

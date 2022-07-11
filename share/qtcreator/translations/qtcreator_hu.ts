@@ -8578,7 +8578,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>Help::Internal::0</name>
+    <name>Help</name>
     <message>
         <source>Add new page</source>
         <translation type="obsolete">Új lap hozzáadása</translation>
@@ -8688,10 +8688,6 @@ on slow machines. In this case, the value should be increased.</source>
         <translation type="obsolete">Keresés aktiválása segítség módban</translation>
     </message>
     <message>
-        <source>Unfiltered</source>
-        <translation type="obsolete">Szűrés nélküli</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head&gt;&lt;title&gt;No Documentation&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;No documentation available.&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head&gt;&lt;title&gt;Nincs dokumentáció&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;Nincsen elérhető dokumentáció.&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -8726,10 +8722,6 @@ Fájl kihagyása.</translation>
         <translation type="obsolete">&amp;Másolás</translation>
     </message>
     <message>
-        <source>Copy &amp;Link Location</source>
-        <translation type="obsolete">&amp;Link címének másolása</translation>
-    </message>
-    <message>
         <source>Open Link in New Tab</source>
         <translation type="obsolete">Link megnyitása új lapon</translation>
     </message>
@@ -8747,9 +8739,6 @@ Skipping file.</source>
         <translation type="obsolete">A(z) %1 dokumentációs fájl nem kompatibilis!
 Fájl kihagyása.</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::CentralWidget</name>
     <message>
         <source>Add new page</source>
         <translation>Új lap hozzáadása</translation>
@@ -8778,9 +8767,6 @@ Fájl kihagyása.</translation>
         <source>Add Bookmark for this Page...</source>
         <translation>Könyvjelző hozzáadása ehhez az oldalhoz...</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::DocSettingsPage</name>
     <message>
         <source>Documentation</source>
         <translation>Dokumentáció</translation>
@@ -8805,9 +8791,6 @@ Fájl kihagyása.</translation>
         <source>Cannot unregister documentation file %1!</source>
         <translation>Nem lehet törölni a(z) %1 dokumentációs fájl nyilvántartását!</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::FilterSettingsPage</name>
     <message>
         <source>Filters</source>
         <translation>Szűrők</translation>
@@ -8816,9 +8799,6 @@ Fájl kihagyása.</translation>
         <source>Help</source>
         <translation>Segítség</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::GeneralSettingsPage</name>
     <message>
         <source>General settings</source>
         <translation>Általános beállítások</translation>
@@ -8843,23 +8823,14 @@ Fájl kihagyása.</translation>
         <source>Save File</source>
         <translation>Fájl mentése</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpIndexFilter</name>
     <message>
         <source>Help index</source>
         <translation>Segítség - Index</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpMode</name>
     <message>
         <source>Help</source>
         <translation>Segítség</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpPlugin</name>
     <message>
         <source>Contents</source>
         <translation>Tartalom</translation>
@@ -8956,9 +8927,6 @@ Fájl kihagyása.</translation>
         <source>Filtered by:</source>
         <translation>Szűrő feltétel:</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchWidget</name>
     <message>
         <source>&amp;Copy</source>
         <translation>&amp;Másolás</translation>
@@ -8975,9 +8943,6 @@ Fájl kihagyása.</translation>
         <source>Select All</source>
         <translation>Az összes kijelőlése</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::XbelReader</name>
     <message>
         <source>The file is not an XBEL version 1.0 file.</source>
         <translation>A fájl nem XBEL 1.0-s verziójú fájl.</translation>

@@ -6533,7 +6533,7 @@ Commit now?</source>
     </message>
 </context>
 <context>
-    <name>Help::Internal::DocSettingsPage</name>
+    <name>Help</name>
     <message>
         <source>Documentation</source>
         <translation>Dokumentacja</translation>
@@ -6582,9 +6582,6 @@ Commit now?</source>
         <source>Remove</source>
         <translation>Usuń</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::FilterSettingsPage</name>
     <message>
         <source>Filters</source>
         <translation>Filtry</translation>
@@ -6618,10 +6615,6 @@ Commit now?</source>
         <translation>1</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Usuń</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;body&gt;
 &lt;p&gt;
 Add, modify, and remove document filters, which determine the documentation set displayed in the Help mode. The attributes are defined in the documents. Select them to display a set of relevant documentation. Note that some attributes are defined in several documents.
@@ -6631,13 +6624,6 @@ Add, modify, and remove document filters, which determine the documentation set 
 Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokumentacji wyświetlanej w trybie &quot;Pomocy&quot;. Atrybuty są zdefiniowane w dokumentach. Zaznaczenie ich spowoduje wyświetlenie zestawu odpowiedniej dokumentacji. Zwróć uwagę, że niektóre atrybuty mogą być zdefiniowane w kilku dokumentach.
 &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-    <message>
-        <source>Add...</source>
-        <translation>Dodaj...</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::GeneralSettingsPage</name>
     <message>
         <source>General</source>
         <translation>Ogólne</translation>
@@ -6762,23 +6748,14 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
         <source>Always Show in External Window</source>
         <translation>Zawsze pokazuj w zewnętrznym oknie</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpIndexFilter</name>
     <message>
         <source>Help Index</source>
         <translation>Indeks pomocy</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpMode</name>
     <message>
         <source>Help</source>
         <translation>Pomoc</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpPlugin</name>
     <message>
         <source>Contents</source>
         <translation>Zawartość</translation>
@@ -6836,13 +6813,6 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
         <translation>Otwarte strony</translation>
     </message>
     <message>
-        <source>Unfiltered</source>
-        <translation>Nieprzefiltrowane</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::SearchWidget</name>
-    <message>
         <source>Indexing Documentation</source>
         <translation>Indeksowanie dokumentacji</translation>
     </message>
@@ -6866,9 +6836,6 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
         <source>Reload</source>
         <translation>Przeładuj</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::XbelReader</name>
     <message>
         <source>The file is not an XBEL version 1.0 file.</source>
         <translation>Ten plik nie jest plikiem XBEL wersji 1.0.</translation>
@@ -10162,11 +10129,7 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     </message>
 </context>
 <context>
-    <name>HelpViewer</name>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Otwórz odsyłacz na nowej stronie</translation>
-    </message>
+    <name>Help</name>
     <message>
         <source>Open Link in Window</source>
         <translation>Otwórz odsyłacz w oknie</translation>
@@ -11340,10 +11303,6 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
 <context>
     <name>Help</name>
     <message>
-        <source>Help</source>
-        <translation>Pomoc</translation>
-    </message>
-    <message>
         <source>Error loading page</source>
         <translation>Błąd ładowania strony</translation>
     </message>
@@ -11359,16 +11318,10 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
         <source>The page could not be found</source>
         <translation>Nie można odnaleźć strony</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesModel</name>
     <message>
         <source>(Untitled)</source>
         <translation>(Nienazwany)</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesWidget</name>
     <message>
         <source>Close %1</source>
         <translation>Zamknij %1</translation>
@@ -13077,14 +13030,10 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
 </context>
 <context>
-    <name>Help::Internal::RemoteFilterOptions</name>
+    <name>Help</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Usuń</translation>
     </message>
     <message>
         <source>Double-click to edit item.</source>
@@ -13645,14 +13594,11 @@ zamiast w jego katalogu instalacyjnym.</translation>
     </message>
 </context>
 <context>
-    <name>Help::Internal::OpenPagesManager</name>
+    <name>Help</name>
     <message>
         <source>Copy Full Path to Clipboard</source>
         <translation>Skopiuj pełną ścieżkę do schowka</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::RemoteHelpFilter</name>
     <message>
         <source>Web Search</source>
         <translation>Szukanie w sieci</translation>
@@ -33126,7 +33072,7 @@ Use this only if you are prototyping. You cannot create a full application with 
     </message>
 </context>
 <context>
-    <name>Help::Internal::HelpWidget</name>
+    <name>Help</name>
     <message>
         <source>Open in Help Mode</source>
         <translation>Otwórz w trybie pomocy</translation>
@@ -33228,10 +33174,6 @@ Use this only if you are prototyping. You cannot create a full application with 
         <translation>Ctrl+Shift+O</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation>Pomoc</translation>
-    </message>
-    <message>
         <source>Help - %1</source>
         <translation>Pomoc - %1</translation>
     </message>
@@ -33239,38 +33181,13 @@ Use this only if you are prototyping. You cannot create a full application with 
         <source>Print Documentation</source>
         <translation>Wydruk dokumentacji</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchTaskHandler</name>
     <message>
         <source>Get Help Online</source>
         <translation>Sięgnij po pomoc online</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchSideBarItem</name>
     <message>
         <source>Regenerate Index</source>
         <translation>Ponownie wygeneruj indeks</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::TextBrowserHelpWidget</name>
-    <message>
-        <source>Open Link</source>
-        <translation>Otwórz odsyłacz</translation>
-    </message>
-    <message>
-        <source>Copy Link</source>
-        <translation>Skopiuj odsyłacz</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>Skopiuj</translation>
-    </message>
-    <message>
-        <source>Reload</source>
-        <translation>Przeładuj</translation>
     </message>
 </context>
 <context>
@@ -34218,18 +34135,10 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     </message>
 </context>
 <context>
-    <name>Help::Internal::IndexWindow</name>
+    <name>Help</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>Wy&amp;szukaj:</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Otwórz odsyłacz</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Otwórz odsyłacz na nowej stronie</translation>
     </message>
 </context>
 <context>

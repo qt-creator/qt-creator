@@ -3570,7 +3570,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
-    <name>Help::Internal::DocSettingsPage</name>
+    <name>Help</name>
     <message>
         <source>Add and remove compressed help files, .qch.</source>
         <translation>圧縮済みヘルプファイル(.qch)の追加や削除を行います。</translation>
@@ -3619,9 +3619,6 @@ You can choose between stashing the changes or discarding them.</source>
         <source>%1 (auto-detected)</source>
         <translation>%1 (自動検出)</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::FilterSettingsPage</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;
 &lt;p&gt;
@@ -3649,10 +3646,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>使用可能なユーザー定義フィルタがないかフィルタが選択されていません。</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>削除</translation>
-    </message>
-    <message>
         <source>Unfiltered</source>
         <translation>フィルタなし</translation>
     </message>
@@ -3668,13 +3661,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>The filter &quot;%1&quot; will only show documentation files that have the attributes %2 specified.</source>
         <translation>フィルタ &quot;%1&quot; は、属性 %2 が指定されたドキュメントのみ表示します。</translation>
     </message>
-    <message>
-        <source>Add...</source>
-        <translation>追加...</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::GeneralSettingsPage</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -3828,16 +3814,9 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Viewer backend:</source>
         <translation>ビューアーのバックエンド:</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::RemoteFilterOptions</name>
     <message>
         <source>Add</source>
         <translation>追加</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>削除</translation>
     </message>
     <message>
         <source>Double-click to edit item.</source>
@@ -22418,23 +22397,10 @@ instead of its installation directory when run outside git bash.</source>
         <source>The page could not be found</source>
         <translation>ページが見つかりませんでした</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpIndexFilter</name>
     <message>
         <source>Help Index</source>
         <translation>ヘルプインデックス</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpMode</name>
-    <message>
-        <source>Help</source>
-        <translation>ヘルプ</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::HelpPlugin</name>
     <message>
         <source>Index</source>
         <translation>インデックス</translation>
@@ -22496,26 +22462,13 @@ instead of its installation directory when run outside git bash.</source>
         <translation>ページを開く</translation>
     </message>
     <message>
-        <source>Unfiltered</source>
-        <translation>フィルタなし</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesManager</name>
-    <message>
         <source>Copy Full Path to Clipboard</source>
         <translation>フルパスをクリップボードにコピー</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesModel</name>
     <message>
         <source>(Untitled)</source>
         <translation>(無題)</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesWidget</name>
     <message>
         <source>Close %1</source>
         <translation>%1 を閉じる</translation>
@@ -22524,16 +22477,10 @@ instead of its installation directory when run outside git bash.</source>
         <source>Close All Except %1</source>
         <translation>%1 以外のすべてを閉じる</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::RemoteHelpFilter</name>
     <message>
         <source>Web Search</source>
         <translation>Web 検索</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchWidget</name>
     <message>
         <source>Indexing Documentation</source>
         <translation>ドキュメントのインデックス作成中</translation>
@@ -22558,9 +22505,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Reload</source>
         <translation>再読込</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::XbelReader</name>
     <message>
         <source>The file is not an XBEL version 1.0 file.</source>
         <translation>ファイルは XBEL バージョン 1.0 形式のファイルではありません。</translation>
@@ -36796,14 +36740,10 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>Help::Internal::HelpWidget</name>
+    <name>Help</name>
     <message>
         <source>Go to Help Mode</source>
         <translation>ヘルプモードに移行</translation>
-    </message>
-    <message>
-        <source>(Untitled)</source>
-        <translation>(無題)</translation>
     </message>
     <message>
         <source>Home</source>
@@ -36840,14 +36780,6 @@ API バージョンが %1 以上の SDK をインストールしてください�
     <message>
         <source>Reset Font Size</source>
         <translation>フォントサイズをリセット</translation>
-    </message>
-    <message>
-        <source>Reload</source>
-        <translation>再読込</translation>
-    </message>
-    <message>
-        <source>Unfiltered</source>
-        <translation>フィルタなし</translation>
     </message>
     <message>
         <source>Meta+Shift+C</source>
@@ -36902,10 +36834,6 @@ API バージョンが %1 以上の SDK をインストールしてください�
         <translation>Ctrl+Shift+O</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation>ヘルプ</translation>
-    </message>
-    <message>
         <source>Help - %1</source>
         <translation>ヘルプ - %1</translation>
     </message>
@@ -36913,45 +36841,13 @@ API バージョンが %1 以上の SDK をインストールしてください�
         <source>Print Documentation</source>
         <translation>ドキュメントの印刷</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::QtWebKitHelpWidget</name>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>リンクを新しいページで開く</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::SearchTaskHandler</name>
     <message>
         <source>Get Help Online</source>
         <translation>オンラインからヘルプを取得</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchSideBarItem</name>
     <message>
         <source>Regenerate Index</source>
         <translation>インデックスの再生成</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::TextBrowserHelpWidget</name>
-    <message>
-        <source>Open Link</source>
-        <translation>リンクを開く</translation>
-    </message>
-    <message>
-        <source>Copy Link</source>
-        <translation>リンクをコピー</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>コピー</translation>
-    </message>
-    <message>
-        <source>Reload</source>
-        <translation>再読込</translation>
     </message>
 </context>
 <context>
@@ -43779,17 +43675,10 @@ Leave empty to search through the file system.</source>
     </message>
 </context>
 <context>
-    <name>Help::Internal::HelpViewer</name>
+    <name>Help</name>
     <message>
         <source>Unknown or unsupported content.</source>
         <translation>不明かサポート対象外のコンテンツです。</translation>
-    </message>
-</context>
-<context>
-    <name>HelpViewer</name>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>リンクを新しいページで開く</translation>
     </message>
 </context>
 <context>
@@ -46573,18 +46462,10 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>Help::Internal::IndexWindow</name>
+    <name>Help</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>検索文字列(&amp;L):</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>リンクを開く</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>リンクを新しいページで開く</translation>
     </message>
 </context>
 <context>
@@ -53130,38 +53011,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Help::DocSettingsPageWidget</name>
-    <message>
-        <source>%1 (auto-detected)</source>
-        <translation>%1 (自動検出)</translation>
-    </message>
-    <message>
-        <source>Add Documentation</source>
-        <translation>ドキュメントの追加</translation>
-    </message>
-    <message>
-        <source>Qt Help Files (*.qch)</source>
-        <translation>Qt ヘルプファイル (*.qch)</translation>
-    </message>
-    <message>
-        <source>Invalid documentation file:</source>
-        <translation>無効なドキュメントファイル:</translation>
-    </message>
-    <message>
-        <source>Namespace already registered:</source>
-        <translation>名前空間は既に登録済み:</translation>
-    </message>
-    <message>
-        <source>Unable to register documentation.</source>
-        <translation>ドキュメントの登録ができませんでした。</translation>
-    </message>
-    <message>
-        <source>Documentation</source>
-        <translation>ドキュメント</translation>
-    </message>
-</context>
-<context>
-    <name>Help::HelpViewer</name>
+    <name>Help</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>拡大率: %1%</translation>

@@ -5808,14 +5808,11 @@ Reason: %3</source>
     </message>
 </context>
 <context>
-    <name>Help::Internal::CentralWidget</name>
+    <name>Help</name>
     <message>
         <source>Print Document</source>
         <translation>列印文件</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::DocSettingsPage</name>
     <message>
         <source>Documentation</source>
         <translation>文件</translation>
@@ -5860,9 +5857,6 @@ Reason: %3</source>
         <source>Remove</source>
         <translation>移除</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::FilterSettingsPage</name>
     <message>
         <source>Filters</source>
         <translation>過濾器</translation>
@@ -5910,33 +5904,20 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>新增</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>移除</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;body&gt;
 &lt;p&gt;
 Add, modify, and remove document filters, which determine the documentation set displayed in the Help mode. The attributes are defined in the documents. Select them to display a set of relevant documentation. Note that some attributes are defined in several documents.
 &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpIndexFilter</name>
     <message>
         <source>Help Index</source>
         <translation>說明索引</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpMode</name>
     <message>
         <source>Help</source>
         <translation>說明</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpPlugin</name>
     <message>
         <source>Contents</source>
         <translation>內容</translation>
@@ -6078,16 +6059,8 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation type="unfinished">Ctrl+Shift+O</translation>
     </message>
     <message>
-        <source>Show Sidebar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Go to Help Mode</source>
         <translation>進入說明模式</translation>
-    </message>
-    <message>
-        <source>Unfiltered</source>
-        <translation>未過濾</translation>
     </message>
     <message>
         <source>No Documentation</source>
@@ -6105,9 +6078,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Filtered by:</source>
         <translation>過濾方式：</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchWidget</name>
     <message>
         <source>Indexing</source>
         <translation>建立索引中</translation>
@@ -6136,9 +6106,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Reload</source>
         <translation>重新載入</translation>
     </message>
-</context>
-<context>
-    <name>HelpViewer</name>
     <message>
         <source>&lt;title&gt;about:blank&lt;/title&gt;</source>
         <translation>&lt;title&gt;空白頁&lt;/title&gt;</translation>
@@ -11469,7 +11436,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Help::Internal::GeneralSettingsPage</name>
+    <name>Help</name>
     <message>
         <source>General Settings</source>
         <translation type="obsolete">一般設定</translation>
@@ -11602,9 +11569,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Note: This setting takes effect only if the HTML file does not use a style sheet.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::XbelReader</name>
     <message>
         <source>The file is not an XBEL version 1.0 file.</source>
         <translation>此檔案不是 XBEL 1.0 檔案。</translation>
@@ -12433,13 +12397,6 @@ Reason: %2</source>
     <message>
         <source>CDB</source>
         <translation>CDB</translation>
-    </message>
-</context>
-<context>
-    <name>Help</name>
-    <message>
-        <source>Help</source>
-        <translation>說明</translation>
     </message>
 </context>
 <context>
@@ -13623,27 +13580,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Help::Internal::HelpViewer</name>
-    <message>
-        <source>Open Link</source>
-        <translation>開啟連結</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>在新頁面開啟連結</translation>
-    </message>
-    <message>
-        <source>Copy Link</source>
-        <translation>複製連結</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>複製</translation>
-    </message>
-    <message>
-        <source>Reload</source>
-        <translation>重新載入</translation>
-    </message>
+    <name>Help</name>
     <message>
         <source>Error loading: %1</source>
         <translation type="unfinished"></translation>
@@ -13652,16 +13589,10 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Unknown or unsupported Content!</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesModel</name>
     <message>
         <source>(Untitled)</source>
         <translation>(未命名)</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesWidget</name>
     <message>
         <source>Close %1</source>
         <translation>關閉 %1</translation>
@@ -16109,7 +16040,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>Help::Internal::RemoteFilterOptions</name>
+    <name>Help</name>
     <message>
         <source>Filter configuration</source>
         <translation type="obsolete">過濾器設置</translation>
@@ -16121,14 +16052,6 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <source>Limit to prefix</source>
         <translation>前置字串限制</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>新增</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>移除</translation>
     </message>
     <message>
         <source>Double-click to edit item.</source>
@@ -17263,7 +17186,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>Help::Internal::ExternalHelpWindow</name>
+    <name>Help</name>
     <message>
         <source>Show Sidebar</source>
         <translation>顯示邊列</translation>
@@ -17305,14 +17228,11 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>Help::Internal::OpenPagesManager</name>
+    <name>Help</name>
     <message>
         <source>Copy Full Path to Clipboard</source>
         <translation>複製完整路徑到剪貼簿</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::RemoteHelpFilter</name>
     <message>
         <source>Web Search</source>
         <translation>搜尋網頁</translation>

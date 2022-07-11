@@ -25,6 +25,7 @@
 
 #include "helpviewer.h"
 #include "helpconstants.h"
+#include "helptr.h"
 #include "localhelpmanager.h"
 
 #include <coreplugin/icore.h>
@@ -215,8 +216,9 @@ void HelpViewer::incrementZoom(int steps)
 void HelpViewer::applyZoom(int percentage)
 {
     const int newZoom = LocalHelpManager::setFontZoom(percentage);
-    Utils::FadingIndicator::showText(this, QCoreApplication::translate("Help::HelpViewer",
-                                     "Zoom: %1%").arg(newZoom), Utils::FadingIndicator::SmallText);
+    Utils::FadingIndicator::showText(this,
+                                     Tr::tr("Zoom: %1%").arg(newZoom),
+                                     Utils::FadingIndicator::SmallText);
 }
 
 void HelpViewer::slotLoadStarted()

@@ -26,6 +26,7 @@
 #include "textbrowserhelpviewer.h"
 
 #include "helpconstants.h"
+#include "helptr.h"
 #include "localhelpmanager.h"
 
 #include <coreplugin/find/findplugin.h>
@@ -319,25 +320,25 @@ void TextBrowserHelpWidget::contextMenuEvent(QContextMenuEvent *event)
     QAction *copyAnchorAction = nullptr;
     const QUrl link(linkAt(event->pos()));
     if (!link.isEmpty() && link.isValid()) {
-        QAction *action = menu.addAction(tr("Open Link"));
+        QAction *action = menu.addAction(Tr::tr("Open Link"));
         connect(action, &QAction::triggered, this, [this, link]() {
             setSource(link);
         });
         if (m_parent->isActionVisible(HelpViewer::Action::NewPage)) {
-            action = menu.addAction(QCoreApplication::translate("HelpViewer", Constants::TR_OPEN_LINK_AS_NEW_PAGE));
+            action = menu.addAction(Tr::tr(Constants::TR_OPEN_LINK_AS_NEW_PAGE));
             connect(action, &QAction::triggered, this, [this, link]() {
                 emit m_parent->newPageRequested(link);
             });
         }
         if (m_parent->isActionVisible(HelpViewer::Action::ExternalWindow)) {
-            action = menu.addAction(QCoreApplication::translate("HelpViewer", Constants::TR_OPEN_LINK_IN_WINDOW));
+            action = menu.addAction(Tr::tr(Constants::TR_OPEN_LINK_IN_WINDOW));
             connect(action, &QAction::triggered, this, [this, link]() {
                 emit m_parent->externalPageRequested(link);
             });
         }
-        copyAnchorAction = menu.addAction(tr("Copy Link"));
+        copyAnchorAction = menu.addAction(Tr::tr("Copy Link"));
     } else if (!textCursor().selectedText().isEmpty()) {
-        connect(menu.addAction(tr("Copy")), &QAction::triggered, this, &QTextEdit::copy);
+        connect(menu.addAction(Tr::tr("Copy")), &QAction::triggered, this, &QTextEdit::copy);
     }
 
     if (copyAnchorAction == menu.exec(event->globalPos()))

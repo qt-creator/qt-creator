@@ -4864,7 +4864,7 @@ Jetzt Commit ausführen?</translation>
     </message>
 </context>
 <context>
-    <name>Help::Internal::DocSettingsPage</name>
+    <name>Help</name>
     <message>
         <source>Add and remove compressed help files, .qch.</source>
         <translation>Hinzufügen oder Entfernen von komprimierten Hilfedateien (.qch).</translation>
@@ -4881,9 +4881,6 @@ Jetzt Commit ausführen?</translation>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::FilterSettingsPage</name>
     <message>
         <source>Filters</source>
         <translation>Filter</translation>
@@ -4917,23 +4914,12 @@ Jetzt Commit ausführen?</translation>
         <translation>1</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;body&gt;
 &lt;p&gt;
 Add, modify, and remove document filters, which determine the documentation set displayed in the Help mode. The attributes are defined in the documents. Select them to display a set of relevant documentation. Note that some attributes are defined in several documents.
 &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Hinzufügen, Ändern oder Entfernen von Dokumentenfiltern, die die im Hilfsmodus angezeigte Dokumentation festlegen. Die Attribute sind in den Dokumenten definiert. Durch die Angabe der Attribute kann die relevante Dokumentation ausgewählt werden. Beachten Sie, dass einige Attribute in mehreren Dokumenten erscheinen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-    <message>
-        <source>Add...</source>
-        <translation>Hinzufügen...</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::GeneralSettingsPage</name>
     <message>
         <source>General</source>
         <translation>Allgemein</translation>
@@ -5071,23 +5057,14 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Viewer backend:</source>
         <translation>Anzeigen mit:</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpIndexFilter</name>
     <message>
         <source>Help Index</source>
         <translation>Hilfe - Index</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpMode</name>
     <message>
         <source>Help</source>
         <translation>Hilfe</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpPlugin</name>
     <message>
         <source>Search</source>
         <translation>Suche</translation>
@@ -5145,13 +5122,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>In die Zwischenablage kopieren</translation>
     </message>
     <message>
-        <source>Unfiltered</source>
-        <translation>Kein</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::SearchWidget</name>
-    <message>
         <source>Indexing Documentation</source>
         <translation>Indiziere Dokumentation</translation>
     </message>
@@ -5175,9 +5145,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Reload</source>
         <translation>Neu laden</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::XbelReader</name>
     <message>
         <source>The file is not an XBEL version 1.0 file.</source>
         <translation>Die Datei ist keine XBEL-Datei der Version 1.0.</translation>
@@ -9307,10 +9274,6 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
 <context>
     <name>Help</name>
     <message>
-        <source>Help</source>
-        <translation>Hilfe</translation>
-    </message>
-    <message>
         <source>Error loading page</source>
         <translation>Fehler beim Laden der Seite</translation>
     </message>
@@ -10688,7 +10651,7 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
     </message>
 </context>
 <context>
-    <name>Help::Internal::OpenPagesWidget</name>
+    <name>Help</name>
     <message>
         <source>Close %1</source>
         <translation>Schließe %1</translation>
@@ -11733,7 +11696,7 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     </message>
 </context>
 <context>
-    <name>Help::Internal::OpenPagesManager</name>
+    <name>Help</name>
     <message>
         <source>Copy Full Path to Clipboard</source>
         <translation>Vollständigen Pfad in die Zwischenablage kopieren</translation>
@@ -27823,7 +27786,7 @@ Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translati
     </message>
 </context>
 <context>
-    <name>Help::Internal::HelpWidget</name>
+    <name>Help</name>
     <message>
         <source>(Untitled)</source>
         <translation>(Ohne Titel)</translation>
@@ -27901,14 +27864,6 @@ Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translati
         <translation>In Fenster öffnen</translation>
     </message>
     <message>
-        <source>Reload</source>
-        <translation>Neu laden</translation>
-    </message>
-    <message>
-        <source>Unfiltered</source>
-        <translation>Ungefiltert</translation>
-    </message>
-    <message>
         <source>Meta+Shift+C</source>
         <translation>Meta+Shift+C</translation>
     </message>
@@ -27961,10 +27916,6 @@ Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translati
         <translation>Ctrl+Shift+O</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation>Hilfe</translation>
-    </message>
-    <message>
         <source>Help - %1</source>
         <translation>Hilfe - %1</translation>
     </message>
@@ -27972,34 +27923,13 @@ Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translati
         <source>Print Documentation</source>
         <translation>Dokumentation drucken</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchTaskHandler</name>
     <message>
         <source>Get Help Online</source>
         <translation>Onlinehilfe</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchSideBarItem</name>
     <message>
         <source>Regenerate Index</source>
         <translation>Index neu erstellen</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::TextBrowserHelpWidget</name>
-    <message>
-        <source>Open Link</source>
-        <translation>Verweis öffnen</translation>
-    </message>
-    <message>
-        <source>Copy Link</source>
-        <translation>Verweis kopieren</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>Kopieren</translation>
     </message>
 </context>
 <context>
@@ -31010,11 +30940,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     </message>
 </context>
 <context>
-    <name>HelpViewer</name>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Verweis in neuer Seite öffnen</translation>
-    </message>
+    <name>Help</name>
     <message>
         <source>Open Link in Window</source>
         <translation>Verweis in Fenster öffnen</translation>
@@ -31517,18 +31443,10 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
 </context>
 <context>
-    <name>Help::Internal::IndexWindow</name>
+    <name>Help</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Suche nach:</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Verweis öffnen</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Verweis in neuer Seite öffnen</translation>
     </message>
 </context>
 <context>
@@ -43358,7 +43276,7 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>Help::Internal::HelpManager</name>
+    <name>Help</name>
     <message>
         <source>Update Documentation</source>
         <translation>Dokumentation aktualisieren</translation>
@@ -48116,18 +48034,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Help::Internal::LiteHtmlHelpViewer</name>
-    <message>
-        <source>Copy Link</source>
-        <translation>Verweis kopieren</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>Kopieren</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::LocalHelpManager</name>
+    <name>Help</name>
     <message>
         <source>QtWebEngine</source>
         <translation>QtWebEngine</translation>
@@ -49347,7 +49254,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Help::DocSettingsPageWidget</name>
+    <name>Help</name>
     <message>
         <source>%1 (auto-detected)</source>
         <translation>%1 (automatisch bestimmt)</translation>

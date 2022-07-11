@@ -11593,16 +11593,10 @@ You can choose between stashing the changes or discarding them.</source>
         <source>The page could not be found</source>
         <translation>Не вдалось знайти сторінку</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::CentralWidget</name>
     <message>
         <source>Print Document</source>
         <translation type="vanished">Друк документа</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::DocSettingsPage</name>
     <message>
         <source>Documentation</source>
         <translation>Документація</translation>
@@ -11651,9 +11645,6 @@ You can choose between stashing the changes or discarding them.</source>
         <source>Remove</source>
         <translation>Видалити</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::ExternalHelpWindow</name>
     <message>
         <source>Show Sidebar</source>
         <translation type="vanished">Показати бічну панель</translation>
@@ -11662,9 +11653,6 @@ You can choose between stashing the changes or discarding them.</source>
         <source>Qt Creator Offline Help</source>
         <translation type="vanished">Локальна довідка Qt Creator</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::FilterSettingsPage</name>
     <message>
         <source>Filters</source>
         <translation>Фільтри</translation>
@@ -11698,14 +11686,6 @@ You can choose between stashing the changes or discarding them.</source>
         <translation>0.1x {1?}</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation type="vanished">Додати</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Видалити</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;body&gt;
 &lt;p&gt;
 Add, modify, and remove document filters, which determine the documentation set displayed in the Help mode. The attributes are defined in the documents. Select them to display a set of relevant documentation. Note that some attributes are defined in several documents.
@@ -11715,13 +11695,6 @@ Add, modify, and remove document filters, which determine the documentation set 
 Додавайте, змінюйте та видаляйте фільтри документів, які задають набір документації, що відображається в режимі довідки. Атрибути визначені в документах. Оберіть їх для відображення набору відповідної документації. Майте на увазі, що деякі атрибути визначені в кількох документах.
 &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-    <message>
-        <source>Add...</source>
-        <translation>Додати...</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::GeneralSettingsPage</name>
     <message>
         <source>General</source>
         <translation>Загальне</translation>
@@ -11862,26 +11835,9 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Always Show in External Window</source>
         <translation>Завжди показувати в зовнішньому вікні</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpIndexFilter</name>
     <message>
         <source>Help Index</source>
         <translation>Покажчик довідки</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::HelpMode</name>
-    <message>
-        <source>Help</source>
-        <translation>Довідка</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::HelpPlugin</name>
-    <message>
-        <source>Home</source>
-        <translation type="vanished">Домівка</translation>
     </message>
     <message>
         <source>Previous Page</source>
@@ -11892,24 +11848,12 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation type="vanished">Наступна сторінка</translation>
     </message>
     <message>
-        <source>Add Bookmark</source>
-        <translation type="vanished">Додати закладку</translation>
-    </message>
-    <message>
         <source>Contents</source>
         <translation>Зміст</translation>
     </message>
     <message>
         <source>Index</source>
         <translation>Покажчик</translation>
-    </message>
-    <message>
-        <source>Meta+M</source>
-        <translation type="vanished">Meta+M</translation>
-    </message>
-    <message>
-        <source>Ctrl+M</source>
-        <translation type="vanished">Ctrl+M</translation>
     </message>
     <message>
         <source>Context Help</source>
@@ -11932,24 +11876,8 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>Немає доступної документації.</translation>
     </message>
     <message>
-        <source>Increase Font Size</source>
-        <translation type="vanished">Збільшити розмір шрифту</translation>
-    </message>
-    <message>
-        <source>Decrease Font Size</source>
-        <translation type="vanished">Зменшити розмір шрифту</translation>
-    </message>
-    <message>
-        <source>Reset Font Size</source>
-        <translation type="vanished">Відновити розмір шрифту</translation>
-    </message>
-    <message>
         <source>Activate Index in Help mode</source>
         <translation type="vanished">Активувати покажчик в режимі довідки</translation>
-    </message>
-    <message>
-        <source>Meta+I</source>
-        <translation type="vanished">Meta+I</translation>
     </message>
     <message>
         <source>Ctrl+Shift+I</source>
@@ -11958,42 +11886,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Activate Contents in Help mode</source>
         <translation type="vanished">Активувати зміст в режимі довідки</translation>
-    </message>
-    <message>
-        <source>Meta+Shift+C</source>
-        <translation type="vanished">Meta+Shift+C</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+C</source>
-        <translation type="vanished">Ctrl+Shift+C</translation>
-    </message>
-    <message>
-        <source>Meta+/</source>
-        <translation type="vanished">Meta+/</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+/</source>
-        <translation type="vanished">Ctrl+Shift+/</translation>
-    </message>
-    <message>
-        <source>Meta+B</source>
-        <translation type="vanished">Meta+B</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+B</source>
-        <translation type="vanished">Ctrl+Shift+B</translation>
-    </message>
-    <message>
-        <source>Meta+O</source>
-        <translation type="vanished">Meta+O</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+O</source>
-        <translation type="vanished">Ctrl+Shift+O</translation>
-    </message>
-    <message>
-        <source>Show Sidebar</source>
-        <translation type="vanished">Показати бічну панель</translation>
     </message>
     <message>
         <source>Close current page</source>
@@ -12028,14 +11920,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation type="vanished">Активувати відкриті сторінки в режимі довідки</translation>
     </message>
     <message>
-        <source>Unfiltered</source>
-        <translation>Без фільтра</translation>
-    </message>
-    <message>
-        <source>Go to Help Mode</source>
-        <translation type="vanished">Перейти в режим довідки</translation>
-    </message>
-    <message>
         <source>Next</source>
         <translation type="vanished">Вперед</translation>
     </message>
@@ -12051,9 +11935,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Filtered by:</source>
         <translation type="vanished">Фільтрувати за:</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpViewer</name>
     <message>
         <source>&lt;title&gt;about:blank&lt;/title&gt;</source>
         <translation type="vanished">&lt;title&gt;about:blank&lt;/title&gt;</translation>
@@ -12061,30 +11942,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;&lt;title&gt;Error 404...&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;div align=&quot;center&quot;&gt;&lt;br/&gt;&lt;br/&gt;&lt;h1&gt;The page could not be found&lt;/h1&gt;&lt;br/&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="vanished">&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;&lt;title&gt;Помилка 404...&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;Не вдалось знайти сторінку&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;&lt;/body&gt;</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation type="vanished">Відкрити посилання</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation type="vanished">Відкрити посилання в новій сторінці</translation>
-    </message>
-    <message>
-        <source>Copy Link</source>
-        <translation type="vanished">Копіювати посилання</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation type="vanished">Копіювати</translation>
-    </message>
-    <message>
-        <source>Reload</source>
-        <translation type="vanished">Перезавантажити</translation>
-    </message>
-    <message>
-        <source>Error loading: %1</source>
-        <translation type="vanished">Помилка завантаження: %1</translation>
     </message>
     <message>
         <source>Unknown or unsupported Content!</source>
@@ -12098,23 +11955,14 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Unknown or unsupported content.</source>
         <translation>Невідомий або непідтримуваний зміст.</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesManager</name>
     <message>
         <source>Copy Full Path to Clipboard</source>
         <translation>Скопіювати повний шлях до буферу обміну</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesModel</name>
     <message>
         <source>(Untitled)</source>
         <translation>(Без назви)</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesWidget</name>
     <message>
         <source>Close %1</source>
         <translation>Закрити %1</translation>
@@ -12123,9 +11971,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Close All Except %1</source>
         <translation>Закрити все, окрім %1</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::RemoteFilterOptions</name>
     <message>
         <source>Prefix:</source>
         <translation type="vanished">Префікс:</translation>
@@ -12139,10 +11984,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>Додати</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Видалити</translation>
-    </message>
-    <message>
         <source>Double-click to edit item.</source>
         <translation>Клацніть двічі, щоб змінити елемент.</translation>
     </message>
@@ -12150,16 +11991,10 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Edit Filter Configuration</source>
         <translation type="vanished">Редагування конфігурації фільтра</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::RemoteHelpFilter</name>
     <message>
         <source>Web Search</source>
         <translation>Пошук у Web</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchWidget</name>
     <message>
         <source>Indexing</source>
         <translation type="vanished">Індексування</translation>
@@ -12192,9 +12027,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Reload</source>
         <translation>Перезавантажити</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::XbelReader</name>
     <message>
         <source>The file is not an XBEL version 1.0 file.</source>
         <translation>Цей файл не є файлом XBEL версії 1.0.</translation>
@@ -12203,9 +12035,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Unknown title</source>
         <translation>Невідомий заголовок</translation>
     </message>
-</context>
-<context>
-    <name>HelpViewer</name>
     <message>
         <source>Error 404...</source>
         <translation type="vanished">Помилка 404...</translation>
@@ -12229,10 +12058,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>&lt;li&gt;If your computer or network is protected by a firewall or proxy, make sure the application is permitted to access the network.&lt;/li&gt;</source>
         <translation type="vanished">&lt;li&gt;Якщо ваш комп&apos;ютер або мережа захищена мережевим екраном або проксі, переконайтесь, що програмі дозволено доступ до мережі.&lt;/li&gt;</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Відкрити посилання в новій сторінці</translation>
     </message>
 </context>
 <context>
@@ -45178,7 +45003,7 @@ Install an SDK of at least API version %1.</source>
     </message>
 </context>
 <context>
-    <name>Help::Internal::HelpWidget</name>
+    <name>Help</name>
     <message>
         <source>Go to Help Mode</source>
         <translation>Перейти в режим довідки</translation>
@@ -45232,10 +45057,6 @@ Install an SDK of at least API version %1.</source>
         <translation>Meta+I</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+I</source>
-        <translation>Ctrl+Shift+I</translation>
-    </message>
-    <message>
         <source>Activate Help Bookmarks View</source>
         <translation>Активувати перегляд закладок довідки</translation>
     </message>
@@ -45276,10 +45097,6 @@ Install an SDK of at least API version %1.</source>
         <translation>Ctrl+Shift+O</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation>Довідка</translation>
-    </message>
-    <message>
         <source>Help - %1</source>
         <translation>Довідка - %1</translation>
     </message>
@@ -45287,49 +45104,13 @@ Install an SDK of at least API version %1.</source>
         <source>Print Documentation</source>
         <translation>Друк документації</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::QtWebKitHelpWidget</name>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Відкрити посилання в новій сторінці</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::SearchTaskHandler</name>
     <message>
         <source>Get Help Online</source>
         <translation>Отримати допомогу в мережі</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchSideBarItem</name>
     <message>
         <source>Regenerate Index</source>
         <translation>Перегенерувати індекс</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::TextBrowserHelpWidget</name>
-    <message>
-        <source>Open Link</source>
-        <translation>Відкрити посилання</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation type="vanished">Відкрити посилання в новій сторінці</translation>
-    </message>
-    <message>
-        <source>Copy Link</source>
-        <translation>Копіювати посилання</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>Копіювати</translation>
-    </message>
-    <message>
-        <source>Reload</source>
-        <translation>Перезавантажити</translation>
     </message>
 </context>
 <context>
@@ -49417,18 +49198,10 @@ The files in the Android package source directory are copied to the build direct
     </message>
 </context>
 <context>
-    <name>Help::Internal::IndexWindow</name>
+    <name>Help</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Шукати:</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Відкрити посилання</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Відкрити посилання в новій сторінці</translation>
     </message>
 </context>
 <context>

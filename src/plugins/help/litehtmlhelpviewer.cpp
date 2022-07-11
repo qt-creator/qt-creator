@@ -26,6 +26,7 @@
 #include "litehtmlhelpviewer.h"
 
 #include "helpconstants.h"
+#include "helptr.h"
 #include "localhelpmanager.h"
 
 #include <utils/algorithm.h>
@@ -290,22 +291,20 @@ void LiteHtmlHelpViewer::showContextMenu(const QPoint &pos, const QUrl &url)
     QAction *copyAnchorAction = nullptr;
     if (!url.isEmpty() && url.isValid()) {
         if (isActionVisible(HelpViewer::Action::NewPage)) {
-            QAction *action = menu.addAction(
-                QCoreApplication::translate("HelpViewer", Constants::TR_OPEN_LINK_AS_NEW_PAGE));
+            QAction *action = menu.addAction(Tr::tr(Constants::TR_OPEN_LINK_AS_NEW_PAGE));
             connect(action, &QAction::triggered, this, [this, url]() {
                 emit newPageRequested(url);
             });
         }
         if (isActionVisible(HelpViewer::Action::ExternalWindow)) {
-            QAction *action = menu.addAction(
-                QCoreApplication::translate("HelpViewer", Constants::TR_OPEN_LINK_IN_WINDOW));
+            QAction *action = menu.addAction(Tr::tr(Constants::TR_OPEN_LINK_IN_WINDOW));
             connect(action, &QAction::triggered, this, [this, url]() {
                 emit externalPageRequested(url);
             });
         }
-        copyAnchorAction = menu.addAction(tr("Copy Link"));
+        copyAnchorAction = menu.addAction(Tr::tr("Copy Link"));
     } else if (!m_viewer->selectedText().isEmpty()) {
-        connect(menu.addAction(tr("Copy")), &QAction::triggered, this, &HelpViewer::copy);
+        connect(menu.addAction(Tr::tr("Copy")), &QAction::triggered, this, &HelpViewer::copy);
     }
 
     if (copyAnchorAction == menu.exec(m_viewer->mapToGlobal(pos)))

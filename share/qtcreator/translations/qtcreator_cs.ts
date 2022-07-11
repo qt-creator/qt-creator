@@ -8698,7 +8698,7 @@ Commit now?</source>
     </message>
 </context>
 <context>
-    <name>Help::Internal::CentralWidget</name>
+    <name>Help</name>
     <message>
         <source>Add new page</source>
         <translation type="obsolete">Přidat novou stranu</translation>
@@ -8727,9 +8727,6 @@ Commit now?</source>
         <source>Add Bookmark for this Page...</source>
         <translation type="obsolete">Přidat záložku pro tuto stranu...</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::DocSettingsPage</name>
     <message>
         <source>Documentation</source>
         <translation>Dokumentace</translation>
@@ -8786,9 +8783,6 @@ Commit now?</source>
         <source>Remove</source>
         <translation>Odstranit</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::FilterSettingsPage</name>
     <message>
         <source>Filters</source>
         <translation>Filtry</translation>
@@ -8814,10 +8808,6 @@ Commit now?</source>
         <translation>Filtr &quot;%1&quot; ukáže pouze ty soubory s dokumentací, které mají zadány vlastnosti %2.</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation type="obsolete">Nápověda</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;body&gt;
 &lt;p&gt;
 Add, modify, and remove document filters, which determine the documentation set displayed in the Help mode.  The attributes are defined in the documents. Select them to display a set of relevant documentation. Note that some attributes are defined in several documents.
@@ -8840,10 +8830,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
         <translation>Přidat</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;body&gt;
 &lt;p&gt;
 Add, modify, and remove document filters, which determine the documentation set displayed in the Help mode. The attributes are defined in the documents. Select them to display a set of relevant documentation. Note that some attributes are defined in several documents.
@@ -8854,13 +8840,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
 &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation>Přidat...</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::HelpIndexFilter</name>
-    <message>
         <source>Help index</source>
         <translation type="obsolete">Rejstřík pro nápovědu</translation>
     </message>
@@ -8868,16 +8847,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
         <source>Help Index</source>
         <translation>Rejstřík pro nápovědu</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpMode</name>
-    <message>
-        <source>Help</source>
-        <translation>Nápověda</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::HelpPlugin</name>
     <message>
         <source>Contents</source>
         <translation>Obsah</translation>
@@ -9055,10 +9024,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
         <translation>Ukázat postranní panel</translation>
     </message>
     <message>
-        <source>Unfiltered</source>
-        <translation>Žádný filtr</translation>
-    </message>
-    <message>
         <source>No Documentation</source>
         <translation>Dokumentace chybí</translation>
     </message>
@@ -9078,9 +9043,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
         <source>Hide Sidebar</source>
         <translation>Skrýt postranní panel</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchWidget</name>
     <message>
         <source>&amp;Copy</source>
         <translation type="obsolete">&amp;Kopírovat</translation>
@@ -9088,10 +9050,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
     <message>
         <source>Copy &amp;Link Location</source>
         <translation type="obsolete">&amp;Kopírovat adresu odkazu</translation>
-    </message>
-    <message>
-        <source>Open Link in New Tab</source>
-        <translation type="obsolete">Otevřít odkaz v nové kartě</translation>
     </message>
     <message>
         <source>Select All</source>
@@ -9125,9 +9083,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
         <source>Reload</source>
         <translation>Nahrát znovu</translation>
     </message>
-</context>
-<context>
-    <name>HelpViewer</name>
     <message>
         <source>Open Link in New Tab</source>
         <translation type="obsolete">Otevřít odkaz v nové kartě</translation>
@@ -9145,10 +9100,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
         <translation type="obsolete">&lt;title&gt;Chyba 404 ...&lt;/title&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;Stranu se nepodařilo najít.&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation type="obsolete">Nápověda</translation>
-    </message>
-    <message>
         <source>Unable to launch external application.
 </source>
         <translation type="obsolete">Chyba při spouštění vnější aplikace.
@@ -9157,10 +9108,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
     <message>
         <source>OK</source>
         <translation type="obsolete">OK</translation>
-    </message>
-    <message>
-        <source>Copy &amp;Link Location</source>
-        <translation type="obsolete">&amp;Kopírovat adresu odkazu</translation>
     </message>
     <message>
         <source>Open Link in New Tab	Ctrl+LMB</source>
@@ -19723,14 +19670,10 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Help::Internal::GeneralSettingsPage</name>
+    <name>Help</name>
     <message>
         <source>General settings</source>
         <translation type="obsolete">Obecná nastavení</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">Nápověda</translation>
     </message>
     <message>
         <source>General Settings</source>
@@ -19888,9 +19831,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Switches to editor context after last help page is closed.</source>
         <translation>Přepne do editoru po zavření poslední stránky s nápovědou.</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::XbelReader</name>
     <message>
         <source>The file is not an XBEL version 1.0 file.</source>
         <translation>Soubor není  souborem XBEL ve verzi 1.0.</translation>
@@ -25577,39 +25517,8 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
 <context>
     <name>Help</name>
     <message>
-        <source>Help</source>
-        <translation>Nápověda</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::HelpViewer</name>
-    <message>
-        <source>&lt;title&gt;about:blank&lt;/title&gt;</source>
-        <translation>&lt;title&gt;about:blank&lt;/title&gt;</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;&lt;title&gt;Error 404...&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;div align=&quot;center&quot;&gt;&lt;br/&gt;&lt;br/&gt;&lt;h1&gt;The page could not be found&lt;/h1&gt;&lt;br/&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;&lt;title&gt;Error 404...&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;div align=&quot;center&quot;&gt;&lt;br/&gt;&lt;br/&gt;&lt;h1&gt;Stránku se nepodařilo najít&lt;/h1&gt;&lt;br/&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Otevřít adresu odkazu</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Otevřít adresu odkazu jako novou stránku</translation>
-    </message>
-    <message>
-        <source>Copy Link</source>
-        <translation>Kopírovat odkaz</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>Kopírovat</translation>
-    </message>
-    <message>
-        <source>Reload</source>
-        <translation>Nahrát znovu</translation>
     </message>
     <message>
         <source>Error loading: %1</source>
@@ -25619,16 +25528,10 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Unknown or unsupported Content!</source>
         <translation>Neznámý nebo nepodporovaný obsah!</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesModel</name>
     <message>
         <source>(Untitled)</source>
         <translation>(Bez názvu)</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesWidget</name>
     <message>
         <source>Close %1</source>
         <translation>Zavřít %1</translation>
@@ -30924,7 +30827,7 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
 </context>
 <context>
-    <name>Help::Internal::RemoteFilterOptions</name>
+    <name>Help</name>
     <message>
         <source>Filter configuration</source>
         <translation type="obsolete">Nastavení filtru</translation>
@@ -30936,14 +30839,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     <message>
         <source>Limit to prefix</source>
         <translation>Omezit na předponu</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
     </message>
     <message>
         <source>Double-click to edit item.</source>
@@ -36500,25 +36395,15 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>Help::Internal::ExternalHelpWindow</name>
-    <message>
-        <source>Show Sidebar</source>
-        <translation>Ukázat postranní panel</translation>
-    </message>
+    <name>Help</name>
     <message>
         <source>Qt Creator Offline Help</source>
         <translation>Nápověda pro Qt Creator</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesManager</name>
     <message>
         <source>Copy Full Path to Clipboard</source>
         <translation>Kopírovat celou cestu do schránky</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::RemoteHelpFilter</name>
     <message>
         <source>Web Search</source>
         <translation>Hledat na internetu</translation>

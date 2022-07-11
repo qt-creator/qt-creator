@@ -25,6 +25,7 @@
 
 #include "filtersettingspage.h"
 #include "helpconstants.h"
+#include "helptr.h"
 
 #include <QtCore/QVersionNumber>
 #include <QtHelp/QHelpFilterEngine>
@@ -36,7 +37,7 @@ using namespace Help::Internal;
 FilterSettingsPage::FilterSettingsPage()
 {
     setId("D.Filters");
-    setDisplayName(tr("Filters"));
+    setDisplayName(Tr::tr("Filters"));
     setCategory(Help::Constants::HELP_CATEGORY);
 }
 

@@ -27,6 +27,7 @@
 
 #include "helpconstants.h"
 #include "helpplugin.h"
+#include "helptr.h"
 #include "helpviewer.h"
 #include "helpwidget.h"
 #include "localhelpmanager.h"
@@ -88,17 +89,13 @@ public:
 GeneralSettingsPageWidget::GeneralSettingsPageWidget()
 {
     // font group box
-    auto fontGroupBox = new QGroupBox(
-        QCoreApplication::translate("Help::Internal::GeneralSettingsPage", "Font"));
-    auto familyLabel = new QLabel(
-        QCoreApplication::translate("Help::Internal::GeneralSettingsPage", "Family:"));
+    auto fontGroupBox = new QGroupBox(Tr::tr("Font"));
+    auto familyLabel = new QLabel(Tr::tr("Family:"));
 
     familyComboBox = new QFontComboBox;
-    auto styleLabel = new QLabel(
-        QCoreApplication::translate("Help::Internal::GeneralSettingsPage", "Style:"));
+    auto styleLabel = new QLabel(Tr::tr("Style:"));
     styleComboBox = new QComboBox;
-    auto sizeLabel = new QLabel(
-        QCoreApplication::translate("Help::Internal::GeneralSettingsPage", "Size:"));
+    auto sizeLabel = new QLabel(Tr::tr("Size:"));
     sizeComboBox = new QComboBox;
 
     auto fontLayout = new QHBoxLayout();
@@ -111,19 +108,17 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     fontLayout->addWidget(sizeComboBox);
     fontLayout->addStretch();
 
-    auto noteLabel = new QLabel(QCoreApplication::translate(
-        "Help::Internal::GeneralSettingsPage",
+    auto noteLabel = new QLabel(Tr::tr(
         "Note: The above setting takes effect only if the HTML file does not use a style sheet."));
     noteLabel->setWordWrap(true);
-    auto zoomLabel = new QLabel(
-        QCoreApplication::translate("Help::Internal::GeneralSettingsPage", "Zoom:"));
+    auto zoomLabel = new QLabel(Tr::tr("Zoom:"));
 
     zoomSpinBox = new QSpinBox;
     zoomSpinBox->setMinimum(10);
     zoomSpinBox->setMaximum(3000);
     zoomSpinBox->setSingleStep(10);
     zoomSpinBox->setValue(100);
-    zoomSpinBox->setSuffix(QCoreApplication::translate("Help::Internal::GeneralSettingsPage", "%"));
+    zoomSpinBox->setSuffix(Tr::tr("%"));
 
     auto zoomLayout = new QHBoxLayout();
     zoomLayout->addWidget(zoomSpinBox);
@@ -138,46 +133,30 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     fontGroupBoxLayout->addLayout(zoomLayout, 2, 1);
 
     // startup group box
-    auto startupGroupBox = new QGroupBox(
-        QCoreApplication::translate("Help::Internal::GeneralSettingsPage", "Startup"));
+    auto startupGroupBox = new QGroupBox(Tr::tr("Startup"));
 
     contextHelpComboBox = new QComboBox(startupGroupBox);
-    contextHelpComboBox->addItem(QCoreApplication::translate("Help::Internal::GeneralSettingsPage",
-                                                             "Show Side-by-Side if Possible"));
-    contextHelpComboBox->addItem(QCoreApplication::translate("Help::Internal::GeneralSettingsPage",
-                                                             "Always Show Side-by-Side"));
-    contextHelpComboBox->addItem(QCoreApplication::translate("Help::Internal::GeneralSettingsPage",
-                                                             "Always Show in Help Mode"));
-    contextHelpComboBox->addItem(QCoreApplication::translate("Help::Internal::GeneralSettingsPage",
-                                                             "Always Show in External Window"));
+    contextHelpComboBox->addItem(Tr::tr("Show Side-by-Side if Possible"));
+    contextHelpComboBox->addItem(Tr::tr("Always Show Side-by-Side"));
+    contextHelpComboBox->addItem(Tr::tr("Always Show in Help Mode"));
+    contextHelpComboBox->addItem(Tr::tr("Always Show in External Window"));
 
     helpStartComboBox = new QComboBox(startupGroupBox);
-    helpStartComboBox->addItem(
-        QCoreApplication::translate("Help::Internal::GeneralSettingsPage", "Show My Home Page"));
-    helpStartComboBox->addItem(
-        QCoreApplication::translate("Help::Internal::GeneralSettingsPage", "Show a Blank Page"));
-    helpStartComboBox->addItem(QCoreApplication::translate("Help::Internal::GeneralSettingsPage",
-                                                           "Show My Tabs from Last Session"));
+    helpStartComboBox->addItem(Tr::tr("Show My Home Page"));
+    helpStartComboBox->addItem(Tr::tr("Show a Blank Page"));
+    helpStartComboBox->addItem(Tr::tr("Show My Tabs from Last Session"));
 
     auto startupFormLayout = new QFormLayout;
     startupGroupBox->setLayout(startupFormLayout);
     startupFormLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    startupFormLayout->addRow(QCoreApplication::translate("Help::Internal::GeneralSettingsPage",
-                                                          "On context help:"),
-                              contextHelpComboBox);
-    startupFormLayout->addRow(QCoreApplication::translate("Help::Internal::GeneralSettingsPage",
-                                                          "On help start:"),
-                              helpStartComboBox);
+    startupFormLayout->addRow(Tr::tr("On context help:"), contextHelpComboBox);
+    startupFormLayout->addRow(Tr::tr("On help start:"), helpStartComboBox);
 
     homePageLineEdit = new QLineEdit;
-    currentPageButton = new QPushButton(
-        QCoreApplication::translate("Help::Internal::GeneralSettingsPage", "Use &Current Page"));
-    blankPageButton = new QPushButton(
-        QCoreApplication::translate("Help::Internal::GeneralSettingsPage", "Use &Blank Page"));
-    defaultPageButton = new QPushButton(
-        QCoreApplication::translate("Help::Internal::GeneralSettingsPage", "Reset"));
-    defaultPageButton->setToolTip(
-        QCoreApplication::translate("Help::Internal::GeneralSettingsPage", "Reset to default."));
+    currentPageButton = new QPushButton(Tr::tr("Use &Current Page"));
+    blankPageButton = new QPushButton(Tr::tr("Use &Blank Page"));
+    defaultPageButton = new QPushButton(Tr::tr("Reset"));
+    defaultPageButton->setToolTip(Tr::tr("Reset to default."));
 
     auto homePageLayout = new QHBoxLayout;
     homePageLayout->addWidget(homePageLineEdit);
@@ -185,29 +164,19 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     homePageLayout->addWidget(blankPageButton);
     homePageLayout->addWidget(defaultPageButton);
 
-    startupFormLayout->addRow(QCoreApplication::translate("Help::Internal::GeneralSettingsPage",
-                                                          "Home page:"),
-                              homePageLayout);
+    startupFormLayout->addRow(Tr::tr("Home page:"), homePageLayout);
 
     // behavior group box
-    auto behaviourGroupBox = new QGroupBox(
-        QCoreApplication::translate("Help::Internal::GeneralSettingsPage", "Behaviour"));
-    scrollWheelZooming = new QCheckBox(
-        QCoreApplication::translate("Help::Internal::GeneralSettingsPage",
-                                    "Enable scroll wheel zooming"));
+    auto behaviourGroupBox = new QGroupBox(Tr::tr("Behaviour"));
+    scrollWheelZooming = new QCheckBox(Tr::tr("Enable scroll wheel zooming"));
 
-    m_returnOnClose = new QCheckBox(
-        QCoreApplication::translate("Help::Internal::GeneralSettingsPage",
-                                    "Return to editor on closing the last page"));
+    m_returnOnClose = new QCheckBox(Tr::tr("Return to editor on closing the last page"));
     m_returnOnClose->setToolTip(
-        QCoreApplication::translate("Help::Internal::GeneralSettingsPage",
-                                    "Switches to editor context after last help page is closed."));
+        Tr::tr("Switches to editor context after last help page is closed."));
 
-    auto viewerBackendLabel = new QLabel(
-        QCoreApplication::translate("Help::Internal::GeneralSettingsPage", "Viewer backend:"));
+    auto viewerBackendLabel = new QLabel(Tr::tr("Viewer backend:"));
     viewerBackend = new QComboBox;
-    const QString description = GeneralSettingsPage::tr(
-        "Change takes effect after reloading help pages.");
+    const QString description = Tr::tr("Change takes effect after reloading help pages.");
     auto viewerBackendDescription = new QLabel(description);
     viewerBackendLabel->setToolTip(description);
     viewerBackend->setToolTip(description);
@@ -236,10 +205,8 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     palette.setBrush(QPalette::Disabled, QPalette::Text, brush1);
     errorLabel->setPalette(palette);
 
-    importButton = new QPushButton(
-        QCoreApplication::translate("Help::Internal::GeneralSettingsPage", "Import Bookmarks..."));
-    exportButton = new QPushButton(
-        QCoreApplication::translate("Help::Internal::GeneralSettingsPage", "Export Bookmarks..."));
+    importButton = new QPushButton(Tr::tr("Import Bookmarks..."));
+    exportButton = new QPushButton(Tr::tr("Export Bookmarks..."));
 
     auto bookmarksLayout = new QHBoxLayout();
     bookmarksLayout->addStretch();
@@ -259,9 +226,9 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
 GeneralSettingsPage::GeneralSettingsPage()
 {
     setId("A.General settings");
-    setDisplayName(tr("General"));
+    setDisplayName(Tr::tr("General"));
     setCategory(Help::Constants::HELP_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Help", "Help"));
+    setDisplayCategory(Tr::tr("Help"));
     setCategoryIconPath(":/help/images/settingscategory_help.png");
 }
 
@@ -332,8 +299,9 @@ QWidget *GeneralSettingsPage::widget()
         m_scrollWheelZoomingEnabled = LocalHelpManager::isScrollWheelZoomingEnabled();
         m_widget->scrollWheelZooming->setChecked(m_scrollWheelZoomingEnabled);
 
-        m_widget->viewerBackend->addItem(tr("Default (%1)", "Default viewer backend")
-                                         .arg(LocalHelpManager::defaultViewerBackend().displayName));
+        m_widget->viewerBackend->addItem(
+            Tr::tr("Default (%1)", "Default viewer backend")
+                .arg(LocalHelpManager::defaultViewerBackend().displayName));
         const QByteArray currentBackend = LocalHelpManager::viewerBackendId();
         const QVector<HelpViewerFactory> backends = LocalHelpManager::viewerBackends();
         for (const HelpViewerFactory &f : backends) {
@@ -417,7 +385,9 @@ void GeneralSettingsPage::importBookmarks()
     m_widget->errorLabel->setVisible(false);
 
     FilePath filePath = FileUtils::getOpenFilePath(nullptr,
-        tr("Import Bookmarks"), FilePath::fromString(QDir::currentPath()), tr("Files (*.xbel)"));
+                                                   Tr::tr("Import Bookmarks"),
+                                                   FilePath::fromString(QDir::currentPath()),
+                                                   Tr::tr("Files (*.xbel)"));
 
     if (filePath.isEmpty())
         return;
@@ -431,7 +401,7 @@ void GeneralSettingsPage::importBookmarks()
     }
 
     m_widget->errorLabel->setVisible(true);
-    m_widget->errorLabel->setText(tr("Cannot import bookmarks."));
+    m_widget->errorLabel->setText(Tr::tr("Cannot import bookmarks."));
 }
 
 void GeneralSettingsPage::exportBookmarks()
@@ -439,7 +409,9 @@ void GeneralSettingsPage::exportBookmarks()
     m_widget->errorLabel->setVisible(false);
 
     FilePath filePath = FileUtils::getSaveFilePath(nullptr,
-        tr("Save File"), "untitled.xbel", tr("Files (*.xbel)"));
+                                                   Tr::tr("Save File"),
+                                                   "untitled.xbel",
+                                                   Tr::tr("Files (*.xbel)"));
 
     QLatin1String suffix(".xbel");
     if (!filePath.endsWith(suffix))

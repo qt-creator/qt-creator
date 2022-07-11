@@ -26,6 +26,7 @@
 #include "openpagesmanager.h"
 
 #include "helpconstants.h"
+#include "helptr.h"
 #include "helpviewer.h"
 #include "helpwidget.h"
 #include "localhelpmanager.h"
@@ -249,7 +250,7 @@ void OpenPagesManager::openPagesContextMenu(const QPoint &point)
         return;
 
     QMenu menu;
-    menu.addAction(tr("Copy Full Path to Clipboard"));
+    menu.addAction(Tr::tr("Copy Full Path to Clipboard"));
     if (menu.exec(m_comboBox->mapToGlobal(point)))
         QApplication::clipboard()->setText(fileName);
 }

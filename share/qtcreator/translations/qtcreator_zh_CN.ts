@@ -8595,7 +8595,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>Help::Internal::CentralWidget</name>
+    <name>Help</name>
     <message>
         <source>Add new page</source>
         <translation type="obsolete">添加新页</translation>
@@ -8624,16 +8624,9 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Add Bookmark for this Page...</source>
         <translation type="obsolete">为此页添加书签...</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::DocSettingsPage</name>
     <message>
         <source>Documentation</source>
         <translation>文档</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">帮助</translation>
     </message>
     <message>
         <source>Add Documentation</source>
@@ -8683,9 +8676,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Remove</source>
         <translation>删除</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::FilterSettingsPage</name>
     <message>
         <source>Filters</source>
         <translation>过滤器</translation>
@@ -8711,10 +8701,6 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>过滤器 &quot;%1&quot; 只会显示包含指定属性 &quot;%2&quot; 的文档文件。</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation type="obsolete">帮助</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;body&gt;
 &lt;p&gt;
 Add, modify, and remove document filters, which determine the documentation set displayed in the Help mode. The attributes are defined in the documents. Select them to display a set of relevant documentation. Note that some attributes are defined in several documents.
@@ -8737,13 +8723,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>添加</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>删除</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::HelpIndexFilter</name>
-    <message>
         <source>Help index</source>
         <translation type="obsolete">帮助索引</translation>
     </message>
@@ -8751,16 +8730,10 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Help Index</source>
         <translation>帮助索引</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpMode</name>
     <message>
         <source>Help</source>
         <translation>帮助</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpPlugin</name>
     <message>
         <source>Contents</source>
         <translation>目录</translation>
@@ -8946,10 +8919,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation type="obsolete">关闭当前页</translation>
     </message>
     <message>
-        <source>Unfiltered</source>
-        <translation>未过滤</translation>
-    </message>
-    <message>
         <source>No Documentation</source>
         <translation>没有文档</translation>
     </message>
@@ -8965,9 +8934,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Filtered by:</source>
         <translation>过滤方式:</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchWidget</name>
     <message>
         <source>&amp;Copy</source>
         <translation type="obsolete">复制(&amp;C)</translation>
@@ -9012,13 +8978,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Reload</source>
         <translation>重新载入</translation>
     </message>
-</context>
-<context>
-    <name>HelpViewer</name>
-    <message>
-        <source>Open Link in New Tab</source>
-        <translation type="obsolete">在新页面打开链接</translation>
-    </message>
     <message>
         <source>&lt;title&gt;about:blank&lt;/title&gt;</source>
         <translation>&lt;title&gt;关于:空白页&lt;/title&gt;</translation>
@@ -9032,10 +8991,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation type="obsolete">&lt;title&gt;错误 404...&lt;/title&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;找不到页面&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation type="obsolete">帮助</translation>
-    </message>
-    <message>
         <source>Unable to launch external application.
 </source>
         <translation type="obsolete">无法执行外部应用。
@@ -9044,10 +8999,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>OK</source>
         <translation type="obsolete">OK</translation>
-    </message>
-    <message>
-        <source>Copy &amp;Link Location</source>
-        <translation type="obsolete">复制链接位置(&amp;L)</translation>
     </message>
     <message>
         <source>Open Link in New Tab	Ctrl+LMB</source>
@@ -18870,14 +18821,10 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Help::Internal::GeneralSettingsPage</name>
+    <name>Help</name>
     <message>
         <source>General settings</source>
         <translation type="obsolete">基本设置</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">帮助</translation>
     </message>
     <message>
         <source>General Settings</source>
@@ -19019,9 +18966,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Return to editor on closing the last page</source>
         <translation>关闭最后一页时返回编辑器</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::XbelReader</name>
     <message>
         <source>The file is not an XBEL version 1.0 file.</source>
         <translation>此文件不是XBEL 1.0文件。</translation>
@@ -20619,13 +20563,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>CDB</source>
         <translation>CDB</translation>
-    </message>
-</context>
-<context>
-    <name>Help</name>
-    <message>
-        <source>Help</source>
-        <translation>帮助</translation>
     </message>
 </context>
 <context>
@@ -23307,34 +23244,7 @@ Previous decimal signed value (big endian): %4</source>
     </message>
 </context>
 <context>
-    <name>Help::HelpManager</name>
-    <message>
-        <source>Unfiltered</source>
-        <translation type="obsolete">未过滤</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::HelpViewer</name>
-    <message>
-        <source>Open Link</source>
-        <translation>打开链接</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>在新页面打开连接</translation>
-    </message>
-    <message>
-        <source>Copy Link</source>
-        <translation>复制链接</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>复制</translation>
-    </message>
-    <message>
-        <source>Reload</source>
-        <translation>重新载入</translation>
-    </message>
+    <name>Help</name>
     <message>
         <source>Error loading: %1</source>
         <translation>载入 %1 除错</translation>
@@ -23343,16 +23253,10 @@ Previous decimal signed value (big endian): %4</source>
         <source>Unknown or unsupported Content!</source>
         <translation>未知的或不支持的内容！</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesModel</name>
     <message>
         <source>(Untitled)</source>
         <translation>(未命名)</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesWidget</name>
     <message>
         <source>Close %1</source>
         <translation>关闭%1</translation>
@@ -28181,7 +28085,7 @@ Id必须以小写字母开头。</translation>
     </message>
 </context>
 <context>
-    <name>Help::Internal::RemoteFilterOptions</name>
+    <name>Help</name>
     <message>
         <source>Filter configuration</source>
         <translation type="obsolete">过滤器设置</translation>
@@ -28205,14 +28109,6 @@ Id必须以小写字母开头。</translation>
     <message>
         <source>Double click to edit item.</source>
         <translation type="obsolete">双击编辑元素.</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>添加</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>删除</translation>
     </message>
     <message>
         <source>Double-click to edit item.</source>
@@ -29727,11 +29623,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>Help::Internal::ExternalHelpWindow</name>
-    <message>
-        <source>Show Sidebar</source>
-        <translation>显示边栏</translation>
-    </message>
+    <name>Help</name>
     <message>
         <source>Qt Creator Offline Help</source>
         <translation>Qt Creator离线帮助</translation>
@@ -29773,14 +29665,11 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>Help::Internal::OpenPagesManager</name>
+    <name>Help</name>
     <message>
         <source>Copy Full Path to Clipboard</source>
         <translation>复制完整路径到剪贴板</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::RemoteHelpFilter</name>
     <message>
         <source>Online Documentation</source>
         <translation type="obsolete">在线文档</translation>

@@ -25,6 +25,8 @@
 
 #include "xbelsupport.h"
 
+#include "helptr.h"
+
 #include <bookmarkmanager.h>
 
 #include <utils/utilsicons.h>
@@ -114,7 +116,7 @@ bool XbelReader::readFromFile(QIODevice *device)
                 && attributes().value("version") == QLatin1String("1.0")) {
                 readXBEL();
             } else {
-                raiseError(QCoreApplication::translate("Help::Internal::XbelReader", "The file is not an XBEL version 1.0 file."));
+                raiseError(Tr::tr("The file is not an XBEL version 1.0 file."));
             }
         }
     }
@@ -186,7 +188,7 @@ void XbelReader::readBookmark(QStandardItem *item)
 {
     QStandardItem *bookmark = createChildItem(item);
     bookmark->setIcon(bookmarkIcon);
-    bookmark->setText(QCoreApplication::translate("Help::Internal::XbelReader", "Unknown title"));
+    bookmark->setText(Tr::tr("Unknown title"));
     bookmark->setData(attributes().value("href").toString(),
         Qt::UserRole + 10);
 

@@ -25,6 +25,8 @@
 
 #include "helpmanager.h"
 
+#include "helptr.h"
+
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/algorithm.h>
@@ -126,7 +128,7 @@ void HelpManager::registerDocumentation(const QStringList &files)
             emit Core::HelpManager::Signals::instance()->documentationChanged();
         }
     });
-    ProgressManager::addTask(future, tr("Update Documentation"), kUpdateDocumentationTask);
+    ProgressManager::addTask(future, Tr::tr("Update Documentation"), kUpdateDocumentationTask);
 }
 
 void HelpManager::unregisterDocumentation(const QStringList &fileNames)

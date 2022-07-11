@@ -27,6 +27,7 @@
 
 #include "helpicons.h"
 #include "helpmanager.h"
+#include "helptr.h"
 #include "topicchooser.h"
 
 #include <coreplugin/icore.h>
@@ -48,7 +49,7 @@ using namespace Help::Internal;
 HelpIndexFilter::HelpIndexFilter()
 {
     setId("HelpIndexFilter");
-    setDisplayName(tr("Help Index"));
+    setDisplayName(Tr::tr("Help Index"));
     setDefaultIncludedByDefault(false);
     setDefaultShortcutString("?");
 

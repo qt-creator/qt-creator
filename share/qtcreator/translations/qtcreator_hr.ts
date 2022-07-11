@@ -4500,7 +4500,7 @@ Možeš birati između skladištenja promjena ili njihovih odbacivanja.</transla
     </message>
 </context>
 <context>
-    <name>Help::Internal::DocSettingsPage</name>
+    <name>Help</name>
     <message>
         <source>Add and remove compressed help files, .qch.</source>
         <translation>Dodaj i ukloni komprimirane datoteke pomoći, .qch.</translation>
@@ -4549,9 +4549,6 @@ Možeš birati između skladištenja promjena ili njihovih odbacivanja.</transla
         <source>Unable to register documentation.</source>
         <translation>Nije moguće refistrirati dokumentaciju.</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::FilterSettingsPage</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;
 &lt;p&gt;
@@ -4579,14 +4576,6 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
         <translation>Korisnički definirani filtri nisu dostupni ili filtri nisu odabrani.</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation>Dodaj …</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
-    </message>
-    <message>
         <source>Unfiltered</source>
         <translation>Nefiltrirano</translation>
     </message>
@@ -4602,9 +4591,6 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
         <source>The filter &quot;%1&quot; will only show documentation files that have the attributes %2 specified.</source>
         <translation>Filtar &quot;%1&quot; će prikazati samo datoteke dokumentacije koje imaju određene atribute %2.</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::GeneralSettingsPage</name>
     <message>
         <source>Font</source>
         <translation>Font</translation>
@@ -4725,16 +4711,9 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
         <source>Save File</source>
         <translation>Spremi datoteku</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::RemoteFilterOptions</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
     </message>
     <message>
         <source>Move Up</source>
@@ -26963,9 +26942,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>The page could not be found</source>
         <translation>Nije bilo moguće naći stranicu</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpPlugin</name>
     <message>
         <source>Index</source>
         <translation>Indeks</translation>
@@ -27003,10 +26979,6 @@ instead of its installation directory when run outside git bash.</source>
         <translation>Informacije o sustavu …</translation>
     </message>
     <message>
-        <source>Unfiltered</source>
-        <translation>Nefiltrirano</translation>
-    </message>
-    <message>
         <source>No Documentation</source>
         <translation>Nema dokumentacije</translation>
     </message>
@@ -27026,9 +26998,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Copy to Clipboard</source>
         <translation>Kopiraj u međuspremnik</translation>
     </message>
-</context>
-<context>
-    <name>HelpViewer</name>
     <message>
         <source>Open Link as New Page</source>
         <translation>Otvori poveznicu kao novu stranicu</translation>
@@ -27037,30 +27006,14 @@ instead of its installation directory when run outside git bash.</source>
         <source>Open Link in Window</source>
         <translation>Otvori poveznicu u prozoru</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpIndexFilter</name>
     <message>
         <source>Help Index</source>
         <translation>Indeks pomoći</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpManager</name>
     <message>
         <source>Update Documentation</source>
         <translation>Aktualiziraj dokumentaciju</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpMode</name>
-    <message>
-        <source>Help</source>
-        <translation>Pomoć</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::HelpWidget</name>
     <message>
         <source>Open in Help Mode</source>
         <translation>Otvori u pomoći</translation>
@@ -27162,10 +27115,6 @@ instead of its installation directory when run outside git bash.</source>
         <translation>Ctrl+Shift+O</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation>Pomoć</translation>
-    </message>
-    <message>
         <source>Help - %1</source>
         <translation>Pomoć – %1</translation>
     </message>
@@ -27173,23 +27122,14 @@ instead of its installation directory when run outside git bash.</source>
         <source>Print Documentation</source>
         <translation>Ispiši dokumentaciju</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesManager</name>
     <message>
         <source>Copy Full Path to Clipboard</source>
         <translation>Kopiraj cijelu stazu u međuspremnik</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesModel</name>
     <message>
         <source>(Untitled)</source>
         <translation>(Bezimeno)</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesWidget</name>
     <message>
         <source>Close %1</source>
         <translation>Zatvori „%1”</translation>
@@ -27198,23 +27138,14 @@ instead of its installation directory when run outside git bash.</source>
         <source>Close All Except %1</source>
         <translation>Zatvori sve, osim „%1”</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::RemoteHelpFilter</name>
     <message>
         <source>Web Search</source>
         <translation>Web pretraga</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchTaskHandler</name>
     <message>
         <source>Get Help Online</source>
         <translation>Pomoć putem interneta</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchWidget</name>
     <message>
         <source>Indexing Documentation</source>
         <translation>Dokumentacja za indeksiranje</translation>
@@ -27224,10 +27155,6 @@ instead of its installation directory when run outside git bash.</source>
         <translation>Otvori poveznicu</translation>
     </message>
     <message>
-        <source>Open Link as New Page</source>
-        <translation>Otvori poveznicu kao novu stranicu</translation>
-    </message>
-    <message>
         <source>Copy Link</source>
         <translation>Kopiraj poveznicu</translation>
     </message>
@@ -27239,35 +27166,10 @@ instead of its installation directory when run outside git bash.</source>
         <source>Reload</source>
         <translation>Učitaj ponovo</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchSideBarItem</name>
     <message>
         <source>Regenerate Index</source>
         <translation>Ponovo generiraj indeks</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::TextBrowserHelpWidget</name>
-    <message>
-        <source>Open Link</source>
-        <translation>Otvori poveznicu</translation>
-    </message>
-    <message>
-        <source>Copy Link</source>
-        <translation>Kopiraj poveznicu</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>Kopiraj</translation>
-    </message>
-    <message>
-        <source>Reload</source>
-        <translation>Učitaj ponovo</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::XbelReader</name>
     <message>
         <source>The file is not an XBEL version 1.0 file.</source>
         <translation>Datoteka nije XBEL datoteka verzije 1.0.</translation>
@@ -43332,18 +43234,10 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>Help::Internal::IndexWindow</name>
+    <name>Help</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Traži:</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Otvori poveznicu</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Otvori poveznicu kao novu stranicu</translation>
     </message>
 </context>
 <context>

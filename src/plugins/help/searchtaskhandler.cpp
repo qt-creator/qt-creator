@@ -25,6 +25,8 @@
 
 #include "searchtaskhandler.h"
 
+#include "helptr.h"
+
 #include <projectexplorer/task.h>
 
 #include <QAction>
@@ -46,5 +48,5 @@ void SearchTaskHandler::handle(const ProjectExplorer::Task &task)
 
 QAction *SearchTaskHandler::createAction(QObject *parent) const
 {
-    return new QAction(tr("Get Help Online"), parent);
+    return new QAction(Tr::tr("Get Help Online"), parent);
 }

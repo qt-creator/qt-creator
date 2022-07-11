@@ -147,8 +147,7 @@ WebEngineHelpViewer::WebEngineHelpViewer(QWidget *parent) :
     });
 
     QAction* action = m_widget->pageAction(QWebEnginePage::OpenLinkInNewTab);
-    action->setText(QCoreApplication::translate("HelpViewer",
-                                                Constants::TR_OPEN_LINK_AS_NEW_PAGE));
+    action->setText(Tr::tr(Constants::TR_OPEN_LINK_AS_NEW_PAGE));
 
     QWebEnginePage *viewPage = m_widget->page();
     QTC_ASSERT(viewPage, return);
@@ -358,16 +357,14 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
         QUrl url = page()->contextMenuData().linkUrl();
 #endif
         if (m_viewer->isActionVisible(HelpViewer::Action::NewPage)) {
-            auto openLink = new QAction(QCoreApplication::translate("HelpViewer",
-                                        Constants::TR_OPEN_LINK_AS_NEW_PAGE), menu);
+            auto openLink = new QAction(Tr::tr(Constants::TR_OPEN_LINK_AS_NEW_PAGE), menu);
             connect(openLink, &QAction::triggered, m_viewer, [this, url] {
                 m_viewer->newPageRequested(url);
             });
             menu->insertAction(before, openLink);
         }
         if (m_viewer->isActionVisible(HelpViewer::Action::ExternalWindow)) {
-            auto openLink = new QAction(QCoreApplication::translate("HelpViewer",
-                                        Constants::TR_OPEN_LINK_IN_WINDOW), menu);
+            auto openLink = new QAction(Tr::tr(Constants::TR_OPEN_LINK_IN_WINDOW), menu);
             connect(openLink, &QAction::triggered, m_viewer, [this, url] {
                 m_viewer->externalPageRequested(url);
             });

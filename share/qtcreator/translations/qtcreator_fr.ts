@@ -9429,7 +9429,7 @@ Valider maintenant ?</translation>
     </message>
 </context>
 <context>
-    <name>Help::Internal::CentralWidget</name>
+    <name>Help</name>
     <message>
         <source>Add new page</source>
         <translation type="obsolete">Ajouter une nouvelle page</translation>
@@ -9458,16 +9458,9 @@ Valider maintenant ?</translation>
         <source>Add Bookmark for this Page...</source>
         <translation type="obsolete">Ajouter un signet pour cette page...</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::DocSettingsPage</name>
     <message>
         <source>Documentation</source>
         <translation>Documentation</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">Aide</translation>
     </message>
     <message>
         <source>Add Documentation</source>
@@ -9518,9 +9511,6 @@ Valider maintenant ?</translation>
         <source>Remove</source>
         <translation>Supprimer</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::FilterSettingsPage</name>
     <message>
         <source>Filters</source>
         <translation>Filtres</translation>
@@ -9546,10 +9536,6 @@ Valider maintenant ?</translation>
         <translation>Le filtre &quot;%1&quot; ne montrera que les fichiers de la documentation qui ont les attributs %2 spécifiés. </translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation type="obsolete">Aide</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;body&gt;
 &lt;p&gt;
 Add, modify, and remove document filters, which determine the documentation set displayed in the Help mode.  The attributes are defined in the documents. Select them to display a set of relevant documentation. Note that some attributes are defined in several documents.
@@ -9572,10 +9558,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <translation>Ajouter</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;body&gt;
 &lt;p&gt;
 Add, modify, and remove document filters, which determine the documentation set displayed in the Help mode. The attributes are defined in the documents. Select them to display a set of relevant documentation. Note that some attributes are defined in several documents.
@@ -9585,9 +9567,6 @@ Add, modify, and remove document filters, which determine the documentation set 
 Ajouter, modifier et supprimer des filtres de documents, lesquels déterminent la documentation qui sera affichée dans le mode d&apos;aide. Les attributs sont définis dans les documents. Sélectionnez-les pour afficher la documentation pertinente. Notez que certains attributs sont définis dans plusieurs documents.
 &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpIndexFilter</name>
     <message>
         <source>Help index</source>
         <translation type="obsolete">Index de l&apos;aide</translation>
@@ -9596,16 +9575,10 @@ Ajouter, modifier et supprimer des filtres de documents, lesquels déterminent l
         <source>Help Index</source>
         <translation>Index de l&apos;aide</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpMode</name>
     <message>
         <source>Help</source>
         <translation>Aide</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpPlugin</name>
     <message>
         <source>Contents</source>
         <translation>Contenu</translation>
@@ -9787,10 +9760,6 @@ Ajouter, modifier et supprimer des filtres de documents, lesquels déterminent l
         <translation type="obsolete">Fermer la page courante</translation>
     </message>
     <message>
-        <source>Unfiltered</source>
-        <translation>Sans filtre</translation>
-    </message>
-    <message>
         <source>No Documentation</source>
         <translation>Aucune documentation</translation>
     </message>
@@ -9807,9 +9776,6 @@ Ajouter, modifier et supprimer des filtres de documents, lesquels déterminent l
         <translatorcomment>better than &quot;filtré par&quot; in the context</translatorcomment>
         <translation>Filtre :</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchWidget</name>
     <message>
         <source>&amp;Copy</source>
         <translation type="obsolete">Co&amp;pier</translation>
@@ -9854,17 +9820,6 @@ Ajouter, modifier et supprimer des filtres de documents, lesquels déterminent l
         <source>Reload</source>
         <translation>Recharger</translation>
     </message>
-</context>
-<context>
-    <name>HelpViewer</name>
-    <message>
-        <source>Open Link in New Tab</source>
-        <translation type="obsolete">Ouvrir le lien dans un nouvel onglet</translation>
-    </message>
-    <message>
-        <source>&lt;title&gt;about:blank&lt;/title&gt;</source>
-        <translation type="obsolete">&lt;title&gt;À propos : vide&lt;/title&gt;</translation>
-    </message>
     <message>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;&lt;title&gt;Error 404...&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;The page could not be found&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;&lt;/body&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;&lt;title&gt;Erreur 404...&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;La page n&apos;a pas pu être trouvée&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;&quot;%1&quot;&lt;/h3&gt;&lt;/div&gt;&lt;/body&gt;</translation>
@@ -9872,10 +9827,6 @@ Ajouter, modifier et supprimer des filtres de documents, lesquels déterminent l
     <message>
         <source>&lt;title&gt;Error 404...&lt;/title&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;The page could not be found&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;</source>
         <translation type="obsolete">&lt;title&gt;Erreur 404...&lt;/title&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;La page est introuvable&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;&quot;%1&quot;&lt;/h3&gt;&lt;/div&gt;</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">Aide</translation>
     </message>
     <message>
         <source>Unable to launch external application.
@@ -9886,10 +9837,6 @@ Ajouter, modifier et supprimer des filtres de documents, lesquels déterminent l
     <message>
         <source>OK</source>
         <translation type="obsolete">OK</translation>
-    </message>
-    <message>
-        <source>Copy &amp;Link Location</source>
-        <translation type="obsolete">&amp;Copier l&apos;adresse du lien</translation>
     </message>
     <message>
         <source>Open Link in New Tab	Ctrl+LMB</source>
@@ -20471,14 +20418,10 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Help::Internal::GeneralSettingsPage</name>
+    <name>Help</name>
     <message>
         <source>General settings</source>
         <translation type="obsolete">Réglages généraux</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">Aide</translation>
     </message>
     <message>
         <source>General Settings</source>
@@ -20629,9 +20572,6 @@ p, li { white-space: pre-wrap; }
         <source>Export Bookmarks...</source>
         <translation>Exporter les signets...</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::XbelReader</name>
     <message>
         <source>The file is not an XBEL version 1.0 file.</source>
         <translation>Il ne s&apos;agit pas d&apos;un fichier XBEL version 1.0.</translation>
@@ -25814,46 +25754,12 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
 <context>
     <name>Help</name>
     <message>
-        <source>Help</source>
-        <translation>Aide</translation>
-    </message>
-</context>
-<context>
-    <name>Help::HelpManager</name>
-    <message>
-        <source>Unfiltered</source>
-        <translation type="obsolete">Sans filtre</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::HelpViewer</name>
-    <message>
         <source>&lt;title&gt;about:blank&lt;/title&gt;</source>
         <translation>&lt;title&gt;À propos : vide&lt;/title&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;&lt;title&gt;Error 404...&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;div align=&quot;center&quot;&gt;&lt;br/&gt;&lt;br/&gt;&lt;h1&gt;The page could not be found&lt;/h1&gt;&lt;br/&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;&lt;title&gt;Erreur 404...&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;div align=&quot;center&quot;&gt;&lt;br/&gt;&lt;br/&gt;&lt;h1&gt;La page n&apos;a pas pu être trouvée&lt;/h1&gt;&lt;br/&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Ouvrir le lien</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Ouvrir le lien en tant que nouvelle page</translation>
-    </message>
-    <message>
-        <source>Copy Link</source>
-        <translation>Copier le lien</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>Copier</translation>
-    </message>
-    <message>
-        <source>Reload</source>
-        <translation>Recharger</translation>
     </message>
     <message>
         <source>Error loading: %1</source>
@@ -25863,16 +25769,10 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Unknown or unsupported Content!</source>
         <translation>Contenu inconnu ou non supporté !</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesModel</name>
     <message>
         <source>(Untitled)</source>
         <translation>(Sans titre)</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesWidget</name>
     <message>
         <source>Close %1</source>
         <translation>Fermer %1</translation>
@@ -30328,7 +30228,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>Help::Internal::RemoteFilterOptions</name>
+    <name>Help</name>
     <message>
         <source>Filter configuration</source>
         <translation type="obsolete">Configuration du filtre</translation>
@@ -30352,14 +30252,6 @@ Preselects Qt for Simulator and mobile targets if available</source>
     <message>
         <source>Double click to edit item.</source>
         <translation type="obsolete">Double-cliquez pour modifier l&apos;élément.</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Ajouter</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
     </message>
     <message>
         <source>Double-click to edit item.</source>
@@ -31849,11 +31741,7 @@ plutôt que dans le répertoire d&apos;installation lors d&apos;une exècution e
     </message>
 </context>
 <context>
-    <name>Help::Internal::ExternalHelpWindow</name>
-    <message>
-        <source>Show Sidebar</source>
-        <translation>Afficher la barre latérale</translation>
-    </message>
+    <name>Help</name>
     <message>
         <source>Qt Creator Offline Help</source>
         <translation>Aide hors ligne de Qt Creator</translation>
@@ -31899,14 +31787,11 @@ plutôt que dans le répertoire d&apos;installation lors d&apos;une exècution e
     </message>
 </context>
 <context>
-    <name>Help::Internal::OpenPagesManager</name>
+    <name>Help</name>
     <message>
         <source>Copy Full Path to Clipboard</source>
         <translation>Copier le chemin complet dans le presse papier</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::RemoteHelpFilter</name>
     <message>
         <source>Online Documentation</source>
         <translation type="obsolete">Documentation en ligne</translation>

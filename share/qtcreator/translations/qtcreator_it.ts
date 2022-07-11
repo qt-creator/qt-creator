@@ -5918,7 +5918,7 @@ Causa: %3</translation>
     </message>
 </context>
 <context>
-    <name>Help::Internal::CentralWidget</name>
+    <name>Help</name>
     <message>
         <source>Add new page</source>
         <translation>Aggiungi una pagina</translation>
@@ -5947,9 +5947,6 @@ Causa: %3</translation>
         <source>Add Bookmark for this Page...</source>
         <translation>Aggiungi un Segnalibro su questa Pagina...</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::DocSettingsPage</name>
     <message>
         <source>Documentation</source>
         <translation>Documentazione</translation>
@@ -5974,9 +5971,6 @@ Causa: %3</translation>
         <source>Cannot unregister documentation file %1!</source>
         <translation>Impossibile de-registrare il file di documentazione %1!</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::FilterSettingsPage</name>
     <message>
         <source>Filters</source>
         <translation>Filtri</translation>
@@ -5985,23 +5979,14 @@ Causa: %3</translation>
         <source>Help</source>
         <translation>Guida</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpIndexFilter</name>
     <message>
         <source>Help index</source>
         <translation>Indice della guida</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpMode</name>
     <message>
         <source>Help</source>
         <translation>Guida</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpPlugin</name>
     <message>
         <source>Contents</source>
         <translation>Contenuti</translation>
@@ -6094,9 +6079,6 @@ Causa: %3</translation>
         <source>Filtered by:</source>
         <translation>Filtrato da:</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchWidget</name>
     <message>
         <source>&amp;Copy</source>
         <translation>&amp;Copia</translation>
@@ -12799,7 +12781,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Help::Internal::GeneralSettingsPage</name>
+    <name>Help</name>
     <message>
         <source>General settings</source>
         <translation type="unfinished">Impostazioni Generali</translation>
@@ -12826,7 +12808,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Help::Internal::XbelReader</name>
+    <name>Help</name>
     <message>
         <source>The file is not an XBEL version 1.0 file.</source>
         <translation type="unfinished"></translation>

@@ -26,6 +26,7 @@
 #include "macwebkithelpviewer.h"
 
 #include "helpconstants.h"
+#include "helptr.h"
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 
@@ -347,11 +348,15 @@ static NSMenuItem *menuItem(NSURL *url, id target, SEL action, const QString &ti
             NSURL *url = [element objectForKey:WebElementLinkURLKey];
             if (QTC_GUARD(url)) {
                 if (widget->viewer()->isActionVisible(Help::Internal::HelpViewer::Action::NewPage))
-                    [ret addObject:menuItem(url, self, @selector(openAsNewPage:),
-                                            QCoreApplication::translate("HelpViewer", Help::Constants::TR_OPEN_LINK_AS_NEW_PAGE))];
+                    [ret addObject:menuItem(url,
+                                            self,
+                                            @selector(openAsNewPage:),
+                                            Tr::tr(Help::Constants::TR_OPEN_LINK_AS_NEW_PAGE))];
                 if (widget->viewer()->isActionVisible(Help::Internal::HelpViewer::Action::ExternalWindow))
-                    [ret addObject:menuItem(url, self, @selector(openInWindow:),
-                                            QCoreApplication::translate("HelpViewer", Help::Constants::TR_OPEN_LINK_IN_WINDOW))];
+                    [ret addObject:menuItem(url,
+                                            self,
+                                            @selector(openInWindow:),
+                                            Tr::tr(Help::Constants::TR_OPEN_LINK_IN_WINDOW))];
             }
             break;
         }

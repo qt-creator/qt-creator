@@ -6000,7 +6000,7 @@ Razón: %3</translation>
     </message>
 </context>
 <context>
-    <name>Help::Internal::CentralWidget</name>
+    <name>Help</name>
     <message>
         <source>Add new page</source>
         <translation>Agregar nueva página</translation>
@@ -6029,9 +6029,6 @@ Razón: %3</translation>
         <source>Add Bookmark for this Page...</source>
         <translation>Añadir marcador para ésta página...</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::DocSettingsPage</name>
     <message>
         <source>Documentation</source>
         <translation>Documentación</translation>
@@ -6056,9 +6053,6 @@ Razón: %3</translation>
         <source>Cannot unregister documentation file %1!</source>
         <translation>No se puede desregistrar el archivo de documentación %1!</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::FilterSettingsPage</name>
     <message>
         <source>Filters</source>
         <translation>Filtros</translation>
@@ -6067,23 +6061,14 @@ Razón: %3</translation>
         <source>Help</source>
         <translation>Ayuda</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpIndexFilter</name>
     <message>
         <source>Help index</source>
         <translation>Índice de la ayuda</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpMode</name>
     <message>
         <source>Help</source>
         <translation>Ayuda</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpPlugin</name>
     <message>
         <source>Contents</source>
         <translation>Contenidos</translation>
@@ -6180,9 +6165,6 @@ Razón: %3</translation>
         <source>Filtered by:</source>
         <translation>Filtrado por:</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchWidget</name>
     <message>
         <source>&amp;Copy</source>
         <translation>&amp;Copiar</translation>
@@ -6199,9 +6181,6 @@ Razón: %3</translation>
         <source>Select All</source>
         <translation>Seleccionar todo</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::TitleMapThread</name>
     <message>
         <source>Documentation file %1 does not exist!
 Skipping file.</source>
@@ -13028,7 +13007,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Help::Internal::GeneralSettingsPage</name>
+    <name>Help</name>
     <message>
         <source>General settings</source>
         <translation type="unfinished">Ajustes generales</translation>
@@ -13053,9 +13032,6 @@ p, li { white-space: pre-wrap; }
         <source>Save File</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::XbelReader</name>
     <message>
         <source>The file is not an XBEL version 1.0 file.</source>
         <translation type="unfinished"></translation>

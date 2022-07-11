@@ -23898,9 +23898,6 @@ Leave empty to search through the file system.</source>
         <source>The page could not be found</source>
         <translation>Не удалось найти страницу</translation>
     </message>
-</context>
-<context>
-    <name>Help::DocSettingsPageWidget</name>
     <message>
         <source>%1 (auto-detected)</source>
         <translation>%1 (автоопределённое)</translation>
@@ -23933,9 +23930,6 @@ Leave empty to search through the file system.</source>
         <source>Documentation</source>
         <translation>Документация</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::DocSettingsPage</name>
     <message>
         <source>Add and remove compressed help files, .qch.</source>
         <translation>Добавление и удаление сжатых файлов справки, .qch.</translation>
@@ -23952,9 +23946,6 @@ Leave empty to search through the file system.</source>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::FilterSettingsPage</name>
     <message>
         <source>Filters</source>
         <translation>Фильтры</translation>
@@ -23988,10 +23979,6 @@ Leave empty to search through the file system.</source>
         <translation>1</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Удалить</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;body&gt;
 &lt;p&gt;
 Add, modify, and remove document filters, which determine the documentation set displayed in the Help mode. The attributes are defined in the documents. Select them to display a set of relevant documentation. Note that some attributes are defined in several documents.
@@ -24001,13 +23988,6 @@ Add, modify, and remove document filters, which determine the documentation set 
 Добавление, изменение и удаление фильтров документов, которые определяют отображение набора документации в режиме справки. Атрибуты определены в самих документах. Выбор их приведёт к отображению подходящей документации. Стоит иметь в виду, что некоторые атрибуты могут быть определены в нескольких документах.
 &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-    <message>
-        <source>Add...</source>
-        <translation>Добавить...</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::GeneralSettingsPage</name>
     <message>
         <source>General</source>
         <translation>Основное</translation>
@@ -24145,30 +24125,14 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Viewer backend:</source>
         <translation>Просмотрщик:</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpIndexFilter</name>
     <message>
         <source>Help Index</source>
         <translation>Указатель справки</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpManager</name>
     <message>
         <source>Update Documentation</source>
         <translation>Обновление документации</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpMode</name>
-    <message>
-        <source>Help</source>
-        <translation>Справка</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::HelpPlugin</name>
     <message>
         <source>Contents</source>
         <translation>Содержание</translation>
@@ -24225,13 +24189,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Open Pages</source>
         <translation>Открытые страницы</translation>
     </message>
-    <message>
-        <source>Unfiltered</source>
-        <translation>Вся</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::HelpWidget</name>
     <message>
         <source>(Untitled)</source>
         <translation>(Без имени)</translation>
@@ -24313,10 +24270,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>Перезагрузить</translation>
     </message>
     <message>
-        <source>Unfiltered</source>
-        <translation>Вся</translation>
-    </message>
-    <message>
         <source>Meta+Shift+C</source>
         <translation>Meta+Shift+C</translation>
     </message>
@@ -24369,10 +24322,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>Ctrl+Shift+O</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation>Справка</translation>
-    </message>
-    <message>
         <source>Help - %1</source>
         <translation>Справка - %1</translation>
     </message>
@@ -24380,9 +24329,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Print Documentation</source>
         <translation>Печать документации</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::IndexWindow</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Искать:</translation>
@@ -24395,9 +24341,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Open Link as New Page</source>
         <translation>Открыть ссылку в новой странице</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::LiteHtmlHelpViewer</name>
     <message>
         <source>Copy Link</source>
         <translation>Скопировать ссылку</translation>
@@ -24406,9 +24349,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Copy</source>
         <translation>Копировать</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::LocalHelpManager</name>
     <message>
         <source>QtWebEngine</source>
         <translation>QtWebEngine</translation>
@@ -24425,16 +24365,10 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>QTextBrowser</source>
         <translation>QTextBrowser</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesManager</name>
     <message>
         <source>Copy Full Path to Clipboard</source>
         <translation>Скопировать полный путь в буфер обмена</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesWidget</name>
     <message>
         <source>Close %1</source>
         <translation>Закрыть %1</translation>
@@ -24443,65 +24377,18 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Close All Except %1</source>
         <translation>Закрыть все, кроме %1</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchSideBarItem</name>
     <message>
         <source>Regenerate Index</source>
         <translation>Обновление указателя</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchTaskHandler</name>
     <message>
         <source>Get Help Online</source>
         <translation>Получить онлайн справку</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchWidget</name>
     <message>
         <source>Indexing Documentation</source>
         <translation>Индексация документации</translation>
     </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Открыть ссылку</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Открыть ссылку в новой странице</translation>
-    </message>
-    <message>
-        <source>Copy Link</source>
-        <translation>Скопировать ссылку</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>Копировать</translation>
-    </message>
-    <message>
-        <source>Reload</source>
-        <translation>Перезагрузить</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::TextBrowserHelpWidget</name>
-    <message>
-        <source>Open Link</source>
-        <translation>Открыть ссылку</translation>
-    </message>
-    <message>
-        <source>Copy Link</source>
-        <translation>Скопировать ссылку</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>Копировать</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::XbelReader</name>
     <message>
         <source>The file is not an XBEL version 1.0 file.</source>
         <translation>Содержимое файла не соответствует XBEL версии 1.0.</translation>
@@ -24509,13 +24396,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Unknown title</source>
         <translation>Неизвестный заголовок</translation>
-    </message>
-</context>
-<context>
-    <name>HelpViewer</name>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Открыть ссылку в новой странице</translation>
     </message>
     <message>
         <source>Open Link in Window</source>

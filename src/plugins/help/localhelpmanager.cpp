@@ -28,6 +28,7 @@
 #include "bookmarkmanager.h"
 #include "helpconstants.h"
 #include "helpmanager.h"
+#include "helptr.h"
 #include "helpviewer.h"
 #include "textbrowserhelpviewer.h"
 
@@ -328,7 +329,7 @@ QVector<HelpViewerFactory> LocalHelpManager::viewerBackends()
 {
     QVector<HelpViewerFactory> result;
 #ifdef QTC_LITEHTML_HELPVIEWER
-    result.append({"litehtml", tr("litehtml"), []() { return new LiteHtmlHelpViewer; }});
+    result.append({"litehtml", Tr::tr("litehtml"), []() { return new LiteHtmlHelpViewer; }});
 #endif
 #ifdef QTC_WEBENGINE_HELPVIEWER
     static bool schemeRegistered = false;
@@ -338,11 +339,12 @@ QVector<HelpViewerFactory> LocalHelpManager::viewerBackends()
         scheme.setFlags(QWebEngineUrlScheme::LocalScheme | QWebEngineUrlScheme::LocalAccessAllowed);
         QWebEngineUrlScheme::registerScheme(scheme);
     }
-    result.append({"qtwebengine", tr("QtWebEngine"), []() { return new WebEngineHelpViewer; }});
+    result.append({"qtwebengine", Tr::tr("QtWebEngine"), []() { return new WebEngineHelpViewer; }});
 #endif
-    result.append({"textbrowser", tr("QTextBrowser"), []() { return new TextBrowserHelpViewer; }});
+    result.append(
+        {"textbrowser", Tr::tr("QTextBrowser"), []() { return new TextBrowserHelpViewer; }});
 #ifdef QTC_MAC_NATIVE_HELPVIEWER
-    result.append({"native", tr("WebKit"), []() { return new MacWebKitHelpViewer; }});
+    result.append({"native", Tr::tr("WebKit"), []() { return new MacWebKitHelpViewer; }});
 #endif
 #ifdef QTC_DEFAULT_HELPVIEWER_BACKEND
     const int index = Utils::indexOf(result, [](const HelpViewerFactory &f) {
@@ -472,15 +474,15 @@ QByteArray LocalHelpManager::loadErrorMessage(const QUrl &url, const QString &er
         "</html>";
 
     // some of the values we will replace %1...6 inside the former html
-    const QString g_percent1 = QCoreApplication::translate("Help", "Error loading page");
+    const QString g_percent1 = Tr::tr("Error loading page");
     // percent2 will be the error details
     // percent3 will be the url of the page we got the error from
-    const QString g_percent4 = QCoreApplication::translate("Help", "<p>Check that you have the corresponding "
-        "documentation set installed.</p>");
+    const QString g_percent4 = Tr::tr("<p>Check that you have the corresponding "
+                                      "documentation set installed.</p>");
 
-    return QString::fromLatin1(g_htmlPage).arg(g_percent1, errorString,
-                QCoreApplication::translate("Help", "Error loading: %1").arg(url.toString()),
-                g_percent4).toUtf8();
+    return QString::fromLatin1(g_htmlPage)
+        .arg(g_percent1, errorString, Tr::tr("Error loading: %1").arg(url.toString()), g_percent4)
+        .toUtf8();
 }
 
 LocalHelpManager::HelpData LocalHelpManager::helpData(const QUrl &url)
@@ -495,8 +497,7 @@ LocalHelpManager::HelpData LocalHelpManager::helpData(const QUrl &url)
         if (data.mimeType.isEmpty())
             data.mimeType = "application/octet-stream";
     } else {
-        data.data = loadErrorMessage(url, QCoreApplication::translate(
-                                         "Help", "The page could not be found"));
+        data.data = loadErrorMessage(url, Tr::tr("The page could not be found"));
         data.mimeType = "text/html";
     }
     return data;

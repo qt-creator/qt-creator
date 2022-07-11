@@ -19351,9 +19351,6 @@ Lad være tom for at gennemsøge filsystemet.</translation>
         <source>The page could not be found</source>
         <translation>Siden kunne ikke findes</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::DocSettingsPage</name>
     <message>
         <source>Add and remove compressed help files, .qch.</source>
         <translation>Tilføj og fjern komprimeret hjælp-filer, .qch.</translation>
@@ -19402,9 +19399,6 @@ Lad være tom for at gennemsøge filsystemet.</translation>
         <source>Unable to register documentation.</source>
         <translation>Kunne ikke registrere dokumentation.</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::FilterSettingsPage</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;
 &lt;p&gt;
@@ -19432,14 +19426,6 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
         <translation>Ingen brugerdefineret filtre tilgængelige eller intet filter valgt.</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation>Tilføj...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Fjern</translation>
-    </message>
-    <message>
         <source>Unfiltered</source>
         <translation>Ufiltreret</translation>
     </message>
@@ -19455,9 +19441,6 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
         <source>The filter &quot;%1&quot; will only show documentation files that have the attributes %2 specified.</source>
         <translation>Filteret &quot;%1&quot; vil kun vise dokumentationsfiler som har angivet attributterne %2.</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::GeneralSettingsPage</name>
     <message>
         <source>Font</source>
         <translation>Skrifttype</translation>
@@ -19578,23 +19561,10 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
         <source>Save File</source>
         <translation>Gem fil</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpIndexFilter</name>
     <message>
         <source>Help Index</source>
         <translation>Hjælp-indeks</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpMode</name>
-    <message>
-        <source>Help</source>
-        <translation>Hjælp</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::HelpPlugin</name>
     <message>
         <source>Index</source>
         <translation>Indeks</translation>
@@ -19632,10 +19602,6 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
         <translation>Systeminformation...</translation>
     </message>
     <message>
-        <source>Unfiltered</source>
-        <translation>Ufiltreret</translation>
-    </message>
-    <message>
         <source>No Documentation</source>
         <translation>Ingen dokumentation</translation>
     </message>
@@ -19655,9 +19621,6 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
         <source>Copy to Clipboard</source>
         <translation>Kopiér til udklipsholder</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpWidget</name>
     <message>
         <source>Open in Help Mode</source>
         <translation>Åbn i Hjælp-tilstand</translation>
@@ -19759,10 +19722,6 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
         <translation>Ctrl+Skift+O</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation>Hjælp</translation>
-    </message>
-    <message>
         <source>Help - %1</source>
         <translation>Hjælp - %1</translation>
     </message>
@@ -19770,9 +19729,6 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
         <source>Print Documentation</source>
         <translation>Udskriv dokumentation</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::IndexWindow</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Led efter:</translation>
@@ -19785,23 +19741,14 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
         <source>Open Link as New Page</source>
         <translation>Åbn link som ny side</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesManager</name>
     <message>
         <source>Copy Full Path to Clipboard</source>
         <translation>Kopiér fulde sti til udklipsholder</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesModel</name>
     <message>
         <source>(Untitled)</source>
         <translation>(unavngivet)</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesWidget</name>
     <message>
         <source>Close %1</source>
         <translation>Luk %1</translation>
@@ -19810,16 +19757,9 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
         <source>Close All Except %1</source>
         <translation>Luk alle, undtagen %1</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::RemoteFilterOptions</name>
     <message>
         <source>Add</source>
         <translation>Tilføj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Fjern</translation>
     </message>
     <message>
         <source>Double-click to edit item.</source>
@@ -19833,43 +19773,23 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
         <source>Move Down</source>
         <translation>Flyt ned</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::RemoteHelpFilter</name>
     <message>
         <source>Web Search</source>
         <translation>Websøgning</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchSideBarItem</name>
     <message>
         <source>Regenerate Index</source>
         <translation>Regenerer indeks</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchTaskHandler</name>
     <message>
         <source>Get Help Online</source>
         <translation>Få hjælp online</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchWidget</name>
     <message>
         <source>Indexing Documentation</source>
         <translation>Indekserer dokumentation</translation>
     </message>
     <message>
-        <source>Open Link</source>
-        <translation>Åbn link</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Åbn link som ny side</translation>
-    </message>
-    <message>
         <source>Copy Link</source>
         <translation>Kopiér link</translation>
     </message>
@@ -19881,28 +19801,6 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
         <source>Reload</source>
         <translation>Genindlæs</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::TextBrowserHelpWidget</name>
-    <message>
-        <source>Open Link</source>
-        <translation>Åbn link</translation>
-    </message>
-    <message>
-        <source>Copy Link</source>
-        <translation>Kopiér link</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>Kopiér</translation>
-    </message>
-    <message>
-        <source>Reload</source>
-        <translation>Genindlæs</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::XbelReader</name>
     <message>
         <source>The file is not an XBEL version 1.0 file.</source>
         <translation>Filen er ikke en XBEL version 1.0-fil.</translation>
@@ -19910,13 +19808,6 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
     <message>
         <source>Unknown title</source>
         <translation>Ukendt titel</translation>
-    </message>
-</context>
-<context>
-    <name>HelpViewer</name>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Åbn link som ny side</translation>
     </message>
     <message>
         <source>Open Link in Window</source>

@@ -6345,14 +6345,11 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>Help::Internal::CentralWidget</name>
+    <name>Help</name>
     <message>
         <source>Print Document</source>
         <translation>Natisni dokument</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::DocSettingsPage</name>
     <message>
         <source>Documentation</source>
         <translation>Dokumentacija</translation>
@@ -6365,9 +6362,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Qt Help Files (*.qch)</source>
         <translation>Datoteke s pomočjo za Qt (*.qch)</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::FilterSettingsPage</name>
     <message>
         <source>Filters</source>
         <translation>Filtri</translation>
@@ -6392,9 +6386,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>The filter &quot;%1&quot; will only show documentation files that have the attributes %2 specified.</source>
         <translation>Filter »%1« bo prikazal le dokumentacijske datoteke, ki imajo določene lastnosti %2.</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpIndexFilter</name>
     <message>
         <source>Help Index</source>
         <translation>Kazalo pomoči</translation>
@@ -6403,16 +6394,10 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Help index</source>
         <translation type="obsolete">Seznam pomoči</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpMode</name>
     <message>
         <source>Help</source>
         <translation>Pomoč</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::HelpPlugin</name>
     <message>
         <source>Contents</source>
         <translation>Vsebina</translation>
@@ -6502,10 +6487,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>V načinu Pomoč aktiviraj Iskanje</translation>
     </message>
     <message>
-        <source>Unfiltered</source>
-        <translation>Nefiltrirano</translation>
-    </message>
-    <message>
         <source>No Documentation</source>
         <translation>Ni dokumentacije</translation>
     </message>
@@ -6553,9 +6534,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Close current Page</source>
         <translation type="obsolete">Zapri trenutno stran</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::SearchWidget</name>
     <message>
         <source>Indexing</source>
         <translation>Indeksiranje</translation>
@@ -6584,9 +6562,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Reload</source>
         <translation>Znova naloži</translation>
     </message>
-</context>
-<context>
-    <name>HelpViewer</name>
     <message>
         <source>&lt;title&gt;about:blank&lt;/title&gt;</source>
         <translation>&lt;title&gt;about:blank&lt;/title&gt;</translation>
@@ -13064,7 +13039,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>Help::Internal::GeneralSettingsPage</name>
+    <name>Help</name>
     <message>
         <source>General Settings</source>
         <translation>Splošne nastavitve</translation>
@@ -13093,9 +13068,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>There was an error while importing bookmarks!</source>
         <translation type="obsolete">Med uvažanjem zaznamkov je prišlo do napake.</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::XbelReader</name>
     <message>
         <source>The file is not an XBEL version 1.0 file.</source>
         <translation>Datoteka ni v obliki XBEL različice 1.0.</translation>
@@ -16492,42 +16464,9 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
 <context>
     <name>Help</name>
     <message>
-        <source>Help</source>
-        <translation>Pomoč</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::HelpViewer</name>
-    <message>
-        <source>Open Link</source>
-        <translation>Odpri povezavo</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Odpri povezavo kot novo stran</translation>
-    </message>
-    <message>
-        <source>Copy Link</source>
-        <translation>Skopiraj povezavo</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>Skopiraj</translation>
-    </message>
-    <message>
-        <source>Reload</source>
-        <translation>Znova naloži</translation>
-    </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesModel</name>
-    <message>
         <source>(Untitled)</source>
         <translation>(neimenovano)</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesWidget</name>
     <message>
         <source>Close %1</source>
         <translation>Zapri %1</translation>
@@ -20013,7 +19952,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>Help::Internal::RemoteFilterOptions</name>
+    <name>Help</name>
     <message>
         <source>Filter configuration</source>
         <translation>Nastavitev filtra</translation>
@@ -25196,7 +25135,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>Help::Internal::ExternalHelpWindow</name>
+    <name>Help</name>
     <message>
         <source>Show Sidebar</source>
         <translation>Prikaži stranski pas</translation>
@@ -25205,16 +25144,10 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
         <source>Qt Creator Offline Help</source>
         <translation>Pomoč za Qt Creator (brez povezave)</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::OpenPagesManager</name>
     <message>
         <source>Copy Full Path to Clipboard</source>
         <translation>Skopiraj celotno pot na odložišče</translation>
     </message>
-</context>
-<context>
-    <name>Help::Internal::RemoteHelpFilter</name>
     <message>
         <source>Web Search</source>
         <translation>Spletno iskanje</translation>
