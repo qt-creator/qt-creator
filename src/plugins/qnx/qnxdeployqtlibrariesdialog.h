@@ -30,13 +30,19 @@
 #include <projectexplorer/devicesupport/idevicefwd.h>
 #include <utils/qtcprocess.h>
 
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QLabel;
+class QLineEdit;
+class QPlainTextEdit;
+class QProgressBar;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer { class DeployableFile; }
 namespace RemoteLinux { class GenericDirectUploadService; }
 
 namespace Qnx {
 namespace Internal {
-
-namespace Ui { class QnxDeployQtLibrariesDialog; }
 
 class QnxDeployQtLibrariesDialog : public QDialog
 {
@@ -79,7 +85,13 @@ private:
     QString fullRemoteDirectory() const;
     void startUpload();
 
-    Ui::QnxDeployQtLibrariesDialog *m_ui;
+    QComboBox *m_qtLibraryCombo;
+    QPushButton *m_deployButton;
+    QLabel *m_basePathLabel;
+    QLineEdit *m_remoteDirectory;
+    QProgressBar *m_deployProgress;
+    QPlainTextEdit *m_deployLogWindow;
+    QPushButton *m_closeButton;
 
     Utils::QtcProcess m_checkDirProcess;
     Utils::QtcProcess m_removeDirProcess;

@@ -16,7 +16,6 @@ QtcPlugin {
     files: [
         "qnxdeployqtlibrariesdialog.cpp",
         "qnxdeployqtlibrariesdialog.h",
-        "qnxdeployqtlibrariesdialog.ui",
         "qnxtoolchain.cpp",
         "qnxtoolchain.h",
         "qnx.qrc",
