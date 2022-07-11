@@ -28,7 +28,7 @@
 #include "callgrindparsedata.h"
 #include "callgrindfunction.h"
 #include "callgrindcostitem.h"
-#include "valgrindtr.h"
+#include "../valgrindtr.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
