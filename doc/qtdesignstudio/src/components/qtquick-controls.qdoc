@@ -70,7 +70,7 @@
     components, unless it has been explicitly set for them.
 
     \note Take care when enabling wheel events for controls within scrollable
-    components, such as \l Flickable, because the control will consume the
+    components, such as \l Flickable because the control will consume the
     events, and therefore interrupt scrolling of the flickable.
 
     \uicontrol Spacing is useful for controls that have multiple or repetitive
@@ -130,7 +130,7 @@
     The button text should be a verb describing the action, or a noun matching
     the title of the popup that will be opened.
 
-    Don't use a button to set state, because a \l Switch is more suitable for
+    Don't use a button to set state because a \l Switch is more suitable for
     that purpose.
 
     \section3 Highlighted Buttons

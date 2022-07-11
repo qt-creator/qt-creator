@@ -235,7 +235,7 @@
     > \uicontrol {On help start} field.
     To display the page and help views that were open when you exited the mode,
     select the \uicontrol {Show My Tabs from Last Session} option. However, Web pages
-    are not opened, because loading them would slow down opening the \uicontrol Help
+    are not opened because loading them would slow down opening the \uicontrol Help
     mode.
 
     To display a particular page, select \uicontrol {Show My Home Page}, and specify

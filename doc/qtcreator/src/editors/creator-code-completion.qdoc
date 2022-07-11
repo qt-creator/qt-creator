@@ -257,7 +257,7 @@
     project containing the file that is currently open in the editor:
     \c {%{CurrentDocument:Project:Name}}.
 
-    Use unique variable names within a snippet, because all instances of a
+    Use unique variable names within a snippet because all instances of a
     variable are renamed when you specify a value for it.
 
     To determine the case of values you enter in snippets, use the following

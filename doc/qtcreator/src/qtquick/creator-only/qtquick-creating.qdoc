@@ -62,7 +62,7 @@
             \li Qt Quick UI Prototype
             \li Creates a Qt Quick UI project with a single QML file that
                 contains the main view. You can preview Qt Quick 2 UI projects
-                in the QML Scene preview tool. You do not need to build them,
+                in the QML Scene preview tool. You do not need to build them
                 because they do not contain any C++ code.
 
                 This project type is compatible with \QDS. However, use this
@@ -168,7 +168,7 @@
     Qt Quick UI Prototype projects are useful for testing or prototyping user
     interfaces,
     or for setting up a separate project just for QML editing, for example. You
-    cannot use them for application development, because they do not contain:
+    cannot use them for application development because they do not contain:
 
     \list
         \li C++ code

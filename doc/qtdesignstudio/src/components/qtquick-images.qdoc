@@ -118,7 +118,7 @@
 
     If the source is an intrinsically scalable image (such as SVG), source size
     determines the size of the loaded image regardless of intrinsic size.
-    Avoid changing the source size property dynamically, because rendering an
+    Avoid changing the source size property dynamically because rendering an
     SVG is slow compared with rendering other image formats.
 
     If the source is a non-scalable image (such as JPEG), the loaded image will

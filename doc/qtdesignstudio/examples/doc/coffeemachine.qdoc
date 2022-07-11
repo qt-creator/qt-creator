@@ -168,7 +168,7 @@
     \image coffee-machine-timeline-settings.png
 
     We set the start frame for the \c {"selection"} state to 400 and
-    the end frame to 200, because we are moving back on the timeline to display
+    the end frame to 200 because we are moving back on the timeline to display
     the selection sidebar.
 
     In the \uicontrol {Transition to state} field, we select the state to

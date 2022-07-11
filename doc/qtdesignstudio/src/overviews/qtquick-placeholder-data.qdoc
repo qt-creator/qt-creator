@@ -98,7 +98,7 @@
     \endqml
 
     This works nicely for applications but \uicontrol {Form Editor} displays a
-    zero-sized component. A parent for the opened file does not exist, because
+    zero-sized component. A parent for the opened file does not exist because
     the context is missing. To get around the missing context, the idea of a
     \e {dummy context} is introduced. If you place a file with the same name as
     the application (here, example.qml) in the \c {dummydata/context} directory,

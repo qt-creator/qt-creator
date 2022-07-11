@@ -99,7 +99,7 @@
             numerical types, whereas masks for strings must be in base 16, and
             start with 0x.
 
-            \note You are recommended not to change the range and priority,
+            \note You are recommended not to change the range and priority
             because it might cause problems when opening files in \QC.
 
         \li Click \uicontrol OK to return to the \uicontrol {MIME Types} tab.

@@ -94,7 +94,7 @@
             \inlineimage icons/online.png
             to open the JDK download web page in the default browser.
 
-            \note We recommended using a 64-bit JDK, because the 32-bit one
+            \note We recommended using a 64-bit JDK because the 32-bit one
             might cause issues with \c cmdline-tools, and some packages might
             not be listed.
         \li In the \uicontrol {Android SDK location} field, set the path to the
@@ -130,7 +130,7 @@
     \section2 Manual Setup
 
     \note We recommend that you use the latest Android SDK Command-Line Tools.
-    Using Android SDK Tools version 25.2.5 or earlier is not supported, because
+    Using Android SDK Tools version 25.2.5 or earlier is not supported because
     they cannot be fully integrated with \QC.
 
     However, if the automatic setup does not meet your needs, you can download
