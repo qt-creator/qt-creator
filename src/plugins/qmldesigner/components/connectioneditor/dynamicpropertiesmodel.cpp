@@ -298,6 +298,9 @@ AbstractProperty DynamicPropertiesModel::abstractPropertyForRow(int rowNumber) c
     const int internalId = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 1).toInt();
     const QString targetPropertyName = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 2).toString();
 
+    if (!connectionView()->isAttached())
+        return AbstractProperty();
+
     ModelNode  modelNode = connectionView()->modelNodeForInternalId(internalId);
 
     if (modelNode.isValid())
