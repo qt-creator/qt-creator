@@ -223,10 +223,10 @@ public:
     void vcsAnnotate(const FilePath &file, int line) final;
     void vcsDescribe(const FilePath &source, const QString &changeNr) final;
 
-    Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
-                                                     const Utils::FilePath &baseDirectory,
-                                                     const QString &localName,
-                                                     const QStringList &extraArgs) final;
+    ShellCommand *createInitialCheckoutCommand(const QString &url,
+                                               const Utils::FilePath &baseDirectory,
+                                               const QString &localName,
+                                               const QStringList &extraArgs) final;
 
     bool isVcsDirectory(const Utils::FilePath &fileName) const;
 
@@ -1280,7 +1280,7 @@ void SubversionPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
     vcsAnnotateHelper(filePath.parentDir(), filePath.fileName(), QString(), line);
 }
 
-Core::ShellCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const QString &url,
+ShellCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const QString &url,
                                                                     const Utils::FilePath &baseDirectory,
                                                                     const QString &localName,
                                                                     const QStringList &extraArgs)

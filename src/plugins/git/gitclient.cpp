@@ -924,7 +924,7 @@ bool GitClient::managesFile(const FilePath &workingDirectory, const QString &fil
 {
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, {"ls-files", "--error-unmatch", fileName},
-                            Core::ShellCommand::NoOutput);
+                            ShellCommand::NoOutput);
     return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
@@ -940,7 +940,7 @@ FilePaths GitClient::unmanagedFiles(const FilePaths &filePaths) const
         const QDir wd(it.key().toString());
         args << transform(it.value(), [&wd](const QString &fp) { return wd.relativeFilePath(fp); });
         QtcProcess proc;
-        vcsFullySynchronousExec(proc, it.key(), args, Core::ShellCommand::NoOutput);
+        vcsFullySynchronousExec(proc, it.key(), args, ShellCommand::NoOutput);
         if (proc.result() != ProcessResult::FinishedWithSuccess)
             return filePaths;
         const QStringList managedFilePaths

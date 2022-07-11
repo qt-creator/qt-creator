@@ -29,7 +29,6 @@
 #include "resultparser.h"
 
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/shellcommand.h>
 #include <coreplugin/vcsmanager.h>
 #include <git/gitclient.h>
 #include <projectexplorer/projectexplorer.h>
@@ -44,6 +43,7 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/shellcommand.h>
 
 #include <QApplication>
 #include <QCheckBox>

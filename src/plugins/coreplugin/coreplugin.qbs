@@ -156,8 +156,6 @@ Project {
                 "rightpane.h",
                 "settingsdatabase.cpp",
                 "settingsdatabase.h",
-                "shellcommand.cpp",
-                "shellcommand.h",
                 "sidebar.cpp",
                 "sidebar.h",
                 "sidebarwidget.cpp",

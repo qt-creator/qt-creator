@@ -30,10 +30,10 @@
 #include "../gitclient.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/shellcommand.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
+#include <utils/shellcommand.h>
 
 #include <QFile>
 #include <QJsonDocument>
@@ -244,8 +244,7 @@ int GerritServer::testConnection()
     static GitClient *const client = GitClient::instance();
     const QStringList arguments = curlArguments() << (url(RestUrl) + accountUrlC);
     QtcProcess proc;
-    client->vcsFullySynchronousExec(proc, {}, {curlBinary, arguments},
-                                    Core::ShellCommand::NoOutput);
+    client->vcsFullySynchronousExec(proc, {}, {curlBinary, arguments}, ShellCommand::NoOutput);
     if (proc.result() == ProcessResult::FinishedWithSuccess) {
         QString output = proc.cleanedStdOut();
         // Gerrit returns an empty response for /p/qt-creator/a/accounts/self
@@ -345,7 +344,7 @@ bool GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
         if (port)
             arguments << p.portFlag << QString::number(port);
         arguments << hostArgument() << "gerrit" << "version";
-        client->vcsFullySynchronousExec(proc, {}, {p.ssh, arguments}, Core::ShellCommand::NoOutput);
+        client->vcsFullySynchronousExec(proc, {}, {p.ssh, arguments}, ShellCommand::NoOutput);
         QString stdOut = proc.cleanedStdOut().trimmed();
         stdOut.remove("gerrit version ");
         version = stdOut;
@@ -354,8 +353,7 @@ bool GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
     } else {
         const QStringList arguments = curlArguments() << (url(RestUrl) + versionUrlC);
         QtcProcess proc;
-        client->vcsFullySynchronousExec(proc, {}, {curlBinary, arguments},
-                                        Core::ShellCommand::NoOutput);
+        client->vcsFullySynchronousExec(proc, {}, {curlBinary, arguments}, ShellCommand::NoOutput);
         // REST endpoint for version is only available from 2.8 and up. Do not consider invalid
         // if it fails.
         if (proc.result() == ProcessResult::FinishedWithSuccess) {

@@ -27,13 +27,16 @@
 
 #include "vcsbase_global.h"
 
-#include <coreplugin/shellcommand.h>
+#include <coreplugin/progressmanager/futureprogress.h>
+#include <utils/shellcommand.h>
+
+#include <QPointer>
 
 namespace VcsBase {
 
 class VcsOutputWindow;
 
-class VCSBASE_EXPORT VcsCommand : public Core::ShellCommand
+class VCSBASE_EXPORT VcsCommand : public Utils::ShellCommand
 {
     Q_OBJECT
 
@@ -57,8 +60,7 @@ protected:
 private:
     void emitRepositoryChanged(const Utils::FilePath &workingDirectory);
 
-    void coreAboutToClose() override;
-
+    QPointer<Core::FutureProgress> m_progress;
     QString m_sshPrompt;
     bool m_preventRepositoryChanged;
 };

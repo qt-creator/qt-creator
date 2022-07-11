@@ -257,10 +257,10 @@ public:
     void vcsDescribe(const FilePath &source, const QString &id) final { m_gitClient.show(source.toString(), id); };
     QString vcsTopic(const FilePath &directory) final;
 
-    Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
-                                                     const Utils::FilePath &baseDirectory,
-                                                     const QString &localName,
-                                                     const QStringList &extraArgs) final;
+    ShellCommand *createInitialCheckoutCommand(const QString &url,
+                                               const Utils::FilePath &baseDirectory,
+                                               const QString &localName,
+                                               const QStringList &extraArgs) final;
 
     void fillLinkContextMenu(QMenu *menu,
                              const FilePath &workingDirectory,
@@ -1921,10 +1921,10 @@ QString GitPluginPrivate::vcsTopic(const FilePath &directory)
     return topic;
 }
 
-Core::ShellCommand *GitPluginPrivate::createInitialCheckoutCommand(const QString &url,
-                                                                    const Utils::FilePath &baseDirectory,
-                                                                    const QString &localName,
-                                                                    const QStringList &extraArgs)
+ShellCommand *GitPluginPrivate::createInitialCheckoutCommand(const QString &url,
+                                                             const Utils::FilePath &baseDirectory,
+                                                             const QString &localName,
+                                                             const QStringList &extraArgs)
 {
     QStringList args = {"clone", "--progress"};
     args << extraArgs << url << localName;

@@ -146,10 +146,10 @@ public:
     void vcsAnnotate(const FilePath &filePath, int line) final;
     void vcsDescribe(const FilePath &source, const QString &id) final { m_client.view(source.toString(), id); }
 
-    Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
-                                                     const Utils::FilePath &baseDirectory,
-                                                     const QString &localName,
-                                                     const QStringList &extraArgs) final;
+    ShellCommand *createInitialCheckoutCommand(const QString &url,
+                                               const Utils::FilePath &baseDirectory,
+                                               const QString &localName,
+                                               const QStringList &extraArgs) final;
 
     bool sccManaged(const QString &filename);
 
@@ -826,7 +826,7 @@ void MercurialPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
     m_client.annotate(filePath.parentDir(), filePath.fileName(), QString(), line);
 }
 
-Core::ShellCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const QString &url,
+ShellCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const QString &url,
                                                                    const Utils::FilePath &baseDirectory,
                                                                    const QString &localName,
                                                                    const QStringList &extraArgs)

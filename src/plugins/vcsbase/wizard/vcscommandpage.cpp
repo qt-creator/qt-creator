@@ -26,13 +26,14 @@
 #include "vcscommandpage.h"
 
 #include <coreplugin/iversioncontrol.h>
-#include <coreplugin/shellcommand.h>
 #include <coreplugin/vcsmanager.h>
+
 #include <projectexplorer/jsonwizard/jsonwizard.h>
 
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/qtcassert.h>
+#include <utils/shellcommand.h>
 
 #include <QDir>
 #include <QDebug>
@@ -288,9 +289,8 @@ void VcsCommandPage::delayedInitialize()
         extraArgs << tmp;
     }
 
-    Core::ShellCommand *command
-            = vc->createInitialCheckoutCommand(repo, FilePath::fromString(base),
-                                               name, extraArgs);
+    ShellCommand *command = vc->createInitialCheckoutCommand(repo, FilePath::fromString(base),
+                                                             name, extraArgs);
 
     for (const JobData &job : qAsConst(m_additionalJobs)) {
         QTC_ASSERT(!job.job.isEmpty(), continue);

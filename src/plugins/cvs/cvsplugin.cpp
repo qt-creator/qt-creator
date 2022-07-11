@@ -251,10 +251,10 @@ public:
 
     QString vcsOpenText() const final;
 
-    Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
-                                                     const Utils::FilePath &baseDirectory,
-                                                     const QString &localName,
-                                                     const QStringList &extraArgs) final;
+    ShellCommand *createInitialCheckoutCommand(const QString &url,
+                                               const Utils::FilePath &baseDirectory,
+                                               const QString &localName,
+                                               const QStringList &extraArgs) final;
 
 
     ///
@@ -472,7 +472,7 @@ QString CvsPluginPrivate::vcsOpenText() const
     return tr("&Edit");
 }
 
-Core::ShellCommand *CvsPluginPrivate::createInitialCheckoutCommand(const QString &url,
+ShellCommand *CvsPluginPrivate::createInitialCheckoutCommand(const QString &url,
                                                              const Utils::FilePath &baseDirectory,
                                                              const QString &localName,
                                                              const QStringList &extraArgs)

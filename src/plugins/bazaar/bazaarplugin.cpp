@@ -163,10 +163,10 @@ public:
     void vcsAnnotate(const Utils::FilePath &file, int line) final;
     void vcsDescribe(const Utils::FilePath &source, const QString &id) final { m_client.view(source.toString(), id); }
 
-    Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
-                                                     const Utils::FilePath &baseDirectory,
-                                                     const QString &localName,
-                                                     const QStringList &extraArgs) final;
+    ShellCommand *createInitialCheckoutCommand(const QString &url,
+                                               const Utils::FilePath &baseDirectory,
+                                               const QString &localName,
+                                               const QStringList &extraArgs) final;
 
     // To be connected to the VCSTask's success signal to emit the repository/
     // files changed signals according to the variant's type:
@@ -924,11 +924,10 @@ void BazaarPluginPrivate::vcsAnnotate(const FilePath &file, int line)
     m_client.annotate(file.parentDir(), file.fileName(), QString(), line);
 }
 
-Core::ShellCommand *BazaarPluginPrivate::createInitialCheckoutCommand(
-        const QString &url,
-        const FilePath &baseDirectory,
-        const QString &localName,
-        const QStringList &extraArgs)
+ShellCommand *BazaarPluginPrivate::createInitialCheckoutCommand(const QString &url,
+                                                                const FilePath &baseDirectory,
+                                                                const QString &localName,
+                                                                const QStringList &extraArgs)
 {
     QStringList args;
     args << m_client.vcsCommandString(BazaarClient::CloneCommand)

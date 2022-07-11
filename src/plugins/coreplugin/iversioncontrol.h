@@ -38,9 +38,9 @@
 
 QT_FORWARD_DECLARE_CLASS(QMenu);
 
-namespace Core {
+namespace Utils { class ShellCommand; }
 
-class ShellCommand;
+namespace Core {
 
 class CORE_EXPORT IVersionControl : public QObject
 {
@@ -229,10 +229,10 @@ public:
      *
      * \a extraArgs are passed on to the command being run.
      */
-    virtual ShellCommand *createInitialCheckoutCommand(const QString &url,
-                                                       const Utils::FilePath &baseDirectory,
-                                                       const QString &localName,
-                                                       const QStringList &extraArgs);
+    virtual Utils::ShellCommand *createInitialCheckoutCommand(const QString &url,
+                                                              const Utils::FilePath &baseDirectory,
+                                                              const QString &localName,
+                                                              const QStringList &extraArgs);
 
     virtual void fillLinkContextMenu(QMenu *menu,
                                      const Utils::FilePath &workingDirectory,

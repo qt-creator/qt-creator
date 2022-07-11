@@ -29,30 +29,41 @@
 #include "vcsplugin.h"
 
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
+
 #include <utils/environment.h>
 #include <utils/globalfilechangeblocker.h>
 #include <utils/qtcprocess.h>
 
+#include <QFutureWatcher>
+
+using namespace Core;
 using namespace Utils;
 
 namespace VcsBase {
 
 VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &environment) :
-    Core::ShellCommand(workingDirectory, environment),
+    ShellCommand(workingDirectory, environment),
     m_preventRepositoryChanged(false)
 {
+    connect(ICore::instance(), &ICore::coreAboutToClose, this, [this] {
+        m_preventRepositoryChanged = true;
+        abort();
+    });
+
     VcsOutputWindow::setRepository(workingDirectory.toString());
     setDisableUnixTerminal();
     m_sshPrompt = VcsBase::sshPrompt();
 
     connect(this, &VcsCommand::started, this, [this] {
         if (flags() & ExpectRepoChanges)
-            Utils::GlobalFileChangeBlocker::instance()->forceBlocked(true);
+            GlobalFileChangeBlocker::instance()->forceBlocked(true);
     });
     connect(this, &VcsCommand::finished, this, [this] {
         if (flags() & ExpectRepoChanges)
-            Utils::GlobalFileChangeBlocker::instance()->forceBlocked(false);
+            GlobalFileChangeBlocker::instance()->forceBlocked(false);
     });
 
     VcsOutputWindow *outputWindow = VcsOutputWindow::instance();
@@ -67,7 +78,7 @@ VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &envi
 
 const Environment VcsCommand::processEnvironment() const
 {
-    Environment env = Core::ShellCommand::processEnvironment();
+    Environment env = ShellCommand::processEnvironment();
     VcsBase::setProcessEnvironment(&env, flags() & ForceCLocale, m_sshPrompt);
     return env;
 }
@@ -82,7 +93,25 @@ void VcsCommand::runCommand(QtcProcess &proc,
 
 void VcsCommand::addTask(QFuture<void> &future)
 {
-    Core::ShellCommand::addTask(future);
+    const QString name = displayName();
+    const auto id = Id::fromString(name + QLatin1String(".action"));
+    if (hasProgressParser()) {
+        m_progress = ProgressManager::addTask(future, name, id);
+    } else {
+        // add a timed tasked based on timeout
+        // we cannot access the future interface directly, so we need to create a new one
+        // with the same lifetime
+        auto fi = new QFutureInterface<void>();
+        auto watcher = new QFutureWatcher<void>();
+        connect(watcher, &QFutureWatcherBase::finished, [fi, watcher] {
+            fi->reportFinished();
+            delete fi;
+            watcher->deleteLater();
+        });
+        watcher->setFuture(future);
+        m_progress = ProgressManager::addTimedTask(*fi, name, id, qMax(2, timeoutS() / 5)/*itsmagic*/);
+    }
+
     Internal::VcsPlugin::addFuture(future);
 }
 
@@ -92,13 +121,7 @@ void VcsCommand::emitRepositoryChanged(const FilePath &workingDirectory)
         return;
     // TODO tell the document manager that the directory now received all expected changes
     // Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
-    Core::VcsManager::emitRepositoryChanged(workDirectory(workingDirectory));
-}
-
-void VcsCommand::coreAboutToClose()
-{
-    m_preventRepositoryChanged = true;
-    abort();
+    VcsManager::emitRepositoryChanged(workDirectory(workingDirectory));
 }
 
 } // namespace VcsBase

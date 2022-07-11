@@ -35,12 +35,11 @@ class QPlainTextEdit;
 class QPushButton;
 QT_END_NAMESPACE
 
-namespace Core { class ShellCommand; }
-
 namespace Utils {
 class FancyLineEdit;
 class InfoLabel;
 class PathChooser;
+class ShellCommand;
 }
 
 namespace GitLab {
@@ -67,7 +66,7 @@ private:
     Utils::PathChooser *m_pathChooser = nullptr;
     Utils::FancyLineEdit *m_directoryLE = nullptr;
     Utils::InfoLabel *m_infoLabel = nullptr;
-    Core::ShellCommand *m_command = nullptr;
+    Utils::ShellCommand *m_command = nullptr;
     bool m_commandRunning = false;
 };
 
