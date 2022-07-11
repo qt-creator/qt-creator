@@ -19965,7 +19965,7 @@ gehören nicht zu den verifizierten Remotes in %3. Anderes Verzeichnis angeben?<
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDebugSupport</name>
+    <name>Qnx</name>
     <message>
         <source>Preparing remote side...</source>
         <translation>Bereite Gegenseite vor...</translation>
@@ -19980,7 +19980,7 @@ gehören nicht zu den verifizierten Remotes in %3. Anderes Verzeichnis angeben?<
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>Executable on device:</source>
         <translation>Ausführbare Datei auf Mobilgerät:</translation>
@@ -20174,7 +20174,7 @@ hinzufügen, um dem QML-Editor den wahrscheinlichen URI mitzuteilen.</translatio
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxQtVersion</name>
+    <name>Qnx</name>
     <message>
         <source>QNX %1</source>
         <extracomment>Qt Version is meant for QNX</extracomment>
@@ -23493,7 +23493,7 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceTester</name>
+    <name>Qnx</name>
     <message>
         <source>Checking that files can be created in /var/run...</source>
         <translation>Prüfe, ob Dateien in /var/run angelegt werden können...</translation>
@@ -25817,7 +25817,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::Slog2InfoRunner</name>
+    <name>Qnx</name>
     <message>
         <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available.</source>
         <translation>Warnung: &quot;slog2info&quot; konnte nicht auf dem Gerät gefunden werden, es ist daher keine Debugausgabe verfügbar.</translation>
@@ -26002,7 +26002,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxToolChainConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>&amp;Compiler-Pfad:</translation>
@@ -26958,7 +26958,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAttachDebugSupport</name>
+    <name>Qnx</name>
     <message>
         <source>Remote QNX process %1</source>
         <translation>Entfernter QNX-Prozess %1</translation>
@@ -27168,7 +27168,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxPlugin</name>
+    <name>Qnx</name>
     <message>
         <source>Attach to remote QNX application...</source>
         <translation>An entfernte QNX-Anwendung anhängen...</translation>
@@ -27286,7 +27286,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeployQtLibrariesDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Qt library to deploy:</source>
         <translation>Zum Deployment vorgesehene Qt-Bibliothek:</translation>
@@ -27337,7 +27337,7 @@ Möchten Sie fortfahren?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxSettingsWidget</name>
+    <name>Qnx</name>
     <message>
         <source>Generate kits</source>
         <translation>Kits erzeugen</translation>
@@ -28155,7 +28155,7 @@ Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translati
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>The following errors occurred while activating the QNX configuration:</source>
         <translation>Die folgenden Fehler traten beim Aktivieren der QNX-Konfiguration auf:</translation>
@@ -37151,11 +37151,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDevice</name>
-    <message>
-        <source>QNX</source>
-        <translation>QNX</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>QNX Device</source>
         <translation>QNX-Gerät</translation>
@@ -37166,7 +37162,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceWizard</name>
+    <name>Qnx</name>
     <message>
         <source>New QNX Device Configuration Setup</source>
         <translation>Neue QNX-Geräte-Konfiguration</translation>
@@ -39493,13 +39489,6 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
     <message>
         <source>Median Time</source>
         <translation>Mediandauer</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxQmlProfilerSupport</name>
-    <message>
-        <source>Preparing remote side...</source>
-        <translation>Bereite Gegenseite vor...</translation>
     </message>
 </context>
 <context>
@@ -42593,7 +42582,7 @@ Speichern fehlgeschlagen.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeployConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>Deploy to QNX Device</source>
         <translation>Deployment auf QNX-Gerät</translation>
@@ -50472,7 +50461,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxToolChain</name>
+    <name>Qnx</name>
     <message>
         <source>QCC</source>
         <translation>QCC</translation>

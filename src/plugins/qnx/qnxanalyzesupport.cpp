@@ -25,6 +25,7 @@
 
 #include "qnxanalyzesupport.h"
 
+#include "qnxtr.h"
 #include "slog2inforunner.h"
 
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
@@ -37,14 +38,13 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 QnxQmlProfilerSupport::QnxQmlProfilerSupport(RunControl *runControl)
     : SimpleTargetRunner(runControl)
 {
     setId("QnxQmlProfilerSupport");
-    appendMessage(tr("Preparing remote side..."), Utils::LogMessageFormat);
+    appendMessage(Tr::tr("Preparing remote side..."), Utils::LogMessageFormat);
 
     auto portsGatherer = new PortsGatherer(runControl);
     addStartDependency(portsGatherer);
@@ -66,5 +66,4 @@ QnxQmlProfilerSupport::QnxQmlProfilerSupport(RunControl *runControl)
     });
 }
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

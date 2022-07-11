@@ -43927,14 +43927,14 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAttachDebugSupport</name>
+    <name>Qnx</name>
     <message>
         <source>Remote QNX process %1</source>
         <translation>Внешний процесс QNX %1</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>The following errors occurred while activating the QNX configuration:</source>
         <translation>При активации конфигурации QNX возникли следующие ошибки:</translation>
@@ -43965,11 +43965,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDebugSupport</name>
-    <message>
-        <source>Preparing remote side...</source>
-        <translation>Подготовка удалённой стороны...</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Project source directory:</source>
         <translation>Каталог исходного кода проекта:</translation>
@@ -43980,14 +43976,14 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeployConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>Deploy to QNX Device</source>
         <translation>Развернуть на устройство QNX</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeployQtLibrariesDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Qt library to deploy:</source>
         <translation>Библиотека Qt для развёртывания:</translation>
@@ -44038,7 +44034,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDevice</name>
+    <name>Qnx</name>
     <message>
         <source>QNX</source>
         <translation>QNX</translation>
@@ -44053,7 +44049,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceTester</name>
+    <name>Qnx</name>
     <message>
         <source>Checking that files can be created in /var/run...</source>
         <translation>Проверка возможности создавать файлы в /var/run...</translation>
@@ -44092,28 +44088,28 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceWizard</name>
+    <name>Qnx</name>
     <message>
         <source>New QNX Device Configuration Setup</source>
         <translation>Настройка новой конфигурации устройства QNX</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxPlugin</name>
+    <name>Qnx</name>
     <message>
         <source>Attach to remote QNX application...</source>
         <translation>Подключиться к приложению QNX...</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxQmlProfilerSupport</name>
+    <name>Qnx</name>
     <message>
         <source>Preparing remote side...</source>
         <translation>Подготовка удалённой стороны...</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxQtVersion</name>
+    <name>Qnx</name>
     <message>
         <source>QNX %1</source>
         <extracomment>Qt Version is meant for QNX</extracomment>
@@ -44125,7 +44121,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>Executable on device:</source>
         <translation>Программа на устройстве:</translation>
@@ -44144,7 +44140,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxSettingsWidget</name>
+    <name>Qnx</name>
     <message>
         <source>Generate kits</source>
         <translation>Создать комплекты</translation>
@@ -44196,23 +44192,19 @@ Are you sure you want to continue?</source>
  %1?</translation>
     </message>
     <message>
-        <source>QNX</source>
-        <translation>QNX</translation>
-    </message>
-    <message>
         <source>Add...</source>
         <translation>Добавить...</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxToolChain</name>
+    <name>Qnx</name>
     <message>
         <source>QCC</source>
         <translation>QCC</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxToolChainConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>Путь к &amp;компилятору:</translation>
@@ -44228,7 +44220,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::Slog2InfoRunner</name>
+    <name>Qnx</name>
     <message>
         <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available.</source>
         <translation>Предупреждение: «slog2info» не найдена на устройстве, вывод отладчика недоступен.</translation>

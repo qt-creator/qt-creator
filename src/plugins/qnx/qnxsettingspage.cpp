@@ -27,6 +27,7 @@
 
 #include "qnxconfiguration.h"
 #include "qnxconfigurationmanager.h"
+#include "qnxtr.h"
 
 #include <coreplugin/icore.h>
 
@@ -108,25 +109,25 @@ QnxSettingsWidget::QnxSettingsWidget() :
     m_configsCombo = new QComboBox(this);
 
     m_generateKitsCheckBox = new QCheckBox(this);
-    m_generateKitsCheckBox->setText(tr("Generate kits"));
+    m_generateKitsCheckBox->setText(Tr::tr("Generate kits"));
 
     m_groupBox = new QGroupBox(this);
     m_groupBox->setMinimumSize(QSize(0, 0));
-    m_groupBox->setTitle(tr("Configuration Information:"));
+    m_groupBox->setTitle(Tr::tr("Configuration Information:"));
 
     m_configName = new QLabel(m_groupBox);
     m_configVersion = new QLabel(m_groupBox);
     m_configTarget = new QLabel(m_groupBox);
     m_configHost = new QLabel(m_groupBox);
 
-    m_addButton = new QPushButton(tr("Add..."));
-    m_removeButton = new QPushButton(tr("Remove"));
+    m_addButton = new QPushButton(Tr::tr("Add..."));
+    m_removeButton = new QPushButton(Tr::tr("Remove"));
 
     auto verticalLayout_3 = new QVBoxLayout();
-    verticalLayout_3->addWidget(new QLabel(tr("Name:")));
-    verticalLayout_3->addWidget(new QLabel(tr("Version:")));
-    verticalLayout_3->addWidget(new QLabel(tr("Host:")));
-    verticalLayout_3->addWidget(new QLabel(tr("Target:")));
+    verticalLayout_3->addWidget(new QLabel(Tr::tr("Name:")));
+    verticalLayout_3->addWidget(new QLabel(Tr::tr("Version:")));
+    verticalLayout_3->addWidget(new QLabel(Tr::tr("Host:")));
+    verticalLayout_3->addWidget(new QLabel(Tr::tr("Target:")));
     verticalLayout_3->addItem(new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
     auto verticalLayout_4 = new QVBoxLayout();
@@ -183,7 +184,7 @@ void QnxSettingsWidget::addConfiguration()
     else
         filter = "*.sh file";
 
-    const FilePath envFile = FileUtils::getOpenFilePath(this, tr("Select QNX Environment File"),
+    const FilePath envFile = FileUtils::getOpenFilePath(this, Tr::tr("Select QNX Environment File"),
                                                         {}, filter);
     if (envFile.isEmpty())
         return;
@@ -192,8 +193,8 @@ void QnxSettingsWidget::addConfiguration()
     if (m_qnxConfigManager->configurations().contains(config)
             || !config->isValid()) {
         QMessageBox::warning(Core::ICore::dialogParent(),
-                             tr("Warning"),
-                             tr("Configuration already exists or is invalid."));
+                             Tr::tr("Warning"),
+                             Tr::tr("Configuration already exists or is invalid."));
         delete config;
         return;
     }
@@ -214,8 +215,8 @@ void QnxSettingsWidget::removeConfiguration()
 
     QMessageBox::StandardButton button =
             QMessageBox::question(Core::ICore::dialogParent(),
-                                  tr("Remove QNX Configuration"),
-                                  tr("Are you sure you want to remove:\n %1?").arg(config->displayName()),
+                                  Tr::tr("Remove QNX Configuration"),
+                                  Tr::tr("Are you sure you want to remove:\n %1?").arg(config->displayName()),
                                   QMessageBox::Yes | QMessageBox::No);
 
     if (button == QMessageBox::Yes) {
@@ -319,7 +320,7 @@ void QnxSettingsWidget::apply()
 QnxSettingsPage::QnxSettingsPage()
 {
     setId("DD.Qnx Configuration");
-    setDisplayName(QnxSettingsWidget::tr("QNX"));
+    setDisplayName(Tr::tr("QNX"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new QnxSettingsWidget; });
 }

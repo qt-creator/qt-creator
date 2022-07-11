@@ -26,9 +26,10 @@
 #include "qnxdebugsupport.h"
 
 #include "qnxconstants.h"
-#include "qnxrunconfiguration.h"
-#include "slog2inforunner.h"
 #include "qnxqtversion.h"
+#include "qnxrunconfiguration.h"
+#include "qnxtr.h"
+#include "slog2inforunner.h"
 
 #include <coreplugin/icore.h>
 
@@ -128,7 +129,7 @@ QnxDebugSupport::QnxDebugSupport(RunControl *runControl)
     : DebuggerRunTool(runControl)
 {
     setId("QnxDebugSupport");
-    appendMessage(tr("Preparing remote side..."), LogMessageFormat);
+    appendMessage(Tr::tr("Preparing remote side..."), LogMessageFormat);
 
     setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
 
@@ -159,11 +160,11 @@ public:
     QnxAttachDebugDialog(KitChooser *kitChooser)
         : DeviceProcessesDialog(kitChooser, Core::ICore::dialogParent())
     {
-        auto sourceLabel = new QLabel(QnxDebugSupport::tr("Project source directory:"), this);
+        auto sourceLabel = new QLabel(Tr::tr("Project source directory:"), this);
         m_projectSource = new PathChooser(this);
         m_projectSource->setExpectedKind(PathChooser::ExistingDirectory);
 
-        auto binaryLabel = new QLabel(QnxDebugSupport::tr("Local executable:"), this);
+        auto binaryLabel = new QLabel(Tr::tr("Local executable:"), this);
         m_localExecutable = new PathChooser(this);
         m_localExecutable->setExpectedKind(PathChooser::File);
 
@@ -255,8 +256,8 @@ void QnxAttachDebugSupport::showProcessesDialog()
     debugger->setSymbolFile(localExecutable);
     debugger->setUseCtrlCStub(true);
     debugger->setAttachPid(pid);
-//    setRunControlName(tr("Remote: \"%1\" - Process %2").arg(remoteChannel).arg(m_process.pid));
-    debugger->setRunControlName(tr("Remote QNX process %1").arg(pid));
+//    setRunControlName(Tr::tr("Remote: \"%1\" - Process %2").arg(remoteChannel).arg(m_process.pid));
+    debugger->setRunControlName(Tr::tr("Remote QNX process %1").arg(pid));
     debugger->setSolibSearchPath(searchPaths(kit));
     if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(kit)))
         debugger->setSysRoot(qtVersion->qnxTarget());

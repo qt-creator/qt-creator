@@ -7783,10 +7783,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <translation type="obsolete">Sélectionner le répertoire de travail</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation type="obsolete">Erreur</translation>
-    </message>
-    <message>
         <source>Selected directory is not a Git repository</source>
         <translation type="obsolete">Le répertoire sélectionné n&apos;est pas un dépôt Git</translation>
     </message>
@@ -30545,50 +30541,6 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>MaemoDeployStepWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Device configuration:</source>
-        <translation type="obsolete">Configuration du périphérique :</translation>
-    </message>
-    <message>
-        <source>Also deploy to sysroot</source>
-        <translatorcomment>sysroot =&gt; traduit par &quot;racine système&quot; plus loin, donc s&apos;il ne faut pas le traduire, il faut penser à changer les autres traductions</translatorcomment>
-        <translation type="obsolete">Déployer également sur le sysroot</translation>
-    </message>
-    <message>
-        <source>These show the INSTALLS settings from the project file(s).</source>
-        <translation type="obsolete">Affiches les paramètres INSTALLS du/des fichier(s) de projet.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Files to install for subproject:&lt;/b&gt;</source>
-        <translation type="obsolete">&lt;b&gt;Fichiers à installer pour les sous-projets :&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;a href=irrelevant&gt;Manage device configurations&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=irrelevant&gt;Gérer les configurations des périphériques&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>Edit the project file to add or remove entries.</source>
-        <translation type="obsolete">Éditer le fichier de projet pour ajouter ou supprimer des entrées. </translation>
-    </message>
-    <message>
-        <source>Add Desktop File</source>
-        <translation type="obsolete">Ajouter un fichier desktop</translation>
-    </message>
-    <message>
-        <source>Add Launcher Icon ...</source>
-        <translation type="obsolete">Ajouter une icône de lancement...</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;irrelevant&quot;&gt;Manage device configurations&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;irrelevant&quot;&gt;Gérer les configurations du périphérique&lt;/a&gt;</translation>
-    </message>
-</context>
-<context>
     <name>MaemoProFilesUpdateDialog</name>
     <message>
         <source>Maemo Deployment Issue</source>
@@ -30617,64 +30569,6 @@ Preselects Qt for Simulator and mobile targets if available</source>
     <message>
         <source>&amp;Uncheck All</source>
         <translation type="obsolete">Décocher to&amp;ut</translation>
-    </message>
-</context>
-<context>
-    <name>MobileAppWizardOptionPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">WizardPage</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation type="obsolete">Général</translation>
-    </message>
-    <message>
-        <source>Orientation behavior:</source>
-        <translation type="obsolete">Comportement de l&apos;orientation :</translation>
-    </message>
-    <message>
-        <source>Symbian Specific</source>
-        <translation type="obsolete">Spécifique à Symbian</translation>
-    </message>
-    <message>
-        <source>Application icon (.svg):</source>
-        <translation type="obsolete">Icône de l&apos;application (.svg) :</translation>
-    </message>
-    <message>
-        <source>Target UID3:</source>
-        <translation type="obsolete">Cible UID3 :</translation>
-    </message>
-    <message>
-        <source>Enable network access</source>
-        <translation type="obsolete">Activer l&apos;accès réseau</translation>
-    </message>
-    <message>
-        <source>Maemo Specific</source>
-        <translation type="obsolete">Spécifique à Maemo</translation>
-    </message>
-    <message>
-        <source>Application icon (64x64):</source>
-        <translation type="obsolete">Icône de l&apos;application (64x64) :</translation>
-    </message>
-</context>
-<context>
-    <name>MobileLibraryWizardOptionPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">WizardPage</translation>
-    </message>
-    <message>
-        <source>Enable network access</source>
-        <translation type="obsolete">Activer l&apos;accès réseau</translation>
-    </message>
-    <message>
-        <source>Target UID3:</source>
-        <translation type="obsolete">Cible UID3 :</translation>
-    </message>
-    <message>
-        <source>Plugin&apos;s directory name:</source>
-        <translation type="obsolete">Nom du répertoire du plug-in :</translation>
     </message>
 </context>
 <context>
@@ -35057,143 +34951,6 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     </message>
 </context>
 <context>
-    <name>MaemoDeviceConfigurationsSettingsWidget</name>
-    <message>
-        <source>Maemo Device Configurations</source>
-        <translation type="obsolete">Configurations du périphérique Maemo</translation>
-    </message>
-    <message>
-        <source>&amp;Configuration:</source>
-        <translation type="obsolete">&amp;Configuration :</translation>
-    </message>
-    <message>
-        <source>&amp;Name:</source>
-        <translation type="obsolete">&amp;Nom :</translation>
-    </message>
-    <message>
-        <source>Device type:</source>
-        <translation type="obsolete">Type de périphérique :</translation>
-    </message>
-    <message>
-        <source>Authentication type:</source>
-        <translation type="obsolete">Type d&apos;identification :</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation type="obsolete">Mot de passe</translation>
-    </message>
-    <message>
-        <source>&amp;Key</source>
-        <translatorcomment>ou touche</translatorcomment>
-        <translation type="obsolete">Clé (&amp;K)</translation>
-    </message>
-    <message>
-        <source>&amp;Host name:</source>
-        <translation type="obsolete">Nom de l&apos;&amp;hôte :</translation>
-    </message>
-    <message>
-        <source>IP or host name of the device</source>
-        <translation type="obsolete">IP ou nom de l&apos;hôte du périphérique</translation>
-    </message>
-    <message>
-        <source>&amp;SSH port:</source>
-        <translation type="obsolete">Port &amp;SSH : </translation>
-    </message>
-    <message>
-        <source>Free ports:</source>
-        <translation type="obsolete">Ports libres : </translation>
-    </message>
-    <message>
-        <source>You can enter lists and ranges like this: 1024,1026-1028,1030</source>
-        <translation type="obsolete">Vous pouvez entrer des listes et des intervalles comme ceci : 1024,1026-1028,1030</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translatorcomment>seems like a placeholder</translatorcomment>
-        <translation type="obsolete">TextLabel</translation>
-    </message>
-    <message>
-        <source>Connection time&amp;out:</source>
-        <translation type="obsolete">Délai avant déconnexion de la c&amp;onnexion :</translation>
-    </message>
-    <message>
-        <source>s</source>
-        <translation type="obsolete">s</translation>
-    </message>
-    <message>
-        <source>&amp;Username:</source>
-        <translation type="obsolete">&amp;Utilisateur :</translation>
-    </message>
-    <message>
-        <source>&amp;Password:</source>
-        <translation type="obsolete">Mot de &amp;passe :</translation>
-    </message>
-    <message>
-        <source>Show password</source>
-        <translation type="obsolete">Montrer le mot de passe</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation type="obsolete">Fichier de clé privée :</translation>
-    </message>
-    <message>
-        <source>Set as Default</source>
-        <translation type="obsolete">Définir comme par défaut</translation>
-    </message>
-    <message>
-        <source>OS type:</source>
-        <translation type="obsolete">Type d&apos;OS : </translation>
-    </message>
-    <message>
-        <source>&amp;Add</source>
-        <translation type="obsolete">&amp;Ajouter</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation type="obsolete">&amp;Supprimer</translation>
-    </message>
-    <message>
-        <source>Click here to check whether this device is properly set up to run Maemo projects.</source>
-        <translation type="obsolete">Cliquez ici pour vérifier si le périphérique est bien configuré pour lancer des projets Maemo. </translation>
-    </message>
-    <message>
-        <source>&amp;Test</source>
-        <translation type="obsolete">&amp;Tester</translation>
-    </message>
-    <message>
-        <source>Click here if you do not have an SSH key yet.</source>
-        <translation type="obsolete">Cliquez ici si vous n&apos;avez pas encore de clé SSH. </translation>
-    </message>
-    <message>
-        <source>&amp;Generate SSH Key ...</source>
-        <translation type="obsolete">&amp;Générer une clé SSH...</translation>
-    </message>
-    <message>
-        <source>This will enable you to log into the device without a password.</source>
-        <translation type="obsolete">Ceci vous permet de vous connecter au périphérique sans mot de passe. </translation>
-    </message>
-    <message>
-        <source>&amp;Deploy Public Key ...</source>
-        <translation type="obsolete">&amp;Déployer la clé publique... </translation>
-    </message>
-    <message>
-        <source>Click here to see which processes are running on the device.</source>
-        <translation type="obsolete">Cliquez ici pour voir quels processus sont lancés sur le périphérique. </translation>
-    </message>
-    <message>
-        <source>Remote Processes ...</source>
-        <translation type="obsolete">Processus distants... </translation>
-    </message>
-    <message>
-        <source>Set As Default</source>
-        <translation type="obsolete">Définir comme par défaut</translation>
-    </message>
-    <message>
-        <source>&amp;Generate SSH Key...</source>
-        <translation type="obsolete">&amp;Générer une clé SSH...</translation>
-    </message>
-</context>
-<context>
     <name>MaemoDeviceConfigWizardKeyCreationPage</name>
     <message>
         <source>WizardPage</source>
@@ -35385,41 +35142,6 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     <message>
         <source>Progress</source>
         <translation type="obsolete">Avancement</translation>
-    </message>
-</context>
-<context>
-    <name>MaemoPublishingUploadSettingsPageFremantleFree</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">WizardPage</translation>
-    </message>
-    <message>
-        <source>Upload Settings</source>
-        <translation type="obsolete">Préférences d&apos;envoi</translation>
-    </message>
-    <message>
-        <source>Garage account name:</source>
-        <translation type="obsolete">Nom de compte Garage : </translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;Get an account&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;Créer un compte&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;https://garage.maemo.org/extras-assistant/index.php&quot;&gt;Request upload rights&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;https://garage.maemo.org/extras-assistant/index.php&quot;&gt;Demander les droits d&apos;envoi&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation type="obsolete">Fichier de clé privée :</translation>
-    </message>
-    <message>
-        <source>Server address:</source>
-        <translation type="obsolete">Adresse du serveur : </translation>
-    </message>
-    <message>
-        <source>Target directory on server:</source>
-        <translation type="obsolete">Répertoire cible sur le serveur : </translation>
     </message>
 </context>
 <context>
@@ -35656,58 +35378,6 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     <message>
         <source>Touch optimized navigation will make the HTML page flickable and enlarge the area of touch sensitive elements. If you use a JavaScript framework which optimizes the touch interaction, leave the checkbox unchecked.</source>
         <translation type="obsolete">La navigation optimisée pour le toucher rendre la page HTML flickable et élargira la zone des éléments sensibles au toucher. Si vous utilisez un framework JavaScript qui optimise l&apos;interaction au toucher, laissez cette case décochée. </translation>
-    </message>
-</context>
-<context>
-    <name>MobileAppWizardGenericOptionsPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">WizardPage</translation>
-    </message>
-    <message>
-        <source>Orientation behavior:</source>
-        <translation type="obsolete">Comportement de l&apos;orientation :</translation>
-    </message>
-</context>
-<context>
-    <name>MobileAppWizardMaemoOptionsPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">WizardPage</translation>
-    </message>
-    <message>
-        <source>Application icon (64x64):</source>
-        <translation type="obsolete">Icône de l&apos;application (64x64) :</translation>
-    </message>
-    <message>
-        <source>Application icon (%%w%%x%%h%%):</source>
-        <translation type="obsolete">Icône de l&apos;application (%%w%%x%%h%%) :</translation>
-    </message>
-</context>
-<context>
-    <name>MobileAppWizardSymbianOptionsPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">WizardPage</translation>
-    </message>
-    <message>
-        <source>Application icon (.svg):</source>
-        <translation type="obsolete">Icône de l&apos;application (.svg) :</translation>
-    </message>
-    <message>
-        <source>Target UID3:</source>
-        <translation type="obsolete">Cible UID3 :</translation>
-    </message>
-    <message>
-        <source>Enable network access</source>
-        <translation type="obsolete">Activer l&apos;accès réseau</translation>
-    </message>
-</context>
-<context>
-    <name>BehaviorSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
     </message>
 </context>
 <context>
@@ -47211,116 +46881,6 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
 </context>
 <context>
-    <name>LinuxDeviceConfigurationsSettingsWidget</name>
-    <message>
-        <source>Linux Device Configurations</source>
-        <translation type="obsolete">Configurations des périphériques Linux</translation>
-    </message>
-    <message>
-        <source>&amp;Configuration:</source>
-        <translation type="obsolete">&amp;Configuration :</translation>
-    </message>
-    <message>
-        <source>&amp;Name:</source>
-        <translation type="obsolete">&amp;Nom :</translation>
-    </message>
-    <message>
-        <source>OS type:</source>
-        <translation type="obsolete">Type d&apos;OS : </translation>
-    </message>
-    <message>
-        <source>Device type:</source>
-        <translation type="obsolete">Type de périphérique :</translation>
-    </message>
-    <message>
-        <source>Authentication type:</source>
-        <translation type="obsolete">Type d&apos;identification :</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation type="obsolete">Mot de passe</translation>
-    </message>
-    <message>
-        <source>&amp;Key</source>
-        <translation type="obsolete">Clé (&amp;K)</translation>
-    </message>
-    <message>
-        <source>&amp;Host name:</source>
-        <translation type="obsolete">Nom de l&apos;&amp;hôte :</translation>
-    </message>
-    <message>
-        <source>IP or host name of the device</source>
-        <translation type="obsolete">IP ou nom de l&apos;hôte du périphérique</translation>
-    </message>
-    <message>
-        <source>&amp;SSH port:</source>
-        <translation type="obsolete">Port &amp;SSH : </translation>
-    </message>
-    <message>
-        <source>Free ports:</source>
-        <translation type="obsolete">Ports libres : </translation>
-    </message>
-    <message>
-        <source>You can enter lists and ranges like this: 1024,1026-1028,1030</source>
-        <translation type="obsolete">Vous pouvez entrer des listes et des intervalles comme ceci : 1024,1026-1028,1030</translation>
-    </message>
-    <message>
-        <source>Timeout:</source>
-        <translation type="obsolete">Timeout :</translation>
-    </message>
-    <message>
-        <source>s</source>
-        <translation type="obsolete">s</translation>
-    </message>
-    <message>
-        <source>&amp;Username:</source>
-        <translation type="obsolete">&amp;Utilisateur :</translation>
-    </message>
-    <message>
-        <source>&amp;Password:</source>
-        <translation type="obsolete">Mot de &amp;passe :</translation>
-    </message>
-    <message>
-        <source>Show password</source>
-        <translation type="obsolete">Montrer le mot de passe</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation type="obsolete">Fichier de clé privée :</translation>
-    </message>
-    <message>
-        <source>Set as Default</source>
-        <translation type="obsolete">Définir comme par défaut</translation>
-    </message>
-    <message>
-        <source>&amp;Add</source>
-        <translation type="obsolete">&amp;Ajouter</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation type="obsolete">&amp;Supprimer</translation>
-    </message>
-    <message>
-        <source>Set As Default</source>
-        <translation type="obsolete">Définir comme par défaut</translation>
-    </message>
-    <message>
-        <source>Click here if you do not have an SSH key yet.</source>
-        <translation type="obsolete">Cliquez ici si vous n&apos;avez pas encore de clé SSH. </translation>
-    </message>
-    <message>
-        <source>&amp;Generate SSH Key...</source>
-        <translation type="obsolete">&amp;Générer une clé SSH...</translation>
-    </message>
-</context>
-<context>
-    <name>LinuxDeviceTestDialog</name>
-    <message>
-        <source>Device Test</source>
-        <translation type="obsolete">Test de périphérique</translation>
-    </message>
-</context>
-<context>
     <name>ProFilesUpdateDialog</name>
     <message>
         <source>Maemo Deployment Issue</source>
@@ -54718,68 +54278,17 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorFileImageWizardPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">Page d&apos;assistant</translation>
-    </message>
-    <message>
-        <source>Icon:</source>
-        <translation type="obsolete">Icône :</translation>
-    </message>
-    <message>
-        <source>Splash screens</source>
-        <translation type="obsolete">Écrans d&apos;accueil</translation>
-    </message>
-    <message>
-        <source>Landscape:</source>
-        <translation type="obsolete">Paysage :</translation>
-    </message>
-    <message>
-        <source>Portrait:</source>
-        <translation type="obsolete">Portrait :</translation>
-    </message>
-    <message>
-        <source>Images</source>
-        <translation type="obsolete">Images</translation>
-    </message>
-    <message>
-        <source>Images (*.jpg *.png)</source>
-        <translation type="obsolete">Images (*.jpg *.png)</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;red&quot;&gt;Could not open &apos;%1&apos; for reading.&lt;/font&gt;</source>
-        <translation type="obsolete">&lt;font color=&quot;red&quot;&gt;Impossible d&apos;ouvrir &quot;%1&quot; en lecture.&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;red&quot;&gt;Incorrect icon size (%1x%2). The maximum size is %3x%4 pixels.&lt;/font&gt;</source>
-        <translation type="obsolete">&lt;font color=&quot;red&quot;&gt;Taille d&apos;icône incorrecte (%1x%2). La taille maximale est de %3x%4 pixels.&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;red&quot;&gt;Incorrect landscape splash screen size (%1x%2). The maximum size is %3x%4 pixels.&lt;/font&gt;</source>
-        <translation type="obsolete">&lt;font color=&quot;red&quot;&gt;Taille de l&apos;écran d&apos;accueil au format paysage incorrecte (%1x%2). La taille maximale est de %3x%4 pixels.&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;red&quot;&gt;Incorrect portrait splash screen size (%1x%2). The maximum size is %3x%4 pixels.&lt;/font&gt;</source>
-        <translation type="obsolete">&lt;font color=&quot;red&quot;&gt;Taille de l&apos;écran d&apos;accueil au format portrait incorrecte (%1x%2). La taille maximale est de %3x%4 pixels.&lt;/font&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeployConfigurationWidget</name>
+    <name>Qnx</name>
     <message>
         <source>Packages to deploy:</source>
         <translation>Paquets à déployer :</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&amp;Device name:</source>
         <translation>&amp;Nom du périphérique :</translation>
-    </message>
-    <message>
-        <source>IP or host name of the device</source>
-        <translation>IP ou nom de l&apos;hôte du périphérique</translation>
     </message>
     <message>
         <source>Device &amp;password:</source>
@@ -54790,10 +54299,6 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
         <translation>Montrer le mot de passe</translation>
     </message>
     <message>
-        <source>Debug token:</source>
-        <translation>Jeton de débogage :</translation>
-    </message>
-    <message>
         <source>Private key file:</source>
         <translation>Fichier de clé privée :</translation>
     </message>
@@ -54802,20 +54307,12 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
         <translation>Log de connexion :</translation>
     </message>
     <message>
-        <source>Request</source>
-        <translation>Requête</translation>
-    </message>
-    <message>
         <source>Upload</source>
         <translation>Envoi</translation>
     </message>
     <message>
         <source>Failed to upload debug token: </source>
         <translation>Échec de l&apos;envoi du jeton de débogage :</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
     </message>
     <message>
         <source>Debug token successfully uploaded.</source>
@@ -54854,10 +54351,6 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
         <translation>Une erreur inconnue s&apos;est produite.</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Erreur</translation>
-    </message>
-    <message>
         <source>Invalid debug token path.</source>
         <translation>Le chemin du jeton de débogage est invalide.</translation>
     </message>
@@ -54875,11 +54368,7 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardSetupPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>Page d&apos;assistant</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>The name to identify this configuration:</source>
         <translation>Le nom pour identifier cette configuration : </translation>
@@ -54901,20 +54390,12 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
         <translation>Périphérique physique</translation>
     </message>
     <message>
-        <source>Simulator</source>
-        <translation>Simulateur</translation>
-    </message>
-    <message>
         <source>Debug token:</source>
         <translation>Jeton de débogage :</translation>
     </message>
     <message>
         <source>Connection Details</source>
         <translation>Détails de connexion</translation>
-    </message>
-    <message>
-        <source>BlackBerry Device</source>
-        <translation>Périphérique BlackBerry</translation>
     </message>
     <message>
         <source>Request</source>
@@ -54946,22 +54427,14 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardSshKeyPage</name>
+    <name>Qnx</name>
     <message>
         <source>WizardPage</source>
         <translation>Page d&apos;assistant</translation>
     </message>
     <message>
-        <source>Private key file:</source>
-        <translation>Fichier de clé privée :</translation>
-    </message>
-    <message>
         <source>Public key file:</source>
         <translation>Fichier de clé publique :</translation>
-    </message>
-    <message>
-        <source>Generate</source>
-        <translation type="obsolete">Générer</translation>
     </message>
     <message>
         <source>SSH Key Setup</source>
@@ -54985,7 +54458,7 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryRunConfigurationWidget</name>
+    <name>Qnx</name>
     <message>
         <source>Device:</source>
         <translation>Appareil mobile :</translation>
@@ -54996,7 +54469,7 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxBaseQtConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>SDK:</source>
         <translation>SDK :</translation>
@@ -58645,14 +58118,14 @@ Souhaitez-vous réessayer ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryAbstractDeployStep</name>
+    <name>Qnx</name>
     <message>
         <source>Starting: &quot;%1&quot; %2</source>
         <translation>Débute : &quot;%1&quot; %2</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryApplicationRunner</name>
+    <name>Qnx</name>
     <message>
         <source>Launching application failed</source>
         <translation>Le démarrage de l&apos;application a échoué</translation>
@@ -58663,7 +58136,7 @@ Souhaitez-vous réessayer ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCreatePackageStep</name>
+    <name>Qnx</name>
     <message>
         <source>Create BAR packages</source>
         <translation type="obsolete">Créer les paquets BAR</translation>
@@ -58675,10 +58148,6 @@ Souhaitez-vous réessayer ?</translation>
     <message>
         <source>Could not find packager command &apos;%1&apos; in the build environment</source>
         <translation>Impossible de trouver la commande &quot;%1&quot; du créateur de paquet dans l&apos;environnement de compilation </translation>
-    </message>
-    <message>
-        <source>No packages enabled for deployment</source>
-        <translation>Aucun paquet d&apos;activé pour le déploiement</translation>
     </message>
     <message>
         <source>Application descriptor file not specified, please check deployment settings</source>
@@ -58710,14 +58179,10 @@ Souhaitez-vous réessayer ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCreatePackageStepConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&lt;b&gt;Create packages&lt;/b&gt;</source>
         <translation>&lt;b&gt;Créer les paquets&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
     </message>
     <message>
         <source>Sign packages</source>
@@ -58749,14 +58214,14 @@ Souhaitez-vous réessayer ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCreatePackageStepFactory</name>
+    <name>Qnx</name>
     <message>
         <source>Create BAR Packages</source>
         <translation>Créer les paquets BAR</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeployConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>Deploy to BlackBerry Device</source>
         <translation>Déployer sur un périphérique BlackBerry</translation>
@@ -58789,14 +58254,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeployConfigurationFactory</name>
-    <message>
-        <source>Deploy to BlackBerry Device</source>
-        <translation>Déployer sur un périphérique BlackBerry</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeployInformation</name>
+    <name>Qnx</name>
     <message>
         <source>Enabled</source>
         <translation>Activé</translation>
@@ -58811,7 +58269,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeployStep</name>
+    <name>Qnx</name>
     <message>
         <source>Deploy packages</source>
         <translation>Déployer les paquets</translation>
@@ -58819,10 +58277,6 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     <message>
         <source>Could not find deploy command &apos;%1&apos; in the build environment</source>
         <translation>Impossible de trouver la commande de déploiement &quot;%1&quot; dans l&apos;environnement de compilation</translation>
-    </message>
-    <message>
-        <source>No hostname specified for device</source>
-        <translation>Aucun nom d&apos;hôte de défini pour le périphérique</translation>
     </message>
     <message>
         <source>No packages enabled for deployment</source>
@@ -58834,25 +58288,21 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeployStepConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&lt;b&gt;Deploy packages&lt;/b&gt;</source>
         <translation>&lt;b&gt;Déployer les paquets&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeployStepFactory</name>
+    <name>Qnx</name>
     <message>
         <source>Deploy Package</source>
         <translation>Déployer le paquet</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfiguration</name>
-    <message>
-        <source>BlackBerry</source>
-        <translation>BlackBerry</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Connect to device</source>
         <translation>Connecter au périphérique</translation>
@@ -58863,14 +58313,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationFactory</name>
-    <message>
-        <source>BlackBerry Device</source>
-        <translation>Périphérique BlackBerry</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizard</name>
+    <name>Qnx</name>
     <message>
         <source>New BlackBerry Device Configuration Setup</source>
         <translation>Configuration d&apos;un nouveau périphérique BlackBerry</translation>
@@ -58893,7 +58336,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardFinalPage</name>
+    <name>Qnx</name>
     <message>
         <source>Setup Finished</source>
         <translation>Fin de l&apos;installation</translation>
@@ -58912,7 +58355,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryQtVersion</name>
+    <name>Qnx</name>
     <message>
         <source>BlackBerry %1</source>
         <comment>Qt Version is meant for BlackBerry</comment>
@@ -58928,7 +58371,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryRunConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>%1 on BlackBerry device</source>
         <translation>%1 sur périphérique BlackBerry</translation>
@@ -58939,14 +58382,14 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryRunConfigurationFactory</name>
+    <name>Qnx</name>
     <message>
         <source>%1 on BlackBerry Device</source>
         <translation>%1 sur le périphérique BlackBerry </translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryRunControlFactory</name>
+    <name>Qnx</name>
     <message>
         <source>No active deploy configuration</source>
         <translation>Aucune configuration de déploiement active</translation>
@@ -58961,73 +58404,35 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAbstractQtVersion</name>
+    <name>Qnx</name>
     <message>
         <source>No SDK path set</source>
         <translation>Chemin du SDK non spécifié</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDebugSupport</name>
-    <message>
-        <source>Preparing remote side...
-</source>
-        <translation>Préparation de la partie distante...</translation>
-    </message>
-    <message>
-        <source>Preparing remote side...</source>
-        <translation>Préparation de la partie distante...</translation>
-    </message>
-    <message>
-        <source>The %1 process closed unexpectedly.</source>
-        <translation>Le processus %1 s&apos;est fermé de façon inattendue.</translation>
-    </message>
-    <message>
-        <source>Initial setup failed: %1</source>
-        <translation>Échec lors de la configuration initiale : %1</translation>
-    </message>
-    <message>
-        <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available!</source>
-        <translation>Avertissement : &quot;slog2info&quot; n&apos;a pas été trouvé sur le périphérique, le sortie de débogage n&apos;est pas disponible !</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeployConfigurationFactory</name>
+    <name>Qnx</name>
     <message>
         <source>Deploy to QNX Device</source>
         <translation>Déployer sur un périphérique QNX</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceConfiguration</name>
-    <message>
-        <source>QNX</source>
-        <translation>QNX</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfigurationFactory</name>
-    <message>
-        <source>QNX Device</source>
-        <translation>Périphérique QNX</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfigurationWizard</name>
+    <name>Qnx</name>
     <message>
         <source>New QNX Device Configuration Setup</source>
         <translation>Configuration du nouveau périphérique QNX</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceConfigurationWizardSetupPage</name>
+    <name>Qnx</name>
     <message>
         <source>QNX Device</source>
         <translation>Périphérique QNX</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxQtVersion</name>
+    <name>Qnx</name>
     <message>
         <source>QNX %1</source>
         <extracomment>Qt Version is meant for QNX</extracomment>
@@ -59044,21 +58449,21 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>Path to Qt libraries on device:</source>
         <translation>Chemin sur le périphérique vers les bibliothèques Qt :</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunConfigurationFactory</name>
+    <name>Qnx</name>
     <message>
         <source>%1 on QNX Device</source>
         <translation>%1 sur périphérique QNX</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunControlFactory</name>
+    <name>Qnx</name>
     <message>
         <source>Run on remote QNX device</source>
         <translation type="obsolete">Exécuter sur un périphérique QNX distant</translation>
@@ -60197,23 +59602,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorAssetsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation>Ajouter...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
-    </message>
-    <message>
-        <source>Path</source>
-        <translation>Chemin</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Destination</source>
         <translation>Destination</translation>
@@ -60228,15 +59617,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorAuthorInformationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
-    <message>
-        <source>Author:</source>
-        <translation>Auteur :</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Author ID:</source>
         <translation>Identifiant de l&apos;auteur :</translation>
@@ -60250,10 +59631,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <translation>Sélectionner le jeton de débogage</translation>
     </message>
     <message>
-        <source>Debug token:</source>
-        <translation>Jeton de débogage :</translation>
-    </message>
-    <message>
         <source>Error Reading Debug Token</source>
         <translation>Erreur lors de la lecture du jeton de débogage</translation>
     </message>
@@ -60263,11 +59640,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorEntryPointWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Name:</source>
         <translation>Nom :</translation>
@@ -60293,10 +59666,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <translation>Ajouter...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
-    </message>
-    <message>
         <source>Images (*.jpg *.png)</source>
         <translation>Images (*.jpg *.png)</translation>
     </message>
@@ -60314,22 +59683,14 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorEnvironmentWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Device Environment</source>
         <translation>Environnement du périphérique</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorGeneralWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Orientation:</source>
         <translation>Orientation :</translation>
@@ -60372,11 +59733,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorPackageInformationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Package ID:</source>
         <translation>Identifiant de paquet :</translation>
@@ -60391,11 +59748,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorPermissionsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Select All</source>
         <translation>Tout sélectionner</translation>
@@ -60406,35 +59759,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCreateCertificateDialog</name>
-    <message>
-        <source>Create Certificate</source>
-        <translation>Créer un certificat</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>Chemin :</translation>
-    </message>
-    <message>
-        <source>Author:</source>
-        <translation>Auteur :</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation>Mot de passe :</translation>
-    </message>
-    <message>
-        <source>Confirm password:</source>
-        <translation>Confirmer le mot de passe :</translation>
-    </message>
-    <message>
-        <source>Show password</source>
-        <translation>Montrer le mot de passe</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>Status</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>PKCS 12 archives (*.p12)</source>
         <translation>Archive PKCS 12 (*.p12)</translation>
@@ -60444,20 +59769,12 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <translation>Le répertoire de base n&apos;existe pas.</translation>
     </message>
     <message>
-        <source>The entered passwords do not match.</source>
-        <translation>Les mots de passe donnés ne correspondent pas.</translation>
-    </message>
-    <message>
         <source>Password must be at least 6 characters long.</source>
         <translation>Le mot de passe doit avoir au moins 6 caractères de long.</translation>
     </message>
     <message>
         <source>Are you sure?</source>
         <translation>Êtes-vous sûr ?</translation>
-    </message>
-    <message>
-        <source>The file &apos;%1&apos; will be overwritten. Do you want to proceed?</source>
-        <translation>Le fichier &apos;%1&apos; va être écrasé. Souhaitez-vous continuer ?</translation>
     </message>
     <message>
         <source>The blackberry-keytool process is already running.</source>
@@ -60480,10 +59797,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <translation>Une erreur inconnue est survenue.</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Erreur</translation>
-    </message>
-    <message>
         <source>An unknown error occurred while creating the certificate.</source>
         <translation>Une erreur inconnue est apparue lors de la création du certificat.</translation>
     </message>
@@ -60493,7 +59806,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDebugTokenRequestDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Request Debug Token</source>
         <translation>Requête du jeton de débogage</translation>
@@ -60507,24 +59820,8 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <translation>Trousseau de clés :</translation>
     </message>
     <message>
-        <source>Keystore password:</source>
-        <translation>Mot de passe du trousseau de clés :</translation>
-    </message>
-    <message>
-        <source>CSK password:</source>
-        <translation>Mot de passe CSK :</translation>
-    </message>
-    <message>
         <source>Device PIN:</source>
         <translation>Code PIN du périphérique :</translation>
-    </message>
-    <message>
-        <source>Show password</source>
-        <translation>Montrer le mot de passe</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>Status</translation>
     </message>
     <message>
         <source>BAR Files (*.bar)</source>
@@ -60535,56 +59832,8 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <translation>Requête du code PIN du périphérique...</translation>
     </message>
     <message>
-        <source>Base directory does not exist.</source>
-        <translation>Le répertoire de base n&apos;existe pas.</translation>
-    </message>
-    <message>
-        <source>Are you sure?</source>
-        <translation>Êtes-vous sûr ?</translation>
-    </message>
-    <message>
         <source>The file &apos;%1&apos; will be overwritten. Do you want to proceed?</source>
         <translation>Le fichier &apos;%1&apos; va être écrasé. Souhaitez-vous continuer ?</translation>
-    </message>
-    <message>
-        <source>Failed to request debug token: </source>
-        <translation>Échec de la requête du jeton de débogage :</translation>
-    </message>
-    <message>
-        <source>Failed to request debug token:</source>
-        <translation>Échec de la requête du jeton de débogage :</translation>
-    </message>
-    <message>
-        <source>Wrong CSK password.</source>
-        <translation>Mot de passe CSK incorrect.</translation>
-    </message>
-    <message>
-        <source>Wrong keystore password.</source>
-        <translation>Mot de passe du trousseau de clés incorrect.</translation>
-    </message>
-    <message>
-        <source>Network unreachable.</source>
-        <translation>Réseau inaccessible.</translation>
-    </message>
-    <message>
-        <source>Illegal device PIN.</source>
-        <translation>Code PIN du périphérique illégal.</translation>
-    </message>
-    <message>
-        <source>Failed to start inferior process.</source>
-        <translation>Échec du démarrage du processus inférieur.</translation>
-    </message>
-    <message>
-        <source>Inferior processes timed out.</source>
-        <translation>Le processus inférieur a expiré.</translation>
-    </message>
-    <message>
-        <source>Inferior process has crashed.</source>
-        <translation>Le processus inférieur a crashé.</translation>
-    </message>
-    <message>
-        <source>Failed to communicate with the inferior process.</source>
-        <translation>Échec lors de la communication avec le processus inférieur.</translation>
     </message>
     <message>
         <source>Not yet registered to request debug tokens.</source>
@@ -60595,27 +59844,15 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <translation>Une erreur inconnue est survenue.</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Erreur</translation>
-    </message>
-    <message>
         <source>Requesting debug token...</source>
         <translation>Requête en cours du jeton de débogage...</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryImportCertificateDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Import Certificate</source>
         <translation>Importer un certificat</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>Chemin :</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation>Mot de passe :</translation>
     </message>
     <message>
         <source>PKCS 12 Archives (*.p12)</source>
@@ -60633,13 +59870,9 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>An unknown error has occurred.</source>
         <translation>Une erreur inconnue est survenue.</translation>
     </message>
-    <message>
-        <source>Error</source>
-        <translation>Erreur</translation>
-    </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryKeysWidget</name>
+    <name>Qnx</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -60675,10 +59908,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     <message>
         <source>Delete</source>
         <translation>Supprimer</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Erreur</translation>
     </message>
     <message>
         <source>Could not insert default certificate.</source>
@@ -60749,10 +59978,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <translation>Créer un certificat</translation>
     </message>
     <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
-    <message>
         <source>Invalid certificate password. Try again?</source>
         <translation>Le mot de passe du certificat est invalide. Essayer de nouveau ?</translation>
     </message>
@@ -60782,11 +60007,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryNDKSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Get started and configure your environment:</source>
         <translation>Démarrer et configurer votre environnement :</translation>
@@ -60802,10 +60023,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     <message>
         <source>Remove</source>
         <translation>Supprimer</translation>
-    </message>
-    <message>
-        <source>NDK</source>
-        <translation>NDK</translation>
     </message>
     <message>
         <source>NDK Environment File</source>
@@ -60836,10 +60053,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
  %1?</source>
         <translation>Êtes-vous sûr de vouloir supprimer :
 %1 ?</translation>
-    </message>
-    <message>
-        <source>Confirmation</source>
-        <translation>Confirmation</translation>
     </message>
     <message>
         <source>Are you sure you want to uninstall %1?</source>
@@ -60887,42 +60100,14 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryRegisterKeyDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Register Key</source>
         <translation>Inscrire la clé</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Obtaining keys&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You will need to order a pair of CSJ files from BlackBerry, by &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;visiting this page.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Obtention des clés&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Vous devez commander une paire de fichiers CSJ à BlackBerry, en &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;visitant cette page.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>PBDT CSJ file:</source>
-        <translation>Fichier PBDT CSJ :</translation>
-    </message>
-    <message>
-        <source>RDK CSJ file:</source>
-        <translation>Fichier RDK CSJ :</translation>
-    </message>
-    <message>
-        <source>CSJ PIN:</source>
-        <translation>Code PIN CSJ :</translation>
-    </message>
-    <message>
-        <source>CSK password:</source>
-        <translation>Mot de passe CSK :</translation>
-    </message>
-    <message>
         <source>Confirm CSK password:</source>
         <translation>Confirmer le mot de passe CSK :</translation>
-    </message>
-    <message>
-        <source>Keystore password:</source>
-        <translation>Mot de passe du trousseau de clés :</translation>
-    </message>
-    <message>
-        <source>Confirm password:</source>
-        <translation>Corfimer mot de passe :</translation>
     </message>
     <message>
         <source>Generate developer certificate automatically</source>
@@ -60937,10 +60122,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <translation>Ceci est le code PIN que vous avez entré lorsque vous avez démandé les fichiers CSJ.</translation>
     </message>
     <message>
-        <source>Status</source>
-        <translation>Status</translation>
-    </message>
-    <message>
         <source>CSK passwords do not match.</source>
         <translation>Les mots de passe CSK ne correspondent pas.</translation>
     </message>
@@ -60948,29 +60129,9 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Keystore password does not match.</source>
         <translation>Le mot de passe du trousseau de clés ne correspond pas.</translation>
     </message>
-    <message>
-        <source>Error</source>
-        <translation>Erreur</translation>
-    </message>
-    <message>
-        <source>Error creating developer certificate.</source>
-        <translation>Erreur lors de la création du certificat développeur.</translation>
-    </message>
-    <message>
-        <source>Browse CSJ File</source>
-        <translation>Parcourir le fichier CSJ</translation>
-    </message>
-    <message>
-        <source>CSJ files (*.csj)</source>
-        <translation>Fichiers CSJ (*.csj)</translation>
-    </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerrySetupWizardDevicePage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>Page d&apos;assistant</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Device name:</source>
         <translation>Nom du périphérique :</translation>
@@ -60984,16 +60145,8 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <translation>Adresse IP du périphérique :</translation>
     </message>
     <message>
-        <source>Device password:</source>
-        <translation>Mot de passe du périphérique :</translation>
-    </message>
-    <message>
         <source>The password you use to unlock your device</source>
         <translation>Le mot de passe que vous utilisez pour débloquer votre périphérique</translation>
-    </message>
-    <message>
-        <source>Physical device</source>
-        <translation>Périphérique physique</translation>
     </message>
     <message>
         <source>Simulator</source>
@@ -61009,26 +60162,14 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerrySetupWizardFinishPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>Page d&apos;assistant</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>Status</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Your environment is ready to be configured.</source>
         <translation>Votre environnement est prêt à être configuré.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerrySetupWizardKeysPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>Page d&apos;assistant</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Obtaining keys&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You will need to order a pair of CSJ files from BlackBerry, by &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;visiting this page.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Obtention des clés&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Vous devez commander une paire de fichiers CSJ à BlackBerry, en &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;visitant cette page.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -61050,20 +60191,8 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <translation>Le code PIN que vous avez fourni sur le site de requête de clé</translation>
     </message>
     <message>
-        <source>Password:</source>
-        <translation>Mot de passe :</translation>
-    </message>
-    <message>
         <source>The password that will be used to access your keys and CSK files</source>
         <translation>Le mot de passe qui sera utilisé pour accéder à vos clés et fichiers CSK</translation>
-    </message>
-    <message>
-        <source>Confirm password:</source>
-        <translation>Confirmer le mot de passe :</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>Status</translation>
     </message>
     <message>
         <source>Register Signing Keys</source>
@@ -61076,10 +60205,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     <message>
         <source>Setup Signing Keys</source>
         <translation>Installer les clés signées</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
     </message>
     <message>
         <source>This wizard will be closed and you will be taken to the BlackBerry key request web page. Do you want to continue?</source>
@@ -61107,18 +60232,10 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerrySigningPasswordsDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Package signing passwords</source>
         <translation>Mots de passe de signature des paquets</translation>
-    </message>
-    <message>
-        <source>CSK password:</source>
-        <translation>Mot de passe CSK :</translation>
-    </message>
-    <message>
-        <source>Keystore password:</source>
-        <translation>Mot de passe du trousseau de clés :</translation>
     </message>
 </context>
 <context>
@@ -63572,25 +62689,17 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorDocument</name>
+    <name>Qnx</name>
     <message>
         <source>%1 does not appear to be a valid application descriptor file</source>
         <translation>%1 ne semble pas être un fichier de description d&apos;application valide</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditor</name>
-    <message>
-        <source>General</source>
-        <translation>Général</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Application</source>
         <translation>Application</translation>
-    </message>
-    <message>
-        <source>Assets</source>
-        <translation>Ressources</translation>
     </message>
     <message>
         <source>XML Source</source>
@@ -63598,14 +62707,14 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorFactory</name>
+    <name>Qnx</name>
     <message>
         <source>Bar descriptor editor</source>
         <translation>Éditeur de description Bar</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorWidget</name>
+    <name>Qnx</name>
     <message>
         <source>Entry-Point Text and Images</source>
         <translation>Point d&apos;entrée pour les textes et images</translation>
@@ -63636,7 +62745,7 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorPermissionsModel</name>
+    <name>Qnx</name>
     <message>
         <source>Permission</source>
         <translation>Permissions</translation>
@@ -63772,7 +62881,7 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCertificateModel</name>
+    <name>Qnx</name>
     <message>
         <source>Path</source>
         <translation>Chemin</translation>
@@ -63787,11 +62896,7 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCheckDevModeStep</name>
-    <message>
-        <source>Check Development Mode</source>
-        <translation>Vérifier le mode développeur</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Could not find command &apos;%1&apos; in the build environment</source>
         <translation>Impossible de trouver la commande &quot;%1&quot; dans l&apos;environnement de compilation</translation>
@@ -63802,21 +62907,21 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCheckDevModeStepConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&lt;b&gt;Check development mode&lt;/b&gt;</source>
         <translation>&lt;b&gt;Vérifier le mode développeur&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCheckDevModeStepFactory</name>
+    <name>Qnx</name>
     <message>
         <source>Check Development Mode</source>
         <translation>Vérifier le mode développeur</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>The following errors occurred while setting up BB10 Configuration:</source>
         <translation>Les erreurs suivantes sont apparues pendant la configuration de BB10 :</translation>
@@ -63907,7 +63012,7 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCsjRegistrar</name>
+    <name>Qnx</name>
     <message>
         <source>Failed to start blackberry-signer process.</source>
         <translation>Échec de démarrage du processus de signature BlackBerry.</translation>
@@ -63930,35 +63035,35 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConnection</name>
+    <name>Qnx</name>
     <message>
         <source>Error connecting to device: java could not be found in the environment.</source>
         <translation>Erreur lors de la connexion au périphérique : Java n&apos;a pas pu être trouvé dans l&apos;environnement.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryKeysPage</name>
+    <name>Qnx</name>
     <message>
         <source>Keys</source>
         <translation>Clés</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryNDKSettingsPage</name>
+    <name>Qnx</name>
     <message>
         <source>NDK</source>
         <translation>NDK</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryProcessParser</name>
+    <name>Qnx</name>
     <message>
         <source>Authentication failed. Please make sure the password for the device is correct.</source>
         <translation>Échec de l&apos;authentification. Veuillez-vous assurer que le mot de passe pour le périphérique est correct.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerrySetupWizard</name>
+    <name>Qnx</name>
     <message>
         <source>BlackBerry Development Environment Setup Wizard</source>
         <translation>Assistant de paramétrage de l&apos;environnement de développement BlackBerry</translation>
@@ -64027,73 +63132,9 @@ Distant : %4</translation>
         <source>Illegal device PIN.</source>
         <translation>Code PIN du périphérique illégal.</translation>
     </message>
-    <message>
-        <source>Failed to start inferior process.</source>
-        <translation>Échec du lancement du processus inférieur.</translation>
-    </message>
-    <message>
-        <source>Inferior processes timed out.</source>
-        <translation>Le processus inférieur a expiré.</translation>
-    </message>
-    <message>
-        <source>Inferior process has crashed.</source>
-        <translation>Le processus inférieur a crashé.</translation>
-    </message>
-    <message>
-        <source>Failed to communicate with the inferior process.</source>
-        <translation>Échec lors de la communication avec le processus inférieur.</translation>
-    </message>
-    <message>
-        <source>An unknwon error has occurred.</source>
-        <translation>Une erreur inconnue est survenue.</translation>
-    </message>
-    <message>
-        <source>Failed to upload debug token:</source>
-        <translation>Échec de l&apos;envoi du jeton de débogage :</translation>
-    </message>
-    <message>
-        <source>Failed to upload debug token: </source>
-        <translation>Échec de l&apos;envoi du jeton de débogage :</translation>
-    </message>
-    <message>
-        <source>No route to host.</source>
-        <translation>Aucune route pour l&apos;hôte.</translation>
-    </message>
-    <message>
-        <source>Authentication failed.</source>
-        <translation>Échec de l&apos;authentification.</translation>
-    </message>
-    <message>
-        <source>Development mode is disabled on the device.</source>
-        <translation>Le mode développeur est désactivé sur le périphérique.</translation>
-    </message>
-    <message>
-        <source>An unknwon error has happened.</source>
-        <translation>Une erreur inconnue est survenue.</translation>
-    </message>
-    <message>
-        <source>Key Generation Failed</source>
-        <translation>Échec de la génération de clé</translation>
-    </message>
-    <message>
-        <source>Failure to Save Key File</source>
-        <translation>Impossible de sauvegarder le fichier de clés</translation>
-    </message>
-    <message>
-        <source>Failed to create directory: &apos;%1&apos;.</source>
-        <translation>Échec dans la création du répertoire : &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Private key file already exists: &apos;%1&apos;</source>
-        <translation>Le fichier de clés privées existe déjà : &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Public key file already exists: &apos;%1&apos;</source>
-        <translation>Le fichier de clés publiques existe déjà : &quot;%1&quot;</translation>
-    </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerrySetupWizardWelcomePage</name>
+    <name>Qnx</name>
     <message>
         <source>Welcome to the BlackBerry Development Environment Setup Wizard.
 This wizard will guide you through the essential steps to deploy a ready-to-go development environment for BlackBerry 10 devices.</source>
@@ -64106,21 +63147,21 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerrySetupWizardNdkPage</name>
+    <name>Qnx</name>
     <message>
         <source>Configure the NDK Path</source>
         <translation>Confirmer le chemin du NDK</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAbstractRunSupport</name>
+    <name>Qnx</name>
     <message>
         <source>Not enough free ports on device for debugging.</source>
         <translation>Pas assez de ports disponibles sur le périphérique pour le débogage.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAnalyzeSupport</name>
+    <name>Qnx</name>
     <message>
         <source>Preparing remote side...
 </source>
@@ -64148,7 +63189,7 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceTester</name>
+    <name>Qnx</name>
     <message>
         <source>%1 found.
 </source>
@@ -64193,7 +63234,7 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QNXPlugin</name>
+    <name>Qnx</name>
     <message>
         <source>Bar descriptor file (BlackBerry)</source>
         <translation>Fichier de description Bar (BlackBerry)</translation>
@@ -64805,11 +63846,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardConfigPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Debug Token</source>
         <translation>Jeton de débogage</translation>
@@ -64844,11 +63881,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardQueryPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Device Information</source>
         <translation>Information sur le périphérique</translation>
@@ -64879,11 +63912,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryInstallWizardNdkPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Select Native SDK path:</source>
         <translation>Sélectionner le chemin du SDK natif :</translation>
@@ -64898,11 +63927,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryInstallWizardProcessPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Please wait...</source>
         <translation>Veuillez patienter...</translation>
@@ -64925,11 +63950,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryInstallWizardTargetPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Please select target:</source>
         <translation>Veuillez sélectionner une cible :</translation>
@@ -64948,15 +63969,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerrySetupWizardCertificatePage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
-    <message>
-        <source>Author:</source>
-        <translation>Auteur :</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Password:</source>
         <translation>Mot de passe :</translation>
@@ -64964,10 +63977,6 @@ réinitialisation du moniteur</translation>
     <message>
         <source>Confirm password:</source>
         <translation>Confirmer le mot de passe :</translation>
-    </message>
-    <message>
-        <source>Show password</source>
-        <translation>Montrer le mot de passe</translation>
     </message>
     <message>
         <source>Status</source>
@@ -64983,7 +63992,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::SrcProjectWizardPage</name>
+    <name>Qnx</name>
     <message>
         <source>Choose the Location</source>
         <translation>Choisir l&apos;emplacement</translation>
@@ -66695,7 +65704,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryConfigurationManager</name>
+    <name>Qnx</name>
     <message>
         <source>NDK Already Known</source>
         <translation>Le NDK est déjà connu</translation>
@@ -66706,7 +65715,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryInstallWizard</name>
+    <name>Qnx</name>
     <message>
         <source>BlackBerry NDK Installation Wizard</source>
         <translation>Assistant d&apos;installation du NDK BlackBerry</translation>
@@ -66721,7 +65730,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryInstallWizardOptionPage</name>
+    <name>Qnx</name>
     <message>
         <source>Options</source>
         <translation>Options</translation>
@@ -66736,11 +65745,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryInstallWizardFinalPage</name>
-    <message>
-        <source>Summary</source>
-        <translation>Résumé</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>An error has occurred while adding target from:
  %1</source>
@@ -66781,14 +65786,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryLogProcessRunner</name>
-    <message>
-        <source>Cannot show debug output. Error: %1</source>
-        <translation>Impossible d&apos;afficher la fenêtre de débogage. Erreur : %1</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerrySigningUtils</name>
+    <name>Qnx</name>
     <message>
         <source>Please provide your bbidtoken.csk PIN.</source>
         <translation>Veuillez fournir votre code PIN bbidtoken.csk.</translation>
@@ -66796,10 +65794,6 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     <message>
         <source>Please enter your certificate password.</source>
         <translation>Veuillez entrer votre mot de passe du certificat.</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
     </message>
 </context>
 <context>
@@ -66826,7 +65820,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::CascadesImportWizardDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Import Existing Momentics Cascades Project</source>
         <translation>Importer un projet Momentics Cascades existant</translation>
@@ -66843,13 +65837,9 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
         <source>Momentics</source>
         <translation>Momentics</translation>
     </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
 </context>
 <context>
-    <name>Qnx::Internal::CascadesImportWizard</name>
+    <name>Qnx</name>
     <message>
         <source>Momentics Cascades Project</source>
         <translation>Projet Momentics Cascades</translation>
@@ -66885,21 +65875,21 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunControl</name>
+    <name>Qnx</name>
     <message>
         <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available!</source>
         <translation>Avertissement : &quot;slog2info&quot; n&apos;a pas été trouvé dans le périphérique, la sortie de débogage n&apos;est pas disponible !</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxToolChainFactory</name>
+    <name>Qnx</name>
     <message>
         <source>QCC</source>
         <translation>QCC</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxToolChainConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>Chemin du &amp;compilateur :</translation>
@@ -66915,7 +65905,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::Slog2InfoRunner</name>
+    <name>Qnx</name>
     <message>
         <source>Cannot show slog2info output. Error: %1</source>
         <translation>Impossible d&apos;afficher la sortie de slog2info. Erreur : %1</translation>

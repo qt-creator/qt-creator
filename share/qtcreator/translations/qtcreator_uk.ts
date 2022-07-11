@@ -13231,82 +13231,6 @@ We will try to work around that, but you may experience problems.</source>
     </message>
 </context>
 <context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardStartPage</name>
-    <message>
-        <source>General Information</source>
-        <translation type="vanished">Загальна інформація</translation>
-    </message>
-    <message>
-        <source>MeeGo Device</source>
-        <translation type="vanished">Пристрій MeeGo</translation>
-    </message>
-    <message>
-        <source>%1 Device</source>
-        <translation type="vanished">Пристрій %1</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation type="vanished">Сторінка майстра</translation>
-    </message>
-    <message>
-        <source>The name to identify this configuration:</source>
-        <translation type="vanished">Назва для цієї конфігурації:</translation>
-    </message>
-    <message>
-        <source>The kind of device:</source>
-        <translation type="vanished">Тип пристрою:</translation>
-    </message>
-    <message>
-        <source>Emulator</source>
-        <translation type="vanished">Емулятор</translation>
-    </message>
-    <message>
-        <source>Hardware Device</source>
-        <translation type="vanished">Реальний</translation>
-    </message>
-    <message>
-        <source>The device&apos;s host name or IP address:</source>
-        <translation type="vanished">Назва вузла чи IP-адреса пристрою:</translation>
-    </message>
-    <message>
-        <source>The SSH server port:</source>
-        <translation type="vanished">Порт сервера SSH:</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoInstallDebianPackageToSysrootStep</name>
-    <message>
-        <source>Install Debian package to sysroot</source>
-        <translation type="vanished">Встановити пакунок Debian до sysroot</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoInstallPackageViaMountStep</name>
-    <message>
-        <source>No Debian package creation step found.</source>
-        <translation type="vanished">Відсутній крок для створення пакунка Debian.</translation>
-    </message>
-    <message>
-        <source>Deploy package via UTFS mount</source>
-        <translation type="vanished">Розгорнути пакунок через монтування UTFS</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoMakeInstallToSysrootStep</name>
-    <message>
-        <source>Cannot deploy: No active build configuration.</source>
-        <translation type="vanished">Неможливо розгорнути: немає активної конфігурації збірки.</translation>
-    </message>
-    <message>
-        <source>Cannot deploy: Unusable build configuration.</source>
-        <translation type="vanished">Неможливо розгорнути: неможливо використати конфігурацію збірки.</translation>
-    </message>
-    <message>
-        <source>Copy files to sysroot</source>
-        <translation type="vanished">Копіювати файли до sysroot</translation>
-    </message>
-</context>
-<context>
     <name>Madde::Internal::MaemoMountAndCopyFilesService</name>
     <message>
         <source>All files copied.</source>
@@ -13318,268 +13242,6 @@ We will try to work around that, but you may experience problems.</source>
     <message>
         <source>Package installed.</source>
         <translation type="vanished">Пакунок встановлено.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPackageCreationWidget</name>
-    <message>
-        <source>Size should be %1x%2 pixels</source>
-        <translation type="vanished">Розмір має бути %1x%2 пікселів</translation>
-    </message>
-    <message>
-        <source>No Version Available.</source>
-        <translation type="vanished">Відсутня версія.</translation>
-    </message>
-    <message>
-        <source>Could not read icon</source>
-        <translation type="vanished">Не вдалось прочитати піктограму</translation>
-    </message>
-    <message>
-        <source>Images</source>
-        <translation type="vanished">Зображення</translation>
-    </message>
-    <message>
-        <source>Choose Image (will be scaled to %1x%2 pixels if necessary)</source>
-        <translation type="vanished">Вибір зображення (буде відмасштабоване до %1x%2 пікселів при потребі)</translation>
-    </message>
-    <message>
-        <source>Could Not Set New Icon</source>
-        <translation type="vanished">Не вдалось встановити нову піктограму</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation type="vanished">Помилка файлу</translation>
-    </message>
-    <message>
-        <source>Could not set project name.</source>
-        <translation type="vanished">Не вдалось встановити назву проекту.</translation>
-    </message>
-    <message>
-        <source>Could not set package name for project manager.</source>
-        <translation type="vanished">Не вдалось встановити назву пакунка для менеджера пакунків.</translation>
-    </message>
-    <message>
-        <source>Could not set project description.</source>
-        <translation type="vanished">Не вдалось встановити опис проекту.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Create Package:&lt;/b&gt; </source>
-        <translation type="vanished">&lt;b&gt;Створити пакунок:&lt;/b&gt; </translation>
-    </message>
-    <message>
-        <source>Could Not Set Version Number</source>
-        <translation type="vanished">Не вдалось встановити номер версії</translation>
-    </message>
-    <message>
-        <source>Package name:</source>
-        <translation type="vanished">Назва пакунка:</translation>
-    </message>
-    <message>
-        <source>Package version:</source>
-        <translation type="vanished">Версія пакунка:</translation>
-    </message>
-    <message>
-        <source>Major:</source>
-        <translation type="vanished">Старший:</translation>
-    </message>
-    <message>
-        <source>Minor:</source>
-        <translation type="vanished">Молодший:</translation>
-    </message>
-    <message>
-        <source>Patch:</source>
-        <translation type="vanished">Зміна:</translation>
-    </message>
-    <message>
-        <source>Short package description:</source>
-        <translation type="vanished">Короткий опис пакунка:</translation>
-    </message>
-    <message>
-        <source>Name to be displayed in Package Manager:</source>
-        <translation type="vanished">Назва для відображення в менеджері пакунків:</translation>
-    </message>
-    <message>
-        <source>Icon to be displayed in Package Manager:</source>
-        <translation type="vanished">Піктограма для відображення в менеджері пакунків:</translation>
-    </message>
-    <message>
-        <source>Adapt Debian file:</source>
-        <translation type="vanished">Адаптувати файл Debian:</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="vanished">Редагувати...</translation>
-    </message>
-    <message>
-        <source>Edit spec file</source>
-        <translation type="vanished">Редагувати файл spec</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishedProjectModel</name>
-    <message>
-        <source>Include in package</source>
-        <translation type="vanished">Включити в пакунок</translation>
-    </message>
-    <message>
-        <source>Include</source>
-        <translation type="vanished">Включити</translation>
-    </message>
-    <message>
-        <source>Do not include</source>
-        <translation type="vanished">Не включати</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublisherFremantleFree</name>
-    <message>
-        <source>Canceled.</source>
-        <translation type="vanished">Скасовано.</translation>
-    </message>
-    <message>
-        <source>Publishing canceled by user.</source>
-        <translation type="vanished">Публікація скасована користувачем.</translation>
-    </message>
-    <message>
-        <source>The project is missing some information important to publishing:</source>
-        <translation type="vanished">У проекту відсутня деяка важлива для публікації інформація:</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Missing project information.</source>
-        <translation type="vanished">Збій публікації: відсутня інформація про проект.</translation>
-    </message>
-    <message>
-        <source>Error removing temporary directory: %1</source>
-        <translation type="vanished">Помилка видалення тимчасової теки: %1</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Could not create source package.</source>
-        <translation type="vanished">Збій публікації: не вдалось створити пакунок з кодом.</translation>
-    </message>
-    <message>
-        <source>Error: Could not create temporary directory.</source>
-        <translation type="vanished">Помилка: не вдалось створити тимчасову теку.</translation>
-    </message>
-    <message>
-        <source>Error: Could not copy project directory.</source>
-        <translation type="vanished">Помилка: не вдалось скопіювати теку проекта.</translation>
-    </message>
-    <message>
-        <source>Error: Could not fix newlines.</source>
-        <translation type="vanished">Помилка: не вдалось виправити закінчення рядків.</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Could not create package.</source>
-        <translation type="vanished">Збій публікації: не вдалось створити пакунок.</translation>
-    </message>
-    <message>
-        <source>Removing left-over temporary directory...</source>
-        <translation type="vanished">Видалення тимчасової теки, що лишилась...</translation>
-    </message>
-    <message>
-        <source>Setting up temporary directory...</source>
-        <translation type="vanished">Підготовка тимчасової теки...</translation>
-    </message>
-    <message>
-        <source>Cleaning up temporary directory...</source>
-        <translation type="vanished">Очистка тимчасової теки...</translation>
-    </message>
-    <message>
-        <source>Failed to create directory &apos;%1&apos;.</source>
-        <translation type="vanished">Збій створення теки &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Could not set execute permissions for rules file: %1</source>
-        <translation type="vanished">Не вдалось встановити дозволи на виконання для файлу правил: %1</translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;: %3.</source>
-        <translation type="vanished">Не вдалось скопіювати файл &apos;%1&apos; до &apos;%2&apos;: %3.</translation>
-    </message>
-    <message>
-        <source>Make distclean failed: %1</source>
-        <translation type="vanished">Збій make distclean: %1</translation>
-    </message>
-    <message>
-        <source>Error: Failed to start dpkg-buildpackage.</source>
-        <translation type="vanished">Помилка: збій запуску dpkg-buildpackage.</translation>
-    </message>
-    <message>
-        <source>Error: dpkg-buildpackage did not succeed.</source>
-        <translation type="vanished">Помилка: dpkg-buildpackage завершився з помилкою.</translation>
-    </message>
-    <message>
-        <source>Package creation failed.</source>
-        <translation type="vanished">Збій створення пакунка.</translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation type="vanished">Готово.</translation>
-    </message>
-    <message>
-        <source>Packaging finished successfully. The following files were created:
-</source>
-        <translation type="vanished">Пакування завершилось вдало. Були створені наступні файли:</translation>
-    </message>
-    <message>
-        <source>No Qt version set.</source>
-        <translation type="vanished">Не задано версію Qt.</translation>
-    </message>
-    <message>
-        <source>Building source package...</source>
-        <translation type="vanished">Побудова пакунка з кодом...</translation>
-    </message>
-    <message>
-        <source>Starting scp...</source>
-        <translation type="vanished">Запуск scp...</translation>
-    </message>
-    <message>
-        <source>Uploading file %1...</source>
-        <translation type="vanished">Завантаження файлу &apos;%1&apos;...</translation>
-    </message>
-    <message>
-        <source>SSH error: %1</source>
-        <translation type="vanished">Помилка SSH: %1</translation>
-    </message>
-    <message>
-        <source>Upload failed.</source>
-        <translation type="vanished">Збій завантаження.</translation>
-    </message>
-    <message>
-        <source>Error uploading file: %1.</source>
-        <translation type="vanished">Помилка завантаження файлу: %1.</translation>
-    </message>
-    <message>
-        <source>Error uploading file.</source>
-        <translation type="vanished">Помилка завантаження файлу.</translation>
-    </message>
-    <message>
-        <source>All files uploaded.</source>
-        <translation type="vanished">Всі файли завантажено.</translation>
-    </message>
-    <message>
-        <source>Upload succeeded. You should shortly receive an email informing you about the outcome of the build process.</source>
-        <translation type="vanished">Завантаження вдалось. Ви маєте скоро отримати електронного листа з інформацією про результат процесу збірки.</translation>
-    </message>
-    <message>
-        <source>Cannot open file for reading: %1.</source>
-        <translation type="vanished">Неможливо відкрити файл для читання: %1.</translation>
-    </message>
-    <message>
-        <source>Cannot read file: %1</source>
-        <translation type="vanished">Неможливо прочитати файл %1</translation>
-    </message>
-    <message>
-        <source>The package description is empty. You must set one in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation type="vanished">Опис пакунка порожній. Ви повинні його встановити в Проекти -&gt; Запуск -&gt; Створення пакунка -&gt; Деталі.</translation>
-    </message>
-    <message>
-        <source>The package description is &apos;%1&apos;, which is probably not what you want. Please change it in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation type="vanished">Опис пакунка &apos;%1&apos;, мабуть, не такий як вам потрібно. Будь ласка, змініть його в Проекти -&gt; Запуск -&gt; Створення пакунка -&gt; Деталі.</translation>
-    </message>
-    <message>
-        <source>You have not set an icon for the package manager. The icon must be set in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation type="vanished">Ви не встановили піктограму для менеджера пакунків. Піктограма має бути встановлена в Проекти -&gt; Запуск -&gt; Створення пакунка -&gt; Деталі.</translation>
     </message>
 </context>
 <context>
@@ -27232,87 +26894,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardCheckPreviousKeySetupPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="vanished">Сторінка майстра</translation>
-    </message>
-    <message>
-        <source>Has a passwordless (key-based) login already been set up for this device?</source>
-        <translation type="vanished">Чи налаштовано вхід без пароля (за допомогою ключа) для цього пристрою?</translation>
-    </message>
-    <message>
-        <source>Yes, and the private key is located at</source>
-        <translation type="vanished">Так, і ключ знаходиться</translation>
-    </message>
-    <message>
-        <source>No</source>
-        <translation type="vanished">Ні</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingWizardPageFremantleFree</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="vanished">Сторінка майстра</translation>
-    </message>
-    <message>
-        <source>Choose build configuration:</source>
-        <translation type="vanished">Оберіть конфігурацію збірки:</translation>
-    </message>
-    <message>
-        <source>Only create source package, do not upload</source>
-        <translation type="vanished">Не завантажувати, лише створити пакунок з кодом</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingFileSelectionDialog</name>
-    <message>
-        <source>Choose Package Contents</source>
-        <translation type="vanished">Вибір змісту пакунка</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Please select the files you want to be included in the source tarball.&lt;/b&gt;
-</source>
-        <translation type="vanished">&lt;b&gt;Будь ласка, виберіть файли, які ви хочете включити до архіву tar з кодом.&lt;/b&gt;
-</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingResultPageFremantleFree</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="vanished">Сторінка майстра</translation>
-    </message>
-    <message>
-        <source>Progress</source>
-        <translation type="vanished">Поступ</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoQemuSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
-    </message>
-    <message>
-        <source>OpenGL Mode</source>
-        <translation type="vanished">Режим OpenGL</translation>
-    </message>
-    <message>
-        <source>&amp;Hardware acceleration</source>
-        <translation type="vanished">&amp;Апаратне прискорення</translation>
-    </message>
-    <message>
-        <source>&amp;Software rendering</source>
-        <translation type="vanished">&amp;Програмне відмальовування</translation>
-    </message>
-    <message>
-        <source>&amp;Auto-detect</source>
-        <translation type="vanished">А&amp;втовизначення</translation>
-    </message>
-</context>
-<context>
     <name>ProjectExplorer::Internal::CodeStyleSettingsPropertiesPage</name>
     <message>
         <source>Form</source>
@@ -30914,44 +30495,21 @@ The APK will not be usable on any other device.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeployConfigurationWidget</name>
+    <name>Qnx</name>
     <message>
         <source>Packages to deploy:</source>
         <translation type="vanished">Пакунки до розгортання:</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWidget</name>
+    <name>Qnx</name>
     <message>
         <source>IP or host name of the device</source>
         <translation type="vanished">IP або назва вузла пристрою</translation>
     </message>
     <message>
-        <source>Show password</source>
-        <translation type="vanished">Показувати пароль</translation>
-    </message>
-    <message>
         <source>Private key file:</source>
         <translation type="vanished">Файл приватного ключа:</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation type="vanished">Qt Creator</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">Помилка</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation type="vanished">Імпортувати</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardSetupPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="vanished">Сторінка майстра</translation>
     </message>
     <message>
         <source>The name to identify this configuration:</source>
@@ -30987,14 +30545,10 @@ The APK will not be usable on any other device.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardSshKeyPage</name>
+    <name>Qnx</name>
     <message>
         <source>WizardPage</source>
         <translation type="vanished">Сторінка майстра</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation type="vanished">Файл приватного ключа:</translation>
     </message>
     <message>
         <source>Public key file:</source>
@@ -31010,7 +30564,7 @@ The APK will not be usable on any other device.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryRunConfigurationWidget</name>
+    <name>Qnx</name>
     <message>
         <source>Device:</source>
         <translation type="vanished">Пристрій:</translation>
@@ -31021,7 +30575,7 @@ The APK will not be usable on any other device.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxBaseQtConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>SDK:</source>
         <translation type="vanished">SDK:</translation>
@@ -34889,111 +34443,39 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryAbstractDeployStep</name>
+    <name>Qnx</name>
     <message>
         <source>Starting: &quot;%1&quot; %2</source>
         <translation type="vanished">Запуск: &quot;%1&quot; %2</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryApplicationRunner</name>
+    <name>Qnx</name>
     <message>
         <source>Launching application failed</source>
         <translation type="vanished">Збій запуску програми</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryCreatePackageStepConfigWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
-    </message>
-    <message>
-        <source>CSK password:</source>
-        <translation type="vanished">Пароль CSK:</translation>
-    </message>
-    <message>
-        <source>Keystore password:</source>
-        <translation type="vanished">Пароль до сховища ключів:</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryCreatePackageStepFactory</name>
     <message>
         <source>Create BAR Packages</source>
         <translation type="vanished">Створити пакунки BAR</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeployConfiguration</name>
-    <message>
-        <source>Deploy to BlackBerry Device</source>
-        <translation type="vanished">Розгортання на пристрій BlackBerry</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeployConfigurationFactory</name>
-    <message>
-        <source>Deploy to BlackBerry Device</source>
-        <translation type="vanished">Розгортання на пристрій BlackBerry</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeployInformation</name>
-    <message>
-        <source>Enabled</source>
-        <translation type="vanished">Увімкнено</translation>
-    </message>
-    <message>
-        <source>Package</source>
-        <translation type="vanished">Пакунок</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeployStepConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&lt;b&gt;Deploy packages&lt;/b&gt;</source>
         <translation type="vanished">&lt;b&gt;Розгортання пакунків&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeployStepFactory</name>
+    <name>Qnx</name>
     <message>
         <source>Deploy Package</source>
         <translation type="vanished">Розгорнути пакунок</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfiguration</name>
-    <message>
-        <source>BlackBerry</source>
-        <translation type="vanished">BlackBerry</translation>
-    </message>
-    <message>
-        <source>Connect to device</source>
-        <translation type="vanished">Підключитись до пристрою</translation>
-    </message>
-    <message>
-        <source>Disconnect from device</source>
-        <translation type="vanished">Відключитись від пристрою</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationFactory</name>
-    <message>
-        <source>BlackBerry Device</source>
-        <translation type="vanished">Пристрій BlackBerry</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizard</name>
-    <message>
-        <source>New BlackBerry Device Configuration Setup</source>
-        <translation type="vanished">Налаштування нової конфігурації пристрою BlackBerry</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardFinalPage</name>
+    <name>Qnx</name>
     <message>
         <source>Setup Finished</source>
         <translation type="vanished">Налаштування завершено</translation>
@@ -35003,16 +34485,12 @@ Do you want to retry?</source>
         <translation type="vanished">Зараз буде створено нову конфігурацію пристрою.</translation>
     </message>
     <message>
-        <source>Summary</source>
-        <translation type="vanished">Підсумок</translation>
-    </message>
-    <message>
         <source>The new device configuration will be created now.</source>
         <translation type="vanished">Зараз буде створено нову конфігурацію пристрою.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryQtVersion</name>
+    <name>Qnx</name>
     <message>
         <source>BlackBerry %1</source>
         <comment>Qt Version is meant for BlackBerry</comment>
@@ -35032,96 +34510,35 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryRunConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>Run on BlackBerry device</source>
         <translation type="vanished">Запустити на пристрої BlackBerry</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryRunControlFactory</name>
     <message>
         <source>No active deploy configuration</source>
         <translation type="vanished">Немає активної конфігурації розгортання</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxAbstractQtVersion</name>
     <message>
         <source>No SDK path set</source>
         <translation type="vanished">Шлях до SDK не задано</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDebugSupport</name>
-    <message>
-        <source>Preparing remote side...
-</source>
-        <translation type="vanished">Підготовка віддаленої сторони...
-</translation>
-    </message>
-    <message>
-        <source>Preparing remote side...</source>
-        <translation>Підготовка віддаленої сторони...</translation>
-    </message>
-    <message>
-        <source>The %1 process closed unexpectedly.</source>
-        <translation>Процес %1 було несподівано закрито.</translation>
-    </message>
-    <message>
-        <source>Initial setup failed: %1</source>
-        <translation>Збій початкового налаштування: %1</translation>
-    </message>
-    <message>
-        <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available.</source>
-        <translation>Попередження: на пристрої не знайдено&quot;slog2info&quot;, зневаджувальне виведення не доступне.</translation>
-    </message>
-    <message>
-        <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available!</source>
-        <translation type="vanished">Попередження: на пристрої не знайдено&quot;slog2info&quot;, зневаджувальне виведення не доступне!</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeployConfigurationFactory</name>
     <message>
         <source>Deploy to QNX Device</source>
         <translation>Розгортання на пристрій QNX</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfiguration</name>
-    <message>
-        <source>QNX</source>
-        <translation>QNX</translation>
     </message>
     <message>
         <source>Deploy Qt libraries...</source>
         <translation>Розгорнути бібліотеки Qt...</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfigurationFactory</name>
-    <message>
-        <source>QNX Device</source>
-        <translation>Пристрій QNX</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfigurationWizard</name>
     <message>
         <source>New QNX Device Configuration Setup</source>
         <translation>Налаштування нової конфігурації пристрою QNX</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfigurationWizardSetupPage</name>
     <message>
         <source>QNX Device</source>
         <translation>Пристрій QNX</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxQtVersion</name>
     <message>
         <source>QNX %1</source>
         <extracomment>Qt Version is meant for QNX</extracomment>
@@ -35141,14 +34558,14 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>Path to Qt libraries on device:</source>
         <translation>Шлях до бібліотек Qt на пристрої:</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunConfigurationFactory</name>
+    <name>Qnx</name>
     <message>
         <source>%1 on QNX Device</source>
         <translation>%1 на пристрої QNX</translation>
@@ -36129,11 +35546,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorWidget</name>
-    <message>
-        <source>General</source>
-        <translation type="vanished">Загальне</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Permissions</source>
         <translation type="vanished">Дозволи</translation>
@@ -36142,59 +35555,17 @@ cannot be found in the path.</source>
         <source>Environment</source>
         <translation type="vanished">Середовище</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryCreateCertificateDialog</name>
     <message>
         <source>Create Certificate</source>
         <translation type="vanished">Cтворення сертифіката</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation type="vanished">Шлях:</translation>
-    </message>
-    <message>
-        <source>Author:</source>
-        <translation type="vanished">Автор:</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation type="vanished">Пароль:</translation>
-    </message>
-    <message>
-        <source>Show password</source>
-        <translation type="vanished">Показувати пароль</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation type="vanished">Статус</translation>
     </message>
     <message>
         <source>The entered passwords do not match.</source>
         <translation type="vanished">Введені паролі не збігаються.</translation>
     </message>
     <message>
-        <source>Are you sure?</source>
-        <translation type="vanished">Ви впевнені?</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">Помилка</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDebugTokenRequestDialog</name>
-    <message>
         <source>Keystore:</source>
         <translation type="vanished">Сховище ключів:</translation>
-    </message>
-    <message>
-        <source>Keystore password:</source>
-        <translation type="vanished">Пароль до сховища ключів:</translation>
-    </message>
-    <message>
-        <source>Show password</source>
-        <translation type="vanished">Показувати пароль</translation>
     </message>
     <message>
         <source>Status</source>
@@ -36205,66 +35576,8 @@ cannot be found in the path.</source>
         <translation type="vanished">Ви впевнені?</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation type="vanished">Помилка</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryImportCertificateDialog</name>
-    <message>
-        <source>Path:</source>
-        <translation type="vanished">Шлях:</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation type="vanished">Пароль:</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">Помилка</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryKeysWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <translation type="vanished">Створити</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation type="vanished">Імпортувати</translation>
-    </message>
-    <message>
         <source>Delete</source>
         <translation type="vanished">Видалити</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">Помилка</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation type="vanished">Шлях:</translation>
-    </message>
-    <message>
-        <source>Author:</source>
-        <translation type="vanished">Автор:</translation>
-    </message>
-    <message>
-        <source>Path</source>
-        <translation type="vanished">Шлях</translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation type="vanished">Автор</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation type="vanished">Qt Creator</translation>
     </message>
     <message>
         <source>Import...</source>
@@ -36275,51 +35588,12 @@ cannot be found in the path.</source>
         <translation type="vanished">Редагувати...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation type="vanished">Видалити</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryNDKSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="vanished">Видалити</translation>
-    </message>
-    <message>
-        <source>NDK</source>
-        <translation type="vanished">NDK</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation type="vanished">Qt Creator</translation>
-    </message>
-    <message>
-        <source>Configuration</source>
-        <translation type="vanished">Конфігурація</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="vanished">Додати</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation type="vanished">Додати...</translation>
-    </message>
-    <message>
         <source>Clean Up</source>
         <translation type="vanished">Очистити</translation>
     </message>
     <message>
         <source>Path:</source>
         <translation type="vanished">Шлях:</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="vanished">Назва:</translation>
     </message>
     <message>
         <source>Version:</source>
@@ -36331,18 +35605,10 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryRegisterKeyDialog</name>
+    <name>Qnx</name>
     <message>
         <source>CSJ PIN:</source>
         <translation type="vanished">CSJ PIN:</translation>
-    </message>
-    <message>
-        <source>Keystore password:</source>
-        <translation type="vanished">Пароль до сховища ключів:</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">Помилка</translation>
     </message>
 </context>
 <context>
@@ -38056,7 +37322,7 @@ Remote: %4</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditor</name>
+    <name>Qnx</name>
     <message>
         <source>General</source>
         <translation type="vanished">Загальне</translation>
@@ -38079,7 +37345,7 @@ Remote: %4</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorPermissionsModel</name>
+    <name>Qnx</name>
     <message>
         <source>Location</source>
         <translation type="vanished">Розташування</translation>
@@ -38092,20 +37358,10 @@ Remote: %4</source>
         <source>Internet</source>
         <translation type="vanished">Інтернет</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryCertificateModel</name>
-    <message>
-        <source>Path</source>
-        <translation type="vanished">Шлях</translation>
-    </message>
     <message>
         <source>Author</source>
         <translation type="vanished">Автор</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryConfiguration</name>
     <message>
         <source>Qt Version Already Known</source>
         <translation type="vanished">Версія Qt вже відома</translation>
@@ -38114,16 +37370,10 @@ Remote: %4</source>
         <source>BlackBerry 10 (%1)</source>
         <translation type="vanished">BlackBerry 10 (%1)</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryKeysPage</name>
     <message>
         <source>Keys</source>
         <translation type="vanished">Ключі</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryNDKSettingsPage</name>
     <message>
         <source>NDK</source>
         <translation type="vanished">NDK</translation>
@@ -38457,11 +37707,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorAssetsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Add...</source>
         <translation type="vanished">Додати...</translation>
@@ -38484,26 +37730,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorAuthorInformationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
-    </message>
-    <message>
-        <source>Author:</source>
-        <translation type="vanished">Автор:</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BarDescriptorEditorEntryPointWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="vanished">Назва:</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Description:</source>
         <translation type="vanished">Опис:</translation>
@@ -38521,14 +37748,6 @@ Partial names can be used if they are unambiguous.</source>
         <translation type="vanished">Заставки:</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation type="vanished">Додати...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="vanished">Видалити</translation>
-    </message>
-    <message>
         <source>Images (*.jpg *.png)</source>
         <translation type="vanished">Зображення (*.jpg *.png)</translation>
     </message>
@@ -38542,21 +37761,10 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorEnvironmentWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Device Environment</source>
         <translation type="vanished">Середовище пристрою</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BarDescriptorEditorGeneralWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
     </message>
     <message>
         <source>Orientation:</source>
@@ -38588,82 +37796,19 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorPackageInformationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Package version:</source>
         <translation type="vanished">Версія пакунка:</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BarDescriptorEditorPermissionsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
     </message>
     <message>
         <source>Select All</source>
         <translation type="vanished">Виділити все</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerrySetupWizardDevicePage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="vanished">Сторінка майстра</translation>
-    </message>
-    <message>
-        <source>IP or host name of the device</source>
-        <translation type="vanished">IP або назва вузла пристрою</translation>
-    </message>
-    <message>
-        <source>Physical device</source>
-        <translation type="vanished">Фізичний пристрій</translation>
-    </message>
-    <message>
-        <source>Simulator</source>
-        <translation type="vanished">Симулятор</translation>
-    </message>
-    <message>
-        <source>BlackBerry Device</source>
-        <translation type="vanished">Пристрій BlackBerry</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerrySetupWizardFinishPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="vanished">Сторінка майстра</translation>
-    </message>
     <message>
         <source>Your environment is ready to be configured.</source>
         <translation type="vanished">Ваше середовище готове для налаштування.</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerrySetupWizardKeysPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="vanished">Сторінка майстра</translation>
-    </message>
-    <message>
-        <source>CSJ PIN:</source>
-        <translation type="vanished">CSJ PIN:</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation type="vanished">Пароль:</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation type="vanished">Qt Creator</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerrySigningPasswordsDialog</name>
     <message>
         <source>Package signing passwords</source>
         <translation type="vanished">Пароль для підписання пакунка</translation>
@@ -39539,49 +38684,28 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCheckDevModeStep</name>
-    <message>
-        <source>Check Development Mode</source>
-        <translation type="vanished">Перевірка режиму розробки</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryCheckDevModeStepConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&lt;b&gt;Check development mode&lt;/b&gt;</source>
         <translation type="vanished">&lt;b&gt;Перевірка режиму розробки&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryCheckDevModeStepFactory</name>
     <message>
         <source>Check Development Mode</source>
         <translation type="vanished">Перевірка режиму розробки</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConnection</name>
+    <name>Qnx</name>
     <message>
         <source>Error connecting to device: java could not be found in the environment.</source>
         <translation type="vanished">Помилка підключення до пристрою: не вдалось знайти java в середовищі.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryProcessParser</name>
+    <name>Qnx</name>
     <message>
         <source>Authentication failed. Please make sure the password for the device is correct.</source>
         <translation type="vanished">Збій авторизації. Будь ласка, переконайтесь, що пароль для пристрою правильний.</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerrySetupWizard</name>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">Помилка</translation>
-    </message>
-    <message>
-        <source>Key Generation Failed</source>
-        <translation type="vanished">Збій генерації ключа</translation>
     </message>
     <message>
         <source>Failed to create directory: &apos;%1&apos;.</source>
@@ -39589,7 +38713,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerrySetupWizardWelcomePage</name>
+    <name>Qnx</name>
     <message>
         <source>Welcome to the BlackBerry Development Environment Setup Wizard.
 This wizard will guide you through the essential steps to deploy a ready-to-go development environment for BlackBerry 10 devices.</source>
@@ -39602,7 +38726,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerrySetupWizardNdkPage</name>
+    <name>Qnx</name>
     <message>
         <source>Configure the NDK Path</source>
         <translation type="vanished">Налаштування шляху до NDK</translation>
@@ -39798,20 +38922,14 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAbstractRunSupport</name>
+    <name>Qnx</name>
     <message>
         <source>Not enough free ports on device for debugging.</source>
         <translation>Недостатньо вільних портів для зневадження в пристрої.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAnalyzeSupport</name>
-    <message>
-        <source>Preparing remote side...
-</source>
-        <translation type="vanished">Підготовка віддаленої сторони...
-</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Preparing remote side...</source>
         <translation>Підготовка віддаленої сторони...</translation>
@@ -39824,17 +38942,9 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
         <source>Initial setup failed: %1</source>
         <translation>Збій початкового налаштування: %1</translation>
     </message>
-    <message>
-        <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available.</source>
-        <translation>Попередження: на пристрої не знайдено&quot;slog2info&quot;, зневаджувальне виведення не доступне.</translation>
-    </message>
-    <message>
-        <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available!</source>
-        <translation type="vanished">Попередження: на пристрої не знайдено&quot;slog2info&quot;, зневаджувальне виведення не доступне!</translation>
-    </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunControlFactory</name>
+    <name>Qnx</name>
     <message>
         <source>No analyzer tool selected.</source>
         <translation type="vanished">Інструмент для аналізу не обрано.</translation>
@@ -39910,7 +39020,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceTester</name>
+    <name>Qnx</name>
     <message>
         <source>SSH connection error: %1
 </source>
@@ -40734,11 +39844,7 @@ monitor reset</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardConfigPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Location:</source>
         <translation type="vanished">Розташування:</translation>
@@ -40755,34 +39861,6 @@ monitor reset</translation>
         <source>Import</source>
         <translation type="vanished">Імпортувати</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardQueryPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryInstallWizardNdkPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryInstallWizardProcessPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryInstallWizardTargetPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
-    </message>
     <message>
         <source>Target</source>
         <translation type="vanished">Ціль</translation>
@@ -40797,7 +39875,7 @@ monitor reset</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerrySetupWizardCertificatePage</name>
+    <name>Qnx</name>
     <message>
         <source>Form</source>
         <translation type="vanished">Форма</translation>
@@ -40816,7 +39894,7 @@ monitor reset</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::SrcProjectWizardPage</name>
+    <name>Qnx</name>
     <message>
         <source>Choose the Location</source>
         <translation type="vanished">Оберіть розташування</translation>
@@ -42802,7 +41880,7 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryConfigurationManager</name>
+    <name>Qnx</name>
     <message>
         <source>NDK Already Known</source>
         <translation type="vanished">NDK вже відомий</translation>
@@ -42813,57 +41891,22 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryInstallWizardOptionPage</name>
+    <name>Qnx</name>
     <message>
         <source>Options</source>
         <translation type="vanished">Опції</translation>
     </message>
     <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryInstallWizardFinalPage</name>
-    <message>
         <source>Summary</source>
         <translation type="vanished">Підсумок</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryLogProcessRunner</name>
     <message>
         <source>Cannot show debug output. Error: %1</source>
         <translation type="vanished">Неможливо показати зневаджувальне виведення: Помилка: %1</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerrySigningUtils</name>
-    <message>
-        <source>Qt Creator</source>
-        <translation type="vanished">Qt Creator</translation>
-    </message>
-</context>
-<context>
-    <name>BarDescriptorConverter</name>
-    <message>
-        <source>Error parsing XML file &quot;%1&quot;: %2</source>
-        <translation type="vanished">Помилка розбору файлу XML &quot;%1&quot;: %2</translation>
-    </message>
-    <message>
-        <source>Error parsing XML file &apos;%1&apos;: %2</source>
-        <translation type="vanished">Помилка розбору файлу XML &apos;%1&apos;: %2</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::CascadesImportWizardDialog</name>
     <message>
         <source>Project Name and Location</source>
         <translation type="vanished">Назва та розташування проекту</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation type="vanished">Qt Creator</translation>
     </message>
 </context>
 <context>
@@ -42885,7 +41928,7 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunControl</name>
+    <name>Qnx</name>
     <message>
         <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available!</source>
         <translation type="vanished">Попередження: на пристрої не знайдено&quot;slog2info&quot;, зневаджувальне виведення не доступне!</translation>
@@ -42896,14 +41939,14 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxToolChainFactory</name>
+    <name>Qnx</name>
     <message>
         <source>QCC</source>
         <translation>QCC</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxToolChainConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>Шлях до &amp;компілятора:</translation>
@@ -42919,7 +41962,7 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::Slog2InfoRunner</name>
+    <name>Qnx</name>
     <message>
         <source>Cannot show slog2info output. Error: %1</source>
         <translation>Неможливо показати виведення slog2info: Помилка: %1</translation>
@@ -43648,48 +42691,18 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCheckDeviceStatusStepConfigWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>&lt;b&gt;Check device status&lt;/b&gt;</source>
         <translation type="vanished">&lt;b&gt;Перевірка стану пристрою&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDebugTokenPinsDialog</name>
     <message>
         <source>Dialog</source>
         <translation type="vanished">Діалог</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation type="vanished">Додати</translation>
-    </message>
-    <message>
         <source>Edit</source>
         <translation type="vanished">Редагувати</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="vanished">Видалити</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeployQtLibrariesDialog</name>
-    <message>
-        <source>Deploy</source>
-        <translation type="vanished">Розгорнути</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="vanished">Закрити</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation type="vanished">Збій з&apos;єднання: %1</translation>
     </message>
 </context>
 <context>
@@ -44847,7 +43860,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryApiLevelConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>Qt %1 for %2</source>
         <translation type="vanished">Qt %1 для %2</translation>
@@ -44870,14 +43883,14 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCheckDeviceStatusStep</name>
+    <name>Qnx</name>
     <message>
         <source>Confirmation</source>
         <translation type="vanished">Підтвердження</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCheckDeviceStatusStepFactory</name>
+    <name>Qnx</name>
     <message>
         <source>Check Device Status</source>
         <translation type="vanished">Перевірка стану пристрою</translation>
@@ -44902,7 +43915,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::SigningKeysSetupItem</name>
+    <name>Qnx</name>
     <message>
         <source>Update</source>
         <translation type="vanished">Оновити</translation>
@@ -44921,7 +43934,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::DeviceSetupItem</name>
+    <name>Qnx</name>
     <message>
         <source>Add</source>
         <translation type="vanished">Додати</translation>
@@ -44992,7 +44005,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAttachDebugDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Project source directory:</source>
         <translation>Тека кодів проекту:</translation>
@@ -45003,7 +44016,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAttachDebugSupport</name>
+    <name>Qnx</name>
     <message>
         <source>No free ports for debugging.</source>
         <translation>Немає вільних портів для зневадження.</translation>
@@ -45014,7 +44027,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxPlugin</name>
+    <name>Qnx</name>
     <message>
         <source>Attach to remote QNX application...</source>
         <translation>Під&apos;єднатись до віддаленої програми QNX...</translation>
@@ -45387,7 +44400,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeployQtLibrariesDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Deploy Qt to BlackBerry Device</source>
         <translation>Розгортання Qt на пристрій BlackBerry</translation>
@@ -45438,11 +44451,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Generate kits</source>
         <translation>Генерувати комплекти</translation>
@@ -45456,24 +44465,8 @@ Are you sure you want to continue?</source>
         <translation>Назва:</translation>
     </message>
     <message>
-        <source>Version:</source>
-        <translation>Версія:</translation>
-    </message>
-    <message>
         <source>Host:</source>
         <translation>Вузол:</translation>
-    </message>
-    <message>
-        <source>Target:</source>
-        <translation>Ціль:</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="vanished">Додати</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Видалити</translation>
     </message>
     <message>
         <source>Select QNX Environment File</source>
@@ -45496,10 +44489,6 @@ Are you sure you want to continue?</source>
  %1?</source>
         <translation>Ви впевнені, що хочете видалити:
  %1?</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation>Додати...</translation>
     </message>
 </context>
 <context>
@@ -46523,14 +45512,14 @@ Install an SDK of at least API version %1.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorFileNodeManager</name>
+    <name>Qnx</name>
     <message>
         <source>Error</source>
         <translation type="vanished">Помилка</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>The following errors occurred while activating the QNX configuration:</source>
         <translation>Під час активації конфігурації QNX виникли наступні помилки:</translation>
@@ -46574,20 +45563,6 @@ Install an SDK of at least API version %1.</source>
     <message>
         <source>- No GDB debugger found for x86.</source>
         <translation>- Зневаджувач GDB для x86 не знайдено.</translation>
-    </message>
-</context>
-<context>
-    <name>QNX</name>
-    <message>
-        <source>QNX</source>
-        <translation>QNX</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxSettingsPage</name>
-    <message>
-        <source>QNX</source>
-        <translation>QNX</translation>
     </message>
 </context>
 <context>

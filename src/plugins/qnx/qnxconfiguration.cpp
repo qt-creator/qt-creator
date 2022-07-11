@@ -24,9 +24,11 @@
 ****************************************************************************/
 
 #include "qnxconfiguration.h"
+
 #include "qnxqtversion.h"
 #include "qnxutils.h"
 #include "qnxtoolchain.h"
+#include "qnxtr.h"
 
 #include "debugger/debuggeritem.h"
 
@@ -147,14 +149,13 @@ bool QnxConfiguration::activate()
 
     if (!isValid()) {
         QString errorMessage
-                = QCoreApplication::translate("Qnx::Internal::QnxConfiguration",
-                                              "The following errors occurred while activating the QNX configuration:");
+                = Tr::tr("The following errors occurred while activating the QNX configuration:");
+
         foreach (const QString &error, validationErrors())
             errorMessage += QLatin1String("\n") + error;
 
         QMessageBox::warning(Core::ICore::dialogParent(),
-                             QCoreApplication::translate("Qnx::Internal::QnxConfiguration",
-                                                         "Cannot Set Up QNX Configuration"),
+                             Tr::tr("Cannot Set Up QNX Configuration"),
                              errorMessage,
                              QMessageBox::Ok);
         return false;
@@ -262,10 +263,7 @@ QVariant QnxConfiguration::createDebugger(const Target &target)
     debugger.setCommand(target.m_debuggerPath);
     debugger.reinitializeFromFile(sysEnv);
     debugger.setAutoDetected(true);
-    debugger.setUnexpandedDisplayName(
-                QCoreApplication::translate(
-                    "Qnx::Internal::QnxConfiguration",
-                    "Debugger for %1 (%2)")
+    debugger.setUnexpandedDisplayName(Tr::tr("Debugger for %1 (%2)")
                 .arg(displayName())
                 .arg(target.shortDescription()));
     return Debugger::DebuggerItemManager::registerDebugger(debugger);
@@ -281,10 +279,7 @@ QnxConfiguration::QnxToolChainMap QnxConfiguration::createToolChain(const Target
         toolChain->setDetection(ToolChain::AutoDetection);
         toolChain->setLanguage(language);
         toolChain->setTargetAbi(target.m_abi);
-        toolChain->setDisplayName(
-                    QCoreApplication::translate(
-                        "Qnx::Internal::QnxConfiguration",
-                        "QCC for %1 (%2)")
+        toolChain->setDisplayName(Tr::tr("QCC for %1 (%2)")
                     .arg(displayName())
                     .arg(target.shortDescription()));
         toolChain->setSdpPath(sdpPath());
@@ -327,10 +322,7 @@ void QnxConfiguration::createKit(const Target &target, const QnxToolChainMap &to
         DeviceTypeKitAspect::setDeviceTypeId(k, Constants::QNX_QNX_OS_TYPE);
         // TODO: Add sysroot?
 
-        k->setUnexpandedDisplayName(
-                    QCoreApplication::translate(
-                        "Qnx::Internal::QnxConfiguration",
-                        "Kit for %1 (%2)")
+        k->setUnexpandedDisplayName(Tr::tr("Kit for %1 (%2)")
                     .arg(displayName())
                     .arg(target.shortDescription()));
 
@@ -355,12 +347,10 @@ QStringList QnxConfiguration::validationErrors() const
 {
     QStringList errorStrings;
     if (m_qccCompiler.isEmpty())
-        errorStrings << QCoreApplication::translate("Qnx::Internal::QnxConfiguration",
-                                                    "- No GCC compiler found.");
+        errorStrings << Tr::tr("- No GCC compiler found.");
 
     if (m_targets.isEmpty())
-        errorStrings << QCoreApplication::translate("Qnx::Internal::QnxConfiguration",
-                                                    "- No targets found.");
+        errorStrings << Tr::tr("- No targets found.");
 
     return errorStrings;
 }

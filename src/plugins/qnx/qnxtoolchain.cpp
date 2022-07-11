@@ -24,9 +24,11 @@
 ****************************************************************************/
 
 #include "qnxtoolchain.h"
+
 #include "qnxconfiguration.h"
 #include "qnxconfigurationmanager.h"
 #include "qnxconstants.h"
+#include "qnxtr.h"
 #include "qnxutils.h"
 
 #include <projectexplorer/abiwidget.h>
@@ -107,7 +109,7 @@ QnxToolChain::QnxToolChain()
     : GccToolChain(Constants::QNX_TOOLCHAIN_ID)
 {
     setOptionsReinterpreter(&reinterpretOptions);
-    setTypeDisplayName(tr("QCC"));
+    setTypeDisplayName(Tr::tr("QCC"));
 }
 
 std::unique_ptr<ToolChainConfigWidget> QnxToolChain::createConfigurationWidget()
@@ -211,7 +213,7 @@ bool QnxToolChain::operator ==(const ToolChain &other) const
 
 QnxToolChainFactory::QnxToolChainFactory()
 {
-    setDisplayName(QnxToolChain::tr("QCC"));
+    setDisplayName(Tr::tr("QCC"));
     setSupportedToolChainType(Constants::QNX_TOOLCHAIN_ID);
     setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
                            ProjectExplorer::Constants::CXX_LANGUAGE_ID});
@@ -256,10 +258,10 @@ QnxToolChainConfigWidget::QnxToolChainConfigWidget(QnxToolChain *tc)
     m_abiWidget->setAbis(abiList, tc->targetAbi());
     m_abiWidget->setEnabled(!tc->isAutoDetected() && !abiList.isEmpty());
 
-    m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
+    m_mainLayout->addRow(Tr::tr("&Compiler path:"), m_compilerCommand);
     //: SDP refers to 'Software Development Platform'.
-    m_mainLayout->addRow(tr("SDP path:"), m_sdpPath);
-    m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
+    m_mainLayout->addRow(Tr::tr("SDP path:"), m_sdpPath);
+    m_mainLayout->addRow(Tr::tr("&ABI:"), m_abiWidget);
 
     connect(m_compilerCommand, &PathChooser::rawPathChanged, this, &ToolChainConfigWidget::dirty);
     connect(m_sdpPath, &PathChooser::rawPathChanged,

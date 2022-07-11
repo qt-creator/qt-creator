@@ -26,7 +26,7 @@
 #include "slog2inforunner.h"
 
 #include "qnxdevice.h"
-#include "qnxrunconfiguration.h"
+#include "qnxtr.h"
 
 #include <projectexplorer/runconfigurationaspects.h>
 
@@ -65,7 +65,7 @@ Slog2InfoRunner::Slog2InfoRunner(RunControl *runControl)
 
 void Slog2InfoRunner::printMissingWarning()
 {
-    appendMessage(tr("Warning: \"slog2info\" is not found on the device, debug output not available."), ErrorMessageFormat);
+    appendMessage(Tr::tr("Warning: \"slog2info\" is not found on the device, debug output not available."), ErrorMessageFormat);
 }
 
 void Slog2InfoRunner::start()
@@ -199,7 +199,7 @@ void Slog2InfoRunner::handleLogDone()
     if (m_logProcess->error() == QProcess::UnknownError)
         return;
 
-    appendMessage(tr("Cannot show slog2info output. Error: %1")
+    appendMessage(Tr::tr("Cannot show slog2info output. Error: %1")
                   .arg(m_logProcess->errorString()), Utils::StdErrFormat);
 }
 

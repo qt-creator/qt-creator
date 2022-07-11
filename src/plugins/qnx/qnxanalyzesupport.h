@@ -27,16 +27,12 @@
 
 #include <projectexplorer/runcontrol.h>
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 class QnxQmlProfilerSupport : public ProjectExplorer::SimpleTargetRunner
 {
-    Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::QnxQmlProfilerSupport)
-
 public:
     explicit QnxQmlProfilerSupport(ProjectExplorer::RunControl *runControl);
 };
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

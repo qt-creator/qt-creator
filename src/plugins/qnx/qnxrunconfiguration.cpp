@@ -26,6 +26,7 @@
 #include "qnxrunconfiguration.h"
 
 #include "qnxconstants.h"
+#include "qnxtr.h"
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployablefile.h>
@@ -48,14 +49,14 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
     auto exeAspect = addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
-    exeAspect->setLabelText(tr("Executable on device:"));
-    exeAspect->setPlaceHolderText(tr("Remote path not set"));
+    exeAspect->setLabelText(Tr::tr("Executable on device:"));
+    exeAspect->setPlaceHolderText(Tr::tr("Remote path not set"));
     exeAspect->makeOverridable("RemoteLinux.RunConfig.AlternateRemoteExecutable",
                                "RemoteLinux.RunConfig.UseAlternateRemoteExecutable");
     exeAspect->setHistoryCompleter("RemoteLinux.AlternateExecutable.History");
 
     auto symbolsAspect = addAspect<SymbolFileAspect>();
-    symbolsAspect->setLabelText(tr("Executable on host:"));
+    symbolsAspect->setLabelText(Tr::tr("Executable on host:"));
     symbolsAspect->setDisplayStyle(SymbolFileAspect::LabelDisplay);
 
     auto envAspect = addAspect<RemoteLinuxEnvironmentAspect>(target);
@@ -66,7 +67,7 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Id id)
 
     auto libAspect = addAspect<StringAspect>();
     libAspect->setSettingsKey("Qt4ProjectManager.QnxRunConfiguration.QtLibPath");
-    libAspect->setLabelText(tr("Path to Qt libraries on device"));
+    libAspect->setLabelText(Tr::tr("Path to Qt libraries on device"));
     libAspect->setDisplayStyle(StringAspect::LineEditDisplay);
 
     setUpdater([this, target, exeAspect, symbolsAspect] {

@@ -25,6 +25,7 @@
 
 #include "qnxdevicetester.h"
 #include "qnxdevice.h"
+#include "qnxtr.h"
 
 #include <utils/qtcassert.h>
 
@@ -93,7 +94,7 @@ void QnxDeviceTester::handleGenericTestFinished(TestResult result)
     }
 
     m_state = VarRunTest;
-    emit progressMessage(tr("Checking that files can be created in /var/run..."));
+    emit progressMessage(Tr::tr("Checking that files can be created in /var/run..."));
     const CommandLine cmd {m_deviceConfiguration->filePath("/bin/sh"),
         {"-c", QLatin1String("rm %1 > /dev/null 2>&1; echo ABC > %1 && rm %1")
                     .arg("/var/run/qtc_xxxx.pid")}};
@@ -114,13 +115,13 @@ void QnxDeviceTester::handleProcessDone()
 void QnxDeviceTester::handleVarRunDone()
 {
     if (m_process.result() == ProcessResult::FinishedWithSuccess) {
-        emit progressMessage(tr("Files can be created in /var/run.") + '\n');
+        emit progressMessage(Tr::tr("Files can be created in /var/run.") + '\n');
     } else {
         m_result = TestFailure;
         const QString message = m_process.result() == ProcessResult::StartFailed
-                ? tr("An error occurred while checking that files can be created in /var/run.")
+                ? Tr::tr("An error occurred while checking that files can be created in /var/run.")
                   + '\n' + m_process.errorString()
-                : tr("Files cannot be created in /var/run.");
+                : Tr::tr("Files cannot be created in /var/run.");
         emit errorMessage(message + '\n');
     }
 
@@ -134,13 +135,13 @@ void QnxDeviceTester::handleCommandDone()
 {
     const QString command = m_commandsToTest[m_currentCommandIndex];
     if (m_process.result() == ProcessResult::FinishedWithSuccess) {
-        emit progressMessage(tr("%1 found.").arg(command) + '\n');
+        emit progressMessage(Tr::tr("%1 found.").arg(command) + '\n');
     } else {
         m_result = TestFailure;
         const QString message = m_process.result() == ProcessResult::StartFailed
-                ? tr("An error occurred while checking for %1.").arg(command)
+                ? Tr::tr("An error occurred while checking for %1.").arg(command)
                   + '\n' + m_process.errorString()
-                : tr("%1 not found.").arg(command);
+                : Tr::tr("%1 not found.").arg(command);
         emit errorMessage(message + '\n');
     }
 
@@ -158,7 +159,7 @@ void QnxDeviceTester::testNextCommand()
     }
 
     const QString command = m_commandsToTest[m_currentCommandIndex];
-    emit progressMessage(tr("Checking for %1...").arg(command));
+    emit progressMessage(Tr::tr("Checking for %1...").arg(command));
     m_process.setCommand({m_deviceConfiguration->filePath("command"), {"-v", command}});
     m_process.start();
 }

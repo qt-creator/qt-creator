@@ -26,6 +26,7 @@
 #include "qnxdevicewizard.h"
 
 #include "qnxconstants.h"
+#include "qnxtr.h"
 
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
@@ -39,7 +40,7 @@ namespace Internal {
 QnxDeviceWizard::QnxDeviceWizard(QWidget *parent) :
     Utils::Wizard(parent)
 {
-    setWindowTitle(tr("New QNX Device Configuration Setup"));
+    setWindowTitle(Tr::tr("New QNX Device Configuration Setup"));
 
     m_setupPage = new RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage(this);
     m_keyDeploymentPage

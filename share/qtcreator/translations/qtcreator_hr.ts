@@ -7869,7 +7869,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeployQtLibrariesDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Deploy Qt to QNX Device</source>
         <translation>Implementiraj Qt na QNX uređaju</translation>
@@ -7920,7 +7920,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxSettingsWidget</name>
+    <name>Qnx</name>
     <message>
         <source>Generate kits</source>
         <translation>Generiraj komplete</translation>
@@ -37366,208 +37366,6 @@ Saving failed.</source>
     </message>
     <message>
         <source>QML Scene</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxQmlProfilerSupport</name>
-    <message>
-        <source>Preparing remote side...</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxConfiguration</name>
-    <message>
-        <source>The following errors occurred while activating the QNX configuration:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot Set Up QNX Configuration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Debugger for %1 (%2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QCC for %1 (%2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kit for %1 (%2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>- No GCC compiler found.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>- No targets found.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDebugSupport</name>
-    <message>
-        <source>Preparing remote side...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Project source directory:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Local executable:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxAttachDebugSupport</name>
-    <message>
-        <source>Remote QNX process %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDevice</name>
-    <message>
-        <source>Deploy Qt libraries...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QNX</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceFactory</name>
-    <message>
-        <source>QNX Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceTester</name>
-    <message>
-        <source>Checking that files can be created in /var/run...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Files can be created in /var/run.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Files cannot be created in /var/run.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>An error occurred while checking that files can be created in /var/run.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 found.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 not found.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>An error occurred while checking for %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SSH connection error: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Checking for %1...</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceWizard</name>
-    <message>
-        <source>New QNX Device Configuration Setup</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QNX Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeployConfiguration</name>
-    <message>
-        <source>Deploy to QNX Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxPlugin</name>
-    <message>
-        <source>Attach to remote QNX application...</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxQtVersion</name>
-    <message>
-        <source>QNX %1</source>
-        <extracomment>Qt Version is meant for QNX</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No SDP path was set up.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxRunConfiguration</name>
-    <message>
-        <source>Path to Qt libraries on device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxSettingsPage</name>
-    <message>
-        <source>QNX</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxToolChainFactory</name>
-    <message>
-        <source>QCC</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxToolChainConfigWidget</name>
-    <message>
-        <source>&amp;Compiler path:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SDP path:</source>
-        <extracomment>SDP refers to &apos;Software Development Platform&apos;.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;ABI:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::Slog2InfoRunner</name>
-    <message>
-        <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot show slog2info output. Error: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

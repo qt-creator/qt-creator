@@ -26,6 +26,7 @@
 #include "qnxqtversion.h"
 
 #include "qnxconstants.h"
+#include "qnxtr.h"
 #include "qnxutils.h"
 
 #include <coreplugin/featureprovider.h>
@@ -80,8 +81,7 @@ QnxQtVersion::QnxQtVersion() = default;
 QString QnxQtVersion::description() const
 {
     //: Qt Version is meant for QNX
-    return QCoreApplication::translate("Qnx::Internal::QnxQtVersion", "QNX %1")
-            .arg(QnxUtils::cpuDirShortDescription(cpuDir()));
+    return Tr::tr("QNX %1").arg(QnxUtils::cpuDirShortDescription(cpuDir()));
 }
 
 QSet<Id> QnxQtVersion::availableFeatures() const
@@ -179,8 +179,7 @@ bool QnxQtVersion::isValid() const
 QString QnxQtVersion::invalidReason() const
 {
     if (sdpPath().isEmpty())
-        return QCoreApplication::translate("Qnx::Internal::QnxQtVersion",
-                                           "No SDP path was set up.");
+        return Tr::tr("No SDP path was set up.");
     return QtSupport::QtVersion::invalidReason();
 }
 

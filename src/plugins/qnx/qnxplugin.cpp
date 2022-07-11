@@ -34,7 +34,7 @@
 #include "qnxrunconfiguration.h"
 #include "qnxsettingspage.h"
 #include "qnxtoolchain.h"
-#include "qnxutils.h"
+#include "qnxtr.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -93,8 +93,7 @@ public:
     QnxDeployConfigurationFactory()
     {
         setConfigBaseId(Constants::QNX_QNX_DEPLOYCONFIGURATION_ID);
-        setDefaultDisplayName(QCoreApplication::translate("Qnx::Internal::QnxDeployConfiguration",
-                                                          "Deploy to QNX Device"));
+        setDefaultDisplayName(Tr::tr("Deploy to QNX Device"));
         addSupportedTargetDeviceType(Constants::QNX_QNX_OS_TYPE);
         setUseDeploymentDataView();
 
@@ -114,7 +113,7 @@ public:
     void updateDebuggerActions();
 
     QAction *m_debugSeparator = nullptr;
-    QAction m_attachToQnxApplication{QnxPlugin::tr("Attach to remote QNX application..."), nullptr};
+    QAction m_attachToQnxApplication{Tr::tr("Attach to remote QNX application..."), nullptr};
 
     QnxConfigurationManager configurationFactory;
     QnxQtVersionFactory qtVersionFactory;

@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "qnxutils.h"
-#include "qnxqtversion.h"
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>

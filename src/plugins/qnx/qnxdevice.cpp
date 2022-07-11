@@ -29,8 +29,9 @@
 #include "qnxdevicetester.h"
 #include "qnxdeviceprocesslist.h"
 #include "qnxdeviceprocesssignaloperation.h"
-#include "qnxdeployqtlibrariesdialog.h"
 #include "qnxdevicewizard.h"
+#include "qnxtr.h"
+#include "qnxdeployqtlibrariesdialog.h"
 
 #include <remotelinux/sshprocessinterface.h>
 
@@ -107,11 +108,11 @@ const char QnxVersionKey[] = "QnxVersion";
 
 QnxDevice::QnxDevice()
 {
-    setDisplayType(tr("QNX"));
-    setDefaultDisplayName(tr("QNX Device"));
+    setDisplayType(Tr::tr("QNX"));
+    setDefaultDisplayName(Tr::tr("QNX Device"));
     setOsType(OsTypeOtherUnix);
 
-    addDeviceAction({tr("Deploy Qt libraries..."), [](const IDevice::Ptr &device, QWidget *parent) {
+    addDeviceAction({Tr::tr("Deploy Qt libraries..."), [](const IDevice::Ptr &device, QWidget *parent) {
         QnxDeployQtLibrariesDialog dialog(device, parent);
         dialog.exec();
     }});
@@ -195,7 +196,7 @@ DeviceProcessSignalOperation::Ptr QnxDevice::signalOperation() const
 
 QnxDeviceFactory::QnxDeviceFactory() : IDeviceFactory(Constants::QNX_QNX_OS_TYPE)
 {
-    setDisplayName(QnxDevice::tr("QNX Device"));
+    setDisplayName(Tr::tr("QNX Device"));
     setCombinedIcon(":/qnx/images/qnxdevicesmall.png",
                     ":/qnx/images/qnxdevice.png");
     setConstructionFunction(&QnxDevice::create);

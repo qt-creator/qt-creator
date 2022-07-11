@@ -24,10 +24,13 @@
 ****************************************************************************/
 
 #include "qnxconfigurationmanager.h"
+
 #include "qnxconfiguration.h"
 
 #include <coreplugin/icore.h>
+
 #include <utils/persistentsettings.h>
+#include <utils/qtcassert.h>
 
 using namespace Utils;
 

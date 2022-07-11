@@ -28384,126 +28384,6 @@ Id必须以小写字母开头。</translation>
     </message>
 </context>
 <context>
-    <name>MaemoDeployStepWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">界面</translation>
-    </message>
-    <message>
-        <source>Device configuration:</source>
-        <translation type="obsolete">设备配置:</translation>
-    </message>
-    <message>
-        <source>Also deploy to sysroot</source>
-        <translation type="obsolete">同时部署到sysroot</translation>
-    </message>
-    <message>
-        <source>These show the INSTALLS settings from the project file(s).</source>
-        <translation type="obsolete">显示来自于项目文件的安装(INSTALLS)设置.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Files to install for subproject:&lt;/b&gt;</source>
-        <translation type="obsolete">&lt;b&gt;子项目的安装文件&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Edit the project file to add or remove entries.</source>
-        <translation type="obsolete">编辑项目文件添加或删除条目.</translation>
-    </message>
-    <message>
-        <source>Add Desktop File</source>
-        <translation type="obsolete">添加桌面文件</translation>
-    </message>
-    <message>
-        <source>Add Launcher Icon ...</source>
-        <translation type="obsolete">添加一个启动图标 ...</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;irrelevant&quot;&gt;Manage device configurations&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;irrelevant&quot;&gt;设置设备选项&lt;/a&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>MaemoProFilesUpdateDialog</name>
-    <message>
-        <source>Maemo Deployment Issue</source>
-        <translation type="obsolete">Maemo部署事件</translation>
-    </message>
-    <message>
-        <source>Check all</source>
-        <translation type="obsolete">选中所有</translation>
-    </message>
-    <message>
-        <source>Uncheck All</source>
-        <translation type="obsolete">取消选中</translation>
-    </message>
-    <message>
-        <source>The project files listed below do not contain Maemo deployment information, which means the respective targets cannot be deployed to and/or run on a device. Qt Creator will add the missing information to these files if you check the respective rows below.</source>
-        <translation type="obsolete">下面列出的项目文件不包含部署Maemo的相关信息，这也就意味着相关目标在设备上无法部署或运行. Qt Creator 将会添加这些信息如果选则了以下各行。</translation>
-    </message>
-    <message>
-        <source>&amp;Check all</source>
-        <translation type="obsolete">选中全部(&amp;C)</translation>
-    </message>
-    <message>
-        <source>&amp;Uncheck All</source>
-        <translation type="obsolete">取消选中(&amp;U)</translation>
-    </message>
-</context>
-<context>
-    <name>MobileAppWizardOptionPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">向导页面</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation type="obsolete">概要</translation>
-    </message>
-    <message>
-        <source>Orientation behavior:</source>
-        <translation type="obsolete">自适应行为:</translation>
-    </message>
-    <message>
-        <source>Application icon (.svg):</source>
-        <translation type="obsolete">应用程序图标(.svg):</translation>
-    </message>
-    <message>
-        <source>Target UID3:</source>
-        <translation type="obsolete">目标UID3:</translation>
-    </message>
-    <message>
-        <source>Enable network access</source>
-        <translation type="obsolete">允许网络访问</translation>
-    </message>
-    <message>
-        <source>Maemo Specific</source>
-        <translation type="obsolete">Maemo设备配置</translation>
-    </message>
-    <message>
-        <source>Application icon (64x64):</source>
-        <translation type="obsolete">应用程序图标(64x64):</translation>
-    </message>
-</context>
-<context>
-    <name>MobileLibraryWizardOptionPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">向导页面</translation>
-    </message>
-    <message>
-        <source>Enable network access</source>
-        <translation type="obsolete">允许网络访问</translation>
-    </message>
-    <message>
-        <source>Target UID3:</source>
-        <translation type="obsolete">目标UID3:</translation>
-    </message>
-    <message>
-        <source>Plugin&apos;s directory name:</source>
-        <translation type="obsolete">插件目录名称:</translation>
-    </message>
-</context>
-<context>
     <name>QtQuickAppWizardSourcesPage</name>
     <message>
         <source>WizardPage</source>
@@ -32572,158 +32452,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>&amp;Generate SSH Key...</source>
         <translation type="obsolete">生成SSH密钥(&amp;G)...</translation>
-    </message>
-</context>
-<context>
-    <name>MaemoDeviceConfigWizardKeyCreationPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">向导页面</translation>
-    </message>
-    <message>
-        <source>Qt Creator will now generate a new pair of keys. Please enter the directory to save the key files in and then press &quot;Create Keys&quot;.</source>
-        <translation type="obsolete">Qt Creator 将会生成密钥. 请输入生成文件存放的目录名称然后点击&quot;生成密钥&quot;.</translation>
-    </message>
-    <message>
-        <source>Directory:</source>
-        <translation type="obsolete">目录:</translation>
-    </message>
-    <message>
-        <source>Create Keys</source>
-        <translation type="obsolete">密钥创建</translation>
-    </message>
-</context>
-<context>
-    <name>MaemoDeviceConfigWizardKeyDeploymentPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">向导页面</translation>
-    </message>
-    <message>
-        <source>Device address:</source>
-        <translation type="obsolete">设备地址:</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation type="obsolete">密码:</translation>
-    </message>
-    <message>
-        <source>Deploy Key</source>
-        <translation type="obsolete">部署密钥</translation>
-    </message>
-</context>
-<context>
-    <name>MaemoDeviceConfigWizardCheckPreviousKeySetupPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">向导页面</translation>
-    </message>
-    <message>
-        <source>Has a passwordless (key-based) login already been set up for this device?</source>
-        <translation type="obsolete">这个设备已经设置了不需要密码(密钥验证)登录了么?</translation>
-    </message>
-    <message>
-        <source>Yes, and the private key is located at</source>
-        <translation type="obsolete">是的，私钥保存在</translation>
-    </message>
-    <message>
-        <source>No</source>
-        <translation type="obsolete">否</translation>
-    </message>
-</context>
-<context>
-    <name>MaemoDeviceConfigWizardReuseKeysCheckPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">向导页面</translation>
-    </message>
-    <message>
-        <source>Re-use existing keys</source>
-        <translation type="obsolete">重复使用现有密钥</translation>
-    </message>
-    <message>
-        <source>File containing the public key:</source>
-        <translation type="obsolete">文件包含公钥:</translation>
-    </message>
-    <message>
-        <source>File containing the private key:</source>
-        <translation type="obsolete">文件包含私钥:</translation>
-    </message>
-    <message>
-        <source>Create new keys</source>
-        <translation type="obsolete">创建新密钥</translation>
-    </message>
-</context>
-<context>
-    <name>MaemoDeviceConfigWizardStartPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">向导页面</translation>
-    </message>
-    <message>
-        <source>The name to identify this configuration:</source>
-        <translation type="obsolete">说明配置的名称:</translation>
-    </message>
-    <message>
-        <source>The system running on the device:</source>
-        <translation type="obsolete">系统运行在设备:</translation>
-    </message>
-    <message>
-        <source>The kind of device:</source>
-        <translation type="obsolete">设备类型:</translation>
-    </message>
-    <message>
-        <source>Emulator (Qemu)</source>
-        <translation type="obsolete">模拟器(Qemu)</translation>
-    </message>
-    <message>
-        <source>Hardware Device</source>
-        <translation type="obsolete">硬件设备</translation>
-    </message>
-    <message>
-        <source>The device&apos;s host name or IP address:</source>
-        <translation type="obsolete">设备的域名或者IP地址:</translation>
-    </message>
-    <message>
-        <source>Emulator</source>
-        <translation type="obsolete">模拟器</translation>
-    </message>
-    <message>
-        <source>The SSH server port:</source>
-        <translation type="obsolete">SSH 服务器端口:</translation>
-    </message>
-</context>
-<context>
-    <name>MaemoPublishingWizardPageFremantleFree</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">向导页面</translation>
-    </message>
-    <message>
-        <source>Choose build configuration:</source>
-        <translation type="obsolete">选择构建配置:</translation>
-    </message>
-    <message>
-        <source>Only create source package, do not upload</source>
-        <translation type="obsolete">仅创建资源包，不要上传</translation>
-    </message>
-</context>
-<context>
-    <name>MaemoPublishingFileSelectionDialog</name>
-    <message>
-        <source>Choose Package Contents</source>
-        <translation type="obsolete">选择软件包内容</translation>
-    </message>
-</context>
-<context>
-    <name>MaemoPublishingResultPageFremantleFree</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">向导页面</translation>
-    </message>
-    <message>
-        <source>Progress</source>
-        <translation type="obsolete">进程</translation>
     </message>
 </context>
 <context>
@@ -47416,11 +47144,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorFileImageWizardPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>向导页面</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Icon:</source>
         <translation>图标:</translation>
@@ -47463,14 +47187,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeployConfigurationWidget</name>
+    <name>Qnx</name>
     <message>
         <source>Packages to deploy:</source>
         <translation>要部署的包:</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&amp;Device name:</source>
         <translation>设备名(&amp;D):</translation>
@@ -47497,7 +47221,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardSetupPage</name>
+    <name>Qnx</name>
     <message>
         <source>WizardPage</source>
         <translation>向导页面</translation>
@@ -47527,27 +47251,8 @@ p, li { white-space: pre-wrap; }
         <translation>模拟器</translation>
     </message>
     <message>
-        <source>Debug token:</source>
-        <translation>调试标记(token):</translation>
-    </message>
-    <message>
         <source>Connection Details</source>
         <translation>连接详情</translation>
-    </message>
-    <message>
-        <source>BlackBerry Device</source>
-        <translation>黑莓设备</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardSshKeyPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>向导页面</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation>私钥文件:</translation>
     </message>
     <message>
         <source>Public key file:</source>
@@ -47571,7 +47276,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryRunConfigurationWidget</name>
+    <name>Qnx</name>
     <message>
         <source>Device:</source>
         <translation>设备:</translation>
@@ -47582,7 +47287,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxBaseQtConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>SDK:</source>
         <translation>SDK:</translation>
@@ -52834,7 +52539,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryAbstractDeployStep</name>
+    <name>Qnx</name>
     <message>
         <source>Starting: &quot;%1&quot; %2</source>
         <translation>正在启动 &quot;%1&quot; %2
@@ -52842,7 +52547,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryApplicationRunner</name>
+    <name>Qnx</name>
     <message>
         <source>Launching application failed</source>
         <translation>程序启动失败</translation>
@@ -52853,7 +52558,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCreatePackageStep</name>
+    <name>Qnx</name>
     <message>
         <source>Create BAR packages</source>
         <translation>创建BAR包</translation>
@@ -52892,35 +52597,11 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCreatePackageStepConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&lt;b&gt;Create packages&lt;/b&gt;</source>
         <translation>&lt;b&gt;创建包&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryCreatePackageStepFactory</name>
-    <message>
-        <source>Create BAR Packages</source>
-        <translation>创建BAR包</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeployConfiguration</name>
-    <message>
-        <source>Deploy to BlackBerry Device</source>
-        <translation>部署到黑莓设备上</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeployConfigurationFactory</name>
-    <message>
-        <source>Deploy to BlackBerry Device</source>
-        <translation>部署到黑莓设备上</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeployInformation</name>
     <message>
         <source>Enabled</source>
         <translation>启用</translation>
@@ -52935,7 +52616,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeployStep</name>
+    <name>Qnx</name>
     <message>
         <source>Deploy packages</source>
         <translation>部署包</translation>
@@ -52949,44 +52630,40 @@ references to elements in other files, loops, etc.)</source>
         <translation>未指定设备的主机名</translation>
     </message>
     <message>
-        <source>No packages enabled for deployment</source>
-        <translation>没有设置为可供部署的包</translation>
-    </message>
-    <message>
         <source>Package &apos;%1&apos; does not exist. Create the package first.</source>
         <translation>包 &apos;%1&apos;不存在。请先创建包。</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeployStepConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&lt;b&gt;Deploy packages&lt;/b&gt;</source>
         <translation>&lt;b&gt;部署包&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeployStepFactory</name>
+    <name>Qnx</name>
     <message>
         <source>Deploy Package</source>
         <translation>部署包</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>BlackBerry</source>
         <translation>黑莓</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationFactory</name>
+    <name>Qnx</name>
     <message>
         <source>BlackBerry Device</source>
         <translation>黑莓设备</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizard</name>
+    <name>Qnx</name>
     <message>
         <source>New BlackBerry Device Configuration Setup</source>
         <translation>新黑莓设备配置设置</translation>
@@ -53009,7 +52686,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardFinalPage</name>
+    <name>Qnx</name>
     <message>
         <source>Setup Finished</source>
         <translation>设置完成</translation>
@@ -53020,15 +52697,11 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryQtVersion</name>
+    <name>Qnx</name>
     <message>
         <source>BlackBerry %1</source>
         <comment>Qt Version is meant for BlackBerry</comment>
         <translation>黑莓 %1</translation>
-    </message>
-    <message>
-        <source>BlackBerry</source>
-        <translation>黑莓</translation>
     </message>
     <message>
         <source>BlackBerry Native SDK:</source>
@@ -53036,7 +52709,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryRunConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>%1 on BlackBerry device</source>
         <translation>黑莓设备上的 %1</translation>
@@ -53047,14 +52720,14 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryRunConfigurationFactory</name>
+    <name>Qnx</name>
     <message>
         <source>%1 on BlackBerry Device</source>
         <translation>黑莓设备上的 %1</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryRunControlFactory</name>
+    <name>Qnx</name>
     <message>
         <source>No active deploy configuration</source>
         <translation>没有激活的部署设置</translation>
@@ -53065,14 +52738,14 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAbstractQtVersion</name>
+    <name>Qnx</name>
     <message>
         <source>No SDK path set</source>
         <translation>未设置SDK的路径</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDebugSupport</name>
+    <name>Qnx</name>
     <message>
         <source>Preparing remote side...
 </source>
@@ -53089,42 +52762,19 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeployConfigurationFactory</name>
+    <name>Qnx</name>
     <message>
         <source>Deploy to QNX Device</source>
         <translation>部署到QNX设备</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfiguration</name>
-    <message>
-        <source>QNX</source>
-        <translation>QNX</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfigurationFactory</name>
-    <message>
-        <source>QNX Device</source>
-        <translation>QNX 设备</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfigurationWizard</name>
     <message>
         <source>New QNX Device Configuration Setup</source>
         <translation>新QNX设备配置设置</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfigurationWizardSetupPage</name>
     <message>
         <source>QNX Device</source>
         <translation>QNX 设备</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxQtVersion</name>
     <message>
         <source>QNX %1</source>
         <extracomment>Qt Version is meant for QNX</extracomment>
@@ -53138,23 +52788,20 @@ references to elements in other files, loops, etc.)</source>
         <source>QNX Software Development Platform:</source>
         <translation>QNX 软件开发平台:</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxRunConfiguration</name>
     <message>
         <source>Path to Qt libraries on device:</source>
         <translation>设备上的Qt库的路径:</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunConfigurationFactory</name>
+    <name>Qnx</name>
     <message>
         <source>%1 on QNX Device</source>
         <translation>QNX 设备上的 %1</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunControlFactory</name>
+    <name>Qnx</name>
     <message>
         <source>Run on remote QNX device</source>
         <translation>在远程QNX设备上运行</translation>

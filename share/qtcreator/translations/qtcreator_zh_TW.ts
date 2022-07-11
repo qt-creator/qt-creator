@@ -13807,58 +13807,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <translation>純 C 語言專案</translation>
     </message>
     <message>
-        <source>Creates an application descriptor file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Application descriptor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>BlackBerry</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creates a Qt Gui application for BlackBerry.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>BlackBerry Qt Gui Application</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creates an Qt5 application descriptor file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Qt5 Application descriptor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creates an experimental Qt5 Gui application for BlackBerry 10. You need an own Qt5 build for BlackBerry 10 since Qt5 is not provided in the current BlackBerry 10 NDK and is not included in DevAlpha devices.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>BlackBerry Qt5 Gui Application</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creates an experimental Qt Quick 2 application for BlackBerry 10. You need an own Qt5 build for BlackBerry 10 since Qt5 is not provided in the current BlackBerry 10 NDK and is not included in DevAlpha devices.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>BlackBerry Qt Quick 2 Application</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creates a Qt Quick application for BlackBerry.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>BlackBerry Qt Quick Application</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Plain C++ Project</source>
         <translation>純 C++ 語言專案</translation>
     </message>
@@ -26837,53 +26785,6 @@ We will try to work around that, but you may experience problems.</source>
     </message>
 </context>
 <context>
-    <name>Madde::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
-    <message>
-        <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
-        <translation>發佈到 Fremantle 的 &quot;Extras-devel/free&quot; 主目錄</translation>
-    </message>
-    <message>
-        <source>Upload options</source>
-        <translation>上傳選項</translation>
-    </message>
-    <message>
-        <source>Choose a private key file</source>
-        <translation>選擇一個私密金鑰檔</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation>精靈頁面</translation>
-    </message>
-    <message>
-        <source>Upload Settings</source>
-        <translation>上傳設定</translation>
-    </message>
-    <message>
-        <source>Garage account name:</source>
-        <translation>Garage 帳號名稱：</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;Get an account&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;取得帳號&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;https://garage.maemo.org/extras-assistant/index.php&quot;&gt;Request upload rights&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;https://garage.maemo.org/extras-assistant/index.php&quot;&gt;請求上傳權限&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation>私密金鑰檔：</translation>
-    </message>
-    <message>
-        <source>Server address:</source>
-        <translation>伺服器位址：</translation>
-    </message>
-    <message>
-        <source>Target directory on server:</source>
-        <translation>在伺服器上的目標目錄：</translation>
-    </message>
-</context>
-<context>
     <name>Madde::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
     <message>
         <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
@@ -32085,7 +31986,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorFileImageWizardPage</name>
+    <name>Qnx</name>
     <message>
         <source>WizardPage</source>
         <translation type="unfinished">精靈頁面</translation>
@@ -32132,14 +32033,14 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeployConfigurationWidget</name>
+    <name>Qnx</name>
     <message>
         <source>Packages to deploy:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&amp;Device name:</source>
         <translation type="unfinished"></translation>
@@ -32161,17 +32062,6 @@ This option is useful when you want to try your application on devices which don
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Private key file:</source>
-        <translation type="unfinished">私密金鑰檔：</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardSetupPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="unfinished">精靈頁面</translation>
-    </message>
-    <message>
         <source>The name to identify this configuration:</source>
         <translation type="unfinished">用於辨認此設置的名稱：</translation>
     </message>
@@ -32180,59 +32070,12 @@ This option is useful when you want to try your application on devices which don
         <translation type="unfinished">裝置的主機名稱或 IP 位址：</translation>
     </message>
     <message>
-        <source>Device password:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Device type:</source>
         <translation type="unfinished">裝置型態：</translation>
     </message>
     <message>
-        <source>Physical device</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Simulator</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Debug token:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Connection Details</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>BlackBerry Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardSshKeyPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="unfinished">精靈頁面</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation type="unfinished">私密金鑰檔：</translation>
-    </message>
-    <message>
         <source>Public key file:</source>
         <translation type="unfinished">公開金鑰檔：</translation>
-    </message>
-    <message>
-        <source>Generate</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SSH Key Setup</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Please select an existing &lt;b&gt;4096&lt;/b&gt;-bit key or click &lt;b&gt;Generate&lt;/b&gt; to create a new one.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Key Generation Failed</source>
@@ -32240,7 +32083,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryRunConfigurationWidget</name>
+    <name>Qnx</name>
     <message>
         <source>Device:</source>
         <translation type="unfinished">裝置：</translation>
@@ -32248,13 +32091,6 @@ This option is useful when you want to try your application on devices which don
     <message>
         <source>Package:</source>
         <translation type="unfinished">套件：</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxBaseQtConfigWidget</name>
-    <message>
-        <source>SDK:</source>
-        <translation type="unfinished">SDK：</translation>
     </message>
 </context>
 <context>
@@ -35379,355 +35215,22 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryAbstractDeployStep</name>
+    <name>Qnx</name>
     <message>
         <source>Starting: &quot;%1&quot; %2</source>
         <translation type="unfinished">正在啟動：&quot;%1&quot; %2</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryApplicationRunner</name>
-    <message>
-        <source>Launching application failed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot show debug output. Error: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryCreatePackageStep</name>
-    <message>
-        <source>Create BAR packages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not find packager command &apos;%1&apos; in the build environment</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No packages enabled for deployment</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Application descriptor file not specified, please check deployment settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No package specified, please check deployment settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not create build directory &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error preparing application descriptor file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not open &apos;%1&apos; for reading</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not create prepared application descriptor file in &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryCreatePackageStepConfigWidget</name>
-    <message>
-        <source>&lt;b&gt;Create packages&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryCreatePackageStepFactory</name>
-    <message>
-        <source>Create BAR Packages</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeployConfiguration</name>
-    <message>
-        <source>Deploy to BlackBerry Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeployConfigurationFactory</name>
-    <message>
-        <source>Deploy to BlackBerry Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeployInformation</name>
     <message>
         <source>Enabled</source>
         <translation type="unfinished">已開啟</translation>
     </message>
     <message>
-        <source>Application descriptor file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Package</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeployStep</name>
-    <message>
-        <source>Deploy packages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not find deploy command &apos;%1&apos; in the build environment</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No hostname specified for device</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No packages enabled for deployment</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Package &apos;%1&apos; does not exist. Create the package first.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeployStepConfigWidget</name>
-    <message>
         <source>&lt;b&gt;Deploy packages&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeployStepFactory</name>
-    <message>
-        <source>Deploy Package</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeviceConfiguration</name>
-    <message>
-        <source>BlackBerry</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationFactory</name>
-    <message>
-        <source>BlackBerry Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizard</name>
-    <message>
-        <source>New BlackBerry Device Configuration Setup</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Failure to Save Key File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Failed to create directory: &apos;%1&apos;.</source>
         <translation type="unfinished">建立目錄失敗：&apos;%1&apos;。</translation>
-    </message>
-    <message>
-        <source>Private key file already exists: &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Public key file already exists: &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardFinalPage</name>
-    <message>
-        <source>Setup Finished</source>
-        <translation type="unfinished">設定完成</translation>
-    </message>
-    <message>
-        <source>The new device configuration will now be created.</source>
-        <translation type="unfinished">新裝置設置將會被建立。</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryQtVersion</name>
-    <message>
-        <source>BlackBerry %1</source>
-        <comment>Qt Version is meant for BlackBerry</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>BlackBerry</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>BlackBerry Native SDK:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryRunConfiguration</name>
-    <message>
-        <source>%1 on BlackBerry device</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run on BlackBerry device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryRunConfigurationFactory</name>
-    <message>
-        <source>%1 on BlackBerry Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryRunControlFactory</name>
-    <message>
-        <source>No active deploy configuration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run on BlackBerry Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxAbstractQtVersion</name>
-    <message>
-        <source>No SDK path set</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDebugSupport</name>
-    <message>
-        <source>Preparing remote side...
-</source>
-        <translation type="unfinished">準備遠端中...
-</translation>
-    </message>
-    <message>
-        <source>The %1 process closed unexpectedly.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Initial setup failed: %1</source>
-        <translation type="unfinished">初始設定失敗：%1</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeployConfigurationFactory</name>
-    <message>
-        <source>Deploy to QNX Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfiguration</name>
-    <message>
-        <source>QNX</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfigurationFactory</name>
-    <message>
-        <source>QNX Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfigurationWizard</name>
-    <message>
-        <source>New QNX Device Configuration Setup</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfigurationWizardSetupPage</name>
-    <message>
-        <source>QNX Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxQtVersion</name>
-    <message>
-        <source>QNX %1</source>
-        <extracomment>Qt Version is meant for QNX</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QNX</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QNX Software Development Platform:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxRunConfiguration</name>
-    <message>
-        <source>Path to Qt libraries on device:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxRunConfigurationFactory</name>
-    <message>
-        <source>%1 on QNX Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxRunControlFactory</name>
-    <message>
-        <source>Run on remote QNX device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeKitConfigWidget</name>
-    <message>
-        <source>The mkspec to use when building the project with qmake.&lt;br&gt;This setting is ignored when using other build systems.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Qt mkspec:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeKitInformation</name>
-    <message>
-        <source>No Qt version set, so mkspec is ignored.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mkspec not found for Qt version.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>mkspec</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

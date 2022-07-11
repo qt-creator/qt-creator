@@ -23020,10 +23020,6 @@ a předpokladem je, že vzdálený spustitelný soubor bude v adresáři zmiňov
         <translation type="obsolete">Název hostitelského počítače:</translation>
     </message>
     <message>
-        <source>IP or host name of the device</source>
-        <translation type="obsolete">IP nebo název hostitelského počítače zařízení</translation>
-    </message>
-    <message>
         <source>Ports:</source>
         <translation type="obsolete">Přípojky:</translation>
     </message>
@@ -31784,148 +31780,6 @@ Vyžaduje Qt 4.7.4 nebo novější, a soubor součástek nainstalovaný pro tuto
     </message>
 </context>
 <context>
-    <name>MaemoDeployConfigurationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
-    <message>
-        <source>Device configuration:</source>
-        <translation type="obsolete">Nastavení zařízení:</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;irrelevant&quot;&gt;Manage device configurations&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;irrelevant&quot;&gt;Spravovat nastavení zařízení&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>These show the INSTALLS settings from the project file(s).</source>
-        <translation type="obsolete">Ukáže nastavení INSTALLS z projektového souboru.</translation>
-    </message>
-    <message>
-        <source>Files to install for subproject:</source>
-        <translation type="obsolete">Soubory k instalaci pro podprojekt:</translation>
-    </message>
-    <message>
-        <source>Edit the project file to add or remove entries.</source>
-        <translation type="obsolete">Upravit soubor s projektem pro přidání nebo odstranění záznamů.</translation>
-    </message>
-    <message>
-        <source>Add Desktop File</source>
-        <translation type="obsolete">Přidat soubor pro desktop</translation>
-    </message>
-    <message>
-        <source>Add Launcher Icon...</source>
-        <translation type="obsolete">Přidat ikonu spouštěče...</translation>
-    </message>
-</context>
-<context>
-    <name>MaemoDeviceConfigurationsSettingsWidget</name>
-    <message>
-        <source>Maemo Device Configurations</source>
-        <translation type="obsolete">Nastavení zařízení Maemo</translation>
-    </message>
-    <message>
-        <source>&amp;Configuration:</source>
-        <translation type="obsolete">&amp;Nastavení:</translation>
-    </message>
-    <message>
-        <source>&amp;Name:</source>
-        <translation type="obsolete">&amp;Název:</translation>
-    </message>
-    <message>
-        <source>Device type:</source>
-        <translation type="obsolete">Typ zařízení:</translation>
-    </message>
-    <message>
-        <source>Authentication type:</source>
-        <translation type="obsolete">Druh ověření pravosti:</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation type="obsolete">Heslo</translation>
-    </message>
-    <message>
-        <source>&amp;Key</source>
-        <translation type="obsolete">&amp;Klíč</translation>
-    </message>
-    <message>
-        <source>&amp;Host name:</source>
-        <translation type="obsolete">Název &amp;hostitelského počítače:</translation>
-    </message>
-    <message>
-        <source>IP or host name of the device</source>
-        <translation type="obsolete">IP nebo název hostitelského počítače zařízení</translation>
-    </message>
-    <message>
-        <source>&amp;SSH port:</source>
-        <translation type="obsolete">Přípojka &amp;SSH:</translation>
-    </message>
-    <message>
-        <source>Free ports:</source>
-        <translation type="obsolete">Volné přípojky:</translation>
-    </message>
-    <message>
-        <source>You can enter lists and ranges like this: 1024,1026-1028,1030</source>
-        <translation type="obsolete">Můžete zadat seznamy a oblasti jako jsou tyto: 1024,1026-1028,1030</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation type="obsolete">Textový štítek</translation>
-    </message>
-    <message>
-        <source>Connection time&amp;out:</source>
-        <translation type="obsolete">Omez&amp;ení času pro spojení:</translation>
-    </message>
-    <message>
-        <source>s</source>
-        <translation type="obsolete">s</translation>
-    </message>
-    <message>
-        <source>&amp;Username:</source>
-        <translation type="obsolete">&amp;Uživatelské jméno:</translation>
-    </message>
-    <message>
-        <source>&amp;Password:</source>
-        <translation type="obsolete">He&amp;slo:</translation>
-    </message>
-    <message>
-        <source>Show password</source>
-        <translation type="obsolete">Ukázat heslo</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation type="obsolete">Soubor se soukromým klíčem:</translation>
-    </message>
-    <message>
-        <source>Set as Default</source>
-        <translation type="obsolete">Nastavit jako výchozí</translation>
-    </message>
-    <message>
-        <source>OS type:</source>
-        <translation type="obsolete">Typ operačního systému:</translation>
-    </message>
-    <message>
-        <source>&amp;Add</source>
-        <translation type="obsolete">&amp;Přidat</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation type="obsolete">&amp;Odstranit</translation>
-    </message>
-    <message>
-        <source>Set As Default</source>
-        <translation type="obsolete">Nastavit jako výchozí</translation>
-    </message>
-    <message>
-        <source>Click here if you do not have an SSH key yet.</source>
-        <translation type="obsolete">Klepněte sem, pokud ještě nemáte nějaký klíč SSH.</translation>
-    </message>
-    <message>
-        <source>&amp;Generate SSH Key...</source>
-        <translation type="obsolete">&amp;Vytvořit klíč SSH...</translation>
-    </message>
-</context>
-<context>
     <name>MaemoDeviceConfigWizardKeyCreationPage</name>
     <message>
         <source>WizardPage</source>
@@ -32199,13 +32053,6 @@ Vyžaduje Qt 4.7.4 nebo novější, a soubor součástek nainstalovaný pro tuto
     <message>
         <source>&amp;Kill Selected Process</source>
         <translation type="obsolete">&amp;Ukončit vybraný proces</translation>
-    </message>
-</context>
-<context>
-    <name>BehaviorSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
     </message>
 </context>
 <context>
@@ -41176,37 +41023,6 @@ Spustil jste Qemu?</translation>
 Remote stderr was: &apos;%1&apos;</source>
         <translation type="obsolete">
 Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDirectDeviceUploadStep</name>
-    <message>
-        <source>SFTP initialization failed: %1</source>
-        <translation type="obsolete">Spuštění SFTP se nezdařilo: %1</translation>
-    </message>
-    <message>
-        <source>All files successfully deployed.</source>
-        <translation type="obsolete">Všechny soubory byly úspěšně nasazeny.</translation>
-    </message>
-    <message>
-        <source>Uploading file &apos;%1&apos;...</source>
-        <translation type="obsolete">Nahrává se soubor &apos;%1&apos;...</translation>
-    </message>
-    <message>
-        <source>Failed to upload file &apos;%1&apos;.</source>
-        <translation type="obsolete">Nahrání souboru &apos;%1&apos; se nezdařilo.</translation>
-    </message>
-    <message>
-        <source>Failed to upload file &apos;%1&apos;: Could not open for reading.</source>
-        <translation type="obsolete">Nahrání souboru &apos;%1&apos; se nezdařilo: Nepodařilo se jej otevřít pro čtení.</translation>
-    </message>
-    <message>
-        <source>Upload of file &apos;%1&apos; failed: %2</source>
-        <translation type="obsolete">Nahrání souboru &apos;%1&apos; se nezdařilo: %2</translation>
-    </message>
-    <message>
-        <source>Upload files via SFTP</source>
-        <translation type="obsolete">Nahrát soubory prostřednictvím SFTP</translation>
     </message>
 </context>
 <context>
@@ -54599,61 +54415,14 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorFileImageWizardPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">WizardPage</translation>
-    </message>
-    <message>
-        <source>Icon:</source>
-        <translation type="obsolete">Ikona:</translation>
-    </message>
-    <message>
-        <source>Splash screens</source>
-        <translation type="obsolete">Uvítací obrazovka</translation>
-    </message>
-    <message>
-        <source>Landscape:</source>
-        <translation type="obsolete">Formát na šířku:</translation>
-    </message>
-    <message>
-        <source>Portrait:</source>
-        <translation type="obsolete">Formát na výšku:</translation>
-    </message>
-    <message>
-        <source>Images</source>
-        <translation type="obsolete">Obrázky</translation>
-    </message>
-    <message>
-        <source>Images (*.jpg *.png)</source>
-        <translation type="obsolete">Obrázky (*.jpg *.png)</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;red&quot;&gt;Could not open &apos;%1&apos; for reading.&lt;/font&gt;</source>
-        <translation type="obsolete">&lt;font color=&quot;red&quot;&gt;Nepodařilo se otevřít &apos;%1&apos; pro čtení.&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;red&quot;&gt;Incorrect icon size (%1x%2). The maximum size is %3x%4 pixels.&lt;/font&gt;</source>
-        <translation type="obsolete">&lt;font color=&quot;red&quot;&gt;Nesprávná velikost ikony (%1x%2). Největší velikost je %3x%4 pixelů.&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;red&quot;&gt;Incorrect landscape splash screen size (%1x%2). The maximum size is %3x%4 pixels.&lt;/font&gt;</source>
-        <translation type="obsolete">&lt;font color=&quot;red&quot;&gt;Nesprávná velikost uvítací obrazovky na šířku (%1x%2). Největší velikost je %3x%4 pixelů.&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;red&quot;&gt;Incorrect portrait splash screen size (%1x%2). The maximum size is %3x%4 pixels.&lt;/font&gt;</source>
-        <translation type="obsolete">&lt;font color=&quot;red&quot;&gt;Nesprávná velikost uvítací obrazovky na výšku (%1x%2). Největší velikost je %3x%4 pixelů.&lt;/font&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeployConfigurationWidget</name>
+    <name>Qnx</name>
     <message>
         <source>Packages to deploy:</source>
         <translation>Balíčky k nasazení:</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&amp;Device name:</source>
         <translation>Název &amp;zařízení:</translation>
@@ -54671,10 +54440,6 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
         <translation>Ukázat heslo</translation>
     </message>
     <message>
-        <source>Debug token:</source>
-        <translation>Symbol pro ladění:</translation>
-    </message>
-    <message>
         <source>Private key file:</source>
         <translation>Soubor se soukromým klíčem:</translation>
     </message>
@@ -54687,56 +54452,8 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
         <translation>Nahrát</translation>
     </message>
     <message>
-        <source>Failed to upload debug token: </source>
-        <translation>Chyba při nahrávání symbolu pro ladění: </translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
-    <message>
         <source>Debug token successfully uploaded.</source>
         <translation>Symbol pro ladění úspěšně nahrán.</translation>
-    </message>
-    <message>
-        <source>No route to host.</source>
-        <translation>Žádná cesta k hostiteli.</translation>
-    </message>
-    <message>
-        <source>Authentication failed.</source>
-        <translation>Ověření pravosti selhalo.</translation>
-    </message>
-    <message>
-        <source>Development mode is disabled on the device.</source>
-        <translation>Vývojářský režim je na zařízení zakázán.</translation>
-    </message>
-    <message>
-        <source>Failed to start inferior process.</source>
-        <translation>Nepodařilo se spustit podřízený proces.</translation>
-    </message>
-    <message>
-        <source>Inferior processes timed out.</source>
-        <translation>Došlo k překročení časového omezení u podřízeného procesu.</translation>
-    </message>
-    <message>
-        <source>Inferior process has crashed.</source>
-        <translation>Podřízený proces spadl.</translation>
-    </message>
-    <message>
-        <source>Failed to communicate with the inferior process.</source>
-        <translation>S podřízeným procesem se nepodařilo spojit.</translation>
-    </message>
-    <message>
-        <source>An unknwon error has happened.</source>
-        <translation>Vyskytla se neznámá chyba.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Chyba</translation>
-    </message>
-    <message>
-        <source>Select Debug Token</source>
-        <translation>Vybrat symbol pro ladění</translation>
     </message>
     <message>
         <source>BAR file (*.bar)</source>
@@ -54747,16 +54464,8 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
         <translation>Neplatný symbol pro ladění</translation>
     </message>
     <message>
-        <source>Debug token file %1 cannot be read.</source>
-        <translation>Soubor se s symbolem pro ladění %1 nelze přečíst.</translation>
-    </message>
-    <message>
         <source>Invalid debug token path.</source>
         <translation>Neplatná cesta k symbolu pro ladění.</translation>
-    </message>
-    <message>
-        <source>Failed to upload debug token:</source>
-        <translation>Chyba při nahrávání symbolu pro ladění:</translation>
     </message>
     <message>
         <source>Operation in Progress</source>
@@ -54776,11 +54485,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardSetupPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>The name to identify this configuration:</source>
         <translation>Název nastavení:</translation>
@@ -54814,14 +54519,6 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
         <translation>Podrobnosti spojení</translation>
     </message>
     <message>
-        <source>BlackBerry Device</source>
-        <translation>Zařízení BlackBerry</translation>
-    </message>
-    <message>
-        <source>Request</source>
-        <translation>Požadavek</translation>
-    </message>
-    <message>
         <source>Device host name or IP address:</source>
         <translation>Název hostitelského počítače nebo IP adresa zařízení:</translation>
     </message>
@@ -54847,15 +54544,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardSshKeyPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation>Soubor se soukromým klíčem:</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Public key file:</source>
         <translation>Soubor s veřejným klíčem:</translation>
@@ -54873,10 +54562,6 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
         <translation>Vyberte, prosím, stávající &lt;b&gt;4096&lt;/b&gt; bitový klíč nebo klepněte na &lt;b&gt;Vytvořit&lt;/b&gt; pro vytvoření nového.</translation>
     </message>
     <message>
-        <source>Key Generation Failed</source>
-        <translation>Chyba při vytváření klíče</translation>
-    </message>
-    <message>
         <source>Choose Private Key File Name</source>
         <translation>Vyberte název souboru se soukromým klíčem</translation>
     </message>
@@ -54886,7 +54571,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryRunConfigurationWidget</name>
+    <name>Qnx</name>
     <message>
         <source>Device:</source>
         <translation>Zařízení:</translation>
@@ -54897,7 +54582,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxBaseQtConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>SDK:</source>
         <translation>SDK:</translation>
@@ -56951,26 +56636,14 @@ o pravděpodobném URI.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryAbstractDeployStep</name>
+    <name>Qnx</name>
     <message>
         <source>Starting: &quot;%1&quot; %2</source>
         <translation>Spouští se: &quot;%1&quot; %2</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryApplicationRunner</name>
-    <message>
-        <source>Cannot determine device runtime version.</source>
-        <translation>Verzi běhového prostředí zařízení se nepodařilo určit.</translation>
-    </message>
-    <message>
-        <source>Cannot determine API level version.</source>
-        <translation>Používanou verzi úrovně API se nepodařilo určit.</translation>
-    </message>
-    <message>
-        <source>Confirmation</source>
-        <translation>Potvrzení</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>The device runtime version(%1) does not match the API level version(%2).
 This may cause unexpected behavior when debugging.
@@ -57017,7 +56690,7 @@ Přesto chcete pokračovat?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCreatePackageStep</name>
+    <name>Qnx</name>
     <message>
         <source>Create BAR packages</source>
         <translation type="obsolete">Vytvořit balíčky BAR</translation>
@@ -57067,10 +56740,6 @@ Přesto chcete pokračovat?</translation>
         <translation>Příkaz pro balíčkovač: &apos;%1&apos; se v prostředí pro sestavování nepodařilo nalézt</translation>
     </message>
     <message>
-        <source>No packages enabled for deployment</source>
-        <translation>Žádné balíčky nebyly povoleny pro nasazení</translation>
-    </message>
-    <message>
         <source>Application descriptor file not specified, please check deployment settings</source>
         <translation>Soubor s popisem programu nezadán. Prověřte, prosím, nastavení nasazení</translation>
     </message>
@@ -57100,7 +56769,7 @@ Přesto chcete pokračovat?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCreatePackageStepConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>Use the Qt libraries shipped with the BlackBerry device.</source>
         <translation>Použít knihovny Qt dodávané se zařízením BlackBerry.</translation>
@@ -57130,16 +56799,8 @@ Přesto chcete pokračovat?</translation>
         <translation>&lt;b&gt;Vytvořit balíčky&lt;/b&gt; </translation>
     </message>
     <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
-    <message>
         <source>Sign packages</source>
         <translation>Podepsat balíčky</translation>
-    </message>
-    <message>
-        <source>CSK password:</source>
-        <translation>Heslo CSK:</translation>
     </message>
     <message>
         <source>Keystore password:</source>
@@ -57175,14 +56836,14 @@ Přesto chcete pokračovat?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCreatePackageStepFactory</name>
+    <name>Qnx</name>
     <message>
         <source>Create BAR Packages</source>
         <translation>Vytvořit balíčky BAR</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeployConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>Deploy to BlackBerry Device</source>
         <translation>Nasadit na zařízení BlackBerry</translation>
@@ -57233,14 +56894,7 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeployConfigurationFactory</name>
-    <message>
-        <source>Deploy to BlackBerry Device</source>
-        <translation>Nasadit na zařízení BlackBerry</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeployInformation</name>
+    <name>Qnx</name>
     <message>
         <source>Enabled</source>
         <translation>Povoleno</translation>
@@ -57255,7 +56909,7 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeployStep</name>
+    <name>Qnx</name>
     <message>
         <source>Deploy packages</source>
         <translation>Nasadit balíčky</translation>
@@ -57263,10 +56917,6 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     <message>
         <source>Could not find deploy command &apos;%1&apos; in the build environment</source>
         <translation>Nepodařilo se najít příkaz pro nasazení &apos;%1&apos; v prostředí pro sestavování</translation>
-    </message>
-    <message>
-        <source>No hostname specified for device</source>
-        <translation>Pro zařízení nebyl zadán žádný název hostitele</translation>
     </message>
     <message>
         <source>No packages enabled for deployment</source>
@@ -57278,21 +56928,21 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeployStepConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&lt;b&gt;Deploy packages&lt;/b&gt;</source>
         <translation>&lt;b&gt;Nasadit balíčky&lt;/b&gt; </translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeployStepFactory</name>
+    <name>Qnx</name>
     <message>
         <source>Deploy Package</source>
         <translation>Nasadit balíček</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>BlackBerry</source>
         <translation>BlackBerry</translation>
@@ -57311,37 +56961,14 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationFactory</name>
+    <name>Qnx</name>
     <message>
         <source>BlackBerry Device</source>
         <translation>Zařízení BlackBerry</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizard</name>
-    <message>
-        <source>New BlackBerry Device Configuration Setup</source>
-        <translation>Zřízení nového nastavení zařízení BlackBerry</translation>
-    </message>
-    <message>
-        <source>Failure to Save Key File</source>
-        <translation type="obsolete">Chyba při ukládání souboru s klíčem</translation>
-    </message>
-    <message>
-        <source>Failed to create directory: &apos;%1&apos;.</source>
-        <translation type="obsolete">Adresář &apos;%1&apos; se nepodařilo vytvořit.</translation>
-    </message>
-    <message>
-        <source>Private key file already exists: &apos;%1&apos;</source>
-        <translation type="obsolete">Soubor se soukromým klíčem &apos;%1&apos; již existuje</translation>
-    </message>
-    <message>
-        <source>Public key file already exists: &apos;%1&apos;</source>
-        <translation type="obsolete">Soubor s veřejným klíčem &apos;%1&apos; již existuje</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardFinalPage</name>
+    <name>Qnx</name>
     <message>
         <source>Setup Finished</source>
         <translation>Nastavení dokončeno</translation>
@@ -57360,15 +56987,11 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryQtVersion</name>
+    <name>Qnx</name>
     <message>
         <source>BlackBerry %1</source>
         <comment>Qt Version is meant for BlackBerry</comment>
         <translation>BlackBerry %1</translation>
-    </message>
-    <message>
-        <source>BlackBerry</source>
-        <translation>BlackBerry</translation>
     </message>
     <message>
         <source>BlackBerry Native SDK:</source>
@@ -57376,7 +56999,7 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryRunConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>%1 on BlackBerry device</source>
         <translation>%1 na zařízení BlackBerry</translation>
@@ -57387,14 +57010,14 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryRunConfigurationFactory</name>
+    <name>Qnx</name>
     <message>
         <source>%1 on BlackBerry Device</source>
         <translation>%1 na zařízení BlackBerry</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryRunControlFactory</name>
+    <name>Qnx</name>
     <message>
         <source>No active deploy configuration</source>
         <translation>Není žádné činné nastavení nasazovování</translation>
@@ -57413,24 +57036,14 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAbstractQtVersion</name>
+    <name>Qnx</name>
     <message>
         <source>No SDK path set</source>
         <translation>Není nastavena žádná cesta k SDK</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDebugSupport</name>
-    <message>
-        <source>Preparing remote side...
-</source>
-        <translation>Připravuje se vzdálená strana...
-</translation>
-    </message>
-    <message>
-        <source>Preparing remote side...</source>
-        <translation>Připravuje se vzdálená strana...</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>The %1 process closed unexpectedly.</source>
         <translation>Proces %1 byl neočekávaně ukončen.</translation>
@@ -57439,48 +57052,30 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
         <source>Initial setup failed: %1</source>
         <translation>Počáteční nastavení se nezdařilo: %1</translation>
     </message>
-    <message>
-        <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available!</source>
-        <translation>Varování: &quot;slog2info&quot; na zařízení nenalezeno. Výstup ladění není dostupný!</translation>
-    </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeployConfigurationFactory</name>
+    <name>Qnx</name>
     <message>
         <source>Deploy to QNX Device</source>
         <translation>Nasadit na zařízení QNX</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceConfiguration</name>
-    <message>
-        <source>QNX</source>
-        <translation>QNX</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfigurationFactory</name>
-    <message>
-        <source>QNX Device</source>
-        <translation>Zařízení QNX</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfigurationWizard</name>
+    <name>Qnx</name>
     <message>
         <source>New QNX Device Configuration Setup</source>
         <translation>Zřízení nového nastavení zařízení QNX</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceConfigurationWizardSetupPage</name>
+    <name>Qnx</name>
     <message>
         <source>QNX Device</source>
         <translation>Zařízení QNX</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxQtVersion</name>
+    <name>Qnx</name>
     <message>
         <source>QNX %1</source>
         <extracomment>Qt Version is meant for QNX</extracomment>
@@ -57496,21 +57091,21 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>Path to Qt libraries on device:</source>
         <translation>Cesta ke knihovnám Qt na zařízení:</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunConfigurationFactory</name>
+    <name>Qnx</name>
     <message>
         <source>%1 on QNX Device</source>
         <translation>%1 na zařízení QNX</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunControlFactory</name>
+    <name>Qnx</name>
     <message>
         <source>Run on remote QNX device</source>
         <translation type="obsolete">Spustit na vzdáleném zařízení QNX</translation>
@@ -58402,66 +57997,18 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorWidget</name>
+    <name>Qnx</name>
     <message>
         <source>Package Information</source>
         <translation>Informace o balíčku</translation>
-    </message>
-    <message>
-        <source>Assets</source>
-        <translation>Výhody</translation>
-    </message>
-    <message>
-        <source>Package version:</source>
-        <translation type="obsolete">Verze balíčku:</translation>
     </message>
     <message>
         <source>Author Information</source>
         <translation>Informace o autorovi</translation>
     </message>
     <message>
-        <source>Author:</source>
-        <translation type="obsolete">Autor:</translation>
-    </message>
-    <message>
         <source>Entry-Point Text and Images</source>
         <translation>Začátek textu a obrazových dat</translation>
-    </message>
-    <message>
-        <source>Clear</source>
-        <translation type="obsolete">Smazat</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation type="obsolete">Přidat...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Odstranit</translation>
-    </message>
-    <message>
-        <source>Icon:</source>
-        <translation type="obsolete">Ikona:</translation>
-    </message>
-    <message>
-        <source>Description:</source>
-        <translation type="obsolete">Popis:</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Název:</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation>Obecné</translation>
-    </message>
-    <message>
-        <source>Orientation:</source>
-        <translation type="obsolete">Natočení:</translation>
-    </message>
-    <message>
-        <source>Transparent main window</source>
-        <translation type="obsolete">Průhledné hlavní okno</translation>
     </message>
     <message>
         <source>Application Arguments:</source>
@@ -58472,103 +58019,15 @@ nelze najít v cestě.</translation>
         <translation>Oprávnění</translation>
     </message>
     <message>
-        <source>Select All</source>
-        <translation type="obsolete">Vybrat vše</translation>
-    </message>
-    <message>
-        <source>Deselect All</source>
-        <translation type="obsolete">Odznačit vše</translation>
-    </message>
-    <message>
         <source>Environment</source>
         <translation>Prostředí</translation>
     </message>
-    <message>
-        <source>Default</source>
-        <translation type="obsolete">Výchozí</translation>
-    </message>
-    <message>
-        <source>Auto-orient</source>
-        <translation type="obsolete">Automatické natočení</translation>
-    </message>
-    <message>
-        <source>Landscape</source>
-        <translation type="obsolete">Na šířku</translation>
-    </message>
-    <message>
-        <source>Portrait</source>
-        <translation type="obsolete">Na výšku</translation>
-    </message>
-    <message>
-        <source>Standard</source>
-        <translation type="obsolete">Obvyklé</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="obsolete">Žádné</translation>
-    </message>
-    <message>
-        <source>Device Environment</source>
-        <translation type="obsolete">Prostředí zařízení</translation>
-    </message>
-    <message>
-        <source>Images (*.jpg *.png)</source>
-        <translation type="obsolete">Obrázky (*.jpg *.png)</translation>
-    </message>
-    <message>
-        <source>Path</source>
-        <translation type="obsolete">Cesta</translation>
-    </message>
-    <message>
-        <source>Destination</source>
-        <translation type="obsolete">Cíl</translation>
-    </message>
-    <message>
-        <source>Select Splash Screen</source>
-        <translation type="obsolete">Vybrat uvítací obrazovku</translation>
-    </message>
-    <message>
-        <source>Select File to Add</source>
-        <translation type="obsolete">Vybrat soubor k přidání</translation>
-    </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCreateCertificateDialog</name>
-    <message>
-        <source>Create Certificate</source>
-        <translation>Vytvořit certifikát</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>Cesta:</translation>
-    </message>
-    <message>
-        <source>Author:</source>
-        <translation>Autor:</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation>Heslo:</translation>
-    </message>
-    <message>
-        <source>Confirm password:</source>
-        <translation>Potvrdit heslo:</translation>
-    </message>
-    <message>
-        <source>Show password</source>
-        <translation>Ukázat heslo</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>Stav</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>PKCS 12 archives (*.p12)</source>
         <translation>Archivy PKCS 12 (*.p12)</translation>
-    </message>
-    <message>
-        <source>Base directory does not exist.</source>
-        <translation>Základní adresář neexistuje.</translation>
     </message>
     <message>
         <source>The entered passwords do not match.</source>
@@ -58577,14 +58036,6 @@ nelze najít v cestě.</translation>
     <message>
         <source>Password must be at least 6 characters long.</source>
         <translation>Heslo musí být dlouhé alespoň 6 znaků.</translation>
-    </message>
-    <message>
-        <source>Are you sure?</source>
-        <translation>Jste si jistý?</translation>
-    </message>
-    <message>
-        <source>The file &apos;%1&apos; will be overwritten. Do you want to proceed?</source>
-        <translation>Soubor &apos;%1&apos; bude přepsán. Chcete pokračovat?</translation>
     </message>
     <message>
         <source>The blackberry-keytool process is already running.</source>
@@ -58607,10 +58058,6 @@ nelze najít v cestě.</translation>
         <translation>Vyskytla se neznámá chyba.</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Chyba</translation>
-    </message>
-    <message>
         <source>An unknown error occurred while creating the certificate.</source>
         <translation>Při vytváření certifikátu se vyskytla neznámá chyba.</translation>
     </message>
@@ -58620,7 +58067,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDebugTokenRequestDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Request Debug Token</source>
         <translation>Požádat o symbol pro ladění</translation>
@@ -58634,28 +58081,8 @@ nelze najít v cestě.</translation>
         <translation>Úložiště pro klíč:</translation>
     </message>
     <message>
-        <source>Keystore password:</source>
-        <translation>Heslo pro úložiště klíče:</translation>
-    </message>
-    <message>
-        <source>CSK password:</source>
-        <translation>Heslo CSK:</translation>
-    </message>
-    <message>
         <source>Device PIN:</source>
         <translation>PIN zařízení:</translation>
-    </message>
-    <message>
-        <source>Show password</source>
-        <translation>Ukázat heslo</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>Stav</translation>
-    </message>
-    <message>
-        <source>BAR Files (*.bar)</source>
-        <translation>Soubory BAR (*.bar)</translation>
     </message>
     <message>
         <source>Requesting Device PIN...</source>
@@ -58674,56 +58101,8 @@ nelze najít v cestě.</translation>
         <translation>Soubor &apos;%1&apos; bude přepsán. Chcete pokračovat?</translation>
     </message>
     <message>
-        <source>Failed to request debug token: </source>
-        <translation>Nepodařilo se požádat o symbol pro ladění: </translation>
-    </message>
-    <message>
-        <source>Failed to request debug token:</source>
-        <translation>Nepodařilo se požádat o symbol pro ladění:</translation>
-    </message>
-    <message>
-        <source>Wrong CSK password.</source>
-        <translation>Nesprávné heslo CSK.</translation>
-    </message>
-    <message>
-        <source>Wrong keystore password.</source>
-        <translation>Nesprávné heslo pro úložiště klíče.</translation>
-    </message>
-    <message>
-        <source>Network unreachable.</source>
-        <translation>Síť nedosažitelná.</translation>
-    </message>
-    <message>
-        <source>Illegal device PIN.</source>
-        <translation>Neplatný PIN zařízení.</translation>
-    </message>
-    <message>
-        <source>Failed to start inferior process.</source>
-        <translation>Nepodařilo se spustit podřízený proces.</translation>
-    </message>
-    <message>
-        <source>Inferior processes timed out.</source>
-        <translation>Došlo k překročení časového omezení u podřízeného procesu.</translation>
-    </message>
-    <message>
-        <source>Inferior process has crashed.</source>
-        <translation>Podřízený proces spadl.</translation>
-    </message>
-    <message>
-        <source>Failed to communicate with the inferior process.</source>
-        <translation>S podřízeným procesem se nepodařilo spojit.</translation>
-    </message>
-    <message>
         <source>Not yet registered to request debug tokens.</source>
         <translation>Není ještě přihlášeno, aby se mohly požadovat symboly pro ladění.</translation>
-    </message>
-    <message>
-        <source>An unknwon error has occurred.</source>
-        <translation>Vyskytla se neznámá chyba.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Chyba</translation>
     </message>
     <message>
         <source>Requesting debug token...</source>
@@ -58731,18 +58110,10 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryImportCertificateDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Import Certificate</source>
         <translation>Importovat certifikát</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>Cesta:</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation>Heslo:</translation>
     </message>
     <message>
         <source>PKCS 12 Archives (*.p12)</source>
@@ -58753,20 +58124,9 @@ nelze najít v cestě.</translation>
         <translation>Chyba při vyhodnocování výstupu podřízeného procesu.</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Chyba</translation>
-    </message>
-    <message>
         <source>The keystore password is invalid.</source>
         <translation>Heslo pro úložiště klíče je neplatné.</translation>
     </message>
-    <message>
-        <source>An unknown error has occurred.</source>
-        <translation>Vyskytla se neznámá chyba.</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryKeysWidget</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -58792,20 +58152,8 @@ nelze najít v cestě.</translation>
         <translation>Vývojářský certifikát</translation>
     </message>
     <message>
-        <source>Create</source>
-        <translation>Vytvořit</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation>Importovat</translation>
-    </message>
-    <message>
         <source>Delete</source>
         <translation>Smazat</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Chyba</translation>
     </message>
     <message>
         <source>Could not insert default certificate.</source>
@@ -58892,16 +58240,8 @@ nelze najít v cestě.</translation>
         <translation>Vypršení</translation>
     </message>
     <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
-    <message>
         <source>Invalid certificate password. Try again?</source>
         <translation>Neplatné heslo k certifikátu. Zkusit znovu?</translation>
-    </message>
-    <message>
-        <source>Error loading certificate.</source>
-        <translation>Chyba při nahrávání certifikátu.</translation>
     </message>
     <message>
         <source>This action cannot be undone. Would you like to continue?</source>
@@ -58916,72 +58256,8 @@ nelze najít v cestě.</translation>
         <translation>Nenalezeny žádné klíče. Podívejte se, prosím, na stránku &lt;a href=&quot;%1&quot;&gt;BlackBerry&lt;/a&gt;, kde se dozvíte, jak o své klíče zažádat.</translation>
     </message>
     <message>
-        <source>Select Debug Token</source>
-        <translation>Vybrat symbol pro ladění</translation>
-    </message>
-    <message>
-        <source>Bar file (*.bar)</source>
-        <translation>Soubor BAR (*.bar)</translation>
-    </message>
-    <message>
-        <source>Invalid Debug Token</source>
-        <translation>Neplatný symbol pro ladění</translation>
-    </message>
-    <message>
-        <source>Debug token file %1 cannot be read.</source>
-        <translation>Soubor se s symbolem pro ladění %1 nelze přečíst.</translation>
-    </message>
-    <message>
-        <source>Confirmation</source>
-        <translation>Potvrzení</translation>
-    </message>
-    <message>
         <source>Are you sure you want to remove %1?</source>
         <translation>Opravdu chcete odstranit %1?</translation>
-    </message>
-    <message>
-        <source>Failed to request debug token:</source>
-        <translation>Nepodařilo se požádat o symbol pro ladění:</translation>
-    </message>
-    <message>
-        <source>Wrong CSK password.</source>
-        <translation>Nesprávné heslo CSK.</translation>
-    </message>
-    <message>
-        <source>Wrong keystore password.</source>
-        <translation>Nesprávné heslo pro úložiště klíče.</translation>
-    </message>
-    <message>
-        <source>Network unreachable.</source>
-        <translation>Síť nedosažitelná.</translation>
-    </message>
-    <message>
-        <source>Illegal device PIN.</source>
-        <translation>Neplatný PIN zařízení.</translation>
-    </message>
-    <message>
-        <source>Failed to start inferior process.</source>
-        <translation>Nepodařilo se spustit podřízený proces.</translation>
-    </message>
-    <message>
-        <source>Inferior processes timed out.</source>
-        <translation>Došlo k překročení časového omezení u podřízeného procesu.</translation>
-    </message>
-    <message>
-        <source>Inferior process has crashed.</source>
-        <translation>Podřízený proces spadl.</translation>
-    </message>
-    <message>
-        <source>Failed to communicate with the inferior process.</source>
-        <translation>S podřízeným procesem se nepodařilo spojit.</translation>
-    </message>
-    <message>
-        <source>Not yet registered to request debug tokens.</source>
-        <translation>Není ještě přihlášeno, aby se mohly požadovat symboly pro ladění.</translation>
-    </message>
-    <message>
-        <source>An unknown error has occurred.</source>
-        <translation>Vyskytla se neznámá chyba.</translation>
     </message>
     <message>
         <source>Loading...</source>
@@ -59019,29 +58295,9 @@ nelze najít v cestě.</translation>
         <source>Edit...</source>
         <translation>Upravit...</translation>
     </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryNDKSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
-    <message>
-        <source>BlackBerry NDK Path </source>
-        <translation>Cesta NDK BlackBerry</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-    <message>
-        <source>NDK</source>
-        <translation>NDK</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>NDK Environment File</source>
         <translation>Soubor prostředí NDK</translation>
@@ -59055,16 +58311,8 @@ nelze najít v cestě.</translation>
         <translation>Ručně</translation>
     </message>
     <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
-    <message>
         <source>It appears that your BlackBerry environment has already been configured.</source>
         <translation>Zdá se, že vaše prostředí pro BlackBerry je již nastaveno.</translation>
-    </message>
-    <message>
-        <source>Configuration</source>
-        <translation>Nastavení</translation>
     </message>
     <message>
         <source>API Levels</source>
@@ -59085,10 +58333,6 @@ nelze najít v cestě.</translation>
     <message>
         <source>- No NDK environment file found.</source>
         <translation>- Nenalezen žádný soubor prostředí NDK.</translation>
-    </message>
-    <message>
-        <source>- No Qt version found.</source>
-        <translation>- Nenalezena žádná verze Qt.</translation>
     </message>
     <message>
         <source>- No compiler found.</source>
@@ -59154,10 +58398,6 @@ nelze najít v cestě.</translation>
         <translation>Přidat</translation>
     </message>
     <message>
-        <source>Activate</source>
-        <translation>Spustit</translation>
-    </message>
-    <message>
         <source>Deactivate</source>
         <translation>Zastavit</translation>
     </message>
@@ -59190,20 +58430,12 @@ nelze najít v cestě.</translation>
         <translation>Výchozí úroveň API:</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation>Přidat...</translation>
-    </message>
-    <message>
         <source>Clean Up</source>
         <translation>Udělat pořádek</translation>
     </message>
     <message>
         <source>GroupBox</source>
         <translation>GroupBox</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>Cesta:</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -59223,31 +58455,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryRegisterKeyDialog</name>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Obtaining keys&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You will need to order a pair of CSJ files from BlackBerry, by &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;visiting this page.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Obdržet klíče&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Musíte objednat dva soubory CSJ u BlackBerry, což uděláte na této &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;stránce&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>PBDT CSJ file:</source>
-        <translation>Soubor PBDT CSJ:</translation>
-    </message>
-    <message>
-        <source>RDK CSJ file:</source>
-        <translation>Soubor RDK CSJ:</translation>
-    </message>
-    <message>
-        <source>CSJ PIN:</source>
-        <translation>PIN CSJ:</translation>
-    </message>
-    <message>
-        <source>Keystore password:</source>
-        <translation>Heslo pro úložiště klíče:</translation>
-    </message>
-    <message>
-        <source>Confirm password:</source>
-        <translation>Potvrdit heslo:</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Generate developer certificate automatically</source>
         <translation>Vytvořit vývojářský certifikát automaticky</translation>
@@ -59261,32 +58469,12 @@ nelze najít v cestě.</translation>
         <translation>Toto je PIN, který jste zadal při žádosti o soubor CSJ.</translation>
     </message>
     <message>
-        <source>Status</source>
-        <translation>Stav</translation>
-    </message>
-    <message>
         <source>CSK passwords do not match.</source>
         <translation>Hesla CSK se neshodují.</translation>
     </message>
     <message>
         <source>Keystore password does not match.</source>
         <translation>Hesla pro úložiště klíče se neshodují.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Chyba</translation>
-    </message>
-    <message>
-        <source>Error creating developer certificate.</source>
-        <translation>Chyba při vytváření vývojářského certifikátu.</translation>
-    </message>
-    <message>
-        <source>Browse CSJ File</source>
-        <translation>Procházet soubor CSJ</translation>
-    </message>
-    <message>
-        <source>CSJ files (*.csj)</source>
-        <translation>Soubory CSJ (*.csj)</translation>
     </message>
     <message>
         <source>Register Key</source>
@@ -60842,14 +60030,14 @@ Commit now?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorDocument</name>
+    <name>Qnx</name>
     <message>
         <source>%1 does not appear to be a valid application descriptor file</source>
         <translation>%1 nevypadá na to, že jde o platný soubor s popisem programu</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditor</name>
+    <name>Qnx</name>
     <message>
         <source>General</source>
         <translation>Obecné</translation>
@@ -60876,14 +60064,14 @@ Commit now?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorFactory</name>
+    <name>Qnx</name>
     <message>
         <source>Bar descriptor editor</source>
         <translation>Editor popisu pro Bar</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorPermissionsModel</name>
+    <name>Qnx</name>
     <message>
         <source>Permission</source>
         <translation>Oprávnění</translation>
@@ -61050,69 +60238,14 @@ Commit now?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCertificateModel</name>
-    <message>
-        <source>Path</source>
-        <translation>Cesta</translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation>Autor</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Active</source>
         <translation>Činný</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryConfiguration</name>
-    <message>
-        <source>The following errors occurred while setting up BB10 Configuration:</source>
-        <translation>Při nastavování nastavení BB10 se vyskytly následující chyby:</translation>
-    </message>
-    <message>
-        <source>Qt %1 for %2</source>
-        <translation>Qt %1 pro %2</translation>
-    </message>
-    <message>
-        <source>QCC for %1</source>
-        <translation>QCC pro %1</translation>
-    </message>
-    <message>
-        <source>Debugger for %1</source>
-        <translation>Ladicí program pro %1</translation>
-    </message>
     <message>
         <source>The following errors occurred while activating target: %1</source>
         <translation>Při spouštění cíle se vyskytly následující chyby: %1</translation>
-    </message>
-    <message>
-        <source>- No Qt version found.</source>
-        <translation>- Nenalezena žádná verze Qt.</translation>
-    </message>
-    <message>
-        <source>- No GCC compiler found.</source>
-        <translation>- Nenalezen žádný překladač GCC.</translation>
-    </message>
-    <message>
-        <source>- No GDB debugger found for BB10 Device.</source>
-        <translation>- Nenalezen žádný ladicí program GDB pro zařízení BB10.</translation>
-    </message>
-    <message>
-        <source>- No GDB debugger found for BB10 Simulator.</source>
-        <translation>- Nenalezen žádný ladicí program GDB pro simulátor BB10.</translation>
-    </message>
-    <message>
-        <source>Cannot Set up BB10 Configuration</source>
-        <translation>Nelze nastavit nastavení BB10</translation>
-    </message>
-    <message>
-        <source>BlackBerry Device - %1</source>
-        <translation>Zařízení BlackBerry - %1</translation>
-    </message>
-    <message>
-        <source>BlackBerry Simulator - %1</source>
-        <translation>Simulátor BlackBerry %1</translation>
     </message>
     <message>
         <source>This Qt version was already registered.</source>
@@ -61164,7 +60297,7 @@ Commit now?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCsjRegistrar</name>
+    <name>Qnx</name>
     <message>
         <source>Failed to start blackberry-signer process.</source>
         <translation>Nepodařilo se spustit podpisový proces pro BlackBerry.</translation>
@@ -61187,14 +60320,14 @@ Commit now?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryKeysPage</name>
+    <name>Qnx</name>
     <message>
         <source>Keys</source>
         <translation>Klíče</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryNDKSettingsPage</name>
+    <name>Qnx</name>
     <message>
         <source>NDK</source>
         <translation>NDK</translation>
@@ -61212,7 +60345,7 @@ Commit now?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QNXPlugin</name>
+    <name>Qnx</name>
     <message>
         <source>Bar descriptor file (BlackBerry)</source>
         <translation>Soubor s popisem Bar (BlackBerry)</translation>
@@ -61629,23 +60762,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorAssetsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation>Přidat...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-    <message>
-        <source>Path</source>
-        <translation>Cesta</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Destination</source>
         <translation>Cíl</translation>
@@ -61660,15 +60777,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorAuthorInformationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
-    <message>
-        <source>Author:</source>
-        <translation>Autor:</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Author ID:</source>
         <translation>ID autora:</translation>
@@ -61676,14 +60785,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     <message>
         <source>Set from debug token...</source>
         <translation>Nastavit ze symbolu pro ladění...</translation>
-    </message>
-    <message>
-        <source>Select Debug Token</source>
-        <translation>Vybrat symbol pro ladění</translation>
-    </message>
-    <message>
-        <source>Debug token:</source>
-        <translation>Symbol pro ladění:</translation>
     </message>
     <message>
         <source>Error Reading Debug Token</source>
@@ -61695,15 +60796,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorEntryPointWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Název:</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Description:</source>
         <translation>Popis:</translation>
@@ -61725,10 +60818,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <translation>Přidat...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-    <message>
         <source>Images (*.jpg *.png)</source>
         <translation>Obrázky (*.jpg *.png)</translation>
     </message>
@@ -61746,21 +60835,10 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorEnvironmentWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Device Environment</source>
         <translation>Prostředí zařízení</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BarDescriptorEditorGeneralWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
     </message>
     <message>
         <source>Orientation:</source>
@@ -61773,10 +60851,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     <message>
         <source>Transparent main window</source>
         <translation>Průhledné hlavní okno</translation>
-    </message>
-    <message>
-        <source>Application Arguments:</source>
-        <translation>Argumenty pro program:</translation>
     </message>
     <message>
         <source>Default</source>
@@ -61804,11 +60878,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorPackageInformationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Package ID:</source>
         <translation>ID balíčku:</translation>
@@ -61823,11 +60893,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BarDescriptorEditorPermissionsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Select All</source>
         <translation>Vybrat vše</translation>
@@ -61838,65 +60904,30 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerrySetupWizardDevicePage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>Stránka průvodce</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Device name:</source>
         <translation>Název zařízení:</translation>
-    </message>
-    <message>
-        <source>IP or host name of the device</source>
-        <translation>IP nebo název hostitelského počítače zařízení</translation>
     </message>
     <message>
         <source>Device IP address:</source>
         <translation>Adresa IP zařízení:</translation>
     </message>
     <message>
-        <source>Device password:</source>
-        <translation>Heslo k zařízení:</translation>
-    </message>
-    <message>
         <source>The password you use to unlock your device</source>
         <translation>Heslo pro odemknutí zařízení</translation>
-    </message>
-    <message>
-        <source>Physical device</source>
-        <translation>Fyzické zařízení</translation>
-    </message>
-    <message>
-        <source>Simulator</source>
-        <translation>Simulátor</translation>
     </message>
     <message>
         <source>Configure BlackBerry Device Connection</source>
         <translation>Nastavit spojení se zařízením BlackBerry</translation>
     </message>
-    <message>
-        <source>BlackBerry Device</source>
-        <translation>Zařízení BlackBerry</translation>
-    </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerrySetupWizardFinishPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>Stránka průvodce</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>Stav</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Your environment is ready to be configured.</source>
         <translation>Vaše prostředí je připraveno k nastavování.</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerrySetupWizardKeysPage</name>
     <message>
         <source>WizardPage</source>
         <translation>Stránka průvodce</translation>
@@ -61922,20 +60953,8 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <translation>Vámi na stránce při žádosti o klíč zadaný PIN</translation>
     </message>
     <message>
-        <source>Password:</source>
-        <translation>Heslo:</translation>
-    </message>
-    <message>
         <source>The password that will be used to access your keys and CSK files</source>
         <translation>Heslo, které se má použít při přístupu k vašim klíčům a souborům CSK</translation>
-    </message>
-    <message>
-        <source>Confirm password:</source>
-        <translation>Potvrdit heslo:</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>Stav</translation>
     </message>
     <message>
         <source>Register Signing Keys</source>
@@ -61948,10 +60967,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     <message>
         <source>Setup Signing Keys</source>
         <translation>Nastavit podpisové klíče</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
     </message>
     <message>
         <source>This wizard will be closed and you will be taken to the BlackBerry key request web page. Do you want to continue?</source>
@@ -61967,18 +60982,10 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerrySigningPasswordsDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Package signing passwords</source>
         <translation>Hesla k podepsání balíčku</translation>
-    </message>
-    <message>
-        <source>CSK password:</source>
-        <translation>Heslo CSK:</translation>
-    </message>
-    <message>
-        <source>Keystore password:</source>
-        <translation>Heslo pro úložiště klíče:</translation>
     </message>
 </context>
 <context>
@@ -63102,7 +62109,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCheckDevModeStep</name>
+    <name>Qnx</name>
     <message>
         <source>Check Development Mode</source>
         <translation>Přezkoušet vývojářský režim</translation>
@@ -63117,35 +62124,25 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCheckDevModeStepConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&lt;b&gt;Check development mode&lt;/b&gt;</source>
         <translation>&lt;b&gt;Přezkoušet vývojářský režim&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryCheckDevModeStepFactory</name>
-    <message>
-        <source>Check Development Mode</source>
-        <translation>Přezkoušet vývojářský režim</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeviceConnection</name>
     <message>
         <source>Error connecting to device: java could not be found in the environment.</source>
         <translation>Chyba při připojování k zařízení: Javu se v prostředí nepodařilo nalézt.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryProcessParser</name>
+    <name>Qnx</name>
     <message>
         <source>Authentication failed. Please make sure the password for the device is correct.</source>
         <translation>Autentizace se nezdařila. Ujistěte se, prosím, že heslo pro zařízení je správné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerrySetupWizard</name>
+    <name>Qnx</name>
     <message>
         <source>BlackBerry Development Environment Setup Wizard</source>
         <translation>Průvodce pro nastavení vývojářského prostředí BlackBerry</translation>
@@ -63239,10 +62236,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <translation>Chyba při nahrávání symbolu pro ladění:</translation>
     </message>
     <message>
-        <source>Failed to upload debug token: </source>
-        <translation>Chyba při nahrávání symbolu pro ladění: </translation>
-    </message>
-    <message>
         <source>No route to host.</source>
         <translation>Žádná cesta k hostiteli.</translation>
     </message>
@@ -63280,7 +62273,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerrySetupWizardWelcomePage</name>
+    <name>Qnx</name>
     <message>
         <source>Welcome to the BlackBerry Development Environment Setup Wizard.
 This wizard will guide you through the essential steps to deploy a ready-to-go development environment for BlackBerry 10 devices.</source>
@@ -63293,46 +62286,26 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerrySetupWizardNdkPage</name>
+    <name>Qnx</name>
     <message>
         <source>Configure the NDK Path</source>
         <translation>Nastavit cestu k NKD</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAbstractRunSupport</name>
+    <name>Qnx</name>
     <message>
         <source>Not enough free ports on device for debugging.</source>
         <translation>Na zařízení není dostatek volných portů pro ladění.</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxAnalyzeSupport</name>
-    <message>
-        <source>Preparing remote side...
-</source>
-        <translation>Připravuje se vzdálená strana...
-</translation>
     </message>
     <message>
         <source>Preparing remote side...</source>
         <translation>Připravuje se vzdálená strana...</translation>
     </message>
     <message>
-        <source>The %1 process closed unexpectedly.</source>
-        <translation>Proces %1 byl neočekávaně ukončen.</translation>
-    </message>
-    <message>
-        <source>Initial setup failed: %1</source>
-        <translation>Počáteční nastavení se nezdařilo: %1</translation>
-    </message>
-    <message>
         <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available!</source>
         <translation>Varování: &quot;slog2info&quot; na zařízení nenalezeno. Výstup ladění není dostupný!</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceTester</name>
     <message>
         <source>%1 found.
 </source>
@@ -63984,11 +62957,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardConfigPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Debug Token</source>
         <translation>Symbol pro ladění</translation>
@@ -63996,10 +62965,6 @@ monitor reset</source>
     <message>
         <source>Location:</source>
         <translation>Umístění:</translation>
-    </message>
-    <message>
-        <source>Generate</source>
-        <translation>Vytvořit</translation>
     </message>
     <message>
         <source>Debug token is needed for deploying applications to BlackBerry devices.</source>
@@ -64026,28 +62991,12 @@ monitor reset</source>
         <translation>Vybrat symbol pro ladění</translation>
     </message>
     <message>
-        <source>BAR file (*.bar)</source>
-        <translation>Soubor BAR (*.bar)</translation>
-    </message>
-    <message>
-        <source>Invalid Debug Token</source>
-        <translation>Neplatný symbol pro ladění</translation>
-    </message>
-    <message>
         <source>Debug token file %1 cannot be read.</source>
         <translation>Soubor se s symbolem pro ladění %1 nelze přečíst.</translation>
     </message>
-    <message>
-        <source>Import</source>
-        <translation>Importovat</translation>
-    </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardQueryPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Device Information</source>
         <translation>Informace o zařízení</translation>
@@ -64082,11 +63031,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryInstallWizardNdkPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Select Native SDK path:</source>
         <translation>Vybrat cestu k nativnímu SDK:</translation>
@@ -64101,11 +63046,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryInstallWizardProcessPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Please wait...</source>
         <translation>Počkejte, prosím...</translation>
@@ -64148,11 +63089,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryInstallWizardTargetPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Please select target:</source>
         <translation>Vyberte, prosím, cíl:</translation>
@@ -64183,15 +63120,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerrySetupWizardCertificatePage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
-    <message>
-        <source>Author:</source>
-        <translation>Autor:</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Password:</source>
         <translation>Heslo:</translation>
@@ -64201,10 +63130,6 @@ monitor reset</source>
         <translation>Potvrdit heslo:</translation>
     </message>
     <message>
-        <source>Show password</source>
-        <translation>Ukázat heslo</translation>
-    </message>
-    <message>
         <source>Status</source>
         <translation>Stav</translation>
     </message>
@@ -64212,13 +63137,6 @@ monitor reset</source>
         <source>Create Developer Certificate</source>
         <translation>Vytvořit vývojářský certifikát</translation>
     </message>
-    <message>
-        <source>The entered passwords do not match.</source>
-        <translation>Zadaná hesla se neshodují.</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::SrcProjectWizardPage</name>
     <message>
         <source>Choose the Location</source>
         <translation>Vybrat umístění</translation>
@@ -65983,7 +64901,7 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryConfigurationManager</name>
+    <name>Qnx</name>
     <message>
         <source>NDK Already Known</source>
         <translation>NDK již známo</translation>
@@ -65994,14 +64912,10 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryInstallWizard</name>
+    <name>Qnx</name>
     <message>
         <source>BlackBerry NDK Installation Wizard</source>
         <translation>Průvodce instalací NDK BlackBerry</translation>
-    </message>
-    <message>
-        <source>Confirmation</source>
-        <translation>Potvrzení</translation>
     </message>
     <message>
         <source>Are you sure you want to cancel?</source>
@@ -66009,7 +64923,7 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryInstallWizardOptionPage</name>
+    <name>Qnx</name>
     <message>
         <source>Options</source>
         <translation>Volby</translation>
@@ -66021,10 +64935,6 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
     <message>
         <source>Add Existing Target</source>
         <translation>Přidat stávající cíl</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
     </message>
     <message>
         <source>Install API level</source>
@@ -66048,11 +64958,7 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryInstallWizardFinalPage</name>
-    <message>
-        <source>Summary</source>
-        <translation>Shrnutí</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>An error has occurred while adding target from:
  %1</source>
@@ -66125,32 +65031,6 @@ se vyskytla chyba</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryLogProcessRunner</name>
-    <message>
-        <source>Cannot show debug output. Error: %1</source>
-        <translation>Nelze ukázat výstup ladění. Chyba: %1</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerrySigningUtils</name>
-    <message>
-        <source>Please provide your bbidtoken.csk PIN.</source>
-        <translation>Poskytněte, prosím, svůj PIN pro bbidtoken.csk.</translation>
-    </message>
-    <message>
-        <source>Please provide your BlackBerry ID Token PIN.</source>
-        <translation>Poskytněte, prosím, svůj PIN ID pro BlackBerry.</translation>
-    </message>
-    <message>
-        <source>Please enter your certificate password.</source>
-        <translation>Zadejte, prosím, heslo pro svůj certifikát.</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
-</context>
-<context>
     <name>BarDescriptorConverter</name>
     <message>
         <source>Setting asset path: %1 to %2 type: %3 entry point: %4</source>
@@ -66174,7 +65054,7 @@ se vyskytla chyba</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::CascadesImportWizardDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Import Existing Momentics Cascades Project</source>
         <translation>Importovat stávající projekt Momentics Cascades</translation>
@@ -66191,13 +65071,9 @@ se vyskytla chyba</translation>
         <source>Momentics</source>
         <translation>Momentics</translation>
     </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
 </context>
 <context>
-    <name>Qnx::Internal::CascadesImportWizard</name>
+    <name>Qnx</name>
     <message>
         <source>Momentics Cascades Project</source>
         <translation>Projekt Momentics Cascades</translation>
@@ -66233,21 +65109,14 @@ se vyskytla chyba</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunControl</name>
-    <message>
-        <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available!</source>
-        <translation>Varování: &quot;slog2info&quot; na zařízení nenalezeno. Výstup ladění není dostupný!</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxToolChainFactory</name>
+    <name>Qnx</name>
     <message>
         <source>QCC</source>
         <translation>QCC</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxToolChainConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>Cesta k &amp;překladači:</translation>
@@ -66263,7 +65132,7 @@ se vyskytla chyba</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::Slog2InfoRunner</name>
+    <name>Qnx</name>
     <message>
         <source>Cannot show slog2info output. Error: %1</source>
         <translation>Nelze ukázat výstup slog2info. Chyba: %1</translation>
@@ -66924,11 +65793,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCheckDeviceStatusStepConfigWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Check device runtime</source>
         <translation>Ověřit běhové prostředí zařízení</translation>
@@ -66943,7 +65808,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDebugTokenPinsDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -66951,10 +65816,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Debug token: &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Symbol pro ladění: &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -66969,10 +65830,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation>PINy symbolu pro ladění</translation>
     </message>
     <message>
-        <source>Confirmation</source>
-        <translation>Potvrzení</translation>
-    </message>
-    <message>
         <source>Are you sure you want to remove PIN: %1?</source>
         <translation>Opravdu chcete odstranit PIN: %1?</translation>
     </message>
@@ -66982,7 +65839,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeployQtLibrariesDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Deploy Qt to BlackBerry Device</source>
         <translation>Nasadit Qt na zařízení BlackBerry</translation>
@@ -66998,14 +65855,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     <message>
         <source>Remote directory:</source>
         <translation>Vzdálený adresář:</translation>
-    </message>
-    <message>
-        <source>/accounts/devuser/</source>
-        <translation>/accounts/devuser/</translation>
-    </message>
-    <message>
-        <source>qt</source>
-        <translation>qt</translation>
     </message>
     <message>
         <source>Close</source>
@@ -67984,7 +66833,7 @@ Tyto soubory jsou zachovány.</numerusform>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryApiLevelConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>Qt %1 for %2</source>
         <translation>Qt %1 pro %2</translation>
@@ -67996,14 +66845,6 @@ Tyto soubory jsou zachovány.</numerusform>
     <message>
         <source>Debugger for %1</source>
         <translation>Ladicí program pro %1</translation>
-    </message>
-    <message>
-        <source>The following errors occurred while activating target: %1</source>
-        <translation>Při spouštění cíle se vyskytly následující chyby: %1</translation>
-    </message>
-    <message>
-        <source>- No Qt version found.</source>
-        <translation>- Nenalezena žádná verze Qt.</translation>
     </message>
     <message>
         <source>- No GCC compiler found.</source>
@@ -68031,14 +66872,10 @@ Tyto soubory jsou zachovány.</numerusform>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCheckDeviceStatusStep</name>
+    <name>Qnx</name>
     <message>
         <source>Check Device Status</source>
         <translation>Ověřit stav zařízení</translation>
-    </message>
-    <message>
-        <source>Authentication failed.</source>
-        <translation>Ověření selhalo.</translation>
     </message>
     <message>
         <source>Cannot connect to device.</source>
@@ -68086,10 +66923,6 @@ Tyto soubory jsou zachovány.</numerusform>
         <translation>Ověření stavu zařízení...</translation>
     </message>
     <message>
-        <source>Confirmation</source>
-        <translation>Potvrzení</translation>
-    </message>
-    <message>
         <source>The device runtime version(%1) does not match the API level version(%2).
 Do you want to continue anyway?</source>
         <translation>Verze běhového prostředí (%1) neodpovídá verzi úrovně API (%2).
@@ -68101,46 +66934,15 @@ Přesto chcete pokračovat?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCheckDeviceStatusStepFactory</name>
-    <message>
-        <source>Check Device Status</source>
-        <translation>Ověřit stav zařízení</translation>
-    </message>
-</context>
-<context>
-    <name>BlackBerryPotentialKit</name>
-    <message>
-        <source>Configure BlackBerry...</source>
-        <translation>Nastavit BlackBerry...</translation>
-    </message>
-</context>
-<context>
-    <name>BlackBerryPotentialKitWidget</name>
-    <message>
-        <source>&lt;b&gt;BlackBerry has not been configured. Create BlackBerry kits.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;BlackBerry nebylo nastaveno. Vytvořte sady BlackBerry.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Qt Creator needs additional settings to enable BlackBerry support. You can configure those settings in the Options dialog.</source>
-        <translation>Qt Creator potřebuje dodatečná nastavení pro povolení podpory pro BlackBerry. Tato nastavení můžete nastavit v dialogu s volbami.</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryRuntimeConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>Runtime %1</source>
         <translation>Běhové prostředí %1</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerrySetupPage</name>
     <message>
         <source>Setup</source>
         <translation>Nastavení</translation>
     </message>
-</context>
-<context>
-    <name>Qnx::Internal::APILevelSetupItem</name>
     <message>
         <source>API Level defines kits, Qt versions, compilers, debuggers needed for building BlackBerry applications.</source>
         <translation>Úroveň API stanovuje sady, verze Qt, překladače, ladicí programy potřebné pro sestavení aplikací BlackBerry.</translation>
@@ -68183,7 +66985,7 @@ Přesto chcete pokračovat?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::SigningKeysSetupItem</name>
+    <name>Qnx</name>
     <message>
         <source>Signing keys are needed for signing BlackBerry applications and managing debug tokens.</source>
         <translation>Podpisové klíče jsou potřeba k podpisování aplikací BlackBerry a na správu symbolů pro ladění.</translation>
@@ -68199,10 +67001,6 @@ Přesto chcete pokračovat?</translation>
     <message>
         <source>Cannot find BlackBerry signing keys.</source>
         <translation>Nelze najít podpisové klíče BlackBerry.</translation>
-    </message>
-    <message>
-        <source>Request</source>
-        <translation>Požadavek</translation>
     </message>
     <message>
         <source>Cannot find developer certificate.</source>
@@ -68229,10 +67027,6 @@ Přesto chcete pokračovat?</translation>
         <translation>Otevření certifikátu...</translation>
     </message>
     <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
-    <message>
         <source>Invalid certificate password.</source>
         <translation>Neplatné heslo k certifikátu.</translation>
     </message>
@@ -68242,26 +67036,7 @@ Přesto chcete pokračovat?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::DeviceSetupItem</name>
-    <message>
-        <source>BlackBerry 10 device or simulator is needed for running BlackBerry applications.</source>
-        <translation>Zařízení BlackBerry 10 nebo simulátor je potřeba pro spouštění aplikací BlackBerry.</translation>
-    </message>
-    <message>
-        <source>No BlackBerry 10 device or simulator is registered.</source>
-        <translation>Není zaregistrováno žádné zařízení BlackBerry 10 nebo simulátor.</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
-        <source>BlackBerry 10 device or simulator is registered.</source>
-        <translation>Zařízení BlackBerry 10 nebo simulátor je zaregistrováno.</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerrySetupWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&lt;a href=&quot;%1&quot;&gt;How to Setup Qt Creator for BlackBerry 10 development&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;%1&quot;&gt;Jak nastavit Qt Creator pro vývoj pro BlackBerry 10&lt;/a&gt;</translation>
@@ -68314,25 +67089,7 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>BlackBerrySetupWizardDevicePage</name>
-    <message>
-        <source>Configure BlackBerry Device Connection</source>
-        <translation>Nastavit spojení se zařízením BlackBerry</translation>
-    </message>
-    <message>
-        <source>BlackBerry Device</source>
-        <translation>Zařízení BlackBerry</translation>
-    </message>
-</context>
-<context>
-    <name>BlackBerrySetupWizardFinishPage</name>
-    <message>
-        <source>Your environment is ready to be configured.</source>
-        <translation>Vaše prostředí je připraveno k nastavování.</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::SrcProjectPathChooser</name>
+    <name>Qnx</name>
     <message>
         <source>Choose imported Cascades project directory</source>
         <translation>Vybrat adresář projektu pro importovaný Cascade</translation>
@@ -68343,7 +67100,7 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAttachDebugDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Project source directory:</source>
         <translation>Zdrojový adresář projektu:</translation>
@@ -68354,7 +67111,7 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAttachDebugSupport</name>
+    <name>Qnx</name>
     <message>
         <source>No free ports for debugging.</source>
         <translation>Žádné volné porty pro ladění.</translation>

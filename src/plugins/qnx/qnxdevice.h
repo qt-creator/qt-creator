@@ -34,8 +34,6 @@ namespace Internal {
 
 class QnxDevice final : public RemoteLinux::LinuxDevice
 {
-    Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::QnxDevice)
-
 public:
     using Ptr = QSharedPointer<QnxDevice>;
     using ConstPtr = QSharedPointer<const QnxDevice>;

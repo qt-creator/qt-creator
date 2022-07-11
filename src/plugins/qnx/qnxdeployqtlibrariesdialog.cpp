@@ -27,6 +27,7 @@
 
 #include "qnxconstants.h"
 #include "qnxqtversion.h"
+#include "qnxtr.h"
 
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -64,7 +65,7 @@ QnxDeployQtLibrariesDialog::QnxDeployQtLibrariesDialog(const IDevice::ConstPtr &
     : QDialog(parent)
     , m_device(device)
 {
-    setWindowTitle(tr("Deploy Qt to QNX Device"));
+    setWindowTitle(Tr::tr("Deploy Qt to QNX Device"));
 
     m_qtLibraryCombo = new QComboBox(this);
     const QList<QtVersion*> qtVersions = QtVersionManager::sortVersions(
@@ -73,7 +74,7 @@ QnxDeployQtLibrariesDialog::QnxDeployQtLibrariesDialog(const IDevice::ConstPtr &
     for (QtVersion *v : qtVersions)
         m_qtLibraryCombo->addItem(v->displayName(), v->uniqueId());
 
-    m_deployButton = new QPushButton(tr("Deploy"), this);
+    m_deployButton = new QPushButton(Tr::tr("Deploy"), this);
     m_deployButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     m_basePathLabel = new QLabel(this);
@@ -87,7 +88,7 @@ QnxDeployQtLibrariesDialog::QnxDeployQtLibrariesDialog(const IDevice::ConstPtr &
 
     m_deployLogWindow = new QPlainTextEdit(this);
 
-    m_closeButton = new QPushButton(tr("Close"), this);
+    m_closeButton = new QPushButton(Tr::tr("Close"), this);
 
     m_uploadService = new GenericDirectUploadService(this);
     m_uploadService->setDevice(m_device);
@@ -102,8 +103,8 @@ QnxDeployQtLibrariesDialog::QnxDeployQtLibrariesDialog(const IDevice::ConstPtr &
     horizontalLayout_3->addWidget(m_remoteDirectory);
 
     auto formLayout = new QFormLayout();
-    formLayout->addRow(tr("Qt library to deploy:"), horizontalLayout);
-    formLayout->addRow(tr("Remote directory:"), horizontalLayout_3);
+    formLayout->addRow(Tr::tr("Qt library to deploy:"), horizontalLayout);
+    formLayout->addRow(Tr::tr("Remote directory:"), horizontalLayout_3);
 
     auto horizontalLayout_2 = new QHBoxLayout();
     horizontalLayout_2->addItem(new QSpacerItem(218, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
@@ -160,7 +161,7 @@ void QnxDeployQtLibrariesDialog::closeEvent(QCloseEvent *event)
     // A disabled Deploy button indicates the upload is still running
     if (!m_deployButton->isEnabled()) {
         const int answer = QMessageBox::question(this, windowTitle(),
-            tr("Closing the dialog will stop the deployment. Are you sure you want to do this?"),
+            Tr::tr("Closing the dialog will stop the deployment. Are you sure you want to do this?"),
             QMessageBox::Yes | QMessageBox::No);
         if (answer == QMessageBox::No)
             event->ignore();
@@ -175,7 +176,7 @@ void QnxDeployQtLibrariesDialog::deployLibraries()
 
     if (m_remoteDirectory->text().isEmpty()) {
         QMessageBox::warning(this, windowTitle(),
-                             tr("Please input a remote directory to deploy to."));
+                             Tr::tr("Please input a remote directory to deploy to."));
         return;
     }
 
@@ -302,7 +303,7 @@ void QnxDeployQtLibrariesDialog::startCheckDirProcess()
 {
     QTC_CHECK(m_state == Inactive);
     m_state = CheckingRemoteDirectory;
-    m_deployLogWindow->appendPlainText(tr("Checking existence of \"%1\"")
+    m_deployLogWindow->appendPlainText(Tr::tr("Checking existence of \"%1\"")
                                            .arg(fullRemoteDirectory()));
     m_checkDirProcess.setCommand({m_device->filePath("test"),
                                   {"-d", fullRemoteDirectory()}});
@@ -313,7 +314,7 @@ void QnxDeployQtLibrariesDialog::startRemoveDirProcess()
 {
     QTC_CHECK(m_state == CheckingRemoteDirectory);
     m_state = RemovingRemoteDirectory;
-    m_deployLogWindow->appendPlainText(tr("Removing \"%1\"").arg(fullRemoteDirectory()));
+    m_deployLogWindow->appendPlainText(Tr::tr("Removing \"%1\"").arg(fullRemoteDirectory()));
     m_removeDirProcess.setCommand({m_device->filePath("rm"),
                                   {"-rf", fullRemoteDirectory()}});
     m_removeDirProcess.start();
@@ -327,7 +328,7 @@ void QnxDeployQtLibrariesDialog::handleCheckDirDone()
 
     if (m_checkDirProcess.exitCode() == 0) { // Directory exists
         const int answer = QMessageBox::question(this, windowTitle(),
-            tr("The remote directory \"%1\" already exists.\n"
+            Tr::tr("The remote directory \"%1\" already exists.\n"
                "Deploying to that directory will remove any files already present.\n\n"
                "Are you sure you want to continue?").arg(fullRemoteDirectory()),
                QMessageBox::Yes | QMessageBox::No);
@@ -356,7 +357,7 @@ bool QnxDeployQtLibrariesDialog::handleError(const QtcProcess &process)
     if (process.result() == ProcessResult::FinishedWithSuccess)
         return false;
 
-    m_deployLogWindow->appendPlainText(tr("Connection failed: %1").arg(process.errorString()));
+    m_deployLogWindow->appendPlainText(Tr::tr("Connection failed: %1").arg(process.errorString()));
     handleUploadFinished();
     return true;
 }

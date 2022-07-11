@@ -30815,14 +30815,14 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAbstractRunSupport</name>
+    <name>Qnx</name>
     <message>
         <source>Not enough free ports on device for debugging.</source>
         <translation>デバイスにデバッグ用の空きポートがありません。</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAnalyzeSupport</name>
+    <name>Qnx</name>
     <message>
         <source>Preparing remote side...</source>
         <translation>リモート側の準備...</translation>
@@ -30835,54 +30835,9 @@ Do you want to save the data first?</source>
         <source>Initial setup failed: %1</source>
         <translation>初回セットアップ失敗: %1</translation>
     </message>
-    <message>
-        <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available.</source>
-        <translation>警告: &quot;slog2info&quot; がデバイスに見つかりません。デバッグ出力は利用できません。</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDebugSupport</name>
-    <message>
-        <source>Preparing remote side...</source>
-        <translation>リモート側の準備...</translation>
-    </message>
-    <message>
-        <source>Project source directory:</source>
-        <translation>プロジェクトソースディレクトリ:</translation>
-    </message>
-    <message>
-        <source>Local executable:</source>
-        <translation>ローカル実行ファイル:</translation>
-    </message>
-    <message>
-        <source>The %1 process closed unexpectedly.</source>
-        <translation>プロセス %1 が、予期せず終了しました。</translation>
-    </message>
-    <message>
-        <source>Initial setup failed: %1</source>
-        <translation>初回セットアップ失敗: %1</translation>
-    </message>
-    <message>
-        <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available.</source>
-        <translation>警告: &quot;slog2info&quot; がデバイスに見つかりません。デバッグ出力は利用できません。</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeployConfigurationFactory</name>
     <message>
         <source>Deploy to QNX Device</source>
         <translation>QNX デバイスにデプロイ</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDevice</name>
-    <message>
-        <source>QNX</source>
-        <translation>QNX</translation>
-    </message>
-    <message>
-        <source>QNX Device</source>
-        <translation>QNX デバイス</translation>
     </message>
     <message>
         <source>Deploy Qt libraries...</source>
@@ -30890,14 +30845,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceFactory</name>
-    <message>
-        <source>QNX Device</source>
-        <translation>QNX デバイス</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceWizard</name>
+    <name>Qnx</name>
     <message>
         <source>QNX Device</source>
         <translation>QNX デバイス</translation>
@@ -30908,7 +30856,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceTester</name>
+    <name>Qnx</name>
     <message>
         <source>Checking that files can be created in /var/run...</source>
         <translation>/var/run にファイルが作成できることを確認しています...</translation>
@@ -30951,7 +30899,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxQtVersion</name>
+    <name>Qnx</name>
     <message>
         <source>QNX %1</source>
         <extracomment>Qt Version is meant for QNX</extracomment>
@@ -30967,7 +30915,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>Path to Qt libraries on device:</source>
         <translation>デバイス上の Qt ライブラリのパス:</translation>
@@ -30990,21 +30938,14 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunConfigurationFactory</name>
+    <name>Qnx</name>
     <message>
         <source>%1 on QNX Device</source>
         <translation>QNX デバイス上の %1</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxToolChainFactory</name>
-    <message>
-        <source>QCC</source>
-        <translation>QCC</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxToolChainConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>コンパイラのパス(&amp;C):</translation>
@@ -31025,7 +30966,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::Slog2InfoRunner</name>
+    <name>Qnx</name>
     <message>
         <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available.</source>
         <translation>警告: &quot;slog2info&quot; がデバイスに見つかりません。デバッグ出力は利用できません。</translation>
@@ -36016,7 +35957,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAttachDebugDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Project source directory:</source>
         <translation>プロジェクトソースディレクトリ:</translation>
@@ -36027,7 +35968,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAttachDebugSupport</name>
+    <name>Qnx</name>
     <message>
         <source>No free ports for debugging.</source>
         <translation>デバッグ用の空きポートがありません。</translation>
@@ -36245,7 +36186,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxPlugin</name>
+    <name>Qnx</name>
     <message>
         <source>Attach to remote QNX application...</source>
         <translation>リモートの QNX アプリケーションにアタッチ...</translation>
@@ -36374,7 +36315,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeployQtLibrariesDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Deploy Qt to BlackBerry Device</source>
         <translation>Qt を BlackBerry デバイスにデプロイ</translation>
@@ -36425,7 +36366,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxSettingsWidget</name>
+    <name>Qnx</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -36479,10 +36420,6 @@ Are you sure you want to continue?</source>
  %1?</source>
         <translation>本当に削除を行いますか:
 %1？</translation>
-    </message>
-    <message>
-        <source>QNX</source>
-        <translation>QNX</translation>
     </message>
     <message>
         <source>Add...</source>
@@ -37175,7 +37112,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>The following errors occurred while activating the QNX configuration:</source>
         <translation>QNX 設定のアクティベート中に以下のエラーが発生しました:</translation>
@@ -37229,7 +37166,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxSettingsPage</name>
+    <name>Qnx</name>
     <message>
         <source>QNX</source>
         <translation>QNX</translation>
@@ -45716,13 +45653,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
     <message>
         <source>Glyphs</source>
         <translation>グリフ</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxRunControl</name>
-    <message>
-        <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available.</source>
-        <translation>警告: &apos;slog2info&apos; がデバイスに見つかりません。デバッグ出力は利用できません。</translation>
     </message>
 </context>
 <context>
@@ -56162,21 +56092,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxQmlProfilerSupport</name>
-    <message>
-        <source>Preparing remote side...</source>
-        <translation>リモート側の準備...</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeployConfiguration</name>
-    <message>
-        <source>Deploy to QNX Device</source>
-        <translation>QNX デバイスにデプロイ</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxToolChain</name>
+    <name>Qnx</name>
     <message>
         <source>QCC</source>
         <translation>QCC</translation>

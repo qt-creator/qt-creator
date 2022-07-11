@@ -26,7 +26,6 @@
 #pragma once
 
 #include "qnxconstants.h"
-#include "qnxutils.h"
 #include "qnxversionnumber.h"
 
 #include <utils/fileutils.h>

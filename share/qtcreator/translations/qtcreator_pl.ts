@@ -22858,21 +22858,21 @@ poinstruuje Qt Creatora o URI.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDebugSupport</name>
+    <name>Qnx</name>
     <message>
         <source>Preparing remote side...</source>
         <translation>Przygotowywanie zdalnej strony...</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeployConfigurationFactory</name>
+    <name>Qnx</name>
     <message>
         <source>Deploy to QNX Device</source>
         <translation>Zainstaluj na urządzeniu QNX</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxQtVersion</name>
+    <name>Qnx</name>
     <message>
         <source>QNX %1</source>
         <extracomment>Qt Version is meant for QNX</extracomment>
@@ -22884,14 +22884,14 @@ poinstruuje Qt Creatora o URI.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>Path to Qt libraries on device:</source>
         <translation>Ścieżka do bibliotek Qt na urządzeniu:</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunConfigurationFactory</name>
+    <name>Qnx</name>
     <message>
         <source>%1 on QNX Device</source>
         <translation>%1 na urządzeniu QNX</translation>
@@ -26894,7 +26894,7 @@ Zdalny: %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceTester</name>
+    <name>Qnx</name>
     <message>
         <source>%1 found.</source>
         <translation>Znaleziono %1.</translation>
@@ -28723,14 +28723,14 @@ Proszę zamknąć wszystkie instancje tej aplikacji przed uruchomieniem budowani
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxToolChainFactory</name>
+    <name>Qnx</name>
     <message>
         <source>QCC</source>
         <translation>QCC</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxToolChainConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>Ścieżka do &amp;kompilatora:</translation>
@@ -28746,7 +28746,7 @@ Proszę zamknąć wszystkie instancje tej aplikacji przed uruchomieniem budowani
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::Slog2InfoRunner</name>
+    <name>Qnx</name>
     <message>
         <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available.</source>
         <translation>Ostrzeżenie: brak&quot;slog2info&quot; na urządzeniu, komunikaty debugowe nie będą dostępne.</translation>
@@ -29862,7 +29862,7 @@ Czy przerwać ją?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAttachDebugDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Project source directory:</source>
         <translation>Katalog ze źródłami projektu:</translation>
@@ -29873,7 +29873,7 @@ Czy przerwać ją?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAttachDebugSupport</name>
+    <name>Qnx</name>
     <message>
         <source>No free ports for debugging.</source>
         <translation>Brak wolnych portów do debugowania.</translation>
@@ -30398,7 +30398,7 @@ Instalowanie lokalnych bibliotek Qt nie jest kompatybilne z Androidem 5.</transl
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeployQtLibrariesDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Qt library to deploy:</source>
         <translation>Biblioteka Qt do zainstalowania:</translation>
@@ -30449,7 +30449,7 @@ Czy kontynuować instalację?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxSettingsWidget</name>
+    <name>Qnx</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -33997,7 +33997,7 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>The following errors occurred while activating the QNX configuration:</source>
         <translation>Wystąpiły następujące błędy podczas aktywowania konfiguracji QNX:</translation>
@@ -34028,14 +34028,14 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxPlugin</name>
+    <name>Qnx</name>
     <message>
         <source>Attach to remote QNX application...</source>
         <translation>Dołącz do zdalnej aplikacji QNX...</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxSettingsPage</name>
+    <name>Qnx</name>
     <message>
         <source>QNX</source>
         <translation>QNX</translation>
@@ -40470,25 +40470,14 @@ w ścieżce.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDevice</name>
-    <message>
-        <source>QNX</source>
-        <translation>QNX</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Deploy Qt libraries...</source>
         <translation>Instaluj biblioteki Qt...</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceFactory</name>
-    <message>
-        <source>QNX Device</source>
-        <translation>Urządzenie QNX</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceWizard</name>
+    <name>Qnx</name>
     <message>
         <source>QNX Device</source>
         <translation>Urządzenie QNX</translation>
@@ -44183,13 +44172,6 @@ Błąd: %5</translation>
     <message>
         <source>Read typeinfo files successfully.</source>
         <translation>Pliki typeinfo poprawnie odczytane.</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxQmlProfilerSupport</name>
-    <message>
-        <source>Preparing remote side...</source>
-        <translation>Przygotowywanie zdalnej strony...</translation>
     </message>
 </context>
 <context>

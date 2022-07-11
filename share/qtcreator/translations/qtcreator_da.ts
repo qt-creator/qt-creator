@@ -34175,14 +34175,14 @@ Vil du gemme dataene først?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxAttachDebugSupport</name>
+    <name>Qnx</name>
     <message>
         <source>Remote QNX process %1</source>
         <translation>Fjern-QNX-proces %1</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>The following errors occurred while activating the QNX configuration:</source>
         <translation>Følgende fejl opstod ved aktivering af QNX-konfigurationen:</translation>
@@ -34213,11 +34213,7 @@ Vil du gemme dataene først?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDebugSupport</name>
-    <message>
-        <source>Preparing remote side...</source>
-        <translation>Forbereder fjern-side...</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>Project source directory:</source>
         <translation>Projekt kildemappe:</translation>
@@ -34228,7 +34224,7 @@ Vil du gemme dataene først?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeployQtLibrariesDialog</name>
+    <name>Qnx</name>
     <message>
         <source>Qt library to deploy:</source>
         <translation>Qt-bibliotek som skal udsendes:</translation>
@@ -34279,7 +34275,7 @@ Er du sikker på, at du vil fortsætte?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDevice</name>
+    <name>Qnx</name>
     <message>
         <source>QNX</source>
         <translation>QNX</translation>
@@ -34290,14 +34286,14 @@ Er du sikker på, at du vil fortsætte?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceFactory</name>
+    <name>Qnx</name>
     <message>
         <source>QNX Device</source>
         <translation>QNX-enhed</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceTester</name>
+    <name>Qnx</name>
     <message>
         <source>%1 found.</source>
         <translation>%1 fundet.</translation>
@@ -34320,32 +34316,28 @@ Er du sikker på, at du vil fortsætte?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceWizard</name>
-    <message>
-        <source>QNX Device</source>
-        <translation>QNX-enhed</translation>
-    </message>
+    <name>Qnx</name>
     <message>
         <source>New QNX Device Configuration Setup</source>
         <translation>Ny QNX-enhed konfigurationsopsætning</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxPlugin</name>
+    <name>Qnx</name>
     <message>
         <source>Attach to remote QNX application...</source>
         <translation>Tilkobl til fjern-QNX-program...</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxQmlProfilerSupport</name>
+    <name>Qnx</name>
     <message>
         <source>Preparing remote side...</source>
         <translation>Forbereder fjern-side...</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxQtVersion</name>
+    <name>Qnx</name>
     <message>
         <source>QNX %1</source>
         <extracomment>Qt Version is meant for QNX</extracomment>
@@ -34357,21 +34349,14 @@ Er du sikker på, at du vil fortsætte?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>Path to Qt libraries on device</source>
         <translation>Sti til Qt-biblioteker på enhed</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxSettingsPage</name>
-    <message>
-        <source>QNX</source>
-        <translation>QNX</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxSettingsWidget</name>
+    <name>Qnx</name>
     <message>
         <source>Generate kits</source>
         <translation>Generer kits</translation>
@@ -34428,7 +34413,7 @@ Er du sikker på, at du vil fortsætte?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxToolChainConfigWidget</name>
+    <name>Qnx</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>&amp;Kompilersti:</translation>
@@ -34444,14 +34429,14 @@ Er du sikker på, at du vil fortsætte?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxToolChainFactory</name>
+    <name>Qnx</name>
     <message>
         <source>QCC</source>
         <translation>QCC</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::Slog2InfoRunner</name>
+    <name>Qnx</name>
     <message>
         <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available.</source>
         <translation>Advarsel: &quot;slog2info&quot; findes ikke på enheden, fejlret-output ikke tilgængeligt.</translation>
@@ -45263,7 +45248,7 @@ Gemning mislykkedes.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeployConfiguration</name>
+    <name>Qnx</name>
     <message>
         <source>Deploy to QNX Device</source>
         <translation>Udsend til QNX-enhed</translation>
