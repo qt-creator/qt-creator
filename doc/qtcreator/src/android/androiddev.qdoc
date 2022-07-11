@@ -84,7 +84,7 @@
             \uicontrol Android on Windows and Linux or \uicontrol {\QC} >
             \uicontrol Preferences > \uicontrol Devices > \uicontrol Android on
             \macos.
-            \image qtcreator-options-android-main.png "Android options"
+            \image qtcreator-options-android-main.png "Android preferences"
         \li In the \uicontrol {JDK location} field, set the path to the JDK.
             \QC checks the JDK installation and reports errors.
 

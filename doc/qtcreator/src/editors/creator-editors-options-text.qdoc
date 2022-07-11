@@ -45,7 +45,7 @@
     \uicontrol Preferences > \uicontrol {Text Editor} >
     \uicontrol {Font & Colors}.
 
-    \image qtcreator-font-colors.png "Text editor options"
+    \image qtcreator-font-colors.png "Text editor preferences"
 
     \section2 Configuring Fonts
 
@@ -120,7 +120,7 @@
     \uicontrol Preferences > \uicontrol {Text Editor} > \uicontrol Behavior, and
     then select a suitable option in \uicontrol {Default encoding}.
 
-    \image qtcreator-options-texteditor-behavior-file-encodings.png "File encoding options"
+    \image qtcreator-options-texteditor-behavior-file-encodings.png "File encoding preferences"
 
     Qt 5 and Qt 6 require UTF-8 encoded source files, and therefore the default
     encoding is set to \uicontrol UTF-8.

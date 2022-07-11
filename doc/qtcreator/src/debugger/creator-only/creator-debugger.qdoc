@@ -110,8 +110,9 @@
     \QC checks whether the compiled program is up-to-date, and rebuilds and
     deploys it if the \uicontrol {Build before deploying} field is set to
     build the whole project or the application to run and the
-    \uicontrol {Always deploy before running} check box is selected in the
-    \uicontrol {Build and Run} options. To debug the program without deploying
+    \uicontrol {Always deploy before running} check box is selected in
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Build & Run} >
+    \uicontrol General. To debug the program without deploying
     it, select \uicontrol Debug > \uicontrol {Start Debugging} >
     \uicontrol {Start Debugging Without Deployment}.
 
@@ -900,7 +901,7 @@
     \uicontrol Debugger > \uicontrol {Locals & Expressions}, and enter the
     commands in the \uicontrol {Debugging Helper Customization} field.
 
-    \image qtcreator-debugging-helper-options.png
+    \image qtcreator-debugging-helper-options.png "Locals & Expressions preferences"
 
     If you receive error messages about receiving signals when using GDB, you
     can specify \l{https://sourceware.org/gdb/onlinedocs/gdb/Signals.html}

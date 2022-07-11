@@ -51,7 +51,7 @@
 
     The Beautifier plugin parses the source code into component structures, such
     as assignment statements, if blocks, loops, and so on, and formats them as
-    specified in the Beautifier options. You can use a predefined style or
+    specified in the Beautifier preferences. You can use a predefined style or
     define your own style.
 
     To use the Beautifier plugin:
@@ -82,7 +82,7 @@
             automatically beautify files when you save them using the tool you
             select in the \uicontrol Tool field.
 
-            \image qt-creator-beautifier-options-general.png "General Beautifier options"
+            \image qt-creator-beautifier-options-general.png "General Beautifier preferences"
 
         \li In the \uicontrol {Restrict to MIME types} field, define the MIME
             types of the files to beautify, separated by semicolons. Leave the
@@ -101,7 +101,7 @@
             \uicontrol Uncrustify to specify settings for the tool you want to
             use.
 
-            \image beautifier_options.png "Uncrustify Beautifier options"
+            \image beautifier_options.png "Uncrustify Beautifier preferences"
 
         \li In the \uicontrol Configuration group, specify the path to
             the tool executable in the \uicontrol {Artistic Style command},
@@ -140,7 +140,7 @@
                     button, and then selecting the style to use from the list of
                     available styles.
 
-                    \image qtcreator-beautifier-options-clangformat.png "Clang Format Beautifier options"
+                    \image qtcreator-beautifier-options-clangformat.png "Clang Format Beautifier preferences"
 
                     Select \uicontrol File to load the style configuration from
                     the \c .clang-format or \c _clang-format file located in the

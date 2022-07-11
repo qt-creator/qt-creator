@@ -53,7 +53,7 @@
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
             \uicontrol Debuggers > \uicontrol Add.
 
-            \image qtcreator-options-build-run-debuggers.png
+            \image qtcreator-options-build-run-debuggers.png "Adding debuggers"
 
         \li In the \uicontrol Name field, give a descriptive name for the debugger.
 

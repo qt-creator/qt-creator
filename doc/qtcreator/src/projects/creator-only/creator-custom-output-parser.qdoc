@@ -53,7 +53,7 @@
 
     \section1 Specifying Settings for Custom Output Parsers
 
-    \image qtcreator-custom-parser-options.png
+    \image qtcreator-custom-parser-options.png "Custom Output Parsers preferences"
 
     A custom output parser enables you to capture errors and
     warnings separately, according to the settings you specify

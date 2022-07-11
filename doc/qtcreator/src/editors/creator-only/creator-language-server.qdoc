@@ -189,7 +189,7 @@
     \image qtcreator-language-client-inspector-log.png "Language Client Inspector dialog"
 
     The dialog shows a list of running language servers. The value of the
-    \uicontrol {Startup behavior} field in the language server options
+    \uicontrol {Startup behavior} field in the language server preferences
     determines when the server is started. The information displayed depends on
     the language server.
 

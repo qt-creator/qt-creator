@@ -135,7 +135,7 @@
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Analyzer >
             \uicontrol {Clang Tools}.
 
-            \image qtcreator-clang-tools-options.png "Clang Tools options tab"
+            \image qtcreator-clang-tools-options.png "Clang Tools preferences"
 
         \li In the \uicontrol Clang-Tidy and \uicontrol Clazy-Standalone fields,
             set the paths to the executables to use.

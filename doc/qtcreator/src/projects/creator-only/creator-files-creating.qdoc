@@ -162,7 +162,7 @@
     change the default suffix of a file, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol {C++} > \uicontrol {File Naming}.
 
-    \image qtcreator-options-cpp-files.png "File Naming tab in Options"
+    \image qtcreator-options-cpp-files.png "C++ File Naming preferences"
 
     In the \uicontrol {License template} field, you can use
     \l{Using Variables in Wizards}{predefined wizard variables} to specify the

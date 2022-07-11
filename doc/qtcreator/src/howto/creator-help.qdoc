@@ -69,7 +69,7 @@
     family, style, and size in \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Help > \uicontrol General.
 
-    \image qtcreator-help-options.png
+    \image qtcreator-help-options.png "Help General preferences"
 
     You can set the default zoom level in the \uicontrol Zoom field. When
     viewing help pages, you can use the mouse scroll wheel to zoom them. To
@@ -264,7 +264,7 @@
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Help >
             \uicontrol Filters.
 
-            \image qtcreator-help-filter-attributes.png "Filters tab in Help options"
+            \image qtcreator-help-filter-attributes.png "Filters tab in Help preferences"
 
         \li Select \inlineimage icons/plus.png
             to add a new filter in the \uicontrol {Add Filter} dialog.

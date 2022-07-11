@@ -85,7 +85,7 @@
     \uicontrol Edit > \uicontrol Preferences > \uicontrol Devices >
     \uicontrol MCU:
 
-    \image qtcreator-mcu-options.png "MCU options"
+    \image qtcreator-mcu-options.png "MCU preferences"
 
     \list 1
         \li In the \uicontrol {Qt for MCUs SDK} field, specify the path
