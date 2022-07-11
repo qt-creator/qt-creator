@@ -29,6 +29,8 @@
 #include "squishtools.h"
 #include "squishtr.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/basetreeview.h>
 #include <utils/fileutils.h>
 #include <utils/icon.h>
@@ -40,6 +42,7 @@
 #include <QDialogButtonBox>
 #include <QFrame>
 #include <QHeaderView>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QSettings>
 #include <QVBoxLayout>
@@ -335,6 +338,7 @@ class SquishServerSettingsWidget : public QWidget
 {
 public:
     explicit SquishServerSettingsWidget(QWidget *parent = nullptr);
+    QList<QStringList> toConfigChangeArguments() const;
 
 private:
     void repopulateApplicationView();
@@ -344,6 +348,8 @@ private:
     void addAttachableAut(TreeItem *categoryItem, SquishServerItem *original);
     void editApplicationOrPath();
     void removeApplicationOrPath();
+
+    SquishServerSettings m_originalSettings;
     SquishServerSettings m_serverSettings;
     BaseTreeView m_applicationsView;
     TreeModel<SquishServerItem> m_model;
@@ -414,6 +420,7 @@ SquishServerSettingsWidget::SquishServerSettingsWidget(QWidget *parent)
     connect(squishTools, &SquishTools::queryFinished, this,
             [this, progress] (const QByteArray &out) {
         m_serverSettings.setFromXmlOutput(out);
+        m_originalSettings.setFromXmlOutput(out);
         repopulateApplicationView();
         progress->hide();
         setEnabled(true);
@@ -576,6 +583,61 @@ void SquishServerSettingsWidget::removeApplicationOrPath()
     m_model.destroyItem(item);
 }
 
+QList<QStringList> SquishServerSettingsWidget::toConfigChangeArguments() const
+{
+    QList<QStringList> result;
+    for (auto it = m_originalSettings.mappedAuts.begin(),
+         end = m_originalSettings.mappedAuts.end(); it != end; ++it) {
+        const QString value = m_serverSettings.mappedAuts.value(it.key());
+        if (value == it.value())
+            continue;
+        if (value.isEmpty())
+            result.append({"removeAUT", it.key(), it.value()});
+        else
+            result.append({"addAUT", it.key(), value});
+    }
+    for (auto it = m_serverSettings.mappedAuts.begin(),
+         end = m_serverSettings.mappedAuts.end(); it != end; ++it) {
+        if (!m_originalSettings.mappedAuts.contains(it.key()))
+            result.append({"addAUT", it.key(), it.value()});
+    }
+
+    for (auto it = m_originalSettings.attachableAuts.begin(),
+         end = m_originalSettings.attachableAuts.end(); it != end; ++it) {
+        const QString value = m_serverSettings.attachableAuts.value(it.key());
+        if (value == it.value())
+            continue;
+        if (value.isEmpty())
+            result.append({"removeAttachableAUT", it.key(), it.value()});
+        else
+            result.append({"addAttachableAUT", it.key(), value});
+    }
+    for (auto it = m_serverSettings.attachableAuts.begin(),
+         end = m_serverSettings.attachableAuts.end(); it != end; ++it) {
+        if (!m_originalSettings.attachableAuts.contains(it.key()))
+            result.append({"addAttachableAUT", it.key(), it.value()});
+    }
+
+    for (auto &path : qAsConst(m_originalSettings.autPaths)) {
+        if (!m_serverSettings.autPaths.contains(path))
+            result.append({"removeAppPath", path});
+    }
+    for (auto &path : qAsConst(m_serverSettings.autPaths)) {
+        if (!m_originalSettings.autPaths.contains(path))
+            result.append({"addAppPath", path});
+    }
+
+    if (m_originalSettings.autTimeout.value() != m_serverSettings.autTimeout.value())
+        result.append({"setAUTTimeout", QString::number(m_serverSettings.autTimeout.value())});
+    if (m_originalSettings.responseTimeout.value() != m_serverSettings.responseTimeout.value())
+        result.append({"setResponseTimeout", QString::number(m_serverSettings.responseTimeout.value())});
+    if (m_originalSettings.postMortemWaitTime.value() != m_serverSettings.postMortemWaitTime.value())
+        result.append({"setAUTPostMortemTimeout", QString::number(m_serverSettings.postMortemWaitTime.value())});
+    if (m_originalSettings.animatedCursor.value() != m_serverSettings.animatedCursor.value())
+        result.append({"setCursorAnimation", m_serverSettings.animatedCursor.value() ? QString("on") : QString("off")});
+    return result;
+}
+
 void SquishServerSettingsWidget::editApplicationOrPath()
 {
     const QModelIndex &idx = m_applicationsView.currentIndex();
@@ -603,21 +665,37 @@ SquishServerSettingsDialog::SquishServerSettingsDialog(QWidget *parent)
 {
     setWindowTitle(Tr::tr("Squish Server Settings"));
 
-    QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(new SquishServerSettingsWidget);
-    auto buttonBox = new QDialogButtonBox(/*QDialogButtonBox::Apply|*/QDialogButtonBox::Cancel, this);
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    auto settingsWidget = new SquishServerSettingsWidget(this);
+    mainLayout->addWidget(settingsWidget);
+    auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel, this);
     mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
-//    connect(buttonBox->button(QDialogButtonBox::Apply), &QPushButton::clicked,
-//            this, &SquishServerSettingsDialog::onApply);
+    connect(buttonBox->button(QDialogButtonBox::Ok), &QPushButton::clicked,
+            this, [this, settingsWidget, buttonBox] {
+        const QList<QStringList> configChanges = settingsWidget->toConfigChangeArguments();
+        if (configChanges.isEmpty()) {
+            accept();
+            return;
+        }
+
+        connect(SquishTools::instance(), &SquishTools::configChangesFailed,
+                this, &SquishServerSettingsDialog::configWriteFailed);
+        connect(SquishTools::instance(), &SquishTools::configChangesWritten,
+                this, &QDialog::accept);
+        buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+        SquishTools::instance()->writeServerSettingsChanges(configChanges);
+    });
     connect(buttonBox->button(QDialogButtonBox::Cancel), &QPushButton::clicked,
             this, &QDialog::reject);
 }
 
-void SquishServerSettingsDialog::onApply()
+void SquishServerSettingsDialog::configWriteFailed(QProcess::ProcessError error)
 {
-    // TODO write settings to server
-    accept();
+    QMessageBox::critical(Core::ICore::dialogParent(),
+                          Tr::tr("Error"),
+                          Tr::tr("Failed to write configuration changes.\n"
+                                 "Squish server finished with process error %1.").arg(error));
 }
 
 } // namespace Internal

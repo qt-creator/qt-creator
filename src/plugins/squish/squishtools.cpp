@@ -184,6 +184,20 @@ void SquishTools::queryServerSettings()
     startSquishServer(RunnerQueryRequested);
 }
 
+void SquishTools::writeServerSettingsChanges(const QList<QStringList> &changes)
+{
+    if (m_state != Idle) {
+        QMessageBox::critical(Core::ICore::dialogParent(),
+                              Tr::tr("Error"),
+                              Tr::tr("Squish Tools in unexpected state (%1).\n"
+                                     "Refusing to write configuration changes.").arg(m_state));
+        return;
+    }
+    m_serverConfigChanges = changes;
+    startSquishServer(ServerConfigChangeRequested);
+}
+
+
 void SquishTools::setState(SquishTools::State state)
 {
     // TODO check whether state transition is legal
@@ -207,6 +221,7 @@ void SquishTools::setState(SquishTools::State state)
         } else if (m_request == RecordTestRequested) {
         } else if (m_request == RunnerQueryRequested) {
             executeRunnerQuery();
+        } else if (m_request == ServerConfigChangeRequested) { // nothing to do here
         } else {
             QTC_ASSERT(false, qDebug() << m_state << m_request);
         }
@@ -222,7 +237,18 @@ void SquishTools::setState(SquishTools::State state)
         break;
     case ServerStopped:
         m_state = Idle;
-        if (m_request == ServerStopRequested) {
+        if (m_request == ServerConfigChangeRequested) {
+            if (m_serverProcess.result() == ProcessResult::FinishedWithError) {
+                emit configChangesFailed(m_serverProcess.error());
+                break;
+            }
+
+            m_serverConfigChanges.removeFirst();
+            if (!m_serverConfigChanges.isEmpty())
+                startSquishServer(ServerConfigChangeRequested);
+            else
+                emit configChangesWritten();
+        } else if (m_request == ServerStopRequested) {
             m_request = None;
             if (m_squishRunnerMode == TestingMode) {
                 emit squishTestRunFinished();
@@ -331,12 +357,19 @@ void SquishTools::startSquishServer(Request request)
 
     QStringList arguments;
     // TODO if isLocalServer is false we should start a squishserver on remote device
-    if (toolsSettings.isLocalServer)
-        arguments << "--local"; // for now - although Squish Docs say "don't use it"
-    else
+    if (toolsSettings.isLocalServer) {
+        if (m_request != ServerConfigChangeRequested)
+            arguments << "--local"; // for now - although Squish Docs say "don't use it"
+    } else {
         arguments << "--port" << QString::number(toolsSettings.serverPort);
+    }
     if (toolsSettings.verboseLog)
         arguments << "--verbose";
+
+    if (m_request == ServerConfigChangeRequested && QTC_GUARD(!m_serverConfigChanges.isEmpty())) {
+        arguments.append("--config");
+        arguments.append(m_serverConfigChanges.first());
+    }
 
     m_serverProcess.setCommand({toolsSettings.serverPath, arguments});
     m_serverProcess.setEnvironment(squishEnvironment());

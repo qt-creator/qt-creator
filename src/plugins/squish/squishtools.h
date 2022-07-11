@@ -72,6 +72,7 @@ public:
                       const QStringList &additionalServerArgs = QStringList(),
                       const QStringList &additionalRunnerArgs = QStringList());
     void queryServerSettings();
+    void writeServerSettingsChanges(const QList<QStringList> &changes);
 
 signals:
     void logOutputReceived(const QString &output);
@@ -79,12 +80,14 @@ signals:
     void squishTestRunFinished();
     void resultOutputCreated(const QByteArray &output);
     void queryFinished(const QByteArray &output);
+    void configChangesFailed(QProcess::ProcessError error);
+    void configChangesWritten();
 
 private:
     enum Request {
         None,
         ServerStopRequested,
-        ServerQueryRequested,
+        ServerConfigChangeRequested,
         RunnerQueryRequested,
         RunTestRequested,
         RecordTestRequested,
@@ -129,6 +132,7 @@ private:
     QFileSystemWatcher *m_resultsFileWatcher = nullptr;
     QStringList m_additionalServerArguments;
     QStringList m_additionalRunnerArguments;
+    QList<QStringList> m_serverConfigChanges;
     QWindowList m_lastTopLevelWindows;
     enum RunnerMode { NoMode, TestingMode, QueryMode} m_squishRunnerMode = NoMode;
     qint64 m_readResultsCount;

@@ -30,6 +30,7 @@
 #include <utils/aspects.h>
 
 #include <QDialog>
+#include <QProcess>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -63,7 +64,7 @@ public:
     explicit SquishServerSettingsDialog(QWidget *parent = nullptr);
 
 private:
-    void onApply();
+    void configWriteFailed(QProcess::ProcessError error);
 };
 
 } // namespace Internal
