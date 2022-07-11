@@ -2477,8 +2477,6 @@ bool ClearCasePluginPrivate::vcsDelete(const FilePath &filePath)
 
 bool ClearCasePluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 {
-    const QFileInfo ifrom = from.toFileInfo();
-    const QFileInfo ito = from.toFileInfo();
     return vcsMove(from.parentDir().absolutePath(), from.fileName(), to.fileName());
 }
 
