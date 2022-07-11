@@ -345,6 +345,7 @@ bool ICore::showWarningWithOptions(const QString &title, const QString &text,
         parent = m_mainwindow;
     QMessageBox msgBox(QMessageBox::Warning, title, text,
                        QMessageBox::Ok, parent);
+    msgBox.setEscapeButton(QMessageBox::Ok);
     if (!details.isEmpty())
         msgBox.setDetailedText(details);
     QAbstractButton *settingsButton = nullptr;
