@@ -90,7 +90,6 @@ public:
 
     unsigned m_flags = 0;
     int m_defaultTimeoutS = 10;
-    int m_lastExecExitCode = -1;
 
     bool m_progressiveOutput = false;
     bool m_hadOutput = false;
@@ -195,8 +194,6 @@ void ShellCommand::addJob(const CommandLine &command, int timeoutS,
 
 void ShellCommand::execute()
 {
-    d->m_lastExecExitCode = -1;
-
     if (d->m_jobs.empty())
         return;
 
@@ -237,11 +234,6 @@ FilePath ShellCommand::workDirectory(const FilePath &wd) const
     return defaultWorkingDirectory();
 }
 
-int ShellCommand::lastExecutionExitCode() const
-{
-    return d->m_lastExecExitCode;
-}
-
 void ShellCommand::run(QFutureInterface<void> &future)
 {
     // Check that the binary path is not empty
@@ -256,7 +248,7 @@ void ShellCommand::run(QFutureInterface<void> &future)
     else
         future.setProgressRange(0, 1);
     const int count = d->m_jobs.size();
-    d->m_lastExecExitCode = -1;
+    int lastExecExitCode = -1;
     bool lastExecSuccess = true;
     for (int j = 0; j < count; j++) {
         const Internal::ShellCommandPrivate::Job &job = d->m_jobs.at(j);
@@ -266,7 +258,7 @@ void ShellCommand::run(QFutureInterface<void> &future)
         runCommand(proc, job.command, job.workingDirectory);
         stdOut += proc.cleanedStdOut();
         stdErr += proc.cleanedStdErr();
-        d->m_lastExecExitCode = proc.exitCode();
+        lastExecExitCode = proc.exitCode();
         lastExecSuccess = proc.result() == ProcessResult::FinishedWithSuccess;
         if (!lastExecSuccess)
             break;
@@ -279,7 +271,7 @@ void ShellCommand::run(QFutureInterface<void> &future)
                 emit stdErrText(stdErr);
         }
 
-        emit finished(lastExecSuccess, d->m_lastExecExitCode, cookie());
+        emit finished(lastExecSuccess, lastExecExitCode, cookie());
         if (lastExecSuccess) {
             emit success(cookie());
             future.setProgressValue(future.progressMaximum());

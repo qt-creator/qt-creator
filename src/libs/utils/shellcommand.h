@@ -104,7 +104,6 @@ public:
                 const ExitCodeInterpreter &interpreter = {});
     void execute(); // Execute tasks asynchronously!
     void abort();
-    int lastExecutionExitCode() const;
 
     const FilePath &defaultWorkingDirectory() const;
     virtual const Environment processEnvironment() const;
