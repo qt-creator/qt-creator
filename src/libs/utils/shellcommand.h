@@ -152,17 +152,17 @@ protected:
     virtual Environment environment() const;
     void setDisableUnixTerminal();
     int timeoutS() const;
-    FilePath workDirectory(const FilePath &wd) const;
 
 private:
     virtual void addTask(QFuture<void> &future);
     virtual void postRunCommand(const Utils::FilePath &workDirectory);
+    FilePath workDirectory(const FilePath &wd) const;
     void run(QFutureInterface<void> &future);
 
     // Run without a event loop in fully blocking mode. No signals will be delivered.
-    void runFullySynchronous(QtcProcess &proc, const FilePath &workingDirectory);
+    void runFullySynchronous(QtcProcess &proc);
     // Run with an event loop. Signals will be delivered.
-    void runSynchronous(QtcProcess &proc, const FilePath &workingDirectory);
+    void runSynchronous(QtcProcess &proc);
 
     class Internal::ShellCommandPrivate *const d;
 };

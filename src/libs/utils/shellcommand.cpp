@@ -295,12 +295,14 @@ void ShellCommand::runCommand(QtcProcess &proc,
                               const CommandLine &command,
                               const FilePath &workingDirectory)
 {
-    const FilePath dir = workDirectory(workingDirectory);
-
     if (command.executable().isEmpty()) {
         proc.setResult(ProcessResult::StartFailed);
         return;
     }
+
+    const FilePath dir = workDirectory(workingDirectory);
+    if (!dir.isEmpty())
+        proc.setWorkingDirectory(dir);
 
     if (!(d->m_flags & SuppressCommandLogging))
         emit appendCommand(dir, command);
@@ -309,9 +311,9 @@ void ShellCommand::runCommand(QtcProcess &proc,
     if ((d->m_flags & FullySynchronously)
             || (!(d->m_flags & NoFullySync)
                 && QThread::currentThread() == QCoreApplication::instance()->thread())) {
-        runFullySynchronous(proc, dir);
+        runFullySynchronous(proc);
     } else {
-        runSynchronous(proc, dir);
+        runSynchronous(proc);
     }
 
     if (!d->m_aborted) {
@@ -326,14 +328,11 @@ void ShellCommand::runCommand(QtcProcess &proc,
     postRunCommand(dir);
 }
 
-void ShellCommand::runFullySynchronous(QtcProcess &process, const FilePath &workingDirectory)
+void ShellCommand::runFullySynchronous(QtcProcess &process)
 {
     // Set up process
     if (d->m_disableUnixTerminal)
         process.setDisableUnixTerminal();
-    const FilePath dir = workDirectory(workingDirectory);
-    if (!dir.isEmpty())
-        process.setWorkingDirectory(dir);
     process.setEnvironment(environment());
     if (d->m_flags & MergeOutputChannels)
         process.setProcessChannelMode(QProcess::MergedChannels);
@@ -357,7 +356,7 @@ void ShellCommand::runFullySynchronous(QtcProcess &process, const FilePath &work
     }
 }
 
-void ShellCommand::runSynchronous(QtcProcess &process, const FilePath &workingDirectory)
+void ShellCommand::runSynchronous(QtcProcess &process)
 {
     connect(this, &ShellCommand::terminate, &process, [&process] {
         process.stop();
@@ -368,9 +367,6 @@ void ShellCommand::runSynchronous(QtcProcess &process, const FilePath &workingDi
         process.setCodec(d->m_codec);
     if (d->m_disableUnixTerminal)
         process.setDisableUnixTerminal();
-    const FilePath dir = workDirectory(workingDirectory);
-    if (!dir.isEmpty())
-        process.setWorkingDirectory(dir);
     // connect stderr to the output window if desired
     if (d->m_flags & MergeOutputChannels) {
         process.setProcessChannelMode(QProcess::MergedChannels);
