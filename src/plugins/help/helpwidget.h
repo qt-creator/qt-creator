@@ -142,11 +142,9 @@ private:
     void addSideBar();
     QString sideBarSettingsKey() const;
 
-#ifdef HELP_NEW_FILTER_ENGINE
     void setupFilterCombo();
     void filterDocumentation(int filterIndex);
     void currentFilterChanged(const QString &filter);
-#endif
 
     OpenPagesModel m_model;
     OpenPagesManager *m_openPagesManager = nullptr;

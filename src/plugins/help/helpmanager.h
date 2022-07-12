@@ -67,17 +67,6 @@ public:
     static void setCustomValue(const QString &key, const QVariant &value);
     static QVariant customValue(const QString &key, const QVariant &value = QVariant());
 
-#ifndef HELP_NEW_FILTER_ENGINE
-    using Filters = QHash<QString, QStringList>;
-
-    static Filters filters();
-    static Filters fixedFilters();
-
-    static Filters userDefinedFilters();
-    static void removeUserDefinedFilter(const QString &filter);
-    static void addUserDefinedFilter(const QString &filter, const QStringList &attr);
-#endif
-
     static void aboutToShutdown();
 
     Q_INVOKABLE void showHelpUrl(

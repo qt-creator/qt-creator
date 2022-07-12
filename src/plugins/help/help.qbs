@@ -26,8 +26,6 @@ Project {
                 defines.push("QTC_WEBENGINE_HELPVIEWER");
             if (qlitehtml.present)
                 defines.push("QTC_LITEHTML_HELPVIEWER")
-            if (Utilities.versionCompare(Qt.core.version, "5.15") >= 0)
-                defines.push("HELP_NEW_FILTER_ENGINE");
             return defines;
         }
 
@@ -38,7 +36,7 @@ Project {
             name: "Sources"
             files: [
                 "docsettingspage.cpp", "docsettingspage.h", "docsettingspage.ui",
-                "filtersettingspage.cpp", "filtersettingspage.h", "filtersettingspage.ui",
+                "filtersettingspage.cpp", "filtersettingspage.h",
                 "generalsettingspage.cpp", "generalsettingspage.h", "generalsettingspage.ui",
                 "help.qrc",
                 "helpconstants.h",

@@ -5,7 +5,7 @@ add_qtc_plugin(Help
   PLUGIN_RECOMMENDS TextEditor
   SOURCES
     docsettingspage.cpp docsettingspage.h docsettingspage.ui
-    filtersettingspage.cpp filtersettingspage.h filtersettingspage.ui
+    filtersettingspage.cpp filtersettingspage.h
     generalsettingspage.cpp generalsettingspage.h generalsettingspage.ui
     help.qrc
     helpconstants.h
@@ -24,11 +24,6 @@ add_qtc_plugin(Help
     searchwidget.cpp searchwidget.h
     textbrowserhelpviewer.cpp textbrowserhelpviewer.h
     xbelsupport.cpp xbelsupport.h
-)
-
-extend_qtc_plugin(Help
-  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 5.15.0
-  DEFINES HELP_NEW_FILTER_ENGINE
 )
 
 set(HELPVIEWER_DEFAULT_BACKEND "litehtml" CACHE STRING "Sets default help viewer backend")

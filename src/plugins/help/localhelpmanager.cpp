@@ -69,14 +69,6 @@ QHelpEngine* LocalHelpManager::m_guiEngine = nullptr;
 QMutex LocalHelpManager::m_bkmarkMutex;
 BookmarkManager* LocalHelpManager::m_bookmarkManager = nullptr;
 
-#ifndef HELP_NEW_FILTER_ENGINE
-
-QStandardItemModel *LocalHelpManager::m_filterModel = nullptr;
-QString LocalHelpManager::m_currentFilter = QString();
-int LocalHelpManager::m_currentFilterIndex = -1;
-
-#endif
-
 static const char kHelpHomePageKey[] = "Help/HomePage";
 static const char kFontFamilyKey[] = "Help/FallbackFontFamily";
 static const char kFontStyleNameKey[] = "Help/FallbackFontStyleName";
@@ -118,9 +110,6 @@ LocalHelpManager::LocalHelpManager(QObject *parent)
 {
     m_instance = this;
     qRegisterMetaType<Help::Internal::LocalHelpManager::HelpData>("Help::Internal::LocalHelpManager::HelpData");
-#ifndef HELP_NEW_FILTER_ENGINE
-    m_filterModel = new QStandardItemModel(this);
-#endif
 }
 
 LocalHelpManager::~LocalHelpManager()
@@ -414,9 +403,7 @@ QHelpEngine &LocalHelpManager::helpEngine()
             m_guiEngine->setReadOnly(false);
 #endif
 
-#ifdef HELP_NEW_FILTER_ENGINE
             m_guiEngine->setUsesFilterEngine(true);
-#endif
         }
     }
     return *m_guiEngine;
@@ -515,65 +502,10 @@ LocalHelpManager::HelpData LocalHelpManager::helpData(const QUrl &url)
     return data;
 }
 
-#ifndef HELP_NEW_FILTER_ENGINE
-
-QAbstractItemModel *LocalHelpManager::filterModel()
-{
-    return m_filterModel;
-}
-
-void LocalHelpManager::setFilterIndex(int index)
-{
-    if (index == m_currentFilterIndex)
-        return;
-    m_currentFilterIndex = index;
-    QStandardItem *item = m_filterModel->item(index);
-    if (!item) {
-        helpEngine().setCurrentFilter(QString());
-        return;
-    }
-    helpEngine().setCurrentFilter(item->text());
-    emit m_instance->filterIndexChanged(m_currentFilterIndex);
-}
-
-int LocalHelpManager::filterIndex()
-{
-    return m_currentFilterIndex;
-}
-
-void LocalHelpManager::updateFilterModel()
-{
-    const QHelpEngine &engine = helpEngine();
-    if (m_currentFilter.isEmpty())
-        m_currentFilter = engine.currentFilter();
-    m_filterModel->clear();
-    m_currentFilterIndex = -1;
-    int count = 0;
-    const QStringList &filters = engine.customFilters();
-    foreach (const QString &filterString, filters) {
-        m_filterModel->appendRow(new QStandardItem(filterString));
-        if (filterString == m_currentFilter)
-            m_currentFilterIndex = count;
-        count++;
-    }
-
-    if (filters.size() < 1)
-        return;
-    if (m_currentFilterIndex < 0) {
-        m_currentFilterIndex = 0;
-        m_currentFilter = filters.at(0);
-    }
-    emit m_instance->filterIndexChanged(m_currentFilterIndex);
-}
-
-#else
-
 QHelpFilterEngine *LocalHelpManager::filterEngine()
 {
     return helpEngine().filterEngine();
 }
-
-#endif
 
 bool LocalHelpManager::canOpenOnlineHelp(const QUrl &url)
 {

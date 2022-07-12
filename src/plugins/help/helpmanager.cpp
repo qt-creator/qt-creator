@@ -44,14 +44,7 @@
 
 #include <QMutexLocker>
 
-#ifndef HELP_NEW_FILTER_ENGINE
-#include <QSqlDatabase>
-#include <QSqlDriver>
-#include <QSqlError>
-#include <QSqlQuery>
-#else
 #include <QtHelp/QHelpLink>
-#endif
 
 using namespace Core;
 
@@ -88,19 +81,6 @@ struct HelpManagerPrivate
 
 static HelpManager *m_instance = nullptr;
 static HelpManagerPrivate *d = nullptr;
-
-#ifndef HELP_NEW_FILTER_ENGINE
-
-// -- DbCleaner
-
-struct DbCleaner
-{
-    DbCleaner(const QString &dbName) : name(dbName) {}
-    ~DbCleaner() { QSqlDatabase::removeDatabase(name); }
-    QString name;
-};
-
-#endif
 
 // -- HelpManager
 
@@ -243,15 +223,11 @@ QMultiMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key)
     QTC_ASSERT(!d->m_needsSetup, return {});
     if (key.isEmpty())
         return {};
-#ifndef HELP_NEW_FILTER_ENGINE
-    return d->m_helpEngine->linksForKeyword(key);
-#else
     QMultiMap<QString, QUrl> links;
     const QList<QHelpLink> docs = d->m_helpEngine->documentsForKeyword(key, QString());
     for (const auto &doc : docs)
         links.insert(doc.title, doc.url);
     return links;
-#endif
 }
 
 QMultiMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &id)
@@ -259,15 +235,11 @@ QMultiMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &id)
     QTC_ASSERT(!d->m_needsSetup, return {});
     if (id.isEmpty())
         return {};
-#ifndef HELP_NEW_FILTER_ENGINE
-    return d->m_helpEngine->linksForIdentifier(id);
-#else
     QMultiMap<QString, QUrl> links;
     const QList<QHelpLink> docs = d->m_helpEngine->documentsForIdentifier(id, QString());
     for (const auto &doc : docs)
         links.insert(doc.title, doc.url);
     return links;
-#endif
 }
 
 QUrl HelpManager::findFile(const QUrl &url)
@@ -321,76 +293,6 @@ QVariant HelpManager::customValue(const QString &key, const QVariant &value)
     return d->m_helpEngine->customValue(key, value);
 }
 
-#ifndef HELP_NEW_FILTER_ENGINE
-
-HelpManager::Filters HelpManager::filters()
-{
-    QTC_ASSERT(!d->m_needsSetup, return {});
-
-    Filters filters;
-    const QStringList &customFilters = d->m_helpEngine->customFilters();
-    for (const QString &filter : customFilters)
-        filters.insert(filter, d->m_helpEngine->filterAttributes(filter));
-    return filters;
-}
-
-HelpManager::Filters HelpManager::fixedFilters()
-{
-    QTC_ASSERT(!d->m_needsSetup, return {});
-
-    const QLatin1String sqlite("QSQLITE");
-    const QLatin1String name("HelpManager::fixedCustomFilters");
-
-    Filters fixedFilters;
-    DbCleaner cleaner(name);
-    QSqlDatabase db = QSqlDatabase::addDatabase(sqlite, name);
-    if (db.driver() && db.driver()->lastError().type() == QSqlError::NoError) {
-        const QStringList &registeredDocs = d->m_helpEngine->registeredDocumentations();
-        for (const QString &nameSpace : registeredDocs) {
-            db.setDatabaseName(d->m_helpEngine->documentationFileName(nameSpace));
-            if (db.open()) {
-                QSqlQuery query = QSqlQuery(db);
-                query.setForwardOnly(true);
-                query.exec(QLatin1String("SELECT Name FROM FilterNameTable"));
-                while (query.next()) {
-                    const QString &filter = query.value(0).toString();
-                    fixedFilters.insert(filter, d->m_helpEngine->filterAttributes(filter));
-                }
-            }
-        }
-    }
-    return fixedFilters;
-}
-
-HelpManager::Filters HelpManager::userDefinedFilters()
-{
-    QTC_ASSERT(!d->m_needsSetup, return {});
-
-    Filters all = filters();
-    const Filters &fixed = fixedFilters();
-    for (Filters::const_iterator it = fixed.constBegin(); it != fixed.constEnd(); ++it)
-        all.remove(it.key());
-    return all;
-}
-
-void HelpManager::removeUserDefinedFilter(const QString &filter)
-{
-    QTC_ASSERT(!d->m_needsSetup, return);
-
-    if (d->m_helpEngine->removeCustomFilter(filter))
-        emit m_instance->collectionFileChanged();
-}
-
-void HelpManager::addUserDefinedFilter(const QString &filter, const QStringList &attr)
-{
-    QTC_ASSERT(!d->m_needsSetup, return);
-
-    if (d->m_helpEngine->addCustomFilter(filter, attr))
-        emit m_instance->collectionFileChanged();
-}
-
-#endif
-
 void HelpManager::aboutToShutdown()
 {
     if (d && d->m_registerFuture.isRunning()) {
@@ -414,9 +316,7 @@ void HelpManager::setupHelpManager()
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     d->m_helpEngine->setReadOnly(false);
 #endif
-#ifdef HELP_NEW_FILTER_ENGINE
     d->m_helpEngine->setUsesFilterEngine(true);
-#endif
     d->m_helpEngine->setupData();
 
     for (const QString &filePath : d->documentationFromInstaller())

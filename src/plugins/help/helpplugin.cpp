@@ -123,10 +123,6 @@ public:
 
     void slotSystemInformation();
 
-#ifndef HELP_NEW_FILTER_ENGINE
-    void resetFilter();
-#endif
-
     static void activateHelpMode() { ModeManager::activateMode(Constants::ID_MODE_HELP); }
     static bool canShowHelpSideBySide();
 
@@ -319,44 +315,6 @@ ExtensionSystem::IPlugin::ShutdownFlag HelpPlugin::aboutToShutdown()
 
     return SynchronousShutdown;
 }
-
-#ifndef HELP_NEW_FILTER_ENGINE
-
-void HelpPluginPrivate::resetFilter()
-{
-    const QString &filterInternal = QString::fromLatin1("Qt Creator %1.%2.%3")
-        .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
-    const QRegularExpression filterRegExp("^Qt Creator \\d*\\.\\d*\\.\\d*$");
-
-    QHelpEngineCore *engine = &LocalHelpManager::helpEngine();
-    const QStringList &filters = engine->customFilters();
-    for (const QString &filter : filters) {
-        if (filterRegExp.match(filter).hasMatch() && filter != filterInternal)
-            engine->removeCustomFilter(filter);
-    }
-
-    // we added a filter at some point, remove previously added filter
-    if (engine->customValue(Help::Constants::WeAddedFilterKey).toInt() == 1) {
-        const QString &filter =
-            engine->customValue(Help::Constants::PreviousFilterNameKey).toString();
-        if (!filter.isEmpty())
-            engine->removeCustomFilter(filter);
-    }
-
-    // potentially remove a filter with new name
-    const QString filterName = HelpPlugin::tr("Unfiltered");
-    engine->removeCustomFilter(filterName);
-    engine->addCustomFilter(filterName, QStringList());
-    engine->setCustomValue(Help::Constants::WeAddedFilterKey, 1);
-    engine->setCustomValue(Help::Constants::PreviousFilterNameKey, filterName);
-    engine->setCurrentFilter(filterName);
-
-    LocalHelpManager::updateFilterModel();
-    connect(engine, &QHelpEngineCore::setupFinished,
-            LocalHelpManager::instance(), &LocalHelpManager::updateFilterModel);
-}
-
-#endif
 
 void HelpPluginPrivate::saveExternalWindowSettings()
 {
@@ -698,9 +656,6 @@ void HelpPluginPrivate::doSetupIfNeeded()
 {
     LocalHelpManager::setupGuiHelpEngine();
     if (m_setupNeeded) {
-#ifndef HELP_NEW_FILTER_ENGINE
-        resetFilter();
-#endif
         m_setupNeeded = false;
         m_centralWidget->openPagesManager()->setupInitialPages();
         LocalHelpManager::bookmarkManager().setupBookmarkModels();

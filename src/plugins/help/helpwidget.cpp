@@ -61,10 +61,8 @@
 #include <QStatusBar>
 #include <QToolButton>
 
-#ifdef HELP_NEW_FILTER_ENGINE
 #include <QtHelp/QHelpEngine>
 #include <QtHelp/QHelpFilterEngine>
-#endif
 
 static const char kWindowSideBarSettingsKey[] = "Help/WindowSideBar";
 static const char kModeSideBarSettingsKey[] = "Help/ModeSideBar";
@@ -365,23 +363,12 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         m_filterComboBox = new QComboBox;
         m_filterComboBox->setMinimumContentsLength(15);
         layout->addWidget(m_filterComboBox);
-#ifndef HELP_NEW_FILTER_ENGINE
-        m_filterComboBox->setModel(LocalHelpManager::filterModel());
-        m_filterComboBox->setCurrentIndex(LocalHelpManager::filterIndex());
-        connect(m_filterComboBox, QOverload<int>::of(&QComboBox::activated),
-                LocalHelpManager::instance(), &LocalHelpManager::setFilterIndex);
-        connect(LocalHelpManager::instance(),
-                &LocalHelpManager::filterIndexChanged,
-                m_filterComboBox,
-                &QComboBox::setCurrentIndex);
-#else
         connect(&LocalHelpManager::helpEngine(), &QHelpEngine::setupFinished,
                 this, &HelpWidget::setupFilterCombo, Qt::QueuedConnection);
         connect(m_filterComboBox, QOverload<int>::of(&QComboBox::activated),
                 this, &HelpWidget::filterDocumentation);
         connect(LocalHelpManager::filterEngine(), &QHelpFilterEngine::filterActivated,
                 this, &HelpWidget::currentFilterChanged);
-#endif
 
         Core::ActionContainer *windowMenu = Core::ActionManager::actionContainer(
             Core::Constants::M_WINDOW);
@@ -501,8 +488,6 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     }
 }
 
-#ifdef HELP_NEW_FILTER_ENGINE
-
 void HelpWidget::setupFilterCombo()
 {
     const QString currentFilter = LocalHelpManager::filterEngine()->activeFilter();
@@ -533,8 +518,6 @@ void HelpWidget::currentFilterChanged(const QString &filter)
         index = 0;
     m_filterComboBox->setCurrentIndex(index);
 }
-
-#endif
 
 HelpWidget::~HelpWidget()
 {

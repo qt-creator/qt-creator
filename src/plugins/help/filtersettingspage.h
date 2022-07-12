@@ -29,13 +29,9 @@
 
 #include <QPointer>
 
-#ifndef HELP_NEW_FILTER_ENGINE
-#include "ui_filtersettingspage.h"
-#else
 QT_BEGIN_NAMESPACE
 class QHelpFilterSettingsWidget;
 QT_END_NAMESPACE
-#endif
 
 namespace Help {
 namespace Internal {
@@ -57,25 +53,7 @@ signals:
 private:
 
     void updateFilterPage();
-#ifndef HELP_NEW_FILTER_ENGINE
-    void updateAttributes(QListWidgetItem *item);
-    void updateFilterMap();
-    void addFilter();
-    void removeFilter();
-    void updateFilterDescription(const QString &filter);
-    QString msgFilterLabel(const QString &filter) const;
-
-    Ui::FilterSettingsPage m_ui;
-    QPointer<QWidget> m_widget;
-
-    using FilterMap = QMap<QString, QStringList>;
-    FilterMap m_filterMap;
-    FilterMap m_filterMapBackup;
-
-    QStringList m_removedFilters;
-#else
     QPointer<QHelpFilterSettingsWidget> m_widget;
-#endif
 
 };
 
