@@ -28,8 +28,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
 class Settings;
 
@@ -39,5 +38,4 @@ public:
     TodoOptionsPage(Settings *settings, const std::function<void()> &onApply);
 };
 
-} // namespace Internal
-} // namespace Todo
+} // Todo::Internal

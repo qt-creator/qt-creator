@@ -24,7 +24,6 @@ QtcPlugin {
         "lineparser.h",
         "optionsdialog.cpp",
         "optionsdialog.h",
-        "optionsdialog.ui",
         "todoprojectsettingswidget.cpp",
         "todoprojectsettingswidget.h",
         "todoprojectsettingswidget.ui",
