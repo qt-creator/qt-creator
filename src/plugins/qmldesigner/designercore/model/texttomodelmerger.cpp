@@ -40,6 +40,7 @@
 #include "propertyparser.h"
 #include "rewriterview.h"
 #include "variantproperty.h"
+#include <rewritingexception.h>
 
 #include <enumeration.h>
 
@@ -434,13 +435,14 @@ class ReadingContext
 {
 public:
     ReadingContext(const Snapshot &snapshot, const Document::Ptr &doc,
-                   const ViewerContext &vContext)
+                   const ViewerContext &vContext, Model *model)
         : m_doc(doc)
         , m_context(
               Link(snapshot, vContext, ModelManagerInterface::instance()->builtins(doc))
               (doc, &m_diagnosticLinkMessages))
         , m_scopeChain(doc, m_context)
         , m_scopeBuilder(&m_scopeChain)
+        , m_model(model)
     {
     }
 
@@ -505,6 +507,35 @@ public:
                 if (!name.isEmpty())
                     typeName.prepend(name + QLatin1Char('.'));
             }
+        }
+
+        {
+            TypeName fullTypeName;
+            for (AST::UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
+                if (!iter->name.isEmpty())
+                    fullTypeName += iter->name.toUtf8() + '.';
+
+            if (fullTypeName.endsWith('.'))
+                fullTypeName.chop(1);
+
+            NodeMetaInfo metaInfo = m_model->metaInfo(fullTypeName);
+
+            bool ok = metaInfo.typeName() == typeName.toUtf8()
+                && metaInfo.majorVersion() == majorVersion
+                && metaInfo.minorVersion() == minorVersion;
+
+            if (!ok) {
+                qDebug() << Q_FUNC_INFO;
+                qDebug() << astTypeNode->name.toString() << typeName;
+                qDebug() << metaInfo.isValid() << metaInfo.typeName();
+                qDebug() << metaInfo.directSuperClass().typeName();
+
+                throw RewritingException(__LINE__, __FUNCTION__, __FILE__, "test", "test");
+            }
+
+            typeName = QString::fromUtf8(metaInfo.typeName());
+            majorVersion = metaInfo.majorVersion();
+            minorVersion = metaInfo.minorVersion();
         }
     }
 
@@ -758,6 +789,7 @@ private:
     ContextPtr m_context;
     ScopeChain m_scopeChain;
     ScopeBuilder m_scopeBuilder;
+    Model *m_model;
 };
 
 } // namespace Internal
@@ -1122,7 +1154,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
 
         m_vContext = ModelManagerInterface::instance()->projectVContext(Dialect::Qml, m_document);
-        ReadingContext ctxt(snapshot, m_document, m_vContext);
+        ReadingContext ctxt(snapshot, m_document, m_vContext, m_rewriterView->model());
         m_scopeChain = QSharedPointer<const ScopeChain>(
                     new ScopeChain(ctxt.scopeChain()));
 
