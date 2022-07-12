@@ -51,10 +51,10 @@ public:
         , m_pathCache{pathCache}
     {}
 
-    Storage::Type parse(const QString &sourceContent,
-                        Storage::Imports &imports,
-                        SourceId sourceId,
-                        Utils::SmallStringView directoryPath) override;
+    Storage::Synchronization::Type parse(const QString &sourceContent,
+                                         Storage::Synchronization::Imports &imports,
+                                         SourceId sourceId,
+                                         Utils::SmallStringView directoryPath) override;
 
 private:
     ProjectStorage &m_storage;

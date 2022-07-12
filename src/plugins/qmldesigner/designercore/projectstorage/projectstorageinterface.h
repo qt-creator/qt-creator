@@ -33,12 +33,12 @@ namespace QmlDesigner {
 class ProjectStorageInterface
 {
 public:
-    virtual void synchronize(Storage::SynchronizationPackage package) = 0;
+    virtual void synchronize(Storage::Synchronization::SynchronizationPackage package) = 0;
 
     virtual ModuleId moduleId(Utils::SmallStringView name) = 0;
 
     virtual FileStatus fetchFileStatus(SourceId sourceId) const = 0;
-    virtual Storage::ProjectDatas fetchProjectDatas(SourceId sourceId) const = 0;
+    virtual Storage::Synchronization::ProjectDatas fetchProjectDatas(SourceId sourceId) const = 0;
 
 protected:
     ~ProjectStorageInterface() = default;

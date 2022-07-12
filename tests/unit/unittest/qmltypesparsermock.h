@@ -35,8 +35,8 @@ public:
     MOCK_METHOD(void,
                 parse,
                 (const QString &sourceContent,
-                 QmlDesigner::Storage::Imports &imports,
-                 QmlDesigner::Storage::Types &types,
-                 const QmlDesigner::Storage::ProjectData &projectData),
+                 QmlDesigner::Storage::Synchronization::Imports &imports,
+                 QmlDesigner::Storage::Synchronization::Types &types,
+                 const QmlDesigner::Storage::Synchronization::ProjectData &projectData),
                 (override));
 };

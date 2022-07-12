@@ -32,10 +32,10 @@
 class QmlDocumentParserMock : public QmlDesigner::QmlDocumentParserInterface
 {
 public:
-    MOCK_METHOD(QmlDesigner::Storage::Type,
+    MOCK_METHOD(QmlDesigner::Storage::Synchronization::Type,
                 parse,
                 (const QString &sourceContent,
-                 QmlDesigner::Storage::Imports &imports,
+                 QmlDesigner::Storage::Synchronization::Imports &imports,
                  QmlDesigner::SourceId sourceId,
                  Utils::SmallStringView directoryPath),
                 (override));

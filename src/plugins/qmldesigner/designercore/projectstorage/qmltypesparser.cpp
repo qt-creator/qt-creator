@@ -70,7 +70,7 @@ ComponentWithoutNamespaces createComponentNameWithoutNamespaces(
     return componentWithoutNamespaces;
 }
 
-void appendImports(Storage::Imports &imports,
+void appendImports(Storage::Synchronization::Imports &imports,
                    const QString &dependency,
                    SourceId sourceId,
                    QmlTypesParser::ProjectStorage &storage)
@@ -83,10 +83,10 @@ void appendImports(Storage::Imports &imports,
     moduleName.append("-cppnative");
     ModuleId cppModuleId = storage.moduleId(moduleName);
 
-    imports.emplace_back(cppModuleId, Storage::Version{}, sourceId);
+    imports.emplace_back(cppModuleId, Storage::Synchronization::Version{}, sourceId);
 }
 
-void addImports(Storage::Imports &imports,
+void addImports(Storage::Synchronization::Imports &imports,
                 SourceId sourceId,
                 const QStringList &dependencies,
                 QmlTypesParser::ProjectStorage &storage,
@@ -95,39 +95,40 @@ void addImports(Storage::Imports &imports,
     for (const QString &dependency : dependencies)
         appendImports(imports, dependency, sourceId, storage);
 
-    imports.emplace_back(cppModuleId, Storage::Version{}, sourceId);
+    imports.emplace_back(cppModuleId, Storage::Synchronization::Version{}, sourceId);
 
     if (ModuleId qmlCppModuleId = storage.moduleId("QML-cppnative"); cppModuleId != qmlCppModuleId)
-        imports.emplace_back(qmlCppModuleId, Storage::Version{}, sourceId);
+        imports.emplace_back(qmlCppModuleId, Storage::Synchronization::Version{}, sourceId);
 }
 
-Storage::TypeAccessSemantics createTypeAccessSemantics(QQmlJSScope::AccessSemantics accessSematics)
+Storage::Synchronization::TypeAccessSemantics createTypeAccessSemantics(
+    QQmlJSScope::AccessSemantics accessSematics)
 {
     switch (accessSematics) {
     case QQmlJSScope::AccessSemantics::Reference:
-        return Storage::TypeAccessSemantics::Reference;
+        return Storage::Synchronization::TypeAccessSemantics::Reference;
     case QQmlJSScope::AccessSemantics::Value:
-        return Storage::TypeAccessSemantics::Value;
+        return Storage::Synchronization::TypeAccessSemantics::Value;
     case QQmlJSScope::AccessSemantics::None:
-        return Storage::TypeAccessSemantics::None;
+        return Storage::Synchronization::TypeAccessSemantics::None;
     case QQmlJSScope::AccessSemantics::Sequence:
-        return Storage::TypeAccessSemantics::Sequence;
+        return Storage::Synchronization::TypeAccessSemantics::Sequence;
     }
 
-    return Storage::TypeAccessSemantics::None;
+    return Storage::Synchronization::TypeAccessSemantics::None;
 }
 
-Storage::Version createVersion(QTypeRevision qmlVersion)
+Storage::Synchronization::Version createVersion(QTypeRevision qmlVersion)
 {
-    return Storage::Version{qmlVersion.majorVersion(), qmlVersion.minorVersion()};
+    return Storage::Synchronization::Version{qmlVersion.majorVersion(), qmlVersion.minorVersion()};
 }
 
-Storage::ExportedTypes createExports(const QList<QQmlJSScope::Export> &qmlExports,
-                                     Utils::SmallStringView interanalName,
-                                     QmlTypesParser::ProjectStorage &storage,
-                                     ModuleId cppModuleId)
+Storage::Synchronization::ExportedTypes createExports(const QList<QQmlJSScope::Export> &qmlExports,
+                                                      Utils::SmallStringView interanalName,
+                                                      QmlTypesParser::ProjectStorage &storage,
+                                                      ModuleId cppModuleId)
 {
-    Storage::ExportedTypes exportedTypes;
+    Storage::Synchronization::ExportedTypes exportedTypes;
     exportedTypes.reserve(Utils::usize(qmlExports));
 
     for (const QQmlJSScope::Export &qmlExport : qmlExports) {
@@ -152,12 +153,13 @@ auto createCppEnumerationExport(Utils::SmallStringView typeName, Utils::SmallStr
     return cppExportedTypeName;
 }
 
-Storage::ExportedTypes createCppEnumerationExports(Utils::SmallStringView typeName,
-                                                   ModuleId cppModuleId,
-                                                   Utils::SmallStringView enumerationName,
-                                                   Utils::SmallStringView enumerationAlias)
+Storage::Synchronization::ExportedTypes createCppEnumerationExports(
+    Utils::SmallStringView typeName,
+    ModuleId cppModuleId,
+    Utils::SmallStringView enumerationName,
+    Utils::SmallStringView enumerationAlias)
 {
-    Storage::ExportedTypes exportedTypes;
+    Storage::Synchronization::ExportedTypes exportedTypes;
 
     if (!enumerationAlias.empty()) {
         exportedTypes.reserve(2);
@@ -172,18 +174,19 @@ Storage::ExportedTypes createCppEnumerationExports(Utils::SmallStringView typeNa
     return exportedTypes;
 }
 
-Storage::PropertyDeclarationTraits createPropertyDeclarationTraits(const QQmlJSMetaProperty &qmlProperty)
+Storage::Synchronization::PropertyDeclarationTraits createPropertyDeclarationTraits(
+    const QQmlJSMetaProperty &qmlProperty)
 {
-    Storage::PropertyDeclarationTraits traits{};
+    Storage::Synchronization::PropertyDeclarationTraits traits{};
 
     if (qmlProperty.isList())
-        traits = traits | Storage::PropertyDeclarationTraits::IsList;
+        traits = traits | Storage::Synchronization::PropertyDeclarationTraits::IsList;
 
     if (qmlProperty.isPointer())
-        traits = traits | Storage::PropertyDeclarationTraits::IsPointer;
+        traits = traits | Storage::Synchronization::PropertyDeclarationTraits::IsPointer;
 
     if (!qmlProperty.isWritable())
-        traits = traits | Storage::PropertyDeclarationTraits::IsReadOnly;
+        traits = traits | Storage::Synchronization::PropertyDeclarationTraits::IsReadOnly;
 
     return traits;
 }
@@ -211,12 +214,12 @@ TypeNameString fullyQualifiedTypeName(const QString &typeName,
     return typeName;
 }
 
-Storage::PropertyDeclarations createProperties(
+Storage::Synchronization::PropertyDeclarations createProperties(
     const QHash<QString, QQmlJSMetaProperty> &qmlProperties,
     const EnumerationTypes &enumerationTypes,
     const ComponentWithoutNamespaces &componentNameWithoutNamespace)
 {
-    Storage::PropertyDeclarations propertyDeclarations;
+    Storage::Synchronization::PropertyDeclarations propertyDeclarations;
     propertyDeclarations.reserve(Utils::usize(qmlProperties));
 
     for (const QQmlJSMetaProperty &qmlProperty : qmlProperties) {
@@ -234,17 +237,17 @@ Storage::PropertyDeclarations createProperties(
             propertyTypeName = found->full;
 
         propertyDeclarations.emplace_back(Utils::SmallString{qmlProperty.propertyName()},
-                                          Storage::ImportedType{propertyTypeName},
+                                          Storage::Synchronization::ImportedType{propertyTypeName},
                                           createPropertyDeclarationTraits(qmlProperty));
     }
 
     return propertyDeclarations;
 }
 
-Storage::ParameterDeclarations createParameters(
+Storage::Synchronization::ParameterDeclarations createParameters(
     const QQmlJSMetaMethod &qmlMethod, const ComponentWithoutNamespaces &componentNameWithoutNamespace)
 {
-    Storage::ParameterDeclarations parameterDeclarations;
+    Storage::Synchronization::ParameterDeclarations parameterDeclarations;
 
     const QStringList &parameterNames = qmlMethod.parameterNames();
     const QStringList &parameterTypeNames = qmlMethod.parameterTypeNames();
@@ -262,14 +265,17 @@ Storage::ParameterDeclarations createParameters(
     return parameterDeclarations;
 }
 
-std::tuple<Storage::FunctionDeclarations, Storage::SignalDeclarations> createFunctionAndSignals(
-    const QMultiHash<QString, QQmlJSMetaMethod> &qmlMethods,
-    const ComponentWithoutNamespaces &componentNameWithoutNamespace)
+std::tuple<Storage::Synchronization::FunctionDeclarations, Storage::Synchronization::SignalDeclarations>
+createFunctionAndSignals(const QMultiHash<QString, QQmlJSMetaMethod> &qmlMethods,
+                         const ComponentWithoutNamespaces &componentNameWithoutNamespace)
 {
-    std::tuple<Storage::FunctionDeclarations, Storage::SignalDeclarations> functionAndSignalDeclarations;
-    Storage::FunctionDeclarations &functionsDeclarations{std::get<0>(functionAndSignalDeclarations)};
+    std::tuple<Storage::Synchronization::FunctionDeclarations, Storage::Synchronization::SignalDeclarations>
+        functionAndSignalDeclarations;
+    Storage::Synchronization::FunctionDeclarations &functionsDeclarations{
+        std::get<0>(functionAndSignalDeclarations)};
     functionsDeclarations.reserve(Utils::usize(qmlMethods));
-    Storage::SignalDeclarations &signalDeclarations{std::get<1>(functionAndSignalDeclarations)};
+    Storage::Synchronization::SignalDeclarations &signalDeclarations{
+        std::get<1>(functionAndSignalDeclarations)};
     signalDeclarations.reserve(Utils::usize(qmlMethods));
 
     for (const QQmlJSMetaMethod &qmlMethod : qmlMethods) {
@@ -291,9 +297,10 @@ std::tuple<Storage::FunctionDeclarations, Storage::SignalDeclarations> createFun
     return functionAndSignalDeclarations;
 }
 
-Storage::EnumeratorDeclarations createEnumeratorsWithValues(const QQmlJSMetaEnum &qmlEnumeration)
+Storage::Synchronization::EnumeratorDeclarations createEnumeratorsWithValues(
+    const QQmlJSMetaEnum &qmlEnumeration)
 {
-    Storage::EnumeratorDeclarations enumeratorDeclarations;
+    Storage::Synchronization::EnumeratorDeclarations enumeratorDeclarations;
 
     const QStringList &keys = qmlEnumeration.keys();
     const QList<int> &values = qmlEnumeration.values();
@@ -308,9 +315,10 @@ Storage::EnumeratorDeclarations createEnumeratorsWithValues(const QQmlJSMetaEnum
     return enumeratorDeclarations;
 }
 
-Storage::EnumeratorDeclarations createEnumeratorsWithoutValues(const QQmlJSMetaEnum &qmlEnumeration)
+Storage::Synchronization::EnumeratorDeclarations createEnumeratorsWithoutValues(
+    const QQmlJSMetaEnum &qmlEnumeration)
 {
-    Storage::EnumeratorDeclarations enumeratorDeclarations;
+    Storage::Synchronization::EnumeratorDeclarations enumeratorDeclarations;
 
     for (const QString &key : qmlEnumeration.keys())
         enumeratorDeclarations.emplace_back(Utils::SmallString{key});
@@ -318,7 +326,7 @@ Storage::EnumeratorDeclarations createEnumeratorsWithoutValues(const QQmlJSMetaE
     return enumeratorDeclarations;
 }
 
-Storage::EnumeratorDeclarations createEnumerators(const QQmlJSMetaEnum &qmlEnumeration)
+Storage::Synchronization::EnumeratorDeclarations createEnumerators(const QQmlJSMetaEnum &qmlEnumeration)
 {
     if (qmlEnumeration.hasValues())
         return createEnumeratorsWithValues(qmlEnumeration);
@@ -326,9 +334,10 @@ Storage::EnumeratorDeclarations createEnumerators(const QQmlJSMetaEnum &qmlEnume
     return createEnumeratorsWithoutValues(qmlEnumeration);
 }
 
-Storage::EnumerationDeclarations createEnumeration(const QHash<QString, QQmlJSMetaEnum> &qmlEnumerations)
+Storage::Synchronization::EnumerationDeclarations createEnumeration(
+    const QHash<QString, QQmlJSMetaEnum> &qmlEnumerations)
 {
-    Storage::EnumerationDeclarations enumerationDeclarations;
+    Storage::Synchronization::EnumerationDeclarations enumerationDeclarations;
     enumerationDeclarations.reserve(Utils::usize(qmlEnumerations));
 
     for (const QQmlJSMetaEnum &qmlEnumeration : qmlEnumerations) {
@@ -350,7 +359,7 @@ auto addEnumerationType(EnumerationTypes &enumerationTypes,
 }
 
 void addEnumerationType(EnumerationTypes &enumerationTypes,
-                        Storage::Types &types,
+                        Storage::Synchronization::Types &types,
                         Utils::SmallStringView typeName,
                         Utils::SmallStringView enumerationName,
                         SourceId sourceId,
@@ -359,8 +368,9 @@ void addEnumerationType(EnumerationTypes &enumerationTypes,
 {
     auto fullTypeName = addEnumerationType(enumerationTypes, typeName, enumerationName);
     types.emplace_back(fullTypeName,
-                       Storage::ImportedType{TypeNameString{}},
-                       Storage::TypeAccessSemantics::Value | Storage::TypeAccessSemantics::IsEnum,
+                       Storage::Synchronization::ImportedType{TypeNameString{}},
+                       Storage::Synchronization::TypeAccessSemantics::Value
+                           | Storage::Synchronization::TypeAccessSemantics::IsEnum,
                        sourceId,
                        createCppEnumerationExports(typeName,
                                                    cppModuleId,
@@ -383,7 +393,7 @@ QSet<QString> createEnumerationAliases(const QHash<QString, QQmlJSMetaEnum> &qml
     return aliases;
 }
 
-EnumerationTypes addEnumerationTypes(Storage::Types &types,
+EnumerationTypes addEnumerationTypes(Storage::Synchronization::Types &types,
                                      Utils::SmallStringView typeName,
                                      SourceId sourceId,
                                      ModuleId cppModuleId,
@@ -412,7 +422,7 @@ EnumerationTypes addEnumerationTypes(Storage::Types &types,
     return enumerationTypes;
 }
 
-void addType(Storage::Types &types,
+void addType(Storage::Synchronization::Types &types,
              SourceId sourceId,
              ModuleId cppModuleId,
              const QQmlJSExportedScope &exportScope,
@@ -429,7 +439,7 @@ void addType(Storage::Types &types,
 
     auto enumerationTypes = addEnumerationTypes(types, typeName, sourceId, cppModuleId, enumerations);
     types.emplace_back(Utils::SmallStringView{typeName},
-                       Storage::ImportedType{TypeNameString{component.baseTypeName()}},
+                       Storage::Synchronization::ImportedType{TypeNameString{component.baseTypeName()}},
                        createTypeAccessSemantics(component.accessSemantics()),
                        sourceId,
                        createExports(exports, typeName, storage, cppModuleId),
@@ -441,8 +451,8 @@ void addType(Storage::Types &types,
                        createEnumeration(enumerations));
 }
 
-void addTypes(Storage::Types &types,
-              const Storage::ProjectData &projectData,
+void addTypes(Storage::Synchronization::Types &types,
+              const Storage::Synchronization::ProjectData &projectData,
               const QHash<QString, QQmlJSExportedScope> &objects,
               QmlTypesParser::ProjectStorage &storage,
               const ComponentWithoutNamespaces &componentNameWithoutNamespaces)
@@ -461,9 +471,9 @@ void addTypes(Storage::Types &types,
 } // namespace
 
 void QmlTypesParser::parse(const QString &sourceContent,
-                           Storage::Imports &imports,
-                           Storage::Types &types,
-                           const Storage::ProjectData &projectData)
+                           Storage::Synchronization::Imports &imports,
+                           Storage::Synchronization::Types &types,
+                           const Storage::Synchronization::ProjectData &projectData)
 {
     QQmlJSTypeDescriptionReader reader({}, sourceContent);
     QHash<QString, QQmlJSExportedScope> components;
@@ -481,9 +491,9 @@ void QmlTypesParser::parse(const QString &sourceContent,
 #else
 
 void QmlTypesParser::parse([[maybe_unused]] const QString &sourceContent,
-                           [[maybe_unused]] Storage::Imports &imports,
-                           [[maybe_unused]] Storage::Types &types,
-                           [[maybe_unused]] const Storage::ProjectData &projectData)
+                           [[maybe_unused]] Storage::Synchronization::Imports &imports,
+                           [[maybe_unused]] Storage::Synchronization::Types &types,
+                           [[maybe_unused]] const Storage::Synchronization::ProjectData &projectData)
 {}
 
 #endif

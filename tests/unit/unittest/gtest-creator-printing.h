@@ -153,7 +153,7 @@ class SourceContext;
 std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext);
 } // namespace Cache
 
-namespace Storage {
+namespace Storage::Synchronization {
 class Type;
 class ExportedType;
 class ImportedType;
@@ -201,6 +201,6 @@ std::ostream &operator<<(std::ostream &out, FileType fileType);
 std::ostream &operator<<(std::ostream &out, ChangeLevel changeLevel);
 std::ostream &operator<<(std::ostream &out, const ModuleExportedImport &import);
 
-} // namespace Storage
+} // namespace Storage::Synchronization
 
 } // namespace QmlDesigner

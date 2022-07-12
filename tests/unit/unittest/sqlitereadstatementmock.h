@@ -105,48 +105,51 @@ public:
 
     MOCK_METHOD(QmlDesigner::SourceId, valueReturnsSourceId, (int, Utils::SmallStringView), ());
 
-    MOCK_METHOD(QmlDesigner::Storage::Type, valueReturnsStorageType, (int typeId), ());
-    MOCK_METHOD(QmlDesigner::Storage::Types, valuesReturnsStorageTypes, (std::size_t), ());
-    MOCK_METHOD(QmlDesigner::Storage::ExportedTypes,
+    MOCK_METHOD(QmlDesigner::Storage::Synchronization::Type, valueReturnsStorageType, (int typeId), ());
+    MOCK_METHOD(QmlDesigner::Storage::Synchronization::Types,
+                valuesReturnsStorageTypes,
+                (std::size_t),
+                ());
+    MOCK_METHOD(QmlDesigner::Storage::Synchronization::ExportedTypes,
                 valuesReturnsStorageExportedTypes,
                 (std::size_t, int typeId),
                 ());
-    MOCK_METHOD(QmlDesigner::Storage::PropertyDeclarations,
+    MOCK_METHOD(QmlDesigner::Storage::Synchronization::PropertyDeclarations,
                 valuesReturnsStoragePropertyDeclarations,
                 (std::size_t, int typeId),
                 ());
 
-    MOCK_METHOD(QmlDesigner::Storage::EnumerationDeclarations,
+    MOCK_METHOD(QmlDesigner::Storage::Synchronization::EnumerationDeclarations,
                 valuesReturnsStorageEnumerationDeclarations,
                 (std::size_t, int typeId),
                 ());
 
-    MOCK_METHOD(std::vector<QmlDesigner::Storage::PropertyDeclarationView>,
+    MOCK_METHOD(std::vector<QmlDesigner::Storage::Synchronization::PropertyDeclarationView>,
                 rangeReturnStoragePropertyDeclarationViews,
                 (int typeId),
                 ());
 
-    MOCK_METHOD(std::vector<QmlDesigner::Storage::FunctionDeclarationView>,
+    MOCK_METHOD(std::vector<QmlDesigner::Storage::Synchronization::FunctionDeclarationView>,
                 rangeReturnStorageFunctionDeclarationViews,
                 (int typeId),
                 ());
 
-    MOCK_METHOD(std::vector<QmlDesigner::Storage::SignalDeclarationView>,
+    MOCK_METHOD(std::vector<QmlDesigner::Storage::Synchronization::SignalDeclarationView>,
                 rangeReturnStorageSignalDeclarationViews,
                 (int typeId),
                 ());
 
-    MOCK_METHOD(std::vector<QmlDesigner::Storage::EnumerationDeclarationView>,
+    MOCK_METHOD(std::vector<QmlDesigner::Storage::Synchronization::EnumerationDeclarationView>,
                 rangeReturnStorageEnumerationDeclarationViews,
                 (int typeId),
                 ());
 
-    MOCK_METHOD(QmlDesigner::Storage::ParameterDeclarations,
+    MOCK_METHOD(QmlDesigner::Storage::Synchronization::ParameterDeclarations,
                 valuesReturnsStorageParameterDeclarations,
                 (std::size_t, long long),
                 ());
 
-    MOCK_METHOD(QmlDesigner::Storage::EnumeratorDeclarations,
+    MOCK_METHOD(QmlDesigner::Storage::Synchronization::EnumeratorDeclarations,
                 valuesReturnsStorageEnumeratorDeclarations,
                 (std::size_t, long long),
                 ());
@@ -187,7 +190,7 @@ public:
             return valueReturnsSourceContextId(queryValues...);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::SourceId>)
             return valueReturnsSourceId(queryValues...);
-        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::Type>)
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::Synchronization::Type>)
             return valueReturnsStorageType(queryValues...);
         else
             static_assert(!std::is_same_v<ResultType, ResultType>,
@@ -231,17 +234,17 @@ public:
             return valuesReturnCacheSourceContexts(reserveSize);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::Cache::Source>)
             return valuesReturnCacheSources(reserveSize);
-        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::Type>)
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::Synchronization::Type>)
             return valuesReturnsStorageTypes(reserveSize, queryValues...);
-        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::ExportedType>)
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::Synchronization::ExportedType>)
             return valuesReturnsStorageExportedTypes(reserveSize, queryValues...);
-        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::PropertyDeclaration>)
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::Synchronization::PropertyDeclaration>)
             return valuesReturnsStoragePropertyDeclarations(reserveSize, queryValues...);
-        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::ParameterDeclaration>)
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::Synchronization::ParameterDeclaration>)
             return valuesReturnsStorageParameterDeclarations(reserveSize, queryValues...);
-        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::EnumerationDeclaration>)
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::Synchronization::EnumerationDeclaration>)
             return valuesReturnsStorageEnumerationDeclarations(reserveSize, queryValues...);
-        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::EnumeratorDeclaration>)
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::Synchronization::EnumeratorDeclaration>)
             return valuesReturnsStorageEnumeratorDeclarations(reserveSize, queryValues...);
         else
             static_assert(!std::is_same_v<ResultType, ResultType>,
@@ -251,13 +254,13 @@ public:
     template<typename ResultType, typename... QueryTypes>
     auto range(const QueryTypes &...queryValues)
     {
-        if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::PropertyDeclarationView>)
+        if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::Synchronization::PropertyDeclarationView>)
             return rangeReturnStoragePropertyDeclarationViews(queryValues...);
-        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::FunctionDeclarationView>)
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::Synchronization::FunctionDeclarationView>)
             return rangeReturnStorageFunctionDeclarationViews(queryValues...);
-        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::SignalDeclarationView>)
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::Synchronization::SignalDeclarationView>)
             return rangeReturnStorageSignalDeclarationViews(queryValues...);
-        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::EnumerationDeclarationView>)
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::Synchronization::EnumerationDeclarationView>)
             return rangeReturnStorageEnumerationDeclarationViews(queryValues...);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::FileStatus>)
             return rangesReturnsFileStatuses(queryValues...);
@@ -267,14 +270,15 @@ public:
     }
 
     template<typename ResultType, typename... QueryTypes>
-    auto rangeWithTransaction(const QueryTypes &...queryValues)
+    auto rangeWithTransaction([[maybe_unused]] const QueryTypes &...queryValues)
     {
         static_assert(!std::is_same_v<ResultType, ResultType>,
                       "SqliteReadStatementMock::values does not handle result type!");
     }
 
     template<typename Callable, typename... QueryTypes>
-    void readCallback(Callable &&callable, const QueryTypes &...queryValues)
+    void readCallback([[maybe_unused]] Callable &&callable,
+                      [[maybe_unused]] const QueryTypes &...queryValues)
     {}
 
 public:

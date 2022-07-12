@@ -35,9 +35,9 @@ class QmlTypesParserInterface
 {
 public:
     virtual void parse(const QString &sourceContent,
-                       Storage::Imports &imports,
-                       Storage::Types &types,
-                       const Storage::ProjectData &projectData)
+                       Storage::Synchronization::Imports &imports,
+                       Storage::Synchronization::Types &types,
+                       const Storage::Synchronization::ProjectData &projectData)
         = 0;
 
 protected:

@@ -47,17 +47,17 @@ namespace QmlDom = QQmlJS::Dom;
 
 namespace {
 
-using QualifiedImports = std::map<QString, Storage::Import>;
+using QualifiedImports = std::map<QString, Storage::Synchronization::Import>;
 
 int convertVersionNumber(qint32 versionNumber)
 {
     return versionNumber < 0 ? -1 : versionNumber;
 }
 
-Storage::Version convertVersion(QmlDom::Version version)
+Storage::Synchronization::Version convertVersion(QmlDom::Version version)
 {
-    return Storage::Version{convertVersionNumber(version.majorVersion),
-                            convertVersionNumber(version.minorVersion)};
+    return Storage::Synchronization::Version{convertVersionNumber(version.majorVersion),
+                                             convertVersionNumber(version.minorVersion)};
 }
 
 Utils::PathString createNormalizedPath(Utils::SmallStringView directoryPath,
@@ -76,10 +76,10 @@ Utils::PathString createNormalizedPath(Utils::SmallStringView directoryPath,
     return normalizedPath;
 }
 
-Storage::Import createImport(const QmlDom::Import &qmlImport,
-                             SourceId sourceId,
-                             Utils::SmallStringView directoryPath,
-                             QmlDocumentParser::ProjectStorage &storage)
+Storage::Synchronization::Import createImport(const QmlDom::Import &qmlImport,
+                                              SourceId sourceId,
+                                              Utils::SmallStringView directoryPath,
+                                              QmlDocumentParser::ProjectStorage &storage)
 {
     using QmlUriKind = QQmlJS::Dom::QmlUri::Kind;
 
@@ -88,16 +88,16 @@ Storage::Import createImport(const QmlDom::Import &qmlImport,
     if (uri.kind() == QmlUriKind::RelativePath) {
         auto path = createNormalizedPath(directoryPath, uri.localPath());
         auto moduleId = storage.moduleId(createNormalizedPath(directoryPath, uri.localPath()));
-        return Storage::Import(moduleId, Storage::Version{}, sourceId);
+        return Storage::Synchronization::Import(moduleId, Storage::Synchronization::Version{}, sourceId);
     }
 
     if (uri.kind() == QmlUriKind::ModuleUri) {
         auto moduleId = storage.moduleId(Utils::PathString{uri.moduleUri()});
-        return Storage::Import(moduleId, convertVersion(qmlImport.version), sourceId);
+        return Storage::Synchronization::Import(moduleId, convertVersion(qmlImport.version), sourceId);
     }
 
     auto moduleId = storage.moduleId(Utils::PathString{uri.toString()});
-    return Storage::Import(moduleId, convertVersion(qmlImport.version), sourceId);
+    return Storage::Synchronization::Import(moduleId, convertVersion(qmlImport.version), sourceId);
 }
 
 QualifiedImports createQualifiedImports(const QList<QmlDom::Import> &qmlImports,
@@ -116,7 +116,7 @@ QualifiedImports createQualifiedImports(const QList<QmlDom::Import> &qmlImports,
     return qualifiedImports;
 }
 
-void addImports(Storage::Imports &imports,
+void addImports(Storage::Synchronization::Imports &imports,
                 const QList<QmlDom::Import> &qmlImports,
                 SourceId sourceId,
                 Utils::SmallStringView directoryPath,
@@ -131,11 +131,11 @@ void addImports(Storage::Imports &imports,
     }
 
     auto localDirectoryModuleId = storage.moduleId(directoryPath);
-    imports.emplace_back(localDirectoryModuleId, Storage::Version{}, sourceId);
+    imports.emplace_back(localDirectoryModuleId, Storage::Synchronization::Version{}, sourceId);
     ++importCount;
 
     auto qmlModuleId = storage.moduleId("QML");
-    imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId);
+    imports.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId);
     ++importCount;
 
     auto end = imports.end();
@@ -145,8 +145,8 @@ void addImports(Storage::Imports &imports,
     imports.erase(std::unique(begin, end), end);
 }
 
-Storage::ImportedTypeName createImportedTypeName(const QStringView rawtypeName,
-                                                 const QualifiedImports &qualifiedImports)
+Storage::Synchronization::ImportedTypeName createImportedTypeName(const QStringView rawtypeName,
+                                                                  const QualifiedImports &qualifiedImports)
 {
     auto foundDot = std::find(rawtypeName.begin(), rawtypeName.end(), '.');
 
@@ -154,12 +154,12 @@ Storage::ImportedTypeName createImportedTypeName(const QStringView rawtypeName,
 
     auto foundImport = qualifiedImports.find(alias.toString());
     if (foundImport == qualifiedImports.end())
-        return Storage::ImportedType{Utils::SmallString{rawtypeName}};
+        return Storage::Synchronization::ImportedType{Utils::SmallString{rawtypeName}};
 
     QStringView typeName(std::next(foundDot), rawtypeName.end());
 
-    return Storage::QualifiedImportedType{Utils::SmallString{typeName.toString()},
-                                          foundImport->second};
+    return Storage::Synchronization::QualifiedImportedType{Utils::SmallString{typeName.toString()},
+                                                           foundImport->second};
 }
 
 bool isListProperty(const QStringView rawtypeName)
@@ -170,21 +170,22 @@ bool isListProperty(const QStringView rawtypeName)
 struct TypeNameViewAndTraits
 {
     QStringView typeName;
-    Storage::PropertyDeclarationTraits traits;
+    Storage::Synchronization::PropertyDeclarationTraits traits;
 };
 
 TypeNameViewAndTraits filteredListTypeName(const QStringView rawtypeName)
 {
     if (!isListProperty(rawtypeName))
-        return {rawtypeName, Storage::PropertyDeclarationTraits::None};
+        return {rawtypeName, Storage::Synchronization::PropertyDeclarationTraits::None};
 
-    return {rawtypeName.mid(5, rawtypeName.size() - 6), Storage::PropertyDeclarationTraits::IsList};
+    return {rawtypeName.mid(5, rawtypeName.size() - 6),
+            Storage::Synchronization::PropertyDeclarationTraits::IsList};
 };
 
 struct TypeNameAndTraits
 {
-    Storage::ImportedTypeName importedTypeName;
-    Storage::PropertyDeclarationTraits traits;
+    Storage::Synchronization::ImportedTypeName importedTypeName;
+    Storage::Synchronization::PropertyDeclarationTraits traits;
 };
 
 TypeNameAndTraits createImportedTypeNameAndTypeTraits(const QStringView rawtypeName,
@@ -193,7 +194,7 @@ TypeNameAndTraits createImportedTypeNameAndTypeTraits(const QStringView rawtypeN
     auto [filteredTypeName, traits] = filteredListTypeName(rawtypeName);
 
     if (!filteredTypeName.contains('.'))
-        return {Storage::ImportedType{Utils::SmallString{filteredTypeName}}, traits};
+        return {Storage::Synchronization::ImportedType{Utils::SmallString{filteredTypeName}}, traits};
 
     return {createImportedTypeName(filteredTypeName, qualifiedImports), traits};
 }
@@ -209,7 +210,7 @@ std::pair<Utils::SmallString, Utils::SmallString> createAccessPaths(const QStrin
     return {};
 }
 
-void addPropertyDeclarations(Storage::Type &type,
+void addPropertyDeclarations(Storage::Synchronization::Type &type,
                              QmlDom::QmlObject &rootObject,
                              const QualifiedImports &qualifiedImports,
                              QmlDom::DomItem &fileItem)
@@ -246,7 +247,7 @@ void addPropertyDeclarations(Storage::Type &type,
     }
 }
 
-void addParameterDeclaration(Storage::ParameterDeclarations &parameterDeclarations,
+void addParameterDeclaration(Storage::Synchronization::ParameterDeclarations &parameterDeclarations,
                              const QList<QmlDom::MethodParameter> &parameters)
 {
     for (const QmlDom::MethodParameter &parameter : parameters) {
@@ -255,12 +256,15 @@ void addParameterDeclaration(Storage::ParameterDeclarations &parameterDeclaratio
     }
 }
 
-void addFunctionAndSignalDeclarations(Storage::Type &type, const QmlDom::QmlObject &rootObject)
+void addFunctionAndSignalDeclarations(Storage::Synchronization::Type &type,
+                                      const QmlDom::QmlObject &rootObject)
 {
     for (const QmlDom::MethodInfo &methodInfo : rootObject.methods()) {
         if (methodInfo.methodType == QmlDom::MethodInfo::Method) {
             auto &functionDeclaration = type.functionDeclarations.emplace_back(
-                Utils::SmallString{methodInfo.name}, "", Storage::ParameterDeclarations{});
+                Utils::SmallString{methodInfo.name},
+                "",
+                Storage::Synchronization::ParameterDeclarations{});
             addParameterDeclaration(functionDeclaration.parameters, methodInfo.parameters);
         } else {
             auto &signalDeclaration = type.signalDeclarations.emplace_back(
@@ -270,9 +274,9 @@ void addFunctionAndSignalDeclarations(Storage::Type &type, const QmlDom::QmlObje
     }
 }
 
-Storage::EnumeratorDeclarations createEnumerators(const QmlDom::EnumDecl &enumeration)
+Storage::Synchronization::EnumeratorDeclarations createEnumerators(const QmlDom::EnumDecl &enumeration)
 {
-    Storage::EnumeratorDeclarations enumeratorDeclarations;
+    Storage::Synchronization::EnumeratorDeclarations enumeratorDeclarations;
     for (const QmlDom::EnumItem &enumerator : enumeration.values()) {
         enumeratorDeclarations.emplace_back(Utils::SmallString{enumerator.name()},
                                             static_cast<long long>(enumerator.value()));
@@ -280,10 +284,11 @@ Storage::EnumeratorDeclarations createEnumerators(const QmlDom::EnumDecl &enumer
     return enumeratorDeclarations;
 }
 
-void addEnumeraton(Storage::Type &type, const QmlDom::Component &component)
+void addEnumeraton(Storage::Synchronization::Type &type, const QmlDom::Component &component)
 {
     for (const QmlDom::EnumDecl &enumeration : component.enumerations()) {
-        Storage::EnumeratorDeclarations enumeratorDeclarations = createEnumerators(enumeration);
+        Storage::Synchronization::EnumeratorDeclarations enumeratorDeclarations = createEnumerators(
+            enumeration);
         type.enumerationDeclarations.emplace_back(Utils::SmallString{enumeration.name()},
                                                   std::move(enumeratorDeclarations));
     }
@@ -291,12 +296,12 @@ void addEnumeraton(Storage::Type &type, const QmlDom::Component &component)
 
 } // namespace
 
-Storage::Type QmlDocumentParser::parse(const QString &sourceContent,
-                                       Storage::Imports &imports,
-                                       SourceId sourceId,
-                                       Utils::SmallStringView directoryPath)
+Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceContent,
+                                                        Storage::Synchronization::Imports &imports,
+                                                        SourceId sourceId,
+                                                        Utils::SmallStringView directoryPath)
 {
-    Storage::Type type;
+    Storage::Synchronization::Type type;
 
     using Option = QmlDom::DomEnvironment::Option;
 
@@ -357,12 +362,13 @@ Storage::Type QmlDocumentParser::parse(const QString &sourceContent,
 
 #else
 
-Storage::Type QmlDocumentParser::parse([[maybe_unused]] const QString &sourceContent,
-                                       [[maybe_unused]] Storage::Imports &imports,
-                                       [[maybe_unused]] SourceId sourceId,
-                                       [[maybe_unused]] Utils::SmallStringView directoryPath)
+Storage::Synchronization::Type QmlDocumentParser::parse(
+    [[maybe_unused]] const QString &sourceContent,
+    [[maybe_unused]] Storage::Synchronization::Imports &imports,
+    [[maybe_unused]] SourceId sourceId,
+    [[maybe_unused]] Utils::SmallStringView directoryPath)
 {
-    return Storage::Type{};
+    return Storage::Synchronization::Type{};
 }
 
 #endif

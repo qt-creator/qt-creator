@@ -525,7 +525,7 @@ std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext)
 }
 } // namespace Cache
 
-namespace Storage {
+namespace Storage::Synchronization {
 
 namespace {
 
@@ -789,6 +789,6 @@ std::ostream &operator<<(std::ostream &out, const ModuleExportedImport &import)
                << import.version << ", " << import.isAutoVersion << ")";
 }
 
-} // namespace Storage
+} // namespace Storage::Synchronization
 
 } // namespace QmlDesigner

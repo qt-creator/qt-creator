@@ -85,11 +85,11 @@ private:
     };
 
     void updateQmlTypes(const QStringList &qmlTypesPaths,
-                        Storage::SynchronizationPackage &package,
+                        Storage::Synchronization::SynchronizationPackage &package,
                         SourceIds &notUpdatedFileStatusSourceIds,
                         SourceIds &notUpdatedSourceIds);
     void updateQmldirs(const QStringList &qmlDirs,
-                       Storage::SynchronizationPackage &package,
+                       Storage::Synchronization::SynchronizationPackage &package,
                        SourceIds &notUpdatedFileStatusSourceIds,
                        SourceIds &notUpdatedSourceIds);
 
@@ -99,16 +99,16 @@ private:
                         SourceId qmldirSourceId,
                         Utils::SmallStringView directoryPath,
                         ModuleId moduleId,
-                        Storage::SynchronizationPackage &package,
+                        Storage::Synchronization::SynchronizationPackage &package,
                         SourceIds &notUpdatedFileStatusSourceIds,
                         SourceIds &notUpdatedSourceIds);
-    void parseTypeInfos(const Storage::ProjectDatas &projectDatas,
-                        Storage::SynchronizationPackage &package,
+    void parseTypeInfos(const Storage::Synchronization::ProjectDatas &projectDatas,
+                        Storage::Synchronization::SynchronizationPackage &package,
                         SourceIds &notUpdatedFileStatusSourceIds,
                         SourceIds &notUpdatedSourceIds);
-    FileState parseTypeInfo(const Storage::ProjectData &projectData,
+    FileState parseTypeInfo(const Storage::Synchronization::ProjectData &projectData,
                             Utils::SmallStringView qmltypesPath,
-                            Storage::SynchronizationPackage &package,
+                            Storage::Synchronization::SynchronizationPackage &package,
                             SourceIds &notUpdatedFileStatusSourceIds,
                             SourceIds &notUpdatedSourceIds);
     void parseQmlComponents(ComponentReferences components,
@@ -116,24 +116,24 @@ private:
                             SourceContextId directoryId,
                             ModuleId moduleId,
                             ModuleId pathModuleId,
-                            Storage::SynchronizationPackage &package,
+                            Storage::Synchronization::SynchronizationPackage &package,
                             SourceIds &notUpdatedFileStatusSourceIds);
-    void parseQmlComponents(const Storage::ProjectDatas &projectDatas,
-                            Storage::SynchronizationPackage &package,
+    void parseQmlComponents(const Storage::Synchronization::ProjectDatas &projectDatas,
+                            Storage::Synchronization::SynchronizationPackage &package,
                             SourceIds &notUpdatedFileStatusSourceIds,
                             Utils::SmallStringView directoryPath);
     void parseQmlComponent(Utils::SmallStringView fileName,
                            Utils::SmallStringView directory,
-                           Storage::ExportedTypes exportedTypes,
+                           Storage::Synchronization::ExportedTypes exportedTypes,
                            ModuleId moduleId,
                            SourceId qmldirSourceId,
-                           Storage::SynchronizationPackage &package,
+                           Storage::Synchronization::SynchronizationPackage &package,
                            SourceIds &notUpdatedFileStatusSourceIds);
     void parseQmlComponent(Utils::SmallStringView fileName,
                            Utils::SmallStringView filePath,
                            Utils::SmallStringView directoryPath,
                            SourceId sourceId,
-                           Storage::SynchronizationPackage &package,
+                           Storage::Synchronization::SynchronizationPackage &package,
                            SourceIds &notUpdatedFileStatusSourceIds);
 
     FileState fileState(SourceId sourceId,

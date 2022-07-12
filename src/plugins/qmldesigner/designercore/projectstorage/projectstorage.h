@@ -64,7 +64,7 @@ public:
         moduleCache.populate();
     }
 
-    void synchronize(Storage::SynchronizationPackage package) override
+    void synchronize(Storage::Synchronization::SynchronizationPackage package) override
     {
         Sqlite::ImmediateTransaction transaction{database};
 
@@ -132,7 +132,9 @@ public:
         return moduleCache.value(moduleId);
     }
 
-    TypeId typeId(ModuleId moduleId, Utils::SmallStringView exportedTypeName, Storage::Version version)
+    TypeId typeId(ModuleId moduleId,
+                  Utils::SmallStringView exportedTypeName,
+                  Storage::Synchronization::Version version)
     {
         if (version.minor)
             return selectTypeIdByModuleIdAndExportedNameAndVersionStatement
@@ -191,11 +193,11 @@ public:
                                                                                             name);
     }
 
-    Storage::Type fetchTypeByTypeId(TypeId typeId)
+    Storage::Synchronization::Type fetchTypeByTypeId(TypeId typeId)
     {
         Sqlite::DeferredTransaction transaction{database};
 
-        auto type = selectTypeByTypeIdStatement.template value<Storage::Type>(&typeId);
+        auto type = selectTypeByTypeIdStatement.template value<Storage::Synchronization::Type>(&typeId);
 
         type.exportedTypes = fetchExportedTypes(typeId);
 
@@ -204,13 +206,13 @@ public:
         return type;
     }
 
-    Storage::Types fetchTypes()
+    Storage::Synchronization::Types fetchTypes()
     {
         Sqlite::DeferredTransaction transaction{database};
 
-        auto types = selectTypesStatement.template values<Storage::Type>(64);
+        auto types = selectTypesStatement.template values<Storage::Synchronization::Type>(64);
 
-        for (Storage::Type &type : types) {
+        for (Storage::Synchronization::Type &type : types) {
             type.exportedTypes = fetchExportedTypes(type.typeId);
             type.propertyDeclarations = fetchPropertyDeclarations(type.typeId);
             type.functionDeclarations = fetchFunctionDeclarations(type.typeId);
@@ -347,16 +349,17 @@ public:
             &sourceId);
     }
 
-    Storage::ProjectDatas fetchProjectDatas(SourceId projectSourceId) const override
+    Storage::Synchronization::ProjectDatas fetchProjectDatas(SourceId projectSourceId) const override
     {
         return selectProjectDatasForModuleIdStatement
-            .template valuesWithTransaction<Storage::ProjectData>(64, &projectSourceId);
+            .template valuesWithTransaction<Storage::Synchronization::ProjectData>(64,
+                                                                                   &projectSourceId);
     }
 
-    Storage::ProjectDatas fetchProjectDatas(const SourceIds &projectSourceIds) const
+    Storage::Synchronization::ProjectDatas fetchProjectDatas(const SourceIds &projectSourceIds) const
     {
-        return selectProjectDatasForModuleIdsStatement
-            .template valuesWithTransaction<Storage::ProjectData>(64, toIntegers(projectSourceIds));
+        return selectProjectDatasForModuleIdsStatement.template valuesWithTransaction<
+            Storage::Synchronization::ProjectData>(64, toIntegers(projectSourceIds));
     }
 
 private:
@@ -575,7 +578,7 @@ private:
         sourceIds.erase(newEnd, sourceIds.end());
     }
 
-    void synchronizeTypes(Storage::Types &types,
+    void synchronizeTypes(Storage::Synchronization::Types &types,
                           TypeIds &updatedTypeIds,
                           AliasPropertyDeclarations &insertedAliasPropertyDeclarations,
                           AliasPropertyDeclarations &updatedAliasPropertyDeclarations,
@@ -584,7 +587,7 @@ private:
                           Prototypes &relinkablePrototypes,
                           const SourceIds &updatedSourceIds)
     {
-        Storage::ExportedTypes exportedTypes;
+        Storage::Synchronization::ExportedTypes exportedTypes;
         exportedTypes.reserve(types.size() * 3);
         SourceIds sourceIdsOfTypes;
         sourceIdsOfTypes.reserve(updatedSourceIds.size());
@@ -600,7 +603,7 @@ private:
             TypeId typeId = declareType(type);
             sourceIdsOfTypes.push_back(type.sourceId);
             updatedTypeIds.push_back(typeId);
-            if (type.changeLevel != Storage::ChangeLevel::ExcludeExportedTypes) {
+            if (type.changeLevel != Storage::Synchronization::ChangeLevel::ExcludeExportedTypes) {
                 exportedSourceIds.push_back(type.sourceId);
                 extractExportedTypes(typeId, type, exportedTypes);
             }
@@ -628,7 +631,7 @@ private:
                          relinkablePropertyDeclarations);
     }
 
-    void synchronizeProjectDatas(Storage::ProjectDatas &projectDatas,
+    void synchronizeProjectDatas(Storage::Synchronization::ProjectDatas &projectDatas,
                                  const SourceIds &updatedProjectSourceIds)
     {
         auto compareKey = [](auto &&first, auto &&second) {
@@ -644,10 +647,11 @@ private:
                    < std::tie(second.projectSourceId, second.sourceId);
         });
 
-        auto range = selectProjectDatasForModuleIdsStatement.template range<Storage::ProjectData>(
-            toIntegers(updatedProjectSourceIds));
+        auto range = selectProjectDatasForModuleIdsStatement
+                         .template range<Storage::Synchronization::ProjectData>(
+                             toIntegers(updatedProjectSourceIds));
 
-        auto insert = [&](const Storage::ProjectData &projectData) {
+        auto insert = [&](const Storage::Synchronization::ProjectData &projectData) {
             if (!projectData.projectSourceId)
                 throw ProjectDataHasInvalidProjectSourceId{};
             if (!projectData.sourceId)
@@ -661,8 +665,8 @@ private:
                                              static_cast<int>(projectData.fileType));
         };
 
-        auto update = [&](const Storage::ProjectData &projectDataFromDatabase,
-                          const Storage::ProjectData &projectData) {
+        auto update = [&](const Storage::Synchronization::ProjectData &projectDataFromDatabase,
+                          const Storage::Synchronization::ProjectData &projectData) {
             if (!projectData.moduleId)
                 throw ProjectDataHasInvalidModuleId{};
 
@@ -678,7 +682,7 @@ private:
             return Sqlite::UpdateChange::No;
         };
 
-        auto remove = [&](const Storage::ProjectData &projectData) {
+        auto remove = [&](const Storage::Synchronization::ProjectData &projectData) {
             deleteProjectDataStatement.write(&projectData.projectSourceId, &projectData.sourceId);
         };
 
@@ -728,22 +732,25 @@ private:
         Sqlite::insertUpdateDelete(range, fileStatuses, compareKey, insert, update, remove);
     }
 
-    void synchronizeImports(Storage::Imports &imports,
+    void synchronizeImports(Storage::Synchronization::Imports &imports,
                             const SourceIds &updatedSourceIds,
-                            Storage::Imports &moduleDependencies,
+                            Storage::Synchronization::Imports &moduleDependencies,
                             const SourceIds &updatedModuleDependencySourceIds,
-                            Storage::ModuleExportedImports &moduleExportedImports,
+                            Storage::Synchronization::ModuleExportedImports &moduleExportedImports,
                             const ModuleIds &updatedModuleIds)
     {
         synchromizeModuleExportedImports(moduleExportedImports, updatedModuleIds);
-        synchronizeDocumentImports(imports, updatedSourceIds, Storage::ImportKind::Import);
+        synchronizeDocumentImports(imports,
+                                   updatedSourceIds,
+                                   Storage::Synchronization::ImportKind::Import);
         synchronizeDocumentImports(moduleDependencies,
                                    updatedModuleDependencySourceIds,
-                                   Storage::ImportKind::ModuleDependency);
+                                   Storage::Synchronization::ImportKind::ModuleDependency);
     }
 
-    void synchromizeModuleExportedImports(Storage::ModuleExportedImports &moduleExportedImports,
-                                          const ModuleIds &updatedModuleIds)
+    void synchromizeModuleExportedImports(
+        Storage::Synchronization::ModuleExportedImports &moduleExportedImports,
+        const ModuleIds &updatedModuleIds)
     {
         std::sort(moduleExportedImports.begin(),
                   moduleExportedImports.end(),
@@ -753,11 +760,11 @@ private:
                   });
 
         auto range = selectModuleExportedImportsForSourceIdStatement
-                         .template range<Storage::ModuleExportedImportView>(
+                         .template range<Storage::Synchronization::ModuleExportedImportView>(
                              toIntegers(updatedModuleIds));
 
-        auto compareKey = [](const Storage::ModuleExportedImportView &view,
-                             const Storage::ModuleExportedImport &import) -> long long {
+        auto compareKey = [](const Storage::Synchronization::ModuleExportedImportView &view,
+                             const Storage::Synchronization::ModuleExportedImport &import) -> long long {
             auto moduleIdDifference = &view.moduleId - &import.moduleId;
             if (moduleIdDifference != 0)
                 return moduleIdDifference;
@@ -765,7 +772,7 @@ private:
             return &view.exportedModuleId - &import.exportedModuleId;
         };
 
-        auto insert = [&](const Storage::ModuleExportedImport &import) {
+        auto insert = [&](const Storage::Synchronization::ModuleExportedImport &import) {
             if (import.version.minor) {
                 insertModuleExportedImportWithVersionStatement.write(&import.moduleId,
                                                                      &import.exportedModuleId,
@@ -786,10 +793,12 @@ private:
             }
         };
 
-        auto update = [](const Storage::ModuleExportedImportView &,
-                         const Storage::ModuleExportedImport &) { return Sqlite::UpdateChange::No; };
+        auto update = [](const Storage::Synchronization::ModuleExportedImportView &,
+                         const Storage::Synchronization::ModuleExportedImport &) {
+            return Sqlite::UpdateChange::No;
+        };
 
-        auto remove = [&](const Storage::ModuleExportedImportView &view) {
+        auto remove = [&](const Storage::Synchronization::ModuleExportedImportView &view) {
             deleteModuleExportedImportStatement.write(&view.moduleExportedImportId);
         };
 
@@ -1051,7 +1060,7 @@ private:
     }
 
     void synchronizeExportedTypes(const TypeIds &updatedTypeIds,
-                                  Storage::ExportedTypes &exportedTypes,
+                                  Storage::Synchronization::ExportedTypes &exportedTypes,
                                   AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                                   PropertyDeclarations &relinkablePropertyDeclarations,
                                   Prototypes &relinkablePrototypes)
@@ -1072,11 +1081,12 @@ private:
             return first.version < second.version;
         });
 
-        auto range = selectExportedTypesForSourceIdsStatement.template range<Storage::ExportedTypeView>(
-            toIntegers(updatedTypeIds));
+        auto range = selectExportedTypesForSourceIdsStatement
+                         .template range<Storage::Synchronization::ExportedTypeView>(
+                             toIntegers(updatedTypeIds));
 
-        auto compareKey = [](const Storage::ExportedTypeView &view,
-                             const Storage::ExportedType &type) -> long long {
+        auto compareKey = [](const Storage::Synchronization::ExportedTypeView &view,
+                             const Storage::Synchronization::ExportedType &type) -> long long {
             auto moduleIdDifference = &view.moduleId - &type.moduleId;
             if (moduleIdDifference != 0)
                 return moduleIdDifference;
@@ -1092,7 +1102,7 @@ private:
             return view.version.minor.value - type.version.minor.value;
         };
 
-        auto insert = [&](const Storage::ExportedType &type) {
+        auto insert = [&](const Storage::Synchronization::ExportedType &type) {
             if (!type.moduleId)
                 throw QmlDesigner::ModuleDoesNotExists{};
 
@@ -1119,7 +1129,8 @@ private:
             }
         };
 
-        auto update = [&](const Storage::ExportedTypeView &view, const Storage::ExportedType &type) {
+        auto update = [&](const Storage::Synchronization::ExportedTypeView &view,
+                          const Storage::Synchronization::ExportedType &type) {
             if (view.typeId != type.typeId) {
                 handlePropertyDeclarationWithPropertyType(view.typeId, relinkablePropertyDeclarations);
                 handleAliasPropertyDeclarationsWithPropertyType(view.typeId,
@@ -1131,7 +1142,7 @@ private:
             return Sqlite::UpdateChange::No;
         };
 
-        auto remove = [&](const Storage::ExportedTypeView &view) {
+        auto remove = [&](const Storage::Synchronization::ExportedTypeView &view) {
             handlePropertyDeclarationWithPropertyType(view.typeId, relinkablePropertyDeclarations);
             handleAliasPropertyDeclarationsWithPropertyType(view.typeId,
                                                             relinkableAliasPropertyDeclarations);
@@ -1144,7 +1155,7 @@ private:
 
     void synchronizePropertyDeclarationsInsertAlias(
         AliasPropertyDeclarations &insertedAliasPropertyDeclarations,
-        const Storage::PropertyDeclaration &value,
+        const Storage::Synchronization::PropertyDeclaration &value,
         SourceId sourceId,
         TypeId typeId)
     {
@@ -1161,9 +1172,8 @@ private:
         insertAliasPropertyDeclarationStatement.readCallback(callback, &typeId, value.name);
     }
 
-    void synchronizePropertyDeclarationsInsertProperty(const Storage::PropertyDeclaration &value,
-                                                       SourceId sourceId,
-                                                       TypeId typeId)
+    void synchronizePropertyDeclarationsInsertProperty(
+        const Storage::Synchronization::PropertyDeclaration &value, SourceId sourceId, TypeId typeId)
     {
         auto propertyImportedTypeNameId = fetchImportedTypeNameId(value.typeName, sourceId);
         auto propertyTypeId = fetchTypeId(propertyImportedTypeNameId);
@@ -1187,8 +1197,8 @@ private:
 
     void synchronizePropertyDeclarationsUpdateAlias(
         AliasPropertyDeclarations &updatedAliasPropertyDeclarations,
-        const Storage::PropertyDeclarationView &view,
-        const Storage::PropertyDeclaration &value,
+        const Storage::Synchronization::PropertyDeclarationView &view,
+        const Storage::Synchronization::PropertyDeclaration &value,
         SourceId sourceId)
     {
         auto last = updatedAliasPropertyDeclarations.emplace_back(view.typeId,
@@ -1200,10 +1210,11 @@ private:
                                                                   view.aliasId);
     }
 
-    auto synchronizePropertyDeclarationsUpdateProperty(const Storage::PropertyDeclarationView &view,
-                                                       const Storage::PropertyDeclaration &value,
-                                                       SourceId sourceId,
-                                                       PropertyDeclarationIds &propertyDeclarationIds)
+    auto synchronizePropertyDeclarationsUpdateProperty(
+        const Storage::Synchronization::PropertyDeclarationView &view,
+        const Storage::Synchronization::PropertyDeclaration &value,
+        SourceId sourceId,
+        PropertyDeclarationIds &propertyDeclarationIds)
     {
         auto propertyImportedTypeNameId = fetchImportedTypeNameId(value.typeName, sourceId);
 
@@ -1226,12 +1237,13 @@ private:
         return Sqlite::UpdateChange::Update;
     }
 
-    void synchronizePropertyDeclarations(TypeId typeId,
-                                         Storage::PropertyDeclarations &propertyDeclarations,
-                                         SourceId sourceId,
-                                         AliasPropertyDeclarations &insertedAliasPropertyDeclarations,
-                                         AliasPropertyDeclarations &updatedAliasPropertyDeclarations,
-                                         PropertyDeclarationIds &propertyDeclarationIds)
+    void synchronizePropertyDeclarations(
+        TypeId typeId,
+        Storage::Synchronization::PropertyDeclarations &propertyDeclarations,
+        SourceId sourceId,
+        AliasPropertyDeclarations &insertedAliasPropertyDeclarations,
+        AliasPropertyDeclarations &updatedAliasPropertyDeclarations,
+        PropertyDeclarationIds &propertyDeclarationIds)
     {
         std::sort(propertyDeclarations.begin(),
                   propertyDeclarations.end(),
@@ -1240,15 +1252,15 @@ private:
                   });
 
         auto range = selectPropertyDeclarationsForTypeIdStatement
-                         .template range<Storage::PropertyDeclarationView>(&typeId);
+                         .template range<Storage::Synchronization::PropertyDeclarationView>(&typeId);
 
-        auto compareKey = [](const Storage::PropertyDeclarationView &view,
-                             const Storage::PropertyDeclaration &value) {
+        auto compareKey = [](const Storage::Synchronization::PropertyDeclarationView &view,
+                             const Storage::Synchronization::PropertyDeclaration &value) {
             return Sqlite::compare(view.name, value.name);
         };
 
-        auto insert = [&](const Storage::PropertyDeclaration &value) {
-            if (value.kind == Storage::PropertyKind::Alias) {
+        auto insert = [&](const Storage::Synchronization::PropertyDeclaration &value) {
+            if (value.kind == Storage::Synchronization::PropertyKind::Alias) {
                 synchronizePropertyDeclarationsInsertAlias(insertedAliasPropertyDeclarations,
                                                            value,
                                                            sourceId,
@@ -1258,9 +1270,9 @@ private:
             }
         };
 
-        auto update = [&](const Storage::PropertyDeclarationView &view,
-                          const Storage::PropertyDeclaration &value) {
-            if (value.kind == Storage::PropertyKind::Alias) {
+        auto update = [&](const Storage::Synchronization::PropertyDeclarationView &view,
+                          const Storage::Synchronization::PropertyDeclaration &value) {
+            if (value.kind == Storage::Synchronization::PropertyKind::Alias) {
                 synchronizePropertyDeclarationsUpdateAlias(updatedAliasPropertyDeclarations,
                                                            view,
                                                            value,
@@ -1276,7 +1288,7 @@ private:
             return Sqlite::UpdateChange::No;
         };
 
-        auto remove = [&](const Storage::PropertyDeclarationView &view) {
+        auto remove = [&](const Storage::Synchronization::PropertyDeclarationView &view) {
             auto nextPropertyDeclarationId = selectPropertyDeclarationIdPrototypeChainDownStatement
                                                  .template value<PropertyDeclarationId>(&typeId,
                                                                                         view.name);
@@ -1292,13 +1304,13 @@ private:
         Sqlite::insertUpdateDelete(range, propertyDeclarations, compareKey, insert, update, remove);
     }
 
-    void resetRemovedAliasPropertyDeclarationsToNull(Storage::Type &type,
+    void resetRemovedAliasPropertyDeclarationsToNull(Storage::Synchronization::Type &type,
                                                      PropertyDeclarationIds &propertyDeclarationIds)
     {
-        if (type.changeLevel == Storage::ChangeLevel::Minimal)
+        if (type.changeLevel == Storage::Synchronization::ChangeLevel::Minimal)
             return;
 
-        Storage::PropertyDeclarations &aliasDeclarations = type.propertyDeclarations;
+        Storage::Synchronization::PropertyDeclarations &aliasDeclarations = type.propertyDeclarations;
 
         class AliasPropertyDeclarationView
         {
@@ -1325,14 +1337,16 @@ private:
                          .template range<AliasPropertyDeclarationView>(&type.typeId);
 
         auto compareKey = [](const AliasPropertyDeclarationView &view,
-                             const Storage::PropertyDeclaration &value) {
+                             const Storage::Synchronization::PropertyDeclaration &value) {
             return Sqlite::compare(view.name, value.name);
         };
 
-        auto insert = [&](const Storage::PropertyDeclaration &) {};
+        auto insert = [&](const Storage::Synchronization::PropertyDeclaration &) {};
 
         auto update = [&](const AliasPropertyDeclarationView &,
-                          const Storage::PropertyDeclaration &) { return Sqlite::UpdateChange::No; };
+                          const Storage::Synchronization::PropertyDeclaration &) {
+            return Sqlite::UpdateChange::No;
+        };
 
         auto remove = [&](const AliasPropertyDeclarationView &view) {
             updatePropertyDeclarationAliasIdToNullStatement.write(&view.id);
@@ -1343,7 +1357,8 @@ private:
     }
 
     void resetRemovedAliasPropertyDeclarationsToNull(
-        Storage::Types &types, AliasPropertyDeclarations &relinkableAliasPropertyDeclarations)
+        Storage::Synchronization::Types &types,
+        AliasPropertyDeclarations &relinkableAliasPropertyDeclarations)
     {
         PropertyDeclarationIds propertyDeclarationIds;
         propertyDeclarationIds.reserve(types.size());
@@ -1356,8 +1371,8 @@ private:
                                 PropertyCompare<AliasPropertyDeclaration>{});
     }
 
-    void insertDocumentImport(const Storage::Import &import,
-                              Storage::ImportKind importKind,
+    void insertDocumentImport(const Storage::Synchronization::Import &import,
+                              Storage::Synchronization::ImportKind importKind,
                               ModuleId sourceModuleId,
                               ModuleExportedImportId moduleExportedImportId)
     {
@@ -1385,20 +1400,21 @@ private:
         }
     }
 
-    void synchronizeDocumentImports(Storage::Imports &imports,
+    void synchronizeDocumentImports(Storage::Synchronization::Imports &imports,
                                     const SourceIds &updatedSourceIds,
-                                    Storage::ImportKind importKind)
+                                    Storage::Synchronization::ImportKind importKind)
     {
         std::sort(imports.begin(), imports.end(), [](auto &&first, auto &&second) {
             return std::tie(first.sourceId, first.moduleId, first.version)
                    < std::tie(second.sourceId, second.moduleId, second.version);
         });
 
-        auto range = selectDocumentImportForSourceIdStatement.template range<Storage::ImportView>(
-            toIntegers(updatedSourceIds), to_underlying(importKind));
+        auto range = selectDocumentImportForSourceIdStatement
+                         .template range<Storage::Synchronization::ImportView>(
+                             toIntegers(updatedSourceIds), to_underlying(importKind));
 
-        auto compareKey = [](const Storage::ImportView &view,
-                             const Storage::Import &import) -> long long {
+        auto compareKey = [](const Storage::Synchronization::ImportView &view,
+                             const Storage::Synchronization::Import &import) -> long long {
             auto sourceIdDifference = &view.sourceId - &import.sourceId;
             if (sourceIdDifference != 0)
                 return sourceIdDifference;
@@ -1414,19 +1430,20 @@ private:
             return view.version.minor.value - import.version.minor.value;
         };
 
-        auto insert = [&](const Storage::Import &import) {
-                insertDocumentImport(import, importKind, import.moduleId, ModuleExportedImportId{});
+        auto insert = [&](const Storage::Synchronization::Import &import) {
+            insertDocumentImport(import, importKind, import.moduleId, ModuleExportedImportId{});
             auto callback = [&](int exportedModuleId,
                                 int majorVersion,
                                 int minorVersion,
                                 long long moduleExportedImportId) {
-                Storage::Import additionImport{ModuleId{exportedModuleId},
-                                               Storage::Version{majorVersion, minorVersion},
-                                               import.sourceId};
+                Storage::Synchronization::Import additionImport{
+                    ModuleId{exportedModuleId},
+                    Storage::Synchronization::Version{majorVersion, minorVersion},
+                    import.sourceId};
 
-                auto exportedImportKind = importKind == Storage::ImportKind::Import
-                                              ? Storage::ImportKind::ModuleExportedImport
-                                              : Storage::ImportKind::ModuleExportedModuleDependency;
+                auto exportedImportKind = importKind == Storage::Synchronization::ImportKind::Import
+                                              ? Storage::Synchronization::ImportKind::ModuleExportedImport
+                                              : Storage::Synchronization::ImportKind::ModuleExportedModuleDependency;
 
                 insertDocumentImport(additionImport,
                                      exportedImportKind,
@@ -1442,18 +1459,19 @@ private:
                                                                          import.version.minor.value);
         };
 
-        auto update = [](const Storage::ImportView &, const Storage::Import &) {
+        auto update = [](const Storage::Synchronization::ImportView &,
+                         const Storage::Synchronization::Import &) {
             return Sqlite::UpdateChange::No;
         };
 
-        auto remove = [&](const Storage::ImportView &view) {
+        auto remove = [&](const Storage::Synchronization::ImportView &view) {
             deleteDocumentImportStatement.write(&view.importId);
         };
 
         Sqlite::insertUpdateDelete(range, imports, compareKey, insert, update, remove);
     }
 
-    static Utils::PathString createJson(const Storage::ParameterDeclarations &parameters)
+    static Utils::PathString createJson(const Storage::Synchronization::ParameterDeclarations &parameters)
     {
         Utils::PathString json;
         json.append("[");
@@ -1467,7 +1485,7 @@ private:
             json.append(parameter.name);
             json.append("\",\"tn\":\"");
             json.append(parameter.typeName);
-            if (parameter.traits == Storage::PropertyDeclarationTraits::None) {
+            if (parameter.traits == Storage::Synchronization::PropertyDeclarationTraits::None) {
                 json.append("\"}");
             } else {
                 json.append("\",\"tr\":");
@@ -1481,8 +1499,8 @@ private:
         return json;
     }
 
-    void synchronizeFunctionDeclarations(TypeId typeId,
-                                         Storage::FunctionDeclarations &functionsDeclarations)
+    void synchronizeFunctionDeclarations(
+        TypeId typeId, Storage::Synchronization::FunctionDeclarations &functionsDeclarations)
     {
         std::sort(functionsDeclarations.begin(),
                   functionsDeclarations.end(),
@@ -1500,10 +1518,10 @@ private:
                   });
 
         auto range = selectFunctionDeclarationsForTypeIdStatement
-                         .template range<Storage::FunctionDeclarationView>(&typeId);
+                         .template range<Storage::Synchronization::FunctionDeclarationView>(&typeId);
 
-        auto compareKey = [](const Storage::FunctionDeclarationView &view,
-                             const Storage::FunctionDeclaration &value) {
+        auto compareKey = [](const Storage::Synchronization::FunctionDeclarationView &view,
+                             const Storage::Synchronization::FunctionDeclaration &value) {
             auto nameKey = Sqlite::compare(view.name, value.name);
             if (nameKey != 0)
                 return nameKey;
@@ -1513,14 +1531,14 @@ private:
             return Sqlite::compare(view.signature, valueSignature);
         };
 
-        auto insert = [&](const Storage::FunctionDeclaration &value) {
+        auto insert = [&](const Storage::Synchronization::FunctionDeclaration &value) {
             Utils::PathString signature{createJson(value.parameters)};
 
             insertFunctionDeclarationStatement.write(&typeId, value.name, value.returnTypeName, signature);
         };
 
-        auto update = [&](const Storage::FunctionDeclarationView &view,
-                          const Storage::FunctionDeclaration &value) {
+        auto update = [&](const Storage::Synchronization::FunctionDeclarationView &view,
+                          const Storage::Synchronization::FunctionDeclaration &value) {
             Utils::PathString signature{createJson(value.parameters)};
 
             if (value.returnTypeName == view.returnTypeName)
@@ -1531,14 +1549,15 @@ private:
             return Sqlite::UpdateChange::Update;
         };
 
-        auto remove = [&](const Storage::FunctionDeclarationView &view) {
+        auto remove = [&](const Storage::Synchronization::FunctionDeclarationView &view) {
             deleteFunctionDeclarationStatement.write(&view.id);
         };
 
         Sqlite::insertUpdateDelete(range, functionsDeclarations, compareKey, insert, update, remove);
     }
 
-    void synchronizeSignalDeclarations(TypeId typeId, Storage::SignalDeclarations &signalDeclarations)
+    void synchronizeSignalDeclarations(TypeId typeId,
+                                       Storage::Synchronization::SignalDeclarations &signalDeclarations)
     {
         std::sort(signalDeclarations.begin(), signalDeclarations.end(), [](auto &&first, auto &&second) {
             auto compare = Sqlite::compare(first.name, second.name);
@@ -1554,10 +1573,10 @@ private:
         });
 
         auto range = selectSignalDeclarationsForTypeIdStatement
-                         .template range<Storage::SignalDeclarationView>(&typeId);
+                         .template range<Storage::Synchronization::SignalDeclarationView>(&typeId);
 
-        auto compareKey = [](const Storage::SignalDeclarationView &view,
-                             const Storage::SignalDeclaration &value) {
+        auto compareKey = [](const Storage::Synchronization::SignalDeclarationView &view,
+                             const Storage::Synchronization::SignalDeclaration &value) {
             auto nameKey = Sqlite::compare(view.name, value.name);
             if (nameKey != 0)
                 return nameKey;
@@ -1567,25 +1586,26 @@ private:
             return Sqlite::compare(view.signature, valueSignature);
         };
 
-        auto insert = [&](const Storage::SignalDeclaration &value) {
+        auto insert = [&](const Storage::Synchronization::SignalDeclaration &value) {
             Utils::PathString signature{createJson(value.parameters)};
 
             insertSignalDeclarationStatement.write(&typeId, value.name, signature);
         };
 
-        auto update = [&]([[maybe_unused]] const Storage::SignalDeclarationView &view,
-                          [[maybe_unused]] const Storage::SignalDeclaration &value) {
+        auto update = [&]([[maybe_unused]] const Storage::Synchronization::SignalDeclarationView &view,
+                          [[maybe_unused]] const Storage::Synchronization::SignalDeclaration &value) {
             return Sqlite::UpdateChange::No;
         };
 
-        auto remove = [&](const Storage::SignalDeclarationView &view) {
+        auto remove = [&](const Storage::Synchronization::SignalDeclarationView &view) {
             deleteSignalDeclarationStatement.write(&view.id);
         };
 
         Sqlite::insertUpdateDelete(range, signalDeclarations, compareKey, insert, update, remove);
     }
 
-    static Utils::PathString createJson(const Storage::EnumeratorDeclarations &enumeratorDeclarations)
+    static Utils::PathString createJson(
+        const Storage::Synchronization::EnumeratorDeclarations &enumeratorDeclarations)
     {
         Utils::PathString json;
         json.append("{");
@@ -1610,8 +1630,8 @@ private:
         return json;
     }
 
-    void synchronizeEnumerationDeclarations(TypeId typeId,
-                                            Storage::EnumerationDeclarations &enumerationDeclarations)
+    void synchronizeEnumerationDeclarations(
+        TypeId typeId, Storage::Synchronization::EnumerationDeclarations &enumerationDeclarations)
     {
         std::sort(enumerationDeclarations.begin(),
                   enumerationDeclarations.end(),
@@ -1620,21 +1640,21 @@ private:
                   });
 
         auto range = selectEnumerationDeclarationsForTypeIdStatement
-                         .template range<Storage::EnumerationDeclarationView>(&typeId);
+                         .template range<Storage::Synchronization::EnumerationDeclarationView>(&typeId);
 
-        auto compareKey = [](const Storage::EnumerationDeclarationView &view,
-                             const Storage::EnumerationDeclaration &value) {
+        auto compareKey = [](const Storage::Synchronization::EnumerationDeclarationView &view,
+                             const Storage::Synchronization::EnumerationDeclaration &value) {
             return Sqlite::compare(view.name, value.name);
         };
 
-        auto insert = [&](const Storage::EnumerationDeclaration &value) {
+        auto insert = [&](const Storage::Synchronization::EnumerationDeclaration &value) {
             Utils::PathString signature{createJson(value.enumeratorDeclarations)};
 
             insertEnumerationDeclarationStatement.write(&typeId, value.name, signature);
         };
 
-        auto update = [&](const Storage::EnumerationDeclarationView &view,
-                          const Storage::EnumerationDeclaration &value) {
+        auto update = [&](const Storage::Synchronization::EnumerationDeclarationView &view,
+                          const Storage::Synchronization::EnumerationDeclaration &value) {
             Utils::PathString enumeratorDeclarations{createJson(value.enumeratorDeclarations)};
 
             if (enumeratorDeclarations == view.enumeratorDeclarations)
@@ -1645,7 +1665,7 @@ private:
             return Sqlite::UpdateChange::Update;
         };
 
-        auto remove = [&](const Storage::EnumerationDeclarationView &view) {
+        auto remove = [&](const Storage::Synchronization::EnumerationDeclarationView &view) {
             deleteEnumerationDeclarationStatement.write(&view.id);
         };
 
@@ -1653,8 +1673,8 @@ private:
     }
 
     void extractExportedTypes(TypeId typeId,
-                              const Storage::Type &type,
-                              Storage::ExportedTypes &exportedTypes)
+                              const Storage::Synchronization::Type &type,
+                              Storage::Synchronization::ExportedTypes &exportedTypes)
     {
         for (const auto &exportedType : type.exportedTypes)
             exportedTypes.emplace_back(exportedType.name,
@@ -1663,7 +1683,7 @@ private:
                                        exportedType.moduleId);
     }
 
-    TypeId declareType(Storage::Type &type)
+    TypeId declareType(Storage::Synchronization::Type &type)
     {
         if (type.typeName.isEmpty()) {
             type.typeId = selectTypeIdBySourceIdStatement.template value<TypeId>(&type.sourceId);
@@ -1682,12 +1702,12 @@ private:
         return type.typeId;
     }
 
-    void syncDeclarations(Storage::Type &type,
+    void syncDeclarations(Storage::Synchronization::Type &type,
                           AliasPropertyDeclarations &insertedAliasPropertyDeclarations,
                           AliasPropertyDeclarations &updatedAliasPropertyDeclarations,
                           PropertyDeclarationIds &propertyDeclarationIds)
     {
-        if (type.changeLevel == Storage::ChangeLevel::Minimal)
+        if (type.changeLevel == Storage::Synchronization::ChangeLevel::Minimal)
             return;
 
         synchronizePropertyDeclarations(type.typeId,
@@ -1721,7 +1741,7 @@ private:
         relinkables = std::move(newRelinkables);
     }
 
-    void syncDeclarations(Storage::Types &types,
+    void syncDeclarations(Storage::Synchronization::Types &types,
                           AliasPropertyDeclarations &insertedAliasPropertyDeclarations,
                           AliasPropertyDeclarations &updatedAliasPropertyDeclarations,
                           PropertyDeclarations &relinkablePropertyDeclarations)
@@ -1765,9 +1785,9 @@ private:
                                                                         &propertyDeclarationId);
     }
 
-    void syncPrototype(Storage::Type &type, TypeIds &typeIds)
+    void syncPrototype(Storage::Synchronization::Type &type, TypeIds &typeIds)
     {
-        if (type.changeLevel == Storage::ChangeLevel::Minimal)
+        if (type.changeLevel == Storage::Synchronization::ChangeLevel::Minimal)
             return;
 
         if (Utils::visit([](auto &&typeName) -> bool { return typeName.name.isEmpty(); },
@@ -1789,7 +1809,7 @@ private:
         typeIds.push_back(type.typeId);
     }
 
-    void syncPrototypes(Storage::Types &types, Prototypes &relinkablePrototypes)
+    void syncPrototypes(Storage::Synchronization::Types &types, Prototypes &relinkablePrototypes)
     {
         TypeIds typeIds;
         typeIds.reserve(types.size());
@@ -1800,7 +1820,7 @@ private:
         removeRelinkableEntries(relinkablePrototypes, typeIds, TypeCompare<Prototype>{});
     }
 
-    ImportId fetchImportId(SourceId sourceId, const Storage::Import &import) const
+    ImportId fetchImportId(SourceId sourceId, const Storage::Synchronization::Import &import) const
     {
         if (import.version) {
             return selectImportIdBySourceIdAndModuleIdAndVersionStatement.template value<ImportId>(
@@ -1816,22 +1836,23 @@ private:
                                                                                      &import.moduleId);
     }
 
-    ImportedTypeNameId fetchImportedTypeNameId(const Storage::ImportedTypeName &name, SourceId sourceId)
+    ImportedTypeNameId fetchImportedTypeNameId(const Storage::Synchronization::ImportedTypeName &name,
+                                               SourceId sourceId)
     {
         struct Inspect
         {
-            auto operator()(const Storage::ImportedType &importedType)
+            auto operator()(const Storage::Synchronization::ImportedType &importedType)
             {
-                return storage.fetchImportedTypeNameId(Storage::TypeNameKind::Exported,
+                return storage.fetchImportedTypeNameId(Storage::Synchronization::TypeNameKind::Exported,
                                                        &sourceId,
                                                        importedType.name);
             }
 
-            auto operator()(const Storage::QualifiedImportedType &importedType)
+            auto operator()(const Storage::Synchronization::QualifiedImportedType &importedType)
             {
                 ImportId importId = storage.fetchImportId(sourceId, importedType.import);
 
-                return storage.fetchImportedTypeNameId(Storage::TypeNameKind::QualifiedExported,
+                return storage.fetchImportedTypeNameId(Storage::Synchronization::TypeNameKind::QualifiedExported,
                                                        &importId,
                                                        importedType.name);
             }
@@ -1843,7 +1864,7 @@ private:
         return Utils::visit(Inspect{*this, sourceId}, name);
     }
 
-    ImportedTypeNameId fetchImportedTypeNameId(Storage::TypeNameKind kind,
+    ImportedTypeNameId fetchImportedTypeNameId(Storage::Synchronization::TypeNameKind kind,
                                                long long id,
                                                Utils::SmallStringView typeName)
     {
@@ -1862,14 +1883,14 @@ private:
     {
         auto kindValue = selectKindFromImportedTypeNamesStatement.template optionalValue<int>(
             &typeNameId);
-        auto kind = static_cast<Storage::TypeNameKind>(*kindValue);
+        auto kind = static_cast<Storage::Synchronization::TypeNameKind>(*kindValue);
 
         return fetchTypeId(typeNameId, kind);
     }
 
-    TypeId fetchTypeId(ImportedTypeNameId typeNameId, Storage::TypeNameKind kind) const
+    TypeId fetchTypeId(ImportedTypeNameId typeNameId, Storage::Synchronization::TypeNameKind kind) const
     {
-        if (kind == Storage::TypeNameKind::QualifiedExported) {
+        if (kind == Storage::Synchronization::TypeNameKind::QualifiedExported) {
             return selectTypeIdForQualifiedImportedTypeNameNamesStatement.template value<TypeId>(
                 &typeNameId);
         }
@@ -1947,27 +1968,26 @@ private:
 
     auto fetchExportedTypes(TypeId typeId)
     {
-        return selectExportedTypesByTypeIdStatement.template values<Storage::ExportedType>(12,
-                                                                                           &typeId);
+        return selectExportedTypesByTypeIdStatement
+            .template values<Storage::Synchronization::ExportedType>(12, &typeId);
     }
 
     auto fetchPropertyDeclarations(TypeId typeId)
     {
         return selectPropertyDeclarationsByTypeIdStatement
-            .template values<Storage::PropertyDeclaration>(24, &typeId);
+            .template values<Storage::Synchronization::PropertyDeclaration>(24, &typeId);
     }
 
     auto fetchFunctionDeclarations(TypeId typeId)
     {
-        Storage::FunctionDeclarations functionDeclarations;
+        Storage::Synchronization::FunctionDeclarations functionDeclarations;
 
         auto callback = [&](Utils::SmallStringView name,
                             Utils::SmallStringView returnType,
                             long long functionDeclarationId) {
             auto &functionDeclaration = functionDeclarations.emplace_back(name, returnType);
-            functionDeclaration.parameters = selectFunctionParameterDeclarationsStatement
-                                                 .template values<Storage::ParameterDeclaration>(
-                                                     8, functionDeclarationId);
+            functionDeclaration.parameters = selectFunctionParameterDeclarationsStatement.template values<
+                Storage::Synchronization::ParameterDeclaration>(8, functionDeclarationId);
 
             return Sqlite::CallbackControl::Continue;
         };
@@ -1979,13 +1999,12 @@ private:
 
     auto fetchSignalDeclarations(TypeId typeId)
     {
-        Storage::SignalDeclarations signalDeclarations;
+        Storage::Synchronization::SignalDeclarations signalDeclarations;
 
         auto callback = [&](Utils::SmallStringView name, long long signalDeclarationId) {
             auto &signalDeclaration = signalDeclarations.emplace_back(name);
-            signalDeclaration.parameters = selectSignalParameterDeclarationsStatement
-                                               .template values<Storage::ParameterDeclaration>(
-                                                   8, signalDeclarationId);
+            signalDeclaration.parameters = selectSignalParameterDeclarationsStatement.template values<
+                Storage::Synchronization::ParameterDeclaration>(8, signalDeclarationId);
 
             return Sqlite::CallbackControl::Continue;
         };
@@ -1997,13 +2016,13 @@ private:
 
     auto fetchEnumerationDeclarations(TypeId typeId)
     {
-        Storage::EnumerationDeclarations enumerationDeclarations;
+        Storage::Synchronization::EnumerationDeclarations enumerationDeclarations;
 
         auto callback = [&](Utils::SmallStringView name, long long enumerationDeclarationId) {
             enumerationDeclarations.emplace_back(
                 name,
-                selectEnumeratorDeclarationStatement
-                    .template values<Storage::EnumeratorDeclaration>(8, enumerationDeclarationId));
+                selectEnumeratorDeclarationStatement.template values<
+                    Storage::Synchronization::EnumeratorDeclaration>(8, enumerationDeclarationId));
 
             return Sqlite::CallbackControl::Continue;
         };

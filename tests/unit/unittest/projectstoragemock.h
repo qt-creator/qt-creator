@@ -36,7 +36,10 @@
 class ProjectStorageMock : public QmlDesigner::ProjectStorageInterface
 {
 public:
-    MOCK_METHOD(void, synchronize, (QmlDesigner::Storage::SynchronizationPackage package), (override));
+    MOCK_METHOD(void,
+                synchronize,
+                (QmlDesigner::Storage::Synchronization::SynchronizationPackage package),
+                (override));
 
     MOCK_METHOD(QmlDesigner::ModuleId, moduleId, (Utils::SmallStringView), (override));
 
@@ -45,7 +48,7 @@ public:
                 (QmlDesigner::SourceId sourceId),
                 (const, override));
 
-    MOCK_METHOD(QmlDesigner::Storage::ProjectDatas,
+    MOCK_METHOD(QmlDesigner::Storage::Synchronization::ProjectDatas,
                 fetchProjectDatas,
                 (QmlDesigner::SourceId sourceId),
                 (const, override));

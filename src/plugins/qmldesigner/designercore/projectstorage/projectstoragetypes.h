@@ -47,7 +47,7 @@ using TypeNameString = Utils::BasicSmallString<63>;
 
 } // namespace QmlDesigner
 
-namespace QmlDesigner::Storage {
+namespace QmlDesigner::Storage::Synchronization {
 
 enum class TypeAccessSemantics : int { None, Reference, Value, Sequence, IsEnum = 1 << 8 };
 
@@ -377,7 +377,7 @@ public:
 
 public:
     Utils::SmallString name;
-    Storage::Version version;
+    Version version;
     TypeId typeId;
     ModuleId moduleId;
 };
@@ -388,7 +388,7 @@ class ExportedTypeView
 {
 public:
     explicit ExportedTypeView() = default;
-    explicit ExportedTypeView(ModuleId moduleId, Utils::SmallStringView name, Storage::Version version)
+    explicit ExportedTypeView(ModuleId moduleId, Utils::SmallStringView name, Version version)
         : name{name}
         , version{version}
         , moduleId{moduleId}
@@ -408,7 +408,7 @@ public:
 
 public:
     Utils::SmallStringView name;
-    Storage::Version version;
+    Version version;
     TypeId typeId;
     ModuleId moduleId;
     ExportedTypeNameId exportedTypeNameId;
@@ -851,7 +851,7 @@ public:
         : projectSourceId{projectSourceId}
         , sourceId{sourceId}
         , moduleId{moduleId}
-        , fileType{static_cast<Storage::FileType>(fileType)}
+        , fileType{static_cast<FileType>(fileType)}
     {}
 
     friend bool operator==(const ProjectData &first, const ProjectData &second)
@@ -923,4 +923,4 @@ public:
     ModuleIds updatedModuleIds;
 };
 
-} // namespace QmlDesigner::Storage
+} // namespace QmlDesigner::Storage::Synchronization
