@@ -25,12 +25,10 @@
 
 #include "subversionclient.h"
 #include "subversionconstants.h"
-#include "subversionplugin.h"
 #include "subversionsettings.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbasediffeditorcontroller.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -45,6 +43,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/shellcommand.h>
 
 #include <QDir>
 #include <QFileInfo>

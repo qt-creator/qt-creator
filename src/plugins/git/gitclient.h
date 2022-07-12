@@ -48,15 +48,16 @@ QT_END_NAMESPACE
 
 namespace Core { class ICore; }
 
-namespace VcsBase {
-class VcsCommand;
-class SubmitFileModel;
-class VcsBaseEditorWidget;
-}
-
 namespace DiffEditor {
 class ChunkSelection;
 class DiffEditorController;
+}
+
+namespace Utils { class ShellCommand; }
+
+namespace VcsBase {
+class SubmitFileModel;
+class VcsBaseEditorWidget;
 }
 
 namespace Git {
@@ -147,7 +148,7 @@ public:
     Utils::FilePath vcsBinary() const override;
     QFuture<unsigned> gitVersion() const;
 
-    VcsBase::VcsCommand *vcsExecAbortable(const Utils::FilePath &workingDirectory,
+    Utils::ShellCommand *vcsExecAbortable(const Utils::FilePath &workingDirectory,
                                           const QStringList &arguments,
                                           bool isRebase = false,
                                           QString abortCommand = {});
@@ -207,7 +208,7 @@ public:
                                   QString revision = {}, QString *errorMessage = nullptr,
                                   bool revertStaging = true);
     enum class StashMode { NoStash, TryStash };
-    VcsBase::VcsCommand *checkout(const Utils::FilePath &workingDirectory, const QString &ref,
+    Utils::ShellCommand *checkout(const Utils::FilePath &workingDirectory, const QString &ref,
                                   StashMode stashMode = StashMode::TryStash);
 
     QStringList setupCheckoutArguments(const Utils::FilePath &workingDirectory, const QString &ref);
@@ -236,7 +237,7 @@ public:
                            QString *output, QString *errorMessage) const;
     bool synchronousForEachRefCmd(const Utils::FilePath &workingDirectory, QStringList args,
                                QString *output, QString *errorMessage = nullptr) const;
-    VcsBase::VcsCommand *asyncForEachRefCmd(const Utils::FilePath &workingDirectory, QStringList args) const;
+    Utils::ShellCommand *asyncForEachRefCmd(const Utils::FilePath &workingDirectory, QStringList args) const;
     bool synchronousRemoteCmd(const Utils::FilePath &workingDirectory, QStringList remoteArgs,
                               QString *output = nullptr, QString *errorMessage = nullptr,
                               bool silent = false) const;
@@ -359,7 +360,7 @@ public:
     void show(const QString &source, const QString &id, const QString &name = {});
     void archive(const Utils::FilePath &workingDirectory, QString commit);
 
-    VcsBase::VcsCommand *asyncUpstreamStatus(const Utils::FilePath &workingDirectory,
+    Utils::ShellCommand *asyncUpstreamStatus(const Utils::FilePath &workingDirectory,
                                              const QString &branch, const QString &upstream);
 
     enum class BranchTargetType { Remote, Commit };
@@ -394,7 +395,7 @@ private:
                          bool *isDirectory,
                          QString *errorMessage,
                          bool revertStaging);
-    void connectRepositoryChanged(const QString & repository, VcsBase::VcsCommand *cmd);
+    void connectRepositoryChanged(const QString & repository, Utils::ShellCommand *cmd);
     bool executeAndHandleConflicts(const Utils::FilePath &workingDirectory, const QStringList &arguments,
                                    const QString &abortCommand = {}) const;
     void tryLaunchingGitK(const Utils::Environment &env,

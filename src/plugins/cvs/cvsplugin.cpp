@@ -37,7 +37,6 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcsbaseplugin.h>
-#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <texteditor/textdocument.h>
@@ -59,6 +58,7 @@
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/shellcommand.h>
 #include <utils/stringutils.h>
 
 #include <QAction>
@@ -482,7 +482,7 @@ ShellCommand *CvsPluginPrivate::createInitialCheckoutCommand(const QString &url,
     QStringList args;
     args << QLatin1String("checkout") << url << extraArgs;
 
-    auto command = new VcsCommand(baseDirectory, Environment::systemEnvironment());
+    auto command = VcsBaseClient::createVcsCommand(baseDirectory, Environment::systemEnvironment());
     command->setDisplayName(tr("CVS Checkout"));
     command->addJob({m_settings.binaryPath.filePath(), m_settings.addOptions(args)}, -1);
     return command;
@@ -1437,10 +1437,12 @@ CvsResponse CvsPluginPrivate::runCvs(const FilePath &workingDirectory,
     QtcProcess proc;
     proc.setTimeoutS(timeOutS);
 
-    VcsCommand command(workingDirectory, Environment::systemEnvironment());
-    command.addFlags(flags);
-    command.setCodec(outputCodec);
-    command.runCommand(proc, {executable, m_settings.addOptions(arguments)});
+    auto *command = VcsBaseClient::createVcsCommand(workingDirectory,
+                                                    Environment::systemEnvironment());
+    command->addFlags(flags);
+    command->setCodec(outputCodec);
+    command->runCommand(proc, {executable, m_settings.addOptions(arguments)});
+    delete command;
 
     response.result = CvsResponse::OtherError;
     response.stdErr = proc.cleanedStdErr();

@@ -67,6 +67,7 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
+#include <utils/shellcommand.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
@@ -74,7 +75,6 @@
 #include <vcsbase/submitfilemodel.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseconstants.h>
-#include <vcsbase/vcscommand.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/cleandialog.h>
@@ -1929,7 +1929,7 @@ ShellCommand *GitPluginPrivate::createInitialCheckoutCommand(const QString &url,
     QStringList args = {"clone", "--progress"};
     args << extraArgs << url << localName;
 
-    auto command = new VcsBase::VcsCommand(baseDirectory, m_gitClient.processEnvironment());
+    auto command = VcsBaseClient::createVcsCommand(baseDirectory, m_gitClient.processEnvironment());
     command->addFlags(ShellCommand::SuppressStdErr);
     command->addJob({m_gitClient.vcsBinary(), args}, -1);
     return command;

@@ -28,10 +28,10 @@
 #include "gitconstants.h"
 
 #include <vcsbase/vcsoutputwindow.h>
-#include <vcsbase/vcscommand.h>
 
 #include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
+#include <utils/shellcommand.h>
 #include <utils/stringutils.h>
 
 #include <QDateTime>
@@ -624,7 +624,7 @@ void BranchModel::removeTag(const QModelIndex &idx)
     removeNode(idx);
 }
 
-VcsCommand *BranchModel::checkoutBranch(const QModelIndex &idx)
+ShellCommand *BranchModel::checkoutBranch(const QModelIndex &idx)
 {
     QString branch = fullName(idx, !isLocal(idx));
     if (branch.isEmpty())
@@ -908,7 +908,7 @@ void BranchModel::updateUpstreamStatus(BranchNode *node)
 {
     if (node->tracking.isEmpty())
         return;
-    VcsCommand *command = d->client->asyncUpstreamStatus(
+    ShellCommand *command = d->client->asyncUpstreamStatus(
                 d->workingDirectory, node->fullRef(), node->tracking);
     QObject::connect(command, &ShellCommand::stdOutText, node, [this, node](const QString &text) {
         if (text.isEmpty())

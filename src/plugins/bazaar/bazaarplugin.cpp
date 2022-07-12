@@ -36,10 +36,6 @@
 #include "ui_revertdialog.h"
 #include "ui_uncommitdialog.h"
 
-#include <vcsbase/vcsbaseclient.h>
-#include <vcsbase/vcsbaseplugin.h>
-#include <vcsbase/vcscommand.h>
-
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -54,13 +50,16 @@
 #include <utils/environment.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
+#include <utils/shellcommand.h>
 #include <utils/stringutils.h>
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
-#include <vcsbase/vcsbasesubmiteditor.h>
+#include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
+#include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcsbasesubmiteditor.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QAction>
@@ -935,7 +934,7 @@ ShellCommand *BazaarPluginPrivate::createInitialCheckoutCommand(const QString &u
 
     Environment env = m_client.processEnvironment();
     env.set("BZR_PROGRESS_BAR", "text");
-    auto command = new VcsBase::VcsCommand(baseDirectory, env);
+    auto command = VcsBaseClient::createVcsCommand(baseDirectory, env);
     command->addJob({m_client.vcsBinary(), args}, -1);
     return command;
 }

@@ -24,12 +24,10 @@
 ****************************************************************************/
 
 #include "mercurialclient.h"
-#include "mercurialplugin.h"
 #include "constants.h"
 
 #include <coreplugin/idocument.h>
 
-#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -41,6 +39,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/shellcommand.h>
 
 #include <QDateTime>
 #include <QDir>
@@ -179,9 +178,10 @@ bool MercurialClient::synchronousPull(const FilePath &workingDir, const QString 
     QtcProcess proc;
     proc.setTimeoutS(vcsTimeoutS());
 
-    VcsCommand command(workingDir, env);
-    command.addFlags(flags);
-    command.runCommand(proc, {vcsBinary(), args});
+    ShellCommand *command = VcsBaseClient::createVcsCommand(workingDir, env);
+    command->addFlags(flags);
+    command->runCommand(proc, {vcsBinary(), args});
+    delete command;
 
     const bool ok = proc.result() == ProcessResult::FinishedWithSuccess;
 
@@ -306,8 +306,7 @@ void MercurialClient::incoming(const FilePath &repositoryRoot, const QString &re
     VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot.toString(),
                                                   VcsBaseEditor::getCodec(repositoryRoot.toString()),
                                                   "incoming", id);
-    VcsCommand *cmd = createCommand(FilePath::fromString(repository), editor);
-    enqueueJob(cmd, args);
+    enqueueJob(createCommand(FilePath::fromString(repository), editor), args);
 }
 
 void MercurialClient::outgoing(const FilePath &repositoryRoot)
@@ -320,9 +319,7 @@ void MercurialClient::outgoing(const FilePath &repositoryRoot)
     VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot.toString(),
                                                   VcsBaseEditor::getCodec(repositoryRoot.toString()),
                                                   "outgoing", repositoryRoot.toString());
-
-    VcsCommand *cmd = createCommand(repositoryRoot, editor);
-    enqueueJob(cmd, args);
+    enqueueJob(createCommand(repositoryRoot, editor), args);
 }
 
 VcsBaseEditorWidget *MercurialClient::annotate(

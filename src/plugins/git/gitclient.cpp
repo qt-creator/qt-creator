@@ -51,6 +51,7 @@
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/shellcommand.h>
 #include <utils/stringutils.h>
 #include <utils/temporaryfile.h>
 #include <utils/theme/theme.h>
@@ -60,7 +61,6 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcsbaseplugin.h>
-#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <diffeditor/descriptionwidgetwatcher.h>
@@ -346,7 +346,7 @@ void GitBaseDiffEditorController::updateBranchList()
         return;
 
     const FilePath workingDirectory = baseDirectory();
-    VcsCommand *command = m_instance->vcsExec(
+    ShellCommand *command = m_instance->vcsExec(
                 workingDirectory,
                 {"branch", noColorOption, "-a", "--contains", revision}, nullptr,
                 false, 0, workingDirectory.toString());
@@ -485,7 +485,7 @@ private:
     QString m_body;
     QString m_precedes;
     std::vector<QString> m_follows;
-    QList<QPointer<VcsCommand>> m_commands;
+    QList<QPointer<ShellCommand>> m_commands;
 };
 
 void ShowController::processCommandOutput(const QString &output)
@@ -563,7 +563,7 @@ void ShowController::updateDescription()
 
 void ShowController::abortCommands()
 {
-    for (QPointer<VcsCommand> command : m_commands) {
+    for (QPointer<ShellCommand> command : m_commands) {
         if (command)
             command->abort();
     }
@@ -744,7 +744,7 @@ class ConflictHandler final : public QObject
 {
     Q_OBJECT
 public:
-    static void attachToCommand(VcsCommand *command, const QString &abortCommand = QString()) {
+    static void attachToCommand(ShellCommand *command, const QString &abortCommand = QString()) {
         auto handler = new ConflictHandler(command->defaultWorkingDirectory(), abortCommand);
         handler->setParent(command); // delete when command goes out of scope
 
@@ -812,7 +812,7 @@ private:
 class GitProgressParser : public ProgressParser
 {
 public:
-    static void attachToCommand(VcsCommand *command)
+    static void attachToCommand(ShellCommand *command)
     {
         command->setProgressParser(new GitProgressParser);
     }
@@ -1147,7 +1147,7 @@ void GitClient::merge(const FilePath &workingDirectory, const QStringList &unmer
 void GitClient::status(const FilePath &workingDirectory) const
 {
     VcsOutputWindow::setRepository(workingDirectory.toString());
-    VcsCommand *command = vcsExec(workingDirectory, {"status", "-u"}, nullptr, true);
+    ShellCommand *command = vcsExec(workingDirectory, {"status", "-u"}, nullptr, true);
     connect(command, &ShellCommand::finished, VcsOutputWindow::instance(),
             &VcsOutputWindow::clearRepository, Qt::QueuedConnection);
 }
@@ -1383,13 +1383,13 @@ VcsBaseEditorWidget *GitClient::annotate(
     return editor;
 }
 
-VcsCommand *GitClient::checkout(const FilePath &workingDirectory, const QString &ref,
+ShellCommand *GitClient::checkout(const FilePath &workingDirectory, const QString &ref,
                                 StashMode stashMode)
 {
     if (stashMode == StashMode::TryStash && !beginStashScope(workingDirectory, "Checkout"))
         return nullptr;
     QStringList arguments = setupCheckoutArguments(workingDirectory, ref);
-    VcsCommand *command = vcsExec(
+    ShellCommand *command = vcsExec(
                 workingDirectory, arguments, nullptr, true,
                 ShellCommand::ExpectRepoChanges | ShellCommand::ShowSuccessMessage);
     connect(command, &ShellCommand::finished,
@@ -1501,7 +1501,7 @@ void GitClient::removeStaleRemoteBranches(const FilePath &workingDirectory, cons
 {
     const QStringList arguments = {"remote", "prune", remote};
 
-    VcsCommand *command = vcsExec(workingDirectory, arguments, nullptr, true,
+    ShellCommand *command = vcsExec(workingDirectory, arguments, nullptr, true,
                                   ShellCommand::ShowSuccessMessage);
 
     connect(command, &ShellCommand::success,
@@ -2056,7 +2056,7 @@ bool GitClient::synchronousForEachRefCmd(const FilePath &workingDirectory, QStri
     return true;
 }
 
-VcsCommand *GitClient::asyncForEachRefCmd(const FilePath &workingDirectory, QStringList args) const
+ShellCommand *GitClient::asyncForEachRefCmd(const FilePath &workingDirectory, QStringList args) const
 {
     args.push_front("for-each-ref");
     return vcsExec(workingDirectory, args, nullptr, false, silentFlags);
@@ -2366,8 +2366,8 @@ void GitClient::updateSubmodulesIfNeeded(const FilePath &workingDirectory, bool 
         }
     }
 
-    VcsCommand *cmd = vcsExec(workingDirectory, {"submodule", "update"}, nullptr, true,
-                              ShellCommand::ExpectRepoChanges);
+    ShellCommand *cmd = vcsExec(workingDirectory, {"submodule", "update"}, nullptr, true,
+                                ShellCommand::ExpectRepoChanges);
     connect(cmd, &ShellCommand::finished, this, &GitClient::finishSubmoduleUpdate);
 }
 
@@ -3146,8 +3146,8 @@ void GitClient::revert(const QStringList &files, bool revertStaging)
 void GitClient::fetch(const FilePath &workingDirectory, const QString &remote)
 {
     QStringList const arguments = {"fetch", (remote.isEmpty() ? "--all" : remote)};
-    VcsCommand *command = vcsExec(workingDirectory, arguments, nullptr, true,
-                                  ShellCommand::ShowSuccessMessage);
+    ShellCommand *command = vcsExec(workingDirectory, arguments, nullptr, true,
+                                    ShellCommand::ShowSuccessMessage);
     connect(command, &ShellCommand::success,
             this, [workingDirectory] { GitPlugin::updateBranches(workingDirectory); });
 }
@@ -3179,7 +3179,7 @@ void GitClient::pull(const FilePath &workingDirectory, bool rebase)
         abortCommand = "merge";
     }
 
-    VcsCommand *command = vcsExecAbortable(workingDirectory, arguments, rebase, abortCommand);
+    ShellCommand *command = vcsExecAbortable(workingDirectory, arguments, rebase, abortCommand);
     connect(command, &ShellCommand::success, this,
             [this, workingDirectory] { updateSubmodulesIfNeeded(workingDirectory, true); },
             Qt::QueuedConnection);
@@ -3227,9 +3227,9 @@ bool GitClient::synchronousSetTrackingBranch(const FilePath &workingDirectory,
     return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
-VcsBase::VcsCommand *GitClient::asyncUpstreamStatus(const FilePath &workingDirectory,
-                                                    const QString &branch,
-                                                    const QString &upstream)
+ShellCommand *GitClient::asyncUpstreamStatus(const FilePath &workingDirectory,
+                                             const QString &branch,
+                                             const QString &upstream)
 {
     const QStringList args {"rev-list", noColorOption, "--left-right", "--count",
                 branch + "..." + upstream};
@@ -3323,7 +3323,7 @@ void GitClient::subversionDeltaCommit(const FilePath &workingDirectory) const
 
 void GitClient::push(const FilePath &workingDirectory, const QStringList &pushArgs)
 {
-    VcsCommand *command = vcsExec(
+    ShellCommand *command = vcsExec(
                 workingDirectory, QStringList({"push"}) + pushArgs, nullptr, true,
                 ShellCommand::ShowSuccessMessage);
     connect(command, &ShellCommand::stdErrText, this, [this, command](const QString &text) {
@@ -3363,7 +3363,7 @@ void GitClient::push(const FilePath &workingDirectory, const QStringList &pushAr
                             .arg(QString::number(warnColor.rgba(), 16)),
                             QMessageBox::Yes | QMessageBox::No,
                             QMessageBox::No) == QMessageBox::Yes) {
-                    VcsCommand *rePushCommand = vcsExec(workingDirectory,
+                    ShellCommand *rePushCommand = vcsExec(workingDirectory,
                             QStringList({"push", "--force-with-lease"}) + pushArgs,
                             nullptr, true, ShellCommand::ShowSuccessMessage);
                     connect(rePushCommand, &ShellCommand::success,
@@ -3384,7 +3384,7 @@ void GitClient::push(const FilePath &workingDirectory, const QStringList &pushAr
 
                     const QStringList fallbackCommandParts =
                             m_pushFallbackCommand.split(' ', Qt::SkipEmptyParts);
-                    VcsCommand *rePushCommand = vcsExec(workingDirectory,
+                    ShellCommand *rePushCommand = vcsExec(workingDirectory,
                                                         fallbackCommandParts.mid(1), nullptr, true,
                                                         ShellCommand::ShowSuccessMessage);
                     connect(rePushCommand, &ShellCommand::success, this, [workingDirectory]() {
@@ -3440,16 +3440,16 @@ void GitClient::revert(const FilePath &workingDirectory, const QString &argument
 
 // Executes a command asynchronously. Work tree is expected to be clean.
 // Stashing is handled prior to this call.
-VcsCommand *GitClient::vcsExecAbortable(const FilePath &workingDirectory,
-                                        const QStringList &arguments,
-                                        bool isRebase,
-                                        QString abortCommand)
+ShellCommand *GitClient::vcsExecAbortable(const FilePath &workingDirectory,
+                                          const QStringList &arguments,
+                                          bool isRebase,
+                                          QString abortCommand)
 {
     QTC_ASSERT(!arguments.isEmpty(), return nullptr);
 
     if (abortCommand.isEmpty())
         abortCommand = arguments.at(0);
-    VcsCommand *command = createCommand(workingDirectory, nullptr, VcsWindowOutputBind);
+    ShellCommand *command = createCommand(workingDirectory, nullptr, VcsWindowOutputBind);
     command->setCookie(workingDirectory.toString());
     command->addFlags(ShellCommand::SshPasswordPrompt
                       | ShellCommand::ShowStdOut
@@ -3518,8 +3518,8 @@ void GitClient::stashPop(const FilePath &workingDirectory, const QString &stash)
     QStringList arguments = {"stash", "pop"};
     if (!stash.isEmpty())
         arguments << stash;
-    VcsCommand *cmd = vcsExec(workingDirectory, arguments, nullptr, true,
-                              ShellCommand::ExpectRepoChanges);
+    ShellCommand *cmd = vcsExec(workingDirectory, arguments, nullptr, true,
+                                ShellCommand::ExpectRepoChanges);
     ConflictHandler::attachToCommand(cmd);
 }
 

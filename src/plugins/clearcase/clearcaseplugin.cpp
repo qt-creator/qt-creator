@@ -62,13 +62,14 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
+#include <utils/shellcommand.h>
 #include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
+#include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbaseeditor.h>
-#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
 #include <vcsbase/vcsbaseplugin.h>
@@ -1667,10 +1668,11 @@ ClearCasePluginPrivate::runCleartool(const FilePath &workingDir,
     QtcProcess proc;
     proc.setTimeoutS(timeOutS);
 
-    VcsCommand command(workingDir, Environment::systemEnvironment());
-    command.addFlags(flags);
-    command.setCodec(outputCodec);
-    command.runCommand(proc, {FilePath::fromString(executable), arguments});
+    auto *command = VcsBaseClient::createVcsCommand(workingDir, Environment::systemEnvironment());
+    command->addFlags(flags);
+    command->setCodec(outputCodec);
+    command->runCommand(proc, {FilePath::fromString(executable), arguments});
+    delete command;
 
     response.error = proc.result() != ProcessResult::FinishedWithSuccess;
     if (response.error)

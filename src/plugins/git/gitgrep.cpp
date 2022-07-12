@@ -30,7 +30,6 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <texteditor/findinfiles.h>
-#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsbaseconstants.h>
 
 #include <utils/algorithm.h>
@@ -40,6 +39,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
+#include <utils/shellcommand.h>
 #include <utils/textfileformat.h>
 
 #include <QCheckBox>

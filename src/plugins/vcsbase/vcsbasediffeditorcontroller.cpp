@@ -24,8 +24,7 @@
 ****************************************************************************/
 
 #include "vcsbasediffeditorcontroller.h"
-#include "vcscommand.h"
-#include "vcsbaseclientsettings.h"
+#include "vcsbaseclient.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -35,6 +34,7 @@
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
+#include <utils/shellcommand.h>
 
 #include <QPointer>
 
@@ -73,7 +73,7 @@ static void readPatch(QFutureInterface<QList<FileData>> &futureInterface,
 class VcsCommandResultProxy : public QObject {
     Q_OBJECT
 public:
-    VcsCommandResultProxy(VcsCommand *command, VcsBaseDiffEditorControllerPrivate *target);
+    VcsCommandResultProxy(ShellCommand *command, VcsBaseDiffEditorControllerPrivate *target);
 private:
     void storeOutput(const QString &output);
     void commandFinished(bool success);
@@ -103,14 +103,14 @@ public:
     QString m_startupFile;
     QString m_output;
     QString m_displayName;
-    QPointer<VcsCommand> m_command;
+    QPointer<ShellCommand> m_command;
     QPointer<VcsCommandResultProxy> m_commandResultProxy;
     QFutureWatcher<QList<FileData>> *m_processWatcher = nullptr;
 };
 
 /////////////////////
 
-VcsCommandResultProxy::VcsCommandResultProxy(VcsCommand *command,
+VcsCommandResultProxy::VcsCommandResultProxy(ShellCommand *command,
                           VcsBaseDiffEditorControllerPrivate *target)
     : QObject(target->q)
     , m_target(target)
@@ -242,7 +242,7 @@ void VcsBaseDiffEditorController::runCommand(const QList<QStringList> &args, uns
     // and "Waiting for data..." will be shown.
     d->cancelReload();
 
-    d->m_command = new VcsCommand(workingDirectory(), d->m_processEnvironment);
+    d->m_command = VcsBaseClient::createVcsCommand(workingDirectory(), d->m_processEnvironment);
     d->m_command->setDisplayName(d->m_displayName);
     d->m_command->setCodec(codec ? codec : EditorManager::defaultTextCodec());
     d->m_commandResultProxy = new VcsCommandResultProxy(d->m_command.data(), d);

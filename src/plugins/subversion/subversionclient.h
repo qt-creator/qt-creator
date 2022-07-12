@@ -29,8 +29,6 @@
 
 #include <utils/fileutils.h>
 
-namespace VcsBase { class VcsCommand; }
-
 namespace Subversion {
 namespace Internal {
 

@@ -24,12 +24,12 @@
 ****************************************************************************/
 
 #include "vcsbaseeditor.h"
-#include "diffandloghighlighter.h"
+
 #include "baseannotationhighlighter.h"
 #include "basevcseditorfactory.h"
-#include "vcsbaseplugin.h"
+#include "diffandloghighlighter.h"
 #include "vcsbaseeditorconfig.h"
-#include "vcscommand.h"
+#include "vcsbaseplugin.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -48,6 +48,7 @@
 #include <utils/porting.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
+#include <utils/shellcommand.h>
 
 #include <QDebug>
 #include <QFileInfo>
@@ -571,7 +572,7 @@ public:
     QString m_annotatePreviousRevisionTextFormat;
     VcsBaseEditorConfig *m_config = nullptr;
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
-    QPointer<VcsCommand> m_command;
+    QPointer<ShellCommand> m_command;
     VcsBaseEditorWidget::DescribeFunc m_describeFunc = nullptr;
     ProgressIndicator *m_progressIndicator = nullptr;
     bool m_fileLogAnnotateEnabled = false;
@@ -1418,7 +1419,7 @@ VcsBaseEditorConfig *VcsBaseEditorWidget::editorConfig() const
     return d->m_config;
 }
 
-void VcsBaseEditorWidget::setCommand(VcsCommand *command)
+void VcsBaseEditorWidget::setCommand(ShellCommand *command)
 {
     if (d->m_command) {
         d->m_command->abort();

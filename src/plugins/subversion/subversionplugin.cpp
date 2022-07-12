@@ -26,19 +26,17 @@
 #include "subversionplugin.h"
 
 #include "subversioneditor.h"
-
-#include "subversionsubmiteditor.h"
 #include "subversionclient.h"
 #include "subversionconstants.h"
 #include "subversionsettings.h"
+#include "subversionsubmiteditor.h"
 
 #include <vcsbase/basevcseditorfactory.h>
-#include <vcsbase/vcscommand.h>
-#include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
+#include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseconstants.h>
-#include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcsoutputwindow.h>
 
 #include <texteditor/textdocument.h>
 
@@ -59,20 +57,21 @@
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/shellcommand.h>
 #include <utils/stringutils.h>
 
+#include <QAction>
 #include <QDebug>
 #include <QDir>
-#include <QFileInfo>
-#include <QTextCodec>
-#include <QProcessEnvironment>
-#include <QUrl>
-#include <QXmlStreamReader>
-#include <QAction>
 #include <QFileDialog>
+#include <QFileInfo>
+#include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
-#include <QInputDialog>
+#include <QProcessEnvironment>
+#include <QTextCodec>
+#include <QUrl>
+#include <QXmlStreamReader>
 
 #include <climits>
 
@@ -1290,7 +1289,7 @@ ShellCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const QStrin
     args << QLatin1String(Subversion::Constants::NON_INTERACTIVE_OPTION);
     args << extraArgs << url << localName;
 
-    auto command = new VcsBase::VcsCommand(baseDirectory, m_client->processEnvironment());
+    auto command = VcsBaseClient::createVcsCommand(baseDirectory, m_client->processEnvironment());
     command->addJob({m_settings.binaryPath.filePath(), args}, -1);
     return command;
 }

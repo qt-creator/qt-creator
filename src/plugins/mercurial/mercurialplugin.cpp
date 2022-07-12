@@ -48,12 +48,12 @@
 #include <utils/environment.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
+#include <utils/shellcommand.h>
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
-#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QAction>
@@ -833,7 +833,7 @@ ShellCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const QString
 {
     QStringList args;
     args << QLatin1String("clone") << extraArgs << url << localName;
-    auto command = new VcsBase::VcsCommand(baseDirectory, m_client.processEnvironment());
+    auto command = VcsBaseClient::createVcsCommand(baseDirectory, m_client.processEnvironment());
     command->addJob({m_settings.binaryPath.filePath(), args}, -1);
     return command;
 }

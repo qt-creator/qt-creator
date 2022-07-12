@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "vcsbase_global.h"
-
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <utils/shellcommand.h>
 
@@ -34,24 +32,24 @@
 
 namespace VcsBase {
 
-class VcsOutputWindow;
-
-class VCSBASE_EXPORT VcsCommand : public Utils::ShellCommand
+class VcsCommand : public Utils::ShellCommand
 {
     Q_OBJECT
-
-public:
-    VcsCommand(const Utils::FilePath &defaultWorkingDirectory, const Utils::Environment &environment);
 
 protected:
     Utils::Environment environment() const override;
 
 private:
+    VcsCommand(const Utils::FilePath &defaultWorkingDirectory,
+               const Utils::Environment &environment);
+
     void addTask(QFuture<void> &future) override;
     void postRunCommand(const Utils::FilePath &workDirectory) override;
 
     QPointer<Core::FutureProgress> m_progress;
     bool m_preventRepositoryChanged;
+
+    friend class VcsBaseClientImpl;
 };
 
 } // namespace VcsBase

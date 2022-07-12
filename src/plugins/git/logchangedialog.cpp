@@ -27,9 +27,9 @@
 #include "gitclient.h"
 
 #include <vcsbase/vcsoutputwindow.h>
-#include <vcsbase/vcscommand.h>
 
 #include <utils/qtcassert.h>
+#include <utils/shellcommand.h>
 
 #include <QComboBox>
 #include <QDialogButtonBox>

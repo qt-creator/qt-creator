@@ -31,7 +31,7 @@
 #include <QAbstractListModel>
 #include <QVariant>
 
-namespace VcsBase { class VcsCommand; }
+namespace Utils { class ShellCommand; }
 
 namespace Git {
 namespace Internal {
@@ -80,7 +80,7 @@ public:
 
     void removeBranch(const QModelIndex &idx);
     void removeTag(const QModelIndex &idx);
-    VcsBase::VcsCommand *checkoutBranch(const QModelIndex &idx);
+    Utils::ShellCommand *checkoutBranch(const QModelIndex &idx);
     bool branchIsMerged(const QModelIndex &idx);
     QModelIndex addBranch(const QString &name, bool track, const QModelIndex &trackedBranch);
     void setRemoteTracking(const QModelIndex &trackingIndex);

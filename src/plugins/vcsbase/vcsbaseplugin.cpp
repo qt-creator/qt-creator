@@ -27,8 +27,6 @@
 #include "vcsbasesubmiteditor.h"
 #include "vcsplugin.h"
 #include "commonvcssettings.h"
-#include "vcsoutputwindow.h"
-#include "vcscommand.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
@@ -40,18 +38,16 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
+#include <QAction>
 #include <QDebug>
 #include <QDir>
 #include <QLoggingCategory>
+#include <QMessageBox>
 #include <QSharedData>
 #include <QScopedPointer>
 #include <QSharedPointer>
 #include <QProcessEnvironment>
 #include <QTextCodec>
-
-#include <QAction>
-#include <QMessageBox>
-#include <QFileDialog>
 
 using namespace Core;
 using namespace Utils;

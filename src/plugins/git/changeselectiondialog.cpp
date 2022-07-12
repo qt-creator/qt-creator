@@ -32,9 +32,8 @@
 
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
+#include <utils/shellcommand.h>
 #include <utils/theme/theme.h>
-
-#include <vcsbase/vcscommand.h>
 
 #include <QCompleter>
 #include <QDir>
@@ -195,8 +194,7 @@ void ChangeSelectionDialog::recalculateCompletion()
         return;
 
     GitClient *client = GitClient::instance();
-    VcsBase::VcsCommand *command = client->asyncForEachRefCmd(
-                workingDir, {"--format=%(refname:short)"});
+    ShellCommand *command = client->asyncForEachRefCmd(workingDir, {"--format=%(refname:short)"});
     connect(this, &QObject::destroyed, command, &ShellCommand::abort);
     connect(command, &ShellCommand::stdOutText, [this](const QString &output) {
         m_changeModel->setStringList(output.split('\n'));

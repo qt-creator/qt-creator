@@ -40,8 +40,8 @@
 #include <utils/fancylineedit.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
+#include <utils/shellcommand.h>
 #include <utils/utilsicons.h>
-#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QDir>
@@ -93,8 +93,8 @@ BranchView::BranchView()
     , m_includeTagsAction(new QAction(tr("Include Tags"), this))
     , m_addAction(new QAction(this))
     , m_refreshAction(new QAction(this))
-    , m_repositoryLabel(new Utils::ElidingLabel(this))
-    , m_branchView(new Utils::NavigationTreeView(this))
+    , m_repositoryLabel(new ElidingLabel(this))
+    , m_branchView(new NavigationTreeView(this))
     , m_model(new BranchModel(GitClient::instance(), this))
     , m_filterModel(new BranchFilterModel(this))
 {
@@ -114,9 +114,9 @@ BranchView::BranchView()
     m_filterModel->setFilterRole(Qt::EditRole);
     m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_branchView->setModel(m_filterModel);
-    auto filterEdit = new Utils::FancyLineEdit(this);
+    auto filterEdit = new FancyLineEdit(this);
     filterEdit->setFiltering(true);
-    connect(filterEdit, &Utils::FancyLineEdit::textChanged,
+    connect(filterEdit, &FancyLineEdit::textChanged,
             m_filterModel, QOverload<const QString &>::of(&BranchFilterModel::setFilterRegularExpression));
     auto layout = new QVBoxLayout(this);
     layout->addWidget(filterEdit);
@@ -435,7 +435,7 @@ bool BranchView::checkout()
                 return false;
         }
 
-        VcsBase::VcsCommand *command = m_model->checkoutBranch(selected);
+        ShellCommand *command = m_model->checkoutBranch(selected);
         const bool moveChanges = branchCheckoutDialog.moveLocalChangesToNextBranch();
         const bool popStash = branchCheckoutDialog.popStashOfNextBranch();
         if (command && (moveChanges || popStash)) {
