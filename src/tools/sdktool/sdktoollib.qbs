@@ -11,13 +11,18 @@ QtcLibrary {
 
     property string libsDir: path + "/../../libs"
 
-    cpp.defines: base.concat([
-        "UTILS_LIBRARY",
-        qbs.targetOS.contains("macos")
-            ? 'DATA_PATH="."'
-            : qbs.targetOS.contains("windows") ? 'DATA_PATH="../share/qtcreator"'
-                                               : 'DATA_PATH="../../share/qtcreator"'
-    ])
+    cpp.defines: {
+        var defines = base;
+        base.push(
+            "UTILS_LIBRARY",
+            qbs.targetOS.contains("macos")
+                ? 'DATA_PATH="."'
+                : qbs.targetOS.contains("windows") ? 'DATA_PATH="../share/qtcreator"'
+                                                   : 'DATA_PATH="../../share/qtcreator"');
+        if (project.withAutotests)
+            defines.push("WITH_TESTS");
+        return defines;
+    }
     cpp.dynamicLibraries: {
         if (qbs.targetOS.contains("windows"))
             return ["user32", "shell32"]
