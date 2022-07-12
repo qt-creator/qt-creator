@@ -48,4 +48,9 @@
 
     The deployment process is described in more detail in
     \l{Deploying Applications to Generic Remote Linux Devices}.
+
+    \section1 Finding Configured Devices
+
+    The \uicontrol {Check for a configured device} deployment step looks for a
+    device that is ready for deployment.
 */

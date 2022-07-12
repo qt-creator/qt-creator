@@ -53,6 +53,11 @@
     installed on the device. Text in red color indicates that the information is
     missing.
 
+    If the build system did not automatically detect the source and target
+    directories, select \uicontrol {Override deployment data from build system},
+    and then select \uicontrol Add to enter them manually. To remove the
+    selected paths from \uicontrol {Files to deploy}, select \uicontrol Remove.
+
     \section1 Adding Missing Files
 
     The process to add files to deploy depends on the build system you use.
@@ -100,28 +105,16 @@
     When you run the application on the device, \QC first uploads the
     necessary files to it, as specified by the deploy steps.
 
-    \section2 Finding Configured Devices
-
-    The \uicontrol {Check for a configured device} step looks for a device that
-    is ready for deployment.
-
-    \section2 Checking for Free Disk Space
-
-    The \uicontrol {Check for free disk space} step is by default the first
-    deploy step. Use it to find out whether the remote file system has enough
-    space left to deploy your project. Errors due to lack of disk space can
-    otherwise be hard to detect.
-
-    \note If the SFTP upload fails, make sure that the remote device has SFTP
-    enabled in its SSH daemon. Some versions of Dropbear that come without SFTP
-    support will crash when an SFTP upload is being attempted. This is not a bug
-    in \QC.
-
     \section2 Uploading Files
 
     By default, \QC copies the application files to the device by
     using the SSH file transfer protocol (SFTP), as specified by
     the \uicontrol {Upload files via SFTP} step.
+
+    \note If the SFTP upload fails, make sure that the remote device has SFTP
+    enabled in its SSH daemon. Some versions of Dropbear that come without SFTP
+    support will crash when an SFTP upload is being attempted. This is not a bug
+    in \QC.
 
     If you have a lot of data to copy, select \uicontrol Details in the
     \uicontrol {Upload Files via SFTP} step, and then select the
