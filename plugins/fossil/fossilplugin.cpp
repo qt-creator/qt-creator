@@ -56,6 +56,7 @@
 #include <utils/commandline.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
+#include <utils/shellcommand.h>
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
@@ -165,10 +166,10 @@ public:
     void vcsAnnotate(const FilePath &file, int line) final;
     void vcsDescribe(const FilePath &source, const QString &id) final;
 
-    Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
-                                                     const Utils::FilePath &baseDirectory,
-                                                     const QString &localName,
-                                                     const QStringList &extraArgs) final;
+    Utils::ShellCommand *createInitialCheckoutCommand(const QString &url,
+                                                      const Utils::FilePath &baseDirectory,
+                                                      const QString &localName,
+                                                      const QStringList &extraArgs) final;
 
     void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
     bool submitEditorAboutToClose() override;
@@ -995,10 +996,10 @@ void FossilPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 
 void FossilPluginPrivate::vcsDescribe(const FilePath &source, const QString &id) { m_client.view(source.toString(), id); }
 
-Core::ShellCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sourceUrl,
-                                                                      const FilePath &baseDirectory,
-                                                                      const QString &localName,
-                                                                      const QStringList &extraArgs)
+Utils::ShellCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sourceUrl,
+                                                                       const FilePath &baseDirectory,
+                                                                       const QString &localName,
+                                                                       const QStringList &extraArgs)
 {
     QMap<QString, QString> options;
     FossilJsExtension::parseArgOptions(extraArgs, options);
