@@ -25,8 +25,6 @@
 
 #include "clangselectablefilesdialog.h"
 
-#include "ui_clangselectablefilesdialog.h"
-
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <cppeditor/projectinfo.h>
@@ -34,8 +32,10 @@
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
+#include <QComboBox>
 #include <QDialogButtonBox>
 #include <QPushButton>
 #include <QSortFilterProxyModel>
@@ -268,56 +268,68 @@ SelectableFilesDialog::SelectableFilesDialog(Project *project,
                                              const FileInfoProviders &fileInfoProviders,
                                              int initialProviderIndex)
     : QDialog(nullptr)
-    , m_ui(new Ui::SelectableFilesDialog)
     , m_filesModel(new SelectableFilesModel)
     , m_fileInfoProviders(fileInfoProviders)
     , m_project(project)
-    , m_analyzeButton(new QPushButton(tr("Analyze"), this))
 {
-    m_ui->setupUi(this);
+    setWindowTitle(tr("Files to Analyze"));
+    resize(700, 600);
+
+    m_fileFilterComboBox = new QComboBox(this);
+    m_fileFilterComboBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     // Files View
     // Make find actions available in this dialog, e.g. Strg+F for the view.
     addAction(Core::ActionManager::command(Core::Constants::FIND_IN_DOCUMENT)->action());
     addAction(Core::ActionManager::command(Core::Constants::FIND_NEXT)->action());
     addAction(Core::ActionManager::command(Core::Constants::FIND_PREVIOUS)->action());
+
     m_fileView = new QTreeView;
     m_fileView->setHeaderHidden(true);
     m_fileView->setModel(m_filesModel.get());
-    m_ui->verticalLayout->addWidget(
-        Core::ItemViewFind::createSearchableWrapper(m_fileView, Core::ItemViewFind::LightColored));
 
     // Filter combo box
     for (const FileInfoProvider &provider : m_fileInfoProviders) {
-        m_ui->fileFilterComboBox->addItem(provider.displayName);
+        m_fileFilterComboBox->addItem(provider.displayName);
 
         // Disable item if it has no file infos
-        auto *model = qobject_cast<QStandardItemModel *>(m_ui->fileFilterComboBox->model());
-        QStandardItem *item = model->item(m_ui->fileFilterComboBox->count() - 1);
+        auto *model = qobject_cast<QStandardItemModel *>(m_fileFilterComboBox->model());
+        QStandardItem *item = model->item(m_fileFilterComboBox->count() - 1);
         item->setFlags(provider.fileInfos.empty() ? item->flags() & ~Qt::ItemIsEnabled
                                                   : item->flags() | Qt::ItemIsEnabled);
     }
+
     int providerIndex = initialProviderIndex;
     if (m_fileInfoProviders[providerIndex].fileInfos.empty())
         providerIndex = 0;
-    m_ui->fileFilterComboBox->setCurrentIndex(providerIndex);
+    m_fileFilterComboBox->setCurrentIndex(providerIndex);
+
     onFileFilterChanged(providerIndex);
-    connect(m_ui->fileFilterComboBox,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this,
-            &SelectableFilesDialog::onFileFilterChanged);
+    connect(m_fileFilterComboBox, &QComboBox::currentIndexChanged,
+            this, &SelectableFilesDialog::onFileFilterChanged);
+
+    auto analyzeButton = new QPushButton(tr("Analyze"), this);
+    analyzeButton->setEnabled(m_filesModel->hasCheckedFiles());
 
     // Buttons
-    m_buttons = new QDialogButtonBox;
-    m_buttons->setStandardButtons(QDialogButtonBox::Cancel);
-    m_buttons->addButton(m_analyzeButton, QDialogButtonBox::AcceptRole);\
-    connect(m_buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(m_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-    m_analyzeButton->setEnabled(m_filesModel->hasCheckedFiles());
-    connect(m_filesModel.get(), &QAbstractItemModel::dataChanged, [this]() {
-        m_analyzeButton->setEnabled(m_filesModel->hasCheckedFiles());
+    auto buttons = new QDialogButtonBox;
+    buttons->setStandardButtons(QDialogButtonBox::Cancel);
+    buttons->addButton(analyzeButton, QDialogButtonBox::AcceptRole);
+
+    connect(m_filesModel.get(), &QAbstractItemModel::dataChanged, [this, analyzeButton] {
+        analyzeButton->setEnabled(m_filesModel->hasCheckedFiles());
     });
-    m_ui->verticalLayout->addWidget(m_buttons);
+
+    connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    using namespace Layouting;
+
+    Column {
+        m_fileFilterComboBox,
+        Core::ItemViewFind::createSearchableWrapper(m_fileView, Core::ItemViewFind::LightColored),
+        buttons
+    }.attachTo(this);
 }
 
 SelectableFilesDialog::~SelectableFilesDialog() = default;
@@ -329,7 +341,7 @@ FileInfos SelectableFilesDialog::fileInfos() const
 
 int SelectableFilesDialog::currentProviderIndex() const
 {
-    return m_ui->fileFilterComboBox->currentIndex();
+    return m_fileFilterComboBox->currentIndex();
 }
 
 void SelectableFilesDialog::onFileFilterChanged(int index)
@@ -360,7 +372,7 @@ void SelectableFilesDialog::accept()
 {
     FileInfoSelection selection;
     m_filesModel->minimalSelection(selection);
-    FileInfoProvider &provider = m_fileInfoProviders[m_ui->fileFilterComboBox->currentIndex()];
+    FileInfoProvider &provider = m_fileInfoProviders[m_fileFilterComboBox->currentIndex()];
     provider.onSelectionAccepted(selection);
 
     QDialog::accept();

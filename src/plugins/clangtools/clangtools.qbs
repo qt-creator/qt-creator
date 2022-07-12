@@ -28,7 +28,6 @@ QtcPlugin {
         "clangfixitsrefactoringchanges.h",
         "clangselectablefilesdialog.cpp",
         "clangselectablefilesdialog.h",
-        "clangselectablefilesdialog.ui",
         "clangtidyclazyrunner.cpp",
         "clangtidyclazyrunner.h",
         "clangtool.cpp",

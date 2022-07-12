@@ -30,16 +30,12 @@
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
-class QDialogButtonBox;
-class QPushButton;
+class QComboBox;
 QT_END_NAMESPACE
-
-namespace CppEditor { class ProjectInfo; }
 
 namespace ClangTools {
 namespace Internal {
 
-namespace Ui { class SelectableFilesDialog; }
 class SelectableFilesModel;
 
 class SelectableFilesDialog : public QDialog
@@ -59,16 +55,14 @@ private:
     void onFileFilterChanged(int index);
     void accept() override;
 
-    std::unique_ptr<Ui::SelectableFilesDialog> m_ui;
     QTreeView *m_fileView = nullptr;
-    QDialogButtonBox *m_buttons = nullptr;
     std::unique_ptr<SelectableFilesModel> m_filesModel;
 
     FileInfoProviders m_fileInfoProviders;
     int m_previousProviderIndex = -1;
 
     ProjectExplorer::Project *m_project;
-    QPushButton *m_analyzeButton = nullptr;
+    QComboBox *m_fileFilterComboBox;
 };
 
 } // namespace Internal
