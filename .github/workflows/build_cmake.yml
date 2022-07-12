@@ -4,9 +4,9 @@ on: [push]
 
 env:
   PLUGIN_NAME: Fossil
-  QT_VERSION: 6.2.1
-  QT_CREATOR_VERSION: 6.0.0
-  QT_CREATOR_SNAPSHOT: NO
+  QT_VERSION: 6.3.1
+  QT_CREATOR_VERSION: 8.0.0-beta2
+  QT_CREATOR_SNAPSHOT: latest
   CMAKE_VERSION: 3.21.1
   NINJA_VERSION: 1.10.2
 
@@ -18,8 +18,8 @@ jobs:
       matrix:
         config:
         - {
-            name: "Windows Latest MSVC", artifact: "Windows-x64",
-            os: windows-latest,
+            name: "Windows MSVC 2019", artifact: "Windows-x64",
+            os: windows-2019,
             cc: "cl", cxx: "cl",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
           }
@@ -107,17 +107,17 @@ jobs:
           set(url_os "windows_x86")
           set(qt_package_arch_suffix "win64_msvc2019_64")
           set(qt_dir_prefix "${qt_version}/msvc2019_64")
-          set(qt_package_suffix "-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86_64")
+          set(qt_package_suffix "-Windows-Windows_10_21H2-MSVC2019-Windows-Windows_10_21H2-X86_64")
         elseif ("${{ runner.os }}" STREQUAL "Linux")
           set(url_os "linux_x64")
           set(qt_package_arch_suffix "gcc_64")
           set(qt_dir_prefix "${qt_version}/gcc_64")
-          set(qt_package_suffix "-Linux-RHEL_8_2-GCC-Linux-RHEL_8_2-X86_64")
+          set(qt_package_suffix "-Linux-RHEL_8_4-GCC-Linux-RHEL_8_4-X86_64")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
           set(url_os "mac_x64")
           set(qt_package_arch_suffix "clang_64")
           set(qt_dir_prefix "${qt_version}/macos")
-          set(qt_package_suffix "-MacOS-MacOS_11_00-Clang-MacOS-MacOS_11_00-X86_64-ARM64")
+          set(qt_package_suffix "-MacOS-MacOS_12-Clang-MacOS-MacOS_12-X86_64-ARM64")
         endif()
 
         set(qt_base_url "https://download.qt.io/online/qtsdkrepository/${url_os}/desktop/qt6_${qt_version_dotless}")
