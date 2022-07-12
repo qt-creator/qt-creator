@@ -1192,7 +1192,7 @@ void VcsBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
     if (!exists)
         return;
 
-    Core::IEditor *ed = Core::EditorManager::openEditor(Utils::FilePath::fromString(fileName));
+    Core::IEditor *ed = Core::EditorManager::openEditor(FilePath::fromString(fileName));
     if (auto editor = qobject_cast<BaseTextEditor *>(ed))
         editor->gotoLine(chunkStart + lineCount);
 }
@@ -1269,7 +1269,7 @@ const VcsBaseEditorParameters *VcsBaseEditor::findType(const VcsBaseEditorParame
 static QTextCodec *findFileCodec(const QString &source)
 {
     Core::IDocument *document = Core::DocumentModel::documentForFilePath(
-        Utils::FilePath::fromString(source));
+                FilePath::fromString(source));
     if (auto textDocument = qobject_cast<Core::BaseTextDocument *>(document))
         return const_cast<QTextCodec *>(textDocument->codec());
     return nullptr;

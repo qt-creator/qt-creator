@@ -108,7 +108,7 @@ private:
     void setFormat(VcsOutputWindow::MessageStyle style);
     QString identifierUnderCursor(const QPoint &pos, QString *repository = nullptr) const;
 
-    Utils::OutputFormat m_format;
+    OutputFormat m_format;
     VcsOutputLineParser *m_parser = nullptr;
 };
 
@@ -203,7 +203,7 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
             return;
         }
         if (action == openAction) {
-            const auto fileName = Utils::FilePath::fromVariant(action->data());
+            const auto fileName = FilePath::fromVariant(action->data());
             Core::EditorManager::openEditor(fileName);
         }
     }

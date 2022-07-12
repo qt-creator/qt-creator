@@ -650,7 +650,7 @@ static QString msgCheckScript(const FilePath &workingDir, const QString &cmd)
 bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript, QString *errorMessage) const
 {
     // Write out message
-    TempFileSaver saver(Utils::TemporaryDirectory::masterDirectoryPath() + "/msgXXXXXX.txt");
+    TempFileSaver saver(TemporaryDirectory::masterDirectoryPath() + "/msgXXXXXX.txt");
     saver.write(fileContents());
     if (!saver.finalize(errorMessage))
         return false;

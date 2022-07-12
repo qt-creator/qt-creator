@@ -49,8 +49,7 @@ VcsOutputLineParser::VcsOutputLineParser() :
 {
 }
 
-Utils::OutputLineParser::Result VcsOutputLineParser::handleLine(const QString &text,
-                                                                Utils::OutputFormat format)
+OutputLineParser::Result VcsOutputLineParser::handleLine(const QString &text, OutputFormat format)
 {
     Q_UNUSED(format);
     QRegularExpressionMatchIterator it = m_regexp.globalMatch(text);

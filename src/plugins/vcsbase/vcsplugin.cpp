@@ -62,7 +62,7 @@ class VcsPluginPrivate
 public:
     CommonOptionsPage m_settingsPage;
     QStandardItemModel *m_nickNameModel = nullptr;
-    Utils::FutureSynchronizer m_synchronizer;
+    FutureSynchronizer m_synchronizer;
 };
 
 static VcsPlugin *m_instance = nullptr;
@@ -106,7 +106,7 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     JsExpander::registerGlobalObject<VcsJsExtension>("Vcs");
 
-    Utils::MacroExpander *expander = Utils::globalMacroExpander();
+    MacroExpander *expander = globalMacroExpander();
     expander->registerVariable(Constants::VAR_VCS_NAME,
         tr("Name of the version control system in use by the current project."),
         []() -> QString {

@@ -293,7 +293,7 @@ void VcsBaseDiffEditorController::setVcsTimeoutS(int value)
     d->m_vscTimeoutS = value;
 }
 
-void VcsBaseDiffEditorController::setVcsBinary(const Utils::FilePath &path)
+void VcsBaseDiffEditorController::setVcsBinary(const FilePath &path)
 {
     d->m_vcsBinary = path;
 }

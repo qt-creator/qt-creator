@@ -53,8 +53,8 @@ VcsConfigurationPageFactory::VcsConfigurationPageFactory()
     setTypeIdsSuffix(QLatin1String("VcsConfiguration"));
 }
 
-Utils::WizardPage *VcsConfigurationPageFactory::create(JsonWizard *wizard, Id typeId,
-                                                       const QVariant &data)
+WizardPage *VcsConfigurationPageFactory::create(JsonWizard *wizard, Id typeId,
+                                                const QVariant &data)
 {
     Q_UNUSED(wizard)
 

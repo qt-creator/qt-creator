@@ -52,8 +52,8 @@ SubmitEditorFile::SubmitEditorFile(VcsBaseSubmitEditor *editor) :
 }
 
 Core::IDocument::OpenResult SubmitEditorFile::open(QString *errorString,
-                                                   const Utils::FilePath &filePath,
-                                                   const Utils::FilePath &realFilePath)
+                                                   const FilePath &filePath,
+                                                   const FilePath &realFilePath)
 {
     if (filePath.isEmpty())
         return OpenResult::ReadError;

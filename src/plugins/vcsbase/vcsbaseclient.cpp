@@ -227,13 +227,13 @@ int VcsBaseClientImpl::vcsTimeoutS() const
     return m_baseSettings->timeout.value();
 }
 
-ShellCommand *VcsBaseClientImpl::createVcsCommand(const Utils::FilePath &defaultWorkingDir,
-                                                  const Utils::Environment &environment)
+ShellCommand *VcsBaseClientImpl::createVcsCommand(const FilePath &defaultWorkingDir,
+                                                  const Environment &environment)
 {
     return new VcsCommand(defaultWorkingDir, environment);
 }
 
-VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Utils::Id kind, QString title,
+VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Id kind, QString title,
                                                         const QString &source, QTextCodec *codec,
                                                         const char *registerDynamicProperty,
                                                         const QString &dynamicPropertyValue) const
@@ -379,7 +379,7 @@ VcsBaseEditorWidget *VcsBaseClient::annotate(
     const QString vcsCmdString = vcsCommandString(AnnotateCommand);
     QStringList args;
     args << vcsCmdString << revisionSpec(revision) << extraOptions << file;
-    const Utils::Id kind = vcsEditorKind(AnnotateCommand);
+    const Id kind = vcsEditorKind(AnnotateCommand);
     const QString id = VcsBaseEditor::getSource(workingDir, QStringList(file));
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const QString source = VcsBaseEditor::getSource(workingDir, file);
@@ -398,7 +398,7 @@ void VcsBaseClient::diff(const FilePath &workingDir, const QStringList &files,
                          const QStringList &extraOptions)
 {
     const QString vcsCmdString = vcsCommandString(DiffCommand);
-    const Utils::Id kind = vcsEditorKind(DiffCommand);
+    const Id kind = vcsEditorKind(DiffCommand);
     const QString id = VcsBaseEditor::getTitleId(workingDir, files);
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const QString source = VcsBaseEditor::getSource(workingDir, files);
@@ -441,7 +441,7 @@ void VcsBaseClient::log(const FilePath &workingDir,
                         bool enableAnnotationContextMenu)
 {
     const QString vcsCmdString = vcsCommandString(LogCommand);
-    const Utils::Id kind = vcsEditorKind(LogCommand);
+    const Id kind = vcsEditorKind(LogCommand);
     const QString id = VcsBaseEditor::getTitleId(workingDir, files);
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const QString source = VcsBaseEditor::getSource(workingDir, files);
@@ -575,7 +575,7 @@ void VcsBaseClient::view(const QString &source,
 {
     QStringList args;
     args << extraOptions << revisionSpec(id);
-    const Utils::Id kind = vcsEditorKind(DiffCommand);
+    const Id kind = vcsEditorKind(DiffCommand);
     const QString title = vcsEditorTitle(vcsCommandString(LogCommand), id);
 
     VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
