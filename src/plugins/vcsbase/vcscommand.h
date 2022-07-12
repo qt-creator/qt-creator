@@ -60,7 +60,6 @@ private:
     void emitRepositoryChanged(const Utils::FilePath &workingDirectory);
 
     QPointer<Core::FutureProgress> m_progress;
-    QString m_sshPrompt;
     bool m_preventRepositoryChanged;
 };
 

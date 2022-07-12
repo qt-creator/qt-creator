@@ -126,18 +126,12 @@ private:
 VCSBASE_EXPORT Utils::FilePath findRepositoryForFile(const Utils::FilePath &fileOrDir,
                                                      const QString &checkFile);
 
-// Returns SSH prompt configured in settings.
-VCSBASE_EXPORT QString sshPrompt();
-// Returns whether an SSH prompt is configured.
-VCSBASE_EXPORT bool isSshPromptConfigured();
-
 // Set up the environment for a version control command line call.
 // Sets up SSH graphical password prompting (note that the latter
 // requires a terminal-less process) and sets LANG to 'C' to force English
 // (suppress LOCALE warnings/parse commands output) if desired.
 VCSBASE_EXPORT void setProcessEnvironment(Utils::Environment *e,
-                                          bool forceCLocale,
-                                          const QString &sshPasswordPrompt = sshPrompt());
+                                          bool forceCLocale);
 // Sets the source of editor contents, can be directory or file.
 VCSBASE_EXPORT void setSource(Core::IDocument *document, const QString &source);
 // Returns the source of editor contents.

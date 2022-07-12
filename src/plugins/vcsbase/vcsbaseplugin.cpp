@@ -725,17 +725,6 @@ FilePath findRepositoryForFile(const FilePath &fileOrDir, const QString &checkFi
     return {};
 }
 
-// Is SSH prompt configured?
-QString sshPrompt()
-{
-    return Internal::VcsPlugin::instance()->settings().sshPasswordPrompt.value();
-}
-
-bool isSshPromptConfigured()
-{
-    return !sshPrompt().isEmpty();
-}
-
 static const char SOURCE_PROPERTY[] = "qtcreator_source";
 
 void setSource(IDocument *document, const QString &source)
@@ -749,14 +738,15 @@ QString source(IDocument *document)
     return document->property(SOURCE_PROPERTY).toString();
 }
 
-void setProcessEnvironment(Environment *e, bool forceCLocale, const QString &sshPromptBinary)
+void setProcessEnvironment(Environment *e, bool forceCLocale)
 {
     if (forceCLocale) {
         e->set("LANG", "C");
         e->set("LANGUAGE", "C");
     }
-    if (!sshPromptBinary.isEmpty())
-        e->set("SSH_ASKPASS", sshPromptBinary);
+    const QString prompt = Internal::VcsPlugin::instance()->settings().sshPasswordPrompt.value();
+    if (!prompt.isEmpty())
+        e->set("SSH_ASKPASS", prompt);
 }
 
 } // namespace VcsBase
