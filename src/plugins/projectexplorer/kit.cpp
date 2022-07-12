@@ -25,6 +25,7 @@
 
 #include "kit.h"
 
+#include "devicesupport/idevice.h"
 #include "devicesupport/idevicefactory.h"
 #include "kitinformation.h"
 #include "kitmanager.h"
@@ -575,14 +576,16 @@ void Kit::addToRunEnvironment(Environment &env) const
 
 Environment Kit::buildEnvironment() const
 {
-    Environment env = Environment::systemEnvironment(); // FIXME: Use build device
+    IDevice::ConstPtr device = BuildDeviceKitAspect::device(this);
+    Environment env = device ? device->systemEnvironment() : Environment::systemEnvironment();
     addToBuildEnvironment(env);
     return env;
 }
 
 Environment Kit::runEnvironment() const
 {
-    Environment env = Environment::systemEnvironment(); // FIXME: Use run device
+    IDevice::ConstPtr device = DeviceKitAspect::device(this);
+    Environment env = device ? device->systemEnvironment() : Environment::systemEnvironment();
     addToRunEnvironment(env);
     return env;
 }

@@ -47,6 +47,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
+#include <projectexplorer/devicesupport/idevice.h>
+
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
 #include <utils/layoutbuilder.h>
@@ -486,8 +488,10 @@ void BuildConfiguration::setBuildDirectorySettingsKey(const QString &key)
 Environment BuildConfiguration::baseEnvironment() const
 {
     Environment result;
-    if (useSystemEnvironment())
-        result = Environment::systemEnvironment();
+    if (useSystemEnvironment()) {
+        ProjectExplorer::IDevice::ConstPtr devicePtr = BuildDeviceKitAspect::device(kit());
+        result = devicePtr ? devicePtr->systemEnvironment() : Environment::systemEnvironment();
+    }
     addToEnvironment(result);
     kit()->addToBuildEnvironment(result);
     result.modify(project()->additionalEnvironment());
