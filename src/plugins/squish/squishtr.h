@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2022 The Qt Company Ltd
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of Qt Creator Squish plugin.
+** This file is part of Qt Creator.
 **
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
@@ -25,14 +25,13 @@
 
 #pragma once
 
-#include <coreplugin/editormanager/ieditorfactory.h>
+#include <QCoreApplication>
 
-namespace Squish::Internal {
+namespace Squish {
 
-class ObjectsMapEditorFactory : public Core::IEditorFactory
+struct Tr
 {
-public:
-    ObjectsMapEditorFactory();
+    Q_DECLARE_TR_FUNCTIONS(Squish)
 };
 
-} // Squish::Internal
+} // namespace Squish

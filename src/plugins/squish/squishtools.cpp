@@ -24,9 +24,11 @@
 ****************************************************************************/
 
 #include "squishtools.h"
+
 #include "squishoutputpane.h"
 #include "squishplugin.h"
 #include "squishsettings.h"
+#include "squishtr.h"
 #include "squishxmloutputhandler.h"
 
 #include <QDebug> // TODO remove
@@ -132,17 +134,17 @@ void SquishTools::runTestCases(const QString &suitePath,
 {
     if (m_state != Idle) {
         QMessageBox::critical(Core::ICore::dialogParent(),
-                              tr("Error"),
-                              tr("Squish Tools in unexpected state (%1).\n"
-                                 "Refusing to run a test case.")
-                                  .arg(m_state));
+                              Tr::tr("Error"),
+                              Tr::tr("Squish Tools in unexpected state (%1).\n"
+                                     "Refusing to run a test case.")
+                                .arg(m_state));
         return;
     }
     // create test results directory (if necessary) and return on fail
     if (!QDir().mkpath(resultsDirectory)) {
         QMessageBox::critical(Core::ICore::dialogParent(),
-                              tr("Error"),
-                              tr("Could not create test results folder. Canceling test run."));
+                              Tr::tr("Error"),
+                              Tr::tr("Could not create test results folder. Canceling test run."));
         return;
     }
 
@@ -172,9 +174,9 @@ void SquishTools::queryServerSettings()
 {
     if (m_state != Idle) {
         QMessageBox::critical(Core::ICore::dialogParent(),
-                              tr("Error"),
-                              tr("Squish Tools in unexpected state (%1).\n"
-                                 "Refusing to run a test case.")
+                              Tr::tr("Error"),
+                              Tr::tr("Squish Tools in unexpected state (%1).\n"
+                                     "Refusing to run a test case.")
                                   .arg(m_state));
         return;
     }
@@ -255,7 +257,7 @@ void SquishTools::setState(SquishTools::State state)
                                                      QDir(m_suitePath).dirName(),
                                                      &error);
             if (!error.isEmpty())
-                QMessageBox::critical(Core::ICore::dialogParent(), tr("Error"), error);
+                QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Error"), error);
             logrotateTestResults();
         } else {
             m_xmlOutputHandler->clearForNextRun();
@@ -275,11 +277,11 @@ void SquishTools::startSquishServer(Request request)
     m_request = request;
     if (m_serverProcess.state() != QProcess::NotRunning) {
         if (QMessageBox::question(Core::ICore::dialogParent(),
-                                  tr("Squish Server Already Running"),
-                                  tr("There is still an old Squish server instance running.\n"
-                                     "This will cause problems later on.\n\n"
-                                     "If you continue, the old instance will be terminated.\n"
-                                     "Do you want to continue?"))
+                                  Tr::tr("Squish Server Already Running"),
+                                  Tr::tr("There is still an old Squish server instance running.\n"
+                                         "This will cause problems later on.\n\n"
+                                         "If you continue, the old instance will be terminated.\n"
+                                         "Do you want to continue?"))
             == QMessageBox::Yes) {
             switch (m_request) {
             case RunTestRequested:
@@ -293,9 +295,9 @@ void SquishTools::startSquishServer(Request request)
                 break;
             default:
                 QMessageBox::critical(Core::ICore::dialogParent(),
-                                      tr("Error"),
-                                      tr("Unexpected state or request while starting Squish "
-                                         "server. (state: %1, request: %2)")
+                                      Tr::tr("Error"),
+                                      Tr::tr("Unexpected state or request while starting Squish "
+                                             "server. (state: %1, request: %2)")
                                           .arg(m_state)
                                           .arg(m_request));
             }
@@ -311,9 +313,9 @@ void SquishTools::startSquishServer(Request request)
         toolsSettings.serverPath.toString());
     if (!squishServer.isExecutableFile()) {
         QMessageBox::critical(Core::ICore::dialogParent(),
-                              tr("Squish Server Error"),
-                              tr("\"%1\" could not be found or is not executable.\n"
-                                 "Check the settings.")
+                              Tr::tr("Squish Server Error"),
+                              Tr::tr("\"%1\" could not be found or is not executable.\n"
+                                     "Check the settings.")
                                   .arg(toolsSettings.serverPath.toUserOutput()));
         setState(Idle);
         return;
@@ -648,10 +650,10 @@ bool SquishTools::isValidToStartRunner()
 {
     if (!m_serverProcess.isRunning()) {
         QMessageBox::critical(Core::ICore::dialogParent(),
-                              tr("No Squish Server"),
-                              tr("Squish server does not seem to be running.\n"
-                                 "(state: %1, request: %2)\n"
-                                 "Try again.")
+                              Tr::tr("No Squish Server"),
+                              Tr::tr("Squish server does not seem to be running.\n"
+                                     "(state: %1, request: %2)\n"
+                                     "Try again.")
                                   .arg(m_state)
                                   .arg(m_request));
         setState(Idle);
@@ -659,10 +661,10 @@ bool SquishTools::isValidToStartRunner()
     }
     if (m_serverPort == -1) {
         QMessageBox::critical(Core::ICore::dialogParent(),
-                              tr("No Squish Server Port"),
-                              tr("Failed to get the server port.\n"
-                                 "(state: %1, request: %2)\n"
-                                 "Try again.")
+                              Tr::tr("No Squish Server Port"),
+                              Tr::tr("Failed to get the server port.\n"
+                                     "(state: %1, request: %2)\n"
+                                     "Try again.")
                                   .arg(m_state)
                                   .arg(m_request));
         // setting state to ServerStartFailed will terminate/kill the current unusable server
@@ -672,10 +674,10 @@ bool SquishTools::isValidToStartRunner()
 
     if (m_runnerProcess.state() != QProcess::NotRunning) {
         QMessageBox::critical(Core::ICore::dialogParent(),
-                              tr("Squish Runner Running"),
-                              tr("Squish runner seems to be running already.\n"
-                                 "(state: %1, request: %2)\n"
-                                 "Wait until it has finished and try again.")
+                              Tr::tr("Squish Runner Running"),
+                              Tr::tr("Squish runner seems to be running already.\n"
+                                     "(state: %1, request: %2)\n"
+                                     "Wait until it has finished and try again.")
                                   .arg(m_state)
                                   .arg(m_request));
         return false;
@@ -689,9 +691,9 @@ bool SquishTools::setupRunnerPath()
         toolsSettings.runnerPath.toString());
     if (!squishRunner.isExecutableFile()) {
         QMessageBox::critical(Core::ICore::dialogParent(),
-                              tr("Squish Runner Error"),
-                              tr("\"%1\" could not be found or is not executable.\n"
-                                 "Check the settings.")
+                              Tr::tr("Squish Runner Error"),
+                              Tr::tr("\"%1\" could not be found or is not executable.\n"
+                                     "Check the settings.")
                                   .arg(toolsSettings.runnerPath.toUserOutput()));
         setState(RunnerStopped);
         return false;
@@ -727,8 +729,8 @@ void SquishTools::setupAndStartSquishRunnerProcess(const QStringList &args,
     m_runnerProcess.start();
     if (!m_runnerProcess.waitForStarted()) {
         QMessageBox::critical(Core::ICore::dialogParent(),
-                              tr("Squish Runner Error"),
-                              tr("Squish runner failed to start within given timeframe."));
+                              Tr::tr("Squish Runner Error"),
+                              Tr::tr("Squish runner failed to start within given timeframe."));
         delete m_resultsFileWatcher;
         m_resultsFileWatcher = nullptr;
         setState(RunnerStartFailed);

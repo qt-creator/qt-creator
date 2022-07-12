@@ -24,8 +24,10 @@
 ****************************************************************************/
 
 #include "objectsmapdocument.h"
+
 #include "objectsmaptreeitem.h"
 #include "squishconstants.h"
+#include "squishtr.h"
 
 #include <utils/fileutils.h>
 
@@ -67,7 +69,7 @@ bool ObjectsMapDocument::save(QString *errorString, const Utils::FilePath &fileN
     const bool writeOk = writeFile(actual);
     if (!writeOk) {
         if (errorString)
-            *errorString = tr("Failed to write \"%1\"").arg(actual.toUserOutput());
+            *errorString = Tr::tr("Failed to write \"%1\"").arg(actual.toUserOutput());
         return false;
     }
 
@@ -211,7 +213,7 @@ Core::IDocument::OpenResult ObjectsMapDocument::openImpl(QString *error,
     const QString text = QString::fromLocal8Bit(reader.data());
     if (!setContents(text.toUtf8())) {
         if (error)
-            error->append(tr("Failure while parsing objects.map content."));
+            error->append(Tr::tr("Failure while parsing objects.map content."));
         return OpenResult::ReadError;
     }
     return OpenResult::Success;

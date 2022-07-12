@@ -40,7 +40,6 @@ namespace Internal {
 
 class SquishSettings : public Utils::AspectContainer
 {
-    Q_DECLARE_TR_FUNCTIONS(Squish::Internal::SquishSettings)
 public:
     SquishSettings();
 
@@ -54,16 +53,15 @@ public:
 
 class SquishSettingsPage final : public Core::IOptionsPage
 {
-    Q_DECLARE_TR_FUNCTIONS(Squish::Internal::SquishSettings)
 public:
     SquishSettingsPage(SquishSettings *settings);
 };
 
 class SquishServerSettingsDialog : public QDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(Squish::Internal::SquishSettings)
 public:
     explicit SquishServerSettingsDialog(QWidget *parent = nullptr);
+
 private:
     void onApply();
 };

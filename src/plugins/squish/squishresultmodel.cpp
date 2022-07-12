@@ -25,6 +25,8 @@
 
 #include "squishresultmodel.h"
 
+#include "squishtr.h"
+
 namespace Squish {
 namespace Internal {
 
@@ -68,7 +70,7 @@ SquishResultModel::SquishResultModel(QObject *parent)
     , m_rootItem(new Utils::TreeItem)
 {
     setRootItem(m_rootItem);
-    setHeader(QStringList({tr("Result"), tr("Message"), tr("Time")}));
+    setHeader(QStringList({Tr::tr("Result"), Tr::tr("Message"), Tr::tr("Time")}));
 
     connect(this,
             &QAbstractItemModel::rowsInserted,

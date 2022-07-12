@@ -24,8 +24,10 @@
 ****************************************************************************/
 
 #include "squishxmloutputhandler.h"
+
 #include "squishoutputpane.h"
 #include "squishresultmodel.h"
+#include "squishtr.h"
 
 #include <utils/qtcassert.h>
 
@@ -60,16 +62,16 @@ void SquishXmlOutputHandler::mergeResultFiles(const QStringList &reportFiles,
     QFile resultsXML(QString::fromLatin1("%1/results.xml").arg(resultsDirectory));
     if (resultsXML.exists()) {
         if (error)
-            *error = tr("Could not merge results into single results.xml.\n"
-                        "Destination file \"%1\" already exists.")
+            *error = Tr::tr("Could not merge results into single results.xml.\n"
+                            "Destination file \"%1\" already exists.")
                          .arg(resultsXML.fileName());
         return;
     }
 
     if (!resultsXML.open(QFile::WriteOnly)) {
         if (error)
-            *error = tr("Could not merge results into single results.xml.\n"
-                        "Failed to open file \"%1\"")
+            *error = Tr::tr("Could not merge results into single results.xml.\n"
+                            "Failed to open file \"%1\"")
                          .arg(resultsXML.fileName());
         return;
     }
@@ -120,7 +122,7 @@ void SquishXmlOutputHandler::mergeResultFiles(const QStringList &reportFiles,
                     const QString prolog = reader.name().toString();
                     QTC_ASSERT(token == QXmlStreamReader::StartElement
                                    && prolog == "prolog",
-                               if (error) *error = tr("Error while parsing first test result.");
+                               if (error) *error = Tr::tr("Error while parsing first test result.");
                                return );
                     xmlWriter.writeStartElement(prolog);
                     xmlWriter.writeAttributes(reader.attributes());

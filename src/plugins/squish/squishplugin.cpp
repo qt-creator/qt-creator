@@ -31,6 +31,7 @@
 #include "squishsettings.h"
 #include "squishtesttreemodel.h"
 #include "squishtools.h"
+#include "squishtr.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -97,10 +98,10 @@ SquishSettings *SquishPlugin::squishSettings()
 void SquishPluginPrivate::initializeMenuEntries()
 {
     ActionContainer *menu = ActionManager::createMenu("Squish.Menu");
-    menu->menu()->setTitle(tr("&Squish"));
+    menu->menu()->setTitle(Tr::tr("&Squish"));
     menu->setOnAllDisabledBehavior(ActionContainer::Show);
 
-    QAction *action = new QAction(tr("&Server Settings..."), this);
+    QAction *action = new QAction(Tr::tr("&Server Settings..."), this);
     Command *command = ActionManager::registerAction(action, "Squish.ServerSettings");
     menu->addAction(command);
     connect(action, &QAction::triggered, this, [] {

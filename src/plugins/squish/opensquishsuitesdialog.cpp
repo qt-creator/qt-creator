@@ -25,6 +25,7 @@
 
 #include "opensquishsuitesdialog.h"
 
+#include "squishtr.h"
 #include "squishutils.h"
 
 #include <utils/layoutbuilder.h>
@@ -47,7 +48,7 @@ static QString previousPath;
 OpenSquishSuitesDialog::OpenSquishSuitesDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("Open Squish Test Suites"));
+    setWindowTitle(Tr::tr("Open Squish Test Suites"));
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     setModal(true);
 
@@ -56,9 +57,9 @@ OpenSquishSuitesDialog::OpenSquishSuitesDialog(QWidget *parent)
 
     m_suitesListWidget = new QListWidget;
 
-    auto selectAllPushButton = new QPushButton(tr("Select All"));
+    auto selectAllPushButton = new QPushButton(Tr::tr("Select All"));
 
-    auto deselectAllPushButton = new QPushButton(tr("Deselect All"));
+    auto deselectAllPushButton = new QPushButton(Tr::tr("Deselect All"));
 
     m_buttonBox = new QDialogButtonBox;
     m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Open);
@@ -67,9 +68,9 @@ OpenSquishSuitesDialog::OpenSquishSuitesDialog(QWidget *parent)
     using namespace Utils::Layouting;
 
     Column {
-        new QLabel(tr("Base directory:")),
+        new QLabel(Tr::tr("Base directory:")),
         m_directoryLineEdit,
-        new QLabel(tr("Test suites:")),
+        new QLabel(Tr::tr("Test suites:")),
         Row {
             m_suitesListWidget,
             Column {

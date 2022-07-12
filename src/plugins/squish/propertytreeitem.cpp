@@ -25,6 +25,8 @@
 
 #include "propertytreeitem.h"
 
+#include "squishtr.h"
+
 #include <utils/qtcassert.h>
 
 using namespace Utils;
@@ -197,7 +199,7 @@ PropertiesModel::PropertiesModel(ObjectsMapTreeItem *parentItem)
     : TreeModel<PropertyTreeItem>(new PropertyTreeItem({}))
     , m_parentItem(parentItem)
 {
-    setHeader(QStringList() << tr("Name") << tr("Operator") << tr("Value"));
+    setHeader({Tr::tr("Name"), Tr::tr("Operator"), Tr::tr("Value")});
 }
 
 bool PropertiesModel::setData(const QModelIndex &idx, const QVariant &data, int role)

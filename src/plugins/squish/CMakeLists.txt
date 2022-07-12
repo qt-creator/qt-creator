@@ -21,6 +21,7 @@ add_qtc_plugin(Squish
     squishtesttreemodel.cpp squishtesttreemodel.h
     squishtesttreeview.cpp squishtesttreeview.h
     squishtools.cpp squishtools.h
+    squishtr.h
     squishutils.cpp squishutils.h
     squishxmloutputhandler.cpp squishxmloutputhandler.h
     symbolnameitemdelegate.cpp symbolnameitemdelegate.h

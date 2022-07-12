@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "squishtesttreemodel.h"
+
 #include "squishfilehandler.h"
+#include "squishtr.h"
 
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -135,8 +137,8 @@ static SquishTestTreeModel *m_instance = nullptr;
 SquishTestTreeModel::SquishTestTreeModel(QObject *parent)
     : TreeModel<SquishTestTreeItem>(new SquishTestTreeItem(QString(), SquishTestTreeItem::Root),
                                     parent)
-    , m_squishSharedFolders(new SquishTestTreeItem(tr("Shared Folders"), SquishTestTreeItem::Root))
-    , m_squishSuitesRoot(new SquishTestTreeItem(tr("Test Suites"), SquishTestTreeItem::Root))
+    , m_squishSharedFolders(new SquishTestTreeItem(Tr::tr("Shared Folders"), SquishTestTreeItem::Root))
+    , m_squishSuitesRoot(new SquishTestTreeItem(Tr::tr("Test Suites"), SquishTestTreeItem::Root))
     , m_squishFileHandler(new SquishFileHandler(this))
 {
     rootItem()->appendChild(m_squishSharedFolders);
@@ -210,7 +212,7 @@ QVariant SquishTestTreeModel::data(const QModelIndex &idx, int role) const
             switch (type) {
             case SquishTestTreeItem::Root:
                 if (!item->hasChildren())
-                    return tr("%1 (none)").arg(item->displayName());
+                    return Tr::tr("%1 (none)").arg(item->displayName());
                 return item->displayName();
             case SquishTestTreeItem::SquishSharedFile:
             case SquishTestTreeItem::SquishSharedFolder:

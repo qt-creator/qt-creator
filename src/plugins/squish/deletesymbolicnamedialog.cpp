@@ -25,6 +25,8 @@
 
 #include "deletesymbolicnamedialog.h"
 
+#include "squishtr.h"
+
 #include <utils/fancylineedit.h>
 #include <utils/layoutbuilder.h>
 
@@ -49,13 +51,11 @@ DeleteSymbolicNameDialog::DeleteSymbolicNameDialog(const QString &symbolicName,
     : QDialog(parent)
     , m_result(ResetReference)
 {
-    setWindowTitle(tr("Dialog"));
-
-    m_detailsLabel = new QLabel(tr("Details"));
+    m_detailsLabel = new QLabel(Tr::tr("Details"));
     m_detailsLabel->setWordWrap(true);
 
     auto adjustReferencesRB = new QRadioButton;
-    adjustReferencesRB->setText(tr("Adjust references to the removed symbolic name to point to:"));
+    adjustReferencesRB->setText(Tr::tr("Adjust references to the removed symbolic name to point to:"));
     adjustReferencesRB->setChecked(true);
 
     auto filterLineEdit = new Utils::FancyLineEdit;
@@ -64,10 +64,10 @@ DeleteSymbolicNameDialog::DeleteSymbolicNameDialog(const QString &symbolicName,
     m_symbolicNamesList = new QListView;
 
     auto removeAndInvalidateRB = new QRadioButton;
-    removeAndInvalidateRB->setText(tr("Remove the symbolic name (invalidates names referencing it)"));
+    removeAndInvalidateRB->setText(Tr::tr("Remove the symbolic name (invalidates names referencing it)"));
 
     auto removeAllRB = new QRadioButton;
-    removeAllRB->setText(tr("Remove the symbolic name and all names referencing it"));
+    removeAllRB->setText(Tr::tr("Remove the symbolic name and all names referencing it"));
 
     m_buttonBox = new QDialogButtonBox;
     m_buttonBox->setOrientation(Qt::Horizontal);

@@ -27,6 +27,7 @@
 
 #include "squishconstants.h"
 #include "squishtools.h"
+#include "squishtr.h"
 
 #include <utils/basetreeview.h>
 #include <utils/icon.h>
@@ -55,39 +56,39 @@ SquishSettings::SquishSettings()
 
     registerAspect(&squishPath);
     squishPath.setSettingsKey("SquishPath");
-    squishPath.setLabelText(tr("Squish path:"));
+    squishPath.setLabelText(Tr::tr("Squish path:"));
     squishPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     squishPath.setExpectedKind(PathChooser::ExistingDirectory);
-    squishPath.setPlaceHolderText(tr("Path to Squish installation"));
+    squishPath.setPlaceHolderText(Tr::tr("Path to Squish installation"));
 
     registerAspect(&licensePath);
     licensePath.setSettingsKey("LicensePath");
-    licensePath.setLabelText(tr("License path:"));
+    licensePath.setLabelText(Tr::tr("License path:"));
     licensePath.setDisplayStyle(StringAspect::PathChooserDisplay);
     licensePath.setExpectedKind(PathChooser::ExistingDirectory);
 
     registerAspect(&local);
     local.setSettingsKey("Local");
-    local.setLabel(tr("Local Server"));
+    local.setLabel(Tr::tr("Local Server"));
     local.setDefaultValue(true);
 
     registerAspect(&serverHost);
     serverHost.setSettingsKey("ServerHost");
-    serverHost.setLabelText(tr("Server host:"));
+    serverHost.setLabelText(Tr::tr("Server host:"));
     serverHost.setDisplayStyle(StringAspect::LineEditDisplay);
     serverHost.setDefaultValue("localhost");
     serverHost.setEnabled(false);
 
     registerAspect(&serverPort);
     serverPort.setSettingsKey("ServerPort");
-    serverPort.setLabel(tr("Server Port"));
+    serverPort.setLabel(Tr::tr("Server Port"));
     serverPort.setRange(1, 65535);
     serverPort.setDefaultValue(9999);
     serverPort.setEnabled(false);
 
     registerAspect(&verbose);
     verbose.setSettingsKey("Verbose");
-    verbose.setLabel(tr("Verbose log"));
+    verbose.setLabel(Tr::tr("Verbose log"));
     verbose.setDefaultValue(false);
 
     connect(&local, &BoolAspect::volatileValueChanged,
@@ -100,7 +101,7 @@ SquishSettings::SquishSettings()
 SquishSettingsPage::SquishSettingsPage(SquishSettings *settings)
 {
     setId("A.Squish.General");
-    setDisplayName(tr("General"));
+    setDisplayName(Tr::tr("General"));
     setCategory(Constants::SQUISH_SETTINGS_CATEGORY);
     setDisplayCategory("Squish");
     setCategoryIcon(Icon({{":/squish/images/settingscategory_squish.png",
@@ -126,7 +127,6 @@ SquishSettingsPage::SquishSettingsPage(SquishSettings *settings)
 
 class SquishServerSettings : public AspectContainer
 {
-    Q_DECLARE_TR_FUNCTIONS(Squish::Internal::SquishSettings)
 public:
     SquishServerSettings();
 
@@ -146,31 +146,31 @@ SquishServerSettings::SquishServerSettings()
     setAutoApply(false);
 
     registerAspect(&autTimeout);
-    autTimeout.setLabel(tr("Maximum startup time:"));
-    autTimeout.setToolTip(tr("Specifies how many seconds Squish should wait for a reply from the "
+    autTimeout.setLabel(Tr::tr("Maximum startup time:"));
+    autTimeout.setToolTip(Tr::tr("Specifies how many seconds Squish should wait for a reply from the "
                              "AUT directly after starting it."));
     autTimeout.setRange(1, 65535);
     autTimeout.setSuffix("s");
     autTimeout.setDefaultValue(20);
 
     registerAspect(&responseTimeout);
-    responseTimeout.setLabel(tr("Maximum response time:"));
-    responseTimeout.setToolTip(tr("Specifies how many seconds Squish should wait for a reply from "
+    responseTimeout.setLabel(Tr::tr("Maximum response time:"));
+    responseTimeout.setToolTip(Tr::tr("Specifies how many seconds Squish should wait for a reply from "
                                   "the hooked up AUT before raising a timeout error."));
     responseTimeout.setRange(1, 65535);
     responseTimeout.setDefaultValue(300);
     responseTimeout.setSuffix("s");
 
     registerAspect(&postMortemWaitTime);
-    postMortemWaitTime.setLabel(tr("Maximum post-mortem wait time:"));
-    postMortemWaitTime.setToolTip(tr("Specifies how many seconds Squish should wait after the the "
+    postMortemWaitTime.setLabel(Tr::tr("Maximum post-mortem wait time:"));
+    postMortemWaitTime.setToolTip(Tr::tr("Specifies how many seconds Squish should wait after the the "
                                      "first AUT process has exited."));
     postMortemWaitTime.setRange(1, 65535);
     postMortemWaitTime.setDefaultValue(1500);
     postMortemWaitTime.setSuffix("ms");
 
     registerAspect(&animatedCursor);
-    animatedCursor.setLabel(tr("Animate mouse cursor:"));
+    animatedCursor.setLabel(Tr::tr("Animate mouse cursor:"));
     animatedCursor.setDefaultValue(true);
 }
 
@@ -286,9 +286,9 @@ QVariant SquishServerItem::data(int column, int role) const
 
 class SquishServerSettingsWidget : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Squish::Internal::SquishSettings)
 public:
     explicit SquishServerSettingsWidget(QWidget *parent = nullptr);
+
 private:
     void repopulateApplicationView();
 
@@ -344,19 +344,19 @@ void SquishServerSettingsWidget::repopulateApplicationView()
     TreeModel<SquishServerItem> *model = new TreeModel<SquishServerItem>;
     model->setHeader({QString(), QString()}); // enforce 2 columns
 
-    SquishServerItem *mapped = new SquishServerItem(tr("Mapped AUTs"));
+    SquishServerItem *mapped = new SquishServerItem(Tr::tr("Mapped AUTs"));
     model->rootItem()->appendChild(mapped);
     for (auto it = m_serverSettings.mappedAuts.begin(),
          end = m_serverSettings.mappedAuts.end(); it != end; ++it) {
         mapped->appendChild(new SquishServerItem(it.key(), it.value()));
     }
 
-    SquishServerItem *autPaths = new SquishServerItem(tr("AUT Paths"));
+    SquishServerItem *autPaths = new SquishServerItem(Tr::tr("AUT Paths"));
     model->rootItem()->appendChild(autPaths);
     for (const QString &path : qAsConst(m_serverSettings.autPaths))
         autPaths->appendChild(new SquishServerItem(path, ""));
 
-    SquishServerItem *attachable = new SquishServerItem(tr("Attachable AUTs"));
+    SquishServerItem *attachable = new SquishServerItem(Tr::tr("Attachable AUTs"));
     model->rootItem()->appendChild(attachable);
     for (auto it = m_serverSettings.attachableAuts.begin(),
          end = m_serverSettings.attachableAuts.end(); it != end; ++it) {
@@ -371,7 +371,7 @@ void SquishServerSettingsWidget::repopulateApplicationView()
 SquishServerSettingsDialog::SquishServerSettingsDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("Squish Server Settings"));
+    setWindowTitle(Tr::tr("Squish Server Settings"));
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(new SquishServerSettingsWidget);

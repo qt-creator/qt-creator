@@ -24,51 +24,47 @@
 ****************************************************************************/
 
 #include "objectsmapeditor.h"
+
 #include "objectsmapdocument.h"
 #include "objectsmapeditorwidget.h"
 #include "squishconstants.h"
+#include "squishtr.h"
 
-namespace Squish {
-namespace Internal {
+#include <coreplugin/editormanager/ieditor.h>
 
-ObjectsMapEditor::ObjectsMapEditor(QSharedPointer<ObjectsMapDocument> document)
-    : m_document(document)
+#include <QSharedPointer>
+
+namespace Squish::Internal {
+
+class ObjectsMapEditor : public Core::IEditor
 {
-    setWidget(new ObjectsMapEditorWidget(m_document.data()));
-    setDuplicateSupported(true);
-}
+public:
+    ObjectsMapEditor(QSharedPointer<ObjectsMapDocument> document)
+        : m_document(document)
+    {
+        setWidget(new ObjectsMapEditorWidget(m_document.data()));
+        setDuplicateSupported(true);
+    }
+    ~ObjectsMapEditor() override { delete m_widget; }
 
-ObjectsMapEditor::~ObjectsMapEditor()
-{
-    delete m_widget;
-}
+private:
+    Core::IDocument *document() const override { return m_document.data(); }
+    QWidget *toolBar() override { return nullptr; }
+    Core::IEditor *duplicate() override { return new ObjectsMapEditor(m_document); }
+    QSharedPointer<ObjectsMapDocument> m_document;
+};
 
-Core::IDocument *ObjectsMapEditor::document() const
-{
-    return m_document.data();
-}
 
-QWidget *ObjectsMapEditor::toolBar()
-{
-    return nullptr;
-}
-
-Core::IEditor *ObjectsMapEditor::duplicate()
-{
-    return new ObjectsMapEditor(m_document);
-}
-
-/********************************* EditorFactory ********************************************/
+// Factory
 
 ObjectsMapEditorFactory::ObjectsMapEditorFactory()
 {
     setId(Constants::OBJECTSMAP_EDITOR_ID);
-    setDisplayName("Squish Object Map Editor");
+    setDisplayName(Tr::tr("Squish Object Map Editor"));
     addMimeType(Constants::SQUISH_OBJECTSMAP_MIMETYPE);
     setEditorCreator([]() {
         return new ObjectsMapEditor(QSharedPointer<ObjectsMapDocument>(new ObjectsMapDocument));
     });
 }
 
-} // namespace Internal
-} // namespace Squish
+} // Squish::Internal

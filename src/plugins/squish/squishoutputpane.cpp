@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "squishoutputpane.h"
+
 #include "squishresultmodel.h"
+#include "squishtr.h"
 #include "testresult.h"
 
 #include <QHeaderView>
@@ -101,8 +103,8 @@ SquishOutputPane::SquishOutputPane(QObject *parent)
     m_runnerServerLog->setMaximumBlockCount(10000);
     m_runnerServerLog->setReadOnly(true);
 
-    m_outputPane->addTab(m_outputWidget, tr("Test Results"));
-    m_outputPane->addTab(m_runnerServerLog, tr("Runner/Server Log"));
+    m_outputPane->addTab(m_outputWidget, Tr::tr("Test Results"));
+    m_outputPane->addTab(m_runnerServerLog, Tr::tr("Runner/Server Log"));
 
     connect(m_outputPane, &QTabWidget::currentChanged, this, [this]() { navigateStateChanged(); });
     connect(m_treeView, &Utils::TreeView::activated, this, &SquishOutputPane::onItemActivated);
@@ -139,7 +141,7 @@ QList<QWidget *> SquishOutputPane::toolBarWidgets() const
 
 QString SquishOutputPane::displayName() const
 {
-    return tr("Squish");
+    return Tr::tr("Squish");
 }
 
 int SquishOutputPane::priorityInStatusBar() const
@@ -301,8 +303,9 @@ void SquishOutputPane::updateSummaryLabel()
                            + m_model->resultTypeCount(Result::ExpectedFail);
         const int fails = m_model->resultTypeCount(Result::Fail)
                           + m_model->resultTypeCount(Result::UnexpectedPass);
-        const QString labelText = tr("<p><b>Test summary:</b>&nbsp;&nbsp; %1 passes, %2 fails, "
-                                     "%3 fatals, %4 errors, %5 warnings.</p>")
+        const QString labelText =
+                QString("<p>" + Tr::tr("<b>Test summary:</b>&nbsp;&nbsp; %1 passes, %2 fails, "
+                                     "%3 fatals, %4 errors, %5 warnings.") + "</p>")
                                       .arg(passes)
                                       .arg(fails)
                                       .arg(m_model->resultTypeCount(Result::Fatal))
@@ -325,15 +328,15 @@ void SquishOutputPane::createToolButtons()
 {
     m_expandAll = new QToolButton(m_treeView);
     m_expandAll->setIcon(Utils::Icons::EXPAND_TOOLBAR.icon());
-    m_expandAll->setToolTip(tr("Expand All"));
+    m_expandAll->setToolTip(Tr::tr("Expand All"));
 
     m_collapseAll = new QToolButton(m_treeView);
     m_collapseAll->setIcon(Utils::Icons::COLLAPSE_TOOLBAR.icon());
-    m_collapseAll->setToolTip(tr("Collapse All"));
+    m_collapseAll->setToolTip(Tr::tr("Collapse All"));
 
     m_filterButton = new QToolButton(m_treeView);
     m_filterButton->setIcon(Utils::Icons::FILTER.icon());
-    m_filterButton->setToolTip(tr("Filter Test Results"));
+    m_filterButton->setToolTip(Tr::tr("Filter Test Results"));
     m_filterButton->setProperty("noArrow", true);
     m_filterButton->setAutoRaise(true);
     m_filterButton->setPopupMode(QToolButton::InstantPopup);
@@ -349,12 +352,12 @@ void SquishOutputPane::createToolButtons()
 void SquishOutputPane::initializeFilterMenu()
 {
     QMap<Result::Type, QString> textAndType;
-    textAndType.insert(Result::Pass, tr("Pass"));
-    textAndType.insert(Result::Fail, tr("Fail"));
-    textAndType.insert(Result::ExpectedFail, tr("Expected Fail"));
-    textAndType.insert(Result::UnexpectedPass, tr("Unexpected Pass"));
-    textAndType.insert(Result::Warn, tr("Warning Messages"));
-    textAndType.insert(Result::Log, tr("Log Messages"));
+    textAndType.insert(Result::Pass, Tr::tr("Pass"));
+    textAndType.insert(Result::Fail, Tr::tr("Fail"));
+    textAndType.insert(Result::ExpectedFail, Tr::tr("Expected Fail"));
+    textAndType.insert(Result::UnexpectedPass, Tr::tr("Unexpected Pass"));
+    textAndType.insert(Result::Warn, Tr::tr("Warning Messages"));
+    textAndType.insert(Result::Log, Tr::tr("Log Messages"));
 
     const QList<Result::Type> types = textAndType.keys();
     for (Result::Type type : types) {
@@ -367,7 +370,7 @@ void SquishOutputPane::initializeFilterMenu()
     }
     m_filterMenu->addSeparator();
     QAction *action = new QAction(m_filterMenu);
-    action->setText(tr("Check All Filters"));
+    action->setText(Tr::tr("Check All Filters"));
     action->setCheckable(false);
     m_filterMenu->addAction(action);
     connect(action, &QAction::triggered, this, &SquishOutputPane::enableAllFiltersTriggered);

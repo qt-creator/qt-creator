@@ -34,9 +34,9 @@
 namespace Squish {
 namespace Internal {
 
-const static char squishLanguageKey[] = "LANGUAGE";
-const static char squishTestCasesKey[] = "TEST_CASES";
-const static char objectsMapKey[] = "OBJECTMAP";
+const char squishLanguageKey[] = "LANGUAGE";
+const char squishTestCasesKey[] = "TEST_CASES";
+const char objectsMapKey[] = "OBJECTMAP";
 
 QStringList SquishUtils::validTestCases(const QString &baseDirectory)
 {

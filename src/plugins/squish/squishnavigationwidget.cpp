@@ -24,10 +24,12 @@
 ****************************************************************************/
 
 #include "squishnavigationwidget.h"
+
 #include "squishconstants.h"
 #include "squishfilehandler.h"
 #include "squishtesttreemodel.h"
 #include "squishtesttreeview.h"
+#include "squishtr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
@@ -48,7 +50,7 @@ const int defaultSectionSize = 17;
 SquishNavigationWidget::SquishNavigationWidget(QWidget *parent)
     : QWidget(parent)
 {
-    setWindowTitle(tr("Squish"));
+    setWindowTitle(Tr::tr("Squish"));
     m_view = new SquishTestTreeView(this);
     m_model = SquishTestTreeModel::instance();
     m_sortModel = new SquishTestTreeSortModel(m_model, m_model);
@@ -117,9 +119,9 @@ void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
             case SquishTestTreeItem::SquishTestCase: {
                 const QString caseName = idx.data(DisplayNameRole).toString();
                 const QString suiteName = idx.parent().data(DisplayNameRole).toString();
-                QAction *runThisTestCase = new QAction(tr("Run This Test Case"), &menu);
+                QAction *runThisTestCase = new QAction(Tr::tr("Run This Test Case"), &menu);
                 menu.addAction(runThisTestCase);
-                QAction *deleteTestCase = new QAction(tr("Delete Test Case"), &menu);
+                QAction *deleteTestCase = new QAction(Tr::tr("Delete Test Case"), &menu);
                 menu.addAction(deleteTestCase);
                 menu.addSeparator();
 
@@ -130,14 +132,14 @@ void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
             }
             case SquishTestTreeItem::SquishSuite: {
                 const QString suiteName = idx.data(DisplayNameRole).toString();
-                QAction *runThisTestSuite = new QAction(tr("Run This Test Suite"), &menu);
+                QAction *runThisTestSuite = new QAction(Tr::tr("Run This Test Suite"), &menu);
                 menu.addAction(runThisTestSuite);
                 menu.addSeparator();
-                QAction *addNewTestCase = new QAction(tr("Add New Test Case..."), &menu);
+                QAction *addNewTestCase = new QAction(Tr::tr("Add New Test Case..."), &menu);
                 menu.addAction(addNewTestCase);
-                QAction *closeTestSuite = new QAction(tr("Close Test Suite"), &menu);
+                QAction *closeTestSuite = new QAction(Tr::tr("Close Test Suite"), &menu);
                 menu.addAction(closeTestSuite);
-                QAction *deleteTestSuite = new QAction(tr("Delete Test Suite"), &menu);
+                QAction *deleteTestSuite = new QAction(Tr::tr("Delete Test Suite"), &menu);
                 menu.addAction(deleteTestSuite);
                 menu.addSeparator();
 
@@ -150,17 +152,17 @@ void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
                 break;
             }
             case SquishTestTreeItem::SquishSharedFile: {
-                QAction *deleteSharedFile = new QAction(tr("Delete Shared File"), &menu);
+                QAction *deleteSharedFile = new QAction(Tr::tr("Delete Shared File"), &menu);
                 menu.addAction(deleteSharedFile);
                 break;
             }
             case SquishTestTreeItem::SquishSharedFolder: {
-                QAction *addSharedFile = new QAction(tr("Add Shared File"), &menu);
+                QAction *addSharedFile = new QAction(Tr::tr("Add Shared File"), &menu);
                 menu.addAction(addSharedFile);
                 // only add the action 'Remove Shared Folder' for top-level shared folders, not
                 // to their recursively added sub-folders
                 if (idx.parent().data(TypeRole).toInt() == SquishTestTreeItem::Root) {
-                    QAction *removeSharedFolder = new QAction(tr("Remove Shared Folder"), &menu);
+                    QAction *removeSharedFolder = new QAction(Tr::tr("Remove Shared Folder"), &menu);
                     menu.addAction(removeSharedFolder);
                     menu.addSeparator();
                     connect(removeSharedFolder, &QAction::triggered, this, [this, idx]() {
@@ -178,9 +180,9 @@ void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
     const QModelIndex &suitesIndex = m_view->model()->index(1, 0);
 
     // general squish related menu entries
-    QAction *openSquishSuites = new QAction(tr("Open Squish Suites..."), &menu);
+    QAction *openSquishSuites = new QAction(Tr::tr("Open Squish Suites..."), &menu);
     menu.addAction(openSquishSuites);
-    QAction *createNewTestSuite = new QAction(tr("Create New Test Suite..."), &menu);
+    QAction *createNewTestSuite = new QAction(Tr::tr("Create New Test Suite..."), &menu);
     menu.addAction(createNewTestSuite);
 
     connect(openSquishSuites,
@@ -190,13 +192,13 @@ void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
 
     if (m_view->model()->rowCount(suitesIndex) > 0) {
         menu.addSeparator();
-        QAction *closeAllSuites = new QAction(tr("Close All Test Suites"), &menu);
+        QAction *closeAllSuites = new QAction(Tr::tr("Close All Test Suites"), &menu);
         menu.addAction(closeAllSuites);
 
         connect(closeAllSuites, &QAction::triggered, this, [this]() {
             if (QMessageBox::question(this,
-                                      tr("Close All Test Suites"),
-                                      tr("Close all test suites?"
+                                      Tr::tr("Close All Test Suites"),
+                                      Tr::tr("Close all test suites?"
                                          /*"\nThis will close all related files as well."*/))
                 == QMessageBox::Yes)
                 SquishFileHandler::instance()->closeAllTestSuites();
@@ -204,7 +206,7 @@ void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
     }
 
     menu.addSeparator();
-    QAction *addSharedFolder = new QAction(tr("Add Shared Folder..."), &menu);
+    QAction *addSharedFolder = new QAction(Tr::tr("Add Shared Folder..."), &menu);
     menu.addAction(addSharedFolder);
 
     connect(addSharedFolder,
@@ -214,7 +216,7 @@ void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
 
     if (m_view->model()->rowCount(foldersIndex) > 0) {
         menu.addSeparator();
-        QAction *removeAllFolders = new QAction(tr("Remove All Shared Folders"), &menu);
+        QAction *removeAllFolders = new QAction(Tr::tr("Remove All Shared Folders"), &menu);
         menu.addAction(removeAllFolders);
 
         connect(removeAllFolders,
@@ -247,26 +249,26 @@ void SquishNavigationWidget::onItemActivated(const QModelIndex &idx)
 
 void SquishNavigationWidget::onExpanded(const QModelIndex &idx)
 {
-    if (idx.data().toString().startsWith(tr("Test Suites")))
+    if (idx.data().toString().startsWith(Tr::tr("Test Suites")))
         m_view->header()->setDefaultSectionSize(defaultSectionSize);
 }
 
 void SquishNavigationWidget::onCollapsed(const QModelIndex &idx)
 {
-    if (idx.data().toString().startsWith(tr("Test Suites")))
+    if (idx.data().toString().startsWith(Tr::tr("Test Suites")))
         m_view->header()->setDefaultSectionSize(0);
 }
 
 void SquishNavigationWidget::onRowsInserted(const QModelIndex &parent, int, int)
 {
-    if (parent.isValid() && parent.data().toString().startsWith(tr("Test Suites")))
+    if (parent.isValid() && parent.data().toString().startsWith(Tr::tr("Test Suites")))
         if (m_view->isExpanded(parent) && m_model->rowCount(parent))
             m_view->header()->setDefaultSectionSize(defaultSectionSize);
 }
 
 void SquishNavigationWidget::onRowsRemoved(const QModelIndex &parent, int, int)
 {
-    if (parent.isValid() && parent.data().toString().startsWith(tr("Test Suites")))
+    if (parent.isValid() && parent.data().toString().startsWith(Tr::tr("Test Suites")))
         if (m_model->rowCount(parent) == 0)
             m_view->header()->setDefaultSectionSize(0);
 }
@@ -277,8 +279,8 @@ void SquishNavigationWidget::onRemoveSharedFolderTriggered(int row, const QModel
     QTC_ASSERT(!folder.isEmpty(), return );
 
     if (QMessageBox::question(Core::ICore::dialogParent(),
-                              tr("Remove Shared Folder"),
-                              tr("Remove \"%1\" from the list of shared folders?")
+                              Tr::tr("Remove Shared Folder"),
+                              Tr::tr("Remove \"%1\" from the list of shared folders?")
                                   .arg(QDir::toNativeSeparators(folder)))
         != QMessageBox::Yes) {
         return;
@@ -292,8 +294,8 @@ void SquishNavigationWidget::onRemoveSharedFolderTriggered(int row, const QModel
 void SquishNavigationWidget::onRemoveAllSharedFolderTriggered()
 {
     if (QMessageBox::question(Core::ICore::dialogParent(),
-                              tr("Remove All Shared Folders"),
-                              tr("Remove all shared folders?"))
+                              Tr::tr("Remove All Shared Folders"),
+                              Tr::tr("Remove all shared folders?"))
         != QMessageBox::Yes) {
         return;
     }
@@ -304,7 +306,7 @@ void SquishNavigationWidget::onRemoveAllSharedFolderTriggered()
 
 SquishNavigationWidgetFactory::SquishNavigationWidgetFactory()
 {
-    setDisplayName(tr("Squish"));
+    setDisplayName(Tr::tr("Squish"));
     setId(Squish::Constants::SQUISH_ID);
     setPriority(777);
 }

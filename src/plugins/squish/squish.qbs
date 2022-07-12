@@ -32,6 +32,7 @@ QtcPlugin {
         "squishutils.h",
         "squishtools.cpp",
         "squishtools.h",
+        "squishtr.h",
         "squishxmloutputhandler.cpp",
         "squishxmloutputhandler.h",
         "testresult.cpp",

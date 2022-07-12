@@ -24,10 +24,12 @@
 ****************************************************************************/
 
 #include "objectsmapeditorwidget.h"
+
 #include "deletesymbolicnamedialog.h"
 #include "objectsmapdocument.h"
 #include "objectsmaptreeitem.h"
 #include "propertyitemdelegate.h"
+#include "squishtr.h"
 #include "symbolnameitemdelegate.h"
 
 #include <coreplugin/icore.h>
@@ -53,8 +55,8 @@
 namespace Squish {
 namespace Internal {
 
-static const char objectsMapObjectMimeType[] = "application/vnd.qtcreator.objectsmapobject";
-static const char objectsMapPropertyMimeType[] = "application/vnd.qtcreator.objectsmapproperty";
+const char objectsMapObjectMimeType[] = "application/vnd.qtcreator.objectsmapobject";
+const char objectsMapPropertyMimeType[] = "application/vnd.qtcreator.objectsmapproperty";
 
 ObjectsMapEditorWidget::ObjectsMapEditorWidget(ObjectsMapDocument *document, QWidget *parent)
     : QWidget(parent)
@@ -69,7 +71,7 @@ void ObjectsMapEditorWidget::initUi()
 {
     setGeometry(0, 0, 550, 585);
     QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(new QLabel(tr("<b>Symbolic Names</b>"), this));
+    mainLayout->addWidget(new QLabel("<b>" + Tr::tr("Symbolic Names") + "</b>", this));
     m_filterLineEdit = new Utils::FancyLineEdit(this);
     m_filterLineEdit->setFiltering(true);
     mainLayout->addWidget(m_filterLineEdit);
@@ -79,9 +81,9 @@ void ObjectsMapEditorWidget::initUi()
     horizontalLayout->addWidget(m_symbolicNamesTreeView);
 
     QVBoxLayout *verticalLayout = new QVBoxLayout;
-    m_newSymbolicName = new QPushButton(tr("New"));
+    m_newSymbolicName = new QPushButton(Tr::tr("New"));
     verticalLayout->addWidget(m_newSymbolicName);
-    m_removeSymbolicName = new QPushButton(tr("Remove"));
+    m_removeSymbolicName = new QPushButton(Tr::tr("Remove"));
     m_removeSymbolicName->setEnabled(false);
     verticalLayout->addWidget(m_removeSymbolicName);
     verticalLayout->addSpacerItem(
@@ -107,16 +109,16 @@ void ObjectsMapEditorWidget::initUi()
     horizontalLayout2->addWidget(m_propertiesTree);
 
     QVBoxLayout *verticalLayout2 = new QVBoxLayout;
-    m_newProperty = new QPushButton(tr("New"), this);
+    m_newProperty = new QPushButton(Tr::tr("New"), this);
     m_newProperty->setEnabled(false);
     verticalLayout2->addWidget(m_newProperty);
-    m_removeProperty = new QPushButton(tr("Remove"), this);
+    m_removeProperty = new QPushButton(Tr::tr("Remove"), this);
     m_removeProperty->setEnabled(false);
     verticalLayout2->addWidget(m_removeProperty);
     m_jumpToSymbolicName = new QPushButton(this);
     m_jumpToSymbolicName->setEnabled(false);
     m_jumpToSymbolicName->setIcon(QIcon(":/squish/images/jumpTo.png"));
-    m_jumpToSymbolicName->setToolTip(tr("Jump to Symbolic Name"));
+    m_jumpToSymbolicName->setToolTip(Tr::tr("Jump to Symbolic Name"));
     verticalLayout2->addWidget(m_jumpToSymbolicName);
     verticalLayout2->addSpacerItem(
         new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
@@ -219,28 +221,28 @@ void ObjectsMapEditorWidget::initializeConnections()
 void ObjectsMapEditorWidget::initializeContextMenus()
 {
     m_symbolicNamesCtxtMenu = new QMenu(m_symbolicNamesTreeView);
-    QAction *cutAction = new QAction(tr("Cut"), m_symbolicNamesCtxtMenu);
+    QAction *cutAction = new QAction(Tr::tr("Cut"), m_symbolicNamesCtxtMenu);
     cutAction->setShortcut(QKeySequence(QKeySequence::Cut));
     connect(cutAction,
             &QAction::triggered,
             this,
             &ObjectsMapEditorWidget::onCutSymbolicNameTriggered);
-    QAction *copyAction = new QAction(tr("Copy"), m_symbolicNamesCtxtMenu);
+    QAction *copyAction = new QAction(Tr::tr("Copy"), m_symbolicNamesCtxtMenu);
     copyAction->setShortcut(QKeySequence(QKeySequence::Copy));
     connect(copyAction, &QAction::triggered, this, &ObjectsMapEditorWidget::onCopySymbolTriggered);
-    QAction *pasteAction = new QAction(tr("Paste"), m_symbolicNamesCtxtMenu);
+    QAction *pasteAction = new QAction(Tr::tr("Paste"), m_symbolicNamesCtxtMenu);
     pasteAction->setShortcut(QKeySequence(QKeySequence::Paste));
     connect(pasteAction,
             &QAction::triggered,
             this,
             &ObjectsMapEditorWidget::onPasteSymbolicNameTriggered);
-    QAction *deleteAction = new QAction(tr("Delete"), m_symbolicNamesCtxtMenu);
+    QAction *deleteAction = new QAction(Tr::tr("Delete"), m_symbolicNamesCtxtMenu);
     deleteAction->setShortcut(QKeySequence(QKeySequence::Delete));
     connect(deleteAction,
             &QAction::triggered,
             this,
             &ObjectsMapEditorWidget::onRemoveSymbolicNameTriggered);
-    QAction *copyRealNameAction = new QAction(tr("Copy Real Name"), m_symbolicNamesCtxtMenu);
+    QAction *copyRealNameAction = new QAction(Tr::tr("Copy Real Name"), m_symbolicNamesCtxtMenu);
     connect(copyRealNameAction,
             &QAction::triggered,
             this,
@@ -253,19 +255,19 @@ void ObjectsMapEditorWidget::initializeContextMenus()
     m_symbolicNamesCtxtMenu->addAction(copyRealNameAction);
 
     m_propertiesCtxtMenu = new QMenu(m_propertiesTree);
-    cutAction = new QAction(tr("Cut"), m_propertiesCtxtMenu);
+    cutAction = new QAction(Tr::tr("Cut"), m_propertiesCtxtMenu);
     cutAction->setShortcut(QKeySequence(QKeySequence::Cut));
     connect(cutAction, &QAction::triggered, this, &ObjectsMapEditorWidget::onCutPropertyTriggered);
-    copyAction = new QAction(tr("Copy"), m_propertiesCtxtMenu);
+    copyAction = new QAction(Tr::tr("Copy"), m_propertiesCtxtMenu);
     copyAction->setShortcut(QKeySequence(QKeySequence::Copy));
     connect(copyAction, &QAction::triggered, this, &ObjectsMapEditorWidget::onCopyPropertyTriggered);
-    pasteAction = new QAction(tr("Paste"), m_propertiesCtxtMenu);
+    pasteAction = new QAction(Tr::tr("Paste"), m_propertiesCtxtMenu);
     pasteAction->setShortcut(QKeySequence(QKeySequence::Paste));
     connect(pasteAction,
             &QAction::triggered,
             this,
             &ObjectsMapEditorWidget::onPastePropertyTriggered);
-    deleteAction = new QAction(tr("Delete"), m_propertiesCtxtMenu);
+    deleteAction = new QAction(Tr::tr("Delete"), m_propertiesCtxtMenu);
     deleteAction->setShortcut(QKeySequence(QKeySequence::Delete));
     connect(deleteAction,
             &QAction::triggered,
@@ -280,15 +282,14 @@ void ObjectsMapEditorWidget::initializeContextMenus()
 
 void ObjectsMapEditorWidget::setPropertiesDisplayValid(bool valid)
 {
-    static const char *propertiesValidText = QT_TR_NOOP(
-        "<b>Properties:</b><br/>"
+    static const QString properties = "<b>" + Tr::tr("Properties:") + "</b><br/>";
+    static const QString propertiesValidText = properties + Tr::tr(
         "The properties of the Multi Property Name associated with the selected "
         "Symbolic Name. (use \\\\ for a literal \\ in the value)");
-    static const char *propertiesInvalidText = QT_TR_NOOP(
-        "<b>Properties:</b><br/>"
+    static const QString propertiesInvalidText = properties + Tr::tr(
         "The Hierarchical Name associated with the selected Symbolic Name.");
 
-    m_propertiesLabel->setText(tr(valid ? propertiesValidText : propertiesInvalidText));
+    m_propertiesLabel->setText(valid ? propertiesValidText : propertiesInvalidText);
     m_stackedLayout->setCurrentIndex(valid ? 0 : 1);
 }
 
@@ -486,8 +487,8 @@ void ObjectsMapEditorWidget::onRemoveSymbolicNameTriggered()
     } else {
         // Squish does not ask for removing objects without references, but we prefer to do it
         if (QMessageBox::question(Core::ICore::dialogParent(),
-                                  tr("Remove Symbolic Name"),
-                                  tr("Do you really want to remove \"%1\"?").arg(symbolicName))
+                                  Tr::tr("Remove Symbolic Name"),
+                                  Tr::tr("Do you really want to remove \"%1\"?").arg(symbolicName))
             != QMessageBox::Yes)
             return;
     }
@@ -630,11 +631,11 @@ QString ObjectsMapEditorWidget::ambiguousNameDialog(const QString &original,
 
     QDialog dialog(this);
     dialog.setModal(true);
-    dialog.setWindowTitle(isProperty ? tr("Ambiguous Property Name")
-                                     : tr("Ambiguous Symbolic Name"));
+    dialog.setWindowTitle(isProperty ? Tr::tr("Ambiguous Property Name")
+                                     : Tr::tr("Ambiguous Symbolic Name"));
     QVBoxLayout *layout = new QVBoxLayout;
-    QLabel label(tr("%1 \"%2\" already exists. Specify a unique name.")
-                     .arg(isProperty ? tr("Property") : tr("Symbolic Name"))
+    QLabel label(Tr::tr("%1 \"%2\" already exists. Specify a unique name.")
+                     .arg(isProperty ? Tr::tr("Property") : Tr::tr("Symbolic Name"))
                      .arg(original));
     layout->addWidget(&label);
     Utils::FancyLineEdit *validator;
@@ -664,7 +665,7 @@ QString ObjectsMapEditorWidget::ambiguousNameDialog(const QString &original,
     QString validName(original);
     if (isProperty) {
         validName[0] = validName[0].toUpper();
-        validName = tr("CopyOf") + validName;
+        validName = Tr::tr("CopyOf") + validName;
     }
     // make sure the name is unique
     if (usedNames.contains(validName))

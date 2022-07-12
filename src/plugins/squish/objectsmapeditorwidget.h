@@ -52,7 +52,6 @@ class PropertyTreeItem;
 
 class ObjectsMapEditorWidget : public QWidget
 {
-    Q_OBJECT
 public:
     explicit ObjectsMapEditorWidget(ObjectsMapDocument *document, QWidget *parent = nullptr);
 

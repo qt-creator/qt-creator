@@ -24,11 +24,13 @@
 ****************************************************************************/
 
 #include "squishfilehandler.h"
+
 #include "opensquishsuitesdialog.h"
 #include "squishconstants.h"
 #include "squishtesttreemodel.h"
 #include "squishtools.h"
 #include "squishutils.h"
+#include "squishtr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -100,10 +102,10 @@ void SquishFileHandler::openTestSuites()
             } else if (replaceSuite != QMessageBox::NoToAll) {
                 replaceSuite
                     = QMessageBox::question(Core::ICore::dialogParent(),
-                                            tr("Suite Already Open"),
-                                            tr("A test suite with the name \"%1\" is already open."
-                                               "\nClose the opened test suite and replace it "
-                                               "with the new one?")
+                                            Tr::tr("Suite Already Open"),
+                                            Tr::tr("A test suite with the name \"%1\" is already open."
+                                                   "\nClose the opened test suite and replace it "
+                                                   "with the new one?")
                                                 .arg(suiteName),
                                             QMessageBox::Yes | QMessageBox::YesToAll
                                                 | QMessageBox::No | QMessageBox::NoToAll,
@@ -154,9 +156,9 @@ void SquishFileHandler::runTestCase(const QString &suiteName, const QString &tes
     const QDir suitePath = QFileInfo(m_suites.value(suiteName)).absoluteDir();
     if (!suitePath.exists() || !suitePath.isReadable()) {
         QMessageBox::critical(Core::ICore::dialogParent(),
-                              tr("Test Suite Path Not Accessible"),
-                              tr("The path \"%1\" does not exist or is not accessible.\n"
-                                 "Refusing to run test case \"%2\".")
+                              Tr::tr("Test Suite Path Not Accessible"),
+                              Tr::tr("The path \"%1\" does not exist or is not accessible.\n"
+                                     "Refusing to run test case \"%2\".")
                                   .arg(QDir::toNativeSeparators(suitePath.absolutePath()))
                                   .arg(testCaseName));
         return;
@@ -176,9 +178,9 @@ void SquishFileHandler::runTestSuite(const QString &suiteName)
     const QDir suitePath = QFileInfo(suiteConf).absoluteDir();
     if (!suitePath.exists() || !suitePath.isReadable()) {
         QMessageBox::critical(Core::ICore::dialogParent(),
-                              tr("Test Suite Path Not Accessible"),
-                              tr("The path \"%1\" does not exist or is not accessible.\n"
-                                 "Refusing to run test cases.")
+                              Tr::tr("Test Suite Path Not Accessible"),
+                              Tr::tr("The path \"%1\" does not exist or is not accessible.\n"
+                                     "Refusing to run test cases.")
                                   .arg(QDir::toNativeSeparators(suitePath.absolutePath())));
         return;
     }
@@ -215,7 +217,7 @@ void addAllEntriesRecursively(SquishTestTreeItem *item)
 void SquishFileHandler::addSharedFolder()
 {
     const QString &chosen = QFileDialog::getExistingDirectory(Core::ICore::dialogParent(),
-                                                              tr("Select Global Script Folder"));
+                                                              Tr::tr("Select Global Script Folder"));
     if (chosen.isEmpty())
         return;
 
@@ -252,8 +254,8 @@ void SquishFileHandler::openObjectsMap(const QString &suiteName)
     if (!objectsMapPath.isEmpty() && objectsMapPath.exists()) {
         if (!Core::EditorManager::openEditor(objectsMapPath, Constants::OBJECTSMAP_EDITOR_ID)) {
             QMessageBox::critical(Core::ICore::dialogParent(),
-                                  tr("Error"),
-                                  tr("Failed to open objects.map file at \"%1\".")
+                                  Tr::tr("Error"),
+                                  Tr::tr("Failed to open objects.map file at \"%1\".")
                                       .arg(objectsMapPath.toUserOutput()));
         }
     }
