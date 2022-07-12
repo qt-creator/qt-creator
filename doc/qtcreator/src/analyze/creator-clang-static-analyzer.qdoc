@@ -122,8 +122,8 @@
     \image qtcreator-clang-tools-options-customized.png "Clang Tools customized settings"
 
     To restore the global settings, select \uicontrol {Restore Global Settings}.
-    To view and modify the global settings, select
-    \uicontrol {Open Global Settings}. To open the Clang static analyzer,
+    To view and modify the global settings, select the link in
+    \uicontrol {Use global settings}. To open the Clang static analyzer,
     select \uicontrol {Go to Analyzer}.
 
     \section1 Configuring Clang Tools
