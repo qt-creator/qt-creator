@@ -30,19 +30,15 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
+class QListWidget;
 class QListWidgetItem;
+class QPushButton;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
-class Project;
-}
+namespace ProjectExplorer { class Project; }
 
 namespace Todo {
 namespace Internal {
-
-namespace Ui {
-class TodoProjectSettingsWidget;
-}
 
 class TodoProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
 {
@@ -65,10 +61,10 @@ private:
     void saveSettings();
     void prepareItem(QListWidgetItem *item) const;
 
-    Ui::TodoProjectSettingsWidget *ui;
     ProjectExplorer::Project *m_project;
+    QListWidget *m_excludedPatternsList;
+    QPushButton *m_removeExcludedPatternButton;
 };
-
 
 } // namespace Internal
 } // namespace Todo

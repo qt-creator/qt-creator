@@ -26,7 +26,6 @@ QtcPlugin {
         "optionsdialog.h",
         "todoprojectsettingswidget.cpp",
         "todoprojectsettingswidget.h",
-        "todoprojectsettingswidget.ui",
         "qmljstodoitemsscanner.cpp",
         "qmljstodoitemsscanner.h",
         "settings.cpp",
