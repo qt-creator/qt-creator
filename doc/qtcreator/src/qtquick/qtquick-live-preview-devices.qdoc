@@ -76,7 +76,7 @@
 
     The first time you preview a UI on devices, the preview utility
     is copied to them. This might take some time. Thereafter, previewing will
-    get faster, because only the UI files need to be copied to the
+    get faster because only the UI files need to be copied to the
     device.
 
     \section2 Previewing on Boot2Qt Devices

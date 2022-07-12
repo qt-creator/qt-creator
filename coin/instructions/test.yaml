@@ -1,5 +1,11 @@
 type: Group
 instructions:
+  - type: InstallBinaryArchive
+    relativeStoragePath: "{{.Env.MODULE_ARTIFACTS_RELATIVE_STORAGE_PATH}}/artifacts.tar.gz"
+    directory: "qt-creator/qt-creator_build/build"
+    maxTimeInSeconds: 1800
+    maxTimeBetweenOutput: 1800
+    userMessageOnFailure: "Failed to unarchive build artifacts, check logs"
   - type: ChangeDirectory
     directory: "{{.AgentWorkingDir}}/qt-creator/qt-creator_build/build"
   - type: ExecuteCommand

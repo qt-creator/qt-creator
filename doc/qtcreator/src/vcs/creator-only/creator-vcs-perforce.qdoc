@@ -46,7 +46,7 @@
 
     \section1 Configuring Perforce
 
-    In the Perforce options, you can specify workspace details:
+    In the Perforce preferences, you can specify workspace details:
     \uicontrol {P4 user}, \uicontrol {P4 client}, and \uicontrol {P4 port}. To
     specify the details individually for several projects, use configuration
     files instead. Create a \c {p4config.txt} configuration file for each

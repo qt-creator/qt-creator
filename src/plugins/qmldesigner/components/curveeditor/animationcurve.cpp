@@ -36,14 +36,16 @@
 namespace QmlDesigner {
 
 AnimationCurve::AnimationCurve()
-    : m_fromData(false)
+    : m_type(AnimationCurve::ValueType::Undefined)
+    , m_fromData(false)
     , m_minY(std::numeric_limits<double>::max())
     , m_maxY(std::numeric_limits<double>::lowest())
     , m_frames()
 {}
 
-AnimationCurve::AnimationCurve(const std::vector<Keyframe> &frames)
-    : m_fromData(false)
+AnimationCurve::AnimationCurve(AnimationCurve::ValueType type, const std::vector<Keyframe> &frames)
+    : m_type(type)
+    , m_fromData(false)
     , m_minY(std::numeric_limits<double>::max())
     , m_maxY(std::numeric_limits<double>::lowest())
     , m_frames(frames)
@@ -51,8 +53,13 @@ AnimationCurve::AnimationCurve(const std::vector<Keyframe> &frames)
     analyze();
 }
 
-AnimationCurve::AnimationCurve(const QEasingCurve &easing, const QPointF &start, const QPointF &end)
-    : m_fromData(true)
+AnimationCurve::AnimationCurve(
+    AnimationCurve::ValueType type,
+    const QEasingCurve &easing,
+    const QPointF &start,
+    const QPointF &end)
+    : m_type(type)
+    , m_fromData(true)
     , m_minY(std::numeric_limits<double>::max())
     , m_maxY(std::numeric_limits<double>::lowest())
     , m_frames()
@@ -115,6 +122,11 @@ bool AnimationCurve::hasUnified() const
             return true;
     }
     return false;
+}
+
+AnimationCurve::ValueType AnimationCurve::valueType() const
+{
+    return m_type;
 }
 
 double AnimationCurve::minimumTime() const

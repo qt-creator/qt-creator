@@ -42,7 +42,7 @@
     specify the debugger and compiler to use for each kit, select
     \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits.
 
-    You need to set up the debugger only if the automatic setup fails, because
+    You need to set up the debugger only if the automatic setup fails because
     the native debugger is missing (as is usually the case for the CDB debugger
     on Windows, which you always must install yourself) or because the installed
     version is not supported (for example, when your system contains no, or an

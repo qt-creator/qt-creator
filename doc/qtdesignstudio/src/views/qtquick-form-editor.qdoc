@@ -186,7 +186,7 @@
     \uicontrol {Sibling component spacing} field, specify the
     distance in pixels between siblings and the snapping lines.
 
-    \image qtquick-designer-options.png "Qt Quick Designer options"
+    \image qtquick-designer-options.png "Qt Quick Designer preferences"
 
     The following image shows the snapping lines (1) when
     \uicontrol {Parent component padding} is set to 5 pixels.

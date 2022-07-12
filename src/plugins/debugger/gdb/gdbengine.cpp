@@ -3852,6 +3852,7 @@ void GdbEngine::setupEngine()
     if (!debuggerSettings()->loadGdbInit.value())
         gdbCommand.addArg("-n");
 
+    // This is filled in DebuggerKitAspect::runnable
     Environment gdbEnv = rp.debugger.environment;
     gdbEnv.setupEnglishOutput();
     if (rp.runAsRoot)
@@ -4044,9 +4045,9 @@ void GdbEngine::setEnvironmentVariables()
                 && str.compare("path", Qt::CaseInsensitive) == 0;
     };
 
-    Environment sysEnv = Environment::systemEnvironment();
+    Environment baseEnv = runParameters().debugger.environment;
     Environment runEnv = runParameters().inferior.environment;
-    const NameValueItems items = sysEnv.diff(runEnv);
+    const NameValueItems items = baseEnv.diff(runEnv);
     for (const EnvironmentItem &item : items) {
         // imitate the weird windows gdb behavior of setting the case of the path environment
         // variable name to an all uppercase PATH

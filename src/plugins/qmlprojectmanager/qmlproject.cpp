@@ -44,6 +44,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/baseqtversion.h>
@@ -109,6 +110,10 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     setBuildSystemCreator([](Target *t) { return new QmlBuildSystem(t); });
 
     if (QmlProject::isQtDesignStudio()) {
+
+        EditorManager::closeAllDocuments();
+        SessionManager::closeAllProjects();
+
         m_openFileConnection
             = connect(this,
                       &QmlProject::anyParsingFinished,

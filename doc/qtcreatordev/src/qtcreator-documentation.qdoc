@@ -179,7 +179,7 @@
 
     The \c {\else} command is sometimes used to replace some \QC specific text
     with text that applies to \QDS. For example, the following \c if-else
-    statement is needed in the \QC Manual sources, because the project wizards
+    statement is needed in the \QC Manual sources because the project wizards
     in \QDS are different from those in \QC, and are therefore described in
     a new topic that is located in the \QDS Manual sources:
 
@@ -251,7 +251,7 @@
     It is mostly used in the \QC Manual sources to specify values for the
     \c {\previouspage} and \c {\nextpage} commands depending on whether
     the \QDS Manual or \QC Manual is being built. For example, the
-    following \c if-else statement is needed, because only the Git
+    following \c if-else statement is needed because only the Git
     version control system is integrated to \QDS, and information about
     the other systems integrated to \QC is hidden:
 
@@ -349,7 +349,7 @@
     topic in the Qt reference documentation.
 
     This improves the consistency of the look and feel of Qt documentation,
-    and eliminates the need to describe parts of the UI in the text, because
+    and eliminates the need to describe parts of the UI in the text because
     you can just insert the number of the element you are referring to in
     brackets.
 

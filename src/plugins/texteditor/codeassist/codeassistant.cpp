@@ -155,7 +155,8 @@ void CodeAssistantPrivate::invoke(AssistKind kind, IAssistProvider *provider)
 
     stopAutomaticProposalTimer();
 
-    if (isDisplayingProposal() && m_assistKind == kind && !m_proposal->isFragile()) {
+    if (isDisplayingProposal() && m_assistKind == kind && !m_proposal->isFragile()
+        && m_proposal->supportsPrefix()) {
         m_proposalWidget->setReason(ExplicitlyInvoked);
         m_proposalWidget->updateProposal(m_editorWidget->textAt(
                         m_proposal->basePosition(),
@@ -324,8 +325,10 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
     // TODO: The proposal should own the model until someone takes it explicitly away.
     QScopedPointer<IAssistProposal> proposalCandidate(newProposal);
 
-    if (isDisplayingProposal() && !m_proposal->isFragile())
+    if (isDisplayingProposal() && !m_proposal->isFragile()
+        && !m_proposalWidget->supportsModelUpdate(proposalCandidate->id())) {
         return;
+    }
 
     int basePosition = proposalCandidate->basePosition();
     if (m_editorWidget->position() < basePosition) {
@@ -351,6 +354,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
         && basePosition == proposalCandidate->basePosition()
         && m_proposalWidget->supportsModelUpdate(proposalCandidate->id())) {
         m_proposal.reset(proposalCandidate.take());
+        m_proposal->setReason(reason);
         m_proposalWidget->updateModel(m_proposal->model());
         m_proposalWidget->updateProposal(prefix);
         return;

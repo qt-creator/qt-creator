@@ -161,7 +161,7 @@
 
     \section3 Building AABs
 
-    For testing the application locally, use the APK format, because
+    For testing the application locally, use the APK format because
     the package can be uploaded directly to the device and run. For
     distribution to the Google Play store, create an AAB by selecting
     the \uicontrol {Build Android App Bundle (*.aab)} check box.
@@ -185,7 +185,7 @@
     verify that the future versions of your application are actually created by
     you.
 
-    \warning Keep the key pair in a safe place and take back up copies, because
+    \warning Keep the key pair in a safe place and take back up copies because
     you cannot update the application if you lose the key pair.
 
     You can use \QC to generate a keystore and a \e {self-signed} certificate.
@@ -460,6 +460,16 @@
 
     \li Select \uicontrol Projects > \uicontrol Build >
         \uicontrol {Build Android APK} > \uicontrol {Create Templates}.
+
+    \li Check the path in \uicontrol {Android package source directory}.
+
+        \image qtcreator-android-create-template.png "Create Template dialog"
+
+    \li Select \uicontrol {Copy the Gradle files to Android directory} if you
+        plan to extend the Java part of your Qt application.
+
+    \li Select \uicontrol Finish to copy the template files to the \c android
+        directory and to open the manifest file for editing.
 
     \li In the \uicontrol {Package name} field, enter a valid
         \l{Package Names}{package name} for the application.

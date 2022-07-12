@@ -1243,7 +1243,7 @@ void tst_QtcProcess::recursiveCrashingProcess()
     subConfig.setupSubProcess(&process);
     process.start();
     QVERIFY(process.waitForStarted(1000));
-    QVERIFY(process.waitForFinished(3000));
+    QVERIFY(process.waitForFinished());
     QCOMPARE(process.state(), QProcess::NotRunning);
     QCOMPARE(process.exitStatus(), QProcess::NormalExit);
     QCOMPARE(process.exitCode(), s_crashCode);

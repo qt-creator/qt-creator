@@ -44,7 +44,7 @@
     directories where the tools are installed in \uicontrol Edit >
     \uicontrol Preferences > \uicontrol Devices > \uicontrol SSH:
 
-    \image qtcreator-ssh-options.png
+    \image qtcreator-ssh-options.png "SSH preferences"
 
     \list
         \li Deselect the \uicontrol {Enable connection sharing} check box to

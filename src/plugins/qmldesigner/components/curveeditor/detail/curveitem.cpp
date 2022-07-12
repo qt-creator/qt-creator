@@ -37,22 +37,11 @@
 
 namespace QmlDesigner {
 
-CurveItem::CurveItem(QGraphicsItem *parent)
-    : CurveEditorItem(parent)
-    , m_id(0)
-    , m_style()
-    , m_type(PropertyTreeItem::ValueType::Undefined)
-    , m_component(PropertyTreeItem::Component::Generic)
-    , m_transform()
-    , m_keyframes()
-    , m_itemDirty(false)
-{}
-
 CurveItem::CurveItem(unsigned int id, const AnimationCurve &curve, QGraphicsItem *parent)
     : CurveEditorItem(parent)
     , m_id(id)
     , m_style()
-    , m_type(PropertyTreeItem::ValueType::Undefined)
+    , m_type(curve.valueType())
     , m_component(PropertyTreeItem::Component::Generic)
     , m_transform()
     , m_keyframes()
@@ -235,14 +224,16 @@ PropertyTreeItem::Component CurveItem::component() const
     return m_component;
 }
 
-AnimationCurve CurveItem::curve() const
+AnimationCurve CurveItem::curve(bool remap) const
 {
     std::vector<Keyframe> frames;
     frames.reserve(m_keyframes.size());
-    for (auto *frameItem : m_keyframes)
-        frames.push_back(frameItem->keyframe());
 
-    return AnimationCurve(frames);
+    bool map = (m_type == AnimationCurve::ValueType::Bool) && remap;
+    for (auto *frameItem : m_keyframes)
+        frames.push_back(frameItem->keyframe(map));
+
+    return AnimationCurve(m_type, frames);
 }
 
 AnimationCurve CurveItem::resolvedCurve() const
@@ -278,11 +269,13 @@ std::vector<AnimationCurve> CurveItem::curves() const
                 Keyframe previous = tmp.back();
 
                 if (tmp.size() >= 2)
-                    out.push_back(AnimationCurve(tmp));
+                    out.push_back(AnimationCurve(m_type, tmp));
 
-                out.push_back(AnimationCurve(current.data().value<QEasingCurve>(),
-                                             previous.position(),
-                                             current.position()));
+                out.push_back(AnimationCurve(
+                        m_type,
+                        current.data().value<QEasingCurve>(),
+                        previous.position(),
+                        current.position()));
 
                 tmp.clear();
                 tmp.push_back(current);
@@ -293,7 +286,7 @@ std::vector<AnimationCurve> CurveItem::curves() const
     }
 
     if (!tmp.empty())
-        out.push_back(AnimationCurve(tmp));
+        out.push_back(AnimationCurve(m_type, tmp));
 
     return out;
 }
@@ -384,7 +377,7 @@ void CurveItem::setDirty(bool dirty)
 
 void CurveItem::setHandleVisibility(bool visible)
 {
-    for (auto frame : qAsConst(m_keyframes))
+    for (auto *frame : qAsConst(m_keyframes))
         frame->setHandleVisibility(visible);
 }
 
@@ -402,7 +395,7 @@ void CurveItem::setCurve(const AnimationCurve &curve)
 {
     freeClear(m_keyframes);
 
-    for (const auto &frame : curve.keyframes()) {
+    for (const auto& frame : curve.keyframes()) {
         auto *item = new KeyframeItem(frame, this);
         item->setLocked(locked());
         item->setComponentTransform(m_transform);
@@ -419,7 +412,7 @@ QRectF CurveItem::setComponentTransform(const QTransform &transform)
 {
     prepareGeometryChange();
     m_transform = transform;
-    for (auto frame : qAsConst(m_keyframes))
+    for (auto *frame : qAsConst(m_keyframes))
         frame->setComponentTransform(transform);
 
     return boundingRect();
@@ -438,6 +431,14 @@ void CurveItem::setInterpolation(Keyframe::Interpolation interpolation)
     if (m_keyframes.empty())
         return;
 
+    if (m_type == AnimationCurve::ValueType::Bool) {
+        if (interpolation != Keyframe::Interpolation::Step) {
+            interpolation = Keyframe::Interpolation::Step;
+            QString msg("Warning: Curves of type bool can only be step-interpolated!");
+            emit curveMessage(msg);
+        }
+    }
+
     KeyframeItem *prevItem = m_keyframes[0];
     for (int i = 1; i < m_keyframes.size(); ++i) {
         KeyframeItem *currItem = m_keyframes[i];
@@ -454,7 +455,7 @@ void CurveItem::setInterpolation(Keyframe::Interpolation interpolation)
         prevItem = currItem;
     }
     setDirty(false);
-    emit curveChanged(id(), curve());
+    emit curveChanged(id(), curve(true));
 }
 
 void CurveItem::setDefaultInterpolation()
@@ -466,7 +467,7 @@ void CurveItem::setDefaultInterpolation()
         if (frame->selected())
             frame->setDefaultInterpolation();
     }
-    emit curveChanged(id(), curve());
+    emit curveChanged(id(), curve(true));
 }
 
 void CurveItem::toggleUnified()
@@ -478,12 +479,13 @@ void CurveItem::toggleUnified()
         if (frame->selected())
             frame->toggleUnified();
     }
-    emit curveChanged(id(), curve());
+    emit curveChanged(id(), curve(true));
 }
 
 void CurveItem::connect(GraphicsScene *scene)
 {
     QObject::connect(this, &CurveItem::curveChanged, scene, &GraphicsScene::curveChanged);
+    QObject::connect(this, &CurveItem::curveMessage, scene, &GraphicsScene::curveMessage);
 
     QObject::connect(this, &CurveItem::keyframeMoved, scene, &GraphicsScene::keyframeMoved);
     QObject::connect(this, &CurveItem::handleMoved, scene, &GraphicsScene::handleMoved);
@@ -498,7 +500,7 @@ void CurveItem::insertKeyframeByTime(double time)
     acurve.insert(time);
     setCurve(acurve);
 
-    emit curveChanged(id(), curve());
+    emit curveChanged(id(), curve(true));
 }
 
 void CurveItem::deleteSelectedKeyframes()
@@ -516,7 +518,14 @@ void CurveItem::deleteSelectedKeyframes()
 
     markDirty();
 
-    emit curveChanged(id(), curve());
+    emit curveChanged(id(), curve(true));
+}
+
+void CurveItem::remapValue(double min, double max)
+{
+    for (auto *frameItem : qAsConst(m_keyframes)) {
+        frameItem->remapValue(min, max);
+    }
 }
 
 void CurveItem::markDirty()

@@ -35,6 +35,7 @@ namespace QmlDesigner {
 class Keyframe
 {
 public:
+    enum class ValueType { Undefined, Bool, Integer, Double };
     enum class Interpolation { Undefined, Step, Linear, Bezier, Easing };
 
     Keyframe();

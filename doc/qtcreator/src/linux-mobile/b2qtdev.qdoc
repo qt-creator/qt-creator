@@ -26,7 +26,7 @@
     /*!
     \page creator-developing-b2qt.html
     \previouspage creator-developing-baremetal.html
-    \nextpage creator-developing-generic-linux.html
+    \nextpage creator-adding-docker-devices.html
 
     \title Connecting Boot2Qt Devices
 

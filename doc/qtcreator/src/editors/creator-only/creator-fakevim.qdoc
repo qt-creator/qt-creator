@@ -118,7 +118,7 @@
     for particular plugins, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol FakeVim > \uicontrol General > \uicontrol {Plugin Emulation}.
 
-    \image qtcreator-fakevim-options-general-plugin-emulation.png "FakeVim Plugin Emulation options"
+    \image qtcreator-fakevim-options-general-plugin-emulation.png "FakeVim Plugin Emulation preferences"
 
     Currently emulated plugins:
     \list
@@ -296,7 +296,7 @@
     Enter a string in the \uicontrol Filter field to search for a specific
     \QC function.
 
-    \image qtcreator-fakevim-options-ex-command-mapping.png "FakeVim Ex Command Mapping options"
+    \image qtcreator-fakevim-options-ex-command-mapping.png "FakeVim Ex Command Mapping preferences"
 
     Select a function in the list, and enter a string that will trigger the
     function in the \uicontrol {Regular expression} field. You can view the
@@ -311,14 +311,14 @@
     \uicontrol {User Command Mapping}. The user command mapped to the shortcut
     is executed by FakeVim as if you were typing it (as when replaying a macro).
 
-    \image qtcreator-fakevim-options-user-command-mapping.png "FakeVim User Command Mapping options"
+    \image qtcreator-fakevim-options-user-command-mapping.png "FakeVim User Command Mapping preferences"
 
-    \section1 Specifying FakeVim Options
+    \section1 Setting FakeVim Preferences
 
     To make changes to the Vim-style settings, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol FakeVim > \uicontrol General.
 
-    \image qtcreator-fakevim-options.png "FakeVim options"
+    \image qtcreator-fakevim-options.png "FakeVim preferences"
 
     To preselect the indentation settings specified for the text editor, select
     \uicontrol {Copy Text Editor Settings}. To preselect the Qt coding style,

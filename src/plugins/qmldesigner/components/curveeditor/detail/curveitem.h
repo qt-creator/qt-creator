@@ -46,6 +46,8 @@ class CurveItem : public CurveEditorItem
     Q_OBJECT
 
 signals:
+    void curveMessage(const QString& msg);
+
     void curveChanged(unsigned int id, const AnimationCurve &curve);
 
     void keyframeMoved(KeyframeItem *item, const QPointF &direction);
@@ -53,8 +55,6 @@ signals:
     void handleMoved(KeyframeItem *frame, HandleItem::Slot slot, double angle, double deltaLength);
 
 public:
-    CurveItem(QGraphicsItem *parent = nullptr);
-
     CurveItem(unsigned int id, const AnimationCurve &curve, QGraphicsItem *parent = nullptr);
 
     ~CurveItem() override;
@@ -93,7 +93,7 @@ public:
 
     PropertyTreeItem::Component component() const;
 
-    AnimationCurve curve() const;
+    AnimationCurve curve(bool remap = false) const;
 
     AnimationCurve resolvedCurve() const;
 
@@ -134,6 +134,8 @@ public:
     void insertKeyframeByTime(double time);
 
     void deleteSelectedKeyframes();
+
+    void remapValue(double min, double max);
 
 private:
     void markDirty();

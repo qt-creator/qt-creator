@@ -186,6 +186,8 @@ void ClangFormatFile::fromCppCodeStyleSettings(const CppEditor::CppCodeStyleSett
 
     if (settings.indentNamespaceBody || settings.indentNamespaceBraces)
         m_style.NamespaceIndentation = FormatStyle::NamespaceIndentationKind::NI_All;
+    else
+        m_style.NamespaceIndentation = FormatStyle::NamespaceIndentationKind::NI_None;
 
     if (settings.indentClassBraces || settings.indentEnumBraces || settings.indentBlockBraces
         || settings.indentFunctionBraces)

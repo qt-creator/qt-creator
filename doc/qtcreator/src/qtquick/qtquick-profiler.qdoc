@@ -53,7 +53,7 @@
     \if defined(qtcreator)
     Triggering long-running C++ functions, such as paint methods and signal
     handlers, also takes time in the GUI thread, but is more difficult to see in
-    the QML Profiler, because it does not profile C++ code.
+    the QML Profiler because it does not profile C++ code.
     \endif
 
     To find excessive use of JavaScript, check the frame rate in animations and
@@ -65,7 +65,7 @@
     frames and check that you are not using too many short bindings or signal
     handlers that are updated per frame. You can also \l{Visualizing Overdraw}
     {visualize Scene Graph overdraw} to check scene layout and find items that
-    are never visible to the users, because they are located outside the screen
+    are never visible to the users because they are located outside the screen
     or hidden beneath other, visible elements.
 
     \if defined(qtcreator)
@@ -127,7 +127,7 @@
     takes time, and therefore, there might be a delay
     before the data is displayed.
 
-    Do not use application commands to exit the application, because data is
+    Do not use application commands to exit the application because data is
     sent to the QML Profiler when you select the \uicontrol {Enable Profiling} button.
     The application continues to run for some seconds, after which it is stopped
     automatically. If you exit the application, the data is not sent.

@@ -48,7 +48,7 @@
     version, select it in the list and select \uicontrol Details in the
     \uicontrol {Qt version for} section.
 
-    \image qtcreator-qt-versions.png "Qt Versions tab in Kit options"
+    \image qtcreator-qt-versions.png "Qt Versions tab in Kit preferences"
 
     To remove invalid Qt versions, select \uicontrol {Clean Up}.
 

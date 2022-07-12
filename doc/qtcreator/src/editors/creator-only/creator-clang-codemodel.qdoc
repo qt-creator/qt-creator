@@ -127,7 +127,7 @@
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol C++ >
             \uicontrol {Code Model}.
 
-            \image qtcreator-clang-code-model-options.png
+            \image qtcreator-clang-code-model-options.png "C++ Code Model preferences"
 
         \li To instruct the code model to interpret ambiguous header files as C
             language files if you develop mainly using C, select the
@@ -163,7 +163,7 @@
     \list 1
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol C++ >
             \uicontrol Clangd > \uicontrol {Use clangd}.
-            \image qtcreator-options-clangd.png "clangd options"
+            \image qtcreator-options-clangd.png "clangd preferences"
         \li In \uicontrol {Path to executable}, enter the path to clangd
             version 13, or later.
         \li For more accurate results during global symbol searches, select

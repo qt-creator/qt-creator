@@ -198,7 +198,7 @@
                     \inlineimage icons/anchor-fill.png
                     (\uicontrol {Fill to Parent}) button to always make the
                     image the same size as its parent. This makes the button
-                    component scalable, because the image size is bound to the
+                    component scalable because the image size is bound to the
                     component size.
             \endlist
         \li Select the other border image to edit the values of its properties

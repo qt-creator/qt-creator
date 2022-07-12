@@ -577,7 +577,7 @@
     Select the \uicontrol HTTPS check box to prepend \c https to the Gerrit URL
     if Gerrit does not provide it.
 
-    \image qtcreator-gerrit-options.png
+    \image qtcreator-gerrit-options.png "Gerrit preferences"
 
     \section1 Working with Git Tools
 

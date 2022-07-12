@@ -53,7 +53,7 @@
     \uicontrol Edit > \uicontrol Preferences > \uicontrol Environment >
     \uicontrol System:
 
-    \image qtcreator-options-environment-system.png "Environment options System tab"
+    \image qtcreator-options-environment-system.png "Environment preferences System tab"
 
     \list
         \li In the \uicontrol {When files are externally modified} field,

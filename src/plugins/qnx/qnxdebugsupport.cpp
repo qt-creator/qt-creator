@@ -37,6 +37,7 @@
 
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitinformation.h>
@@ -106,7 +107,7 @@ public:
             QStringList arguments;
             if (portsGatherer->useGdbServer()) {
                 int pdebugPort = portsGatherer->gdbServer().port();
-                cmd.setExecutable(FilePath::fromString(QNX_DEBUG_EXECUTABLE));
+                cmd.setExecutable(device()->filePath(QNX_DEBUG_EXECUTABLE));
                 arguments.append(QString::number(pdebugPort));
             }
             if (portsGatherer->useQmlServer()) {

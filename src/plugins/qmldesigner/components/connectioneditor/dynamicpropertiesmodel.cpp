@@ -298,6 +298,9 @@ AbstractProperty DynamicPropertiesModel::abstractPropertyForRow(int rowNumber) c
     const int internalId = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 1).toInt();
     const QString targetPropertyName = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 2).toString();
 
+    if (!connectionView()->isAttached())
+        return AbstractProperty();
+
     ModelNode  modelNode = connectionView()->modelNodeForInternalId(internalId);
 
     if (modelNode.isValid())
@@ -415,16 +418,18 @@ QStringList DynamicPropertiesModel::possibleSourceProperties(const BindingProper
 
 void DynamicPropertiesModel::deleteDynamicPropertyByRow(int rowNumber)
 {
-    BindingProperty bindingProperty = bindingPropertyForRow(rowNumber);
-    if (bindingProperty.isValid()) {
-        bindingProperty.parentModelNode().removeProperty(bindingProperty.name());
-    }
+    connectionView()->executeInTransaction("DynamicPropertiesModel::deleteDynamicPropertyByRow", [this, rowNumber]() {
+        BindingProperty bindingProperty = bindingPropertyForRow(rowNumber);
+        if (bindingProperty.isValid()) {
+            bindingProperty.parentModelNode().removeProperty(bindingProperty.name());
+        }
 
-    VariantProperty variantProperty = variantPropertyForRow(rowNumber);
+        VariantProperty variantProperty = variantPropertyForRow(rowNumber);
 
-    if (variantProperty.isValid()) {
-        variantProperty.parentModelNode().removeProperty(variantProperty.name());
-    }
+        if (variantProperty.isValid()) {
+            variantProperty.parentModelNode().removeProperty(variantProperty.name());
+        }
+    });
 
     resetModel();
 }

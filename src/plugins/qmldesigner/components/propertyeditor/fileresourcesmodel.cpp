@@ -65,6 +65,9 @@ void FileResourcesModel::setModelNodeBackend(const QVariant &modelNodeBackend)
 
     if (backendObjectCasted) {
         QmlDesigner::Model *model = backendObjectCasted->qmlObjectNode().modelNode().model();
+        if (!model)
+            return;
+
         m_docPath = QDir{QFileInfo{model->fileUrl().toLocalFile()}.absolutePath()};
         m_path = QUrl::fromLocalFile(
             QmlDesigner::DocumentManager::currentProjectDirPath().toFileInfo().absoluteFilePath());

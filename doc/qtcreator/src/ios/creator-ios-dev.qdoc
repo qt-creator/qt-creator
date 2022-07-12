@@ -113,7 +113,7 @@
 
     \endlist
 
-    \note If you cannot deploy applications, because a provisioning profile is
+    \note If you cannot deploy applications because a provisioning profile is
     missing, check that provisioning profiles are listed in Xcode by selecting
     \uicontrol Xcode > \uicontrol Preferences > \uicontrol Accounts. For more
     information about how to acquire and install a provisioning profile, see

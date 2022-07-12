@@ -72,7 +72,6 @@
 
     \badcode
     import sys
-    from pathlib import Path
 
     from PySide6.QtWidgets import QApplication, QWidget
     \endcode
@@ -179,9 +178,8 @@
     to QGuiApplication and QQmlApplicationEngine:
 
     \badcode
-    import os
-    from pathlib import Path
     import sys
+    from pathlib import Path
 
     from PySide6.QtGui import QGuiApplication
     from PySide6.QtQml import QQmlApplicationEngine
@@ -201,7 +199,8 @@
 
     \badcode
         engine = QQmlApplicationEngine()
-        engine.load(os.fspath(Path(__file__).resolve().parent / "main.qml"))
+        qml_file = Path(__file__).resolve().parent / "main.qml"
+        engine.load(qml_file)
     \endcode
 
     Finally, the wizard adds code that checks whether the file was successfully

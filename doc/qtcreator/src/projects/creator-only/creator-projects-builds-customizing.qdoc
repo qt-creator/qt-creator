@@ -45,7 +45,7 @@
     \uicontrol Edit > \uicontrol Preferences > \uicontrol {Build & Run}
      > \uicontrol General.
 
-    \image qtcreator-project-options-deploy.png "Project General Options"
+    \image qtcreator-project-options-deploy.png "Project General preferences"
 
     By default, the \uicontrol {Always deploy project before running it} (1) and
     \uicontrol {Build the Whole Project} (2) options are enabled. Therefore,

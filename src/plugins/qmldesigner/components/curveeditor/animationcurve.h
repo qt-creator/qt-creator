@@ -40,11 +40,17 @@ class CurveSegment;
 class AnimationCurve
 {
 public:
+    using ValueType = Keyframe::ValueType;
+
     AnimationCurve();
 
-    AnimationCurve(const std::vector<Keyframe> &frames);
+    AnimationCurve(ValueType type, const std::vector<Keyframe> &frames);
 
-    AnimationCurve(const QEasingCurve &easing, const QPointF &start, const QPointF &end);
+    AnimationCurve(
+        ValueType type,
+        const QEasingCurve &easing,
+        const QPointF &start,
+        const QPointF &end);
 
     bool isEmpty() const;
 
@@ -53,6 +59,8 @@ public:
     bool isFromData() const;
 
     bool hasUnified() const;
+
+    ValueType valueType() const;
 
     double minimumTime() const;
 
@@ -92,6 +100,8 @@ public:
 
 private:
     void analyze();
+
+    ValueType m_type;
 
     bool m_fromData;
 

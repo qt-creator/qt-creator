@@ -65,7 +65,7 @@
 
     \image qtcreator-incredibuild-build-steps-linux.png
 
-    You can specify the following options for Linux builds:
+    You can specify the following settings for Linux builds:
 
     \list
         \li \uicontrol {Nice value} is a numeric value between -20 and 19
@@ -78,7 +78,7 @@
 
     \image qtcreator-incredibuild-build-steps-windows.png
 
-    You can specify the following options for Windows builds:
+    You can specify the following settings for Windows builds:
 
     \list
         \li \uicontrol {Profile.xml} defines how Automatic Interception

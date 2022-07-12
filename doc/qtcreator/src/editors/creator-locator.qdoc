@@ -247,7 +247,7 @@
 
         \li In the locator, click \inlineimage icons/magnifier.png
             (\uicontrol Options) and select \uicontrol Configure to open the
-            \uicontrol Locator options.
+            \uicontrol Locator preferences.
 
         \li Select a filter, and then select \uicontrol Edit.
 
@@ -256,7 +256,7 @@
         \li To implicitly include the filter even when not typing a prefix as a
             part of the search string, select \uicontrol {Include by default}.
 
-        \li Specify other available options. For more information, see
+        \li Set other available preferences. For more information, see
             \l{Adding Web Search Engines}.
 
     \endlist
@@ -305,9 +305,9 @@
     \list 1
 
         \li In the locator, select \uicontrol Options >
-            \uicontrol Configure to open the \uicontrol Locator options.
+            \uicontrol Configure to open the \uicontrol Locator preferences.
 
-            \image qtcreator-locator-customize.png "Locator options tab"
+            \image qtcreator-locator-customize.png "Locator preferences"
 
         \li Select \uicontrol Add > \uicontrol {Files in Directories} to add
             a directory filter or \uicontrol {URL Template} to add a URL

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -53,7 +53,7 @@
 
     \section1 Specifying Settings for Custom Output Parsers
 
-    \image qtcreator-custom-parser-options.png
+    \image qtcreator-custom-parser-options.png "Custom Output Parsers preferences"
 
     A custom output parser enables you to capture errors and
     warnings separately, according to the settings you specify
@@ -99,4 +99,7 @@
         \li Select custom parsers to activate them for building or running
             the project.
     \endlist
+
+    Select \uicontrol {Parse standard output during build} to make output
+    parsers look for diagnostics on \c stdout in addition to \c stderr.
 */

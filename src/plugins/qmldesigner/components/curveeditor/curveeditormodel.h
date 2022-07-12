@@ -48,6 +48,8 @@ class CurveEditorModel : public TreeModel
     Q_OBJECT
 
 signals:
+    void setStatusLineMsg(const QString& msg);
+
     void commitCurrentFrame(int frame);
 
     void commitStartFrame(int frame);
@@ -62,6 +64,8 @@ public:
     CurveEditorModel(QObject *parent = nullptr);
 
     ~CurveEditorModel() override;
+
+    int currentFrame() const;
 
     double minimumTime() const;
 
@@ -92,9 +96,13 @@ private:
 
     AnimationCurve createAnimationCurve(const QmlDesigner::QmlTimelineKeyframeGroup &group);
 
+    AnimationCurve createBooleanCurve(const QmlDesigner::QmlTimelineKeyframeGroup &group);
+
     AnimationCurve createDoubleCurve(const QmlDesigner::QmlTimelineKeyframeGroup &group);
 
     bool m_hasTimeline = false;
+
+    int m_currentFrame = 0;
 
     double m_minTime = 0.;
 

@@ -166,7 +166,7 @@
                 with a single QML file that contains the main view. You can
                 preview Qt Quick 2 UI projects in the
                 \l{Validating with Target Hardware}{QML Scene preview tool}.
-                You do not need to build them, because they do not contain any
+                You do not need to build them because they do not contain any
                 C++ code.
 
                 Use this template only if you are prototyping. You cannot create

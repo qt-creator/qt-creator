@@ -43,7 +43,7 @@
     asks you whether you would like to open the file in \QDS instead. Select
     \uicontrol {Open in \QDS} to open the file in \QDS. To continue editing
     the file in \QC, close the info bar. However, we do not recommend editing
-    \l{UI Files}{UI files} in the \uicontrol Edit mode, because it is easy to
+    \l{UI Files}{UI files} in the \uicontrol Edit mode because it is easy to
     add code that is not supported by \QDS. To hide the question, select
     \uicontrol {Do Not Show Again}.
 

@@ -47,7 +47,7 @@
     \list 1
         \li Select \uicontrol Edit > \uicontrol Preferences  >
             \uicontrol {Code Pasting}.
-            \image qtcreator-code-pasting-options.png "Code Pasting options"
+            \image qtcreator-code-pasting-options.png "Code Pasting preferences"
         \li In the \uicontrol {Default protocol} field, select a code pasting
             service to use by default.
         \li In the \uicontrol Username field, enter your username.

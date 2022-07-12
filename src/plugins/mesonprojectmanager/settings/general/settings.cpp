@@ -41,9 +41,12 @@ Settings::Settings()
     autorunMeson.setLabelText(tr("Autorun Meson"));
     autorunMeson.setToolTip(tr("Automatically run Meson when needed."));
 
-    verboseNinja.setSettingsKey("meson.autorun");
+    verboseNinja.setSettingsKey("ninja.verbose");
     verboseNinja.setLabelText(tr("Ninja verbose mode"));
     verboseNinja.setToolTip(tr("Enables verbose mode by default when invoking Ninja."));
+
+    registerAspect(&autorunMeson);
+    registerAspect(&verboseNinja);
 }
 
 Settings *Settings::instance()

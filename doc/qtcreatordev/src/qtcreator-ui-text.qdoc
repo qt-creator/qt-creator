@@ -259,7 +259,7 @@
     Use \c{QDir::toNativeSeparators()} for file and directory names that you
     pass to \c{tr().arg()}.
 
-    Do not use markup that spans the whole string, because that can be confusing
+    Do not use markup that spans the whole string because that can be confusing
     for translators. For example, instead of:
 
     \code

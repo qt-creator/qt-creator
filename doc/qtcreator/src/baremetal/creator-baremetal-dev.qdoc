@@ -61,7 +61,7 @@
     \endlist
 
     The bare metal device type accepts custom GDB commands that you specify in
-    the device options. You can specify the commands to execute when connecting
+    the device preferences. You can specify the commands to execute when connecting
     using a particular debug server provider.
 
     The following debug server providers are supported when using GDB:
@@ -101,7 +101,7 @@
     \l{https://github.com/EmBitz/EBlink}{EBlink} is an ARM Cortex-M debug tool
     that supports squirrel scripting, live variables, and hot-plugging.
 
-    \image qtcreator-baremetal-eblink.png "Bare metal device options for EBlink"
+    \image qtcreator-baremetal-eblink.png "Bare metal device preferences for EBlink"
 
     To specify settings for \EBlink:
 
@@ -138,7 +138,7 @@
     \l{https://www.segger.com/products/debug-probes/j-link/}{J-Link} is a line
     of debug probes by Segger.
 
-    \image qtcreator-baremetal-jlink.png "Bare metal device options for J-Link"
+    \image qtcreator-baremetal-jlink.png "Bare metal device preferences for J-Link"
 
     To specify settings for J-Link debug probes:
 
@@ -170,7 +170,7 @@
     (JTAG) facility. It enables source level debugging with the GDB compiled
     for the ARM architecture.
 
-    \image qtcreator-baremetal-openocd.png "Bare metal device options for OpenOCD"
+    \image qtcreator-baremetal-openocd.png "Bare metal device preferences for OpenOCD"
 
     To specify settings for \OpenOCD:
 
@@ -196,7 +196,7 @@
     \l{https://www.st.com/en/development-tools/stm32-programmers.html#products}
     {ST-LINK Utility} is used for programming STM32 microcontrollers.
 
-    \image qtcreator-baremetal-stlink.png "Bare metal device options for St-Link"
+    \image qtcreator-baremetal-stlink.png "Bare metal device preferences for St-Link"
 
     To specify settings for St-Link:
 
@@ -234,7 +234,7 @@
 
     \section3 uVision Simulator
 
-    \image qtcreator-baremetal-uvision-simulator.png "Bare metal device options for uVision Simulator"
+    \image qtcreator-baremetal-uvision-simulator.png "Bare metal device preferences for uVision Simulator"
 
     To specify settings for uVision Simulator or uVision St-Link Debugger:
 
@@ -251,7 +251,7 @@
 
     \section3 uVision St-Link Debugger
 
-    \image qtcreator-baremetal-uvision-st-link.png "Bare metal device options for uVision St-Link"
+    \image qtcreator-baremetal-uvision-st-link.png "Bare metal device preferences for uVision St-Link"
 
     To specify settings for uVision St-Link Debugger:
 
@@ -268,7 +268,7 @@
 
     \section1 Adding Bare Metal Devices
 
-    \image qtcreator-baremetal-devices.png "Bare Metal device options"
+    \image qtcreator-baremetal-devices.png "Bare Metal device preferences"
 
     To add a bare metal device:
 
@@ -291,7 +291,7 @@
     devices, select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits
     > \uicontrol Add. For more information, see \l{Adding Kits}.
 
-    \image qtcreator-baremetal-kit.png "Kit options for Bare Metal"
+    \image qtcreator-baremetal-kit.png "Kit preferences for Bare Metal"
 
     You can build applications for and run them on bare metal devices
     in the same way as for and on the desktop. For more information, see

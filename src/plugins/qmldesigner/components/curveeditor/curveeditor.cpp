@@ -42,6 +42,7 @@ namespace QmlDesigner {
 CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
     : QWidget(parent)
     , m_infoText(nullptr)
+    , m_statusLine(nullptr)
     , m_toolbar(new CurveEditorToolBar(model, this))
     , m_tree(new TreeView(model, this))
     , m_view(new GraphicsView(model, this))
@@ -61,10 +62,13 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
     area->setWidget(splitter);
     area->setWidgetResizable(true);
 
+    m_statusLine = new QLabel();
+
     auto *box = new QVBoxLayout;
     box->addWidget(m_infoText);
     box->addWidget(m_toolbar);
     box->addWidget(area);
+    box->addWidget(m_statusLine);
     setLayout(box);
 
     connect(m_toolbar, &CurveEditorToolBar::defaultClicked, [this]() {
@@ -89,9 +93,11 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
         m_view->viewport()->update();
     });
 
-    connect(
-        m_toolbar, &CurveEditorToolBar::currentFrameChanged,
-        model, &CurveEditorModel::commitCurrentFrame);
+    connect(m_toolbar, &CurveEditorToolBar::currentFrameChanged, [this, model](int frame) {
+        model->setCurrentFrame(frame);
+        updateStatusLine();
+        m_view->viewport()->update();
+    });
 
     connect(
         m_view, &GraphicsView::currentFrameChanged,
@@ -106,6 +112,8 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
 
     auto updateTimeline = [this, model](bool validTimeline) {
         if (validTimeline) {
+            updateStatusLine();
+            m_view->setCurrentFrame(m_view->model()->currentFrame(), false);
             m_toolbar->updateBoundsSilent(model->minimumTime(), model->maximumTime());
             m_toolbar->show();
             m_tree->show();
@@ -119,6 +127,8 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
         }
     };
     connect(model, &CurveEditorModel::timelineChanged, this, updateTimeline);
+
+    connect(model, &CurveEditorModel::setStatusLineMsg, m_statusLine, &QLabel::setText);
 }
 
 bool CurveEditor::dragging() const
@@ -151,6 +161,13 @@ void CurveEditor::hideEvent(QHideEvent *event)
 {
     emit viewEnabledChanged(false);
     QWidget::hideEvent(event);
+}
+
+void CurveEditor::updateStatusLine()
+{
+    int currentFrame = m_view->model()->currentFrame();
+    QString currentText = QString("Playhead frame %1").arg(currentFrame);
+    m_statusLine->setText(currentText);
 }
 
 } // End namespace QmlDesigner.

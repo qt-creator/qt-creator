@@ -31,34 +31,24 @@
     \title Checking Code Syntax
 
     As you write code, \QC checks code syntax. When \QC spots a syntax error in
-    your code it underlines it and shows error details when you move the mouse
-    pointer over the error. Similarly, when you are working on an instance of a
-    JavaScript object notation (JSON) entity, \QC underlines errors in JSON data
-    structure.
+    your code, it underlines it, displays an icon, and shows error details when
+    you move the mouse pointer over the error or the icon. If a fix is available,
+    you can apply it by clicking \inlineimage icons/refactormarker.png
+    .
+
+    Similarly, when you are working on an instance of a JavaScript object
+    notation (JSON) entity, \QC underlines errors in the JSON data structure.
 
     \if defined(qtcreator)
-    In the following screenshot, \QC points out an error, because a semicolon is
+    In the following screenshot, \QC annotates an error because a semicolon is
     missing at the end of the line:
 
     \image qtcreator-syntaxerror.png
 
-    In the following screenshot, \QC issues a warning, because the variable is
+    In the following screenshot, \QC issues a warning because the variable is
     not used:
 
     \image qtcreator-semanticerror.png
-
-    To modify the colors used for underlining errors and warnings, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor} >
-    \uicontrol {Font & Colors} > \uicontrol Copy, and select new colors for
-    \uicontrol Error and \uicontrol Warning.
-
-    \section1 Viewing Annotations
-
-    When using the Clang code model, errors and warnings are additionally marked
-    with icons and annotated. If a \l{http://clang.llvm.org/diagnostics.html}
-    {Clang fix-it} is available, you can execute it by clicking the
-    \inlineimage icons/refactormarker.png
-    icon and pressing \key Enter.
 
     In the following screenshot, a Qt class name contains a typo:
 
@@ -69,14 +59,10 @@
     the \uicontrol {Annotation Settings} link to specify the position
     of the line annotations.
 
-    In the following screenshot, a semicolon is missing at the end of the
-    line.
-
-    \image qtcreator-syntaxerror-clang.png
-
-    In the following screenshot, the variable is not used.
-
-    \image qtcreator-semanticerror-clang.png
+    To modify the colors used for underlining errors and warnings, select
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor} >
+    \uicontrol {Font & Colors} > \uicontrol Copy, and select new colors for
+    \uicontrol Error and \uicontrol Warning.
 
     \else
     In addition to underlining, errors and warnings are marked with icons and
@@ -87,7 +73,7 @@
 
     \image qml-syntax-check.png
 
-    \section2 Specifying Line Annotation Positions
+    \section1 Specifying Line Annotation Positions
 
     To specify the position where the annotations are displayed, select
     \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor} >
@@ -97,7 +83,7 @@
     between lines can be useful if there is usually not enough space to
     display annotations next to the text.
 
-    \image qtcreator-options-text-editor-display.png "Text Editor Display options"
+    \image qtcreator-options-text-editor-display.png "Text Editor Display preferences"
 
     If you hide the annotations by deselecting the check box, you can move the
     mouse pointer over an icon to view them.
@@ -750,4 +736,6 @@
     To automatically format QML/JS files upon saving, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} >
     \uicontrol {Enable auto format on file save}.
+
+    \image qtcreator-qml-js-editing.png "QML/JS Editing preferences"
 */

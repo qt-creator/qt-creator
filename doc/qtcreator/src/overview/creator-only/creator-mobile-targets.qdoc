@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -73,6 +73,13 @@
 
             You can connect \l{Boot2Qt} devices to the development PC to run,
             debug, and analyze applications built for them from \QC.
+
+        \if defined(qtcreator)
+        \li \l {Adding Docker Devices}
+
+            You can add Docker images as \e devices to run, debug, and analyze
+            applications built for Docker containers from \QC.
+        \endif
 
         \li \l{Connecting Generic Remote Linux Devices}
 

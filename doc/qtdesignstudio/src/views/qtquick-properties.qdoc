@@ -439,7 +439,7 @@
     The value of the \uicontrol Format field specifies the internal OpenGL
     format of the texture. Depending on the OpenGL implementation, it might
     allow you to save some texture memory. However, use the \uicontrol RGB
-    and \uicontrol Alpha values with caution, because the underlying hardware
+    and \uicontrol Alpha values with caution because the underlying hardware
     and driver might not support them.
 
     In the \uicontrol {Texture mirroring} field, specify whether the generated

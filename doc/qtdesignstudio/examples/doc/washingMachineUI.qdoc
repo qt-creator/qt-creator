@@ -90,7 +90,7 @@
     \l {basic-image}{Image}, \l Text, and \l {Mouse Area} components. For the
     screen background, we use the \l {basic-rectangle}{Rectangle} component.
 
-    The text might look different on the desktop and MCUs, because on the
+    The text might look different on the desktop and MCUs because on the
     desktop we use dynamic font loading, whereas on MCUs fonts are compiled
     into application sources. Therefore, the text will always be Maven Pro
     on MCUs, whereas on the desktop you'd need to have Maven Pro installed
@@ -227,7 +227,7 @@
     \skipto Item {
     \printuntil }
 
-    We have to do it this way, because we are developing for MCUs. We have to
+    We have to do it this way because we are developing for MCUs. We have to
     use either \c when conditions or set the state directly through code,
     which overrides \c when conditions. Otherwise, we could just select the
     action to change to the state that we want in the \uicontrol Action field.

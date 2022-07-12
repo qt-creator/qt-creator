@@ -34,7 +34,7 @@
     actually copied from the \QC source directory into the \QC build directory
     as part of the next \QC build.
 
-    If you do not run CMake or qmake, your new wizard will not show up, because
+    If you do not run CMake or qmake, your new wizard will not show up because
     it does not exist in the build directory you run your newly built \QC from.
     It never got copied there because CMake or qmake did not inform the
     build tool, such as make or ninja, about the new files in the source tree.

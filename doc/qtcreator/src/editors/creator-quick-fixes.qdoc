@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -109,12 +109,13 @@
 
     To specify custom settings for a particular project, select
     \uicontrol Projects > \uicontrol {Project Settings} >
-    \uicontrol {Quick Fixes} > \uicontrol {Custom Settings}.
+    \uicontrol {Quick Fixes}, and then deselect \uicontrol {Use global settings}.
 
     \image qtcreator-refactoring-options-locations.png "Quick Fixes settings"
 
     To revert to global settings, select \uicontrol {Reset to Global}. To
-    delete the custom settings, select \uicontrol {Delete Custom Settings File}.
+    delete the custom settings, select \uicontrol {Use global settings}, and
+    then select \uicontrol {Delete Custom Settings File}.
 
     \section2 Function Locations
 

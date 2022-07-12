@@ -100,7 +100,7 @@
         \li \QC configures the \uicontrol {Emscripten SDK environment} for you
             if the \c emsdk is supported by the Qt for WebAssembly version that
             you will use for developing the application.
-            \image qtcreator-webassembly-options.png "Qt for WebAssembly device options"
+            \image qtcreator-webassembly-options.png "Qt for WebAssembly device preferences"
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits.
             \image qtcreator-kit-webassembly.png "Qt for WebAssembly kit"
         \li In the \uicontrol Compiler group, \uicontrol {Emscripten Compiler}

@@ -43,7 +43,7 @@
     You can configure the text editor to suit your specific needs by selecting
     \uicontrol Edit > \uicontrol Preferences > \uicontrol{Text Editor}.
 
-    \image qtcreator-font-colors.png "Text Editor options"
+    \image qtcreator-font-colors.png "Text Editor preferences"
 
     The settings you specify apply globally to all projects.
 

@@ -319,7 +319,7 @@
         \li The common solution is to give the user the ability to reorder
             tabs. Now user has to manage tabs instead of writing code.
 
-        \li Tabs force you to limit the amount of open editors, because
+        \li Tabs force you to limit the amount of open editors because
             otherwise you get confused.
 
     \endlist

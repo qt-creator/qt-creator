@@ -64,7 +64,7 @@ public:
 
     void lockedCallback() override;
 
-    Keyframe keyframe() const;
+    Keyframe keyframe(bool remap = false) const;
 
     bool isUnified() const;
 
@@ -106,6 +106,8 @@ public:
 
     void moveHandle(HandleItem::Slot slot, double deltaAngle, double deltaLength);
 
+    void remapValue(double min, double max);
+
 protected:
     QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value) override;
 
@@ -134,6 +136,9 @@ private:
     QPointF m_validPos;
 
     bool m_visibleOverride = true;
+
+    double m_min = 0.0;
+    double m_max = 1.0;
 };
 
 } // End namespace QmlDesigner.
