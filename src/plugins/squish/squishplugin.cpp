@@ -103,7 +103,7 @@ void SquishPluginPrivate::initializeMenuEntries()
     QAction *action = new QAction(tr("&Server Settings..."), this);
     Command *command = ActionManager::registerAction(action, "Squish.ServerSettings");
     menu->addAction(command);
-    connect(action, &QAction::triggered, this, [this] {
+    connect(action, &QAction::triggered, this, [] {
         SquishServerSettingsDialog dialog;
         dialog.exec();
     });
