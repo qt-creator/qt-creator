@@ -33,7 +33,9 @@
 #include "symbolnameitemdelegate.h"
 
 #include <coreplugin/icore.h>
+
 #include <utils/algorithm.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -70,74 +72,74 @@ ObjectsMapEditorWidget::ObjectsMapEditorWidget(ObjectsMapDocument *document, QWi
 void ObjectsMapEditorWidget::initUi()
 {
     setGeometry(0, 0, 550, 585);
-    QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(new QLabel("<b>" + Tr::tr("Symbolic Names") + "</b>", this));
+
     m_filterLineEdit = new Utils::FancyLineEdit(this);
     m_filterLineEdit->setFiltering(true);
-    mainLayout->addWidget(m_filterLineEdit);
 
-    QHBoxLayout *horizontalLayout = new QHBoxLayout;
     m_symbolicNamesTreeView = new QTreeView(this);
-    horizontalLayout->addWidget(m_symbolicNamesTreeView);
 
-    QVBoxLayout *verticalLayout = new QVBoxLayout;
     m_newSymbolicName = new QPushButton(Tr::tr("New"));
-    verticalLayout->addWidget(m_newSymbolicName);
     m_removeSymbolicName = new QPushButton(Tr::tr("Remove"));
     m_removeSymbolicName->setEnabled(false);
-    verticalLayout->addWidget(m_removeSymbolicName);
-    verticalLayout->addSpacerItem(
-        new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
-
-    horizontalLayout->addLayout(verticalLayout);
 
     m_propertiesLabel = new QLabel(this);
     m_propertiesLabel->setWordWrap(true);
 
-    mainLayout->addLayout(horizontalLayout);
-    mainLayout->addWidget(m_propertiesLabel);
-
-    m_stackedLayout = new QStackedLayout;
     QWidget *validPropertiesWidget = new QWidget(this);
-    QHBoxLayout *horizontalLayout2 = new QHBoxLayout;
     m_propertiesTree = new QTreeView(this);
     m_propertiesTree->setIndentation(20);
     m_propertiesTree->setRootIsDecorated(false);
     m_propertiesTree->setUniformRowHeights(true);
     m_propertiesTree->setItemsExpandable(false);
     m_propertiesTree->setExpandsOnDoubleClick(false);
-    horizontalLayout2->addWidget(m_propertiesTree);
 
-    QVBoxLayout *verticalLayout2 = new QVBoxLayout;
     m_newProperty = new QPushButton(Tr::tr("New"), this);
     m_newProperty->setEnabled(false);
-    verticalLayout2->addWidget(m_newProperty);
     m_removeProperty = new QPushButton(Tr::tr("Remove"), this);
     m_removeProperty->setEnabled(false);
-    verticalLayout2->addWidget(m_removeProperty);
     m_jumpToSymbolicName = new QPushButton(this);
     m_jumpToSymbolicName->setEnabled(false);
     m_jumpToSymbolicName->setIcon(QIcon(":/squish/images/jumpTo.png"));
     m_jumpToSymbolicName->setToolTip(Tr::tr("Jump to Symbolic Name"));
-    verticalLayout2->addWidget(m_jumpToSymbolicName);
-    verticalLayout2->addSpacerItem(
-        new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    horizontalLayout2->addLayout(verticalLayout2);
-
-    validPropertiesWidget->setLayout(horizontalLayout2);
-    m_stackedLayout->addWidget(validPropertiesWidget);
 
     QWidget *invalidPropertiesWidget = new QWidget(this);
-    QVBoxLayout *verticalLayout3 = new QVBoxLayout;
     m_propertiesLineEdit = new QLineEdit(this);
-    verticalLayout3->addWidget(m_propertiesLineEdit);
-    verticalLayout3->addSpacerItem(
-        new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    invalidPropertiesWidget->setLayout(verticalLayout3);
+
+    m_stackedLayout = new QStackedLayout;
+    m_stackedLayout->addWidget(validPropertiesWidget);
     m_stackedLayout->addWidget(invalidPropertiesWidget);
 
-    mainLayout->addLayout(m_stackedLayout);
-    setLayout(mainLayout);
+    using namespace Utils::Layouting;
+
+    Row {
+        m_propertiesTree,
+        Column {
+            m_newProperty,
+            m_removeProperty,
+            m_jumpToSymbolicName,
+            Stretch()
+        }
+    }.attachTo(validPropertiesWidget);
+
+    Column {
+        m_propertiesLineEdit,
+        Stretch()
+    }.attachTo(invalidPropertiesWidget);
+
+    Column {
+        new QLabel("<b>" + Tr::tr("Symbolic Names") + "</b>"),
+        m_filterLineEdit,
+        Row {
+            m_symbolicNamesTreeView,
+            Column {
+                m_newSymbolicName,
+                m_removeSymbolicName,
+                Stretch(),
+            }
+        },
+        m_propertiesLabel,
+        m_stackedLayout
+    }.attachTo(this);
 
     m_objMapFilterModel = new ObjectsMapSortFilterModel(m_document->model(), this);
     m_objMapFilterModel->setDynamicSortFilter(true);
