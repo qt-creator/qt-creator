@@ -25,13 +25,15 @@
 
 #pragma once
 
-#include "ui_generalsettingspage.h"
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QFontDatabase>
 #include <QPointer>
 
 namespace Help {
 namespace Internal {
+
+class GeneralSettingsPageWidget;
 
 class GeneralSettingsPage : public Core::IOptionsPage
 {
@@ -68,8 +70,7 @@ private:
     bool m_returnOnClose;
     bool m_scrollWheelZoomingEnabled;
 
-    QPointer<QWidget> m_widget;
-    Ui::GeneralSettingsPage *m_ui = nullptr;
+    QPointer<GeneralSettingsPageWidget> m_widget;
 };
 
     }   // Internal

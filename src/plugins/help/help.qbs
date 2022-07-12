@@ -37,7 +37,7 @@ Project {
             files: [
                 "docsettingspage.cpp", "docsettingspage.h",
                 "filtersettingspage.cpp", "filtersettingspage.h",
-                "generalsettingspage.cpp", "generalsettingspage.h", "generalsettingspage.ui",
+                "generalsettingspage.cpp", "generalsettingspage.h",
                 "help.qrc",
                 "helpconstants.h",
                 "helpfindsupport.cpp", "helpfindsupport.h",
