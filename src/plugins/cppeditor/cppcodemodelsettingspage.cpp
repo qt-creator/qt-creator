@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "cppcodemodelsettingspage.h"
-#include "ui_cppcodemodelsettingspage.h"
 
 #include "clangdiagnosticconfigsselectionwidget.h"
 #include "clangdiagnosticconfigswidget.h"
@@ -32,17 +31,20 @@
 #include "cpptoolsreuse.h"
 
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/session.h>
+
 #include <utils/algorithm.h>
 #include <utils/infolabel.h>
 #include <utils/itemviews.h>
+#include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
+#include <QCheckBox>
 #include <QDesktopServices>
 #include <QFormLayout>
 #include <QGroupBox>
-#include <QHBoxLayout>
 #include <QInputDialog>
 #include <QPushButton>
 #include <QSpinBox>
@@ -61,32 +63,57 @@ class CppCodeModelSettingsWidget final : public Core::IOptionsPageWidget
 
 public:
     CppCodeModelSettingsWidget(CppCodeModelSettings *s);
-    ~CppCodeModelSettingsWidget() override;
 
 private:
     void apply() final;
 
-    void setupGeneralWidgets();
-
     bool applyGeneralWidgetsToSettings() const;
 
-    Ui::CppCodeModelSettingsPage *m_ui = nullptr;
     CppCodeModelSettings *m_settings = nullptr;
+    QCheckBox *m_interpretAmbiguousHeadersAsCHeaders;
+    QCheckBox *m_ignorePchCheckBox;
+    QCheckBox *m_skipIndexingBigFilesCheckBox;
+    QSpinBox *m_bigFilesLimitSpinBox;
 };
 
 CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(CppCodeModelSettings *s)
-    : m_ui(new Ui::CppCodeModelSettingsPage)
+    : m_settings(s)
 {
-    m_ui->setupUi(this);
+    m_interpretAmbiguousHeadersAsCHeaders
+        = new QCheckBox(tr("Interpret ambiguous headers as C headers"));
 
-    m_settings = s;
+    m_skipIndexingBigFilesCheckBox = new QCheckBox(tr("Do not index files greater than"));
+    m_skipIndexingBigFilesCheckBox->setChecked(m_settings->skipIndexingBigFiles());
 
-    setupGeneralWidgets();
-}
+    m_bigFilesLimitSpinBox = new QSpinBox;
+    m_bigFilesLimitSpinBox->setSuffix(tr("MB"));
+    m_bigFilesLimitSpinBox->setRange(1, 500);
+    m_bigFilesLimitSpinBox->setValue(m_settings->indexerFileSizeLimitInMb());
 
-CppCodeModelSettingsWidget::~CppCodeModelSettingsWidget()
-{
-    delete m_ui;
+    m_ignorePchCheckBox = new QCheckBox(tr("Ignore precompiled headers"));
+    m_ignorePchCheckBox->setToolTip(tr(
+        "<html><head/><body><p>When precompiled headers are not ignored, the parsing for code "
+        "completion and semantic highlighting will process the precompiled header before "
+        "processing any file.</p></body></html>"));
+
+    m_interpretAmbiguousHeadersAsCHeaders->setChecked(
+                m_settings->interpretAmbigiousHeadersAsCHeaders());
+
+    m_ignorePchCheckBox->setChecked(m_settings->pchUsage() == CppCodeModelSettings::PchUse_None);
+
+    using namespace Utils::Layouting;
+
+    Column {
+        Group {
+            Title(tr("General")),
+            Column {
+                m_interpretAmbiguousHeadersAsCHeaders,
+                m_ignorePchCheckBox,
+                Row { m_skipIndexingBigFilesCheckBox, m_bigFilesLimitSpinBox, Stretch() },
+            }
+        },
+        Stretch()
+    }.attachTo(this);
 }
 
 void CppCodeModelSettingsWidget::apply()
@@ -95,45 +122,33 @@ void CppCodeModelSettingsWidget::apply()
         m_settings->toSettings(Core::ICore::settings());
 }
 
-void CppCodeModelSettingsWidget::setupGeneralWidgets()
-{
-    m_ui->interpretAmbiguousHeadersAsCHeaders->setChecked(
-                m_settings->interpretAmbigiousHeadersAsCHeaders());
-
-    m_ui->skipIndexingBigFilesCheckBox->setChecked(m_settings->skipIndexingBigFiles());
-    m_ui->bigFilesLimitSpinBox->setValue(m_settings->indexerFileSizeLimitInMb());
-
-    const bool ignorePch = m_settings->pchUsage() == CppCodeModelSettings::PchUse_None;
-    m_ui->ignorePCHCheckBox->setChecked(ignorePch);
-}
-
 bool CppCodeModelSettingsWidget::applyGeneralWidgetsToSettings() const
 {
     bool settingsChanged = false;
 
     const bool newInterpretAmbiguousHeaderAsCHeaders
-            = m_ui->interpretAmbiguousHeadersAsCHeaders->isChecked();
+            = m_interpretAmbiguousHeadersAsCHeaders->isChecked();
     if (m_settings->interpretAmbigiousHeadersAsCHeaders()
             != newInterpretAmbiguousHeaderAsCHeaders) {
         m_settings->setInterpretAmbigiousHeadersAsCHeaders(newInterpretAmbiguousHeaderAsCHeaders);
         settingsChanged = true;
     }
 
-    const bool newSkipIndexingBigFiles = m_ui->skipIndexingBigFilesCheckBox->isChecked();
+    const bool newSkipIndexingBigFiles = m_skipIndexingBigFilesCheckBox->isChecked();
     if (m_settings->skipIndexingBigFiles() != newSkipIndexingBigFiles) {
         m_settings->setSkipIndexingBigFiles(newSkipIndexingBigFiles);
         settingsChanged = true;
     }
-    const int newFileSizeLimit = m_ui->bigFilesLimitSpinBox->value();
+    const int newFileSizeLimit = m_bigFilesLimitSpinBox->value();
     if (m_settings->indexerFileSizeLimitInMb() != newFileSizeLimit) {
         m_settings->setIndexerFileSizeLimitInMb(newFileSizeLimit);
         settingsChanged = true;
     }
 
-    const bool newIgnorePch = m_ui->ignorePCHCheckBox->isChecked();
+    const bool newIgnorePch = m_ignorePchCheckBox->isChecked();
     const bool previousIgnorePch = m_settings->pchUsage() == CppCodeModelSettings::PchUse_None;
     if (newIgnorePch != previousIgnorePch) {
-        const CppCodeModelSettings::PCHUsage pchUsage = m_ui->ignorePCHCheckBox->isChecked()
+        const CppCodeModelSettings::PCHUsage pchUsage = m_ignorePchCheckBox->isChecked()
                 ? CppCodeModelSettings::PchUse_None
                 : CppCodeModelSettings::PchUse_BuildSystem;
         m_settings->setPCHUsage(pchUsage);

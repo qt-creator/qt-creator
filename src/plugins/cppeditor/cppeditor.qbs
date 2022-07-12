@@ -73,7 +73,6 @@ QtcPlugin {
         "cppcodemodelsettings.h",
         "cppcodemodelsettingspage.cpp",
         "cppcodemodelsettingspage.h",
-        "cppcodemodelsettingspage.ui",
         "cppcodestylepreferences.cpp",
         "cppcodestylepreferences.h",
         "cppcodestylepreferencesfactory.cpp",
