@@ -5199,4 +5199,26 @@ TEST_F(ProjectStorage, GetNoPropertiesForWrongTypeId)
     ASSERT_THAT(propertyIds, IsEmpty());
 }
 
+TEST_F(ProjectStorage, GetLocalProperties)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto itemTypeId = fetchTypeId(sourceId1, "QObject2");
+
+    auto propertyIds = storage.localPropertyIds(itemTypeId);
+
+    ASSERT_THAT(propertyIds, UnorderedElementsAre(HasName("data2"), HasName("children2")));
+}
+
+TEST_F(ProjectStorage, GetLocalPropertiesAreReturnedSorted)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto itemTypeId = fetchTypeId(sourceId1, "QObject2");
+
+    auto propertyIds = storage.localPropertyIds(itemTypeId);
+
+    ASSERT_THAT(propertyIds, IsSorted());
+}
+
 } // namespace

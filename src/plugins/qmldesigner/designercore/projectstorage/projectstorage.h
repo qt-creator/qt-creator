@@ -155,6 +155,12 @@ public:
             .template valuesWithTransaction<PropertyDeclarationId>(32, &typeId);
     }
 
+    PropertyDeclarationIds localPropertyIds(TypeId typeId) const
+    {
+        return selectLocalPropertyDeclarationIdsForTypeStatement
+            .template valuesWithTransaction<PropertyDeclarationId>(16, &typeId);
+    }
+
     Utils::optional<Utils::SmallString> propertyName(PropertyDeclarationId propertyDeclarationId) const
     {
         return selectPropertyNameStatement.template optionalValueWithTransaction<Utils::SmallString>(
@@ -2866,6 +2872,12 @@ public:
         "        USING(typeId) WHERE prototypeId IS NOT NULL)"
         "SELECT propertyDeclarationId FROM typeChain JOIN propertyDeclarations "
         "  USING(typeId) ORDER BY propertyDeclarationId",
+        database};
+    mutable ReadStatement<1, 1> selectLocalPropertyDeclarationIdsForTypeStatement{
+        "SELECT propertyDeclarationId "
+        "FROM propertyDeclarations "
+        "WHERE typeId=? "
+        "ORDER BY propertyDeclarationId",
         database};
 };
 extern template class ProjectStorage<Sqlite::Database>;
