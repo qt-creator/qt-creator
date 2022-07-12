@@ -26,7 +26,7 @@
 import QtQuick 2.0
 
 Rectangle {
-    id: rect
+    id: myRect
     width: 200
     height: 200
     Text {
@@ -39,7 +39,7 @@ Rectangle {
         State {
             name: "State1"
             PropertyChanges {
-                target: rect
+                target: myRect
                 color: "blue"
             }
             PropertyChanges {
@@ -50,7 +50,7 @@ Rectangle {
         State {
             name: "State2"
             PropertyChanges {
-                target: rect
+                target: myRect
                 color: "gray"
             }
             PropertyChanges {

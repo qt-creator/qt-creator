@@ -7336,7 +7336,7 @@ void tst_TestCore::testRewriterChangeId()
 
 void tst_TestCore::testRewriterRemoveId()
 {
-    const char* qmlString = "import QtQuick 2.1\nRectangle { id: rect }";
+    const char* qmlString = "import QtQuick 2.1\nRectangle { id: myRect }";
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(QString::fromUtf8(qmlString));
@@ -7355,7 +7355,7 @@ void tst_TestCore::testRewriterRemoveId()
 
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
-    QCOMPARE(rootModelNode.id(), QString("rect"));
+    QCOMPARE(rootModelNode.id(), QString("myRect"));
 
     //
     // remove id in text
@@ -8518,7 +8518,7 @@ void tst_TestCore::loadTestFiles()
         QCOMPARE(rootModelNode.directSubModelNodes().count(), 4);
         QCOMPARE(rootModelNode.variantProperty("width").value().toInt(), 200);
         QCOMPARE(rootModelNode.variantProperty("height").value().toInt(), 200);
-        QCOMPARE(rootModelNode.id(), QLatin1String("rect"));
+        QCOMPARE(rootModelNode.id(), QLatin1String("myRect"));
         QVERIFY(rootModelNode.hasProperty("data"));
         QVERIFY(rootModelNode.property("data").isDefaultProperty());
 
