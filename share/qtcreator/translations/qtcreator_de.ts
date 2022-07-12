@@ -18646,22 +18646,14 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Todo::Internal::OptionsDialog</name>
+    <name>Todo</name>
     <message>
         <source>Keywords</source>
         <translation>Schlüsselworte</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Hinzufügen</translation>
-    </message>
-    <message>
         <source>Edit</source>
         <translation>Bearbeiten</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Löschen</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -18771,7 +18763,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Todo::Internal::TodoItemsModel</name>
+    <name>Todo</name>
     <message>
         <source>Description</source>
         <translation>Beschreibung</translation>
@@ -18786,7 +18778,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Todo::Internal::TodoOutputPane</name>
+    <name>Todo</name>
     <message>
         <source>To-Do Entries</source>
         <translation>To-do-Einträge</translation>
@@ -19148,7 +19140,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Todo::Internal::KeywordDialog</name>
+    <name>Todo</name>
     <message>
         <source>Keyword</source>
         <translation>Schlüsselwort</translation>
@@ -31741,7 +31733,7 @@ Senden selbst auch Zeit benötigt.</translation>
     </message>
 </context>
 <context>
-    <name>Todo::Internal::TodoProjectSettingsWidget</name>
+    <name>Todo</name>
     <message>
         <source>Excluded Files</source>
         <translation>ausgenommene Dateien</translation>
@@ -31757,10 +31749,6 @@ Senden selbst auch Zeit benötigt.</translation>
     <message>
         <source>Remove</source>
         <translation>Entfernen</translation>
-    </message>
-    <message>
-        <source>To-Do</source>
-        <translation>To-do</translation>
     </message>
     <message>
         <source>&lt;Enter regular expression to exclude&gt;</source>
@@ -49112,7 +49100,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Todo::Internal::TodoOptionsPage</name>
+    <name>Todo</name>
     <message>
         <source>To-Do</source>
         <translation>To-do</translation>

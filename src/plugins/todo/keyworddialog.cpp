@@ -28,6 +28,7 @@
 
 #include "keyword.h"
 #include "lineparser.h"
+#include "todotr.h"
 
 #include <utils/layoutbuilder.h>
 #include <utils/qtcolorbutton.h>
@@ -46,7 +47,7 @@ KeywordDialog::KeywordDialog(const Keyword &keyword, const QSet<QString> &alread
     QDialog(parent),
     m_alreadyUsedKeywordNames(alreadyUsedKeywordNames)
 {
-    setWindowTitle(tr("Keyword"));
+    setWindowTitle(Tr::tr("Keyword"));
 
     m_listWidget = new QListWidget(this);
 
@@ -60,7 +61,7 @@ KeywordDialog::KeywordDialog(const Keyword &keyword, const QSet<QString> &alread
 
     m_keywordNameEdit = new QLineEdit(keyword.name);
 
-    m_errorLabel = new QLabel(tr("errorLabel"), this);
+    m_errorLabel = new QLabel(Tr::tr("errorLabel"), this);
     m_errorLabel->setStyleSheet(QString::fromUtf8("color: red;"));
     m_errorLabel->hide();
 
@@ -71,15 +72,15 @@ KeywordDialog::KeywordDialog(const Keyword &keyword, const QSet<QString> &alread
     using namespace Utils::Layouting;
 
     Column {
-        new QLabel(tr("Icon")),
+        new QLabel(Tr::tr("Icon")),
         m_listWidget,
         Row {
             Group {
-                Title(tr("Color")),
+                Title(Tr::tr("Color")),
                 Row { m_colorEdit, m_colorButton }
             },
             Group {
-                Title(tr("Keyword")),
+                Title(Tr::tr("Keyword")),
                 m_keywordNameEdit
             }
         },
@@ -162,12 +163,12 @@ void KeywordDialog::setupColorWidgets(const QColor &color)
 bool KeywordDialog::canAccept()
 {
     if (!isKeywordNameCorrect()) {
-        showError(tr("Keyword cannot be empty, contain spaces, colons, slashes or asterisks."));
+        showError(Tr::tr("Keyword cannot be empty, contain spaces, colons, slashes or asterisks."));
         return false;
     }
 
     if (isKeywordNameAlreadyUsed()) {
-        showError(tr("There is already a keyword with this name."));
+        showError(Tr::tr("There is already a keyword with this name."));
         return false;
     }
 

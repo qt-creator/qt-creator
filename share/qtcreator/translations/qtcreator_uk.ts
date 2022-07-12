@@ -27591,7 +27591,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>Todo::Internal::OptionsDialog</name>
+    <name>Todo</name>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
@@ -27601,16 +27601,8 @@ Influences the indentation of continuation lines.
         <translation>Ключові слова</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Додати</translation>
-    </message>
-    <message>
         <source>Edit</source>
         <translation>Редагувати</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Видалити</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -27619,14 +27611,6 @@ Influences the indentation of continuation lines.
     <message>
         <source>Scanning scope</source>
         <translation>Область пошуку</translation>
-    </message>
-    <message>
-        <source>Scan in the whole project</source>
-        <translation type="vanished">Шукати у всьому проекті</translation>
-    </message>
-    <message>
-        <source>Scan in the current opened file</source>
-        <translation type="vanished">Шукати в поточному відкритому файлі</translation>
     </message>
     <message>
         <source>Scan the whole active project</source>
@@ -29177,7 +29161,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>Todo::Internal::TodoItemsModel</name>
+    <name>Todo</name>
     <message>
         <source>Description</source>
         <translation>Опис</translation>
@@ -29192,7 +29176,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>Todo::Internal::TodoOutputPane</name>
+    <name>Todo</name>
     <message>
         <source>To-Do Entries</source>
         <translation>Записи To-Do</translation>
@@ -29236,13 +29220,6 @@ Do you want to kill it?</source>
     <message>
         <source>Scan the current subproject.</source>
         <translation>Шукати в поточному підпроекті.</translation>
-    </message>
-</context>
-<context>
-    <name>Todo::Internal::OptionsPage</name>
-    <message>
-        <source>To-Do</source>
-        <translation>To-Do</translation>
     </message>
 </context>
 <context>
@@ -30422,7 +30399,7 @@ The APK will not be usable on any other device.</source>
     </message>
 </context>
 <context>
-    <name>Todo::Internal::KeywordDialog</name>
+    <name>Todo</name>
     <message>
         <source>Keyword</source>
         <translation>Ключове слово</translation>
@@ -51012,7 +50989,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Todo::Internal::TodoProjectSettingsWidget</name>
+    <name>Todo</name>
     <message>
         <source>Excluded Files</source>
         <translation>Виключені файли</translation>

@@ -25,10 +25,11 @@
 ****************************************************************************/
 
 #include "todoitemsmodel.h"
+
 #include "constants.h"
+#include "todotr.h"
 
 #include <utils/algorithm.h>
-
 #include <utils/theme/theme.h>
 
 #include <QIcon>
@@ -116,14 +117,11 @@ QVariant TodoItemsModel::headerData(int section, Qt::Orientation orientation, in
 
     switch (section) {
         case Constants::OUTPUT_COLUMN_TEXT:
-            return tr(Constants::OUTPUT_COLUMN_TEXT_TITLE);
-
+            return Tr::tr("Description");
         case Constants::OUTPUT_COLUMN_FILE:
-            return tr(Constants::OUTPUT_COLUMN_FILE_TITLE);
-
+            return Tr::tr("File");
         case Constants::OUTPUT_COLUMN_LINE:
-            return tr(Constants::OUTPUT_COLUMN_LINE_TITLE);
-
+            return Tr::tr("Line");
         default:
             return QVariant();
     }

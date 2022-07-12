@@ -25,9 +25,11 @@
 ****************************************************************************/
 
 #include "todooutputpane.h"
+
 #include "constants.h"
 #include "todoitemsmodel.h"
 #include "todooutputtreeview.h"
+#include "todotr.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/find/itemviewfind.h>
@@ -81,7 +83,7 @@ QList<QWidget*> TodoOutputPane::toolBarWidgets() const
 
 QString TodoOutputPane::displayName() const
 {
-    return tr(Constants::OUTPUT_PANE_TITLE);
+    return Tr::tr("To-Do Entries");
 }
 
 int TodoOutputPane::priorityInStatusBar() const
@@ -249,18 +251,18 @@ void TodoOutputPane::createScopeButtons()
 {
     m_currentFileButton = new QToolButton();
     m_currentFileButton->setCheckable(true);
-    m_currentFileButton->setText(tr("Current Document"));
-    m_currentFileButton->setToolTip(tr("Scan only the currently edited document."));
+    m_currentFileButton->setText(Tr::tr("Current Document"));
+    m_currentFileButton->setToolTip(Tr::tr("Scan only the currently edited document."));
 
     m_wholeProjectButton = new QToolButton();
     m_wholeProjectButton->setCheckable(true);
-    m_wholeProjectButton->setText(tr("Active Project"));
-    m_wholeProjectButton->setToolTip(tr("Scan the whole active project."));
+    m_wholeProjectButton->setText(Tr::tr("Active Project"));
+    m_wholeProjectButton->setToolTip(Tr::tr("Scan the whole active project."));
 
     m_subProjectButton = new QToolButton();
     m_subProjectButton->setCheckable(true);
-    m_subProjectButton->setText(tr("Subproject"));
-    m_subProjectButton->setToolTip(tr("Scan the current subproject."));
+    m_subProjectButton->setText(Tr::tr("Subproject"));
+    m_subProjectButton->setToolTip(Tr::tr("Scan the current subproject."));
 
     m_scopeButtons = new QButtonGroup();
     m_scopeButtons->addButton(m_wholeProjectButton);
@@ -272,7 +274,7 @@ void TodoOutputPane::createScopeButtons()
     m_spacer = new QWidget;
     m_spacer->setMinimumWidth(Constants::OUTPUT_TOOLBAR_SPACER_WIDTH);
 
-    QString tooltip = tr("Show \"%1\" entries");
+    QString tooltip = Tr::tr("Show \"%1\" entries");
     for (const Keyword &keyword: m_settings->keywords) {
         QToolButton *button = createCheckableToolButton(keyword.name, tooltip.arg(keyword.name), toolBarIcon(keyword.iconType));
         button->setProperty(Constants::FILTER_KEYWORD_NAME, keyword.name);

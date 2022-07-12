@@ -47921,7 +47921,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>Todo::Internal::KeywordDialog</name>
+    <name>Todo</name>
     <message>
         <source>Keyword</source>
         <translation>关键字</translation>
@@ -47949,7 +47949,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>Todo::Internal::OptionsDialog</name>
+    <name>Todo</name>
     <message>
         <source>Form</source>
         <translation>界面</translation>
@@ -53166,7 +53166,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>Todo::Internal::TodoItemsModel</name>
+    <name>Todo</name>
     <message>
         <source>Description</source>
         <translation>说明</translation>
@@ -53181,22 +53181,11 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>Todo::Internal::TodoOutputPane</name>
+    <name>Todo</name>
     <message>
         <source>To-Do Entries</source>
         <translation>To-Do事项</translation>
     </message>
-    <message>
-        <source>Scan in the current opened file</source>
-        <translation>扫描当前打开的文件</translation>
-    </message>
-    <message>
-        <source>Scan in the whole project</source>
-        <translation>在整个项目中扫描</translation>
-    </message>
-</context>
-<context>
-    <name>Todo::Internal::OptionsPage</name>
     <message>
         <source>To-Do</source>
         <translation>To-Do</translation>

@@ -26,6 +26,7 @@
 #include "todoprojectsettingswidget.h"
 
 #include "constants.h"
+#include "todotr.h"
 
 #include <projectexplorer/project.h>
 
@@ -39,7 +40,7 @@ namespace Internal {
 
 static QString excludePlaceholder()
 {
-    return Todo::Internal::TodoProjectSettingsWidget::tr("<Enter regular expression to exclude>");
+    return Tr::tr("<Enter regular expression to exclude>");
 }
 
 TodoProjectSettingsWidget::TodoProjectSettingsWidget(ProjectExplorer::Project *project)
@@ -47,17 +48,17 @@ TodoProjectSettingsWidget::TodoProjectSettingsWidget(ProjectExplorer::Project *p
 {
     m_excludedPatternsList = new QListWidget;
     m_excludedPatternsList->setSortingEnabled(true);
-    m_excludedPatternsList->setToolTip(tr("Regular expressions for file paths to be excluded from scanning."));
+    m_excludedPatternsList->setToolTip(Tr::tr("Regular expressions for file paths to be excluded from scanning."));
 
-    m_removeExcludedPatternButton = new QPushButton(tr("Remove"));
+    m_removeExcludedPatternButton = new QPushButton(Tr::tr("Remove"));
 
-    auto addExcludedPatternButton = new QPushButton(tr("Add"));
+    auto addExcludedPatternButton = new QPushButton(Tr::tr("Add"));
 
     using namespace Utils::Layouting;
 
     Column {
         Group {
-            Title(tr("Excluded Files")),
+            Title(Tr::tr("Excluded Files")),
             Row {
                 m_excludedPatternsList,
                 Column {

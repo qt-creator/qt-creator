@@ -49771,19 +49771,7 @@ Určuje chování odsazení se zřetelem k navazujícím řádkům.
     </message>
 </context>
 <context>
-    <name>Todo::Internal::KeywordDialog</name>
-    <message>
-        <source>Keyword</source>
-        <translation>Klíčové slovo</translation>
-    </message>
-    <message>
-        <source>Icon</source>
-        <translation>Ikona</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation>Barva</translation>
-    </message>
+    <name>Todo</name>
     <message>
         <source>errorLabel</source>
         <translation>errorLabel</translation>
@@ -49802,7 +49790,7 @@ Určuje chování odsazení se zřetelem k navazujícím řádkům.
     </message>
 </context>
 <context>
-    <name>Todo::Internal::OptionsDialog</name>
+    <name>Todo</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -49830,18 +49818,6 @@ Určuje chování odsazení se zřetelem k navazujícím řádkům.
     <message>
         <source>Scanning scope</source>
         <translation>Oblast prohledávání</translation>
-    </message>
-    <message>
-        <source>Scan in the whole project</source>
-        <translation>Hledat v celém projektu</translation>
-    </message>
-    <message>
-        <source>Scan in the current opened file</source>
-        <translation>Hledat v nyní otevřeném souboru</translation>
-    </message>
-    <message>
-        <source>Scan the whole active project</source>
-        <translation>Hledat v celém činném projektu</translation>
     </message>
     <message>
         <source>Scan only the currently edited document</source>
@@ -53903,7 +53879,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Todo::Internal::TodoItemsModel</name>
+    <name>Todo</name>
     <message>
         <source>Description</source>
         <translation>Popis</translation>
@@ -53918,7 +53894,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Todo::Internal::TodoOutputPane</name>
+    <name>Todo</name>
     <message>
         <source>To-Do Entries</source>
         <translation>Záznamy CO UDĚLAT</translation>
@@ -53957,7 +53933,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Todo::Internal::OptionsPage</name>
+    <name>Todo</name>
     <message>
         <source>To-Do</source>
         <translation>CO UDĚLAT</translation>
@@ -54002,7 +53978,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Todo::Internal::AddKeywordDialog</name>
+    <name>Todo</name>
     <message>
         <source>Keyword</source>
         <translation type="obsolete">Klíčové slovo</translation>

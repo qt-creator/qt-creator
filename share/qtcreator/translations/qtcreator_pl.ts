@@ -20792,7 +20792,7 @@ Wpływa na wcięcia przeniesionych linii.
     </message>
 </context>
 <context>
-    <name>Todo::Internal::KeywordDialog</name>
+    <name>Todo</name>
     <message>
         <source>Keyword</source>
         <translation>Słowo kluczowe</translation>
@@ -20819,7 +20819,7 @@ Wpływa na wcięcia przeniesionych linii.
     </message>
 </context>
 <context>
-    <name>Todo::Internal::OptionsDialog</name>
+    <name>Todo</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -20829,16 +20829,8 @@ Wpływa na wcięcia przeniesionych linii.
         <translation>Słowa kluczowe</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Dodaj</translation>
-    </message>
-    <message>
         <source>Edit</source>
         <translation>Zmodyfikuj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Usuń</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -23048,7 +23040,7 @@ poinstruuje Qt Creatora o URI.</translation>
     </message>
 </context>
 <context>
-    <name>Todo::Internal::TodoItemsModel</name>
+    <name>Todo</name>
     <message>
         <source>Description</source>
         <translation>Opis</translation>
@@ -23063,7 +23055,7 @@ poinstruuje Qt Creatora o URI.</translation>
     </message>
 </context>
 <context>
-    <name>Todo::Internal::TodoOutputPane</name>
+    <name>Todo</name>
     <message>
         <source>To-Do Entries</source>
         <translation>Wpisy &quot;To-Do&quot;</translation>
@@ -23095,13 +23087,6 @@ poinstruuje Qt Creatora o URI.</translation>
     <message>
         <source>Show &quot;%1&quot; entries</source>
         <translation>Pokazuje wpisy &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>Todo::Internal::OptionsPage</name>
-    <message>
-        <source>To-Do</source>
-        <translation>&quot;To-Do&quot;</translation>
     </message>
 </context>
 <context>
@@ -34211,7 +34196,7 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     </message>
 </context>
 <context>
-    <name>Todo::Internal::TodoProjectSettingsWidget</name>
+    <name>Todo</name>
     <message>
         <source>Excluded Files</source>
         <translation>Wyłączone pliki</translation>

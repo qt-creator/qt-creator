@@ -25,12 +25,12 @@
 ****************************************************************************/
 
 #include "todoplugin.h"
-#include "constants.h"
+
 #include "optionsdialog.h"
-#include "keyword.h"
 #include "todooutputpane.h"
 #include "todoitemsprovider.h"
 #include "todoprojectsettingswidget.h"
+#include "todotr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -39,7 +39,6 @@
 #include <projectexplorer/projectpanelfactory.h>
 #include <utils/link.h>
 
-#include <QFileInfo>
 #include <QSettings>
 
 namespace Todo {
@@ -47,8 +46,6 @@ namespace Internal {
 
 class TodoPluginPrivate : public QObject
 {
-    Q_DECLARE_TR_FUNCTIONS(Todo::Internal::TodoPlugin)
-
 public:
     TodoPluginPrivate();
 
@@ -73,7 +70,7 @@ TodoPluginPrivate::TodoPluginPrivate()
 
     auto panelFactory = new ProjectExplorer::ProjectPanelFactory;
     panelFactory->setPriority(100);
-    panelFactory->setDisplayName(TodoProjectSettingsWidget::tr("To-Do"));
+    panelFactory->setDisplayName(Tr::tr("To-Do"));
     panelFactory->setCreateWidgetFunction([this](ProjectExplorer::Project *project) {
         auto widget = new TodoProjectSettingsWidget(project);
         connect(widget, &TodoProjectSettingsWidget::projectSettingsChanged,

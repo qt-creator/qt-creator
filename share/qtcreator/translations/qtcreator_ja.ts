@@ -7163,7 +7163,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>Todo::Internal::KeywordDialog</name>
+    <name>Todo</name>
     <message>
         <source>Keyword</source>
         <translation>キーワード</translation>
@@ -7190,7 +7190,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>Todo::Internal::OptionsDialog</name>
+    <name>Todo</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -7200,16 +7200,8 @@ Influences the indentation of continuation lines.
         <translation>キーワード</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>追加</translation>
-    </message>
-    <message>
         <source>Edit</source>
         <translation>編集</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>削除</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -33537,7 +33529,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Todo::Internal::TodoItemsModel</name>
+    <name>Todo</name>
     <message>
         <source>Description</source>
         <translation>説明</translation>
@@ -33552,7 +33544,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Todo::Internal::TodoOutputPane</name>
+    <name>Todo</name>
     <message>
         <source>To-Do Entries</source>
         <translation>To-Do エントリ</translation>
@@ -33580,13 +33572,6 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>Scan the current subproject.</source>
         <translation>現在のサブプロジェクトをスキャンします。</translation>
-    </message>
-</context>
-<context>
-    <name>Todo::Internal::OptionsPage</name>
-    <message>
-        <source>To-Do</source>
-        <translation>To-Do</translation>
     </message>
 </context>
 <context>
@@ -38179,7 +38164,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Todo::Internal::TodoProjectSettingsWidget</name>
+    <name>Todo</name>
     <message>
         <source>Add</source>
         <translation>追加</translation>
@@ -38195,10 +38180,6 @@ the program.</source>
     <message>
         <source>Regular expressions for file paths to be excluded from scanning.</source>
         <translation>スキャンの対象外とするファイルパスを示す正規表現です。</translation>
-    </message>
-    <message>
-        <source>To-Do</source>
-        <translation>To-Do</translation>
     </message>
     <message>
         <source>&lt;Enter regular expression to exclude&gt;</source>
@@ -57396,7 +57377,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Todo::Internal::TodoOptionsPage</name>
+    <name>Todo</name>
     <message>
         <source>To-Do</source>
         <translation>To-Do</translation>

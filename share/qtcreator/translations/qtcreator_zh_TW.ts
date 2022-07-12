@@ -29511,22 +29511,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>Todo::Internal::AddKeywordDialog</name>
-    <message>
-        <source>Keyword</source>
-        <translation type="obsolete">關鍵字</translation>
-    </message>
-    <message>
-        <source>Icon</source>
-        <translation type="obsolete">圖示</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation type="obsolete">顏色</translation>
-    </message>
-</context>
-<context>
-    <name>Todo::Internal::OptionsDialog</name>
+    <name>Todo</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -31147,7 +31132,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>Todo::Internal::TodoItemsModel</name>
+    <name>Todo</name>
     <message>
         <source>Description</source>
         <translation>描述</translation>
@@ -31162,22 +31147,11 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>Todo::Internal::TodoOutputPane</name>
+    <name>Todo</name>
     <message>
         <source>To-Do Entries</source>
         <translation>待辦事項條目</translation>
     </message>
-    <message>
-        <source>Scan in the current opened file</source>
-        <translation>掃描目前已開啟的檔案</translation>
-    </message>
-    <message>
-        <source>Scan in the whole project</source>
-        <translation>掃描整個專案</translation>
-    </message>
-</context>
-<context>
-    <name>Todo::Internal::OptionsPage</name>
     <message>
         <source>To-Do</source>
         <translation>待辦事項</translation>
@@ -32029,7 +32003,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>Todo::Internal::KeywordDialog</name>
+    <name>Todo</name>
     <message>
         <source>Keyword</source>
         <translation type="unfinished">關鍵字</translation>

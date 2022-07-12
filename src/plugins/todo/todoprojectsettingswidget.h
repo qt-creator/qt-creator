@@ -27,8 +27,6 @@
 
 #include <projectexplorer/projectsettingswidget.h>
 
-#include <QWidget>
-
 QT_BEGIN_NAMESPACE
 class QListWidget;
 class QListWidgetItem;

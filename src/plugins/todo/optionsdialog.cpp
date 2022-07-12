@@ -29,10 +29,10 @@
 #include "keyworddialog.h"
 #include "keyword.h"
 #include "settings.h"
+#include "todotr.h"
 
 #include <utils/layoutbuilder.h>
 
-#include <QCoreApplication>
 #include <QGroupBox>
 #include <QListWidget>
 #include <QPushButton>
@@ -42,8 +42,6 @@ namespace Todo::Internal {
 
 class OptionsDialog final : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Todo::Internal::TodoOptionsPage)
-
 public:
     OptionsDialog(Settings *settings, const std::function<void ()> &onApply);
 
@@ -83,24 +81,24 @@ OptionsDialog::OptionsDialog(Settings *settings, const std::function<void ()> &o
     m_keywordsList->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_keywordsList->setSortingEnabled(false);
 
-    auto addKeywordButton = new QPushButton(tr("Add"));
-    m_editKeywordButton = new QPushButton(tr("Edit"));
-    m_removeKeywordButton = new QPushButton(tr("Remove"));
-    resetKeywordsButton = new QPushButton(tr("Reset"));
+    auto addKeywordButton = new QPushButton(Tr::tr("Add"));
+    m_editKeywordButton = new QPushButton(Tr::tr("Edit"));
+    m_removeKeywordButton = new QPushButton(Tr::tr("Remove"));
+    resetKeywordsButton = new QPushButton(Tr::tr("Reset"));
 
-    m_scanInProjectRadioButton = new QRadioButton(tr("Scan the whole active project"));
+    m_scanInProjectRadioButton = new QRadioButton(Tr::tr("Scan the whole active project"));
     m_scanInProjectRadioButton->setEnabled(true);
 
-    m_scanInCurrentFileRadioButton = new QRadioButton(tr("Scan only the currently edited document"));
+    m_scanInCurrentFileRadioButton = new QRadioButton(Tr::tr("Scan only the currently edited document"));
     m_scanInCurrentFileRadioButton->setChecked(true);
 
-    m_scanInSubprojectRadioButton = new QRadioButton(tr("Scan the current subproject"));
+    m_scanInSubprojectRadioButton = new QRadioButton(Tr::tr("Scan the current subproject"));
 
     using namespace Utils::Layouting;
 
     Column {
         Group {
-            Title(tr("Keywords")),
+            Title(Tr::tr("Keywords")),
             Row {
                 m_keywordsList,
                 Column {
@@ -113,7 +111,7 @@ OptionsDialog::OptionsDialog(Settings *settings, const std::function<void ()> &o
             }
         },
         Group {
-            Title(tr("Scanning scope")),
+            Title(Tr::tr("Scanning scope")),
             Column {
                 m_scanInProjectRadioButton,
                 m_scanInCurrentFileRadioButton,
@@ -270,9 +268,9 @@ void OptionsDialog::apply()
 TodoOptionsPage::TodoOptionsPage(Settings *settings, const std::function<void ()> &onApply)
 {
     setId("TodoSettings");
-    setDisplayName(OptionsDialog::tr("To-Do"));
+    setDisplayName(Tr::tr("To-Do"));
     setCategory("To-Do");
-    setDisplayCategory(OptionsDialog::tr("To-Do"));
+    setDisplayCategory(Tr::tr("To-Do"));
     setCategoryIconPath(":/todoplugin/images/settingscategory_todo.png");
     setWidgetCreator([settings, onApply] { return new OptionsDialog(settings, onApply); });
 }
