@@ -92,7 +92,6 @@ public:
     int m_defaultTimeoutS = 10;
     int m_lastExecExitCode = -1;
 
-    bool m_lastExecSuccess = false;
     bool m_progressiveOutput = false;
     bool m_hadOutput = false;
     bool m_aborted = false;
@@ -196,7 +195,6 @@ void ShellCommand::addJob(const CommandLine &command, int timeoutS,
 
 void ShellCommand::execute()
 {
-    d->m_lastExecSuccess = false;
     d->m_lastExecExitCode = -1;
 
     if (d->m_jobs.empty())
@@ -239,11 +237,6 @@ FilePath ShellCommand::workDirectory(const FilePath &wd) const
     return defaultWorkingDirectory();
 }
 
-bool ShellCommand::lastExecutionSuccess() const
-{
-    return d->m_lastExecSuccess;
-}
-
 int ShellCommand::lastExecutionExitCode() const
 {
     return d->m_lastExecExitCode;
@@ -264,7 +257,7 @@ void ShellCommand::run(QFutureInterface<void> &future)
         future.setProgressRange(0, 1);
     const int count = d->m_jobs.size();
     d->m_lastExecExitCode = -1;
-    d->m_lastExecSuccess = true;
+    bool lastExecSuccess = true;
     for (int j = 0; j < count; j++) {
         const Internal::ShellCommandPrivate::Job &job = d->m_jobs.at(j);
         QtcProcess proc;
@@ -274,8 +267,8 @@ void ShellCommand::run(QFutureInterface<void> &future)
         stdOut += proc.cleanedStdOut();
         stdErr += proc.cleanedStdErr();
         d->m_lastExecExitCode = proc.exitCode();
-        d->m_lastExecSuccess = proc.result() == ProcessResult::FinishedWithSuccess;
-        if (!d->m_lastExecSuccess)
+        lastExecSuccess = proc.result() == ProcessResult::FinishedWithSuccess;
+        if (!lastExecSuccess)
             break;
     }
 
@@ -286,8 +279,8 @@ void ShellCommand::run(QFutureInterface<void> &future)
                 emit stdErrText(stdErr);
         }
 
-        emit finished(d->m_lastExecSuccess, d->m_lastExecExitCode, cookie());
-        if (d->m_lastExecSuccess) {
+        emit finished(lastExecSuccess, d->m_lastExecExitCode, cookie());
+        if (lastExecSuccess) {
             emit success(cookie());
             future.setProgressValue(future.progressMaximum());
         } else {
