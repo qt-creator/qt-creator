@@ -48,13 +48,12 @@ public:
 
     VcsCommand(const Utils::FilePath &defaultWorkingDirectory, const Utils::Environment &environment);
 
-    const Utils::Environment processEnvironment() const override;
-
     void runCommand(Utils::QtcProcess &process,
                     const Utils::CommandLine &command,
                     const Utils::FilePath &workDirectory = {}) override;
 
 protected:
+    Utils::Environment environment() const override;
     void addTask(QFuture<void> &future) override;
 
 private:

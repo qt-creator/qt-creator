@@ -106,7 +106,6 @@ public:
     void abort();
 
     const FilePath &defaultWorkingDirectory() const;
-    virtual const Environment processEnvironment() const;
 
     int defaultTimeoutS() const;
     void setDefaultTimeoutS(int timeout);
@@ -149,6 +148,7 @@ signals:
     void appendMessage(const QString &text);
 
 protected:
+    virtual Environment environment() const;
     virtual void addTask(QFuture<void> &future);
     void setDisableUnixTerminal();
     int timeoutS() const;

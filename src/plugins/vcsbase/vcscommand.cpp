@@ -76,9 +76,9 @@ VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &envi
     connect(this, &ShellCommand::appendMessage, outputWindow, &VcsOutputWindow::appendMessage);
 }
 
-const Environment VcsCommand::processEnvironment() const
+Environment VcsCommand::environment() const
 {
-    Environment env = ShellCommand::processEnvironment();
+    Environment env = ShellCommand::environment();
     VcsBase::setProcessEnvironment(&env, flags() & ForceCLocale, m_sshPrompt);
     return env;
 }

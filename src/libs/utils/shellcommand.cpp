@@ -152,7 +152,7 @@ const FilePath &ShellCommand::defaultWorkingDirectory() const
     return d->m_defaultWorkingDirectory;
 }
 
-const Environment ShellCommand::processEnvironment() const
+Environment ShellCommand::environment() const
 {
     return d->m_environment;
 }
@@ -328,7 +328,7 @@ void ShellCommand::runFullySynchronous(QtcProcess &process, const FilePath &work
     const FilePath dir = workDirectory(workingDirectory);
     if (!dir.isEmpty())
         process.setWorkingDirectory(dir);
-    process.setEnvironment(processEnvironment());
+    process.setEnvironment(environment());
     if (d->m_flags & MergeOutputChannels)
         process.setProcessChannelMode(QProcess::MergedChannels);
     if (d->m_codec)
@@ -357,7 +357,7 @@ void ShellCommand::runSynchronous(QtcProcess &process, const FilePath &workingDi
         process.stop();
         process.waitForFinished();
     });
-    process.setEnvironment(processEnvironment());
+    process.setEnvironment(environment());
     if (d->m_codec)
         process.setCodec(d->m_codec);
     if (d->m_disableUnixTerminal)
