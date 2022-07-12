@@ -176,15 +176,7 @@ QtcTool {
     }
 
     Group {
-        name: "puppet2 3D editor Qt5"
-        condition: !product.usesQt6
-        prefix: puppetDir + "/"
-        files: ["editor3d_qt5.qrc"]
-    }
-
-    Group {
         name: "puppet2 3D editor Qt6"
-        condition: product.usesQt6
         prefix: puppetDir + "/"
         files: ["editor3d_qt6.qrc"]
     }
@@ -296,13 +288,11 @@ QtcTool {
 
         Group {
             name: "puppet2 Qt 5 compatibility sources"
-            condition: product.usesQt6
             files: ["editor3d/qt5compat/qquick3darealight.cpp"]
         }
 
         Group {
             name: "puppet2 Qt 5 compatibility headers"
-            condition: product.usesQt6
             files: ["editor3d/qt5compat/qquick3darealight_p.h"]
             fileTags: product.useQuick3d ? [] : ["unmocable"]
             overrideTags: false
