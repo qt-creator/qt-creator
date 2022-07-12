@@ -461,6 +461,16 @@
     \li Select \uicontrol Projects > \uicontrol Build >
         \uicontrol {Build Android APK} > \uicontrol {Create Templates}.
 
+    \li Check the path in \uicontrol {Android package source directory}.
+
+        \image qtcreator-android-create-template.png "Create Template dialog"
+
+    \li Select \uicontrol {Copy the Gradle files to Android directory} if you
+        plan to extend the Java part of your Qt application.
+
+    \li Select \uicontrol Finish to copy the template files to the \c android
+        directory and to open the manifest file for editing.
+
     \li In the \uicontrol {Package name} field, enter a valid
         \l{Package Names}{package name} for the application.
         For example, \c {org.example.myapplication}.
