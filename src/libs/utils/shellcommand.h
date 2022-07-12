@@ -124,8 +124,6 @@ public:
     bool hasProgressParser() const;
     void setProgressiveOutput(bool progressive);
 
-    void setDisableUnixTerminal();
-
     // This is called once per job in a thread.
     // When called from the UI thread it will execute fully synchronously, so no signals will
     // be triggered!
@@ -152,6 +150,7 @@ signals:
 
 protected:
     virtual void addTask(QFuture<void> &future);
+    void setDisableUnixTerminal();
     int timeoutS() const;
     FilePath workDirectory(const FilePath &wd) const;
 
