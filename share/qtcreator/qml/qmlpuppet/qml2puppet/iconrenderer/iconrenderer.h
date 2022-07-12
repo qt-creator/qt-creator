@@ -48,6 +48,7 @@ class IconRenderer : public QObject
 
 public:
     explicit IconRenderer(int size, const QString &filePath, const QString &source);
+    ~IconRenderer();
 
     void setupRender();
 

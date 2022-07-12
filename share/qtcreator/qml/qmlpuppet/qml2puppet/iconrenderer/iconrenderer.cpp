@@ -63,6 +63,8 @@ IconRenderer::IconRenderer(int size, const QString &filePath, const QString &sou
 {
 }
 
+IconRenderer::~IconRenderer() = default;
+
 void IconRenderer::setupRender()
 {
     QQuickDesignerSupport::activateDesignerMode();
