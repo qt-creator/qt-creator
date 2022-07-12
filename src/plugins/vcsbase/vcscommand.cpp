@@ -82,14 +82,6 @@ Environment VcsCommand::environment() const
     return env;
 }
 
-void VcsCommand::runCommand(QtcProcess &proc,
-                            const CommandLine &command,
-                            const FilePath &workingDirectory)
-{
-    ShellCommand::runCommand(proc, command, workingDirectory);
-    emitRepositoryChanged(workingDirectory);
-}
-
 void VcsCommand::addTask(QFuture<void> &future)
 {
     const QString name = displayName();
@@ -114,13 +106,13 @@ void VcsCommand::addTask(QFuture<void> &future)
     Internal::VcsPlugin::addFuture(future);
 }
 
-void VcsCommand::emitRepositoryChanged(const FilePath &workingDirectory)
+void VcsCommand::postRunCommand(const FilePath &workingDirectory)
 {
     if (m_preventRepositoryChanged || !(flags() & VcsCommand::ExpectRepoChanges))
         return;
     // TODO tell the document manager that the directory now received all expected changes
     // Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
-    VcsManager::emitRepositoryChanged(workDirectory(workingDirectory));
+    VcsManager::emitRepositoryChanged(workingDirectory);
 }
 
 } // namespace VcsBase

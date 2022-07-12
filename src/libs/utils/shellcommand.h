@@ -126,9 +126,8 @@ public:
     // This is called once per job in a thread.
     // When called from the UI thread it will execute fully synchronously, so no signals will
     // be triggered!
-    virtual void runCommand(QtcProcess &process,
-                            const CommandLine &command,
-                            const FilePath &workingDirectory = {});
+    void runCommand(QtcProcess &process, const CommandLine &command,
+                    const FilePath &workingDirectory = {});
 
     void cancel();
 
@@ -149,12 +148,13 @@ signals:
 
 protected:
     virtual Environment environment() const;
-    virtual void addTask(QFuture<void> &future);
     void setDisableUnixTerminal();
     int timeoutS() const;
     FilePath workDirectory(const FilePath &wd) const;
 
 private:
+    virtual void addTask(QFuture<void> &future);
+    virtual void postRunCommand(const Utils::FilePath &workDirectory);
     void run(QFutureInterface<void> &future);
 
     // Run without a event loop in fully blocking mode. No signals will be delivered.
