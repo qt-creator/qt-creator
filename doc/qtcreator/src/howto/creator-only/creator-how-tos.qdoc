@@ -195,7 +195,8 @@
     If an instance of a class is derived from QObject, and you would like to
     find all other objects connected to one of your object's slots using
     Qt's signals and slots mechanism, select \uicontrol Edit > \uicontrol Preferences
-    > \uicontrol{Debugger} > \uicontrol{Locals} > \uicontrol{Use Debugging Helper}.
+    > \uicontrol {Debugger} > \uicontrol {Locals & Expressions} >
+    \uicontrol {Use Debugging Helpers}.
 
     In the \uicontrol{Locals} view, expand the object's entry and open
     the slot in the \e slots subitem. The objects connected to this slot are
@@ -214,9 +215,9 @@
     \list 1
 
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
-            \uicontrol{Locals}.
-
-        \li Uncheck the \uicontrol{Use Debugging Helper} checkbox.
+            \uicontrol {Locals & Expressions}.
+            \image qtcreator-debugging-helper-options.png "Locals & Expressions preferences"
+        \li Deselect \uicontrol {Use Debugging Helpers}.
 
     \endlist
 
@@ -229,9 +230,8 @@
 
         \li Select \uicontrol Edit > \uicontrol Preferences >
             \uicontrol Debugger > \uicontrol General.
-
-        \li Select the \uicontrol {Use tooltips in main editor while debugging} check
-            box.
+            \image qtcreator-debugger-general-options.png "Debugger General preferences"
+        \li Select \uicontrol {Use tooltips in main editor when debugging}.
 
     \endlist
 
