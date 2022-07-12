@@ -197,7 +197,8 @@ static bool isIdToAvoid(const QString& id)
         "shaderInfo",
         "sprite",
         "spriteSequence",
-        "baseState"
+        "baseState",
+        "rect"
     };
 
     return ids.contains(id);
