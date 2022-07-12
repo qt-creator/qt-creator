@@ -68,7 +68,7 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Id id, Kind kin
 {
     auto envAspect = addAspect<LocalEnvironmentAspect>(target);
 
-    addAspect<ExecutableAspect>(target, ExecutableAspect::HostDevice);
+    addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
     addAspect<ArgumentsAspect>(macroExpander());
     addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
     addAspect<TerminalAspect>();
