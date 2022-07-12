@@ -80,7 +80,6 @@ add_qtc_plugin(CppEditor
     cppquickfixes.cpp cppquickfixes.h
     cppquickfixprojectsettings.cpp cppquickfixprojectsettings.h
     cppquickfixprojectsettingswidget.cpp cppquickfixprojectsettingswidget.h
-    cppquickfixprojectsettingswidget.ui
     cppquickfixsettings.cpp cppquickfixsettings.h
     cppquickfixsettingspage.cpp cppquickfixsettingspage.h
     cppquickfixsettingswidget.cpp cppquickfixsettingswidget.h cppquickfixsettingswidget.ui

@@ -28,16 +28,14 @@
 #include "cppquickfixprojectsettings.h"
 #include <projectexplorer/projectsettingswidget.h>
 
-#include <QWidget>
-
 QT_BEGIN_NAMESPACE
-namespace Ui { class CppQuickFixProjectSettingsWidget; }
+class QPushButton;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal {
+
 class CppQuickFixSettingsWidget;
 class CppQuickFixProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
 {
@@ -48,15 +46,14 @@ public:
                                               QWidget *parent = nullptr);
     ~CppQuickFixProjectSettingsWidget();
 
-private slots:
+private:
     void currentItemChanged(bool useGlobalSettings);
     void buttonCustomClicked();
 
-private:
-    QT_PREPEND_NAMESPACE(Ui)::CppQuickFixProjectSettingsWidget *ui;
     CppQuickFixSettingsWidget *m_settingsWidget;
     CppQuickFixProjectsSettings::CppQuickFixProjectsSettingsPtr m_projectSettings;
+
+    QPushButton *m_pushButton;
 };
 
-} // namespace Internal
-} // namespace CppEditor
+} // CppEditor::Internal

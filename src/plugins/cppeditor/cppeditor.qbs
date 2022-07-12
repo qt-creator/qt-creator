@@ -174,7 +174,6 @@ QtcPlugin {
         "cppquickfixprojectsettings.h",
         "cppquickfixprojectsettingswidget.cpp",
         "cppquickfixprojectsettingswidget.h",
-        "cppquickfixprojectsettingswidget.ui",
         "cppquickfixsettings.cpp",
         "cppquickfixsettings.h",
         "cppquickfixsettingspage.cpp",
