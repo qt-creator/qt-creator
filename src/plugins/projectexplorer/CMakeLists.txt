@@ -25,7 +25,7 @@ add_qtc_plugin(ProjectExplorer
     buildtargetinfo.h
     buildtargettype.h
     clangparser.cpp clangparser.h
-    codestylesettingspropertiespage.cpp codestylesettingspropertiespage.h codestylesettingspropertiespage.ui
+    codestylesettingspropertiespage.cpp codestylesettingspropertiespage.h
     compileoutputwindow.cpp compileoutputwindow.h
     configtaskhandler.cpp configtaskhandler.h
     copytaskhandler.cpp copytaskhandler.h

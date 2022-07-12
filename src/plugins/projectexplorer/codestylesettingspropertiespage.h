@@ -25,11 +25,10 @@
 
 #pragma once
 
-#include "ui_codestylesettingspropertiespage.h"
 #include <projectexplorer/projectsettingswidget.h>
 
 namespace ProjectExplorer {
-class EditorConfiguration;
+
 class Project;
 
 namespace Internal {
@@ -39,10 +38,6 @@ class CodeStyleSettingsWidget : public ProjectSettingsWidget
     Q_OBJECT
 public:
     explicit CodeStyleSettingsWidget(Project *project);
-
-private:
-    Ui::CodeStyleSettingsPropertiesPage m_ui;
-    Project *m_project;
 };
 
 } // namespace Internal

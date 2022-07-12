@@ -24,36 +24,55 @@
 ****************************************************************************/
 
 #include "codestylesettingspropertiespage.h"
+
 #include "editorconfiguration.h"
 #include "project.h"
+
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/codestyleeditor.h>
 
-using namespace TextEditor;
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
+#include <utils/layoutbuilder.h>
 
-CodeStyleSettingsWidget::CodeStyleSettingsWidget(Project *project) : ProjectSettingsWidget(), m_project(project)
+#include <QComboBox>
+#include <QLabel>
+#include <QLayout>
+#include <QStackedWidget>
+
+using namespace TextEditor;
+
+namespace ProjectExplorer::Internal {
+
+CodeStyleSettingsWidget::CodeStyleSettingsWidget(Project *project)
 {
-    m_ui.setupUi(this);
+    auto languageComboBox = new QComboBox(this);
+    auto stackedWidget = new QStackedWidget(this);
+
     setUseGlobalSettingsCheckBoxVisible(false);
     setUseGlobalSettingsLabelVisible(false);
 
-    const EditorConfiguration *config = m_project->editorConfiguration();
+    const EditorConfiguration *config = project->editorConfiguration();
 
     for (ICodeStylePreferencesFactory *factory : TextEditorSettings::codeStyleFactories()) {
         Utils::Id languageId = factory->languageId();
         ICodeStylePreferences *codeStylePreferences = config->codeStyle(languageId);
 
-        auto preview = factory->createCodeStyleEditor(codeStylePreferences, project, m_ui.stackedWidget);
+        auto preview = factory->createCodeStyleEditor(codeStylePreferences, project, stackedWidget);
         if (preview && preview->layout())
             preview->layout()->setContentsMargins(QMargins());
-        m_ui.stackedWidget->addWidget(preview);
-        m_ui.languageComboBox->addItem(factory->displayName());
+        stackedWidget->addWidget(preview);
+        languageComboBox->addItem(factory->displayName());
     }
 
-    connect(m_ui.languageComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            m_ui.stackedWidget, &QStackedWidget::setCurrentIndex);
+    connect(languageComboBox, &QComboBox::currentIndexChanged,
+            stackedWidget, &QStackedWidget::setCurrentIndex);
+
+    using namespace Utils::Layouting;
+
+    Column {
+        Row { new QLabel(tr("Language:")), languageComboBox, Stretch() },
+        stackedWidget
+    }.attachTo(this, false);
 }
 
+} // ProjectExplorer::Internal
