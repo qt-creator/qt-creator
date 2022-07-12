@@ -24,10 +24,18 @@
 ****************************************************************************/
 
 #include "opensquishsuitesdialog.h"
-#include "squishutils.h"
-#include "ui_opensquishsuitesdialog.h"
 
+#include "squishutils.h"
+
+#include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
+
+#include <QAbstractButton>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QDir>
+#include <QLabel>
+#include <QListWidget>
 #include <QListWidgetItem>
 #include <QPushButton>
 
@@ -38,38 +46,66 @@ static QString previousPath;
 
 OpenSquishSuitesDialog::OpenSquishSuitesDialog(QWidget *parent)
     : QDialog(parent)
-    , ui(new Ui::OpenSquishSuitesDialog)
 {
-    ui->setupUi(this);
-    ui->buttonBox->button(QDialogButtonBox::Open)->setEnabled(false);
+    setWindowTitle(tr("Open Squish Test Suites"));
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    setModal(true);
 
-    connect(ui->directoryLineEdit,
+    m_directoryLineEdit = new Utils::PathChooser;
+    m_directoryLineEdit->setPath(previousPath);
+
+    m_suitesListWidget = new QListWidget;
+
+    auto selectAllPushButton = new QPushButton(tr("Select All"));
+
+    auto deselectAllPushButton = new QPushButton(tr("Deselect All"));
+
+    m_buttonBox = new QDialogButtonBox;
+    m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Open);
+    m_buttonBox->button(QDialogButtonBox::Open)->setEnabled(false);
+
+    using namespace Utils::Layouting;
+
+    Column {
+        new QLabel(tr("Base directory:")),
+        m_directoryLineEdit,
+        new QLabel(tr("Test suites:")),
+        Row {
+            m_suitesListWidget,
+            Column {
+                selectAllPushButton,
+                deselectAllPushButton,
+                Stretch()
+            }
+        },
+        m_buttonBox
+    }.attachTo(this);
+
+    connect(m_directoryLineEdit,
             &Utils::PathChooser::pathChanged,
             this,
             &OpenSquishSuitesDialog::onDirectoryChanged);
-    connect(ui->selectAllPushButton,
+    connect(selectAllPushButton,
             &QPushButton::clicked,
             this,
             &OpenSquishSuitesDialog::selectAll);
-    connect(ui->deselectAllPushButton,
+    connect(deselectAllPushButton,
             &QPushButton::clicked,
             this,
             &OpenSquishSuitesDialog::deselectAll);
     connect(this, &OpenSquishSuitesDialog::accepted, this, &OpenSquishSuitesDialog::setChosenSuites);
 
-    ui->directoryLineEdit->setPath(previousPath);
+    connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
-OpenSquishSuitesDialog::~OpenSquishSuitesDialog()
-{
-    delete ui;
-}
+OpenSquishSuitesDialog::~OpenSquishSuitesDialog() = default;
 
 void OpenSquishSuitesDialog::onDirectoryChanged()
 {
-    ui->suitesListWidget->clear();
-    ui->buttonBox->button(QDialogButtonBox::Open)->setEnabled(false);
-    QDir baseDir(ui->directoryLineEdit->path());
+    m_suitesListWidget->clear();
+    m_buttonBox->button(QDialogButtonBox::Open)->setEnabled(false);
+    QDir baseDir(m_directoryLineEdit->path());
     if (!baseDir.exists()) {
         return;
     }
@@ -79,50 +115,50 @@ void OpenSquishSuitesDialog::onDirectoryChanged()
         if (!subDir.baseName().startsWith("suite_"))
             continue;
         if (SquishUtils::validTestCases(subDir.absoluteFilePath()).size()) {
-            QListWidgetItem *item = new QListWidgetItem(subDir.baseName(), ui->suitesListWidget);
+            QListWidgetItem *item = new QListWidgetItem(subDir.baseName(), m_suitesListWidget);
             item->setCheckState(Qt::Checked);
-            connect(ui->suitesListWidget,
+            connect(m_suitesListWidget,
                     &QListWidget::itemChanged,
                     this,
                     &OpenSquishSuitesDialog::onListItemChanged);
         }
     }
-    ui->buttonBox->button(QDialogButtonBox::Open)->setEnabled(ui->suitesListWidget->count());
+    m_buttonBox->button(QDialogButtonBox::Open)->setEnabled(m_suitesListWidget->count());
 }
 
 void OpenSquishSuitesDialog::onListItemChanged(QListWidgetItem *)
 {
-    const int count = ui->suitesListWidget->count();
+    const int count = m_suitesListWidget->count();
     for (int row = 0; row < count; ++row) {
-        if (ui->suitesListWidget->item(row)->checkState() == Qt::Checked) {
-            ui->buttonBox->button(QDialogButtonBox::Open)->setEnabled(true);
+        if (m_suitesListWidget->item(row)->checkState() == Qt::Checked) {
+            m_buttonBox->button(QDialogButtonBox::Open)->setEnabled(true);
             return;
         }
     }
-    ui->buttonBox->button(QDialogButtonBox::Open)->setEnabled(false);
+    m_buttonBox->button(QDialogButtonBox::Open)->setEnabled(false);
 }
 
 void OpenSquishSuitesDialog::selectAll()
 {
-    const int count = ui->suitesListWidget->count();
+    const int count = m_suitesListWidget->count();
     for (int row = 0; row < count; ++row)
-        ui->suitesListWidget->item(row)->setCheckState(Qt::Checked);
+        m_suitesListWidget->item(row)->setCheckState(Qt::Checked);
 }
 
 void OpenSquishSuitesDialog::deselectAll()
 {
-    const int count = ui->suitesListWidget->count();
+    const int count = m_suitesListWidget->count();
     for (int row = 0; row < count; ++row)
-        ui->suitesListWidget->item(row)->setCheckState(Qt::Unchecked);
+        m_suitesListWidget->item(row)->setCheckState(Qt::Unchecked);
 }
 
 void OpenSquishSuitesDialog::setChosenSuites()
 {
-    const int count = ui->suitesListWidget->count();
-    previousPath = ui->directoryLineEdit->path();
+    const int count = m_suitesListWidget->count();
+    previousPath = m_directoryLineEdit->path();
     const QDir baseDir(previousPath);
     for (int row = 0; row < count; ++row) {
-        QListWidgetItem *item = ui->suitesListWidget->item(row);
+        QListWidgetItem *item = m_suitesListWidget->item(row);
         if (item->checkState() == Qt::Checked)
             m_chosenSuites.append(QFileInfo(baseDir, item->text()).absoluteFilePath());
     }

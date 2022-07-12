@@ -29,9 +29,11 @@
 
 QT_BEGIN_NAMESPACE
 class QListWidgetItem;
+class QListWidget;
+class QDialogButtonBox;
 QT_END_NAMESPACE
 
-namespace Ui { class OpenSquishSuitesDialog; }
+namespace Utils { class PathChooser; }
 
 namespace Squish {
 namespace Internal {
@@ -50,8 +52,12 @@ private:
     void selectAll();
     void deselectAll();
     void setChosenSuites();
-    Ui::OpenSquishSuitesDialog *ui;
+
     QStringList m_chosenSuites;
+
+    Utils::PathChooser *m_directoryLineEdit;
+    QListWidget *m_suitesListWidget;
+    QDialogButtonBox *m_buttonBox;
 };
 
 } // namespace Internal

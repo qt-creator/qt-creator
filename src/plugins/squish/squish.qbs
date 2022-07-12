@@ -28,7 +28,6 @@ QtcPlugin {
         "squishfilehandler.h",
         "opensquishsuitesdialog.cpp",
         "opensquishsuitesdialog.h",
-        "opensquishsuitesdialog.ui",
         "squishutils.cpp",
         "squishutils.h",
         "squishtools.cpp",

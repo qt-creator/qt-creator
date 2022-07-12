@@ -8,7 +8,7 @@ add_qtc_plugin(Squish
     objectsmapeditor.cpp objectsmapeditor.h
     objectsmapeditorwidget.cpp objectsmapeditorwidget.h
     objectsmaptreeitem.cpp objectsmaptreeitem.h
-    opensquishsuitesdialog.cpp opensquishsuitesdialog.h opensquishsuitesdialog.ui
+    opensquishsuitesdialog.cpp opensquishsuitesdialog.h
     propertyitemdelegate.cpp propertyitemdelegate.h
     propertytreeitem.cpp propertytreeitem.h
     squish.qrc
