@@ -3,7 +3,7 @@ add_qtc_plugin(Squish
     Core
   DEPENDS ExtensionSystem Utils
   SOURCES
-    deletesymbolicnamedialog.cpp deletesymbolicnamedialog.h deletesymbolicnamedialog.ui
+    deletesymbolicnamedialog.cpp deletesymbolicnamedialog.h
     objectsmapdocument.cpp objectsmapdocument.h
     objectsmapeditor.cpp objectsmapeditor.h
     objectsmapeditorwidget.cpp objectsmapeditorwidget.h

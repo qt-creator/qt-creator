@@ -28,12 +28,14 @@
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
+class QDialogButtonBox;
 class QItemSelection;
+class QLabel;
+class QListView;
+class QRadioButton;
 class QSortFilterProxyModel;
 class QStringListModel;
 QT_END_NAMESPACE
-
-namespace Ui { class DeleteSymbolicNameDialog; }
 
 namespace Squish {
 namespace Internal {
@@ -58,11 +60,15 @@ private:
     void onAdjustReferencesToggled(bool checked);
     void onSelectionChanged(const QItemSelection &selection, const QItemSelection &);
 
-    Ui::DeleteSymbolicNameDialog *ui;
     QString m_selected;
     Result m_result;
     QStringListModel *m_listModel;
     QSortFilterProxyModel *m_filterModel;
+
+    QLabel *m_detailsLabel;
+    QRadioButton *adjustReferencesRB;
+    QListView *m_symbolicNamesList;
+    QDialogButtonBox *m_buttonBox;
 };
 
 } // namespace Internal

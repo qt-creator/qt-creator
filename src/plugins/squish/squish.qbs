@@ -40,7 +40,6 @@ QtcPlugin {
         "squishresultmodel.h",
         "deletesymbolicnamedialog.cpp",
         "deletesymbolicnamedialog.h",
-        "deletesymbolicnamedialog.ui",
         "objectsmapdocument.cpp",
         "objectsmapdocument.h",
         "objectsmaptreeitem.cpp",

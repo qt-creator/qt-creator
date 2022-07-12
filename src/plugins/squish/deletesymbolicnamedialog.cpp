@@ -24,10 +24,19 @@
 ****************************************************************************/
 
 #include "deletesymbolicnamedialog.h"
-#include "ui_deletesymbolicnamedialog.h"
 
+#include <utils/fancylineedit.h>
+#include <utils/layoutbuilder.h>
+
+#include <QAbstractButton>
+#include <QApplication>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QItemSelection>
+#include <QLabel>
+#include <QListView>
 #include <QPushButton>
+#include <QRadioButton>
 #include <QSortFilterProxyModel>
 #include <QStringListModel>
 
@@ -38,11 +47,32 @@ DeleteSymbolicNameDialog::DeleteSymbolicNameDialog(const QString &symbolicName,
                                                    const QStringList &names,
                                                    QWidget *parent)
     : QDialog(parent)
-    , ui(new Ui::DeleteSymbolicNameDialog)
     , m_result(ResetReference)
 {
-    ui->setupUi(this);
-    ui->filterLineEdit->setFiltering(true);
+    setWindowTitle(tr("Dialog"));
+
+    m_detailsLabel = new QLabel(tr("Details"));
+    m_detailsLabel->setWordWrap(true);
+
+    auto adjustReferencesRB = new QRadioButton;
+    adjustReferencesRB->setText(tr("Adjust references to the removed symbolic name to point to:"));
+    adjustReferencesRB->setChecked(true);
+
+    auto filterLineEdit = new Utils::FancyLineEdit;
+    filterLineEdit->setFiltering(true);
+
+    m_symbolicNamesList = new QListView;
+
+    auto removeAndInvalidateRB = new QRadioButton;
+    removeAndInvalidateRB->setText(tr("Remove the symbolic name (invalidates names referencing it)"));
+
+    auto removeAllRB = new QRadioButton;
+    removeAllRB->setText(tr("Remove the symbolic name and all names referencing it"));
+
+    m_buttonBox = new QDialogButtonBox;
+    m_buttonBox->setOrientation(Qt::Horizontal);
+    m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+    m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
     m_listModel = new QStringListModel(this);
     m_filterModel = new QSortFilterProxyModel(this);
@@ -50,38 +80,49 @@ DeleteSymbolicNameDialog::DeleteSymbolicNameDialog(const QString &symbolicName,
     m_filterModel->setDynamicSortFilter(true);
     m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_filterModel->setSortCaseSensitivity(Qt::CaseInsensitive);
-    ui->symbolicNamesList->setModel(m_filterModel);
+    m_symbolicNamesList->setModel(m_filterModel);
 
     updateDetailsLabel(symbolicName);
     populateSymbolicNamesList(names);
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-    connect(ui->adjustReferencesRB,
+    using namespace Utils::Layouting;
+
+    Column {
+        m_detailsLabel,
+        adjustReferencesRB,
+        filterLineEdit,
+        m_symbolicNamesList,
+        removeAndInvalidateRB,
+        removeAllRB,
+        m_buttonBox
+    }.attachTo(this);
+
+    connect(adjustReferencesRB,
             &QRadioButton::toggled,
             this,
             &DeleteSymbolicNameDialog::onAdjustReferencesToggled);
-    connect(ui->removeAndInvalidateRB, &QRadioButton::toggled, this, [this](bool checked) {
+    connect(removeAndInvalidateRB, &QRadioButton::toggled, this, [this](bool checked) {
         if (checked)
             m_result = InvalidateNames;
     });
-    connect(ui->removeAllRB, &QRadioButton::toggled, this, [this](bool checked) {
+    connect(removeAllRB, &QRadioButton::toggled, this, [this](bool checked) {
         if (checked)
             m_result = RemoveNames;
     });
-    connect(ui->symbolicNamesList->selectionModel(),
+    connect(m_symbolicNamesList->selectionModel(),
             &QItemSelectionModel::selectionChanged,
             this,
             &DeleteSymbolicNameDialog::onSelectionChanged);
-    connect(ui->filterLineEdit,
+    connect(filterLineEdit,
             &Utils::FancyLineEdit::filterChanged,
             m_filterModel,
             &QSortFilterProxyModel::setFilterFixedString);
+
+    connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
-DeleteSymbolicNameDialog::~DeleteSymbolicNameDialog()
-{
-    delete ui;
-}
+DeleteSymbolicNameDialog::~DeleteSymbolicNameDialog() = default;
 
 void DeleteSymbolicNameDialog::updateDetailsLabel(const QString &nameToDelete)
 {
@@ -89,7 +130,7 @@ void DeleteSymbolicNameDialog::updateDetailsLabel(const QString &nameToDelete)
         "The Symbolic Name <span style='white-space: nowrap'>\"%1\"</span> you "
         "want to remove is used in Multi Property Names. Please decide what to do "
         "with the references in these Multi Property Names.");
-    ui->detailsLabel->setText(tr(detailsText).arg(nameToDelete));
+    m_detailsLabel->setText(tr(detailsText).arg(nameToDelete));
 }
 
 void DeleteSymbolicNameDialog::populateSymbolicNamesList(const QStringList &symbolicNames)
@@ -100,9 +141,9 @@ void DeleteSymbolicNameDialog::populateSymbolicNamesList(const QStringList &symb
 
 void DeleteSymbolicNameDialog::onAdjustReferencesToggled(bool checked)
 {
-    ui->symbolicNamesList->setEnabled(checked);
-    const bool enable = !checked || ui->symbolicNamesList->selectionModel()->hasSelection();
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(enable);
+    m_symbolicNamesList->setEnabled(checked);
+    const bool enable = !checked || m_symbolicNamesList->selectionModel()->hasSelection();
+    m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(enable);
     if (checked)
         m_result = ResetReference;
 }
@@ -111,7 +152,7 @@ void DeleteSymbolicNameDialog::onSelectionChanged(const QItemSelection &selectio
                                                   const QItemSelection &)
 {
     const bool empty = selection.isEmpty();
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(!empty);
+    m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(!empty);
     if (empty)
         m_selected.clear();
     else
