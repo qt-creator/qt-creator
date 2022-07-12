@@ -35,7 +35,7 @@ Project {
         Group {
             name: "Sources"
             files: [
-                "docsettingspage.cpp", "docsettingspage.h", "docsettingspage.ui",
+                "docsettingspage.cpp", "docsettingspage.h",
                 "filtersettingspage.cpp", "filtersettingspage.h",
                 "generalsettingspage.cpp", "generalsettingspage.h", "generalsettingspage.ui",
                 "help.qrc",

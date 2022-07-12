@@ -27,9 +27,10 @@
 
 #include "helpconstants.h"
 #include "helpmanager.h"
-#include "ui_docsettingspage.h"
 
+#include <coreplugin/icore.h>
 #include <utils/algorithm.h>
+#include <utils/fancylineedit.h>
 #include <utils/fileutils.h>
 
 #include <QFileDialog>
@@ -39,7 +40,12 @@
 #include <QAbstractListModel>
 #include <QCoreApplication>
 #include <QDir>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QListView>
+#include <QPushButton>
 #include <QSortFilterProxyModel>
+#include <QVBoxLayout>
 #include <QVariant>
 #include <QVector>
 
@@ -98,8 +104,6 @@ private:
 
     QList<QModelIndex> currentSelection() const;
 
-    Ui::DocSettingsPage m_ui;
-
     FilePath m_recentDialogPath;
 
     using NameSpaceToPathHash = QMultiHash<QString, QString>;
@@ -107,6 +111,7 @@ private:
     QHash<QString, bool> m_filesToRegisterUserManaged;
     NameSpaceToPathHash m_filesToUnregister;
 
+    QListView *m_docsListView = nullptr;
     QSortFilterProxyModel m_proxyModel;
     DocModel m_model;
 };
@@ -165,7 +170,39 @@ using namespace Help::Internal;
 
 DocSettingsPageWidget::DocSettingsPageWidget()
 {
-    m_ui.setupUi(this);
+    auto groupBox = new QGroupBox(this);
+
+    auto filterLineEdit = new Utils::FancyLineEdit(groupBox);
+    m_docsListView = new QListView(groupBox);
+    m_docsListView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    m_docsListView->setUniformItemSizes(true);
+
+    auto treeLayout = new QVBoxLayout();
+    treeLayout->addWidget(filterLineEdit);
+    treeLayout->addWidget(m_docsListView);
+
+    auto addButton = new QPushButton(groupBox);
+    auto removeButton = new QPushButton(groupBox);
+
+    auto buttonLayout = new QVBoxLayout();
+    buttonLayout->addWidget(addButton);
+    buttonLayout->addWidget(removeButton);
+    buttonLayout->addStretch(1);
+
+    auto horizontalLayout = new QHBoxLayout(groupBox);
+    horizontalLayout->addLayout(treeLayout);
+    horizontalLayout->addLayout(buttonLayout);
+
+    setLayout(new QVBoxLayout);
+    layout()->addWidget(groupBox);
+
+    setToolTip(QCoreApplication::translate("Help::Internal::DocSettingsPage",
+                                           "Add and remove compressed help files, .qch.",
+                                           nullptr));
+    groupBox->setTitle(
+        QCoreApplication::translate("Help::Internal::DocSettingsPage", "Registered Documentation"));
+    addButton->setText(QCoreApplication::translate("Help::Internal::DocSettingsPage", "Add..."));
+    removeButton->setText(QCoreApplication::translate("Help::Internal::DocSettingsPage", "Remove"));
 
     const QStringList nameSpaces = HelpManager::registeredNamespaces();
     const QSet<QString> userDocumentationPaths = HelpManager::userDocumentationPaths();
@@ -183,29 +220,27 @@ DocSettingsPageWidget::DocSettingsPageWidget()
     m_model.setEntries(entries);
 
     m_proxyModel.setSourceModel(&m_model);
-    m_ui.docsListView->setModel(&m_proxyModel);
-    m_ui.filterLineEdit->setFiltering(true);
-    connect(m_ui.filterLineEdit,
+    m_docsListView->setModel(&m_proxyModel);
+    filterLineEdit->setFiltering(true);
+    connect(filterLineEdit,
             &QLineEdit::textChanged,
             &m_proxyModel,
             &QSortFilterProxyModel::setFilterFixedString);
 
-    connect(m_ui.addButton,
-            &QAbstractButton::clicked,
-            this,
-            &DocSettingsPageWidget::addDocumentation);
-    connect(m_ui.removeButton, &QAbstractButton::clicked, this, [this]() {
+    connect(addButton, &QAbstractButton::clicked, this, &DocSettingsPageWidget::addDocumentation);
+    connect(removeButton, &QAbstractButton::clicked, this, [this]() {
         removeDocumentation(currentSelection());
     });
 
-    m_ui.docsListView->installEventFilter(this);
+    m_docsListView->installEventFilter(this);
 }
 
 void DocSettingsPageWidget::addDocumentation()
 {
-    const FilePaths files =
-        FileUtils::getOpenFilePaths(m_ui.addButton->parentWidget(),
-            tr("Add Documentation"), m_recentDialogPath, tr("Qt Help Files (*.qch)"));
+    const FilePaths files = FileUtils::getOpenFilePaths(Core::ICore::dialogParent(),
+                                                        tr("Add Documentation"),
+                                                        m_recentDialogPath,
+                                                        tr("Qt Help Files (*.qch)"));
 
     if (files.isEmpty())
         return;
@@ -266,8 +301,10 @@ void DocSettingsPageWidget::addDocumentation()
     }
 
     if (!formatedFail.isEmpty()) {
-        QMessageBox::information(m_ui.addButton->parentWidget(), tr("Registration Failed"),
-            tr("Unable to register documentation.") + formatedFail, QMessageBox::Ok);
+        QMessageBox::information(Core::ICore::dialogParent(),
+                                 tr("Registration Failed"),
+                                 tr("Unable to register documentation.") + formatedFail,
+                                 QMessageBox::Ok);
     }
 }
 
@@ -288,7 +325,7 @@ void DocSettingsPageWidget::apply()
 
 bool DocSettingsPageWidget::eventFilter(QObject *object, QEvent *event)
 {
-    if (object != m_ui.docsListView)
+    if (object != m_docsListView)
         return IOptionsPageWidget::eventFilter(object, event);
 
     if (event->type() == QEvent::KeyPress) {
@@ -327,13 +364,15 @@ void DocSettingsPageWidget::removeDocumentation(const QList<QModelIndex> &items)
 
     const int newlySelectedRow = qMax(itemsByDecreasingRow.last().row() - 1, 0);
     const QModelIndex index = m_proxyModel.mapFromSource(m_model.index(newlySelectedRow));
-    m_ui.docsListView->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+    m_docsListView->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
 }
 
 QList<QModelIndex> DocSettingsPageWidget::currentSelection() const
 {
-    return Utils::transform(m_ui.docsListView->selectionModel()->selectedRows(),
-            [this](const QModelIndex &index) { return m_proxyModel.mapToSource(index); });
+    return Utils::transform(m_docsListView->selectionModel()->selectedRows(),
+                            [this](const QModelIndex &index) {
+                                return m_proxyModel.mapToSource(index);
+                            });
 }
 
 DocSettingsPage::DocSettingsPage()

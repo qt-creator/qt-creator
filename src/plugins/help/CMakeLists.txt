@@ -4,7 +4,7 @@ add_qtc_plugin(Help
   PLUGIN_DEPENDS Core ProjectExplorer
   PLUGIN_RECOMMENDS TextEditor
   SOURCES
-    docsettingspage.cpp docsettingspage.h docsettingspage.ui
+    docsettingspage.cpp docsettingspage.h
     filtersettingspage.cpp filtersettingspage.h
     generalsettingspage.cpp generalsettingspage.h generalsettingspage.ui
     help.qrc
