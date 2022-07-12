@@ -1930,7 +1930,7 @@ ShellCommand *GitPluginPrivate::createInitialCheckoutCommand(const QString &url,
     args << extraArgs << url << localName;
 
     auto command = new VcsBase::VcsCommand(baseDirectory, m_gitClient.processEnvironment());
-    command->addFlags(VcsBase::VcsCommand::SuppressStdErr);
+    command->addFlags(ShellCommand::SuppressStdErr);
     command->addJob({m_gitClient.vcsBinary(), args}, -1);
     return command;
 }

@@ -120,9 +120,9 @@ bool MercurialClient::synchronousClone(const FilePath &workingDirectory,
 {
     Q_UNUSED(srcLocation)
     Q_UNUSED(extraOptions)
-    const unsigned flags = VcsCommand::SshPasswordPrompt |
-            VcsCommand::ShowStdOut |
-            VcsCommand::ShowSuccessMessage;
+    const unsigned flags = ShellCommand::SshPasswordPrompt
+                         | ShellCommand::ShowStdOut
+                         | ShellCommand::ShowSuccessMessage;
 
     if (workingDirectory.exists()) {
         // Let's make first init
@@ -169,10 +169,9 @@ bool MercurialClient::synchronousPull(const FilePath &workingDir, const QString 
     QStringList args;
     args << vcsCommandString(PullCommand) << extraOptions << srcLocation;
     // Disable UNIX terminals to suppress SSH prompting
-    const unsigned flags =
-            VcsCommand::SshPasswordPrompt
-            | VcsCommand::ShowStdOut
-            | VcsCommand::ShowSuccessMessage;
+    const unsigned flags = ShellCommand::SshPasswordPrompt
+                         | ShellCommand::ShowStdOut
+                         | ShellCommand::ShowSuccessMessage;
 
     // cause mercurial doesn`t understand LANG
     Environment env = Environment::systemEnvironment();

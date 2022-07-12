@@ -197,8 +197,8 @@ void ChangeSelectionDialog::recalculateCompletion()
     GitClient *client = GitClient::instance();
     VcsBase::VcsCommand *command = client->asyncForEachRefCmd(
                 workingDir, {"--format=%(refname:short)"});
-    connect(this, &QObject::destroyed, command, &VcsBase::VcsCommand::abort);
-    connect(command, &VcsBase::VcsCommand::stdOutText, [this](const QString &output) {
+    connect(this, &QObject::destroyed, command, &ShellCommand::abort);
+    connect(command, &ShellCommand::stdOutText, [this](const QString &output) {
         m_changeModel->setStringList(output.split('\n'));
     });
 }

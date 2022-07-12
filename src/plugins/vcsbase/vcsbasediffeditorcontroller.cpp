@@ -115,11 +115,11 @@ VcsCommandResultProxy::VcsCommandResultProxy(VcsCommand *command,
     : QObject(target->q)
     , m_target(target)
 {
-    connect(command, &VcsCommand::stdOutText,
+    connect(command, &ShellCommand::stdOutText,
             this, &VcsCommandResultProxy::storeOutput);
-    connect(command, &VcsCommand::finished,
+    connect(command, &ShellCommand::finished,
             this, &VcsCommandResultProxy::commandFinished);
-    connect(command, &VcsCommand::destroyed,
+    connect(command, &ShellCommand::destroyed,
             this, &QObject::deleteLater);
 }
 

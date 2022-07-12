@@ -99,11 +99,11 @@ VcsCommand *VcsBaseClientImpl::createCommand(const FilePath &workingDirectory,
     if (editor)
         editor->setCommand(cmd);
     if (mode == VcsWindowOutputBind) {
-        cmd->addFlags(VcsCommand::ShowStdOut);
+        cmd->addFlags(ShellCommand::ShowStdOut);
         if (editor) // assume that the commands output is the important thing
-            cmd->addFlags(VcsCommand::SilentOutput);
+            cmd->addFlags(ShellCommand::SilentOutput);
     } else if (editor) {
-        connect(cmd, &VcsCommand::stdOutText, editor, &VcsBaseEditorWidget::setPlainText);
+        connect(cmd, &ShellCommand::stdOutText, editor, &VcsBaseEditorWidget::setPlainText);
     }
 
     return cmd;
@@ -115,12 +115,11 @@ VcsCommand *VcsBaseClientImpl::execBgCommand(const FilePath &workingDirectory,
                                              unsigned flags) const
 {
     VcsCommand *cmd = createCommand(workingDirectory);
-    cmd->addFlags(flags
-                  | VcsCommand::SuppressCommandLogging
-                  | VcsCommand::SuppressStdErr
-                  | VcsCommand::SuppressFailMessage);
+    cmd->addFlags(flags | ShellCommand::SuppressCommandLogging
+                        | ShellCommand::SuppressStdErr
+                        | ShellCommand::SuppressFailMessage);
     cmd->addJob({vcsBinary(), args});
-    connect(cmd, &VcsCommand::stdOutText, this, outputCallback);
+    connect(cmd, &ShellCommand::stdOutText, this, outputCallback);
     cmd->execute();
     return cmd;
 }
@@ -340,10 +339,9 @@ bool VcsBaseClient::synchronousPull(const FilePath &workingDir,
     QStringList args;
     args << vcsCommandString(PullCommand) << extraOptions << srcLocation;
     // Disable UNIX terminals to suppress SSH prompting
-    const unsigned flags =
-            VcsCommand::SshPasswordPrompt
-            | VcsCommand::ShowStdOut
-            | VcsCommand::ShowSuccessMessage;
+    const unsigned flags = ShellCommand::SshPasswordPrompt
+                         | ShellCommand::ShowStdOut
+                         | ShellCommand::ShowSuccessMessage;
     QtcProcess proc;
     vcsSynchronousExec(proc, workingDir, args, flags);
     const bool ok = proc.result() == ProcessResult::FinishedWithSuccess;
@@ -359,10 +357,9 @@ bool VcsBaseClient::synchronousPush(const FilePath &workingDir,
     QStringList args;
     args << vcsCommandString(PushCommand) << extraOptions << dstLocation;
     // Disable UNIX terminals to suppress SSH prompting
-    const unsigned flags =
-            VcsCommand::SshPasswordPrompt
-            | VcsCommand::ShowStdOut
-            | VcsCommand::ShowSuccessMessage;
+    const unsigned flags = ShellCommand::SshPasswordPrompt
+                         | ShellCommand::ShowStdOut
+                         | ShellCommand::ShowSuccessMessage;
     QtcProcess proc;
     vcsSynchronousExec(proc, workingDir, args, flags);
     return proc.result() == ProcessResult::FinishedWithSuccess;
@@ -478,7 +475,7 @@ void VcsBaseClient::revertFile(const FilePath &workingDir,
     // Indicate repository change or file list
     VcsCommand *cmd = createCommand(workingDir);
     cmd->setCookie(QStringList(workingDir.pathAppended(file).toString()));
-    connect(cmd, &VcsCommand::success, this, &VcsBaseClient::changed, Qt::QueuedConnection);
+    connect(cmd, &ShellCommand::success, this, &VcsBaseClient::changed, Qt::QueuedConnection);
     enqueueJob(cmd, args);
 }
 
@@ -491,7 +488,7 @@ void VcsBaseClient::revertAll(const FilePath &workingDir,
     // Indicate repository change or file list
     VcsCommand *cmd = createCommand(workingDir);
     cmd->setCookie(QStringList(workingDir.toString()));
-    connect(cmd, &VcsCommand::success, this, &VcsBaseClient::changed, Qt::QueuedConnection);
+    connect(cmd, &ShellCommand::success, this, &VcsBaseClient::changed, Qt::QueuedConnection);
     enqueueJob(createCommand(workingDir), args);
 }
 
@@ -503,7 +500,7 @@ void VcsBaseClient::status(const FilePath &workingDir,
     args << extraOptions << file;
     VcsOutputWindow::setRepository(workingDir.toString());
     VcsCommand *cmd = createCommand(workingDir, nullptr, VcsWindowOutputBind);
-    connect(cmd, &VcsCommand::finished,
+    connect(cmd, &ShellCommand::finished,
             VcsOutputWindow::instance(), &VcsOutputWindow::clearRepository,
             Qt::QueuedConnection);
     enqueueJob(cmd, args);
@@ -514,7 +511,7 @@ void VcsBaseClient::emitParsedStatus(const FilePath &repository, const QStringLi
     QStringList args(vcsCommandString(StatusCommand));
     args << extraOptions;
     VcsCommand *cmd = createCommand(repository);
-    connect(cmd, &VcsCommand::stdOutText, this, &VcsBaseClient::statusParser);
+    connect(cmd, &ShellCommand::stdOutText, this, &VcsBaseClient::statusParser);
     enqueueJob(cmd, args);
 }
 
@@ -589,7 +586,7 @@ void VcsBaseClient::update(const FilePath &repositoryRoot, const QString &revisi
     args << revisionSpec(revision) << extraOptions;
     VcsCommand *cmd = createCommand(repositoryRoot);
     cmd->setCookie(repositoryRoot.toString());
-    connect(cmd, &VcsCommand::success, this, &VcsBaseClient::changed, Qt::QueuedConnection);
+    connect(cmd, &ShellCommand::success, this, &VcsBaseClient::changed, Qt::QueuedConnection);
     enqueueJob(cmd, args);
 }
 
@@ -610,7 +607,7 @@ void VcsBaseClient::commit(const FilePath &repositoryRoot,
     args << extraOptions << files;
     VcsCommand *cmd = createCommand(repositoryRoot, nullptr, VcsWindowOutputBind);
     if (!commitMessageFile.isEmpty())
-        connect(cmd, &VcsCommand::finished, [commitMessageFile]() { QFile(commitMessageFile).remove(); });
+        connect(cmd, &ShellCommand::finished, [commitMessageFile]() { QFile(commitMessageFile).remove(); });
     enqueueJob(cmd, args);
 }
 

@@ -56,11 +56,11 @@ VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &envi
     VcsOutputWindow::setRepository(workingDirectory.toString());
     setDisableUnixTerminal();
 
-    connect(this, &VcsCommand::started, this, [this] {
+    connect(this, &ShellCommand::started, this, [this] {
         if (flags() & ExpectRepoChanges)
             GlobalFileChangeBlocker::instance()->forceBlocked(true);
     });
-    connect(this, &VcsCommand::finished, this, [this] {
+    connect(this, &ShellCommand::finished, this, [this] {
         if (flags() & ExpectRepoChanges)
             GlobalFileChangeBlocker::instance()->forceBlocked(false);
     });
@@ -108,7 +108,7 @@ void VcsCommand::addTask(QFuture<void> &future)
 
 void VcsCommand::postRunCommand(const FilePath &workingDirectory)
 {
-    if (m_preventRepositoryChanged || !(flags() & VcsCommand::ExpectRepoChanges))
+    if (m_preventRepositoryChanged || !(flags() & ShellCommand::ExpectRepoChanges))
         return;
     // TODO tell the document manager that the directory now received all expected changes
     // Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);

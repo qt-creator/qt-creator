@@ -69,7 +69,7 @@ public:
                 return *it;
             const QString desc = QString::fromUtf8(
                         GitClient::instance()->synchronousShow(
-                            m_workingDirectory, revision, VcsCommand::NoOutput));
+                            m_workingDirectory, revision, ShellCommand::NoOutput));
             m_descriptions[revision] = desc;
             return desc;
         }
@@ -192,7 +192,7 @@ bool LogChangeWidget::populateLog(const FilePath &repository, const QString &com
     arguments << "--";
     QString output;
     if (!GitClient::instance()->synchronousLog(
-                repository, arguments, &output, nullptr, VcsCommand::NoOutput)) {
+                repository, arguments, &output, nullptr, ShellCommand::NoOutput)) {
         return false;
     }
     const QStringList lines = output.split('\n');

@@ -41,11 +41,6 @@ class VCSBASE_EXPORT VcsCommand : public Utils::ShellCommand
     Q_OBJECT
 
 public:
-    enum VcsRunFlags {
-        SshPasswordPrompt = 0x1000, // Disable terminal on UNIX to force graphical prompt.
-        ExpectRepoChanges = 0x2000, // Expect changes in repository by the command
-    };
-
     VcsCommand(const Utils::FilePath &defaultWorkingDirectory, const Utils::Environment &environment);
 
 protected:

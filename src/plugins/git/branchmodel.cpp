@@ -690,7 +690,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
     } else {
         const QStringList arguments({"-n1", "--format=%H %ct"});
         if (d->client->synchronousLog(d->workingDirectory, arguments, &output, &errorMessage,
-                                      VcsCommand::SuppressCommandLogging)) {
+                                      ShellCommand::SuppressCommandLogging)) {
             const QStringList values = output.split(' ');
             startSha = values[0];
             branchDateTime = QDateTime::fromSecsSinceEpoch(values[1].toLongLong());
@@ -910,7 +910,7 @@ void BranchModel::updateUpstreamStatus(BranchNode *node)
         return;
     VcsCommand *command = d->client->asyncUpstreamStatus(
                 d->workingDirectory, node->fullRef(), node->tracking);
-    QObject::connect(command, &VcsCommand::stdOutText, node, [this, node](const QString &text) {
+    QObject::connect(command, &ShellCommand::stdOutText, node, [this, node](const QString &text) {
         if (text.isEmpty())
             return;
         const QStringList split = text.trimmed().split('\t');
@@ -930,7 +930,7 @@ QString BranchModel::toolTip(const QString &sha) const
     QStringList arguments("-n1");
     arguments << sha;
     if (!d->client->synchronousLog(d->workingDirectory, arguments, &output, &errorMessage,
-                                  VcsCommand::SuppressCommandLogging)) {
+                                   ShellCommand::SuppressCommandLogging)) {
         return errorMessage;
     }
     return output;

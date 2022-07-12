@@ -94,7 +94,7 @@ bool SubversionClient::doCommit(const FilePath &repositoryRoot,
     QStringList args(vcsCommandString(CommitCommand));
     QtcProcess proc;
     vcsSynchronousExec(proc, repositoryRoot, args << svnExtraOptions << escapeFiles(files),
-                       VcsCommand::ShowStdOut | VcsCommand::NoFullySync);
+                       ShellCommand::ShowStdOut | ShellCommand::NoFullySync);
     return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
@@ -223,7 +223,7 @@ void SubversionDiffEditorController::requestDescription()
     args << m_authenticationOptions;
     args << QLatin1String("-r");
     args << QString::number(m_changeNumber);
-    runCommand(QList<QStringList>() << args, VcsCommand::SshPasswordPrompt);
+    runCommand(QList<QStringList>() << args, ShellCommand::SshPasswordPrompt);
 }
 
 void SubversionDiffEditorController::requestDiff()

@@ -439,7 +439,7 @@ bool BranchView::checkout()
         const bool moveChanges = branchCheckoutDialog.moveLocalChangesToNextBranch();
         const bool popStash = branchCheckoutDialog.popStashOfNextBranch();
         if (command && (moveChanges || popStash)) {
-            connect(command, &VcsBase::VcsCommand::finished,
+            connect(command, &ShellCommand::finished,
                     this, [this, client, popMessageStart, moveChanges, popStash] {
                 if (moveChanges) {
                     client->endStashScope(m_repository);

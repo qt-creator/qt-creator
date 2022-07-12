@@ -25,7 +25,6 @@
 
 #include "gitgrep.h"
 #include "gitclient.h"
-#include "gitconstants.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -65,7 +64,6 @@ public:
 
 using namespace Core;
 using namespace Utils;
-using VcsBase::VcsCommand;
 
 namespace {
 
@@ -189,16 +187,16 @@ public:
                     return QString(":!" + filter);
                 });
         arguments << "--" << filterArgs << exclusionArgs;
-        m_command->addFlags(VcsCommand::SilentOutput | VcsCommand::SuppressFailMessage);
+        m_command->addFlags(ShellCommand::SilentOutput | ShellCommand::SuppressFailMessage);
         m_command->setProgressiveOutput(true);
         QFutureWatcher<FileSearchResultList> watcher;
         QObject::connect(&watcher,
                          &QFutureWatcher<FileSearchResultList>::canceled,
                          m_command.get(),
-                         &VcsCommand::cancel);
+                         &ShellCommand::cancel);
         watcher.setFuture(fi.future());
         QObject::connect(m_command.get(),
-                         &VcsCommand::stdOutText,
+                         &ShellCommand::stdOutText,
                          [this, &fi](const QString &text) { read(fi, text); });
         QtcProcess proc;
         proc.setTimeoutS(0);
@@ -222,7 +220,7 @@ private:
     FilePath m_directory;
     QString m_ref;
     TextEditor::FileFindParameters m_parameters;
-    std::unique_ptr<VcsCommand> m_command;
+    std::unique_ptr<ShellCommand> m_command;
 };
 
 } // namespace
