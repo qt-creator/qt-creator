@@ -308,6 +308,14 @@ void ShellCommand::runCommand(QtcProcess &proc,
         emit appendCommand(dir, command);
 
     proc.setCommand(command);
+    if (d->m_disableUnixTerminal)
+        proc.setDisableUnixTerminal();
+    proc.setEnvironment(environment());
+    if (d->m_flags & MergeOutputChannels)
+        proc.setProcessChannelMode(QProcess::MergedChannels);
+    if (d->m_codec)
+        proc.setCodec(d->m_codec);
+
     if ((d->m_flags & FullySynchronously)
             || (!(d->m_flags & NoFullySync)
                 && QThread::currentThread() == QCoreApplication::instance()->thread())) {
@@ -330,15 +338,6 @@ void ShellCommand::runCommand(QtcProcess &proc,
 
 void ShellCommand::runFullySynchronous(QtcProcess &process)
 {
-    // Set up process
-    if (d->m_disableUnixTerminal)
-        process.setDisableUnixTerminal();
-    process.setEnvironment(environment());
-    if (d->m_flags & MergeOutputChannels)
-        process.setProcessChannelMode(QProcess::MergedChannels);
-    if (d->m_codec)
-        process.setCodec(d->m_codec);
-
     process.runBlocking();
 
     if (!d->m_aborted) {
@@ -362,15 +361,9 @@ void ShellCommand::runSynchronous(QtcProcess &process)
         process.stop();
         process.waitForFinished();
     });
-    process.setEnvironment(environment());
-    if (d->m_codec)
-        process.setCodec(d->m_codec);
-    if (d->m_disableUnixTerminal)
-        process.setDisableUnixTerminal();
     // connect stderr to the output window if desired
-    if (d->m_flags & MergeOutputChannels) {
-        process.setProcessChannelMode(QProcess::MergedChannels);
-    } else if (d->m_progressiveOutput || !(d->m_flags & SuppressStdErr)) {
+    if (!(d->m_flags & MergeOutputChannels)
+            && (d->m_progressiveOutput || !(d->m_flags & SuppressStdErr))) {
         process.setStdErrCallback([this](const QString &text) {
             if (d->m_progressParser)
                 d->m_progressParser->parseProgress(text);
@@ -396,10 +389,6 @@ void ShellCommand::runSynchronous(QtcProcess &process)
     }
 
     process.setTimeOutMessageBoxEnabled(true);
-
-    if (d->m_codec)
-        process.setCodec(d->m_codec);
-
     process.runBlocking(EventLoopMode::On);
 }
 
