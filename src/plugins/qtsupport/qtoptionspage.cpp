@@ -26,7 +26,6 @@
 #include "qtoptionspage.h"
 
 #include "qtconfigwidget.h"
-#include "ui_showbuildlog.h"
 #include "ui_qtversionmanager.h"
 #include "ui_qtversioninfo.h"
 #include "qtsupportconstants.h"
@@ -47,7 +46,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/buildablehelperlibrary.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -57,6 +56,7 @@
 #include <utils/variablechooser.h>
 
 #include <QDesktopServices>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
@@ -189,7 +189,6 @@ private:
     void setupLinkWithQtButton();
     QtVersion *currentVersion() const;
     QtVersionItem *currentItem() const;
-    void showDebuggingBuildLog(const QtVersionItem *item);
 
     const QString m_specifyNameString;
 
@@ -525,40 +524,6 @@ void QtOptionsPageWidget::updateVersionItem(QtVersionItem *item)
     const ValidityInfo info = validInformation(item->version());
     item->update();
     item->setIcon(info.icon);
-}
-
-// Non-modal dialog
-class BuildLogDialog : public QDialog {
-public:
-    explicit BuildLogDialog(QWidget *parent = nullptr);
-    void setText(const QString &text);
-
-private:
-    Ui_ShowBuildLog m_ui;
-};
-
-BuildLogDialog::BuildLogDialog(QWidget *parent) : QDialog(parent)
-{
-    m_ui.setupUi(this);
-    setAttribute(Qt::WA_DeleteOnClose, true);
-}
-
-void BuildLogDialog::setText(const QString &text)
-{
-    m_ui.log->setPlainText(text); // Show and scroll to bottom
-    m_ui.log->moveCursor(QTextCursor::End);
-    m_ui.log->ensureCursorVisible();
-}
-
-void QtOptionsPageWidget::showDebuggingBuildLog(const QtVersionItem *item)
-{
-    QtVersion *version = item->version();
-    if (!version)
-        return;
-    BuildLogDialog *dialog = new BuildLogDialog(this->window());
-    dialog->setWindowTitle(tr("Debugging Helper Build Log for \"%1\"").arg(version->displayName()));
-    dialog->setText(item->buildLog());
-    dialog->show();
 }
 
 void QtOptionsPageWidget::updateQtVersions(const QList<int> &additions, const QList<int> &removals,

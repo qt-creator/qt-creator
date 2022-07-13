@@ -99,7 +99,6 @@ Project {
             "qtversionmanager.cpp",
             "qtversionmanager.h",
             "qtversionmanager.ui",
-            "showbuildlog.ui",
             "translationwizardpage.cpp",
             "translationwizardpage.h",
             "uicgenerator.cpp",
