@@ -41,7 +41,7 @@ private:
                const Utils::Environment &environment);
 
     void addTask(const QFuture<void> &future);
-    void postRunCommand(const Utils::FilePath &workDirectory) override;
+    void postRunCommand(const Utils::FilePath &workDirectory);
 
     QPointer<Core::FutureProgress> m_progress;
     bool m_preventRepositoryChanged;

@@ -223,11 +223,6 @@ void ShellCommand::cancel()
     emit terminate();
 }
 
-void ShellCommand::postRunCommand(const FilePath &workingDirectory)
-{
-    Q_UNUSED(workingDirectory)
-}
-
 int ShellCommand::timeoutS() const
 {
     return std::accumulate(d->m_jobs.cbegin(), d->m_jobs.cend(), 0,
@@ -337,7 +332,7 @@ void ShellCommand::runCommand(QtcProcess &proc,
             emit appendError(proc.exitMessage());
         }
     }
-    postRunCommand(dir);
+    emit runCommandFinished(dir);
 }
 
 void ShellCommand::runFullySynchronous(QtcProcess &process)

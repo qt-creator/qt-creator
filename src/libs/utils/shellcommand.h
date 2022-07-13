@@ -149,6 +149,7 @@ signals:
     void appendMessage(const QString &text);
 
     void executedAsync(const QFuture<void> &future);
+    void runCommandFinished(const Utils::FilePath &workingDirectory);
 
 protected:
     void setEnvironment(const Environment &env);
@@ -156,7 +157,6 @@ protected:
     int timeoutS() const;
 
 private:
-    virtual void postRunCommand(const Utils::FilePath &workDirectory);
     FilePath workDirectory(const FilePath &wd) const;
     void run(QFutureInterface<void> &future);
 

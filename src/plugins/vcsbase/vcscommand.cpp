@@ -79,6 +79,7 @@ VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &envi
     connect(this, &ShellCommand::appendMessage, outputWindow, &VcsOutputWindow::appendMessage);
 
     connect(this, &ShellCommand::executedAsync, this, &VcsCommand::addTask);
+    connect(this, &ShellCommand::runCommandFinished, this, &VcsCommand::postRunCommand);
 }
 
 void VcsCommand::addTask(const QFuture<void> &future)
