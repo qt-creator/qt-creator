@@ -190,6 +190,12 @@ public:
             .template valuesWithTransaction<Utils::SmallString>(32, &typeId);
     }
 
+    std::vector<Utils::SmallString> functionDeclarationNames(TypeId typeId) const
+    {
+        return selectFuncionDeclarationNamesForTypeStatement
+            .template valuesWithTransaction<Utils::SmallString>(32, &typeId);
+    }
+
     Utils::optional<Utils::SmallString> propertyName(PropertyDeclarationId propertyDeclarationId) const
     {
         return selectPropertyNameStatement.template optionalValueWithTransaction<Utils::SmallString>(
@@ -2953,6 +2959,16 @@ public:
         "      SELECT prototypeId FROM types JOIN typeChain "
         "        USING(typeId) WHERE prototypeId IS NOT NULL)"
         "SELECT name FROM typeChain JOIN signalDeclarations "
+        "  USING(typeId) ORDER BY name",
+        database};
+    mutable ReadStatement<1, 1> selectFuncionDeclarationNamesForTypeStatement{
+        "WITH RECURSIVE "
+        "  typeChain(typeId) AS ("
+        "      VALUES(?1)"
+        "    UNION ALL "
+        "      SELECT prototypeId FROM types JOIN typeChain "
+        "        USING(typeId) WHERE prototypeId IS NOT NULL)"
+        "SELECT name FROM typeChain JOIN functionDeclarations "
         "  USING(typeId) ORDER BY name",
         database};
 };

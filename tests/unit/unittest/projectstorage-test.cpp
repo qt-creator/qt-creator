@@ -787,7 +787,7 @@ protected:
                  Storage::Synchronization::ImportedType{"Object"},
                  Storage::PropertyDeclarationTraits::IsList
                      | Storage::PropertyDeclarationTraits::IsReadOnly}},
-            {},
+            {Storage::Synchronization::FunctionDeclaration{"values", {}, {}}},
             {Storage::Synchronization::SignalDeclaration{"valuesChanged", {}}}});
         package.types.push_back(Storage::Synchronization::Type{
             "QObject2",
@@ -806,7 +806,7 @@ protected:
                  Storage::Synchronization::ImportedType{"Object3"},
                  Storage::PropertyDeclarationTraits::IsList
                      | Storage::PropertyDeclarationTraits::IsReadOnly}},
-            {},
+            {Storage::Synchronization::FunctionDeclaration{"items", {}, {}}},
             {Storage::Synchronization::SignalDeclaration{"itemsChanged", {}}}});
         package.types.push_back(Storage::Synchronization::Type{
             "QObject3",
@@ -825,7 +825,7 @@ protected:
                  Storage::Synchronization::ImportedType{"Object2"},
                  Storage::PropertyDeclarationTraits::IsList
                      | Storage::PropertyDeclarationTraits::IsReadOnly}},
-            {},
+            {Storage::Synchronization::FunctionDeclaration{"objects", {}, {}}},
             {Storage::Synchronization::SignalDeclaration{"objectsChanged", {}}}});
 
         package.updatedSourceIds.push_back(sourceId1);
@@ -5739,6 +5739,50 @@ TEST_F(ProjectStorage, GetOnlySignalDeclarationNamesFromUpIntoThePrototypeChain)
     auto signalNames = storage.signalDeclarationNames(typeId);
 
     ASSERT_THAT(signalNames, ElementsAre("itemsChanged", "valuesChanged"));
+}
+
+TEST_F(ProjectStorage, GetFunctionDeclarationNames)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject3");
+
+    auto functionNames = storage.functionDeclarationNames(typeId);
+
+    ASSERT_THAT(functionNames, ElementsAre("items", "objects", "values"));
+}
+
+TEST_F(ProjectStorage, GetFunctionDeclarationNamesAreOrdered)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject3");
+
+    auto functionNames = storage.functionDeclarationNames(typeId);
+
+    ASSERT_THAT(functionNames, StringsAreSorted());
+}
+
+TEST_F(ProjectStorage, GetNoFunctionDeclarationNamesForInvalidTypeId)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "WrongObject");
+
+    auto functionNames = storage.functionDeclarationNames(typeId);
+
+    ASSERT_THAT(functionNames, IsEmpty());
+}
+
+TEST_F(ProjectStorage, GetOnlyFunctionDeclarationNamesFromUpIntoThePrototypeChain)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject2");
+
+    auto functionNames = storage.functionDeclarationNames(typeId);
+
+    ASSERT_THAT(functionNames, ElementsAre("items", "values"));
 }
 
 } // namespace
