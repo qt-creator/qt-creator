@@ -32,10 +32,7 @@
 #include <QHash>
 #include <QSharedPointer>
 #include <QStringList>
-
-QT_BEGIN_NAMESPACE
-class QUrl;
-QT_END_NAMESPACE
+#include <QUrl>
 
 namespace Utils {
 class QrcParser;
