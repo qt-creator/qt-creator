@@ -28,7 +28,6 @@
 #include "vcsoutputwindow.h"
 #include "vcsplugin.h"
 
-#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
@@ -90,7 +89,7 @@ void VcsCommand::addTask(const QFuture<void> &future)
     const QString name = displayName();
     const auto id = Id::fromString(name + QLatin1String(".action"));
     if (hasProgressParser()) {
-        m_progress = ProgressManager::addTask(future, name, id);
+        ProgressManager::addTask(future, name, id);
     } else {
         // add a timed tasked based on timeout
         // we cannot access the future interface directly, so we need to create a new one
@@ -103,7 +102,7 @@ void VcsCommand::addTask(const QFuture<void> &future)
             watcher->deleteLater();
         });
         watcher->setFuture(future);
-        m_progress = ProgressManager::addTimedTask(*fi, name, id, qMax(2, timeoutS() / 5)/*itsmagic*/);
+        ProgressManager::addTimedTask(*fi, name, id, qMax(2, timeoutS() / 5)/*itsmagic*/);
     }
 
     Internal::VcsPlugin::addFuture(future);

@@ -25,10 +25,7 @@
 
 #pragma once
 
-#include <coreplugin/progressmanager/futureprogress.h>
 #include <utils/shellcommand.h>
-
-#include <QPointer>
 
 namespace VcsBase {
 
@@ -43,7 +40,6 @@ private:
     void addTask(const QFuture<void> &future);
     void postRunCommand(const Utils::FilePath &workDirectory);
 
-    QPointer<Core::FutureProgress> m_progress;
     bool m_preventRepositoryChanged;
 
     friend class VcsBaseClientImpl;
