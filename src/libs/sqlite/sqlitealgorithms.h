@@ -34,14 +34,7 @@ namespace Sqlite {
 
 constexpr int compare(Utils::SmallStringView first, Utils::SmallStringView second) noexcept
 {
-    auto difference = std::char_traits<char>::compare(first.data(),
-                                                      second.data(),
-                                                      std::min(first.size(), second.size()));
-
-    if (difference == 0)
-        return int(first.size() - second.size());
-
-    return difference;
+    return first.compare(second);
 }
 
 enum class UpdateChange { No, Update };

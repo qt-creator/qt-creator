@@ -113,35 +113,39 @@ public:
     }
 };
 
-constexpr bool operator==(SmallStringView first, SmallStringView second) noexcept
-{
-    return first.size() == second.size()
-           && std::char_traits<char>::compare(first.data(), second.data(), first.size()) == 0;
-}
-
 constexpr bool operator!=(SmallStringView first, SmallStringView second) noexcept
 {
-    return !(first == second);
+    return std::string_view{first} != std::string_view{second};
 }
 
-constexpr int compare(SmallStringView first, SmallStringView second) noexcept
+constexpr bool operator==(SmallStringView first, SmallStringView second) noexcept
 {
-    int sizeDifference = int(first.size() - second.size());
-
-    if (sizeDifference == 0)
-        return std::char_traits<char>::compare(first.data(), second.data(), first.size());
-
-    return sizeDifference;
+    return std::string_view{first} == std::string_view{second};
 }
 
 constexpr bool operator<(SmallStringView first, SmallStringView second) noexcept
 {
-    return compare(first, second) < 0;
+    return std::string_view{first} < std::string_view{second};
 }
 
 constexpr bool operator>(SmallStringView first, SmallStringView second) noexcept
 {
-    return second < first;
+    return std::string_view{first} > std::string_view{second};
+}
+
+constexpr bool operator<=(SmallStringView first, SmallStringView second) noexcept
+{
+    return std::string_view{first} <= std::string_view{second};
+}
+
+constexpr bool operator>=(SmallStringView first, SmallStringView second) noexcept
+{
+    return std::string_view{first} >= std::string_view{second};
+}
+
+constexpr int compare(SmallStringView first, SmallStringView second) noexcept
+{
+    return first.compare(second);
 }
 
 namespace Internal {
@@ -168,12 +172,12 @@ constexpr int reverse_memcmp(const char *first, const char *second, size_t n)
 
 constexpr int reverseCompare(SmallStringView first, SmallStringView second) noexcept
 {
-    int sizeDifference = int(first.size() - second.size());
+    int difference = Internal::reverse_memcmp(first.data(), second.data(), first.size());
 
-    if (sizeDifference == 0)
-        return Internal::reverse_memcmp(first.data(), second.data(), first.size());
+    if (difference == 0)
+        return int(first.size()) - int(second.size());
 
-    return sizeDifference;
+    return difference;
 }
 
 } // namespace Utils
