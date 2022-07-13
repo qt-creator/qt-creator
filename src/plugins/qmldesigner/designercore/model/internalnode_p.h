@@ -125,6 +125,9 @@ public:
     int nodeSourceType() const;
     void setNodeSourceType(int i);
 
+    QString behaviorPropertyName() const;
+    void setBehaviorPropertyName(const QString &name);
+
 protected:
     Pointer internalPointer() const;
     void setInternalWeakPointer(const Pointer &pointer);
@@ -151,6 +154,8 @@ private:
 
     QString m_nodeSource;
     int m_nodeSourceType = 0;
+
+    QString m_behaviorPropertyName;
 };
 
 Utils::QHashValueType qHash(const InternalNodePointer& node);

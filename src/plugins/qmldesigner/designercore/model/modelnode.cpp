@@ -1436,4 +1436,12 @@ QIcon ModelNode::typeIcon() const
     return QIcon(QStringLiteral(":/ItemLibrary/images/item-invalid-icon.png"));
 }
 
+QString ModelNode::behaviorPropertyName() const
+{
+    if (m_internalNode.isNull())
+        return {};
+
+    return m_internalNode->behaviorPropertyName();
+}
+
 }

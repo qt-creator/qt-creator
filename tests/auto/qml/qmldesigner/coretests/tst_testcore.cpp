@@ -1248,6 +1248,103 @@ void tst_TestCore::testRewriterReparentToNewNode()
     QCOMPARE(testRewriterView->allModelNodes().count(), 8);
 }
 
+void tst_TestCore::testRewriterBehaivours()
+{
+    const QLatin1String qmlString("\n"
+                                  "import QtQuick 2.0\n"
+                                  "\n"
+                                  "Item {\n"
+                                  "  Item {}\n"
+                                  "  Item {}\n"
+                                  "  Behavior on width {\n"
+                                  "      NumberAnimation { duration: 1000 }\n"
+                                  "  }\n"
+                                  "  Item {}\n"
+                                  "}\n");
+
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(qmlString);
+    NotIndentingTextEditModifier modifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle"));
+
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView(0, RewriterView::Amend));
+    testRewriterView->setTextModifier(&modifier);
+    model->attachView(testRewriterView.data());
+
+    QVERIFY(testRewriterView->errors().isEmpty());
+
+    ModelNode rootModelNode = testRewriterView->rootModelNode();
+    QVERIFY(rootModelNode.isValid());
+
+    const QList<ModelNode> children = rootModelNode.directSubModelNodes();
+
+    QCOMPARE(children.count(), 4);
+
+    ModelNode behavior;
+    for (const ModelNode &child : children) {
+        if (child.type() == "QtQuick.Behavior")
+            behavior = child;
+    }
+
+    QVERIFY(behavior.isValid());
+    QVERIFY(!behavior.behaviorPropertyName().isEmpty());
+    QCOMPARE(behavior.behaviorPropertyName(), "width");
+
+    QVERIFY(!behavior.directSubModelNodes().isEmpty());
+
+    ModelNode animation = behavior.directSubModelNodes().first();
+
+    QVERIFY(animation.isValid());
+
+    NodeMetaInfo metaInfo = behavior.metaInfo();
+
+    QVERIFY(metaInfo.isValid());
+
+    ModelNode newBehavior = testRewriterView->createModelNode("QtQuick.Behavior",
+                                                              metaInfo.majorVersion(),
+                                                              metaInfo.minorVersion(),
+                                                              {},
+                                                              {},
+                                                              {},
+                                                              ModelNode::NodeWithoutSource,
+                                                              "height");
+
+    rootModelNode.defaultNodeListProperty().reparentHere(newBehavior);
+
+    QCOMPARE(newBehavior.behaviorPropertyName(), "height");
+
+    metaInfo = animation.metaInfo();
+    QVERIFY(metaInfo.isValid());
+    ModelNode newAnimation = testRewriterView->createModelNode(metaInfo.typeName(),
+                                                               metaInfo.majorVersion(),
+                                                               metaInfo.minorVersion());
+
+    newBehavior.defaultNodeListProperty().reparentHere(newAnimation);
+
+    newAnimation.variantProperty("duration").setValue(500);
+
+    const QLatin1String expextedQmlCode(
+        "\nimport QtQuick 2.0\n\n"
+        "Item {\n  Item {}\n  Item {}\n"
+        "  Behavior on width {\n  "
+        "    NumberAnimation { duration: 1000 }\n"
+        "  }\n"
+        "  Item {}\n\n"
+        "  Behavior on height {\n"
+        "  NumberAnimation {\n"
+        "  duration: 500\n"
+        "  }\n  }\n}\n");
+
+
+    QCOMPARE(textEdit.toPlainText(), expextedQmlCode);
+
+    newBehavior.destroy();
+
+    QVERIFY(!newBehavior.isValid());
+}
+
 void tst_TestCore::testRewriterForGradientMagic()
 {
     const QLatin1String qmlString("\n"

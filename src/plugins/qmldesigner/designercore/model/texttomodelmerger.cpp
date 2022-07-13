@@ -1183,6 +1183,15 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                                  ReadingContext *context,
                                  DifferenceHandler &differenceHandler)
 {
+    auto binding = AST::cast<AST::UiObjectBinding *>(astNode);
+
+    const bool hasOnToken = binding && binding->hasOnToken;
+
+    QString onTokenProperty;
+
+    if (hasOnToken)
+        onTokenProperty =  toString(binding->qualifiedId);
+
     AST::UiQualifiedId *astObjectType = qualifiedTypeNameId(astNode);
     AST::UiObjectInitializer *astInitializer = initializerOfObject(astNode);
 
@@ -1219,10 +1228,10 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
     bool isImplicitComponent = modelNode.hasParentProperty() && propertyIsComponentType(modelNode.parentProperty(), typeName, modelNode.model());
 
-
-    if (modelNode.type() != typeName //If there is no valid parentProperty                                                                                                      //the node has just been created. The type is correct then.
-            || modelNode.majorVersion() != majorVersion
-            || modelNode.minorVersion() != minorVersion) {
+    if (modelNode.type()
+            != typeName //If there is no valid parentProperty                                                                                                      //the node has just been created. The type is correct then.
+        || modelNode.majorVersion() != majorVersion || modelNode.minorVersion() != minorVersion
+        || modelNode.behaviorPropertyName() != onTokenProperty) {
         const bool isRootNode = m_rewriterView->rootModelNode() == modelNode;
         differenceHandler.typeDiffers(isRootNode, modelNode, typeName,
                                       majorVersion, minorVersion,
@@ -1289,7 +1298,8 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         } else if (auto binding = AST::cast<AST::UiObjectBinding *>(member)) {
             const QString astPropertyName = toString(binding->qualifiedId);
             if (binding->hasOnToken) {
-                // skip value sources
+                // Store Behaviours in the default property
+                defaultPropertyItems.append(member);
             } else {
                 const Value *propertyType = nullptr;
                 const ObjectValue *containingObject = nullptr;
@@ -1685,6 +1695,13 @@ ModelNode TextToModelMerger::createModelNode(const TypeName &typeName,
 {
     QString nodeSource;
 
+    auto binding = AST::cast<AST::UiObjectBinding *>(astNode);
+
+    const bool hasOnToken = binding && binding->hasOnToken;
+
+    QString onTokenProperty;
+    if (hasOnToken)
+        onTokenProperty =  toString(binding->qualifiedId);
 
     AST::UiQualifiedId *astObjectType = qualifiedTypeNameId(astNode);
 
@@ -1716,7 +1733,8 @@ ModelNode TextToModelMerger::createModelNode(const TypeName &typeName,
                                                         PropertyListType(),
                                                         PropertyListType(),
                                                         nodeSource,
-                                                        nodeSourceType);
+                                                        nodeSourceType,
+                                                        onTokenProperty);
 
     syncNode(newNode, astNode, context, differenceHandler);
     return newNode;

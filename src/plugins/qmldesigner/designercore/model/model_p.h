@@ -103,6 +103,7 @@ public:
                                    const QList<QPair<PropertyName, QVariant> > &auxPropertyList,
                                    const QString &nodeSource,
                                    ModelNode::NodeSourceType nodeSourceType,
+                                   const QString &behaviorPropertyName,
                                    bool isRootNode = false);
 
 

@@ -145,6 +145,7 @@ private slots:
     void testRewriterUnicodeChars();
     void testRewriterTransactionAddingAfterReparenting();
     void testRewriterReparentToNewNode();
+    void testRewriterBehaivours();
 
     //
     // unit tests QmlModelNodeFacade/QmlModelState

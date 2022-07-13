@@ -97,9 +97,11 @@ ModelPrivate::ModelPrivate(Model *model)
                                     0,
                                     PropertyListType(),
                                     PropertyListType(),
-                                    QString(),
+                                    {},
                                     ModelNode::NodeWithoutSource,
+                                    {},
                                     true);
+
     m_currentStateNode = m_rootInternalNode;
     m_currentTimelineNode = m_rootInternalNode;
 }
@@ -250,6 +252,7 @@ InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
                                              const QList<QPair<PropertyName, QVariant>> &auxPropertyList,
                                              const QString &nodeSource,
                                              ModelNode::NodeSourceType nodeSourceType,
+                                             const QString &behaviorPropertyName,
                                              bool isRootNode)
 {
     if (typeName.isEmpty())
@@ -262,6 +265,8 @@ InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
 
     InternalNodePointer newNode = InternalNode::create(typeName, majorVersion, minorVersion, internalId);
     newNode->setNodeSourceType(nodeSourceType);
+
+    newNode->setBehaviorPropertyName(behaviorPropertyName);
 
     using PropertyPair = QPair<PropertyName, QVariant>;
 

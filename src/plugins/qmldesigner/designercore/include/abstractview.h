@@ -112,12 +112,13 @@ public:
     ModelNode createModelNode(const TypeName &typeName);
 
     ModelNode createModelNode(const TypeName &typeName,
-                         int majorVersion,
-                         int minorVersion,
-                         const PropertyListType &propertyList = PropertyListType(),
-                         const PropertyListType &auxPropertyList = PropertyListType(),
-                         const QString &nodeSource = QString(),
-                         ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource);
+                              int majorVersion,
+                              int minorVersion,
+                              const PropertyListType &propertyList = PropertyListType(),
+                              const PropertyListType &auxPropertyList = PropertyListType(),
+                              const QString &nodeSource = {},
+                              ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource,
+                              const QString &behaviorPropertyName = {});
 
     ModelNode rootModelNode() const;
     ModelNode rootModelNode();
