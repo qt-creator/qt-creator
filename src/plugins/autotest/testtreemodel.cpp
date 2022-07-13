@@ -30,7 +30,6 @@
 #include "testcodeparser.h"
 #include "testframeworkmanager.h"
 #include "testprojectsettings.h"
-#include "testsettings.h"
 
 #include <cppeditor/cppmodelmanager.h>
 #include <projectexplorer/buildsystem.h>

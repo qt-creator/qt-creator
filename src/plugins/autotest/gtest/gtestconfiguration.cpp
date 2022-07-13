@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "gtestconfiguration.h"
-#include "gtestconstants.h"
+
 #include "gtestoutputreader.h"
 #include "gtestsettings.h"
 #include "../autotestplugin.h"

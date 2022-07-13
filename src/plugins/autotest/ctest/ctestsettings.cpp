@@ -26,6 +26,7 @@
 #include "ctestsettings.h"
 
 #include "../autotestconstants.h"
+#include "../autotesttr.h"
 
 #include <utils/layoutbuilder.h>
 
@@ -39,30 +40,30 @@ CTestSettings::CTestSettings()
 
     registerAspect(&outputOnFail);
     outputOnFail.setSettingsKey("OutputOnFail");
-    outputOnFail.setLabelText(tr("Output on failure"));
+    outputOnFail.setLabelText(Tr::tr("Output on failure"));
     outputOnFail.setDefaultValue(true);
 
     registerAspect(&outputMode);
     outputMode.setSettingsKey("OutputMode");
-    outputMode.setLabelText(tr("Output mode"));
+    outputMode.setLabelText(Tr::tr("Output mode"));
     outputMode.setDisplayStyle(Utils::SelectionAspect::DisplayStyle::ComboBox);
-    outputMode.addOption({tr("Default"), {}, 0});
-    outputMode.addOption({tr("Verbose"), {}, 1});
-    outputMode.addOption({tr("Very Verbose"), {}, 2});
+    outputMode.addOption({Tr::tr("Default"), {}, 0});
+    outputMode.addOption({Tr::tr("Verbose"), {}, 1});
+    outputMode.addOption({Tr::tr("Very Verbose"), {}, 2});
 
     registerAspect(&repetitionMode);
     repetitionMode.setSettingsKey("RepetitionMode");
-    repetitionMode.setLabelText(tr("Repetition mode"));
+    repetitionMode.setLabelText(Tr::tr("Repetition mode"));
     repetitionMode.setDisplayStyle(Utils::SelectionAspect::DisplayStyle::ComboBox);
-    repetitionMode.addOption({tr("Until Fail"), {}, 0});
-    repetitionMode.addOption({tr("Until Pass"), {}, 1});
-    repetitionMode.addOption({tr("After Timeout"), {}, 2});
+    repetitionMode.addOption({Tr::tr("Until Fail"), {}, 0});
+    repetitionMode.addOption({Tr::tr("Until Pass"), {}, 1});
+    repetitionMode.addOption({Tr::tr("After Timeout"), {}, 2});
 
     registerAspect(&repetitionCount);
     repetitionCount.setSettingsKey("RepetitionCount");
     repetitionCount.setDefaultValue(1);
-    repetitionCount.setLabelText(tr("Count"));
-    repetitionCount.setToolTip(tr("Number of re-runs for the test."));
+    repetitionCount.setLabelText(Tr::tr("Count"));
+    repetitionCount.setToolTip(Tr::tr("Number of re-runs for the test."));
     repetitionCount.setRange(1, 10000);
 
     registerAspect(&repeat);
@@ -70,31 +71,31 @@ CTestSettings::CTestSettings()
 
     registerAspect(&scheduleRandom);
     scheduleRandom.setSettingsKey("ScheduleRandom");
-    scheduleRandom.setLabelText(tr("Schedule random"));
+    scheduleRandom.setLabelText(Tr::tr("Schedule random"));
 
     registerAspect(&stopOnFailure);
     stopOnFailure.setSettingsKey("StopOnFail");
-    stopOnFailure.setLabelText(tr("Stop on failure"));
+    stopOnFailure.setLabelText(Tr::tr("Stop on failure"));
 
     registerAspect(&parallel);
     parallel.setSettingsKey("Parallel");
-    parallel.setToolTip(tr("Run tests in parallel mode using given number of jobs."));
+    parallel.setToolTip(Tr::tr("Run tests in parallel mode using given number of jobs."));
 
     registerAspect(&jobs);
     jobs.setSettingsKey("Jobs");
-    jobs.setLabelText(tr("Jobs"));
+    jobs.setLabelText(Tr::tr("Jobs"));
     jobs.setDefaultValue(1);
     jobs.setRange(1, 128);
 
     registerAspect(&testLoad);
     testLoad.setSettingsKey("TestLoad");
-    testLoad.setLabelText(tr("Test load"));
-    testLoad.setToolTip(tr("Try not to start tests when they may cause CPU load to pass a "
+    testLoad.setLabelText(Tr::tr("Test load"));
+    testLoad.setToolTip(Tr::tr("Try not to start tests when they may cause CPU load to pass a "
                            "threshold."));
 
     registerAspect(&threshold);
     threshold.setSettingsKey("Threshold");
-    threshold.setLabelText(tr("Threshold"));
+    threshold.setLabelText(Tr::tr("Threshold"));
     threshold.setDefaultValue(1);
     threshold.setRange(1, 128);
     threshold.setEnabler(&testLoad);
@@ -140,7 +141,7 @@ CTestSettingsPage::CTestSettingsPage(CTestSettings *settings, Utils::Id settings
 {
     setId(settingsId);
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
-    setDisplayName(tr("CTest"));
+    setDisplayName(Tr::tr("CTest"));
 
     setSettings(settings);
 
@@ -154,11 +155,11 @@ CTestSettingsPage::CTestSettingsPage(CTestSettings *settings, Utils::Id settings
             Row {s.stopOnFailure}, br,
             Row {s.outputMode}, br,
             Group {
-                title(tr("Repeat tests"), &s.repeat),
+                title(Tr::tr("Repeat tests"), &s.repeat),
                 Row {s.repetitionMode, s.repetitionCount},
             }, br,
             Group {
-                title(tr("Run in parallel"), &s.parallel),
+                title(Tr::tr("Run in parallel"), &s.parallel),
                 Column {
                     Row {s.jobs}, br,
                     Row {s.testLoad, s.threshold}

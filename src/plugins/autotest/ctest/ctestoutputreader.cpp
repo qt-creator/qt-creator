@@ -25,6 +25,7 @@
 #include "ctestoutputreader.h"
 
 #include "ctesttreeitem.h"
+#include "../autotesttr.h"
 #include "../testframeworkmanager.h"
 #include "../testresult.h"
 
@@ -111,7 +112,7 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
         m_project = match.captured(1);
         TestResultPtr testResult = createDefaultResult();
         testResult->setResult(ResultType::TestStart);
-        testResult->setDescription(tr("Running tests for %1").arg(m_project));
+        testResult->setDescription(Tr::tr("Running tests for %1").arg(m_project));
         reportResult(testResult);
     } else if (ExactMatch match = testCase1.match(line)) {
         int current = match.captured("current").toInt();

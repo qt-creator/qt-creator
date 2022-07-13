@@ -24,9 +24,11 @@
 ****************************************************************************/
 
 #include "qttesttreeitem.h"
+
 #include "qttestconfiguration.h"
 #include "qttestparser.h"
-#include "qttestframework.h"
+#include "../autotesttr.h"
+#include "../itestframework.h"
 
 #include <cppeditor/cppmodelmanager.h>
 #include <projectexplorer/session.h>
@@ -62,10 +64,9 @@ QVariant QtTestTreeItem::data(int column, int role) const
     case Qt::ToolTipRole: {
         QString toolTip = TestTreeItem::data(column, role).toString();
         if (m_multiTest && type() == TestCase) {
-            toolTip.append(QCoreApplication::translate("QtTestTreeItem",
-                            "<p>Multiple testcases inside a single executable are not officially "
-                            "supported. Depending on the implementation they might get executed "
-                            "or not, but never will be explicitly selectable.</p>"));
+            toolTip.append(Tr::tr("<p>Multiple testcases inside a single executable are not officially "
+                                  "supported. Depending on the implementation they might get executed "
+                                  "or not, but never will be explicitly selectable.</p>"));
         }
         return toolTip;
         break;
@@ -438,8 +439,9 @@ TestTreeItem *QtTestTreeItem::findChildByNameAndInheritanceAndMultiTest(const QS
 
 QString QtTestTreeItem::nameSuffix() const
 {
-    static const QString inherited{QCoreApplication::translate("QtTestTreeItem", "inherited")};
-    static const QString multi{QCoreApplication::translate("QtTestTreeItem", "multiple testcases")};
+    static const QString inherited = Tr::tr("inherited");
+    static const QString multi = Tr::tr("multiple testcases");
+
     QString suffix;
     if (m_inherited)
         suffix.append(inherited);

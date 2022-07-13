@@ -23,9 +23,12 @@
 ****************************************************************************/
 
 #include "catchtreeitem.h"
-#include "catchtestparser.h"
+
 #include "catchconfiguration.h"
-#include "catchframework.h"
+#include "../autotesttr.h"
+#include "../testtreeitem.h"
+#include "../itestparser.h"
+#include "../itestframework.h"
 
 #include <cppeditor/cppmodelmanager.h>
 #include <projectexplorer/project.h>
@@ -321,9 +324,9 @@ QString CatchTreeItem::stateSuffix() const
 {
     QStringList types;
     if (m_state & CatchTreeItem::Parameterized)
-        types.append(QCoreApplication::translate("CatchTreeItem", "parameterized"));
+        types.append(Tr::tr("parameterized"));
     if (m_state & CatchTreeItem::Fixture)
-        types.append(QCoreApplication::translate("CatchTreeItem", "fixture"));
+        types.append(Tr::tr("fixture"));
     return types.isEmpty() ? QString() : QString(" [" + types.join(", ") + ']');
 }
 

@@ -26,6 +26,7 @@
 #include "testtreeitem.h"
 
 #include "autotestconstants.h"
+#include "autotesttr.h"
 #include "itestframework.h"
 #include "itestparser.h"
 #include "testconfiguration.h"
@@ -66,9 +67,8 @@ QVariant ITestTreeItem::data(int /*column*/, int role) const
     switch (role) {
     case Qt::DisplayRole:
         if (m_type == Root && childCount() == 0)
-            return QCoreApplication::translate("TestTreeItem", "%1 (none)").arg(m_name);
-        else
-            return m_name;
+            return Tr::tr("%1 (none)").arg(m_name);
+        return m_name;
     case Qt::ToolTipRole:
         return m_filePath.toString();
     case Qt::DecorationRole:

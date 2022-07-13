@@ -25,12 +25,11 @@
 #include "catchoutputreader.h"
 #include "catchresult.h"
 
+#include "../autotesttr.h"
 #include "../testtreeitem.h"
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-
-#include <QFileInfo>
 
 namespace Autotest {
 namespace Internal {
@@ -245,28 +244,28 @@ void CatchOutputReader::sendResult(const ResultType result)
     catchResult->setResult(result);
 
     if (result == ResultType::TestStart && m_testCaseInfo.size() > 0) {
-        catchResult->setDescription(tr("Executing %1 \"%2\"").arg(testOutputNodeToString().toLower())
+        catchResult->setDescription(Tr::tr("Executing %1 \"%2\"").arg(testOutputNodeToString().toLower())
                                     .arg(catchResult->description()));
     } else if (result == ResultType::Pass || result == ResultType::UnexpectedPass) {
         if (result == ResultType::UnexpectedPass)
             ++m_xpassCount;
 
         if (m_currentExpression.isEmpty()) {
-            catchResult->setDescription(tr("%1 \"%2\" passed").arg(testOutputNodeToString())
+            catchResult->setDescription(Tr::tr("%1 \"%2\" passed").arg(testOutputNodeToString())
                                         .arg(catchResult->description()));
         } else {
-            catchResult->setDescription(tr("Expression passed")
+            catchResult->setDescription(Tr::tr("Expression passed")
                                         .append('\n').append(m_currentExpression));
         }
         m_reportedSectionResult = true;
         m_reportedResult = true;
     } else if (result == ResultType::Fail || result == ResultType::ExpectedFail) {
-        catchResult->setDescription(tr("Expression failed: %1").arg(m_currentExpression.trimmed()));
+        catchResult->setDescription(Tr::tr("Expression failed: %1").arg(m_currentExpression.trimmed()));
         if (!m_reportedSectionResult)
             m_reportedSectionResult = true;
         m_reportedResult = true;
     } else if (result == ResultType::TestEnd) {
-        catchResult->setDescription(tr("Finished executing %1 \"%2\"").arg(testOutputNodeToString().toLower())
+        catchResult->setDescription(Tr::tr("Finished executing %1 \"%2\"").arg(testOutputNodeToString().toLower())
                                     .arg(catchResult->description()));
     } else if (result == ResultType::Benchmark) {
         catchResult->setDescription(m_currentExpression);

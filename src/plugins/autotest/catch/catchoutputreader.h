@@ -26,7 +26,6 @@
 
 #include "../testoutputreader.h"
 
-#include <QCoreApplication>
 #include <QStack>
 #include <QXmlStreamReader>
 
@@ -35,8 +34,6 @@ namespace Internal {
 
 class CatchOutputReader : public TestOutputReader
 {
-    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::CatchOutputReader)
-
 public:
     CatchOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
                       Utils::QtcProcess *testApplication, const Utils::FilePath &buildDirectory,

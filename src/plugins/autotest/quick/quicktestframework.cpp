@@ -28,6 +28,7 @@
 #include "quicktesttreeitem.h"
 
 #include "../autotestconstants.h"
+#include "../autotesttr.h"
 #include "../testframeworkmanager.h"
 #include "../qtest/qttestconstants.h"
 
@@ -52,7 +53,7 @@ const char *QuickTestFramework::name() const
 
 QString QuickTestFramework::displayName() const
 {
-    return QCoreApplication::translate("QuickTestFramework", "Quick Test");
+    return Tr::tr("Quick Test");
 }
 
 unsigned QuickTestFramework::priority() const

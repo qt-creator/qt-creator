@@ -27,7 +27,6 @@
 
 #include "autotesticons.h"
 #include "autotestplugin.h"
-#include "testresultdelegate.h"
 #include "testrunner.h"
 #include "testsettings.h"
 #include "testtreeitem.h"

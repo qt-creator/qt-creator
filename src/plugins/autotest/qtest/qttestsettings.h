@@ -43,7 +43,6 @@ enum MetricsType
 
 class QtTestSettings : public Utils::AspectContainer
 {
-    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::QtTestSettings)
 public:
     QtTestSettings();
 

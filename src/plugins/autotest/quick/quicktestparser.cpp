@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "quicktestparser.h"
-#include "quicktestframework.h"
+
 #include "quicktesttreeitem.h"
 #include "quicktestvisitors.h"
 #include "quicktest_utils.h"

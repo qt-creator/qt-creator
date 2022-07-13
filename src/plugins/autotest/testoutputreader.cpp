@@ -25,6 +25,7 @@
 
 #include "testoutputreader.h"
 
+#include "autotesttr.h"
 #include "testresult.h"
 #include "testresultspane.h"
 #include "testtreeitem.h"
@@ -93,7 +94,7 @@ void TestOutputReader::processStdError(const QByteArray &outputLine)
 void TestOutputReader::reportCrash()
 {
     TestResultPtr result = createDefaultResult();
-    result->setDescription(tr("Test executable crashed."));
+    result->setDescription(Tr::tr("Test executable crashed."));
     result->setResult(ResultType::MessageFatal);
     m_futureInterface.reportResult(result);
 }

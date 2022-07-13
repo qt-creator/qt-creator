@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "qttestparser.h"
-#include "qttestframework.h"
+
 #include "qttestvisitors.h"
 
 #include <cppeditor/cppmodelmanager.h>

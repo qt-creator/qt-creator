@@ -28,7 +28,6 @@
 #include "qttestconstants.h"
 #include "../testoutputreader.h"
 
-#include <QCoreApplication>
 #include <QXmlStreamReader>
 
 namespace Autotest {
@@ -38,8 +37,6 @@ class QtTestResult;
 
 class QtTestOutputReader : public TestOutputReader
 {
-    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::QtTestOutputReader)
-
 public:
     enum OutputMode
     {

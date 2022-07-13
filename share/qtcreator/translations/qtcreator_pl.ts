@@ -37290,11 +37290,7 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
-    </message>
+    <name>Autotest</name>
     <message>
         <source>General</source>
         <translation>Ogólne</translation>
@@ -37578,7 +37574,7 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::AutotestPlugin</name>
+    <name>Autotest</name>
     <message>
         <source>&amp;Tests</source>
         <translation>&amp;Testy</translation>
@@ -37609,7 +37605,7 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestCodeParser</name>
+    <name>Autotest</name>
     <message>
         <source>AutoTest Plugin WARNING: No files left after filtering test scan folders. Check test filter settings.</source>
         <translation>Ostrzeżenie wtyczki AutoTest: Brak plików po przeskanowaniu przefiltrowanych katalogów z testami. Sprawdź ustawienia filtra testów.</translation>
@@ -37620,14 +37616,10 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestNavigationWidget</name>
+    <name>Autotest</name>
     <message>
         <source>Tests</source>
         <translation>Testy</translation>
-    </message>
-    <message>
-        <source>No active test frameworks.</source>
-        <translation>Brak aktywnych frameworków testowych.</translation>
     </message>
     <message>
         <source>Run This Test</source>
@@ -37683,14 +37675,7 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestNavigationWidgetFactory</name>
-    <message>
-        <source>Tests</source>
-        <translation>Testy</translation>
-    </message>
-</context>
-<context>
-    <name>Autotest::Internal::QtTestOutputReader</name>
+    <name>Autotest</name>
     <message>
         <source>%1 %2 per iteration (total: %3, iterations: %4)</source>
         <translation>%1 %2 na iterację (w sumie: %3, ilość iteracji: %4)</translation>
@@ -37737,7 +37722,7 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::GTestOutputReader</name>
+    <name>Autotest</name>
     <message>
         <source>(iteration %1)</source>
         <translation>(iteracja %1)</translation>
@@ -37759,23 +37744,12 @@ Te pliki są zabezpieczone.</numerusform>
         <translation>Powtarzanie wariantu testu %1 (iteracja %2)</translation>
     </message>
     <message>
-        <source>Executing test case %1</source>
-        <translation>Wykonywanie wariantu testu %1</translation>
-    </message>
-    <message>
         <source>Entering test set %1</source>
         <translation>Wejście do zestawu testów %1</translation>
     </message>
     <message>
         <source>Execution took %1.</source>
         <translation>Wykonanie zajęło %1.</translation>
-    </message>
-</context>
-<context>
-    <name>Autotest::Internal::TestResultsPane</name>
-    <message>
-        <source>Expand All</source>
-        <translation>Rozwiń wszystko</translation>
     </message>
     <message>
         <source>Run All Tests</source>
@@ -37900,7 +37874,7 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestRunner</name>
+    <name>Autotest</name>
     <message>
         <source>Test run canceled by user.</source>
         <translation>Wykonywanie testów anulowane przez użytkownika.</translation>
@@ -39395,14 +39369,14 @@ po naciśnięciu klawisza backspace</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestRunConfiguration</name>
+    <name>Autotest</name>
     <message>
         <source>AutoTest Debug</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestSettingsWidget</name>
+    <name>Autotest</name>
     <message>
         <source>No active test frameworks.</source>
         <translation>Brak aktywnych frameworków testowych.</translation>
@@ -40349,11 +40323,7 @@ w ścieżce.</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::GTestSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
-    </message>
+    <name>Autotest</name>
     <message>
         <source>Break on failure while debugging</source>
         <translation>Zatrzymuj na błędach podczas debugowania</translation>
@@ -40408,7 +40378,7 @@ w ścieżce.</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::QtTestSettingsPage</name>
+    <name>Autotest</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>

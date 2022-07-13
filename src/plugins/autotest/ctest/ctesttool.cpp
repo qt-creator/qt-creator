@@ -25,6 +25,7 @@
 
 #include "ctesttool.h"
 #include "ctesttreeitem.h"
+#include "../autotesttr.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
@@ -52,7 +53,7 @@ const char *CTestTool::name() const
 
 QString CTestTool::displayName() const
 {
-    return QCoreApplication::translate("CTestTool", "CTest");
+    return Tr::tr("CTest");
 }
 
 ITestTreeItem *CTestTool::createRootNode()

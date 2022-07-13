@@ -26,8 +26,6 @@
 
 #include "../testoutputreader.h"
 
-#include <QCoreApplication>
-
 namespace Utils { class QtcProcess; }
 
 namespace Autotest {
@@ -35,7 +33,6 @@ namespace Internal {
 
 class CTestOutputReader final : public Autotest::TestOutputReader
 {
-    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::CTestOutputReader)
 public:
     CTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
                       Utils::QtcProcess *testApplication, const Utils::FilePath &buildDirectory);

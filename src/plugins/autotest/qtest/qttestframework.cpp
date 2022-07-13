@@ -24,9 +24,11 @@
 ****************************************************************************/
 
 #include "qttestframework.h"
+
 #include "qttestconstants.h"
 #include "qttestparser.h"
 #include "qttesttreeitem.h"
+#include "../autotesttr.h"
 
 namespace Autotest {
 namespace Internal {
@@ -51,8 +53,7 @@ const char *QtTestFramework::name() const
 
 QString QtTestFramework::displayName() const
 {
-    return QCoreApplication::translate("QtTestFramework",
-                                       QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY);
+    return Tr::tr(QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY);
 }
 
 unsigned QtTestFramework::priority() const

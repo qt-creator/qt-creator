@@ -24,14 +24,14 @@
 ****************************************************************************/
 
 #include "gtestoutputreader.h"
+
 #include "gtestresult.h"
-#include "../testtreemodel.h"
 #include "../testtreeitem.h"
+#include "../autotesttr.h"
+
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 
-#include <QDir>
-#include <QFileInfo>
 #include <QRegularExpression>
 
 namespace Autotest {
@@ -48,7 +48,7 @@ GTestOutputReader::GTestOutputReader(const QFutureInterface<TestResultPtr> &futu
         connect(m_testApplication, &Utils::QtcProcess::done, this, [this] {
             const int exitCode = m_testApplication->exitCode();
             if (exitCode == 1 && !m_description.isEmpty()) {
-                createAndReportResult(tr("Running tests failed.\n %1\nExecutable: %2")
+                createAndReportResult(Tr::tr("Running tests failed.\n %1\nExecutable: %2")
                                       .arg(m_description).arg(id()), ResultType::MessageFatal);
             }
             // on Windows abort() will result in normal termination, but exit code will be set to 3
@@ -91,7 +91,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
         } else if (line.startsWith(QStringLiteral("Note:"))) {
             m_description = line;
             if (m_iteration > 1)
-                m_description.append(' ' + tr("(iteration %1)").arg(m_iteration));
+                m_description.append(' ' + Tr::tr("(iteration %1)").arg(m_iteration));
             TestResultPtr testResult = TestResultPtr(new GTestResult(id(), m_projectFile, QString()));
             testResult->setResult(ResultType::MessageInternal);
             testResult->setDescription(m_description);
@@ -107,7 +107,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
     if (ExactMatch match = testEnds.match(line)) {
         TestResultPtr testResult = createDefaultResult();
         testResult->setResult(ResultType::TestEnd);
-        testResult->setDescription(tr("Test execution took %1").arg(match.captured(2)));
+        testResult->setDescription(Tr::tr("Test execution took %1").arg(match.captured(2)));
         reportResult(testResult);
         m_currentTestSuite.clear();
         m_currentTestCase.clear();
@@ -116,10 +116,10 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
         TestResultPtr testResult = createDefaultResult();
         testResult->setResult(ResultType::TestStart);
         if (m_iteration > 1) {
-            testResult->setDescription(tr("Repeating test suite %1 (iteration %2)")
+            testResult->setDescription(Tr::tr("Repeating test suite %1 (iteration %2)")
                                        .arg(m_currentTestSuite).arg(m_iteration));
         } else {
-            testResult->setDescription(tr("Executing test suite %1").arg(m_currentTestSuite));
+            testResult->setDescription(Tr::tr("Executing test suite %1").arg(m_currentTestSuite));
         }
         reportResult(testResult);
     } else if (ExactMatch match = newTestSetStarts.match(line)) {
@@ -128,7 +128,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
         TestResultPtr testResult = TestResultPtr(new GTestResult(QString(), m_projectFile,
                                                                  QString()));
         testResult->setResult(ResultType::MessageCurrentTest);
-        testResult->setDescription(tr("Entering test case %1").arg(m_currentTestCase));
+        testResult->setDescription(Tr::tr("Entering test case %1").arg(m_currentTestCase));
         reportResult(testResult);
         m_description.clear();
     } else if (ExactMatch match = testSetSuccess.match(line)) {
@@ -140,7 +140,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
         m_description.clear();
         testResult = createDefaultResult();
         testResult->setResult(ResultType::MessageInternal);
-        testResult->setDescription(tr("Execution took %1.").arg(match.captured(2)));
+        testResult->setDescription(Tr::tr("Execution took %1.").arg(match.captured(2)));
         reportResult(testResult);
         m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
     } else if (ExactMatch match = testSetFail.match(line)) {
@@ -151,7 +151,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
         handleDescriptionAndReportResult(testResult);
         testResult = createDefaultResult();
         testResult->setResult(ResultType::MessageInternal);
-        testResult->setDescription(tr("Execution took %1.").arg(match.captured(2)));
+        testResult->setDescription(Tr::tr("Execution took %1.").arg(match.captured(2)));
         reportResult(testResult);
         m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
     } else if (ExactMatch match = testSetSkipped.match(line)) {
@@ -165,7 +165,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
         handleDescriptionAndReportResult(testResult);
         testResult = createDefaultResult();
         testResult->setResult(ResultType::MessageInternal);
-        testResult->setDescription(tr("Execution took %1.").arg(match.captured(2)));
+        testResult->setDescription(Tr::tr("Execution took %1.").arg(match.captured(2)));
         reportResult(testResult);
     } else if (ExactMatch match = logging.match(line)) {
         const QString severity = match.captured(1).trimmed();

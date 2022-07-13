@@ -27,7 +27,7 @@
 
 #include "autotestconstants.h"
 #include "autotestplugin.h"
-#include "testframeworkmanager.h"
+#include "autotesttr.h"
 #include "testprojectsettings.h"
 #include "testtreemodel.h"
 
@@ -67,14 +67,14 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(ProjectExplorer::Project *p
     m_activeFrameworks = new QTreeWidget;
     m_activeFrameworks->setHeaderHidden(true);
     m_activeFrameworks->setRootIsDecorated(false);
-    groupBoxLayout->addWidget(new QLabel(tr("Active frameworks:")));
+    groupBoxLayout->addWidget(new QLabel(Tr::tr("Active frameworks:")));
     groupBoxLayout->addWidget(m_activeFrameworks);
     auto horizontalLayout = new QHBoxLayout;
-    horizontalLayout->addWidget(new QLabel(tr("Automatically run tests after build")));
+    horizontalLayout->addWidget(new QLabel(Tr::tr("Automatically run tests after build")));
     m_runAfterBuild = new QComboBox;
-    m_runAfterBuild->addItem(tr("None"));
-    m_runAfterBuild->addItem(tr("All"));
-    m_runAfterBuild->addItem(tr("Selected"));
+    m_runAfterBuild->addItem(Tr::tr("None"));
+    m_runAfterBuild->addItem(Tr::tr("All"));
+    m_runAfterBuild->addItem(Tr::tr("Selected"));
     m_runAfterBuild->setCurrentIndex(int(m_projectSettings->runAfterBuild()));
     horizontalLayout->addWidget(m_runAfterBuild);
     horizontalLayout->addItem(createSpacer(QSizePolicy::Expanding, QSizePolicy::Minimum));

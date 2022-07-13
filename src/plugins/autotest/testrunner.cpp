@@ -27,6 +27,7 @@
 
 #include "autotestconstants.h"
 #include "autotestplugin.h"
+#include "autotesttr.h"
 #include "itestframework.h"
 #include "testoutputreader.h"
 #include "testprojectsettings.h"
@@ -101,7 +102,7 @@ TestRunner::TestRunner()
     connect(&m_futureWatcher, &QFutureWatcher<TestResultPtr>::canceled,
             this, [this]() {
         cancelCurrent(UserCanceled);
-        reportResult(ResultType::MessageFatal, tr("Test run canceled by user."));
+        reportResult(ResultType::MessageFatal, Tr::tr("Test run canceled by user."));
     });
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
             this, &TestRunner::onBuildQueueFinished);
@@ -156,16 +157,16 @@ static QString rcInfo(const ITestConfiguration * const config)
     const TestConfiguration *current = static_cast<const TestConfiguration *>(config);
     QString info;
     if (current->isDeduced())
-        info = TestRunner::tr("\nRun configuration: deduced from \"%1\"");
+        info = Tr::tr("\nRun configuration: deduced from \"%1\"");
     else
-        info = TestRunner::tr("\nRun configuration: \"%1\"");
+        info = Tr::tr("\nRun configuration: \"%1\"");
     return info.arg(current->runConfigDisplayName());
 }
 
 static QString constructOmittedDetailsString(const QStringList &omitted)
 {
-    return TestRunner::tr("Omitted the following arguments specified on the run "
-                          "configuration page for \"%1\":") + '\n' + omitted.join('\n');
+    return Tr::tr("Omitted the following arguments specified on the run "
+                  "configuration page for \"%1\":") + '\n' + omitted.join('\n');
 }
 
 static QString constructOmittedVariablesDetailsString(const Utils::EnvironmentItems &diff)
@@ -173,7 +174,7 @@ static QString constructOmittedVariablesDetailsString(const Utils::EnvironmentIt
     auto removedVars = Utils::transform<QStringList>(diff, [](const Utils::EnvironmentItem &it) {
         return it.name;
     });
-    return TestRunner::tr("Omitted the following environment variables for \"%1\":")
+    return Tr::tr("Omitted the following environment variables for \"%1\":")
             + '\n' + removedVars.join('\n');
 }
 
@@ -189,7 +190,7 @@ bool TestRunner::currentConfigValid()
     }
     if (commandFilePath.isEmpty()) {
         reportResult(ResultType::MessageFatal,
-                     tr("Executable path is empty. (%1)").arg(m_currentConfig->displayName()));
+                     Tr::tr("Executable path is empty. (%1)").arg(m_currentConfig->displayName()));
         delete m_currentConfig;
         m_currentConfig = nullptr;
         if (m_selectedTests.isEmpty()) {
@@ -297,9 +298,9 @@ void TestRunner::cancelCurrent(TestRunner::CancelReason reason)
         m_fakeFutureInterface->reportCanceled();
 
     if (reason == KitChanged)
-        reportResult(ResultType::MessageWarn, tr("Current kit has changed. Canceling test run."));
+        reportResult(ResultType::MessageWarn, Tr::tr("Current kit has changed. Canceling test run."));
     else if (reason == Timeout)
-        reportResult(ResultType::MessageFatal, tr("Test case canceled due to timeout.\nMaybe raise the timeout?"));
+        reportResult(ResultType::MessageFatal, Tr::tr("Test case canceled due to timeout.\nMaybe raise the timeout?"));
 
     // if user or timeout cancels the current run ensure to kill the running process
     if (m_currentProcess && m_currentProcess->state() != QProcess::NotRunning) {
@@ -312,7 +313,7 @@ void TestRunner::onProcessDone()
 {
     if (m_currentProcess->result() == ProcessResult::StartFailed) {
         reportResult(ResultType::MessageFatal,
-            tr("Failed to start test for project \"%1\".").arg(m_currentConfig->displayName())
+            Tr::tr("Failed to start test for project \"%1\".").arg(m_currentConfig->displayName())
                 + processInformation(m_currentProcess) + rcInfo(m_currentConfig));
     }
 
@@ -325,11 +326,11 @@ void TestRunner::onProcessDone()
                 if (m_currentOutputReader)
                     m_currentOutputReader->reportCrash();
                 reportResult(ResultType::MessageFatal,
-                        tr("Test for project \"%1\" crashed.").arg(m_currentConfig->displayName())
+                        Tr::tr("Test for project \"%1\" crashed.").arg(m_currentConfig->displayName())
                         + processInformation(m_currentProcess) + rcInfo(m_currentConfig));
             } else if (m_currentOutputReader && !m_currentOutputReader->hadValidOutput()) {
                 reportResult(ResultType::MessageFatal,
-                    tr("Test for project \"%1\" did not produce any expected output.")
+                    Tr::tr("Test for project \"%1\" did not produce any expected output.")
                     .arg(m_currentConfig->displayName()) + processInformation(m_currentProcess)
                     + rcInfo(m_currentConfig));
             }
@@ -390,7 +391,7 @@ void TestRunner::prepareToRunTests(TestRunMode mode)
     TestTreeModel::instance()->clearFailedMarks();
 
     if (m_selectedTests.empty()) {
-        reportResult(ResultType::MessageWarn, tr("No tests selected. Canceling test run."));
+        reportResult(ResultType::MessageWarn, Tr::tr("No tests selected. Canceling test run."));
         onFinished();
         return;
     }
@@ -398,9 +399,9 @@ void TestRunner::prepareToRunTests(TestRunMode mode)
     Project *project = m_selectedTests.at(0)->project();
     if (!project) {
         reportResult(ResultType::MessageWarn,
-            tr("Project is null. Canceling test run.\n"
-               "Only desktop kits are supported. Make sure the "
-               "currently active kit is a desktop kit."));
+            Tr::tr("Project is null. Canceling test run.\n"
+                   "Only desktop kits are supported. Make sure the "
+                   "currently active kit is a desktop kit."));
         onFinished();
         return;
     }
@@ -420,7 +421,7 @@ void TestRunner::prepareToRunTests(TestRunMode mode)
         buildProject(project);
     } else {
         reportResult(ResultType::MessageFatal,
-                     tr("Project is not configured. Canceling test run."));
+                     Tr::tr("Project is not configured. Canceling test run."));
         onFinished();
     }
 }
@@ -488,8 +489,8 @@ int TestRunner::precheckTestConfigurations()
                 testCaseCount += itc->testCaseCount();
             } else {
                 reportResult(ResultType::MessageWarn,
-                             tr("Project is null for \"%1\". Removing from test run.\n"
-                                "Check the test environment.").arg(itc->displayName()));
+                             Tr::tr("Project is null for \"%1\". Removing from test run.\n"
+                                    "Check the test environment.").arg(itc->displayName()));
             }
             continue;
         }
@@ -498,7 +499,7 @@ int TestRunner::precheckTestConfigurations()
         if (config->project()) {
             testCaseCount += config->testCaseCount();
             if (!omitWarnings && config->isDeduced()) {
-                QString message = tr(
+                QString message = Tr::tr(
                             "Project's run configuration was deduced for \"%1\".\n"
                             "This might cause trouble during execution.\n"
                             "(deduced from \"%2\")");
@@ -507,8 +508,8 @@ int TestRunner::precheckTestConfigurations()
             }
         } else {
             reportResult(ResultType::MessageWarn,
-                         tr("Project is null for \"%1\". Removing from test run.\n"
-                            "Check the test environment.").arg(config->displayName()));
+                         Tr::tr("Project is null for \"%1\". Removing from test run.\n"
+                                "Check the test environment.").arg(config->displayName()));
         }
     }
     return testCaseCount;
@@ -554,8 +555,8 @@ void TestRunner::runTests()
     qDeleteAll(toBeRemoved);
     toBeRemoved.clear();
     if (m_selectedTests.isEmpty()) {
-        QString mssg = projectChanged ? tr("Startup project has changed. Canceling test run.")
-                                      : tr("No test cases left for execution. Canceling test run.");
+        QString mssg = projectChanged ? Tr::tr("Startup project has changed. Canceling test run.")
+                                      : Tr::tr("No test cases left for execution. Canceling test run.");
 
         reportResult(ResultType::MessageWarn, mssg);
         onFinished();
@@ -571,7 +572,7 @@ void TestRunner::runTests()
     m_fakeFutureInterface->setProgressValue(0);
     m_futureWatcher.setFuture(future);
 
-    Core::ProgressManager::addTask(future, tr("Running Tests"), Autotest::Constants::TASK_INDEX);
+    Core::ProgressManager::addTask(future, Tr::tr("Running Tests"), Autotest::Constants::TASK_INDEX);
     if (AutotestPlugin::settings()->popupOnStart)
         AutotestPlugin::popupResultsPane();
     scheduleNext();
@@ -616,7 +617,7 @@ void TestRunner::debugTests()
     config->completeTestInformation(TestRunMode::Debug);
     if (!config->project()) {
         reportResult(ResultType::MessageWarn,
-                     tr("Startup project has changed. Canceling test run."));
+                     Tr::tr("Startup project has changed. Canceling test run."));
         onFinished();
         return;
     }
@@ -626,14 +627,14 @@ void TestRunner::debugTests()
     }
 
     if (!config->runConfiguration()) {
-        reportResult(ResultType::MessageFatal, tr("Failed to get run configuration."));
+        reportResult(ResultType::MessageFatal, Tr::tr("Failed to get run configuration."));
         onFinished();
         return;
     }
 
     const Utils::FilePath &commandFilePath = config->executableFilePath();
     if (commandFilePath.isEmpty()) {
-        reportResult(ResultType::MessageFatal, tr("Could not find command \"%1\". (%2)")
+        reportResult(ResultType::MessageFatal, Tr::tr("Could not find command \"%1\". (%2)")
                      .arg(config->executableFilePath().toString(), config->displayName()));
         onFinished();
         return;
@@ -671,7 +672,7 @@ void TestRunner::debugTests()
     if (Target *targ = config->project()->activeTarget()) {
         if (Debugger::DebuggerKitAspect::engineType(targ->kit()) == Debugger::CdbEngineType) {
             reportResult(ResultType::MessageWarn,
-                         tr("Unable to display test results when using CDB."));
+                         Tr::tr("Unable to display test results when using CDB."));
             useOutputProcessor = false;
         }
     }
@@ -775,7 +776,7 @@ void TestRunner::buildFinished(bool success)
         else if (m_executingTests)
             onFinished();
     } else {
-        reportResult(ResultType::MessageFatal, tr("Build failed. Canceling test run."));
+        reportResult(ResultType::MessageFatal, Tr::tr("Build failed. Canceling test run."));
         onFinished();
     }
 }
@@ -853,15 +854,15 @@ RunConfigurationSelectionDialog::RunConfigurationSelectionDialog(const QString &
                                                                  QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("Select Run Configuration"));
+    setWindowTitle(Tr::tr("Select Run Configuration"));
 
-    QString details = tr("Could not determine which run configuration to choose for running tests");
+    QString details = Tr::tr("Could not determine which run configuration to choose for running tests");
     if (!buildTargetKey.isEmpty())
         details.append(QString(" (%1)").arg(buildTargetKey));
     m_details = new QLabel(details, this);
     m_rcCombo = new QComboBox(this);
-    m_rememberCB = new QCheckBox(tr("Remember choice. Cached choices can be reset by switching "
-                                    "projects or using the option to clear the cache."), this);
+    m_rememberCB = new QCheckBox(Tr::tr("Remember choice. Cached choices can be reset by switching "
+                                        "projects or using the option to clear the cache."), this);
     m_executable = new QLabel(this);
     m_arguments = new QLabel(this);
     m_workingDir = new QLabel(this);
@@ -872,12 +873,12 @@ RunConfigurationSelectionDialog::RunConfigurationSelectionDialog(const QString &
     auto formLayout = new QFormLayout;
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     formLayout->addRow(m_details);
-    formLayout->addRow(tr("Run Configuration:"), m_rcCombo);
+    formLayout->addRow(Tr::tr("Run Configuration:"), m_rcCombo);
     formLayout->addRow(m_rememberCB);
     formLayout->addRow(createLine(this));
-    formLayout->addRow(tr("Executable:"), m_executable);
-    formLayout->addRow(tr("Arguments:"), m_arguments);
-    formLayout->addRow(tr("Working Directory:"), m_workingDir);
+    formLayout->addRow(Tr::tr("Executable:"), m_executable);
+    formLayout->addRow(Tr::tr("Arguments:"), m_arguments);
+    formLayout->addRow(Tr::tr("Working Directory:"), m_workingDir);
     // TODO Device support
     auto vboxLayout = new QVBoxLayout(this);
     vboxLayout->addLayout(formLayout);

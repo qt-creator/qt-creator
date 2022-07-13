@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "qttestoutputreader.h"
+
 #include "qttestresult.h"
+#include "../autotesttr.h"
 #include "../testtreeitem.h"
 
 #include <qtsupport/qtoutputformatter.h>
@@ -118,7 +120,7 @@ static QString constructBenchmarkInformation(const QString &metric, double value
         metricsText = "instruction reads";
     else if (metric == "CPUCycles")               // -perf
         metricsText = "CPU cycles";
-    return QtTestOutputReader::tr("%1 %2 per iteration (total: %3, iterations: %4)")
+    return Tr::tr("%1 %2 per iteration (total: %3, iterations: %4)")
             .arg(formatResult(value))
             .arg(metricsText)
             .arg(formatResult(value * double(iterations)))
@@ -162,17 +164,17 @@ TestResultPtr QtTestOutputReader::createDefaultResult() const
 
 static QString trQtVersion(const QString &version)
 {
-    return QtTestOutputReader::tr("Qt version: %1").arg(version);
+    return Tr::tr("Qt version: %1").arg(version);
 }
 
 static QString trQtBuild(const QString &build)
 {
-    return QtTestOutputReader::tr("Qt build: %1").arg(build);
+    return Tr::tr("Qt build: %1").arg(build);
 }
 
 static QString trQtestVersion(const QString &test)
 {
-    return QtTestOutputReader::tr("QTest version: %1").arg(test);
+    return Tr::tr("QTest version: %1").arg(test);
 }
 
 void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
@@ -317,7 +319,7 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
             // premature end happens e.g. if not all data has been added to the reader yet
             if (m_xmlReader.error() != QXmlStreamReader::NoError
                     && m_xmlReader.error() != QXmlStreamReader::PrematureEndOfDocumentError) {
-                createAndReportResult(tr("XML parsing failed.")
+                createAndReportResult(Tr::tr("XML parsing failed.")
                                       + QString(" (%1) ").arg(m_xmlReader.error())
                                       + m_xmlReader.errorString(), ResultType::MessageFatal);
             }
@@ -499,7 +501,7 @@ void QtTestOutputReader::sendMessageCurrentTest()
 {
     QtTestResult *testResult = new QtTestResult(QString(), m_projectFile, m_testType, QString());
     testResult->setResult(ResultType::MessageCurrentTest);
-    testResult->setDescription(tr("Entering test function %1::%2").arg(m_className, m_testCase));
+    testResult->setDescription(Tr::tr("Entering test function %1::%2").arg(m_className, m_testCase));
     reportResult(TestResultPtr(testResult));
 }
 
@@ -507,8 +509,8 @@ void QtTestOutputReader::sendStartMessage(bool isFunction)
 {
     TestResultPtr testResult = createDefaultResult();
     testResult->setResult(ResultType::TestStart);
-    testResult->setDescription(isFunction ? tr("Executing test function %1").arg(m_testCase)
-                                          : tr("Executing test case %1").arg(m_className));
+    testResult->setDescription(isFunction ? Tr::tr("Executing test function %1").arg(m_testCase)
+                                          : Tr::tr("Executing test case %1").arg(m_className));
     const ITestTreeItem *testItem = testResult->findTestTreeItem();
     if (testItem && testItem->line()) {
         testResult->setFileName(testItem->filePath());
@@ -522,11 +524,11 @@ void QtTestOutputReader::sendFinishMessage(bool isFunction)
     TestResultPtr testResult = createDefaultResult();
     testResult->setResult(ResultType::TestEnd);
     if (!m_duration.isEmpty()) {
-        testResult->setDescription(isFunction ? tr("Execution took %1 ms.").arg(m_duration)
-                                              : tr("Test execution took %1 ms.").arg(m_duration));
+        testResult->setDescription(isFunction ? Tr::tr("Execution took %1 ms.").arg(m_duration)
+                                              : Tr::tr("Test execution took %1 ms.").arg(m_duration));
     } else {
-        testResult->setDescription(isFunction ? tr("Test function finished.")
-                                              : tr("Test finished."));
+        testResult->setDescription(isFunction ? Tr::tr("Test function finished.")
+                                              : Tr::tr("Test finished."));
     }
     reportResult(testResult);
 }

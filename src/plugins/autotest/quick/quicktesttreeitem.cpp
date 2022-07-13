@@ -24,10 +24,11 @@
 ****************************************************************************/
 
 #include "quicktesttreeitem.h"
+
 #include "quicktestconfiguration.h"
-#include "quicktestframework.h"
 #include "quicktestparser.h"
-#include "../testframeworkmanager.h"
+#include "../autotesttr.h"
+#include "../itestframework.h"
 
 #include <cppeditor/cppmodelmanager.h>
 #include <projectexplorer/session.h>
@@ -36,7 +37,7 @@
 namespace Autotest {
 namespace Internal {
 
-QSet<QString> internalTargets(const Utils::FilePath &proFile);
+static QSet<QString> internalTargets(const Utils::FilePath &proFile);
 
 TestTreeItem *QuickTestTreeItem::copyWithoutChildren()
 {
@@ -50,14 +51,14 @@ QVariant QuickTestTreeItem::data(int column, int role) const
     switch (role) {
     case Qt::DisplayRole:
         if (type() == TestCase && name().isEmpty())
-            return QCoreApplication::translate("QuickTestTreeItem", "<unnamed>");
+            return Tr::tr("<unnamed>");
         break;
     case Qt::ToolTipRole:
         if (type() == TestCase && name().isEmpty())
-            return QCoreApplication::translate("QuickTestTreeItem",
-                                               "<p>Give all test cases a name to ensure correct "
-                                               "behavior when running test cases and to be able to "
-                                               "select them.</p>");
+            return QString("<p>" +
+                Tr::tr("Give all test cases a name to ensure correct "
+                       "behavior when running test cases and to be able to select them")
+                       +  "</p>");
         break;
     case Qt::CheckStateRole:
         switch (type()) {

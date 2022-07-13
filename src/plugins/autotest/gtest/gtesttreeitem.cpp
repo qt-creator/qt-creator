@@ -24,11 +24,12 @@
 ****************************************************************************/
 
 #include "gtesttreeitem.h"
+
 #include "gtestconfiguration.h"
 #include "gtestconstants.h"
 #include "gtestframework.h"
 #include "gtestparser.h"
-#include "../testframeworkmanager.h"
+#include "../autotesttr.h"
 
 #include <cppeditor/cppmodelmanager.h>
 #include <projectexplorer/session.h>
@@ -46,12 +47,12 @@ namespace Internal {
 
 static QString matchingString()
 {
-    return QCoreApplication::translate("GTestTreeItem", "<matching>");
+    return Tr::tr("<matching>");
 }
 
 static QString notMatchingString()
 {
-    return QCoreApplication::translate("GTestTreeItem", "<not matching>");
+    return Tr::tr("<not matching>");
 }
 
 static QString gtestFilter(GTestTreeItem::TestStates states)
@@ -140,8 +141,7 @@ QVariant GTestTreeItem::data(int column, int role) const
         if (type() == GroupNode
                 && GTestFramework::groupMode() == GTest::Constants::GTestFilter) {
             const auto tpl = QString("<p>%1</p><p>%2</p>").arg(filePath().toString());
-            return tpl.arg(QCoreApplication::translate(
-                               "GTestTreeItem", "Change GTest filter in use inside the settings."));
+            return tpl.arg(Tr::tr("Change GTest filter in use inside the settings."));
         }
         break;
     case Qt::CheckStateRole:
@@ -507,8 +507,8 @@ TestTreeItem *GTestTreeItem::findChildByNameStateAndFile(const QString &name,
 
 QString GTestTreeItem::nameSuffix() const
 {
-    static QString markups[] = {QCoreApplication::translate("GTestTreeItem", "parameterized"),
-                                QCoreApplication::translate("GTestTreeItem", "typed")};
+    static QString markups[] = {Tr::tr("parameterized"), Tr::tr("typed")};
+
     QString suffix;
     if (m_state & Parameterized)
         suffix =  QString(" [") + markups[0];

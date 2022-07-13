@@ -34092,7 +34092,7 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestSettingsPage</name>
+    <name>Autotest</name>
     <message>
         <source>General</source>
         <translation>Allgemein</translation>
@@ -34793,7 +34793,7 @@ Allerdings führt die Anwendung der weniger strikten und erweiterten Regeln dazu
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::AutotestPlugin</name>
+    <name>Autotest</name>
     <message>
         <source>&amp;Run Test Under Cursor</source>
         <translation>Test unter Cursor &amp;ausführen</translation>
@@ -34804,33 +34804,17 @@ Allerdings führt die Anwendung der weniger strikten und erweiterten Regeln dazu
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestCodeParser</name>
+    <name>Autotest</name>
     <message>
         <source>Scanning for Tests</source>
         <translation>Suche nach Tests</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestNavigationWidget</name>
-    <message>
-        <source>Tests</source>
-        <translation>Tests</translation>
-    </message>
-    <message>
-        <source>No active test frameworks.</source>
-        <translation>Keine aktiven Test-Frameworks.</translation>
-    </message>
-    <message>
-        <source>Run This Test</source>
-        <translation>Diesen Test starten</translation>
-    </message>
+    <name>Autotest</name>
     <message>
         <source>Run Without Deployment</source>
         <translation>Ausführung ohne Deployment</translation>
-    </message>
-    <message>
-        <source>Debug This Test</source>
-        <translation>Diesen Test debuggen</translation>
     </message>
     <message>
         <source>Debug Without Deployment</source>
@@ -34874,14 +34858,14 @@ Allerdings führt die Anwendung der weniger strikten und erweiterten Regeln dazu
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestNavigationWidgetFactory</name>
+    <name>Autotest</name>
     <message>
         <source>Tests</source>
         <translation>Tests</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::QtTestOutputReader</name>
+    <name>Autotest</name>
     <message>
         <source>%1 %2 per iteration (total: %3, iterations: %4)</source>
         <translation>%1 %2 pro Durchlauf (Summe: %3, Durchläufe: %4)</translation>
@@ -34932,7 +34916,7 @@ Allerdings führt die Anwendung der weniger strikten und erweiterten Regeln dazu
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::GTestOutputReader</name>
+    <name>Autotest</name>
     <message>
         <source>Running tests failed.
  %1
@@ -34950,16 +34934,8 @@ Ausführbare Datei: %2</translation>
         <translation>Wiederhole Test-Suite %1 (%2. Durchlauf)</translation>
     </message>
     <message>
-        <source>Executing test suite %1</source>
-        <translation>Führe Test-Suite %1 aus</translation>
-    </message>
-    <message>
         <source>Entering test case %1</source>
         <translation>Führe Testfall %1 aus</translation>
-    </message>
-    <message>
-        <source>Test execution took %1</source>
-        <translation>Testausführung benötigte %1</translation>
     </message>
     <message>
         <source>Execution took %1.</source>
@@ -34967,11 +34943,7 @@ Ausführbare Datei: %2</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestResultsPane</name>
-    <message>
-        <source>Expand All</source>
-        <translation>Alles aufklappen</translation>
-    </message>
+    <name>Autotest</name>
     <message>
         <source>Stop Test Run</source>
         <translation>Testlauf anhalten</translation>
@@ -35106,7 +35078,7 @@ Ausführbare Datei: %2</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestRunner</name>
+    <name>Autotest</name>
     <message>
         <source>Test run canceled by user.</source>
         <translation>Testlauf durch den Benutzer abgebrochen.</translation>
@@ -36305,14 +36277,14 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestRunConfiguration</name>
+    <name>Autotest</name>
     <message>
         <source>AutoTest Debug</source>
         <translation>AutoTest Debug</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestSettingsWidget</name>
+    <name>Autotest</name>
     <message>
         <source>No active test frameworks.</source>
         <translation>Keine aktiven Test-Frameworks.</translation>
@@ -37051,7 +37023,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::GTestSettingsPage</name>
+    <name>Autotest</name>
     <message>
         <source>Turns failures into debugger breakpoints.</source>
         <translation>Erzeugt aus Fehlern Debugger-Haltepunkte.</translation>
@@ -37132,7 +37104,7 @@ Weitere Informationen über GTest-Filter finden Sie in der Dokumenation von Goog
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::QtTestSettingsPage</name>
+    <name>Autotest</name>
     <message>
         <source>Enables interrupting tests on assertions.</source>
         <translation>Hält Tests bei Assertions an.</translation>
@@ -41147,7 +41119,7 @@ Breche ausstehende Operationen ab...
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::RunConfigurationSelectionDialog</name>
+    <name>Autotest</name>
     <message>
         <source>Select Run Configuration</source>
         <translation>Ausführungskonfiguration auswählen</translation>
@@ -45651,7 +45623,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::AutotestPluginPrivate</name>
+    <name>Autotest</name>
     <message>
         <source>Testing</source>
         <translation>Testen</translation>
@@ -45726,18 +45698,14 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>BoostTestFramework</name>
+    <name>Autotest</name>
     <message>
         <source>Boost Test</source>
         <translation>Boost Test</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::BoostTestOutputReader</name>
-    <message>
-        <source>Executing test case %1</source>
-        <translation>Führe Testfall %1 aus</translation>
-    </message>
+    <name>Autotest</name>
     <message>
         <source>Executing test suite %1</source>
         <translation>Führe Test-Suite %1 aus</translation>
@@ -45748,7 +45716,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>BoostTestTreeItem</name>
+    <name>Autotest</name>
     <message>
         <source>parameterized</source>
         <translation>parametrisiert</translation>
@@ -45763,7 +45731,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::ProjectTestSettingsWidget</name>
+    <name>Autotest</name>
     <message>
         <source>Global</source>
         <translation>Global</translation>
@@ -45772,17 +45740,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Custom</source>
         <translation>Benutzerdefiniert</translation>
     </message>
-    <message>
-        <source>All</source>
-        <translation>Alle</translation>
-    </message>
-    <message>
-        <source>Selected</source>
-        <translation>Ausgewählte</translation>
-    </message>
-</context>
-<context>
-    <name>Autotest::TestOutputReader</name>
     <message>
         <source>Test executable crashed.</source>
         <translation>Die ausführbare Datei des Tests ist abgestürzt.</translation>

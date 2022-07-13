@@ -32,7 +32,7 @@ namespace QtTest {
 namespace Constants {
 
 const char FRAMEWORK_NAME[]              = "QtTest";
-const char FRAMEWORK_SETTINGS_CATEGORY[] = QT_TRANSLATE_NOOP("QtTestFramework", "Qt Test");
+const char FRAMEWORK_SETTINGS_CATEGORY[] = QT_TRANSLATE_NOOP("Autotest", "Qt Test");
 const unsigned FRAMEWORK_PRIORITY        = 1;
 
 } // namespace Constants

@@ -52080,7 +52080,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestSettingsPage</name>
+    <name>Autotest</name>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
@@ -52515,14 +52515,14 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Constants</name>
+    <name>Autotest</name>
     <message>
         <source>&lt;unnamed&gt;</source>
         <translation>&lt;без назви&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::AutotestPlugin</name>
+    <name>Autotest</name>
     <message>
         <source>&amp;Tests</source>
         <translation>&amp;Тести</translation>
@@ -52553,14 +52553,14 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestCodeParser</name>
+    <name>Autotest</name>
     <message>
         <source>Scanning for Tests</source>
         <translation>Пошук тестів</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestNavigationWidget</name>
+    <name>Autotest</name>
     <message>
         <source>Tests</source>
         <translation>Тести</translation>
@@ -52607,18 +52607,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestNavigationWidgetFactory</name>
-    <message>
-        <source>Tests</source>
-        <translation>Тести</translation>
-    </message>
-</context>
-<context>
-    <name>Autotest::Internal::QtTestOutputReader</name>
-    <message>
-        <source>Executing test case %1</source>
-        <translation>Виконання тесту %1</translation>
-    </message>
+    <name>Autotest</name>
     <message>
         <source>Entering test function %1::%2</source>
         <translation>Входження до тестової функції %1::%2</translation>
@@ -52649,7 +52638,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::GTestOutputReader</name>
+    <name>Autotest</name>
     <message numerus="yes">
         <source>You have %n disabled test(s).</source>
         <translation>
@@ -52680,11 +52669,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestResultsPane</name>
-    <message>
-        <source>Expand All</source>
-        <translation>Розгорнути все</translation>
-    </message>
+    <name>Autotest</name>
     <message>
         <source>Run All Tests</source>
         <translation>Виконати усі тести</translation>
@@ -52803,7 +52788,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestRunner</name>
+    <name>Autotest</name>
     <message>
         <source>Project&apos;s run configuration was guessed for &quot;%1&quot;.
 This might cause trouble during execution.</source>
@@ -52834,7 +52819,7 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestTreeModel</name>
+    <name>Autotest</name>
     <message>
         <source>Auto Tests</source>
         <translation>Автотести</translation>

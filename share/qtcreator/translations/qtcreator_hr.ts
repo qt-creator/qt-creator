@@ -1131,7 +1131,7 @@ Odustajanje od izvršavanja neriješenih operacija …
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::GTestSettingsPage</name>
+    <name>Autotest</name>
     <message>
         <source>Turns failures into debugger breakpoints.</source>
         <translation>Pretvara neuspjehe u točke prekida pri uklanjanju grešaka.</translation>
@@ -1212,7 +1212,7 @@ Dodatne dokumente o GTest filtrima potraži u Google Test dokumentaciji.</transl
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::QtTestSettingsPage</name>
+    <name>Autotest</name>
     <message>
         <source>Enables interrupting tests on assertions.</source>
         <translation>Omogućuje prekid testova kod potvrda.</translation>
@@ -1291,7 +1291,7 @@ Upozorenje: Običan tekst propušta neke informacije, kao što je trajanje.</tra
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestSettingsPage</name>
+    <name>Autotest</name>
     <message>
         <source>General</source>
         <translation>Opće</translation>
@@ -15164,7 +15164,7 @@ The files in the Android package source directory are copied to the build direct
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::AutotestPlugin</name>
+    <name>Autotest</name>
     <message>
         <source>&amp;Tests</source>
         <translation type="unfinished"></translation>
@@ -15255,7 +15255,7 @@ See also Google Test settings.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::GTestOutputReader</name>
+    <name>Autotest</name>
     <message>
         <source>Running tests failed.
  %1
@@ -15282,21 +15282,9 @@ Executable: %2</source>
         <source>Repeating test case %1 (iteration %2)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Executing test case %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Entering test set %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Execution took %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
-    <name>GTestTreeItem</name>
+    <name>Autotest</name>
     <message>
         <source>&lt;matching&gt;</source>
         <translation type="unfinished"></translation>
@@ -15319,14 +15307,14 @@ Executable: %2</source>
     </message>
 </context>
 <context>
-    <name>QtTestFramework</name>
+    <name>Autotest</name>
     <message>
         <source>Qt Test</source>
         <translation>Qt test</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::QtTestOutputReader</name>
+    <name>Autotest</name>
     <message>
         <source>%1 %2 per iteration (total: %3, iterations: %4)</source>
         <translation type="unfinished"></translation>
@@ -15377,21 +15365,21 @@ Executable: %2</source>
     </message>
 </context>
 <context>
-    <name>QtTestTreeItem</name>
+    <name>Autotest</name>
     <message>
         <source>inherited</source>
         <translation>naslijeđeno</translation>
     </message>
 </context>
 <context>
-    <name>QuickTestFramework</name>
+    <name>Autotest</name>
     <message>
         <source>Quick Test</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>QuickTestTreeItem</name>
+    <name>Autotest</name>
     <message>
         <source>&lt;unnamed&gt;</source>
         <translation type="unfinished"></translation>
@@ -15402,7 +15390,7 @@ Executable: %2</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestCodeParser</name>
+    <name>Autotest</name>
     <message>
         <source>AutoTest Plugin WARNING: No files left after filtering test scan folders. Check test filter settings.</source>
         <translation type="unfinished"></translation>
@@ -15413,31 +15401,7 @@ Executable: %2</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestNavigationWidget</name>
-    <message>
-        <source>Tests</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No active test frameworks.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run This Test</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run Without Deployment</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Debug This Test</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Debug Without Deployment</source>
-        <translation type="unfinished"></translation>
-    </message>
+    <name>Autotest</name>
     <message>
         <source>Select All</source>
         <translation>Odaberi sve</translation>
@@ -15445,87 +15409,6 @@ Executable: %2</source>
     <message>
         <source>Deselect All</source>
         <translation type="unfinished">Odznači sav odabir</translation>
-    </message>
-    <message>
-        <source>Filter Test Tree</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sort Naturally</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Expand All</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Collapse All</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sort Alphabetically</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Init and Cleanup Functions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Data Functions</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Autotest::Internal::TestNavigationWidgetFactory</name>
-    <message>
-        <source>Tests</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Autotest::Internal::TestOutputReader</name>
-    <message>
-        <source>Test executable crashed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Autotest::Internal::TestResultsPane</name>
-    <message>
-        <source>Expand All</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop Test Run</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Filter Test Results</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Switch Between Visual and Text Display</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Test Results</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pass</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Fail</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Expected Fail</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unexpected Pass</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Skip</source>
@@ -15627,14 +15510,14 @@ Executable: %2</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestRunConfiguration</name>
+    <name>Autotest</name>
     <message>
         <source>AutoTest Debug</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestRunner</name>
+    <name>Autotest</name>
     <message>
         <source>Test run canceled by user.</source>
         <translation type="unfinished"></translation>
@@ -15741,7 +15624,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::RunConfigurationSelectionDialog</name>
+    <name>Autotest</name>
     <message>
         <source>Select Run Configuration</source>
         <translation type="unfinished"></translation>
@@ -15772,7 +15655,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestSettingsWidget</name>
+    <name>Autotest</name>
     <message>
         <source>No active test frameworks.</source>
         <translation type="unfinished"></translation>

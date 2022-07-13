@@ -57,8 +57,6 @@ enum class ReportLevel
 
 class BoostTestSettings : public Utils::AspectContainer
 {
-    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::BoostTestSettings)
-
 public:
     BoostTestSettings();
 

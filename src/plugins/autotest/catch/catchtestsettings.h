@@ -34,8 +34,6 @@ namespace Internal {
 
 class CatchTestSettings : public Utils::AspectContainer
 {
-    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::CatchTestSettings)
-
 public:
     CatchTestSettings();
 

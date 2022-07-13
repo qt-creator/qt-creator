@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #include "boosttestparser.h"
+
 #include "boostcodeparser.h"
-#include "boosttestframework.h"
 #include "boosttesttreeitem.h"
 
 #include <cppeditor/cppmodelmanager.h>

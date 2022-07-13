@@ -28,6 +28,7 @@
 #include "boosttestconstants.h"
 
 #include "../autotestconstants.h"
+#include "../autotesttr.h"
 
 #include <utils/layoutbuilder.h>
 
@@ -56,7 +57,7 @@ BoostTestSettings::BoostTestSettings()
     logLevel.addOption("Fatal Error");
     logLevel.addOption("Nothing");
     logLevel.setDefaultValue(int(LogLevel::Warning));
-    logLevel.setLabelText(tr("Log format:"));
+    logLevel.setLabelText(Tr::tr("Log format:"));
 
     registerAspect(&reportLevel);
     reportLevel.setSettingsKey("ReportLevel");
@@ -66,48 +67,47 @@ BoostTestSettings::BoostTestSettings()
     reportLevel.addOption("Detailed");
     reportLevel.addOption("No");
     reportLevel.setDefaultValue(int(ReportLevel::Confirm));
-    reportLevel.setLabelText(tr("Report level:"));
+    reportLevel.setLabelText(Tr::tr("Report level:"));
 
     registerAspect(&seed);
     seed.setSettingsKey("Seed");
     seed.setEnabled(false);
-    seed.setLabelText(tr("Seed:"));
-    seed.setToolTip(tr("A seed of 0 means no randomization. A value of 1 uses the current "
+    seed.setLabelText(Tr::tr("Seed:"));
+    seed.setToolTip(Tr::tr("A seed of 0 means no randomization. A value of 1 uses the current "
         "time, any other value is used as random seed generator."));
     seed.setEnabler(&randomize);
 
     registerAspect(&randomize);
     randomize.setSettingsKey("Randomize");
     randomize.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
-    randomize.setLabelText(tr("Randomize"));
-    randomize.setToolTip(tr("Randomize execution order."));
+    randomize.setLabelText(Tr::tr("Randomize"));
+    randomize.setToolTip(Tr::tr("Randomize execution order."));
 
     registerAspect(&systemErrors);
     systemErrors.setSettingsKey("SystemErrors");
     systemErrors.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
-    systemErrors.setLabelText(tr("Catch system errors"));
-    systemErrors.setToolTip(tr("Catch or ignore system errors."));
+    systemErrors.setLabelText(Tr::tr("Catch system errors"));
+    systemErrors.setToolTip(Tr::tr("Catch or ignore system errors."));
 
     registerAspect(&fpExceptions);
     fpExceptions.setSettingsKey("FPExceptions");
     fpExceptions.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
-    fpExceptions.setLabelText(tr("Floating point exceptions"));
-    fpExceptions.setToolTip(tr("Enable floating point exception traps."));
+    fpExceptions.setLabelText(Tr::tr("Floating point exceptions"));
+    fpExceptions.setToolTip(Tr::tr("Enable floating point exception traps."));
 
     registerAspect(&memLeaks);
     memLeaks.setSettingsKey("MemoryLeaks");
     memLeaks.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
     memLeaks.setDefaultValue(true);
-    memLeaks.setLabelText(tr("Detect memory leaks"));
-    memLeaks.setToolTip(tr("Enable memory leak detection."));
+    memLeaks.setLabelText(Tr::tr("Detect memory leaks"));
+    memLeaks.setToolTip(Tr::tr("Enable memory leak detection."));
 }
 
 BoostTestSettingsPage::BoostTestSettingsPage(BoostTestSettings *settings, Utils::Id settingsId)
 {
     setId(settingsId);
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
-    setDisplayName(QCoreApplication::translate("BoostTestFramework",
-                                               BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
+    setDisplayName(Tr::tr(BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
     setSettings(settings);
 
     setLayouter([settings](QWidget *widget) {

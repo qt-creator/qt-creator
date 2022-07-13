@@ -27,15 +27,11 @@
 
 #include "../testoutputreader.h"
 
-#include <QCoreApplication>
-
 namespace Autotest {
 namespace Internal {
 
 class GTestOutputReader : public TestOutputReader
 {
-    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::GTestOutputReader)
-
 public:
     GTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
                       Utils::QtcProcess *testApplication, const Utils::FilePath &buildDirectory,

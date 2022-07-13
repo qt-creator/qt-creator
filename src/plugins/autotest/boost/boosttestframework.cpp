@@ -24,10 +24,11 @@
 ****************************************************************************/
 
 #include "boosttestframework.h"
+
 #include "boosttestconstants.h"
 #include "boosttesttreeitem.h"
 #include "boosttestparser.h"
-#include "../testframeworkmanager.h"
+#include "../autotesttr.h"
 
 namespace Autotest {
 namespace Internal {
@@ -52,8 +53,7 @@ const char *BoostTestFramework::name() const
 
 QString BoostTestFramework::displayName() const
 {
-    return QCoreApplication::translate("BoostTestFramework",
-                                       BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY);
+    return Tr::tr(BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY);
 }
 
 unsigned BoostTestFramework::priority() const

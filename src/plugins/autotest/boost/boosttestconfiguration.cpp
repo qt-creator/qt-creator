@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "boosttestconfiguration.h"
-#include "boosttestconstants.h"
+
 #include "boosttestoutputreader.h"
 #include "boosttestsettings.h"
 

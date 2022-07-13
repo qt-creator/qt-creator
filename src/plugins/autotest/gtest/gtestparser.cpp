@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "gtestparser.h"
-#include "gtestframework.h"
+
 #include "gtesttreeitem.h"
 #include "gtestvisitors.h"
 #include "gtest_utils.h"

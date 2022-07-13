@@ -27,6 +27,7 @@
 
 #include "autotesticons.h"
 #include "autotestplugin.h"
+#include "autotesttr.h"
 #include "itestframework.h"
 #include "testeditormark.h"
 #include "testresultdelegate.h"
@@ -177,7 +178,7 @@ void TestResultsPane::createToolButtons()
 {
     m_expandCollapse = new QToolButton(m_treeView);
     m_expandCollapse->setIcon(Utils::Icons::EXPAND_ALL_TOOLBAR.icon());
-    m_expandCollapse->setToolTip(tr("Expand All"));
+    m_expandCollapse->setToolTip(Tr::tr("Expand All"));
     m_expandCollapse->setCheckable(true);
     m_expandCollapse->setChecked(false);
     connect(m_expandCollapse, &QToolButton::clicked, [this] (bool checked) {
@@ -212,13 +213,13 @@ void TestResultsPane::createToolButtons()
 
     m_stopTestRun = new QToolButton(m_treeView);
     m_stopTestRun->setIcon(Utils::Icons::STOP_SMALL_TOOLBAR.icon());
-    m_stopTestRun->setToolTip(tr("Stop Test Run"));
+    m_stopTestRun->setToolTip(Tr::tr("Stop Test Run"));
     m_stopTestRun->setEnabled(false);
     connect(m_stopTestRun, &QToolButton::clicked, TestRunner::instance(), &TestRunner::requestStopTestRun);
 
     m_filterButton = new QToolButton(m_treeView);
     m_filterButton->setIcon(Utils::Icons::FILTER.icon());
-    m_filterButton->setToolTip(tr("Filter Test Results"));
+    m_filterButton->setToolTip(Tr::tr("Filter Test Results"));
     m_filterButton->setProperty("noArrow", true);
     m_filterButton->setPopupMode(QToolButton::InstantPopup);
     m_filterMenu = new QMenu(m_filterButton);
@@ -227,7 +228,7 @@ void TestResultsPane::createToolButtons()
     m_filterButton->setMenu(m_filterMenu);
     m_outputToggleButton = new QToolButton(m_treeView);
     m_outputToggleButton->setIcon(Icons::TEXT_DISPLAY.icon());
-    m_outputToggleButton->setToolTip(tr("Switch Between Visual and Text Display"));
+    m_outputToggleButton->setToolTip(Tr::tr("Switch Between Visual and Text Display"));
     m_outputToggleButton->setEnabled(true);
     connect(m_outputToggleButton, &QToolButton::clicked, this, &TestResultsPane::toggleOutputStyle);
 }
@@ -333,7 +334,7 @@ QList<QWidget *> TestResultsPane::toolBarWidgets() const
 
 QString TestResultsPane::displayName() const
 {
-    return tr("Test Results");
+    return Tr::tr("Test Results");
 }
 
 int TestResultsPane::priorityInStatusBar() const
@@ -505,15 +506,15 @@ void TestResultsPane::initializeFilterMenu()
         m_filterModel->toggleTestResultType(ResultType::MessageInternal);
 
     QMap<ResultType, QString> textAndType;
-    textAndType.insert(ResultType::Pass, tr("Pass"));
-    textAndType.insert(ResultType::Fail, tr("Fail"));
-    textAndType.insert(ResultType::ExpectedFail, tr("Expected Fail"));
-    textAndType.insert(ResultType::UnexpectedPass, tr("Unexpected Pass"));
-    textAndType.insert(ResultType::Skip, tr("Skip"));
-    textAndType.insert(ResultType::Benchmark, tr("Benchmarks"));
-    textAndType.insert(ResultType::MessageDebug, tr("Debug Messages"));
-    textAndType.insert(ResultType::MessageWarn, tr("Warning Messages"));
-    textAndType.insert(ResultType::MessageInternal, tr("Internal Messages"));
+    textAndType.insert(ResultType::Pass, Tr::tr("Pass"));
+    textAndType.insert(ResultType::Fail, Tr::tr("Fail"));
+    textAndType.insert(ResultType::ExpectedFail, Tr::tr("Expected Fail"));
+    textAndType.insert(ResultType::UnexpectedPass, Tr::tr("Unexpected Pass"));
+    textAndType.insert(ResultType::Skip, Tr::tr("Skip"));
+    textAndType.insert(ResultType::Benchmark, Tr::tr("Benchmarks"));
+    textAndType.insert(ResultType::MessageDebug, Tr::tr("Debug Messages"));
+    textAndType.insert(ResultType::MessageWarn, Tr::tr("Warning Messages"));
+    textAndType.insert(ResultType::MessageInternal, Tr::tr("Internal Messages"));
     for (auto it = textAndType.cbegin(); it != textAndType.cend(); ++it) {
         const ResultType &result = it.key();
         QAction *action = new QAction(m_filterMenu);
@@ -524,10 +525,10 @@ void TestResultsPane::initializeFilterMenu()
         m_filterMenu->addAction(action);
     }
     m_filterMenu->addSeparator();
-    QAction *action = new QAction(tr("Check All Filters"), m_filterMenu);
+    QAction *action = new QAction(Tr::tr("Check All Filters"), m_filterMenu);
     m_filterMenu->addAction(action);
     connect(action, &QAction::triggered, this, [this]() { TestResultsPane::checkAllFilter(true); });
-    action = new QAction(tr("Uncheck All Filters"), m_filterMenu);
+    action = new QAction(Tr::tr("Uncheck All Filters"), m_filterMenu);
     m_filterMenu->addAction(action);
     connect(action, &QAction::triggered, this, [this]() { TestResultsPane::checkAllFilter(false); });
 }
@@ -535,33 +536,33 @@ void TestResultsPane::initializeFilterMenu()
 void TestResultsPane::updateSummaryLabel()
 {
     QString labelText = QString("<p>");
-    labelText.append(tr("Test summary"));
+    labelText.append(Tr::tr("Test summary"));
     labelText.append(":&nbsp;&nbsp; ");
     int count = m_model->resultTypeCount(ResultType::Pass);
-    labelText += QString::number(count) + ' ' + tr("passes");
+    labelText += QString::number(count) + ' ' + Tr::tr("passes");
     count = m_model->resultTypeCount(ResultType::Fail);
-    labelText += ", " + QString::number(count) + ' ' + tr("fails");
+    labelText += ", " + QString::number(count) + ' ' + Tr::tr("fails");
     count = m_model->resultTypeCount(ResultType::UnexpectedPass);
     if (count)
-        labelText += ", " + QString::number(count) + ' ' + tr("unexpected passes");
+        labelText += ", " + QString::number(count) + ' ' + Tr::tr("unexpected passes");
     count = m_model->resultTypeCount(ResultType::ExpectedFail);
     if (count)
-        labelText += ", " + QString::number(count) + ' ' + tr("expected fails");
+        labelText += ", " + QString::number(count) + ' ' + Tr::tr("expected fails");
     count = m_model->resultTypeCount(ResultType::MessageFatal);
     if (count)
-        labelText += ", " + QString::number(count) + ' ' + tr("fatals");
+        labelText += ", " + QString::number(count) + ' ' + Tr::tr("fatals");
     count = m_model->resultTypeCount(ResultType::BlacklistedFail)
             + m_model->resultTypeCount(ResultType::BlacklistedXFail)
             + m_model->resultTypeCount(ResultType::BlacklistedPass)
             + m_model->resultTypeCount(ResultType::BlacklistedXPass);
     if (count)
-        labelText += ", " + QString::number(count) + ' ' + tr("blacklisted");
+        labelText += ", " + QString::number(count) + ' ' + Tr::tr("blacklisted");
     count = m_model->resultTypeCount(ResultType::Skip);
     if (count)
-        labelText += ", " + QString::number(count) + ' ' + tr("skipped");
+        labelText += ", " + QString::number(count) + ' ' + Tr::tr("skipped");
     count = m_model->disabledTests();
     if (count)
-        labelText += ", " + QString::number(count) + ' ' + tr("disabled");
+        labelText += ", " + QString::number(count) + ' ' + Tr::tr("disabled");
     labelText.append(".</p>");
     m_summaryLabel->setText(labelText);
 }
@@ -635,7 +636,7 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
     const TestResult *clicked = getTestResult(m_treeView->indexAt(pos));
     QMenu menu;
 
-    QAction *action = new QAction(tr("Copy"), &menu);
+    QAction *action = new QAction(Tr::tr("Copy"), &menu);
     action->setShortcut(QKeySequence(QKeySequence::Copy));
     action->setEnabled(resultsAvailable && clicked);
     connect(action, &QAction::triggered, [this, clicked] () {
@@ -643,32 +644,32 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
     });
     menu.addAction(action);
 
-    action = new QAction(tr("Copy All"), &menu);
+    action = new QAction(Tr::tr("Copy All"), &menu);
     action->setEnabled(enabled);
     connect(action, &QAction::triggered, this, &TestResultsPane::onCopyWholeTriggered);
     menu.addAction(action);
 
-    action = new QAction(tr("Save Output to File..."), &menu);
+    action = new QAction(Tr::tr("Save Output to File..."), &menu);
     action->setEnabled(enabled);
     connect(action, &QAction::triggered, this, &TestResultsPane::onSaveWholeTriggered);
     menu.addAction(action);
 
     const auto correlatingItem = (enabled && clicked) ? clicked->findTestTreeItem() : nullptr;
-    action = new QAction(tr("Run This Test"), &menu);
+    action = new QAction(Tr::tr("Run This Test"), &menu);
     action->setEnabled(correlatingItem && correlatingItem->canProvideTestConfiguration());
     connect(action, &QAction::triggered, this, [this, clicked] {
         onRunThisTestTriggered(TestRunMode::Run, clicked);
     });
     menu.addAction(action);
 
-    action = new QAction(tr("Run This Test Without Deployment"), &menu);
+    action = new QAction(Tr::tr("Run This Test Without Deployment"), &menu);
     action->setEnabled(correlatingItem && correlatingItem->canProvideTestConfiguration());
     connect(action, &QAction::triggered, this, [this, clicked] {
         onRunThisTestTriggered(TestRunMode::RunWithoutDeploy, clicked);
     });
     menu.addAction(action);
 
-    action = new QAction(tr("Debug This Test"), &menu);
+    action = new QAction(Tr::tr("Debug This Test"), &menu);
     bool debugEnabled = false;
     if (correlatingItem) {
         if (correlatingItem->testBase()->type() == ITestBase::Framework) {
@@ -682,7 +683,7 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
     });
     menu.addAction(action);
 
-    action = new QAction(tr("Debug This Test Without Deployment"), &menu);
+    action = new QAction(Tr::tr("Debug This Test Without Deployment"), &menu);
     action->setEnabled(debugEnabled);
     connect(action, &QAction::triggered, this, [this, clicked] {
         onRunThisTestTriggered(TestRunMode::DebugWithoutDeploy, clicked);
@@ -716,14 +717,14 @@ void TestResultsPane::onCopyWholeTriggered()
 
 void TestResultsPane::onSaveWholeTriggered()
 {
-    const FilePath filePath = FileUtils::getSaveFilePath(nullptr, tr("Save Output To"));
+    const FilePath filePath = FileUtils::getSaveFilePath(nullptr, Tr::tr("Save Output To"));
     if (filePath.isEmpty())
         return;
 
     FileSaver saver(filePath, QIODevice::Text);
     if (!saver.write(getWholeOutput().toUtf8()) || !saver.finalize()) {
-        QMessageBox::critical(ICore::dialogParent(), tr("Error"),
-                              tr("Failed to write \"%1\".\n\n%2").arg(filePath.toUserOutput())
+        QMessageBox::critical(ICore::dialogParent(), Tr::tr("Error"),
+                              Tr::tr("Failed to write \"%1\".\n\n%2").arg(filePath.toUserOutput())
                               .arg(saver.errorString()));
     }
 }

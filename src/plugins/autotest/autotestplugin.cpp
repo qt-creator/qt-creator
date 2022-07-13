@@ -27,6 +27,7 @@
 
 #include "autotestconstants.h"
 #include "autotesticons.h"
+#include "autotesttr.h"
 #include "projectsettingswidget.h"
 #include "testcodeparser.h"
 #include "testframeworkmanager.h"
@@ -154,7 +155,7 @@ AutotestPluginPrivate::AutotestPluginPrivate()
     auto panelFactory = new ProjectExplorer::ProjectPanelFactory();
     panelFactory->setPriority(666);
 //    panelFactory->setIcon();  // TODO ?
-    panelFactory->setDisplayName(tr("Testing"));
+    panelFactory->setDisplayName(Tr::tr("Testing"));
     panelFactory->setCreateWidgetFunction([](ProjectExplorer::Project *project) {
         return new ProjectTestSettingsWidget(project);
     });
@@ -205,77 +206,77 @@ TestProjectSettings *AutotestPlugin::projectSettings(ProjectExplorer::Project *p
 void AutotestPluginPrivate::initializeMenuEntries()
 {
     ActionContainer *menu = ActionManager::createMenu(Constants::MENU_ID);
-    menu->menu()->setTitle(tr("&Tests"));
+    menu->menu()->setTitle(Tr::tr("&Tests"));
     menu->setOnAllDisabledBehavior(ActionContainer::Show);
 
-    QAction *action = new QAction(tr("Run &All Tests"), this);
+    QAction *action = new QAction(Tr::tr("Run &All Tests"), this);
     action->setIcon(Utils::Icons::RUN_SMALL.icon());
-    action->setToolTip(tr("Run All Tests"));
+    action->setToolTip(Tr::tr("Run All Tests"));
     Command *command = ActionManager::registerAction(action, Constants::ACTION_RUN_ALL_ID);
     command->setDefaultKeySequence(
-        QKeySequence(useMacShortcuts ? tr("Ctrl+Meta+T, Ctrl+Meta+A") : tr("Alt+Shift+T,Alt+A")));
+        QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+T, Ctrl+Meta+A") : Tr::tr("Alt+Shift+T,Alt+A")));
     connect(action, &QAction::triggered,
             std::bind(&AutotestPluginPrivate::onRunAllTriggered, this, TestRunMode::Run));
     action->setEnabled(false);
     menu->addAction(command);
 
-    action = new QAction(tr("Run All Tests Without Deployment"), this);
+    action = new QAction(Tr::tr("Run All Tests Without Deployment"), this);
     action->setIcon(Utils::Icons::RUN_SMALL.icon());
-    action->setToolTip(tr("Run All Tests Without Deployment"));
+    action->setToolTip(Tr::tr("Run All Tests Without Deployment"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_ALL_NODEPLOY_ID);
     command->setDefaultKeySequence(
-                QKeySequence(useMacShortcuts ? tr("Ctrl+Meta+T, Ctrl+Meta+E") : tr("Alt+Shift+T,Alt+E")));
+                QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+T, Ctrl+Meta+E") : Tr::tr("Alt+Shift+T,Alt+E")));
     connect(action, &QAction::triggered,
             std::bind(&AutotestPluginPrivate::onRunAllTriggered, this, TestRunMode::RunWithoutDeploy));
     action->setEnabled(false);
     menu->addAction(command);
 
-    action = new QAction(tr("&Run Selected Tests"), this);
+    action = new QAction(Tr::tr("&Run Selected Tests"), this);
     action->setIcon(Utils::Icons::RUN_SELECTED.icon());
-    action->setToolTip(tr("Run Selected Tests"));
+    action->setToolTip(Tr::tr("Run Selected Tests"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_SELECTED_ID);
     command->setDefaultKeySequence(
-        QKeySequence(useMacShortcuts ? tr("Ctrl+Meta+T, Ctrl+Meta+R") : tr("Alt+Shift+T,Alt+R")));
+        QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+T, Ctrl+Meta+R") : Tr::tr("Alt+Shift+T,Alt+R")));
     connect(action, &QAction::triggered,
             std::bind(&AutotestPluginPrivate::onRunSelectedTriggered, this, TestRunMode::Run));
     action->setEnabled(false);
     menu->addAction(command);
 
-    action = new QAction(tr("&Run Selected Tests Without Deployment"), this);
+    action = new QAction(Tr::tr("&Run Selected Tests Without Deployment"), this);
     action->setIcon(Utils::Icons::RUN_SELECTED.icon());
-    action->setToolTip(tr("Run Selected Tests"));
+    action->setToolTip(Tr::tr("Run Selected Tests"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_SELECTED_NODEPLOY_ID);
     command->setDefaultKeySequence(
-        QKeySequence(useMacShortcuts ? tr("Ctrl+Meta+T, Ctrl+Meta+W") : tr("Alt+Shift+T,Alt+W")));
+        QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+T, Ctrl+Meta+W") : Tr::tr("Alt+Shift+T,Alt+W")));
     connect(action, &QAction::triggered,
             std::bind(&AutotestPluginPrivate::onRunSelectedTriggered, this, TestRunMode::RunWithoutDeploy));
     action->setEnabled(false);
     menu->addAction(command);
 
-    action = new QAction(tr("Run &Failed Tests"),  this);
+    action = new QAction(Tr::tr("Run &Failed Tests"),  this);
     action->setIcon(Icons::RUN_FAILED.icon());
-    action->setToolTip(tr("Run Failed Tests"));
+    action->setToolTip(Tr::tr("Run Failed Tests"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_FAILED_ID);
     command->setDefaultKeySequence(
-                useMacShortcuts ? tr("Ctrl+Meta+T, Ctrl+Meta+F") : tr("Alt+Shift+T,Alt+F"));
+                useMacShortcuts ? Tr::tr("Ctrl+Meta+T, Ctrl+Meta+F") : Tr::tr("Alt+Shift+T,Alt+F"));
     connect(action, &QAction::triggered, this, &AutotestPluginPrivate::onRunFailedTriggered);
     action->setEnabled(false);
     menu->addAction(command);
 
-    action = new QAction(tr("Run Tests for &Current File"), this);
+    action = new QAction(Tr::tr("Run Tests for &Current File"), this);
     action->setIcon(Utils::Icons::RUN_FILE.icon());
-    action->setToolTip(tr("Run Tests for Current File"));
+    action->setToolTip(Tr::tr("Run Tests for Current File"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_FILE_ID);
     command->setDefaultKeySequence(
-        QKeySequence(useMacShortcuts ? tr("Ctrl+Meta+T, Ctrl+Meta+C") : tr("Alt+Shift+T,Alt+C")));
+        QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+T, Ctrl+Meta+C") : Tr::tr("Alt+Shift+T,Alt+C")));
     connect(action, &QAction::triggered, this, &AutotestPluginPrivate::onRunFileTriggered);
     action->setEnabled(false);
     menu->addAction(command);
 
-    action = new QAction(tr("Re&scan Tests"), this);
+    action = new QAction(Tr::tr("Re&scan Tests"), this);
     command = ActionManager::registerAction(action, Constants::ACTION_SCAN_ID);
     command->setDefaultKeySequence(
-        QKeySequence(useMacShortcuts ? tr("Ctrl+Meta+T, Ctrl+Meta+S") : tr("Alt+Shift+T,Alt+S")));
+        QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+T, Ctrl+Meta+S") : Tr::tr("Alt+Shift+T,Alt+S")));
 
     connect(action, &QAction::triggered, this, [] { dd->m_testCodeParser.updateTestTree(); });
     menu->addAction(command);
@@ -314,7 +315,7 @@ void AutotestPlugin::extensionsInitialized()
     if (!contextMenu) // if QC is started without CppEditor plugin
         return;
 
-    QAction *action = new QAction(tr("&Run Test Under Cursor"), this);
+    QAction *action = new QAction(Tr::tr("&Run Test Under Cursor"), this);
     action->setEnabled(false);
     action->setIcon(Utils::Icons::RUN_SMALL.icon());
 
@@ -324,7 +325,7 @@ void AutotestPlugin::extensionsInitialized()
     contextMenu->addSeparator();
     contextMenu->addAction(command);
 
-    action = new QAction(tr("Run Test Under Cursor Without Deployment"), this);
+    action = new QAction(Tr::tr("Run Test Under Cursor Without Deployment"), this);
     action->setEnabled(false);
     action->setIcon(Utils::Icons::RUN_SMALL.icon());
 
@@ -333,7 +334,7 @@ void AutotestPlugin::extensionsInitialized()
             std::bind(&AutotestPluginPrivate::onRunUnderCursorTriggered, dd, TestRunMode::RunWithoutDeploy));
     contextMenu->addAction(command);
 
-    action = new QAction(tr("&Debug Test Under Cursor"), this);
+    action = new QAction(Tr::tr("&Debug Test Under Cursor"), this);
     action->setEnabled(false);
     action->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon());
 
@@ -342,7 +343,7 @@ void AutotestPlugin::extensionsInitialized()
             std::bind(&AutotestPluginPrivate::onRunUnderCursorTriggered, dd, TestRunMode::Debug));
     contextMenu->addAction(command);
 
-    action = new QAction(tr("Debug Test Under Cursor Without Deployment"), this);
+    action = new QAction(Tr::tr("Debug Test Under Cursor Without Deployment"), this);
     action->setEnabled(false);
     action->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon());
 
@@ -434,7 +435,7 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
                 filteredItems.size() == 1 ? filteredItems : testsItems, mode);
 
     if (testsToRun.isEmpty()) {
-        MessageManager::writeFlashing(tr("Selected test was not found (%1).").arg(text));
+        MessageManager::writeFlashing(Tr::tr("Selected test was not found (%1).").arg(text));
         return;
     }
 

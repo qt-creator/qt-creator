@@ -24,17 +24,18 @@
 ****************************************************************************/
 
 #include "boosttesttreeitem.h"
+
 #include "boosttestconstants.h"
 #include "boosttestconfiguration.h"
-#include "boosttestframework.h"
 #include "boosttestparser.h"
-#include "../testframeworkmanager.h"
+
+#include "../autotesttr.h"
+#include "../itestframework.h"
 
 #include <cppeditor/cppmodelmanager.h>
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
 
-#include <QFileInfo>
 #include <QRegularExpression>
 
 namespace Autotest {
@@ -333,9 +334,8 @@ ITestConfiguration *BoostTestTreeItem::debugConfiguration() const
 
 QString BoostTestTreeItem::nameSuffix() const
 {
-    static QString markups[] = {QCoreApplication::translate("BoostTestTreeItem", "parameterized"),
-                                QCoreApplication::translate("BoostTestTreeItem", "fixture"),
-                                QCoreApplication::translate("BoostTestTreeItem", "templated")};
+    static QString markups[] = {Tr::tr("parameterized"), Tr::tr("fixture"), Tr::tr("templated")};
+
     QString suffix;
     if (m_state & Parameterized)
         suffix = QString(" [") + markups[0];

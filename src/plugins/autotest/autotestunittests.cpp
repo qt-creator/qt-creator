@@ -24,10 +24,8 @@
 ****************************************************************************/
 
 #include "autotestunittests.h"
-#include "autotestconstants.h"
-#include "autotestplugin.h"
+
 #include "testcodeparser.h"
-#include "testsettings.h"
 #include "testtreemodel.h"
 
 #include <cppeditor/cppmodelmanager.h>

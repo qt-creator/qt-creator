@@ -37077,7 +37077,7 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestSettingsPage</name>
+    <name>Autotest</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -37175,10 +37175,6 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
         <translation>テストをシャッフルする</translation>
     </message>
     <message>
-        <source>Seed:</source>
-        <translation>シード:</translation>
-    </message>
-    <message>
         <source>A seed of 0 generates a seed based on the current timestamp.</source>
         <translation>シードが 0 の場合、現在時刻からシードが生成されます。</translation>
     </message>
@@ -37189,42 +37185,6 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     <message>
         <source>Uses walltime metrics for executing benchmarks (default).</source>
         <translation>ベンチマーク実行時に待ち時間を基準に用います(既定)。</translation>
-    </message>
-    <message>
-        <source>Walltime</source>
-        <translation>総経過時間</translation>
-    </message>
-    <message>
-        <source>Uses tick counter when executing benchmarks.</source>
-        <translation>ベンチマーク実行時にチックカウンタを基準に用います。</translation>
-    </message>
-    <message>
-        <source>Tick counter</source>
-        <translation>ティックカウンタ</translation>
-    </message>
-    <message>
-        <source>Uses event counter when executing benchmarks.</source>
-        <translation>ベンチマーク実行時にイベントカウンタを基準に用います。</translation>
-    </message>
-    <message>
-        <source>Event counter</source>
-        <translation>イベントカウンタ</translation>
-    </message>
-    <message>
-        <source>Uses Valgrind Callgrind when executing benchmarks (it must be installed).</source>
-        <translation>ベンチマーク実行時に Valgrind Callgrind を用います(インストールが必要です)。</translation>
-    </message>
-    <message>
-        <source>Callgrind</source>
-        <translation>Callgrind</translation>
-    </message>
-    <message>
-        <source>Uses Perf when executing benchmarks (it must be installed).</source>
-        <translation>ベンチマーク実行時に Perf を用います(インストールが必要です)。</translation>
-    </message>
-    <message>
-        <source>Perf</source>
-        <translation>Perf</translation>
     </message>
     <message>
         <source>Test Settings</source>
@@ -38958,64 +38918,18 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::AutotestPlugin</name>
-    <message>
-        <source>&amp;Tests</source>
-        <translation>テスト(&amp;T)</translation>
-    </message>
-    <message>
-        <source>Run &amp;All Tests</source>
-        <translation>すべてのテストの実行(&amp;A)</translation>
-    </message>
-    <message>
-        <source>Alt+Shift+T,Alt+A</source>
-        <translation>Alt+Shift+T,Alt+A</translation>
-    </message>
-    <message>
-        <source>&amp;Run Selected Tests</source>
-        <translation>選択したテストの実行(&amp;R)</translation>
-    </message>
-    <message>
-        <source>Alt+Shift+T,Alt+R</source>
-        <translation>Alt+Shift+T,Alt+R</translation>
-    </message>
-    <message>
-        <source>Re&amp;scan Tests</source>
-        <translation>テストの再スキャン(&amp;S)</translation>
-    </message>
-    <message>
-        <source>Alt+Shift+T,Alt+S</source>
-        <translation>Alt+Shift+T,Alt+S</translation>
-    </message>
-</context>
-<context>
-    <name>Autotest::Internal::TestCodeParser</name>
+    <name>Autotest</name>
     <message>
         <source>Scanning for Tests</source>
         <translation>テストのスキャン中</translation>
-    </message>
-</context>
-<context>
-    <name>Autotest::Internal::TestNavigationWidget</name>
-    <message>
-        <source>Tests</source>
-        <translation>テスト</translation>
     </message>
     <message>
         <source>No active test frameworks.</source>
         <translation>有効なテストフレームワークが見つかりません。</translation>
     </message>
     <message>
-        <source>Run This Test</source>
-        <translation>このテストの実行</translation>
-    </message>
-    <message>
         <source>Run Without Deployment</source>
         <translation>デプロイせずに実行</translation>
-    </message>
-    <message>
-        <source>Debug This Test</source>
-        <translation>このテストのデバッグ</translation>
     </message>
     <message>
         <source>Debug Without Deployment</source>
@@ -39059,21 +38973,14 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestNavigationWidgetFactory</name>
+    <name>Autotest</name>
     <message>
         <source>Tests</source>
         <translation>テスト</translation>
     </message>
-</context>
-<context>
-    <name>Autotest::Internal::QtTestOutputReader</name>
     <message>
         <source>%1 %2 per iteration (total: %3, iterations: %4)</source>
         <translation>%1 %2 毎実行 (トータル: %3, 実行回数: %4)</translation>
-    </message>
-    <message>
-        <source>Executing test case %1</source>
-        <translation>テストケース %1 を実行しています</translation>
     </message>
     <message>
         <source>Entering test function %1::%2</source>
@@ -39103,18 +39010,11 @@ the program.</source>
         <source>Test execution took %1 ms.</source>
         <translation>テストの実行時間は %1 ミリ秒でした。</translation>
     </message>
-</context>
-<context>
-    <name>Autotest::Internal::GTestOutputReader</name>
     <message numerus="yes">
         <source>You have %n disabled test(s).</source>
         <translation>
             <numerusform>%n 個のテストが無効化されています。</numerusform>
         </translation>
-    </message>
-    <message>
-        <source>Test execution took %1</source>
-        <translation>テストの実行時間: %1</translation>
     </message>
     <message>
         <source>Repeating test case %1 (iteration %2)</source>
@@ -39134,19 +39034,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestResultsPane</name>
-    <message>
-        <source>Expand All</source>
-        <translation>すべて展開</translation>
-    </message>
-    <message>
-        <source>Run All Tests</source>
-        <translation>すべてのテストの実行</translation>
-    </message>
-    <message>
-        <source>Run Selected Tests</source>
-        <translation>選択したテストの実行</translation>
-    </message>
+    <name>Autotest</name>
     <message>
         <source>Stop Test Run</source>
         <translation>テスト実行の停止</translation>
@@ -39265,7 +39153,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestRunner</name>
+    <name>Autotest</name>
     <message>
         <source>Test run canceled by user.</source>
         <translation>テスト実行はユーザーによってキャンセルされました。</translation>
@@ -46461,18 +46349,14 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestRunConfiguration</name>
+    <name>Autotest</name>
     <message>
         <source>AutoTest Debug</source>
         <translation>自動テストのデバッグ</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestSettingsWidget</name>
-    <message>
-        <source>No active test frameworks.</source>
-        <translation>アクティブなテストフレームワークが見つかりません。</translation>
-    </message>
+    <name>Autotest</name>
     <message>
         <source>You will not be able to use the AutoTest plugin without having at least one active test framework.</source>
         <translation>有効なテストフレームワークが存在しないため、AutoTest プラグインを使用できません。</translation>
@@ -47512,45 +47396,10 @@ Output:
     </message>
 </context>
 <context>
-    <name>BoostSettingsPage</name>
+    <name>Autotest</name>
     <message>
         <source>Seed:</source>
         <translation>シード:</translation>
-    </message>
-</context>
-<context>
-    <name>Autotest::Internal::GTestSettingsPage</name>
-    <message>
-        <source>Executes disabled tests when performing a test run.</source>
-        <translation>テスト実行時に無効化されたテストも実行します。</translation>
-    </message>
-    <message>
-        <source>Run disabled tests</source>
-        <translation>無効化されたテストを実行する</translation>
-    </message>
-    <message>
-        <source>Iterations:</source>
-        <translation>実行回数:</translation>
-    </message>
-    <message>
-        <source>Shuffle tests</source>
-        <translation>テストをシャッフルする</translation>
-    </message>
-    <message>
-        <source>Repeats a test run (you might be required to increase the timeout to avoid canceling the tests).</source>
-        <translation>テストを繰り返し実行します(テストがキャンセルされないようにタイムアウトを長くする必要があるかもしれません)。</translation>
-    </message>
-    <message>
-        <source>Repeat tests</source>
-        <translation>テストを繰り返し実行する</translation>
-    </message>
-    <message>
-        <source>Seed:</source>
-        <translation>シード:</translation>
-    </message>
-    <message>
-        <source>A seed of 0 generates a seed based on the current timestamp.</source>
-        <translation>シードが 0 の場合、現在時刻からシードが生成されます。</translation>
     </message>
     <message>
         <source>Directory</source>
@@ -47558,15 +47407,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::QtTestSettingsPage</name>
-    <message>
-        <source>Benchmark Metrics</source>
-        <translation>ベンチマーク測定基準</translation>
-    </message>
-    <message>
-        <source>Uses walltime metrics for executing benchmarks (default).</source>
-        <translation>ベンチマーク実行時に待ち時間を基準に用います(既定)。</translation>
-    </message>
+    <name>Autotest</name>
     <message>
         <source>Walltime</source>
         <translation>総経過時間</translation>
@@ -47578,10 +47419,6 @@ Output:
     <message>
         <source>Tick counter</source>
         <translation>チックカウンタ</translation>
-    </message>
-    <message>
-        <source>Uses event counter when executing benchmarks.</source>
-        <translation>ベンチマーク実行時にイベントカウンタを基準に用います。</translation>
     </message>
     <message>
         <source>Event counter</source>
@@ -49289,7 +49126,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::AutotestPluginPrivate</name>
+    <name>Autotest</name>
     <message>
         <source>Testing</source>
         <translation>自動テスト</translation>
@@ -49387,7 +49224,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::BoostTestOutputReader</name>
+    <name>Autotest</name>
     <message>
         <source>Test execution took %1</source>
         <translation>テストの実行時間: %1</translation>
@@ -49416,7 +49253,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::CatchOutputReader</name>
+    <name>Autotest</name>
     <message>
         <source>Executing %1 &quot;%2&quot;</source>
         <translation>実行中: %1 &quot;%2&quot;</translation>
@@ -49457,7 +49294,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::CTestOutputReader</name>
+    <name>Autotest</name>
     <message>
         <source>Running tests for %1</source>
         <translation>%1のテストを実行中</translation>
@@ -49471,7 +49308,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::ProjectTestSettingsWidget</name>
+    <name>Autotest</name>
     <message>
         <source>Global</source>
         <translation>グローバル</translation>
@@ -49492,14 +49329,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>None</source>
         <translation>なし</translation>
     </message>
-    <message>
-        <source>All</source>
-        <translation>すべて</translation>
-    </message>
-    <message>
-        <source>Selected</source>
-        <translation>選択した</translation>
-    </message>
 </context>
 <context>
     <name>QtTestTreeItem</name>
@@ -49509,14 +49338,14 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>Autotest::TestOutputReader</name>
+    <name>Autotest</name>
     <message>
         <source>Test executable crashed.</source>
         <translation>テストの実行ファイルがクラッシュしました。</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::RunConfigurationSelectionDialog</name>
+    <name>Autotest</name>
     <message>
         <source>Select Run Configuration</source>
         <translation>実行構成を選択する</translation>

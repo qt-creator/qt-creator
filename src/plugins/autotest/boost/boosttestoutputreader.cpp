@@ -24,15 +24,15 @@
 ****************************************************************************/
 
 #include "boosttestoutputreader.h"
+
 #include "boosttestsettings.h"
 #include "boosttestresult.h"
-#include "boosttesttreeitem.h"
+#include "../autotesttr.h"
+#include "../testtreeitem.h"
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <QDir>
-#include <QFileInfo>
 #include <QLoggingCategory>
 #include <QRegularExpression>
 
@@ -150,14 +150,14 @@ void BoostTestOutputReader::handleMessageMatch(const QRegularExpressionMatch &ma
         const QString type = match.captured(8);
         if (type == "case") {
             m_currentTest = match.captured(9);
-            m_description = tr("Executing test case %1").arg(m_currentTest);
+            m_description = Tr::tr("Executing test case %1").arg(m_currentTest);
         } else if (type == "suite") {
             if (m_currentSuite.isEmpty())
                 m_currentSuite = match.captured(9);
             else
                 m_currentSuite.append("/").append(match.captured(9));
             m_currentTest.clear();
-            m_description = tr("Executing test suite %1").arg(m_currentSuite);
+            m_description = Tr::tr("Executing test suite %1").arg(m_currentSuite);
         }
     } else if (content.startsWith("Leaving")) {
         const QString type = match.captured(10);
@@ -165,7 +165,7 @@ void BoostTestOutputReader::handleMessageMatch(const QRegularExpressionMatch &ma
             if (m_currentTest != match.captured(11) && m_currentTest.isEmpty())
                 m_currentTest = match.captured(11);
             m_result = ResultType::TestEnd;
-            m_description = tr("Test execution took %1").arg(match.captured(12));
+            m_description = Tr::tr("Test execution took %1").arg(match.captured(12));
         } else if (type == "suite") {
             if (!m_currentSuite.isEmpty()) {
                 int index = m_currentSuite.lastIndexOf('/');
@@ -181,7 +181,7 @@ void BoostTestOutputReader::handleMessageMatch(const QRegularExpressionMatch &ma
             }
             m_currentTest.clear();
             m_result = ResultType::TestEnd;
-            m_description = tr("Test suite execution took %1").arg(match.captured(12));
+            m_description = Tr::tr("Test suite execution took %1").arg(match.captured(12));
         }
     } else if (content.startsWith("Test case ")) {
         m_currentTest = match.captured(4);
@@ -258,14 +258,14 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLine)
         if (match.captured(1).startsWith("Entering")) {
             m_currentModule = match.captured(2);
             BoostTestResult *result = new BoostTestResult(id(), m_projectFile, m_currentModule);
-            result->setDescription(tr("Executing test module %1").arg(m_currentModule));
+            result->setDescription(Tr::tr("Executing test module %1").arg(m_currentModule));
             result->setResult(ResultType::TestStart);
             reportResult(TestResultPtr(result));
             m_description.clear();
         } else {
             QTC_CHECK(m_currentModule == match.captured(3));
             BoostTestResult *result = new BoostTestResult(id(), m_projectFile, m_currentModule);
-            result->setDescription(tr("Test module execution took %1").arg(match.captured(4)));
+            result->setDescription(Tr::tr("Test module execution took %1").arg(match.captured(4)));
             result->setResult(ResultType::TestEnd);
             reportResult(TestResultPtr(result));
 
@@ -351,10 +351,10 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLine)
         BoostTestResult *result = new BoostTestResult(id(), m_projectFile, QString());
         int failed = match.captured(1).toInt();
         int fatals = m_summary.value(ResultType::MessageFatal);
-        QString txt = tr("%1 failures detected in %2.").arg(failed).arg(match.captured(3));
+        QString txt = Tr::tr("%1 failures detected in %2.").arg(failed).arg(match.captured(3));
         int passed = qMax(0, m_testCaseCount - failed);
         if (m_testCaseCount != -1)
-            txt.append(' ').append(tr("%1 tests passed.").arg(passed));
+            txt.append(' ').append(Tr::tr("%1 tests passed.").arg(passed));
         result->setDescription(txt);
         result->setResult(ResultType::MessageInfo);
         reportResult(TestResultPtr(result));
@@ -370,9 +370,9 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLine)
         if (m_result != ResultType::Invalid)
             sendCompleteInformation();
         BoostTestResult *result = new BoostTestResult(id(), m_projectFile, QString());
-        QString txt = tr("No errors detected.");
+        QString txt = Tr::tr("No errors detected.");
         if (m_testCaseCount != -1)
-            txt.append(' ').append(tr("%1 tests passed.").arg(m_testCaseCount));
+            txt.append(' ').append(Tr::tr("%1 tests passed.").arg(m_testCaseCount));
         result->setDescription(txt);
         result->setResult(ResultType::MessageInfo);
         reportResult(TestResultPtr(result));
@@ -416,25 +416,25 @@ void BoostTestOutputReader::onDone() {
     if (m_logLevel == LogLevel::Nothing && m_reportLevel == ReportLevel::No) {
         switch (exitCode) {
         case 0:
-            reportNoOutputFinish(tr("Running tests exited with %1").arg("boost::exit_success."),
+            reportNoOutputFinish(Tr::tr("Running tests exited with %1").arg("boost::exit_success."),
                                  ResultType::Pass);
             break;
         case 200:
             reportNoOutputFinish(
-                        tr("Running tests exited with %1").arg("boost::exit_test_exception."),
+                        Tr::tr("Running tests exited with %1").arg("boost::exit_test_exception."),
                         ResultType::MessageFatal);
             break;
         case 201:
-            reportNoOutputFinish(tr("Running tests exited with %1")
+            reportNoOutputFinish(Tr::tr("Running tests exited with %1")
                                  .arg("boost::exit_test_failure."), ResultType::Fail);
             break;
         }
     } else if (exitCode != 0 && exitCode != 201 && !m_description.isEmpty()) {
         if (m_description.startsWith("Test setup error:")) {
-            createAndReportResult(m_description + '\n' + tr("Executable: %1")
+            createAndReportResult(m_description + '\n' + Tr::tr("Executable: %1")
                                   .arg(id()), ResultType::MessageWarn);
         } else {
-            createAndReportResult(tr("Running tests failed.\n%1\nExecutable: %2")
+            createAndReportResult(Tr::tr("Running tests failed.\n%1\nExecutable: %2")
                                   .arg(m_description).arg(id()), ResultType::MessageFatal);
         }
     }
@@ -443,7 +443,7 @@ void BoostTestOutputReader::onDone() {
 void BoostTestOutputReader::reportNoOutputFinish(const QString &description, ResultType type)
 {
     BoostTestResult *result = new BoostTestResult(id(), m_projectFile, m_currentModule);
-    result->setTestCase(tr("Running tests without output."));
+    result->setTestCase(Tr::tr("Running tests without output."));
     result->setDescription(description);
     result->setResult(type);
     reportResult(TestResultPtr(result));

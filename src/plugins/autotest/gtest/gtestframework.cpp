@@ -24,9 +24,10 @@
 ****************************************************************************/
 
 #include "gtestframework.h"
+
+#include "../autotesttr.h"
 #include "gtesttreeitem.h"
 #include "gtestparser.h"
-#include "../testframeworkmanager.h"
 
 namespace Autotest {
 namespace Internal {
@@ -59,8 +60,7 @@ const char *GTestFramework::name() const
 
 QString GTestFramework:: displayName() const
 {
-    return QCoreApplication::translate("GTestFramework",
-                                       GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY);
+    return Tr::tr(GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY);
 }
 
 unsigned GTestFramework::priority() const
@@ -75,9 +75,8 @@ QString GTestFramework::currentGTestFilter()
 
 QString GTestFramework::groupingToolTip() const
 {
-    return QCoreApplication::translate("GTestFramework",
-                                       "Enable or disable grouping of test cases by folder or "
-                                       "GTest filter.\nSee also Google Test settings.");
+    return Tr::tr("Enable or disable grouping of test cases by folder or "
+                  "GTest filter.\nSee also Google Test settings.");
 }
 
 GTest::Constants::GroupMode GTestFramework::groupMode()

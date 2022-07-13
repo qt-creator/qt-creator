@@ -34,7 +34,6 @@ namespace Internal {
 
 class CTestSettings : public Utils::AspectContainer
 {
-    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::CTestSettings)
 public:
     CTestSettings();
 
@@ -56,7 +55,6 @@ public:
 
 class CTestSettingsPage final : public Core::IOptionsPage
 {
-    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::CTestSettingsPage)
 public:
     CTestSettingsPage(CTestSettings *settings, Utils::Id settingsId);
 };

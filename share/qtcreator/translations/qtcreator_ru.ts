@@ -2612,7 +2612,7 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::AutotestPlugin</name>
+    <name>Autotest</name>
     <message>
         <source>&amp;Run Test Under Cursor</source>
         <translation>&amp;Запустить тест под курсором</translation>
@@ -2623,7 +2623,7 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::AutotestPluginPrivate</name>
+    <name>Autotest</name>
     <message>
         <source>Testing</source>
         <translation>Тестирование</translation>
@@ -2698,19 +2698,7 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::BoostTestOutputReader</name>
-    <message>
-        <source>Executing test case %1</source>
-        <translation>Выполнение теста %1</translation>
-    </message>
-    <message>
-        <source>Executing test suite %1</source>
-        <translation>Выполнение набора тестов %1</translation>
-    </message>
-    <message>
-        <source>Test execution took %1</source>
-        <translation>Выполнение теста заняло %1</translation>
-    </message>
+    <name>Autotest</name>
     <message>
         <source>Test suite execution took %1</source>
         <translation>Выполнение набора тестов заняло %1</translation>
@@ -2757,7 +2745,7 @@ Executable: %2</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::CatchOutputReader</name>
+    <name>Autotest</name>
     <message>
         <source>Executing %1 &quot;%2&quot;</source>
         <translation>Выполнение %1 «%2»</translation>
@@ -2780,7 +2768,7 @@ Executable: %2</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::GTestOutputReader</name>
+    <name>Autotest</name>
     <message>
         <source>Running tests failed.
  %1
@@ -2815,7 +2803,7 @@ Executable: %2</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::GTestSettingsPage</name>
+    <name>Autotest</name>
     <message>
         <source>Break on failure while debugging</source>
         <translation>Останавливаться при ошибках</translation>
@@ -2896,7 +2884,7 @@ See Google Test documentation for further information on GTest filters.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::ProjectTestSettingsWidget</name>
+    <name>Autotest</name>
     <message>
         <source>Global</source>
         <translation>Общие</translation>
@@ -2927,7 +2915,7 @@ See Google Test documentation for further information on GTest filters.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::QtTestOutputReader</name>
+    <name>Autotest</name>
     <message>
         <source>%1 %2 per iteration (total: %3, iterations: %4)</source>
         <translation>%1 %2 за итерацию (всего: %3, итераций: %4)</translation>
@@ -2978,7 +2966,7 @@ See Google Test documentation for further information on GTest filters.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::QtTestSettingsPage</name>
+    <name>Autotest</name>
     <message>
         <source>Enables interrupting tests on assertions.</source>
         <translation>Включение прерывания тестов на утверждениях.</translation>
@@ -3057,7 +3045,7 @@ Warning: Plain text misses some information, such as duration.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::RunConfigurationSelectionDialog</name>
+    <name>Autotest</name>
     <message>
         <source>Select Run Configuration</source>
         <translation>Выбор конфигурации запуска</translation>
@@ -3088,26 +3076,14 @@ Warning: Plain text misses some information, such as duration.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestCodeParser</name>
+    <name>Autotest</name>
     <message>
         <source>Scanning for Tests</source>
         <translation>Поиск тестов</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestNavigationWidget</name>
-    <message>
-        <source>Tests</source>
-        <translation>Тесты</translation>
-    </message>
-    <message>
-        <source>No active test frameworks.</source>
-        <translation>Нет активной среды тестирования.</translation>
-    </message>
-    <message>
-        <source>Run This Test</source>
-        <translation>Запустить этот тест</translation>
-    </message>
+    <name>Autotest</name>
     <message>
         <source>Run Without Deployment</source>
         <translation>Запустить без развёртывания</translation>
@@ -3137,10 +3113,6 @@ Warning: Plain text misses some information, such as duration.</source>
         <translation>Отсортировать по порядку</translation>
     </message>
     <message>
-        <source>Expand All</source>
-        <translation>Развернуть всё</translation>
-    </message>
-    <message>
         <source>Collapse All</source>
         <translation>Свернуть всё</translation>
     </message>
@@ -3158,14 +3130,14 @@ Warning: Plain text misses some information, such as duration.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestNavigationWidgetFactory</name>
+    <name>Autotest</name>
     <message>
         <source>Tests</source>
         <translation>Тесты</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestResultsPane</name>
+    <name>Autotest</name>
     <message>
         <source>Expand All</source>
         <translation>Развернуть всё</translation>
@@ -3283,10 +3255,6 @@ Warning: Plain text misses some information, such as duration.</source>
         <translation>Запустить этот тест</translation>
     </message>
     <message>
-        <source>Debug This Test</source>
-        <translation>Отладить этот тест</translation>
-    </message>
-    <message>
         <source>Save Output To</source>
         <translation>Сохранение вывода в</translation>
     </message>
@@ -3304,14 +3272,14 @@ Warning: Plain text misses some information, such as duration.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestRunConfiguration</name>
+    <name>Autotest</name>
     <message>
         <source>AutoTest Debug</source>
         <translation>Отладка автотеста</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestRunner</name>
+    <name>Autotest</name>
     <message>
         <source>Test run canceled by user.</source>
         <translation>Тест прерван пользователем.</translation>
@@ -3420,7 +3388,7 @@ This might cause trouble during execution.
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestSettingsPage</name>
+    <name>Autotest</name>
     <message>
         <source>General</source>
         <translation>Основное</translation>
@@ -3547,21 +3515,9 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>Runs chosen tests automatically if a build succeeded.</source>
         <translation>Автоматически запускать выбранные тесты после успешной сборки.</translation>
     </message>
-    <message>
-        <source>None</source>
-        <translation>Нет</translation>
-    </message>
-    <message>
-        <source>All</source>
-        <translation>Всех</translation>
-    </message>
-    <message>
-        <source>Selected</source>
-        <translation>Выбранных</translation>
-    </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestSettingsWidget</name>
+    <name>Autotest</name>
     <message>
         <source>No active test frameworks.</source>
         <translation>Нет активных сред тестирования.</translation>
@@ -3580,7 +3536,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
 </context>
 <context>
-    <name>Autotest::TestOutputReader</name>
+    <name>Autotest</name>
     <message>
         <source>Test executable crashed.</source>
         <translation>Сбой программы тестирования.</translation>

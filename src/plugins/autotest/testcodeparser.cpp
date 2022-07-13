@@ -26,8 +26,7 @@
 #include "testcodeparser.h"
 
 #include "autotestconstants.h"
-#include "testframeworkmanager.h"
-#include "testsettings.h"
+#include "autotesttr.h"
 #include "testtreemodel.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -366,7 +365,7 @@ void TestCodeParser::scanForTests(const Utils::FilePaths &fileList,
         QThread::LowestPriority);
     m_futureWatcher.setFuture(future);
     if (list.size() > 5) {
-        Core::ProgressManager::addTask(future, tr("Scanning for Tests"),
+        Core::ProgressManager::addTask(future, Tr::tr("Scanning for Tests"),
                                        Autotest::Constants::TASK_PARSE);
     }
 }

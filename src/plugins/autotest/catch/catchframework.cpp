@@ -26,6 +26,7 @@
 
 #include "catchtestparser.h"
 #include "catchtreeitem.h"
+#include "../autotesttr.h"
 
 namespace Autotest {
 namespace Internal {
@@ -37,7 +38,7 @@ const char *CatchFramework::name() const
 
 QString CatchFramework::displayName() const
 {
-    return QCoreApplication::translate("CatchFramework", "Catch Test");
+    return Tr::tr("Catch Test");
 }
 
 unsigned CatchFramework::priority() const

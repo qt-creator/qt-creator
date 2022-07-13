@@ -1628,7 +1628,7 @@ Installer en SDK af mindst API version %1.</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::AutotestPlugin</name>
+    <name>Autotest</name>
     <message>
         <source>&amp;Tests</source>
         <translation>&amp;Tests</translation>
@@ -1691,7 +1691,7 @@ Installer en SDK af mindst API version %1.</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::GTestOutputReader</name>
+    <name>Autotest</name>
     <message>
         <source>Running tests failed.
  %1
@@ -1733,7 +1733,7 @@ Eksekverbar: %2</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::GTestSettingsPage</name>
+    <name>Autotest</name>
     <message>
         <source>Turns failures into debugger breakpoints.</source>
         <translation>Omdanner fejl til fejlretter-brudpunkter.</translation>
@@ -1814,11 +1814,7 @@ Se Google Test-dokumentation for yderligere information om GTest-filtre.</transl
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::QtTestOutputReader</name>
-    <message>
-        <source>Executing test case %1</source>
-        <translation>Eksekverer testsag %1</translation>
-    </message>
+    <name>Autotest</name>
     <message>
         <source>Entering test function %1::%2</source>
         <translation>Træder ind i testfunktion %1::%2</translation>
@@ -1865,7 +1861,7 @@ Se Google Test-dokumentation for yderligere information om GTest-filtre.</transl
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::QtTestSettingsPage</name>
+    <name>Autotest</name>
     <message>
         <source>Enables interrupting tests on assertions.</source>
         <translation>Aktiverer afbrydning af tests ved påstande.</translation>
@@ -1944,7 +1940,7 @@ Advarsel: Ren tekst mangle nogle informationer, såsom varighed.</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::RunConfigurationSelectionDialog</name>
+    <name>Autotest</name>
     <message>
         <source>Select Run Configuration</source>
         <translation>Vælg kør-konfiguration</translation>
@@ -1971,7 +1967,7 @@ Advarsel: Ren tekst mangle nogle informationer, såsom varighed.</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestCodeParser</name>
+    <name>Autotest</name>
     <message>
         <source>AutoTest Plugin WARNING: No files left after filtering test scan folders. Check test filter settings.</source>
         <translation>ADVARSEL for AutoTest-plugin: Ingen filer tilbage efter filtrering af testskanmapper. Tjek testfilterindstillinger.</translation>
@@ -1980,28 +1976,9 @@ Advarsel: Ren tekst mangle nogle informationer, såsom varighed.</translation>
         <source>Scanning for Tests</source>
         <translation>Skanner for tests</translation>
     </message>
-</context>
-<context>
-    <name>Autotest::Internal::TestNavigationWidget</name>
-    <message>
-        <source>Tests</source>
-        <translation>Tests</translation>
-    </message>
-    <message>
-        <source>No active test frameworks.</source>
-        <translation>Ingen aktive test-frameworks.</translation>
-    </message>
-    <message>
-        <source>Run This Test</source>
-        <translation>Kør denne test</translation>
-    </message>
     <message>
         <source>Run Without Deployment</source>
         <translation>Kør uden udsendelse</translation>
-    </message>
-    <message>
-        <source>Debug This Test</source>
-        <translation>Fejlret denne test</translation>
     </message>
     <message>
         <source>Debug Without Deployment</source>
@@ -2045,18 +2022,14 @@ Advarsel: Ren tekst mangle nogle informationer, såsom varighed.</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestNavigationWidgetFactory</name>
+    <name>Autotest</name>
     <message>
         <source>Tests</source>
         <translation>Tests</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestResultsPane</name>
-    <message>
-        <source>Expand All</source>
-        <translation>Udfold alle</translation>
-    </message>
+    <name>Autotest</name>
     <message>
         <source>Stop Test Run</source>
         <translation>Stop testkørsel</translation>
@@ -2179,14 +2152,14 @@ Advarsel: Ren tekst mangle nogle informationer, såsom varighed.</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestRunConfiguration</name>
+    <name>Autotest</name>
     <message>
         <source>AutoTest Debug</source>
         <translation>AutoTest-fejlret</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestRunner</name>
+    <name>Autotest</name>
     <message>
         <source>Test run canceled by user.</source>
         <translation>Testkørsel annulleret af bruger.</translation>
@@ -2293,7 +2266,7 @@ Kun desktop kits understøttes. Sørg for at det aktuelt aktive kit er et deskto
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestSettingsPage</name>
+    <name>Autotest</name>
     <message>
         <source>General</source>
         <translation>Generelt</translation>
@@ -2398,7 +2371,7 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestSettingsWidget</name>
+    <name>Autotest</name>
     <message>
         <source>No active test frameworks.</source>
         <translation>Ingen aktive test-frameworks.</translation>
@@ -44254,7 +44227,7 @@ Spordataene er tabt.</translation>
     </message>
 </context>
 <context>
-    <name>Autotest::Internal::TestOutputReader</name>
+    <name>Autotest</name>
     <message>
         <source>Test executable crashed.</source>
         <translation>Test-eksekverbar holdt op med at virke.</translation>

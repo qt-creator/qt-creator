@@ -27,11 +27,11 @@
 
 #include <QCoreApplication>
 
-namespace AutoTest {
+namespace Autotest {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(AutoTest)
+    Q_DECLARE_TR_FUNCTIONS(Autotest)
 };
 
-} // namespace AutoTest
+} // namespace Autotest
