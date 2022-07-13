@@ -7,7 +7,6 @@ add_qtc_plugin(QtSupport
     codegenerator.cpp codegenerator.h
     codegensettings.cpp codegensettings.h
     codegensettingspage.cpp codegensettingspage.h
-    codegensettingspagewidget.ui
     exampleslistmodel.cpp exampleslistmodel.h
     gettingstartedwelcomepage.cpp gettingstartedwelcomepage.h
     profilereader.cpp profilereader.h

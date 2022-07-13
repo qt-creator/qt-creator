@@ -27,17 +27,18 @@
 
 #include "codegensettings.h"
 #include "qtsupportconstants.h"
-#include "ui_codegensettingspagewidget.h"
 
 #include <coreplugin/icore.h>
+
 #include <cppeditor/cppeditorconstants.h>
 
+#include <utils/layoutbuilder.h>
+
+#include <QCheckBox>
 #include <QCoreApplication>
+#include <QRadioButton>
 
-namespace QtSupport {
-namespace Internal {
-
-// ---------- CodeGenSettingsPageWidget
+namespace QtSupport::Internal {
 
 class CodeGenSettingsPageWidget : public Core::IOptionsPageWidget
 {
@@ -50,59 +51,87 @@ private:
     void apply() final;
 
     int uiEmbedding() const;
-    void setUiEmbedding(int);
 
-    Ui::CodeGenSettingsPageWidget m_ui;
+    QRadioButton *m_ptrAggregationRadioButton;
+    QRadioButton *m_aggregationButton;
+    QRadioButton *m_multipleInheritanceButton;
+    QCheckBox *m_retranslateCheckBox;
+    QCheckBox *m_includeQtModuleCheckBox;
+    QCheckBox *m_addQtVersionCheckBox;
 };
 
 CodeGenSettingsPageWidget::CodeGenSettingsPageWidget()
 {
-    m_ui.setupUi(this);
+    resize(340, 232);
 
     CodeGenSettings parameters;
     parameters.fromSettings(Core::ICore::settings());
 
-    m_ui.retranslateCheckBox->setChecked(parameters.retranslationSupport);
-    m_ui.includeQtModuleCheckBox->setChecked(parameters.includeQtModule);
-    m_ui.addQtVersionCheckBox->setChecked(parameters.addQtVersionCheck);
-    setUiEmbedding(parameters.embedding);
+    using namespace Utils::Layouting;
 
-    connect(m_ui.includeQtModuleCheckBox, &QAbstractButton::toggled,
-            m_ui.addQtVersionCheckBox, &QWidget::setEnabled);
+    m_ptrAggregationRadioButton = new QRadioButton(tr("Aggregation as a pointer member"));
+    m_ptrAggregationRadioButton->setChecked
+        (parameters.embedding == CodeGenSettings::PointerAggregatedUiClass);
+
+    m_aggregationButton = new QRadioButton(tr("Aggregation"));
+    m_aggregationButton->setChecked
+        (parameters.embedding == CodeGenSettings::AggregatedUiClass);
+
+    m_multipleInheritanceButton = new QRadioButton(tr("Multiple inheritance"));
+    m_multipleInheritanceButton->setChecked
+        (parameters.embedding == CodeGenSettings::InheritedUiClass);
+
+    m_retranslateCheckBox = new QCheckBox(tr("Support for changing languages at runtime"));
+    m_retranslateCheckBox->setChecked(parameters.retranslationSupport);
+
+    m_includeQtModuleCheckBox = new QCheckBox(tr("Use Qt module name in #include-directive"));
+    m_includeQtModuleCheckBox->setChecked(parameters.includeQtModule);
+
+    m_addQtVersionCheckBox = new QCheckBox(tr("Add Qt version #ifdef for module names"));
+    m_addQtVersionCheckBox->setChecked(parameters.addQtVersionCheck);
+    m_addQtVersionCheckBox->setEnabled(false);
+
+    Column {
+        Group {
+            Title(tr("Embedding of the UI Class")),
+            Column {
+                m_ptrAggregationRadioButton,
+                m_aggregationButton,
+                m_multipleInheritanceButton
+            }
+        },
+        Group {
+            Title(tr("Code Generation")),
+            Column {
+                m_retranslateCheckBox,
+                m_includeQtModuleCheckBox,
+                m_addQtVersionCheckBox
+            }
+        },
+        Stretch()
+    }.attachTo(this);
+
+    connect(m_includeQtModuleCheckBox, &QAbstractButton::toggled,
+            m_addQtVersionCheckBox, &QWidget::setEnabled);
 }
 
 void CodeGenSettingsPageWidget::apply()
 {
     CodeGenSettings rc;
     rc.embedding = static_cast<CodeGenSettings::UiClassEmbedding>(uiEmbedding());
-    rc.retranslationSupport = m_ui.retranslateCheckBox->isChecked();
-    rc.includeQtModule = m_ui.includeQtModuleCheckBox->isChecked();
-    rc.addQtVersionCheck = m_ui.addQtVersionCheckBox->isChecked();
+    rc.retranslationSupport = m_retranslateCheckBox->isChecked();
+    rc.includeQtModule = m_includeQtModuleCheckBox->isChecked();
+    rc.addQtVersionCheck = m_addQtVersionCheckBox->isChecked();
     rc.toSettings(Core::ICore::settings());
 }
 
 int CodeGenSettingsPageWidget::uiEmbedding() const
 {
-    if (m_ui.ptrAggregationRadioButton->isChecked())
+    if (m_ptrAggregationRadioButton->isChecked())
         return CodeGenSettings::PointerAggregatedUiClass;
-    if (m_ui.aggregationButton->isChecked())
+    if (m_aggregationButton->isChecked())
         return CodeGenSettings::AggregatedUiClass;
     return CodeGenSettings::InheritedUiClass;
-}
-
-void CodeGenSettingsPageWidget::setUiEmbedding(int v)
-{
-    switch (v) {
-    case CodeGenSettings::PointerAggregatedUiClass:
-        m_ui.ptrAggregationRadioButton->setChecked(true);
-        break;
-    case CodeGenSettings::AggregatedUiClass:
-        m_ui.aggregationButton->setChecked(true);
-        break;
-    case CodeGenSettings::InheritedUiClass:
-        m_ui.multipleInheritanceButton->setChecked(true);
-        break;
-    }
 }
 
 // ---------- CodeGenSettingsPage
@@ -118,5 +147,4 @@ CodeGenSettingsPage::CodeGenSettingsPage()
     setWidgetCreator([] { return new CodeGenSettingsPageWidget; });
 }
 
-} // namespace Internal
-} // namespace QtSupport
+} // QtSupport::Internal

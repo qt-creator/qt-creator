@@ -27,8 +27,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace QtSupport {
-namespace Internal {
+namespace QtSupport::Internal {
 
 class CodeGenSettingsPage final : public Core::IOptionsPage
 {
@@ -36,5 +35,4 @@ public:
     CodeGenSettingsPage();
 };
 
-} // namespace Internal
-} // namespace QtSupport
+} // QtSupport::Internal
