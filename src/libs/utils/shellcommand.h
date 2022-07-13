@@ -148,13 +148,14 @@ signals:
     void appendCommand(const FilePath &workingDirectory, const CommandLine &command);
     void appendMessage(const QString &text);
 
+    void executedAsync(const QFuture<void> &future);
+
 protected:
     void setEnvironment(const Environment &env);
     void setDisableUnixTerminal();
     int timeoutS() const;
 
 private:
-    virtual void addTask(QFuture<void> &future);
     virtual void postRunCommand(const Utils::FilePath &workDirectory);
     FilePath workDirectory(const FilePath &wd) const;
     void run(QFutureInterface<void> &future);

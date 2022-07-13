@@ -209,8 +209,7 @@ void ShellCommand::execute()
 
     QFuture<void> task = runAsync(&ShellCommand::run, this);
     d->m_watcher.setFuture(task);
-    if (!(d->m_flags & SuppressCommandLogging))
-        addTask(task);
+    emit executedAsync(task);
 }
 
 void ShellCommand::abort()
@@ -222,11 +221,6 @@ void ShellCommand::abort()
 void ShellCommand::cancel()
 {
     emit terminate();
-}
-
-void ShellCommand::addTask(QFuture<void> &future)
-{
-    Q_UNUSED(future)
 }
 
 void ShellCommand::postRunCommand(const FilePath &workingDirectory)

@@ -77,10 +77,15 @@ VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &envi
     connect(this, &ShellCommand::appendError, outputWindow, &VcsOutputWindow::appendError);
     connect(this, &ShellCommand::appendCommand, outputWindow, &VcsOutputWindow::appendCommand);
     connect(this, &ShellCommand::appendMessage, outputWindow, &VcsOutputWindow::appendMessage);
+
+    connect(this, &ShellCommand::executedAsync, this, &VcsCommand::addTask);
 }
 
-void VcsCommand::addTask(QFuture<void> &future)
+void VcsCommand::addTask(const QFuture<void> &future)
 {
+    if ((flags() & SuppressCommandLogging))
+        return;
+
     const QString name = displayName();
     const auto id = Id::fromString(name + QLatin1String(".action"));
     if (hasProgressParser()) {

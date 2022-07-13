@@ -40,7 +40,7 @@ private:
     VcsCommand(const Utils::FilePath &defaultWorkingDirectory,
                const Utils::Environment &environment);
 
-    void addTask(QFuture<void> &future) override;
+    void addTask(const QFuture<void> &future);
     void postRunCommand(const Utils::FilePath &workDirectory) override;
 
     QPointer<Core::FutureProgress> m_progress;
