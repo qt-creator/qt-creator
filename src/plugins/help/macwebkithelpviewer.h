@@ -27,8 +27,6 @@
 
 #include "helpviewer.h"
 
-#include <QMacCocoaViewContainer>
-
 Q_FORWARD_DECLARE_OBJC_CLASS(DOMNode);
 Q_FORWARD_DECLARE_OBJC_CLASS(DOMRange);
 Q_FORWARD_DECLARE_OBJC_CLASS(NSString);
@@ -40,7 +38,7 @@ namespace Internal {
 class MacWebKitHelpViewer;
 class MacWebKitHelpWidgetPrivate;
 
-class MacWebKitHelpWidget : public QMacCocoaViewContainer
+class MacWebKitHelpWidget : public QWidget
 {
     Q_OBJECT
 

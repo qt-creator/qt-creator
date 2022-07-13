@@ -41,6 +41,7 @@
 #include <QToolTip>
 #include <QUrl>
 #include <QVBoxLayout>
+#include <QWindow>
 
 #include <QDebug>
 
@@ -348,15 +349,16 @@ static NSMenuItem *menuItem(NSURL *url, id target, SEL action, const QString &ti
             NSURL *url = [element objectForKey:WebElementLinkURLKey];
             if (QTC_GUARD(url)) {
                 if (widget->viewer()->isActionVisible(Help::Internal::HelpViewer::Action::NewPage))
-                    [ret addObject:menuItem(url,
-                                            self,
-                                            @selector(openAsNewPage:),
-                                            Tr::tr(Help::Constants::TR_OPEN_LINK_AS_NEW_PAGE))];
+                    [ret
+                        addObject:menuItem(url,
+                                           self,
+                                           @selector(openAsNewPage:),
+                                           Help::Tr::tr(Help::Constants::TR_OPEN_LINK_AS_NEW_PAGE))];
                 if (widget->viewer()->isActionVisible(Help::Internal::HelpViewer::Action::ExternalWindow))
                     [ret addObject:menuItem(url,
                                             self,
                                             @selector(openInWindow:),
-                                            Tr::tr(Help::Constants::TR_OPEN_LINK_IN_WINDOW))];
+                                            Help::Tr::tr(Help::Constants::TR_OPEN_LINK_IN_WINDOW))];
             }
             break;
         }
@@ -430,8 +432,8 @@ public:
 // #pragma mark -- MacWebKitHelpWidget
 
 MacWebKitHelpWidget::MacWebKitHelpWidget(MacWebKitHelpViewer *parent)
-    : QMacCocoaViewContainer(nullptr, parent),
-      d(new MacWebKitHelpWidgetPrivate(parent))
+    : QWidget(parent)
+    , d(new MacWebKitHelpWidgetPrivate(parent))
 {
     d->m_toolTipTimer.setSingleShot(true);
     connect(&d->m_toolTipTimer, &QTimer::timeout, this, &MacWebKitHelpWidget::showToolTip);
@@ -446,9 +448,13 @@ MacWebKitHelpWidget::MacWebKitHelpWidget(MacWebKitHelpViewer *parent)
         d->m_uiDelegate = [[UIDelegate alloc] initWithWidget:this];
         [d->m_webView setUIDelegate:d->m_uiDelegate];
 
-        setCocoaView(d->m_webView);
+        auto window = QWindow::fromWinId(WId(d->m_webView));
+        auto container = QWidget::createWindowContainer(window);
+        auto layout = new QVBoxLayout;
+        layout->setContentsMargins(0, 0, 0, 0);
+        setLayout(layout);
+        layout->addWidget(container, 1);
     }
-
 }
 
 MacWebKitHelpWidget::~MacWebKitHelpWidget()
@@ -508,8 +514,8 @@ static void responderHack(QWidget *old, QWidget *now)
         return;
     @autoreleasepool {
         NSView *view;
-        if (QMacCocoaViewContainer *viewContainer = qobject_cast<QMacCocoaViewContainer *>(now))
-            view = viewContainer->cocoaView();
+        if (auto viewContainer = qobject_cast<MacWebKitHelpWidget *>(now))
+            view = viewContainer->webView();
         else
             view = reinterpret_cast<NSView *>(now->effectiveWinId());
         [view.window makeFirstResponder:view];
