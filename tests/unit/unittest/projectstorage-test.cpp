@@ -5685,4 +5685,48 @@ TEST_F(ProjectStorage, GetInvalidPropertyDeclarationIdForWrongPropertyName)
     ASSERT_FALSE(propertyId);
 }
 
+TEST_F(ProjectStorage, GetLocalPropertyDeclarationId)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject");
+
+    auto propertyId = storage.localPropertyDeclarationId(typeId, "data");
+
+    ASSERT_THAT(propertyId, HasName("data"));
+}
+
+TEST_F(ProjectStorage, GetInvalidLocalPropertyDeclarationIdForWrongType)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject2");
+
+    auto propertyId = storage.localPropertyDeclarationId(typeId, "data");
+
+    ASSERT_FALSE(propertyId);
+}
+
+TEST_F(ProjectStorage, GetInvalidLocalPropertyDeclarationIdForInvalidTypeId)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "WrongQObject");
+
+    auto propertyId = storage.localPropertyDeclarationId(typeId, "data");
+
+    ASSERT_FALSE(propertyId);
+}
+
+TEST_F(ProjectStorage, GetInvalidLocalPropertyDeclarationIdForWrongPropertyName)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject");
+
+    auto propertyId = storage.localPropertyDeclarationId(typeId, "wrongName");
+
+    ASSERT_FALSE(propertyId);
+}
+
 } // namespace
