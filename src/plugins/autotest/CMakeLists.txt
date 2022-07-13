@@ -74,7 +74,7 @@ add_qtc_plugin(AutoTest
     testrunconfiguration.h
     testrunner.cpp testrunner.h
     testsettings.cpp testsettings.h
-    testsettingspage.cpp testsettingspage.h testsettingspage.ui
+    testsettingspage.cpp testsettingspage.h
     testtreeitem.cpp testtreeitem.h
     testtreeitemdelegate.cpp testtreeitemdelegate.h
     testtreemodel.cpp testtreemodel.h

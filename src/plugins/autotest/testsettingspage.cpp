@@ -34,71 +34,238 @@
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/id.h>
+#include <utils/infolabel.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
+
+#include <QCheckBox>
+#include <QComboBox>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QLabel>
+#include <QPushButton>
+#include <QSpacerItem>
+#include <QSpinBox>
+#include <QTreeWidget>
+#include <QVBoxLayout>
+#include <QWidget>
 
 namespace Autotest {
 namespace Internal {
 
+class TestSettingsWidget : public QWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::TestSettingsWidget)
+
+public:
+    explicit TestSettingsWidget(QWidget *parent = nullptr);
+
+    void setSettings(const TestSettings &settings);
+    TestSettings settings() const;
+
+private:
+    void populateFrameworksListWidget(const QHash<Utils::Id, bool> &frameworks,
+                                      const QHash<Utils::Id, bool> &testTools);
+    void testSettings(TestSettings &settings) const;
+    void testToolsSettings(TestSettings &settings) const;
+    void onFrameworkItemChanged();
+
+    QCheckBox *m_omitInternalMsgCB;
+    QCheckBox *m_omitRunConfigWarnCB;
+    QCheckBox *m_limitResultOutputCB;
+    QCheckBox *m_limitResultDescriptionCb;
+    QSpinBox *m_limitResultDescriptionSpinBox;
+    QCheckBox *m_openResultsOnStartCB;
+    QCheckBox *m_openResultsOnFinishCB;
+    QCheckBox *m_openResultsOnFailCB;
+    QCheckBox *m_autoScrollCB;
+    QCheckBox *m_displayAppCB;
+    QCheckBox *m_processArgsCB;
+    QComboBox *m_runAfterBuildCB;
+    QSpinBox *m_timeoutSpin;
+    QTreeWidget *m_frameworkTreeWidget;
+    Utils::InfoLabel *m_frameworksWarn;
+};
+
 TestSettingsWidget::TestSettingsWidget(QWidget *parent)
     : QWidget(parent)
 {
-    m_ui.setupUi(this);
+    resize(586, 469);
 
-    m_ui.frameworksWarn->setVisible(false);
-    m_ui.frameworksWarn->setElideMode(Qt::ElideNone);
-    m_ui.frameworksWarn->setType(Utils::InfoLabel::Warning);
-    connect(m_ui.frameworkTreeWidget, &QTreeWidget::itemChanged,
+    m_omitInternalMsgCB = new QCheckBox(tr("Omit internal messages"));
+    m_omitInternalMsgCB->setChecked(true);
+    m_omitInternalMsgCB->setToolTip(tr("Hides internal messages by default. "
+        "You can still enable them by using the test results filter."));
+
+    m_omitRunConfigWarnCB = new QCheckBox(tr("Omit run configuration warnings"));
+    m_omitRunConfigWarnCB->setToolTip(tr("Hides warnings related to a deduced run configuration."));
+
+    m_limitResultOutputCB = new QCheckBox(tr("Limit result output"));
+    m_limitResultOutputCB->setChecked(true);
+    m_limitResultOutputCB->setToolTip(tr("Limits result output to 100000 characters."));
+
+    m_limitResultDescriptionCb = new QCheckBox(tr("Limit result description:"));
+    m_limitResultDescriptionCb->setToolTip(
+        tr("Limit number of lines shown in test result tooltip and description."));
+
+    m_limitResultDescriptionSpinBox = new QSpinBox;
+    m_limitResultDescriptionSpinBox->setEnabled(false);
+    m_limitResultDescriptionSpinBox->setMinimum(1);
+    m_limitResultDescriptionSpinBox->setMaximum(1000000);
+    m_limitResultDescriptionSpinBox->setValue(10);
+
+    m_openResultsOnStartCB = new QCheckBox(tr("Open results when tests start"));
+    m_openResultsOnStartCB->setToolTip(
+        tr("Displays test results automatically when tests are started."));
+
+    m_openResultsOnFinishCB = new QCheckBox(tr("Open results when tests finish"));
+    m_openResultsOnFinishCB->setChecked(true);
+    m_openResultsOnFinishCB->setToolTip(
+        tr("Displays test results automatically when tests are finished."));
+
+    m_openResultsOnFailCB = new QCheckBox(tr("Only for unsuccessful test runs"));
+    m_openResultsOnFailCB->setToolTip(
+        tr("Displays test results only if the test run contains failed, fatal or unexpectedly passed tests."));
+
+    m_autoScrollCB = new QCheckBox(tr("Automatically scroll results"));
+    m_autoScrollCB->setChecked(true);
+    m_autoScrollCB->setToolTip(tr("Automatically scrolls down when new items are added and scrollbar is at bottom."));
+
+    m_displayAppCB = new QCheckBox(tr("Group results by application"));
+
+    m_processArgsCB = new QCheckBox(tr("Process arguments"));
+    m_processArgsCB->setToolTip(
+        tr("Allow passing arguments specified on the respective run configuration.\n"
+           "Warning: this is an experimental feature and might lead to failing to execute the test executable."));
+
+    m_runAfterBuildCB = new QComboBox;
+    m_runAfterBuildCB->setToolTip(tr("Runs chosen tests automatically if a build succeeded."));
+    m_runAfterBuildCB->addItem(tr("None"));
+    m_runAfterBuildCB->addItem(tr("All"));
+    m_runAfterBuildCB->addItem(tr("Selected"));
+
+    auto timeoutLabel = new QLabel(tr("Timeout:"));
+    timeoutLabel->setToolTip(tr("Timeout used when executing each test case."));
+
+    m_timeoutSpin = new QSpinBox;
+    m_timeoutSpin->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_timeoutSpin->setRange(5, 36000);
+    m_timeoutSpin->setValue(60);
+    m_timeoutSpin->setSuffix(tr(" s"));
+    m_timeoutSpin->setToolTip(
+        tr("Timeout used when executing test cases. This will apply "
+           "for each test case on its own, not the whole project."));
+
+    auto resetChoicesButton = new QPushButton(tr("Reset Cached Choices"));
+    resetChoicesButton->setToolTip(
+        tr("Clear all cached choices of run configurations for tests where the executable could not be deduced."));
+
+    m_frameworkTreeWidget = new QTreeWidget;
+    m_frameworkTreeWidget->setRootIsDecorated(false);
+    m_frameworkTreeWidget->setHeaderHidden(false);
+    m_frameworkTreeWidget->setColumnCount(2);
+    m_frameworkTreeWidget->header()->setDefaultSectionSize(150);
+    m_frameworkTreeWidget->setToolTip(tr("Selects the test frameworks to be handled by the AutoTest plugin."));
+
+    QTreeWidgetItem *item = m_frameworkTreeWidget->headerItem();
+    item->setText(0, tr("Framework"));
+    item->setToolTip(0, tr("Selects the test frameworks to be handled by the AutoTest plugin."));
+    item->setText(1, tr("Group"));
+    item->setToolTip(1, tr("Enables grouping of test cases."));
+
+    m_frameworksWarn = new Utils::InfoLabel;
+    m_frameworksWarn->setVisible(false);
+    m_frameworksWarn->setElideMode(Qt::ElideNone);
+    m_frameworksWarn->setType(Utils::InfoLabel::Warning);
+
+    using namespace Utils::Layouting;
+
+    Group generalGroup {
+        Title(tr("General")),
+        Column {
+            m_omitInternalMsgCB,
+            m_omitRunConfigWarnCB,
+            m_limitResultOutputCB,
+            Row { m_limitResultDescriptionCb, m_limitResultDescriptionSpinBox, Stretch()},
+            m_openResultsOnStartCB,
+            m_openResultsOnFinishCB,
+            Row { Space(20), m_openResultsOnFailCB },
+            m_autoScrollCB,
+            m_displayAppCB,
+            m_processArgsCB,
+            Row { new QLabel(tr("Automatically run")), m_runAfterBuildCB, Stretch() },
+            Row { timeoutLabel, m_timeoutSpin, Stretch() },
+            Row { resetChoicesButton, Stretch() }
+         }
+    };
+
+    Group activeFrameworks {
+        Title(tr("Active Test Frameworks")),
+        Column {
+            m_frameworkTreeWidget,
+            m_frameworksWarn,
+        }
+    };
+
+    Column {
+        Row {
+            Column { generalGroup, Stretch() },
+            Column { activeFrameworks, Stretch() }
+        },
+        Stretch()
+    }.attachTo(this);
+
+    connect(m_frameworkTreeWidget, &QTreeWidget::itemChanged,
             this, &TestSettingsWidget::onFrameworkItemChanged);
-    connect(m_ui.resetChoicesButton, &QPushButton::clicked,
+    connect(resetChoicesButton, &QPushButton::clicked,
             this, [] { AutotestPlugin::clearChoiceCache(); });
-    connect(m_ui.openResultsOnFinishCB, &QCheckBox::toggled,
-            m_ui.openResultsOnFailCB, &QCheckBox::setEnabled);
-    connect(m_ui.limitResultDescriptionCb, &QCheckBox::toggled,
-            m_ui.limitResultDescriptionSpinBox, &QSpinBox::setEnabled);
+    connect(m_openResultsOnFinishCB, &QCheckBox::toggled,
+            m_openResultsOnFailCB, &QCheckBox::setEnabled);
+    connect(m_limitResultDescriptionCb, &QCheckBox::toggled,
+            m_limitResultDescriptionSpinBox, &QSpinBox::setEnabled);
 }
 
 void TestSettingsWidget::setSettings(const TestSettings &settings)
 {
-    m_ui.timeoutSpin->setValue(settings.timeout / 1000); // we store milliseconds
-    m_ui.omitInternalMsgCB->setChecked(settings.omitInternalMssg);
-    m_ui.omitRunConfigWarnCB->setChecked(settings.omitRunConfigWarn);
-    m_ui.limitResultOutputCB->setChecked(settings.limitResultOutput);
-    m_ui.limitResultDescriptionCb->setChecked(settings.limitResultDescription);
-    m_ui.limitResultDescriptionSpinBox->setEnabled(settings.limitResultDescription);
-    m_ui.limitResultDescriptionSpinBox->setValue(settings.resultDescriptionMaxSize);
-    m_ui.autoScrollCB->setChecked(settings.autoScroll);
-    m_ui.processArgsCB->setChecked(settings.processArgs);
-    m_ui.displayAppCB->setChecked(settings.displayApplication);
-    m_ui.openResultsOnStartCB->setChecked(settings.popupOnStart);
-    m_ui.openResultsOnFinishCB->setChecked(settings.popupOnFinish);
-    m_ui.openResultsOnFailCB->setChecked(settings.popupOnFail);
-    m_ui.runAfterBuildCB->setCurrentIndex(int(settings.runAfterBuild));
+    m_timeoutSpin->setValue(settings.timeout / 1000); // we store milliseconds
+    m_omitInternalMsgCB->setChecked(settings.omitInternalMssg);
+    m_omitRunConfigWarnCB->setChecked(settings.omitRunConfigWarn);
+    m_limitResultOutputCB->setChecked(settings.limitResultOutput);
+    m_limitResultDescriptionCb->setChecked(settings.limitResultDescription);
+    m_limitResultDescriptionSpinBox->setEnabled(settings.limitResultDescription);
+    m_limitResultDescriptionSpinBox->setValue(settings.resultDescriptionMaxSize);
+    m_autoScrollCB->setChecked(settings.autoScroll);
+    m_processArgsCB->setChecked(settings.processArgs);
+    m_displayAppCB->setChecked(settings.displayApplication);
+    m_openResultsOnStartCB->setChecked(settings.popupOnStart);
+    m_openResultsOnFinishCB->setChecked(settings.popupOnFinish);
+    m_openResultsOnFailCB->setChecked(settings.popupOnFail);
+    m_runAfterBuildCB->setCurrentIndex(int(settings.runAfterBuild));
     populateFrameworksListWidget(settings.frameworks, settings.tools);
 }
 
 TestSettings TestSettingsWidget::settings() const
 {
     TestSettings result;
-    result.timeout = m_ui.timeoutSpin->value() * 1000; // we display seconds
-    result.omitInternalMssg = m_ui.omitInternalMsgCB->isChecked();
-    result.omitRunConfigWarn = m_ui.omitRunConfigWarnCB->isChecked();
-    result.limitResultOutput = m_ui.limitResultOutputCB->isChecked();
-    result.limitResultDescription = m_ui.limitResultDescriptionCb->isChecked();
-    result.resultDescriptionMaxSize = m_ui.limitResultDescriptionSpinBox->value();
-    result.autoScroll = m_ui.autoScrollCB->isChecked();
-    result.processArgs = m_ui.processArgsCB->isChecked();
-    result.displayApplication = m_ui.displayAppCB->isChecked();
-    result.popupOnStart = m_ui.openResultsOnStartCB->isChecked();
-    result.popupOnFinish = m_ui.openResultsOnFinishCB->isChecked();
-    result.popupOnFail = m_ui.openResultsOnFailCB->isChecked();
-    result.runAfterBuild = RunAfterBuildMode(m_ui.runAfterBuildCB->currentIndex());
+    result.timeout = m_timeoutSpin->value() * 1000; // we display seconds
+    result.omitInternalMssg = m_omitInternalMsgCB->isChecked();
+    result.omitRunConfigWarn = m_omitRunConfigWarnCB->isChecked();
+    result.limitResultOutput = m_limitResultOutputCB->isChecked();
+    result.limitResultDescription = m_limitResultDescriptionCb->isChecked();
+    result.resultDescriptionMaxSize = m_limitResultDescriptionSpinBox->value();
+    result.autoScroll = m_autoScrollCB->isChecked();
+    result.processArgs = m_processArgsCB->isChecked();
+    result.displayApplication = m_displayAppCB->isChecked();
+    result.popupOnStart = m_openResultsOnStartCB->isChecked();
+    result.popupOnFinish = m_openResultsOnFinishCB->isChecked();
+    result.popupOnFail = m_openResultsOnFailCB->isChecked();
+    result.runAfterBuild = RunAfterBuildMode(m_runAfterBuildCB->currentIndex());
     testSettings(result);
     testToolsSettings(result);
     return result;
 }
-
-namespace {
 
 enum TestBaseInfo
 {
@@ -106,16 +273,14 @@ enum TestBaseInfo
     BaseType
 };
 
-}
-
 void TestSettingsWidget::populateFrameworksListWidget(const QHash<Utils::Id, bool> &frameworks,
                                                       const QHash<Utils::Id, bool> &testTools)
 {
     const TestFrameworks &registered = TestFrameworkManager::registeredFrameworks();
-    m_ui.frameworkTreeWidget->clear();
+    m_frameworkTreeWidget->clear();
     for (const ITestFramework *framework : registered) {
         const Utils::Id id = framework->id();
-        auto item = new QTreeWidgetItem(m_ui.frameworkTreeWidget, {framework->displayName()});
+        auto item = new QTreeWidgetItem(m_frameworkTreeWidget, {framework->displayName()});
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
         item->setCheckState(0, frameworks.value(id) ? Qt::Checked : Qt::Unchecked);
         item->setData(0, BaseId, id.toSetting());
@@ -132,7 +297,7 @@ void TestSettingsWidget::populateFrameworksListWidget(const QHash<Utils::Id, boo
     const TestTools &registeredTools = TestFrameworkManager::registeredTestTools();
     for (const ITestTool *testTool : registeredTools) {
         const Utils::Id id = testTool->id();
-        auto item = new QTreeWidgetItem(m_ui.frameworkTreeWidget, {testTool->displayName()});
+        auto item = new QTreeWidgetItem(m_frameworkTreeWidget, {testTool->displayName()});
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
         item->setCheckState(0, testTools.value(id) ? Qt::Checked : Qt::Unchecked);
         item->setData(0, BaseId, id.toSetting());
@@ -142,7 +307,7 @@ void TestSettingsWidget::populateFrameworksListWidget(const QHash<Utils::Id, boo
 
 void TestSettingsWidget::testSettings(TestSettings &settings) const
 {
-    const QAbstractItemModel *model = m_ui.frameworkTreeWidget->model();
+    const QAbstractItemModel *model = m_frameworkTreeWidget->model();
     QTC_ASSERT(model, return);
     const int itemCount = TestFrameworkManager::registeredFrameworks().size();
     QTC_ASSERT(itemCount <= model->rowCount(), return);
@@ -157,7 +322,7 @@ void TestSettingsWidget::testSettings(TestSettings &settings) const
 
 void TestSettingsWidget::testToolsSettings(TestSettings &settings) const
 {
-    const QAbstractItemModel *model = m_ui.frameworkTreeWidget->model();
+    const QAbstractItemModel *model = m_frameworkTreeWidget->model();
     QTC_ASSERT(model, return);
     // frameworks are listed before tools
     int row = TestFrameworkManager::registeredFrameworks().size();
@@ -174,7 +339,7 @@ void TestSettingsWidget::onFrameworkItemChanged()
 {
     bool atLeastOneEnabled = false;
     int mixed = ITestBase::None;
-    if (QAbstractItemModel *model = m_ui.frameworkTreeWidget->model()) {
+    if (QAbstractItemModel *model = m_frameworkTreeWidget->model()) {
         for (int row = 0, count = model->rowCount(); row < count; ++row) {
             const QModelIndex idx = model->index(row, 0);
             if (idx.data(Qt::CheckStateRole) == Qt::Checked) {
@@ -186,17 +351,17 @@ void TestSettingsWidget::onFrameworkItemChanged()
 
     if (!atLeastOneEnabled || (mixed == (ITestBase::Framework | ITestBase::Tool))) {
         if (!atLeastOneEnabled) {
-            m_ui.frameworksWarn->setText(tr("No active test frameworks or tools."));
-            m_ui.frameworksWarn->setToolTip(tr("You will not be able to use the AutoTest plugin "
+            m_frameworksWarn->setText(tr("No active test frameworks or tools."));
+            m_frameworksWarn->setToolTip(tr("You will not be able to use the AutoTest plugin "
                                                "without having at least one active test framework."));
         } else {
-            m_ui.frameworksWarn->setText(tr("Mixing test frameworks and test tools."));
-            m_ui.frameworksWarn->setToolTip(tr("Mixing test frameworks and test tools can lead "
+            m_frameworksWarn->setText(tr("Mixing test frameworks and test tools."));
+            m_frameworksWarn->setToolTip(tr("Mixing test frameworks and test tools can lead "
                                                "to duplicating run information when using "
                                                 "\"Run All Tests\", for example."));
         }
     }
-    m_ui.frameworksWarn->setVisible(!atLeastOneEnabled
+    m_frameworksWarn->setVisible(!atLeastOneEnabled
                                     || (mixed == (ITestBase::Framework | ITestBase::Tool)));
 }
 

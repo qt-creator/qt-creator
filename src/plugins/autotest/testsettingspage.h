@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "ui_testsettingspage.h"
-
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QPointer>
@@ -35,25 +33,7 @@ namespace Autotest {
 namespace Internal {
 
 struct TestSettings;
-
-class TestSettingsWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    explicit TestSettingsWidget(QWidget *parent = nullptr);
-
-    void setSettings(const TestSettings &settings);
-    TestSettings settings() const;
-
-private:
-    void populateFrameworksListWidget(const QHash<Utils::Id, bool> &frameworks,
-                                      const QHash<Utils::Id, bool> &testTools);
-    void testSettings(TestSettings &settings) const;
-    void testToolsSettings(TestSettings &settings) const;
-    void onFrameworkItemChanged();
-    Ui::TestSettingsPage m_ui;
-
-};
+class TestSettingsWidget;
 
 class TestSettingsPage : public Core::IOptionsPage
 {
